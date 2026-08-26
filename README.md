@@ -995,126 +995,6 @@ Active changes:
   until merged). (code surface: codexFactory, openxFactory, omnigent-install,
   xFactory; release allocated at realization)
 
-- [add-omnigent-domain-terminology](openspec/changes/add-omnigent-domain-terminology/proposal.md)
-  — authored 2026-08-09 from Brett's direction ("we have a neutral spine
-  cross domain, but we also need all notices to users and logs shown in
-  domain best-practice and well-adopted terminology"), **RATIFIED 2026-08-26**
-  (Brett, in-session: "do the omnigent-terminology ratification" — task 1.2,
-  read-back in tasks.md). Ratification covers the RULE only — the optional
-  `terminology` block, the descriptive-crosswalk shape, and the
-  human-facing rendering requirement — not any domain's realization.
-  ANNOTATE, NEVER RENAME: an optional `terminology` block on the
-  omnigent-domain-overlay contract carries display labels for the ids an
-  overlay declares (`workers`, `job_types`, `stop_conditions`, `routing`),
-  presentation only, so a label never changes an archetype, permission,
-  credential tier, or authority; plus an optional per-worker
-  `standards_alignment` crosswalk that is descriptive, asserts no
-  conformance, and requires `no_clean_equivalent` WITH a note rather than a
-  forced mapping. Extends the pattern this family already runs twice —
-  `permission_aliases`, and the Hermes layer model's fixed-roles /
-  specializable-display-names rule. Contract half is realized on main
-  (`target_release: implemented`): the schema block, semantic checks in
-  `scripts/validate-omnigent-contracts.py` for orphan keys, duplicate labels
-  and unnoted `no_clean_equivalent`, three negative fixtures under
-  `contracts/omnigent/examples/fixtures/negative/`, and the canonical
-  `contracts/policies/standards-bodies.yaml` registry (44 bodies, every one
-  jurisdiction-tagged after the China round exposed an all-Anglo-American
-  skew; `onet_marketing_occupations` added 2026-08-26 because AdxFactory had
-  no role-level body registered at all, and marketing spans SOC families
-  11-0000, 13-0000, 15-0000 and 27-0000 rather than concentrating in one the
-  way computing does in 15-0000). The §3b research rounds produced the
-  change's blunt finding, NARROWED 2026-08-26 from nine bodies to eight:
-  every commercially stewarded body assessed EXCEPT APQC (SFIA, ITIL, COBIT,
-  SWEBOK, ISO/IEC/IEEE 12207, GRADE, SNOMED CT, and the declined CC BY-SA
-  Scrum Guide) fails the product-configuration reuse test — each tested
-  against its own licence text, and each bar stands. APQC's did not: that
-  verdict read apqc.org's site Terms of Service rather than the licence APQC
-  prints on page 2 of the PCF itself, which grants a perpetual, worldwide,
-  royalty-free right to use, copy, publish, modify and create derivative
-  works of the PCF against one verbatim attribution paragraph (3b.5k; Brett
-  read PCF 8.0's page in a browser 2026-08-26, and the same paragraph
-  text-extracts from the primary 7.4, 7.3.1 and 7.3.0 PDFs). O*NET (CC BY
-  4.0) remains the ROLE-level crosswalk in four domains and is not
-  displaced (both bodies are now licence-usable; APQC's grant carries its
-  attribution condition) — naming a ROLE and naming a PROCESS are different claims — and
-  MedxFactory registers none: its eleven workers record
-  `no_clean_equivalent` against the PROVIDER taxonomy specifically, because
-  labelling a reasoning agent with a role carrying clinical standing is the
-  mapping a contributor would reach for and the dangerous one. Ratification
-  (task 1.2) is now closed, and so are FOUR of the five domain populations:
-  **3.1 OpsxFactory and 3.4 codexFactory ticked 2026-08-26** on their O*NET
-  crosswalks with the task-3.0 verification discharged for both — every
-  registered occupation code and title re-read verbatim against the body's
-  own current publication, and the O*NET Database's move from 30.3 (May 2026)
-  to 31.0 (August 2026) caught and pinned in the registry rather than
-  inherited silently, which is the APQC failure mode 3b.3 named. Opsx ships
-  6 mapped / 3 `no_clean_equivalent` across 9 workers, codex 8 / 3 across 11;
-  both populations cover every declared id in all four vocabularies; both
-  land via their own domain PRs. **3.2 LedgerxFactory and 3.3 AdxFactory
-  ticked 2026-08-26**, the two populations the APQC bar had held: both now
-  ship a PROCESS layer beside their role layer, which is the first time the
-  multi-body design (task 2.2b) is exercised anywhere in the family. Ledgerx
-  restores `apqc_pcf` as a third body beside O*NET and COSO — 6 mapped / 3
-  scoped `no_clean_equivalent` / 5 deliberately omitted, the crosswalk
-  BOUNDED to the three nodes 3b.5b preserved (9.3 10730, 9.6 10733, 9.9
-  10736) with the omitted workers' plausible homes named outside that bound
-  rather than declared absent — and moves the stale O*NET 30.3 pin to 31.0
-  together with its by-version attribution, which is what the registry flag
-  required and what discharges it. Adx goes from 3 of 10 workers crosswalked
-  to 10 of 10 workers carrying at least one crosswalk entry (O*NET 5 mapped /
-  5 absent, PCF 6 / 4; IAB stays a 3-worker carry-forward, not a full-domain
-  body), and it is the domain that proves the design: its two
-  workers with no honest occupation, `media_planner` and
-  `lifecycle_marketer`, have clean process homes a single-body crosswalk
-  would have written off. Its long-unrun marketing brief (3b.5e) ran as part
-  of that act. STILL OPEN: 3.5 MedxFactory, whose box is unticked but whose
-  overlay already ships the population 3b.5i ruled: eleven workers, every one
-  `no_clean_equivalent` against `nucc_taxonomy`, which IS the realization
-  rather than an absence of one. Also open: task-level
-  verification for every crosswalk in the family, which stays OCCUPATION- and
-  PROCESS-level and says so; PCF 8.0's NUMBERING, which neither population
-  could re-read because apqc.org answers HTTP 403 to automation — names,
-  numbers and element IDs shipped from the primary 7.4 PDF, with APQC's
-  stable five-digit IDs carrying the citations and the decimals recorded as
-  7.4's; the
-  ledgerx UN/CEFACT + BIAN brief, the last of 3b.5f's five and never run,
-  whose premise has narrowed from filling the process-layer gap (now closed)
-  to widening past cross-industry PCF; and the §4 consumer
-  follow-up naming domain surfaces that render their own vocabulary outside
-  the overlay. NO LONGER OPEN: the APQC written licence confirmation (3b.5d),
-  which gated LedgerxFactory's and AdxFactory's pulled PCF 8.0/3.0 crosswalks
-  (3b.5b) but never MedxFactory, which by design registers no APQC/PCF
-  mapping at all. It closed 2026-08-26 on a licence APQC had already
-  published rather than on correspondence, so PCF element names and numbers
-  may ship in product configuration provided the attribution paragraph rides
-  with them. 3b.5b is SUPERSEDED, NOT REWRITTEN — it and the ledgerx report
-  are record-class evidence with a 2026-08-09 cutoff and stand as written,
-  and 3b.5b's other finding, that the shipped 8.x finance numbering was wrong
-  for every version, is untouched. Not covered by the grant, and recorded
-  rather than assumed: PCF process DEFINITIONS, which ship in separate APQC
-  documents whose front matter has not been read.
-  **ALSO NO LONGER OPEN, 2026-08-26: the IAB entry (3b.5l).** Both findings
-  the adx brief flagged and left unacted are discharged. The STEWARD was
-  wrong and is corrected — IAB Technology Laboratory, Inc., a separate
-  501(c)(6) from the Interactive Advertising Bureau trade association — and
-  the REUSE TEST, which had never been run on the one body predating the
-  licence discipline, now passes: **CC BY 3.0, `yes_with_conditions`**. The
-  "no licence text" reading was a false negative of the same shape as APQC's
-  and was caught the same way — the landing pages publish none, but the grant
-  is printed on the artifacts, here on page 2 of the Content Taxonomy 3.0
-  Implementation Guide, and the site ToU's redistribution ban defers to any
-  "Separate License". So the registry's second grant-inside-the-artifact
-  finding in one day narrows 3b.5j again, to eight of ten. What is REGISTERED
-  BUT NOT RESOLVED, and stays visible on the entry rather than being averaged
-  into the verdict: the best-scoped grant sits on a "Released for Public
-  Comment" PDF; only Content Taxonomy is named by it, so Audience and Ad
-  Product rest on blanket wording one notch weaker; two of three version
-  dates are CONTESTED between the steward's own surfaces and BOTH readings
-  are recorded on each rather than one being picked; there is no LICENSE file
-  and no notice in the .tsv files, so attribution must be authored into every
-  consuming overlay; and the IPR Policy PDF is gated and unread, assessed
-  non-blocking because it reaches only members' Submissions. The three
-  AdxFactory crosswalks come off PROVISIONAL in that domain's own repo.
 - [add-model-provider-broker](openspec/changes/add-model-provider-broker/proposal.md)
   — DRAFT, authored 2026-08-08, awaiting ratification (task 0). doxBench has
   a model seam and no model: there is no provider adapter in this repository
@@ -1328,6 +1208,180 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [add-omnigent-domain-terminology](openspec/changes/archive/2026-08-26-add-omnigent-domain-terminology/proposal.md)
+  — **ARCHIVED 2026-08-26** on met realization evidence, after a task-level
+  verification sweep. Authored 2026-08-09 from Brett's direction ("we have a
+  neutral spine
+  cross domain, but we also need all notices to users and logs shown in
+  domain best-practice and well-adopted terminology"), **RATIFIED 2026-08-26**
+  (Brett, in-session: "do the omnigent-terminology ratification" — task 1.2,
+  read-back in tasks.md). Ratification covers the RULE only — the optional
+  `terminology` block, the descriptive-crosswalk shape, and the
+  human-facing rendering requirement — not any domain's realization.
+  ANNOTATE, NEVER RENAME: an optional `terminology` block on the
+  omnigent-domain-overlay contract carries display labels for the ids an
+  overlay declares (`workers`, `job_types`, `stop_conditions`, `routing`),
+  presentation only, so a label never changes an archetype, permission,
+  credential tier, or authority; plus an optional per-worker
+  `standards_alignment` crosswalk that is descriptive, asserts no
+  conformance, and requires `no_clean_equivalent` WITH a note rather than a
+  forced mapping. Extends the pattern this family already runs twice —
+  `permission_aliases`, and the Hermes layer model's fixed-roles /
+  specializable-display-names rule. Contract half is realized on main
+  (`target_release: implemented`): the schema block, semantic checks in
+  `scripts/validate-omnigent-contracts.py` for orphan keys, duplicate labels
+  and unnoted `no_clean_equivalent`, three negative fixtures under
+  `contracts/omnigent/examples/fixtures/negative/`, and the canonical
+  `contracts/policies/standards-bodies.yaml` registry (44 bodies, every one
+  jurisdiction-tagged after the China round exposed an all-Anglo-American
+  skew; `onet_marketing_occupations` added 2026-08-26 because AdxFactory had
+  no role-level body registered at all, and marketing spans SOC families
+  11-0000, 13-0000, 15-0000 and 27-0000 rather than concentrating in one the
+  way computing does in 15-0000). The §3b research rounds produced the
+  change's blunt finding, NARROWED 2026-08-26 from nine bodies to eight:
+  every commercially stewarded body assessed EXCEPT APQC (SFIA, ITIL, COBIT,
+  SWEBOK, ISO/IEC/IEEE 12207, GRADE, SNOMED CT, and the declined CC BY-SA
+  Scrum Guide) fails the product-configuration reuse test — each tested
+  against its own licence text, and each bar stands. APQC's did not: that
+  verdict read apqc.org's site Terms of Service rather than the licence APQC
+  prints on page 2 of the PCF itself, which grants a perpetual, worldwide,
+  royalty-free right to use, copy, publish, modify and create derivative
+  works of the PCF against one verbatim attribution paragraph (3b.5k; Brett
+  read PCF 8.0's page in a browser 2026-08-26, and the same paragraph
+  text-extracts from the primary 7.4, 7.3.1 and 7.3.0 PDFs). O*NET (CC BY
+  4.0) remains the ROLE-level crosswalk in four domains and is not
+  displaced (both bodies are now licence-usable; APQC's grant carries its
+  attribution condition) — naming a ROLE and naming a PROCESS are different claims — and
+  MedxFactory registers none: its eleven workers record
+  `no_clean_equivalent` against the PROVIDER taxonomy specifically, because
+  labelling a reasoning agent with a role carrying clinical standing is the
+  mapping a contributor would reach for and the dangerous one. Ratification
+  (task 1.2) is now closed, and so are FOUR of the five domain populations:
+  **3.1 OpsxFactory and 3.4 codexFactory ticked 2026-08-26** on their O*NET
+  crosswalks with the task-3.0 verification discharged for both — every
+  registered occupation code and title re-read verbatim against the body's
+  own current publication, and the O*NET Database's move from 30.3 (May 2026)
+  to 31.0 (August 2026) caught and pinned in the registry rather than
+  inherited silently, which is the APQC failure mode 3b.3 named. Opsx ships
+  6 mapped / 3 `no_clean_equivalent` across 9 workers, codex 8 / 3 across 11;
+  both populations cover every declared id in all four vocabularies; both
+  land via their own domain PRs. **3.2 LedgerxFactory and 3.3 AdxFactory
+  ticked 2026-08-26**, the two populations the APQC bar had held: both now
+  ship a PROCESS layer beside their role layer, which is the first time the
+  multi-body design (task 2.2b) is exercised anywhere in the family. Ledgerx
+  restores `apqc_pcf` as a third body beside O*NET and COSO — 6 mapped / 3
+  scoped `no_clean_equivalent` / 5 deliberately omitted, the crosswalk
+  BOUNDED to the three nodes 3b.5b preserved (9.3 10730, 9.6 10733, 9.9
+  10736) with the omitted workers' plausible homes named outside that bound
+  rather than declared absent — and moves the stale O*NET 30.3 pin to 31.0
+  together with its by-version attribution, which is what the registry flag
+  required and what discharges it. Adx goes from 3 of 10 workers crosswalked
+  to 10 of 10 workers carrying at least one crosswalk entry (O*NET 5 mapped /
+  5 absent, PCF 6 / 4; IAB stays a 3-worker carry-forward, not a full-domain
+  body), and it is the domain that proves the design: its two
+  workers with no honest occupation, `media_planner` and
+  `lifecycle_marketer`, have clean process homes a single-body crosswalk
+  would have written off. Its long-unrun marketing brief (3b.5e) ran as part
+  of that act. STILL OPEN: 3.5 MedxFactory, whose box is unticked but whose
+  overlay already ships the population 3b.5i ruled: eleven workers, every one
+  `no_clean_equivalent` against `nucc_taxonomy`, which IS the realization
+  rather than an absence of one. Also open: task-level
+  verification for every crosswalk in the family, which stays OCCUPATION- and
+  PROCESS-level and says so; PCF 8.0's NUMBERING, which neither population
+  could re-read because apqc.org answers HTTP 403 to automation — names,
+  numbers and element IDs shipped from the primary 7.4 PDF, with APQC's
+  stable five-digit IDs carrying the citations and the decimals recorded as
+  7.4's; the
+  ledgerx UN/CEFACT + BIAN brief, the last of 3b.5f's five and never run,
+  whose premise has narrowed from filling the process-layer gap (now closed)
+  to widening past cross-industry PCF; and the §4 consumer
+  follow-up naming domain surfaces that render their own vocabulary outside
+  the overlay. NO LONGER OPEN: the APQC written licence confirmation (3b.5d),
+  which gated LedgerxFactory's and AdxFactory's pulled PCF 8.0/3.0 crosswalks
+  (3b.5b) but never MedxFactory, which by design registers no APQC/PCF
+  mapping at all. It closed 2026-08-26 on a licence APQC had already
+  published rather than on correspondence, so PCF element names and numbers
+  may ship in product configuration provided the attribution paragraph rides
+  with them. 3b.5b is SUPERSEDED, NOT REWRITTEN — it and the ledgerx report
+  are record-class evidence with a 2026-08-09 cutoff and stand as written,
+  and 3b.5b's other finding, that the shipped 8.x finance numbering was wrong
+  for every version, is untouched. Not covered by the grant, and recorded
+  rather than assumed: PCF process DEFINITIONS, which ship in separate APQC
+  documents whose front matter has not been read.
+  **ALSO NO LONGER OPEN, 2026-08-26: the IAB entry (3b.5l).** Both findings
+  the adx brief flagged and left unacted are discharged. The STEWARD was
+  wrong and is corrected — IAB Technology Laboratory, Inc., a separate
+  501(c)(6) from the Interactive Advertising Bureau trade association — and
+  the REUSE TEST, which had never been run on the one body predating the
+  licence discipline, now passes: **CC BY 3.0, `yes_with_conditions`**. The
+  "no licence text" reading was a false negative of the same shape as APQC's
+  and was caught the same way — the landing pages publish none, but the grant
+  is printed on the artifacts, here on page 2 of the Content Taxonomy 3.0
+  Implementation Guide, and the site ToU's redistribution ban defers to any
+  "Separate License". So the registry's second grant-inside-the-artifact
+  finding in one day narrows 3b.5j again, to eight of ten. What is REGISTERED
+  BUT NOT RESOLVED, and stays visible on the entry rather than being averaged
+  into the verdict: the best-scoped grant sits on a "Released for Public
+  Comment" PDF; only Content Taxonomy is named by it, so Audience and Ad
+  Product rest on blanket wording one notch weaker; two of three version
+  dates are CONTESTED between the steward's own surfaces and BOTH readings
+  are recorded on each rather than one being picked; there is no LICENSE file
+  and no notice in the .tsv files, so attribution must be authored into every
+  consuming overlay; and the IPR Policy PDF is gated and unread, assessed
+  non-blocking because it reaches only members' Submissions. The three
+  AdxFactory crosswalks come off PROVISIONAL in that domain's own repo.
+  **THE ARCHIVE GATE WAS THE REALIZATION GATE, not the doc-only one.** This
+  proposal declares a `code_surface` (the `contracts/omnigent/` schema, example
+  and negative fixtures, plus the semantic checks in
+  `scripts/validate-omnigent-contracts.py`) with `target_release: implemented`,
+  so it could not archive on landing the way a doc-only change does: it needed
+  the code merged on the implemented target AND a green run of the runnable
+  surface. Both hold — every code-surface commit is an ancestor of `main`, and
+  `validate-omnigent-contracts.py` exits 0 at `main` in a fresh clone with all
+  three terminology negatives rejected for their declared reasons. **Promotion
+  was ADDED-only and byte-faithful**: `omnigent-domain-overlay` goes 8
+  requirements to **11** and 21 scenarios to **29**, with all eight
+  pre-existing requirement bodies hashed before and after and UNCHANGED, 8/8 —
+  the delta carries no MODIFIED section, so no promoted requirement block was
+  restated and none could be thinned.
+  **THE SWEEP FOUND ONE DEFECT AND REPAIRED IT** rather than archiving over it:
+  task 3b.5f, ticked CLOSED once the ledgerx UN/CEFACT + BIAN round ran, still
+  carried its pre-run tail saying that round "has NEVER been run", plus a
+  broken antecedent that read the ledgerx round as having produced no report
+  when it produced
+  `research/ledgerx-international-process-bodies-research-report.md`. Both are
+  corrected in place under the append discipline — marked SUPERSEDED, not
+  deleted, so the closing note stays checkable against what was still owed when
+  it was written. Everything else reproduced against the artifacts at live
+  main: five overlay-manifest digests recomputed and matching 5/5, every
+  registry body count re-derived from git rather than trusted
+  (17 -> 30 -> 41 -> 44, each claim exact), and the identity surface diffed
+  across all six population commits — worker ids, archetypes, permissions and
+  credential tiers IDENTICAL IN SIX OF SIX, which is the constitutional
+  5.1/5.2 claim measured rather than asserted. Full record:
+  `openspec/changes/archive/2026-08-26-add-omnigent-domain-terminology/review/task-verification-2026-08-26.md`.
+  **THE LAST THREE BOXES CLOSED AT THE GATE.** 3.0, the standing per-domain
+  term-and-version obligation, is discharged for all five domains — opsx and
+  codex by 3.0a, ledgerx and adx by the 2026-08-26 population slices, and medx
+  VACUOUSLY, because an obligation over chosen bodies is discharged by choosing
+  none. 3.5 is ticked on 3b.5i's own finding rather than by re-arguing it:
+  Medx's all-`no_clean_equivalent` stance IS its population, covering every
+  declared id (11 workers, 6 job types, 9 stop conditions, 7 routing classes)
+  with zero mapped by design. 4.1, the consumer follow-up this change named
+  rather than assumed, was BUILT AND MERGED — OpsxFactory PR **#115**
+  (`f1065cc`) declares `workflow.adjudication` label pairs in its workflow
+  contract, renders them through `_adjudication_refusal`, and asserts by
+  `assertNotIn` that the check id never reaches a human-read message, which is
+  the principle carried outside the overlay and the whole reason it was named.
+  Three residuals ride those ticks rather than hiding under them: PCF 8.0's
+  NUMBERING was never re-read (apqc.org 403s automation, so names and element
+  IDs came from the primary 7.4 PDF), two of three IAB version dates stay
+  CONTESTED with both readings recorded and neither resolved, and TASK-LEVEL
+  verification is outstanding and unclaimed in all four crosswalking domains —
+  every mapping in the family is occupation-level. §5 stays unticked by
+  precedent: an unticked out-of-scope box means owned elsewhere, and ticking it
+  would claim work this repository never did.
 
 - [add-dispatch-credential-contract](openspec/changes/archive/2026-08-25-add-dispatch-credential-contract/proposal.md)
   — **ARCHIVED 2026-08-25** on landed realization, no contract bundle owed.
