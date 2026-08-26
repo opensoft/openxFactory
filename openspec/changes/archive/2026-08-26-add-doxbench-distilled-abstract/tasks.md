@@ -465,9 +465,24 @@ follow the captions it describes, but the pin relocation cannot — see 7.8.
       2026-08-26 — RE-CONFIRMED at archive time: the blob is byte-identical to
       the one at ratification commit `1ccb2ae0` (`428e06ed` both sides), and the
       file's whole history is its single creation commit `5c547610`.
-- [ ] 10.5 Archive. `target_release: none` means no bundle is cut; it does NOT
+- [x] 10.5 Archive. `target_release: none` means no bundle is cut; it does NOT
       mean doc-only, and the merge-plus-green gate still applies
       (`release-realization/spec.md:23-32`).
+      2026-08-26 — ARCHIVED as
+      `openspec/changes/archive/2026-08-26-add-doxbench-distilled-abstract/`.
+      Gate, each arm checked rather than asserted: code MERGED on main (#365
+      `02477d40`, #386 `d4740415`, both contained in `origin/main`); CI GREEN on
+      main — `pytest-suite` concluded `success` at `d4740415`; the OPERATOR RUN
+      recorded at §10.3 and in `realization-evidence.md`; origin UNCHANGED
+      (§10.4 — blob `428e06ed` identical to ratification commit `1ccb2ae0`);
+      `openspec validate --all --strict` green before and after. Promotion:
+      three requirements MODIFIED and seven ADDED — canon went 88 → 95
+      requirements and 404 → 444 scenarios, matching this delta exactly (+3/+4/+2
+      on the modified blocks, +31 across the seven added), with 85 requirements
+      byte-identical and none removed. The provider-boundary block promoted is
+      this change's own and carries NO intake text: grep for `INTAKE affordance`
+      and `intake affordance is submitted` over promoted canon returns 0, which
+      is the point of the 1.2 reversal.
 
 ## 11. Speckit handoff
 
