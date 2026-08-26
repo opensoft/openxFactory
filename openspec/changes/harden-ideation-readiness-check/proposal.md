@@ -295,7 +295,8 @@ modules depend on, and that is a bigger change than the defect warrants.
   `tests/doc-health/test_readiness_dispatch.py`,
   `scripts/doc_health/ideation_readiness.py`.
 - Affected artifacts: `ideation/cross-reference.yaml` — one line, the
-  `generation.source_revision` pin.
+  `generation.source_revision` pin — and `ideation/cross-reference.md`, which
+  restates that pin at its line 9 and is re-rendered with it.
 - Risk: LOW on the code, and the residual risk is entirely in what the
   un-silenced assertion will find. The proof has never run in a fresh clone,
   so its first honest execution is also its first real result. If it fails

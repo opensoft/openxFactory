@@ -87,9 +87,15 @@ proposal declines to write.
 - [ ] 3.3 Re-run `scripts/validate-ideation-cross-reference.py` over the
       repaired index. The pin edit must not disturb schema validity, and the
       validator is the thing that says so.
-- [ ] 3.4 Do NOT touch `ideation/cross-reference.md`. The rendered projection
-      does not carry the pin, so a re-pin leaves it byte-identical; confirm
-      that rather than regenerating it.
+- [ ] 3.4 `ideation/cross-reference.md` MOVES WITH THE PIN — verified
+      2026-08-26, and the first draft of this task said the opposite. The
+      rendered projection carries `- Source revision:
+      \`f13a3b6007736292e1e157febef1ac733e534de9\`` at line 9, so re-pinning
+      the yaml without re-rendering the md would leave the two artifacts
+      disagreeing about the same fact. Regenerate the md through
+      `scripts/render-ideation-cross-reference.py` — the pin line is the only
+      line expected to move, and if any other line moves, that is a finding
+      about the repair rather than something to commit past.
 
 ## 4. Verification
 
