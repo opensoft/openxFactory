@@ -53,6 +53,7 @@ implemented/promoted, `adopted` = adopted.
 | DTN-023 | Governance change-review lane | `split` | P2 | `seed` | change-review half of the review lane (ten governance-document dimensions) |
 | DTN-024 | Governed recommendation artifact (evidence-cited, hypothesis-only, authority-slotted proposal) | `split` | P2 | `seed` | neutral recommendation-artifact skeleton: evidence-citation + knowledge_basis vocabulary, empty-authority-slot invariant, refusal documents, seeded-defect critique harness pattern |
 | DTN-025 | Shared across 3 factories: docs/credentialing.md | `promote` | P2 | `seed` | to be determined at staging (the shared surface, neutralized once) |
+| DTN-026 | openXwallet neutral home | `split` | P1 | `staged` | own repo `opensoft/openXwallet` (ruled 2026-08-26); domain descendants are pin-and-profile repos (`LedgerxWallet` first) |
 
 ## Candidate Details
 
@@ -762,3 +763,85 @@ task 4.4), discharging task 4.5. Row and section above are the drafted
 text verbatim — `doc_health/shared_identity.py`'s `draft_seed` is
 deterministic, so a re-run over the same corpus state reproduces it
 byte-for-byte.
+
+### DTN-026: openXwallet neutral home
+
+Named by Brett on 2026-08-26 rather than surfaced by a sweep, and it is the
+same shape as DTN-022 one product later: a neutral standard whose home is
+wrong. openXwallet is today a set of FEATURES inside openxFactory — two neutral
+contract families (`contracts/openxwallet/` core, `contracts/openxwallet-agent-profile/`
+sibling), one validator plus a syntax gate, one CI workflow, two promoted
+capabilities (`openxwallet` 8 requirements, `openxwallet-agent-profile` 3,
+registered at `contract-v1.31`), five Speckit features, and a conformance corpus
+of 17 positives and 36 negative confirmations. Unlike openAvatar, where the code
+moved and the contracts stayed, here the CONTRACTS ARE THE PRODUCT: both
+families are ratified holder-agnostic and non-substrate, which is the definition
+of content that belongs to no single layer's corpus. What is genuinely
+factory-layer is how openxFactory's review gate USES wallet authority, and today
+the two sit in one repository with no boundary between them.
+
+The entry also carries the reusable half, which is why it is P1 rather than P2:
+**the domain descendant repo is already the house standard, and there is no
+counter-example.** `openChart` is consumed through `MedxChart`, `openPractice`
+through `MedxPractice`, and `openAvatar` through `MedxAvatar` and
+`LedgerxAvatar` (DTN-022's own resolution). No DomainxFactory consumes any open*
+product by direct integration; the only direct consumer of neutral contracts is
+openxFactory-as-layer through `stack.yaml`, and openxFactory is the neutral layer
+rather than a domain. Every prior instance paid for its own bespoke ratifying
+change, so the candidate promotes the PATTERN — pin by commit twice (submodule
+gitlink plus `contracts/<product>-pin.yaml`, same commit); carry only profiles,
+overlays, branding, deploy config and domain validators; nest into the
+DomainxFactory as a submodule and optionally aggregate at `xFactories/`; create
+lazily on the domain's first profile — instead of a fourth one-off boundary.
+
+Evidence:
+
+- `openxFactory/contracts/openxwallet/` + `contracts/openxwallet-agent-profile/`
+  (the two neutral families), `scripts/validate-openxwallet.py`,
+  `scripts/wallet-yaml-syntax-gate.py`, `.github/workflows/wallet-validation.yml`
+- `openxFactory/openspec/specs/openxwallet/` +
+  `openspec/specs/openxwallet-agent-profile/` (the two promoted capabilities) and
+  `openspec/changes/archive/2026-08-08-add-openxwallet/`
+- `openxFactory/ideation/staging/openxwallet-neutral-home/openxwallet-neutral-home.md`
+  (the staged topic carrying rulings R1-R8, the inventory, and 5 open questions)
+- precedent: DTN-022 above (`opensoft/openAvatar`, ruled 2026-08-03) plus the
+  descendant-boundary changes `create-medxchart-overlay-boundary` and
+  `create-medxpractice-overlay-boundary`
+
+Domain-local exclusions: `governance/review-authority/` stays in openxFactory —
+it is openxFactory's OWN review authority (`target_repo: opensoft/openxFactory`)
+and codexFactory's merge-gate floor pins the exact path
+`governance/review-authority/register.yaml` with a parser that refuses wildcards.
+Speckit features 013/014, the `trust-anchor` / `identity-brokering` /
+`roles-authority-model` compositions, and all ideation provenance stay as well.
+Machine keys are NOT in scope for the first release: paths, capability ids, the
+`xfactory_wallet_*` kind prefix, the envelope kind, finding codes and filenames
+are frozen, and the kind-prefix rename is a named successor with its own
+deprecation window.
+
+**Resolution (2026-08-26, Brett):** own repo, ruled in session as eight
+recommendations accepted at once — verbatim, "approve R1-R8 as recommended, stage
+the topic and propose". R1 the repo and brand are `opensoft/openXwallet` on the
+ratified house `openX<type>` form, which removes the `openxWallet` exception
+`docs/openxdox-naming.md` currently records and owes that record an Amendment 2.
+R2 machine keys frozen in v1, because a rename in the same change as the move is
+unbisectable and LedgerxFactory pins five kinds and several finding-code strings
+by name. R3 the new repo owns the wallet's own standard while openxFactory keeps
+the seam — which amends the aggregation's working rule #1 to "…or in a neutral
+open* product repo that openxFactory pins; domain repos never author neutral
+contracts". R4 the pin is bidirectional and acyclic: openxFactory pins by commit
+plus per-file sha256 plus `pinned_by_commit_only`, and openXwallet vendors exactly
+one openxFactory artifact, `contracts/schemas/hermes-job-envelope.schema.yaml`,
+because validator rule (g) reads it. R5 a root-level `openXwallet/` submodule in
+the aggregation, on the DTN-022 precedent. R6 the register stays and its READER
+travels with the validator as a generic authority-register mode. R7 descendant
+casing is `<Domainx><Product>` — `MedxWallet`, `LedgerxWallet`, `codexWallet`,
+`OpsxWallet`, `AdxWallet`. R8 `LedgerxWallet` is first, created at extraction
+time, because LedgerxFactory is the only live consumer. The first release is a
+byte-identical pure move — the eight artifact sha256s must equal openxFactory
+HEAD's manifest rows before `wallet-v1.0` is tagged. Status stays `staged` rather
+than `adopted` until the extraction actually lands: nothing has moved yet, and
+this register's own alias table defines `adopted` as domain re-pin and local-copy
+retirement COMPLETE. Pending change: `split-openxwallet-repo`, declaring a code
+surface of scripts, CI workflows, pin files and submodule gitlinks, so it archives
+only on merged plus green realization evidence.

@@ -76,6 +76,7 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [doxchat-auto-fit-routing](#doxchat-auto-fit-routing) | MODIFIED `ideation-dashboard` (per-turn fit-aware `auto` resolution; the no-fit warn/ask surface and its session-sticky consent; compress-to-fit as a turn outcome) + a likely ADDITIVE model-catalog release (capability dimensions beyond byte limits, at minimum modality) + a likely additive chat-turn release (the recorded fit decision) | 1 | Registered 2026-08-21 — origin is Brett's direction given at the `contract-v1.38` rule-5 ruling, quoted VERBATIM in the fragment; 6 claims settled (per-turn fit-aware resolution, filter out models too small for the turn, no-fit is a human decision, session-sticky continue-all consent, compress-to-fit on continue, and fit is multi-dimensional with raw size only one axis); 6 open questions, none blocking. **DISPOSITIONED 2026-08-24 — all six resolved**, architect adjudications on verified evidence anchored in Brett's rulings, with TWO of the fragment's own recommendations CORRECTED by recon. Q1: the ROUTE decides, upheld, but at the ASSEMBLY POINT INSIDE STEP 9 — not at precondition 7, because the packet does not exist there (steps: 5 scope, 6 identity, 7 model+limits, 8 idempotency, 9 dispatch, with assembly at `serve.py:2926`); the route's `error` is free-form `^[a-z][a-z0-9_]{2,63}$`, not an enum, so a no-fit code costs no contract act. A review-found CONSTRAINT rides with it: request bytes are bounded EARLIER against the selected entry (`:2677`/`:2730`), so exit (b) must also move or redefine that pre-assembly guard or a request sized for a wider `routes_to` member is refused before routing runs. Q2: `resolved_model_id` STAYS as the declared default, naming debt accepted explicitly, removal rejected. Q3: one closed additive `modalities`, PLUS a batching obligation — the release must decide, not silently pass, the type-side `models.maxItems` question and the `model_id` bounds gap (N7). Q4: turn-record self-description plus a RECORDED arm, adjudicated under Brett's own intake-lane OQ-3 test (a recorded gate action suffices on the single-operator loopback; an instrument is required only on tenant/shared installs), with the consent scoped to session identity/rekey/generation and NEVER a wall clock, honoring his arm-and-reconfirm ruling. Q5: three sequenced exits, with (c) REDEFINED — a fit-reducing act ALREADY happens silently under `posture: full` (`serve.py:2935-2956`; `dropped_evidence` reaches no wire field), so (c) discloses it via a third `reduced_reason` constant on the RELEASED v1.40 field with zero contract change; a third posture VALUE is rejected. Corrected on review: what already runs is LAYER-1 SELECTION (lossless by reference, and it REFUSES when mandatory threads alone overflow), so (c) also owes the real LAYER-2 compaction Claim 5 needs — the module's own `assert_fidelity` refuses conflating the two. Q6: union badge unchanged and non-negotiable; the record carries both badges. **SEQUENCING GATE CLEARED** — Phase B archived 2026-08-22 and 10.7 shipped as `contract-v1.40`; the remaining sequencing fact is the model-intake lane's collision with exit (b), which exit (a) avoids |
 | [notebook-access-wallet-governance](#notebook-access-wallet-governance) | MODIFIED `lifecycle-notebook-projection` (the ratified share-out roster entry becomes a wallet-governed record; the grant lane's provider act and revocation semantics) and possibly MODIFIED `openxwallet` (though the grant's closed scope and wallet-only audience already answer the interesting half) | 1 | Registered 2026-08-24 — origin is Brett's direction: sharing happens THROUGH THE APP, so if the books were opened org-wide in the Google machinery the access would still sit on the user, and he asked whether this can go in the wallet and be controlled per repo or finer. Two rulings the same day: the Google-side posture is **RESTRICTED with the app as the sole grantor** (org-visible REJECTED), and the topic is staged rather than proposed. 7 claims settled — sharing through the app; restricted posture; **Google's ACLs are the OUTER enforcement**, so an org-visible book is provider-granted access no app record can subtract; deny-by-default with every grant through the governed lane; the provider's enforcement atom is per-notebook/per-user/viewer-editor; per-repo control maps to per-book because `split-ideation-book-per-repo` already made the books per-repo; and finer-than-book is NOT provider-enforceable, a named non-goal of the Google half. The org-visible rejection rests on `client-identity-roster`'s promoted doctrine — where a provider-enforced principal IS available it must be used, and recording a bound as provider-enforced when none exists is a finding — so org-visibility would downgrade an available provider-enforced bound to a logic-enforced one. 7 open questions (whether a wallet grant can scope an external resource at all — checked against the schema: its `audience` must be a wallet and its `scope` has no property for a provider or a provider-side role, so the wallet holds the AUTHORITY to perform a granting act, narrowed to books via free-form `scope.objects` — while the GRANTEE, holding no wallet, cannot appear in a grant at all; one record or two; what revocation means provider-side, contrasted with #282's bearer-secret lesson; who approves and whether this closes task 2.4; whether a repo may declare its own book's policy as a derived input; where finer-than-book lives; and how a grantee is NAMED, since a persona's subject pattern admits no `@` while `nlm share invite` needs exactly an email). **SEQUENCED AFTER the migration thread's held steps clear** — nothing to grant access to under the declared account until the books are re-derived there (migration in flight as PR #289), and both `add-notebook-projection-identity` and `add-notebook-hosting-credential-custody` are ACTIVE with ratified-but-unpromoted deltas this topic would amend |
 | [treatment-options-engine](#treatment-options-engine) | MODIFIED `governed-derived-model` (a `role: recommendation` member emitting ranked, cited, non-authoritative options; a declared `evidence_floor` dial with labelled, structurally non-mixable relaxed modes; an `editorial_weights` declaration for ranking inputs no truth store supplies) — with the realized half MedxFactory-owned across `root-truth-grounding` (adverse-reaction and mechanism-of-action backfill), `terminology-normalization` (drug-class and indication mapping tables) and `treatment-plan-generation` (the engine itself) | 1 | Registered 2026-08-26 — Brett's build decision ("we will build this"), six steps: indicated → minus contraindicated → minus interacting → weighed by adverse reactions → rebalance on a charted non-response → off-label mode with the evidence floor lowered and mechanism similarity as the candidate generator. 7 claims settled, the governance boundary among them and NOT a dial: the engine PROPOSES and a clinician decides, `execute_final_action: false` holds, the plan gate stays human-reviewed, and the rebalance trigger is a chart observation rather than a timer. **Corpus recon 2026-08-26 corrected the described shape in four ways that change the deltas**: (a) `adverse_effect` is ALREADY in the closed ten-member claim-type enum with 3 records, so §6 work is a BACKFILL, not a new claim type; (b) the drug→condition edge is effectively ABSENT — 5 of 6,510 grounded pairs are `condition_*` — so "list all drugs indicated for X" is unanswerable today rather than merely slow; (c) the condition namespace already carries TWO id conventions (generated `condition_<icd10>` vs curated readable slugs, curated silently winning), which `indicated_for` must settle before writing a row; (d) evidence_grade is already multi-valued (6,499 regulatory_label + 7 across three lower grades), so the off-label floor has grades to drop to. Corpus measured at 6,506 records / 1,302 medication concepts / 1,298 custody SPLs (≈22% of the 5,803-row prescribable RxNorm set). 10 open questions, all `open`; three are hard blockers — Q7 (MoA as an eleventh enum member vs overloading `target`) fixes every backfilled record id, Q9 (no Medx policy authorizes `person_modeling: identified_persons_under_policy`, and the Medx conformance file declares `synthetic_only`) blocks declaring the family at all, and Q10 (WHO ATC's licence commit rule) is a structural validate gate with FDA-EPC-alone as the fallback. Q8 asks whether the engine is a MODIFIED `treatment-plan-generation` rather than a new capability — its nine promoted requirements already cover the entry point, the citation obligation, the closed worker plane, consent, the model pin and the plan-G1 gate. Exits NEUTRAL-FIRST: the `governed-derived-model` delta once Q7/Q8/Q9 dispose, then the Medx corpus+engine change once Q10 clears and the extractor-model policy re-pin (a governed version bump of `medx.domain.policy.plan_authoring_models` v1, recommended on cost) is made or declined |
+| [openxwallet-neutral-home](#openxwallet-neutral-home) | REMOVED `openxwallet` + REMOVED `openxwallet-agent-profile` from the openxFactory corpus (moved to `opensoft/openXwallet`); ADDED `domain-descendant-boundary` (the general standard: a domain consumes a neutral open* product through a `<Domainx><Product>` pin-and-profile descendant) + ADDED `neutral-product-pin` (commit + per-file sha256 + `pinned_by_commit_only`, tag-only refused, fail closed on an uninitialized submodule or digest drift); MODIFIED `trust-anchor` (custody registry resolved from the pin) + MODIFIED `review-authority-intake` (the reader is the pinned tool inside a REQUIRED consumer check) | 1 | Registered 2026-08-26 — origin is Brett's two questions (is openXwallet a repo or features in another repo; do domains integrate the neutral product directly or through a `<Domain>Wallet` that pins it) and his ruling the same day, verbatim: "approve R1-R8 as recommended, stage the topic and propose". **ALL EIGHT RULINGS SETTLED** — R1 `opensoft/openXwallet` on the house `openX<type>` form (which owes `docs/openxdox-naming.md` an Amendment 2, since that ratified record currently names `openxWallet` as a family EXCEPTION); R2 machine keys FROZEN in v1 (paths, capability ids, the `xfactory_wallet_*` kind prefix, the envelope kind, finding codes — a rename in the same change as the move is unbisectable, and LedgerxFactory pins five kinds and several finding-code strings by name); R3 the new repo owns the wallet's own standard (both contract families + corpus, validator, syntax gate, CI workflow, the two promoted specs, Speckit 006/010/012, the `2026-08-08-add-openxwallet` archive) while openxFactory keeps the SEAM (`governance/review-authority/`, Speckit 013/014, the trust-anchor / identity-brokering / roles-authority-model compositions, all ideation provenance) — which amends the aggregation's working rule #1; R4 the pin is BIDIRECTIONAL and acyclic (openxFactory pins openXwallet by commit + per-file sha256 + `pinned_by_commit_only`; openXwallet vendors exactly ONE openxFactory artifact, `contracts/schemas/hermes-job-envelope.schema.yaml`, because validator rule (g) reads it); R5 root-level `openXwallet/` submodule in the aggregation, on the DTN-022 precedent; R6 the register STAYS (codexFactory's merge-gate floor pins `governance/review-authority/register.yaml` in `opensoft/openxFactory` and refuses wildcards) while its READER travels with the validator as a generic authority-register mode; R7 descendants are `MedxWallet` / `LedgerxWallet` / `codexWallet` / `OpsxWallet` / `AdxWallet`, the `<Domainx><Product>` form all four existing descendants use; R8 `LedgerxWallet` first, at extraction time, because LedgerxFactory is the only live consumer. The load-bearing FINDING is that the descendant repo is already the house standard with **no counter-example** — openChart -> MedxChart, openPractice -> MedxPractice, openAvatar -> MedxAvatar/LedgerxAvatar — so this topic ratifies the pattern ONCE as a general standard instead of paying for a fourth bespoke boundary change. First release is a **byte-identical pure move**: the eight artifact sha256s must equal openxFactory HEAD's manifest rows before `wallet-v1.0` is tagged. 5 open questions, none blocking the move — Q1 (promote the register as a wallet primitive vs split the reader back) is expected to TRAVEL to the council rather than resolve, since either answer converts a provably-empty diff into a design change. Hard sequencing: LedgerxFactory's forward-compatible finder lands BEFORE openxFactory sheds (its `validate_wallet_estate.py::find_openxfactory()` fails loudly, never skips), `wallet-v1.0` exists before openxFactory changes, and consume-and-shed is ONE atomic PR because `validate-trust-anchor.py` hard-exits without the custody registry. Verified NOT affected: hermes-install reseed (wallet content is not in `CONTENT_KINDS`) and codexFactory (the register does not move) |
 
 ## hermes-stack-topology-per-client
 
@@ -1956,3 +1957,116 @@ repo scope.
   extractor-model policy re-pin is made or explicitly declined. Q1's severity
   scale must be decided BEFORE any rebalance work begins rather than alongside
   it.
+
+## openxwallet-neutral-home
+
+- Staging ID: `openxFactory:staging:openxwallet-neutral-home`
+- Repository context: SPLIT across three homes on purpose. `opensoft/openXwallet`
+  (to be created) becomes the neutral product's home and owns both contract
+  families, the validator, the syntax gate, the conformance corpus and the two
+  promoted capabilities. openxFactory keeps the SEAM — `governance/review-authority/`,
+  the `trust-anchor` / `identity-brokering` / `roles-authority-model`
+  compositions, Speckit 013/014, and all ideation provenance — and consumes the
+  product at a commit-and-digest pin. The xFactory aggregation gains a root-level
+  `openXwallet/` submodule. `LedgerxWallet` is the first domain descendant.
+- Source: Brett Heap's direction 2026-08-26, in session. He asked two questions —
+  is openXwallet a repo-level project or features inside another repo, and do
+  domains integrate the neutral product directly or through a `<Domain>Wallet`
+  repo that pins it — and then ruled all eight recommendations at once, verbatim:
+  "approve R1-R8 as recommended, stage the topic and propose". Origin provenance
+  is the `agent-certification-wallets` brainstorm (Brett, 2026-07-15/16) and the
+  promoted change `2026-08-08-add-openxwallet`.
+- Claim: eleven settled claims, not reopened by the open questions — the eight
+  rulings R1-R8, the no-counter-example finding, the four descendant-repo rules,
+  and the byte-identical-first-release rule. R1 names the repo and brand
+  `opensoft/openXwallet` on the ratified house `openX<type>` form, which removes
+  the `openxWallet` family exception `docs/openxdox-naming.md` currently records
+  and therefore owes that record an Amendment 2. R2 FREEZES every machine key in
+  v1 — paths, capability ids, the `xfactory_wallet_*` kind prefix, the envelope
+  kind `openxfactory-openxwallet-contract-schema`, finding codes, filenames —
+  because brand and label differ by design and a rename landing in the same
+  change as the move would be unbisectable. R3 splits along a seam rather than a
+  file type: the wallet primitives are ratified holder-agnostic and non-substrate,
+  so they are not factory-layer content, while how the review gate USES wallet
+  authority is. R4 makes the dependency bidirectional and acyclic. R5 places the
+  submodule at the aggregation's neutral root. R6 keeps the register and moves its
+  reader. R7 fixes descendant casing at `<Domainx><Product>`. R8 makes
+  `LedgerxWallet` first.
+- The descendant-repo finding is the reusable half: **the house standard is
+  already the domain descendant repo, and there is no counter-example.** openChart
+  is consumed through MedxChart, openPractice through MedxPractice, and openAvatar
+  through MedxAvatar and LedgerxAvatar (DTN-022, Brett 2026-08-03 — descendants are
+  "pin-and-profile DISTRIBUTIONS … never code forks"). No DomainxFactory consumes
+  any open* product by direct integration; the only direct consumer of neutral
+  contracts is openxFactory-as-layer through `stack.yaml`, and openxFactory is the
+  neutral layer rather than a domain. So the topic ratifies the pattern ONCE as
+  `domain-descendant-boundary` — pin by commit TWICE (gitlink plus
+  `contracts/<product>-pin.yaml`, same commit); carry only profiles, overlays,
+  branding, deploy config and domain validators; nest into the DomainxFactory as a
+  submodule and optionally aggregate at `xFactories/`; create lazily on the
+  domain's first profile — instead of paying for a fourth bespoke boundary change.
+- Inventory measured against the live corpus 2026-08-26: two neutral contract
+  families, one validator plus a syntax gate and its tests, one CI workflow, two
+  promoted capabilities (`openxwallet` 8 requirements, `openxwallet-agent-profile`
+  3, registered at `contract-v1.31`), five Speckit features (006/010/012/013/014),
+  a live governance estate, and a conformance corpus of 17 positives and 36
+  negative confirmations. Four facts constrain the sequencing: validator rule (g)
+  reads `contracts/schemas/hermes-job-envelope.schema.yaml`, so a moved validator
+  with no vendored copy fails on every run; `scripts/validate-trust-anchor.py`
+  hard-exits when `contracts/openxwallet/openxwallet-custody.registry.yaml` is
+  absent, so consume-and-shed must be ONE atomic PR; LedgerxFactory's
+  `tests/validate_wallet_estate.py::find_openxfactory()` fails loudly rather than
+  skipping, so its forward-compatible finder lands FIRST; and codexFactory's
+  merge-gate floor pins `governance/review-authority/register.yaml` in
+  `opensoft/openxFactory` with a parser that refuses wildcards, so the register
+  cannot move. Two negatives verified: wallet content is NOT in `CONTENT_KINDS`,
+  so hermes-install's reseed is untouched (the reseed-drift fix is not a
+  precondition after all), and `contracts/releases/*.digests.yaml` never indexed
+  the family, so there is nothing to carry — a gap to record, not to backfill
+  inside a byte-identical move. Bookkeeping surface: `contracts/manifest.yaml`
+  rows 1967-2082 removed plus seven incoming citations reworded to the pin (2089,
+  2146, 2251, 2287, 2423, 2473-2475, 2494-2495).
+- Files:
+  - [openxwallet-neutral-home.md](openxwallet-neutral-home/openxwallet-neutral-home.md)
+    — primary: 11 claims, a measured evidence-and-inventory section, three live
+    `xspec:candidate` blocks (all targeting `openxwallet`, all resolving; the two
+    ADDED capabilities are deliberately unfenced because neither resolves yet), a
+    seven-item sequencing-constraints section, 5 idea notes, 5 conflicts, 5 open
+    questions each with Context / Recommended answer / Explanation / Disposition
+    status, and a one-change exit.
+- Open questions (5, all `open`, none blocking the move): (1) promote the
+  review-authority register to a wallet primitive or split the reader back into
+  openxFactory — recommended NEITHER yet, carried to the council, because either
+  answer converts a provably-empty diff into a design change and the promotion
+  argument only strengthens with a second consumer; (2) whether
+  `tenants/ledgerxcorp/wallets/*` records move into `LedgerxWallet` or stay tenant
+  data — recommended profiles move, records stay, and it is Ledgerx's ruling
+  inside its own boundary change; (3) the deprecation window for renaming the kind
+  prefix `xfactory_wallet_*` to `openxwallet_*` — recommended dual-accept for
+  exactly one bundle release, closing on consumers-migrated rather than a date,
+  since the consumer set is one; (4) when `openXwallet-Install` becomes real and
+  whether Hermes is its issuer host — recommended register the NAME and build
+  nothing, since the runtime has zero footprint today and the whole arc gates
+  successors on consumers; (5) openXwallet's own bundle-tag scheme — recommended
+  `wallet-vN.M` with openxFactory's bundle semantics and NO range expression in
+  the pin, keeping the tag advisory while the digest stays authoritative.
+- Conflicts recorded, not resolved: the aggregation's working rule #1
+  ("domain-neutral contracts live ONLY in openxFactory") is flatly contradicted
+  the moment this lands and is the rule currently in force until amended;
+  `docs/openxdox-naming.md` is `Status: ratified` and names `openxWallet` an
+  exception, so it says the opposite of R1 until Amendment 2 exists; TWO of the
+  three descendant precedents are NOT ratified in this repo — checked 2026-08-26,
+  `create-medxchart-overlay-boundary` and `create-medxpractice-overlay-boundary`
+  both stand `Status: draft`, leaving DTN-022's openAvatar ruling as the single
+  ratified member of the precedent table; R2 ships a known-stale vocabulary into a
+  brand-new repo's first release; and R6 leaves one kindless contract's data and
+  its only schema in different repositories.
+- Exit: ONE OpenSpec change, `split-openxwallet-repo`, declaring a code surface of
+  scripts, CI workflows, pin files and submodule gitlinks — so it archives only on
+  merged plus green realization evidence. It carries the two REMOVED deltas with
+  successor locations recorded, the two ADDED capabilities, the two MODIFIED
+  deltas, Amendment 2 to the naming record, and the working-rule amendment.
+  Speckit features follow per phase (carve and scaffold with byte-identity proven
+  before tagging; consume and shed in one atomic PR; aggregate the root submodule;
+  repoint consumers), and the first domain descendant is `LedgerxWallet` via
+  `create-ledgerxwallet-overlay-boundary` on the standard this change ratifies.
