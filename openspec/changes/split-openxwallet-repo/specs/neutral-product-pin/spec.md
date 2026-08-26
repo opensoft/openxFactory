@@ -38,7 +38,7 @@ disagreeing with the pin SHALL each produce a REFUSAL with a named exit, and
 SHALL NOT resolve to an implicit pass, to "empty", or to a skip — an unreadable
 surface must fail rather than degrade. Every such refusal SHALL carry a
 REMEDIATION STRING naming the initializing command
-(`git submodule update --init --recursive <product-dir>`) and the path of the
+(`git submodule update --init <product-dir>`) and the path of the
 pin-resync runbook, so the exit is in the message rather than in tribal memory.
 
 #### Scenario: The pinned submodule is uninitialized

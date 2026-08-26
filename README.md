@@ -341,7 +341,8 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [split-openxwallet-repo](openspec/changes/split-openxwallet-repo/proposal.md)
-  — authored 2026-08-26 as the first and only exit of the staged topic
+  — **RATIFIED 2026-08-26** (in-session ruling on PR #391; realization via
+  Speckit) — authored 2026-08-26 as the first and only exit of the staged topic
   `openxwallet-neutral-home`, on Brett Heap's in-session R1–R8 rulings of the
   same day, carried as LOCKED constraints rather than re-litigated (verbatim:
   "approve R1-R8 as recommended, stage the topic and propose"); registered as
@@ -362,8 +363,8 @@ Active changes:
   REMOVES `openxwallet` (8 requirements) and `openxwallet-agent-profile` (3) to
   `opensoft/openXwallet` at `wallet-v1.0` — **the corpus's first
   `## REMOVED Requirements` blocks and its first capability exit**, all eleven
-  titles named verbatim because `promotion_fidelity.py` keys on (capability,
-  normalized title). MODIFIES `trust-anchor` (the dangling cross-corpus custody
+  titles named verbatim because `scripts/doc_health/promotion_fidelity.py` keys
+  on (capability, normalized title). MODIFIES `trust-anchor` (the dangling cross-corpus custody
   reference, repointed to the pin), `review-authority-intake` (three blocks: the
   reader becomes "reachable … in-tree or through a digest-pinned submodule", plus
   every dangling wallet citation the arc holds) and `shared-contract-ownership`

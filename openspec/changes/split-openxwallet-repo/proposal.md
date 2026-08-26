@@ -5,13 +5,76 @@ target_release: implemented — each affected repository's own main line, plus t
 
 # Proposal: split-openxwallet-repo
 
-Status: draft
+Status: ratified
+Ratified: 2026-08-26 by Brett Heap (openxFactory operator authority) — in-session
+ruling on PR #391 after both required checks passed. Realization proceeds per
+tasks.md through Speckit features, §1 and P5a.1 first.
 Proposed: 2026-08-26 — the first and only exit of the staged topic
 `ideation/staging/openxwallet-neutral-home/`
 (`openxFactory:staging:openxwallet-neutral-home`, staged the same day), on Brett
 Heap's in-session ruling of 2026-08-26, recorded verbatim in that topic: "approve
 R1-R8 as recommended, stage the topic and propose". Registered as DTN-026
 (`split`, P1, `staged`).
+
+## Ratification record, 2026-08-26
+
+Recorded verbatim from the convener's in-session ruling, taken after PR #391's
+two required checks reported green: **"ratify as proposed and merge, then start
+/opsx:apply"** — followed immediately by his standing correction, **"remember
+that we build with speckit, not openspec"**. Four rulings, in the order they
+bind:
+
+1. **Ratified AS PROPOSED** — no restructure and no carve-back. The packet
+   stands as authored: the **two ADDED** capabilities
+   (`domain-descendant-boundary`, `neutral-product-pin` — the reusable half that
+   outlives the wallet), the **two REMOVED** capability deltas (`openxwallet`
+   and `openxwallet-agent-profile`, leaving this corpus with their successor
+   location recorded — its first `## REMOVED Requirements` blocks and its first
+   capability exit), the **three MODIFIED** deltas (`trust-anchor`,
+   `review-authority-intake`, `shared-contract-ownership`), Amendment 2 to
+   `docs/openxdox-naming.md` and the aggregation working-rule amendment. **The
+   byte-identity floor is ratified with its ONE named prose carve-out** — the
+   `openxFactory SHALL` → `openXwallet SHALL` subject in the eleven moved
+   requirements, the only prose edit the floor permits — and it is proven
+   against the NAMED CARVE COMMIT, never against "HEAD".
+2. **R1–R8 stand unchanged.** They were LOCKED before this packet was authored
+   and ratification does not reopen them; the LOCKED block below is neither
+   renumbered nor edited by this record.
+3. **Q1–Q5 are CARRIED at design.md's dispositions** (§ Open questions), not
+   resolved by this ratification:
+   - **Q1 — register as a wallet primitive, or the reader split back?** NOT
+     decided here; it travels, as the proposal expects — both resolutions move a
+     gated path or change code, converting a byte-identical extraction into a
+     design change, and the pin already makes "which reader ran" an auditable
+     digest. Revisit when a second consumer of authority registers exists.
+   - **Q2 — do `tenants/ledgerxcorp/wallets/*` move?** Stays for
+     `create-ledgerxwallet-overlay-boundary` (P6); the profile/instance line is
+     the owning domain's call.
+   - **Q3 — the `xfactory_wallet_*` → `openxwallet_*` window.** Stays for the
+     openXwallet successor; this design adds only the price — the prefix sits in
+     `pinned_by_commit_only` bytes, so the rename is a wallet MAJOR, an
+     openxFactory pin bump and a LedgerxFactory re-pin.
+   - **Q4 — `openXwallet-Install`.** DECIDED as far as design reaches: the NAME
+     is registered in Amendment 2 and no repository is created, on rule (d)
+     applied to an install repo. Whether Hermes is the issuer host stays with
+     hermes-install's roadmap and is a precondition of nothing in this wave.
+   - **Q5 — the bundle-tag scheme.** DECIDED: `wallet-vN.M`, major on a breaking
+     key or schema change, minor on additive growth, and NO range expression in
+     the pin — commit and sha256 are authoritative and the tag is a label beside
+     them (`revision_kind: commit`, D1).
+4. **The build path is SPECKIT, and `/opsx:apply` is NOT used.** On the
+   convener's standing correction, given the same minute as the ratification:
+   **OpenSpec ratifies the boundary; Speckit builds it.** Realization proceeds
+   as **Speckit features, one per `tasks.md` group, in `design.md`'s Migration
+   Plan order**. The first two are **§1 — this change's own packet
+   bookkeeping**, which still owes Amendment 2 to `docs/openxdox-naming.md`
+   (task 1.11) and the xFactory `CLAUDE.md` working-rule #1 amendment (task
+   1.12) — and **§2 — P5a.1, the LedgerxFactory three-candidate finder**, which
+   lands before P2 because `validate_wallet_estate.py::find_openxfactory()`
+   fails loudly rather than skipping.
+
+The merge of PR #391 is the convener's own act and is NOT performed by this
+record, which lands on `change/split-openxwallet-repo` ahead of it.
 
 ## Rulings carried as LOCKED decisions
 

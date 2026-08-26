@@ -67,7 +67,7 @@ at P3 records `wallet-v1.1`.
       reviewer's missing-`specs/` finding, deferred to the specs phase and
       discharged by §1.2) and 14 council verdicts, ALL VALID and none DISMISSED,
       two raised jointly, with the 8 NOTED-class constraints in
-      `clarifications.md`.
+      `clarifications.md`. (PR #391, 2026-08-26)
 - [x] 1.7 Reconcile `proposal.md` with the three design findings it contradicted,
       surgically and without renumbering R1–R8 or touching the LOCKED block:
       **(a)** the register-read evidence becomes the POSITIVE conjunction the
@@ -81,9 +81,10 @@ at P3 records `wallet-v1.1`.
       into P5a.1 (finder, before P2) and P5a.2 (`stack.yaml` bump, after P2.5's
       cut, before P3).
 - [x] 1.8 `OPENSPEC_TELEMETRY=0 openspec validate split-openxwallet-repo
-      --strict` green, and `--all --strict` green.
+      --strict` green, and `--all --strict` green. (PR #391, 2026-08-26)
 - [x] 1.9 List the change in `README.md`'s `## OpenSpec Records` →
       `Active changes:` block, at the top, in the existing entries' shape.
+      (PR #391, 2026-08-26)
 - [ ] 1.10 `python3 scripts/doc-health.py --single-repo .` shows NO new finding
       attributable to this change directory or the README entry, measured against
       the same command's report on the tree before the packet's completion.
@@ -105,9 +106,15 @@ at P3 records `wallet-v1.1`.
       by commit and digest**. THIS CHANGE'S OWN DIFF per the RATIFIES list. Until
       P4 lands, the rule as written is the one in force and this change
       contradicts it; that is stated in the proposal rather than discovered later.
-- [ ] 1.13 **[OPERATOR] [GOVERNANCE]** Ratify or return the proposal. Nothing in
+- [x] 1.13 **[OPERATOR] [GOVERNANCE]** Ratify or return the proposal. Nothing in
       §2 onward is authorized work until this is discharged; record the
       ratification in the proposal header and set `Ratified by:`.
+      **RATIFIED AS PROPOSED 2026-08-26** by Brett Heap in session, after both
+      required checks reported green — `Status: ratified`, the `Ratified:`
+      provenance line and `## Ratification record, 2026-08-26` are in the
+      proposal header; R1–R8 stand and Q1–Q5 are carried at design's
+      dispositions; the build path is **Speckit features per group**, NOT
+      `/opsx:apply`. (PR #391, 2026-08-26)
 
 ## 2. P5a.1 — LedgerxFactory forward-compatible finder (lands FIRST, before P2)
 
@@ -418,8 +425,9 @@ intermediate.*
       `pin-submodule-uninitialized`, `pin-gitlink-mismatch`,
       `pin-checkout-mismatch`, `pin-digest-mismatch`, `pin-member-missing`,
       `pin-tag-only` — and every fail-closed refusal in this wave prints the one
-      fixed remediation trailer: `git submodule update --init --recursive
-      openXwallet`, and `openXwallet/docs/pin-resync-runbook.md` if the pin itself
+      fixed remediation trailer: `git submodule update --init
+      openXwallet` (NOT `--recursive`; the wave's init is deliberately scoped),
+      and `openXwallet/docs/pin-resync-runbook.md` if the pin itself
       is stale.
 - [ ] 7.7 `scripts/verify-openxwallet-pin.py --aggregation-root <path>` mode: the
       root-gitlink-equals-nested-gitlink check P4 invokes. One implementation, one

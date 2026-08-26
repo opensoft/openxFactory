@@ -844,4 +844,7 @@ than `adopted` until the extraction actually lands: nothing has moved yet, and
 this register's own alias table defines `adopted` as domain re-pin and local-copy
 retirement COMPLETE. Pending change: `split-openxwallet-repo`, declaring a code
 surface of scripts, CI workflows, pin files and submodule gitlinks, so it archives
-only on merged plus green realization evidence.
+only on merged plus green realization evidence. That change was **RATIFIED
+2026-08-26** (PR opensoft/openxFactory#391, both required checks green; ratified
+as proposed, realization through Speckit features) — the status advances from
+`staged` at the domain re-pin, not at ratification.

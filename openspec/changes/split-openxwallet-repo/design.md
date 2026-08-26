@@ -148,7 +148,7 @@ with a named code: `pin-submodule-uninitialized`, `pin-gitlink-mismatch`,
 
 Every fail-closed refusal — here, `validate-trust-anchor.py` rule (f), and
 openXwallet's vendored-schema verify — prints one fixed trailer: *Remediation:
-`git submodule update --init --recursive openXwallet`; if the pin itself is
+`git submodule update --init openXwallet`; if the pin itself is
 stale, follow `openXwallet/docs/pin-resync-runbook.md`.*
 
 **Where it runs.** First step of `openxwallet-consumer-gate.yml`, before anything

@@ -53,9 +53,10 @@ acts on and the one this topic exists to relocate.
 
 ## Last proposal attempt (round-trip provenance)
 
-Change ID: none yet
-Raised: n/a
-Status at demote: n/a
+Change ID: `split-openxwallet-repo` — proposed 2026-08-26, PR
+opensoft/openxFactory#391
+Raised: 2026-08-26
+Status at demote: n/a — RATIFIED 2026-08-26 and never demoted
 Demoted: n/a
 Demote reason: n/a
 
@@ -537,3 +538,15 @@ ratifies. What must be true first: the eight rulings are recorded (done,
 and every open question above either carries a disposition other than `open` or
 is explicitly carried into the change as a council question — Q1 is the one
 expected to travel rather than resolve.
+
+Exit TAKEN 2026-08-26. Proposed the same day as `split-openxwallet-repo`
+(PR opensoft/openxFactory#391) and RATIFIED 2026-08-26 by Brett Heap, in session,
+after both required checks on that pull request reported green — ratified AS
+PROPOSED, with R1-R8 standing unchanged and Q1-Q5 carried at the change's design
+dispositions (Q1, Q2 and Q3 travel; Q4 and Q5 decided). Realization proceeds
+through Speckit features, one per `tasks.md` group in the design's Migration Plan
+order, on the convener's standing rule that this house builds with Speckit rather
+than `/opsx:apply`: OpenSpec ratified the boundary and Speckit builds it. The
+first two features are the change's own remaining packet bookkeeping (Amendment 2
+to `docs/openxdox-naming.md` and the xFactory working-rule #1 amendment) and
+P5a.1, LedgerxFactory's three-candidate finder, which lands before the carve.

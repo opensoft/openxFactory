@@ -65,10 +65,10 @@ A holder SHALL exercise review authority over a governed object only under an
 `xfactory_wallet_grant` whose `audience.wallet_ref` names that holder's wallet,
 whose `scope.acts` names the review act, whose `scope.objects` names the object,
 and whose `scope.authority_tier` is drawn from the closed ladder in
-`openxwallet-custody.registry.yaml:15-37`, consumed from `opensoft/openXwallet`
-at the pin recorded in `contracts/openxwallet-pin.yaml` — the tiers themselves
-(`attest`, `request`, `act`, `act_unsupervised`) are unchanged bytes at the named
-carve commit; no review
+`contracts/openxwallet/openxwallet-custody.registry.yaml:15-37`, consumed from
+`opensoft/openXwallet` at the pin recorded in `contracts/openxwallet-pin.yaml` —
+the tiers themselves (`attest`, `request`, `act`, `act_unsupervised`) are
+unchanged bytes at the named carve commit; no review
 authority SHALL be conferred by an ownership label, a `CODEOWNERS` entry, a role
 name, a seat assignment, or any other declaration outside a grant, and this
 capability SHALL NOT define a second authority vocabulary — an authority word
