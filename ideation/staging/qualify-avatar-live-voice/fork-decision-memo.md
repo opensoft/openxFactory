@@ -13,7 +13,7 @@ must ratify. The memo decides nothing itself; Brett rules by editing the
 Topics: avatar-client, live-voice, decision-memo, credential-custody, spend-cap, latency-slo, activation-gate, consent, data-control, canary-rollback, AVC-09, AVC-10, gpt-realtime-2.1
 Repository context: openxFactory (neutral) — this memo is a staging record under the `qualify-avatar-live-voice` topic; it mutates no contract, schema, acceptance map, or interface lock, and is not itself a ratification. The rulings it requests, once made, become the locked decisions the future `qualify-avatar-live-voice` change carries into its proposal.
 Staging ID: openxFactory:staging:qualify-avatar-live-voice
-Source: the `qualify-avatar-live-voice` staging topic ("Open questions", five forks) and this session's verified per-fork research grounded in the avatar-client contract kernel (archived `2026-07-13-define-avatar-client-contract-kernel`), the F0 brokered-call feasibility evidence (`qualify-avatar-brokered-call-feasibility/evidence/`), the reference-runtime change (`archive/2026-07-13-implement-avatar-reference-runtime`), the credential-access / credential-contracts model, the customer-memory-gateway architecture, the avatar-first-ui standard, and the merge-master autonomous-approval custody precedent landed 2026-07-15 in codexFactory.
+Source: the `qualify-avatar-live-voice` staging topic ("Open questions", five forks) and this session's verified per-fork research grounded in the avatar-client contract kernel (archived `openspec/changes/archive/2026-07-13-define-avatar-client-contract-kernel`), the F0 brokered-call feasibility evidence (`qualify-avatar-brokered-call-feasibility/evidence/`), the reference-runtime change (`openspec/changes/archive/2026-07-13-implement-avatar-reference-runtime`), the credential-access / credential-contracts model, the customer-memory-gateway architecture, the avatar-first-ui standard, and the merge-master autonomous-approval custody precedent landed 2026-07-15 in codexFactory.
 
 This memo is a **decision aid, not a decision**. Every recommendation below is
 explicitly labelled a recommendation; nothing here is ratified, and no contract,
@@ -115,15 +115,15 @@ closed, or a monitored budget with alerting?"
   holds a provider key, or processes tenant data." Its grant retry cache is
   process-memory-only and secret material is destroyed on
   connect/expire/abandon/revoke; it holds no durable cross-session state.
-  `archive/2026-07-13-implement-avatar-reference-runtime/design.md` Non-Goals
-  (lines 27-31), Decision 5 (lines 96-104); `proposal.md` Impact "Operations"
-  (line 55-56); `spec.md` "Secret cache is destroyed" scenario (lines 88-90).
+  `openspec/changes/archive/2026-07-13-implement-avatar-reference-runtime/design.md` Non-Goals
+  (lines 27-31), Decision 5 (lines 96-104); `openspec/changes/archive/2026-07-13-implement-avatar-reference-runtime/proposal.md` Impact "Operations"
+  (line 55-56); `openspec/changes/archive/2026-07-13-implement-avatar-reference-runtime/specs/avatar-reference-runtime/spec.md` "Secret cache is destroyed" scenario (lines 88-90).
 - **The reference runtime already models fixture tenant concurrency/duration
   caps, session + model-profile kill switches, and credential-free usage
   records** — a request exceeding a cap emits "the canonical quota or duration
   outcome" (a fail-closed terminal exists for concurrency/duration, **not** for
   durable cumulative spend).
-  `archive/2026-07-13-implement-avatar-reference-runtime/spec.md` "Fail-closed
+  `openspec/changes/archive/2026-07-13-implement-avatar-reference-runtime/specs/avatar-reference-runtime/spec.md` "Fail-closed
   authority, revocation, usage, and telemetry" + "Usage cap is reached"/"Kill
   switch is active" scenarios (lines 153-179).
 - **The reference-runtime change explicitly defers the production deployment
@@ -131,7 +131,7 @@ closed, or a monitored budget with alerting?"
   FORK's change**: "The production deployment home, network framework, provider
   SDK, distributed cache, and operational telemetry are decided by
   qualify-avatar-live-voice."
-  `archive/2026-07-13-implement-avatar-reference-runtime/design.md` Open
+  `openspec/changes/archive/2026-07-13-implement-avatar-reference-runtime/design.md` Open
   Questions (lines 180-183).
 - **House pattern for cost control already exists**: the customer-memory gateway
   runs budget as a SYNCHRONOUS rail that can block the operation
@@ -332,12 +332,12 @@ there a single neutral SLO the acceptance map enforces?"
   material regression at MEDIAN OR TAIL latency; numeric budgets set from the
   first measured baseline rather than guessed; the first transport spike
   establishes direct-provider baselines used "as both absolute targets and
-  maximum adapter regressions." `flutter-avatar-client-ui-lab.md` lines 313-320
+  maximum adapter regressions." `openspec/changes/archive/2026-07-13-define-avatar-client-contract-kernel/supporting-docs/flutter-avatar-client-ui-lab.md` lines 313-320
   and 90-92.
 - **The kernel deferred the formal AVC-10 latency contract and pilot budgets to
   this change**; a live pilot MUST NOT proceed without approved measured
   budgets; kernel latency evidence was structured logging only.
-  `archive/2026-07-13-define-avatar-client-contract-kernel/specs/avatar-client-runtime/spec.md`
+  `openspec/changes/archive/2026-07-13-define-avatar-client-contract-kernel/specs/avatar-client-runtime/spec.md`
   lines 585-604.
 - **AVC-10 latency-sample shape (reserved)** carries sample/session/media-leg/turn
   identity, adapter/profile, platform, network, region, clock source/quality,
@@ -345,23 +345,23 @@ there a single neutral SLO the acceptance map enforces?"
   classification, and a reproducible fixture reference; markers cover broker
   request, provider call, sideband ready, media connected, speech, first audio,
   playback, interruption, command, tool outcome, recovery, teardown; no raw
-  content or secrets. `archive/.../supporting-docs/avatar-client-neutral-contracts.md`
+  content or secrets. `openspec/changes/archive/2026-07-13-define-avatar-client-contract-kernel/supporting-docs/avatar-client-neutral-contracts.md`
   lines 243-250.
 - **AVC-09 descriptor (reserved)** records adapter/version, provider,
   supported/requested/resolved profiles, config versions, authorization mode,
   sideband readiness, direct-media requirement, region/data controls, and
   experimental/candidate/approved/retired status — it carries STATUS, not
   numeric latency-budget fields.
-  `archive/.../supporting-docs/avatar-client-neutral-contracts.md` lines 231-241.
+  `openspec/changes/archive/2026-07-13-define-avatar-client-contract-kernel/supporting-docs/avatar-client-neutral-contracts.md` lines 231-241.
 - **The acceptance map is the enforcement locus**: every normative
   requirement/scenario has a stable map entry naming owning task, evidence ID,
   release ring, and status; `scripts/validate-avatar-client.py` compares the map
   to the delta specs and fails on unmapped/missing evidence; internal-live
-  requires "measured latency evidence." `archive/.../specs/avatar-client-runtime/spec.md`
+  requires "measured latency evidence." `openspec/changes/archive/2026-07-13-define-avatar-client-contract-kernel/specs/avatar-client-runtime/spec.md`
   lines 606-624.
 - **Activation-gate condition 6**: "Latency and conversational-flow results meet
   or improve on the gpt-realtime-2.1 baseline." Lab platform set is Windows
-  desktop and web (first Flutter targets). `flutter-avatar-client-ui-lab.md`
+  desktop and web (first Flutter targets). `openspec/changes/archive/2026-07-13-define-avatar-client-contract-kernel/supporting-docs/flutter-avatar-client-ui-lab.md`
   lines 394-395 and 68, 593.
 
 ### Options
@@ -535,28 +535,28 @@ conditions are hard preflight blockers versus canary-time checks?"
   baseline; (7) safety/exact-value/consent/handoff/blocked-state evaluations pass
   for generic, MedxFactory, and LedgerxFactory; (8) an opt-in canary on new
   sessions succeeds with rollback via a server-side profile change.
-  `archive/2026-07-13-define-avatar-client-contract-kernel/supporting-docs/flutter-avatar-client-ui-lab.md:382-399`.
+  `openspec/changes/archive/2026-07-13-define-avatar-client-contract-kernel/supporting-docs/flutter-avatar-client-ui-lab.md:382-399`.
 - **The internal-live ring is the kernel's FOUR-element ring, NOT the eight**:
   release rings SHALL be "deterministic lab ..., internal live (live provider
   qualification plus secret scan, telemetry redaction verification, kill-switch
   proof, and measured latency evidence), and pilot (threat-model closure,
   data-handling review, accessibility evidence, and rollback rehearsal)." A later
   ring requires the prior ring's evidence.
-  `archive/.../specs/avatar-client-runtime/spec.md:606-618`.
+  `openspec/changes/archive/2026-07-13-define-avatar-client-contract-kernel/specs/avatar-client-runtime/spec.md:606-618`.
 - **gpt-realtime-2.1 is the F0 candidate but MUST stay disabled** for
   internal-live/production until qualify-avatar-live-voice records approved
   promotion evidence; **gpt-live-1 SHALL remain disabled pending its OWN
   qualification** — two models qualified by two distinct acts.
-  `archive/.../specs/avatar-client-runtime/spec.md:430-434`.
+  `openspec/changes/archive/2026-07-13-define-avatar-client-contract-kernel/specs/avatar-client-runtime/spec.md:430-434`.
 - **GPT-Live adoption is a SEPARATELY approved change**, distinct from
   qualify-avatar-live-voice which "performs internal-live provider
-  qualification." `archive/.../supporting-docs/avatar-client-parallel-workstream-plan.md:89,93`.
+  qualification." `openspec/changes/archive/2026-07-13-define-avatar-client-contract-kernel/supporting-docs/avatar-client-parallel-workstream-plan.md:89,93`.
 - **The expert panel deliberately collapsed five rings to three** (deterministic
   lab, internal live, pilot) and kept the invariant-guarding checks (secret
   scan, redaction verification, kill-switch proof) as CI duties, moving
   SBOM/chaos/formal-audit evidence to the pilot gate only — an explicit ruling
   AGAINST over-gating the zero-user internal ring.
-  `archive/.../supporting-docs/expert-panel-review-2026-07-10.md:174-180`.
+  `openspec/changes/archive/2026-07-13-define-avatar-client-contract-kernel/supporting-docs/expert-panel-review-2026-07-10.md:174-180`.
 - **The staging topic scopes this as "provider qualification for the
   internal-live release ring only — not a pilot, and not the GPT-Live-1 default
   swap,"** and Claim 7 says the gate "reuses the eight-condition GPT-Live-1
@@ -573,7 +573,7 @@ conditions are hard preflight blockers versus canary-time checks?"
   successor change creates xfactory-avatar-client it MUST be private,
   independently releasable, hold no provider keys/server tool handlers; adding it
   to the aggregation requires a SEPARATE reviewed change.
-  `archive/.../specs/repo-boundary-governance/spec.md:22-24,30-43,57-59`.
+  `openspec/changes/archive/2026-07-13-define-avatar-client-contract-kernel/specs/repo-boundary-governance/spec.md:22-24,30-43,57-59`.
 - **The 002 lab record binds the CURRENT home and defers the move**:
   "codexFactory apps/avatar-client-lab/ is the ratified home (the standalone-repo
   wording activates at the internal-live gate, not now)" — but names no change as
@@ -797,8 +797,9 @@ stay synthetic-only like F0?"
   purposes that resolve to existing consent flags without adding enforcement —
   MedxFactory added consent_purposes (media_capture, provider_processing,
   structured_record) each "governed_by" an existing flag, "NO new enforcement
-  rule ... NO default." `/workspace/projects/xFactory/CLAUDE.md` (layer model
-  line); `xFactories/MedxFactory/hermes/patient/consent-model.yaml:16-32`;
+  rule ... NO default." the aggregation workspace's CLAUDE.md orientation on
+  the Hermes layer model (not in this repo);
+  `xFactories/MedxFactory/hermes/patient/consent-model.yaml:16-32`;
   `docs/xfactory-domain-factory-model.md:644`.
 
 ### Options
@@ -956,23 +957,23 @@ mid-qualification abort preserve the canonical workflow and audit record?"
   deterministic acceptance passes. This is qualification, explicitly not the
   pilot ring (which owns threat-model closure, data-handling review,
   accessibility evidence, and rollback rehearsal).
-  `specs/avatar-client-runtime/spec.md:606-613`.
+  `openspec/changes/archive/2026-07-13-define-avatar-client-contract-kernel/specs/avatar-client-runtime/spec.md:606-613`.
 - **Exactly two server kill switches exist** — all-new-session-creation, and
   per-model-profile — EACH with OPTIONAL revocation of active leases. Rollback
   SHALL stop new sessions on the withdrawn profile, revoke affected active leases
   WHEN SAFETY REQUIRES IT, and preserve only policy-required records. The
   mechanism supports both block-new and revoke-active; a recorded policy decides
-  which applies. `specs/avatar-client-runtime/spec.md:626-629`; `design.md`
+  which applies. `openspec/changes/archive/2026-07-13-define-avatar-client-contract-kernel/specs/avatar-client-runtime/spec.md:626-629`; `openspec/changes/archive/2026-07-13-define-avatar-client-contract-kernel/design.md`
   Decision 13:492-495.
 - **On kill-switch activation the control API MUST enforce the selected scope
   immediately for new work AND revoke affected active leases "according to the
   recorded policy"** — but that recorded policy is not written in the sources.
-  `specs/avatar-client-runtime/spec.md:643-645`.
+  `openspec/changes/archive/2026-07-13-define-avatar-client-contract-kernel/specs/avatar-client-runtime/spec.md:643-645`.
 - **gpt-realtime-2.1 is the FIRST qualified live profile** — this change is what
   qualifies it. Rollback selects the last qualified profile only if one exists;
   if none exists, rollback disables voice and offers text or human handoff. So
   for this canary there is no graceful model fallback: rollback = disable voice →
-  text/handoff. `specs/avatar-client-runtime/spec.md:435-437`; `design.md`
+  text/handoff. `openspec/changes/archive/2026-07-13-define-avatar-client-contract-kernel/specs/avatar-client-runtime/spec.md:435-437`; `openspec/changes/archive/2026-07-13-define-avatar-client-contract-kernel/design.md`
   Decision 10:435-442.
 - **The revocation guarantee is CLIENT-ENFORCED** (ACR-005 ruling): on revoke the
   client stops its own media leg immediately and requests provider hangup within
@@ -980,7 +981,7 @@ mid-qualification abort preserve the canonical workflow and audit record?"
   gated. A provider profile that cannot prove media-leg termination within 5 s of
   broker revocation is not eligible for media authorization.
   `f0d-revocation-rerun-notes-2026-07-12.md:69-89`;
-  `specs/avatar-client-runtime/spec.md:521-522`.
+  `openspec/changes/archive/2026-07-13-define-avatar-client-contract-kernel/specs/avatar-client-runtime/spec.md:521-522`.
 - **F0 measured the real revocation bound**: client media-leg stop after
   revocation request 2-3 ms; provider hangup acceptance ~250 ms;
   first-playable-after-authorization p50 604 / p95 643 ms; sideband ready p50 772
@@ -994,7 +995,7 @@ mid-qualification abort preserve the canonical workflow and audit record?"
   command_rejected+second_instance_denied, incumbent unaffected;
   stale-revision-command-fenced: command_conflict, control healthy;
   snapshot-barrier-recovery: gap → barrier → snapshot → clean drain, control
-  healthy). `design.md` Terms:66-69 +
+  healthy). `openspec/changes/archive/2026-07-13-define-avatar-client-contract-kernel/design.md` Terms:66-69 +
   `fixtures/deterministic/lease-epoch-takeover.yaml:43-75`,
   `stale-revision-command-fenced.yaml:48-59`, `snapshot-barrier-recovery.yaml:55-66`.
 - **A mid-session consent/lease revocation is an authoritative, authored
@@ -1010,28 +1011,28 @@ mid-qualification abort preserve the canonical workflow and audit record?"
   user-facing xFactory conversation and workflow identity and survives media
   reconnects; the live plane adds NO second workflow session. Aborting a media
   leg does not by itself terminate the workflow — the workflow projection and its
-  records are authority-owned, separate from the media plane. `design.md`
+  records are authority-owned, separate from the media plane. `openspec/changes/archive/2026-07-13-define-avatar-client-contract-kernel/design.md`
   Decision 2:169-178, Terms:54-56; staging claim 8.
 - **Retained-under-policy audit survives an abort**: structured confirmation
   decisions, consent versions, approvals, tool outcomes, and final workflow
   outcomes are retained; SDP/credentials/partial transcripts/provider payloads
   are ephemeral by definition. Rollback "preserves only policy-required records."
   Terminal/revoked/expired/completed/abandoned sessions never resume as active.
-  `design.md` Decision 12:472-485, Decision 9:426;
-  `specs/avatar-client-runtime/spec.md:364,628-629`.
+  `openspec/changes/archive/2026-07-13-define-avatar-client-contract-kernel/design.md` Decision 12:472-485, Decision 9:426;
+  `openspec/changes/archive/2026-07-13-define-avatar-client-contract-kernel/specs/avatar-client-runtime/spec.md:364,628-629`.
 - **The internal-live cohort/opt-in surface is NOT DEFINED anywhere** in the
   avatar-client sources — a grep across docs/, contracts/, and the kernel change
   for canary|cohort|opt-in returns no cohorting definition; the expert panel's
   original five-ring SBOM/chaos/canary/rollback-rehearsal model was deliberately
   simplified to three rings. `expert-panel-review-2026-07-10.md:174-177` vs
-  `specs/avatar-client-runtime/spec.md:607-612`.
+  `openspec/changes/archive/2026-07-13-define-avatar-client-contract-kernel/specs/avatar-client-runtime/spec.md:607-612`.
 - **Authenticated identity for the internal-live ring uses a named concrete
   mechanism** (OIDC bearer validated by the broker for AVC-01 plus the
   per-session control credential in AVC-02); the intended simplest topology is
   one broker deployment per domain deployment with one project-scoped provider key
   per deployment. Release-evidence obligations (incl. a rollback target
-  reference) activate AT the internal-live gate. `design.md:97-103`;
-  `specs/repo-boundary-governance/spec.md:30-47`.
+  reference) activate AT the internal-live gate. `openspec/changes/archive/2026-07-13-define-avatar-client-contract-kernel/design.md:97-103`;
+  `openspec/changes/archive/2026-07-13-define-avatar-client-contract-kernel/specs/repo-boundary-governance/spec.md:30-47`.
 - **F0 PASS explicitly does not qualify live use**; it may only proceed the
   contract publication gate while the provider profile remains disabled for live
   rings, and any attempt to enable internal-live from F0 evidence alone must be
