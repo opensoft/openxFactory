@@ -150,9 +150,19 @@ const CREATE_LABELS = {
 // pane would be re-earned by a model call every time a human came back to a
 // document. Ruling 7.6 states the behaviour rather than leaving it to component
 // lifetime — an abstract SURVIVES leaving and re-entering the tile in-session,
-// KEYED BY (path, digest) — so that pair is literally the key here. The server
-// replays an identical key without a second dispatch anyway; this is what keeps
-// the request from being made at all.
+// KEYED BY (path, digest, MODEL) — so that triple is literally the key here.
+// The server replays an identical key without a second dispatch anyway; this is
+// what keeps the request from being made at all.
+//
+// THE MODEL IS IN IT (packet review, Codex on PR #352, 2026-08-25) because the
+// SERVER's key gained it, and a client that disagreed would win: a browser
+// replaying its own cached prose after a model switch never asks the server at
+// all, so the server's correct key is never consulted and the reader is handed
+// one model's prose under another model's name. It is the model the request was
+// DISPATCHED WITH — the id this pane can know before asking — while the model
+// the artifact RECORDS is the resolved one the answer carries; for an `auto`
+// entry those differ, and the cost of that is one replayed round trip the
+// server answers from its own cache, never a wrong answer.
 //
 // SESSION-LOCAL AND NOTHING ELSE (ruling 2(b)): it reaches no storage, no
 // snapshot, no corpus and no gate artifact, and it dies with the page. Bounded
@@ -171,19 +181,43 @@ function boundMap(map, limit) {
   }
 }
 
+// THE DOCS PANE REPAINTS WHEN THE MODEL CHOICE MOVES. The abstract shown is a
+// fact about (document, digest, MODEL), and the model lives on the chat rail —
+// so a human switching model while the docs pane stands still would otherwise
+// keep reading the previous model's prose under the model-derived caption,
+// which is the artifact-lies-about-its-provenance failure one surface further
+// out. The shell calls this from the rail's own state callback; the pane
+// registers `session.repaint` as it renders.
+function repaintAbstractSession(scopeKey) {
+  const session = abstractSessions.get(String(scopeKey || ""));
+  if (session && typeof session.repaint === "function") session.repaint();
+}
+
 function abstractSessionFor(scopeKey) {
   const key = String(scopeKey || "");
   let session = abstractSessions.get(key);
   if (!session) {
     session = {
-      // (path, digest) -> the verified abstract the server answered with
+      // (path, digest, model) -> the verified abstract the server answered with
       abstracts: new Map(),
-      // path -> which of that path's digests is the one to show
+      // (path, model) -> which of that pair's digests is the one to show
       current: new Map(),
+      // path -> the entry key of the most recent answer for it UNDER ANY MODEL.
+      // The fallback for a console with NO model selectable at all (ruling 7.7:
+      // where the gate capability is absent the control is ABSENT and any
+      // already-generated abstract "SHALL remain readable with its normal
+      // caption"). The model qualification exists to disambiguate between two
+      // models a human is choosing between; with nothing to choose from there
+      // is nothing to disambiguate, and hiding a readable abstract behind an
+      // absent selection would break that ruling.
+      lastAnswered: new Map(),
       // path -> the digest the server last echoed for it (ruling 3's source of
       // truth for an UNLOADED subject: the SERVED SAVED CONTENT's digest)
       latest: new Map(),
-      // path -> the sentence a stated refusal gave, rendered as the note
+      // (path, model) -> the sentence a stated refusal gave, rendered as the
+      // note. Model-qualified for the same reason the abstracts are: "this
+      // model could not distil this document" is not a fact about the next
+      // model a human picks.
       refusals: new Map(),
       // THE ADAPTER'S OWN declared bound, learned from the most recent answer
       // for THIS scope. Null until one has carried it: the region then names no
@@ -202,8 +236,20 @@ function abstractSessionFor(scopeKey) {
   return session;
 }
 
-function abstractEntryKey(path, digest) {
-  return String(path) + " @ " + String(digest);
+// COMPOSED AS JSON, NEVER JOINED — the `scopeKey` ruling (N6) one level down.
+// A document path and a model id are both attacker-influenced strings that can
+// contain any separator a join might pick, and two different triples composing
+// one string is how one document's abstract becomes another's.
+function abstractEntryKey(path, digest, modelId) {
+  return JSON.stringify([String(path), String(digest), String(modelId)]);
+}
+
+// "WHICH DIGEST OF THIS DOCUMENT, UNDER THIS MODEL, IS THE ONE TO SHOW." The
+// digest half moves when the document is edited; the model half moves when the
+// human picks another model, and it is what makes a switched model show the
+// NOT-YET-GENERATED state rather than the previous model's prose.
+function abstractCurrentKey(path, modelId) {
+  return JSON.stringify([String(path), String(modelId)]);
 }
 
 const ABSTRACT_NO_MODEL_SENTENCE =
@@ -302,12 +348,20 @@ function renderAbstract(host, doc, ctx) {
   // ABSENT rather than present-and-refusing where the gate capability is not
   // live, and absent on the hosted plane, which offers no such route at all.
   if (state.generateOffered || state.regenerateOffered) {
+    const regenerating = !!state.regenerateOffered;
     const generate = el("button", "swb-abstractgenerate",
-      state.regenerateOffered
+      regenerating
         ? "re-generate from the current version"
         : "distil this document with a model");
     generate.type = "button";
-    generate.addEventListener("click", () => ctx.generate());
+    // THE ONE PLACE A REFRESH INTENT IS ISSUED. The RE-GENERATE control means
+    // "ask again", and without saying so on the request it could not: a
+    // regeneration against unchanged content and an unchanged model has an
+    // identical cache key by construction, so the server would replay and the
+    // control would be inert except by the accident of eviction. GENERATE means
+    // "ask", and asks with no intent, so the first press of a session and every
+    // re-entry take the ordinary replay path.
+    generate.addEventListener("click", () => ctx.generate(regenerating));
     controls.appendChild(generate);
   }
   if (state.cancelOffered && ctx) {
@@ -510,28 +564,33 @@ function renderDocsPanel(pane, scope, onOpen, create, verbs, abstractSeam) {
   // re-registers this one (below).
   const repaint = () => (session.repaint || paint)();
 
-  async function runAbstractGeneration() {
+  // `refresh` is the EXPLICIT REFRESH INTENT, and ONLY the RE-GENERATE control
+  // passes it. A selection change, the mount-time seed, a tile re-entry and the
+  // first GENERATE all leave it false, so the server replays as before — and a
+  // re-entry does not even reach here, because the cache above answers it.
+  async function runAbstractGeneration(refresh) {
     const subject = session.subject;
     if (!subject || !seam || typeof seam.generate !== "function") return;
     const path = subject.path;
     const modelId = typeof seam.modelId === "function" ? seam.modelId() : null;
+    const noteKey = abstractCurrentKey(path, modelId);
     abstractView = "model";
     if (!modelId) {
       // STATED, NEVER DISPATCHED: with no approved model there is nothing to
       // ask for. The shell's posture note says this about the plane; this says
       // it about the act the human just invoked.
-      session.refusals.set(path, ABSTRACT_NO_MODEL_SENTENCE);
+      session.refusals.set(noteKey, ABSTRACT_NO_MODEL_SENTENCE);
       boundMap(session.refusals, ABSTRACT_ENTRY_LIMIT);
       repaint();
       return;
     }
     const token = (session.token += 1);
     session.inFlight = path;
-    session.refusals.delete(path);
+    session.refusals.delete(noteKey);
     repaint();
     let answer = null;
     try {
-      answer = await seam.generate(path, modelId);
+      answer = await seam.generate(path, modelId, refresh === true);
     } catch (unused) {
       answer = null;
     }
@@ -574,19 +633,29 @@ function renderDocsPanel(pane, scope, onOpen, create, verbs, abstractSeam) {
     }
     if (payload && payload.ok === true && digest
         && typeof payload.prose === "string" && payload.prose) {
-      session.abstracts.set(abstractEntryKey(path, digest), Object.freeze({
-        prose: payload.prose,
-        subjectDigest: digest,
-        modelId: typeof payload.model_id === "string"
-          ? payload.model_id : null,
-        generation: typeof payload.generation === "number"
-          ? payload.generation : null,
-      }));
+      // KEYED BY THE MODEL THIS REQUEST WAS DISPATCHED WITH, not by the one the
+      // answer records. They are the same for a plain entry and differ for a
+      // routing rule, and the REQUESTED id is the only one a later lookup can
+      // reconstruct: the pane knows what the human has selected, never what an
+      // `auto` rule will resolve to. `modelId` on the entry below still carries
+      // the RESOLVED id the server answered with, so the caption and the
+      // provenance never claim a model that did not answer.
+      session.abstracts.set(abstractEntryKey(path, digest, modelId),
+        Object.freeze({
+          prose: payload.prose,
+          subjectDigest: digest,
+          modelId: typeof payload.model_id === "string"
+            ? payload.model_id : null,
+          generation: typeof payload.generation === "number"
+            ? payload.generation : null,
+        }));
       boundMap(session.abstracts, ABSTRACT_ENTRY_LIMIT);
-      session.current.set(path, digest);
+      session.current.set(noteKey, digest);
       boundMap(session.current, ABSTRACT_ENTRY_LIMIT);
+      session.lastAnswered.set(path, abstractEntryKey(path, digest, modelId));
+      boundMap(session.lastAnswered, ABSTRACT_ENTRY_LIMIT);
     } else {
-      session.refusals.set(path, abstractRefusalSentence(payload));
+      session.refusals.set(noteKey, abstractRefusalSentence(payload));
       boundMap(session.refusals, ABSTRACT_ENTRY_LIMIT);
     }
     repaint();
@@ -600,13 +669,26 @@ function renderDocsPanel(pane, scope, onOpen, create, verbs, abstractSeam) {
       paint();
     },
     generatedFor(path) {
-      // KEYED BY (path, digest), which is what makes a regeneration after an
-      // edit a NEW entry rather than an overwrite — and what lets the abstract
-      // for the version a reader last saw stay findable while it is labelled
-      // stale.
-      const digest = session.current.get(path);
+      // KEYED BY (path, digest, MODEL), which is what makes a regeneration
+      // after an edit a NEW entry rather than an overwrite — and what lets the
+      // abstract for the version a reader last saw stay findable while it is
+      // labelled stale. The MODEL is read LIVE, so switching model shows the
+      // not-yet-generated state for a document this model has not distilled,
+      // and switching back replays the one it did.
+      const modelId = seam && typeof seam.modelId === "function"
+        ? seam.modelId() : null;
+      if (!modelId) {
+        // NO MODEL SELECTABLE — the ungated and hosted consoles. See
+        // `lastAnswered` above: ruling 7.7 keeps an already-generated abstract
+        // readable there, so the lookup falls back to this document's most
+        // recent answer under whatever model produced it.
+        const recent = session.lastAnswered.get(path);
+        return recent ? session.abstracts.get(recent) || null : null;
+      }
+      const digest = session.current.get(abstractCurrentKey(path, modelId));
       return digest
-        ? session.abstracts.get(abstractEntryKey(path, digest)) || null : null;
+        ? session.abstracts.get(abstractEntryKey(path, digest, modelId)) || null
+        : null;
     },
     currentDigestFor(path) {
       return abstractSubjectDigest({
@@ -616,7 +698,9 @@ function renderDocsPanel(pane, scope, onOpen, create, verbs, abstractSeam) {
       });
     },
     refusalFor(path) {
-      const reason = session.refusals.get(path);
+      const modelId = seam && typeof seam.modelId === "function"
+        ? seam.modelId() : null;
+      const reason = session.refusals.get(abstractCurrentKey(path, modelId));
       return reason ? { reason } : null;
     },
     dirtyFor(path) {
@@ -639,10 +723,10 @@ function renderDocsPanel(pane, scope, onOpen, create, verbs, abstractSeam) {
       session.inFlight = null;
       paint();
     },
-    generate() {
+    generate(refresh) {
       // Deliberately NOT awaited by the listener: a click handler that returned
       // the pending dispatch would hold the event open for the whole wait.
-      void runAbstractGeneration();
+      void runAbstractGeneration(refresh === true);
     },
   };
   session.repaint = paint;
@@ -2128,7 +2212,7 @@ export function mountStagingWorkbench(container, snapshot,
       modelId: () => abstractModelId,
       identityFor: (path) => docBufferIdentity(path),
       generate: wired
-        ? (subjectPath, modelId) => doxbench.documentAbstract({
+        ? (subjectPath, modelId, refresh) => doxbench.documentAbstract({
             scope: {
               repository: String(active?.repository || ""),
               ref: String(active?.ref || ""),
@@ -2141,6 +2225,13 @@ export function mountStagingWorkbench(container, snapshot,
             // could travel in even by accident.
             subject_path: String(subjectPath),
             model_id: String(modelId),
+            // THE EXPLICIT REFRESH INTENT, and ONLY when the RE-GENERATE
+            // control issued one. ABSENT rather than `false` on every other
+            // invocation, because the route's closed shape reads an absent
+            // field as no intent and a request that says nothing about
+            // refreshing is the honest shape of "a human asked for this
+            // document, not for it again".
+            ...(refresh === true ? { refresh: true } : {}),
           })
         : null,
     };
@@ -2470,8 +2561,18 @@ export function mountStagingWorkbench(container, snapshot,
             ? chatState.selectedModelId : null;
           const firstApproved = (models.find(
             (m) => m.available === true) || {}).model_id;
+          const previousAbstractModel = abstractModelId;
           abstractModelId = chosen
             || (typeof firstApproved === "string" ? firstApproved : null);
+          // A CHANGED CHOICE REPAINTS THE DOCS ABSTRACT. The pane's session
+          // cache is keyed by the model, so the region's state genuinely
+          // differs after a switch — not-yet-generated for a model that has
+          // not distilled this document, and the other model's abstract again
+          // on the way back. Without this the DOM keeps whatever the previous
+          // model produced, captioned as though this model produced it.
+          if (abstractModelId !== previousAbstractModel) {
+            repaintAbstractSession(docsAbstractSeam().scopeKey);
+          }
           // T104 F10-1: the FAILURE moves the note too, not only the count —
           // a failed catalog never changes the count (it stays zero), which
           // is exactly why the misdiagnosed "no approved model is

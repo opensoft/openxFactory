@@ -35,9 +35,35 @@ under profile `doxbench-bridge` (`:121`). Needed before starting:
 5. Switch the region to the model state, press **Generate** — one POST to
    `/actions/workbench/document-abstract`, body
    `{"scope": {...}, "subject_path": "...", "model_id": "omp-local"}`.
+   The request shape is CLOSED and carries ONE optional extra field,
+   `"refresh": true` — the EXPLICIT REFRESH INTENT the **re-generate** control
+   issues, and nothing else does. **Generate** omits it; so do the mount, a
+   selection change and a tile re-entry. Absent means "replay a completed
+   answer for this key with no second dispatch"; `true` means "invalidate that
+   answer, dispatch again, replace it". Anything other than a JSON boolean —
+   `1`, `"true"` — is a MALFORMED request, and an unknown key still is.
 6. Capture the response body verbatim. Success carries exactly `ok,
    subject_path, subject_digest, model_id, prose, caption_state, generation,
    wait_bound_seconds`.
+7. **Press re-generate on the same document, unchanged.** The body is identical
+   plus `"refresh": true`, and a SECOND dispatch must occur — the harness opens
+   a second turn in the same `doxbench-abstract` conversation, and the returned
+   `generation` moves. Without the intent this press would replay step 6's body
+   byte for byte, which is the inert control packet review found (Codex on
+   PR #352, landed as `85e05ebe`).
+
+### One note on the model id, and on switching it
+
+The cache key is `(repository, ref, subject_path, content_digest, RESOLVED
+model id)`, and `model_id` in the body is the id the human SELECTED. Where the
+catalog entry is a routing rule (an `auto` entry) the key and the recorded
+`model_id` both carry the id it RESOLVES to, not the rule's — so a run through
+`auto` and a run naming the resolved model directly are ONE question and the
+second replays. Switching the rail's model and pressing Generate again on an
+unchanged document is therefore a SECOND dispatch, not a replay, and the region
+shows the not-yet-generated caption in between; that is worth doing once in the
+same run, because it is the half of the key a single-model install never
+exercises.
 
 ### One note on what the session root will hold
 

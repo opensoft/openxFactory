@@ -3727,8 +3727,20 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         The subject path is checked for SHAPE only (repository-relative POSIX,
         no traversal segment): a path that is not one is a MALFORMED request, not
         an ineligible subject, and answering it with the eligibility refusal
-        would echo a traversal string back as though it named a document."""
-        if set(payload) != {"scope", "subject_path", "model_id"}:
+        would echo a traversal string back as though it named a document.
+
+        `refresh` is the EXPLICIT REFRESH INTENT the RE-GENERATE control issues
+        (packet review, Codex on PR #352). It is OPTIONAL — absent means no
+        intent, which is what every selection, mount and tile re-entry sends —
+        and it is a BOOLEAN and not a truthy value: `1` and `"true"` are
+        malformed, because a request that meant to spend a model call should say
+        so in the type the shape declares. Adding it does not open the shape: an
+        unknown key is still refused, and that is asserted."""
+        known = {"scope", "subject_path", "model_id"}
+        if not known <= set(payload) or set(payload) - known - {"refresh"}:
+            return None
+        refresh = payload.get("refresh", False)
+        if not isinstance(refresh, bool):
             return None
         scope = payload.get("scope")
         if not isinstance(scope, dict):
@@ -3749,7 +3761,7 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                        for segment in subject_path.split("/"))):
             return None
         return {"scope": scope, "subject_path": subject_path,
-                "model_id": model_id}
+                "model_id": model_id, "refresh": refresh}
 
     def _refuse_abstract(self, code, reason, *, subject_path,
                          subject_digest=None, caption_state=None,
@@ -3803,9 +3815,9 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             return
 
         # ---- step 2: the body bound. The TINY pre-existing cap, declared for
-        # this route by name: an abstract request carries a scope, a path and a
-        # model id and never a buffer, so the chat route's 1 MiB bound would be
-        # a bound this route has no use for.
+        # this route by name: an abstract request carries a scope, a path, a
+        # model id and one optional boolean, and never a buffer, so the chat
+        # route's 1 MiB bound would be a bound this route has no use for.
         payload, refusal = self._read_bounded_json_body(
             _MAX_BODY_BYTES, "request_body_bytes")
         if refusal is not None:
@@ -3828,6 +3840,7 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             return
         subject_path = fields["subject_path"]
         model_id = fields["model_id"]
+        refresh = fields["refresh"]
         key = doxbench_scope.ScopeKey(**fields["scope"])
 
         # ---- step 4: scope, all from SERVER truth ----
@@ -3940,6 +3953,16 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                 doxbench_error_status(DOXBENCH_ERR_MODEL_UNAVAILABLE),
                 doxbench_error_body(DOXBENCH_ERR_MODEL_UNAVAILABLE))
             return
+        # THE MODEL THAT WILL ACTUALLY ANSWER, resolved through the SAME one
+        # function the chat route's wire record and thread sidecar read, so the
+        # three cannot drift into three answers. For a plain entry it is the
+        # requested id; for an `auto` routing entry it is the model the rule
+        # resolves to. Resolved HERE, once, because both consumers below need
+        # exactly this value: the STORE KEY and the artifact's recorded
+        # provenance are the same three facts, and a route that resolved twice
+        # could key by one and record the other.
+        resolved_model_id = doxbench_selected_model(
+            model_entry)["resolved_model_id"]
         # THE ADAPTER'S OWN DECLARED BOUND, which the region states as the wait
         # it expects. Never `MAX_ADAPTER_TIMEOUT_SECONDS`: that is the validated
         # CEILING, and a region showing 120s while the adapter declared 60s would
@@ -4026,21 +4049,40 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         # path shared an entry, and the `previous` base below crossed between
         # them.
         #
-        # THE MODEL ID IS NOT IN THE KEY, and that is the ruled key rather than
-        # an omission: the requirement keys the cache by subject path and content
-        # digest so that returning to a document does not spend a second call on
-        # an answered question. A request naming a different model for bytes
-        # already answered therefore REPLAYS, and the body names the model that
-        # actually answered, so nothing on the wire claims the model that did
-        # not.
+        # THE RESOLVED MODEL ID IS IN THE KEY (packet review, Codex on PR #352).
+        # This surface lets a human change the selected model while the document
+        # stands still, so on a `(scope, path, digest)` key that second request
+        # is IDENTICAL by construction: the first model's prose replayed while
+        # the artifact recorded the model the reader had just picked, which is
+        # an artifact lying about its own provenance. It is the RESOLVED id and
+        # never the requested one -- an `auto` routing entry keys on the model
+        # that answered, for the same reason a turn records that model.
+        #
+        # AND THE REQUEST CARRIES AN EXPLICIT REFRESH INTENT. A regeneration
+        # against unchanged content and an unchanged model has an identical key
+        # by construction, so plain identical-key replay made the RE-GENERATE
+        # control the delta requires INERT except by the accident of eviction.
+        # `refresh` invalidates the completed entry, dispatches, and replaces
+        # it; unset -- every selection, mount and tile re-entry -- it replays as
+        # before. The store's one-in-flight arm is unconditional in both modes,
+        # so an impatient double-click still spends ONE model call.
         store_key = doxbench_abstract_store.AbstractKey(
             repository=key.repository, ref=key.ref,
-            subject_path=subject_path, content_digest=digest)
-        lease = self.abstract_store.reserve(store_key)
+            subject_path=subject_path, content_digest=digest,
+            resolved_model_id=resolved_model_id)
+        lease = self.abstract_store.reserve(store_key, refresh=refresh)
         if not lease.should_dispatch:
             outcome = lease.result
             self._send_json(outcome["status"], outcome["body"])
             return
+        # THE ANSWER A REFRESH JUST INVALIDATED, kept as this generation's
+        # PREVIOUS verification base. The ratified rule makes a previously
+        # generated abstract an ADDITIONAL base "where one exists", and
+        # RE-GENERATE is the one path where one always exists -- invalidating it
+        # out of the replay index and out of the verifier's reach in the same
+        # breath would verify the regenerate path against a strictly weaker base
+        # than every other path.
+        invalidated_abstract = lease.invalidated_abstract
 
         answered = False
         try:
@@ -4160,23 +4202,27 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                     prose,
                     subject_path=subject_path,
                     subject_digest=digest,
-                    model_id=doxbench_selected_model(
-                        model_entry)["resolved_model_id"],
+                    model_id=resolved_model_id,
                     declared_topics=declared_topics,
                     declared_destinations=declared_lands,
                     request_paths=tuple(carried),
                     subject_title=envelope.subject_title,
                     # The PREVIOUS abstract for this document IN THIS SCOPE,
-                    # under whatever digest it was generated from: the ratified
-                    # rule makes it an ADDITIONAL base, never the only one. It
-                    # can never be this key's own -- a cached answer for those
-                    # exact bytes was replayed above, before any verification
-                    # ran -- so what is offered here is the answer from BEFORE
-                    # the last edit, which is precisely the base the rule is
-                    # about.
-                    previous=self.abstract_store.latest_for_path(
-                        repository=key.repository, ref=key.ref,
-                        subject_path=subject_path),
+                    # under whatever digest and whatever model it was generated
+                    # from: the ratified rule makes it an ADDITIONAL base, never
+                    # the only one. On the ORDINARY path it can never be this
+                    # key's own -- a cached answer for those exact bytes and
+                    # that exact model was replayed above, before any
+                    # verification ran -- so what is offered is the answer from
+                    # before the last edit or from the other model, which is
+                    # precisely the base the rule is about. On the REFRESH path
+                    # it IS this key's own, invalidated moments ago and handed
+                    # back on the lease rather than dropped.
+                    previous=(invalidated_abstract
+                              if invalidated_abstract is not None
+                              else self.abstract_store.latest_for_path(
+                                  repository=key.repository, ref=key.ref,
+                                  subject_path=subject_path)),
                     generation=generation)
             except doxbench_knowledge.AbstractFormatRefused:
                 self._send_json(

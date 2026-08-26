@@ -466,13 +466,14 @@ function scriptedAbstracts() {
   };
 }
 
-function mountWorkbench(container, abstracts, capOverrides, activeOverride) {
+function mountWorkbench(container, abstracts, capOverrides, activeOverride,
+                       models) {
   const doxbench = {
     loadSource: async (path) => ({ content: '# ' + path + '\n', ref: 'main' }),
     storage: { getItem: () => null, setItem() {}, removeItem() {} },
     catalog: async () => ({ schema_version: 1, kind: 'workbench-model-catalog',
-                            models: [{ model_id: 'm1', label: 'M1',
-                                       available: true }] }),
+                            models: models || [{ model_id: 'm1', label: 'M1',
+                                                 available: true }] }),
     chatTurn: async () => ({ ok: false, status: 502, payload: {} }),
     save: async () => ({ status: 'committed', buffers: [] }),
     documentAbstract: abstracts ? abstracts.seam : undefined,
@@ -546,11 +547,25 @@ async function spin(container, key, times) {
   }
 }
 
-function successBody(subjectPath, digest, prose, waitBound, generation) {
+function successBody(subjectPath, digest, prose, waitBound, generation,
+                     modelId) {
   return { ok: true, status: 200, payload: {
     ok: true, subject_path: subjectPath, subject_digest: digest,
-    model_id: 'm1', prose, caption_state: 'model-derived',
+    model_id: modelId || 'm1', prose, caption_state: 'model-derived',
     generation, wait_bound_seconds: waitBound } };
+}
+
+// The rail is where a human CHOOSES a model, and the docs pane borrows that
+// choice rather than growing a second picker. Driving the REAL selector is
+// what makes "a human switched model while the document stood still" a thing
+// this harness can do at all.
+async function chooseModel(container, modelId) {
+  const { one } = probe(container);
+  const selector = one('doxchat-model');
+  if (!selector) throw new Error('the chat rail mounted no model selector');
+  selector.value = modelId;
+  await fire(selector, 'change');
+  await quiesce();
 }
 """
 
@@ -635,6 +650,17 @@ await quiesce();
 out.afterLateAnswer = regionShot(container);
 out.lateAnswerLeaked =
   String(regionShot(container).regionText || '').includes('LATE ANSWER');
+
+// ---- 5.3b/7.6 at the CONTROL: which invocations carry a refresh intent ---
+// The RE-GENERATE control issues one; the first GENERATE does not, and neither
+// does anything that is not a human invoking that control.
+out.firstRequestRefresh = Object.prototype.hasOwnProperty.call(
+  out.firstRequest || {}, 'refresh') ? out.firstRequest.refresh : '<<absent>>';
+out.regenerateRequestRefresh = Object.prototype.hasOwnProperty.call(
+  out.regenerateRequest || {}, 'refresh')
+  ? out.regenerateRequest.refresh : '<<absent>>';
+out.regenerateRequestKeys = out.regenerateRequest
+  ? Object.keys(out.regenerateRequest).sort() : null;
 
 // ---- 7.6: the abstract survives leaving and re-entering the tile ----------
 const requestsBeforeReturn = abstracts.requests.length;
@@ -817,6 +843,31 @@ def test_an_abstract_survives_leaving_and_re_entering_the_tile(pane):
     assert pane["requestsOnReturn"] == 0
 
 
+def test_the_RE_GENERATE_control_carries_an_explicit_refresh_intent(pane):
+    """TASK 5.3b at the control (packet review, Codex on PR #352). A
+    regeneration against unchanged content and an unchanged model has an
+    IDENTICAL cache key by construction, so without an explicit intent on the
+    request the RE-GENERATE control the delta requires is INERT except by the
+    accident of eviction. The control sends it; the first generation does not.
+
+    The FIRST press is the GENERATE control — nothing is cached yet — and it
+    sends no refresh field at all. The second press is the same button under its
+    RE-GENERATE label, and it sends `refresh: true`."""
+    assert pane["firstRequestRefresh"] == "<<absent>>"
+    assert pane["regenerateRequestRefresh"] is True
+    # …and the shape is still closed: a scope, a path, a model id, the intent
+    assert pane["regenerateRequestKeys"] == [
+        "model_id", "refresh", "scope", "subject_path"]
+
+
+def test_a_tile_re_entry_is_not_a_refresh(pane):
+    """The other half, and the one that keeps the bypass from becoming the
+    ordinary path: refresh intent MUST NOT be inferred from a selection change,
+    a mount or a re-entry. Returning to an answered document sends NO request at
+    all, so there is nothing for an intent to ride on."""
+    assert pane["requestsOnReturn"] == 0
+
+
 def test_a_subject_that_moved_past_its_abstract_is_labelled_stale(pane):
     """7.6a (ruling 3), end to end. The pane learns the subject's digest moved
     — here from a stated refusal echoing the new digest — and the abstract it
@@ -834,6 +885,118 @@ def test_a_subject_that_moved_past_its_abstract_is_labelled_stale(pane):
 # ---------------------------------------------------------------------------
 # 3. the two postures where generation is NOT offered
 # ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# 5.3a / 7.6 at the CLIENT — the session cache is keyed by the model too
+# ---------------------------------------------------------------------------
+#
+# The server's key gained the resolved model id, and the browser's session cache
+# has to agree or the two disagree in the reader's favour and against the truth:
+# a client that replayed its own cached prose after a model switch would never
+# ask the server at all, so the server's correct key would never be consulted.
+# What the reader must see instead is the NOT-YET-GENERATED state — this model
+# has not distilled this document — with the other model's abstract still held,
+# so switching back replays it rather than spending a second call.
+
+_MODEL_SWITCH_HARNESS = _prelude() + r"""
+const out = {};
+const abstracts = scriptedAbstracts();
+const container = document.createElement('div');
+const workbench = mountWorkbench(container, abstracts, null, null, [
+  { model_id: 'm1', label: 'M1', available: true },
+  { model_id: 'm2', label: 'M2', available: true },
+]);
+workbench.open('staged', 'topic-x');
+await quiesce();
+
+const wheel = (container.walk().find(
+  (n) => String(n.className).split(' ').includes('swb-pane-docs')) || {}).__docWheel;
+if (!wheel) throw new Error('the docs pane exposes no wheel');
+wheel.selectPath(PATH_A);
+await quiesce();
+await press(container, 'swb-abstracttoggle');   // the model-derived state
+
+// ---- m1 distils the document ---------------------------------------------
+await press(container, 'swb-abstractgenerate');
+out.firstModelId = (abstracts.requests[0] || {}).model_id;
+abstracts.resolve(successBody(
+  PATH_A, DIGEST_1, 'THE M1 DISTILLATION.', 60, 1, 'm1'));
+await quiesce();
+out.generatedByM1 = regionShot(container);
+
+// ---- a human changes the model while the DOCUMENT STANDS STILL -----------
+const requestsBeforeSwitch = abstracts.requests.length;
+await chooseModel(container, 'm2');
+out.requestsOnSwitch = abstracts.requests.length - requestsBeforeSwitch;
+out.afterSwitch = regionShot(container);
+out.m1ProseVisibleUnderM2 =
+  String(regionShot(container).regionText || '').includes('THE M1 DISTILLATION');
+
+// ---- m2 is asked, and answers for itself ---------------------------------
+await press(container, 'swb-abstractgenerate');
+out.secondModelId = (abstracts.requests[abstracts.requests.length - 1] || {})
+  .model_id;
+abstracts.resolve(successBody(
+  PATH_A, DIGEST_1, 'THE M2 DISTILLATION.', 60, 2, 'm2'));
+await quiesce();
+out.generatedByM2 = regionShot(container);
+
+// ---- and switching BACK replays m1's answer, with no new request ---------
+const requestsBeforeReturn = abstracts.requests.length;
+await chooseModel(container, 'm1');
+out.requestsOnReturnToM1 = abstracts.requests.length - requestsBeforeReturn;
+out.backOnM1 = regionShot(container);
+
+process.stdout.write(JSON.stringify(out));
+"""
+
+
+@pytest.fixture(scope="module")
+def model_switch(tmp_path_factory):
+    if NODE is None:
+        pytest.skip("node not available for the abstract-pane probe")
+    return _run_harness(tmp_path_factory, "doxbench-abstract-model-switch",
+                        _MODEL_SWITCH_HARNESS)
+
+
+def test_switching_the_model_shows_not_yet_generated_and_never_the_other_models_prose(
+        model_switch):
+    """TASK 5.3a at the client. The document has not moved; only the selected
+    model has. The region must state that THIS model has not distilled this
+    document — not replay m1's prose under m2's identity, which is the artifact
+    lying about its own provenance that the key exists to prevent."""
+    assert model_switch["firstModelId"] == "m1"
+    assert model_switch["generatedByM1"]["caption"] == CAP_MODEL
+    assert "THE M1 DISTILLATION" in model_switch["generatedByM1"]["regionText"]
+
+    # the switch itself dispatches NOTHING — a model choice is not an invocation
+    assert model_switch["requestsOnSwitch"] == 0
+    assert model_switch["afterSwitch"]["caption"] == CAP_UNGENERATED
+    assert model_switch["m1ProseVisibleUnderM2"] is False
+    # …and the control offered is GENERATE, not RE-GENERATE: there is nothing
+    # of this model's to regenerate
+    assert model_switch["afterSwitch"]["generateLabel"] == (
+        "distil this document with a model")
+
+
+def test_the_second_model_is_asked_for_itself_and_answers_for_itself(
+        model_switch):
+    assert model_switch["secondModelId"] == "m2"
+    assert "THE M2 DISTILLATION" in model_switch["generatedByM2"]["regionText"]
+    assert "THE M1 DISTILLATION" not in model_switch["generatedByM2"]["regionText"]
+
+
+def test_switching_back_replays_the_first_models_abstract_with_no_new_call(
+        model_switch):
+    """The cache holds BOTH, keyed by (path, digest, model). Returning to a
+    model that already distilled this document must not spend a second call on
+    a question that model already answered — which is the whole point of the
+    session cache surviving a tile re-entry."""
+    assert model_switch["requestsOnReturnToM1"] == 0
+    assert model_switch["backOnM1"]["caption"] == CAP_MODEL
+    assert "THE M1 DISTILLATION" in model_switch["backOnM1"]["regionText"]
+    assert "THE M2 DISTILLATION" not in model_switch["backOnM1"]["regionText"]
+
 
 _POSTURE_HARNESS = _prelude() + r"""
 const out = {};

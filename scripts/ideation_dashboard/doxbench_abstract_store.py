@@ -16,13 +16,29 @@ chat retry that should replay would re-dispatch (N1). That is the failure this
 module exists to make impossible: two stores, two bounds, and no line of code
 here that can reach the chat ledger.
 
-THE KEY IS `(scope, subject path, content digest)`, and the digest is IN it
-rather than compared against it. `TurnStore` refuses a differing digest under
-one key as a CONFLICT; an abstract cache keyed on path alone would therefore hard-refuse every
-regeneration after every document edit. Here a changed digest is simply a NEW
-KEY, which is what makes "regenerate after an edit" ordinary rather than an
-error, and re-dispatch after eviction is stated expected behaviour for the same
-reason.
+THE KEY IS `(scope, subject path, content digest, resolved model id)`, and both
+the digest and the model are IN it rather than compared against it. `TurnStore`
+refuses a differing digest under one key as a CONFLICT; an abstract cache keyed
+on path alone would therefore hard-refuse every regeneration after every
+document edit. Here a changed digest is simply a NEW KEY, which is what makes
+"regenerate after an edit" ordinary rather than an error, and re-dispatch after
+eviction is stated expected behaviour for the same reason. The RESOLVED MODEL ID
+is in it for the mirror-image reason: a human can change the selected model
+while the document stands still, so without it that second request is IDENTICAL
+and the first model's prose would replay while the artifact records the model
+the reader just picked.
+
+AND A THIRD REQUEST MODE: AN EXPLICIT REFRESH. Replay on an identical key and a
+working RE-GENERATE control are in direct conflict — a regeneration against
+unchanged content and an unchanged model has an identical key by construction,
+so plain replay made that control inert except by the accident of eviction. A
+reservation carrying `refresh=True` INVALIDATES the completed entry for its key,
+takes the in-flight slot and dispatches; its answer replaces the entry. The
+one-in-flight arm stays UNCONDITIONAL in both modes: a refresh arriving while a
+generation is already in flight for the same key ATTACHES to it, so an impatient
+double-click spends one model call and not two. The invalidated entry's verified
+abstract rides back on the lease, because invalidating an answer out of the
+replay index must not also invalidate it out of the verifier's reach.
 
 WHAT IS CACHED, AND WHAT IS NOT. Only an ANSWER is completed into this store — a
 verified abstract the route is about to send. A refusal is RELEASED instead: the
@@ -85,7 +101,8 @@ class AbstractStoreConflictError(AbstractStoreError):
 @dataclasses.dataclass(frozen=True, slots=True)
 class AbstractKey:
     """The ruled cache key: the SCOPE, the subject's repository-relative path,
-    AND the content digest of the SAVED bytes the abstract was generated from.
+    the content digest of the SAVED bytes the abstract was generated from, AND
+    the RESOLVED id of the model that answered it.
 
     THE SCOPE IS IN IT — added 2026-08-25 after the adversarial review's S3, and
     for the same reason `OmpHarnessBridge.conversation_key` carries it. The key
@@ -98,15 +115,30 @@ class AbstractKey:
     which is a cross-repository leak arriving through the key rather than
     through a route.
 
+    THE RESOLVED MODEL ID IS IN IT — added 2026-08-25 after the packet review
+    (Codex on PR #352), and for the mirror image of the digest's reason. This
+    surface lets a human change the selected model while the document stands
+    still: on a key without the model that second request is IDENTICAL, so the
+    first model's prose replayed while `DocumentAbstract.model_id` recorded the
+    model the reader had just picked — an artifact lying about its own
+    provenance, and a violation of the provider boundary's rule that every
+    consumer resolves a catalog model id. It is the RESOLVED id and never the
+    requested one: an `auto` routing entry keys on the model that ACTUALLY
+    ANSWERED, for the same reason a turn records that model, and keying on the
+    rule's own id would collide every routed abstract into one bucket while
+    sharing none of them with the plain model's.
+
     The components are FIELDS rather than a composed string, so the injectivity
     the bridge's JSON composition buys is here by construction: a frozen
     dataclass hashes and compares as the tuple of its fields, and there is no
-    separator for a repository name, a ref or a document path to contain."""
+    separator for a repository name, a ref, a document path or a model id to
+    contain."""
 
     repository: str
     ref: str
     subject_path: str
     content_digest: str
+    resolved_model_id: str
 
 
 @dataclasses.dataclass(frozen=True, slots=True)
@@ -132,11 +164,21 @@ class AbstractRecord:
 class AbstractLease:
     """The outcome of a ``reserve``: whether this caller must dispatch, the
     entry's state, and — for a replay — the answer to hand back unchanged with
-    no second dispatch."""
+    no second dispatch.
+
+    ``invalidated_abstract`` is the verified artifact an EXPLICIT REFRESH just
+    invalidated, handed back so the route can offer it to the verifier as that
+    generation's PREVIOUS base. The verification rule makes a previously
+    generated abstract an ADDITIONAL base "where one exists", and RE-GENERATE is
+    the one path where one always exists: dropping it at the moment of
+    invalidation would make the refresh path verify against a strictly weaker
+    base than every other path. ``None`` on every reservation that invalidated
+    nothing."""
 
     should_dispatch: bool
     state: str
     result: object | None
+    invalidated_abstract: object | None = None
 
 
 class AbstractStore:
@@ -147,7 +189,8 @@ class AbstractStore:
     the holder resolves, then replays the holder's answer — or, if the holder
     RELEASED the key (a refusal, which is not an answer), takes the in-flight
     slot itself and dispatches. ``reserve`` on an answered key replays it and
-    touches its recency.
+    touches its recency — unless it carries the EXPLICIT REFRESH INTENT, which
+    invalidates that answer and dispatches instead.
 
     The lock is held only for the brief in-memory bookkeeping each method does,
     never across a caller's or a provider's work. Deep copies run OUTSIDE it on
@@ -186,10 +229,27 @@ class AbstractStore:
 
     # -- reserve / attach / replay ------------------------------------------
 
-    def reserve(self, key: AbstractKey) -> AbstractLease:
-        """Reserve, attach to, or replay the entry for ``key``."""
+    def reserve(self, key: AbstractKey, *,
+                refresh: bool = False) -> AbstractLease:
+        """Reserve, attach to, or replay the entry for ``key``.
+
+        ``refresh`` is the EXPLICIT REFRESH INTENT the RE-GENERATE control
+        issues, and nothing else does: it MUST NOT be inferred from a selection
+        change, a mount, a tile re-entry, or any other event that is not the
+        human control being invoked. Set, and only where this caller finds a
+        COMPLETED entry without having waited for one, it invalidates that entry
+        and takes the in-flight slot. Unset, the method behaves exactly as it
+        always did.
+
+        THE ATTACH PATH IS NOT A REFRESH PATH, deliberately. A caller that
+        WAITED on an in-flight generation replays the holder's answer even when
+        it asked for a refresh: turning round and invalidating the answer it
+        just waited for would make two clicks cost two model calls, which is the
+        precise defect the one-in-flight arm exists to prevent."""
         replayed: AbstractRecord | None = None
+        invalidated: object | None = None
         with self._condition:
+            attached = False
             while True:
                 record = self._records.get(key)
                 if record is None:
@@ -208,11 +268,34 @@ class AbstractStore:
                     # ONE in-flight generation per key: wait for the holder
                     # rather than spending a second provider call on a question
                     # already being asked. `wait()` releases the lock, so
-                    # unrelated keys are never serialized behind this.
+                    # unrelated keys are never serialized behind this. This arm
+                    # is UNCONDITIONAL — a refresh gets no exemption from it.
+                    attached = True
                     self._condition.wait()
                     continue
+                if refresh and not attached:
+                    # THE BYPASS. The completed entry is invalidated — removed
+                    # from the replay index and from the byte total it was
+                    # charged against — and this caller takes the in-flight slot
+                    # and dispatches. Its answer replaces the entry.
+                    del self._records[key]
+                    self._resolved_bytes_total -= record.size_bytes
+                    self._records[key] = AbstractRecord(
+                        key=key,
+                        state=ABSTRACT_STATE_IN_FLIGHT,
+                        result=None,
+                        size_bytes=0,
+                        last_access_order=self._next_order_locked(),
+                        abstract=None,
+                    )
+                    invalidated = record.abstract
+                    break
                 replayed = self._touch_locked(key, record)
                 break
+        if replayed is None:
+            return AbstractLease(should_dispatch=True,
+                                 state=ABSTRACT_STATE_IN_FLIGHT, result=None,
+                                 invalidated_abstract=copy.deepcopy(invalidated))
         return AbstractLease(should_dispatch=False, state=replayed.state,
                              result=copy.deepcopy(replayed.result))
 
@@ -250,8 +333,8 @@ class AbstractStore:
             previous = self._records.get(key)
             if previous is None or previous.state != ABSTRACT_STATE_IN_FLIGHT:
                 raise AbstractStoreConflictError(
-                    "no in-flight generation exists to resolve for this subject "
-                    "and content digest")
+                    "no in-flight generation exists to resolve for this subject, "
+                    "content digest and model")
             self._records[key] = dataclasses.replace(
                 previous,
                 state=ABSTRACT_STATE_COMPLETED,
@@ -300,7 +383,15 @@ class AbstractStore:
     def latest_for_path(self, *, repository: str, ref: str,
                         subject_path: str) -> object | None:
         """The most recently used ANSWERED abstract for ``subject_path`` IN ONE
-        SCOPE, under any digest, or ``None``.
+        SCOPE, under any digest AND UNDER ANY MODEL, or ``None``.
+
+        MODEL-AGNOSTIC, deliberately, even though the model is in the key. This
+        answers "what abstract does this document already have", which the
+        ratified verification rule takes as an ADDITIONAL base: an answer from
+        another model is still a previous answer about THIS document, and the
+        rule says nothing that would narrow it to one model. The SCOPE is a
+        different matter — see below — because another repository's answer for
+        an identically-named document is a different document's abstract.
 
         SCOPE-QUALIFIED, and keyword-only so the three components cannot be
         transposed at a call site (S3). "The abstract this document already has"

@@ -729,7 +729,7 @@ def test_abstract_churn_never_evicts_the_served_processes_chat_records(tmp_path)
             key = store_mod.AbstractKey(
                 repository="fixture-repo", ref="main",
                 subject_path=f"ideation/staging/churn-{index:04d}/README.md",
-                content_digest=f"{index:064d}")
+                content_digest=f"{index:064d}", resolved_model_id="model-a")
             handler.abstract_store.reserve(key)
             handler.abstract_store.complete(
                 key, {"status": 200, "body": {"n": index}}, size_bytes=256)
@@ -1192,14 +1192,14 @@ def test_the_route_keys_the_store_by_the_WHOLE_scope(tmp_path):
         store = _handler_class(httpd).abstract_store
         digest = _saved_digest()
         assert store.snapshot(store_mod.AbstractKey(
-            repository="fixture-repo", ref="main",
-            subject_path=SUBJECT_PATH, content_digest=digest)) is not None
+            repository="fixture-repo", ref="main", subject_path=SUBJECT_PATH,
+            content_digest=digest, resolved_model_id="model-a")) is not None
         # a key differing ONLY in scope is a different question, and the
         # answered one is not reachable through it
         for scoped in (("other-repo", "main"), ("fixture-repo", "session/x")):
             assert store.snapshot(store_mod.AbstractKey(
-                repository=scoped[0], ref=scoped[1],
-                subject_path=SUBJECT_PATH, content_digest=digest)) is None
+                repository=scoped[0], ref=scoped[1], subject_path=SUBJECT_PATH,
+                content_digest=digest, resolved_model_id="model-a")) is None
         # …and the previous-abstract base is read back under the same scope
         assert store.latest_for_path(
             repository="fixture-repo", ref="main",
@@ -1227,3 +1227,248 @@ def test_a_served_process_with_no_abstract_store_refuses_rather_than_dispatching
     _assert_fixed_refusal(status, payload,
                           serve_mod.DOXBENCH_ERR_ABSTRACT_UNAVAILABLE)
     assert fake.calls.count("dispatch") == 0
+
+
+# ============================================================================
+# 5.3a — THE RESOLVED MODEL ID IS IN THE STORE KEY, AND ON THE ARTIFACT
+# ============================================================================
+#
+# Packet review (Codex on PR #352), landed on main as `85e05ebe`. A human can
+# change the selected model while the document stands still. On a key without
+# the model that second request is IDENTICAL by construction, so the first
+# model's prose replayed while `DocumentAbstract.model_id` recorded the model
+# the reader had just picked — an artifact lying about its own provenance.
+#
+# ASSERTED ON `port.dispatched` AND ON THE RETURNED `model_id`, never on the
+# store's internal dict: what a reader is owed is a second dispatch and a
+# truthful recorded model, and a test that read the dict would pass on a store
+# that keyed correctly and answered wrongly.
+
+
+def _two_model_catalog():
+    """Two available, plainly-selectable models. Nothing else about them
+    differs — the point is that only the model id does."""
+    return ModelCatalog.from_entries([
+        ModelCatalogEntry(
+            model_id=name, label="Approved authoring model " + name,
+            provider_class="on-tenant", available=True,
+            input_limit_bytes=1_048_576, output_limit_bytes=900_000,
+            data_handling="Processed in the approved tenant boundary")
+        for name in ("model-a", "model-b")])
+
+
+def _routing_catalog():
+    """`auto` routing to this fixture's own `model-a`, conformant on every rule
+    the released schema states: the badge carries the target's as a SEGMENT, it
+    resolves to a member of `routes_to`, that member is available, and its
+    limits do not exceed it."""
+    target = _catalog().entries[0]
+    rule = ModelCatalogEntry(
+        model_id="auto", label="Automatic (routes by role)",
+        provider_class="routing-rule", available=True,
+        input_limit_bytes=target.input_limit_bytes,
+        output_limit_bytes=target.output_limit_bytes,
+        data_handling="Routes by role. / " + target.data_handling,
+        routing_rule=True, routes_to=(target.model_id,),
+        resolved_model_id=target.model_id)
+    return ModelCatalog.from_entries([rule, target])
+
+
+def test_the_same_bytes_under_a_DIFFERENT_model_dispatch_twice(tmp_path):
+    """TASK 5.3a, the positive half. Same subject, same digest, a different
+    resolved model id: a SECOND dispatch against the newly resolved model, and
+    the first model's prose is not replayed under the second model's id."""
+    port = _ScriptedPort(
+        [GROUNDED_PROSE, GROUNDED_PROSE + " Distilled again."],
+        catalog=_two_model_catalog())
+    with _serving(tmp_path, model_port_factory=lambda: port) as (httpd, host, prt):
+        caps = _capabilities(host, prt)
+        first = _request(host, prt, "POST", ROUTE,
+                         body=_body(model_id="model-a"),
+                         headers=_console_headers(caps))
+        second = _request(host, prt, "POST", ROUTE,
+                          body=_body(model_id="model-b"),
+                          headers=_console_headers(caps))
+    assert first[0] == second[0] == 200
+    assert port.calls.count("dispatch") == 2
+    # …and each artifact records the model that ACTUALLY answered it
+    assert first[1]["model_id"] == "model-a"
+    assert second[1]["model_id"] == "model-b"
+    assert first[1]["prose"] != second[1]["prose"]
+
+
+def test_a_model_switch_never_replays_the_first_models_prose(tmp_path):
+    """The failure mode stated as itself: if the model were absent from the key
+    the second request would replay byte-for-byte, and the recorded model id
+    would name a model that never saw this document."""
+    port = _ScriptedPort([GROUNDED_PROSE, "REFUSED"],
+                         catalog=_two_model_catalog())
+    with _serving(tmp_path, model_port_factory=lambda: port) as (httpd, host, prt):
+        caps = _capabilities(host, prt)
+        first = _request(host, prt, "POST", ROUTE,
+                         body=_body(model_id="model-a"),
+                         headers=_console_headers(caps))
+        second = _request(host, prt, "POST", ROUTE,
+                          body=_body(model_id="model-b"),
+                          headers=_console_headers(caps))
+    assert first[0] == 200 and first[1]["prose"] == GROUNDED_PROSE
+    # the second really RAN: it got the scripted refusal, not the first answer
+    assert port.calls.count("dispatch") == 2
+    assert second[1].get("ok") is not True
+    assert second[1].get("prose") is None
+
+
+def test_a_ROUTING_RULE_entry_keys_on_the_resolved_id_and_not_the_rules(tmp_path):
+    """TASK 5.3a's routing-rule half. `auto` resolves to `model-a`, so the two
+    requests are ONE question: the second REPLAYS with no second dispatch. Key
+    on the rule's own id instead and every routed abstract collides in one
+    bucket while none of them shares the plain model's."""
+    port = _ScriptedPort([GROUNDED_PROSE, "A SECOND ANSWER"],
+                         catalog=_routing_catalog())
+    with _serving(tmp_path, model_port_factory=lambda: port) as (httpd, host, prt):
+        caps = _capabilities(host, prt)
+        routed = _request(host, prt, "POST", ROUTE, body=_body(model_id="auto"),
+                          headers=_console_headers(caps))
+        direct = _request(host, prt, "POST", ROUTE,
+                          body=_body(model_id="model-a"),
+                          headers=_console_headers(caps))
+    assert routed[0] == 200
+    # the RESOLVED id is what the artifact records, and `auto` is not a model
+    assert routed[1]["model_id"] == "model-a"
+    assert port.calls.count("dispatch") == 1
+    assert direct[1] == routed[1]
+
+
+def test_the_route_keys_the_store_by_the_RESOLVED_model_id(tmp_path):
+    """The key itself, read back through the store the served process bound —
+    the companion to the behavioural pins above, and the one that shows WHICH
+    field carries the model."""
+    port = _seeded_port(catalog=_routing_catalog())
+    with _serving(tmp_path, model_port_factory=lambda: port) as (httpd, host, prt):
+        caps = _capabilities(host, prt)
+        status, _payload, _raw = _request(host, prt, "POST", ROUTE,
+                                          body=_body(model_id="auto"),
+                                          headers=_console_headers(caps))
+        assert status == 200
+        store = _handler_class(httpd).abstract_store
+        digest = _saved_digest()
+        assert store.snapshot(store_mod.AbstractKey(
+            repository="fixture-repo", ref="main", subject_path=SUBJECT_PATH,
+            content_digest=digest, resolved_model_id="model-a")) is not None
+        # the RULE's id is not a key this store ever held
+        assert store.snapshot(store_mod.AbstractKey(
+            repository="fixture-repo", ref="main", subject_path=SUBJECT_PATH,
+            content_digest=digest, resolved_model_id="auto")) is None
+
+
+# ============================================================================
+# 5.3b — AN EXPLICIT REFRESH BYPASSES COMPLETED REPLAY
+# ============================================================================
+#
+# The RE-GENERATE control the delta requires could not regenerate: a
+# regeneration against unchanged content and an unchanged model has an
+# IDENTICAL key by construction, and the cache clause required an identical key
+# to replay without a second dispatch. The request now carries the intent.
+
+
+def test_an_explicit_refresh_dispatches_again_on_unchanged_bytes_and_model(
+        tmp_path):
+    """TASK 5.3b, the positive half: same subject, same digest, same model,
+    RE-GENERATE invoked. The completed entry is invalidated, a second dispatch
+    occurs, and the new result REPLACES the entry."""
+    port = _ScriptedPort([GROUNDED_PROSE,
+                          GROUNDED_PROSE + " A second distillation."])
+    with _serving(tmp_path, model_port_factory=lambda: port) as (httpd, host, prt):
+        caps = _capabilities(host, prt)
+        first = _request(host, prt, "POST", ROUTE, body=_body(),
+                         headers=_console_headers(caps))
+        refreshed = _request(host, prt, "POST", ROUTE,
+                             body=_body(refresh=True),
+                             headers=_console_headers(caps))
+        # …and the entry was REPLACED, not merely bypassed: a plain request
+        # afterwards replays the REFRESHED answer with no third dispatch
+        again = _request(host, prt, "POST", ROUTE, body=_body(),
+                         headers=_console_headers(caps))
+    assert first[0] == refreshed[0] == again[0] == 200
+    assert port.calls.count("dispatch") == 2
+    assert first[1]["prose"] == GROUNDED_PROSE
+    assert refreshed[1]["prose"] == GROUNDED_PROSE + " A second distillation."
+    assert again[1] == refreshed[1]
+
+
+def test_a_request_with_no_refresh_intent_replays_exactly_as_before(tmp_path):
+    """The unset default is the path every selection, mount and tile re-entry
+    takes, and it is unchanged: one dispatch, a byte-identical replay."""
+    port = _seeded_port()
+    with _serving(tmp_path, model_port_factory=lambda: port) as (httpd, host, prt):
+        caps = _capabilities(host, prt)
+        first = _request(host, prt, "POST", ROUTE, body=_body(),
+                         headers=_console_headers(caps))
+        second = _request(host, prt, "POST", ROUTE, body=_body(refresh=False),
+                          headers=_console_headers(caps))
+    assert first[0] == second[0] == 200
+    assert first[1] == second[1]
+    assert port.calls.count("dispatch") == 1
+
+
+def test_the_refresh_field_is_a_boolean_inside_a_still_CLOSED_shape(tmp_path):
+    """The shape gains ONE optional boolean and stays closed: an unknown key is
+    still refused, and a refresh field that is not a boolean is malformed rather
+    than truthy — `1` is not an intent."""
+    for body in ({"scope": dict(SCOPE), "subject_path": SUBJECT_PATH,
+                  "model_id": "model-a", "refresh": 1},
+                 {"scope": dict(SCOPE), "subject_path": SUBJECT_PATH,
+                  "model_id": "model-a", "refresh": "true"},
+                 {"scope": dict(SCOPE), "subject_path": SUBJECT_PATH,
+                  "model_id": "model-a", "refresh": True, "buffers": []},
+                 {"scope": dict(SCOPE), "subject_path": SUBJECT_PATH,
+                  "model_id": "model-a", "regenerate": True}):
+        port = _seeded_port()
+        status, payload, fake = _post(tmp_path, body, port=port)
+        assert status == serve_mod.doxbench_error_status(
+            serve_mod.DOXBENCH_ERR_INVALID_ABSTRACT_REQUEST), body
+        assert payload == serve_mod.doxbench_error_body(
+            serve_mod.DOXBENCH_ERR_INVALID_ABSTRACT_REQUEST)
+        assert fake.calls == []
+
+
+def test_a_refresh_arriving_mid_flight_spends_ONE_model_call(tmp_path):
+    """TASK 5.3b's negative half, at the route: an impatient double-click on
+    RE-GENERATE attaches to the generation already in flight for its key rather
+    than opening a second one. The one-in-flight arm is UNCONDITIONAL, so the
+    bypass cannot become a free-for-all."""
+    released = threading.Event()
+    seen = threading.Event()
+
+    class _BlockingPort(_ScriptedPort):
+        def dispatch(self, prompt_envelope):
+            seen.set()
+            released.wait(timeout=10)
+            return super().dispatch(prompt_envelope)
+
+    port = _BlockingPort([GROUNDED_PROSE, "A SECOND ANSWER"])
+    answers = {}
+    with _serving(tmp_path, model_port_factory=lambda: port) as (httpd, host, prt):
+        caps = _capabilities(host, prt)
+        headers = _console_headers(caps)
+
+        def _fire(name, body):
+            answers[name] = _request(host, prt, "POST", ROUTE, body=body,
+                                     headers=headers)
+
+        first = threading.Thread(target=_fire, args=("first", _body(refresh=True)),
+                                 daemon=True)
+        first.start()
+        assert seen.wait(timeout=10)
+        second = threading.Thread(target=_fire,
+                                  args=("second", _body(refresh=True)),
+                                  daemon=True)
+        second.start()
+        # give the second a moment to reach the store and ATTACH
+        second.join(timeout=0.5)
+        released.set()
+        first.join(timeout=15)
+        second.join(timeout=15)
+    assert answers["first"][0] == answers["second"][0] == 200
+    assert answers["first"][1] == answers["second"][1]
+    assert port.calls.count("dispatch") == 1

@@ -32,6 +32,7 @@ provider — the route's own consumption of it is
 from __future__ import annotations
 
 import copy
+import dataclasses
 import threading
 
 import pytest
@@ -57,9 +58,15 @@ REPOSITORY = "fixture-repo"
 REF = "main"
 
 
-def _key(path=SUBJECT, digest=DIGEST_A, *, repository=REPOSITORY, ref=REF):
+MODEL_A = "model-a"
+MODEL_B = "model-b"
+
+
+def _key(path=SUBJECT, digest=DIGEST_A, *, repository=REPOSITORY, ref=REF,
+         model=MODEL_A):
     return store_mod.AbstractKey(repository=repository, ref=ref,
-                                 subject_path=path, content_digest=digest)
+                                 subject_path=path, content_digest=digest,
+                                 resolved_model_id=model)
 
 
 def _result(text="an abstract"):
@@ -483,3 +490,199 @@ def test_the_previous_base_never_crosses_a_scope():
                                  subject_path=SUBJECT) is None
     assert store.latest_for_path(repository="repo-a", ref="session/x",
                                  subject_path=SUBJECT) is None
+
+
+# ---------------------------------------------------------------------------
+# 5.3a — THE RESOLVED MODEL ID IS IN THE KEY (packet review, Codex on PR #352;
+# landed as `85e05ebe`)
+# ---------------------------------------------------------------------------
+#
+# A human can change the selected model while the document stands still. On a
+# key without the model, that second request is IDENTICAL by construction, so
+# the first model's prose replays while the artifact records the model the
+# reader just picked — an artifact lying about its own provenance, which is the
+# exact failure this whole change exists to prevent.
+
+
+def test_the_resolved_model_id_is_in_the_key():
+    """Same scope, same path, same digest, two models: two questions. The
+    second must DISPATCH rather than replay the first model's answer."""
+    store = store_mod.AbstractStore()
+    first = _key(model=MODEL_A)
+    second = _key(model=MODEL_B)
+    assert first != second
+    assert len({first, second}) == 2
+
+    store.reserve(first)
+    store.complete(first, _result("distilled by model-a"), size_bytes=32)
+    assert store.reserve(second).should_dispatch is True
+    # …and the first model's answer is untouched under its own key
+    assert store.snapshot(first).result == _result("distilled by model-a")
+
+
+def test_the_key_names_its_five_fields_and_nothing_else():
+    """FIELDS, not a composed string: the scope's two, the subject path, the
+    content digest and the resolved model id. A frozen dataclass hashes as the
+    tuple of those five, so no separator exists for a repository name, a ref, a
+    path or a model id to contain."""
+    fields = tuple(f.name for f in dataclasses.fields(store_mod.AbstractKey))
+    assert fields == ("repository", "ref", "subject_path", "content_digest",
+                      "resolved_model_id")
+
+
+def test_the_previous_base_is_a_per_scope_per_path_question_across_models():
+    """`latest_for_path` is NOT narrowed by the model, and that is deliberate:
+    it answers "what abstract does this document already have", which the
+    verification requirement takes as an ADDITIONAL base. An answer from another
+    model is still a previous answer about THIS document, and the ratified rule
+    says nothing that would narrow it to one model."""
+    store = store_mod.AbstractStore()
+    by_a = _key(model=MODEL_A)
+    store.reserve(by_a)
+    store.complete(by_a, _result(), size_bytes=32, abstract={"by": MODEL_A})
+
+    assert store.latest_for_path(
+        repository=REPOSITORY, ref=REF, subject_path=SUBJECT) == {"by": MODEL_A}
+
+
+# ---------------------------------------------------------------------------
+# 5.3b — AN EXPLICIT REFRESH BYPASSES COMPLETED REPLAY
+# ---------------------------------------------------------------------------
+#
+# Replay on an identical key and a working RE-GENERATE control are in direct
+# conflict: a regeneration against unchanged content and an unchanged model has
+# an identical key by construction, so plain replay made the required control
+# inert except by the accident of eviction. The request carries the intent; the
+# store's one-in-flight arm stays UNCONDITIONAL in both modes.
+
+
+def test_a_request_with_no_refresh_intent_still_replays():
+    """The default is unchanged, and it is the path a tile re-entry takes."""
+    store = store_mod.AbstractStore()
+    key = _key()
+    store.reserve(key)
+    store.complete(key, _result("the answer"), size_bytes=32)
+
+    lease = store.reserve(key)
+    assert lease.should_dispatch is False
+    assert lease.result == _result("the answer")
+    assert store.reserve(key, refresh=False).should_dispatch is False
+
+
+def test_an_explicit_refresh_invalidates_the_completed_entry_and_dispatches():
+    """Set, it invalidates the completed entry for its key, dispatches, and its
+    result REPLACES that entry."""
+    store = store_mod.AbstractStore()
+    key = _key()
+    store.reserve(key)
+    store.complete(key, _result("the first answer"), size_bytes=32)
+
+    lease = store.reserve(key, refresh=True)
+    assert lease.should_dispatch is True
+    assert lease.state == store_mod.ABSTRACT_STATE_IN_FLIGHT
+    assert lease.result is None
+    # the entry is IN FLIGHT again, not answered, so nothing replays meanwhile
+    assert store.snapshot(key).state == store_mod.ABSTRACT_STATE_IN_FLIGHT
+
+    store.complete(key, _result("the second answer"), size_bytes=32)
+    assert store.reserve(key).result == _result("the second answer")
+
+
+def test_the_invalidated_abstract_rides_the_lease_as_the_previous_base():
+    """Invalidating the entry out of the replay index must not also invalidate
+    it out of the VERIFIER's reach. The verification rule makes a previously
+    generated abstract an ADDITIONAL base "where one exists", and RE-GENERATE is
+    the one path where one always exists."""
+    store = store_mod.AbstractStore()
+    key = _key()
+    store.reserve(key)
+    store.complete(key, _result(), size_bytes=32, abstract={"marker": "first"})
+
+    lease = store.reserve(key, refresh=True)
+    assert lease.invalidated_abstract == {"marker": "first"}
+    # a plain reserve carries none, because nothing was invalidated
+    store.complete(key, _result(), size_bytes=32, abstract={"marker": "second"})
+    assert store.reserve(key).invalidated_abstract is None
+
+
+def test_a_refresh_of_an_unknown_key_is_an_ordinary_first_generation():
+    store = store_mod.AbstractStore()
+    lease = store.reserve(_key(), refresh=True)
+    assert lease.should_dispatch is True
+    assert lease.invalidated_abstract is None
+
+
+def test_an_invalidated_entry_returns_its_bytes_to_the_bound():
+    """Bookkeeping: the invalidated answer's bytes leave the resolved total, or
+    a store that is refreshed often would evict useful neighbours to make room
+    for entries it no longer holds."""
+    store = store_mod.AbstractStore()
+    key = _key()
+    store.reserve(key)
+    store.complete(key, _result(), size_bytes=1024)
+    store.reserve(key, refresh=True)
+    store.complete(key, _result(), size_bytes=1024)
+    # 64 more answered entries would evict everything if the bound had been
+    # double-counted; with correct bookkeeping exactly the bound survives
+    _fill(store, store_mod.MAX_ABSTRACT_ENTRIES)
+    answered = [record for record in store._records.values()
+                if record.state == store_mod.ABSTRACT_STATE_COMPLETED]
+    assert len(answered) == store_mod.MAX_ABSTRACT_ENTRIES
+
+
+def test_a_refresh_arriving_mid_flight_ATTACHES_and_never_dispatches_twice():
+    """THE NEGATIVE HALF, and what stops the bypass becoming a free-for-all: an
+    impatient double-click spends ONE model call. The one-in-flight arm is
+    unconditional — a refresh does not get to open a second generation for a key
+    that already has one."""
+    store = store_mod.AbstractStore()
+    key = _key()
+    holder = store.reserve(key, refresh=True)
+    assert holder.should_dispatch is True
+
+    outcome = {}
+    started = threading.Event()
+
+    def _second():
+        started.set()
+        outcome["lease"] = store.reserve(key, refresh=True)
+
+    waiter = threading.Thread(target=_second, daemon=True)
+    waiter.start()
+    started.wait(timeout=5)
+    # it is WAITING, not dispatching: the answer is not in yet
+    waiter.join(timeout=0.2)
+    assert waiter.is_alive()
+
+    store.complete(key, _result("the one answer"), size_bytes=32)
+    waiter.join(timeout=5)
+    assert not waiter.is_alive()
+    assert outcome["lease"].should_dispatch is False
+    assert outcome["lease"].result == _result("the one answer")
+
+
+def test_a_refresh_that_attached_takes_the_holders_answer_and_does_not_re_refresh(
+):
+    """The attach path resolves to a REPLAY, never to a second invalidation: if
+    an attached refresher turned round and invalidated the answer it had just
+    waited for, two clicks would still cost two calls — the defect the
+    one-in-flight arm exists to prevent."""
+    store = store_mod.AbstractStore()
+    key = _key()
+    store.reserve(key)          # a plain, in-flight generation
+
+    outcome = {}
+
+    def _refresher():
+        outcome["lease"] = store.reserve(key, refresh=True)
+
+    waiter = threading.Thread(target=_refresher, daemon=True)
+    waiter.start()
+    waiter.join(timeout=0.2)
+    assert waiter.is_alive()
+
+    store.complete(key, _result("the holder's answer"), size_bytes=32)
+    waiter.join(timeout=5)
+    assert outcome["lease"].should_dispatch is False
+    assert outcome["lease"].result == _result("the holder's answer")
+    assert store.snapshot(key).state == store_mod.ABSTRACT_STATE_COMPLETED

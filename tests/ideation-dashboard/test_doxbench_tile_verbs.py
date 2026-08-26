@@ -743,7 +743,20 @@ def test_the_rail_is_given_the_selection_seam_and_no_longer_the_unload_seam():
     refusal still lives in exactly one place."""
     source = (VIEWS / "staging-workbench.js").read_text(encoding="utf-8")
     mount = source.index("mountDoxBenchChatRail(rail")
-    window = source[mount:mount + 5000]
+    # STATED ADJUSTMENT (add-doxbench-distilled-abstract task 7.8, second
+    # instance, 2026-08-25): the window was a flat 5000-character distance from
+    # the mount, and `selectBuffer:` sat inside its far edge. The rail's own
+    # `onState` grew by ten lines when the docs abstract began following the
+    # rail's MODEL choice (task 5.3a's client half), and `selectBuffer:` fell
+    # off the end of a pin whose claim was perfectly intact. Anchored at BOTH
+    # ends now — from the mount call's opening to the line just past its close —
+    # exactly as the sibling pin one function up was re-anchored, and for the
+    # same reason: a distance is satisfied by whatever happens to sit inside it
+    # and refuted by any comment written above it, neither of which is what this
+    # test is about. The span is STRICTLY NARROWER in meaning: only the mount
+    # call's own option list can satisfy it now.
+    window = source[mount:source.index("const mounted = canvasController;",
+                                       mount)]
     assert "selectBuffer:" in window
     assert "canvasController.setActiveBuffer" in window
     assert "unloadBuffer:" not in window, (

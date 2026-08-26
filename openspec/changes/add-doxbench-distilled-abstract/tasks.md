@@ -165,14 +165,47 @@ ratified `add-doxchat-model-intake`, which modifies the same requirement
       in the key per the 2026-08-25 adversarial review's S3; the RESOLVED MODEL
       ID per the same day's packet review, task 5.3a. Both corrections land in
       one five-field `AbstractKey` — see design D5.)
-- [ ] 5.3a RED: the MODEL is in the key. Same subject, same digest, DIFFERENT
-      resolved model id → a second dispatch against the newly resolved model, and
-      the first model's prose is NOT replayed under the second model's recorded
-      id. Assert on `port.dispatched` and on the returned
-      `DocumentAbstract.model_id`, not on the store's internal dict. Pin the
-      routing-rule case too: an `auto` entry keys on the RESOLVED id, not the
-      rule's id, or every routed abstract collides in one bucket.
-- [ ] 5.3b RED: an EXPLICIT REFRESH bypasses completed replay. Same subject,
+- [x] 5.3a RED then GREEN (2026-08-25): the MODEL is in the key. Same subject,
+      same digest, DIFFERENT resolved model id → a second dispatch against the
+      newly resolved model, and the first model's prose is NOT replayed under
+      the second model's recorded id. Asserted on `port.dispatched` and on the
+      returned `DocumentAbstract.model_id`, not on the store's internal dict.
+      The routing-rule case is pinned too: `auto` and the model it resolves to
+      are ONE key, so the second request REPLAYS — key on the rule's id instead
+      and every routed abstract collides in one bucket while sharing none with
+      the plain model's. `AbstractKey` is now five fields, `(repository, ref,
+      subject_path, content_digest, resolved_model_id)`; the route resolves
+      through `doxbench_selected_model` — the same one function the chat wire
+      record and thread sidecar read — ONCE, and keys AND records by that value,
+      so the key and the recorded provenance are the same facts. THE CLIENT
+      HALF LANDED WITH IT: `staging-workbench.js`'s session cache is keyed by
+      the model too (else a browser replaying its own prose after a switch never
+      asks the server at all and the server's correct key is never consulted),
+      and the rail's model choice now repaints the docs region — without that
+      the DOM kept the previous model's prose under the model-derived caption.
+      The client keys on the REQUESTED id, which is the only one it can know
+      before asking; the entry still carries the RESOLVED id the answer echoed.
+      Where NO model is selectable at all (ruling 7.7's ungated console) the
+      lookup falls back to this document's most recent answer under any model,
+      because "any already-generated abstract SHALL remain readable" outranks a
+      qualification that has nothing to disambiguate.
+- [x] 5.3b RED then GREEN (2026-08-25): an EXPLICIT REFRESH bypasses completed
+      replay — realized as one OPTIONAL boolean `refresh` inside the same CLOSED
+      request shape (an unknown key is still refused, and `1`/`"true"` are
+      MALFORMED rather than truthy; both halves pinned). Only the RE-GENERATE
+      control sends it; GENERATE, the mount, a selection change and a tile
+      re-entry send nothing, and a re-entry does not reach the route at all.
+      `AbstractStore.reserve(key, refresh=True)` invalidates the completed
+      entry, takes the in-flight slot and dispatches, and the answer replaces
+      the entry. The invalidated `DocumentAbstract` rides back on the lease as
+      that generation's PREVIOUS verification base: the ratified rule makes a
+      previous abstract an ADDITIONAL base "where one exists", and RE-GENERATE
+      is the one path where one always does, so dropping it at the moment of
+      invalidation would have made the refresh path verify against a strictly
+      weaker base than every other path. The ATTACH path is deliberately not a
+      refresh path — a caller that WAITED replays the holder's answer rather
+      than invalidating what it just waited for. Original obligation: an
+      EXPLICIT REFRESH bypasses completed replay. Same subject,
       same digest, same model, RE-GENERATE invoked → the completed entry is
       invalidated, a second dispatch occurs, and the new result replaces the
       entry. Then the negative half, which is what stops the bypass becoming a
@@ -239,12 +272,15 @@ running both.
 - [x] 7.5 RED: exactly ONE abstract REGION exists and one abstract STATE renders
       at a time, the deterministic one opens, and the 280px budget rule at
       `test_doxbench_context_panes.py:231-240` still holds.
-- [ ] 7.6 RED: an abstract survives leaving and re-entering the tile in-session,
-      keyed by (path, digest, resolved model id), and the re-entry issues NO
-      refresh intent — the replay path and the bypass path are pinned as two
-      different things here and at 5.3b. (The (path, digest) half was GREEN on
-      2026-08-25; #364 widened the obligation, so the item is re-opened for the
-      model-id and no-refresh halves.)
+- [x] 7.6 RED then GREEN: an abstract survives leaving and re-entering the tile
+      in-session, keyed by (path, digest, resolved model id), and the re-entry
+      issues NO refresh intent — the replay path and the bypass path are pinned
+      as two different things here and at 5.3b. (The (path, digest) half was
+      GREEN on 2026-08-25; #364 widened it, and the model-id and no-refresh
+      halves landed the same day: a model switch shows NOT-YET-GENERATED and
+      switching back replays the first model's abstract with no new request,
+      while a tile re-entry sends no request at all — so there is nothing for an
+      inferred intent to ride on.)
 - [x] 7.6a RED (ruling 3): when the subject's content has moved past the digest
       an abstract was generated from, the abstract is SHOWN and LABELLED STALE
       with its source digest stated — not discarded, not silently refreshed, not
@@ -263,7 +299,15 @@ running both.
       `documentAbstract`
       (`staging-workbench-model.js:1545`), the controls and states in
       `staging-workbench.js`, and ONE fetch call site in `web/app.js`. GREEN
-      7.1–7.7.
+      7.1–7.7. (STATED ADJUSTMENT, second instance, 2026-08-25: task 5.3a's
+      client half made the docs abstract follow the rail's MODEL choice, which
+      grew the rail mount call's `onState` by ten lines and pushed
+      `selectBuffer:` off the far edge of the flat 5000-character window at
+      `test_doxbench_tile_verbs.py:747` — a pin whose claim was perfectly
+      intact. Re-anchored at BOTH ends, from the mount call's opening to the
+      line past its close, exactly as the sibling pin in the same file was
+      re-anchored by this change. Teeth re-proved: renaming `selectBuffer:` to
+      `unloadBuffer:` inside the call still fails it.)
 - [x] 7.9 Widen `test_renderer.py:152` from 5 to 6 `app.js` fetch sites and
       declare the new route BY NAME in the `:129-133` docstring. Then confirm the
       view's THREE transport asserts still pass —
@@ -303,12 +347,21 @@ follow the captions it describes, but the pin relocation cannot — see 7.8.
       path, wrong subject) and confirm a NAMED test fails for each.
 - [x] 9.2 Mutate the interaction: make generation fire from `onSelect` and confirm
       7.1 fails; remove the subject recheck and confirm 7.2 fails.
-- [ ] 9.3 Mutate the store: key on path alone and confirm 5.3 fails; DROP THE
-      MODEL from the key and confirm 5.3a fails; make refresh intent a no-op
-      (fall through to completed replay) and confirm 5.3b's positive half fails;
-      make refresh intent skip the in-flight check and confirm 5.3b's
-      attach-on-second-invocation half fails; share the chat `TurnStore` and
-      confirm 5.4 fails.
+- [x] 9.3 (2026-08-25 — SEVEN mutants, all caught, all reverted; md5 verified
+      clean afterwards.) Key on path and digest alone → 4 fail, including the
+      whole-scope pin and all three model pins. DROP THE MODEL (a constant in
+      its place) → the three 5.3a route pins fail. Key on the REQUESTED id
+      rather than the RESOLVED one → the routing-rule pin and the key-readback
+      pin fail, and only those, which is the discrimination that clause is for.
+      Refresh a NO-OP (fall through to completed replay) → 3 store pins and the
+      5.3b route pin fail. Refresh SKIPS the one-in-flight arm → both
+      attach-and-wait pins and the route's one-model-call pin fail. Two CLIENT
+      mutants beside them: drop the model from `abstractEntryKey` → the two
+      model-switch pane pins fail; make RE-GENERATE issue no intent →
+      the refresh-intent pane pin fails. Share the chat `TurnStore` (one
+      instance bound to both handler attributes) → 5.4's churn pin and the
+      own-store pin fail. A shared records dict across store instances also
+      fails `test_two_stores_share_no_state`.
 - [x] 9.4 Mutate the boundary: point the abstract at a `context_paths`-only
       subject and confirm 5.2 fails; add a fourth port member and confirm
       `test_doxbench_model.py:482`/`:522` fail.
