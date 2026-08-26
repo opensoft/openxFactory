@@ -510,6 +510,13 @@ bodies:
   # that is obtained — registering the BODY here is fine; shipping its
   # hierarchy is not. O*NET is the CC BY 4.0 alternative and is therefore the
   # recommended primary US role/task vocabulary.
+  # ^ SUPERSEDED 2026-08-26 AS TO APQC ONLY. That bar quoted apqc.org's site
+  # Terms of Service rather than the licence APQC prints inside the PCF
+  # itself, which grants the reuse outright — see the corrected verdict on the
+  # apqc_pcf entry below, and task 3b.5k of add-omnigent-domain-terminology.
+  # The first sentence's principle stands unchanged, and so does O*NET's
+  # standing: naming a ROLE and naming a PROCESS are different claims, so the
+  # two bodies are complements, not substitutes.
   #
   # AUTHORITY CONTEXT, NOT ROLE LABELS: CPA licensure (nasba_aicpa_uaa),
   # PCAOB standards, and IRS Circular 230 describe humans holding legal
@@ -519,6 +526,26 @@ bodies:
   # REJECTED, recorded so it is not re-proposed: SOX section 404 — a binding
   # legal obligation, but not a taxonomy. Cite the SEC obligation and use
   # COSO/PCAOB vocabulary instead.
+  # LICENCE VERDICT CORRECTED 2026-08-26: USABLE in shipped product
+  # configuration, with the attribution paragraph carried verbatim. The
+  # 2026-08-09 bar was read off the wrong document — apqc.org's site Terms of
+  # Service, which govern that portal's Online Resources — and APQC was never
+  # run through the product-configuration reuse test that eliminated the other
+  # eight commercially stewarded bodies. The licence that governs the PCF is
+  # printed inside the PCF itself, on page 2 of the PDF under the heading
+  # COPYRIGHT AND ATTRIBUTION, and grants exactly what a shipped overlay does.
+  # Brett read PCF 8.0's page 2 in a browser on 2026-08-26 and confirmed the
+  # grant and its attribution paragraph are present; the identical paragraph
+  # was text-extracted from the primary 7.4, 7.3.1 and 7.3.0 PDFs.
+  # SCOPE LIMIT, recorded rather than assumed: the grant is over "the PCF" —
+  # the document holding element names, hierarchy numbers and five-digit
+  # element IDs. Process DEFINITIONS ship in separate "Process Definitions and
+  # Key Measures" documents whose front matter has not been read, so this
+  # verdict does not reach definition text.
+  # The superseded verdict is NOT rewritten: task 3b.5b and the ledgerx report
+  # `usa-accounting-bodies-research-report.md` are record-class evidence with
+  # a 2026-08-09 cutoff and stand as written. The correction is task 3b.5k of
+  # add-omnigent-domain-terminology.
   - id: apqc_pcf
     name: APQC Process Classification Framework (Cross-Industry)
     steward: APQC
@@ -532,18 +559,46 @@ bodies:
       controller_reviewer, and compliance_reviewer. Process names describe
       organizational work, not artifact-only authority; approval, payment,
       posting, and filing nodes must not be applied as agent powers.
-    current_version: Cross-Industry PCF 8.0, published 2026-02-27
+    current_version: Cross-Industry PCF 8.0, published 2026-02-27 (licence page verified 2026-08-26)
     status: current
     source_url: https://www.apqc.org/resource-library/resource-listing/apqc-process-classification-framework-pcf-cross-industry-pdf-13
     term_list_availability: public  # Download is lead-form gated; public measure pages expose definitions.
+    licence_page: >-
+      Not a page on apqc.org: the grant is printed inside the artifact, on
+      page 2 of the cross-industry PCF PDF under the heading COPYRIGHT AND
+      ATTRIBUTION. For the pinned 8.0 the record is Brett's browser reading of
+      that page on 2026-08-26, because apqc.org answers HTTP 403 to every
+      automated fetch and no 8.0 mirror is public. The automation-verifiable
+      copies of the same paragraph are the primary 7.4 PDFs at
+      https://solutions.ifrc.org/sites/default/files/2024-10/K014750_APQC%20Process%20Classification%20Framework%20(PCF)%20-%20Cross%20Industry%20-%20PDF%20Version%207.4.pdf
+      and
+      https://www.business-analysis.com.au/wp-content/uploads/2025/04/K014750_APQC-Process-Classification-Framework-PCF-Cross-Industry-PDF-Version-7.4_January-2025.pdf
+      plus 7.3.1 at https://juraguvi.com/data/files/pcf_crossindustry_v7.3.1_september_2023.pdf
+      and 7.3.0 at https://www.ospco.net/wp-content/uploads/2022/07/APQC_7_3_ver_1653811220.pdf
+      — three independently hosted versions carrying it identically, which is
+      why it reads as APQC's standard licence page and not a one-version quirk.
+    reuse_licence: >-
+      APQC's own in-document grant, NOT a Creative Commons licence: "APQC
+      hereby grants you a perpetual, worldwide, royalty-free license to use,
+      copy, publish, modify, and create derivative works of the PCF", provided
+      all copies and derivative works carry the attribution paragraph.
+    redistribution_permitted_in_product_config: yes_with_conditions  # The condition is the attribution paragraph, verbatim, in every copy and derivative work.
+    attribution_required: >-
+      Reproduce the attribution_note paragraph below VERBATIM and unaltered,
+      with its ® marks intact, in every copy of the PCF and in every
+      derivative work — a domain overlay embedding PCF element names or
+      numbers is a derivative work and must carry it. Process Classification
+      Framework® and PCF® are registered marks of APQC; a crosswalk
+      references the term and never adopts it as a class identity.
     attribution_note: >-
-      PCF and PCF element content are APQC intellectual property and PCF is a
-      registered mark. APQC's current Terms of Service limit use to internal
-      process improvement and prohibit public reproduction/distribution unless
-      an applicable membership or license permits it. Do not ship a copied term
-      hierarchy in product configuration until APQC confirms the required
-      license and attribution in writing.
-    confidence: high  # Version, release date, hierarchy, and current terms were verified on APQC pages.
+      APQC's Process Classification Framework® (PCF) is an open standard
+      developed by APQC, a nonprofit that promotes benchmarking and best
+      practices worldwide. The PCF is intended to facilitate organizational
+      improvement through process management and benchmarking, regardless of
+      industry, size, or geography. To download the full PCF or
+      industry-specific versions of the PCF, as well as associated measures
+      and benchmarking, please visit www.apqc.org/pcf.
+    confidence: high  # Version and release date from APQC's own listing; the grant read on the PCF PDF's page 2 — 8.0 by Brett in a browser 2026-08-26, 7.3.0-7.4 by text extraction from primary PDFs.
 
   - id: coso_icif
     name: COSO Internal Control—Integrated Framework
@@ -925,6 +980,62 @@ bodies:
   # copyright, but share-alike means reproducing definitional text could
   # oblige our own configuration to be CC BY-SA. Asymmetric risk for a label
   # we can write ourselves, so no entry is registered.
+
+  # -------------------------------------- Marketing (registered 2026-08-26)
+  # Registered ahead of the adx population (3.3), because AdxFactory has no
+  # role-level body at all today: three of its ten worker classes carry an IAB
+  # crosswalk and the other seven carry display labels only. The adx marketing
+  # brief (`supporting-docs/marketing-bodies-research-prompt.md` in
+  # AdxFactory) is written but has never been run; registering the body does
+  # not pre-empt that run, it gives the run something registered to map to.
+  # STRUCTURAL DIFFERENCE FROM THE OPSX AND CODEX ENTRIES, and the reason
+  # `source_url` here is the database page rather than a family listing:
+  # marketing work does not concentrate in one SOC family the way computing
+  # work does in 15-0000. It spans 11-0000 (management), 13-0000 (business and
+  # financial operations), 15-0000 (computer and mathematical) and 27-0000
+  # (arts, design, entertainment, sports and media). A single
+  # onetonline.org/find/family?f=NN URL would quietly claim one family covers
+  # the domain, so the four family listings are named here instead:
+  #   https://www.onetonline.org/find/family?f=11
+  #   https://www.onetonline.org/find/family?f=13
+  #   https://www.onetonline.org/find/family?f=15
+  #   https://www.onetonline.org/find/family?f=27
+  # Licence text: https://www.onetcenter.org/license_db.html
+  - id: onet_marketing_occupations
+    name: O*NET Database — marketing, advertising and media occupations
+    steward: National Center for O*NET Development for U.S. Department of Labor, Employment and Training Administration
+    jurisdiction: united_states
+    names: "other:occupations_tasks_and_work_activities"
+    scope: >-
+      Occupation titles, tasks and work activities for marketing management,
+      market and search-marketing analysis, audience and data analysis,
+      creative direction, and marketing-adjacent regulatory compliance —
+      spanning SOC families 11-0000, 13-0000, 15-0000 and 27-0000 rather than
+      any one of them. Codes read on O*NET OnLine 2026-08-26: 11-2021.00
+      Marketing Managers; 13-1161.01 Search Marketing Strategists; 13-1041.00
+      Compliance Officers with 13-1041.07 Regulatory Affairs Specialists;
+      15-2051.00 Data Scientists with 15-2051.01 Business Intelligence
+      Analysts; and 27-1011.00 Art Directors, which carries "Creative
+      Director" as a reported job title verbatim. KNOWN GAPS, recorded so the
+      adx population does not force a mapping over them: O*NET has no title
+      match for "media planner" or "media buyer", and lifecycle or retention
+      marketing matches only partially. Describes whole HUMAN jobs that
+      include buying media, approving creative and signing off compliance;
+      adx workers can do none of those, so every crosswalk records the
+      authority gap. Mappings are at occupation level; task-level
+      verification is outstanding here as it is for opsx and codex.
+    current_version: O*NET Database 31.0, released August 2026 (verified 2026-08-26)
+    status: current
+    source_url: https://www.onetcenter.org/database.html
+    term_list_availability: public
+    reuse_licence: CC BY 4.0
+    redistribution_permitted_in_product_config: yes_with_conditions
+    attribution_required: >-
+      Credit the O*NET Database and USDOL/ETA, link CC BY 4.0, state that
+      changes were made, retain the O*NET trademark, and state that USDOL/ETA
+      has not endorsed the modifications.
+    attribution_note: O*NET is a trademark of USDOL/ETA.
+    confidence: high  # Version and licence read on the body's own pages 2026-08-26, the six occupation codes on O*NET OnLine the same day. Which adx worker maps to which code is 3.3's act and is not asserted here.
 
   # ASSESSED AND REJECTED for the medical domain (recorded so they are not
   # re-proposed), from the medx live-source verification 2026-08-09:

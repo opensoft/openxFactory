@@ -980,13 +980,27 @@ Active changes:
   `scripts/validate-omnigent-contracts.py` for orphan keys, duplicate labels
   and unnoted `no_clean_equivalent`, three negative fixtures under
   `contracts/omnigent/examples/fixtures/negative/`, and the canonical
-  `contracts/policies/standards-bodies.yaml` registry (43 bodies, every one
+  `contracts/policies/standards-bodies.yaml` registry (44 bodies, every one
   jurisdiction-tagged after the China round exposed an all-Anglo-American
-  skew). The §3b research rounds produced the change's blunt finding: EVERY
-  commercially stewarded body assessed (APQC, SFIA, ITIL, COBIT, SWEBOK,
-  ISO/IEC/IEEE 12207, GRADE, SNOMED CT) fails the product-configuration reuse
-  test, O*NET (CC BY 4.0) is the only licence-clean crosswalk in four
-  domains, and MedxFactory registers none — its eleven workers record
+  skew; `onet_marketing_occupations` added 2026-08-26 because AdxFactory had
+  no role-level body registered at all, and marketing spans SOC families
+  11-0000, 13-0000, 15-0000 and 27-0000 rather than concentrating in one the
+  way computing does in 15-0000). The §3b research rounds produced the
+  change's blunt finding, NARROWED 2026-08-26 from nine bodies to eight:
+  every commercially stewarded body assessed EXCEPT APQC (SFIA, ITIL, COBIT,
+  SWEBOK, ISO/IEC/IEEE 12207, GRADE, SNOMED CT, and the declined CC BY-SA
+  Scrum Guide) fails the product-configuration reuse test — each tested
+  against its own licence text, and each bar stands. APQC's did not: that
+  verdict read apqc.org's site Terms of Service rather than the licence APQC
+  prints on page 2 of the PCF itself, which grants a perpetual, worldwide,
+  royalty-free right to use, copy, publish, modify and create derivative
+  works of the PCF against one verbatim attribution paragraph (3b.5k; Brett
+  read PCF 8.0's page in a browser 2026-08-26, and the same paragraph
+  text-extracts from the primary 7.4, 7.3.1 and 7.3.0 PDFs). O*NET (CC BY
+  4.0) remains the ROLE-level crosswalk in four domains and is not
+  displaced (both bodies are now licence-usable; APQC's grant carries its
+  attribution condition) — naming a ROLE and naming a PROCESS are different claims — and
+  MedxFactory registers none: its eleven workers record
   `no_clean_equivalent` against the PROVIDER taxonomy specifically, because
   labelling a reasoning agent with a role carrying clinical standing is the
   mapping a contributor would reach for and the dangerous one. Ratification
@@ -1008,12 +1022,20 @@ Active changes:
   verification for the opsx/codex crosswalks, which stay OCCUPATION-level and
   say so; `onet_accounting_occupations`, flagged carrying the same stale 30.3
   pin that LedgerxFactory must move together with its by-version attribution;
-  the APQC written licence confirmation (3b.5d) —
-  which specifically gates LedgerxFactory's and AdxFactory's pulled PCF
-  8.0/3.0 crosswalks (3b.5b), not MedxFactory, which by design registers no
-  APQC/PCF mapping at all — the remaining ledgerx/adx brief results (3b.5f),
-  and the §4 consumer follow-up naming domain surfaces that render their own
-  vocabulary outside the overlay.
+  the remaining ledgerx/adx brief results (3b.5f), and the §4 consumer
+  follow-up naming domain surfaces that render their own vocabulary outside
+  the overlay. NO LONGER OPEN: the APQC written licence confirmation (3b.5d),
+  which gated LedgerxFactory's and AdxFactory's pulled PCF 8.0/3.0 crosswalks
+  (3b.5b) but never MedxFactory, which by design registers no APQC/PCF
+  mapping at all. It closed 2026-08-26 on a licence APQC had already
+  published rather than on correspondence, so PCF element names and numbers
+  may ship in product configuration provided the attribution paragraph rides
+  with them. 3b.5b is SUPERSEDED, NOT REWRITTEN — it and the ledgerx report
+  are record-class evidence with a 2026-08-09 cutoff and stand as written,
+  and 3b.5b's other finding, that the shipped 8.x finance numbering was wrong
+  for every version, is untouched. Not covered by the grant, and recorded
+  rather than assumed: PCF process DEFINITIONS, which ship in separate APQC
+  documents whose front matter has not been read.
 - [add-model-provider-broker](openspec/changes/add-model-provider-broker/proposal.md)
   — DRAFT, authored 2026-08-08, awaiting ratification (task 0). doxBench has
   a model seam and no model: there is no provider adapter in this repository
