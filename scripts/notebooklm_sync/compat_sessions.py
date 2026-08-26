@@ -4,6 +4,7 @@ from collections.abc import Callable, Iterable, Mapping, Sequence
 from pathlib import Path
 from types import ModuleType
 
+from .compat_errors import DashboardCompatibilityError
 from .corpus import DesiredState, pinned_factory_paths
 from .hosting import enforce_hosting_profile
 from .import_execution import display_path
@@ -29,8 +30,10 @@ from .session import (
     session_worktree_of,
     sync_session_notebook,
 )
+from .session_sync import BranchSessionModule, SessionGitModule, SessionWorkbenchModule
 
 LegacyRow = Mapping[str, JsonValue]
+ProfileRunner = Callable[..., JsonValue]
 
 
 class SessionFacade:
@@ -54,20 +57,40 @@ class SessionFacade:
             [Path, Iterable[tuple[str, Path]] | None], tuple[set[str], list[str]]
         ],
     ) -> None:
-        self._dashboard = dashboard
-        self._source_cap = source_cap
-        self._scan = scan
-        self._list_notebooks = list_notebooks
-        self._list_sources = list_sources
-        self._resolve_book = resolve_book
-        self._profile_account = profile_account
-        self._repositories_hook = repositories_hook
-        self._live_targets_hook = live_targets_hook
-        self._resolve_target_hook = resolve_target_hook
-        self._target_for_alias_hook = target_for_alias_hook
-        self._worktree_of_hook = worktree_of_hook
-        self._source_set_hook = source_set_hook
-        self._live_aliases_hook = live_aliases_hook
+        self._dashboard: Callable[[str], ModuleType] = dashboard
+        self._source_cap: Callable[[], int] = source_cap
+        self._scan: Callable[[Path], tuple[DesiredState, dict[str, BookSpec]]] = scan
+        self._list_notebooks: Callable[[], list[NotebookRow]] = list_notebooks
+        self._list_sources: Callable[[str], list[SourceRow]] = list_sources
+        self._resolve_book: Callable[..., tuple[str | None, bool]] = resolve_book
+        self._profile_account: Callable[[str], str | None] = profile_account
+        self._repositories_hook: Callable[[Path], list[tuple[str, Path]]] = repositories_hook
+        self._live_targets_hook: Callable[[Path, str, str | None], list[SessionTarget]] = live_targets_hook
+        self._resolve_target_hook: Callable[[Path, str, str | None], SessionTarget] = resolve_target_hook
+        self._target_for_alias_hook: Callable[[Path, str], SessionTarget | None] = target_for_alias_hook
+        self._worktree_of_hook: Callable[[Path, Path], Path | None] = worktree_of_hook
+        self._source_set_hook: Callable[[SessionTarget], list[tuple[str, str]]] = source_set_hook
+        self._live_aliases_hook: Callable[
+            [Path, Iterable[tuple[str, Path]] | None], tuple[set[str], list[str]]
+        ] = live_aliases_hook
+
+    def _branch_session(self) -> BranchSessionModule:
+        module = self._dashboard("branch_session")
+        if not isinstance(module, BranchSessionModule):
+            raise DashboardCompatibilityError("branch session")
+        return module
+
+    def _session_git(self) -> SessionGitModule:
+        module = self._dashboard("session_git")
+        if not isinstance(module, SessionGitModule):
+            raise DashboardCompatibilityError("session git")
+        return module
+
+    def _workbench(self) -> SessionWorkbenchModule:
+        module = self._dashboard("workbench")
+        if not isinstance(module, SessionWorkbenchModule):
+            raise DashboardCompatibilityError("workbench")
+        return module
 
     def session_repositories(self, root: Path) -> list[tuple[str, Path]]:
         return session_repositories(root, pinned_factory_paths)
@@ -75,8 +98,8 @@ class SessionFacade:
     def live_session_targets(
         self, root: Path, branch: str, repository: str | None = None
     ) -> list[SessionTarget]:
-        branch_session = self._dashboard("branch_session")
-        session_git = self._dashboard("session_git")
+        branch_session = self._branch_session()
+        session_git = self._session_git()
         return live_session_targets(
             root,
             branch,
@@ -95,8 +118,8 @@ class SessionFacade:
     def session_target_for_alias(
         self, root: Path, notebook: str
     ) -> SessionTarget | None:
-        branch_session = self._dashboard("branch_session")
-        session_git = self._dashboard("session_git")
+        branch_session = self._branch_session()
+        session_git = self._session_git()
         return session_target_for_alias(
             root,
             notebook,
@@ -116,18 +139,18 @@ class SessionFacade:
             target,
             session_for_alias=self._target_for_alias_hook,
             worktree_of=self._worktree_of_hook,
-            notebook_prefix=self._dashboard("branch_session").NOTEBOOK_PREFIX,
+            notebook_prefix=self._branch_session().NOTEBOOK_PREFIX,
         )
 
     def session_worktree_of(self, root: Path, path: Path) -> Path | None:
         return session_worktree_of(
             path,
             self._repositories_hook(root.resolve()),
-            self._dashboard("branch_session").sessions_root,
+            self._branch_session().sessions_root,
         )
 
     def session_source_set(self, target: SessionTarget) -> list[tuple[str, str]]:
-        workbench = self._dashboard("workbench")
+        workbench = self._workbench()
         return session_source_set(
             target,
             lambda worktree, repository: workbench.session_documents(
@@ -145,7 +168,7 @@ class SessionFacade:
         adapter: SessionAdapter | None = None,
         retire: bool = False,
     ) -> SessionSync:
-        workbench = self._dashboard("workbench")
+        workbench = self._workbench()
         selected = adapter if adapter is not None else workbench.NotebookAdapter()
         return sync_session_notebook(
             root,
@@ -166,8 +189,8 @@ class SessionFacade:
         root: Path,
         adapter_repositories: Iterable[tuple[str, Path]] | None = None,
     ) -> tuple[set[str], list[str]]:
-        branch_session = self._dashboard("branch_session")
-        session_git = self._dashboard("session_git")
+        branch_session = self._branch_session()
+        session_git = self._session_git()
         repositories = (
             adapter_repositories
             if adapter_repositories is not None
@@ -186,7 +209,7 @@ class SessionFacade:
         resolved = root.resolve()
         pairs = self._repositories_hook(resolved)
         aliases, errors = self._live_aliases_hook(resolved, pairs)
-        workbench = self._dashboard("workbench")
+        workbench = self._workbench()
         selected = adapter if adapter is not None else workbench.NotebookAdapter()
         if not hasattr(selected, "retire"):
             print("[session-sweep] REFUSED: adapter exposes no session retire operation")
@@ -197,11 +220,19 @@ class SessionFacade:
             errors,
             apply,
             adapter=selected,
-            notebook_title=workbench._notebook_title,
+            notebook_title=self._notebook_title,
         )
 
+    @staticmethod
+    def _notebook_title(notebook: LegacyRow) -> str | None:
+        for key in ("title", "name", "emoji_title"):
+            value = notebook.get(key)
+            if isinstance(value, str) and value:
+                return value
+        return None
+
     def active_nlm_profile(
-        self, runner: Callable[..., str] | None = None
+        self, runner: ProfileRunner | None = None
     ) -> str | None:
         if runner is None:
             return configured_nlm_profile()
@@ -212,7 +243,7 @@ class SessionFacade:
         return output.strip() or None if isinstance(output, str) else None
 
     def enforce_hosting_profile(
-        self, root: Path, *, runner: Callable[..., str] | None = None
+        self, root: Path, *, runner: ProfileRunner | None = None
     ) -> dict[str, str] | None:
         return enforce_hosting_profile(
             root,

@@ -4,6 +4,7 @@ from __future__ import annotations
 import subprocess
 import sys
 import time
+from collections.abc import Iterable
 from importlib import import_module
 from pathlib import Path
 from types import ModuleType
@@ -138,6 +139,41 @@ sync_book = _projection.sync_book
 _out_of_scope_workbench_dirs = _projection.out_of_scope_workbench_dirs
 workbench_orphan_sweep = _projection.workbench_orphan_sweep
 
+
+def _repositories_hook(root: Path) -> list[tuple[str, Path]]:
+    return session_repositories(root)
+
+
+def _live_targets_hook(
+    root: Path, branch: str, repository: str | None
+) -> list[SessionTarget]:
+    return live_session_targets(root, branch, repository)
+
+
+def _resolve_target_hook(
+    root: Path, branch: str, repository: str | None
+) -> SessionTarget:
+    return resolve_session_target(root, branch, repository)
+
+
+def _target_for_alias_hook(root: Path, notebook: str) -> SessionTarget | None:
+    return session_target_for_alias(root, notebook)
+
+
+def _worktree_of_hook(root: Path, path: Path) -> Path | None:
+    return _session_worktree_of(root, path)
+
+
+def _source_set_hook(target: SessionTarget) -> list[tuple[str, str]]:
+    return session_source_set(target)
+
+
+def _live_aliases_hook(
+    root: Path, repositories: Iterable[tuple[str, Path]] | None
+) -> tuple[set[str], list[str]]:
+    return live_session_aliases(root, repositories)
+
+
 _sessions = SessionFacade(
     dashboard=_dashboard_module,
     source_cap=lambda: NOTEBOOK_SOURCE_CAP,
@@ -146,21 +182,13 @@ _sessions = SessionFacade(
     list_sources=list_sources,
     resolve_book=resolve_or_create_book,
     profile_account=lambda profile: profile_account(profile),
-    repositories_hook=lambda root: session_repositories(root),
-    live_targets_hook=lambda root, branch, repository: live_session_targets(
-        root, branch, repository
-    ),
-    resolve_target_hook=lambda root, branch, repository: resolve_session_target(
-        root, branch, repository
-    ),
-    target_for_alias_hook=lambda root, notebook: session_target_for_alias(
-        root, notebook
-    ),
-    worktree_of_hook=lambda root, path: _session_worktree_of(root, path),
-    source_set_hook=lambda target: session_source_set(target),
-    live_aliases_hook=lambda root, repositories: live_session_aliases(
-        root, repositories
-    ),
+    repositories_hook=_repositories_hook,
+    live_targets_hook=_live_targets_hook,
+    resolve_target_hook=_resolve_target_hook,
+    target_for_alias_hook=_target_for_alias_hook,
+    worktree_of_hook=_worktree_of_hook,
+    source_set_hook=_source_set_hook,
+    live_aliases_hook=_live_aliases_hook,
 )
 session_repositories = _sessions.session_repositories
 live_session_targets = _sessions.live_session_targets
