@@ -951,7 +951,7 @@ Active changes:
   (Brett, in-session: "do the omnigent-terminology ratification" — task 1.2,
   read-back in tasks.md). Ratification covers the RULE only — the optional
   `terminology` block, the descriptive-crosswalk shape, and the
-  human-facing-rendering requirement — not any domain's realization.
+  human-facing rendering requirement — not any domain's realization.
   ANNOTATE, NEVER RENAME: an optional `terminology` block on the
   omnigent-domain-overlay contract carries display labels for the ids an
   overlay declares (`workers`, `job_types`, `stop_conditions`, `routing`),
