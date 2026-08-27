@@ -4,41 +4,39 @@ origin:
   kind: ad_hoc
   id: openxFactory:adhoc:2026-08-27-add-modified-block-currency-check
   reason: >-
-    THE ADMISSION IS OF THE DEFECT CLASS INTO THE PROPOSAL QUEUE, NOT A
-    RATIFICATION OF THIS PACKET'S CONTENT. Brett filed three issues on
-    2026-08-25 naming one mechanism: #357 ("a MODIFIED requirement block that
-    restates stale canon passes --strict and reverts canon on archive"), #329
-    ("two active changes carry lossy MODIFIED blocks: archiving them will
-    silently drop ratified scenarios") and #330 ("promotion-fidelity blind
-    spot: scenarios LOST from a promoted spec are invisible"). #357 proposes
-    the check in its own sentences — "for each active change's MODIFIED
-    requirement, compute canon's current requirement text; every canon body
-    sentence and every canon `#### Scenario:` heading must appear in the
-    MODIFIED block unless the change's proposal/delta explicitly names it as
-    REMOVED. Report as a contested-class finding" — and that filing is the
-    approval recorded here. THE FORCING FACT is on the record four times in one
-    week: `add-doxchat-model-intake` (#351, six clauses / two scenarios / one
-    reverted line, repaired by PR #358) and the three sibling check families
-    that each restated ONE of `doc-health`'s eight "Deterministic check
-    families" scenarios, every one of them caught by a human and one only by a
-    byte-for-byte verification run by hand at an archive gate. NO STAGING
-    ORIGIN IS CLAIMED: none exists — searched across `ideation/staging/` and
-    its INDEX. Authored here because doc-health and document-lifecycle are
-    openxFactory capabilities and the obligation being checked is the neutral
-    corpus's own authoring rule.
+    QUEUE ADMISSION BY THE ORCHESTRATING SESSION ON FILED ISSUES #357, #329 AND
+    #330 — NOT AN APPROVAL. Brett filed all three on 2026-08-25 naming one
+    mechanism, and #357 proposes the check in its own sentences: "for each
+    active change's MODIFIED requirement, compute canon's current requirement
+    text; every canon body sentence and every canon `#### Scenario:` heading
+    must appear in the MODIFIED block unless the change's proposal/delta
+    explicitly names it as REMOVED. Report as a contested-class finding." The
+    session admitted that class to the proposal queue and authored this packet;
+    Brett converts this record to an admission with one word, or the packet
+    stands as the #318 dilemma — a drafted, unapproved packet with no origin
+    kind that expresses its own state. THE FORCING FACT is on the record four
+    times in one week: `add-doxchat-model-intake` (#351 — six body clauses, two
+    scenarios and one reverted line, repaired by PR #358) and the three sibling
+    check families that each restated ONE of `doc-health`'s eight "Deterministic
+    check families" scenarios, every one caught by a human and one only by a
+    byte-for-byte verification run by hand at an archive gate. NO STAGING ORIGIN
+    IS CLAIMED: none exists, searched across `ideation/staging/` and its INDEX.
+    Authored here because doc-health and document-lifecycle are openxFactory
+    capabilities and the obligation being checked is the neutral corpus's own
+    authoring rule.
   approved_by: >-
-    Brett — by filing openxFactory issues #357, #329 and #330 on 2026-08-25,
-    the third of which proposes this check by name and shape. THIS IS AN
-    ADMISSION INTO THE PROPOSAL QUEUE AND NOTHING MORE. It supplies the origin
-    and approval pair the proposal-origin contract requires; it does NOT ratify
-    this packet's content, and it does NOT cover the five decisions in the
+    The orchestrating session, admitting the defect class to the proposal queue
+    on Brett's filed issues #357, #329 and #330. THIS IS NOT AN APPROVAL OF
+    CONTENT AND NOT A RATIFICATION. It does not cover the five decisions in the
     proposal's § Orchestrator Decisions, which the authoring session took under
     standing patterns and flagged there for veto. The packet remains
-    `Status: draft`, carries no ratification citation, and none is owed — the
-    promoted lifecycle rule requires one only for `Status: ratified`. Whether
-    this change is ratified is a separate act that has not happened. The
-    absence of an origin kind meaning "proposed, not approved" is openxFactory
-    issue #318, still open; this record uses the shape
-    `create-medxchart-overlay-boundary` and `qualify-avatar-live-voice` use,
-    which is the only one the corpus currently sanctions.
-  approved_on: 2026-08-25
+    `Status: draft`, carries no ratification citation, and owes none — the
+    promoted lifecycle rule requires one only for `Status: ratified`. THE ONLY
+    PRECEDENT CITED IS `create-medxchart-overlay-boundary`, AND THIS RECORD IS
+    WEAKER THAN IT, deliberately: that packet's admission was Brett's own
+    in-session ruling naming the packets ("admit the two medx boundary
+    packets"), a human act on a specific packet. No such act exists here. What
+    exists is Brett's filing of the issues and a session's decision to author
+    against them, which establishes the CLASS and not this packet. Recorded at
+    that strength rather than dressed up as the stronger thing.
+  approved_on: 2026-08-27

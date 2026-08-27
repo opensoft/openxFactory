@@ -341,52 +341,36 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [add-modified-block-currency-check](openspec/changes/add-modified-block-currency-check/proposal.md)
-  — **PROPOSAL, `Status: draft`, authored 2026-08-27 and NOT RATIFIED.** A
-  `## MODIFIED Requirements` block REPLACES a requirement wholesale, and
-  `openspec validate --strict` checks only a delta's SHAPE — so a long-lived
-  active change whose block restates stale canon deletes every clause and
-  scenario canon gained since the block was written, silently, with every gate
-  green. It happened FOUR TIMES IN ONE WEEK and a human caught it every time:
-  `add-doxchat-model-intake` (#351 — six body clauses, two scenarios, one
-  reverted line; repaired by PR #358) and the three sibling check families that
-  each restated ONE of `doc-health`'s EIGHT "Deterministic check families"
-  scenarios (#329). The class is a function of TIME rather than care — intake's
-  block was correct when written on 2026-08-21 and canon moved under it — and
-  counting cannot see it, because a change's own ADDED requirement offsets what
-  its MODIFIED block drops (98 → 98 while a requirement went 8 → 1). `#330` is
-  the third face: `promotion-fidelity` compares an ARCHIVED delta to canon, and
-  after the archive act canon IS the delta, so it agrees and reports nothing.
-  Covers all three issues as one class. ADDS the authoring obligation to
+  — **PROPOSAL, `Status: draft`, authored 2026-08-27, NOT RATIFIED.** Covers
+  issues #357, #329 and #330 as one class: `## MODIFIED Requirements` replaces a
+  requirement wholesale and `openspec validate --strict` reads only a delta's
+  shape, so an active change whose block restates stale canon deletes whatever it
+  did not restate, silently, on archive. Four instances in one week, each caught
+  by a human — `add-doxchat-model-intake` (#351: six body clauses, two scenarios,
+  one reverted line; repaired by PR #358) and three check families that each
+  restated 1 of 8 scenarios of `doc-health`'s "Deterministic check families"
+  (#329) — and `promotion-fidelity` cannot see the class, because after an
+  archive act canon IS the delta (#330). ADDS the authoring obligation to
   `document-lifecycle` (a MODIFIED block restates the requirement as canon
-  currently states it; currency is owed CONTINUOUSLY while the change is active;
-  a deliberate deletion is declared in the delta) and doc-health's TWENTY-SECOND
-  family, reading ACTIVE deltas against CURRENT canon — the comparison
-  `promotion-fidelity` structurally cannot make — in three arms: scenario-title
-  completeness (the gate), a carriage ledger of body sentences and scenario
-  bullets (editorial, `info`, never a gate), and title resolution reusing
-  `release-realization`'s "relative to that change's outcome" rather than
-  inventing a second spelling. Matching is VERBATIM after whitespace
-  normalization and nothing looser — a similarity rule would pass a clause whose
-  meaning had been REVERSED, which is #351's ninth item. **Measured by a
-  throwaway spike over every active change before the proposal was written**:
-  1 scenario-arm finding (`add-composed-view-authoring`, a deliberate scenario
-  rename — named, and NOT claimed as a defect), 13 ledger units across 10
-  requirements all deliberate edits, 0 title-resolution findings with two-writers
-  compliance at 7 of 7; predicted launch movement **+1 warning, +10 info, 0
-  error**. The ledger independently reproduced PR #358's manual `canon ⊆ intake
-  ⊆ B` result down to the one residual bullet. **It carries NO MODIFIED block on
-  "Deterministic check families", and that was proven rather than judged**:
-  canon still enumerates (twenty in prose; `add-family-enumeration-check` is
-  active with its code landed and its delta unpromoted), so a block IS owed —
-  but a proposal registers no family, so the restatement named a family the
-  registry lacks, drew 3 findings from that very check, and RED
-  `test_the_real_corpus_reads_zero_on_both_halves`. The block moved to
-  `tasks.md` § 2.1, owed at realization in the registration commit, written
-  relative to `add-family-enumeration-check`'s outcome with the per-requirement
-  count recorded 8 → 8. Advisory at launch in both halves; the flip is asked for
-  the scenario arm ONLY and never for the ledger, whose population is standing by
-  construction. Five decisions flagged for veto; #330's post-archive safety net
-  and the active-change "who is later" question are recorded open, not folded in.
+  currently states it; currency is owed continuously while the change is active;
+  a deliberate deletion is declared by a reserved marker) and doc-health's
+  twenty-second family, which compares active deltas to current canon in three
+  arms: scenario-title completeness (the gate), a carriage ledger of body units
+  and scenario bullets (`info`), and title resolution reusing
+  `release-realization`'s "relative to that change's outcome" with its `ratified`
+  scoping unchanged. Matching is same-kind and exact after whitespace
+  normalization; containment and similarity are both forbidden in the delta.
+  Measured over all 23 MODIFIED requirements in the active corpus: 1 scenario-arm
+  finding (a deliberate rename, named and not claimed a defect), 14 ledger units
+  across 10 requirements, 0 title-resolution findings at 7-of-7 two-writers
+  compliance — **+1 warning, +10 info, 0 error**, rising to +11 info once the
+  realization writes its own enumeration block. It carries no MODIFIED block on
+  "Deterministic check families": canon still enumerates, so one is owed, but a
+  proposal registers no family and the restatement red
+  `test_the_real_corpus_reads_zero_on_both_halves` — so it is owed at realization
+  (`tasks.md` § 2.1), relative to `add-family-enumeration-check`'s outcome, 8 → 8.
+  Advisory at launch in both halves. #330 stays open (§ 7.1) and the "which of two
+  ACTIVE writers is later" question is a ruling owed before § 2.6 (§ 7.3).
 
 - [split-openxwallet-repo](openspec/changes/split-openxwallet-repo/proposal.md)
   — **RATIFIED 2026-08-26** (in-session ruling on PR #391; realization via
