@@ -209,41 +209,50 @@ The packet measured at `9be81a40` over 23 MODIFIED requirements
 not that tree: `add-hermes-customer-subject-runtime-contract` and
 `add-shared-identity-seeds` have archived since.
 
-**Measured at this branch point** (after `git merge origin/main`, upstream
-`501a3ae0`): 24 active changes, **22** MODIFIED requirement blocks across 17
-delta files.
+**MEASURED, at the branch point after `add-family-enumeration-check` archived
+(`f027d3b3`) and this branch merged it.** 23 active changes, **21** MODIFIED
+requirement blocks. The packet's own figure was taken at `9be81a40` over 23
+blocks and no longer describes any tree.
 
-**THE BASELINE COLUMN IS NOW MEASURED, not forecast** — taken at the end of F1
-phase 7 by running the real module against this repository's own tree, which is
-the same method F3 will assert with:
-
-| | baseline (no § 2.1 block) — **MEASURED** | with § 2.1's block — projected |
+| | before registration — MEASURED | with the family registered and § 2.1's block — MEASURED |
 | --- | --- | --- |
-| scenario-title arm | **1** `warning` | 1 `warning` |
-| carriage ledger | **9** `info` / **12** units | 10 `info` / 14 units |
-| resolution arm (unresolved + ordering) | **0** | 0 |
-| marker defects (the fourth class) | **0** | 0 |
-| `error` / `critical` | **0** | 0 |
+| scenario-title arm | 1 `warning` | **1** `warning` |
+| carriage ledger | 8 `info` / 10 units | **9** `info` / **12** units |
+| resolution arm (unresolved + ordering) | 0 | **0** |
+| marker defects (the fourth class) | 0 | **0** |
+| `error` / `critical` | 0 | **0** |
 
-The one `warning` is the finding the packet named: `add-composed-view-authoring`
+**Report movement, taken from two real single-repo runs** — one with the family
+and one with `--skip-family modified-block-currency`, which is the before-state
+because no other family's behaviour changed:
+
+```text
+without: 5 critical, 7 error, 42 warning,  4 info
+with:    5 critical, 7 error, 43 warning, 13 info
+         ------------------------------------------
+movement:      0          0        +1        +9
+```
+
+**+1 `warning`, +9 `info`, and every other family's report section
+byte-identical.** The `error` and `critical` bands do not move, so a run
+configured `--fail-on error` or `--fail-on critical` is unaffected by
+construction.
+
+The one `warning` is the subject the packet named: `add-composed-view-authoring`
 / `Composed views are read-only with a repository jump`, omitting canon's
 `Gate verbs hide on a composed view` — a deliberate rename, the case the marker
-exists for, and NOT claimed as a defect. Asserting it by that named subject is
-what stops F3's test passing vacuously.
+exists for, and NOT claimed as a defect.
 
-The nine ledger findings sit on `add-composed-view-authoring`,
-`add-doxchat-model-intake`, `add-family-enumeration-check`,
-`add-notebook-projection-identity`, `declare-client-standing-policy-contract`
-and `qualify-avatar-live-voice` (four of them). Note the third: that packet's
-own block already draws a ledger finding for two body sentences it does not
-carry, which is the pair § 2.1's block will move.
+**§ 2.1's block draws exactly ONE ledger finding against this change's own
+delta**, naming the two body sentences it changes — the enumeration sentence and
+the `Four of the twenty-one` sentence. That is the packet's § 6.6 prediction
+realized to the unit, it is expected and advisory, and it MUST NOT be
+dispositioned: it is the evidence that the family reads its own packet.
 
-The right-hand column stays PROJECTED until phase 8 writes the block; F3
-(§ 4.1/§ 4.5) asserts it and nothing else asserts it.
-
-Also corrected here: `OPENSPEC_TELEMETRY=0 openspec validate --all --strict`
-reads **76 passed** on this branch (24 active + 52 specs), not the 77 recorded in
-this feature's first two commits.
+`OPENSPEC_TELEMETRY=0 openspec validate --all --strict` reads **75 passed** at
+this branch point (23 active + 52 specs), having been 77 when this feature
+started and 76 before the archive. Every count this feature reports names the
+tree it was taken at.
 
 ## Module design: the function inventory
 
@@ -452,3 +461,21 @@ anchor, and the decision to import rather than re-spell every reader that
 already exists. O1–O9 stand as written; O10 is amended by B4 and annotated by
 N8.
 
+## Registration-phase residue
+
+The registration landed 2026-08-27, after the gate opened. Four things are worth
+recording because they were found rather than planned.
+
+| # | finding | disposition |
+| --- | --- | --- |
+| R1 | The mutation round (T061) found **three survivors** among twenty-one mutants, and each was a genuinely missing test: (a) inserting the family into `FAMILY_RESOLUTION` survived everything — the absence was documented in three places and asserted in none; (b) loosening the marker anchor's change-id group to `(.+?)` survived, because the only quoted-template case also carried a placeholder DATE, so the date group was doing all the work; (c) making `promoted()` consult a basis survived, because the existing pin compared two RUN OUTCOMES that would both have consulted it | FIXED: three tests added — `test_the_family_is_absent_from_family_resolution_at_launch` (non-vacuous: it asserts registry membership in the same test), `test_a_marker_whose_author_is_not_a_change_id_is_not_a_marker`, and `test_the_promoted_reader_cannot_reach_a_measurement_basis` (structural, on the reader's SIGNATURE). All twenty-one mutants now die |
+| R2 | N1's collateral: `test_canon_is_the_statement_under_test` read CANON DIRECTLY and pinned its numeral and name count against the live registry, BYPASSING the pending-behind-an-active-delta exemption the family implements — so it failed 21 != 22 while `fam_family_enumeration` correctly read 0 | FIXED by RULING: re-aimed to the disjunction the family itself implements (an active restatement if one exists, else canon), three assertions kept, and mutation-proved — dropping a name from the authoritative statement fails it, and canon naming a phantom fails it |
+| R3 | THE SAME TRAP THREE TIMES: a structural test that forbids a SUBSTRING fails on the module's own docstrings, which describe what the module refuses. It happened on the date pin (`created`), then on the basis pin (`WorkingTree`, `GitRefTree`) | FIXED both times by matching CALL SHAPES rather than bare names, which is the shape `test_the_reader_list_is_structural_not_incidental` already uses and for the reason its docstring gives: a test that forbids describing the rule is a bad test |
+| R4 | T051a — the test that was to hold the sequencing gate — was never written, because the gate OPENED while phase 6 was in flight | Recorded, not silently dropped: `tasks.md` marks it `[~]` with the reason. The condition it would assert cannot recur without un-archiving another change, and a test asserting an impossible condition is unreadable. The measurement lives in § Sequencing gate |
+
+**One fixture defect worth carrying forward as a warning to F2**: the
+longer-id two-writers fixture explained its own purpose in prose that wrote the
+sibling's BARE change id, so the whole-token matcher found a real declaration
+and the fixture silently tested the opposite case. Its proposal now carries a
+note telling the next editor not to write that id even while explaining the
+fixture.

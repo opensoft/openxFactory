@@ -110,6 +110,13 @@ FAMILY_IDS = [
     # enumeration and counts from `families.FAMILIES` instead of trusting the
     # hand-restatement every new family has to write.
     "family-enumeration",
+    # twenty-second family (add-modified-block-currency-check; doc-health delta
+    # "Deterministic check families"). The eighteenth family's other neighbour,
+    # reading the OTHER direction: promotion fidelity compares an ARCHIVED delta
+    # to canon, this compares an ACTIVE delta to the canon it has not yet
+    # replaced — while the change can still be edited, which is the only moment
+    # the remedy is one line.
+    "modified-block-currency",
 ]
 
 

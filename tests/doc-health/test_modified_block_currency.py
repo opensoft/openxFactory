@@ -396,7 +396,13 @@ def test_the_real_notes_this_corpus_carries_are_each_one_unit():
 
     units, markers = mbc.derive_units(lines[start + 1:end])
     notes = [u for u in units if mbc.is_dated_bold_note(u.text)]
-    assert len(notes) == 2, [u.text[:70] for u in notes]
+    # A FLOOR, NOT AN EXACT COUNT, and the first cut got that wrong: it pinned
+    # `== 2` and broke the moment `add-family-enumeration-check` archived and
+    # promoted its third note. The population GROWS every time the corpus
+    # records a repair on this requirement, so pinning it exactly makes an
+    # unrelated archive look like this family's regression. Three at the time of
+    # writing; two is the floor that keeps the undividedness check meaningful.
+    assert len(notes) >= 2, [u.text[:70] for u in notes]
 
     # ...each one WHOLE, not split at its internal sentence boundaries, and
     # none of them read as a marker — every dated note in this corpus records a
@@ -1267,3 +1273,109 @@ def test_the_family_returns_its_findings_sorted():
     for findings in (_run(), _tw_run(), _markers_run()):
         keys = [(f.repo, f.path, f.rule) for f in findings]
         assert keys == sorted(keys)
+
+
+# ------------------------------ 6. the registration, and three mutation escapes
+
+
+def test_the_family_is_registered_and_reachable_through_the_registry():
+    """The module is only reachable through the report a session reads if it is
+    registered. Routed through `FAMILIES` here — and ONLY here plus the two tests
+    below — because everything else in this file calls the module directly, which
+    is what let phases 1-7 land while the registration was gated."""
+    from doc_health.families import FAMILIES
+
+    assert mbc.FAMILY in FAMILIES
+    assert FAMILIES[mbc.FAMILY] is mbc.fam_modified_block_currency
+    from conftest import make_ctx
+    assert FAMILIES[mbc.FAMILY](make_ctx("modified-block-currency"))
+
+
+def test_the_family_is_absent_from_family_resolution_at_launch():
+    """THE SECOND HALF OF THE ADVISORY LAUNCH, and the half that is easy to lose.
+
+    `report.uncited_resolutions` turns a `contested` finding that VANISHES
+    between reports into an `error`. Every finding this family raises names a
+    block somebody is expected to CORRECT — so a `contested` class would red the
+    nightly on the first correction, which is enforcement arriving through the
+    back door on the very run that proves the advisory launch worked.
+
+    ADDED BY THE MUTATION ROUND: inserting this family into `FAMILY_RESOLUTION`
+    SURVIVED every other test in this file. The absence was documented in three
+    places and asserted in none.
+
+    NON-VACUOUS BY CONSTRUCTION: membership in `FAMILIES` is asserted in the
+    same test, so this cannot pass against an empty or misspelled registry —
+    which is exactly how an "absent from" assertion lies.
+    """
+    from doc_health.families import FAMILIES, FAMILY_RESOLUTION
+
+    assert mbc.FAMILY in FAMILIES, "the absence below means nothing otherwise"
+    assert mbc.FAMILY not in FAMILY_RESOLUTION
+    # and the severities that make up the other half
+    assert mbc._LAUNCH_SEVERITY == WARNING
+    assert mbc._LEDGER_SEVERITY == INFO
+
+
+def test_the_reporting_list_mirrors_the_registry():
+    """`FAMILY_IDS` is the registry's complete projection onto the report, not a
+    second definition of the set. It drifted for months once —
+    `staged-topic-template` and `proposal-origin` reported 61 findings, three of
+    them ERRORS, under no section at all."""
+    from doc_health import FAMILY_IDS
+    from doc_health.families import FAMILIES
+
+    assert set(FAMILY_IDS) == set(FAMILIES)
+    assert len(FAMILY_IDS) == len(set(FAMILY_IDS)) == len(FAMILIES) == 22
+    assert mbc.FAMILY in FAMILY_IDS
+
+
+def test_the_promoted_reader_cannot_reach_a_measurement_basis():
+    """ADDED BY THE MUTATION ROUND. `test_a_live_main_basis_request_changes_
+    nothing` asserts the OUTCOME is unaffected, and a mutant that made the
+    reader consult a basis survived it — because the assertion compares two runs
+    that would BOTH have consulted it.
+
+    The guarantee is structural and now says so: `promoted` takes a filesystem
+    root and a capability, full stop. No context, no git shim, no ref. There is
+    nothing for a basis option to arrive through.
+    """
+    import inspect
+
+    assert list(inspect.signature(mbc.promoted).parameters) == [
+        "root", "capability"]
+    assert list(inspect.signature(mbc.active_blocks).parameters) == ["root"]
+    import re
+
+    src = inspect.getsource(mbc)
+    # MATCHED ON USE, NOT ON MENTION — and this test failed its first run for
+    # exactly that reason: `promoted`'s docstring NAMES `WorkingTree` and
+    # `GitRefTree` to say it uses neither. A test that forbids describing the
+    # rule is a bad test, which is the third time this file has learnt it.
+    for pattern in (r"promotion_fidelity_basis",
+                    r"\bWorkingTree\s*\(", r"\bGitRefTree\s*\(",
+                    r"\.resolve_ref\s*\(", r"\.ls_tree_paths\s*\(",
+                    r"\.show_blob\s*\(", r"\bctx\.git\b"):
+        assert not re.search(pattern, src), pattern
+
+
+def test_a_marker_whose_author_is_not_a_change_id_is_not_a_marker():
+    """ADDED BY THE MUTATION ROUND. Loosening the change-id group to `(.+?)`
+    SURVIVED, because the only quoted-template case in this file also carries a
+    placeholder DATE — so the date group was doing all the work and the id group
+    was unpinned.
+
+    The id matters on its own: `**Removed from canon by Brett (2026-08-27):**`
+    is a paragraph a human could plausibly write, and it is NOT a declaration.
+    The marker's whole falsifiability is that it names the CHANGE accountable for
+    the deletion, which is what an archived delta can later be read against.
+    """
+    assert mbc.parse_marker(
+        "**Removed from canon by Brett (2026-08-27):** `A unit.`") is None
+    assert mbc.parse_marker(
+        "**Removed from canon by Some Change (2026-08-27):** `A unit.`") is None
+    assert mbc.parse_marker(
+        "**Removed from canon by ADD-UPPER (2026-08-27):** `A unit.`") is None
+    # ...and the real spelling still parses
+    assert mbc.parse_marker(
+        "**Removed from canon by add-a-change (2026-08-27):** `A unit.`")

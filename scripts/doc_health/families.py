@@ -14,7 +14,9 @@ eighteenth (add-promotion-fidelity-check), `release_inventory.py` owns
 the nineteenth (add-release-inventory-drift-check), and
 `duplicate_packet.py` owns the twentieth (add-duplicate-packet-check), and
 `family_enumeration.py` owns the twenty-first
-(add-family-enumeration-check); all eight are only registered below.
+(add-family-enumeration-check), and `modified_block_currency.py` owns the
+twenty-second (add-modified-block-currency-check); all nine are only registered
+below.
 
 The count is deliberately no longer written into this docstring's first
 line. It was wrong for three months — `staged-topic-template` registered on
@@ -37,7 +39,8 @@ from . import (AUTO_FIXABLE, CONTESTED, CRITICAL, ERROR, WARNING, INFO,
                TAXONOMY, Finding, Skip, recorded_rel)
 from . import (client_identity_composition, corpus, document_catalog,
                duplicate_packet, family_enumeration, ideation_routing,
-               promotion_fidelity, proposal_origin, release_inventory)
+               modified_block_currency, promotion_fidelity, proposal_origin,
+               release_inventory)
 from .lines import split_keepends
 
 # Per-family resolution class defaults (doc-health contract): contested
@@ -74,6 +77,19 @@ from .lines import split_keepends
 # restate, or withdraw the duplicate discharge — so `contested` is the honest
 # class, and it moved in the same commit as its severity for the same reason.
 # See `duplicate_packet._LAUNCH_SEVERITY`.
+#
+# "modified-block-currency" is ABSENT at its own launch
+# (add-modified-block-currency-check), for the reason its four predecessors were
+# absent at theirs and for one sharper reason of its own: every finding it raises
+# names a block somebody is expected to CORRECT, so a `contested` class would
+# route the first correction into `report.uncited_resolutions` as an ERROR and
+# red the nightly on the run that proved the advisory launch worked. Its arms are
+# `warning` for scenario-title completeness and title resolution and `info` for
+# the carriage ledger and a defective marker. Raising the scenario-completeness
+# arm to `error` and adding the contested class are ONE later decision taken
+# together by ruling; NO flip is proposed for the ledger, whose population is
+# standing by construction because every legitimate MODIFIED block edits
+# something. See `modified_block_currency._LAUNCH_SEVERITY`.
 FAMILY_RESOLUTION = {
     "location-conformance": CONTESTED,
     "standard-backing": CONTESTED,
@@ -1076,6 +1092,17 @@ FAMILIES = {
     # flipped to enforcing; this one flips by its own ruling on its own
     # measured population. See `family_enumeration._LAUNCH_SEVERITY`.
     "family-enumeration": family_enumeration.fam_family_enumeration,
+    # The TWENTY-SECOND family (add-modified-block-currency-check). ABSENT from
+    # FAMILY_RESOLUTION above, for the reason recorded there. It asks the
+    # question `promotion-fidelity` structurally CANNOT: that family compares an
+    # ARCHIVED delta to canon, and after an archive act canon IS the delta — so a
+    # block that dropped seven scenarios and a canon now missing them agree
+    # perfectly and it reports zero either way. The comparison that can see the
+    # loss is between an ACTIVE delta and the canon it has not yet replaced,
+    # which is a different document pair read at a different moment, and it is
+    # read while the change can still be edited.
+    "modified-block-currency":
+        modified_block_currency.fam_modified_block_currency,
 }
 
 # `family -> (ctx) -> [note line, ...]`, rendered under that family's own
