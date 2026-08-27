@@ -37,9 +37,11 @@ restates it.
 ARCHIVED at `f027d3b3` (PR #419) before F1 registered the family, so it is not
 among this tree's active changes and there is no sibling outcome to measure
 against. F1's T052 wrote the block against CANON for exactly that reason, and
-`test_the_own_delta_is_measured_against_canon_and_no_sibling_basis_exists`
+`test_the_archived_block_still_resolves_to_canon_and_no_active_writer_holds_it`
 asserts both halves — the basis that exists, and the sibling's absence.
-Orchestrator decision D2.
+Orchestrator decision D2. (That test was named
+`test_the_own_delta_is_measured_against_canon_and_no_sibling_basis_exists`
+until the archive act of 2026-08-27 re-aimed it; see the last paragraph.)
 
 WHAT F1's T057 DID NOT DO. F1's `tasks.md` records T057 —
 `test_the_family_reads_its_own_packet_s_delta` — as done, and its hand-off says
@@ -80,6 +82,24 @@ fails. That is designed behaviour, `_moved()` says so in every message, and
 ZERO over this tree, that is the DESIRED end state: assert zero by this same
 named-subject mechanism and keep the floor, which is then the only assertion
 distinguishing a clean corpus from a broken reader.
+
+**AND IT FELL DUE ON 2026-08-27, WHEN THE PACKET ITSELF ARCHIVED** — the
+nearest movement of all, and the one `quickstart.md` § WHEN THE GATE FAILS
+listed first. EVERY NUMERAL ABOVE IS HISTORY AND IS KEPT AS WRITTEN. What this
+file measures over this tree after the archive act: TWENTY-ONE active MODIFIED
+blocks (22 less this packet's own), **1 `warning` and 7 `info`**, report
+movement **+1 `warning`, +7 `info`**, and SEVEN named ledger subjects. The
+self-finding is gone because § 2.1's block was PROMOTED — canon's
+"Deterministic check families" now states `twenty-two check families` and
+`Four of the twenty-two`, which are the two units the finding named — and the
+family excludes `openspec/changes/archive/` in its reader by construction, so
+no finding can ever name the archived packet. Of the three § 4.2 assertions,
+TWO WERE RE-AIMED at the archived path through the family's own `parse_delta`
+and `derive_units` (a change of SUBJECT, which is the disposition F3 recorded
+for this exact day) and the THIRD — the self-finding quote — was RETIRED with
+its dated record in its own docstring, because a FINDING has no archived
+counterpart to be re-aimed at. Nothing was deleted silently and no module
+changed.
 """
 
 from __future__ import annotations
@@ -310,11 +330,18 @@ _LEDGER_SUBJECTS = {
      "Composed views are read-only with a repository jump"),
     ("add-doxchat-model-intake", "ideation-dashboard",
      "doxBench model catalog and provider boundary"),
-    # THE SELF-FINDING. Expected evidence that the family reads its own packet
-    # (F1's O2, packet § 6.6) — never a regression, and never to be
-    # dispositioned: a disposition here would hide the evidence.
-    ("add-modified-block-currency-check", "doc-health",
-     "Deterministic check families"),
+    # REMOVED 2026-08-27 BY THE ARCHIVE ACT — ('add-modified-block-currency-
+    # check', 'doc-health', 'Deterministic check families'). THE SELF-FINDING,
+    # and the second time this gate fell due. It was expected evidence that the
+    # family reads its own packet (F1's O2, packet § 6.6), never a regression
+    # and never to be dispositioned. The packet archived to
+    # `openspec/changes/archive/2026-08-27-add-modified-block-currency-check/`,
+    # so § 2.1's block was PROMOTED: canon's "Deterministic check families" now
+    # states `twenty-two check families` and `Four of the twenty-two`, the two
+    # units this finding named as uncarried, and the family reads no archived
+    # path by construction. Verified before deleting the row: no finding names
+    # either path this packet ever had, asserted in
+    # `test_the_self_finding_is_retired_by_the_archive_act`.
     ("add-notebook-projection-identity", "lifecycle-notebook-projection",
      "The session namespace is reconciled against live sessions"),
     ("declare-client-standing-policy-contract", "client-layer-tuning",
@@ -339,14 +366,31 @@ _LEDGER_SUBJECTS = {
     # name, remedied by re-measuring. `_moved()`'s message is what said so.
 }
 
-_OWN_DELTA = ("openspec/changes/add-modified-block-currency-check"
-              "/specs/doc-health/spec.md")
+_OWN_CHANGE = "add-modified-block-currency-check"
+
+# WHERE THE PACKET'S OWN BLOCK WAS UNTIL 2026-08-27, AND WHERE IT IS NOW. The
+# family's discovery excludes `openspec/changes/archive/` in its READER — and
+# the archived path is not even of `DELTA_GLOB`'s shape — so the archived path
+# is deliberately out of `active_blocks`' reach. Reading it below is a change of
+# SUBJECT, not a path edit, and it goes through the family's own parser rather
+# than a second one this gate would then own.
+_ACTIVE_DELTA_UNTIL_ARCHIVE = ("openspec/changes/add-modified-block-currency-"
+                               "check/specs/doc-health/spec.md")
+_ARCHIVED_PACKET = "2026-08-27-add-modified-block-currency-check"
+_ARCHIVED_DELTA = (f"openspec/changes/archive/{_ARCHIVED_PACKET}"
+                   f"/specs/doc-health/spec.md")
 _OWN_TITLE = "Deterministic check families"
 _OWN_CANON = "openspec/specs/doc-health/spec.md"
 
 # The two body sentences § 2.1's block does not carry — canon's wording, not the
 # block's. The block says "twenty-two"; the finding names what CANON states.
 _STALE_NUMERALS = ("twenty-one check families", "Four of the twenty-one")
+
+# ...AND SINCE THE ARCHIVE ACT OF 2026-08-27 THEY ARE CANON'S OWN WORDING IN
+# THEIR MOVED FORM. The two strings above are what canon carried BEFORE the act,
+# which is what the retired self-finding quoted; the two below are what § 2.1's
+# block carried instead, and therefore what canon states now.
+_MOVED_NUMERALS = ("twenty-two check families", "Four of the twenty-two")
 
 # The sibling the packet's § 4.2 names as the basis. Archived before F1
 # registered, which is why the basis is canon (decision D2).
@@ -600,7 +644,8 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
     fresh = seen - _LEDGER_SUBJECTS
 
     assert not gone and not fresh, _moved(
-        "the carriage-ledger population (9 named subjects at 76a2ad27)",
+        "the carriage-ledger population (9 named subjects at 76a2ad27; 8 after "
+        "PR #424's rename; 7 since this packet archived on 2026-08-27)",
         f"{len(gone)} named subject(s) NO LONGER reported "
         f"{sorted(gone)}; {len(fresh)} unnamed subject(s) NEWLY reported "
         f"{sorted(fresh)}")
@@ -667,77 +712,129 @@ def test_the_resolution_ordering_and_marker_classes_read_zero_over_the_real_tree
 # ============================================================================
 
 
-def _own_block():
-    blocks = [b for b in mbc.active_blocks(ROOT) if b.delta_rel == _OWN_DELTA]
-    assert len(blocks) == 1, _moved(
-        f"this change's own MODIFIED block ({_OWN_DELTA})",
-        f"{len(blocks)} block(s): {[b.title for b in blocks]}")
-    return blocks[0]
+def _archived_block():
+    """This change's own § 2.1 block, read at its ARCHIVED path through the
+    family's OWN readers.
 
+    **RE-AIMED BY THE ARCHIVE ACT (2026-08-27), NOT DELETED.** As written this
+    was `_own_block()`, and it selected the block out of `mbc.active_blocks`
+    because while the packet was active its delta was one of the blocks the
+    family examined. The packet archived, so `active_blocks` no longer returns
+    it and never will: the reader excludes `openspec/changes/archive/` on
+    purpose, as its own docstring says. That makes this a change of SUBJECT
+    rather than a path edit, which is the disposition F3 recorded for this exact
+    day.
 
-def test_this_change_s_own_delta_is_among_the_blocks_the_family_examined():
-    """PACKET § 4.2, AND THE ASSERTION F1's T057 CLAIMED AND DID NOT LAND.
-
-    F1's `tasks.md`:235 records T057 — `test_the_family_reads_its_own_packet_s_delta`
-    — as done, and its § Hand-off tells F3 the assertion "is live". It is not:
-
-        $ grep -rn "reads_its_own_packet\\|its_own_packet" tests/
-        $ echo $?
-        1
-
-    So this is written here rather than reused, and the discrepancy is recorded
-    as F1 residue finding 6 (decision D5). The closest existing thing,
-    F2's `test_the_packets_own_marker_templates_are_not_marker_form`, reads the
-    same FILE for a different purpose and says nothing about discovery.
-
-    WHY § 4.2 EXISTS AT ALL: without it, § 4.1 could pass because discovery
-    quietly stopped at the packet's own delta. The one block in this tree whose
-    content this change controls is the one it must be seen to read.
+    STILL THE FAMILY'S OWN READERS, AND NO SECOND PARSER. `parse_delta` and
+    `derive_units` are the two calls `active_blocks` itself makes on every block
+    it returns; the only things supplied here that it would have supplied are
+    the path and the lifecycle standing, and the standing is `None` because an
+    archived packet has no active standing and nothing below reads one.
     """
-    block = _own_block()
+    path = ROOT / _ARCHIVED_DELTA
+    assert path.is_file(), _moved(
+        "this change's own § 2.1 block at its archived path",
+        f"{_ARCHIVED_DELTA} does not exist — the archive folder may have been "
+        f"renamed, which would mean the promotion record moved too")
+    requirements, renames = mbc.parse_delta(path.read_text(encoding="utf-8"))
+    modified = [r for r in requirements if r.op == "MODIFIED"]
+    assert len(modified) == 1, _moved(
+        f"the single MODIFIED requirement of {_ARCHIVED_DELTA}",
+        f"{len(modified)} MODIFIED requirement(s): "
+        f"{[r.title for r in modified]}")
+    units, markers = mbc.derive_units(modified[0].body)
+    return mbc.ActiveBlock(_OWN_CHANGE, "doc-health", modified[0].title,
+                           _ARCHIVED_DELTA, units, markers, list(renames),
+                           None)
+
+
+def test_the_packet_s_own_block_sits_at_its_archived_path_and_out_of_reach():
+    """PACKET § 4.2's DISCOVERY ASSERTION, RE-AIMED BY THE ARCHIVE ACT
+    (2026-08-27) — the same claim, one document over.
+
+    As written this was
+    `test_this_change_s_own_delta_is_among_the_blocks_the_family_examined`, and
+    it asserted that discovery FOUND this change's own delta: the one block in
+    this tree whose content this change controlled, so § 4.1 could not pass
+    because discovery had quietly stopped. The packet archived, so there is no
+    own ACTIVE delta and the claim has to sit where the block went.
+
+    BOTH HALVES, and the second is why the first is not a regression: the block
+    is still readable at the archived path through the family's own parser, AND
+    `active_blocks` returns nothing from this change and nothing from any
+    archived path at all — the exclusion that reader declares in its own
+    docstring, which until today was covered only by F2's fixture trees.
+    Discovery's own floor is untouched and stays where it was, in
+    `test_the_family_examined_at_least_one_modified_block_over_the_real_tree`.
+    """
+    block = _archived_block()
     assert block.title == _OWN_TITLE, _moved(
-        f"the requirement title of this change's own block",
-        f"the block under {_OWN_DELTA} is titled {block.title!r}")
+        "the requirement title of this change's archived block",
+        f"the block under {_ARCHIVED_DELTA} is titled {block.title!r}")
+
+    still_active = [b.delta_rel for b in mbc.active_blocks(ROOT)
+                    if b.change == _OWN_CHANGE]
+    assert still_active == [], _moved(
+        f"the absence of {_OWN_CHANGE} from the ACTIVE set",
+        f"the family still discovers {still_active} — the packet is ACTIVE "
+        f"again, so the § 4.2 group's original subject is live and this re-aim "
+        f"must be reverted rather than adjusted")
+
+    from_archive = [b.delta_rel for b in mbc.active_blocks(ROOT)
+                    if "/archive/" in b.delta_rel]
+    assert from_archive == [], _moved(
+        "the family's exclusion of every archived delta",
+        f"discovery reached {from_archive}, which widens this family onto "
+        f"promotion-fidelity's document set")
 
 
-def test_the_own_delta_is_measured_against_canon_and_no_sibling_basis_exists():
-    """WHICH DOCUMENT THE BLOCK IS MEASURED AGAINST — asserted, because the
-    packet's answer is STALE (decision D2).
+def test_the_archived_block_still_resolves_to_canon_and_no_active_writer_holds_it():
+    """PACKET § 4.2's BASIS ASSERTION, RE-AIMED BY THE ARCHIVE ACT (2026-08-27).
 
-    § 4.2 asks that the block be asserted "measured against
-    `add-family-enumeration-check`'s outcome". That sibling ARCHIVED at
-    `f027d3b3` before F1 registered the family, so there is no sibling outcome
-    in this tree; F1's T052 wrote the block against CANON for that reason. Both
-    halves are asserted here — the basis that exists, and the sibling's absence
-    — so the packet's wording is visibly HISTORY rather than silently unmet.
+    As written this was
+    `test_the_own_delta_is_measured_against_canon_and_no_sibling_basis_exists`,
+    and its three claims were: the basis this change's block resolved to was
+    CANON; the sibling § 4.2 names (`add-family-enumeration-check`) had already
+    archived, so no sibling outcome existed to measure against; and the ordering
+    arm applied no basis override, there being ONE active writer on the
+    requirement rather than two. All three are asserted here about the tree as
+    it now stands, with the block read at its archived path.
 
-    THE ORDERING ARM IS ASSERTED TOO, not inferred from the finding count. The
-    two-writers instance § 6.6 predicted required two ACTIVE writers on one
-    requirement; with the sibling archived there is one writer, so no basis
-    override may be applied. A build that substituted a basis here would compare
-    the block against a document no reader can name, which is the defect
-    `release-realization`'s ordered-deltas rule exists to prevent.
+    THE THIRD CLAIM CHANGED ITS NUMBER, AND THAT IS THE POINT. There is now
+    ZERO active writer on `Deterministic check families`, because the last one
+    promoted. The twenty-third family's packet makes it one again and this
+    assertion falls due on that branch, which is correct: `_moved()` says what
+    to do, and a second active writer beside it is precisely the
+    by-declaration case the ordering arm exists for.
+
+    NO COUPLING TO CANON'S TEXT, DELIBERATELY. This asserts that canon CARRIES
+    the requirement, never what canon says about it — canon's wording moves with
+    every family that lands, and an assertion on it here would red on somebody
+    else's legitimate branch. What canon says is `family-enumeration`'s
+    business, pinned in
+    `test_family_enumeration.py::test_canon_is_the_statement_under_test`.
     """
-    block = _own_block()
+    block = _archived_block()
     basis, status = mbc.resolve(
         block, mbc.promoted(ROOT, block.capability), mbc.sibling_titles(ROOT))
 
     assert status == "canon", _moved(
-        f"the measurement basis of this change's own block",
+        "the measurement basis of this change's archived block",
         f"resolve() returned status {status!r}")
     assert basis is not None and basis.spec_rel == _OWN_CANON, _moved(
         f"the basis document for {_OWN_TITLE!r}",
         f"resolved to {getattr(basis, 'spec_rel', None)!r}")
 
-    # The sibling § 4.2 names: absent from active, present in the archive.
-    assert not (ROOT / _MARKER_DIR / _ARCHIVED_SIBLING).exists(), (
-        f"{_ARCHIVED_SIBLING} is ACTIVE again, so the packet's § 4.2 basis is "
-        f"live after all and decision D2 must be revisited")
-    archived = sorted((ROOT / _MARKER_DIR / "archive")
-                      .glob(f"*-{_ARCHIVED_SIBLING}"))
-    assert len(archived) == 1, (
-        f"expected exactly one archived {_ARCHIVED_SIBLING}, found "
-        f"{[p.name for p in archived]}")
+    # The sibling § 4.2 names, and this packet beside it since 2026-08-27: both
+    # archived exactly once, neither active.
+    for change in (_ARCHIVED_SIBLING, _OWN_CHANGE):
+        assert not (ROOT / _MARKER_DIR / change).exists(), (
+            f"{change} is ACTIVE again, so the packet's § 4.2 basis is live "
+            f"after all and decision D2 must be revisited")
+        archived = sorted((ROOT / _MARKER_DIR / "archive").glob(f"*-{change}"))
+        assert len(archived) == 1, (
+            f"expected exactly one archived {change}, found "
+            f"{[p.name for p in archived]}")
 
     # No basis override, asserted through the ordering arm itself.
     blocks = mbc.active_blocks(ROOT)
@@ -747,48 +844,70 @@ def test_the_own_delta_is_measured_against_canon_and_no_sibling_basis_exists():
     override, ordering = mbc._arm_ordering(
         "openxFactory", group, mbc.declarations(ROOT, blocks))
     assert override == {}, _moved(
-        "the absence of a two-writers basis override on this change",
+        "the absence of a two-writers basis override on this requirement",
         f"a basis was substituted: {sorted(override)}")
     assert ordering == [], _moved(
-        "the ordering arm's silence on this change's requirement",
+        "the ordering arm's silence on this requirement",
         f"{[f.rule[:160] for f in ordering]}")
-    assert len(group) == 1, _moved(
-        f"the number of active writers on {_OWN_TITLE!r}",
-        f"{len(group)}: {sorted(b.change for b in group)} — with two ACTIVE "
-        f"writers the by-declaration rule applies and this test's premise "
-        f"changes")
+    assert len(group) == 0, _moved(
+        f"the number of ACTIVE writers on {_OWN_TITLE!r} — zero since this "
+        f"packet archived on 2026-08-27",
+        f"{len(group)}: {sorted(b.change for b in group)} — a new writer holds "
+        f"the requirement, and with TWO the by-declaration rule applies and "
+        f"this test's premise changes")
 
 
-def test_the_self_finding_quotes_this_change_s_two_stale_numeral_sentences():
-    """THE SELF-FINDING: EXPECTED EVIDENCE, NEVER A REGRESSION.
+def test_the_self_finding_is_retired_by_the_archive_act():
+    """**RETIRED 2026-08-27 BY THE ARCHIVE ACT, WITH ITS RECORD — NOT DELETED.**
 
-    § 2.1's block moves canon's `twenty-one` to `twenty-two` and its
-    `Four of the twenty-one` to `Four of the twenty-two`, so under this family's
-    own same-kind exact rule it does not CARRY those two canon sentences and the
-    ledger reports them. The packet predicted it (§ 6.6), F1's O2 recorded that
-    the self-gate must treat it as evidence, and it MUST NOT be dispositioned —
-    a disposition here would hide the proof that the family reads its own
-    packet.
+    As written this was
+    `test_the_self_finding_quotes_this_change_s_two_stale_numeral_sentences`.
+    WHAT IT PROVED, from F3 landing (`f728d57f`) until the archive act: the
+    family drew EXACTLY ONE `info` finding against this change's own delta at
+    `openspec/changes/add-modified-block-currency-check/specs/doc-health/spec.md`,
+    on the subject `(add-modified-block-currency-check, doc-health,
+    Deterministic check families)`, and its rule quoted BOTH canon sentences
+    § 2.1's block did not carry — `twenty-one check families` and `Four of the
+    twenty-one`. That was expected evidence that the family read its own packet
+    (packet § 6.6, F1's O2), never a regression, and never to be dispositioned.
 
-    THE QUOTED UNITS ARE CANON's WORDING, NOT THE BLOCK's. The finding names
-    what canon states and the block does not restate, so `twenty-one` is the
-    correct thing to find here and `twenty-two` would mean the arm had its
-    direction reversed.
+    WHY THIS ONE IS RETIRED WHERE THE TWO ABOVE WERE RE-AIMED. Those two are
+    about DOCUMENTS, and a document can be read at another path. This one is
+    about a FINDING, and the family draws findings against ACTIVE deltas only:
+    `active_blocks` excludes `openspec/changes/archive/` by construction, so
+    there is no archived counterpart to point it at, and manufacturing one would
+    widen the family's scope inside a test instead of inside its module.
+
+    WHAT REPLACES IT — two assertions, each carrying a claim of its own rather
+    than standing in for the retired one. First: no finding names
+    either path this packet ever had — the fact that made the `_LEDGER_SUBJECTS`
+    row safe to remove, checked here rather than asserted in a commit message.
+    Second: the archived block, a frozen document, carries the MOVED numerals
+    and not the stale ones, which is the DIRECTION claim the original test
+    existed for — the finding named what CANON stated and the block did not
+    restate, so `twenty-one` was the correct thing to find there and
+    `twenty-two` would have meant the arm was reversed.
     """
-    own = [f for f in _findings() if f.path == _OWN_DELTA]
-    assert len(own) == 1, _moved(
-        "the self-finding against this change's own § 2.1 block",
-        f"{len(own)} finding(s): {[(f.severity, f.rule[:120]) for f in own]}")
-    assert own[0].severity == INFO, _moved(
-        "the severity of the self-finding (the editorial ledger, advisory)",
-        f"{own[0].severity}")
-    assert _subject(own[0]) == ("add-modified-block-currency-check",
-                               "doc-health", _OWN_TITLE)
+    named = [f.path for f in _findings()
+             if f.path in (_ACTIVE_DELTA_UNTIL_ARCHIVE, _ARCHIVED_DELTA)]
+    assert named == [], _moved(
+        "the absence of any finding against this packet's own delta, at either "
+        "the path it had while active or its archived path",
+        f"{named} — the ACTIVE path back means the packet is active again and "
+        f"this retirement must be reverted; the ARCHIVED path reported means "
+        f"the family has been widened onto archived deltas")
 
+    carried = " ".join(unit.text for unit in _archived_block().units)
+    for sentence in _MOVED_NUMERALS:
+        assert sentence in carried, _moved(
+            f"the moved numeral {sentence!r} in the archived block",
+            "the archived block's derived units do not carry it")
     for sentence in _STALE_NUMERALS:
-        assert sentence in own[0].rule, _moved(
-            f"the uncarried canon sentence {sentence!r}",
-            f"the self-finding quotes: {own[0].rule}")
+        assert sentence not in carried, _moved(
+            f"the absence of canon's pre-promotion wording {sentence!r} from "
+            f"the archived block",
+            "the archived block carries it, which would mean the finding this "
+            "test records had the direction of the arm reversed")
 
 
 def test_no_disposition_can_apply_in_the_single_repo_scope_the_gate_runs_in():
@@ -1063,8 +1182,16 @@ def test_the_gate_reaches_the_corpus_only_through_the_family():
             assert not pattern.match(line), (name, line)
             assert not pattern.search(line), (name, line)
 
-    allowed = {"active_blocks", "declarations", "fam_modified_block_currency",
-               "norm", "promoted", "resolve", "sibling_titles",
+    # `ActiveBlock`, `derive_units` and `parse_delta` joined the list on
+    # 2026-08-27, when the packet archived and the § 4.2 group was re-aimed at
+    # the archived path: `active_blocks` excludes `openspec/changes/archive/` in
+    # its reader, so the block has to be read through the two calls that reader
+    # itself makes and handed back in the type it itself returns. That is a
+    # change of SUBJECT reached through the family, which is what this pin is
+    # for — three more names here, and NOT one regex more below.
+    allowed = {"ActiveBlock", "active_blocks", "declarations", "derive_units",
+               "fam_modified_block_currency", "norm", "parse_delta",
+               "promoted", "resolve", "sibling_titles",
                "DELTA_GLOB", "FAMILY", "_MARKER_ACTION", "_arm_ordering"}
     # OVER CODE, NOT OVER PROSE. This test's own docstring claimed "matched on
     # use" while doing the opposite: naming any family attribute in a docstring
@@ -1107,9 +1234,9 @@ def test_every_corpus_assertion_explains_what_to_do_when_the_corpus_moves():
         test_the_scenario_arm_names_the_composed_view_rename_and_nothing_else,
         test_every_carriage_ledger_finding_over_the_real_tree_is_named,
         test_the_resolution_ordering_and_marker_classes_read_zero_over_the_real_tree,
-        test_this_change_s_own_delta_is_among_the_blocks_the_family_examined,
-        test_the_own_delta_is_measured_against_canon_and_no_sibling_basis_exists,
-        test_the_self_finding_quotes_this_change_s_two_stale_numeral_sentences,
+        test_the_packet_s_own_block_sits_at_its_archived_path_and_out_of_reach,
+        test_the_archived_block_still_resolves_to_canon_and_no_active_writer_holds_it,
+        test_the_self_finding_is_retired_by_the_archive_act,
     )
     for test in corpus_facing:
         body = inspect.getsource(test)

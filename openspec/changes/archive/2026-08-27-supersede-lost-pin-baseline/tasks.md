@@ -323,6 +323,30 @@ where the record it cites is committed.
       31.1% → 31.2%, promoted-spec words 148998 → 149898 — which is the promotion
       showing up in the corpus ratio and the only difference an honest archive
       should produce.
+      **MAIN MOVED A THIRD TIME AND THE PROMOTION CONFLICTED — RESOLVED BY
+      KEEPING BOTH SIDES, AND THE DIGEST PROOF RE-RUN RATHER THAN RE-ASSERTED.**
+      `add-modified-block-currency-check` archived on main as `8997e00b` and
+      promoted into the SAME capability, so `openspec/specs/doc-health/spec.md`
+      conflicted — both changes had appended at the tail. The resolution keeps
+      both blocks in ARCHIVE ORDER, the sibling's first because it landed on main
+      first and this packet's appended after it; nothing was dropped from either
+      side and no requirement was reworded. Canon therefore reads **35 → 36
+      requirements, 159 → 163 scenarios** against main as it now stands (the
+      earlier 34 → 35 / 145 → 149 was measured against main before the sibling
+      landed, and both are kept). **THE PROOF IS UNCHANGED BECAUSE IT WAS RE-RUN,
+      NOT CARRIED OVER**: main's canon at `8997e00b` is a byte-exact PREFIX of
+      the resolved file (`cmp -n 121437` clean, so the sibling's promotion is
+      byte-identical after this resolution and zero bytes were deleted), the
+      appended region is bytes 121438–126872, and it is still this delta's
+      requirement body verbatim plus canon's one trailing blank line — 72 lines,
+      5434 bytes, under the SAME digest
+      `sha256:a595d40e7b9b321f32ce5d04c1888e54ae8bab0f4c6aa30e0a4eb4604e711c64`.
+      README conflicted twice for the same reason and resolved the same way: the
+      Active block loses BOTH entries (each change has now archived) and the
+      Archived block keeps BOTH, newest-first. Gates re-run on the resolved tree:
+      `openspec validate --all --strict` **74 passed, 0 failed** (one fewer again,
+      the sibling having left the active set) and `python3 -m pytest
+      tests/doc-health -q` **1209 passed, 0 failed** under `pipefail`.
 
 ## 5. Open — deliberately not closed by this change
 

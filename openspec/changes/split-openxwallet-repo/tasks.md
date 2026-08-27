@@ -931,7 +931,7 @@ intermediate.*
       `governance/review-authority/`), and S3/S5's `openxwallet` /
       `openxwallet-agent-profile` core deltas authored in openXwallet from here on. Its
       `tasks.md` 8.1 ruling is unchanged, as ratified.
-- [ ] 7.26 **Sequencing guard: the declared manifest freeze is UNENFORCEABLE.**
+- [x] 7.26 **Sequencing guard: the declared manifest freeze is UNENFORCEABLE.**
       P3 REBASES and RE-VERIFIES the eight digests immediately before merge, and
       THAT re-verification — not a P2-era artifact reused — is what P3's evidence
       row carries. Commits use explicit pathspecs.
@@ -942,6 +942,22 @@ intermediate.*
       authoring-time artifact is NOT what the evidence row carries. It closes on the
       pre-merge rebase and RE-verification, which is the operator's last act before
       merging. Commits in this pull request use explicit pathspecs, as required.
+      **Evidence:** REALIZED AT MERGE. Immediately before merging, `main`
+      (`4def2274…`) was ONE commit ahead of the merge-base (`94933adf…`) with NO
+      overlapping files — `comm -12` of the two changed-file sets (17 files on
+      `main`, 123 on the pull request) is empty. `python3
+      scripts/verify-openxwallet-pin.py` on the pull request head printed `OK
+      openxwallet-pin verified: openXwallet@63f5a1adac89f017e70bab9a4ffe7cf02d6e6705
+      (tag label wallet-v1.1), gitlink read from HEAD, 8 digest(s) recomputed`, and
+      `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` reported `76 passed, 0
+      failed`. The merge landed at `c9a1500e1a960be827cd714d8024d9aacb40aeb2` (merge
+      commit, PR #431), and the SAME verifier line re-ran there — reconfirmed in this
+      evidence pass with the submodule freshly initialized: `OK openxwallet-pin
+      verified: openXwallet@63f5a1adac89f017e70bab9a4ffe7cf02d6e6705 (tag label
+      wallet-v1.1), gitlink read from HEAD, 8 digest(s) recomputed`. Tag
+      `contract-v2.0` is cut on that commit and `validate-contract-release.py
+      verify-tag --remote origin --tag contract-v2.0` returns `release verify-tag:
+      pass`. Commits in this pull request used explicit pathspecs, as required.
 - [x] 7.27 `governance/review-authority/` STAYS — all four files (R6). Assert it
       in the pull request: nothing under that directory is touched by P3.
       **Evidence:** ASSERTED and CHECKED. `git diff --stat origin/main -- governance/`
@@ -949,7 +965,7 @@ intermediate.*
       this pull request, and the pull request body carries the same assertion. The
       register is also proven LIVE by the gate log's `intake register read:` NOTE — the
       data stayed and only the reader travelled.
-- [ ] 7.28 Evidence row: green `wallet-validation` (the token, from the renamed
+- [x] 7.28 Evidence row: green `wallet-validation` (the token, from the renamed
       file) on P3's OWN head, plus the post-rebase digest re-verification.
       **Note (feature `023-openxwallet-consume-shed`, 2026-08-27): HALF DISCHARGED — the
       ALIAS IS PROVEN.** Pull request
@@ -966,7 +982,18 @@ intermediate.*
       The row stays OPEN for its SECOND half: the post-rebase digest
       re-verification of 7.26, taken immediately before merge. A green run against a
       pre-rebase head does not discharge that half.
-- [ ] 7.29 Evidence row: the positive register conjunction of §7.15 in the gate
+      **Evidence:** DISCHARGED. On pull request #431's post-rebase head `746fe3f9`,
+      `wallet-validation` reports **pass** (24s, run **33115267228**, job
+      **98668176860**) and `pytest-suite` reports **pass** (14m39s, run
+      **33115267254**, job **98668260667**) — superseding the four pre-rebase heads
+      named above with the head that actually merged. P3 merged at
+      `c9a1500e1a960be827cd714d8024d9aacb40aeb2` (merge commit); `python3
+      scripts/verify-openxwallet-pin.py` re-ran at that commit and printed the
+      identical `OK openxwallet-pin verified:
+      openXwallet@63f5a1adac89f017e70bab9a4ffe7cf02d6e6705 (tag label wallet-v1.1),
+      gitlink read from HEAD, 8 digest(s) recomputed` line, which is this row's
+      second half — the post-rebase digest re-verification.
+- [x] 7.29 Evidence row: the positive register conjunction of §7.15 in the gate
       log, plus `wallet-v1.1`'s register-read NOTE.
       **Note (feature `023-openxwallet-consume-shed`, 2026-08-27): DISCHARGED IN CI.**
       Run **33109575651** on pull request #431 carries, in order:
@@ -980,6 +1007,16 @@ intermediate.*
       are absent, and the gate FAILS on any of the four, so the green check IS the
       assertion rather than a separate reading of it. The row is left open only until
       it is re-observed on the post-rebase head with 7.26.
+      **Evidence:** DISCHARGED ON THE POST-REBASE HEAD. The `wallet-validation` job
+      log for run **33115267228** (job 98668176860, head `746fe3f9`, the same
+      post-rebase run 7.28 carries) reads, in order:
+      `note  intake register read: governance/review-authority/register.yaml (1
+      row(s))` then `note  repo scan: 2 openxWallet artifact(s) validated, 1614
+      document(s) skipped as another kind`, followed by `register-read conjunction
+      holds:` repeating both lines verbatim. No `register-*` finding appears in the
+      log — the gate's own negative-assertion step
+      (`! grep -qE '\[register-[a-z-]+\]' wallet-gate.log`) passed. This is the
+      re-observation on the post-rebase head the row was left open for.
 - [x] 7.30 Evidence row: `pytest-suite`'s pinned PASS / SKIP counts under nested
       submodules, not collection alone.
       **Evidence:** MEASURED IN CI AND PINNED. Run **33111235491** on pull request #431,
@@ -1034,7 +1071,7 @@ intermediate.*
       `verify-openxwallet-pin.py`) — because one member could only have declared one
       locality and the file carries both. Recorded in
       `specs/023-openxwallet-consume-shed/evidence/validation.md`.
-- [ ] 7.31 **[OPERATOR]** Evidence row: ruleset 21538893 as an UNCHANGED-STATE
+- [x] 7.31 **[OPERATOR]** Evidence row: ruleset 21538893 as an UNCHANGED-STATE
       row — the `GET repos/opensoft/openxFactory/rules/branches/main` output
       showing the same single token as before the wave.
       **Note (feature `023-openxwallet-consume-shed`, 2026-08-27) — READ TAKEN, AND ONE
@@ -1050,6 +1087,15 @@ intermediate.*
       stays OPEN because a ruleset is not a tree fact and can change between now and
       merge — the operator re-reads it AT merge, and the reading above is the
       before-picture to compare against.
+      **Evidence:** UNCHANGED, CONFIRMED AT MERGE. `gh api
+      repos/opensoft/openxFactory/rulesets/21538893 -q '{enforcement, checks:
+      [.rules[] | select(.type=="required_status_checks") |
+      .parameters.required_status_checks[].context]}'` returns `{"enforcement":
+      "active", "checks": ["wallet-validation", "pytest-suite"]}`, and `gh api
+      repos/opensoft/openxFactory/rules/branches/main` still lists
+      `wallet-validation` alongside `pytest-suite` in `required_status_checks`. No
+      ruleset edit happened at P3; the token survived by alias, exactly as the
+      before-picture above recorded.
 - [x] 7.32 **[OPERATOR]** Task 2.6's red-proof, discharged HERE and retargeted at
       the consumer gate: a deliberately malformed row under openxFactory's
       `governance/review-authority/` turns an openxFactory pull request RED with
