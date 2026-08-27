@@ -1001,47 +1001,6 @@ Active changes:
   until merged). (code surface: codexFactory, openxFactory, omnigent-install,
   xFactory; release allocated at realization)
 
-- [add-model-provider-broker](openspec/changes/add-model-provider-broker/proposal.md)
-  — authored 2026-08-08, **RATIFIED 2026-08-26** (Brett, in-session), built
-  in the same round. doxBench has
-  a model seam and no model: there is no provider adapter in this repository
-  and none is implied, so every model-backed affordance refuses. Brett's
-  ruling names openProfiler — unbuilt — as the answer, which makes it a
-  credential BROKER, a shape `credential-contracts` already owns. The
-  dashboard holds a BINDING (id, label, credential reference, auth kind,
-  broker invocation) whose shape has no secret field at all; setting a key is
-  a hand-off to the broker's stdin that retains nothing; the invocation is
-  declared rather than hardcoded, so openProfiler's real CLI changes a
-  binding and no code. RULED 2026-08-08: the broker MINTS a short-lived
-  scoped token and doxBench calls the provider directly, because brokered
-  dispatch "would be too slow" — which means the "no provider is ever
-  contacted from this repository" boundary narrows to ONE named module
-  rather than holding, with its structural check rewritten rather than
-  deleted, and a minted token that lives in process memory and never
-  reaches the browser. RULED 2026-08-26: at mid-turn expiry the dashboard
-  re-mints and retries ONCE, with the re-mint and the paid retry visibly
-  recorded, and a second expiry in the same turn refuses. BUILT: the binding
-  record and its store, a `model-binding` CLI verb group, a credential
-  hand-off that streams a handle to the broker's stdin and keeps only the
-  reference, the one provider-client module, the package-wide boundary sweep
-  that narrows the eleven per-module scans without deleting any of them, and
-  the brokered port both entrypoints resolve — with the unconfigured posture
-  byte-identical. Task 0.2 is DISCHARGED — openProfiler PR #18 merged
-  2026-08-26 (`docs/broker-cli.md`, openProfiler main `d0538c31`), answering
-  what a minted token carries: provider-native in both kinds, with `api_key`
-  expiry as broker bookkeeping the consumer honours and the whole oauth path
-  DECLARED-DESIGN. Cross-checking this seam against that declaration found
-  SIX incompatibilities (operation framing, the enrolment stdin, a mint
-  answer carrying neither `endpoint` nor `dialect`, the reference key, an
-  unpassed `--retry-of`, and EPIPE handling); they are recorded in 0.2's body
-  and were RECONCILED the same day as task 2.6: the seam speaks the declared
-  subcommand contract, `endpoint`/`dialect` moved onto the binding, and an
-  end-to-end test drives the real `openprofiler-broker` binary through
-  intake, mint, a `--retry-of`-correlated re-mint, and revoke.
-  (code surface: openxFactory; target release: none;
-  depends on openProfiler)
-
-
 - [add-composed-view-authoring](openspec/changes/add-composed-view-authoring/proposal.md)
   — ratified 2026-08-08 ("yes, we need to draft from a project view").
   `Composed views are read-only with a repository jump` states its reason as
@@ -1184,6 +1143,73 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [add-model-provider-broker](openspec/changes/archive/2026-08-27-add-model-provider-broker/proposal.md)
+  — **ARCHIVED 2026-08-27**; authored 2026-08-08, **ratified 2026-08-26**
+  (Brett, in-session), built in the same round. doxBench has
+  a model seam and no model: there is no provider adapter in this repository
+  and none is implied, so every model-backed affordance refuses. Brett's
+  ruling names openProfiler — unbuilt — as the answer, which makes it a
+  credential BROKER, a shape `credential-contracts` already owns. The
+  dashboard holds a BINDING (id, label, credential reference, auth kind,
+  broker invocation) whose shape has no secret field at all; setting a key is
+  a hand-off to the broker's stdin that retains nothing; the invocation is
+  declared rather than hardcoded, so openProfiler's real CLI changes a
+  binding and no code. RULED 2026-08-08: the broker MINTS a short-lived
+  scoped token and doxBench calls the provider directly, because brokered
+  dispatch "would be too slow" — which means the "no provider is ever
+  contacted from this repository" boundary narrows to ONE named module
+  rather than holding, with its structural check rewritten rather than
+  deleted, and a minted token that lives in process memory and never
+  reaches the browser. RULED 2026-08-26: at mid-turn expiry the dashboard
+  re-mints and retries ONCE, with the re-mint and the paid retry visibly
+  recorded, and a second expiry in the same turn refuses. BUILT: the binding
+  record and its store, a `model-binding` CLI verb group, a credential
+  hand-off that streams a handle to the broker's stdin and keeps only the
+  reference, the one provider-client module, the package-wide boundary sweep
+  that narrows the eleven per-module scans without deleting any of them, and
+  the brokered port both entrypoints resolve — with the unconfigured posture
+  byte-identical. Task 0.2 is DISCHARGED — openProfiler PR #18 merged
+  2026-08-26 (`docs/broker-cli.md`, openProfiler main `d0538c31`), answering
+  what a minted token carries: provider-native in both kinds, with `api_key`
+  expiry as broker bookkeeping the consumer honours and the whole oauth path
+  DECLARED-DESIGN. Cross-checking this seam against that declaration found
+  SIX incompatibilities (operation framing, the enrolment stdin, a mint
+  answer carrying neither `endpoint` nor `dialect`, the reference key, an
+  unpassed `--retry-of`, and EPIPE handling); they are recorded in 0.2's body
+  and were RECONCILED the same day as task 2.6: the seam speaks the declared
+  subcommand contract, `endpoint`/`dialect` moved onto the binding, and an
+  end-to-end test drives the real `openprofiler-broker` binary through
+  intake, mint, a `--retry-of`-correlated re-mint, and revoke.
+  **ARCHIVE GATE MET, on the code surface rather than on the target.** The
+  declaration is non-empty (`code_surface: openxFactory`), so
+  `release-realization` requires merged-plus-green and
+  `target_release: none` cannot downgrade that to archive-on-landing —
+  the gate's antecedent is the surface, and the archive-on-landing path is
+  keyed to `code_surface: none`, which this is not. MERGED: PR #392 landed
+  2026-08-26 as main `bb7d7ae8`, all five branch commits ancestors of main,
+  all eight declared surface files present at `7b7447da`. GREEN: `pytest-suite`
+  and `wallet-validation` both SUCCESS on #392's head `0c131981` and again on
+  consumer PR #401's head `7eee092d`; on main itself the merge commit
+  `bb7d7ae8` carries its own uncancelled green run (`33023028983`), and the
+  last uncancelled green main run — `d3e140ea`, run `33031366342` — descends
+  from it and carries all three broker modules and all three broker test
+  files. The cancelled main runs either side are the
+  `pytest-suite-${{ github.ref }}` concurrency group cancelling itself as main
+  advances, not reds. Promotion is ADDED-ONLY: `ideation-dashboard` 95 -> 99
+  requirements, 444 -> 453 scenarios, and all 95 pre-existing bodies re-hashed
+  byte-identical afterwards, so no promoted block was restated. Verification
+  record:
+  [`review/archive-verification-2026-08-27.md`](openspec/changes/archive/2026-08-27-add-model-provider-broker/review/archive-verification-2026-08-27.md).
+  Two residuals are named there rather than buried: `target_release: none` is
+  outside the field's declared vocabulary (five other active changes spell it
+  the same way, so it is a corpus habit and history is left as written), and
+  the real-`openprofiler-broker` end-to-end coverage is point-in-time from task
+  2.6's build session — those three tests self-skip on CI, so the standing
+  green run proves the seam's behaviour against a contract-speaking fake, not
+  that the declaration and the program still agree.
+  (code surface: openxFactory; target release: none;
+  depended on openProfiler)
 
 - [fix-release-reachability-race](openspec/changes/archive/2026-08-26-fix-release-reachability-race/proposal.md)
   — **ARCHIVED 2026-08-26**; authored and **ratified 2026-08-26** (Brett,
