@@ -87,10 +87,12 @@ present.
    read them from.
 2. **Given** the same tree, **When** the family runs, **Then** the carriage
    ledger emits one `info` finding for that requirement whose reported units
-   carry the text of every clause the repair commit named — the three-member
+   carry the text of every clause the repair commit NAMED — the three-member
    port-surface enumeration, "MUST NOT be added as a fourth provider verb",
    the `auto` routing-rule clause, the broker-lane credential clause, and
-   `thread file` in the credential-leak list — plus the reverted scenario line
+   `thread file` in the credential-leak list. **The repair commit CLAIMS six
+   body clauses and NAMES these five**; the sixth is never named, so the five
+   named ones are what is asserted — plus the reverted scenario line
    `**AND** every loaded editor MUST remain usable` and the drifted
    `**WHEN** doxBench runs on the hosted plane` line.
 3. **Given** the same tree, **When** the family runs, **Then** canon's bullet
@@ -278,7 +280,8 @@ the determinism assertion enumerates every fixture tree.
 ### Edge Cases
 
 - **A recovered file is not self-contained.** `openspec/specs/ideation-dashboard/spec.md`
-  is 279 KB and carries dozens of unrelated requirements. The fixture freezes
+  is 228,041 bytes and carries dozens of unrelated requirements. The fixture
+  freezes
   the REQUIREMENT under test verbatim inside a minimal spec file rather than
   the whole document, because the family reads per requirement and a whole-file
   copy would freeze canon nobody is testing. The verbatim guarantee is scoped
@@ -341,7 +344,8 @@ delta, or of an orchestrator decision. The § 3 item is named in every case.
   `A fourth provider verb is proposed`, and naming the promoted spec path.
 - **FR-006**: The carriage ledger MUST emit one `info` finding for that
   requirement, and the test MUST assert that the reported units carry the text
-  of each clause the repair commit named, the reverted scenario line
+  of each of the FIVE clauses the repair commit NAMES (its message claims six
+  and names five; the sixth is never named), the reverted scenario line
   `**AND** every loaded editor MUST remain usable`, and the hosted-plane
   scenario line the block drifted.
 - **FR-007**: A test MUST assert that canon's bullet
@@ -400,6 +404,24 @@ delta, or of an orchestrator decision. The § 3 item is named in every case.
   citing `openxFactory` — fenced with a longer run, MUST be pinned END TO END
   through the family, suppressing the whole unit rather than a fragment
   (§ 3.7's longer-fence clause, which F1 pins only at `extract_code_spans`).
+
+**The two rows the plan review re-verdicted (§ 3.10, § 3.7c)**
+
+- **FR-019a**: Ordering by declaration MUST be pinned by a case whose
+  DECLARATION points AGAINST name order: of two active ratified writers of one
+  requirement, the declarer — and therefore the later writer — MUST sort LAST
+  by change-id name. The test MUST pass under declaration ordering and FAIL
+  under name-ascending ordering. F1's cited test cannot discharge this: its own
+  docstring records that its fixture's declaration "points the same way" as
+  name and date order, and its structural fallback forbids date readers while
+  forbidding nothing about folder or change-id name (§ 3.10's last clause).
+- **FR-019b**: The marker FORM anchor MUST be asserted against the ratified
+  packet's OWN delta file: the two marker templates that file sets out as `- `
+  bullets in prose MUST NOT parse as marker form. F1 asserts the anchor only
+  against text written inside its test bodies, and the packet's templates are
+  bullets — carriage units, not fenced lines — so the fenced-block exemption
+  does not reach them. The delta's own argument for the strict anchor is that
+  these very paragraphs promote into canon.
 
 **Determinism and provenance (§ 3.13, orchestrator decision 2)**
 
@@ -493,7 +515,12 @@ delta, or of an orchestrator decision. The § 3 item is named in every case.
 - **SC-011**: Two runs over every fixture tree this family owns produce
   byte-identical findings including ordering.
 - **SC-012**: The mutation round over the added assertions leaves no surviving
-  mutant unrecorded.
+  mutant unrecorded, and every test this feature adds appears in the round's
+  table with a named perturbation.
+- **SC-013**: A build that ordered two writers of one requirement by change-id
+  name, rather than by declaration, fails at least one test.
+- **SC-014**: A build whose marker-form anchor accepted the ratified packet's
+  own template bullets fails at least one test.
 
 ## Assumptions
 
@@ -515,8 +542,9 @@ evidence, with what settles it.
   prefixes and on the arm's own wording; full clause text is asserted on the
   units the comparison returns.
 - **A3 — a reconstructed fixture freezes the REQUIREMENT verbatim, not the
-  whole source file.** Canon for #351 is a 279 KB document of unrelated
-  requirements; the family reads per requirement. The requirement is copied
+  whole source file.** Canon for #351 is a 228,041-byte document of unrelated
+  requirements, and canon for #329 is 50,505 bytes of them; the family reads
+  per requirement. The requirement is copied
   byte-for-byte into a minimal spec file with a synthetic `# … Specification`
   header and `## Requirements` heading, and the provenance note records that
   the verbatim guarantee is scoped to the requirement.
@@ -538,6 +566,13 @@ evidence, with what settles it.
   and that F2 should say so rather than write a second copy. The hand-off is
   the later statement and is the one consistent with orchestrator decision 4
   (minimal scope). The audit records the disagreement in the affected rows.
+- **A5a — TWO of this feature's own `satisfied` verdicts were wrong, and were
+  caught by re-reading the cited test BODIES.** A15 (§ 3.10) cited a test whose
+  docstring concedes its fixture cannot discriminate declaration order from
+  name order; A10 (§ 3.7c) claimed an assertion against the packet's own delta
+  prose that no test makes. Both are now `partial`, both are closed by FR-019a
+  and FR-019b, and the episode is why T059 step 1 spot-checks every remaining
+  `satisfied` row against its cited test body rather than its name.
 - **A6 — § 3.11 and § 3.12 are fully satisfied by F1.** § 3.11 by
   `test_the_three_launch_severities_are_named_apart` and
   `test_the_family_is_absent_from_family_resolution_at_launch`; § 3.12 by
@@ -552,9 +587,10 @@ evidence, with what settles it.
   `make_ctx` takes the fixture directory name and loads every repository
   directory under it, so adding a repository to an existing tree changes what
   every existing test over that tree sees. Each new case gets its own tree.
-- **A9 — the two-writers, resolution, disposition and skip families of cases
-  are closed by F1** (§ 3.8, § 3.9, § 3.10, § 3.12), each with named tests in
-  the audit. F2 adds nothing to them beyond the determinism sweep.
+- **A9 — the resolution, disposition and skip families of cases are closed by
+  F1** (§ 3.8, § 3.9, § 3.12), each with named tests in the audit. **§ 3.10 is
+  NOT** — six of its seven clauses are closed by F1 and the seventh is FR-019a
+  (see A5a). F2 adds nothing else to any of them beyond the determinism sweep.
 
 ## Dependencies
 

@@ -28,8 +28,10 @@ gaps**:
    `carried()`-level assertions (T033). The two
    that carry the feature are the historical reconstructions: **both histories
    were verified recoverable and both were run through the family before this
-   plan was written** (research R1, R2), so § 3.2's "else synthesize faithfully
-   and say so" branch does not fire.
+   plan was written** (research R1, R2), so **decision D2's synthesis fallback
+   does not fire** for either. (An earlier cut of this plan attributed that
+   fallback to § 3.2 as a quotation; the ratified packet contains no such words
+   — review finding B4. The choice is D2's.)
 
 **No behaviour is added to the module.** A fixture that exposes a defect
 becomes its own task with its own RED test and its own line in the PR body
@@ -129,6 +131,7 @@ tests/doc-health/
     ├── modified-block-currency-tokens/        # NEW  A6 · § 3.5 · synthesized
     ├── modified-block-currency-rewrap/        # NEW  A7 · § 3.6 · synthesized
     ├── modified-block-currency-fence/         # NEW  A11 · § 3.7(d) · synthesized
+    ├── modified-block-currency-name-order/    # NEW  A15 · § 3.10 · synthesized
     ├── modified-block-currency/               # UNTOUCHED (F1)
     ├── modified-block-currency-markers/       # UNTOUCHED (F1)
     ├── modified-block-currency-noscope/       # UNTOUCHED (F1)
@@ -231,8 +234,9 @@ finding into the ledger is exactly the bug F1's own `_ledger` docstring records
 having had.
 
 **O3 — a reconstructed fixture freezes the REQUIREMENT verbatim, not the whole
-source file** (research R5). Canon for #351 is 279 KB of mostly unrelated
-requirements and the family reads per requirement. The requirement section is
+source file** (research R5). Canon for #351 is 228,041 bytes of mostly
+unrelated requirements and canon for #329 is 50,505 bytes of them; the family
+reads per requirement. The requirement section is
 byte-identical; the `# … Specification` / `## Purpose` / `## Requirements`
 scaffolding around it is synthetic and the provenance note says so, with
 `quickstart.md` § 1 giving the `diff` that proves the scoped guarantee. A veto

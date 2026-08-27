@@ -115,9 +115,24 @@ emit.
 
 **Never asserted, anywhere in this feature**: a finding count, a unit count, a
 scenario count, or `len(...)` as the whole assertion (orchestrator decision 3).
-Counts appear only where the count IS the rule under test — § 3.2's flat
-file-level eight-and-eight, which is asserted precisely because it does NOT
-predict the outcome.
+
+### The count-exception list — ONE home, and this is it
+
+T059 step 2 greps the new test file for `len(`, `== <n>` and `count(` and
+requires every hit to be on this list. Nothing else in the feature restates it
+(review nit N6, which found the list duplicated in T059 and already diverging).
+
+| exception | where | why the count IS the rule |
+| --- | --- | --- |
+| canon states **8** scenarios and the delta FILE contains **8** | T019 | § 3.2's whole point: the flat file-level count is asserted precisely because it does NOT predict the outcome |
+| **exactly one** finding for a requirement | T012, T027 | the ledger's own promoted rule — "at most one finding per requirement, listing the units" — so the count is the obligation |
+| **exactly two** body units reported for the three-item bullet list | T035 | § 3.5's "each bullet SHALL be one unit": one unit carrying both dropped bullets, or three, is the defect under test |
+| the note appears **once**, not once per sentence | T036 | § 3.5's last clause: "ONE unit, undivided" is a statement about cardinality |
+| the harvest found **more than thirty** cited test names | T024 | a guard against a regex that silently matches nothing, not a claim about the audit |
+| **non-empty** before any "no finding is X" assertion | T015, T049, T050 | not a count assertion — a vacuity guard, and its absence is what makes the following assertion meaningless |
+
+Any `len(` outside this table is a count assertion that slipped past decision
+D3 and is a finding against the implementation, not a new row here.
 
 ---
 

@@ -27,7 +27,7 @@ against `scripts/doc_health/corpus.py` rather than assumed.
 ```markdown
 # Fixture: <one-line name>
 
-**Reconstructed from this repository's git history. Not synthesized.**
+**Recovered at `<40-hex>`** — reconstructed from this repository's git history.
 
 Issue #<n>. <One or two sentences: what the block was holding, and how it was
 caught.>
@@ -39,8 +39,8 @@ caught.>
 | `<repo>/openspec/changes/<change>/specs/<cap>/spec.md` | `git show <sha>:openspec/changes/<change>/specs/<cap>/spec.md` |
 | `<repo>/openspec/specs/<cap>/spec.md` | `git show <sha>:openspec/specs/<cap>/spec.md` |
 
-- **recovered at** `<40 hex>` — <what that commit is, e.g. the parent of the
-  repair>
+- **recovered at** `<40-hex>` (the same commit named in line 3) — <what that
+  commit is, e.g. the parent of the repair>
 - **the defect ended at** `<40 hex>` (<subject>), merged as `<40 hex>`
   (PR #<n>)
 - `proposal.md` is scaffolding: a `Status:` line only, because `_standing()`
@@ -69,7 +69,7 @@ Test(s): `<test function names>`.
 ```markdown
 # Fixture: <one-line name>
 
-**SYNTHESIZED. This text is invented and reproduces no historical instance.**
+**SYNTHESIZED** — this text is invented and reproduces no historical instance.
 
 ## Which rule this exists for
 
@@ -100,8 +100,17 @@ Test(s): `<test function names>`.
    cannot resolve after the next collision.
 2. **Every `git show` line is runnable as written.** No placeholders, no
    `<path>` left unexpanded, no shell continuation.
-3. **A synthesis says the word "SYNTHESIZED" in its first two lines.** The
-   failure mode this contract exists to prevent is a reader trusting an
+3. **Line 3 of every note is the machine-readable provenance line**, and it is
+   what T044 reads: a reconstruction's carries a 40-hex commit, a synthesis's
+   carries the bare word `SYNTHESIZED` in capitals. T044 matches
+   case-sensitively and on a word boundary, so "Not synthesized" in a
+   reconstruction cannot be read as a synthesis claim — which is exactly what
+   an earlier cut of these templates would have caused (review finding B5: the
+   reconstruction template put its SHA on line 42 and the phrase "Not
+   synthesized" on line 3). Line 1 is the title and line 2 is blank, so
+   "the first three lines" and "line 3" mean the same thing here; the earlier
+   "first two lines" wording is withdrawn.
+   The failure mode this rule exists to prevent is a reader trusting an
    invented fixture as evidence about the corpus.
 4. **The note records what the family reports on the tree.** Not the
    assertions — the outcome. A later change that moves the outcome then has a

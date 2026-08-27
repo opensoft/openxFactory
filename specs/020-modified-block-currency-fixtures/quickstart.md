@@ -89,7 +89,8 @@ What must hold (audit row **A2**, § 3.2):
 ```bash
 python3 -m pytest tests/doc-health/test_modified_block_currency_fixtures.py -q \
   -k "merge or redundant or companion or widened or versioned_token or body_bullet \
-      or note_edited or rewrap or fenced or inner_backtick"
+      or note_edited or masking_governs or rewrap or fenced or inner_backtick \
+      or against_name_order or template_bullets"
 ```
 
 **Every `-k` selector above is checked against the test names as `tasks.md`
@@ -104,7 +105,9 @@ non-zero count.
 | its companion (A3) | ledger quiet, no marker defect, and the silence shown to be caused by the marker |
 | tokens (A6, § 3.5) | no unit is a backtick fragment; each body bullet is its own unit; the 3+ sentence note reports ONCE when its THIRD sentence is edited |
 | rewrap (A7, § 3.6) | the family returns `[]` over the tree and is NOT skipped |
-| fence (A11, § 3.7d) | a `` `` ``-fenced named unit citing `openxFactory` suppresses the WHOLE unit through the family |
+| fence (A11, § 3.7d) | a `` `` ``-fenced named unit citing `openxFactory` suppresses the WHOLE unit through the family; the single-backtick sibling suppresses nothing and is reported |
+| name-order (A15, § 3.10) | the DECLARER `add-zz-first` is the later writer, so the finding lands on ITS path — a test that fails under name-ascending ordering |
+| packet templates (A10, § 3.7c) | the packet's own two `- ` template bullets are NOT marker-form, read from the real file |
 | containment (A5, § 3.4) | canon's unit widened BEFORE it, and at both ends, is uncarried |
 
 ## 5. Determinism over every tree

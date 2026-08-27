@@ -14,10 +14,13 @@ reading is a choice rather than a finding, it is an orchestrator decision in
 ## R1 — Both histories are recoverable, and both were recovered
 
 **The question.** Packet § 3.1 and § 3.2 ask for two historical instances.
-§ 3.2 hedges — "reconstruct from `add-release-inventory-drift-check`'s reverted
-first archive attempt if recoverable, else synthesize faithfully and say so".
-Orchestrator decision 2 makes reconstruction the default and synthesis the
-labelled fallback. So: is either history actually in git?
+§ 3.1 says "reconstructed"; § 3.2 says "reconstructed" and nothing about a
+fallback. **The reconstruct-or-synthesize choice is ORCHESTRATOR DECISION D2,
+not packet text.** An earlier cut of this file quoted § 3.2 as hedging
+"reconstruct … if recoverable, else synthesize faithfully and say so"; `grep`
+over the ratified packet finds no such words anywhere (review finding B4). D2
+makes reconstruction the default and synthesis the labelled fallback. So: is
+either history actually in git?
 
 **Finding: BOTH ARE, and neither needs synthesizing.**
 
@@ -63,16 +66,19 @@ does not carry are `The menu offers a routing rule` and
 | capability | `doc-health` |
 | requirement | `Deterministic check families` |
 
-§ 3.2 called this a "reverted first archive attempt". **It was not a revert.**
-The packet's own delta says the truncation was "caught by the byte-for-byte
-promotion verification at archive time, before anything was committed", and
-that is what the history shows: the truncated block lived in the ACTIVE change
-directory from `e06b066b` (draft) through `57c26e1a` (PR #319) and was
-rewritten scenario-complete inside the archive commit `38b548d4` itself. So
-the recoverable state is the parent of the archive, not a reverted commit —
-and the fixture is byte-faithful all the same. The audit and the fixture
-provenance note both say this, because "reverted first archive attempt" is the
-phrase a later reader will search for and not find.
+**There is no revert in this history, and the ratified packet never claimed
+one** — the "reverted first archive attempt" phrasing came from the session
+brief, not from § 3.2 (review finding B4). What the packet's own delta says is
+that the truncation was "caught by the byte-for-byte promotion verification at
+archive time, before anything was committed", and that is exactly what the
+history shows: the truncated block lived in the ACTIVE change directory from
+`e06b066b` (draft) through `57c26e1a` (PR #319) and was rewritten
+scenario-complete inside the archive commit `38b548d4` ITSELF. So the
+recoverable state is the PARENT of the archive, `d5f447e8`, and the fixture is
+byte-faithful from there. The fixture provenance note states this positively —
+caught pre-commit, rewritten inside the archive commit, recoverable at the
+archive's parent — rather than denying a revert no ratified document
+asserted.
 
 Recovery:
 
@@ -149,13 +155,17 @@ coincidence of form, not of content, and the fixture is not evidence about
 The measurement lists **three** body units. Is the family wrong, or is § 3.1
 counting differently?
 
-**Finding: § 3.1 is quoting the REPAIR COMMIT's prose, which enumerates six
-CLAUSES; the normative derivation's body granularity is the SENTENCE.** The
-repair commit names: the three-member port-surface enumeration; "MUST NOT be
-added as a fourth provider verb"; the `auto` routing-rule clause; the
-broker-lane credential clause; and `thread file` in the credential-leak list.
-Those five (the sixth being the reverted scenario line, which is a bullet, not
-a body clause) lie inside three of canon's sentences: clauses 1 and 2 in one
+**Finding: § 3.1 is quoting the REPAIR COMMIT's prose, and that prose CLAIMS
+six body clauses while NAMING five** (review nit N2). `f68261f7`'s message says
+"silently deleting six body clauses" and then parenthesises exactly five: the
+three-member port surface enumeration; "MUST NOT be added as a fourth provider
+verb"; the `auto` routing-rule clause; the broker-lane credential clause; and
+`thread file` in the credential-leak list. The sixth is never named. The count
+is the author's; the enumeration is what a test can assert; and this feature
+asserts the five that are named.
+
+**And the normative derivation's body granularity is the SENTENCE.** Those five
+named clauses lie inside THREE of canon's sentences: clauses 1 and 2 in one
 sentence, clause 3 in a second, clauses 4 and 5 in a third.
 
 The delta writes the derivation as normative — "every other paragraph SHALL be
@@ -204,8 +214,12 @@ widening `_QUOTE_WIDTH` — a behaviour change F2 is forbidden.
 **The question.** "Byte-faithful" — to what?
 
 **Finding: to the requirement.** `openspec/specs/ideation-dashboard/spec.md` is
-279 KB at `bcfc26a0` and carries dozens of requirements this feature says
-nothing about; `openspec/specs/doc-health/spec.md` is comparable. The family
+**228,041 bytes** at `bcfc26a0` and carries dozens of requirements this feature
+says nothing about. `openspec/specs/doc-health/spec.md` at `d5f447e8` is
+**50,505 bytes** — much smaller, so size alone does not carry the argument
+there; what does is that `Deterministic check families` is the only requirement
+under test and every other one in the file would be frozen canon nobody asserts
+about (measured: review nit N1, correcting an earlier "279 KB … comparable"). The family
 reads per requirement (`promoted()` returns a dict keyed by normalized title),
 so copying whole files would freeze unrelated canon into the test suite, make
 every later canon edit look like a fixture concern, and add ~300 KB of test
@@ -284,8 +298,11 @@ bodies and fixture text that discharge it. Where § 3 phrases an obligation
 more narrowly or more widely than the test asserts it, the difference is the
 gap.
 
-**Result: 11 of 18 rows fully satisfied, 7 gapped in whole or in part** — 18
-rows because § 3.7's eleven obligations need five of them. The
+**Result: 9 of 18 rows fully satisfied, 9 gapped in whole or in part** — 18
+rows because § 3.7's eleven obligations need five of them. (First taken as
+11/7; **A15 and A10 were re-verdicted `partial` at the plan review of
+2026-08-27**, both for the same reason: the row cited a test whose NAME matched
+the obligation and whose BODY did not discharge it. See R12 and R13.) The
 audit is `contracts/coverage-audit.md` and is the single home for the mapping;
 nothing else in this feature restates it.
 
@@ -368,3 +385,100 @@ require a live Postgres this worktree has no access to, and a red result there
 would say nothing about this feature. Orchestrator decision 5. `openspec
 validate --all --strict` is the second gate and this feature changes no
 `openspec/` path, so its count must be unchanged.
+
+---
+
+## R12 — A15 (§ 3.10) was verdicted `satisfied` and is not
+
+**Found at the plan review of 2026-08-27. This is the audit's own predicted
+failure mode, realized: a row citing a test whose NAME matches the obligation
+and whose BODY does not discharge it.**
+
+§ 3.10's last clause asks for "a test that would pass under declaration
+ordering and fail under date ordering, so the withdrawn reading cannot creep
+back". `test_no_date_folder_or_created_field_decides_the_ordering` was cited
+for it. Its own docstring disqualifies it:
+
+> `add-oc-earlier` sorts BEFORE `add-oc-later` by name and by any date a
+> fixture could carry, **and the declaration points the same way** — so the
+> discriminating assertion is structural
+
+So the FIXTURE cannot discriminate, and the test says so honestly. It falls
+back to a structural `grep` over the module source. That grep forbids
+`_archive_date(`, `first_commit_timestamp(`, `.created`, `['created']`,
+`get('created'`, `strftime(`, `datetime.`, and any `import datetime|time`.
+
+**What it does not forbid is ordering by FOLDER NAME or CHANGE-ID NAME.** A
+build that sorted the ratified group by `b.change` and called the first one the
+earlier writer passes every one of those patterns and every F1 test — and
+"folder name" is named explicitly in the delta's own prohibition ("No folder
+name, commit timestamp, or `created:` date SHALL be consulted").
+
+**Verdict: A15 → `partial`.** F2 adds the missing test: a two-writer pair whose
+DECLARATION points AGAINST name order. `add-zz-first` declares (so it is the
+LATER writer and its basis is the other's block) while `add-aa-second` does
+not, so name-ascending ordering picks the wrong writer and the test fails under
+it. Test-only; no module change (D1).
+
+## R13 — A10 (§ 3.7c) claimed an assertion against the real packet and had none
+
+**Also found at the plan review.** A10's cell said "the anchor is asserted
+against this packet's OWN delta prose, which promotes into canon". Checked
+against the two tests that could carry it:
+
+- `test_the_deltas_own_fenced_marker_examples_never_reach_the_parser` asserts
+  over a fenced block written INSIDE the test body, not over the packet file.
+- `test_a_quoted_marker_template_is_not_a_marker` uses an invented template.
+
+Neither opens
+`openspec/changes/add-modified-block-currency-check/specs/doc-health/spec.md`.
+And the shape matters: that delta sets the two marker templates out as `- `
+BULLETS in prose, which are ordinary carriage units rather than fenced lines,
+so the fenced-block exemption does not cover them at all. The claim in the
+delta itself — "this requirement's own text and `document-lifecycle`'s both set
+out the two templates in prose, both promote into canon, and a looser test
+would read them as markers and exempt them from carriage" — is asserted by
+nothing.
+
+**Verdict: A10 → `partial`.** F2 adds a test that reads the real file and
+feeds its template bullets to `parse_marker`, asserting NOT marker-form.
+
+## R14 — the naive finding classifier collides, measured
+
+**Decision O2's partition invariant is only as good as its keys.** The obvious
+key for the marker-defect class is `"declaration" in f.rule`, which is what
+F1's own `_ledger` helper had to be narrowed away from. Measured over all eight
+trees (F1's six plus the two reconstructions):
+
+- `"declaration"` matches **3 findings spanning TWO classes** — one
+  marker-defect ("…which the block still restates — a declaration that does not
+  describe the block") and two ordering findings ("…2 declarations stand between
+  them, and mutual declaration decides nothing", one per block of the mutual
+  pair). Over F1's six trees alone: 20 findings, 3 matched, 2 classes.
+
+**The key sets that DO partition**, verified over all 24 findings across the
+eight trees with zero findings in two classes and zero in none:
+
+| class | keys, both required |
+| --- | --- |
+| scenario-title | `"omits"` and `"scenarios"` |
+| carriage ledger | `"does not carry"` and `"body units"` |
+| marker defect | `"carries a"` and `"marker by"` |
+| ordering | `"the ordering of MODIFIED blocks"` |
+| resolution | `"resolves to no promoted requirement"` |
+
+Each is a fragment of one arm's own f-string and of no other's. T008 uses
+exactly these and T007 asserts the partition, so a wording drift in any arm
+fails loudly instead of silently reclassifying.
+
+## R15 — `_units` must mirror the ledger's kind filter
+
+`_arm_ledger` filters to `(BODY, SCENARIO_BULLET)` on BOTH sides **before**
+calling `carried`; `_arm_titles` filters to `SCENARIO_TITLE`. A U-class helper
+that passed `basis.units` and `block.units` unfiltered would return the union —
+measured on #329: **24 of 36** rather than the ledger's **17 of 28**, because
+the seven omitted scenario TITLES and canon's title units would be swept in.
+
+`_units` therefore takes the same `kinds` filter, defaulting to the ledger's
+pair, so a U-class assertion and the F-class finding it pairs with are reading
+the same set (review nit N3).
