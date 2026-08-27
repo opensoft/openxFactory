@@ -1,8 +1,8 @@
 ---
 code_surface: openxFactory (`tests/doc-health/test_ideation_readiness.py` — the `_openxfactory_root()` ancestor walk at `:28`, the index read at `:389-390`, the `git archive` read point and its skip branch at `:393-398`, and three further call sites of the same helper at `:556`, `:568`, `:934`; `tests/doc-health/test_derive_possibles.py:29` and `tests/doc-health/test_readiness_dispatch.py:318` — the same helper spelled twice more, which must move with it or the hazard survives in two places; `scripts/doc_health/ideation_readiness.py` — `find_index_validator()` at `:682-692`, whose identical walk resolves the pinned validator out of a foreign checkout, and the resolution helper the module already carries at `:1067-1077` for the renderer, which is the shape the other two should take. NO change to `derive_clusters`, the prompt contract, the evidence contract, the gate constants, the boundary allowlist, the readiness lane's severity or disposition, the index schema, or the generator.)
-target_release: implemented — the openxFactory main line. This surface cuts NO contract bundle: no schema under `contracts/schemas/` moves, no digest set changes, and no release tag is owed. The archive gate is therefore merge-plus-green on main, plus one piece of evidence the code alone cannot give — the index repair in `tasks.md` § 3, because requirement 3 turns today's silent skip into a red and the change would otherwise land red on its own gate. Concretely: `python3 -m pytest tests/doc-health` green, `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green, and a scratch-clone run of the readiness proof that PASSES rather than skips — which is the first time any fresh clone will have executed this test's assertion at all. The change ships ACTIVE and archives only after that.
+target_release: implemented — realized on the openxFactory main line as pull request #400 (merged 2026-08-27T03:05:03Z, merge commit `78ffb7f178ffd1c3343996470cb2e12a810ece1f`, re-verified an ancestor of `origin/main` at the archive rather than taken from the pull request page) and green there — `pytest-suite` and `wallet-validation` both concluded `success` on the final head `e9886d77685a56f2bd940974205625bcb5ac6804` (read back from the check-runs API at the archive), the pytest lane 6638 passed / 20 skipped / 0 failed in 13m36s, with `tests/doc-health` at 920 passed / 0 failed / 0 skipped locally on the merged tree. NO CONTRACT BUNDLE IS OWED, and that was checked rather than assumed: no edited file — `scripts/doc_health/ideation_readiness.py`, the four test modules, `ideation/cross-reference.yaml`, `ideation/cross-reference.md` — is a member of ANY `contracts/releases/*.digests.yaml` inventory, so no schema moved, no digest set changed, and no tag is owed. The one piece of evidence the code alone could not give is discharged too: the § 3 repair re-pins `generation.source_revision` to `4e57009c`, a bare `--no-local` clone proves the new pin readable (`git archive` exit 0) where the orphan `f13a3b60` exits 128, the index validator reports 0 errors under `--strict`, and the readiness proof that had NEVER executed in a fresh clone now PASSES there — isolated clones moved from 889 passed / 7 skipped to 920 passed / 0 skipped, seven real-corpus proofs that no runner had ever run. REWRITTEN AT THE ARCHIVE, 2026-08-27, from the forward-looking value that follows, under the `implemented — <evidence>` correction shape ruled 2026-08-22 for register C1 of `docs/archive-record-discrepancies.md` and applied at the sibling archive `2026-08-26-fix-release-reachability-race`: a value that names its evidence as still owed is self-contradicting on an archived change, because the archive gate admits a change only on the evidence such a value says is outstanding. The authored text is kept verbatim rather than discarded, because it is the argument for why NO bundle was owed here where the sibling owed one. AS AUTHORED: implemented — the openxFactory main line. This surface cuts NO contract bundle: no schema under `contracts/schemas/` moves, no digest set changes, and no release tag is owed. The archive gate is therefore merge-plus-green on main, plus one piece of evidence the code alone cannot give — the index repair in `tasks.md` § 3, because requirement 3 turns today's silent skip into a red and the change would otherwise land red on its own gate. Concretely: `python3 -m pytest tests/doc-health` green, `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green, and a scratch-clone run of the readiness proof that PASSES rather than skips — which is the first time any fresh clone will have executed this test's assertion at all. The change ships ACTIVE and archives only after that.
 Status: ratified
-Ratified: 2026-08-26 by Brett — admission ruling given against this packet's § Open Questions Q0 while it stood at PR #372, and relayed to the authoring session the same day. The ruling is recorded question by question at openspec/changes/harden-ideation-readiness-check/proposal.md § Open Questions Q0, which is this file, and discharged at openspec/changes/harden-ideation-readiness-check/tasks.md § 1. THE CITATION COVERS THE ADMISSION OF THIS PACKET AND NOTHING ELSE: Q1, Q2 and Q3 remain open, and the four decisions in § Orchestrator decisions were taken by the authoring session, are NOT covered by this citation, and stay flagged for veto there. No approving OpenSpec change exists to name, so this cites the record in the spelling `sanction-ratified-record-spelling` sanctioned for exactly that case, and it clears that spelling's three-way floor on all three axes rather than on the one it needs: approver (`by Brett`), date (`2026-08-26`), and a resolvable record path. No verbatim wording of the ruling reached the authoring session, so none is quoted.
+Ratified: 2026-08-26 by Brett — admission ruling given against this packet's § Open Questions Q0 while it stood at PR #372, and relayed to the authoring session the same day. The ruling is recorded question by question at openspec/changes/harden-ideation-readiness-check/proposal.md § Open Questions Q0, which is this file, and discharged at openspec/changes/harden-ideation-readiness-check/tasks.md § 1. THE CITATION COVERS THE ADMISSION OF THIS PACKET AND NOTHING ELSE: the four decisions in § Orchestrator decisions were taken by the authoring session and are NOT covered by this citation. AS FIRST WRITTEN this sentence read "Q1, Q2 and Q3 remain open, and the four decisions … stay flagged for veto there" — true at ratification and now historical on both halves. Brett ruled on all three questions and cleared all four decisions on 2026-08-27, by a four-question multi-choice put to him by the orchestrating session after 2026-08-26T23:31Z and relayed the same day; the rulings are recorded in full at § Orchestrator decisions and question by question at § Open Questions. THE TWO ACTS STAY DISTINCT ON PURPOSE, because they authorized different things: this citation ADMITTED the packet, the later ruling CLOSED the veto window and disposed Q1, Q2 and Q3. No approving OpenSpec change exists to name for either, so both cite the record in the spelling `sanction-ratified-record-spelling` sanctioned for exactly that case, and it clears that spelling's three-way floor on all three axes rather than on the one it needs: approver (`by Brett`), date (`2026-08-26`), and a resolvable record path. No verbatim wording of the ruling reached the authoring session, so none is quoted.
 Proposed: 2026-08-26
 Origin: The 2026-08-26 triage of a red `tests/doc-health` suite in an agent worktree. The red was not caused by the branch under test; chasing it found two independent defects in one test, and the second of them had been hiding an assertion that has never run in continuous integration.
 ---
@@ -223,18 +223,66 @@ Whatever that assertion finds, it will be the first time it has been asked.
   generated from content that no commit contains. That is a real gap, it was
   observed on the same morning, and it is not this change.
 
-## Orchestrator decisions, flagged for veto
+## Orchestrator decisions, cleared 2026-08-27 (authored: flagged for veto)
 
-This packet was authored by a delegated session against a triage record. Every
-decision below was taken by the authoring session and is flagged for reversal.
-Reverting any one of them is an edit to this change, not a new one.
+**ALL FOUR CLEARED 2026-08-27 — Brett approved every one as authored, and none
+was vetoed.** The ruling came as a four-question multi-choice put to Brett by
+the orchestrating session after 2026-08-26T23:31Z and relayed to the archiving
+session on 2026-08-27; on the decisions question he cleared all four as
+authored: **OD-1** the ADDED-in-`doc-health` shape with nothing MODIFIED,
+**OD-2** the committed-revision read point at the repository under test,
+**OD-3** the re-pin target `4e57009c`, **OD-4** the repair riding this change
+rather than landing separately. No verbatim wording of the ruling reached this
+session, so none is quoted — the approver, the date, the mechanism and the
+option selected are stated instead, which is what this repository's own
+precedent asks for and how this packet's own admission is recorded. OD-1
+through OD-4 are items 1 through 4 below, in that order.
 
-**CORRECTED 2026-08-26 ON THE ADMISSION RULING.** As first written this
-paragraph opened "NO approval act exists for it — see § Open Questions Q0".
-That was true at authoring and is now historical: Brett admitted the packet the
-same day, and Q0 below records the ruling. The correction changes nothing else
-here — **the admission covers the packet, NOT these four decisions**, which
-remain uncovered by any citation and stay flagged for veto exactly as written.
+**Nothing in the packet moves as a result.** All four decisions stand exactly
+as authored and were already implemented that way by the realization, so the
+clearance required no edit to a requirement, a delta, a task, or a design
+entry — the same shape openxFactory PR #307 recorded when Brett cleared the two
+codex dispositions there ("the approval required no repo edit"), and the shape
+the sibling `fix-release-reachability-race` recorded for its own four. This
+record exists so that the veto window is legibly CLOSED rather than merely
+un-exercised: an unrecorded clearance and an unnoticed flag look identical six
+weeks later.
+
+**`.openspec.yaml`'s ORIGIN BLOCK IS DELIBERATELY NOT EDITED, and that is a
+ruling-respecting choice rather than an oversight.** Its `approved_by` still
+ends by saying the four decisions "remain flagged for veto and uncovered by
+this citation" — a pointer that now lands the reader on this clearance, which
+is why leaving it costs nothing. What editing it would cost is real:
+`release-realization`'s "Origin retention at archive" requires the archive gate
+to verify that the origin declaration is UNCHANGED from ratification and to
+FAIL on a mutation, making any rewrite a contested-class act. A veto clearance
+is not origin provenance, so it is recorded where the flagging lives instead.
+The declaration is verified unchanged at `tasks.md` § 4.6.
+
+**THE CLEARANCE COVERS EXACTLY THESE FOUR DECISIONS.** The same ruling
+separately disposed the three open questions, and the two are not the same act:
+Q1 is RATIFIED as the realization took it (keep the narrowed skip), Q2 is
+RATIFIED as the realization took it (`4e57009c`), and Q3 is ruled LEFT OPEN
+DELIBERATELY — a disposition, not an absence of one. Each is recorded against
+its own question below.
+
+**HISTORY, KEPT SO THE RESOLUTION IS LEGIBLE.** The two paragraphs below are
+this section's original preamble, unchanged. They were true when written and
+are now superseded by the clearance above; they are preserved rather than
+erased for the same reason `.openspec.yaml`'s `approval_note` preserves why its
+approval pair once stood blank.
+
+> This packet was authored by a delegated session against a triage record.
+> Every decision below was taken by the authoring session and is flagged for
+> reversal. Reverting any one of them is an edit to this change, not a new one.
+
+> **CORRECTED 2026-08-26 ON THE ADMISSION RULING.** As first written this
+> paragraph opened "NO approval act exists for it — see § Open Questions Q0".
+> That was true at authoring and is now historical: Brett admitted the packet
+> the same day, and Q0 below records the ruling. The correction changes nothing
+> else here — **the admission covers the packet, NOT these four decisions**,
+> which remain uncovered by any citation and stay flagged for veto exactly as
+> written.
 
 1. **All three requirements land in `doc-health`, all ADDED, and no
    requirement is MODIFIED.** The obligations are about how the verification
@@ -306,6 +354,17 @@ future session that prefers the stricter alternative will see exactly one test
 change colour. Brett may still reverse this; reversing it is an edit to one
 branch and one test.
 
+**RATIFIED 2026-08-27 BY BRETT: KEEP THE NARROWED SKIP.** The measured decision
+above is now a ruling, and the two are recorded as separate acts because they
+are: the realizing session TOOK it because § 2 and § 3 could not be written
+without it, and Brett has now RATIFIED it. The ruling came as a four-question
+multi-choice put by the orchestrating session after 2026-08-26T23:31Z and
+relayed on 2026-08-27; the option selected was the recommendation on record —
+the skip survives and fires only on an observed shallow clone. No verbatim
+wording reached this session, so none is quoted; approver, date, mechanism and
+the selected option are stated instead. Nothing in the packet moves: the
+realization already implemented exactly this. Q1 IS CLOSED.
+
 **Q2 — re-pin to `4e57009c` or regenerate at current `main`?** Both produce a
 body identical to today's, so the choice is about which claim the index should
 make. `4e57009c` says "this index describes the corpus as it stood when this
@@ -329,6 +388,16 @@ change than the one-line re-pin. The decay this question predicted is not
 hypothetical — it happened inside the packet's own lifetime, which is the best
 argument available for pinning the state the index was derived from.
 
+**RATIFIED 2026-08-27 BY BRETT: `4e57009c`.** Same act, same mechanism as Q1 —
+a four-question multi-choice put by the orchestrating session after
+2026-08-26T23:31Z and relayed on 2026-08-27, on which Brett selected the
+re-pin target `4e57009c`. The measured decision the realizing session took is
+therefore now a ruling as well, and the packet moves not at all: the pin
+already reads `4e57009c0a1aed9bdbe3c0f6cc5ca948e15ec8cc` in both
+`ideation/cross-reference.yaml` and its `.md` projection, and both are on `main`
+as of the merge of PR #400. No verbatim wording reached this session, so none is
+quoted. Q2 IS CLOSED.
+
 **Q3 — should the three duplicated resolver helpers collapse?** Left open in
 `tasks.md` § 5 rather than decided here. The three test modules each carry
 their own `_openxfactory_root()`; this change fixes all three in place. A
@@ -345,6 +414,22 @@ resolver assertion over all three modules, so the copies cannot drift apart
 without a red suite. The cost of leaving three copies is now "three edits",
 not "three edits and a silent divergence" — which makes the tidying cheaper to
 defer, and no more or less correct to do.
+
+**RULED 2026-08-27 BY BRETT: LEFT OPEN, DELIBERATELY. THE QUESTION IS DISPOSED,
+NOT UNANSWERED, AND THE DIFFERENCE IS THE WHOLE POINT OF RECORDING IT.** On the
+same four-question multi-choice put by the orchestrating session after
+2026-08-26T23:31Z and relayed on 2026-08-27, Brett ruled that the three helper
+copies STAY IN PLACE with the parametrized anti-drift guard
+(`tests/doc-health/test_readiness_proof_resolution.py::RESOLVERS`), and that the
+collapse survives as a NAMED FOLLOW-UP at `tasks.md` § 5.1 rather than as work
+this change owes. Q1 and Q2 were ratified; this one was ruled open — three
+dispositions from one act, and only two of them close a question. What that
+buys is legibility: § 5.1 stays unticked after the archive not because nobody
+looked at it but because it was looked at and left, so a reader six weeks from
+now cannot mistake a considered deferral for an oversight. No verbatim wording
+reached this session, so none is quoted; approver, date, mechanism and the
+selected option are stated instead. NOTHING IN THE PACKET MOVES — the
+realization already shipped three fixed spellings and the guard.
 
 ## Realization
 
@@ -365,6 +450,15 @@ recorded where they belong rather than only here:
 
 `tasks.md` § 4.6 stays open: the change ships ACTIVE and archives after the
 merge, in its own commit.
+
+**AND THE MERGE HAPPENED — ARCHIVED 2026-08-27.** The sentence above is kept as
+history rather than rewritten, because what it claimed was true of the packet
+when the realization landed. Pull request #400 merged 2026-08-27T03:05:03Z as
+merge commit `78ffb7f1`, green on head `e9886d77` (`pytest-suite` 6638 passed /
+20 skipped / 0 failed in 13m36s, `wallet-validation` pass), and § 4.6 is now the
+archive act itself, recorded in full there. What remains genuinely open after
+the archive is three items and no more — § 5.1, § 5.2 and § 5.3 — and § 4.6
+names each one and states that none of them is asserted anywhere in canon.
 
 ## Impact
 
