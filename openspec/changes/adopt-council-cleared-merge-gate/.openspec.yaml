@@ -1,0 +1,54 @@
+schema: spec-driven
+created: 2026-08-27
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-27-adopt-council-cleared-merge-gate
+  reason: >-
+    Authored directly from verified current-state facts, not a staged ideation
+    topic, because the convener asked a question of fact in session — "do we
+    have ability for review and merge from codex hermes now?" — and the
+    inventory taken to answer it returned NO, with the missing pieces being
+    two distinct halves. The MECHANISM half is largely built and is being
+    built further right now: codexFactory's merge_readiness_council and its
+    mechanical Merge Master operator are proven live (autonomous deliberation
+    2026-08-14, xFactory PRs #85 and #100), codexFactory has shipped
+    openxFactory's own repository gate floor
+    (`scripts/merge_master/openxfactory-review-authority-floor.yaml`) since
+    the 015-widen-review-authority-floor work, and openxFactory's own
+    advisory reader of that floor is open as PR #439
+    (`025-openxfactory-review-lane-caller`, head f012eb10), unmerged. The POLICY
+    half does not exist at all, and R1's own header says so in terms that
+    name this change's job: the human review gate on this repository "stays
+    that way until S3 and S5 of `add-wallet-carried-review-authority` land
+    AND a ratified ruleset change says otherwise." THIS CHANGE IS THE POLICY
+    HALF — the ratified statement of which openxFactory pull-request classes
+    a council verdict may carry past the merge gate, and of every realization
+    gate that must report green before the merge-master App is permitted to
+    cast an approving review here. It edits NO ruleset: the analysis it rests
+    on found the 1-approving-review rule to be an ORG-level ruleset spanning
+    seven repositories, and ratified doctrine to prescribe an App-cast APPROVE
+    review rather than a check-run satisfier, so the gate composition is
+    unchanged and only the set of permitted approvers moves. It
+    proposes NO mechanism and builds nothing: it is the boundary that the
+    in-flight mechanism work (S3, S5, R1, and
+    `add-substantive-review-lane` task 3.2) is aiming at, written down before
+    the aim is claimed to have been reached. The problem it ends is narrow
+    and real: openxFactory is a contracts-and-docs repository under an
+    org-level 1-approving-review ruleset, so its routine documentation and
+    derived-artifact pull requests are today merged either by a human review
+    the repository's own doctrine says such a diff does not need, or by an
+    `--admin` bypass ritual that leaves no accountable reviewer of record at
+    all.
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — in session on 2026-08-27,
+    verbatim: "approved. do all of these", given in answer to the proposed
+    plan to author this packet with a full alignment review and council.
+    This records authorization to AUTHOR the proposal and to run its review
+    rounds; it is NOT ratification. A merge-gate policy change is the
+    convener's own ruling, so this packet is authored to `Status: draft` and
+    stops before ratification by explicit instruction: "you AUTHOR the full
+    packet with alignment review + council and STOP before ratification (a
+    gate-policy change is the convener's ruling; do not write
+    `Status: ratified`)." Its class boundary, its realization gates, its
+    kill switch and its canary are DECLARED, not decided.
+  approved_on: 2026-08-27

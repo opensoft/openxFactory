@@ -380,6 +380,62 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [adopt-council-cleared-merge-gate](openspec/changes/adopt-council-cleared-merge-gate/proposal.md)
+  — **PROPOSED 2026-08-27**, awaiting the convener's ruling (a gate-policy change
+  is his own act, so the packet stops at `Status: draft`) — authored ad hoc on his
+  direction "do all of these", in answer to his question of fact "do we have
+  ability for review and merge from codex hermes now?" **The answer is no, and
+  this is the POLICY HALF of the two missing pieces.** R1's own workflow header
+  names this change's job: openxFactory's human review gate "stays that way until
+  S3 and S5 of `add-wallet-carried-review-authority` land AND a ratified ruleset
+  change says otherwise." ADDS ONE capability, `council-cleared-merge-gate`
+  (nine requirements — a clearance satisfies the gate as a REVIEW and never as a
+  check-run; the boundary is declared as named candidate classes rather than
+  prose; the path list is the path-shaped SUBSET of a six-member floor whose other
+  four conditions must be attributed; gate evidence is an artifact at a stated
+  path, never a checkbox, and is re-verified at adoption rather than inherited
+  from the adoption document; enrollment is advisory-first and the `clearable`
+  flip is its own ratified act; the canary spans EVERY enrolled class; the
+  approving identity is authority-separated from the gate it satisfies; an
+  adoption states whether it narrows the bypass ACTOR or only ends its routine
+  use; and every kill-switch stop traces to running code). **Amends nothing** —
+  parity declared against `roles-authority-model` (the promoted *Structural
+  parking in external enforcement* already permits the Merge Master to satisfy a
+  review requirement "where deployment policy allows", and this change IS that
+  policy for openxFactory), against `review-authority-intake` (a consumer of S3
+  and S5, both treated as unrealized), and against `workflow-gate-contract` (no
+  workflow contract is added; a no-op MODIFIED block is deliberately not
+  authored). **The gate composition does not change**: the 1-approving-review
+  rule stays, no org ruleset is relaxed, no required check is added, and the one
+  ruleset edit is a HARDENING of openxFactory's own repo-scoped `21538893`. Only
+  the set of permitted approvers moves. The class boundary was re-derived from
+  the enforcer's constants after the first draft derived it from prose and was
+  refused: **`openspec/**` is floored twice, so openxFactory's dominant traffic is
+  NOT clearable and this change's own diff would not qualify under its own
+  boundary.** What survives is ONE class over `docs/**/*.md`, `ideation/**/*.md`
+  and `README.md` — a second, derived-artifact class was **removed by unanimous
+  council act**: its trees have produced zero pull requests in five weeks, its
+  only historical PR shape was unclearable anyway, and its allowlist re-admitted
+  `health/neutrality-drift/baseline/codexFactory.yaml`, the immutable comparator
+  the drift lane reads back, making it a floor narrowing wearing a boundary's
+  clothes. **The measured value is published rather than buried: 0 of the last 40
+  merged PRs would have qualified, 13 of 140, and 12 of those 13 came from one
+  closed campaign on one file** — the proposal states this is the strongest
+  argument against ratifying it on throughput grounds, and rests its case on
+  option-closing instead. It also names, as Q7, the class where the traffic
+  actually is and cannot be reached: `openspec/changes/**/tasks.md` checkbox
+  ticks, 10% of recent merges, locked behind a floor no ratified doctrine permits
+  narrowing. Seven realization gates, **all recorded NOT MET as of authoring**
+  (hermes-install S3 and S5 barely begun; R1 open as PR #439, unmerged; no
+  candidate class enrolled anywhere for openxFactory; no approval-capable caller
+  exists). Reviewed by a two-seat alignment round and a three-seat council whose
+  ten-condition BLOCK was answered rather than argued with; the packet withdraws
+  three of its own false claims (a succession from an artifact that exists only
+  as an unchecked task, a mixed-diff arbitration the enforcer does not implement,
+  and a class floor that gives a rule-less repository no evaluation at all) and
+  records each rather than deleting it. Registered as the pilot repository's
+  adoption change under `add-substantive-review-lane`, which names
+  `opensoft/openxFactory` as that pilot.
 - [split-openxwallet-repo](openspec/changes/split-openxwallet-repo/proposal.md)
   — **RATIFIED 2026-08-26** (in-session ruling on PR #391; realization via
   Speckit) — authored 2026-08-26 as the first and only exit of the staged topic
