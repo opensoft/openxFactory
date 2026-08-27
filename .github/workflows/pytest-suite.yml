@@ -160,18 +160,27 @@
 # module name with a single `sys.modules` slot, and `tests/doc-health/`,
 # `tests/avatar_runtime/`, and `tests/ideation-dashboard/` each carry their own
 # conftest.py without an `__init__.py`, so they contend for it. Multi-directory
-# invocations USED TO BE ORDER-DEPENDENT because of that: measured,
+# invocations USED TO BE ORDER-DEPENDENT because of that: measured at f9457d6f,
 # `pytest tests/doc-health tests/avatar_runtime` failed with 27 collection
 # errors while the same two arguments swapped collected 993 clean. Issue #305
 # closed it inside the conftests themselves — each calls
 # `claim_conftest_slot(globals())` and owns the ambient name for its own subtree
-# — so both orders now collect 993, and the shape this gate does NOT run is
-# pinned by `test_a_directory_conftest_owns_the_ambient_slot_for_its_own_subtree`
-# and its negative control, which reproduce the collision in a scratch tree in
-# about three seconds. `--import-mode=importlib` was never available as the
-# repair: pytest.ini's ratified option-free design forecloses it (that file is
-# the rootdir anchor for the FR-043 hermeticity guard), and importlib mode would
-# break every `from conftest import ...` site in the suite besides.
+# — so the two orders now agree (1017 apiece on the merge of #403; the absolute
+# count drifts with the tree, the AGREEMENT is the invariant). The shape this
+# gate does NOT run is pinned three ways in
+# `tests/ideation-dashboard/test_hermeticity.py`:
+# `test_a_directory_conftest_owns_the_ambient_slot_for_its_own_subtree` and its
+# negative control reproduce the collision in a scratch tree in about three
+# seconds, and
+# `test_the_real_two_directory_invocation_collects_the_same_in_either_order`
+# runs the real thing — four child collections, ~11.6 s, inside the suite this
+# gate already runs, so the multi-directory shape is now covered BY the
+# whole-suite shape rather than left unpinned beside it.
+#
+# `--import-mode=importlib` was never available as the repair: pytest.ini's
+# ratified option-free design forecloses it (that file is the rootdir anchor for
+# the FR-043 hermeticity guard), and importlib mode would break every
+# `from conftest import ...` site in the suite besides.
 #
 # TIMEOUT. 35 minutes against a worst measured 17m21s — roughly 2x headroom for
 # a slower runner and, more importantly, a hard stop for the known hang:

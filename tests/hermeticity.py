@@ -169,7 +169,13 @@ REFUSAL_EXIT_CODE = 97
 # documents, without adding a module name or a pytest.ini option.
 # ---------------------------------------------------------------------------
 
-def claim_conftest_slot(namespace: dict) -> None:
+# The hook names `claim_conftest_slot` writes into a conftest's namespace, pinned
+# by test_hermeticity: no directory conftest may define one of its own, because a
+# plain assignment either way round silently drops one of the two.
+HOOKS_INSTALLED_BY_THE_CLAIM = ("pytest_collectstart", "pytest_runtest_setup")
+
+
+def claim_conftest_slot(namespace: dict) -> dict:
     """Make the calling conftest.py the `sys.modules["conftest"]` occupant for
     its OWN subtree, so multi-directory invocations stop being order-dependent.
 
@@ -186,9 +192,12 @@ def claim_conftest_slot(namespace: dict) -> None:
     every argument's conftest BEFORE collection begins
     (`_pytest/config/__init__.py:615`) — so the LAST argument's conftest is what
     the first argument's `from conftest import AS_OF, FakeGit, ...` sites read.
-    Measured on main: `pytest tests/doc-health tests/avatar_runtime
-    --collect-only` collected 184 with 27 collection errors, while the same two
-    arguments swapped collected 993 clean.
+    Measured at f9457d6f, the base this repair was written against:
+    `pytest tests/doc-health tests/avatar_runtime --collect-only` collected 184
+    with 27 collection errors, while the same two arguments swapped collected 993
+    clean. The absolute counts move with every test added — the point they pin is
+    the DIFFERENCE between two argument orders, which is now zero; the behavioural
+    pin re-measures it on the live tree rather than trusting these numerals.
 
     THE REPAIR, and why it is exactly these two hooks. Both are dispatched
     through the node's `ihook` — an `FSHookProxy` that subtracts the conftest
@@ -215,15 +224,44 @@ def claim_conftest_slot(namespace: dict) -> None:
     theirs (measured on a scratch tree: the green two-directory run goes
     straight back to two collection errors). A conftest whose directory has an
     `__init__.py` needs nothing either — pytest imports it as
-    `<package>.conftest`, and it never touches the flat slot.
+    `<package>.conftest`, and it never touches the flat slot. That, and NOT the
+    module's `__name__`, is what the refusal below keys on: under
+    `--import-mode=importlib` (or `consider_namespace_packages=true`, both
+    reachable through `PYTEST_ADDOPTS`) pytest gives a ROOTLESS conftest a dotted
+    name like `tests.doc-health.conftest` too, and refusing on the name there
+    would raise inside conftest collection — aborting the whole run with rc=4 and
+    the FR-043 guard never registered, over a shape that merely wants the hooks
+    installed harmlessly.
+
+    IT RETURNS THE TWO HOOKS, and refuses if either name is already bound in the
+    namespace. The install is a plain assignment into `globals()`, so a conftest
+    that defines its OWN `pytest_collectstart` or `pytest_runtest_setup` — before
+    or after the call — silently defeats the claim, and pytest reports nothing.
+    A conftest that needs its own must call ours from inside it:
+
+        _slot = claim_conftest_slot(globals())
+
+        def pytest_collectstart(collector):
+            _slot["pytest_collectstart"](collector)
+            ...                     # whatever else this directory needs
     """
-    name = namespace["__name__"]
-    if name != "conftest":
+    directory = Path(namespace["__file__"]).resolve().parent
+    if (directory / "__init__.py").is_file():
         raise RuntimeError(
-            "claim_conftest_slot is for a ROOTLESS conftest.py, which pytest "
-            f"imports as the flat module `conftest`; {name!r} is inside a "
-            "package and does not contend for that slot")
-    module = sys.modules[name]
+            "claim_conftest_slot is for a ROOTLESS conftest.py — one whose "
+            f"directory has no __init__.py. {directory} is a package, so pytest "
+            "imports its conftest as `<package>.conftest` and it never contends "
+            "for the flat `conftest` slot")
+    already = sorted(name for name in HOOKS_INSTALLED_BY_THE_CLAIM
+                     if name in namespace)
+    if already:
+        raise RuntimeError(
+            f"{directory.name}/conftest.py already defines {', '.join(already)}; "
+            "installing the slot claim over it would silently drop that hook, and "
+            "defining it after the call would silently drop the claim. Call the "
+            "returned function from inside your own implementation instead — see "
+            "claim_conftest_slot's docstring")
+    module = sys.modules[namespace["__name__"]]
 
     def pytest_collectstart(collector) -> None:
         sys.modules["conftest"] = module
@@ -231,16 +269,18 @@ def claim_conftest_slot(namespace: dict) -> None:
     def pytest_runtest_setup(item) -> None:
         sys.modules["conftest"] = module
 
-    namespace["pytest_collectstart"] = pytest_collectstart
-    namespace["pytest_runtest_setup"] = pytest_runtest_setup
+    hooks = {"pytest_collectstart": pytest_collectstart,
+             "pytest_runtest_setup": pytest_runtest_setup}
+    namespace.update(hooks)
+    return hooks
 
 
 # The hookups this guard must be registered from (pinned by test_hermeticity):
 # EVERY conftest.py under tests/, so no directory is guarded only by luck.
 #
 # Not one per directory, deliberately. `conftest` is an ambient top-level module
-# name and pytest keeps exactly one of them in `sys.modules`, so ADDING a
-# conftest.py to a directory hijacks that name for its siblings: a
+# name and pytest keeps exactly one of them in `sys.modules`, so ADDING an
+# UNCLAIMING conftest.py to a directory hijacks that name for its siblings: a
 # `tests/notebooklm/conftest.py` sorted after `tests/doc-health/` broke all 18
 # doc-health modules' `from conftest import FakeGit` in codexFactory's
 # `scripts/validate-docs.sh` (measured), which ran these tests when they lived
@@ -261,9 +301,10 @@ def claim_conftest_slot(namespace: dict) -> None:
 # conftest listed here calls `claim_conftest_slot(globals())` — defined above —
 # which re-claims `sys.modules["conftest"]` for its subtree from two path-scoped
 # hooks, so a directory's test modules import THEIR conftest whatever order the
-# arguments arrive in: `pytest tests/doc-health tests/avatar_runtime` went from
-# 184 collected / 27 collection errors to 993 collected clean, matching the
-# order that already worked. That does not make adding a conftest.py free — a
+# arguments arrive in: at f9457d6f `pytest tests/doc-health tests/avatar_runtime`
+# went from 184 collected / 27 collection errors to 993 collected clean, matching
+# the order that already worked (absolute counts drift with the tree; the invariant
+# is that the two orders agree). That does not make adding a conftest.py free — a
 # new one still has to be listed here AND carry the claim, both pinned by
 # test_hermeticity — but a collision with the siblings is no longer its cost.
 # `tests/conftest.py` is the one entry that must NOT claim (LIFO hook order
