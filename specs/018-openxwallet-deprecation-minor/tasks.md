@@ -28,15 +28,15 @@ warning OUTPUT as the evidence row — so the output is proven, not asserted.
 
 ## Phase 1: Setup
 
-- [ ] T001 Confirm the working tree is clean apart from `specs/018-openxwallet-deprecation-minor/` and that HEAD is on branch `018-openxwallet-deprecation-minor` at `origin/main`, via `git status -sb` in the feature worktree
-- [ ] T002 Record the doc-health baseline to compare against later: run `python3 scripts/doc-health.py --single-repo . --family release-inventory-drift` and confirm it matches the three findings recorded in research.md R8 (1 error on `scripts/validate-hermes-runtime-contracts.py`, 2 editorial infos)
+- [X] T001 Confirm the working tree is clean apart from `specs/018-openxwallet-deprecation-minor/` and that HEAD is on branch `018-openxwallet-deprecation-minor` at `origin/main`, via `git status -sb` in the feature worktree
+- [X] T002 Record the doc-health baseline to compare against later: run `python3 scripts/doc-health.py --single-repo . --family release-inventory-drift` and confirm it matches the three findings recorded in research.md R8 (1 error on `scripts/validate-hermes-runtime-contracts.py`, 2 editorial infos)
 
 ## Phase 2: Foundational (blocking prerequisites)
 
 *Nothing here is optional; every user story depends on these two facts holding.*
 
-- [ ] T003 Verify the eight target rows and their exact ids in `contracts/manifest.yaml` against the table in data-model.md, by `grep -n '  - id: openxwallet' contracts/manifest.yaml` (expect 8 hits at lines 1999, 2017, 2030, 2043, 2056, 2069, 2082, 2095)
-- [ ] T004 Verify no manifest schema or strict-key validator would reject a new row key, per research.md R1 — re-confirm `scripts/validate-manifest-digests.py` `iter_entries()` keys only off co-present `sha256` + `path` (so `relocating:`'s three sub-keys are invisible to it)
+- [X] T003 Verify the eight target rows and their exact ids in `contracts/manifest.yaml` against the table in data-model.md, by `grep -n '  - id: openxwallet' contracts/manifest.yaml` (expect 8 hits at lines 1999, 2017, 2030, 2043, 2056, 2069, 2082, 2095)
+- [X] T004 Verify no manifest schema or strict-key validator would reject a new row key, per research.md R1 — re-confirm `scripts/validate-manifest-digests.py` `iter_entries()` keys only off co-present `sha256` + `path` (so `relocating:`'s three sub-keys are invisible to it)
 
 ---
 
@@ -49,13 +49,13 @@ discharges the `docs/contract-versioning-policy.md:250-252` precondition for P3.
 **Independent test**: read the eight rows and the changelog section; run
 `scripts/validate-manifest-digests.py`. No checker change and no cut needed.
 
-- [ ] T005 [US1] Add the `relocating:` block mapping (`to: opensoft/openXwallet`, `tag: wallet-v1.1`, `since: contract-v1.46`) as the LAST key of each of the eight openxwallet rows in `contracts/manifest.yaml`, after `consumption_rule`, changing no other byte of those rows
-- [ ] T006 [US1] Bump `contract_bundle_version` from `contract-v1.45` to `contract-v1.46` at `contracts/manifest.yaml:3`
-- [ ] T007 [US1] Add the `## contract-v1.46` section to `contracts/CHANGELOG.md` above the `contract-v1.45` section, declaring **change class: DEPRECATING (minor)**, naming what relocates (the eight artifacts, by id), where (`opensoft/openXwallet` at `wallet-v1.1`), the removal version (`contract-v2.0`, the next major), and the migration path (the `contracts/openxwallet-pin.yaml` arriving at P3 plus `openXwallet/docs/pin-resync-runbook.md`); cite `split-openxwallet-repo` P2.5 / D5 / D6 and note that LedgerxFactory's P5a.2 bump observes this minor
-- [ ] T008 [US1] Add the deprecation entry to `docs/contract-versioning-policy.md`'s "Deprecations Currently In Force" list (`:274`+), following the `contract-v1.34` precedent's shape and ending "Deprecated at contract-v1.46; removal target contract-v2.0"
-- [ ] T009 [US1] Verify the floor: `git diff --name-only origin/main --` over the six frozen paths prints nothing, and `grep -c '  - id: openxwallet' contracts/manifest.yaml` still prints 8
-- [ ] T010 [US1] Run `python3 scripts/validate-manifest-digests.py` and confirm every per-file digest still verifies (the marker changes no contract file's bytes)
-- [ ] T011 [US1] Confirm the eight ids carrying `relocating:` by parsing the manifest with PyYAML per quickstart.md S1, and that no ninth row carries it
+- [X] T005 [US1] Add the `relocating:` block mapping (`to: opensoft/openXwallet`, `tag: wallet-v1.1`, `since: contract-v1.46`) as the LAST key of each of the eight openxwallet rows in `contracts/manifest.yaml`, after `consumption_rule`, changing no other byte of those rows
+- [X] T006 [US1] Bump `contract_bundle_version` from `contract-v1.45` to `contract-v1.46` at `contracts/manifest.yaml:3`
+- [X] T007 [US1] Add the `## contract-v1.46` section to `contracts/CHANGELOG.md` above the `contract-v1.45` section, declaring **change class: DEPRECATING (minor)**, naming what relocates (the eight artifacts, by id), where (`opensoft/openXwallet` at `wallet-v1.1`), the removal version (`contract-v2.0`, the next major), and the migration path (the `contracts/openxwallet-pin.yaml` arriving at P3 plus `openXwallet/docs/pin-resync-runbook.md`); cite `split-openxwallet-repo` P2.5 / D5 / D6 and note that LedgerxFactory's P5a.2 bump observes this minor
+- [X] T008 [US1] Add the deprecation entry to `docs/contract-versioning-policy.md`'s "Deprecations Currently In Force" list (`:274`+), following the `contract-v1.34` precedent's shape and ending "Deprecated at contract-v1.46; removal target contract-v2.0"
+- [X] T009 [US1] Verify the floor: `git diff --name-only origin/main --` over the six frozen paths prints nothing, and `grep -c '  - id: openxwallet' contracts/manifest.yaml` still prints 8
+- [X] T010 [US1] Run `python3 scripts/validate-manifest-digests.py` and confirm every per-file digest still verifies (the marker changes no contract file's bytes)
+- [X] T011 [US1] Confirm the eight ids carrying `relocating:` by parsing the manifest with PyYAML per quickstart.md S1, and that no ninth row carries it
 
 **Checkpoint**: US1 is independently complete. The relocation is stated and
 readable. Nothing yet warns about it and nothing is published.
@@ -73,21 +73,21 @@ to `contract-v1.45` → no notice).
 
 ### Tests first (FR-013)
 
-- [ ] T012 [P] [US2] Add `test_pin_relocating_rows_extracted_in_manifest_order` to `tests/conformance-gate/test_conformance_checks.py` in the `# --- pin ---` section: a manifest mapping with three contract rows, two carrying `relocating:`, yields both in manifest order with `artifact_id` / `to` / `tag`
-- [ ] T013 [P] [US2] Add `test_pin_no_relocating_rows_yields_no_notice` — a manifest with no `relocating:` key anywhere returns `None` from the notice builder (the `contract-v1.45` case)
-- [ ] T014 [P] [US2] Add `test_pin_relocation_notice_names_every_artifact_target_and_tag` — the notice string contains the bundle name, the row count, and one `<id> -> <to> @ <tag>` line per relocating row
-- [ ] T015 [P] [US2] Add `test_pin_relocation_notice_absent_when_manifest_unreadable` — a manifest that is absent, unparseable, or not a mapping produces no notice and raises nothing
-- [ ] T016 [P] [US2] Add `test_pin_relocation_does_not_change_exit_semantics` — assert the exit expression still yields 0 for PASS/WARN/SKIP and 1 for ERROR when a relocation notice is present
+- [X] T012 [P] [US2] Add `test_pin_relocating_rows_extracted_in_manifest_order` to `tests/conformance-gate/test_conformance_checks.py` in the `# --- pin ---` section: a manifest mapping with three contract rows, two carrying `relocating:`, yields both in manifest order with `artifact_id` / `to` / `tag`
+- [X] T013 [P] [US2] Add `test_pin_no_relocating_rows_yields_no_notice` — a manifest with no `relocating:` key anywhere returns `None` from the notice builder (the `contract-v1.45` case)
+- [X] T014 [P] [US2] Add `test_pin_relocation_notice_names_every_artifact_target_and_tag` — the notice string contains the bundle name, the row count, and one `<id> -> <to> @ <tag>` line per relocating row
+- [X] T015 [P] [US2] Add `test_pin_relocation_notice_absent_when_manifest_unreadable` — a manifest that is absent, unparseable, or not a mapping produces no notice and raises nothing
+- [X] T016 [P] [US2] Add `test_pin_relocation_does_not_change_exit_semantics` — assert the exit expression still yields 0 for PASS/WARN/SKIP and 1 for ERROR when a relocation notice is present
 
 ### Implementation
 
-- [ ] T017 [US2] Add `relocating_rows(manifest)` to `scripts/check-openxfactory-pin.py` — pure; returns the ordered list of `(artifact_id, to, tag)` for every `contracts` row carrying a `relocating:` mapping; tolerant of a non-mapping manifest and of rows missing sub-keys
-- [ ] T018 [US2] Add `relocation_notice(manifest)` to the same file (refined from the plan's `(rows, bundle)` — the bundle name comes from the same document, so one argument is enough and there is no way to pass mismatched halves) — pure; returns the multi-line WARN message per `contracts/pin-check-cli.md` § Output grammar, or `None` when `rows` is empty
-- [ ] T019 [US2] Add `manifest_at_commit(openx_root, commit)` to the same file — reads `git -C <openx_root> show <commit>:contracts/manifest.yaml`; returns the parsed mapping, or `None` on any failure (missing commit, missing file, YAML error, non-mapping)
-- [ ] T020 [US2] Wire it into `main()`: after printing the pin verdict, resolve the pinned manifest from `aggregation_root / "openxFactory"` at the consumer's `pin`, print the relocation notice to **stdout** if there is one, and leave the return expression as `1 if verdict == ERROR else 0`
-- [ ] T021 [US2] Extend the module docstring to record the WARN tier's new second use AND the `tasks.md` 5.5 reason `scripts/validate-domain-openxfactory-pins.py` is NOT the emitter (no `warn` token in its 138 lines → a relocation notice there would be an ERROR and would red every domain pinning this legal bundle) — FR-011
-- [ ] T022 [US2] Confirm `classify()` is byte-unchanged and `scripts/validate-domain-openxfactory-pins.py` and `scripts/validate-openxwallet.py` are untouched, via `git diff origin/main -- scripts/`
-- [ ] T023 [US2] Run `python3 -m pytest tests/conformance-gate/ -q` — the five pre-existing pin tests pass unchanged alongside the new ones
+- [X] T017 [US2] Add `relocating_rows(manifest)` to `scripts/check-openxfactory-pin.py` — pure; returns the ordered list of `(artifact_id, to, tag)` for every `contracts` row carrying a `relocating:` mapping; tolerant of a non-mapping manifest and of rows missing sub-keys
+- [X] T018 [US2] Add `relocation_notice(manifest)` to the same file (refined from the plan's `(rows, bundle)` — the bundle name comes from the same document, so one argument is enough and there is no way to pass mismatched halves) — pure; returns the multi-line WARN message per `contracts/pin-check-cli.md` § Output grammar, or `None` when `rows` is empty
+- [X] T019 [US2] Add `manifest_at_commit(openx_root, commit)` to the same file — reads `git -C <openx_root> show <commit>:contracts/manifest.yaml`; returns the parsed mapping, or `None` on any failure (missing commit, missing file, YAML error, non-mapping)
+- [X] T020 [US2] Wire it into `main()`: after printing the pin verdict, resolve the pinned manifest from `aggregation_root / "openxFactory"` at the consumer's `pin`, print the relocation notice to **stdout** if there is one, and leave the return expression as `1 if verdict == ERROR else 0`
+- [X] T021 [US2] Extend the module docstring to record the WARN tier's new second use AND the `tasks.md` 5.5 reason `scripts/validate-domain-openxfactory-pins.py` is NOT the emitter (no `warn` token in its 138 lines → a relocation notice there would be an ERROR and would red every domain pinning this legal bundle) — FR-011
+- [X] T022 [US2] Confirm `classify()` is byte-unchanged and `scripts/validate-domain-openxfactory-pins.py` and `scripts/validate-openxwallet.py` are untouched, via `git diff origin/main -- scripts/`
+- [X] T023 [US2] Run `python3 -m pytest tests/conformance-gate/ -q` — the five pre-existing pin tests pass unchanged alongside the new ones
 
 **Checkpoint**: US2 is independently complete. The marker is now observed.
 
@@ -100,12 +100,12 @@ contains all eight artifacts, and the three bundle names agree.
 
 **Independent test**: quickstart.md S2 and S3.
 
-- [ ] T024 [US3] Generate the inventory LAST, after every content edit: `python3 scripts/validate-contract-release.py build --tag contract-v1.46 --output contracts/releases/contract-v1.46.digests.yaml` (the manifest, changelog and policy doc are all release-surface members, so their new bytes must already be on disk)
-- [ ] T025 [US3] Verify the three-way name agreement per quickstart.md S2: `contract_bundle_version`, the newest `## contract-v` changelog heading, the inventory filename, and the inventory's own `bundle_tag` all read `contract-v1.46`
-- [ ] T026 [US3] Verify the inventory is reproducible — regenerate to a scratch path and `diff` against the committed file; expect no diff (proves it was tool-produced, not hand-edited)
-- [ ] T027 [US3] Verify the eight openxwallet registrations are still on the release surface TRANSITIVELY per research.md R11: inventory membership is catalog-driven and the eight artifact files are not members (0 hits, at v1.45 too), so check instead that `contracts/manifest.yaml` IS a member, that its recorded digest equals `git hash-object contracts/manifest.yaml`, and that the manifest still carries 8 openxwallet rows
-- [ ] T028 [US3] Run `python3 scripts/doc-health.py --single-repo . --family release-inventory-drift` and confirm **no findings** — the pre-existing error on `scripts/validate-hermes-runtime-contracts.py` plus the two editorial infos are discharged by this cut, per research.md R8
-- [ ] T029 [US3] Do NOT create the annotated tag. Confirm `git tag -l 'contract-v1.46'` is empty — the tag is an operator act at merge (research.md R4)
+- [X] T024 [US3] Generate the inventory LAST, after every content edit: `python3 scripts/validate-contract-release.py build --tag contract-v1.46 --output contracts/releases/contract-v1.46.digests.yaml` (the manifest, changelog and policy doc are all release-surface members, so their new bytes must already be on disk)
+- [X] T025 [US3] Verify the three-way name agreement per quickstart.md S2: `contract_bundle_version`, the newest `## contract-v` changelog heading, the inventory filename, and the inventory's own `bundle_tag` all read `contract-v1.46`
+- [X] T026 [US3] Verify the inventory is reproducible — regenerate to a scratch path and `diff` against the committed file; expect no diff (proves it was tool-produced, not hand-edited)
+- [X] T027 [US3] Verify the eight openxwallet registrations are still on the release surface TRANSITIVELY per research.md R11: inventory membership is catalog-driven and the eight artifact files are not members (0 hits, at v1.45 too), so check instead that `contracts/manifest.yaml` IS a member, that its recorded digest equals `git hash-object contracts/manifest.yaml`, and that the manifest still carries 8 openxwallet rows
+- [X] T028 [US3] Run `python3 scripts/doc-health.py --single-repo . --family release-inventory-drift` and confirm **no findings** — the pre-existing error on `scripts/validate-hermes-runtime-contracts.py` plus the two editorial infos are discharged by this cut, per research.md R8
+- [X] T029 [US3] Do NOT create the annotated tag. Confirm `git tag -l 'contract-v1.46'` is empty — the tag is an operator act at merge (research.md R4)
 
 **Checkpoint**: the bundle is authored and internally consistent. Publication
 completes at merge, when the operator cuts the tag.
@@ -114,17 +114,17 @@ completes at merge, when the operator cuts the tag.
 
 ## Phase 6: Evidence, OpenSpec bookkeeping and validation
 
-- [ ] T030 Run the two end-to-end fixture scenarios of quickstart.md S4 and capture the literal output: S4a (consumer pinned to this bundle → the eight-line WARN, exit 0) and S4b (consumer pinned to `contract-v1.45` → no relocation line, exit 0)
-- [ ] T031 Save the S4a output verbatim into `specs/018-openxwallet-deprecation-minor/evidence/warn-sample.txt` as the `tasks.md` 5.9 evidence artifact (the checker's OUTPUT, not the manifest rows)
-- [ ] T032 Tick `openspec/changes/split-openxwallet-repo/tasks.md` §5 items that are COMPLETE — 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 5.9, 5.10 — each with a one-line evidence note naming the file or the evidence artifact. **Touch no other group's items** (a concurrent PR owns §4)
-- [ ] T033 Leave `openspec/changes/split-openxwallet-repo/tasks.md` 5.8 UNTICKED with a note that the number is allocated and the tag cut at merge by the operator, and that this feature authors `contract-v1.46` subject to merge-order re-verification
-- [ ] T034 Run `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` and confirm it passes
-- [ ] T035 Run `python3 -m pytest -q` (the whole suite, as CI's `pytest-suite` collects it) and confirm green
-- [ ] T036 Run `python3 scripts/doc-health.py --single-repo .` and confirm **no NEW finding** versus the T002 baseline; the release-inventory-drift trio should be gone (an improvement, not a suppression)
+- [X] T030 Run the two end-to-end fixture scenarios of quickstart.md S4 and capture the literal output: S4a (consumer pinned to this bundle → the eight-line WARN, exit 0) and S4b (consumer pinned to `contract-v1.45` → no relocation line, exit 0)
+- [X] T031 Save the S4a output verbatim into `specs/018-openxwallet-deprecation-minor/evidence/warn-sample.txt` as the `tasks.md` 5.9 evidence artifact (the checker's OUTPUT, not the manifest rows)
+- [X] T032 Tick `openspec/changes/split-openxwallet-repo/tasks.md` §5 items that are COMPLETE — 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 5.9, 5.10 — each with a one-line evidence note naming the file or the evidence artifact. **Touch no other group's items** (a concurrent PR owns §4)
+- [X] T033 Leave `openspec/changes/split-openxwallet-repo/tasks.md` 5.8 UNTICKED with a note that the number is allocated and the tag cut at merge by the operator, and that this feature authors `contract-v1.46` subject to merge-order re-verification
+- [X] T034 Run `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` and confirm it passes
+- [X] T035 Run `python3 -m pytest -q` (the whole suite, as CI's `pytest-suite` collects it) and confirm green
+- [X] T036 Run `python3 scripts/doc-health.py --single-repo .` and confirm **no NEW finding** versus the T002 baseline; the release-inventory-drift trio should be gone (an improvement, not a suppression)
 
 ## Phase 7: Polish, commit and pull request
 
-- [ ] T037 Re-verify the byte-identity floor one final time across the whole diff: `git diff --stat origin/main` names only the expected files and none of the six frozen paths
+- [X] T037 Re-verify the byte-identity floor one final time across the whole diff: `git diff --stat origin/main` names only the expected files and none of the six frozen paths
 - [ ] T038 Commit with explicit pathspecs and a house subject ≤72 chars, body citing P2.5 / D5 / D6 / `split-openxwallet-repo`, ending `Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>`
 - [ ] T039 Push the branch and open the pull request with `gh pr create -R opensoft/openxFactory --base main`, body covering: what/why, the eight rows, the WARN sample, the cut mechanics, the renumber-at-merge note, the `wallet-v1.1`-vs-D5's-`wallet-v1.0` deviation, the discharged pre-existing inventory error, the tag-is-the-operator's note, and validation results
 - [ ] T040 Watch `wallet-validation` and `pytest-suite` with `gh pr checks --watch` (≤15 min) and report. **Do not merge.**

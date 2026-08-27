@@ -1,0 +1,54 @@
+P2.5 evidence — the relocation notice, as OUTPUT
+================================================
+
+split-openxwallet-repo tasks.md 5.9 names "check-openxfactory-pin.py's WARN
+output" as this step's evidence — the checker's OUTPUT, not the manifest rows.
+This file is that output, captured verbatim.
+
+Feature      : 018-openxwallet-deprecation-minor
+Bundle       : contract-v1.46 (authored; re-verified at merge order per
+               docs/contract-versioning-policy.md:30-31)
+Emitter      : scripts/check-openxfactory-pin.py (design D5 — the only
+               domain-pin checker with a warning tier)
+Commit under test : 9e3e78e364f0ca39ed62eff4595b333c3bc9d009
+Prior bundle      : d03c03c2a9783da147be0c02233930d02c11d526 (contract-v1.45)
+Captured     : 2026-08-27T11:45:42Z
+
+Harness: a throwaway aggregation checkout whose openxFactory gitlink points
+at the commit under test, plus a throwaway consumer stack.yaml pinning it.
+Reproduce with specs/018-openxwallet-deprecation-minor/quickstart.md S4.
+
+-------------------------------------------------------------------------
+S4a — consumer pinned to contract-v1.46 (this bundle): WARN, and GREEN
+-------------------------------------------------------------------------
+PASS: stack pin matches aggregation submodule pointer (9e3e78e364f0)
+WARN: the pinned openxFactory bundle contract-v1.46 carries 8 relocating contract row(s); each artifact's canonical home is moving and it is removed at a later major bundle — read contracts/CHANGELOG.md at this pin for the removal version and the migration path:
+  openxwallet-record -> opensoft/openXwallet @ wallet-v1.1
+  openxwallet-custody-registry-schema -> opensoft/openXwallet @ wallet-v1.1
+  openxwallet-custody-registry -> opensoft/openXwallet @ wallet-v1.1
+  openxwallet-grant -> opensoft/openXwallet @ wallet-v1.1
+  openxwallet-grant-exercise -> opensoft/openXwallet @ wallet-v1.1
+  openxwallet-distinct-holder-constraint -> opensoft/openXwallet @ wallet-v1.1
+  openxwallet-subject-attestation -> opensoft/openXwallet @ wallet-v1.1
+  openxwallet-agent-composition -> opensoft/openXwallet @ wallet-v1.1
+exit=0
+
+-------------------------------------------------------------------------
+S4b — consumer pinned to contract-v1.45: NO relocation line at all
+-------------------------------------------------------------------------
+WARN: stack pin d03c03c2a978 is stale-behind the aggregation submodule pointer 9e3e78e364f0; refresh with: update stack.yaml xfactory.contract_ref to 9e3e78e364f0ca39ed62eff4595b333c3bc9d009 and contract_declared_at to today
+exit=0
+
+-------------------------------------------------------------------------
+What this proves
+-------------------------------------------------------------------------
+1. The eight relocating artifacts are each NAMED, with target repository and
+   successor tag — a migrator learns where to go from the notice alone.
+2. The run STAYS GREEN (exit 0). This is the whole reason D5 put the marker in
+   the manifest and chose the one checker with a WARN tier: an ERROR here
+   would red every domain that pinned a perfectly legal bundle.
+3. A consumer pinned to the PRIOR bundle sees nothing new, so the notice
+   cannot be mistaken for a property of the checker rather than of the pin.
+4. The removal version is NOT claimed from row data — the row carries none by
+   design (tasks.md 5.2) — so the notice points at contracts/CHANGELOG.md,
+   which is where docs/contract-versioning-policy.md:246-248 puts it.
