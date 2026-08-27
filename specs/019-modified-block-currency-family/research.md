@@ -147,14 +147,27 @@ both directions.
 unit — rejected, a wrapped bullet is one bullet and the delta's whitespace
 normalization exists precisely so wrapping is not semantic.
 
+**FENCED CODE BLOCKS ARE MASKED LIKE CODE SPANS. RULED 2026-08-27 by the
+reviewing coordinator.** A ```` ``` ````-fenced block inside a requirement body
+is neither a unit nor a marker, in canon or in a block, and its lines never
+enter either side of a comparison. The delta does not say so, and it did not
+have to notice: its OWN written-out marker examples sit inside a fenced block
+(`dh:187-190`), which promotes into canon with the requirement. Without this
+rule those two lines parse as complete markers — a real change id, a real ISO
+date, a closing colon — and the requirement that defines the marker would
+declare two of its own units removed. Masking the fence closes it, and it closes
+the same class for every other fenced example the corpus writes.
+
 **A SECOND reading the delta does not write, recorded beside the first.** The
 delta says what a scenario region's HEADING and BULLETS are and is silent on
 PROSE smuggled under a scenario heading. Such a paragraph is derived as a
 `body` unit: it is requirement text somebody must carry, and dropping it on the
 floor would make a block that moves an obligation into scenario prose invisible
-to both carriage arms. This is the second of exactly two rules F1 supplies that
-the delta does not (the other is R6's note predicate), and both are flagged for
-veto in plan.md as O6 and O9.
+to both carriage arms. This is one of three rules F1 supplies that the
+delta does not (the others are R6's note predicate and the fenced-block rule
+above), and each is flagged for veto in plan.md. **Population measured on this
+branch: 2** — two non-bullet paragraphs sit under a `#### Scenario:` heading
+across the active corpus, so the rule is neither dead nor sweeping.
 
 ---
 
@@ -287,9 +300,24 @@ name too would be an obligation this feature has no standing to add. Recorded
 so a later ruling can add it deliberately rather than an implementation adding
 it by accident.
 
-**Alternatives considered**: reporting a dangling name as a malformed marker —
-deferred, not built; it is a plausible later ruling and is named in plan.md's
-residue.
+**THE MARKER DEFECT NEEDS AN EMITTER, RULED 2026-08-27 by the reviewing
+coordinator.** The delta says a marker naming a unit the block still carries
+"SHALL itself be reported" (`dh:153-156`), and the first cut of this plan gave
+that case a PRODUCER (`marker_defects`) and no consumer — a function nothing
+calls, which is how a requirement ends up realized in a docstring. It is a
+FOURTH finding class, "marker defects", at `_LEDGER_SEVERITY` (`info`, never
+`error`, so the advisory launch holds in both halves), with its own rule text
+naming the marker paragraph and the unit it wrongly names. Four classes, three
+arms: the class count and the arm count are different numbers and are kept
+apart deliberately, because the delta's three arms are three COMPARISONS while
+this is a defect in a DECLARATION.
+
+**Alternatives considered**: folding the marker defect into the ledger's single
+per-requirement finding — rejected, it is not a carriage fact and would inherit
+the hedge ("this arm cannot distinguish a rewording from stale text") that is
+false of it: a marker naming a carried unit is wrong with certainty. Reporting a
+dangling name as a malformed marker — deferred, not built; a plausible later
+ruling, named in plan.md's residue.
 
 ---
 
@@ -303,6 +331,14 @@ writers is reported; (c) the module names THREE severity constants —
 `_LAUNCH_SEVERITY` (the scenario-title arm, `WARNING`),
 `_RESOLUTION_SEVERITY` (title resolution / two-writers, `WARNING`) and
 `_LEDGER_SEVERITY` (the carriage ledger, `INFO`).
+
+**Decision (d), ruled 2026-08-27 by the reviewing coordinator**: a declaration
+substitutes the BASIS and does nothing else. The resolution arm reports an
+unresolved title and an undeclared or mutual ordering — never the units a
+substituted basis makes uncarried, because the carriage arms already report
+those and a second finding would report the same text at `warning` that the
+ledger reports at `info`. The delta's scenario (`dh:264`) requires the missing
+addition to be REPORTED, not to be reported by a fourth class.
 
 **Rationale**: (a) `dh:71-74` names the matcher by reference — "the whole-token
 match the duplicate packet family already uses" — and that function exists,
@@ -349,59 +385,87 @@ their tests would have to move with it.
 
 ---
 
-## R13 — The § 2.1 commit: what it contains and what proves it
+## R13 — The § 2.1 commit is GATED on another change archiving first
 
-**Decision**: one commit carries the registration (`families.py`,
-`__init__.py`), the module, its tests, the lifecycle-scan-set classification,
-AND the `## MODIFIED Requirements` block on "Deterministic check families" in
-`openspec/changes/add-modified-block-currency-check/specs/doc-health/spec.md`.
+**Decision, RULED 2026-08-27 by the reviewing coordinator (option (a))**:
+`add-family-enumeration-check` archives FIRST, as a separate PR. Only then does
+F1's registration commit land — the module, the two registrations, the
+enumeration collateral, the lifecycle-scan-set classification, and the owed
+`## MODIFIED Requirements` block written relative to CANON.
 
-**Rationale and mechanics**: canon still enumerates in prose, because
-`add-family-enumeration-check` is active with code landed and delta unpromoted
-(`tasks:314-320`, re-confirmed in this tree: `openspec/specs/doc-health/spec.md`
-reads "twenty check families" and `FAMILIES` registers 21). A registration
-without the block leaves canon naming a set the registry contradicts; a block
-without the registration reds
-`test_family_enumeration.py::test_the_real_corpus_reads_zero_on_both_halves`,
-which was demonstrated, not assumed (`tasks:286-290`, three findings). The
-block is written relative to `add-family-enumeration-check`'s OUTCOME — that
-change's own delta at
-`openspec/changes/add-family-enumeration-check/specs/doc-health/spec.md`, which
-carries the requirement with 8 scenarios and the enumeration at twenty-one — and
-moves exactly five things: `twenty-one` → `twenty-two`; the enumeration gains
-`modified-block currency` as its last member; `Four of the twenty-one` →
+**This overturns the reading the packet's own D5 took, and the reason is a
+measurement.** D5 concluded that the block was "owed at realization, in the
+commit that registers the family", having proven that writing it in a
+proposal-only tree reds
+`test_family_enumeration.py::test_the_real_corpus_reads_zero_on_both_halves`.
+That is true and it is only half the problem. `fam_family_enumeration` checks
+EVERY active delta that restates the requirement, independently, against the
+LIVE registry (`family_enumeration.py`:412-437, and its docstring says so:
+"Where two or more active deltas restate the requirement ... EACH is checked
+independently"). So the moment a twenty-second family is registered,
+`add-family-enumeration-check`'s OWN still-active restatement is stale.
+
+Measured on this branch, by monkeypatching `_registry` to return
+`list(FAMILIES) + ["modified-block-currency"]` and running the family against
+this repository's tree — no registration performed, nothing committed:
+
+```text
+baseline (21 registered): 0 findings
+with a 22nd family registered: 3 findings
+  openspec/changes/add-family-enumeration-check/specs/doc-health/spec.md
+    omits 1 of the 22 registered check families: 'modified-block-currency'
+    says 'twenty-one' check families, but 22 are registered — expected 'twenty-two'
+    says 'Four' of 'twenty-one', but 22 families are registered
+```
+
+All three land on the OTHER packet's path. **A block in this change's delta
+cannot clear them**, and this change has no standing to edit another ratified
+packet's ratified text. The packet's § 2.1 as written is therefore
+unimplementable in a tree where `add-family-enumeration-check` is still active —
+recorded as a defect in the packet rather than worked around.
+
+**What changes in the mechanics.** Written against CANON after that archive,
+the block moves the same five things it always did (`twenty-one` →
+`twenty-two`; `modified-block currency` appended; `Four of the twenty-one` →
 `Four of the twenty-two`; `the other seventeen families` → `the other eighteen
-families`; and one new sentence declaring this family's document lists, in the
-shape the four preceding families' sentences already use. The eighth scenario,
-`A run executes the check families`, gains one `AND` bullet. The other seven are
-byte-identical.
+families`; one new sentence declaring this family's document lists) plus one new
+`AND` bullet in `A run executes the check families`. Two things get easier and
+one gets stricter:
 
-Three consequences are carried rather than discovered:
+- Easier: there is no longer a second authority to reconcile. Canon IS that
+  change's outcome once it promotes, so "relative to the sibling's outcome" and
+  "relative to canon" become the same sentence, and the two-writers instance
+  § 2.1 was going to create never exists.
+- Stricter: canon by then carries THREE dated bold notes on that requirement
+  (`add-family-enumeration-check/specs/doc-health/spec.md`:48, :71, :86 — the
+  2026-08-25 correction, the ordering-dependency resolution, and the
+  fourth-restatement note). Each is ONE undivided body unit under this family's
+  own derivation, so all three must be carried VERBATIM or this change commits
+  the defect it exists to report. All eight scenario titles are named in the
+  task, not left to be counted.
 
-1. `fam_family_enumeration` must read 0 against the resulting tree. Its name
-   normalization is mechanical (`lower`, then `/` and whitespace to `-`), so
-   `modified-block currency` resolves to `modified-block-currency` — which is
-   the registry id, so no `ALIASES` entry is needed and none may be added
-   (`test_every_alias_is_load_bearing` asserts every alias is still necessary).
-2. `tests/doc-health/test_lifecycle_scan_set.py`:500 asserts
-   `len(NON_READERS) == len(FAMILIES) - 4 == 17`; the literal becomes 18 and the
-   family joins `NON_READERS` with the note the other non-readers carry.
-   `test_family_enumeration.py`:295 asserts
-   `len(FAMILY_IDS) == len(set(FAMILY_IDS)) == len(FAMILIES)`, satisfied by
-   registering in both.
-3. The block draws ONE carriage-ledger finding against this change's own delta —
-   the two body sentences it changes by exactly the numerals this feature moves
-   (`tasks:291-301`). It is expected, advisory, predicted in the packet's own
-   table, and MUST NOT be dispositioned away: a disposition would suppress the
-   evidence that the family reads its own packet.
+**The collateral the packet never named.** `add-family-enumeration-check`
+declares it as its own code surface (`proposal.md`:2), and a registration that
+moves the registry without moving it reds that family's suite:
+`tests/doc-health/test_family_enumeration.py` asserts numerals and names at
+:65, :67, :75, :78, :79, :81, :118, :128, :136, :164 and :178, and seven
+`tests/doc-health/fixtures/family-enumeration-*` fixture specs carry the
+enumeration text. Both move in the registration commit.
 
-**Alternatives considered**: land the registration first and the block second —
-rejected, it reds the standing gate for the length of one commit and the packet
-forbids it in capitals (`tasks:46`); wait for `add-family-enumeration-check` to
-archive — rejected, it is a veto of D5 and a dependency this feature cannot
-schedule.
+**The contingency, both ways.** If the archive lands, F1 merges `main` and
+proceeds. **If it is delayed, F1 STOPS at the end of phase 7 and waits** — the
+module complete, tested and unregistered, which is a coherent and reviewable
+state rather than a half-landed one. Nothing in phases 1–7 depends on the
+registry, because F1's behavioural tests call the module function directly and
+only the registration tests route through `families.FAMILIES`.
 
----
+**Alternatives considered**: (b) edit `add-family-enumeration-check`'s delta
+from this branch — rejected, it is another ratified packet's text and this
+change has no standing over it; (c) register anyway and disposition the three
+findings — rejected, a disposition is for a finding a human decided to accept,
+not for a gate this change breaks and could instead sequence; (d) land the
+registration behind a feature flag — rejected, the registry is a closed set by
+constitution (Principle VII) and a flag is a second authority for membership.
 
 ## R14 — The advisory launch, in both halves, and what pins it
 
@@ -425,11 +489,30 @@ reserves it for a ruling.
 
 ## R15 — The scope guard, and how promotion-fidelity stays byte-green
 
-**Decision**: F1 touches exactly six paths — the new module, its new test file,
-`families.py`, `scripts/doc_health/__init__.py`,
-`tests/doc-health/test_lifecycle_scan_set.py`, and the packet's own doc-health
-delta — plus new fixture directories under
-`tests/doc-health/fixtures/modified-block-currency*/`.
+**Decision**: F1 touches exactly these paths, and the scope check asserts the
+list rather than a vibe:
+
+| path | phase | why it is in scope |
+| --- | --- | --- |
+| `scripts/doc_health/modified_block_currency.py` | 2–7 | the family |
+| `tests/doc-health/test_modified_block_currency.py` | 1–7 | its pins |
+| `tests/doc-health/fixtures/modified-block-currency*/` | 3–7 | its fixtures |
+| `scripts/doc_health/families.py` | 8 | the registration |
+| `scripts/doc_health/__init__.py` | 8 | `FAMILY_IDS` |
+| `tests/doc-health/test_lifecycle_scan_set.py` | 8 | the non-reader classification and its count literal |
+| `tests/doc-health/test_family_enumeration.py` | 8 | the ENUMERATION COLLATERAL — numeral and name assertions at :65, :67, :75, :78, :79, :81, :118, :128, :136, :164, :178 |
+| `tests/doc-health/fixtures/family-enumeration-*/` (7 dirs) | 8 | the same collateral, in fixture spec text |
+| `openspec/changes/add-modified-block-currency-check/specs/doc-health/spec.md` | 8 | the owed block |
+| `specs/019-modified-block-currency-family/` | all | this feature's own documents |
+
+**The last two test paths are the correction B2 made.**
+`add-family-enumeration-check/proposal.md`:2 declares
+`tests/doc-health/test_family_enumeration.py`,
+`tests/doc-health/fixtures/family-enumeration*/` and
+`tests/doc-health/test_lifecycle_scan_set.py` as ITS OWN code surface, and this
+change moves the registry those files assert against. Editing them is therefore
+not scope creep; omitting them would leave that family's suite red on a
+registration it has no other way to hear about.
 
 **Rationale**: decision 5 of the launching brief and `tasks:252-258`. Nothing
 in `.github/workflows/` changes, because this family passes no per-family
@@ -443,6 +526,23 @@ itself an F1 acceptance check, not an assumption.
 **Alternatives considered**: none. Anything wider is another feature.
 
 ---
+
+## R16 — The prediction is re-measured at the branch point, and lives in ONE place
+
+**Decision**: the packet's predicted report movement was measured at `9be81a40`
+over 23 MODIFIED requirements. This branch is not that tree —
+`add-hermes-customer-subject-runtime-contract` and
+`add-shared-identity-seeds` have archived since — so the figure is
+RE-MEASURED after `git merge origin/main` and stated exactly once, in
+`plan.md` § Predicted movement, which is the line F3 reads and asserts. No
+other artefact restates it, because two copies of a prediction is how a
+prediction becomes two predictions.
+
+**Measured on this branch (post-merge, HEAD's parent `501a3ae0` upstream)**: 24
+active changes, **22** MODIFIED requirement blocks across 17 delta files, and
+`openspec validate --all --strict` totals **76** (24 active + 52 specs), not the
+77 this feature's earlier commits recorded. Every count this feature reports is
+taken at this tree and says so.
 
 ## Cost, briefly
 

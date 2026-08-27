@@ -22,7 +22,8 @@ origin admission).
 
 **Scope boundary**: F1 only. The exhaustive regression-fixture catalogue (F2,
 packet § 3), the self-gate against this repository's own tree with its
-predicted +1 `warning` / +11 `info` movement (F3, § 4), and the report section,
+predicted movement it asserts (F3, § 4 — the figures live in one place,
+`plan.md` § Predicted movement), and the report section,
 action line and workflow-boundary pin (F4, § 5) are named successors and are
 explicitly OUT of scope. F1 leaves the hooks each of them needs and builds
 nothing they own.
@@ -231,22 +232,28 @@ declaring. Each asserts the resolution taken, not merely that something fired.
 4. **Given** two or more active changes carrying a MODIFIED block for one
    capability and requirement title, exactly one of which names another as a
    whole token in its own `proposal.md`, **When** the family runs, **Then** the
-   declaring change is treated as the later writer, its block is measured
-   against the declared sibling's outcome rather than against canon, and an
-   addition the sibling's block makes that the declaring block does not carry
-   is reported against the declaring delta's path.
-5. **Given** two active RATIFIED changes carrying a MODIFIED block for one
+   declaring change is treated as the later writer and its block is measured
+   against the declared sibling's outcome rather than against canon — a BASIS
+   SUBSTITUTION and nothing more — so an addition the sibling's block makes
+   that the declaring block does not carry is reported by the carriage arms
+   against the declaring delta's path, with no second finding for the same
+   units.
+5. **Given** a MODIFIED block whose title canon does not carry and that an
+   active sibling ADDS, **When** the family runs, **Then** the block is
+   compared against NOTHING — the promoted requirement being pending rather
+   than absent — and no basis is synthesized from the sibling's ADDED text.
+6. **Given** two active RATIFIED changes carrying a MODIFIED block for one
    promoted requirement and neither naming the other, **When** the family runs,
    **Then** the undeclared ordering is reported against both blocks, each block
    is meanwhile measured against canon, and the same is reported where both
    declare relative to each other.
-6. **Given** a declaration naming a change id that occurs only INSIDE a longer
+7. **Given** a declaration naming a change id that occurs only INSIDE a longer
    change id, **When** the declaration is read, **Then** it satisfies nothing —
    the match being on whole tokens.
-7. **Given** an UNRATIFIED sibling, **When** the two-writers arm runs, **Then**
+8. **Given** an UNRATIFIED sibling, **When** the two-writers arm runs, **Then**
    no reference obligation is created, `release-realization`'s `ratified`
    scoping not being widened here.
-8. **Given** any two-writers evaluation, **When** the ordering is decided,
+9. **Given** any two-writers evaluation, **When** the ordering is decided,
    **Then** no folder name, commit timestamp or `created:` date is consulted.
 
 ---
@@ -255,13 +262,13 @@ declaring. Each asserts the resolution taken, not merely that something fired.
 
 The module is only reachable through the report a session actually reads if it
 is registered. Registering a twenty-second family also moves the numerals of
-`doc-health`'s own "Deterministic check families" requirement — which is still
-enumerated in prose, because `add-family-enumeration-check` is active with its
-code landed and its delta unpromoted. The owed MODIFIED block and the
-registration are therefore ONE commit: written apart, either the registration
-states a family canon's enumeration does not name, or the block names a family
-the registry does not carry, and the second of those reds a standing gate on
-`main` (proven, packet § 6.5).
+`doc-health`'s own "Deterministic check families" requirement, which is still
+enumerated in prose. The owed MODIFIED block and the registration are ONE
+commit, and that commit is GATED: it cannot land while
+`add-family-enumeration-check` is active, because the live-registry check reads
+THAT packet's restatement too and this change cannot edit it. So the order is
+ruled — that change archives, this branch merges `main`, and only then does the
+registration land, with its block written against canon.
 
 **Why this priority**: It is the acceptance condition of the whole feature. An
 unregistered module reports nothing, and a registration whose enumeration block
@@ -273,13 +280,17 @@ the block was written into a registry-less tree.
 
 **Acceptance Scenarios**:
 
-1. **Given** the feature tree with the module registered in `FAMILIES` and
-   `FAMILY_IDS`, **When** `fam_family_enumeration` runs against that tree,
-   **Then** it reports zero findings on both halves.
-2. **Given** the owed MODIFIED block, **When** it is verified against
-   `add-family-enumeration-check`'s outcome, **Then** all eight scenarios are
-   restated, seven byte-identical, the eighth differing by exactly one `AND`
-   bullet, and the per-requirement count is recorded as 8 → 8.
+1. **Given** a tree in which `add-family-enumeration-check` is STILL ACTIVE,
+   **When** a twenty-second family is registered, **Then**
+   `fam_family_enumeration` reports three findings against THAT packet's delta
+   path — so the registration is withheld, and this is asserted rather than
+   assumed.
+2. **Given** that change ARCHIVED and merged into this branch, **When** the
+   module is registered in `FAMILIES` and `FAMILY_IDS` in the same commit as
+   the owed block written against canon, **Then** `fam_family_enumeration`
+   reports zero findings on both halves, all eight scenario titles are
+   restated, the three dated bold notes are carried verbatim, and the
+   per-requirement count is recorded as 8 → 8.
 3. **Given** the same commit, **When** the family runs against this
    repository's own tree, **Then** the ONE carriage-ledger finding this block
    draws against itself is present and expected — advisory, predicted in the
@@ -387,10 +398,17 @@ the block was written into a registry-less tree.
 - **FR-014**: Where two or more active changes carry a MODIFIED block for one
   capability and requirement title, ordering MUST be BY DECLARATION: the change
   whose own `proposal.md` names a sibling's change id as a WHOLE TOKEN is the
-  later writer, its block MUST be measured against that sibling's outcome
-  rather than against canon, and an addition the sibling makes that the
-  declaring block does not carry MUST be reported at `warning` against the
-  declaring delta's path. Exactly one of two active RATIFIED writers MUST
+  later writer, and its block MUST be measured against that sibling's outcome
+  rather than against canon. **That substitution is the ONLY effect of a
+  declaration.** The three arms then run unchanged against the substituted
+  basis, so an addition the sibling makes that the declaring block does not
+  carry is reported by the CARRIAGE ARMS against the declaring delta's path —
+  the delta's own scenario requires that it be reported, not that a fourth
+  finding say so, and a separate resolution finding would report at `warning`
+  the same units the ledger already reports at `info`. The resolution arm
+  itself MUST report exactly two things and nothing else: (i) a title that
+  resolves to no requirement, and (ii) an undeclared or mutual ordering between
+  two active RATIFIED writers. Exactly one of two active RATIFIED writers MUST
   declare: neither declaring MUST be reported against both blocks, both
   declaring MUST be reported, and where no declaration stands each block MUST
   be measured against canon. No folder name, commit timestamp or `created:`
@@ -415,7 +433,10 @@ the block was written into a registry-less tree.
 - **FR-017**: The `Merged into` destination MUST NOT be read as a named unit.
 - **FR-018**: A marker MUST suppress only units it names AND that are in fact
   absent from the block. A marker naming a unit the block still carries MUST be
-  reported itself.
+  reported itself, as a FOURTH finding class — "marker defects" — carrying the
+  ledger's `info` severity and never `error`. Producing the defect without
+  emitting it would leave the delta's "SHALL itself be reported" unrealized in
+  a function nothing calls.
 - **FR-019**: Where a `Removed from canon` marker names a scenario title AND
   the block adds no scenario title canon does not already carry, the bullets
   that scenario carried in canon MUST also be treated as declared removed —
@@ -460,19 +481,40 @@ the block was written into a registry-less tree.
   set in the test that exists to fail loudly when a new family is not
   classified, and the non-reader count assertion MUST move with the registry
   size.
-- **FR-028**: The `doc-health` delta's owed `## MODIFIED Requirements` block on
+- **FR-028**: The registration MUST NOT land while
+  `add-family-enumeration-check` is still ACTIVE. **RULED 2026-08-27 by the
+  reviewing coordinator, option (a): that change archives FIRST.** The reason is
+  measured, not argued: `fam_family_enumeration` checks EVERY active delta's
+  restatement of "Deterministic check families" against the LIVE registry
+  (`family_enumeration.py`:424-435), so the moment a twenty-second family is
+  registered, that OTHER packet's still-active restatement is stale and emits
+  three findings against ITS delta path — an omitted family name and two stale
+  numerals. A block in THIS change's delta cannot clear them, because each
+  active delta is checked independently and this change has no standing to edit
+  another ratified packet's text. Measured on this branch: 0 findings with 21
+  registered, 3 with 22.
+- **FR-028a**: Once that archive has landed on `main` and been merged into this
+  branch, the `doc-health` delta's owed `## MODIFIED Requirements` block on
   "Deterministic check families" MUST land in the SAME COMMIT as the
-  registration. It MUST be written relative to `add-family-enumeration-check`'s
-  outcome: twenty-one → twenty-two, the enumeration gaining
+  registration, written relative to CANON — which by then IS
+  `add-family-enumeration-check`'s promoted outcome, so there is no second
+  authority to reconcile: `twenty-one` → `twenty-two`, the enumeration gaining
   `modified-block currency`, `Four of the twenty-two`, `the other eighteen
   families`, one new sentence declaring that this family reads active change
   deltas and promoted specs and therefore takes neither the governed corpus nor
   the lifecycle scan set, and one new `AND` bullet in
-  `A run executes the check families`. ALL EIGHT scenarios MUST be restated —
-  seven byte-identical to that change's outcome and the eighth differing by
-  exactly one bullet — the per-requirement count 8 → 8 MUST be recorded in the
-  commit message, and `fam_family_enumeration` MUST read zero against the
-  resulting tree.
+  `A run executes the check families`. ALL EIGHT scenario titles MUST be named
+  and restated, the three dated bold notes canon carries MUST be carried
+  VERBATIM, the per-requirement count 8 → 8 MUST be recorded in the commit
+  message, and `fam_family_enumeration` MUST read zero against the resulting
+  tree.
+- **FR-028b**: The registration commit MUST also bring the enumeration
+  COLLATERAL that `add-family-enumeration-check` declares as its own surface
+  (`openspec/changes/add-family-enumeration-check/proposal.md`:2): the numeral
+  and family-name assertions in `tests/doc-health/test_family_enumeration.py`
+  and the enumeration text in its `tests/doc-health/fixtures/family-enumeration-*`
+  fixture specs. A registration that moves the registry without moving those
+  reds that family's own suite.
 - **FR-029**: The ONE carriage-ledger finding that block draws against this
   change's own delta MUST be treated as expected and advisory — it is the
   packet's own prediction (§ 6.6) — and MUST NOT be treated as a regression or
@@ -534,7 +576,10 @@ the block was written into a registry-less tree.
   leaves every other divergence reported.
 - **SC-006**: `fam_family_enumeration` reports zero findings against the
   feature tree, and `python3 -m pytest tests/doc-health` is green, in the same
-  commit that registers the family.
+  commit that registers the family — which is reachable ONLY after
+  `add-family-enumeration-check` has archived (FR-028). Measured before that
+  archive: 3 findings, on that packet's delta path, which this change cannot
+  clear.
 - **SC-007**: The doc-health suite's test count rises by the number of tests
   this feature adds, and every added test is shown to have failed before the
   behaviour it covers existed.
@@ -588,11 +633,14 @@ it. None is a choice this feature makes freely.
 
 - The ratified packet `openspec/changes/add-modified-block-currency-check`
   (proposal, design, both spec deltas, tasks) — binding input.
-- `openspec/changes/add-family-enumeration-check`, ACTIVE with code landed and
-  delta unpromoted: the outcome § 2.1's block is written relative to, and the
-  owner of the standing gate
+- `openspec/changes/add-family-enumeration-check` — **a SEQUENCING DEPENDENCY,
+  not merely a reference (FR-028)**. It is active with code landed and delta
+  unpromoted; its family checks every active delta's restatement against the
+  live registry, so it must ARCHIVE before this feature may register. Once it
+  has, canon carries its outcome and § 2.1's block is written against canon. It
+  also owns the standing gate
   `test_family_enumeration.py::test_the_real_corpus_reads_zero_on_both_halves`
-  that the block must keep green.
+  that the block must keep green, and the enumeration collateral FR-028b moves.
 - `scripts/doc_health/promotion_fidelity.py` — the disposition reader and the
   module shape this family follows; consumed, never modified.
 - `scripts/doc_health/families.py`, `scripts/doc_health/__init__.py` — the two
@@ -607,8 +655,9 @@ it. None is a choice this feature makes freely.
   full marker matrix, the determinism pin and the structural launch pins. F1
   writes the behavioural tests its own code needs; F2 owns the catalogue.
 - The self-gate of packet § 4 (F3): the asserted run against this
-  repository's own tree with the +1 `warning` / +11 `info` prediction, the
-  suite and validate counts, and the report diff against `main`.
+  repository's own tree against `plan.md` § Predicted movement — the single
+  home for the figure, re-measured at this branch point — plus the suite and
+  validate counts and the report diff against `main`.
 - The report section, the action line and the workflow-boundary test of packet
   § 5 (F4). F1 emits three distinct finding classes so F4 can render them
   distinguishably; it renders nothing itself.

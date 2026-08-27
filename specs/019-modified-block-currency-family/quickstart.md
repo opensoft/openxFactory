@@ -11,10 +11,15 @@ credentials, or the aggregation checkout.
 ## Prerequisites
 
 ```bash
-export SPECIFY_FEATURE=019-modified-block-currency-family
+export SPECIFY_FEATURE_DIRECTORY=specs/019-modified-block-currency-family
 python3 -c "import yaml" && echo "yaml present (dispositions reader needs it)"
 python3 -m pytest tests/doc-health -q | tail -3   # BASELINE count, recorded before any edit
 ```
+
+**`python3 -m pytest tests` (the whole tree) is NEVER run from a worktree.** It
+drives live Postgres containers, and this feature's evidence does not need it:
+the count delta is `python3 -m pytest tests/doc-health -q` only. Ruled
+2026-08-27 (N12).
 
 `git status -sb` must show branch `019-modified-block-currency-family`. Stage
 with explicit pathspecs only; this checkout is shared.
@@ -66,11 +71,26 @@ for f in mbc.fam_modified_block_currency(Ctx()):
 PY
 ```
 
-Expected once § 2.1's block is in the tree (the packet's prediction, § 6.6):
-**1 `warning` on the scenario arm** — `add-composed-view-authoring` /
-`Gate verbs hide on a composed view` — **11 `info` ledger findings**, and
-**0 title-resolution findings**. Asserting that is F3's job; seeing it is how
-you know F1 landed.
+**For the expected figures, read `plan.md` § Predicted movement and nowhere
+else.** That table is the single home for the prediction (ruling B5); this file
+deliberately does not restate it, because two copies of a prediction become two
+predictions. Asserting it is F3's job; seeing it is how you know F1 landed.
+
+## The sequencing gate (read this before touching the registry)
+
+**Do not register the family until `add-family-enumeration-check` has archived
+on `main` and this branch has merged it** (ruling B1). Registering earlier emits
+three `family-enumeration` findings against THAT packet's delta path, which
+nothing in this change can clear. Reproduce the measurement without touching
+anything: monkeypatch `family_enumeration._registry` to return
+`list(FAMILIES) + ["modified-block-currency"]`, call
+`fe.fam_family_enumeration(Ctx())` with `repo_paths={"openxFactory": <root>}`,
+and read the three findings — all on
+`openspec/changes/add-family-enumeration-check/specs/doc-health/spec.md`. The
+same call with the real registry reads zero.
+
+If the archive is delayed, F1 stops at the end of phase 7 with the module
+complete, tested and unregistered — a coherent state — and waits.
 
 ## The standing gate this feature must not red
 
@@ -103,11 +123,10 @@ python3 -m pytest tests/doc-health/test_lifecycle_scan_set.py -q
 ## The full gate set (the PR's own evidence)
 
 ```bash
-python3 -m pytest tests/doc-health -q | tail -3        # green; count > baseline
-python3 -m pytest tests/doc-health/test_promotion_fidelity.py -q   # byte-green, untouched
+python3 -m pytest tests/doc-health -q | tail -3        # green; count > baseline. THE evidence.
+python3 -m pytest tests/doc-health/test_promotion_fidelity.py -q   # 59 tests, byte-green, untouched
 python3 -m pytest tests/doc-health/test_duplicate_packet.py -q     # byte-green, untouched
-OPENSPEC_TELEMETRY=0 openspec validate --all --strict  # green (run from repo root)
-python3 -m pytest tests -q | tail -3                   # whole tree, no collateral
+OPENSPEC_TELEMETRY=0 openspec validate --all --strict  # 76 passed on this branch (24 active + 52 specs)
 ```
 
 Record the pytest counts BEFORE and AFTER so the added tests are visible as a
@@ -136,6 +155,11 @@ is a missing test, and the fix is the test.
 | ordering resolved by `created:` date | the no-date-consulted test |
 | `_LAUNCH_SEVERITY` set to `ERROR` | the advisory-launch pin |
 | the family added to `FAMILY_RESOLUTION` | the advisory-launch pin |
+| the ledger emits one finding per UNIT instead of per requirement | the per-requirement granularity pin |
+| the ledger's hedge sentence is dropped from the rule text | the no-intent-asserted pin |
+| `_RESOLUTION_SEVERITY` set to `ERROR` (a half-flip of an arm section 7.2 does NOT move) | the three-severities pin |
+| a canon-side marker paragraph becomes a carriage unit | the promoted-marker-is-not-a-unit pin |
+| fenced-block lines are parsed as markers | the fenced-example case at T012 |
 
 ## Definition of done for F1
 
@@ -144,7 +168,8 @@ is a missing test, and the fix is the test.
    SAME commit that registers the family.
 3. `promotion_fidelity.py` and `duplicate_packet.py` are unmodified
    (`git diff --stat` shows neither).
-4. `.github/workflows/`, `report.py` and every threshold are unmodified.
+4. `.github/workflows/`, `report.py` and every threshold are unmodified, and
+   the REGISTRY is untouched until the sequencing gate opens (ruling B1).
 5. The mutation table above has no survivors.
 6. The adversarial-review task has run and its findings are dispositioned in
    `plan.md`.

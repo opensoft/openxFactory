@@ -23,6 +23,12 @@ backticks as restored — so a prose rule would read a faithful restatement of
 Note what the second line proves: **a marker with no reason is still a
 marker.**
 
+Note also where those two lines LIVE in the delta: inside a fenced code block.
+`fenced_regions` (see [unit-derivation.md](./unit-derivation.md)) drops them
+before `parse_marker` ever sees them — otherwise the requirement that DEFINES
+the marker would parse two complete markers of its own and declare two of its
+own units removed. Ruled 2026-08-27; a `[TEST]` case uses these exact two lines.
+
 ---
 
 ## `extract_code_spans(text: str) -> list[tuple[int, int, str]]`
@@ -137,3 +143,28 @@ retitle relabelled as a removal drop obligations with nothing reported.
 - `marker_defects` contains each offending marker at most once.
 - A `Marker` never appears in `canon_units` or `block_units` (FR-007/021), so a
   promoted marker is not text a later block must restate.
+
+---
+
+## `_arm_marker_defects(block, defects) -> list[Finding]`
+
+**The emitter, added by ruling 2026-08-27.** `marker_defects` had no consumer in
+the first cut of this plan — a producer for a requirement nothing would report,
+which is how `dh:153-156`'s "SHALL itself be reported" ends up realized in a
+docstring instead of in a run.
+
+One finding per offending marker, at `_LEDGER_SEVERITY` (`info`, never `error`,
+so the advisory launch holds in both halves), naming the marker's change id and
+date and the unit it wrongly names:
+
+```text
+active MODIFIED block for '<title>' carries a `Removed from canon by
+<change-id> (<date>)` marker naming `<unit>`, which the block still
+restates — a declaration that does not describe the block
+```
+
+**It is a FOURTH finding class, not a fourth arm.** The delta's three arms are
+three COMPARISONS between two documents; this is a defect in a DECLARATION, and
+it deliberately does NOT inherit the ledger's hedge ("cannot distinguish a
+rewording from stale text"), which would be false of it: a marker naming a
+carried unit is wrong with certainty.

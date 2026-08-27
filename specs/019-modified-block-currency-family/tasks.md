@@ -31,6 +31,9 @@ therefore not polish; it is the RED proof for every quiet test in this list.
 - **[P]**: parallelizable (different files, no dependency on an incomplete task)
 - **[TEST]**: writes a test that must FAIL before the next task runs
 - **[Story]**: US1–US5 from spec.md
+- **A lettered suffix** (`T055a`) marks a task inserted by the adversarial plan
+  review of 2026-08-27, keeping every earlier ID stable. The convention is the
+  packet's own — its `tasks.md` § 3.3a does the same thing for the same reason.
 
 ## Path Conventions
 
@@ -76,15 +79,15 @@ and the parsing half of § 2.5.
 - [ ] T009 Implement `split_sentences(paragraph)`.
 - [ ] T010 [TEST] `test_code_spans_extract_in_document_order`, `test_a_unit_containing_backticks_is_extracted_whole_under_a_longer_fence`, `test_one_space_each_side_is_stripped_per_commonmark`. RED. Names the mutation `` `([^`]*)` `` that must break it.
 - [ ] T011 Implement `extract_code_spans(text)`.
-- [ ] T012 [TEST] `test_both_marker_forms_parse`, `test_a_marker_wrapped_across_lines_is_one_marker`, `test_a_marker_with_no_reason_is_still_a_marker`, `test_a_quoted_marker_template_is_not_a_marker`, `test_a_non_iso_date_is_not_a_marker`, `test_a_missing_closing_colon_is_not_a_marker`, `test_the_merge_destination_is_not_a_named_unit`, `test_a_dated_bold_note_that_is_not_a_reserved_form_parses_as_no_marker`. RED. The quoted-template test uses THIS PACKET'S OWN delta prose, which promotes into canon (`dh:125-133`).
-- [ ] T013 Implement `parse_marker(paragraph)` and the `Marker` structure, with the change-id read as a TOKEN and not resolved against the tree (O7 / research R7).
+- [ ] T012 [TEST] `test_both_marker_forms_parse`, `test_a_marker_wrapped_across_lines_is_one_marker`, `test_a_marker_with_no_reason_is_still_a_marker`, `test_a_quoted_marker_template_is_not_a_marker`, `test_a_non_iso_date_is_not_a_marker`, `test_a_missing_closing_colon_is_not_a_marker`, `test_the_merge_destination_is_not_a_named_unit`, `test_a_dated_bold_note_that_is_not_a_reserved_form_parses_as_no_marker`, and the FENCED-BLOCK case ruled 2026-08-27 (N7): `test_the_deltas_own_fenced_marker_examples_never_reach_the_parser` — the two written-out example lines at `add-modified-block-currency-check/specs/doc-health/spec.md`:187-190 are COMPLETE markers (real change id, real ISO date, closing colon) and live inside a fenced block that PROMOTES INTO CANON; the test asserts `parse_marker` is form-blind on them in isolation AND that `fenced_regions` keeps them from ever being offered. RED. The quoted-template test uses THIS PACKET'S OWN delta prose, which promotes into canon (`dh:125-133`).
+- [ ] T013 Implement `parse_marker(paragraph)` and the `Marker` structure, with the change-id read as a TOKEN and not resolved against the tree (O7 / research R7); and `fenced_regions(lines)`, the fence scanner ruled 2026-08-27 (N7) whose output is step 0 of `derive_units` — three-or-more backticks or tildes, closed by a run at least as long, an unclosed fence running to the end of the block.
 - [ ] T014 [TEST] `test_a_dated_bold_note_is_recognized_by_form`, `test_an_undated_bold_lead_is_not_a_note`, `test_the_real_notes_this_corpus_carries_are_each_one_unit` — the last one reads `openspec/specs/doc-health/spec.md`'s own notes, so O6's predicate is MEASURED against the corpus rather than asserted. RED.
 - [ ] T015 Implement `is_dated_bold_note(paragraph)`, documented as the one rule the delta does not write (O6), evaluated only after `parse_marker` returns None.
-- [ ] T016 [TEST] `test_body_and_scenario_regions_split_at_the_first_scenario_heading`, `test_a_body_bullet_is_one_unit_with_its_marker_stripped`, `test_a_dated_note_is_one_unit_not_three`, `test_a_scenario_heading_is_one_title_unit`, `test_a_scenario_bullet_records_its_owning_scenario`, `test_prose_under_a_scenario_heading_is_a_body_unit` (decision O9 — the second rule the delta does not write; without it a block could move an obligation into scenario prose and neither carriage arm would see it), `test_a_marker_paragraph_yields_no_unit_in_either_document`. RED.
+- [ ] T016 [TEST] `test_body_and_scenario_regions_split_at_the_first_scenario_heading`, `test_a_body_bullet_is_one_unit_with_its_marker_stripped`, `test_a_dated_note_is_one_unit_not_three`, `test_a_scenario_heading_is_one_title_unit`, `test_a_scenario_bullet_records_its_owning_scenario`, `test_prose_under_a_scenario_heading_is_a_body_unit` (decision O9 — population 2 in this corpus; without it a block could move an obligation into scenario prose and neither carriage arm would see it), `test_a_marker_paragraph_yields_no_unit_in_either_document`, `test_fenced_block_lines_are_neither_units_nor_markers` (N7 — the same :187-190 example, now through the derivation). RED.
 - [ ] T017 Implement `derive_units(lines) -> (units, markers)` and the `Unit` structure — the SINGLE derivation both documents go through (research R2, R5, R9).
 - [ ] T018 [TEST] `test_a_canon_unit_is_carried_only_by_a_unit_of_the_same_kind`, `test_a_block_unit_containing_canon_s_unit_does_not_carry_it` (the #351 widening mechanism — the case a containment rule loses), `test_case_is_significant`, `test_a_trailing_period_difference_is_not_forgiven` (FR-010's punctuation half — the normalization `promotion_fidelity.norm`'s docstring names as the one it refuses), `test_a_rewrapped_paragraph_is_carried`. RED for the first three; the last names its mutation.
 - [ ] T019 Implement `carried(canon_units, block_units)` — `(kind, key)` equality, nothing else.
-- [ ] T020 [TEST] `test_active_deltas_are_discovered_and_the_archive_is_excluded`, `test_a_draft_change_is_read_exactly_like_a_ratified_one`, `test_the_promoted_reader_returns_bodies_and_bullets_not_just_titles`, `test_the_delta_side_reads_through_promotion_fidelity_parse_delta`, `test_the_family_declares_no_measurement_basis_option` — FR-002's second half, asserted rather than intended: the family reads no basis field from the context, is ABSENT from `families.FAMILY_NOTES`, and reaches no git ref (no `resolve_ref` / `ls_tree_paths` / `show_blob` call anywhere in the module). RED.
+- [ ] T020 [TEST] `test_active_deltas_are_discovered_and_the_archive_is_excluded`, `test_a_draft_change_is_read_exactly_like_a_ratified_one`, `test_the_promoted_reader_returns_bodies_and_bullets_not_just_titles`, `test_the_delta_side_reads_through_promotion_fidelity_parse_delta`, `test_a_live_main_basis_request_changes_nothing` — FR-002's second half, made BEHAVIOURAL per N3: call the family twice over one fixture, once with a plain ctx and once with a ctx carrying `promotion_fidelity_basis="live-main"` and a `FakeGit` whose `ref_trees` hold DIFFERENT text, and assert the findings are identical — the family reads the checkout and the option cannot reach it. Plus `test_the_family_publishes_no_basis_note` (absent from `families.FAMILY_NOTES`). RED.
 - [ ] T021 Implement `active_blocks(root)`, `parse_spec_requirements(text)` and the cached `promoted(root, capability)`, importing `promotion_fidelity.parse_delta`, `norm`, `declared_standing` and the heading regexes rather than re-spelling any of them (research R1, R2).
 
 **Checkpoint**: two documents can be read and reduced to units; the marker grammar parses. No arm exists yet.
@@ -102,7 +105,7 @@ and no other arm built.
 - [ ] T022 [P] [US1] Create `tests/doc-health/fixtures/modified-block-currency/alphaFactory/` — a promoted `openspec/specs/<cap>/spec.md` requirement with eight scenarios, and an active change whose MODIFIED block restates one, with the change's own ADDED requirement bringing seven so the FILE-LEVEL scenario count does not move (the #329 shape at F1 grain; F2's § 3.2 owns the full reconstruction).
 - [ ] T023 [TEST] [US1] `test_a_block_that_drops_scenarios_names_every_one_of_them` — asserts the omitted titles BY NAME and the promoted spec named in the rule, never a bare count; `test_the_finding_lands_on_the_active_delta_s_own_path`; `test_the_scenario_arm_is_a_warning`. RED.
 - [ ] T024 [US1] Implement `fam_modified_block_currency(ctx)`'s spine — iterate repos, blocks, resolve against canon by `norm(title)`, and `_arm_titles(...)` at `_LAUNCH_SEVERITY`, one finding per requirement listing every omitted title in canon order, in full (no three-item truncation: the list is what a reader acts on).
-- [ ] T025 [TEST] [US1] `test_a_scenario_complete_block_that_rewraps_every_paragraph_is_quiet` (mutation: `normalize` becomes identity), `test_a_run_configured_fail_on_error_is_unaffected` (asserts no finding's severity is in `{CRITICAL, ERROR}`), `test_the_file_level_scenario_count_is_not_what_the_family_reads`. Negatives — each names its mutation.
+- [ ] T025 [TEST] [US1] `test_a_scenario_complete_block_that_rewraps_every_paragraph_is_quiet` (mutation: `normalize` becomes identity), `test_a_run_configured_fail_on_error_is_unaffected` — asserts the finding list is NON-EMPTY first and only then that no severity is in `{CRITICAL, ERROR}` (N4: the assertion is vacuous on an empty list, which is exactly what a broken discovery returns), `test_the_file_level_scenario_count_is_not_what_the_family_reads`. Negatives — each names its mutation.
 
 **Checkpoint**: US1 is independently valuable. A packet author already cannot silently delete a titled scenario.
 
@@ -132,8 +135,8 @@ block adds a replacement scenario", "A marker names a unit the block still
 carries".
 
 - [ ] T030 [P] [US3] Create `tests/doc-health/fixtures/modified-block-currency-markers/<repo>/` — five blocks in one tree: a valid `Removed from canon` naming two of three absent units; a marker naming a unit the block still restates; a GENUINE removal (marker names a scenario title, block adds no new title); the COMBINATION (marker names the title AND the block adds a replacement carrying two of four bullets); a valid `Merged into` whose destination is present.
-- [ ] T031 [TEST] [US3] `test_a_marker_suppresses_exactly_the_units_it_names`, `test_an_unnamed_sibling_unit_stays_reported`, `test_a_marker_naming_a_carried_unit_is_itself_reported`. RED.
-- [ ] T032 [US3] Implement `suppression(...)` and `marker_defects(...)` — name resolution against canon units of any kind, the three-way table in [marker-parser.md](./contracts/marker-parser.md), and the deliberate non-obligation for a name that resolves to no canon unit (research R10).
+- [ ] T031 [TEST] [US3] `test_a_marker_suppresses_exactly_the_units_it_names`, `test_an_unnamed_sibling_unit_stays_reported`, `test_a_marker_naming_a_carried_unit_emits_one_info_finding` — the FOURTH FINDING CLASS ruled 2026-08-27 (B6): assert ONE finding at `_LEDGER_SEVERITY` naming the marker's change id, its date and the unit it wrongly names, and assert the finding does NOT carry the ledger's hedge (a marker naming a carried unit is wrong with certainty). RED.
+- [ ] T032 [US3] Implement `suppression(...)`, `marker_defects(...)` AND its emitter `_arm_marker_defects(...)` — name resolution against canon units of any kind, the three-way table in [marker-parser.md](./contracts/marker-parser.md), and the deliberate non-obligation for a name that resolves to no canon unit (research R10). **The emitter is not optional**: B6 found the first cut of this plan giving the defect a producer and no consumer, which is how a `SHALL itself be reported` ends up realized in a docstring.
 - [ ] T033 [TEST] [US3] `test_a_genuinely_removed_scenario_title_carries_its_bullets`, `test_a_surviving_bullet_of_a_removed_scenario_is_carried_and_reported_nowhere`. RED.
 - [ ] T034 [US3] Implement the genuine-removal extension — scenario-title suppression reaching that scenario's canon bullets, gated on the block adding NO scenario title canon does not carry.
 - [ ] T035 [TEST] [US3] `test_a_removal_marker_plus_a_replacement_scenario_still_reports_the_dropped_bullets` — the COMBINATION case (packet § 3.3a's shape at F1 grain), asserted beside the genuine-removal case so the two branches are pinned against each other. RED, and it must FAIL under any scenario-paired bullet comparison.
@@ -156,9 +159,9 @@ requirement and the ordering is undeclared".
 - [ ] T038 [P] [US4] Create `tests/doc-health/fixtures/modified-block-currency-resolution/<repo>/` — a change carrying both `## RENAMED Requirements` and a MODIFIED block under the NEW title; a MODIFIED title an active sibling ADDS; a MODIFIED title nothing carries.
 - [ ] T039 [TEST] [US4] `test_a_change_s_own_rename_resolves_first_and_the_arms_compare_the_old_name` (asserts the arms RAN — a ledger finding against canon under the old title — not merely that nothing was reported), `test_a_title_pending_on_a_sibling_s_addition_is_quiet`, `test_a_title_resolving_to_nothing_is_reported`, `test_a_capability_with_no_promoted_spec_at_all_resolves_to_nothing` — a DISTINCT code path (`promoted()` returns None rather than a dict without the title), and the edge case spec.md names. RED.
 - [ ] T040 [US4] Implement `resolve(block, canon, sibling_titles)` — the three-step order, then the finding at `_RESOLUTION_SEVERITY`.
-- [ ] T041 [P] [US4] Create `tests/doc-health/fixtures/modified-block-currency-two-writers/<repo>/` — two active RATIFIED changes MODIFYING one promoted requirement, in four arrangements: exactly one declaring and carrying the sibling's addition; exactly one declaring and NOT carrying it; neither declaring; both declaring. Plus a sibling id that occurs only inside a LONGER id, and an UNRATIFIED sibling.
-- [ ] T042 [TEST] [US4] `test_the_declaring_block_is_measured_against_the_sibling_s_outcome`, `test_the_declaring_block_missing_the_sibling_s_addition_fires`, `test_neither_declaring_fires_against_both_blocks`, `test_both_declaring_fires`, `test_a_change_id_inside_a_longer_id_declares_nothing`, `test_an_unratified_sibling_creates_no_declaration_obligation`, `test_a_group_of_three_writers_with_one_declaration_is_evaluated_over_the_group` — assumption A4 / research R11, whose population is zero today and which therefore has no natural fixture unless one is built; and `test_the_sibling_s_outcome_is_canon_with_the_sibling_s_block_applied` — decision O10, the computation the packet measured its +11 prediction on without writing it down: canon, replaced by the sibling's MODIFIED block, plus the sibling's ADDED units, and no other active change applied. RED.
-- [ ] T043 [US4] Implement `declares(...)` (importing `duplicate_packet._mention` — the matcher the delta names by reference), `writer_sets(blocks)` and `order(writer_set)`, evaluated over the GROUP (research R11 / A4).
+- [ ] T041 [P] [US4] Create `tests/doc-health/fixtures/modified-block-currency-two-writers/<repo>/` — two active RATIFIED changes MODIFYING one promoted requirement, in four arrangements: exactly one declaring and carrying the sibling's addition; exactly one declaring and NOT carrying it; neither declaring; both declaring. Plus a sibling id that occurs only inside a LONGER id, an UNRATIFIED sibling, and a MODIFIED-over-a-sibling's-ADDED pair (for T042's B4 pin).
+- [ ] T042 [TEST] [US4] The ordering pins, with the two rulings of 2026-08-27 built in. `test_the_declaring_block_is_measured_against_the_sibling_s_outcome`; `test_the_declaring_block_missing_the_sibling_s_addition_is_reported_by_the_LEDGER_not_by_a_second_finding` — **ruling B3: a declaration is BASIS SUBSTITUTION ONLY**, so assert the missing addition appears in the `info` ledger finding AND that the resolution arm emitted nothing for it, because a second `warning` would report the same units the ledger already reports; `test_neither_declaring_fires_against_both_blocks`; `test_both_declaring_fires`; `test_a_change_id_inside_a_longer_id_declares_nothing`; `test_an_unratified_sibling_creates_no_declaration_obligation`; `test_a_group_of_three_writers_with_one_declaration_is_evaluated_over_the_group` (A4 / R11 — population zero, so the fixture has to be built); `test_the_sibling_s_outcome_is_canon_with_the_sibling_s_MODIFIED_block_applied_and_nothing_else` — **ruling B4**: assert that a MODIFIED-over-a-sibling's-ADDED title is compared against NOTHING and reported nowhere, because `dh:278-280` calls it pending rather than absent, and that no basis is synthesized from the sibling's ADDED text. RED.
+- [ ] T043 [US4] Implement `declares(...)` (importing `duplicate_packet._mention` — the matcher the delta names by reference, whose `[\w-]` boundary makes a bare path citation count as a declaration; accepted, see O10/N8), `writer_sets(blocks)` and `order(writer_set)`, evaluated over the GROUP (research R11 / A4). The resolution arm emits EXACTLY TWO things and nothing else (ruling B3): an unresolved title, and an undeclared or mutual ordering.
 - [ ] T044 [TEST] [US4] `test_no_date_folder_or_created_field_decides_the_ordering` — a pair constructed to order ONE way by `created:` date and the OTHER way by declaration, asserting the declaration wins. This is the test that stops the withdrawn date reading creeping back (packet § 7.3). RED under a date-ordered build; it is the pin, so write it even though the code never had that reading.
 
 **Checkpoint**: the family compares the right document in every shape the corpus contains, and reports the two shapes where no reader could tell.
@@ -181,23 +184,42 @@ the delta's disposition and skip scenarios.
 
 ---
 
-## Phase 8: User Story 5 — registration and the enumeration block, IN ONE COMMIT (Priority: P1)
+## Phase 8: User Story 5 — registration and the enumeration block (Priority: P1) — **GATED**
 
 **Goal**: the acceptance condition of the whole feature. Realizes packet § 2.1,
 § 2.9 and § 2.10.
 
-**This phase is P1 by value and LAST by dependency**: an unregistered module
-reports nothing, and a registration whose enumeration block is missing or wrong
-cannot land. T052–T056 are ONE COMMIT (O2 / packet § 2.1, which says so in
+**⛔ THIS PHASE IS GATED AND CANNOT START YET. RULED 2026-08-27, option (a):
+`add-family-enumeration-check` archives FIRST, as a separate parallel PR.**
+
+`fam_family_enumeration` checks EVERY active delta's restatement of
+"Deterministic check families" against the LIVE registry, independently
+(`family_enumeration.py`:412-437). Registering a twenty-second family while that
+change is active therefore emits three findings against THAT packet's delta
+path — an omitted family name and two stale numerals — and a block inside THIS
+change's delta cannot clear them, because each active delta is checked on its
+own and this change has no standing to edit another ratified packet's text.
+Measured on this branch: **0 findings at 21 registered, 3 at 22.** The packet's
+§ 2.1 is unimplementable as written; this is the ruled sequencing that makes it
+implementable.
+
+**Entry condition**: that change archived on `main`, and `git merge origin/main`
+run on this branch. **If it is delayed, F1 STOPS at the end of phase 7 and
+waits** (N2) — a complete, tested, unregistered module is a coherent reviewable
+state; a half-landed registration is not.
+
+**T052–T056 plus T055a are ONE COMMIT** (O2 / packet § 2.1, which says so in
 capitals).
 
 - [ ] T051 [TEST] [US5] Add the registration pins to `tests/doc-health/test_modified_block_currency.py`: `test_the_family_is_registered_and_reachable_through_the_registry` (`FAMILIES[FAMILY]` resolves and runs), `test_the_family_is_absent_from_family_resolution_at_launch` (NON-VACUOUS only after registration — assert membership in `FAMILIES` in the SAME test, or the absence assertion passes on an empty registry and proves nothing), `test_the_reporting_list_mirrors_the_registry` (`set(FAMILY_IDS) == set(FAMILIES)`). RED.
-- [ ] T052 [US5] Write the owed `## MODIFIED Requirements` block on "Deterministic check families" into `openspec/changes/add-modified-block-currency-check/specs/doc-health/spec.md`, relative to `add-family-enumeration-check`'s OUTCOME: `twenty-one` → `twenty-two`; `modified-block currency` appended to the enumeration; `Four of the twenty-one` → `Four of the twenty-two`; `the other seventeen families` → `the other eighteen families`; one new sentence declaring that this family reads active change deltas and promoted specs and therefore takes neither the governed corpus nor the lifecycle scan set (in the shape the four preceding families' sentences use); and one new `AND` bullet in `A run executes the check families`. ALL EIGHT scenarios restated — seven byte-identical to that change's outcome, the eighth differing by exactly that one bullet.
+- [ ] T051a [TEST] [US5] `test_registering_a_22nd_family_while_the_enumeration_change_is_active_reds_that_packet` — the GATE, asserted rather than remembered: monkeypatch `family_enumeration._registry` to append this family's id, run `fam_family_enumeration` against the repository root, and assert three findings all on `openspec/changes/add-family-enumeration-check/specs/doc-health/spec.md`. **This test is deleted in the same commit that registers the family**, because once that change has archived the condition it describes cannot recur — and a test asserting a condition that cannot recur is a test nobody can read. Its purpose is to hold the gate while phases 1–7 are in flight.
+- [ ] T052 [US5] Write the owed `## MODIFIED Requirements` block on "Deterministic check families" into `openspec/changes/add-modified-block-currency-check/specs/doc-health/spec.md`, relative to **CANON** — which after the archive IS `add-family-enumeration-check`'s promoted outcome, so there is no second authority to reconcile and no two-writers instance is created. Move exactly six things: `twenty-one` → `twenty-two`; `modified-block currency` appended to the enumeration; `Four of the twenty-one` → `Four of the twenty-two`; `the other seventeen families` → `the other eighteen families`; one new sentence declaring that this family reads active change deltas and promoted specs and therefore takes neither the governed corpus nor the lifecycle scan set (in the shape the four preceding families' sentences use); and one new `AND` bullet in `A run executes the check families`. **Restate all EIGHT scenarios, named here so they are not counted (N1)**: `A run executes the check families`, `Lifecycle conformance checks fire`, `A register carries staged status`, `Drift checks fire`, `Catalog conformance checks fire`, `Routing conformance checks fire`, `Origin conformance checks fire`, `Roster composition is checked across domains`. **Carry the THREE dated bold notes VERBATIM** — at `add-family-enumeration-check/specs/doc-health/spec.md`:48 (`CORRECTED 2026-08-25 ON BRETT'S RULING`), :71 (`THE ORDERING DEPENDENCY RESOLVED`) and :86 (`FOURTH RESTATEMENT, AND THE FIRST ONE A CHECK VERIFIED`). Each is ONE undivided body unit under this family's own derivation, so dropping one would make this change commit the defect it exists to report.
 - [ ] T053 [US5] Register in `scripts/doc_health/families.py`: the module name added to the existing `from . import (…)` block, one `FAMILIES` entry, one comment recording the deliberate `FAMILY_RESOLUTION` absence in the shape the four preceding families use, and the module docstring's owner list extended to name the twenty-second family.
 - [ ] T054 [US5] Register in `scripts/doc_health/__init__.py`: one `FAMILY_IDS` entry with the twenty-second-family comment, so the family gets its own report section. Add NO `ALIASES` entry to `family_enumeration.py` — `modified-block currency` normalizes mechanically, and `test_every_alias_is_load_bearing` fails on an alias that is not needed.
 - [ ] T055 [US5] Classify the family in `tests/doc-health/test_lifecycle_scan_set.py`: add `"modified-block-currency"` to `NON_READERS` with its reason, move the `len(NON_READERS) == len(FAMILIES) - 4 == 17` literal to `18`, and add the named `in NON_READERS` assertion beside the four that exist. Confirm the module contains no `_lifecycle_scope(` call, which `test_the_reader_list_is_structural_not_incidental` asserts package-wide.
-- [ ] T056 [US5] Verify and record, then COMMIT T052–T056 together: `python3 -m pytest tests/doc-health/test_family_enumeration.py -q` green (`fam_family_enumeration` reads 0 against the tree — the same call that reported three findings when the block was written into a registry-less tree, packet § 6.5); the per-requirement scenario count 8 → 8 in the commit message; the seven byte-identical scenarios verified by diff against `add-family-enumeration-check`'s delta rather than by eye.
-- [ ] T057 [TEST] [US5] `test_the_family_reads_its_own_packet_s_delta` — the family's discovery finds this change's own doc-health delta among the blocks examined, and the ONE carriage-ledger finding § 2.1's block draws against itself is PRESENT. Assert it as expected (packet § 6.6), never suppressed and never dispositioned: a disposition here would hide the evidence that the family reads its own packet. (F3 § 4.1/§ 4.2 owns the full self-gate with the +1/+11/0 counts; this is the F1 hook it needs.)
+- [ ] T055a [US5] **THE ENUMERATION COLLATERAL (ruling B2).** Move the numeral and family-name assertions in `tests/doc-health/test_family_enumeration.py` (assertion sites :65, :67, :75, :78, :79, :81, :118, :128, :136, :164, :178) and the enumeration text in the seven `tests/doc-health/fixtures/family-enumeration-*/` fixture specs from twenty-one to twenty-two. These files are `add-family-enumeration-check`'s OWN declared code surface (`openspec/changes/add-family-enumeration-check/proposal.md`:2 names `tests/doc-health/test_family_enumeration.py`, `tests/doc-health/fixtures/family-enumeration*/` and `tests/doc-health/test_lifecycle_scan_set.py`), so editing them is not scope creep: this change moves the registry they assert against and they have no other way to hear about it. A registration that moves the registry without moving these reds that family's suite.
+- [ ] T056 [US5] Verify and record, then COMMIT T052–T056 and T055a together, DELETING T051a's gate test in the same commit: `python3 -m pytest tests/doc-health/test_family_enumeration.py -q` green (`fam_family_enumeration` reads 0 against the tree); `python3 -m pytest tests/doc-health -q` green; the per-requirement scenario count 8 → 8 in the commit message; and the eight restated scenarios verified by DIFF against canon rather than by eye.
+- [ ] T057 [TEST] [US5] `test_the_family_reads_its_own_packet_s_delta` — the family's discovery finds this change's own doc-health delta among the blocks examined, and the carriage-ledger finding § 2.1's block draws against itself is PRESENT. Assert it as expected (see plan.md § Predicted movement, the single home for the figure), never suppressed and never dispositioned: a disposition here would hide the evidence that the family reads its own packet. (F3 § 4.1/§ 4.2 owns the full self-gate; this is the F1 hook it needs.)
 
 **Checkpoint**: twenty-two families are registered, the report has a section for the new one, and canon's enumeration and the code registry agree.
 
@@ -205,8 +227,8 @@ capitals).
 
 ## Phase 9: Gates, mutation, adversarial review, hand-off
 
-- [ ] T058 Full suite: `python3 -m pytest tests/doc-health -q` green and `python3 -m pytest tests -q` green, with counts recorded against T001's baseline so the added tests are visible as a delta (SC-007).
-- [ ] T059 Scope guard, mechanically: `git diff --stat origin/main...HEAD` shows edits ONLY to the module, its test file, its fixtures, `families.py`, `scripts/doc_health/__init__.py`, `tests/doc-health/test_lifecycle_scan_set.py`, the packet's doc-health delta, and this feature's `specs/` directory. `promotion_fidelity.py`, `duplicate_packet.py`, `report.py`, `.github/workflows/**` and every threshold show NO diff (FR-030 / O5). `python3 -m pytest tests/doc-health/test_promotion_fidelity.py tests/doc-health/test_duplicate_packet.py -q` green.
+- [ ] T058 The count-delta evidence: `python3 -m pytest tests/doc-health -q` green, recorded against T001's baseline so the added tests are visible as a delta (SC-007). **This single-directory run IS the evidence (ruling N12). `python3 -m pytest tests` — the whole tree — is out-of-band and is NEVER run from a worktree: it drives live Postgres containers.**
+- [ ] T059 Scope guard, mechanically: `git diff --stat origin/main...HEAD` shows edits ONLY to this exact allowlist — `scripts/doc_health/modified_block_currency.py`, `tests/doc-health/test_modified_block_currency.py`, `tests/doc-health/fixtures/modified-block-currency*/`, `scripts/doc_health/families.py`, `scripts/doc_health/__init__.py`, `tests/doc-health/test_lifecycle_scan_set.py`, **`tests/doc-health/test_family_enumeration.py`**, **`tests/doc-health/fixtures/family-enumeration-*/` (7 dirs)**, `openspec/changes/add-modified-block-currency-check/specs/doc-health/spec.md`, and `specs/019-modified-block-currency-family/`. The two bold entries are ruling B2's correction and are in scope by citation: `add-family-enumeration-check/proposal.md`:2 declares them as that change's own surface, and this change moves the registry they assert against. `promotion_fidelity.py`, `duplicate_packet.py`, `report.py`, `.github/workflows/**` and every threshold show NO diff (FR-030 / O5). `python3 -m pytest tests/doc-health/test_promotion_fidelity.py tests/doc-health/test_duplicate_packet.py -q` green — promotion fidelity's 59 tests unchanged.
 - [ ] T060 `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green, count recorded — run from the repository root, per the aggregation CLAUDE.md's authoring note.
 - [ ] T061 THE MUTATION ROUND. Apply each mutation in `quickstart.md`'s table one at a time, confirm at least one NAMED test fails for each, and revert. A surviving mutant is a missing test and the fix is the test, not the note. This is the RED proof for every negative assertion in this list.
 - [ ] T062 ADVERSARIAL REVIEW PASS, before the PR: re-read the ratified delta line by line against the implementation and report where they diverge; hunt specifically for (a) a false NEGATIVE the arms cannot see, (b) a normalization that crept beyond whitespace, (c) a marker path that suppresses more than it names, (d) a vacuous test — one that passes against a stubbed-out module, and (e) any read of a date, folder name or `created:` field. Record every finding and its disposition in `plan.md` § Analyze residue.
@@ -226,7 +248,7 @@ capitals).
 - **Phase 5 (US3)**: depends on Phases 3 AND 4 — suppression is only observable against findings that exist.
 - **Phase 6 (US4)**: depends on Phase 2; independent of Phases 3–5.
 - **Phase 7**: depends on the entry point existing (Phase 3 onward).
-- **Phase 8 (US5)**: depends on EVERYTHING. Its five-task commit is atomic.
+- **Phase 8 (US5)**: depends on EVERYTHING, **and on an external event** — `add-family-enumeration-check` archiving on `main` (ruling B1). Its T052–T056 + T055a commit is atomic, and it deletes T051a's gate test.
 - **Phase 9**: depends on Phase 8.
 
 ### Story dependencies
@@ -259,11 +281,13 @@ can be discharged) → Phase 6 (structural protection, zero population today) �
 Phase 7 → Phase 8 (registration, atomic) → Phase 9 (gates, mutation,
 adversarial review).
 
-**Never**: split Phase 8's commit. Either half alone reds a gate — the
-registration half leaves canon naming a set the registry contradicts, and the
-block half reds
-`test_family_enumeration.py::test_the_real_corpus_reads_zero_on_both_halves`,
-which was demonstrated rather than assumed.
+**Never**: split Phase 8's commit, and never start Phase 8 before the gate
+opens. Either half of the commit alone reds a gate — the registration half
+leaves canon naming a set the registry contradicts, and the block half reds
+`test_family_enumeration.py::test_the_real_corpus_reads_zero_on_both_halves`.
+And starting the phase early reds that same test on ANOTHER packet's delta path,
+which nothing in this change can clear: measured 0 findings at 21 registered, 3
+at 22.
 
 ## Traceability: every requirement to its tasks
 
@@ -274,7 +298,7 @@ re-infers differently.
 | requirement | tasks | requirement | tasks |
 | --- | --- | --- | --- |
 | FR-001 read every active change | T020, T021 | FR-017 destination not a unit | T012, T013, T037 |
-| FR-002 checked-out tree only | T020, T021 | FR-018 suppress only named+absent | T031, T032 |
+| FR-002 checked-out tree only | T020, T021 | FR-018 suppress only named+absent, + the marker-defect CLASS | T031, T032 |
 | FR-003 finding path + spec named | T023, T024 | FR-019 genuine-removal extension | T033, T034 |
 | FR-004 backtick masking | T006, T007 | FR-020 retitle gate | T035, T036 |
 | FR-005 body units | T008–T017 | FR-021 prose note declares nothing | T037 |
@@ -286,9 +310,10 @@ re-infers differently.
 | FR-011 scenario-title arm | T023, T024 | FR-027 scan-set classification | T055 |
 | FR-012 carriage ledger | T026–T029 | FR-028 the owed block, same commit | T052, T056 |
 | FR-013 title resolution | T038–T040 | FR-029 the self-drawn finding | T057 |
-| FR-014 two-writers by declaration | T041–T044 | FR-030 scope guard | T059 |
-| FR-015 marker form anchor | T012, T013 | FR-031 RED-first evidence | every `[TEST]` task, T061 |
-| FR-016 code spans + optional reason | T010–T013 | | |
+| FR-014 two-writers by declaration, basis substitution ONLY | T041–T044 | FR-030 scope guard | T059 |
+| FR-015 marker form anchor | T012, T013 | FR-031 RED-first evidence — **no code surface** (a process requirement, discharged by the `[TEST]` pairing and the mutation round rather than by a function) | every `[TEST]` task, T061 |
+| FR-016 code spans + optional reason | T010–T013 | FR-028a the block against canon | T052, T056 |
+| FR-028 the sequencing gate | T051a, T056 | FR-028b enumeration collateral | T055a |
 
 | success criterion | tasks |
 | --- | --- |
@@ -297,7 +322,7 @@ re-infers differently.
 | SC-003 the widened bullet | T027 |
 | SC-004 re-wrap is quiet | T025 |
 | SC-005 one marker line silences exactly its units | T031 |
-| SC-006 enumeration reads 0, suite green, one commit | T056 |
+| SC-006 enumeration reads 0, suite green, one commit (GATED) | T051a, T056 |
 | SC-007 test-count delta | T001, T058 |
 | SC-008 openspec validate strict | T060 |
 | SC-009 no `--fail-on` run reds | T025 |
@@ -305,9 +330,14 @@ re-infers differently.
 
 ## Notes
 
-- 64 tasks; 26 of them `[TEST]` tasks, each paired with the task that makes it
-  pass.
-- Task count per story: US1 4, US2 4, US3 8, US4 7, US5 7; Setup 3,
+- 66 tasks (64 plus T051a and T055a, inserted by the adversarial review with
+  lettered suffixes so earlier IDs stayed stable); 27 of them `[TEST]` tasks,
+  each paired with the task that makes it pass.
+- **Phases 1–7 run now. Phase 8 is GATED** on
+  `add-family-enumeration-check` archiving (ruling B1) and phase 9 follows it.
+  Stopping at the end of phase 7 is a legitimate terminal state for this
+  feature if that archive is delayed.
+- Task count per story: US1 4, US2 4, US3 8, US4 7, US5 9; Setup 3,
   Foundational 18, Cross-cutting 6, Gates/review 7.
 - Every `[TEST]` task names its test functions, because "add tests" is how a
   test file ends up asserting that a module imports.

@@ -54,6 +54,26 @@ mask applied to the emitted text puts filler in a finding a human reads.
 
 ---
 
+## `fenced_regions(lines: Sequence[str]) -> set[int]`
+
+Return the indices of every line inside a fenced code block, the fence lines
+themselves included. A fence opens on a line whose first non-space characters
+are a run of three or more backticks (or tildes) and closes on the next line
+whose run is at least as long. An unclosed fence runs to the end of the block.
+
+**RULED 2026-08-27**: those lines are neither units nor markers, in canon or in
+a block. The delta does not say so and did not have to notice — but its OWN
+written-out marker examples live inside a fenced block (`dh:187-190`), which
+promotes into canon with the requirement. Without this rule those two lines
+parse as COMPLETE markers (a real change id, a real ISO date, a closing colon)
+and the requirement that defines the marker declares two of its own units
+removed. The same class applies to every fenced example the corpus writes.
+
+**Postcondition**: masked lines never appear in a `Unit.text` and never reach
+`parse_marker`.
+
+---
+
 ## `split_sentences(paragraph: str) -> list[str]`
 
 Split at a `.`, `?` or `!` that is followed by whitespace or the end of the
@@ -103,7 +123,11 @@ what the promoted-side reader collects.
 
 **Algorithm** (order is normative):
 
-1. Split `lines` into the BODY region (everything above the first
+0. Compute `fenced_regions(lines)` and DROP those lines from everything below.
+   A fence is neither a unit nor a marker, and this step is first because a
+   fenced block can contain anything — including two lines that would otherwise
+   parse as markers.
+1. Split the surviving lines into the BODY region (everything above the first
    `#### Scenario:`) and one region per scenario.
 2. In each region, group consecutive lines into BULLETS (a line whose first
    non-space characters are `-`, `*`, `+`, or `<digits>.` followed by
@@ -159,6 +183,17 @@ Output units:
 | scenario-bullet | `**THEN** it MUST do X` (scenario: `a run executes`) |
 
 Seven units, and the note is one of them rather than two.
+
+Add a fenced block to that input:
+
+````text
+```
+**Removed from canon by add-example-change (2026-08-27):** `a unit`
+```
+````
+
+and the unit count stays SEVEN. The fenced line is not a unit and is not a
+marker, so nothing is declared removed — which is the whole point of the rule.
 
 ---
 

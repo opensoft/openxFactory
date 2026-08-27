@@ -16,7 +16,11 @@ requirement they replace, and reports what they do not carry — three arms, one
 document pair, at authoring time, on the delta's own path. Register it in
 `FAMILIES` and `FAMILY_IDS` in the SAME COMMIT as the `## MODIFIED
 Requirements` block it owes on `doc-health`'s own "Deterministic check
-families" requirement, because either half alone is a red gate.
+families" requirement, because either half alone is a red gate — and land that
+commit only AFTER `add-family-enumeration-check` has archived, because
+registering while it is active reds a gate on THAT packet's path instead (see
+§ Sequencing gate; measured, and it makes the packet's § 2.1 unimplementable as
+written). **Phases 1–7 of `tasks.md` are unaffected and proceed now.**
 
 Technical approach: one new module beside its twenty-one siblings, following
 `promotion_fidelity.py`'s shape (module docstring that argues its own
@@ -139,7 +143,9 @@ scripts/doc_health/
 
 tests/doc-health/
 ├── test_modified_block_currency.py            # NEW — F1's RED-first behavioural pins
-├── test_lifecycle_scan_set.py                 # +1 NON_READERS member, the 17 -> 18 literal, +1 named assertion
+├── test_lifecycle_scan_set.py                 # PHASE 8 — +1 NON_READERS member, the 17 -> 18 literal, +1 named assertion
+├── test_family_enumeration.py                 # PHASE 8 — enumeration collateral (B2): numerals/names at :65,67,75,78,79,81,118,128,136,164,178
+├── fixtures/family-enumeration-*/  (7 dirs)   # PHASE 8 — the same collateral in fixture spec text
 └── fixtures/modified-block-currency*/         # NEW — the minimum fixture trees F1's own tests need
 
 openspec/changes/add-modified-block-currency-check/specs/doc-health/spec.md
@@ -152,6 +158,77 @@ only through `families.FAMILIES`, which is what buys it the report section, the
 ranked-plan line, the disposition keying and inclusion in the suite that gates
 every PR — the four things `design.md`'s "What was considered and not done"
 gives as the reason not to write a standalone `scripts/validate-*.py`.
+
+## The sequencing gate (B1 — RULED 2026-08-27, option (a))
+
+**`add-family-enumeration-check` archives FIRST, as a separate PR. F1's
+registration cannot land until it has.**
+
+`fam_family_enumeration` checks EVERY active delta that restates "Deterministic
+check families" against the LIVE registry, independently
+(`family_enumeration.py`:412-437, and its docstring says so in as many words).
+So registering a twenty-second family makes that OTHER packet's still-active
+restatement stale, and a block inside THIS change's delta cannot clear it.
+Measured on this branch, by monkeypatching `_registry` and running the family
+against this tree — no registration performed, nothing committed:
+
+```text
+21 registered: 0 findings
+22 registered: 3 findings, ALL on
+  openspec/changes/add-family-enumeration-check/specs/doc-health/spec.md
+    omits 1 of the 22 registered check families: 'modified-block-currency'
+    says 'twenty-one' check families, but 22 are registered
+    says 'Four' of 'twenty-one', but 22 families are registered
+```
+
+**The packet's § 2.1 is therefore unimplementable as written** in a tree where
+that change is active. D5 proved half the problem (a proposal-only tree reds the
+gate) and did not measure the other half (a registering tree reds it on the
+SIBLING's path). Recorded as a defect in the packet, not worked around.
+
+**Consequences for this feature, both directions:**
+
+- Phases 1–7 are unaffected and proceed now. They touch no registry: F1's
+  behavioural tests call `fam_modified_block_currency` directly, and only the
+  registration tests route through `families.FAMILIES`.
+- Phase 8 waits. When the archive lands on `main`, this branch merges it and the
+  registration commit lands with the block written relative to CANON — which by
+  then IS that change's promoted outcome, so the second authority disappears and
+  the two-writers instance § 2.1 was going to create never exists.
+- **If the archive is delayed, F1 STOPS at the end of phase 7 and waits.** A
+  complete, tested, unregistered module is a coherent reviewable state; a
+  half-landed registration is not.
+
+## Predicted movement — the ONE figure, and F3 asserts it
+
+**Every other artefact points here. Two copies of a prediction is how a
+prediction becomes two predictions.**
+
+The packet measured at `9be81a40` over 23 MODIFIED requirements
+(+1 `warning`, +10 `info` baseline; +1/+11 with § 2.1's block). This branch is
+not that tree: `add-hermes-customer-subject-runtime-contract` and
+`add-shared-identity-seeds` have archived since.
+
+**Measured at this branch point** (after `git merge origin/main`, upstream
+`501a3ae0`): 24 active changes, **22** MODIFIED requirement blocks across 17
+delta files.
+
+| | baseline (no § 2.1 block) | with § 2.1's block |
+| --- | --- | --- |
+| scenario-title arm | 1 `warning` | 1 `warning` |
+| carriage ledger | 9 `info` / 12 units | 10 `info` / 14 units |
+| resolution arm | 0 | 0 |
+| marker defects | 0 | 0 |
+| `error` / `critical` | 0 | 0 |
+
+Those figures are the reviewer's, taken with the spike method at this branch
+point; **they are re-measured through the real module at the end of phase 7 and
+this table is then the measured truth rather than a forecast.** F3 (§ 4.1/§ 4.5)
+asserts the right-hand column and nothing else asserts it.
+
+Also corrected here: `OPENSPEC_TELEMETRY=0 openspec validate --all --strict`
+reads **76 passed** on this branch (24 active + 52 specs), not the 77 recorded in
+this feature's first two commits.
 
 ## Module design: the function inventory
 
@@ -176,8 +253,12 @@ the one § 7.2's flip moves), `_RESOLUTION_SEVERITY` (WARNING),
 `declares(root, change_a, change_b)`; `writer_sets(blocks)`;
 `order(writer_set)`.
 
-**The arms** — `_arm_titles(...)`; `_arm_ledger(...)`;
-`_arm_resolution(...)`.
+**The arms and the fourth class** — `_arm_titles(...)`; `_arm_ledger(...)`;
+`_arm_resolution(...)`; `_arm_marker_defects(...)` — three arms, FOUR finding
+classes, the fourth being a defect in a declaration rather than a comparison
+between documents (ruled 2026-08-27, B6: the first cut of this plan gave
+`marker_defects` a producer and no emitter, which is how `dh:153-156`'s "SHALL
+itself be reported" ends up realized in a docstring).
 
 **Entry point** — `fam_modified_block_currency(ctx) -> list[Finding] | Skip`.
 
@@ -257,16 +338,29 @@ prose and have neither arm see it. A veto makes that text uncheckable.
 
 **O10 — What "the declared sibling's OUTCOME" is computed as.** `dh:74-76`
 requires a declaring block to be "measured against the declared sibling's
-outcome rather than against canon", and the packet measured its own +11
+outcome rather than against canon", and the packet measured its own ledger
 prediction on that basis (§ 6.6) without ever writing how the outcome is
-derived. F1 computes it as: canon's units for that requirement, REPLACED by the
-sibling's block where the sibling MODIFIES the same requirement, plus the
-sibling's units where the sibling ADDS or RENAMES it — that is, the text canon
-would hold if the sibling archived and nothing else did, which is exactly what
-"whichever archives last is the text canon keeps" means. It is a simulation of
-one archive act and nothing more: no other active change is applied, and the
-sibling's own markers are honoured as the sibling wrote them. A veto changes the
-+11 prediction, so it is named rather than left inside the implementation.
+derived. F1 computes it as: **canon's units for that requirement, REPLACED by
+the sibling's MODIFIED block for the same requirement — and nothing else.** One
+archive act simulated: no other active change applied, and the sibling's own
+markers honoured as the sibling wrote them.
+
+The clause this decision used to carry — "plus the sibling's units where the
+sibling ADDS or RENAMES it" — is **DELETED by ruling of 2026-08-27 (B4)**. It
+would have synthesized a basis for every MODIFIED-over-a-sibling's-ADDED pair,
+of which this corpus has seven, and measured blocks the delta says must not be
+measured: `dh:278-280` calls such a title "pending rather than absent", and
+pending means nothing is compared. The deleted clause would have invented
+roughly six `info` findings against text no promoted requirement carries.
+
+**One consequence of reusing `duplicate_packet._mention`, noted rather than
+hidden (N8)**: its boundaries are `[\w-]`, so a change id appearing inside a
+PATH in the declaring proposal — `openspec/changes/<sibling>/tasks.md` — counts
+as a declaration, because `/` is a boundary. That is accepted: a proposal citing
+a sibling's path IS referencing that change in the ordinary reading of
+`release-realization`, and the alternative is a second, stricter matcher for a
+question one function already owns. A veto here needs a new matcher and a reason
+the duplicate-packet family should not share it.
 
 ## Complexity Tracking
 
@@ -276,7 +370,7 @@ recorded because a reviewer will ask about it.
 | item | why needed | simpler alternative rejected because |
 | --- | --- | --- |
 | Two normalizations in one module (`normalize`, whitespace-only; `promotion_fidelity.norm`, whitespace + casefold) | The delta forbids normalization beyond whitespace for UNIT comparison (`dh:84-90`) while the disposition mechanism and requirement-title lookup key on the casefolded spelling every other family uses | One normalization either violates the delta (casefolding units) or splits the shared disposition file into two key spellings. The two are named apart and pinned by a test that asserts they differ |
-| Importing a private helper from a sibling family (`duplicate_packet._mention`) | The delta names that matcher by reference: "the whole-token match the duplicate packet family already uses" (`dh:71-74`) | Re-spelling the regex is a second grammar for one rule, which is the defect this corpus keeps paying for; `duplicate_packet` already imports private names from `promotion_fidelity`, so the direction is precedented |
+| Importing private helpers from sibling families — `duplicate_packet._mention`, and `promotion_fidelity._REQUIREMENT` / `_SCENARIO` / `_SECTION` | The delta names the matcher by reference: "the whole-token match the duplicate packet family already uses" (`dh:71-74`); and the three heading regexes are the ONE grammar four readers of these documents already share | Re-spelling either is a second grammar for one rule, which is the defect this corpus keeps paying for (`align-status-reader-to-real-lines`); `duplicate_packet.py`:142-144 already imports private names from `promotion_fidelity`, so the direction and the underscore are both precedented |
 
 ## Analyze residue
 
@@ -307,3 +401,39 @@ no task, a task with no requirement, a vague adjective standing in for a
 measurable criterion, or a placeholder. The three the pass would have flagged as
 vague — "advisory", "editorial", "genuine removal" — are each defined
 normatively in the ratified delta and cited to it.
+
+## Adversarial plan review residue
+
+An adversarial review of this plan ran 2026-08-27 and returned **6 blockers and
+13 nits, with rulings**. All nineteen are applied. Four of the blockers changed
+what this feature will BUILD, not merely how it is described, and two of them
+found the ratified packet wrong.
+
+| # | severity | finding | disposition |
+| --- | --- | --- | --- |
+| B1 | BLOCKER | `fam_family_enumeration` checks every ACTIVE delta's restatement against the live registry, so registering the 22nd family while `add-family-enumeration-check` is active emits 3 findings on THAT packet's path — which § 2.1's block in our delta cannot clear. The packet's § 2.1 is unimplementable as written | FIXED by RULING (option (a)): that change archives FIRST, as a separate parallel PR. § Sequencing gate added with the measurement (0 at 21, 3 at 22, reproduced here); FR-028 split into 028/028a/028b; SC-006, US5's story and its first two acceptance scenarios rewritten; research R13 replaced; T052–T056 rewritten and gated; contingency stated both ways (N2) |
+| B2 | BLOCKER | The registration collateral omitted `tests/doc-health/test_family_enumeration.py` (11 assertion sites) and 7 `fixtures/family-enumeration-*` specs, all declared as `add-family-enumeration-check`'s own surface (`proposal.md`:2) | FIXED: new task T055a; the scope allowlist in research R15 and T059 now names exactly those paths, with the citation |
+| B3 | BLOCKER | FR-014 emitted a second `warning` for units the ledger already reports at `info` | FIXED by RULING: a declaration is BASIS SUBSTITUTION ONLY. The resolution arm reports exactly two things — an unresolved title, and an undeclared or mutual ordering. FR-014, `contracts/family-entrypoint.md` (new "Arm 3, exhaustively"), `data-model.md`'s WriterSet table, T042 and T044 all rewritten |
+| B4 | BLOCKER | O10's "plus the sibling's units where the sibling ADDS or RENAMES" would have measured all 7 MODIFIED-over-a-sibling's-ADDED pairs (~+6 `info`) where `dh:278-280` says "pending rather than absent" | FIXED by RULING: clause DELETED. A pending title is compared against NOTHING, pinned at T042 |
+| B5 | BLOCKER | The prediction was measured at `9be81a40` (23 MODIFIED blocks); this branch has 22, and the artefacts restated the figure in three places | FIXED: `origin/main` fetched (the worktree's ref was stale) and merged; § Predicted movement is now the ONE home and every other artefact points at it; `openspec --all --strict` corrected 77 → 76 (24 active + 52 specs); re-measured through the real module at the end of phase 7 |
+| B6 | BLOCKER | FR-018's "a marker naming a present unit is itself reported" had a producer (`marker_defects`) and no emitter | FIXED by RULING: a FOURTH finding class, "marker defects", at `_LEDGER_SEVERITY` (`info`, never `error`), with rule text, an emitter `_arm_marker_defects`, a flow entry, a traceability row and a `[TEST]` |
+| N1 | nit | § 2.1's task did not name the eight scenario titles or the three dated notes | Applied: T052 lists all eight titles and the three notes at `add-family-enumeration-check/specs/doc-health/spec.md`:48, :71, :86, to be carried VERBATIM |
+| N2 | nit | No contingency if the archive is delayed | Applied: § Sequencing gate and T052's preamble both state it — F1 stops at the end of phase 7 and waits |
+| N3 | nit | T020's no-basis assertion was structural | Applied, and made BEHAVIOURAL: the family is called with a ctx carrying `promotion_fidelity_basis="live-main"` and the findings must be identical |
+| N4 | nit | T025 asserted `--fail-on` was unaffected without first asserting findings exist | Applied: the test asserts a non-empty finding list before asserting no severity is in `{critical, error}` |
+| N5 | nit | Four mutants missing | Applied to `quickstart.md`: per-unit vs per-requirement granularity; the ledger hedge; a `_RESOLUTION_SEVERITY` half-flip to `error`; a canon-side marker becoming a unit |
+| N6 | nit | Complexity Tracking did not name the `_REQUIREMENT`/`_SCENARIO` imports | Applied |
+| N7 | nit | Fenced code blocks | Applied by RULING: fenced lines are neither units nor markers, in canon or block. `fenced_regions` added to `contracts/unit-derivation.md` as step 0 of the derivation, with a T012 case using this change's OWN written-out example at `dh:187-190` — which would otherwise parse as two real markers on the requirement that defines them |
+| N8 | nit | `_mention`'s `[\w-]` boundary makes a bare path citation count as a declaration | Accepted and noted in O10, with the reason it is accepted |
+| N9 | nit | O9 accepted; record its population | Applied: population 2 measured, recorded in research R5 |
+| N10 | nit | The `## ` section-stop invariant was unstated | Applied to `contracts/family-entrypoint.md`, citing `family_enumeration.py`:226-229, with the failure it prevents (the last requirement swallowing trailing sections) |
+| N11 | nit | A traceability row asserted a requirement with no code surface | Applied: FR-031's row is marked "no code surface — process requirement, discharged by the `[TEST]` pairing and T061" |
+| N12 | nit | T058 counted the whole-tree run as evidence | Applied by RULING: the count-delta evidence is `python3 -m pytest tests/doc-health -q` ONLY. The whole-tree run is out-of-band and **never run from a worktree** — it drives live Postgres containers. Removed from T058 and from `quickstart.md` |
+| N13 | nit | `SPECIFY_FEATURE` is not the variable the scripts read | Applied: `quickstart.md` now exports `SPECIFY_FEATURE_DIRECTORY` |
+
+**What the review did not change**: the three arms' severities, the advisory
+launch in both halves, the same-kind exact matching rule, the marker grammar's
+anchor, and the decision to import rather than re-spell every reader that
+already exists. O1–O9 stand as written; O10 is amended by B4 and annotated by
+N8.
+

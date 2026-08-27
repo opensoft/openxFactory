@@ -32,6 +32,11 @@ One comparable fragment of a requirement. The atom of every comparison.
 - A unit is never empty after normalization; an empty derivation result is
   dropped.
 - A paragraph of marker form yields NO unit, in either document (FR-007).
+- A line inside a FENCED CODE BLOCK yields no unit and is never read as a
+  marker, in either document (ruled 2026-08-27, N7). The delta's own written-out
+  marker examples live in a fenced block and promote into canon; without this
+  rule the requirement defining the marker declares two of its own units
+  removed.
 
 **Kind boundaries.** `kind` is fixed by WHERE the text was found: above the
 first `#### Scenario:` → `body`; a `#### Scenario:` heading → `scenario-title`;
@@ -136,25 +141,44 @@ proposals say about each other.
 
 **Resolution outcome** — one of four, and the arm reports three of them:
 
-| state | condition | outcome |
-| --- | --- | --- |
-| single writer | `len(blocks) == 1` | measured against canon |
-| ordered | ≥2 writers, exactly one declares | the declaring block is measured against the declared sibling's OUTCOME; the sibling's additions must be present in it |
-| undeclared | ≥2 active RATIFIED writers, none declares | reported against BOTH blocks; each measured against canon |
-| mutual | ≥2 declare | reported; each measured against canon |
+| state | condition | basis | does the resolution arm report? |
+| --- | --- | --- | --- |
+| single writer | `len(blocks) == 1` | canon | no |
+| ordered | ≥2 writers, exactly one declares | the declared sibling's OUTCOME — canon REPLACED by that sibling's MODIFIED block | **NO.** Basis substitution only; the carriage arms report whatever the substituted basis makes uncarried |
+| undeclared | ≥2 active RATIFIED writers, none declares | canon | yes, against BOTH blocks |
+| mutual | ≥2 declare | canon | yes, once |
+| pending on a sibling's ADDED | title absent from canon, added by an active sibling | **none — nothing is compared** | no |
+
+Two rulings of 2026-08-27 live in that table. **A declaration substitutes the
+basis and does nothing else** (B3): a separate `_RESOLUTION_SEVERITY` finding
+for the sibling's missing additions would report at `warning` the same units the
+ledger reports at `info`, and `dh:264` asks for the addition to be reported, not
+reported twice. **No basis is synthesized from a sibling's ADDED block** (B4):
+`dh:278-280` calls such a title "pending rather than absent", and synthesizing
+one would measure all seven of this corpus's MODIFIED-over-a-sibling's-ADDED
+pairs and invent roughly six `info` findings.
 
 No folder name, commit timestamp or `created:` field is read in any state
 (FR-014).
 
 ---
 
-## 6. `Finding` (the package's existing dataclass — three classes of it)
+## 6. `Finding` (the package's existing dataclass — FOUR classes of it)
 
-| arm | severity | granularity | rule text names |
+Three arms, four finding classes. The numbers differ on purpose: the arms are
+three COMPARISONS between two documents, and the fourth class is a defect in a
+DECLARATION.
+
+| class | severity | granularity | rule text names |
 | --- | --- | --- | --- |
-| scenario-title completeness | `_LAUNCH_SEVERITY` = `warning` | one finding per requirement, naming every omitted title | each omitted title, and the promoted spec read from |
-| carriage ledger | `_LEDGER_SEVERITY` = `info` | AT MOST ONE per requirement | every uncarried unit, its kind, and the promoted spec |
-| title resolution / two-writers | `_RESOLUTION_SEVERITY` = `warning` | one per unresolved or mis-ordered block | the unresolved title, or the two changes and the missing additions |
+| scenario-title completeness (arm 1) | `_LAUNCH_SEVERITY` = `warning` | one finding per requirement, naming every omitted title | each omitted title, and the promoted spec read from |
+| carriage ledger (arm 2) | `_LEDGER_SEVERITY` = `info` | AT MOST ONE per requirement | every uncarried unit, its kind, and the promoted spec |
+| title resolution / ordering (arm 3) | `_RESOLUTION_SEVERITY` = `warning` | one per unresolved block, or per undeclared/mutual ordering | the unresolved title, or the two changes whose ordering is unstated |
+| **marker defects** (ruled 2026-08-27, B6) | `_LEDGER_SEVERITY` = `info`, never `error` | one per offending marker | the marker's change id and date, and the unit it names that the block still restates |
+
+The fourth class deliberately does NOT carry the ledger's hedge: a marker naming
+a carried unit is wrong with certainty, so "cannot distinguish a rewording from
+stale text" would be false of it.
 
 Common fields: `family = "modified-block-currency"`, `repo` from
 `ctx.repo_paths`, `path = block.delta_rel`, `action` = the F1 action string
@@ -185,6 +209,7 @@ for each (block, basis):
         suppressed = suppression(markers, basis.units, block.units)
         arm 1: basis scenario-titles not carried, minus suppressed  -> warning
         arm 2: basis body units + bullets not carried, minus suppressed -> info
+        class 4: markers naming a unit the block still carries       -> info
         (arm 3 already emitted by resolution / WriterSet above)
 
 dispositions (promotion_fidelity.load_dispositions(ctx, FAMILY)) filter by
@@ -197,7 +222,8 @@ dispositions (promotion_fidelity.load_dispositions(ctx, FAMILY)) filter by
    normalization; containment and similarity forbidden. (FR-008/009/010)
 2. Backticked spans masked before any split; reported text is the original.
    (FR-004)
-3. Marker-form paragraphs are units in neither document. (FR-007, FR-021)
+3. Marker-form paragraphs are units in neither document, and fenced-block lines
+   are neither units nor markers. (FR-007, FR-021, ruling N7)
 4. Scenario bullets compare across ALL bullets of the block. (FR-012)
 5. At most one ledger finding per requirement. (FR-012)
 6. A marker suppresses only units it names AND that are absent. (FR-018)

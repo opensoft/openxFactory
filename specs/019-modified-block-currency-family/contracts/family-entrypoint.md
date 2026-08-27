@@ -52,8 +52,16 @@ promoted(root: Path, capability: str) -> dict[str, PromotedRequirement] | None
 - Read `openspec/specs/<capability>/spec.md` from the CHECKED-OUT tree; cache
   per capability per repository. `None` where the file does not exist.
 - Split into `### Requirement:` blocks with `promotion_fidelity`'s imported
-  heading regexes; derive units from each block's lines with the same
-  `derive_units`.
+  `_REQUIREMENT` and `_SCENARIO` regexes; derive units from each block's lines
+  with the same `derive_units`.
+- **THE SECTION-STOP INVARIANT** (N10, stated because getting it wrong is
+  silent): a requirement block ends at the next `### Requirement:` heading OR at
+  the next `## ` heading that is not a `### `. A promoted spec carries `## `
+  sections after its requirements — `family_enumeration.requirement_prose`
+  already stops on exactly that condition (`family_enumeration.py`:226-229) and
+  this reader takes the same stop. Without it, the LAST requirement in a spec
+  swallows every trailing section as body units, and every block that modifies
+  it is reported as failing to carry text that was never part of it.
 
 **No live-`main` basis exists in this module** — no `--*-basis` option, no
 `FAMILY_NOTES` entry, no `GitRefTree`. `dh:206-210` reserves that basis for
@@ -93,11 +101,22 @@ order(writer_set) -> Basis | Finding(s)
   the whole-token matcher named by reference in `dh:71-74`, imported rather
   than re-spelled.
 - Exactly one declaration among ≥2 active RATIFIED writers → the declarer is
-  the LATER writer; its basis is the declared sibling's OUTCOME (canon's units
-  for that requirement, replaced by the sibling's block where the sibling
-  MODIFIES it, plus the sibling's ADDED units where it adds), and any addition
-  the sibling makes that the declaring block does not carry is one
-  `_RESOLUTION_SEVERITY` finding against the DECLARING delta's path.
+  the LATER writer, and its basis is the declared sibling's OUTCOME: canon's
+  units for that requirement, REPLACED by the sibling's MODIFIED block for the
+  same requirement. **That is the whole of it — a BASIS SUBSTITUTION and
+  nothing else** (ruled 2026-08-27). The three arms then run unchanged against
+  the substituted basis, so an addition the sibling makes that the declaring
+  block does not carry is reported by the CARRIAGE arms. The resolution arm
+  emits NOTHING here: a second finding would report at `warning` the same units
+  the ledger reports at `info`, and `dh:264` requires the missing addition to be
+  reported, not to be reported twice.
+- **No basis is ever synthesized from a sibling's ADDED block** (ruled
+  2026-08-27, B4). `dh:278-280` says a title resolving to an active sibling's
+  addition is "pending rather than absent", and pending means there is nothing
+  to compare: such a block is compared against NOTHING and reported nowhere.
+  Synthesizing a basis from the sibling's ADDED text would measure all seven of
+  this corpus's MODIFIED-over-a-sibling's-ADDED pairs and add roughly six `info`
+  findings the delta says must not exist.
 - Zero declarations among ≥2 active RATIFIED writers → one finding against
   EACH block; both measured against canon.
 - Two or more declarations → one finding; both measured against canon; mutual
@@ -107,6 +126,20 @@ order(writer_set) -> Basis | Finding(s)
 - **No folder name, commit timestamp or `created:` field is consulted, ever.**
   A test asserts this by constructing a pair that would order one way by date
   and the other way by declaration.
+
+---
+
+## Arm 3 — what the resolution arm reports, exhaustively
+
+At `_RESOLUTION_SEVERITY`, and NOTHING else:
+
+1. a MODIFIED title that resolves to no promoted requirement, no own-RENAME and
+   no active sibling's ADDED/RENAMED block;
+2. an UNDECLARED ordering between two or more active RATIFIED writers of one
+   requirement, and a MUTUAL one.
+
+Not the units a substituted basis makes uncarried (the carriage arms own
+those), and not a title pending on a sibling's addition (nothing is wrong).
 
 ---
 
@@ -159,6 +192,15 @@ character count, and the count of units always stated in full.
 
 ---
 
+## The fourth finding class — marker defects
+
+`_arm_marker_defects` (see [marker-parser.md](./marker-parser.md), and
+note it is a CLASS not an arm) emits one `_LEDGER_SEVERITY` finding per marker
+that names a unit the block still carries. Three arms, four finding classes; the
+numbers differ and are kept apart deliberately.
+
+---
+
 ## Dispositions
 
 ```text
@@ -194,15 +236,33 @@ byte-stable independently of `runner.run_suite`'s own global sort.
 
 ---
 
-## Registration surface (the same commit — FR-028)
+## Registration surface (GATED — FR-028, FR-028a, FR-028b)
+
+**This whole section is unreachable until `add-family-enumeration-check` has
+archived on `main` and been merged into this branch.** Registering a
+twenty-second family while it is active emits three `family-enumeration`
+findings against THAT packet's delta path, which no edit inside this change can
+clear. Measured on this branch: 0 findings at 21 registered, 3 at 22. Ruled
+2026-08-27, option (a).
+
 
 | file | edit |
 | --- | --- |
 | `scripts/doc_health/families.py` | one name added to the existing `from . import (…)` block; one `FAMILIES` entry `"modified-block-currency": modified_block_currency.fam_modified_block_currency`; one comment recording the deliberate `FAMILY_RESOLUTION` absence, in the shape the four preceding families' comments use; the module docstring's owner list extended to name the twenty-second family |
 | `scripts/doc_health/__init__.py` | one `FAMILY_IDS` entry with the twenty-second-family comment, so the family gets its own report section |
 | `tests/doc-health/test_lifecycle_scan_set.py` | `"modified-block-currency"` added to `NON_READERS` with its reason; the `len(NON_READERS) == len(FAMILIES) - 4 == 17` literal becomes `18`; a `"modified-block-currency" in NON_READERS` assertion beside the four that exist |
+| `tests/doc-health/test_family_enumeration.py` | THE ENUMERATION COLLATERAL (B2): the numeral and family-name assertions at :65, :67, :75, :78, :79, :81, :118, :128, :136, :164, :178 move from twenty-one to twenty-two |
+| `tests/doc-health/fixtures/family-enumeration-*/` (7 directories) | the same collateral in fixture spec text — enumeration member list and the three numerals |
 | `openspec/changes/add-modified-block-currency-check/specs/doc-health/spec.md` | the owed `## MODIFIED Requirements` block on "Deterministic check families" |
 | `.github/workflows/**`, `report.py`, thresholds, every other family | **UNTOUCHED** |
+
+Both new rows are `add-family-enumeration-check`'s OWN declared code surface
+(`openspec/changes/add-family-enumeration-check/proposal.md`:2 names
+`tests/doc-health/test_family_enumeration.py`,
+`tests/doc-health/fixtures/family-enumeration*/` and
+`tests/doc-health/test_lifecycle_scan_set.py`). Editing them is not scope creep:
+this change moves the registry those files assert against, and they have no
+other way to hear about it.
 
 **No `ALIASES` entry may be added to `family_enumeration.py`**:
 `modified-block currency` normalizes mechanically to
