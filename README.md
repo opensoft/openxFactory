@@ -340,6 +340,46 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-modified-block-currency-check](openspec/changes/add-modified-block-currency-check/proposal.md)
+  — **RATIFIED 2026-08-27** (in-session, verbatim "Ratify as-is"; realization via
+  Speckit) — authored the same day against issues #357, #329 and #330, which name
+  one mechanism: `## MODIFIED Requirements` replaces a requirement wholesale and
+  `openspec validate --strict` reads only a delta's shape, so an active change
+  whose block restates stale canon deletes whatever it did not restate, silently,
+  on archive. Four instances in one week, each caught by a human —
+  `add-doxchat-model-intake` (#351: six body clauses, two scenarios, one reverted
+  line; repaired by PR #358) and three check families that each restated 1 of 8
+  scenarios of `doc-health`'s "Deterministic check families" (#329) — and
+  `promotion-fidelity` cannot see the class, because after an archive act canon IS
+  the delta (#330). ADDS the authoring obligation to `document-lifecycle` (a
+  MODIFIED block restates the requirement as canon currently states it; currency
+  is owed continuously while the change is active; a deliberate deletion is
+  declared by a reserved marker) and doc-health's TWENTY-SECOND family, which
+  compares active deltas to current canon in three arms: scenario-title
+  completeness (the gate), a carriage ledger of body units and scenario bullets
+  (`info`), and title resolution. Matching is same-kind and exact after whitespace
+  normalization; containment and similarity are both forbidden, because canon's
+  bullet is a SUBSTRING of the widened line #351 introduced. **Two-writer
+  ordering is BY DECLARATION** (ruled the same day): the change that writes
+  "relative to <sibling>" is the later writer, reusing
+  `release-realization`'s existing spelling rather than adding date arithmetic.
+  Measured over all 23 MODIFIED requirements in the active corpus: 1 scenario-arm
+  finding (a deliberate rename, named and not claimed a defect), 14 ledger units
+  across 10 requirements, 0 title-resolution findings — **+1 warning, +10 info, 0
+  error**, rising to +11 info once realization writes its own enumeration block.
+  It carries no MODIFIED block on "Deterministic check families": canon still
+  enumerates, so one is owed, but a proposal registers no family and the
+  restatement reds `test_the_real_corpus_reads_zero_on_both_halves` — so it is
+  owed at realization (`tasks.md` § 2.1), relative to
+  `add-family-enumeration-check`'s outcome, 8 → 8. Advisory at launch in both
+  halves. Three adversarial packet reviews found and fixed 14 blockers. The five
+  § Orchestrator decisions were NOT VETOED at ratification, which is not the same
+  as affirmatively ruled, so the flags stay; #330 stays open (§ 7.1) and so does
+  #318 (§ 7.5), whose ruling recorded this packet's admission without giving the
+  taxonomy an origin kind for "proposed, not approved". `code_surface` is
+  openxFactory alone and `target_release: implemented`, so it ships ACTIVE and
+  archives only on merged plus green realization evidence.
+
 - [split-openxwallet-repo](openspec/changes/split-openxwallet-repo/proposal.md)
   — **RATIFIED 2026-08-26** (in-session ruling on PR #391; realization via
   Speckit) — authored 2026-08-26 as the first and only exit of the staged topic
