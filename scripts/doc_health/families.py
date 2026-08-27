@@ -1121,3 +1121,33 @@ FAMILIES = {
 FAMILY_NOTES = {
     "promotion-fidelity": promotion_fidelity.basis_notes,
 }
+
+# `family -> (that family's findings) -> [note line, ...]`, rendered in the SAME
+# position `FAMILY_NOTES` renders in — under the family's own heading in
+# "## Findings By Family", before its rows — for the families that RAN.
+#
+# A SIBLING REGISTRY, NOT A WIDENING OF THE ONE ABOVE, and the two signatures are
+# the argument. `FAMILY_NOTES` is `(ctx) -> lines` and answers a question about
+# the RUN: which tree did promotion fidelity measure. This is
+# `(findings) -> lines` and answers a question about the FINDINGS: how did they
+# split across the family's own classes. Widening `FAMILY_NOTES` to `(ctx,
+# findings)` would have changed `basis_notes`' contract for no gain and put a
+# findings-derived line behind a ctx-derived channel.
+#
+# ONE ENTRY TODAY, for the same shape of reason `FAMILY_NOTES` has one:
+# `modified-block-currency` is the only family whose GATE-BEARING arm shares a
+# report section with a standing editorial population, so it is the only one
+# whose section a reader cannot read without splitting it by class. Its own
+# requirement is what asks for the split — "SHALL report them as distinct finding
+# classes so that a precise signal is never buried in an editorial one" — and
+# `add-modified-block-currency-check` § 5.1 is where that reaches the report.
+# A family whose findings are all one class needs no entry.
+#
+# THE SKIP RULE LIVES IN `report.render`, NOT HERE, and it differs from the notes
+# rule deliberately: a skipped family gets its basis note (the basis is still a
+# fact about the run) and gets NO tally (a tally of zeros beside a skip line
+# would claim a measurement nobody took, which is what canon's "cannot run"
+# skip rule exists to prevent).
+FAMILY_SUMMARIES = {
+    "modified-block-currency": modified_block_currency.class_summary,
+}
