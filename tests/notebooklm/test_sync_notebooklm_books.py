@@ -13,6 +13,7 @@ import contextlib
 import functools
 import importlib.util
 import io
+import json
 import itertools
 import re
 import subprocess
@@ -1585,6 +1586,82 @@ class SplitIdeationBookTests(unittest.TestCase):
                          "an unrelated stray must not be adopted")
         self.assertIn("xf-sync-deadbeef.md",
                       [r["title"] for r in state["sources"]["nbX"]])
+
+    def test_a_DUPLICATE_TITLE_does_not_satisfy_the_rename_verifier(self):
+        """Copilot on PR #438 — a fail-open inside the fail-open fix.
+
+        The verifier asked "does any source carry this title?". When a
+        pre-existing source already wore it, that returned success while the
+        source just uploaded sat un-renamed. The assertion is a PAIR: THIS id
+        now bears THIS title.
+        """
+        title = "[spec] openxFactory: big"
+        state = {"sources": {"nbX": [{"id": "OLD", "title": title}]}}
+
+        def fake(*args, parse=True):
+            head = args[:2]
+            if head == ("source", "list"):
+                return list(state["sources"]["nbX"])
+            if head == ("source", "rename"):
+                return ""                      # accepted, never takes
+            raise AssertionError(f"unexpected nlm call: {args}")
+
+        with patch.object(sync, "nlm", fake), \
+                patch.object(sync.time, "sleep", lambda _s: None), \
+                patch.object(sync, "RENAME_READY_TIMEOUT_S", 9), \
+                patch.object(sync, "RENAME_POLL_INTERVAL_S", 3), \
+                contextlib.redirect_stdout(io.StringIO()):
+            with self.assertRaises(RuntimeError):
+                sync._rename_source_when_ready("nbX", "NEW", title)
+
+    def test_adoption_UNWRAPS_a_json_wrapped_body_before_hashing(self):
+        """Codex P1 / Copilot on PR #438 — the repair could never fire.
+
+        `nlm source content` may return the body inside a JSON envelope, which
+        `source_content_text()` exists to tolerate. Hashing raw stdout meant a
+        wrapped response never matched, so adoption silently degraded to a
+        plain add — fail-safe, but a repair that cannot fire is not a repair.
+        """
+        text = "x" * 5000
+        state = {"sources": {"nbX": [{"id": "stray1",
+                                      "title": "xf-sync-deadbeef.md"}]}}
+        calls = []
+
+        def fake(*args, parse=True):
+            calls.append(args)
+            head = args[:2]
+            if head == ("source", "list"):
+                return list(state["sources"]["nbX"])
+            if head == ("source", "content"):
+                # THE WRAPPED FORM the normalizer exists for
+                return json.dumps({"value": {"content": text}})
+            if head == ("source", "rename"):
+                for row in state["sources"]["nbX"]:
+                    if row.get("id") == args[2]:
+                        row["title"] = args[3]
+                return ""
+            raise AssertionError(f"unexpected nlm call: {args}")
+
+        with patch.object(sync, "nlm", fake), \
+                patch.object(sync, "MAX_TEXT_ARG_BYTES", 200), \
+                patch.object(sync.time, "sleep", lambda _s: None), \
+                contextlib.redirect_stdout(io.StringIO()):
+            sync.add_text_source("nbX", text, "[spec] openxFactory: big")
+
+        self.assertEqual([c for c in calls if c[:2] == ("source", "add")], [],
+                         "the wrapped stray matched; adding again duplicates it")
+        self.assertEqual([r["title"] for r in state["sources"]["nbX"]],
+                         ["[spec] openxFactory: big"])
+
+    def test_the_content_digest_is_one_mechanism_for_both_sides(self):
+        """Normalising only the fetched half is what created the mismatch."""
+        text = "hello body"
+        self.assertEqual(sync._content_digest(text),
+                         sync._content_digest(json.dumps({"value": {"content": text}})))
+        self.assertEqual(sync._content_digest(text),
+                         sync._content_digest(json.dumps({"content": text})))
+        self.assertNotEqual(sync._content_digest(text),
+                            sync._content_digest("a different body"))
 
     def test_oversized_source_rides_a_file_and_is_renamed_to_its_title(self):
         # Linux MAX_ARG_STRLEN killed the canon book live 2026-08-10: a doc

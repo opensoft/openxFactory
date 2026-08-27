@@ -939,6 +939,26 @@ RENAME_READY_TIMEOUT_S = 180
 RENAME_POLL_INTERVAL_S = 3
 
 
+def _content_digest(raw: str) -> str:
+    """The ONE way this module compares source content.
+
+    UNWRAPS FIRST. `nlm source content` may return the body inside a JSON
+    envelope, which `source_content_text()` already exists to tolerate — and the
+    first cut of stray adoption hashed the RAW stdout instead. Against a wrapped
+    response the digests could never match, so the repair silently never fired
+    (Codex P1 / Copilot, PR #438). Fail-safe, in that it degraded to a plain add
+    — but a repair that cannot fire is not a repair.
+
+    Applied to BOTH sides of every comparison. Normalising only the fetched half
+    is what created the mismatch, and one shared function is what stops a second
+    call site drifting the same way. On already-plain text the unwrap is a no-op,
+    so the symmetry costs nothing.
+
+    Digest form matches the manifest's own (`sha256(...)[:16]`).
+    """
+    return hashlib.sha256(source_content_text(str(raw)).encode()).hexdigest()[:16]
+
+
 def _source_rows(handle: str) -> list[dict]:
     rows = nlm("source", "list", handle, "--json")
     if isinstance(rows, dict):
@@ -979,9 +999,16 @@ def _rename_source_when_ready(handle: str, source_id: str, title: str) -> None:
                 parse=False)
         except RuntimeError as exc:                       # noqa: PERF203
             last = str(exc)[:200]
-        # The read-back IS the check.
+        # The read-back IS the check — AND IT KEYS ON THE SOURCE ID, not the
+        # title alone. Asking "does any source carry this title?" returns
+        # success when a PRE-EXISTING source already wears it while the one just
+        # uploaded sits un-renamed: a fail-open inside the verifier written to
+        # close a fail-open (Copilot, PR #438). The pair is what is being
+        # asserted — THIS source now bears THIS title.
         try:
-            if any(str(r.get("title") or "") == title for r in _source_rows(handle)):
+            if any(str(r.get("id") or "") == source_id
+                   and str(r.get("title") or "") == title
+                   for r in _source_rows(handle)):
                 if attempts > 1:
                     print(f"    rename settled after {attempts} attempts")
                 return
@@ -1012,7 +1039,7 @@ def _adopt_matching_stray(handle: str, text: str, title: str) -> bool:
     through to a normal add — the pre-existing behaviour. So the check can only
     repair or do nothing; it can never adopt the wrong source.
     """
-    want = hashlib.sha256(text.encode()).hexdigest()[:16]
+    want = _content_digest(text)
     try:
         rows = _source_rows(handle)
     except RuntimeError:
@@ -1026,7 +1053,7 @@ def _adopt_matching_stray(handle: str, text: str, title: str) -> bool:
             body = nlm("source", "content", source_id, parse=False) or ""
         except RuntimeError:
             continue
-        if hashlib.sha256(str(body).encode()).hexdigest()[:16] != want:
+        if _content_digest(body) != want:
             continue
         print(f"    adopting stray {row_title} as {title!r} "
               f"(a previous run's rename did not take)")
@@ -1132,6 +1159,10 @@ def sync_book(root: Path, spec: BookSpec, desired: dict[str, str],
     # adds and content updates
     for rel, title in sorted(desired.items()):
         text = (root / rel).read_text(errors="replace")
+        # Raw hash, not `_content_digest`, deliberately: this is REPO text read
+        # from disk and compared against the manifest's stored value. There is no
+        # provider response here and so nothing to unwrap — the digest FORM is
+        # the same, which is what keeps the two comparable.
         digest = hashlib.sha256(text.encode()).hexdigest()[:16]
         prev = mf.get(rel)
         if title in by_title and prev and prev.get("hash") == digest:
