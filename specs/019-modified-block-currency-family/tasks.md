@@ -53,7 +53,7 @@ Phase 8 could not be the last phase it has to be.
 
 ## Progress
 
-**Phases 1–8 are DONE (T001–T057, T055a).** The sequencing gate OPENED —
+**Phases 1–8 are DONE (T001–T056, T055a); T057 IS NOT** — it was ticked in error and downgraded to `[~]` on 2026-08-27 by F3, which found the test had never been written and wrote the assertion itself (residue finding 6 at the tail of this file). The sequencing gate OPENED —
 `add-family-enumeration-check` archived on `main` at `f027d3b3` and this branch
 merged it — so the registration landed with § 2.1's block written against canon.
 T051a is the one box that will never be ticked, and its line says why.
@@ -232,7 +232,7 @@ capitals).
 - [x] T055 [US5] Classify the family in `tests/doc-health/test_lifecycle_scan_set.py`: add `"modified-block-currency"` to `NON_READERS` with its reason, move the `len(NON_READERS) == len(FAMILIES) - 4 == 17` literal to `18`, and add the named `in NON_READERS` assertion beside the four that exist. Confirm the module contains no `_lifecycle_scope(` call, which `test_the_reader_list_is_structural_not_incidental` asserts package-wide.
 - [x] T055a [US5] **THE ENUMERATION COLLATERAL (ruling B2).** Move the numeral and family-name assertions in `tests/doc-health/test_family_enumeration.py` (assertion sites :65, :67, :75, :78, :79, :81, :118, :128, :136, :164, :178) and the enumeration text in the seven `tests/doc-health/fixtures/family-enumeration-*/` fixture specs from twenty-one to twenty-two. These files are `add-family-enumeration-check`'s OWN declared code surface (`openspec/changes/add-family-enumeration-check/proposal.md`:2 names `tests/doc-health/test_family_enumeration.py`, `tests/doc-health/fixtures/family-enumeration*/` and `tests/doc-health/test_lifecycle_scan_set.py`), so editing them is not scope creep: this change moves the registry they assert against and they have no other way to hear about it. A registration that moves the registry without moving these reds that family's suite.
 - [x] T056 [US5] Verify and record, then COMMIT T052–T056 and T055a together, DELETING T051a's gate test in the same commit: `python3 -m pytest tests/doc-health/test_family_enumeration.py -q` green (`fam_family_enumeration` reads 0 against the tree); `python3 -m pytest tests/doc-health -q` green; the per-requirement scenario count 8 → 8 in the commit message; and the eight restated scenarios verified by DIFF against canon rather than by eye.
-- [x] T057 [TEST] [US5] `test_the_family_reads_its_own_packet_s_delta` — the family's discovery finds this change's own doc-health delta among the blocks examined, and the carriage-ledger finding § 2.1's block draws against itself is PRESENT. Assert it as expected (see plan.md § Predicted movement, the single home for the figure), never suppressed and never dispositioned: a disposition here would hide the evidence that the family reads its own packet. (F3 § 4.1/§ 4.2 owns the full self-gate; this is the F1 hook it needs.)
+- [~] T057 [TEST] [US5] `test_the_family_reads_its_own_packet_s_delta` — the family's discovery finds this change's own doc-health delta among the blocks examined, and the carriage-ledger finding § 2.1's block draws against itself is PRESENT. Assert it as expected (see plan.md § Predicted movement, the single home for the figure), never suppressed and never dispositioned: a disposition here would hide the evidence that the family reads its own packet. (F3 § 4.1/§ 4.2 owns the full self-gate; this is the F1 hook it needs.) **NOT WRITTEN — box downgraded from `[x]` 2026-08-27 by F3. This test does not exist; `git grep -n reads_its_own_packet origin/main -- tests/` is empty. F3 wrote the assertion instead, as `test_this_change_s_own_delta_is_among_the_blocks_the_family_examined` and `test_the_own_delta_is_measured_against_canon_and_no_sibling_basis_exists` in `tests/doc-health/test_modified_block_currency_self_gate.py`. See residue finding 6 below.**
 
 **Checkpoint**: twenty-two families are registered, the report has a section for the new one, and canon's enumeration and the code registry agree.
 
@@ -471,3 +471,47 @@ They are recorded here because this file is where F1's owner reads.
    `fixtures/modified-block-currency-markers/` carries FOUR
    (`**WHEN**`, `**THEN**`, and two `**AND**`s). The assertion is unaffected
    and § 3.7's "four-bullet scenario" wording is in fact satisfied.
+
+---
+
+## Residue found by F3 (2026-08-27)
+
+Appended by Speckit feature `021-modified-block-currency-self-gate`, which built
+the § 4 self-gate on the assumption that T057's hook was there. **Item 6
+continues F2's numbering**, and unlike findings 1–5 this one has a BEHAVIOURAL
+consequence: an F3 task was scoped against an artefact that does not exist.
+
+6. **T057 IS A PHANTOM: THE BOX WAS TICKED AND THE TEST WAS NEVER WRITTEN.**
+   `tasks.md` recorded `- [x] T057 … test_the_family_reads_its_own_packet_s_delta`
+   and § Hand-off told F3 "the own-packet assertion F3 § 4.2 wants is **live**".
+   It is not, on this branch or on `main`:
+
+   ```text
+   $ git grep -n reads_its_own_packet origin/main -- tests/
+   $ echo $?
+   1
+   ```
+
+   No function of that name, and no assertion of its content, exists anywhere
+   under `tests/`. The nearest thing that does —
+   F2's `test_the_packets_own_marker_templates_are_not_marker_form`
+   (`test_modified_block_currency_fixtures.py`:908) — reads the same FILE for a
+   different purpose and says nothing about discovery or about the measurement
+   basis.
+
+   **What F3 did**: wrote the assertion as two tests in
+   `tests/doc-health/test_modified_block_currency_self_gate.py` —
+   `test_this_change_s_own_delta_is_among_the_blocks_the_family_examined` (the
+   own delta is among the examined blocks, by path and requirement title) and
+   `test_the_own_delta_is_measured_against_canon_and_no_sibling_basis_exists`
+   (the basis is canon, `add-family-enumeration-check` is archived, and no
+   two-writers override applies). Nothing was duplicated, because nothing
+   existed. The T057 box above is downgraded to `[~]` with a pointer, rather
+   than deleted, so the record shows what was claimed as well as what landed.
+
+   **The lesson, and it is the one this whole packet is about**: a ticked box is
+   a restatement, and a restatement can be lossy. F1's own hand-off warned "do
+   not assume a green suite means a covered rule"; the sixth finding is that a
+   ticked box does not mean a landed artefact either. F2's audit caught five
+   artefact discrepancies in F1 by reading § 3 against the tests; this one was
+   caught only because F3 went looking for a function to reuse.
