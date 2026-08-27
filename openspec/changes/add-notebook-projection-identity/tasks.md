@@ -134,9 +134,9 @@ first thing to run under a declared account.
     14/14), union 675 derived / 675 live managed, **0 unprojected, 0
     unaccounted**, and a convergence dry run planning ZERO operations. Full
     reasoning: `review/retirement-gate-clearance-2026-08-26.md` § 3.
-- [x] 4.6 **EXECUTED 2026-08-26.** Seven legacy notebooks archive-renamed in
+- [x] 4.6 **EXECUTED 2026-08-26.** Seven legacy notebooks were archive-renamed in
   `brettheap@gmail.com`: renamed=7 skipped=0 failed=0; no alias resolves to a
-  legacy id; the seven COMPANY books verified present and un-retitled in the same
+  legacy id; the seven COMPANY books were verified present and un-retitled in the same
   run. NOTHING DELETED. Recorded output, gate-by-gate transcript, provenance and
   the post-hoc parity in
   `docs/notebook-projection-migration-evidence-2026-08-24.md` §"Step 8 —
