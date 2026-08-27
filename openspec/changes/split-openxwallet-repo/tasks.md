@@ -958,7 +958,12 @@ intermediate.*
       `.github/workflows/openxwallet-consumer-gate.yml` — run
       **33109575651**, job **98648509131**, 2026-08-27. Ruleset 21538893 was edited by
       nothing. That settles the only question the alias resolution could have got
-      wrong. The row stays OPEN for its SECOND half: the post-rebase digest
+      wrong — and it settled it FOUR TIMES, on every head this pull request has had
+      (runs 33109575651, 33111235422, 33112622519, **33114027225**), each produced by
+      the new file. `pytest-suite` is green alongside it on the final head (run
+      **33114027245**, job **98663924140**, 13m39s,
+      `selected=7116 passed=7096 skipped=20 failures=0 errors=0`).
+      The row stays OPEN for its SECOND half: the post-rebase digest
       re-verification of 7.26, taken immediately before merge. A green run against a
       pre-rebase head does not discharge that half.
 - [ ] 7.29 Evidence row: the positive register conjunction of §7.15 in the gate
