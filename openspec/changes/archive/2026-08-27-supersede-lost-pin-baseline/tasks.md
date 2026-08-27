@@ -297,6 +297,32 @@ where the record it cites is committed.
       One requirement, four scenarios — the proposal's own declared counts, and
       canon's totals moved by exactly them. `## MODIFIED Requirements` blocks in
       this delta: **zero**, so no archive-order question arises.
+      **RE-MEASURED AFTER `origin/main` WAS MERGED IN TWICE, and both sets of
+      numbers are kept rather than the later overwriting the earlier** — the same
+      convention § 4.2 and § 4.3 already used, because a total that moves for a
+      stated reason is evidence and a total quietly restated is not. Main gained
+      pull requests #433 and #431 while this act ran. AT THE FINAL HEAD, with
+      `origin/main` at `c9a1500e`: `openspec validate --all --strict` **75 passed,
+      0 failed** (unchanged — the packet had already left the active set, and
+      main's own two changes did not move the total); `python3 -m pytest
+      tests/doc-health -q` **1209 passed, 0 failed** on the merged head AND
+      **1209 passed, 0 failed** on `origin/main` itself in a second worktree, so
+      the suite grew by twenty-six for main's reasons and by none for this act,
+      with `test_pin_reachability.py` at **53 passed** on both sides. THE
+      DECLARED CLASS GREW WITH MAIN and the discharge answer did not move:
+      **65 declared pin sites across 22 class members — 50 reachable, 0 orphaned,
+      1 lost (declared unrecoverable, 0 awaiting a superseding record), 0
+      inconclusive, 0 uncovered, 0 vanished**, with the record still read from
+      committed state at its ARCHIVE path and the live path gone from committed
+      state entirely (`git ls-tree` counts zero files under
+      `openspec/changes/supersede-lost-pin-baseline/`). THE REPORT COMPARISON WAS
+      RE-BASELINED for the same reason: `origin/main` at `c9a1500e` reports
+      **5 critical, 7 error, 41 warning, 12 info, 0 new regressions** and so does
+      the merged head, every family count IDENTICAL, and `diff` over the two
+      whole reports is **exactly two lines**, both canon-share arithmetic —
+      31.1% → 31.2%, promoted-spec words 148998 → 149898 — which is the promotion
+      showing up in the corpus ratio and the only difference an honest archive
+      should produce.
 
 ## 5. Open — deliberately not closed by this change
 

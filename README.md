@@ -1207,8 +1207,19 @@ Archived changes:
   identical at 5 critical / 7 error / 41 warning / 12 info with 0 new
   regressions, every family count unchanged, and `proposal-origin`,
   `promotion-fidelity`, `release-inventory-drift`, `family-enumeration` and
-  `duplicate-packet` all zero — **the archive adds no finding**. No contract
+  `duplicate-packet` all zero — **the archive adds no finding**, `diff` over the
+  two whole reports being **exactly two lines**, both canon-share arithmetic
+  (31.1% → 31.2%, promoted-spec words 148998 → 149898), which is the promotion
+  showing up in the corpus ratio. No contract
   bundle was owed, re-affirmed by that run's `release-inventory-drift` at zero.
+  **MAIN MOVED TWICE UNDER THIS ACT** (#433, then #431) and both sets of numbers
+  are kept rather than the later overwriting the earlier: at the final head with
+  `origin/main` at `c9a1500e`, validate holds at 75, `tests/doc-health` reads
+  **1209 passed / 0 failed** on the merged head and 1209 on `origin/main` itself
+  in a second worktree — grown by twenty-six for main's reasons and by none for
+  this act — and the declared class grew with main to **65 sites across 22
+  members, 50 reachable, still 0 orphaned / 0 awaiting a superseding record / 0
+  uncovered**, the discharge answer not having moved.
   **THREE FOLLOW-UPS CROSS THE ARCHIVE UNTICKED, EVERY ONE BY DECISION**, all
   three declared out of scope at authoring and none an arm of the gate: the
   undeclared 78-member evidence inventory the superseded record quantifies over
