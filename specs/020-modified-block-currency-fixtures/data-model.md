@@ -125,11 +125,14 @@ requires every hit to be on this list. Nothing else in the feature restates it
 | exception | where | why the count IS the rule |
 | --- | --- | --- |
 | canon states **8** scenarios and the delta FILE contains **8** | T019 | § 3.2's whole point: the flat file-level count is asserted precisely because it does NOT predict the outcome |
-| **exactly one** finding for a requirement | T012, T027 | the ledger's own promoted rule — "at most one finding per requirement, listing the units" — so the count is the obligation |
 | **exactly two** body units reported for the three-item bullet list | T035 | § 3.5's "each bullet SHALL be one unit": one unit carrying both dropped bullets, or three, is the defect under test |
 | the note appears **once**, not once per sentence | T036 | § 3.5's last clause: "ONE unit, undivided" is a statement about cardinality |
-| the harvest found **more than thirty** cited test names | T024 | a guard against a regex that silently matches nothing, not a claim about the audit |
 | **non-empty** before any "no finding is X" assertion | T015, T049, T050 | not a count assertion — a vacuity guard, and its absence is what makes the following assertion meaningless |
+| the harvest found **more than thirty** cited test names | T024 | a guard against a regex that silently matches nothing |
+| `_units` returns exactly the arm's OWN stated numerator, over the arm's OWN stated denominator | T029's fix | the numbers are parsed out of the finding the arm emits, so the comparison is the arm's rule and not an invented expectation. Added after the mutation round found the helper's contract asserted nowhere |
+| exactly **18** audit rows, and the four verdict tallies | T023 | the audit's own structural claim; a row that gained or lost a verdict is the defect |
+| exactly **two** template bullets in the packet's delta | T043c | a file edit that moves them must fail loudly rather than vacuously |
+| exactly **one** ledger finding per requirement | T012, T027, T029's fix | the ledger's promoted rule is "at most one finding per requirement, listing the units" |
 
 Any `len(` outside this table is a count assertion that slipped past decision
 D3 and is a finding against the implementation, not a new row here.

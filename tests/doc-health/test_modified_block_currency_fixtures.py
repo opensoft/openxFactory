@@ -958,10 +958,14 @@ def test_no_audit_row_cites_a_test_that_does_not_exist():
     cited = set(re.findall(r"`(test_[a-z0-9_]+)`", AUDIT.read_text()))
     assert len(cited) > 30, f"only {len(cited)} names harvested — check the regex"
 
-    defined = set(re.findall(r"^def (test_[a-z0-9_]+)", F1_TESTS.read_text(),
-                             re.M))
+    # BOTH files: the rows cite F1's tests, and the closing ledger cites F2's
+    # own — including the three tests that read this very audit.
+    defined = set()
+    for path in (F1_TESTS, Path(__file__)):
+        defined |= set(re.findall(r"^def (test_[a-z0-9_]+)", path.read_text(),
+                                  re.M))
     missing = sorted(cited - defined)
-    assert not missing, f"audit cites tests that do not exist in F1: {missing}"
+    assert not missing, f"audit cites tests that exist nowhere: {missing}"
 
 
 def test_every_packet_section_three_item_has_an_audit_row():
@@ -978,9 +982,14 @@ def test_every_packet_section_three_item_has_an_audit_row():
             assert f"**{item}**" in text, item
 
     # every row carries exactly one verdict, and the tallies match the bodies
-    rows = [ln for ln in text.splitlines() if re.match(r"^\| \*\*A\d+\*\*", ln)]
+    # THE MAIN TABLE ONLY. A row is one of the eighteen iff it carries a BOLDED
+    # verdict; the closing ledger repeats the row ids with unbolded verdicts in
+    # a different column layout, and sweeping those in made this test count 28.
+    rows = [ln for ln in text.splitlines()
+            if re.match(r"^\| \*\*A\d+\*\*", ln)
+            and re.search(r"\| \*\*(satisfied|partial|gapped)", ln)]
     assert len(rows) == 18, len(rows)
-    verdicts = [re.findall(r"\| \*\*(satisfied|partial|gapped|satisfied, extended)\*\*", r)
+    verdicts = [re.findall(r"\| \*\*(satisfied, extended|satisfied|partial|gapped)\*\*", r)
                 for r in rows]
     assert all(len(v) == 1 for v in verdicts), verdicts
     flat = [v[0] for v in verdicts]

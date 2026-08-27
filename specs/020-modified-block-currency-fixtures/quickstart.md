@@ -90,7 +90,7 @@ What must hold (audit row **A2**, § 3.2):
 python3 -m pytest tests/doc-health/test_modified_block_currency_fixtures.py -q \
   -k "merge or redundant or companion or widened or versioned_token or body_bullet \
       or note_edited or masking_governs or rewrap or fenced or inner_backtick \
-      or against_name_order or template_bullets"
+      or name_order or marker_templates"
 ```
 
 **Every `-k` selector above is checked against the test names as `tasks.md`

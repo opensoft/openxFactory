@@ -80,3 +80,76 @@ A row's `§ 3 item` column is authoritative for the mapping back.
 - It is not a list of F1 defects. Three `partial` rows and three `gapped` rows
   are gaps in COVERAGE, not defects in behaviour. If closing one exposes a
   behaviour defect, FR-023 makes that its own task and its own PR line.
+
+---
+
+## Closing ledger — what F2 actually closed (2026-08-27)
+
+All **nine** non-satisfied rows are closed. Suite 1077 → 1115 (+38 tests).
+Nothing in `scripts/` changed.
+
+| row | § 3 | verdict at audit time | closed by | fixture tree |
+| --- | --- | --- | --- | --- |
+| **A1** | 3.1 | gapped | T010–T016, T022 | `modified-block-currency-history-351` (reconstructed @ `bcfc26a0`) |
+| **A2** | 3.2 | gapped | T017–T021, T022 | `modified-block-currency-history-329` (reconstructed @ `d5f447e8`) |
+| **A3** | 3.3 | gapped | T027–T032 | `modified-block-currency-merge-gut` |
+| **A5** | 3.4 | partial | T033 (prefix, both ends) + T014 (the REAL instance, end to end) | — / `…-history-351` |
+| **A6** | 3.5 | partial | T034–T037a | `modified-block-currency-tokens` |
+| **A7** | 3.6 | partial | T038–T040 | `modified-block-currency-rewrap` |
+| **A10** | 3.7(c) | partial | T043c | — (reads the ratified packet's own delta file) |
+| **A11** | 3.7(d) | partial | T041–T043 | `modified-block-currency-fence` |
+| **A15** | 3.10 | partial | T043a–T043b | `modified-block-currency-name-order` |
+| **A18** | 3.13 | satisfied, extended | T049 | all thirteen trees |
+
+The eight `satisfied` rows — A4, A8, A9, A12, A13, A14, A16, A17 — gained **no
+F2 test**, which is FR-002. Each was spot-checked against the body of its cited
+F1 test at T059, not merely against its name.
+
+**The audit is now self-checking.** Three tests in
+`tests/doc-health/test_modified_block_currency_fixtures.py` read this file:
+
+- `test_no_audit_row_cites_a_test_that_does_not_exist` — every backticked
+  `test_*` name cited here is defined in F1's test file, with a floor of thirty
+  harvested names so a regex matching nothing cannot pass.
+- `test_every_packet_section_three_item_has_an_audit_row` — all fourteen § 3
+  items appear in the `§ 3 item` column, every row carries exactly one verdict,
+  and the four tallies match the row bodies.
+- `test_every_task_id_the_audit_cites_exists` — every `T0NN` in the last column
+  exists in `tasks.md`.
+
+That third test exists because this audit shipped, once, citing a whole
+superseded task numbering after tasks were renumbered.
+
+## Residue this audit found in F1 — and in itself
+
+**In F1** (recorded in `specs/019-modified-block-currency-family/tasks.md`
+§ "Residue found by F2", which is where F1's owner reads; no issue filed):
+`spec.md` SC-003 says "widened at either end" over a test that widens at the end
+only; `spec.md` § Out of Scope contradicts `tasks.md` § Hand-off on three items;
+the hand-off's "already carries" claim is true only in the narrower form rows A6
+and A11 record; `test_no_date_folder_or_created_field_decides_the_ordering`
+concedes in its own docstring that it cannot discriminate; and one docstring says
+"three bullets" of a four-bullet fixture.
+
+**In itself** — recorded because a wrong `satisfied` is this feature's worst
+failure mode and it happened twice:
+
+- **A15** was verdicted `satisfied` and was not. The cited test's own docstring
+  disqualifies it, and the structural grep it falls back to forbids date readers
+  while forbidding nothing about ordering by folder or change-id name.
+- **A10** was verdicted `satisfied` on a claim — "the anchor is asserted against
+  this packet's OWN delta prose" — that no test made.
+- **A12 clause 7**'s silence comes from the whole scenario being suppressed, not
+  from the survivor being carried. The clause is still covered; the reason
+  differs from what the row implied.
+
+Both wrong verdicts were caught by re-reading the cited test BODIES rather than
+their names. That reading is now T059 step 1, and it is the only defence this
+mechanism has.
+
+## What this audit is still not
+
+It is not proof that F1's tests are correct — only that they exist and assert
+what the rows say. Two rows show the limit of that: a row can cite a real test
+that does not discharge the obligation, and only a human reading the body
+catches it.

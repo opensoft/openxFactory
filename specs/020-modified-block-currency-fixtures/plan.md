@@ -327,10 +327,71 @@ the audit moved and the base stays valid. The branch is deliberately NOT
 rebased (session git rules). **T002 re-runs that diff before any other task**,
 because an audit of a file that has since moved is worse than no audit.
 
-## Adversarial review residue
+## Mutation round residue (T058)
 
-*(filled by T059 — four concrete steps, not a hunt: every `satisfied` row
-spot-checked against the cited test body; FR-008's count grep against its
-declared exception list; FR-002's trace from every new test to a `gapped` or
-`partial` row or a catalogue invariant; then a fresh read of the six fixtures
-against packet § 3 and the ratified delta.)*
+**30 perturbations, 28 applicable, 28 killed, 0 survivors.** Two rows are N/A —
+`#14` (containment widening) and `#18` (masking-vs-equality) are pure test-body
+assertions with no fixture to perturb, so they are recorded as N/A rather than
+counted as kills.
+
+**Two tests survived the FIRST pass, and both were genuinely weak.** This is the
+round working, and it is the second time in this feature that an assertion which
+looked right was not.
+
+| # | mutation | why the test survived | fix |
+| --- | --- | --- | --- |
+| **15** | strip the backticks from `contract-v1.45` in BOTH canon and the block | `test_no_unit_boundary_falls_inside_a_versioned_token` asserted only that the token was ABSENT from the ledger. When a sentence boundary moves on BOTH sides at once, the two halves still match, nothing is reported, and the negative assertion holds. **A negative cannot see a symmetric break.** | the test now asserts POSITIVELY on canon's own derivation: each tokened sentence is exactly ONE `body` unit carrying its whole token |
+| **29** | drop the `kinds` filter from `_units` | every U-class test survived, because each re-filters by kind after calling the helper — so the helper's own contract was asserted nowhere | new test `test_the_u_class_helper_reads_the_same_set_as_the_ledger_arm`, which parses the ARM'S OWN numerator and denominator out of the finding it emits and requires the helper to agree (17 of 28 on #329; the unfiltered helper gives 24 of 36) |
+
+Three mutations (`#26`, `#27`, `#30`) edit `scripts/doc_health/modified_block_currency.py`
+deliberately, to prove the determinism, severity-band and scope-guard tests are
+load-bearing. Each is reverted in the same working step and **none is
+committed**; `git diff --stat` against the merge-base is empty.
+
+## Adversarial review residue (T059)
+
+Four concrete steps, run rather than described.
+
+1. **Every `satisfied` row spot-checked against the cited test BODY** — A4, A8,
+   A9, A12, A13, A14, A16, A17, A18. All eight hold. **Two rows did not, and
+   were re-verdicted `partial` at the plan review before this step ran** (A15,
+   A10). One further row is qualified: **A12 clause 7**'s silence comes from the
+   whole scenario being suppressed rather than from the survivor being carried —
+   the clause is still covered, but not for the reason the row implied. Recorded
+   in the audit's residue section.
+2. **FR-008's count check** — `grep -nE 'len\(|== [0-9]|count\('` over the new
+   test file; every hit is on `data-model.md` § 4's exception list, which is the
+   ONE home for it. The additions that list gained during implementation:
+   T035's "exactly two body units", T024's thirty-name floor, and the
+   arm's-own-numerator comparison in the `_units` test.
+3. **FR-002's duplication trace** — every one of the 38 tests traces to a
+   `gapped` or `partial` row, to a catalogue invariant (partition, determinism,
+   provenance, no-error), or to an audit/scope guard. No test re-asserts a rule
+   an audit row marks `satisfied`. `test_this_feature_touches_no_production_module`
+   deliberately drops F1's `FAMILY_NOTES` assertion for exactly this reason.
+4. **Fresh read of the seven fixtures** against § 3 and the ratified delta. One
+   finding, and it went the other way: **`tasks.md` T042 predicted a marker
+   defect the module correctly does not emit.** A name matching no canon unit
+   declares nothing and is silent, per `suppression()`'s three-way resolution.
+   The task was wrong, the module is right, and the task is corrected in place
+   rather than the fixture bent to match it. No synthesized fixture reads as a
+   reconstruction — each says `SYNTHESIZED` on line 3 and
+   `test_every_fixture_tree_this_feature_adds_carries_a_provenance_note`
+   enforces it case-sensitively and whole-word.
+
+## Defect slot (T053) — NOTHING FIRED
+
+Every one of the nine closed rows was exercised against F1's landed
+implementation, and every arm behaved as the ratified delta states. **No module
+defect was found and `scripts/` is untouched.** What was found is F1
+DOCUMENTATION residue, appended to
+`specs/019-modified-block-currency-family/tasks.md`; five items, none a
+behaviour defect, no issue filed.
+
+Checked specifically, since "nothing fired" is worth only as much as its scope:
+the scenario and ledger arms on real historical text; the marker suppression
+three-way resolution in all three branches; the `Merged into` titles-only rule;
+the fence rule in both directions; the basis substitution under a declaration;
+the sentence-boundary mask on three token shapes; whitespace normalization over
+a fully re-wrapped block; the skip-vs-quiet distinction; and determinism and the
+advisory severity band over all thirteen trees.
