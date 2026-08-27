@@ -36,10 +36,15 @@ means: identical governance-corpus inputs produce different answers in a shallow
 clone and a complete one, because the answer is a function of fetched history
 rather than of the corpus. A check whose verdict moves with clone depth does not
 belong in a pass whose defining property is that identical inputs produce
-identical findings. Second, that requirement is currently restated by an active
-change delta, and a `MODIFIED` block replaces its counterpart wholesale, so a
-second restatement would make canon depend on archive order for no gain the
-verification needs.
+identical findings. Second, that requirement is the one requirement in this
+capability that EVERY new family must restate in full, and a `MODIFIED` block
+replaces its counterpart wholesale — so each family added puts canon's family
+list at the mercy of archive order, and a requirement every new family must
+restate is a requirement every new family can truncate. That hazard is not
+hypothetical: three changes in three days truncated it, all three caught by a
+human rather than by a check, and this capability now carries a promoted family
+whose whole purpose is to catch the next one. A verification that needs no family
+declines the hazard entirely rather than managing it.
 
 The verification SHALL live where the existing pin obligation already lives —
 the readiness proof surface and the per-repo validator preflight — and SHALL

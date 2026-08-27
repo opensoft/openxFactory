@@ -144,17 +144,35 @@ readiness lane's own owning requirement says in as many words that it "adds no
 deterministic check family": the precedent for a pin-shaped verification living
 outside the families is already promoted.
 
-The second argument is process, and it is real: `add-family-enumeration-check`
-is ACTIVE and holds a `MODIFIED` block for "Deterministic check families",
-moving canon from twenty families to twenty-one. Its own promoted-to-be text
-says what happens with more than one such block: "Where more than one active
-delta restates the requirement, EACH SHALL be checked independently against the
-registry, because a `MODIFIED` requirement replaces its promoted counterpart
-wholesale and whichever change archives last is the one canon keeps." A second
-restatement here would therefore be legal and would make canon's family list a
-function of archive order — the precise hazard three changes in three days
-already produced once, with all three truncations caught by a human rather than
-by a check. Declining to add a family declines the whole problem.
+The second argument is process, and it is real. At authoring,
+`add-family-enumeration-check` was ACTIVE and held a `MODIFIED` block for
+"Deterministic check families", moving canon from twenty families to twenty-one.
+Its promoted text says what happens with more than one such block: "Where more
+than one active delta restates the requirement, EACH SHALL be checked
+independently against the registry, because a `MODIFIED` requirement replaces its
+promoted counterpart wholesale and whichever change archives last is the one
+canon keeps." A second restatement here would therefore be legal and would make
+canon's family list a function of archive order — the precise hazard three
+changes in three days already produced once, with all three truncations caught by
+a human rather than by a check. Declining to add a family declines the whole
+problem.
+
+**RE-CHECKED 2026-08-27 AFTER THE PREMISE MOVED, AND THE CONCLUSION HELD.** The
+paragraph above is kept as written because its reasoning is unchanged, but the
+change it names is no longer the one holding the block:
+`add-family-enumeration-check` ARCHIVED that day, promoting the twenty-one
+enumeration, so canon and the registry now agree and the divergence this entry
+cited is gone. **The hazard is not.** `add-modified-block-currency-check` went
+active the same day, adds doc-health's TWENTY-SECOND family, and owes that same
+`MODIFIED` block at its realization, restating canon's twenty-one to reach
+twenty-two. A family added here would restate the same requirement beside it and
+reach twenty-three, with canon's list decided by whichever archived last — and
+that packet exists precisely because a `MODIFIED` block silently deletes what it
+does not restate. So the volatility is the argument: an enforcement home whose
+correctness depends on which change currently holds one requirement's block is
+the wrong home, and this decision needs no answer to that question at all. The
+delta states the argument in its durable form, about the mechanism rather than
+about today's holder.
 
 **Rejected — a twenty-second deterministic check family, `derived-pin-reachability`.**
 The obvious shape, and it is what the commission anticipated. Refused on the

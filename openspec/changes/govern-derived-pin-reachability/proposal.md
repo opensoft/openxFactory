@@ -232,8 +232,20 @@ requirement is MODIFIED anywhere.
   deliberately unrestated. Two reasons, argued in the delta and in `design.md`
   § 3: reachability is not deterministic in that requirement's sense, because
   identical corpus inputs give different answers at different clone depths; and
-  `add-family-enumeration-check` is ACTIVE and holds a `MODIFIED` block for that
-  requirement, so a second restatement would make canon depend on archive order.
+  every added family owes a wholesale restatement of that requirement, which is
+  how three changes in three days truncated it. **THE SECOND ARGUMENT WAS
+  RE-CHECKED AGAINST A MOVING TARGET AND SURVIVED IT, 2026-08-27.** As authored
+  it said `add-family-enumeration-check` is ACTIVE and holds the `MODIFIED`
+  block. That packet ARCHIVED the same day, promoting the twenty-one enumeration,
+  so for a few hours no active change held one — and the hazard did not go with
+  it: `add-modified-block-currency-check` is now active, adds the TWENTY-SECOND
+  family, and OWES that same `MODIFIED` block at its realization, restating
+  canon's twenty-one to reach twenty-two. A family added here would have to
+  restate the same requirement beside it and reach twenty-three, with canon's
+  list decided by whichever archived last. The argument is stronger than when it
+  was written, not weaker, and it is stated in the delta in the durable form —
+  about the mechanism rather than about which change happens to hold the block
+  today.
 - **Nothing about the sibling's three promoted requirements moves.** The
   readiness proof's resolution order, its committed-state read point, and its
   unreachable-pin failure rule stand exactly as promoted. This change extends
@@ -359,11 +371,20 @@ same reason the sibling packets preserve theirs.
 
 2. **Enforcement rides the existing readiness-proof surface, and adds no check
    family.** Recorded with its two rejected alternatives in `design.md` § 3.
-   This is the decision most likely to be vetoed and it is the one with the
-   sharpest argument: a family would owe a restatement of a requirement that is
-   currently divergent between canon (twenty) and the code registry
-   (twenty-one, `family_enumeration.py` already registered), with an active
-   change holding the reconciling block.
+   This is the decision the packet flagged as most likely to be vetoed, and
+   Brett CLEARED IT AS AUTHORED. Its argument was: a family would owe a
+   restatement of a requirement that was divergent between canon (twenty) and
+   the code registry (twenty-one, `family_enumeration.py` already registered),
+   with an active change holding the reconciling block. **THAT PREMISE MOVED
+   WITHIN A DAY AND THE CONCLUSION HELD.**
+   `add-family-enumeration-check` archived 2026-08-27, so canon and registry
+   agree at twenty-one and the divergence is gone; but
+   `add-modified-block-currency-check` is now active, adds the twenty-second
+   family, and owes the same `MODIFIED` block at realization. A family added
+   here would restate that requirement beside it and reach twenty-three, with
+   canon's list decided by archive order — which is precisely what the newly
+   promoted currency obligation exists to police. The volatility of the premise
+   over twenty-four hours is itself the argument for the decision.
 
 3. **Re-pinning is defined by REPRODUCTION rather than by reachability.**
    Recorded with its rejected alternatives in `design.md` § 2. The consequence
