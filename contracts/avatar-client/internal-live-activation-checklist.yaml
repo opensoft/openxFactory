@@ -141,6 +141,120 @@ conditions:
       after one.
     produces_ring_element: [RING-01, RING-02]
     owning_task: qualify-avatar-live-voice 6.1.1, 7.9
+    # ---------------------------------------------------------------------
+    # §7.9 — the regional, data-control and retention VALUES this condition
+    # approves, RULED 2026-08-27 by Brett Heap in session.
+    #
+    # WHY THEY LAND HERE AND NOT IN A DESCRIPTOR. AVC-09's
+    # `region_and_data_controls` is the SINGLE HOME for these values, and no
+    # AVC-09 descriptor instance exists yet — the adapter is not built and
+    # task 6.1.2 has not provisioned the serving install. §7.9 is an
+    # AUTHORING INPUT: pinning it means fixing what the descriptor SHALL
+    # declare when it is authored, so descriptor authoring consumes a ruling
+    # instead of making one. This condition is the natural home because it is
+    # the condition that APPROVES those terms, it is HARD PREFLIGHT, and it
+    # already names §7.9 as an owning task.
+    # ---------------------------------------------------------------------
+    ruled_values:
+      owning_task: qualify-avatar-live-voice 7.9
+      status: ruled
+      ruled: >-
+        2026-08-27 by Brett Heap — §7.9, in session: the provider project's US
+        default region declared honestly, exactly the Fork 4 Option C data
+        classes, and a 90-day retention window for canary-derived
+        structured_record carried by a named domain-owned policy reference.
+      consumed_by: avc_09_region_and_data_controls
+      descriptor_exists: false
+
+      region:
+        declared_region: provider_project_us_default
+        declare_honestly: true
+        statement: >-
+          The region is the PROVIDER PROJECT'S US DEFAULT, and the AVC-09
+          descriptor declares exactly that when it is authored — not a
+          residency guarantee dressed up as one.
+        rationale: >-
+          F0 recorded `region: null` and measured from one harness in one
+          sitting, so there is no measured regional fact to inherit; and the
+          dedicated internal-live provider project (task 6.1.2) is not
+          provisioned, so the only truthful thing to declare is the default
+          the project will actually run under. A descriptor that claimed a
+          pinned region the project does not enforce would be false in the one
+          field the ring points at for locality, and the cohort is internal
+          staff on synthetic or internally-consented audio — the blast radius
+          of the US default at this ring is a stated fact, not a risk being
+          accepted quietly.
+        not_pinned_by_this_ruling:
+          - data_residency
+          - provider_retention
+          - provider_training_opt_out
+        not_pinned_note: >-
+          AVC-09's three OPTIONAL region-and-data-control fields are NOT ruled
+          here. They are authored from the provider's actual terms at
+          descriptor time. Recorded explicitly so a later author does not read
+          this ruling's silence as a ruling that they are absent.
+
+      data_control:
+        classes_permitted: [ephemeral_presentation, structured_record]
+        classes_never_instantiated: [audio, full_transcript, independent_transcription]
+        source_ruling: fork_4_option_c
+        statement: >-
+          EXACTLY the Fork 4 Option C classes and no others. Captions and
+          partial-transcript deltas are `ephemeral_presentation`; decisions,
+          consent versions, approvals and workflow outcomes are
+          `structured_record`. NO `audio`, `full_transcript` or
+          `independent_transcription` instance is EVER created in this ring.
+        operational_telemetry_note: >-
+          `operational_telemetry` is the third ACTIVE kernel class and is not
+          listed as permitted here because it is not a canary-audio data
+          class: redacted telemetry runs under its own policy and RING-03's
+          verification, not under this condition's approved terms.
+        reserved_classes_untouched: true
+        reserved_classes_note: >-
+          The four reserved retention classes stay FORBIDDEN and this ruling
+          unreserves none of them — the kernel says "successor change only"
+          and this change unreserves exactly AVC-09 and AVC-10. Task 6.2.3
+          confirms that by inspection rather than by assertion.
+        enforcement: operational
+        enforcement_note: >-
+          Stated plainly because the opposite claim would be false: NO schema
+          field forbids a second-model shadow or an out-of-class instance
+          today. The guarantee is operational for this ring and the enforcing
+          contract flag is pilot-hardening work (task 6.2.4).
+
+      retention:
+        applies_to: canary_derived_structured_record
+        window_days: 90
+        policy_ref: avatar.internal_live.canary.structured_record.retention.v1
+        policy_owner: domain
+        cited_by: avc_09_descriptor
+        statement: >-
+          Canary-derived `structured_record` is retained for 90 DAYS under the
+          NAMED DOMAIN-OWNED retention policy reference above, which the AVC-09
+          descriptor cites. The window is the ruled value; the reference is
+          where it is authoritatively carried.
+        rationale: >-
+          Ninety days outlives the ring — §7.6's soak is 14 consecutive days
+          and the whole qualification is bounded well inside a quarter — so
+          the record survives long enough to answer a question asked after the
+          canary closes, which is when such questions are actually asked, and
+          not so long that a qualification ring accumulates a standing
+          retention obligation it never justified.
+        reference_split_note: >-
+          The reference/evidence split is the kernel's own, not a new pattern:
+          AVC carries only the consent RECORD REFERENCE and version while
+          domains own evidence, legal basis and withdrawal, and the
+          presentation profile's retention overlay carries "references only;
+          no inline durations". The window is recorded HERE — in a change-owned
+          checklist, as the ruled authoring input — and the DomainxFactory
+          whose sandbox is COHORT-02 registers the policy record under that id
+          in its own retention tree. The descriptor cites the id, never the
+          duration.
+        not_the_same_ninety_as_7_3: >-
+          §7.3's `max_key_age_days: 90` is a SERVER-KEY ROTATION CADENCE and
+          this is a RETENTION WINDOW. They are two unrelated numbers that
+          happen to share a value; nothing couples them and moving one must
+          never move the other.
 
   - number: 3
     condition: >-
