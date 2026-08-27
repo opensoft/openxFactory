@@ -39,13 +39,18 @@ by a broken family.
 
 | gate | result |
 | --- | --- |
-| `pytest tests/doc-health` | **1115 → 1130** (+15) |
-| `openspec validate --all --strict` | **76 passed** (24 changes + 52 specs) |
-| report movement vs `--skip-family modified-block-currency` | **0 critical, 0 error, +1 warning, +9 info** |
-| report lines moved | 24, in 5 hunks, in 3 sections — headline, this family's section, ranked plan |
+| `pytest tests/doc-health` (with `origin/main` @ `175682e2` merged) | **1163 → 1178** (+15) |
+| `openspec validate --all --strict` | **76 passed** |
+| report movement vs `--skip-family modified-block-currency` | **0 critical, 0 error, +1 warning, +8 info** |
+| report lines moved | 22, in 5 hunks, in 3 sections — headline, this family's section, ranked plan |
 | everything else in the report | byte-identical |
-| F1's, F2's and the enumeration suites | 176 passed, unchanged |
+| F1's, F2's and the enumeration suites | unchanged |
 | **CI shape** — bare checkout, no aggregation ancestor | **15 passed** (pre-fix: 1 failed / 14 passed) |
+| scope diff over `scripts/`, `openspec/`, `.github/` | empty |
+
+At the original branch point `76a2ad27` the same figures read 1115 → 1130 and
++1 `warning` / +9 `info`. Both measurements are in `plan.md` § THE FIGURES, each
+naming the tree it was taken at; the reason there are two is the next section.
 
 Full commands and numbers: `specs/021-modified-block-currency-self-gate/evidence/self-gate.md`.
 
@@ -163,6 +168,41 @@ the discovery floor and the four structural pins in `pytest-suite`. The trade is
 explicit — it gives up catching a lossy block *before* it merges. Arguments both
 ways are recorded in `tasks.md` § OPEN QUESTION FOR BRETT. **Pending his call the
 tests stay in `pytest-suite`**, with `_moved()`'s message as the mitigation.
+
+## THE GATE FELL DUE ON THIS PULL REQUEST, AND THAT IS THE HEADLINE
+
+The first `pytest-suite` run on this PR read **`1 failed, 6985 passed`**. The one
+failure was `test_every_carriage_ledger_finding_over_the_real_tree_is_named`,
+reporting by name that `('qualify-avatar-live-voice',
+'repo-boundary-governance', 'Neutral avatar-client repository boundary')` was no
+longer reported — with `_moved()`'s message naming the tree, the subject, the
+re-measure command and the remedy.
+
+**PR #424 (`realize-pin-reachability`) had merged to `main` while this was
+open.** Its commit `7e4e2f99` — "The client was extracted three weeks early under
+another name, so canon learns to say openAvatar" — renamed
+`xfactory-avatar-client` to `openAvatar` in **canon and in the active delta that
+quotes it, in one commit**. Correct authoring, exactly what the carriage arm is
+advisory about, and the block now carries all twelve of canon's units.
+
+**Fixed the way the message says to**: `git merge origin/main`, re-measure,
+update one row, record the cause beside it in the source. Nothing was loosened —
+the set is still an exact `==` comparison, still in `pytest-suite`.
+
+**Verified before deleting, and the verification caught my own error.** A first
+ad-hoc probe reported the opposite, because `mbc.carried()` returns the
+**UNCARRIED** units — F1's `test_case_and_trailing_punctuation_are_significant`
+settles the direction. Nothing was removed on the strength of a misread probe.
+
+This is the designed lifecycle of this gate, observed end to end within a day of
+writing it, and it is the strongest evidence in the feature that the failure
+message is a deliverable rather than a comment. Full record:
+`evidence/self-gate.md` § 7b.
+
+**It also answers the open question below with real data — and settles nothing**,
+because it is evidence for both sides. The gate worked and the remedy cost one
+merge and one line; and the failing PR was authored by someone who already knew
+what the gate was for. The next one will not be.
 
 ## The mutation round found the thing worth knowing
 

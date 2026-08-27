@@ -23,10 +23,15 @@ python3 -m pytest tests/doc-health -q
 | --- | --- |
 | **BASELINE**, at `76a2ad27` before a line of test code existed | **1115 passed**, 4 warnings, 51.12s |
 | **AFTER**, with `test_modified_block_currency_self_gate.py` | **1130 passed**, 4 warnings, 61.33s |
+| **BASELINE re-derived** at `175682e2` merged in, this file moved aside | **1163 passed**, 7 warnings, 137.74s |
+| **AFTER**, same tree | **1178 passed**, 7 warnings, 180.58s |
 
-**Delta +15**, which is the fifteen tests this feature adds — visible as a delta
-rather than asserted (SC-006). The 10s is the two report subprocess runs in the
-movement pin.
+**Delta +15 in both measurements**, which is the fifteen tests this feature adds —
+visible as a delta rather than asserted (SC-006). The absolute numbers moved by
+48 because merging `origin/main` brought in PR #424's own
+`tests/doc-health/test_pin_reachability.py`; the DELTA is the figure this feature
+owns, and the baseline was re-derived by moving this file aside rather than by
+subtracting.
 
 **The sibling suites are unchanged** — F1's, F2's, the enumeration collateral and
 the scan-set classification:
@@ -80,13 +85,18 @@ diff /tmp/without.md /tmp/with.md
 ```
 
 ```text
-without: 5 critical, 7 error, 42 warning,  4 info
-with:    5 critical, 7 error, 43 warning, 13 info
-         ------------------------------------------
-movement:      0          0        +1        +9
+at 76a2ad27 (branch point)          at 175682e2 merged in — CURRENT
+without: 5c 7e 42w  4i              without: 5c 7e 40w  4i
+with:    5c 7e 43w 13i              with:    5c 7e 41w 12i
+         -----------------                   -----------------
+movement:  0  0 +1 +9               movement:  0  0 +1 +8
 ```
 
-**24 changed lines in 5 hunks, across 3 sections:**
+24 changed lines in 5 hunks at the branch point; **22 in 5 hunks at the merged
+head**, the two fewer being the ledger row that went away in both the section and
+the ranked plan. The `error` and `critical` bands do not move in either.
+
+**The branch-point diff, line by line — 24 changed lines in 5 hunks, 3 sections:**
 
 | hunk | line(s) | class |
 | --- | --- | --- |
@@ -471,6 +481,85 @@ because the self-gate is history-independent by construction: it reads the
 working tree and asks `git` only for `rev-parse --show-toplevel`, which one
 commit answers. **15 of 15 in the harness is the claim; "the suite is green in CI
 shape" is not, and is not made.**
+
+## 7b. THE GATE FELL DUE ON ITS OWN PULL REQUEST — the open question, answered live
+
+The `tasks.md` § OPEN QUESTION FOR BRETT was written as a hypothetical: an exact
+set of live corpus triples in a REQUIRED check means "any PR that adds or
+archives a lossy MODIFIED block, or edits canon in a way an active block quotes,
+reds this gate". **It stopped being hypothetical within hours, on this feature's
+own pull request.**
+
+`pytest-suite` on PR #427, run against the merge of `021-…` into a `main` that
+had moved:
+
+```text
+1 failed, 6985 passed, 20 skipped, 338 deselected, 28 subtests passed in 697.31s
+FAILED tests/doc-health/test_modified_block_currency_self_gate.py::test_every_carriage_ledger_finding_over_the_real_tree_is_named
+E  assert (not {('qualify-avatar-live-voice', 'repo-boundary-governance',
+                 'Neutral avatar-client repository boundary')})
+```
+
+**The failure named its own subject and its own remedy**, which is the whole
+point of `_moved()`:
+
+```text
+subject : the carriage-ledger population (9 named subjects at 76a2ad27)
+observed: 1 named subject(s) NO LONGER reported [('qualify-avatar-live-voice',
+          'repo-boundary-governance', 'Neutral avatar-client repository boundary')]
+WHAT TO DO: re-measure with `python3 scripts/doc-health.py --single-repo .
+          --family modified-block-currency` and update the named subjects …
+```
+
+**The cause, found by following that instruction rather than by guessing.**
+PR #424 (`realize-pin-reachability`) merged to `main` while #427 was open:
+
+```text
+$ git log --oneline 76a2ad27..origin/main
+175682e2 Merge pull request #424 from opensoft/change/realize-pin-reachability
+…
+7e4e2f99 The client was extracted three weeks early under another name, so canon
+         learns to say openAvatar
+```
+
+`7e4e2f99` renamed `xfactory-avatar-client` to `openAvatar` in **both**
+`openspec/specs/repo-boundary-governance/spec.md` (canon) and
+`openspec/changes/qualify-avatar-live-voice/specs/repo-boundary-governance/spec.md`
+(the active delta that quotes it), **in one commit**. That is the correct
+authoring move — it is precisely what the carriage arm is advisory about — so the
+block now carries all twelve of canon's units and the family correctly reports
+nothing for that requirement.
+
+**Verified before deleting the triple, and the verification caught my own error.**
+A first ad-hoc probe reported "UNCARRIED: 12", which would have meant the
+opposite. `mbc.carried(canon_units, block_units)` returns the **UNCARRIED**
+units — the name reads the other way, and F1's own tests
+(`test_case_and_trailing_punctuation_are_significant`) settle it: `assert not
+mbc.carried(canon, [<a whitespace-variant>])` is the CARRIED case. Read correctly,
+the probe says all twelve are carried, and canon's sentence and the block's are
+byte-identical. **Nothing was deleted on the strength of a misread probe.**
+
+**What was done.** `git merge origin/main` (no rebase), corpus re-measured, the
+named set reduced by one row with the cause and the commit recorded beside it in
+the source. Every figure in this file and in `plan.md` § THE FIGURES now carries
+both measurements with the tree each was taken at.
+
+**What was NOT done.** The assertion was not loosened, the set was not made a
+subset comparison, and the test was not moved to the nightly lane. The open
+question for Brett stands exactly as written — this event is evidence for BOTH
+sides of it, and it would be dishonest to present it as settling the matter:
+
+- **For keeping it in `pytest-suite`**: the gate worked. It caught a real corpus
+  change, named the subject, named the remedy, and the remedy took one merge and
+  one line. No human had to reason about doc-health internals.
+- **For moving it to the nightly lane**: the failing PR was *this* one, authored
+  by someone who knew exactly what the gate was for. The next one will not be.
+  An unrelated author seeing "the carriage-ledger population moved" on a branch
+  about something else has every incentive to do the one thing this file must not
+  survive — loosen it.
+
+Recorded, with the numbers, so Brett rules on evidence rather than on a
+hypothetical.
 
 ## 8. Scope guard
 

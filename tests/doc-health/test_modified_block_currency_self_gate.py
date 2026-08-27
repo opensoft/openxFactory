@@ -22,8 +22,12 @@ findings" from a spike taken at `9be81a40` over TWENTY-THREE MODIFIED blocks.
 That tree no longer exists — `add-hermes-customer-subject-runtime-contract` and
 `add-shared-identity-seeds` archived in between. **Re-measured at `76a2ad27`
 over TWENTY-TWO blocks: +1 `warning`, +9 `info`, 0 unresolved, 0 ordering, 0
-marker defects.** The packet's numbers are history and are recorded here as
-such; this file asserts what the tree produces. Orchestrator decision D1 in
+marker defects. RE-MEASURED AGAIN after merging `origin/main` at `175682e2`:
++1 `warning`, +8 `info` over the same twenty-two blocks** — one ledger subject
+went away when PR #424 renamed a repository in canon and in the active delta
+that quotes it, in one commit, which is the correct authoring move and exactly
+what this arm is advisory about. The packet's numbers are history and are
+recorded here as such; this file asserts what the tree produces. Orchestrator decision D1 in
 `specs/021-modified-block-currency-self-gate/plan.md`, flagged for veto, and
 that plan's § THE FIGURES is the single home for the table — nothing else
 restates it.
@@ -321,8 +325,18 @@ _LEDGER_SUBJECTS = {
      "Redacted telemetry and latency evidence"),
     ("qualify-avatar-live-voice", "avatar-client-runtime",
      "Versioned neutral avatar-client contract kernel"),
-    ("qualify-avatar-live-voice", "repo-boundary-governance",
-     "Neutral avatar-client repository boundary"),
+    # REMOVED 2026-08-27 — ('qualify-avatar-live-voice',
+    # 'repo-boundary-governance', 'Neutral avatar-client repository boundary').
+    # THE FIRST TIME THIS GATE FELL DUE, AND IT FELL DUE ON ITS OWN PULL
+    # REQUEST. PR #424 (`realize-pin-reachability`) landed on `main` while #427
+    # was open; its commit `7e4e2f99` — "The client was extracted three weeks
+    # early under another name, so canon learns to say openAvatar" — renamed
+    # `xfactory-avatar-client` to `openAvatar` in BOTH canon and this active
+    # delta, in one commit. So the block now carries all twelve of canon's
+    # units and the family correctly reports nothing. Verified before deleting:
+    # `mbc.carried` returns the UNCARRIED units, and it returns none here.
+    # This is the designed behaviour end to end — real movement, detected by
+    # name, remedied by re-measuring. `_moved()`'s message is what said so.
 }
 
 _OWN_DELTA = ("openspec/changes/add-modified-block-currency-check"

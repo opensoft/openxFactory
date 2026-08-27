@@ -574,6 +574,23 @@ nightly-only gate is one nobody reads. For moving it: an unrelated author readin
 and the cheapest way out of a gate you did not expect is to loosen it — which is
 how this file dies.
 
+**THIS STOPPED BEING HYPOTHETICAL BEFORE THE QUESTION WAS EVEN ASKED.** On
+PR #427 — this feature's own pull request — `pytest-suite` read
+`1 failed, 6985 passed`, and the one failure was
+`test_every_carriage_ledger_finding_over_the_real_tree_is_named` naming
+`('qualify-avatar-live-voice', 'repo-boundary-governance', 'Neutral
+avatar-client repository boundary')` as no longer reported. PR #424 had merged
+to `main` meanwhile, renaming a repository in canon and in the active delta that
+quotes it in one commit (`7e4e2f99`) — correct authoring, and exactly what the
+carriage arm is advisory about. Fixed by merging `main`, re-measuring, and
+updating one row. Full record: `evidence/self-gate.md` § 7b.
+
+**The event is evidence for BOTH sides and settles nothing.** For keeping the
+tests where they are: the gate worked, and the remedy cost one merge and one
+line because the message named the subject and the remedy. For moving them: the
+failing PR was authored by someone who knew what the gate was for, and the next
+one will not be.
+
 **Until Brett rules, the tests stay in `pytest-suite`** and `_moved()`'s message
 is the mitigation: it names the tree, the subject, the re-measure command and
 the fact that corpus movement is the expected cause.

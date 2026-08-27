@@ -75,29 +75,58 @@ returns immediately when `agg_root is None`).
 is the single home for the figures in this feature and nothing else restates
 them.
 
-| | measured at `76a2ad27` |
-| --- | --- |
-| active MODIFIED blocks examined | **22** (over 12 changes, 13 capabilities) |
-| scenario-title arm | **1** `warning` |
-| carriage ledger | **9** `info` |
-| resolution arm (unresolved) | **0** |
-| ordering arm (two-writers undecided) | **0** |
-| marker-defect class | **0** |
-| `error` / `critical` | **0** / **0** |
+| | at `76a2ad27` (branch point) | **at `175682e2` merged in — CURRENT** |
+| --- | --- | --- |
+| active MODIFIED blocks examined | 22 (12 changes, 13 capabilities) | **22** (12 changes, 13 capabilities) |
+| scenario-title arm | 1 `warning` | **1** `warning` |
+| carriage ledger | 9 `info` | **8** `info` |
+| resolution arm (unresolved) | 0 | **0** |
+| ordering arm (two-writers undecided) | 0 | **0** |
+| marker-defect class | 0 | **0** |
+| `error` / `critical` | 0 / 0 | **0** / **0** |
+
+**THE GATE FELL DUE ON ITS OWN PULL REQUEST, and the second column is why this
+table has two.** `pytest-suite` on PR #427 read `1 failed, 6985 passed`, and the
+one failure was
+`test_every_carriage_ledger_finding_over_the_real_tree_is_named` reporting by
+name that `('qualify-avatar-live-voice', 'repo-boundary-governance', 'Neutral
+avatar-client repository boundary')` was **no longer reported**.
+
+Cause, found by following `_moved()`'s own instruction: PR #424
+(`realize-pin-reachability`) merged to `main` while #427 was open, and its commit
+`7e4e2f99` — "The client was extracted three weeks early under another name, so
+canon learns to say openAvatar" — renamed `xfactory-avatar-client` to
+`openAvatar` **in canon and in the active delta that quotes it, in the same
+commit**. That is the correct authoring move, it is what the carriage arm is
+advisory about, and the block now carries all twelve of canon's units. Verified
+before deleting the triple rather than assumed — `mbc.carried` returns the
+UNCARRIED units and it returns none for that requirement.
+
+Nothing was loosened. `origin/main` was merged in, the corpus re-measured, and
+the named set updated by one row with the cause recorded beside it. **This is the
+designed lifecycle of this gate, observed end to end within a day of writing
+it**, and it is the strongest evidence in the feature that the failure message is
+a deliverable: the message named the subject, named the remedy, and the remedy
+was what the corpus actually needed.
 
 **Report movement, from two single-repo runs of this checkout differing only by
 `--skip-family modified-block-currency`:**
 
 ```text
-without: 5 critical, 7 error, 42 warning,  4 info
-with:    5 critical, 7 error, 43 warning, 13 info
-         ------------------------------------------
-movement:      0          0        +1        +9
+at 76a2ad27 (branch point)          at 175682e2 merged in — CURRENT
+without: 5c 7e 42w  4i              without: 5c 7e 40w  4i
+with:    5c 7e 43w 13i              with:    5c 7e 41w 12i
+         -----------------                   -----------------
+movement:  0  0 +1 +9               movement:  0  0 +1 +8
 ```
 
-This is byte-for-byte what F1's `plan.md` § Predicted movement recorded at its
-own branch point, re-measured here rather than inherited. F1 is the origin of the
-figure; this feature is where it becomes an assertion.
+The left column is byte-for-byte what F1's `plan.md` § Predicted movement
+recorded at its own branch point, re-measured here rather than inherited. F1 is
+the origin of the figure; this feature is where it becomes an assertion. The
+right column is that assertion doing its job once. **The `error` and `critical`
+bands do not move in either measurement**, which is the property a
+`--fail-on error` run depends on and the one thing in this table that is not
+allowed to drift.
 
 ### The named subjects
 
@@ -120,7 +149,7 @@ packet's § 6.3), the case the `Removed from canon by` marker exists for, and
 | `qualify-avatar-live-voice` | `avatar-client-lab` | Repository and ownership boundary |
 | `qualify-avatar-live-voice` | `avatar-client-runtime` | Redacted telemetry and latency evidence |
 | `qualify-avatar-live-voice` | `avatar-client-runtime` | Versioned neutral avatar-client contract kernel |
-| `qualify-avatar-live-voice` | `repo-boundary-governance` | Neutral avatar-client repository boundary |
+| ~~`qualify-avatar-live-voice`~~ | ~~`repo-boundary-governance`~~ | ~~Neutral avatar-client repository boundary~~ — **carried since `7e4e2f99`; removed from the named set 2026-08-27** |
 
 The bold row is the self-finding: § 2.1's block does not carry canon's two stale
 numeral sentences (`twenty-one check families`, `Four of the twenty-one`). It is
