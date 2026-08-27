@@ -134,7 +134,11 @@ Core domain-neutral docs:
   [deterministic fixtures](examples/avatar-first-ui/fixtures/README.md))
 - [Avatar-Client (AVC) Contract Kernel](contracts/avatar-client/README.md)
   (neutral session/consent/revocation contract family; realized at
-  `contract-v1.7` with a fail-closed F0 publication gate)
+  `contract-v1.7` with a fail-closed F0 publication gate, extended at
+  `contract-v1.46` by AVC-09 voice adapter descriptor and AVC-10 voice latency
+  sample — the two reserved identifiers `qualify-avatar-live-voice` publishes,
+  with latency gating held in one neutral relative-regression SLO entry rather
+  than in a per-profile budget field)
 - [Workflow Visualization Standard](docs/workflow-visualization-standard.md)
 - [Subject Hermes Memory Model](docs/customer-hermes-memory-model.md)
 - [Customer Memory Fill And Maintenance Taxonomy](docs/customer-memory-fill-maintenance-taxonomy.md)
@@ -438,7 +442,8 @@ Active changes:
   repositories and `target_release: implemented`, so it archives only on merged
   plus green realization evidence, never on landing.
 - [qualify-avatar-live-voice](openspec/changes/qualify-avatar-live-voice/proposal.md)
-  — authored 2026-08-26 as the staged topic's Exit, executed on Brett Heap's
+  — **RATIFIED 2026-08-27** (in-session, "ratify avatar"; §2/§3 build lands in
+  the same round) — authored 2026-08-26 as the staged topic's Exit, executed on Brett Heap's
   in-session rulings of the same day: all five blocking forks and all three
   latent decisions, carried into the proposal as LOCKED decisions rather than
   re-litigated. This is the change that turns on real voice — internal-live
@@ -472,7 +477,12 @@ Active changes:
   rule) plus `repo-boundary-governance` and `avatar-client-lab`, because
   latent decision 1 makes this the change that extracts
   `xfactory-avatar-client` from codexFactory `apps/avatar-client-lab` — an
-  obligation canon carried with no change owning it. `Status: draft`;
+  obligation canon carried with no change owning it. `Status: ratified`
+  (2026-08-27, in-session), with §2 (the AVC-09/AVC-10 schemas, their packaged
+  positive and negative examples, and the manifest/CHANGELOG registration) and
+  §3 (the interface-lock unreservation of exactly those two ids, the validator's
+  rules for them, the two-tier latency rule, and the acceptance-map entries)
+  built in the ratifying round; §4-§6 stay unbuilt.
   `code_surface: openxFactory, xfactory-avatar-client` and
   `target_release: implementation_pending`, so it archives only on merged plus
   green internal-live realization evidence, never on landing. Aggregation

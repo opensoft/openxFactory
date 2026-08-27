@@ -2,20 +2,39 @@ schema_version: 1
 kind: avatar-client-acceptance-map
 change_id: define-avatar-client-contract-kernel
 interface_baseline: avatar-client-parallel-v1
-expected_requirement_count: 17
-expected_scenario_count: 72
+expected_requirement_count: 26
+expected_scenario_count: 107
 evidence_id_template: "TEST-{scenario_id}"
 # Realized under contracts/avatar-client/ (traceability doc; task 3.2). The
 # validator compares this map to the OpenSpec deltas and to evidence-register.yaml.
+#
+# COUNT PROVENANCE (qualify-avatar-live-voice task 3.4, measured not assumed).
+# 17 -> 26 requirements and 72 -> 107 scenarios. The nine ADDED `avatar-live-voice`
+# requirements bring 31 scenarios (ALV-001..ALV-009); the four MODIFIED
+# requirements add one scenario each and no new requirement — ACR-001-S04,
+# ACR-007-S05, ACR-011-S03, RBG-001-S03. 9 + 0 = 9 requirements; 31 + 4 = 35
+# scenarios. Counted off the change's own delta files:
+# `grep -c '^### Requirement:'` / `'^#### Scenario:'` gives avatar-live-voice
+# 9/31, avatar-client-runtime 3/12 (against 9 already mapped) and
+# repo-boundary-governance 1/3 (against 2 already mapped). The
+# `avatar-client-lab` delta's requirement is not carried by THIS map; it lives
+# in contracts/avatar-client-lab/.
 requirements:
   - id: ACR-001
     capability: avatar-client-runtime
     title: Versioned neutral avatar-client contract kernel
     evidence_types: [automated]
+    owner_changes: [qualify-avatar-live-voice]
     scenarios:
       - {id: ACR-001-S01, title: Compatible binding reads an additive contract}
       - {id: ACR-001-S02, title: Consumer receives an incompatible major}
       - {id: ACR-001-S03, title: Consequential vocabulary is unknown}
+      - id: ACR-001-S04
+        title: A live contract identifier leaves the reserved set
+        owning_task: qualify-avatar-live-voice 3.1
+        evidence_id: CHECK-interface_lock_reserved_set
+        release_ring: internal_live
+        status: evidenced
   - id: ACR-002
     capability: avatar-client-runtime
     title: Authenticated, purpose-bound session results
@@ -89,6 +108,12 @@ requirements:
       - {id: ACR-007-S02, title: Candidate model has not passed live qualification}
       - {id: ACR-007-S03, title: Future model lacks API support}
       - {id: ACR-007-S04, title: User asks to change persona mid-session}
+      - id: ACR-007-S05
+        title: Internal-live qualification is read as production promotion
+        owning_task: qualify-avatar-live-voice 4.6
+        evidence_id: TEST-ACR-007-S05
+        release_ring: internal_live
+        status: deferred
   - id: ACR-008
     capability: avatar-client-runtime
     title: Consent-before-capture and enforceable speech gates
@@ -127,11 +152,31 @@ requirements:
     scenarios:
       - {id: ACR-011-S01, title: Telemetry attempts to include protected content}
       - {id: ACR-011-S02, title: Live pilot is proposed without budgets}
+      - id: ACR-011-S03
+        title: F0 spike figures are offered as the latency reference
+        owning_task: qualify-avatar-live-voice 5.1
+        evidence_id: TEST-ACR-011-S03
+        release_ring: internal_live
+        status: deferred
   - id: ACR-012
     capability: avatar-client-runtime
     title: Deterministic-first release gating and kill switches
     evidence_types: [automated, live_f0, manual]
     owner_changes: [qualify-avatar-brokered-call-feasibility, implement-avatar-reference-runtime, qualify-avatar-live-voice, avatar-pilot-hardening]
+    # Pre-authored for the live-qualification successor and DISCHARGED here
+    # rather than duplicated as a new requirement (qualify-avatar-live-voice
+    # task 3.4). The change adds no scenario to this requirement; what it owes
+    # it is the four-element ring's evidence.
+    owner_change_obligations:
+      - change: qualify-avatar-live-voice
+        owning_task: qualify-avatar-live-voice 4.2-4.5
+        release_ring: internal_live
+        status: deferred
+        note: >-
+          The four ring elements — secret scan, telemetry-redaction
+          verification, kill-switch proof, and measured latency evidence — are
+          the binding exit contract this requirement's gating language is
+          satisfied by. A dry run is not evidence.
     scenarios:
       - {id: ACR-012-S01, title: Live qualification begins early}
       - {id: ACR-012-S02, title: Contract publication is requested without F0 evidence}
@@ -141,15 +186,29 @@ requirements:
     capability: repo-boundary-governance
     title: Neutral avatar-client repository boundary
     evidence_types: [manual, successor]
-    owner_changes: [implement-avatar-client-lab]
+    owner_changes: [implement-avatar-client-lab, qualify-avatar-live-voice]
     scenarios:
       - {id: RBG-001-S01, title: Client repository is created}
       - {id: RBG-001-S02, title: Privileged provider code is proposed in the client}
+      - id: RBG-001-S03
+        title: The lab home is extracted at the internal-live gate
+        owning_task: qualify-avatar-live-voice 6.4.1
+        evidence_id: TEST-RBG-001-S03
+        release_ring: internal_live
+        status: deferred
   - id: RBG-002
     capability: repo-boundary-governance
     title: Avatar-client release evidence
     evidence_types: [manual, successor]
     owner_changes: [qualify-avatar-live-voice, avatar-pilot-hardening]
+    owner_change_obligations:
+      - change: qualify-avatar-live-voice
+        owning_task: qualify-avatar-live-voice 6.4.4
+        release_ring: internal_live
+        status: deferred
+        note: >-
+          Release-evidence obligations become ACTIVE at the internal-live gate,
+          on the repository this change extracts. Discharged, not duplicated.
     scenarios:
       - {id: RBG-002-S01, title: Client is released for internal live use}
       - {id: RBG-002-S02, title: Trusted media adapter integrity is unproven}
@@ -178,6 +237,353 @@ requirements:
     title: Avatar runtime reference ownership
     evidence_types: [automated, manual, successor]
     owner_changes: [implement-avatar-client-lab, qualify-avatar-live-voice]
+    owner_change_obligations:
+      - change: qualify-avatar-live-voice
+        owning_task: qualify-avatar-live-voice 6.4.1-6.4.3
+        release_ring: internal_live
+        status: deferred
+        note: >-
+          The live `avc_adapters_live` transport realizes the reference
+          ownership split this requirement fixes: the server keeps the provider
+          integration and the key, the extracted client keeps the seam.
+          Discharged, not duplicated.
     scenarios:
       - {id: SCO-002-S01, title: Server-side provider integration is implemented}
       - {id: SCO-002-S02, title: Domain overlay adopts the runtime}
+
+  # ---- avatar-live-voice (qualify-avatar-live-voice) -----------------------
+  # The nine ADDED requirements of the neutral `avatar-live-voice` capability.
+  # Every entry names its owning task, evidence identifier, release ring and
+  # status (task 3.4). `internal_live` is the ONLY ring these entries speak
+  # for: passing this ring's gate confers a selectable internal-live profile
+  # and no production default.
+  - id: ALV-001
+    capability: avatar-live-voice
+    title: AVC-09 avatar voice adapter descriptor
+    evidence_types: [automated]
+    owner_changes: [qualify-avatar-live-voice]
+    release_ring: internal_live
+    owning_task: qualify-avatar-live-voice 2.1
+    scenarios:
+      - id: ALV-001-S01
+        title: An adapter descriptor is authored for the internal-live ring
+        owning_task: qualify-avatar-live-voice 2.1
+        evidence_id: TEST-ALV-001-S01
+        release_ring: internal_live
+        status: evidenced
+      - id: ALV-001-S02
+        title: A numeric latency budget is proposed as a descriptor field
+        owning_task: qualify-avatar-live-voice 2.3
+        evidence_id: TEST-ALV-001-S02
+        release_ring: internal_live
+        status: evidenced
+      - id: ALV-001-S03
+        title: Secret material is offered to the descriptor
+        owning_task: qualify-avatar-live-voice 2.3
+        evidence_id: TEST-ALV-001-S03
+        release_ring: internal_live
+        status: evidenced
+  - id: ALV-002
+    capability: avatar-live-voice
+    title: AVC-10 avatar voice latency sample
+    evidence_types: [automated]
+    owner_changes: [qualify-avatar-live-voice]
+    release_ring: internal_live
+    owning_task: qualify-avatar-live-voice 2.2
+    scenarios:
+      - id: ALV-002-S01
+        title: A latency sample is recorded for a governed adapter run
+        owning_task: qualify-avatar-live-voice 2.2
+        evidence_id: TEST-ALV-002-S01
+        release_ring: internal_live
+        status: evidenced
+      - id: ALV-002-S02
+        title: A regression is computed across mismatched conditions
+        owning_task: qualify-avatar-live-voice 3.3
+        evidence_id: TEST-ALV-002-S02
+        release_ring: internal_live
+        status: evidenced
+      - id: ALV-002-S03
+        title: A sample would carry content
+        owning_task: qualify-avatar-live-voice 2.3
+        evidence_id: TEST-ALV-002-S03
+        release_ring: internal_live
+        status: evidenced
+  - id: ALV-003
+    capability: avatar-live-voice
+    title: Internal-live activation gate is the kernel's four-element ring
+    evidence_types: [deferred]
+    owner_changes: [qualify-avatar-live-voice]
+    release_ring: internal_live
+    owning_task: qualify-avatar-live-voice 4.1-4.6
+    scenarios:
+      - id: ALV-003-S01
+        title: The eight-condition list is offered as the exit contract
+        owning_task: qualify-avatar-live-voice 4.1
+        evidence_id: TEST-ALV-003-S01
+        release_ring: internal_live
+        status: deferred
+      - id: ALV-003-S02
+        title: A canary opens before the kill switches exist
+        owning_task: qualify-avatar-live-voice 4.4
+        evidence_id: TEST-ALV-003-S02
+        release_ring: internal_live
+        status: deferred
+      - id: ALV-003-S03
+        title: Condition 6 is applied literally to the candidate
+        owning_task: qualify-avatar-live-voice 4.1
+        evidence_id: TEST-ALV-003-S03
+        release_ring: internal_live
+        status: deferred
+      - id: ALV-003-S04
+        title: Passing the gate is read as a default swap
+        owning_task: qualify-avatar-live-voice 4.6
+        evidence_id: TEST-ALV-003-S04
+        release_ring: internal_live
+        status: deferred
+  - id: ALV-004
+    capability: avatar-live-voice
+    title: Neutral relative-regression latency SLO gates internal-live
+    evidence_types: [automated]
+    owner_changes: [qualify-avatar-live-voice]
+    release_ring: internal_live
+    owning_task: qualify-avatar-live-voice 3.3-3.4
+    slo_ref: ALV-SLO-001
+    scenarios:
+      - id: ALV-004-S01
+        title: The governed adapter adds a material setup regression
+        owning_task: qualify-avatar-live-voice 3.3
+        evidence_id: TEST-ALV-004-S01
+        release_ring: internal_live
+        status: evidenced
+      - id: ALV-004-S02
+        title: A small absolute regression on a fast interval
+        owning_task: qualify-avatar-live-voice 3.3
+        evidence_id: TEST-ALV-004-S02
+        release_ring: internal_live
+        status: evidenced
+      - id: ALV-004-S03
+        title: A p99 tail moves
+        owning_task: qualify-avatar-live-voice 3.3
+        evidence_id: TEST-ALV-004-S03
+        release_ring: internal_live
+        status: evidenced
+      - id: ALV-004-S04
+        title: Evidence is offered from a degraded network
+        owning_task: qualify-avatar-live-voice 3.3
+        evidence_id: TEST-ALV-004-S04
+        release_ring: internal_live
+        status: evidenced
+  - id: ALV-005
+    capability: avatar-live-voice
+    title: A fresh client-side direct-provider reference is measured before gating
+    evidence_types: [deferred]
+    owner_changes: [qualify-avatar-live-voice]
+    release_ring: internal_live
+    owning_task: qualify-avatar-live-voice 5.1-5.3
+    scenarios:
+      - id: ALV-005-S01
+        title: F0 numbers are proposed as the baseline
+        owning_task: qualify-avatar-live-voice 5.1
+        evidence_id: TEST-ALV-005-S01
+        release_ring: internal_live
+        status: deferred
+      - id: ALV-005-S02
+        title: A percentile is claimed from an undeclared sample count
+        owning_task: qualify-avatar-live-voice 5.2
+        evidence_id: TEST-ALV-005-S02
+        release_ring: internal_live
+        status: deferred
+  - id: ALV-006
+    capability: avatar-live-voice
+    title: Broker-held custody with layered fail-closed spend containment
+    evidence_types: [deferred]
+    owner_changes: [qualify-avatar-live-voice, avatar-pilot-hardening]
+    release_ring: internal_live
+    owning_task: qualify-avatar-live-voice 6.1.1-6.1.5
+    scenarios:
+      - id: ALV-006-S01
+        title: A single session runs away
+        owning_task: qualify-avatar-live-voice 6.1.3
+        evidence_id: TEST-ALV-006-S01
+        release_ring: internal_live
+        status: deferred
+      - id: ALV-006-S02
+        title: The ring exhausts its provider budget
+        owning_task: qualify-avatar-live-voice 6.1.2
+        evidence_id: TEST-ALV-006-S02
+        release_ring: internal_live
+        status: deferred
+      - id: ALV-006-S03
+        title: A client is offered a provider key
+        owning_task: qualify-avatar-live-voice 6.1.1
+        evidence_id: TEST-ALV-006-S03
+        release_ring: internal_live
+        status: deferred
+      - id: ALV-006-S04
+        title: Granular per-tenant enforcement is assumed
+        owning_task: qualify-avatar-live-voice 6.1.5
+        evidence_id: TEST-ALV-006-S04
+        release_ring: internal_live
+        status: deferred
+  - id: ALV-007
+    capability: avatar-live-voice
+    title: Evaluation audio stays synthetic and canary audio stays ephemeral
+    evidence_types: [deferred]
+    owner_changes: [qualify-avatar-live-voice, avatar-pilot-hardening]
+    release_ring: internal_live
+    owning_task: qualify-avatar-live-voice 6.2.1-6.2.4
+    scenarios:
+      - id: ALV-007-S01
+        title: A second model is proposed for comparison on live audio
+        owning_task: qualify-avatar-live-voice 6.2.4
+        evidence_id: TEST-ALV-007-S01
+        release_ring: internal_live
+        status: deferred
+      - id: ALV-007-S02
+        title: A retention class is requested for the evaluation corpus
+        owning_task: qualify-avatar-live-voice 6.2.3
+        evidence_id: TEST-ALV-007-S02
+        release_ring: internal_live
+        status: deferred
+      - id: ALV-007-S03
+        title: A new consent purpose is proposed for evaluation
+        owning_task: qualify-avatar-live-voice 6.2.3
+        evidence_id: TEST-ALV-007-S03
+        release_ring: internal_live
+        status: deferred
+      - id: ALV-007-S04
+        title: A canary user withdraws consent mid-session
+        owning_task: qualify-avatar-live-voice 6.2.2
+        evidence_id: TEST-ALV-007-S04
+        release_ring: internal_live
+        status: deferred
+  - id: ALV-008
+    capability: avatar-live-voice
+    title: Canary cohort and the recorded revoke-versus-block rollback policy
+    evidence_types: [deferred]
+    owner_changes: [qualify-avatar-live-voice]
+    release_ring: internal_live
+    owning_task: qualify-avatar-live-voice 6.3.1-6.3.5
+    scenarios:
+      - id: ALV-008-S01
+        title: A safety evaluation fails during the canary
+        owning_task: qualify-avatar-live-voice 6.3.2
+        evidence_id: TEST-ALV-008-S01
+        release_ring: internal_live
+        status: deferred
+      - id: ALV-008-S02
+        title: The latency budget is breached during the canary
+        owning_task: qualify-avatar-live-voice 6.3.3
+        evidence_id: TEST-ALV-008-S02
+        release_ring: internal_live
+        status: deferred
+      - id: ALV-008-S03
+        title: Rollback is executed with no prior qualified profile
+        owning_task: qualify-avatar-live-voice 6.3.4
+        evidence_id: TEST-ALV-008-S03
+        release_ring: internal_live
+        status: deferred
+      - id: ALV-008-S04
+        title: A mid-qualification abort is read as ending the workflow
+        owning_task: qualify-avatar-live-voice 6.3.5
+        evidence_id: TEST-ALV-008-S04
+        release_ring: internal_live
+        status: deferred
+      - id: ALV-008-S05
+        title: A real external tenant is proposed for the cohort
+        owning_task: qualify-avatar-live-voice 6.3.1
+        evidence_id: TEST-ALV-008-S05
+        release_ring: internal_live
+        status: deferred
+  - id: ALV-009
+    capability: avatar-live-voice
+    title: Named deferrals carried by the pilot-hardening successor
+    evidence_types: [deferred]
+    owner_changes: [qualify-avatar-live-voice, avatar-pilot-hardening]
+    release_ring: internal_live
+    owning_task: qualify-avatar-live-voice 6.1.5, 6.2.4, 5.5
+    scenarios:
+      - id: ALV-009-S01
+        title: A deferred item is claimed as delivered
+        owning_task: qualify-avatar-live-voice 6.1.5
+        evidence_id: TEST-ALV-009-S01
+        release_ring: internal_live
+        status: deferred
+      - id: ALV-009-S02
+        title: Pilot readiness is asserted from internal-live evidence
+        owning_task: qualify-avatar-live-voice 5.5
+        evidence_id: TEST-ALV-009-S02
+        release_ring: internal_live
+        status: deferred
+
+# ---- the neutral relative-regression latency SLO (task 3.4) ---------------
+# EXACTLY ONE SLO entry lives in this map, and `validate-avatar-client.py`'s
+# `latency_posture` check fails closed on zero, on two, on a wrong threshold,
+# and on any per-profile numeric latency ceiling presented as a gating field.
+# Latency gating is HERE and nowhere else: AVC-09 carries no budget, because a
+# ceiling frozen into a neutral contract is Fork 2's Option B, which was not
+# ruled.
+#
+# THE 3.4 / 5.4 SPLIT, stated because it is easy to read wrong. This entry is
+# the RULE, and the rule was ratified with the proposal — it is written here
+# now, at the ratified threshold, because task 3.3's validator rule fails
+# closed without it and task 8.2 requires the validator green in the same
+# commit that unreserves the two identifiers. Task 5.4 owns the ENCODING
+# AGAINST THE EVIDENCE RUN: the measured per-cell figures under
+# `measured_evidence`, which are absent by design until §5 measures them on
+# the real Flutter client.
+latency_slo:
+  id: ALV-SLO-001
+  kind: neutral_relative_regression
+  requirement: Neutral relative-regression latency SLO gates internal-live
+  requirement_id: ALV-004
+  owner_change: qualify-avatar-live-voice
+  owning_task: qualify-avatar-live-voice 3.4
+  release_ring: internal_live
+  status: planned
+  materiality:
+    rule: greater_of
+    relative_threshold_pct: 15
+    absolute_threshold_ms: 150
+    statement: >-
+      A governed-adapter percentile is a MATERIAL REGRESSION when it exceeds the
+      same-platform direct-provider reference percentile by more than 15 percent
+      relative OR by more than 150 milliseconds absolute, WHICHEVER IS GREATER —
+      that is, when adapter > reference + max(0.15 * reference, 150). The
+      "whichever is greater" clause is load-bearing: a percentage-only or a
+      milliseconds-only reading fails differently on fast and slow intervals.
+  comparison_cell:
+    must_match: [platform, network_class, region]
+    reference_classification: direct_provider_reference
+    adapter_classification: governed_adapter
+    note: >-
+      A comparison whose two sides do not share all three axes is REFUSED as
+      evidence rather than evaluated.
+  gated:
+    percentiles: [p50, p95]
+    intervals: [first_playable_after_authorized_ms, sideband_ready_after_request_ms]
+    platforms: [windows_desktop, web_canvas]
+    network_class: nominal
+    effect: >-
+      A material regression on ANY gated cell fails promotion to the
+      internal-live ring.
+  recorded_not_gated:
+    percentiles: [p99]
+    intervals: [teardown_to_terminal_ms, speech_to_first_audio_ms]
+    network_classes: [degraded, jittered]
+    effect: >-
+      Recorded as informational tail evidence; candidates to become hard gates
+      at the pilot ring when sample volume supports them. The five-second
+      revocation bound stays pass-or-fail rather than a budgeted percentile.
+  reference_generation_only_platforms: [linux_ci]
+  measured_evidence:
+    status: not_yet_measured
+    owning_task: qualify-avatar-live-voice 5.1-5.4
+    note: >-
+      The per-cell measured figures belong to §5's evidence run on the real
+      Flutter client. F0's harness distributions — first-playable p50 603.63 /
+      p95 643.488 ms, sideband p50 772.37 / p95 1642.119 ms — were produced by
+      a single Python and aiortc harness with no region on neither gated
+      platform, and DO NOT QUALIFY as the reference. They may be cited as
+      sanity checks only.
