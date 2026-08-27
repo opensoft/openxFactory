@@ -589,6 +589,39 @@ PIN_CLASS: tuple[PinMember, ...] = (
              "site: this key is ALWAYS the product's, and `carve_commit` above "
              "is ALWAYS this repository's.",
     ),
+    # ---- the pinned decision core: executable governance, not a bundle -----
+    # `contracts/review-lane-pin.yaml` (feature 025-openxfactory-review-lane-caller)
+    # pins the codexFactory commit whose Merge Master decision core judges this
+    # repository's pull requests. ONE member, not two: unlike the neutral-product
+    # pin above, this file carries exactly ONE commit-shaped value, and the test
+    # for that feature asserts it stays exactly one — the diverging xFactory pin
+    # is named in the caller's header comment instead, because `.github/` is
+    # outside SCAN_ROOTS while `contracts/**` is inside them.
+    PinMember(
+        id="review-lane-pin-core-commit",
+        paths=("contracts/review-lane-pin.yaml",),
+        key="core_commit",
+        key_form="field",
+        generator="authored with the pin (add-substantive-review-lane task 5.1, "
+                  "feature 025-openxfactory-review-lane-caller)",
+        reproduction=MEASURED,
+        locality=CROSS_REPOSITORY,
+        presence=CURRENT,
+        note="`repository: opensoft/codexFactory` — the DECISION CORE'S commit. "
+             "It does not resolve in this repository and must not be reported "
+             "as an orphan; codexFactory answers for it, and locally "
+             "`.github/workflows/merge-master-approval.yml` compares this "
+             "recorded value against BOTH its own literal `ref:` and the commit "
+             "`actions/checkout` actually produced, refusing the run on any "
+             "disagreement. What is pinned is EXECUTABLE GOVERNANCE rather than "
+             "contract bytes, so there is no digest set to check and the commit "
+             "is the whole referent. `core_commit` was a key this vocabulary "
+             "did not know, and it is deliberately not `commit`: that name is "
+             "already bound to `openxwallet-pin-product-commit` above, so "
+             "reusing it here would have left this site UNCOVERED. Declaring "
+             "the member is what teaches the key, since `PIN_KEY_VOCABULARY` is "
+             "the union of the declared field keys.",
+    ),
     # ---- FUTURE members: schema-declared, no committed real pin yet --------
     # Declared now rather than on discovery. The day the first instance lands
     # committed its pins join the class automatically, which is precisely the
