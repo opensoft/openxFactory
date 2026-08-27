@@ -693,7 +693,11 @@ KNOWN_LOSSES: tuple[KnownLoss, ...] = (
             "openspec/changes/archive/*-supersede-lost-pin-baseline/evidence/"
             "pin-loss-supersession.yaml"),
         discharged="SUPERSEDED 2026-08-27 by `supersede-lost-pin-baseline`, "
-                   "commissioned by Brett that day. THE OBJECT IS STILL GONE "
+                   "commissioned by Brett that day. THE MEASUREMENT ABOVE WAS "
+                   "RE-RUN BEFORE THE RECORD WAS WRITTEN and its answer did not "
+                   "move: 0 matches, now across 573 advertised refs rather than "
+                   "566, the remote having gained seven refs in a day. THE "
+                   "OBJECT IS STILL GONE "
                    "and this row stays declared and re-measured; what the "
                    "record supplies is the standing the archived evidence "
                    "keeps without it, and the NAMED MEASUREMENT that "

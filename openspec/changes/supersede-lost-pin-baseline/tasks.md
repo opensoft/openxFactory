@@ -146,7 +146,18 @@ nobody can follow. Discharge is by citation, never by deletion.
       Nothing is silenced; the outstanding obligation is what changed.
 - [x] 4.6 NO CONTRACT BUNDLE IS OWED, measured: no edited file appears in any
       `contracts/releases/*.digests.yaml` inventory.
-- [ ] 4.7 MERGED AND GREEN ON MAIN. Open at the pull request this packet ships
+- [x] 4.7 THE DOC-HEALTH SELF-GATE ADDS NOTHING.
+      `python3 -m doc_health.runner --single-repo .` reports **0 new regressions
+      vs the previous report**, and NO finding names any path this packet adds or
+      edits. The five standing `record-immutability` criticals are on documents
+      this branch does not touch (`git diff origin/main --name-only` lists nine
+      files, none of them among them, and **zero paths under
+      `openspec/changes/archive/`**).
+- [x] 4.8 `python3 -m compileall` clean on both edited modules; `git diff
+      --check` clean. `black` is not installed in this environment and is not
+      part of this repository's gate, so it is recorded as not run rather than
+      claimed.
+- [ ] 4.9 MERGED AND GREEN ON MAIN. Open at the pull request this packet ships
       as; the archive gate is merge-plus-green and this packet does not archive
       itself.
 
