@@ -782,32 +782,6 @@ def _arm_titles(repo: str, block: ActiveBlock, basis: PromotedRequirement,
         f"it: {named}")]
 
 
-def fam_modified_block_currency(ctx):
-    """Every active MODIFIED block, against the canon it has not yet replaced.
-
-    A finding lands on the DELTA's own path, not on the promoted spec's, because
-    the delta is the document making the claim and — unlike promotion fidelity's
-    archived paths — it is a document somebody can still edit. That is the whole
-    point of asking the question here: the remedy is one line, at authoring
-    time, instead of a repair at an archive gate.
-    """
-    findings: list[Finding] = []
-    for repo, path in sorted(ctx.repo_paths.items()):
-        root = Path(path)
-        canon_cache: dict[str, dict[str, PromotedRequirement] | None] = {}
-        for block in active_blocks(root):
-            if block.capability not in canon_cache:
-                canon_cache[block.capability] = promoted(root, block.capability)
-            canon = canon_cache[block.capability]
-            basis = canon.get(norm(block.title)) if canon else None
-            if basis is None:
-                continue        # title resolution is arm 3's question
-            suppressed, defective = suppression(
-                block.markers, basis.units, block.units)
-            findings.extend(_arm_titles(repo, block, basis, suppressed))
-            findings.extend(_arm_ledger(repo, block, basis, suppressed))
-            findings.extend(_arm_marker_defects(repo, block, defective))
-    return findings
 
 
 # The elision width for a unit quoted inside a ledger finding. Deterministic and
@@ -962,3 +936,249 @@ def _arm_marker_defects(repo: str, block: ActiveBlock, defective: list[Marker],
             f"naming {named}, which the block still restates — a declaration "
             f"that does not describe the block", _MARKER_ACTION))
     return out
+
+
+from .duplicate_packet import _mention  # noqa: E402
+
+_RATIFIED = "ratified"
+
+
+def sibling_titles(root: Path) -> set[tuple[str, str]]:
+    """`{(capability, norm(title))}` that some ACTIVE change ADDS or RENAMES to.
+
+    A MODIFIED title landing here is PENDING, not absent (`dh:278-280`), and
+    pending means there is nothing to compare: the promoted requirement does not
+    exist yet, so no basis is synthesized from the sibling's ADDED text. RULED
+    2026-08-27 — the earlier reading, which built a basis from the addition,
+    would have measured all seven of this corpus's
+    MODIFIED-over-a-sibling's-ADDED pairs against text no promoted requirement
+    carries.
+    """
+    changes = root / "openspec" / "changes"
+    if not changes.is_dir():
+        return set()
+    out: set[tuple[str, str]] = set()
+    for path in sorted(changes.glob("*/specs/*/spec.md")):
+        parts = path.relative_to(changes).parts
+        if parts[0] == _ARCHIVE:
+            continue
+        capability = parts[-2]
+        requirements, renames = parse_delta(
+            path.read_text(encoding="utf-8", errors="replace"))
+        for req in requirements:
+            if req.op == "ADDED":
+                out.add((capability, norm(req.title)))
+        for _old, new in renames:
+            out.add((capability, norm(new)))
+    return out
+
+
+def resolve(block: ActiveBlock, canon: dict[str, PromotedRequirement] | None,
+            siblings: set[tuple[str, str]]):
+    """`(basis, status)` for one block. `status` is why, and the caller reports it.
+
+    THE ORDER IS THE DELTA'S (`dh:58-64`):
+
+    1. canon carries the title -> compare against it;
+    2. else the change's OWN `## RENAMED Requirements` renames a promoted
+       requirement TO this title -> compare against canon under the OLD NAME, and
+       the three arms RUN, because a rename changes a title rather than the
+       content a block must carry. Without this the family would report every
+       rename-and-amend change as unresolved AND compare nothing where it should
+       compare everything;
+    3. else an active sibling ADDS or RENAMES to this title -> PENDING; nothing
+       is compared and nothing is reported;
+    4. else -> unresolved, and reported.
+    """
+    key = norm(block.title)
+    if canon and key in canon:
+        return canon[key], "canon"
+    for old, new in block.renames:
+        if norm(new) == key and canon and norm(old) in canon:
+            return canon[norm(old)], "own-rename"
+    if (block.capability, key) in siblings:
+        return None, "pending"
+    return None, "unresolved"
+
+
+def declarations(root: Path, blocks: list[ActiveBlock]
+                 ) -> set[tuple[str, str]]:
+    """`{(declarer, declared)}` among `blocks`, read from each change's proposal.
+
+    THE DECLARATION IS THE ORDERING (ruled 2026-08-27, Brett, verbatim "By
+    declaration"). `release-realization`'s "Ordered deltas and branch
+    vocabulary" already requires the later proposal to reference the earlier
+    change and declare its deltas relative to that change's outcome, so the
+    change that makes the declaration IS the later writer and nothing else needs
+    to decide it. No folder name, commit timestamp or `created:` date is
+    consulted — a second authority for an ordering one rule already owns is the
+    defect "Explicit delta rule" names.
+
+    The match is `duplicate_packet._mention`, IMPORTED rather than re-spelled:
+    the delta names it by reference ("the whole-token match the duplicate packet
+    family already uses"), its boundaries are `[\\w-]` rather than `\\b` because
+    change ids are hyphenated, and one change id occurring inside a longer one
+    satisfies nothing. Its docstring carries the false-exemption channel that
+    shape closes.
+
+    ONE ACCEPTED CONSEQUENCE, noted rather than hidden: `/` is a boundary, so a
+    proposal citing `openspec/changes/<sibling>/tasks.md` counts as naming the
+    sibling. A proposal citing a sibling's path IS referencing that change in the
+    ordinary reading of the rule, and the alternative is a second, stricter
+    matcher for a question one function already owns.
+    """
+    texts: dict[str, str] = {}
+    for change in {b.change for b in blocks}:
+        path = root / "openspec" / "changes" / change / "proposal.md"
+        texts[change] = (path.read_text(encoding="utf-8", errors="replace")
+                         if path.is_file() else "")
+    out: set[tuple[str, str]] = set()
+    changes = sorted(texts)
+    for declarer in changes:
+        for declared in changes:
+            if declarer == declared:
+                continue
+            if _mention(declared).search(texts[declarer]):
+                out.add((declarer, declared))
+    return out
+
+
+def _as_basis(block: ActiveBlock) -> PromotedRequirement:
+    """One active block AS the outcome its declaring sibling is measured against.
+
+    `MODIFIED` REPLACES A REQUIREMENT WHOLESALE, so the outcome of the earlier
+    writer's block simply IS that block — there is nothing of canon left to
+    merge. The `spec_rel` carried here is the SIBLING'S DELTA PATH, so a finding
+    says where the text it was measured against actually came from rather than
+    naming a promoted spec that does not yet hold it.
+    """
+    return PromotedRequirement(block.capability, block.title, block.delta_rel,
+                               block.units)
+
+
+def _arm_ordering(repo: str, group: list[ActiveBlock], declared: set
+                  ) -> tuple[dict[str, PromotedRequirement], list[Finding]]:
+    """`(basis_override, findings)` for one (capability, requirement) group.
+
+    Exactly TWO active RATIFIED writers with EXACTLY ONE declaration between them
+    is the ordered case: the declarer is the later writer and its basis becomes
+    the other's block. That substitution IS THE WHOLE EFFECT — the arms then run
+    unchanged, so an addition the sibling makes that the declaring block does not
+    carry is reported BY THE CARRIAGE ARMS. A separate finding here would report
+    at `warning` the same units the ledger reports at `info`, and `dh:264` asks
+    for the addition to be reported, not reported twice.
+
+    Everything else among two-or-more ratified writers is an UNSTATED ordering,
+    reported against every one of their blocks, each measured against canon:
+
+    - NEITHER declaring — "no reader being able to tell which text canon will
+      keep";
+    - BOTH declaring — "mutual declaration deciding nothing";
+    - THREE OR MORE ratified writers, whatever they declare. The delta gives no
+      rule for that shape (`dh:262` says "two or more" and then describes a
+      pair), one declaration orders a pair and leaves the third unstated, and
+      inventing a chain rule for a population of zero would be inventing
+      authority. Reported, and the gap is named in the feature plan.
+
+    An UNRATIFIED writer creates no obligation either way: `release-realization`
+    scopes the rule to an active RATIFIED change and this family does not widen
+    it. Its block is still read, because the arms are advisory.
+    """
+    ratified = [b for b in group if b.standing == _RATIFIED]
+    if len(ratified) < 2:
+        return {}, []
+    pairs = {(a.change, b.change) for a in ratified for b in ratified
+             if (a.change, b.change) in declared}
+    if len(ratified) == 2 and len(pairs) == 1:
+        declarer, other = next(iter(pairs))
+        by_change = {b.change: b for b in ratified}
+        return {declarer: _as_basis(by_change[other])}, []
+
+    names = ", ".join(sorted(b.change for b in ratified))
+    if len(ratified) > 2:
+        why = (f"{len(ratified)} active ratified changes write it and the "
+               f"ordering rule states no order for more than two")
+    elif pairs:
+        why = (f"{len(pairs)} declarations stand between them, and mutual "
+               f"declaration decides nothing")
+    else:
+        why = ("neither names the other, so the ordering is unstated rather "
+               "than merely unrecorded")
+    findings = [
+        _finding(_RESOLUTION_SEVERITY, repo, block,
+                 f"the ordering of MODIFIED blocks for {block.title!r} is "
+                 f"undecided: {names} — {why}; each block is meanwhile measured "
+                 f"against canon, the only basis a reader can name")
+        for block in ratified]
+    return {}, findings
+
+
+def fam_modified_block_currency(ctx):
+    """Every active MODIFIED block, against the canon it has not yet replaced.
+
+    A finding lands on the DELTA's own path, not on the promoted spec's, because
+    the delta is the document making the claim that went unmet and — unlike
+    promotion fidelity's archived paths — it is a document somebody can still
+    edit. That is the whole point of asking the question here: the remedy is one
+    line at authoring time instead of a repair at an archive gate.
+    """
+    findings: list[Finding] = []
+    for repo, path in sorted(ctx.repo_paths.items()):
+        root = Path(path)
+        blocks = active_blocks(root)
+        if not blocks:
+            continue
+        siblings = sibling_titles(root)
+        declared = declarations(root, blocks)
+        canon_cache: dict[str, dict[str, PromotedRequirement] | None] = {}
+
+        def canon_for(capability: str, root=root):
+            if capability not in canon_cache:
+                canon_cache[capability] = promoted(root, capability)
+            return canon_cache[capability]
+
+        groups: dict[tuple[str, str], list[ActiveBlock]] = {}
+        for block in blocks:
+            groups.setdefault((block.capability, norm(block.title)),
+                              []).append(block)
+
+        for key in sorted(groups):
+            group = groups[key]
+            override, ordering = _arm_ordering(repo, group, declared)
+            findings.extend(ordering)
+            for block in group:
+                basis, status = resolve(block, canon_for(block.capability),
+                                        siblings)
+                if status == "pending":
+                    continue
+                if basis is None:
+                    findings.append(_unresolved_finding(repo, block, root))
+                    continue
+                basis = override.get(block.change, basis)
+                suppressed, defective = suppression(
+                    block.markers, basis.units, block.units)
+                findings.extend(_arm_titles(repo, block, basis, suppressed))
+                findings.extend(_arm_ledger(repo, block, basis, suppressed))
+                findings.extend(_arm_marker_defects(repo, block, defective))
+    return findings
+
+
+def _unresolved_finding(repo: str, block: ActiveBlock, root: Path) -> Finding:
+    """A block modifying nothing — reported, because its promotion "adds text
+    nobody reviewed as an addition".
+
+    The two shapes are named apart in the rule text. A capability with NO
+    promoted spec at all is a different code path from a spec that exists
+    without the title, and a reader who is told which one it is knows whether to
+    look for a missing file or a missing requirement.
+    """
+    spec_rel = CANON_TEMPLATE.format(capability=block.capability)
+    if not (root / spec_rel).is_file():
+        why = f"capability {block.capability!r} has no promoted spec at all"
+    else:
+        why = f"{spec_rel} states no requirement under that title"
+    return _finding(
+        _RESOLUTION_SEVERITY, repo, block,
+        f"active MODIFIED block for {block.title!r} resolves to no promoted "
+        f"requirement, no rename of its own, and no active sibling's addition: "
+        f"{why}")

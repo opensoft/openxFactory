@@ -720,10 +720,13 @@ def test_the_file_level_scenario_count_is_not_what_the_family_reads():
     requirement brings SEVEN scenarios while its MODIFIED block drops seven, so
     the FILE-LEVEL count is flat — 8 in canon, 8 in the delta — and the family
     fires anyway, because it accounts PER REQUIREMENT."""
-    canon_text = (_root() / f"openspec/specs/{CAP}/spec.md").read_text()
+    canon = mbc.promoted(_root(), CAP)[norm_title(REQ)]
     delta_text = (_root() / LOSSY).read_text()
-    assert (canon_text.count("#### Scenario:")
-            == delta_text.count("#### Scenario:") == 8)
+    # canon states EIGHT scenarios for the requirement the block modifies, and
+    # the delta FILE carries eight — one restated plus seven brought by the
+    # change's own ADDED requirement. Count the file and nothing has moved.
+    assert len(canon.scenario_titles) == 8
+    assert delta_text.count("#### Scenario:") == 8
     assert _titles(_run()), "the flat count must not buy silence"
 
 
@@ -731,7 +734,15 @@ def test_the_file_level_scenario_count_is_not_what_the_family_reads():
 
 
 def _ledger(findings):
-    return [f for f in findings if "does not carry" in f.rule]
+    """Ledger findings only.
+
+    Matched on the arm's own phrase AND on "body units", because the first cut
+    matched "does not carry" alone and swept up a RESOLUTION finding whose text
+    happened to contain it. Two finding classes that share a phrase are two
+    classes a helper must still keep apart.
+    """
+    return [f for f in findings
+            if "does not carry" in f.rule and "body units" in f.rule]
 
 
 def test_uncarried_body_units_and_bullets_are_one_info_finding_per_requirement():
@@ -739,7 +750,7 @@ def test_uncarried_body_units_and_bullets_are_one_info_finding_per_requirement()
     the units, rather than one finding per unit." Ten standing warnings on a
     clean repository is how a report stops being read; ten standing ROWS inside
     one finding is a list somebody reads once."""
-    hits = _ledger(_run())
+    hits = [f for f in _ledger(_run()) if repr(REQ) in f.rule]
     assert len(hits) == 1, [f.rule[:80] for f in hits]
     assert hits[0].severity == INFO
     assert hits[0].path == LOSSY
@@ -923,3 +934,210 @@ def test_a_prose_dated_note_declares_nothing():
     rule = hits[0].rule
     assert "Dropped body." in rule, "a prose note must suppress nothing"
     assert "CORRECTED 2026-08-25" in rule
+
+
+# ---------------------------------------- 4. arm 3: resolution and order (US4)
+
+
+def _res_run():
+    from conftest import make_ctx
+    return mbc.fam_modified_block_currency(
+        make_ctx("modified-block-currency-resolution"))
+
+
+def _unresolved(findings):
+    return [f for f in findings if "resolves to no" in f.rule]
+
+
+def test_a_change_s_own_rename_resolves_first_and_the_arms_compare_the_old_name():
+    """`dh:58-64`: FIRST against the change's own `## RENAMED Requirements`
+    block, and where it renames a promoted requirement to this title THE THREE
+    ARMS RUN — "a rename being a change of title rather than of the content a
+    block must carry".
+
+    Asserted by what the arms SAID, not by silence: the block drops canon's
+    second body clause, so the ledger must report it AGAINST CANON UNDER THE OLD
+    NAME. A build that resolved the rename and then compared nothing would pass
+    a silence assertion.
+    """
+    findings = _res_run()
+    mine = [f for f in findings if "add-rename-and-amend" in f.path]
+    assert _unresolved(mine) == [], "an own-rename must not read as unresolved"
+    hits = _ledger(mine)
+    assert len(hits) == 1, [f.rule[:90] for f in hits]
+    assert "A second clause holds too." in hits[0].rule
+    assert "openspec/specs/res-cap/spec.md" in hits[0].rule
+
+
+def test_a_title_pending_on_a_sibling_s_addition_is_quiet():
+    """`dh:278-280`: "the promoted requirement being pending rather than
+    absent". Nothing is compared, and nothing is reported."""
+    assert [f for f in _res_run() if "add-pending-title" in f.path] == []
+
+
+def test_a_title_resolving_to_nothing_is_reported():
+    findings = [f for f in _res_run() if "add-unresolved" in f.path]
+    assert len(findings) == 1, [f.rule[:90] for f in findings]
+    assert findings[0].severity == WARNING
+    assert "Nothing carries this title" in findings[0].rule
+
+
+def test_a_capability_with_no_promoted_spec_at_all_resolves_to_nothing():
+    """A DISTINCT code path: `promoted()` returns None rather than a dict that
+    happens not to carry the title. Both are unresolved, and a build that only
+    handled the second would crash or go silent on the first."""
+    findings = [f for f in _res_run() if "add-no-canon" in f.path]
+    assert len(findings) == 1, [f.rule[:90] for f in findings]
+    assert "absent-cap" in findings[0].rule
+    assert findings[0].severity == WARNING
+
+
+# ------------------------------------------- 4. the two-writers rule, by declaration
+
+
+def _tw_run():
+    from conftest import make_ctx
+    return mbc.fam_modified_block_currency(
+        make_ctx("modified-block-currency-two-writers"))
+
+
+def _ordering(findings):
+    return [f for f in findings if "ordering" in f.rule]
+
+
+def _in(cap, findings=None):
+    return [f for f in (findings if findings is not None else _tw_run())
+            if f"/{cap}/" in f.path]
+
+
+def test_the_declaring_block_is_measured_against_the_sibling_s_outcome():
+    """RULED 2026-08-27, "By declaration". The declaring change IS the later
+    writer, and its block is measured against the sibling's OUTCOME — which for
+    a MODIFIED sibling is that sibling's block, because `MODIFIED` replaces a
+    requirement wholesale."""
+    quiet = _in("ordered-carried")
+    assert quiet == [], [f.rule[:90] for f in quiet]
+
+
+def test_the_declaring_block_missing_the_siblings_addition_is_reported_by_the_ledger():
+    """RULING B3: A DECLARATION IS BASIS SUBSTITUTION ONLY.
+
+    The declaring block drops the earlier change's addition, so the LEDGER
+    reports it — measured against the sibling's delta rather than against canon —
+    and the resolution arm emits NOTHING for it. A second `warning` would report
+    at one severity the very units the ledger already reports at another, and
+    `dh:264` asks for the addition to be REPORTED, not reported twice.
+    """
+    findings = _in("ordered-missing")
+    hits = _ledger(findings)
+    assert len(hits) == 1, [f.rule[:90] for f in findings]
+    assert "add-om-later" in hits[0].path, "reported against the DECLARING delta"
+    assert "The earlier change's own addition." in hits[0].rule
+    # measured against the sibling's outcome, and the finding says so
+    assert "add-om-earlier" in hits[0].rule
+    # ...and no second finding for the same units
+    assert _ordering(findings) == []
+
+
+def test_neither_declaring_fires_against_both_blocks():
+    """`dh:76-80`: "where neither does the run SHALL report the undeclared
+    ordering against both blocks, no reader being able to tell which text canon
+    will keep"."""
+    hits = _ordering(_in("undeclared"))
+    assert {f.path.split("/")[2] for f in hits} == {"add-un-a", "add-un-b"}
+    assert {f.severity for f in hits} == {WARNING}
+
+
+def test_both_declaring_fires_too():
+    """"mutual declaration deciding nothing" — a cycle states nothing."""
+    hits = _ordering(_in("mutual"))
+    assert len(hits) == 2, [f.rule[:90] for f in hits]
+    assert all("2 declarations" in f.rule or "mutual" in f.rule for f in hits)
+
+
+def test_a_change_id_inside_a_longer_id_declares_nothing():
+    """The whole-token match `duplicate_packet._mention` already implements, and
+    the reason its boundaries are `[\\w-]` rather than `\\b`: change ids are
+    hyphenated, so `\\b` would treat the hyphen as a boundary and match the
+    fragment. `add-li-b` names `add-li-a-extended` and declares NOTHING about
+    `add-li-a`, so the pair is undeclared and both blocks are reported."""
+    hits = _ordering(_in("longer-id"))
+    assert len(hits) == 2, [f.rule[:90] for f in hits]
+
+
+def test_an_unratified_sibling_creates_no_declaration_obligation():
+    """`release-realization` scopes the obligation to an active RATIFIED change
+    and `dh:30-36` states the READING scope separately and deliberately wider.
+    So the draft block is READ — it is derived and its arms run — and no ordering
+    finding is created for either writer."""
+    findings = _in("unratified-sibling")
+    assert _ordering(findings) == [], [f.rule[:90] for f in findings]
+    blocks = mbc.active_blocks(
+        __import__("conftest").FIXTURES
+        / "modified-block-currency-two-writers" / "alphaFactory")
+    draft = [b for b in blocks if b.change == "add-ur-b"]
+    assert draft and draft[0].standing == "draft" and draft[0].units
+
+
+def test_a_group_of_three_writers_with_one_declaration_is_evaluated_over_the_group():
+    """Assumption A4. `dh:262` says "two or more", and the delta gives no rule
+    for ordering THREE writers — one declaration orders a pair and leaves the
+    third unstated, and no reader can tell which text canon keeps.
+
+    So a group of three or more ratified writers is reported as an unstated
+    ordering regardless of how many declarations it carries. Conservative, and
+    honest about a gap in the delta rather than inventing a chain rule. The
+    population in the real corpus is ZERO, which is why the fixture had to be
+    built.
+    """
+    hits = _ordering(_in("three-writers"))
+    assert len(hits) == 3, [f.rule[:90] for f in hits]
+    assert all("3 active ratified" in f.rule for f in hits)
+
+
+def test_no_basis_is_synthesized_from_a_siblings_added_block():
+    """RULING B4. `add-mo-modifier` MODIFIES a title only `add-mo-adder` ADDS,
+    and declares itself relative to it. The title is PENDING (`dh:278-280`), so
+    it is compared against NOTHING — no basis is built from the adder's text.
+
+    The deleted clause this pins would have measured all seven of the real
+    corpus's MODIFIED-over-a-sibling's-ADDED pairs and invented roughly six
+    `info` findings against text no promoted requirement carries.
+    """
+    assert _in("pending-cap") == []
+
+
+def test_no_date_folder_or_created_field_decides_the_ordering():
+    """The pin that stops the WITHDRAWN reading creeping back. The spike first
+    resolved "later" by `.openspec.yaml` `created:`; Brett ruled "By
+    declaration" on 2026-08-27 and that reading is withdrawn.
+
+    `add-oc-earlier` sorts BEFORE `add-oc-later` by name and by any date a
+    fixture could carry, and the declaration points the same way — so the
+    discriminating assertion is structural: no reader of a date, a folder name or
+    a `created:` field exists in this module at all.
+    """
+    import inspect
+    import re
+
+    src = inspect.getsource(mbc)
+    # MATCHED ON CALL SHAPES, NEVER ON BARE NAMES. The first cut forbade the
+    # substring "created" and failed on this module's own docstrings, which
+    # DESCRIBE the withdrawn reading — and a test that forbids describing the
+    # rule is a bad test (the same lesson `test_the_reader_list_is_structural_
+    # not_incidental` records about matching `_lifecycle_scope(` rather than the
+    # bare name).
+    forbidden = (
+        r"_archive_date\s*\(",          # promotion fidelity's folder-date reader
+        r"first_commit_timestamp\s*\(",  # its archive-commit tie-breaker
+        r"\.created\b",                 # a `created:` field read off an object
+        r"""\[["']created["']\]""",      # ...or off a mapping
+        r"""get\s*\(\s*["']created["']""",
+        r"strftime\s*\(",
+        r"datetime\.",
+    )
+    for pattern in forbidden:
+        assert not re.search(pattern, src), pattern
+    # and no date module is imported at all
+    assert not re.search(r"^\s*(?:import|from)\s+(?:datetime|time)\b", src,
+                         re.M)
