@@ -1,0 +1,101 @@
+schema_version: 1
+kind: pinned_contract_manifest
+
+# ============================================================================
+# openxwallet-pin.yaml — content-addressed consumption of opensoft/openXwallet.
+#
+# openxFactory no longer OWNS the openxWallet family; it CONSUMES it at a
+# commit and a set of digests. This file is the whole of that claim, and
+# `scripts/verify-openxwallet-pin.py` is the running code that checks it.
+#
+# WHY `kind: pinned_contract_manifest` UNCHANGED (design D1). The grammar is
+# ratified and realized twice — openXwallet's own `contract_pin.yaml` and
+# `openAvatar/contract_pin.yaml`. Only the DIRECTION is new, so reusing the kind
+# keeps `neutral-product-pin` a statement about direction rather than a new
+# shape. A new `kind: openxfactory_openxwallet_pin` was REJECTED: rule (a)'s
+# `<consumer>_<product>_pin` template governs DESCENDANTS, and one grammar
+# stretched over both relationships would claim openxFactory is a wallet
+# descendant. Declaring the pin in `stack.yaml` was REJECTED for the same
+# reason: `shared-contract-ownership:146` is written for consuming an
+# openxFactory release, and this is the reverse direction.
+#
+# THE TRUSTED REFERENT IS `commit` PLUS THE EIGHT `sha256`s. `revision_kind:
+# commit` is declared and a tag-only pin is REFUSED (`pin-tag-only`).
+# `contract_bundle_tag:` below is a LABEL beside the commit, never the referent
+# — a movable tag is not a compatibility pin.
+#
+# OFFLINE LAW. The verifier reads this file, the gitlink, and the files this
+# file names. It never reads the network and never reads openXwallet's own
+# `contracts/manifest.yaml`; the live cross-check against the publisher's
+# manifest is a SYNC-TIME obligation
+# (`openXwallet/docs/pin-resync-runbook.md`), never a CI read.
+# ============================================================================
+
+contract_bundle_tag: wallet-v1.1
+source_repository: opensoft/openXwallet
+
+# ADDED to the realized shape (D1): the gitlink this pin governs. Borrowed from
+# the one live descendant pin carrying it (`MedxChart/contracts/
+# openchart-pin.yaml:8`), because a pin with no path cannot be checked against a
+# gitlink.
+submodule_path: openXwallet
+
+# openXwallet at `wallet-v1.1`. Exactly 40 hex characters.
+commit: "63f5a1adac89f017e70bab9a4ffe7cf02d6e6705"
+revision_kind: commit
+
+digest_algorithm: sha256
+
+# openXwallet's OWN manifest is where these digests are published. Recorded so
+# a re-sync knows which document to reconcile against; never read at CI time.
+digest_source: contracts/manifest.yaml
+
+# ADDED to the realized shape (D1): the byte-identity referent. In the FILE and
+# not only in the runbook, because the referent must survive into the tree the
+# gate reads — "HEAD" is no referent across a multi-pull-request wave. This is
+# the openxFactory commit the carve was taken from; every digest below equals
+# the value `contracts/manifest.yaml` recorded at it.
+carve_commit: "30565e48ffe3d8a9773e10af33425701845e10f6"
+
+resync_runbook: openXwallet/docs/pin-resync-runbook.md
+
+# NAMED here so the pin is running code rather than an obligation stated in
+# prose (clarification N3), matching the sibling pin's own `verify_pin:` key.
+verify_pin: scripts/verify-openxwallet-pin.py
+
+# The EIGHT digested members: the seven under `contracts/openxwallet/` plus the
+# agent profile's composition schema. These are the rows openxFactory's own
+# manifest carried per-file digests for until `contract-v2.0`; the values are
+# copied unchanged, which is what makes the shed checkable against the carve.
+files:
+  - path: contracts/openxwallet/openxwallet-record.schema.yaml
+    sha256: "2012ef432616e73ddaead17c5e79aefacef712c2049ff649c15d7230b1d4eb08"
+  - path: contracts/openxwallet/openxwallet-custody-registry.schema.yaml
+    sha256: "df72638497a7f90c2a4dff47c429cb794bc4b6e270ce2dd2b17116478ae3b51a"
+  - path: contracts/openxwallet/openxwallet-custody.registry.yaml
+    sha256: "94d631d6ee76dab015628a1856afd82582b98d6a3733622c9afe8b13b5278539"
+  - path: contracts/openxwallet/openxwallet-grant.schema.yaml
+    sha256: "fde433c5821e2e6f62926a72c58a67a784961d2e9e27e9f2b3520fcc8e738e88"
+  - path: contracts/openxwallet/openxwallet-grant-exercise.schema.yaml
+    sha256: "f16ad31246186cec36e142ae39bd831d98fbc5c0afd48685057bc39e113c8858"
+  - path: contracts/openxwallet/openxwallet-distinct-holder-constraint.schema.yaml
+    sha256: "c2a6d2fd23fb3743fdaf0e165dabc4cb1dff24e52a8262a38c86ed1482374b25"
+  - path: contracts/openxwallet/openxwallet-subject-attestation.schema.yaml
+    sha256: "d29eca519462aff7871de3786f19c820e9fc3b95115ce30e57d1f1cc2bc0c0b2"
+  - path: contracts/openxwallet-agent-profile/openxwallet-agent-composition.schema.yaml
+    sha256: "aed3978e8ae952f3ff5b3de1f672bba5da350d5aaeb442feafaa870b4de4be91"
+
+# PATH ONLY, with no invented per-file digests. The publisher declares these
+# members "content-addressed by commit; no per-file digest", and inventing
+# digests inside a byte-identical move would add rows the publisher never
+# published. The gitlink commit fixes these bytes as strongly: the verifier
+# compares BOTH the recorded gitlink and the checked-out revision against
+# `commit:` above, so a swap of any of these files is a swap of the commit.
+# Presence is checked here; identity comes from the commit.
+pinned_by_commit_only:
+  - scripts/validate-openxwallet.py
+  - scripts/wallet-yaml-syntax-gate.py
+  - contracts/openxwallet/examples
+  - contracts/openxwallet-agent-profile/examples
+  - contracts/openxwallet/README.md
+  - contracts/openxwallet-agent-profile/README.md

@@ -294,19 +294,31 @@ retroactively invalidate an old pin.
   observed hashes, a buffer-key proposal target, and the selected-model
   metadata. Deprecated at contract-v1.34; removal target contract-v2.0. The v1
   bytes are unchanged and keep validating until then.
+
+## Deprecations Executed
+
+A deprecation leaves the list above when the removal it announced actually
+lands. It is recorded HERE rather than deleted, because a consumer upgrading across
+the removal needs the migration path to still be readable at the version it is
+upgrading TO — and because a deprecation silently disappearing from a policy document
+is indistinguishable from one that was never honoured.
+
 - The eight openxWallet contracts (`openxwallet-record`,
   `openxwallet-custody-registry-schema`, `openxwallet-custody-registry`,
   `openxwallet-grant`, `openxwallet-grant-exercise`,
-  `openxwallet-distinct-holder-constraint`, `openxwallet-subject-attestation` in
-  `contracts/openxwallet/`, and `openxwallet-agent-composition` in
-  `contracts/openxwallet-agent-profile/`) — their canonical home RELOCATES to
-  `opensoft/openXwallet` at tag `wallet-v1.1`. Each manifest row carries a
-  `relocating: {to, tag, since}` mapping, and
-  `scripts/check-openxfactory-pin.py` emits a WARN-tier notice naming every
-  relocating artifact when a domain pins a bundle that carries them. Migration is
-  to read the artifacts from the target repository and pin them through
-  `contracts/openxwallet-pin.yaml`, which arrives at the major; from the major
-  forward this family's conformance validator is the pinned openXwallet
-  `scripts/validate-openxwallet.py` at the digest that pin records. Deprecated at
-  contract-v1.47; removal target contract-v2.0. The bytes are unchanged and keep
-  validating until then.
+  `openxwallet-distinct-holder-constraint`, `openxwallet-subject-attestation`,
+  and `openxwallet-agent-composition`) — **REMOVED at contract-v2.0**, the full
+  minor of deprecation warnings having been served by contract-v1.47 as `:250-254`
+  requires. Their canonical home is `opensoft/openXwallet` at tag `wallet-v1.1`.
+  openxFactory now CONSUMES the family: `contracts/openxwallet-pin.yaml` pins the
+  publisher by 40-hex COMMIT plus eight per-file `sha256` digests (the tag is a
+  label beside them, never the referent) and records the NAMED CARVE COMMIT the
+  digests were taken at; `scripts/verify-openxwallet-pin.py` checks it and fails
+  closed with a named refusal code and a fixed remediation trailer. **The `:253-254`
+  conformance-validator clause is discharged by the move itself**: from contract-v2.0
+  forward this family's conformance validator IS the pinned
+  `openXwallet/scripts/validate-openxwallet.py` at the commit the pin records, run
+  over openxFactory's own tree as the REQUIRED `wallet-validation` check. Migration:
+  `contracts/CHANGELOG.md` § `contract-v2.0` and
+  `openXwallet/docs/pin-resync-runbook.md`. Deprecated at contract-v1.47, removed at
+  contract-v2.0.

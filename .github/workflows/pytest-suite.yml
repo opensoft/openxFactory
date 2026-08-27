@@ -2,7 +2,8 @@
 # (issue #292).
 #
 # Until this workflow, NO trigger in this repository ran pytest at all:
-# `wallet-validation.yml` runs two wallet scripts, `doc-health-reusable.yml` is
+# `openxwallet-consumer-gate.yml` runs the pinned wallet readers,
+# `doc-health-reusable.yml` is
 # workflow_call-only, and `session-open-pr.yml` is workflow_dispatch. That left
 # ~6,200 tests — including the whole ideation-dashboard suite and every
 # behavioral pin in it — enforced by nothing but local discipline. This
@@ -11,7 +12,7 @@
 # The job carries no display name on purpose: the status check must surface as
 # exactly `pytest-suite`, the literal token branch protection pins. A distinct
 # job display name silently de-advises the gate — the same rule
-# `wallet-validation.yml` documents for itself.
+# `openxwallet-consumer-gate.yml` documents for itself.
 #
 # WHY THE FULL SUITE IN ONE JOB. Measured by simulating this job exactly — a
 # fresh clone into a directory named `openxFactory` with no aggregation
@@ -39,6 +40,22 @@
 # inside a PR-gate budget, so there is no reason to fall back to a collect-only
 # guard plus a partial run — this job pins the collection health AND every
 # assertion.
+#
+# THE PINNED TRIPLE, AND WHY COLLECTION ALONE IS NOT ENOUGH. Those figures were
+# prose until `split-openxwallet-repo` P3, which made a silently SKIPPED
+# `tests/trust-anchor/` indistinguishable from a passing one: that directory now
+# reads the openxWallet custody registry through the `openXwallet/` gitlink, so
+# an uninitialized submodule could turn a whole suite into skips while collection
+# and the human summary both still looked healthy. So the numbers below are read
+# from the JUnit XML's `<testsuite>` ATTRIBUTES, not grepped out of the human
+# summary line, and three of them are pinned — SELECTED, PASSED, SKIPPED — with
+# failures and errors required to be zero. A skip that moves from one bucket to
+# another moves a pinned number and reds the gate.
+#
+# SELECTED is the JUnit `tests` attribute: the tests that RAN, which is
+# collection minus the `-m "not postgres"` deselection. It is not the same number
+# as `--collect-only`'s, and conflating the two is how a pin like this goes
+# stale in one direction and unnoticed in the other.
 #
 # The 17 skips are self-skipping guards ("no sibling openxFactory checkout",
 # "no aggregation checkout reachable from this tree") that stand down when no
@@ -145,7 +162,8 @@
 # Second, a paths filter on a check that is later marked REQUIRED deadlocks
 # every PR it skips: the check never reports, and GitHub waits for it forever.
 # Running unconditionally costs a few minutes of runner time and removes both
-# hazards. (`wallet-validation.yml` likewise carries no paths filter, though it
+# hazards. (`openxwallet-consumer-gate.yml` likewise carries no paths filter,
+# though it
 # does not say why.)
 #
 # The `push: main` trigger exists for the same first reason: it catches a
@@ -212,10 +230,43 @@ jobs:
       run:
         working-directory: openxFactory
     steps:
+      # THE NESTED GITLINK. `tests/trust-anchor/` reads the openxWallet custody
+      # registry through `openXwallet/`, which is a SECOND, PRIVATE org
+      # repository: `github.token` is scoped to this repository alone and cannot
+      # clone it. The house pattern of `doc-health-reusable.yml:140-158` is
+      # therefore used — mint an App token, rewrite the SSH URL with `insteadOf`
+      # BEFORE checkout, then init the one gitlink by name. The secret names are
+      # this repository's own content App (App 4253636, installation 145372182,
+      # `repository_selection: all`), because the org secret `XFACTORY_APP_ID`
+      # is visibility-`selected` and openxFactory is not among its repositories.
+      #
+      # `submodules: true` on the checkout is NOT the fix and is deliberately
+      # absent: without the URL rewrite it cannot authenticate at all, and with
+      # it, it would additionally fetch `installs/omnigent-install`, which no
+      # test here reads. `--recursive` is rejected one level down for the same
+      # reason.
+      - name: Mint openxFactory app token
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.OPENXFACTORY_APP_ID }}
+          private-key: ${{ secrets.OPENXFACTORY_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
+      - name: Rewrite ssh submodule URLs for token auth
+        working-directory: .
+        run: |
+          git config --global url."https://x-access-token:${TOKEN}@github.com/".insteadOf "git@github.com:"
+        env:
+          TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+
       - uses: actions/checkout@v4
         with:
           path: openxFactory
           fetch-depth: 0
+
+      - name: Init the openXwallet gitlink only
+        run: git submodule update --init openXwallet
 
       - uses: actions/setup-python@v5
         with:
@@ -229,4 +280,48 @@ jobs:
 
       - run: pip install --require-hashes -r requirements/hermes-runtime-contracts.lock
 
-      - run: python3 -m pytest tests/ -q -m "not postgres"
+      # `--junitxml` is a CLI option, not a pytest.ini option: `pytest.ini`'s
+      # ratified option-free design is untouched. `|| true` is deliberately
+      # ABSENT — a failing suite must fail this step, and the pin below is a
+      # SECOND gate on top of that, never a substitute for it.
+      - run: python3 -m pytest tests/ -q -m "not postgres" --junitxml=pytest-report.xml
+
+      # THE PINNED TRIPLE, read from the JUnit XML attributes. See the header.
+      - name: Pin the selected / passed / skipped triple
+        shell: bash
+        # THE PIN IS TAKEN FROM CI'S OWN RUN, NOT FROM A DEVELOPER MACHINE.
+        # The header already records why the two differ: the self-skip guards
+        # ("no sibling openxFactory checkout", "no aggregation checkout
+        # reachable from this tree") stand down on a runner and resolve in a
+        # developer worktree that sits inside the aggregation, so a locally
+        # measured SKIPPED is knowably the wrong number to pin. Until the first
+        # run on this workflow reports, these carry a sentinel and the step
+        # FAILS LOUDLY printing the actual triple — a wrong pin that fails is
+        # correctable; a pin guessed from the wrong environment and passing is
+        # not detectable at all.
+        env:
+          EXPECT_SELECTED: "PIN-FROM-FIRST-CI-RUN"
+          EXPECT_PASSED: "PIN-FROM-FIRST-CI-RUN"
+          EXPECT_SKIPPED: "PIN-FROM-FIRST-CI-RUN"
+        run: |
+          set -euo pipefail
+          read -r SELECTED PASSED SKIPPED FAILURES ERRORS < <(python3 - <<'PY'
+          import xml.etree.ElementTree as ET
+          root = ET.parse("pytest-report.xml").getroot()
+          suites = [root] if root.tag == "testsuite" else list(root)
+          selected = sum(int(s.get("tests", 0)) for s in suites)
+          skipped = sum(int(s.get("skipped", 0)) for s in suites)
+          failures = sum(int(s.get("failures", 0)) for s in suites)
+          errors = sum(int(s.get("errors", 0)) for s in suites)
+          print(selected, selected - skipped - failures - errors,
+                skipped, failures, errors)
+          PY
+          )
+          echo "selected=$SELECTED passed=$PASSED skipped=$SKIPPED failures=$FAILURES errors=$ERRORS"
+          rc=0
+          [ "$FAILURES" = "0" ] || { echo "::error::$FAILURES failure(s)"; rc=1; }
+          [ "$ERRORS" = "0" ] || { echo "::error::$ERRORS error(s)"; rc=1; }
+          [ "$SELECTED" = "$EXPECT_SELECTED" ] || { echo "::error::selected $SELECTED, pinned $EXPECT_SELECTED — update the pin in this workflow with the reason, or find the tests that stopped being collected"; rc=1; }
+          [ "$PASSED" = "$EXPECT_PASSED" ] || { echo "::error::passed $PASSED, pinned $EXPECT_PASSED"; rc=1; }
+          [ "$SKIPPED" = "$EXPECT_SKIPPED" ] || { echo "::error::skipped $SKIPPED, pinned $EXPECT_SKIPPED — a directory that silently turned into skips is exactly what this pin exists to catch"; rc=1; }
+          exit $rc

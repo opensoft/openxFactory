@@ -524,7 +524,7 @@ a removed shape BREAKING and requires one full preceding minor.*
       have never been inventory members — not at `contract-v1.45` either. The
       surface "still contains" them TRANSITIVELY: `contracts/manifest.yaml` IS a
       digested member and the digest recorded is an eight-row manifest's.
-- [ ] 5.8 **[OPERATOR]** Allocate the minor number AT MERGE ORDER, never before
+- [x] 5.8 **[OPERATOR]** Allocate the minor number AT MERGE ORDER, never before
       (`:30-31`), and cut the tag — a bundle is not published until its tag exists.
       **NOT TICKED — deliberately.** Feature 018 authors the bundle as
       `contract-v1.47` and states in its pull request that the number is
@@ -534,6 +534,14 @@ a removed shape BREAKING and requires one full preceding minor.*
       first. The tag is NOT created: `contract-v1.44` and `contract-v1.45`
       are both annotated tags cut by the operator and no workflow makes
       them. This box closes when Brett cuts the tag on the merged commit.
+      **CLOSED 2026-08-27.** The operator cut the annotated tag `contract-v1.47`
+      on `af7ac0fa4d31ffeec45524a0fe74524ba5b5b22c`, and `python3
+      scripts/validate-contract-release.py verify-tag --remote origin --tag
+      contract-v1.47` returns `release verify-tag: pass`. The number HELD at merge
+      order — no other bundle landed between authoring and merge, so none of the
+      four places carrying it had to move. P2.5 is therefore a PUBLISHED bundle
+      (`docs/contract-versioning-policy.md:31-32`), which is the precondition P3's
+      major needs to exist at all. Ticked by feature `023-openxwallet-consume-shed`.
 - [x] 5.9 Evidence row: the eight `relocating:` rows, the CHANGELOG migration
       note, `check-openxfactory-pin.py`'s WARN output, AND the minor's own
       `contracts/releases/<tag>.digests.yaml`.
@@ -573,25 +581,47 @@ cannot both precede P2 and pin a bundle P2.5 has not published.*
 custody registry is absent: no ordering of two commits leaves a green
 intermediate.*
 
-- [ ] 7.1 **[OPERATOR]** **Sequencing guard, and there is no third option:**
+- [x] 7.1 **[OPERATOR]** **Sequencing guard, and there is no third option:**
       `governance/review-authority/register.yaml:37` carries `expires_at:
       "2026-11-23T12:00:00Z"` and `check_register` raises `register-row-expired`
       as an ERROR past that instant, reddening the REQUIRED gate on every later
       pull request — the wave's own included — and making its evidence rows
       unfillable. **Either re-issue the row before 2026-11-23, or do not schedule
       P3 after 2026-11-01.** Record which was chosen.
-- [ ] 7.2 Add the nested submodule `openXwallet/` at `wallet-v1.1`, plus the
+      **Evidence:** RECORDED — **the second option was chosen: P3 is not scheduled
+      after 2026-11-01.** This pull request is opened 2026-08-27, 66 days inside the
+      window, so the row is not re-issued and `expires_at: "2026-11-23T12:00:00Z"`
+      is left exactly as it stands. The gate proves the row is live today: the
+      consumer-gate log carries `intake register read:
+      governance/review-authority/register.yaml (1 row(s))` and NO
+      `register-row-expired`. If the merge slips past 2026-11-01 the choice
+      re-opens and the row must be re-issued first; there is still no third
+      option.
+- [x] 7.2 Add the nested submodule `openXwallet/` at `wallet-v1.1`, plus the
       `.gitmodules` entry keeping `git@github.com:` (openXwallet is PRIVATE; an
       anonymous HTTPS clone fails and a token is needed either way, while an HTTPS
       URL makes every human clone prompt for credentials).
-- [ ] 7.3 `contracts/openxwallet-pin.yaml` — `kind: pinned_contract_manifest`
+      **Evidence:** REALIZED. `.gitmodules` gains `[submodule "openXwallet"] path =
+      openXwallet / url = git@github.com:opensoft/openXwallet.git`; the recorded
+      gitlink is `63f5a1adac89f017e70bab9a4ffe7cf02d6e6705` and
+      `git -C openXwallet describe --tags` returns `wallet-v1.1`. The tag is an
+      ANNOTATED tag (object `021cdeef…`) whose `object.sha` is that commit, resolved
+      through the API rather than assumed.
+- [x] 7.3 `contracts/openxwallet-pin.yaml` — `kind: pinned_contract_manifest`
       reused UNCHANGED, on the realized keycloak-install shape field for field,
       plus `submodule_path: openXwallet` (borrowed from
       `MedxChart/contracts/openchart-pin.yaml:8`, because a pin with no path
       cannot be checked against a gitlink) and `carve_commit:` (in the FILE, not
       only the runbook, because the byte-identity referent must survive into the
       tree the gate reads).
-- [ ] 7.4 The pin's `files:` carries the EIGHT digested members (seven under
+      **Evidence:** REALIZED at `contracts/openxwallet-pin.yaml`. `kind:
+      pinned_contract_manifest` reused byte-unchanged; `submodule_path:
+      openXwallet`; `carve_commit: "30565e48ffe3d8a9773e10af33425701845e10f6"` in the
+      FILE. One field beyond D1's shape: `verify_pin:
+      scripts/verify-openxwallet-pin.py`, mirroring the sibling pin
+      (`openXwallet/contract_pin.yaml`) so clarification N3's "running code, not
+      prose" is declared in the pin itself rather than only in the workflow.
+- [x] 7.4 The pin's `files:` carries the EIGHT digested members (seven under
       `contracts/openxwallet/` plus
       `openxwallet-agent-profile/openxwallet-agent-composition.schema.yaml`) and
       `pinned_by_commit_only:` carries the validator, the syntax gate, both
@@ -600,7 +630,16 @@ intermediate.*
       commit. `revision_kind: commit` with a 40-hex `commit`; `contract_bundle_tag:
       wallet-v1.1` is a LABEL beside them and never the trusted referent, and a
       tag-only pin is refused.
-- [ ] 7.5 `scripts/verify-openxwallet-pin.py` — six ordered checks: `openXwallet/.git`
+      **Evidence:** REALIZED. `files:` carries the EIGHT digested members — the seven
+      under `contracts/openxwallet/` plus
+      `openxwallet-agent-profile/openxwallet-agent-composition.schema.yaml` — with the
+      `sha256` values copied from the manifest rows AND independently recomputed
+      against the submodule (two derivations, one answer). `pinned_by_commit_only:`
+      carries six path-only members: both scripts, both `examples/` directories and
+      both family READMEs. `revision_kind: commit` with a 40-hex `commit`;
+      `contract_bundle_tag: wallet-v1.1` sits beside them as a label and a tag-only
+      pin is refused (`pin-tag-only`).
+- [x] 7.5 `scripts/verify-openxwallet-pin.py` — six ordered checks: `openXwallet/.git`
       **exists** (a submodule's `.git` is a FILE, so not `is_dir()`); the RECORDED
       gitlink (`git ls-tree HEAD -- openXwallet`) equals `commit`; the CHECKED-OUT
       revision (`git -C openXwallet rev-parse HEAD`) equals `commit` — both,
@@ -608,7 +647,15 @@ intermediate.*
       comparison catches each case; each of the eight `files:` members recomputes
       to its `sha256`; every `pinned_by_commit_only:` path exists; `revision_kind`
       is `commit` and `commit` is 40 hex.
-- [ ] 7.6 Its refusals exit 2 with NAMED codes —
+      **Evidence:** REALIZED at `scripts/verify-openxwallet-pin.py` — six ordered
+      checks exactly as specified, including `.exists()` rather than `is_dir()` on
+      `openXwallet/.git` and the two SEPARATE comparisons (recorded gitlink, then
+      checked-out revision). One documented addition: when `git ls-tree HEAD --
+      openXwallet` is empty because the gitlink is staged and not yet committed, the
+      recorded gitlink is read from the INDEX and the output says so — CI always has
+      it in HEAD, and a pre-commit local run must still be checkable rather than
+      silently unrunnable.
+- [x] 7.6 Its refusals exit 2 with NAMED codes —
       `pin-submodule-uninitialized`, `pin-gitlink-mismatch`,
       `pin-checkout-mismatch`, `pin-digest-mismatch`, `pin-member-missing`,
       `pin-tag-only` — and every fail-closed refusal in this wave prints the one
@@ -616,10 +663,25 @@ intermediate.*
       openXwallet` (NOT `--recursive`; the wave's init is deliberately scoped),
       and `openXwallet/docs/pin-resync-runbook.md` if the pin itself
       is stale.
-- [ ] 7.7 `scripts/verify-openxwallet-pin.py --aggregation-root <path>` mode: the
+      **Evidence:** REALIZED. All six codes exit 2 and are reproduced hermetically in
+      `tests/openxwallet_pin/test_verify_pin.py` (35 cases, zero skips). The one fixed
+      trailer is the module constant `REMEDIATION`: *Remediation: run `git submodule
+      update --init openXwallet` (NOT --recursive; this wave's init is deliberately
+      scoped). If the pin itself is stale, follow
+      `openXwallet/docs/pin-resync-runbook.md`.* A seventh code `pin-unreadable`
+      covers a pin that states no checkable claim; it is deliberately NOT in
+      `REFUSAL_CODES`, and a test asserts that.
+- [x] 7.7 `scripts/verify-openxwallet-pin.py --aggregation-root <path>` mode: the
       root-gitlink-equals-nested-gitlink check P4 invokes. One implementation, one
       refusal vocabulary, living in openxFactory.
-- [ ] 7.8 `scripts/validate-trust-anchor.py`: `OPENXWALLET_REGISTRY_PATH`
+      **Evidence:** REALIZED. `--aggregation-root <path>` reads the aggregation's
+      root-level `openXwallet` gitlink (HEAD, index fallback) and compares it against
+      the pin's `commit` — which IS the nested gitlink, since checks 2 and 3 have
+      already pinned both nested values to it, so there is one referent rather than
+      two that must be kept equal. Run against `/home/brett/projects/xFactory` today
+      it refuses `pin-member-missing`, correctly: the aggregation carries no such
+      gitlink until P4.
+- [x] 7.8 `scripts/validate-trust-anchor.py`: `OPENXWALLET_REGISTRY_PATH`
       (`:322-323`) stays a MODULE-SCOPE plain `Path`, rebased onto the pin's
       `submodule_path` as a pure string join with NO I/O — because
       `tests/trust-anchor/test_negative_corpus.py:47` and
@@ -627,26 +689,69 @@ intermediate.*
       `MODULE.load_yaml(MODULE.OPENXWALLET_REGISTRY_PATH)` at setup, and any
       resolution that can fail at import kills every trust-anchor test at
       collection.
-- [ ] 7.9 The pin-and-digest check runs inside `main()`, never at import, and
+      **Evidence:** REALIZED. `OPENXWALLET_REGISTRY_PATH = ROOT / "openXwallet" /
+      "contracts" / "openxwallet" / "openxwallet-custody.registry.yaml"` — module
+      scope, plain `Path`, pure string join, no I/O, `openXwallet` as a LITERAL rather
+      than read from the pin (reading the pin here would be import-time I/O).
+      `pytest tests/trust-anchor/ -q --collect-only` collects 93 with no errors, which
+      is the property the constraint exists to protect. `:2614`'s
+      `relative_to(ROOT)` still resolves and the note now names the path under
+      `openXwallet/`.
+- [x] 7.9 The pin-and-digest check runs inside `main()`, never at import, and
       the bare file-absent exit at `:2582-2586` is REPLACED by the verifier's
       call — so the refusal gains identity where it had only presence. Rule (f)
       (`:1146-1176`) fails closed on an uninitialized submodule or a digest
       disagreeing with the pin.
-- [ ] 7.10 `tests/trust-anchor/` follows the repoint: the negative corpus and the
+      **Evidence:** REALIZED. The bare `is_file()` exit is replaced inside `main()` by
+      `refuse_unless_openxwallet_pinned()`, which loads the verifier LAZILY (this
+      module is imported by the tests, so an import-scope load makes them
+      uncollectable), calls `verify(ROOT)`, and prints the composition context before
+      the verifier's own refusal so the fixed trailer stays last. A verifier that will
+      not load is itself a refusal — never a fallback to presence. No `--strict` gate,
+      no opt-in, no warning tier.
+- [x] 7.10 `tests/trust-anchor/` follows the repoint: the negative corpus and the
       declaration perimeter read the wallet registry through the `openXwallet/`
       gitlink, and two new cases cover the uninitialized-submodule and
       digest-disagreement refusals by their named codes.
-- [ ] 7.11 Delete the twelve path sets' openxFactory copies — with the THREE
+      **Evidence:** REALIZED. `tests/trust-anchor/test_openxwallet_pin_refusal.py`
+      covers `pin-submodule-uninitialized` and `pin-digest-mismatch` by NAMED CODE,
+      each asserting the code, its membership in the verifier's `REFUSAL_CODES`, the
+      remediation trailer in stderr, exit 2 and EMPTY stdout (proving short-circuit,
+      not warn-through). Three further cases were added because the change introduced
+      the paths: a verifier-unloadable case where the registry IS present (proving
+      presence buys nothing), the literal-vs-`submodule_path` agreement check, and an
+      import-with-nothing-on-disk subprocess probe. The negative corpus and the
+      declaration perimeter needed no edit — both already read through
+      `MODULE.OPENXWALLET_REGISTRY_PATH` — and were deliberately not churned.
+      `tests/trust-anchor/`: 93 passed, 0 skipped.
+- [x] 7.11 Delete the twelve path sets' openxFactory copies — with the THREE
       deliberate exceptions: the two promoted specs empty when `openspec archive`
       applies the REMOVED deltas, and
       `openspec/changes/archive/2026-08-08-add-openxwallet/` is a record that is
       ANNOTATED, never removed.
-- [ ] 7.12 `.github/workflows/wallet-validation.yml` →
+      **Evidence:** REALIZED — 92 files deleted, which is the carve's 100 minus the
+      three exceptions' 8, and that arithmetic IS the completeness check. Deleted:
+      `contracts/openxwallet/`, `contracts/openxwallet-agent-profile/`,
+      `scripts/validate-openxwallet.py`, `scripts/wallet-yaml-syntax-gate.py`,
+      `tests/wallet_yaml_syntax_gate/`, `.github/workflows/wallet-validation.yml`,
+      `specs/006-openxwallet-contracts/`, `specs/010-wallet-validator-ci/`,
+      `specs/012-wallet-issuer-anchor/`. Left in place: the two promoted specs (for
+      `openspec archive` to empty via the ratified REMOVED deltas) and
+      `openspec/changes/archive/2026-08-08-add-openxwallet/`, annotated in `README.md`
+      and `docs/archive-record-discrepancies.md` and never removed.
+- [x] 7.12 `.github/workflows/wallet-validation.yml` →
       `.github/workflows/openxwallet-consumer-gate.yml`, with `jobs:
       wallet-validation:` **RETAINED**. Ruleset 21538893 is edited by NOTHING in
       this wave; the token reports on P3's own pull-request head from the new file;
       no operator act stands between P3 and merge.
-- [ ] 7.13 The consumer gate's steps, in order: `create-github-app-token@v2` →
+      **Evidence:** REALIZED. `.github/workflows/openxwallet-consumer-gate.yml`
+      declares `jobs:` key `wallet-validation` and carries no job `name:`;
+      `wallet-validation.yml` is deleted in the same commit. Ruleset 21538893 is
+      untouched by this feature. A test asserts the job id, the absence of a display
+      name, and that the retired FILE does not survive alongside the new one — two
+      workflows declaring the same required job id would let the ruleset be satisfied
+      by whichever ran the weaker gate.
+- [x] 7.13 The consumer gate's steps, in order: `create-github-app-token@v2` →
       `git config --global url."https://x-access-token:$TOKEN@github.com/".insteadOf
       "git@github.com:"` BEFORE checkout → checkout → scoped `git submodule update
       --init openXwallet` (NOT `--recursive`) → `verify-openxwallet-pin.py` →
@@ -654,7 +759,19 @@ intermediate.*
       openXwallet/scripts/validate-openxwallet.py . | tee wallet-gate.log` (no
       `--strict`, unchanged from `wallet-validation.yml:34`) → the positive
       register assertion.
-- [ ] 7.14 `tests/openxwallet_consumer_gate/test_gate_invocation.py`, collected by
+      **Evidence:** REALIZED in that order. One correction of substance: the token is
+      minted from `OPENXFACTORY_APP_ID` / `OPENXFACTORY_APP_PRIVATE_KEY`, not
+      `XFACTORY_APP_*`. The org secret `XFACTORY_APP_ID` is visibility-`selected` and
+      openxFactory is NOT one of its two repositories, so the ratified name would have
+      resolved to EMPTY here and the nested clone would have failed with a 403 that
+      reads like a missing submodule. The PATTERN is the ratified one; the secret names
+      are this repository's own content App (App `4253636`, installation `145372182`,
+      `repository_selection: all`, so no installation edit was needed). Recorded in
+      `specs/023-openxwallet-consume-shed/research.md` R1 and
+      `evidence/operator-acts.md`. The validator step additionally declares
+      `shell: bash` so it runs under `-o pipefail`: the default `run` shell does not
+      set it, and `| tee` would otherwise return 0 over a failing validator.
+- [x] 7.14 `tests/openxwallet_consumer_gate/test_gate_invocation.py`, collected by
       the REQUIRED `pytest-suite`: it loads the workflow YAML, asserts `jobs`
       contains `wallet-validation`, and asserts one step's `run` is EXACTLY
       `python3 openXwallet/scripts/validate-openxwallet.py .` — the argument
@@ -662,36 +779,107 @@ intermediate.*
       None` and reads the register only `if sweep`, where `sweep =
       target.is_dir()`. A missing or file-valued argument is a green check that
       opened no register.
-- [ ] 7.15 The register assertion is POSITIVE and needs no edit to the pinned
+      **Evidence:** REALIZED at `tests/openxwallet_consumer_gate/test_gate_invocation.py`
+      (14 cases). It asserts `jobs` contains `wallet-validation`, that exactly ONE step
+      invokes the pinned validator, that its `run` equals the whole ratified line
+      `python3 openXwallet/scripts/validate-openxwallet.py . | tee wallet-gate.log`,
+      AND that the command half equals exactly `python3
+      openXwallet/scripts/validate-openxwallet.py .` — which honours 7.13's line and
+      7.14's "present AND equal to `.`" together and is strictly stronger than either.
+      Also pinned: no `--strict`, `shell: bash`, the step ORDER, the scoped init, the
+      ABSENCE of a blanket `submodules:` on the checkout, and that neither departing
+      openxFactory reader exists.
+- [x] 7.15 The register assertion is POSITIVE and needs no edit to the pinned
       code: the gate log carries the `repo scan: N openxWallet artifact` note AND
       carries neither `no intake register at this tree` nor any `register-*`
       finding code, which together prove `reg_path.exists()` was true AT the scan
       target. The test asserts that conjunction AND `wallet-v1.1`'s
       register-read NOTE, so it does not go stale across the tag.
-- [ ] 7.16 `.github/workflows/pytest-suite.yml`: the same app-token +
+      **Evidence:** REALIZED as the POSITIVE conjunction, in the workflow and in the
+      test. Measured locally against the pinned reader on the post-shed tree:
+      `note  intake register read: governance/review-authority/register.yaml (1
+      row(s))` and `note  repo scan: 2 openxWallet artifact(s) validated, 1612
+      document(s) skipped as another kind`, with no `no intake register at this tree`
+      line and no `[register-*]` code. The scan count moved 3 → 2 across the shed
+      because openxFactory's own copy of the custody registry was being adjudicated as
+      a live record and is gone; the remaining two are the live grant and attestation
+      under `governance/review-authority/`, which is exactly the population R6 keeps
+      here.
+- [x] 7.16 `.github/workflows/pytest-suite.yml`: the same app-token +
       `insteadOf` + scoped-init pattern added to its checkout (`:203-206`, which
       has none of it today) — `submodules: true` alone is NOT sufficient and is
       explicitly not the fix.
-- [ ] 7.17 `pytest-suite.yml`'s pinned header count at `:37` becomes a pinned
+      **Evidence:** REALIZED. `pytest-suite.yml` gains the app-token step, an
+      `insteadOf` step with `working-directory: .` (the job's default
+      working-directory is `openxFactory`, which does not exist before checkout), and a
+      scoped `git submodule update --init openXwallet` after checkout.
+      `submodules: true` is deliberately NOT added, exactly as this task requires, and
+      the consumer-gate test asserts the equivalent for the gate: a blanket init would
+      also fetch `installs/omnigent-install`, which no test here reads.
+- [x] 7.17 `pytest-suite.yml`'s pinned header count at `:37` becomes a pinned
       TRIPLE — collected, passed, SKIPPED — read from the JUnit XML attributes
       rather than grepped from the human summary, so a silently skipped
       `tests/trust-anchor/` moves a pinned number and fails.
-- [ ] 7.18 `pytest-suite.yml`'s three `wallet-validation.yml` references at `:5`,
+      **Evidence:** REALIZED. A new step parses `pytest-report.xml`'s `<testsuite>`
+      attributes and pins a TRIPLE — selected (the JUnit `tests` attribute, which is
+      collection minus the `-m "not postgres"` deselection), passed, and SKIPPED —
+      additionally requiring `failures` and `errors` to be zero. The header records why
+      SELECTED is not `--collect-only`'s number, because conflating the two is how a
+      pin like this goes stale in one direction and unnoticed in the other. The values
+      are pinned from CI's OWN run, not from a developer machine: this worktree sits
+      under the aggregation, so locally-resolving self-skip guards make the two
+      environments differ by design — which is the same two-skip difference the
+      workflow header already documented.
+- [x] 7.18 `pytest-suite.yml`'s three `wallet-validation.yml` references at `:5`,
       `:14` and `:148` renamed to `openxwallet-consumer-gate.yml`.
-- [ ] 7.19 `.github/workflows/doc-health-reusable.yml`: BOTH non-recursive
+      **Evidence:** REALIZED — all three references now read
+      `openxwallet-consumer-gate.yml`, and
+      `grep wallet-validation.yml .github/workflows/pytest-suite.yml` is empty.
+- [x] 7.19 `.github/workflows/doc-health-reusable.yml`: BOTH non-recursive
       governed-submodule init filters (`:154-158`, `:815-819`) gain a second
       scoped init for `openxFactory/openXwallet`. Not `--recursive`, which would
       pull `installs/omnigent-install` and every domain's nested submodules into
       every aggregation doc-health run.
-- [ ] 7.20 `contracts/manifest.yaml`: the eight rows at `:1967-2082` DELETED, and
+      **Evidence:** REALIZED at BOTH sites. Each gains `git -C openxFactory submodule
+      update --init openXwallet` — note the `-C openxFactory`: `openXwallet` is a
+      submodule OF a submodule, so the existing filter cannot reach it (it reads the
+      AGGREGATION's `.gitmodules`, which declares `openxFactory` and nothing below it).
+      NOT `--recursive`. One addition beyond the ratified text: the init is GUARDED on
+      the nested `.gitmodules` actually declaring `submodule.openXwallet.path`, because
+      the aggregation's openxFactory pin moves in a LATER pull request (P4 after P3)
+      and an unguarded invocation would fail the nightly for the wave's ordering rather
+      than for a defect.
+- [x] 7.20 `contracts/manifest.yaml`: the eight rows at `:1967-2082` DELETED, and
       the seven incoming citations at `:2089`, `:2146`, `:2251`, `:2287`, `:2423`,
       `:2473-2475` and `:2494-2495` REWORDED to the pin — never deleted, because
       the precedent each cites still holds.
-- [ ] 7.21 `contracts/README.md:106-108` collapses to ONE "consumed at pin" row;
+      **Evidence:** REALIZED. The eight rows AND their family header comment are
+      deleted (the header is the "content-addressed by commit" declaration for the
+      family that left) and replaced by a comment pointing at the pin and the migration
+      path. The SEVEN incoming citations were re-located BY CONTENT because the line
+      numbers had drifted, and all seven are REWORDED, none deleted: the two
+      no-per-file-digest precedents, the credential-contracts holder citation, the
+      trust-anchor precedent, the revocation-vocabulary constant, the PATH-BEARING
+      custody-correspondence citation (now
+      `openXwallet/contracts/openxwallet/openxwallet-custody.registry.yaml`, with the
+      refusal named), and the chain-custody correspondence prose.
+      `contract_bundle_version: contract-v2.0`.
+- [x] 7.21 `contracts/README.md:106-108` collapses to ONE "consumed at pin" row;
       `contracts/CHANGELOG.md` gains the MAJOR entry with the removal and the
       migration path; `contracts/releases/<the major>.digests.yaml` over a release
       surface that NO LONGER contains the eight artifacts.
-- [ ] 7.22 `README.md` at every range the proposal names: `:217-228` (the wallet
+      **Evidence:** REALIZED. `contracts/README.md`'s three wallet rows collapse to ONE
+      "consumed at pin" row, and the two trust-anchor rows that cited the wallet
+      registry by path are repointed. `contracts/CHANGELOG.md` gains the MAJOR entry,
+      which discharges all three `:250-254` clauses EXPLICITLY — including the third by
+      naming the move itself as the conformance-validator update.
+      `contracts/releases/contract-v2.0.digests.yaml` was built by `python3
+      scripts/validate-contract-release.py build --tag contract-v2.0` (192 entries) and
+      a second build is byte-identical. Also `docs/contract-versioning-policy.md` moves
+      the openxWallet deprecation from "Currently In Force" into a new "Deprecations
+      Executed" section — recorded, not deleted, because a consumer upgrading ACROSS
+      the removal needs the migration path readable at the version it upgrades TO.
+- [x] 7.22 `README.md` at every range the proposal names: `:217-228` (the wallet
       validation gate section — the workflow FILE is renamed while the ruleset
       TOKEN is deliberately unchanged), `:286-293`, `:310`, `:805`, `:873-927`
       (including `:896`'s "advisory until an operator marks it required", already
@@ -699,41 +887,129 @@ intermediate.*
       declined-floor prose stands unchanged; `:920-921` names the retiring
       workflow and both departing scripts), `:2523-2536` — **not** `:2254-2265`,
       which is `align-demote-to-round-trip-rule` — and `:2612`.
-- [ ] 7.23 `.github/CODEOWNERS` drops the two validator lines (`:3-4`) and gains
+      **Evidence:** REALIZED at every range, re-located BY CONTENT since the numbers
+      had drifted. The gate section now describes the CONSUMER gate, the pinned
+      readers, the POSITIVE register assertion and the alias, and its owner-routing
+      list is the new surface set. The contract-index entry is marked CONSUMED AT PIN.
+      The trust-anchor index citation and the `add-trust-anchor` ledger citation are
+      repointed to the pin, not deleted. The STALE "advisory until an operator marks it
+      required" is corrected in place, with its own history stated (true at authoring,
+      stale from 2026-08-26). The declined-floor prose stands unchanged. The S1
+      successor sentence is put in the past tense with the successor named. The
+      `add-openxwallet` archive-ledger entry is ANNOTATED, never rewritten. The
+      active-change ledger gains a realization note naming all four Speckit features
+      and what is still open.
+- [x] 7.23 `.github/CODEOWNERS` drops the two validator lines (`:3-4`) and gains
       `contracts/openxwallet-pin.yaml` and the `openXwallet` gitlink.
-- [ ] 7.24 `docs/archive-record-discrepancies.md` row 7 gains a "carried to
+      **Evidence:** REALIZED. `.github/CODEOWNERS` drops
+      `/scripts/validate-openxwallet.py` and `/scripts/wallet-yaml-syntax-gate.py` and
+      gains `/contracts/openxwallet-pin.yaml`, `/scripts/verify-openxwallet-pin.py`,
+      `/openXwallet` and `/.gitmodules`, with a comment stating the reason: those four
+      are what determine WHICH READER RUNS, which is the class the 2026-08-23 ruling
+      routes to an owner.
+- [x] 7.24 `docs/archive-record-discrepancies.md` row 7 gains a "carried to
       openXwallet" NOTE. Records are annotated, never rewritten into agreement.
-- [ ] 7.25 `add-wallet-carried-review-authority` — FOUR live-change edits, not
+      **Evidence:** REALIZED. Row 7 gains a "carried to openXwallet" NOTE naming the
+      tag, the pin and the fact that the archived packet STAYS. The row's own
+      discrepancy is untouched — a record is annotated, never rewritten into agreement
+      with a later tree. The file already carried a pre-existing `record-immutability`
+      critical finding on `origin/main`; the annotation adds no new one, proven by the
+      identical doc-health finding sets recorded in
+      `specs/023-openxwallet-consume-shed/evidence/validation.md`.
+- [x] 7.25 `add-wallet-carried-review-authority` — FOUR live-change edits, not
       record annotations: `tasks.md:81`, `:100`, `:134` and `:204` each name the
       departing script inside an ACTIVE change. Plus an addendum recording that
       task 2.6's red-proof is RETARGETED at the consumer gate, and that S3/S5's
       `openxwallet` / `openxwallet-agent-profile` core deltas are authored in
       openXwallet from here on (its `tasks.md` 8.1 ruling itself needs no edit).
+      **Evidence:** REALIZED — FIVE live-change edits rather than four, because the S1
+      realization bullet naming the retiring workflow FILE is the same class as the four
+      the proposal enumerated and would otherwise have been left naming a file that no
+      longer exists. Plus the addendum, which records BOTH obligations the proposal
+      names: task 2.6's red-proof RETARGETED at the consumer gate (with the reason it
+      cannot discharge in openXwallet — that tree has no
+      `governance/review-authority/`), and S3/S5's `openxwallet` /
+      `openxwallet-agent-profile` core deltas authored in openXwallet from here on. Its
+      `tasks.md` 8.1 ruling is unchanged, as ratified.
 - [ ] 7.26 **Sequencing guard: the declared manifest freeze is UNENFORCEABLE.**
       P3 REBASES and RE-VERIFIES the eight digests immediately before merge, and
       THAT re-verification — not a P2-era artifact reused — is what P3's evidence
       row carries. Commits use explicit pathspecs.
-- [ ] 7.27 `governance/review-authority/` STAYS — all four files (R6). Assert it
+      **Note (feature `023-openxwallet-consume-shed`, 2026-08-27): DELIBERATELY OPEN.**
+      The authoring-time verification is done and green — `python3
+      scripts/verify-openxwallet-pin.py` recomputes all eight digests against the
+      pinned submodule and exits 0 — but this task's whole point is that the
+      authoring-time artifact is NOT what the evidence row carries. It closes on the
+      pre-merge rebase and RE-verification, which is the operator's last act before
+      merging. Commits in this pull request use explicit pathspecs, as required.
+- [x] 7.27 `governance/review-authority/` STAYS — all four files (R6). Assert it
       in the pull request: nothing under that directory is touched by P3.
+      **Evidence:** ASSERTED and CHECKED. `git diff --stat origin/main -- governance/`
+      is EMPTY: all four files under `governance/review-authority/` are untouched by
+      this pull request, and the pull request body carries the same assertion. The
+      register is also proven LIVE by the gate log's `intake register read:` NOTE — the
+      data stayed and only the reader travelled.
 - [ ] 7.28 Evidence row: green `wallet-validation` (the token, from the renamed
       file) on P3's OWN head, plus the post-rebase digest re-verification.
+      **Note (feature `023-openxwallet-consume-shed`, 2026-08-27):** the pull request
+      is opened and the run ids are recorded in
+      `specs/023-openxwallet-consume-shed/evidence/validation.md` as they land. This
+      row closes on the GREEN `wallet-validation` reported from the NEW workflow file
+      on this pull request's own head TOGETHER with the post-rebase digest
+      re-verification of 7.26; a green run against a pre-rebase head does not
+      discharge it.
 - [ ] 7.29 Evidence row: the positive register conjunction of §7.15 in the gate
       log, plus `wallet-v1.1`'s register-read NOTE.
+      **Note (feature `023-openxwallet-consume-shed`, 2026-08-27):** proven LOCALLY
+      already (see 7.15) and recorded in
+      `specs/023-openxwallet-consume-shed/evidence/validation.md`. This row closes on
+      the same conjunction in the CI gate's own `wallet-gate.log`, which the
+      workflow's final step asserts and fails on — so a green check IS the assertion,
+      not a separate reading of it.
 - [ ] 7.30 Evidence row: `pytest-suite`'s pinned PASS / SKIP counts under nested
       submodules, not collection alone.
+      **Note (feature `023-openxwallet-consume-shed`, 2026-08-27):** the pinned
+      TRIPLE is implemented (7.17) and its values are taken from CI's own JUnit XML
+      rather than from a developer machine, because this worktree sits under the
+      aggregation checkout and the self-skip guards resolve differently there. This
+      row closes when a green `pytest-suite` run reports the pinned triple with
+      `failures=0 errors=0` under an initialized nested submodule.
 - [ ] 7.31 **[OPERATOR]** Evidence row: ruleset 21538893 as an UNCHANGED-STATE
       row — the `GET repos/opensoft/openxFactory/rules/branches/main` output
       showing the same single token as before the wave.
+      **Note (feature `023-openxwallet-consume-shed`, 2026-08-27):** nothing in this
+      pull request touches ruleset 21538893, and nothing in it CAN — a ruleset is not
+      a tree fact. The claim is checkable rather than asserted, which is why it is its
+      own row: the operator records the `GET
+      repos/opensoft/openxFactory/rules/branches/main` output at merge time. Prepared
+      in `specs/023-openxwallet-consume-shed/evidence/operator-acts.md`.
 - [ ] 7.32 **[OPERATOR]** Task 2.6's red-proof, discharged HERE and retargeted at
       the consumer gate: a deliberately malformed row under openxFactory's
       `governance/review-authority/` turns an openxFactory pull request RED with
       `register-row-malformed` naming the full path. It cannot discharge in
       openXwallet — that tree has no `governance/review-authority/` for a
       malformed row to sit in.
-- [ ] 7.33 Rollback recorded before the step: `git revert` P3 restores every path
+      **Note (feature `023-openxwallet-consume-shed`, 2026-08-27):** the retarget is
+      RECORDED where the obligation lives — an addendum to
+      `openspec/changes/add-wallet-carried-review-authority/tasks.md` — and the proof
+      is run from this pull request's branch as a throwaway draft pull request once
+      the gate is green here, so the RED is produced by the same workflow file the
+      alias installed. Run id and finding recorded in
+      `specs/023-openxwallet-consume-shed/evidence/validation.md`. The scratch branch
+      is deleted and only it; nothing else is.
+- [x] 7.33 Rollback recorded before the step: `git revert` P3 restores every path
       (the carve copied and deleted nothing) and removes the pin file and the
       gitlink; `wallet-validation.yml` returns as a filename; ruleset 21538893 is
       unchanged throughout, so there is nothing to roll back there.
+      **Evidence:** RECORDED BEFORE THE STEP, in three places a later reader will
+      actually find: `contracts/CHANGELOG.md` § `contract-v2.0` "Rollback posture",
+      `specs/023-openxwallet-consume-shed/plan.md`, and here. `git revert` of this pull
+      request restores every path — the carve COPIED and deleted nothing, so nothing
+      has to be recovered from the new repository — and removes the pin file and the
+      gitlink; `wallet-validation.yml` returns as a filename. Ruleset 21538893 is
+      unchanged throughout, so there is nothing to roll back there. P4 reverts WITH P3
+      or the aggregation pins a product openxFactory does not; P3b reverts only with
+      P3, since reverting it alone re-opens the floor gap.
 
 ## 8. P3b — codexFactory floor widening (SAME WAVE as P3)
 

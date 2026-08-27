@@ -975,7 +975,10 @@ def archive_change(root: Path, change: str, packaged_at: str,
     # not be archived through the sanctioned path at all — it died on
     # "supporting-docs folder not found". SIXTEEN archived staged-origin changes
     # already had exactly that shape before this one — `add-ideation-dashboard`,
-    # `add-workbench-branch-sessions`, `add-openxwallet`, `add-repository-lens`,
+    # `add-workbench-branch-sessions`, `add-openxwallet` (whose promoted
+    # capabilities relocated to `opensoft/openXwallet` at `contract-v2.0`;
+    # the archived PACKET stays here and is what this count is about),
+    # `add-repository-lens`,
     # `add-session-notebook-reconciliation`, … — against fifteen WITH a bundle,
     # so the bundle-less shape is the MAJORITY of staged origins, not an edge.
     # (An earlier draft of this comment said "fifteen": that is the count of the

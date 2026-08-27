@@ -115,7 +115,10 @@ The rules the shapes cannot express:
   (i) WORKLOADS ARE NOT PERSONAS. A declared broker service client may not
       appear as a persona subject, nor as the actor of a governed record, nor
       hold an organization membership as authority. Non-human authority stays
-      on `credential-contracts` grants and `openxwallet` holders, which are
+      on `credential-contracts` grants and `openxwallet` holders — the wallet
+      family is CONSUMED at `contracts/openxwallet-pin.yaml` from
+      `contract-v2.0` and published by `opensoft/openXwallet`, so the ratified
+      rule is unchanged and only its publisher moved — which are
       strictly stronger than a user row; a second, weaker vocabulary next to
       them would win by convenience (spec R6, design D5).
 
@@ -163,7 +166,8 @@ It cannot check that a declared authorization posture is actually resolved at
 run time — a validator can check that a posture is declared and that a surface
 with write actions declares the stronger one, and cannot check that the
 resolution happens. That is the same honesty limit `openxwallet`'s declared
-custody accepts, and it is accepted here for the same reason: a declaration a
+custody accepts (that family is consumed at `contracts/openxwallet-pin.yaml`
+since `contract-v2.0`; the limit is the family's, not this repository's), and it is accepted here for the same reason: a declaration a
 reader can audit beats an unstated assumption. Nor can it prove a free-text
 field carries no secret; the value scan is a blocklist over the classes it
 knows, so keeping secrets out of free text stays an obligation on consumers.
@@ -742,6 +746,11 @@ def check_persona_assertion(f: Findings, label: str, doc: dict,
     # (i) workloads are not personas.
     if subject and subject in ctx.client_subjects:
         f.error("workload-as-persona",
+                # `openxwallet` here is the WIRE LABEL of the pinned family
+                # (consumed at contracts/openxwallet-pin.yaml since
+                # contract-v2.0). The label is deliberately not renamed with the
+                # brand, and this message's bytes are not edited by the split:
+                # a finding string is machine-visible surface (R2).
                 f"{label}: subject {subject!r} is declared by broker service "
                 f"client {ctx.client_subjects[subject]!r}; a workload, agent, "
                 f"job or service is not a persona. Its authority comes from "
