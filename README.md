@@ -1120,11 +1120,30 @@ Active changes:
   unresolvable pin in a complete clone, keeping the skip only for a genuinely
   truncated one, with the reason naming which was observed. The one-line index
   re-pin to `4e57009c` rides the same change because requirement 3 would
-  otherwise land it red on its own gate; the derivation reproduces the
-  committed 290-entry body at `da9bf3b7`, `4e57009c` and `origin/main` alike,
-  so no regeneration is owed. EXPLICITLY DEFERRED to its own future packet: the
-  governance rule that an index pin must be re-derived when a branch lands
-  rewritten. (code surface: openxFactory; target release: implemented)
+  otherwise land it red on its own gate. EXPLICITLY DEFERRED to its own future
+  packet: the governance rule that an index pin must be re-derived when a
+  branch lands rewritten.
+  **REALIZED 2026-08-26** — all three requirements implemented, the pin and
+  its `.md` projection repaired, 24 regressions added
+  (`tests/doc-health/test_readiness_proof_resolution.py`), `tests/doc-health`
+  **920 passed**, `openspec validate --all --strict` **77 passed**, and the
+  single-repo doc-health report byte-identical before and after. The
+  acceptance signal is measured, not asserted: with a sibling checkout holding
+  the 2026-08-26 dirty-index shape, the PRE-change suite reproduces the
+  packet's **1 failed / 895 passed** baseline while the fixed suite is
+  **920 passed** — the same verdict it returns beside a clean sibling. TWO
+  CORRECTIONS THE REALIZATION MEASURED: the derivation reproduces the
+  committed 290-entry body at `da9bf3b7` and `4e57009c`, but at CURRENT `main`
+  it derives **288** — the corpus moved since `31c931fa`, so Q2's alternative
+  now owes a body regeneration; and the assertion was unreachable by TWO
+  routes, since in an ISOLATED clone (how this repo's own CI `validate` job
+  checks out) the pre-change resolver could not find the repository's own
+  index at all. **Q1 = KEEP the narrowed skip** and **Q2 = `4e57009c`** were
+  taken as measured decisions, recorded against the questions; **Q3 stays
+  OPEN** — the three resolver spellings are fixed in place, with the new
+  regressions parametrized over all three so the copies cannot drift.
+  ACTIVE until the realization PR merges; `tasks.md` § 4.6 (archive) stays
+  open. (code surface: openxFactory; target release: implemented)
 
 The avatar-client kernel (`contract-v1.7`), reference runtime, and avatar-first UI
 standard (`contract-v1.8`) are realized. The contract kernel, the revocation

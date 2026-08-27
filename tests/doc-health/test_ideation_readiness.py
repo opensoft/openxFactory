@@ -10,6 +10,7 @@ no test reads wall-clock time (``conftest.AS_OF``).
 from __future__ import annotations
 
 import json
+import os
 from datetime import date
 
 import pytest
@@ -24,16 +25,77 @@ from doc_health import ideation_readiness as ir
 
 REV = "a7aac777bedfb83dbb957819a7753436bdabd334"
 
+# harden-ideation-readiness-check. The resolver below is spelled identically in
+# `test_derive_possibles.py` and `test_readiness_dispatch.py`. That duplication
+# is DELIBERATE and tracked: the change fixes all three in place because the
+# defect is the resolution order, not the copy count, and whether the three
+# should collapse into one shared fixture is the packet's Q3 / tasks § 5.1 —
+# open, unruled, and not decided by this realization. If you edit one, edit all
+# three; the shape is small on purpose.
+ROOT_FALLBACK_MARKER = "[openxfactory-root] fallback"
+INDEX_REL = Path("ideation") / "cross-reference.yaml"
+SIBLING_INDEX_REL = Path("openxFactory") / INDEX_REL
 
-def _openxfactory_root():
-    """Walk up to the sibling openxFactory checkout (its bootstrap index +
-    validator); None when unreachable (tests skip rather than fail)."""
-    marker = Path("openxFactory") / "ideation" / "cross-reference.yaml"
-    base = Path(REPO_ROOT).resolve()
+
+def _openxfactory_root(under_test=None, *, fallback=None, announce=print):
+    """Resolve the openxFactory checkout this run is a proof ABOUT.
+
+    Resolution order (harden-ideation-readiness-check, design § 1): the
+    REPOSITORY UNDER TEST first — if it carries `ideation/cross-reference.yaml`
+    it IS the subject and nothing else is consulted — then an explicit
+    `fallback`, then `OPENXFACTORY_ROOT`, then the ancestor walk to a sibling
+    `openxFactory/`. Every rung past the first announces the checkout it
+    resolved and why, because a proof about repository A reported as though it
+    were a proof about repository B has proved nothing about either.
+
+    The bare ancestor walk this replaces always terminated on the one shared
+    checkout beneath the aggregation root, whatever repository the run was
+    launched against — so an agent worktree's verdict was a verdict about
+    another session's working tree. None when nothing is reachable."""
+    base = Path(under_test or REPO_ROOT).resolve()
+    if (base / INDEX_REL).is_file():
+        return base
+
+    why = f"the repository under test ({base}) carries no {INDEX_REL.as_posix()}"
+    if fallback is not None and (Path(fallback) / INDEX_REL).is_file():
+        resolved = Path(fallback).resolve()
+        announce(f"{ROOT_FALLBACK_MARKER}: resolved {resolved} from the "
+                 f"explicit argument because {why}")
+        return resolved
+
+    declared = os.environ.get("OPENXFACTORY_ROOT")
+    if declared and (Path(declared) / INDEX_REL).is_file():
+        resolved = Path(declared).resolve()
+        announce(f"{ROOT_FALLBACK_MARKER}: resolved {resolved} from "
+                 f"OPENXFACTORY_ROOT because {why}")
+        return resolved
+
     for d in [base, *base.parents]:
-        if (d / marker).is_file():
-            return d / "openxFactory"
+        if (d / SIBLING_INDEX_REL).is_file():
+            resolved = d / "openxFactory"
+            announce(f"{ROOT_FALLBACK_MARKER}: resolved {resolved} by walking "
+                     f"up from the repository under test because {why}")
+            return resolved
     return None
+
+
+def _no_root_reason(under_test=None):
+    """Why no checkout can serve the proof — named, never merely absent."""
+    base = Path(under_test or REPO_ROOT).resolve()
+    return (f"proof NOT PERFORMED: no openxFactory checkout serves it — "
+            f"the repository under test ({base}) carries no "
+            f"{INDEX_REL.as_posix()}, OPENXFACTORY_ROOT names no checkout that "
+            f"does, and no ancestor of it holds "
+            f"{SIBLING_INDEX_REL.as_posix()}")
+
+
+def _openxfactory_root_or_skip(under_test=None):
+    """The resolved checkout, or a skip whose reason names what was searched.
+    Never a pass: an unresolvable checkout means the proof did not run."""
+    root = _openxfactory_root(under_test)
+    if root is None:
+        pytest.skip(_no_root_reason(under_test))
+    return root
 
 
 def doc(path, *, status="staged", topics=None, caps=None, repo="openxFactory"):
@@ -368,35 +430,103 @@ def test_load_catalog_tags_guard_off_when_no_snapshot(tmp_path):
     assert ir.load_catalog_tags(None) is None
 
 
+def _committed_index(repo, ref="HEAD"):
+    """The landed index read from COMMITTED state — ``git show
+    <ref>:ideation/cross-reference.yaml`` — with the revision it was read at.
+
+    harden-ideation-readiness-check, design § 2. The corpus side of this
+    comparison has always been revision-addressed (the corpus is reconstructed
+    at the index's own pin); the index side was a working-tree read, and the
+    asymmetry WAS the defect — an uncommitted edit in any checkout on the
+    machine, by any session, moved the verdict. The consequence is stated
+    rather than hidden: an index edit under review is proved once it is
+    committed, not while it sits in a working tree."""
+    import subprocess
+    resolved = subprocess.run(
+        ["git", "-C", str(repo), "rev-parse", ref],
+        capture_output=True, text=True)
+    if resolved.returncode != 0:
+        pytest.fail(f"cannot resolve {ref} in the repository under test "
+                    f"({repo}): {resolved.stderr.strip()}")
+    rev = resolved.stdout.strip()
+    shown = subprocess.run(
+        ["git", "-C", str(repo), "show", f"{rev}:{INDEX_REL.as_posix()}"],
+        capture_output=True, text=True)
+    if shown.returncode != 0:
+        pytest.fail(f"{INDEX_REL.as_posix()} is not committed at {rev[:12]} in "
+                    f"the repository under test ({repo}): "
+                    f"{shown.stderr.strip()}")
+    return shown.stdout, rev
+
+
+def _corpus_at_pin(repo, rev, dest, *, index_named):
+    """Reconstruct `ideation/` at `rev` from `repo` into `dest` (read-only
+    ``git archive``; no checkout is ever touched).
+
+    When the pin will not resolve, the two conditions are told apart by ASKING
+    the repository rather than by guessing (design § 3). A COMPLETE clone that
+    cannot resolve the pin is a defect in the INDEX — it names a corpus state
+    no reader can reconstruct — and fails, naming the pin and the index that
+    carries it. A TRUNCATED clone that cannot resolve it is a fact about the
+    CLONE, and skips with a reason naming the truncation actually observed.
+    The reason this replaces ("shallow clone?") was a conjecture presented as a
+    diagnosis, and it was false in the one place it fired: `pytest-suite.yml`
+    checks out at `fetch-depth: 0`."""
+    import io
+    import subprocess
+    import tarfile
+    proc = subprocess.run(
+        ["git", "-C", str(repo), "archive", rev, "ideation"],
+        capture_output=True)
+    if proc.returncode != 0:
+        detail = (proc.stderr.decode("utf-8", "replace").strip()
+                  or f"git archive exited {proc.returncode}")
+        shallow = subprocess.run(
+            ["git", "-C", str(repo), "rev-parse", "--is-shallow-repository"],
+            capture_output=True, text=True).stdout.strip() == "true"
+        present = subprocess.run(
+            ["git", "-C", str(repo), "cat-file", "-e", f"{rev}^{{commit}}"],
+            capture_output=True).returncode == 0
+        if shallow:
+            pytest.skip(
+                f"TRUNCATED CLONE, observed not conjectured: "
+                f"`git rev-parse --is-shallow-repository` is true for {repo}, "
+                f"and its fetched history does not carry the pinned revision "
+                f"{rev} — git archive said: {detail}")
+        pytest.fail(
+            f"{index_named} pins generation.source_revision {rev}, which the "
+            f"repository under test ({repo}) cannot resolve although its "
+            f"history is COMPLETE (`git rev-parse --is-shallow-repository` is "
+            f"false; `git cat-file -e {rev}^{{commit}}` "
+            f"{'succeeds' if present else 'fails'}). The index names a corpus "
+            f"state no reader can reconstruct, so its provenance claim is "
+            f"unverifiable: re-pin it to a reachable revision. "
+            f"git archive said: {detail}")
+    tarfile.open(fileobj=io.BytesIO(proc.stdout)).extractall(dest)
+    return dest
+
+
 def test_derivation_reproduces_the_real_bootstrap_clusters(tmp_path):
     """change 3.3: the worker derivation reproduces the landed bootstrap's
     cluster skeleton on the real openxFactory corpus headers (id / topics /
     tag_sources / members) — proving the rule formalizes the bootstrap.
 
-    The landed index is derived from the corpus AT its pinned
-    ``generation.source_revision``, and the live checkout moves on daily —
-    so the comparison corpus is reconstructed from git AT THAT REVISION
-    (read-only ``git archive``; the shared checkout is never touched),
-    keeping this proof corpus-consistent as the ideation area grows (the
+    BOTH SIDES ARE REVISION-ADDRESSED (harden-ideation-readiness-check). The
+    index is read from committed state at HEAD of the repository under test,
+    and the comparison corpus is reconstructed from git at the revision that
+    index pins (read-only ``git archive``; no checkout is touched). No working
+    tree on the machine — this one or another session's — can move the verdict,
+    and the proof stays corpus-consistent as the ideation area grows (the
     live-tree comparison broke when the corpus grew past the index)."""
-    import io
-    import subprocess
-    import tarfile
     import yaml
-    openx = _openxfactory_root()
-    if openx is None:
-        pytest.skip("openxFactory checkout unreachable")
-    bootstrap = yaml.safe_load(
-        (openx / "ideation" / "cross-reference.yaml").read_text("utf-8"))
+    openx = _openxfactory_root_or_skip()
+    index_text, index_rev = _committed_index(openx)
+    index_named = (f"{(openx / INDEX_REL).as_posix()} at committed revision "
+                   f"{index_rev}")
+    bootstrap = yaml.safe_load(index_text)
     boot_entries = bootstrap["topic_entries"]
     rev = bootstrap["generation"]["source_revision"]
-    proc = subprocess.run(
-        ["git", "-C", str(openx), "archive", rev, "ideation"],
-        capture_output=True)
-    if proc.returncode != 0:
-        pytest.skip(f"pinned revision {rev[:12]} unreachable "
-                    "(shallow clone?)")
-    tarfile.open(fileobj=io.BytesIO(proc.stdout)).extractall(tmp_path)
+    _corpus_at_pin(openx, rev, tmp_path, index_named=index_named)
     docs = corpus.load_docs("openxFactory", tmp_path)
     derived = ir.derive_clusters(docs)
 
@@ -415,8 +545,11 @@ def test_derivation_reproduces_the_real_bootstrap_clusters(tmp_path):
                         for m in e["members"]],
         }
 
-    assert [skeleton(e) for e in derived] == [skeleton(e) for e in boot_entries]
-    assert len(derived) == len(boot_entries) > 0
+    named = (f"index read from {index_named}; corpus reconstructed at the "
+             f"revision it pins ({rev})")
+    assert [skeleton(e) for e in derived] == \
+        [skeleton(e) for e in boot_entries], named
+    assert len(derived) == len(boot_entries) > 0, named
 
 
 # =========================================================================
@@ -553,9 +686,7 @@ def test_extension_fit_shaping():
 
 
 def test_validate_index_finds_pinned_validator_and_checks_bootstrap():
-    openx = _openxfactory_root()
-    if openx is None:
-        pytest.skip("openxFactory checkout unreachable")
+    openx = _openxfactory_root_or_skip()
     validator = ir.find_index_validator()
     assert validator is not None and validator.is_file()
     ok, out = ir.validate_index(
@@ -565,9 +696,7 @@ def test_validate_index_finds_pinned_validator_and_checks_bootstrap():
 
 def test_validate_index_rejects_a_broken_index(tmp_path):
     import yaml
-    openx = _openxfactory_root()
-    if openx is None:
-        pytest.skip("openxFactory checkout unreachable")
+    openx = _openxfactory_root_or_skip()
     idx = yaml.safe_load(
         (openx / "ideation" / "cross-reference.yaml").read_text("utf-8"))
     # break a tier score out of range (schema-layer failure)
@@ -931,9 +1060,7 @@ def test_prior_readiness_finding_is_not_an_uncited_resolution(tmp_path):
 def test_pipeline_proof_scores_real_clusters_and_validates_clean(tmp_path,
                                                                  capsys):
     import yaml
-    openx = _openxfactory_root()
-    if openx is None:
-        pytest.skip("openxFactory checkout unreachable")
+    openx = _openxfactory_root_or_skip()
     docs = corpus.load_docs("openxFactory", openx)
     boot = yaml.safe_load(
         (openx / "ideation" / "cross-reference.yaml").read_text("utf-8"))

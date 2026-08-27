@@ -291,6 +291,21 @@ already unreachable in practice, and keeping it costs one named, observable
 condition while deleting it would red every future shallow runner for a reason
 unrelated to the index.
 
+**TAKEN 2026-08-26 BY THE REALIZING SESSION AS A MEASURED DECISION, NOT A
+RULING: KEEP.** The recommendation is implemented as written, and it is
+recorded here because § 2 and § 3 could not be written without settling it.
+The reasoning that decided it, beyond the recommendation's own: the narrowed
+skip is no longer the defect-B shape, because the two branches are now
+distinguished BY OBSERVATION and each names what it observed — the skip only
+ever fires after `git rev-parse --is-shallow-repository` has answered `true`,
+which is a fact about the clone that no reader can mistake for a fact about
+the index. Deleting it would also make the fail branch's message a lie in the
+one environment it would then cover, since it asserts the history is complete.
+Both branches carry regressions that assert WHICH outcome was raised, so a
+future session that prefers the stricter alternative will see exactly one test
+change colour. Brett may still reverse this; reversing it is an edit to one
+branch and one test.
+
 **Q2 — re-pin to `4e57009c` or regenerate at current `main`?** Both produce a
 body identical to today's, so the choice is about which claim the index should
 make. `4e57009c` says "this index describes the corpus as it stood when this
@@ -300,12 +315,56 @@ on the next ideation commit. **Recommendation: `4e57009c`** — a provenance pin
 should name the state it was derived from, not the state it happens to still
 match.
 
+**TAKEN 2026-08-26 BY THE REALIZING SESSION AS A MEASURED DECISION, NOT A
+RULING: `4e57009c`. AND THE MEASUREMENT MOVED — THE ALTERNATIVE NO LONGER
+COSTS WHAT THIS QUESTION SAYS IT COSTS.** Re-measured before the pin was
+written, by rebuilding the derivation from the corpus at each candidate and
+comparing against the COMMITTED 290-entry body: `da9bf3b7` → 290, reproduces;
+`4e57009c` → 290, reproduces; current `origin/main` (`275d065d`) → **288, does
+NOT reproduce**. The proposal measured 290 at `origin/main` when main stood at
+`31c931fa`; the ideation corpus has moved since. So "both produce a body
+identical to today's" was true when written and is now false: regenerating at
+current `main` would owe a body regeneration, which is a materially larger
+change than the one-line re-pin. The decay this question predicted is not
+hypothetical — it happened inside the packet's own lifetime, which is the best
+argument available for pinning the state the index was derived from.
+
 **Q3 — should the three duplicated resolver helpers collapse?** Left open in
 `tasks.md` § 5 rather than decided here. The three test modules each carry
 their own `_openxfactory_root()`; this change fixes all three in place. A
 shared fixture would be tidier and would make the next such fix one edit
 instead of three, but it moves test infrastructure that three unrelated
 modules depend on, and that is a bigger change than the defect warrants.
+
+**NOT TAKEN. STILL OPEN AFTER REALIZATION, ON PURPOSE.** Unlike Q1 and Q2,
+this question does not block the implementation, so the realizing session
+declined to answer it and shipped three fixed spellings. One thing was added
+that changes the arithmetic slightly:
+`tests/doc-health/test_readiness_proof_resolution.py` parametrizes every
+resolver assertion over all three modules, so the copies cannot drift apart
+without a red suite. The cost of leaving three copies is now "three edits",
+not "three edits and a silent divergence" — which makes the tidying cheaper to
+defer, and no more or less correct to do.
+
+## Realization
+
+Landed 2026-08-26 on `change/realize-ideation-readiness-check`. The evidence
+for every task lives in `tasks.md`, written into the task it discharges.
+
+Two things the realization learned that the proposal did not know, both
+recorded where they belong rather than only here:
+
+1. **The assertion was unreachable by TWO routes, not one.** In an isolated
+   clone — which is how this repository's own CI `validate` job checks out —
+   the pre-change resolver could not find the repository's OWN index, and the
+   proof skipped with "openxFactory checkout unreachable" before it ever
+   reached the pin. Defect B describes the second route only.
+2. **Q2's alternative got more expensive while the packet waited.** The
+   derivation now yields 288 clusters at current `main` against the committed
+   body's 290; see Q2.
+
+`tasks.md` § 4.6 stays open: the change ships ACTIVE and archives after the
+merge, in its own commit.
 
 ## Impact
 
@@ -314,12 +373,18 @@ modules depend on, and that is a bigger change than the defect warrants.
 - Affected code: `tests/doc-health/test_ideation_readiness.py`,
   `tests/doc-health/test_derive_possibles.py`,
   `tests/doc-health/test_readiness_dispatch.py`,
-  `scripts/doc_health/ideation_readiness.py`.
+  `scripts/doc_health/ideation_readiness.py`, and — added by the realization —
+  `tests/doc-health/test_readiness_proof_resolution.py`, the 24 regressions
+  that pin all nine scenarios to the defects.
 - Affected artifacts: `ideation/cross-reference.yaml` — one line, the
   `generation.source_revision` pin — and `ideation/cross-reference.md`, which
   restates that pin at its line 9 and is re-rendered with it.
-- Risk: LOW on the code, and the residual risk is entirely in what the
-  un-silenced assertion will find. The proof has never run in a fresh clone,
-  so its first honest execution is also its first real result. If it fails
-  there for a reason unrelated to these three requirements, that finding
-  belongs to this change's realization and is reported rather than suppressed.
+- Risk: LOW on the code, and the residual risk was entirely in what the
+  un-silenced assertion would find. **IT HAS NOW BEEN ASKED** (`tasks.md`
+  § 4.3): in a fresh fetch-based clone the proof PASSES against the repaired
+  pin, and 920 tests pass beside it. What the first honest execution did find
+  was about the OLD code, not the new — in an isolated clone the pre-change
+  resolver could not locate the repository's own index at all, so the proof
+  had a second, unnamed route to silence. That is reported here rather than
+  suppressed, and it is exactly the class of finding this risk line
+  anticipated.
