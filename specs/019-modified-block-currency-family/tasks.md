@@ -420,8 +420,8 @@ a covered rule.
 
 Appended by Speckit feature `020-modified-block-currency-fixtures`, whose whole
 first phase was an audit of THIS feature's 97 tests against
-`add-modified-block-currency-check` § 3. Four findings about F1's own
-artefacts. **None is a behaviour defect** — F1's module was not changed and
+`add-modified-block-currency-check` § 3. **Five** findings about F1's own
+artefacts, numbered 1–5 below. **None is a behaviour defect** — F1's module was not changed and
 `tests/doc-health` stayed green at 1077 throughout — and none needs an issue.
 They are recorded here because this file is where F1's owner reads.
 

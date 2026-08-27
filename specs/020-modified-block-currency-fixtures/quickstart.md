@@ -134,9 +134,9 @@ comm -23 /tmp/cited.txt /tmp/present.txt
 ## 7. The scope guard
 
 ```bash
-git diff --stat origin/main -- scripts/ openspec/ .github/
+git diff --stat $(git merge-base HEAD origin/main) -- scripts/ openspec/ .github/
 # expect: EMPTY, unless a defect task under FR-023 exists and names the file
-git diff --stat origin/main -- tests/ specs/020-modified-block-currency-fixtures/
+git diff --stat $(git merge-base HEAD origin/main) -- tests/ specs/020-modified-block-currency-fixtures/
 # expect: only this feature's fixtures, its one test file, and its spec dir
 ```
 

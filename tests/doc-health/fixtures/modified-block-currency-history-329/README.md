@@ -61,6 +61,24 @@ The two-body-sentence shape coincides with the packet's own § 2.1 block, which
 also fails to carry two body sentences. That is a coincidence of FORM. **This
 fixture is not evidence about § 2.1.**
 
+## THIS TREE IS DELIBERATELY STALE `doc-health` TEXT
+
+**A whole-family sweep over this tree emits 3 `family-enumeration` warnings, and
+that is by design.** The fixture froze `doc-health`'s own
+`Deterministic check families` requirement as it stood on 2026-08-25: canon says
+"seventeen check families" and the delta restatement says "nineteen", while
+`families.FAMILIES` today registers **22**. So `fam_family_enumeration` — which
+reads exactly this requirement against the live code registry — reports the
+enumeration omitting `duplicate-packet`, `family-enumeration` and
+`modified-block-currency`, and both numerals as wrong.
+
+**Inert today**: no test runs `fam_family_enumeration` over this tree, and
+`test_the_real_corpus_reads_zero_on_both_halves` reads the REPOSITORY's canon,
+not `tests/doc-health/fixtures/`. **Do not "update" this text to the current
+family list** — its staleness is the historical fact the fixture exists to
+freeze, and refreshing it destroys the #329 instance. If a future sweep does
+range over fixture trees, exclude this one or disposition it; do not edit it.
+
 ## Which rule this exists for
 
 `add-modified-block-currency-check` § 3.2, audit row **A2**.

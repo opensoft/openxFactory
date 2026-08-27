@@ -119,23 +119,33 @@ scenario count, or `len(...)` as the whole assertion (orchestrator decision 3).
 ### The count-exception list — ONE home, and this is it
 
 T059 step 2 greps the new test file for `len(`, `== <n>` and `count(` and
-requires every hit to be on this list. Nothing else in the feature restates it
-(review nit N6, which found the list duplicated in T059 and already diverging).
+requires every hit to fall into one of the SHAPES below. **Shapes, not an
+enumeration of lines**: the first cut of this section listed individual
+assertions, and the review found ~20 of the file's 38 count-shaped lines
+mapping to no row at all — including `len(holders) == 1`, which is the very
+assertion that kills mutant #15. A list that does not cover the file makes
+T059 step 2's claim false, and a per-line list goes stale on the next test.
 
-| exception | where | why the count IS the rule |
-| --- | --- | --- |
-| canon states **8** scenarios and the delta FILE contains **8** | T019 | § 3.2's whole point: the flat file-level count is asserted precisely because it does NOT predict the outcome |
-| **exactly two** body units reported for the three-item bullet list | T035 | § 3.5's "each bullet SHALL be one unit": one unit carrying both dropped bullets, or three, is the defect under test |
-| the note appears **once**, not once per sentence | T036 | § 3.5's last clause: "ONE unit, undivided" is a statement about cardinality |
-| **non-empty** before any "no finding is X" assertion | T015, T049, T050 | not a count assertion — a vacuity guard, and its absence is what makes the following assertion meaningless |
-| the harvest found **more than thirty** cited test names | T024 | a guard against a regex that silently matches nothing |
-| `_units` returns exactly the arm's OWN stated numerator, over the arm's OWN stated denominator | T029's fix | the numbers are parsed out of the finding the arm emits, so the comparison is the arm's rule and not an invented expectation. Added after the mutation round found the helper's contract asserted nowhere |
-| exactly **18** audit rows, and the four verdict tallies | T023 | the audit's own structural claim; a row that gained or lost a verdict is the defect |
-| exactly **two** template bullets in the packet's delta | T043c | a file edit that moves them must fail loudly rather than vacuously |
-| exactly **one** ledger finding per requirement | T012, T027, T029's fix | the ledger's promoted rule is "at most one finding per requirement, listing the units" |
+**Five permitted shapes.**
 
-Any `len(` outside this table is a count assertion that slipped past decision
-D3 and is a finding against the implementation, not a new row here.
+| # | shape | why the count is legitimate | examples |
+| --- | --- | --- | --- |
+| **S1** | **Per-arm cardinality** — "exactly one finding of this class for this requirement" | the ledger's own promoted rule is "at most one finding per requirement, listing the units", and the title arm emits one per requirement too. The count IS the obligation | `len(hits) == 1` in T012, T017, T019's arm check, T027, T041, T042, T043a |
+| **S2** | **Vacuity floors** — a non-empty or lower-bound check placed BEFORE a universal negative | "no finding is `error`" and "the token is absent from the rule" are both vacuously true of nothing, and nothing is exactly what a broken discovery returns. The floor is a guard, not a measurement | `assert findings`, `seen > 20`, `total > 20`, `len(cited) > 30`, `len(ALL_TREES) >= 13` |
+| **S3** | **Fixture-premise guards** — "this fixture really has the shape this test needs" | a test whose premise silently evaporated passes while testing nothing. These assert the FIXTURE, never the family's output | `len(holders) == 1` (one body unit holds the token), `len(widened) == 1` (the containment premise), `len(notes) == 1`, `len(blocks) == 1`, `len(block.markers) == 1`, `len(bullets) == 2` templates, `changes == [...]` |
+| **S4** | **The count that IS the rule under test** | § 3.2's flat file-level eight-and-eight, asserted precisely because it does NOT predict the outcome; § 3.5's "each bullet SHALL be one unit" and "the note is ONE unit, undivided", which are statements about cardinality | `len(canon.scenario_titles) == 8`, `delta_text.count(...) == 8`, `len(bullets) == 2`, `rule.count("CORRECTED 2026-08-27") == 1`, `note.count(...) == 1` |
+| **S5** | **Figures parsed out of the arm's OWN finding** | the numerator and denominator are read from the text the arm emits, so the comparison is the arm's rule rather than an invented expectation | `len(_units(...)) == numerator` and the denominator check in `test_the_u_class_helper_reads_the_same_set_as_the_ledger_arm` |
+
+**S6 — the audit's own structural claims** are counts too, and legitimate for
+the same reason as S4: `len(rows) == 18` and the four verdict tallies are what
+the audit asserts about itself, so a row that gained or lost a verdict is the
+defect the assertion exists to catch.
+
+A count-shaped line that fits none of S1–S6 is a count assertion that slipped
+past decision D3, and is a finding against the implementation rather than a new
+row here. **Backtick-and-parenthesis counts** (`chunk.count("`") % 2 == 0`) are
+not measurements of anything the family reports — they are the tokenization
+invariant expressed as parity, and belong to S3.
 
 ---
 

@@ -259,7 +259,7 @@ live corpus** and does not restate that table.
 | --- | --- | --- | --- |
 | `python3 -m pytest tests/doc-health -q` | **1077 passed** (measured at this branch point) | 1077 + the tests this feature adds | the only figure this feature moves |
 | `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` | recorded at implementation | **unchanged** | this feature touches no `openspec/` path |
-| `git diff --stat origin/main -- scripts/ openspec/ .github/` | — | **empty** | D1/D4, unless a defect task exists and names the file |
+| `git diff --stat $(git merge-base HEAD origin/main) -- scripts/ openspec/ .github/` | — | **empty** | D1/D4, unless a defect task exists and names the file |
 | the family's findings on the real corpus | — | **unchanged** | six new trees live under `tests/`, which the delta glob never reaches |
 
 **The test count has ONE home, and it is `tasks.md`.** The first cut of this

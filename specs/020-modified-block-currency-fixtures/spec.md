@@ -509,9 +509,12 @@ delta, or of an orchestrator decision. The § 3 item is named in every case.
   rises from **1077** by exactly the number of tests this feature adds.
 - **SC-009**: `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` is
   green, with its count recorded before and after and unchanged.
-- **SC-010**: `git diff --stat origin/main` shows no change under `scripts/`
-  unless a defect task under FR-023 exists and names it; and no change to any
-  `openspec/` path.
+- **SC-010**: `git diff --stat $(git merge-base HEAD origin/main)` shows no
+  change under `scripts/` unless a defect task under FR-023 exists and names it,
+  and no change to any `openspec/` path. **The MERGE-BASE, never `origin/main`
+  itself**: that branch advances independently, and diffing against its tip
+  reports its own progress as if this feature had deleted it — measured at 13
+  files and 2,443 deletions, none of them this feature's.
 - **SC-011**: Two runs over every fixture tree this family owns produce
   byte-identical findings including ordering.
 - **SC-012**: The mutation round over the added assertions leaves no surviving
