@@ -128,7 +128,8 @@ approval:
 # EXECUTED 2026-08-27 through the § 2.4 lane, on Brett Heap's ruling of that
 # date. These entries are the RECORD OF THE GRANTED ACT — written from grants
 # that were actually cast, never backfilled, which is what task 4.7 requires.
-# Verified after the fact by `nlm share status <alias> --json`: every book below
+# Verified after the fact by `nlm share status <alias> --json --profile company`:
+# every book below
 # lists brett.heap@farheap.com as editor beside the owner.
 share_out:
   - hosting_account: xFactor001@opensoft.one

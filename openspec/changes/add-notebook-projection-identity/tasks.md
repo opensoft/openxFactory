@@ -200,7 +200,8 @@ first thing to run under a declared account.
   Brett named two readers and ruled full edit access on all seven company books.
   Executed through the § 2.4 lane on his recorded instruction:
     * **`brett.heap@farheap.com` — GRANTED as `editor` on all seven books.**
-      Verified after the fact with `nlm share status <alias> --json`: every book
+      Verified after the fact with `nlm share status <alias> --json --profile
+      company`: every book
       lists it beside the owner. The seven `share_out` entries are the record of
       that act, written from grants actually cast rather than backfilled.
     * **`brett.heap@gmail.com` — REFUSED BY THE PROVIDER on all seven**, with

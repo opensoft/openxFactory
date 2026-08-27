@@ -493,16 +493,39 @@ notebook.google.com, use its Share dialog, and remove the collaborator there.
 Recorded plainly because a test plan that assumes a symmetric API would fail at
 exactly the moment someone needed to undo a grant.
 
+**AND THE ROSTER RECONCILES IN THE SAME STEP.** A removal at the provider is only
+half the act: the `share_out` entry that recorded the grant must be updated in
+the same sitting — annotated `revoked`, with the date and who revoked it, and the
+superseded grant retained as that entry's history per the uniqueness rule.
+
+This is not bookkeeping etiquette. **The share-out entry IS the record of
+access** — that is the ratified design, chosen so there is no audit log beside the
+roster that can drift from it. Remove at the provider and leave the entry
+standing and the record asserts access the provider no longer grants, which is
+precisely the record/reality split this lane exists to prevent. The same rule
+runs the other way: re-adding restores the entry rather than writing a second
+one, because uniqueness is keyed on `(hosting_account, user, book_or_alias)`.
+
+**Every provider act pairs with a roster act. Neither half is the deliverable
+alone**, and `nlm share status --json --profile company` is what proves the two
+agree.
+
 Note also that the CLI's exit code is not trustworthy on this path: an invite
 that printed `API error (code 7)` still returned `rc=0` on 2026-08-27. **Verify
 with `share status`, never with `$?`.**
 
 #### Named future tests
 
-1. **The remove-and-re-add cycle.** Remove both accounts from one book through
-   the UI, confirm with `share status` that they are gone, re-add with `invite`,
-   confirm again. This proves the roster can be driven in both directions and
-   that a removal is visible to the same surface that records a grant.
+1. **The remove-and-re-add cycle — six steps, not four.** Remove both accounts
+   from one book through the UI; confirm with
+   `nlm share status <alias> --json --profile company` that they are gone;
+   **annotate the two `share_out` entries as revoked, dated, by whom**; re-add
+   with `invite`; confirm again; **restore the entries**. The roster half is
+   named explicitly at both ends because it is the half a tester skips — the
+   provider gives immediate feedback and the YAML does not, so the record is
+   where drift hides. The test passes only when the provider listing and
+   `share_out` say the same thing at every stop, including the middle one where
+   access is genuinely absent.
 2. **Tenant-wide sharing.** Whether a whole domain can be granted at once is
    **unestablished**: `nlm share invite` takes a single email and offers no
    domain or group argument, and `batch` invites multiple named collaborators
