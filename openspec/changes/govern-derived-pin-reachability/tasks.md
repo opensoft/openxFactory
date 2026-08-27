@@ -547,3 +547,28 @@ that a per-artifact sweep does not generalize.
       `pin_class.KNOWN_LOSSES` with the full measurement, re-measured by test,
       and reported until it is discharged. **NEEDS BRETT** — the authority for
       that change's evidence, not this session.
+- [ ] 5.6 **THE PREFLIGHT HALF OF THE ENFORCEMENT HOME IS NOT WIRED, AND THAT IS
+      A FLAGGED JUDGMENT RATHER THAN AN OVERSIGHT.** The delta names the home as
+      "the readiness proof surface AND the per-repo validator preflight". The
+      readiness surface is done (§ 2.3). The preflight is NOT, and the reason was
+      measured rather than assumed: no preflight validator resolves a commit
+      today — `grep`ing `scripts/validate-*.py` for `merge-base` / `is-ancestor`
+      returns NOTHING — so the existing pin obligation lives on the pytest
+      surface ALONE, and the preflight clause describes where the index
+      VALIDATOR runs, not where a pin check already lives. Three reasons not to
+      wire it here, and the third is decisive. (1) `run_preflight` turns any
+      non-zero exit into an ERROR finding under the `preflight` reporting
+      section, which is enforcing severity on day one — the shape four
+      doc-health families deliberately did NOT launch under, and this class has
+      one standing unrecoverable loss. (2) `preflight._OPENX_NOARG` is a
+      hardcoded tuple, so joining it is an edit to a shared entrypoint list
+      rather than a convention new checks follow. (3) **THE VERIFICATION
+      CONSULTS THE NETWORK** — `refs/retention/*` is fetched by no default
+      refspec — and whether a verification may consult the network at all is
+      `fix-release-reachability-race`'s OWN NAMED OPEN FOLLOW-UP. Wiring a
+      network-consulting check into the nightly would answer that open question
+      by implementation, in the nightly, for every governed repository at once.
+      What the realization provides instead is a runnable entry point —
+      `python3 -m doc_health.pin_class --repo . [--no-remote]`, exit 1 on a
+      repairable defect — so the verification is available outside pytest today
+      without being gated. Carried unticked.
