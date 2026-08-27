@@ -576,6 +576,12 @@ latency_slo:
       Recorded as informational tail evidence; candidates to become hard gates
       at the pilot ring when sample volume supports them. The five-second
       revocation bound stays pass-or-fail rather than a budgeted percentile.
+      A comparison drawn from one of these cells IS EVALUATED AND RECORDED, not
+      refused — the ratified rule is that such evidence MAY be recorded but MUST
+      NOT substitute for a nominal-network gated cell. What is refused is a
+      comparison that CLAIMS THE GATED TIER from a cell listed here, or from a
+      reference-generation-only platform. The refusal attaches to the claim, not
+      to the cell, or this tier would be unreachable.
   reference_generation_only_platforms: [linux_ci]
   measured_evidence:
     status: not_yet_measured

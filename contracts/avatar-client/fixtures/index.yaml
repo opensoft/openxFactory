@@ -874,11 +874,33 @@ latency_comparison_cases:
     scenario_ids: [ALV-004-S04]
     evidence_id: TEST-ALV-004-S04
     description: >-
-      Both sides measured on a degraded network. The run MAY be recorded, but
-      it does not substitute for a nominal-network gated cell and no claim of
-      adverse-network validation may be made for this ring.
+      THE `tier: gated` LABEL HERE IS THE CASE'S INPUT CLAIM, NOT A
+      CONTRADICTION of the SLO entry that files degraded and jittered under
+      `recorded_not_gated.network_classes`. That is precisely what this case
+      exists to refuse: both sides are measured on a degraded network and the
+      case then CLAIMS the gated tier for them. The run MAY be recorded — see
+      `slo-degraded-network-recorded-as-tail-evidence` immediately below, which
+      is the same cell offered honestly — but it does not substitute for a
+      nominal-network gated cell, and no claim of adverse-network validation may
+      be made for this ring.
     reference: {platform: windows_desktop, network_class: degraded, region: us, classification: direct_provider_reference, value_ms: 900}
     adapter: {platform: windows_desktop, network_class: degraded, region: us, classification: governed_adapter, value_ms: 950}
+  - case_id: slo-degraded-network-recorded-as-tail-evidence
+    expect: recorded
+    class: boundary
+    tier: recorded
+    percentile: p95
+    interval: first_playable_after_authorized_ms
+    scenario_ids: []
+    description: >-
+      The same degraded cell as the case above, offered for the tier it can
+      actually occupy. The ratified rule says such evidence "MAY be recorded but
+      MUST NOT substitute for the nominal-network gated cells", so a degraded
+      run is RECORDED rather than refused whenever it does not claim to gate —
+      refusing it outright would make the recorded tier unreachable and
+      contradict the SLO entry's own `recorded_not_gated.network_classes`.
+    reference: {platform: windows_desktop, network_class: degraded, region: us, classification: direct_provider_reference, value_ms: 900}
+    adapter: {platform: windows_desktop, network_class: degraded, region: us, classification: governed_adapter, value_ms: 1600}
   - case_id: slo-linux-ci-is-not-a-gated-cell
     expect: refused
     class: adversarial

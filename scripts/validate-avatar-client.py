@@ -1448,17 +1448,35 @@ def _ceiling_keys_in_mapping(node: Any) -> list[str]:
 def _evaluate_comparison(case: dict) -> tuple[str, str]:
     """Apply the neutral relative-regression rule to one comparison case.
 
+    WHAT A CASE'S `tier` MEANS: it is the case's own INPUT CLAIM about which
+    tier the comparison is offered for, not a fact this function reads off the
+    samples. That distinction decides every off-nominal outcome below, so it is
+    stated rather than left to be inferred.
+
     Returns (outcome, why). Outcomes:
 
-    - ``refused``  — the two sides do not share a comparable cell, so the pair
-      is not evidence at all. Refusal is checked FIRST and beats every other
-      outcome: a comparison across mismatched conditions must never be
-      evaluated, not even to a passing number.
-    - ``recorded`` — a comparable pair on a tail percentile or a tail interval.
-      Measured and reported; never gates the internal-live ring.
+    - ``refused``  — the pair is not evidence at all, in one of two ways. Either
+      the two sides do not share a comparable cell (mismatched platform, network
+      class or region, or a reference side that is not a direct-provider
+      reference), or the case CLAIMS THE GATED TIER from a cell that cannot
+      gate — off-nominal network, a non-gated delivery platform, or Linux CI,
+      which is reference-generation only.
+    - ``recorded`` — a comparable pair that does NOT claim the gated tier: a
+      tail percentile, a tail interval, or a degraded/jittered network run.
+      Measured and reported as informational tail evidence; gates nothing.
     - ``fail``     — a comparable, gated pair whose adapter percentile is a
       MATERIAL regression: ``adapter > reference + max(0.15 * reference, 150)``.
     - ``pass``     — a comparable, gated pair that is not a material regression.
+
+    THE ORDER IS LOAD-BEARING. Cell comparability is checked first and beats
+    everything: a comparison across mismatched conditions must never be
+    evaluated, not even to a passing number. The gated-tier CLAIM is resolved
+    next, because the ratified rule says degraded-network evidence "MAY be
+    recorded but MUST NOT substitute for the nominal-network gated cells" — so
+    off-nominal refusal has to attach to the CLAIM, not to the network class
+    itself. Refusing every off-nominal comparison outright would make the
+    recorded tier unreachable and contradict the acceptance map, which lists
+    degraded and jittered under `recorded_not_gated.network_classes`.
     """
     ref, adp = case.get("reference") or {}, case.get("adapter") or {}
     if ref.get("classification") != "direct_provider_reference":
@@ -1471,20 +1489,22 @@ def _evaluate_comparison(case: dict) -> tuple[str, str]:
         if ref.get(axis) != adp.get(axis):
             return "refused", (f"{axis} differs ({ref.get(axis)!r} vs {adp.get(axis)!r}); "
                                f"the SLO is defined only within a matching cell")
+    claims_gated = (case.get("tier") == "gated"
+                    and case.get("percentile") in SLO_GATED_PERCENTILES
+                    and case.get("interval") in SLO_GATED_INTERVALS)
+    if not claims_gated:
+        return "recorded", ("tail evidence: recorded, never gating at the internal-live ring")
     platform = adp.get("platform")
     if platform in SLO_REFERENCE_ONLY_PLATFORMS:
-        return "refused", (f"{platform} is reference-generation only and is never a gated "
-                           f"delivery platform")
+        return "refused", (f"the case claims the gated tier, but {platform} is "
+                           f"reference-generation only and is never a gated delivery platform")
     if platform not in SLO_GATED_PLATFORMS:
-        return "refused", f"{platform!r} is not one of the gated delivery platforms"
+        return "refused", (f"the case claims the gated tier, but {platform!r} is not one of "
+                           f"the gated delivery platforms")
     if adp.get("network_class") != SLO_GATED_NETWORK:
-        return "refused", (f"network_class {adp.get('network_class')!r} is not the gated "
-                           f"nominal class; the run may be recorded but never substitutes "
-                           f"for a nominal-network gated cell")
-    if (case.get("tier") != "gated"
-            or case.get("percentile") not in SLO_GATED_PERCENTILES
-            or case.get("interval") not in SLO_GATED_INTERVALS):
-        return "recorded", ("tail evidence: recorded, never gating at the internal-live ring")
+        return "refused", (f"the case claims the gated tier from network_class "
+                           f"{adp.get('network_class')!r}; such a run MAY be recorded as tail "
+                           f"evidence but never substitutes for a nominal-network gated cell")
     reference_ms, adapter_ms = ref.get("value_ms"), adp.get("value_ms")
     if not isinstance(reference_ms, (int, float)) or not isinstance(adapter_ms, (int, float)):
         return "refused", "a side carries no numeric value_ms"
