@@ -187,7 +187,7 @@ shipping.
   - Attestation recorded:
     `governance/review-authority/attestations/custody-attest-wal-agent-mrc-0001.yaml`,
     referenced by the act-tier register row (feature 013/014 records).
-- [ ] 4.4 **[codexFactory]** Declare the holder's composition: map the six
+- [x] 4.4 **[codexFactory]** Declare the holder's composition: map the six
       declared components (model version, prompt contract, tool manifest,
       policy version, parameters, retrieval corpus) onto the actual seat
       artifacts under `hermes/domain/review-councils/` and
@@ -195,6 +195,12 @@ shipping.
       S5's pinning rule is unimplementable without it (N10). The retrieval
       corpus is the PINNED seat prompt plus ontology package — never the
       candidate repository at HEAD.
+  - Realized by codexFactory PR #115, merged at `4d62e94` on
+    2026-08-27T03:05:48Z: the merge-readiness council now declares the exact
+    six-component `composition_source_map`, and its council profile binds all
+    four seats to the existing workflow, prompt, schema, authority, and
+    retrieval sources. Parity and mutation guards refuse drift, including
+    retrieval from candidate HEAD.
 
 ## 5. S4 — the register and its reader, in ONE change
 
@@ -268,12 +274,19 @@ shipping.
 repository's spec corpus, and refusal vocabulary is ratified as the consumer's
 (`hermes-domain-overlay:254-264`).*
 
-- [ ] 6.1 **[hermes-install] [GOVERNANCE]** Open a successor change against
+- [x] 6.1 **[hermes-install] [GOVERNANCE]** Open a successor change against
       `council-orchestration`. **No amendment to the advisory-only requirement**
       — the work rides the SECOND requirement, "A convening verdict conforms to
       the council's materialized semantics or is refused", because a missing or
       unverifiable seat signature is a conformance defect of the same kind as a
       wrong pin or a missing seat result.
+  - Opened and ratified by xFactory-Hermes-Install PR #46, merged at
+    `401da4f` on 2026-08-27T04:16:31Z: successor
+    `add-wallet-exercise-verdict-conformance` modifies only the second
+    requirement, makes missing, unauthorized, replayed, or unverifiable
+    required-seat signatures fail closed, and requires atomic exercise
+    evidence while preserving the separate advisory-only requirement. Tasks
+    6.2-6.8 remain explicit unchecked realization work.
 - [ ] 6.2 **[codexFactory]** Mint the seat's wallet key INSIDE the deliberation
       job.
 - [ ] 6.3 **[hermes-install]** Verify the signature over the seat return at
