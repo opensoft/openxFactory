@@ -181,8 +181,9 @@ python3 -m pytest tests/ideation-dashboard/test_shared_identity.py \
 `test_lens.py` is run alongside because tasks 3.1/3.2 put this change's
 affordance into the lens's drill-in pane; the one skip is
 `test_lens.py:481`, "pinned openxFactory validator(s) not reachable" — a
-pre-existing environment guard in the lens suite, not in this change's tests. `openspec validate --all
---strict` was green in the same clone at 76/76 before the archive and 75/75
+pre-existing environment guard in the lens suite, not in this change's tests.
+`openspec validate --all --strict` was green in the same clone at 76/76
+before the archive and 75/75
 after (one fewer item because the change moved out of the active set).
 
 ### Standing archive-gate clauses
