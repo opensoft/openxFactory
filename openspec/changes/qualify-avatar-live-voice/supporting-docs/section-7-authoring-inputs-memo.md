@@ -14,7 +14,21 @@ cannot become unfalsifiable. Brett ruled all six on 2026-08-27, adopting every
 recommendation as written; this memo is the grounding those rulings cite.
 Topics: avatar-client, live-voice, credential-custody, spend-cap, rotation-policy, alerting, latency-slo, sample-size, canary-exit, gpt-realtime-2.1, AVC-09, AVC-10
 Repository context: openxFactory — supporting material for the active `qualify-avatar-live-voice` change. The memo mutates no contract, schema, acceptance map or interface lock; the artifacts that carry its ruled values are named in "Where the rulings landed" below.
-Source: this session's per-input research over a read-only clone of `opensoft/openxFactory`, a survey of the `/home/brett/projects/xFactory` aggregation tree (hermes-install, omnigent-install, codexFactory, OpsxFactory), the F0 brokered-call feasibility evidence in `openspec/changes/archive/2026-08-09-qualify-avatar-brokered-call-feasibility/`, the ratified `credential-contracts` capability, and the provider's published Realtime rate card.
+Source: this session's per-input research over a read-only clone of `opensoft/openxFactory`, a survey of the `opensoft/xFactory` aggregation tree (hermes-install, omnigent-install, codexFactory, OpsxFactory), the F0 brokered-call feasibility evidence in `openspec/changes/archive/2026-08-09-qualify-avatar-brokered-call-feasibility/`, the ratified `credential-contracts` capability, and the provider's published Realtime rate card.
+
+## How to read the paths in this memo
+
+Every path below is repo-relative to the openxFactory root unless it is marked
+`[aggregation]`, in which case it is relative to the root of the `opensoft/xFactory`
+aggregation checkout, or it is given as a URL.
+
+**Sanitization note.** This committed copy is the artifact of record. The memo was
+drafted as a working file and named its clone locations and the aggregation
+checkout by their absolute paths on the authoring machine; those are replaced
+here with the repository identities they stood for, because the constitution
+forbids committed host-absolute paths and a machine-local path is not evidence a
+later reader can follow anyway. No claim, citation, line reference or
+recommendation was changed by that substitution.
 
 ## Provenance of the rulings
 
@@ -43,9 +57,9 @@ document *before* 2026-08-27.
 | --- | --- | --- |
 | 7.1 | AKV `kv-opensoft-xfactory-qa` via the broker's AKS workload identity (CSI) — install side; a vault-agnostic reference here | `contracts/avatar-client/broker-server-key-binding.template.yaml`; the concrete binding is the named install-side act in tasks.md 6.1.1 |
 | 7.2 | 15 min + $3.00 per session (hard, broker); $150/tenant/month (metered only); $750/month project cap (hard) with 50%/80% alerts | `openspec/changes/qualify-avatar-live-voice/tasks.md` §7.2; the trip points in `contracts/avatar-client/canary-cohort-and-rollback-policy.yaml` ROLLBACK-B/C |
-| 7.3 | `max_key_age_days: 90` plus three added triggers, inheriting the global `require_rotation_on` list | `contracts/avatar-client/broker-server-key-rotation-policy.template.yaml` |
+| 7.3 | `max_key_age_days: 90` plus three added triggers, inheriting the global `require_rotation_on` list | `contracts/avatar-client/broker-server-key-rotation-policy.yaml` |
 | 7.4 | Provider-native budget alerts at 50%/80% + `gh issue create` on the doc-health pattern; page target = the §7.7 kill-switch holder | `openspec/changes/qualify-avatar-live-voice/tasks.md` §7.4, cited from 6.1.4 |
-| 7.5 | n >= 100 per gated cell, declared before measuring, spread over >=3 runs on >=2 days | `contracts/avatar-client/acceptance-map.yaml` `latency_slo.minimum_samples_per_gated_cell` |
+| 7.5 | n >= 100 per gated cell, declared before measuring, spread over >=3 runs on >=2 days | `contracts/avatar-client/latency-sample-minimum.yaml` — a SIBLING of the acceptance map, not a block inside it: the map is a published digest-pinned bundle member and an authoring input does not earn a contract-release cut |
 | 7.6 | 14-day soak on >=10 distinct days; >=200 sessions; <=2% overall / <=5% trailing-50 abnormal; >=1 rehearsed ROLLBACK-B trip; zero open ROLLBACK-A | `contracts/avatar-client/canary-cohort-and-rollback-policy.yaml` `canary_exit_criteria` |
 
 ---

@@ -731,8 +731,20 @@ VAULT_PRODUCT_TOKENS = ("azurekeyvault", "keyvault", "awssecretsmanager",
 VAULT_INSTANCE_TOKENS = ("kv-", "vault.azure.net")
 # A raw secret value pasted where a reference belongs — the same markers the
 # credential-contracts validator refuses in a binding's `secret_ref`.
-BINDING_SECRET_MARKERS = ("-----BEGIN", "sk-proj-", "sk-svcacct-", "ghp_",
-                          "github_pat_", "gho_", "ghs_", "AKIA")
+#
+# WRITTEN LOWERCASE AND MATCHED AGAINST THE LOWERCASED VALUE, so a case-varied
+# paste (`GHP_...`, `-----BEGIN`, `Akia...`) hits exactly as the canonical
+# spelling does. A scan that only knows one casing catches the tidy paste and
+# misses the careless one, which is the wrong way round.
+#
+# Deliberately NOT squashed the way `VAULT_PRODUCT_TOKENS` is. The
+# normalization that is right for a product NAME is wrong for a key PREFIX,
+# because a key prefix's separators ARE part of the marker: squashing would
+# reduce `-----begin` to `begin` and `gho_` to `gho`, which fire on the
+# ordinary words "beginning" and "ghost". A scan that cannot tell a key from
+# prose is worse than no scan, because its findings get dismissed.
+BINDING_SECRET_MARKERS = ("-----begin", "sk-proj-", "sk-svcacct-", "ghp_",
+                          "github_pat_", "gho_", "ghs_", "akia")
 
 
 def _acceptance_map_ids() -> set[str] | None:
@@ -1598,7 +1610,7 @@ def _check_no_vault_or_secret(f: Findings, cat: str, rp: str, node: Any,
                          f"instance token(s) {hits}; the vault operator and product "
                          f"are a per-install execution binding and a contract artifact "
                          f"may not hard-code one")
-        marks = sorted({m for m in BINDING_SECRET_MARKERS if m in node})
+        marks = sorted({m for m in BINDING_SECRET_MARKERS if m in low})
         if marks:
             f.error(cat, f"{rp}: value at {trail or '<root>'} carries raw secret "
                          f"marker(s) {marks}; credentials are delivered BY REFERENCE, "

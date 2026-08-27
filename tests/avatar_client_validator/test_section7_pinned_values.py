@@ -23,7 +23,6 @@ The validator is a hyphenated script, so it is loaded by file path with
 
 from __future__ import annotations
 
-import copy
 import importlib.util
 import shutil
 from pathlib import Path
@@ -58,6 +57,37 @@ COPIED = (
     "broker-server-key-binding.template.yaml",
     "broker-server-key-rotation-policy.yaml",
 )
+
+
+# CAPTURED AT IMPORT TIME — during collection, before any test in this module
+# has run — so that the end-of-session comparison has something to be a
+# baseline OF. Reading the repository twice inside the guard instead would
+# compare a mutated file to itself and agree.
+_BASELINE_BYTES = {name: (REAL_AVC / name).read_bytes() for name in COPIED}
+
+
+@pytest.fixture(scope="session", autouse=True)
+def repository_artifacts_are_never_mutated():
+    """THE ENFORCEMENT of this module's central safety property: every mutation
+    here edits a copy under `tmp_path`, and none of them may reach the
+    repository.
+
+    It is a session-scoped teardown rather than a test so that it is
+    ORDER-INDEPENDENT. As an ordinary test it would only catch a mutation made
+    by a test that happened to run before it, which under a randomizing or
+    parallel plugin is a coin flip; as a teardown it runs after everything, and
+    a mutation made anywhere in the session is still there to be found.
+
+    It compares against `_BASELINE_BYTES` — the bytes as of import — and not
+    against a fresh read, for the reason spelled out in
+    `test_the_repository_artifacts_match_their_import_time_bytes`."""
+    yield
+    drifted = sorted(name for name in COPIED
+                     if (REAL_AVC / name).read_bytes() != _BASELINE_BYTES[name])
+    assert not drifted, (
+        f"shipped artifact(s) {drifted} were MUTATED during this session; the "
+        f"mutations in this module must edit the tmp tree only. Restore with "
+        f"`git checkout -- contracts/avatar-client/`")
 
 
 def _codes(findings) -> list[str]:
@@ -303,6 +333,10 @@ BINDING_MUTATIONS = {
         lambda d: d.__setitem__("source", "resolved from AWS Secrets Manager at call time"),
     "raw_secret_pasted_as_the_reference":
         lambda d: _binding(d).__setitem__("secret_ref", "sk-proj-EXAMPLENOTAREALKEY"),
+    # Same paste, different casing. The scan is case-insensitive precisely so
+    # that the careless paste is caught alongside the tidy one.
+    "raw_secret_pasted_in_another_casing":
+        lambda d: _binding(d).__setitem__("secret_ref", "GHP_ExampleNotARealToken"),
     "reference_renamed_to_the_f0_lab_key":
         lambda d: _binding(d).__setitem__("secret_ref", "openai-realtime-f0-lab"),
     "owner_dropped":
@@ -393,6 +427,38 @@ def test_absent_custody_artifact_fails_closed(tmp_path, monkeypatch, victim):
     assert "fail closed" in _messages(findings)
 
 
+@pytest.mark.parametrize("pasted", ["-----BEGIN RSA PRIVATE KEY-----",
+                                    "-----begin rsa private key-----",
+                                    "GHP_ExampleNotARealToken",
+                                    "ghp_examplenotarealtoken",
+                                    "AKIAEXAMPLENOTAREAL",
+                                    "akiaexamplenotareal"])
+def test_secret_markers_are_matched_regardless_of_casing(tmp_path, monkeypatch, pasted):
+    """The vault-product scan normalizes and the secret scan must too, or the
+    two halves of the same rule disagree about what a paste looks like."""
+    avc = _tree(tmp_path)
+    _rewrite(avc, "broker-server-key-binding.template.yaml",
+             lambda d: d.__setitem__("source", f"held at {pasted}"))
+    findings = _run(monkeypatch, avc, "binding")
+    assert "raw secret marker" in _messages(findings), _messages(findings)
+    assert set(_codes(findings)) == {"broker-credential"}
+
+
+def test_secret_marker_scan_does_not_fire_on_ordinary_prose(tmp_path, monkeypatch):
+    """The companion to the rule above, and the reason the secret markers are
+    NOT squashed the way the product tokens are: squashing would reduce
+    `-----begin` to `begin` and `gho_` to `gho`, and a scan that reports the
+    words "beginning" and "ghost" as leaked credentials gets its findings
+    dismissed wholesale."""
+    avc = _tree(tmp_path)
+    _rewrite(avc, "broker-server-key-binding.template.yaml",
+             lambda d: d.__setitem__(
+                 "source", "Beginning at the ghost of a prior rotation, "
+                           "the record begins and the ghosts are gone"))
+    findings = _run(monkeypatch, avc, "binding")
+    assert findings.errors == [], _messages(findings)
+
+
 def test_placeholder_check_accepts_only_the_bracketed_form(tmp_path, monkeypatch):
     """A blank is not a placeholder: an empty `provider` reads as "not yet
     decided" to a human and as a missing required field to the schema, so it is
@@ -405,10 +471,22 @@ def test_placeholder_check_accepts_only_the_bracketed_form(tmp_path, monkeypatch
     assert "`provider` missing" in _messages(findings)
 
 
-def test_mutations_are_applied_to_a_copy_not_the_repository():
-    """Guard for this file's own method: the mutations above edit a tmp copy,
-    so a run of this suite must leave the shipped artifacts byte-identical."""
-    before = {name: (REAL_AVC / name).read_bytes() for name in COPIED}
-    after = {name: (REAL_AVC / name).read_bytes() for name in COPIED}
-    assert before == after
-    assert all(copy.copy(v) == v for v in before.values())
+def test_the_repository_artifacts_match_their_import_time_bytes():
+    """Guard for this file's own method: every mutation above edits a tmp copy,
+    so the shipped artifacts must be byte-identical to what they were before
+    this module's tests began.
+
+    THE BASELINE IS `_BASELINE_BYTES`, CAPTURED AT IMPORT TIME. An earlier
+    version of this guard read the repository twice inside the test body and
+    compared those two reads to each other, which is not a guard at all: two
+    back-to-back reads of a mutated file agree with each other perfectly, so it
+    would have passed on exactly the damage it was written to catch.
+
+    This test is the readable statement of the invariant; the enforcement is
+    `repository_artifacts_are_never_mutated` below, which runs at session
+    teardown and therefore holds no matter what order the tests execute in."""
+    drifted = sorted(name for name in COPIED
+                     if (REAL_AVC / name).read_bytes() != _BASELINE_BYTES[name])
+    assert not drifted, (
+        f"shipped artifact(s) {drifted} differ from their import-time bytes; a "
+        f"mutation escaped the tmp tree and edited the repository")
