@@ -927,12 +927,151 @@ def _add_with_one_retry(*args: str) -> str:
         return nlm(*args, parse=False)
 
 
+#: A source still wearing the temp filename an oversized upload lands under.
+#: `tempfile.mkstemp(suffix=".md", prefix="xf-sync-")` produces exactly this.
+STRAY_TEMP_TITLE_RE = re.compile(r"^xf-sync-[A-Za-z0-9_]+\.md$")
+
+#: How long to keep trying the post-upload rename, and how often. A 279KB source
+#: was live-proven on 2026-08-27 to be unready well past the two seconds this
+#: used to wait; the ceiling is generous because the alternative — giving up —
+#: strands the source under its temp name.
+RENAME_READY_TIMEOUT_S = 180
+RENAME_POLL_INTERVAL_S = 3
+
+
+def _content_digest(raw: str) -> str:
+    """The ONE way this module compares source content.
+
+    UNWRAPS FIRST. `nlm source content` may return the body inside a JSON
+    envelope, which `source_content_text()` already exists to tolerate — and the
+    first cut of stray adoption hashed the RAW stdout instead. Against a wrapped
+    response the digests could never match, so the repair silently never fired
+    (Codex P1 / Copilot, PR #438). Fail-safe, in that it degraded to a plain add
+    — but a repair that cannot fire is not a repair.
+
+    Applied to BOTH sides of every comparison. Normalising only the fetched half
+    is what created the mismatch, and one shared function is what stops a second
+    call site drifting the same way. On already-plain text the unwrap is a no-op,
+    so the symmetry costs nothing.
+
+    Digest form matches the manifest's own (`sha256(...)[:16]`).
+    """
+    return hashlib.sha256(source_content_text(str(raw)).encode()).hexdigest()[:16]
+
+
+def _source_rows(handle: str) -> list[dict]:
+    rows = nlm("source", "list", handle, "--json")
+    if isinstance(rows, dict):
+        rows = rows.get("sources") or []
+    return [r for r in (rows or []) if isinstance(r, dict)]
+
+
+def _rename_source_when_ready(handle: str, source_id: str, title: str) -> None:
+    """Rename an uploaded source, POLLING until it takes, or fail LOUDLY.
+
+    Replaces a fixed `time.sleep(2)`. That wait was too short for the largest
+    projected document (279KB, live 2026-08-27): the add succeeded, the rename
+    silently did not, and the source stranded under `xf-sync-*.md` — where parity
+    correctly reported it MISSING, because by title it was.
+
+    VERIFIES THE STATE, NOT THE RETURN. The `nlm` CLI has been observed printing
+    `API error (code 7)` while exiting 0, so a rename is confirmed by reading the
+    source list back and finding the title — never by trusting the call's own
+    report. That is the same rule the harness lessons keep arriving at from other
+    directions.
+
+    Raises on timeout rather than returning quietly: a silent failure here is
+    what produced the stranded source and, worse, what let a re-run add a second
+    one instead of repairing the first.
+    """
+    # BOUNDED BY ATTEMPTS AS WELL AS WALL TIME. A caller that patches
+    # `time.sleep` to a no-op (every test in this suite does) would otherwise
+    # turn the wall-clock deadline into a busy-wait spinning until the timeout
+    # elapsed in real seconds. Two bounds, whichever arrives first.
+    max_attempts = max(1, RENAME_READY_TIMEOUT_S // RENAME_POLL_INTERVAL_S)
+    deadline = time.monotonic() + RENAME_READY_TIMEOUT_S
+    attempts = 0
+    last = ""
+    while True:
+        attempts += 1
+        try:
+            nlm("source", "rename", source_id, title, "--notebook", handle,
+                parse=False)
+        except RuntimeError as exc:                       # noqa: PERF203
+            last = str(exc)[:200]
+        # The read-back IS the check — AND IT KEYS ON THE SOURCE ID, not the
+        # title alone. Asking "does any source carry this title?" returns
+        # success when a PRE-EXISTING source already wears it while the one just
+        # uploaded sits un-renamed: a fail-open inside the verifier written to
+        # close a fail-open (Copilot, PR #438). The pair is what is being
+        # asserted — THIS source now bears THIS title.
+        try:
+            if any(str(r.get("id") or "") == source_id
+                   and str(r.get("title") or "") == title
+                   for r in _source_rows(handle)):
+                if attempts > 1:
+                    print(f"    rename settled after {attempts} attempts")
+                return
+        except RuntimeError as exc:
+            last = f"source list unreadable: {str(exc)[:160]}"
+        if attempts >= max_attempts or time.monotonic() >= deadline:
+            raise RuntimeError(
+                f"oversized source {title!r} uploaded as {source_id} but the "
+                f"rename never took after {attempts} attempts over "
+                f"{RENAME_READY_TIMEOUT_S}s (last: {last or 'no error reported'}). "
+                f"It is live under its temp filename; rename it by hand with "
+                f"`nlm source rename {source_id} {title!r} --notebook {handle}` "
+                f"— do NOT re-run the sync to fix it")
+        time.sleep(RENAME_POLL_INTERVAL_S)
+
+
+def _adopt_matching_stray(handle: str, text: str, title: str) -> bool:
+    """Rename an already-uploaded stray into place instead of adding a duplicate.
+
+    THE SELF-HEALING HALF. Before this, a run that failed to rename left a
+    stray, and the documented repair — re-run the book — ADDED A SECOND ONE
+    (proven live 2026-08-27: canon reached 120 sources with two `xf-sync-*.md`
+    entries for one document). The failure compounded instead of healing.
+
+    A stray is adopted only when its CONTENT MATCHES the document being added,
+    on the same digest the manifest uses. If the provider does not return the
+    body verbatim the digests differ, no stray is adopted, and the caller falls
+    through to a normal add — the pre-existing behaviour. So the check can only
+    repair or do nothing; it can never adopt the wrong source.
+    """
+    want = _content_digest(text)
+    try:
+        rows = _source_rows(handle)
+    except RuntimeError:
+        return False
+    for row in rows:
+        row_title = str(row.get("title") or "")
+        source_id = row.get("id")
+        if not source_id or not STRAY_TEMP_TITLE_RE.match(row_title):
+            continue
+        try:
+            body = nlm("source", "content", source_id, parse=False) or ""
+        except RuntimeError:
+            continue
+        if _content_digest(body) != want:
+            continue
+        print(f"    adopting stray {row_title} as {title!r} "
+              f"(a previous run's rename did not take)")
+        _rename_source_when_ready(handle, source_id, title)
+        return True
+    return False
+
+
 def add_text_source(handle: str, text: str, title: str) -> None:
     """Add one text source, riding a temp file + rename when the content is
     too large for a single argv string (see MAX_TEXT_ARG_BYTES)."""
     if len(text.encode("utf-8", "replace")) <= MAX_TEXT_ARG_BYTES:
         _add_with_one_retry("source", "add", handle, "--text", text,
                             "--title", title)
+        return
+    # Repair before adding: a stray from a previous run's failed rename is this
+    # document already uploaded, and adding again would duplicate it.
+    if _adopt_matching_stray(handle, text, title):
         return
     fd, tmp = tempfile.mkstemp(suffix=".md", prefix="xf-sync-")
     try:
@@ -944,9 +1083,7 @@ def add_text_source(handle: str, text: str, title: str) -> None:
             raise RuntimeError(
                 f"oversized source {title!r} uploaded but the CLI echoed no "
                 f"source id to rename — rename it to the contract title by hand")
-        time.sleep(2)
-        nlm("source", "rename", m.group(1), title, "--notebook", handle,
-            parse=False)
+        _rename_source_when_ready(handle, m.group(1), title)
     finally:
         os.unlink(tmp)
 
@@ -1022,6 +1159,10 @@ def sync_book(root: Path, spec: BookSpec, desired: dict[str, str],
     # adds and content updates
     for rel, title in sorted(desired.items()):
         text = (root / rel).read_text(errors="replace")
+        # Raw hash, not `_content_digest`, deliberately: this is REPO text read
+        # from disk and compared against the manifest's stored value. There is no
+        # provider response here and so nothing to unwrap — the digest FORM is
+        # the same, which is what keeps the two comparable.
         digest = hashlib.sha256(text.encode()).hexdigest()[:16]
         prev = mf.get(rel)
         if title in by_title and prev and prev.get("hash") == digest:

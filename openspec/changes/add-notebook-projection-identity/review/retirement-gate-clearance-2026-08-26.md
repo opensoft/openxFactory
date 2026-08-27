@@ -335,8 +335,9 @@ The blocker list drops from three to **TWO**:
 | 1 | **4.7's remaining half** — `brett.heap@gmail.com` refused by the provider on all seven books | **Brett / Workspace admin** |
 | 2 | **5.1** — unattended re-authentication does not exist | successor change |
 
-**A new OPEN DEFECT was found and is not one of them**, because it is repaired in
-the live books and does not block the archive: the oversized-source rename fails
+**A new defect was found and is not one of them** — **FIXED 2026-08-27** in
+`change/fix-oversized-source-rename`; it never blocked the archive, because the
+live books were repaired by hand the same day: the oversized-source rename fails
 silently — `time.sleep(2)` is too short for the 279KB `ideation-dashboard` spec,
 so the source lands under its temp filename and a re-run adds a second one rather
 than repairing the first. Repaired by hand this round. It matters more than its
