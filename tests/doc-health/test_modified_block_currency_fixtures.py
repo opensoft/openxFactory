@@ -206,7 +206,13 @@ def test_the_naive_declaration_key_would_collide():
         for f in out:
             if "declaration" in f.rule:
                 hit_classes |= {k for k, fn in CLASSIFIERS.items() if fn(f.rule)}
-    assert hit_classes == {"marker", "ordering"}, hit_classes
+    # More than one class, and specifically the two the arms' own wording puts
+    # in reach. Not pinned to an exact SET, because a fixture whose requirement
+    # TITLE contains the word drags the ledger in too — which this feature's own
+    # `name-order` tree does, making the naive key worse still rather than
+    # better.
+    assert len(hit_classes) > 1, hit_classes
+    assert {"marker", "ordering"} <= hit_classes, hit_classes
 
 
 # ============================================================================
@@ -496,3 +502,645 @@ def test_the_reconstructed_fixtures_are_the_history_they_claim(
     actual = _requirement_section((root / canon_rel).read_text(), requirement)
     assert actual.strip() == expected.strip(), (
         f"{tree}: the canon requirement is not {sha[:12]}'s text")
+
+
+# ============================================================================
+# US3 · row A3 · packet § 3.3 — THE `Merged into` GUT
+#
+# THE ONE TRUE HOLE the audit found. The delta's rule — "A `Merged into` marker
+# names titles only, so a bullet a merge makes redundant is a declared removal,
+# not a permanent editorial row — but it has to be declared as a bullet, one at
+# a time" — was asserted nowhere. F1's only end-to-end merge case has a
+# one-bullet source that the block carries, so it is quiet in both arms.
+# ============================================================================
+
+TMERGE = "modified-block-currency-merge-gut"
+RMERGE = "mergeFactory"
+CAPMERGE = "merge-gut"
+GUT = "A merge that guts its source"
+DECLARED = "A merge that declares its redundant bullets"
+
+
+def test_a_merge_marker_does_not_declare_the_bullets_it_makes_redundant():
+    """The gut: a four-bullet scenario merged away, two of its bullets carried.
+
+    The ledger reports EXACTLY the two the replacement does not carry, and says
+    nothing about the two it does. A `Merged into` marker names TITLES.
+    """
+    hits = _of(_for(_tree(TMERGE), GUT), "ledger")
+    assert len(hits) == 1, [f.rule[:100] for f in hits]
+    rule = hits[0].rule
+    assert "**AND** it MUST do the second thing" in rule
+    assert "**AND** it MUST do the third thing" in rule
+    # the bullet the replacement DOES carry is not reported...
+    assert "it MUST do the first thing" not in rule
+    # ...and neither is the untouched sibling scenario's bullet
+    assert "it MUST survive" not in rule
+    assert hits[0].severity == INFO
+
+
+def test_the_scenario_arm_is_quiet_because_the_merge_marker_is_valid():
+    """The other half of § 3.3: the marker is well formed and names an ABSENT
+    title, so it declares what it says it declares — the scenario arm is quiet
+    and no marker defect is emitted. Only the BULLETS survive as a finding."""
+    findings = _for(_tree(TMERGE), GUT)
+    assert findings, "a vacuous pass is not a pass"
+    assert _of(findings, "titles") == []
+    assert _of(findings, "marker") == []
+
+
+def test_a_merge_companion_naming_its_redundant_bullets_silences_them():
+    """§ 3.3's companion case. The same merge shape, PLUS a `Removed from canon`
+    marker naming the two redundant bullets one at a time — which is the
+    deliberation the class deserves. Nothing is reported.
+
+    One of the two named bullets itself contains a backtick (it cites
+    `openxFactory`), so its code span carries a LONGER FENCE — which makes this
+    case carry § 3.7's fence rule end to end as well.
+    """
+    assert _for(_tree(TMERGE), DECLARED) == []
+
+
+def test_the_merge_companion_is_quiet_because_of_its_marker_not_by_carriage():
+    """SILENCE PROVES NOTHING UNLESS THE CAUSE IS REMOVED AND THE NOISE RETURNS.
+
+    Rebuild the companion's block WITHOUT its `Removed from canon` marker
+    paragraph and derive units from the result: the two bullets are then
+    uncarried. So the quiet above is caused by the declaration, not by the
+    block having carried them somewhere.
+    """
+    root = _root(TMERGE, RMERGE)
+    basis = mbc.promoted(root, CAPMERGE)[norm_title(DECLARED)]
+    block = next(b for b in mbc.active_blocks(root)
+                 if norm_title(b.title) == norm_title(DECLARED))
+
+    # with the marker: the two bullets are absent from the block AND suppressed
+    kinds = (mbc.BODY, mbc.SCENARIO_BULLET)
+    uncarried = mbc.carried([u for u in basis.units if u.kind in kinds],
+                            [u for u in block.units if u.kind in kinds])
+    assert len(uncarried) == 2, _texts(uncarried)   # absent, before suppression
+    suppressed, defective = mbc.suppression(block.markers, basis.units,
+                                            block.units)
+    assert defective == [], defective
+    assert all(u.pair() in suppressed for u in uncarried), _texts(uncarried)
+
+    # without the marker: nothing suppresses them, and the arm would report both
+    kept = [m for m in block.markers if m.form != "removed"]
+    suppressed_without, _ = mbc.suppression(kept, basis.units, block.units)
+    assert not any(u.pair() in suppressed_without for u in uncarried)
+
+
+# ============================================================================
+# US4 · row A5(a) · packet § 3.4 — CONTAINMENT AT EITHER END
+#
+# F1 widens at the END only, though its own SC-003 says "either end". The
+# end-to-end half is fixture A's real instance (T014); these are the two
+# synthetic directions.
+# ============================================================================
+
+CANON_UNIT = ("**THEN** the selector MUST show exactly the available catalog "
+              "entries and their data-handling badges")
+
+
+def test_a_block_unit_widened_before_canon_s_does_not_carry_it():
+    """PREFIX widening — text added BEFORE canon's unit. F1's test adds text
+    after it only, so a one-sided implementation would pass F1's suite."""
+    canon = [mbc.Unit(mbc.SCENARIO_BULLET, CANON_UNIT, "S")]
+    widened = [mbc.Unit(mbc.SCENARIO_BULLET,
+                        "**THEN** where a provider lane resolves, " + CANON_UNIT,
+                        "S")]
+    assert CANON_UNIT in widened[0].text, "the containment premise"
+    assert mbc.carried(canon, widened) == canon
+
+
+def test_a_block_unit_widened_at_both_ends_does_not_carry_it():
+    """BOTH ends at once, which is neither of the one-sided cases."""
+    canon = [mbc.Unit(mbc.SCENARIO_BULLET, CANON_UNIT, "S")]
+    widened = [mbc.Unit(mbc.SCENARIO_BULLET,
+                        "**THEN** where a provider lane resolves, " + CANON_UNIT
+                        + " and their provider lanes", "S")]
+    assert CANON_UNIT in widened[0].text, "the containment premise"
+    assert mbc.carried(canon, widened) == canon
+
+
+# ============================================================================
+# US4 · row A6 · packet § 3.5 — TOKENIZATION
+# ============================================================================
+
+TTOK = "modified-block-currency-tokens"
+RTOK = "tokenFactory"
+CAPTOK = "token-cases"
+REQTOK = "Tokens with internal periods never end a sentence"
+
+
+def test_no_unit_boundary_falls_inside_a_versioned_token():
+    """`contract-v1.45` is the token shape F1's fixture lacks: its period sits
+    BETWEEN DIGITS, which a naive `\\d\\.\\d` sentence guard waves through while
+    a leading-dot or word-boundary rule catches `.openspec.yaml`.
+
+    Run END TO END through the family, so a wiring regression cannot hide behind
+    a green unit test. The three tokened sentences are restated VERBATIM by the
+    block, so they must not be reported at all — and no reported unit may be a
+    fragment of a backticked span.
+    """
+    findings = _tree(TTOK)
+    assert findings, "a vacuous pass is not a pass"
+
+    # ASSERTED POSITIVELY, on canon's own derivation. The first cut of this test
+    # only checked that the tokens were ABSENT from the ledger — and the
+    # mutation round killed it: strip the backticks from `contract-v1.45` in BOTH
+    # documents and the sentence splits into two units on each side, which still
+    # MATCH, so nothing is reported and the negative assertion still passed. A
+    # negative cannot see a boundary that moved on both sides at once.
+    root = _root(TTOK, RTOK)
+    canon = mbc.promoted(root, CAPTOK)[norm_title(REQTOK)]
+    for token, whole in (
+        (".openspec.yaml",
+         "The jump SHALL read `.openspec.yaml` for its repository name."),
+        ("promotion_fidelity.py",
+         "The disposition reader SHALL be the one `promotion_fidelity.py` "
+         "already implements."),
+        ("contract-v1.45",
+         "A consumer SHALL pin `contract-v1.45` exactly rather than a movable "
+         "tag."),
+    ):
+        # BODY units only: `.openspec.yaml` is cited in a scenario bullet too,
+        # and this assertion is about the body's sentence split.
+        holders = [u for u in canon.units
+                   if u.kind == mbc.BODY and token in u.text]
+        assert len(holders) == 1, (token, _texts(holders))
+        assert holders[0].text == whole, (token, holders[0].text)
+
+    # ...and the block restates all three verbatim, so none is reported.
+    rule = _of(_for(findings, REQTOK), "ledger")[0].rule
+    for token in ("contract-v1.45", ".openspec.yaml", "promotion_fidelity.py"):
+        assert token not in rule, token
+    # and no unit anywhere in the catalogue is a backtick fragment
+    for f in findings:
+        for chunk in f.rule.split("'"):
+            assert chunk.count("`") % 2 == 0 or "``" in chunk, chunk[:80]
+
+
+def test_each_tokenized_body_bullet_is_its_own_reported_unit():
+    """§ 3.5's "each bullet SHALL be one unit with its list marker stripped".
+
+    Canon carries a three-item bullet list and the block carries one, so EXACTLY
+    TWO body units are reported — one unit carrying both dropped bullets, or
+    three, is the defect under test, which is why the count is the assertion
+    here (data-model.md § 4).
+    """
+    bodies = [u for u in _units(TTOK, RTOK, CAPTOK, REQTOK)
+              if u.kind == mbc.BODY]
+    bullets = [u.text for u in bodies if u.text.startswith("a reader MUST")]
+    assert len(bullets) == 2, bullets
+    assert "a reader MUST resolve the repository id before it reads the pin" in bullets
+    assert "a reader MUST record which contract release it resolved" in bullets
+    # the list marker is stripped
+    assert not any(b.startswith(("-", "*", "+")) for b in bullets)
+
+
+def test_a_note_edited_in_its_third_sentence_is_reported_once():
+    """§ 3.5'S LAST CLAUSE, AND THE ONE F1 DOES NOT HAVE.
+
+    Canon's dated bold note carries FOUR sentences. The block restates it with
+    the THIRD sentence amended. The note is reported ONCE, as one undivided
+    unit — no fragment of any other sentence of it appears separately.
+
+    F1's block DROPS its two-sentence note, and dropped is the weaker case: an
+    implementation that split a note into sentences would report a dropped note
+    as N rows, but would report an EDITED note as 1 row out of N. Only the edit
+    distinguishes "one undivided unit" from "sentence-wise comparison that
+    happened to agree".
+    """
+    notes = [u for u in _units(TTOK, RTOK, CAPTOK, REQTOK)
+             if u.text.startswith("**CORRECTED")]
+    assert len(notes) == 1, _texts(notes)
+    note = notes[0].text
+    # it really is the whole four-sentence paragraph, not its first sentence
+    assert note.count(" It carries four sentences.") == 1
+    assert note.endswith("last.**")
+    # and the sentences AROUND the edit are not reported on their own
+    rule = _of(_for(_tree(TTOK), REQTOK), "ledger")[0].rule
+    assert rule.count("CORRECTED 2026-08-27") == 1
+
+
+def test_masking_governs_boundaries_and_not_equality():
+    """A DISTINCT property from the mask's job, separated deliberately.
+
+    The mask decides where units END. It says nothing about whether two units
+    are EQUAL — so a sentence whose text is altered INSIDE its backticks is
+    still ONE unit, and it is uncarried. Conflating the two is how a "RED stage
+    2" ends up asserting that a test still passes.
+    """
+    canon = mbc.derive_units([
+        "A consumer SHALL pin `contract-v1.45` exactly rather than a movable tag."
+    ])[0]
+    altered = mbc.derive_units([
+        "A consumer SHALL pin `contract-v1.46` exactly rather than a movable tag."
+    ])[0]
+    assert len(canon) == 1 and len(altered) == 1        # boundaries: one each
+    assert mbc.carried(canon, altered) == canon         # equality: not carried
+
+
+# ============================================================================
+# US4 · row A7 · packet § 3.6 — RE-WRAP QUIET, END TO END
+# ============================================================================
+
+TWRAP = "modified-block-currency-rewrap"
+RWRAP = "rewrapFactory"
+
+
+def test_a_rewrapped_scenario_complete_block_reports_nothing_through_the_family():
+    """THE CASE LINE-LEVEL MATCHING FAILS, asserted through the family.
+
+    F1 asserts this at `mbc.carried()` on units its test body synthesizes from
+    canon, and its `-quiet` tree carries no MODIFIED block at all — so a wiring
+    regression between `derive_units` and the arms leaves both F1 tests green.
+    This block restates its requirement COMPLETELY while re-wrapping every
+    paragraph, bullet and scenario line, one of them mid-sentence.
+    """
+    assert _tree(TWRAP) == []
+
+
+def test_the_rewrap_tree_is_not_reported_skipped():
+    """THE TWO SILENCES ARE DIFFERENT STATES. Canon's skip rule is "cannot run",
+    not "found nothing" — and a tree that returned `Skip` would satisfy the
+    `== []` above under a naive comparison. So the tree is shown to have RUN:
+    it has an `openspec/changes/` directory and a MODIFIED block in it.
+    """
+    out = _tree(TWRAP)
+    assert not isinstance(out, Skip)
+    blocks = mbc.active_blocks(_root(TWRAP, RWRAP))
+    assert len(blocks) == 1, blocks
+    assert blocks[0].units, "the block was derived, not merely discovered"
+
+
+# ============================================================================
+# US4 · row A11 · packet § 3.7(d) — THE LONGER FENCE, END TO END
+# ============================================================================
+
+TFENCE = "modified-block-currency-fence"
+RFENCE = "fenceFactory"
+CAPFENCE = "fence-cases"
+LONGER = "A longer fence names the whole unit"
+SINGLE = "A single backtick names a fragment"
+CLAUSE = ("An adapter that reaches a hosted provider SHALL obtain its "
+          "credential through the `openxFactory` broker lane.")
+
+
+def test_a_longer_fenced_named_unit_suppresses_the_whole_unit():
+    """§ 3.7's fence clause END TO END. F1 pins it at `extract_code_spans`; no
+    fixture exercised it through the family, and none showed it SUPPRESSING.
+
+    The named unit cites `openxFactory`, so a single-backtick span would end at
+    its first inner backtick and name a fragment. Fenced with a longer run, it
+    names the unit, and the block that dropped that unit is quiet.
+    """
+    assert _for(_tree(TFENCE), LONGER) == []
+    # ...and the premise: the clause really is absent from the block
+    assert CLAUSE in _texts(_units(TFENCE, RFENCE, CAPFENCE, SINGLE))
+
+
+def test_the_inner_backtick_does_not_truncate_the_named_unit():
+    """THE PAIR THAT MAKES THE FENCE RULE FALSIFIABLE.
+
+    A second requirement names the SAME clause with a SINGLE-backtick span,
+    which under CommonMark ends at the clause's first inner backtick. The marker
+    therefore names a FRAGMENT that matches no canon unit — so it suppresses
+    nothing and the clause is reported.
+
+    It is NOT reported as a marker defect: the delta reports a marker only when
+    it names a unit the block STILL CARRIES, and a name matching no canon unit
+    declares nothing and is silent. Without this sibling, a build that ignored
+    fences entirely and matched the whole paragraph would pass the test above.
+    """
+    findings = _for(_tree(TFENCE), SINGLE)
+    hits = _of(findings, "ledger")
+    assert len(hits) == 1, [f.rule[:100] for f in hits]
+    assert "broker lane" in hits[0].rule
+    assert _of(findings, "marker") == []
+
+    # the mechanism, directly: the single-backtick marker's names are a fragment
+    root = _root(TFENCE, RFENCE)
+    block = next(b for b in mbc.active_blocks(root)
+                 if norm_title(b.title) == norm_title(SINGLE))
+    assert len(block.markers) == 1, block.markers
+    named = block.markers[0].names
+    assert named and all(n != mbc.normalize(CLAUSE) for n in named), named
+    assert any(n.endswith("through the") for n in named), named
+
+
+# ============================================================================
+# US4 · row A15 · packet § 3.10 — ORDERING BY DECLARATION, AGAINST NAME ORDER
+# ============================================================================
+
+TORDER = "modified-block-currency-name-order"
+RORDER = "orderFactory"
+DECLARER = "openspec/changes/add-zz-first/specs/name-order/spec.md"
+EARLIER = "openspec/changes/add-aa-second/specs/name-order/spec.md"
+
+
+def test_the_declaration_orders_the_pair_against_name_order():
+    """§ 3.10'S LAST CLAUSE, WHICH F1 DOES NOT DISCHARGE AND SAYS SO.
+
+    F1's `test_no_date_folder_or_created_field_decides_the_ordering` records in
+    its own docstring that its fixture "sorts BEFORE ... by name and by any date
+    a fixture could carry, AND THE DECLARATION POINTS THE SAME WAY", so the
+    fixture cannot discriminate; it falls back to a structural grep whose
+    forbidden patterns cover dates and `created:` but say nothing about ordering
+    by FOLDER NAME or CHANGE-ID NAME — which the delta prohibits in the same
+    breath as dates.
+
+    Here `add-zz-first` DECLARES and is therefore the LATER writer, while
+    sorting LAST by name. So:
+
+    - its block is measured against `add-aa-second`'s OUTCOME, not canon, and
+      the addition it fails to carry is reported against ITS path;
+    - `add-aa-second`'s own block is measured against canon and is quiet.
+
+    **Under name-ascending ordering the roles invert and this test fails.**
+    """
+    findings = _tree(TORDER)
+    assert findings, "a vacuous pass is not a pass"
+
+    # exactly one finding, and it lands on the DECLARER's path
+    assert {f.path for f in findings} == {DECLARER}, [f.path for f in findings]
+    hits = _of(findings, "ledger")
+    assert len(hits) == 1, [f.rule[:100] for f in hits]
+
+    # the basis SUBSTITUTION is visible in the finding: the spec it names is the
+    # SIBLING'S DELTA, not the promoted spec
+    assert EARLIER in hits[0].rule, hits[0].rule[:300]
+    assert "openspec/specs/name-order/spec.md" not in hits[0].rule
+    # ...and what it reports is the sibling's addition
+    assert "The earlier writer adds this sentence" in hits[0].rule
+
+    # the ordering arm itself is quiet: exactly one declaration between two
+    # ratified writers IS the ordered case, so there is nothing to report
+    assert _of(findings, "ordering") == []
+
+
+def test_the_name_order_fixture_would_invert_under_name_ordering():
+    """THE DISCRIMINATION, made explicit so a reader can see it is real.
+
+    Sorted by change id, `add-aa-second` comes first — so a build that called
+    the alphabetically-first change the earlier writer would make
+    `add-aa-second` the declarer's counterpart and report against
+    `add-aa-second`'s path instead. The fixture's ids disagree with its
+    declaration deliberately; `README.md` says not to "tidy" them.
+    """
+    root = _root(TORDER, RORDER)
+    changes = sorted(b.change for b in mbc.active_blocks(root))
+    assert changes == ["add-aa-second", "add-zz-first"]
+    # the DECLARER is the one that sorts LAST
+    declared = mbc.declarations(root, mbc.active_blocks(root))
+    assert ("add-zz-first", "add-aa-second") in declared, declared
+    assert ("add-aa-second", "add-zz-first") not in declared, declared
+    # and the finding is on the declarer, i.e. on the name-LAST change
+    assert {f.path for f in _tree(TORDER)} == {DECLARER}
+
+
+# ============================================================================
+# US4 · row A10 · packet § 3.7(c) — THE FORM ANCHOR, ON THE REAL PACKET
+# ============================================================================
+
+
+def test_the_packets_own_marker_templates_are_not_marker_form():
+    """ROW A10 CLAIMED THIS AND NOTHING ASSERTED IT.
+
+    The audit's first pass said "the anchor is asserted against this packet's
+    OWN delta prose, which promotes into canon". It was not: F1's
+    `test_the_deltas_own_fenced_marker_examples_never_reach_the_parser` asserts
+    over a fenced block written inside its own test body, and the packet sets
+    its two templates out as `- ` BULLETS — ordinary carriage units that the
+    fenced-block exemption never reaches.
+
+    The delta's own argument for the strict anchor is precisely that these
+    paragraphs promote into canon and "a looser test would read them as markers
+    and exempt them from carriage — the check quietly declining to check the
+    paragraphs that define it". This is the test that checks it, against the
+    real file.
+    """
+    delta = (REPO_ROOT / "openspec/changes/add-modified-block-currency-check"
+             / "specs/doc-health/spec.md").read_text()
+    bullets = [line for line in delta.splitlines()
+               if re.match(r"^- ``?\*\*(Removed from canon by|Merged into)", line)]
+    assert len(bullets) == 2, bullets     # a file edit that moves them fails here
+
+    for bullet in bullets:
+        body = re.sub(r"^- ", "", bullet)
+        assert mbc.parse_marker(mbc.normalize(body)) is None, body
+        # ...and it is not marker-form with the list marker left on either
+        assert mbc.parse_marker(mbc.normalize(bullet)) is None, bullet
+
+
+# ============================================================================
+# US2 · rows A1–A18 — THE AUDIT, CHECKED RATHER THAN READ
+# ============================================================================
+
+AUDIT = (REPO_ROOT / "specs/020-modified-block-currency-fixtures"
+         / "contracts/coverage-audit.md")
+F1_TESTS = REPO_ROOT / "tests/doc-health/test_modified_block_currency.py"
+
+
+def test_no_audit_row_cites_a_test_that_does_not_exist():
+    """The audit's citations are a LIVE REFERENCE, not prose.
+
+    Harvested from BACKTICKED SPANS ONLY. A bare `test_[a-z0-9_]+` scan over the
+    whole file is permanently red: the audit's prose names the MODULE path, so
+    the scan harvests `test_modified_block_currency` — a file, not a test
+    function — and a reader would then be sent off to "fix the audit" for a
+    defect in the harvester.
+
+    The floor of thirty is a guard against the opposite failure: a regex that
+    silently matches nothing passes every membership check ever written.
+    """
+    cited = set(re.findall(r"`(test_[a-z0-9_]+)`", AUDIT.read_text()))
+    assert len(cited) > 30, f"only {len(cited)} names harvested — check the regex"
+
+    defined = set(re.findall(r"^def (test_[a-z0-9_]+)", F1_TESTS.read_text(),
+                             re.M))
+    missing = sorted(cited - defined)
+    assert not missing, f"audit cites tests that do not exist in F1: {missing}"
+
+
+def test_every_packet_section_three_item_has_an_audit_row():
+    """SC-007. Fourteen items, none unaccounted for.
+
+    Read off the `§ 3 item` column, which is the audit's own answer to "is every
+    obligation accounted for". § 3.7 is split across five rows because it
+    carries eleven distinct obligations, so items and rows are not one to one.
+    """
+    text = AUDIT.read_text()
+    for item in ("3.1", "3.2", "3.3", "3.3a", "3.4", "3.5", "3.6",
+                 "3.7(a)", "3.7(b)", "3.7(c)", "3.7(d)", "3.7(e–k)",
+                 "3.8", "3.9", "3.10", "3.11", "3.12", "3.13"):
+            assert f"**{item}**" in text, item
+
+    # every row carries exactly one verdict, and the tallies match the bodies
+    rows = [ln for ln in text.splitlines() if re.match(r"^\| \*\*A\d+\*\*", ln)]
+    assert len(rows) == 18, len(rows)
+    verdicts = [re.findall(r"\| \*\*(satisfied|partial|gapped|satisfied, extended)\*\*", r)
+                for r in rows]
+    assert all(len(v) == 1 for v in verdicts), verdicts
+    flat = [v[0] for v in verdicts]
+    assert flat.count("satisfied") == 8, flat
+    assert flat.count("satisfied, extended") == 1, flat
+    assert flat.count("partial") == 6, flat
+    assert flat.count("gapped") == 3, flat
+
+
+def test_every_task_id_the_audit_cites_exists():
+    """The review found the audit citing a WHOLE superseded task numbering after
+    tasks were renumbered — `A1 T010–T014`, `A2 T015–T018` and so on. A citation
+    nothing checks is a citation that rots at the first renumber."""
+    tasks = (REPO_ROOT / "specs/020-modified-block-currency-fixtures"
+             / "tasks.md").read_text()
+    defined = set(re.findall(r"^- \[[ x]\] (T\d+[a-z]?)", tasks, re.M))
+    cited = set()
+    for span in re.findall(r"\*\*(T\d+[a-z]?(?:–T\d+[a-z]?)?)\*\*",
+                           AUDIT.read_text()):
+        cited |= {p for p in re.split(r"–", span)}
+    assert cited, "no task ids harvested — check the regex"
+    missing = sorted(cited - defined)
+    assert not missing, f"audit cites task ids that do not exist: {missing}"
+
+
+# ============================================================================
+# US5 — PROVENANCE, DETERMINISM, AND THE ADVISORY BAND OVER THE CATALOGUE
+# ============================================================================
+
+
+def test_every_fixture_tree_this_feature_adds_carries_a_provenance_note():
+    """A convention nothing checks is a convention that lasts one feature.
+
+    LINE 3 is the machine-readable provenance line. The `SYNTHESIZED` match is
+    CASE-SENSITIVE and WHOLE-WORD, and that is load-bearing: a reconstruction's
+    note says "Not synthesized", and a case-insensitive substring test would
+    read that as a synthesis claim — which the first cut of the templates would
+    have caused, since it put the SHA on line 42 and "Not synthesized" on line 3.
+    """
+    reconstructed = {t for t, *_ in ((r[0],) for r in RECONSTRUCTIONS)}
+    for tree in NEW_TREES:
+        note = FIXTURES / tree / "README.md"
+        assert note.is_file(), tree
+        lines = note.read_text().splitlines()
+        assert len(lines) >= 3, tree
+        line3 = lines[2]
+
+        sha = re.search(r"\b[0-9a-f]{40}\b", line3)
+        synth = re.search(r"\bSYNTHESIZED\b", line3)
+        assert bool(sha) ^ bool(synth), (tree, line3)
+        if tree in reconstructed:
+            assert sha, (tree, "a reconstruction must name its commit on line 3")
+        else:
+            assert synth, (tree, "a synthesis must say SYNTHESIZED on line 3")
+
+        body = note.read_text()
+        assert re.search(r"audit row \*\*A\d+\*\*", body), tree
+        assert re.search(r"add-modified-block-currency-check`? § 3\.\d",
+                         body), tree
+
+
+def test_two_runs_agree_byte_for_byte_on_every_tree():
+    """ROW A18'S EXTENSION. F1 pins one tree; this pins the catalogue.
+
+    Non-empty FIRST: two empty lists are byte-identical, so a discovery
+    regression returning nothing everywhere would pass this as written.
+    """
+    total = 0
+    for tree in ALL_TREES:
+        first, second = _tree(tree), _tree(tree)
+        if isinstance(first, Skip):
+            assert isinstance(second, Skip)
+            assert (first.family, first.reason) == (second.family, second.reason)
+            continue
+        assert [f.__dict__ for f in first] == [f.__dict__ for f in second], tree
+        total += len(first)
+    assert total > 20, f"only {total} findings — determinism over nothing"
+
+
+def test_no_new_tree_reports_an_error_or_critical_finding():
+    """F1's SC-009 says no `--fail-on` run reds on this family "on any tree".
+    Seven new trees are seven new chances to break that by accident.
+
+    Non-empty first: "no finding is `error`" is vacuously true of no findings.
+    """
+    collected = []
+    for tree in NEW_TREES:
+        out = _tree(tree)
+        assert not isinstance(out, Skip), tree
+        collected += out
+    assert collected, "a vacuous pass is not a pass"
+    assert {f.severity for f in collected} <= {WARNING, INFO}
+    assert not [f for f in collected if f.severity in ("error", "critical")]
+
+
+# ============================================================================
+# THE SCOPE GUARD — F1's T059 shape
+# ============================================================================
+
+
+def test_this_feature_touches_no_production_module():
+    """DECISION D1: F2 adds NO behaviour to the module.
+
+    A signature-and-constant snapshot rather than a byte hash, so an unrelated
+    comment edit does not red it. **If this test needs changing, a behaviour
+    changed and FR-023 applies** — the fix is its own task with its own RED
+    test, named as a defect in the PR, never folded into a fixture commit.
+
+    `mbc.FAMILY not in FAMILY_NOTES` is deliberately NOT re-asserted here: F1's
+    `test_the_family_publishes_no_basis_note` owns it, and a second copy is the
+    duplication FR-002 forbids.
+    """
+    assert (mbc.FAMILY, mbc._LAUNCH_SEVERITY, mbc._RESOLUTION_SEVERITY,
+            mbc._LEDGER_SEVERITY) == ("modified-block-currency", WARNING,
+                                      WARNING, INFO)
+    assert mbc.DELTA_GLOB == "openspec/changes/*/specs/*/spec.md"
+    assert mbc.CANON_TEMPLATE == "openspec/specs/{capability}/spec.md"
+    assert (mbc.BODY, mbc.SCENARIO_TITLE, mbc.SCENARIO_BULLET) == (
+        "body", "scenario-title", "scenario-bullet")
+
+    public = sorted(n for n in vars(mbc)
+                    if not n.startswith("_") and callable(getattr(mbc, n))
+                    and getattr(getattr(mbc, n), "__module__", "")
+                    == mbc.__name__)
+    assert public == [
+        "ActiveBlock", "Marker", "PromotedRequirement", "Unit",
+        "active_blocks", "carried", "declarations", "derive_units",
+        "extract_code_spans", "fam_modified_block_currency", "fenced_regions",
+        "is_dated_bold_note", "mask_code_spans", "normalize", "parse_marker",
+        "parse_spec_requirements", "promoted", "resolve", "sibling_titles",
+        "split_sentences", "suppression",
+    ], public
+
+
+def test_the_u_class_helper_reads_the_same_set_as_the_ledger_arm():
+    """`_units` MUST mirror `_arm_ledger`'s kind filter, and this is what proves
+    it — found by the mutation round, which dropped the filter and saw every
+    U-class test stay green because each of them re-filters by kind afterwards.
+
+    The arm states its own denominator and numerator in the finding it emits
+    ("does not carry N of the M body units and scenario bullets"), so those two
+    numbers are the arm's rule rather than an invented expectation. Unfiltered,
+    `_units` returns the union of the ledger's set and the title arm's —
+    measured at 24 of 36 on the #329 tree against the arm's 17 of 28.
+    """
+    for tree, repo, cap, req in (
+        (T351, R351, CAP351, REQ351),
+        (T329, R329, CAP329, REQ329),
+        (TTOK, RTOK, CAPTOK, REQTOK),
+    ):
+        hits = _of(_for(_tree(tree), req), "ledger")
+        assert len(hits) == 1, (tree, [f.rule[:80] for f in hits])
+        stated = re.search(r"does not carry (\d+) of the (\d+) body units",
+                           hits[0].rule)
+        assert stated, hits[0].rule[:160]
+        numerator, denominator = int(stated.group(1)), int(stated.group(2))
+
+        assert len(_units(tree, repo, cap, req)) == numerator, tree
+
+        root = _root(tree, repo)
+        basis = mbc.promoted(root, cap)[norm_title(req)]
+        kinds = (mbc.BODY, mbc.SCENARIO_BULLET)
+        assert len([u for u in basis.units if u.kind in kinds]) == denominator, tree
