@@ -951,21 +951,30 @@ intermediate.*
       data stayed and only the reader travelled.
 - [ ] 7.28 Evidence row: green `wallet-validation` (the token, from the renamed
       file) on P3's OWN head, plus the post-rebase digest re-verification.
-      **Note (feature `023-openxwallet-consume-shed`, 2026-08-27):** the pull request
-      is opened and the run ids are recorded in
-      `specs/023-openxwallet-consume-shed/evidence/validation.md` as they land. This
-      row closes on the GREEN `wallet-validation` reported from the NEW workflow file
-      on this pull request's own head TOGETHER with the post-rebase digest
-      re-verification of 7.26; a green run against a pre-rebase head does not
-      discharge it.
+      **Note (feature `023-openxwallet-consume-shed`, 2026-08-27): HALF DISCHARGED — the
+      ALIAS IS PROVEN.** Pull request
+      [#431](https://github.com/opensoft/openxFactory/pull/431) reports
+      **`wallet-validation: pass`** on its own head, produced by
+      `.github/workflows/openxwallet-consumer-gate.yml` — run
+      **33109575651**, job **98648509131**, 2026-08-27. Ruleset 21538893 was edited by
+      nothing. That settles the only question the alias resolution could have got
+      wrong. The row stays OPEN for its SECOND half: the post-rebase digest
+      re-verification of 7.26, taken immediately before merge. A green run against a
+      pre-rebase head does not discharge that half.
 - [ ] 7.29 Evidence row: the positive register conjunction of §7.15 in the gate
       log, plus `wallet-v1.1`'s register-read NOTE.
-      **Note (feature `023-openxwallet-consume-shed`, 2026-08-27):** proven LOCALLY
-      already (see 7.15) and recorded in
-      `specs/023-openxwallet-consume-shed/evidence/validation.md`. This row closes on
-      the same conjunction in the CI gate's own `wallet-gate.log`, which the
-      workflow's final step asserts and fails on — so a green check IS the assertion,
-      not a separate reading of it.
+      **Note (feature `023-openxwallet-consume-shed`, 2026-08-27): DISCHARGED IN CI.**
+      Run **33109575651** on pull request #431 carries, in order:
+      `OK openxwallet-pin verified: openXwallet@63f5a1ad… (tag label wallet-v1.1),
+      gitlink read from HEAD, 8 digest(s) recomputed` · `note  nested repositories
+      pruned (not adjudicated): openXwallet` · `note  intake register read:
+      governance/review-authority/register.yaml (1 row(s))` · `note  repo scan: 2
+      openxWallet artifact(s) validated, 1614 document(s) skipped as another kind` ·
+      `validate-openxwallet: 0 error(s), 0 warning(s)` · `register-read conjunction
+      holds:`. Both halves of the ratified conjunction are present and both negatives
+      are absent, and the gate FAILS on any of the four, so the green check IS the
+      assertion rather than a separate reading of it. The row is left open only until
+      it is re-observed on the post-rebase head with 7.26.
 - [ ] 7.30 Evidence row: `pytest-suite`'s pinned PASS / SKIP counts under nested
       submodules, not collection alone.
       **Note (feature `023-openxwallet-consume-shed`, 2026-08-27):** the pinned
@@ -977,26 +986,45 @@ intermediate.*
 - [ ] 7.31 **[OPERATOR]** Evidence row: ruleset 21538893 as an UNCHANGED-STATE
       row — the `GET repos/opensoft/openxFactory/rules/branches/main` output
       showing the same single token as before the wave.
-      **Note (feature `023-openxwallet-consume-shed`, 2026-08-27):** nothing in this
-      pull request touches ruleset 21538893, and nothing in it CAN — a ruleset is not
-      a tree fact. The claim is checkable rather than asserted, which is why it is its
-      own row: the operator records the `GET
-      repos/opensoft/openxFactory/rules/branches/main` output at merge time. Prepared
-      in `specs/023-openxwallet-consume-shed/evidence/operator-acts.md`.
-- [ ] 7.32 **[OPERATOR]** Task 2.6's red-proof, discharged HERE and retargeted at
+      **Note (feature `023-openxwallet-consume-shed`, 2026-08-27) — READ TAKEN, AND ONE
+      CORRECTION TO THIS ROW'S OWN WORDING.** `GET
+      repos/opensoft/openxFactory/rules/branches/main` returns, at ruleset_id
+      **21538893**, `required_status_checks: ["wallet-validation", "pytest-suite"]`,
+      `strict_required_status_checks_policy: false`. **This row asks for "the same
+      SINGLE token as before the wave"; the set is TWO, and has been since an operator
+      act OUTSIDE this wave marked `pytest-suite` required.** P3 changed NEITHER
+      token: `wallet-validation` is present and reporting from the renamed file, and
+      `pytest-suite` is present and untouched. Recorded rather than quietly satisfied,
+      because a row that expects one token and is handed two should say so. The row
+      stays OPEN because a ruleset is not a tree fact and can change between now and
+      merge — the operator re-reads it AT merge, and the reading above is the
+      before-picture to compare against.
+- [x] 7.32 **[OPERATOR]** Task 2.6's red-proof, discharged HERE and retargeted at
       the consumer gate: a deliberately malformed row under openxFactory's
       `governance/review-authority/` turns an openxFactory pull request RED with
       `register-row-malformed` naming the full path. It cannot discharge in
       openXwallet — that tree has no `governance/review-authority/` for a
       malformed row to sit in.
-      **Note (feature `023-openxwallet-consume-shed`, 2026-08-27):** the retarget is
-      RECORDED where the obligation lives — an addendum to
-      `openspec/changes/add-wallet-carried-review-authority/tasks.md` — and the proof
-      is run from this pull request's branch as a throwaway draft pull request once
-      the gate is green here, so the RED is produced by the same workflow file the
-      alias installed. Run id and finding recorded in
-      `specs/023-openxwallet-consume-shed/evidence/validation.md`. The scratch branch
-      is deleted and only it; nothing else is.
+      **Evidence:** DISCHARGED 2026-08-27. Draft pull request
+      [#432](https://github.com/opensoft/openxFactory/pull/432), branched from #431 so
+      the gate under test is the one P3 installs, carried ONE unknown field
+      (`deliberately_malformed_probe`) on the single register row.
+      `wallet-validation` went **RED** — run **33109857156**, job **98649492960**,
+      21s:
+
+      `ERROR [register-row-malformed] /home/runner/work/openxFactory/openxFactory/governance/review-authority/register.yaml:rows[0]: field set mismatch (missing=[], unknown=['deliberately_malformed_probe']); the register has no schema so THIS reader is the shape, and it is strict`
+      `validate-openxwallet: 1 error(s), 0 warning(s)`
+
+      The finding names the FULL PATH and was produced by the PINNED reader, from the
+      `openXwallet` gitlink at the digest `contracts/openxwallet-pin.yaml` records,
+      through the renamed `openxwallet-consumer-gate.yml` — which is exactly what the
+      retarget had to prove and what the 2026-08-26 proof on PR #387 (a malformed
+      GRANT through the OLD workflow) could not. Draft closed unmerged, its
+      `pytest-suite` run cancelled, and the scratch branch deleted from local and
+      remote — only that branch. `origin/main` and #431 retain the valid register, and
+      `git diff origin/main -- governance/` on the feature branch is EMPTY. The
+      retarget itself is recorded where the obligation lives: the addendum to
+      `openspec/changes/add-wallet-carried-review-authority/tasks.md`.
 - [x] 7.33 Rollback recorded before the step: `git revert` P3 restores every path
       (the carve copied and deleted nothing) and removes the pin file and the
       gitlink; `wallet-validation.yml` returns as a filename; ruleset 21538893 is

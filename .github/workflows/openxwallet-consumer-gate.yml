@@ -54,9 +54,18 @@ jobs:
   wallet-validation:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      # The house guard (`doc-health-reusable.yml:125`). If the App key is
+      # absent the mint is SKIPPED rather than erroring on an empty app-id, the
+      # token expression falls back, and the scoped init then fails on the
+      # PRIVATE nested repository — a red gate with a legible cause. Falling back
+      # is not a pass: without a token the pin cannot be verified, and this gate
+      # refuses rather than proceeding on an unverifiable reader.
+      HAS_APP_KEY: ${{ secrets.OPENXFACTORY_APP_PRIVATE_KEY != '' }}
     steps:
       - name: Mint openxFactory app token
         id: app-token
+        if: env.HAS_APP_KEY == 'true'
         uses: actions/create-github-app-token@v2
         with:
           app-id: ${{ secrets.OPENXFACTORY_APP_ID }}

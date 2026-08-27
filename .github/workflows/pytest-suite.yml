@@ -229,6 +229,10 @@ jobs:
     defaults:
       run:
         working-directory: openxFactory
+    env:
+      # See `openxwallet-consumer-gate.yml` for why this is a guard and not an
+      # unconditional mint: `doc-health-reusable.yml:125`'s house pattern.
+      HAS_APP_KEY: ${{ secrets.OPENXFACTORY_APP_PRIVATE_KEY != '' }}
     steps:
       # THE NESTED GITLINK. `tests/trust-anchor/` reads the openxWallet custody
       # registry through `openXwallet/`, which is a SECOND, PRIVATE org
@@ -247,6 +251,7 @@ jobs:
       # reason.
       - name: Mint openxFactory app token
         id: app-token
+        if: env.HAS_APP_KEY == 'true'
         uses: actions/create-github-app-token@v2
         with:
           app-id: ${{ secrets.OPENXFACTORY_APP_ID }}

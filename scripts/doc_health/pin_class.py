@@ -537,6 +537,58 @@ PIN_CLASS: tuple[PinMember, ...] = (
              "repository's refs.",
         locality_from=("repo", "repository"),
     ),
+    # ---- the neutral-product pin: ONE artifact, TWO localities -------------
+    # `contracts/openxwallet-pin.yaml` (split-openxwallet-repo P3) is the first
+    # artifact in this repository that pins ANOTHER repository's bytes and, in
+    # the same file, names the openxFactory commit those bytes were taken at. So
+    # it is TWO members rather than one, and the split is not cosmetic: one of
+    # the two values must resolve here and the other must never be expected to.
+    # A single member could only have declared one locality, and whichever it
+    # declared would have made the other value either a false orphan or an
+    # unverified pin.
+    PinMember(
+        id="openxwallet-pin-carve-commit",
+        paths=("contracts/openxwallet-pin.yaml",),
+        key="carve_commit",
+        key_form="field",
+        generator="authored with the pin (split-openxwallet-repo P3, feature "
+                  "023-openxwallet-consume-shed)",
+        reproduction=MEASURED,
+        locality=REPO_LOCAL,
+        presence=CURRENT,
+        note="THE NAMED CARVE COMMIT — an openxFactory commit, and the one "
+             "value in this file that MUST stay reachable here. It is the "
+             "byte-identity referent for the whole extraction: the eight "
+             "`sha256` digests below it are the values `contracts/manifest.yaml` "
+             "recorded AT THIS COMMIT, and the claim that the move was "
+             "byte-identical is checkable only while the commit can be "
+             "reconstructed. `carve_commit` was a key this vocabulary did not "
+             "know; declaring the member is what teaches it, since "
+             "`PIN_KEY_VOCABULARY` is the union of the declared field keys.",
+    ),
+    PinMember(
+        id="openxwallet-pin-product-commit",
+        paths=("contracts/openxwallet-pin.yaml",),
+        key="commit",
+        key_form="field",
+        generator="authored with the pin (split-openxwallet-repo P3, feature "
+                  "023-openxwallet-consume-shed)",
+        reproduction=MEASURED,
+        locality=CROSS_REPOSITORY,
+        presence=CURRENT,
+        note="`source_repository: opensoft/openXwallet` — the PINNED PRODUCT'S "
+             "commit, at tag label `wallet-v1.1`. It does not resolve in this "
+             "repository and must not be reported as an orphan; it is answered "
+             "by openXwallet's own authority and, locally, by "
+             "`scripts/verify-openxwallet-pin.py`, which compares it against "
+             "BOTH the recorded gitlink and the checked-out revision of the "
+             "`openXwallet/` submodule and recomputes the eight digests. That "
+             "verifier is a stronger reachability guarantee than a ref here "
+             "could give, which is why the cross-repository declaration is not "
+             "a gap. Locality is declared on the member rather than read per "
+             "site: this key is ALWAYS the product's, and `carve_commit` above "
+             "is ALWAYS this repository's.",
+    ),
     # ---- FUTURE members: schema-declared, no committed real pin yet --------
     # Declared now rather than on discovery. The day the first instance lands
     # committed its pins join the class automatically, which is precisely the
