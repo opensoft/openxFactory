@@ -48,6 +48,17 @@ MORE (delta requirement 4). Both halves matter:
   a reader cannot derive from the pin is not predictably reachable. The
   namespace is COMPUTED from the pin (`retention_ref`), never enumerated.
 
+A CONSEQUENCE WORTH KNOWING BEFORE YOU REGENERATE SOMETHING. `main` means the
+PUBLISHED branch, so an artifact regenerated on a branch and pinned to one of
+that branch's OWN unlanded commits reports as orphaned until the branch lands.
+That is the requirement read literally and it is the behaviour the landing rule
+asks for — re-derive at a REACHABLE revision — and it is what house practice
+already does: `harden-ideation-readiness-check` re-pinned the index to
+`4e57009c`, a commit already on `main`, rather than to its own branch tip. The
+ref set is deliberately not widened to include the revision under test, because
+"main plus whatever branch I happen to be on" is not a ref set a reader can
+reason about.
+
 THE RETENTION HALF IS A REMOTE QUESTION, and that is stated rather than hidden.
 Retention refs are published on the repository's own remote and are NOT fetched
 by any default refspec, so a fresh clone does not carry them. The consult order

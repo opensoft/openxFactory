@@ -206,8 +206,8 @@ inventory is exactly the artifact that drifts. Both are recorded at § 3.5 and
       member what a re-pin owes (bytes where a tool defines derivation, a named
       measurement where none does) at the moment a finding fires. A
       measurement-record format is a follow-up, recorded at § 5.3.
-- [x] 2.6 REGRESSIONS at `tests/doc-health/test_pin_reachability.py` — 46 tests,
-      all six minima covered and eight more besides. Reachable-but-stale gives
+- [x] 2.6 REGRESSIONS at `tests/doc-health/test_pin_reachability.py` — 47 tests,
+      all six minima covered and nine more besides. Reachable-but-stale gives
       no finding; an orphaned pin in a complete clone fails naming artifact, key
       and pin; a truncated clone skips naming the truncation OBSERVED (a real
       `--depth 1 --no-local` clone); an undeclared pin-carrying artifact is
@@ -221,6 +221,13 @@ inventory is exactly the artifact that drifts. Both are recorded at § 3.5 and
       site locality read out of the artifact; and the vocabulary's own coverage
       measured by resolving every committed 40-hex token against the object
       database rather than by trusting the key list.
+      **AND A PRECONDITION GUARD THAT FAILS RATHER THAN SKIPS.** Six of these
+      tests degrade to a skip when no `main` ref resolves, and a suite full of
+      skips is precisely how seven proofs went unrun for the sibling packet's
+      entire life. So the precondition itself is asserted:
+      `test_this_repository_resolves_the_main_half_of_the_ref_set` fails, once
+      and loudly, if a clone or a CI checkout stops providing `main`, instead of
+      six others quietly reporting SKIPPED on a green scoreboard.
 - [x] 2.7 NO CHANGE to the deterministic check family registry, the family
       enumeration, or its numerals — and asserted STRUCTURALLY rather than
       promised. `scripts/doc_health/families.py` is untouched (`git diff` empty),
@@ -399,11 +406,16 @@ that a per-artifact sweep does not generalize.
       "Change 'govern-derived-pin-reachability' is valid" (exit 0), and
       `--all --strict` **76 passed / 0 failed (76 items)** (exit 0).
 - [x] 4.2 `python3 -m pytest tests/doc-health -q` GREEN under `pipefail`, exit
-      code read rather than inferred: **1123 passed / 0 failed / 0 skipped** in
-      149s. The baseline this branch started from is **1077** (measured on the
-      same tree with `--ignore=tests/doc-health/test_pin_reachability.py`), so
-      the 46 new tests are the whole of the delta and none of them displaced an
-      existing one. The full CI selection
+      code read rather than inferred (`DOCHEALTH EXIT=0`): **1124 passed / 0
+      failed / 0 skipped** in 109s, on the tree rebased onto `origin/main`. The
+      baseline this branch started from is **1077** (measured on the same tree
+      with `--ignore=tests/doc-health/test_pin_reachability.py`), so the 47 new
+      tests are the whole of the delta and none of them displaced an existing
+      one. **ZERO SKIPS MATTERS HERE**: the sibling packet's whole forcing
+      instance was seven proofs that reported SKIPPED in every fresh clone, so a
+      realization of the rule about it does not get to add more, and § 2.6
+      carries a precondition guard that FAILS rather than skips if the ref set's
+      `main` half stops resolving. The full CI selection
       `python3 -m pytest tests/ -q -m "not postgres"` is recorded in the pull
       request body with its own numbers.
 - [ ] 4.3 REALIZATION EVIDENCE per `release-realization`'s archive gate: this
