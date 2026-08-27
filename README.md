@@ -1061,67 +1061,6 @@ Active changes:
   files these seeds unattended. (code surface: openxFactory; target release:
   none)
 
-- [harden-ideation-readiness-check](openspec/changes/harden-ideation-readiness-check/proposal.md)
-  — authored 2026-08-26 and **ADMITTED the same day** (Brett, admission ruling
-  against § Open Questions Q0 while the packet stood at PR #372). It was
-  raised `Status: draft` with deliberately BLANK `approved_by`/`approved_on`
-  rather than fabricated provenance — the refusal PR #344 already made once —
-  and the admission filled both fields and moved `Status:` to `ratified` under
-  the record-citing spelling, clearing the two `ad-hoc origin lacks required`
-  errors that blank pair produced. **THE ADMISSION COVERS THE PACKET AND
-  NOTHING ELSE**: Q1 (whether the narrowed skip survives), Q2 (the re-pin
-  target) and Q3 (whether the three resolver helpers collapse) stay OPEN, and
-  the four decisions in § Orchestrator decisions stay flagged for veto.
-  Three `doc-health` requirements ADDED,
-  nine scenarios, none MODIFIED. Raised from a 2026-08-26 triage that found TWO
-  independent defects in one test —
-  `test_derivation_reproduces_the_real_bootstrap_clusters`, the proof that the
-  readiness lane's derivation still reproduces the landed
-  `ideation-cross-reference` index. **A**: its `_openxfactory_root()` walks UP
-  to the first ancestor holding `openxFactory/ideation/cross-reference.yaml`,
-  which inside this workspace is always the ONE SHARED CHECKOUT — so every
-  agent worktree proves a verdict about another session's working tree, and a
-  concurrent uncommitted pin bump there (67 listed clusters against 253
-  derived) reddened every worktree on the machine while every isolated clone
-  passed at every revision; the checker's own `find_index_validator()` carries
-  the identical walk and was measured resolving the shared checkout's
-  validator. **B**: `main`'s index pins `f13a3b60`, reachable from NO ref local
-  or remote — the branch that generated it landed squashed as `4e57009c`, and
-  diffing branch tip against landed index shows exactly one changed line, a
-  hand-bumped pin — and the test turns that into `pytest.skip`, so the
-  assertion has NEVER RUN in a fresh clone, with a stated reason ("shallow
-  clone?") that is false where it fires because `pytest-suite.yml` checks out
-  at `fetch-depth: 0`. The three requirements: resolve the repository under
-  test first and announce any fallback; read the index from COMMITTED state so
-  no concurrent edit can move the verdict; and fail — never skip — on an
-  unresolvable pin in a complete clone, keeping the skip only for a genuinely
-  truncated one, with the reason naming which was observed. The one-line index
-  re-pin to `4e57009c` rides the same change because requirement 3 would
-  otherwise land it red on its own gate. EXPLICITLY DEFERRED to its own future
-  packet: the governance rule that an index pin must be re-derived when a
-  branch lands rewritten.
-  **REALIZED 2026-08-26** — all three requirements implemented, the pin and
-  its `.md` projection repaired, 24 regressions added
-  (`tests/doc-health/test_readiness_proof_resolution.py`), `tests/doc-health`
-  **920 passed**, `openspec validate --all --strict` **77 passed**, and the
-  single-repo doc-health report byte-identical before and after. The
-  acceptance signal is measured, not asserted: with a sibling checkout holding
-  the 2026-08-26 dirty-index shape, the PRE-change suite reproduces the
-  packet's **1 failed / 895 passed** baseline while the fixed suite is
-  **920 passed** — the same verdict it returns beside a clean sibling. TWO
-  CORRECTIONS THE REALIZATION MEASURED: the derivation reproduces the
-  committed 290-entry body at `da9bf3b7` and `4e57009c`, but at CURRENT `main`
-  it derives **288** — the corpus moved since `31c931fa`, so Q2's alternative
-  now owes a body regeneration; and the assertion was unreachable by TWO
-  routes, since in an ISOLATED clone (how this repo's own CI `validate` job
-  checks out) the pre-change resolver could not find the repository's own
-  index at all. **Q1 = KEEP the narrowed skip** and **Q2 = `4e57009c`** were
-  taken as measured decisions, recorded against the questions; **Q3 stays
-  OPEN** — the three resolver spellings are fixed in place, with the new
-  regressions parametrized over all three so the copies cannot drift.
-  ACTIVE until the realization PR merges; `tasks.md` § 4.6 (archive) stays
-  open. (code surface: openxFactory; target release: implemented)
-
 The avatar-client kernel (`contract-v1.7`), reference runtime, and avatar-first UI
 standard (`contract-v1.8`) are realized. The contract kernel, the revocation
 clarification, the reference runtime, and the avatar-first UI standard all archived
@@ -1211,6 +1150,88 @@ Archived changes:
   that the declaration and the program still agree.
   (code surface: openxFactory; target release: none;
   depended on openProfiler)
+- [harden-ideation-readiness-check](openspec/changes/archive/2026-08-27-harden-ideation-readiness-check/proposal.md)
+  — **ARCHIVED 2026-08-27**; authored 2026-08-26 and **ADMITTED the same day**
+  (Brett, admission ruling against § Open Questions Q0 while the packet stood
+  at PR #372). It was raised `Status: draft` with deliberately BLANK
+  `approved_by`/`approved_on` rather than fabricated provenance — the refusal
+  PR #344 already made once — and the admission filled both fields and moved
+  `Status:` to `ratified` under the record-citing spelling, clearing the two
+  `ad-hoc origin lacks required` errors that blank pair produced. **THE
+  ADMISSION COVERED THE PACKET AND NOTHING ELSE**; the questions and the
+  flagged decisions were disposed by a SECOND, later act. **ALL THREE OPEN
+  QUESTIONS RULED AND ALL FOUR § Orchestrator decisions CLEARED 2026-08-27** —
+  a four-question multi-choice put to Brett by the orchestrating session after
+  2026-08-26T23:31Z and relayed the same day. **Q1 RATIFIED** (keep the
+  narrowed skip, which fires only on an OBSERVED shallow clone), **Q2
+  RATIFIED** (`4e57009c` as the re-pin target), **Q3 RULED LEFT OPEN
+  DELIBERATELY** (the three helper copies stay in place with the parametrized
+  anti-drift guard; the collapse survives as the named follow-up § 5.1 — the
+  question is DISPOSED, not unanswered, so § 5.1 crosses the archive unticked
+  BY DECISION), and OD-1 through OD-4 cleared as authored, none vetoed (the
+  ADDED-in-`doc-health` shape, the committed-revision read point, the re-pin
+  target, and the repair riding this change). No verbatim wording reached the
+  packet, so none is quoted — approver, date, mechanism and selected option are
+  stated instead. Nothing moved: every ruling matched what the realization had
+  already shipped, so the clearance required no edit to a requirement, delta,
+  task or design entry — the shape PR #307 recorded when Brett cleared the two
+  codex dispositions. `.openspec.yaml`'s origin block is deliberately unedited
+  and verified byte-identical to the ratifying commit `5c10ce6d`
+  (blob `2d0f7605`), because `release-realization`'s origin-retention rule
+  makes rewriting a complete declaration a contested-class act.
+  Three `doc-health` requirements ADDED,
+  nine scenarios, none MODIFIED. Raised from a 2026-08-26 triage that found TWO
+  independent defects in one test —
+  `test_derivation_reproduces_the_real_bootstrap_clusters`, the proof that the
+  readiness lane's derivation still reproduces the landed
+  `ideation-cross-reference` index. **A**: its `_openxfactory_root()` walks UP
+  to the first ancestor holding `openxFactory/ideation/cross-reference.yaml`,
+  which inside this workspace is always the ONE SHARED CHECKOUT — so every
+  agent worktree proves a verdict about another session's working tree, and a
+  concurrent uncommitted pin bump there (67 listed clusters against 253
+  derived) reddened every worktree on the machine while every isolated clone
+  passed at every revision; the checker's own `find_index_validator()` carries
+  the identical walk and was measured resolving the shared checkout's
+  validator. **B**: `main`'s index pinned `f13a3b60`, reachable from NO ref
+  local or remote — the branch that generated it landed squashed as
+  `4e57009c`, and diffing branch tip against landed index shows exactly one
+  changed line, a hand-bumped pin — and the test turned that into
+  `pytest.skip`, so the assertion had NEVER RUN in a fresh clone, with a stated
+  reason ("shallow clone?") that is false where it fires because
+  `pytest-suite.yml` checks out at `fetch-depth: 0`. The three requirements:
+  resolve the repository under test first and announce any fallback; read the
+  index from COMMITTED state so no concurrent edit can move the verdict; and
+  fail — never skip — on an unresolvable pin in a complete clone, keeping the
+  skip only for a genuinely truncated one, with the reason naming which was
+  observed. The one-line index re-pin to `4e57009c` rode the same change
+  because requirement 3 would otherwise have landed it red on its own gate.
+  EXPLICITLY DEFERRED to its own future packet: the governance rule that an
+  index pin must be re-derived when a branch lands rewritten.
+  **REALIZED 2026-08-27 as pull request #400** (merged 2026-08-27T03:05:03Z,
+  merge commit `78ffb7f1`, green on head `e9886d77` — `pytest-suite` 6638
+  passed / 20 skipped / 0 failed in 13m36s, `wallet-validation` pass): all
+  three requirements implemented, the pin and its `.md` projection repaired, 24
+  regressions added (`tests/doc-health/test_readiness_proof_resolution.py`),
+  `tests/doc-health` **920 passed / 0 skipped**, and the single-repo doc-health
+  report byte-identical before and after. The acceptance signal is measured,
+  not asserted: with a sibling checkout holding the 2026-08-26 dirty-index
+  shape, the PRE-change suite reproduces the packet's **1 failed / 895 passed**
+  baseline while the fixed suite is **920 passed** — the same verdict it
+  returns beside a clean sibling. TWO CORRECTIONS THE REALIZATION MEASURED: the
+  derivation reproduces the committed 290-entry body at `da9bf3b7` and
+  `4e57009c`, but at then-current `main` it derives **288** — the corpus moved
+  since `31c931fa`, so Q2's alternative now owes a body regeneration; and the
+  assertion was unreachable by TWO routes, since in an ISOLATED clone (how this
+  repo's own CI `validate` job checks out) the pre-change resolver could not
+  find the repository's own index at all — isolated clones went from **889
+  passed / 7 skipped** to **920 passed / 0 skipped**, seven real-corpus proofs
+  that no runner had ever run. NO CONTRACT BUNDLE WAS OWED, checked rather than
+  assumed: no edited file appears in any `contracts/releases/*.digests.yaml`
+  inventory. **THREE FOLLOW-UPS SURVIVE THE ARCHIVE and none is asserted
+  anywhere in canon** — § 5.1 (the Q3 collapse, ruled open), § 5.2 (the
+  governance rule for a `source_revision` recorded on a branch that lands
+  rewritten) and § 5.3 (`git_generation()` pinning `HEAD` on a dirty tree).
+  (code surface: openxFactory; target release: implemented)
 
 - [fix-release-reachability-race](openspec/changes/archive/2026-08-26-fix-release-reachability-race/proposal.md)
   — **ARCHIVED 2026-08-26**; authored and **ratified 2026-08-26** (Brett,

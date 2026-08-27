@@ -7,9 +7,18 @@ finding 17 left two ways to run code in it with the guard switched off:
   1. a pytest run STARTED here (the directory became the rootdir, so
      `tests/conftest.py` was outside `confcutdir` and never loaded) — closed by
      the repo-root `pytest.ini` rootdir anchor;
-  2. `scripts/validate-docs.sh`'s `python3 -m unittest discover` fallback, taken
-     when pytest is unavailable, where a conftest fixture cannot apply at all —
-     closed by `tests/hermetic_unittest.py`, the guarded runner the gate now uses.
+  2. the `python3 -m unittest discover` fallback, taken when pytest is
+     unavailable — bare, before PR #49 finding 17's fix (2026-07-27),
+     in codexFactory's `scripts/validate-docs.sh`, which ran these tests when
+     they lived in codexFactory. The fix replaced that bare fallback with
+     codexFactory's own guarded runner — the original
+     `tests/hermetic_unittest.py` was later copied from; the doc-health
+     relocation (adopt-neutral-tooling-home, ratified 2026-08-03; archived
+     2026-08-05) then copied it here and moved these tests, after which that
+     script stopped running them at all. A conftest fixture cannot apply to
+     the bare fallback at all: closed here by `tests/hermetic_unittest.py`,
+     retained as the guarded runner for any pytest-less host that runs this
+     tree directly (no gate in this repository currently takes that route).
 
 Both were measured reaching a real-binary stand-in with the refusal ledger empty.
 A `TestCase` is collected by pytest AND by `unittest discover`, so ONE probe

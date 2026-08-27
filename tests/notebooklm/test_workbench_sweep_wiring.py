@@ -10,8 +10,14 @@ Proves, on a fake nlm runner (the real CLI is never invoked):
     doc-health's notebook-projection-drift operation pattern;
   * an unavailable nlm and out-of-scope manifests skip gracefully.
 
-unittest-style like the sibling sync tests: validate-docs.sh falls back to
-`unittest discover` on this directory when pytest is absent."""
+unittest-style like the sibling sync tests, so it also collects cleanly under
+`tests/hermetic_unittest.py` — the guarded `unittest discover` runner retained
+for any pytest-less host that runs this tree directly, when pytest is absent.
+codexFactory's `scripts/validate-docs.sh` ran these tests when they lived in
+codexFactory, before the doc-health relocation (adopt-neutral-tooling-home,
+ratified 2026-08-03; archived 2026-08-05) moved them here; that script still
+has a guarded `unittest discover` fallback of its own — the original this
+runner was copied from — now over only its own test tree."""
 
 from __future__ import annotations
 
