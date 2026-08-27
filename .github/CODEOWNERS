@@ -1,4 +1,12 @@
 # Review routing for assembly-class gate surfaces (convener ruling 2026-08-23). Routing only - enforcement remains the review plane.
 .github/workflows/ @brettheap
-/scripts/validate-openxwallet.py @brettheap
-/scripts/wallet-yaml-syntax-gate.py @brettheap
+# The openxWallet family is CONSUMED at a pin since contract-v2.0
+# (split-openxwallet-repo P3): the two departing validator lines are replaced by
+# the surfaces that now determine WHICH READER RUNS. A pull request that changes
+# the pin, the verifier, the gitlink or the submodule URL changes the code the
+# REQUIRED wallet-validation check executes, which is exactly the class the
+# 2026-08-23 ruling routes to an owner.
+/contracts/openxwallet-pin.yaml @brettheap
+/scripts/verify-openxwallet-pin.py @brettheap
+/openXwallet @brettheap
+/.gitmodules @brettheap

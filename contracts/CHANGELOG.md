@@ -9,6 +9,115 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
+## contract-v2.0 — 2026-08-27 (BREAKING; the eight openxWallet contracts are REMOVED and the family is consumed at a pin)
+
+Realizes `split-openxwallet-repo` **P3** (`tasks.md` §7), the atomic
+consume-and-shed that design decisions **D1**, **D2**, **D3**, **D4** and **D6**
+specify, through Speckit feature `023-openxwallet-consume-shed`.
+
+**Change class: BREAKING (major)** under
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md)
+lines 250-254: a shape is REMOVED. All three of that clause's requirements are
+discharged, and each is checkable:
+
+1. **A CHANGELOG migration note** — below.
+2. **At least one full minor release where the old shape produced deprecation
+   warnings** — `contract-v1.47`, whose eight `relocating:` rows and
+   `scripts/check-openxfactory-pin.py` WARN-tier notice served exactly that
+   purpose. This cut could not legally precede it.
+3. **An update to the conformance validator** — discharged by the MOVE ITSELF.
+   From this major forward this family's conformance validator IS the pinned
+   `openXwallet/scripts/validate-openxwallet.py`, at the commit and digest
+   [`openxwallet-pin.yaml`](openxwallet-pin.yaml) records. There is no second
+   validator that accepts a new shape and rejects the old one, because there is
+   no new shape: the BYTES are identical and the PUBLISHER changed.
+
+### What is removed
+
+The eight digested openxWallet rows leave [`manifest.yaml`](manifest.yaml):
+`openxwallet-record`, `openxwallet-custody-registry-schema`,
+`openxwallet-custody-registry`, `openxwallet-grant`,
+`openxwallet-grant-exercise`, `openxwallet-distinct-holder-constraint`,
+`openxwallet-subject-attestation` and `openxwallet-agent-composition`. With them
+go `contracts/openxwallet/`, `contracts/openxwallet-agent-profile/`,
+`scripts/validate-openxwallet.py`, `scripts/wallet-yaml-syntax-gate.py`,
+`tests/wallet_yaml_syntax_gate/` and `.github/workflows/wallet-validation.yml`.
+
+**NO BYTES OF ANY CONTRACT CHANGED.** Every one of the eight artifacts carries at
+`opensoft/openXwallet` `wallet-v1.1` exactly the `sha256` this manifest recorded
+for it at `contract-v1.47`, and exactly the bytes it had at `contract-v1.31`.
+That is not a courtesy: a move whose diff is not provably empty cannot be
+bisected against, and this atomic cut rests on that property.
+
+### The migration path
+
+1. **Read the artifacts from `opensoft/openXwallet`**, tag `wallet-v1.1`.
+2. **Pin them through [`openxwallet-pin.yaml`](openxwallet-pin.yaml)**, which
+   arrives in THIS cut: `kind: pinned_contract_manifest`, `revision_kind:
+   commit`, a 40-hex `commit`, `submodule_path: openXwallet`, eight `files:`
+   members each with its `sha256`, and `pinned_by_commit_only:` for the
+   validator, the syntax gate, both `examples/` corpora and both family READMEs.
+   `contract_bundle_tag: wallet-v1.1` is a LABEL beside the commit and never the
+   trusted referent; a tag-only pin is REFUSED (`pin-tag-only`).
+3. **Verify the pin before trusting anything it names** —
+   `python3 scripts/verify-openxwallet-pin.py`. Six ordered checks, exit 2 with a
+   NAMED code (`pin-submodule-uninitialized`, `pin-gitlink-mismatch`,
+   `pin-checkout-mismatch`, `pin-digest-mismatch`, `pin-member-missing`,
+   `pin-tag-only`), and one fixed remediation trailer on every refusal.
+4. **Run the PINNED reader**, not a local copy:
+   `python3 openXwallet/scripts/validate-openxwallet.py <checkout>`. openxFactory
+   runs exactly that as its REQUIRED `wallet-validation` check, over its own
+   tree, from `.github/workflows/openxwallet-consumer-gate.yml`.
+5. **Re-pinning** is `openXwallet/docs/pin-resync-runbook.md`.
+
+The pin also records `carve_commit:
+30565e48ffe3d8a9773e10af33425701845e10f6` — the NAMED CARVE COMMIT the eight
+digests were taken at. "HEAD" is not a stable referent across a
+multi-pull-request wave, so the referent is in the FILE and not only in the
+runbook.
+
+### What did NOT move, and why
+
+`governance/review-authority/` STAYS — all four files. The reader travels; the
+DATA stays. codexFactory's
+`scripts/merge_master/openxfactory-review-authority-floor.yaml` names
+`governance/review-authority/register.yaml` in `opensoft/openxFactory` under
+`never_clearable_paths`, and a floor cannot be satisfied by a path in another
+repository. The consumer gate therefore runs the pinned reader over
+openxFactory's OWN tree, which is what keeps the intake register readable at all.
+
+The `openxwallet` capability ids, the `xfactory_wallet_*` kind prefix, every
+finding code, every filename and every path are UNCHANGED (R2). The brand became
+`openXwallet`; the wire label did not.
+`openxwallet_revocation_through_derivation` in the trust-anchor family is a
+frozen machine key and is not renamed here.
+
+### The REQUIRED check survives by ALIAS, not by repoint
+
+Org ruleset 21538893 requires the check `wallet-validation` on `main`. That token
+is the JOB ID, never the filename, so `openxwallet-consumer-gate.yml` retains
+`jobs: wallet-validation:` verbatim and **ruleset 21538893 is edited by nothing
+in this wave**. Renaming the TOKEN is a named successor and a precondition of
+nothing here.
+
+### Release surface
+
+[`releases/contract-v2.0.digests.yaml`](releases/contract-v2.0.digests.yaml) is
+this cut's inventory, over a surface that no longer carries the eight artifacts —
+transitively, since inventory membership is catalog-driven from
+`contracts/hermes-runtime/contract-index.yaml` and the eight FILES were never
+inventory members: what changes is that `manifest.yaml` IS a digested member and
+the digest recorded is now an eight-row-lighter manifest's.
+
+### Rollback posture
+
+`git revert` of this cut restores every path — the carve COPIED and deleted
+nothing — and removes the pin file and the gitlink; `wallet-validation.yml`
+returns as a filename. Ruleset 21538893 is unchanged throughout, so there is
+nothing to roll back there. A published bundle is not unpublished: if the
+DOCTRINE were reversed the honest reversal would be a following major, not a
+revert of the cut.
+
 ## contract-v1.47 — 2026-08-27 (deprecating; the eight openxWallet contracts are marked relocating)
 
 Realizes `split-openxwallet-repo` **P2.5** (`tasks.md` §5), the deprecating minor
@@ -499,6 +608,12 @@ remain pinned until they adopt abandoned-session cleanup or demotion evidence.
   `add-wallet-carried-review-authority`; convener-authorized schema widening
   2026-08-24, overriding that substrate item's initial no-schema-edit
   posture, with the manifest entry's sha256 refreshed to match).
+  **Annotation (contract-v2.0, `split-openxwallet-repo` P3):** the path
+  named in this published entry left openxFactory at `contract-v2.0`. The
+  artifact is unchanged and now lives at `opensoft/openXwallet`, consumed
+  here through [`openxwallet-pin.yaml`](openxwallet-pin.yaml). The record
+  above is annotated rather than rewritten: at `contract-v1.43` the path
+  was correct.
 - **Additive (minor)**: `contracts/client-content/client-overlay.schema.yaml`
   — `hermes_client_overlay` gains the OPTIONAL `client.policy_namespace` +
   `client.policies` pair, so a **Tenant** layer may carry FREESTANDING

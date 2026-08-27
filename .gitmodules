@@ -2,3 +2,6 @@
 	path = installs/omnigent-install
 	url = git@github.com:opensoft/Omnigent-Install.git
 	branch = main
+[submodule "openXwallet"]
+	path = openXwallet
+	url = git@github.com:opensoft/openXwallet.git

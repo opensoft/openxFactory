@@ -78,12 +78,19 @@ shipping.
 *No grant is operative until this lands. It precedes everything.*
 
 - [x] 2.1 Author a `pull_request`-triggered workflow running
-      `python3 scripts/validate-openxwallet.py <checkout> --strict`.
+      `python3 openXwallet/scripts/validate-openxwallet.py <checkout> --strict`
+      (the path as of `contract-v2.0`: the reader is the PINNED one, consumed
+      through `contracts/openxwallet-pin.yaml`; it read
+      `scripts/validate-openxwallet.py` when this task was authored).
       **This is openxFactory's FIRST pull-request-triggered workflow** — both
       existing workflows are `workflow_call` / `workflow_dispatch` — so it needs
       its own trigger, permissions and concurrency design (clarifications N3).
   - Realized as `.github/workflows/wallet-validation.yml` (feature
-    010-wallet-validator-ci T002): `on: pull_request` targeting `main`, single
+    010-wallet-validator-ci T002), which is
+    `.github/workflows/openxwallet-consumer-gate.yml` from `contract-v2.0`
+    forward — the FILE was renamed by `split-openxwallet-repo` P3 and the JOB ID
+    the ruleset pins was deliberately retained, so this task's realization is
+    unaffected: `on: pull_request` targeting `main`, single
     unnamed job so the status check surfaces as exactly `wallet-validation`,
     `permissions: contents: read`. As amended by review rounds the invocation
     omits `--strict`; that deviation is the RECORDED decision, see task 2.4.
@@ -96,9 +103,16 @@ shipping.
 - [x] 2.3 Pass the checkout path explicitly. A path-less invocation self-tests
       only and passes green while scanning nothing — the vacuous-pass trap this
       whole change exists to name (N5).
-  - Both steps pass the checkout explicitly (`wallet-yaml-syntax-gate.py .`,
-    `validate-openxwallet.py .`); observed live on every PR since landing
-    (green `wallet-validation` runs on #363/#366/#369).
+  - Both steps pass the checkout explicitly
+    (`openXwallet/scripts/wallet-yaml-syntax-gate.py .`,
+    `openXwallet/scripts/validate-openxwallet.py .` since `contract-v2.0`;
+    `wallet-yaml-syntax-gate.py .` and `validate-openxwallet.py .` before it);
+    observed live on every PR since landing
+    (green `wallet-validation` runs on #363/#366/#369). The explicit `.` is now
+    additionally pinned by
+    `tests/openxwallet_consumer_gate/test_gate_invocation.py` under the REQUIRED
+    `pytest-suite`, so the vacuous-pass trap this task names cannot be reopened
+    by an edit to the workflow alone.
 - [x] 2.4 Decide and record whether the gate runs `--strict`; the doc-health
       precedent parameterizes `fail-on` rather than hard-coding it (N5).
   - DECIDED: no `--strict`. Recorded in feature 010 T002 ("No scoping logic,
@@ -143,7 +157,8 @@ shipping.
       field already exists and stays optional in the shared grant schema, so no
       `contracts/` edit, no manifest entry, no CHANGELOG line, no bundle cut.
   - Validator rule (t) requires a REVIEW-class grant to name `issued_by`
-    (`scripts/validate-openxwallet.py`); shared schema untouched. Feature
+    (`openXwallet/scripts/validate-openxwallet.py` since `contract-v2.0`,
+    `scripts/validate-openxwallet.py` before it); shared schema untouched. Feature
     012-wallet-issuer-anchor tasks all complete (11/11).
 - [x] 3.2 Implement the ROOT-GRANT class: a grant with no `parent_grant_ref` is a
       root, and its issuer's authority is recorded OUTSIDE the register it
@@ -219,7 +234,9 @@ shipping.
       shape: fail a convening that admits a holder with no active row.
   - Same change (#341): validator rule (u) + `check_register` /
     `_load_attestations` wired into `repo_scan` inside the REQUIRED
-    wallet-validation check (`scripts/validate-openxwallet.py`). An active
+    wallet-validation check
+    (`openXwallet/scripts/validate-openxwallet.py` since `contract-v2.0`,
+    `scripts/validate-openxwallet.py` before it). An active
     REVIEW-class grant with no backing active row is refused; the
     production-wiring mutation probe fired `register-no-active-row` and was
     refused, restored immediately (feature 014 T003, T007x).
@@ -380,3 +397,38 @@ repository's spec corpus, and refusal vocabulary is ratified as the consumer's
       independence test is currently definable. If someone later believes it is,
       that is a new proposal starting from zero, carrying its own declared
       MODIFIED delta on the floor requirement.
+
+## Addendum — `split-openxwallet-repo` P3 (2026-08-27, `contract-v2.0`)
+
+Recorded here because P3 changes WHERE two of this change's obligations are
+discharged, and neither change may quietly assume the other's tree.
+
+**Task 2.6's red-proof is RETARGETED at the consumer gate.** 2.6 is already
+discharged above (draft canary PR #387, run 32997867639, a malformed GRANT). P3
+re-discharges it against the REPLACEMENT gate, because the thing being proven
+changed: it is no longer "the workflow refuses" but "the PINNED reader, run from
+the `openXwallet` gitlink at the digest `contracts/openxwallet-pin.yaml` records,
+still refuses on openxFactory's own tree". P3's form is a deliberately malformed
+ROW under openxFactory's `governance/review-authority/`, turning an openxFactory
+pull request RED with a `register-*` finding naming the full path. **It cannot
+discharge in openXwallet**: `review-authority-intake/spec.md:30-33` confers
+authority only where the reader "runs as a REQUIRED check on the repository that
+holds the register", R6 keeps the register HERE, and openXwallet's tree has no
+`governance/review-authority/` for a malformed row to sit in.
+
+**S3 and S5's `openxwallet` / `openxwallet-agent-profile` core deltas are
+authored in openXwallet from here on.** Those two capabilities left the
+openxFactory corpus at `contract-v2.0` (`split-openxwallet-repo`'s two
+`## REMOVED Requirements` blocks), so a delta authored against them in this
+repository would modify a capability this corpus no longer holds. The
+`tasks.md` 8.1 ruling itself needs no edit and is unchanged: it already puts
+those deltas at S5, and only their HOME moved. openxFactory-side work in S3/S5 —
+the register, its reader's wiring, the runtime's admission stamp — is unaffected,
+because the DATA stayed and only the READER travelled.
+
+**What P3 did NOT change here.** `governance/review-authority/` is untouched, all
+four files. Ruleset 21538893 is untouched: the required token `wallet-validation`
+is a job id and the renamed workflow retains it. The declined narrowed floor
+(8.5) stands. The pre-existing gap that codexFactory's floor omits
+`governance/review-authority/{grants,wallets,attestations}/` is neither fixed nor
+depended on by P3, and remains this change's to own.

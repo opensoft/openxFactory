@@ -1,0 +1,137 @@
+# The openxWallet CONSUMER gate: openxFactory no longer owns the wallet
+# standard, so this gate initializes the pinned `openXwallet` gitlink, refuses
+# to proceed unless the pin verifies, and then runs the PINNED reader over
+# openxFactory's own tree.
+#
+# SUCCESSOR TO `wallet-validation.yml`, WHICH THIS FILE REPLACES BY ALIAS.
+# REQUIRED since 2026-08-26: org ruleset 21538893 ("openxFactory wallet-gate")
+# requires the check `wallet-validation` on the default branch. That token is
+# the JOB ID, never the filename — so the file is renamed and
+# `jobs: wallet-validation:` below is RETAINED unchanged. Ruleset 21538893 is
+# edited by nothing in this wave; the token reports on this pull request's own
+# head from this new file, and no operator act stands between the shed and its
+# merge. Both alternatives are unmergeable and are named here so neither is
+# re-proposed: deleting the old workflow first means the required token never
+# reports on the pull request that removes it, and repointing the ruleset first
+# fails because a check is not selectable until a workflow has reported under it
+# once. Renaming the TOKEN to `openxwallet-consumer-gate` is a named SUCCESSOR,
+# not part of this change.
+#
+# The job carries no display name on purpose: the status check must surface as
+# exactly `wallet-validation`, the literal token the ruleset pins; a distinct job
+# display name silently de-advises the gate.
+#
+# WHY AN APP TOKEN AND NOT `github.token`. `opensoft/openXwallet` is a SECOND,
+# PRIVATE org repository, and `github.token` is scoped to this repository alone.
+# `.gitmodules` deliberately keeps `git@github.com:` — openXwallet is private, so
+# an anonymous HTTPS clone fails and a token is needed either way, while an HTTPS
+# URL would make every human clone prompt for credentials instead of using the
+# operator's key. The house pattern (`doc-health-reusable.yml:140-158`) is
+# therefore adopted: mint an App token, then rewrite the SSH URL to a token URL
+# with `insteadOf` BEFORE checkout. The SECRET NAMES differ from that file's on
+# purpose: the org secret `XFACTORY_APP_ID` is visibility-`selected` and
+# openxFactory is not among its repositories, while this repository already holds
+# `OPENXFACTORY_APP_ID` / `OPENXFACTORY_APP_PRIVATE_KEY` for the content App
+# (App 4253636, installation 145372182, `repository_selection: all`), which
+# reaches every repository in the organization including openXwallet.
+#
+# WHY A SCOPED INIT AND NOT `submodules: true`. A blanket init would also fetch
+# `installs/omnigent-install`, which nothing in this gate reads. `--recursive` is
+# rejected for the same reason one level down. This wave's init is deliberately
+# scoped, which is why the remediation trailer every refusal prints says
+# `--init openXwallet` and not `--init --recursive`.
+name: openxwallet-consumer-gate
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  wallet-validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      # The house guard (`doc-health-reusable.yml:125`). If the App key is
+      # absent the mint is SKIPPED rather than erroring on an empty app-id, the
+      # token expression falls back, and the scoped init then fails on the
+      # PRIVATE nested repository — a red gate with a legible cause. Falling back
+      # is not a pass: without a token the pin cannot be verified, and this gate
+      # refuses rather than proceeding on an unverifiable reader.
+      HAS_APP_KEY: ${{ secrets.OPENXFACTORY_APP_PRIVATE_KEY != '' }}
+    steps:
+      - name: Mint openxFactory app token
+        id: app-token
+        if: env.HAS_APP_KEY == 'true'
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.OPENXFACTORY_APP_ID }}
+          private-key: ${{ secrets.OPENXFACTORY_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
+      - name: Rewrite ssh submodule URLs for token auth
+        run: |
+          git config --global url."https://x-access-token:${TOKEN}@github.com/".insteadOf "git@github.com:"
+        env:
+          TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+
+      - uses: actions/checkout@v4
+
+      - name: Init the openXwallet gitlink only
+        run: git submodule update --init openXwallet
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install pyyaml jsonschema rfc3339-validator
+
+      # FIRST, before anything pinned is trusted. Six ordered checks, and every
+      # refusal exits 2 with a named code and the one fixed remediation trailer.
+      - name: Verify the openXwallet pin
+        run: python3 scripts/verify-openxwallet-pin.py
+
+      - run: python3 openXwallet/scripts/wallet-yaml-syntax-gate.py .
+
+      # THE LITERAL INVOCATION, pinned by
+      # `tests/openxwallet_consumer_gate/test_gate_invocation.py`. The argument
+      # must be PRESENT and equal to `.`: `main()` runs `repo_scan` only
+      # `if args.path is not None`, and `repo_scan` reads the intake register
+      # only `if sweep`, where `sweep = target.is_dir()`. A missing or
+      # file-valued argument is a green check that opened no register. No
+      # `--strict`, unchanged from `wallet-validation.yml:34`.
+      #
+      # `shell: bash` is declared so the step runs under `-o pipefail`: the
+      # default shell does not set it, and without it `tee` would return 0 over
+      # a failing validator and the gate would pass while refusing nothing.
+      - name: Run the pinned validator over openxFactory's own tree
+        shell: bash
+        run: python3 openXwallet/scripts/validate-openxwallet.py . | tee wallet-gate.log
+
+      # THE ASSERTION IS POSITIVE, and it needs no edit to the pinned code. On
+      # the happy path `check_register` emits no finding — the only lines naming
+      # the register are its failures — so the proof that the register was
+      # OPENED is the conjunction the validator DOES produce: the `repo scan:`
+      # note (the sweep ran) AND `wallet-v1.1`'s `intake register read:` NOTE
+      # (the register resolved) AND the absence of both the
+      # `no intake register at this tree` note and every `register-*` finding
+      # code. A green check that proves no register was opened is a vacuous
+      # pass, which is the whole class of defect this step exists to close.
+      - name: Assert the intake register was actually read
+        shell: bash
+        run: |
+          set -euo pipefail
+          fail() { echo "::error::$1"; exit 1; }
+          grep -qE '^note  repo scan: [0-9]+ openxWallet artifact' wallet-gate.log \
+            || fail "the gate log carries no 'repo scan:' note — the whole-tree sweep did not run, so nothing was adjudicated and no register could have been opened"
+          grep -qE '^note  intake register read: governance/review-authority/register\.yaml \([0-9]+ row\(s\)\)$' wallet-gate.log \
+            || fail "the gate log carries no 'intake register read: governance/review-authority/register.yaml' NOTE — the pinned reader did not resolve openxFactory's intake register at the scan target"
+          ! grep -q 'no intake register at this tree' wallet-gate.log \
+            || fail "the gate log says 'no intake register at this tree' — the scan target was not the openxFactory root, so review authority was adjudicated against nothing"
+          ! grep -qE '\[register-[a-z-]+\]' wallet-gate.log \
+            || fail "the gate log carries a register-* finding; see the validator output above"
+          echo "register-read conjunction holds:"
+          grep -E '^note  (repo scan:|intake register read:)' wallet-gate.log
