@@ -319,6 +319,113 @@ should be honest.
    session at his instruction instead of in his own shell. No behavioural
    difference to the act; recorded because the provenance above depends on it.
 
+## Reconciling apply — EXECUTED 2026-08-27
+
+Closes the derived-side drift the step-8 parity recorded. Run on Brett's
+instruction, company profile active, from a **fresh 19-submodule assembly at that
+day's aggregation main** with all pins verified matching (19/19).
+
+### THE MANIFEST TRAP — read this before running from a fresh assembly
+
+The first dry run from that assembly planned **703 operations**. It should have
+planned about fifty.
+
+`.claude/nlm-sync-manifest.json` is **gitignored**, so a freshly cloned assembly
+has none. With no manifest the sync cannot tell which live sources already match,
+and plans an `UPD` for **every source in every book** — 686 of the 703. The real
+manifest lives in the operator's own workspace.
+
+Copying it into the assembly (read-only with respect to the source workspace)
+dropped the plan to **54 operations**. THE DIFFERENCE WAS ENTIRELY ARTIFACT.
+
+This is the partial-assembly trap in a new disguise: the recorded form was mass
+DELs from missing repositories, and this one is mass UPDs from a missing
+manifest. The general rule is the same and worth stating once more — **an
+assembly is repositories AND manifest; either one missing produces a confident,
+wrong plan.**
+
+### The plan, reviewed before applying
+
+| book | ADD | DEL | UPD |
+| --- | --- | --- | --- |
+| canon | 5 | — | 16 |
+| drafts | 3 | 2 | 13 |
+| ideation-medxfactory | — | 4 | — |
+| ideation-openxfactory | 2 | 1 | 8 |
+| ideation-codexfactory / ledgerxfactory / opsxfactory | — | — | — |
+
+Three books planning **zero** is itself the evidence this was not an assembly
+artifact — a wrong assembly shows mass DELs everywhere. The ADD/DEL profile
+matches the drift recorded at step 8 exactly (drafts 3/2, MedxFactory 4,
+openxFactory 2/1).
+
+**Every DEL was reviewed before applying**, because a DEL removes live content:
+
+* `managed-service-mapping` and `openxdox-dispatch-credential-binding` leave
+  `drafts` and appear among canon's ADDs — the same two documents, whose Status
+  moved from draft to ratified, counted at both ends.
+* **The four MedxFactory topics are NOT a pin artifact**, which is what the
+  earlier record suspected. They exist at the pin and upstream, and they carry
+  `Status: realized (promoted into …, archived 2026-08-0x)`. `STATUS_RE` accepts
+  only the controlled vocabulary — brainstorm, staged, draft, ratified, standard,
+  superseded, retired, record — and **`realized` is not in it**, so the scan
+  cannot project them. Removing their sources is correct convergence, not loss.
+  (That four governed documents carry an out-of-vocabulary Status is a
+  MedxFactory doc-health matter, noted here and not fixed from this lane.)
+
+### The apply, and a defect it exposed
+
+54 of 54 operations executed, exit 0, no failures.
+
+The first verification was **not** clean, and the reason is a real defect rather
+than a settling delay:
+
+**THE OVERSIZED-SOURCE RENAME FAILS SILENTLY.** A document above
+`MAX_TEXT_ARG_BYTES` uploads as a temp file and is then renamed to its contract
+title, because the CLI titles a `--file` source by filename. The sync waits
+`time.sleep(2)` before renaming. For
+`openspec/specs/ideation-dashboard/spec.md` — **279,235 bytes**, the largest
+document in the corpus — two seconds is not enough: the add succeeds, the rename
+does not, and the source sits under `xf-sync-XXXXXXXX.md`. Parity then reports it
+MISSING, because by title it is.
+
+Re-running the book, which the documented precedent prescribes, **did not fix it
+— it added a second temp-named source.** Repaired by hand:
+`nlm source rename <full-source-id> "[spec] openxFactory: ideation-dashboard"
+--notebook xf-canon` succeeded immediately (minutes later, with the source
+settled), and the duplicate was deleted. Canon went 120 → 119 sources with
+exactly one correctly-titled spec.
+
+Recorded as an OPEN DEFECT for the sync: the 2-second sleep is too short for the
+largest projected document, and the failure is silent — the run reports success
+while leaving a mistitled source. A re-run compounds it rather than repairing it.
+The 2026-08-25 record called this "the known oversized-source readiness race" and
+believed it repaired; it is not.
+
+**This is the document Brett's retirement gate turned on.** Its projected form is
+what cleared the hold, so its title landing correctly is not a cosmetic matter.
+
+### Verification — all three clean
+
+```
+[canon] PARITY OK: 118 documents in 118 titles match
+[drafts] PARITY OK: 189 documents in 189 titles match
+[ideation-codexfactory] PARITY OK: 14 documents in 14 titles match
+[ideation-ledgerxfactory] PARITY OK: 65 documents in 65 titles match
+[ideation-medxfactory] PARITY OK: 47 documents in 47 titles match
+[ideation-openxfactory] PARITY OK: 247 documents in 247 titles match
+[ideation-opsxfactory] PARITY OK: 16 documents in 16 titles match
+parity union: 678 derived titles, 678 live managed titles, 0 unprojected, 0 unaccounted
+parity: PROVEN — every book in scope matches the corpus scan, 0 pending ADD/DEL/UPD
+```
+
+* `--parity`: **PROVEN**, exit 0, document-based.
+* Convergence dry run: **ZERO** planned operations.
+* doc-health `notebook-projection-drift` from the assembly: **no finding**.
+
+**The drift chapter recorded at step 8 is closed.** Live managed titles moved
+675 → 678 by the three genuinely new documents; nothing was lost.
+
 ## Step 9 — readers listed, NOTHING granted
 
 No share was granted, and no roster entry was written; `share_out` and `denied`

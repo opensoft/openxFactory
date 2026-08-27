@@ -311,3 +311,35 @@ Brett in his own account on his own timing. Its consequence is recorded in
 `docs/lifecycle-notebook-projection.md` — once deleted, the pre-rename titles and
 legacy content survive only in the migration evidence document and the live
 company books.
+
+## 10. THE DRIFT IS CLEARED (2026-08-27) — the archive is TWO away
+
+The reconciling `--apply` ran on Brett's instruction. 54 operations executed,
+exit 0; `--parity` **PROVEN** across all seven books (678 derived / 678 live, 0
+unprojected, 0 unaccounted); convergence plans **zero**; doc-health's
+`notebook-projection-drift` family reports nothing. Full record:
+`docs/notebook-projection-migration-evidence-2026-08-24.md` §"Reconciling apply
+— EXECUTED 2026-08-27".
+
+**The § 2.5 warning is now history rather than guidance**, and the same trap
+appeared in a NEW disguise on the way: a fresh assembly has no
+`.claude/nlm-sync-manifest.json` because the file is gitignored, so the first dry
+run planned 703 operations instead of 54 — 686 spurious UPDs. Not mass DELs from
+missing repositories this time, but mass UPDs from a missing manifest. **An
+assembly is repositories AND manifest.**
+
+The blocker list drops from three to **TWO**:
+
+| # | Blocker | Who |
+| --- | --- | --- |
+| 1 | **4.7's remaining half** — `brett.heap@gmail.com` refused by the provider on all seven books | **Brett / Workspace admin** |
+| 2 | **5.1** — unattended re-authentication does not exist | successor change |
+
+**A new OPEN DEFECT was found and is not one of them**, because it is repaired in
+the live books and does not block the archive: the oversized-source rename fails
+silently — `time.sleep(2)` is too short for the 279KB `ideation-dashboard` spec,
+so the source lands under its temp filename and a re-run adds a second one rather
+than repairing the first. Repaired by hand this round. It matters more than its
+size suggests: that document's projected form is what cleared the retirement hold
+in § 4.
+
