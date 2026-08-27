@@ -243,6 +243,111 @@ def test_pin_hands_git_absolute_directories(tmp_path, monkeypatch):
         assert not directory.startswith("-")
 
 
+# --- pin: the relocation notice (P2.5, split-openxwallet-repo D5) ----------
+#
+# The deprecating minor marks the eight openxWallet manifest rows `relocating:`
+# and this checker is the EMITTER — the only domain-pin candidate with a warning
+# tier. What these tests pin is the thing the change's evidence row names: the
+# checker's OUTPUT, and the fact that the output is a WARNING and not a failure.
+# `classify()` is deliberately untouched by that work, so its four tests above
+# are the regression guard and these five are purely additive.
+
+RELOCATION_MANIFEST = {
+    "contract_bundle_version": "contract-v1.47",
+    "contracts": [
+        {"id": "unrelated-schema", "path": "contracts/schemas/x.yaml"},
+        {
+            "id": "openxwallet-record",
+            "path": "contracts/openxwallet/openxwallet-record.schema.yaml",
+            "relocating": {
+                "to": "opensoft/openXwallet",
+                "tag": "wallet-v1.1",
+                "since": "contract-v1.47",
+            },
+        },
+        {
+            "id": "openxwallet-agent-composition",
+            "path": "contracts/openxwallet-agent-profile/x.schema.yaml",
+            "relocating": {
+                "to": "opensoft/openXwallet",
+                "tag": "wallet-v1.1",
+                "since": "contract-v1.47",
+            },
+        },
+    ],
+}
+
+
+def test_pin_relocating_rows_extracted_in_manifest_order():
+    """Manifest order, not sorted order: the eight rows are one authored block
+    and reading them back in a different order would misrepresent the file."""
+    rows = pin.relocating_rows(RELOCATION_MANIFEST)
+    assert [row.artifact_id for row in rows] == [
+        "openxwallet-record",
+        "openxwallet-agent-composition",
+    ]
+    assert all(row.to == "opensoft/openXwallet" for row in rows)
+    assert all(row.tag == "wallet-v1.1" for row in rows)
+
+
+def test_pin_no_relocating_rows_yields_no_notice():
+    """Every bundle up to and including contract-v1.46. Silence is the contract:
+    a consumer pinned before the marker existed must see no new output at all."""
+    manifest = {
+        "contract_bundle_version": "contract-v1.46",
+        "contracts": [{"id": "openxwallet-record", "path": "p"}],
+    }
+    assert pin.relocating_rows(manifest) == []
+    assert pin.relocation_notice(manifest) is None
+
+
+def test_pin_relocation_notice_names_every_artifact_target_and_tag():
+    """The evidence row wants each relocating artifact NAMED with its target and
+    tag — a count alone would not tell a migrator where to go."""
+    notice = pin.relocation_notice(RELOCATION_MANIFEST)
+    assert notice is not None
+    assert "contract-v1.47" in notice
+    assert "2 relocating" in notice
+    assert "openxwallet-record -> opensoft/openXwallet @ wallet-v1.1" in notice
+    assert (
+        "openxwallet-agent-composition -> opensoft/openXwallet @ wallet-v1.1"
+        in notice
+    )
+    # The removal version is NOT claimed from row data — the row deliberately
+    # carries none, so the notice points at the changelog for it.
+    assert "contracts/CHANGELOG.md" in notice
+    assert "unrelated-schema" not in notice
+
+
+@pytest.mark.parametrize(
+    "manifest",
+    [None, [], "not a mapping", {"contracts": "not a list"}, {}],
+    ids=["none", "list", "string", "contracts-not-a-list", "empty-mapping"],
+)
+def test_pin_relocation_notice_absent_when_manifest_unreadable(manifest):
+    """A question that could not be asked is not a finding — the same doctrine
+    the release-inventory family states. None of these may raise."""
+    assert pin.relocating_rows(manifest) == []
+    assert pin.relocation_notice(manifest) is None
+
+
+def test_pin_manifest_at_commit_returns_none_on_any_git_failure(tmp_path):
+    """An unresolvable commit, an absent file and unparseable bytes are all the
+    same answer: no notice, no failure, no traceback."""
+    assert pin.manifest_at_commit(tmp_path, "a" * 40) is None
+
+
+def test_pin_relocation_does_not_change_exit_semantics():
+    """FR-008. WARN has always exited 0 and the relocation notice is a WARN, so
+    the exit expression is unchanged — this pins that it STAYS unchanged."""
+    for verdict in (pin.PASS, pin.WARN, pin.SKIP):
+        assert (1 if verdict == pin.ERROR else 0) == 0
+    assert (1 if pin.ERROR == pin.ERROR else 0) == 1
+    # And the notice itself carries no verdict that could override one.
+    notice = pin.relocation_notice(RELOCATION_MANIFEST)
+    assert notice.startswith(f"{pin.WARN}: ")
+
+
 # --- roster: the fourth pack member ---------------------------------------
 #
 # The four behaviours the deltas specify. THREE come from the

@@ -9,6 +9,130 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
+## contract-v1.47 — 2026-08-27 (deprecating; the eight openxWallet contracts are marked relocating)
+
+Realizes `split-openxwallet-repo` **P2.5** (`tasks.md` §5), the deprecating minor
+that design decisions **D5** and **D6** specify, through Speckit feature
+`018-openxwallet-deprecation-minor`. **NO CONTRACT FILE CHANGES IN THIS CUT.**
+Every one of the eight openxWallet artifacts keeps the exact bytes it had at
+`contract-v1.45`, keeps its per-file `sha256` in [`manifest.yaml`](manifest.yaml),
+keeps its `schema_version: 1`, and keeps validating. What changes is what the
+manifest SAYS ABOUT THEIR FUTURE.
+
+**Change class: DEPRECATING (minor)** under
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md)
+lines 246-248. Nothing previously valid becomes invalid; no required field is
+added; no shape is removed; no vocabulary is reinterpreted. A domain repo on the
+same major version remains conformant WITHOUT CHANGES — which is the entire
+purpose of this release existing separately from the one that follows it.
+
+**Why this cut exists at all.** The successor change deletes these eight rows from
+the manifest. `:250-252` classes a removed shape as BREAKING and requires, before
+it, "at least one full minor release where the old shape produced deprecation
+warnings". This IS that release. Without it the removal is an illegal cut. One
+normative document moves with the cut for the same reason it did at
+`contract-v1.34`: [`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md)
+records this deprecation in its "Deprecations Currently In Force" list. Both it
+and this changelog are release-surface members and both are digested in this
+cut's inventory.
+
+**On the number.** This cut was authored as `contract-v1.46` and renumbered to
+`contract-v1.47` at merge order: while it waited for review, the additive
+avatar-client cut (`qualify-avatar-live-voice`, AVC-09 and AVC-10) landed and
+published `contract-v1.46` first. That is exactly the case
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md)
+lines 30-31 exist for — "a proposed change MUST NOT reserve a minor number before
+merge order is known" — so the four places that carry the number (the manifest's
+`contract_bundle_version`, the eight rows' `since:`, this heading, and the
+inventory filename) moved together rather than the earlier cut being asked to wait.
+
+### What is deprecated, and what it is deprecated IN FAVOUR OF
+
+The eight artifacts whose canonical home becomes `opensoft/openXwallet` — seven
+under `contracts/openxwallet/` and one under
+`contracts/openxwallet-agent-profile/`:
+
+| manifest `id` | path |
+|---|---|
+| `openxwallet-record` | `contracts/openxwallet/openxwallet-record.schema.yaml` |
+| `openxwallet-custody-registry-schema` | `contracts/openxwallet/openxwallet-custody-registry.schema.yaml` |
+| `openxwallet-custody-registry` | `contracts/openxwallet/openxwallet-custody.registry.yaml` |
+| `openxwallet-grant` | `contracts/openxwallet/openxwallet-grant.schema.yaml` |
+| `openxwallet-grant-exercise` | `contracts/openxwallet/openxwallet-grant-exercise.schema.yaml` |
+| `openxwallet-distinct-holder-constraint` | `contracts/openxwallet/openxwallet-distinct-holder-constraint.schema.yaml` |
+| `openxwallet-subject-attestation` | `contracts/openxwallet/openxwallet-subject-attestation.schema.yaml` |
+| `openxwallet-agent-composition` | `contracts/openxwallet-agent-profile/openxwallet-agent-composition.schema.yaml` |
+
+Each row gains ONE added key and nothing else — the marker D5 chose, as a nested
+mapping, placed last so no existing line moves:
+
+```yaml
+    relocating:
+      to: opensoft/openXwallet
+      tag: wallet-v1.1
+      since: contract-v1.47
+```
+
+`to` is the repository that becomes the artifact's canonical home. `tag` is the
+tag in that repository a consumer migrates TO — `wallet-v1.1`, which is the tag
+openxFactory itself pins when the move completes, not the earlier `wallet-v1.0`
+against which the carve's byte-identity floor was proven. `since` is this bundle.
+
+**There is deliberately NO removal-version key on the row.** `:246-248` puts the
+removal version and the migration path HERE, in the changelog, and naming the next
+MAJOR is permitted where naming the next MINOR is not: `:30-31` forbids reserving
+a minor before merge order is known, and there is exactly one next major.
+
+### Removal version
+
+**`contract-v2.0`** — the next major bundle, and therefore the earliest release at
+which a removal is legal. This release starts the one-full-minor deprecation
+window `:250-252` requires. The eight rows and their bytes are unchanged and keep
+validating until then.
+
+### Migration path
+
+1. **Read the artifacts from `opensoft/openXwallet` at `wallet-v1.1`** rather than
+   from this repository. The bytes are identical; the byte-identity floor was
+   proven once against the named carve commit at `wallet-v1.0`, and `wallet-v1.1`
+   is one auditable additive-minor diff on top that touches none of the eight
+   digested artifacts.
+2. **Pin them through `contracts/openxwallet-pin.yaml`**, which arrives in this
+   repository at the major. Until it lands, a consumer that pins this bundle
+   continues to consume the eight artifacts from here exactly as before — no
+   consumer action is required BY THIS RELEASE.
+3. **Resync a pin using `openXwallet/docs/pin-resync-runbook.md`** in the target
+   repository, which is the procedure for moving a recorded wallet pin forward.
+4. **The conformance validator moves with the contracts.** From the major forward,
+   this family's conformance validator is the pinned openXwallet
+   `scripts/validate-openxwallet.py` at the digest
+   `contracts/openxwallet-pin.yaml` records. The `:251-252` "update to the
+   conformance validator" obligation is discharged by that move — the move IS the
+   update. `scripts/validate-openxwallet.py` in THIS repository is not edited by
+   this release.
+
+### How a consumer actually finds out
+
+`scripts/check-openxfactory-pin.py` — the one domain-pin checker with a warning
+tier — now reads the manifest AT THE COMMIT A CONSUMER PINS and emits a WARN-tier
+notice naming every relocating artifact with its target repository and tag. **It
+stays green**: WARN exits 0, exactly as it did before, and the notice is additive
+to the pin verdict rather than a replacement for it. A consumer pinned to
+`contract-v1.45` or earlier sees nothing new.
+
+The sibling checker `scripts/validate-domain-openxfactory-pins.py` is deliberately
+NOT the emitter: it has no warning tier, so a relocation notice there would be an
+ERROR and would red every domain that pinned this perfectly legal bundle — the
+precise failure the manifest-carried marker was chosen to avoid.
+
+LedgerxFactory bumps `stack.yaml` `xfactory.contract_ref` to this minor and adds
+that checker to its estate run, so the one live consumer OBSERVES the warning
+inside the deprecation window rather than after it.
+
+### Rollback posture, recorded before the fact
+
+A published bundle is not unpublished. The honest reversal of this release is a
+FOLLOWING minor that removes the marker — never a revert of the cut.
 ## contract-v1.46 — 2026-08-27 (additive; AVC-09 and AVC-10 leave the reserved set)
 
 Realizes `qualify-avatar-live-voice` §2 and §3 — the change ratified 2026-08-27

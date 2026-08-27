@@ -294,3 +294,19 @@ retroactively invalidate an old pin.
   observed hashes, a buffer-key proposal target, and the selected-model
   metadata. Deprecated at contract-v1.34; removal target contract-v2.0. The v1
   bytes are unchanged and keep validating until then.
+- The eight openxWallet contracts (`openxwallet-record`,
+  `openxwallet-custody-registry-schema`, `openxwallet-custody-registry`,
+  `openxwallet-grant`, `openxwallet-grant-exercise`,
+  `openxwallet-distinct-holder-constraint`, `openxwallet-subject-attestation` in
+  `contracts/openxwallet/`, and `openxwallet-agent-composition` in
+  `contracts/openxwallet-agent-profile/`) — their canonical home RELOCATES to
+  `opensoft/openXwallet` at tag `wallet-v1.1`. Each manifest row carries a
+  `relocating: {to, tag, since}` mapping, and
+  `scripts/check-openxfactory-pin.py` emits a WARN-tier notice naming every
+  relocating artifact when a domain pins a bundle that carries them. Migration is
+  to read the artifacts from the target repository and pin them through
+  `contracts/openxwallet-pin.yaml`, which arrives at the major; from the major
+  forward this family's conformance validator is the pinned openXwallet
+  `scripts/validate-openxwallet.py` at the digest that pin records. Deprecated at
+  contract-v1.47; removal target contract-v2.0. The bytes are unchanged and keep
+  validating until then.
