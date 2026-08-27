@@ -26,14 +26,16 @@ family, with 97 tests and six fixture trees.
 **F1's implementation review found that F1 already realizes every scenario of
 the ratified delta with a test.** F2 is therefore two things, in this order:
 
-1. **An AUDIT.** Every one of § 3's thirteen numbered items — fourteen rows,
-   3.3a included — is mapped to the F1 test or
+1. **An AUDIT.** Every one of § 3's fourteen items — its thirteen numbered
+   items plus 3.3a — is mapped to the F1 test or
    tests that already discharge it, by test name, with a verdict of
    `satisfied` or `gapped` and — where gapped — a statement of exactly what is
    missing. An item F1 already covers gets a row in the audit and NO second
    copy of the test. F1's own hand-off note names this trap: "§ 3.11 has
    nothing left to add and should say so rather than write a second copy."
-2. **The GAPS, closed RED-first.** Six items are gapped, wholly or in part.
+2. **The GAPS, closed RED-first.** Seven audit rows — § 3.1, § 3.2, § 3.3,
+   § 3.4, § 3.5, § 3.6, and one sub-clause of § 3.7 — are gapped wholly or in
+   part.
    The two that carry this feature are the HISTORICAL reconstructions — F1
    froze the SHAPES of #351 and #329 in synthesized text; F2 freezes the real
    text, recovered from this repository's git history at recorded commits.
@@ -137,10 +139,13 @@ and every named test exists and asserts what the row claims.
 
 **Acceptance Scenarios**:
 
-1. **Given** packet § 3 items 3.1 through 3.13 (fourteen rows, counting 3.3a),
-   **When** the audit is read, **Then** every item has exactly one row, a
-   verdict of `satisfied` or `gapped`, and — for `satisfied` — at least one
-   F1 test function name that exists in the F1 test file.
+1. **Given** packet § 3 items 3.1 through 3.13 plus 3.3a — fourteen items —
+   **When** the audit is read, **Then** every item is covered by at least one
+   row, every row carries exactly one verdict of `satisfied`, `partial` or
+   `gapped`, and every `satisfied` or `partial` row names at least one F1 test
+   function that exists in the F1 test file. An item carrying many distinct
+   obligations MAY be split across several rows, provided no item is left
+   uncovered and none is covered twice.
 2. **Given** a row whose verdict is `gapped`, **When** it is read, **Then** it
    names the specific assertion § 3 asks for that no F1 test makes, and the
    F2 task that closes it.
@@ -313,8 +318,10 @@ delta, or of an orchestrator decision. The § 3 item is named in every case.
 - **FR-001**: The feature MUST produce a committed coverage audit mapping each
   packet § 3 item — 3.1, 3.2, 3.3, 3.3a, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9, 3.10,
   3.11, 3.12, 3.13 — to the F1 test functions that discharge it, with a
-  verdict of `satisfied` or `gapped` and, for every `gapped` row, the specific
-  assertion § 3 asks for that no F1 test makes and the F2 task that closes it.
+  verdict of `satisfied`, `partial` or `gapped` and, for every `partial` or
+  `gapped` row, the specific assertion § 3 asks for that no F1 test makes and
+  the F2 task that closes it. An item carrying several distinct obligations
+  MAY be split across rows; no item may be left uncovered.
 - **FR-002**: An item the audit marks `satisfied` MUST NOT gain a duplicate F2
   test. Where § 3 names an item F1 fully covers, the audit row IS the
   deliverable.
@@ -471,9 +478,10 @@ delta, or of an orchestrator decision. The § 3 item is named in every case.
 - **SC-006**: A scenario-complete block that re-wraps every line it carries
   produces no findings when run through the family over a fixture tree, and is
   not reported skipped.
-- **SC-007**: Every one of packet § 3's fourteen items carries an audit row
-  with a verdict; zero items are unaccounted for; and every F1 test name the
-  audit cites exists.
+- **SC-007**: Every one of packet § 3's fourteen items is covered by at least
+  one audit row carrying a verdict; zero items are unaccounted for and none is
+  covered twice; and every F1 test name the audit cites exists in
+  `tests/doc-health/test_modified_block_currency.py`.
 - **SC-008**: `python3 -m pytest tests/doc-health -q` is green, and the count
   rises from **1077** by exactly the number of tests this feature adds.
 - **SC-009**: `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` is
