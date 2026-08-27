@@ -164,6 +164,43 @@ rollback_policy:
         - material_regression_on_a_gated_percentile
         - elevated_error_rate
         - elevated_quota_condition
+      # RULED 2026-08-27 (§7.2 and §7.6). Two of these three triggers were
+      # trip-wires with no trip point: `elevated_error_rate` named no rate and
+      # `elevated_quota_condition` named no quota, so an auto-blocker that
+      # "auto-blocks" could not fire. The latency trigger already resolved
+      # through `slo_ref`.
+      trigger_thresholds:
+        material_regression_on_a_gated_percentile:
+          resolves_to: ALV-SLO-001
+          note: >-
+            Unchanged: the neutral relative-regression rule on a gated cell.
+            This trigger always had its number.
+        elevated_error_rate:
+          abnormal_rate_trailing_window_max_pct: 5
+          trailing_window_sessions: 50
+          same_number_as: canary_exit_criteria.tolerated_error_rate
+          note: >-
+            THE SAME NUMBER as the canary's trailing-window exit criterion, by
+            ruling. Two numbers here would let the canary pass its exit
+            criterion while its auto-blocker was tripping, or the reverse.
+        elevated_quota_condition:
+          per_session_duration_seconds_max: 900
+          per_session_billable_units_max: 300
+          billable_unit: one_us_cent_of_provider_attributed_spend
+          provider_project_monthly_cap_usd: 750
+          provider_project_cap_enforcement: hard_at_the_provider_project
+          uncountable_is: exhausted
+          note: >-
+            The per-session ceilings are enforced SYNCHRONOUSLY IN THE BROKER
+            and terminate through the kernel's existing duration/quota terminal
+            outcome — no new terminal is invented (task 6.1.3) — with a
+            cost-triggered kill carrying an auditable reason distinguishable
+            from an ordinary duration or quota terminal. `uncountable_is:
+            exhausted` follows the org's other real ceiling: a broker that
+            cannot determine its accumulated cost REFUSES the session rather
+            than proceeding blind. The provider-project cap is the ring's ONLY
+            per-tenant hard stop until the deferred durable counter lands
+            (task 6.1.5).
       rationale: >-
         Revoking an active lease on a latency regression would cut a person off
         mid-conversation when blocking new sessions is sufficient, and it would
@@ -189,6 +226,27 @@ rollback_policy:
       rationale: >-
         These are not mechanically decidable. Automating them would convert a
         judgment into a trip wire on a threshold nobody has ratified.
+      # RULED 2026-08-27 (§7.2 + §7.4). The class stays a judgment call; what
+      # the ruling adds is the SIGNAL the operator reads before making it, and
+      # the reader that delivers it. The per-tenant budget is METERED ONLY —
+      # Fork 1 Option C defers the durable synchronous per-tenant counter
+      # (task 6.1.5), so nothing can hard-stop a single tenant, and recording
+      # it as hard would be false.
+      trigger_signals:
+        cost_concern:
+          per_tenant_monthly_budget_usd: 150
+          enforcement: metered_and_alerted_only
+          hard_stop_exists: false
+          alert_reader: gh_issue_on_the_doc_health_pattern
+          note: >-
+            The alert reader is NOT decoration. The org has already been bitten
+            by a budget number nothing consumes — a council reviewer flagged an
+            empty `budget_envelopes` map with "no reader, no
+            `spend_over_envelope` consumer, and no FAO seated". A metered-only
+            threshold with no alert wired to it is that same artifact, so §7.4
+            gives this number its reader: one issue per metering run, on the
+            doc-health supersede-and-close pattern, mentioning the named human
+            who also holds the §7.7 kill switch. See tasks.md §7.4.
 
   operator_surface:
     owning_task: qualify-avatar-live-voice 7.7
@@ -257,14 +315,103 @@ abort_scope:
   proof_owner: qualify-avatar-live-voice 6.3.5
 
 # ---------------------------------------------------------------------------
-# Canary exit criteria — deliberately NOT set here.
+# Canary exit criteria — RULED 2026-08-27, BEFORE any canary traffic.
+#
+# This block used to read `status: unset`, with the statement that the three
+# values were "recorded as open so that a canary cannot be declared successful
+# against criteria invented after the fact". The ordering that statement
+# demanded is the evidence: the values below were ruled while the canary was
+# still unopened and every session count was zero.
 # ---------------------------------------------------------------------------
 canary_exit_criteria:
   owning_task: qualify-avatar-live-voice 7.6
-  status: unset
-  unset_values: [soak_duration, minimum_session_count, tolerated_error_rate]
-  statement: >-
-    Soak duration, minimum session count and tolerated error rate are §7
-    authoring inputs and are NOT set by this policy. They are recorded as open
-    so that a canary cannot be declared successful against criteria invented
-    after the fact.
+  status: ruled
+  ruled: >-
+    2026-08-27 by Brett Heap — §7.6, adopting the recommendation in
+    supporting-docs/section-7-authoring-inputs-memo.md §7.6, including the two
+    criteria that memo adds beyond the three §7.6 names.
+  source: >-
+    openspec/changes/qualify-avatar-live-voice/supporting-docs/section-7-authoring-inputs-memo.md
+    §7.6.
+
+  soak_duration:
+    consecutive_calendar_days: 14
+    sessions_on_distinct_days_min: 10
+    rationale: >-
+      Fourteen days covers two full business weeks — the cohort is internal
+      staff, so usage is weekday-shaped — and spans a typical provider deploy
+      cadence, so a provider-side change has a real chance of surfacing INSIDE
+      the ring rather than after it. F0's own campaign ran in three separate
+      rounds and the later rounds surfaced behavior the first did not, so a
+      single-block soak would repeat F0's single-configuration weakness. The
+      ten-distinct-day floor stops 200 sessions being run in two frantic
+      afternoons, which would satisfy the count while defeating the soak.
+
+  minimum_session_count:
+    completed_sessions: 200
+    sub_floors:
+      cohort_02_domain_sandbox_min: 50
+      per_evaluation_scenario_class_min: 3
+      evaluation_scenario_classes: 15
+    rationale: >-
+      Set by MEASURABILITY, not by feel. The §6.2.1 coverage floor alone is 15
+      scenario classes x 3 = 45. But a "2 percent" criterion is unmeasurable at
+      small n: at n=50 a single failure is already 2 percent, so the criterion
+      cannot distinguish a good ring from a marginal one. At n=200, 2 percent
+      is 4 sessions and 5 percent is 10 — distinguishable counts, so the
+      criterion can actually be evaluated, with ~4x headroom over the coverage
+      floor. The COHORT-02 floor exists because the cohort has exactly two
+      members and the domain sandbox is the only one that exercises
+      DomainxFactory interpretation: without a floor, 199 vendor-org sessions
+      and 1 sandbox session would technically satisfy "200".
+
+  tolerated_error_rate:
+    abnormal_rate_overall_max_pct: 2
+    abnormal_rate_trailing_window_max_pct: 5
+    trailing_window_sessions: 50
+    trailing_window_is_rollback_b_trip: true
+    abnormal_definition: >-
+      A session is ABNORMAL when it fails to reach
+      `first_playable_after_authorized`, OR terminates to a non-clean terminal
+      that is not a deliberate test action. Consent-withdrawal drills, injected
+      rollback rehearsals and operator-fired ROLLBACK-C are EXCLUDED and
+      counted separately — without this sentence the rate is unfalsifiable,
+      because the ring deliberately produces abnormal-looking terminals.
+    rationale: >-
+      Anchored to observed provider behavior: across ~183 F0 calls no
+      provider-side failure class was recorded, and the one failed smoke was a
+      CLIENT HARNESS defect. So 2 percent is generous against observed provider
+      reliability while leaving headroom for harness flakiness, and 5 percent
+      over a trailing window is an unambiguous degradation worth auto-blocking
+      new sessions on.
+    binds_rollback_b: >-
+      This IS ROLLBACK-B's `elevated_error_rate` threshold, not a second
+      number beside it. Ruling them apart would let the canary pass its exit
+      criterion while its auto-blocker was tripping, or the reverse.
+
+  # Two criteria beyond the three §7.6 names. Without them the ring's own
+  # stated rationale goes undelivered: RING-04 proves the SWITCH works before
+  # any canary traffic, and nothing otherwise proves the DETECTION works.
+  additional_criteria:
+    - id: EXIT-ROLLBACK-B-REHEARSED
+      criterion: >-
+        At least ONE live ROLLBACK-B auto-trip proven end to end through the
+        §6.3.3 detection wiring — injected if it does not occur naturally —
+        with in-flight legs observed DRAINING and `revoke_active_leases: false`
+        honoured.
+      rationale: >-
+        Option B was chosen over Option A precisely for its rehearsal value
+        (see this file's header). An untripped detector is an unrehearsed
+        detector, and RING-04's pre-canary kill-switch proof does not reach it:
+        RING-04 exercises the switch, not the thing that decides to pull it.
+      depends_on_task: qualify-avatar-live-voice 6.3.3
+    - id: EXIT-ROLLBACK-A-CLEAR
+      criterion: Zero unresolved ROLLBACK-A trips at exit.
+      rationale: >-
+        A safety or integrity breach still open at exit would promote a
+        known-unsafe profile toward the pilot ring.
+
+  cost_check: >-
+    200 sessions at the §7.2 expected per-session cost sits comfortably inside
+    the ruled provider-project cap, so the exit criteria and the spend
+    ceilings do not fight each other. See tasks.md §7.2.

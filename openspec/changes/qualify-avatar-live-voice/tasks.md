@@ -15,6 +15,15 @@ is mis-specified.
 > the two-tier latency posture, and the acceptance-map entries. §4 through §6
 > remain unbuilt and unticked. The sentence above stands as the plan's original
 > statement; this note records where the plan now actually is.
+>
+> **Amended again 2026-08-27, later the same day.** §7.1-§7.6 were RULED and
+> are ticked; §7.7-§7.10 stay open, and 7.7 needs a person or rota named
+> before the canary opens. Task 6.1.1 is DONE as a consequence — the custody
+> pair the §7.1 and §7.3 rulings feed is authored, in its neutral half, with
+> the concrete install-side binding named as a separate act in a repository
+> this change does not touch. The rest of §4 through §6 remains unbuilt: 6.1.2
+> is Brett's provisioning act, 6.1.3 and 6.1.4 are the wiring slice, and 6.1.5
+> is deferred by ruling.
 
 ## 1. Spec deltas (THIS CHANGE)
 
@@ -374,11 +383,52 @@ the checklist that produces its evidence.
 
 ### 6.1 Credential custody and spend (F1 Option C)
 
-- [ ] 6.1.1 Author the broker server-key credential binding under the
+- [x] 6.1.1 Author the broker server-key credential binding under the
       promoted `xfactory_credential_binding_template` shape — provider,
       vault, secret_ref, owner, rotation_policy — resolved only by the
       broker. No plaintext key in any repository; the age-encrypted registry
       copy is supervised recovery material, never a deployment source.
+      **Done 2026-08-27**, as a PAIR, because the ruling splits across two
+      repositories and the published shape cannot hold half of it.
+      `contracts/avatar-client/broker-server-key-binding.template.yaml` is the
+      binding, under the promoted shape exactly and with no invented field:
+      all five members present, `secret_ref:
+      avatar-broker-openai-internal-live` (a NEW reference — 6.1.2 requires a
+      dedicated project distinct from the F0 lab, so a distinct key follows),
+      `owner: opensoft-platform` carried forward from the F0 Credential
+      Record, `rotation_policy: operator_managed`, and a `resolution` block
+      pinning `resolved_by: broker_only` with ephemeral process-scope
+      materialization. `provider` and `vault` are PER-INSTALL PLACEHOLDERS by
+      canon, not by omission: `credential-contracts` says "Contract
+      artifacts, lane definitions, and domain repositories SHALL NOT hard-code
+      a vault operator, a vault product, or any secret value", and this
+      repository is a contract-artifact tree. §7.3's cadence rides
+      `broker-server-key-rotation-policy.yaml` beside it, because the
+      published schema types `rotation_policy` as a plain string and every
+      corpus instance uses it as an accountability label; the two files name
+      each other, and the validator fails if that pointer drifts. THE §7.2
+      CEILINGS ARE DELIBERATELY NOT HERE: the template shape carries no
+      spend, duration or budget field, and inventing one would have put a
+      number in a record no reader resolves.
+      **THE NAMED INSTALL-SIDE ACT, left for the install's own PR.** The
+      concrete binding — `provider: azure_key_vault`, `vault:
+      kv-opensoft-xfactory-qa`, resolved by the broker's own AKS workload
+      identity through the Secrets Store CSI driver — belongs at
+      `installs/hermes-install/credentials/avatar-broker-bindings.yaml` in
+      `opensoft/xFactory-Hermes-Install`, with the matching
+      `SecretProviderClass` entry naming
+      `avatar-broker-openai-internal-live` in the broker's
+      `deploy/kubernetes/overlays/aks-qa/` overlay beside the two that
+      already serve the live stack. That repository is NOT touched by this
+      change and no file in it is written here. Its own PR carries the
+      binding, the `SecretProviderClass`, a no-secret scan over the rendered
+      manifest, and the §7.3 override installed into
+      `credentials/policies/rotation-policy.yaml`.
+      **VERIFIED:** `scripts/validate-avatar-client.py --strict` green with
+      the new `check_broker_credential_binding` rule, and the binding
+      validates against
+      `contracts/schemas/xfactory-credential-contracts.schema.yaml` with zero
+      errors.
 - [ ] 6.1.2 Provision the DEDICATED spend-capped internal-live provider
       project, distinct from the F0 lab project, with its project budget and
       rate controls set BEFORE any live trial (the F0-proven pattern).
@@ -388,6 +438,17 @@ the checklist that produces its evidence.
       reason distinguishable from an ordinary duration or quota terminal.
 - [ ] 6.1.4 Wire asynchronous usage metering and threshold alerting for
       per-tenant visibility.
+      **NOT DONE — the wiring is a later slice. What it no longer has to
+      decide:** §7.4 was RULED 2026-08-27, so this task now has its channel,
+      its thresholds and its page target rather than having to invent them
+      while building. Two channels, neither of which builds new
+      infrastructure: the provider project's own native budget notifications
+      at 50% and 80% of the §7.2 project cap, and `gh issue create` from the
+      metering job following the doc-health pattern verbatim (one issue per
+      run, supersede-and-close the prior) on a per-tenant metered crossing of
+      $150/month or any cost-triggered session kill. The page target is the
+      §7.7 kill-switch holder — see §7.4's tick for why that is recorded as a
+      ROLE today and what has to happen before the canary opens.
 - [ ] 6.1.5 DEFERRED, NOT BUILT: the durable synchronous per-tenant
       cumulative-spend counter. Record it as `avatar-pilot-hardening`'s work
       and record the resulting limit — the provider-project cap is the only
@@ -673,21 +734,235 @@ Each of these is a value the rulings deliberately left to proposal and
 realization time. None reopens a ruled fork; leaving any unset opens the ring
 on an unstated assumption.
 
-- [ ] 7.1 The concrete vault for the internal-live server key. F0's mode-600
+> **7.1-7.6 RULED 2026-08-27** by Brett Heap, in session, on the research in
+> `supporting-docs/section-7-authoring-inputs-memo.md` — every recommendation
+> that memo carried, adopted as written. 7.7-7.10 stay OPEN; 7.7 in particular
+> needs a person or rota named and cannot be closed by research (see its
+> entry). Each tick below carries the ruled value, the provenance, and one
+> line of grounding.
+
+- [x] 7.1 The concrete vault for the internal-live server key. F0's mode-600
       local file plus age escrow is explicitly NOT a deployment source.
-- [ ] 7.2 Numeric ceilings: per-session duration and billable-unit limits, the
+      **RULED 2026-08-27: Azure Key Vault `kv-opensoft-xfactory-qa`, fetched
+      by the broker's own AKS workload identity through the Secrets Store CSI
+      driver.** GROUNDING: this is not a new pattern for this org — the review
+      lane already fetches a MODEL-PROVIDER TOKEN, the same credential class,
+      from that vault by reference using the runner's own federated workload
+      identity, which is the shipped realization of `credential-contracts`
+      "Worker credentials are distributed by reference into ephemeral job
+      scope"; the vault is live in the AKS QA estate the broker deploys into,
+      so the ruling adds ONE SECRET to an operated estate rather than a
+      custody mechanism (memo §7.1, "The decisive precedent").
+      **THE RULING SPLITS ACROSS TWO REPOSITORIES, by canon.**
+      `credential-contracts` says contract artifacts "SHALL NOT hard-code a
+      vault operator, a vault product, or any secret value", so the two names
+      above appear HERE — in a change packet — and never in
+      `contracts/`. The neutral half is
+      `contracts/avatar-client/broker-server-key-binding.template.yaml` (a
+      credential reference, an owner, a rotation policy, and per-install
+      placeholders for provider and vault); the concrete half is the named
+      install-side act recorded at 6.1.1, left for that repository's own PR.
+      The mode-600 local file and the age-escrow copy stay exactly what the
+      SOP makes them — developer-local convenience and supervised recovery
+      material — which is what this task's own sentence demands.
+      **Recorded as a deliberate NOT NOW:** openProfiler, ratified 2026-08-26
+      as this org's model-provider credential broker, is the freshest
+      on-point precedent, but on the `api_key` path "the minted token IS the
+      stored key verbatim", so minting buys no scope reduction here, and it is
+      a per-operator local custody surface rather than a server-side vault —
+      using it would mean deploying it into AKS as a sidecar, which is
+      net-new infrastructure and out of scope of the change that introduced
+      it. The two custody stories should converge later; they do not converge
+      in this ring.
+- [x] 7.2 Numeric ceilings: per-session duration and billable-unit limits, the
       per-tenant budget, and the configured provider-project cap amount.
-- [ ] 7.3 Rotation cadence and trigger for the server key, written into the
+      **RULED 2026-08-27: per-session 15 minutes (900 s) AND 300 billable
+      units where one unit is one US cent of provider-attributed spend
+      ($3.00) — both HARD and broker-enforced; per-tenant $150 per calendar
+      month, METERED AND ALERTED ONLY; provider-project cap $750 per calendar
+      month, HARD at the provider, with notifications at 50% ($375) and 80%
+      ($600).** GROUNDING: F0 recorded ~183 short billed calls and NO dollar
+      figure and no cap amount, so the anchor is the provider's published rate
+      card, not a measurement — at audio rates and 1 token per 100 ms in / 50
+      ms out, a well-cached 15-minute session costs about $0.84 and a
+      poorly-cached one about $10.40, because the whole conversation is re-sent
+      on every response and caching is best-effort; $3.00 is ~3.5x the
+      expected case, so a normal session never trips it while the runaway is
+      caught at under a third of its course, and $750 is ~2.4x the modelled
+      ~$310 of total ring consumption, so ordinary work never halts the
+      qualification (memo §7.2). The unit is CENTS, not tokens: audio-output
+      tokens cost 160x cached audio-input tokens, so a token count is a bad
+      cost proxy across modalities. The broker reads real per-response usage
+      off the provider's own `usage` block, so this is accumulated actual
+      cost, not an estimate. FAIL CLOSED ON AN UNCOUNTABLE VALUE — a broker
+      that cannot determine its accumulated cost refuses the session rather
+      than proceeding blind, following the org's other real ceiling.
+      **THE PER-TENANT NUMBER IS METERED-ONLY, AND ITS READER IS §7.4.**
+      Fork 1 Option C defers the durable synchronous per-tenant counter (task
+      6.1.5), so nothing can hard-stop a single tenant and recording $150 as
+      hard would be false. A metered-only threshold with no alert wired to it
+      is the `budget_envelopes: {}` artifact a council reviewer has already
+      flagged in this org — "no reader, no `spend_over_envelope` consumer, and
+      no FAO seated" — so the $150 threshold's reader is named in §7.4's
+      `gh issue create` path, and the two rulings are one arrangement.
+      LANDED: the trip points are in
+      `contracts/avatar-client/canary-cohort-and-rollback-policy.yaml` at
+      ROLLBACK-B `elevated_quota_condition` (per-session ceilings, project
+      cap, `uncountable_is: exhausted`) and ROLLBACK-C `cost_concern` (the
+      metered per-tenant budget, `hard_stop_exists: false`, and its alert
+      reader).
+- [x] 7.3 Rotation cadence and trigger for the server key, written into the
       binding's `rotation_policy`; the SOP gives the procedure but no
       interval.
-- [ ] 7.4 The alerting channel, thresholds and page targets for the usage
+      **RULED 2026-08-27: `max_key_age_days: 90` as an
+      `xfactory_credential_rotation_policy` override on
+      `avatar_broker_openai_internal_live`, inheriting the global
+      `require_rotation_on` list UNCHANGED (`client_offboarding`,
+      `suspected_exposure`, `provider_policy_change`,
+      `privileged_scope_change`) and adding three:
+      `avatar_platform_maintainer_change`, `canary_cohort_change`,
+      `release_ring_promotion`.** GROUNDING: 90 days is not invented here —
+      it is the org's ONLY enforced key-age cadence, applied to exactly three
+      vault-held credentials in the same custody shape §7.1 rules for this
+      key, and independently described as the family's strictest existing
+      tier; adopting it makes this a constrained instance of an existing tier
+      rather than a new policy, and the three added triggers follow the same
+      `additional_require_rotation_on` idiom those overrides already use
+      (memo §7.3). It also does not churn the evidence: against the ruled
+      14-day soak (§7.6), a 90-day cadence means AT MOST one rotation inside
+      the ring and most likely zero, where 30 days would risk a rotation
+      landing mid-soak and muddying the latency and error-rate evidence for no
+      security gain at this blast radius — one dedicated spend-capped provider
+      project, synthetic or internally-consented audio only.
+      **A WORDING TENSION RULED WITH EYES OPEN:** `credential-contracts` calls
+      the vault-held worker credential a "LONG-LIVED, NON-ROTATING headless
+      token", and the same sentence continues "Rotation SHALL be a vault write
+      (effective the next job, no host administration)". NON-ROTATING MEANS
+      NOT SELF-REFRESHING — the phrase exists to refuse the refreshable
+      session-state class — and it does not forbid a cadence. Stated here so a
+      later reader does not find the two clauses contradictory.
+      LANDED: `contracts/avatar-client/broker-server-key-rotation-policy.yaml`;
+      the binding keeps `rotation_policy: operator_managed` because the
+      published schema types that field as a string.
+- [x] 7.4 The alerting channel, thresholds and page targets for the usage
       meter.
-- [ ] 7.5 Minimum sample count per gated latency cell (feeds §5.2).
-- [ ] 7.6 Canary exit criteria: soak duration, minimum session count, and
+      **RULED 2026-08-27: two channels, neither of which builds new
+      infrastructure — (1) the provider project's own native budget
+      notifications on the dedicated internal-live project, at 50% and 80% of
+      the §7.2 cap, with the cap itself as the hard stop; (2) `gh issue
+      create` from the metering job following the doc-health pattern verbatim
+      (one issue per run, supersede-and-close the prior), on a per-tenant
+      metered crossing of $150/month or any cost-triggered session kill.
+      Azure Monitor is named as PILOT-HARDENING work, not ring work.**
+      GROUNDING: a full survey of the aggregation tree found NO alerting plane
+      of any kind — no Prometheus, Grafana, Alertmanager, PagerDuty, Opsgenie,
+      Azure Monitor action group, App Insights, SMTP alert or Slack webhook in
+      any running code path; the one live service exposes only Kubernetes
+      probes and notifies no human, OpsxFactory's monitoring material is
+      explicitly `Status: brainstorm`, and the Flux notification controller
+      present in the QA cluster has zero `Provider`/`Alert` resources and in
+      any case reports GitOps reconciliation, not application spend. The ONLY
+      wired path that reaches a human is `gh issue create` from CI, proven
+      twice — the nightly doc-health regression issue with its
+      supersede-and-close semantics, and merge-master's `@`-mention issue — so
+      the ruling reuses it rather than building a plane on the critical path
+      of a qualification ring (memo §7.4, the one ⚠️ NEW CAPABILITY flag,
+      routed around rather than through).
+      **PAGE TARGET — RECORDED AS A ROLE, AND THIS IS AN OPEN EDGE.** The
+      target is the human who also holds the §7.7 kill switch, so the person
+      who learns about the spend is the person who can stop it. §7.7 is still
+      OPEN and does not yet say HOW that holder is recorded, so this ruling
+      records the ROLE — the openxFactory avatar platform maintainers, as
+      credential owner, in the person who holds the §7.7 kill switch — and
+      NOT a personal name. §7.7 must name a person or rota before the canary
+      opens; an alert with no named recipient and a kill switch with no named
+      holder are the same gap seen twice.
+      **AN UNTESTED ALERT PATH IS INDISTINGUISHABLE FROM NO ALERT PATH:** at
+      least one alert must be observed DELIVERED end to end — a threshold
+      deliberately tripped low, or a test issue filed — before the canary
+      opens. That is the §7.4 analogue of RING-04's "exercised for real"
+      discipline, and it belongs to 6.1.4's wiring slice.
+- [x] 7.5 Minimum sample count per gated latency cell (feeds §5.2).
+      **RULED 2026-08-27: n >= 100 completed, schema-valid AVC-10 samples per
+      gated cell — declared BEFORE measuring; a cell with n < 100 is RECORDED
+      but MUST NOT GATE; and per cell the samples must span at least 3
+      distinct measurement runs on at least 2 distinct days.** GROUNDING: the
+      count above the true p95 is Binomial(n, 0.05), so at F0's n=30 the p95
+      estimate is essentially the second-largest of thirty — a maximum wearing
+      a percentile's name, whose nonparametric interval plausibly swings as
+      wide as the 246 ms threshold it is meant to test, because that
+      `sideband_ready` distribution spans 870 ms between its p50 and its p95;
+      at n=100 the estimate is an interior order statistic and sits stably
+      inside the 150-246 ms materiality floor, and 4 cells x 100 setup-only
+      sessions is a small fraction of §7.2's cap, so the defensible number and
+      the affordable one are the same number (memo §7.5). The run-and-day
+      spread exists because F0's whole dataset came from one harness, one
+      configuration, `region: null`, in one sitting — a minimum n taken all at
+      once would repeat that with a bigger number, which is worse, because a
+      bigger number looks like rigor. RECORDED NOW to prevent a live
+      misreading: at n=100 p99 IS effectively the maximum, so gating it would
+      need ~500 samples per cell and it stays `recorded_not_gated`.
+      LANDED: `contracts/avatar-client/latency-sample-minimum.yaml`, a sibling
+      of the acceptance map rather than a block inside it, because
+      `acceptance-map.yaml` is a published digest-pinned bundle member and an
+      authoring input does not earn a contract-release cut. §5.2's ordering
+      requirement is satisfied by construction: the declaration lands while
+      the SLO entry still reads `measured_evidence.status: not_yet_measured`,
+      which is exactly now.
+- [x] 7.6 Canary exit criteria: soak duration, minimum session count, and
       tolerated error rate.
+      **RULED 2026-08-27: soak = 14 consecutive calendar days with canary
+      sessions on >= 10 distinct days; minimum = 200 completed canary sessions
+      with sub-floors of >= 50 from COHORT-02 and >= 3 per §6.2.1 evaluation
+      scenario class; tolerated error rate = <= 2% abnormal-session rate over
+      the full soak AND <= 5% over any trailing 50-session window. Plus two
+      criteria beyond the three this task names: >= 1 live ROLLBACK-B
+      auto-trip proven end to end through the §6.3.3 detection wiring
+      (injected if it does not occur naturally), and zero unresolved
+      ROLLBACK-A trips at exit.** GROUNDING: 200 is set by MEASURABILITY, not
+      by feel — the §6.2.1 coverage floor alone is 15 classes x 3 = 45, but a
+      "<= 2%" criterion cannot be evaluated at n=50, where one failure is
+      already 2%, whereas at n=200 the two thresholds are 4 and 10 sessions
+      and the criterion can actually distinguish a good ring from a marginal
+      one; 14 days covers two business weeks for a weekday-shaped internal
+      cohort and spans a provider deploy cadence, and the 10-distinct-day
+      floor stops 200 sessions being run in two frantic afternoons; 2%/5% is
+      anchored to observed behavior, since across ~183 F0 calls no
+      provider-side failure class was recorded and the one failed smoke was a
+      client-harness defect (memo §7.6).
+      **THE TRAILING-WINDOW RATE IS ALSO ROLLBACK-B's `elevated_error_rate`
+      TRIP — one number, not two.** Ruled apart, the canary could pass its
+      exit criterion while its auto-blocker was tripping, or the reverse; the
+      validator now compares the two and fails on drift.
+      **ABNORMAL IS DEFINED, or the rate is unfalsifiable:** a session that
+      fails to reach `first_playable_after_authorized`, or terminates to a
+      non-clean terminal that is not a deliberate test action — consent
+      withdrawal drills, injected rollback rehearsals and operator-fired
+      ROLLBACK-C are excluded and counted separately.
+      **THE REHEARSAL CRITERION IS NOT A DUPLICATE OF RING-04.** RING-04 is a
+      PRE-canary gate on the kill SWITCHES, exercised for real in both
+      block-new and revoke-active modes. Nothing else proves the DETECTION,
+      and Option B was chosen over Option A precisely for that rehearsal
+      value; an untripped detector is an unrehearsed detector.
+      LANDED: `contracts/avatar-client/canary-cohort-and-rollback-policy.yaml`
+      `canary_exit_criteria`, moved from `status: unset` to `status: ruled`
+      BEFORE the canary opened — which that block's own statement says is the
+      point, so the ordering is itself the evidence.
 - [ ] 7.7 The operator surface that fires the kill switches — the web console
       is a kernel non-goal, so the holder and the mechanism must be named
       before the canary opens.
+      **STILL OPEN, and it cannot be closed by research.** This one needs a
+      PERSON OR ROTA named, which is Brett's act and not a value any memo can
+      recommend. Flagged here because §7.4 now depends on it: the ruled page
+      target for the usage meter is "the human who also holds the §7.7 kill
+      switch", recorded as a ROLE until this task names the holder, so an
+      unnamed §7.7 leaves the alert with no named recipient. The policy
+      artifact says the same thing from the other side —
+      `canary-cohort-and-rollback-policy.yaml` `operator_surface.status:
+      unnamed`, with the note that "a canary opened without a named holder has
+      an unfireable kill switch". An alert with no named recipient and a kill
+      switch with no named holder are the same gap seen twice, and closing
+      7.7 closes both.
 - [ ] 7.8 The session-outcome token each rollback path emits (`revoked` versus
       `abandoned` for a drained leg versus a force-terminated leg); only
       consent/lease revocation is fixture-bound today.
@@ -696,6 +971,15 @@ on an unstated assumption.
       `structured_record` as a domain-owned policy reference.
 - [ ] 7.10 The definition of "tenant" for this ring, which must agree with
       §6.3.1's cohort or the per-tenant dimension has no subject.
+      **STILL OPEN, and §7.2 now depends on it.** The ruled per-tenant budget
+      ($150/month, metered) has no SUBJECT until "tenant" is defined, and the
+      figure was sized on the assumption that tenant = cohort member, i.e.
+      two tenants, so that the pair sits comfortably under the project cap.
+      `canary-cohort-and-rollback-policy.yaml` records the same dependency at
+      `cohort.tenant_definition_ref.status: unset`. Recorded here rather than
+      silently assumed: if this task rules "tenant" as anything other than a
+      cohort member, §7.2's per-tenant figure needs re-sizing against the new
+      denominator.
 
 ## 8. Realization gate
 

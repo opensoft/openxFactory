@@ -1,0 +1,105 @@
+schema_version: 1
+kind: xfactory_credential_rotation_policy
+
+# ============================================================================
+# broker-server-key-rotation-policy.yaml
+# qualify-avatar-live-voice §7.3 — the rotation cadence and triggers for the
+# internal-live broker server key, in the shape the org's only enforced
+# key-age cadence already uses.
+#
+# WHY A SEPARATE RECORD. Task 7.3 says the cadence is "written into the
+# binding's `rotation_policy`", and the published binding shape cannot hold
+# it: `rotation_policy` is `{type: string}` in
+# contracts/schemas/xfactory-credential-contracts.schema.yaml, and every
+# instance in the corpus uses it as an ACCOUNTABILITY LABEL
+# (`operator_managed`, `client_managed`, `tenant_managed`, `opensoft_managed`
+# spellings). The numeric cadence therefore lives where the org already keeps
+# one — an `xfactory_credential_rotation_policy` record with a
+# `credential_overrides` entry — and the binding keeps `operator_managed` so
+# it stays compatible with the two live bindings in this corpus.
+#
+# THIS IS THE RULED CADENCE, NOT AN INSTALLED ONE. The consuming install
+# instantiates the override below into its own
+# `credentials/policies/rotation-policy.yaml` alongside its other credentials,
+# inheriting that file's global `require_rotation_on` list. Recording the
+# ruling here rather than only install-side keeps the ring's cadence
+# reviewable in the repository that owns the ring.
+#
+# NINETY DAYS IS NOT INVENTED HERE. It is the org's only stated maximum key
+# age, applied to exactly three vault-held credentials whose custody shape is
+# the one §7.1 rules for this key, and independently described in
+# ideation/staging/INDEX.md as the family's strictest existing tier.
+# Adopting it makes this a constrained instance of an existing tier rather
+# than a new policy. It also does not churn the evidence: the ruled canary
+# soak is 14 days (§7.6), so a 90-day cadence means AT MOST one rotation
+# inside the ring and most likely zero, where a 30-day cadence would risk a
+# rotation landing mid-soak and muddying the latency and error-rate evidence
+# for no security gain at this blast radius. The blast radius is small by
+# construction: the key is scoped to a single dedicated spend-capped provider
+# project (task 6.1.2), the cohort's audio is synthetic or internally
+# consented only, and a compromise is bounded by the §7.2 project cap.
+# ============================================================================
+
+change_id: qualify-avatar-live-voice
+release_ring: internal_live
+owning_task: qualify-avatar-live-voice 7.3
+binds_credential_binding: avatar_broker_openai_internal_live
+ruled: >-
+  2026-08-27 by Brett Heap — §7.3, adopting the recommendation in
+  supporting-docs/section-7-authoring-inputs-memo.md §7.3: max_key_age_days 90
+  as an override inheriting the global require_rotation_on triggers, plus
+  three avatar-specific triggers following the same
+  `additional_require_rotation_on` idiom the existing overrides use.
+source: >-
+  openspec/changes/qualify-avatar-live-voice/supporting-docs/section-7-authoring-inputs-memo.md
+  §7.3, grounded on the org's existing rotation-policy record and on
+  docs/sops/openai-realtime-f0-lab-credential.md "Rotation and Revocation",
+  which supplies the PROCEDURE and no interval — the gap §7.3 exists to close.
+
+rotation_policy:
+  default_owner: opensoft
+  supported_owners:
+    - client
+    - opensoft
+    - provider
+
+  # THE GLOBAL LIST, RESTATED VERBATIM AND INHERITED UNCHANGED. These four are
+  # not re-legislated here; they are copied so a reader of this file alone can
+  # see the full trigger set the override extends. `suspected_exposure`
+  # already carries the SOP's compromise path: a key appearing in Git, chat,
+  # logs, evidence, screenshots or command history is treated as compromised,
+  # revoked immediately, replaced, and recorded.
+  require_rotation_on:
+    - client_offboarding
+    - suspected_exposure
+    - provider_policy_change
+    - privileged_scope_change
+
+  credential_overrides:
+    avatar_broker_openai_internal_live:
+      max_key_age_days: 90
+      # The three added triggers follow the established idiom exactly — the
+      # existing overrides add an operator-change trigger and a scope-change
+      # trigger of their own. These are this credential's equivalents.
+      additional_require_rotation_on:
+        # The owning group's departure or role change: the owner label on the
+        # binding is only worth what the owner's currency is worth.
+        - avatar_platform_maintainer_change
+        # The cohort IS this key's blast radius (two members, synthetic or
+        # internally-consented audio). Changing the cohort changes the radius.
+        - canary_cohort_change
+        # Never carry a qualification-ring key into the pilot ring. The
+        # promotion is exactly the moment the blast radius stops being
+        # internal.
+        - release_ring_promotion
+
+  rotation_record:
+    required_fields: [owner, date, reason, logical_secret_reference]
+    forbidden_fields: [secret_value]
+    statement: >-
+      Every rotation is recorded with owner, date, reason and the LOGICAL
+      secret reference, and never the value — the SOP's step 5. A rotation
+      that occurs inside the canary soak additionally requires the gated
+      latency cells to be re-measured after it, or the evidence spans two
+      credentials and says so nowhere.
+    acceptance_map_refs: [ALV-006]

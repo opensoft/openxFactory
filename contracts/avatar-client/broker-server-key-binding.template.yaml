@@ -1,0 +1,129 @@
+schema_version: 1
+kind: xfactory_credential_binding_template
+
+# ============================================================================
+# broker-server-key-binding.template.yaml
+# qualify-avatar-live-voice task 6.1.1 — the internal-live broker server-key
+# credential binding, in the promoted `xfactory_credential_binding_template`
+# shape (contracts/schemas/xfactory-credential-contracts.schema.yaml).
+#
+# WHY THIS FILE IS A TEMPLATE AND NOT THE BINDING. The ratified
+# `credential-contracts` capability says it twice, and both sentences bind
+# here:
+#
+#   * "The credential vault operator is an execution binding, never contract
+#     content" — "Contract artifacts, lane definitions, and domain repositories
+#     SHALL NOT hard-code a vault operator, a vault product, or any secret
+#     value." (openspec/specs/credential-contracts/spec.md)
+#   * "Worker credentials are distributed by reference into ephemeral job
+#     scope" — the secret is held in a vault as a long-lived, non-rotating
+#     headless token, and the consumer "fetches it per job using the runner's
+#     own federated workload identity."
+#
+# So §7.1's ruling splits across two repositories, and this file is the half
+# that may live in the neutral repository: a credential REFERENCE, an owner,
+# and a rotation policy. `provider` and `vault` carry per-install placeholders
+# in the starter pack's `<...>` idiom (docs/domain-factory-starter-pack.md
+# §9, "Bindings belong to client or tenant deployments, not the domain repo.
+# Domain repos provide templates only."). The concrete vault product and vault
+# name are recorded in `openspec/changes/qualify-avatar-live-voice/tasks.md`
+# §7.1 and are instantiated INSTALL-SIDE, as the named act in that file's
+# task 6.1.1 — not here, and not by this change.
+#
+# "NON-ROTATING" IS NOT "NEVER ROTATED". spec.md calls the vault-held worker
+# credential a "LONG-LIVED, NON-ROTATING headless token" and the same sentence
+# continues "Rotation SHALL be a vault write (effective the next job, no host
+# administration)". The phrase exists to REFUSE the refreshable session-state
+# class — one its consumer rewrites in place — not to forbid a cadence. The
+# cadence is `broker-server-key-rotation-policy.yaml` beside this file.
+#
+# WHAT IS DELIBERATELY ABSENT. The template shape carries no spend, duration
+# or budget field, so the §7.2 ceilings are NOT written here. Inventing a
+# field on a published shape to hold them would put a number in a record no
+# reader resolves; the ceilings are broker configuration, recorded at tasks.md
+# §7.2 and given their trip points in `canary-cohort-and-rollback-policy.yaml`.
+#
+# NOT A DEPLOYMENT SOURCE. F0's mode-600 local file
+# (`$HOME/.ai-keys/openai.key`) and the age-encrypted copy in the agents
+# credential registry stay exactly what the SOP
+# (docs/sops/openai-realtime-f0-lab-credential.md) makes them —
+# developer-local convenience and supervised recovery material. §7.1's own
+# sentence rules them out as a deployment source, and this binding is the
+# only deployment source.
+# ============================================================================
+
+change_id: qualify-avatar-live-voice
+release_ring: internal_live
+owning_task: qualify-avatar-live-voice 6.1.1
+requirement_id: ALV-006
+requirement: Broker-held custody with layered fail-closed spend containment
+ruled: >-
+  2026-08-27 by Brett Heap — §7.1, the concrete vault for the internal-live
+  server key, adopting the recommendation in
+  supporting-docs/section-7-authoring-inputs-memo.md §7.1: the credential rides
+  the vault that already custodies a model-provider token fetched by federated
+  workload identity, so the ring adds one secret to an operated estate rather
+  than a new custody mechanism. The concrete vault product and name are an
+  execution binding and are recorded install-side, never here.
+source: >-
+  openspec/changes/qualify-avatar-live-voice/supporting-docs/section-7-authoring-inputs-memo.md
+  §7.1, "The decisive precedent" — the same credential CLASS, a model-provider
+  token, already rides this custody pattern in production. tasks.md §7.1
+  carries the ruled values.
+
+# ---------------------------------------------------------------------------
+# The instantiation stub. An install copies this into its own
+# `credentials/` tree, replaces the two placeholders with its execution
+# binding, and validates with `scripts/validate-credential-contracts.py`.
+# ---------------------------------------------------------------------------
+client:
+  id: "<install-client-id>"
+  display_name: "<install-display-name>"
+
+credential_bindings:
+  avatar_broker_openai_internal_live:
+    # PLACEHOLDERS BY RULE, not by omission — see the header. The install's
+    # execution binding supplies both, and the same lane code runs either way.
+    provider: "<per-install-vault-provider>"
+    vault: "<per-install-vault-name>"
+
+    # THE CREDENTIAL REFERENCE — the one field this ring pins neutrally.
+    # A NEW secret, distinct from anything else in the vault, because task
+    # 6.1.2 requires a DEDICATED spend-capped internal-live provider project
+    # distinct from the F0 lab project (`openxfactory-realtime-f0-lab`), so a
+    # distinct key follows. Reusing the F0 lab key would collapse the two
+    # projects' blast radius and defeat the dedicated cap.
+    secret_ref: avatar-broker-openai-internal-live
+
+    # Carried forward from the F0 Credential Record so rotation accountability
+    # does not move when the ring does.
+    owner: opensoft-platform
+
+    # The accountability label, matching the two live bindings in this corpus.
+    # The numeric cadence is the sibling `xfactory_credential_rotation_policy`
+    # record, per §7.3 — a `rotation_policy` STRING is a string in the
+    # published schema and cannot hold a max key age.
+    rotation_policy: operator_managed
+
+# ---------------------------------------------------------------------------
+# Resolution posture — the fetch half of "distributed by reference".
+# ---------------------------------------------------------------------------
+resolution:
+  resolved_by: broker_only
+  fetch_identity: install_federated_workload_identity
+  materialization: ephemeral_process_scope
+  degraded_mode_permitted: true
+  statement: >-
+    The binding is resolved ONLY by the session broker, at call time, through
+    the install's own federated workload identity, and the fetched value lives
+    in ephemeral process scope alone — never baked into an image, committed
+    config, an environment baked at build time, or a log. No client, no
+    Flutter build, and no repository ever holds the key.
+  degraded_mode_note: >-
+    Where an install has no per-call fetch identity, service-scoped
+    materialization of the same non-rotating class is the permitted degraded
+    mode, and that install MUST record rotation-requires-host-administration
+    as an open gap (credential-contracts, "The degraded mode is permitted and
+    recorded"). Recorded here so the fallback is a declared posture rather
+    than a silent one.
+  acceptance_map_refs: [ALV-006]
