@@ -50,6 +50,15 @@ hosting:
     interactive_step_remains: true
     interactive_step: Google sign-in is an interactive browser flow.
     session_state_in_custody: false
+# The approval designation is part of a CONFORMING operator-hosted record since
+# task 2.4 (review, PR #414): an operated account with no named decider is the
+# failure the ratified requirement forbids. In the base fixture for the same
+# reason custody is — every other test here asserts against "an otherwise
+# conforming record".
+approval:
+  designated_actor: Brett Heap
+  acts_in: the hosting account's own NotebookLM interface
+  automated_approval: false
 share_out: []
 """
 
@@ -117,9 +126,14 @@ share_out: []
         self.assertTrue(any("nlm_profile" in e for e in errors))
 
     def test_a_pending_migration_names_where_the_books_still_live(self):
-        errors = _validate(BASE.replace("share_out: []", """  migration:
+        # Anchored on `approval:` — the first TOP-LEVEL key after the hosting
+        # map — so the indented `migration:` lands under `hosting` where it
+        # belongs. Anchoring on `share_out:` used to work and stopped when the
+        # approval block landed between them, filing migration under `approval`
+        # and silently disarming this test.
+        errors = _validate(BASE.replace("approval:", """  migration:
     state: pending
-share_out: []"""))
+approval:"""))
         self.assertTrue(any("from_account" in e for e in errors))
         self.assertTrue(any("from_nlm_profile" in e for e in errors))
 
@@ -203,6 +217,101 @@ class ShareOutRosterValidationTests(unittest.TestCase):
         errors = self._with_roster(self.ENTRY.replace("role: viewer",
                                                       "role: owner"))
         self.assertTrue(any("role" in e for e in errors))
+
+
+class ApprovalLaneValidationTests(unittest.TestCase):
+    """Task 2.4's designation, ENFORCED rather than declared (review, PR #414).
+
+    The block shipped unenforced: `validate()` read the hosting map and the
+    roster and nothing else, so the whole `approval:` block could be deleted,
+    scalar-ized, or have `automated_approval` flipped true and the record still
+    passed. A declaration nothing checks is the CPL-1b shape this change family
+    keeps refusing — a control asserted somewhere no rule holds it.
+    """
+
+    APPROVAL = ("approval:\n"
+                "  designated_actor: Brett Heap\n"
+                "  acts_in: the hosting account's own NotebookLM interface\n"
+                "  automated_approval: false\n")
+
+    def _rec(self, approval=None, share_out="share_out: []\n", case="operator_hosted"):
+        import re as _re
+        base = BASE.replace("case: operator_hosted", "case: " + case)
+        base = base.replace("share_out: []\n", "")
+        # BASE now carries its own approval block; strip it so this helper
+        # substitutes rather than appends a second one.
+        base = _re.sub(r"(?m)^# The approval designation.*?(?=^share_out|\Z)", "",
+                       base, flags=_re.S)
+        base = _re.sub(r"(?m)^approval:\n(?:  .*\n)*", "", base)
+        return base + (self.APPROVAL if approval is None else approval) + share_out
+
+    def test_a_conforming_approval_block_passes(self):
+        self.assertEqual(_validate(self._rec()), [])
+
+    def test_an_operator_hosted_record_without_approval_is_refused(self):
+        errors = _validate(self._rec(approval=""))
+        self.assertTrue(any("approval" in e for e in errors), errors)
+        self.assertIn("whoever happens to read the account's mail", " ".join(errors))
+
+    def test_a_self_hosted_record_needs_no_approval(self):
+        """Same asymmetry as custody: no operator, no governance gap."""
+        errors = [e for e in _validate(self._rec(approval="", case="self_hosted"))
+                  if "approval" in e]
+        self.assertEqual(errors, [])
+
+    def test_a_scalar_approval_is_refused(self):
+        errors = _validate(self._rec(approval="approval: Brett Heap\n"))
+        self.assertTrue(any("approval" in e for e in errors), errors)
+
+    def test_an_empty_designated_actor_is_refused(self):
+        errors = _validate(self._rec(
+            approval=self.APPROVAL.replace("Brett Heap", "")))
+        self.assertTrue(any("designated_actor" in e for e in errors), errors)
+
+    def test_automated_approval_must_be_present_and_false(self):
+        """The ratified posture: the approval stays a governed human act."""
+        for bad in ("automated_approval: true\n", ""):
+            with self.subTest(variant=bad or "<absent>"):
+                errors = _validate(self._rec(
+                    approval=self.APPROVAL.replace("  automated_approval: false\n", bad)))
+                self.assertTrue(
+                    any("automated_approval" in e for e in errors), errors)
+
+    def test_acts_in_must_say_where(self):
+        errors = _validate(self._rec(
+            approval=self.APPROVAL.replace(
+                "  acts_in: the hosting account's own NotebookLM interface\n", "")))
+        self.assertTrue(any("acts_in" in e for e in errors), errors)
+
+
+class GrantActorCrossCheckTests(unittest.TestCase):
+    """The cross-check with teeth: who MAY decide and who DID must agree."""
+
+    APPROVAL = ApprovalLaneValidationTests.APPROVAL
+
+    def _with_grant(self, granted_by):
+        base = BASE.replace("share_out: []\n", "")
+        return base + self.APPROVAL + (
+            "share_out:\n"
+            "  - hosting_account: xFactor001@opensoft.one\n"
+            "    user: someone@example.com\n"
+            "    book_or_alias: xf-canon\n"
+            "    role: viewer\n"
+            "    granted_at: '2026-08-27'\n"
+            f"    granted_by: {granted_by}\n")
+
+    def test_a_grant_by_the_designated_actor_passes(self):
+        self.assertEqual(_validate(self._with_grant("Brett Heap")), [])
+
+    def test_a_grant_by_anyone_else_is_refused(self):
+        errors = _validate(self._with_grant("Not The Designated Actor"))
+        self.assertTrue(any("granted_by" in e for e in errors), errors)
+
+    def test_the_refusal_names_BOTH_values(self):
+        """So the reader can see which one is wrong instead of guessing."""
+        joined = " ".join(_validate(self._with_grant("Someone Else")))
+        self.assertIn("Someone Else", joined)
+        self.assertIn("Brett Heap", joined)
 
 
 class CustodyValidationTests(unittest.TestCase):

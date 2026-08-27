@@ -314,8 +314,103 @@ def validate(path: Path) -> list[str]:
     hosting = record.get("hosting")
     _check_hosting(hosting, errors)
     account = hosting.get("account") if isinstance(hosting, dict) else None
+    actor = _check_approval(record, hosting, errors)
     _check_roster(record, account, errors)
+    _check_grants_are_by_the_designated_actor(record, actor, errors)
     return errors
+
+
+def _check_approval(record, hosting, errors: list[str]):
+    """The approval lane's designation, enforced (task 2.4).
+
+    Returns the declared actor, or None when there is none to cross-check with.
+
+    ADDED after review found the block was decoration: `validate()` read the
+    hosting map and the roster and nothing else, so the whole `approval:` block
+    could be DELETED, replaced with a scalar, or have `automated_approval`
+    flipped to true, and the record still passed. A declaration nothing checks is
+    the CPL-1b shape this change family keeps refusing — a control asserted
+    somewhere no rule holds it.
+
+    SCOPED LIKE CUSTODY, and for the same reason: an OPERATOR-HOSTED record must
+    designate an actor, because a share request arriving at an operated account
+    with nobody named is exactly what the ratified requirement forbids ("SHALL
+    NOT be left to whoever happens to read the account's mail"). A SELF-HOSTED
+    record need not: an individual deciding access to their own books is not a
+    governance gap.
+    """
+    approval = record.get("approval")
+    case = hosting.get("case") if isinstance(hosting, dict) else None
+
+    if approval is None:
+        if case == "operator_hosted":
+            _err(errors,
+                 "approval: an operator-hosted record MUST designate the "
+                 "company-policy actor who decides share requests. Without it a "
+                 "request is left to whoever happens to read the account's mail, "
+                 "which is the failure this lane exists to prevent. Declare "
+                 "approval.designated_actor")
+        return None
+
+    if not isinstance(approval, dict):
+        _err(errors, "approval: must be a mapping carrying designated_actor — a "
+                     "bare name cannot also carry where the act happens or "
+                     "whether automation is permitted")
+        return None
+
+    actor = approval.get("designated_actor")
+    if not isinstance(actor, str) or not actor.strip():
+        _err(errors, "approval.designated_actor: name the person who decides. An "
+                     "empty designation is the same as none")
+        actor = None
+
+    # THE RATIFIED POSTURE, not a default. "The approval SHALL remain a governed
+    # human act either way" — so this field may be stated and may be false, and
+    # may never be true. Detection and relay may be automated; the DECISION may
+    # not.
+    if approval.get("automated_approval") is not False:
+        _err(errors,
+             "approval.automated_approval: must be present and FALSE. The "
+             "ratified requirement keeps the approval a governed human act even "
+             "if the platform ever exposes a surface for detection and relay; a "
+             "record claiming otherwise asserts a posture no requirement permits")
+
+    if not str(approval.get("acts_in") or "").strip():
+        _err(errors, "approval.acts_in: say where the act happens. The platform "
+                     "exposes no approval API, so the interface is part of the "
+                     "procedure rather than an implementation detail")
+
+    return actor.strip() if isinstance(actor, str) and actor.strip() else None
+
+
+def _check_grants_are_by_the_designated_actor(record, actor, errors: list[str]):
+    """A grant recorded by anyone other than the designated actor is refused.
+
+    THE CROSS-CHECK WITH TEETH. Designating an actor and then recording grants
+    under another name would leave the designation decorative in the one place it
+    is supposed to bind. The roster entry's `granted_by` is the record of WHO
+    DID; the standing block is who MAY. They must agree, and the refusal NAMES
+    BOTH VALUES so the reader can see which one is wrong rather than guessing.
+
+    A denial carries no `granted_by` in the ratified entry shape, so only
+    `share_out` is checked.
+    """
+    entries = record.get("share_out")
+    if not isinstance(entries, list) or actor is None:
+        return
+    for index, entry in enumerate(entries):
+        if not isinstance(entry, dict):
+            continue
+        by = entry.get("granted_by")
+        if by is None:
+            continue
+        if str(by).strip() != actor:
+            _err(errors,
+                 f"share_out[{index}].granted_by: {by!r} is not the designated "
+                 f"company-policy actor {actor!r}. A grant recorded under "
+                 f"another name means either the wrong person acted or the "
+                 f"designation is stale — fix whichever is untrue rather than "
+                 f"letting the roster and the designation disagree")
 
 
 def main(argv: list[str]) -> int:

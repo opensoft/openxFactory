@@ -232,28 +232,6 @@ Where each downstream item stands once step 8 executes:
 | `add-notebook-hosting-credential-custody` | Independent; § 1–§ 3 in flight | — |
 | `notebook-access-wallet-governance` (#294) | Staged, and its INDEX row sequences it **behind these held steps** | 4.6 clearing |
 
-## 8. RE-MAPPED 2026-08-27 — the actor is named, and 4.7 moved rather than cleared
-
-Brett Heap ruled himself the designated company-policy actor, closing task 2.4.
-The archive is **still three blockers away**, but the middle one has changed
-shape and is worth restating precisely:
-
-| # | Blocker | Who | State after 2026-08-27 |
-| --- | --- | --- | --- |
-| 1 | **4.7** — first roster entries by governed act | **Brett** | 2.4 no longer blocks it. It now blocks on an INPUT THIS REPOSITORY DOES NOT HOLD: measured, the reader set is EMPTY (both accounts' sole collaborator is their owner), and the one known outstanding decision is 2.5's 2026-08-15 request whose requester lives only in Brett's mail. An agent cannot write the entries — the task forbids backfilling by name. |
-| 2 | **5.1** — the operational open item | successor change | Unchanged. Blocks on unattended re-authentication, which does not exist; a named future change, not this one. |
-| 3 | **A reconciling `--apply`** | **agent** | Unchanged and the only agent-executable one. Clears the derived-side drift § 7 recorded (four books pending; live 675 unmoved). |
-
-**2.5 rides with 4.7.** Both need Brett to supply an identity from outside the
-repository, and both are discharged by the same sitting: decide the 2026-08-15
-request, name anyone else who should read, grant or deny through the § 12 lane.
-An agent reconciles the roster from his recorded output afterwards, which is not
-backfilling because the act came first.
-
-**So the naming did not shorten the chain — it converted a "nobody is designated"
-blocker into a "no reader has been named" one.** Recorded that way rather than as
-progress toward zero, because the distance is what a reader of this record needs.
-
 ## 7. CORRECTED AFTER EXECUTION (2026-08-26) — the chain is longer than § 6 said
 
 Step 8 executed the same day. Two corrections to the map above, both making the
@@ -282,3 +260,25 @@ successor), and a reconciling `--apply` to clear the derived drift.
 **Archive-on-evidence for this change is reachable once 4.6 and 4.7 execute and
 5.1 closes** — 4.7 being the one that still carries an unnamed actor, so it, not
 step 8, is now the long pole.
+
+## 8. RE-MAPPED 2026-08-27 — the actor is named, and 4.7 moved rather than cleared
+
+Brett Heap ruled himself the designated company-policy actor, closing task 2.4.
+The archive is **still three blockers away**, but the middle one has changed
+shape and is worth restating precisely:
+
+| # | Blocker | Who | State after 2026-08-27 |
+| --- | --- | --- | --- |
+| 1 | **4.7** — first roster entries by governed act | **Brett** | 2.4 no longer blocks it. It now blocks on an INPUT THIS REPOSITORY DOES NOT HOLD: the COMPANY books' reader set is owner-only, so there is nobody to share out to unless Brett names them, and the one known outstanding decision is 2.5's 2026-08-15 request whose requester lives only in Brett's mail. (The LEGACY books remain readable by their owner `brettheap@gmail.com` — expected, since step 8 retired by rename and not by deletion; whether that standing access is accepted or wound down is a question for the sitting.) An agent cannot write the entries — the task forbids backfilling by name. |
+| 2 | **5.1** — the operational open item | successor change | Unchanged. Blocks on unattended re-authentication, which does not exist; a named future change, not this one. |
+| 3 | **A reconciling `--apply`** | **agent** | Unchanged and the only agent-executable one. Clears the derived-side drift § 7 recorded (four books pending; live 675 unmoved). |
+
+**2.5 rides with 4.7.** Both need Brett to supply an identity from outside the
+repository, and both are discharged by the same sitting: decide the 2026-08-15
+request, name anyone else who should read, grant or deny through the § 12 lane.
+An agent reconciles the roster from his recorded output afterwards, which is not
+backfilling because the act came first.
+
+**So the naming did not shorten the chain — it converted a "nobody is designated"
+blocker into a "no reader has been named" one.** Recorded that way rather than as
+progress toward zero, because the distance is what a reader of this record needs.

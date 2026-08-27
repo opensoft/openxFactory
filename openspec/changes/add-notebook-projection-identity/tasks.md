@@ -192,12 +192,24 @@ first thing to run under a declared account.
   Its own text forbids the shortcut: the first roster entries must be "written by
   the governed act rather than backfilled", so an agent writing `share_out`
   entries would defeat the task instead of completing it.
-  **WHO ARE THE CURRENT HUMAN READERS? Measured: nobody.** Migration evidence
-  step 9 records the legacy books' sole collaborator as `brettheap@gmail.com
-  (owner)` and the company books' as `xfactor001@opensoft.one (owner)` — no
-  third party holds access to either set, and no pending collaborator request is
-  visible through the provider. So this task has an EMPTY reader set unless
-  Brett names one.
+  **WHO ARE THE CURRENT HUMAN READERS?** Corrected 2026-08-27 after review; an
+  earlier draft of this note said "nobody", which was wrong as stated.
+  Migration evidence step 9 records it precisely:
+    * **COMPANY books — owner-only.** Sole collaborator
+      `xFactor001@opensoft.one (owner)`. No third party holds access, and no
+      pending collaborator request is visible through the provider. So there is
+      nobody to share out TO under this task unless Brett names them.
+    * **LEGACY books — still readable by `brettheap@gmail.com (owner)`.** The
+      legacy owner IS a current reader of the retired content. That is EXPECTED
+      rather than a leak: step 8 retired those notebooks BY RENAME and
+      deliberately did not delete them, so their owner necessarily still reaches
+      them.
+  **A QUESTION FOR THE SITTING, not decided here:** does Brett want the legacy
+  account's continued access recorded as an ACCEPTED FACT (the personal account
+  keeps read access to archived copies) or eventually WOUND DOWN? Either answer
+  is legitimate and the record should say which was chosen, because "the old
+  owner can still read the old books" is exactly the kind of standing access that
+  goes unexamined until someone asks.
   **The one known outstanding decision is task 2.5's 2026-08-15 request**, and
   step 9 says plainly it "is not visible through the provider's sharing API and
   must be resolved from whatever record originated it" — Brett's personal mail.
