@@ -182,8 +182,24 @@ from referencing.jsonschema import DRAFT202012
 # both `verify-commit --commit contract-v1.40` and
 # `verify-tag --remote origin --tag contract-v1.40` pass.
 
-CONTRACT_REF = "671a69082492e3bda01a916e52211686d6598d1a"
-CONTRACT_TAG = "contract-v1.40"
+# RE-CUT TO contract-v1.45 (add-doxchat-model-intake tasks 3.3/3.6, 2026-08-26).
+# The chat-turn schema's BYTES MOVED — `success_v2` gained the optional
+# `provider_retry` block that carries a mid-turn re-mint and the paid retry it
+# bought — so this consumer pin has to name the release those bytes belong to.
+# Leaving it at v1.40 would not have been conservatism: `_verified_bytes` hashes
+# the file and refuses a mismatch, so every doxBench model route would have
+# failed CLOSED on a checkout carrying the very schema this repository ships.
+#
+# THE REF IS THE SENTINEL, exactly as it was across the v1.40 realization branch
+# and for the same reason: the versioning policy allocates the version and builds
+# the digest inventory AT REALIZATION and publishes the annotated tag against the
+# commit that actually LANDS, so until that commit exists there is nothing honest
+# to name. It is spelled as a value no `stack.yaml` can declare, so a consumer
+# comparing against it REFUSES rather than matching by accident. Task 4.2
+# replaces it with the commit `contract-v1.45` dereferences to, at the moment the
+# tag is published — never before.
+CONTRACT_REF = "unpublished:contract-v1.45"
+CONTRACT_TAG = "contract-v1.45"
 
 CATALOG_SCHEMA_FILE = "xfactory-workbench-model-catalog.schema.yaml"
 CHAT_TURN_SCHEMA_FILE = "xfactory-workbench-chat-turn.schema.yaml"
@@ -193,7 +209,7 @@ SCHEMA_DIGESTS = {
     CATALOG_SCHEMA_FILE:
         "dff513fa6b607c417a39e5529964f9df2c8f56841ae3b0a894c85b6d1dea0675",
     CHAT_TURN_SCHEMA_FILE:
-        "d8ee5624f2136977044971b17fe67fe31b057bbf621e14853069fd082019b254",
+        "2ff5f222af5cdccd545417203898a919be0365cdd0d2d5138e87e23f7ebfe1cf",
 }
 
 # The seven doxBench INSTANCE kinds. The catalog kind is a whole-document schema;
