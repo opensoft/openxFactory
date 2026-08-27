@@ -525,6 +525,61 @@ branch and T028 asserts it.
 4. **The report subprocess helper** (`_report`) is reusable and its hermeticity
    argument is written down (`research.md` R6). F4 will want it.
 
+**A FIFTH THING F4 INHERITS: THIS CHANGE'S OWN ARCHIVAL REDS FOUR ASSERTIONS.**
+Nearer than the composed-view rename and not mentioned anywhere until the
+combined review asked. The packet archives after F4 lands (§ 8.1), and on that
+day `openspec/changes/add-modified-block-currency-check/specs/doc-health/spec.md`
+stops being an active delta. `test_this_change_s_own_delta_is_among_the_blocks_the_family_examined`,
+`test_the_own_delta_is_measured_against_canon_and_no_sibling_basis_exists`,
+`test_the_self_finding_quotes_this_change_s_two_stale_numeral_sentences` and the
+self-finding triple in `_LEDGER_SUBJECTS` all fall due together. **Expected
+disposition, to be taken at the archive gate rather than improvised when the
+suite reds**: the § 4.2 group has no live subject once the packet archives, so
+either re-aim it at the archived path — a change of SUBJECT, not a path edit,
+because the family deliberately excludes `archive/` — or retire the group with a
+dated record of what it proved and when, in the shape
+`test_family_enumeration.py::test_canon_is_the_statement_under_test` used when
+its own subject was promoted. Deleting it silently is the one wrong answer:
+§ 4.2 is the assertion that discovery reached the packet that introduced the
+family. `quickstart.md` § WHEN THE GATE FAILS carries the same note for whoever
+meets the red first.
+
+---
+
+## OPEN QUESTION FOR BRETT — the blast radius of a named-subject set in a REQUIRED check
+
+**Not decided here. Recorded by the combined review of 2026-08-27 as a question
+for Brett, and this feature ships the § 4 intent unchanged pending his call.**
+
+`_LEDGER_SUBJECTS` is an **exact set of nine live corpus triples**, and
+`pytest-suite` is a REQUIRED check on `main` (org ruleset 21538893). So **any**
+pull request that adds a lossy MODIFIED block, archives one of the twelve changes
+in the table, or edits canon in a way an active block quotes will red this gate —
+on a branch whose author may have nothing to do with doc-health. That is § 4's
+intent working exactly as written (the packet asks for a PR-time self-gate), and
+it is also a cost nobody has priced.
+
+**The option, if the cost is judged too high**: a pytest marker routing the six
+CORPUS-FACING tests to the nightly doc-health lane, keeping the resolver guard,
+the discovery floor and the four structural pins in `pytest-suite`. The trade is
+explicit — it gives up § 4's PR-gate intent (a lossy block would then be caught
+the night after it lands, not before it merges) in exchange for a required check
+that only fails on defects in this gate's own logic.
+
+**Arguments both ways, so the question is real.** For keeping it in
+`pytest-suite`: the whole point of a self-gate is to fail at authoring time, the
+family is advisory so the finding it reports is not itself a blocker, and a
+nightly-only gate is one nobody reads. For moving it: an unrelated author reading
+"the carriage-ledger population moved" on their PR has no context to act on it,
+and the cheapest way out of a gate you did not expect is to loosen it — which is
+how this file dies.
+
+**Until Brett rules, the tests stay in `pytest-suite`** and `_moved()`'s message
+is the mitigation: it names the tree, the subject, the re-measure command and
+the fact that corpus movement is the expected cause.
+
+---
+
 **One thing to know.** F1's mutation round found three missing tests that
 twenty-one green tests had not. F2 found five artefact discrepancies in F1. This
 feature found a sixth — a task ticked `[x]` for a test that does not exist. Run

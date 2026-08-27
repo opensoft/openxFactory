@@ -180,6 +180,13 @@ def _moved(subject: str, detail: str) -> str:
         f"the DESIRED end state — assert zero by this same named-subject "
         f"mechanism and keep the discovery floor, which is then the only "
         f"assertion distinguishing a clean corpus from a broken reader. "
+        f"AT ZERO, RE-AIM THE MOVEMENT PIN TOO: its two vacuity guards in "
+        f"`test_the_report_moves_only_in_this_family_s_lines` — "
+        f"`assert f'### {{mbc.FAMILY}}' in differing` and `assert plan_moved` — "
+        f"exist to stop the two report runs passing when they rendered the same "
+        f"thing, and at zero findings they are TRUE of the desired state, so "
+        f"they must become an assertion that the family's section reads its "
+        f"skip/empty line identically in both runs. "
         f"See specs/021-modified-block-currency-self-gate/quickstart.md "
         f"§ WHEN THE GATE FAILS before editing anything.")
 
@@ -202,6 +209,22 @@ def _joined_source(module_or_text) -> str:
     text = (module_or_text if isinstance(module_or_text, str)
             else inspect.getsource(module_or_text))
     return re.sub(r'"\s*\n\s*f?"', "", text)
+
+
+def _code_only(text: str) -> str:
+    r"""Source with docstrings AND whole-line comments removed.
+
+    `_without_docstrings` alone was not enough, and the review caught it on this
+    file's own prose: the fix for N2 was a COMMENT reading "adding `mbc.carried`
+    to any docstring reddened the equality" — and that comment reddened the
+    equality. A probe a comment can break is a probe on comments.
+
+    Only comments that OWN THEIR LINE are stripped, so a `#` inside a string
+    literal (the family compiles `r"^####\s+Scenario:"`) survives. Docstrings go
+    first, so a triple-quoted block whose line happens to start with `#` is
+    already gone by the time the comment pass runs.
+    """
+    return re.sub(r"(?m)^[ \t]*#.*$", "", _without_docstrings(text))
 
 
 def _without_docstrings(text: str) -> str:
@@ -378,15 +401,36 @@ def test_the_repository_under_test_is_the_tree_this_test_file_lives_in():
         f"a path that is not its own checkout's root")
 
 
-def test_the_resolver_fails_on_a_checkout_it_cannot_confirm_and_never_walks_up():
+def test_the_resolver_fails_on_a_checkout_it_cannot_confirm_and_never_walks_up(
+        tmp_path):
     """GUARD 1, THE OTHER HALF, AND IT IS KEPT RATHER THAN DISCARDED.
 
     A gate that only proves the right tree resolves cannot tell a correct
     resolver from a lucky one. `harden-ideation-readiness-check`'s defect was a
     resolver that SUCCEEDED on the wrong tree, so the assertion that carries the
-    fix is that the wrong tree is REFUSED — including the aggregation checkout,
-    which is the one an ancestor walk actually lands on, and a subdirectory,
-    which is where a walk in the other direction would start.
+    fix is that the wrong tree is REFUSED — including a tree wearing the
+    AGGREGATION markers, which is what an ancestor walk actually lands on, and a
+    subdirectory, which is where a walk in the other direction would start.
+
+    THE AGGREGATION CASE IS A DECOY, NOT AN ANCESTOR, AND THAT IS A FIX. The
+    first cut of this test searched `ROOT.parents` for a real checkout carrying
+    `.gitmodules` and `xFactories/`, and asserted one was found — an assertion
+    about the DEVELOPER'S FILESYSTEM, not about the resolver. It passes here
+    (this worktree sits under the aggregation checkout) and FAILS in CI:
+    `pytest-suite` runs against a bare `$GITHUB_WORKSPACE/openxFactory`
+    checkout with no such ancestor, so the required check would have gone red on
+    a green branch. Reproduced by the review, and by the CI-shape run recorded
+    in `evidence/self-gate.md` § CI shape.
+
+    The repository's standing answer to an environment-dependent proof is to
+    SKIP it — `test_session_harness.py`:251 (`pytest.skip("no aggregation
+    checkout reachable from this tree")`) and
+    `test_aggregation_register_instance.py`:25-27 (`aggregation_scope =
+    pytest.mark.skipif(... GITMODULES.is_file() ...)`). Both are right for a
+    proof that NEEDS a real aggregation tree. This one does not: its content is
+    "aggregation markers without the family markers are refused", and a
+    `tmp_path` decoy states exactly that in every environment, with no skip and
+    no filesystem assumption. Removing the dependence beats guarding it.
     """
     with pytest.raises(UnresolvedRepository) as exc:
         _repo_under_test(ROOT.parent)
@@ -396,17 +440,17 @@ def test_the_resolver_fails_on_a_checkout_it_cannot_confirm_and_never_walks_up()
     assert str(ROOT.parent) in message
     assert "does NOT walk up" in message
 
-    # THE AGGREGATION CHECKOUT — the tree the bare ancestor walk terminated on.
-    aggregation = next(
-        (d for d in ROOT.parents
-         if (d / ".gitmodules").is_file() and (d / "xFactories").is_dir()),
-        None)
-    assert aggregation is not None, (
-        "this checkout has no reachable aggregation ancestor, so the assertion "
-        "below would be vacuous — if that is now true of the environment, say "
-        "so here rather than deleting the case")
+    # THE AGGREGATION DECOY: the markers an aggregation checkout carries, and
+    # NOT the markers this family needs. Wearing one set is not being the other.
+    decoy = tmp_path / "xFactory"
+    decoy.mkdir()
+    (decoy / ".gitmodules").write_text(
+        '[submodule "openxFactory"]\n\tpath = openxFactory\n', encoding="utf-8")
+    (decoy / "xFactories").mkdir()
+    (decoy / "installs").mkdir()
+    assert (decoy / ".gitmodules").is_file() and (decoy / "xFactories").is_dir()
     with pytest.raises(UnresolvedRepository):
-        _repo_under_test(aggregation)
+        _repo_under_test(decoy)
 
     # ...and downward: a subdirectory does not resolve to the tree above it.
     with pytest.raises(UnresolvedRepository):
@@ -476,6 +520,18 @@ def test_the_scenario_arm_names_the_composed_view_rename_and_nothing_else():
     beside a second unnoticed warning, and the scenario-title arm is the arm
     § 7.2's flip reserves — the one whose population must be discharged before
     it can enforce.
+
+    ON "ONE COUNT ASSERTION", WHICH THIS FILE APPEARS TO EXCEED. The brief
+    allowed exactly one count assertion — the movement pin (§ 4.5) — and five
+    tests here nonetheless carry a `len(...) == 1`. That is the sanctioned
+    reading rather than a drift from it: § 4.1's anti-vacuity rule forbids
+    asserting a corpus fact BY a count, and each of these five asserts a
+    NAMED SUBJECT and bounds its population in the same breath, which is
+    strictly stronger than either half. A bare `len(warnings) == 1` would be the
+    thing forbidden; `len(warnings) == 1 AND its four fields are these` cannot
+    be satisfied by any finding but the named one. The movement pin is still the
+    only place a count is the whole claim, and it is stated as a difference
+    between two runs rather than as a total.
 
     THE OMITTED TITLE IS MATCHED EXACTLY, AND THE CORPUS SUPPLIES ITS OWN
     CONTAINMENT CASE. Canon states `Gate verbs hide on a composed view`; the
@@ -784,10 +840,32 @@ def _bands(text: str) -> tuple[int, int, int, int]:
     raise AssertionError("the report carries no `Findings:` headline line")
 
 
+_REPORT_TITLE = "# Doc-Health Report"
+
+
 def _sections(text: str) -> dict[str, list[str]]:
+    """The report split at its own headings, with the DATED TITLE DROPPED.
+
+    The report's H1 is `# Doc-Health Report — <date>`, which `_SECTION` does not
+    match: its em dash falls outside the heading character class, so the line
+    lands in `(preamble)` and is compared verbatim. The two report runs are ~7
+    seconds apart, and a pair STRADDLING MIDNIGHT would render two different
+    dates — failing `differing <= permitted` in `(preamble)` for a reason with
+    nothing to do with this family. A once-a-day flake in a required check is
+    still a flake.
+
+    DROPPED RATHER THAN MATCHED. Widening `_SECTION` to swallow the title would
+    also let it match `### Requirement: …`, which
+    `test_the_gate_reaches_the_corpus_only_through_the_family` forbids on
+    purpose: a pattern that parses openspec structure is a parser this gate must
+    not own. So the title is removed by name, and the caller asserts BOTH
+    reports carried one — the drop cannot hide a change it was not written for.
+    """
     out: dict[str, list[str]] = {_PREAMBLE: []}
     current = _PREAMBLE
     for line in text.splitlines():
+        if line.startswith(_REPORT_TITLE):
+            continue
         heading = _SECTION.match(line)
         if heading:
             current = f"{heading.group(1)} {heading.group(2)}"
@@ -835,6 +913,15 @@ def test_the_report_moves_only_in_this_family_s_lines(tmp_path):
         f"A moved `error` or `critical` band means a --fail-on run has newly "
         f"started failing, which is a release-blocking fact and not a test to "
         f"relax.")
+
+    # The dated title `_sections` drops must have been THERE to drop — otherwise
+    # the drop is silently swallowing a structural change to the report.
+    for label, text in (("without", without), ("with", with_family)):
+        assert any(line.startswith(_REPORT_TITLE)
+                   for line in text.splitlines()), (
+            f"the {label} report carries no {_REPORT_TITLE!r} line, so "
+            f"`_sections` dropped nothing and its flake guard is now hiding a "
+            f"real change in the report preamble")
 
     left, right = _sections(without), _sections(with_family)
     assert set(left) == set(right), (
@@ -888,14 +975,36 @@ def test_the_family_reads_exactly_two_things_from_its_run_context():
     is the signal to widen the stand-in, rather than discovering the gap from a
     wrong verdict on a report nobody diffed.
     """
-    source = _without_docstrings(inspect.getsource(mbc))
-    assert set(re.findall(r"\bctx\.(\w+)", source)) == {"repo_paths"}, sorted(
-        set(re.findall(r"\bctx\.(\w+)", source)))
-    assert source.count("load_dispositions(ctx") == 1, (
-        "the family hands its context to a second collaborator; `_ctx`'s "
-        "stand-in is only faithful while there is exactly one")
+    source = _code_only(inspect.getsource(mbc))
 
-    reader = _without_docstrings(
+    # BOTH SHAPES A CONTEXT READ CAN TAKE. The first cut matched only
+    # `ctx.<attr>`, and a mutant adding `getattr(ctx, "git", None)` — which is
+    # how the disposition reader itself spells its read — SURVIVED it. An
+    # attribute probe that misses the safe spelling of an attribute access is
+    # the probe, not the pin.
+    reads = (set(re.findall(r"\bctx\.(\w+)", source))
+             | set(re.findall(r'getattr\(\s*ctx\s*,\s*["\'](\w+)', source)))
+    assert reads == {"repo_paths"}, sorted(reads)
+
+    # EVERY CALLEE HANDED THE CONTEXT, counted as a SET rather than as one
+    # name's occurrences. `source.count("load_dispositions(ctx") == 1` was the
+    # first cut and it proved only that ONE known collaborator is called once —
+    # a second `_new_reader(ctx)` beside it survived, which is exactly the
+    # widening the stand-in has to hear about. The `(?<!def )` guard drops the
+    # family's own `def fam_modified_block_currency(ctx):` signature.
+    # `\(ctx\s*[,)]` — the CONTEXT OBJECT ITSELF, not an attribute of it. The
+    # first cut used `\(ctx\b` and collected `sorted`, because `sorted(ctx.
+    # repo_paths.items())` puts a word boundary right after `ctx`. Reading an
+    # attribute is guard one's business; handing the whole object away is this
+    # one's. The optional leading group catches `f(a, ctx)` as well as `f(ctx)`.
+    callees = set(re.findall(
+        r"(?<!def )\b(\w+)\((?:[^()]*,\s*)?ctx\s*[,)]", source))
+    assert callees == {"load_dispositions"}, (
+        f"the family hands its context to {sorted(callees)}; `_ctx`'s "
+        f"two-attribute stand-in is only faithful while `load_dispositions` is "
+        f"the one collaborator, so a new one must be read and pinned here")
+
+    reader = _code_only(
         inspect.getsource(promotion_fidelity.load_dispositions))
     assert set(re.findall(r'getattr\(ctx,\s*"(\w+)"', reader)) == {"agg_root"}
     assert not re.search(r"\bctx\.\w+", reader), (
@@ -943,8 +1052,14 @@ def test_the_gate_reaches_the_corpus_only_through_the_family():
     allowed = {"active_blocks", "declarations", "fam_modified_block_currency",
                "norm", "promoted", "resolve", "sibling_titles",
                "DELTA_GLOB", "FAMILY", "_MARKER_ACTION", "_arm_ordering"}
-    used = set(re.findall(r"\bmbc\.(\w+)",
-                          inspect.getsource(sys.modules[__name__])))
+    # OVER CODE, NOT OVER PROSE. This test's own docstring claimed "matched on
+    # use" while doing the opposite: naming any family attribute in a docstring
+    # or a comment anywhere in this file reddened the equality below. The review
+    # caught it, and then the FIX for it reddened the equality the same way,
+    # because the first `_code_only` did not strip comments either. A pin that
+    # prose can break is a pin on prose.
+    used = set(re.findall(r"\bmbc\.(\w+)", _code_only(
+        inspect.getsource(sys.modules[__name__]))))
     assert "fam_modified_block_currency" in used, (
         "the gate must reach its verdict through the family's entry point")
     # `==`, NOT `<=`. The subset direction catches a new reach into the family;

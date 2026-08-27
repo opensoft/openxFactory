@@ -50,12 +50,25 @@ OPENSPEC_TELEMETRY=0 openspec validate --all --strict
 the aggregation `CLAUDE.md`'s authoring note. Unchanged before and after — this
 feature adds no OpenSpec artefact.
 
-**THE FIGURE MOVED SINCE F1.** F1's `plan.md` recorded **75** at its own branch
-point ("having been 77 when this feature started and 76 before the archive"), and
-the orchestrator's brief for this feature also said 75. The tree gained an item
-between F1's branch point and `76a2ad27`. Recorded rather than reconciled: every
-count here names the tree it was taken at, which is the discipline that makes the
-discrepancy visible instead of confusing.
+**THE FIGURE MOVED SINCE F1, AND THE ITEM IS NAMED.** F1's `plan.md` recorded
+**75** at its own branch point ("having been 77 when this feature started and 76
+before the archive"), and the orchestrator's brief for this feature also said 75.
+
+The item the tree gained is **`openspec/changes/govern-derived-pin-reachability`**
+— PR #416, merge commit `d2ed6d34`, "The pin two packets deferred: an orphaned
+`source_revision` is a defect". Verified rather than inferred:
+
+```bash
+git cat-file -e 19e3f6b5:openspec/changes/govern-derived-pin-reachability/proposal.md
+# fatal: … exists on disk, but not in '19e3f6b5'      ← absent at F1's branch point
+git log --oneline -1 d2ed6d34
+# d2ed6d34 Merge pull request #416 from opensoft/change/govern-derived-pin-reachability
+```
+
+So 75 → 76 is one new ACTIVE change, not a spec, and nothing this feature did.
+"The tree gained an item" was the first wording here and the review was right to
+reject it: an unexplained count discrepancy in an evidence file is the thing
+evidence exists to prevent.
 
 ## 3. Packet § 4.5 — the report, moved by exactly this family and nothing else
 

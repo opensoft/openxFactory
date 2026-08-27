@@ -73,6 +73,23 @@ the corpus legitimately moves, and the failure message says which of these it is
 
 The corpus moved. Most likely one of:
 
+- **THIS CHANGE ITSELF ARCHIVED.** The nearest movement of all, and nearer than
+  the composed-view rename: `add-modified-block-currency-check` archives after
+  F4 lands (its § 8.1), and on that day
+  `openspec/changes/add-modified-block-currency-check/specs/doc-health/spec.md`
+  stops being an ACTIVE delta. Four assertions fall due together —
+  `test_this_change_s_own_delta_is_among_the_blocks_the_family_examined`,
+  `test_the_own_delta_is_measured_against_canon_and_no_sibling_basis_exists`,
+  `test_the_self_finding_quotes_this_change_s_two_stale_numeral_sentences`, and
+  the self-finding triple inside `_LEDGER_SUBJECTS`. **Expected disposition**:
+  the § 4.2 group has no live subject once the packet is archived, so either
+  re-aim it at the archived path (`openspec/changes/archive/<date>-add-modified-block-currency-check/…`,
+  which the family deliberately does NOT read — so this is a change of subject,
+  not a path edit) or RETIRE the group at the archive gate with a dated record
+  saying what it proved and when, in the shape
+  `test_family_enumeration.py::test_canon_is_the_statement_under_test` used when
+  its own subject was promoted. Do not delete it silently: § 4.2 is the
+  assertion that discovery reached the packet that introduced the family.
 - **`add-composed-view-authoring` declared its rename.** Expected, and correct:
   the packet's § 6.3 identifies the finding as a deliberate rename and the
   `Removed from canon by` marker as its proper disposition. The `warning` goes
@@ -118,3 +135,16 @@ corpus" from "broken reader". `test_family_enumeration.py`'s
 `test_the_real_corpus_reads_zero_on_both_halves` is that shape after its own
 subject was promoted, and its docstring records the re-aiming rather than hiding
 it.
+
+**THE MOVEMENT PIN HAS TO BE RE-AIMED IN THE SAME COMMIT, and it is easy to
+miss.** `test_the_report_moves_only_in_this_family_s_lines` carries two vacuity
+guards — `assert f"### {mbc.FAMILY}" in differing` ("this family's own section
+did not move") and `assert plan_moved` ("the ranked plan did not move") — which
+exist to stop the two report runs passing when they rendered the same thing. At
+zero findings **they are true of the desired state**, so the documented end
+state is unreachable by the documented mechanism until they are re-aimed: at
+zero, the family's section renders identically in both runs except for the
+`--skip-family` notice, so the guard becomes an assertion about that one line
+rather than about the section moving. The band comparison
+(`movement == (0, 0, mine_warning, mine_info)`) needs no change — it reads
+`(0, 0, 0, 0)` and is correct.
