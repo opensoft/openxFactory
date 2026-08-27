@@ -14,6 +14,9 @@ repository, and the jump SHALL name that repository in the spelling
 The selector MUST show exactly the available catalog entries and their
 data-handling badges.
 
+The jump SHALL read `.openspec.yaml` for its repository name. It SHALL NOT
+guess.
+
 - every loaded editor MUST remain usable while a composed view is open
 - a composed view MUST NOT offer a gate verb
 

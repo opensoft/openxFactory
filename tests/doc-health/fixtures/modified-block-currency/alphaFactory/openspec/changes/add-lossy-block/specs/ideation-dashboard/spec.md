@@ -10,12 +10,16 @@ repository, and the jump SHALL name that repository in the spelling
 The selector MUST show exactly the available catalog entries and their
 data-handling badges, and MUST show their provider lanes too.
 
+The jump SHALL read `.openspec.yaml` for its repository name. It SHALL NOT
+guess.
+
 - a composed view MUST NOT offer a gate verb
 
 #### Scenario: Gate verbs hide on a composed view
 - **WHEN** a composed view is open
 - **THEN** every gate verb MUST be hidden
 - **AND** the jump MUST remain available
+- **THEN** it MUST name the owning repository
 
 ## ADDED Requirements
 

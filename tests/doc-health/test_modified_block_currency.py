@@ -725,3 +725,76 @@ def test_the_file_level_scenario_count_is_not_what_the_family_reads():
     assert (canon_text.count("#### Scenario:")
             == delta_text.count("#### Scenario:") == 8)
     assert _titles(_run()), "the flat count must not buy silence"
+
+
+# --------------------------------------------------- 2. arm 2: the ledger (US2)
+
+
+def _ledger(findings):
+    return [f for f in findings if "does not carry" in f.rule]
+
+
+def test_uncarried_body_units_and_bullets_are_one_info_finding_per_requirement():
+    """`dh:56-57`: "It SHALL emit at most one finding per requirement, listing
+    the units, rather than one finding per unit." Ten standing warnings on a
+    clean repository is how a report stops being read; ten standing ROWS inside
+    one finding is a list somebody reads once."""
+    hits = _ledger(_run())
+    assert len(hits) == 1, [f.rule[:80] for f in hits]
+    assert hits[0].severity == INFO
+    assert hits[0].path == LOSSY
+
+    rule = hits[0].rule
+    # the body sentence the block WIDENED (its replacement contains canon's
+    # text as a prefix, which is why containment cannot be carriage)
+    assert "The selector MUST show exactly the available catalog entries" in rule
+    # the body bullet the block dropped entirely
+    assert "every loaded editor MUST remain usable" in rule
+    # the dated note the block dropped — ONE row, not one per sentence
+    assert rule.count("CORRECTED 2026-08-25") == 1
+    # the scenario bullet dropped from the ONE scenario the block did restate
+    assert "the selector MUST stay read-only" in rule
+
+
+def test_the_ledger_finding_does_not_assert_intent():
+    """`dh:252-255`: the finding "MUST NOT assert that the divergence is
+    unintended, the arm having no means to distinguish a rewording from stale
+    text". The hedge is IN THE FINDING, not only in the docs, because the
+    finding is what a reader sees."""
+    rule = _ledger(_run())[0].rule
+    assert "CANNOT distinguish" in rule
+    assert "rewording" in rule
+
+
+def test_a_bullet_carried_under_a_different_scenario_is_not_reported():
+    """`dh:47-53`. Bullets compare against ALL bullets of ALL scenarios in the
+    block, never scenario by scenario — otherwise a block could retitle a
+    scenario, declare the retitle, and drop the bullets underneath it
+    unreported. The chosen consequence, stated in the delta rather than
+    discovered: a bullet moved verbatim under a DIFFERENT scenario IS carried,
+    and the arm says nothing about it. The fixture's block carries canon's
+    `**THEN** it MUST name the owning repository` under another heading."""
+    rule = _ledger(_run())[0].rule
+    assert "it MUST name the owning repository" not in rule
+
+
+def test_no_reported_unit_is_a_backtick_fragment():
+    """THE TOKENIZATION INVARIANT, end to end through the family rather than
+    through `derive_units` alone, so a wiring regression cannot hide behind a
+    green unit test. A unit whose backticks are unbalanced is a FRAGMENT — the
+    signature of a sentence split that fell inside a code span."""
+    for f in _run():
+        for chunk in f.rule.split("'"):
+            assert chunk.count("`") % 2 == 0 or "``" in chunk, chunk[:80]
+
+
+def test_the_tokenized_sentences_are_carried_and_not_reported():
+    """Canon and the block both carry `` The jump SHALL read `.openspec.yaml`
+    for its repository name. `` verbatim. Masked, that is ONE unit on each side
+    and it matches. Unmasked, it is two fragments on each side — which would
+    ALSO match, so this pairs with the unit-level masking tests rather than
+    replacing them: what it proves is that the family's wiring passes the
+    masking path at all, and that neither half is reported."""
+    rule = _ledger(_run())[0].rule
+    assert ".openspec.yaml" not in rule
+    assert "It SHALL NOT guess." not in rule

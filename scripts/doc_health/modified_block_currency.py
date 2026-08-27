@@ -803,4 +803,61 @@ def fam_modified_block_currency(ctx):
             if basis is None:
                 continue        # title resolution is arm 3's question
             findings.extend(_arm_titles(repo, block, basis))
+            findings.extend(_arm_ledger(repo, block, basis))
     return findings
+
+
+# The elision width for a unit quoted inside a ledger finding. Deterministic and
+# dumb on purpose: document order, a fixed character cut, and the COUNT always
+# stated in full. Nothing is ordered by length, nothing is hashed, and nothing is
+# dropped — a reader who needs the whole unit opens the spec the finding names.
+_QUOTE_WIDTH = 140
+
+_KIND_LABEL = {BODY: "body", SCENARIO_TITLE: "title", SCENARIO_BULLET: "bullet"}
+
+
+def _quote(unit: Unit) -> str:
+    text = unit.text
+    if len(text) > _QUOTE_WIDTH:
+        text = text[:_QUOTE_WIDTH].rstrip() + "…"
+    return f"[{_KIND_LABEL[unit.kind]}] {text!r}"
+
+
+def _arm_ledger(repo: str, block: ActiveBlock, basis: PromotedRequirement,
+                suppressed: set[tuple[str, str]] = frozenset()
+                ) -> list[Finding]:
+    """ARM 2 — the carriage ledger. Editorial, and it says so in the finding.
+
+    Every BODY unit and every SCENARIO BULLET of the basis the block does not
+    carry, as AT MOST ONE finding per requirement.
+
+    BULLETS ARE POOLED ACROSS THE WHOLE BLOCK, never compared scenario by
+    scenario. `carried` gets that for free — `Unit.scenario` is not part of
+    equality — and it is the delta's rule for a measured reason: the review's
+    fixture renamed a scenario, declared the rename, dropped two of four
+    bullets, and a scenario-paired comparison saw NOTHING. Four obligations
+    gone, zero findings. The chosen consequence is stated rather than
+    discovered: a bullet moved verbatim under a DIFFERENT heading is carried and
+    this arm says nothing about it, because the arm reads carriage, not meaning,
+    and cannot tell a sensible relocation from a careless one. What it
+    guarantees is that the obligation is still written somewhere in the block.
+
+    THE HEDGE IS PART OF THE FINDING, not a footnote in the docs. `dh:252-255`
+    requires the finding not to assert that a divergence is unintended, and the
+    only place that promise can be kept is the text a reader actually sees.
+    """
+    kinds = (BODY, SCENARIO_BULLET)
+    canon_units = [u for u in basis.units if u.kind in kinds]
+    block_units = [u for u in block.units if u.kind in kinds]
+    missing = [u for u in carried(canon_units, block_units)
+               if u.pair() not in suppressed]
+    if not missing:
+        return []
+    listed = "; ".join(_quote(u) for u in missing)
+    return [_finding(
+        _LEDGER_SEVERITY, repo, block,
+        f"active MODIFIED block for {block.title!r} does not carry "
+        f"{len(missing)} of the {len(canon_units)} body units and scenario "
+        f"bullets {basis.spec_rel} currently states for it — a divergence this "
+        f"arm CANNOT distinguish from a deliberate rewording, and does not "
+        f"claim to: {listed}")]
