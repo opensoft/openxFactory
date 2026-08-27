@@ -123,7 +123,8 @@ specs/019-modified-block-currency-family/
 ├── quickstart.md                  # Phase 1 — how to run it, the RED gate, the mutation table
 ├── checklists/
 │   └── requirements.md            # spec-quality checklist (all items pass)
-└── tasks.md                       # Phase 2 (/speckit-tasks)
+├── tasks.md                       # Phase 2 (/speckit-tasks) — 64 tasks, RED-first paired
+└── pr-body.md                     # written by T063, at the END of implementation
 ```
 
 ### Source Code (repository root)
@@ -235,8 +236,9 @@ flagged the same way because each is a reading the delta does not spell out:
 
 **O6 — The "dated bold note" predicate** (research R6): a paragraph opening a
 `**` bold run whose bold run contains an ISO date, tested only after the marker
-test returns None. This is the ONE rule F1 supplies that the delta does not
-write. A veto moves unit counts and therefore the predicted ledger figure.
+test returns None. One of exactly TWO rules F1 supplies that the delta does not
+write (the other is O9). A veto moves unit counts and therefore the predicted
+ledger figure.
 
 **O7 — "A resolvable change-id" in the marker anchor means "matches the
 change-id token grammar", not "names an existing change"** (research R7). The
@@ -246,6 +248,12 @@ which the existence reading would break. A veto makes markers rot on archive.
 **O8 — Three severity constants, not one** (research R11), so § 7.2's flip
 moves the scenario-title arm alone. A veto (one constant) drags the
 title-resolution arm to `error` on a flip nobody asked for.
+
+**O9 — Prose under a scenario heading is a `body` unit** (research R5). The
+delta defines a scenario region's heading and its bullets and is silent on a
+non-bullet paragraph inside one. Deriving it as a body unit keeps it under both
+carriage arms; dropping it would let a block move an obligation into scenario
+prose and have neither arm see it. A veto makes that text uncheckable.
 
 ## Complexity Tracking
 
@@ -259,8 +267,30 @@ recorded because a reviewer will ask about it.
 
 ## Analyze residue
 
-*Filled by `/speckit-analyze` after `tasks.md` exists.*
+`/speckit-analyze` ran 2026-08-27 over `spec.md`, `plan.md` and `tasks.md`
+against the ratified packet and this constitution. **No CRITICAL finding.**
+Twelve findings; eleven were FIXED in the artefacts and one is carried
+deliberately. Metrics: 31 functional requirements, 10 success criteria, 64
+tasks, requirement coverage 31/31 after the fixes (30/31 before), zero
+unresolved placeholders, zero duplicate requirements.
 
-| # | finding | disposition |
-| --- | --- | --- |
-| A1 | (pending analyze) | |
+| # | severity | finding | disposition |
+| --- | --- | --- | --- |
+| A1 | HIGH | SC-001 and SC-002 asserted the #351 and #329 reconstructions as F1 outcomes, which § Out of Scope assigns to F2 — the spec contradicted its own boundary | FIXED in `spec.md`: both criteria now read at F1 grain ("the SHAPE of…"), and each names the F2 box that owns the byte-faithful fixture |
+| A2 | HIGH | FR-002's second half — "MUST NOT offer or consume a live-`main` basis" — had no task and no test; the intent was recorded nowhere a build could fail | FIXED: FR-002 now says it is asserted rather than intended, and T020 gains `test_the_family_declares_no_measurement_basis_option` (no basis field read, absent from `FAMILY_NOTES`, no git-ref call in the module) |
+| A3 | MEDIUM | O6 claimed the dated-note predicate was "the ONE rule F1 supplies that the delta does not write", but `contracts/unit-derivation.md` also rules that prose under a scenario heading is a `body` unit — a second such rule, unrecorded and unflagged | FIXED: O6 reworded to "one of exactly TWO"; the second is now **O9**, flagged for veto with its reason; `research.md` R5 records it beside the note predicate; T016 gains `test_prose_under_a_scenario_heading_is_a_body_unit` |
+| A4 | MEDIUM | The "a capability with no promoted spec at all" edge case in `spec.md` had no task; it is a distinct code path (`promoted()` returns `None`, not a dict missing the title) | FIXED: T039 gains `test_a_capability_with_no_promoted_spec_at_all_resolves_to_nothing` |
+| A5 | MEDIUM | Assumption A4 (groups of more than two active MODIFIED writers evaluated over the group) had no test; the population is zero today, so no natural fixture would ever produce one | FIXED: T042 gains `test_a_group_of_three_writers_with_one_declaration_is_evaluated_over_the_group`, with the note that the fixture has to be built because the corpus supplies none |
+| A6 | MEDIUM | FR-010's punctuation half was untested — the exact normalization `promotion_fidelity.norm`'s own docstring names as the one it refuses (trailing periods) | FIXED: T018 gains `test_a_trailing_period_difference_is_not_forgiven`, and `quickstart.md`'s mutation table gains the matching mutant |
+| A7 | MEDIUM | The single-repo disposition caveat was documented in three places and asserted in none, so the self-gate's silence about dispositions would be discovered rather than understood | FIXED: T045 gains `test_a_single_repo_run_has_no_aggregation_root_and_applies_no_disposition` |
+| A8 | MEDIUM | Task-to-requirement traceability was inferable but not written: only FR-020, FR-030 and SC-007 were named in `tasks.md` | FIXED: `tasks.md` gains a full traceability table, every FR and SC to its tasks |
+| A9 | LOW | `tasks.md` § Path Conventions carried a malformed backtick run in the fixtures line | FIXED |
+| A10 | LOW | "Nothing in Phase 2 is parallel: it is a dependency chain by construction" was overstated — the two chains inside Phase 2 are independent of each other and serialize only because they write one file | FIXED: both reasons now stated apart |
+| A11 | LOW | `pr-body.md` (written by T063) was absent from the plan's documentation tree | FIXED |
+| A12 | LOW | **CARRIED, not fixed.** T055 asks for a text-level confirmation that the module contains no `_lifecycle_scope(` call, which sits oddly beside FR-031's "no behaviour ships on a text-grep assertion" | Deliberate. That grep is not F1's evidence for a behaviour — it is the pre-condition of an EXISTING package-wide test (`test_the_reader_list_is_structural_not_incidental`), which greps the package by design and for a reason its own docstring argues (a mutation survived without it). F1 inherits that test's shape rather than inventing one |
+
+**One thing the analyze pass looked for and did not find**: a requirement with
+no task, a task with no requirement, a vague adjective standing in for a
+measurable criterion, or a placeholder. The three the pass would have flagged as
+vague — "advisory", "editorial", "genuine removal" — are each defined
+normatively in the ratified delta and cited to it.

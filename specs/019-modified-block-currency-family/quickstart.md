@@ -124,6 +124,9 @@ is a missing test, and the fix is the test.
 | `carried` ignores `kind` | the same-kind test (a body sentence "carried" by a bullet) |
 | bullets compared within their own scenario only | the retitle-and-gut test |
 | `normalize` also casefolds | the case-sensitivity pin |
+| `normalize` strips trailing periods | the trailing-period pin |
+| scenario-region prose is dropped instead of becoming a body unit | the O9 prose-unit pin |
+| the family reads a basis field from the context | the no-measurement-basis pin |
 | marker anchor drops the ISO-date group | the quoted-template test |
 | marker anchor drops the change-id group | the quoted-template test |
 | `extract_code_spans` uses `` `([^`]*)` `` | the longer-fence test |

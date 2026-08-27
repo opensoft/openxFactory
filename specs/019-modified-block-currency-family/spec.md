@@ -333,7 +333,9 @@ the block was written into a registry-less tree.
 - **FR-002**: The family MUST read the promoted requirement from the
   CHECKED-OUT tree's `openspec/specs/<capability>/spec.md`. It MUST NOT offer
   or consume a live-`main` basis; that basis belongs to promotion fidelity
-  alone and would measure a delta the read tree does not carry.
+  alone and would measure a delta the read tree does not carry. This is
+  ASSERTED, not merely intended: the family reads no basis field from the
+  context, publishes no `FAMILY_NOTES` entry, and reaches no git ref.
 - **FR-003**: Every finding MUST land on the active delta's own path, and MUST
   name the promoted spec it was read from in its rule text.
 
@@ -513,14 +515,16 @@ the block was written into a registry-less tree.
 
 ### Measurable Outcomes
 
-- **SC-001**: A reconstruction of the #351 instance — six body clauses, two
-  scenario titles and one reverted scenario line — is reported by the family
-  with the two titles on the scenario arm and the seven clause-granular items
-  in the ledger, naming the units rather than a count.
-- **SC-002**: A reconstruction of the #329 instance — a block restating 1 of 8
+- **SC-001**: The SHAPE of the #351 instance — body clauses on the ledger, two
+  scenario titles on the scenario arm, a reverted scenario line on the ledger —
+  is reported by the family, naming the units rather than a count. The
+  BYTE-FAITHFUL reconstruction of that instance is F2's fixture (packet § 3.1);
+  what F1 owes is the behaviour it will exercise.
+- **SC-002**: The SHAPE of the #329 instance — a block restating 1 of 8
   scenarios while the change's own ADDED requirement brings 7, so the
-  file-level scenario count does not move — is reported with all seven omitted
-  titles named.
+  file-level scenario count does not move — is reported with every omitted
+  title named, and a second assertion pins that the flat file-level count is
+  not what the family reads. F2's § 3.2 owns the full reconstruction.
 - **SC-003**: Canon's own bullet, widened at either end by the block, is
   reported as uncarried — the property a containment rule loses and the
   property that reproduced PR #358's manual verification.

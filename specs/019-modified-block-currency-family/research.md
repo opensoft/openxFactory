@@ -147,6 +147,15 @@ both directions.
 unit — rejected, a wrapped bullet is one bullet and the delta's whitespace
 normalization exists precisely so wrapping is not semantic.
 
+**A SECOND reading the delta does not write, recorded beside the first.** The
+delta says what a scenario region's HEADING and BULLETS are and is silent on
+PROSE smuggled under a scenario heading. Such a paragraph is derived as a
+`body` unit: it is requirement text somebody must carry, and dropping it on the
+floor would make a block that moves an obligation into scenario prose invisible
+to both carriage arms. This is the second of exactly two rules F1 supplies that
+the delta does not (the other is R6's note predicate), and both are flagged for
+veto in plan.md as O6 and O9.
+
 ---
 
 ## R6 — What a "dated bold note" is (the delta's one under-specified predicate)
