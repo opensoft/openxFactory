@@ -81,7 +81,16 @@ first thing to run under a declared account.
     `(hosting_account, user, book_or_alias)` uniqueness triple so a re-approval
     UPDATES rather than duplicates, denials recorded in `denied`, and
     `automated_approval: false` stated in the record rather than inferred.
-- [ ] 2.5 Retire the standing workaround honestly — the pending request from
+- [x] 2.5 **DISCHARGED 2026-08-27 — recorded as DENIED.** Brett Heap, the
+  designated actor, ruled the 2026-08-15 request stale: "old request and not
+  valid". Written into `denied` in the hosting record with the date, the deciding
+  actor and the reason. The task's own text allows either outcome — "granted
+  through the new lane or recorded as denied" — and this is the deny.
+  The requester is not named because the request never appeared in the provider's
+  sharing API and lived only in the legacy account's mail; denying it does not
+  require naming them, whereas leaving it unrecorded would have been the failure
+  this lane exists to prevent.
+  Original text: Retire the standing workaround honestly — the pending request from
   2026-08-15 sitting in `brettheap@gmail.com` is either granted through the new
   lane or recorded as denied. It is not left to expire unrecorded.
 
@@ -186,7 +195,30 @@ first thing to run under a declared account.
   the act in the record's history. (This is where the 2026-08-10 runbook does
   not transfer: its successors carried new record ids, so there was a separate
   legacy record to retire.) Record the act.
-- [ ] 4.7 **UNBLOCKED BY 2.4 BUT NOT AGENT-EXECUTABLE — and it needs an input
+- [ ] 4.7 **EXECUTED 2026-08-27, PARTIALLY — 7 of 14 grants landed, and the
+  remainder is provider-blocked, so this stays OPEN.**
+  Brett named two readers and ruled full edit access on all seven company books.
+  Executed through the § 2.4 lane on his recorded instruction:
+    * **`brett.heap@farheap.com` — GRANTED as `editor` on all seven books.**
+      Verified after the fact with `nlm share status <alias> --json`: every book
+      lists it beside the owner. The seven `share_out` entries are the record of
+      that act, written from grants actually cast rather than backfilled.
+    * **`brett.heap@gmail.com` — REFUSED BY THE PROVIDER on all seven**, with
+      `API error (code 7)` (PERMISSION_DENIED) and no reason text. Retried with
+      the undotted spelling `brettheap@gmail.com`, which Gmail treats as the same
+      account: **identical refusal**, so it is the ACCOUNT that is refused, not
+      the string. The farheap.com address — a Workspace domain — succeeded on
+      every book in the same session, which isolates the difference to an
+      external CONSUMER account.
+  **This box stays unticked deliberately.** Brett asked to "test that they both
+  have access", and that test cannot pass today. Ticking would assert a state he
+  would disprove the moment he signed in with the Gmail account.
+  **WHAT IS OWED, and by whom:** the Gmail grant needs the provider UI (the
+  hosting account's Share dialog) or a Workspace external-sharing policy change —
+  an operator/admin act, not a CLI one. Note the account is the same one that
+  owns the retired legacy books, so it deliberately gains edit on the new books;
+  that is stated rather than incidental.
+  Prior mapping, kept for the record: **UNBLOCKED BY 2.4 BUT NOT AGENT-EXECUTABLE — and it needs an input
   that does not exist in this repository.** Mapped 2026-08-27 rather than
   attempted.
   Its own text forbids the shortcut: the first roster entries must be "written by

@@ -125,8 +125,73 @@ approval:
 #
 # Empty until the migration lands: there is nothing to share out from an
 # account that does not yet hold the books.
-share_out: []
+# EXECUTED 2026-08-27 through the § 2.4 lane, on Brett Heap's ruling of that
+# date. These entries are the RECORD OF THE GRANTED ACT — written from grants
+# that were actually cast, never backfilled, which is what task 4.7 requires.
+# Verified after the fact by `nlm share status <alias> --json`: every book below
+# lists brett.heap@farheap.com as editor beside the owner.
+share_out:
+  - hosting_account: xFactor001@opensoft.one
+    user: brett.heap@farheap.com
+    book_or_alias: xf-canon
+    role: editor
+    granted_at: "2026-08-27"
+    granted_by: Brett Heap
+  - hosting_account: xFactor001@opensoft.one
+    user: brett.heap@farheap.com
+    book_or_alias: xf-drafts
+    role: editor
+    granted_at: "2026-08-27"
+    granted_by: Brett Heap
+  - hosting_account: xFactor001@opensoft.one
+    user: brett.heap@farheap.com
+    book_or_alias: xf-ideation-codexfactory
+    role: editor
+    granted_at: "2026-08-27"
+    granted_by: Brett Heap
+  - hosting_account: xFactor001@opensoft.one
+    user: brett.heap@farheap.com
+    book_or_alias: xf-ideation-ledgerxfactory
+    role: editor
+    granted_at: "2026-08-27"
+    granted_by: Brett Heap
+  - hosting_account: xFactor001@opensoft.one
+    user: brett.heap@farheap.com
+    book_or_alias: xf-ideation-medxfactory
+    role: editor
+    granted_at: "2026-08-27"
+    granted_by: Brett Heap
+  - hosting_account: xFactor001@opensoft.one
+    user: brett.heap@farheap.com
+    book_or_alias: xf-ideation-openxfactory
+    role: editor
+    granted_at: "2026-08-27"
+    granted_by: Brett Heap
+  - hosting_account: xFactor001@opensoft.one
+    user: brett.heap@farheap.com
+    book_or_alias: xf-ideation-opsxfactory
+    role: editor
+    granted_at: "2026-08-27"
+    granted_by: Brett Heap
 
 # Recorded refusals. A denied request is a governed act too, and is not left to
 # expire unrecorded.
-denied: []
+# RULED 2026-08-27 by Brett Heap, the designated company-policy actor: the
+# standing 2026-08-15 request is DENIED as stale — "old request and not valid".
+# Recorded rather than left to expire, which is the obligation task 2.5 carries
+# and the failure this whole lane was raised against.
+#
+# The requester is not named because the request was never visible through the
+# provider's sharing API (migration evidence step 9) and existed only in the
+# legacy account's mail. Denying it does not require naming them; leaving it
+# unrecorded would have.
+denied:
+  - hosting_account: xFactor001@opensoft.one
+    book_or_alias: "(request predates the migration; no book resolved)"
+    decided_at: "2026-08-27"
+    decided_by: Brett Heap
+    decision: denied
+    reason: >-
+      Request originated 2026-08-15 against the personal-hosted projection and is
+      stale; ruled no longer valid. Any future access is requested afresh through
+      the governed lane.

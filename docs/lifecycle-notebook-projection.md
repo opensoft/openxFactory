@@ -468,6 +468,64 @@ automated if NotebookLM ever offers a surface for it; **the approval remains a
 governed human act either way**, and `approval.automated_approval: false` says
 so in the record rather than leaving it to be inferred.
 
+### Roster test plan — add, list, and remove a collaborator
+
+Written 2026-08-27 at Brett's ask, so the roster can be exercised rather than
+only asserted. Run as the designated actor with the company profile active.
+
+**ADD** (this is the grant; it is the governed act, not a rehearsal of one):
+
+```bash
+nlm share invite <alias> <email> --role editor --profile company   # or --role viewer
+```
+
+**LIST** — the verification half, and the only way to prove a grant landed:
+
+```bash
+nlm share status <alias> --json --profile company
+```
+
+**REMOVE — THE CLI CANNOT DO IT.** `nlm share` offers exactly `status`,
+`public`, `private`, `invite` and `batch`. There is **no remove, revoke or
+uninvite verb**, and `nlm delete` deletes a NOTEBOOK, not a collaborator.
+Removal is therefore a **UI act**: open the book in the hosting account at
+notebook.google.com, use its Share dialog, and remove the collaborator there.
+Recorded plainly because a test plan that assumes a symmetric API would fail at
+exactly the moment someone needed to undo a grant.
+
+Note also that the CLI's exit code is not trustworthy on this path: an invite
+that printed `API error (code 7)` still returned `rc=0` on 2026-08-27. **Verify
+with `share status`, never with `$?`.**
+
+#### Named future tests
+
+1. **The remove-and-re-add cycle.** Remove both accounts from one book through
+   the UI, confirm with `share status` that they are gone, re-add with `invite`,
+   confirm again. This proves the roster can be driven in both directions and
+   that a removal is visible to the same surface that records a grant.
+2. **Tenant-wide sharing.** Whether a whole domain can be granted at once is
+   **unestablished**: `nlm share invite` takes a single email and offers no
+   domain or group argument, and `batch` invites multiple named collaborators
+   rather than a domain. Any tenant-wide grant would therefore be a provider-UI
+   or Workspace-admin capability, not a CLI one — and it would sit against the
+   2026-08-24 ruling that the posture is RESTRICT with the app as sole grantor,
+   so it is a question to rule on rather than a feature to reach for.
+
+### The legacy books: WIND-DOWN BY OWNER DELETION
+
+Ruled 2026-08-27. The question left open at the retirement — whether the legacy
+owner's continued access to the renamed books is an accepted fact or gets wound
+down — is answered: **wound down, by deletion, performed by the owner himself in
+his own Gmail account, on his own timing.** No agent deletes anything.
+
+**THE CONSEQUENCE, STATED BEFORE IT HAPPENS.** Step 8 retired those books by
+RENAME precisely so nothing was lost. Once they are deleted, that safety net is
+gone: the pre-rename titles and the legacy content survive **only** in
+`docs/notebook-projection-migration-evidence-2026-08-24.md` and in the live
+company books. The evidence document stops being a record of what happened and
+becomes the **only** account of what those books were called — which is why its
+phase-1 listing was preserved verbatim.
+
 ### Where the account's credential lives
 
 Ratified by `add-notebook-hosting-credential-custody` (2026-08-23). Moving off a

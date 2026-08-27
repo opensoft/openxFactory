@@ -282,3 +282,32 @@ backfilling because the act came first.
 **So the naming did not shorten the chain — it converted a "nobody is designated"
 blocker into a "no reader has been named" one.** Recorded that way rather than as
 progress toward zero, because the distance is what a reader of this record needs.
+
+## 9. AFTER THE SITTING (2026-08-27) — the distance did NOT drop to two
+
+Brett ruled all three sitting questions and the grants were executed the same
+day. The archive is **still three away**, and the reason is a provider refusal
+nobody predicted:
+
+| # | Blocker | Who | State |
+| --- | --- | --- | --- |
+| 1 | **4.7** — both named readers holding edit | **Brett / admin** | 7 of 14 grants landed. `brett.heap@farheap.com` is `editor` on all seven books, VERIFIED. `brett.heap@gmail.com` is refused by the provider on all seven (`code 7`, PERMISSION_DENIED, no reason) — and refused identically under the undotted spelling, so it is the ACCOUNT, not the string. Needs the provider UI or a Workspace external-sharing policy change. |
+| 2 | **5.1** — the operational open item | successor change | Unchanged: unattended re-auth does not exist. |
+| 3 | **A reconciling `--apply`** | **agent** | Unchanged, and still the only agent-executable one. |
+
+**2.5 is discharged** — the 2026-08-15 request is recorded as DENIED, stale by
+Brett's ruling.
+
+**Why the estimate was wrong, recorded rather than quietly revised.** The § 8
+re-map predicted the sitting would clear 4.7 and leave two. It cleared the
+DECISION half — an actor decided, the roster is live, the denial is on record —
+and revealed a mechanical half nobody had tested: whether the provider would
+accept an external consumer account at all. A Workspace domain grant and a Gmail
+grant are not the same act, and the difference only appeared when both were tried
+in one session against seven books.
+
+**The legacy disposition is settled:** wind-down by OWNER DELETION, performed by
+Brett in his own account on his own timing. Its consequence is recorded in
+`docs/lifecycle-notebook-projection.md` — once deleted, the pre-rename titles and
+legacy content survive only in the migration evidence document and the live
+company books.
