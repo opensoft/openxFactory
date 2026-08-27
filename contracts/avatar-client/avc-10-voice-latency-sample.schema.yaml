@@ -1,0 +1,177 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "avc-10-voice-latency-sample.schema.yaml"
+contract_id: "AVC-10"
+contract_schema_version: 1
+title: "AVC-10 avatar voice latency sample"
+description: >-
+  The reserved AVC-10 shape, published AS-IS by qualify-avatar-live-voice:
+  sample, session, media-leg and turn identity; adapter and profile; platform,
+  network, region; clock source and clock quality; RAW monotonic markers;
+  DERIVED intervals; the direct-or-brokered reference classification; and a
+  reproducible fixture reference.
+
+  A sample is ONE OBSERVATION, never a percentile and never a budget. Markers
+  are raw monotonic offsets from `monotonic_origin`; intervals are derived from
+  them and recorded alongside so a reader can recompute rather than trust. The
+  `reference_classification` is the field that separates a direct-provider
+  reference sample from a governed-adapter sample, and the neutral
+  relative-regression SLO is evaluated ONLY between samples whose platform,
+  network and region agree.
+
+  A sample carries no raw content and no secrets: no transcript, no captions,
+  no media, no SDP, no credential (spec FR-018).
+type: object
+# Open object for additive optional fields on the same major (compatibility
+# policy; ACR-001-S01). Closed VOCABULARY stays closed via enums, and the
+# prohibited content classes stay structurally impossible via `not` regardless
+# of additive evolution.
+not:
+  anyOf:
+    # --- raw content (spec FR-018) ---
+    - {required: [full_transcript]}
+    - {required: [raw_transcript]}
+    - {required: [transcript]}
+    - {required: [captions]}
+    - {required: [caption_text]}
+    - {required: [raw_media]}
+    - {required: [audio_blob]}
+    - {required: [raw_provider_payload]}
+    # --- SDP (spec FR-007/FR-018) ---
+    - {required: [sdp]}
+    - {required: [sdp_offer]}
+    - {required: [sdp_answer]}
+    # --- secrets (spec FR-006/FR-018) ---
+    - {required: [api_key]}
+    - {required: [provider_api_key]}
+    - {required: [provider_credential]}
+    - {required: [control_credential]}
+    - {required: [credential]}
+    - {required: [client_secret]}
+    - {required: [ephemeral_client_secret]}
+    - {required: [secret]}
+    # --- a sample is an observation, not a gate (Fork 2 Option C) ---
+    - {required: [latency_budget_ms]}
+    - {required: [latency_ceiling_ms]}
+$defs:
+  marker_ms:
+    type: number
+    minimum: 0
+    description: "Monotonic offset in milliseconds from `monotonic_origin`."
+  interval_ms:
+    type: number
+    minimum: 0
+    description: "Derived interval in milliseconds; recomputable from the markers."
+  platform:
+    type: string
+    description: >-
+      Windows desktop and web canvas are the GATED delivery cells. Linux CI is
+      reference-generation only and is never a gated delivery platform.
+    enum: [windows_desktop, web_canvas, linux_ci]
+  network_class:
+    type: string
+    description: >-
+      Only `nominal` produces gated evidence. Degraded and jittered runs MAY be
+      recorded but never substitute for a nominal-network gated cell.
+    enum: [nominal, degraded, jittered]
+  reference_classification:
+    type: string
+    description: >-
+      Whether this sample measures the DIRECT client-to-provider reference or
+      the GOVERNED broker-mediated adapter. The relative-regression SLO compares
+      a `governed_adapter` sample set against a `direct_provider_reference` set
+      taken in the same cell.
+    enum: [direct_provider_reference, governed_adapter]
+  clock:
+    type: object
+    additionalProperties: false
+    description: >-
+      Clock source and quality. An `unsynchronized` or `system_wall` sample is
+      recorded but cannot carry a gated percentile, because a wall clock that
+      steps mid-session makes an interval unreadable.
+    properties:
+      source: {type: string, enum: [monotonic, monotonic_raw, performance_now, system_wall]}
+      quality: {type: string, enum: [trusted, adjusted, unsynchronized]}
+      resolution_ms: {type: number, minimum: 0}
+    required: [source, quality]
+  markers:
+    type: object
+    additionalProperties: false
+    description: >-
+      The twelve raw markers the reserved shape names. Every member is optional
+      except the broker request, which anchors the setup path; a teardown-only
+      or recovery-only sample legitimately carries few of them.
+    properties:
+      broker_request_ms: {$ref: "#/$defs/marker_ms"}
+      provider_call_ms: {$ref: "#/$defs/marker_ms"}
+      sideband_ready_ms: {$ref: "#/$defs/marker_ms"}
+      media_connected_ms: {$ref: "#/$defs/marker_ms"}
+      speech_ms: {$ref: "#/$defs/marker_ms"}
+      first_audio_ms: {$ref: "#/$defs/marker_ms"}
+      playback_ms: {$ref: "#/$defs/marker_ms"}
+      interruption_ms: {$ref: "#/$defs/marker_ms"}
+      command_ms: {$ref: "#/$defs/marker_ms"}
+      tool_outcome_ms: {$ref: "#/$defs/marker_ms"}
+      recovery_ms: {$ref: "#/$defs/marker_ms"}
+      teardown_ms: {$ref: "#/$defs/marker_ms"}
+    required: [broker_request_ms]
+  derived_intervals:
+    type: object
+    additionalProperties: false
+    minProperties: 1
+    description: >-
+      Intervals derived from the markers. The FIRST TWO are the gated intervals
+      the relative-regression SLO is evaluated on; the rest are recorded tail
+      evidence and never gate the internal-live ring.
+    properties:
+      first_playable_after_authorized_ms: {$ref: "#/$defs/interval_ms"}
+      sideband_ready_after_request_ms: {$ref: "#/$defs/interval_ms"}
+      broker_setup_ms: {$ref: "#/$defs/interval_ms"}
+      speech_to_first_audio_ms: {$ref: "#/$defs/interval_ms"}
+      interruption_to_silence_ms: {$ref: "#/$defs/interval_ms"}
+      command_to_tool_outcome_ms: {$ref: "#/$defs/interval_ms"}
+      recovery_to_resume_ms: {$ref: "#/$defs/interval_ms"}
+      teardown_to_terminal_ms: {$ref: "#/$defs/interval_ms"}
+properties:
+  sample_id: {type: string, minLength: 1}
+  logical_session_id: {type: string, minLength: 1}
+  session_epoch: {$ref: "shared-definitions.schema.yaml#/$defs/session_epoch"}
+  media_leg: {$ref: "shared-definitions.schema.yaml#/$defs/media_leg"}
+  turn_id:
+    type: string
+    minLength: 1
+    description: "Present on per-turn samples; absent on setup and teardown samples."
+  adapter_id: {type: string, minLength: 1}
+  adapter_version: {type: string, minLength: 1}
+  profile_id: {type: string, minLength: 1}
+  platform: {$ref: "#/$defs/platform"}
+  network_class: {$ref: "#/$defs/network_class"}
+  region: {type: string, minLength: 1}
+  clock: {$ref: "#/$defs/clock"}
+  monotonic_origin:
+    type: string
+    minLength: 1
+    description: "Opaque label for the monotonic epoch the markers are offsets from."
+  markers: {$ref: "#/$defs/markers"}
+  derived_intervals: {$ref: "#/$defs/derived_intervals"}
+  reference_classification: {$ref: "#/$defs/reference_classification"}
+  fixture_ref:
+    type: string
+    minLength: 1
+    description: "Reproducible fixture reference — the run this sample can be regenerated from."
+required:
+  - sample_id
+  - logical_session_id
+  - session_epoch
+  - media_leg
+  - adapter_id
+  - adapter_version
+  - profile_id
+  - platform
+  - network_class
+  - region
+  - clock
+  - monotonic_origin
+  - markers
+  - derived_intervals
+  - reference_classification
+  - fixture_ref
