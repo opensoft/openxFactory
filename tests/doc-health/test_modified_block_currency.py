@@ -1141,3 +1141,129 @@ def test_no_date_folder_or_created_field_decides_the_ordering():
     # and no date module is imported at all
     assert not re.search(r"^\s*(?:import|from)\s+(?:datetime|time)\b", src,
                          re.M)
+
+
+# ------------------------------------- 5. dispositions, skip, and determinism
+
+
+def _dispositions(tmp_path, body: str):
+    health = tmp_path / "health"
+    health.mkdir(parents=True, exist_ok=True)
+    (health / "dispositions.yaml").write_text(body, encoding="utf-8")
+    return tmp_path
+
+
+def _with_agg(agg):
+    from conftest import make_ctx
+    return mbc.fam_modified_block_currency(
+        make_ctx("modified-block-currency", agg_root=agg))
+
+
+def test_a_disposition_naming_this_family_suppresses_the_path(tmp_path):
+    """THE EXISTING MECHANISM, read through `promotion_fidelity`'s reader under
+    this family's own name — no second reader (`tasks:113-116`). An entry with no
+    `requirement:` key disposes every finding on that path, which is the coarser
+    behaviour every other family's entry already has."""
+    agg = _dispositions(tmp_path, f"""
+- family: {mbc.FAMILY}
+  repo: {FIXTURE_REPO}
+  path: {LOSSY}
+  cite: add-modified-block-currency-check
+""")
+    assert [f for f in _with_agg(agg) if f.path == LOSSY] == []
+    assert [f for f in _run() if f.path == LOSSY], \
+        "the same tree without the disposition still reports on that path"
+    # ...and ONLY that path: the draft change's own block is untouched, because
+    # a disposition names a path and not a family-wide amnesty.
+    assert [f for f in _with_agg(agg) if "add-draft-block" in f.path]
+
+
+def test_an_entry_narrowed_by_requirement_suppresses_only_that_requirement(tmp_path):
+    agg = _dispositions(tmp_path, f"""
+- family: {mbc.FAMILY}
+  repo: {FIXTURE_REPO}
+  path: {LOSSY}
+  requirement: {REQ}
+  cite: add-modified-block-currency-check
+""")
+    findings = _with_agg(agg)
+    assert [f for f in findings if repr(REQ) in f.rule] == []
+    # its file-mate is NOT suppressed: the entry names one requirement. (The
+    # lossy delta's OTHER block is in the same file.)
+    assert findings, "a narrowed entry must not silence the whole path"
+
+
+def test_an_uncited_entry_disposes_nothing(tmp_path):
+    """An entry without a `cite` records no decision — the rule every other
+    family's reader already applies to the same file."""
+    agg = _dispositions(tmp_path, f"""
+- family: {mbc.FAMILY}
+  repo: {FIXTURE_REPO}
+  path: {LOSSY}
+""")
+    assert _with_agg(agg)
+
+
+def test_a_disposition_for_another_family_disposes_nothing(tmp_path):
+    """THE COLLISION THIS PREVENTS is the argument D1 makes for a separate
+    family: one citation must not buy silence for a promotion gap and a currency
+    gap on the same path."""
+    agg = _dispositions(tmp_path, f"""
+- family: promotion-fidelity
+  repo: {FIXTURE_REPO}
+  path: {LOSSY}
+  cite: add-promotion-fidelity-check
+""")
+    assert _with_agg(agg)
+
+
+def test_a_single_repo_run_has_no_aggregation_root_and_applies_no_disposition():
+    """THE INHERITED CAVEAT, pinned so the self-gate's silence about dispositions
+    is understood rather than discovered: `health/dispositions.yaml` lives at the
+    AGGREGATION root, and a `--single-repo` run has none. That is the
+    pre-existing shape of the mechanism (`runner.main` guards the same read with
+    `if ctx.agg_root`), not something this family chose."""
+    from conftest import make_ctx
+
+    ctx = make_ctx("modified-block-currency")
+    assert getattr(ctx, "agg_root", None) is None
+    assert mbc.fam_modified_block_currency(ctx)
+
+
+def test_a_scope_with_no_changes_directory_skips_with_its_reason():
+    """`dh:291-294`: "the family MUST be reported as skipped with its reason,
+    never silently omitted"."""
+    from doc_health import Skip
+    from conftest import make_ctx
+
+    out = mbc.fam_modified_block_currency(make_ctx("modified-block-currency-noscope"))
+    assert isinstance(out, Skip)
+    assert out.family == mbc.FAMILY
+    assert "changes" in out.reason
+
+
+def test_a_scope_with_active_changes_but_no_modified_block_is_not_skipped():
+    """THE OTHER STATE, and canon keeps them apart: the skip rule is "cannot
+    run", not "found nothing". A scope carrying active changes with no MODIFIED
+    block among them RAN — and a family that reported itself skipped there would
+    teach a reader that it never runs."""
+    from doc_health import Skip
+    from conftest import make_ctx
+
+    out = mbc.fam_modified_block_currency(make_ctx("modified-block-currency-quiet"))
+    assert not isinstance(out, Skip)
+    assert out == []
+
+
+def test_two_runs_agree_byte_for_byte():
+    a, b = _tw_run(), _tw_run()
+    assert ([f.__dict__ for f in a] == [f.__dict__ for f in b])
+
+
+def test_the_family_returns_its_findings_sorted():
+    """`runner.run_suite` sorts the WHOLE report, so an unsorted family is
+    invisible there — and visible immediately in a `--family` run, which is what
+    a session actually uses while fixing a block."""
+    for findings in (_run(), _tw_run(), _markers_run()):
+        keys = [(f.repo, f.path, f.rule) for f in findings]
+        assert keys == sorted(keys)

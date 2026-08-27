@@ -213,18 +213,33 @@ not that tree: `add-hermes-customer-subject-runtime-contract` and
 `501a3ae0`): 24 active changes, **22** MODIFIED requirement blocks across 17
 delta files.
 
-| | baseline (no § 2.1 block) | with § 2.1's block |
-| --- | --- | --- |
-| scenario-title arm | 1 `warning` | 1 `warning` |
-| carriage ledger | 9 `info` / 12 units | 10 `info` / 14 units |
-| resolution arm | 0 | 0 |
-| marker defects | 0 | 0 |
-| `error` / `critical` | 0 | 0 |
+**THE BASELINE COLUMN IS NOW MEASURED, not forecast** — taken at the end of F1
+phase 7 by running the real module against this repository's own tree, which is
+the same method F3 will assert with:
 
-Those figures are the reviewer's, taken with the spike method at this branch
-point; **they are re-measured through the real module at the end of phase 7 and
-this table is then the measured truth rather than a forecast.** F3 (§ 4.1/§ 4.5)
-asserts the right-hand column and nothing else asserts it.
+| | baseline (no § 2.1 block) — **MEASURED** | with § 2.1's block — projected |
+| --- | --- | --- |
+| scenario-title arm | **1** `warning` | 1 `warning` |
+| carriage ledger | **9** `info` / **12** units | 10 `info` / 14 units |
+| resolution arm (unresolved + ordering) | **0** | 0 |
+| marker defects (the fourth class) | **0** | 0 |
+| `error` / `critical` | **0** | 0 |
+
+The one `warning` is the finding the packet named: `add-composed-view-authoring`
+/ `Composed views are read-only with a repository jump`, omitting canon's
+`Gate verbs hide on a composed view` — a deliberate rename, the case the marker
+exists for, and NOT claimed as a defect. Asserting it by that named subject is
+what stops F3's test passing vacuously.
+
+The nine ledger findings sit on `add-composed-view-authoring`,
+`add-doxchat-model-intake`, `add-family-enumeration-check`,
+`add-notebook-projection-identity`, `declare-client-standing-policy-contract`
+and `qualify-avatar-live-voice` (four of them). Note the third: that packet's
+own block already draws a ledger finding for two body sentences it does not
+carry, which is the pair § 2.1's block will move.
+
+The right-hand column stays PROJECTED until phase 8 writes the block; F3
+(§ 4.1/§ 4.5) asserts it and nothing else asserts it.
 
 Also corrected here: `OPENSPEC_TELEMETRY=0 openspec validate --all --strict`
 reads **76 passed** on this branch (24 active + 52 specs), not the 77 recorded in

@@ -740,7 +740,7 @@ def active_blocks(root: Path) -> list[ActiveBlock]:
     return out
 
 
-from . import Finding  # noqa: E402
+from . import Finding, Skip  # noqa: E402
 
 
 def _finding(severity: str, repo: str, block: ActiveBlock, rule: str) -> Finding:
@@ -1122,9 +1122,15 @@ def fam_modified_block_currency(ctx):
     edit. That is the whole point of asking the question here: the remedy is one
     line at authoring time instead of a repair at an archive gate.
     """
+    scoped = [(repo, Path(path)) for repo, path in sorted(ctx.repo_paths.items())
+              if (Path(path) / "openspec" / "changes").is_dir()]
+    if not scoped:
+        return Skip(FAMILY, "no repository in scope carries an "
+                            "`openspec/changes/` directory this family can read")
+
+    dispositions = promotion_fidelity.load_dispositions(ctx, FAMILY)
     findings: list[Finding] = []
-    for repo, path in sorted(ctx.repo_paths.items()):
-        root = Path(path)
+    for repo, root in scoped:
         blocks = active_blocks(root)
         if not blocks:
             continue
@@ -1145,8 +1151,14 @@ def fam_modified_block_currency(ctx):
         for key in sorted(groups):
             group = groups[key]
             override, ordering = _arm_ordering(repo, group, declared)
-            findings.extend(ordering)
+            findings.extend(
+                f for f in ordering
+                if not promotion_fidelity.disposed(dispositions, repo, f.path,
+                                                   group[0].title))
             for block in group:
+                if promotion_fidelity.disposed(dispositions, repo,
+                                               block.delta_rel, block.title):
+                    continue
                 basis, status = resolve(block, canon_for(block.capability),
                                         siblings)
                 if status == "pending":
@@ -1160,6 +1172,11 @@ def fam_modified_block_currency(ctx):
                 findings.extend(_arm_titles(repo, block, basis, suppressed))
                 findings.extend(_arm_ledger(repo, block, basis, suppressed))
                 findings.extend(_arm_marker_defects(repo, block, defective))
+    # SORTED BY THE FAMILY ITSELF. `runner.run_suite` sorts the whole report, so
+    # an unsorted family is invisible there and visible immediately in a
+    # `--family` run — which is the run a session actually uses while fixing a
+    # block, and the run a regression diff is taken from.
+    findings.sort(key=lambda f: (f.repo, f.path, f.rule))
     return findings
 
 
