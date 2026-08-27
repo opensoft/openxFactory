@@ -226,6 +226,13 @@ verbatim, so the build's own record names the sentence it was built to.
         the flow and moves no selection, and with no flow the control is
         indistinguishable from today's.
 
+      A NOTE ON WHAT "REAL SERVE" MEANS ABOVE, because the distinction matters
+      to whoever finishes this task: the routes were driven over real HTTP
+      against the server object `build_server` returns — the same object
+      `serve()` builds — and NOT through `python3 -m ideation_dashboard.serve`
+      with a browser attached. Everything a request can prove is proven; nothing
+      a human's eyes can prove is.
+
       STILL OWED, and it needs a human at a screen: `scripts/reserve-dashboard.sh`,
       a real browser, and the five-step walk this task names end to end —
       including OQ-4's own follow-up ("confirm the reading against the live
