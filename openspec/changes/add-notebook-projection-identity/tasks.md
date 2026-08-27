@@ -134,7 +134,17 @@ first thing to run under a declared account.
     14/14), union 675 derived / 675 live managed, **0 unprojected, 0
     unaccounted**, and a convergence dry run planning ZERO operations. Full
     reasoning: `review/retirement-gate-clearance-2026-08-26.md` § 3.
-- [ ] 4.6 **READY — AWAITING OPERATOR EXECUTION.** The gate is CLEARED: Brett
+- [x] 4.6 **EXECUTED 2026-08-26.** Seven legacy notebooks archive-renamed in
+  `brettheap@gmail.com`: renamed=7 skipped=0 failed=0; no alias resolves to a
+  legacy id; the seven COMPANY books verified present and un-retitled in the same
+  run. NOTHING DELETED. Recorded output, gate-by-gate transcript, provenance and
+  the post-hoc parity in
+  `docs/notebook-projection-migration-evidence-2026-08-24.md` §"Step 8 —
+  EXECUTED 2026-08-26"; the workspace YAML's header now reads RETIRED.
+  Ticked from that recorded output, which is what this task's own text demanded —
+  not from the act having happened.
+  The prior READY-AWAITING-OPERATOR note is kept below for the record:
+  **READY — AWAITING OPERATOR EXECUTION.** The gate is CLEARED: Brett
   Heap ruled 2026-08-26 that the 2026-08-24 retirement hold is discharged on its
   own stated terms — the 228KB spec has a projected form — with the live provider
   check as post-hoc confirmation rather than a precondition. Record:
@@ -167,7 +177,22 @@ first thing to run under a declared account.
 
 ## 5. Close the operational item and validate green
 
-- [ ] 5.1 `docs/notebooklm-sync-open-item.md`: close it on the realization. It
+- [ ] 5.1 **EVALUATED 2026-08-26 AND DELIBERATELY NOT TICKED — the condition is
+  not met.** Step 8 executing does not close this item, and the difference is
+  the point of the item.
+  This open item records the **AUTHENTICATION BLOCKER**, and its "Strategic
+  direction (retires the blocker)" is a machine account *"so xFactory can
+  re-authenticate **unattended** from a persistent profile — the 'log in whenever
+  it wants' property"*. The account moved; **the property does not exist**:
+  Google's sign-in for `xFactor001@opensoft.one` is an interactive browser flow,
+  `nlm login` is additionally broken by the notebook.google.com rebrand, and
+  `add-notebook-hosting-credential-custody` states in ratified text that custody
+  governs who may obtain the credential and **does not deliver automation**.
+  Ticking this because the migration and retirement landed would assert a
+  capability nobody has — the exact defect class this change exists to remove.
+  It closes when unattended re-authentication actually works, and that is a named
+  successor (the deferred automated-Google-login item), not this task.
+  Original text: `docs/notebooklm-sync-open-item.md`: close it on the realization. It
   was deliberately left OPEN by the disposition round (PR #272 added only a
   dated pointer), because it closes on this change's realization and not on the
   rulings. Its "Strategic direction" section is what §4 executes.

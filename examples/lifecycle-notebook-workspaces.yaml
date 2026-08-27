@@ -8,14 +8,22 @@ workspaces:
 # key-derived and therefore unchanged, so each record IS still the live book's
 # registration, and no record was retired.
 #
-# THE LEGACY NOTEBOOKS ARE NOT RETIRED. Runbook step 8 is HELD by Brett's
-# 2026-08-24 ruling: parity does not hold until the oversized
-# `openspec/specs/ideation-dashboard/spec.md` has a projected form, so the
-# legacy provider notebooks were NOT archive-renamed and NOT touched. They
-# remain LIVE and intact in brettheap@gmail.com under the left-hand ids below,
-# which is exactly why those ids are recorded here: they are how the retirement
-# act, when it happens, will address them. Do not read this block as evidence
-# that retirement occurred, and do not skip it. Status: PENDING RETIREMENT.
+# THE LEGACY NOTEBOOKS ARE RETIRED. Status: RETIRED 2026-08-26.
+#
+# Runbook step 8 EXECUTED 2026-08-26, after Brett Heap's ruling of that date
+# cleared the 2026-08-24 hold. All seven legacy provider notebooks were
+# ARCHIVE-RENAMED in brettheap@gmail.com to
+# "xFactory — <book> (RETIRED 2026-08-26 — hosting migration)" and are otherwise
+# untouched: renamed=7 skipped=0 failed=0, no alias resolves to any of them, and
+# the seven COMPANY books were verified present and un-retitled in the same run.
+#
+# NOTHING WAS DELETED. The renamed notebooks remain live in the legacy account.
+# The left-hand ids below stay recorded because they are what the act addressed
+# and the only remaining handle on those notebooks.
+#
+# No workspace record was retired, and none should be: each record's id is
+# key-derived and unchanged, so it IS the live COMPANY book's registration.
+# What was retired is the legacy PROVIDER NOTEBOOK.
 # See docs/notebook-projection-migration-evidence-2026-08-24.md.
 #
 # GATE CLEARED 2026-08-26, ACT NOT YET PERFORMED — the two are different things
