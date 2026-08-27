@@ -658,7 +658,8 @@ the checklist that produces its evidence.
       act, verified against the live remote 2026-08-27: xFactory aggregation
       commit `6a2f418fdc5e` of 2026-08-04, "Pin openAvatar at the neutral root
       (DTN-022 ruled: own repo)" — the only `.gitmodules` commit that touches
-      this submodule. `.gitmodules` on the aggregation's `main` today carries
+      this submodule. `.gitmodules` on the `opensoft/xFactory` aggregation
+      repo's `main` today carries
       `[submodule "openAvatar"]` at path `openAvatar` with remote
       `git@github.com:opensoft/openAvatar.git`. That was a separate reviewed
       act outside this change, exactly as this clause and
