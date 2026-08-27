@@ -6,7 +6,8 @@
 The reusable Flutter avatar implementation SHALL live in a private,
 independently released repository named `openAvatar`, created on 2026-08-03 by
 the DTN-022 subtree split that extracted the codexFactory
-`apps/avatar-client-lab/` home `implement-avatar-client-lab` ratified, which
+`apps/avatar-client-lab/` home that `implement-avatar-client-lab` had
+ratified, which
 `qualify-avatar-live-voice` records as having discharged this boundary's
 creation obligation. From creation it SHALL
 own the Flutter application and packages, client bindings, pure reducers, UI
