@@ -6,8 +6,14 @@ taken by the orchestrating session under standing patterns and are flagged for
 veto in `proposal.md` § Orchestrator Decisions — reverting any one of them is an
 edit to this change, not a new one.
 
-**§5 is deliberately OPEN and stays open.** The family ships advisory, and the
-two adjacent gaps it does not close are recorded there rather than implied.
+**§5 was deliberately OPEN, and ONE box is still open at the archive.** The
+family ships advisory, and the two adjacent gaps it does not close were recorded
+there rather than implied. 5.2 was RULED and repaired on 2026-08-25; 5.3 was
+DISCHARGED by `add-modified-block-currency-check` on 2026-08-27 and is ticked as
+discharged-elsewhere, not as work done here. **5.1 — the flip to enforcing —
+stays UNTICKED**, because it is owed on a measured population that by
+construction cannot be taken in advance, and leaving the box open is what keeps
+that visible instead of letting it become a silent later commit.
 
 ## 1. Ratification
 
@@ -55,7 +61,7 @@ two adjacent gaps it does not close are recorded there rather than implied.
       as a non-reader, and `len(NON_READERS) == len(FAMILIES) - 4` moved from
       16 to 17. That test FAILED loudly on the unclassified family before the
       edit, which is what it was built to do.
-- [ ] 2.5 ARCHIVE AFTER REALIZATION. This change ships ACTIVE and archives only
+- [x] 2.5 ARCHIVE AFTER REALIZATION. This change ships ACTIVE and archives only
       on merged-plus-green, following `add-duplicate-packet-check` and
       `govern-openspec-corpus-membership`: `python3 -m pytest tests/doc-health`
       green, `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green, and
@@ -66,6 +72,116 @@ two adjacent gaps it does not close are recorded there rather than implied.
       that check and two of them halted on it. This delta was written against
       canon at `fe34b73c`; if another family archives first, canon moves and
       this block must be re-derived against the new text rather than merged.
+      **DONE — ARCHIVED 2026-08-27, on the merge-plus-green rule this packet
+      declared and on the precondition `add-modified-block-currency-check`
+      priced.** WHY NOW: that change (ratified 2026-08-27, PR #407, merge
+      `d03c03c2`) registers doc-health's TWENTY-SECOND family, and its D5 plus
+      its `tasks.md` § 2.1 price this archive as a precondition — `fam_family_
+      enumeration` checks every ACTIVE change's restatement of "Deterministic
+      check families" against the live registry, and a proposal that registers
+      no family cannot lawfully restate the requirement at twenty-two. So the
+      twenty-second family's own enumeration block is owed at ITS realization,
+      relative to THIS packet's outcome, which is what this act fixes at
+      8 → 8.
+      **REALIZATION RE-VERIFIED FROM `main` AT THIS GATE, not read out of a PR
+      body.** Both merges were re-confirmed ancestors of `origin/main` with
+      `git merge-base --is-ancestor`:
+      1. **PR #340 → `253c5e87`** — the family itself, advisory at launch
+         (§1, §2.1-§2.4, §3, §4.1-§4.8, §4.10-§4.12). Its own commit is
+         `bc779dcc`, "Derive the family enumeration instead of trusting it: the
+         check that verified itself".
+      2. **PR #343 → `1bf16533`** — §5.2's ruled `FAMILY_IDS` repair, "Two
+         registered families had no report section: 61 findings rendered
+         nowhere".
+      The live tree carries the advisory launch in both halves, re-read here
+      rather than assumed: `family-enumeration` is registered in `FAMILIES`
+      (21 entries), present in `FAMILY_IDS` (21 entries, §5.2's repair intact),
+      and ABSENT from `FAMILY_RESOLUTION` — so §5.1's flip is still owed and
+      still unticked.
+      **THE GATE NUMBERS, all measured in this worktree at base `501a3ae0`.**
+      Before the archive act: `python3 -m pytest tests/doc-health -q` →
+      **980 passed, 0 failed**; `OPENSPEC_TELEMETRY=0 openspec validate --all
+      --strict` → **76 passed, 0 failed (76 items)** = 24 active + 52 promoted
+      specs; `python3 scripts/doc-health.py --single-repo .` → **5 critical, 8
+      error, 42 warning, 6 info. New regressions vs previous report: 0**; the
+      family alone (`--family family-enumeration`) → **0 critical, 0 error, 0
+      warning, 0 info**. After the archive act: pytest **980 passed, 0
+      failed**; validate **75 passed, 0 failed (75 items)** = 23 active + 52
+      specs, −1 exactly as promotion of one change predicts; the single-repo
+      run's severity headline **byte-identical — 5 critical, 8 error, 42
+      warning, 6 info, 0 new regressions**. The whole report diff is EIGHT
+      lines and none of them is a finding: canon words 203344 → 204720 (+1376,
+      the promoted block), governance words 656227 → 657603 (+1376, the same
+      words moving from active-change prose to promoted prose), canon share
+      31.0% → 31.1%, and the promoted-specs row of the per-source table.
+      **THE MODIFIED BLOCK WAS RE-VERIFIED PER-REQUIREMENT BEFORE THE ACT, as
+      this box demanded and as the sibling archives paid for.** Canon's
+      "Deterministic check families" requirement is byte-IDENTICAL between
+      `fe34b73c` — the branch point the delta was written against — and
+      `501a3ae0`: extracted from both trees and diffed, **0 hunks**. So canon
+      did NOT move under this packet and the block reverts nothing; the one
+      commit touching the promoted spec since `fe34b73c` (`ad2f2c5a`,
+      `harden-ideation-readiness-check`'s archive) added requirements at the
+      end of the file and left this one alone.
+      **SCENARIO-BY-SCENARIO, 8 → 8.** Titles: identical set, identical order,
+      nothing dropped and nothing added. Bullets: `A run executes the check
+      families` 11 → 12, the twelfth being this change's own `**AND** family
+      enumeration MUST verify this requirement's own family enumeration and
+      counts against the code registry as its owning requirement below
+      defines`; the other SEVEN scenarios byte-identical bullet for bullet
+      (`Lifecycle conformance checks fire` 2/2, `A register carries staged
+      status` 2/2, `Drift checks fire` 2/2, `Catalog conformance checks fire`
+      2/2, `Routing conformance checks fire` 2/2, `Origin conformance checks
+      fire` 2/2, `Roster composition is checked across domains` 3/3).
+      **TWO CANON BODY UNITS DIFFER, AND BOTH ARE THIS PACKET'S DECLARED
+      REWORDING — named rather than glossed**, because the whole point of the
+      per-requirement pass is that a difference gets a disposition instead of a
+      shrug. Whitespace-normalized sentence comparison over the requirement
+      body found exactly two canon sentences absent from the block, and each is
+      present in the block with the numerals moved:
+      (1) the total sentence — canon `SHALL implement twenty check families …
+      release-inventory drift, and duplicate packet.` → block `SHALL implement
+      twenty-one check families … release-inventory drift, duplicate packet,
+      and family enumeration.`; and
+      (2) the scan-set arithmetic sentence — canon `Four of the twenty … the
+      other sixteen families` → block `Four of the twenty-one … the other
+      seventeen families`.
+      That is the count chain § 1.3 declares this change moves, verified
+      against the LIVE registry rather than re-typed: `len(FAMILIES)` = 21, the
+      block's total reads `twenty-one`, its enumeration carries 21 names of
+      which **0 fail to resolve** to a registered id (one declared alias,
+      `client-identity-roster-composition` → `client-identity-composition`, per
+      §4.8), `Four of the twenty-one` agrees, and `the other seventeen` equals
+      21 − 4. Five block-only sentences and no others: the family's own
+      "reads THIS REQUIREMENT and the code registry" figure sentence, and the
+      four sentences of the appended FOURTH RESTATEMENT note. Canon's three
+      existing self-repair notes are restated verbatim.
+      **CANON AFTER THE ACT IS WHAT THE BLOCK IMPLIES AND NOTHING ELSE.**
+      `git diff openspec/specs/doc-health/spec.md` → **1 file changed, 128
+      insertions(+), 6 deletions(-)**; all six deletions are the re-wrapped
+      lines of the two numeral sentences plus the one continuation line the
+      new figure sentence extends. Requirements 32 → 33 (the ADDED one),
+      file-level scenarios 133 → 141 (+8, the ADDED requirement's own eight),
+      and per-requirement counts unchanged everywhere else — `Deterministic
+      check families` **8 → 8**, no requirement lost.
+      **ONE TEST WAS RE-AIMED BY THIS ACT, NOT DELETED, and it is recorded
+      because it is a consequence of the act rather than a defect.**
+      `test_this_changes_own_delta_is_the_statement_under_test` was the
+      anti-vacuity guard on §4.1's self-gate: it asserted the DELTA half found
+      this change's own active delta. The archive act promoted that block, so
+      no active change restates the requirement and `_delta_statements`
+      legitimately returns nothing — the guard's subject moved into canon with
+      the statement. It is now `test_canon_is_the_statement_under_test`, the
+      same three assertions one document over (canon parses, total reads
+      `twenty-one`, 21 names against 21 families), with the history in its
+      docstring; the delta half's own discovery stays covered by §1's fixture
+      tests, which is where it always belonged. The neighbouring
+      `test_the_real_corpus_reads_zero_on_both_halves` keeps its historical
+      claim as written and carries an appended line saying it now reads canon
+      alone. Both figures above (980 → 980) are with that re-aim in place.
+      **§5 STAYS OPEN WHERE IT WAS OPEN.** 5.1's flip to enforcing is still
+      owed on a measured population and is deliberately not taken here. 5.3 is
+      DISCHARGED ELSEWHERE — see its own box.
 
 ## 3. Orchestrator decisions, flagged for veto
 
@@ -215,7 +331,7 @@ two adjacent gaps it does not close are recorded there rather than implied.
       the missing direction MUST NOT be reported. Promoting that would have
       ratified the defect. Amended before promotion, with the original wording
       quoted in the amendment rather than deleted.
-- [ ] 5.3 THE SCENARIO-COMPLETENESS HALF, which is the half that actually
+- [x] 5.3 THE SCENARIO-COMPLETENESS HALF, which is the half that actually
       destroyed text. This check derives the ENUMERATION and the COUNTS, which
       is what §5.5 commissioned. A `MODIFIED` block that restates the
       enumeration perfectly and still drops scenarios would pass it — and
@@ -227,3 +343,23 @@ two adjacent gaps it does not close are recorded there rather than implied.
       currently clean and the box is prevention rather than backlog. NOT folded
       into this change: it is a different comparison against a different
       document pair, and the commission named the enumeration.
+      **DISCHARGED BY ANOTHER CHANGE, NOT BY WORK HERE — ratified 2026-08-27.**
+      `add-modified-block-currency-check` (PR #407, merge `d03c03c2`) is exactly
+      this half: doc-health's TWENTY-SECOND family compares every ACTIVE
+      change's `## MODIFIED Requirements` block against CURRENT canon in three
+      arms, and the first of them — scenario-title completeness — is the gate.
+      It also adds the authoring obligation to `document-lifecycle` (a MODIFIED
+      block restates the requirement as canon currently states it; currency is
+      owed continuously while the change is active; a deliberate deletion is
+      declared by a reserved marker), which is the promoted rule this box said
+      was "mechanical and cheap to state". Its spike measured the class across
+      all 23 MODIFIED requirements in the active corpus and read **1
+      scenario-arm finding, 14 ledger units across 10 requirements, 0
+      title-resolution findings** — and TWO of those ledger units are on THIS
+      packet's own block, which this archive gate then examined one by one and
+      dispositioned as the declared numeral rewording (§2.5). The box is
+      ticked as DISCHARGED-ELSEWHERE rather than as work done here: this change
+      never built it, and the reason it did not — a different comparison
+      against a different document pair — is the reason the other change
+      exists. What remains owed is that packet's own enumeration block at ITS
+      realization, relative to this outcome, 8 → 8.
