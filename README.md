@@ -344,113 +344,57 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
-- [govern-derived-pin-reachability](openspec/changes/govern-derived-pin-reachability/proposal.md)
-  — **RATIFIED 2026-08-27** (Brett, in-session commissioning of the filing,
-  verbatim: "file the pin-governance follow-up change"). The commission is the
-  origin act, so `approved_by`/`approved_on` are recorded from it — the
-  `fix-release-reachability-race` shape, not the blank-pair shape its other
-  sibling was raised under. **THE CITATION COVERS THE DECISION TO FILE AND
-  NOTHING ELSE** — and a SECOND, later act on the same day disposed everything
-  it did not reach. **ALL FIVE § Orchestrator decisions CLEARED AS AUTHORED and
-  ALL THREE OPEN QUESTIONS RULED, 2026-08-27**, by a four-question multi-choice
-  put to Brett by the orchestrating session and relayed the same day; on every
-  question he took the packet's own recommendation. No verbatim wording reached
-  the packet, so none is quoted — approver, date, mechanism and selected option
-  are stated instead. **OD-1 through OD-5 cleared, none vetoed** (the
-  three-capability all-ADDED shape, the no-new-check-family enforcement home,
-  re-pinning defined by reproduction, record repair by retention, the change
-  name), and the clearance moved nothing because all five stand as authored.
-  **THE QUESTION RULINGS DID MOVE THE PACKET, which is why the two acts stay
-  distinct**: **Q1 RULED** — the declared pin class lives in a registry module
-  beside `scripts/doc_health/families.py`, so the declaration is itself checked
-  (recorded at `design.md` § 4 and `tasks.md` § 2.1; NO delta text changed, because
-  a promoted requirement that pins an implementation path must be MODIFIED the
-  next time the module moves). **Q2 RULED AND ALREADY EXECUTED** — publish the
-  retention refs FIRST, independently of this packet; the orchestrating session
-  did so on 2026-08-27 and this session verified it rather than taking it on
-  report: `git ls-remote origin 'refs/retention/*'` returns exactly
-  `refs/retention/pins/da9bf3b7d0ee1d86d2d437d42a715c238dddce4b` and
-  `refs/retention/pins/f13a3b6007736292e1e157febef1ac733e534de9`, each at the
-  commit its name states, so `ls-remote | grep -c` now returns `1` for both pins
-  where it returned `0` at authoring. **THE GARBAGE-COLLECTION WINDOW IS CLOSED
-  AND BOTH RECORDS ARE CONFORMING WITH THEIR ORIGINAL PINS UNEDITED** — which is
-  requirement 2's whole claim demonstrated on the two instances that forced it,
-  and it discharges `tasks.md` § 3 entire plus the § 4.5 archive gate, before the
-  merge rather than merely before the archive. **Q3 RULED** — formalize the
-  retention namespace, and it is the one Q2's execution used:
-  **`refs/retention/pins/<full-sha>`**, now NAMED IN THE DELTA rather than left
-  as convention (requirement 1 names it and refuses any other name; requirement 2
-  obliges publishing it with the ref name COMPUTED from the pin rather than
-  chosen; requirement 4 states it as half the ref set a verification consults,
-  `main` plus that namespace and no more). Three scenarios moved with it;
-  requirement and scenario counts are UNCHANGED at four and sixteen, and nothing
-  was MODIFIED. Retention LIFETIME is deliberately still unstated — a retained
-  commit is retained because a committed record names it, so the ref outlives the
-  record. `.openspec.yaml`'s origin block is deliberately unedited: a veto
-  clearance is not origin provenance, and `release-realization`'s
-  origin-retention rule makes rewriting a complete declaration a contested-class
-  act. **THE FOLLOW-UP
-  `harden-ideation-readiness-check` DEFERRED BY NAME** (its § Named follow-ups,
-  and § 5.2 unticked at archive; its OD-1 declined an index-side requirement
-  "to avoid pre-empting the deferred governance packet" — this packet takes it).
-  ONE CORRECTION TO THE COMMISSION, recorded rather than smoothed:
-  `fix-release-reachability-race` does NOT defer the rule by name — its § Named
-  follow-ups carries three bullets, none about pins — and is cited instead for
-  its § Family relation table, which names the orphaned index pin as the
-  family's stale operand. **A pin that no ref reaches is a DEFECT, not
-  staleness.** Pull request #322 regenerated the cross-reference index on a
-  branch pinning `da9bf3b7`, the pin was moved BY HAND to the branch tip
-  `f13a3b60` with no body regeneration, and the branch landed rewritten as
-  `4e57009c` (single parent `700c1a19`), orphaning both at once; the index's
-  orphaned pin then turned the readiness derivation proof into a `pytest.skip`
-  for the packet's whole life, so seven real-corpus proofs never ran on a runner
-  until PR #400 (889 passed / 7 skipped → 920 / 0). **TWO ORPHANED PINS ARE
-  STILL STANDING ON `main`, MEASURED 2026-08-27 at `42662b70`** — the sibling
-  repaired the INDEX and left both readiness-run records:
-  `health/ideation-readiness/2026-08-24/brainstorm-packet-migration-20260824.yaml:5`
-  (`da9bf3b7`) and `…-final-20260824.yaml:5` (`f13a3b60`), each with
-  `git branch -a --contains` EMPTY, `ls-remote` count `0`, and
-  `merge-base --is-ancestor origin/main` false. Both carry `status: record`, so
-  neither pin may be edited — and both objects were STILL RECOVERABLE in a local
-  clone, a window that has since been closed by the Q2 retention refs above,
-  with both records left byte-identical to capture. `is-ancestor origin/main` is
-  still false for both, and that is the intended end state rather than a residue:
-  the pins resolve through the retention namespace, not through `main`. Four
-  requirements ADDED
-  across three capabilities, sixteen scenarios, NONE MODIFIED:
-  `ideation-cross-reference` gets the artifact rule (orphaned is a defect,
-  reachable-but-stale is legal, judged against REFS not a clone's object store)
-  and the record-repair rule (repair by publishing
-  `refs/retention/pins/<full-sha>`, never by editing the record — immutable
-  evidence and record-immutability collide, and only one ordering is coherent:
-  when the record cannot move, the commit does);
-  `release-realization` gets the landing rule, with re-pinning DEFINED BY
-  REPRODUCTION — byte-for-byte at the new pin where the artifact's tooling
-  defines derivation, a named measurement otherwise, and never a hand-moved pin,
-  which is the exact act that produced `f13a3b60`; `doc-health` gets the
-  enforcement, extending the sibling's index-only obligation to a DECLARED
-  artifact class whose declaration is itself checked. **ADDS NO DETERMINISTIC
-  CHECK FAMILY and does not restate the enumeration**, for two reasons: a
-  reachability probe is not deterministic in that requirement's sense (identical
-  corpus, different answer at different clone depths), and every added family
-  owes a wholesale restatement of that requirement, which is how three changes in
-  three days truncated it. **THE SECOND PREMISE MOVED WITHIN A DAY AND THE
-  CONCLUSION HELD** — as authored it named `add-family-enumeration-check`'s active
-  `MODIFIED` block; that packet ARCHIVED 2026-08-27 promoting the twenty-one
-  enumeration, and `add-modified-block-currency-check` now owes the same block at
-  realization to reach twenty-two, so a family added here would reach
-  twenty-three with canon decided by archive order. The delta states it in the
-  durable form, about the mechanism rather than today's holder. The pin
-  inventory is swept and every pin resolved rather than sampled — nine pins,
-  eight committed artifacts, four generators, two orphaned, plus four
-  schema-declared future members with no committed real pin yet; cross-repository
-  pins (aggregation gitlinks, `neutral-product-pin`, release digests, image
-  digests) are named OUT of scope. Two follow-ups survive unticked:
-  `git_generation()` pinning `HEAD` on a dirty tree, and the cross-repository
-  pin families; a third, the retention namespace, was RULED rather than deferred
-  and no longer survives. (code surface: openxFactory; target release:
-  implemented — ships ACTIVE, archives on merged-plus-green)
-
+- [supersede-lost-pin-baseline](openspec/changes/supersede-lost-pin-baseline/proposal.md)
+  — **RATIFIED 2026-08-27** (Brett, in-session commission of the filing,
+  selected verbatim from a multi-choice as "Commission the superseding record
+  (Recommended)"). The commission is the origin act, so
+  `approved_by`/`approved_on` are recorded from it — the
+  `govern-derived-pin-reachability` shape. **THE CITATION COVERS THE DECISION TO
+  FILE AND NOTHING ELSE** — and a SECOND, later act on the same day disposed
+  everything it did not reach. **ALL FOUR § Orchestrator decisions CLEARED AS
+  AUTHORED and BOTH § Open Questions RULED, 2026-08-27**, by a four-question
+  multi-choice put to Brett by the orchestrating session and relayed the same
+  day; on every question he took the packet's own recommendation, so the
+  clearance moved nothing. OD-1 through OD-4 cleared, none vetoed (the
+  `evidence/`-homed record with its live-plus-archive glob citation, the declared
+  `NON_MEMBERS` row, the spec delta riding, and the register row being the
+  disposition) — and **OD-4's own named veto branch was not taken, so no
+  `health/dispositions.yaml` entry is owed**. **Q1 RULED** — corroboration only:
+  the record claims exactly what is provable and never recovery. **Q2 RULED** —
+  no aging rule: the citation is re-resolved every run and breakage is
+  self-announcing. Both rulings match the record and the code as written, so
+  neither rewrote anything. The merge-then-archive sequence was approved in the
+  same act and belongs to the orchestrating session. **Performs the one
+  governance act
+  `govern-derived-pin-reachability` uncovered and marked NEEDS BRETT** (its
+  § 3.6 and § 5.5): the archived hermes provider verification pins
+  `us3_baseline_commit: 66b14064…`, and that object is UNRECOVERABLE —
+  re-measured on the day of filing at 0 of 573 advertised refs, `git cat-file`
+  failing in the shared object store, and the server refusing
+  `git fetch` with `upload-pack: not our ref`. Retention is impossible, the
+  record's bytes are immutable, and **no byte of the archived record is
+  touched**. Issues a superseding record
+  (`evidence/pin-loss-supersession.yaml`) stating the loss, its cause (one
+  rebase rewrote the whole `005-customer-subject-runtime` line six weeks before
+  the retention namespace was ruled), and the verification standing the archived
+  evidence retains and loses. **THE MEASUREMENT FOUND MORE THAN A HOLE**: the
+  baseline STATE is reachable under a rewritten object name, `8f7c99f0…`, the
+  parent of the commit that added the record — corroborated by all three
+  differential counts the record itself states (catalog members 34 -> 39, schema
+  entries 27 -> 32, fixture cases 79 -> 110, each re-measured at both commits) —
+  and the record labels that CORROBORATION, not recovery, because the object is
+  gone and tree equality is unprovable. **Restores `fully_verified` truthfully
+  rather than by silencing**: the `KNOWN_LOSSES` row now cites the record, the
+  verification reads committed state to find it and requires it to name the pin,
+  and only a loss AWAITING its record holds full verification open — the loss
+  stays declared, reported `[LOST]` with its whole measurement, and re-measured
+  for ever, while deleting the row makes the site report as a failing orphan
+  instead of a clean class. One ADDED `doc-health` requirement carries that rule
+  into canon; no check family is added and the enumeration is untouched. The
+  disposition lives in the register row rather than in
+  `health/dispositions.yaml`, measured: that file exists only at the aggregation
+  root and matches findings by `(family, repo, path)`, and this verification
+  registers no family and emits no family finding for an entry to match.
 - [add-modified-block-currency-check](openspec/changes/add-modified-block-currency-check/proposal.md)
   — **RATIFIED 2026-08-27** (in-session, verbatim "Ratify as-is"; realization via
   Speckit) — authored the same day against issues #357, #329 and #330, which name
@@ -1207,6 +1151,189 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [govern-derived-pin-reachability](openspec/changes/archive/2026-08-27-govern-derived-pin-reachability/proposal.md)
+  — **ARCHIVED 2026-08-27** on merged-plus-green. Realization pull request #424
+  merged 2026-08-27T17:51:07Z as merge commit `175682e2`, re-verified at this act
+  an ancestor of `origin/main` (`git merge-base --is-ancestor`, exit 0) rather
+  than read off the pull request page, and green on head `b4cd8073`:
+  `pytest-suite` **6933 passed / 20 skipped / 338 deselected / 28 subtests
+  passed / 0 failed** in 14m32s (run 33091394406, counts read back out of the
+  job log), `wallet-validation` pass. Implementation:
+  `scripts/doc_health/pin_class.py` declares the class — **25 members, 20
+  current and 5 future**, six `NON_MEMBERS` exclusion rows each with a reason,
+  and a `KNOWN_LOSSES` row — with `pin_class.verify()` and
+  `ideation_readiness.verify_pin_reachability()` riding the existing
+  readiness-proof surface. **NO DETERMINISTIC CHECK FAMILY WAS ADDED and
+  `families.py` has a ZERO diff, asserted STRUCTURALLY rather than promised**,
+  which is cleared OD-2 honoured beside the still-active 21 → 22 enumeration
+  change. Real-repo proof at the gate: **63 pin sites across 20 members — 46
+  reachable through `main`, 3 through `refs/retention/pins/<full-sha>` (and
+  asserted NOT reachable from `main`, which is the intended end state rather
+  than a residue), 13 cross-repository, 1 declared LOST, and 0 orphaned, 0
+  uncovered, 0 vanished** — re-verified against advanced `main` `76a2ad27`
+  before the merge with identical results. **A THIRD ORPHAN was found and
+  RETAINED during realization**: `refs/retention/pins/74022ea5…`, a pin inside
+  an archived proposal-support manifest, so the namespace now advertises three
+  refs and each is at the commit its name states; the act was within the
+  retention route Brett had already ruled. No contract bundle was owed, and
+  that was measured by PARSING all 38 `contracts/releases/*.digests.yaml`
+  inventories into their 192 inventoried paths rather than by `grep`.
+  `.openspec.yaml` MOVED with the packet under openspec 1.2.0 and is
+  byte-identical to the ratifying commit `f57287c7` (blob `f77f14a4`), so the
+  origin-retention gate passes with no restoration needed.
+  **THREE RULINGS RECORDED AT THE ARCHIVE** — Brett, 2026-08-27, by a
+  multi-choice put by the orchestrating session; no verbatim wording reached
+  the archiving session, so mechanism, approver, date and the option selected
+  are stated and nothing is quoted. (1) The **merge-plus-archive sequence is
+  APPROVED**, and this archive is that ruling's second half. (2) The permanent
+  loss of `66b14064` gets a **COMMISSIONED superseding record plus
+  disposition, filed IN PARALLEL as its own packet** — so it crosses this
+  archive as an IN-FLIGHT follow-up, and the `KNOWN_LOSSES` row and
+  `fully_verified: FALSE` STAND until that packet lands rather than being
+  resolved or softened here. (3) The **sentinel-pin vocabulary is a NAMED
+  FOLLOW-UP**, recorded beside § 5.1's `git_generation()` dirty-tree gap as ONE
+  future packet: the proposal-support sentinels already do what § 5.1 asks
+  (`"uncommitted-worktree"` ×6, `"not-applicable-ad-hoc"` ×1, absent ×3), and
+  the future packet decides whether that vocabulary becomes shared and
+  declared.
+  **RATIFIED 2026-08-27** (Brett, in-session commissioning of the filing,
+  verbatim: "file the pin-governance follow-up change"). The commission is the
+  origin act, so `approved_by`/`approved_on` are recorded from it — the
+  `fix-release-reachability-race` shape, not the blank-pair shape its other
+  sibling was raised under. **THE CITATION COVERS THE DECISION TO FILE AND
+  NOTHING ELSE** — and a SECOND, later act on the same day disposed everything
+  it did not reach. **ALL FIVE § Orchestrator decisions CLEARED AS AUTHORED and
+  ALL THREE OPEN QUESTIONS RULED, 2026-08-27**, by a four-question multi-choice
+  put to Brett by the orchestrating session and relayed the same day; on every
+  question he took the packet's own recommendation. No verbatim wording reached
+  the packet, so none is quoted — approver, date, mechanism and selected option
+  are stated instead. **OD-1 through OD-5 cleared, none vetoed** (the
+  three-capability all-ADDED shape, the no-new-check-family enforcement home,
+  re-pinning defined by reproduction, record repair by retention, the change
+  name), and the clearance moved nothing because all five stand as authored.
+  **THE QUESTION RULINGS DID MOVE THE PACKET, which is why the two acts stay
+  distinct**: **Q1 RULED** — the declared pin class lives in a registry module
+  beside `scripts/doc_health/families.py`, so the declaration is itself checked
+  (recorded at `design.md` § 4 and `tasks.md` § 2.1; NO delta text changed, because
+  a promoted requirement that pins an implementation path must be MODIFIED the
+  next time the module moves). **Q2 RULED AND ALREADY EXECUTED** — publish the
+  retention refs FIRST, independently of this packet; the orchestrating session
+  did so on 2026-08-27 and this session verified it rather than taking it on
+  report: `git ls-remote origin 'refs/retention/*'` returns exactly
+  `refs/retention/pins/da9bf3b7d0ee1d86d2d437d42a715c238dddce4b` and
+  `refs/retention/pins/f13a3b6007736292e1e157febef1ac733e534de9`, each at the
+  commit its name states, so `ls-remote | grep -c` now returns `1` for both pins
+  where it returned `0` at authoring. **THE GARBAGE-COLLECTION WINDOW IS CLOSED
+  AND BOTH RECORDS ARE CONFORMING WITH THEIR ORIGINAL PINS UNEDITED** — which is
+  requirement 2's whole claim demonstrated on the two instances that forced it,
+  and it discharges `tasks.md` § 3 entire plus the § 4.5 archive gate, before the
+  merge rather than merely before the archive. **Q3 RULED** — formalize the
+  retention namespace, and it is the one Q2's execution used:
+  **`refs/retention/pins/<full-sha>`**, now NAMED IN THE DELTA rather than left
+  as convention (requirement 1 names it and refuses any other name; requirement 2
+  obliges publishing it with the ref name COMPUTED from the pin rather than
+  chosen; requirement 4 states it as half the ref set a verification consults,
+  `main` plus that namespace and no more). Three scenarios moved with it;
+  requirement and scenario counts are UNCHANGED at four and sixteen, and nothing
+  was MODIFIED. Retention LIFETIME is deliberately still unstated — a retained
+  commit is retained because a committed record names it, so the ref outlives the
+  record. `.openspec.yaml`'s origin block is deliberately unedited: a veto
+  clearance is not origin provenance, and `release-realization`'s
+  origin-retention rule makes rewriting a complete declaration a contested-class
+  act. **THE FOLLOW-UP
+  `harden-ideation-readiness-check` DEFERRED BY NAME** (its § Named follow-ups,
+  and § 5.2 unticked at archive; its OD-1 declined an index-side requirement
+  "to avoid pre-empting the deferred governance packet" — this packet takes it).
+  ONE CORRECTION TO THE COMMISSION, recorded rather than smoothed:
+  `fix-release-reachability-race` does NOT defer the rule by name — its § Named
+  follow-ups carries three bullets, none about pins — and is cited instead for
+  its § Family relation table, which names the orphaned index pin as the
+  family's stale operand. **A pin that no ref reaches is a DEFECT, not
+  staleness.** Pull request #322 regenerated the cross-reference index on a
+  branch pinning `da9bf3b7`, the pin was moved BY HAND to the branch tip
+  `f13a3b60` with no body regeneration, and the branch landed rewritten as
+  `4e57009c` (single parent `700c1a19`), orphaning both at once; the index's
+  orphaned pin then turned the readiness derivation proof into a `pytest.skip`
+  for the packet's whole life, so seven real-corpus proofs never ran on a runner
+  until PR #400 (889 passed / 7 skipped → 920 / 0). **TWO ORPHANED PINS ARE
+  STILL STANDING ON `main`, MEASURED 2026-08-27 at `42662b70`** — the sibling
+  repaired the INDEX and left both readiness-run records:
+  `health/ideation-readiness/2026-08-24/brainstorm-packet-migration-20260824.yaml:5`
+  (`da9bf3b7`) and `…-final-20260824.yaml:5` (`f13a3b60`), each with
+  `git branch -a --contains` EMPTY, `ls-remote` count `0`, and
+  `merge-base --is-ancestor origin/main` false. Both carry `status: record`, so
+  neither pin may be edited — and both objects were STILL RECOVERABLE in a local
+  clone, a window that has since been closed by the Q2 retention refs above,
+  with both records left byte-identical to capture. `is-ancestor origin/main` is
+  still false for both, and that is the intended end state rather than a residue:
+  the pins resolve through the retention namespace, not through `main`. Four
+  requirements ADDED
+  across three capabilities, sixteen scenarios, NONE MODIFIED:
+  `ideation-cross-reference` gets the artifact rule (orphaned is a defect,
+  reachable-but-stale is legal, judged against REFS not a clone's object store)
+  and the record-repair rule (repair by publishing
+  `refs/retention/pins/<full-sha>`, never by editing the record — immutable
+  evidence and record-immutability collide, and only one ordering is coherent:
+  when the record cannot move, the commit does);
+  `release-realization` gets the landing rule, with re-pinning DEFINED BY
+  REPRODUCTION — byte-for-byte at the new pin where the artifact's tooling
+  defines derivation, a named measurement otherwise, and never a hand-moved pin,
+  which is the exact act that produced `f13a3b60`; `doc-health` gets the
+  enforcement, extending the sibling's index-only obligation to a DECLARED
+  artifact class whose declaration is itself checked. **ADDS NO DETERMINISTIC
+  CHECK FAMILY and does not restate the enumeration**, for two reasons: a
+  reachability probe is not deterministic in that requirement's sense (identical
+  corpus, different answer at different clone depths), and every added family
+  owes a wholesale restatement of that requirement, which is how three changes in
+  three days truncated it. **THE SECOND PREMISE MOVED WITHIN A DAY AND THE
+  CONCLUSION HELD** — as authored it named `add-family-enumeration-check`'s active
+  `MODIFIED` block; that packet ARCHIVED 2026-08-27 promoting the twenty-one
+  enumeration, and `add-modified-block-currency-check` now owes the same block at
+  realization to reach twenty-two, so a family added here would reach
+  twenty-three with canon decided by archive order. The delta states it in the
+  durable form, about the mechanism rather than today's holder. The pin
+  inventory is swept and every pin resolved rather than sampled — nine pins,
+  eight committed artifacts, four generators, two orphaned, plus four
+  schema-declared future members with no committed real pin yet; cross-repository
+  pins (aggregation gitlinks, `neutral-product-pin`, release digests, image
+  digests) are named OUT of scope. **AND THAT SWEEP DID NOT SURVIVE MEASUREMENT,
+  WHICH IS THE ARGUMENT FOR A DECLARED CLASS EXISTING AT ALL.** The realization
+  re-measured over committed structured state — every standalone 40-hex token in
+  every committed `.yaml`/`.yml`/`.json`, resolved against the object database
+  rather than matched by key name — and found **63 sites across 20 members**,
+  with four whole generator families the key-name sweep had missed (31
+  proposal-support transition manifests, 11 cross-factory ideation routing
+  records, the avatar-client kernel with its lab register and F0 evidence, and
+  the hermes-runtime handoff evidence with the neutrality-drift baseline) and
+  **TWO MORE ORPHANS the packet never knew about**: `74022ea5…`, retained the
+  day it was found, and `66b14064…` under the key `us3_baseline_commit` that no
+  sweep vocabulary knew — UNRECOVERABLE (`cat-file` fails, absent from all 566
+  advertised refs, `git fetch` refused by the server with `upload-pack: not our
+  ref`), and therefore the first instance this repository has had to route
+  through requirement 2's other branch. The authored table is kept VERBATIM in
+  the packet and corrected in `tasks.md` § 2, per this packet's own
+  measurement-preservation convention.
+  **SIX FOLLOW-UPS CROSS THE ARCHIVE UNTICKED, EVERY ONE BY DECISION**: § 5.1
+  `git_generation()` pinning `HEAD` regardless of a dirty tree, now carrying the
+  sentinel-vocabulary question Brett ruled a named follow-up; § 5.2 the
+  cross-repository pin families; § 5.3 a recorded-measurement format for a
+  re-pin, raised by § 2.5's honest gap — the reproduction check is implemented
+  for the tool-defined members and the NON-TOOL half is PROSE-ONLY, because no
+  field, schema or convention exists anywhere in this repository for a re-pin to
+  record a named measurement in; § 5.4 markdown is not swept for coverage, a
+  stated trade; § 5.5 the superseding record § 3.6 owes, now COMMISSIONED and
+  in-flight as its own packet; and § 5.6 the preflight half of the enforcement
+  home, deliberately UNWIRED because wiring a network-consulting check into the
+  nightly would answer `fix-release-reachability-race`'s own named open question
+  by implementation, for every governed repository at once. Two further
+  honesties are recorded rather than smoothed over: § 2.8's landing obligation
+  is STATED, NOT AUTOMATED — discoverability IS implemented, `repair_route()`
+  naming the allowed route at the moment a finding fires, and no workflow
+  enforces it — and the authored 9-pin inventory table stands corrected rather
+  than rewritten. A third follow-up the packet carried no longer survives at
+  all: the retention namespace was RULED rather than deferred.
+  (code surface: openxFactory; target release: implemented)
 
 - [add-family-enumeration-check](openspec/changes/archive/2026-08-27-add-family-enumeration-check/proposal.md)
   — **ARCHIVED 2026-08-27** on the merge-plus-green rule the packet declared, and
