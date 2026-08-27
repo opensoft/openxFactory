@@ -344,6 +344,57 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [supersede-lost-pin-baseline](openspec/changes/supersede-lost-pin-baseline/proposal.md)
+  — **RATIFIED 2026-08-27** (Brett, in-session commission of the filing,
+  selected verbatim from a multi-choice as "Commission the superseding record
+  (Recommended)"). The commission is the origin act, so
+  `approved_by`/`approved_on` are recorded from it — the
+  `govern-derived-pin-reachability` shape. **THE CITATION COVERS THE DECISION TO
+  FILE AND NOTHING ELSE** — and a SECOND, later act on the same day disposed
+  everything it did not reach. **ALL FOUR § Orchestrator decisions CLEARED AS
+  AUTHORED and BOTH § Open Questions RULED, 2026-08-27**, by a four-question
+  multi-choice put to Brett by the orchestrating session and relayed the same
+  day; on every question he took the packet's own recommendation, so the
+  clearance moved nothing. OD-1 through OD-4 cleared, none vetoed (the
+  `evidence/`-homed record with its live-plus-archive glob citation, the declared
+  `NON_MEMBERS` row, the spec delta riding, and the register row being the
+  disposition) — and **OD-4's own named veto branch was not taken, so no
+  `health/dispositions.yaml` entry is owed**. **Q1 RULED** — corroboration only:
+  the record claims exactly what is provable and never recovery. **Q2 RULED** —
+  no aging rule: the citation is re-resolved every run and breakage is
+  self-announcing. Both rulings match the record and the code as written, so
+  neither rewrote anything. The merge-then-archive sequence was approved in the
+  same act and belongs to the orchestrating session. **Performs the one
+  governance act
+  `govern-derived-pin-reachability` uncovered and marked NEEDS BRETT** (its
+  § 3.6 and § 5.5): the archived hermes provider verification pins
+  `us3_baseline_commit: 66b14064…`, and that object is UNRECOVERABLE —
+  re-measured on the day of filing at 0 of 573 advertised refs, `git cat-file`
+  failing in the shared object store, and the server refusing
+  `git fetch` with `upload-pack: not our ref`. Retention is impossible, the
+  record's bytes are immutable, and **no byte of the archived record is
+  touched**. Issues a superseding record
+  (`evidence/pin-loss-supersession.yaml`) stating the loss, its cause (one
+  rebase rewrote the whole `005-customer-subject-runtime` line six weeks before
+  the retention namespace was ruled), and the verification standing the archived
+  evidence retains and loses. **THE MEASUREMENT FOUND MORE THAN A HOLE**: the
+  baseline STATE is reachable under a rewritten object name, `8f7c99f0…`, the
+  parent of the commit that added the record — corroborated by all three
+  differential counts the record itself states (catalog members 34 -> 39, schema
+  entries 27 -> 32, fixture cases 79 -> 110, each re-measured at both commits) —
+  and the record labels that CORROBORATION, not recovery, because the object is
+  gone and tree equality is unprovable. **Restores `fully_verified` truthfully
+  rather than by silencing**: the `KNOWN_LOSSES` row now cites the record, the
+  verification reads committed state to find it and requires it to name the pin,
+  and only a loss AWAITING its record holds full verification open — the loss
+  stays declared, reported `[LOST]` with its whole measurement, and re-measured
+  for ever, while deleting the row makes the site report as a failing orphan
+  instead of a clean class. One ADDED `doc-health` requirement carries that rule
+  into canon; no check family is added and the enumeration is untouched. The
+  disposition lives in the register row rather than in
+  `health/dispositions.yaml`, measured: that file exists only at the aggregation
+  root and matches findings by `(family, repo, path)`, and this verification
+  registers no family and emits no family finding for an entry to match.
 - [add-modified-block-currency-check](openspec/changes/add-modified-block-currency-check/proposal.md)
   — **RATIFIED 2026-08-27** (in-session, verbatim "Ratify as-is"; realization via
   Speckit) — authored the same day against issues #357, #329 and #330, which name

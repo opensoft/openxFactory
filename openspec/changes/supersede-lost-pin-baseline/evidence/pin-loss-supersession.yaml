@@ -1,0 +1,227 @@
+schema_version: 1
+kind: openxfactory-derivation-pin-loss-supersession
+status: record
+change_id: supersede-lost-pin-baseline
+issued: 2026-08-27
+
+# THE SUPERSEDING RECORD `ideation-cross-reference` requirement 2 CALLS FOR.
+# The pinned object is gone, the superseded record's bytes may not be edited,
+# and no code repair exists for either fact. What can be done is to state, once
+# and citably, what the archived evidence still verifies without that pin, what
+# it cannot, and what a named measurement establishes in the pin's place. That
+# is this document. It supersedes nothing about the archived record's OWN
+# claims: it stands beside it and answers the one question the lost pin left
+# unanswerable.
+
+issued_by: >-
+  Brett — in-session commission of 2026-08-27, selected verbatim from a
+  multi-choice put to him by the orchestrating session: "Commission the
+  superseding record (Recommended)", described in that choice as "A small
+  follow-up change: supersede the archived record with one that acknowledges
+  the lost baseline, plus the disposition — restores fully_verified truthfully
+  rather than by silencing." THE COMMISSION IS THE ORIGIN ACT AND COVERS THE
+  DECISION TO FILE; every measurement, wording and mechanism below was taken by
+  the authoring session and is flagged for veto in `proposal.md`
+  § Orchestrator decisions.
+authority: >-
+  The openxFactory ratify gate. The subject is a neutral openxFactory artifact
+  inside an openxFactory packet, which is the case the promoted doc-health
+  disposition-authority requirement assigns there rather than to a Domain
+  Hermes.
+
+supersedes:
+  path: >-
+    openspec/changes/archive/2026-08-27-add-hermes-customer-subject-runtime-contract/evidence/provider-verification.yaml
+  kind: openxfactory-hermes-runtime-provider-verification
+  change_id: add-hermes-customer-subject-runtime-contract
+  task: T078
+  bytes_edited: false
+  edit_refused: >-
+    ABSOLUTELY AND ON PURPOSE. The superseded record is immutable evidence
+    inside an archived packet: editing its pin would make it state something
+    the run that wrote it did not read, which is a worse defect than the one it
+    would hide. Retention — publishing `refs/retention/pins/<full-sha>` and
+    leaving the bytes alone — is the route this repository used for its other
+    three orphaned pins, and it is unavailable here because the object no
+    longer exists anywhere. Supersession is what is left, and it adds a
+    document rather than changing one.
+
+lost_pin:
+  value: 66b14064bbd50d1af4e9585d10f8150f2bc352f0
+  recorded_key: us3_baseline_commit
+  recorded_at_line: 15
+  declared_in: scripts/doc_health/pin_class.py (KNOWN_LOSSES)
+  retention: impossible
+  measured_on: 2026-08-27
+  measured_against: "origin/main at 175682e2 (the merge of pull request 424)"
+  measurement:
+    object_store: >-
+      `git cat-file -t 66b14064…` fails with "could not get object info" in a
+      worktree sharing the shared aggregation object store — the same store in
+      which all three of this repository's RECOVERABLE orphans answered
+      `commit`, so the failure is a real absence rather than a clone artifact.
+    advertised_refs: >-
+      0 matches across all 573 refs `git ls-remote origin` advertises, 406 of
+      them `refs/pull/*`. Re-measured on the day of issue; the count was 566 in
+      the declaration written a day earlier, which is the remote moving, not the
+      answer moving.
+    server_answer: >-
+      `git fetch origin 66b14064bbd50d1af4e9585d10f8150f2bc352f0` is refused
+      with `fatal: remote error: upload-pack: not our ref` — the strongest
+      available statement that the remote cannot reach it either.
+    branch: >-
+      0 refs matching `005-customer-subject-runtime`, the branch the pin was
+      taken on, remain on the remote.
+    retention_namespace: >-
+      `git ls-remote origin 'refs/retention/*'` returns exactly three refs
+      (74022ea5…, da9bf3b7…, f13a3b60…), each at the commit its name states and
+      none of them this pin. The namespace is consulted, not assumed empty.
+  cause: >-
+    A HISTORY REWRITE THAT PREDATES THE RETENTION RULE BY SIX WEEKS, not
+    neglect by anybody. Every commit of the landed `005-customer-subject-runtime`
+    line carries committer date 2026-07-14T01:08:50+0000 while its author dates
+    spread across the preceding day — the signature of one rebase rewriting the
+    whole branch at once. The record was authored before that rewrite and
+    carried through it unchanged, so it kept naming its pre-rebase parent's
+    object name while the branch that landed carried the rewritten names. No
+    retention ref could have been published against the old name, because the
+    retention namespace was not ruled until 2026-08-27 and the rule that a
+    landing re-derives the pins it orphans did not exist either. This is the
+    defect class `govern-derived-pin-reachability` was filed to end, observed
+    on its oldest instance.
+
+surviving_state:
+  claim: >-
+    THE BASELINE STATE IS REACHABLE UNDER A REWRITTEN OBJECT NAME. This is an
+    identification by measurement, NOT a recovery of the lost object and NOT a
+    re-pin of anything.
+  survivor_commit: 8f7c99f0db065fb153b7d9498eb1e16b3c3c306b
+  survivor_subject: Implement US3 v1-to-v2 Hermes migration cutover (Gate G0 checkpoint)
+  survivor_reachability: >-
+    Ancestor of origin/main, measured 2026-08-27 by
+    `git merge-base --is-ancestor`. It needs no retention ref: `main` reaches it.
+  identified_by:
+    - parentage: >-
+        It is the parent of e8ae366cda7b5814b73942891837175b5c43d929, the commit
+        that ADDED the superseded record and the commit that record names by
+        self-reference as `provider_commit: this-checkpoint`. The US3 baseline of
+        the US4 checkpoint is its parent by construction, and that parent
+        survived the rewrite while the pre-rebase name did not.
+    - subject_line: >-
+        Its subject names the US3 v1-to-v2 migration cutover at the Gate G0
+        checkpoint, which is the checkpoint the key `us3_baseline_commit`
+        designates.
+  corroboration:
+    - stated: 'catalog_members: 39 (was 34 at US3 baseline)'
+      re_measured: >-
+        contracts/hermes-runtime/contract-index.yaml carries 34 `contracts`
+        entries at the survivor and 39 at e8ae366c.
+      agrees: true
+    - stated: 'schema_members: 32 (was 27)'
+      re_measured: >-
+        The same index carries 27 entries of type `schema` at the survivor and
+        32 at e8ae366c.
+      agrees: true
+    - stated: 'fixture_cases: 110 (was 79)'
+      re_measured: >-
+        contracts/hermes-runtime/fixtures/index.yaml carries 79 `cases` at the
+        survivor and 110 at e8ae366c.
+      agrees: true
+  limit: >-
+    CORROBORATION IS NOT IDENTITY, and this record does not pretend otherwise.
+    The object the lost pin names is gone, so no reader can compare its tree
+    with the survivor's, and nothing here makes the pin resolve. What stands is
+    an identification that three independent counts stated by the superseded
+    record itself agree with, and that any one of them disagreeing would have
+    falsified. A reader who wants the baseline reads the survivor and is told,
+    here, exactly why that is the state the record meant.
+
+verification_standing:
+  retained:
+    - >-
+      The verdict of every gate row in the superseded record. Each is a claim
+      about canonical content at the provider checkpoint, and that checkpoint —
+      e8ae366c — is an ancestor of `main`, so every gate remains re-runnable at
+      the state it was run against. This is the superseded record's own
+      argument, quoted from its own note field — "Evidence is bound to
+      canonical content, not to its own commit, so it validates identically
+      after the checkpoint lands." The lost pin is the checkpoint's
+      PREDECESSOR, never the state the gates read.
+    - >-
+      The `expected_contract_ref` pin
+      3d51c3ed5854d112bcc049e1ef7f70863b993fa3, measured reachable as an
+      ancestor of `main` by the declared pin class in the same run that
+      reported this loss.
+    - >-
+      The five domain-regression repository pins and the stated exclusion. They
+      are cross-repository pins, answered against those remotes by those
+      repositories' authority, and untouched by anything that happened to this
+      repository's history.
+    - >-
+      The absolute counts every gate row states — 39 catalog members, 32
+      schemas, 110 fixture cases, 17 requirements, 85 scenarios, 796 collected
+      test nodes, 478 passed / 318 deselected — all measurable at the reachable
+      provider checkpoint. Three of them are re-measured above.
+  lost:
+    - >-
+      Reconstruction of the tree the pin NAMES. Permanently, for every reader,
+      for ever. Any claim whose check requires reading the baseline as named,
+      rather than as identified, cannot be performed by anybody again.
+    - >-
+      The three differential halves of the validator summary ("was 34", "was
+      27", "was 79") no longer stand on the record's own citation. They stand
+      on the measurement recorded above, against the identified survivor —
+      which is a weaker warrant, honestly labelled, and the reason this record
+      exists rather than a re-pin.
+    - >-
+      The `inventory_intersection` claim in the PostgreSQL evidence section, as
+      WRITTEN. Its comment computes "US4 diff vs 66b1406 intersect PG inventory
+      = empty", and that diff cannot be recomputed at the name it cites.
+      Recomputed against the identified survivor it is 62 changed files, none
+      of them a PostgreSQL evidence source — no `.sql` path, nothing under
+      contracts/hermes-runtime/migrations/, and no path matching `postgres`.
+      That corroborates the intersection for the observable class of sources;
+      it does not reconstruct the 78-member inventory the claim quantifies
+      over.
+  not_checkable_at_any_commit:
+    - >-
+      The two digests the PostgreSQL section carries —
+      `source_identity_digest` and `matrix_digest` — appear in NO other
+      committed artifact in this repository, and no committed generator
+      reproduces them. Their unavailability is a property of the superseded
+      record's own evidence and was not caused by the loss; it is recorded here
+      so a later reader does not attribute it to the missing pin. The
+      consequence, stated plainly — if the both-majors PostgreSQL matrix ever
+      has to be re-justified for that US4 surface, it is re-established FORWARD
+      (by re-running it, or by publishing the inventory and recomputing the
+      intersection at a reachable baseline) and never by reading 66b14064.
+
+disposition:
+  finding: >-
+    The standing report is the declared-loss row itself: the pin class reports
+    this site LOST — "declared unrecoverable" — with its full measurement, in
+    every run, and held `fully_verified` FALSE while the superseding record was
+    owed.
+  disposed_as: >-
+    DISCHARGED, NOT SILENCED. The KNOWN_LOSSES row now cites this record; the
+    verification reads committed state to find it and requires it to name the
+    pin; and only then does the loss stop counting as one awaiting its
+    superseding record. The row is never deleted, the LOST verdict never
+    disappears, and the day the object turns out to be recoverable the
+    re-measurement fails and says retention is the route.
+  why_not_a_doc_health_disposition: >-
+    MEASURED, not assumed. health/dispositions.yaml exists only at the
+    aggregation root, is read by the doc-health runner to cite the resolution of
+    a CONTESTED family finding that has left the report, and matches an entry to
+    a finding by the tuple (family, repo, path). Pin reachability registers no
+    check family at all — deliberately, and pinned by test — so there is no
+    family, no report finding, and no tuple for a `cite` to attach to. A
+    disposition file cannot dispose a finding that was never a family finding,
+    so the disposition is recorded where the report is actually produced.
+
+follow_ups:
+  - The declaration stays permanent. Nothing in this record licenses deleting a
+    KNOWN_LOSSES row, and the module refuses that route in prose and in test.
+  - The retention rule now in canon prevents the next instance. This record
+    exists because the rule did not exist in July 2026, and it is evidence for
+    the rule rather than an argument for relaxing it.
