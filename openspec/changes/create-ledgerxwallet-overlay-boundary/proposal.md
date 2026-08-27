@@ -190,6 +190,17 @@ filter-repo, no history import), then scaffolded on `main` with:
 - `models/protected-surface.yaml`, `tests/validate_document_estate_surface.py`,
   and the rest of the bar. LedgerxFactory's own governance surfaces.
 
+**The enumeration is COMPLETE, and that is a checkable claim rather than a
+hope.** `git grep '^kind:.*wallet'` over LedgerxFactory `origin/main` returns
+EXACTLY SEVEN files: the exercise template
+(`ledgerx_wallet_exercise_template`), the holder-registry contract
+(`ledgerx_wallet_holder_registry_contract`), the distinct-holder constraint
+(`xfactory_wallet_distinct_holder_constraint`), two grants
+(`xfactory_wallet_grant`) and two wallet records (`xfactory_wallet_record`).
+Two move, five stay, and the validator moves with them — nothing wallet-kinded in
+that tree is unaccounted for above. Only two `ledgerx_wallet_*` kinds exist in
+the whole repository, and both are named in this section.
+
 ### 2b. A PREPARED, UNEXECUTED live window points at a relocating path
 
 `specs/016-posting-segregation-of-duties/runsheet.md` carries `Status: prepared
