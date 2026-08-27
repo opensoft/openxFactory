@@ -36,3 +36,9 @@ rows:
     grant_ref: grant-mrc-0001
     expires_at: "2026-11-23T12:00:00Z"
     state: active
+    # DELIBERATE MALFORMATION — task 2.6 red-proof, retargeted at the
+    # openxwallet-consumer-gate (split-openxwallet-repo 7.32). This field is
+    # not in the reader's closed field set, so check_register must emit
+    # register-row-malformed naming the full path. THIS BRANCH IS A THROWAWAY
+    # AND IS DELETED AFTER THE RED IS RECORDED. It is never merged.
+    deliberately_malformed_probe: p3-red-proof-2026-08-27
