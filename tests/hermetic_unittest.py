@@ -1,25 +1,38 @@
 """`unittest discover`, with the FR-043 hermeticity guard installed FIRST.
 
-`scripts/validate-docs.sh` runs its test directories through pytest, and falls
-back to `python3 -m unittest discover` when pytest is unavailable. That fallback
-was structurally outside the guard — a conftest fixture cannot apply to a runner
-that never loads conftests — and PR #49 review finding 17 measured a probe in
-`tests/notebooklm/` reaching a real-binary `nlm` stand-in TWICE from it, with the
-refusal ledger empty. A gate whose degraded path is unguarded is a gate that stops
-being one on any host that happens to lack pytest.
+codexFactory's `scripts/validate-docs.sh` runs codexFactory's own test tree
+through pytest — and ran the doc-health and notebooklm suites when they lived
+in codexFactory too, before the doc-health relocation
+(adopt-neutral-tooling-home, ratified 2026-08-03; archived 2026-08-05) moved
+them here, after which the script stopped running them at all.
 
-So the gate invokes THIS instead of `unittest` directly. It installs the same two
-layers `tests/hermeticity.py` gives pytest, from the same declarations
+It fell back, before PR #49 finding 17's fix (2026-07-27), to bare
+`python3 -m unittest discover` when pytest was unavailable; it now falls back
+instead to its own guarded runner
+(`python3 tests/hermetic_unittest.py tests/review-lane/`) — the original this
+file was later copied from, at that same relocation. That bare fallback was
+structurally outside the guard — a conftest fixture cannot apply to a runner
+that never loads conftests — and PR #49 review finding 17 measured a probe in
+`tests/notebooklm/` reaching a real-binary `nlm` stand-in TWICE from it, with
+the refusal ledger empty. A gate whose degraded path is unguarded is a gate
+that stops being one on any host that happens to lack pytest.
+
+This module IS that guarded runner: it installs the same two layers
+`tests/hermeticity.py` gives pytest, from the same declarations
 (`install_binary_shim`, `runner_seams`) so the two routes cannot drift, and then
-runs the ordinary discovery. Nothing about the discovery changes: one
-`start_dir=<directory>` per argument with `pattern="test_*.py"`, which is exactly
-what `-s <dir> -p "test_*.py"` did, and the exit status is non-zero if ANY
-directory fails.
+runs the ordinary discovery. It is retained here as the guarded runner for any
+pytest-less host that runs THIS tree directly; no gate in this repository
+currently takes that route (`.github/workflows/pytest-suite.yml`'s required
+`python3 -m pytest tests/ -q -m "not postgres"` is the live consumer of
+`tests/`). Nothing about the discovery changes: one `start_dir=<directory>` per
+argument with `pattern="test_*.py"`, which is exactly what
+`-s <dir> -p "test_*.py"` did, and the exit status is non-zero if ANY directory
+fails.
 
 Deliberately importable without pytest: this is the no-pytest world by definition,
 which is why `import pytest` is optional in `tests/hermeticity.py`.
 
-    python3 tests/hermetic_unittest.py tests/notebooklm/ tests/review-lane/
+    python3 tests/hermetic_unittest.py tests/notebooklm/ tests/proposal-support/
 """
 
 from __future__ import annotations

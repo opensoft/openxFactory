@@ -188,21 +188,21 @@ at P3 records `wallet-v1.1`.
 *From the NAMED CARVE COMMIT. The carve COPIES and deletes nothing; openxFactory
 is untouched by this whole section.*
 
-- [ ] 3.1 **[OPERATOR]** The case-variant repository-name check, BEFORE the
+- [x] 3.1 **[OPERATOR]** The case-variant repository-name check, BEFORE the
       carve and recorded: GitHub names are case-insensitive-unique, so
       `openxwallet`, `OpenXWallet` or any other casing anywhere in the org — or in
       a fork — collides with `openXwallet`. Discovering it after a carve costs the
       carve.
-- [ ] 3.2 **[openXwallet]** `docs/openxwallet-cutover-runbook.md` authored BEFORE
+- [x] 3.2 **[openXwallet]** `docs/openxwallet-cutover-runbook.md` authored BEFORE
       the carve it describes, with a rollback written before each phase is taken,
       and carrying the two-part byte-identity proof table and the NAMED CARVE
       COMMIT.
-- [ ] 3.3 Name the carve commit — one 40-hex openxFactory sha, recorded in the
+- [x] 3.3 Name the carve commit — one 40-hex openxFactory sha, recorded in the
       cutover runbook and (at P3) in `contracts/openxwallet-pin.yaml`'s
       `carve_commit:`. **Never "HEAD"**, which is no referent across a multi-PR
       wave.
-- [ ] 3.4 **[OPERATOR]** Create `opensoft/openXwallet`, private.
-- [ ] 3.5 **[openXwallet]** `git filter-repo` with one `--path` per set, exact
+- [x] 3.4 **[OPERATOR]** Create `opensoft/openXwallet`, private.
+- [x] 3.5 **[openXwallet]** `git filter-repo` with one `--path` per set, exact
       paths, NO globs and NO `--path-rename`, over the twelve path sets:
       `contracts/openxwallet/`, `contracts/openxwallet-agent-profile/`,
       `scripts/validate-openxwallet.py`, `scripts/wallet-yaml-syntax-gate.py`,
@@ -211,33 +211,33 @@ is untouched by this whole section.*
       `openspec/changes/archive/2026-08-08-add-openxwallet/`,
       `specs/006-openxwallet-contracts/`, `specs/010-wallet-validator-ci/`,
       `specs/012-wallet-issuer-anchor/`. Full path history.
-- [ ] 3.6 **[openXwallet]** Completeness check: `git ls-tree -r --name-only
+- [x] 3.6 **[openXwallet]** Completeness check: `git ls-tree -r --name-only
       <carve_commit> --` over the twelve paths, sorted, EQUALS the same listing at
       `wallet-v1.0` filtered to those prefixes. Evidence is the diff of the two
       sorted listings, empty.
-- [ ] 3.7 **[openXwallet]** The two counts a shorthand loses, asserted
+- [x] 3.7 **[openXwallet]** The two counts a shorthand loses, asserted
       explicitly: **7** files under `specs/006-openxwallet-contracts/` (its
       `evidence/` included) and **36** under
       `contracts/openxwallet/examples/negative/`.
-- [ ] 3.8 **[openXwallet]** Examples-prefix preservation, an acceptance line and
+- [x] 3.8 **[openXwallet]** Examples-prefix preservation, an acceptance line and
       not a hope: both `examples/` directories exist at IDENTICAL relative paths
       in the carved tree, because `repo_scan`'s corpus exclusion keys on
       `"examples" in path.parts` AND an `openxwallet*` part — a rename
       re-adjudicates the 36 intended-invalid negatives as LIVE records inside a
       REQUIRED check.
-- [ ] 3.9 **[openXwallet]** Governed-repo scaffold: `README.md` (what the
+- [x] 3.9 **[openXwallet]** Governed-repo scaffold: `README.md` (what the
       repository is, the two contract families, the doc index, the pin
       relationship in both directions) and `CLAUDE.md` / `AGENTS.md` pointing at
       the user-global OpenSpec/Speckit protocol, in the house form.
-- [ ] 3.10 **[openXwallet]** `.github/CODEOWNERS` — the validator, the syntax
+- [x] 3.10 **[openXwallet]** `.github/CODEOWNERS` — the validator, the syntax
       gate, `contracts/`, `contract_pin.yaml` and the workflows.
-- [ ] 3.11 **[openXwallet]** `contracts/manifest.yaml` at `wallet-v1.0`: the
+- [x] 3.11 **[openXwallet]** `contracts/manifest.yaml` at `wallet-v1.0`: the
       EIGHT owned rows carried with the publisher's nine fields (`id / path /
       source_path / type / schema_version / sha256 / compatibility /
       adapter_owner / consumption_rule`) and their sha256 values UNCHANGED from
       the carve commit; the content-addressed-by-commit note for the validator,
       the gate, both `examples/` trees and both family READMEs.
-- [ ] 3.12 **[openXwallet]** The CONSUMED-member row for the vendored envelope
+- [x] 3.12 **[openXwallet]** The CONSUMED-member row for the vendored envelope
       schema, in the same manifest: publisher's nine fields with `compatibility:
       canonical_openxfactory_contract`, `adapter_owner: openxFactory` and a
       `sha256` EQUAL to the pinned openxFactory row's, plus three declared
@@ -245,78 +245,139 @@ is untouched by this whole section.*
       `pinned_openxfactory_bundle: contract-v<pinned>`. It satisfies
       `shared-contract-ownership:142`'s all-markers-together test without claiming
       ownership of an openxFactory contract.
-- [ ] 3.13 **[openXwallet]** Release tooling selects `member_class: owned` ONLY
+- [x] 3.13 **[openXwallet]** Release tooling selects `member_class: owned` ONLY
       for `wallet-vN.M.digests.yaml` — exclusion by DECLARED FIELD, never by a
       `contracts/schemas/` path heuristic, which breaks the day openXwallet
       publishes a schema of its own there.
-- [ ] 3.14 **[openXwallet]** `carved_from: {repository, commit}` in
+- [x] 3.14 **[openXwallet]** `carved_from: {repository, commit}` in
       `contracts/manifest.yaml` — the machine-read one of the three provenance
       records (the other two are `carve_commit:` in openxFactory's pin file and
       the runbook's procedure). No bare `CARVE_COMMIT` file.
-- [ ] 3.15 **[openXwallet]** `contracts/CHANGELOG.md` seeded with the
+- [x] 3.15 **[openXwallet]** `contracts/CHANGELOG.md` seeded with the
       `wallet-v1.0` entry: a byte-identical carve from openxFactory
       `<carve_commit>`, the twelve path sets, the two prose edits, and no content
       change.
-- [ ] 3.16 **[openXwallet]** The vendored copy at EXACTLY
+- [x] 3.16 **[openXwallet]** The vendored copy at EXACTLY
       `contracts/schemas/hermes-job-envelope.schema.yaml` — the identical
       repository-relative path — added by the SCAFFOLD commit and not by the
       carve, so `ENVELOPE_SCHEMA_PATH` (`:218`) and its `.relative_to(ROOT)`
       print need no edit and R6's empty diff survives.
-- [ ] 3.17 **[openXwallet]** `contract_pin.yaml` on openAvatar's model, with a
+- [x] 3.17 **[openXwallet]** `contract_pin.yaml` on openAvatar's model, with a
       NAMED `verify_pin` that FAILS CLOSED pre-sync (a recomputed digest can never
       equal an empty recorded digest → drift → fail before any test), and the
       pinned openxFactory bundle identified.
-- [ ] 3.18 **[openXwallet]** `docs/pin-resync-runbook.md` on openAvatar's shape:
+- [x] 3.18 **[openXwallet]** `docs/pin-resync-runbook.md` on openAvatar's shape:
       Preconditions, Checklist, re-verify the pin offline, re-run the offline gate
       suite. It exists from day one because an `openxwallet` core delta costs a
       wallet release, an openxFactory pin bump and a LedgerxFactory re-pin.
-- [ ] 3.19 **[openXwallet]** `.github/workflows/wallet-validation.yml` — job id
+- [x] 3.19 **[openXwallet]** `.github/workflows/wallet-validation.yml` — job id
       `wallet-validation`, deliberately the same token name as openxFactory's
       (distinct repositories are distinct namespaces), with the vendored-schema
       `verify_pin` step running BEFORE the validator, because `main()` checks only
       `ENVELOPE_SCHEMA_PATH.is_file()` — presence, not identity — while rule (g)
       reads the approval-scope vocabulary out of that file.
-- [ ] 3.20 **[openXwallet]** `.github/workflows/pytest-suite.yml` over the carved
+- [x] 3.20 **[openXwallet]** `.github/workflows/pytest-suite.yml` over the carved
       `tests/wallet_yaml_syntax_gate/`.
-- [ ] 3.21 **[openXwallet]** Prose edit one of two: the `openxFactory SHALL` →
+- [x] 3.21 **[openXwallet]** Prose edit one of two: the `openxFactory SHALL` →
       `openXwallet SHALL` subject at `openspec/specs/openxwallet/spec.md:8` and
       `openspec/specs/openxwallet-agent-profile/spec.md:8`. Outside the floor,
       which covers `contracts/` BYTES and does not reach spec prose.
-- [ ] 3.22 **[openXwallet]** Prose edit two of two: the `## Purpose` placeholder
+- [x] 3.22 **[openXwallet]** Prose edit two of two: the `## Purpose` placeholder
       at `:4` of each promoted spec ("TBD - created by archiving change
       add-openxwallet…"), written in the move because a moved spec whose Purpose
       names another repository's archiving change is not a pure move either.
-- [ ] 3.23 **[openXwallet]** Byte-identity proof, part one: for each of the eight
+- [x] 3.23 **[openXwallet]** Byte-identity proof, part one: for each of the eight
       digested artifacts, `sha256sum` at `wallet-v1.0` EQUALS the `sha256:`
       recorded at the NAMED CARVE COMMIT. Evidence is the eight-row table in the
       cutover runbook and in P2's evidence row.
-- [ ] 3.24 **[openXwallet]** Byte-identity proof, part two: `git diff` EMPTY over
+- [x] 3.24 **[openXwallet]** Byte-identity proof, part two: `git diff` EMPTY over
       `contracts/openxwallet/`, `contracts/openxwallet-agent-profile/`,
       `scripts/validate-openxwallet.py`, `scripts/wallet-yaml-syntax-gate.py`,
       `tests/wallet_yaml_syntax_gate/`, the three Speckit sets and the archive
       packet, against the carve commit — AND diff-limited-to-two-lines over each
       promoted spec, asserted line by line at `:4` and `:8`, which is the declared
       scope of the one carve-out rather than a described one.
-- [ ] 3.25 **[OPERATOR]** Create openXwallet's branch-protection ruleset in
+- [x] 3.25 **[OPERATOR]** Create openXwallet's branch-protection ruleset in
       **EVALUATE** mode. Record in the runbook that **day-one REQUIRED is
       impossible** — GitHub cannot require a check that has never reported — as
       unachievable rather than promised.
-- [ ] 3.26 **[OPERATOR]** Land one trivial pull request so `wallet-validation`
+- [x] 3.26 **[OPERATOR]** Land one trivial pull request so `wallet-validation`
       reports once and becomes selectable.
-- [ ] 3.27 **[OPERATOR]** Promote the ruleset to **ACTIVE**. Evidence: `GET
+- [x] 3.27 **[OPERATOR]** Promote the ruleset to **ACTIVE**. Evidence: `GET
       repos/opensoft/openXwallet/rules/branches/main` showing
       `required_status_checks → [wallet-validation]`.
-- [ ] 3.28 **[OPERATOR]** Tag `wallet-v1.0` — ONLY after §3.23–§3.24 are green.
-- [ ] 3.29 **[openXwallet]** Evidence rows: first green `wallet-validation` plus
+- [x] 3.28 **[OPERATOR]** Tag `wallet-v1.0` — ONLY after §3.23–§3.24 are green.
+- [x] 3.29 **[openXwallet]** Evidence rows: first green `wallet-validation` plus
       the §3.6 carve-completeness check; first green `pytest-suite` plus the
       byte-identity proof against the named carve commit.
-- [ ] 3.30 **[openXwallet]** Evidence row (V8): the `wallet-validation` log line
+- [x] 3.30 **[openXwallet]** Evidence row (V8): the `wallet-validation` log line
       showing the vendored envelope schema digest-verified against
       `contract_pin.yaml` BEFORE the validator ran, PLUS a red run with a
       deliberately mutated copy — a verifier that has never refused is not known
       to refuse.
-- [ ] 3.31 Rollback recorded before the step: nothing pins openXwallet yet —
+- [x] 3.31 Rollback recorded before the step: nothing pins openXwallet yet —
       delete the repository or leave it unpinned; openxFactory is untouched.
+
+### P2 realization evidence — recorded 2026-08-26
+
+Realized by openxFactory Speckit feature **`017-openxwallet-carve`**.
+
+| | |
+| --- | --- |
+| Repository | **https://github.com/opensoft/openXwallet** (PRIVATE) |
+| NAMED CARVE COMMIT | `30565e48ffe3d8a9773e10af33425701845e10f6` |
+| `main` head at the tag | `936ceb2066705d82fa60b333bea3babe6297a1b7` |
+| Tag | **`wallet-v1.0`** — annotated, object `de74c8ccf10dee4f36bd69cd7162f04cea569167` |
+| Ruleset | **21607344** — created `evaluate`, promoted **`active`**; `required_status_checks → [wallet-validation, pytest-suite]` on `~DEFAULT_BRANCH` |
+| Bootstrap PR | openXwallet **#1**, merged `936ceb20` |
+| Green `wallet-validation` | run **33024308629** |
+| Green `pytest-suite` | run **33024308567** |
+
+**§3.1** every case variant of `openxwallet` absent in `opensoft` and absent from
+an org-scoped and an unscoped repository search, checked and recorded at create
+time. **§3.5–3.6** `git filter-repo`, one `--path` per set, twelve sets, no globs
+and no renames; **the completeness diff of the two sorted listings is EMPTY at 100
+files**, and the carved history is 26 commits (17 of them touching
+`scripts/validate-openxwallet.py`). **§3.23–3.24** part one **8/8** three-way
+(carved bytes == openXwallet manifest == openxFactory manifest at the carve
+commit); part two EMPTY on every floored path, re-established by git blob+mode
+identity at **100/100 at the carve layer** and **97/100 after the scaffold**, the
+three exceptions being the two promoted specs and `wallet-validation.yml`. **§3.30**
+the verifier was observed REFUSING a mutated vendored copy (exit 1, both
+remediation strings), and the CI log shows the digest verified **253 ms before the
+validator started**.
+
+**Three facts diverged from this group's own text, and each was resolved in the
+open rather than absorbed** (full record:
+`specs/017-openxwallet-carve/clarify-questions.md`):
+
+1. **§3.7's "36 under `contracts/openxwallet/examples/negative/`"** — that
+   directory holds **32**; the other **4** are in
+   `contracts/openxwallet-agent-profile/examples/negative/`. 32 + 4 = 36. Asserted
+   as 32 / 4 / 36 because asserting 36 in the core family alone would FAIL against
+   a correct carve. The validator independently confirms 36 negatives across 13/13
+   requirements. This is §3.7's own failure mode, applied to §3.7's text.
+2. **§3.12's "sha256 EQUAL to the pinned openxFactory row's"** — openxFactory's
+   row for `contracts/schemas/hermes-job-envelope.schema.yaml` carries **no
+   `sha256` at all** (`copied_from_source_commit` from `Omnigent-Install`,
+   content-addressed by commit). The digest is COMPUTED over the pinned bytes,
+   which is the value the text intends; the absence upstream is noted on the row.
+3. **§3.27's `required_status_checks → [wallet-validation]`** — ruleset 21538893,
+   the shape D8 says to mirror, requires **both** tokens as of 2026-08-26 17:39.
+   Both are required, which satisfies the named minimum and matches the precedent.
+
+**One ratified path is deliberately NOT in the byte-identity floor**, per §3.24's
+own enumeration: `.github/workflows/wallet-validation.yml`. §3.19 positively
+requires the verify step to run *before the validator*, which two independent
+workflows cannot order, so the step is prepended inside the `wallet-validation`
+job and that one-hunk edit is declared in the proof record.
+
+**openxFactory gained exactly two paths from this feature** —
+`specs/017-openxwallet-carve/` and these ticks — and lost nothing. The carve
+COPIES; P3's deletions are P3's own commit.
+
+**Still open for P2b** (`wallet-v1.1`, before P3): the nested-repository prune in
+`repo_scan`, and the register-read `f.note` D3's positive proof rests on.
 
 ## 4. P2b — `wallet-v1.1`, the tag openxFactory actually pins
 

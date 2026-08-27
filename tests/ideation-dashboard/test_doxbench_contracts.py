@@ -57,13 +57,18 @@ CHAT_TURN_SCHEMA_FILE = "xfactory-workbench-chat-turn.schema.yaml"
 # 671a6908, the squash-merge of PR #256, tag object 3c82f6b8, peeled FROM THE
 # REMOTE. (v1.38's resolution was 58e4aecd: `contract-v1.38^{}` == 0f50b35, tag
 # object 46cd169; v1.34's was 7c544c84.)
-RELEASED_REF = "671a69082492e3bda01a916e52211686d6598d1a"
-RELEASED_TAG = "contract-v1.40"
+# RE-PINNED at contract-v1.45 (add-doxchat-model-intake 3.3/3.6): the
+# chat-turn schema gained the optional `provider_retry` block, so its bytes
+# moved and the consumer pin moved with them. The ref carries the
+# realization SENTINEL until the tag is published against the commit that
+# lands — the same posture the v1.40 cut carried across its own branch.
+RELEASED_REF = "unpublished:contract-v1.45"
+RELEASED_TAG = "contract-v1.45"
 RELEASED_DIGESTS = {
     CATALOG_SCHEMA_FILE:
         "dff513fa6b607c417a39e5529964f9df2c8f56841ae3b0a894c85b6d1dea0675",
     CHAT_TURN_SCHEMA_FILE:
-        "d8ee5624f2136977044971b17fe67fe31b057bbf621e14853069fd082019b254",
+        "2ff5f222af5cdccd545417203898a919be0365cdd0d2d5138e87e23f7ebfe1cf",
 }
 
 # ---------------------------------------------------------------------------
@@ -793,7 +798,7 @@ def test_packaged_positives_validate_structurally(released_root):
     # here — its continued validity is the additive claim, so the release adds
     # two files rather than three.) The exact count IS the pin, so it advances
     # with the release rather than being loosened to an inequality.
-    assert len(positives) == 13, [p.name for p in positives]
+    assert len(positives) == 14, [p.name for p in positives]
 
     for path in positives:
         doc = yaml.safe_load(path.read_text(encoding="utf-8"))
