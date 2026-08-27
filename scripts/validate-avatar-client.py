@@ -406,11 +406,44 @@ def check_speech_gate(f: Findings, docs: dict[str, dict]) -> None:
 
 # --------------------------- orchestration ---------------------------
 
+def _report(f: Findings, strict: bool) -> int:
+    for line in f.notes:
+        print(line)
+    for line in f.warnings:
+        print(line)
+    for line in f.errors:
+        print(line)
+    n_e, n_w = len(f.errors), len(f.warnings)
+    print(f"\nvalidate-avatar-client: {n_e} error(s), {n_w} warning(s)")
+    if n_e or (strict and n_w):
+        return 1
+    return 0
+
+
 def run(strict: bool, require_realization: bool) -> int:
     f = Findings()
     if not AVC.is_dir():
         print("ERROR contracts/avatar-client/ not found", file=sys.stderr)
         return 2
+
+    # FAIL CLOSED ON A STRUCTURALLY UNREADABLE ACCEPTANCE MAP, ONCE, HERE.
+    # A top-level list is valid YAML and a malformed acceptance map, and a
+    # dozen readers below index it as a mapping. Each of those raised in turn,
+    # which surfaced as `ERROR harness failure: 'list' object has no attribute
+    # 'get'` and exit 2 — a crash, not a finding, and it aborted the run before
+    # any check could report. Guarding each reader separately would be
+    # whack-a-mole and would leave the next reader to be added exposed, so the
+    # shape is refused once, up front. Every downstream check is meaningless
+    # against a map that cannot be indexed, so this returns rather than
+    # continuing on a document nothing can read.
+    amap_path = AVC / "acceptance-map.yaml"
+    if amap_path.is_file() and not isinstance(load_yaml(amap_path), dict):
+        f.error("acceptance-map",
+                "contracts/avatar-client/acceptance-map.yaml does not load as a "
+                "mapping; requirement and scenario traceability, the latency "
+                "posture, and every cross-reference resolved against it are "
+                "unverifiable (fail closed)")
+        return _report(f, strict)
 
     check_metadata(f)
     registry, docs = build_registry(f)
@@ -442,18 +475,7 @@ def run(strict: bool, require_realization: bool) -> int:
     check_digests(f, require_realization)
     check_f0_gate(f, require_realization)
 
-    for line in f.notes:
-        print(line)
-    for line in f.warnings:
-        print(line)
-    for line in f.errors:
-        print(line)
-
-    n_e, n_w = len(f.errors), len(f.warnings)
-    print(f"\nvalidate-avatar-client: {n_e} error(s), {n_w} warning(s)")
-    if n_e or (strict and n_w):
-        return 1
-    return 0
+    return _report(f, strict)
 
 
 ALL_CLASSES = {"valid", "invalid", "boundary", "compatibility",
@@ -553,16 +575,26 @@ POLICY_RULED_CLASSES = {
 }
 
 
-def _acceptance_map_ids() -> set[str]:
+def _acceptance_map_ids() -> set[str] | None:
     """Every requirement id, scenario id and SLO id the acceptance map declares.
     Used to resolve the cross-references the §4.1 and §6.3 artifacts carry, so a
     reference to a scenario that was renamed or never existed is a finding
-    rather than a decoration."""
+    rather than a decoration.
+
+    Returns an EMPTY SET when the map is simply absent (its own checks report
+    that), and `None` when the file exists but does not load as a mapping. The
+    distinction matters: a top-level list is valid YAML and a malformed
+    acceptance map, and reading it as a mapping used to raise straight out of
+    this helper — which aborted the whole run with a harness failure BEFORE any
+    check could report anything. An unreadable map is a finding, fail closed,
+    the same way every other reader in this file refuses one."""
     ids: set[str] = set()
     path = AVC / "acceptance-map.yaml"
     if not path.is_file():
         return ids
-    amap = load_yaml(path) or {}
+    amap = load_yaml(path)
+    if not isinstance(amap, dict):
+        return None
     for req in amap.get("requirements") or []:
         if not isinstance(req, dict):
             continue
@@ -577,10 +609,25 @@ def _acceptance_map_ids() -> set[str]:
     return ids
 
 
+def _resolve_map_ids(f: Findings, cat: str, rp: str) -> set[str]:
+    """`_acceptance_map_ids()` with its unreadable-map signal turned into a
+    finding for the calling artifact. Returns an empty set afterwards so the
+    caller's remaining checks still run — the refusal is recorded, and the run
+    continues to report everything else rather than dying on the first bad
+    file."""
+    known = _acceptance_map_ids()
+    if known is None:
+        f.error(cat, f"{rp}: contracts/avatar-client/acceptance-map.yaml does not "
+                     f"load as a mapping, so the cross-references this artifact "
+                     f"carries cannot be resolved (fail closed)")
+        return set()
+    return known
+
+
 def _check_map_refs(f: Findings, cat: str, where: str,
                     refs: Any, known: set[str]) -> None:
     """Every `acceptance_map_refs` entry must resolve. Skipped only when the map
-    itself is missing, which its own check already reports."""
+    itself is missing or unreadable, which the caller already reports."""
     if refs is None or not known:
         return
     if not isinstance(refs, list):
@@ -632,24 +679,58 @@ def check_activation_checklist(f: Findings) -> None:
     if doc.get("kind") != CHECKLIST_KIND:
         f.error(cat, f"{rp}: kind {doc.get('kind')!r} != {CHECKLIST_KIND!r}")
 
-    known = _acceptance_map_ids()
+    known = _resolve_map_ids(f, cat, rp)
 
     # --- 1 + 2: the eight conditions and their ruled classifications ---
     conditions = doc.get("conditions")
     if not isinstance(conditions, list):
         f.error(cat, f"{rp}: `conditions` missing or not a list (fail closed)")
         return
-    numbers = [c.get("number") for c in conditions if isinstance(c, dict)]
-    if sorted(n for n in numbers if isinstance(n, int)) != list(range(1, 9)):
-        f.error(cat, f"{rp}: condition numbers {sorted(numbers, key=str)} are not "
-                     f"exactly 1..8; the eight-condition checklist must carry all "
-                     f"eight, because a missing condition reads as a satisfied one")
+
+    # SHAPE FIRST, AND STRICTLY. Every entry must be a mapping carrying an
+    # INTEGER `number`, and the eight must be exactly 1..8 with none repeated.
+    # This used to filter non-mappings and non-integers out of the completeness
+    # scan, which was wrong twice over: a stray scalar in the list vanished
+    # silently, and a ninth entry numbered "1" (a string) let the scan see a
+    # clean 1..8 and then raised a KeyError in the loop below — a harness
+    # failure that aborted the run instead of reporting a finding. A malformed
+    # checklist is a finding, never a crash and never a silent skip.
+    # `bool` is rejected explicitly because it subclasses `int` in Python, so
+    # `number: true` would otherwise be accepted as 1.
+    if len(conditions) != 8:
+        f.error(cat, f"{rp}: `conditions` carries {len(conditions)} entries; the "
+                     f"eight-condition checklist must carry exactly 8, because a "
+                     f"missing condition reads as a satisfied one and an extra one "
+                     f"is a condition nobody ratified")
+        return
+    numbers: list[int] = []
+    shape_ok = True
+    for i, cond in enumerate(conditions):
+        if not isinstance(cond, dict):
+            f.error(cat, f"{rp}: conditions[{i}] is a {type(cond).__name__}, not a "
+                         f"mapping; a condition that is not a mapping cannot carry "
+                         f"a classification and is never skipped over")
+            shape_ok = False
+            continue
+        n = cond.get("number")
+        if isinstance(n, bool) or not isinstance(n, int):
+            f.error(cat, f"{rp}: conditions[{i}] has number {n!r} "
+                         f"({type(n).__name__}); a condition number must be an "
+                         f"integer 1..8")
+            shape_ok = False
+            continue
+        numbers.append(n)
+    if not shape_ok:
+        return
+    if sorted(numbers) != list(range(1, 9)):
+        f.error(cat, f"{rp}: condition numbers {sorted(numbers)} are not exactly "
+                     f"1..8 with each appearing once; the eight-condition checklist "
+                     f"must carry all eight, because a missing condition reads as a "
+                     f"satisfied one")
         return
 
     for cond in conditions:
-        if not isinstance(cond, dict):
-            continue
-        n = cond.get("number")
+        n = cond["number"]
         where = f"{rp} condition {n}"
         ruled = CHECKLIST_RULED[n]
         declared = cond.get("classification")
@@ -786,7 +867,7 @@ def check_canary_rollback_policy(f: Findings) -> None:
     if doc.get("kind") != POLICY_KIND:
         f.error(cat, f"{rp}: kind {doc.get('kind')!r} != {POLICY_KIND!r}")
 
-    known = _acceptance_map_ids()
+    known = _resolve_map_ids(f, cat, rp)
 
     # --- the cohort ---
     cohort = doc.get("cohort")
@@ -982,6 +1063,17 @@ def check_acceptance_and_evidence(f: Findings, fixture_evidence_ids: set[str]) -
     if not amap_path.is_file():
         return
     amap = load_yaml(amap_path)
+    if not isinstance(amap, dict):
+        # A top-level list is valid YAML and a malformed acceptance map. Reading
+        # it as a mapping raised straight out of this function and aborted the
+        # whole run with a harness failure, so the traceability check that this
+        # very function performs never got to report anything. Refuse it as a
+        # finding instead, the way every other reader here refuses one.
+        f.error("acceptance-map",
+                "contracts/avatar-client/acceptance-map.yaml does not load as a "
+                "mapping; requirement and scenario traceability is unverifiable "
+                "(fail closed)")
+        return
     reqs = amap.get("requirements") or []
     scen_ids: list[str] = []
     map_req_titles: list[str] = []
@@ -1195,6 +1287,11 @@ def _release_map_index(path: Path) -> dict[str, dict]:
     scenarios{sid: title}}} for the client-lab parity cross-check."""
     doc = load_yaml(path) or {}
     idx: dict[str, dict] = {}
+    if not isinstance(doc, dict):
+        # An unreadable released map indexes to nothing rather than raising; the
+        # caller's parity check then reports the mismatch as a finding, and the
+        # readers that own this file report the shape itself.
+        return idx
     for r in doc.get("requirements") or []:
         rid = r.get("id")
         scen = {s.get("id"): (s.get("title") or "").strip()
