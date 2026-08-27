@@ -1296,8 +1296,20 @@ class SplitIdeationBookTests(unittest.TestCase):
                 state["notebooks"].append(nb)
                 state["sources"].setdefault(nb["id"], [])
                 return ""
+            if head == ("source", "rename"):
+                # MODELS THE WRITE. `_rename_source_when_ready` confirms a
+                # rename by reading the source list back rather than trusting
+                # the call's return (the CLI has been seen erroring while
+                # exiting 0), so a fake that accepted renames without recording
+                # them would make every rename look like it never took.
+                sid, new_title = args[2], args[3]
+                for _nid, rows in state["sources"].items():
+                    for row in rows:
+                        if row.get("id") == sid:
+                            row["title"] = new_title
+                return ""
             if head in {("alias", "set"), ("tag", "add"), ("chat", "configure"),
-                        ("source", "delete"), ("source", "rename")}:
+                        ("source", "delete")}:
                 return ""
             if head == ("source", "list"):
                 return list(state["sources"].get(args[2], []))
@@ -1423,6 +1435,156 @@ class SplitIdeationBookTests(unittest.TestCase):
             adds = [c for c in calls if c[:2] == ("source", "add")
                     and c[6] != sync.CHARTER_TITLE]
             self.assertEqual(len(adds), 6)
+
+    # ---- the oversized-source rename defect (fixed 2026-08-27) --------------
+    #
+    # Live failure: a 279KB document uploaded, the fixed `time.sleep(2)` was too
+    # short, the rename silently did not take, and the source stranded under
+    # `xf-sync-*.md` where parity read it MISSING. Worse, the documented repair —
+    # re-run the book — ADDED A SECOND STRAY rather than repairing the first.
+
+    def _slow_rename_fake(self, notebooks, ready_after: int):
+        """A provider whose rename only takes on the `ready_after`-th attempt."""
+        calls, attempts = [], {"n": 0}
+        state = {"notebooks": [dict(n) for n in notebooks], "sources": {}}
+
+        def fake(*args, parse=True):
+            calls.append(args)
+            head = args[:2]
+            if head == ("notebook", "list"):
+                return list(state["notebooks"])
+            if head == ("source", "list"):
+                return list(state["sources"].get(args[2], []))
+            if head == ("source", "add"):
+                nid = args[2]
+                sid = f"s{len(state['sources'].setdefault(nid, [])) + 1}"
+                state["sources"][nid].append({"id": sid,
+                                              "title": "xf-sync-abc123.md"})
+                return f"Added source: xf-sync-abc123.md\nSource ID: {sid}\n"
+            if head == ("source", "rename"):
+                attempts["n"] += 1
+                if attempts["n"] < ready_after:
+                    return ""            # accepted, but does NOT take
+                for rows in state["sources"].values():
+                    for row in rows:
+                        if row.get("id") == args[2]:
+                            row["title"] = args[3]
+                return ""
+            if head in {("alias", "set"), ("tag", "add"), ("chat", "configure"),
+                        ("source", "delete")}:
+                return ""
+            raise AssertionError(f"unexpected nlm call: {args}")
+
+        return fake, calls, state, attempts
+
+    def test_a_slow_rename_is_polled_until_it_takes(self):
+        """Where `sleep(2)` gave up, polling succeeds."""
+        fake, calls, state, attempts = self._slow_rename_fake(
+            [{"id": "nbX", "title": "T"}], ready_after=4)
+        with patch.object(sync, "nlm", fake), \
+                patch.object(sync, "MAX_TEXT_ARG_BYTES", 200), \
+                patch.object(sync.time, "sleep", lambda _s: None), \
+                contextlib.redirect_stdout(io.StringIO()):
+            sync.add_text_source("nbX", "x" * 5000, "[spec] openxFactory: big")
+        self.assertEqual(attempts["n"], 4, "should have kept trying")
+        titles = [r["title"] for r in state["sources"]["nbX"]]
+        self.assertEqual(titles, ["[spec] openxFactory: big"])
+        self.assertEqual(len([c for c in calls if c[:2] == ("source", "add")]), 1)
+
+    def test_a_rename_that_never_takes_fails_LOUDLY(self):
+        """The silent failure is what stranded the source. It must raise."""
+        fake, _calls, state, _a = self._slow_rename_fake(
+            [{"id": "nbX", "title": "T"}], ready_after=10**6)
+        with patch.object(sync, "nlm", fake), \
+                patch.object(sync, "MAX_TEXT_ARG_BYTES", 200), \
+                patch.object(sync.time, "sleep", lambda _s: None), \
+                patch.object(sync, "RENAME_READY_TIMEOUT_S", 9), \
+                patch.object(sync, "RENAME_POLL_INTERVAL_S", 3), \
+                contextlib.redirect_stdout(io.StringIO()):
+            with self.assertRaises(RuntimeError) as caught:
+                sync.add_text_source("nbX", "x" * 5000, "[spec] openxFactory: big")
+        msg = str(caught.exception)
+        self.assertIn("rename never took", msg)
+        self.assertIn("do NOT re-run the sync to fix it", msg)
+        # and it names the hand repair, since that is what the operator must run
+        self.assertIn("nlm source rename", msg)
+        self.assertEqual([r["title"] for r in state["sources"]["nbX"]],
+                         ["xf-sync-abc123.md"])
+
+    def test_a_rerun_ADOPTS_the_stray_instead_of_adding_a_duplicate(self):
+        """The compounding failure, converted to self-healing.
+
+        Live on 2026-08-27 a re-run added a SECOND `xf-sync-*.md` for one
+        document; canon reached 120 sources and had to be repaired by hand.
+        """
+        text = "x" * 5000
+        digest_body = text
+        calls = []
+        state = {"sources": {"nbX": [{"id": "stray1",
+                                      "title": "xf-sync-deadbeef.md"}]}}
+
+        def fake(*args, parse=True):
+            calls.append(args)
+            head = args[:2]
+            if head == ("source", "list"):
+                return list(state["sources"].get(args[2], []))
+            if head == ("source", "content"):
+                return digest_body
+            if head == ("source", "rename"):
+                for rows in state["sources"].values():
+                    for row in rows:
+                        if row.get("id") == args[2]:
+                            row["title"] = args[3]
+                return ""
+            raise AssertionError(f"unexpected nlm call: {args}")
+
+        with patch.object(sync, "nlm", fake), \
+                patch.object(sync, "MAX_TEXT_ARG_BYTES", 200), \
+                patch.object(sync.time, "sleep", lambda _s: None), \
+                contextlib.redirect_stdout(io.StringIO()):
+            sync.add_text_source("nbX", text, "[spec] openxFactory: big")
+
+        self.assertEqual([c for c in calls if c[:2] == ("source", "add")], [],
+                         "the stray was this document; adding again duplicates it")
+        self.assertEqual([r["title"] for r in state["sources"]["nbX"]],
+                         ["[spec] openxFactory: big"])
+
+    def test_a_stray_whose_CONTENT_differs_is_left_alone(self):
+        """Adoption is keyed on content, so it can repair or do nothing —
+        never claim an unrelated source."""
+        state = {"sources": {"nbX": [{"id": "other",
+                                      "title": "xf-sync-deadbeef.md"}]}}
+        calls = []
+
+        def fake(*args, parse=True):
+            calls.append(args)
+            head = args[:2]
+            if head == ("source", "list"):
+                return list(state["sources"].get(args[2], []))
+            if head == ("source", "content"):
+                return "a completely different document"
+            if head == ("source", "add"):
+                sid = f"s{len(state['sources']['nbX']) + 1}"
+                state["sources"]["nbX"].append({"id": sid,
+                                                "title": "xf-sync-new.md"})
+                return f"Source ID: {sid}\n"
+            if head == ("source", "rename"):
+                for row in state["sources"]["nbX"]:
+                    if row.get("id") == args[2]:
+                        row["title"] = args[3]
+                return ""
+            raise AssertionError(f"unexpected nlm call: {args}")
+
+        with patch.object(sync, "nlm", fake), \
+                patch.object(sync, "MAX_TEXT_ARG_BYTES", 200), \
+                patch.object(sync.time, "sleep", lambda _s: None), \
+                contextlib.redirect_stdout(io.StringIO()):
+            sync.add_text_source("nbX", "x" * 5000, "[spec] openxFactory: big")
+
+        self.assertEqual(len([c for c in calls if c[:2] == ("source", "add")]), 1,
+                         "an unrelated stray must not be adopted")
+        self.assertIn("xf-sync-deadbeef.md",
+                      [r["title"] for r in state["sources"]["nbX"]])
 
     def test_oversized_source_rides_a_file_and_is_renamed_to_its_title(self):
         # Linux MAX_ARG_STRLEN killed the canon book live 2026-08-10: a doc
