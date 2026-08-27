@@ -380,6 +380,35 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-unclassified-finding-class](openspec/changes/add-unclassified-finding-class/proposal.md)
+  — **RATIFIED 2026-08-27** (in-session commissioning, verbatim "Amend now";
+  realization via Speckit) — the modified-block-currency family's report block
+  already detects that its own class map has drifted from its arms, and then
+  says so in PROSE: the `unclassified` residual row carries no severity, is not
+  a finding, and is therefore reached by neither `--fail-on` nor the ranked plan
+  that "Health report contract" requires every finding to appear in. One ADDED
+  requirement on `doc-health` makes a nonzero residual emit exactly ONE
+  `warning` per run, naming the count and the first unplaced rule text verbatim,
+  carrying that finding's repo and delta path and the action line "extend the
+  class map, or fix the rule text drift". The finding is itself placed by the
+  map into a FIFTH `FindingClass` — an unplaced finding about unplaced findings
+  would be counted by the residual it reports — and its pattern is ANCHORED at
+  the start of the rule text, because the finding quotes a rule text that may
+  itself begin in the shape of an arm. The residual row stays; it is what makes
+  the tally sum. **NO `## MODIFIED Requirements` block**, and that is a
+  measurement rather than a preference: canon enumerates the three comparison
+  ARMS and never the classes, the class map, or the residual, so restating 14
+  scenarios of "Currency of an active change's MODIFIED requirement blocks"
+  would risk the defect the family exists to catch in order to say something
+  canon does not say. Adds NO check family; the enumeration and its numerals are
+  untouched. Band `warning` and the family stays absent from `FAMILY_RESOLUTION`,
+  so the finding retiring when somebody extends the map cannot become an
+  uncited-resolution `error`; § 7.2's flip is untouched and still owed. Predicted
+  movement **zero in every band** — the tree reads `unclassified: 0` today.
+  Three orchestrator decisions are flagged for veto (ADDED-only; a fifth class
+  rather than a severity on the report block; one finding per run rather than per
+  repository). `code_surface` is one module and one test file;
+  `target_release: implemented`, so it archives only on merged plus green.
 - [split-openxwallet-repo](openspec/changes/split-openxwallet-repo/proposal.md)
   — **RATIFIED 2026-08-26** (in-session ruling on PR #391; realization via
   Speckit) — authored 2026-08-26 as the first and only exit of the staged topic
