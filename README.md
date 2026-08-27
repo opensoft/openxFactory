@@ -1070,37 +1070,6 @@ Active changes:
   fallbacks painted a white popover behind light text. (code surface:
   openxFactory; target release: none)
 
-- [add-shared-identity-seeds](openspec/changes/add-shared-identity-seeds/proposal.md)
-  — ratified 2026-08-07 (Brett's "yes, lets start that now", accepting the
-  successor named at the close of `add-repository-lens`). Implements the FIRST
-  of the promotion process's four ways a DTN candidate is born — "two or more
-  domain repos use the same structure with different domain nouns" — which had
-  never been automated: none of the neutrality-drift lane's four stage-1
-  signals asks whether two DOMAIN repositories carry the same thing, so that
-  rule was served by manual search passes only. The repository lens already
-  computes exactly that population (ring 2 and inward on the carrier-count
-  plot), so the change adds `doc_health/shared_identity.py` (the deterministic
-  detector plus a seed drafter emitting the register's own row and
-  `### DTN-NNN:` detail section, numbered from the register so a
-  drafted-but-unmerged gap never collides), a loopback drafting route on the
-  dashboard serve that recomputes carriers from the serve's own composed view
-  and returns TEXT, and the lens drill-in affordance (convergent regions
-  draftable, single-carrier regions refused with the reason). SEED-FIRST,
-  NEVER A WRITE: the register is never opened for writing and a candidate
-  enters the lifecycle only when a human merges the seed — which is what makes
-  the affordance legitimate on a composed READ-ONLY view and leaves D10
-  untouched. No contract growth: no schema, no gate verb, no gate-action
-  record. Tasks 1.1–4.4 are discharged, including the 2026-08-07 live browser
-  check on the real five-factory `domains` project (three convergent regions
-  enabled, five single-carrier rows disabled with their reason, the 3-carrier
-  sector drafting DTN-025 for `docs/credentialing.md`, checkout unchanged).
-  4.5 is discharged too: Brett ruled in-session 2026-08-26 to merge that
-  first drafted seed — the register's highest entry is now DTN-025. Only the
-  named successor remains, out of scope for this change: promoting the
-  detector to a FIFTH neutrality-drift stage-1 signal so the nightly lane
-  files these seeds unattended. (code surface: openxFactory; target release:
-  none)
-
 The avatar-client kernel (`contract-v1.7`), reference runtime, and avatar-first UI
 standard (`contract-v1.8`) are realized. The contract kernel, the revocation
 clarification, the reference runtime, and the avatar-first UI standard all archived
@@ -1122,6 +1091,61 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [add-shared-identity-seeds](openspec/changes/archive/2026-08-27-add-shared-identity-seeds/proposal.md)
+  — **ARCHIVED 2026-08-27**; authored and ratified 2026-08-07 (Brett's "yes,
+  lets start that now", accepting the successor named at the close of
+  `add-repository-lens`), built the same day. Implements the FIRST of the
+  promotion process's four ways a DTN candidate is born — "two or more domain
+  repos use the same structure with different domain nouns" — which had never
+  been automated: none of the neutrality-drift lane's four stage-1 signals asks
+  whether two DOMAIN repositories carry the same thing, so that rule was served
+  by manual search passes only. The repository lens already computes exactly
+  that population (ring 2 and inward on the carrier-count plot), so the change
+  adds `doc_health/shared_identity.py` (the deterministic detector plus a seed
+  drafter emitting the register's own row and `### DTN-NNN:` detail section,
+  numbered from the register so a drafted-but-unmerged gap never collides), a
+  loopback drafting route on the dashboard serve that recomputes carriers from
+  the serve's own composed view and returns TEXT, and the lens drill-in
+  affordance (convergent regions draftable, single-carrier regions refused with
+  the reason). SEED-FIRST, NEVER A WRITE: the register is never opened for
+  writing and a candidate enters the lifecycle only when a human merges the
+  seed — which is what makes the affordance legitimate on a composed READ-ONLY
+  view and leaves D10 untouched. No contract growth: no schema, no gate verb,
+  no gate-action record.
+  **ARCHIVE GATE MET, on the code surface rather than on the target**, the same
+  reading `add-model-provider-broker` recorded a day earlier: the declaration is
+  non-empty, so `release-realization` requires merged-plus-green and
+  `target_release: none` cannot downgrade that to archive-on-landing.
+  MERGED: PR #105 landed 2026-08-07 as main `82e3ec4e` (branch head
+  `8a028c21`), an ancestor of `origin/main` `42662b70`, with all five declared
+  surface files present and the detector module byte-identical to the day it
+  landed. GREEN: PR #105 predates this repository's only pytest gate by 17 days
+  (`pytest-suite.yml` first landed 2026-08-24 as `74af6cc4`, PR #304), so it
+  carries no check runs at all and the green claim rests on MAIN, where the
+  gate has run over this code ever since — every uncancelled green main run
+  from the first (`cbf2368d`, run `32802536347`) to the last
+  (`42662b70`, run `33062355435`, `success` 2026-08-27) carries the detector,
+  the route, the affordance and the test file at the same blobs, and the
+  workflow has no paths filter, so `tests/ideation-dashboard/test_shared_identity.py`
+  is inside each of them. Tasks 1.1–4.4 are discharged, including the
+  2026-08-07 live browser check on the real five-factory `domains` project
+  (three convergent regions enabled, five single-carrier rows disabled with
+  their reason, the 3-carrier sector drafting DTN-025 for
+  `docs/credentialing.md`, checkout unchanged); 4.5 too — Brett ruled
+  in-session 2026-08-26 to merge that first drafted seed, landed as PR #380
+  (`73a535d9`), and the register's highest entry is now DTN-025.
+  Promotion is ADDED-ONLY: `ideation-dashboard` 99 -> 100 requirements, 453 ->
+  457 scenarios, and all 99 pre-existing bodies re-hashed byte-identical
+  afterwards, so no promoted block was restated and no canon repair was owed.
+  **5.1 STAYS UNTICKED BY DESIGN** — promoting the detector to a FIFTH
+  neutrality-drift stage-1 signal is the named successor, owned elsewhere and
+  measurably unbuilt (`SIGNAL_NAMES` still carries four names at `42662b70`);
+  the box is left unticked the way `add-roster-device-admission-surface` left
+  its §6, because ticking it would claim work this change never did.
+  Verification record:
+  [`review/archive-verification-2026-08-27.md`](openspec/changes/archive/2026-08-27-add-shared-identity-seeds/review/archive-verification-2026-08-27.md).
+  (code surface: openxFactory; target release: none)
 
 - [add-model-provider-broker](openspec/changes/archive/2026-08-27-add-model-provider-broker/proposal.md)
   — **ARCHIVED 2026-08-27**; authored 2026-08-08, **ratified 2026-08-26**

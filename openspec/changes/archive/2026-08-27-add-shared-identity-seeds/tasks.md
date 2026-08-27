@@ -51,4 +51,21 @@
 ## 5. Successor (not this change)
 
 - [ ] 5.1 Promote the detector to a fifth neutrality-drift stage-1 signal so
-      the nightly lane files these seeds unattended.
+      the nightly lane files these seeds unattended. THE NAMED SUCCESSOR, and
+      the successor is named rather than gestured at: a fifth entry in
+      `scripts/doc_health/neutrality.py`'s `SIGNAL_NAMES` — today exactly
+      `("near_duplicate", "lexicon_absence", "cross_repo_consumer",
+      "uninventoried_tooling")`, four — carrying `shared_identity` alongside
+      them, so `neutrality_dispatch.py`'s nightly prepare/merge lane files
+      these seeds with no human opening the dashboard. It is out of scope
+      here and does not land with this change; the proposal's Impact section
+      says so in its own words ("This change deliberately ships the
+      human-driven path first, because the lens is where the question is
+      already being asked"). Listed for traceability only.
+      STILL A RECORDED BOUNDARY AT ARCHIVE, not an open gap. This box stays
+      unticked deliberately, the same way `add-roster-device-admission-surface`
+      archived its §6 unticked and `refine-demote-round-trip-mechanics` its §8
+      by ruling: an unticked box here means "OWNED ELSEWHERE", and ticking it
+      would claim work this change never did. Measured at archive against
+      `origin/main` `42662b70`: `SIGNAL_NAMES` still carries four names, so
+      the successor is genuinely unbuilt and no active change proposes it.
