@@ -328,13 +328,13 @@ Active proposals promoted from staging:
   the deferrals named rather than implied. It MODIFIES three
   `avatar-client-runtime` requirements plus the two repository-boundary
   requirements, because latent decision 1 makes this the change that extracts
-  `xfactory-avatar-client` from codexFactory `apps/avatar-client-lab` — a job
+  `openAvatar` from codexFactory `apps/avatar-client-lab` — a job
   canon required and no change had ever owned. Owns both former staged
   fragments (`qualify-avatar-live-voice.md`, `fork-decision-memo.md`) under
   `supporting-docs/`; design history stays in the
   [avatar-live-voice brainstorms](brainstorm/avatar-live-voice-overview.md).
   `Status: draft` — the rulings are locked staging decisions, not a
-  ratification, and with `code_surface: openxFactory, xfactory-avatar-client`
+  ratification, and with `code_surface: openxFactory, openAvatar`
   and `target_release: implementation_pending` it archives only on merged
   plus green internal-live realization evidence. Aggregation admission of the
   client repository, the GPT-Live-1 default swap, and the

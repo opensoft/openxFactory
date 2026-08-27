@@ -484,14 +484,41 @@ the checklist that produces its evidence.
       records survive, reusing the landed consent-withdraw-mid-speech terminal
       path.
 
-### 6.4 The `xfactory-avatar-client` extraction (latent decision 1)
+### 6.4 The `openAvatar` extraction (latent decision 1)
 
-> **BLOCKED 2026-08-27 — §6.4.1 and §6.4.2 are MIS-SPECIFIED AGAINST THE WORLD,
-> and were not executed. They need a ruling, not an implementer.**
+> **RULED 2026-08-27 by Brett Heap (in-session, via AskUserQuestion) — option
+> (a): recognize `openAvatar` as the extracted client.** §6.4.1 and §6.4.2 had
+> been raised as MIS-SPECIFIED AGAINST THE WORLD and were not executed pending
+> that ruling. The three rulings recorded here:
 >
-> Both tasks were authored against a repository layout that stopped existing
-> three weeks before this change was ratified. The facts, verified against the
-> live remotes rather than inferred:
+> * **R1.** The Flutter client repo KEEPS the name **openAvatar** — it already
+>   IS the extracted client. Canon's `xfactory-avatar-client` name predates
+>   openAvatar becoming a first-class product and is AMENDED to `openAvatar`
+>   throughout `repo-boundary-governance`, `avatar-client-lab`, and this
+>   change's deltas.
+> * **R2.** **`openAvatar-server`** is RECORDED AS THE NAMED FUTURE HOME for
+>   deployable avatar server code. The repository is created only by whichever
+>   change first ships deployable server code — not now.
+> * **R3.** The parked empty `opensoft/xfactory-avatar-client` repository was
+>   DELETED 2026-08-27; nothing referenced it.
+>
+> **Two live occurrences of the old name are deliberately NOT renamed here.**
+> `contracts/manifest.yaml` and `contracts/avatar-client/evidence-register.yaml`
+> each carry `xfactory-avatar-client` in prose, and both are published,
+> digest-bearing release artifacts — the evidence register is additionally a
+> `manifest_cross_checked` member of openAvatar's `contract_pin.yaml`. Renaming
+> their bytes outside a bundle cut would invalidate the published
+> `contract-v1.46`/`contract-v1.47` digest inventories and the client pin. They
+> are renamed when this change's realization cuts the next additive bundle
+> (§2). Separately, the archived
+> `2026-07-13-define-avatar-client-contract-kernel` change, this change's
+> `.openspec.yaml` origin record, `supporting-docs/source-snapshots/`, the body
+> of `supporting-docs/fork-decision-memo.md`, and
+> `specs/001-avc-contract-kernel/` are dated RECORDS: they keep the name they
+> were written with and carry dated amendment notes instead.
+>
+> The facts the ruling was made on, verified against the live remotes rather
+> than inferred:
 >
 > 1. **codexFactory `apps/avatar-client-lab/` does not exist.** It was deleted
 >    in full on 2026-08-03 by codexFactory `2b79da35` ("Shed the avatar client
@@ -510,17 +537,18 @@ the checklist that produces its evidence.
 >    `xFactory@6a2f418`. The DTN register records this as `adopted`:
 >    "DTN-022 | Avatar client lab neutral home | own repo `opensoft/openAvatar`
 >    (ruled 2026-08-03); domain descendants are pin-and-profile distributions".
-> 3. **`opensoft/xfactory-avatar-client` already exists and is PARKED.** It was
->    created 2026-07-14 as task 1.1 of `implement-avatar-client-lab`, then
->    parked the same day when Brett redirected the lab's code surface to
->    codexFactory. Its README says so, and it holds no code. `gh repo create`
->    on that name would simply fail.
+> 3. **`opensoft/xfactory-avatar-client` existed and was PARKED — and is now
+>    DELETED.** It was created 2026-07-14 as task 1.1 of
+>    `implement-avatar-client-lab`, then parked the same day when Brett
+>    redirected the lab's code surface to codexFactory. Its README said so, and
+>    it held no code. Under R3 it was deleted 2026-08-27; `gh api
+>    repos/opensoft/xfactory-avatar-client` now returns 404.
 >
 > **Why this was not worked around.** Creating a fresh repo and copying
 > openAvatar's tree into it would FORK a live product line — precisely what
-> this change's own `avatar-client-lab` delta forbids in the scenario it added:
-> "the application and its generated bindings MUST move to
-> `xfactory-avatar-client` RATHER THAN BEING FORKED". It would orphan the
+> this change's own `avatar-client-lab` delta forbids in the scenario it added
+> (pre-amendment wording): "the application and its generated bindings MUST
+> move to `xfactory-avatar-client` RATHER THAN BEING FORKED". It would orphan the
 > history DTN-022 deliberately preserved, duplicate a repository already
 > admitted to the aggregation, and strand `MedxAvatar` and `LedgerxAvatar`,
 > which are pin-and-profile distributions OF openAvatar. The tasks preamble is
@@ -535,9 +563,9 @@ the checklist that produces its evidence.
 > avatar-client repository boundary" requires of the client repository is true
 > of openAvatar today; what is false is only the NAME the requirement records.
 >
-> **The ruling needed** (Brett's, not an implementer's) is which of these the
-> canon should say — and it is a naming and governance question with no code in
-> it either way:
+> **The ruling was needed** (Brett's, not an implementer's) on which of these
+> the canon should say — a naming and governance question with no code in it
+> either way. The two options put to him on 2026-08-27 were:
 >
 > * **(a) Recognize openAvatar as the extracted client.** Amend
 >   `repo-boundary-governance` and this change's §6.4 to name
@@ -550,12 +578,19 @@ the checklist that produces its evidence.
 >   Preserves the canon's chosen name at the cost of a rename touching three
 >   other repositories.
 >
-> Note that §6.4.5 is also implicated: it forbids admitting
-> `xfactory-avatar-client` to the aggregation in this change, but openAvatar is
-> already admitted under its own name by a separate act — consistent with
-> §6.4.5's intent, inconsistent with its letter.
+> **Brett ruled (a).** The canon is amended, DTN-022 is recorded as the act
+> that performed the extraction, and the parked repository was deleted rather
+> than re-pointed (R3). `MedxAvatar` and `LedgerxAvatar` remain
+> pin-and-profile distributions OF openAvatar, untouched.
 >
-> **§6.4.2 is blocked only on which repo it targets, not on how.** openAvatar
+> §6.4.5 was also implicated: it forbade admitting the client repository to the
+> aggregation in this change, but openAvatar is ALREADY admitted under its own
+> name by a separate act — consistent with §6.4.5's intent, inconsistent with
+> its pre-ruling letter. §6.4.5 below is re-worded to state the existing
+> membership as fact.
+>
+> **§6.4.2 was blocked only on which repo it targets, not on how — and is now
+> unblocked.** openAvatar
 > already carries the exact mechanism the task asks for: a committed
 > `contract_pin.yaml` (`schema_version: 1`,
 > `kind: avatar-client-lab-contract-pin`) recording bundle, exact 40-hex
@@ -566,26 +601,41 @@ the checklist that produces its evidence.
 > `contract-v1.12`. The real §6.4.2 work is a RESYNC of that existing pin up to
 > `contract-v1.46` at commit `046466a05590eff13819194f6ce4489798edd815`, taking
 > the per-file digests from `contracts/releases/contract-v1.46.digests.yaml`,
-> executed through the runbook and landed as a PR on the repo the ruling picks.
-> That is a contained, well-understood follow-up once (a) or (b) is chosen.
+> executed through the runbook and landed as a PR on `opensoft/openAvatar`,
+> the repo ruling (a) picked. That is a contained, well-understood follow-up.
 
-- [ ] 6.4.1 Create the private, independently releasable
-      `xfactory-avatar-client` repository and EXTRACT the app and its
+- [x] 6.4.1 Create the private, independently releasable
+      `openAvatar` repository and EXTRACT the app and its
       generated bindings from codexFactory `apps/avatar-client-lab/`. It
       holds no provider key, no server tool handler, no server provider
       configuration, and no unpinned copy of a neutral schema.
-      **BLOCKED 2026-08-27** — see the §6.4 note above. The source path was
-      deleted on 2026-08-03 and the extraction already happened to
-      `opensoft/openAvatar` under DTN-022; the named destination exists and is
-      parked. Executing this task as written would fork a live repository,
-      which this change's own `avatar-client-lab` delta forbids.
-- [ ] 6.4.2 Pin the compatible openxFactory bundle tag plus exact contract
+      **SATISFIED-BY-DTN-022 — RECORDED, NOT RE-DONE.** Provenance: Brett
+      Heap's ruling R1 of 2026-08-27, made in-session via AskUserQuestion. The
+      extraction was performed on 2026-08-03 by DTN-022 as a subtree split of
+      codexFactory `apps/avatar-client-lab/` carrying full history
+      (codexFactory `main@25e46fd1` → openAvatar `main@1998dcf8`) into the
+      private `opensoft/openAvatar`. Verified against the live remote
+      2026-08-27: the repository is private, its `main` is at
+      `bc6462330b1c512c13b46eb49d821ab1f91e5137`, it holds no provider key, no
+      server tool handler and no server provider configuration, and it
+      consumes neutral contracts read-only through the digest-pinned
+      `contract_pin.yaml`. Under ruling R3 the parked, empty
+      `opensoft/xfactory-avatar-client` was DELETED 2026-08-27 — nothing
+      referenced it, and the name now returns 404.
+- [ ] 6.4.2 Resync `openAvatar`'s `contract_pin.yaml` to `contract-v1.46` at
+      openxFactory commit `046466a05590eff13819194f6ce4489798edd815` — pinning
+      the compatible openxFactory bundle tag plus exact contract
       commit and per-file digests; the co-checkout path reference allowed
       before this gate stops being sufficient at it.
-      **BLOCKED 2026-08-27 on §6.4.1's ruling only.** The mechanism exists in
-      `openAvatar/contract_pin.yaml`; the work is a resync to `contract-v1.46`
-      at `046466a0` against `contracts/releases/contract-v1.46.digests.yaml`,
-      landed wherever the ruling points.
+      **RE-SCOPED 2026-08-27 under ruling R1** from "create a pin" to "resync
+      the existing one": the mechanism already exists in
+      `openAvatar/contract_pin.yaml` (today `contract-v1.7` + `contract-v1.8`
+      at openxFactory `01960b13`, verified against `contract-v1.12`), so the
+      work runs through `openAvatar/docs/pin-resync-runbook.md` and its
+      `sync_contracts.dart` baker.
+      **CROSS-REPO DEPENDENCY — this task is discharged by a PR in
+      `opensoft/openAvatar`, not by anything in openxFactory.** It stays
+      UNTICKED here until that PR merges.
 - [ ] 6.4.3 Realize the live `avc_adapters_live` transport behind the
       existing fail-closed `SessionTransport` port with ZERO reducer or UI
       change, and instrument AVC-10 markers on the gated platforms.
@@ -594,10 +644,16 @@ the checklist that produces its evidence.
       versions, pinned bundle and digests, fixture conformance, dependency
       lock, secret scan, test evidence, client integrity (desktop signing or
       web deployment integrity/CSP), and rollback target.
-- [ ] 6.4.5 NOT THIS CHANGE: admitting `xfactory-avatar-client` to the
+- [ ] 6.4.5 NOT THIS CHANGE: admitting `openAvatar` to the
       xFactory aggregation. That is a separate reviewed change recording path,
       remote, visibility, exact validated commit, checkout, compatibility,
       update and rollback behavior. Do not open it here.
+      **ALREADY EXISTS — verified 2026-08-27.** The xFactory aggregation's
+      `.gitmodules` already carries `[submodule "openAvatar"]` at path
+      `openAvatar` with remote `git@github.com:opensoft/openAvatar.git`,
+      admitted by a separate act outside this change. The not-this-change
+      clause therefore stands satisfied by that prior act rather than
+      forbidding work that still needs doing.
 
 ## 7. Authoring inputs to pin (unvalued in the memo, not reopened forks)
 
