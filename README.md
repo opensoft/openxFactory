@@ -485,7 +485,28 @@ Active changes:
   positive and negative examples, and the manifest/CHANGELOG registration) and
   §3 (the interface-lock unreservation of exactly those two ids, the validator's
   rules for them, the two-tier latency rule, and the acceptance-map entries)
-  built in the ratifying round; §4-§6 stay unbuilt.
+  built in the ratifying round. **§4.1 and §6.3.1-§6.3.2 landed 2026-08-27**:
+  the internal-live activation checklist
+  (`contracts/avatar-client/internal-live-activation-checklist.yaml`) recording
+  the eight conditions in the ratified preflight/canary split with condition 6
+  in its reinterpreted form only, and the canary cohort plus **the recorded
+  revoke-versus-block policy** the kernel has referenced since it was written
+  and never had (`contracts/avatar-client/canary-cohort-and-rollback-policy.yaml`),
+  both machine-checked by new fail-closed `validate-avatar-client.py` rules
+  proven by an 18-mutation check. REMAINING: the four ring-evidence elements
+  (§4.2-§4.5), the fresh client-side latency baseline and gated cells (§5),
+  credential custody and spend containment (§6.1), the live transport (§6.4.3),
+  and release evidence (§6.4.4).
+  **§6.4.1-§6.4.2 are BLOCKED as mis-specified against the world** and were not
+  executed: codexFactory `apps/avatar-client-lab/` was deleted on 2026-08-03
+  (`2b79da35`, PR #74) when Brett's DTN-022 ruling moved the lab to
+  `opensoft/openAvatar` with full subtree-split history — already pinned into
+  the aggregation — while the `xfactory-avatar-client` name points at a repo
+  parked since 2026-07-14. The extraction latent decision 1 asks for has
+  therefore already happened under a different name; executing §6.4.1 as
+  written would fork a live repository, which this change's own
+  `avatar-client-lab` delta forbids. Whether canon should recognize openAvatar
+  or rename it is a ruling for Brett, recorded in the change's §6.4 note.
   `code_surface: openxFactory, xfactory-avatar-client` and
   `target_release: implementation_pending`, so it archives only on merged plus
   green internal-live realization evidence, never on landing. Aggregation

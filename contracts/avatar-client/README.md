@@ -54,6 +54,19 @@ is a closed enum in `shared-definitions.schema.yaml`, not a registry (analyze A3
   conformant draft 2020-12 implementation can execute it (no Python required).
 - `acceptance-map.yaml` — 26 requirements / 107 scenarios (ACR-*/SCO-*/RBG-*/ALV-*)
   plus the single `latency_slo` entry.
+- `internal-live-activation-checklist.yaml` — the per-condition classification
+  of the eight-condition checklist that PRODUCES the four-element ring's
+  evidence (`qualify-avatar-live-voice` §4.1). The ring is the binding exit
+  contract; the eight conditions are not. Condition 6 is recorded in its
+  reinterpreted no-material-regression form only.
+- `canary-cohort-and-rollback-policy.yaml` — the canary cohort and **the
+  recorded policy** the kernel's kill-switch requirement has referenced since
+  it was written but never had (`qualify-avatar-live-voice` §6.3.1-§6.3.2):
+  safety and integrity breaches auto-abort WITH active-lease revocation;
+  latency-budget and elevated error or quota breaches auto-block-new and let
+  in-flight legs drain; quality and cost are operator-triggered. Rollback
+  disables voice into text or human handoff — `gpt-realtime-2.1` is the first
+  qualified profile, so no model fallback exists.
 - `evidence-register.yaml` — resolves every scenario to fixture evidence, a
   recorded manual result, or a named owner + fail-closed default.
 - `scripts/validate-avatar-client.py` — reference runner (reproducible tooling,
