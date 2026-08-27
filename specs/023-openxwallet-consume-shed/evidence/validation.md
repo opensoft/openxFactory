@@ -210,6 +210,18 @@ openxFactory app token", "Rewrite ssh submodule URLs for token auth" and "Init t
 openXwallet gitlink only" each reported `success` as their own step, which is the
 CI-side answer to the reachability question R1 asked.
 
+## BOTH REQUIRED CHECKS GREEN — the final head
+
+| Check | Run | Job | Result |
+| --- | --- | --- | --- |
+| `wallet-validation` | **33114027225** | 98663924186 | **PASS, 21s** |
+| `pytest-suite` | **33114027245** | 98663924140 | **PASS, 13m39s** — `selected=7116 passed=7096 skipped=20 failures=0 errors=0`, both floors met with margin 26 |
+
+`wallet-validation` reported GREEN on **four consecutive heads** of this pull
+request (runs 33109575651, 33111235422, 33112622519, 33114027225), every one of
+them produced by `.github/workflows/openxwallet-consumer-gate.yml` with ruleset
+21538893 edited by nothing. **That is the alias proof, four times over.**
+
 ## Still owed — see `tasks.md` Phase 9 and `evidence/operator-acts.md`
 
 §7.26 pre-merge rebase and digest RE-verification · §7.28/7.29/7.30 the green-run
