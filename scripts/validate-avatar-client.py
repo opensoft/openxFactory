@@ -1645,8 +1645,9 @@ def _registry_members(f: Findings, cat: str, rp: str, ref: str) -> set[str] | No
     token is introduced, and the way that stays true is that the check resolves
     against the vocabulary the schemas are parity-checked against. A constant
     copied into this module would keep agreeing with itself after the registry
-    moved. Returns None when the registry file is absent; a present-but-unparseable registry raises MalformedYAML, which the run() boundary reports — which is reported,
-    never silently skipped.
+    moved. Returns None when the registry file is absent — which is reported,
+    never silently skipped; a present-but-unparseable registry instead raises
+    MalformedYAML, which the run() boundary turns into its own finding.
 
     PRECONDITION: `ref` is a PINNED, in-tree reference — the caller has already
     compared it against the sanctioned path for that vocabulary. This helper
