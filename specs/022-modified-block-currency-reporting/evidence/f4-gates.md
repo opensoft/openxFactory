@@ -59,6 +59,7 @@ harness is 30 lines and lives in the session scratchpad, not in the repository.
 | **M2** change another family's action line | `promotion_fidelity._ACTION` → `"MUTANT apply the ratified delta…"` | **SURVIVED — 85 passed.** See § 3a |
 | **M3** a per-family option for this family | a SCRATCH copy of the workflow carrying `--modified-block-currency-basis live-main`; the tracked file verified unchanged after | **KILLED** — `test_the_workflow_passes_no_per_family_option_to_this_family` failed, 3 passed |
 | **M4** leak one blank line per family | `if notes: out.append("")` → unconditional | **SURVIVED FIRST, THEN KILLED.** See § 3b |
+| **M5b** a JOB-level `env` carries the flag | a SCRATCH copy with `MODIFIED_BLOCK_CURRENCY_BASIS: live-main` inserted into `jobs.prepare.env` (which already exists) | **SURVIVED, THEN KILLED.** See § 3c |
 | **M5** drop the residual bullet | delete the `if counts[UNCLASSIFIED]:` branch | **KILLED** — 1 failed |
 | **M6** drop the skip guard | `if not skipped and family in …` → `if family in …` | **KILLED** — both skip tests failed |
 | **M7** drop the repr anchor (blunt form) | `_BLOCK_HEAD` loses the title matcher entirely | **KILLED** — 13 failed (the map matches nothing; a break-everything mutant) |
@@ -100,6 +101,45 @@ then its rows — which is what `report.render` emitted before this feature
 existed. M4 re-run: **KILLED**, 1 failed. The two absolute assertions are the
 only ones in the file whose value is that a relative comparison cannot satisfy
 them.
+
+### 3c. M5b survived, and the probe had two blind spots
+
+**Found by the combined review of 2026-08-27, not by this session's round.** The
+first `_family_mentions` walked `jobs.*.steps.*` only. GitHub Actions resolves
+`env` at THREE levels — workflow, job, step — and a variable set at any of them
+is visible to every `run` beneath it, so a job-level
+`MODIFIED_BLOCK_CURRENCY_BASIS: live-main` passed the pin green. **Both jobs in
+this workflow already carry a job-level `env` block** (`HAS_APP_KEY`,
+`HAS_ANTHROPIC_KEY`), so the missed shape was one line from an existing one.
+
+Fixed by adding `_scopes`, which walks workflow-level `env`, each
+`jobs.<id>.env` and `jobs.<id>.with` (for a job calling a reusable workflow), and
+every step's `env`/`with`, beside the step `run` sweep. M5b re-run: **KILLED** —
+`test_the_workflow_passes_no_per_family_option_to_this_family` failed, tracked
+file verified byte-identical afterwards. The positive control now exercises four
+shapes at three scopes.
+
+One follow-on defect the mutant exposed in the control itself: its first
+injection asserted `all("run" in f for f in found)`, which fails for the wrong
+reason once the base file carries a mention of another shape. Relaxed to `any`,
+which is what each injection actually claims.
+
+### 3d. The partition assertion was tautological, and the true figure is 0 of 37
+
+Also the combined review's. The first cut read
+
+```python
+hits = [c.id for c in mbc.CLASSES if mbc.classify(f) == c.id]
+assert len(hits) == 1
+```
+
+`classify` returns ONE id, so `hits` can never exceed one however many patterns
+match: the assertion proved "classify returns something in CLASSES" and was blind
+to the property it was named for. Rewritten to iterate `_CLASS_PATTERNS` and
+assert one MATCH, with `classify`'s answer checked against it.
+
+**Measured on the corrected assertion: 37 findings (13 fixture trees + the real
+corpus), 0 with anything other than exactly one matching pattern.**
 
 ## 4. Gates
 
@@ -148,8 +188,8 @@ Equal to the family's own per-severity counts (1 `warning`, 8 `info`) and to
 F3's re-measured figure at `175682e2`. **The `error` and `critical` bands do not
 move**, so a `--fail-on error` run is unaffected.
 
-**Confined, section by section.** Of the report's **31** sections, exactly
-**three** differ:
+**Confined, section by section.** The report carries a dated H1 and **30**
+`##`/`###` headings; exactly **three** of the thirty differ:
 
 | section | what moved |
 | --- | --- |
@@ -185,7 +225,7 @@ archived. What § 8.1 asks for is here:
 | --- | --- |
 | `pytest tests/doc-health` green | **1204 passed** (§ 4) |
 | `openspec validate --all --strict` green | **76 passed, 0 failed** (§ 4) |
-| a doc-health run moving by exactly the prediction | **+1 `warning`, +8 `info`**, 0/0 in the gated bands, movement confined to 3 of 31 sections (§ 5) |
+| a doc-health run moving by exactly the prediction | **+1 `warning`, +8 `info`**, 0/0 in the gated bands, movement confined to 3 of 30 headings (§ 5) |
 
 **§ 4.5's own prediction was `+1 warning, +11 info`** and is history: it was
 measured at `9be81a40` over 23 blocks, F3 re-measured 9 then 8 as the corpus

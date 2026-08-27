@@ -73,9 +73,9 @@ Full argument and ten more decisions: `specs/022-…/research.md`.
    not the remedy for an uncarried unit. The split is F1's and is correct; the
    singular is the imprecision.
 
-## The mutation round found two survivals, both structural
+## The mutation round found three survivals; the combined review found two of them
 
-`evidence/f4-gates.md` § 3. Nine mutants, seven killed on the first run.
+`evidence/f4-gates.md` § 3. Ten mutants, seven killed on the first run.
 
 - **M4 (leak one blank line into every family's section) SURVIVED 26 green
   tests.** The byte-identity test was purely differential — registry-on vs
@@ -90,7 +90,27 @@ Full argument and ten more decisions: `specs/022-…/research.md`.
   mutated and 85 tests stayed green. That is a gap in that family's suite;
   closing it from F4 would mean snapshotting twenty-one families' action strings
   in this test file, which would red on their authors' PRs for their own
-  legitimate edits.
+  legitimate edits. **Recorded as a follow-up for the doc-health steward**, whose
+  correct home is one pin per family in that family's own suite.
+- **M5b (a JOB-level `env` carrying the flag) SURVIVED — found by the combined
+  review.** The § 5.3 probe walked `jobs.*.steps.*` only, and Actions resolves
+  `env` at three levels; both jobs here already carry a job-level `env` block, so
+  the missed shape was one line from an existing one. Fixed by walking
+  workflow-level `env`, `jobs.<id>.env`/`.with`, and every step's `env`/`with`
+  beside `run`. **M5b re-run: killed**, tracked file byte-identical afterwards.
+
+## Two review findings in the tests themselves
+
+- **The partition assertion was tautological.** It read
+  `[c.id for c in mbc.CLASSES if mbc.classify(f) == c.id]`, which can never
+  exceed one hit however many patterns match — so it asserted "classify returns
+  something in CLASSES", not "exactly one pattern matches". Rewritten to iterate
+  `_CLASS_PATTERNS`. **Measured on the corrected assertion: 37 findings across
+  thirteen fixture trees and the real corpus, 0 multi-matches.**
+- **A docstring overclaimed.** `FindingClass` said `band` and `action` are read
+  from the module constants "so the flip moves the rendered label"; `action` is
+  not rendered by `class_summary` at all. Corrected to say what each is for —
+  `band` rendered, `action` carried so the per-class pin has one source.
 
 ## One test outside this feature changed, deliberately and visibly
 
@@ -112,15 +132,24 @@ assertion moved.
 | F1 + F2 + F3 + promotion-fidelity + F4 | **235 passed** |
 | `git diff --stat <merge-base> -- .github/ openspec/` | **empty** |
 | report movement | **0 critical, 0 error, +1 warning, +8 info** — equal to the family's own counts |
-| movement confinement | **3 of 31 sections** differ: `## Headline`, `### modified-block-currency`, `## Ranked Plan` (9 rows, all this family's) |
+| movement confinement | **3 of the report's 30 headings** differ: `## Headline`, `### modified-block-currency`, `## Ranked Plan` (9 rows, all this family's) |
 | repo-local validators | none affected — every `scripts/validate-*.py` validates contract YAML, and this feature adds none |
+| CI shape | **26 passed** in a `git archive HEAD` extraction with a fresh `git init` — no worktree, no remote |
+
+**Independently reproduced by the combined review**, which additionally checked:
+byte-identity against `origin/main`'s own `report.py`; a `--previous-report`
+round-trip (0 regressions, 0 uncited resolutions — the subtotal cannot re-enter
+as a finding); canon's "Health report contract" and "Finding severity and
+regression handling" unviolated; and an archive dry-check reading 8 → 8 with
+exactly the six predicted differences.
 
 ## Scope
 
-Changed: `scripts/doc_health/modified_block_currency.py` (additive: the class
-map and the summary), `families.py` (the registry), `report.py` (an additive
-render branch), `__init__.py` (a docstring), plus one new test file and the F2
-snapshot amendment above. **No rule text, severity, resolution class, finding
+Changed, by `git diff --numstat` against the merge base: `modified_block_currency.py`
+**+189/−0** (additive: the class map and the summary), `families.py` **+30/−0**
+(the registry), `report.py` **+19/−2** (an additive render branch),
+`__init__.py` **+9/−0** (a docstring), `test_modified_block_currency_fixtures.py`
+**+14/−2** (the snapshot amendment above), plus one new test file. **No rule text, severity, resolution class, finding
 grammar or ranked-plan grammar changed. `.github/` and `openspec/` untouched.**
 
 ## #330 IS NOT CLOSED BY THIS
@@ -143,7 +172,17 @@ pytest marker routing the six corpus-facing tests to the nightly lane, keeping
 the structural pins in `pytest-suite`. It already fell due once, on F3's own PR
 #427, and that event is evidence for both sides.
 
-**F4 does not decide it and changes nothing about it.** One datum F4 adds: every
+**F4 does not decide it and changes nothing about it.**
+
+**A SECOND QUESTION, also for Brett, also undecided** (`specs/022-…/tasks.md`
+§ SECOND OPEN QUESTION): the `unclassified` residual row is TEXT — no severity,
+no ranked-plan item, no `--fail-on` reach — and the only real-corpus
+classification test reads openxFactory alone while the nightly runs eighteen
+repositories. The cheapest close is to have a nonzero count emit one `warning`
+finding, which makes the residual a FIFTH finding class of a family whose
+promoted requirement enumerates three arms and four classes. **That is a delta
+change and needs a ruling**, so F4 leaves it as text and says so in the contract,
+the research record and the hand-off. One datum F4 adds: every
 corpus-facing assertion in F4's own test file is a floor or an invariant, never a
 named set or an absolute count — a choice available to F4 because it asserts a
 RENDERING rather than a verdict, and not an argument that F3 could have made the

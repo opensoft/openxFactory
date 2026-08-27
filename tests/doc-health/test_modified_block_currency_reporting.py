@@ -187,9 +187,18 @@ def test_every_finding_over_the_fixture_corpus_lands_in_exactly_one_class():
     for tree in ALL_TREES:
         for f in _fixture_findings(tree):
             seen += 1
-            hits = [c.id for c in mbc.CLASSES
-                    if mbc.classify(f) == c.id]
+            # ITERATE THE PATTERNS, NOT THE CLASSES. The first cut compared
+            # `mbc.classify(f)` with each class id in turn, which can never
+            # exceed one hit however many patterns match — so it asserted
+            # "classify returns something in CLASSES", not "exactly one pattern
+            # matches", and a second pattern matching the same rule was
+            # invisible to it. Caught by the combined review of 2026-08-27,
+            # which measured the true property: ZERO multi-matches over 37
+            # findings across thirteen fixture trees and the real corpus.
+            hits = [class_id for class_id, pattern in mbc._CLASS_PATTERNS
+                    if pattern.match(f.rule)]
             assert len(hits) == 1, (tree, hits, f.rule[:140])
+            assert mbc.classify(f) == hits[0], (tree, f.rule[:140])
             assert mbc.classify(f) != mbc.UNCLASSIFIED, (tree, f.rule[:140])
     assert seen >= 25, (
         f"only {seen} findings over {len(ALL_TREES)} fixture trees — discovery "
@@ -210,6 +219,12 @@ def test_every_finding_over_the_real_tree_lands_in_exactly_one_class():
         "the family reports nothing over this checkout, so the partition below "
         "is vacuous — check the resolver before the map")
     for f in findings:
+        # the same pattern-level partition as over the fixtures, for the same
+        # reason: a class-level comparison cannot see two patterns matching one
+        # rule (combined review, 2026-08-27).
+        hits = [class_id for class_id, pattern in mbc._CLASS_PATTERNS
+                if pattern.match(f.rule)]
+        assert len(hits) == 1, (hits, f.rule[:200])
         assert mbc.classify(f) != mbc.UNCLASSIFIED, f.rule[:200]
 
 
@@ -773,6 +788,30 @@ def _steps(value):
             yield job_name, step
 
 
+def _scopes(value):
+    """EVERY SCOPE A WORKFLOW CAN SET `env` OR `with` IN, not only the steps.
+
+    ADDED BY THE COMBINED REVIEW OF 2026-08-27, which proved the first cut
+    green against a job-level `env` (mutant M5b). GitHub Actions resolves `env`
+    at three levels — workflow, job, step — and a variable set at ANY of them is
+    visible to every `run` beneath it. Both jobs in this workflow ALREADY carry a
+    job-level `env` block (`HAS_APP_KEY`, `HAS_ANTHROPIC_KEY`), so the shape the
+    step-only probe missed is not hypothetical: it is one line away from an
+    existing block.
+
+    `with` is walked at job level too, for a job that calls a reusable workflow
+    (`jobs.<id>.uses`) and passes inputs down.
+    """
+    yield "workflow", "env", value.get("env") or {}
+    for job_name, job in (value.get("jobs") or {}).items():
+        for field in ("env", "with"):
+            yield f"job {job_name}", field, job.get(field) or {}
+    for job_name, step in _steps(value):
+        for field in ("env", "with"):
+            yield (f"{job_name}/{step.get('name')}", field,
+                   step.get(field) or {})
+
+
 def _family_mentions(value) -> list[str]:
     """Every place a parsed workflow names this family — `run`, `env` value or
     `with` value, in either spelling.
@@ -787,24 +826,33 @@ def _family_mentions(value) -> list[str]:
     interpolating them into bash (`test_workflow_contract.py::test_untrusted_
     workflow_inputs_are_not_interpolated_into_bash`). A `run`-only probe would
     miss the shape the workflow actually uses to hand a value to the checker.
+
+    AND THEY ARE WALKED AT ALL THREE LEVELS — workflow, job, step (`_scopes`).
+    The first cut walked steps only and the combined review killed it with a
+    JOB-level `env` (M5b): Actions resolves `env` down the tree, so a variable
+    set on the job is visible to every `run` in it, and both jobs here already
+    carry a job-level `env` block. A probe that reads one of three scopes is a
+    probe with two blind spots.
+
+    KEY AND VALUE BOTH, CASE-INSENSITIVELY. An env key is conventionally
+    UPPER_SNAKE, so `MODIFIED_BLOCK_CURRENCY_BASIS: live-main` names this family
+    in a spelling only a case-insensitive read of the KEY catches. With `run`
+    that makes FOUR shapes a per-family option can arrive in: the flag written
+    straight into `run`; an env/with key named for the family; an env/with value
+    carrying the flag text for `run` to expand; and any of the last three set at
+    a scope above the step.
     """
     found = []
     for job_name, step in _steps(value):
-        where = {"run": step.get("run") or ""}
-        for field in ("env", "with"):
-            for key, val in (step.get(field) or {}).items():
-                # KEY AND VALUE BOTH. An env key is conventionally UPPER_SNAKE,
-                # so `MODIFIED_BLOCK_CURRENCY_BASIS: live-main` names this family
-                # in a spelling only a case-insensitive read of the KEY catches —
-                # and it is one of the three shapes a per-family option can
-                # arrive in (the others are the flag written straight into `run`,
-                # and an env VALUE carrying the flag text for `run` to expand).
-                where[f"{field}.{key}"] = f"{key} {val}"
-        for label, text in where.items():
-            lowered = text.lower()
+        text = (step.get("run") or "").lower()
+        if any(spelling in text for spelling in _SPELLINGS):
+            found.append(f"{job_name}/{step.get('name')}: run")
+    for where, field, mapping in _scopes(value):
+        for key, val in mapping.items():
+            lowered = f"{key} {val}".lower()
             for spelling in _SPELLINGS:
                 if spelling in lowered:
-                    found.append(f"{job_name}/{step.get('name')}: {label}")
+                    found.append(f"{where}: {field}.{key}")
     return found
 
 
@@ -862,7 +910,11 @@ def test_the_probe_finds_a_per_family_option_when_one_is_present(tmp_path):
                      "--modified-block-currency-basis live-main"),
         encoding="utf-8")
     found = _family_mentions(_load_workflow(scratch))
-    assert found and all("run" in f for f in found), found
+    # `any`, not `all`: each injection asserts that ITS shape is found, never
+    # that no other shape is. `all` was the first spelling and it fails for the
+    # wrong reason the moment the base file carries a mention of another shape —
+    # which is exactly the state the M5b mutation puts it in.
+    assert found and any(f.endswith(": run") for f in found), found
 
     anchor = "          FAIL_ON_INPUT: ${{ inputs.fail-on }}"
     assert anchor in text
@@ -876,6 +928,27 @@ def test_the_probe_finds_a_per_family_option_when_one_is_present(tmp_path):
                            encoding="utf-8")
         found = _family_mentions(_load_workflow(scratch))
         assert found and any("env." in f for f in found), (injected, found)
+
+    # THE JOB-LEVEL AND WORKFLOW-LEVEL SHAPES (mutant M5b, added by the combined
+    # review, which proved the step-only probe green against the first of them).
+    # Both jobs already carry a job-level `env:` block, so this is one line from
+    # an existing one — and `env` resolves DOWN, so a job-level variable reaches
+    # every `run` in the job.
+    job_anchor = "    env:\n      HAS_APP_KEY:"
+    assert job_anchor in text, "the job-level env block this mutant needs is gone"
+    scratch.write_text(
+        text.replace(job_anchor,
+                     "    env:\n      MODIFIED_BLOCK_CURRENCY_BASIS: live-main\n"
+                     "      HAS_APP_KEY:", 1),
+        encoding="utf-8")
+    found = _family_mentions(_load_workflow(scratch))
+    assert found and any(f.startswith("job ") for f in found), found
+
+    scratch.write_text(
+        "env:\n  MODIFIED_BLOCK_CURRENCY_BASIS: live-main\n" + text,
+        encoding="utf-8")
+    found = _family_mentions(_load_workflow(scratch))
+    assert found and any(f.startswith("workflow:") for f in found), found
 
     # and the tracked file is untouched by all of the above
     assert WORKFLOW.read_text(encoding="utf-8") == text

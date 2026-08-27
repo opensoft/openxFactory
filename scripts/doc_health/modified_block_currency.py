@@ -1299,10 +1299,18 @@ class FindingClass:
     """One of this family's four finding classes, as a value.
 
     `band` and `action` are read from the module constants rather than
-    re-spelled, so § 7.2's flip of `_LAUNCH_SEVERITY` to `error` moves the
-    rendered label with it. A literal `"warning"` here would keep rendering
-    after the flip and would then describe the report wrongly — a caption that
-    outlives its subject.
+    re-spelled. They are used differently and the difference matters:
+
+    - `band` IS RENDERED, in the subtotal's parenthetical, so § 7.2's flip of
+      `_LAUNCH_SEVERITY` to `error` moves the rendered caption with it. A
+      literal `"warning"` here would keep rendering after the flip and would
+      then describe the report wrongly — a caption that outlives its subject.
+    - `action` IS NOT RENDERED by `class_summary`; the ranked plan is where a
+      finding's action appears, via `report.plan_line`. It is carried here so
+      the per-class pin has a single source
+      (`test_every_finding_carries_its_class_s_band_and_action`), which is what
+      keeps `_ACTION` and `_MARKER_ACTION` attached to the classes that use
+      them rather than re-spelled in a test.
 
     `gloss` is the parenthetical a reader gets beside the band. Two classes carry
     one and two do not: the scenario-title arm's says it carries the gate, and

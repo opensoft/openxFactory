@@ -232,3 +232,51 @@ that F3 could have made the same choice, and it is not a decision about F3's
 tests.
 
 **Until Brett rules, F3's tests stay where they are.**
+
+---
+
+## SECOND OPEN QUESTION FOR BRETT — the residual row is text, and the real corpus is measured on one repository
+
+**Raised by the combined review of 2026-08-27. NOT implemented here, because the
+cheapest close is a delta change.**
+
+The `unclassified` residual row (`research.md` R6, `contracts/report-section.md`
+§ 1) is **text, not a finding**. It carries no severity, it reaches no
+ranked-plan item, and no `--fail-on` configuration can see it — which is
+deliberate for a presentational defect that must not abort a nightly report, and
+is also the whole of its weakness: a class map that had drifted would announce
+itself in a line a reader has to notice.
+
+**And the only real-corpus classification test reads openxFactory alone.** The
+nightly runs eighteen repositories. A rule text this map does not recognize can
+therefore first appear on a corpus no test in this repository measures, and the
+only thing that would say so is the row.
+
+**Cheapest close, and why it needs a ruling**: have a nonzero `UNCLASSIFIED`
+count emit ONE `warning` finding. That makes the residual a FIFTH finding class
+of this family — which the promoted requirement enumerates as three arms and four
+classes, so it is a **delta change**, not an implementation choice. It also
+brings the residual inside `--fail-on` reach and inside the regression diff,
+which is the point of it and also a decision about this family's gate.
+
+**F4 leaves it as text and says so in three places** (the contract, the research
+record and here), which is the most an implementation feature can do about a
+question that belongs to the delta.
+
+---
+
+## FOLLOW-UP FOR THE DOC-HEALTH STEWARD — not F4's, and not this packet's
+
+**No test in this repository pins any OTHER family's action text.**
+`promotion_fidelity._ACTION` was mutated to `"MUTANT apply the ratified delta…"`
+and **zero tests failed** — 85 green across that family's own suite and F4's
+(`evidence/f4-gates.md` § 3a).
+
+**The correct home is one pin per family, in that family's own suite**, where a
+change to it reds the PR that made it and nobody else's. It is emphatically NOT a
+table of twenty-one action strings in F4's test file, which would red on other
+authors' PRs for their own legitimate edits — the same blast-radius cost the
+first open question above is about.
+
+Recorded here because F4's § 5.2 work is what surfaced it. Owner: the doc-health
+steward, at the next change touching a family's action text.
