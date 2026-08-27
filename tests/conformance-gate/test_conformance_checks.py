@@ -253,7 +253,7 @@ def test_pin_hands_git_absolute_directories(tmp_path, monkeypatch):
 # are the regression guard and these five are purely additive.
 
 RELOCATION_MANIFEST = {
-    "contract_bundle_version": "contract-v1.46",
+    "contract_bundle_version": "contract-v1.47",
     "contracts": [
         {"id": "unrelated-schema", "path": "contracts/schemas/x.yaml"},
         {
@@ -262,7 +262,7 @@ RELOCATION_MANIFEST = {
             "relocating": {
                 "to": "opensoft/openXwallet",
                 "tag": "wallet-v1.1",
-                "since": "contract-v1.46",
+                "since": "contract-v1.47",
             },
         },
         {
@@ -271,7 +271,7 @@ RELOCATION_MANIFEST = {
             "relocating": {
                 "to": "opensoft/openXwallet",
                 "tag": "wallet-v1.1",
-                "since": "contract-v1.46",
+                "since": "contract-v1.47",
             },
         },
     ],
@@ -291,10 +291,10 @@ def test_pin_relocating_rows_extracted_in_manifest_order():
 
 
 def test_pin_no_relocating_rows_yields_no_notice():
-    """Every bundle up to and including contract-v1.45. Silence is the contract:
+    """Every bundle up to and including contract-v1.46. Silence is the contract:
     a consumer pinned before the marker existed must see no new output at all."""
     manifest = {
-        "contract_bundle_version": "contract-v1.45",
+        "contract_bundle_version": "contract-v1.46",
         "contracts": [{"id": "openxwallet-record", "path": "p"}],
     }
     assert pin.relocating_rows(manifest) == []
@@ -306,7 +306,7 @@ def test_pin_relocation_notice_names_every_artifact_target_and_tag():
     tag — a count alone would not tell a migrator where to go."""
     notice = pin.relocation_notice(RELOCATION_MANIFEST)
     assert notice is not None
-    assert "contract-v1.46" in notice
+    assert "contract-v1.47" in notice
     assert "2 relocating" in notice
     assert "openxwallet-record -> opensoft/openXwallet @ wallet-v1.1" in notice
     assert (

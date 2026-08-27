@@ -9,7 +9,7 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
-## contract-v1.46 — 2026-08-27 (deprecating; the eight openxWallet contracts are marked relocating)
+## contract-v1.47 — 2026-08-27 (deprecating; the eight openxWallet contracts are marked relocating)
 
 Realizes `split-openxwallet-repo` **P2.5** (`tasks.md` §5), the deprecating minor
 that design decisions **D5** and **D6** specify, through Speckit feature
@@ -36,6 +36,16 @@ records this deprecation in its "Deprecations Currently In Force" list. Both it
 and this changelog are release-surface members and both are digested in this
 cut's inventory.
 
+**On the number.** This cut was authored as `contract-v1.46` and renumbered to
+`contract-v1.47` at merge order: while it waited for review, the additive
+avatar-client cut (`qualify-avatar-live-voice`, AVC-09 and AVC-10) landed and
+published `contract-v1.46` first. That is exactly the case
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md)
+lines 30-31 exist for — "a proposed change MUST NOT reserve a minor number before
+merge order is known" — so the four places that carry the number (the manifest's
+`contract_bundle_version`, the eight rows' `since:`, this heading, and the
+inventory filename) moved together rather than the earlier cut being asked to wait.
+
 ### What is deprecated, and what it is deprecated IN FAVOUR OF
 
 The eight artifacts whose canonical home becomes `opensoft/openXwallet` — seven
@@ -60,7 +70,7 @@ mapping, placed last so no existing line moves:
     relocating:
       to: opensoft/openXwallet
       tag: wallet-v1.1
-      since: contract-v1.46
+      since: contract-v1.47
 ```
 
 `to` is the repository that becomes the artifact's canonical home. `tag` is the

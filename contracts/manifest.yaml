@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v1.46
+contract_bundle_version: contract-v1.47
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -2054,7 +2054,7 @@ contracts:
     relocating:
       to: opensoft/openXwallet
       tag: wallet-v1.1
-      since: contract-v1.46
+      since: contract-v1.47
   - id: openxwallet-custody-registry-schema
     path: contracts/openxwallet/openxwallet-custody-registry.schema.yaml
     source_path: openxFactory/contracts/openxwallet/openxwallet-custody-registry.schema.yaml
@@ -2071,7 +2071,7 @@ contracts:
     relocating:
       to: opensoft/openXwallet
       tag: wallet-v1.1
-      since: contract-v1.46
+      since: contract-v1.47
   - id: openxwallet-custody-registry
     path: contracts/openxwallet/openxwallet-custody.registry.yaml
     source_path: openxFactory/contracts/openxwallet/openxwallet-custody.registry.yaml
@@ -2088,7 +2088,7 @@ contracts:
     relocating:
       to: opensoft/openXwallet
       tag: wallet-v1.1
-      since: contract-v1.46
+      since: contract-v1.47
   - id: openxwallet-grant
     path: contracts/openxwallet/openxwallet-grant.schema.yaml
     source_path: openxFactory/contracts/openxwallet/openxwallet-grant.schema.yaml
@@ -2105,7 +2105,7 @@ contracts:
     relocating:
       to: opensoft/openXwallet
       tag: wallet-v1.1
-      since: contract-v1.46
+      since: contract-v1.47
   - id: openxwallet-grant-exercise
     path: contracts/openxwallet/openxwallet-grant-exercise.schema.yaml
     source_path: openxFactory/contracts/openxwallet/openxwallet-grant-exercise.schema.yaml
@@ -2122,7 +2122,7 @@ contracts:
     relocating:
       to: opensoft/openXwallet
       tag: wallet-v1.1
-      since: contract-v1.46
+      since: contract-v1.47
   - id: openxwallet-distinct-holder-constraint
     path: contracts/openxwallet/openxwallet-distinct-holder-constraint.schema.yaml
     source_path: openxFactory/contracts/openxwallet/openxwallet-distinct-holder-constraint.schema.yaml
@@ -2139,7 +2139,7 @@ contracts:
     relocating:
       to: opensoft/openXwallet
       tag: wallet-v1.1
-      since: contract-v1.46
+      since: contract-v1.47
   - id: openxwallet-subject-attestation
     path: contracts/openxwallet/openxwallet-subject-attestation.schema.yaml
     source_path: openxFactory/contracts/openxwallet/openxwallet-subject-attestation.schema.yaml
@@ -2156,7 +2156,7 @@ contracts:
     relocating:
       to: opensoft/openXwallet
       tag: wallet-v1.1
-      since: contract-v1.46
+      since: contract-v1.47
   - id: openxwallet-agent-composition
     path: contracts/openxwallet-agent-profile/openxwallet-agent-composition.schema.yaml
     source_path: openxFactory/contracts/openxwallet-agent-profile/openxwallet-agent-composition.schema.yaml
@@ -2173,7 +2173,7 @@ contracts:
     relocating:
       to: opensoft/openXwallet
       tag: wallet-v1.1
-      since: contract-v1.46
+      since: contract-v1.47
   # ---- client-identity-roster + the credential-contracts first registration —
   # contract-v1.33 registration (add-client-identity-roster, feature
   # 007-client-identity-roster) ----

@@ -111,8 +111,15 @@ states the tag is cut by the merger on the realized commit.
 
 ## R5 — Bundle numbering
 
-**Decision**: author as `contract-v1.46`; state in the PR body that it is
-re-verified at merge.
+**Decision**: author as the next free minor and re-verify at merge.
+**OUTCOME — the collision actually happened.** Authored as `contract-v1.46`;
+renumbered to **`contract-v1.47`** when the additive avatar-client cut
+(`qualify-avatar-live-voice`, AVC-09/AVC-10) published `contract-v1.46` first
+while this branch waited for review. Evidence that v1.47 was free at renumber
+time: `origin/main:contracts/manifest.yaml` declared `contract-v1.46`;
+`contracts/releases/` on main ended at `contract-v1.46.digests.yaml`; the tag
+list ended at `contract-v1.46`; and no `## contract-v1.47` changelog section
+existed. This is the policy's rule working as designed rather than a defect.
 
 **Evidence**: `contracts/manifest.yaml:3` declares `contract-v1.45` at base; tags
 run contiguously to `contract-v1.45`. `docs/contract-versioning-policy.md:30-31`:
@@ -211,7 +218,7 @@ an error rather than an info.
 
 **Consequence, and it is a happy one**: the finding's own prescribed action is
 "cut a release through the bundle realization order". Generating
-`contract-v1.46.digests.yaml` over the current tree records that file's real bytes
+`contract-v1.47.digests.yaml` over the current tree records that file's real bytes
 and **discharges the pre-existing error**, along with the two infos. So the
 expected post-change state of this family is *no findings at all*. The PR body
 states this so a reviewer does not read the disappearance as something hidden.
@@ -276,7 +283,7 @@ membership*, the first clause is unsatisfiable by this tooling and always has
 been. Read as what the tooling actually models, both clauses are satisfied:
 
 1. **5.7's real obligation is discharged exactly.** The minor HAS its own
-   inventory, `contracts/releases/contract-v1.46.digests.yaml`, 192 members,
+   inventory, `contracts/releases/contract-v1.47.digests.yaml`, 192 members,
    tool-generated and byte-reproducible. That is what
    `release-surface-integrity` and the drift family check.
 2. **D6's containment holds TRANSITIVELY, and checkably.**

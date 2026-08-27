@@ -24,7 +24,7 @@ A mapping added as the last key of a `contracts` entry in
     relocating:
       to: opensoft/openXwallet
       tag: wallet-v1.1
-      since: contract-v1.46
+      since: contract-v1.47
 ```
 
 | field | type | required | meaning |
@@ -48,7 +48,7 @@ changelog or contradict it.
 
 **Lifecycle**
 ```
-absent  ──(this feature, contract-v1.46)──▶  present
+absent  ──(this feature, contract-v1.47)──▶  present
 present ──(P3, the next major)───────────▶  row deleted entirely
 present ──(reversal, a following minor)──▶  absent
 ```
@@ -87,14 +87,14 @@ is not a finding.
 
 ## 3. The release inventory (EXISTING shape, new instance)
 
-`contracts/releases/contract-v1.46.digests.yaml`, generated. Shape is fixed by
+`contracts/releases/contract-v1.47.digests.yaml`, generated. Shape is fixed by
 `contracts/releases/release-digest-inventory.schema.yaml` and emitted by
 `release.build_release_inventory`:
 
 ```yaml
 schema_version: 1
 kind: openxfactory-contract-release-digest-inventory
-bundle_tag: contract-v1.46
+bundle_tag: contract-v1.47
 repository: opensoft/openxFactory
 digest_algorithm: sha256
 digest_source: raw_git_blob
@@ -142,7 +142,7 @@ contracts/manifest.yaml
         ├── read by ──▶ scripts/check-openxfactory-pin.py  (at the consumer's PINNED commit)
         │                    └── emits ──▶ the WARN-tier relocation notice
         ├── points at ─▶ opensoft/openXwallet @ wallet-v1.1
-        └── explained by ─▶ contracts/CHANGELOG.md § contract-v1.46
+        └── explained by ─▶ contracts/CHANGELOG.md § contract-v1.47
                                   └── removal version + migration path
                                         └── mirrored in ─▶ docs/contract-versioning-policy.md
                                                             § Deprecations Currently In Force

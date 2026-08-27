@@ -308,5 +308,5 @@ retroactively invalidate an old pin.
   `contracts/openxwallet-pin.yaml`, which arrives at the major; from the major
   forward this family's conformance validator is the pinned openXwallet
   `scripts/validate-openxwallet.py` at the digest that pin records. Deprecated at
-  contract-v1.46; removal target contract-v2.0. The bytes are unchanged and keep
+  contract-v1.47; removal target contract-v2.0. The bytes are unchanged and keep
   validating until then.

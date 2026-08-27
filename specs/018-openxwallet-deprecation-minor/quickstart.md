@@ -61,13 +61,13 @@ python3 scripts/validate-manifest-digests.py
 ## S2 — The three bundle names agree, and the inventory is honest
 
 ```bash
-grep '^contract_bundle_version:' contracts/manifest.yaml     # contract-v1.46
-grep -m1 '^## contract-v' contracts/CHANGELOG.md             # ## contract-v1.46 — …
-ls contracts/releases/contract-v1.46.digests.yaml
-grep '^bundle_tag:' contracts/releases/contract-v1.46.digests.yaml
+grep '^contract_bundle_version:' contracts/manifest.yaml     # contract-v1.47
+grep -m1 '^## contract-v' contracts/CHANGELOG.md             # ## contract-v1.47 — …
+ls contracts/releases/contract-v1.47.digests.yaml
+grep '^bundle_tag:' contracts/releases/contract-v1.47.digests.yaml
 ```
 
-**All four must name `contract-v1.46`** (or whatever the number is after any
+**All four must name `contract-v1.47`** (or whatever the number is after any
 merge-order renumber).
 
 The inventory is regenerated, never hand-edited. To prove the committed file is
@@ -75,8 +75,8 @@ byte-identical to what the tool emits from the same tree:
 
 ```bash
 python3 scripts/validate-contract-release.py build \
-  --tag contract-v1.46 --output /tmp/regen.digests.yaml
-diff contracts/releases/contract-v1.46.digests.yaml /tmp/regen.digests.yaml
+  --tag contract-v1.47 --output /tmp/regen.digests.yaml
+diff contracts/releases/contract-v1.47.digests.yaml /tmp/regen.digests.yaml
 ```
 
 **Expected**: no diff.
@@ -88,10 +88,10 @@ catalog-driven and has never included the eight artifact files (research R11):
 ```bash
 # the eight files are NOT inventory members, at v1.45 or v1.46 — expect 0 both times
 grep -ci openxwallet contracts/releases/contract-v1.45.digests.yaml
-grep -ci openxwallet contracts/releases/contract-v1.46.digests.yaml
+grep -ci openxwallet contracts/releases/contract-v1.47.digests.yaml
 
 # what IS checkable: the manifest is a member, and the manifest it digests has 8 rows
-grep -A4 'artifact_id: contracts-manifest.yaml' contracts/releases/contract-v1.46.digests.yaml
+grep -A4 'artifact_id: contracts-manifest.yaml' contracts/releases/contract-v1.47.digests.yaml
 # NOT `git hash-object` — that is SHA-1 of a blob-with-header. The inventory's
 # `digest_source: raw_git_blob` with `digest_algorithm: sha256` means sha256 of
 # the raw content bytes:

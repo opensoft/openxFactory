@@ -57,7 +57,7 @@ manifest order. One indented line per relocating artifact.
 
 ```
 PASS: stack pin 5f3a91c8de77 matches aggregation submodule pointer (5f3a91c8de77)
-WARN: the pinned openxFactory bundle contract-v1.46 carries 8 relocating contract row(s); each artifact's canonical home is moving and it is removed at a later major bundle — read contracts/CHANGELOG.md at this pin for the removal version and the migration path:
+WARN: the pinned openxFactory bundle contract-v1.47 carries 8 relocating contract row(s); each artifact's canonical home is moving and it is removed at a later major bundle — read contracts/CHANGELOG.md at this pin for the removal version and the migration path:
   openxwallet-record -> opensoft/openXwallet @ wallet-v1.1
   openxwallet-custody-registry-schema -> opensoft/openXwallet @ wallet-v1.1
   openxwallet-custody-registry -> opensoft/openXwallet @ wallet-v1.1
@@ -88,7 +88,7 @@ An ERROR pin and a relocation notice are independent facts and both print:
 
 ```
 ERROR: stack pin abc123def456 is not an ancestor of the aggregation submodule pointer def456abc123: the declared contract is off the submodule's history   [stderr]
-WARN: the pinned openxFactory bundle contract-v1.46 carries 8 relocating contract row(s); …                                                               [stdout]
+WARN: the pinned openxFactory bundle contract-v1.47 carries 8 relocating contract row(s); …                                                               [stdout]
 ```
 
 Exit code: **1** — the ERROR's, unchanged. The notice never substitutes for a

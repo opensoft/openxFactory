@@ -49,10 +49,10 @@ discharges the `docs/contract-versioning-policy.md:250-252` precondition for P3.
 **Independent test**: read the eight rows and the changelog section; run
 `scripts/validate-manifest-digests.py`. No checker change and no cut needed.
 
-- [X] T005 [US1] Add the `relocating:` block mapping (`to: opensoft/openXwallet`, `tag: wallet-v1.1`, `since: contract-v1.46`) as the LAST key of each of the eight openxwallet rows in `contracts/manifest.yaml`, after `consumption_rule`, changing no other byte of those rows
-- [X] T006 [US1] Bump `contract_bundle_version` from `contract-v1.45` to `contract-v1.46` at `contracts/manifest.yaml:3`
-- [X] T007 [US1] Add the `## contract-v1.46` section to `contracts/CHANGELOG.md` above the `contract-v1.45` section, declaring **change class: DEPRECATING (minor)**, naming what relocates (the eight artifacts, by id), where (`opensoft/openXwallet` at `wallet-v1.1`), the removal version (`contract-v2.0`, the next major), and the migration path (the `contracts/openxwallet-pin.yaml` arriving at P3 plus `openXwallet/docs/pin-resync-runbook.md`); cite `split-openxwallet-repo` P2.5 / D5 / D6 and note that LedgerxFactory's P5a.2 bump observes this minor
-- [X] T008 [US1] Add the deprecation entry to `docs/contract-versioning-policy.md`'s "Deprecations Currently In Force" list (`:274`+), following the `contract-v1.34` precedent's shape and ending "Deprecated at contract-v1.46; removal target contract-v2.0"
+- [X] T005 [US1] Add the `relocating:` block mapping (`to: opensoft/openXwallet`, `tag: wallet-v1.1`, `since: contract-v1.47`) as the LAST key of each of the eight openxwallet rows in `contracts/manifest.yaml`, after `consumption_rule`, changing no other byte of those rows
+- [X] T006 [US1] Bump `contract_bundle_version` from `contract-v1.45` to `contract-v1.47` at `contracts/manifest.yaml:3`
+- [X] T007 [US1] Add the `## contract-v1.47` section to `contracts/CHANGELOG.md` above the `contract-v1.45` section, declaring **change class: DEPRECATING (minor)**, naming what relocates (the eight artifacts, by id), where (`opensoft/openXwallet` at `wallet-v1.1`), the removal version (`contract-v2.0`, the next major), and the migration path (the `contracts/openxwallet-pin.yaml` arriving at P3 plus `openXwallet/docs/pin-resync-runbook.md`); cite `split-openxwallet-repo` P2.5 / D5 / D6 and note that LedgerxFactory's P5a.2 bump observes this minor
+- [X] T008 [US1] Add the deprecation entry to `docs/contract-versioning-policy.md`'s "Deprecations Currently In Force" list (`:274`+), following the `contract-v1.34` precedent's shape and ending "Deprecated at contract-v1.47; removal target contract-v2.0"
 - [X] T009 [US1] Verify the floor: `git diff --name-only origin/main --` over the six frozen paths prints nothing, and `grep -c '  - id: openxwallet' contracts/manifest.yaml` still prints 8
 - [X] T010 [US1] Run `python3 scripts/validate-manifest-digests.py` and confirm every per-file digest still verifies (the marker changes no contract file's bytes)
 - [X] T011 [US1] Confirm the eight ids carrying `relocating:` by parsing the manifest with PyYAML per quickstart.md S1, and that no ninth row carries it
@@ -100,12 +100,12 @@ contains all eight artifacts, and the three bundle names agree.
 
 **Independent test**: quickstart.md S2 and S3.
 
-- [X] T024 [US3] Generate the inventory LAST, after every content edit: `python3 scripts/validate-contract-release.py build --tag contract-v1.46 --output contracts/releases/contract-v1.46.digests.yaml` (the manifest, changelog and policy doc are all release-surface members, so their new bytes must already be on disk)
-- [X] T025 [US3] Verify the three-way name agreement per quickstart.md S2: `contract_bundle_version`, the newest `## contract-v` changelog heading, the inventory filename, and the inventory's own `bundle_tag` all read `contract-v1.46`
+- [X] T024 [US3] Generate the inventory LAST, after every content edit: `python3 scripts/validate-contract-release.py build --tag contract-v1.47 --output contracts/releases/contract-v1.47.digests.yaml` (the manifest, changelog and policy doc are all release-surface members, so their new bytes must already be on disk)
+- [X] T025 [US3] Verify the three-way name agreement per quickstart.md S2: `contract_bundle_version`, the newest `## contract-v` changelog heading, the inventory filename, and the inventory's own `bundle_tag` all read `contract-v1.47`
 - [X] T026 [US3] Verify the inventory is reproducible — regenerate to a scratch path and `diff` against the committed file; expect no diff (proves it was tool-produced, not hand-edited)
 - [X] T027 [US3] Verify the eight openxwallet registrations are still on the release surface TRANSITIVELY per research.md R11: inventory membership is catalog-driven and the eight artifact files are not members (0 hits, at v1.45 too), so check instead that `contracts/manifest.yaml` IS a member, that its recorded digest equals `git hash-object contracts/manifest.yaml`, and that the manifest still carries 8 openxwallet rows
 - [X] T028 [US3] Run `python3 scripts/doc-health.py --single-repo . --family release-inventory-drift` and confirm **no findings** — the pre-existing error on `scripts/validate-hermes-runtime-contracts.py` plus the two editorial infos are discharged by this cut, per research.md R8
-- [X] T029 [US3] Do NOT create the annotated tag. Confirm `git tag -l 'contract-v1.46'` is empty — the tag is an operator act at merge (research.md R4)
+- [X] T029 [US3] Do NOT create the annotated tag. Confirm `git tag -l 'contract-v1.47'` is empty — the tag is an operator act at merge (research.md R4)
 
 **Checkpoint**: the bundle is authored and internally consistent. Publication
 completes at merge, when the operator cuts the tag.
@@ -117,7 +117,7 @@ completes at merge, when the operator cuts the tag.
 - [X] T030 Run the two end-to-end fixture scenarios of quickstart.md S4 and capture the literal output: S4a (consumer pinned to this bundle → the eight-line WARN, exit 0) and S4b (consumer pinned to `contract-v1.45` → no relocation line, exit 0)
 - [X] T031 Save the S4a output verbatim into `specs/018-openxwallet-deprecation-minor/evidence/warn-sample.txt` as the `tasks.md` 5.9 evidence artifact (the checker's OUTPUT, not the manifest rows)
 - [X] T032 Tick `openspec/changes/split-openxwallet-repo/tasks.md` §5 items that are COMPLETE — 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 5.9, 5.10 — each with a one-line evidence note naming the file or the evidence artifact. **Touch no other group's items** (a concurrent PR owns §4)
-- [X] T033 Leave `openspec/changes/split-openxwallet-repo/tasks.md` 5.8 UNTICKED with a note that the number is allocated and the tag cut at merge by the operator, and that this feature authors `contract-v1.46` subject to merge-order re-verification
+- [X] T033 Leave `openspec/changes/split-openxwallet-repo/tasks.md` 5.8 UNTICKED with a note that the number is allocated and the tag cut at merge by the operator, and that this feature authors `contract-v1.47` subject to merge-order re-verification
 - [X] T034 Run `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` and confirm it passes
 - [X] T035 Run `python3 -m pytest -q` (the whole suite, as CI's `pytest-suite` collects it) and confirm green
 - [X] T036 Run `python3 scripts/doc-health.py --single-repo .` and confirm **no NEW finding** versus the T002 baseline; the release-inventory-drift trio should be gone (an improvement, not a suppression)
