@@ -199,7 +199,10 @@ checkout:
 | 3 | `### modified-block-currency` section: `Skipped: skipped by run configuration` → 10 finding rows | the family's own section |
 | 4 | 10 `severity=… family=modified-block-currency …` rows added | the ranked-plan rows for this family |
 
-24 changed lines in 4 hunks. `## Per-Stage Counts`, `## Preflight`, every other
+**24 changed lines in FIVE hunks** — the headline, the skip notice, the family's section,
+and two in the ranked plan (its `warning` row and its nine `info` rows land in
+separate hunks). The four LINE CLASSES sit in three SECTIONS; the hunk count is a
+property of `diff`, not of the claim. `## Per-Stage Counts`, `## Preflight`, every other
 `### <family>` section, and the semantic/catalog sections are **byte-identical**.
 
 **§ 4.5 IS SELF-CONTRADICTORY AS WRITTEN, and the gate implements the reading

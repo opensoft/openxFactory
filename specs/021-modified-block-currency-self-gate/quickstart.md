@@ -48,7 +48,7 @@ python3 scripts/doc-health.py --single-repo . \
 diff /tmp/without.md /tmp/with.md
 ```
 
-Expected: 4 hunks, 24 changed lines — the headline, the skipped-family notice,
+Expected: 5 hunks, 24 changed lines — the headline, the skipped-family notice,
 the `### modified-block-currency` section, and the ranked-plan rows for this
 family. Nothing else.
 

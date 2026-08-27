@@ -15,20 +15,37 @@ test file ends up asserting that a module imports.
 
 ## Progress
 
-Nothing is done. T001 is the baseline that every later count is a delta from, so
-it runs first and its number is recorded before a line of test code exists.
+**ALL 31 TASKS DONE (T001–T030, T024a).** One test module,
+`tests/doc-health/test_modified_block_currency_self_gate.py`, 15 tests. The
+suite moved 1115 → 1130; `openspec validate --all --strict` reads 76; the report
+moves +1 `warning` / +9 `info` in three sections and nowhere else. Six mutants,
+all killed. Numbers, commands and RED output in `evidence/self-gate.md`.
+
+**Two tests went RED on their own first run**, both on the same mistake in
+opposite directions — matching a probe on a MENTION rather than a USE — and both
+are recorded as evidence rather than quietly fixed (`evidence/self-gate.md`
+§ 5, N1 and N2). One of them was the positive control on the zero-class probes
+doing exactly its job.
+
+**The mutation round's finding**: this machine carries FIFTEEN other measurable
+openxFactory checkouts, so "point the resolver at another checkout" is not a
+hypothetical mutant. Pointed at the shared submodule tree — the exact tree
+`harden-ideation-readiness-check`'s ancestor walk always landed on — the gate is
+killed by FOUR independent tests, and that tree is a genuinely different corpus:
+two warnings, five ledger subjects this branch does not have, and
+`add-family-enumeration-check` still ACTIVE in it.
 
 ---
 
 ## Phase 1: Setup
 
-- [ ] T001 Record the baseline: `python3 -m pytest tests/doc-health -q` and
+- [x] T001 Record the baseline: `python3 -m pytest tests/doc-health -q` and
       `OPENSPEC_TELEMETRY=0 openspec validate --all --strict`, both green, both
       counts written into `specs/021-modified-block-currency-self-gate/evidence/self-gate.md`
       against the head SHA. **Measured before any test exists**, so the added
       tests are visible as a delta (SC-006) and so a pre-existing red cannot be
       attributed to this feature.
-- [ ] T002 Create `tests/doc-health/test_modified_block_currency_self_gate.py`
+- [x] T002 Create `tests/doc-health/test_modified_block_currency_self_gate.py`
       with the module docstring only: what the file measures, that its subjects
       are dated to `76a2ad27`, the packet's STALE § 4.1 figure (1 warning / 11
       info at `9be81a40` over 23 blocks) named as **history**, the re-measured
@@ -48,7 +65,7 @@ resolver that lands on the wrong tree makes every later green meaningless. This
 is the defect `harden-ideation-readiness-check` fixed and the one this gate must
 not reintroduce.
 
-- [ ] T003 Add `_repo_under_test(under_test=None)` to the new module: resolve
+- [x] T003 Add `_repo_under_test(under_test=None)` to the new module: resolve
       `Path(under_test or Path(__file__).resolve().parents[2])`, require
       `<root>/openspec/changes` to be a directory AND
       `<root>/openspec/specs/doc-health/spec.md` to be a file, and on failure
@@ -58,24 +75,24 @@ not reintroduce.
       failure mode only, per decision D4. Do not import that function (R3: three
       copies already exist deliberately, its marker is the wrong one for this
       family).
-- [ ] T004 Add `_ctx(root)` returning the two-attribute stand-in
+- [x] T004 Add `_ctx(root)` returning the two-attribute stand-in
       (`repo_paths={"openxFactory": root}`, `agg_root=None`), on
       `test_family_enumeration.py:165-170`'s pattern, with a docstring recording
       the MEASURED reason it is faithful (`ctx.repo_paths` is the module's only
       `ctx.` access; `load_dispositions` reads `agg_root` and nothing else) and
       pointing at T024's structural pin.
-- [ ] T005 Add `_moved(subject, detail)` — the shared failure-message helper
+- [x] T005 Add `_moved(subject, detail)` — the shared failure-message helper
       (FR-016). Every corpus assertion's message goes through it, and it names:
       the resolved root, the subject, that **corpus movement is the expected
       cause**, the re-measure command
       (`python3 scripts/doc-health.py --single-repo . --family modified-block-currency`),
       and the zero end-state instruction.
-- [ ] T006 [TEST] `test_the_repository_under_test_is_the_tree_this_test_file_lives_in` —
+- [x] T006 [TEST] `test_the_repository_under_test_is_the_tree_this_test_file_lives_in` —
       the resolved root equals `Path(__file__).resolve().parents[2]`, both markers
       are present, and `git rev-parse --show-toplevel` at that root equals the
       root itself. **RED**: assert it equals `root.parent` (the worktrees
       container) and watch it fail naming both paths.
-- [ ] T007 [TEST] `test_the_resolver_fails_on_a_checkout_it_cannot_confirm_and_never_walks_up` —
+- [x] T007 [TEST] `test_the_resolver_fails_on_a_checkout_it_cannot_confirm_and_never_walks_up` —
       `_repo_under_test(root.parent)` raises, with both markers and the searched
       path in the message; and if an ancestor carrying `xFactories/` is reachable,
       it is refused too rather than resolved. **RED**: wrap the GOOD root in
@@ -101,14 +118,14 @@ assertion leaves it still failing on a vacuous read.
 this floor. Building US1 first would mean asserting named subjects with nothing
 proving discovery ran.
 
-- [ ] T008 [TEST] [US2] `test_the_family_examined_at_least_one_modified_block_over_the_real_tree` —
+- [x] T008 [TEST] [US2] `test_the_family_examined_at_least_one_modified_block_over_the_real_tree` —
       `len(mbc.active_blocks(root)) >= 1`, with the root, `mbc.DELTA_GLOB`, and
       the distinct change and capability counts in the failure message. **A
       FLOOR, NOT A COUNT**, and the reason is F1's own scar: pinning the exact
       population "broke the moment `add-family-enumeration-check` archived",
       making an unrelated archive look like this family's regression. **RED**:
       assert `>= 10_000` and watch it fail with the real population.
-- [ ] T009 [TEST] [US2] `test_the_family_returns_findings_and_not_a_skip_over_a_tree_that_carries_changes` —
+- [x] T009 [TEST] [US2] `test_the_family_returns_findings_and_not_a_skip_over_a_tree_that_carries_changes` —
       the return value is a `list`, not a `Skip`, asserted APART from whether it
       is empty. Canon's skip rule is "cannot run", not "found nothing", and the
       two states are different by the family's own delta. **RED**: assert
@@ -126,33 +143,33 @@ rather than that a count moved.
 **Independent test**: delete any one name from the expected set and the test
 fails naming it; add a fabricated one and it fails naming the absence.
 
-- [ ] T010 [US1] Add the subject constants at module level: `_SCENARIO_SUBJECT`
+- [x] T010 [US1] Add the subject constants at module level: `_SCENARIO_SUBJECT`
       (the 4-tuple: change `add-composed-view-authoring`, capability
       `ideation-dashboard`, requirement `Composed views are read-only with a
       repository jump`, omitted scenario `Gate verbs hide on a composed view`)
       and `_LEDGER_SUBJECTS` (the nine `(change, capability, requirement)`
       triples from `plan.md` § The named subjects). One comment above them dating
       them to `76a2ad27` and pointing at `quickstart.md` § WHEN THE GATE FAILS.
-- [ ] T011 [US1] Add `_subject(finding)` — derive `(change, capability)` from
+- [x] T011 [US1] Add `_subject(finding)` — derive `(change, capability)` from
       `finding.path` on `mbc.DELTA_GLOB`'s shape and the requirement title from
       the family's own quoting in `finding.rule`. **Read what the family wrote;
       do not re-parse the spec** — a second parser in the gate would prove
       something about the gate.
-- [ ] T012 [TEST] [US1] `test_the_scenario_arm_names_the_composed_view_rename_and_nothing_else` —
+- [x] T012 [TEST] [US1] `test_the_scenario_arm_names_the_composed_view_rename_and_nothing_else` —
       exactly one `warning` in the run, and its subject is `_SCENARIO_SUBJECT` in
       all four fields, the omitted scenario title matched EXACTLY. **RED**: assert
       the omitted title is the rename DESTINATION
       `Tile-bound gate verbs hide on a composed view` and watch it fail — which
       also demonstrates that a containment reading would have passed, the
       family's own forbidden-containment rule applied to its own gate.
-- [ ] T013 [TEST] [US1] `test_every_carriage_ledger_finding_over_the_real_tree_is_named` —
+- [x] T013 [TEST] [US1] `test_every_carriage_ledger_finding_over_the_real_tree_is_named` —
       the set of `info` subjects equals `_LEDGER_SUBJECTS` exactly (`==`, never
       `<=`: a subset comparison would let a newly lossy MODIFIED block land
       unreported, which is the defect the family exists to catch). Failure message
       through `_moved`, naming the symmetric difference in both directions.
       **RED, BOTH DIRECTIONS**: drop one triple (fails naming an unexpected
       finding), then add a fabricated triple (fails naming a missing one).
-- [ ] T014 [TEST] [US1] `test_the_resolution_ordering_and_marker_classes_read_zero_over_the_real_tree` —
+- [x] T014 [TEST] [US1] `test_the_resolution_ordering_and_marker_classes_read_zero_over_the_real_tree` —
       three named classes each empty, identified by rule text: the unresolved
       arm (`resolves to no promoted requirement`), the ordering arm (`the
       ordering of MODIFIED blocks for`), the marker-defect class
@@ -175,14 +192,14 @@ delta, and the basis the block is measured against is named rather than assumed.
 **Independent test**: the own-delta path is in the discovered set; its resolved
 basis is canon; the self-finding quotes both stale numeral sentences.
 
-- [ ] T015 [TEST] [US3] `test_this_change_s_own_delta_is_among_the_blocks_the_family_examined` —
+- [x] T015 [TEST] [US3] `test_this_change_s_own_delta_is_among_the_blocks_the_family_examined` —
       `openspec/changes/add-modified-block-currency-check/specs/doc-health/spec.md`
       is among `active_blocks(root)`, carrying the title
       `Deterministic check families`. This is the assertion **F1's T057 claimed
       to have written and did not** (decision D5, `research.md` R8) — the
       docstring says so, with the `grep` that establishes it. **RED**: assert a
       neighbouring packet path that carries no doc-health delta.
-- [ ] T016 [TEST] [US3] `test_the_own_delta_is_measured_against_canon_and_no_sibling_basis_exists` —
+- [x] T016 [TEST] [US3] `test_the_own_delta_is_measured_against_canon_and_no_sibling_basis_exists` —
       `mbc.resolve(own_block, mbc.promoted(root, "doc-health"), mbc.sibling_titles(root))`
       returns status `canon` with basis `openspec/specs/doc-health/spec.md`; AND
       `add-family-enumeration-check` is absent from `openspec/changes/` and
@@ -193,7 +210,7 @@ basis is canon; the self-finding quotes both stale numeral sentences.
       exists and asserts the sibling's absence, making § 4.2's wording visibly
       history. **RED**: assert status `pending`, then assert the sibling is
       active.
-- [ ] T017 [TEST] [US3] `test_the_self_finding_quotes_this_change_s_two_stale_numeral_sentences` —
+- [x] T017 [TEST] [US3] `test_the_self_finding_quotes_this_change_s_two_stale_numeral_sentences` —
       exactly one `info` on the own-delta path, quoting BOTH
       `twenty-one check families` and `Four of the twenty-one`. The docstring
       records that this finding is **expected evidence, never a regression and
@@ -201,7 +218,7 @@ basis is canon; the self-finding quotes both stale numeral sentences.
       quotes `twenty-two` — the block's own wording rather than canon's — and
       watch it fail, which is the point: the ledger names what CANON states and
       the block does not carry.
-- [ ] T018 [TEST] [US3] `test_no_disposition_can_apply_in_the_single_repo_scope_the_gate_runs_in` —
+- [x] T018 [TEST] [US3] `test_no_disposition_can_apply_in_the_single_repo_scope_the_gate_runs_in` —
       `promotion_fidelity.load_dispositions(_ctx(root), mbc.FAMILY)` is empty
       because `agg_root is None`. The inherited single-repo caveat, asserted here
       so the gate's silence about dispositions is understood rather than
@@ -219,14 +236,14 @@ basis is canon; the self-finding quotes both stale numeral sentences.
 **Independent test**: two single-repo report runs of this checkout differing only
 by `--skip-family`, diffed.
 
-- [ ] T019 [US4] Add `_report(root, tmp_path, skip=False)` — run
+- [x] T019 [US4] Add `_report(root, tmp_path, skip=False)` — run
       `python3 scripts/doc-health.py --single-repo <root> --report-out <file>`
       (plus `--skip-family modified-block-currency` when `skip`) via
       `subprocess.run`, assert exit 0, return the rendered text. Docstring records
       why this is hermetic: a `--single-repo` run sets `agg_root=None`, so
       `runner._real_notebook_dryrun` returns before reaching `nlm`, and `gh`/`omp`
       have no call site in the doc-health runner (`research.md` R6).
-- [ ] T020 [TEST] [US4] `test_the_report_moves_only_in_this_family_s_lines` — the
+- [x] T020 [TEST] [US4] `test_the_report_moves_only_in_this_family_s_lines` — the
       ONE count assertion this feature permits, and it is a DIFF: `critical` and
       `error` movement are `0`; `warning` and `info` movement equal the family's
       own per-severity finding counts **taken from the same tree in the same
@@ -238,7 +255,7 @@ by `--skip-family`, diffed.
       passes with `--skip-family modified-block-currency` — movement reads
       0/0/0/0 while the family reports one warning and nine info, so the pin
       fails. That is the same manoeuvre as mutant M5.
-- [ ] T021 [US4] Record § 4.5 in `evidence/self-gate.md`: both commands, both
+- [x] T021 [US4] Record § 4.5 in `evidence/self-gate.md`: both commands, both
       headlines, the 4-hunk / 24-line diff classification, and the note that
       **§ 4.5 is self-contradictory as written** — it asks for "+1 warning, +11
       info … headline unchanged", and the headline is the line those counts are
@@ -256,14 +273,14 @@ by `--skip-family`, diffed.
 **Independent test**: read the messages; each names the tree, the subject, the
 expected cause and the two legitimate responses.
 
-- [ ] T022 [TEST] [US5] `test_every_corpus_assertion_explains_what_to_do_when_the_corpus_moves` —
+- [x] T022 [TEST] [US5] `test_every_corpus_assertion_explains_what_to_do_when_the_corpus_moves` —
       `_moved(...)`'s output names the resolved root, the subject, the phrase
       identifying corpus movement as the expected cause, the re-measure command,
       and the zero end-state instruction; and every corpus-facing test in the
       module routes its message through `_moved` (asserted by source inspection
       of the module's own `assert` sites). **RED**: assert the message names a
       command that is not in it.
-- [ ] T023 [US5] Write `quickstart.md` § WHEN THE GATE FAILS into the module as a
+- [x] T023 [US5] Write `quickstart.md` § WHEN THE GATE FAILS into the module as a
       short pointer comment beside `_SCENARIO_SUBJECT`, naming the ONE expected
       movement by name: `add-composed-view-authoring` declaring its rename with a
       `Removed from canon by` marker, which the packet's § 6.3 already calls the
@@ -276,7 +293,7 @@ expected cause and the two legitimate responses.
 
 ## Phase 8: Polish, mutation and the gates
 
-- [ ] T024 [TEST] `test_the_family_reads_exactly_two_things_from_its_run_context` —
+- [x] T024 [TEST] `test_the_family_reads_exactly_two_things_from_its_run_context` —
       FR-018, at BOTH levels the surface exists at (analyze finding A4 — the
       first cut of this task covered only the first): (a) the family's own module
       reads exactly one context attribute —
@@ -287,7 +304,7 @@ expected cause and the two legitimate responses.
       faithful rather than faithful-because-read-once; a newly read attribute at
       either level reds this test, which is the signal to widen the stand-in.
       **RED**: add a second attribute to the expected set at each level in turn.
-- [ ] T024a [TEST] `test_the_gate_reaches_the_corpus_only_through_the_family` —
+- [x] T024a [TEST] `test_the_gate_reaches_the_corpus_only_through_the_family` —
       FR-001 asserted structurally rather than left to authoring discipline
       (analyze finding A3): this module's own source carries no requirement or
       markdown parser of its own — no `## MODIFIED` pattern, no
@@ -296,7 +313,7 @@ expected cause and the two legitimate responses.
       through a named `mbc.*` public function. **RED**: add a throwaway
       `re.compile(r"^## MODIFIED")` to the module and watch it fail. *A gate that
       re-parsed the corpus would prove something about the gate.*
-- [ ] T025 THE MUTATION ROUND, five mutants, each recorded in
+- [x] T025 THE MUTATION ROUND, five mutants, each recorded in
       `evidence/self-gate.md` with the test that killed it and the tests that
       SURVIVED it (a mutant only one test catches is a mutant reported honestly):
       **M1** remove the named-subject assertions from T012/T013 → the discovery
@@ -306,17 +323,17 @@ expected cause and the two legitimate responses.
       **M3** make discovery skip the own packet's change → T015/T016 must fail;
       **M4** widen the context probe's allowed set → T024 must fail;
       **M5** run both movement passes with the family skipped → T020 must fail.
-- [ ] T026 The count-delta evidence: `python3 -m pytest tests/doc-health -q`
+- [x] T026 The count-delta evidence: `python3 -m pytest tests/doc-health -q`
       green, recorded against T001's baseline so the added tests are a visible
       delta (SC-006). **This single-directory run IS the evidence** — `python3 -m
       pytest tests` is never run from a worktree (it drives live Postgres; F1
       ruling N12).
-- [ ] T027 `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green, count
+- [x] T027 `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green, count
       recorded, run from the repository root per the aggregation CLAUDE.md's
       authoring note. **The count at this branch point is 76, not the 75 F1
       recorded** — the tree moved between F1's branch point and this one; the
       evidence names the tree each figure was taken at.
-- [ ] T028 Scope guard, mechanically:
+- [x] T028 Scope guard, mechanically:
       `git diff --stat $(git merge-base HEAD origin/main) -- scripts/ openspec/ .github/`
       prints NOTHING (FR-019). The full diff touches only
       `tests/doc-health/test_modified_block_currency_self_gate.py` and
@@ -324,12 +341,12 @@ expected cause and the two legitimate responses.
       `python3 -m pytest tests/doc-health/test_modified_block_currency.py
       tests/doc-health/test_modified_block_currency_fixtures.py -q` green and
       unchanged in count — F1's and F2's suites are untouched.
-- [ ] T029 Complete `evidence/self-gate.md`: the head SHA, the three gates with
+- [x] T029 Complete `evidence/self-gate.md`: the head SHA, the three gates with
       their commands and numbers, the re-measured movement table, the named
       subjects, the RED evidence per test, the five mutants, and § 4's defects as
       found (§ 4.1 stale count, § 4.2 stale basis, § 4.5 self-contradictory
       headline clause, F1's T057 absent).
-- [ ] T030 Draft `pr-body.md` in this feature directory: the packet and its
+- [x] T030 Draft `pr-body.md` in this feature directory: the packet and its
       ratification, § 4.1–4.5 discharged, the five orchestrator decisions D1–D5
       still flagged for veto, the statement that this change does **not** close
       #330 (packet § 7.1 requires the PR to say so), F1 residue finding 6 (T057),
