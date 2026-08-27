@@ -85,12 +85,24 @@ The rules the shapes cannot express:
       Refused, so the second axis cannot ride along invisibly (R3, OQ2).
 
   (f) THE openxWALLET MAPPING RESOLVES AND AGREES, READ AT RUN TIME from
-      `contracts/openxwallet/openxwallet-custody.registry.yaml` rather than
-      restated here. Each chain-custody member names its openxWallet
+      `openXwallet/contracts/openxwallet/openxwallet-custody.registry.yaml`
+      rather than restated here. Each chain-custody member names its openxWallet
       counterpart; a member whose declared booleans or derived evidences
       disagree with the member it claims to be is refused. Restating the parent
       set here would recreate the second custody model the ratified text
       forbids (R3).
+
+      THE PARENT SET IS CONSUMED AT A PIN, NOT OWNED HERE. openxFactory pins
+      `opensoft/openXwallet` as a nested submodule declared by
+      `contracts/openxwallet-pin.yaml`, so this rule now reads ACROSS A GITLINK,
+      and `main()` refuses before any of it is trusted unless
+      `scripts/verify-openxwallet-pin.py` agrees that the recorded gitlink, the
+      checked-out revision and the eight digests are the pinned ones. Composing
+      against whatever bytes happen to sit at that path was sufficient while the
+      family was owned here; across a gitlink it is not, because a submodule
+      moved off the pinned commit would move this set's answers without moving
+      the pin — the mapping would still RESOLVE, and resolve against a parent set
+      nobody ratified.
 
   (g) THE FLOOR IS A WEAKEST MEMBER. `undeclared_custody_resolves_to` must name
       a member that evidences the using host, sits at the ladder's minimum
@@ -298,6 +310,7 @@ from __future__ import annotations
 import argparse
 import base64
 import binascii
+import importlib.util
 import re
 import sys
 from datetime import datetime, timedelta, timezone
@@ -319,8 +332,26 @@ except ImportError:  # pragma: no cover
 ROOT = Path(__file__).resolve().parents[1]
 FAMILY_DIR = ROOT / "contracts" / "trust-anchor"
 CUSTODY_REGISTRY_PATH = FAMILY_DIR / "trust-anchor-chain-custody.registry.yaml"
+# Rebased onto the pin's `submodule_path` (`contracts/openxwallet-pin.yaml`) as a
+# PURE STRING JOIN, with no I/O and no read of the pin. The directory name is a
+# literal here ON PURPOSE, and the duplication is the cheaper of two costs:
+# `tests/trust-anchor/test_negative_corpus.py` and `test_declaration_perimeter.py`
+# resolve this constant while standing their contexts up, so any resolution that
+# CAN FAIL — an absent pin, a malformed one, an uninitialized submodule — stops
+# being one gate's refusal and becomes a collection error that takes every
+# trust-anchor test with it, and a suite that cannot collect proves nothing about
+# the family. Reading `submodule_path` here would be exactly that: I/O at import.
+# A string join cannot fail. The pin is read, and its identity checked, inside
+# `main()` — see `refuse_unless_openxwallet_pinned` — and the literal's agreement
+# with `submodule_path` is held by
+# `tests/trust-anchor/test_openxwallet_pin_refusal.py`.
 OPENXWALLET_REGISTRY_PATH = (
-    ROOT / "contracts" / "openxwallet" / "openxwallet-custody.registry.yaml")
+    ROOT / "openXwallet" / "contracts" / "openxwallet"
+    / "openxwallet-custody.registry.yaml")
+
+# Path only, for the same reason: constructing it is free, loading it is not.
+OPENXWALLET_PIN_PATH = ROOT / "contracts" / "openxwallet-pin.yaml"
+OPENXWALLET_VERIFIER_PATH = ROOT / "scripts" / "verify-openxwallet-pin.py"
 
 KIND_TO_SCHEMA = {
     "xfactory_trust_anchor_chain_custody_registry":
@@ -2565,6 +2596,91 @@ def report(f: Findings, strict: bool) -> int:
     return 1 if f.errors or (strict and f.warnings) else 0
 
 
+# The ONE repetition of `verify-openxwallet-pin.REMEDIATION`, and it exists for
+# the single case in which the canonical copy is unreachable: the verifier itself
+# failed to load, so its constant cannot be read and an operator would otherwise
+# get a refusal with no way out of it. Held byte-identical to the canonical
+# string by `tests/trust-anchor/test_openxwallet_pin_refusal.py`, which is what
+# keeps this from becoming the drifting third copy the design refused.
+OPENXWALLET_REMEDIATION_FALLBACK = (
+    "Remediation: run `git submodule update --init openXwallet` (NOT "
+    "--recursive; this wave's init is deliberately scoped). If the pin itself "
+    "is stale, follow `openXwallet/docs/pin-resync-runbook.md`.")
+
+
+def load_openxwallet_pin_verifier():
+    """Load `scripts/verify-openxwallet-pin.py` ON DEMAND, never at import.
+
+    Lazy on purpose, and the laziness is the requirement rather than a
+    style preference. This module is imported — not run — by
+    `tests/trust-anchor/test_negative_corpus.py` and
+    `test_declaration_perimeter.py`, and an import-scope load of the verifier
+    would make every one of those tests uncollectable the moment the verifier
+    were absent, unparseable, or raised while executing. The pin question belongs
+    to the gate that asks it, so it is asked in `main()` and answered there.
+
+    Loaded through `spec_from_file_location` because the verifier is a
+    hyphenated script beside this one, not an importable module name — the same
+    route this repo's own tests use to load these validators.
+    """
+    spec = importlib.util.spec_from_file_location(
+        "verify_openxwallet_pin", OPENXWALLET_VERIFIER_PATH)
+    if spec is None or spec.loader is None:
+        raise ImportError(f"{OPENXWALLET_VERIFIER_PATH} is not loadable as a "
+                          f"module")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def refuse_unless_openxwallet_pinned() -> str | None:
+    """The refusal text if the openxWallet pin does not hold, else `None`.
+
+    Replaces a bare `is_file()` on the custody registry, which asked only
+    whether SOMETHING was at the path. Rule (f) composes this family's
+    chain-custody set with the canonical openxWallet custody registry and checks
+    against it at run time, which is why an unavailable parent set is fatal
+    rather than skippable — and now that the parent set arrives across a gitlink,
+    presence is no longer the whole question: an initialized submodule sitting on
+    an unpinned commit is present, readable, and not the set anybody ratified.
+    So the check is delegated to the verifier, which answers for the recorded
+    gitlink, the checked-out revision and the eight digests, and refuses with a
+    NAMED code.
+
+    Every route out of here is closed: a verifier that will not load is a
+    refusal, not a licence to fall back to "the file happens to be there". That
+    fallback is precisely how a swapped submodule would validate green.
+    """
+    context = (
+        f"ERROR the openxWallet pin does not hold, so rule (f) cannot run: this "
+        f"family's chain-custody set COMPOSES with the canonical openxWallet "
+        f"custody registry ({OPENXWALLET_REGISTRY_PATH.relative_to(ROOT)}) and "
+        f"is checked against it at run time, so a parent set that is absent — or "
+        f"present without being the one "
+        f"{OPENXWALLET_PIN_PATH.relative_to(ROOT)} pins — is fatal rather than "
+        f"skippable.")
+    try:
+        verifier = load_openxwallet_pin_verifier()
+    except Exception as exc:  # noqa: BLE001
+        return (f"{context}\nREFUSE openxwallet-pin-unverifiable: "
+                f"{OPENXWALLET_VERIFIER_PATH.relative_to(ROOT)} could not be "
+                f"loaded ({exc}), so the pin was never checked\n"
+                f"{OPENXWALLET_REMEDIATION_FALLBACK}")
+    try:
+        verifier.verify(ROOT)
+    except verifier.PinRefusal as exc:
+        # `str(exc)` already renders `REFUSE <code>: <detail>` and the fixed
+        # remediation trailer, so the context goes BEFORE it and the trailer
+        # stays the last thing an operator reads.
+        return f"{context}\n{exc}"
+    except Exception as exc:  # noqa: BLE001
+        return (f"{context}\nREFUSE openxwallet-pin-unverifiable: "
+                f"{OPENXWALLET_VERIFIER_PATH.relative_to(ROOT)} failed while "
+                f"checking the pin ({exc.__class__.__name__}: {exc})\n"
+                f"{verifier.REMEDIATION}")
+    return None
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(
         description=__doc__,
@@ -2579,10 +2695,9 @@ def main() -> int:
     if not FAMILY_DIR.is_dir():
         print(f"ERROR {FAMILY_DIR} not found", file=sys.stderr)
         return 2
-    if not OPENXWALLET_REGISTRY_PATH.is_file():
-        print(f"ERROR {OPENXWALLET_REGISTRY_PATH} not found; the chain-custody "
-              f"set composes with the canonical openxWallet custody registry "
-              f"and is checked against it at run time", file=sys.stderr)
+    refusal = refuse_unless_openxwallet_pinned()
+    if refusal is not None:
+        print(refusal, file=sys.stderr)
         return 2
 
     try:

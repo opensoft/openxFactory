@@ -227,9 +227,37 @@ check is REQUIRED: org ruleset
 admins retain the bypass, matching the Tier-1 main-protection ruleset's
 pattern.
 
-The gate surfaces — `.github/workflows/`, `/scripts/validate-openxwallet.py`,
-and `/scripts/wallet-yaml-syntax-gate.py` — are owner-routed via
+Since `contract-v2.0` the gate is a CONSUMER gate and its workflow file is
+[.github/workflows/openxwallet-consumer-gate.yml](.github/workflows/openxwallet-consumer-gate.yml).
+The readers it runs are not openxFactory files any more: it initializes the
+`openXwallet` gitlink, refuses unless
+[`scripts/verify-openxwallet-pin.py`](scripts/verify-openxwallet-pin.py) can
+verify [`contracts/openxwallet-pin.yaml`](contracts/openxwallet-pin.yaml) —
+recorded gitlink, checked-out revision, eight per-file `sha256`s and the
+`pinned_by_commit_only:` set — and then runs the PINNED
+`openXwallet/scripts/wallet-yaml-syntax-gate.py` and
+`openXwallet/scripts/validate-openxwallet.py` over **openxFactory's own tree**,
+which is where `governance/review-authority/` still lives. A final step asserts
+POSITIVELY that the intake register was opened: the log must carry the
+`repo scan:` note AND the `intake register read:` NOTE and must carry neither
+`no intake register at this tree` nor any `register-*` finding code, because a
+green check that opened no register is a vacuous pass.
+
+**The FILE was renamed; the TOKEN was not.** Ruleset 21538893 pins the check
+`wallet-validation`, which is a JOB ID and not a filename, so the new workflow
+retains `jobs: wallet-validation:` verbatim and the ruleset is edited by nothing.
+`tests/openxwallet_consumer_gate/test_gate_invocation.py`, collected by the
+REQUIRED `pytest-suite`, pins the job id and the literal invocation — the scan
+target must be present and equal to `.`, since the pinned validator reads the
+intake register only when it sweeps a directory.
+
+The gate surfaces — `.github/workflows/`, `/contracts/openxwallet-pin.yaml`,
+`/scripts/verify-openxwallet-pin.py`, the `/openXwallet` gitlink and
+`/.gitmodules` — are owner-routed via
 [.github/CODEOWNERS](.github/CODEOWNERS) so changes to them need owner review.
+The pin and the gitlink are also in codexFactory's merge-gate
+`never_clearable_paths` floor (`split-openxwallet-repo` P3b), because they are
+what determine WHICH READER RUNS.
 
 ## Python test suite gate
 
@@ -287,14 +315,19 @@ Every DomainxFactory must validate against the canonical contract:
   (client, domain) pair; a domain that publishes none stays conformant and the
   check reports a notice. Registered at `contract-v1.33`
   (`add-client-identity-roster`).
-- openxWallet: [contracts/openxwallet](contracts/openxwallet/README.md) (the
-  holder-agnostic core) and
-  [contracts/openxwallet-agent-profile](contracts/openxwallet-agent-profile/README.md)
-  (its first profile), validated by `scripts/validate-openxwallet.py
-  [<repo-path>] [--strict]` — a wallet is a key REFERENCE with a declared
-  custody model and never key material; authority travels as attenuated
-  grants; custody CAPS what a signature evidences; and wallets stay optional
-  for every domain (`add-openxwallet`).
+- openxWallet — **CONSUMED AT PIN, not published here, since `contract-v2.0`**
+  (`split-openxwallet-repo` P3). The holder-agnostic core and its first profile
+  are published by `opensoft/openXwallet` at tag `wallet-v1.1` and consumed
+  through [contracts/openxwallet-pin.yaml](contracts/openxwallet-pin.yaml): a
+  nested gitlink pinned by 40-hex COMMIT plus eight per-file `sha256` digests,
+  with the validator, the syntax gate, both `examples/` corpora and both family
+  READMEs carried as `pinned_by_commit_only:`. Validated by the PINNED
+  `openXwallet/scripts/validate-openxwallet.py [<repo-path>] [--strict]`, which
+  is this family's conformance validator from `contract-v2.0` forward — a wallet
+  is a key REFERENCE with a declared custody model and never key material;
+  authority travels as attenuated grants; custody CAPS what a signature
+  evidences; and wallets stay optional for every domain (`add-openxwallet`,
+  relocated by `split-openxwallet-repo`).
 - Identity brokering: [contracts/identity-brokering](contracts/identity-brokering/README.md),
   validated by `scripts/validate-identity-brokering.py [<repo-path>]
   [--strict]` — one persona per human within a broker INSTANCE; organizations
@@ -312,7 +345,10 @@ Every DomainxFactory must validate against the canonical contract:
   certificates only derivatively; issuance happens only under recorded
   authority; declared chain custody DERIVES what a certificate evidences,
   through a closed registry that composes with `openxwallet`'s custody rule at
-  run time rather than restating it; renewal that changes key material is a
+  run time rather than restating it — read since `contract-v2.0` through the
+  pinned `openXwallet/` gitlink
+  ([contracts/openxwallet-pin.yaml](contracts/openxwallet-pin.yaml)) and refused
+  by a NAMED code if the pin does not verify; renewal that changes key material is a
   rebind obligation over dependents enumerated in advance; revocation
   propagates to the authority the certificate supported; and a realization
   DECLARES the obligations it cannot meet. Registered at `contract-v1.37`
@@ -344,6 +380,57 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [supersede-lost-pin-baseline](openspec/changes/supersede-lost-pin-baseline/proposal.md)
+  — **RATIFIED 2026-08-27** (Brett, in-session commission of the filing,
+  selected verbatim from a multi-choice as "Commission the superseding record
+  (Recommended)"). The commission is the origin act, so
+  `approved_by`/`approved_on` are recorded from it — the
+  `govern-derived-pin-reachability` shape. **THE CITATION COVERS THE DECISION TO
+  FILE AND NOTHING ELSE** — and a SECOND, later act on the same day disposed
+  everything it did not reach. **ALL FOUR § Orchestrator decisions CLEARED AS
+  AUTHORED and BOTH § Open Questions RULED, 2026-08-27**, by a four-question
+  multi-choice put to Brett by the orchestrating session and relayed the same
+  day; on every question he took the packet's own recommendation, so the
+  clearance moved nothing. OD-1 through OD-4 cleared, none vetoed (the
+  `evidence/`-homed record with its live-plus-archive glob citation, the declared
+  `NON_MEMBERS` row, the spec delta riding, and the register row being the
+  disposition) — and **OD-4's own named veto branch was not taken, so no
+  `health/dispositions.yaml` entry is owed**. **Q1 RULED** — corroboration only:
+  the record claims exactly what is provable and never recovery. **Q2 RULED** —
+  no aging rule: the citation is re-resolved every run and breakage is
+  self-announcing. Both rulings match the record and the code as written, so
+  neither rewrote anything. The merge-then-archive sequence was approved in the
+  same act and belongs to the orchestrating session. **Performs the one
+  governance act
+  `govern-derived-pin-reachability` uncovered and marked NEEDS BRETT** (its
+  § 3.6 and § 5.5): the archived hermes provider verification pins
+  `us3_baseline_commit: 66b14064…`, and that object is UNRECOVERABLE —
+  re-measured on the day of filing at 0 of 573 advertised refs, `git cat-file`
+  failing in the shared object store, and the server refusing
+  `git fetch` with `upload-pack: not our ref`. Retention is impossible, the
+  record's bytes are immutable, and **no byte of the archived record is
+  touched**. Issues a superseding record
+  (`evidence/pin-loss-supersession.yaml`) stating the loss, its cause (one
+  rebase rewrote the whole `005-customer-subject-runtime` line six weeks before
+  the retention namespace was ruled), and the verification standing the archived
+  evidence retains and loses. **THE MEASUREMENT FOUND MORE THAN A HOLE**: the
+  baseline STATE is reachable under a rewritten object name, `8f7c99f0…`, the
+  parent of the commit that added the record — corroborated by all three
+  differential counts the record itself states (catalog members 34 -> 39, schema
+  entries 27 -> 32, fixture cases 79 -> 110, each re-measured at both commits) —
+  and the record labels that CORROBORATION, not recovery, because the object is
+  gone and tree equality is unprovable. **Restores `fully_verified` truthfully
+  rather than by silencing**: the `KNOWN_LOSSES` row now cites the record, the
+  verification reads committed state to find it and requires it to name the pin,
+  and only a loss AWAITING its record holds full verification open — the loss
+  stays declared, reported `[LOST]` with its whole measurement, and re-measured
+  for ever, while deleting the row makes the site report as a failing orphan
+  instead of a clean class. One ADDED `doc-health` requirement carries that rule
+  into canon; no check family is added and the enumeration is untouched. The
+  disposition lives in the register row rather than in
+  `health/dispositions.yaml`, measured: that file exists only at the aggregation
+  root and matches findings by `(family, repo, path)`, and this verification
+  registers no family and emits no family finding for an entry to match.
 - [add-modified-block-currency-check](openspec/changes/add-modified-block-currency-check/proposal.md)
   — **RATIFIED 2026-08-27** (in-session, verbatim "Ratify as-is"; realization via
   Speckit) — authored the same day against issues #357, #329 and #330, which name
@@ -443,7 +530,20 @@ Active changes:
   8 NOTED-class constraints carried into `clarifications.md`; all five review
   records are retained in the packet rather than folded into the proposal. `code_surface` spans SIX
   repositories and `target_release: implemented`, so it archives only on merged
-  plus green realization evidence, never on landing.
+  plus green realization evidence, never on landing. **Realization so far**
+  (Speckit features in this repository): `016-openxwallet-split-bookkeeping`
+  (the doctrine and the bookkeeping), `017-openxwallet-carve` (P2 — the carve
+  and the byte-identity proof at the NAMED CARVE COMMIT
+  `30565e48ffe3d8a9773e10af33425701845e10f6`),
+  `018-openxwallet-deprecation-minor` (P2.5 — `contract-v1.47`, the eight
+  `relocating:` rows, the CHANGELOG migration note and the WARN-tier emitter) and
+  `023-openxwallet-consume-shed` (**P3 — the atomic consume-and-shed at
+  `contract-v2.0`**: the `openXwallet` gitlink at `wallet-v1.1`,
+  `contracts/openxwallet-pin.yaml`, `scripts/verify-openxwallet-pin.py`, the
+  trust-anchor repoint, `openxwallet-consumer-gate.yml` keeping the required job
+  id, and the twelve carved path sets shed apart from the three deliberate
+  record exceptions). Still open: P3b (codexFactory), P4/P4b (aggregation),
+  P5a.2/P5b (LedgerxFactory), P6 and the operator's tag.
 - [qualify-avatar-live-voice](openspec/changes/qualify-avatar-live-voice/proposal.md)
   — **RATIFIED 2026-08-27** (in-session, "ratify avatar"; §2/§3 build lands in
   the same round) — authored 2026-08-26 as the staged topic's Exit, executed on Brett Heap's
@@ -857,7 +957,9 @@ Active changes:
   `pki-trust-anchor-plane` staged topic): anchors as governed records,
   issuance only under recorded authority with evidence obligations, declared
   chain custody deriving what a certificate evidences (composing with
-  `openxwallet`), renewal-as-rebind with dependent bindings recorded against
+  `openxwallet`, consumed at
+  [contracts/openxwallet-pin.yaml](contracts/openxwallet-pin.yaml) since
+  `contract-v2.0`), renewal-as-rebind with dependent bindings recorded against
   the certificate, revocation propagation, CA material as
   `credential-contracts` records, and the declared-degraded-obligation rule —
   product-agnostic across the two converging realizations (live Intune Cloud
@@ -948,9 +1050,11 @@ Active changes:
   layout demoted to a project schema a human (`PA`) elects and that confers
   nothing. **The substrate, named with nothing pretended** after three council
   seats independently found the proposal treating described controls as existing
-  ones: S1 wires `validate-openxwallet` into CI (advisory until an
-  operator marks it required — see "Wallet validation gate" above; at
-  authoring it ran in no workflow at all, so no grant was operative); S2
+  ones: S1 wires `validate-openxwallet` into CI (REQUIRED since
+  2026-08-26 by org ruleset 21538893 — see "Wallet validation gate" above; the
+  "advisory until an operator marks it required" reading was true at authoring,
+  when the validator ran in no workflow at all and no grant was operative, and
+  is STALE from 2026-08-26, corrected here by `split-openxwallet-repo` P3); S2
   anchors the issuer (root
   issuer = the responsible operator, standing under the Human Escalation
   Contract, no wallet needed); S3 records the exercise at verdict conformance in
@@ -972,10 +1076,14 @@ Active changes:
   merged, green evidence, so this change's own ledger does not tick from a
   successor's landing. **Successors landed so far** (Speckit features in this
   repository): S1 as `010-wallet-validator-ci` (PR #275, 2026-08-23) —
-  `.github/workflows/wallet-validation.yml` now runs
+  `.github/workflows/wallet-validation.yml` ran
   `scripts/wallet-yaml-syntax-gate.py` and `scripts/validate-openxwallet.py`
-  on every pull request to `main`; S2 as `012-wallet-issuer-anchor` (PR #299,
-  2026-08-24); the first-wallet cold start as `013-first-wallet` (PR #308,
+  on every pull request to `main`; since `contract-v2.0` that workflow is
+  `.github/workflows/openxwallet-consumer-gate.yml` (same job id, so the same
+  required token) and both readers come from the `openXwallet` pin — the
+  Speckit feature directory left the repository with the carve and its record is
+  the archived one; S2 as `012-wallet-issuer-anchor` (PR #299, 2026-08-24),
+  likewise carried to `opensoft/openXwallet`; the first-wallet cold start as `013-first-wallet` (PR #308,
   2026-08-25); and S4 as `014-register-and-reader` (PR #341, 2026-08-25),
   landing `governance/review-authority/register.yaml` at the ruled
   one-row MVP together with its reader. S3 (`[hermes-install]`) and S5 remain
@@ -3098,6 +3206,15 @@ Archived changes:
   optional for every domain, preserving MedxFactory's two ratified
   constraints. Realized 2026-08-07 by Speckit feature
   `006-openxwallet-contracts` at `contract-v1.31` and archived 2026-08-08.
+  **Annotation (`split-openxwallet-repo` P3, `contract-v2.0`):** the two
+  capabilities this change promoted, its Speckit feature directory and every
+  path it names were CARRIED to `opensoft/openXwallet` at `wallet-v1.1` and
+  REMOVED from this repository at `contract-v2.0`; openxFactory now consumes the
+  family at [contracts/openxwallet-pin.yaml](contracts/openxwallet-pin.yaml).
+  The archived packet at
+  [openspec/changes/archive/2026-08-08-add-openxwallet](openspec/changes/archive/2026-08-08-add-openxwallet/proposal.md)
+  is a RECORD and stays: it is annotated, never rewritten into agreement with a
+  later tree.
   The feature settled the two decisions ratification left it: the closed
   custody set is three members with `evidences` DERIVED from two declared
   booleans and enforced — so the collapse the ruling closes is

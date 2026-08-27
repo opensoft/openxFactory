@@ -67,6 +67,20 @@ Where neither can be performed — no remote, no network — the pin is
 INCONCLUSIVE and reported as a skip naming what could not be consulted. Never a
 pass: an unaskable question is not an affirmative answer.
 
+AN UNRECOVERABLE LOSS IS DISCHARGED BY A SUPERSEDING RECORD, NEVER BY DELETING
+THE ROW (`supersede-lost-pin-baseline`, 2026-08-27). Where retention is
+impossible, no code repair exists: the pinned object is gone, the record's bytes
+may not be edited, and the resolution is the governance act
+`ideation-cross-reference` requirement 2 names — a superseding record stating
+the loss, what the original evidence still verifies, and what it cannot. This
+module holds the class INCOMPLETELY VERIFIED while that act is owed, and stops
+holding it when the record lands: `KNOWN_LOSSES` rows carry the record's path,
+`discharging_record` goes to committed state to find it there and requires it to
+NAME the pin, and `PinClassReport.lost_awaiting_record` is what
+`fully_verified` consults. The loss itself is reported for ever either way —
+restoring full verification by removing a row would be silencing, which is the
+one resolution this module refuses.
+
 THIS ADDS NO DETERMINISTIC CHECK FAMILY (packet OD-2, cleared 2026-08-27), and
 that is structural here rather than promised: this module imports nothing from
 `families` and defines no `fam_*` function, so it cannot be registered by
@@ -523,6 +537,58 @@ PIN_CLASS: tuple[PinMember, ...] = (
              "repository's refs.",
         locality_from=("repo", "repository"),
     ),
+    # ---- the neutral-product pin: ONE artifact, TWO localities -------------
+    # `contracts/openxwallet-pin.yaml` (split-openxwallet-repo P3) is the first
+    # artifact in this repository that pins ANOTHER repository's bytes and, in
+    # the same file, names the openxFactory commit those bytes were taken at. So
+    # it is TWO members rather than one, and the split is not cosmetic: one of
+    # the two values must resolve here and the other must never be expected to.
+    # A single member could only have declared one locality, and whichever it
+    # declared would have made the other value either a false orphan or an
+    # unverified pin.
+    PinMember(
+        id="openxwallet-pin-carve-commit",
+        paths=("contracts/openxwallet-pin.yaml",),
+        key="carve_commit",
+        key_form="field",
+        generator="authored with the pin (split-openxwallet-repo P3, feature "
+                  "023-openxwallet-consume-shed)",
+        reproduction=MEASURED,
+        locality=REPO_LOCAL,
+        presence=CURRENT,
+        note="THE NAMED CARVE COMMIT — an openxFactory commit, and the one "
+             "value in this file that MUST stay reachable here. It is the "
+             "byte-identity referent for the whole extraction: the eight "
+             "`sha256` digests below it are the values `contracts/manifest.yaml` "
+             "recorded AT THIS COMMIT, and the claim that the move was "
+             "byte-identical is checkable only while the commit can be "
+             "reconstructed. `carve_commit` was a key this vocabulary did not "
+             "know; declaring the member is what teaches it, since "
+             "`PIN_KEY_VOCABULARY` is the union of the declared field keys.",
+    ),
+    PinMember(
+        id="openxwallet-pin-product-commit",
+        paths=("contracts/openxwallet-pin.yaml",),
+        key="commit",
+        key_form="field",
+        generator="authored with the pin (split-openxwallet-repo P3, feature "
+                  "023-openxwallet-consume-shed)",
+        reproduction=MEASURED,
+        locality=CROSS_REPOSITORY,
+        presence=CURRENT,
+        note="`source_repository: opensoft/openXwallet` — the PINNED PRODUCT'S "
+             "commit, at tag label `wallet-v1.1`. It does not resolve in this "
+             "repository and must not be reported as an orphan; it is answered "
+             "by openXwallet's own authority and, locally, by "
+             "`scripts/verify-openxwallet-pin.py`, which compares it against "
+             "BOTH the recorded gitlink and the checked-out revision of the "
+             "`openXwallet/` submodule and recomputes the eight digests. That "
+             "verifier is a stronger reachability guarantee than a ref here "
+             "could give, which is why the cross-repository declaration is not "
+             "a gap. Locality is declared on the member rather than read per "
+             "site: this key is ALWAYS the product's, and `carve_commit` above "
+             "is ALWAYS this repository's.",
+    ),
     # ---- FUTURE members: schema-declared, no committed real pin yet --------
     # Declared now rather than on discovery. The day the first instance lands
     # committed its pins join the class automatically, which is precisely the
@@ -600,6 +666,16 @@ PIN_CLASS: tuple[PinMember, ...] = (
 )
 
 
+# WHERE A SUPERSESSION RECORD STANDS. One filename, in the packet that issues
+# it, resolvable both before and after that packet archives — the same live-plus-
+# archive glob pair every hermes evidence member above is declared with, because
+# a citation that breaks when the packet archives is not a citation.
+SUPERSESSION_RECORD_PATHS: tuple[str, ...] = (
+    "openspec/changes/*/evidence/pin-loss-supersession.yaml",
+    "openspec/changes/archive/*/evidence/pin-loss-supersession.yaml",
+)
+
+
 @dataclass(frozen=True)
 class KnownLoss:
     """A repo-local pin whose object is UNRECOVERABLE, measured and declared.
@@ -615,12 +691,25 @@ class KnownLoss:
 
     `owed` names the act still outstanding. `measured` is the evidence, and it
     is RE-MEASURED by test: the day the object turns out to be recoverable, this
-    row is stale and retention is the route, so the test fails and says so."""
+    row is stale and retention is the route, so the test fails and says so.
+
+    A ROW IS NEVER DELETED AND NEVER SILENCED. `superseding_record` names where
+    the discharging record stands — path globs, live and archived, so the
+    citation survives its packet's archive — and `discharged` states what that
+    record established. Both are read rather than believed: `discharging_record`
+    goes to committed state, finds the record at one of those paths, and
+    requires it to NAME the lost pin, so a citation of a record nobody committed
+    discharges nothing. A discharged loss still reports LOST with its full
+    measurement; what changes is that the class stops calling itself
+    incompletely verified over an obligation somebody has since met
+    (`supersede-lost-pin-baseline`, 2026-08-27)."""
     pin: str
     path: str
     key: str
     measured: str
     owed: str
+    superseding_record: tuple[str, ...] = ()
+    discharged: str = ""
 
 
 KNOWN_LOSSES: tuple[KnownLoss, ...] = (
@@ -650,6 +739,33 @@ KNOWN_LOSSES: tuple[KnownLoss, ...] = (
              "to canonical content, not to its own commit\" — which is exactly "
              "the claim a superseding record should state and cite rather than "
              "leave in a comment.",
+        superseding_record=(
+            "openspec/changes/supersede-lost-pin-baseline/evidence/"
+            "pin-loss-supersession.yaml",
+            "openspec/changes/archive/*-supersede-lost-pin-baseline/evidence/"
+            "pin-loss-supersession.yaml"),
+        discharged="SUPERSEDED 2026-08-27 by `supersede-lost-pin-baseline`, "
+                   "commissioned by Brett that day. THE MEASUREMENT ABOVE WAS "
+                   "RE-RUN BEFORE THE RECORD WAS WRITTEN and its answer did not "
+                   "move: 0 matches, now across 573 advertised refs rather than "
+                   "566, the remote having gained seven refs in a day. THE "
+                   "OBJECT IS STILL GONE "
+                   "and this row stays declared and re-measured; what the "
+                   "record supplies is the standing the archived evidence "
+                   "keeps without it, and the NAMED MEASUREMENT that "
+                   "establishes it. The US3 checkpoint's CONTENT survives "
+                   "under a rewritten object name — "
+                   "`8f7c99f0db065fb153b7d9498eb1e16b3c3c306b`, an ancestor of "
+                   "`main` and the parent of "
+                   "`e8ae366cda7b5814b73942891837175b5c43d929`, the commit "
+                   "that added the record — and the identification is "
+                   "corroborated by all three counts the record itself states "
+                   "against its baseline, each re-measured at both commits: "
+                   "catalog members 34 -> 39, schema members 27 -> 32, fixture "
+                   "cases 79 -> 110. What is permanently lost is the OBJECT "
+                   "NAME the record carries, so no reader can prove tree "
+                   "equality against it; the equivalence is corroboration, and "
+                   "the record says so rather than claiming recovery.",
     ),
 )
 
@@ -658,6 +774,30 @@ def known_loss(pin: str) -> KnownLoss | None:
     for row in KNOWN_LOSSES:
         if row.pin == pin:
             return row
+    return None
+
+
+def discharging_record(repo, rev: str, loss: KnownLoss, *,
+                       paths: list[str] | None = None) -> str | None:
+    """The committed superseding record that DISCHARGES `loss`, or None.
+
+    MEASURED, NEVER TRUSTED, and that is the whole point of reading committed
+    state here rather than believing the row. The row names where the record
+    stands; this goes and looks, at the revision under test, and additionally
+    requires the record to NAME the pin it claims to supersede. So a row citing
+    a record nobody committed, a record deleted later, or a stub that never
+    mentions the lost object discharges nothing, and the loss keeps holding
+    `fully_verified` open — which is the same reasoning that makes the loss
+    itself re-measured rather than declared once and believed."""
+    if not loss.superseding_record:
+        return None
+    paths = paths if paths is not None else committed_paths(repo, rev)
+    for path in sorted(paths):
+        if not path_matches(path, loss.superseding_record):
+            continue
+        text = committed_text(repo, rev, path)
+        if text is not None and loss.pin in text:
+            return path
     return None
 
 
@@ -748,6 +888,22 @@ NON_MEMBERS: tuple[NonMember, ...] = (
                "that created a change and quote pins as evidence — the "
                "`govern-derived-pin-reachability` origin block quotes both "
                "readiness orphans. A quotation of a pin is not a pin.",
+    ),
+    NonMember(
+        paths=SUPERSESSION_RECORD_PATHS,
+        reason="PIN-LOSS SUPERSESSION RECORDS, whose SUBJECT is a pin. Such a "
+               "record exists to name a commit declared unrecoverable, to say "
+               "what can and cannot still be verified without it, and to cite "
+               "the surviving state a named measurement identified — so every "
+               "pin-shaped value in one is a citation of another artifact's "
+               "derivation claim, and none is the record's own. DECLARED here "
+               "rather than dodged by choosing a key nobody enumerated, which "
+               "is the coverage hazard `us3_baseline_commit` already proved: a "
+               "pin-shaped value in a swept root is declared as a member or as "
+               "a non-member with a reason, or it is a silent gap. THE TRADE "
+               "IS STATED: a supersession record makes no derivation claim "
+               "about itself today, and a future one that did would go "
+               "unswept here.",
     ),
 )
 
@@ -1191,7 +1347,8 @@ def arrived_future_members(repo, rev: str = "HEAD",
 PASS = "pass"
 ORPHAN = "orphan"
 LOST = "lost"                  # orphaned AND unrecoverable; declared in
-                               # KNOWN_LOSSES with the act still owed
+                               # KNOWN_LOSSES, with the superseding act either
+                               # still owed or discharged by a cited record
 INCONCLUSIVE = "inconclusive"
 NOT_APPLICABLE = "not-applicable"
 
@@ -1201,6 +1358,9 @@ class PinResult:
     site: PinSite
     verdict: str               # PASS | ORPHAN | INCONCLUSIVE | NOT_APPLICABLE
     how: str                   # which half of the ref set answered, or why not
+    discharge: str | None = None    # LOST only: the committed superseding
+                                    # record found at this revision, or None
+                                    # while the governance act is still owed
 
 
 @dataclass(frozen=True)
@@ -1222,6 +1382,18 @@ class PinClassReport:
     @property
     def lost(self) -> list[PinResult]:
         return [r for r in self.results if r.verdict == LOST]
+
+    @property
+    def lost_awaiting_record(self) -> list[PinResult]:
+        """Declared losses whose SUPERSEDING RECORD has not been found in
+        committed state — the ones with a governance act still outstanding.
+
+        The split is between "declared loss with a superseding record" and
+        "unresolved loss", and it is the only thing a landed record changes. A
+        discharged loss is still reported, still carries its measurement, and is
+        still re-measured by test; deleting the row was never the resolution and
+        is not one now."""
+        return [r for r in self.lost if r.discharge is None]
 
     @property
     def inconclusive(self) -> list[PinResult]:
@@ -1246,15 +1418,28 @@ class PinClassReport:
     def fully_verified(self) -> bool:
         """The class is fully verified only when nothing was left unanswered:
         no defect, no declared loss awaiting its superseding record, and no pin
-        the clone or the remote could not be asked about."""
-        return self.clean and not self.lost and not self.inconclusive
+        the clone or the remote could not be asked about.
+
+        READ THE DOCSTRING'S OWN WORDS: what holds this False for a loss is the
+        superseding record being AWAITED, not the loss existing. A loss whose
+        record has landed is answered — the record states what the archived
+        evidence still verifies and what it cannot, which is precisely the
+        question this property asks — so it stops blocking, while the loss
+        itself stays declared, reported and re-measured for ever
+        (`supersede-lost-pin-baseline`, 2026-08-27). Restoring it any other way
+        would mean deleting a row, and deleting the row is how a known defect
+        becomes background noise."""
+        return (self.clean and not self.lost_awaiting_record
+                and not self.inconclusive)
 
     def summary(self) -> str:
         by_member = len({r.site.member_id for r in self.results})
+        awaiting = len(self.lost_awaiting_record)
         return (f"{len(self.results)} declared pin sites across {by_member} "
                 f"class members at {self.rev[:12]}: {len(self.verified)} "
                 f"reachable, {len(self.orphans)} orphaned, "
-                f"{len(self.lost)} lost (declared unrecoverable), "
+                f"{len(self.lost)} lost (declared unrecoverable, {awaiting} "
+                f"awaiting a superseding record), "
                 f"{len(self.inconclusive)} inconclusive; "
                 f"{len(self.uncovered)} uncovered site(s), "
                 f"{len(self.vanished)} vanished member(s), "
@@ -1331,9 +1516,23 @@ def verify(repo, *, rev: str = "HEAD", remote: str = "origin",
             continue
         loss = known_loss(site.pin)
         if loss is not None:
-            results.append(PinResult(
-                site, LOST,
-                f"DECLARED UNRECOVERABLE: {loss.measured} OWED: {loss.owed}"))
+            record = discharging_record(repo, rev_sha, loss, paths=paths)
+            if record is None:
+                results.append(PinResult(
+                    site, LOST,
+                    f"DECLARED UNRECOVERABLE: {loss.measured} "
+                    f"OWED: {loss.owed}"))
+            else:
+                results.append(PinResult(
+                    site, LOST,
+                    f"DECLARED UNRECOVERABLE: {loss.measured} "
+                    f"DISCHARGED: {loss.discharged} The superseding record "
+                    f"stands at {record}, read from committed state at this "
+                    f"revision and naming this pin. THE LOSS IS NOT SILENCED "
+                    f"BY IT: this row is never deleted, and the day the object "
+                    f"turns out to be recoverable, retention is the route and "
+                    f"the re-measurement says so.",
+                    discharge=record))
             continue
         results.append(PinResult(site, ORPHAN, detail))
 

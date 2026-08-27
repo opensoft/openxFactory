@@ -190,4 +190,13 @@ class RunResult:
     # that family's own report heading (families.FAMILY_NOTES). A note says
     # something about the RUN a finding list cannot — today, which tree the
     # promotion-fidelity family measured.
+    #
+    # TWO KINDS OF LINE RENDER IN THAT POSITION, and only the first travels in
+    # this field. `FAMILY_NOTES` is `(ctx) -> lines` and is collected here beside
+    # the family call. `families.FAMILY_SUMMARIES` is `(that family's findings)
+    # -> lines` — the per-class tally `add-modified-block-currency-check` § 5.1
+    # asks for — and is consulted by `report.render` itself, where the findings
+    # it counts are already in hand. Kept apart because they answer different
+    # questions (the run vs the findings) and because they differ on a skip: a
+    # skipped family still has a basis to state and has no tally to state.
     notes: dict = field(default_factory=dict)
