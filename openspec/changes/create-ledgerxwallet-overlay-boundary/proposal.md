@@ -293,9 +293,13 @@ so the pin task must resolve `wallet-v1.1^{commit}` and never the bare tag name.
 Re-pointing the pin and re-homing it in the same act would make the change
 unbisectable. **Agreement with openxFactory's pin is the STARTING state, not an
 invariant:** LedgerxWallet and openxFactory are independent consumers of the
-same product and may legitimately diverge later. A divergence is a REPORTED
-condition, and after this change the commit that governs the Ledgerx estate is
-the one LedgerxWallet pins.
+same product, governed by different pins, and may legitimately diverge later.
+Such a divergence is NOT an error and is checked by nothing — stated that way
+deliberately, because an earlier draft of this section said it would be
+"REPORTED" and named no reporter, which is the LS-A3 shape. After this change
+the commit that governs the Ledgerx estate is the one LedgerxWallet pins, and
+that is the whole of the claim. What IS checked is the three-way agreement above,
+by the delegating bar entry, before it invokes anything.
 
 ### 6. Placement: nested only, and the aggregation is untouched
 
@@ -400,11 +404,23 @@ this change does not propagate that mismatch.
   parent, owned by openXwallet). LedgerxWallet's profile pins those kind
   strings by name, so it becomes a second re-pin site. Recorded so the
   successor's blast radius is known, not owned here.
-- **A machine check for the three-way pin agreement in CI.** LedgerxFactory has
-  no workflow today; this change adds the invariant and the delegating bar entry
-  that a check would run, and does NOT claim a CI enforcement it has not built.
-  Naming that gap is deliberate: a control described but not wired is the
-  failure LS-A3 exists to forbid.
+- **A REQUIRED check for the three-way pin agreement.** LedgerxFactory has no
+  GitHub Actions workflow at all, so what this change builds is RUNNING CODE in a
+  HUMAN-RUN bar — the delegating entry reads all three declarations and refuses
+  on any disagreement before invoking anything — and NOT a required check. The
+  distinction is stated rather than blurred: a control described but not wired is
+  the failure LS-A3 exists to forbid, and the honest form of this claim is "a bar
+  anyone can run, that fails loudly, whose absence from CI is a successor".
+  Giving LedgerxFactory its first workflow is that successor and is bigger than
+  this change.
+- **Governed-repo recognition for a NESTED descendant.** openxFactory's
+  enumerations key on `xFactories/<Name>`, and the parent's P4b widens them by an
+  allowlist of ROOT-LEVEL neutral products — neither admits a nested gitlink. So
+  a nested-only `LedgerxWallet` is outside the notebook projection and the
+  ideation routing, exactly as `MedxAvatar` has been for five months under the
+  same ratified placement. Accepted here because the descendant carries no
+  ideation corpus; the remedy, if it ever does, is the `xFactories/` gitlink or a
+  nested-descendant widening, and either is a separate change.
 
 ## Out of scope, deliberately
 

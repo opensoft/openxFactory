@@ -66,8 +66,8 @@ here, and if it is ever added the two gitlinks SHALL name the same commit.
 
 #### Scenario: openxFactory's own pin moves independently
 - **WHEN** `openxFactory`'s `contracts/openxwallet-pin.yaml` is bumped to a different openXwallet commit than LedgerxWallet pins
-- **THEN** that is PERMITTED, because openxFactory and LedgerxWallet are independent consumers of the same product
-- **AND** the divergence is REPORTED, AND the commit governing the Ledgerx estate remains the one LedgerxWallet pins
+- **THEN** that is PERMITTED and is NOT an error, because openxFactory and LedgerxWallet are independent consumers of the same product governed by different pins
+- **AND** the commit governing the Ledgerx estate remains the one LedgerxWallet pins, so no tool is required to reconcile them and none SHALL claim to
 
 #### Scenario: A third placement is proposed
 - **WHEN** LedgerxWallet is aggregated anywhere other than nested in LedgerxFactory or under the aggregation's `xFactories/`
