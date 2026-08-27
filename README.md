@@ -431,49 +431,6 @@ Active changes:
   `health/dispositions.yaml`, measured: that file exists only at the aggregation
   root and matches findings by `(family, repo, path)`, and this verification
   registers no family and emits no family finding for an entry to match.
-- [add-modified-block-currency-check](openspec/changes/add-modified-block-currency-check/proposal.md)
-  — **RATIFIED 2026-08-27** (in-session, verbatim "Ratify as-is"; realization via
-  Speckit) — authored the same day against issues #357, #329 and #330, which name
-  one mechanism: `## MODIFIED Requirements` replaces a requirement wholesale and
-  `openspec validate --strict` reads only a delta's shape, so an active change
-  whose block restates stale canon deletes whatever it did not restate, silently,
-  on archive. Four instances in one week, each caught by a human —
-  `add-doxchat-model-intake` (#351: six body clauses, two scenarios, one reverted
-  line; repaired by PR #358) and three check families that each restated 1 of 8
-  scenarios of `doc-health`'s "Deterministic check families" (#329) — and
-  `promotion-fidelity` cannot see the class, because after an archive act canon IS
-  the delta (#330). ADDS the authoring obligation to `document-lifecycle` (a
-  MODIFIED block restates the requirement as canon currently states it; currency
-  is owed continuously while the change is active; a deliberate deletion is
-  declared by a reserved marker) and doc-health's TWENTY-SECOND family, which
-  compares active deltas to current canon in three arms: scenario-title
-  completeness (the gate), a carriage ledger of body units and scenario bullets
-  (`info`), and title resolution. Matching is same-kind and exact after whitespace
-  normalization; containment and similarity are both forbidden, because canon's
-  bullet is a SUBSTRING of the widened line #351 introduced. **Two-writer
-  ordering is BY DECLARATION** (ruled the same day): the change that writes
-  "relative to <sibling>" is the later writer, reusing
-  `release-realization`'s existing spelling rather than adding date arithmetic.
-  Measured over all 23 MODIFIED requirements in the active corpus: 1 scenario-arm
-  finding (a deliberate rename, named and not claimed a defect), 14 ledger units
-  across 10 requirements, 0 title-resolution findings — **+1 warning, +10 info, 0
-  error**, rising to +11 info once realization writes its own enumeration block.
-  It carries no MODIFIED block on "Deterministic check families": canon still
-  enumerates, so one is owed, but a proposal registers no family and the
-  restatement reds `test_the_real_corpus_reads_zero_on_both_halves` — so it is
-  owed at realization (`tasks.md` § 2.1), relative to
-  `add-family-enumeration-check`'s outcome, 8 → 8 — **that precondition is now
-  discharged: `add-family-enumeration-check` archived 2026-08-27 and promoted the
-  twenty-one enumeration at 8 → 8**, so the block this packet owes at realization
-  restates canon's twenty-one and reaches twenty-two. Advisory at launch in both
-  halves. Three adversarial packet reviews found and fixed 14 blockers. The five
-  § Orchestrator decisions were NOT VETOED at ratification, which is not the same
-  as affirmatively ruled, so the flags stay; #330 stays open (§ 7.1) and so does
-  #318 (§ 7.5), whose ruling recorded this packet's admission without giving the
-  taxonomy an origin kind for "proposed, not approved". `code_surface` is
-  openxFactory alone and `target_release: implemented`, so it ships ACTIVE and
-  archives only on merged plus green realization evidence.
-
 - [split-openxwallet-repo](openspec/changes/split-openxwallet-repo/proposal.md)
   — **RATIFIED 2026-08-26** (in-session ruling on PR #391; realization via
   Speckit) — authored 2026-08-26 as the first and only exit of the staged topic
@@ -1208,6 +1165,94 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [add-modified-block-currency-check](openspec/changes/archive/2026-08-27-add-modified-block-currency-check/proposal.md)
+  — **ARCHIVED 2026-08-27** on the merge-plus-green rule the packet declared
+  (§ 8.1), after all four Speckit features landed and were re-verified ancestors
+  of `origin/main` at this act with `git merge-base --is-ancestor` rather than
+  read off a pull request page: F1 `19e3f6b5` (#420, the family and its three
+  registrations), F2 `76a2ad27` (#426, the regression catalogue reconstructing
+  #351 and #329 from history), F3 `f728d57f` (#427, the self-gate against this
+  repository), F4 `4def2274` (#433, the report section and the workflow
+  boundary). Gate numbers, all measured in the archive worktree at base
+  `4def2274`: `pytest tests/doc-health` **1209 passed** before the act and
+  **1209 passed** after; `openspec validate --all --strict` **76 → 75 items**
+  (24 → 23 active, 52 specs); the single-repo doc-health run against the same run
+  with `--skip-family modified-block-currency` moving **+1 `warning`, +8 `info`,
+  0 `error`, 0 `critical`** before the act and **+1 `warning`, +7 `info`** after
+  it, the one lost `info` being the family's own self-finding leaving the active
+  set. The gated bands do not move either way, so a `--fail-on error` run is
+  unaffected by construction. § 4.5's authored prediction of `+11 info` is
+  HISTORY — measured at `9be81a40` over 23 blocks, re-measured at 9 then 8 as
+  the corpus moved under it — and the invariant that holds is that the movement
+  EQUALS the family's own per-severity counts. Canon promoted at **404
+  insertions, 5 deletions** across two specifications: `doc-health` requirements
+  34 → 35 and file scenarios 145 → 159, `document-lifecycle` 16 → 17 and 72 →
+  77 with ZERO deletions. **"Deterministic check families" promoted 8 → 8** —
+  scenario titles an identical set in identical order, seven of the eight
+  byte-identical bullet for bullet, all three of canon's dated self-repair notes
+  restated verbatim, and exactly SIX differences: the total `twenty-one` →
+  `twenty-two`, the enumeration gaining `modified-block currency`, `Four of the
+  twenty-one` → `twenty-two`, `the other seventeen families` → `eighteen`, ONE
+  new body sentence declaring this family's document set, and ONE new `AND`
+  bullet in `A run executes the check families` (12 → 13). Differences 1–2 are
+  one canon sentence and 3–4 are another, so exactly TWO canon body units are
+  not carried — **which is what the family's OWN self-finding reported against
+  this packet, `2 of the 39` units, the check verifying its own block**, and the
+  archive gate's independent derivation agreed with it unit for unit. The § 2.1
+  ordering against `add-family-enumeration-check` was resolved by the recorded
+  D5 SEQUENCING rather than by whichever archived first: that change archived
+  FIRST at `f027d3b3`, so its enumeration was already canon and the block was
+  written relative to CANON — and canon's requirement was proven byte-IDENTICAL
+  between `f027d3b3` and this base (0 hunks), so the block reverted nothing.
+  Authored and ratified 2026-08-27 (in-session, verbatim "Ratify as-is") against
+  issues #357, #329 and #330, which name one mechanism: `## MODIFIED
+  Requirements` replaces a requirement wholesale and `openspec validate
+  --strict` reads only a delta's shape, so an active change whose block restates
+  stale canon deletes whatever it did not restate, silently, on archive. Four
+  instances in one week, each caught by a human — `add-doxchat-model-intake`
+  (#351: six body clauses, two scenarios, one reverted line; repaired by PR
+  #358) and three check families that each restated 1 of 8 scenarios of this
+  very requirement (#329) — and `promotion-fidelity` cannot see the class,
+  because after an archive act canon IS the delta (#330). ADDS the authoring
+  obligation to `document-lifecycle` (a MODIFIED block restates the requirement
+  as canon currently states it; currency is owed continuously while the change
+  is active; a deliberate deletion is declared by a reserved marker) and
+  doc-health's TWENTY-SECOND family, which compares active deltas to current
+  canon in three arms: scenario-title completeness (the gate), a carriage ledger
+  of body units and scenario bullets (`info`), and title resolution. Matching is
+  same-kind and exact after whitespace normalization; containment and similarity
+  are both forbidden, because canon's bullet is a SUBSTRING of the widened line
+  #351 introduced. **Two-writer ordering is BY DECLARATION** (ruled the same
+  day): the change that writes "relative to <sibling>" is the later writer,
+  reusing `release-realization`'s existing spelling rather than adding date
+  arithmetic. Advisory at launch in BOTH halves — `_LAUNCH_SEVERITY` is not
+  `error` and the family is deliberately absent from `FAMILY_RESOLUTION` — and
+  § 7.2's flip of the scenario-title arm is the ONE task box the archive leaves
+  owed on a measured population, one finding standing (`add-composed-view-authoring`'s
+  deliberate rename, named and never claimed a defect). **CLOSES #329**: its ask
+  was detection, both instances are disposed, and the class is now detected
+  before an archive rather than at one. **#357 IS `Refs`, NOT `Closes`, BY
+  RULING** — that issue's own remedy asked for a CONTESTED-class finding, and
+  this family launched ADVISORY and absent from `FAMILY_RESOLUTION` with § 7.2
+  owing exactly that flip, so closing it would mark done a remedy whose stated
+  form is unbuilt. **#330 was closed by hand on 2026-08-27 (16:43Z)**; § 7.1
+  stands as the record of what this change did NOT build — shape 1, the post-hoc
+  lost-scenario check, which needs a third measurement basis inside a family
+  whose promoted requirement obliges it to declare which of TWO it measured. So
+  does § 7.4 (the
+  domain factories are UNMEASURED, which is why the launch is advisory) and
+  #318 (§ 7.5, whose ruling recorded this packet's admission without giving the
+  taxonomy an origin kind for "proposed, not approved"). The five § Orchestrator
+  decisions were NOT VETOED at ratification, which is not the same as
+  affirmatively ruled, so § 1.2 stays open and the flags stay where they were.
+  The self-gate's own § 4.2 group fell due at this act and was disposed by the
+  disposition F3 recorded for the day: two assertions RE-AIMED at the archived
+  path through the family's own `parse_delta` and `derive_units` — a change of
+  SUBJECT, the family excluding `openspec/changes/archive/` by construction —
+  and the third, the self-finding quote, RETIRED with its dated record in its
+  own docstring, nothing deleted silently and no module changed.
+  (code surface: openxFactory; target release: implemented)
 
 - [govern-derived-pin-reachability](openspec/changes/archive/2026-08-27-govern-derived-pin-reachability/proposal.md)
   — **ARCHIVED 2026-08-27** on merged-plus-green. Realization pull request #424
