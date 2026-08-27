@@ -413,3 +413,61 @@ change-id group was unpinned because the only quoted-template case also carried 
 placeholder date; and the no-basis guarantee was asserted on an outcome rather
 than on the reader's signature. Run the round; do not assume a green suite means
 a covered rule.
+
+---
+
+## Residue found by F2 (2026-08-27)
+
+Appended by Speckit feature `020-modified-block-currency-fixtures`, whose whole
+first phase was an audit of THIS feature's 97 tests against
+`add-modified-block-currency-check` § 3. **Five** findings about F1's own
+artefacts, numbered 1–5 below. **None is a behaviour defect** — F1's module was not changed and
+`tests/doc-health` stayed green at 1077 throughout — and none needs an issue.
+They are recorded here because this file is where F1's owner reads.
+
+1. **`spec.md` SC-003 overstates its test.** SC-003 says "Canon's own bullet,
+   widened at either end by the block, is reported as uncarried".
+   `test_a_block_unit_containing_canon_s_unit_does_not_carry_it` widens at the
+   END only, and F1's end-to-end fixture case is not a strict-containment case
+   at all — canon's sentence terminator becomes a comma in the block, so
+   canon's unit is not a substring of anything. F2 closes both halves: T033
+   adds prefix and both-ends widening, and T014 exercises the real #351
+   instance through the family, where canon's badges bullet IS a strict prefix
+   of the block's replacement.
+
+2. **`spec.md` § Out of Scope contradicts `tasks.md` § Hand-off.** § Out of
+   Scope assigns to F2 "the tokenization fixture, the full marker matrix, the
+   determinism pin and the structural launch pins"; the hand-off says F1
+   already carries all four and that F2 must not duplicate them. F2 followed
+   the hand-off, as the later statement and the one consistent with minimal
+   scope. Both readings are defensible; what is not is having both on file.
+
+3. **The hand-off's "already carries" list is true in a narrower form than
+   § 3 phrases, in two places.** § 3.5 asks for `contract-v1.45` (a token whose
+   period sits between digits) and `promotion_fidelity.py` alongside
+   `.openspec.yaml`, a note of several sentences, and an EDIT to the note's
+   third sentence; F1's fixture carries two tokens, a two-sentence note, and
+   the note DROPPED rather than edited. § 3.7's longer-fence clause is pinned
+   at `extract_code_spans` and never through the family. F2 closes both.
+
+4. **`test_no_date_folder_or_created_field_decides_the_ordering` does not
+   discharge § 3.10's last clause, and says so itself.** Its docstring:
+   "`add-oc-earlier` sorts BEFORE `add-oc-later` by name and by any date a
+   fixture could carry, **and the declaration points the same way**". The
+   fixture therefore cannot be the test § 3.10 asks for ("would pass under
+   declaration ordering and fail under date ordering"), and the structural
+   `grep` it falls back to forbids `_archive_date(`,
+   `first_commit_timestamp(`, `.created`, `strftime(`, `datetime.` and the date
+   imports — but **no pattern forbids ordering by FOLDER NAME or CHANGE-ID
+   NAME**, which the delta prohibits in the same breath as dates. A build that
+   sorted the ratified group by `b.change` passes every F1 test. F2 adds the
+   discriminating fixture (`modified-block-currency-name-order`, T043a/T043b):
+   the declarer `add-zz-first` sorts LAST by name, so name-ascending ordering
+   picks the wrong writer and the test fails.
+
+5. **One docstring undercounts its own fixture.**
+   `test_a_genuinely_removed_scenario_title_carries_its_bullets` says "the
+   three bullets that scenario carried"; the `Gone` scenario in
+   `fixtures/modified-block-currency-markers/` carries FOUR
+   (`**WHEN**`, `**THEN**`, and two `**AND**`s). The assertion is unaffected
+   and § 3.7's "four-bullet scenario" wording is in fact satisfied.

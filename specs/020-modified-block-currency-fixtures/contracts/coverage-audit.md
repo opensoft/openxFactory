@@ -1,0 +1,155 @@
+# Contract: the § 3 coverage audit
+
+**The single home for the mapping from `add-modified-block-currency-check`
+§ 3 to the tests that discharge it.** Nothing else in this feature restates
+it; `plan.md` links here and `tasks.md` cites row ids.
+
+**How it was taken.** From the landed file
+`tests/doc-health/test_modified_block_currency.py` (97 test functions at
+`19e3f6b5`) and from the fixture text under
+`tests/doc-health/fixtures/modified-block-currency*/` — **not** from F1's
+`plan.md`, its `tasks.md` hand-off, or its `spec.md` § Out of Scope, all three
+of which disagree with each other about what F1 covers (research R10). Where
+§ 3 phrases an obligation more narrowly or more widely than the landed test
+asserts it, that difference IS the gap.
+
+**Verdicts.** `satisfied` — F1's named tests discharge the item as § 3 phrases
+it, and F2 adds no test for it. `gapped` — some clause of the item has no test,
+and the F2 task that closes it is named. `partial` — the item's rule is tested
+but at a narrower granularity or through a helper rather than through the
+family; the F2 task names the widening.
+
+**Rows: 18, covering § 3's fourteen items** — thirteen numbered items plus
+3.3a. § 3.7 alone carries eleven distinct obligations, so it is split into
+FIVE rows — A8 = 3.7(a), A9 = 3.7(b), A10 = 3.7(c), A11 = 3.7(d), and
+A12 = the remaining clauses, lettered 3.7(e–k) throughout this feature. Every
+other item is one row. A reader checking "is every
+§ 3 item accounted for" reads the `§ 3 item` column, which covers 3.1–3.13
+and 3.3a with no gaps and no duplicates.
+
+**Satisfied 8 · satisfied-extended 1 · partial 6 · gapped 3.**
+
+*Re-verdicted after the plan review of 2026-08-27: **A15 (§ 3.10)** and
+**A10 (§ 3.7c)** moved from `satisfied` to `partial`. Both were generous reads,
+and both are exactly the failure this audit's own closing note warned about —
+"if a `satisfied` verdict is wrong, this feature ships a hole it believes it
+closed". They were caught by re-reading the cited test BODIES rather than their
+names, which is now T059 step 1.*
+
+---
+
+## The table
+
+| id | § 3 item, in short | F1 tests that discharge it | verdict | what is missing, and the F2 task that adds it |
+| --- | --- | --- | --- | --- |
+| **A1** | **3.1** — the #351 true positive, reconstructed: 6 body clauses, 2 scenarios by title, 1 reverted scenario line; assertions on rule text and named units, never a count | `test_a_block_that_drops_scenarios_names_every_one_of_them`, `test_uncarried_body_units_and_bullets_are_one_info_finding_per_requirement`, `test_the_finding_lands_on_the_active_delta_s_own_path`, `test_the_scenario_arm_is_a_warning` | **gapped** | F1's fixture is SYNTHESIZED text that borrows the two real titles (`The menu offers a routing rule`, `A fourth provider verb is proposed`) into an invented `ideation-dashboard` requirement, and shares one tree with A2. § 3.1 asks for the instance. **T010–T016**: tree `modified-block-currency-history-351` from `bcfc26a0`, with the real block, the real canon requirement, and assertions on the repair commit's own named clauses |
+| **A2** | **3.2** — the #329 one-of-eight case: 1 of 8 scenarios restated, the change's own ADDED bringing 7 so the file-level count stays flat; a second assertion pins that the flat count is not what the family reads | `test_a_block_that_drops_scenarios_names_every_one_of_them` (names 7 omitted titles), `test_the_file_level_scenario_count_is_not_what_the_family_reads` (canon 8, delta file 8, fires anyway) | **gapped** | The SHAPE is fully covered, including the flat-count pin — but in synthesized text, and § 3.2 asks for `add-release-inventory-drift-check`'s own. **T017–T021**: tree `modified-block-currency-history-329` from `d5f447e8`, canon's real 8 scenarios and the real 1+7 delta |
+| **A3** | **3.3** — retitle and gut: rename a scenario, declare it with a `Merged into` marker, drop TWO of the superseded scenario's FOUR bullets → scenario arm quiet AND the ledger reports the two; a companion names them in a `Removed from canon` marker and the ledger goes quiet | `test_the_merge_destination_is_never_read_as_a_named_unit_end_to_end`, `test_the_merge_destination_is_not_a_named_unit`, `test_both_marker_forms_parse` | **gapped** | F1's only `Merged into` end-to-end case (`A merge destination is present`) has a merged source carrying ONE bullet, and the block carries it, so the requirement is quiet in both arms. **The rule "a `Merged into` marker names titles only, so a bullet a merge makes redundant … has to be declared as a bullet, one at a time" is tested nowhere.** **T027–T032**: tree `modified-block-currency-merge-gut`, two requirements — the gut and the companion declaration |
+| **A4** | **3.3a** — the COMBINATION: a `Removed from canon` marker naming the old scenario title AND a replacement scenario canon does not carry, carrying two of the old scenario's four bullets → the two uncarried bullets are reported; the genuine-removal case asserted beside it | `test_a_removal_marker_plus_a_replacement_scenario_still_reports_the_bullets`, `test_a_genuinely_removed_scenario_title_carries_its_bullets`, `test_a_surviving_bullet_of_a_removed_scenario_is_carried` | **satisfied** | Nothing. The combination fires on the two uncarried bullets, the scenario arm is quiet, the genuine removal (four-bullet scenario named, nothing reported at `info`) and the survivor are both asserted beside it. F1's docstring records that the test fails under any scenario-paired bullet comparison, which is § 3.3a's stated purpose |
+| **A5** | **3.4** — containment is not carriage: a block bullet CONTAINING canon's bullet verbatim, widened at either end → the ledger reports canon's bullet | `test_a_block_unit_containing_canon_s_unit_does_not_carry_it` (suffix widening, at `carried()`), `test_a_canon_unit_is_carried_only_by_a_unit_of_the_same_kind`, `test_a_rewrapped_paragraph_is_carried` | **partial** | Two narrowings. (a) F1 widens at the END only; § 3.4 and F1's own SC-003 both say "either end". (b) F1's end-to-end fixture case is NOT a strict-containment case — canon's sentence terminator becomes a comma in the block — so nothing exercises containment THROUGH the family. **T033** adds prefix and both-ends widening; **T014** covers (b) with fixture A's REAL containment instance, where canon's badges bullet is a strict prefix of the block's |
+| **A6** | **3.5** — tokenization: backticked tokens with internal periods (`.openspec.yaml`, `promotion_fidelity.py`, `contract-v1.45`), a body bullet list, and a dated bold note spanning several sentences → no boundary inside a span, each bullet one unit, the note ONE unit, and an edit to the note's THIRD sentence reports it once | `test_a_period_inside_a_backticked_token_never_ends_a_sentence`, `test_a_longer_fence_masks_its_inner_backticks`, `test_masking_preserves_length`, `test_boundaries_are_computed_on_the_mask_and_sliced_from_the_original`, `test_a_dated_note_is_one_unit_not_three`, `test_a_body_bullet_is_one_unit_with_its_marker_stripped`, `test_no_reported_unit_is_a_backtick_fragment`, `test_the_tokenized_sentences_are_carried_and_not_reported`, `test_the_real_notes_this_corpus_carries_are_each_one_unit` | **partial** | Three narrowings. (a) the fixture carries `.openspec.yaml` and `openxFactory` but not `contract-v1.45` — a token whose period sits BETWEEN DIGITS, the one shape a `\d\.\d` guard would wave through — nor `promotion_fidelity.py`. (b) the note is TWO sentences; § 3.5 says "several" and asks about the THIRD. (c) the block DROPS the note; § 3.5 asks for an EDIT TO ITS THIRD SENTENCE, which is the assertion that proves the note is undivided rather than merely absent. **T034–T037a**: tree `modified-block-currency-tokens` |
+| **A7** | **3.6** — negative: a scenario-complete block stays quiet, including one that re-wraps every paragraph it carries; the case line-level matching fails | `test_a_scenario_complete_block_that_rewraps_every_paragraph_is_quiet`, `test_a_rewrapped_paragraph_is_carried`, `test_normalization_collapses_whitespace_and_nothing_else`, `test_a_scope_with_active_changes_but_no_modified_block_is_not_skipped` | **partial** | The re-wrap assertion is made at `mbc.carried()` on units the test body synthesizes from canon; the `-quiet` fixture tree carries NO MODIFIED block at all. So no fixture exists where a MODIFIED block IS scenario-complete and re-wrapped and the FAMILY returns `[]` — a wiring regression between `derive_units` and the arms leaves both F1 tests green. **T038–T040**: tree `modified-block-currency-rewrap`, run through the family |
+| **A8** | **3.7(a)** — a valid `Removed from canon by` marker suppresses exactly the units it names and leaves an unnamed sibling reported | `test_a_marker_suppresses_exactly_the_units_it_names` | **satisfied** | Nothing. The marker names two of three dropped body units and the third is still reported, asserted by text |
+| **A9** | **3.7(b)** — a marker naming a unit the block still carries is itself reported | `test_a_marker_naming_a_carried_unit_emits_one_info_finding` | **satisfied** | Nothing. `info`, on the delta's path, naming the change id, the date and the carried unit, and shown NOT to inherit the ledger's hedge |
+| **A10** | **3.7(c)** — a marker wrapped across several lines parses as one; the form test anchors on the COMPLETE prefix, change-id and ISO date included; a paragraph that merely quotes or templates a marker is an ordinary carriage unit | `test_a_marker_wrapped_across_lines_is_one_marker`, `test_a_quoted_marker_template_is_not_a_marker`, `test_a_non_iso_date_is_not_a_marker`, `test_a_missing_closing_colon_is_not_a_marker`, `test_a_marker_needs_its_bold_run`, `test_a_marker_whose_author_is_not_a_change_id_is_not_a_marker`, `test_the_deltas_own_fenced_marker_examples_never_reach_the_parser`, `test_a_marker_with_no_reason_is_still_a_marker` | **partial** | Each of the four form components is negated separately, and the last was a mutation-round escape F1 records — but the claim that "the anchor is asserted against this packet's OWN delta prose" is FALSE (analyze/review finding N8). `test_the_deltas_own_fenced_marker_examples_never_reach_the_parser` asserts against a FENCED block quoted in the test body, not against the packet file, and `test_a_quoted_marker_template_is_not_a_marker` uses an invented template. The packet's delta sets the two templates out as `- ` BULLETS — which are carriage units, not fenced lines — and nothing reads them. **T043c**: feed the real file's template bullets to the form test |
+| **A11** | **3.7(d)** — a named unit that itself contains backticks (a clause citing `openxFactory`) is fenced with a longer run and extracted WHOLE, not truncated at its first inner backtick | `test_a_unit_containing_backticks_is_extracted_whole_under_a_longer_fence`, `test_code_spans_extract_in_document_order`, `test_one_space_each_side_is_stripped_per_commonmark`, `test_an_unterminated_run_yields_no_span`, `test_a_shorter_inner_run_does_not_close_a_longer_fence` | **partial** | Every assertion is at `extract_code_spans` level. No fixture carries a double-backtick fenced marker, so the longer fence is never exercised THROUGH the family and never shown to SUPPRESS a whole unit. **T041–T043**: tree `modified-block-currency-fence` |
+| **A12** | **3.7(e–k)** — a named SCENARIO TITLE carries its canon bullets in a genuine removal (a four-bullet scenario reports NOTHING at `info`); a survivor elsewhere is carried; the `Merged into` DESTINATION is not a named unit; a prose dated note suppresses nothing; a marker paragraph is not a carriage unit in either direction | `test_a_genuinely_removed_scenario_title_carries_its_bullets` (the `Gone` scenario carries four bullets), `test_a_surviving_bullet_of_a_removed_scenario_is_carried`, `test_the_merge_destination_is_never_read_as_a_named_unit_end_to_end`, `test_a_prose_dated_note_declares_nothing`, `test_a_dated_bold_note_that_is_not_a_reserved_form_parses_as_no_marker`, `test_a_promoted_marker_is_not_a_carriage_unit`, `test_a_marker_paragraph_yields_no_unit_in_either_document`, `test_a_dated_bold_note_is_recognized_by_form`, `test_an_undated_bold_lead_is_not_a_note` | **satisfied** | Nothing. Every clause has an end-to-end case in the markers tree, and the prose-note guard is asserted on a note that names a unit in backticks as RESTORED — which is the corpus's real shape and the finding that made the marker a new form |
+| **A13** | **3.8** — a MODIFIED title resolving to an active sibling's ADDED stays quiet (pending, not absent); the same title with no sibling and no canon requirement fires | `test_a_title_pending_on_a_sibling_s_addition_is_quiet`, `test_a_title_resolving_to_nothing_is_reported`, `test_a_capability_with_no_promoted_spec_at_all_resolves_to_nothing` | **satisfied** | Nothing, and one case beyond § 3.8: a capability with NO promoted spec at all is a distinct code path (`promoted()` returns `None` rather than a dict missing the title) and is asserted separately |
+| **A14** | **3.9** — own-rename: a change carrying both `## RENAMED Requirements` and a MODIFIED block under the new title resolves against its own rename first, and the three arms compare against canon under the OLD name | `test_a_change_s_own_rename_resolves_first_and_the_arms_compare_the_old_name` | **satisfied** | Nothing. Asserted by what the arms SAID (the dropped clause is reported against canon under the old name) rather than by silence, which is § 3.9's stated worry — "would compare nothing where it should compare everything" |
+| **A15** | **3.10** — two-writers by declaration: the declaring block missing the sibling's addition fires and carrying it stays quiet; neither declaring fires against both; both declaring fires; a change id inside a longer id buys nothing; an unratified sibling creates NO obligation; and NO date, folder name or commit timestamp is consulted | `test_the_declaring_block_is_measured_against_the_sibling_s_outcome`, `test_the_declaring_block_missing_the_siblings_addition_is_reported_by_the_ledger`, `test_neither_declaring_fires_against_both_blocks`, `test_both_declaring_fires_too`, `test_a_change_id_inside_a_longer_id_declares_nothing`, `test_an_unratified_sibling_creates_no_declaration_obligation`, `test_no_date_folder_or_created_field_decides_the_ordering`, `test_a_group_of_three_writers_with_one_declaration_is_evaluated_over_the_group`, `test_no_basis_is_synthesized_from_a_siblings_added_block` | **partial** | Six of § 3.10's seven clauses have a named test, and two tests go beyond it (the three-writer group; the pin that a sibling's ADDED block never synthesizes a basis, F1's finding B4). **The seventh clause is NOT discharged** (review finding B6). § 3.10 asks for "a test that would pass under declaration ordering and fail under date ordering", and `test_no_date_folder_or_created_field_decides_the_ordering`'s own docstring concedes its fixture cannot be that test: "`add-oc-earlier` sorts BEFORE `add-oc-later` by name and by any date a fixture could carry, **and the declaration points the same way**". It falls back to a structural grep over the module source, whose forbidden patterns cover dates and `created:` but contain **no pattern against ordering by folder name or change-id name** — so a build that sorted the group by name and called the first writer earlier passes every F1 test. **T043a–T043b**: a two-writer pair whose declaration points AGAINST name order |
+| **A16** | **3.11** — structural pins on the advisory launch, both halves: `_LAUNCH_SEVERITY` is not `error`, and `"modified-block-currency"` is absent from `FAMILY_RESOLUTION` | `test_the_three_launch_severities_are_named_apart`, `test_the_family_is_absent_from_family_resolution_at_launch` | **satisfied** | Nothing, and **F2 must not write a second copy** — F1's hand-off says so by name. The first test also pins the three severities as separately assignable module attributes, so § 7.2's one-arm flip cannot drag the other two; the second was a mutation-round escape (documented in three places, asserted in none) |
+| **A17** | **3.12** — a scope with no `openspec/changes/` reports SKIPPED with its reason; a scope WITH active changes but no MODIFIED block reports nothing and is NOT skipped | `test_a_scope_with_no_changes_directory_skips_with_its_reason`, `test_a_scope_with_active_changes_but_no_modified_block_is_not_skipped` | **satisfied** | Nothing. The two states are asserted apart on two trees (`-noscope`, `-quiet`), which is exactly § 3.12's "cannot run, not found nothing" |
+| **A18** | **3.13** — determinism: two runs over one fixture tree produce byte-identical findings, including ordering | `test_two_runs_agree_byte_for_byte` (two-writers tree, comparing `__dict__`s), `test_the_family_returns_its_findings_sorted_severity_first` (ordering over three trees, plus the real-shape property that the one `warning` sorts first) | **satisfied, extended** | Nothing is missing as § 3.13 phrases it. **T049** extends the byte-identity assertion to EVERY tree this family owns, including the six new ones — recorded as an extension, not a gap, because a new fixture is where nondeterminism would enter |
+
+---
+
+## Row-id conventions
+
+`A<n>` ids are stable and are what `tasks.md` cites. They are NOT the § 3
+numbers, because § 3.7 needs four rows and § 3 numbering has no room for them.
+A row's `§ 3 item` column is authoritative for the mapping back.
+
+## What this audit is not
+
+- It is not a claim that F1's tests are correct — only that they exist and
+  assert what the row says. F2's mutation round covers the tests F2 adds; F1
+  ran its own.
+- It is not a re-derivation of the ratified delta. Every § 3 item traces to
+  delta scenarios F1's own traceability table already maps; this audit maps
+  § 3 → tests, not requirements → tests.
+- It is not a list of F1 defects. Three `partial` rows and three `gapped` rows
+  are gaps in COVERAGE, not defects in behaviour. If closing one exposes a
+  behaviour defect, FR-023 makes that its own task and its own PR line.
+
+---
+
+## Closing ledger — what F2 actually closed (2026-08-27)
+
+All **nine** non-satisfied rows are closed. Suite 1077 → 1115 (+38 tests).
+Nothing in `scripts/` changed.
+
+| row | § 3 | verdict at audit time | closed by | fixture tree |
+| --- | --- | --- | --- | --- |
+| **A1** | 3.1 | gapped | T010–T016, T022 | `modified-block-currency-history-351` (reconstructed @ `bcfc26a0`) |
+| **A2** | 3.2 | gapped | T017–T021, T022 | `modified-block-currency-history-329` (reconstructed @ `d5f447e8`) |
+| **A3** | 3.3 | gapped | T027–T032 | `modified-block-currency-merge-gut` |
+| **A5** | 3.4 | partial | T033 (prefix, both ends) + T014 (the REAL instance, end to end) | — / `…-history-351` |
+| **A6** | 3.5 | partial | T034–T037a | `modified-block-currency-tokens` |
+| **A7** | 3.6 | partial | T038–T040 | `modified-block-currency-rewrap` |
+| **A10** | 3.7(c) | partial | T043c | — (reads the ratified packet's own delta file) |
+| **A11** | 3.7(d) | partial | T041–T043 | `modified-block-currency-fence` |
+| **A15** | 3.10 | partial | T043a–T043b | `modified-block-currency-name-order` |
+| **A18** | 3.13 | satisfied, extended | T049 | all thirteen trees |
+
+The eight `satisfied` rows — A4, A8, A9, A12, A13, A14, A16, A17 — gained **no
+F2 test**, which is FR-002. Each was spot-checked against the body of its cited
+F1 test at T059, not merely against its name.
+
+**The audit is now self-checking.** Three tests in
+`tests/doc-health/test_modified_block_currency_fixtures.py` read this file:
+
+- `test_no_audit_row_cites_a_test_that_does_not_exist` — every backticked
+  `test_*` name cited here is defined in F1's test file, with a floor of thirty
+  harvested names so a regex matching nothing cannot pass.
+- `test_every_packet_section_three_item_has_an_audit_row` — all fourteen § 3
+  items appear in the `§ 3 item` column, every row carries exactly one verdict,
+  and the four tallies match the row bodies.
+- `test_every_task_id_the_audit_cites_exists` — every `T0NN` in the last column
+  exists in `tasks.md`.
+
+That third test exists because this audit shipped, once, citing a whole
+superseded task numbering after tasks were renumbered.
+
+## Residue this audit found in F1 — and in itself
+
+**In F1** (recorded in `specs/019-modified-block-currency-family/tasks.md`
+§ "Residue found by F2", which is where F1's owner reads; no issue filed):
+`spec.md` SC-003 says "widened at either end" over a test that widens at the end
+only; `spec.md` § Out of Scope contradicts `tasks.md` § Hand-off on three items;
+the hand-off's "already carries" claim is true only in the narrower form rows A6
+and A11 record; `test_no_date_folder_or_created_field_decides_the_ordering`
+concedes in its own docstring that it cannot discriminate; and one docstring says
+"three bullets" of a four-bullet fixture.
+
+**In itself** — recorded because a wrong `satisfied` is this feature's worst
+failure mode and it happened twice:
+
+- **A15** was verdicted `satisfied` and was not. The cited test's own docstring
+  disqualifies it, and the structural grep it falls back to forbids date readers
+  while forbidding nothing about ordering by folder or change-id name.
+- **A10** was verdicted `satisfied` on a claim — "the anchor is asserted against
+  this packet's OWN delta prose" — that no test made.
+- **A12 clause 7**'s silence comes from the whole scenario being suppressed, not
+  from the survivor being carried. The clause is still covered; the reason
+  differs from what the row implied.
+
+Both wrong verdicts were caught by re-reading the cited test BODIES rather than
+their names. That reading is now T059 step 1, and it is the only defence this
+mechanism has.
+
+## What this audit is still not
+
+It is not proof that F1's tests are correct — only that they exist and assert
+what the rows say. Two rows show the limit of that: a row can cite a real test
+that does not discharge the obligation, and only a human reading the body
+catches it.
