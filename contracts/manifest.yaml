@@ -275,7 +275,7 @@ contracts:
     source_path: openxFactory/contracts/avatar-client/avc-09-voice-adapter-descriptor.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 7b21331957a0a4353e0d2b3e5be442f106fe721c067e6cc5b0037115350234db
+    sha256: a6ea3b65433bf284246cd555dde6cae881521ca81b745e168843381ed3b20fe6
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -400,7 +400,7 @@ contracts:
     source_path: openxFactory/contracts/avatar-client/fixtures/index.yaml
     type: fixture_index
     schema_version: 1
-    sha256: def58e52c2a6214913e22b1983369165160835ffebe13144b34e6c7712d854ee
+    sha256: 2b9ba972dd58d7519d3edef0c1da95c0189232fd246d8003779c4f10dce9cc64
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
   - id: avatar-client-acceptance-map
@@ -408,7 +408,7 @@ contracts:
     source_path: openxFactory/contracts/avatar-client/acceptance-map.yaml
     type: acceptance_map
     schema_version: 1
-    sha256: d6ecc464d9608a0af84577812216e2f79559e3dc14a6c47279161ffd038ee9f1
+    sha256: 8b9b3b0ad275477eeec99c91f4964a5d5c6212e41e6642f964c27d98c27348f9
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
   - id: avatar-client-interface-lock

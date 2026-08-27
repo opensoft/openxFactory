@@ -45,7 +45,12 @@ _BASELINE_CAPABILITIES = frozenset({
 
 
 def baseline_acr_ids() -> set[str]:
-    """Applicable ACR scenario ids from the provisional baseline (no canonical claim)."""
+    """Applicable acceptance scenario ids from the provisional baseline.
+
+    "ACR" in the name is the historical spelling of the whole baseline set, not
+    a filter: this returns the ACR-*, RBG-* and SCO-* scenarios of the three
+    capabilities in `_BASELINE_CAPABILITIES`. Makes no canonical claim.
+    """
     doc = yaml.safe_load(_BASELINE.read_text())
     return {
         s["id"]

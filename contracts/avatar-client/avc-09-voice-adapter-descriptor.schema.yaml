@@ -107,9 +107,12 @@ $defs:
     type: object
     additionalProperties: false
     description: >-
-      The unprivileged half. It holds mappers and a transport, never a provider
+      The unprivileged half: component identity and version plus the capability
+      and event mapper versions it was built against. Never a provider
       configuration and never a key (repo-boundary-governance "Neutral
-      avatar-client repository boundary").
+      avatar-client repository boundary"). The reserved shape gives the client
+      component no transport field — the media transport is a per-session fact
+      carried by AVC-01/AVC-02, not a property of the adapter release.
     properties:
       component_id: {type: string, minLength: 1}
       component_version: {$ref: "#/$defs/version_label"}
