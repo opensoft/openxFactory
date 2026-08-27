@@ -53,7 +53,7 @@ a fixture to be adjusted until the diff is empty.
 ## 2. The #351 acceptance, by hand
 
 ```bash
-python3 -m pytest tests/doc-health/test_modified_block_currency_fixtures.py -q -k history_351
+python3 -m pytest tests/doc-health/test_modified_block_currency_fixtures.py -q -k "_351"
 ```
 
 What must hold (audit row **A1**, § 3.1):
@@ -74,7 +74,7 @@ What must hold (audit row **A1**, § 3.1):
 ## 3. The #329 acceptance, by hand
 
 ```bash
-python3 -m pytest tests/doc-health/test_modified_block_currency_fixtures.py -q -k history_329
+python3 -m pytest tests/doc-health/test_modified_block_currency_fixtures.py -q -k "_329"
 ```
 
 What must hold (audit row **A2**, § 3.2):
@@ -88,8 +88,15 @@ What must hold (audit row **A2**, § 3.2):
 
 ```bash
 python3 -m pytest tests/doc-health/test_modified_block_currency_fixtures.py -q \
-  -k "merge_gut or tokens or rewrap or fence or containment"
+  -k "merge or redundant or companion or widened or versioned_token or body_bullet \
+      or note_edited or rewrap or fenced or inner_backtick"
 ```
+
+**Every `-k` selector above is checked against the test names as `tasks.md`
+writes them** (analyze finding F1: the first cut selected on TREE names —
+`history_351`, `merge_gut` — which appear in no test name, so each command
+selected zero tests and exited 5). T056 re-checks that every selector picks a
+non-zero count.
 
 | what | must hold |
 | --- | --- |
@@ -103,7 +110,7 @@ python3 -m pytest tests/doc-health/test_modified_block_currency_fixtures.py -q \
 ## 5. Determinism over every tree
 
 ```bash
-python3 -m pytest tests/doc-health -q -k byte_for_byte
+python3 -m pytest tests/doc-health -q -k "byte_for_byte"
 ```
 
 Two runs per tree, `Finding.__dict__` lists compared. Covers F1's trees and

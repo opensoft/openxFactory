@@ -146,9 +146,10 @@ and every named test exists and asserts what the row claims.
    function that exists in the F1 test file. An item carrying many distinct
    obligations MAY be split across several rows, provided no item is left
    uncovered and none is covered twice.
-2. **Given** a row whose verdict is `gapped`, **When** it is read, **Then** it
-   names the specific assertion § 3 asks for that no F1 test makes, and the
-   F2 task that closes it.
+2. **Given** a row whose verdict is `gapped` OR `partial`, **When** it is read,
+   **Then** it names the specific assertion § 3 asks for that no F1 test makes
+   — for a `partial` row, the narrowing rather than the absence — and the F2
+   task that closes it.
 3. **Given** § 3.11 and § 3.12, **When** the audit is read, **Then** both are
    `satisfied` and no F2 task duplicates them.
 

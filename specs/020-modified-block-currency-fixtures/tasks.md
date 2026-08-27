@@ -105,7 +105,7 @@ Delivers the regression protection with no other § 3 item present.
 
 ### Provenance verified mechanically
 
-- [ ] T022 [TEST] [US1] Add `test_the_reconstructed_fixtures_are_the_history_they_claim` to `tests/doc-health/test_modified_block_currency_fixtures.py`: for each reconstruction, `subprocess.run(["git", "-C", <repo root>, "show", f"{sha}:{path}"])` and compare — the delta files byte-for-byte, the canon files on the extracted `### Requirement:` section. **Follow `test_ideation_readiness.py`'s precedent for the two failure modes**: a checkout that CAN resolve the SHA but disagrees is a defect and FAILS naming the file; a checkout that cannot resolve the SHA at all (a shallow or truncated clone) is a fact about the clone and SKIPS with that reason. Shelling out to `git show` is permitted — the hermeticity guard refuses only `nlm`, `gh` and the session `git push`, and two doc-health tests already run `git` this way.
+- [ ] T022 [TEST] [US1] Add `test_the_reconstructed_fixtures_are_the_history_they_claim` to `tests/doc-health/test_modified_block_currency_fixtures.py`: for each reconstruction, `subprocess.run(["git", "-C", str(conftest.REPO_ROOT), "show", f"{sha}:{path}"])` — `REPO_ROOT` is already defined at module level in `tests/doc-health/conftest.py` and compare — the delta files byte-for-byte, the canon files on the extracted `### Requirement:` section. **Follow `test_ideation_readiness.py`'s precedent for the two failure modes**: a checkout that CAN resolve the SHA but disagrees is a defect and FAILS naming the file; a checkout that cannot resolve the SHA at all (a shallow or truncated clone) is a fact about the clone and SKIPS with that reason. Shelling out to `git show` is permitted — the hermeticity guard refuses only `nlm`, `gh` and the session `git push`, and two doc-health tests already run `git` this way.
 
 **Checkpoint**: US1 complete and independently valuable. The two defects that motivated the packet are frozen in their own text, and every assertion is on named units or rule text.
 
@@ -164,7 +164,8 @@ END TO END. Row A11 (the longer fence through the family) is closed here too.
 - [ ] T034 [TEST] [US4] Add `test_no_unit_boundary_falls_inside_a_versioned_token` to `tests/doc-health/test_modified_block_currency_fixtures.py`: over the tokens tree, run through the family, no reported unit's text has unbalanced backticks, and none of `contract-v1.45`, `.openspec.yaml` or `promotion_fidelity.py` is split across two reported units. **RED stage 1**: tree absent. *`contract-v1.45` is the token shape F1's fixture lacks — its period sits BETWEEN DIGITS, which is exactly what a naive `\d\.\d` sentence guard would wave through while `.openspec.yaml` and `promotion_fidelity.py` are caught by a leading-dot or word-boundary rule.*
 - [ ] T035 [TEST] [P] [US4] Add `test_each_body_bullet_is_its_own_reported_unit` to `tests/doc-health/test_modified_block_currency_fixtures.py`: canon's three-item body bullet list, of which the block carries one, yields exactly two reported `body` units whose texts are the two dropped bullets with their list markers stripped — never one unit carrying both, and never a unit carrying the marker.
 - [ ] T036 [TEST] [P] [US4] Add `test_a_note_edited_in_its_third_sentence_is_reported_once` to `tests/doc-health/test_modified_block_currency_fixtures.py`: canon carries a dated bold note of FOUR sentences; the block restates it with the THIRD sentence altered; the ledger reports the note ONCE and no fragment of any other sentence of it appears as a separate unit. **This is § 3.5's last clause and the assertion F1 does not have** — F1's block DROPS its two-sentence note, and dropped is a weaker case than edited: an implementation that split the note into sentences would report a dropped note as N rows but would also report an edited note as 1 row out of N, so only the edit distinguishes "one undivided unit" from "sentence-wise comparison that happened to agree".
-- [ ] T037 [US4] Build `tests/doc-health/fixtures/modified-block-currency-tokens/tokenFactory/` with capability `token-cases`: canon's requirement body carrying `` `.openspec.yaml` ``, `` `promotion_fidelity.py` `` and `` `contract-v1.45` `` in sentences (each token's period inside the span), a three-item body bullet list, and a four-sentence dated bold note. The block restates the tokened sentences VERBATIM (so they must not be reported), carries one of the three bullets, and restates the note with its third sentence altered. Plus `proposal.md` with `Status: ratified`. T034, T035, T036 green. **RED stage 2**: alter one tokened sentence's text INSIDE its backticks and confirm T034 still passes but the sentence is reported — proving the masking is about boundaries, not about equality.
+- [ ] T037 [US4] Build `tests/doc-health/fixtures/modified-block-currency-tokens/tokenFactory/` with capability `token-cases`: canon's requirement body carrying `` `.openspec.yaml` ``, `` `promotion_fidelity.py` `` and `` `contract-v1.45` `` in sentences (each token's period inside the span), a three-item body bullet list, and a four-sentence dated bold note. The block restates the tokened sentences VERBATIM (so they must not be reported), carries one of the three bullets, and restates the note with its third sentence altered. Plus `proposal.md` with `Status: ratified`. T034, T035, T036 green. **RED stage 2 for T034**: remove the backticks around `contract-v1.45` in BOTH canon and the block, and confirm T034 fails — the version token then splits at its internal period and the two halves are reported as separate units, which is exactly the boundary the mask exists to prevent. **RED stage 2 for T036**: revert the block's third-sentence edit so the note is restated verbatim, and confirm the note stops being reported at all. Then revert both.
+- [ ] T037a [TEST] [P] [US4] Add `test_masking_governs_boundaries_and_not_equality` to `tests/doc-health/test_modified_block_currency_fixtures.py`: derive units from a copy of the tokens tree's canon paragraph in which one tokened sentence's text is altered INSIDE its backticks, and assert the sentence is reported as uncarried while STILL being one unit rather than two. *Separated from T037's RED evidence because it is a distinct property, not a perturbation: the mask decides where units END, and says nothing about whether two units are equal. Conflating the two was analyze finding F6.*
 
 ### Re-wrap quiet, end to end (row A7, § 3.6)
 
@@ -208,10 +209,15 @@ holds over every tree.
 - [ ] T053 **THE DEFECT SLOT — leave OPEN unless it fires.** If any task in Phases 3–7 found the family behaving other than the ratified delta states, add here: one task naming the defect, one `[TEST]` task carrying its RED, the minimal fix, and a line in `pr-body.md` calling it a defect found by F2 rather than a fixture adjustment. Do not fold such a fix into a fixture task. If nothing fired, write "nothing fired" and say what was checked.
 - [ ] T054 Run the suite: `python3 -m pytest tests/doc-health -q | tail -3`. Record before (1077) and after in § Evidence, and confirm the delta equals the number of tests this feature added — counted from the file, not estimated.
 - [ ] T055 Run `OPENSPEC_TELEMETRY=0 openspec validate --all --strict 2>&1 | tail -3`. Record the count. It MUST equal T001's — this feature touches no `openspec/` path.
-- [ ] T056 [P] Run `quickstart.md` end to end, § 0 through § 8, and fix `quickstart.md` wherever a command as written does not work. *A quickstart nobody ran is a quickstart that does not work; F1's own review found this class.*
+- [ ] T056 [P] Run `quickstart.md` end to end, § 0 through § 8, and fix `quickstart.md` wherever a command as written does not work. **Including: every `-k` selector must select a NON-ZERO number of tests** — analyze finding F1 found four selectors written on TREE names (`history_351`, `merge_gut`) that appear in no test name, so each command exited 5 having validated nothing. Check with `pytest … -k "<sel>" --collect-only -q | tail -1` per selector. *A quickstart nobody ran is a quickstart that does not work; F1's own review found this class too.*
 - [ ] T057 [P] Confirm the family's findings on the REAL corpus are unchanged: the six new trees live under `tests/`, which `DELTA_GLOB` (`openspec/changes/*/specs/*/spec.md`) never reaches. Assert by running `python3 -m pytest tests/doc-health/test_family_enumeration.py -q` and the F1 file, both green and unchanged in count.
 - [ ] T058 **THE MUTATION ROUND.** For each assertion this feature added, invert or weaken it in turn — restore an omitted scenario, replace a widened bullet with canon's, carry a gutted merge bullet, delete a marker, un-edit the note's third sentence, un-wrap a re-wrapped paragraph, swap the single-backtick and double-backtick markers — and confirm the paired test FAILS. Record every surviving mutant with either the new assertion that kills it or the reason it is accepted. **F1's round found three missing tests that twenty-one green tests had not; do not assume a green suite means a covered rule.**
-- [ ] T059 **THE ADVERSARIAL REVIEW.** A fresh read of the six fixtures and the audit against packet § 3 and the ratified delta, hunting for: a fixture that passes for a reason other than the rule; an audit row whose verdict is generous; an assertion on a count that slipped past D3; a synthesized fixture that reads as a reconstruction; and any § 3 clause with no row. Record findings and dispositions in `plan.md` § Adversarial review residue.
+- [ ] T059 **THE ADVERSARIAL REVIEW**, with four steps that are concrete rather than aspirational, because "hunt for problems" is how a review reports none:
+      1. **Every `satisfied` row spot-checked, not merely name-checked** (FR-002's other half). For each of A4, A8, A9, A10, A12–A18, open the cited F1 test and confirm it asserts what the row claims — T024 proves only that the NAME exists, and a `satisfied` verdict citing a test that asserts something else is the one way this audit can be wrong while looking right.
+      2. **FR-008's count check, mechanically.** `grep -nE 'len\(|== [0-9]|count\(' tests/doc-health/test_modified_block_currency_fixtures.py` and require every hit to be one of the declared exceptions — T019's flat file-level eight, and "exactly one finding for this requirement", which is the ledger's own at-most-one rule. Anything else is a count assertion that slipped past decision D3.
+      3. **FR-002's duplication check.** Confirm no test in the new file re-asserts a rule an audit row marks `satisfied`; the new file's tests must each trace to a `gapped` or `partial` row, to the catalogue-wide invariants (T007, T049, T050), or to the audit and scope guards (T024, T051).
+      4. **A fresh read** of the six fixtures against packet § 3 and the ratified delta, for: a fixture that passes for a reason other than the rule; a synthesized fixture that reads as a reconstruction; and any § 3 clause with no row.
+      Record findings and dispositions in `plan.md` § Adversarial review residue.
 - [ ] T060 Write `specs/020-modified-block-currency-fixtures/pr-body.md`: the audit result (18 rows, 10 satisfied / 1 extended / 4 partial / 3 gapped) and the seven rows closed; both reconstructions with their SHAs and the two-stage RED evidence; the four synthesized trees labelled as such; the suite count delta; the empty `scripts/`+`openspec/` diff; T053's defect line (or "nothing fired"); and an explicit statement that **this feature does not close #330** (packet § 7.1) and proposes no severity flip (§ 7.2).
 - [ ] T061 Update `contracts/coverage-audit.md`'s closing section and `plan.md` § Predicted evidence with the MEASURED figures, replacing every predicted number. Any figure that moved gets a line saying why.
 
@@ -226,7 +232,7 @@ Phase 1 (T001–T004)  ─┐
 Phase 3 US1 (T010–T022)   P1 · MVP · the reconstructions
 Phase 4 US2 (T023–T026)   P1 · the audit  [independent of Phase 3]
 Phase 5 US3 (T027–T032)   P2 · merge-gut
-Phase 6 US4 (T033–T043)   P2 · derivation gaps
+Phase 6 US4 (T033–T043, incl. T037a)   P2 · derivation gaps
 Phase 7 US5 (T044–T050)   P3 · provenance + determinism  [needs 3,5,6 trees]
 Phase 8      (T051–T061)  gates, mutation, adversarial review, PR body
 ```
@@ -245,7 +251,8 @@ Phase 8      (T051–T061)  gates, mutation, adversarial review, PR body
 - Phase 3: T012, T013, T014, T015 are `[P]` — four independent assertions over
   one tree, once T011 has built it.
 - Phase 6: T033 is independent of every tree; the three trees (T037, T040,
-  T043) are independent of each other, as are their tests once built.
+  T043) are independent of each other, as are their tests once built; T037a is
+  independent of every tree, deriving its units in the test body.
 - Phase 7: T045–T048 are four independent files.
 - Phase 8: T056 and T057 are independent of each other and of T051–T055.
 
@@ -270,12 +277,16 @@ asserted in none.
 
 ## Notes
 
-- **61 tasks**; **28** of them `[TEST]` tasks — T005, T007, T010, T012–T015,
-  T017, T019, T020, T022, T024, T027, T028, T030, T032–T036, T038, T039, T041,
-  T042, T044, T049–T051 — each paired with the task that makes it pass, except
-  T033 and T051 whose RED evidence is the mutation round (recorded as such on
-  the task rather than claimed as a pre-state). Per story: US1 13, US2 4,
-  US3 6, US4 11, US5 7; Setup 4, Foundational 5, Polish/gates 11.
+- **62 tasks**; **29** of them `[TEST]` tasks — T005, T007, T010, T012–T015,
+  T017, T019, T020, T022, T024, T027, T028, T030, T032–T037a, T038, T039, T041,
+  T042, T044, T049–T051 — producing **30 test functions** (T033 adds two). Each
+  is paired with the task that makes it pass, except T033, T037a and T051, whose
+  RED evidence is the mutation round rather than a pre-state — recorded as such
+  on the task rather than claimed. Per story: US1 13, US2 4, US3 6, US4 12,
+  US5 7; Setup 4, Foundational 5, Polish/gates 11.
+- **`tasks.md` is the ONE home for the test count.** `plan.md` used to carry a
+  second inventory and it had already drifted (analyze finding F2); it now
+  points here.
 - **Commit after each phase**, with explicit pathspecs — this checkout is
   shared and `git add -A` sweeps other sessions' work
   (the aggregation repo's `CLAUDE.md` § Working rules 2).

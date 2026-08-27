@@ -21,10 +21,11 @@ gaps**:
    **Result, over 18 rows covering 14 items: 10 satisfied, 1 satisfied-and-
    extended, 4 partial, 3 gapped.** An item F1 covers gets a row and no second
    test.
-2. **Six new fixture trees and two unit-level assertions close the seven
-   non-satisfied rows**, RED-first — § 3.4's widening needs no tree of its own,
-   because fixture A carries the real instance and the two synthetic widenings
-   are `carried()`-level. The two
+2. **Six new fixture trees, two unit-level assertions, and one assertion on
+   fixture A close the seven non-satisfied rows**, RED-first. Row A5 (§ 3.4)
+   needs no tree of its own: its end-to-end half is fixture A's real
+   containment instance (T014) and its widened-at-either-end half is two
+   `carried()`-level assertions (T033). The two
    that carry the feature are the historical reconstructions: **both histories
    were verified recoverable and both were run through the family before this
    plan was written** (research R1, R2), so § 3.2's "else synthesize faithfully
@@ -65,7 +66,7 @@ suite, inside a documentation-and-contracts repository
 `report.py`, `runner.py` or thresholds (FR-022, FR-024). Assertions on rule
 text and named units, never counts (FR-008). Every test RED-first (FR-025)
 
-**Scale/Scope**: 6 new fixture trees, 1 new test file, ~26 new tests, 2
+**Scale/Scope**: 6 new fixture trees, 1 new test file, 30 new tests, 2
 contracts. Zero lines of production code
 
 ## Constitution Check
@@ -77,7 +78,7 @@ contracts. Zero lines of production code
 | **I — Contract-first, domain-neutral core** | PASS | Nothing domain-specific lands. The fixtures use synthetic capability names (`merge-gut`, `token-cases`, `fence-cases`, `rewrap-cases`) plus two real openxFactory capabilities recovered from this repository's own history. No DomainxFactory content, no `stack.yaml` change |
 | **II — OpenSpec before implementation** | PASS | `add-modified-block-currency-check` is ratified (2026-08-27, "Ratify as-is"). This feature builds § 3 through Spec Kit, which is what the packet's own tasks.md instructs ("Build with Speckit, not `/opsx:apply`"). No governance decision is taken here; the five orchestrator decisions below are implementation choices, flagged for veto |
 | **III — Document lifecycle and status discipline** | PASS | No governed document is created, edited or re-statused. The six fixture `README.md` files sit under `tests/`, which `corpus.EXCLUDED_PARTS` excludes and no `GOVERNED_ROOTS` entry covers — **verified against `scripts/doc_health/corpus.py`**, not assumed (research R6), so they carry no `Status:` header and draw no lifecycle finding |
-| **IV — Schema and artifact discipline** | PASS | No YAML added, so no `schema_version`/`kind` obligation. No credential. **No host-absolute path in any committed file** — checked across all seven artefacts; `quickstart.md`'s worktree reference was rewritten repo-relative when this gate found it |
+| **IV — Schema and artifact discipline** | PASS | No YAML added, so no `schema_version`/`kind` obligation. No credential. **No host-absolute path in any committed file** — checked across every artefact in this feature directory; `quickstart.md`'s worktree reference was rewritten repo-relative when this gate found it |
 | **V — Validation gates (NON-NEGOTIABLE)** | PASS | `python3 -m pytest tests/doc-health -q` and `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` are the two gates, both recorded before and after (§ Predicted evidence). Evidence is deterministic fixtures and test output, never assertion. `/speckit-analyze` must report no critical finding before implementation |
 | **VI — Versioned, content-addressed releases** | N/A | No contract release, no manifest, no tag |
 | **VII — Fail-closed authority boundaries** | PASS | No registry is widened. The family's advisory launch is untouched — F2 adds no severity, no `FAMILY_RESOLUTION` entry, and audit row A16 explicitly forbids a second copy of F1's launch pin |
@@ -101,11 +102,12 @@ specs/020-modified-block-currency-fixtures/
 ├── data-model.md                  # fixture-tree invariants, the two assertion classes
 ├── quickstart.md                  # how to re-derive and validate, command by command
 ├── contracts/
-│   ├── coverage-audit.md          # § 3 → F1 tests, 14 rows, verdicts  ← THE deliverable of US2
+│   ├── coverage-audit.md          # § 3 → F1 tests, 18 rows, verdicts  ← THE deliverable of US2
 │   └── fixture-provenance.md      # the shape of a fixture README
 ├── checklists/
 │   └── requirements.md            # spec quality gate
-└── tasks.md                       # /speckit-tasks output
+├── tasks.md                       # /speckit-tasks output — the ONE home for the test count
+└── pr-body.md                     # written by T060, at the end
 ```
 
 ### Source Code (repository root)
@@ -256,23 +258,19 @@ live corpus** and does not restate that table.
 | `git diff --stat origin/main -- scripts/ openspec/ .github/` | — | **empty** | D1/D4, unless a defect task exists and names the file |
 | the family's findings on the real corpus | — | **unchanged** | six new trees live under `tests/`, which the delta glob never reaches |
 
-**Planned test inventory**, so the count is derivable rather than promised.
-Names are the plan's proposal; `tasks.md` fixes them.
+**The test count has ONE home, and it is `tasks.md`.** The first cut of this
+plan carried a full inventory of proposed test names here; five of them had
+already drifted from `tasks.md`'s spelling by the time tasks were written, and
+four tests in `tasks.md` were missing from it (analyze finding F2). Two homes
+for one list is how a list becomes two lists.
 
-| tree / area | tests |
-| --- | --- |
-| history-351 (A1) | `test_the_351_block_omits_exactly_the_two_scenarios_canon_kept`, `test_the_351_ledger_carries_every_clause_the_repair_commit_named`, `test_the_351_reverted_scenario_line_is_reported`, `test_the_351_widened_bullet_is_reported_although_it_contains_canon_s`, `test_the_351_finding_lands_on_the_active_delta_path_at_warning`, `test_the_351_fixture_is_the_history_it_claims` |
-| history-329 (A2) | `test_the_329_block_omits_all_seven_titles_by_name`, `test_the_329_flat_file_level_count_buys_no_silence`, `test_the_329_ledger_names_canon_s_two_body_sentences`, `test_the_329_fixture_is_the_history_it_claims` |
-| merge-gut (A3) | `test_a_merge_marker_does_not_declare_the_bullets_it_makes_redundant`, `test_the_scenario_arm_is_quiet_because_the_merge_marker_is_valid`, `test_naming_the_redundant_bullets_in_a_removal_marker_silences_them`, `test_the_companion_is_quiet_because_of_its_marker_and_not_by_carriage` |
-| containment (A5) | `test_a_block_unit_widened_before_canon_s_does_not_carry_it`, `test_a_block_unit_widened_at_both_ends_does_not_carry_it` |
-| tokens (A6) | `test_no_unit_boundary_falls_inside_a_versioned_token`, `test_each_body_bullet_is_its_own_reported_unit`, `test_a_note_edited_in_its_third_sentence_is_reported_once` |
-| rewrap (A7) | `test_a_rewrapped_scenario_complete_block_reports_nothing_through_the_family`, `test_the_rewrap_tree_is_not_reported_skipped` |
-| fence (A11) | `test_a_longer_fenced_named_unit_suppresses_the_whole_unit`, `test_the_inner_backtick_does_not_truncate_the_named_unit` |
-| cross-cutting | `test_every_finding_falls_into_exactly_one_class` (O2), `test_two_runs_agree_byte_for_byte_on_every_tree` (A18/FR-020), `test_every_new_fixture_tree_carries_a_provenance_note`, `test_this_feature_touches_no_production_module` (scope guard) |
-
-**~26 tests.** The last four are the ones a later session will thank this plan
-for: the partition invariant, whole-catalogue determinism, the provenance
-requirement made mechanical, and the scope guard.
+`tasks.md` § Notes fixes the figure: **62 tasks, 29 of them `[TEST]`,
+producing 30 test functions**. What belongs here is the reason the last four
+matter rather than their names — the partition invariant (O2), whole-catalogue
+determinism (row A18's extension), the provenance requirement made mechanical,
+and the scope guard. Those four are the ones a later session will thank this
+plan for, and each is a property of the CATALOGUE rather than of any one
+fixture.
 
 ## Complexity Tracking
 
@@ -286,4 +284,49 @@ recorded because a reviewer will ask about both.
 
 ## Analyze residue
 
-*(filled by `/speckit-analyze`)*
+`/speckit-analyze` ran 2026-08-27 over `spec.md`, `plan.md` and `tasks.md`,
+with `research.md`, `data-model.md`, `contracts/` and `quickstart.md` as
+context. **Zero CRITICAL findings** (Constitution Principle V's gate for
+beginning implementation). Six findings, all fixed in the same pass; nothing
+deferred.
+
+| id | category | severity | where | finding | disposition |
+| --- | --- | --- | --- | --- | --- |
+| **F1** | inconsistency | **HIGH** | `quickstart.md` §§ 2–4 | Four `-k` selectors were written on TREE names — `history_351`, `history_329`, `merge_gut`, `containment` — none of which appears in any test name `tasks.md` writes. Every one of those commands would have selected zero tests and exited 5, so the validation guide's three most important steps validated nothing | **FIXED**: selectors rewritten against the names as `tasks.md` writes them (`_351`, `_329`, `merge or redundant or companion`, `widened or versioned_token or …`), with a note recording the miss; **T056 gains the check that every selector picks a non-zero count** |
+| **F2** | duplication | **MEDIUM** | `plan.md` § Predicted evidence vs `tasks.md` | The plan carried a full inventory of proposed test NAMES. Five had already drifted from `tasks.md`'s spelling (`…_although_it_contains_canon_s` vs `…_although_the_block_contains_it`, and four more) and four `tasks.md` tests were absent from it. Two homes for one list — the exact defect F1's own plan named about its movement figure | **FIXED**: the inventory is DELETED. `tasks.md` § Notes is the one home for the count (62 tasks, 29 `[TEST]`, 30 functions); the plan keeps only the reason the four catalogue-wide tests matter |
+| **F3** | underspecification | **MEDIUM** | `spec.md` US2 acceptance 2 | The acceptance scenario covered rows verdicted `gapped` but not `partial`, although FR-001 admits three verdicts and four rows are `partial` — so the spec did not require A5, A6, A7 or A11 to state their narrowing | **FIXED**: the scenario now covers `gapped` OR `partial`, and says that a `partial` row states the NARROWING rather than an absence |
+| **F4** | coverage gap | **MEDIUM** | FR-002, FR-008 vs `tasks.md` | Both requirements were carried only by T059's prose ("hunting for … an assertion on a count that slipped past D3"), which is how a review reports none. FR-002's other half — that a `satisfied` verdict is actually satisfied — was checked by nothing at all: T024 proves a cited test NAME exists, not that it asserts what the row claims | **FIXED**: T059 is now four numbered, concrete steps — every `satisfied` row spot-checked against the cited test body; FR-008's count check as a literal `grep` with a declared exception list; FR-002's duplication check as a trace from every new test to a `gapped`/`partial` row or a catalogue invariant; then the fresh read |
+| **F5** | ambiguity | **LOW** | `tasks.md` T022 | `<repo root>` was left as an unexpanded placeholder in the `git show` invocation | **FIXED**: named as `conftest.REPO_ROOT`, which is already defined at module level in `tests/doc-health/conftest.py` |
+| **F6** | inconsistency | **MEDIUM** | `tasks.md` T037 | T037's "RED stage 2" altered a token's text INSIDE its backticks and asserted T034 STILL PASSES — which is not a RED at all but a separate property (the mask governs boundaries, not equality). It would have left T034 and T036 with no stage-2 evidence while appearing to have some | **FIXED**: T037 gains a real stage 2 for each — strip the backticks from `contract-v1.45` and T034 must fail; revert the note's third-sentence edit and T036 must go quiet. The conflated property becomes its own test, **T037a** |
+
+**Coverage after the pass.** 28 functional requirements, 12 success criteria,
+62 tasks. **FR coverage 28/28**; **SC coverage 12/12**; no task maps to no
+requirement. The ten audit rows verdicted `satisfied` deliberately have no task
+(FR-002) and are covered by T059 step 1 rather than by a test — recorded here
+so a later reader does not read their zero-task status as a coverage hole.
+
+**One thing the pass could not fix, recorded rather than dressed up.** The
+audit's `satisfied` verdicts rest on a human reading of F1's test bodies.
+T024 mechanizes only the citation; T059 step 1 mechanizes only the discipline
+of re-reading. **If a `satisfied` verdict is wrong, this feature ships a hole
+it believes it closed** — and the honest mitigation is that the ten rows in
+question are the ones F1's own hand-off, F1's mutation round, and this session's
+independent read of the landed file all agree on.
+
+## Base drift, recorded
+
+`origin/main` advanced NINE commits between this feature's branch point
+(`19e3f6b5`) and the plan phase. **`git diff --stat 19e3f6b5 origin/main --
+scripts/doc_health/ tests/doc-health/ openspec/specs/doc-health/
+openspec/changes/add-modified-block-currency-check/` is EMPTY**, so no input to
+the audit moved and the base stays valid. The branch is deliberately NOT
+rebased (session git rules). **T002 re-runs that diff before any other task**,
+because an audit of a file that has since moved is worse than no audit.
+
+## Adversarial review residue
+
+*(filled by T059 — four concrete steps, not a hunt: every `satisfied` row
+spot-checked against the cited test body; FR-008's count grep against its
+declared exception list; FR-002's trace from every new test to a `gapped` or
+`partial` row or a catalogue invariant; then a fresh read of the six fixtures
+against packet § 3 and the ratified delta.)*
