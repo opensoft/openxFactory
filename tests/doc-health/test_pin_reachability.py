@@ -773,7 +773,22 @@ def _real_report():
     truncated, observed = pc.is_truncated(repo)
     if truncated:
         pytest.skip(f"{repo} cannot answer the question: {observed}")
-    return repo, pc.verify(repo)
+    report = pc.verify(repo)
+    # The retention half of the ref set is a REMOTE read, so a machine with no
+    # network answers "I could not ask" rather than "there is no such ref". That
+    # is an environment condition, not a defect in an artifact, and the honest
+    # outcome is a skip. It is NOT allowed to be a silent one: the precondition
+    # itself is asserted by
+    # `test_this_repository_can_consult_the_retention_namespace`, which fails
+    # loudly once, so a lost proof is never a green scoreboard.
+    unaskable = [r for r in report.inconclusive
+                 if "could not be consulted" in r.how]
+    if unaskable:
+        pytest.skip(
+            "the retention namespace could not be consulted, so "
+            f"{len(unaskable)} pin(s) are unanswerable here rather than "
+            f"unreachable: {unaskable[0].how}")
+    return repo, report
 
 
 def test_this_repository_resolves_the_main_half_of_the_ref_set():
@@ -803,6 +818,40 @@ def test_this_repository_resolves_the_main_half_of_the_ref_set():
     if truncated:
         pytest.skip(f"{repo} is genuinely truncated, which is a fact about the "
                     f"clone rather than a configuration defect: {observed}")
+
+
+def test_this_repository_can_consult_the_retention_namespace():
+    """THE SECOND PRECONDITION, and it FAILS rather than skips for the same
+    reason the first one does.
+
+    Three of this repository's pins resolve ONLY through
+    `refs/retention/pins/<full-sha>`, no default refspec fetches that namespace,
+    and so the check is a REMOTE read. A machine that cannot perform it answers
+    "I could not ask" — which `_real_report` correctly turns into a skip,
+    because it is a fact about the environment. Asserted here so that fact is
+    stated ONCE, loudly, instead of six proofs going quiet: a suite that reports
+    SKIPPED where it used to report the pins conforming has lost a proof, and
+    losing proofs silently is the defect this whole packet descends from."""
+    repo = Path(REPO_ROOT)
+    if pc.resolve_main(repo) is None:
+        pytest.skip(f"{repo} resolves no `main`; see the precondition above")
+    found, detail = pc.remote_retention_refs(repo)
+    assert found is not None, (
+        f"the retention half of the ref set is unreachable from {repo}: "
+        f"{detail}. Three committed pins resolve only through it, so every "
+        "real-repository proof in this module degrades to a skip until this "
+        "works. Restore network access to `origin`, or fetch the namespace "
+        f"locally (`git fetch origin '{pc.RETENTION_NAMESPACE}/*:"
+        f"{pc.RETENTION_NAMESPACE}/*'`).")
+    assert len(found) >= 3, (
+        f"{detail} — this repository has published three retention refs; a "
+        "namespace that advertises fewer has lost one, and a lost retention ref "
+        "orphans the record that pins it")
+    for ref, sha in found.items():
+        assert ref == pc.retention_ref(sha), (
+            f"{ref} points at {sha}, which is not the commit its name states — "
+            "a retention ref whose name cannot be derived from its target "
+            "retains nothing a reader can find")
 
 
 def test_every_declared_repo_local_pin_in_this_repository_resolves():

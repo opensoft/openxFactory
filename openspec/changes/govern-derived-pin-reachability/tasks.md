@@ -3,12 +3,12 @@
 **REALIZED 2026-08-27.** § 2 is implemented — `scripts/doc_health/pin_class.py`
 (the declared class, Q1's ruled home), the reachability probe and the
 reproduction check on the readiness surface in
-`scripts/doc_health/ideation_readiness.py`, and 46 regressions at
+`scripts/doc_health/ideation_readiness.py`, and 48 regressions at
 `tests/doc-health/test_pin_reachability.py`. § 2.5's non-tool half and § 2.8's
 landing obligation stay deliberately prose-only, and both say so in their own
 words rather than being quietly ticked. § 3 grew from two orphans to FOUR: three
 retained, one unrecoverable. § 4's gate is green except § 4.3, which is the merge
-itself. § 5 carries five follow-ups, three of them raised by this realization.
+itself. § 5 carries six follow-ups, four of them raised by this realization.
 
 **THE HEADER THIS FILE OPENED WITH, KEPT BECAUSE IT WAS TRUE WHEN WRITTEN.** As
 authored: "**NO IMPLEMENTATION SURFACE is discharged here. This packet is a
@@ -206,8 +206,8 @@ inventory is exactly the artifact that drifts. Both are recorded at § 3.5 and
       member what a re-pin owes (bytes where a tool defines derivation, a named
       measurement where none does) at the moment a finding fires. A
       measurement-record format is a follow-up, recorded at § 5.3.
-- [x] 2.6 REGRESSIONS at `tests/doc-health/test_pin_reachability.py` — 47 tests,
-      all six minima covered and nine more besides. Reachable-but-stale gives
+- [x] 2.6 REGRESSIONS at `tests/doc-health/test_pin_reachability.py` — 48 tests,
+      all six minima covered and ten more besides. Reachable-but-stale gives
       no finding; an orphaned pin in a complete clone fails naming artifact, key
       and pin; a truncated clone skips naming the truncation OBSERVED (a real
       `--depth 1 --no-local` clone); an undeclared pin-carrying artifact is
@@ -221,13 +221,18 @@ inventory is exactly the artifact that drifts. Both are recorded at § 3.5 and
       site locality read out of the artifact; and the vocabulary's own coverage
       measured by resolving every committed 40-hex token against the object
       database rather than by trusting the key list.
-      **AND A PRECONDITION GUARD THAT FAILS RATHER THAN SKIPS.** Six of these
-      tests degrade to a skip when no `main` ref resolves, and a suite full of
-      skips is precisely how seven proofs went unrun for the sibling packet's
-      entire life. So the precondition itself is asserted:
-      `test_this_repository_resolves_the_main_half_of_the_ref_set` fails, once
-      and loudly, if a clone or a CI checkout stops providing `main`, instead of
-      six others quietly reporting SKIPPED on a green scoreboard.
+      **AND TWO PRECONDITION GUARDS THAT FAIL RATHER THAN SKIP.** Six of these
+      tests degrade to a skip when the ref set cannot be consulted — no `main`
+      ref, or a retention namespace that is a REMOTE read on a machine with no
+      network — and a suite full of skips is precisely how seven proofs went
+      unrun for the sibling packet's entire life. So BOTH halves of the ref set
+      have their precondition asserted:
+      `test_this_repository_resolves_the_main_half_of_the_ref_set` and
+      `test_this_repository_can_consult_the_retention_namespace` each fail, once
+      and loudly, instead of six others quietly reporting SKIPPED on a green
+      scoreboard. The second one also checks that every advertised retention ref
+      points at the commit its name states, so a namespace that has lost or
+      mis-aimed a ref is a failure rather than a silent orphaning.
 - [x] 2.7 NO CHANGE to the deterministic check family registry, the family
       enumeration, or its numerals — and asserted STRUCTURALLY rather than
       promised. `scripts/doc_health/families.py` is untouched (`git diff` empty),
@@ -406,10 +411,10 @@ that a per-artifact sweep does not generalize.
       "Change 'govern-derived-pin-reachability' is valid" (exit 0), and
       `--all --strict` **76 passed / 0 failed (76 items)** (exit 0).
 - [x] 4.2 `python3 -m pytest tests/doc-health -q` GREEN under `pipefail`, exit
-      code read rather than inferred (`DOCHEALTH EXIT=0`): **1124 passed / 0
-      failed / 0 skipped** in 109s, on the tree rebased onto `origin/main`. The
+      code read rather than inferred (`DOCHEALTH EXIT=0`): **1125 passed / 0
+      failed / 0 skipped**, on the tree rebased onto `origin/main`. The
       baseline this branch started from is **1077** (measured on the same tree
-      with `--ignore=tests/doc-health/test_pin_reachability.py`), so the 47 new
+      with `--ignore=tests/doc-health/test_pin_reachability.py`), so the 48 new
       tests are the whole of the delta and none of them displaced an existing
       one. **ZERO SKIPS MATTERS HERE**: the sibling packet's whole forcing
       instance was seven proofs that reported SKIPPED in every fresh clone, so a
