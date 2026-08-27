@@ -798,3 +798,128 @@ def test_the_tokenized_sentences_are_carried_and_not_reported():
     rule = _ledger(_run())[0].rule
     assert ".openspec.yaml" not in rule
     assert "It SHALL NOT guess." not in rule
+
+
+# --------------------------------------------- 3. the marker, end to end (US3)
+
+
+MARKER_DELTA = "openspec/changes/add-marker-cases/specs/marker-cases/spec.md"
+
+
+def _markers_run():
+    from conftest import make_ctx
+    return mbc.fam_modified_block_currency(
+        make_ctx("modified-block-currency-markers"))
+
+
+def _for(requirement, findings=None):
+    return [f for f in (findings if findings is not None else _markers_run())
+            if repr(requirement) in f.rule]
+
+
+def test_a_marker_suppresses_exactly_the_units_it_names():
+    """`dh:153-156`, and the "exactly" is the whole assertion: the marker names
+    two of the three body units the block dropped, so the THIRD is still
+    reported."""
+    hits = _ledger(_for("Suppression names exactly two of three"))
+    assert len(hits) == 1, [f.rule[:90] for f in hits]
+    rule = hits[0].rule
+    assert "Body three." in rule
+    assert "Body one." not in rule
+    assert "Body two." not in rule
+
+
+def test_a_marker_naming_a_carried_unit_emits_one_info_finding():
+    """THE FOURTH FINDING CLASS (ruled 2026-08-27). "A marker naming a unit the
+    block still carries declares nothing and SHALL itself be reported, because a
+    declaration that does not describe the block is a declaration no reader can
+    rely on."
+
+    The first cut of this plan gave that rule a PRODUCER and no emitter, which
+    is how a `SHALL` ends up realized in a docstring.
+    """
+    hits = [f for f in _for("A marker naming a carried unit")
+            if "declaration" in f.rule]
+    assert len(hits) == 1, [f.rule[:90] for f in hits]
+    finding = hits[0]
+    assert finding.severity == INFO          # info, never error
+    assert finding.path == MARKER_DELTA
+    assert "add-marker-cases" in finding.rule and "2026-08-27" in finding.rule
+    assert "Kept one." in finding.rule
+    # ...and it does NOT inherit the ledger's hedge: a marker naming a carried
+    # unit is wrong with certainty, so "cannot distinguish a rewording from
+    # stale text" would be false of it.
+    assert "CANNOT distinguish" not in finding.rule
+    # nothing was suppressed by that name, and the block carries both units, so
+    # the ledger has nothing to say about this requirement
+    assert _ledger(_for("A marker naming a carried unit")) == []
+
+
+def test_a_genuinely_removed_scenario_title_carries_its_bullets():
+    """`dh:158-165`. The block names the scenario removed and adds NO scenario
+    title canon does not carry, so the three bullets that scenario carried go
+    with it. "Declaring a scenario genuinely gone and then reporting its bullets
+    forever would make the declaration useless for the act it exists to
+    declare"."""
+    assert _for("A genuine removal carries its bullets") == []
+
+
+def test_a_surviving_bullet_of_a_removed_scenario_is_carried():
+    """The other half of the same rule: a bullet of the removed scenario that
+    DOES appear elsewhere in the block is carried, and nothing is reported about
+    it either way."""
+    assert _for("A survivor of a removed scenario is carried") == []
+
+
+def test_a_removal_marker_plus_a_replacement_scenario_still_reports_the_bullets():
+    """`dh:167-177` — THE COMBINATION CASE, and the one place the two marker
+    rules could contradict each other.
+
+    A `Removed from canon` marker names the old title AND the block adds a
+    replacement scenario carrying one of its three bullets. That shape is a
+    RETITLE whatever the marker calls it, so the extension does NOT apply and the
+    two uncarried bullets are reported. Suppressing them would let a retitle
+    relabelled as a removal drop obligations with nothing reported — which is
+    exactly the defect the bullet arm exists to close.
+
+    This test FAILS under any scenario-paired bullet comparison, and it is why
+    the delta compares bullets across the whole block.
+    """
+    hits = _ledger(_for("A retitle relabelled as a removal"))
+    assert len(hits) == 1, [f.rule[:90] for f in hits]
+    rule = hits[0].rule
+    assert "it MUST do a second thing" in rule
+    assert "it MUST do a third thing" in rule
+    # the bullet the replacement DOES carry is not reported
+    assert rule.count("it MUST do one thing") == 0
+    # and the title itself is declared, so arm 1 stays quiet
+    assert _titles(_for("A retitle relabelled as a removal")) == []
+
+
+def test_the_merge_destination_is_never_read_as_a_named_unit_end_to_end():
+    """`dh:148-151`: "reading it as a named unit would make every valid merge
+    marker report itself". The destination is PRESENT in the block by
+    construction, so if it were a named unit this would emit a marker defect on
+    every legitimate merge."""
+    assert _for("A merge destination is present") == []
+
+
+def test_a_promoted_marker_is_not_a_carriage_unit():
+    """`dh:179-183`. Canon carries a marker paragraph from an older change; the
+    block does not restate it, and must not have to. "A marker promotes into
+    canon with the requirement, and if it were a unit every later block would
+    have to restate every marker any predecessor ever wrote, forever"."""
+    assert _for("A promoted marker is not a carriage unit") == []
+
+
+def test_a_prose_dated_note_declares_nothing():
+    """THE GUARD ON THE FINDING THAT MADE THE MARKER NEW. Canon carries a dated
+    bold note naming `Dropped body.` in backticks — as the clause that was
+    RESTORED, which is what every such note in this corpus records. It declares
+    NOTHING, so the dropped clause is still reported, and the note itself is a
+    body unit the block did not carry."""
+    hits = _ledger(_for("A prose dated note declares nothing"))
+    assert len(hits) == 1, [f.rule[:90] for f in hits]
+    rule = hits[0].rule
+    assert "Dropped body." in rule, "a prose note must suppress nothing"
+    assert "CORRECTED 2026-08-25" in rule

@@ -802,8 +802,11 @@ def fam_modified_block_currency(ctx):
             basis = canon.get(norm(block.title)) if canon else None
             if basis is None:
                 continue        # title resolution is arm 3's question
-            findings.extend(_arm_titles(repo, block, basis))
-            findings.extend(_arm_ledger(repo, block, basis))
+            suppressed, defective = suppression(
+                block.markers, basis.units, block.units)
+            findings.extend(_arm_titles(repo, block, basis, suppressed))
+            findings.extend(_arm_ledger(repo, block, basis, suppressed))
+            findings.extend(_arm_marker_defects(repo, block, defective))
     return findings
 
 
@@ -861,3 +864,101 @@ def _arm_ledger(repo: str, block: ActiveBlock, basis: PromotedRequirement,
         f"bullets {basis.spec_rel} currently states for it — a divergence this "
         f"arm CANNOT distinguish from a deliberate rewording, and does not "
         f"claim to: {listed}")]
+
+
+def suppression(markers: list[Marker], canon_units: list[Unit],
+                block_units: list[Unit]
+                ) -> tuple[set[tuple[str, str]], list[Marker]]:
+    """`(suppressed, defective)` — what the block's markers declare, and which of
+    them declare nothing.
+
+    THE THREE-WAY RESOLUTION, per name, against canon units of ANY kind:
+
+    - the name matches an ABSENT canon unit -> that unit is suppressed;
+    - the name matches a canon unit the block still CARRIES -> the MARKER is
+      reported and nothing is suppressed by that name, because a declaration
+      that does not describe the block is a declaration no reader can rely on;
+    - the name matches NO canon unit -> nothing suppressed, nothing reported.
+      That third case is fail-closed and is deliberately NOT a finding: the
+      delta mandates exactly one reporting case for a marker, and adding a
+      second is an obligation this feature has no standing to invent. Recorded
+      as a plausible later ruling.
+
+    THEN THE SCENARIO-TITLE EXTENSION, and it is gated. Where a `Removed from
+    canon` marker names an absent scenario TITLE **and the block adds no
+    scenario title canon does not already carry**, the bullets that scenario
+    carried in canon are declared removed with it — unless they appear as
+    bullets anywhere in the block, in which case they are carried and nothing is
+    reported either way.
+
+    WHERE THE BLOCK DOES ADD A NEW TITLE the extension does not apply AT ALL.
+    That shape is a RETITLE whatever the marker calls it, and treating it as a
+    removal reopens the defect the bullet arm exists to close: name the old
+    title removed, add a replacement carrying two of its four bullets, and two
+    obligations leave canon with nothing reported. The author's instrument for a
+    retitle is `Merged into`, whose bullets must be carried somewhere in the
+    block or named individually.
+
+    The `Merged into` DESTINATION is never a name — it states where the
+    superseded scenarios went and is present in the block by construction, so
+    reading it as a named unit would make every valid merge marker report
+    itself.
+    """
+    have = {u.pair() for u in block_units}
+    by_text: dict[str, list[Unit]] = {}
+    for u in canon_units:
+        by_text.setdefault(u.text, []).append(u)
+
+    canon_titles = {u.text for u in canon_units if u.kind == SCENARIO_TITLE}
+    block_titles = {u.text for u in block_units if u.kind == SCENARIO_TITLE}
+    adds_new_title = bool(block_titles - canon_titles)
+
+    suppressed: set[tuple[str, str]] = set()
+    defective: list[Marker] = []
+    for marker in markers:
+        for name in marker.names:
+            matches = by_text.get(name)
+            if not matches:
+                continue                    # names nothing; buys nothing
+            if any(u.pair() in have for u in matches):
+                if marker not in defective:
+                    defective.append(marker)
+                continue
+            for unit in matches:
+                suppressed.add(unit.pair())
+                if (unit.kind == SCENARIO_TITLE
+                        and marker.form == "removed"
+                        and not adds_new_title):
+                    for bullet in canon_units:
+                        if (bullet.kind == SCENARIO_BULLET
+                                and bullet.scenario == unit.text
+                                and bullet.pair() not in have):
+                            suppressed.add(bullet.pair())
+    return suppressed, defective
+
+
+_MARKER_ACTION = ("name a unit the block does not restate, or drop the "
+                  "declaration — a marker that does not describe the block "
+                  "declares nothing")
+
+
+def _arm_marker_defects(repo: str, block: ActiveBlock, defective: list[Marker],
+                        ) -> list[Finding]:
+    """THE FOURTH FINDING CLASS — a defect in a DECLARATION, not a comparison.
+
+    Three arms, four classes, and the numbers differ on purpose: the arms read
+    two documents against each other, and this reads one paragraph against the
+    block it sits in. It carries the ledger's `info` band so the advisory launch
+    holds in both halves, and it deliberately does NOT carry the ledger's hedge:
+    a marker naming a unit the block still restates is wrong with certainty.
+    """
+    out: list[Finding] = []
+    for marker in defective:
+        named = ", ".join(repr(n) for n in marker.names)
+        out.append(Finding(
+            _LEDGER_SEVERITY, FAMILY, repo, block.delta_rel,
+            f"active MODIFIED block for {block.title!r} carries a "
+            f"{marker.form!r} marker by {marker.change_id} ({marker.date}) "
+            f"naming {named}, which the block still restates — a declaration "
+            f"that does not describe the block", _MARKER_ACTION))
+    return out
