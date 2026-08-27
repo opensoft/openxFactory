@@ -34,6 +34,22 @@ exactly what the recommendation asked for, and the packet still repairs no pin
 because retention is not a pin edit — both records carry their original pins
 UNEDITED and are now conforming. The garbage-collection window is CLOSED.
 
+**ARCHIVED 2026-08-27 — SO READ THE THREE PARAGRAPHS ABOVE AS HISTORY WHERE
+THEY SPEAK OF AN OPEN GATE.** "§ 4's gate is green except § 4.3, which is the
+merge itself" was true until pull request #424 merged at 2026-08-27T17:51:07Z;
+§ 4.3 is now ticked, and it carries the merge, the green, and this archive act's
+own evidence. Every other sentence above still stands, the two deliberately
+prose-only halves included. **§ 5 CROSSES THE ARCHIVE OPEN, ALL SIX ITEMS, AND
+EVERY ONE OF THEM BY DECISION** — with two of the six moved by rulings taken on
+the day of the archive rather than left as authored. **§ 5.5 crosses IN FLIGHT
+rather than merely named**: Brett COMMISSIONED the superseding record plus the
+disposition, and it is being filed IN PARALLEL as its own packet, so the
+`KNOWN_LOSSES` row and `fully_verified: FALSE` STAND here untouched until that
+packet lands — this archive neither resolves nor softens them. **§ 5.1 gains a
+ruling rather than a resolution**: the sentinel-pin vocabulary is a NAMED
+FOLLOW-UP, recorded beside the `git_generation()` dirty-tree gap as ONE future
+packet. Both rulings are recorded against their own items.
+
 ## 1. Filing and admission
 
 - [x] 1.1 ORIGIN AND ADMISSION RECORDED. `.openspec.yaml` carries `kind: ad_hoc`
@@ -423,7 +439,7 @@ that a per-artifact sweep does not generalize.
       `main` half stops resolving. The full CI selection
       `python3 -m pytest tests/ -q -m "not postgres"` is recorded in the pull
       request body with its own numbers.
-- [ ] 4.3 REALIZATION EVIDENCE per `release-realization`'s archive gate: this
+- [x] 4.3 REALIZATION EVIDENCE per `release-realization`'s archive gate: this
       packet declares a non-empty `code_surface`, so it SHIPS ACTIVE and archives
       only on merged-plus-green on the openxFactory main line, in its own commit
       after the merge. **STILL OPEN BY DESIGN**: the realization pull request is
@@ -435,6 +451,126 @@ that a per-artifact sweep does not generalize.
       (run 33089969860) — and `wallet-validation` **success**. The 20 skips are
       pre-existing and none is in `tests/doc-health`, which reports zero. What
       remains for this box is the MERGE and the archive commit after it.
+      **DONE 2026-08-27 — THE GATE IS FULLY DISCHARGED AND THIS ENTRY IS THE
+      ARCHIVE ACT.** The paragraph above is kept as the state it recorded while
+      it stood, including its head and run id, because the head MOVED twice
+      after it was written and a task rewritten to name only the final head
+      would hide that. Every arm below is checked at this act rather than
+      inherited.
+      **THE SEQUENCE ITSELF IS RULED.** Brett approved the merge-plus-archive
+      sequence on 2026-08-27, by a multi-choice put by the orchestrating
+      session; this archive is that ruling's second half. No verbatim wording
+      reached the archiving session, so none is quoted anywhere in this record —
+      approver, date, mechanism and the option selected are stated instead, the
+      shape this packet uses for every ruling it carries.
+      **CODE MERGED ON THE IMPLEMENTED TARGET.** Pull request #424 merged
+      2026-08-27T17:51:07Z as merge commit
+      `175682e2be82b5134448f19291c5bf35fad89f88`, re-verified HERE an ancestor of
+      `origin/main` (`git merge-base --is-ancestor`, exit 0) rather than read off
+      the pull request page, and confirmed a real two-parent merge commit
+      (`071dd025` and `b4cd8073`) rather than a rewrite — which matters more in
+      this packet than in most, requirement 3 being about what a rewriting
+      landing owes.
+      **THE RUNNABLE SURFACE RAN GREEN ON THE FINAL HEAD**, read back from the
+      check-runs API at this act rather than from the merge notification: head
+      `b4cd80735f27cccae0ec95173d0c52b79705bbc1`, `pytest-suite` **success**
+      16:05:26Z → 16:20:25Z and `wallet-validation` **success** 16:05:26Z →
+      16:06:53Z. The suite line was read out of the job log rather than
+      summarized: **6933 passed, 20 skipped, 338 deselected, 28 subtests passed,
+      0 failed in 872.71s (14m32s)**, run 33091394406. Same passing count as the
+      earlier head this task recorded, on a head two commits later.
+      **THE ACT.** ARCHIVED to
+      `openspec/changes/archive/2026-08-27-govern-derived-pin-reachability/` by
+      `OPENSPEC_TELEMETRY=0 openspec archive govern-derived-pin-reachability
+      --yes` (openspec 1.2.0), which reported `doc-health: update`,
+      `ideation-cross-reference: update`, `release-realization: update`,
+      `Totals: + 4, ~ 0, - 0, → 0`. It also reported `Task status: 26/33` and
+      warned on seven incomplete tasks, which is CORRECT: this task was the
+      twenty-seventh, and § 5.1 through § 5.6 survive the archive as named
+      follow-ups. **THE MECHANISM WAS `openspec archive`, NOT `proposal-support
+      archive`, and the choice is deliberate** — that wrapper refuses any change
+      whose `tasks.md` still carries a `^- \[ \]` line, a blanket gate that
+      cannot tell a ruled-open follow-up from unfinished work. The two things it
+      adds were run anyway, on both sides of the move: the origin gate
+      `python3 scripts/proposal-support.py . verify
+      govern-derived-pin-reachability` → `proposal support verification ok`
+      BEFORE, and the whole-corpus `verify` (no argument) → ok both BEFORE and
+      AFTER; packaging is a lawful no-op for an ad-hoc origin with no
+      `supporting-docs/` folder. The precedent is the sibling
+      `2026-08-27-harden-ideation-readiness-check` one day earlier.
+      **THE KNOWN CLI HAZARD DID NOT FIRE, VERIFIED BY BLOB ID RATHER THAN
+      ASSUMED.** Under openspec 1.2.0 `.openspec.yaml` MOVED with the packet
+      rather than being deleted: it is present at the archive path, `git status`
+      shows the old path deleted and the archive folder added (a move, not a
+      loss), and `git hash-object` gives blob
+      `f77f14a4ba0f5c1f493c7836a8938207ec4fa990` — IDENTICAL to the blob at the
+      ratifying commit `f57287c7`, so no restoration was needed. § 4.6's
+      origin-retention claim therefore holds through the archive as well as
+      through the realization: `kind`, `id`, `reason`, `approved_by` and
+      `approved_on` are all unchanged from ratification, and the three rulings
+      taken at this act went into `proposal.md`, this file and the README — never
+      into the origin block, because a ruling is not origin provenance.
+      **PROMOTION VERIFIED PER CAPABILITY, BY DIGEST, which is the whole point
+      of the act.** All three deltas promoted whole, every diff purely additive
+      at the tail, and for each one the delta's requirement body (everything
+      below `## ADDED Requirements`) and canon's appended block share a single
+      digest with `cmp` reporting no difference:
+
+      | capability | requirements | scenarios | lines | diff | sha256 of delta body = canon block |
+      | --- | --- | --- | --- | --- | --- |
+      | `ideation-cross-reference` | 14 → **16** (+2) | 40 → **48** (+8) | 336 → 458 | +122 / **−0** | `289bf220a6930ffcb0f1179f40e4b997fc45028e46e873acef0164b999e72b6f` (121 lines both sides) |
+      | `release-realization` | 6 → **7** (+1) | 14 → **18** (+4) | 117 → 176 | +59 / **−0** | `c350e0f4db64127ee480de8cc5b54f88e437bd05672830452cbddce770b806b2` (58 lines both sides) |
+      | `doc-health` | 33 → **34** (+1) | 141 → **145** (+4) | 1411 → 1488 | +77 / **−0** | `a93ecae6df6d9c46055d6db2e691ddb4324cdef35730c85e13fdef9bd649a839` (76 lines both sides) |
+
+      The counts are the proposal's own — two, one and one requirements, eight,
+      four and four scenarios, sixteen scenarios in total — and canon's totals
+      moved by exactly those numbers, so nothing was dropped in the promotion
+      and nothing arrived that the delta did not carry. ZERO DELETIONS in all
+      three files, proved rather than eyeballed: `cmp -n <bytes-before>` of each
+      new file against the file as it stood is clean on all 19400, 6872 and
+      94237 pre-existing bytes, so every pre-existing requirement in all three
+      capabilities is byte-identical after the act. The three archived
+      `specs/<capability>/spec.md` deltas are themselves byte-identical to the
+      authored files (`cmp` clean), so the record of what was promoted stays in
+      the packet. **NOTHING WAS MODIFIED ANYWHERE** — the extra insert line in
+      each file beyond the delta body is the separator, and the count of
+      `## MODIFIED Requirements` blocks in all three deltas is zero, which is
+      what makes the archive order irrelevant that § 1.4 measured.
+      **GATES AFTER THE ACT.** `OPENSPEC_TELEMETRY=0 openspec validate --all
+      --strict` → **75 passed, 0 failed**, one item fewer than the **76** before,
+      because this packet left the active set. `python3 -m pytest tests/doc-health
+      -q` under `pipefail` with the exit code read rather than inferred:
+      **1163 passed, 0 failed, 0 SKIPPED** both before and after the act — a
+      number that has grown from the 1125 this packet's realization measured
+      because `main` moved under it, and the zero skips are the thing this
+      packet's whole forcing instance was about. Single-repo doc-health
+      (`scripts/doc-health.py --single-repo .`) before and after: **5 critical /
+      7 error / 41 warning / 12 info, 0 new regressions** both times, with every
+      family count identical (`staged-topic-template` 27, `staged-candidate-aging`
+      14, `record-immutability` 5, `status-validity` 4, `location-conformance` 3,
+      `modified-block-currency` 9, `ideation-routing` 2, `document-catalog` 1,
+      and `proposal-origin`, `promotion-fidelity`, `release-inventory-drift`,
+      `family-enumeration`, `duplicate-packet` all **0**). **THE ARCHIVE ADDS NO
+      FINDING**: `diff` over the two whole reports is TWO LINES, both of them the
+      canon-share arithmetic — 31.1% → 31.4%, promoted-spec words 146050 →
+      148998 — which is the promotion itself showing up in the corpus ratio and
+      is the one difference an honest archive SHOULD produce.
+      **WHAT THIS ARCHIVE DOES NOT CLAIM, stated here so no reader has to infer
+      it from four sections.** § 2.5's non-tool reproduction half is PROSE-ONLY
+      and stays so: the check verifies bytes for the tool-defined members, and
+      for the rest `repair_route()` states the obligation, because no field,
+      schema or convention exists anywhere in this repository for a named
+      measurement to be recorded in (§ 5.3 carries the format). § 2.8's landing
+      obligation is STATED, NOT AUTOMATED — discoverability IS implemented and
+      pinned by test, and no workflow enforces it. § 5.6's preflight half of the
+      enforcement home is deliberately UNWIRED, because wiring a
+      network-consulting check into the nightly would answer
+      `fix-release-reachability-race`'s own named open question by
+      implementation, for every governed repository at once. And the proposal's
+      original 9-pin inventory table stands CORRECTED to 63 sites across 20
+      members in § 2 of this file, with the authored table kept VERBATIM where it
+      was authored, per this packet's own measurement-preservation convention —
+      the same convention that keeps the two-orphan heading's history in § 3.
 - [x] 4.4 NO CONTRACT BUNDLE IS OWED — RE-CHECKED AT REALIZATION as this task
       required, and by path rather than by `grep`. All 38
       `contracts/releases/*.digests.yaml` inventories were parsed into their
@@ -517,6 +653,21 @@ that a per-artifact sweep does not generalize.
       construction, because it only reads full object names; the follow-up is
       whether the sentinel vocabulary should be shared, declared, and used by
       every generator rather than invented once per lane.
+      **RULED 2026-08-27 — NAMED FOLLOW-UP, AND THE SENTINEL QUESTION RIDES WITH
+      THIS ITEM AS ONE FUTURE PACKET.** Brett ruled on the sentinel-pin
+      vocabulary at the archive, by a multi-choice put by the orchestrating
+      session, and the option selected was a NAMED FOLLOW-UP recorded here
+      beside the `git_generation()` gap rather than a packet filed now. The
+      reasoning the ruling accepted is the measurement in the paragraph above:
+      the proposal-support generator ALREADY does what this section asks of
+      `git_generation()` — `"uncommitted-worktree"` six times,
+      `"not-applicable-ad-hoc"` once, `source_revision` absent three times — so
+      what is left to decide is whether that vocabulary becomes SHARED and
+      DECLARED across every generator that stamps a derivation, and that
+      decision belongs to the future packet rather than to this archive. No
+      verbatim wording reached the archiving session, so none is quoted:
+      approver, date, mechanism and the option selected are stated instead.
+      **STAYS UNTICKED BY DECISION**, and the two questions travel together.
 - [ ] 5.2 The cross-repository pin families — aggregation submodule gitlinks and
       the workflow-pin lockstep rule (xFactory `CLAUDE.md` working rule 2),
       `pinned_contract_manifest` and `neutral-product-pin`, release digest
@@ -558,6 +709,19 @@ that a per-artifact sweep does not generalize.
       `pin_class.KNOWN_LOSSES` with the full measurement, re-measured by test,
       and reported until it is discharged. **NEEDS BRETT** — the authority for
       that change's evidence, not this session.
+      **COMMISSIONED 2026-08-27 AND IN FLIGHT — STILL UNTICKED HERE, AND
+      DELIBERATELY SO.** Brett commissioned the superseding record plus the
+      disposition at the archive, by the same multi-choice, and it is being
+      FILED IN PARALLEL as its own packet rather than folded into this archive.
+      "Commissioned" is not "landed", and the difference is the whole reason
+      this box stays empty: the `KNOWN_LOSSES` row STANDS, `fully_verified`
+      stays **FALSE**, the class keeps reporting the loss, and none of that is
+      resolved or softened by this act — they come down when that packet lands,
+      not when it was commissioned. **NEEDS BRETT** was answered, then, and the
+      answer was to raise a packet, which is exactly what this item asked for
+      and not something this archive may tick on its behalf. Approver, date and
+      mechanism are stated; no verbatim wording reached the archiving session,
+      so none is quoted.
 - [ ] 5.6 **THE PREFLIGHT HALF OF THE ENFORCEMENT HOME IS NOT WIRED, AND THAT IS
       A FLAGGED JUDGMENT RATHER THAN AN OVERSIGHT.** The delta names the home as
       "the readiness proof surface AND the per-repo validator preflight". The
