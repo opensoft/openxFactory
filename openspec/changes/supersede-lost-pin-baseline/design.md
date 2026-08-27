@@ -21,12 +21,23 @@ pin" to "fully verified", and it ran through deleting the declaration. So the
 requirement is ADDED to `doc-health`, and the pin obligation's requirement is
 neither restated nor modified.
 
-That also avoids a hazard rather than managing it. The pin obligation's
-requirements are, at authoring, still in an ACTIVE change
-(`govern-derived-pin-reachability`) rather than promoted. A `MODIFIED` block over
-an unpromoted requirement would be a delta against text canon does not yet
-carry, and the parallel session archiving that packet owns its surface. Adding
-to the capability that owns the verification touches neither.
+That also avoids a hazard rather than managing it. AS AUTHORED: the pin
+obligation's requirements were still in an ACTIVE change
+(`govern-derived-pin-reachability`) rather than promoted, so a `MODIFIED` block
+over one would have been a delta against text canon did not yet carry, while the
+parallel session archiving that packet owned its surface. **AND IT LANDED WHILE
+THIS PACKET STOOD OPEN, 2026-08-27**: that packet archived as pull request #428
+and its requirements are now promoted — "A committed derivation pin stays
+resolvable" and "An orphaned pin on an immutable record is repaired by
+retention, never by editing the record" in `ideation-cross-reference`,
+"Derivation-pin reachability is verified across a declared artifact class" in
+`doc-health`. The conclusion is unchanged and the reason for it is now stronger
+rather than weaker: those requirements say what the repair route is and what the
+verification covers, and NEITHER says what the verification does once the owed
+act lands. This delta adds that, in the capability that owns the verification,
+with no `MODIFIED` block over promoted text and no restatement of it. Main was
+merged into this branch after that archive, so the delta is authored against
+canon as promoted rather than as proposed.
 
 ## 2. What discharge means mechanically — a citation that is READ
 

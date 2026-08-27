@@ -166,7 +166,17 @@ defect nobody can repair. The only exit is the governance act.
   removed or renumbered, and the enumeration requirement is not restated.
 - **`govern-derived-pin-reachability`'s packet, in any way.** Its § 5.5 stays as
   written; this packet is the act it named, not an edit to its record of naming
-  it.
+  it. **It archived on 2026-08-27 while this packet stood open** (pull request
+  #428, now at
+  `openspec/changes/archive/2026-08-27-govern-derived-pin-reachability/`) and
+  main was merged in afterwards, so its requirements are promoted canon here —
+  and nothing in this packet moved for it beyond one tense in `design.md` § 1.
+- **The promoted pin requirements it landed.** "A committed derivation pin stays
+  resolvable" and "An orphaned pin on an immutable record is repaired by
+  retention, never by editing the record" are neither restated nor MODIFIED, and
+  neither is the promoted reachability-verification requirement. This delta
+  answers only the question none of them reaches: what the verification does
+  once the owed act lands.
 - **The PostgreSQL evidence question.** This change re-justifies nothing about
   the both-majors matrix; it records precisely what can and cannot be
   re-derived, and leaves the forward route named.
@@ -240,7 +250,9 @@ available, silencing route to a clean report that nothing forbade. One ADDED
 requirement in the capability that owns the verification closes it.
 **Alternative not taken:** shipping delta-less as a record-issuance plus code
 change. Measured against house convention and declined: **all 107 archived
-changes in this repository carry a spec delta**, and the discharge semantics
+changes in this repository carried a spec delta** when this was measured, and
+**108 of 108 do now** — the sibling archived the same day and did not break the
+run. The discharge semantics
 exist today only in a docstring, which is not where a rule that governs a future
 session's judgment belongs.
 

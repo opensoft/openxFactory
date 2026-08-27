@@ -29,12 +29,20 @@ nobody can follow. Discharge is by citation, never by deletion.
 - [x] 1.3 THE PARALLEL SESSION'S SURFACE WAS NOT TOUCHED.
       `openspec/changes/govern-derived-pin-reachability/` was READ (its § 3.6
       and § 5.5 are what this packet discharges) and not edited, moved, or
-      re-ticked. **IT IS BEING ARCHIVED BY THAT SESSION WHILE THIS PACKET
-      STANDS OPEN, and nothing here needs to change for it**: this packet cites
-      the code and the measurement rather than that packet's paths, and its
-      archive PR promotes an ADDED requirement into the `doc-health` spec tail
-      that THIS packet's delta only reaches at ITS OWN archive — so the two
-      never write the same canon file at the same time.
+      re-ticked. **AND IT ARCHIVED WHILE THIS PACKET STOOD OPEN**: pull request
+      #428 landed on 2026-08-27, moving that packet to
+      `openspec/changes/archive/2026-08-27-govern-derived-pin-reachability/` and
+      promoting its requirements into `openspec/specs/doc-health/spec.md` and
+      `openspec/specs/ideation-cross-reference/spec.md`. **NOTHING IN THIS PACKET
+      NEEDED TO MOVE FOR IT**, which was the point of citing the code and the
+      measurement rather than that packet's paths — the one edit it earned is the
+      tense of `design.md` § 1, where the hazard argument becomes historical and
+      its conclusion stands. `origin/main` was merged into this branch after that
+      landing (one conflict, the README active-changes block: this packet's entry
+      kept, the archived packet's entry dropped as main had already dropped it),
+      so this delta is authored against canon as PROMOTED. The two never wrote
+      the same canon file at the same time: that archive promotes its delta,
+      this one promotes at ITS own archive.
 - [x] 1.4 THE VETO WINDOW IS CLOSED, 2026-08-27. All four § Orchestrator
       decisions CLEARED AS AUTHORED and both § Open Questions RULED, by a
       four-question multi-choice put to Brett by the orchestrating session and
@@ -155,11 +163,19 @@ nobody can follow. Discharge is by citation, never by deletion.
 - [x] 4.1 `OPENSPEC_TELEMETRY=0 openspec validate supersede-lost-pin-baseline
       --strict` — PASS.
 - [x] 4.2 `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` — **77
-      passed, 0 failed** (76 before this packet, one new change item).
-- [x] 4.3 `python3 -m pytest tests/doc-health -q` — **1168 passed, 0 failed**
-      (1163 before, five added), run under `set -o pipefail` so a masked failure
-      cannot read as green. `tests/doc-health/test_pin_reachability.py` alone:
-      **53 passed** (48 before).
+      passed, 0 failed** at authoring (76 before this packet, one new change
+      item), and **76 passed, 0 failed** re-run after `origin/main` was merged in
+      — one item fewer because the sibling packet ARCHIVED, not because anything
+      here dropped out. Both numbers are recorded rather than the later one
+      overwriting the earlier, because a total that moves for a reason is
+      evidence and a total that is quietly restated is not.
+- [x] 4.3 `python3 -m pytest tests/doc-health -q` — **1168 passed, 0 failed** at
+      authoring (1163 before, five added), and **1183 passed, 0 failed** re-run
+      after the merge, the fifteen extra tests arriving with pull requests #427
+      and #428 rather than with anything here. Both runs under `set -o pipefail`
+      so a masked failure cannot read as green.
+      `tests/doc-health/test_pin_reachability.py` alone: **53 passed** (48
+      before), re-run on the merged head and still 53.
 - [x] 4.4 THE ARCHIVED RECORD IS BYTE-IDENTICAL. `git diff origin/main --stat`
       lists no path under `openspec/changes/archive/`, and
       `git diff origin/main -- openspec/changes/archive/` is empty.
