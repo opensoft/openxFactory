@@ -4,9 +4,19 @@
 
 ### Requirement: A committed derivation pin stays resolvable
 A committed artifact SHALL pin, as its derivation source, only a repository
-commit reachable from `main` — or from a retained ref the artifact or its
-owning contract itself declares — at all times that the artifact stands on
-`main`.
+commit reachable from `main` or from a published retention ref, at all times
+that the artifact stands on `main`.
+
+THE RETENTION NAMESPACE IS `refs/retention/pins/<full-sha>`: one ref per
+retained commit, named for the full forty-character object name of the commit it
+retains, published on the repository's own remote. Naming the namespace rather
+than admitting any declared ref is what makes the repair act DETERMINISTIC — a
+reader resolving a pin knows exactly one place to look, a verification knows
+exactly one ref set to consult beside `main`, and the ref's own name states
+which commit it exists to keep so that no separate declaration can drift from
+it. A retention ref outside that namespace does not satisfy this requirement,
+because a ref nobody can predict the name of is not reachable in the sense a
+reader needs.
 
 An unreachable pin is a DEFECT IN THE ARTIFACT, not staleness in it, and the
 distinction is the whole of this requirement. A pin naming an older commit that
@@ -47,10 +57,10 @@ different authority.
 - **THEN** it MUST be reported as a defect in that artifact, naming the artifact and the pinned commit
 - **AND** it MUST NOT be reported as staleness, deferred to a regeneration schedule, or excused as an environment condition
 
-#### Scenario: The pin resolves only through a retained ref
-- **WHEN** a committed artifact pins a commit that `main` does not reach, and a retained ref declared by the artifact or its owning contract does reach it
-- **THEN** the artifact is conforming, because the pinned state remains reconstructible by a reader who follows the declared ref
-- **AND** the declaration MUST name the retained ref, so that reachability is verifiable without guessing which ref was meant
+#### Scenario: The pin resolves only through a retention ref
+- **WHEN** a committed artifact pins a commit that `main` does not reach, and a published `refs/retention/pins/<full-sha>` ref names that commit
+- **THEN** the artifact is conforming, because the pinned state remains reconstructible by a reader who resolves the pin's own object name in that namespace
+- **AND** a retention ref carried under any other name MUST NOT satisfy this requirement, because a ref whose name cannot be derived from the pin is not predictably reachable
 
 #### Scenario: A truncated clone cannot resolve a conforming pin
 - **WHEN** a clone's history is shallow or otherwise truncated and cannot resolve a pin that `main` reaches
@@ -71,9 +81,14 @@ the pin would replace one defect with another and would additionally falsify
 the record, which exists to say what a run actually read. The pinned commit is
 therefore what moves, not the record.
 
-Retention SHALL be a published ref rather than a local one, because a pin whose
-reachability depends on one machine's object store is unreachable by every
-other reader and the requirement above is not satisfied by it. Retention is
+Retention SHALL publish `refs/retention/pins/<full-sha>` on the repository's own
+remote, where `<full-sha>` is the full forty-character object name of the
+orphaned commit being retained. A local ref does not satisfy this: a pin whose
+reachability depends on one machine's object store is unreachable by every other
+reader, and the requirement above is not satisfied by it. Deriving the ref's name
+from the pin is what makes the repair mechanical — the repairer computes the ref
+name rather than choosing it, and a reader resolving the record's pin computes
+the same name without consulting anything else. Retention is
 also TIME-BOUND in a way no other repair in this repository is: an orphaned
 commit survives only until garbage collection reaches it in the last clone
 holding it, so a retention that is possible today may be impossible next week.
@@ -91,7 +106,7 @@ and the third converts a known defect into background noise.
 
 #### Scenario: A record's pin is orphaned and the object is still recoverable
 - **WHEN** an artifact with `status: record` carries a derivation pin no ref reaches, and the pinned object is still present in at least one clone
-- **THEN** the repair MUST publish a ref that reaches that commit, leaving the record's own bytes unchanged
+- **THEN** the repair MUST publish `refs/retention/pins/<full-sha>` on the repository's remote for that commit, leaving the record's own bytes unchanged
 - **AND** the record MUST NOT be edited to name a different commit
 
 #### Scenario: A record's pin is orphaned and the object is unrecoverable

@@ -1,8 +1,8 @@
 ---
 code_surface: openxFactory (`scripts/doc_health/ideation_readiness.py` — the pinned-revision resolution point the sibling `harden-ideation-readiness-check` just made honest, which is where a class-wide reachability verification joins rather than a second spelling of the same probe; a declared pin-class table, whose home is Q1 and which is NOT pre-placed here; `scripts/bootstrap-ideation-cross-reference.py` — `git_generation()` at `:144-154`, READ ONLY as the reference generator whose `source_revision` stamp defines the reproduction obligation, with NO change proposed to it by this packet; plus regressions under `tests/doc-health/`. NO change is proposed to `derive_clusters`, the derivation prompt or evidence contracts, the index schema, the gate constants, the readiness lane's severity or disposition, the deterministic check family registry `scripts/doc_health/families.py`, or the family enumeration and its numerals.)
-target_release: implemented — the openxFactory main line. This surface cuts NO contract bundle, and that is measured rather than assumed: `grep`ing every `contracts/releases/*.digests.yaml` inventory for the named files returns nothing, so no schema moves, no digest set changes, and no release tag is owed. The archive gate is therefore merge-plus-green on main, PLUS one piece of evidence the code alone cannot give — a resolution for the two live orphaned pins § What was measured names, because the verification this change proposes turns both of them red and the change would otherwise land red on its own gate. Whether that resolution rides this change or lands before it is Q2. Concretely: `python3 -m pytest tests/doc-health` green, `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green, and a scratch-clone run of the class-wide verification that reports the class fully covered. THE CHANGE SHIPS ACTIVE and archives only after that.
+target_release: implemented — the openxFactory main line. This surface cuts NO contract bundle, and that is measured rather than assumed: `grep`ing every `contracts/releases/*.digests.yaml` inventory for the named files returns nothing, so no schema moves, no digest set changes, and no release tag is owed. The archive gate is therefore merge-plus-green on main, PLUS one piece of evidence the code alone cannot give — a resolution for the two live orphaned pins § What was measured names, because the verification this change proposes turns both of them red and the change would otherwise land red on its own gate. THAT PIECE IS ALREADY DISCHARGED, 2026-08-27: Q2 was ruled "publish first, independently" and executed, and `git ls-remote origin 'refs/retention/*'` returns `refs/retention/pins/da9bf3b7d0ee1d86d2d437d42a715c238dddce4b` and `refs/retention/pins/f13a3b6007736292e1e157febef1ac733e534de9`, each at the commit its name states, so both records are conforming with their original pins UNEDITED. AS AUTHORED this sentence read "Whether that resolution rides this change or lands before it is Q2" — now historical; it landed before, which is what the recommendation asked for and why the garbage-collection window is closed rather than merely noted. Concretely: `python3 -m pytest tests/doc-health` green, `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green, and a scratch-clone run of the class-wide verification that reports the class fully covered. THE CHANGE SHIPS ACTIVE and archives only after that.
 Status: ratified
-Ratified: 2026-08-27 by Brett — in-session commissioning of the filing, verbatim: "file the pin-governance follow-up change". The citation covers THE DECISION TO FILE THIS CHANGE AND NOTHING ELSE; the five decisions in § Orchestrator decisions below were taken by the authoring session under standing patterns and are NOT covered by it, nor are the three questions in § Open Questions. The record this citation resolves against is this file, § Orchestrator decisions and § Open Questions. No approving OpenSpec change exists to name, so the citation takes the record spelling `sanction-ratified-record-spelling` sanctioned for exactly that case, and clears its three-way floor on all three axes rather than on the one it needs: approver (`by Brett`), date (`2026-08-27`), and a resolvable record path.
+Ratified: 2026-08-27 by Brett — in-session commissioning of the filing, verbatim: "file the pin-governance follow-up change". The citation covers THE DECISION TO FILE THIS CHANGE AND NOTHING ELSE; the five decisions in § Orchestrator decisions below were taken by the authoring session under standing patterns and are NOT covered by it, nor are the three questions in § Open Questions. The record this citation resolves against is this file, § Orchestrator decisions and § Open Questions. No approving OpenSpec change exists to name, so the citation takes the record spelling `sanction-ratified-record-spelling` sanctioned for exactly that case, and clears its three-way floor on all three axes rather than on the one it needs: approver (`by Brett`), date (`2026-08-27`), and a resolvable record path. AS FIRST WRITTEN this line ended at "a resolvable record path" with the decisions and questions still live — that was true at authoring and is now historical on both halves: Brett cleared all five decisions as authored and ruled all three questions the same day, by a SEPARATE four-question multi-choice recorded in full at § Orchestrator decisions and question by question at § Open Questions. THE TWO ACTS STAY DISTINCT ON PURPOSE, because they authorized different things: this citation ADMITTED the packet, the later ruling CLOSED the veto window and disposed Q1, Q2 and Q3 — and unlike the clearance, the Q2 and Q3 rulings CHANGED the packet. No verbatim wording of the later ruling reached this session, so none is quoted; approver, date, mechanism and selected option are stated instead.
 Proposed: 2026-08-27
 Origin: The follow-up two archived packets named and declined to write. `harden-ideation-readiness-check` made an unreachable pin loud and repaired one instance; `fix-release-reachability-race` recorded the same orphaned pin as its family's stale operand. Neither stated the rule that would have prevented the instance. This packet states it, and finds two more instances still standing on `main` while doing so.
 ---
@@ -102,6 +102,24 @@ window closes when garbage collection reaches the last clone holding them. This
 is the measurement the second requirement obliges a packet to take before
 choosing a route, taken here.
 
+> **THE WINDOW WAS ACTED ON THE SAME DAY, AND THE TWO ROWS ABOVE ARE NOW
+> HISTORICAL ON THEIR LAST COLUMN.** Q2 was ruled "publish first, independently"
+> and executed on 2026-08-27, and this session verified the result rather than
+> taking it on report: `git ls-remote origin 'refs/retention/*'` returns exactly
+> two rows —
+> `refs/retention/pins/da9bf3b7d0ee1d86d2d437d42a715c238dddce4b` at
+> `da9bf3b7d0ee1d86d2d437d42a715c238dddce4b` and
+> `refs/retention/pins/f13a3b6007736292e1e157febef1ac733e534de9` at
+> `f13a3b6007736292e1e157febef1ac733e534de9` — so `git ls-remote origin |
+> grep -c <pin>` now returns `1` for both pins where the table above records
+> `0`. **BOTH RECORDS ARE NOW CONFORMING WITH THEIR ORIGINAL PINS UNEDITED**,
+> which is requirement 2's whole claim demonstrated on the two instances that
+> forced it. `merge-base --is-ancestor origin/main` is STILL false for both, and
+> that is the point rather than a residue: the pins resolve through the retention
+> namespace, not through `main`. The measurements above are kept exactly as taken
+> because they are the evidence the rule was needed, and a table rewritten to
+> show the repaired state would erase the defect it was written to prove.
+
 **The landing was a rewrite, confirmed at the object.** `git log --format='%H %p
 %s' -1 4e57009c` gives a SINGLE parent `700c1a19` and the subject "Migrate
 brainstorms into three-tier packets (#322)" — a squashed landing, not a merge
@@ -187,9 +205,11 @@ requirement is MODIFIED anywhere.
    repaired by retention, never by editing the record.** The rule the two live
    instances forced into existence. A `record` cannot be re-pinned without
    falsifying it and without tripping record immutability, so the COMMIT moves,
-   not the record: publish a ref. Where the object is gone, a superseding record
-   plus a disposition, never a silent rewrite. And a packet must MEASURE
-   recoverability before choosing, because the window closes.
+   not the record: publish `refs/retention/pins/<full-sha>` on the repository's
+   own remote, the namespace Q3 ruled and Q2's execution already used, with the
+   ref name COMPUTED from the pin rather than chosen. Where the object is gone, a
+   superseding record plus a disposition, never a silent rewrite. And a packet
+   must MEASURE recoverability before choosing, because the window closes.
 
 3. **`release-realization` — a history-rewriting landing re-derives the pins its
    rewrite orphans.** The landing obligation, with re-pinning DEFINED BY
@@ -229,7 +249,11 @@ requirement is MODIFIED anywhere.
   which kinds are permitted.
 - **The two live orphans are not repaired by this file.** A proposal is not a
   repair. The route is § 3 of `tasks.md` and the choice between riding this
-  change and landing first is Q2.
+  change and landing first is Q2. **STILL TRUE AS WRITTEN, AND NOW ALSO
+  SETTLED**: Q2 was ruled "publish first, independently" and executed on
+  2026-08-27 by the orchestrating session, so the repair happened OUTSIDE this
+  file exactly as this bullet said it would — two published refs, not a commit
+  here. `tasks.md` § 3 records the discharge with the verification.
 
 ### Named follow-ups, out of scope here
 
@@ -247,20 +271,74 @@ requirement is MODIFIED anywhere.
   digests. Different pin family, answered against a different remote, and for
   the gitlink rule a different repository entirely. Named in § The pin-carrying
   artifact inventory as out of scope rather than left implicit.
-- **Whether a retention ref namespace should exist at all.** Requirement 1
-  admits a "retained ref the artifact or its owning contract declares" and
-  requirement 2 obliges retention to be published, but neither invents a
-  namespace, a naming grammar, or a retention lifetime. Q3.
+- **~~Whether a retention ref namespace should exist at all.~~ RULED AND NO
+  LONGER A FOLLOW-UP.** Q3 was ruled on 2026-08-27: the namespace is formalized
+  as `refs/retention/pins/<full-sha>`, and requirements 1, 2 and 4 now name it.
+  AS AUTHORED this bullet read "Requirement 1 admits a 'retained ref the artifact
+  or its owning contract declares' and requirement 2 obliges retention to be
+  published, but neither invents a namespace, a naming grammar, or a retention
+  lifetime." Two-thirds of that is now false and one-third stands: **retention
+  LIFETIME is still unstated, deliberately**, and it is the only part of Q3 that
+  survives as a real open question. The delta's reasoning is that a retained
+  commit is retained because a committed record names it, so the ref outlives the
+  record and a duration would need a rule for what happens at its end.
 - **The three sibling resolver spellings.** The sibling's own § 5.1, ruled LEFT
   OPEN deliberately by Brett on 2026-08-27. Untouched here.
 
-## Orchestrator decisions, flagged for veto
+## Orchestrator decisions, cleared 2026-08-27 (authored: flagged for veto)
 
-This packet was authored by a delegated session against Brett's instruction to
-file it. That instruction is the origin act and covers THE FILING; every
-decision below was taken by the authoring session under standing patterns and
-is flagged for reversal. Reverting any one of them is an edit to this change,
-not a new one.
+**ALL FIVE CLEARED 2026-08-27, THE SAME DAY THEY WERE FLAGGED — Brett approved
+every one as authored, and none was vetoed.** The ruling came as a
+four-question multi-choice put to Brett by the orchestrating session and relayed
+to this session the same day; on the decisions question he cleared all five as
+authored: **OD-1** the three-capability all-ADDED shape, **OD-2** the
+no-new-check-family enforcement home, **OD-3** re-pinning defined by
+reproduction, **OD-4** record repair by retention, **OD-5** the change name.
+No verbatim wording of the ruling reached this session, so none is quoted — the
+approver, the date, the mechanism and the option selected are stated instead,
+which is what this repository's own precedent asks for and how this packet's own
+admission is recorded. OD-1 through OD-5 are items 1 through 5 below, in that
+order.
+
+**NOTHING IN THE PACKET MOVES BECAUSE OF THE CLEARANCE ITSELF.** All five
+decisions stand exactly as authored, so the clearance required no edit to a
+requirement, a delta, a task or a design entry — the same shape openxFactory
+PR #307 recorded when Brett cleared the two codex dispositions there ("the
+approval required no repo edit"), and the shape both sibling packets recorded
+for their own four. This record exists so the veto window is legibly CLOSED
+rather than merely un-exercised: an unrecorded clearance and an unnoticed flag
+look identical six weeks later. The SEPARATE rulings on Q1, Q2 and Q3 in the
+same act DID move the packet, and those edits are recorded against their own
+questions below.
+
+**`.openspec.yaml`'s ORIGIN BLOCK IS DELIBERATELY NOT EDITED, and that is a
+ruling-respecting choice rather than an oversight.** Its `approved_by` still
+ends by saying the five decisions "are NOT covered by this authorization and are
+flagged for veto in the proposal's § Orchestrator decisions" — a pointer that
+now lands the reader on this clearance, which is why leaving it costs nothing.
+What editing it would cost is real: `release-realization`'s "Origin retention at
+archive" requires the archive gate to verify the origin declaration is UNCHANGED
+from ratification and to FAIL on a mutation, making any rewrite a
+contested-class act. A veto clearance is not origin provenance, so it is
+recorded where the flagging lives instead.
+
+**THE CLEARANCE COVERS EXACTLY THESE FIVE DECISIONS.** The same ruling
+separately disposed all three open questions, and the two are not the same act:
+this clearance CLOSED THE VETO WINDOW, while the question rulings CHANGED THE
+PACKET — Q3's namespace ruling edited two requirements and three scenarios, and
+Q2's ruling was executed before it was recorded. Each is recorded against its
+own question below.
+
+**HISTORY, KEPT SO THE RESOLUTION IS LEGIBLE.** The paragraph below is this
+section's original preamble, unchanged. It was true when written and is now
+superseded by the clearance above; it is preserved rather than erased for the
+same reason the sibling packets preserve theirs.
+
+> This packet was authored by a delegated session against Brett's instruction to
+> file it. That instruction is the origin act and covers THE FILING; every
+> decision below was taken by the authoring session under standing patterns and
+> is flagged for reversal. Reverting any one of them is an edit to this change,
+> not a new one.
 
 1. **Four requirements across THREE capabilities, all ADDED, none MODIFIED.**
    The artifact rule and the record-repair rule go to
@@ -306,7 +384,26 @@ not a new one.
 
 ## Open Questions
 
-**Q1 — where does the declared pin class live?** Requirement 4 obliges a
+**ALL THREE RULED 2026-08-27**, by the same four-question multi-choice that
+cleared the five decisions above, put to Brett by the orchestrating session and
+relayed the same day. On each question he took the recommendation the packet
+offered. No verbatim wording reached this session, so none is quoted — the
+approver, the date, the mechanism, and the option selected are stated instead.
+Unlike the decisions clearance, TWO OF THESE RULINGS MOVED THE PACKET, and each
+entry records what moved. Each question's original text is kept unchanged below
+its ruling, because a recommendation that was accepted is the argument for the
+rule now in the delta.
+
+**Q1 — where does the declared pin class live? RULED: the registry module, as
+recommended.** The declaration is a registry module beside
+`scripts/doc_health/families.py`, so the declaration is itself checked, mirroring
+the derived-not-restated shape `add-family-enumeration-check` establishes for
+exactly this problem. Recorded at `tasks.md` § 2.1 and § 2.2, which move from
+"settle Q1 first" to the settled home. **NO DELTA TEXT CHANGED, deliberately**:
+requirement 4 obliges a declared class and checks the declaration, and it does
+not name a file path, because a promoted spec that pins an implementation path
+has to be MODIFIED the next time the module moves. The ruling is recorded where
+implementation decisions are recorded. AS ASKED: Requirement 4 obliges a
 declared class and checks the declaration, but does not say whether the
 declaration is a contract artifact under `contracts/`, a table in the promoted
 `doc-health` spec, or a registry module beside `families.py`. Each has a
@@ -314,10 +411,28 @@ different failure mode: a contract artifact is schema-checkable but adds a
 schema; a spec table is readable but is prose a check must parse; a registry
 module is exact but is code that canon then restates. RECOMMENDATION: the
 registry module, mirroring `families.py` and the derived-not-restated shape
-`add-family-enumeration-check` establishes for exactly this problem. Not taken.
+`add-family-enumeration-check` establishes for exactly this problem.
 
-**Q2 — do the two live orphan repairs ride this change?** The sibling packet
-ruled its own equivalent question by riding (its OD-4: "splitting it would land
+**Q2 — do the two live orphan repairs ride this change? RULED: publish first,
+independently, as recommended — AND ALREADY EXECUTED.** The orchestrating
+session published both retention refs on 2026-08-27, before this packet merged
+and independently of its fate. VERIFIED HERE rather than taken on report:
+`git ls-remote origin 'refs/retention/*'` returns exactly two rows,
+`refs/retention/pins/da9bf3b7d0ee1d86d2d437d42a715c238dddce4b` at
+`da9bf3b7d0ee1d86d2d437d42a715c238dddce4b` and
+`refs/retention/pins/f13a3b6007736292e1e157febef1ac733e534de9` at
+`f13a3b6007736292e1e157febef1ac733e534de9` — each ref pointing at the very
+commit its name states. `git ls-remote origin | grep -c <pin>` now returns `1`
+for both pins where it returned `0` at authoring. **THE GARBAGE-COLLECTION
+WINDOW IS CLOSED**, which was the whole reason the recommendation was to go
+first: the two objects are now on the remote and no longer depend on one
+machine's object store surviving a `gc`. **THE CONSEQUENCE FOR THIS PACKET IS
+THAT ITS TWO LIVE INSTANCES ARE NOW CONFORMING RATHER THAN REPAIRED-PENDING** —
+both records still carry their original pins, unedited, and both pins now
+resolve through the retention namespace, which is precisely the branch of
+requirement 1 that admits a retention ref. The archive gate at `tasks.md` § 4.5
+is discharged by this, and § 3.2 with it. AS ASKED: The sibling packet ruled its
+own equivalent question by riding (its OD-4: "splitting it would land
 requirement 3 red on its own gate"), and the same logic applies here — the
 verification requirement 4 proposes will report both records. Against it: the
 repair for a `record` is a PUBLISHED REF, which is a remote-state act rather
@@ -325,15 +440,33 @@ than a commit, so it does not land in a pull request the way a one-line index
 re-pin did, and the recoverability window makes it urgent in a way this packet's
 own timeline is not. RECOMMENDATION: publish the retention refs FIRST, on their
 own, before the window closes and independently of this packet's fate; let the
-packet's realization prove them. Not taken.
+packet's realization prove them.
 
-**Q3 — is a retention ref namespace owed?** If retention is the repair route,
-somebody must decide what the ref is called and how long it lives, and an
-undeclared `refs/heads/...` left lying around is its own kind of debt. The
-requirement deliberately admits any declared retained ref rather than inventing
-a grammar. RECOMMENDATION: decide it with Q2, because the first two retention
-refs this repository publishes will set the convention whether or not anyone
-declares one. Not taken.
+**Q3 — is a retention ref namespace owed? RULED: yes, formalize it, and it is
+the namespace Q2's execution used — `refs/retention/pins/<full-sha>`.** This is
+the ruling that MOVED THE MOST TEXT, and the movement is recorded rather than
+folded in silently. Requirement 1 previously admitted "a retained ref the
+artifact or its owning contract itself declares"; it now names the namespace and
+states that a retention ref outside it does NOT satisfy the requirement, because
+a ref whose name cannot be derived from the pin is not predictably reachable.
+Requirement 2's retention paragraph now obliges publishing
+`refs/retention/pins/<full-sha>` on the repository's own remote, with the ref
+name COMPUTED from the pin rather than chosen. Requirement 4 now states the ref
+set a verification consults — `main` plus that namespace, and no more. Three
+scenarios moved with them: requirement 1's retained-ref scenario is renamed and
+now names the namespace and refuses any other name, and requirement 2's
+still-recoverable scenario names the ref the repair publishes. Requirement and
+scenario counts are unchanged at four and sixteen; no requirement was added,
+split, or MODIFIED. The one thing the ruling did NOT settle is retention
+LIFETIME, and the delta deliberately states none: a retained commit is retained
+because a committed record names it, so the ref outlives the record, and a rule
+naming a duration would need a rule for what happens at its end. AS ASKED: If
+retention is the repair route, somebody must decide what the ref is called and
+how long it lives, and an undeclared `refs/heads/...` left lying around is its
+own kind of debt. The requirement deliberately admits any declared retained ref
+rather than inventing a grammar. RECOMMENDATION: decide it with Q2, because the
+first two retention refs this repository publishes will set the convention
+whether or not anyone declares one.
 
 ## Impact
 
@@ -342,10 +475,14 @@ declares one. Not taken.
   scenarios; `doc-health` — one ADDED requirement, four scenarios. No
   requirement MODIFIED in any of the three.
 - Affected code at realization: `scripts/doc_health/ideation_readiness.py`, a
-  declared pin-class home to be settled by Q1, and regressions under
-  `tests/doc-health/`.
-- Affected repository state at realization: retention refs for `da9bf3b7` and
-  `f13a3b60`, or a superseding-record route if the window has closed by then.
+  declared pin-class registry module beside `scripts/doc_health/families.py`
+  (Q1, RULED 2026-08-27), and regressions under `tests/doc-health/`.
+- Affected repository state: **DONE 2026-08-27, ahead of this packet** —
+  `refs/retention/pins/da9bf3b7d0ee1d86d2d437d42a715c238dddce4b` and
+  `refs/retention/pins/f13a3b6007736292e1e157febef1ac733e534de9` are published
+  on `origin` and verified by `ls-remote`, each at the commit its name states.
+  The superseding-record route this line originally offered as the alternative
+  is not needed: the window closed with both objects retained rather than lost.
 - Risk: LOW on semantics, MODERATE on process. Nothing about what counts as
   reachable is invented — requirement 1 restates git's own ancestry relation.
   The process risk is requirement 3, which puts an obligation on a landing, and

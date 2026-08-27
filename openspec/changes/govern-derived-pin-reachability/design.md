@@ -8,11 +8,29 @@ the ordinary shape of a rule-stating packet.
 
 ## 1. The repair route for a `record` is RETENTION, not re-pinning
 
-**Chosen.** When an artifact carrying `status: record` holds a derivation pin no
-ref reaches, the pinned COMMIT is made reachable again and the record's bytes are
-left exactly as captured. Retention must be a published ref, not a local one.
-Where the object is unrecoverable everywhere, the resolution is a superseding
-record naming the loss plus a disposition for the standing finding.
+**Chosen. CLEARED AS AUTHORED 2026-08-27 (OD-4), and the namespace this entry
+left open is now ruled (Q3) and executed (Q2).** When an artifact carrying
+`status: record` holds a derivation pin no ref reaches, the pinned COMMIT is made
+reachable again and the record's bytes are left exactly as captured. Retention
+publishes `refs/retention/pins/<full-sha>` on the repository's own remote — one
+ref per retained commit, its name COMPUTED from the pin's full forty-character
+object name rather than chosen — and a local ref does not satisfy it. Where the
+object is unrecoverable everywhere, the resolution is a superseding record naming
+the loss plus a disposition for the standing finding.
+
+The namespace was NOT invented at the archive to match what happened: Q3 ruled
+the namespace and Q2's execution used it, and this repository's two instances are
+the worked example — `refs/retention/pins/da9bf3b7…` and
+`refs/retention/pins/f13a3b60…`, published on `origin` on 2026-08-27 and verified
+by `ls-remote`, each at the commit its name states, with both records still
+carrying their original pins UNEDITED. The design argument for deriving the name
+from the pin rather than declaring it per artifact is the one this section's last
+paragraph already made about measurement: a repairer who computes the ref name
+cannot get it wrong, and a reader resolving a record's pin computes the same name
+without a second lookup that could drift from it. RETENTION LIFETIME is
+deliberately still unstated — a retained commit is retained because a committed
+record names it, so the ref outlives the record, and a duration would need a rule
+for what happens at its end.
 
 This is forced rather than preferred, and the forcing is a collision between two
 promoted rules. `ideation-cross-reference` persists derivation output as
@@ -60,7 +78,7 @@ before choosing a route rather than after.
 
 ## 2. Re-pinning is defined by REPRODUCTION, not by reachability
 
-**Chosen.** A re-pin satisfies requirement 3 only if the artifact's committed
+**Chosen. CLEARED AS AUTHORED 2026-08-27 (OD-3).** A re-pin satisfies requirement 3 only if the artifact's committed
 body is reproduced at the new pin — byte-for-byte where the artifact's own
 tooling defines derivation, and by a NAMED measurement where it does not.
 Reachability of the new pin is necessary and nowhere near sufficient.
@@ -105,7 +123,7 @@ cannot be edited. The two decisions are coupled, and this is the coupling.
 ## 3. The enforcement home is the existing pin-verification surface, and adds no
 check family
 
-**Chosen.** Requirement 4 lands in `doc-health` as an ADDED requirement that
+**Chosen. CLEARED AS AUTHORED 2026-08-27 (OD-2), the decision this packet flagged as most likely to be vetoed.** Requirement 4 lands in `doc-health` as an ADDED requirement that
 extends the pin-verification obligation already promoted there
 (`An unreachable pinned revision fails the proof`) from one artifact to a
 declared class. It rides the readiness-proof surface and the per-repo validator
@@ -181,5 +199,21 @@ repository carries: an artifact recording a repo-local commit pin that no
 declared member covers is reported, naming the artifact and the key. That keeps
 the exactness of a declaration and the coverage of a sweep, and it puts the
 failure where it belongs — on the declaration, at authoring time — rather than on
-a run that quietly verified less than it claimed. Where the declaration LIVES is
-Q1 and is deliberately not settled here.
+a run that quietly verified less than it claimed.
+
+**WHERE THE DECLARATION LIVES: RULED 2026-08-27 (Q1) — a registry module beside
+`scripts/doc_health/families.py`.** As authored this paragraph ended "Where the
+declaration LIVES is Q1 and is deliberately not settled here"; it is settled now.
+The recommendation was taken, and its argument is the one this section already
+makes one level down: `add-family-enumeration-check` exists because an
+enumeration that only a human re-reads is an enumeration that drifts, and its
+answer was to make the registry the sole authority and check the prose against
+it. A pin class faces the identical problem one layer out, so it takes the
+identical shape rather than a second one. The two rejected homes are recorded
+with it — a contract artifact under `contracts/` is schema-checkable but adds a
+schema and, per `tasks.md` § 4.4, would change the no-bundle-owed answer; a table
+in the promoted spec is readable but is prose a check must parse, which is the
+defect being designed away. **The delta does NOT name the module**, deliberately:
+a promoted requirement that pins an implementation path must be MODIFIED the next
+time the module moves, and requirement 4's obligation is that the class is
+declared and the declaration checked, not that it lives at a path.

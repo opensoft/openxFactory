@@ -346,10 +346,46 @@ Active changes:
   origin act, so `approved_by`/`approved_on` are recorded from it — the
   `fix-release-reachability-race` shape, not the blank-pair shape its other
   sibling was raised under. **THE CITATION COVERS THE DECISION TO FILE AND
-  NOTHING ELSE**: the five § Orchestrator decisions stay FLAGGED FOR VETO and
-  Q1 (where the declared pin class lives), Q2 (whether the live-orphan repair
-  rides this change) and Q3 (whether a retention-ref namespace is owed) stay
-  OPEN, each with a recommendation and no decision. **THE FOLLOW-UP
+  NOTHING ELSE** — and a SECOND, later act on the same day disposed everything
+  it did not reach. **ALL FIVE § Orchestrator decisions CLEARED AS AUTHORED and
+  ALL THREE OPEN QUESTIONS RULED, 2026-08-27**, by a four-question multi-choice
+  put to Brett by the orchestrating session and relayed the same day; on every
+  question he took the packet's own recommendation. No verbatim wording reached
+  the packet, so none is quoted — approver, date, mechanism and selected option
+  are stated instead. **OD-1 through OD-5 cleared, none vetoed** (the
+  three-capability all-ADDED shape, the no-new-check-family enforcement home,
+  re-pinning defined by reproduction, record repair by retention, the change
+  name), and the clearance moved nothing because all five stand as authored.
+  **THE QUESTION RULINGS DID MOVE THE PACKET, which is why the two acts stay
+  distinct**: **Q1 RULED** — the declared pin class lives in a registry module
+  beside `scripts/doc_health/families.py`, so the declaration is itself checked
+  (recorded at `design.md` § 4 and `tasks.md` § 2.1; NO delta text changed, because
+  a promoted requirement that pins an implementation path must be MODIFIED the
+  next time the module moves). **Q2 RULED AND ALREADY EXECUTED** — publish the
+  retention refs FIRST, independently of this packet; the orchestrating session
+  did so on 2026-08-27 and this session verified it rather than taking it on
+  report: `git ls-remote origin 'refs/retention/*'` returns exactly
+  `refs/retention/pins/da9bf3b7d0ee1d86d2d437d42a715c238dddce4b` and
+  `refs/retention/pins/f13a3b6007736292e1e157febef1ac733e534de9`, each at the
+  commit its name states, so `ls-remote | grep -c` now returns `1` for both pins
+  where it returned `0` at authoring. **THE GARBAGE-COLLECTION WINDOW IS CLOSED
+  AND BOTH RECORDS ARE CONFORMING WITH THEIR ORIGINAL PINS UNEDITED** — which is
+  requirement 2's whole claim demonstrated on the two instances that forced it,
+  and it discharges `tasks.md` § 3 entire plus the § 4.5 archive gate, before the
+  merge rather than merely before the archive. **Q3 RULED** — formalize the
+  retention namespace, and it is the one Q2's execution used:
+  **`refs/retention/pins/<full-sha>`**, now NAMED IN THE DELTA rather than left
+  as convention (requirement 1 names it and refuses any other name; requirement 2
+  obliges publishing it with the ref name COMPUTED from the pin rather than
+  chosen; requirement 4 states it as half the ref set a verification consults,
+  `main` plus that namespace and no more). Three scenarios moved with it;
+  requirement and scenario counts are UNCHANGED at four and sixteen, and nothing
+  was MODIFIED. Retention LIFETIME is deliberately still unstated — a retained
+  commit is retained because a committed record names it, so the ref outlives the
+  record. `.openspec.yaml`'s origin block is deliberately unedited: a veto
+  clearance is not origin provenance, and `release-realization`'s
+  origin-retention rule makes rewriting a complete declaration a contested-class
+  act. **THE FOLLOW-UP
   `harden-ideation-readiness-check` DEFERRED BY NAME** (its § Named follow-ups,
   and § 5.2 unticked at archive; its OD-1 declined an index-side requirement
   "to avoid pre-empting the deferred governance packet" — this packet takes it).
@@ -371,13 +407,19 @@ Active changes:
   (`da9bf3b7`) and `…-final-20260824.yaml:5` (`f13a3b60`), each with
   `git branch -a --contains` EMPTY, `ls-remote` count `0`, and
   `merge-base --is-ancestor origin/main` false. Both carry `status: record`, so
-  neither pin may be edited — and both objects are STILL RECOVERABLE in a local
-  clone, a window that closes at garbage collection. Four requirements ADDED
+  neither pin may be edited — and both objects were STILL RECOVERABLE in a local
+  clone, a window that has since been closed by the Q2 retention refs above,
+  with both records left byte-identical to capture. `is-ancestor origin/main` is
+  still false for both, and that is the intended end state rather than a residue:
+  the pins resolve through the retention namespace, not through `main`. Four
+  requirements ADDED
   across three capabilities, sixteen scenarios, NONE MODIFIED:
   `ideation-cross-reference` gets the artifact rule (orphaned is a defect,
   reachable-but-stale is legal, judged against REFS not a clone's object store)
-  and the record-repair rule (repair by RETAINING the commit, never by editing
-  the record — the two rules collide and only one ordering is coherent);
+  and the record-repair rule (repair by publishing
+  `refs/retention/pins/<full-sha>`, never by editing the record — immutable
+  evidence and record-immutability collide, and only one ordering is coherent:
+  when the record cannot move, the commit does);
   `release-realization` gets the landing rule, with re-pinning DEFINED BY
   REPRODUCTION — byte-for-byte at the new pin where the artifact's tooling
   defines derivation, a named measurement otherwise, and never a hand-moved pin,
@@ -395,8 +437,9 @@ Active changes:
   pins (aggregation gitlinks, `neutral-product-pin`, release digests, image
   digests) are named OUT of scope. Two follow-ups survive unticked:
   `git_generation()` pinning `HEAD` on a dirty tree, and the cross-repository
-  pin families. (code surface: openxFactory; target release: implemented —
-  ships ACTIVE, archives on merged-plus-green)
+  pin families; a third, the retention namespace, was RULED rather than deferred
+  and no longer survives. (code surface: openxFactory; target release:
+  implemented — ships ACTIVE, archives on merged-plus-green)
 
 - [split-openxwallet-repo](openspec/changes/split-openxwallet-repo/proposal.md)
   — **RATIFIED 2026-08-26** (in-session ruling on PR #391; realization via

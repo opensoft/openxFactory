@@ -47,6 +47,13 @@ report a pin unreachable in a complete clone as a failure while reporting a
 truncated clone as a skip that names the truncation observed, by reference to the
 promoted requirement that already states that split rather than by restating it.
 
+THE REF SET CONSULTED IS `main` PLUS THE RETENTION NAMESPACE
+`refs/retention/pins/<full-sha>`, and no more. A pin that neither reaches is
+unreachable; a pin either reaches is conforming. The namespace is derivable from
+the pin itself, so the verification computes the ref name rather than enumerating
+a namespace, which is what keeps the check cheap and keeps a stray ref elsewhere
+in the repository from silently greening a pin nobody can find.
+
 #### Scenario: A pin-carrying artifact outside the index is orphaned
 - **WHEN** a declared class member other than the cross-reference index carries a pin reachable from no ref, in a complete clone
 - **THEN** the run MUST report it, naming the artifact, the pin key, and the pinned commit
