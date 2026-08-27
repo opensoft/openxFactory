@@ -62,14 +62,21 @@ which cut `tests/conftest.py` out of conftest collection. The repo-root
 `pytest.ini` anchors `rootdir` instead, which is why the answer is NOT "add a
 conftest.py to every directory" (see `CONFTEST_HOOKUPS`).
 
-THE THIRD ROUTE IS NOT PYTEST AT ALL. `scripts/validate-docs.sh` falls back to
-`python3 -m unittest discover` when pytest is unavailable, and a fixture cannot
-reach that (PR #49 review finding 17, residue 2 — measured reaching a real-binary
-stand-in twice with an empty ledger). So the two layers are installable WITHOUT
-pytest — `install_binary_shim` and `runner_seams`, used by the fixtures below and
-by `tests/hermetic_unittest.py`, which is the runner that gate now invokes — and
-`import pytest` is optional in this module BECAUSE the world it must also guard is
-by definition a world without pytest.
+THE THIRD ROUTE IS NOT PYTEST AT ALL. A `python3 -m unittest discover` run
+reaches no conftest at all, and a fixture cannot reach it. PR #49 review finding
+17, residue 2, measured this reaching a real-binary stand-in twice with an empty
+ledger, in codexFactory's `scripts/validate-docs.sh`, which ran the doc-health
+and notebooklm suites when they lived in codexFactory — before the fix
+(2026-07-27) replaced that bare fallback with codexFactory's own guarded
+runner (the original `tests/hermetic_unittest.py` was later copied from), and
+before the doc-health relocation (adopt-neutral-tooling-home, ratified
+2026-08-03; archived 2026-08-05) copied it here and moved the tests, after
+which codexFactory's script stopped running them at all. So the two layers are
+installable WITHOUT pytest — `install_binary_shim` and `runner_seams`, used by
+the fixtures below and by `tests/hermetic_unittest.py`, retained as the
+guarded runner for any pytest-less host. No gate in this repository currently
+takes that route. `import pytest` is optional in this module BECAUSE the world
+it must also guard is by definition a world without pytest.
 
 `tests/ideation-dashboard/test_hermeticity.py` proves the guard: it asserts an
 unguarded real-binary invocation is refused, pins the hookup set, and drives
@@ -87,9 +94,10 @@ from pathlib import Path
 try:
     import pytest
 except ModuleNotFoundError:            # pragma: no cover - the no-pytest fallback
-    # The `unittest discover` world (`scripts/validate-docs.sh`). Everything above
-    # the fixtures works there; the fixtures themselves are pytest's own API and
-    # are simply not defined, which no caller in that world asks for.
+    # The `unittest discover` world (the no-pytest route `tests/hermetic_unittest.py`
+    # guards). Everything above the fixtures works there; the fixtures themselves
+    # are pytest's own API and are simply not defined, which no caller in that
+    # world asks for.
     pytest = None
 
 TESTS_ROOT = Path(__file__).resolve().parent
@@ -162,8 +170,10 @@ REFUSAL_EXIT_CODE = 97
 # name and pytest keeps exactly one of them in `sys.modules`, so ADDING a
 # conftest.py to a directory hijacks that name for its siblings: a
 # `tests/notebooklm/conftest.py` sorted after `tests/doc-health/` broke all 18
-# doc-health modules' `from conftest import FakeGit` in `scripts/validate-docs.sh`
-# (measured). Directories without a conftest are therefore guarded through
+# doc-health modules' `from conftest import FakeGit` in codexFactory's
+# `scripts/validate-docs.sh` (measured), which ran these tests when they lived
+# in codexFactory before the doc-health relocation (adopt-neutral-tooling-home,
+# 2026-08-03). Directories without a conftest are therefore guarded through
 # `tests/conftest.py`, which covers every invocation whose CONFTEST CHAIN reaches
 # `tests/`.
 #
