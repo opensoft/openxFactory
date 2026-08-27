@@ -255,6 +255,19 @@ non-bullet paragraph inside one. Deriving it as a body unit keeps it under both
 carriage arms; dropping it would let a block move an obligation into scenario
 prose and have neither arm see it. A veto makes that text uncheckable.
 
+**O10 — What "the declared sibling's OUTCOME" is computed as.** `dh:74-76`
+requires a declaring block to be "measured against the declared sibling's
+outcome rather than against canon", and the packet measured its own +11
+prediction on that basis (§ 6.6) without ever writing how the outcome is
+derived. F1 computes it as: canon's units for that requirement, REPLACED by the
+sibling's block where the sibling MODIFIES the same requirement, plus the
+sibling's units where the sibling ADDS or RENAMES it — that is, the text canon
+would hold if the sibling archived and nothing else did, which is exactly what
+"whichever archives last is the text canon keeps" means. It is a simulation of
+one archive act and nothing more: no other active change is applied, and the
+sibling's own markers are honoured as the sibling wrote them. A veto changes the
++11 prediction, so it is named rather than left inside the implementation.
+
 ## Complexity Tracking
 
 *No Constitution Check violation requires justification.* One complexity is
