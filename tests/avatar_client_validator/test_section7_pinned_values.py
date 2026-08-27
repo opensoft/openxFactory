@@ -2,12 +2,15 @@
 2026-08-27 on ``qualify-avatar-live-voice``, as enforced by
 ``scripts/validate-avatar-client.py``:
 
-* ``_check_section_7_values`` — §7.6's canary exit criteria and the §7.2 trip
-  points ROLLBACK-B and ROLLBACK-C consume (called from
+* ``_check_section_7_values`` — §7.6's canary exit criteria, the §7.2 trip
+  points ROLLBACK-B and ROLLBACK-C consume, §7.7's named operator surface,
+  §7.8's session-outcome tokens and §7.10's tenant definition (all called from
   ``check_canary_rollback_policy``).
 * ``check_latency_sample_minimum`` — §7.5, feeding §5.2.
 * ``check_broker_credential_binding`` — §7.1 and §7.3, task 6.1.1's custody
   pair.
+* ``check_activation_checklist`` — §7.9's region, data-control and retention
+  values, pinned on the checklist's condition 2.
 
 EVERY NEGATIVE IS A MUTATION OF THE REAL ARTIFACT, not of a synthetic stand-in.
 The real files are copied into a tmp tree, one field is moved, and the check is
@@ -47,15 +50,22 @@ def _load_validator() -> ModuleType:
 
 VALIDATOR = _load_validator()
 
-# The four artifacts the §7 checks read. `acceptance-map.yaml` is copied too:
-# the sample-minimum check compares its declared cell set against the SLO's
-# gated axes, and the custody checks resolve `acceptance_map_refs` against it.
+# The artifacts the §7 checks read. `acceptance-map.yaml` is copied too: the
+# sample-minimum check compares its declared cell set against the SLO's gated
+# axes, and the custody and checklist checks resolve `acceptance_map_refs`
+# against it. `registries/session-outcomes.registry.yaml` is copied because
+# §7.8's rule is that no NEW outcome token is introduced, and the check
+# resolves the declared tokens against that closed registry rather than against
+# a list mirrored in the validator — so the registry has to be IN the tree, and
+# mutating it is itself a case worth having.
 COPIED = (
     "acceptance-map.yaml",
     "canary-cohort-and-rollback-policy.yaml",
+    "internal-live-activation-checklist.yaml",
     "latency-sample-minimum.yaml",
     "broker-server-key-binding.template.yaml",
     "broker-server-key-rotation-policy.yaml",
+    "registries/session-outcomes.registry.yaml",
 )
 
 
@@ -102,7 +112,9 @@ def _tree(tmp_path: Path) -> Path:
     avc = tmp_path / "avatar-client"
     avc.mkdir()
     for name in COPIED:
-        shutil.copy2(REAL_AVC / name, avc / name)
+        target = avc / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(REAL_AVC / name, target)
     return avc
 
 
@@ -120,6 +132,8 @@ def _run(monkeypatch, avc: Path, check: str):
         VALIDATOR.check_canary_rollback_policy(findings)
     elif check == "samples":
         VALIDATOR.check_latency_sample_minimum(findings)
+    elif check == "checklist":
+        VALIDATOR.check_activation_checklist(findings)
     else:
         VALIDATOR.check_broker_credential_binding(findings)
     return findings
@@ -129,7 +143,7 @@ def _run(monkeypatch, avc: Path, check: str):
 # The positive: the artifacts as shipped.
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize("check", ["policy", "samples", "binding"])
+@pytest.mark.parametrize("check", ["policy", "samples", "binding", "checklist"])
 def test_shipped_artifacts_pass(tmp_path, monkeypatch, check):
     findings = _run(monkeypatch, _tree(tmp_path), check)
     assert findings.errors == [], _messages(findings)
@@ -145,6 +159,22 @@ def _exit(doc: dict) -> dict:
 
 def _rollback(doc: dict, cid: str) -> dict:
     return next(c for c in doc["rollback_policy"]["classes"] if c["id"] == cid)
+
+
+def _surface(doc: dict) -> dict:
+    return doc["rollback_policy"]["operator_surface"]
+
+
+def _tokens(doc: dict) -> dict:
+    return doc["rollback_policy"]["session_outcome_tokens"]
+
+
+def _path(doc: dict, name: str) -> dict:
+    return next(e for e in _tokens(doc)["bound"] if e["path"] == name)
+
+
+def _tenant(doc: dict) -> dict:
+    return doc["cohort"]["tenant_definition_ref"]
 
 
 POLICY_MUTATIONS = {
@@ -208,6 +238,104 @@ POLICY_MUTATIONS = {
     "budget_left_without_a_reader":
         lambda d: _rollback(d, "ROLLBACK-C")["trigger_signals"]["cost_concern"].pop(
             "alert_reader"),
+
+    # ---- §7.7, the operator surface -------------------------------------
+    # The state the block's own statement warned about: "a canary opened
+    # without a named holder has an unfireable kill switch".
+    "operator_surface_back_to_unnamed":
+        lambda d: _surface(d).__setitem__("status", "unnamed"),
+    "operator_surface_deleted":
+        lambda d: d["rollback_policy"].pop("operator_surface"),
+    "holder_replaced":
+        lambda d: _surface(d).__setitem__("holder", "someone else"),
+    # THE REGRESSION §7.4 WAS ALREADY HOLDING OPEN: a role in the holder
+    # field reads as named and leaves the alert with no named recipient.
+    "holder_recorded_as_a_role":
+        lambda d: _surface(d).__setitem__("holder_kind", "role"),
+    "holder_holds_only_one_switch":
+        lambda d: _surface(d).__setitem__("holds", "profile_switch_only"),
+    "mechanism_changed":
+        lambda d: _surface(d).__setitem__("mechanism", "web_console"),
+    # A REFERENCE TO A DOCUMENT NOBODY WROTE. The ruled mechanism IS the
+    # runbook, so a dangling ref is the unfireable switch with a filename in
+    # the field.
+    "runbook_ref_dangles":
+        lambda d: _surface(d).__setitem__(
+            "mechanism_ref", "docs/sops/there-is-no-such-runbook.md"),
+    "web_console_named_as_the_surface":
+        lambda d: _surface(d).__setitem__("web_console_used", True),
+    "rota_deferral_dropped":
+        lambda d: _surface(d).pop("rota_deferred_to"),
+    # Decoupling the two would un-close the gap §7.7 closed at both ends.
+    "alert_target_decoupled_from_the_holder":
+        lambda d: _surface(d).__setitem__("also_the_alert_page_target", False),
+    # A third scope is a switch the runtime does not have: finer scopes are
+    # DEFERRED with the features they would govern.
+    "third_kill_switch_invented":
+        lambda d: _surface(d)["switches"].append(
+            {"id": "SWITCH-TENANT", "scope": "per_tenant",
+             "modes": ["block_new", "revoke_active"]}),
+    "switch_loses_its_revoke_mode":
+        lambda d: _surface(d)["switches"][0].__setitem__("modes", ["block_new"]),
+
+    # ---- §7.8, the session-outcome tokens --------------------------------
+    "outcome_tokens_back_to_partially_bound":
+        lambda d: _tokens(d).__setitem__("status", "partially_bound"),
+    "outcome_token_block_deleted":
+        lambda d: d["rollback_policy"].pop("session_outcome_tokens"),
+    # A drained leg is `abandoned`; binding it to `revoked` would hide real
+    # revocations among performance rollbacks.
+    "drained_leg_bound_to_revoked":
+        lambda d: _path(d, "drained_leg_after_block_new").__setitem__(
+            "outcome", "revoked"),
+    "force_terminated_leg_bound_to_abandoned":
+        lambda d: _path(d, "force_terminated_leg").__setitem__(
+            "outcome", "abandoned"),
+    # The ruling's whole content is that no NEW token is introduced.
+    "new_outcome_token_invented":
+        lambda d: _path(d, "drained_leg_after_block_new").__setitem__(
+            "outcome", "drained"),
+    "new_token_permitted_as_an_alternative":
+        lambda d: _path(d, "drained_leg_after_block_new").__setitem__(
+            "also_permitted", ["settled"]),
+    "new_token_claim_flipped":
+        lambda d: _tokens(d).__setitem__("new_outcome_token_introduced", True),
+    "a_bound_path_disappears":
+        lambda d: _tokens(d).__setitem__(
+            "bound", [e for e in _tokens(d)["bound"]
+                      if e["path"] != "consent_or_lease_revocation"]),
+    # The open state returning under a closed label.
+    "unbound_path_returns":
+        lambda d: _tokens(d).__setitem__(
+            "unbound", [{"path": "force_terminated_leg",
+                         "candidates": ["revoked", "abandoned"]}]),
+    # The same fact carried twice, moved on one side only.
+    "class_outcome_drifts_from_the_block":
+        lambda d: _rollback(d, "ROLLBACK-B").__setitem__(
+            "session_outcome", "completed"),
+    "class_outcome_path_drifts":
+        lambda d: _rollback(d, "ROLLBACK-A").__setitem__(
+            "session_outcome_path", "drained_leg_after_block_new"),
+    "operator_class_names_a_single_token":
+        lambda d: _rollback(d, "ROLLBACK-C").__setitem__(
+            "session_outcome", "revoked"),
+
+    # ---- §7.10, the tenant definition ------------------------------------
+    "tenant_back_to_unset":
+        lambda d: _tenant(d).__setitem__("status", "unset"),
+    "tenant_definition_deleted":
+        lambda d: d["cohort"].pop("tenant_definition_ref"),
+    # Ruled as anything but a cohort member, §7.2's $150 needs re-sizing
+    # against a new denominator.
+    "tenant_ruled_wider_than_a_cohort_member":
+        lambda d: _tenant(d).__setitem__("tenant_is", "domain_factory"),
+    # The count that outlives the membership it summarises.
+    "tenant_count_left_behind":
+        lambda d: _tenant(d).__setitem__("tenant_count", 5),
+    "tenant_ids_diverge_from_the_cohort":
+        lambda d: _tenant(d).__setitem__("tenant_ids", ["COHORT-01"]),
+    "sizing_invalidated_quietly":
+        lambda d: _tenant(d).__setitem__("sizing_still_valid", False),
 }
 
 
@@ -235,6 +363,31 @@ def test_error_rate_drift_between_exit_criterion_and_auto_blocker(tmp_path, monk
     assert set(_codes(findings)) == {"canary-policy"}
 
 
+def test_outcome_token_absent_from_the_registry_is_caught(tmp_path, monkeypatch):
+    """§7.8's rule resolves the declared tokens against the CLOSED REGISTRY, not
+    against a list mirrored in the validator. Shrink the registry and the policy
+    is suddenly naming a token that no longer exists — which a mirrored copy in
+    the validator would have gone on agreeing with forever."""
+    avc = _tree(tmp_path)
+    _rewrite(avc, "registries/session-outcomes.registry.yaml",
+             lambda d: d.__setitem__(
+                 "members", [m for m in d["members"] if m["id"] != "abandoned"]))
+    findings = _run(monkeypatch, avc, "policy")
+    joined = _messages(findings)
+    assert "closed `session-outcomes` registry" in joined, joined
+    assert set(_codes(findings)) == {"canary-policy"}
+
+
+def test_absent_outcome_registry_fails_closed(tmp_path, monkeypatch):
+    """An unreadable vocabulary is reported, never silently skipped: a check
+    that quietly passes when it cannot resolve its registry is not a check."""
+    avc = _tree(tmp_path)
+    (avc / "registries" / "session-outcomes.registry.yaml").unlink()
+    findings = _run(monkeypatch, avc, "policy")
+    assert "fail closed" in _messages(findings), _messages(findings)
+    assert set(_codes(findings)) == {"canary-policy"}
+
+
 def test_error_rate_moved_consistently_still_fails_the_ruling(tmp_path, monkeypatch):
     """Moving BOTH sides keeps them agreeing with each other and still fails,
     because each is compared to the ruled value as well as to the other. A
@@ -251,6 +404,91 @@ def test_error_rate_moved_consistently_still_fails_the_ruling(tmp_path, monkeypa
     joined = _messages(findings)
     assert "disagrees with" not in joined, joined
     assert findings.errors, "a consistently-relaxed ring passed"
+
+
+# ---------------------------------------------------------------------------
+# §7.9 — region, data-control classes and retention, pinned on the activation
+# checklist's condition 2 (the condition that APPROVES those terms).
+# ---------------------------------------------------------------------------
+
+def _ruled_values(doc: dict) -> dict:
+    return next(c for c in doc["conditions"] if c["number"] == 2)["ruled_values"]
+
+
+CHECKLIST_MUTATIONS = {
+    "ruled_values_deleted":
+        lambda d: next(c for c in d["conditions"] if c["number"] == 2).pop(
+            "ruled_values"),
+    "status_back_to_unruled":
+        lambda d: _ruled_values(d).__setitem__("status", "unset"),
+    "region_moved":
+        lambda d: _ruled_values(d)["region"].__setitem__(
+            "declared_region", "eu_west_pinned"),
+    # The ruling is the provider default DECLARED HONESTLY; dropping the
+    # honesty flag is how a default quietly becomes a residency claim.
+    "region_honesty_dropped":
+        lambda d: _ruled_values(d)["region"].__setitem__("declare_honestly", False),
+    # THE MUTATION THIS BLOCK EXISTS FOR: a retention class the kernel says
+    # only a successor change may unreserve, admitted by a checklist edit.
+    "audio_class_admitted":
+        lambda d: _ruled_values(d)["data_control"]["classes_permitted"].append("audio"),
+    "full_transcript_class_admitted":
+        lambda d: _ruled_values(d)["data_control"]["classes_permitted"].append(
+            "full_transcript"),
+    "structured_record_class_dropped":
+        lambda d: _ruled_values(d)["data_control"].__setitem__(
+            "classes_permitted", ["ephemeral_presentation"]),
+    "never_instantiated_list_narrowed":
+        lambda d: _ruled_values(d)["data_control"].__setitem__(
+            "classes_never_instantiated", ["audio"]),
+    "reserved_classes_claimed_touched":
+        lambda d: _ruled_values(d)["data_control"].__setitem__(
+            "reserved_classes_untouched", False),
+    # No schema field forbids a second-model shadow today; claiming the
+    # guarantee is enforced would be the false claim task 6.2.4 refuses.
+    "operational_guarantee_claimed_enforced":
+        lambda d: _ruled_values(d)["data_control"].__setitem__(
+            "enforcement", "schema_enforced"),
+    "retention_window_moved":
+        lambda d: _ruled_values(d)["retention"].__setitem__("window_days", 3650),
+    "retention_scope_widened":
+        lambda d: _ruled_values(d)["retention"].__setitem__(
+            "applies_to", "all_canary_records"),
+    # A duration with no reference is the inline retention the kernel's
+    # reference-only split refuses.
+    "retention_policy_reference_dropped":
+        lambda d: _ruled_values(d)["retention"].pop("policy_ref"),
+    "retention_ownership_moved_off_the_domain":
+        lambda d: _ruled_values(d)["retention"].__setitem__("policy_owner", "kernel"),
+}
+
+
+@pytest.mark.parametrize("name", sorted(CHECKLIST_MUTATIONS))
+def test_checklist_section_7_9_mutations_are_caught(tmp_path, monkeypatch, name):
+    avc = _tree(tmp_path)
+    _rewrite(avc, "internal-live-activation-checklist.yaml", CHECKLIST_MUTATIONS[name])
+    findings = _run(monkeypatch, avc, "checklist")
+    assert findings.errors, f"mutation {name!r} produced no finding"
+    assert set(_codes(findings)) == {"activation-checklist"}, _messages(findings)
+
+
+def test_section_7_9_values_moved_to_another_condition_are_not_found(
+        tmp_path, monkeypatch):
+    """The values are pinned on CONDITION 2 specifically — the hard-preflight
+    condition that approves the regional, retention and data-control terms and
+    already owns §7.9. Relocating the block onto a canary-time condition would
+    move a blocker into the canary, so the check looks where the ruling put it
+    and reports absence rather than hunting for the block anywhere it fits."""
+    def mutate(d):
+        two = next(c for c in d["conditions"] if c["number"] == 2)
+        six = next(c for c in d["conditions"] if c["number"] == 6)
+        six["ruled_values"] = two.pop("ruled_values")
+
+    avc = _tree(tmp_path)
+    _rewrite(avc, "internal-live-activation-checklist.yaml", mutate)
+    findings = _run(monkeypatch, avc, "checklist")
+    assert "no `ruled_values` block" in _messages(findings), _messages(findings)
+    assert set(_codes(findings)) == {"activation-checklist"}
 
 
 # ---------------------------------------------------------------------------

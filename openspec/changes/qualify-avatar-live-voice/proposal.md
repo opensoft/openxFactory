@@ -238,3 +238,19 @@ operator surface that fires the kill switches; the session-outcome token each
 rollback path emits; and the declared region and data-control values recorded
 in AVC-09. None of these reopens a ruled fork; leaving any of them unset would
 open the ring on an unstated assumption.
+
+**ALL OF THEM ARE NOW RULED — 2026-08-27, by Brett Heap, in session.** §7.1
+through §7.6 were ruled on the research in
+`supporting-docs/section-7-authoring-inputs-memo.md`; §7.7 through §7.10 were
+ruled later the same day and could not have come from that memo, because the
+first of them needed a PERSON named. The kill switches have a named holder
+(Brett Heap) and a named mechanism — the runbook at
+`docs/sops/avatar-internal-live-kill-switch.md`, since the web console is a
+kernel non-goal — which also gives the §7.4 metering alert the named recipient
+it was recorded as lacking. Every rollback path's session outcome is declared
+in advance from the closed registry, with no new token. The region,
+data-control classes and retention window the AVC-09 descriptor will declare
+are pinned, though the descriptor itself is not authored here. And "tenant"
+is a cohort member, which is the denominator the per-tenant budget was already
+sized against. No §7 entry now waits on another, and none is left to be
+decided at realization time.

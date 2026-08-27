@@ -129,6 +129,11 @@ Core domain-neutral docs:
 - [xFactory Credential Access Model](docs/credential-access-model.md)
 - [Standard Operating Procedures](docs/sops/README.md)
 - [OpenAI Realtime F0 Lab Credential SOP](docs/sops/openai-realtime-f0-lab-credential.md)
+- [Avatar Internal-Live Kill Switches SOP](docs/sops/avatar-internal-live-kill-switch.md)
+  (the named operator surface for the two server kill switches on the
+  `gpt-realtime-2.1` internal-live ring — `qualify-avatar-live-voice` §7.7;
+  referenced by `canary-cohort-and-rollback-policy.yaml`
+  `rollback_policy.operator_surface`)
 - [Avatar-First UI Standard](docs/avatar-first-ui-standard.md)
   ([profile examples](examples/avatar-first-ui/README.md) ·
   [deterministic fixtures](examples/avatar-first-ui/fixtures/README.md))
