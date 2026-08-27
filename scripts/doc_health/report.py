@@ -248,6 +248,7 @@ def render(run_date: date, findings: list[Finding], skips, preflight_log,
                        "; ".join(om.deviations))
     out.append("")
     out.append("## Findings By Family")
+    from .families import FAMILY_SUMMARIES
     from .semantic import SEMANTIC_FAMILY_IDS
     for family in FAMILY_IDS + SEMANTIC_FAMILY_IDS + ["preflight"]:
         fam_findings = [f for f in findings if f.family == family]
@@ -259,9 +260,25 @@ def render(run_date: date, findings: list[Finding], skips, preflight_log,
         # when there are none — a family whose measurement basis varies must
         # state the basis on a clean run too, or "No findings." reads as a
         # verdict about a tree nobody named (`families.FAMILY_NOTES`).
-        for note in (family_notes or {}).get(family, ()):
+        #
+        # SINCE add-modified-block-currency-check § 5.1 there is a SECOND kind of
+        # line in this position: a per-class tally of the family's own findings,
+        # from `families.FAMILY_SUMMARIES`. The two are kept apart because they
+        # answer different questions — a note is a fact about the RUN (which tree
+        # was measured), a summary is a fact about the FINDINGS (how they split
+        # across the family's classes) — and they differ on the skip: a skipped
+        # family still HAS a basis, and has no tally, because zeros beside a skip
+        # line would claim a measurement nobody took.
+        #
+        # ADDITIVE, AND BYTE-IDENTICAL FOR EVERY FAMILY WITH NO ENTRY: `notes`
+        # is empty for those, so the emit-and-blank-line condition below is the
+        # same one this code already applied to `family_notes` alone.
+        notes = list((family_notes or {}).get(family, ()))
+        if not skipped and family in FAMILY_SUMMARIES:
+            notes += FAMILY_SUMMARIES[family](fam_findings)
+        for note in notes:
             out.append(note)
-        if (family_notes or {}).get(family):
+        if notes:
             out.append("")
         if skipped:
             out.append(f"Skipped: {skipped.reason}")
