@@ -35,6 +35,7 @@ of the guard and these fail:
 
 from __future__ import annotations
 
+import re
 import shutil
 import subprocess
 import sys
@@ -284,12 +285,12 @@ def test_every_conftest_under_tests_registers_the_guard():
     is only loaded if it sits between the rootdir and the argument, so a hookup can
     go out of scope without anything changing in the file itself. (Wave 2 anchored
     the rootdir at the repository with `pytest.ini`, which is what keeps
-    `tests/conftest.py` in scope for the seven directories that have no conftest of
-    their own — see `test_the_rootdir_anchor_is_what_puts_the_hookup_in_scope`.
+    `tests/conftest.py` in scope for the majority of directories that have no
+    conftest of their own — see `test_the_rootdir_anchor_is_what_puts_the_hookup_in_scope`.
     This pin covers the directories that DO have one.)
 
     It also pins the SET, because adding a conftest.py is not free: `conftest` is
-    an ambient module name, so a new one hijacks it for sibling directories whose
+    an ambient module name, so an UNCLAIMING one hijacks it for siblings whose
     test modules import through it (`tests/notebooklm/conftest.py` broke all 18
     doc-health modules in codexFactory's `scripts/validate-docs.sh`, which ran
     these tests when they lived in codexFactory before the doc-health relocation
@@ -299,7 +300,14 @@ def test_every_conftest_under_tests_registers_the_guard():
     `CONFTEST_EXEMPT_HOOKUPS` (adopt-neutral-tooling-home tranche B) names the
     conftests that exist but cannot carry the registration — their bytes are
     digest-indexed conformance inputs — so the exemption is itself pinned: a
-    new unregistered conftest still fails here unless it is DECLARED."""
+    new unregistered conftest still fails here unless it is DECLARED.
+
+    THAT HIJACK NOW HAS A REPAIR (issue #305): every DIRECTORY conftest listed
+    here calls `claim_conftest_slot(globals())` and owns the ambient name for
+    its OWN subtree, which is why `pytest tests/doc-health tests/ideation-dashboard` no
+    longer depends on argument order. The claim is pinned separately by
+    `test_every_flat_conftest_claims_the_slot_and_the_suite_wide_one_does_not`,
+    so a new entry in this set has to carry it."""
     tests_root = REPO_ROOT / "tests"
     found = sorted(str(p.relative_to(tests_root))
                    for p in tests_root.rglob("conftest.py"))
@@ -309,6 +317,271 @@ def test_every_conftest_under_tests_registers_the_guard():
         text = (tests_root / relative).read_text(encoding="utf-8")
         assert "from hermeticity import" in text, relative
         assert "hermetic_binary_path" in text and "hermetic_external_runners" in text, relative
+
+
+# --------------------------------------------------------------------------
+# the ambient `conftest` slot — each directory conftest owns it for its OWN
+# subtree, so a multi-directory invocation is order-independent (issue #305)
+# --------------------------------------------------------------------------
+
+_SLOT_CONFTEST = '''\
+import sys
+from pathlib import Path
+
+sys.path.insert(0, {tests_root!r})
+{claim_import}
+{upper}_ONLY = "{name}"
+{claim_call}'''
+
+_SLOT_TEST = '''\
+from conftest import {upper}_ONLY
+
+
+def test_module_level_import_sees_its_own_conftest():
+    assert {upper}_ONLY == "{name}"
+
+
+def test_a_runtime_import_sees_its_own_conftest():
+    from conftest import {upper}_ONLY as at_run_time
+    assert at_run_time == "{name}"
+'''
+
+
+def _build_slot_tree(root: Path, *, claim: bool) -> Path:
+    """Two ROOTLESS sibling directories, each with a conftest.py exporting a
+    name only IT defines, and a test module importing that name both at module
+    level (collection time) and inside a test body (run time).
+
+    This is `tests/doc-health/` and `tests/ideation-dashboard/` in miniature:
+    the same flat `conftest` module name, no `__init__.py`, an inifile at the
+    root so the child's rootdir is the scratch tree and never this repository.
+    `claim` is the ONLY difference between the pin and its negative control."""
+    tests_root = str(REPO_ROOT / "tests")
+    (root / "pytest.ini").write_text("[pytest]\n", encoding="utf-8")
+    for name in ("a", "b"):
+        directory = root / name
+        directory.mkdir()
+        (directory / "conftest.py").write_text(_SLOT_CONFTEST.format(
+            tests_root=tests_root,
+            upper=name.upper(),
+            name=name,
+            claim_import=("from hermeticity import claim_conftest_slot\n\n"
+                          if claim else "\n"),
+            claim_call="claim_conftest_slot(globals())\n" if claim else "",
+        ), encoding="utf-8")
+        # Unique basenames: two rootless `test_slot.py` files would collide in
+        # `sys.modules` the same way the conftests do, which is a DIFFERENT
+        # defect and would mask this one.
+        (directory / f"test_{name}.py").write_text(_SLOT_TEST.format(
+            upper=name.upper(), name=name), encoding="utf-8")
+    return root
+
+
+def _slot_run(root: Path, *args) -> subprocess.CompletedProcess:
+    return subprocess.run(
+        [sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider", *args],
+        cwd=str(root), capture_output=True, text=True, timeout=120)
+
+
+def _repo_collect(*args) -> subprocess.CompletedProcess:
+    """`--co` over the REAL tree, from the repository root."""
+    return subprocess.run(
+        [sys.executable, "-m", "pytest", "--co", "-q", "-p", "no:cacheprovider",
+         *args],
+        cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=300)
+
+
+def test_a_directory_conftest_owns_the_ambient_slot_for_its_own_subtree(tmp_path):
+    """Issue #305. `conftest` is an ambient top-level module name with exactly
+    ONE `sys.modules` entry, and pytest's `_importconftest` deletes that entry
+    before importing each rootless conftest.py
+    (`_pytest/config/__init__.py:753`), so the last one loaded owns it. With
+    several path ARGUMENTS, `_set_initial_conftests` loads every argument's
+    conftest BEFORE collection starts, so the LAST argument's conftest is what
+    the FIRST argument's test modules import from.
+
+    `claim_conftest_slot` re-installs each conftest as the slot's occupant from
+    two hooks dispatched through the node's `ihook` — a path-scoped
+    `FSHookProxy` that subtracts the conftests not in scope for that path
+    (`_pytest/main.py:731`) — so `tests/doc-health/conftest.py`'s copy never
+    fires for an ideation-dashboard node. `pytest_collectstart` fires
+    immediately before the module is imported (`_pytest/runner.py:588`) and
+    `pytest_runtest_setup` before each test body runs
+    (`_pytest/runner.py:241`), which is the leg a run-time `from conftest
+    import ...` needs.
+
+    Both argument orders, and the single-argument shape, are green."""
+    root = _build_slot_tree(tmp_path, claim=True)
+
+    for args in (("a", "b"), ("b", "a")):
+        proc = _slot_run(root, *args)
+        assert proc.returncode == 0, f"{args}: {proc.stdout}{proc.stderr}"
+        assert "4 passed" in proc.stdout, f"{args}: {proc.stdout}"
+
+    proc = _slot_run(root, ".")
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    assert "4 passed" in proc.stdout, proc.stdout
+
+
+def test_without_the_claim_the_same_tree_reproduces_the_slot_collision(tmp_path):
+    """The negative control, so the pin above proves the MECHANISM and not just
+    an outcome: the identical tree with the claim removed fails exactly the way
+    `pytest tests/doc-health tests/avatar_runtime` failed — an ImportError that
+    names the OTHER directory's conftest.py as the module it read.
+
+    The single-argument run is the second, quieter half of the defect: directory
+    conftests load lazily during traversal so every module-level import
+    succeeds, and only the RUN-TIME import inside a test body reads whichever
+    conftest was loaded last. That is why the repair needs both hooks."""
+    root = _build_slot_tree(tmp_path, claim=False)
+
+    for args, hijacker, wanted in ((("a", "b"), "b", "A_ONLY"),
+                                   (("b", "a"), "a", "B_ONLY")):
+        proc = _slot_run(root, *args)
+        assert proc.returncode != 0, f"{args}: {proc.stdout}"
+        assert f"cannot import name '{wanted}' from 'conftest'" in proc.stdout, proc.stdout
+        assert f"{hijacker}/conftest.py" in proc.stdout, proc.stdout
+
+    proc = _slot_run(root, ".")
+    assert proc.returncode != 0, proc.stdout
+    assert "3 passed" in proc.stdout and "1 failed" in proc.stdout, proc.stdout
+    assert "cannot import name 'A_ONLY' from 'conftest'" in proc.stdout, proc.stdout
+
+
+def test_every_flat_conftest_claims_the_slot_and_the_suite_wide_one_does_not():
+    """The shipped hookups, pinned. Every directory conftest in
+    `CONFTEST_HOOKUPS` is rootless and therefore contends for the slot, so every
+    one of them claims it — including `tests/avatar_runtime/`, whose tests import
+    nothing from conftest today: it claims so it cannot POISON a sibling's
+    collection when it is the last argument, and so the invariant holds for the
+    first test there that does import through it.
+
+    `tests/conftest.py` MUST NOT claim, and that is the load-bearing exception.
+    pluggy calls hook implementations in LIFO registration order and the
+    suite-wide conftest registers FIRST, so its claim would run LAST and clobber
+    every directory's — measured on a scratch tree: adding the call to the root
+    conftest turns the green run above straight back into two collection errors.
+
+    The `hermes_runtime_contracts` conftests (`CONFTEST_EXEMPT_HOOKUPS`) need
+    nothing: their directories carry `__init__.py`, so pytest imports them as
+    `hermes_runtime_contracts.conftest` and they never touch the flat slot."""
+    tests_root = REPO_ROOT / "tests"
+    for relative in hermeticity.CONFTEST_HOOKUPS:
+        text = (tests_root / relative).read_text(encoding="utf-8")
+        if relative == "conftest.py":
+            assert "claim_conftest_slot" not in text, (
+                "the suite-wide conftest must not claim the slot; its hook would "
+                "run last and clobber every directory's")
+            continue
+        assert "claim_conftest_slot(globals())" in text, relative
+        # The define-it-AFTER-the-call direction, which the helper cannot catch:
+        # a plain `def pytest_collectstart` later in the file replaces the claim
+        # and pytest reports nothing.
+        for hook in hermeticity.HOOKS_INSTALLED_BY_THE_CLAIM:
+            assert f"def {hook}" not in text, (
+                f"{relative} defines {hook} itself, which silently replaces the "
+                "slot claim; call the function claim_conftest_slot returns from "
+                "inside that implementation instead")
+    for relative in hermeticity.CONFTEST_EXEMPT_HOOKUPS:
+        assert (tests_root / relative).parent.joinpath("__init__.py").is_file(), (
+            f"{relative} is exempt from the claim only because its directory is a "
+            "real package, so its conftest never occupies the flat `conftest` slot")
+
+
+def test_the_claim_refuses_a_conftest_whose_directory_is_a_package(tmp_path):
+    """A conftest inside a package is imported as `<package>.conftest` and never
+    contends for the flat slot, so claiming from one would install the WRONG
+    module under `conftest` for everybody. The precondition is checked, not
+    assumed, because the failure it prevents is silent.
+
+    It keys on the directory's `__init__.py`, NOT on the module's `__name__` —
+    see `test_the_claim_does_not_abort_a_run_under_a_non_prepend_import_mode`
+    for the shape that distinction saves."""
+    (tmp_path / "__init__.py").write_text("", encoding="utf-8")
+    with pytest.raises(RuntimeError, match="ROOTLESS"):
+        hermeticity.claim_conftest_slot(
+            {"__name__": "pkg.conftest", "__file__": str(tmp_path / "conftest.py")})
+
+
+def test_the_claim_refuses_a_conftest_that_already_defines_either_hook(tmp_path):
+    """The claim installs its two hooks by plain assignment into the conftest's
+    `globals()`, so a conftest with a `pytest_collectstart` of its own would have
+    it silently overwritten — and one that defines it AFTER the call silently
+    overwrites the claim instead. Neither is reported by pytest: the run just goes
+    back to being order-dependent.
+
+    So the collision is refused at claim time, and the hooks are RETURNED for the
+    conftest that legitimately needs its own to call from inside it. (The
+    define-it-afterwards direction cannot be caught here, and is pinned by source
+    in `test_every_flat_conftest_claims_the_slot_and_the_suite_wide_one_does_not`.)"""
+    namespace = {"__name__": __name__,
+                 "__file__": str(tmp_path / "conftest.py"),
+                 "pytest_collectstart": lambda collector: None}
+    with pytest.raises(RuntimeError, match="already defines pytest_collectstart"):
+        hermeticity.claim_conftest_slot(namespace)
+
+    clean = {"__name__": __name__, "__file__": str(tmp_path / "conftest.py")}
+    hooks = hermeticity.claim_conftest_slot(clean)
+    assert sorted(hooks) == sorted(hermeticity.HOOKS_INSTALLED_BY_THE_CLAIM)
+    assert all(clean[name] is hooks[name] for name in hooks)
+
+
+def test_the_claim_does_not_abort_a_run_under_a_non_prepend_import_mode(tmp_path):
+    """`--import-mode=importlib` and `consider_namespace_packages=true` are both
+    reachable through `PYTEST_ADDOPTS`, and under either one pytest gives a
+    ROOTLESS conftest a DOTTED name — measured: `a.conftest`, not `conftest`. A
+    precondition keyed on that name would raise inside conftest collection, which
+    aborts the entire run (rc=4) with the FR-043 guard never registered, and would
+    misreport the cause: those modes merely change the naming, they do not make
+    the directory a package.
+
+    Keyed on the missing `__init__.py` instead, the claim installs and the run
+    proceeds. (It also still WORKS under importlib here, but that is not what is
+    pinned — only that the guard does not turn a working configuration into an
+    aborted one.)"""
+    root = _build_slot_tree(tmp_path, claim=True)
+
+    for extra in (["--import-mode=importlib"],
+                  ["-o", "consider_namespace_packages=true"]):
+        proc = _slot_run(root, "a", "b", *extra)
+        output = proc.stdout + proc.stderr
+        assert "claim_conftest_slot is for a ROOTLESS" not in output, output
+        assert "error" not in output.lower() or proc.returncode == 0, output
+        assert proc.returncode == 0, f"{extra}: {output}"
+
+
+def test_the_real_two_directory_invocation_collects_the_same_in_either_order():
+    """The scratch-tree pins prove the MECHANISM; this one proves the SHIPPED
+    conftests still use it. Everything else about the claim on the real tree is
+    checked by reading source, and a text grep passes over a conftest whose claim
+    has been clobbered by a later hook definition, an import-mode change, or an
+    edit that reorders the file.
+
+    So: run the collision shape for real, both ways round, and require the two
+    orders to AGREE. Counts are compared to each other rather than to a literal,
+    because the absolute number moves with every test added; at f9457d6f the two
+    orders read 184-with-27-errors and 993-clean.
+
+    Two PAIRS, because a directory's claim is only observable when that directory
+    is not the one already holding the slot: `doc-health avatar_runtime` reds when
+    `tests/doc-health/conftest.py` stops claiming, and `ideation-dashboard
+    doc-health` reds when `tests/ideation-dashboard/conftest.py` does (both
+    measured). `tests/avatar_runtime/`'s own claim is NOT observable here — no
+    test in that directory imports through `conftest`, so dropping it changes no
+    collection — and stays covered by the source pin above. Measured ~11.6 s for
+    the four child collections."""
+    for left, right in (("tests/doc-health", "tests/avatar_runtime"),
+                        ("tests/ideation-dashboard", "tests/doc-health")):
+        counts = []
+        for args in ((left, right), (right, left)):
+            proc = _repo_collect(*args)
+            assert proc.returncode == 0, f"{args}: {proc.stdout[-4000:]}{proc.stderr}"
+            assert " error" not in proc.stdout, f"{args}: {proc.stdout[-4000:]}"
+            match = re.search(r"(\d+) tests collected", proc.stdout)
+            assert match, proc.stdout[-2000:]
+            counts.append(int(match.group(1)))
+
+        assert counts[0] == counts[1] > 0, (left, right, counts)
 
 
 # --------------------------------------------------------------------------

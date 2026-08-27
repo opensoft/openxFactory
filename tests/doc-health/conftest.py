@@ -25,6 +25,7 @@ sys.path.insert(0, str(TESTS_ROOT))
 from doc_health import corpus  # noqa: E402
 from doc_health.runner import Context  # noqa: E402
 from hermeticity import (  # noqa: E402,F401  (autouse fixture registration)
+    claim_conftest_slot,
     hermetic_binary_path,
     hermetic_external_runners,
 )
@@ -142,3 +143,11 @@ def make_ctx(family: str, git=None, agg_root=None, notebook=lambda: None,
         change_ids=change_ids, git=git or FakeGit(),
         thresholds=thresholds or dict(DEFAULT_THRESHOLDS),
         as_of=AS_OF, agg_root=agg_root, notebook_dryrun=notebook)
+
+
+# `claim_conftest_slot` re-installs THIS module as the ambient `conftest` for
+# nodes under this directory only, so a multi-directory invocation
+# (`pytest tests/doc-health tests/ideation-dashboard`) no longer depends on
+# argument order — see its docstring in `tests/hermeticity.py` for the
+# mechanism, and never add the call to `tests/conftest.py` (issue #305).
+claim_conftest_slot(globals())
