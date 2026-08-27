@@ -11,11 +11,13 @@ Proves, on a fake nlm runner (the real CLI is never invoked):
   * an unavailable nlm and out-of-scope manifests skip gracefully.
 
 unittest-style like the sibling sync tests, so it also collects cleanly under
-`tests/hermetic_unittest.py`'s guarded `unittest discover` fallback on this
-directory when pytest is absent — retained for any pytest-less host that runs
-this tree directly (historically codexFactory's `scripts/validate-docs.sh`,
-before the doc-health relocation, adopt-neutral-tooling-home, 2026-08-03; that
-script now runs only codexFactory's own test tree)."""
+`tests/hermetic_unittest.py` — the guarded `unittest discover` runner retained
+for any pytest-less host that runs this tree directly, when pytest is absent.
+codexFactory's `scripts/validate-docs.sh` ran these tests when they lived in
+codexFactory, before the doc-health relocation (adopt-neutral-tooling-home,
+ratified 2026-08-03; archived 2026-08-05) moved them here; that script still
+has a guarded `unittest discover` fallback of its own (codexFactory's copy of
+this runner), now over only its own test tree."""
 
 from __future__ import annotations
 

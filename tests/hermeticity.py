@@ -63,16 +63,19 @@ which cut `tests/conftest.py` out of conftest collection. The repo-root
 conftest.py to every directory" (see `CONFTEST_HOOKUPS`).
 
 THE THIRD ROUTE IS NOT PYTEST AT ALL. A `python3 -m unittest discover` run
-reaches no conftest at all, and a fixture cannot reach it (PR #49 review finding
-17, residue 2 — measured reaching a real-binary stand-in twice with an empty
-ledger, in codexFactory's `scripts/validate-docs.sh`, which ran this tree's tests
-before the doc-health relocation (adopt-neutral-tooling-home, 2026-08-03) and
-runs only codexFactory's own test tree now). So the two layers are installable
-WITHOUT pytest — `install_binary_shim` and `runner_seams`, used by the fixtures
-below and by `tests/hermetic_unittest.py`, retained as the guarded runner for any
-pytest-less host — no gate in this repository currently takes that route — and
-`import pytest` is optional in this module BECAUSE the world it must also guard is
-by definition a world without pytest.
+reaches no conftest at all, and a fixture cannot reach it. PR #49 review finding
+17, residue 2, measured this reaching a real-binary stand-in twice with an empty
+ledger, in codexFactory's `scripts/validate-docs.sh`, which ran these tests when
+they lived in codexFactory — before the fix (2026-07-27) replaced that bare
+fallback with codexFactory's own copy of this guarded runner, and before the
+doc-health relocation (adopt-neutral-tooling-home, ratified 2026-08-03; archived
+2026-08-05) moved the tests here, after which codexFactory's script stopped
+running them at all. So the two layers are installable WITHOUT pytest —
+`install_binary_shim` and `runner_seams`, used by the fixtures below and by
+`tests/hermetic_unittest.py`, retained as the guarded runner for any pytest-less
+host. No gate in this repository currently takes that route. `import pytest` is
+optional in this module BECAUSE the world it must also guard is by definition a
+world without pytest.
 
 `tests/ideation-dashboard/test_hermeticity.py` proves the guard: it asserts an
 unguarded real-binary invocation is refused, pins the hookup set, and drives
@@ -167,9 +170,10 @@ REFUSAL_EXIT_CODE = 97
 # conftest.py to a directory hijacks that name for its siblings: a
 # `tests/notebooklm/conftest.py` sorted after `tests/doc-health/` broke all 18
 # doc-health modules' `from conftest import FakeGit` in codexFactory's
-# `scripts/validate-docs.sh`, which ran this tree's tests before the doc-health
-# relocation (adopt-neutral-tooling-home, 2026-08-03) (measured). Directories
-# without a conftest are therefore guarded through
+# `scripts/validate-docs.sh`, which ran these tests when they lived in
+# codexFactory, before the doc-health relocation (measured;
+# adopt-neutral-tooling-home, 2026-08-03). Directories without a conftest are
+# therefore guarded through
 # `tests/conftest.py`, which covers every invocation whose CONFTEST CHAIN reaches
 # `tests/`.
 #

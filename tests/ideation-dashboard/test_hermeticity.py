@@ -292,8 +292,9 @@ def test_every_conftest_under_tests_registers_the_guard():
     an ambient module name, so a new one hijacks it for sibling directories whose
     test modules import through it (`tests/notebooklm/conftest.py` broke all 18
     doc-health modules in codexFactory's `scripts/validate-docs.sh`, which ran
-    this tree's tests before the doc-health relocation, adopt-neutral-tooling-home,
-    2026-08-03). A new entry here must be accompanied by a green gate run.
+    these tests when they lived in codexFactory, before the doc-health relocation
+    (adopt-neutral-tooling-home, ratified 2026-08-03; archived 2026-08-05)). A new
+    entry here must be accompanied by a green gate run.
 
     `CONFTEST_EXEMPT_HOOKUPS` (adopt-neutral-tooling-home tranche B) names the
     conftests that exist but cannot carry the registration — their bytes are
@@ -364,14 +365,17 @@ def test_the_rootdir_anchor_is_what_puts_the_hookup_in_scope():
 
 
 def test_the_unittest_fallback_route_installs_the_same_guard():
-    """Residue (2), closed. Before the doc-health relocation
-    (adopt-neutral-tooling-home, 2026-08-03), codexFactory's
-    `scripts/validate-docs.sh` fell back to `unittest discover` on this tree's
-    tests when pytest was unavailable, and a conftest fixture cannot apply to a
-    runner that loads no conftests: a unittest-style probe in `tests/notebooklm/`
-    reached the real-binary stand-in TWICE with no ledger entry. That script now
-    runs only codexFactory's own test tree, but this tree still needs the same
-    guarantee for any pytest-less host that runs it directly.
+    """Residue (2), closed. Before PR #49 finding 17's fix (2026-07-27),
+    codexFactory's `scripts/validate-docs.sh` fell back to bare `unittest
+    discover` on these tests when they lived in codexFactory, and pytest was
+    unavailable — a conftest fixture cannot apply to a runner that loads no
+    conftests: a unittest-style probe in `tests/notebooklm/` reached the
+    real-binary stand-in TWICE with no ledger entry. The fix replaced that bare
+    fallback with codexFactory's own copy of this guarded runner; the doc-health
+    relocation (adopt-neutral-tooling-home, 2026-08-03) then moved these tests
+    here, after which codexFactory's script stopped running them at all — but
+    this tree still needs the same guarantee for any pytest-less host that runs
+    it directly.
 
     `tests/hermetic_unittest.py` installs the same two layers from the SAME
     declarations (`install_binary_shim`, `runner_seams`), so the routes cannot
