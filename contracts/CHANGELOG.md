@@ -9,6 +9,142 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
+## contract-v1.45 — 2026-08-26 (additive; the `approve-model` gate action and the turn record's mid-turn re-mint)
+
+Realizes `add-doxchat-model-intake` §3 (tasks 3.3 and 3.6) — the ratified
+requirements *"Intake proposes a model; approval stays a recorded human act"*
+and Brett's ruling of 2026-08-26 that a mid-turn re-mint and the paid retry it
+buys are visibly recorded in the turn record. TWO CONTRACTS change:
+`schemas/gate-action-record.schema.yaml` and
+`schemas/xfactory-workbench-chat-turn.schema.yaml`. Both are content-addressed
+by their per-file `sha256` in [`manifest.yaml`](manifest.yaml); both rows'
+digests are RECOMPUTED in this cut, and both `consumption_rule`s name what
+arrived.
+
+**Change class: ADDITIVE (minor)** under
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md).
+Every addition is an OPTIONAL property or a new enum member constrained by a
+conditional that fires on that member alone. Nothing previously valid becomes
+invalid, no required field is added to any existing shape, no shape is removed,
+and no existing record is reinterpreted. Both schemas' `contract_schema_version`
+stays `1`, and both manifest rows' `schema_version` stays `1` with them.
+
+### `gate-action-record`: the act that makes an added model available
+
+`action` gains **`approve-model`**, and it exists because "approved" was
+previously NOT A RECORD AT ALL. Availability was the conjunction of three
+runtime facts — the entry sits in the `ModelCatalog` the install handed to its
+model port, its `available` flag is true, and the console passed the loopback
+local-human verdict — with no approver, no instrument, and nothing written down.
+That is defensible while the only way to add a model is to edit a settings
+document, since whoever can do that IS the operator by definition. **A wizard
+breaks the implication**: if completing an intake flow set `available`, then
+supplying a payment credential would be the same act as approving a provider to
+process governed corpus material, and the control the human is looking at
+already says "approved model". Those are two decisions and this action is the
+second one.
+
+Two OPTIONAL properties arrive with it, and both are required BY THE
+CONDITIONAL rather than unconditionally, which is what keeps the cut additive:
+
+* `target.model_declaration` — the declaration this action approved, named by
+  the model-provider BINDING id it carries. That identifier is also the catalog
+  handle a turn selects, so one string resolves the whole chain: this record,
+  the declaration in the install's settings document, the binding that names the
+  broker and the credential reference, and the menu entry the human picks. It is
+  deliberately NOT the credential reference and NOT a provider account
+  identifier: a governance record names the thing that was decided about.
+* `model_approval` — the grant accountability, in
+  `credential-contracts`' own field names rather than a second vocabulary:
+  `issued_by`, `approved_by`, `expires_at`, `audit_ref`, plus `install_posture`.
+  That family already holds that a grant template lacking the first four is
+  invalid, and a model reached through a credential broker is a
+  credential-bearing capability answerable in exactly those terms. `audit_ref`
+  is the reference the broker returned when it took custody; it is disclosable
+  by construction, because the broker's declaration records no token material
+  against an audit reference.
+
+`install_posture` is the one field with no precedent, and it encodes **Brett's
+OQ-3 ruling of 2026-08-21**, which splits BY INSTALL: a recorded gate action
+suffices on a single-operator loopback console — the human is spending their own
+subscription on their own corpus, and requiring a consent instrument there is
+ceremony without a second party — while a tenant or shared install, or a turn
+that will process another party's material, REQUIRES a consent instrument. Two
+conditionals inside the block enforce both halves: `consent_ref` is REQUIRED on
+`shared` and REFUSED on `single-operator`. The refusal half is deliberate and is
+not the inverse of the first: a single-operator record carrying a consent
+reference would claim a second party that does not exist, and the ruling's words
+are that ONLY the shared case carries one. The posture is STATED rather than
+inferred from which fields happen to be present, because a record whose rule has
+to be reconstructed from its own shape cannot be read back against the ruling it
+was made under.
+
+The new conditional requires NO artifact kind, and that is a decision rather
+than an omission, on the `abandon-session` and `share-session` precedent: this
+action produces no commit, no document, no pull request and no workflow-job.
+Its own artifact IS the record, and the settings document it unblocks is written
+after the record exists — that ORDER is a runtime obligation, not a schema one,
+and it is the safe order: a crash between the two leaves an audit record for an
+approval that did not take effect, which is readable and recoverable, rather
+than an available model no record accounts for.
+
+### `xfactory-workbench-chat-turn`: what the turn cost beyond one call
+
+`success_v2` gains the OPTIONAL **`provider_retry`**, and the v1 success
+envelope does NOT — the v1 family is deprecated at contract-v1.34 with removal
+target contract-v2.0, and its promise is byte-identical stability.
+
+`add-model-provider-broker` built the behaviour: when a minted token expires
+part-way through a turn the port re-mints and retries ONCE, and a second expiry
+in the same turn refuses rather than buying a third call. Brett's ruling of
+2026-08-26 attached a condition to that behaviour — the re-mint and the paid
+retry are **visibly recorded in the turn record** — and that change could not
+discharge it. Recorded here because the reason is a property of these contracts:
+`workbench-chat-turn-success` and `workbench-chat-turn-v2-success` are RELEASED,
+digest-pinned, `additionalProperties: false`, and self-validated by the route
+before an envelope is stored or sent, so the fact could not reach the browser
+without a release act — and that change declares `target_release: none` while
+this one owns the turn-record surface and pays for a schema cut. What it built
+instead was three real records — the port's content-free mint ledger, the
+console's stderr notice, and the broker's own `broker-audit.jsonl` correlated by
+`--retry-of` — none of which a browser can read. This field is how the fact
+reaches the person paying for it.
+
+The shape carries the REDACTED fact and nothing more: `retried` and
+`at_most_once`, both `const: true`, plus the re-mint's `audit_ref`. There is no
+`retried: false` spelling, on purpose — a turn that did not retry omits the
+whole object, and a second, weaker way to say an absence that is already
+unambiguous is how a consumer comes to read the wrong one. `at_most_once`
+records that the ruling's BOUND held, which a reader would otherwise have to
+know the port's internals to infer. The object is `additionalProperties: false`
+because this record is stored, mirrored into a thread sidecar on a session
+branch, and rendered in a page: a key nobody declared is a key nobody redacted,
+and the one thing a re-mint must never carry is the token it minted.
+
+ABSENCE IS NOT A CLAIM, exactly as it is not for `context_packet` at
+contract-v1.40: a record without the key means its producer predates
+contract-v1.45 or had nothing to report, never that no retry occurred. A
+consumer that reports what a turn cost MUST read this key; one that does not may
+ignore it, and every pre-existing v2 record stays valid — which is what makes
+this half of the cut additive too.
+
+### Packaged fixtures
+
+Two valid instances and three negatives join `examples/ideation-dashboard/`:
+`gate-action-record-approve-model` and
+`workbench-chat-turn-v2-provider-retry`; `gate-action-approve-model-without-approval-block`,
+`gate-action-approve-model-shared-install-without-consent`, and
+`workbench-chat-turn-v2-provider-retry-carries-a-token`. The validator
+self-tests them (valid pass, each negative fails for its intended reason).
+
+RELEASE OBLIGATION STILL OPEN AT THIS ENTRY: per the versioning policy,
+CHANGELOG presence is the availability test and the annotated tag is cut at the
+realization merge. `add-doxchat-model-intake` task 4.2 carries the tag +
+submodule-pin half, and that change archives only on merged plus green. The
+release DIGEST INVENTORY (`releases/contract-v1.45.digests.yaml`) ships INSIDE
+this cut, as `contract-v1.34` through `contract-v1.44` all did — it is part of
+the cut, not part of the tagging.
+
 ## contract-v1.44 — 2026-08-26 (additive; the release verifier resolves its remote operand before it compares)
 
 **Change class: ADDITIVE (minor)** under

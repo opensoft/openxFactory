@@ -1,0 +1,39 @@
+# INVALID widened success (contract-v1.45): a `provider_retry` block that grew a
+# field of its own.
+#
+# The block is `additionalProperties: false` for one reason, and it is the
+# reason the whole field exists in a redacted shape: this record is STORED, it
+# is mirrored into a thread sidecar on a session branch, and it is rendered in a
+# page. A key nobody declared is a key nobody redacted — and the one thing a
+# re-mint has to offer that a record must never carry is the token it minted.
+#
+# So the shape carries exactly three things: that it happened, that it happened
+# at most once, and the audit reference the broker's own trail is keyed by. The
+# audit reference is disclosable BY CONSTRUCTION — the broker's declaration
+# records no token material against one — and everything else about the mint
+# stays on the broker's side of the seam.
+{
+  "schema_version": 1,
+  "kind": "workbench-chat-turn-v2-success",
+  "client_turn_id": "turn-v2-0010",
+  "assistant_turn_id": "srv-v2-0010",
+  "model_id": "authoring-model",
+  "selected_model": {
+    "requested_model_id": "authoring-model",
+    "routing_rule": false,
+    "data_handling": "leaves this host: a hosted provider reached with a short-lived token the credential broker minted"
+  },
+  "provider_retry": {
+    "retried": true,
+    "at_most_once": true,
+    "audit_ref": "openprofiler-audit-7b21ee08",
+    "minted": "the token this record must never carry"
+  },
+  "bound_buffer": "ideation/staging/demo-topic/note.md",
+  "observed_hashes": {
+    "outline": "74d2e440df9974e0c1d82412165e497bb95611142b3ed1235c0bd74b3c2277ba",
+    "ideation/staging/demo-topic/note.md": "9859eb7d779f1dee12579980045bb94ecbc2cc487d8160aa239bc1bfe3416825"
+  },
+  "assistant_prose": "An answer that arrived, on a record that says more than it is allowed to.",
+  "proposals": []
+}
