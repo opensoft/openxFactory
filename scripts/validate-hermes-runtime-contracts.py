@@ -56,6 +56,7 @@ DOMAIN_REGRESSION_INVENTORY_PATH = (
     "contracts/hermes-runtime/fixtures/domain-regression-inventory.yaml"
 )
 CHANGE_ID = re.compile(r"^[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?$")
+ARCHIVE_DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 REQUIRED_CATALOG_MEMBERS = {
     "hermes-runtime-contract-index": ("contract-index.yaml", "contract-index"),
@@ -406,7 +407,35 @@ def _validate_ratified_inventory(
             )
         )
         return None
-    specs_root = repo_root / "openspec/changes" / governed_change / "specs"
+    active_specs_root = repo_root / "openspec/changes" / governed_change / "specs"
+    if active_specs_root.is_dir():
+        specs_root = active_specs_root
+    else:
+        archive_root = repo_root / "openspec/changes/archive"
+        suffix = f"-{governed_change}"
+        archived_changes = (
+            sorted(
+                candidate
+                for candidate in archive_root.iterdir()
+                if candidate.is_dir()
+                and candidate.name.endswith(suffix)
+                and ARCHIVE_DATE.fullmatch(candidate.name[: -len(suffix)])
+            )
+            if archive_root.is_dir()
+            else []
+        )
+        if len(archived_changes) > 1:
+            findings.append(
+                _finding(
+                    "HRC-OPENSPEC-ARCHIVE-AMBIGUOUS",
+                    "governed_change resolves to more than one dated archive packet",
+                    path="openspec/changes/archive",
+                )
+            )
+            return None
+        if not archived_changes:
+            return None
+        specs_root = archived_changes[0] / "specs"
     if not specs_root.is_dir():
         return None
     spec_paths = sorted(specs_root.rglob("spec.md"), key=lambda path: path.as_posix())
