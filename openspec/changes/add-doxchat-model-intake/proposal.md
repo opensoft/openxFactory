@@ -1,6 +1,6 @@
 ---
 code_surface: openxFactory (`scripts/ideation_dashboard/web/views/doxbench-chat.js` — the selector's option list gains a first intake affordance and the empty-catalog default selection, and the send-control refusal stays byte-identical; `scripts/ideation_dashboard/web/views/staging-workbench-model.js` — the `approvedModels === 0` rung keeps its sentence and gains the intake-offered fact, and the two `catalogFailure` rungs must NOT offer it; `scripts/ideation_dashboard/web/app.js` — the catalog transport gains no new call site, and any intake route it does gain is budgeted by the transport-pin suite; `scripts/ideation_dashboard/serve.py` — a pending-declaration surface and the approval gate action beside the existing `_workbench_model_port` seam, both under the reused `session` local-human verdict; `scripts/ideation_dashboard/doxbench_model.py` — a proposed-vs-approved distinction that does NOT widen the closed seven-field public catalog entry; `contracts/schemas/gate-action-record.schema.yaml` — one additive `action` enum member for the approval act plus its `allOf` conditional; and `tests/ideation-dashboard/` — the selector-order, default-selection, no-secret-anywhere and approval-gating assertions). The credential BROKER itself (openProfiler), its custody, its OAuth authorization flow, and the provider client that would use a minted token are `add-model-provider-broker`'s surface, NOT this change's.
-target_release: implementation_pending
+target_release: contract-v1.45
 Status: ratified
 Ratified: 2026-08-21 by Brett Heap — in-session, verbatim: "proposal approved", after the proposal landed on PR #236. The five Open Questions were NOT individually ruled at ratification; they were ruled the same day in a follow-up in-session multiple-choice round (all five recommendations adopted — see the RULED lines in each Open Question below). No slice remains blocked on a ruling; the build stays sequenced behind `add-model-provider-broker` / openProfiler.
 Proposed: 2026-08-21
@@ -10,17 +10,24 @@ Depends-on: add-model-provider-broker (the credential broker and the binding thi
 
 # Proposal: add-doxchat-model-intake
 
-> **APPROVED BUT NOT YET REALIZED.** This change has a non-empty code surface and
-> none of it is built: the selector still renders no intake affordance, no
-> pending-declaration surface or approval gate action exists beside
-> `_workbench_model_port`, and the gate-action `action` enum carries no approval
-> member. It is additionally sequenced behind `add-model-provider-broker` (itself
-> blocked on the unbuilt openProfiler) for everything credential-shaped. Its five
-> Open Questions are all RULED (2026-08-21, recommendations adopted) — no slice
-> waits on a ruling, only on the broker. Under
-> `release-realization`'s archive gate it stays ACTIVE as approved intent until
-> its code merges with green realization evidence. Nothing here should be read
-> as shipped.
+> **BUILT 2026-08-26; NOT YET ARCHIVED.** This banner used to say that none of
+> the code surface was built, and on 2026-08-26 that stopped being true. The
+> selector renders its intake affordance, the flow behind it hands a credential
+> to the declared broker and keeps only a binding, a pending declaration and the
+> `approve-model` gate action live beside `_workbench_model_port` under the same
+> reused `session` verdict, and the enum member and the turn record's mid-turn
+> re-mint fact landed together as the additive `contract-v1.45` cut. The
+> BLOCKING DEPENDENCY is discharged: `add-model-provider-broker` merged (PR
+> #392, main `bb7d7ae8`) and openProfiler declared its CLI surface (PR #18, main
+> `d0538c31`).
+>
+> WHAT IS STILL OWED, and it is the reason this stays ACTIVE: under
+> `release-realization`'s archive gate a change with a code surface archives
+> only on MERGED PLUS GREEN, which is a later verification act (tasks 4.2), and
+> the live-console proof still needs a human at a real serve in a real browser
+> (task 4.1, which records exactly what was proven headlessly and what was not).
+> The five Open Questions were all RULED on 2026-08-21 and are built as ruled;
+> nothing below waits on a decision.
 
 ## Why
 

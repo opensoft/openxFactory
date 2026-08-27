@@ -24,6 +24,8 @@ import {
   markProposalAppliedAfterSwap, clearLocalFailure, pendingProposalTargets,
   recordLocalFailure, recordCatalogFailure, chatSnapshot, restoreChatState,
   canSend, MAX_MESSAGE_BYTES, MAX_WORKING_SUBJECT_BYTES,
+  INTAKE_OPTION_VALUE, INTAKE_OPTION_LABEL, defaultSelectorValue,
+  adoptIntakeOffer, firstAvailableModelId, PROVIDER_RETRY_NOTE,
 } from "./doxbench-chat-model.js";
 
 // THE WIDENED FAMILY (contract-v1.34, add-doxbench-editing-phase-b §13). The v1
@@ -1110,6 +1112,14 @@ export function mountDoxBenchChatRail(host, options = {}) {
   const contextNote = el("div", "doxchat-context");
   contextNote.hidden = true;
   contextNote.setAttribute("aria-live", "polite");
+  // WHAT THE ANSWER COST (contract-v1.45, task 3.6). Beside the posture note,
+  // because it is the same class of thing: a fixed, server-derived statement
+  // about the answer just rendered. A live region for the same reason that one
+  // is — Brett's 2026-08-26 ruling is that a re-mint and the paid retry it buys
+  // are VISIBLE, and a note only sighted readers get is half a disclosure.
+  const retryNote = el("div", "doxchat-provider-retry");
+  retryNote.hidden = true;
+  retryNote.setAttribute("aria-live", "polite");
   const cardsHost = el("div", "doxchat-proposals");
   cardsHost.setAttribute("aria-label", "typed proposals");
   // T100 P2: the applied/rejected outcome is ANNOUNCED, not whispered — a
@@ -1144,7 +1154,7 @@ export function mountDoxBenchChatRail(host, options = {}) {
   sendBtn.setAttribute("aria-describedby", unavailableNote.id);
   host.append(loadedSelect, loadedNote, loadedEmpty,
               loadedFull, subjectInput,
-              unavailableNote, transcriptList, contextNote,
+              unavailableNote, transcriptList, contextNote, retryNote,
               cardsHost, announce, failureNote, composer, disclosure, sendrow);
 
   // SELECTING IS IMMEDIATE, and it is not a state authority: the seam owns the
@@ -1398,6 +1408,24 @@ export function mountDoxBenchChatRail(host, options = {}) {
     subjectInput.value = state.workingSubject;
     composer.value = state.composer;
     selector.textContent = "";
+    // THE INTAKE AFFORDANCE IS FIRST, ahead of every catalog entry and ahead of
+    // the placeholder (add-doxchat-model-intake §1; Brett's 2026-08-21
+    // annotation: "we need to have add model as the first option in the
+    // dropdown"). It is rendered ONLY when the server says the flow behind it
+    // can be opened and completed — the ratified sequencing requirement's whole
+    // point, because an option that names an action and then does nothing is
+    // worse than an absent option.
+    //
+    // AND NEVER ON A CATALOG THAT COULD NOT BE READ. An unreadable catalog and
+    // an empty one are different facts with different remedies; the rail already
+    // distinguishes them, and offering enrolment as the cure for a stale console
+    // token would send a human to buy a subscription to fix a reload.
+    const intakeRendered = state.intakeOffered === true && !state.catalogFailure;
+    if (intakeRendered) {
+      const intake = el("option", "doxchat-model-intake", INTAKE_OPTION_LABEL);
+      intake.value = INTAKE_OPTION_VALUE;
+      selector.appendChild(intake);
+    }
     const placeholder = el("option", "", "select an approved model");
     placeholder.value = "";
     selector.appendChild(placeholder);
@@ -1426,9 +1454,20 @@ export function mountDoxBenchChatRail(host, options = {}) {
     // configured-none default.
     const selectable = (state.models || []).some(
       (entry) => entry.available === true);
-    selector.disabled = !selectable;
+    // A SELECTOR WITH THE AFFORDANCE IN IT IS NOT DISABLED. Disabling it while
+    // it carries the one control the human was told to use would be the dead end
+    // the sequencing requirement exists to prevent — so the empty-catalog rail
+    // now has exactly one thing to do, and it can be done. With no affordance
+    // rendered the control is disabled exactly as it was before this change.
+    selector.disabled = !selectable && !intakeRendered;
+    // BYTE-IDENTICAL, and deliberately untouched: the sentence the send control
+    // states, and the rung it is chosen from, are exactly what they were. The
+    // rail keeps saying that no approved model is configured, because that
+    // sentence is TRUE and actionable — replacing it with an invitation to enrol
+    // would trade a statement of posture for a call to action, and the posture is
+    // the fact the human needs.
     unavailableNote.textContent = selectable ? "" : unavailabilityNote(state);
-    selector.value = state.selectedModelId || "";
+    selector.value = defaultSelectorValue(state);
     transcriptList.textContent = "";
     for (const turn of transcriptWindow(state)) {
       const item = el("li", "doxchat-turn doxchat-" + turn.role, turn.content);
@@ -1462,6 +1501,16 @@ export function mountDoxBenchChatRail(host, options = {}) {
     if (contextNote.textContent !== contextText) {
       contextNote.hidden = !contextText;
       contextNote.textContent = contextText;
+    }
+    // THE PAID RETRY, SHOWN (task 3.6). Same order (un-hide, then write) and
+    // same only-when-it-changes guard as the posture note above, for the same
+    // two measured reasons: a mutation performed while the node is `hidden` is
+    // a mutation no live region observed, and re-writing a live region with the
+    // same sentence re-announces it on every keystroke.
+    const retryText = state.providerRetry ? PROVIDER_RETRY_NOTE : "";
+    if (retryNote.textContent !== retryText) {
+      retryNote.hidden = !retryText;
+      retryNote.textContent = retryText;
     }
     renderCards();
     failureNote.hidden = !state.lastFailure;
@@ -1507,6 +1556,32 @@ export function mountDoxBenchChatRail(host, options = {}) {
     render();
   }
 
+  // THE NON-EMPTY CATALOG'S DEFAULT SELECTION (add-doxchat-model-intake §1).
+  //
+  // The ratified requirement: "When at least one entry is available the default
+  // selection MUST remain a model rather than the intake affordance, because a
+  // human who already has an approved model is trying to chat, not to enrol."
+  // This is where that default is PERFORMED — as a real selection, the same act
+  // a human clicking the first option performs, so the control and the send gate
+  // never disagree on screen.
+  //
+  // IN THE VIEW AND NOT IN `adoptCatalog`, deliberately: the pure model's
+  // adoption rule is that an arriving catalog RE-VALIDATES a held id and drops
+  // one it cannot vouch for, and folding a default into it would have made a
+  // catalog that revoked the held model silently select a different one. Those
+  // are different acts, and the pinned model suites say so.
+  //
+  // It only ever fires when NOTHING is selected, so a human's own choice, a
+  // restored one, and a re-validated one are all left exactly as they are.
+  function withDefaultModel(candidate) {
+    if (typeof candidate.selectedModelId === "string"
+        && candidate.selectedModelId !== "") {
+      return candidate;
+    }
+    const first = firstAvailableModelId(candidate);
+    return first === null ? candidate : selectModel(candidate, first);
+  }
+
   // T104 F10-2/4: the model refuses an over-bound edit by returning the
   // IDENTICAL state object — the one case an input event can produce it,
   // since an in-bound edit always builds a new state (even for equal text).
@@ -1536,8 +1611,21 @@ export function mountDoxBenchChatRail(host, options = {}) {
       ? recordLocalFailure(state, MESSAGE_OVER_BOUND)
       : clearedOwnBound(next, MESSAGE_OVER_BOUND.error));
   });
-  selector.addEventListener("change",
-    () => adopt(selectModel(state, selector.value)));
+  selector.addEventListener("change", () => {
+    // CHOOSING INTAKE IS NOT CHOOSING A MODEL (add-doxchat-model-intake §1).
+    // The affordance carries no model id, so `selectModel` would refuse it
+    // anyway and leave the state exactly as it was — this branch does not
+    // change that outcome, it OPENS THE FLOW that the option names, and then
+    // re-renders so the control snaps back to whatever the state's own default
+    // is. Nothing about the send control moves: the selection did not.
+    if (selector.value === INTAKE_OPTION_VALUE) {
+      const open = options.openIntake;
+      if (typeof open === "function") open();
+      render();
+      return;
+    }
+    adopt(selectModel(state, selector.value));
+  });
   sendBtn.addEventListener("click", async () => {
     // P3-7 (wave re-review P3 tail): focus is restored by INTENT, never by
     // the captured node — the F7-4 class, on the send path. A send that
@@ -1654,7 +1742,7 @@ export function mountDoxBenchChatRail(host, options = {}) {
           adopt(recordCatalogFailure(state, "unreadable"));
         } else {
           catalogEnvelope = envelope;
-          adopt(adopted);
+          adopt(withDefaultModel(adopted));
         }
       } else {
         adopt(recordCatalogFailure(state, "unreadable"));
@@ -1673,6 +1761,16 @@ export function mountDoxBenchChatRail(host, options = {}) {
   return {
     ready,
     state: () => state,
+    // THE SHELL TELLS THE RAIL WHETHER THE FLOW EXISTS
+    // (add-doxchat-model-intake §1). The rail opens no transport of its own —
+    // every seam here is injected, and the privacy pin asserts it — so the
+    // intake surface is read by the shell's transport and pushed in through
+    // this one method. A page that never calls it keeps `intakeOffered` false
+    // and renders exactly the selector it rendered before this change, which is
+    // the sequencing requirement's "indistinguishable from today" in one line.
+    intakeOffer(offeredValue) {
+      adopt(adoptIntakeOffer(state, offeredValue));
+    },
     rekey(keyValue) {
       currentScopeKey = keyValue;
       // #80(b), THE NOTICE FORM. Measured BEFORE the reset, because the fresh
@@ -1690,7 +1788,11 @@ export function mountDoxBenchChatRail(host, options = {}) {
       // conversation reset too (T104 F10-1) — otherwise a re-key would
       // silently downgrade the honest failure posture to configured-none.
       if (next !== state && catalogEnvelope) {
-        next = adoptCatalog(next, catalogEnvelope);
+        // …and the fresh conversation gets the same default selection the mount
+        // gets, for the same reason: a re-key that left the selector on the
+        // placeholder while a model was available would make Send refuse for a
+        // reason the human had already answered.
+        next = withDefaultModel(adoptCatalog(next, catalogEnvelope));
       } else if (next !== state && state.catalogFailure) {
         next = recordCatalogFailure(next, state.catalogFailure);
       }

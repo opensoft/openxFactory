@@ -119,8 +119,99 @@ export function createChatState(keyValue, subjectDefaultValue) {
     // would be present on a lived-through turn and absent on the identical
     // restored one — a difference the reader would have to explain away.
     contextPacket: null,
+    // WHETHER THE ENROLMENT FLOW CAN BE OPENED AND COMPLETED
+    // (add-doxchat-model-intake §1). A SERVER fact, adopted from the intake
+    // surface route, never guessed: the ratified sequencing requirement says the
+    // affordance SHALL NOT be released ahead of the flow it opens, because an
+    // option that names an action and then does nothing "converts a
+    // plainly-stated posture the human can act on elsewhere into a dead end
+    // inside the control they were told to use". False until the surface says
+    // otherwise, so a page that never asks, or asks and is refused, renders
+    // exactly the selector it rendered before this change.
+    intakeOffered: false,
+    // WHAT THE LAST ANSWER COST BEYOND ONE CALL (contract-v1.45, task 3.6).
+    // Null means "no answer to describe, or an answer that reported nothing" —
+    // never a claim that no retry happened on a producer that predates the
+    // field. Set only from the released record's own optional block, and a fact
+    // about THE TRANSCRIPT'S LAST ASSISTANT ANSWER for the same reason
+    // `contextPacket` is.
+    providerRetry: null,
   });
   return editSubject(fresh, subjectDefaultValue);
+}
+
+// THE ONE NON-MODEL OPTION THE SELECTOR MAY CARRY (add-doxchat-model-intake §1).
+//
+// It is NOT a catalog entry: it carries no model id, and this value can never be
+// submitted as one. Two independent guards say so, and the redundancy is the
+// point — `selectModel` refuses any value the catalog does not vouch for, so
+// choosing this option leaves `selectedModelId` exactly as it was; and the
+// SERVER refuses a turn naming it through the SAME fixed absent-model refusal
+// any unknown id earns, with no intake-specific failure code, because the
+// affordance is not a model and the existing refusal already states the truth.
+//
+// The double-underscore wrapping is what makes the second guard structural: a
+// catalog entry's `model_id` is a provider-declared handle, and this spelling
+// belongs to no provider's namespace.
+export const INTAKE_OPTION_VALUE = "__doxchat_intake__";
+
+// What the affordance READS. Deliberately an invitation to act and NOT a
+// statement of posture: the rail's own sentence already carries the posture
+// ("no approved model is configured"), and a second, weaker statement of the
+// same fact inside the selector would add nothing a human can use.
+export const INTAKE_OPTION_LABEL = "Add a model…";
+
+export function adoptIntakeOffer(stateValue, offeredValue) {
+  return next(stateValue, { intakeOffered: offeredValue === true });
+}
+
+// The first entry the catalog vouches for, or null. PURE and exported because
+// two surfaces need the same answer and must not derive it twice: the rail's
+// default selection, and the shell's docs-abstract fallback.
+export function firstAvailableModelId(stateValue) {
+  const models = stateValue.models || [];
+  const entry = models.find((m) => m.available === true);
+  return entry ? entry.model_id : null;
+}
+
+// WHAT THE SELECTOR SHOWS AS SELECTED, given everything the state knows.
+//
+// Brett asked for this explicitly on 2026-08-21: "if no current models loaded,
+// that is the default". So with nothing selectable and the flow available, the
+// selected option is the affordance — and the CONSEQUENCE is accepted rather
+// than hidden (OQ-4, ruled the same day): the selector then shows a selected
+// option that is not a model while the rail says no approved model is
+// configured. That reads correctly — here is the thing to do about it — and it
+// changes nothing about what the send control does, because selecting intake is
+// not selecting a model.
+//
+// With something selectable the default is a MODEL and never the affordance: a
+// human who already has an approved model is trying to chat, not to enrol.
+// IT NEVER SHOWS A MODEL THE STATE HAS NOT SELECTED. That is the one rule this
+// function must not break, and breaking it was measured: returning the first
+// available entry as a "default" made the control display a model while
+// `canSend` — which reads `selectedModelId` — kept Send closed, so the selector
+// and the send gate disagreed on screen. The DEFAULT for a non-empty catalog is
+// therefore performed as a real selection by the rail when the catalog adopts
+// (`mountDoxBenchChatRail`), and this function simply reports it.
+export function defaultSelectorValue(stateValue) {
+  if (typeof stateValue.selectedModelId === "string"
+      && stateValue.selectedModelId !== "") {
+    return stateValue.selectedModelId;
+  }
+  // Something IS selectable and nothing is selected: the placeholder holds the
+  // model slot, exactly as it did before this change. Never the affordance — a
+  // human who already has an approved model is trying to chat, not to enrol.
+  if (firstAvailableModelId(stateValue) !== null) return "";
+  // NEVER on a catalog that could not be READ. An unreadable catalog and an
+  // empty one are different facts with different remedies, and offering
+  // enrolment as the cure for a stale console token would send a human to buy a
+  // subscription for a bug.
+  if (stateValue.intakeOffered === true && !stateValue.catalogFailure
+      && Array.isArray(stateValue.models)) {
+    return INTAKE_OPTION_VALUE;
+  }
+  return "";
 }
 
 // T104 F5-7's shared question: does this catalog vouch for `candidate` as a
@@ -469,11 +560,44 @@ function adoptContextPacket(carrier) {
   return null;
 }
 
+// THE RE-MINT, AS THE BROWSER MAY ADOPT IT (contract-v1.45, task 3.6).
+//
+// Brett ruled on 2026-08-26 that a mid-turn re-mint and the paid retry it buys
+// are VISIBLY RECORDED in the turn record, because a second paid call the human
+// cannot see is exactly the decision that ruling was made to avoid. The record
+// carries it as an OPTIONAL block, present only when it happened, and this reads
+// it in the same fail-closed spirit `adoptContextPacket` reads its own: an
+// absent, malformed or `retried !== true` block adopts as null, which is silence
+// rather than a claim in either direction.
+//
+// The audit reference is carried when the record states one and dropped when it
+// does not — it is the identifier the broker's own trail is keyed by, which is
+// what lets a human join what they were shown to what the broker recorded.
+function adoptProviderRetry(payloadValue) {
+  const block = payloadValue && payloadValue.provider_retry;
+  if (!block || typeof block !== "object" || block.retried !== true) {
+    return null;
+  }
+  const ref = block.audit_ref;
+  return Object.freeze(typeof ref === "string" && ref !== ""
+    ? { retried: true, audit_ref: ref }
+    : { retried: true });
+}
+
+// THE SENTENCE THE HUMAN READS. Fixed, and it names the COST rather than the
+// mechanism: "the token was renewed" would be a fact about custody, and what the
+// ruling is about is that this turn was paid for twice.
+export const PROVIDER_RETRY_NOTE =
+  "this answer cost one extra provider call: the access this console holds "
+  + "expired part-way through the turn, so it was renewed once and the turn "
+  + "was sent again.";
+
 export function settleTurnSuccess(stateValue, successPayload) {
   if (stateValue.phase !== "in_flight") {
     return stateValue;
   }
   return next(stateValue, {
+    providerRetry: adoptProviderRetry(successPayload),
     phase: "idle",
     // PR #63 review (Codex P1): settlement clears the composer ONLY when it
     // still holds the submitted message — follow-up typing during a slow
@@ -594,6 +718,11 @@ export function adoptThreadTranscript(stateValue, turnsValue) {
     // posture of its own (the server's sidecar does not record one). Leaving it
     // would caption this document's conversation with another's context.
     contextPacket: null,
+    // …and so does the re-mint note (task 3.6), for the identical reason: it
+    // describes what THE PREVIOUS document's last answer cost, the restored
+    // thread records nothing of the kind, and a cost note attached to another
+    // conversation's answer is a claim about a call this one never made.
+    providerRetry: null,
   });
 }
 

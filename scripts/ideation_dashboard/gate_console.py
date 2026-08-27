@@ -469,6 +469,8 @@ def build_gate_action_record(
     document: str | None = None, notes: str | None = None,
     ref: str | None = None, provenance: "Provenance | None" = None,
     cleanup: Mapping[str, Any] | None = None,
+    model_declaration: str | None = None,
+    model_approval: Mapping[str, Any] | None = None,
 ) -> dict:
     """A schema-valid `gate-action-record` (validated by the pinned validator).
     `artifacts` are `{kind, reference}` entries; the per-action companion
@@ -514,6 +516,8 @@ def build_gate_action_record(
         target["document"] = document
     if ref and str(ref).strip():
         target["ref"] = str(ref).strip()
+    if model_declaration and str(model_declaration).strip():
+        target["model_declaration"] = str(model_declaration).strip()
     record: dict[str, Any] = {
         "schema_version": RECORD_SCHEMA_VERSION,
         "kind": RECORD_KIND,
@@ -535,6 +539,13 @@ def build_gate_action_record(
     record["artifacts"] = [dict(a) for a in artifacts]
     if cleanup is not None:
         record["cleanup"] = dict(cleanup)
+    if model_approval is not None:
+        # Placed where the schema places it — after `cleanup`, before the
+        # narrative fields — so the rendered record reads in the schema's own
+        # property order. Copied rather than referenced: a caller that kept a
+        # handle on the mapping must not be able to mutate a record after it was
+        # built and validated.
+        record["model_approval"] = dict(model_approval)
     if reason:
         record["reason"] = reason
     if citation:
@@ -697,7 +708,13 @@ def _gate_action_target_id(record: Mapping[str, Any]) -> str:
         return ref_target_id(target["ref"])
     target_id = (target.get("change_id") or target.get("possible_id")
                  or target.get("topic_id") or target.get("cluster_id")
-                 or target.get("project_id"))
+                 or target.get("project_id")
+                 # add-doxchat-model-intake §3: an `approve-model` record has
+                 # none of the five above and files under the declaration it
+                 # approved. It is placed IN this chain rather than after
+                 # `document`/`ref` because an approval record names neither, so
+                 # no pre-existing verb's filename can move by its presence.
+                 or target.get("model_declaration"))
     if not target_id and target.get("document"):
         target_id = document_target_id(target["document"])
     if not target_id and target.get("ref"):
@@ -706,7 +723,7 @@ def _gate_action_target_id(record: Mapping[str, Any]) -> str:
         raise GateRefused(
             "a gate-action record must name what it acted on "
             "(change_id, possible_id, topic_id, cluster_id, project_id, "
-            "document, or a session ref)")
+            "model_declaration, document, or a session ref)")
     return str(target_id)
 
 

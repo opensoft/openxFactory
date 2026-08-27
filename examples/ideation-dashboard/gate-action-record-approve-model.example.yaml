@@ -1,0 +1,51 @@
+# VALID gate-action record: a human APPROVE-MODEL action — the act that makes a
+# model declared through the console's intake flow available for governed turns
+# (add-doxchat-model-intake §3, contract-v1.45).
+#   - it exists because "approved" used to be no record at all: availability was
+#     the conjunction of three runtime facts, with no approver and nothing
+#     written down. Tolerable while only an operator editing a settings document
+#     could add a model; not tolerable the moment a wizard can, because then
+#     entering a payment credential silently becomes approving a provider for
+#     governed work. Those are two decisions and this record is the second one;
+#   - target.model_declaration NAMES the declaration, by the model-provider
+#     binding id it carries — which is also the catalog handle a turn selects,
+#     so one identifier resolves this record, the declaration, the binding and
+#     the menu entry;
+#   - model_approval carries the accountability `credential-contracts` already
+#     demands of an issued grant: who issued the custody, who approved it for
+#     this console, when the approval expires, and the audit reference the
+#     broker keyed the custody act by. The reference carries no token material —
+#     the broker's declaration guarantees that — which is what makes it safe in
+#     a committed governance record;
+#   - install_posture is `single-operator`, so NO consent_ref appears (Brett's
+#     OQ-3 ruling of 2026-08-21: a recorded gate action suffices where the human
+#     is spending their own subscription on their own corpus, and the schema
+#     REFUSES a consent reference on that posture rather than merely not
+#     requiring one);
+#   - NO artifact kind is required: the approval produces no commit, no
+#     document, no pull request and no workflow-job. Its own artifact IS this
+#     record, and the settings document it unblocks is carried as `other` purely
+#     to satisfy `artifacts.minItems: 1`, exactly as `abandon-session` does.
+schema_version: 1
+kind: gate-action-record
+actor: brett
+action: approve-model
+target:
+  model_declaration: authoring-model
+provenance:
+  surface: http
+  console_presence: console-token
+at: "2026-08-26T18:40:00Z"
+artifacts:
+  - kind: other
+    reference: ideation/dashboard/model-declarations.yaml
+model_approval:
+  issued_by: brett
+  approved_by: brett
+  expires_at: "2026-11-24T18:40:00Z"
+  audit_ref: openprofiler-audit-3f9c2a41
+  install_posture: single-operator
+notes: >-
+  Enrolled through the console's model intake flow; the credential is held by
+  the declared broker and this checkout stores only the reference the broker
+  returned.

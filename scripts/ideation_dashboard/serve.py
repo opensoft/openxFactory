@@ -192,6 +192,31 @@ ACTIONS_WORKBENCH_CHAT_TURN_ROUTE = "/actions/workbench/chat-turn"
 # its own request shape and its own declared purpose -- so this is a second
 # CONSUMER of the one model seam, never a second meaning for the chat route.
 ACTIONS_WORKBENCH_DOCUMENT_ABSTRACT_ROUTE = "/actions/workbench/document-abstract"
+# add-doxchat-model-intake §2/§3: the MODEL INTAKE surface and its two acts.
+# Three routes and not one, because they answer three different questions and
+# carry three different things.
+#
+#   * the SURFACE (a GET) discloses whether intake is offered at all, which
+#     authentication kinds the declared broker can take, and which declarations
+#     are still waiting on a human. It is what makes the selector's intake
+#     affordance honest: the affordance is rendered only when this route says the
+#     flow behind it can be opened AND completed;
+#   * the INTAKE act (a POST) carries a CREDENTIAL, and so carries it in a way
+#     nothing else on this server does — the facts ride the query string, where a
+#     fact belongs, and the body is the credential and NOTHING ELSE, streamed
+#     straight into the broker's standard input. See `_handle_workbench_model_intake`;
+#   * the APPROVAL act (a POST) carries no credential at all: it names a
+#     declaration and writes the gate-action record that makes it available.
+#
+# Console-internal local shapes, deliberately NOT released contract envelopes,
+# exactly as `WORKBENCH_THREAD_ROUTE` is: no openxFactory schema declares an
+# intake shape, and inventing a `schema_version` for one here would claim a
+# release that was never cut. The governed artifacts are the ones that ARE
+# released — the gate-action record the approval writes, and the settings
+# documents the flow leaves behind.
+WORKBENCH_MODEL_INTAKE_ROUTE = "/workbench/model-intake"
+ACTIONS_WORKBENCH_MODEL_INTAKE_ROUTE = "/actions/workbench/model-intake"
+ACTIONS_WORKBENCH_MODEL_APPROVAL_ROUTE = "/actions/workbench/model-approval"
 LOOPBACK_HOSTS = frozenset({"127.0.0.1", "::1", "localhost"})
 JSON_CTYPE = "application/json; charset=utf-8"
 JSON_OBJECT_BODY_REQUIRED = "a JSON object body is required"
@@ -228,6 +253,59 @@ def _drain_refused_body(rfile, declared: int) -> None:
             remaining -= len(chunk)
     except OSError:
         return
+class _CredentialStream:
+    """A BOUNDED TEXT VIEW of an intake request's body, and nothing else
+    (add-doxchat-model-intake task 2.2).
+
+    THE WHOLE POINT IS WHAT IT DOES NOT DO. It never assembles the body, never
+    returns it, never stores it and never logs it: it exposes exactly the one
+    method `shutil.copyfileobj` calls — `read(size)` — so
+    `doxbench_provider.hand_off_credential` can move the value in chunks from
+    this connection's read handle into the broker's standard input. No variable
+    in this process ever holds the whole credential, and this object holds only
+    the chunk currently in flight, for exactly as long as the copy takes.
+
+    IT DECODES INCREMENTALLY because the broker child is opened in text mode and
+    a UTF-8 sequence can straddle a chunk boundary. A whole-body `.decode()`
+    would have been simpler and would have materialised the value, which is the
+    one thing this class exists not to do.
+
+    IT IS BOUNDED BY THE DECLARED LENGTH, never by trust in it: it reads at most
+    what `Content-Length` declared and stops, so a sender that declares less than
+    it means cannot leave bytes on the socket for the next request to read, and
+    one that declares more simply reaches end of stream. The route refuses a
+    declaration past `MAX_CREDENTIAL_BYTES` before this object is ever built.
+
+    `__repr__` DISCLOSES NOTHING, on the same reasoning the provider client's own
+    redacting token repr uses: a traceback frame or a debugger that printed this
+    object must not print what travelled through it — and it cannot, because it
+    kept none of it.
+    """
+
+    __slots__ = ("_rfile", "_remaining", "_decoder")
+
+    def __init__(self, rfile, declared: int) -> None:
+        import codecs
+        self._rfile = rfile
+        self._remaining = max(0, int(declared))
+        self._decoder = codecs.getincrementaldecoder("utf-8")(errors="strict")
+
+    def read(self, size: int = -1) -> str:
+        if self._remaining <= 0:
+            return self._decoder.decode(b"", True)
+        want = self._remaining if size is None or size < 0 else min(
+            size, self._remaining)
+        chunk = self._rfile.read(want)
+        if not chunk:
+            self._remaining = 0
+            return self._decoder.decode(b"", True)
+        self._remaining -= len(chunk)
+        return self._decoder.decode(chunk, self._remaining <= 0)
+
+    def __repr__(self) -> str:
+        return "_CredentialStream(<withheld>)"
+
+
 _DEFAULT_CAPABILITIES = {"actions": {"notebook": False, "gate": False, "refresh": False,
                                     "session": False, "edit": False},
                          "actor": None, "refresh": {"binding": None, "loopback_only": True}}
@@ -364,6 +442,32 @@ DOXBENCH_ERR_CONTEXT_PACKET_BOUND_EXCEEDED = "context_packet_bound_exceeded"
 # `turn_scope_refused` would blame the scope for a capability verdict.
 DOXBENCH_ERR_THREAD_CAPABILITY_UNAVAILABLE = "thread_capability_unavailable"
 
+# add-doxchat-model-intake §2/§3. THREE codes, and the split is the same class
+# of judgement call the thread route's own code records.
+#
+#   * `intake_refused` is the flow REFUSING RATHER THAN DEGRADING: no broker is
+#     declared, the broker would not take custody, or the declaration this
+#     install already holds forbids the act. It is a STATED refusal — the body
+#     carries a `reason` from `doxbench_intake`'s own fixed sentences, exactly as
+#     the thread route's absence body carries a declared cause — because "the
+#     wizard did not work" and "there is nowhere governed to put a credential"
+#     are different facts with different remedies, and only one of them is
+#     something the human can act on;
+#   * `invalid_intake_request` is the request's own shape: a missing declared
+#     fact, an unknown authentication kind, a body past the bound. 400, like
+#     every other malformed-request refusal on this surface;
+#   * `approval_refused` is the second act failing on its own terms — nothing
+#     pending under that name, something already approved, a record that would
+#     not validate. Kept separate from `intake_refused` because approving is a
+#     different decision from enrolling, which is the whole point of §3.
+#
+# NONE of them ever carries the broker's words, the provider's words, or the
+# supplied value. The `reason` is always one of this repository's own module
+# constants.
+DOXBENCH_ERR_INTAKE_REFUSED = "intake_refused"
+DOXBENCH_ERR_INVALID_INTAKE_REQUEST = "invalid_intake_request"
+DOXBENCH_ERR_APPROVAL_REFUSED = "approval_refused"
+
 # Fixed, module-level messages: never composed from request data, exactly
 # like `action_errors.ERROR_CATALOG`'s messages.
 _DOXBENCH_MSG_REQUEST_LIMIT_EXCEEDED = "the request exceeds the allowed size for this route"
@@ -408,6 +512,12 @@ NO_RESOLVED_ACTOR_CAUSE = (
 
 _DOXBENCH_MSG_THREAD_CAPABILITY_UNAVAILABLE = (
     "threads exist only where branch sessions exist")
+_DOXBENCH_MSG_INTAKE_REFUSED = (
+    "model intake refused and stored nothing")
+_DOXBENCH_MSG_INVALID_INTAKE_REQUEST = (
+    "the intake request does not declare what this flow needs")
+_DOXBENCH_MSG_APPROVAL_REFUSED = (
+    "the model approval refused and recorded nothing")
 
 # THE ONE CAUSE-NAMING ALTERNATE, and deliberately NOT a catalog entry.
 #
@@ -502,6 +612,12 @@ DOXBENCH_ERROR_CATALOG: dict[str, tuple[int, str]] = {
     # field, and both are fixed module-level strings from `doxbench_threads`.
     DOXBENCH_ERR_THREAD_CAPABILITY_UNAVAILABLE: (
         403, _DOXBENCH_MSG_THREAD_CAPABILITY_UNAVAILABLE),
+    # 409: the request was well-formed and the SERVER's declared posture refused
+    # it — the same status `model_unavailable` carries for the same reason.
+    DOXBENCH_ERR_INTAKE_REFUSED: (409, _DOXBENCH_MSG_INTAKE_REFUSED),
+    DOXBENCH_ERR_INVALID_INTAKE_REQUEST: (
+        400, _DOXBENCH_MSG_INVALID_INTAKE_REQUEST),
+    DOXBENCH_ERR_APPROVAL_REFUSED: (409, _DOXBENCH_MSG_APPROVAL_REFUSED),
 }
 
 # The codes whose released envelope may carry the `limit` block. The released
@@ -1098,12 +1214,119 @@ def doxbench_context_packet(packet) -> dict:
         "does not have")
 
 
+def mint_ledger_snapshot(port) -> tuple:
+    """A COPY of an adapter's mint ledger, or an empty tuple (task 3.6).
+
+    DUCK-TYPED AND OPTIONAL, on purpose. `ledger` is not a port member and is not
+    becoming one: the declared surface stays exactly the three members
+    (`timeout_seconds`, `catalog`, `dispatch`), and an adapter that has no ledger
+    — the local harness bridge, every test double, every future adapter — is not
+    broken by this, it simply has no such fact to report. Absence is a posture
+    here as it is everywhere else on this surface.
+
+    A COPY rather than the list itself, because the server is a
+    `ThreadingHTTPServer` and the port appends to that list from whichever thread
+    is dispatching. A tuple taken now is a fact about now."""
+    ledger = getattr(port, "ledger", None)
+    if not isinstance(ledger, list):
+        return ()
+    return tuple(ledger)
+
+
+def fresh_ledger_events(before: tuple, after: tuple) -> list:
+    """The events APPENDED to a mint ledger between two snapshots.
+
+    BY IDENTITY, NEVER BY EQUALITY, and PR #401's review found the reason.
+    `doxbench_provider.MintEvent` is a FROZEN dataclass, so two DISTINCT events
+    whose four fields coincide compare equal — and they coincide exactly when it
+    matters most. A `paid_retry` event carries no `audit_ref` at all, so under a
+    clock that returns the same value twice (a frozen test clock, a coarse
+    timer, two turns inside one tick) the second turn's paid retry is
+    field-for-field the first turn's. An `event not in before` test then filters
+    it out as already-seen, `provider_retry_fact` answers None, and the second
+    paid provider call that Brett's 2026-08-26 ruling requires to be VISIBLE is
+    the one the human never sees. Identity cannot make that mistake: the port's
+    `_record` constructs a fresh object per append, so no event object is ever
+    two events.
+
+    NOT POSITIONAL EITHER, which is the other obvious repair and is wrong here.
+    THE LEDGER IS NOT STRICTLY APPEND-ONLY: it is append-only up to
+    `doxbench_provider.MAX_LEDGER_EVENTS`, past which `_record` trims from the
+    FRONT (`del self.ledger[:-MAX_LEDGER_EVENTS]`). A `ledger[before_len:]`
+    slice reads NOTHING once the ledger sits at that bound — which is the state
+    a long-lived console converges to, so the positional repair would fail in
+    precisely the installs that dispatch the most turns. The invariant that
+    actually holds is weaker and is enough: events are appended at the right and
+    only ever dropped from the left, so an event present in `after` and absent
+    from `before` was appended during the window, and one trimmed away is not in
+    `after` to be counted twice.
+
+    The `id()` set is safe here because `before` is a live tuple for this call's
+    whole duration: nothing it holds can be collected, so no id can be recycled
+    underneath the comparison."""
+    if not before:
+        return list(after)
+    seen = {id(event) for event in before}
+    return [event for event in after if id(event) not in seen]
+
+
+def provider_retry_fact(before: tuple, after: tuple) -> dict | None:
+    """THE MID-TURN RE-MINT, as the turn record states it (task 3.6), or None.
+
+    Brett ruled on 2026-08-26 that when a minted token expires part-way through a
+    turn the dashboard re-mints and retries ONCE, "with the re-mint and the paid
+    retry VISIBLY RECORDED in the turn record" — because a second paid call the
+    human cannot see is exactly the decision that ruling was made to avoid. The
+    broker change built three real records of it (the port's content-free ledger,
+    the console's stderr notice, and the broker's own audit trail correlated by
+    `--retry-of`) and the BROWSER CAN READ NONE OF THEM. This function is how the
+    fact crosses to the person paying for it.
+
+    IT IS A DELTA, and the wording of the field it feeds is chosen to be true of
+    a delta. The ledger is one object shared by every turn this process
+    dispatches, and two conversations can dispatch concurrently, so what this
+    measures is honestly "a re-mint and one further paid provider call happened
+    WHILE THIS TURN WAS DISPATCHED" — not "this turn's own re-mint", which
+    nothing short of a per-turn correlation the port does not carry could
+    establish. On the single-operator loopback console this surface is gated to,
+    with at most one turn in flight per conversation, the two coincide. The
+    contract's own description says "while this turn was dispatched" for exactly
+    this reason: a record that over-claimed would be worse than one that measures
+    something slightly wider, and erring toward MORE visibility is the direction
+    the ruling points.
+
+    WHAT IT CARRIES: that it happened, that it happened at most once (the ruling's
+    bound — a second expiry in one turn refuses instead of buying a third call,
+    and that turn produces a failure envelope, not this one), and the re-mint's
+    audit reference. Never the token, never a prefix of it, never the provider's
+    words, never a status code. The audit reference is disclosable by
+    construction: the broker's declaration records no token material against
+    one."""
+    from ideation_dashboard import doxbench_provider
+    fresh = fresh_ledger_events(before, after)
+    if not any(getattr(event, "reason", None) == doxbench_provider.REASON_PAID_RETRY
+               for event in fresh):
+        return None
+    audit_ref = None
+    for event in fresh:
+        if getattr(event, "reason", None) == doxbench_provider.REASON_EXPIRY_REMINT:
+            candidate = getattr(event, "audit_ref", None)
+            if isinstance(candidate, str) and candidate.strip():
+                audit_ref = candidate.strip()
+    fact = {"retried": True, "at_most_once": True}
+    if audit_ref is not None:
+        fact["audit_ref"] = audit_ref
+    return fact
+
+
 def doxbench_turn_v2_success_body(*, client_turn_id: str, assistant_turn_id: str,
                                   model_id: str, requested_model_id: str,
                                   routing_rule: bool, data_handling: str,
                                   bound_buffer: str, observed_hashes: dict,
                                   assistant_prose: str, context_posture: str,
                                   context_reduced_reason: str | None = None,
+                                  provider_retried: bool = False,
+                                  provider_retry_audit_ref: str | None = None,
                                   proposals=()) -> dict:
     """The RELEASED `workbench-chat-turn-v2-success` envelope — the turn's
     durable RECORD (contract-v1.34; add-doxbench-editing-phase-b §13).
@@ -1173,6 +1396,30 @@ def doxbench_turn_v2_success_body(*, client_turn_id: str, assistant_turn_id: str
                 "stated it; a reduction nobody can read is a silent "
                 "degradation")
         context_packet["reduced_reason"] = context_reduced_reason
+    # THE RE-MINT FACT (contract-v1.45, task 3.6). REBUILT here from two named
+    # scalars, exactly as `context_packet` and `selected_model` are and for the
+    # same reason: a caller handing in a ready-made dict could splice a key past
+    # the builder, and this envelope is closed by `additionalProperties: false`.
+    #
+    # ABSENT WHEN IT DID NOT HAPPEN, never `retried: false`. The wire key is
+    # optional — that is what makes contract-v1.45 additive — and a second,
+    # weaker spelling of an absence that is already unambiguous is how a consumer
+    # comes to read the wrong one.
+    provider_retry = None
+    if provider_retried:
+        provider_retry = {"retried": True, "at_most_once": True}
+        if provider_retry_audit_ref is not None:
+            if not isinstance(provider_retry_audit_ref, str):
+                raise doxbench_packet.PacketError(
+                    "a turn record carries the re-mint's audit reference as the "
+                    "broker stated it; a coerced reference is a manufactured "
+                    "one")
+            if not states_something(provider_retry_audit_ref):
+                raise doxbench_packet.PacketError(
+                    "a turn record carries the re-mint's audit reference as the "
+                    "broker stated it; a reference nobody can read correlates "
+                    "nothing")
+            provider_retry["audit_ref"] = provider_retry_audit_ref
     return {
         "schema_version": DOXBENCH_WIRE_SCHEMA_VERSION,
         "kind": DOXBENCH_CHAT_TURN_V2_SUCCESS_KIND,
@@ -1185,6 +1432,7 @@ def doxbench_turn_v2_success_body(*, client_turn_id: str, assistant_turn_id: str
             "data_handling": str(data_handling),
         },
         "context_packet": context_packet,
+        **({"provider_retry": provider_retry} if provider_retry else {}),
         "bound_buffer": str(bound_buffer),
         "observed_hashes": {str(key): str(value)
                             for key, value in observed_hashes.items()},
@@ -2514,6 +2762,499 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             return
         self._serve_bytes(json.dumps(envelope).encode("utf-8"), JSON_CTYPE, head_only)
 
+    # =====================================================================
+    # THE MODEL INTAKE SURFACE (add-doxchat-model-intake §2/§3)
+    # =====================================================================
+    #
+    # THE ONE QUESTION THIS BLOCK EXISTS TO ANSWER: when a human types a
+    # provider key into a control on this console, WHERE DOES THAT STRING GO?
+    #
+    # It goes to the declared broker and nowhere else, and the shape of the
+    # route is what makes that structural rather than careful:
+    #
+    #   * the FACTS ride the query string — the binding id, the label, the
+    #     provider, the endpoint, the dialect, the authentication kind — exactly
+    #     as they ride the broker's own declared FLAGS, where a fact belongs;
+    #   * the BODY is the credential and NOTHING ELSE. It is never parsed, never
+    #     decoded into a value this process holds, never assigned to a variable
+    #     that outlives the request, and never echoed: it is STREAMED, in chunks,
+    #     from this connection's read handle into the broker's standard input,
+    #     through `doxbench_provider.hand_off_credential`, whose signature takes
+    #     an open handle and refuses to take a value. That signature is the
+    #     enforcement — a caller CANNOT pass a credential value to it, so no
+    #     caller is holding one either.
+    #
+    # WHAT COMES BACK is the broker's `reference`, which is the only thing that
+    # then lives in a binding, in a file, in a log, or in a review. THE GREP TEST
+    # (tasks.md 2.4) is what makes that claim measurable rather than asserted.
+    #
+    # BOTH ACTS ARE GATED ON THE SAME `session` LOCAL-HUMAN VERDICT the model
+    # catalog already reuses (loopback + real checkout + resolved actor), plus
+    # the console-presence test, and an agent invocation is refused AND REPORTED
+    # like every other gate action. Reusing the gate is deliberate: enrolling a
+    # provider and approving one are exactly the kind of action that capability
+    # already exists to fence.
+
+    def _workbench_declaration_store(self):
+        """The intake DECLARATIONS store for the served checkout, or None.
+
+        Absence is a POSTURE and never an error, mirroring
+        `_workbench_model_port`'s own discipline: a plane that fails the reused
+        `session` gate, or has no real checkout to hold a settings document, has
+        no intake surface — which is the honest answer for a plane that may not
+        run a turn either.
+
+        The accessor never READS the document. It hands back a store; the
+        callers below decide what to ask it, so a route that only wants to know
+        whether intake is offered pays for exactly that question."""
+        if not self.capabilities.get("actions", {}).get("session"):
+            return None
+        if not self.checkout_root:
+            return None
+        try:
+            from ideation_dashboard import doxbench_intake
+            return doxbench_intake.DeclarationStore(
+                doxbench_intake.declarations_path(Path(self.checkout_root)))
+        except Exception:  # noqa: BLE001 - absence is a capability verdict
+            return None
+
+    def _intake_console_refusal(self) -> str | None:
+        """The fixed refusal CODE this request earns on an intake route, or
+        None when it is the local human console.
+
+        ONE gate for all three routes, in the same order the catalog route runs
+        its two clauses, so a surface, an act and an approval can never disagree
+        about who may reach them."""
+        if not (self.loopback
+                and self.capabilities.get("actions", {}).get("session")
+                and self.actor):
+            return DOXBENCH_ERR_MODEL_CAPABILITY_UNAVAILABLE
+        console_refusal = self._not_the_human_console()
+        if console_refusal is not None:
+            # REJECT AND REPORT (FR-019): the reason is for the SERVER LOG, and
+            # the wire gets the fixed sentence. An agent that reached for the
+            # credential surface is exactly the event an operator should be able
+            # to find afterwards.
+            sys.stderr.write(
+                "[workbench/model-intake] agent_invocation refused: "
+                f"{console_refusal}\n")
+            return DOXBENCH_ERR_CONSOLE_REQUIRED
+        return None
+
+    def _intake_refusal(self, code: str, reason: str) -> None:
+        """One STATED refusal: the fixed catalog body plus a `reason` drawn from
+        `doxbench_intake`'s own module constants.
+
+        The `reason` is never the broker's words, never the provider's, never an
+        exception's text and never anything the request carried — the same
+        discipline `_thread_absence_body` keeps, and the same discipline
+        `doxbench_provider` keeps on its side of the broker seam."""
+        body = doxbench_error_body(code)
+        body["reason"] = reason
+        self._send_json(doxbench_error_status(code), body)
+
+    def _handle_workbench_model_intake_surface(self, head_only: bool) -> None:
+        """`GET`/`HEAD /workbench/model-intake` — WHETHER THE FLOW CAN BE OPENED.
+
+        This route is what makes the selector's intake affordance honest. The
+        ratified sequencing requirement says the affordance SHALL NOT be released
+        ahead of the flow it opens — "an option that names an action and then does
+        nothing, or opens a surface that cannot complete, is worse than an absent
+        option" — and a browser cannot know whether a broker is declared. So it
+        asks, and it renders the affordance only when this route says `offered`.
+
+        `offered` is FALSE, with the fixed reason, when this install declares no
+        credential broker. That is the flow REFUSING RATHER THAN DEGRADING: a
+        wizard that collected a key with nowhere governed to put it would have to
+        hold it somewhere, and every somewhere available to this dashboard is a
+        place the standing rule forbids.
+
+        The `auth_kinds` block is read from `doxbench_binding.AUTH_KINDS` through
+        `doxbench_intake.auth_kind_disclosure()` and is served rather than
+        hard-coded in the page ON PURPOSE: the workspace's absolute views clause
+        keeps every credential-shaped spelling out of every browser module, so a
+        page that named the kinds itself would carry exactly the vocabulary that
+        clause forbids. The browser renders the label and submits the kind
+        verbatim."""
+        refusal = self._intake_console_refusal()
+        if refusal is not None:
+            self._send_json(doxbench_error_status(refusal),
+                            doxbench_error_body(refusal))
+            return
+        from ideation_dashboard import doxbench_intake
+        store = self._workbench_declaration_store()
+        if store is None:
+            self._send_json(
+                doxbench_error_status(DOXBENCH_ERR_MODEL_CAPABILITY_UNAVAILABLE),
+                doxbench_error_body(DOXBENCH_ERR_MODEL_CAPABILITY_UNAVAILABLE))
+            return
+        try:
+            disclosure = store.read_back()
+        except doxbench_intake.IntakeRefused:
+            # An unreadable settings document is NOT "no broker": it is a
+            # document this console cannot answer about, and offering enrolment
+            # on top of one would be offering to write into a file it could not
+            # read first.
+            disclosure = None
+        offered = bool(disclosure and disclosure.get("broker"))
+        from ideation_dashboard import doxbench_binding
+        envelope: dict = {
+            "kind": "workbench-model-intake",
+            "offered": offered,
+            "auth_kinds": doxbench_intake.auth_kind_disclosure() if offered
+                          else [],
+            # THE DIALECT VOCABULARY IS SERVED, NOT SPELLED IN THE PAGE, for the
+            # same reason the authentication kinds are: it is a CLOSED
+            # vocabulary the binding record owns and validates, and a browser
+            # that hard-coded it would be a second place to keep it in step. An
+            # unknown grammar is refused when the operator DECLARES the binding
+            # — earlier than a mint, and earlier than a paid call — so the
+            # surface offers exactly what will be accepted.
+            "dialects": list(doxbench_binding.DIALECTS) if offered else [],
+            "declarations": (disclosure or {}).get("declarations", []),
+        }
+        if not offered:
+            envelope["reason"] = doxbench_intake.NO_BROKER_NOTICE
+        self._serve_bytes(json.dumps(envelope).encode("utf-8"), JSON_CTYPE,
+                          head_only)
+
+    #: The largest credential this route will carry. A BOUND, not a policy: an
+    #: unbounded read of a connection is a way to spend this process's memory by
+    #: posting to it, and no provider credential in existence is this long. It is
+    #: deliberately far below `_MAX_BODY_BYTES` — a key is not a document.
+    MAX_CREDENTIAL_BYTES = 8192
+
+    #: The declared facts an intake act carries on its query string. CLOSED: a
+    #: parameter this tuple does not name is refused rather than ignored, so no
+    #: caller can smuggle a field the binding shape does not have — and a
+    #: credential can never arrive as one, because a query string is a thing
+    #: proxies and access logs record.
+    INTAKE_QUERY_FIELDS: tuple[str, ...] = (
+        "binding", "label", "provider", "endpoint", "dialect", "kind")
+
+    def _handle_workbench_model_intake(self) -> None:
+        """`POST /actions/workbench/model-intake` — THE ACT THAT CARRIES A
+        CREDENTIAL.
+
+        Reads the declared facts off the query string, builds the binding they
+        describe, streams THE WHOLE BODY into the declared broker's `intake`, and
+        keeps ONLY the reference it returns. Then it writes two records: the
+        binding (which names the broker and the reference and has no field a
+        secret could occupy) and a PENDING declaration (which says a human has
+        not approved this model yet).
+
+        NOTHING here holds the credential. `hand_off_credential` takes an open
+        handle, `_CredentialStream` moves bytes from this connection to the
+        child's pipe in chunks, and no local, no return value, no log line and no
+        exception in this method has ever been the value.
+
+        THE OAUTH KIND IS OFFERED AND NOT SIMULATED. It takes the same path with
+        an EMPTY source, because the declared broker's own surface is the
+        authorization flow (Brett's OQ-2 ruling) and this dashboard may not be
+        the party that receives a provider's tokens. A broker that declares the
+        flow takes custody and answers with a reference, and this route stores it
+        exactly as it stores an enrolled key's. A broker that does NOT — which is
+        every broker declared today — refuses, and the human is told so in this
+        repository's own fixed sentence. No redirect is invented, no field that
+        would take token material is presented, and no dance is faked."""
+        import io
+
+        refusal = self._intake_console_refusal()
+        if refusal is not None:
+            self._send_json(doxbench_error_status(refusal),
+                            doxbench_error_body(refusal))
+            return
+        from ideation_dashboard import doxbench_binding
+        from ideation_dashboard import doxbench_intake
+        from ideation_dashboard import doxbench_provider
+        store = self._workbench_declaration_store()
+        if store is None:
+            self._send_json(
+                doxbench_error_status(DOXBENCH_ERR_MODEL_CAPABILITY_UNAVAILABLE),
+                doxbench_error_body(DOXBENCH_ERR_MODEL_CAPABILITY_UNAVAILABLE))
+            return
+        try:
+            length = int(self.headers.get("Content-Length", "0"))
+        except (TypeError, ValueError):
+            length = -1
+        declared = self._intake_query_facts()
+        if declared is None:
+            # DRAIN BEFORE ANSWERING, on the same reasoning the bounded JSON
+            # reader drains: refusing with every byte unread closes the socket on
+            # a client still mid-body, and the kernel's reset can destroy the
+            # queued refusal before the client reads it. The bytes are read and
+            # DISCARDED — never parsed, never assembled, never looked at.
+            if length > 0:
+                _drain_refused_body(self.rfile, length)
+            self._send_error_or_intake(DOXBENCH_ERR_INVALID_INTAKE_REQUEST)
+            return
+        if length < 0 or length > self.MAX_CREDENTIAL_BYTES:
+            if length > 0:
+                _drain_refused_body(self.rfile, length)
+            self._send_error_or_intake(DOXBENCH_ERR_INVALID_INTAKE_REQUEST)
+            return
+        if (length <= 0
+                and declared["kind"] == doxbench_binding.AUTH_KIND_API_KEY):
+            # AN EMPTY BODY IS NOT A CREDENTIAL (PR #401 review). The api_key
+            # kind's whole body IS the secret, so a request declaring
+            # `Content-Length: 0` — or declaring no length at all, which this
+            # route reads as zero — has declared that it is enrolling nothing.
+            # Handing that to the broker would ask a custodian to take custody
+            # of an empty value and would come back with a reference naming it,
+            # and the binding and the PENDING declaration written afterwards
+            # would then say a credential exists where none does. That is worse
+            # than a refusal, because the records are the only thing anyone
+            # afterwards can read.
+            #
+            # REFUSED HERE, WITH THE LENGTH'S OWN KIN, and not one line later:
+            # this is a malformed request rather than a posture the server
+            # declines, so it earns the 400 shape the closed query vocabulary
+            # and the over-bound length already earn — no new failure code, and
+            # the broker child is never spawned. Nothing is drained because
+            # nothing was declared.
+            #
+            # `api_key` ONLY, deliberately. The oauth kind is SUPPOSED to send
+            # an empty body: the dashboard may not be the party that receives a
+            # provider's tokens (OQ-2), so that intake reaches the broker with
+            # an empty source on purpose and is refused — or not — by the
+            # broker's own declared flow rather than by this check.
+            self._send_error_or_intake(DOXBENCH_ERR_INVALID_INTAKE_REQUEST)
+            return
+        try:
+            broker = store.broker()
+        except doxbench_intake.IntakeRefused as error:
+            self._intake_refusal(DOXBENCH_ERR_INTAKE_REFUSED, str(error))
+            return
+        if broker is None:
+            # NO FIELD THAT WOULD ACCEPT A SECRET WAS EVER PRESENTED, because
+            # the surface route already answered `offered: false`. A caller that
+            # posted anyway gets the same sentence, and the body it sent is
+            # drained and dropped unread rather than parsed.
+            if length > 0:
+                _drain_refused_body(self.rfile, length)
+            self._intake_refusal(DOXBENCH_ERR_INTAKE_REFUSED,
+                                 doxbench_intake.NO_BROKER_NOTICE)
+            return
+        try:
+            binding = doxbench_binding.ModelProviderBinding(
+                id=declared["binding"],
+                label=declared["label"],
+                provider=declared["provider"],
+                # A PLACEHOLDER UNTIL THE BROKER ANSWERS. The record that
+                # reaches the store below carries the reference the broker
+                # returned; this value exists only so the invocation can be
+                # built, and it is replaced before anything is written.
+                credential_ref="pending-broker-intake",
+                auth_kind=declared["kind"],
+                approved_by=str(self.actor),
+                endpoint=declared["endpoint"],
+                dialect=declared["dialect"],
+                broker_argv=broker.argv)
+        except doxbench_binding.BindingRefused as error:
+            if length > 0:
+                _drain_refused_body(self.rfile, length)
+            self._intake_refusal(DOXBENCH_ERR_INVALID_INTAKE_REQUEST,
+                                 str(error))
+            return
+        accepts_secret = (
+            declared["kind"] == doxbench_binding.AUTH_KIND_API_KEY)
+        source = (_CredentialStream(self.rfile, length)
+                  if accepts_secret else io.StringIO(""))
+        if not accepts_secret and length > 0:
+            # A KIND THAT TAKES NO SECRET IS SENT NONE, and anything that
+            # arrived anyway is dropped unread at the descriptor rather than
+            # forwarded. The broker refuses an oauth intake before reading its
+            # standard input at all, so forwarding would have been forwarding a
+            # value nobody was going to read into a process that would not store
+            # it — and reading it here to discard it would make this process hold
+            # a credential for no reason at all.
+            _drain_refused_body(self.rfile, length)
+        try:
+            reference = doxbench_provider.hand_off_credential(binding, source)
+        except doxbench_provider.BrokerRefused as error:
+            # THE BROKER'S OWN WORDS NEVER REACH HERE: `BrokerRefused` carries
+            # one of `doxbench_provider.FIXED_DIAGNOSTICS` and nothing else, and
+            # the oauth kind is additionally given this repository's own sentence
+            # about what it means when a broker declines to open an authorization
+            # flow.
+            reason = (doxbench_intake.OAUTH_UNAVAILABLE_NOTICE
+                      if not accepts_secret else str(error))
+            self._intake_refusal(DOXBENCH_ERR_INTAKE_REFUSED, reason)
+            return
+        except Exception:  # noqa: BLE001 - no broker-shaped exception on the wire
+            self._intake_refusal(DOXBENCH_ERR_INTAKE_REFUSED,
+                                 doxbench_provider.DIAG_BROKER_UNREACHABLE)
+            return
+        import dataclasses as _dataclasses
+        stored = _dataclasses.replace(binding, credential_ref=reference)
+        bindings = doxbench_binding.BindingStore(
+            doxbench_binding.bindings_path(Path(self.checkout_root)))
+        try:
+            bindings.add(stored)
+            declaration = store.propose(doxbench_intake.ModelDeclaration(
+                binding_id=stored.id,
+                status=doxbench_intake.STATUS_PENDING,
+                install_posture=doxbench_intake.POSTURE_SINGLE_OPERATOR,
+                proposed_by=str(self.actor),
+                proposed_at=doxbench_intake.stamp()))
+        except (doxbench_binding.BindingRefused,
+                doxbench_intake.IntakeRefused) as error:
+            self._intake_refusal(DOXBENCH_ERR_INTAKE_REFUSED, str(error))
+            return
+        # THE ANSWER CARRIES THE BINDING'S READ-BACK AND THE DECLARATION'S, both
+        # of which are safe to read, log and commit precisely because they name a
+        # secret they do not contain. The pending sentence is the one the human
+        # most needs: completing this flow did NOT make a model available.
+        self._send_json(200, {
+            "ok": True,
+            "kind": "workbench-model-intake-result",
+            "binding": stored.as_read_back(),
+            "declaration": declaration.as_read_back(),
+            "availability": doxbench_intake.PENDING_NOTICE,
+        })
+
+    def _intake_query_facts(self):
+        """The declared facts off this request's query string, or None.
+
+        CLOSED: every member of `INTAKE_QUERY_FIELDS` must be present exactly
+        once and non-blank, and a parameter outside the tuple refuses the whole
+        request rather than being ignored — a caller that believed it had
+        declared something must never have it silently dropped, and a credential
+        must never be accepted as a query parameter under any spelling."""
+        raw = urllib.parse.parse_qs(
+            urllib.parse.urlsplit(self.path).query, keep_blank_values=True)
+        if set(raw) != set(self.INTAKE_QUERY_FIELDS):
+            return None
+        facts = {}
+        for field in self.INTAKE_QUERY_FIELDS:
+            values = raw[field]
+            if len(values) != 1 or not str(values[0]).strip():
+                return None
+            facts[field] = str(values[0]).strip()
+        return facts
+
+    def _send_error_or_intake(self, code: str) -> None:
+        self._send_json(doxbench_error_status(code), doxbench_error_body(code))
+
+    def _handle_workbench_model_approval(self) -> None:
+        """`POST /actions/workbench/model-approval` — THE RECORDED HUMAN ACT.
+
+        Completing an intake produced a PROPOSED declaration; this is the second
+        decision, and keeping the two apart is the whole of §3. If completing the
+        flow had set `available`, then supplying a payment credential would have
+        been the same act as approving a provider to process governed corpus
+        material — and the placeholder the human is looking at says "approved
+        model", so the word is already making a promise.
+
+        THE RECORD IS WRITTEN BEFORE THE SETTINGS DOCUMENT MOVES. A crash between
+        the two leaves an audit record for an approval that did not take effect,
+        which is readable and recoverable; the other order would leave an
+        available model no record accounts for, which is the state this act
+        exists to make impossible.
+
+        AGENT INVOCATION REFUSES AND IS REPORTED, exactly as every other gate
+        action refuses one — through the shared `_intake_console_refusal` above,
+        which writes the reason to the server log and puts the fixed sentence on
+        the wire."""
+        refusal = self._intake_console_refusal()
+        if refusal is not None:
+            self._send_json(doxbench_error_status(refusal),
+                            doxbench_error_body(refusal))
+            return
+        from ideation_dashboard import doxbench_intake
+        from ideation_dashboard import gate_console
+        store = self._workbench_declaration_store()
+        if store is None:
+            self._send_json(
+                doxbench_error_status(DOXBENCH_ERR_MODEL_CAPABILITY_UNAVAILABLE),
+                doxbench_error_body(DOXBENCH_ERR_MODEL_CAPABILITY_UNAVAILABLE))
+            return
+        payload = self._read_json_body()
+        if not isinstance(payload, dict):
+            self._send_error_or_intake(DOXBENCH_ERR_INVALID_INTAKE_REQUEST)
+            return
+        binding_id = payload.get("binding")
+        if not isinstance(binding_id, str) or not binding_id.strip():
+            self._send_error_or_intake(DOXBENCH_ERR_INVALID_INTAKE_REQUEST)
+            return
+        binding_id = binding_id.strip()
+        try:
+            declaration = store.get(binding_id)
+        except doxbench_intake.IntakeRefused as error:
+            self._intake_refusal(DOXBENCH_ERR_APPROVAL_REFUSED, str(error))
+            return
+        if declaration is None or declaration.status != doxbench_intake.STATUS_PENDING:
+            self._intake_refusal(
+                DOXBENCH_ERR_APPROVAL_REFUSED,
+                "no declaration is pending under that name on this install; "
+                "there is nothing here to approve")
+            return
+        binding = self._approval_binding(binding_id)
+        if binding is None:
+            self._intake_refusal(
+                DOXBENCH_ERR_APPROVAL_REFUSED,
+                "the declaration names a binding this checkout does not "
+                "declare; approving a model whose broker invocation is gone "
+                "would record an authority over nothing")
+            return
+        import dataclasses as _dataclasses
+        at = doxbench_intake.stamp()
+        approved = _dataclasses.replace(
+            declaration,
+            status=doxbench_intake.STATUS_APPROVED,
+            issued_by=binding.approved_by,
+            approved_by=str(self.actor),
+            expires_at=doxbench_intake.approval_expiry(),
+            audit_ref=binding.credential_ref)
+        record = gate_console.build_gate_action_record(
+            actor=str(self.actor),
+            action=doxbench_intake.GATE_ACTION_APPROVE_MODEL,
+            at=at,
+            model_declaration=binding_id,
+            model_approval=approved.approval_block(),
+            provenance=gate_console.HTTP_CONSOLE_TOKEN,
+            artifacts=[{"kind": "other",
+                        "reference": doxbench_intake.declarations_path(
+                            Path(self.checkout_root)).relative_to(
+                                Path(self.checkout_root)).as_posix()}])
+        try:
+            gate_console.validate_gate_action_record(record)
+            human = gate_console.HumanGate(
+                Path(self.checkout_root),
+                [gate_console.DEFAULT_RECORDS_DIR],
+                human_actor=str(self.actor))
+            gate_console.write_gate_action_record(
+                human, gate_console.DEFAULT_RECORDS_DIR, record)
+            store.approve(
+                binding_id,
+                issued_by=approved.issued_by,
+                approved_by=approved.approved_by,
+                expires_at=approved.expires_at,
+                audit_ref=approved.audit_ref,
+                consent_ref=approved.consent_ref)
+        except (gate_console.GateRefused, doxbench_intake.IntakeRefused,
+                OSError) as error:
+            self._intake_refusal(DOXBENCH_ERR_APPROVAL_REFUSED, str(error))
+            return
+        self._send_json(200, {
+            "ok": True,
+            "kind": "workbench-model-approval-result",
+            "declaration": approved.as_read_back(),
+            "availability": doxbench_intake.APPROVAL_NOTICE,
+        })
+
+    def _approval_binding(self, binding_id: str):
+        """The binding a pending declaration names, or None. Read through the
+        ONE store both entrypoints read, so an approval cannot be recorded
+        against a binding the port would never resolve."""
+        from ideation_dashboard import doxbench_binding
+        try:
+            return doxbench_binding.BindingStore(
+                doxbench_binding.bindings_path(Path(self.checkout_root))
+            ).get(binding_id)
+        except doxbench_binding.BindingRefused:
+            return None
+
     @staticmethod
     def _wire_valid_turn_id(payload):
         """The submitted `client_turn_id` if it is usable in the RELEASED
@@ -3508,9 +4249,27 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             # late result — if it ever arrives — is discarded unread by the
             # abandoned daemon thread. dispatch_turn's own post-hoc elapsed
             # check stays as the pure verdict for adapters that DO return.
+            # THE MINT LEDGER, BEFORE AND AFTER (task 3.6). Read around the
+            # dispatch so the turn record can state a mid-turn re-mint and the
+            # paid retry it bought — the fact Brett's 2026-08-26 ruling requires
+            # to be VISIBLE, which until now existed only in three places the
+            # browser cannot read. Duck-typed and optional: an adapter with no
+            # ledger contributes nothing and nothing about its turns changes.
+            mint_ledger_before = mint_ledger_snapshot(turn_port)
             outcome = self._deadline_bound_dispatch(
                 turn_port, prompt_envelope, model_entry,
                 _typed_response_validator)
+            provider_retry = provider_retry_fact(
+                mint_ledger_before, mint_ledger_snapshot(turn_port))
+            if provider_retry is not None:
+                # SAID ON THE CONSOLE TOO. The port already prints its own fixed
+                # notice; this line names the TURN, so an operator reading the
+                # log can join the paid retry to the conversation that bought it
+                # without reading the browser at all.
+                sys.stderr.write(
+                    "[workbench/chat-turn] the provider token was re-minted "
+                    "mid-turn and the turn was retried once (one further paid "
+                    f"call) for client turn {client_turn_id}\n")
             if isinstance(outcome, doxbench_model.TurnDispatchSuccess):
                 # `assistant_turn_id` derivation is this slice's judgement
                 # call: the released schema bounds it (1..128) without naming
@@ -3617,6 +4376,14 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                             context_posture=context_packet_record["posture"],
                             context_reduced_reason=context_packet_record.get(
                                 "reduced_reason"),
+                            # task 3.6: the re-mint and its paid retry, on the
+                            # record the human actually reads. Two named scalars
+                            # rather than the derived dict, so the builder
+                            # rebuilds the closed block itself.
+                            provider_retried=provider_retry is not None,
+                            provider_retry_audit_ref=(
+                                provider_retry.get("audit_ref")
+                                if provider_retry else None),
                             assistant_prose=outcome.assistant_prose,
                             proposals=outcome.proposals)
                     except doxbench_packet.PacketError:
@@ -4449,6 +5216,9 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         if path == WORKBENCH_MODEL_CATALOG_ROUTE:
             self._handle_workbench_model_catalog(head_only)
             return True
+        if path == WORKBENCH_MODEL_INTAKE_ROUTE:
+            self._handle_workbench_model_intake_surface(head_only)
+            return True
         if path == WORKBENCH_THREAD_ROUTE:
             self._handle_workbench_thread(head_only)
             return True
@@ -4497,6 +5267,12 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             return
         if path == ACTIONS_WORKBENCH_DOCUMENT_ABSTRACT_ROUTE:
             self._handle_workbench_document_abstract()
+            return
+        if path == ACTIONS_WORKBENCH_MODEL_INTAKE_ROUTE:
+            self._handle_workbench_model_intake()
+            return
+        if path == ACTIONS_WORKBENCH_MODEL_APPROVAL_ROUTE:
+            self._handle_workbench_model_approval()
             return
         if path.startswith(ACTIONS_GATE_PREFIX):
             self._handle_gate_action(path[len(ACTIONS_GATE_PREFIX):])

@@ -232,6 +232,31 @@ Where each downstream item stands once step 8 executes:
 | `add-notebook-hosting-credential-custody` | Independent; § 1–§ 3 in flight | — |
 | `notebook-access-wallet-governance` (#294) | Staged, and its INDEX row sequences it **behind these held steps** | 4.6 clearing |
 
+## 7. CORRECTED AFTER EXECUTION (2026-08-26) — the chain is longer than § 6 said
+
+Step 8 executed the same day. Two corrections to the map above, both making the
+archive FURTHER away rather than nearer, which is why they are recorded:
+
+* **4.6 is DONE** — renamed=7, skipped=0, failed=0; aliases clean; the seven
+  company books present and un-retitled. Evidence in
+  `docs/notebook-projection-migration-evidence-2026-08-24.md`.
+* **5.1 IS NOT MET, and § 6 was wrong to imply step 8 would close it.** That open
+  item records the AUTHENTICATION blocker; its own strategic direction is
+  unattended re-authentication — the *"log in whenever it wants"* property. The
+  account moved and the property does not exist: the sign-in is interactive,
+  `nlm login` is broken by the notebook.google.com rebrand, and the ratified
+  custody text says custody does not deliver automation. It closes on that
+  capability, not on this act.
+* **The post-hoc parity did not come back clean**, and the retirement is
+  confirmed anyway on the number that matters: live managed titles are **675**,
+  exactly what 2026-08-25 recorded. The four books reporting pending changes are
+  derived-side drift since that apply — including this very runbook, written the
+  same day and not yet projected.
+
+So the archive now waits on THREE things, not two: **4.7** (blocked on task 2.4's
+unnamed company-policy actor), **5.1** (blocked on unattended auth, a named
+successor), and a reconciling `--apply` to clear the derived drift.
+
 **Archive-on-evidence for this change is reachable once 4.6 and 4.7 execute and
 5.1 closes** — 4.7 being the one that still carries an unnamed actor, so it, not
 step 8, is now the long pole.

@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 
 import pytest
 
@@ -25,16 +26,61 @@ from doc_health import ideation_readiness as ir
 
 REV = "a7aac777bedfb83dbb957819a7753436bdabd334"
 
+# harden-ideation-readiness-check. Spelled identically in
+# `test_ideation_readiness.py` (which carries the full rationale) and in
+# `test_readiness_dispatch.py`. The duplication is deliberate and tracked: the
+# packet's Q3 / tasks § 5.1 — whether the three collapse into one shared
+# fixture — is OPEN and is not decided by this realization. Edit one, edit all
+# three.
+ROOT_FALLBACK_MARKER = "[openxfactory-root] fallback"
+INDEX_REL = Path("ideation") / "cross-reference.yaml"
+SIBLING_INDEX_REL = Path("openxFactory") / INDEX_REL
 
-def _openxfactory_root():
-    """Walk up to the sibling openxFactory checkout (its landed index +
-    validator); None when unreachable (tests skip rather than fail)."""
-    marker = Path("openxFactory") / "ideation" / "cross-reference.yaml"
-    base = Path(REPO_ROOT).resolve()
+
+def _openxfactory_root(under_test=None, *, fallback=None, announce=print):
+    """Resolve the openxFactory checkout this run is a proof ABOUT: the
+    REPOSITORY UNDER TEST first, then an explicit `fallback`, then
+    `OPENXFACTORY_ROOT`, then the ancestor walk to a sibling `openxFactory/` —
+    every rung past the first announcing which checkout it resolved and why.
+    None when nothing is reachable."""
+    base = Path(under_test or REPO_ROOT).resolve()
+    if (base / INDEX_REL).is_file():
+        return base
+
+    why = f"the repository under test ({base}) carries no {INDEX_REL.as_posix()}"
+    if fallback is not None and (Path(fallback) / INDEX_REL).is_file():
+        resolved = Path(fallback).resolve()
+        announce(f"{ROOT_FALLBACK_MARKER}: resolved {resolved} from the "
+                 f"explicit argument because {why}")
+        return resolved
+
+    declared = os.environ.get("OPENXFACTORY_ROOT")
+    if declared and (Path(declared) / INDEX_REL).is_file():
+        resolved = Path(declared).resolve()
+        announce(f"{ROOT_FALLBACK_MARKER}: resolved {resolved} from "
+                 f"OPENXFACTORY_ROOT because {why}")
+        return resolved
+
     for d in [base, *base.parents]:
-        if (d / marker).is_file():
-            return d / "openxFactory"
+        if (d / SIBLING_INDEX_REL).is_file():
+            resolved = d / "openxFactory"
+            announce(f"{ROOT_FALLBACK_MARKER}: resolved {resolved} by walking "
+                     f"up from the repository under test because {why}")
+            return resolved
     return None
+
+
+def _openxfactory_root_or_skip(under_test=None):
+    """The resolved checkout, or a skip whose reason names what was searched."""
+    root = _openxfactory_root(under_test)
+    if root is None:
+        base = Path(under_test or REPO_ROOT).resolve()
+        pytest.skip(f"proof NOT PERFORMED: no openxFactory checkout serves it "
+                    f"— the repository under test ({base}) carries no "
+                    f"{INDEX_REL.as_posix()}, OPENXFACTORY_ROOT names no "
+                    f"checkout that does, and no ancestor of it holds "
+                    f"{SIBLING_INDEX_REL.as_posix()}")
+    return root
 
 
 # --- builders ------------------------------------------------------------
@@ -592,9 +638,7 @@ def test_rendered_index_carries_both_lane_attributions():
 
 def test_pipeline_proof_derives_over_the_real_index_and_validates_clean(
         tmp_path):
-    openx = _openxfactory_root()
-    if openx is None:
-        pytest.skip("no sibling openxFactory checkout")
+    openx = _openxfactory_root_or_skip()
     import yaml as yaml_mod
     index = yaml_mod.safe_load(
         (openx / "ideation/cross-reference.yaml").read_text(encoding="utf-8"))

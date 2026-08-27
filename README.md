@@ -760,7 +760,25 @@ Active changes:
   `add-model-provider-broker` (custody, minting, the narrowed provider
   boundary), which is itself blocked on openProfiler; needs an additive
   `gate-action-record` action enum member at realization.
-  `target_release: implementation_pending`.
+  **BUILT 2026-08-26.** The blocking dependency is discharged on both sides —
+  `add-model-provider-broker` merged (PR #392, main `bb7d7ae8`) and openProfiler
+  declared its CLI surface (PR #18, main `d0538c31`, `docs/broker-cli.md`) — and
+  sections 1, 2 and 3 are complete: the affordance renders first and defaults on
+  an empty catalog (never on an unreadable one), the flow streams what a human
+  supplies straight into the declared broker and keeps only the binding, a
+  PENDING declaration contributes no available entry, and
+  `POST /actions/workbench/model-approval` writes an `approve-model` gate action
+  carrying issuer/approver/expiry/audit reference before anything becomes
+  selectable. It also discharges the task handed over by
+  `add-model-provider-broker` (its 2.4): the mid-turn re-mint and the paid retry
+  it buys are now VISIBLE in the turn record and in the rail, per Brett's
+  2026-08-26 ruling. Both land as one ADDITIVE cut,
+  `target_release: contract-v1.45` (`approve-model` plus `target.model_declaration`
+  and `model_approval` on `gate-action-record`; the optional `provider_retry` on
+  `workbench-chat-turn-v2-success`). It stays ACTIVE: tasks 4.1 (live-console
+  proof, which needs a human at a real browser) and 4.2 (realization evidence)
+  are open, and under `release-realization` this change archives only on merged
+  plus green.
 - [add-identity-brokering](openspec/changes/add-identity-brokering/proposal.md)
   — authored and **RATIFIED 2026-08-21** (recommendations adopted as written;
   the OQ-5 co-residence gate discharged: HealthLinc patients found and
@@ -1120,11 +1138,30 @@ Active changes:
   unresolvable pin in a complete clone, keeping the skip only for a genuinely
   truncated one, with the reason naming which was observed. The one-line index
   re-pin to `4e57009c` rides the same change because requirement 3 would
-  otherwise land it red on its own gate; the derivation reproduces the
-  committed 290-entry body at `da9bf3b7`, `4e57009c` and `origin/main` alike,
-  so no regeneration is owed. EXPLICITLY DEFERRED to its own future packet: the
-  governance rule that an index pin must be re-derived when a branch lands
-  rewritten. (code surface: openxFactory; target release: implemented)
+  otherwise land it red on its own gate. EXPLICITLY DEFERRED to its own future
+  packet: the governance rule that an index pin must be re-derived when a
+  branch lands rewritten.
+  **REALIZED 2026-08-26** — all three requirements implemented, the pin and
+  its `.md` projection repaired, 24 regressions added
+  (`tests/doc-health/test_readiness_proof_resolution.py`), `tests/doc-health`
+  **920 passed**, `openspec validate --all --strict` **77 passed**, and the
+  single-repo doc-health report byte-identical before and after. The
+  acceptance signal is measured, not asserted: with a sibling checkout holding
+  the 2026-08-26 dirty-index shape, the PRE-change suite reproduces the
+  packet's **1 failed / 895 passed** baseline while the fixed suite is
+  **920 passed** — the same verdict it returns beside a clean sibling. TWO
+  CORRECTIONS THE REALIZATION MEASURED: the derivation reproduces the
+  committed 290-entry body at `da9bf3b7` and `4e57009c`, but at CURRENT `main`
+  it derives **288** — the corpus moved since `31c931fa`, so Q2's alternative
+  now owes a body regeneration; and the assertion was unreachable by TWO
+  routes, since in an ISOLATED clone (how this repo's own CI `validate` job
+  checks out) the pre-change resolver could not find the repository's own
+  index at all. **Q1 = KEEP the narrowed skip** and **Q2 = `4e57009c`** were
+  taken as measured decisions, recorded against the questions; **Q3 stays
+  OPEN** — the three resolver spellings are fixed in place, with the new
+  regressions parametrized over all three so the copies cannot drift.
+  ACTIVE until the realization PR merges; `tasks.md` § 4.6 (archive) stays
+  open. (code surface: openxFactory; target release: implemented)
 
 The avatar-client kernel (`contract-v1.7`), reference runtime, and avatar-first UI
 standard (`contract-v1.8`) are realized. The contract kernel, the revocation
