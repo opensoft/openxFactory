@@ -134,16 +134,30 @@ same-commit rule is broken; §4.2 and §4.3 likewise.
       DHC moved out of `tenants/ledgerxcorp/wallets/`, content unchanged.
       `constraint_id` is unchanged, so `runsheet.md:174`'s by-ID reference
       survives without an edit.
-- [ ] 4.3 `tests/validate_wallet_estate.py` — moved, with exactly three
-      mechanical changes and no rule change: (a) `VALIDATOR_CANDIDATES` and the
-      five-level walk DELETED, replaced by the single fixed relative path
+- [ ] 4.3 `tests/validate_wallet_estate.py` — moved, with these mechanical
+      changes and NO rule change: (a) `VALIDATOR_CANDIDATES` and the five-level
+      walk DELETED, replaced by the single fixed relative path
       `openXwallet/scripts/validate-openxwallet.py` governed by 3.4's pin (D5);
       (b) a declared ESTATE ROOT parameter defaulting to the parent of the
-      LedgerxWallet checkout, refusing with a named exit when that root holds no
-      `tenants/*/wallets/` (D5); (c) `EXPECTED_WALLETS` / `EXPECTED_GRANTS` read
-      from the estate manifest of §5.3 instead of being literals (D6).
+      LedgerxWallet checkout (D5); (c) `EXPECTED_WALLETS` / `EXPECTED_GRANTS`
+      read from the estate manifest of §5.3 instead of being literals (D6).
       `EXPECTED_CONSTRAINT`, `ENVIRONMENT_EVIDENCING`, `PLATFORM_VERIFIABLE`,
       `PIN_VERDICTS` and every negative-probe corpus are BYTE-UNCHANGED.
+- [ ] 4.3a **The estate root serves THREE reads, and each gets its own refusal**
+      (D5). Re-base on the estate root: the estate scan (`tenants/*/wallets/`,
+      the `err()` at `:706`); `check_pin_reconciliation()`'s
+      `os.path.join(REPO, "stack.yaml")` → `yaml.safe_load(...)["xfactory"]["contract_ref"]`,
+      which LedgerxWallet cannot satisfy because it has no `stack.yaml` and never
+      will; and `find_aggregation()`'s SECOND five-level upward walk (`:583-594`)
+      for a `.gitmodules` mentioning `openxFactory`, which must START FROM THE
+      ESTATE ROOT so nesting does not silently spend one of five levels (and a
+      LedgerxWallet Speckit worktree two). The pinned-emitter extraction at
+      `:688` and its `--aggregation-root` invocation keep passing the DOMAIN
+      repository as the scan target — the parent's ratified `tasks.md` 6.2
+      requires this bar to run that emitter, so it may not be dropped in the
+      move. **This is the task a naive `git mv` gets wrong.**
+- [ ] 4.3b LedgerxWallet's scaffold DECLARES its inherited PyYAML dependency
+      (`yaml.safe_load`) rather than discovering it on the first run.
 - [ ] 4.4 `profile/custody-posture.yaml` — **NEW, not a move** (D8): the declared
       Ledgerx posture (`holder_readable`, environment-evidencing, authority
       ceiling `act`, audit records say "environment" never "holder"), citing the
@@ -214,8 +228,15 @@ same-commit rule is broken; §4.2 and §4.3 likewise.
       one of the three and show the refusal.
 - [ ] 6.4 A RED proof that the delegator refuses with the remediation string on
       an uninitialized `LedgerxWallet` submodule, and that it does not skip.
-- [ ] 6.5 A RED proof that the moved validator refuses on an estate root holding
-      no `tenants/*/wallets/`.
+- [ ] 6.5 THREE RED proofs of the estate root's three jobs (D5, §4.3a): a root
+      with no `tenants/*/wallets/`; a root with no `stack.yaml`; and a root with
+      no aggregation checkout above it. Each refusal names what it could not read.
+- [ ] 6.5a EVIDENCE that the pin-reconciliation leg still runs after the move:
+      the `PIN RECONCILIATION -- scripts/check-openxfactory-pin.py at pin …` line
+      appears in the moved validator's output with the same verdict tier as the
+      pre-move baseline. The parent's ratified `tasks.md` 6.2 makes this bar the
+      ONLY observer of the relocation window, so a silently dropped leg would
+      un-observe an obligation another change depends on.
 - [ ] 6.6 A RED proof that the deleted candidate walk cannot resolve: with no
       `openXwallet` gitlink initialized under LedgerxWallet, the validator refuses
       rather than finding a validator by walking up into openxFactory or the

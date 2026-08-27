@@ -252,7 +252,25 @@ register stayed in openxFactory; its READER travelled with the validator), and
 it is handled the same way: by a declared scan target rather than by a walk. The
 validator takes the estate root explicitly, defaults to `..` when it is nested
 at `LedgerxFactory/LedgerxWallet`, and REFUSES with a named exit when the estate
-root holds no `tenants/*/wallets/` directory. Its `EXPECTED_WALLETS` and
+root holds no `tenants/*/wallets/` directory.
+
+**The estate root has THREE jobs, and naming only the first would have made this
+move break silently.** Beyond the estate scan, the validator (a) opens
+`os.path.join(REPO, "stack.yaml")` and reads
+`yaml.safe_load(fh)["xfactory"]["contract_ref"]` inside
+`check_pin_reconciliation()` — a file LedgerxWallet has no business owning — and
+(b) runs a SECOND five-level upward walk, `find_aggregation()` (`:583-594`),
+hunting a `.gitmodules` that mentions `openxFactory` so it can extract the
+PINNED relocation emitter (`git -C <openx> show <pin>:scripts/check-openxfactory-pin.py`,
+`:688`) and run it against this repository. That leg is not incidental: the
+parent's ratified `tasks.md` 6.2 makes this bar the ONLY observer of the
+deprecation window, so dropping it would un-observe an obligation another change
+depends on. All three reads re-base on the declared estate root, the second walk
+STARTS from it so nesting does not silently spend one of its five levels, and
+each of the three gets its own refusal naming which surface was unreadable.
+`design.md` D5 carries the enumeration.
+
+Its `EXPECTED_WALLETS` and
 `EXPECTED_GRANTS` sets — which today hard-code `wal-lx-creator-01`,
 `wal-lx-poster-01`, `grant-lx-create-01`, `grant-lx-post-01` — move OUT of the
 profile validator and into an estate-side declaration that the validator READS,

@@ -144,6 +144,15 @@ profile validator.
 - **WHEN** the moved validator hard-codes a specific tenant's wallet or grant ids as its expected set
 - **THEN** that expectation is relocated into the estate the ids belong to, and the validator READS it, because a cross-tenant profile cannot enumerate one tenant's estate
 
+#### Scenario: The moved validator needs the domain's own declarations
+- **WHEN** the moved validator must read something only the domain repository holds — the tenant estate, the domain `stack.yaml`, or the aggregation checkout above it
+- **THEN** it reads them relative to the DECLARED ESTATE ROOT and not relative to its own location
+- **AND** each such read that cannot be satisfied REFUSES with its own named exit saying which surface was unreadable, so three different breakages do not present as one
+
+#### Scenario: A relocated validator silently drops an enforcement leg
+- **WHEN** the relocation removes or disables a check the moved validator performed before the move
+- **THEN** the relocation is incomplete, because coverage is measured by what still runs and not by what still exists
+
 #### Scenario: A prepared runsheet references a relocating path
 - **WHEN** an un-executed runsheet or quickstart in LedgerxFactory references a profile artifact by a path this relocation changes
 - **THEN** the reference is repointed IN THE SAME ACT as the move, because a prepared live window whose paths moved underneath it is a broken procedure rather than a stale link

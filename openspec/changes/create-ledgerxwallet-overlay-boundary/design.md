@@ -86,12 +86,24 @@ rule NAMES (`contracts/<product>-pin.yaml`), and MedxAvatar is left alone.
 whole tree, which is what `relationship: pinned_upstream_composition` already
 says, and a redundant field invites a second reading.
 
+**openxFactory's own pin is the WRONG model here, and the parent says so.**
+`openxFactory/contracts/openxwallet-pin.yaml` uses `kind:
+pinned_contract_manifest`, `commit:`, `source_repository:`, eight `sha256:` rows
+and a `pinned_by_commit_only:` set (verified: exactly 8 digest rows). Its own
+design D1 explains why it does NOT use a `<consumer>_<product>_pin` kind:
+"rule (a)'s `<consumer>_<product>_pin` template governs DESCENDANTS, and one
+grammar stretched over both relationships would claim openxFactory is a wallet
+descendant." That reasoning runs in both directions. LedgerxWallet IS a
+descendant, so it takes the descendant grammar — `ledgerxwallet_openxwallet_pin`,
+`repository:`, `revision:` — and not the consumer-direction shape.
+
 *Rejected: a per-file `sha256` block mirroring openxFactory's pin.* openxFactory
-pins eight NAMED artifacts it consumes by content, and its verifier recomputes
-their digests. LedgerxWallet consumes openXwallet as a whole tree through a
-gitlink; the gitlink commit IS the content address, and a hand-maintained digest
-list over a tree nobody enumerates would be a second source of truth that drifts
-silently. Stated so it can be contested rather than assumed.
+pins eight NAMED artifacts it consumes by content, and its verifier
+(`scripts/verify-openxwallet-pin.py`) recomputes their digests. LedgerxWallet
+consumes openXwallet as a whole tree through a gitlink; the gitlink commit IS the
+content address, and a hand-maintained digest list over a tree nobody enumerates
+would be a second source of truth that drifts silently. Stated so it can be
+contested rather than assumed.
 
 **`wallet-v1.1` is an ANNOTATED tag.** `refs/tags/wallet-v1.1` is tag object
 `021cdeefbae50127946f147c23edf98c653aa4a5`, dereferencing to commit
@@ -212,6 +224,47 @@ defaulting to the parent directory of the LedgerxWallet checkout, and the
 validator REFUSES with a named exit when that root holds no `tenants/*/wallets/`
 directory — never a skip, on LedgerxFactory's own repo law of 2026-08-07 that
 "an unreadable surface must fail, not degrade to 'empty'".
+
+**The estate root carries THREE jobs, not one — and missing any of them breaks
+the move.** The validator's location dependencies are wider than the wallet
+estate, and enumerating them is what makes D5 sufficient rather than plausible.
+Read on LedgerxFactory `origin/main`:
+
+1. **The estate scan** — `tenants/*/wallets/`, and the `err()` at `:706`
+   ("missing estate directory tenants/ledgerxcorp/wallets").
+2. **`stack.yaml`** — `check_pin_reconciliation()` opens
+   `os.path.join(REPO, "stack.yaml")` and reads
+   `yaml.safe_load(fh)["xfactory"]["contract_ref"]`. LedgerxWallet has no
+   `stack.yaml` and never will: the domain stack is the DOMAIN's declaration.
+   So this read must be re-based on the estate root, not on the module's own
+   `REPO`. **This is the dependency a naive `git mv` would break silently at
+   import-adjacent time, and it is why D5 says "declared" rather than "walked".**
+3. **A SECOND upward walk** — `find_aggregation()` (`:583-594`) climbs five
+   parents looking for a `.gitmodules` that mentions `openxFactory`, to locate
+   the xFactory AGGREGATION root and, under it, an openxFactory checkout. It then
+   extracts the PINNED emitter (`git -C <openx> show
+   <xfactory.contract_ref>:scripts/check-openxfactory-pin.py`, `:688`) and runs
+   it with the repository and `--aggregation-root`. That is a THIRD repository
+   dependency, it is required by the parent's ratified `tasks.md` 6.2, and it
+   is about the openxFactory BUNDLE pin — a different pin from the openXwallet
+   one this change is otherwise concerned with.
+
+**Decision on each.** (1) and (2) take the estate root. (3) keeps its walk but
+starts it from the ESTATE ROOT rather than from the module's own location, so the
+level budget is measured from the domain repository exactly as it is today —
+otherwise nesting spends one of the five levels and a LedgerxWallet Speckit
+worktree spends two, quietly shrinking a budget nobody re-derived. The emitter
+invocation continues to pass the DOMAIN repository as its scan target, because
+that is the tree whose pin is being reconciled.
+
+**The consequence for the estate-root parameter is that it is not optional.** A
+default is a convenience for the nested layout; every one of the three jobs
+refuses with a named exit when the root it was given is not a domain repository —
+no `tenants/*/wallets/`, no `stack.yaml`, no aggregation above it. Three
+refusals, not one, and each names what it could not read.
+
+**LedgerxWallet inherits a PyYAML dependency** (`yaml.safe_load`), so the
+scaffold declares it rather than discovering it on the first run.
 
 This is R6 of the parent one layer down. There, the review-authority register
 stayed in openxFactory while its READER travelled with the validator, and the
