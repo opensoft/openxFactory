@@ -878,7 +878,8 @@ def test_the_self_finding_is_retired_by_the_archive_act():
     there is no archived counterpart to point it at, and manufacturing one would
     widen the family's scope inside a test instead of inside its module.
 
-    WHAT REPLACES IT, AND NEITHER LINE IS VACUOUS. First: no finding names
+    WHAT REPLACES IT — two assertions, each carrying a claim of its own rather
+    than standing in for the retired one. First: no finding names
     either path this packet ever had — the fact that made the `_LEDGER_SUBJECTS`
     row safe to remove, checked here rather than asserted in a commit message.
     Second: the archived block, a frozen document, carries the MOVED numerals

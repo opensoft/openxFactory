@@ -1173,12 +1173,17 @@ Archived changes:
   `error` and the family is deliberately absent from `FAMILY_RESOLUTION` — and
   § 7.2's flip of the scenario-title arm is the ONE task box the archive leaves
   owed on a measured population, one finding standing (`add-composed-view-authoring`'s
-  deliberate rename, named and never claimed a defect). **CLOSES #357 and
-  #329**: the check exists, reads this repository, and reports #329's class at
-  authoring time rather than at an archive gate. **#330 STAYS OPEN** (§ 7.1) —
-  its shape 1, the post-archive safety net, needs a third measurement basis
-  inside a family whose promoted requirement obliges it to declare which of TWO
-  it measured, and this change must not be read as closing it. So do § 7.4 (the
+  deliberate rename, named and never claimed a defect). **CLOSES #329**: its ask
+  was detection, both instances are disposed, and the class is now detected
+  before an archive rather than at one. **#357 IS `Refs`, NOT `Closes`, BY
+  RULING** — that issue's own remedy asked for a CONTESTED-class finding, and
+  this family launched ADVISORY and absent from `FAMILY_RESOLUTION` with § 7.2
+  owing exactly that flip, so closing it would mark done a remedy whose stated
+  form is unbuilt. **#330 was closed by hand on 2026-08-27 (16:43Z)**; § 7.1
+  stands as the record of what this change did NOT build — shape 1, the post-hoc
+  lost-scenario check, which needs a third measurement basis inside a family
+  whose promoted requirement obliges it to declare which of TWO it measured. So
+  does § 7.4 (the
   domain factories are UNMEASURED, which is why the launch is advisory) and
   #318 (§ 7.5, whose ruling recorded this packet's admission without giving the
   taxonomy an origin kind for "proposed, not approved"). The five § Orchestrator

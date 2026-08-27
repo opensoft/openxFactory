@@ -165,7 +165,9 @@ mutation round live in that feature's tasks.md and evidence.
       ratified document claimed one — the "reverted first archive attempt"
       phrasing came from a session brief (F2 review finding B4). The truncated
       block was caught pre-commit and rewritten scenario-complete inside the
-      archive commit `38b548d4` itself, so the fixture is byte-faithful from that
+      archive commit `38b548d4` itself (merged to main as squash `b03b9992`,
+      PR #331 — `38b548d4` is branch-only and is NOT reachable from `main`, while
+      the recovery point `d5f447e8` is), so the fixture is byte-faithful from that
       commit's PARENT `d5f447e8`, reconstructed from git with its SHAs in the
       fixture README (F2 plan D2).
 - [x] 3.3 Red test — retitle and gut. Rename a scenario, declare the rename with
@@ -492,7 +494,7 @@ mutation round live in that feature's tasks.md and evidence.
       as a Spec Kit feature with its own `tasks.md` and no session ticked this
       packet's boxes as it went. This session's first instinct was to leave them
       open and record why; that was OVERRULED on the ground that an archived
-      change carrying thirty-nine open build boxes reads as
+      change carrying thirty-two open build boxes reads as
       archived-UNREALIZED to a cold reader, which is a worse record than a tick
       that names its evidence. So every box in groups 2, 3, 4 and 5 is ticked and
       each group header carries ONE dated discharge line naming its feature, its
@@ -569,7 +571,8 @@ mutation round live in that feature's tasks.md and evidence.
          findings against ACTIVE deltas only. Manufacturing an archived
          counterpart would widen the family's scope inside a test instead of
          inside its module. The docstring records what it proved and until when;
-         two residual assertions replace it and neither is vacuous — no finding
+         two residual assertions replace it, each carrying a claim of its own
+         rather than standing in for the retired one — no finding
          names either path this packet ever had (the check that made the ledger
          row above safe to remove), and the FROZEN archived block carries
          `twenty-two check families` and `Four of the twenty-two` and NOT the
@@ -583,7 +586,8 @@ mutation round live in that feature's tasks.md and evidence.
          `openspec/specs/doc-health/spec.md` — and the re-aim is that test's own
          claim arriving, because its docstring argued the strict anchor matters
          "precisely because these paragraphs promote into canon", and now they
-         have. Strictly stronger for it, and its count floor of two is untouched.
+         have. The subject it reads is now the promoted text rather than a
+         prediction about it, and its count floor of two is untouched.
       UNTOUCHED BY THE ACT, and it matters which: the resolver guard, the
       discovery floor, the scenario-arm subject, the three zero-read classes, the
       structural pins on the advisory launch, the movement pin — stated as a
@@ -678,8 +682,26 @@ mutation round live in that feature's tasks.md and evidence.
       re-wrapped lines of the two numeral sentences plus the one continuation
       line the new basis sentence extends; `document-lifecycle` has **ZERO**
       deletions. Proven per requirement and then as a BYTE DIFF OF THE
-      REMAINDER: strip the one MODIFIED requirement and the one appended
-      requirement from each document and what is left is byte-identical before
-      and after — `doc-health` 88197 bytes vs 88197, `document-lifecycle` 48653
-      vs 48653, preambles identical, no title removed, and every pre-existing
-      title still in its original position.
+      REMAINDER — the remainder being the whole document minus the one MODIFIED
+      requirement and the one appended requirement, each requirement running from
+      its `### Requirement:` line to the next one or to EOF. Byte-identical
+      before and after, RAW and again after trailing-newline normalization:
+      `doc-health` **88197 vs 88197** raw, 88196 vs 88196 normalized;
+      `document-lifecycle` **48653 vs 48653** raw, 48652 vs 48652 normalized.
+      Preambles identical, no title removed, every pre-existing title still in
+      its original position, and both files still ending in a blank line before
+      and after, so no appended requirement consumed an EOF newline.
+      **ONE REVIEW FINDING ON PR #434 IS RECORDED AS CONTESTED RATHER THAN
+      APPLIED**, per `document-lifecycle`'s contested-finding rule, because the
+      alternative was to write a figure this gate cannot reproduce into the
+      record of a change whose whole subject is unverified restatement. Review
+      finding N2 read this equality as holding only AFTER trailing-newline
+      normalization, at raw 88343 vs 88342 and 48731 vs 48730, "the appended
+      requirement having consumed each file's EOF blank line". Re-derived at the
+      review: the raw remainders ARE equal, both documents still end in a blank
+      line before and after the act, and no remainder definition this gate could
+      construct yields 88343 or 48731. The raw equality is the stronger claim, so
+      the definition above is made explicit and the normalized figures are
+      recorded beside the raw ones rather than the claim being qualified into
+      something the measurement does not support. N2 is owed a re-derivation or a
+      withdrawal.
