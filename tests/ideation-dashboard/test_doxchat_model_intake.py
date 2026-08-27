@@ -1306,7 +1306,21 @@ def test_the_bundle_release_names_both_schemas_and_recomputes_both_digests():
     manifest = yaml.safe_load(
         (CONTRACTS / "manifest.yaml").read_text(encoding="utf-8"))
     bundle = manifest["contract_bundle_version"]
-    assert bundle == "contract-v1.45"
+    # THE DECLARED BUNDLE IS A FLOOR, NOT AN EQUALITY. This line read
+    # `assert bundle == "contract-v1.45"`, which is a claim about the FUTURE
+    # rather than about this change's release: it asserts that no later bundle
+    # has been cut. It duly failed on the very next cut — contract-v1.46, the
+    # openxWallet deprecating minor (`split-openxwallet-repo` P2.5) — for no
+    # reason connected to anything this test measures, and it would have failed
+    # on whichever cut happened to be next. What this release OWNS is pinned
+    # exactly, below and unchanged: both recomputed digests, both consumption
+    # rules naming contract-v1.45, exactly one `## contract-v1.45 —` changelog
+    # entry, and its own contract-v1.45 inventory. Those stay true forever; the
+    # head of the manifest does not.
+    major, minor = (
+        int(part) for part in bundle.removeprefix("contract-v").split("."))
+    assert (major, minor) >= (1, 45), (
+        f"declared bundle {bundle} predates this change's release")
     rows = {row["id"]: row for row in manifest["contracts"]}
     for contract_id in ("gate-action-record", "xfactory-workbench-chat-turn"):
         row = rows[contract_id]
