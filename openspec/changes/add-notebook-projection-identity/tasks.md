@@ -62,10 +62,25 @@ first thing to run under a declared account.
   capability is not yet promoted, so this is a soft reference today; do not
   create a hard dependency on an unpromoted capability.
   - REALIZED 2026-08-23: Soft reference by design — `add-identity-brokering` is ACTIVE and unpromoted, so the roster carries addresses today and gains persona references when that capability lands. No hard dependency created.
-- [ ] 2.4 Write the approval lane's procedure: who the designated
+- [x] 2.4 Write the approval lane's procedure: who the designated
   company-policy actor is, where they act (the hosting account's own UI), and
   how approving WRITES the roster entry and denying is recorded in the same
   lane. No API is designed against; the platform has none.
+  - **DONE 2026-08-27.** The task asks for a PROCEDURE, not a name, so all three
+    halves are satisfied rather than the first alone.
+    **WHO — Brett Heap**, ruled by him that day, declared as
+    `approval.designated_actor` in `examples/notebook-projection-hosting.yaml`.
+    The standing declaration is deliberately separate from a roster entry's
+    `granted_by`: this says who MAY decide, the entry says who DID, and the
+    ratified requirement needs the first to exist or a request is "left to
+    whoever happens to read the account's mail."
+    **WHERE / HOW** are written into `docs/lifecycle-notebook-projection.md` §12
+    ("The approval lane"): the hosting account's own interface, `nlm share
+    invite` as the same act from a terminal, approving WRITES the roster entry
+    (which IS the record, never a log beside it), the
+    `(hosting_account, user, book_or_alias)` uniqueness triple so a re-approval
+    UPDATES rather than duplicates, denials recorded in `denied`, and
+    `automated_approval: false` stated in the record rather than inferred.
 - [ ] 2.5 Retire the standing workaround honestly — the pending request from
   2026-08-15 sitting in `brettheap@gmail.com` is either granted through the new
   lane or recorded as denied. It is not left to expire unrecorded.
@@ -171,9 +186,32 @@ first thing to run under a declared account.
   the act in the record's history. (This is where the 2026-08-10 runbook does
   not transfer: its successors carried new record ids, so there was a separate
   legacy record to retire.) Record the act.
-- [ ] 4.7 Share out to the current human readers from the new account through
-  the §2.4 lane, so the first roster entries are written by the governed act
-  rather than backfilled.
+- [ ] 4.7 **UNBLOCKED BY 2.4 BUT NOT AGENT-EXECUTABLE — and it needs an input
+  that does not exist in this repository.** Mapped 2026-08-27 rather than
+  attempted.
+  Its own text forbids the shortcut: the first roster entries must be "written by
+  the governed act rather than backfilled", so an agent writing `share_out`
+  entries would defeat the task instead of completing it.
+  **WHO ARE THE CURRENT HUMAN READERS? Measured: nobody.** Migration evidence
+  step 9 records the legacy books' sole collaborator as `brettheap@gmail.com
+  (owner)` and the company books' as `xfactor001@opensoft.one (owner)` — no
+  third party holds access to either set, and no pending collaborator request is
+  visible through the provider. So this task has an EMPTY reader set unless
+  Brett names one.
+  **The one known outstanding decision is task 2.5's 2026-08-15 request**, and
+  step 9 says plainly it "is not visible through the provider's sharing API and
+  must be resolved from whatever record originated it" — Brett's personal mail.
+  Its requester is recorded nowhere here.
+  **THE MINIMAL ACT, for Brett:** decide the 2026-08-15 request (grant or deny),
+  and name anyone else who should hold access. Granting is
+  `nlm share invite <alias> <email> --role viewer --profile company` or the same
+  act in the account UI; the decision then writes a `share_out` entry, or a
+  `denied` entry, per §12's lane. An agent can reconcile the roster from his
+  recorded output afterwards — that is not backfilling, because the act came
+  first.
+  Original text: Share out to the current human readers from the new account
+  through the §2.4 lane, so the first roster entries are written by the governed
+  act rather than backfilled.
 
 ## 5. Close the operational item and validate green
 

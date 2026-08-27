@@ -421,6 +421,53 @@ own governance artifact for one install's tooling account — nothing else
 consumes it and nothing pins it — and its sibling
 `lifecycle-notebook-workspaces.yaml` sits here for the same reason.
 
+### The approval lane: who decides a share request, and how it is recorded
+
+Ratified by `add-notebook-projection-identity`; the actor named by Brett Heap on
+2026-08-27, closing task 2.4.
+
+**WHO. The designated company-policy actor is Brett Heap.** The declaration is
+`approval.designated_actor` in `examples/notebook-projection-hosting.yaml` — a
+standing statement of who MAY decide, distinct from a roster entry's
+`granted_by`, which records who DID. The requirement this discharges is precise
+about why the designation must exist at all: a request "SHALL NOT be left to
+whoever happens to read the account's mail."
+
+**WHERE. In the hosting account's own interface**, signed in as
+`xFactor001@opensoft.one`. NotebookLM exposes no administrative or sharing API
+for inbound requests, so there is nothing else to act in. `nlm share invite`
+performs the grant once the decision is made, and it is the same governed act
+from a terminal rather than a second lane:
+
+```bash
+nlm share invite xf-canon <email> --role viewer --profile company
+nlm share status  xf-canon --json --profile company    # reconcile the roster
+```
+
+**HOW A DECISION BECOMES THE RECORD.** Approving and denying land in the same
+lane, and neither is an audit trail beside a list:
+
+* **Approving WRITES the roster.** The share-out entry IS the record of the
+  granted act — `hosting_account`, `user`, `book_or_alias`, `role`,
+  `granted_at`, `granted_by`. There is no separate approval log, because a log
+  beside a roster is two records of one decision that can disagree.
+* **Uniqueness is the scope-and-principal triple** `(hosting_account, user,
+  book_or_alias)`. Role, grant time and granting actor are ATTRIBUTES of that
+  entry, not parts of its key — so a re-approval, a role change, or a grant by a
+  different actor UPDATES the one live entry. A roster that is the record of
+  current access cannot simultaneously assert a stale grant and a current one
+  for the same person on the same book. Superseded decisions are retained as
+  that entry's history.
+* **Denying is recorded too**, in `denied`. A refused request is a governed act
+  and is not left to expire unrecorded — which is the whole failure this lane
+  was raised against.
+
+**What is NOT designed against.** No obligation here depends on an API the
+platform does not expose. Detection and relay of pending requests MAY be
+automated if NotebookLM ever offers a surface for it; **the approval remains a
+governed human act either way**, and `approval.automated_approval: false` says
+so in the record rather than leaving it to be inferred.
+
 ### Where the account's credential lives
 
 Ratified by `add-notebook-hosting-credential-custody` (2026-08-23). Moving off a
