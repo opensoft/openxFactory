@@ -20,12 +20,33 @@ boundary and is not started.
 states. The family that detects it now exists and is registered. **Nothing yet
 asserts what it says about the repository that ships it.**
 
-F1's tests are behavioural over fixture trees; F2's are historical
-reconstructions over fixture trees. Both would stay green if the family's
-discovery over a real tree stopped working — if `active_blocks` returned an
-empty list, every fixture test would still pass and the real corpus would read
-zero, indistinguishable from a clean corpus. The report would show an empty
-section and a reader would conclude the corpus is currently sound.
+**Fixtures prove the rules. Nothing proved the verdict.** F1's tests are
+behavioural over fixture trees; F2's are historical reconstructions over fixture
+trees. Both are the right shape for what they assert, and neither says a word
+about what the family reports over the corpus the steward actually reads.
+
+The distinction is not academic, and the first draft of this paragraph
+overstated it — worth recording, because the overstatement is the kind this
+feature exists to catch. It claimed that "if `active_blocks` returned an empty
+list, every fixture test would still pass". That is FALSE: the fixture trees
+carry `openspec/changes/`, an `archive/` directory and a `proposal.md` each, so
+they route through the same discovery and a total break reds them.
+
+What fixture tests genuinely cannot reach is narrower and worse:
+
+- **The verdict.** Whether this repository's twenty-two MODIFIED blocks are
+  currently lossy, and which ones, is a fact about this corpus. No fixture
+  asserts it, so nobody could read the report and know whether its rows were the
+  expected rows.
+- **Real prose.** Fixture units are short synthetic sentences. A normalization or
+  masking change that made real canon's long, backticked, wrapped units match
+  loosely would leave every fixture green and quietly empty the ledger.
+- **Any future guard that empties a real-tree read without touching a fixture
+  shape** — a repository-name condition, a scale cutoff, a `.git`-presence
+  assumption, a path depth that happens to hold for a fixture root and not for
+  this one.
+- **The rendered report.** Fixtures never render one, so nothing bounded what
+  registering a twenty-second family did to the other twenty-one sections.
 
 This feature is the measurement that cannot be satisfied vacuously: the family
 runs over **this checkout**, through the family's own entry point, and its
@@ -94,7 +115,9 @@ same population the entry point consumes.
    resolved root and the glob that found nothing.
 2. **Given** a run whose named-subject assertion is removed, **When** discovery
    returns nothing, **Then** the remaining floor assertion still fails — the two
-   guards are independent, not one guard written twice.
+   guards are independent, not one guard written twice. *This scenario is
+   discharged by the MUTATION ROUND rather than by a test, because a test that
+   deleted its own sibling's assertion would be a test of the test file.*
 
 ---
 
@@ -226,7 +249,10 @@ because that is the desired end state).
 
 - **FR-001**: The self-gate MUST run the family over this repository through
   `fam_modified_block_currency`, not through any reimplementation of its
-  discovery, parsing or comparison.
+  discovery, parsing or comparison — and MUST assert that structurally rather
+  than by authoring discipline: the gate module's own source carries no
+  requirement or markdown parser of its own and reaches the corpus only through
+  the family's public functions.
 - **FR-002**: The self-gate MUST resolve the repository under test as the
   checkout containing the test file itself, MUST confirm it by the markers a
   measurable openxFactory checkout carries (`openspec/changes/` and
@@ -288,10 +314,13 @@ because that is the desired end state).
   commands that produced them: the `tests/doc-health` suite count before and
   after, the `openspec validate --all --strict` count, and the two-run report
   diff.
-- **FR-018**: The self-gate MUST pin that the family reads exactly two things
-  from its run context — the repository paths and the aggregation root — so a
-  lightweight context in the test is provably faithful to the one the report
-  builds.
+- **FR-018**: The self-gate MUST pin the family's run-context surface at both
+  levels at which it exists, so a lightweight context in the test is provably
+  faithful to the one the report builds: the family's own module reads exactly
+  ONE context attribute (the repository paths), and it hands the context to
+  exactly ONE collaborator (the disposition reader), which reads exactly one
+  more (the aggregation root). A newly read attribute at either level MUST red
+  the pin.
 - **FR-019**: This feature MUST add no production-code change. The diff against
   the merge base over `scripts/`, `openspec/` and `.github/` MUST be empty; a
   defect found in the module is recorded as its own named task, not fixed here.

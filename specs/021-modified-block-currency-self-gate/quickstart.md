@@ -26,7 +26,9 @@ the directory (~15s); everything else in it is sub-second.
 python3 -m pytest tests/doc-health -q
 ```
 
-Expected at `76a2ad27` + this feature: **1127 passed** (baseline 1115 + 12).
+Expected: green. The baseline at `76a2ad27` is **1115 passed**; the count with
+this feature is recorded in `evidence/self-gate.md` rather than predicted here —
+one number, one home, measured by task T026.
 
 ## 3. See what the family says about this checkout
 
