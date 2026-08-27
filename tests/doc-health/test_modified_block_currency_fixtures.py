@@ -920,10 +920,20 @@ def test_the_packets_own_marker_templates_are_not_marker_form():
     and exempt them from carriage — the check quietly declining to check the
     paragraphs that define it". This is the test that checks it, against the
     real file.
+
+    **RE-AIMED BY THE ARCHIVE ACT (2026-08-27), NOT DELETED, AND THE RE-AIM IS
+    THE CLAIM ARRIVING.** As written this read the packet's own ACTIVE delta at
+    `openspec/changes/add-modified-block-currency-check/specs/doc-health/spec.md`.
+    That packet archived, so the path is gone — and the two template bullets are
+    now exactly where the paragraph above warned they were going: PROMOTED, in
+    `openspec/specs/doc-health/spec.md`. So the subject moves one document over
+    and the assertion gets stronger, because "promotes into canon" stopped being
+    a prediction. The file read is now canon; nothing else about the test
+    changed, and the count floor of two still fails on a file edit that moves
+    them.
     """
-    delta = (REPO_ROOT / "openspec/changes/add-modified-block-currency-check"
-             / "specs/doc-health/spec.md").read_text()
-    bullets = [line for line in delta.splitlines()
+    promoted = (REPO_ROOT / "openspec/specs/doc-health/spec.md").read_text()
+    bullets = [line for line in promoted.splitlines()
                if re.match(r"^- ``?\*\*(Removed from canon by|Merged into)", line)]
     assert len(bullets) == 2, bullets     # a file edit that moves them fails here
 

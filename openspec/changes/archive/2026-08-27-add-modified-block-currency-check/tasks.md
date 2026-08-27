@@ -365,16 +365,243 @@ merge it follows exists.
 
 ## 8. Archive
 
-- [ ] 8.1 ARCHIVE AFTER REALIZATION AND AFTER THE MERGE. This change ships active
+- [x] 8.1 ARCHIVE AFTER REALIZATION AND AFTER THE MERGE. This change ships active
       and archives only once the realization is merged to `main` and green:
       `pytest tests/doc-health`, `openspec validate --all --strict`, and a
       doc-health run moving by exactly § 4.5's prediction. The archive act is a
       separate later commit titled for the merge it follows, per
       `add-promotion-fidelity-check` (`01ff3434`) and
       `add-family-enumeration-check`.
-- [ ] 8.2 AT THE ARCHIVE GATE, VERIFY THIS CHANGE'S OWN PROMOTION BYTE-FOR-BYTE,
+      **DONE — ARCHIVED 2026-08-27, on the merge-plus-green rule this box
+      declared.**
+      **REALIZATION RE-VERIFIED FROM `main` AT THIS GATE, not read out of a PR
+      body.** All four Speckit merges were re-confirmed ancestors of
+      `origin/main` with `git merge-base --is-ancestor` (exit 0 on each):
+      1. **PR #420 → `19e3f6b5`** — F1, `019-modified-block-currency-family`:
+         the family module and its three registrations, and § 2.1's own
+         MODIFIED block written in the same commit as the registration.
+      2. **PR #426 → `76a2ad27`** — F2, `020-modified-block-currency-fixtures`:
+         the regression catalogue, #351 and #329 reconstructed from history.
+      3. **PR #427 → `f728d57f`** — F3, `021-modified-block-currency-self-gate`:
+         the self-gate against this repository, by named subject.
+      4. **PR #433 → `4def2274`** — F4, `022-modified-block-currency-reporting`:
+         the report section counting the finding classes apart, the action-line
+         pin, and the workflow-boundary pin.
+      The live tree carries the ADVISORY launch in both halves, re-read here
+      rather than assumed: `modified-block-currency` is registered in `FAMILIES`
+      (22 entries), present in `FAMILY_IDS`, and ABSENT from
+      `FAMILY_RESOLUTION` — so § 7.2's flip is still owed and still unticked.
+      **THE GATE NUMBERS, all measured in this worktree at base `4def2274`.**
+      Before the archive act: `python3 -m pytest tests/doc-health -q` → **1209
+      passed, 0 failed**; `OPENSPEC_TELEMETRY=0 openspec validate --all
+      --strict` → **76 passed, 0 failed (76 items)** = 24 active + 52 promoted
+      specs; `python3 scripts/doc-health.py --single-repo .` → **5 critical, 7
+      error, 41 warning, 12 info. New regressions vs previous report: 0**, and
+      the same run with `--skip-family modified-block-currency` → **5 critical,
+      7 error, 40 warning, 4 info** — movement **+1 `warning`, +8 `info`, 0
+      `error`, 0 `critical`**, equal to the family's own per-severity counts
+      (`--family modified-block-currency` → 1 warning, 8 info) and to F4's
+      re-measured figure. After the archive act: pytest **1209 passed, 0
+      failed**; validate **75 passed, 0 failed (75 items)** = 23 active + 52
+      specs, −1 exactly as promotion of one change predicts; the single-repo run
+      **5 critical, 7 error, 41 warning, 11 info, 0 new regressions** against
+      **5 critical, 7 error, 40 warning, 4 info** skipped — movement **+1
+      `warning`, +7 `info`**. The gated bands do not move in either
+      measurement, so a run configured `--fail-on error` is unaffected by
+      construction, which is what D3's advisory launch claimed.
+      **§ 4.5'S AUTHORED PREDICTION IS HISTORY AND IS NOT WHAT THIS GATE
+      MEASURED.** It said `+1 warning, +11 info`, measured at `9be81a40` over 23
+      MODIFIED blocks; F3 re-measured 9 then 8 as `add-hermes-customer-subject-
+      runtime-contract` and `add-shared-identity-seeds` archived and as PR #424
+      renamed a repository in canon and in the active delta quoting it, in one
+      commit. The invariant that must hold, and does at every one of those
+      figures, is that the movement EQUALS the family's own counts and that
+      `error`/`critical` do not move. The ledger arm is advisory precisely
+      because its population moves.
+      **THE ONE INFO THE ACT ITSELF REMOVED IS THE SELF-FINDING, and its
+      departure is the promotion working.** Before the act the family drew 8
+      `info`, one of them against this packet's own § 2.1 block naming the two
+      canon sentences it did not carry. The act promoted that block, so those
+      two sentences ARE canon now, the packet left the active set, and the
+      family — which excludes `openspec/changes/archive/` in its reader — draws
+      7. Active MODIFIED blocks examined: **22 → 21**.
+      **GROUPS 2–5 ARE LEFT UNTICKED, DELIBERATELY, AND THIS IS THE RECORD OF
+      WHY.** The four features above discharged them, but each was built as a
+      Spec Kit feature with its own `tasks.md`, and no session ticked this
+      packet's boxes as it went. Back-ticking thirty-nine boxes at an archive
+      gate, by a session that did not do the work, would be a worse record than
+      an honest untick: the realization evidence is the four merges named above
+      and `specs/019-modified-block-currency-family/`,
+      `specs/020-modified-block-currency-fixtures/`,
+      `specs/021-modified-block-currency-self-gate/` and
+      `specs/022-modified-block-currency-reporting/` — the last carrying
+      `evidence/f4-gates.md`, the mutation round and the archive-readiness
+      numbers this gate re-measured rather than trusted.
+      **THE WHOLE REPORT DIFF IS SEVEN LINES AND ONLY TWO OF THEM ARE A
+      FINDING.** Canon words 208551 → 213280 (+4729) and governance words
+      664611 → 669340 (the SAME +4729, those words moving from active-change
+      prose into promoted prose), canon share 31.4% → 31.9%, the promoted-specs
+      row of the per-source table (148998 → 153727), the headline's `info`
+      12 → 11, the family's own class subtotal `carriage ledger: 8` → `7`, and
+      the two lines — the finding row and its ranked-plan row — of the departed
+      self-finding. Nothing new is reported anywhere, by any family.
+      **FIVE TESTS FELL DUE AT THIS ACT — FOUR PREDICTED BY F3 AND A FIFTH ITS
+      LIST DID NOT CARRY. NONE WAS DELETED AND NO MODULE CHANGED.** F3's
+      `quickstart.md` § WHEN THE GATE FAILS named this exact day FIRST among the
+      movements it expected, and recorded the disposition: re-aim to the ARCHIVED
+      path where the family's reader can be pointed there without a module change
+      — a change of SUBJECT, the family excluding `archive/` — else retire with a
+      dated record, never delete silently. Applied, in
+      `tests/doc-health/test_modified_block_currency_self_gate.py`:
+      1. `_LEDGER_SUBJECTS` drops the `add-modified-block-currency-check` /
+         `doc-health` / `Deterministic check families` triple, **8 → 7**, with
+         the dated comment recording why, in the shape the row PR #424 removed
+         already used.
+      2. `_own_block()` → `_archived_block()`, RE-AIMED: the block is read at
+         `openspec/changes/archive/2026-08-27-add-modified-block-currency-check/specs/doc-health/spec.md`
+         through `mbc.parse_delta` and `mbc.derive_units` — the two calls
+         `active_blocks` itself makes on every block it returns — so the gate
+         still reaches the corpus only through the family and owns no second
+         parser. `active_blocks` itself cannot be pointed there: it excludes
+         `openspec/changes/archive/` in its reader by construction.
+      3. `test_this_change_s_own_delta_is_among_the_blocks_the_family_examined`
+         → `test_the_packet_s_own_block_sits_at_its_archived_path_and_out_of_reach`,
+         RE-AIMED. The discovery claim one document over, in BOTH directions: the
+         block is readable at the archived path, AND no active block comes from
+         this change or from any archived path at all — which pins that reader's
+         own exclusion against the REAL tree for the first time, F2's fixtures
+         having been the only cover for it until now.
+      4. `test_the_own_delta_is_measured_against_canon_and_no_sibling_basis_exists`
+         → `test_the_archived_block_still_resolves_to_canon_and_no_active_writer_holds_it`,
+         RE-AIMED. All three original claims asserted about the tree as it now
+         stands: `resolve()` on the archived block returns basis
+         `openspec/specs/doc-health/spec.md` with status `canon`; this packet and
+         `add-family-enumeration-check` are each archived exactly once and neither
+         is active; and the ordering arm applies no basis override, the
+         active-writer count on the requirement moving 1 → **0** because the last
+         one promoted. Deliberately NOT coupled to canon's TEXT — canon's wording
+         moves with every family that lands, and what it says is
+         `family-enumeration`'s business, pinned in that family's own suite.
+      5. `test_the_self_finding_quotes_this_change_s_two_stale_numeral_sentences`
+         → `test_the_self_finding_is_retired_by_the_archive_act`, **RETIRED with
+         its dated record in its own docstring** — the one member of the group
+         that could not be re-aimed, and the reason is stated rather than
+         implied: the other two are about DOCUMENTS and a document can be read at
+         another path, while this one is about a FINDING, and the family draws
+         findings against ACTIVE deltas only. Manufacturing an archived
+         counterpart would widen the family's scope inside a test instead of
+         inside its module. The docstring records what it proved and until when;
+         two residual assertions replace it and neither is vacuous — no finding
+         names either path this packet ever had (the check that made the ledger
+         row above safe to remove), and the FROZEN archived block carries
+         `twenty-two check families` and `Four of the twenty-two` and NOT the
+         `twenty-one` forms, which preserves the DIRECTION claim the original
+         existed for: the finding named what CANON stated, so `twenty-one` was
+         the correct thing to find there.
+      6. THE FIFTH TEST, IN F2's FILE, WHICH F3's LIST DID NOT NAME:
+         `test_modified_block_currency_fixtures.py::test_the_packets_own_marker_templates_are_not_marker_form`
+         read the packet's own ACTIVE delta to prove its two marker TEMPLATE
+         bullets are ordinary carriage units rather than marker form. RE-AIMED to
+         `openspec/specs/doc-health/spec.md` — and the re-aim is that test's own
+         claim arriving, because its docstring argued the strict anchor matters
+         "precisely because these paragraphs promote into canon", and now they
+         have. Strictly stronger for it, and its count floor of two is untouched.
+      UNTOUCHED BY THE ACT, and it matters which: the resolver guard, the
+      discovery floor, the scenario-arm subject, the three zero-read classes, the
+      structural pins on the advisory launch, the movement pin — stated as a
+      DIFFERENCE against the family's own per-severity counts, so `+1 / +7`
+      needed no edit at all — and the two-attribute context pin. The gate's regex
+      set is unchanged: three names joined the `mbc.*` allowlist (`ActiveBlock`,
+      `derive_units`, `parse_delta`) and not one pattern.
+      **`fam_family_enumeration` NOW READS CANON ALONE, AND READS ZERO.** With no
+      active change restating "Deterministic check families",
+      `_delta_statements` returns nothing and its own re-aimed
+      `test_canon_is_the_statement_under_test` measures canon instead:
+      `twenty-two`, **22 names, 22 registered, 0 unresolved, 0 findings** — the
+      count chain this packet moved, closing against the live registry.
+- [x] 8.2 AT THE ARCHIVE GATE, VERIFY THIS CHANGE'S OWN PROMOTION BYTE-FOR-BYTE,
       per requirement, in both capabilities, and resolve the § 2.1 ordering
       against `add-family-enumeration-check` explicitly rather than by whichever
       archives first. A change whose subject is lossy promotion that promoted
       lossily would be the worst possible entry in this record. Record the
       per-requirement scenario counts before and after.
+      **DONE 2026-08-27, BEFORE THE ACT, IN BOTH CAPABILITIES.**
+      **THE § 2.1 ORDERING, RESOLVED BY THE RECORDED D5 SEQUENCING AND NOT BY
+      WHICHEVER ARCHIVED FIRST.** `add-family-enumeration-check` archived FIRST,
+      at `f027d3b3` (PR #419), which is the precondition D5 priced and that
+      packet's own § 2.5 records paying: a proposal that registers no family
+      cannot lawfully restate the requirement at twenty-two, so the sibling had
+      to promote its twenty-one first. Its enumeration was therefore already
+      CANON when F1 wrote § 2.1's block, so the block was written relative to
+      canon — `release-realization`'s "declare relative to that change's
+      outcome" discharged by the outcome having become canon, not by a
+      two-writers basis substitution. Proven at this gate rather than reasoned:
+      canon's "Deterministic check families" requirement is byte-IDENTICAL
+      between `f027d3b3` and this base `4def2274` — extracted from both trees
+      and diffed, **0 hunks** — so canon did not move under this packet and the
+      block reverts nothing. The one commit touching the promoted spec since
+      (`49f0c18c`, `govern-derived-pin-reachability`'s archive) appended a
+      requirement at the end of the file and left this one alone. Measured
+      through the family's own ordering arm as well: ZERO two-MODIFIED pairs on
+      this requirement, so `_arm_ordering` applied no basis override and emitted
+      nothing, which is what § 6.6's re-measurement under the ruled
+      by-declaration rule predicted.
+      **TABLE 1 — `doc-health`, per requirement.**
+      | requirement | canon before | delta | canon after | verdict |
+      | --- | --- | --- | --- | --- |
+      | `Deterministic check families` (MODIFIED) | 8 scenarios; 12 body units + 27 scenario bullets = 39 units | 8 scenarios restated; 13 body units + 28 bullets | 8 scenarios | **8 → 8**; titles an identical SET in identical ORDER; 7 of 8 byte-identical bullet for bullet; all 3 dated bold notes byte-identical; exactly SIX differences |
+      | `Currency of an active change's MODIFIED requirement blocks` (ADDED) | absent | 14 scenarios | 14 scenarios | pure append; the title collides with NONE of canon's 34 |
+      | the other 33 requirements | — | untouched | unchanged | bytes identical, per requirement, and the file order of all 34 pre-existing titles preserved |
+      | FILE | 34 requirements, 145 scenarios | — | 35 requirements, 159 scenarios | +1 requirement, +14 scenarios |
+      **THE SIX DIFFERENCES, NAMED RATHER THAN GLOSSED.** (1) the total numeral,
+      canon `SHALL implement twenty-one check families` → block `twenty-two`;
+      (2) the enumeration gains one name, canon `… duplicate packet, and family
+      enumeration.` → block `… duplicate packet, family enumeration, and
+      modified-block currency.`; (3) `Four of the twenty-one` → `Four of the
+      twenty-two`; (4) `the other seventeen families` → `the other eighteen
+      families`; (5) ONE new body sentence, the measurement-basis declaration
+      beginning "The modified-block currency family reads ACTIVE CHANGE
+      DELTAS…"; (6) ONE new `AND` bullet in `A run executes the check families`,
+      12 → 13 bullets, reading "**AND** modified-block currency MUST compare
+      each active change's `## MODIFIED Requirements` blocks against the
+      promoted requirements they replace as its owning requirement below
+      defines". Differences 1–2 are ONE canon sentence and 3–4 are ANOTHER, so
+      exactly TWO canon body units are not carried.
+      **AND THAT IS EXACTLY WHAT THE FAMILY ITSELF REPORTED AGAINST THIS BLOCK —
+      THE CHECK VERIFIED ITS OWN BLOCK.** Run over this tree before the act, the
+      family drew ONE `info` against
+      `openspec/changes/add-modified-block-currency-check/specs/doc-health/spec.md`
+      reading "does not carry 2 of the 39 body units and scenario bullets", and
+      the two units it quoted are canon's `twenty-one check families` sentence
+      and canon's `Four of the twenty-one` sentence — canon's wording, not the
+      block's, which is the correct direction. This gate's independent
+      derivation of the same unit set agreed with it unit for unit, 39 for 39,
+      which is the dogfooding § 6.6 predicted and F1's O2 recorded as evidence
+      never to be dispositioned.
+      **SCENARIO-BY-SCENARIO, 8 → 8.** `A run executes the check families`
+      12 → 13 bullets (difference 6, the other twelve byte-identical);
+      `Lifecycle conformance checks fire` 2/2, `A register carries staged
+      status` 2/2, `Drift checks fire` 2/2, `Catalog conformance checks fire`
+      2/2, `Routing conformance checks fire` 2/2, `Origin conformance checks
+      fire` 2/2, `Roster composition is checked across domains` 3/3 — all seven
+      IDENTICAL.
+      **TABLE 2 — `document-lifecycle`, per requirement.**
+      | requirement | canon before | delta | canon after | verdict |
+      | --- | --- | --- | --- | --- |
+      | `A MODIFIED requirement block restates the requirement as canon currently states it` (ADDED) | absent | 5 scenarios | 5 scenarios | pure append; the title collides with NONE of canon's 16 |
+      | the 16 pre-existing requirements | — | untouched | unchanged | bytes identical, per requirement, order preserved |
+      | FILE | 16 requirements, 72 scenarios | — | 17 requirements, 77 scenarios | +1 requirement, +5 scenarios |
+      The delta carries ONLY an `## ADDED Requirements` section — no MODIFIED,
+      no REMOVED, no RENAMED — so there is no promotion direction in which it
+      could delete anything.
+      **CANON AFTER THE ACT IS WHAT THE TWO DELTAS IMPLY AND NOTHING ELSE.**
+      `git diff openspec/specs/` → **2 files changed, 404 insertions(+), 5
+      deletions(-)**. All five deletions are in `doc-health` and all five are
+      re-wrapped lines of the two numeral sentences plus the one continuation
+      line the new basis sentence extends; `document-lifecycle` has **ZERO**
+      deletions. Proven per requirement and then as a BYTE DIFF OF THE
+      REMAINDER: strip the one MODIFIED requirement and the one appended
+      requirement from each document and what is left is byte-identical before
+      and after — `doc-health` 88197 bytes vs 88197, `document-lifecycle` 48653
+      vs 48653, preambles identical, no title removed, and every pre-existing
+      title still in its original position.
