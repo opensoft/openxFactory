@@ -156,6 +156,25 @@ jobs:
           SUBS=$(git config --file .gitmodules --get-regexp 'submodule\..*\.path' \
                  | awk '{print $2}' | grep -E '^(openxFactory|xFactories/)')
           git submodule update --init $SUBS
+          # The NESTED neutral-product gitlink, one level down and scoped by
+          # name. `openxFactory/openXwallet` is a submodule OF a submodule, so
+          # the filter above cannot reach it — it reads the aggregation's own
+          # `.gitmodules`, which declares `openxFactory` and nothing below it.
+          # NOT `--recursive`, which would additionally pull
+          # `installs/omnigent-install` and every domain's nested submodules
+          # into every aggregation doc-health run.
+          #
+          # GUARDED on the nested `.gitmodules` actually declaring it, because
+          # the aggregation's openxFactory pin and openxFactory's own gitlink
+          # land in different pull requests (P4 after P3): before that bump the
+          # init has nothing to do and an unguarded invocation would fail the
+          # nightly for the ordering rather than for a defect.
+          if git -C openxFactory config --file .gitmodules \
+               --get submodule.openXwallet.path >/dev/null 2>&1; then
+            git -C openxFactory submodule update --init openXwallet
+          else
+            echo "openxFactory declares no openXwallet gitlink at this pin; skipping the nested init"
+          fi
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -885,6 +904,25 @@ jobs:
           SUBS=$(git config --file .gitmodules --get-regexp 'submodule\..*\.path' \
                  | awk '{print $2}' | grep -E '^(openxFactory|xFactories/)')
           git submodule update --init $SUBS
+          # The NESTED neutral-product gitlink, one level down and scoped by
+          # name. `openxFactory/openXwallet` is a submodule OF a submodule, so
+          # the filter above cannot reach it — it reads the aggregation's own
+          # `.gitmodules`, which declares `openxFactory` and nothing below it.
+          # NOT `--recursive`, which would additionally pull
+          # `installs/omnigent-install` and every domain's nested submodules
+          # into every aggregation doc-health run.
+          #
+          # GUARDED on the nested `.gitmodules` actually declaring it, because
+          # the aggregation's openxFactory pin and openxFactory's own gitlink
+          # land in different pull requests (P4 after P3): before that bump the
+          # init has nothing to do and an unguarded invocation would fail the
+          # nightly for the ordering rather than for a defect.
+          if git -C openxFactory config --file .gitmodules \
+               --get submodule.openXwallet.path >/dev/null 2>&1; then
+            git -C openxFactory submodule update --init openXwallet
+          else
+            echo "openxFactory declares no openXwallet gitlink at this pin; skipping the nested init"
+          fi
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
