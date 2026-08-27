@@ -297,8 +297,19 @@ def declared_model_port_factory(session_root: Path | str, *,
     THE FIRST DECLARED BINDING, and that is a stated limitation rather than a
     design: the model seam takes ONE port, so an install talks to one provider
     at a time. Choosing among several declared bindings needs a selection rule
-    this change does not have and must not invent — see tasks.md 2.5."""
+    this change does not have and must not invent — see tasks.md 2.5.
+
+    A PENDING DECLARATION IS SKIPPED (add-doxchat-model-intake task 3.1). A
+    binding the intake flow wrote is DECLARED and not yet APPROVED, and "not yet
+    approved" has to mean something at the one seam where availability is
+    decided or it means nothing at all: a pending binding contributes no
+    available catalog entry, so this factory passes over it exactly as if it were
+    not declared. A binding the DECLARATIONS DOCUMENT SAYS NOTHING ABOUT is
+    unaffected, byte for byte — it was declared by hand in the settings file by
+    the operator, and the operator is who approval is a record of (see
+    `doxbench_intake`'s module docstring for why the rule is not inverted)."""
     from ideation_dashboard import doxbench_binding as binding_mod
+    from ideation_dashboard import doxbench_intake as intake_mod
 
     store = binding_mod.BindingStore(
         bindings_path if bindings_path is not None
@@ -310,6 +321,19 @@ def declared_model_port_factory(session_root: Path | str, *,
             f"[model-provider] the bindings document could not be read "
             f"({error}); serving the local harness declaration instead\n")
         declared = ()
-    if not declared:
+    pending = intake_mod.pending_binding_ids(checkout_root)
+    approved = tuple(binding for binding in declared
+                     if binding.id not in pending)
+    if len(approved) != len(declared):
+        # SAID OUT LOUD, on the same stderr channel the unreadable-document
+        # fallback uses: an operator who declared a model through the wizard and
+        # then wondered why the selector still has nothing in it deserves to
+        # read the reason in their own console rather than infer it.
+        sys.stderr.write(
+            "[model-provider] "
+            f"{len(declared) - len(approved)} declared binding(s) are pending "
+            "human approval and contribute no available model; approve them "
+            "from the console's model intake flow\n")
+    if not approved:
         return model_port_factory(Path(session_root), spawn=spawn)
-    return brokered_model_port_factory(declared[0])
+    return brokered_model_port_factory(approved[0])
