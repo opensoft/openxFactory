@@ -183,6 +183,142 @@ document does NOT clear this gate: the ruling requires a projected form, not an
 excuse. Retirement then proceeds per step 8 against the step 1 ids, which is why
 those ids and the `from_account` / `from_nlm_profile` history are kept.
 
+## Step 8 — EXECUTED 2026-08-26
+
+The hold above is discharged and the act is done. Gate cleared by Brett Heap's
+2026-08-26 ruling (`openspec/changes/add-notebook-projection-identity/review/
+retirement-gate-clearance-2026-08-26.md`); executed the same day.
+
+**PROVENANCE, STATED PLAINLY.** The script was prepared by agents and its gates
+verified without provider access (uuid arrays cross-checked against the mapping
+block, gate logic simulated, a delete-verb assertion run over the source). It was
+then run against the live accounts **at Brett's typed in-session instruction**,
+by the session rather than by his own shell — the harness did not fire his `!`
+line, and he directed the run rather than re-typing it. He authorized the act; an
+agent's process performed it. Recorded that way because who pressed the key is
+part of the evidence.
+
+Full transcript: `scratchpad/step8-transcript-1787799596.log` (100 lines, tee'd
+by the script).
+
+### The recorded output, verbatim
+
+```
+## Step 8 — EXECUTED 2026-08-26
+
+Renames (phase 2): renamed=7 skipped=0 failed=0
+  RENAMED  b83e63e3-262a-4dfe-9b9f-332b3d27d1bb  xFactory — Drafts (RETIRED 2026-08-26 — hosting migration)
+  RENAMED  6f10282a-7b5b-41c5-9109-55e603890730  xFactory — Canon (RETIRED 2026-08-26 — hosting migration)
+  RENAMED  99b1ff52-2a93-43c2-b8fc-a153328ccd77  xFactory — Ideation OpsxFactory (RETIRED 2026-08-26 — hosting migration)
+  RENAMED  c2b89469-396e-4fef-9154-fa9ade81d64c  xFactory — Ideation codexFactory (RETIRED 2026-08-26 — hosting migration)
+  RENAMED  5830dbd2-5624-4852-987d-9f4e37746448  xFactory — Ideation MedxFactory (RETIRED 2026-08-26 — hosting migration)
+  RENAMED  48ac861d-5a5c-4515-92fc-5b7b251c22c7  xFactory — Ideation LedgerxFactory (RETIRED 2026-08-26 — hosting migration)
+  RENAMED  74ace7c8-b3df-4373-bcd2-64043b153cba  xFactory — Ideation openxFactory (RETIRED 2026-08-26 — hosting migration)
+
+Aliases (phase 3): no alias resolves to a legacy id
+
+Company books (phase 4): 7 of 7 present, none carrying (RETIRED ...)
+```
+
+### The gates, as they fired
+
+```
+PHASE 0  active profile: personal
+PHASE 1  structural gate — found 7 of 7 legacy ids present:
+  b83e63e3-…  xFactory — Working Drafts
+  6f10282a-…  xFactory — Canon
+  99b1ff52-…  xFactory Ideation — OpsxFactory
+  c2b89469-…  xFactory Ideation — codexFactory
+  5830dbd2-…  xFactory Ideation — MedxFactory
+  48ac861d-…  xFactory Ideation — LedgerxFactory
+  74ace7c8-…  xFactory Ideation — openxFactory
+PHASE 3  clean: no alias resolves to a legacy id
+PHASE 4  active profile: company — company books present: 7 of 7, none retitled
+```
+
+The phase-1 listing preserves the PRE-RENAME titles, which the renames overwrote
+and which exist nowhere else now.
+
+**Nothing was deleted.** Seven notebooks were renamed in `brettheap@gmail.com`
+and remain there intact.
+
+### The post-hoc parity confirmation
+
+Brett's ruling made the live check post-hoc rather than a precondition. It was run
+read-only (`--parity` short-circuits to `SystemExit(parity_report(...))` before
+any write path) from a **freshly built 19-submodule assembly at that day's
+aggregation main** — not from the shared checkout, which was 273 commits behind
+with 112 uncommitted entries and would have derived from stale repo states.
+
+```
+hosting: operator_hosted — xFactor001@opensoft.one (nlm profile 'company', verified active)
+[canon] PARITY FAIL: 3 missing, 0 extra (derived 116, live 113)
+[canon]   MISSING [ratified] LedgerxFactory: accounting-roles-and-authority
+[canon]   MISSING [ratified] OpsxFactory: managed-service-mapping
+[canon]   MISSING [ratified] openxFactory: openxdox-dispatch-credential-binding
+[drafts] PARITY FAIL: 3 missing, 2 extra (derived 189, live 188)
+[drafts]   MISSING [draft] OpsxFactory: farheap-service-mapping-section7-2026-08-25-evidence
+[drafts]   MISSING [draft] codexFactory: council-fail-path-registration
+[drafts]   MISSING [draft] openxFactory: notebook-projection-retirement-runbook-step8
+[drafts]   EXTRA   [draft] OpsxFactory: managed-service-mapping
+[drafts]   EXTRA   [draft] openxFactory: openxdox-dispatch-credential-binding
+[ideation-codexfactory] PARITY OK: 14 documents in 14 titles match
+[ideation-ledgerxfactory] PARITY OK: 65 documents in 65 titles match
+[ideation-medxfactory] PARITY FAIL: 0 missing, 4 extra (derived 47, live 51)
+[ideation-medxfactory]   EXTRA   [staged] MedxFactory: root-truth-grounding/topic
+[ideation-medxfactory]   EXTRA   [staged] MedxFactory: root-truth-target-claims/topic
+[ideation-medxfactory]   EXTRA   [staged] MedxFactory: terminology-normalization/topic
+[ideation-medxfactory]   EXTRA   [staged] MedxFactory: treatment-plan-generation/topic
+[ideation-openxfactory] PARITY FAIL: 2 missing, 1 extra (derived 247, live 246)
+[ideation-openxfactory]   MISSING [staged] openxFactory: openxwallet-neutral-home
+[ideation-openxfactory]   MISSING [staged] openxFactory: treatment-options-engine
+[ideation-openxfactory]   EXTRA   [staged] openxFactory: qualify-avatar-live-voice
+[ideation-opsxfactory] PARITY OK: 16 documents in 16 titles match
+parity union: 676 derived titles, 675 live managed titles, 8 unprojected, 7 unaccounted
+parity: FAILED for 4 book(s): canon, drafts, ideation-medxfactory, ideation-openxfactory — pending changes remain
+```
+
+**PARITY DID NOT COME BACK CLEAN, AND THAT IS RECORDED RATHER THAN SOFTENED.**
+Four books report pending changes. What it does and does not tell us:
+
+* **THE RETIREMENT IS CONFIRMED, on the number that matters.** *Live managed
+  titles: 675.* The 2026-08-25 run recorded *"675 derived titles, 675 live
+  managed titles"*. **Live is unchanged across the retirement** — not one source
+  was removed from or damaged in the company account. Every company book is
+  present and none was retitled.
+* **THE PENDING CHANGES ARE DERIVED-SIDE DRIFT, and no `--apply` has run since
+  2026-08-25.** Every diff is a document whose repository state moved: two
+  documents changed Status and therefore moved book (`managed-service-mapping`
+  and `openxdox-dispatch-credential-binding` each read MISSING from canon and
+  EXTRA in drafts — one document, one transition, counted at both ends), and
+  `notebook-projection-retirement-runbook-step8` is MISSING from drafts because
+  it is the runbook this very act followed, written the same day and never
+  applied. Derived moved 675 → 676; live did not move at all.
+* **The MedxFactory four are an assembly artifact**, not a live change. Live
+  holds 51 there — the same 51 the 2026-08-25 run recorded — while this
+  assembly derives 47, because the aggregation's MedxFactory pin no longer
+  matches what was applied on 08-25.
+
+So the projection needs a reconciling `--apply` to become current with the repos.
+That is ordinary derived-projection drift, it predates this act, and it is not
+retirement damage.
+
+### Two defects found in the script while it ran
+
+Recorded because this runbook is a governed document and its execution story
+should be honest.
+
+1. **The first cut crashed in phase 1** — an embedded f-string used backslash
+   escapes inside a replacement field, illegal before Python 3.12. **Fail-closed
+   held**: the gate aborted rather than proceeding to rename anything. But the
+   abort reason read *"no notebooks listed"*, which blamed the account for a
+   parser bug. Rewritten without f-strings, executed against five stub JSON
+   cases before re-delivery, and the abort now distinguishes SCRIPT PARSE ERROR
+   from an empty list from no output at all.
+2. **The harness did not fire Brett's `!` line**, so the sitting ran by the
+   session at his instruction instead of in his own shell. No behavioural
+   difference to the act; recorded because the provenance above depends on it.
+
 ## Step 9 — readers listed, NOTHING granted
 
 No share was granted, and no roster entry was written; `share_out` and `denied`
