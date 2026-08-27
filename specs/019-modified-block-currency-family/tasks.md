@@ -326,7 +326,7 @@ re-infers differently.
 | FR-014 two-writers by declaration, basis substitution ONLY | T041–T044 | FR-030 scope guard | T059 |
 | FR-015 marker form anchor | T012, T013 | FR-031 RED-first evidence — **no code surface** (a process requirement, discharged by the `[TEST]` pairing and the mutation round rather than by a function) | every `[TEST]` task, T061 |
 | FR-016 code spans + optional reason | T010–T013 | FR-028a the block against canon | T052, T056 |
-| FR-028 the sequencing gate | T051a, T056 | FR-028b enumeration collateral | T055a |
+| FR-028 the sequencing gate | T056 (T051a withdrawn — see its line) | FR-028b enumeration collateral | T055a |
 
 | success criterion | tasks |
 | --- | --- |
@@ -335,7 +335,7 @@ re-infers differently.
 | SC-003 the widened bullet | T027 |
 | SC-004 re-wrap is quiet | T025 |
 | SC-005 one marker line silences exactly its units | T031 |
-| SC-006 enumeration reads 0, suite green, one commit (GATED) | T051a, T056 |
+| SC-006 enumeration reads 0, suite green, one commit | T056 |
 | SC-007 test-count delta | T001, T058 |
 | SC-008 openspec validate strict | T060 |
 | SC-009 no `--fail-on` run reds | T025 |
@@ -380,6 +380,22 @@ F3 asserts that table and nothing else restates it. The own-packet assertion F3
 and draws exactly one ledger finding naming two body units. Assert it by that
 NAMED subject, not by a count, or the test passes vacuously when discovery
 breaks.
+
+**F4: THREE THINGS THE IMPLEMENTATION REVIEW ASKED BE SAID OUT LOUD.**
+
+1. **Run the 18-repo aggregation pass BEFORE tuning anything.** This feature's
+   evidence is openxFactory's own active changes and a fixture corpus; what the
+   pinned domains' active changes will say is unmeasured, and it is why the
+   launch is advisory (packet § 7.4).
+2. **Expect ~100+ `info` rows at scale.** Nine on this repository, from 21
+   MODIFIED blocks, across one repo. Eighteen repositories with their own active
+   changes will not be nine.
+3. **Consider a flag gating the LEDGER arm** until the flip ruling in § 7.2 is
+   taken — the scenario-title arm is the one that carries the gate and the one
+   worth reading on every run, and the ledger is the arm whose population is
+   standing by construction. The severity-first sort landed here so the one
+   `warning` renders above the editorial rows, which helps at nine and will not
+   be enough at a hundred.
 
 **The boundary F4 owns**, untouched here: `report.py`'s section rendering, the
 action-line wording, and the workflow pin (§ 5.3). F1 emits four distinct

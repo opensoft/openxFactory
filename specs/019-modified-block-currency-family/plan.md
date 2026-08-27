@@ -259,32 +259,47 @@ tree it was taken at.
 `scripts/doc_health/modified_block_currency.py`, in file order. Contracts for
 the first two groups are in `contracts/`.
 
-**Constants** — `FAMILY`, `_LAUNCH_SEVERITY` (WARNING, the scenario-title arm,
-the one § 7.2's flip moves), `_RESOLUTION_SEVERITY` (WARNING),
-`_LEDGER_SEVERITY` (INFO), `DELTA_GLOB`, `CANON_TEMPLATE`, `_ACTION`.
+**Constants** — `FAMILY`; `_LAUNCH_SEVERITY` (WARNING, the scenario-title arm,
+the one § 7.2's flip moves), `_RESOLUTION_SEVERITY` (WARNING), `_LEDGER_SEVERITY`
+(INFO); `DELTA_GLOB` + `_CHANGE_PART` (used by BOTH readers); `CANON_TEMPLATE`;
+`_ACTION`, `_MARKER_ACTION`; `_mention` (bound from `duplicate_packet`).
 
 **Normalization and units** — `normalize(text)`; `mask_code_spans(text)`;
-`split_sentences(paragraph)`; `is_dated_bold_note(paragraph)`;
-`derive_units(lines) -> (units, markers)`; `carried(canon_units, block_units)`.
+`_closing_run(text, start, run)`; `split_sentences(paragraph)`;
+`fenced_regions(lines)`; `is_dated_bold_note(paragraph)`; `_blocks(lines)`;
+`derive_units(lines) -> (units, markers)`; `carried(canon_units, block_units)`;
+class `Unit(kind, text, scenario=None)` with `.pair()`.
 
-**The marker** — `extract_code_spans(text)`; `parse_marker(paragraph)`;
-`suppression(markers, canon_units, block_units)`; `marker_defects(...)`.
+**The marker** — `extract_code_spans(text) -> [(start, end, content)]`;
+`parse_marker(paragraph) -> Marker | None`; class `Marker`;
+`suppression(markers, canon_units, block_units) -> (suppressed, defective)`.
 
-**Documents** — `active_blocks(root)`; `parse_spec_requirements(text)`;
-`promoted(root, capability)` (cached).
+**Documents** — `parse_spec_requirements(text, capability, spec_rel)`;
+`promoted(root, capability)`; `_standing(root, change)`; `active_blocks(root)`;
+classes `PromotedRequirement`, `ActiveBlock`.
 
-**Resolution and ordering** — `resolve(block, canon, sibling_titles)`;
-`declares(root, change_a, change_b)`; `writer_sets(blocks)`;
-`order(writer_set)`.
+**Resolution and ordering** — `sibling_titles(root)`;
+`resolve(block, canon, siblings) -> (basis, status)`;
+`declarations(root, blocks) -> {(declarer, declared)}`; `_as_basis(block)`;
+`_arm_ordering(repo, group, declared) -> (basis_override, findings)`.
 
-**The arms and the fourth class** — `_arm_titles(...)`; `_arm_ledger(...)`;
-`_arm_resolution(...)`; `_arm_marker_defects(...)` — three arms, FOUR finding
-classes, the fourth being a defect in a declaration rather than a comparison
-between documents (ruled 2026-08-27, B6: the first cut of this plan gave
-`marker_defects` a producer and no emitter, which is how `dh:153-156`'s "SHALL
-itself be reported" ends up realized in a docstring).
+**The arms and the fourth class** — `_arm_titles(repo, block, basis,
+suppressed)`; `_arm_ledger(...)` with `_quote(unit)`;
+`_arm_marker_defects(repo, block, defective)`; `_unresolved_finding(repo, block,
+root)`; `_finding(severity, repo, block, rule)`. Three arms, FOUR finding
+classes — the fourth is a defect in a declaration rather than a comparison
+between documents.
 
-**Entry point** — `fam_modified_block_currency(ctx) -> list[Finding] | Skip`.
+**Entry point** — `fam_modified_block_currency(ctx) -> list[Finding] | Skip`,
+returning findings sorted SEVERITY-FIRST (ruling of 2026-08-27) so the
+gate-bearing `warning` renders above the editorial `info` rows.
+
+RE-SYNCED 2026-08-27 after the implementation review: the first cut of this list
+named `marker_defects`, `_arm_resolution`, `declares`, `writer_sets` and `order`,
+none of which exist. `suppression` returns the defective markers alongside the
+suppressed set (one pass answers both questions); ordering lives in
+`declarations` + `_arm_ordering`; and grouping by `(capability, norm(title))` is
+inline in the entry point rather than a `writer_sets` helper.
 
 Two shapes are deliberately NOT built: no tree abstraction (one basis by
 contract — R1) and no second disposition reader (R12).
@@ -385,6 +400,20 @@ a sibling's path IS referencing that change in the ordinary reading of
 `release-realization`, and the alternative is a second, stricter matcher for a
 question one function already owns. A veto here needs a new matcher and a reason
 the duplicate-packet family should not share it.
+
+**O11 — Carriage is SET-BASED, not multiset.** Where canon states one
+normalized unit TWICE inside a requirement, a block carrying it once carries
+both. Measured on this tree: **13 of 513 promoted requirements** do that today,
+and every instance found was a repeated `scenario-bullet` — a `**THEN** the
+decision is invalid and MUST be rejected` or `**THEN** it MUST be reported as a
+finding` appearing under two scenarios of one requirement. Set semantics cannot
+lose a DISTINCT obligation: every distinct unit is still compared, and the only
+thing forgiven is a duplicate that says nothing the first one did not. Multiset
+semantics would report a block for de-duplicating canon's own repetition, which
+is an editorial improvement rather than a deletion — thirteen standing findings
+nobody should act on. Ruled 2026-08-27 at the implementation review; flagged for
+veto like the rest, and a veto here needs a rule for which of two identical
+units the block is failing to carry.
 
 ## Complexity Tracking
 

@@ -76,16 +76,61 @@ block, which is enforcement through the back door on the run that proves the
 launch worked. Both halves flip together, by ruling, on the discharge of a
 measured population.
 
+THREE READINGS THE DELTA DOES NOT SPELL OUT, RULED 2026-08-27 AND RECORDED HERE
+SO A LATER READER FINDS THEM WITHOUT RE-DERIVING THEM:
+
+- **CARRIAGE IS SET-BASED, NOT MULTISET.** Where canon states one normalized unit
+  TWICE inside a requirement, a block carrying it once carries both. 13 of this
+  corpus's 513 promoted requirements do that today — a clause repeated across two
+  scenarios, most often a `**WHEN**` line. Set semantics cannot lose a DISTINCT
+  obligation: every distinct unit is still compared, and the only thing forgiven
+  is a duplicate that says nothing the first one did not. Multiset semantics
+  would report a block for de-duplicating canon's own repetition, which is an
+  editorial improvement rather than a deletion. Recorded as decision O11 in the
+  feature plan, flagged for veto.
+- **A MARKER NAME THAT MATCHES NO CANON UNIT IS IGNORED, FAIL-CLOSED.** It
+  suppresses nothing and is not itself reported. The unit the author MEANT is
+  therefore still reported by whichever arm owns it, so a mistyped name costs a
+  finding rather than buying silence. Reporting the dangling name too would be a
+  second obligation this change has no standing to add; it is a plausible later
+  ruling.
+- **A FENCED REGION IN CANON IS NEVER REQUIRED CARRIAGE.** The exclusion runs on
+  both sides of every comparison, so a block need not restate canon's fenced
+  examples — including the two written-out marker forms in this family's own
+  requirement, which promote into canon and would otherwise parse as complete
+  markers on the requirement that defines them.
+
 THIS MODULE READS THE CHECKED-OUT TREE AND NOTHING ELSE. The live-`main` basis
 `promotion_fidelity` carries is ruled for that family alone and would be
 actively wrong here: an active change lives on a branch, so a family reading
 `main` would measure a delta `main` does not carry against canon the branch may
 have moved.
+
+ITS DOCUMENT SET IS THREE FILES PER CHANGE, NOT TWO: the active delta, the
+promoted spec it has not yet replaced, and the change's own `proposal.md` — the
+last one read ONLY to resolve whether one active writer declares itself relative
+to another, which is the ordering rule `release-realization` owns. None of the
+three is a governed-corpus document or a lifecycle-scan-set document, so this
+family moves no census, word count, canon-share figure, inventory entry or
+catalog record.
 """
 
 from __future__ import annotations
 
-from . import INFO, WARNING
+import re
+from pathlib import Path
+
+from . import INFO, SEVERITY_RANK, WARNING, Finding, Skip
+from . import corpus
+from . import duplicate_packet
+from . import promotion_fidelity
+from .promotion_fidelity import norm, parse_delta
+
+# `duplicate_packet._mention` is the whole-token change-id matcher the delta
+# names BY REFERENCE ("the whole-token match the duplicate packet family already
+# uses"), so it is imported rather than re-spelled. No cycle: neither sibling
+# imports this module, and `families.py` already imports all three.
+_mention = duplicate_packet._mention
 
 FAMILY = "modified-block-currency"
 
@@ -113,7 +158,14 @@ _LEDGER_SEVERITY = INFO
 # The two document sets, and there is no third. `archive/` is excluded by the
 # reader rather than by the glob, because a glob that happened to match an
 # archived path would be a silent widening of this family's scope.
+# The one active-delta pattern, glob-ready and repo-relative. BOTH readers use
+# it: a second hardcoded copy is how two readers of one document set come to
+# disagree about which documents they read.
 DELTA_GLOB = "openspec/changes/*/specs/*/spec.md"
+# Position of the change directory inside a `DELTA_GLOB` match, named so the
+# indexing below is readable: openspec / changes / <change> / specs / <cap> /
+# spec.md
+_CHANGE_PART = 2
 CANON_TEMPLATE = "openspec/specs/{capability}/spec.md"
 
 _ACTION = ("restate the requirement as canon currently states it, or declare "
@@ -260,10 +312,6 @@ class Unit:
         self.text = normalize(text)
         self.scenario = scenario
 
-    @property
-    def key(self) -> str:
-        return self.text
-
     def pair(self) -> tuple[str, str]:
         return (self.kind, self.text)
 
@@ -298,8 +346,6 @@ def carried(canon_units, block_units) -> list[Unit]:
     have = {u.pair() for u in block_units}
     return [u for u in canon_units if u.pair() not in have]
 
-
-import re  # noqa: E402  (kept beside the grammars it serves)
 
 # THE CHANGE-ID TOKEN, and it is a GRAMMAR rather than a lookup. `dh:126-127`
 # asks for "a resolvable change-id"; read as "names a change that exists" every
@@ -418,6 +464,13 @@ class Marker:
     would therefore read a faithful restatement of that very requirement as
     declaring seven scenarios deleted, on the requirement whose truncation is
     issue #329. Form, not prose, is what makes the declaration falsifiable.
+
+    `paragraph` is the normalized text, carried for DIAGNOSTICS ONLY: it is read
+    by a test's failure message and by nothing in the shipping path — the
+    marker-defect finding names the change id, the date and the offending unit,
+    which is what a reader acts on. Kept rather than dropped because a marker
+    that fails to parse the way its author expected is debugged from its own
+    bytes, and re-deriving them from the block costs the reader the parse.
     """
 
     __slots__ = ("form", "change_id", "date", "names", "destination", "reason",
@@ -578,12 +631,6 @@ def derive_units(lines) -> tuple[list[Unit], list[Marker]]:
     return units, markers
 
 
-from pathlib import Path  # noqa: E402
-
-from . import corpus  # noqa: E402
-from . import promotion_fidelity  # noqa: E402
-from .promotion_fidelity import norm, parse_delta  # noqa: E402
-
 _ARCHIVE = "archive"
 
 
@@ -718,9 +765,9 @@ def active_blocks(root: Path) -> list[ActiveBlock]:
         return []
     out: list[ActiveBlock] = []
     standings: dict[str, str | None] = {}
-    for path in sorted(changes.glob("*/specs/*/spec.md")):
-        rel_parts = path.relative_to(changes).parts
-        change = rel_parts[0]
+    for path in sorted(root.glob(DELTA_GLOB)):
+        rel_parts = path.relative_to(root).parts
+        change = rel_parts[_CHANGE_PART]
         if change == _ARCHIVE:
             continue
         capability = rel_parts[-2]
@@ -739,8 +786,6 @@ def active_blocks(root: Path) -> list[ActiveBlock]:
                                    standings[change]))
     return out
 
-
-from . import Finding, Skip  # noqa: E402
 
 
 def _finding(severity: str, repo: str, block: ActiveBlock, rule: str) -> Finding:
@@ -877,6 +922,19 @@ def suppression(markers: list[Marker], canon_units: list[Unit],
     superseded scenarios went and is present in the block by construction, so
     reading it as a named unit would make every valid merge marker report
     itself.
+
+    **A MARKER IS VOIDED PER NAME, NOT WHOLLY. RULED 2026-08-27.** A marker
+    naming three units, one of which the block still carries, is REPORTED — and
+    it still suppresses the two that are genuinely absent. The alternative,
+    voiding the whole marker, would turn one wrong name into a cascade: the two
+    sound declarations would be discarded too and their units would surface as
+    fresh carriage findings, so the author would be shown three problems where
+    they made one mistake, and the two rows they had already deliberated would
+    come back. Per-name keeps the report proportional to the error, and the
+    marker-defect finding names exactly which name failed. `dh:153-156` supports
+    it directly: suppression is defined per unit ("only the units it names AND
+    that are in fact absent"), and the reporting rule is about the marker rather
+    than about its other names.
     """
     have = {u.pair() for u in block_units}
     by_text: dict[str, list[Unit]] = {}
@@ -938,8 +996,6 @@ def _arm_marker_defects(repo: str, block: ActiveBlock, defective: list[Marker],
     return out
 
 
-from .duplicate_packet import _mention  # noqa: E402
-
 _RATIFIED = "ratified"
 
 
@@ -958,9 +1014,9 @@ def sibling_titles(root: Path) -> set[tuple[str, str]]:
     if not changes.is_dir():
         return set()
     out: set[tuple[str, str]] = set()
-    for path in sorted(changes.glob("*/specs/*/spec.md")):
-        parts = path.relative_to(changes).parts
-        if parts[0] == _ARCHIVE:
+    for path in sorted(root.glob(DELTA_GLOB)):
+        parts = path.relative_to(root).parts
+        if parts[_CHANGE_PART] == _ARCHIVE:
             continue
         capability = parts[-2]
         requirements, renames = parse_delta(
@@ -1172,11 +1228,23 @@ def fam_modified_block_currency(ctx):
                 findings.extend(_arm_titles(repo, block, basis, suppressed))
                 findings.extend(_arm_ledger(repo, block, basis, suppressed))
                 findings.extend(_arm_marker_defects(repo, block, defective))
-    # SORTED BY THE FAMILY ITSELF. `runner.run_suite` sorts the whole report, so
-    # an unsorted family is invisible there and visible immediately in a
-    # `--family` run — which is the run a session actually uses while fixing a
-    # block, and the run a regression diff is taken from.
-    findings.sort(key=lambda f: (f.repo, f.path, f.rule))
+    # SORTED BY THE FAMILY ITSELF, SEVERITY FIRST. `runner.run_suite` sorts the
+    # whole report, so an unsorted family is invisible there and visible
+    # immediately in a `--family` run — which is the run a session uses while
+    # fixing a block, and the run a regression diff is taken from.
+    #
+    # SEVERITY LEADS THE KEY BY RULING (2026-08-27), and it is not cosmetic. The
+    # ledger's population is standing by construction — every legitimate MODIFIED
+    # block edits something — so on any real tree the ONE gate-bearing `warning`
+    # is outnumbered by editorial `info` rows, and under a path-first sort it
+    # rendered somewhere in the middle of them. The arm the flip in § 7.2
+    # reserves must be the arm a reader sees first, or the precise signal is
+    # buried in the editorial ones, which is the exact failure the delta split
+    # the arms to avoid. `SEVERITY_RANK` is the package's own ordering
+    # (critical, error, warning, info), so this agrees with the report-wide sort
+    # rather than inventing a second one.
+    findings.sort(key=lambda f: (SEVERITY_RANK[f.severity], f.repo, f.path,
+                                 f.rule))
     return findings
 
 

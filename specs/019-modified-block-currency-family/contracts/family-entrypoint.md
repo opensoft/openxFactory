@@ -93,11 +93,20 @@ In order (`dh:58-64`):
 ## The two-writers rule (arm 3, part 2)
 
 ```text
-order(writer_set) -> Basis | Finding(s)
+declarations(root, blocks) -> {(declarer, declared)}
+_arm_ordering(repo, group, declared) -> (basis_override, findings)
 ```
 
-- `declares(change_a, change_b)` is
-  `duplicate_packet._mention(change_b).search(read(proposal_of(change_a)))` —
+RE-SYNCED after the implementation review: an earlier draft of this contract
+named `declares(a, b)`, `writer_sets(blocks)` and `order(writer_set)`. None
+exists. `declarations` reads every declaring proposal once per repository;
+`_arm_ordering` decides one `(capability, requirement)` group and returns a
+`{change: basis}` override plus any ordering findings; and the grouping itself is
+inline in `fam_modified_block_currency`, because it is three lines and a helper
+would only hide them.
+
+- a declaration is `_mention(declared).search(<declarer's own proposal.md>)`,
+  with `_mention` bound from `duplicate_packet` at import —
   the whole-token matcher named by reference in `dh:71-74`, imported rather
   than re-spelled.
 - Exactly one declaration among ≥2 active RATIFIED writers → the declarer is
@@ -231,8 +240,18 @@ fam_modified_block_currency(ctx) -> list[Finding] | Skip
   them returns `[]` — it ran and found nothing. Canon's skip rule is "cannot
   run", not "found nothing" (`dh:291-294`).
 
-Findings are returned SORTED (repo, path, arm, rule) so a `--family` run is
-byte-stable independently of `runner.run_suite`'s own global sort.
+Findings are returned SORTED **SEVERITY-FIRST** —
+`(SEVERITY_RANK[severity], repo, path, rule)` — so a `--family` run is
+byte-stable independently of `runner.run_suite`'s global sort AND the
+gate-bearing `warning` renders above the editorial `info` rows. Ruled
+2026-08-27: the ledger's population is standing by construction, so on any real
+tree the one precise signal is outnumbered, and a path-first sort buried it in
+the middle of them — the exact failure the delta split the arms to avoid.
+
+**The document set is THREE files per change**, not two: the active delta, the
+promoted spec it has not yet replaced, and the change's own `proposal.md` — the
+last read ONLY to resolve declarations. None is a governed-corpus or
+lifecycle-scan-set document.
 
 ---
 

@@ -1100,7 +1100,10 @@ FAMILIES = {
     # perfectly and it reports zero either way. The comparison that can see the
     # loss is between an ACTIVE delta and the canon it has not yet replaced,
     # which is a different document pair read at a different moment, and it is
-    # read while the change can still be edited.
+    # read while the change can still be edited. Its document set is THREE files
+    # per change — the delta, the promoted spec, and the change's own
+    # `proposal.md`, that last one read ONLY to resolve which of two active
+    # writers declares itself relative to the other.
     "modified-block-currency":
         modified_block_currency.fam_modified_block_currency,
 }

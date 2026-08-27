@@ -103,9 +103,12 @@ every valid merge marker reports itself).
 
 ---
 
-## `suppression(markers, canon_units, block_units) -> set[tuple[str, str]]` and `marker_defects(...) -> list[Marker]`
+## `suppression(markers, canon_units, block_units) -> tuple[set[tuple[str, str]], list[Marker]]`
 
-Two returns from one pass, because the same resolution answers both.
+ONE function, TWO returns from ONE pass — `(suppressed, defective)` — because
+the same per-name resolution answers both questions. **There is no separate
+`marker_defects` function; an earlier draft of this contract named one and the
+implementation review caught it.**
 
 For each `Marker`, for each name:
 
@@ -113,8 +116,9 @@ For each `Marker`, for each name:
 2. If none → nothing suppressed, nothing reported (R10; recorded as a
    deliberate non-obligation).
 3. If the block CARRIES that unit (same kind, same key) → the marker goes into
-   `marker_defects` (FR-018: "a declaration that does not describe the block is
-   a declaration no reader can rely on"). Nothing is suppressed by that name.
+   the `defective` list (FR-018: "a declaration that does not describe the
+   block is a declaration no reader can rely on"). Nothing is suppressed by
+   THAT NAME — see the per-name rule below.
 4. Otherwise → `(kind, key)` joins the suppressed set.
 
 Then the scenario-title extension (FR-019/020), applied ONLY where
@@ -140,15 +144,25 @@ retitle relabelled as a removal drop obligations with nothing reported.
 
 - Suppression is keyed on `(kind, key)`, so a marker can never silence a unit
   of a different kind that happens to share text.
-- `marker_defects` contains each offending marker at most once.
+- The `defective` list contains each offending marker at most once.
+- **A MARKER IS VOIDED PER NAME, NOT WHOLLY (ruled 2026-08-27).** A marker
+  naming three units, one of which the block still carries, is reported AND
+  still suppresses the two that are genuinely absent. Voiding the whole marker
+  would turn one wrong name into a cascade: the two sound declarations would be
+  discarded and their units would surface as fresh carriage findings, so the
+  author would see three problems where they made one mistake, and two rows they
+  had already deliberated would come back. `dh:153-156` supports the per-name
+  reading directly — suppression is defined per unit ("only the units it names
+  AND that are in fact absent") while the reporting rule is about the marker
+  rather than about its other names.
 - A `Marker` never appears in `canon_units` or `block_units` (FR-007/021), so a
   promoted marker is not text a later block must restate.
 
 ---
 
-## `_arm_marker_defects(block, defects) -> list[Finding]`
+## `_arm_marker_defects(repo, block, defective) -> list[Finding]`
 
-**The emitter, added by ruling 2026-08-27.** `marker_defects` had no consumer in
+**The emitter, added by ruling 2026-08-27.** `suppression`'s second return had no consumer in
 the first cut of this plan — a producer for a requirement nothing would report,
 which is how `dh:153-156`'s "SHALL itself be reported" ends up realized in a
 docstring instead of in a run.

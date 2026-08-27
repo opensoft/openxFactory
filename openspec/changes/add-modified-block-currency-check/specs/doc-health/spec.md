@@ -44,11 +44,12 @@ none of those figures either. The family enumeration family reads THIS
 REQUIREMENT and the code registry that satisfies it — a promoted spec and a
 Python dict, neither of them a governed-corpus document — so it likewise takes
 neither document list and moves none of those figures. The modified-block
-currency family reads ACTIVE CHANGE DELTAS and the promoted SPECS they have not
-yet replaced — a document pair read while the delta can still be edited — so it
-likewise takes neither the governed corpus nor the lifecycle scan set as its
-document list, and it moves no census, word count, canon-share figure,
-inventory entry, or catalog record either.
+currency family reads ACTIVE CHANGE DELTAS, the promoted SPECS they have not yet
+replaced, and each active change's own `proposal.md` — the last read only to
+resolve whether one active writer declares its deltas relative to another, which
+`release-realization` governs — so it likewise takes neither the governed corpus
+nor the lifecycle scan set as its document list, and it moves no census, word
+count, canon-share figure, inventory entry, or catalog record either.
 
 **CORRECTED 2026-08-25 ON BRETT'S RULING — this block is now
 SCENARIO-COMPLETE.** As first written it restated only ONE of this

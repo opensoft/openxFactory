@@ -126,7 +126,7 @@ python3 -m pytest tests/doc-health/test_lifecycle_scan_set.py -q
 python3 -m pytest tests/doc-health -q | tail -3        # green; count > baseline. THE evidence.
 python3 -m pytest tests/doc-health/test_promotion_fidelity.py -q   # 59 tests, byte-green, untouched
 python3 -m pytest tests/doc-health/test_duplicate_packet.py -q     # byte-green, untouched
-OPENSPEC_TELEMETRY=0 openspec validate --all --strict  # 76 passed on this branch (24 active + 52 specs)
+OPENSPEC_TELEMETRY=0 openspec validate --all --strict  # 75 passed on this branch (23 active + 52 specs)
 ```
 
 Record the pytest counts BEFORE and AFTER so the added tests are visible as a

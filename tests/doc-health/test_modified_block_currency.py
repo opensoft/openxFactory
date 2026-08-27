@@ -64,10 +64,21 @@ def test_the_three_launch_severities_are_named_apart():
     assert mbc._LAUNCH_SEVERITY == WARNING
     assert mbc._RESOLUTION_SEVERITY == WARNING
     assert mbc._LEDGER_SEVERITY == INFO
-    # ...and they are genuinely three names, not three aliases of one value:
-    # a half-flip has to be able to move one without moving the others.
-    assert len({id(n) for n in ("_LAUNCH_SEVERITY", "_RESOLUTION_SEVERITY",
-                                "_LEDGER_SEVERITY")}) == 3
+    # ...and they are three SEPARATELY ASSIGNABLE module attributes, which is
+    # what makes a one-arm flip possible. Asserted by moving one and checking the
+    # others do not follow — the previous version of this line compared the ids
+    # of three string LITERALS, which is true of any three distinct strings and
+    # therefore proved nothing.
+    names = ("_LAUNCH_SEVERITY", "_RESOLUTION_SEVERITY", "_LEDGER_SEVERITY")
+    for name in names:
+        before = {n: getattr(mbc, n) for n in names}
+        try:
+            setattr(mbc, name, "sentinel")
+            after = {n: getattr(mbc, n) for n in names}
+            assert after[name] == "sentinel"
+            assert all(after[n] == before[n] for n in names if n != name), name
+        finally:
+            setattr(mbc, name, before[name])
 
 
 def test_the_family_id_is_the_registry_id():
@@ -1266,13 +1277,30 @@ def test_two_runs_agree_byte_for_byte():
     assert ([f.__dict__ for f in a] == [f.__dict__ for f in b])
 
 
-def test_the_family_returns_its_findings_sorted():
+def test_the_family_returns_its_findings_sorted_severity_first():
     """`runner.run_suite` sorts the WHOLE report, so an unsorted family is
     invisible there — and visible immediately in a `--family` run, which is what
-    a session actually uses while fixing a block."""
+    a session uses while fixing a block.
+
+    SEVERITY LEADS THE KEY, by ruling of 2026-08-27, and the reason is the shape
+    of every real tree: the ledger's population is standing by construction, so
+    the ONE gate-bearing `warning` is outnumbered by editorial `info` rows. Under
+    a path-first sort it rendered in the middle of them — burying the precise
+    signal in the editorial ones, which is the exact failure the delta split the
+    arms to avoid.
+    """
+    from doc_health import SEVERITY_RANK
+
     for findings in (_run(), _tw_run(), _markers_run()):
-        keys = [(f.repo, f.path, f.rule) for f in findings]
+        keys = [(SEVERITY_RANK[f.severity], f.repo, f.path, f.rule)
+                for f in findings]
         assert keys == sorted(keys)
+
+    # ...and on the real shape — one warning among many info rows — the warning
+    # is FIRST, which is the property the ruling actually bought.
+    findings = _run()
+    assert findings[0].severity == WARNING
+    assert [f.severity for f in findings].count(INFO) > 1
 
 
 # ------------------------------ 6. the registration, and three mutation escapes
