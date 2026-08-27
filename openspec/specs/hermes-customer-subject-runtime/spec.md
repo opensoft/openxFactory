@@ -1,7 +1,11 @@
-Status: ratified
-Ratified by: user approval of `add-hermes-customer-subject-runtime-contract` on 2026-07-12
+# hermes-customer-subject-runtime Specification
 
-## ADDED Requirements
+## Purpose
+Define the domain-neutral Hermes runtime topology, Customer-subject identity,
+lifecycle, assembly-pinning, provisioning, and Gate G0 consumer-handoff
+requirements shared across xFactory installations.
+
+## Requirements
 
 ### Requirement: Static role templates and runtime instances are distinct
 The canonical DomainxFactory stack contract SHALL treat its Customer, Client, and Domain Hermes layer declarations as reusable role templates, while the Hermes runtime-topology contract SHALL represent concrete layer instances. The static stack SHALL continue to require exactly one template for each canonical role and SHALL reject duplicate canonical role declarations.
@@ -72,7 +76,16 @@ The runtime topology SHALL record immutable installation, stack, and layer ident
 - **AND** the derived lifecycle projection MUST remain reconciled to the immutable event chain
 
 ### Requirement: Runtime assembly pins are content-addressed
-Every canonical contract and single-file template used by a topology SHALL be pinned by canonical repository identity, repository-relative regular-file path, exact 40-hex commit, schema identifier/version where applicable, and SHA-256 digest. A directory overlay SHALL be pinned through a governed overlay manifest declaring one repository-relative `overlay_root`, a bytewise-sorted inventory of every regular file recursively below that root, per-file raw-byte SHA-256 digests, and the closed exclusions `.gitkeep` and an optional colocated generated digest inventory; the topology SHALL pin that manifest by commit and digest. Movable branches, tag-only references, missing or extra overlay members, symlink escapes, traversal, and digest drift SHALL fail closed.
+Every canonical contract and single-file template used by a topology SHALL be
+pinned by canonical repository identity, repository-relative regular-file path,
+exact 40-hex commit, schema identifier/version where applicable, and SHA-256 digest.
+A directory overlay SHALL be pinned through a governed overlay manifest declaring
+one repository-relative `overlay_root`, a bytewise-sorted inventory of every
+regular file recursively below that root, per-file raw-byte SHA-256 digests, and
+the closed exclusions `.gitkeep` and an optional colocated generated digest
+inventory; the topology SHALL pin that manifest by commit and digest. Movable
+branches, tag-only references, missing or extra overlay members, symlink escapes,
+path traversal, and digest drift SHALL fail closed.
 
 #### Scenario: Exact assembly pin resolves
 - **WHEN** every declared path exists as a regular in-repository file at the exact commit and its bytes match the declared digest

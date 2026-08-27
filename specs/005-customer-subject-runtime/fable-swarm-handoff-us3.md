@@ -15,7 +15,7 @@ the US3 checkpoint after T065. US4 publication and the external
 
 Authoritative locations:
 
-- OpenSpec change: `openspec/changes/add-hermes-customer-subject-runtime-contract/`
+- OpenSpec change: `openspec/changes/archive/2026-08-27-add-hermes-customer-subject-runtime-contract/`
 - Speckit feature: `specs/005-customer-subject-runtime/`
 - Executable tasks: `specs/005-customer-subject-runtime/tasks.md`
 - Host worktree: `/home/brett/projects/xFactory/openxFactory-worktrees/005-customer-subject-runtime`

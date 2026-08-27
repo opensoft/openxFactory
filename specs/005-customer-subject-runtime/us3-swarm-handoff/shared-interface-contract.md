@@ -14,8 +14,8 @@ this file for behavior, this file wins for names/formats).
 ## 0. Mandatory reading (in this order)
 
 1. `specs/005-customer-subject-runtime/fable-swarm-handoff-us3.md` — mission + stop conditions
-2. `openspec/changes/add-hermes-customer-subject-runtime-contract/specs/hermes-governed-record-integrity/spec.md` — requirement "v2 persistence coexists with v1 and migrates atomically" (THE binding requirement; byte-exact digest profile text lives here)
-3. `openspec/changes/add-hermes-customer-subject-runtime-contract/design.md` — Decisions 7 (migration protocol) and context
+2. `openspec/changes/archive/2026-08-27-add-hermes-customer-subject-runtime-contract/specs/hermes-governed-record-integrity/spec.md` — requirement "v2 persistence coexists with v1 and migrates atomically" (THE binding requirement; byte-exact digest profile text lives here)
+3. `openspec/changes/archive/2026-08-27-add-hermes-customer-subject-runtime-contract/design.md` — Decisions 7 (migration protocol) and context
 4. `specs/005-customer-subject-runtime/research.md` — Decisions 5, 6, 8, 9
 5. `specs/005-customer-subject-runtime/data-model.md` — "Migration" section
 6. `specs/005-customer-subject-runtime/tasks.md` — your lane's task text (T052–T065)

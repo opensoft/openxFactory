@@ -19,6 +19,21 @@ ENTRYPOINT = REPOSITORY_ROOT / "scripts/validate-hermes-runtime-contracts.py"
 CHANGE_ID = "add-hermes-customer-subject-runtime-contract"
 
 
+def _governed_change_specs_path(repo_root: Path) -> Path:
+    active = Path("openspec/changes") / CHANGE_ID / "specs"
+    if (repo_root / active).is_dir():
+        return active
+    archived = sorted(
+        path.relative_to(repo_root)
+        for path in (repo_root / "openspec/changes/archive").glob(
+            f"????-??-??-{CHANGE_ID}/specs"
+        )
+        if path.is_dir()
+    )
+    assert len(archived) == 1, f"expected one archived packet for {CHANGE_ID}"
+    return archived[0]
+
+
 def _git(repo: Path, *args: str) -> None:
     result = subprocess.run(
         ["git", *args], cwd=repo, capture_output=True, text=True, check=False
@@ -48,7 +63,7 @@ def repository_snapshot(tmp_path: Path) -> Path:
     ignored = shutil.ignore_patterns("__pycache__", ".pytest_cache", "*.pyc")
     for relative in (
         Path("contracts/hermes-runtime"),
-        Path("openspec/changes") / CHANGE_ID / "specs",
+        _governed_change_specs_path(REPOSITORY_ROOT),
         Path("scripts/hermes_runtime_validation"),
         Path("tests/hermes_runtime_contracts"),
     ):
@@ -374,6 +389,42 @@ def test_valid_case_and_phase_selection_are_reported_deterministically() -> None
     assert selection["case_id"] == "topology-operational-two-customers"
     assert selection["phase"] == "semantic"
     assert selection["case_ids"] == ["topology-operational-two-customers"]
+
+
+def test_duplicate_archived_governed_change_fails_closed(
+    repository_snapshot: Path,
+) -> None:
+    original = repository_snapshot / _governed_change_specs_path(repository_snapshot)
+    duplicate = (
+        repository_snapshot
+        / "openspec/changes/archive"
+        / f"2099-01-01-{CHANGE_ID}"
+        / "specs"
+    )
+    duplicate.parent.mkdir(parents=True)
+    shutil.copytree(original, duplicate)
+
+    result = _run_cli("--repo", str(repository_snapshot), "--strict", "--json")
+
+    assert result.returncode == 1
+    codes = {finding["code"] for finding in _json_result(result)["findings"]}
+    assert codes == {"HRC-OPENSPEC-ARCHIVE-AMBIGUOUS"}
+
+
+def test_incomplete_archived_governed_change_directory_is_ignored(
+    repository_snapshot: Path,
+) -> None:
+    incomplete = (
+        repository_snapshot
+        / "openspec/changes/archive"
+        / f"2099-01-01-{CHANGE_ID}"
+    )
+    incomplete.mkdir(parents=True)
+
+    result = _run_cli("--repo", str(repository_snapshot), "--strict", "--json")
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert _json_result(result)["status"] == "pass"
 
 
 def test_malformed_canonical_catalog_fails_closed(

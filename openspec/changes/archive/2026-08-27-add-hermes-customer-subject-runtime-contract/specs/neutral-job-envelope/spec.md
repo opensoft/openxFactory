@@ -4,12 +4,18 @@ Ratified by: user approval of `add-hermes-customer-subject-runtime-contract` on 
 ## ADDED Requirements
 
 ### Requirement: Scoped v2 Hermes job lifecycle records
-The canonical v2 Hermes job envelope, run, and event schemas SHALL require the same neutral scope tuple containing `installation_id`, `stack_id`, and `layer_id`. V2 required fields and enumerations MUST NOT encode Project, repository, feature, patient, company, or any other single domain's vocabulary. Domain overlays MAY re-tighten the neutral v2 core, while existing v1 schemas remain available during the compatibility bridge.
+The canonical v2 Hermes job envelope, run, and event schemas SHALL require the
+same neutral scope tuple containing `installation_id`, `stack_id`, and `layer_id`.
+V2 required fields and enumerations MUST NOT encode `project`, `repository`,
+`feature`, `patient`, `company`, or any other single domain's vocabulary.
+Domain overlays MAY re-tighten the neutral v2 core, while existing v1 schemas
+remain available during the compatibility bridge.
 
 #### Scenario: Customer-subject job is issued
 - **WHEN** a domain issues a v2 job for a customer subject
 - **THEN** the envelope MUST identify the exact owning installation, stack, and layer
-- **AND** no `project`, repository, feature, patient, or company field MUST be required by the neutral schema
+- **AND** no `project`, `repository`, `feature`, `patient`, or `company` field
+  MUST be required by the neutral schema
 
 #### Scenario: Run and event correlate to a job
 - **WHEN** a run or event records lifecycle state for a v2 job

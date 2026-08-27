@@ -173,7 +173,7 @@ Hand the published provider evidence to the existing Hermes Install feature. Do 
 : "${HERMES_INSTALL_REPO:?set HERMES_INSTALL_REPO to a checkout or bare mirror containing the landed commit}"
 .venv/bin/python scripts/validate-hermes-runtime-contracts.py \
   --handoff-receipt \
-  openspec/changes/add-hermes-customer-subject-runtime-contract/evidence/hermes-install-g0-handoff.yaml \
+  openspec/changes/archive/2026-08-27-add-hermes-customer-subject-runtime-contract/evidence/hermes-install-g0-handoff.yaml \
   --consumer-repo "opensoft/xFactory-Hermes-Install=$HERMES_INSTALL_REPO" \
   --strict
 ```

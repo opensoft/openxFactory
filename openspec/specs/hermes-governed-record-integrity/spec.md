@@ -1,7 +1,11 @@
-Status: ratified
-Ratified by: user approval of `add-hermes-customer-subject-runtime-contract` on 2026-07-12
+# hermes-governed-record-integrity Specification
 
-## ADDED Requirements
+## Purpose
+Define the scope, isolation, authority, governed-evidence, migration,
+quarantine, release, and PostgreSQL conformance requirements for durable Hermes
+records.
+
+## Requirements
 
 ### Requirement: Governed records carry explicit scope
 Every v2 governed record SHALL carry a closed scope identifying its installation, stack, and owning layer. Cross-layer records SHALL carry exact source and target scopes. Installation-wide administration SHALL use an explicit installation scope and MUST NOT fabricate a Customer layer.
@@ -19,7 +23,20 @@ Every v2 governed record SHALL carry a closed scope identifying its installation
 - **THEN** it MUST use an explicit installation administrative scope rather than an arbitrary Customer scope
 
 ### Requirement: Customer-subject persistence is default-deny
-The canonical v2 persistence contract SHALL isolate all governed layer rows by installation, stack, and layer through relational scope, forced row-level controls, and distinct database roles. The migration/table owner SHALL be unavailable to runtime; runtime roles SHALL have no `BYPASSRLS` or role-escalation path; installation administration SHALL imply no subject-data visibility; and the cross-layer control plane SHALL have governed-function execution but no direct table access. A trusted transaction-local scope setter SHALL map the authenticated `session_user`, not the security-definer `current_user`, through an active, unexpired `assume_scope` authority grant, reject caller-selected ungranted scope, and clear scope on connection checkout/return. Every transaction SHALL recheck grant revocation and principal/layer lifecycle state; revocation or retirement SHALL invalidate new scope and already-pooled connections. Missing, malformed, stale, forged, cross-stack, cross-installation, and pooled-connection scope reuse SHALL fail closed.
+The canonical v2 persistence contract SHALL isolate all governed layer rows by
+installation, stack, and layer through relational scope, forced row-level controls,
+and distinct database roles. The migration/table owner SHALL be unavailable to
+runtime; runtime roles SHALL have no `BYPASSRLS` or role-escalation path;
+installation administration SHALL imply no subject-data visibility; and the
+cross-layer control plane SHALL have governed-function execution but no direct
+table access. A trusted transaction-local scope setter SHALL map the authenticated
+`session_user`, not the security-definer `current_user`, through an active,
+unexpired `assume_scope` authority grant, reject caller-selected ungranted scope,
+and clear scope on connection checkout/return. Every transaction SHALL recheck
+grant revocation and principal/layer lifecycle state; revocation or retirement
+SHALL invalidate new scope and already-pooled connections. Missing, malformed,
+stale, forged, cross-stack, cross-installation, and pooled-connection scope reuse
+SHALL fail closed.
 
 #### Scenario: Subject A queries Subject B
 - **WHEN** a runtime identity scoped to Customer A attempts to enumerate or read Customer B jobs, artifacts, approvals, or traces

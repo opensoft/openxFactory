@@ -45,7 +45,7 @@ must NOT be relied on). It contains:
 
 ## 2. Authoritative locations
 
-- OpenSpec change: `openspec/changes/add-hermes-customer-subject-runtime-contract/`
+- OpenSpec change: `openspec/changes/archive/2026-08-27-add-hermes-customer-subject-runtime-contract/`
 - Speckit feature: `specs/005-customer-subject-runtime/`
 - Executable tasks: `specs/005-customer-subject-runtime/tasks.md`
 - Original US3 mission + stop conditions:
