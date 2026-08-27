@@ -1149,7 +1149,8 @@ Archived changes:
   (Brett, in-session), built in the same round. doxBench has
   a model seam and no model: there is no provider adapter in this repository
   and none is implied, so every model-backed affordance refuses. Brett's
-  ruling names openProfiler — unbuilt — as the answer, which makes it a
+  ruling names openProfiler — external to this repository, and unbuilt at
+  ruling time (its broker surface merged 2026-08-26) — as the answer, which makes it a
   credential BROKER, a shape `credential-contracts` already owns. The
   dashboard holds a BINDING (id, label, credential reference, auth kind,
   broker invocation) whose shape has no secret field at all; setting a key is

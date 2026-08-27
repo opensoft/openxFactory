@@ -5,7 +5,7 @@
 ### Requirement: Model capability is reached with a broker-minted token
 The dashboard SHALL obtain model capability by invoking a configured credential BROKER to MINT a short-lived, scoped token, and SHALL then call the provider with that token directly. The broker SHALL NOT stand in the request path: it holds custody and issues, because a broker between the console and the provider adds a hop to every turn and to every chunk of a streamed one, which is the wrong place to spend latency in an interactive authoring surface.
 
-The broker invocation SHALL be declared by configuration rather than written into code, because the broker (openProfiler) is not yet built and a command line this repository cannot verify must not be frozen into it. When the broker's surface changes, the configuration changes and no code does.
+The broker invocation SHALL be declared by configuration rather than written into code, because the broker (openProfiler) is external to this repository and a command line this repository cannot verify must not be frozen into it. When the broker's surface changes, the configuration changes and no code does.
 
 #### Scenario: A model turn mints and calls
 - WHEN a model-backed affordance dispatches a turn and a broker binding is configured

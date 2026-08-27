@@ -41,6 +41,11 @@ code_surface: openxFactory (dashboard settings surface for model-provider
 target_release: none
 ```
 
+(The quoted front-matter is reproduced verbatim as a record; its "unbuilt"
+is the proposal's authoring-time fact of 2026-08-08. openProfiler's broker
+surface merged 2026-08-26 as that repository's PR #18, which is the very
+evidence this record verifies below.)
+
 **The gate keys on the CODE SURFACE, not on the target.** `release-realization`'s
 *Realization archive gate* opens "A change with a **non-empty code surface**
 SHALL NOT archive until realization evidence exists" — the antecedent is the
