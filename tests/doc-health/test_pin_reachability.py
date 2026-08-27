@@ -418,6 +418,164 @@ def test_the_declared_unrecoverable_loss_is_still_unrecoverable():
 
 
 # =========================================================================
+# supersede-lost-pin-baseline — a declared loss is DISCHARGED by a superseding
+# record, never by deleting the row
+#
+# The defect this half is pinned to is a SILENCING that was available and is
+# not any more: with no discharge mechanism, the only way to make a class
+# carrying a permanently lost pin report itself fully verified was to delete the
+# declaration — which turns a measured, permanent defect into background noise
+# and loses the measurement with it. The mechanism here restores full
+# verification the other way: the governance act lands, the row CITES it, the
+# verification goes and reads it, and the loss stays reported for ever.
+# =========================================================================
+
+SUPERSESSION_REL = ("openspec/changes/fixture-supersession/evidence/"
+                    "pin-loss-supersession.yaml")
+
+
+def _supersession_record(pin=None):
+    """A minimal pin-loss supersession record. `pin=None` writes one that names
+    NO pin, which is the stub case a citation must not be satisfied by."""
+    body = {"schema_version": 1,
+            "kind": "openxfactory-derivation-pin-loss-supersession",
+            "status": "record",
+            "change_id": "fixture-supersession"}
+    if pin is not None:
+        body["lost_pin"] = {"value": pin, "retention": "impossible"}
+    return yaml.safe_dump(body, sort_keys=False)
+
+
+def _fixture_loss(pin, **kw):
+    kw.setdefault("path", READINESS_REL)
+    kw.setdefault("key", "source_revision")
+    kw.setdefault("measured", "fixture: measured unrecoverable for this test")
+    kw.setdefault("owed", "a superseding record naming the loss")
+    return pc.KnownLoss(pin=pin, **kw)
+
+
+def test_a_declared_loss_awaiting_its_record_holds_full_verification_open(
+        tmp_path, monkeypatch):
+    """The state the register launched in, kept exactly. A row whose superseding
+    record has not landed is LOST, is reported with its measurement and the act
+    still OWED, does not redden the run — no code change repairs it — and does
+    NOT let the class call itself fully verified."""
+    repo, _, orphan = orphaned_pin_repo(tmp_path)
+    monkeypatch.setattr(pc, "KNOWN_LOSSES", (_fixture_loss(
+        orphan, superseding_record=pc.SUPERSESSION_RECORD_PATHS),))
+
+    report = _verify(repo)
+    assert [r.verdict for r in report.results] == [pc.LOST]
+    assert report.lost[0].discharge is None
+    assert "OWED:" in report.lost[0].how
+    assert report.clean, ("a loss no code change can repair must not redden an "
+                          "unrelated run")
+    assert report.lost_awaiting_record == report.lost
+    assert not report.fully_verified
+
+
+def test_a_declared_loss_with_a_committed_superseding_record_is_discharged(
+        tmp_path, monkeypatch):
+    """The act lands and the class is answerable again — WITHOUT the row moving.
+
+    Three things are asserted together because the value is in their
+    conjunction: the loss is still LOST and still carries its measurement, the
+    report names where the discharging record stands, and `fully_verified` is
+    True. A mechanism that produced the third by dropping the first two would be
+    the silencing this replaces."""
+    repo, _, orphan = orphaned_pin_repo(tmp_path)
+    _write(repo, SUPERSESSION_REL, _supersession_record(orphan))
+    _commit(repo, "issue the superseding record")
+    monkeypatch.setattr(pc, "KNOWN_LOSSES", (_fixture_loss(
+        orphan, superseding_record=pc.SUPERSESSION_RECORD_PATHS,
+        discharged="fixture: the standing the archived evidence keeps"),))
+
+    report = _verify(repo)
+    assert [r.verdict for r in report.results] == [pc.LOST]
+    assert report.lost[0].discharge == SUPERSESSION_REL
+    assert "DECLARED UNRECOVERABLE:" in report.lost[0].how
+    assert "DISCHARGED:" in report.lost[0].how
+    assert report.lost_awaiting_record == []
+    assert report.fully_verified
+
+    rendered = pc.render(report)
+    assert "[LOST]" in rendered, "a discharged loss is still reported as lost"
+    assert SUPERSESSION_REL in rendered
+    assert "1 lost (declared unrecoverable, 0 awaiting" in rendered
+
+    # ...and the record itself is a DECLARED non-member, so the pin it cites is
+    # not swept as an undeclared pin site. Declared, not dodged by key choice.
+    assert pc.non_member_reason(SUPERSESSION_REL) is not None
+    assert report.uncovered == ()
+
+
+def test_a_superseding_record_that_does_not_name_the_pin_discharges_nothing(
+        tmp_path, monkeypatch):
+    """MEASURED, NEVER TRUSTED. The row says where the record stands; the
+    verification reads it there and requires it to name the pin it supersedes. A
+    stub at the right path — or a record deleted after the row cited it — leaves
+    the loss awaiting, which is the difference between a citation and a
+    claim."""
+    repo, _, orphan = orphaned_pin_repo(tmp_path)
+    _write(repo, SUPERSESSION_REL, _supersession_record(None))
+    _commit(repo, "a supersession record that supersedes nothing")
+    loss = _fixture_loss(orphan,
+                         superseding_record=pc.SUPERSESSION_RECORD_PATHS)
+    monkeypatch.setattr(pc, "KNOWN_LOSSES", (loss,))
+
+    assert pc.discharging_record(repo, "HEAD", loss) is None
+    report = _verify(repo)
+    assert report.lost[0].discharge is None
+    assert not report.fully_verified
+
+    # The uncommitted case, separately: a citation is not satisfied by a working
+    # tree, because the verification reads COMMITTED state.
+    _write(repo, SUPERSESSION_REL, _supersession_record(orphan))
+    assert pc.discharging_record(repo, "HEAD", loss) is None
+
+
+def test_a_row_naming_no_record_at_all_is_the_awaiting_state(tmp_path):
+    """The default. A row that cites nothing awaits its act — there is no
+    implicit discharge, and an empty citation never resolves itself."""
+    loss = _fixture_loss("0" * 40)
+    assert loss.superseding_record == ()
+    assert loss.discharged == ""
+    assert pc.discharging_record(tmp_path, "HEAD", loss) is None
+
+
+def test_the_declared_loss_in_this_repository_cites_a_committed_record():
+    """THE ACCEPTANCE SIGNAL for the discharge, asserted where it will decay.
+
+    Every row that cites a record must cite one this repository actually
+    carries — a dangling citation is worse than a blank one, because it reads as
+    discharged. And the ONE row standing today is discharged: the governance act
+    `govern-derived-pin-reachability` recorded as owed has landed, so the class
+    is answerable over it. A future row may legitimately await its record; this
+    asserts the state of the row that exists."""
+    repo = Path(REPO_ROOT)
+    paths = pc.committed_paths(repo, "HEAD")
+    for loss in pc.KNOWN_LOSSES:
+        if not loss.superseding_record:
+            continue
+        record = pc.discharging_record(repo, "HEAD", loss, paths=paths)
+        assert record is not None, (
+            f"the row for {loss.pin} cites {loss.superseding_record} and no "
+            f"committed file there names the pin — a citation nobody can read "
+            f"is not a discharge")
+        assert loss.discharged, (
+            f"the row for {loss.pin} cites {record} but states nothing about "
+            f"what that record established")
+
+    declared = pc.known_loss("66b14064bbd50d1af4e9585d10f8150f2bc352f0")
+    assert declared is not None, "the unrecoverable US3 baseline stays declared"
+    assert pc.discharging_record(repo, "HEAD", declared,
+                                 paths=paths) is not None, (
+        "this repository's one unrecoverable loss is discharged by the "
+        "supersede-lost-pin-baseline record; if that record moved, the row's "
+        "citation moves with it")
+
+
+# =========================================================================
 # release-realization requirement 3 — a rewrite re-derives the pins it orphans
 # =========================================================================
 
