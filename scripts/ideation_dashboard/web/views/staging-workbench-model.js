@@ -835,6 +835,38 @@ export const SHARE_SESSION_ROUTE = "/actions/gate/share-session";
 export const CONSOLE_TOKEN_HEADER = "X-XF-Console-Token";
 export const CONSOLE_TOKEN_FIELD = "console_token";
 
+// ---- the model-intake routes (add-doxchat-model-intake §2/§3) -------------
+//
+// MODEL CONSTANTS, like every other route this family addresses: one definition
+// the node harness and the Python route tests both read, and the transport
+// sibling that calls them names no literal of its own.
+export const MODEL_INTAKE_SURFACE_ROUTE = "/workbench/model-intake";
+export const MODEL_INTAKE_ROUTE = "/actions/workbench/model-intake";
+export const MODEL_APPROVAL_ROUTE = "/actions/workbench/model-approval";
+
+// The declared, NON-SECRET facts an enrolment carries, in the order the server
+// reads them. Closed on both sides: the server refuses a parameter it does not
+// name rather than ignoring it, so a caller that believed it had declared
+// something is never silently dropped — and a supplied value can never arrive
+// as one of these, because a query string is a thing proxies and access logs
+// record.
+export const MODEL_INTAKE_FACTS = [
+  "binding", "label", "provider", "endpoint", "dialect", "kind"];
+
+// The enrolment URL for one set of declared facts. PURE: it builds a string and
+// reaches nothing. It carries the facts and NEVER the supplied value — that
+// rides the request body, and the split is the whole reason this helper exists
+// rather than a caller assembling a URL by hand where a fourth parameter could
+// one day be added without anyone noticing what it was.
+export function intakeQuery(route, facts) {
+  const declared = facts || {};
+  const query = MODEL_INTAKE_FACTS
+    .map((name) => encodeURIComponent(name) + "="
+      + encodeURIComponent(asId(declared[name])))
+    .join("&");
+  return route + "?" + query;
+}
+
 export function consoleHeaders(caps) {
   const headers = { "Content-Type": "application/json" };
   const token = asId(caps && caps[CONSOLE_TOKEN_FIELD]);
@@ -1455,8 +1487,29 @@ export function presentationPosture(input) {
     };
   }
   if (approvedModels === 0) {
+    // add-doxchat-model-intake §1: the sentence is UNCHANGED — byte for byte,
+    // and pinned as such — and the intake fact is ADDED to it rather than
+    // replacing it. The posture is true and actionable and stays first;
+    // replacing it with an invitation to enrol would trade a statement of
+    // posture for a call to action, and the posture is the fact the human
+    // needs. What the added clause buys is the one thing the old sentence could
+    // not say: where the remedy is.
+    //
+    // AND ONLY HERE. Neither `catalogFailure` rung above offers it, deliberately
+    // and permanently: an unreadable catalog and a stale console token are bugs
+    // with their own remedies, and telling a human to buy a subscription to fix
+    // a reload is worse than telling them nothing.
+    //
+    // A FACT AND NOT A SECOND SENTENCE. The note is unchanged, character for
+    // character, because the WHERE already has a home: the selector's first
+    // option, which is exactly where Brett asked for it and exactly where the
+    // human is trying to act. A rung that also said it in prose would be the
+    // "second, weaker statement of the same fact" the ratified requirement
+    // refuses. The flag exists so a surface that needs to KNOW — a test, a
+    // future affordance — can ask the ladder rather than re-derive it.
     return {
       kind: "editor-only", canvas: true, chat: true,
+      intakeOffered: facts.intakeOffered === true,
       note: "chat is unavailable — no approved model is configured; both " +
         "editors remain fully usable.",
     };

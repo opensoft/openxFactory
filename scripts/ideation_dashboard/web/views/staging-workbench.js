@@ -95,6 +95,7 @@ import { insertSection, outlineModel } from "./outline-model.js";
 import { renderViewer } from "./viewer.js";
 import { mountDoxBenchCanvas } from "./doxbench-editor.js";
 import { mountDoxBenchChatRail } from "./doxbench-chat.js";
+import { openModelIntake } from "./swb-model-intake.js";
 import { clearDoxBenchSession } from "./doxbench-state.js";
 
 // textContent-only element builder (lens.js / canvas.js discipline).
@@ -1582,6 +1583,18 @@ export function mountStagingWorkbench(container, snapshot,
   rail.hidden = true;
   rail.setAttribute("role", "region");
   rail.setAttribute("aria-label", "doxBench chat rail");
+  // add-doxchat-model-intake §2: WHERE THE ENROLMENT FLOW OPENS. Inside the
+  // rail region, because that is where the control the human pressed lives and
+  // the flow is about that control's own emptiness — never a page-level modal,
+  // which would take the editors away from a human who is otherwise still
+  // working. Hidden and empty until the flow is opened.
+  //
+  // APPENDED AFTER THE RAIL MOUNTS, never at construction: `destroy()` clears
+  // the rail host, so a node parked there before a remount is a node the next
+  // teardown silently eats. Re-appending an existing child MOVES it, which is
+  // exactly the idempotence a remount needs.
+  const intakeHost = el("div", "doxbench-intake-host");
+  intakeHost.hidden = true;
   const regions = el("div", "swb-regions");
   regions.append(context, canvas, rail);
 
@@ -1976,6 +1989,22 @@ export function mountStagingWorkbench(container, snapshot,
   // a misdiagnosis for both the recoverable stale token and the unreadable
   // catalog. Null until the rail reports one; reset on rail teardown.
   let railCatalogFailure = null;
+  // add-doxchat-model-intake §1: WHETHER THE ENROLMENT FLOW EXISTS ON THIS
+  // INSTALL. A SERVER fact, read once per mount through the injected intake
+  // seam and pushed into the rail — never guessed, and never derived from the
+  // catalog being empty, because "there is nothing configured" and "there is a
+  // governed way to configure something" are different questions and only the
+  // server can answer the second. Null until it answers; the rail keeps its
+  // pre-change behaviour in the meantime, which is exactly what the ratified
+  // sequencing requirement asks for.
+  let modelIntakeOffered = false;
+  // What the LAST rendered posture note was told, so the `onState` refresh can
+  // tell a real change from a re-render — the same shape the count and the
+  // failure comparison already have.
+  let postureIntakeOffered = false;
+  // The open flow, so a second click cannot mount a second panel over the
+  // first — the same one-controller discipline the canvas and the rail keep.
+  let intakeController = null;
   // R-1: the restored chat blob may arrive before the rail mounts (the canvas
   // restores during its own initial load), so it is held and applied as soon
   // as both sides exist — buffers and proposals never diverge.
@@ -1997,6 +2026,44 @@ export function mountStagingWorkbench(container, snapshot,
     }
     railController.restore(companion, restoreHashes);
   }
+  // add-doxchat-model-intake §1: ONE read of the intake surface, through the
+  // injected seam and nothing else. Every failure — no seam declared, a thrown
+  // transport, a refusal, an answer that is not the shape this shell expects —
+  // reaches the same honest answer: the flow is not offered here. That is what
+  // makes the sequencing requirement's "indistinguishable from today" true by
+  // construction rather than by care.
+  async function readModelIntakeSurface() {
+    const seam = doxbench && doxbench.modelIntake;
+    if (!seam || typeof seam.surface !== "function") return false;
+    try {
+      const surface = await seam.surface();
+      return !!(surface && surface.offered === true);
+    } catch (unused) {
+      return false;
+    }
+  }
+
+  // The act the rail's first option names. It opens the sibling flow into the
+  // panel host and does nothing else: the transport, the form, the hand-off and
+  // the approval all live over there, where a transport is allowed to live.
+  function openModelIntakeFlow() {
+    const seam = doxbench && doxbench.modelIntake;
+    if (!seam) return null;
+    if (intakeController && typeof intakeController.close === "function") {
+      intakeController.close();
+    }
+    intakeController = openModelIntake(intakeHost, {
+      transports: seam,
+      onClose: () => { intakeController = null; },
+      // A COMPLETED APPROVAL CHANGES WHAT THE CATALOG SAYS, and the rail's
+      // catalog was read once at mount. Redrawing is the honest way to pick the
+      // new entry up: it remounts the rail, which re-reads the catalog through
+      // the same one transport rather than growing a second refresh path.
+      onApproved: () => { drawCanvas(); },
+    });
+    return intakeController;
+  }
+
   function teardownRail() {
     if (railController && typeof railController.destroy === "function") {
       railController.destroy();
@@ -2005,6 +2072,10 @@ export function mountStagingWorkbench(container, snapshot,
     regions.classList.toggle("has-rail", false);
     rail.hidden = true;
     approvedModelCount = 0;  // a torn-down rail reports no models (R5)
+    // …and no intake surface either: the flag is re-read per mount, so leaving
+    // it set would let a torn-down rail's answer describe the next plane.
+    modelIntakeOffered = false;
+    postureIntakeOffered = false;
     abstractModelId = null;  // …and vouches for no model id either
     // …AND THE DOCS PANE HEARS IT, exactly as it hears a model CHANGE from the
     // rail's own state callback. The abstract shown is a fact about
@@ -2528,6 +2599,7 @@ export function mountStagingWorkbench(container, snapshot,
       sourceAvailable: !!(doxbench && doxbench.loadSource),
       approvedModelCount,
       catalogFailure: railCatalogFailure,
+      intakeOffered: modelIntakeOffered,
     });
     showPostureNote(plane);
     const offered = canvasOffered();
@@ -2641,10 +2713,18 @@ export function mountStagingWorkbench(container, snapshot,
           // is exactly why the misdiagnosed "no approved model is
           // configured" note used to stand unchallenged.
           const failure = chatState.catalogFailure || null;
+          // add-doxchat-model-intake §1: the INTAKE-OFFERED fact moves the note
+          // too, on the same channel and for the same reason the failure does.
+          // The surface answers after the rail has already mounted and settled
+          // its catalog, so neither the count nor the failure changes at that
+          // moment — without this leg the ladder would keep describing a plane
+          // whose remedy had just become available.
+          const intakeChanged = modelIntakeOffered !== postureIntakeOffered;
           if (count !== approvedModelCount
-              || failure !== railCatalogFailure) {
+              || failure !== railCatalogFailure || intakeChanged) {
             approvedModelCount = count;
             railCatalogFailure = failure;
+            postureIntakeOffered = modelIntakeOffered;
             const refreshed = presentationPosture({
               gateLive: createGateLive(caps),
               surfaceHidden: sessionSurfaceHidden(caps),
@@ -2653,10 +2733,17 @@ export function mountStagingWorkbench(container, snapshot,
               sourceAvailable: !!(doxbench && doxbench.loadSource),
               approvedModelCount,
               catalogFailure: railCatalogFailure,
+              intakeOffered: modelIntakeOffered,
             });
             showPostureNote(refreshed);
           }
         },
+        // add-doxchat-model-intake §1: the rail names the ACT and the shell
+        // performs it. The rail opens no transport of its own — the privacy pin
+        // asserts it — so choosing the selector's first option calls back here,
+        // and the flow that carries a provider credential lives in the sibling
+        // module where a transport is allowed to live.
+        openIntake: () => openModelIntakeFlow(),
         applyProposal: (target, record) => (canvasController
           ? canvasController.applyProposal(target, record)
           : null),
@@ -2701,6 +2788,27 @@ export function mountStagingWorkbench(container, snapshot,
         // key, so the rail reads its binding off the one selection authority
         // itself and neither option exists any more -- task 8.6's N4 posture ends
         // here, as that record said it would.)
+      });
+      // add-doxchat-model-intake §1: the panel's host is re-parented into the
+      // freshly-mounted rail (the mount clears it), and the intake SURFACE is
+      // read once so the selector knows whether to render its first option. One
+      // read per mount, through the injected seam, and a refusal of any kind
+      // leaves `intakeOffered` false — which renders the selector exactly as it
+      // rendered before this change.
+      rail.appendChild(intakeHost);
+      const mountedRail = railController;
+      readModelIntakeSurface().then((offered) => {
+        if (railController !== mountedRail) return;
+        // SET BEFORE THE RAIL IS TOLD, and that order is load-bearing: telling
+        // the rail adopts new state, which renders, which calls back into
+        // `onState` — and `onState` is the ONE place this shell refreshes the
+        // posture note from. Setting the flag first means that existing refresh
+        // carries the new fact; adding a third `showPostureNote` call site here
+        // would have been a second answer to "what does this plane look like",
+        // which is exactly the duplication the two pinned call sites exist to
+        // prevent.
+        modelIntakeOffered = offered;
+        railController.intakeOffer(offered);
       });
     }
     // PR #196 review F3, the mount-time half: the rail's header names the

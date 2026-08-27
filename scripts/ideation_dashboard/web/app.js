@@ -43,6 +43,7 @@ import { renderLens } from "./views/lens.js";
 import { isGateBearing, mountGateBar } from "./views/gate.js";
 import { mountStagingWorkbench } from "./views/staging-workbench.js";
 import { firstEditTransport } from "./views/swb-session.js";
+import { createModelIntakeTransports } from "./views/swb-model-intake.js";
 import { CONSOLE_TOKEN_FIELD } from "./views/staging-workbench-model.js";
 import { runSave, savePlanState } from "./views/doxbench-save.js";
 import { contentIdentity } from "./views/doxbench-state.js";
@@ -1027,6 +1028,20 @@ async function render() {
       // chat-turn routes do, and the browser holds no credential for either.
       documentAbstract: createDoxBenchAbstractRequester(
         () => caps?.console_token),
+      // add-doxchat-model-intake §2/§3: the MODEL INTAKE seams. THREE routes and
+      // NOT ONE NEW CALL SITE IN THIS FILE'S TRANSPORT BUDGET, which is the whole
+      // reason they are
+      // built by a sibling module rather than by three more loaders in this
+      // file: `swb-model-intake.js` takes an injected fetcher and calls it
+      // through the `doFetch` spelling `swb-create.js` and `swb-session.js`
+      // established, so the transport-pin suite's cap on THIS file does not
+      // move and the pinned per-file fetch counts are unchanged.
+      //
+      // The console repair is forwarded for the same reason the two write
+      // transports get it: a tab that outlives a serve restart must repair
+      // itself rather than making a human retype what they just pasted — and
+      // retyping a provider key is the retype that costs most.
+      modelIntake: createModelIntakeTransports(() => caps, consoleRepair),
     };
     const stagingWorkbench = mountStagingWorkbench(
       document.getElementById("staging-workbench-root"), snapshot,
