@@ -588,9 +588,17 @@ import json
 import sys
 
 RECORD = {record!r}
+CALLS = {calls!r}
 
 def main():
     args = sys.argv[1:]
+    # WAS THIS PROCESS STARTED AT ALL. Written before anything is parsed and
+    # before standard input is touched, because "the broker never took custody"
+    # is a claim about the SPAWN, not about what the spawn went on to store — an
+    # oauth intake reaches this program and stores nothing, and a test that read
+    # only RECORD could not tell that apart from never running.
+    with open(CALLS, "a", encoding="utf-8") as handle:
+        handle.write((args[0] if args else "<no-operation>") + "\\n")
     if not args:
         return 2
     operation = args[0]
@@ -627,17 +635,30 @@ sys.exit(main())
 '''
 
 
+def _broker_calls(tmp_path: Path) -> Path:
+    """Where the fake broker logs THAT it was started, one line per spawn.
+
+    Separate from the received-value record on purpose: the value record stays
+    the evidence of custody, and this is the evidence of INVOCATION. A refusal
+    that must never reach the broker at all is a claim only this file can
+    settle — its absence means no child was spawned."""
+    return tmp_path / "broker-calls.txt"
+
+
 def _write_broker(tmp_path: Path) -> tuple[Path, Path]:
     """The broker program plus the file it records what it received into.
 
     The record path is baked INTO the program rather than passed in the
     environment, because `doxbench_provider` scrubs the child's environment down
     to a five-name allowlist — which is the point of that allowlist, and a test
-    that widened it would be testing something else."""
+    that widened it would be testing something else. `_broker_calls(tmp_path)`
+    is baked in for the same reason and answers a different question."""
     record = tmp_path / "broker-received.txt"
     program = tmp_path / "fake-openprofiler-broker"
-    program.write_text(_BROKER_PROGRAM.format(record=str(record)),
-                       encoding="utf-8")
+    program.write_text(
+        _BROKER_PROGRAM.format(record=str(record),
+                               calls=str(_broker_calls(tmp_path))),
+        encoding="utf-8")
     program.chmod(program.stat().st_mode | stat.S_IEXEC | stat.S_IXGRP)
     return program, record
 
@@ -671,6 +692,29 @@ def _serving(checkout: Path, tmp_path: Path, *, actor="brett"):
 def _request(host, port, method, path, *, body=None, headers=None):
     conn = http.client.HTTPConnection(host, port, timeout=10)
     conn.request(method, path, body=body, headers=headers or {})
+    resp = conn.getresponse()
+    raw = resp.read()
+    try:
+        payload = json.loads(raw.decode("utf-8") or "{}")
+    except ValueError:
+        payload = None
+    conn.close()
+    return resp.status, payload, raw
+
+
+def _request_without_content_length(host, port, method, path, *, headers=None):
+    """A request that declares NO `Content-Length` and sends no body.
+
+    `http.client.request(body=None)` would helpfully declare `Content-Length: 0`
+    for a POST, which is a different case from the header being absent. Driving
+    `putrequest`/`putheader`/`endheaders` by hand is the only way to send the
+    absent one, and the route's reading of an absent declaration as zero is
+    exactly what this exercises."""
+    conn = http.client.HTTPConnection(host, port, timeout=10)
+    conn.putrequest(method, path, skip_accept_encoding=True)
+    for name, value in (headers or {}).items():
+        conn.putheader(name, value)
+    conn.endheaders()
     resp = conn.getresponse()
     raw = resp.read()
     try:
@@ -879,6 +923,13 @@ def test_the_oauth_kind_surfaces_the_brokers_refusal_and_fakes_no_dance(
         serve_mod.DOXBENCH_ERR_INTAKE_REFUSED), payload
     assert payload["reason"] == doxbench_intake.OAUTH_UNAVAILABLE_NOTICE
     assert not record.exists(), "an oauth intake sent the broker no value"
+    # …but it DID reach the broker, with the empty source that kind is supposed
+    # to send. The api_key emptiness refusal added for PR #401's review must
+    # never widen onto this path: the oauth flow's whole point is that the
+    # broker, not this dashboard, decides whether an authorization can be
+    # opened, and it cannot decide about a request this route never forwards.
+    assert _broker_calls(tmp_path).read_text(encoding="utf-8").split() == \
+        ["intake"], "the oauth kind reaches the broker with an empty source"
     store = doxbench_intake.DeclarationStore(
         doxbench_intake.declarations_path(scratch_repo.root))
     assert store.list() == ()
@@ -974,6 +1025,52 @@ def test_an_intake_request_declaring_an_unknown_fact_refuses_the_whole_request(
     assert status == serve_mod.doxbench_error_status(
         serve_mod.DOXBENCH_ERR_INVALID_INTAKE_REQUEST), payload
     assert not record.exists()
+
+
+def test_an_empty_api_key_body_refuses_before_the_broker_takes_custody(
+        scratch_repo, tmp_path):
+    """PR #401's review, note 2. The api_key kind's whole BODY is the secret, so
+    a request declaring `Content-Length: 0` has declared that it is enrolling
+    nothing — and a broker asked to take custody of nothing answers with a
+    reference naming nothing, after which the binding and the PENDING
+    declaration this route writes would both assert a credential that does not
+    exist. The records are all anyone can read afterwards, so a refusal is the
+    only honest outcome.
+
+    It is the EXISTING invalid-request refusal, not a new code: an empty body is
+    a malformed request, exactly as an unknown query fact and an over-bound
+    length are, and §1's own rule is that this flow invents no failure code it
+    does not need. The broker child is never spawned, which is the half the
+    calls log — not the value record — is able to prove: an oauth intake reaches
+    the broker and stores nothing either, and only the spawn tells them apart.
+    """
+    program, record = _write_broker(tmp_path)
+    _declare_broker(scratch_repo.root, program)
+    with _serving(scratch_repo.root, tmp_path) as (host, port):
+        token = _console(host, port)
+        empty = _enrol(host, port, token, kind="api_key", value="")
+        # …and with NO `Content-Length` at all, which this route reads as zero.
+        # The secret is streamed, so the length is never counted by buffering
+        # the body — the declaration is the whole of what is checked.
+        undeclared = _request_without_content_length(
+            host, port, "POST",
+            _intake_query(**dict(_FACTS, kind="api_key")),
+            headers={"Content-Type": "text/plain; charset=utf-8",
+                     "X-XF-Console-Token": token})
+    expected = serve_mod.doxbench_error_status(
+        serve_mod.DOXBENCH_ERR_INVALID_INTAKE_REQUEST)
+    for status, payload, _raw in (empty, undeclared):
+        assert status == expected, payload
+        assert payload["error"] == serve_mod.DOXBENCH_ERR_INVALID_INTAKE_REQUEST
+    assert not _broker_calls(tmp_path).exists(), \
+        "the broker child must never be spawned for an empty credential"
+    assert not record.exists()
+    # NOTHING WAS WRITTEN EITHER: no binding claiming a reference, no PENDING
+    # declaration claiming a model is awaiting approval.
+    assert doxbench_intake.DeclarationStore(
+        doxbench_intake.declarations_path(scratch_repo.root)).list() == ()
+    assert doxbench_binding.BindingStore(
+        doxbench_binding.bindings_path(scratch_repo.root)).list() == ()
 
 
 def test_a_turn_naming_the_affordance_refuses_through_the_existing_refusal(
@@ -1259,6 +1356,78 @@ def test_the_remint_derivation_reports_only_a_real_paid_retry():
     assert serve_mod.provider_retry_fact(
         (first,), (first, remint, retry)) == {
             "retried": True, "at_most_once": True, "audit_ref": "audit-second"}
+
+
+def test_a_second_identical_retry_is_still_reported_under_a_frozen_clock():
+    """PR #401's review, note 1. `MintEvent` is a FROZEN dataclass, so two
+    DISTINCT events whose fields coincide compare EQUAL — and a `paid_retry`
+    event carries no `audit_ref`, so under a clock that returns the same value
+    twice its four fields are the same four fields every time. A delta derived
+    with `event not in before` therefore filters the second turn's real paid
+    retry out as already-seen and reports nothing, which is precisely the
+    invisibility Brett's 2026-08-26 ruling exists to forbid.
+
+    Driven the way the route drives it: a snapshot before, the port's own
+    appends, a snapshot after. Turn one retries; turn two retries again on the
+    same frozen tick; BOTH must be reported."""
+    at = 1000.0
+    port = _LedgerPort([])
+    # turn one: a first mint, an expiry re-mint, and the paid call it bought.
+    port.ledger.append(_event(doxbench_provider.REASON_FIRST_MINT,
+                              "audit-1", at=at))
+    port.ledger.append(_event(doxbench_provider.REASON_EXPIRY_REMINT,
+                              "audit-2", at=at))
+    port.ledger.append(_event(doxbench_provider.REASON_PAID_RETRY, None, at=at))
+    first = serve_mod.provider_retry_fact(
+        (), serve_mod.mint_ledger_snapshot(port))
+    assert first == {"retried": True, "at_most_once": True,
+                     "audit_ref": "audit-2"}
+
+    # turn two: the same shape again, on the same tick. Its `paid_retry` event
+    # is field-for-field turn one's — a different event, an equal value.
+    before = serve_mod.mint_ledger_snapshot(port)
+    port.ledger.append(_event(doxbench_provider.REASON_EXPIRY_REMINT,
+                              "audit-3", at=at))
+    port.ledger.append(_event(doxbench_provider.REASON_PAID_RETRY, None, at=at))
+    assert port.ledger[-1] == port.ledger[2], (
+        "the regression needs the collision it guards against: two distinct "
+        "paid-retry events that compare equal")
+    assert port.ledger[-1] is not port.ledger[2]
+    second = serve_mod.provider_retry_fact(
+        before, serve_mod.mint_ledger_snapshot(port))
+    assert second == {"retried": True, "at_most_once": True,
+                      "audit_ref": "audit-3"}, (
+        "a second paid provider call the human cannot see is exactly what the "
+        "ruling forbids")
+
+    # …and a turn that bought nothing still reports nothing, frozen clock or no.
+    quiet = serve_mod.mint_ledger_snapshot(port)
+    assert serve_mod.provider_retry_fact(
+        quiet, serve_mod.mint_ledger_snapshot(port)) is None
+
+
+def test_the_ledger_delta_survives_the_bounded_ledgers_front_trim():
+    """The ledger is NOT strictly append-only, which is why the delta is not
+    positional: `_record` trims from the FRONT at `MAX_LEDGER_EVENTS`, so a
+    `ledger[before_len:]` slice reads nothing at all once a long-lived console
+    has filled it. The invariant that does hold — appended at the right, dropped
+    only from the left — is enough, and identity honours it."""
+    cap = doxbench_provider.MAX_LEDGER_EVENTS
+    port = _LedgerPort([_event(doxbench_provider.REASON_FIRST_MINT,
+                               f"audit-{index}", at=1.0)
+                        for index in range(cap)])
+    before = serve_mod.mint_ledger_snapshot(port)
+    assert len(before) == cap
+    port.ledger.append(_event(doxbench_provider.REASON_EXPIRY_REMINT,
+                              "audit-fresh", at=1.0))
+    port.ledger.append(_event(doxbench_provider.REASON_PAID_RETRY, None, at=1.0))
+    del port.ledger[:-cap]           # exactly what `_record` does at the bound
+    after = serve_mod.mint_ledger_snapshot(port)
+    assert len(after) == cap, "the ledger is bounded, not unbounded"
+    assert len(after[len(before):]) == 0, (
+        "the positional delta reads nothing here — this is why it is not used")
+    assert serve_mod.provider_retry_fact(before, after) == {
+        "retried": True, "at_most_once": True, "audit_ref": "audit-fresh"}
 
 
 def test_the_ledger_snapshot_is_a_copy_and_absence_is_a_posture():
