@@ -9,7 +9,7 @@ port (brokered SDP, direct Flutter<->OpenAI media, `gpt-realtime-2.1` candidate)
 adding AVC-09/AVC-10 as the ADDED live contracts and a latency-instrumented
 activation gate with canary and rollback.
 Topics: avatar-client, live-voice, webrtc, brokered-sdp, gpt-realtime-2.1, latency-slo, activation-gate, provider-qualification, canary-rollback, credential-custody, AVC-09, AVC-10
-Repository context: openxFactory owns the neutral live-voice acceptance, the ADDED AVC-09/AVC-10 contract schemas, the `interface-lock.yaml` unreservation, and the acceptance-map/validator updates; the live transport behind `SessionTransport` (`avc_adapters_live`) is realized in the private `xfactory-avatar-client` repo and the session broker in the reference runtime
+Repository context: openxFactory owns the neutral live-voice acceptance, the ADDED AVC-09/AVC-10 contract schemas, the `interface-lock.yaml` unreservation, and the acceptance-map/validator updates; the live transport behind `SessionTransport` (`avc_adapters_live`) is realized in the private `openAvatar` repo and the session broker in the reference runtime
 Staging ID: openxFactory:staging:qualify-avatar-live-voice
 Source: named successor in the `avatar-client-lab` staging topic and in the F0 feasibility spec (`specs/002-avc-f0-feasibility`, FR-019/FR-020, User Story 5); draws the live-voice baseline, GPT-Live-1 activation gate, latency requirement, and voice-session topology from `flutter-avatar-client-ui-lab.md`, and the reserved AVC-09/AVC-10 contracts + `interface-lock.yaml` from the archived `2026-07-13-define-avatar-client-contract-kernel`
 Target capabilities: avatar-live-voice (ADDED)
@@ -166,7 +166,7 @@ a proposal.
 ## Exit
 
 Create `qualify-avatar-live-voice` (`code_surface: openxFactory,
-xfactory-avatar-client`; `target_release: implemented`, or a named
+openAvatar`; `target_release: implemented`, or a named
 internal-live release defined in the aggregation repository at proposal
 time). At the proposal gate,
 move this folder's files into that change's `supporting-docs/`, preserving the

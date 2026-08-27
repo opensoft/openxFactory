@@ -10,7 +10,7 @@ copilot), and hosting per-domain org-connect onboarding flows (first:
 LedgerxFactory's MSBC connect — see ledgerx:staging:
 external-client-connect).
 Topics: avatar-first-ui, mobile, dashboard, client-surface, onboarding, admin-consent, hermes-layers
-Repository context: openxFactory owns the neutral surface standard (avatar-first-ui, ratified) and this topic; the client shell lives with the avatar-client track (private xfactory-avatar-client repo); per-domain connect flows live in the DomainxFactory repos
+Repository context: openxFactory owns the neutral surface standard (avatar-first-ui, ratified) and this topic; the client shell lives with the avatar-client track (private openAvatar repo); per-domain connect flows live in the DomainxFactory repos
 Staging ID: openxFactory:staging:mobile-dashboard-surface
 Source: team-010 LedgerxFactory session 2026-07-26 — Brett: the mobile dashboard is part of the avatar-first mobile app plan, with per-layer UI defaults (subject company user vs tenant-level user); confirmed against the ratified `avatar-first-ui` "Hermes-layer surface defaults" requirement
 Target capabilities: avatar-first-ui (MODIFIED or realization evidence) + avatar-client track realization (post `avatar-pilot-hardening`)
