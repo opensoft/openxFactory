@@ -600,8 +600,11 @@ the checklist that produces its evidence.
 > `contract-v1.8` at openxFactory `01960b13`, verified against
 > `contract-v1.12`. The real §6.4.2 work is a RESYNC of that existing pin up to
 > `contract-v1.46` at commit `046466a05590eff13819194f6ce4489798edd815`, taking
-> the per-file digests from `contracts/releases/contract-v1.46.digests.yaml`,
-> executed through the runbook and landed as a PR on `opensoft/openAvatar`,
+> the per-file digests from `contracts/manifest.yaml` at that pinned commit —
+> the source the runbook mandates; the release inventory
+> `contract-v1.46.digests.yaml` is a Hermes-runtime inventory covering none of
+> the pinned client paths — executed through the runbook's sole sanctioned
+> baker and landed as a PR on `opensoft/openAvatar`,
 > the repo ruling (a) picked. That is a contained, well-understood follow-up.
 
 - [x] 6.4.1 Create the private, independently releasable
