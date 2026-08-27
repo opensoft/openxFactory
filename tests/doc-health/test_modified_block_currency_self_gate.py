@@ -100,6 +100,31 @@ for this exact day) and the THIRD — the self-finding quote — was RETIRED wit
 its dated record in its own docstring, because a FINDING has no archived
 counterpart to be re-aimed at. Nothing was deleted silently and no module
 changed.
+
+**AND IT FELL DUE AGAIN THE SAME DAY, ON THE MOVEMENT THIS FILE NAMED FIRST.**
+Brett ruled in session on 2026-08-27 — "Measure first, then flip", then "Marker
+on add-composed-view-authoring now" — that the change's known rename be DECLARED
+with a RESERVED MARKER, so that the scenario-title arm's standing population on
+this repository reaches ZERO, which is the precondition the doc-health delta's
+§ 7.2 flip reserves. The marker written was `Merged into`, not the
+`Removed from canon by` the packet's § 6.3 predicted: the block ADDS the
+destination title, and `dh:158-168` makes `Merged into` the author's instrument
+for that shape while a removal marker beside an added title deliberately
+suppresses nothing. AFTER THE DECLARATION this file measures **0 `warning` and
+7 `info`** over the same twenty-one blocks, report movement **+0 `warning`,
++7 `info`**, and the SAME seven named ledger subjects — the composed-view
+ledger row INCLUDED, because a `Merged into` marker names titles only and the
+old scenario's uncarried bullet is a declared removal nobody has declared. The
+gate-bearing test was re-aimed to the zero state by `quickstart.md`
+§ The end state's own mechanism and RENAMED to
+`test_the_scenario_arm_reads_zero_since_the_rename_was_declared`; it now asserts
+the empty band AND the declaration that emptied it, read back through
+`active_blocks`. THE MOVEMENT PIN NEEDED NO RE-AIM: its two vacuity guards are
+carried by the seven `info` rows, which still move the family's section and the
+ranked plan, so the re-aim `_moved` describes falls due at zero FINDINGS and not
+at zero warnings. Measured, not assumed —
+`test_the_report_moves_only_in_this_family_s_lines` was green on the same run
+that reddened the gate-bearing test.
 """
 
 from __future__ import annotations
@@ -310,9 +335,26 @@ def _findings():
 # declaring its rename with a `Removed from canon by` marker, which the
 # packet's § 6.3 calls the correct disposition — on that day the warning
 # vanishes and `_SCENARIO_SUBJECT` becomes None with the band asserted empty.
+#
+# THAT DAY WAS 2026-08-27 AND THE FORM WAS `Merged into`, NOT
+# `Removed from canon by`. Brett ruled in session: "Marker on
+# add-composed-view-authoring now", taking the modified-block-currency
+# scenario-title arm's standing population to ZERO on this repository — the
+# precondition the delta's § 7.2 flip reserves. The packet's § 6.3 named the
+# wrong one of the two reserved forms: this is a RENAME, the block carries the
+# destination title, and `dh:158-168` gives `Merged into` as the author's
+# instrument for exactly that shape while `Removed from canon by` beside an
+# added title would have kept the old title's bullets reported. So
+# `_SCENARIO_SUBJECT` is None and the band is asserted EMPTY below.
 # ============================================================================
 
-_SCENARIO_SUBJECT = (
+_SCENARIO_SUBJECT = None
+
+# The subject that WAS reported, kept as a named constant rather than deleted:
+# the discharge is asserted positively below (the block carries the marker that
+# declares it), and the corpus's own containment case is still true of these two
+# strings whether or not a finding names them.
+_DISCHARGED_SCENARIO_SUBJECT = (
     "add-composed-view-authoring",
     "ideation-dashboard",
     "Composed views are read-only with a repository jump",
@@ -570,8 +612,15 @@ def test_the_family_returns_findings_and_not_a_skip_over_a_tree_that_carries_cha
 # ============================================================================
 
 
-def test_the_scenario_arm_names_the_composed_view_rename_and_nothing_else():
-    """PACKET § 4.1's gate-bearing finding, asserted by all four of its fields.
+def test_the_scenario_arm_reads_zero_since_the_rename_was_declared():
+    """PACKET § 4.1's gate-bearing arm — DISCHARGED 2026-08-27, asserted EMPTY.
+
+    (Named `test_the_scenario_arm_names_the_composed_view_rename_and_nothing_else`
+    until that day. The historical paragraphs below are kept as written, as the
+    archive act's re-aiming kept its own; the dated paragraph at the end is what
+    this test asserts now.)
+
+    PACKET § 4.1's gate-bearing finding, asserted by all four of its fields.
 
     The count and the subject are asserted TOGETHER on purpose. The count alone
     is vacuous (any one warning would satisfy it); the subject alone would pass
@@ -599,28 +648,64 @@ def test_the_scenario_arm_names_the_composed_view_rename_and_nothing_else():
     exactly #351's widening mechanism, and the reason the delta forbids
     containment. Asserted positively below, so this test also demonstrates the
     rule rather than merely relying on it.
+
+    **RE-AIMED 2026-08-27 AT THE ZERO STATE — RULED, NOT DRIFTED.** Brett ruled
+    in session ("Measure first, then flip", then "Marker on
+    add-composed-view-authoring now") that the change's known rename be DECLARED
+    with a `Merged into` marker, which took this arm's standing population to
+    ZERO on this repository. `quickstart.md` § The end state calls that the
+    DESIRED outcome and says how to assert it: the same named mechanism, an
+    empty band, the discovery floor kept as the only thing then distinguishing a
+    clean corpus from a broken reader.
+
+    SO THE BAND IS ASSERTED EMPTY *AND* THE DISCHARGE IS ASSERTED POSITIVELY.
+    An empty band alone is the weakest assertion in this file — a broken reader
+    produces it too — so the named subject does not leave: it moves from being
+    the finding to being the DECLARATION, read back through the family's own
+    `active_blocks` as a `Merged into` marker naming exactly the discharged
+    title. Delete the marker and both halves fail, which is the mutation round's
+    check on this re-aim.
+
+    § 7.2's flip is what this zero is FOR, and it is not this test's business:
+    this file measures, the flip is a delta.
     """
-    change, capability, requirement, scenario = _SCENARIO_SUBJECT
+    change, capability, requirement, scenario = _DISCHARGED_SCENARIO_SUBJECT
     warnings = [f for f in _findings() if f.severity == WARNING]
 
-    assert len(warnings) == 1, _moved(
-        f"the scenario-title arm's population (expected exactly 1: "
-        f"{change} / {scenario!r})",
+    assert _SCENARIO_SUBJECT is None, (
+        "a live scenario-arm subject is named again; assert it by its four "
+        "fields as this test did before 2026-08-27, rather than asserting zero")
+    assert not warnings, _moved(
+        f"the scenario-title arm's population (EMPTY since {change} declared "
+        f"its rename of {scenario!r} on 2026-08-27)",
         f"{len(warnings)} warning(s): "
         f"{[(_subject(f), f.rule[:80]) for f in warnings]}")
 
-    assert _subject(warnings[0]) == (change, capability, requirement), _moved(
-        f"the scenario-title arm's subject", f"reported {_subject(warnings[0])}")
-    assert f"{scenario!r}" in warnings[0].rule, _moved(
-        f"the omitted scenario title {scenario!r}",
-        f"the finding names something else: {warnings[0].rule}")
-    assert _RENAME_DESTINATION not in warnings[0].rule, (
-        "the finding names the RENAME DESTINATION rather than canon's title; "
-        "the arm reports what canon states and the block does not carry")
+    # THE DISCHARGE ITSELF, read back through the family rather than assumed.
+    # The block is found by the same (change, capability, requirement) triple the
+    # finding used to carry, and it must hold a `Merged into` marker naming
+    # canon's title and pointing at the destination the block does carry.
+    blocks = [b for b in mbc.active_blocks(ROOT)
+              if (b.change, b.capability, mbc.norm(b.title))
+              == (change, capability, mbc.norm(requirement))]
+    assert len(blocks) == 1, _moved(
+        f"the block that carried the discharged finding ({change} / "
+        f"{requirement!r})", f"{len(blocks)} matching MODIFIED block(s)")
+    merged = [m for m in blocks[0].markers if m.form == "merged"]
+    assert [(m.destination, m.names) for m in merged] == [
+        (_RENAME_DESTINATION, [scenario])], _moved(
+        f"the `Merged into` marker declaring {scenario!r} superseded by "
+        f"{_RENAME_DESTINATION!r}",
+        f"the block carries markers {[(m.form, m.destination, m.names) for m in blocks[0].markers]}")
+    titles = [u.text for u in blocks[0].units if u.kind == mbc.SCENARIO_TITLE]
+    assert _RENAME_DESTINATION in titles, _moved(
+        f"the destination scenario title {_RENAME_DESTINATION!r} in the block",
+        f"the block's scenario titles are {titles}")
 
     # The containment case, made explicit: canon's title IS a substring of the
     # rename destination under the family's own title normalization, and the
-    # family reports it anyway. Same-kind EXACT, never containment.
+    # family reported it anyway for as long as nothing declared it. Same-kind
+    # EXACT, never containment — the reason the declaration was needed at all.
     assert mbc.norm(scenario) in mbc.norm(_RENAME_DESTINATION)
     assert mbc.norm(scenario) != mbc.norm(_RENAME_DESTINATION)
 
@@ -1028,6 +1113,16 @@ def test_the_report_moves_only_in_this_family_s_lines(tmp_path):
     THREE PERMITTED SECTIONS, everything else byte-identical: `## Headline` (the
     counts line and the skipped-family notice), `### modified-block-currency`
     (this family's own rows) and `## Ranked Plan` (the same findings, ranked).
+
+    **NOT RE-AIMED ON 2026-08-27, AND THAT IS A MEASUREMENT.** `_moved` and
+    `quickstart.md` § The end state both warn that this test's two vacuity
+    guards — `assert f"### {mbc.FAMILY}" in differing` and `assert plan_moved` —
+    become true of the desired state AT ZERO and must then be re-aimed. The
+    scenario arm reaching zero is NOT that moment: seven `info` rows survive it,
+    they move this family's section and seven ranked-plan rows, and both guards
+    still bite. The movement is now `(0, 0, 0, 7)` and the band comparison reads
+    it correctly with no change, exactly as the quickstart predicted for the
+    comparison itself. The guards fall due when the LEDGER empties too.
     """
     with_family = _report(ROOT, tmp_path, skip=False)
     without = _report(ROOT, tmp_path, skip=True)
@@ -1189,10 +1284,16 @@ def test_the_gate_reaches_the_corpus_only_through_the_family():
     # itself makes and handed back in the type it itself returns. That is a
     # change of SUBJECT reached through the family, which is what this pin is
     # for — three more names here, and NOT one regex more below.
+    # `SCENARIO_TITLE` joined the list on 2026-08-27, when the scenario arm was
+    # discharged and its test began asserting the DECLARATION instead of the
+    # finding: the destination title's presence in the block is what makes
+    # `Merged into` the right form, and the kind constant is how the family
+    # itself names a scenario title. One more name, and still not one regex.
     allowed = {"ActiveBlock", "active_blocks", "declarations", "derive_units",
                "fam_modified_block_currency", "norm", "parse_delta",
                "promoted", "resolve", "sibling_titles",
-               "DELTA_GLOB", "FAMILY", "_MARKER_ACTION", "_arm_ordering"}
+               "DELTA_GLOB", "FAMILY", "SCENARIO_TITLE", "_MARKER_ACTION",
+               "_arm_ordering"}
     # OVER CODE, NOT OVER PROSE. This test's own docstring claimed "matched on
     # use" while doing the opposite: naming any family attribute in a docstring
     # or a comment anywhere in this file reddened the equality below. The review
@@ -1231,7 +1332,7 @@ def test_every_corpus_assertion_explains_what_to_do_when_the_corpus_moves():
         assert phrase in message, phrase
 
     corpus_facing = (
-        test_the_scenario_arm_names_the_composed_view_rename_and_nothing_else,
+        test_the_scenario_arm_reads_zero_since_the_rename_was_declared,
         test_every_carriage_ledger_finding_over_the_real_tree_is_named,
         test_the_resolution_ordering_and_marker_classes_read_zero_over_the_real_tree,
         test_the_packet_s_own_block_sits_at_its_archived_path_and_out_of_reach,
