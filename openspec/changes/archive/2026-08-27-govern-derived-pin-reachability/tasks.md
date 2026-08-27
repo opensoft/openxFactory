@@ -535,7 +535,11 @@ that a per-artifact sweep does not generalize.
       the packet. **NOTHING WAS MODIFIED ANYWHERE** — the extra insert line in
       each file beyond the delta body is the separator, and the count of
       `## MODIFIED Requirements` blocks in all three deltas is zero, which is
-      what makes the archive order irrelevant that § 1.4 measured.
+      what makes the archive order irrelevant that § 1.4 measured. The one
+      inserted line each file gains BEYOND its delta body is the trailing blank
+      line the append leaves behind, measured rather than assumed: the appended
+      region ends `\n\n` in all three, and the block above it is the delta body
+      exactly.
       **GATES AFTER THE ACT.** `OPENSPEC_TELEMETRY=0 openspec validate --all
       --strict` → **75 passed, 0 failed**, one item fewer than the **76** before,
       because this packet left the active set. `python3 -m pytest tests/doc-health
