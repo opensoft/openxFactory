@@ -46,9 +46,12 @@ where two scenarios legitimately become one — the destination being where the
 superseded scenarios went rather than a unit the marker names. A unit that
 itself contains backticks is fenced with a longer run of them, as CommonMark
 provides. Naming a scenario title declares the bullets that scenario carried
-removed with it, unless they appear elsewhere in the block. A marker is not
-itself a unit anything later has to restate. The marker is deliberately a NEW reserved
-form and NOT the corpus's existing dated bold note, because every such note in
+removed with it — but only in a genuine removal, where the block adds no
+scenario title canon does not already carry; where it adds one the shape is a
+retitle, `Merged into` is the instrument, and the bullets must be carried or
+named one at a time. A marker is not itself a unit anything later has to
+restate. The marker is deliberately a NEW reserved form and NOT the corpus's
+existing dated bold note, because every such note in
 the corpus today records a caught near-miss and a restoration rather than a
 deletion — one of them naming seven scenario titles in backticks as restored —
 so a rule that read deletion out of prose would misread faithful restatements

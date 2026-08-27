@@ -134,7 +134,16 @@ merge it follows exists.
       the ledger reports the two dropped bullets — a `Merged into` marker names
       titles only, so bullets a merge makes redundant must be carried or named in
       a `Removed from canon` marker of their own. A companion case names them
-      there and asserts the ledger goes quiet. This test fails under any
+      there and asserts the ledger goes quiet.
+- [ ] 3.3a Red test — the COMBINATION, which is where the two marker rules could
+      contradict each other. A `Removed from canon` marker naming the old
+      scenario title, AND a replacement scenario the promoted requirement does
+      not carry, carrying two of the old scenario's four bullets. ACCEPTANCE: the
+      two uncarried bullets are reported. Suppressing them would let a retitle
+      relabelled as a removal drop obligations with nothing reported — B5 through
+      the permissive marker — so this fixture covers the COMBINATION rather than
+      each branch alone, and the genuine-removal case (marker, no new scenario
+      title, nothing reported) is asserted beside it. This test fails under any
       scenario-paired bullet comparison and is the reason the delta compares
       bullets across the whole block.
 - [ ] 3.4 Red test — containment is not carriage. A block bullet that CONTAINS
@@ -154,12 +163,18 @@ merge it follows exists.
       unit the block still carries is itself reported. A marker wrapped across
       several lines parses as one. A named unit that itself contains backticks —
       a clause citing `openxFactory` — is fenced with a longer run and is
-      extracted whole, not truncated at its first inner backtick. A named
+      extracted whole, not truncated at its first inner backtick. A paragraph
+      that merely quotes or templates a marker — as this change's own two deltas
+      both do, in prose that promotes into canon — is NOT of marker form and
+      stays an ordinary carriage unit; the form test anchors on the complete
+      prefix, change-id and ISO date included. A named
       SCENARIO TITLE suppresses that scenario's canon bullets too, and this is
       asserted directly: a four-bullet scenario named in a `Removed from canon`
       marker reports NOTHING at `info`, while the same scenario with one of its
       bullets surviving elsewhere in the block reports nothing either, because
-      the survivor is carried. A `Merged into` marker's DESTINATION title, which
+      the survivor is carried — and this holds ONLY where the block adds no new
+      scenario title; § 3.3a pins the other branch. A `Merged into` marker's
+      DESTINATION title, which
       is present in the block, is not read as a named unit — the pin that stops
       every valid merge marker reporting itself. A prose dated bold note that is
       not one of the two reserved forms suppresses nothing: the guard on the

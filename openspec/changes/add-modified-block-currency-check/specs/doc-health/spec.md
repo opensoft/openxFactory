@@ -56,17 +56,18 @@ buried in an editorial one:
   the change intended. It SHALL emit at most one finding per requirement,
   listing the units, rather than one finding per unit.
 - **Title resolution and the two-writers rule.** A MODIFIED block whose
-  capability and requirement title resolves to no promoted requirement SHALL be
+  capability and requirement title resolve to no promoted requirement SHALL be
   resolved in order: FIRST against the change's own `## RENAMED Requirements`
   block, and where that block renames a promoted requirement to this title the
   three arms above SHALL run against canon under the OLD name, a rename being a
   change of title rather than of the content a block must carry; THEN against a
   requirement an active sibling change ADDS or RENAMES. Where a title resolves
-  to none of those, the block SHALL be reported. Where two active changes carry a MODIFIED block for ONE
-  promoted requirement, the later SHALL be measured against the earlier change's
-  outcome rather than against canon, and the earlier change's additions SHALL be
-  present in the later block; where the earlier change is an active RATIFIED
-  change, `release-realization`'s "Ordered deltas and branch vocabulary" already
+  to none of those, the block SHALL be reported. Where two active changes carry
+  a MODIFIED block for ONE promoted requirement, the later SHALL be measured
+  against the earlier change's outcome rather than against canon, and the
+  earlier change's additions SHALL be present in the later block; where the
+  earlier change is an active RATIFIED change,
+  `release-realization`'s "Ordered deltas and branch vocabulary" already
   requires the later proposal to reference it, and the reference SHALL be read
   as that change's id occurring as a whole token in the later change's own
   `proposal.md` — the whole-token match the duplicate packet family already
@@ -113,6 +114,16 @@ forms:
   legitimately becoming one. The destination is written as a code span like
   every other title this marker carries, and in this one spelling everywhere.
 
+**A paragraph is of MARKER FORM only where, after normalization, it BEGINS with
+one of those two prefixes COMPLETE** — the bold run, a resolvable change-id, an
+ISO date in parentheses, and the closing colon. A paragraph that merely quotes,
+templates or describes a marker does not begin with one, and is an ordinary body
+unit like any other prose. This anchor is load-bearing rather than pedantic:
+this requirement's own text and `document-lifecycle`'s both set out the two
+templates in prose, both promote into canon, and a looser test would read them
+as markers and exempt them from carriage — the check quietly declining to check
+the paragraphs that define it.
+
 **Every unit a marker names, and the `Merged into` destination, SHALL be written
 as a CommonMark code span, and a unit that itself contains backticks SHALL be
 fenced with a longer run of them.** Roughly a third of this corpus's requirement
@@ -136,16 +147,26 @@ the block. A marker naming a unit the block still carries declares nothing and
 SHALL itself be reported, because a declaration that does not describe the block
 is a declaration no reader can rely on.
 
-**A named scenario TITLE carries its bullets with it.** Where a
-`Removed from canon` marker names a scenario title, the bullets that scenario
-carried in canon SHALL also be treated as declared removed — unless they appear
-as bullets elsewhere in the block, in which case they are carried and nothing is
-reported about them either way. Declaring a scenario removed and then reporting
-its bullets forever would make the declaration useless for the act it exists to
-declare. **A `Merged into` marker names titles only**, so the superseded
-scenario's bullets SHALL be carried somewhere in the block or named in a
-`Removed from canon` marker of their own; a bullet a merge makes redundant is a
-declared removal, not a permanent editorial row.
+**A named scenario TITLE carries its bullets with it ONLY IN A GENUINE
+REMOVAL.** Where a `Removed from canon` marker names a scenario title AND the
+block adds no scenario title canon does not already carry, the bullets that
+scenario carried in canon SHALL also be treated as declared removed — unless
+they appear as bullets elsewhere in the block, in which case they are carried
+and nothing is reported about them either way. Declaring a scenario genuinely
+gone and then reporting its bullets forever would make the declaration useless
+for the act it exists to declare.
+
+**Where the block DOES add a scenario title canon does not carry, a
+`Removed from canon` marker SHALL NOT suppress the removed title's bullets.**
+That shape is a retitle, whatever the marker calls it, and treating it as a
+removal reopens the defect the bullet arm exists to close: name the old title
+removed, add a replacement carrying two of its four bullets, and two obligations
+leave canon with nothing reported. The author's instrument for a retitle is
+`Merged into`, whose bullets must be carried somewhere in the block or named
+individually in a `Removed from canon` marker of their own. **A `Merged into`
+marker names titles only**, so a bullet a merge makes redundant is a declared
+removal, not a permanent editorial row — but it has to be declared as a bullet,
+one at a time, which is exactly the deliberation the class deserves.
 
 **A marker is NOT a carriage unit, in either direction.** A marker promotes into
 canon with the requirement that carries it, and if it were a unit every later
@@ -206,10 +227,15 @@ is a ruling like any other.
 - **THEN** that unit MUST NOT be reported
 - **AND** the suppression MUST extend to exactly the units named and to no others
 
-#### Scenario: A named scenario title carries its bullets with it
-- **WHEN** a `Removed from canon` marker names a scenario title that is absent from the block
+#### Scenario: A genuinely removed scenario title carries its bullets with it
+- **WHEN** a `Removed from canon` marker names a scenario title that is absent from the block, and the block adds NO scenario title the promoted requirement does not already carry
 - **THEN** the bullets that scenario carried in canon MUST NOT be reported either, the title's removal declaring them
 - **AND** a bullet of that scenario that DOES appear elsewhere in the block MUST be treated as carried
+
+#### Scenario: A removal marker is used where the block adds a replacement scenario
+- **WHEN** a `Removed from canon` marker names a scenario title AND the block adds a scenario title the promoted requirement does not carry
+- **THEN** the removed title's bullets MUST NOT be suppressed by that marker, the shape being a retitle rather than a removal however it is labelled
+- **AND** every such bullet the block does not carry somewhere MUST be reported, unless it is itself named in a `Removed from canon` marker as a bullet
 
 #### Scenario: A marker names a unit the block still carries
 - **WHEN** a marker names a scenario title or body unit that the block does in fact restate

@@ -124,7 +124,13 @@ nothing — title declared, no surviving pairing to compare. Four obligations
 gone, zero findings. Comparing every canon bullet against every bullet ANYWHERE
 in the block closes it: a retitle keeps its bullets or the ledger says which
 ones it lost, and the `Merged into` marker handles the legitimate merge without
-silencing the bullets underneath.
+silencing the bullets underneath. The chosen consequence, stated rather than
+discovered: a bullet moved verbatim under a DIFFERENT scenario is carried, and
+the arm says nothing about it. That is deliberate — the arm reads carriage, not
+meaning, and it cannot tell a sensible relocation from a careless one. What it
+guarantees is that the obligation is still written somewhere in the block, which
+is the property canon actually needs; whether it sits under the right heading is
+a reviewer's judgement and no check makes it.
 
 ### Three arms, measured separately
 
