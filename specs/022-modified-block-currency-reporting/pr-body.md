@@ -187,3 +187,9 @@ corpus-facing assertion in F4's own test file is a floor or an invariant, never 
 named set or an absolute count — a choice available to F4 because it asserts a
 RENDERING rather than a verdict, and not an argument that F3 could have made the
 same one. The full text is in `specs/022-…/tasks.md` § OPEN QUESTION FOR BRETT.
+
+---
+
+Refs #357 #329 #330
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
