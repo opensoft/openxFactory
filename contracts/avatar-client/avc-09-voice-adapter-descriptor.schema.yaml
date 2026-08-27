@@ -1,0 +1,222 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "avc-09-voice-adapter-descriptor.schema.yaml"
+contract_id: "AVC-09"
+contract_schema_version: 1
+title: "AVC-09 avatar voice adapter descriptor"
+description: >-
+  The reserved AVC-09 shape, published AS-IS by qualify-avatar-live-voice:
+  server and client adapter components, adapter identity and version, provider,
+  supported profiles, requested model alias or snapshot, provider-resolved
+  model, prompt/policy/voice/turn configuration versions, capability and event
+  mapper versions, authorization mode, sideband readiness, direct-media
+  requirement, contract compatibility, region and data controls, and
+  experimental/candidate/approved/retired status. It is the SINGLE home for the
+  ring's declared region and data-control values.
+
+  It carries NO numeric latency-budget field. Latency gating is the neutral
+  relative-regression SLO held in acceptance-map.yaml; the measured numbers live
+  in AVC-10 samples, which this descriptor REFERENCES through
+  `latency_evidence_refs`. A per-profile absolute ceiling frozen into a neutral
+  contract is Fork 2's Option B, which was not ruled, and the `not` below
+  refuses one structurally however it is spelled.
+
+  It carries no secret material: no provider key, no ephemeral client secret,
+  no SDP, and no raw session content (spec FR-006/FR-018).
+type: object
+# Open object for additive optional fields on the same major (compatibility
+# policy; ACR-001-S01). Closed VOCABULARY stays closed via enums, and the two
+# prohibited CLASSES stay structurally impossible via `not` regardless of
+# additive evolution.
+not:
+  anyOf:
+    # --- the refused numeric latency budget (Fork 2 Option C) ---
+    - {required: [latency_budget]}
+    - {required: [latency_budget_ms]}
+    - {required: [latency_budgets]}
+    - {required: [latency_ceiling_ms]}
+    - {required: [max_latency_ms]}
+    - {required: [p50_budget_ms]}
+    - {required: [p95_budget_ms]}
+    - {required: [p99_budget_ms]}
+    - {required: [first_playable_budget_ms]}
+    - {required: [sideband_ready_budget_ms]}
+    # --- secret material (spec FR-006/FR-018) ---
+    - {required: [api_key]}
+    - {required: [provider_api_key]}
+    - {required: [provider_credential]}
+    - {required: [control_credential]}
+    - {required: [credential]}
+    - {required: [client_secret]}
+    - {required: [ephemeral_client_secret]}
+    - {required: [secret]}
+    - {required: [sdp]}
+    - {required: [sdp_offer]}
+    - {required: [sdp_answer]}
+    - {required: [raw_media]}
+    - {required: [audio_blob]}
+    - {required: [raw_transcript]}
+    - {required: [raw_provider_payload]}
+$defs:
+  version_label:
+    type: string
+    minLength: 1
+    description: "Opaque configuration/mapper version label; never a secret."
+  adapter_status:
+    type: string
+    enum: [experimental, candidate, approved, retired]
+  authorization_mode:
+    type: string
+    description: >-
+      How the adapter authorizes the provider leg. The internal-live ring
+      REQUIRES `broker_held_server_key`: the session broker holds the provider
+      server key end-to-end and issues only the short-lived AVC-02 grant, so no
+      standard provider API key and no ephemeral client secret reaches the
+      client. The other two members exist so a non-conforming adapter can be
+      DESCRIBED and refused rather than left undescribable; the ring rule is
+      enforced by the acceptance map, not by omission from this vocabulary.
+    enum:
+      - broker_held_server_key
+      - provider_ephemeral_client_secret
+      - client_provider_api_key
+  server_component:
+    type: object
+    additionalProperties: false
+    description: >-
+      The privileged half. Prompt, policy, voice and turn configuration are
+      server-owned; model and provider identifiers never cross into client
+      branching (avatar-client-runtime "Server-owned model profiles").
+    properties:
+      component_id: {type: string, minLength: 1}
+      component_version: {$ref: "#/$defs/version_label"}
+      prompt_configuration_version: {$ref: "#/$defs/version_label"}
+      policy_configuration_version: {$ref: "#/$defs/version_label"}
+      voice_configuration_version: {$ref: "#/$defs/version_label"}
+      turn_configuration_version: {$ref: "#/$defs/version_label"}
+      capability_mapper_version: {$ref: "#/$defs/version_label"}
+      event_mapper_version: {$ref: "#/$defs/version_label"}
+    required:
+      - component_id
+      - component_version
+      - prompt_configuration_version
+      - policy_configuration_version
+      - voice_configuration_version
+      - turn_configuration_version
+      - capability_mapper_version
+      - event_mapper_version
+  client_component:
+    type: object
+    additionalProperties: false
+    description: >-
+      The unprivileged half: component identity and version plus the capability
+      and event mapper versions it was built against. Never a provider
+      configuration and never a key (repo-boundary-governance "Neutral
+      avatar-client repository boundary"). The reserved shape gives the client
+      component no transport field — the media transport is a per-session fact
+      carried by AVC-01/AVC-02, not a property of the adapter release.
+    properties:
+      component_id: {type: string, minLength: 1}
+      component_version: {$ref: "#/$defs/version_label"}
+      capability_mapper_version: {$ref: "#/$defs/version_label"}
+      event_mapper_version: {$ref: "#/$defs/version_label"}
+    required:
+      - component_id
+      - component_version
+      - capability_mapper_version
+      - event_mapper_version
+properties:
+  adapter_id: {type: string, minLength: 1}
+  adapter_version: {$ref: "#/$defs/version_label"}
+  provider: {type: string, minLength: 1}
+  supported_profiles:
+    type: array
+    minItems: 1
+    items: {type: string, minLength: 1}
+  requested_model:
+    type: object
+    additionalProperties: false
+    description: "What the profile ASKED for — an alias, a pinned snapshot, or both."
+    properties:
+      alias: {type: string, minLength: 1}
+      snapshot: {type: string, minLength: 1}
+    anyOf:
+      - {required: [alias]}
+      - {required: [snapshot]}
+  provider_resolved_model:
+    type: string
+    minLength: 1
+    description: "What the provider actually bound, recorded per session."
+  server_component: {$ref: "#/$defs/server_component"}
+  client_component: {$ref: "#/$defs/client_component"}
+  authorization_mode: {$ref: "#/$defs/authorization_mode"}
+  sideband_readiness:
+    type: object
+    additionalProperties: false
+    description: >-
+      Whether the adapter requires a verified sideband control channel, and the
+      frozen ordering it must honour. No numeric readiness ceiling lives here:
+      the per-session ceiling is the AVC-02 grant's
+      `media_readiness_timeout_ms`, bounded by the interface lock.
+    properties:
+      required: {type: boolean}
+      verified_before_grant_answer:
+        const: true
+        description: "Frozen ordering: sideband verified before the AVC-02 grant answer is released."
+    required: [required, verified_before_grant_answer]
+  direct_media_required:
+    type: boolean
+    description: >-
+      Whether the adapter requires brokered DIRECT client-to-provider media.
+      Media never relays through the broker when this is true.
+  contract_compatibility:
+    type: object
+    additionalProperties: false
+    properties:
+      contract_major: {type: integer, minimum: 1}
+      contract_schema_version: {type: integer, minimum: 1}
+      bundle_tag: {type: string, minLength: 1}
+    required: [contract_major]
+  region_and_data_controls:
+    type: object
+    additionalProperties: false
+    description: >-
+      The SINGLE home for the ring's declared region and data-control values
+      (avatar-live-voice "AVC-09 avatar voice adapter descriptor").
+    properties:
+      declared_region: {type: string, minLength: 1}
+      data_residency: {type: string, minLength: 1}
+      provider_retention: {type: string, minLength: 1}
+      provider_training_opt_out: {type: boolean}
+    required: [declared_region]
+  status: {$ref: "#/$defs/adapter_status"}
+  latency_evidence_refs:
+    type: array
+    description: >-
+      References to the AVC-10 sample evidence recorded for this adapter. The
+      descriptor REFERENCES measured evidence; it never restates a budget.
+    items: {type: string, minLength: 1}
+required:
+  - adapter_id
+  - adapter_version
+  - provider
+  - supported_profiles
+  - requested_model
+  - provider_resolved_model
+  - server_component
+  - client_component
+  - authorization_mode
+  - sideband_readiness
+  - direct_media_required
+  - contract_compatibility
+  - region_and_data_controls
+  - status
+  - latency_evidence_refs
+allOf:
+  # An `approved` adapter has measured evidence behind it. `experimental` and
+  # `candidate` descriptors legitimately carry an empty reference list.
+  - if:
+      type: object
+      properties: {status: {const: approved}}
+      required: [status]
+    then:
+      properties:
+        latency_evidence_refs: {minItems: 1}

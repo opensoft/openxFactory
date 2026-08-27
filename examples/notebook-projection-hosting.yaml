@@ -89,6 +89,33 @@ hosting:
     # by sign-in, never fetched from a vault, and never shared between systems.
     session_state_in_custody: false
 
+# THE APPROVAL LANE — who decides a share request, RULED 2026-08-27.
+#
+# Task 2.4 of add-notebook-projection-identity. The ratified requirement says a
+# pending request "SHALL be decided by a designated company-policy actor as a
+# GOVERNED ACT, in the hosting account's own interface, and SHALL NOT be left to
+# whoever happens to read the account's mail." Until this block existed the
+# designation was missing, which is the failure that sentence describes: a
+# request landing in an inbox with nobody named to answer it.
+#
+# The standing declaration lives HERE, and the per-decision record lives in the
+# roster entry's `granted_by`. Both are needed: this says who MAY decide, the
+# entry says who DID.
+approval:
+  designated_actor: Brett Heap
+  declared_at: "2026-08-27"
+  declared_by: Brett Heap
+  # WHERE the act happens. NotebookLM exposes no administrative or sharing API
+  # for inbound requests, so the decision is taken in the hosting account's own
+  # interface, signed in as the declared account. `nlm share invite` can perform
+  # the grant once the decision is made, but it is the same act from a terminal
+  # — never a second lane, and never an automated approver.
+  acts_in: the hosting account's own NotebookLM interface
+  # No API is designed against, per the ratified text. Detection and relay of
+  # pending requests MAY be automated if the platform ever offers a surface;
+  # the approval stays a governed human act either way.
+  automated_approval: false
+
 # THE SHARE-OUT ROSTER — the record of every governed share act from the
 # hosting account. Uniqueness is (hosting_account, user, book_or_alias): a
 # re-approval, a role change, or a grant by a different actor UPDATES the one

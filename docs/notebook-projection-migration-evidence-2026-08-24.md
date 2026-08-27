@@ -332,7 +332,9 @@ through the provider's sharing API and must be resolved from whatever record
 originated it.
 
 New books (company account) — all seven: sole collaborator
-`xfactor001@opensoft.one (owner)`. The CLI additionally reported
+`xfactor001@opensoft.one (owner)` — lower-cased **as the CLI rendered it**, kept
+verbatim rather than normalised to the canonical `xFactor001@opensoft.one`
+because this line quotes provider output and a tidied quote is not a quote. The CLI additionally reported
 `is_public: true` / `access_level: public`; **that report is false**, and F5
 below carries the proof.
 

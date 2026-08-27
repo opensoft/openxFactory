@@ -75,7 +75,14 @@ ALLOWED_VARIANCE_FIELDS = {
     "severity", "disposition", "rationale", "owner_change",
 }
 
-# ---- The eight AVC contracts + reserved identifiers (spec FR-001/FR-002) ----
+# ---- The published AVC contracts + reserved identifiers (spec FR-001/FR-002) ----
+# AVC-09 and AVC-10 joined this map in `qualify-avatar-live-voice`, in the SAME
+# change that lands their schemas. They had to move together: the reserved-id
+# guard in check_schemas fail-closes on the mere EXISTENCE of an
+# `avc-09-*.schema.yaml` file, so a schema landing one commit ahead of this
+# constant would red the repository between commits. AVC-03 and AVC-05 stay
+# reserved, and check_interface_lock now machine-checks both of these constants
+# against interface-lock.yaml so the hand-mirroring cannot drift again.
 CONTRACT_FILES = {
     "AVC-01": "avc-01-session-request.schema.yaml",
     "AVC-02": "avc-02-session-result.schema.yaml",
@@ -83,10 +90,12 @@ CONTRACT_FILES = {
     "AVC-06": "avc-06-structured-confirmation.schema.yaml",
     "AVC-07": "avc-07-retention-profile.schema.yaml",
     "AVC-08": "avc-08-persona-profile.schema.yaml",
+    "AVC-09": "avc-09-voice-adapter-descriptor.schema.yaml",
+    "AVC-10": "avc-10-voice-latency-sample.schema.yaml",
     "AVC-11": "avc-11-session-command.schema.yaml",
     "AVC-12": "avc-12-state-snapshot.schema.yaml",
 }
-RESERVED_IDS = {"AVC-03", "AVC-05", "AVC-09", "AVC-10"}
+RESERVED_IDS = {"AVC-03", "AVC-05"}
 
 # ---- Semantic consumed set for per-file digests (spec FR-022 / Q1) ----
 # Directories/files whose members are digested + manifest-registered. The
@@ -276,7 +285,9 @@ def check_metadata(f: Findings) -> None:
             cid = doc.get("contract_id")
             if path.name in CONTRACT_FILES.values():
                 if cid not in CONTRACT_FILES:
-                    f.error("meta", f"{rel}: contract_id must be one of the 8 AVC ids")
+                    f.error("meta", f"{rel}: contract_id must be one of the "
+                                    f"{len(CONTRACT_FILES)} published AVC ids "
+                                    f"{sorted(CONTRACT_FILES)}")
                 if "contract_schema_version" not in doc:
                     f.error("meta", f"{rel}: missing contract_schema_version")
         else:
@@ -309,7 +320,7 @@ def check_schemas(f: Findings, registry: Registry, docs: dict[str, dict]) -> Non
                 registry.resolver(base_uri=base).lookup(ref)
             except Exception as exc:  # noqa: BLE001
                 f.error("ref", f"{name}: unresolved $ref {ref!r}: {exc}")
-    # all eight contracts present?
+    # every published contract present?
     present = {d.get("contract_id") for d in docs.values()}
     for cid, fname in CONTRACT_FILES.items():
         if cid not in present:
@@ -409,7 +420,12 @@ def run(strict: bool, require_realization: bool) -> int:
     # Fixture / acceptance / evidence / redaction / digest / F0-gate checks are
     # added in later phases; each guards on artifact presence so the validator
     # stays green at every phase checkpoint.
+    check_interface_lock(f)
     ev_ids = check_fixtures(f, registry, docs)
+    # The latency comparison cases carry acceptance evidence exactly as the
+    # fixtures do, so their ids join the set the evidence register resolves
+    # against; an automated entry may name either kind.
+    ev_ids |= check_latency_posture(f)
     check_acceptance_and_evidence(f, ev_ids)
     check_client_lab_acceptance_map(f)
     check_capability_scenario_register(f)
@@ -437,8 +453,37 @@ def run(strict: bool, require_realization: bool) -> int:
 ALL_CLASSES = {"valid", "invalid", "boundary", "compatibility",
                "unknown-field", "unknown-authority", "redaction", "adversarial"}
 KNOWN_CHECKS = {"acceptance_map_parity", "contract_location", "release_identity",
-                "content_addressed_pin", "fixture_conformance"}
+                "content_addressed_pin", "fixture_conformance",
+                # qualify-avatar-live-voice §3.1-§3.3
+                "interface_lock_reserved_set", "latency_posture"}
 EVID_TYPES = {"automated", "manual", "deferred"}
+
+# ---- the two-tier latency posture (qualify-avatar-live-voice §3.3) ----------
+# The SLO entry's shape, at the RATIFIED threshold. These are not defaults the
+# map may override: the check compares the map's declared numbers against them
+# and fails on a disagreement, because a threshold that can be edited in the
+# artifact it gates is not a threshold.
+SLO_KIND = "neutral_relative_regression"
+SLO_RELATIVE_PCT = 15
+SLO_ABSOLUTE_MS = 150
+SLO_MATERIALITY_RULE = "greater_of"
+SLO_GATED_PERCENTILES = {"p50", "p95"}
+SLO_GATED_INTERVALS = {"first_playable_after_authorized_ms",
+                       "sideband_ready_after_request_ms"}
+SLO_GATED_PLATFORMS = {"windows_desktop", "web_canvas"}
+SLO_GATED_NETWORK = "nominal"
+SLO_REFERENCE_ONLY_PLATFORMS = {"linux_ci"}
+SLO_CELL_AXES = ("platform", "network_class", "region")
+SLO_OUTCOMES = {"pass", "fail", "recorded", "refused"}
+# A per-profile numeric latency ceiling, however it is spelled. Fork 2's Option
+# C means NO such field exists on a neutral contract and none is declared as a
+# gating field in the acceptance map: the only numeric threshold in this family
+# is the SLO's own `absolute_threshold_ms`, which is a RELATIVE-regression
+# allowance, not a ceiling on a profile.
+LATENCY_CEILING_KEY = re.compile(
+    r"(?i)^(?:latency_budgets?|latency_budget_ms|latency_ceiling_ms"
+    r"|max_latency_ms|[a-z0-9_]*_budget_ms|[a-z0-9_]*_latency_ceiling_ms)$"
+)
 
 
 def check_fixtures(f: Findings, registry: Registry, docs: dict[str, dict]) -> set[str]:
@@ -1300,6 +1345,339 @@ def check_redaction(f: Findings) -> None:
                 if m.group(0) in sentinels:
                     continue
                 f.error("redaction", f"{path.relative_to(ROOT)}: denylist pattern {pid} matched non-sentinel content: {m.group(0)[:40]!r}")
+
+
+def check_interface_lock(f: Findings) -> None:
+    """ACR-001-S04 (evidence-register check `interface_lock_reserved_set`):
+    machine-check `interface-lock.yaml`'s frozen contract/reserved lists against
+    this validator's own CONTRACT_FILES / RESERVED_IDS constants.
+
+    The constants MIRROR the lock by hand rather than reading it — deliberately,
+    so the file that declares the freeze and the tool that enforces it are two
+    independent statements — but an unchecked hand mirror drifts. This makes the
+    two disagree LOUDLY instead of silently, which is what `qualify-avatar-live-
+    voice` needed when it moved exactly AVC-09 and AVC-10 out of the reserved
+    set: an unreservation that edits one and forgets the other is now a finding,
+    and so is releasing a THIRD reserved identifier along the way.
+
+    Fail closed on a missing or unreadable lock."""
+    path = AVC / "interface-lock.yaml"
+    rp = "contracts/avatar-client/interface-lock.yaml"
+    if not path.is_file():
+        f.error("interface-lock", f"{rp} absent; the frozen baseline is unverifiable (fail closed)")
+        return
+    doc = load_yaml(path) or {}
+    frozen = doc.get("frozen") if isinstance(doc, dict) else None
+    if not isinstance(frozen, dict):
+        f.error("interface-lock", f"{rp}: `frozen` block missing or not a mapping (fail closed)")
+        return
+    locked = frozen.get("contracts") or []
+    reserved = frozen.get("reserved_identifiers") or []
+    if not isinstance(locked, list) or not isinstance(reserved, list):
+        f.error("interface-lock", f"{rp}: `contracts` and `reserved_identifiers` must be lists")
+        return
+    if len(locked) != len(set(locked)):
+        f.error("interface-lock", f"{rp}: duplicate id in frozen.contracts")
+    if len(reserved) != len(set(reserved)):
+        f.error("interface-lock", f"{rp}: duplicate id in frozen.reserved_identifiers")
+    if set(locked) != set(CONTRACT_FILES):
+        f.error("interface-lock",
+                f"{rp}: frozen.contracts {sorted(set(locked))} != the validator's published set "
+                f"{sorted(CONTRACT_FILES)} — the lock and CONTRACT_FILES must move in the same change")
+    if set(reserved) != RESERVED_IDS:
+        f.error("interface-lock",
+                f"{rp}: frozen.reserved_identifiers {sorted(set(reserved))} != the validator's "
+                f"reserved set {sorted(RESERVED_IDS)} — unreserving an id edits BOTH or neither")
+    overlap = set(locked) & set(reserved)
+    if overlap:
+        f.error("interface-lock",
+                f"{rp}: {sorted(overlap)} is both published and reserved; an identifier is one or "
+                f"the other and is never reused")
+
+
+def _slo_entries(node: Any) -> list[dict]:
+    """Every mapping in the acceptance map that declares itself a neutral
+    relative-regression SLO. Collected by walking rather than by reading one
+    known key, so a SECOND entry hidden under another key is found too — 'exactly
+    one' has to mean exactly one in the document, not one where we looked."""
+    found: list[dict] = []
+    if isinstance(node, dict):
+        if node.get("kind") == SLO_KIND:
+            found.append(node)
+        for v in node.values():
+            found.extend(_slo_entries(v))
+    elif isinstance(node, list):
+        for item in node:
+            found.extend(_slo_entries(item))
+    return found
+
+
+def _ceiling_keys_in_properties(node: Any) -> list[str]:
+    """Property NAMES under any `properties` mapping that read as a numeric
+    latency ceiling. Only property names are inspected: AVC-09 and AVC-10 name
+    these same strings inside their `not` blocks precisely in order to forbid
+    them, and a scan that could not tell a prohibition from a declaration would
+    fail the very schemas doing the prohibiting."""
+    hits: list[str] = []
+    if isinstance(node, dict):
+        props = node.get("properties")
+        if isinstance(props, dict):
+            hits.extend(k for k in props if isinstance(k, str) and LATENCY_CEILING_KEY.match(k))
+        for k, v in node.items():
+            if k == "not":
+                continue
+            hits.extend(_ceiling_keys_in_properties(v))
+    elif isinstance(node, list):
+        for item in node:
+            hits.extend(_ceiling_keys_in_properties(item))
+    return hits
+
+
+def _ceiling_keys_in_mapping(node: Any) -> list[str]:
+    hits: list[str] = []
+    if isinstance(node, dict):
+        hits.extend(k for k in node if isinstance(k, str) and LATENCY_CEILING_KEY.match(k))
+        for v in node.values():
+            hits.extend(_ceiling_keys_in_mapping(v))
+    elif isinstance(node, list):
+        for item in node:
+            hits.extend(_ceiling_keys_in_mapping(item))
+    return hits
+
+
+def _evaluate_comparison(case: dict) -> tuple[str, str]:
+    """Apply the neutral relative-regression rule to one comparison case.
+
+    WHAT A CASE'S `tier` MEANS: it is the case's own INPUT CLAIM about which
+    tier the comparison is offered for, not a fact this function reads off the
+    samples. That distinction decides every off-nominal outcome below, so it is
+    stated rather than left to be inferred.
+
+    Returns (outcome, why). Outcomes:
+
+    - ``refused``  — the pair is not evidence at all, in one of two ways. Either
+      the two sides do not share a comparable cell (mismatched platform, network
+      class or region, or a reference side that is not a direct-provider
+      reference), or the case CLAIMS THE GATED TIER from a cell that cannot
+      gate — off-nominal network, a non-gated delivery platform, or Linux CI,
+      which is reference-generation only.
+    - ``recorded`` — a comparable pair that does NOT claim the gated tier: a
+      tail percentile, a tail interval, or a degraded/jittered network run.
+      Measured and reported as informational tail evidence; gates nothing.
+    - ``fail``     — a comparable, gated pair whose adapter percentile is a
+      MATERIAL regression: ``adapter > reference + max(0.15 * reference, 150)``.
+    - ``pass``     — a comparable, gated pair that is not a material regression.
+
+    THE ORDER IS LOAD-BEARING. Cell comparability is checked first and beats
+    everything: a comparison across mismatched conditions must never be
+    evaluated, not even to a passing number. The gated-tier CLAIM is resolved
+    next, because the ratified rule says degraded-network evidence "MAY be
+    recorded but MUST NOT substitute for the nominal-network gated cells" — so
+    off-nominal refusal has to attach to the CLAIM, not to the network class
+    itself. Refusing every off-nominal comparison outright would make the
+    recorded tier unreachable and contradict the acceptance map, which lists
+    degraded and jittered under `recorded_not_gated.network_classes`.
+    """
+    ref, adp = case.get("reference") or {}, case.get("adapter") or {}
+    if ref.get("classification") != "direct_provider_reference":
+        return "refused", ("the reference side is not classified "
+                           f"direct_provider_reference (got {ref.get('classification')!r})")
+    if adp.get("classification") != "governed_adapter":
+        return "refused", ("the adapter side is not classified governed_adapter "
+                           f"(got {adp.get('classification')!r})")
+    for axis in SLO_CELL_AXES:
+        if ref.get(axis) != adp.get(axis):
+            return "refused", (f"{axis} differs ({ref.get(axis)!r} vs {adp.get(axis)!r}); "
+                               f"the SLO is defined only within a matching cell")
+    claims_gated = (case.get("tier") == "gated"
+                    and case.get("percentile") in SLO_GATED_PERCENTILES
+                    and case.get("interval") in SLO_GATED_INTERVALS)
+    if not claims_gated:
+        return "recorded", ("tail evidence: recorded, never gating at the internal-live ring")
+    platform = adp.get("platform")
+    if platform in SLO_REFERENCE_ONLY_PLATFORMS:
+        return "refused", (f"the case claims the gated tier, but {platform} is "
+                           f"reference-generation only and is never a gated delivery platform")
+    if platform not in SLO_GATED_PLATFORMS:
+        return "refused", (f"the case claims the gated tier, but {platform!r} is not one of "
+                           f"the gated delivery platforms")
+    if adp.get("network_class") != SLO_GATED_NETWORK:
+        return "refused", (f"the case claims the gated tier from network_class "
+                           f"{adp.get('network_class')!r}; such a run MAY be recorded as tail "
+                           f"evidence but never substitutes for a nominal-network gated cell")
+    reference_ms, adapter_ms = ref.get("value_ms"), adp.get("value_ms")
+    if not isinstance(reference_ms, (int, float)) or not isinstance(adapter_ms, (int, float)):
+        return "refused", "a side carries no numeric value_ms"
+    allowance = max(SLO_RELATIVE_PCT / 100.0 * reference_ms, float(SLO_ABSOLUTE_MS))
+    if adapter_ms > reference_ms + allowance:
+        return "fail", (f"{adapter_ms} exceeds {reference_ms} + max(15%, 150 ms) = "
+                        f"{reference_ms + allowance}")
+    return "pass", (f"{adapter_ms} is within {reference_ms} + max(15%, 150 ms) = "
+                    f"{reference_ms + allowance}")
+
+
+def check_latency_posture(f: Findings) -> set[str]:
+    """§3.3: enforce the two-tier latency posture, fail-closed, and return the
+    evidence ids the comparison cases carry so the evidence register can resolve
+    them the way it resolves a fixture id.
+
+    Three obligations, all from `qualify-avatar-live-voice`'s ratified rulings:
+
+    1. EXACTLY ONE neutral relative-regression SLO entry lives in the acceptance
+       map, at the ratified threshold — more than 15 percent relative OR more
+       than 150 ms absolute, WHICHEVER IS GREATER. Zero entries fails closed
+       (an ungated ring), two fail too (two rules say nothing about which binds),
+       and a threshold that disagrees with the ratified numbers fails whichever
+       direction it drifts.
+    2. THE TWO TIERS ARE DECLARED AND DISJOINT. p50 and p95 on the two setup
+       intervals, on Windows desktop and web canvas at nominal network, are
+       GATED. p99, teardown, degraded and jittered network, and steady-state
+       per-turn latency are RECORDED and gate nothing. A gated percentile that
+       also appears in the recorded tier would make the posture unreadable.
+    3. NO PER-PROFILE NUMERIC LATENCY CEILING is presented as a gating field —
+       not as a property of any avatar-client schema, and not as a key in the
+       acceptance map. That is Fork 2's Option B, which was not ruled.
+    """
+    evidence_ids: set[str] = set()
+    amap_path = AVC / "acceptance-map.yaml"
+    if not amap_path.is_file():
+        f.error("latency-posture",
+                "acceptance-map.yaml absent; the relative-regression SLO is unverifiable (fail closed)")
+        return evidence_ids
+    amap = load_yaml(amap_path) or {}
+
+    # --- 1. exactly one SLO entry, at the ratified threshold ---
+    entries = _slo_entries(amap)
+    if not entries:
+        f.error("latency-posture",
+                f"no acceptance-map entry declares kind {SLO_KIND!r}; the internal-live ring "
+                f"would be ungated (fail closed)")
+        return evidence_ids
+    if len(entries) > 1:
+        ids = [e.get("id") for e in entries]
+        f.error("latency-posture",
+                f"{len(entries)} neutral relative-regression SLO entries in the acceptance map "
+                f"({ids}); exactly one may exist, because two rules say nothing about which binds")
+        return evidence_ids
+    slo = entries[0]
+    mat = slo.get("materiality") or {}
+    if mat.get("rule") != SLO_MATERIALITY_RULE:
+        f.error("latency-posture",
+                f"SLO materiality rule {mat.get('rule')!r} != {SLO_MATERIALITY_RULE!r}; the "
+                f"'whichever is greater' clause is load-bearing")
+    if mat.get("relative_threshold_pct") != SLO_RELATIVE_PCT:
+        f.error("latency-posture",
+                f"SLO relative threshold {mat.get('relative_threshold_pct')!r} != the ratified "
+                f"{SLO_RELATIVE_PCT} percent")
+    if mat.get("absolute_threshold_ms") != SLO_ABSOLUTE_MS:
+        f.error("latency-posture",
+                f"SLO absolute threshold {mat.get('absolute_threshold_ms')!r} != the ratified "
+                f"{SLO_ABSOLUTE_MS} ms")
+    cell = slo.get("comparison_cell") or {}
+    if set(cell.get("must_match") or []) != set(SLO_CELL_AXES):
+        f.error("latency-posture",
+                f"SLO comparison cell axes {sorted(set(cell.get('must_match') or []))} != "
+                f"{sorted(SLO_CELL_AXES)}")
+
+    # --- 2. the two tiers, declared and disjoint ---
+    gated = slo.get("gated") or {}
+    recorded = slo.get("recorded_not_gated") or {}
+    gp = set(gated.get("percentiles") or [])
+    gi = set(gated.get("intervals") or [])
+    if gp != SLO_GATED_PERCENTILES:
+        f.error("latency-posture",
+                f"SLO gated percentiles {sorted(gp)} != {sorted(SLO_GATED_PERCENTILES)}")
+    if gi != SLO_GATED_INTERVALS:
+        f.error("latency-posture",
+                f"SLO gated intervals {sorted(gi)} != {sorted(SLO_GATED_INTERVALS)}")
+    if set(gated.get("platforms") or []) != SLO_GATED_PLATFORMS:
+        f.error("latency-posture",
+                f"SLO gated platforms {sorted(set(gated.get('platforms') or []))} != "
+                f"{sorted(SLO_GATED_PLATFORMS)}; Linux CI is reference-generation only")
+    if gated.get("network_class") != SLO_GATED_NETWORK:
+        f.error("latency-posture",
+                f"SLO gated network class {gated.get('network_class')!r} != {SLO_GATED_NETWORK!r}")
+    rp_set = set(recorded.get("percentiles") or [])
+    ri_set = set(recorded.get("intervals") or [])
+    if "p99" not in rp_set:
+        f.error("latency-posture", "SLO recorded tier must name p99 as recorded-not-gated")
+    if not any(i.startswith("teardown") for i in ri_set):
+        f.error("latency-posture",
+                "SLO recorded tier must name the teardown / hangup-to-terminal interval")
+    if gp & rp_set:
+        f.error("latency-posture",
+                f"percentile(s) {sorted(gp & rp_set)} are declared BOTH gated and recorded-not-gated")
+    if gi & ri_set:
+        f.error("latency-posture",
+                f"interval(s) {sorted(gi & ri_set)} are declared BOTH gated and recorded-not-gated")
+    if set(slo.get("reference_generation_only_platforms") or []) != SLO_REFERENCE_ONLY_PLATFORMS:
+        f.error("latency-posture",
+                f"SLO reference-generation-only platforms "
+                f"{sorted(set(slo.get('reference_generation_only_platforms') or []))} != "
+                f"{sorted(SLO_REFERENCE_ONLY_PLATFORMS)}")
+
+    # --- 3. no per-profile numeric latency ceiling anywhere ---
+    for name in sorted(AVC.glob("*.schema.yaml")):
+        try:
+            doc = load_yaml(name)
+        except yaml.YAMLError:
+            continue  # reported by build_registry
+        for key in sorted(set(_ceiling_keys_in_properties(doc))):
+            f.error("latency-ceiling",
+                    f"{name.name}: property {key!r} is a per-profile numeric latency ceiling; "
+                    f"latency gating is the neutral relative-regression SLO, and the measured "
+                    f"numbers live in AVC-10 samples")
+    for key in sorted(set(_ceiling_keys_in_mapping(amap))):
+        f.error("latency-ceiling",
+                f"acceptance-map.yaml: key {key!r} presents a numeric latency ceiling as a gating "
+                f"field; the only numeric thresholds this map may carry are the SLO's own "
+                f"relative and absolute regression allowances")
+
+    # --- execute the self-describing comparison cases ---
+    index = AVC / "fixtures" / "index.yaml"
+    cases = ((load_yaml(index) or {}).get("latency_comparison_cases") or []) if index.is_file() else []
+    if not cases:
+        f.error("latency-posture",
+                "no latency_comparison_cases in fixtures/index.yaml; the relative-regression rule "
+                "and its cross-cell refusal are unproven (fail closed)")
+        return evidence_ids
+    case_ids: set[str] = set()
+    outcomes_seen: set[str] = set()
+    for c in cases:
+        cid = c.get("case_id")
+        if cid in case_ids:
+            f.error("latency-case-dup", f"duplicate latency comparison case_id {cid}")
+        case_ids.add(cid)
+        expect = c.get("expect")
+        if expect not in SLO_OUTCOMES:
+            f.error("latency-case-expect",
+                    f"{cid}: expect must be one of {sorted(SLO_OUTCOMES)}, got {expect!r}")
+            continue
+        if c.get("class") not in ALL_CLASSES:
+            f.error("latency-case-class", f"{cid}: unknown class {c.get('class')!r}")
+        if c.get("tier") == "gated" and expect in ("pass", "fail"):
+            # A case claiming to close a GATED cell must name a gated percentile
+            # and a gated interval, or the two-tier posture is being widened by
+            # fixture rather than by ruling.
+            if c.get("percentile") not in SLO_GATED_PERCENTILES:
+                f.error("latency-case-tier",
+                        f"{cid}: gated case names percentile {c.get('percentile')!r}, which is "
+                        f"recorded-not-gated at this ring")
+            if c.get("interval") not in SLO_GATED_INTERVALS:
+                f.error("latency-case-tier",
+                        f"{cid}: gated case names interval {c.get('interval')!r}, which is "
+                        f"recorded-not-gated at this ring")
+        actual, why = _evaluate_comparison(c)
+        outcomes_seen.add(actual)
+        if actual != expect:
+            f.error("latency-case", f"{cid}: expected {expect} but got {actual} ({why})")
+        elif c.get("evidence_id"):
+            evidence_ids.add(c["evidence_id"])
+    for need in sorted(SLO_OUTCOMES - outcomes_seen):
+        f.error("latency-coverage",
+                f"no latency comparison case exercises the {need!r} outcome; the two-tier posture "
+                f"is not proven end to end")
+    return evidence_ids
 
 
 def _pin_is_content_addressed(pin: dict) -> bool:

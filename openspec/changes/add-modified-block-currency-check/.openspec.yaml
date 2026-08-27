@@ -1,0 +1,40 @@
+schema: spec-driven
+created: 2026-08-27
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-27-add-modified-block-currency-check
+  reason: >-
+    Brett filed three issues on 2026-08-25 naming one mechanism, and #357
+    proposes this check in its own sentences: "for each active change's MODIFIED
+    requirement, compute canon's current requirement text; every canon body
+    sentence and every canon `#### Scenario:` heading must appear in the MODIFIED
+    block unless the change's proposal/delta explicitly names it as REMOVED.
+    Report as a contested-class finding." The packet was authored against those
+    issues and reviewed adversarially three times before being put to him. THE
+    FORCING FACT is on the record four times in one week: `add-doxchat-model-intake`
+    (#351 — six body clauses, two scenarios and one reverted line, repaired by PR
+    #358) and the three sibling check families that each restated ONE of
+    `doc-health`'s eight "Deterministic check families" scenarios, every one
+    caught by a human and one only by a byte-for-byte verification run by hand at
+    an archive gate. NO STAGING ORIGIN IS CLAIMED: none exists, searched across
+    `ideation/staging/` and its INDEX. Authored here because doc-health and
+    document-lifecycle are openxFactory capabilities and the obligation being
+    checked is the neutral corpus's own authoring rule.
+  approved_by: >-
+    Brett — in session on 2026-08-27. The packet was authored and reviewed while
+    unapproved, which is the state issue #318 describes: an `ad_hoc` origin must
+    carry `approved_on`, and no approval existed to record. Asked whether to
+    leave the packet in that gap or to record his admission, he chose, verbatim:
+    "Record your admission now". He ratified the packet in the same round,
+    verbatim "Ratify as-is", so this record carries BOTH — the admission that
+    supplies the origin pair the proposal-origin contract requires, and the
+    ratification the proposal's own `Ratified:` line cites. This is the shape
+    `create-medxchart-overlay-boundary` uses. What the approval does NOT cover:
+    the five decisions in the proposal's § Orchestrator Decisions, which were
+    flagged for veto and were not vetoed — not vetoed being distinct from
+    affirmatively ruled, so the flags stay. Two further questions WERE ruled in
+    the same round and are recorded in `tasks.md` § 7.3 (two-writer ordering,
+    verbatim "By declaration") and § 7.5 (this origin). Issue #318 itself remains
+    open: the taxonomy still carries no origin kind meaning "proposed, not
+    approved".
+  approved_on: 2026-08-27

@@ -20,11 +20,25 @@ Ratified by: define-avatar-client-contract-kernel (pending F0 realization)
 | AVC-06 | `avc-06-structured-confirmation.schema.yaml` | Effect-bound confirmation challenge |
 | AVC-07 | `avc-07-retention-profile.schema.yaml` | Retention classes (reserved classes forbidden) |
 | AVC-08 | `avc-08-persona-profile.schema.yaml` | Session-fixed persona |
+| AVC-09 | `avc-09-voice-adapter-descriptor.schema.yaml` | Voice adapter descriptor (server + client components; NO latency budget) |
+| AVC-10 | `avc-10-voice-latency-sample.schema.yaml` | Voice latency sample (raw markers, derived intervals, direct-or-brokered) |
 | AVC-11 | `avc-11-session-command.schema.yaml` | Sole client→control mutation envelope |
 | AVC-12 | `avc-12-state-snapshot.schema.yaml` | Recovery/state snapshot |
 
 AVC-03 (capabilities) is absorbed inline on the AVC-02 grant; AVC-05 (transcript
-segment) is an AVC-04 event payload; AVC-09/AVC-10 are reserved and never reused.
+segment) is an AVC-04 event payload. Both stay RESERVED and are never reused.
+
+AVC-09 and AVC-10 were reserved by this kernel and PUBLISHED at
+`contract-v1.46` by `qualify-avatar-live-voice`, from the reserved shapes
+unchanged. AVC-09 carries no numeric latency-budget field and no secret
+material; AVC-10 carries no raw content. Latency GATING lives in
+`acceptance-map.yaml` as exactly one neutral relative-regression SLO entry
+(`ALV-SLO-001`) at the ratified threshold — more than 15 percent relative OR
+more than 150 ms absolute, whichever is GREATER, on p50 and p95 of
+first-playable-after-authorized and sideband-ready, for Windows desktop and web
+canvas at nominal network. p99, teardown, degraded and jittered network, and
+steady-state per-turn latency are RECORDED and gate nothing; Linux CI is
+reference-generation only and is never a gated delivery platform.
 
 ## Closed registries
 
@@ -38,7 +52,8 @@ is a closed enum in `shared-definitions.schema.yaml`, not a registry (analyze A3
 
 - `fixtures/index.yaml` — language-neutral, self-describing fixture suite. Any
   conformant draft 2020-12 implementation can execute it (no Python required).
-- `acceptance-map.yaml` — 17 requirements / 72 scenarios (ACR-*/SCO-*/RBG-*).
+- `acceptance-map.yaml` — 26 requirements / 107 scenarios (ACR-*/SCO-*/RBG-*/ALV-*)
+  plus the single `latency_slo` entry.
 - `evidence-register.yaml` — resolves every scenario to fixture evidence, a
   recorded manual result, or a named owner + fail-closed default.
 - `scripts/validate-avatar-client.py` — reference runner (reproducible tooling,
@@ -56,9 +71,9 @@ fixtures.
 - The bundle identity (manifest version, changelog entry, annotated tag, release
   commit, per-file digests) must all identify the same realized bundle
   (SCO-001-S02); a disagreement fails release validation.
-- The digested semantic set is: the 8 schemas, `shared-definitions`, the 9
+- The digested semantic set is: the 10 schemas, `shared-definitions`, the 9
   registries, `fixtures/index.yaml`, `acceptance-map.yaml`, `interface-lock.yaml`,
-  and `evidence-register.yaml`. The validator and `redaction/` config ship in the
+  and `evidence-register.yaml` (plus any successor deferral-discharge register). The validator and `redaction/` config ship in the
   release commit as tooling but are not per-file-pinned semantic artifacts.
 
 ## Completion states

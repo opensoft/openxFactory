@@ -8,15 +8,15 @@ and ranked plan, the headline canon-share metric, and the ownership split
 between contract, implementation, and the nightly runner.
 ## Requirements
 ### Requirement: Deterministic check families
-The doc-health deterministic pass SHALL implement twenty check families over
+The doc-health deterministic pass SHALL implement twenty-one check families over
 the whole factory family's governance corpus: status validity, standard
 backing, ratified provenance, succession integrity, staged-topic template,
 location conformance,
 record immutability, staged/candidate aging, register-lifecycle consistency,
 tag hygiene, submodule pin drift, contract-copy drift, notebook projection
 drift, document catalog, ideation routing, proposal origin, client
-identity roster composition, promotion fidelity, release-inventory drift, and
-duplicate packet.
+identity roster composition, promotion fidelity, release-inventory drift,
+duplicate packet, and family enumeration.
 Every check in this pass
 MUST be
 deterministic — identical inputs produce identical findings, with no model
@@ -28,11 +28,11 @@ identity roster composition family SHALL cover only the CROSS-DOMAIN
 concerns — assembling per-client fragments published by each domain and
 reporting shared identity material or undeclared cross-domain reach —
 because intra-repo roster conformance is a blocking domain gate rather than
-an advisory report. Four of the twenty — status validity, standard backing,
+an advisory report. Four of the twenty-one — status validity, standard backing,
 ratified provenance, and succession integrity — SHALL additionally read the
 lifecycle scan set this capability declares, so that a lifecycle header
 carried by a document outside the governed corpus is still checked; the other
-sixteen families and every corpus census, word count, canon-share figure,
+seventeen families and every corpus census, word count, canon-share figure,
 shared-inventory entry, and catalog record SHALL be computed from the
 governed corpus alone and MUST NOT move because the lifecycle scan set
 exists. The promotion fidelity family reads archived spec DELTAS and promoted
@@ -45,7 +45,10 @@ and it moves no census, word count, canon-share figure, inventory entry, or
 catalog record. The duplicate packet family reads archived spec deltas ONLY
 AGAINST EACH OTHER — never against canon, which by construction cannot show
 that a ruling was discharged twice — and takes neither document list and moves
-none of those figures either.
+none of those figures either. The family enumeration family reads THIS
+REQUIREMENT and the code registry that satisfies it — a promoted spec and a
+Python dict, neither of them a governed-corpus document — so it likewise takes
+neither document list and moves none of those figures.
 
 **CORRECTED 2026-08-25 ON BRETT'S RULING — this block is now
 SCENARIO-COMPLETE.** As first written it restated only ONE of this
@@ -85,6 +88,19 @@ nothing else. This change is the third and last of the three siblings that each
 restated this requirement, so the chain closes here — the enumeration reaches
 twenty and no further active change is left holding a version of it.
 
+**FOURTH RESTATEMENT, AND THE FIRST ONE A CHECK VERIFIED — appended
+2026-08-25, with every paragraph above left exactly as promoted.** The three
+notes above record three separate repairs of this one requirement, all three
+caught by a human. This block is the fourth restatement of it, and it is the
+first written under `add-family-enumeration-check`: its own delta half read
+this block, resolved every name here against `families.FAMILIES`, and checked
+all three numerals before the change could be committed. The enumeration
+reaches twenty-one and the counts are derived rather than re-typed. That the
+check policing this requirement had to restate this requirement to add itself
+to it is deliberate, and it is the acceptance test — a wrong restatement here
+could not have landed, because the thing it would corrupt was standing at the
+gate.
+
 #### Scenario: A run executes the check families
 - **WHEN** a doc-health run executes
 - **THEN** every check family MUST run over every family repo the aggregation repo pins (openxFactory and each DomainxFactory), plus the per-repo validators as a preflight
@@ -95,6 +111,7 @@ twenty and no further active change is left holding a version of it.
 - **AND** promotion fidelity MUST compare each repository's archived spec deltas against its promoted specs as its owning requirement below defines
 - **AND** release-inventory drift MUST compare each repository's declared bundle inventory against the blobs it names as its owning requirement below defines
 - **AND** duplicate packet MUST compare each repository's archived spec deltas against each other as its owning requirement below defines
+- **AND** family enumeration MUST verify this requirement's own family enumeration and counts against the code registry as its owning requirement below defines
 - **AND** status validity, standard backing, ratified provenance, and succession integrity MUST additionally read the declared lifecycle scan set, reporting a finding against the document's own path exactly as they do for a governed-corpus document
 - **AND** a family or reference check that cannot run (for example notebook drift without credentials or an unavailable external checkout) MUST be reported as skipped, never silently omitted
 
@@ -1286,4 +1303,109 @@ requirement, and nothing here makes a lane finding block a merge.
 - **WHEN** the pinned revision resolves in the repository under test
 - **THEN** the comparison MUST run and its result MUST be the verdict
 - **AND** no resolution branch may return a skip in place of a comparison that could have been performed
+
+### Requirement: The family enumeration is derived, not restated on trust
+The doc-health suite SHALL verify that the family enumeration and the counts
+stated by the "Deterministic check families" requirement agree exactly with the
+code registry of families the suite actually runs, and report every divergence
+naming precisely what diverged.
+
+The requirement being checked is this capability's own, which is the point: it
+NAMES every check family and COUNTS them three times in prose, and every new
+family must restate that whole requirement to add itself. A requirement whose
+text every new family must restate is a requirement every new family can
+truncate. Three changes in three days truncated it, and all three were caught
+by a human rather than by a check.
+
+The registry SHALL be the mapping of family ids the suite iterates when it
+runs, and it SHALL be the sole authority for which check families exist. The
+reporting list that drives the report's per-family sections SHALL name exactly
+the families the registry registers — no more, so that a section is never
+promised for a family that does not run, and no fewer, so that a family's
+findings are never counted in the headline and the ranked plan while rendering
+under no section at all. The reporting list's ORDER is presentational and is
+not constrained by this requirement.
+
+**AMENDED 2026-08-25 ON BRETT'S RULING, before promotion.** As first written
+this paragraph said the reporting list "is a separate declaration and is
+allowed to be a subset", and the scenario below said a registered family absent
+from it MUST NOT be reported. That was written from the state of the code rather
+than from what the code should be, and it would have ratified a live defect:
+two registered families, `staged-topic-template` and `proposal-origin`, were
+absent from the list and between them carried 61 findings — three of them
+ERRORS — with no section to render under. Brett ruled the drift fixed ("fix the
+FAMILY_IDS drift"); the realization landed in the same change as this
+amendment, and the equality is pinned by test rather than left to prose.
+
+The verification SHALL cover BOTH the promoted requirement AND every ACTIVE
+change delta that restates it:
+
+- **A promoted enumeration** SHALL name exactly the registered families, each
+  once, and its numerals SHALL be arithmetically true of that set: the stated
+  total equals the number registered, a stated subset-of-total agrees with that
+  total, and a stated remainder equals the total minus the stated subset.
+- **An active change delta restating the requirement** SHALL carry the complete
+  enumeration, consistent with the registry in its own tree. A change that
+  registers a new family states that family in its delta, so the two are
+  self-consistent before promotion and the incomplete restatement is reported
+  at authoring time rather than at an archive gate.
+- **The promoted requirement SHALL be exempt from the count comparison while
+  an active delta restates it**, because a change that registers family N+1
+  leaves canon stating N until it archives. Canon is pending there, not
+  divergent, and the delta is what carries the obligation.
+- Where more than one active delta restates the requirement, EACH SHALL be
+  checked independently against the registry, because a `MODIFIED` requirement
+  replaces its promoted counterpart wholesale and whichever change archives
+  last is the one canon keeps.
+
+A prose family name SHALL resolve to a registry id by a mechanical
+normalization plus a declared alias set, and a name that resolves to no
+registered family SHALL be reported rather than guessed at. The alias set
+SHALL be minimal — an alias that is no longer needed is itself a defect.
+
+**This family SHALL be advisory at launch.** Every finding it emits carries
+`warning` severity, so it publishes into the report and the ranked plan without
+failing any run configured to fail on `error` or `critical`, and it is
+deliberately NOT classified `contested`, because a contested finding that
+resolves without a citation becomes an `error` under this capability's
+uncited-resolution rule — which would make the family gate-blocking through the
+back door on the first divergence anyone corrected. Raising the severity and
+adding the contested classification are ONE later decision taken together by
+ruling, and SHALL follow a measurement of the population the gate would red
+rather than precede it.
+
+#### Scenario: The promoted enumeration omits a registered family
+- **WHEN** no active change delta restates the requirement, and the promoted enumeration does not name a family the registry registers
+- **THEN** the run MUST emit a `warning` finding against the promoted spec's path, naming the omitted families and the registered total
+- **AND** the finding MUST NOT cause a run to fail under `--fail-on error` or `--fail-on critical`
+
+#### Scenario: The promoted enumeration carries a stale numeral
+- **WHEN** no active change delta restates the requirement, and the stated total differs from the number of registered families, or a stated remainder does not equal the stated total minus the stated subset
+- **THEN** the run MUST emit a finding naming the stated numeral, the derived one, and which sentence carried it
+
+#### Scenario: The promoted enumeration names an unregistered family
+- **WHEN** the enumeration names a family that resolves to no registered family id
+- **THEN** the run MUST report that name and the id it resolved to, rather than ignoring it or matching it approximately
+
+#### Scenario: An active delta restates the requirement incompletely
+- **WHEN** an active change's `doc-health` delta restates the requirement and its enumeration omits a registered family, names an unregistered one, or carries a numeral inconsistent with the registry in its own tree
+- **THEN** the run MUST emit a finding against that delta's own path, so the incomplete restatement is reported before it can be promoted
+
+#### Scenario: A change adds a family and canon has not moved yet
+- **WHEN** an active change registers a new family and restates the requirement completely for its own tree, while the promoted requirement still states the previous total
+- **THEN** the promoted requirement MUST NOT be reported, its statement being pending promotion rather than divergent
+- **AND** the active delta MUST be reported if ITS restatement is incomplete
+
+#### Scenario: Two active deltas both restate the requirement
+- **WHEN** two or more active changes each restate the requirement
+- **THEN** each delta MUST be checked independently against the registry, neither one excusing the other
+
+#### Scenario: The reporting list promises a section for no family
+- **WHEN** the reporting list names an id the registry does not register
+- **THEN** the run MUST report it, a report section for a family that never runs being invisible to every other check
+- **AND** a registered family ABSENT from the reporting list MUST also be reported, by the suite's own tests rather than as a run finding, both declarations being constants of one package
+
+#### Scenario: No promoted doc-health specification is in scope
+- **WHEN** no repository in the run's scope carries a promoted `doc-health` specification
+- **THEN** the family MUST be reported as skipped with its reason, never silently omitted
 
