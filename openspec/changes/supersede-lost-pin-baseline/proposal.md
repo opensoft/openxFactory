@@ -2,7 +2,7 @@
 code_surface: openxFactory (`scripts/doc_health/pin_class.py` — the `KnownLoss` row gains `superseding_record` and `discharged`, the new `discharging_record()` reads committed state for the cited record, `PinResult` gains `discharge`, `PinClassReport.lost_awaiting_record` is added and `fully_verified` consults it instead of `lost`, `summary()` reports the split, and one `NON_MEMBERS` row declares the supersession-record path; `tests/doc-health/test_pin_reachability.py` — five added tests, four on fixtures and one on this repository; `openspec/changes/supersede-lost-pin-baseline/evidence/pin-loss-supersession.yaml` — the record this change issues, which is the substance rather than the support; `README.md` — the records block. NO change to the declared `PIN_CLASS` rows, the ref set consulted, `known_loss()`'s matching, the retention namespace, `repair_route()`, the probe's verdicts on the readiness surface, the deterministic check family registry `scripts/doc_health/families.py`, the family enumeration or its numerals, `health/dispositions.yaml`, or one byte of the archived record being superseded.)
 target_release: implemented — the openxFactory main line. This surface cuts NO contract bundle, measured rather than assumed: `grep`ing every `contracts/releases/*.digests.yaml` inventory for `pin_class` and `test_pin_reachability` returns nothing, so no schema moves, no digest set changes, and no release tag is owed. The archive gate is therefore merge-plus-green on main: `python3 -m pytest tests/doc-health` green, `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green, and the declared pin class reporting itself FULLY VERIFIED over a loss that is still declared, still measured and still reported. THE CHANGE SHIPS ACTIVE and archives only after that.
 Status: ratified
-Ratified: 2026-08-27 by Brett — in-session commission of the filing, selected verbatim from a multi-choice as "Commission the superseding record (Recommended)" and described in that choice as "A small follow-up change: supersede the archived record with one that acknowledges the lost baseline, plus the disposition — restores fully_verified truthfully rather than by silencing." THE CITATION COVERS THE DECISION TO FILE THIS CHANGE AND NOTHING ELSE; the four decisions in § Orchestrator decisions below were taken by the authoring session and are NOT covered by it, nor are the two questions in § Open Questions. The record this citation resolves against is this file, § Orchestrator decisions and § Open Questions. No approving OpenSpec change exists to name, so the citation takes the record spelling `sanction-ratified-record-spelling` sanctioned for exactly that case, and clears its three-way floor on all three axes rather than on the one it needs: approver (`by Brett`), date (`2026-08-27`), and a resolvable record path.
+Ratified: 2026-08-27 by Brett — in-session commission of the filing, selected verbatim from a multi-choice as "Commission the superseding record (Recommended)" and described in that choice as "A small follow-up change: supersede the archived record with one that acknowledges the lost baseline, plus the disposition — restores fully_verified truthfully rather than by silencing." THE CITATION COVERS THE DECISION TO FILE THIS CHANGE AND NOTHING ELSE. The record this citation resolves against is this file, § Orchestrator decisions and § Open Questions. No approving OpenSpec change exists to name, so the citation takes the record spelling `sanction-ratified-record-spelling` sanctioned for exactly that case, and clears its three-way floor on all three axes rather than on the one it needs: approver (`by Brett`), date (`2026-08-27`), and a resolvable record path. AS FIRST WRITTEN this line continued "the four decisions in § Orchestrator decisions below were taken by the authoring session and are NOT covered by it, nor are the two questions in § Open Questions" — true at authoring and now historical: **a SECOND, later act on the same day disposed everything this citation did not reach.** All four § Orchestrator decisions were CLEARED AS AUTHORED and both § Open Questions RULED on 2026-08-27, by a four-question multi-choice put to Brett by the orchestrating session and relayed the same day; Brett took the packet's own recommendation on every question, so the clearance moved nothing. **THE TWO ACTS STAY DISTINCT ON PURPOSE, because they authorized different things:** this citation ADMITTED the packet; the later ruling CLOSED the veto window, ruled Q1 (corroboration only, never a claim of recovery) and Q2 (no aging rule), and approved the merge-then-archive sequence, which the orchestrating session performs rather than this one. No verbatim wording of the later ruling reached this session, so none is quoted — approver, date, mechanism and selections are stated instead.
 Proposed: 2026-08-27
 Origin: The one governance act `govern-derived-pin-reachability` uncovered and could not perform. Its § 3.6 found a fourth orphaned pin whose object is gone from every store and every ref, declared the loss with the measurement, named the superseding record it owes, and marked it NEEDS BRETT — because a realization that wrote a superseding record for another packet's archived evidence would be inventing provenance. This packet writes it, on his commission, and builds the one linkage that lets the verification say so truthfully.
 ---
@@ -188,9 +188,25 @@ defect nobody can repair. The only exit is the governance act.
   balance; the discharge mechanism narrows what would be enforced, it does not
   argue for enforcing it.
 
-## Orchestrator decisions, flagged for veto
+## Orchestrator decisions, cleared 2026-08-27 (authored: flagged for veto)
+
+**ALL FOUR CLEARED AS AUTHORED, 2026-08-27**, by a four-question multi-choice
+put to Brett by the orchestrating session and relayed to this session the same
+day. On every question he took the packet's own recommendation, so **the
+clearance moves nothing**: OD-1 (the `evidence/`-homed record cited by the
+live-plus-archive glob pair), OD-2 (the declared `NON_MEMBERS` row), OD-3 (the
+spec delta rides) and OD-4 (the `KNOWN_LOSSES` register row IS the disposition)
+all stand exactly as written below. No verbatim wording of the ruling reached
+this session, so none is quoted — the approver, the date, the mechanism and the
+selections are recorded instead, which is what the origin requirement asks for.
+**THE ORIGINAL FLAGGED TEXT IS KEPT BELOW AS MARKED HISTORY** rather than
+rewritten, because what was flagged and why is the part a later reader needs;
+the per-decision clearance markers say which act closed each one. This act is
+DISTINCT from the commission recorded in § Ratified: that one admitted the
+packet, this one closed the veto window.
 
 **OD-1 — THE RECORD LIVES IN THIS PACKET'S `evidence/`, CITED BY A LIVE-PLUS-ARCHIVE GLOB PAIR.**
+**CLEARED 2026-08-27 as authored.**
 Rejected: adding a file to the archived packet being superseded (that packet is
 closed, and a supersession that reaches into the archive is the edit it is
 supposed to avoid); `health/` (that tree holds machine-generated lane records,
@@ -204,6 +220,7 @@ YAML evidence record, carries the same structured fields, and is read by
 tooling that already reads a `status:` field out of committed YAML.
 
 **OD-2 — THE SUPERSESSION RECORD IS DECLARED A NON-MEMBER, WITH A REASON.**
+**CLEARED 2026-08-27 as authored.**
 Its subject IS a pin, so every pin-shaped value in it is a citation of another
 artifact's derivation claim and none is its own. The module's own error text
 offers exactly two conforming options — "declare the member, or declare the file
@@ -214,7 +231,8 @@ declaration at all, which is precisely the silent-coverage defect
 `us3_baseline_commit` proved. The trade is stated in the row: a future
 supersession record that made a derivation claim about itself would go unswept.
 
-**OD-3 — A SPEC DELTA RIDES, ON `doc-health`, ALL ADDED.** The obligation to
+**OD-3 — A SPEC DELTA RIDES, ON `doc-health`, ALL ADDED.**
+**CLEARED 2026-08-27 as authored.** The obligation to
 issue a superseding record is stated by the pin obligation's own capability and
 is neither restated nor modified here. What that obligation does not state is
 what the verification does afterwards — and "delete the row" was a real,
@@ -227,7 +245,10 @@ exist today only in a docstring, which is not where a rule that governs a future
 session's judgment belongs.
 
 **OD-4 — THE REGISTER ROW IS READ AS THE DISPOSITION THE PIN OBLIGATION CALLS
-FOR.** That obligation asks for "a disposition for the standing finding" without
+FOR.** **CLEARED 2026-08-27 as authored — the reading stands, and the veto
+branch this decision named for itself was NOT taken.** No entry is owed in
+`health/dispositions.yaml`, and none is added. That obligation asks for "a
+disposition for the standing finding" without
 naming an instrument. Measured (§ What was measured): the disposition file cannot
 match a report that is not a family finding. So the disposition is recorded where
 the report is produced — in the row, citing the record — and the delta says that
@@ -237,10 +258,20 @@ decision to veto**, and the remedy is small: add the entry at the aggregation
 root and cite this record from it. The mechanism here does not conflict with
 that; it would make it redundant.
 
-## Open Questions
+## Open Questions, both ruled 2026-08-27
+
+Both were ruled by the same four-question multi-choice recorded in
+§ Orchestrator decisions, and on both Brett took the packet's recommendation.
+**Neither ruling moved the packet** — which is why the recommendations stand
+below unedited, with the ruling recorded against each rather than folded into
+it.
 
 **Q1 — Should the identification of the surviving baseline state be stronger
-than corroboration?** RECOMMENDATION: no, and the record says why. The object is
+than corroboration?** **RULED 2026-08-27: corroboration only — the record claims
+exactly what is provable, and never recovery.** The recommendation was taken as
+authored, so nothing in the record changes: it identifies the surviving state,
+names its warrant, and states its limit. RECOMMENDATION AS AUTHORED, kept: no,
+and the record says why. The object is
 gone, so tree equality is unprovable by anybody; what stands is parentage plus
 three counts the superseded record itself states, any one of which disagreeing
 would have falsified the identification. A stronger claim would be a claim the
@@ -248,7 +279,11 @@ evidence does not support, and the record labels the warrant rather than
 inflating it.
 
 **Q2 — Does the discharge mechanism need a lifetime, so a citation cannot rot?**
-RECOMMENDATION: not yet, and the reason is that the citation is re-read on every
+**RULED 2026-08-27: no aging rule — the citation is re-resolved every run, and
+breakage is self-announcing.** The recommendation was taken as authored; no clock
+is added, and the mechanism keeps answering the question by measurement instead.
+RECOMMENDATION AS AUTHORED, kept: not yet, and the reason is that the citation is
+re-read on every
 run rather than trusted once. A record deleted later stops discharging the loss
 the moment it stops being committed, and the acceptance test asserts no
 declaration cites a record this repository does not carry. A separate aging rule

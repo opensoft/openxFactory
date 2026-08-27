@@ -29,9 +29,34 @@ nobody can follow. Discharge is by citation, never by deletion.
 - [x] 1.3 THE PARALLEL SESSION'S SURFACE WAS NOT TOUCHED.
       `openspec/changes/govern-derived-pin-reachability/` was READ (its § 3.6
       and § 5.5 are what this packet discharges) and not edited, moved, or
-      re-ticked. If it archives while this packet is open, nothing here needs to
-      change: this packet cites the code and the measurement, not that packet's
-      paths.
+      re-ticked. **IT IS BEING ARCHIVED BY THAT SESSION WHILE THIS PACKET
+      STANDS OPEN, and nothing here needs to change for it**: this packet cites
+      the code and the measurement rather than that packet's paths, and its
+      archive PR promotes an ADDED requirement into the `doc-health` spec tail
+      that THIS packet's delta only reaches at ITS OWN archive — so the two
+      never write the same canon file at the same time.
+- [x] 1.4 THE VETO WINDOW IS CLOSED, 2026-08-27. All four § Orchestrator
+      decisions CLEARED AS AUTHORED and both § Open Questions RULED, by a
+      four-question multi-choice put to Brett by the orchestrating session and
+      relayed to this session the same day. He took the packet's own
+      recommendation on every question, so **the clearance moved nothing**: the
+      `evidence/`-homed record with its glob-pair citation (OD-1), the declared
+      `NON_MEMBERS` row (OD-2), the spec delta riding (OD-3) and the register row
+      being the disposition (OD-4) all stand as written, and OD-4's own named
+      veto branch was NOT taken — **no `health/dispositions.yaml` entry is owed
+      and none is added**. Q1 RULED: corroboration only; the record claims
+      exactly what is provable and never recovery. Q2 RULED: no aging rule; the
+      citation is re-resolved every run and breakage is self-announcing. Both
+      rulings match the record and the code as already written, so nothing was
+      rewritten to satisfy them. **THIS IS A SECOND ACT, DISTINCT FROM THE
+      COMMISSION** recorded at § 1.1: that one admitted the packet, this one
+      closed the window. No verbatim wording of the ruling reached this session,
+      so none is quoted — approver, date, mechanism and selections are recorded
+      instead, in `proposal.md` § Orchestrator decisions and § Open Questions.
+- [x] 1.5 THE MERGE-THEN-ARCHIVE SEQUENCE IS APPROVED AND IS NOT THIS SESSION'S
+      TO PERFORM. The orchestrating session merges on green and dispatches the
+      archive pass afterwards; this session pushes and stops. Recorded because a
+      packet that says "archives only after green" should also say who does it.
 
 ## 2. The superseding record
 
@@ -157,9 +182,10 @@ nobody can follow. Discharge is by citation, never by deletion.
       --check` clean. `black` is not installed in this environment and is not
       part of this repository's gate, so it is recorded as not run rather than
       claimed.
-- [ ] 4.9 MERGED AND GREEN ON MAIN. Open at the pull request this packet ships
-      as; the archive gate is merge-plus-green and this packet does not archive
-      itself.
+- [ ] 4.9 MERGED AND GREEN ON MAIN. Open at pull request #429. The archive gate
+      is merge-plus-green, the sequence was approved on 2026-08-27 (§ 1.5), and
+      **the orchestrating session performs both halves** — it merges on green and
+      dispatches the archive pass. This session pushed the rulings and stopped.
 
 ## 5. Open — deliberately not closed by this change
 

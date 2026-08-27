@@ -350,8 +350,22 @@ Active changes:
   (Recommended)"). The commission is the origin act, so
   `approved_by`/`approved_on` are recorded from it — the
   `govern-derived-pin-reachability` shape. **THE CITATION COVERS THE DECISION TO
-  FILE AND NOTHING ELSE**: the four § Orchestrator decisions and both § Open
-  Questions stay flagged for veto. **Performs the one governance act
+  FILE AND NOTHING ELSE** — and a SECOND, later act on the same day disposed
+  everything it did not reach. **ALL FOUR § Orchestrator decisions CLEARED AS
+  AUTHORED and BOTH § Open Questions RULED, 2026-08-27**, by a four-question
+  multi-choice put to Brett by the orchestrating session and relayed the same
+  day; on every question he took the packet's own recommendation, so the
+  clearance moved nothing. OD-1 through OD-4 cleared, none vetoed (the
+  `evidence/`-homed record with its live-plus-archive glob citation, the declared
+  `NON_MEMBERS` row, the spec delta riding, and the register row being the
+  disposition) — and **OD-4's own named veto branch was not taken, so no
+  `health/dispositions.yaml` entry is owed**. **Q1 RULED** — corroboration only:
+  the record claims exactly what is provable and never recovery. **Q2 RULED** —
+  no aging rule: the citation is re-resolved every run and breakage is
+  self-announcing. Both rulings match the record and the code as written, so
+  neither rewrote anything. The merge-then-archive sequence was approved in the
+  same act and belongs to the orchestrating session. **Performs the one
+  governance act
   `govern-derived-pin-reachability` uncovered and marked NEEDS BRETT** (its
   § 3.6 and § 5.5): the archived hermes provider verification pins
   `us3_baseline_commit: 66b14064…`, and that object is UNRECOVERABLE —
