@@ -14,6 +14,7 @@ aging reference)."""
 from __future__ import annotations
 
 import shutil
+from types import SimpleNamespace
 
 import yaml
 
@@ -837,3 +838,74 @@ def test_runner_config_discloses_non_default_routing_thresholds(tmp_path):
     assert rc == 0
     text = report_out.read_text(encoding="utf-8")
     assert "routing_warning_days=7" in text
+
+
+# --- P4b: root-level governed-repo recognition (split-openxwallet-repo 11.2) --
+#
+# `_governed_repo_ids` decides which repository ids are resolvable WITHOUT
+# materialization. Before P4b it derived the whole set from `ctx.repo_paths`,
+# which `corpus.discover_repos` fills with `openxFactory` plus `xFactories/*` and
+# nothing else — so `openXwallet`, pinned at the aggregation ROOT, was classed
+# `external` and fell under the nightly-skip / strict-materialization path. The
+# openAvatar precedent is the empirical proof (council concern 4): a root-level
+# repository derives nothing automatically.
+
+def test_governed_repo_ids_admit_the_root_level_product_allowlist():
+    ids = ideation_routing._governed_repo_ids(
+        SimpleNamespace(repo_paths={"openxFactory": None,
+                                    "LedgerxFactory": None}))
+    assert ids == {"openxFactory", "xFactories/LedgerxFactory",
+                   "openAvatar", "openXwallet"}
+
+
+def test_governed_repo_ids_admit_root_products_with_no_checkout_in_scope():
+    """The allowlist is a claim about TOPOLOGY, not about this run's checkout.
+
+    `discover_repos` can never place a root-level product in `repo_paths`, so a
+    set derived from it alone would stay permanently narrow — which is the whole
+    defect. A single-repo self-gate has one entry and must still resolve a
+    reference into `openXwallet`."""
+    ids = ideation_routing._governed_repo_ids(
+        SimpleNamespace(repo_paths={"openxFactory": None}))
+    assert {"openAvatar", "openXwallet"} <= ids
+
+
+def test_governed_repo_ids_never_prefix_a_root_product_with_xfactories():
+    """Defensive: if `discover_repos` is ever widened to sweep a root product's
+    own documents, the two sites must not disagree about that product's id —
+    `xFactories/openXwallet` is a repository that exists nowhere."""
+    ids = ideation_routing._governed_repo_ids(
+        SimpleNamespace(repo_paths={"openxFactory": None, "openXwallet": None}))
+    assert "openXwallet" in ids
+    assert "xFactories/openXwallet" not in ids
+
+
+def test_governed_repo_ids_do_not_admit_installs():
+    """The allowlist, not the rule. Admitting every root-level `.gitmodules` pin
+    would enrol the nine `installs/*` runtime repositories as governed."""
+    ids = ideation_routing._governed_repo_ids(
+        SimpleNamespace(repo_paths={"openxFactory": None}))
+    assert not any(i.startswith("installs/") for i in ids)
+
+
+def test_convention_mode_recognizes_a_root_product_id(tmp_path):
+    """A bare-name repository id has no PATTERN to be accepted by — it is
+    shape-indistinguishable from a typo — so the convention fallback needs the
+    allowlist too, or openxFactory's own `--single-repo` self-gate reports a
+    sound reference into `openXwallet` as an unknown repository."""
+    known, mode, _agg = ideation_routing._known_repositories(
+        SimpleNamespace(repo_paths={"openxFactory": None}, agg_root=None))
+    assert mode == "convention"
+    assert ideation_routing._repository_unknown_reason(
+        "openXwallet", known, mode) is None
+    assert ideation_routing._repository_unknown_reason(
+        "openAvatar", known, mode) is None
+    reason = ideation_routing._repository_unknown_reason(
+        "openNotAProduct", known, mode)
+    assert reason is not None and "root-level neutral product" in reason
+
+
+def test_allowlist_lives_in_corpus_as_the_single_authority():
+    assert corpus.ROOT_LEVEL_GOVERNED_PRODUCTS == ("openAvatar", "openXwallet")
+    assert (ideation_routing.ROOT_LEVEL_GOVERNED_PRODUCTS
+            is corpus.ROOT_LEVEL_GOVERNED_PRODUCTS)

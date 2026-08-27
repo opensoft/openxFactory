@@ -1187,11 +1187,27 @@ intermediate.*
       describes, not extended around an inaccuracy.
 - [ ] 9.3 **[xFactory]** `CLAUDE.md` orientation line for the new root-level
       product (its working-rule #1 amendment is §1.12, this change's own diff).
-- [ ] 9.4 **[xFactory]** The root-gitlink-equals-nested-gitlink check invoked
+- [x] 9.4 **[xFactory]** The root-gitlink-equals-nested-gitlink check invoked
       from the aggregation's doc-health run — the only CI that initializes BOTH
       gitlinks — as `verify-openxwallet-pin.py --aggregation-root`. Not a second
       script in xFactory, which has no validator convention of its own and would
       drift a duplicate refusal set.
+      **REALIZED in openxFactory, and the xFactory caller needs NOTHING** —
+      `doc-health-nightly.yml` is a thin caller of
+      `openxFactory/.github/workflows/doc-health-reusable.yml@main`, so the
+      aggregation's doc-health run IS that reusable workflow and the step can
+      only live here. Step "Verify openXwallet root-gitlink parity" in the
+      `prepare` job, after "Init governed submodules only", running `python3
+      openxFactory/scripts/verify-openxwallet-pin.py --aggregation-root .`,
+      guarded on openxFactory declaring the nested gitlink at this pin (the
+      P3→P4 ordering, the same guard the nested init carries). The init was
+      deliberately NOT widened to the root gitlink: `verify_aggregation` reads
+      the RECORDED gitlink through `ls-tree`/`ls-files` and needs no checkout, so
+      widening would add openAvatar's Flutter monorepo to every nightly for no
+      reader. Eight tests pin the command, the flag, the order, the guard, the
+      unconditionality and the non-duplication
+      (`tests/openxwallet_pin/test_aggregation_lane_wiring.py`), collected by the
+      REQUIRED `pytest-suite`. Realized by feature `024-root-governed-repo-recognition`.
 - [ ] 9.5 **[xFactory]** Evidence row: the merged pull request plus that check
       green.
 - [ ] 9.6 **[xFactory]** Rollback recorded before the step: P4 reverts WITH P3, or
@@ -1334,26 +1350,90 @@ exists.*
 
 ## 11. P4b — root-level governed-repo recognition
 
-- [ ] 11.1 `scripts/sync-notebooklm-books.py`: widen the repository set at `:761`
+- [x] 11.1 `scripts/sync-notebooklm-books.py`: widen the repository set at `:761`
       (`["openxFactory", *pinned_factory_paths(root)]`) by an explicit ALLOWLIST of
       root-level neutral products — `openXwallet`, `openAvatar` — not by admitting
       every root-level `.gitmodules` pin, which would enrol `installs/*` as
       governed ideation repositories. `pinned_factory_paths` (`:644-663`) matches
       only `^\s*path\s*=\s*(xFactories/\S+)\s*$` today.
-- [ ] 11.2 `scripts/doc_health/ideation_routing.py` `_governed_repo_ids`
+      **DONE.** `pinned_root_product_paths()` (pinned in `.gitmodules` AND
+      present; no suffix-heuristic fallback, because the aggregation root has no
+      shape to guess from) plus `governed_repo_paths()`, read by the THREE sites
+      that have to agree: `scan()`, `session_repositories()` — whose docstring
+      already CLAIMED "the same repo set `scan()` walks", so widening `scan()`
+      alone would have falsified it — and `_out_of_scope_workbench_dirs()`, where
+      a missed dir means the sweep DELETES a notebook a live manifest binds. A
+      pinned-but-EMPTY root product prints a named remediation instead of reading
+      as document-free. Thirteen tests in
+      `tests/notebooklm/test_sync_notebooklm_books.py::RootLevelGovernedProductTests`,
+      including `installs/*` never admitted. Feature `024-root-governed-repo-recognition`.
+- [x] 11.2 `scripts/doc_health/ideation_routing.py` `_governed_repo_ids`
       (`:224-235`) admits the same allowlist alongside `openxFactory` and
       `xFactories/<Name>`, so a root-level product stops being classed EXTERNAL
       and falling under the nightly-skip / strict-materialization path.
-- [ ] 11.3 The two sites are widened by the SAME allowlist, in one pull request,
+      **DONE**, and admitted UNCONDITIONALLY rather than derived from
+      `ctx.repo_paths`: `corpus.discover_repos` enumerates `openxFactory` plus
+      `xFactories/*` and nothing else, so a set derived from it would have stayed
+      permanently narrow. Rider found while there and fixed in the same site:
+      `_known_repositories`' CONVENTION fallback needed the same allowlist —
+      openxFactory's own `--single-repo` self-gate runs in exactly that mode, and
+      a bare-name repository id has no pattern to be accepted by, so without it a
+      sound reference into `openXwallet` reports as an unknown repository. The
+      refusal message now names the admitted products. Six tests in
+      `tests/doc-health/test_ideation_routing.py`. Feature
+      `024-root-governed-repo-recognition`.
+- [x] 11.3 The two sites are widened by the SAME allowlist, in one pull request,
       so the notebook set and the routing set cannot disagree.
+      **DONE, in one pull request, and the agreement is held BY TEST rather than
+      by one import.** Authority: `ROOT_LEVEL_GOVERNED_PRODUCTS = ("openAvatar",
+      "openXwallet")` in `scripts/doc_health/corpus.py`, the module that already
+      owns what repositories an aggregation has, with the allowlist-not-rule
+      decision and the `installs/*` counter-example recorded at the declaration.
+      `ideation_routing` imports it in-package. `sync-notebooklm-books.py` carries
+      a DELIBERATE SECOND COPY on this repository's own established rule for a
+      hyphenated standalone that cannot be imported (`doc_health.recorded_rel` vs
+      `proposal-support.py`'s `manifest_rel`, "pinned to each other by test") —
+      necessary here because that script's suite loads it BY FILE PATH with
+      `scripts/` absent from `sys.path`, so a package import would work in
+      production and fail in the suite. Pinned by
+      `test_the_allowlist_matches_the_doc_health_authority`, which reads the
+      authority out of `corpus.py`. Feature `024-root-governed-repo-recognition`.
 - [ ] 11.4 Acceptance, two books: `xf-ideation-openxwallet` EXISTS after one
       `python3 openxFactory/scripts/sync-notebooklm-books.py . --apply` and carries
       openXwallet's ideation — and the SAME widening finally produces
       `xf-ideation-openavatar`, absent today five months into the ratified
       openAvatar precedent, which is the living proof that a root-level repository
       derives nothing automatically.
-- [ ] 11.5 Rollback recorded before the step: revert; the books are derived and a
+      **NOT SATISFIED, AND THE WIDENING IS NOT WHY — this acceptance as written is
+      not reachable today (measured 2026-08-27, feature
+      `024-root-governed-repo-recognition`, `specs/024-root-governed-repo-recognition/evidence/acceptance-sweep.md`).**
+      Swept over a tree with openXwallet at `wallet-v1.1` initialized, the
+      widening is real and measurable: openXwallet goes 0 → 4 projected documents
+      and openAvatar 0 → 2, where `origin/main` swept both by nothing at all, and
+      `installs/hermes-install` stays at 0 in both runs (the allowlist holding).
+      But NO `ideation-openxwallet` book derives, and none can: ideation-book
+      membership is STATUS-DERIVED ONLY (`split-ideation-book-per-repo` — a book
+      exists exactly when its repo has at least one brainstorm/staged document),
+      and **openXwallet carries 3 ratified / 2 record / 2 standard and ZERO
+      brainstorm-or-staged; openAvatar carries 2 draft / 1 record and ZERO.** So
+      `xf-ideation-openavatar`'s absence had TWO causes, not the one council
+      concern 4 named; this change removes the recognition cause and the
+      membership cause is a document nobody has written. Proven both ways: no
+      book from the real tree, and the book with exactly the required alias
+      `xf-ideation-openxwallet` and title `xFactory Ideation — openXwallet` the
+      moment one `Status: brainstorm` document exists. `--apply` NOT run and the
+      operator's ordered sequence recorded (P4 lands the root gitlink →
+      openXwallet gains its first ideation document → `--init` then `--apply`,
+      reviewing the plan, because this change also adds 6 documents to the shared
+      cap-bounded `canon`/`drafts` books). `nlm notebook list` answers in this
+      shell, so auth was not the blocker. **This item stays OPEN pending
+      openXwallet's first brainstorm/staged document.**
+- [x] 11.5 Rollback recorded before the step: revert; the books are derived and a
       removed repository id simply stops deriving.
+      **RECORDED.** Revert, and nothing migrates state: the books are DERIVED, so
+      a removed repository id simply stops deriving, and the parity step's guard
+      makes its removal a no-op on any tree without the nested gitlink. Feature
+      `024-root-governed-repo-recognition` `plan.md`.
 
 ## 12. P6 — the first domain descendant
 

@@ -38,6 +38,31 @@ from .lines import split_keepends
 
 GOVERNED_ROOTS = ("contracts", "docs", "examples", "ideation", "templates")
 
+# The root-level NEUTRAL PRODUCTS the aggregation pins as SIBLINGS of
+# `openxFactory/` rather than under `xFactories/` — governed repositories whose
+# aggregation-relative id is a bare name (DTN-022: a neutral product pins at the
+# aggregation's neutral root). AUTHORITY for the allowlist; see
+# `split-openxwallet-repo` design D11.
+#
+# AN ALLOWLIST, NOT A RULE, and the distinction is the whole decision. The rule
+# "every root-level `.gitmodules` pin is a governed repository" is one line
+# shorter and WRONG: it would enrol all nine `installs/*` runtime repositories as
+# governed ideation repositories, each deriving its own `xf-ideation-<name>`
+# book and each becoming resolvable-without-materialization for reference
+# checking — the exact opposite of the `external` classification those pins are
+# supposed to carry. The set of root-level neutral products is small, slow-moving
+# and governance-visible, so naming it costs one line per product and buys an
+# explicit admission decision every time.
+#
+# ORDER is alphabetical and load-bearing for nothing; membership is.
+#
+# `openAvatar` is admitted on the SAME footing as `openXwallet` and not as a
+# courtesy: it has been a root-level ratified product for five months, and its
+# absence from both widened sites is precisely the empirical proof (council
+# `council-systems-architect.md` concern 4) that a root-level repository derives
+# nothing automatically.
+ROOT_LEVEL_GOVERNED_PRODUCTS = ("openAvatar", "openXwallet")
+
 # The lifecycle scan set, declared as an EXPLICIT PATTERN SET rather than as a
 # directory (`govern-openspec-corpus-membership`, OQ-2 ruled these two globs).
 # A directory would have swept in `tasks.md`, `design.md`, the spec deltas,

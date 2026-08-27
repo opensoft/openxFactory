@@ -88,6 +88,24 @@ IDEATION_KEY_PREFIX = "ideation-"
 IDEATION_ALIAS_PREFIX = "xf-ideation-"
 IDEATION_TITLE_PREFIX = "xFactory Ideation — "
 
+# The root-level NEUTRAL PRODUCTS the aggregation pins as SIBLINGS of
+# `openxFactory/` — governed repositories whose aggregation-relative id is a
+# bare name. An explicit ALLOWLIST, never "every root-level `.gitmodules` pin",
+# which would enrol the nine `installs/*` runtime repositories as governed
+# ideation repositories (`split-openxwallet-repo` design D11).
+#
+# A DELIBERATE SECOND COPY of `doc_health.corpus.ROOT_LEVEL_GOVERNED_PRODUCTS`,
+# on the rule this repository already applies to `doc_health.recorded_rel` and
+# `proposal-support.py`'s `manifest_rel`: this script is a HYPHENATED standalone
+# and cannot be imported, and its own tests load it by file path with `scripts/`
+# absent from `sys.path`, so an import of the package constant would work in
+# production and fail in the suite — the worst of the two directions. The two
+# copies are PINNED TO EACH OTHER BY TEST
+# (`tests/notebooklm/test_sync_notebooklm_books.py`), because the notebook set
+# and the doc-health routing set disagreeing about which repositories are
+# governed is exactly the failure `split-openxwallet-repo` task 11.3 forbids.
+ROOT_LEVEL_GOVERNED_PRODUCTS = ("openAvatar", "openXwallet")
+
 # NotebookLM's per-notebook source cap (plan-dependent platform property;
 # contract surface per the projection capability's capacity guard — recorded
 # in docs/lifecycle-notebook-projection.md). The 2026-08-10 incident: the
@@ -663,6 +681,62 @@ def pinned_factory_paths(root: Path) -> list[str]:
             if p.is_dir() and not p.name.endswith(SESSION_CONTAINER_SUFFIX)]
 
 
+def pinned_root_product_paths(root: Path) -> list[str]:
+    """Allowlisted root-level neutral products this workspace pins AND has on
+    disk — `openXwallet`, `openAvatar` (`ROOT_LEVEL_GOVERNED_PRODUCTS`).
+
+    Pin-state is the authoritative filter, the same discipline as
+    `pinned_factory_paths`: a bare directory of that name in a scratch root is
+    not a governed repository until the aggregation pins it. Unlike the factory
+    finder there is NO suffix-heuristic fallback for a missing `.gitmodules`,
+    and deliberately: `xFactories/` is a container whose children are all
+    factories, while the aggregation root holds `installs/`, `openspec/`, docs
+    and worktree containers, so there is no shape to guess from — without the
+    pin declaration the honest answer is none.
+
+    AN EMPTY DIRECTORY IS REPORTED, NOT SILENTLY DROPPED. A declared-but-
+    uninitialized submodule is an existing, empty directory, and returning it
+    would make the sweep compute "this product has no ideation documents" —
+    indistinguishable in the output from the truth, and a book that should
+    exist would simply never be created. The warning names the remediation;
+    the path is still returned, because a product with genuinely no ideation
+    documents derives no book either way and the caller must not have to know
+    which case it is looking at.
+    """
+    gm = root / ".gitmodules"
+    if not gm.is_file():
+        return []
+    declared = set(re.findall(r"^\s*path\s*=\s*(\S+)\s*$",
+                              gm.read_text(), re.M))
+    found = []
+    for name in ROOT_LEVEL_GOVERNED_PRODUCTS:
+        if name not in declared or not (root / name).is_dir():
+            continue
+        if not any((root / name).iterdir()):
+            print(f"WARN {name} is pinned at the aggregation root but its "
+                  f"checkout is empty (uninitialized submodule); its ideation "
+                  f"documents cannot be swept. Remediation: run "
+                  f"`git submodule update --init {name}`.")
+        found.append(name)
+    return found
+
+
+def governed_repo_paths(root: Path) -> list[str]:
+    """Every governed repository path below `root` EXCEPT `openxFactory` itself:
+    the allowlisted root-level neutral products, then the pinned factories.
+
+    ONE function for the three call sites that have to agree — `scan()`'s book
+    derivation, `session_repositories()` and `_out_of_scope_workbench_dirs()`.
+    Before this existed the three each spelled `pinned_factory_paths(root)`
+    inline, which is why widening the repository set is a change to one line in
+    each rather than a change anyone can make in one place and forget in two.
+    `openxFactory` stays out because the callers disagree about it: `scan()` and
+    `session_repositories()` name it first, the workbench sweep excludes it as
+    already in the v1 scope.
+    """
+    return [*pinned_root_product_paths(root), *pinned_factory_paths(root)]
+
+
 # A source title is the projection's IDENTITY KEY: scan() derives a set keyed
 # by document PATH and sync_book() reconciles it against a live book BY TITLE,
 # holding each title at one source. A derivation that is not injective
@@ -758,7 +832,7 @@ def scan(root: Path) -> tuple[dict[str, dict[str, str]], dict[str, BookSpec]]:
     desired: dict[str, dict[str, str]] = {b: {} for b in STATIC_BOOKS}
     specs: dict[str, BookSpec] = {b: static_spec(b) for b in STATIC_BOOKS}
     found: list[tuple[str, str, str, tuple[str, ...]]] = []
-    for base in ["openxFactory", *pinned_factory_paths(root)]:
+    for base in ["openxFactory", *governed_repo_paths(root)]:
         basep = root / base
         for f in sorted(basep.rglob("*.md")):
             rel = f.relative_to(root)
@@ -1192,12 +1266,19 @@ V1_WORKBENCH_DIR = "openxFactory/ideation/workbench/"
 
 def _out_of_scope_workbench_dirs(root: Path) -> list[Path]:
     """Workbench dirs OUTSIDE the v1 openxFactory sweep scope that could carry
-    live manifests: the aggregation root's own and each xFactories/<repo>'s
-    (worktree containers excluded, matching scan())."""
+    live manifests: the aggregation root's own, each xFactories/<repo>'s, and
+    each allowlisted root-level neutral product's (worktree containers
+    excluded, matching scan()).
+
+    THE WIDENING IS THE SAFE DIRECTION HERE and is not merely for symmetry: a
+    workbench dir this function misses is a live manifest the sweep cannot see,
+    and the sweep DELETES the `xf-wb-*` notebook no live manifest binds. Missing
+    a directory therefore destroys a bound notebook, while including a directory
+    that holds nothing costs one `is_dir()`.
+    """
     dirs = [root / "ideation" / "workbench"]
-    if (root / "xFactories").is_dir():
-        for rel in pinned_factory_paths(root):
-            dirs.append(root / rel / "ideation" / "workbench")
+    for rel in governed_repo_paths(root):
+        dirs.append(root / rel / "ideation" / "workbench")
     return [d for d in dirs if d.is_dir()]
 
 
@@ -1374,11 +1455,15 @@ def _dashboard_module(name: str):
 
 def session_repositories(root: Path) -> list[tuple[str, Path]]:
     """(repository, checkout) pairs a session worktree can belong to: the
-    openxFactory checkout plus every PINNED factory — deliberately the same repo
-    set `scan()` walks, so the books and the sessions agree on what a repository
-    is (and neither treats a worktree container as one)."""
+    openxFactory checkout plus every governed repository below the root — the
+    pinned factories AND the allowlisted root-level neutral products —
+    deliberately the same repo set `scan()` walks, so the books and the sessions
+    agree on what a repository is (and neither treats a worktree container as
+    one). That agreement is why this reads `governed_repo_paths` and not
+    `pinned_factory_paths`: the docstring's claim was load-bearing and widening
+    `scan()` alone would have quietly falsified it."""
     pairs = [("openxFactory", root / "openxFactory")]
-    for rel in pinned_factory_paths(root):
+    for rel in governed_repo_paths(root):
         pairs.append((Path(rel).name, root / rel))
     return [(name, path) for name, path in pairs if path.is_dir()]
 
