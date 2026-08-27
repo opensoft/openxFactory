@@ -190,3 +190,54 @@ Governing: FR-034 (pin), FR-035 (online+offline, fail every drift), FR-036
 (manifest digest externally bound), FR-038 (ownership), FR-043 (canonical
 consumer, reject FarHeap, record exact commit + paths/digests + pos/neg),
 SC-010, SC-012.
+
+## 7. Landed consumer acceptance record (T082–T084)
+
+**Validation candidate**: `fe84a49a00d9bdcccd834eb23473d94757b38232`
+
+**Date**: 2026-08-27
+
+**Disposition**: Gate G0/T009 accepted when this record lands on published
+`main`.
+
+The provider-side receipt now binds canonical consumer repository
+`opensoft/xFactory-Hermes-Install` at landed-evidence commit
+`85e476b0d29ce1f63a21d1b1e59519cca8ace92b`. That commit is reachable from
+consumer `origin/main` through merge commit
+`9594130ef25fa5b1a542d36ae4a9d88c81bc0f91`. Its closure packet digest is
+`sha256:4a1492cd8098a32e16bcb879eb6043480f018ba0580d4e4d0d7a1196ffc3b609`.
+The receipt schema and exact `commit:path` reproduction passed for the closure
+packet, compatibility manifest, checker, runtime binding, aggregate positive
+evidence, and deliberate-drift evidence.
+
+All final commands ran in `py-bench` from a fresh provider clone with fresh
+bare mirrors for the canonical consumer and the five Domain regression
+repositories. No mutable consumer working-tree bytes were used.
+
+| Gate | Result | Elapsed |
+|---|---:|---:|
+| Receipt Draft 2020-12 schema | pass | not separately timed |
+| Strict OpenSpec | 75 passed, 0 failed | 1.444 s |
+| Domain-aware schema/semantic validator | 51 contracts, 32 schemas, 110 fixtures, 17 requirements, 85 scenarios, 846 tests collected | 9.419 s |
+| Non-PostgreSQL pytest | 508 passed, 338 deselected | 250.312 s |
+| Immutable `contract-v1.10` tag verification | pass | 9.768 s |
+| Current release realization plus Domain regression | pass | 24.146 s |
+| Exact consumer handoff | pass | 6.284 s |
+| PostgreSQL 15 | 171 passed, 0 skipped/failed | 1192.218 s |
+| PostgreSQL 16 | 171 passed, 0 skipped/failed | 1176.904 s |
+| Git diff/status hygiene | clean; regenerated PostgreSQL evidence byte-identical | n/a |
+| Speckit analysis | 45 functional requirements, 17 success criteria, 84 tasks, 100% coverage, 0 critical/high findings | n/a |
+
+The non-database schema/semantic validator met its 30-second goal. Both
+PostgreSQL-major runs passed the normative SC-016 correctness gate but exceeded
+the plan-level 10-minute performance goal on the shared host. The first
+PostgreSQL 15 attempt overlapped active feature-015 database runs and ended
+with 170 passed plus one disposable-cluster TCP-readiness setup error after
+1239.55 seconds; the isolated retry passed all 171 tests. Feature-015-owned
+containers were not modified or removed. The measured timing misses are
+recorded here and are not hidden as passing performance results.
+
+SC-009 through SC-012 and SC-016 are satisfied: the provider release remains
+reproducible, the exact landed consumer evidence independently reproduces every
+recorded digest, deliberate drift is refused, both supported PostgreSQL majors
+pass, and no critical/high Speckit analysis finding remains.

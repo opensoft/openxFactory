@@ -1,0 +1,46 @@
+schema_version: 1
+kind: openxfactory-hermes-runtime-consumer-handoff-receipt
+consumer_repository: opensoft/xFactory-Hermes-Install
+bundle_tag: contract-v1.10
+provider:
+  repository: opensoft/openxFactory
+  tag: contract-v1.10
+  commit: 727ca18b80ad1e9cbef1252e4e357e1cdc43249a
+  manifest_path: contracts/manifest.yaml
+  manifest_digest: sha256:664d89aabf9775943c2613e5132865b84688080efb1cd316f1a56d21446398ad
+  inventory_path: contracts/releases/contract-v1.10.digests.yaml
+  inventory_digest: sha256:8d76e525b3852c4b05f0d76f7226d2a9deffabed2017aa57525004e4849883ed
+consumer_commit: 85e476b0d29ce1f63a21d1b1e59519cca8ace92b
+closure_packet:
+  path: evidence/gates/g0/contract-v1.10.yaml
+  digest: sha256:4a1492cd8098a32e16bcb879eb6043480f018ba0580d4e4d0d7a1196ffc3b609
+compatibility_manifest:
+  path: config/compatibility/contract-v1.10.yaml
+  digest: sha256:71015ba382b4d7801cb8c6acc1f90f36cbf313f8ea360a340dc97747be813515
+checker:
+  path: scripts/check-contract-compatibility
+  digest: sha256:10a67525e32b41ad9d84a515c457d26722eaf98fc583e5d194dda571e00d789c
+runtime_binding:
+  path: config/runtime/contract-binding.yaml
+  digest: sha256:dea55a6416e444eed79a03d3686f99920674a35bc71076e5a437f198be958139
+evidence:
+  path: evidence/gates/g0/positive-results.json
+  digest: sha256:d4a3e91f24b4293277715afafb44e0d6ecac260d22739f9f89c439b3e5786288
+check_results:
+  positive:
+    - check_id: online-verify
+      mode: online
+      outcome: pass
+      evidence_path: evidence/gates/g0/positive-results.json
+      evidence_digest: sha256:d4a3e91f24b4293277715afafb44e0d6ecac260d22739f9f89c439b3e5786288
+    - check_id: offline-verify
+      mode: offline
+      outcome: pass
+      evidence_path: evidence/gates/g0/positive-results.json
+      evidence_digest: sha256:d4a3e91f24b4293277715afafb44e0d6ecac260d22739f9f89c439b3e5786288
+  negative:
+    - check_id: deliberate-drift
+      mode: offline
+      outcome: fail
+      evidence_path: evidence/gates/g0/deliberate-drift-results.json
+      evidence_digest: sha256:7437ecd49d8c216b1c2473c8a01e84a6b28bc5470d65ec63bdedeb2be1f9e9d4
