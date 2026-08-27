@@ -1,20 +1,21 @@
 """`unittest discover`, with the FR-043 hermeticity guard installed FIRST.
 
 codexFactory's `scripts/validate-docs.sh` runs codexFactory's own test tree
-through pytest — and ran these tests when they lived in codexFactory too,
-before the doc-health relocation (adopt-neutral-tooling-home, ratified
-2026-08-03; archived 2026-08-05) moved them here, after which the script
-stopped running them at all.
+through pytest — and ran the doc-health and notebooklm suites when they lived
+in codexFactory too, before the doc-health relocation
+(adopt-neutral-tooling-home, ratified 2026-08-03; archived 2026-08-05) moved
+them here, after which the script stopped running them at all.
 
 It fell back, before PR #49 finding 17's fix (2026-07-27), to bare
-`python3 -m unittest discover` when pytest was unavailable; it now runs its own
-copy of this guarded runner instead
-(`python3 tests/hermetic_unittest.py tests/review-lane/`). That bare fallback
-was structurally outside the guard — a conftest fixture cannot apply to a
-runner that never loads conftests — and PR #49 review finding 17 measured a
-probe in `tests/notebooklm/` reaching a real-binary `nlm` stand-in TWICE from
-it, with the refusal ledger empty. A gate whose degraded path is unguarded is a
-gate that stops being one on any host that happens to lack pytest.
+`python3 -m unittest discover` when pytest was unavailable; it now falls back
+instead to its own guarded runner
+(`python3 tests/hermetic_unittest.py tests/review-lane/`) — the original this
+file was later copied from, at that same relocation. That bare fallback was
+structurally outside the guard — a conftest fixture cannot apply to a runner
+that never loads conftests — and PR #49 review finding 17 measured a probe in
+`tests/notebooklm/` reaching a real-binary `nlm` stand-in TWICE from it, with
+the refusal ledger empty. A gate whose degraded path is unguarded is a gate
+that stops being one on any host that happens to lack pytest.
 
 This module IS that guarded runner: it installs the same two layers
 `tests/hermeticity.py` gives pytest, from the same declarations

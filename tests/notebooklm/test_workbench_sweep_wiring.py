@@ -16,8 +16,8 @@ for any pytest-less host that runs this tree directly, when pytest is absent.
 codexFactory's `scripts/validate-docs.sh` ran these tests when they lived in
 codexFactory, before the doc-health relocation (adopt-neutral-tooling-home,
 ratified 2026-08-03; archived 2026-08-05) moved them here; that script still
-has a guarded `unittest discover` fallback of its own (codexFactory's copy of
-this runner), now over only its own test tree."""
+has a guarded `unittest discover` fallback of its own — the original this
+runner was copied from — now over only its own test tree."""
 
 from __future__ import annotations
 
