@@ -63,15 +63,23 @@ buried in an editorial one:
   change of title rather than of the content a block must carry; THEN against a
   requirement an active sibling change ADDS or RENAMES. Where a title resolves
   to none of those, the block SHALL be reported. Where two active changes carry
-  a MODIFIED block for ONE promoted requirement, the later SHALL be measured
-  against the earlier change's outcome rather than against canon, and the
-  earlier change's additions SHALL be present in the later block; where the
-  earlier change is an active RATIFIED change,
-  `release-realization`'s "Ordered deltas and branch vocabulary" already
-  requires the later proposal to reference it, and the reference SHALL be read
-  as that change's id occurring as a whole token in the later change's own
-  `proposal.md` — the whole-token match the duplicate packet family already
-  uses, so that one change id occurring inside a longer one satisfies nothing.
+  a MODIFIED block for ONE promoted requirement, ORDER IS BY DECLARATION AND
+  NEVER BY DATE. `release-realization`'s "Ordered deltas and branch vocabulary"
+  already requires the later proposal to reference the earlier change and
+  declare its deltas relative to that change's outcome, so the change that
+  makes that declaration IS the later writer and nothing else needs to decide
+  it. The declaration SHALL be read as the sibling's change id occurring as a
+  whole token in the declaring change's own `proposal.md` — the whole-token
+  match the duplicate packet family already uses, so one change id occurring
+  inside a longer one satisfies nothing. The declaring block SHALL be measured
+  against the declared sibling's outcome rather than against canon, and the
+  sibling's additions SHALL be present in it. EXACTLY ONE of two active
+  RATIFIED writers SHALL declare: where neither does the run SHALL report the
+  undeclared ordering against both blocks, and where both declare relative to
+  each other the run SHALL report that too, mutual declaration deciding
+  nothing. Where no declaration stands, each block SHALL be measured against
+  canon, which is the only basis a reader can name. No folder name, commit
+  timestamp, or `created:` date SHALL be consulted.
 
 **A canon unit is CARRIED only by a block unit of the SAME KIND, matched in
 full after whitespace normalization.** Normalization collapses runs of
@@ -250,11 +258,17 @@ is a ruling like any other.
 - **WHEN** a block replaces a scenario title with a new one, declares the replacement by marker, and does not carry every bullet the superseded scenario carried
 - **THEN** the uncarried bullets MUST still be reported, the bullet comparison running across all bullets of the block rather than within the scenario that restates them
 
-#### Scenario: Two active changes modify one requirement
-- **WHEN** two or more active changes carry a MODIFIED block for the same capability and requirement title
-- **THEN** the later change's block MUST be measured against the earlier change's outcome rather than against canon
-- **AND** an addition the earlier block makes that the later block does not carry MUST be reported against the later delta's path
-- **AND** where the earlier change is an active ratified change, the later change's `proposal.md` MUST name it as a whole token, as `release-realization` requires
+#### Scenario: Two active changes modify one requirement and one declares
+- **WHEN** two or more active changes carry a MODIFIED block for the same capability and requirement title, and exactly one declares its deltas relative to another by naming that change as a whole token in its own `proposal.md`
+- **THEN** the declaring change MUST be treated as the later writer, and its block MUST be measured against the declared sibling's outcome rather than against canon
+- **AND** an addition the sibling's block makes that the declaring block does not carry MUST be reported against the declaring delta's path
+- **AND** no folder name, commit timestamp, or `created:` date MUST be consulted to decide which writer is later
+
+#### Scenario: Two active ratified changes modify one requirement and the ordering is undeclared
+- **WHEN** two active ratified changes carry a MODIFIED block for one promoted requirement and neither names the other as `release-realization` requires
+- **THEN** the run MUST report the undeclared ordering against both blocks, no reader being able to tell which text canon will keep
+- **AND** where both declare relative to each other, the run MUST report that as well, mutual declaration deciding nothing
+- **AND** each block MUST meanwhile be measured against canon, the only basis a reader can name while no declaration stands
 
 #### Scenario: A change renames a requirement and modifies it in one delta
 - **WHEN** a MODIFIED block names a title canon does not carry, and the change's own `## RENAMED Requirements` block renames a promoted requirement to that title

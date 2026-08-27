@@ -1,7 +1,8 @@
 ---
 code_surface: openxFactory (`scripts/doc_health/modified_block_currency.py` — a new module owning the twenty-second deterministic family: the active-change delta reader, the promoted-requirement reader, the normative unit derivation (backtick masking, the sentence split, bullet units, the undivided dated note), the same-kind exact matcher, the three comparison arms, the two-writers resolution against an active sibling's outcome, the reserved-marker parser and its two forms, and the disposition read; `scripts/doc_health/families.py` — one import, one registration line in `FAMILIES`, one note recording why the family is deliberately absent from `FAMILY_RESOLUTION`, and the module docstring's owner list; `scripts/doc_health/__init__.py` — one entry in `FAMILY_IDS` so the family gets its own report section; `tests/doc-health/test_modified_block_currency.py` plus `tests/doc-health/fixtures/modified-block-currency*/` — one fixture per finding class, the two regression fixtures reconstructing the historical true positives (#351's six clauses / two scenarios / one reverted line, and #329's one-of-eight scenario restatement), the retitle-and-gut red test, the tokenization fixture, the marker negatives, the two-writers case, the self-gate against this repository's own tree, and the structural pins on the advisory launch; `tests/doc-health/test_lifecycle_scan_set.py` — the twenty-second family classified as a non-reader of the lifecycle scan set. The MODIFIED block on `doc-health`'s "Deterministic check families" is part of this surface and is owed at realization, in the commit that registers the family — not in this proposal; the reason is measured in § Orchestrator Decisions D5. No change to the governed corpus, the lifecycle scan set, any existing family's behaviour or measurement basis, the report schema, the regression-diff rule, or any threshold.)
 target_release: implemented — the openxFactory main line. This surface cuts no contract bundle: no schema under `contracts/schemas/` changes, no digest set moves, and no release tag is owed. The archive gate is therefore merge-plus-green on main, following `add-family-enumeration-check` and `add-duplicate-packet-check` exactly: `python3 -m pytest tests/doc-health` green, `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green, and a doc-health single-repo run whose severity counts move by exactly the amount this proposal predicts and in no other line. The change therefore ships ACTIVE and archives only after the merge.
-Status: draft
+Status: ratified
+Ratified: 2026-08-27 by Brett — in-session ratification, verbatim: "Ratify as-is". THE CITATION COVERS THE PACKET AS WRITTEN AT `06c7475a`, which is what was put to him and what he ratified. The five decisions in § Orchestrator Decisions were flagged for veto and were NOT VETOED at that ratification; they are not thereby affirmatively ruled, and the flags stay exactly where they were. Two questions the packet left open WERE ruled in the same round and are recorded as rulings rather than as decisions: § 7.3, two-writer ordering, verbatim "By declaration"; and § 7.5, this packet's own origin, verbatim "Record your admission now". No approving OpenSpec change exists to name, so this cites the record in the spelling `sanction-ratified-record-spelling` sanctioned for that case, clearing its three-way floor on two axes rather than the one it needs: approver (`by Brett`) and date (`2026-08-27`).
 Proposed: 2026-08-27
 Origin: openxFactory issues #357 (the validator gap), #329 (two active changes carrying lossy MODIFIED blocks) and #330 (the promotion-fidelity blind spot), all three filed by Brett on 2026-08-25; PR #358, the manual repair of the #351 instance; and `openspec/changes/add-family-enumeration-check/tasks.md` § 5.3, which recorded this half by name and declined to fold it in — "the scenario-completeness half, which is the half that actually destroyed text" and "NOT folded into this change: it is a different comparison against a different document pair".
 ---
@@ -10,17 +11,22 @@ Origin: openxFactory issues #357 (the validator gap), #329 (two active changes c
 
 ## Standing
 
-The front-matter `Status: draft` is this packet's standing and its only claim
-about approval. `docs/document-lifecycle.md` gives `draft` the lifecycle state
-"proposed (or awaiting proposal)" and the meaning "Normative intent, not yet
-ratified"; a ratification citation is owed only for `Status: ratified`, so this
-packet owes none and carries none.
+**Ratified in session by Brett on 2026-08-27, verbatim "Ratify as-is"**, on the
+packet as written at `06c7475a`. The front-matter carries the citation in the
+record-citing spelling, there being no approving OpenSpec change to name. The
+five decisions in § Orchestrator Decisions were flagged for veto and were not
+vetoed; that is not the same as being affirmatively ruled, and the flags stay.
 
-Issue #318 — a drafted-but-unapproved packet has no lawful origin shape — is
-open, and this packet sits in it. The `.openspec.yaml` origin records queue
-admission by the orchestrating session on Brett's filed issues, in those words,
-and says that Brett converts it to an admission with one word or the packet
-stands as the #318 dilemma. Recorded as an open box in `tasks.md` § 7.5.
+**The #318 origin gap is closed for this packet, by ruling.** It was authored
+and reviewed while unapproved, which is exactly the state issue #318 describes:
+the `proposal-origin` family requires an `ad_hoc` origin to carry `approved_on`,
+and until 2026-08-27 no approval existed to record. Asked whether to leave the
+packet in that state or to record his admission, Brett chose "Record your
+admission now", so `.openspec.yaml` names him as approver on 2026-08-27 in the
+same shape `create-medxchart-overlay-boundary` uses. #318 itself stays open —
+the taxonomy still has no origin kind meaning "proposed, not approved", and the
+next packet drafted before approval will sit in the same gap. `tasks.md` § 7.5
+records that.
 
 ## Why
 
@@ -102,7 +108,7 @@ in — correctly, and this change is the fix it named.
 | --- | --- | --- |
 | scenario-title completeness | **1** finding | **1** |
 | carriage ledger | **14 units / 10 requirements** → 10 findings | **16 units / 11 requirements** → 11 findings |
-| title resolution / two-writers | **0** | **0** findings, and the corpus's first two-writers instance |
+| title resolution / two-writers | **0** | **0** — one two-writers pair, exactly one declaring |
 | **movement** | **+1 `warning`, +10 `info`** | **+1 `warning`, +11 `info`, 0 `error`, 0 `critical`** |
 
   Ledger units split **10 body / 4 scenario-bullet** at the branch point. A run
@@ -158,7 +164,15 @@ The three issues establish the defect class and #357 proposes a check. The five
 decisions below were taken by the authoring session under standing patterns and
 are named so they can be reversed on a word.
 
-**D1 — One new family, and `promotion-fidelity` is not extended.** #330 offers
+**NONE OF THE FIVE WAS VETOED AT THE RATIFICATION OF 2026-08-27, AND NONE WAS
+AFFIRMATIVELY RULED.** Brett ratified the packet as written, which put these
+decisions on `main` without putting a ruling behind any of them. The flags
+therefore stay exactly where they were: reverting any one of them is an edit to
+this change rather than a new one, and no later reader should cite this
+ratification as having decided them.
+
+**D1 — One new family, and `promotion-fidelity` is not extended.**
+*(Not vetoed at ratification 2026-08-27.)* #330 offers
 two shapes: give that family a promoted→promoted arm at archive (its shape 1),
 or require MODIFIED blocks to be scenario-complete and check them before
 archive (its shape 2). This change takes shape 2, in a new family, on three
@@ -178,7 +192,8 @@ change's delta, which is where the remedy for this class lives. What is given
 up is named: shape 1's post-archive safety net is not built here, so **#330
 stays open**, with an owner and a trigger in `tasks.md` § 7.1.
 
-**D2 — Same-kind exact units; three arms; a reserved marker for deletion.** A
+**D2 — Same-kind exact units; three arms; a reserved marker for deletion.**
+*(Not vetoed at ratification 2026-08-27.)* A
 canon unit is carried only by a block unit of the SAME KIND — a body unit by a
 body unit, a scenario title by a scenario title, a scenario bullet by a
 scenario bullet — matched in full after whitespace normalization, which is the
@@ -202,7 +217,8 @@ prose-reading rule would read a faithful restatement of `doc-health`'s own
 "Deterministic check families" as declaring seven deletions — on the very
 requirement #329 is about.
 
-**D3 — Advisory at launch, and the flip is asked for one arm.** Every finding
+**D3 — Advisory at launch, and the flip is asked for one arm.**
+*(Not vetoed at ratification 2026-08-27.)* Every finding
 is `warning` (scenario-title, title-resolution) or `info` (carriage ledger),
 and the family is deliberately absent from `FAMILY_RESOLUTION` so a resolved
 finding cannot become an `error` through the uncited-resolution rule — the
@@ -218,13 +234,21 @@ under this packet — and a later flip remains available as a ruling like any
 other rather than being ruled out here.
 
 **D4 — The two-writers rule reuses `release-realization` and widens nothing.**
+*(Not vetoed at ratification 2026-08-27.)*
 That capability's "Ordered deltas and branch vocabulary" requires that "a
 proposal modifying a requirement already modified by an active ratified change
 references that change and declares its deltas relative to that change's
 outcome". The word `ratified` is carried verbatim: this change adds no
 obligation on unratified packets, and adds only the consequence for currency —
 a block declared relative to another change's outcome is measured against that
-outcome and must carry its additions. Separately and NOT as a widening of that
+outcome and must carry its additions. **RULED 2026-08-27 by Brett, verbatim
+"By declaration": the declaration IS the ordering.** The change that writes
+"relative to <sibling>" is the later writer, and the check verifies only that
+exactly one of two active ratified writers declares and that the declaring
+block carries the other's additions. No date arithmetic, no folder name, no
+`created:` field — the packet's earlier reading, which resolved "later" by
+`.openspec.yaml` `created:`, is withdrawn. Neither writer declaring is the
+reported asymmetry; both declaring is reported too. Separately and NOT as a widening of that
 obligation, the family's three arms READ every active change regardless of
 lifecycle standing, because they are advisory and a `draft` block is as capable
 of restating stale canon as a ratified one. The reference is read mechanically:
@@ -237,7 +261,8 @@ so this arm emits nothing today, and compliance was measured rather than
 assumed.
 
 **D5 — The enumeration MODIFIED block is owed at realization, and writing it
-here reds a standing gate. This was proven, not reasoned.** Canon still
+here reds a standing gate. This was proven, not reasoned.** *(Not vetoed at
+ratification 2026-08-27.)* Canon still
 enumerates: `openspec/specs/doc-health/spec.md` reads "twenty check families"
 in prose, because `add-family-enumeration-check` is active — its code has
 landed and its delta is not promoted. So a MODIFIED block is owed. But that
@@ -270,9 +295,12 @@ deletes nothing, and the reason it carries none is a measurement rather than an
 omission. Two consequences are carried forward rather than hidden: § 2.1's
 block adds one carriage-ledger finding against this change's own delta (the
 +11 column above), and it creates the corpus's first two-writers instance
-between two ACTIVE changes — a case for which no ordering rule exists, since
-active changes have no archive folder to order by. That gap has an explicit
-disposition in `tasks.md` § 7.3.
+between two ACTIVE changes. That case had no ordering rule when the packet was
+written and now has one: Brett ruled "By declaration" on 2026-08-27, and this
+change's own proposal declares itself relative to `add-family-enumeration-check`
+while that change names nothing — exactly one declaration, so the arm reads
+zero. Measured under the ruled rule: 0 two-MODIFIED pairs at the branch point,
+1 pair with § 2.1 present, **0 findings either way**.
 
 ## What this proposal does NOT claim
 

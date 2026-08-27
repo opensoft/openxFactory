@@ -1,7 +1,7 @@
 # Tasks: add-modified-block-currency-check
 
-Status: draft
-Proposed: 2026-08-27
+Status: ratified
+Ratified by: add-modified-block-currency-check
 
 Nothing below group 6 has been done. Groups 1-5 are the realization plan and
 every box in them is open; group 6 records what the authoring session measured
@@ -15,12 +15,18 @@ merge it follows exists.
 
 ## 1. Ratification
 
-- [ ] 1.1 Brett rules on the proposal. No ruling covers any part of this. Issues
+- [x] 1.1 RATIFIED 2026-08-27 by Brett, in session, verbatim "Ratify as-is", on
+      the packet as written at `06c7475a`. What follows is the original task text
+      and it is left standing rather than rewritten, because it records what was
+      put to him. No ruling covers any part of this. Issues
       #357, #329 and #330 establish the defect class and #357 proposes a check;
       the packet's `.openspec.yaml` records queue admission by the orchestrating
       session on those filed issues, and says in its own words that it is not an
       approval. Ratification is a separate act.
-- [ ] 1.2 Brett rules on the five orchestrator decisions, each independently
+- [ ] 1.2 THE FIVE ORCHESTRATOR DECISIONS WERE NOT VETOED at the ratification of
+      2026-08-27, and this box stays OPEN because not-vetoed is not the same as
+      affirmatively ruled. Reverting any one of them remains an edit to this
+      change rather than a new one. Each is independently
       reversible: D1 (one new family, `promotion-fidelity` not extended, #330
       shape 1 deferred), D2 (same-kind exact units, containment and similarity
       both forbidden, normative unit derivation, a new reserved marker), D3
@@ -93,14 +99,17 @@ merge it follows exists.
       block first — where it renames a promoted requirement to the modified title,
       the arms run against canon under the OLD name — then active sibling changes'
       ADDED and RENAMED blocks; a title resolving to none of those is reported.
-- [ ] 2.7 The two-writers resolution: where a second active change carries a
-      MODIFIED block for one `(capability, title)`, the later block is measured
-      against the earlier change's outcome, and the earlier change's additions
-      must be present in it. Where the earlier change is an active RATIFIED
-      change, the reference is checked as that change's id occurring as a whole
-      token in the later change's own `proposal.md`. "Later" is UNRULED for two
-      active changes — see § 7.3; implement whatever § 7.3's ruling settles, and
-      until it is settled do not silently pick one.
+- [ ] 2.7 The two-writers resolution, ORDERING BY DECLARATION (ruled 2026-08-27,
+      Brett, verbatim "By declaration" — § 7.3 is closed and this task is
+      unblocked). The change whose own `proposal.md` names a sibling as a whole
+      token IS the later writer; its block is measured against that sibling's
+      outcome and must carry the sibling's additions. Verify exactly two things
+      and infer nothing else: that exactly one of two active RATIFIED writers
+      declares, and that the declaring block carries the other's additions.
+      Neither declaring is a finding against both blocks; both declaring is a
+      finding too. No `created:` date, folder name or commit timestamp is read —
+      a second authority for an ordering one rule already owns is the defect
+      "Explicit delta rule" names.
 - [ ] 2.8 The disposition read: `health/dispositions.yaml` in the aggregation
       checkout, entries naming this family with a `cite`, optionally narrowed by
       `requirement:`, in the shape `promotion_fidelity.py` already implements.
@@ -190,10 +199,16 @@ merge it follows exists.
       and the three arms compare it to canon under the OLD name. Without this the
       family would report every rename-and-amend change as unresolved, and would
       compare nothing where it should compare everything.
-- [ ] 3.10 Two-writers — two active changes on one canon requirement: the later
-      block missing the earlier's addition fires; carrying it stays quiet. Pin
-      that an unratified earlier writer creates NO reference obligation, so the
-      `ratified` scoping of `release-realization`'s rule is not silently widened.
+- [ ] 3.10 Two-writers, by declaration. The DECLARING block missing the
+      sibling's addition fires; carrying it stays quiet. Neither of two active
+      ratified writers declaring fires against both blocks; both declaring fires
+      too. A declaration naming a change id INSIDE a longer id buys nothing
+      (whole-token match). Pin that an unratified sibling creates NO reference
+      obligation, so the `ratified` scoping of `release-realization`'s rule is
+      not silently widened. And pin that NO date, folder name or commit
+      timestamp is consulted — a test that would pass under date ordering and
+      fail under declaration ordering, so the withdrawn reading cannot creep
+      back.
 - [ ] 3.11 Structural pins on the advisory launch, both halves, so a half-flip in
       either direction fails: `_LAUNCH_SEVERITY` is not `error`, and
       `"modified-block-currency"` is absent from `FAMILY_RESOLUTION`.
@@ -278,13 +293,24 @@ merge it follows exists.
       does not carry two body sentences — the enumeration sentence and the "Four
       of the twenty-one" sentence — so it adds ONE ledger finding: **16 units
       across 11 requirements, +1 warning and +11 info**. It also creates the
-      corpus's first two-writers instance between two ACTIVE changes; the spike
-      resolved "later" by `.openspec.yaml` `created:` (2026-08-27 against
-      2026-08-25), which is a reading and not a ruling — § 7.3.
-- [x] 6.7 The two-writers arm measured zero, compliance 7 of 7. Seven
-      `(capability, requirement)` pairs are written by two active changes; in all
-      seven the modifying proposal names the sibling; all seven are
-      MODIFIED-over-a-sibling's-ADDED; zero titles resolve to neither.
+      corpus's first two-writers instance between two ACTIVE changes. The spike
+      first resolved "later" by `.openspec.yaml` `created:`; that reading is
+      WITHDRAWN by the ruling of 2026-08-27 (§ 7.3, "By declaration"). The figure
+      does not move, because this change's proposal declares itself relative to
+      `add-family-enumeration-check` and that change names nothing, so the
+      declaration selects the same basis the date reading had guessed.
+- [x] 6.7 The two-writers arm measured zero, and RE-MEASURED zero under the
+      ruled by-declaration rule. Seven `(capability, requirement)` pairs are
+      written by two active changes; all seven are
+      MODIFIED-over-a-sibling's-ADDED, so seven MODIFIED titles are pending on a
+      sibling's addition and zero resolve to nothing. Pairs where two active
+      changes both MODIFY one requirement: **0** at the branch point, **1** with
+      § 2.1 present — `add-family-enumeration-check` and this change on
+      "Deterministic check families", both `ratified`, with exactly one declaring
+      (this one). **0 findings either way.** Compliance was 7 of 7 on the
+      reference under the pre-ruling reading and is not an obligation on the
+      MODIFIED-over-ADDED shape under the ruled one, which scopes the declaration
+      to two writers who both MODIFY.
 - [x] 6.8 Canon's state confirmed, not assumed: `openspec/specs/doc-health/spec.md`
       still reads "twenty check families" with three numerals;
       `add-family-enumeration-check` is active with code landed and delta
@@ -311,27 +337,31 @@ merge it follows exists.
       packet; a later flip for it is a separate ruling and is not foreclosed —
       seven of #351's nine items are reported rather than gated until one is
       taken.
-- [ ] 7.3 **THE "LATER" QUESTION BETWEEN TWO ACTIVE WRITERS — RULING OWED.**
-      `promotion-fidelity` orders ARCHIVED packets by folder date with an
-      archive-commit tie-break; active changes have neither a folder date nor an
-      archive act. This change's own § 2.1 creates the corpus's first instance
-      (§ 6.6), so the question is live rather than hypothetical. Candidates:
-      `.openspec.yaml` `created:` (what the spike used), the packet's first
-      commit timestamp, or an explicit archive-order declaration required in the
-      later packet. OWNER: Brett, before § 2.7 is implemented — § 2.7 is blocked
-      on this ruling and must not default silently. Until it is ruled, the delta
-      states the CONSEQUENCE (the later block is measured against the earlier
-      outcome) without stating how "later" is decided.
+- [x] 7.3 **RULED 2026-08-27 — BY DECLARATION.** Brett, in session, verbatim
+      "By declaration": the change that writes "relative to <sibling>" IS the
+      later writer; the check only verifies that the declaration exists and that
+      the declaring block carries the sibling's additions; no date arithmetic.
+      This matches `release-realization`'s existing spelling rather than adding a
+      second authority, which is why the `.openspec.yaml` `created:` reading the
+      spike used is WITHDRAWN. Written into the doc-health delta's
+      title-resolution bullet and two scenarios, the document-lifecycle delta's
+      two-writers paragraph and scenario, design D4, and § 2.7 — which is
+      unblocked. Re-measured under the ruled rule: 0 two-MODIFIED pairs at the
+      branch point, 1 with § 2.1 present, 0 findings either way.
 - [ ] 7.4 THE DOMAIN FACTORIES ARE UNMEASURED. This change's evidence is
       openxFactory's active changes and a fixture corpus; what the pinned
       domains' active changes will say is unknown, and is why the launch is
       advisory.
-- [ ] 7.5 ISSUE #318 REMAINS OPEN AND THIS PACKET SITS IN IT. A drafted,
-      unapproved packet still has no origin kind expressing "proposed, not
-      approved"; this one uses `Status: draft` plus an origin recording queue
-      admission by the orchestrating session, the shape
-      `create-medxchart-overlay-boundary` uses. Named so the workaround is
-      visible; it is another capability's rule to fix.
+- [x] 7.5 **RULED 2026-08-27 — ADMISSION RECORDED.** Brett, in session,
+      verbatim "Record your admission now": `.openspec.yaml` names him as
+      approver on 2026-08-27, in the same shape
+      `create-medxchart-overlay-boundary` uses, and the packet is
+      `Status: ratified` with a record-citing citation. **ISSUE #318 ITSELF
+      STAYS OPEN**, and this ruling does not close it: the taxonomy still has no
+      origin kind that expresses "proposed, not approved", so the next packet
+      drafted before approval sits in the same gap this one sat in from
+      2026-08-27's authoring until the ratification later the same day. That is
+      another capability's rule to fix.
 
 ## 8. Archive
 

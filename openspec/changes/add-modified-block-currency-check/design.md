@@ -1,7 +1,7 @@
 # Design: add-modified-block-currency-check
 
-Status: draft
-Proposed: 2026-08-27
+Status: ratified
+Ratified by: add-modified-block-currency-check
 
 This document records why the five decisions in the proposal's § Orchestrator
 Decisions were taken as they were, and what was measured before taking them.
@@ -238,9 +238,28 @@ scope and normative obligation are different things and are now written as
 different things.
 
 The reference is read mechanically rather than by judgement: the earlier
-change's id occurring as a whole token in the later change's own `proposal.md`,
-the same whole-token match the duplicate packet family already uses so that one
-change id inside a longer one buys nothing.
+change's id occurring as a whole token in the declaring change's own
+`proposal.md`, the same whole-token match the duplicate packet family already
+uses so that one change id inside a longer one buys nothing.
+
+**RULED 2026-08-27 by Brett, verbatim "By declaration".** The packet asked how
+"later" is decided between two ACTIVE writers, since `promotion-fidelity` orders
+archived packets by folder date and active changes have neither a folder date
+nor an archive act. The answer is that the question was already answered and the
+packet had not noticed: `release-realization` requires the later proposal to
+DECLARE itself relative to the earlier one, so the declaration is the ordering.
+The check verifies two things and infers nothing — that exactly one of two
+active ratified writers declares, and that the declaring block carries the
+other's additions. Neither declaring is the reported asymmetry, because no
+reader can tell which text canon will keep; both declaring is reported too,
+because a cycle states nothing. The earlier reading, which resolved "later" by
+`.openspec.yaml` `created:`, is withdrawn — it was a second authority for a
+question one rule already owned, which is the defect "Explicit delta rule"
+names. Re-measured under the ruled rule: **0 pairs where two active changes
+MODIFY one requirement at the branch point, 1 pair with § 2.1 present, and 0
+findings either way** — this change declares itself relative to
+`add-family-enumeration-check`, which names nothing, so exactly one declaration
+stands.
 
 Measured over this repository's active changes:
 
@@ -307,16 +326,14 @@ finding, taking the realization prediction to +1 `warning` and +11 `info`. That
 figure is now in the proposal's table rather than being discovered later.
 
 Second, § 2.1 creates the corpus's FIRST two-writers instance between two
-ACTIVE changes on a requirement canon already carries. `promotion-fidelity`
-orders archived packets by folder date with an archive-commit tie-break; active
-changes have neither. The spike resolved "later" by `.openspec.yaml` `created:`
-— this packet's 2026-08-27 against `add-family-enumeration-check`'s 2026-08-25 —
-which is a reasonable reading and is NOT a ruled one. The delta therefore
-states the consequence (the later block is measured against the earlier
-outcome) without stating how "later" is decided, and `tasks.md` § 7.3 carries
-the open question with an owner. Reading it the other way would measure
-`add-family-enumeration-check` against this change's outcome and move the
-prediction; that is exactly why it needs a ruling rather than a default.
+ACTIVE changes on a requirement canon already carries — and it is now settled
+rather than open. Brett ruled "By declaration" on 2026-08-27: this change's
+proposal declares itself relative to `add-family-enumeration-check`, that change
+names nothing, so exactly one declaration stands, this change is the later
+writer, and § 2.1's block is measured against that change's outcome. Which is
+the basis the +11 figure was already measured on, so the prediction does not
+move. The ordering is now a fact the packet states rather than a default an
+implementation would have picked.
 
 **So this packet carries no MODIFIED block, and that is the dogfooding result
 rather than an evasion of it.** A change cannot commit the currency defect in a

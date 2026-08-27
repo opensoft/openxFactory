@@ -65,10 +65,15 @@ capability's "Ordered deltas and branch vocabulary" requires that a proposal
 modifying a requirement already modified by an active RATIFIED change
 references that change and declares its deltas relative to that change's
 outcome; the reference is read as that change's id occurring as a whole token
-in the later change's own `proposal.md`. This requirement adds only the
-consequence for currency: a block declared relative to another active change's
-outcome is measured against THAT outcome rather than against canon, and it
-therefore carries the earlier change's additions as well as canon's.
+in the declaring change's own `proposal.md`. This requirement adds only the
+consequence for currency, in two parts. **The declaration IS the ordering.**
+The change that declares itself relative to a sibling is the later writer —
+there is nothing else to decide, and no date, folder name or commit timestamp
+SHALL be consulted to decide it. And a block so declared is measured against
+THAT sibling's outcome rather than against canon, so it carries the sibling's
+additions as well as canon's. Exactly one of two active ratified writers
+declares: neither declaring leaves the ordering unstated, which is reportable,
+and both declaring states a cycle, which decides nothing.
 
 #### Scenario: A block omits a scenario the requirement keeps
 - **WHEN** an active change's `## MODIFIED Requirements` block restates a promoted requirement and does not restate a scenario that requirement currently carries
@@ -89,7 +94,9 @@ therefore carries the earlier change's additions as well as canon's.
 #### Scenario: Two active changes modify one requirement
 - **WHEN** a proposal modifies a requirement that an active ratified change already modifies
 - **THEN** the later proposal MUST reference the earlier change and declare its deltas relative to that change's outcome, exactly as `release-realization` requires and with no wider obligation added here
-- **AND** the later block MUST carry the earlier change's additions as well as canon's, because whichever archives last is the text canon keeps
+- **AND** that declaration MUST be what establishes which writer is later, no date, folder name or commit timestamp being consulted
+- **AND** the declaring block MUST carry the earlier change's additions as well as canon's, because whichever archives last is the text canon keeps
+- **AND** two such changes where neither declares MUST be reported, the ordering being unstated rather than merely unrecorded
 
 #### Scenario: A MODIFIED block names a requirement canon does not carry
 - **WHEN** a MODIFIED block names a capability and requirement title the promoted specification does not carry
