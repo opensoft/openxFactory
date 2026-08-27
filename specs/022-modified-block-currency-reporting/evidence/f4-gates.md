@@ -196,3 +196,48 @@ family's own counts and that the `error`/`critical` bands do not move.
 **Still owed at the archive gate, and F4 does not touch it**: § 8.2's
 byte-for-byte verification of this change's own promotion, and F3's list of four
 assertions that fall due on the archive day.
+
+## 8. CI shape, proved outside a worktree (T035)
+
+F3's lesson: an environment-sensitive test must be run the way CI runs it, not
+the way a developer's worktree happens to allow. This feature's test file reads a
+tracked workflow file and spawns two `scripts/doc-health.py` subprocesses, so it
+was run in a checkout with **no worktree, no history and no remote**:
+
+```bash
+git archive HEAD | tar -x -C <bare-dir>
+cd <bare-dir> && git init -q .
+python3 -m pytest tests/doc-health/test_modified_block_currency_reporting.py -q
+#  => 26 passed in 2.68s
+```
+
+Cheap here because the workflow file is tracked, and the two subprocess runs are
+pointed at F2's smallest fixture tree rather than at this repository — 0.17s per
+invocation instead of seconds, and no dependency on the corpus for a question
+about argparse.
+
+## 9. RE-MEASURED AFTER MERGING `origin/main` — THE FIGURES DID NOT MOVE
+
+`origin/main` advanced five commits while this feature was in flight, and two of
+them touch the corpus this family reads: `govern-derived-pin-reachability`
+ARCHIVED (so its deltas left the active set) and `supersede-lost-pin-baseline`
+arrived as a new active change carrying a `doc-health` delta. Merged at
+`origin/main` `94933adf`; **no rebase, per the feature's git rules.**
+
+| measurement | before the merge | after |
+| --- | --- | --- |
+| active MODIFIED blocks examined | 22 (12 changes, 13 capabilities) | **22** (12 changes, 13 capabilities) |
+| scenario-title completeness | 1 `warning` | **1** `warning` |
+| carriage ledger | 8 `info` | **8** `info` |
+| title resolution / ordering / markers | 0 / 0 / 0 | **0 / 0 / 0** |
+| report movement | +1 `warning`, +8 `info` | **+1 `warning`, +8 `info`** |
+| `.github/` + `openspec/` diff | empty | **empty** |
+| F1 + F2 + F3 + F4 suites | 235 with promotion-fidelity | **176 passed** (the four family suites) |
+| `pytest tests/doc-health` | 1204 passed | **1209 passed** (main brought five) |
+| `openspec validate --all --strict` | 76 passed / 0 failed | **76 passed / 0 failed** |
+
+**F3's exact-set gate survived the merge**, which is worth recording precisely
+because it is the gate F3's open question is about: the new active change's
+`doc-health` delta drew no carriage finding, so `_LEDGER_SUBJECTS` needed no row.
+Had it drawn one, the remedy would have been F3's — re-measure and update the row
+with the cause beside it, never loosen — and it would have landed on this PR.
