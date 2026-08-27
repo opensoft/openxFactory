@@ -18,6 +18,10 @@ entries:
     evidence_type: automated
     status: evidenced
     evidence_id: TEST-ACR-001-S03
+  - scenario_id: ACR-001-S04
+    evidence_type: automated
+    status: evidenced
+    check: interface_lock_reserved_set
   - scenario_id: ACR-002-S01
     evidence_type: automated
     status: evidenced
@@ -197,6 +201,11 @@ entries:
     status: deferred
     owner_change: implement-avatar-reference-runtime
     fail_closed_default: "live voice stays disabled with text/handoff fallback until a qualified profile exists"
+  - scenario_id: ACR-007-S05
+    evidence_type: deferred
+    status: deferred
+    owner_change: qualify-avatar-live-voice
+    fail_closed_default: "a production request for an internal-live-qualified profile is refused; the production default is unchanged until the GPT-Live adoption change rules it"
   - scenario_id: ACR-008-S01
     evidence_type: deferred
     status: deferred
@@ -264,6 +273,11 @@ entries:
     status: deferred
     owner_change: qualify-avatar-brokered-call-feasibility
     fail_closed_default: "live pilot gate remains blocked without approved measured latency/recovery budgets"
+  - scenario_id: ACR-011-S03
+    evidence_type: deferred
+    status: deferred
+    owner_change: qualify-avatar-live-voice
+    fail_closed_default: "latency evidence naming the F0 harness distributions as its reference is rejected and the gate stays closed until a same-platform client-side reference is measured"
   - scenario_id: ACR-012-S01
     evidence_type: deferred
     status: deferred
@@ -295,6 +309,11 @@ entries:
     result: "No privileged provider code exists in the owned surface; the delta routes such code to the server trust boundary."
     reviewer: spec-001-kernel
     disposition: verified
+  - scenario_id: RBG-001-S03
+    evidence_type: deferred
+    status: deferred
+    owner_change: qualify-avatar-live-voice
+    fail_closed_default: "the lab home stays in codexFactory and the internal-live gate stays closed until the extraction lands; aggregation admission stays a separate reviewed change"
   - scenario_id: RBG-002-S01
     evidence_type: deferred
     status: deferred
@@ -355,3 +374,155 @@ entries:
     result: "Neutral authority/vocabulary defined once in the kernel; overlays pin a release without forking (ratified in shared-contract-ownership delta)."
     reviewer: spec-001-kernel
     disposition: verified
+# ---- avatar-live-voice (qualify-avatar-live-voice) ----
+# The nine ADDED requirements' scenarios. The contract-shaped ones are proved by
+# the packaged fixtures and the latency comparison cases in fixtures/index.yaml;
+# the ring, baseline, custody, consent, canary and deferral scenarios are the
+# later slices' work and are DEFERRED with a fail-closed default rather than
+# claimed. This is a new bundle's map and released register, which is where a
+# brand-new scenario belongs (successor registers exist only to discharge).
+  - scenario_id: ALV-001-S01
+    evidence_type: automated
+    status: evidenced
+    evidence_id: TEST-ALV-001-S01
+  - scenario_id: ALV-001-S02
+    evidence_type: automated
+    status: evidenced
+    evidence_id: TEST-ALV-001-S02
+  - scenario_id: ALV-001-S03
+    evidence_type: automated
+    status: evidenced
+    evidence_id: TEST-ALV-001-S03
+  - scenario_id: ALV-002-S01
+    evidence_type: automated
+    status: evidenced
+    evidence_id: TEST-ALV-002-S01
+  - scenario_id: ALV-002-S02
+    evidence_type: automated
+    status: evidenced
+    evidence_id: TEST-ALV-002-S02
+  - scenario_id: ALV-002-S03
+    evidence_type: automated
+    status: evidenced
+    evidence_id: TEST-ALV-002-S03
+  - scenario_id: ALV-003-S01
+    evidence_type: deferred
+    status: deferred
+    owner_change: qualify-avatar-live-voice
+    fail_closed_default: "the binding exit contract stays the four-element ring; an eight-condition reading is refused and the gate stays closed"
+  - scenario_id: ALV-003-S02
+    evidence_type: deferred
+    status: deferred
+    owner_change: qualify-avatar-live-voice
+    fail_closed_default: "the gate stays closed until both kill switches and the rollback path are exercised for real, before any canary traffic"
+  - scenario_id: ALV-003-S03
+    evidence_type: deferred
+    status: deferred
+    owner_change: qualify-avatar-live-voice
+    fail_closed_default: "condition 6 is evaluated as no-material-regression against the direct-provider reference, never against the candidate itself"
+  - scenario_id: ALV-003-S04
+    evidence_type: deferred
+    status: deferred
+    owner_change: qualify-avatar-live-voice
+    fail_closed_default: "the gate confers a selectable internal-live profile and no production default; a default-swap request routes to the GPT-Live adoption change"
+  - scenario_id: ALV-004-S01
+    evidence_type: automated
+    status: evidenced
+    evidence_id: TEST-ALV-004-S01
+  - scenario_id: ALV-004-S02
+    evidence_type: automated
+    status: evidenced
+    evidence_id: TEST-ALV-004-S02
+  - scenario_id: ALV-004-S03
+    evidence_type: automated
+    status: evidenced
+    evidence_id: TEST-ALV-004-S03
+  - scenario_id: ALV-004-S04
+    evidence_type: automated
+    status: evidenced
+    evidence_id: TEST-ALV-004-S04
+  - scenario_id: ALV-005-S01
+    evidence_type: deferred
+    status: deferred
+    owner_change: qualify-avatar-live-voice
+    fail_closed_default: "the F0 harness distributions are refused as the reference and the gate stays closed until a same-platform client-side baseline exists"
+  - scenario_id: ALV-005-S02
+    evidence_type: deferred
+    status: deferred
+    owner_change: qualify-avatar-live-voice
+    fail_closed_default: "gated latency evidence without a pre-declared minimum sample count is treated as incomplete and the gate stays closed"
+  - scenario_id: ALV-006-S01
+    evidence_type: deferred
+    status: deferred
+    owner_change: qualify-avatar-live-voice
+    fail_closed_default: "a runaway session is terminated synchronously through the duration-or-quota terminal with lease revocation, recorded as cost-triggered"
+  - scenario_id: ALV-006-S02
+    evidence_type: deferred
+    status: deferred
+    owner_change: qualify-avatar-live-voice
+    fail_closed_default: "sessions on the exhausted internal-live provider project fail closed rather than continue under monitoring"
+  - scenario_id: ALV-006-S03
+    evidence_type: deferred
+    status: deferred
+    owner_change: qualify-avatar-live-voice
+    fail_closed_default: "no standard provider API key and no ephemeral client secret is issued to the client; the broker holds the server key end-to-end"
+  - scenario_id: ALV-006-S04
+    evidence_type: deferred
+    status: deferred
+    owner_change: qualify-avatar-live-voice
+    fail_closed_default: "the provider-project cap is the ONLY per-tenant hard stop; durable synchronous per-tenant enforcement is recorded as deferred, never assumed"
+  - scenario_id: ALV-007-S01
+    evidence_type: deferred
+    status: deferred
+    owner_change: qualify-avatar-live-voice
+    fail_closed_default: "shadowing consented canary audio to a second model is refused; model-versus-model comparison uses the synthetic corpus"
+  - scenario_id: ALV-007-S02
+    evidence_type: deferred
+    status: deferred
+    owner_change: qualify-avatar-live-voice
+    fail_closed_default: "the four reserved retention classes stay forbidden and this ring unreserves none of them"
+  - scenario_id: ALV-007-S03
+    evidence_type: deferred
+    status: deferred
+    owner_change: qualify-avatar-live-voice
+    fail_closed_default: "the frozen three consent purposes stand; an evaluation-specific purpose is refused for this ring"
+  - scenario_id: ALV-007-S04
+    evidence_type: deferred
+    status: deferred
+    owner_change: qualify-avatar-live-voice
+    fail_closed_default: "capture and playback stop, the lease is revoked, the leg terminates to the revoked outcome, and only policy-required records survive"
+  - scenario_id: ALV-008-S01
+    evidence_type: deferred
+    status: deferred
+    owner_change: qualify-avatar-live-voice
+    fail_closed_default: "a hard safety or integrity breach auto-aborts WITH revocation of active leases"
+  - scenario_id: ALV-008-S02
+    evidence_type: deferred
+    status: deferred
+    owner_change: qualify-avatar-live-voice
+    fail_closed_default: "a latency-budget breach auto-blocks new sessions WITHOUT revoking active leases; in-flight legs drain"
+  - scenario_id: ALV-008-S03
+    evidence_type: deferred
+    status: deferred
+    owner_change: qualify-avatar-live-voice
+    fail_closed_default: "rollback disables voice and offers text or human handoff; no model fallback exists and none may be implied"
+  - scenario_id: ALV-008-S04
+    evidence_type: deferred
+    status: deferred
+    owner_change: qualify-avatar-live-voice
+    fail_closed_default: "the authority-owned workflow projection and its policy-required records survive every abort; only the media plane ends"
+  - scenario_id: ALV-008-S05
+    evidence_type: deferred
+    status: deferred
+    owner_change: qualify-avatar-live-voice
+    fail_closed_default: "a real external tenant is refused and routed to the pilot ring, which owns data-handling review and real-tenant scale"
+  - scenario_id: ALV-009-S01
+    evidence_type: deferred
+    status: deferred
+    owner_change: qualify-avatar-live-voice
+    fail_closed_default: "a deferred item claimed as delivered on this ring's evidence is refused and routed to avatar-pilot-hardening"
+  - scenario_id: ALV-009-S02
+    evidence_type: deferred
+    status: deferred
+    owner_change: qualify-avatar-live-voice
+    fail_closed_default: "the pilot ring stays blocked until its own threat-model closure, data-handling review, accessibility evidence, and rollback rehearsal exist"

@@ -305,6 +305,350 @@ cases:
     instance:
       disclosure: disclosure.avatar_v1
 
+  # ---------- AVC-09 voice adapter descriptor ----------
+  # Published by qualify-avatar-live-voice from the reserved shape. The two
+  # negatives the change NAMES are `avc09-latency-budget-refused` (Fork 2's
+  # Option C: no numeric budget field) and `avc09-carries-secret`.
+  - case_id: avc09-valid
+    target: avc-09-voice-adapter-descriptor.schema.yaml
+    target_kind: schema
+    expect: valid
+    class: valid
+    scenario_ids: [ALV-001-S01]
+    evidence_id: TEST-ALV-001-S01
+    instance:
+      adapter_id: avc-voice-adapter
+      adapter_version: "1.4.0"
+      provider: openai
+      supported_profiles: [gpt-realtime-2.1]
+      requested_model: {alias: gpt-realtime-2.1}
+      provider_resolved_model: gpt-realtime-2.1-snapshot-a
+      server_component:
+        component_id: broker-voice-adapter
+        component_version: "1.4.0"
+        prompt_configuration_version: prompt-7
+        policy_configuration_version: policy-4
+        voice_configuration_version: voice-2
+        turn_configuration_version: turn-3
+        capability_mapper_version: capmap-5
+        event_mapper_version: evtmap-5
+      client_component:
+        component_id: flutter-voice-adapter
+        component_version: "1.4.0"
+        capability_mapper_version: capmap-5
+        event_mapper_version: evtmap-5
+      authorization_mode: broker_held_server_key
+      sideband_readiness: {required: true, verified_before_grant_answer: true}
+      direct_media_required: true
+      contract_compatibility: {contract_major: 1, contract_schema_version: 1}
+      region_and_data_controls:
+        declared_region: us
+        data_residency: us
+        provider_retention: zero_retention_requested
+        provider_training_opt_out: true
+      status: candidate
+      latency_evidence_refs: []
+  - case_id: avc09-latency-budget-refused
+    target: avc-09-voice-adapter-descriptor.schema.yaml
+    target_kind: schema
+    expect: invalid
+    class: adversarial
+    scenario_ids: [ALV-001-S02]
+    evidence_id: TEST-ALV-001-S02
+    # Fork 2 Option C. A per-profile absolute ceiling on a neutral contract is
+    # the Option B that was NOT ruled; gating lives in the relative-regression
+    # SLO and the measured numbers live in AVC-10.
+    instance:
+      adapter_id: avc-voice-adapter
+      adapter_version: "1.4.0"
+      provider: openai
+      supported_profiles: [gpt-realtime-2.1]
+      requested_model: {alias: gpt-realtime-2.1}
+      provider_resolved_model: gpt-realtime-2.1-snapshot-a
+      server_component:
+        component_id: broker-voice-adapter
+        component_version: "1.4.0"
+        prompt_configuration_version: prompt-7
+        policy_configuration_version: policy-4
+        voice_configuration_version: voice-2
+        turn_configuration_version: turn-3
+        capability_mapper_version: capmap-5
+        event_mapper_version: evtmap-5
+      client_component:
+        component_id: flutter-voice-adapter
+        component_version: "1.4.0"
+        capability_mapper_version: capmap-5
+        event_mapper_version: evtmap-5
+      authorization_mode: broker_held_server_key
+      sideband_readiness: {required: true, verified_before_grant_answer: true}
+      direct_media_required: true
+      contract_compatibility: {contract_major: 1}
+      region_and_data_controls: {declared_region: us}
+      status: candidate
+      latency_evidence_refs: []
+      latency_budget_ms: 800
+  - case_id: avc09-carries-secret
+    target: avc-09-voice-adapter-descriptor.schema.yaml
+    target_kind: schema
+    expect: invalid
+    class: redaction
+    scenario_ids: [ALV-001-S03]
+    evidence_id: TEST-ALV-001-S03
+    # FR-006/FR-018 structural exclusion: the descriptor is incapable of
+    # carrying a provider key, an ephemeral client secret, SDP, or raw content.
+    instance:
+      adapter_id: avc-voice-adapter
+      adapter_version: "1.4.0"
+      provider: openai
+      supported_profiles: [gpt-realtime-2.1]
+      requested_model: {alias: gpt-realtime-2.1}
+      provider_resolved_model: gpt-realtime-2.1-snapshot-a
+      server_component:
+        component_id: broker-voice-adapter
+        component_version: "1.4.0"
+        prompt_configuration_version: prompt-7
+        policy_configuration_version: policy-4
+        voice_configuration_version: voice-2
+        turn_configuration_version: turn-3
+        capability_mapper_version: capmap-5
+        event_mapper_version: evtmap-5
+      client_component:
+        component_id: flutter-voice-adapter
+        component_version: "1.4.0"
+        capability_mapper_version: capmap-5
+        event_mapper_version: evtmap-5
+      authorization_mode: broker_held_server_key
+      sideband_readiness: {required: true, verified_before_grant_answer: true}
+      direct_media_required: true
+      contract_compatibility: {contract_major: 1}
+      region_and_data_controls: {declared_region: us}
+      status: candidate
+      latency_evidence_refs: []
+      provider_api_key: "SENTINEL_PROVKEY_0000000000"
+  - case_id: avc09-client-component-carries-provider-config
+    target: avc-09-voice-adapter-descriptor.schema.yaml
+    target_kind: schema
+    expect: invalid
+    class: unknown-field
+    scenario_ids: []
+    # The client half is a CLOSED shape: it holds mappers and a transport, never
+    # a server provider configuration (repo-boundary-governance).
+    instance:
+      adapter_id: avc-voice-adapter
+      adapter_version: "1.4.0"
+      provider: openai
+      supported_profiles: [gpt-realtime-2.1]
+      requested_model: {snapshot: gpt-realtime-2.1-snapshot-a}
+      provider_resolved_model: gpt-realtime-2.1-snapshot-a
+      server_component:
+        component_id: broker-voice-adapter
+        component_version: "1.4.0"
+        prompt_configuration_version: prompt-7
+        policy_configuration_version: policy-4
+        voice_configuration_version: voice-2
+        turn_configuration_version: turn-3
+        capability_mapper_version: capmap-5
+        event_mapper_version: evtmap-5
+      client_component:
+        component_id: flutter-voice-adapter
+        component_version: "1.4.0"
+        capability_mapper_version: capmap-5
+        event_mapper_version: evtmap-5
+        prompt_configuration_version: prompt-7
+      authorization_mode: broker_held_server_key
+      sideband_readiness: {required: true, verified_before_grant_answer: true}
+      direct_media_required: true
+      contract_compatibility: {contract_major: 1}
+      region_and_data_controls: {declared_region: us}
+      status: candidate
+      latency_evidence_refs: []
+  - case_id: avc09-approved-without-latency-evidence
+    target: avc-09-voice-adapter-descriptor.schema.yaml
+    target_kind: schema
+    expect: invalid
+    class: boundary
+    scenario_ids: []
+    # `approved` is the status that claims measured evidence. It may not be
+    # claimed with an empty reference list.
+    instance:
+      adapter_id: avc-voice-adapter
+      adapter_version: "1.4.0"
+      provider: openai
+      supported_profiles: [gpt-realtime-2.1]
+      requested_model: {alias: gpt-realtime-2.1}
+      provider_resolved_model: gpt-realtime-2.1-snapshot-a
+      server_component:
+        component_id: broker-voice-adapter
+        component_version: "1.4.0"
+        prompt_configuration_version: prompt-7
+        policy_configuration_version: policy-4
+        voice_configuration_version: voice-2
+        turn_configuration_version: turn-3
+        capability_mapper_version: capmap-5
+        event_mapper_version: evtmap-5
+      client_component:
+        component_id: flutter-voice-adapter
+        component_version: "1.4.0"
+        capability_mapper_version: capmap-5
+        event_mapper_version: evtmap-5
+      authorization_mode: broker_held_server_key
+      sideband_readiness: {required: true, verified_before_grant_answer: true}
+      direct_media_required: true
+      contract_compatibility: {contract_major: 1}
+      region_and_data_controls: {declared_region: us}
+      status: approved
+      latency_evidence_refs: []
+
+  # ---------- AVC-10 voice latency sample ----------
+  # One observation, never a percentile and never a budget. The negatives the
+  # change NAMES are the transcript-carrying and SDP-carrying samples; the
+  # cross-platform regression comparison is refused under
+  # `latency_comparison_cases` below, because a refusal of a COMPARISON cannot
+  # be expressed as a single-instance schema case.
+  - case_id: avc10-governed-adapter-valid
+    target: avc-10-voice-latency-sample.schema.yaml
+    target_kind: schema
+    expect: valid
+    class: valid
+    scenario_ids: [ALV-002-S01]
+    evidence_id: TEST-ALV-002-S01
+    instance:
+      sample_id: lat-1
+      logical_session_id: s1
+      session_epoch: 0
+      media_leg: {media_leg_id: m1}
+      turn_id: t1
+      adapter_id: avc-voice-adapter
+      adapter_version: "1.4.0"
+      profile_id: gpt-realtime-2.1
+      platform: windows_desktop
+      network_class: nominal
+      region: us
+      clock: {source: monotonic, quality: trusted, resolution_ms: 1}
+      monotonic_origin: media-leg-open
+      markers:
+        broker_request_ms: 0
+        provider_call_ms: 42
+        sideband_ready_ms: 210
+        media_connected_ms: 340
+        speech_ms: 900
+        first_audio_ms: 1180
+        playback_ms: 1195
+      derived_intervals:
+        first_playable_after_authorized_ms: 610
+        sideband_ready_after_request_ms: 210
+        broker_setup_ms: 42
+        speech_to_first_audio_ms: 280
+      reference_classification: governed_adapter
+      fixture_ref: latency/windows-desktop/governed-run-01
+  - case_id: avc10-direct-reference-valid
+    target: avc-10-voice-latency-sample.schema.yaml
+    target_kind: schema
+    expect: valid
+    class: valid
+    scenario_ids: []
+    # The same cell measured WITHOUT the broker in the setup path — the
+    # comparison partner the relative-regression SLO needs.
+    instance:
+      sample_id: lat-ref-1
+      logical_session_id: s2
+      session_epoch: 0
+      media_leg: {media_leg_id: m2}
+      adapter_id: direct-provider-harness
+      adapter_version: "1.4.0"
+      profile_id: gpt-realtime-2.1
+      platform: web_canvas
+      network_class: nominal
+      region: us
+      clock: {source: performance_now, quality: trusted}
+      monotonic_origin: media-leg-open
+      markers:
+        broker_request_ms: 0
+        provider_call_ms: 12
+        media_connected_ms: 300
+        teardown_ms: 4200
+      derived_intervals:
+        first_playable_after_authorized_ms: 560
+        teardown_to_terminal_ms: 140
+      reference_classification: direct_provider_reference
+      fixture_ref: latency/web-canvas/direct-reference-run-01
+  - case_id: avc10-carries-transcript
+    target: avc-10-voice-latency-sample.schema.yaml
+    target_kind: schema
+    expect: invalid
+    class: redaction
+    scenario_ids: [ALV-002-S03]
+    evidence_id: TEST-ALV-002-S03
+    # FR-018 structural exclusion: a latency sample carries timings, never
+    # content. The `not` forbids the content keys regardless of evolution.
+    instance:
+      sample_id: lat-2
+      logical_session_id: s1
+      session_epoch: 0
+      media_leg: {media_leg_id: m1}
+      adapter_id: avc-voice-adapter
+      adapter_version: "1.4.0"
+      profile_id: gpt-realtime-2.1
+      platform: windows_desktop
+      network_class: nominal
+      region: us
+      clock: {source: monotonic, quality: trusted}
+      monotonic_origin: media-leg-open
+      markers: {broker_request_ms: 0, first_audio_ms: 1180}
+      derived_intervals: {first_playable_after_authorized_ms: 610}
+      reference_classification: governed_adapter
+      fixture_ref: latency/windows-desktop/governed-run-02
+      full_transcript: redacted_placeholder
+  - case_id: avc10-carries-sdp
+    target: avc-10-voice-latency-sample.schema.yaml
+    target_kind: schema
+    expect: invalid
+    class: redaction
+    scenario_ids: []
+    instance:
+      sample_id: lat-3
+      logical_session_id: s1
+      session_epoch: 0
+      media_leg: {media_leg_id: m1}
+      adapter_id: avc-voice-adapter
+      adapter_version: "1.4.0"
+      profile_id: gpt-realtime-2.1
+      platform: windows_desktop
+      network_class: nominal
+      region: us
+      clock: {source: monotonic, quality: trusted}
+      monotonic_origin: media-leg-open
+      markers: {broker_request_ms: 0, media_connected_ms: 340}
+      derived_intervals: {first_playable_after_authorized_ms: 610}
+      reference_classification: governed_adapter
+      fixture_ref: latency/windows-desktop/governed-run-03
+      sdp_answer: "SENTINEL_SDP_ANSWER_000000"
+  - case_id: avc10-unknown-marker
+    target: avc-10-voice-latency-sample.schema.yaml
+    target_kind: schema
+    expect: invalid
+    class: unknown-field
+    scenario_ids: []
+    # The twelve markers are a CLOSED set; an unrecognized marker would make one
+    # run's timings incomparable with another's.
+    instance:
+      sample_id: lat-4
+      logical_session_id: s1
+      session_epoch: 0
+      media_leg: {media_leg_id: m1}
+      adapter_id: avc-voice-adapter
+      adapter_version: "1.4.0"
+      profile_id: gpt-realtime-2.1
+      platform: windows_desktop
+      network_class: nominal
+      region: us
+      clock: {source: monotonic, quality: trusted}
+      monotonic_origin: media-leg-open
+      markers: {broker_request_ms: 0, provider_warmup_ms: 5}
+      derived_intervals: {first_playable_after_authorized_ms: 610}
+      reference_classification: governed_adapter
+      fixture_ref: latency/windows-desktop/governed-run-04
+
   # ---------- AVC-11 session command ----------
   - case_id: avc11-valid
     target: avc-11-session-command.schema.yaml
@@ -417,3 +761,181 @@ release_pin_cases:
       file_digests:
         contracts/avatar-client/shared-definitions.schema.yaml: "0000000000000000000000000000000000000000000000000000000000000000"
         contracts/avatar-client/avc-01-session-request.schema.yaml: "1111111111111111111111111111111111111111111111111111111111111111"
+
+# ---------- latency comparison cases (qualify-avatar-live-voice §3.3) ----------
+# Self-describing COMPARISONS executed by the validator's `latency_posture`
+# check. A single AVC-10 instance cannot express a refusal or a regression,
+# because both are properties of a PAIR of sample sets — so the two-tier
+# posture is proved here, portably, the way `release_pin_cases` proves the
+# pinning rule. Any consumer can apply the same arithmetic without the Python
+# validator.
+#
+# The rule, at the ratified threshold: a governed-adapter percentile is a
+# MATERIAL REGRESSION when it exceeds the same-cell direct-provider reference
+# percentile by more than 15 percent relative OR by more than 150 milliseconds
+# absolute, WHICHEVER IS GREATER — that is, when
+#   adapter > reference + max(0.15 * reference, 150).
+# The "whichever is greater" clause is load-bearing: a percentage-only or a
+# milliseconds-only reading fails differently on fast and slow intervals.
+#
+# Outcomes: `pass` and `fail` are the GATED tier; `recorded` is the tail tier
+# that is measured and reported but never gates; `refused` means the comparison
+# is not evidence at all, because the two sides do not share a cell.
+latency_comparison_cases:
+  - case_id: slo-material-setup-regression-fails
+    expect: fail
+    class: adversarial
+    tier: gated
+    percentile: p95
+    interval: first_playable_after_authorized_ms
+    scenario_ids: [ALV-004-S01]
+    evidence_id: TEST-ALV-004-S01
+    description: >-
+      600 ms reference, 800 ms adapter: 33.3 percent relative and 200 ms
+      absolute. The greater threshold is 150 ms, and 200 exceeds it, so the
+      cell fails and internal-live promotion fails with it.
+    reference: {platform: windows_desktop, network_class: nominal, region: us, classification: direct_provider_reference, value_ms: 600}
+    adapter: {platform: windows_desktop, network_class: nominal, region: us, classification: governed_adapter, value_ms: 800}
+  - case_id: slo-small-absolute-regression-passes
+    expect: pass
+    class: boundary
+    tier: gated
+    percentile: p50
+    interval: first_playable_after_authorized_ms
+    scenario_ids: [ALV-004-S02]
+    evidence_id: TEST-ALV-004-S02
+    description: >-
+      222 ms reference, 262 ms adapter: 18.0 percent relative but only 40 ms
+      absolute. Materiality takes the GREATER threshold — 150 ms — so a fast
+      interval is not failed by a percentage that costs the user 40 ms.
+    reference: {platform: windows_desktop, network_class: nominal, region: us, classification: direct_provider_reference, value_ms: 222}
+    adapter: {platform: windows_desktop, network_class: nominal, region: us, classification: governed_adapter, value_ms: 262}
+  - case_id: slo-sideband-ready-gated-passes
+    expect: pass
+    class: valid
+    tier: gated
+    percentile: p95
+    interval: sideband_ready_after_request_ms
+    scenario_ids: []
+    description: >-
+      The second gated interval, on the second gated platform. 800 ms
+      reference, 900 ms adapter: 12.5 percent and 100 ms, under both readings.
+    reference: {platform: web_canvas, network_class: nominal, region: us, classification: direct_provider_reference, value_ms: 800}
+    adapter: {platform: web_canvas, network_class: nominal, region: us, classification: governed_adapter, value_ms: 900}
+  - case_id: slo-p99-tail-recorded-not-gated
+    expect: recorded
+    class: boundary
+    tier: recorded
+    percentile: p99
+    interval: first_playable_after_authorized_ms
+    scenario_ids: [ALV-004-S03]
+    evidence_id: TEST-ALV-004-S03
+    description: >-
+      A p99 that moves 900 -> 1400 ms would be a material regression at p50 or
+      p95. At p99 it is recorded as informational tail evidence and MUST NOT by
+      itself fail the internal-live gate; p99 is a candidate hard gate at the
+      pilot ring, when sample volume supports it.
+    reference: {platform: windows_desktop, network_class: nominal, region: us, classification: direct_provider_reference, value_ms: 900}
+    adapter: {platform: windows_desktop, network_class: nominal, region: us, classification: governed_adapter, value_ms: 1400}
+  - case_id: slo-teardown-recorded-not-gated
+    expect: recorded
+    class: boundary
+    tier: recorded
+    percentile: p95
+    interval: teardown_to_terminal_ms
+    scenario_ids: []
+    description: >-
+      Teardown / hangup-to-terminal is recorded, never gated. The five-second
+      revocation bound stays a pass-or-fail requirement elsewhere rather than a
+      budgeted percentile, so a teardown regression does not enter this gate.
+    reference: {platform: windows_desktop, network_class: nominal, region: us, classification: direct_provider_reference, value_ms: 120}
+    adapter: {platform: windows_desktop, network_class: nominal, region: us, classification: governed_adapter, value_ms: 700}
+  - case_id: slo-cross-platform-comparison-refused
+    expect: refused
+    class: adversarial
+    tier: gated
+    percentile: p95
+    interval: first_playable_after_authorized_ms
+    scenario_ids: [ALV-002-S02]
+    evidence_id: TEST-ALV-002-S02
+    description: >-
+      A web-canvas reference against a Windows-desktop adapter sample. The SLO
+      is defined only WITHIN a matching cell, so the comparison is refused as
+      evidence rather than evaluated — and it would have passed on the
+      arithmetic, which is exactly why the refusal has to be structural.
+    reference: {platform: web_canvas, network_class: nominal, region: us, classification: direct_provider_reference, value_ms: 900}
+    adapter: {platform: windows_desktop, network_class: nominal, region: us, classification: governed_adapter, value_ms: 910}
+  - case_id: slo-degraded-network-not-substitutable
+    expect: refused
+    class: adversarial
+    tier: gated
+    percentile: p95
+    interval: first_playable_after_authorized_ms
+    scenario_ids: [ALV-004-S04]
+    evidence_id: TEST-ALV-004-S04
+    description: >-
+      THE `tier: gated` LABEL HERE IS THE CASE'S INPUT CLAIM, NOT A
+      CONTRADICTION of the SLO entry that files degraded and jittered under
+      `recorded_not_gated.network_classes`. That is precisely what this case
+      exists to refuse: both sides are measured on a degraded network and the
+      case then CLAIMS the gated tier for them. The run MAY be recorded — see
+      `slo-degraded-network-recorded-as-tail-evidence` immediately below, which
+      is the same cell offered honestly — but it does not substitute for a
+      nominal-network gated cell, and no claim of adverse-network validation may
+      be made for this ring.
+    reference: {platform: windows_desktop, network_class: degraded, region: us, classification: direct_provider_reference, value_ms: 900}
+    adapter: {platform: windows_desktop, network_class: degraded, region: us, classification: governed_adapter, value_ms: 950}
+  - case_id: slo-degraded-network-recorded-as-tail-evidence
+    expect: recorded
+    class: boundary
+    tier: recorded
+    percentile: p95
+    interval: first_playable_after_authorized_ms
+    scenario_ids: []
+    description: >-
+      The same degraded cell as the case above, offered for the tier it can
+      actually occupy. The ratified rule says such evidence "MAY be recorded but
+      MUST NOT substitute for the nominal-network gated cells", so a degraded
+      run is RECORDED rather than refused whenever it does not claim to gate —
+      refusing it outright would make the recorded tier unreachable and
+      contradict the SLO entry's own `recorded_not_gated.network_classes`.
+    reference: {platform: windows_desktop, network_class: degraded, region: us, classification: direct_provider_reference, value_ms: 900}
+    adapter: {platform: windows_desktop, network_class: degraded, region: us, classification: governed_adapter, value_ms: 1600}
+  - case_id: slo-linux-ci-is-not-a-gated-cell
+    expect: refused
+    class: adversarial
+    tier: gated
+    percentile: p95
+    interval: first_playable_after_authorized_ms
+    scenario_ids: []
+    description: >-
+      Linux CI is reference-generation only and is never a gated delivery
+      platform, so a Linux-CI pair cannot close a gated cell however clean its
+      numbers are.
+    reference: {platform: linux_ci, network_class: nominal, region: us, classification: direct_provider_reference, value_ms: 500}
+    adapter: {platform: linux_ci, network_class: nominal, region: us, classification: governed_adapter, value_ms: 505}
+  - case_id: slo-region-mismatch-refused
+    expect: refused
+    class: adversarial
+    tier: gated
+    percentile: p50
+    interval: first_playable_after_authorized_ms
+    scenario_ids: []
+    description: >-
+      Same platform and network, different region. Region is one of the three
+      cell axes, so the pair is not comparable.
+    reference: {platform: windows_desktop, network_class: nominal, region: eu, classification: direct_provider_reference, value_ms: 600}
+    adapter: {platform: windows_desktop, network_class: nominal, region: us, classification: governed_adapter, value_ms: 610}
+  - case_id: slo-two-governed-sets-refused
+    expect: refused
+    class: adversarial
+    tier: gated
+    percentile: p95
+    interval: first_playable_after_authorized_ms
+    scenario_ids: []
+    description: >-
+      Two governed-adapter sets compared against each other. The reference side
+      MUST be classified `direct_provider_reference`; an adapter-versus-adapter
+      comparison measures nothing the SLO is about.
+    reference: {platform: windows_desktop, network_class: nominal, region: us, classification: governed_adapter, value_ms: 600}
+    adapter: {platform: windows_desktop, network_class: nominal, region: us, classification: governed_adapter, value_ms: 610}

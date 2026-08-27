@@ -134,7 +134,11 @@ Core domain-neutral docs:
   [deterministic fixtures](examples/avatar-first-ui/fixtures/README.md))
 - [Avatar-Client (AVC) Contract Kernel](contracts/avatar-client/README.md)
   (neutral session/consent/revocation contract family; realized at
-  `contract-v1.7` with a fail-closed F0 publication gate)
+  `contract-v1.7` with a fail-closed F0 publication gate, extended at
+  `contract-v1.46` by AVC-09 voice adapter descriptor and AVC-10 voice latency
+  sample — the two reserved identifiers `qualify-avatar-live-voice` publishes,
+  with latency gating held in one neutral relative-regression SLO entry rather
+  than in a per-profile budget field)
 - [Workflow Visualization Standard](docs/workflow-visualization-standard.md)
 - [Subject Hermes Memory Model](docs/customer-hermes-memory-model.md)
 - [Customer Memory Fill And Maintenance Taxonomy](docs/customer-memory-fill-maintenance-taxonomy.md)
@@ -371,7 +375,10 @@ Active changes:
   enumerates, so one is owed, but a proposal registers no family and the
   restatement reds `test_the_real_corpus_reads_zero_on_both_halves` — so it is
   owed at realization (`tasks.md` § 2.1), relative to
-  `add-family-enumeration-check`'s outcome, 8 → 8. Advisory at launch in both
+  `add-family-enumeration-check`'s outcome, 8 → 8 — **that precondition is now
+  discharged: `add-family-enumeration-check` archived 2026-08-27 and promoted the
+  twenty-one enumeration at 8 → 8**, so the block this packet owes at realization
+  restates canon's twenty-one and reaches twenty-two. Advisory at launch in both
   halves. Three adversarial packet reviews found and fixed 14 blockers. The five
   § Orchestrator decisions were NOT VETOED at ratification, which is not the same
   as affirmatively ruled, so the flags stay; #330 stays open (§ 7.1) and so does
@@ -438,7 +445,8 @@ Active changes:
   repositories and `target_release: implemented`, so it archives only on merged
   plus green realization evidence, never on landing.
 - [qualify-avatar-live-voice](openspec/changes/qualify-avatar-live-voice/proposal.md)
-  — authored 2026-08-26 as the staged topic's Exit, executed on Brett Heap's
+  — **RATIFIED 2026-08-27** (in-session, "ratify avatar"; §2/§3 build lands in
+  the same round) — authored 2026-08-26 as the staged topic's Exit, executed on Brett Heap's
   in-session rulings of the same day: all five blocking forks and all three
   latent decisions, carried into the proposal as LOCKED decisions rather than
   re-litigated. This is the change that turns on real voice — internal-live
@@ -472,44 +480,17 @@ Active changes:
   rule) plus `repo-boundary-governance` and `avatar-client-lab`, because
   latent decision 1 makes this the change that extracts
   `xfactory-avatar-client` from codexFactory `apps/avatar-client-lab` — an
-  obligation canon carried with no change owning it. `Status: draft`;
+  obligation canon carried with no change owning it. `Status: ratified`
+  (2026-08-27, in-session), with §2 (the AVC-09/AVC-10 schemas, their packaged
+  positive and negative examples, and the manifest/CHANGELOG registration) and
+  §3 (the interface-lock unreservation of exactly those two ids, the validator's
+  rules for them, the two-tier latency rule, and the acceptance-map entries)
+  built in the ratifying round; §4-§6 stay unbuilt.
   `code_surface: openxFactory, xfactory-avatar-client` and
   `target_release: implementation_pending`, so it archives only on merged plus
   green internal-live realization evidence, never on landing. Aggregation
   admission of the client repo, the GPT-Live-1 default swap, and the
   `avatar-pilot-hardening` deferrals are explicitly out of scope.
-- [add-family-enumeration-check](openspec/changes/add-family-enumeration-check/proposal.md)
-  — authored and ratified 2026-08-25, commissioned in-session ("commission the
-  §5.5 enumeration check"). `doc-health`'s own "Deterministic check families"
-  requirement NAMES every check family and COUNTS them three times in prose, and
-  every new family must restate the whole requirement to add itself — so a
-  requirement every new family must restate is a requirement every new family can
-  truncate. It broke THREE TIMES IN THREE DAYS and a human caught it every time:
-  `add-release-inventory-drift-check`, `add-promotion-fidelity-check` and
-  `add-duplicate-packet-check` each restated ONE of its EIGHT scenarios, and
-  because `MODIFIED` replaces a requirement wholesale each would have destroyed
-  seven on promotion with the file-level scenario count never moving. The
-  enumeration half had drifted more quietly before that — `staged-topic-template`
-  registered 2026-08-15 and stayed uncounted until 2026-08-23. Closes the
-  candidate `add-duplicate-packet-check` § 5.5 recorded and left named. Adds
-  doc-health's TWENTY-FIRST family, which derives the enumeration and all three
-  numerals from `families.FAMILIES` instead of trusting the hand-restatement:
-  the CANON half compares the promoted requirement, and the ACTIVE-DELTA half —
-  the real prevention — compares every in-flight change that restates it, so a
-  truncation is reported at authoring time rather than at an archive gate. Canon
-  is exempt while an active delta restates the requirement, because a change
-  registering family N+1 leaves canon at N until it archives: pending, not
-  divergent. ADVISORY at launch in both halves, with the flip a recorded task
-  box. **The irony is the acceptance test**: adding the check as a new family
-  forced exactly the restatement it polices, so with the family registered and no
-  delta written it reported three findings against canon — the omitted name and
-  two stale numerals — and zero once this change's own delta was written. Its own
-  restatement was verified by its own check before it could be committed, and the
-  MODIFIED block restates all eight scenarios, seven byte-identical. Two adjacent
-  gaps are recorded rather than folded in: § 5.2, `FAMILY_IDS` missing two
-  entries so `proposal-origin` and `staged-topic-template` report with no section
-  of their own, and § 5.3, the scenario-completeness half — the one that actually
-  destroyed text — which this check does not cover.
 
 - [add-standing-policy-compliance-contract](openspec/changes/add-standing-policy-compliance-contract/proposal.md)
   — authored 2026-08-24, **NOT YET RATIFIED** (`Status: draft`). Neutral-first
@@ -1091,6 +1072,70 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [add-family-enumeration-check](openspec/changes/archive/2026-08-27-add-family-enumeration-check/proposal.md)
+  — **ARCHIVED 2026-08-27** on the merge-plus-green rule the packet declared, and
+  on the precondition `add-modified-block-currency-check` § D5 priced: that change
+  registers the TWENTY-SECOND family, and `fam_family_enumeration` checks every
+  ACTIVE change's restatement of "Deterministic check families" against the live
+  registry, so the twenty-second family's own enumeration block is owed at ITS
+  realization relative to THIS packet's outcome. Realization re-verified ancestors
+  of `main` at the gate rather than read out of a PR body: PR #340 `253c5e87`
+  shipped the family advisory and PR #343 `1bf16533` took § 5.2's ruled
+  `FAMILY_IDS` repair. Gate numbers: `pytest tests/doc-health` **980 passed**
+  before and after; `openspec validate --all --strict` **76 → 75 items** (24 → 23
+  active, 52 specs); the single-repo doc-health headline **byte-identical — 5
+  critical, 8 error, 42 warning, 6 info, 0 new regressions** — the whole report
+  diff being eight non-finding lines of canon word census (203344 → 204720 words,
+  31.0% → 31.1%). Canon promoted at **128 insertions, 6 deletions**, requirements
+  32 → 33, file scenarios 133 → 141, and "Deterministic check families" **8 → 8**
+  with seven of its eight scenarios byte-identical and the eighth gaining exactly
+  one `AND` bullet. The per-requirement pass found TWO canon body units differing,
+  both this packet's declared numeral rewording (`twenty` → `twenty-one` with
+  `family enumeration` appended to the list, and `Four of the twenty` / `the other
+  sixteen` → `twenty-one` / `seventeen`), each verified against the live registry
+  — `len(FAMILIES)` = 21, 21 names, 0 unresolved, `21 − 4 = 17` — and canon's
+  requirement block proven byte-IDENTICAL between the delta's branch point
+  `fe34b73c` and `501a3ae0`, so the block reverted nothing. Authored and ratified
+  2026-08-25, commissioned in-session ("commission the §5.5 enumeration check").
+  `doc-health`'s own "Deterministic check families" requirement NAMES every check
+  family and COUNTS them three times in prose, and every new family must restate
+  the whole requirement to add itself — so a requirement every new family must
+  restate is a requirement every new family can truncate. It broke THREE TIMES IN
+  THREE DAYS and a human caught it every time:
+  `add-release-inventory-drift-check`, `add-promotion-fidelity-check` and
+  `add-duplicate-packet-check` each restated ONE of its EIGHT scenarios, and
+  because `MODIFIED` replaces a requirement wholesale each would have destroyed
+  seven on promotion with the file-level scenario count never moving. The
+  enumeration half had drifted more quietly before that — `staged-topic-template`
+  registered 2026-08-15 and stayed uncounted until 2026-08-23. Closes the
+  candidate `add-duplicate-packet-check` § 5.5 recorded and left named. Adds
+  doc-health's TWENTY-FIRST family, which derives the enumeration and all three
+  numerals from `families.FAMILIES` instead of trusting the hand-restatement:
+  the CANON half compares the promoted requirement, and the ACTIVE-DELTA half —
+  the real prevention — compares every in-flight change that restates it, so a
+  truncation is reported at authoring time rather than at an archive gate. Canon
+  is exempt while an active delta restates the requirement, because a change
+  registering family N+1 leaves canon at N until it archives: pending, not
+  divergent. ADVISORY at launch in both halves, with the flip a recorded task
+  box — **§ 5.1 is the ONE box left unticked at the archive**, owed on a measured
+  population that by construction cannot be taken in advance. **The irony is the
+  acceptance test**: adding the check as a new family forced exactly the
+  restatement it polices, so with the family registered and no delta written it
+  reported three findings against canon — the omitted name and two stale numerals
+  — and zero once this change's own delta was written. Its own restatement was
+  verified by its own check before it could be committed. That self-gate's
+  anti-vacuity guard was RE-AIMED by the archive act rather than deleted: with the
+  block promoted there is no active delta to find, so
+  `test_this_changes_own_delta_is_the_statement_under_test` became
+  `test_canon_is_the_statement_under_test`, the same three assertions one document
+  over. Of the two adjacent gaps recorded rather than folded in, both have since
+  closed: § 5.2's `FAMILY_IDS` repair was RULED and taken on 2026-08-25 (PR #343,
+  61 findings that had been counted in the headline while rendering under no
+  section), and § 5.3 — the scenario-completeness half, the one that actually
+  destroyed text — is DISCHARGED by `add-modified-block-currency-check`, whose
+  spike found two ledger units on this packet's own block and whose gate is
+  scenario-title completeness.
 
 - [add-shared-identity-seeds](openspec/changes/archive/2026-08-27-add-shared-identity-seeds/proposal.md)
   — **ARCHIVED 2026-08-27**; authored and ratified 2026-08-07 (Brett's "yes,

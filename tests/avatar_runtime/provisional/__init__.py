@@ -29,13 +29,33 @@ _BASELINE = (
 
 ENABLED = False  # disabled at contract-v1.7 realization (final conformance uses the released map)
 
+# The three capabilities the `avatar-client-parallel-v1` baseline covered, and
+# the whole of what "the same applicable ACR set" above means. The released map
+# is a SHARED file that later changes add capabilities to — `avatar-live-voice`
+# (ALV-*) landed in it at contract-v1.46 — so reading every scenario in the file
+# silently redefined this retired seam's baseline each time the file grew. The
+# selection is scoped instead of the caller's id-prefix guard being widened:
+# widening would have made the guard accept whatever the map happens to contain,
+# which is the opposite of a baseline.
+_BASELINE_CAPABILITIES = frozenset({
+    "avatar-client-runtime",        # ACR-*
+    "repo-boundary-governance",     # RBG-*
+    "shared-contract-ownership",    # SCO-*
+})
+
 
 def baseline_acr_ids() -> set[str]:
-    """Applicable ACR scenario ids from the provisional baseline (no canonical claim)."""
+    """Applicable acceptance scenario ids from the provisional baseline.
+
+    "ACR" in the name is the historical spelling of the whole baseline set, not
+    a filter: this returns the ACR-*, RBG-* and SCO-* scenarios of the three
+    capabilities in `_BASELINE_CAPABILITIES`. Makes no canonical claim.
+    """
     doc = yaml.safe_load(_BASELINE.read_text())
     return {
         s["id"]
         for req in doc.get("requirements", [])
+        if req.get("capability") in _BASELINE_CAPABILITIES
         for s in req.get("scenarios", [])
     }
 
