@@ -50,6 +50,13 @@ SOURCE_DELETE = "source-delete"
 # worktree was declared, or the target sits outside the one that was.
 SESSION_REWRITE = "session-rewrite"
 GATE_SIDE_EFFECT = "gate-side-effect"
+# The gate console's DOCUMENT target escaping its permitted root (gate_console
+# `edit_apply`, the un-confined-document-path trust gap). Its own kind rather
+# than OUTSIDE_ROOT because the target here is a corpus SOURCE document a human
+# gate action rewrites in place, not an output artifact — an audit consumer
+# reading the ledger must be able to tell a traversal attempt against the corpus
+# apart from an output write that missed its allowlist.
+DOCUMENT_ESCAPE = "document-escape"
 HEADER_INCOMPLETE = "header-incomplete"  # authoring.py's agent header-completeness gate
 
 # Structural output-path fragments the contracts fix; the rest of an instance's

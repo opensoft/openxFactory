@@ -29,6 +29,7 @@ _SCRIPTS_DIR = Path(__file__).resolve().parent.parent
 if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
 
+from ideation_dashboard import actor_identity as actor_mod  # noqa: E402
 from ideation_dashboard import authoring as authoring_mod  # noqa: E402
 from ideation_dashboard import branch_session as branch_session_mod  # noqa: E402
 from ideation_dashboard import doxbench_binding as binding_mod  # noqa: E402
@@ -430,10 +431,38 @@ def cmd_edit(args: argparse.Namespace, *, launcher=subprocess.Popen) -> int:
 
 
 # ---- gate console (US9): human-only executable gate actions ----------------
-# Human identity is `--actor`; hardening that identity (authn) is the xForge
-# host's concern (change section 4), not this local CLI. Every action
-# constructs a `HumanGate` (the distinct human-only entrypoint) — there is no
-# machinery/agent code path to a gate action here.
+# Every action constructs a `HumanGate` (the distinct human-only entrypoint) —
+# there is no machinery/agent code path to a gate action here.
+#
+# `--actor` USED TO BE FREE TEXT (the accepted v1 risk recorded at
+# `ideation/brainstorm/ideation-dashboard.md` item 25, still present tense in
+# `contracts/identity-brokering/README.md`): the flag NAMED the acting human and
+# nothing anywhere asked whether the invocation was that human, so every
+# authority-bearing record the console wrote was unattributable. It is now
+# AUTHENTICATED at this boundary — the one place the untrusted claim enters —
+# against whatever identity the deployment already proves
+# (`actor_identity.authenticate_actor`), and the record carries the trusted
+# source's CANONICAL spelling rather than the caller's. No principal, no gate
+# action: `_gate_actor` raises and `main` turns it into a refusal + exit 1,
+# before any HumanGate exists and therefore before any write.
+#
+# This does NOT close D22: an agent running AS the engineer, in the engineer's
+# own checkout, still satisfies the local sources. It closes the strictly larger
+# hole underneath — an invocation naming a human it has no relation to at all.
+
+
+def _gate_actor(repo_root: Path, args: argparse.Namespace) -> str:
+    """The AUTHENTICATED acting human for this invocation, or a refusal.
+
+    Called by every gate-gate construction path in this module. Raises
+    `actor_identity.ActorUnauthenticated`, which `main` renders as a refusal —
+    deliberately an exception rather than a return code, so a call site cannot
+    forget to check it and reach a HumanGate anyway."""
+    authenticated = actor_mod.authenticate_actor(
+        getattr(args, "actor", None), checkout_root=repo_root)
+    # The canonical spelling is what everything downstream records and prints.
+    args.actor = authenticated.actor
+    return authenticated.actor
 
 def _gate_snapshot(args: argparse.Namespace) -> tuple[Path, dict]:
     """Regenerate the snapshot the gate action plans against (the same
@@ -447,7 +476,8 @@ def _gate_snapshot(args: argparse.Namespace) -> tuple[Path, dict]:
 
 
 def _human_gate(repo_root: Path, args: argparse.Namespace) -> HumanGate:
-    return HumanGate(repo_root, [args.records_dir], human_actor=args.actor)
+    return HumanGate(repo_root, [args.records_dir],
+                     human_actor=_gate_actor(repo_root, args))
 
 
 def cmd_gate_demote(args: argparse.Namespace) -> int:
@@ -651,7 +681,7 @@ def cmd_gate_dispose_possible(args: argparse.Namespace) -> int:
     gate = HumanGate(
         repo_root,
         [args.records_dir, dp.INDEX_REL, dp.INDEX_MD_REL],
-        human_actor=args.actor)
+        human_actor=_gate_actor(repo_root, args))
     console = gate_mod.GateConsole(gate, records_dir=args.records_dir)
     res = console.dispose_possible(
         args.possible_id, args.outcome, reason=args.reason,
@@ -684,8 +714,15 @@ def cmd_gate_edit_apply(args: argparse.Namespace) -> int:
         print("edit-apply requires either --full-text-file or both --old-file and --new-file", file=sys.stderr)
         return 2
     console = gate_mod.GateConsole(_human_gate(repo_root, args), records_dir=args.records_dir)
-    res = console.edit_apply(args.change_id, args.document, redline,
-                             tree_root=repo_root, provenance=cli_provenance())
+    try:
+        res = console.edit_apply(args.change_id, args.document, redline,
+                                 tree_root=repo_root, provenance=cli_provenance())
+    except BoundaryViolation as exc:
+        # The confinement refusal (a `--document` that escapes the permitted
+        # root) reaches the human as a REFUSAL and a non-zero exit, not a
+        # traceback — and never as a silently corrected path.
+        print(f"edit-apply refused: {exc.refusal.report()}", file=sys.stderr)
+        return 1
     print(f"edit-apply {args.document} ({redline.form()}) by {args.actor}")
     print(f"  gate-action record: {res.record_path.relative_to(repo_root)}")
     print(f"  redline artifact:   {res.redline_path.relative_to(repo_root)}")
@@ -772,7 +809,7 @@ def _lens_gate(repo_root: Path, args: argparse.Namespace) -> HumanGate:
     """A HumanGate whose allowlist admits BOTH the records dir and the gitignored
     workbench tree (manifest + cross-reference queue live under WORKBENCH_DIR)."""
     return HumanGate(repo_root, [args.records_dir, workbench_mod.WORKBENCH_DIR],
-                     human_actor=args.actor)
+                     human_actor=_gate_actor(repo_root, args))
 
 
 def cmd_gate_lens_save_recipe(args: argparse.Namespace) -> int:
@@ -1230,6 +1267,15 @@ def _session_identity_gate(verb: str, repo_root: Path,
     typed it needs to be told that, not shown a stack."""
     if not human_console_present():
         print(f"{verb} refused: {AGENT_INVOCATION_REFUSAL}", file=sys.stderr)
+        return 1
+    try:
+        # AUTHENTICATE the claim before it can become a record. Deliberately
+        # AFTER the console-presence test and before the HumanGate: presence is
+        # the question "is a human here at all", identity is the question "which
+        # human", and an invocation that fails the first must hear that first.
+        _gate_actor(repo_root, args)
+    except actor_mod.ActorUnauthenticated as exc:
+        print(f"{verb} refused: {exc}", file=sys.stderr)
         return 1
     try:
         gate_mod.require_human_gate(
@@ -1871,9 +1917,16 @@ def build_parser() -> argparse.ArgumentParser:
 
 def _add_gate_identity_args(sub: argparse.ArgumentParser) -> None:
     """Identity + records location shared by EVERY gate action. `--actor` is the
-    human identity; authn hardening is the xForge host's concern (section 4)."""
+    CLAIMED human identity and is AUTHENTICATED against the deployment's trusted
+    principal before any record is written (`actor_identity`); an unverifiable
+    claim is refused, never recorded."""
     sub.add_argument("--repo-root", required=True, help="the pinned checkout root")
-    sub.add_argument("--actor", required=True, help="the acting human's identity (recorded in the gate-action record)")
+    sub.add_argument("--actor", required=True,
+                     help="the acting human's identity, checked against the "
+                          "authenticated principal (gateway user, "
+                          f"${actor_mod.PRINCIPAL_ENV}, ${actor_mod.ROSTER_ENV}/"
+                          f"${actor_mod.ALLOWLIST_ENV}, or the checkout's git "
+                          "identity) and recorded in the gate-action record")
     sub.add_argument("--records-dir", default=gate_mod.DEFAULT_RECORDS_DIR,
                      help=f"records output directory (default: {gate_mod.DEFAULT_RECORDS_DIR})")
 
@@ -2312,10 +2365,23 @@ def _add_lens_gate_subcommands(gsub) -> None:
     cluster.set_defaults(func=cmd_gate_lens_add_as_cluster)
 
 
+def _command_label(args: argparse.Namespace) -> str:
+    """`gate ratify`-style label for a refusal line."""
+    parts = [getattr(args, "command", None), getattr(args, "gate_command", None)]
+    return " ".join(p for p in parts if p) or "command"
+
+
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
         return args.func(args)
+    except actor_mod.ActorUnauthenticated as exc:
+        # The unauthenticated-`--actor` gap, refused at the OUTERMOST edge: the
+        # claim is checked where it enters and the command never reaches a write.
+        # One catch site rather than a return code at nine gate constructions, so
+        # no future gate verb can be added that forgets to check.
+        print(f"{_command_label(args)} refused: {exc}", file=sys.stderr)
+        return 1
     except RepoRootRefused as exc:
         # The refusal is the whole message (`corpus_root.corpus_root_refusal`);
         # stderr and a non-zero status, so a wrapper script cannot mistake a

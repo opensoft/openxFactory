@@ -62,8 +62,10 @@ import yaml
 
 from doc_health import corpus
 
+from . import record_binding
 from . import round_trip
 from .boundary import (
+    DOCUMENT_ESCAPE,
     GATE_SIDE_EFFECT,
     BoundaryViolation,
     HumanGate,
@@ -1676,14 +1678,21 @@ def write_demotion_execution_receipt(
 def build_ratification_record(change_id: str, ratifier: str, *, date: str) -> dict:
     """The ratification record artifact (ratifier + date) — the same content a
     manual ratification records on the proposal (`Ratified by:` + the ratify
-    date the generator reads back into `changes[].ratification`)."""
-    return {
+    date the generator reads back into `changes[].ratification`).
+
+    PLUS its `binding` block (`record_binding`, the records-tree-trust gap). The
+    record used to be believed because of WHERE IT SAT; the binding is the first
+    half of a reason to believe it — a `sha256` over its own content, so the
+    ratifier, the date, and the change it names cannot be edited in place
+    afterwards. The second half is the git commit anchor, which only exists once
+    a human commits the record and is verified at READ time (`kickoff`)."""
+    return record_binding.with_binding({
         "kind": ART_RATIFICATION_RECORD,
         "schema_version": 1,
         "change_id": change_id,
         "ratifier": ratifier,
         "date": date,
-    }
+    })
 
 
 @dataclass
@@ -1730,6 +1739,12 @@ def ratify(
             {"kind": ART_RATIFICATION_RECORD, "reference": _rel_to_records(rat_path, human)},
             {"kind": ART_REGISTER_UPDATE, "reference": _rel_to_records(reg_path, human)},
         ])
+    # The ratify ACTION record carries a binding too, for the same reason its
+    # artifact does: `kickoff` reads ratification from EITHER document, so a
+    # binding on only one of them leaves the other believable on placement alone
+    # (`record_binding`). ADDITIVE — the schema fixes no closed property set and
+    # states that consumers MUST ignore unknown properties.
+    record = record_binding.with_binding(record)
     record_path = write_gate_action_record(human, records_dir, record)
     return RatifyResult(ratification, record, record_path, rat_path, reg_path)
 
@@ -1814,6 +1829,90 @@ class EditApplyResult:
     redline_path: Path
 
 
+def confined_document_path(human: HumanGate, root: Path, document: str) -> Path:
+    """Resolve a gate-console DOCUMENT target strictly INSIDE `root`, or REFUSE.
+
+    THE GAP THIS CLOSES (`ideation/brainstorm/ideation-dashboard.md` item 25:
+    "un-confined `edit_apply` document path"). `edit_apply` resolved its target
+    as `(root / document).resolve()` and wrote to whatever came back. `document`
+    is caller-supplied, `Path.__truediv__` DISCARDS the left operand when the
+    right one is absolute, and `resolve()` happily walks `..` and symlinks out of
+    the tree — so `--document ../../../../etc/hosts`, `--document /etc/hosts`, or
+    a symlink planted inside the corpus all made a human gate action overwrite a
+    file outside the repository entirely, with a governed record filed as if a
+    change document had been revised.
+
+    Five refusals, and every one of them is a REFUSAL rather than a clamp. A
+    silently corrected path is worse than either extreme: the human is told their
+    redline applied, the record names the document they asked for, and the bytes
+    landed somewhere else.
+
+      1. a blank / unusable target;
+      2. an ABSOLUTE path (it names a tree, not a document in this one);
+      3. any `..` segment (the traversal spelling, refused even when it would
+         land back inside — a gate document is named, never navigated to);
+      4. a target that RESOLVES outside the real root — which is the symlink
+         case, because `resolve()` follows every link in the path and the
+         comparison is against the resolved root;
+      5. a target that is not an existing regular file — `edit_apply` REVISES a
+         change document; creating one is the authoring path's job, and a
+         directory or device node is not a document at all.
+
+    Refusals go through the boundary's public hook, so each one lands on the
+    gate's own refusal ledger AND raises — never silent (the module's posture)."""
+    raw = str(document)
+    if not raw.strip():
+        raise human.output.refuse(
+            DOCUMENT_ESCAPE, raw,
+            "a gate document target must be a repo-relative path; blank was given")
+    try:
+        candidate = Path(raw)
+    except (TypeError, ValueError) as exc:      # embedded NUL and friends
+        raise human.output.refuse(
+            DOCUMENT_ESCAPE, raw, f"unusable document path ({exc})") from exc
+    if candidate.is_absolute() or candidate.drive or candidate.root:
+        raise human.output.refuse(
+            DOCUMENT_ESCAPE, raw,
+            "an ABSOLUTE document path is refused: a gate document is named "
+            "relative to the checkout the gate was constructed with, and an "
+            "absolute path silently replaces that root entirely")
+    if any(part == ".." for part in candidate.parts):
+        raise human.output.refuse(
+            DOCUMENT_ESCAPE, raw,
+            "a `..` segment is refused: a gate document is NAMED, never "
+            "navigated to, so traversal is a refusal and not a path to normalize")
+
+    real_root = Path(root).resolve()
+    try:
+        resolved = (real_root / candidate).resolve()
+    except (OSError, RuntimeError, ValueError) as exc:   # symlink loops, bad names
+        raise human.output.refuse(
+            DOCUMENT_ESCAPE, raw, f"document path could not be resolved ({exc})") from exc
+    if resolved != real_root and not resolved.is_relative_to(real_root):
+        raise human.output.refuse(
+            DOCUMENT_ESCAPE, raw,
+            f"document resolves to {resolved}, outside the permitted root "
+            f"{real_root} — confinement is a REFUSAL, never a clamp back inside")
+    # Belt AND braces: when a caller supplies its own `tree_root`, the target
+    # must satisfy BOTH that root and the root the human's gate was constructed
+    # over. The authority came from the gate; a second root parameter widens the
+    # reach of an action, never the authority behind it.
+    gate_root = Path(human.output.root).resolve()
+    if real_root != gate_root and not (
+            resolved == gate_root or resolved.is_relative_to(gate_root)):
+        raise human.output.refuse(
+            DOCUMENT_ESCAPE, raw,
+            f"document resolves outside the gate's own root {gate_root}; a "
+            "declared tree_root may narrow where a gate action reaches, never "
+            "widen it")
+    if not resolved.is_file():
+        raise human.output.refuse(
+            DOCUMENT_ESCAPE, raw,
+            "no such document under the permitted root (this verb REVISES an "
+            "existing change document; it never brings one into existence)")
+    return resolved
+
+
 def edit_apply(
     gate: Any, change_id: str, document: str, redline: Redline, *,
     at: str | None = None, records_dir: str = DEFAULT_RECORDS_DIR,
@@ -1826,7 +1925,7 @@ def edit_apply(
     human = require_human_gate(gate)
     at = at or _utcnow()
     root = Path(tree_root).resolve() if tree_root is not None else human.output.root
-    target = (root / document).resolve()
+    target = confined_document_path(human, root, document)
     # Translation-free on both legs (wave re-review P3, the F10 class through
     # this verb): `Path.read_text`'s universal-newline mode collapsed CRLF to
     # LF, so on Linux an edit-apply silently rewrote every line ending of a

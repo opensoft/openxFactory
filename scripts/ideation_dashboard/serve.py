@@ -1531,20 +1531,26 @@ def _checkout_real(checkout_root: Path | str) -> bool:
 
 
 def resolve_actor(checkout_root: Path | str, override: str | None = None) -> str | None:
-    """The local action center's human identity: an explicit ``--actor`` wins;
-    otherwise the checkout's `git config user.name`. None (no identity) keeps
-    gate actions unavailable — fail-closed, never a guessed actor."""
+    """The local action center's human identity. None (no identity) keeps gate
+    actions unavailable — fail-closed, never a guessed actor.
+
+    THE `--actor` TRUST GAP, on this surface. An explicit `--actor` used to WIN
+    OUTRIGHT: whatever string the flag carried became the identity every
+    gate-action record this serve wrote would name, checked against nothing. The
+    override is now a CLAIM that must match the authenticated principal
+    (`actor_identity`) — the gateway-verified user, a launcher-supplied
+    principal, an explicit allowlist, or this checkout's own git identity, which
+    is also the no-override default the function has always used. An override
+    that cannot be authenticated resolves to None, which is this surface's
+    fail-closed spelling: the plane comes up with gate actions OFF rather than
+    with a fabricated identity attached to them."""
+    from ideation_dashboard import actor_identity
+
     if override and str(override).strip():
-        return str(override).strip()
-    import subprocess
-    try:
-        proc = subprocess.run(
-            ["git", "-C", str(checkout_root), "config", "user.name"],
-            capture_output=True, text=True, timeout=10)
-    except (OSError, subprocess.SubprocessError):
-        return None
-    name = (proc.stdout or "").strip()
-    return name or None
+        return actor_identity.authenticated_actor_or_none(
+            override, checkout_root=checkout_root)
+    return actor_identity.authenticated_actor_or_none(
+        None, checkout_root=checkout_root)
 
 
 def real_notebook_adapter():

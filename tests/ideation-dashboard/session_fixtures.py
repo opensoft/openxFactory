@@ -413,3 +413,35 @@ def declared_human_console(monkeypatch):
     from ideation_dashboard import cli as cli_mod
 
     monkeypatch.setenv(cli_mod.HUMAN_CONSOLE_ENV, "1")
+
+
+# The suite's AUTHENTICATED PRINCIPALS, declared exactly as the human-console
+# declaration above is, and for the same reason.
+#
+# `--actor` used to be free text (`ideation/brainstorm/ideation-dashboard.md`
+# item 25): the flag named the acting human and nothing checked the invocation
+# was that human, so every governed record the console wrote was unattributable.
+# A gate action now authenticates the claim against the deployment's trusted
+# principal and REFUSES when none can be established (`actor_identity`).
+#
+# A pytest process has no gateway identity and no launcher principal, and the
+# checkout it runs in belongs to whoever cloned it — so, exactly like the console
+# declaration, the suite must SAY who its humans are instead of assuming. This
+# roster names the three the suite acts as; `codex-agent-bot` and every other
+# unnamed claim is refused, which is the behaviour under test.
+GATE_TEST_PRINCIPALS = ("brett", "dana", "tester")
+
+
+@pytest.fixture(autouse=True)
+def declared_gate_principals(monkeypatch):
+    """Declare this suite's authenticated principals (autouse; monkeypatch-scoped
+    so it is gone the moment a test ends). Tests that assert the REFUSAL delete
+    or narrow it — see `test_trust_gaps.py`."""
+    from ideation_dashboard import actor_identity as actor_mod
+
+    # A stronger source in the developer's own environment would otherwise
+    # decide the suite's identity, so the roster is declared from a clean slate.
+    monkeypatch.delenv(actor_mod.GATEWAY_ENV, raising=False)
+    monkeypatch.delenv(actor_mod.PRINCIPAL_ENV, raising=False)
+    monkeypatch.delenv(actor_mod.ALLOWLIST_ENV, raising=False)
+    monkeypatch.setenv(actor_mod.ROSTER_ENV, ", ".join(GATE_TEST_PRINCIPALS))
