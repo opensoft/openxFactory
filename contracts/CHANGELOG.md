@@ -123,6 +123,109 @@ inside the deprecation window rather than after it.
 
 A published bundle is not unpublished. The honest reversal of this release is a
 FOLLOWING minor that removes the marker — never a revert of the cut.
+## contract-v1.46 — 2026-08-27 (additive; AVC-09 and AVC-10 leave the reserved set)
+
+Realizes `qualify-avatar-live-voice` §2 and §3 — the change ratified 2026-08-27
+that turns on real voice — by publishing the two avatar-client identifiers the
+kernel deliberately RESERVED at `contract-v1.7` and named this change as the
+owner of. TWO CONTRACTS ARE ADDED:
+[`avatar-client/avc-09-voice-adapter-descriptor.schema.yaml`](avatar-client/avc-09-voice-adapter-descriptor.schema.yaml)
+and
+[`avatar-client/avc-10-voice-latency-sample.schema.yaml`](avatar-client/avc-10-voice-latency-sample.schema.yaml),
+both content-addressed by their per-file `sha256` in
+[`manifest.yaml`](manifest.yaml). Four existing avatar-client members are
+RECOMPUTED in this cut because their bytes moved with the release:
+`interface-lock.yaml`, `acceptance-map.yaml`, `evidence-register.yaml`, and
+`fixtures/index.yaml`.
+
+**Change class: ADDITIVE (minor)** under
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md).
+Two NEW schemas are added and no existing shape changes: no property is
+removed, no required field is added to any existing contract, no enum member is
+withdrawn, and no instance valid at `contract-v1.45` is narrowed or
+invalidated. A consumer pinned at `contract-v1.45` stays conformant until it
+deliberately reads AVC-09 or AVC-10. Every avatar-client
+`contract_schema_version` stays `1`, and the new rows' `schema_version` is `1`
+with them.
+
+### The reserved shapes, used AS-IS
+
+Both schemas are the shapes the kernel's neutral-contracts note reserved,
+published unchanged. AVC-09 distinguishes SERVER and CLIENT adapter components
+and records adapter identity and version, provider, supported profiles, the
+requested model alias or snapshot, the provider-resolved model,
+prompt/policy/voice/turn configuration versions, capability and event mapper
+versions, authorization mode, sideband readiness, the direct-media requirement,
+contract compatibility, region and data controls, and
+experimental/candidate/approved/retired status. AVC-10 carries sample, session,
+media-leg and turn identity, adapter and profile, platform, network class,
+region, clock source and quality, the twelve RAW monotonic markers, the DERIVED
+intervals, the direct-or-brokered reference classification, and a reproducible
+fixture reference.
+
+**AVC-09 CARRIES NO NUMERIC LATENCY-BUDGET FIELD, and its `not` refuses one
+however it is spelled.** That is Fork 2's ruled Option C. Latency gating is the
+neutral relative-regression SLO — more than 15 percent relative OR more than 150
+milliseconds absolute, whichever is GREATER — which lives in
+`avatar-client/acceptance-map.yaml` as exactly one entry, and the measured
+numbers live in AVC-10 samples the descriptor merely REFERENCES. A per-profile
+absolute ceiling frozen into a neutral contract is the Option B that was not
+ruled, and freezing one here would have made the contract, rather than the
+evidence, the thing a profile is judged against.
+
+Neither schema can carry secret material or raw content: provider keys,
+ephemeral client secrets, SDP, transcripts, captions, media and raw provider
+payloads are all structurally excluded by `not` rather than by convention, so
+additive evolution cannot reintroduce them.
+
+### The unreservation, and what stayed reserved
+
+`avatar-client/interface-lock.yaml` moves EXACTLY `AVC-09` and `AVC-10` from
+`frozen.reserved_identifiers` into `frozen.contracts`. `AVC-03` (absorbed inline
+on the AVC-02 grant) and `AVC-05` (a registered AVC-04 event payload) STAY
+reserved; `reserved_retention_classes: forbidden` and the frozen
+`consent-purposes: 3` are untouched, and no identifier is reused.
+
+`scripts/validate-avatar-client.py` moved in the SAME commit, because it had to:
+its reserved-id guard fail-closes on the mere EXISTENCE of an
+`avc-09-*.schema.yaml` file, so a schema landing one commit ahead of the
+constant would have redded the repository between commits. It gains two new
+fail-closed rules with the move — `interface_lock_reserved_set`, which
+machine-checks the lock's two lists against the validator's own constants so the
+hand-mirroring cannot drift again, and `latency_posture`, which enforces exactly
+one relative-regression SLO entry at the ratified threshold, the disjointness of
+the gated tier (p50 and p95 on the two setup intervals, Windows desktop and web
+canvas at nominal network) from the recorded tier (p99, teardown, degraded and
+jittered network), and the refusal of any per-profile numeric latency ceiling
+presented as a gating field.
+
+### Packaged fixtures
+
+Ten cases join `avatar-client/fixtures/index.yaml`. AVC-09: one valid
+internal-live descriptor plus four negatives — a descriptor carrying a numeric
+latency budget, one carrying secret material, one whose closed client component
+carries a server provider configuration, and an `approved` status claimed with
+no latency evidence behind it. AVC-10: two valid samples (one governed, one
+direct-provider reference) plus three negatives — a sample carrying a
+transcript, one carrying SDP, and one carrying an unrecognized marker.
+
+A refusal of a COMPARISON cannot be expressed as a single-instance schema case,
+so the two-tier posture is proved by a new self-describing
+`latency_comparison_cases` block executed by the validator, the way
+`release_pin_cases` proves the pinning rule: ten comparisons covering a material
+regression that fails, a small absolute regression on a fast interval that
+PASSES because materiality takes the greater threshold, a gated pass on the
+second interval, p99 and teardown recorded rather than gated, and five refusals
+— cross-platform, degraded-network, Linux-CI, region-mismatch, and
+adapter-versus-adapter.
+
+RELEASE OBLIGATION STILL OPEN AT THIS ENTRY: per the versioning policy,
+CHANGELOG presence is the availability test and the annotated tag is cut at the
+realization merge. The release DIGEST INVENTORY
+(`releases/contract-v1.46.digests.yaml`) ships INSIDE this cut, as
+`contract-v1.34` through `contract-v1.45` all did. `qualify-avatar-live-voice`
+itself archives only on merged plus green internal-live realization evidence —
+never on this cut landing.
 
 ## contract-v1.45 — 2026-08-26 (additive; the `approve-model` gate action and the turn record's mid-turn re-mint)
 

@@ -5,11 +5,11 @@ Fixture canon for the family enumeration check.
 
 ## Requirements
 ### Requirement: Deterministic check families
-The doc-health deterministic pass SHALL implement twenty check families over
-the whole factory family's governance corpus: status validity, staged-topic template, standard backing, ratified provenance, succession integrity, location conformance, record immutability, staged/candidate aging, register-lifecycle consistency, tag hygiene, submodule pin drift, contract-copy drift, notebook projection drift, document catalog, ideation routing, proposal origin, client identity roster composition, promotion fidelity, release-inventory drift, and duplicate packet.
-Every check in this pass MUST be deterministic. Four of the twenty —
+The doc-health deterministic pass SHALL implement twenty-one check families over
+the whole factory family's governance corpus: status validity, staged-topic template, standard backing, ratified provenance, succession integrity, location conformance, record immutability, staged/candidate aging, register-lifecycle consistency, tag hygiene, submodule pin drift, contract-copy drift, notebook projection drift, document catalog, ideation routing, proposal origin, client identity roster composition, promotion fidelity, release-inventory drift, duplicate packet, and family enumeration.
+Every check in this pass MUST be deterministic. Four of the twenty-one —
 alpha check, beta check, gamma check, and delta check — SHALL additionally read
-the lifecycle scan set this capability declares; the other sixteen families
+the lifecycle scan set this capability declares; the other seventeen families
 SHALL be computed from the governed corpus alone.
 
 #### Scenario: A run executes the check families

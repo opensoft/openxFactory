@@ -468,6 +468,87 @@ automated if NotebookLM ever offers a surface for it; **the approval remains a
 governed human act either way**, and `approval.automated_approval: false` says
 so in the record rather than leaving it to be inferred.
 
+### Roster test plan — add, list, and remove a collaborator
+
+Written 2026-08-27 at Brett's ask, so the roster can be exercised rather than
+only asserted. Run as the designated actor with the company profile active.
+
+**ADD** (this is the grant; it is the governed act, not a rehearsal of one):
+
+```bash
+nlm share invite <alias> <email> --role editor --profile company   # or --role viewer
+```
+
+**LIST** — the verification half, and the only way to prove a grant landed:
+
+```bash
+nlm share status <alias> --json --profile company
+```
+
+**REMOVE — THE CLI CANNOT DO IT.** `nlm share` offers exactly `status`,
+`public`, `private`, `invite` and `batch`. There is **no remove, revoke or
+uninvite verb**, and `nlm delete` deletes a NOTEBOOK, not a collaborator.
+Removal is therefore a **UI act**: open the book in the hosting account at
+notebook.google.com, use its Share dialog, and remove the collaborator there.
+Recorded plainly because a test plan that assumes a symmetric API would fail at
+exactly the moment someone needed to undo a grant.
+
+**AND THE ROSTER RECONCILES IN THE SAME STEP.** A removal at the provider is only
+half the act: the `share_out` entry that recorded the grant must be updated in
+the same sitting — annotated `revoked`, with the date and who revoked it, and the
+superseded grant retained as that entry's history per the uniqueness rule.
+
+This is not bookkeeping etiquette. **The share-out entry IS the record of
+access** — that is the ratified design, chosen so there is no audit log beside the
+roster that can drift from it. Remove at the provider and leave the entry
+standing and the record asserts access the provider no longer grants, which is
+precisely the record/reality split this lane exists to prevent. The same rule
+runs the other way: re-adding restores the entry rather than writing a second
+one, because uniqueness is keyed on `(hosting_account, user, book_or_alias)`.
+
+**Every provider act pairs with a roster act. Neither half is the deliverable
+alone**, and `nlm share status --json --profile company` is what proves the two
+agree.
+
+Note also that the CLI's exit code is not trustworthy on this path: an invite
+that printed `API error (code 7)` still returned `rc=0` on 2026-08-27. **Verify
+with `share status`, never with `$?`.**
+
+#### Named future tests
+
+1. **The remove-and-re-add cycle — six steps, not four.** Remove both accounts
+   from one book through the UI; confirm with
+   `nlm share status <alias> --json --profile company` that they are gone;
+   **annotate the two `share_out` entries as revoked, dated, by whom**; re-add
+   with `invite`; confirm again; **restore the entries**. The roster half is
+   named explicitly at both ends because it is the half a tester skips — the
+   provider gives immediate feedback and the YAML does not, so the record is
+   where drift hides. The test passes only when the provider listing and
+   `share_out` say the same thing at every stop, including the middle one where
+   access is genuinely absent.
+2. **Tenant-wide sharing.** Whether a whole domain can be granted at once is
+   **unestablished**: `nlm share invite` takes a single email and offers no
+   domain or group argument, and `batch` invites multiple named collaborators
+   rather than a domain. Any tenant-wide grant would therefore be a provider-UI
+   or Workspace-admin capability, not a CLI one — and it would sit against the
+   2026-08-24 ruling that the posture is RESTRICT with the app as sole grantor,
+   so it is a question to rule on rather than a feature to reach for.
+
+### The legacy books: WIND-DOWN BY OWNER DELETION
+
+Ruled 2026-08-27. The question left open at the retirement — whether the legacy
+owner's continued access to the renamed books is an accepted fact or gets wound
+down — is answered: **wound down, by deletion, performed by the owner himself in
+his own Gmail account, on his own timing.** No agent deletes anything.
+
+**THE CONSEQUENCE, STATED BEFORE IT HAPPENS.** Step 8 retired those books by
+RENAME precisely so nothing was lost. Once they are deleted, that safety net is
+gone: the pre-rename titles and the legacy content survive **only** in
+`docs/notebook-projection-migration-evidence-2026-08-24.md` and in the live
+company books. The evidence document stops being a record of what happened and
+becomes the **only** account of what those books were called — which is why its
+phase-1 listing was preserved verbatim.
+
 ### Where the account's credential lives
 
 Ratified by `add-notebook-hosting-credential-custody` (2026-08-23). Moving off a

@@ -134,7 +134,11 @@ Core domain-neutral docs:
   [deterministic fixtures](examples/avatar-first-ui/fixtures/README.md))
 - [Avatar-Client (AVC) Contract Kernel](contracts/avatar-client/README.md)
   (neutral session/consent/revocation contract family; realized at
-  `contract-v1.7` with a fail-closed F0 publication gate)
+  `contract-v1.7` with a fail-closed F0 publication gate, extended at
+  `contract-v1.46` by AVC-09 voice adapter descriptor and AVC-10 voice latency
+  sample — the two reserved identifiers `qualify-avatar-live-voice` publishes,
+  with latency gating held in one neutral relative-regression SLO entry rather
+  than in a per-profile budget field)
 - [Workflow Visualization Standard](docs/workflow-visualization-standard.md)
 - [Subject Hermes Memory Model](docs/customer-hermes-memory-model.md)
 - [Customer Memory Fill And Maintenance Taxonomy](docs/customer-memory-fill-maintenance-taxonomy.md)
@@ -340,6 +344,113 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [govern-derived-pin-reachability](openspec/changes/govern-derived-pin-reachability/proposal.md)
+  — **RATIFIED 2026-08-27** (Brett, in-session commissioning of the filing,
+  verbatim: "file the pin-governance follow-up change"). The commission is the
+  origin act, so `approved_by`/`approved_on` are recorded from it — the
+  `fix-release-reachability-race` shape, not the blank-pair shape its other
+  sibling was raised under. **THE CITATION COVERS THE DECISION TO FILE AND
+  NOTHING ELSE** — and a SECOND, later act on the same day disposed everything
+  it did not reach. **ALL FIVE § Orchestrator decisions CLEARED AS AUTHORED and
+  ALL THREE OPEN QUESTIONS RULED, 2026-08-27**, by a four-question multi-choice
+  put to Brett by the orchestrating session and relayed the same day; on every
+  question he took the packet's own recommendation. No verbatim wording reached
+  the packet, so none is quoted — approver, date, mechanism and selected option
+  are stated instead. **OD-1 through OD-5 cleared, none vetoed** (the
+  three-capability all-ADDED shape, the no-new-check-family enforcement home,
+  re-pinning defined by reproduction, record repair by retention, the change
+  name), and the clearance moved nothing because all five stand as authored.
+  **THE QUESTION RULINGS DID MOVE THE PACKET, which is why the two acts stay
+  distinct**: **Q1 RULED** — the declared pin class lives in a registry module
+  beside `scripts/doc_health/families.py`, so the declaration is itself checked
+  (recorded at `design.md` § 4 and `tasks.md` § 2.1; NO delta text changed, because
+  a promoted requirement that pins an implementation path must be MODIFIED the
+  next time the module moves). **Q2 RULED AND ALREADY EXECUTED** — publish the
+  retention refs FIRST, independently of this packet; the orchestrating session
+  did so on 2026-08-27 and this session verified it rather than taking it on
+  report: `git ls-remote origin 'refs/retention/*'` returns exactly
+  `refs/retention/pins/da9bf3b7d0ee1d86d2d437d42a715c238dddce4b` and
+  `refs/retention/pins/f13a3b6007736292e1e157febef1ac733e534de9`, each at the
+  commit its name states, so `ls-remote | grep -c` now returns `1` for both pins
+  where it returned `0` at authoring. **THE GARBAGE-COLLECTION WINDOW IS CLOSED
+  AND BOTH RECORDS ARE CONFORMING WITH THEIR ORIGINAL PINS UNEDITED** — which is
+  requirement 2's whole claim demonstrated on the two instances that forced it,
+  and it discharges `tasks.md` § 3 entire plus the § 4.5 archive gate, before the
+  merge rather than merely before the archive. **Q3 RULED** — formalize the
+  retention namespace, and it is the one Q2's execution used:
+  **`refs/retention/pins/<full-sha>`**, now NAMED IN THE DELTA rather than left
+  as convention (requirement 1 names it and refuses any other name; requirement 2
+  obliges publishing it with the ref name COMPUTED from the pin rather than
+  chosen; requirement 4 states it as half the ref set a verification consults,
+  `main` plus that namespace and no more). Three scenarios moved with it;
+  requirement and scenario counts are UNCHANGED at four and sixteen, and nothing
+  was MODIFIED. Retention LIFETIME is deliberately still unstated — a retained
+  commit is retained because a committed record names it, so the ref outlives the
+  record. `.openspec.yaml`'s origin block is deliberately unedited: a veto
+  clearance is not origin provenance, and `release-realization`'s
+  origin-retention rule makes rewriting a complete declaration a contested-class
+  act. **THE FOLLOW-UP
+  `harden-ideation-readiness-check` DEFERRED BY NAME** (its § Named follow-ups,
+  and § 5.2 unticked at archive; its OD-1 declined an index-side requirement
+  "to avoid pre-empting the deferred governance packet" — this packet takes it).
+  ONE CORRECTION TO THE COMMISSION, recorded rather than smoothed:
+  `fix-release-reachability-race` does NOT defer the rule by name — its § Named
+  follow-ups carries three bullets, none about pins — and is cited instead for
+  its § Family relation table, which names the orphaned index pin as the
+  family's stale operand. **A pin that no ref reaches is a DEFECT, not
+  staleness.** Pull request #322 regenerated the cross-reference index on a
+  branch pinning `da9bf3b7`, the pin was moved BY HAND to the branch tip
+  `f13a3b60` with no body regeneration, and the branch landed rewritten as
+  `4e57009c` (single parent `700c1a19`), orphaning both at once; the index's
+  orphaned pin then turned the readiness derivation proof into a `pytest.skip`
+  for the packet's whole life, so seven real-corpus proofs never ran on a runner
+  until PR #400 (889 passed / 7 skipped → 920 / 0). **TWO ORPHANED PINS ARE
+  STILL STANDING ON `main`, MEASURED 2026-08-27 at `42662b70`** — the sibling
+  repaired the INDEX and left both readiness-run records:
+  `health/ideation-readiness/2026-08-24/brainstorm-packet-migration-20260824.yaml:5`
+  (`da9bf3b7`) and `…-final-20260824.yaml:5` (`f13a3b60`), each with
+  `git branch -a --contains` EMPTY, `ls-remote` count `0`, and
+  `merge-base --is-ancestor origin/main` false. Both carry `status: record`, so
+  neither pin may be edited — and both objects were STILL RECOVERABLE in a local
+  clone, a window that has since been closed by the Q2 retention refs above,
+  with both records left byte-identical to capture. `is-ancestor origin/main` is
+  still false for both, and that is the intended end state rather than a residue:
+  the pins resolve through the retention namespace, not through `main`. Four
+  requirements ADDED
+  across three capabilities, sixteen scenarios, NONE MODIFIED:
+  `ideation-cross-reference` gets the artifact rule (orphaned is a defect,
+  reachable-but-stale is legal, judged against REFS not a clone's object store)
+  and the record-repair rule (repair by publishing
+  `refs/retention/pins/<full-sha>`, never by editing the record — immutable
+  evidence and record-immutability collide, and only one ordering is coherent:
+  when the record cannot move, the commit does);
+  `release-realization` gets the landing rule, with re-pinning DEFINED BY
+  REPRODUCTION — byte-for-byte at the new pin where the artifact's tooling
+  defines derivation, a named measurement otherwise, and never a hand-moved pin,
+  which is the exact act that produced `f13a3b60`; `doc-health` gets the
+  enforcement, extending the sibling's index-only obligation to a DECLARED
+  artifact class whose declaration is itself checked. **ADDS NO DETERMINISTIC
+  CHECK FAMILY and does not restate the enumeration**, for two reasons: a
+  reachability probe is not deterministic in that requirement's sense (identical
+  corpus, different answer at different clone depths), and every added family
+  owes a wholesale restatement of that requirement, which is how three changes in
+  three days truncated it. **THE SECOND PREMISE MOVED WITHIN A DAY AND THE
+  CONCLUSION HELD** — as authored it named `add-family-enumeration-check`'s active
+  `MODIFIED` block; that packet ARCHIVED 2026-08-27 promoting the twenty-one
+  enumeration, and `add-modified-block-currency-check` now owes the same block at
+  realization to reach twenty-two, so a family added here would reach
+  twenty-three with canon decided by archive order. The delta states it in the
+  durable form, about the mechanism rather than today's holder. The pin
+  inventory is swept and every pin resolved rather than sampled — nine pins,
+  eight committed artifacts, four generators, two orphaned, plus four
+  schema-declared future members with no committed real pin yet; cross-repository
+  pins (aggregation gitlinks, `neutral-product-pin`, release digests, image
+  digests) are named OUT of scope. Two follow-ups survive unticked:
+  `git_generation()` pinning `HEAD` on a dirty tree, and the cross-repository
+  pin families; a third, the retention namespace, was RULED rather than deferred
+  and no longer survives. (code surface: openxFactory; target release:
+  implemented — ships ACTIVE, archives on merged-plus-green)
+
 - [add-modified-block-currency-check](openspec/changes/add-modified-block-currency-check/proposal.md)
   — **RATIFIED 2026-08-27** (in-session, verbatim "Ratify as-is"; realization via
   Speckit) — authored the same day against issues #357, #329 and #330, which name
@@ -371,7 +482,10 @@ Active changes:
   enumerates, so one is owed, but a proposal registers no family and the
   restatement reds `test_the_real_corpus_reads_zero_on_both_halves` — so it is
   owed at realization (`tasks.md` § 2.1), relative to
-  `add-family-enumeration-check`'s outcome, 8 → 8. Advisory at launch in both
+  `add-family-enumeration-check`'s outcome, 8 → 8 — **that precondition is now
+  discharged: `add-family-enumeration-check` archived 2026-08-27 and promoted the
+  twenty-one enumeration at 8 → 8**, so the block this packet owes at realization
+  restates canon's twenty-one and reaches twenty-two. Advisory at launch in both
   halves. Three adversarial packet reviews found and fixed 14 blockers. The five
   § Orchestrator decisions were NOT VETOED at ratification, which is not the same
   as affirmatively ruled, so the flags stay; #330 stays open (§ 7.1) and so does
@@ -438,7 +552,8 @@ Active changes:
   repositories and `target_release: implemented`, so it archives only on merged
   plus green realization evidence, never on landing.
 - [qualify-avatar-live-voice](openspec/changes/qualify-avatar-live-voice/proposal.md)
-  — authored 2026-08-26 as the staged topic's Exit, executed on Brett Heap's
+  — **RATIFIED 2026-08-27** (in-session, "ratify avatar"; §2/§3 build lands in
+  the same round) — authored 2026-08-26 as the staged topic's Exit, executed on Brett Heap's
   in-session rulings of the same day: all five blocking forks and all three
   latent decisions, carried into the proposal as LOCKED decisions rather than
   re-litigated. This is the change that turns on real voice — internal-live
@@ -472,44 +587,17 @@ Active changes:
   rule) plus `repo-boundary-governance` and `avatar-client-lab`, because
   latent decision 1 makes this the change that extracts
   `xfactory-avatar-client` from codexFactory `apps/avatar-client-lab` — an
-  obligation canon carried with no change owning it. `Status: draft`;
+  obligation canon carried with no change owning it. `Status: ratified`
+  (2026-08-27, in-session), with §2 (the AVC-09/AVC-10 schemas, their packaged
+  positive and negative examples, and the manifest/CHANGELOG registration) and
+  §3 (the interface-lock unreservation of exactly those two ids, the validator's
+  rules for them, the two-tier latency rule, and the acceptance-map entries)
+  built in the ratifying round; §4-§6 stay unbuilt.
   `code_surface: openxFactory, xfactory-avatar-client` and
   `target_release: implementation_pending`, so it archives only on merged plus
   green internal-live realization evidence, never on landing. Aggregation
   admission of the client repo, the GPT-Live-1 default swap, and the
   `avatar-pilot-hardening` deferrals are explicitly out of scope.
-- [add-family-enumeration-check](openspec/changes/add-family-enumeration-check/proposal.md)
-  — authored and ratified 2026-08-25, commissioned in-session ("commission the
-  §5.5 enumeration check"). `doc-health`'s own "Deterministic check families"
-  requirement NAMES every check family and COUNTS them three times in prose, and
-  every new family must restate the whole requirement to add itself — so a
-  requirement every new family must restate is a requirement every new family can
-  truncate. It broke THREE TIMES IN THREE DAYS and a human caught it every time:
-  `add-release-inventory-drift-check`, `add-promotion-fidelity-check` and
-  `add-duplicate-packet-check` each restated ONE of its EIGHT scenarios, and
-  because `MODIFIED` replaces a requirement wholesale each would have destroyed
-  seven on promotion with the file-level scenario count never moving. The
-  enumeration half had drifted more quietly before that — `staged-topic-template`
-  registered 2026-08-15 and stayed uncounted until 2026-08-23. Closes the
-  candidate `add-duplicate-packet-check` § 5.5 recorded and left named. Adds
-  doc-health's TWENTY-FIRST family, which derives the enumeration and all three
-  numerals from `families.FAMILIES` instead of trusting the hand-restatement:
-  the CANON half compares the promoted requirement, and the ACTIVE-DELTA half —
-  the real prevention — compares every in-flight change that restates it, so a
-  truncation is reported at authoring time rather than at an archive gate. Canon
-  is exempt while an active delta restates the requirement, because a change
-  registering family N+1 leaves canon at N until it archives: pending, not
-  divergent. ADVISORY at launch in both halves, with the flip a recorded task
-  box. **The irony is the acceptance test**: adding the check as a new family
-  forced exactly the restatement it polices, so with the family registered and no
-  delta written it reported three findings against canon — the omitted name and
-  two stale numerals — and zero once this change's own delta was written. Its own
-  restatement was verified by its own check before it could be committed, and the
-  MODIFIED block restates all eight scenarios, seven byte-identical. Two adjacent
-  gaps are recorded rather than folded in: § 5.2, `FAMILY_IDS` missing two
-  entries so `proposal-origin` and `staged-topic-template` report with no section
-  of their own, and § 5.3, the scenario-completeness half — the one that actually
-  destroyed text — which this check does not cover.
 
 - [add-standing-policy-compliance-contract](openspec/changes/add-standing-policy-compliance-contract/proposal.md)
   — authored 2026-08-24, **NOT YET RATIFIED** (`Status: draft`). Neutral-first
@@ -1070,37 +1158,6 @@ Active changes:
   fallbacks painted a white popover behind light text. (code surface:
   openxFactory; target release: none)
 
-- [add-shared-identity-seeds](openspec/changes/add-shared-identity-seeds/proposal.md)
-  — ratified 2026-08-07 (Brett's "yes, lets start that now", accepting the
-  successor named at the close of `add-repository-lens`). Implements the FIRST
-  of the promotion process's four ways a DTN candidate is born — "two or more
-  domain repos use the same structure with different domain nouns" — which had
-  never been automated: none of the neutrality-drift lane's four stage-1
-  signals asks whether two DOMAIN repositories carry the same thing, so that
-  rule was served by manual search passes only. The repository lens already
-  computes exactly that population (ring 2 and inward on the carrier-count
-  plot), so the change adds `doc_health/shared_identity.py` (the deterministic
-  detector plus a seed drafter emitting the register's own row and
-  `### DTN-NNN:` detail section, numbered from the register so a
-  drafted-but-unmerged gap never collides), a loopback drafting route on the
-  dashboard serve that recomputes carriers from the serve's own composed view
-  and returns TEXT, and the lens drill-in affordance (convergent regions
-  draftable, single-carrier regions refused with the reason). SEED-FIRST,
-  NEVER A WRITE: the register is never opened for writing and a candidate
-  enters the lifecycle only when a human merges the seed — which is what makes
-  the affordance legitimate on a composed READ-ONLY view and leaves D10
-  untouched. No contract growth: no schema, no gate verb, no gate-action
-  record. Tasks 1.1–4.4 are discharged, including the 2026-08-07 live browser
-  check on the real five-factory `domains` project (three convergent regions
-  enabled, five single-carrier rows disabled with their reason, the 3-carrier
-  sector drafting DTN-025 for `docs/credentialing.md`, checkout unchanged).
-  4.5 is discharged too: Brett ruled in-session 2026-08-26 to merge that
-  first drafted seed — the register's highest entry is now DTN-025. Only the
-  named successor remains, out of scope for this change: promoting the
-  detector to a FIFTH neutrality-drift stage-1 signal so the nightly lane
-  files these seeds unattended. (code surface: openxFactory; target release:
-  none)
-
 The avatar-client kernel (`contract-v1.7`), reference runtime, and avatar-first UI
 standard (`contract-v1.8`) are realized. The contract kernel, the revocation
 clarification, the reference runtime, and the avatar-first UI standard all archived
@@ -1122,6 +1179,125 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [add-family-enumeration-check](openspec/changes/archive/2026-08-27-add-family-enumeration-check/proposal.md)
+  — **ARCHIVED 2026-08-27** on the merge-plus-green rule the packet declared, and
+  on the precondition `add-modified-block-currency-check` § D5 priced: that change
+  registers the TWENTY-SECOND family, and `fam_family_enumeration` checks every
+  ACTIVE change's restatement of "Deterministic check families" against the live
+  registry, so the twenty-second family's own enumeration block is owed at ITS
+  realization relative to THIS packet's outcome. Realization re-verified ancestors
+  of `main` at the gate rather than read out of a PR body: PR #340 `253c5e87`
+  shipped the family advisory and PR #343 `1bf16533` took § 5.2's ruled
+  `FAMILY_IDS` repair. Gate numbers: `pytest tests/doc-health` **980 passed**
+  before and after; `openspec validate --all --strict` **76 → 75 items** (24 → 23
+  active, 52 specs); the single-repo doc-health headline **byte-identical — 5
+  critical, 8 error, 42 warning, 6 info, 0 new regressions** — the whole report
+  diff being eight non-finding lines of canon word census (203344 → 204720 words,
+  31.0% → 31.1%). Canon promoted at **128 insertions, 6 deletions**, requirements
+  32 → 33, file scenarios 133 → 141, and "Deterministic check families" **8 → 8**
+  with seven of its eight scenarios byte-identical and the eighth gaining exactly
+  one `AND` bullet. The per-requirement pass found TWO canon body units differing,
+  both this packet's declared numeral rewording (`twenty` → `twenty-one` with
+  `family enumeration` appended to the list, and `Four of the twenty` / `the other
+  sixteen` → `twenty-one` / `seventeen`), each verified against the live registry
+  — `len(FAMILIES)` = 21, 21 names, 0 unresolved, `21 − 4 = 17` — and canon's
+  requirement block proven byte-IDENTICAL between the delta's branch point
+  `fe34b73c` and `501a3ae0`, so the block reverted nothing. Authored and ratified
+  2026-08-25, commissioned in-session ("commission the §5.5 enumeration check").
+  `doc-health`'s own "Deterministic check families" requirement NAMES every check
+  family and COUNTS them three times in prose, and every new family must restate
+  the whole requirement to add itself — so a requirement every new family must
+  restate is a requirement every new family can truncate. It broke THREE TIMES IN
+  THREE DAYS and a human caught it every time:
+  `add-release-inventory-drift-check`, `add-promotion-fidelity-check` and
+  `add-duplicate-packet-check` each restated ONE of its EIGHT scenarios, and
+  because `MODIFIED` replaces a requirement wholesale each would have destroyed
+  seven on promotion with the file-level scenario count never moving. The
+  enumeration half had drifted more quietly before that — `staged-topic-template`
+  registered 2026-08-15 and stayed uncounted until 2026-08-23. Closes the
+  candidate `add-duplicate-packet-check` § 5.5 recorded and left named. Adds
+  doc-health's TWENTY-FIRST family, which derives the enumeration and all three
+  numerals from `families.FAMILIES` instead of trusting the hand-restatement:
+  the CANON half compares the promoted requirement, and the ACTIVE-DELTA half —
+  the real prevention — compares every in-flight change that restates it, so a
+  truncation is reported at authoring time rather than at an archive gate. Canon
+  is exempt while an active delta restates the requirement, because a change
+  registering family N+1 leaves canon at N until it archives: pending, not
+  divergent. ADVISORY at launch in both halves, with the flip a recorded task
+  box — **§ 5.1 is the ONE box left unticked at the archive**, owed on a measured
+  population that by construction cannot be taken in advance. **The irony is the
+  acceptance test**: adding the check as a new family forced exactly the
+  restatement it polices, so with the family registered and no delta written it
+  reported three findings against canon — the omitted name and two stale numerals
+  — and zero once this change's own delta was written. Its own restatement was
+  verified by its own check before it could be committed. That self-gate's
+  anti-vacuity guard was RE-AIMED by the archive act rather than deleted: with the
+  block promoted there is no active delta to find, so
+  `test_this_changes_own_delta_is_the_statement_under_test` became
+  `test_canon_is_the_statement_under_test`, the same three assertions one document
+  over. Of the two adjacent gaps recorded rather than folded in, both have since
+  closed: § 5.2's `FAMILY_IDS` repair was RULED and taken on 2026-08-25 (PR #343,
+  61 findings that had been counted in the headline while rendering under no
+  section), and § 5.3 — the scenario-completeness half, the one that actually
+  destroyed text — is DISCHARGED by `add-modified-block-currency-check`, whose
+  spike found two ledger units on this packet's own block and whose gate is
+  scenario-title completeness.
+
+- [add-shared-identity-seeds](openspec/changes/archive/2026-08-27-add-shared-identity-seeds/proposal.md)
+  — **ARCHIVED 2026-08-27**; authored and ratified 2026-08-07 (Brett's "yes,
+  lets start that now", accepting the successor named at the close of
+  `add-repository-lens`), built the same day. Implements the FIRST of the
+  promotion process's four ways a DTN candidate is born — "two or more domain
+  repos use the same structure with different domain nouns" — which had never
+  been automated: none of the neutrality-drift lane's four stage-1 signals asks
+  whether two DOMAIN repositories carry the same thing, so that rule was served
+  by manual search passes only. The repository lens already computes exactly
+  that population (ring 2 and inward on the carrier-count plot), so the change
+  adds `doc_health/shared_identity.py` (the deterministic detector plus a seed
+  drafter emitting the register's own row and `### DTN-NNN:` detail section,
+  numbered from the register so a drafted-but-unmerged gap never collides), a
+  loopback drafting route on the dashboard serve that recomputes carriers from
+  the serve's own composed view and returns TEXT, and the lens drill-in
+  affordance (convergent regions draftable, single-carrier regions refused with
+  the reason). SEED-FIRST, NEVER A WRITE: the register is never opened for
+  writing and a candidate enters the lifecycle only when a human merges the
+  seed — which is what makes the affordance legitimate on a composed READ-ONLY
+  view and leaves D10 untouched. No contract growth: no schema, no gate verb,
+  no gate-action record.
+  **ARCHIVE GATE MET, on the code surface rather than on the target**, the same
+  reading `add-model-provider-broker` recorded a day earlier: the declaration is
+  non-empty, so `release-realization` requires merged-plus-green and
+  `target_release: none` cannot downgrade that to archive-on-landing.
+  MERGED: PR #105 landed 2026-08-07 as main `82e3ec4e` (branch head
+  `8a028c21`), an ancestor of `origin/main` `42662b70`, with all five declared
+  surface files present and the detector module byte-identical to the day it
+  landed. GREEN: PR #105 predates this repository's only pytest gate by 17 days
+  (`pytest-suite.yml` first landed 2026-08-24 as `74af6cc4`, PR #304), so it
+  carries no check runs at all and the green claim rests on MAIN, where the
+  gate has run over this code ever since — every uncancelled green main run
+  from the first (`cbf2368d`, run `32802536347`) to the last
+  (`42662b70`, run `33062355435`, `success` 2026-08-27) carries the detector,
+  the route, the affordance and the test file at the same blobs, and the
+  workflow has no paths filter, so `tests/ideation-dashboard/test_shared_identity.py`
+  is inside each of them. Tasks 1.1–4.4 are discharged, including the
+  2026-08-07 live browser check on the real five-factory `domains` project
+  (three convergent regions enabled, five single-carrier rows disabled with
+  their reason, the 3-carrier sector drafting DTN-025 for
+  `docs/credentialing.md`, checkout unchanged); 4.5 too — Brett ruled
+  in-session 2026-08-26 to merge that first drafted seed, landed as PR #380
+  (`73a535d9`), and the register's highest entry is now DTN-025.
+  Promotion is ADDED-ONLY: `ideation-dashboard` 99 -> 100 requirements, 453 ->
+  457 scenarios, and all 99 pre-existing bodies re-hashed byte-identical
+  afterwards, so no promoted block was restated and no canon repair was owed.
+  **5.1 STAYS UNTICKED BY DESIGN** — promoting the detector to a FIFTH
+  neutrality-drift stage-1 signal is the named successor, owned elsewhere and
+  measurably unbuilt (`SIGNAL_NAMES` still carries four names at `42662b70`);
+  the box is left unticked the way `add-roster-device-admission-surface` left
+  its §6, because ticking it would claim work this change never did.
+  Verification record:
+  [`review/archive-verification-2026-08-27.md`](openspec/changes/archive/2026-08-27-add-shared-identity-seeds/review/archive-verification-2026-08-27.md).
+  (code surface: openxFactory; target release: none)
 
 - [add-model-provider-broker](openspec/changes/archive/2026-08-27-add-model-provider-broker/proposal.md)
   — **ARCHIVED 2026-08-27**; authored 2026-08-08, **ratified 2026-08-26**

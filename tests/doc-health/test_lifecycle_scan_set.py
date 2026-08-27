@@ -111,6 +111,12 @@ NON_READERS = {
     # lifecycle header at all. It also reads ACTIVE change deltas, and by
     # named path rather than by any sweep.
     "family-enumeration",
+    # add-modified-block-currency-check. Its two inputs are an ACTIVE CHANGE
+    # DELTA and the PROMOTED SPEC it has not yet replaced — bodies rather than
+    # headers, and neither of them a lifecycle-scan-set document. It moves no
+    # census, word count, canon-share figure, inventory entry or catalog record
+    # either, which is what its own owning requirement now states in canon.
+    "modified-block-currency",
 }
 
 
@@ -497,11 +503,12 @@ def test_every_family_is_classified_as_reader_or_non_reader():
     # settles, and that half is asserted exactly.
     assert READERS == {"status-validity", "standard-backing",
                        "ratified-provenance", "succession-integrity"}
-    assert len(NON_READERS) == len(FAMILIES) - 4 == 17
+    assert len(NON_READERS) == len(FAMILIES) - 4 == 18
     assert "staged-topic-template" in NON_READERS
     assert "promotion-fidelity" in NON_READERS
     assert "duplicate-packet" in NON_READERS
     assert "family-enumeration" in NON_READERS
+    assert "modified-block-currency" in NON_READERS
 
 
 def test_the_reader_list_is_structural_not_incidental():

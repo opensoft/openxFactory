@@ -64,7 +64,7 @@ def test_a_missing_family_name_fires_and_names_it():
     hits = _on(_run("family-enumeration-missing-name"), "omits")
     assert len(hits) == 1
     assert "'family-enumeration'" in hits[0].rule
-    assert "omits 1 of the 21 registered check families" in hits[0].rule
+    assert "omits 1 of the 22 registered check families" in hits[0].rule
     assert hits[0].path == "openspec/specs/doc-health/spec.md"
 
 
@@ -75,10 +75,10 @@ def test_a_stale_numeral_fires_separately_from_the_names():
     assert _on(findings, "omits") == []
     total = _on(findings, "check families, but")
     assert len(total) == 1
-    assert "'twenty'" in total[0].rule and "21 are registered" in total[0].rule
-    assert "expected 'twenty-one'" in total[0].rule
+    assert "'twenty'" in total[0].rule and "22 are registered" in total[0].rule
+    assert "expected 'twenty-two'" in total[0].rule
     # and the subset sentence carries its own stale total
-    assert len(_on(findings, "of 'twenty', but 21 families")) == 1
+    assert len(_on(findings, "of 'twenty', but 22 families")) == 1
 
 
 def test_an_unregistered_name_is_reported_not_guessed_at():
@@ -115,7 +115,7 @@ def test_a_thin_active_delta_fires_on_its_own_path():
     assert hits[0].path == (
         "openspec/changes/add-something/specs/doc-health/spec.md")
     assert "this active delta's restatement" in hits[0].rule
-    assert "omits 19 of the 21 registered check families" in hits[0].rule
+    assert "omits 20 of the 22 registered check families" in hits[0].rule
     # canon is complete in this fixture and is NOT reported: the delta half is
     # what carries the obligation while a restatement is in flight
     assert all(f.path.startswith("openspec/changes/") for f in findings)
@@ -155,6 +155,12 @@ def test_the_real_corpus_reads_zero_on_both_halves():
     the check verifying its own restatement. Before the delta was written the
     same call reported three findings — the omitted name and two stale
     numerals — and that is what makes this a test rather than a tautology.
+
+    **AFTER THE ARCHIVE ACT (2026-08-27) THIS READS CANON ALONE.** The
+    paragraph above is the historical claim and is kept as written; the block
+    it describes was promoted, so "both halves" is now canon plus an empty
+    active-delta set. Twenty-one families, `twenty-one` in canon, zero
+    findings.
     """
     from conftest import REPO_ROOT
 
@@ -164,18 +170,62 @@ def test_the_real_corpus_reads_zero_on_both_halves():
     assert fe.fam_family_enumeration(Ctx()) == []
 
 
-def test_this_changes_own_delta_is_the_statement_under_test():
-    """The self-gate is only meaningful if the delta half actually READ this
-    change's delta. Asserted, so a refactor that stopped discovering active
-    deltas could not leave the test above passing vacuously."""
-    from conftest import REPO_ROOT
+def test_canon_is_the_statement_under_test():
+    """The test above is only meaningful if the family actually READ a
+    statement. Asserted, so a refactor that stopped discovering statements
+    could not leave it passing vacuously.
 
-    statements = fe._delta_statements(Path(REPO_ROOT))
-    mine = [s for s in statements
-            if "add-family-enumeration-check" in s.rel]
-    assert len(mine) == 1, [s.rel for s in statements]
-    assert mine[0].total_word == "twenty-one"
-    assert len(mine[0].names) == len(FAMILIES)
+    **RE-AIMED BY THE ARCHIVE ACT (2026-08-27), NOT DELETED.** As written this
+    was `test_this_changes_own_delta_is_the_statement_under_test` and it read
+    the DELTA half, because while `add-family-enumeration-check` was active its
+    own delta was the statement carrying the twenty-one enumeration — the
+    self-gate the packet's §4.1 recorded. The archive act promoted that block,
+    so the enumeration now lives in CANON and no active change restates the
+    requirement: `_delta_statements` legitimately returns nothing, and the
+    guard has to sit where the statement went. The three assertions are the
+    same three, moved one document over. The delta half's own discovery stays
+    covered by the fixture tests in §1.
+    RE-AIMED 2026-08-27 by `add-modified-block-currency-check`, which registered
+    the twenty-second family. The three assertions used to read CANON DIRECTLY
+    and pin its numeral and its name count against the live registry — which
+    BYPASSES the very exemption this family implements. Canon is PENDING, not
+    divergent, while an active delta restates the requirement: that is the rule
+    which stops this family firing on every new family's branch
+    (`test_canon_pending_behind_a_complete_delta_is_quiet` pins it), and this
+    test contradicted it. With 22 registered and canon still at twenty-one it
+    failed 21 != 22 while `fam_family_enumeration` correctly read ZERO.
+
+    So the assertions now pin the DISJUNCTION the family itself implements: the
+    statement that speaks for this tree is an active restatement if one exists
+    and canon otherwise, and THAT statement must match the registry. The same
+    three facts — a statement exists, its numeral is the registry's word, its
+    name set is the registry's — asserted about whichever document is
+    authoritative here. Drop a name from either and this fails.
+    """
+    from conftest import REPO_ROOT
+    from doc_health.family_enumeration import WORD_FOR
+
+    root = Path(REPO_ROOT)
+    deltas = fe._delta_statements(root)
+    canon = fe._canon_statement(root)
+    assert canon is not None, "this repository carries a promoted doc-health spec"
+
+    # the authoritative statement: an active restatement if one exists, else canon
+    statement = deltas[0] if deltas else canon
+    assert statement.total_word == WORD_FOR[len(FAMILIES)], (
+        f"{statement.rel} says {statement.total_word!r}; the registry holds "
+        f"{len(FAMILIES)}")
+    assert len(statement.names) == len(FAMILIES), (
+        f"{statement.rel} names {len(statement.names)}; the registry holds "
+        f"{len(FAMILIES)}")
+
+    # ...and the pending direction is a FACT about this tree rather than an
+    # escape hatch. Canon MAY lag behind the registry while a delta speaks for
+    # it — that is the exemption — but it may never name something the registry
+    # does not carry, in any direction. `<= len(FAMILIES)` was the first cut of
+    # this line and it was nearly vacuous; a SUBSET assertion actually bites.
+    resolved = {fe.normalize_family_name(n) for n in canon.names}
+    assert resolved <= set(FAMILIES), sorted(resolved - set(FAMILIES))
 
 
 # --------------------------------------------------- 4. the alias set is minimal

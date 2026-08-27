@@ -385,38 +385,71 @@ COPIES; P3's deletions are P3's own commit.
 release. It lands BEFORE P3 because the sweep hazard sits inside a REQUIRED
 check.*
 
-- [ ] 4.1 **[openXwallet]** `repo_scan` prunes any file whose path descends from a
+- [x] 4.1 **[openXwallet]** `repo_scan` prunes any file whose path descends from a
       directory OTHER than the scan root that carries a `.git` entry, **file or
       directory** — a submodule's `.git` is a FILE, which is all today's
-      `SKIP_DIR_NAMES` catches.
-- [ ] 4.2 **[openXwallet]** The prune is written as a general nested-repository
+      `SKIP_DIR_NAMES` catches. (Feature `013-nested-repo-prune-register-note`,
+      openXwallet PR opensoft/openXwallet#2, merged 2026-08-27 at
+      `63f5a1adac89f017e70bab9a4ffe7cf02d6e6705`, tag `wallet-v1.1`. Proven
+      end-to-end on openxFactory's own tree: NOTE `nested repositories pruned
+      (not adjudicated): installs/omnigent-install`, 87 files dropped from the
+      sweep, finding set unmoved, exit 0.)
+- [x] 4.2 **[openXwallet]** The prune is written as a general nested-repository
       rule, NOT by adding `openXwallet` to `SKIP_DIR_NAMES`: hard-coding one
       consumer's directory name into the product's validator is the exact coupling
       the split removes, and it misses every other nested repository. It also
       closes the same pre-existing hole for `installs/omnigent-install`, which the
-      sweep walks into today.
-- [ ] 4.3 **[openXwallet]** `main()`'s argparse is UNCHANGED — no `--exclude`
+      sweep walks into today. (Same PR/tag as 4.1. The general rule closes the
+      hole directly: end-to-end proof on openxFactory's own tree shows NOTE
+      `nested repositories pruned (not adjudicated): installs/omnigent-install`,
+      with no `openXwallet`-named hard-coding involved.)
+- [x] 4.3 **[openXwallet]** `main()`'s argparse is UNCHANGED — no `--exclude`
       flag. An exclusion the caller supplies is one the caller can omit (the
       vacuous-pass class), and both R6's zero-refactor proof and the pinned
-      invocation test key on that signature.
-- [ ] 4.4 **[openXwallet]** A test proving a YAML file inside a nested repository
+      invocation test key on that signature. (Same PR/tag as 4.1: zero
+      finding-code / message / `--strict` / argparse changes; PR checks
+      `wallet-validation` and `pytest-suite` both pass.)
+- [x] 4.4 **[openXwallet]** A test proving a YAML file inside a nested repository
       is no longer swept, and that a file at the same relative path OUTSIDE any
-      nested repository still is.
-- [ ] 4.5 **[openXwallet]** The register-read `f.note` naming the resolved
+      nested repository still is. (`tests/nested_repo_prune/test_prune_and_register_note.py`:
+      `test_nested_repo_with_a_dot_git_FILE_is_not_adjudicated`,
+      `test_nested_repo_with_a_dot_git_DIRECTORY_is_not_adjudicated`, and the
+      control `test_the_control_same_record_outside_any_nested_repo_IS_adjudicated`,
+      plus `test_the_scan_root_is_never_pruned_by_its_own_dot_git`. Verified
+      against openXwallet `main` at `63f5a1ad`.)
+- [x] 4.5 **[openXwallet]** The register-read `f.note` naming the resolved
       register path when the register IS read — an `f.note`, **never a warning**,
       because `:2107` reds a `--strict` run on warnings and LedgerxFactory runs
-      `--strict`.
-- [ ] 4.6 **[openXwallet]** The corpus exclusion at `:2050-2053` still keys on
+      `--strict`. (Same PR/tag as 4.1: `check_register` emits the happy-path NOTE
+      `intake register read: <path> (N row(s))`. Proven end-to-end on
+      openxFactory's own tree: NOTE `intake register read:
+      governance/review-authority/register.yaml (1 row(s))`.)
+- [x] 4.6 **[openXwallet]** The corpus exclusion at `:2050-2053` still keys on
       path PARTS, so the 36 negatives and 17 positives stay excluded inside a
       submodule; assert it, because the real hazard is the non-`examples/` YAML the
       carve brought along (`specs/006-openxwallet-contracts/evidence/`,
       `tests/wallet_yaml_syntax_gate/`, openXwallet's own OpenSpec instance) plus
       the canonical custody registry being re-indexed as a live record.
-- [ ] 4.7 **[openXwallet]** `contracts/CHANGELOG.md` entry: additive minor, both
+      (`tests/nested_repo_prune/test_prune_and_register_note.py`:
+      `test_the_packaged_corpus_exclusion_still_keys_on_path_parts`,
+      `test_the_repository_itself_still_reports_its_own_corpus`,
+      `test_this_repository_adjudicates_with_no_error_and_no_warning`, and
+      `test_the_previous_version_adjudicates_the_corpus_identically`, which
+      recovers the wallet-v1.0 validator and compares finding sets — 17
+      positives / 36 negatives unchanged. Verified against openXwallet `main`
+      at `63f5a1ad`.)
+- [x] 4.7 **[openXwallet]** `contracts/CHANGELOG.md` entry: additive minor, both
       changes named, none of the eight digested artifacts touched — so the eight
       sha256s at `wallet-v1.1` still equal the carve commit's rows.
-- [ ] 4.8 **[OPERATOR]** Tag `wallet-v1.1`, with its own
-      `wallet-v1.1.digests.yaml` over `member_class: owned` members only.
+      (`contracts/CHANGELOG.md:22` `## wallet-v1.1 — 2026-08-26 (additive minor;
+      validator behaviour only)`, stating the eight digests still equal the
+      named carve commit's rows. Verified against openXwallet `main` at
+      `63f5a1ad`.)
+- [x] 4.8 **[OPERATOR]** Tag `wallet-v1.1`, with its own
+      `wallet-v1.1.digests.yaml` over `member_class: owned` members only. (Tag
+      `wallet-v1.1`, annotated `021cdeef`, targets `63f5a1ad`, pushed
+      2026-08-27; 8/8 contract digests unchanged, `contract_bundle_version:
+      wallet-v1.1`.)
 - [ ] 4.9 **[LedgerxFactory]** Evidence: a GREEN estate run on the v1.1 reader.
       The prune changes consumer behaviour, so this is a correctness check, not a
       formality — Ledgerx wallet records live at `tenants/ledgerxcorp/wallets/*`

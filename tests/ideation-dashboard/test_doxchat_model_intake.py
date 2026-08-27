@@ -1305,22 +1305,14 @@ def test_the_bundle_release_names_both_schemas_and_recomputes_both_digests():
     one entry per release."""
     manifest = yaml.safe_load(
         (CONTRACTS / "manifest.yaml").read_text(encoding="utf-8"))
-    bundle = manifest["contract_bundle_version"]
-    # THE DECLARED BUNDLE IS A FLOOR, NOT AN EQUALITY. This line read
-    # `assert bundle == "contract-v1.45"`, which is a claim about the FUTURE
-    # rather than about this change's release: it asserts that no later bundle
-    # has been cut. It duly failed on the very next cut — contract-v1.46, the
-    # openxWallet deprecating minor (`split-openxwallet-repo` P2.5) — for no
-    # reason connected to anything this test measures, and it would have failed
-    # on whichever cut happened to be next. What this release OWNS is pinned
-    # exactly, below and unchanged: both recomputed digests, both consumption
-    # rules naming contract-v1.45, exactly one `## contract-v1.45 —` changelog
-    # entry, and its own contract-v1.45 inventory. Those stay true forever; the
-    # head of the manifest does not.
-    major, minor = (
-        int(part) for part in bundle.removeprefix("contract-v").split("."))
-    assert (major, minor) >= (1, 45), (
-        f"declared bundle {bundle} predates this change's release")
+    # `contract_bundle_version` is a MOVING POINTER at whatever bundle was cut
+    # last, not a fact about THIS release: pinning it to contract-v1.45 asserted
+    # that no later bundle exists, which contract-v1.46 falsified and every
+    # future cut would falsify again. This release's own facts are immutable and
+    # are the ones asserted — its CHANGELOG entry and its digest inventory,
+    # both of which name the two schemas — plus the LIVE half that actually
+    # matters here: both schemas are still manifest members whose recorded
+    # digests match their bytes on disk.
     rows = {row["id"]: row for row in manifest["contracts"]}
     for contract_id in ("gate-action-record", "xfactory-workbench-chat-turn"):
         row = rows[contract_id]
@@ -1333,12 +1325,22 @@ def test_the_bundle_release_names_both_schemas_and_recomputes_both_digests():
         "xfactory-workbench-chat-turn"]["consumption_rule"]
     changelog = (CONTRACTS / "CHANGELOG.md").read_text(encoding="utf-8")
     assert changelog.count("## contract-v1.45 —") == 1
-    assert "**Change class: ADDITIVE (minor)**" in changelog.split(
-        "## contract-v1.44")[0]
+    # Scoped to THIS entry's own section. Reading everything above the v1.44
+    # heading was the same moving-pointer mistake in a second dress: once a
+    # newer entry sat on top, a later release's "ADDITIVE" line could satisfy
+    # this assertion while v1.45's said anything at all.
+    entry = changelog.split("## contract-v1.45")[1].split("## contract-v1.44")[0]
+    assert "**Change class: ADDITIVE (minor)**" in entry
+    assert "gate-action-record" in entry
+    assert "xfactory-workbench-chat-turn" in entry
     inventory = yaml.safe_load(
         (CONTRACTS / "releases" / "contract-v1.45.digests.yaml").read_text(
             encoding="utf-8"))
     assert inventory["bundle_tag"] == "contract-v1.45"
+    named = {e["path"] for e in inventory["entries"]}
+    for schema in ("contracts/schemas/gate-action-record.schema.yaml",
+                   "contracts/schemas/xfactory-workbench-chat-turn.schema.yaml"):
+        assert schema in named, schema
 
 
 # ===========================================================================

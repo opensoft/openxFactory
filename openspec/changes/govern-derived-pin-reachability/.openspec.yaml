@@ -1,0 +1,75 @@
+schema: spec-driven
+created: 2026-08-27
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-27-govern-derived-pin-reachability
+  reason: >-
+    Commissioned in-session by Brett on 2026-08-27, verbatim: "file the
+    pin-governance follow-up change". Not a staged ideation topic —
+    `ideation/staging/` and its INDEX were searched and carry nothing on
+    derivation pins or their reachability, so `kind: staged` is unavailable
+    rather than declined. THE FORCING FACTS, all measured 2026-08-27 in a fresh
+    worktree off `origin/main` at `42662b70`: TWO committed artifacts still
+    standing on `main` pin commits reachable from no ref, local or remote —
+    `health/ideation-readiness/2026-08-24/brainstorm-packet-migration-20260824.yaml:5`
+    pins `da9bf3b7d0ee1d86d2d437d42a715c238dddce4b` and
+    `health/ideation-readiness/2026-08-24/brainstorm-packet-migration-final-20260824.yaml:5`
+    pins `f13a3b6007736292e1e157febef1ac733e534de9`. For each,
+    `git branch -a --contains` returns empty, `git ls-remote origin | grep -c`
+    returns 0, and `git merge-base --is-ancestor <pin> origin/main` is false;
+    both carry `status: record`, so neither pin may be edited. Both are residue
+    of ONE landing: pull request #322 regenerated the cross-reference index on a
+    branch pinning `da9bf3b7`, the pin was then moved BY HAND to the branch tip
+    `f13a3b60` with no regeneration of the body, and the branch landed rewritten
+    as `4e57009c` (`git log --format='%H %p %s' -1` shows a single parent
+    `700c1a19`, subject "Migrate brainstorms into three-tier packets (#322)"),
+    orphaning both commits at once. The cost was not one bad pin: the index's
+    orphaned pin made the readiness derivation proof `pytest.skip` in every
+    fresh clone for the packet's whole life, so seven real-corpus proofs never
+    ran on a runner until `harden-ideation-readiness-check` was realized as
+    pull request #400 and isolated clones moved from 889 passed / 7 skipped to
+    920 passed / 0 skipped. That sibling repaired the INDEX and made the
+    consequence loud; both `health/` records kept their orphaned pins, unreported
+    by anything, which is the evidence that a per-artifact obligation does not
+    generalize on its own.
+    Authored in openxFactory because all three affected capabilities —
+    `ideation-cross-reference`, `release-realization`, `doc-health` — are
+    openxFactory's own, and every artifact in the inventory is committed to this
+    repository.
+  approved_by: >-
+    Brett — in-session commissioning of the filing itself on 2026-08-27,
+    verbatim: "file the pin-governance follow-up change". This records
+    authorization for the DECISION TO FILE, which is also what the proposal's
+    `Ratified:` line cites, and it follows the shape
+    `fix-release-reachability-race` set (its own `.openspec.yaml` records
+    "in-session commissioning of the filing itself" as the approval act) and
+    `add-family-enumeration-check` ("in-session commissioning of the check
+    itself"), rather than the blank-pair shape
+    `harden-ideation-readiness-check` was raised under. The distinction was
+    judged, not assumed: that packet had NO instruction behind it — it was
+    raised from an autonomous triage, so there was no approval act to record and
+    fabricating one was refused until Brett ruled the next day. This packet has
+    the instruction, verbatim, and the instruction is the origin act.
+    IT IS AN ADMISSION INTO THE PROPOSAL QUEUE, NOT A RATIFICATION OF CONTENT:
+    the five decisions the authoring session took under standing patterns (the
+    three-capability all-ADDED shape, the no-new-check-family enforcement home,
+    reproduction rather than reachability as the definition of a re-pin,
+    retention rather than re-pinning as the record repair route, and the change
+    name) are NOT covered by this authorization and are flagged for veto in the
+    proposal's § Orchestrator decisions. Neither are the three questions in
+    § Open Questions, each of which carries a recommendation and no decision.
+    ONE CORRECTION TO THE COMMISSION ITSELF is recorded rather than smoothed
+    over, because it bears on what was authorized: the commission described BOTH
+    recently archived packets as deferring this rule by name. Read in the
+    archive, only `harden-ideation-readiness-check` does (proposal § Named
+    follow-ups, and tasks § 5.2 unticked at archive).
+    `fix-release-reachability-race` does not — its § Named follow-ups carries
+    three bullets, none about pins — and what it carries instead is § Family
+    relation, whose table names the orphaned index pin as the family's stale
+    operand. Both citations are made in the proposal in the form the records
+    actually support.
+  approved_on: 2026-08-27
+related:
+  - openxFactory:change:harden-ideation-readiness-check   # deferred this rule by name; its OD-1 declined the index-side requirement to avoid pre-empting this packet
+  - openxFactory:change:fix-release-reachability-race     # same defect family: live state answered against pinned state; its § Family relation names the orphaned pin as the stale operand
+  - openxFactory:change:add-family-enumeration-check      # holds the active MODIFIED block for "Deterministic check families"; this packet deliberately adds no family and does not restate it

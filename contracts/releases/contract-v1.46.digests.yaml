@@ -10,12 +10,12 @@ entries:
   path: contracts/CHANGELOG.md
   type: changelog
   git_mode: '100644'
-  digest: sha256:3e0990914b871ae843d0b4c29b439e4011b0619b559ca478a78a5ee26d184a08
+  digest: sha256:0398987c87d75a3bb855966bb1d96155b3e6f5224d912ce510dc339bd3685763
 - artifact_id: contracts-readme.md
   path: contracts/README.md
   type: documentation
   git_mode: '100644'
-  digest: sha256:80fed1c224a7fb4e16c4c58b1a06ec2bbe8a967d20a80214bcb7b2389ddbd047
+  digest: sha256:5660f4584a6ab364e1d69222fac89ee1e9450062f545797cd8d9f2248260bb36
 - artifact_id: hermes-runtime-contract-readme
   path: contracts/hermes-runtime/README.md
   type: documentation
@@ -824,7 +824,7 @@ entries:
   path: contracts/manifest.yaml
   type: manifest
   git_mode: '100644'
-  digest: sha256:0750cbdce8a0e0f3625ca8f0484389567107e38a7b697d7e3deae241a4416e6f
+  digest: sha256:b5f1803df26a8307d72a019b3b29c2bd6a7cfbef78b1d5c86a505af9edc6941e
 - artifact_id: contracts-releases-release-digest-inventory.schema.yaml
   path: contracts/releases/release-digest-inventory.schema.yaml
   type: schema
@@ -918,7 +918,7 @@ entries:
   path: docs/contract-versioning-policy.md
   type: documentation
   git_mode: '100644'
-  digest: sha256:767f47f5d41e124b19e58e4bd3b03c9ff6ad9902e0b88f00b1e874ec813b3aef
+  digest: sha256:933b378ff9af45134d15bd942c20970aff0ceacf3f57556644a55548749261ad
 - artifact_id: docs-terminology-and-repo-topology.md
   path: docs/terminology-and-repo-topology.md
   type: documentation

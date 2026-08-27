@@ -262,6 +262,43 @@ contracts:
     sha256: 7b42d1eb8bbdaa89d706a8359cb0e53aef569a988d841e19d6543ac56188d99c
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
+  # ---- AVC-09 + AVC-10 — contract-v1.46 realization (qualify-avatar-live-voice) ----
+  # The two identifiers the kernel RESERVED and named this change as the owner
+  # of, published from their reserved shapes. AVC-09 carries NO numeric
+  # latency-budget field (Fork 2 Option C); the gating rule is the neutral
+  # relative-regression SLO in acceptance-map.yaml and the measured numbers are
+  # AVC-10 samples. `interface-lock.yaml` moved exactly these two out of
+  # `frozen.reserved_identifiers` in the same commit; AVC-03 and AVC-05 stay
+  # reserved and no identifier is ever reused.
+  - id: avatar-client-avc-09-voice-adapter-descriptor
+    path: contracts/avatar-client/avc-09-voice-adapter-descriptor.schema.yaml
+    source_path: openxFactory/contracts/avatar-client/avc-09-voice-adapter-descriptor.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: a6ea3b65433bf284246cd555dde6cae881521ca81b745e168843381ed3b20fe6
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The session broker and the extracted `xfactory-avatar-client` consume
+      AVC-09 and AVC-10 through their pinned openxFactory checkout at the
+      contract-v1.46 tag and MUST verify the per-file sha256 before treating a
+      copy as current. A descriptor instance carries adapter STATUS and
+      references to recorded latency evidence; a per-profile numeric latency
+      ceiling is refused structurally, and so is any secret material.
+  - id: avatar-client-avc-10-voice-latency-sample
+    path: contracts/avatar-client/avc-10-voice-latency-sample.schema.yaml
+    source_path: openxFactory/contracts/avatar-client/avc-10-voice-latency-sample.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: ae76fea9df1e49ce4c4a83a568978e8688b5da7d072e5d18e48dd6fcdfc26d07
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      A sample is ONE OBSERVATION carrying raw monotonic markers, derived
+      intervals, and the direct-or-brokered reference classification — never a
+      percentile, never a budget, and never raw content. The relative-regression
+      SLO is evaluated only between samples whose platform, network class and
+      region agree.
   - id: avatar-client-avc-11-session-command
     path: contracts/avatar-client/avc-11-session-command.schema.yaml
     source_path: openxFactory/contracts/avatar-client/avc-11-session-command.schema.yaml
@@ -363,7 +400,7 @@ contracts:
     source_path: openxFactory/contracts/avatar-client/fixtures/index.yaml
     type: fixture_index
     schema_version: 1
-    sha256: c4372f1981b57c0e1fc62f71303ee1d831061caab729a34238aee1dd47765bb9
+    sha256: 2b9ba972dd58d7519d3edef0c1da95c0189232fd246d8003779c4f10dce9cc64
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
   - id: avatar-client-acceptance-map
@@ -371,7 +408,7 @@ contracts:
     source_path: openxFactory/contracts/avatar-client/acceptance-map.yaml
     type: acceptance_map
     schema_version: 1
-    sha256: 23a5176015ab8f05d334262a6af430b0ca8e8b84ff1d335268c1b5d86ae8210f
+    sha256: 8b9b3b0ad275477eeec99c91f4964a5d5c6212e41e6642f964c27d98c27348f9
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
   - id: avatar-client-interface-lock
@@ -379,7 +416,7 @@ contracts:
     source_path: openxFactory/contracts/avatar-client/interface-lock.yaml
     type: interface_lock
     schema_version: 1
-    sha256: 9f62de56d222ea521e1e7a465019f62b30d9292997288ff37d75856379653c0d
+    sha256: ecca6dbf1bfe26b5ad47e1ff34c14d0e48f42e11804d68f206ae6017b0296c73
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
   - id: avatar-client-evidence-register
@@ -387,7 +424,7 @@ contracts:
     source_path: openxFactory/contracts/avatar-client/evidence-register.yaml
     type: evidence_register
     schema_version: 1
-    sha256: 6f42422521adad8818895e6b8bb83ca9d148dc33fb9e61a8c762d5e6cca36d66
+    sha256: 8f466d7e0140cd0da3e886a626c844801bee7794fa45d51acb79b6d9b1b6a5c7
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
   # ---- document-cataloging contract surface — contract-v1.11 realization (add-document-cataloging) ----
