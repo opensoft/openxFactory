@@ -338,11 +338,41 @@ manifest lives in the operator's own workspace.
 Copying it into the assembly (read-only with respect to the source workspace)
 dropped the plan to **54 operations**. THE DIFFERENCE WAS ENTIRELY ARTIFACT.
 
-This is the partial-assembly trap in a new disguise: the recorded form was mass
-DELs from missing repositories, and this one is mass UPDs from a missing
-manifest. The general rule is the same and worth stating once more — **an
-assembly is repositories AND manifest; either one missing produces a confident,
-wrong plan.**
+**CORRECTED 2026-08-27 after review — the rule first written here contradicted
+the ratified contract, and the contract wins.**
+
+An earlier version of this section called the 703-op plan "artifact" and drew the
+rule *"an assembly is repositories AND manifest; either one missing produces a
+confident, wrong plan."* That is wrong on both halves.
+§ 5 of `docs/lifecycle-notebook-projection.md` defines the manifest as
+
+> intentional local derived state — not committed; safe to delete, next apply
+> rebuilds it
+
+so an assembly without one is CONFORMING, not incomplete. And the plan it
+produces is not wrong: § 5's Update rule is *"repo content changed (SHA-256
+tracked in the manifest) → delete + re-add"*, so with no manifest **nothing can
+be known unchanged** and every source is refreshed. Delete-and-re-add of
+identical content converges on the same end state — the run is idempotent in
+EFFECT even where it is not idempotent in OPERATIONS.
+
+**The honest rule:**
+
+> A manifest-less assembly plans a **FULL REFRESH by design**. Carry the
+> operator's manifest when an incremental plan is wanted. **Review the plan's
+> magnitude before applying either way** — a full refresh is expensive (~2s per
+> source operation, so roughly 700 ops ≈ 23 minutes) and it churns source ids,
+> which is reason enough to choose deliberately rather than discover.
+
+What actually happened here is smaller and less flattering than a trap: **the
+plan was contract-correct and I had not read the contract.** Reviewing magnitude
+before applying is what made the difference, and that habit is the transferable
+part — not a rule about assemblies.
+
+The genuinely comparable prior incident stands on its own terms: a doc-health
+drift reading of 549 pending operations from a ONE-REPOSITORY workspace was an
+artifact, because the derived set was missing nine repositories' documents. That
+is a wrong INPUT. A missing manifest is a permitted input.
 
 ### The plan, reviewed before applying
 
@@ -366,7 +396,8 @@ openxFactory 2/1).
   moved from draft to ratified, counted at both ends.
 * **The four MedxFactory topics are NOT a pin artifact**, which is what the
   earlier record suspected. They exist at the pin and upstream, and they carry
-  `Status: realized (promoted into …, archived 2026-08-0x)`. `STATUS_RE` accepts
+  `Status: realized (promoted into …, archived …)` — the four cite archive
+  dates of 2026-08-05, 2026-08-06 and 2026-08-07 (two share the last). `STATUS_RE` accepts
   only the controlled vocabulary — brainstorm, staged, draft, ratified, standard,
   superseded, retired, record — and **`realized` is not in it**, so the scan
   cannot project them. Removing their sources is correct convergence, not loss.
