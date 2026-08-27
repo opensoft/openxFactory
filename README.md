@@ -760,7 +760,25 @@ Active changes:
   `add-model-provider-broker` (custody, minting, the narrowed provider
   boundary), which is itself blocked on openProfiler; needs an additive
   `gate-action-record` action enum member at realization.
-  `target_release: implementation_pending`.
+  **BUILT 2026-08-26.** The blocking dependency is discharged on both sides —
+  `add-model-provider-broker` merged (PR #392, main `bb7d7ae8`) and openProfiler
+  declared its CLI surface (PR #18, main `d0538c31`, `docs/broker-cli.md`) — and
+  sections 1, 2 and 3 are complete: the affordance renders first and defaults on
+  an empty catalog (never on an unreadable one), the flow streams what a human
+  supplies straight into the declared broker and keeps only the binding, a
+  PENDING declaration contributes no available entry, and
+  `POST /actions/workbench/model-approval` writes an `approve-model` gate action
+  carrying issuer/approver/expiry/audit reference before anything becomes
+  selectable. It also discharges the task handed over by
+  `add-model-provider-broker` (its 2.4): the mid-turn re-mint and the paid retry
+  it buys are now VISIBLE in the turn record and in the rail, per Brett's
+  2026-08-26 ruling. Both land as one ADDITIVE cut,
+  `target_release: contract-v1.45` (`approve-model` plus `target.model_declaration`
+  and `model_approval` on `gate-action-record`; the optional `provider_retry` on
+  `workbench-chat-turn-v2-success`). It stays ACTIVE: tasks 4.1 (live-console
+  proof, which needs a human at a real browser) and 4.2 (realization evidence)
+  are open, and under `release-realization` this change archives only on merged
+  plus green.
 - [add-identity-brokering](openspec/changes/add-identity-brokering/proposal.md)
   — authored and **RATIFIED 2026-08-21** (recommendations adopted as written;
   the OQ-5 co-residence gate discharged: HealthLinc patients found and

@@ -568,10 +568,43 @@ _ABSTRACT_CODES = {
     "abstract_unavailable",
 }
 
+# PIN EVOLUTION (add-doxchat-model-intake §2/§3). THREE intake-era spellings,
+# each a recorded judgement call for a condition the planning contracts have no
+# code for, because the planning contracts predate the idea that a human could
+# add a model at all. The split is deliberate and each member earns its own
+# entry:
+#
+#   * `intake_refused` (409) — the flow REFUSING RATHER THAN DEGRADING: no
+#     broker is declared, the broker would not take custody, or this install's
+#     own declarations forbid the act. 409, like `model_unavailable`, because
+#     the request was well-formed and the SERVER's declared posture refused it.
+#     Its body carries a `reason` drawn from `doxbench_intake`'s own fixed
+#     sentences, exactly as the thread route's absence body carries a declared
+#     cause — because "the wizard did not work" and "there is nowhere governed
+#     to put a credential" are different facts with different remedies, and only
+#     one of them is something a human can act on;
+#   * `invalid_intake_request` (400) — the request's own shape: a missing
+#     declared fact, an unknown authentication kind, a body past the bound.
+#     Kept apart from `invalid_turn_request` rather than reused, because an
+#     enrolment is not a turn and a catalog message has to hold for every
+#     violation it answers;
+#   * `approval_refused` (409) — the SECOND act failing on its own terms:
+#     nothing pending under that name, something already approved, a record that
+#     would not validate. Kept apart from `intake_refused` because approving is
+#     a different decision from enrolling, which is the whole point of §3.
+#
+# NONE of them ever carries the broker's words, the provider's words, or the
+# value a human supplied.
+_INTAKE_CODES = {
+    "intake_refused",
+    "invalid_intake_request",
+    "approval_refused",
+}
+
 _ALL_DOXBENCH_CODES = (
     _PLANNING_CONTRACT_CODES | _ROUTE_VERBATIM_CODES
     | _ROUTE_JUDGEMENT_CALL_CODES | _DISPATCH_OUTCOME_CODES | _PACKET_CODES
-    | _THREAD_CODES | _ABSTRACT_CODES
+    | _THREAD_CODES | _ABSTRACT_CODES | _INTAKE_CODES
 )
 
 
