@@ -155,6 +155,78 @@ def seam_for(binary: str) -> str:
 
 REFUSAL_EXIT_CODE = 97
 
+
+# ---------------------------------------------------------------------------
+# THE AMBIENT `conftest` SLOT (issue #305). Repairs the hazard the block below
+# documents, without adding a module name or a pytest.ini option.
+# ---------------------------------------------------------------------------
+
+def claim_conftest_slot(namespace: dict) -> None:
+    """Make the calling conftest.py the `sys.modules["conftest"]` occupant for
+    its OWN subtree, so multi-directory invocations stop being order-dependent.
+
+    Call it at the bottom of a ROOTLESS directory conftest — one whose directory
+    has no `__init__.py` — as `claim_conftest_slot(globals())`.
+
+    THE HAZARD. `conftest` is an ambient top-level module name with exactly one
+    `sys.modules` entry, and `_importconftest` DELETES that entry before
+    importing each rootless conftest.py (`_pytest/config/__init__.py:753`), so
+    whichever loaded last owns it. Ordinary collection hides this: directory
+    conftests load lazily as traversal reaches them, so each directory's test
+    modules are imported while their own conftest still holds the slot. Several
+    path ARGUMENTS break exactly that, because `_set_initial_conftests` loads
+    every argument's conftest BEFORE collection begins
+    (`_pytest/config/__init__.py:615`) — so the LAST argument's conftest is what
+    the first argument's `from conftest import AS_OF, FakeGit, ...` sites read.
+    Measured on main: `pytest tests/doc-health tests/avatar_runtime
+    --collect-only` collected 184 with 27 collection errors, while the same two
+    arguments swapped collected 993 clean.
+
+    THE REPAIR, and why it is exactly these two hooks. Both are dispatched
+    through the node's `ihook` — an `FSHookProxy` that subtracts the conftest
+    plugins not in scope for that node's path (`_pytest/main.py:731`) — so the
+    copy installed here fires ONLY for nodes under this conftest's own directory
+    and can never reach a sibling's:
+
+      * `pytest_collectstart` runs immediately before a collector's `collect()`
+        (`_pytest/runner.py:588`), which for a `Module` is where the test module
+        is imported. That is the collection-time leg.
+      * `pytest_runtest_setup` runs before each test body
+        (`_pytest/runner.py:241`). That is the run-time leg, for the seven
+        sites that do `from conftest import ...` INSIDE a test function. Under a
+        plain `pytest tests/` those read whichever conftest was collected LAST —
+        `tests/ideation-dashboard/`'s, alphabetically — and they are harmless
+        today only by luck: the four in that directory happen to be asking for
+        the module that already holds the slot, and the three in
+        `tests/doc-health/` ask for `REPO_ROOT`, which both conftests define
+        identically. This hook stops it being luck.
+
+    THE ONE PLACE NOT TO CALL IT is `tests/conftest.py`. pluggy calls hook
+    implementations in LIFO registration order, and the suite-wide conftest
+    registers BEFORE every directory one, so its claim would run LAST and undo
+    theirs (measured on a scratch tree: the green two-directory run goes
+    straight back to two collection errors). A conftest whose directory has an
+    `__init__.py` needs nothing either — pytest imports it as
+    `<package>.conftest`, and it never touches the flat slot.
+    """
+    name = namespace["__name__"]
+    if name != "conftest":
+        raise RuntimeError(
+            "claim_conftest_slot is for a ROOTLESS conftest.py, which pytest "
+            f"imports as the flat module `conftest`; {name!r} is inside a "
+            "package and does not contend for that slot")
+    module = sys.modules[name]
+
+    def pytest_collectstart(collector) -> None:
+        sys.modules["conftest"] = module
+
+    def pytest_runtest_setup(item) -> None:
+        sys.modules["conftest"] = module
+
+    namespace["pytest_collectstart"] = pytest_collectstart
+    namespace["pytest_runtest_setup"] = pytest_runtest_setup
+
+
 # The hookups this guard must be registered from (pinned by test_hermeticity):
 # EVERY conftest.py under tests/, so no directory is guarded only by luck.
 #
@@ -174,6 +246,18 @@ REFUSAL_EXIT_CODE = 97
 # real-binary stand-in, three invocations landed, ledger empty; measured in
 # `tests/notebooklm/` and `tests/merge-master/`). See `pytest.ini` for why an
 # inifile is the right instrument and a per-directory conftest is not.
+#
+# THE HIJACK ITSELF NOW HAS A REPAIR (issue #305, 2026-08-26). Every DIRECTORY
+# conftest listed here calls `claim_conftest_slot(globals())` — defined above —
+# which re-claims `sys.modules["conftest"]` for its subtree from two path-scoped
+# hooks, so a directory's test modules import THEIR conftest whatever order the
+# arguments arrive in: `pytest tests/doc-health tests/avatar_runtime` went from
+# 184 collected / 27 collection errors to 993 collected clean, matching the
+# order that already worked. That does not make adding a conftest.py free — a
+# new one still has to be listed here AND carry the claim, both pinned by
+# test_hermeticity — but a collision with the siblings is no longer its cost.
+# `tests/conftest.py` is the one entry that must NOT claim (LIFO hook order
+# would make its claim the last one to run); see the docstring above.
 CONFTEST_HOOKUPS = ("avatar_runtime/conftest.py", "conftest.py",
                     "doc-health/conftest.py",
                     "ideation-dashboard/conftest.py")

@@ -27,6 +27,7 @@ sys.path.insert(0, str(REPO_ROOT / "scripts"))
 sys.path.insert(0, str(TESTS_ROOT))
 
 from hermeticity import (  # noqa: E402,F401  (autouse fixture registration)
+    claim_conftest_slot,
     hermetic_binary_path,
     hermetic_external_runners,
 )
@@ -145,3 +146,11 @@ NO_IMPLICIT_PUSH_MODULES: tuple[str, ...] = (
 )
 
 FORBIDDEN_PUSH_TOKENS: tuple[str, ...] = (".push(", "open_or_update(", "git push")
+
+
+# `claim_conftest_slot` re-installs THIS module as the ambient `conftest` for
+# nodes under this directory only, so a multi-directory invocation
+# (`pytest tests/doc-health tests/ideation-dashboard`) no longer depends on
+# argument order — see its docstring in `tests/hermeticity.py` for the
+# mechanism, and never add the call to `tests/conftest.py` (issue #305).
+claim_conftest_slot(globals())
