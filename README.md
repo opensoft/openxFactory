@@ -340,6 +340,64 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [govern-derived-pin-reachability](openspec/changes/govern-derived-pin-reachability/proposal.md)
+  — **RATIFIED 2026-08-27** (Brett, in-session commissioning of the filing,
+  verbatim: "file the pin-governance follow-up change"). The commission is the
+  origin act, so `approved_by`/`approved_on` are recorded from it — the
+  `fix-release-reachability-race` shape, not the blank-pair shape its other
+  sibling was raised under. **THE CITATION COVERS THE DECISION TO FILE AND
+  NOTHING ELSE**: the five § Orchestrator decisions stay FLAGGED FOR VETO and
+  Q1 (where the declared pin class lives), Q2 (whether the live-orphan repair
+  rides this change) and Q3 (whether a retention-ref namespace is owed) stay
+  OPEN, each with a recommendation and no decision. **THE FOLLOW-UP
+  `harden-ideation-readiness-check` DEFERRED BY NAME** (its § Named follow-ups,
+  and § 5.2 unticked at archive; its OD-1 declined an index-side requirement
+  "to avoid pre-empting the deferred governance packet" — this packet takes it).
+  ONE CORRECTION TO THE COMMISSION, recorded rather than smoothed:
+  `fix-release-reachability-race` does NOT defer the rule by name — its § Named
+  follow-ups carries three bullets, none about pins — and is cited instead for
+  its § Family relation table, which names the orphaned index pin as the
+  family's stale operand. **A pin that no ref reaches is a DEFECT, not
+  staleness.** Pull request #322 regenerated the cross-reference index on a
+  branch pinning `da9bf3b7`, the pin was moved BY HAND to the branch tip
+  `f13a3b60` with no body regeneration, and the branch landed rewritten as
+  `4e57009c` (single parent `700c1a19`), orphaning both at once; the index's
+  orphaned pin then turned the readiness derivation proof into a `pytest.skip`
+  for the packet's whole life, so seven real-corpus proofs never ran on a runner
+  until PR #400 (889 passed / 7 skipped → 920 / 0). **TWO ORPHANED PINS ARE
+  STILL STANDING ON `main`, MEASURED 2026-08-27 at `42662b70`** — the sibling
+  repaired the INDEX and left both readiness-run records:
+  `health/ideation-readiness/2026-08-24/brainstorm-packet-migration-20260824.yaml:5`
+  (`da9bf3b7`) and `…-final-20260824.yaml:5` (`f13a3b60`), each with
+  `git branch -a --contains` EMPTY, `ls-remote` count `0`, and
+  `merge-base --is-ancestor origin/main` false. Both carry `status: record`, so
+  neither pin may be edited — and both objects are STILL RECOVERABLE in a local
+  clone, a window that closes at garbage collection. Four requirements ADDED
+  across three capabilities, sixteen scenarios, NONE MODIFIED:
+  `ideation-cross-reference` gets the artifact rule (orphaned is a defect,
+  reachable-but-stale is legal, judged against REFS not a clone's object store)
+  and the record-repair rule (repair by RETAINING the commit, never by editing
+  the record — the two rules collide and only one ordering is coherent);
+  `release-realization` gets the landing rule, with re-pinning DEFINED BY
+  REPRODUCTION — byte-for-byte at the new pin where the artifact's tooling
+  defines derivation, a named measurement otherwise, and never a hand-moved pin,
+  which is the exact act that produced `f13a3b60`; `doc-health` gets the
+  enforcement, extending the sibling's index-only obligation to a DECLARED
+  artifact class whose declaration is itself checked. **ADDS NO DETERMINISTIC
+  CHECK FAMILY and does not restate the enumeration**, for two reasons: a
+  reachability probe is not deterministic in that requirement's sense (identical
+  corpus, different answer at different clone depths), and
+  `add-family-enumeration-check` holds the active `MODIFIED` block for it, so a
+  second restatement would make canon depend on archive order. The pin
+  inventory is swept and every pin resolved rather than sampled — nine pins,
+  eight committed artifacts, four generators, two orphaned, plus four
+  schema-declared future members with no committed real pin yet; cross-repository
+  pins (aggregation gitlinks, `neutral-product-pin`, release digests, image
+  digests) are named OUT of scope. Two follow-ups survive unticked:
+  `git_generation()` pinning `HEAD` on a dirty tree, and the cross-repository
+  pin families. (code surface: openxFactory; target release: implemented —
+  ships ACTIVE, archives on merged-plus-green)
+
 - [split-openxwallet-repo](openspec/changes/split-openxwallet-repo/proposal.md)
   — **RATIFIED 2026-08-26** (in-session ruling on PR #391; realization via
   Speckit) — authored 2026-08-26 as the first and only exit of the staged topic
