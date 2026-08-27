@@ -259,6 +259,74 @@ exists and is the one that exercises them. No mutant survived, and no mutant was
 killed by only one test except M4, M5 and M6, which are structural pins with one
 subject each by design.
 
+## 6a. Second mutation round — the review round (2026-08-27)
+
+The combined review found two structural pins that **survived mutants**, and one
+that pinned prose instead of code. Each fix was proven by the mutant it was
+written for, applied to `scripts/doc_health/modified_block_currency.py` or to
+the gate and then reverted (`git status --porcelain scripts/` clean afterwards).
+
+**N1a — the family gains `getattr(ctx, "git", None)`.** The attribute probe
+matched only `ctx.<attr>`, so the *safe* spelling of an attribute access — the
+one `promotion_fidelity.load_dispositions` itself uses — went unseen. Mutant
+applied beside the disposition call:
+
+```text
+E  AssertionError: ['git', 'repo_paths']
+E  assert {'git', 'repo_paths'} == {'repo_paths'}
+```
+
+Now killed. The probe is a union of `\bctx\.(\w+)` and
+`getattr\(\s*ctx\s*,\s*["']( \w+)`.
+
+**N1b — the family gains a SECOND collaborator taking the context.**
+`source.count("load_dispositions(ctx") == 1` proved that one KNOWN collaborator
+is called once, which is not the claim. A `_second_reader(ctx, FAMILY)` beside it
+survived. Now a SET of callees:
+
+```text
+E  AssertionError: the family hands its context to ['_second_reader',
+   'load_dispositions']; `_ctx`'s two-attribute stand-in is only faithful while
+   `load_dispositions` is the one collaborator …
+```
+
+Tightening the callee pattern was needed too, and its first cut was wrong in the
+other direction: `\(ctx\b` collected `sorted`, because
+`sorted(ctx.repo_paths.items())` puts a word boundary right after `ctx`. Reading
+an ATTRIBUTE is the first probe's business; handing the whole OBJECT away is this
+one's, so the pattern is `\(ctx\s*[,)]` with an optional leading argument group.
+
+**N2 — the allowlist pinned PROSE.** `test_the_gate_reaches_the_corpus_only_
+through_the_family` ran its `mbc.` scan over the raw source while its own
+docstring said "matched on use, not on mention". Both directions now proven:
+
+```text
+mutant: `mbc.carried` named in a DOCSTRING of the gate
+   → 1 passed          (a mention is no longer a use — correct)
+
+mutant: `_x = mbc.carried([], [])` in real CODE
+   → E AssertionError: reached but not declared: ['carried']
+                       (a use is still caught — correct)
+```
+
+**AND THE FIX FOR N2 REPRODUCED N2.** The first `_code_only` stripped docstrings
+only, and the COMMENT written to explain the fix named a family attribute — which
+reddened the equality it was documenting. `_code_only` now strips docstrings AND
+whole-line comments (only comments owning their line, so a `#` inside a string
+literal — the family compiles `r"^####\s+Scenario:"` — survives). **Three
+separate times in this family's test suite, a probe has been caught matching a
+mention**: F1's `test_the_promoted_reader_cannot_reach_a_measurement_basis`, this
+file's context probe on its first run (§ 5, N2), and now this file's own fix for
+it. Recorded because the pattern is clearly not learnable by intention alone.
+
+**N6 — the dated H1 could flake the movement pin.** Not run as a mutant (it
+needs a midnight boundary), and closed structurally instead: `_sections` drops
+the `# Doc-Health Report — <date>` line by name, and the movement test asserts
+BOTH reports carried one, so the drop cannot hide a change it was not written
+for. Widening `_SECTION` to match the title was rejected: it would also match
+`### Requirement: …`, which `test_the_gate_reaches_the_corpus_only_through_the_family`
+forbids on purpose.
+
 ## 7. Packet § 4's defects, as found
 
 Four things in the packet's § 4 were wrong or unimplementable as written. Each is
@@ -294,6 +362,115 @@ skipped** — no other family's behaviour changed, so skipping this one IS the
 pre-registration report, and it is a rendering of the same corpus. Diffing
 against another worktree's `main` would compare two different corpora and
 attribute the difference to this change.
+
+## 7a. CI shape — the blocker the combined review found, reproduced and closed
+
+**The defect.** The first cut of
+`test_the_resolver_fails_on_a_checkout_it_cannot_confirm_and_never_walks_up`
+searched `ROOT.parents` for a real checkout carrying `.gitmodules` **and**
+`xFactories/`, and asserted one was **found**:
+
+```python
+aggregation = next((d for d in ROOT.parents if ...), None)
+assert aggregation is not None, "this checkout has no reachable aggregation …"
+```
+
+That is an assertion about the **developer's filesystem**. It passes in this
+worktree, which sits under the aggregation checkout, and it fails in the
+REQUIRED `pytest-suite` check, which runs against a bare
+`$GITHUB_WORKSPACE/openxFactory` with no such ancestor. A green branch would have
+reddened a required check on `main`.
+
+**The reproduction.** A bare checkout with no aggregation ancestor, built by
+`git archive` so no working-tree state leaks in:
+
+```bash
+CI=<scratch>/ci-shape/openxFactory
+mkdir -p $CI && git archive HEAD | tar -x -C $CI
+cd $CI && git init -q . && git add -A && git commit -q -m "CI shape"
+python3 -m pytest tests/doc-health/test_modified_block_currency_self_gate.py -q
+```
+
+The shape is confirmed rather than assumed — the extracted tree carries
+openxFactory's own `.gitmodules` but no `xFactories/`, and **no ancestor of it
+carries either**:
+
+```text
+$ ls -a $CI | grep -E '^\.gitmodules$|^xFactories$'
+.gitmodules
+$ d=$(dirname $CI); while [ "$d" != "/" ]; do
+      [ -f "$d/.gitmodules" ] || [ -d "$d/xFactories" ] && echo "markers at $d"
+      d=$(dirname "$d"); done
+        (no output — no aggregation ancestor, which is the pytest-suite shape)
+$ git rev-parse --show-toplevel
+<scratch>/ci-shape/openxFactory
+```
+
+**Before and after, in the same tree**, the pre-fix file taken straight from the
+implementation commit:
+
+```text
+$ git show 0a15bee7:tests/doc-health/test_modified_block_currency_self_gate.py \
+      > $CI/tests/doc-health/test_modified_block_currency_self_gate.py
+$ python3 -m pytest …self_gate.py -q
+E  AssertionError: this checkout has no reachable aggregation ancestor, so the
+   assertion below would be vacuous — if that is now true of the environment,
+   say so here rather than deleting the case
+E  assert None is not None
+FAILED …::test_the_resolver_fails_on_a_checkout_it_cannot_confirm_and_never_walks_up
+1 failed, 14 passed in 12.88s          ← exactly what the review measured
+```
+
+```text
+$ cp <the fixed file> $CI/tests/doc-health/
+$ python3 -m pytest …self_gate.py -q
+15 passed in 11.86s                     ← the fix, same tree
+```
+
+**The fix, and why not a skip.** The repository's standing answer to an
+environment-dependent proof is to skip it —
+`tests/ideation-dashboard/test_session_harness.py`:251
+(`pytest.skip("no aggregation checkout reachable from this tree")`) and
+`test_aggregation_register_instance.py`:25-27 (`pytest.mark.skipif(…
+GITMODULES.is_file() …)`). Both are right for a proof that NEEDS a real
+aggregation tree. This one does not. Its content is *"aggregation markers without
+the family markers are refused"*, and a `tmp_path` decoy — `.gitmodules`,
+`xFactories/`, `installs/`, and neither of the family's two markers — states
+exactly that in every environment, with no skip and no filesystem assumption.
+**Removing the dependence beats guarding it**, and it also strengthens the case:
+a skip would have meant the assertion never ran in CI at all.
+
+### WHAT THIS HARNESS DOES *NOT* REPRODUCE — stated, because it is not green
+
+Running the WHOLE doc-health suite in this harness reads **4 failed, 1126
+passed**. Those four are **artifacts of the harness, not of CI**, and it would be
+dishonest to file them either as a pass or as a defect:
+
+```text
+FAILED test_ideation_readiness.py::test_derivation_reproduces_the_real_bootstrap_clusters
+FAILED test_modified_block_currency_fixtures.py::test_the_reconstructed_fixtures_are_the_history_they_claim[351]
+FAILED test_modified_block_currency_fixtures.py::test_the_reconstructed_fixtures_are_the_history_they_claim[329]
+FAILED test_readiness_proof_resolution.py::test_the_landed_index_pins_a_revision_this_repository_can_resolve
+```
+
+All four read **real git history** — F2's two reconstruct the #351 and #329
+instances from the commits that made them, and the two readiness proofs resolve a
+pinned `source_revision`. `git archive | git init` deliberately discards history:
+
+```text
+$ git rev-list --count HEAD
+1
+```
+
+Real CI does not. `pytest-suite` checks out at `fetch-depth: 0` (which is why
+`test_ideation_readiness.py`'s own truncation branch says "`pytest-suite.yml`
+checks out at `fetch-depth: 0`" and treats a shallow clone as a fact about the
+CLONE). So the harness reproduces **one** CI property — no aggregation ancestor —
+and breaks **another** — full history. That is the right trade for proving B1,
+because the self-gate is history-independent by construction: it reads the
+working tree and asks `git` only for `rev-parse --show-toplevel`, which one
+commit answers. **15 of 15 in the harness is the claim; "the suite is green in CI
+shape" is not, and is not made.**
 
 ## 8. Scope guard
 

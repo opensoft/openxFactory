@@ -45,6 +45,7 @@ by a broken family.
 | report lines moved | 24, in 5 hunks, in 3 sections — headline, this family's section, ranked plan |
 | everything else in the report | byte-identical |
 | F1's, F2's and the enumeration suites | 176 passed, unchanged |
+| **CI shape** — bare checkout, no aggregation ancestor | **15 passed** (pre-fix: 1 failed / 14 passed) |
 
 Full commands and numbers: `specs/021-modified-block-currency-self-gate/evidence/self-gate.md`.
 
@@ -88,6 +89,80 @@ its subject PINS a revision; this family measures the checkout by contract, and
 F1's `test_the_promoted_reader_cannot_reach_a_measurement_basis` asserts
 structurally that it has no way to reach a ref. What is mirrored is the resolver
 DISCIPLINE — under-test first, named failure, no ancestor walk.
+
+## The combined review found a blocker, and it was a required check going red
+
+**B1.** The first cut of the resolver's negative test searched `ROOT.parents` for
+a real checkout carrying `.gitmodules` and `xFactories/` and asserted one was
+**found** — an assertion about the developer's filesystem, not about the
+resolver. It passes in a worktree under the aggregation checkout and **fails in
+`pytest-suite`**, which runs against a bare `$GITHUB_WORKSPACE/openxFactory` with
+no such ancestor. A green branch would have reddened a required check on `main`.
+
+Reproduced and closed, both halves measured in the same tree:
+
+```bash
+CI=<scratch>/ci-shape/openxFactory
+mkdir -p $CI && git archive HEAD | tar -x -C $CI
+cd $CI && git init -q . && git add -A && git commit -q -m "CI shape"
+python3 -m pytest tests/doc-health/test_modified_block_currency_self_gate.py -q
+```
+
+```text
+pre-fix file (0a15bee7):  1 failed, 14 passed   ← exactly what the review measured
+fixed file:              15 passed
+```
+
+The fix is a `tmp_path` **decoy** carrying the aggregation markers and neither of
+the family's, so the real content — "aggregation markers without the family
+markers are refused" — holds in every environment. The repository's standing
+answer to an environment-dependent proof is a skip
+(`test_session_harness.py`:251, `test_aggregation_register_instance.py`:25-27),
+and both are right for a proof that NEEDS a real aggregation tree; this one does
+not, and a skip would have meant the assertion never ran in CI at all. **Removing
+the dependence beats guarding it.**
+
+The harness reproduces one CI property (no aggregation ancestor) and breaks
+another (full history, `fetch-depth: 0`), so the whole-suite run inside it reads
+4 failed — all four are git-history readers and all four are artifacts of
+`git archive | git init`, named and explained in `evidence/self-gate.md` § 7a.
+**"15 of 15 in the harness" is the claim; "the suite is green in CI shape" is
+not, and is not made.**
+
+**Six further findings, all fixed.** Two structural pins had SURVIVED mutants and
+now die: the context probe missed `getattr(ctx, "git", None)` (the spelling the
+disposition reader itself uses), and `count("load_dispositions(ctx") == 1` proved
+one known collaborator is called once rather than that there is one collaborator.
+A third pinned PROSE — the allowlist scan ran over raw source while its docstring
+said "matched on use" — and **the first fix for it reproduced the same defect in a
+comment**. That makes three separate times a probe in this family's suite has been
+caught matching a mention; `evidence/self-gate.md` § 6a records all of them,
+because the pattern is clearly not learnable by intention alone.
+
+Also closed: a once-a-day flake (the report's dated H1 fell outside `_SECTION`
+and was compared verbatim, so two runs straddling midnight would fail the
+movement pin), the fact that the documented zero end-state was **unreachable by
+the documented mechanism** (the movement pin's two vacuity guards are true at
+zero and must be re-aimed in the same commit), and **this change's own archival**
+— nearer than the composed-view rename, reds four assertions, previously
+unmentioned, now carrying an expected disposition in `quickstart.md` and the F4
+hand-off.
+
+## OPEN QUESTION FOR BRETT — the blast radius of a named-subject set in a required check
+
+**Not decided here.** `_LEDGER_SUBJECTS` is an exact set of **nine live corpus
+triples** and `pytest-suite` is a REQUIRED check, so any PR that adds a lossy
+MODIFIED block, archives one of the twelve changes in the table, or edits canon in
+a way an active block quotes **will red this gate** — on a branch whose author may
+have nothing to do with doc-health. That is § 4's PR-gate intent working as
+written, and it is a cost nobody has priced.
+
+The option, if the cost is judged too high: a marker routing the six
+corpus-facing tests to the nightly doc-health lane, keeping the resolver guard,
+the discovery floor and the four structural pins in `pytest-suite`. The trade is
+explicit — it gives up catching a lossy block *before* it merges. Arguments both
+ways are recorded in `tasks.md` § OPEN QUESTION FOR BRETT. **Pending his call the
+tests stay in `pytest-suite`**, with `_moved()`'s message as the mitigation.
 
 ## The mutation round found the thing worth knowing
 
@@ -168,3 +243,33 @@ about lossy restatement is recorded rather than quietly corrected.
 - **§ 8**: the archive act, after this realization merges and is green.
 - **The five packet-level orchestrator decisions (its § 1.2)** remain
   not-vetoed rather than affirmatively ruled.
+
+## Issues: `Refs`, not `Closes` — and the citation for that
+
+`Refs #357` · `Refs #329` · `Refs #330`
+
+**The packet does not claim any of the three closes at this feature's landing,**
+and I checked rather than assumed:
+
+- **#330 is explicitly held open.** `proposal.md`:311-313 — "It does not claim to
+  close #330 in both of that issue's shapes. The pre-archive gate is built and
+  the post-archive safety net is not; #330 stays open with an owner." And
+  `tasks.md` § 7.1 — "This change MUST NOT be read as closing #330, and its PR
+  says so." Said, above and here.
+- **#357 and #329 carry no closure claim anywhere in the packet.**
+  `proposal.md`:7 names all three under `Origin:` and nothing else in
+  `proposal.md` or `tasks.md` says the self-gate's landing discharges either.
+  The only `clos*` matches in the packet are #318's origin-gap ruling (:20) and
+  the two #330 disclaimers above.
+- **And substantively they are not discharged.** #357 asked for a validator; the
+  validator exists (F1) and is now measured (F3), but the packet's own § 8.1 makes
+  the **archive** a separate later act "once the realization is merged to `main`
+  and green" — and F4 (§ 5, reporting) is not built. #329's two lossy blocks are
+  **reported, advisory, and standing**: § 7.2 keeps the scenario-title arm at
+  `warning` and records that "seven of #351's nine items are reported rather than
+  gated until one is taken". An issue about text that is still lost is not closed
+  by a check that now mentions it.
+
+So all three are `Refs`. The right place for `Closes #357` / `Closes #329`, if
+they are to close at all, is the archive commit that packet § 8.1 describes —
+after F4, after the merge, and after § 8.2's byte-for-byte promotion check.
