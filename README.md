@@ -380,57 +380,6 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
-- [supersede-lost-pin-baseline](openspec/changes/supersede-lost-pin-baseline/proposal.md)
-  — **RATIFIED 2026-08-27** (Brett, in-session commission of the filing,
-  selected verbatim from a multi-choice as "Commission the superseding record
-  (Recommended)"). The commission is the origin act, so
-  `approved_by`/`approved_on` are recorded from it — the
-  `govern-derived-pin-reachability` shape. **THE CITATION COVERS THE DECISION TO
-  FILE AND NOTHING ELSE** — and a SECOND, later act on the same day disposed
-  everything it did not reach. **ALL FOUR § Orchestrator decisions CLEARED AS
-  AUTHORED and BOTH § Open Questions RULED, 2026-08-27**, by a four-question
-  multi-choice put to Brett by the orchestrating session and relayed the same
-  day; on every question he took the packet's own recommendation, so the
-  clearance moved nothing. OD-1 through OD-4 cleared, none vetoed (the
-  `evidence/`-homed record with its live-plus-archive glob citation, the declared
-  `NON_MEMBERS` row, the spec delta riding, and the register row being the
-  disposition) — and **OD-4's own named veto branch was not taken, so no
-  `health/dispositions.yaml` entry is owed**. **Q1 RULED** — corroboration only:
-  the record claims exactly what is provable and never recovery. **Q2 RULED** —
-  no aging rule: the citation is re-resolved every run and breakage is
-  self-announcing. Both rulings match the record and the code as written, so
-  neither rewrote anything. The merge-then-archive sequence was approved in the
-  same act and belongs to the orchestrating session. **Performs the one
-  governance act
-  `govern-derived-pin-reachability` uncovered and marked NEEDS BRETT** (its
-  § 3.6 and § 5.5): the archived hermes provider verification pins
-  `us3_baseline_commit: 66b14064…`, and that object is UNRECOVERABLE —
-  re-measured on the day of filing at 0 of 573 advertised refs, `git cat-file`
-  failing in the shared object store, and the server refusing
-  `git fetch` with `upload-pack: not our ref`. Retention is impossible, the
-  record's bytes are immutable, and **no byte of the archived record is
-  touched**. Issues a superseding record
-  (`evidence/pin-loss-supersession.yaml`) stating the loss, its cause (one
-  rebase rewrote the whole `005-customer-subject-runtime` line six weeks before
-  the retention namespace was ruled), and the verification standing the archived
-  evidence retains and loses. **THE MEASUREMENT FOUND MORE THAN A HOLE**: the
-  baseline STATE is reachable under a rewritten object name, `8f7c99f0…`, the
-  parent of the commit that added the record — corroborated by all three
-  differential counts the record itself states (catalog members 34 -> 39, schema
-  entries 27 -> 32, fixture cases 79 -> 110, each re-measured at both commits) —
-  and the record labels that CORROBORATION, not recovery, because the object is
-  gone and tree equality is unprovable. **Restores `fully_verified` truthfully
-  rather than by silencing**: the `KNOWN_LOSSES` row now cites the record, the
-  verification reads committed state to find it and requires it to name the pin,
-  and only a loss AWAITING its record holds full verification open — the loss
-  stays declared, reported `[LOST]` with its whole measurement, and re-measured
-  for ever, while deleting the row makes the site report as a failing orphan
-  instead of a clean class. One ADDED `doc-health` requirement carries that rule
-  into canon; no check family is added and the enumeration is untouched. The
-  disposition lives in the register row rather than in
-  `health/dispositions.yaml`, measured: that file exists only at the aggregation
-  root and matches findings by `(family, repo, path)`, and this verification
-  registers no family and emits no family finding for an entry to match.
 - [split-openxwallet-repo](openspec/changes/split-openxwallet-repo/proposal.md)
   — **RATIFIED 2026-08-26** (in-session ruling on PR #391; realization via
   Speckit) — authored 2026-08-26 as the first and only exit of the staged topic
@@ -1165,6 +1114,139 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [supersede-lost-pin-baseline](openspec/changes/archive/2026-08-27-supersede-lost-pin-baseline/proposal.md)
+  — **ARCHIVED 2026-08-27** on merged-plus-green, where merged and green are ONE
+  event: **the realization rode IN the proposing pull request**, so the record,
+  the discharge mechanism and the five tests landed together and there is no
+  second pull request to name. Pull request #429 merged 2026-08-27T19:26:29Z as
+  merge commit `94933adf`, re-verified at this act an ancestor of `origin/main`
+  (`git merge-base --is-ancestor`, exit 0) and a real two-parent merge
+  (`ae6a1e7e` + `06ede5b7`) rather than a rewrite — read out of git rather than
+  off the pull request page, which is worth the check in a packet whose forcing
+  instance is a pin orphaned by a rewriting landing. Green on the final head
+  `06ede5b7`: `pytest-suite` **6991 passed / 20 skipped / 338 deselected / 28
+  subtests passed / 0 failed** in 14m37s (run 33107163953, counts read back out
+  of the job log), `wallet-validation` pass, both read from the check-runs API
+  here. **THE ONE THING THIS ARCHIVE COULD HAVE BROKEN IS PROVED NOT TO HAVE
+  BROKEN.** The superseding record moved with its packet to
+  `openspec/changes/archive/2026-08-27-supersede-lost-pin-baseline/evidence/pin-loss-supersession.yaml`,
+  and the `KNOWN_LOSSES` row cites it by a LIVE-PLUS-ARCHIVE GLOB PAIR chosen
+  for exactly this moment (cleared OD-1): the archive path matches the second
+  glob, the record still names the pin, and the probe re-run on committed
+  archive state reports **63 declared pin sites across 20 members — 49
+  reachable, 0 orphaned, 1 lost (declared unrecoverable, **0 awaiting a
+  superseding record**), 0 inconclusive, 0 uncovered, 0 vanished** — the same
+  answer as before the move, with the `DISCHARGED:` clause now naming the
+  archive path. A single-path citation would have gone dangling here; the pair is
+  why it did not. **THE LOSS IS NOT SILENCED BY ITS DISCHARGE**: the row is
+  untouched, the site still reports `[LOST]` with its whole measurement, and it
+  is still re-measured, so the day that object turns out to be recoverable the
+  declaration fails as stale. **NO BYTE OF THE SUPERSEDED ARCHIVED RECORD WAS
+  TOUCHED** by the realization or by this act — zero paths under
+  `openspec/changes/archive/2026-08-27-add-hermes-customer-subject-runtime-contract/`
+  in either diff. One `doc-health` requirement and four scenarios reach canon
+  whole: **34 → 35 requirements, 145 → 149 scenarios**, +73 / −0 lines, and the
+  promotion is proved by digest rather than by eye — the pre-existing file is a
+  byte-exact PREFIX of the promoted one (`cmp -n 99677` clean, so zero
+  deletions and every pre-existing requirement byte-identical), and the delta's
+  requirement body and canon's appended block are both 72 lines / 5434 bytes
+  under
+  `sha256:a595d40e7b9b321f32ce5d04c1888e54ae8bab0f4c6aa30e0a4eb4604e711c64`.
+  Zero `## MODIFIED Requirements` blocks, so no archive-order question arises.
+  `.openspec.yaml` MOVED with the packet under openspec 1.2.0 (checked by blob
+  id anyway) and is byte-identical to the blob at the ratifying commit
+  `0bbeea0a`, so the origin-retention gate passes with no restoration:
+  `openspec validate --all --strict` 76 → **75 passed / 0 failed**,
+  `proposal-support verify` ok before and after, `pytest tests/doc-health`
+  **1183 passed / 0 failed** on both sides under `pipefail` with
+  `test_pin_reachability.py` at **53 passed**, and single-repo doc-health
+  identical at 5 critical / 7 error / 41 warning / 12 info with 0 new
+  regressions, every family count unchanged, and `proposal-origin`,
+  `promotion-fidelity`, `release-inventory-drift`, `family-enumeration` and
+  `duplicate-packet` all zero — **the archive adds no finding**, `diff` over the
+  two whole reports being **exactly two lines**, both canon-share arithmetic
+  (31.1% → 31.2%, promoted-spec words 148998 → 149898), which is the promotion
+  showing up in the corpus ratio. No contract
+  bundle was owed, re-affirmed by that run's `release-inventory-drift` at zero.
+  **MAIN MOVED TWICE UNDER THIS ACT** (#433, then #431) and both sets of numbers
+  are kept rather than the later overwriting the earlier: at the final head with
+  `origin/main` at `c9a1500e`, validate holds at 75, `tests/doc-health` reads
+  **1209 passed / 0 failed** on the merged head and 1209 on `origin/main` itself
+  in a second worktree — grown by twenty-six for main's reasons and by none for
+  this act — and the declared class grew with main to **65 sites across 22
+  members, 50 reachable, still 0 orphaned / 0 awaiting a superseding record / 0
+  uncovered**, the discharge answer not having moved. **A THIRD MOVE CONFLICTED
+  THE PROMOTION**: `add-modified-block-currency-check` archived on main and
+  promoted into the same capability, so canon conflicted at the tail where both
+  had appended. Resolved by keeping BOTH blocks in ARCHIVE ORDER — the sibling's
+  first, this packet's after it — and the digest proof was RE-RUN rather than
+  carried over: main's canon is a byte-exact prefix of the resolved file
+  (`cmp -n 121437` clean), the appended region is still this delta's requirement
+  body verbatim plus canon's trailing blank line at the SAME digest, and canon
+  reads **35 → 36 requirements, 159 → 163 scenarios** against main as it now
+  stands. Validate holds at **74 passed / 0 failed** and `tests/doc-health` at
+  **1209 passed / 0 failed** on the resolved tree.
+  **THREE FOLLOW-UPS CROSS THE ARCHIVE UNTICKED, EVERY ONE BY DECISION**, all
+  three declared out of scope at authoring and none an arm of the gate: the
+  undeclared 78-member evidence inventory the superseded record quantifies over
+  and digests twice (a gap in the hermes-runtime evidence contract, and the
+  reason ONE claim in that record can only ever be corroborated); the
+  differential audit of the hermes evidence family, a sweep rather than a
+  supersession; and the nightly, where nothing is enforced and the discharge
+  mechanism narrows what an enforcing check would report without arguing for
+  enforcing it.
+  **RATIFIED 2026-08-27** (Brett, in-session commission of the filing,
+  selected verbatim from a multi-choice as "Commission the superseding record
+  (Recommended)"). The commission is the origin act, so
+  `approved_by`/`approved_on` are recorded from it — the
+  `govern-derived-pin-reachability` shape. **THE CITATION COVERS THE DECISION TO
+  FILE AND NOTHING ELSE** — and a SECOND, later act on the same day disposed
+  everything it did not reach. **ALL FOUR § Orchestrator decisions CLEARED AS
+  AUTHORED and BOTH § Open Questions RULED, 2026-08-27**, by a four-question
+  multi-choice put to Brett by the orchestrating session and relayed the same
+  day; on every question he took the packet's own recommendation, so the
+  clearance moved nothing. OD-1 through OD-4 cleared, none vetoed (the
+  `evidence/`-homed record with its live-plus-archive glob citation, the declared
+  `NON_MEMBERS` row, the spec delta riding, and the register row being the
+  disposition) — and **OD-4's own named veto branch was not taken, so no
+  `health/dispositions.yaml` entry is owed**. **Q1 RULED** — corroboration only:
+  the record claims exactly what is provable and never recovery. **Q2 RULED** —
+  no aging rule: the citation is re-resolved every run and breakage is
+  self-announcing. Both rulings match the record and the code as written, so
+  neither rewrote anything. The merge-then-archive sequence was approved in the
+  same act and belongs to the orchestrating session. **Performs the one
+  governance act
+  `govern-derived-pin-reachability` uncovered and marked NEEDS BRETT** (its
+  § 3.6 and § 5.5): the archived hermes provider verification pins
+  `us3_baseline_commit: 66b14064…`, and that object is UNRECOVERABLE —
+  re-measured on the day of filing at 0 of 573 advertised refs, `git cat-file`
+  failing in the shared object store, and the server refusing
+  `git fetch` with `upload-pack: not our ref`. Retention is impossible, the
+  record's bytes are immutable, and **no byte of the archived record is
+  touched**. Issues a superseding record
+  (`evidence/pin-loss-supersession.yaml`) stating the loss, its cause (one
+  rebase rewrote the whole `005-customer-subject-runtime` line six weeks before
+  the retention namespace was ruled), and the verification standing the archived
+  evidence retains and loses. **THE MEASUREMENT FOUND MORE THAN A HOLE**: the
+  baseline STATE is reachable under a rewritten object name, `8f7c99f0…`, the
+  parent of the commit that added the record — corroborated by all three
+  differential counts the record itself states (catalog members 34 -> 39, schema
+  entries 27 -> 32, fixture cases 79 -> 110, each re-measured at both commits) —
+  and the record labels that CORROBORATION, not recovery, because the object is
+  gone and tree equality is unprovable. **Restores `fully_verified` truthfully
+  rather than by silencing**: the `KNOWN_LOSSES` row now cites the record, the
+  verification reads committed state to find it and requires it to name the pin,
+  and only a loss AWAITING its record holds full verification open — the loss
+  stays declared, reported `[LOST]` with its whole measurement, and re-measured
+  for ever, while deleting the row makes the site report as a failing orphan
+  instead of a clean class. One ADDED `doc-health` requirement carries that rule
+  into canon; no check family is added and the enumeration is untouched. The
+  disposition lives in the register row rather than in
+  `health/dispositions.yaml`, measured: that file exists only at the aggregation
+  root and matches findings by `(family, repo, path)`, and this verification
+  registers no family and emits no family finding for an entry to match.
+  (code surface: openxFactory; target release: implemented)
 
 - [add-modified-block-currency-check](openspec/changes/archive/2026-08-27-add-modified-block-currency-check/proposal.md)
   — **ARCHIVED 2026-08-27** on the merge-plus-green rule the packet declared

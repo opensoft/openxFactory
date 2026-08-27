@@ -12,6 +12,15 @@ ever, the row is the only place the measurement lives, and removing it makes the
 site report as a repairable orphan — a failing verdict with a repair route
 nobody can follow. Discharge is by citation, never by deletion.
 
+**ARCHIVED 2026-08-27, AND THE PARAGRAPHS ABOVE STAND AS WRITTEN.** § 4.9 was
+the last open arm of the gate; it is ticked below with its evidence, and this
+archive act IS that arm. § 5.1, § 5.2 and § 5.3 cross the archive UNTICKED BY
+DECISION, not by oversight — each was declared out of scope in `proposal.md`
+§ Named follow-ups before any of this landed, and none is a condition of the
+gate. The register warning above is the one instruction this archive makes MORE
+load-bearing rather than less: the row survives the move, and what moved is
+where the record it cites is committed.
+
 ## 1. Filing and admission
 
 - [x] 1.1 ORIGIN AND APPROVAL ARE RECORDED FROM THE COMMISSION ITSELF, on the
@@ -198,12 +207,164 @@ nobody can follow. Discharge is by citation, never by deletion.
       --check` clean. `black` is not installed in this environment and is not
       part of this repository's gate, so it is recorded as not run rather than
       claimed.
-- [ ] 4.9 MERGED AND GREEN ON MAIN. Open at pull request #429. The archive gate
+- [x] 4.9 MERGED AND GREEN ON MAIN. Open at pull request #429. The archive gate
       is merge-plus-green, the sequence was approved on 2026-08-27 (§ 1.5), and
       **the orchestrating session performs both halves** — it merges on green and
       dispatches the archive pass. This session pushed the rulings and stopped.
+      **DONE 2026-08-27 — THE GATE IS FULLY DISCHARGED, AND THIS ENTRY IS THE
+      ARCHIVE ACT.** The paragraph above is kept as the state it recorded while
+      it stood; every arm below is checked rather than asserted.
+      **MERGED ON THE IMPLEMENTED TARGET** — pull request #429, merged
+      2026-08-27T19:26:29Z as merge commit
+      `94933adfcf993dbef2e74952662a3eb1281693e2`, re-verified here an ancestor of
+      `origin/main` (`git merge-base --is-ancestor`, exit 0) rather than taken
+      from the pull request page, and a REAL TWO-PARENT MERGE — parents
+      `ae6a1e7e76f66dfdeb6cf2aad65f21dff9ae8f19` and
+      `06ede5b70fea0952f8182e38ab3c21362879841c` — rather than a rewrite, which
+      is worth checking in a packet whose whole forcing instance is a pin
+      orphaned by a rewriting landing.
+      **GREEN ON THE FINAL HEAD** `06ede5b70fea0952f8182e38ab3c21362879841c`:
+      `pytest-suite` **success** 19:10:42Z → 19:25:49Z and `wallet-validation`
+      **success** 19:10:41Z → 19:11:01Z, read back from the check-runs API at
+      this act rather than from the merge notification. The suite line came out
+      of the job log of run 33107163953: **6991 passed, 20 skipped, 338
+      deselected, 28 subtests passed, 0 failed in 877.32s (14m37s)**. § 4.3
+      recorded 1183 locally on the pre-merge head; the CI total is the whole
+      repository suite and both are kept rather than one restating the other.
+      **THE REALIZATION RODE IN THE PROPOSING PULL REQUEST**, so merged-plus-green
+      is ONE event here rather than two: the record, the discharge mechanism and
+      the five tests landed together and there is no second pull request to name.
+      **THE ACT.** ARCHIVED to
+      `openspec/changes/archive/2026-08-27-supersede-lost-pin-baseline/` by
+      `OPENSPEC_TELEMETRY=0 openspec archive supersede-lost-pin-baseline --yes`
+      (openspec 1.2.0), which reported `doc-health: update`, `+ 1 added`,
+      `Totals: + 1, ~ 0, - 0, → 0` and applied the delta into
+      `openspec/specs/doc-health/spec.md`. It also reported `Task status: 25/29`
+      and warned on four incomplete tasks, which is CORRECT: this task was the
+      twenty-sixth, and § 5.1, § 5.2 and § 5.3 survive as named follow-ups.
+      **THE MECHANISM WAS `openspec archive`, NOT `proposal-support archive`**,
+      whose blanket `^- \[ \]` gate cannot tell a follow-up declared out of scope
+      from unfinished work; that wrapper's origin gate was run separately on both
+      sides of the move (`proposal-support.py . verify supersede-lost-pin-baseline`
+      ok before, whole-corpus `verify` ok after).
+      **THE CLI HAZARD DID NOT FIRE, and it was checked anyway by blob id.**
+      `.openspec.yaml` MOVED with the packet rather than being deleted, and all
+      six files are byte-identical across the move: `.openspec.yaml`
+      `205792871b1736936e70a59cfefea5cf12ea09fc`, `design.md` `82920afc`,
+      `evidence/pin-loss-supersession.yaml` `cede7334`, `proposal.md` `6f2f537b`
+      (before this entry's own edits), `specs/doc-health/spec.md` `0105332b`,
+      `tasks.md` `f9d77f4c`. **ORIGIN RETENTION PASSES**: the `.openspec.yaml`
+      blob is byte-identical to the blob at the ratifying commit `0bbeea0a`, so
+      `kind`, `id`, `reason`, `approved_by` and `approved_on` are unchanged from
+      ratification. Nothing about the merge or this archive went into the origin
+      block, because a realization is not origin provenance.
+      **THE DISCHARGE STILL RESOLVES AT THE ARCHIVE PATH — the one thing this
+      move could have broken, proved rather than assumed.** The record now stands
+      at
+      `openspec/changes/archive/2026-08-27-supersede-lost-pin-baseline/evidence/pin-loss-supersession.yaml`,
+      which is matched by the SECOND glob of the citation pair
+      (`openspec/changes/archive/*-supersede-lost-pin-baseline/evidence/pin-loss-supersession.yaml`)
+      and by the `NON_MEMBERS` row that declares such a record a non-member. The
+      probe re-run on the committed archive state reports **63 declared pin sites
+      across 20 class members: 49 reachable, 0 orphaned, 1 lost (declared
+      unrecoverable, 0 awaiting a superseding record), 0 inconclusive; 0
+      uncovered, 0 vanished, 0 future members now carrying pins** — the same
+      answer as before the move, with the `DISCHARGED:` clause now naming the
+      archive path. **THIS IS OD-1'S WHOLE ARGUMENT DEMONSTRATED**: a single-path
+      citation would have gone dangling at this exact moment, and the pair is why
+      it did not.
+      **GATES ACROSS THE ACT.** `openspec validate --all --strict` 76 → **75
+      passed, 0 failed** (one item fewer, this packet having left the active
+      set). `python3 -m pytest tests/doc-health -q` under `set -o pipefail`:
+      **1183 passed, 0 failed** before and after; `test_pin_reachability.py`
+      alone **53 passed** on both sides. Single-repo doc-health: **5 critical, 7
+      error, 41 warning, 12 info, 0 new regressions** before and after, every
+      family count unchanged, and `proposal-origin`, `promotion-fidelity`,
+      `release-inventory-drift`, `family-enumeration` and `duplicate-packet` all
+      **0 before and 0 after** — THE ARCHIVE ADDS NO FINDING. The five standing
+      `record-immutability` criticals are pre-existing and on documents this
+      branch does not touch.
+      **PROMOTION, PROVED BY DIGEST RATHER THAN BY EYE.** `doc-health` canon
+      **34 → 35 requirements, 145 → 149 scenarios**, 1488 → 1561 lines,
+      **+73 / −0**, 99677 → 105112 bytes. The pre-existing file is a byte-exact
+      PREFIX of the promoted one (`cmp -n 99677` clean), so every pre-existing
+      requirement is byte-identical and nothing was deleted or reworded. The
+      appended region is bytes 99678–105112 and equals the delta's requirement
+      body verbatim plus the single trailing blank line canon carries at
+      end-of-file: delta body and canon block are both 72 lines, 5434 bytes,
+      under one digest
+      `sha256:a595d40e7b9b321f32ce5d04c1888e54ae8bab0f4c6aa30e0a4eb4604e711c64`.
+      One requirement, four scenarios — the proposal's own declared counts, and
+      canon's totals moved by exactly them. `## MODIFIED Requirements` blocks in
+      this delta: **zero**, so no archive-order question arises.
+      **RE-MEASURED AFTER `origin/main` WAS MERGED IN TWICE, and both sets of
+      numbers are kept rather than the later overwriting the earlier** — the same
+      convention § 4.2 and § 4.3 already used, because a total that moves for a
+      stated reason is evidence and a total quietly restated is not. Main gained
+      pull requests #433 and #431 while this act ran. AT THE FINAL HEAD, with
+      `origin/main` at `c9a1500e`: `openspec validate --all --strict` **75 passed,
+      0 failed** (unchanged — the packet had already left the active set, and
+      main's own two changes did not move the total); `python3 -m pytest
+      tests/doc-health -q` **1209 passed, 0 failed** on the merged head AND
+      **1209 passed, 0 failed** on `origin/main` itself in a second worktree, so
+      the suite grew by twenty-six for main's reasons and by none for this act,
+      with `test_pin_reachability.py` at **53 passed** on both sides. THE
+      DECLARED CLASS GREW WITH MAIN and the discharge answer did not move:
+      **65 declared pin sites across 22 class members — 50 reachable, 0 orphaned,
+      1 lost (declared unrecoverable, 0 awaiting a superseding record), 0
+      inconclusive, 0 uncovered, 0 vanished**, with the record still read from
+      committed state at its ARCHIVE path and the live path gone from committed
+      state entirely (`git ls-tree` counts zero files under
+      `openspec/changes/supersede-lost-pin-baseline/`). THE REPORT COMPARISON WAS
+      RE-BASELINED for the same reason: `origin/main` at `c9a1500e` reports
+      **5 critical, 7 error, 41 warning, 12 info, 0 new regressions** and so does
+      the merged head, every family count IDENTICAL, and `diff` over the two
+      whole reports is **exactly two lines**, both canon-share arithmetic —
+      31.1% → 31.2%, promoted-spec words 148998 → 149898 — which is the promotion
+      showing up in the corpus ratio and the only difference an honest archive
+      should produce.
+      **MAIN MOVED A THIRD TIME AND THE PROMOTION CONFLICTED — RESOLVED BY
+      KEEPING BOTH SIDES, AND THE DIGEST PROOF RE-RUN RATHER THAN RE-ASSERTED.**
+      `add-modified-block-currency-check` archived on main as `8997e00b` and
+      promoted into the SAME capability, so `openspec/specs/doc-health/spec.md`
+      conflicted — both changes had appended at the tail. The resolution keeps
+      both blocks in ARCHIVE ORDER, the sibling's first because it landed on main
+      first and this packet's appended after it; nothing was dropped from either
+      side and no requirement was reworded. Canon therefore reads **35 → 36
+      requirements, 159 → 163 scenarios** against main as it now stands (the
+      earlier 34 → 35 / 145 → 149 was measured against main before the sibling
+      landed, and both are kept). **THE PROOF IS UNCHANGED BECAUSE IT WAS RE-RUN,
+      NOT CARRIED OVER**: main's canon at `8997e00b` is a byte-exact PREFIX of
+      the resolved file (`cmp -n 121437` clean, so the sibling's promotion is
+      byte-identical after this resolution and zero bytes were deleted), the
+      appended region is bytes 121438–126872, and it is still this delta's
+      requirement body verbatim plus canon's one trailing blank line — 72 lines,
+      5434 bytes, under the SAME digest
+      `sha256:a595d40e7b9b321f32ce5d04c1888e54ae8bab0f4c6aa30e0a4eb4604e711c64`.
+      README conflicted twice for the same reason and resolved the same way: the
+      Active block loses BOTH entries (each change has now archived) and the
+      Archived block keeps BOTH, newest-first. Gates re-run on the resolved tree:
+      `openspec validate --all --strict` **74 passed, 0 failed** (one fewer again,
+      the sibling having left the active set) and `python3 -m pytest
+      tests/doc-health -q` **1209 passed, 0 failed** under `pipefail`.
 
 ## 5. Open — deliberately not closed by this change
+
+**ALL THREE CROSS THE ARCHIVE UNTICKED, EVERY ONE BY DECISION, and the archive
+claims nothing they leave open.** Each was declared out of scope in
+`proposal.md` § Named follow-ups at authoring, none is an arm of the
+merge-plus-green gate, and none was disturbed by the realization. Stated plainly
+here rather than left for a reader to assemble: § 5.1 the undeclared 78-member
+evidence inventory, which is a gap in the hermes-runtime evidence contract and
+the reason ONE claim in the superseded record can only ever be corroborated;
+§ 5.2 the differential audit of the hermes evidence family, a sweep rather than
+a supersession, and one whose limit the sibling packet already stated (a pin
+whose object is gone does not resolve, so the value-resolving direction cannot
+find it); § 5.3 the nightly, where NOTHING is enforced and the discharge
+mechanism narrows what an enforcing check would report without arguing for
+enforcing it. `openspec archive` counted these three plus § 4.9 as its four
+warnings; § 4.9 is now ticked and these three remain, which is the correct
+residue.
 
 - [ ] 5.1 **THE 78-MEMBER POSTGRESQL EVIDENCE INVENTORY IS DECLARED NOWHERE.**
       The superseded record quantifies over it and digests it twice
