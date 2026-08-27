@@ -1101,6 +1101,17 @@ def test_this_feature_touches_no_production_module():
     `mbc.FAMILY not in FAMILY_NOTES` is deliberately NOT re-asserted here: F1's
     `test_the_family_publishes_no_basis_note` owns it, and a second copy is the
     duplication FR-002 forbids.
+
+    **AMENDED BY F4 (`022-modified-block-currency-reporting`), 2026-08-27, AND
+    THE GUARD WORKED.** F4 realizes packet § 5.1 — the family's report section
+    must show its four finding classes distinguishably — and that IS added
+    behaviour, so this snapshot reddened on F4's first full run and was updated
+    with the four names below rather than loosened: `FindingClass`, `classify`,
+    `class_counts`, `class_summary`. Nothing this file asserts about F2's own
+    fixtures changed, no severity moved, no rule text moved, and F2's claim that
+    *F2* adds no behaviour is untouched. The update is recorded as F4's task T040
+    and named in F4's PR body, which is exactly the handling the paragraph above
+    asks for.
     """
     assert (mbc.FAMILY, mbc._LAUNCH_SEVERITY, mbc._RESOLUTION_SEVERITY,
             mbc._LEDGER_SEVERITY) == ("modified-block-currency", WARNING,
@@ -1115,8 +1126,9 @@ def test_this_feature_touches_no_production_module():
                     and getattr(getattr(mbc, n), "__module__", "")
                     == mbc.__name__)
     assert public == [
-        "ActiveBlock", "Marker", "PromotedRequirement", "Unit",
-        "active_blocks", "carried", "declarations", "derive_units",
+        "ActiveBlock", "FindingClass", "Marker", "PromotedRequirement", "Unit",
+        "active_blocks", "carried", "class_counts", "class_summary", "classify",
+        "declarations", "derive_units",
         "extract_code_spans", "fam_modified_block_currency", "fenced_regions",
         "is_dated_bold_note", "mask_code_spans", "normalize", "parse_marker",
         "parse_spec_requirements", "promoted", "resolve", "sibling_titles",

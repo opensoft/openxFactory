@@ -1267,3 +1267,200 @@ def _unresolved_finding(repo: str, block: ActiveBlock, root: Path) -> Finding:
         f"active MODIFIED block for {block.title!r} resolves to no promoted "
         f"requirement, no rename of its own, and no active sibling's addition: "
         f"{why}")
+
+
+# ============================================================================
+# THE REPORT SECTION — F4 (`022-modified-block-currency-reporting`, packet § 5)
+# ============================================================================
+#
+# WHY ANY OF THIS EXISTS. The four classes above are already distinct FINDINGS
+# with distinct severities, which is what the delta requires ("SHALL report them
+# as distinct finding classes so that a precise signal is never buried in an
+# editorial one"). The REPORT did not carry the distinction: `report.render`
+# prints a family's findings as a flat list of rows, and on any real tree the one
+# gate-bearing `warning` sits among a standing population of editorial `info`
+# rows, each of them long enough to fill three lines. Learning "one scenario was
+# dropped, eight blocks diverge editorially" meant reading all nine and tallying.
+# Packet § 5.1 asks for the split to be visible WITHOUT COUNTING.
+#
+# WHAT IS ADDED IS A RENDERING, NOT A MEASUREMENT. `class_summary` is a function
+# of the findings the report is about to print and of nothing else — no context,
+# no second corpus read, no re-run. Nothing here is ever wrapped in a `Finding`,
+# so nothing here reaches the ranked plan, the headline counts, the regression
+# diff or the uncited-resolution rule. The precedent is `families.FAMILY_NOTES`,
+# whose lines render in the same position for the same reason; the difference is
+# that a note answers "which tree did this family measure" (a fact about the
+# RUN) while this answers "how did its findings split" (a fact about the
+# FINDINGS), which is why it is a sibling registry and not a widening of that
+# one.
+
+
+class FindingClass:
+    """One of this family's four finding classes, as a value.
+
+    `band` and `action` are read from the module constants rather than
+    re-spelled. They are used differently and the difference matters:
+
+    - `band` IS RENDERED, in the subtotal's parenthetical, so § 7.2's flip of
+      `_LAUNCH_SEVERITY` to `error` moves the rendered caption with it. A
+      literal `"warning"` here would keep rendering after the flip and would
+      then describe the report wrongly — a caption that outlives its subject.
+    - `action` IS NOT RENDERED by `class_summary`; the ranked plan is where a
+      finding's action appears, via `report.plan_line`. It is carried here so
+      the per-class pin has a single source
+      (`test_every_finding_carries_its_class_s_band_and_action`), which is what
+      keeps `_ACTION` and `_MARKER_ACTION` attached to the classes that use
+      them rather than re-spelled in a test.
+
+    `gloss` is the parenthetical a reader gets beside the band. Two classes carry
+    one and two do not: the scenario-title arm's says it carries the gate, and
+    the ledger's repeats the hedge every one of its findings already states.
+    Adding a gloss to the other two would pad a line whose whole value is being
+    short enough to read at a glance.
+    """
+
+    __slots__ = ("id", "label", "band", "action", "gloss")
+
+    def __init__(self, id: str, label: str, band: str, action: str,
+                 gloss: str = ""):
+        self.id = id
+        self.label = label
+        self.band = band
+        self.action = action
+        self.gloss = gloss
+
+
+CLASS_TITLES = "scenario-titles"
+CLASS_LEDGER = "carriage-ledger"
+CLASS_RESOLUTION = "title-resolution"
+CLASS_MARKERS = "marker-defects"
+
+# The residual bucket's name. NOT a class — a class is something the delta
+# defines, and this is the report saying that the map and the arms have drifted
+# apart.
+UNCLASSIFIED = "unclassified"
+
+# ORDERED, and the order is the contract. The gate-bearing arm reads FIRST, for
+# the same reason `fam_modified_block_currency` sorts its own findings
+# severity-first (see its ruling of 2026-08-27): the arm the flip in § 7.2
+# reserves must be the arm a reader meets first, or the precise signal is buried
+# in the editorial ones — the exact failure the delta split the arms to avoid.
+#
+# FOUR ENTRIES FOR FIVE RULE SHAPES. The delta's third arm is "Title resolution
+# and ordering": a block resolving to nothing and an ordering no declaration
+# settles are two shapes of ONE arm, sharing a severity and an action, named
+# together in the requirement. Splitting them here would claim a fifth class the
+# delta does not define; merging any other pair would hide a severity difference.
+CLASSES = (
+    FindingClass(CLASS_TITLES, "scenario-title completeness",
+                 _LAUNCH_SEVERITY, _ACTION,
+                 " — the arm carrying this family's gate"),
+    FindingClass(CLASS_LEDGER, "carriage ledger",
+                 _LEDGER_SEVERITY, _ACTION,
+                 " — editorial, and the arm says so in every finding"),
+    FindingClass(CLASS_RESOLUTION, "title resolution and ordering",
+                 _RESOLUTION_SEVERITY, _ACTION),
+    FindingClass(CLASS_MARKERS, "marker defects",
+                 _LEDGER_SEVERITY, _MARKER_ACTION),
+)
+
+# A requirement title as the arms write it: `{title!r}`, which is single-quoted
+# unless the title contains a single quote, in which case Python switches to
+# double quotes. Both admitted, escapes included.
+_TITLE_REPR = r"(?:'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\")"
+
+# THE ANCHOR, AND IT IS LOAD-BEARING. Every pattern below matches from the START
+# of the rule and past the CLOSING QUOTE of the title, because titles come from
+# the corpus and may contain any phrase — including another class's. Measured: a
+# carriage-ledger finding for a requirement titled
+# `'X omits 1 of the 2 scenarios Y'` matches an unanchored titles probe as well
+# as the ledger one, and a first-match-wins classifier files an `info` row under
+# the gate-bearing arm. That is a wrong number on the one line § 5.1 exists so a
+# reader can trust without counting.
+_BLOCK_HEAD = r"^active MODIFIED block for " + _TITLE_REPR + " "
+
+_CLASS_PATTERNS = (
+    (CLASS_TITLES, re.compile(
+        _BLOCK_HEAD + r"omits \d+ of the \d+ scenarios ")),
+    (CLASS_LEDGER, re.compile(
+        _BLOCK_HEAD + r"does not carry \d+ of the \d+ body units and scenario "
+                      r"bullets ")),
+    (CLASS_MARKERS, re.compile(
+        _BLOCK_HEAD + r"carries a '\w+' marker by ")),
+    (CLASS_RESOLUTION, re.compile(
+        _BLOCK_HEAD + r"resolves to no promoted requirement, ")),
+    (CLASS_RESOLUTION, re.compile(
+        r"^the ordering of MODIFIED blocks for " + _TITLE_REPR
+        + r" is undecided: ")),
+)
+
+
+def classify(finding) -> str:
+    """The class id of one of this family's findings, or `UNCLASSIFIED`.
+
+    FAIL-CLOSED (constitution VII). A rule text this map does not recognize is
+    NOT absorbed into a neighbouring class: it returns `UNCLASSIFIED` and the
+    summary renders a named residual row for it. The alternative — a nearest
+    match, or a silent drop — turns a rule-text edit into a wrong number on a
+    line a reader is being asked to trust instead of counting.
+
+    Read off the RULE TEXT rather than off a field of `Finding`, because
+    `Finding` is shared by twenty-two families and the semantic lanes: a field
+    added for one family's report line would be a change to a shared grammar for
+    a local need. The drift that reading costs is made loud two ways —
+    `test_every_finding_over_the_fixture_corpus_lands_in_exactly_one_class` over
+    thirteen fixture trees and the real tree, and the residual row on the
+    artifact itself.
+    """
+    for class_id, pattern in _CLASS_PATTERNS:
+        if pattern.match(finding.rule):
+            return class_id
+    return UNCLASSIFIED
+
+
+def class_counts(findings) -> dict:
+    """`{class id -> count}` for every class, plus `UNCLASSIFIED`.
+
+    Every class present including the zeros: a class that vanishes from the line
+    when it reads nothing is a class a reader cannot tell from one that was never
+    measured.
+    """
+    counts = {klass.id: 0 for klass in CLASSES}
+    counts[UNCLASSIFIED] = 0
+    for finding in findings:
+        counts[classify(finding)] += 1
+    return counts
+
+
+_SUMMARY_LEAD = ("Finding classes, counted apart so the gate-bearing arm is "
+                 "never read as one of the editorial rows:")
+
+_UNCLASSIFIED_LINE = (
+    "- " + UNCLASSIFIED + ": {n} — findings this family emitted that its own "
+    "class map does not place; the map has drifted from the arms and the "
+    "counts above are short by this many")
+
+
+def class_summary(findings) -> list[str]:
+    """The report lines that split this family's findings by class.
+
+    Rendered under the family's own heading, BEFORE its rows, by
+    `report.render` through `families.FAMILY_SUMMARIES`. Handed exactly the
+    findings the report is about to print for this family, and reading nothing
+    else — no context, no filesystem, no second run of the family. That is
+    asserted structurally rather than promised
+    (`test_the_summary_reads_the_findings_and_nothing_else`).
+
+    THE COUNTS ALWAYS SUM TO THE ROWS. Where they would not, the residual line
+    says so and by how many, which is the one honest thing a tally can do about
+    its own drift. It is never an exception: a presentational defect must not be
+    able to abort a nightly report.
+    """
+    counts = class_counts(findings)
+    lines = [_SUMMARY_LEAD]
+    for klass in CLASSES:
+        lines.append(f"- {klass.label}: {counts[klass.id]} "
+                     f"(`{klass.band}`{klass.gloss})")
+    if counts[UNCLASSIFIED]:
+        lines.append(_UNCLASSIFIED_LINE.format(n=counts[UNCLASSIFIED]))
+    return lines
