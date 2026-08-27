@@ -46,16 +46,43 @@
 # `tests/trust-anchor/` indistinguishable from a passing one: that directory now
 # reads the openxWallet custody registry through the `openXwallet/` gitlink, so
 # an uninitialized submodule could turn a whole suite into skips while collection
-# and the human summary both still looked healthy. So the numbers below are read
-# from the JUnit XML's `<testsuite>` ATTRIBUTES, not grepped out of the human
-# summary line, and three of them are pinned — SELECTED, PASSED, SKIPPED — with
-# failures and errors required to be zero. A skip that moves from one bucket to
-# another moves a pinned number and reds the gate.
+# and the human summary both still looked healthy. So all three numbers are read
+# from the JUnit XML's `<testsuite>` ATTRIBUTES rather than grepped out of the
+# human summary line, and all three are checked — with failures and errors
+# required to be zero.
 #
 # SELECTED is the JUnit `tests` attribute: the tests that RAN, which is
-# collection minus the `-m "not postgres"` deselection. It is not the same number
-# as `--collect-only`'s, and conflating the two is how a pin like this goes
-# stale in one direction and unnoticed in the other.
+# collection minus the `-m "not postgres"` deselection, PLUS one entry per
+# subtest (pytest-subtests emits a `<testcase>` per subtest). It is not the same
+# number as `--collect-only`'s, and conflating the two is how a pin like this
+# goes stale in one direction and unnoticed in the other.
+#
+# THE THREE ARE NOT PINNED THE SAME WAY, AND THE ASYMMETRY IS MEASURED RATHER
+# THAN AESTHETIC. Two consecutive runs of the same pull request measured
+# SELECTED at 7090 (run 33111235491, 20:15) and 7116 (run 33112622523, 20:32);
+# the pull request added no test between them. A `pull_request` run builds a
+# MERGE of the head with `main`, so its totals include every test `main` took in
+# the interval — 26 of them there. An EQUALITY pin on SELECTED or PASSED would
+# therefore red this REQUIRED check on merges that have nothing to do with the
+# pull request being gated, which is the same deadlock class this file's own
+# "no paths filter" note refuses: a required check that fails for reasons the
+# candidate cannot fix blocks everything.
+#
+# So:
+#   * SKIPPED is pinned EXACTLY. It is the load-bearing number — the one a
+#     directory that silently turns into skips MOVES — and it does not drift with
+#     `main`, because a merge adds passes, not skips.
+#   * SELECTED and PASSED are pinned as a FLOOR. They may only RISE, and the
+#     floor is raised deliberately with its reason; a fall is a real loss of
+#     coverage and reds. The margin is printed on every run so drift is visible
+#     rather than inferred.
+#   * FAILURES and ERRORS must be zero.
+# THE TRADE IS STATED: a silent loss SMALLER than the margin between the floor
+# and the day's actual count would not red on the floor alone. It would still red
+# on the exact SKIPPED pin if it became skips, and on failures/errors if it
+# became failures — the only uncaught shape is a test that stops being COLLECTED
+# at all while `main` simultaneously adds at least as many. Closing that would
+# need a per-directory count, which is a successor and not this change's scope.
 #
 # The 17 skips are self-skipping guards ("no sibling openxFactory checkout",
 # "no aggregation checkout reachable from this tree") that stand down when no
@@ -317,8 +344,17 @@ jobs:
         # relax the comparison. The step prints the actuals on failure so the
         # correction needs no local reproduction.
         env:
-          EXPECT_SELECTED: "7090"
-          EXPECT_PASSED: "7070"
+          # FLOORS — may only rise, and only with the reason in the commit
+          # message. Measured at run 33111235491 (PR #431, 2026-08-27), the
+          # LOWER of the two runs, so the floor is a number this suite has
+          # actually met rather than the high-water mark of one run.
+          MIN_SELECTED: "7090"
+          MIN_PASSED: "7070"
+          # EXACT — the anti-vacuity pin. 20 on a runner. A developer worktree
+          # inside the aggregation checkout measures MORE, because the self-skip
+          # guards ("no sibling openxFactory checkout", "no aggregation checkout
+          # reachable from this tree") stand down here and resolve there; this
+          # number is CI's, deliberately.
           EXPECT_SKIPPED: "20"
         run: |
           set -euo pipefail
@@ -335,10 +371,11 @@ jobs:
           PY
           )
           echo "selected=$SELECTED passed=$PASSED skipped=$SKIPPED failures=$FAILURES errors=$ERRORS"
+          echo "floors: selected>=$MIN_SELECTED (margin $((SELECTED - MIN_SELECTED))) passed>=$MIN_PASSED (margin $((PASSED - MIN_PASSED))) skipped==$EXPECT_SKIPPED"
           rc=0
           [ "$FAILURES" = "0" ] || { echo "::error::$FAILURES failure(s)"; rc=1; }
           [ "$ERRORS" = "0" ] || { echo "::error::$ERRORS error(s)"; rc=1; }
-          [ "$SELECTED" = "$EXPECT_SELECTED" ] || { echo "::error::selected $SELECTED, pinned $EXPECT_SELECTED — update the pin in this workflow with the reason, or find the tests that stopped being collected"; rc=1; }
-          [ "$PASSED" = "$EXPECT_PASSED" ] || { echo "::error::passed $PASSED, pinned $EXPECT_PASSED"; rc=1; }
-          [ "$SKIPPED" = "$EXPECT_SKIPPED" ] || { echo "::error::skipped $SKIPPED, pinned $EXPECT_SKIPPED — a directory that silently turned into skips is exactly what this pin exists to catch"; rc=1; }
+          [ "$SELECTED" -ge "$MIN_SELECTED" ] || { echo "::error::selected $SELECTED is BELOW the floor $MIN_SELECTED — tests stopped being collected. Find them; do not lower the floor"; rc=1; }
+          [ "$PASSED" -ge "$MIN_PASSED" ] || { echo "::error::passed $PASSED is BELOW the floor $MIN_PASSED — find the tests that stopped passing or stopped being collected; do not lower the floor"; rc=1; }
+          [ "$SKIPPED" = "$EXPECT_SKIPPED" ] || { echo "::error::skipped $SKIPPED, pinned exactly $EXPECT_SKIPPED — a directory that silently turned into skips is exactly what this pin exists to catch. If the change is intended, move the pin WITH the reason"; rc=1; }
           exit $rc

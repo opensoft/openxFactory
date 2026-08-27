@@ -176,6 +176,35 @@ line whose format has changed before — and a pin taken from the wrong reading 
 a pin that passes while measuring something else, which is the whole failure class
 `tasks.md` 7.17 exists to close.
 
+### AND WHY THE PIN'S SHAPE CHANGED — measured, on the next run
+
+Run **33112622523**, on a head whose only diff from 33111235491's was the pin
+values and two documents, reported `selected=7116 passed=7096 skipped=20`. **The
+pull request added no test between the two runs.** A `pull_request` run builds a
+MERGE of the head with `main`, so its totals carry every test `main` took in the
+interval — 26 of them, in seventeen minutes.
+
+An equality pin on SELECTED or PASSED is therefore a **deadlock on a REQUIRED
+check**: it reds for merges the candidate cannot influence, which is the same
+hazard `pytest-suite.yml`'s own "no paths filter" note refuses in the other
+direction. So the three are checked in two shapes:
+
+| number | shape | why |
+| --- | --- | --- |
+| SKIPPED | **exactly 20** | the load-bearing one. A directory that silently turns into skips MOVES it, and it does not drift with `main` — a merge adds passes, not skips |
+| SELECTED | **floor 7090** | may only rise; the margin is printed every run |
+| PASSED | **floor 7070** | as above. Both floors are the LOWER of the two measured runs, so each is a number this suite has actually met |
+| FAILURES / ERRORS | **zero** | unchanged |
+
+**The trade is stated rather than hidden**: a silent loss smaller than the day's
+margin escapes the floor alone. It would still red on the exact SKIPPED pin if it
+became skips, and on failures/errors if it became failures; the only shape that
+escapes all three is a test that stops being COLLECTED while `main` adds at least
+as many in the same window. Closing that needs per-directory counts — a successor,
+not this change's scope. `tasks.md` 7.17 asked for a pinned triple; it gets three
+checked numbers, with the one that actually detects the vacuous pass pinned
+exactly.
+
 **The nested submodule was genuinely initialized in that run** — "Mint
 openxFactory app token", "Rewrite ssh submodule URLs for token auth" and "Init the
 openXwallet gitlink only" each reported `success` as their own step, which is the

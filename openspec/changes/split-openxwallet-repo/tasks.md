@@ -995,6 +995,30 @@ intermediate.*
       passes while measuring something else — and it is why the first run shipped a
       SENTINEL rather than a guess.
 
+      **AND ONE MEASURED CORRECTION TO THIS TASK'S OWN SHAPE.** An EQUALITY pin on
+      SELECTED and PASSED does not survive contact with a `pull_request` trigger, and
+      the measurement is two consecutive runs of the SAME pull request: run
+      33111235491 (20:15) reported `selected=7090 passed=7070`, run 33112622523
+      (20:32) reported `selected=7116 passed=7096`, and the pull request added no
+      test between them. A `pull_request` run builds a MERGE of the head with `main`,
+      so its totals include every test `main` took in the interval — 26 of them. An
+      equality pin would therefore red this REQUIRED check on merges the candidate
+      cannot influence, which is the same deadlock class `pytest-suite.yml`'s own
+      "no paths filter" note refuses.
+
+      So the three numbers are checked in TWO shapes, and the asymmetry is what makes
+      the pin survivable: **SKIPPED is pinned EXACTLY at 20** — it is the
+      load-bearing number, the one a directory that silently turns into skips MOVES,
+      and it does NOT drift with `main` because a merge adds passes, not skips — while
+      **SELECTED and PASSED are FLOORS** (7090 / 7070, the LOWER of the two measured
+      runs, so the floor is a number this suite has actually met) that may only RISE,
+      with the margin PRINTED every run so drift is visible rather than inferred, and
+      FAILURES and ERRORS must be zero. The trade is stated in the workflow: a silent
+      loss smaller than the day's margin escapes the floor alone, and the only shape
+      that escapes all three is a test that stops being COLLECTED while `main`
+      simultaneously adds at least as many. Closing that needs per-directory counts,
+      a successor.
+
       **The first run on this pull request also earned its keep**: it refused
       `contracts/openxwallet-pin.yaml` in both directions of the
       derived-pin-reachability class, which is that obligation's coverage half working
