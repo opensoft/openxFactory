@@ -231,9 +231,40 @@ class Findings:
         self.notes.append(f"note  {msg}")
 
 
+class MalformedYAML(yaml.YAMLError):
+    """A YAML file the validator must read does not PARSE.
+
+    Deliberately a subclass of `yaml.YAMLError`: several readers here already
+    catch `yaml.YAMLError` to fail closed on their own (`_load_f0_instance`
+    among them), and those handlers must keep working exactly as before.
+    Subclassing means this carries the file's identity to the top of the run
+    without changing the behaviour of a single existing `except`."""
+
+    def __init__(self, path: Path, exc: Exception) -> None:
+        self.path = path
+        self.original = exc
+        # The message stays the parser's own. The existing handlers already
+        # format their finding as `{relative path}: {exc}`, so prefixing the
+        # path here would print it twice; `run()` names the file from `.path`
+        # instead.
+        super().__init__(str(exc))
+
+
 def load_yaml(path: Path) -> Any:
+    """Parse one YAML document, naming the file when it does not parse.
+
+    Every reader in this validator funnels through here, so a syntax error
+    anywhere becomes one identifiable, catchable failure rather than a bare
+    `yaml.scanner.ScannerError` escaping to `main()` as an anonymous harness
+    failure. `run()` turns it into a finding; the readers that already fail
+    closed on a YAMLError keep doing so untouched."""
     with path.open(encoding="utf-8") as fh:
-        return yaml.safe_load(fh)
+        try:
+            return yaml.safe_load(fh)
+        except MalformedYAML:
+            raise
+        except yaml.YAMLError as exc:
+            raise MalformedYAML(path, exc) from exc
 
 
 def schema_files() -> list[Path]:
@@ -420,12 +451,40 @@ def _report(f: Findings, strict: bool) -> int:
     return 0
 
 
+def _rel(path: Path) -> str:
+    """Repository-relative path for a finding, falling back to the absolute one."""
+    try:
+        return str(path.relative_to(ROOT))
+    except ValueError:
+        return str(path)
+
+
 def run(strict: bool, require_realization: bool) -> int:
     f = Findings()
     if not AVC.is_dir():
         print("ERROR contracts/avatar-client/ not found", file=sys.stderr)
         return 2
 
+    # A YAML SYNTAX ERROR IS A FINDING, NOT A TRACEBACK — caught once, here.
+    # Every reader funnels through `load_yaml`, which names the offending file
+    # and raises `MalformedYAML`. Before this, an unparseable document anywhere
+    # in the family escaped to `main()` as an anonymous `ERROR harness failure`
+    # with exit 2, which told a reader that the tool broke rather than that
+    # their file did. Catching per-site would be 31 call sites today and one
+    # more each time a reader is added, so it is caught at the boundary
+    # instead. Fail closed: whatever had been collected is reported alongside
+    # the parse failure, and the run stops.
+    try:
+        return _run_checks(f, strict, require_realization)
+    except MalformedYAML as bad:
+        f.error("yaml-syntax",
+                f"{_rel(bad.path)} does not parse as YAML "
+                f"({type(bad.original).__name__}); nothing that reads it can be "
+                f"verified (fail closed) — {bad.original}")
+        return _report(f, strict)
+
+
+def _run_checks(f: Findings, strict: bool, require_realization: bool) -> int:
     # FAIL CLOSED ON A STRUCTURALLY UNREADABLE ACCEPTANCE MAP, ONCE, HERE.
     # A top-level list is valid YAML and a malformed acceptance map, and a
     # dozen readers below index it as a mapping. Each of those raised in turn,
@@ -565,6 +624,11 @@ POLICY_KIND = "avatar-client-canary-cohort-and-rollback-policy"
 # point of the policy — the kernel gives each kill switch an OPTIONAL
 # active-lease revocation and this is the rule that selects the option — so it
 # is compared explicitly rather than trusted.
+# The ruled cohort is exactly one of EACH kind — vendor-organization internal
+# accounts AND exactly one internally-staffed domain sandbox. Held as a set so
+# the check can count per kind instead of trusting a total.
+POLICY_COHORT_KINDS = {"vendor_organization_internal_accounts",
+                       "internally_staffed_domain_sandbox"}
 POLICY_RULED_CLASSES = {
     "ROLLBACK-A": {"trigger_mode": "automatic", "action": "abort",
                    "revoke_active_leases": True},
@@ -889,17 +953,37 @@ def check_canary_rollback_policy(f: Findings) -> None:
             f.error(cat, f"{rp}: cohort.opt_in.mechanism "
                          f"{opt.get('mechanism')!r} != "
                          f"'server_side_capability_resolution'")
+        # EXACTLY ONE OF EACH KIND, counted per kind rather than in total.
+        # A length-2 list plus an at-least-one sandbox test accepted TWO
+        # sandboxes and NO vendor organization — a cohort of two domain
+        # sandboxes and no vendor staff, which is a different ring than the one
+        # ruled, passing a check meant to fix its boundary. Both kinds are
+        # counted separately now, so neither can stand in for the other.
         members = cohort.get("members")
-        if not isinstance(members, list) or len(members) != 2:
-            f.error(cat, f"{rp}: cohort.members must be exactly the vendor-org "
-                         f"accounts and ONE internally-staffed domain sandbox")
+        if not isinstance(members, list):
+            f.error(cat, f"{rp}: cohort.members missing or not a list (fail closed)")
         else:
+            kinds = [m.get("member") for m in members if isinstance(m, dict)]
+            non_mappings = len(members) - len(kinds)
+            if non_mappings:
+                f.error(cat, f"{rp}: cohort.members carries {non_mappings} entry/ies "
+                             f"that are not mappings; a cohort member that cannot be "
+                             f"read is never counted as present")
+            for kind in POLICY_COHORT_KINDS:
+                n = kinds.count(kind)
+                if n != 1:
+                    f.error(cat, f"{rp}: cohort.members carries {n} entries of kind "
+                                 f"{kind!r}; the ruled cohort is EXACTLY ONE of each "
+                                 f"— the vendor organization's internal accounts AND "
+                                 f"exactly one internally-staffed domain sandbox")
+            unexpected = sorted(set(kinds) - POLICY_COHORT_KINDS)
+            if unexpected:
+                f.error(cat, f"{rp}: cohort.members names unratified kind(s) "
+                             f"{unexpected}; admitting a new kind of member widens "
+                             f"the ring and needs a ruling")
             sandbox = [m for m in members if isinstance(m, dict)
                        and m.get("member") == "internally_staffed_domain_sandbox"]
-            if not sandbox:
-                f.error(cat, f"{rp}: cohort.members names no "
-                             f"internally_staffed_domain_sandbox")
-            elif sandbox[0].get("cardinality") != "exactly_one":
+            if len(sandbox) == 1 and sandbox[0].get("cardinality") != "exactly_one":
                 f.error(cat, f"{rp}: the domain sandbox cardinality is "
                              f"{sandbox[0].get('cardinality')!r} != 'exactly_one'; "
                              f"a second sandbox widens the ring and needs a ruling")
@@ -995,7 +1079,22 @@ def check_fixtures(f: Findings, registry: Registry, docs: dict[str, dict]) -> se
         if sdoc is None:
             f.error("fixture-target", f"{cid}: unknown target schema {target!r}")
             continue
-        errs = list(Draft202012Validator(sdoc, registry=registry).iter_errors(c.get("instance")))
+        try:
+            errs = list(Draft202012Validator(sdoc, registry=registry)
+                        .iter_errors(c.get("instance")))
+        except Exception as exc:  # noqa: BLE001
+            # A `$ref` that cannot resolve is a BROKEN REGISTRY, not a fixture
+            # result. It happens when a schema the registry depends on failed
+            # to parse: that parse failure is already a finding, the run
+            # continues to report everything else, and then this raised
+            # `Unresolvable` out of jsonschema and ended the run as an
+            # anonymous harness failure. A case that cannot be executed is
+            # recorded as a case that did not pass — fail closed.
+            f.error("fixture-unresolvable",
+                    f"{cid}: target {target!r} could not be executed "
+                    f"({type(exc).__name__}: {str(exc)[:120]}); a fixture that "
+                    f"cannot run is never counted as passing")
+            continue
         actual = "valid" if not errs else "invalid"
         if actual != expect:
             detail = errs[0].message[:120] if errs else ""
