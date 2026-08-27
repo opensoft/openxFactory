@@ -299,15 +299,27 @@ jobs:
         # ("no sibling openxFactory checkout", "no aggregation checkout
         # reachable from this tree") stand down on a runner and resolve in a
         # developer worktree that sits inside the aggregation, so a locally
-        # measured SKIPPED is knowably the wrong number to pin. Until the first
-        # run on this workflow reports, these carry a sentinel and the step
-        # FAILS LOUDLY printing the actual triple — a wrong pin that fails is
-        # correctable; a pin guessed from the wrong environment and passing is
-        # not detectable at all.
+        # measured SKIPPED is knowably the wrong number to pin. These values
+        # were read off run 33111235491 (PR #431, 2026-08-27), whose own summary
+        # line was `7042 passed, 20 skipped, 338 deselected, 28 subtests passed`.
+        #
+        # WHY SELECTED IS 7090 AND NOT 7062, stated because the arithmetic is
+        # not obvious and the next reader WILL check it: pytest-subtests emits a
+        # `<testcase>` per SUBTEST as well as per test, so the JUnit `tests`
+        # attribute is 7042 + 20 + 28 = 7090, and PASSED (selected minus
+        # skipped minus failures minus errors) is 7070 rather than 7042. The
+        # `-q` summary and the XML attributes count different things; the XML is
+        # what is pinned, because the summary is a human line that has changed
+        # format before.
+        #
+        # WHEN THIS MOVES: a real change to the suite moves it, and the fix is
+        # to update these three with the reason in the commit message — never to
+        # relax the comparison. The step prints the actuals on failure so the
+        # correction needs no local reproduction.
         env:
-          EXPECT_SELECTED: "PIN-FROM-FIRST-CI-RUN"
-          EXPECT_PASSED: "PIN-FROM-FIRST-CI-RUN"
-          EXPECT_SKIPPED: "PIN-FROM-FIRST-CI-RUN"
+          EXPECT_SELECTED: "7090"
+          EXPECT_PASSED: "7070"
+          EXPECT_SKIPPED: "20"
         run: |
           set -euo pipefail
           read -r SELECTED PASSED SKIPPED FAILURES ERRORS < <(python3 - <<'PY'

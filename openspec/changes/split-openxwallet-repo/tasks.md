@@ -975,14 +975,36 @@ intermediate.*
       are absent, and the gate FAILS on any of the four, so the green check IS the
       assertion rather than a separate reading of it. The row is left open only until
       it is re-observed on the post-rebase head with 7.26.
-- [ ] 7.30 Evidence row: `pytest-suite`'s pinned PASS / SKIP counts under nested
+- [x] 7.30 Evidence row: `pytest-suite`'s pinned PASS / SKIP counts under nested
       submodules, not collection alone.
-      **Note (feature `023-openxwallet-consume-shed`, 2026-08-27):** the pinned
-      TRIPLE is implemented (7.17) and its values are taken from CI's own JUnit XML
-      rather than from a developer machine, because this worktree sits under the
-      aggregation checkout and the self-skip guards resolve differently there. This
-      row closes when a green `pytest-suite` run reports the pinned triple with
-      `failures=0 errors=0` under an initialized nested submodule.
+      **Evidence:** MEASURED IN CI AND PINNED. Run **33111235491** on pull request #431,
+      under an INITIALIZED nested submodule (the app-token mint, the `insteadOf`
+      rewrite and the scoped `git submodule update --init openXwallet` all reported
+      success as their own steps), printed
+      `selected=7090 passed=7070 skipped=20 failures=0 errors=0` from the JUnit XML,
+      over a suite summary of `7042 passed, 20 skipped, 338 deselected, 28 subtests
+      passed in 866s`. Those three numbers are now the pin.
+
+      **The arithmetic is recorded in the workflow because it is not obvious and the
+      next reader will check it:** pytest-subtests emits a `<testcase>` per SUBTEST as
+      well as per test, so the JUnit `tests` attribute is 7042 + 20 + 28 = **7090**,
+      and PASSED is 7090 − 20 = **7070**, not 7042. The `-q` summary and the XML
+      attributes count different things; the XML is what is pinned, because the
+      summary is a human line whose format has changed before. This is exactly the
+      hazard 7.17 names — a number pinned from the wrong reading is a pin that
+      passes while measuring something else — and it is why the first run shipped a
+      SENTINEL rather than a guess.
+
+      **The first run on this pull request also earned its keep**: it refused
+      `contracts/openxwallet-pin.yaml` in both directions of the
+      derived-pin-reachability class, which is that obligation's coverage half working
+      on a genuinely new artifact. Fixed by TWO `PinMember` rows in
+      `scripts/doc_health/pin_class.py` — `carve_commit` REPO_LOCAL (the
+      byte-identity referent, which must stay reachable here) and `commit`
+      CROSS_REPOSITORY (openXwallet's, answered by that repository and by
+      `verify-openxwallet-pin.py`) — because one member could only have declared one
+      locality and the file carries both. Recorded in
+      `specs/023-openxwallet-consume-shed/evidence/validation.md`.
 - [ ] 7.31 **[OPERATOR]** Evidence row: ruleset 21538893 as an UNCHANGED-STATE
       row — the `GET repos/opensoft/openxFactory/rules/branches/main` output
       showing the same single token as before the wave.

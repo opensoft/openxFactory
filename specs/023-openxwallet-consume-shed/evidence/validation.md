@@ -148,14 +148,38 @@ after the declaration. `contracts/releases/contract-v2.0.digests.yaml` is
 unaffected (`scripts/doc_health/` is not an inventory member) and re-builds
 byte-identical. `openspec validate --all --strict` → 76 passed.
 
-**The pinned triple is taken from CI's own run, deliberately.** The workflow ships
-with a sentinel and a step that FAILS LOUDLY printing the actual
-selected/passed/skipped, because the self-skip guards ("no sibling openxFactory
-checkout", "no aggregation checkout reachable from this tree") resolve differently
-in a developer worktree that sits inside the aggregation than on a runner — the
-workflow header has documented that two-skip difference since it was written. A
-wrong pin that fails is correctable; a pin guessed from the wrong environment and
-passing is not detectable at all.
+### The triple, MEASURED IN CI and pinned (run 33111235491)
+
+The workflow shipped with a sentinel and a step that FAILS LOUDLY printing the
+actuals, because the self-skip guards ("no sibling openxFactory checkout", "no
+aggregation checkout reachable from this tree") resolve differently in a developer
+worktree that sits inside the aggregation than on a runner — the workflow header
+has documented that two-skip difference since it was written. A wrong pin that
+fails is correctable; a pin guessed from the wrong environment and passing is not
+detectable at all.
+
+Run **33111235491** printed, from the JUnit XML:
+
+```
+selected=7090 passed=7070 skipped=20 failures=0 errors=0
+```
+
+over a suite summary of `7042 passed, 20 skipped, 338 deselected, 7 warnings, 28
+subtests passed in 866.19s`. Those three are now the pin: `EXPECT_SELECTED: 7090`,
+`EXPECT_PASSED: 7070`, `EXPECT_SKIPPED: 20`.
+
+**The arithmetic, recorded because it is not obvious**: pytest-subtests emits a
+`<testcase>` per SUBTEST as well as per test, so `tests` = 7042 + 20 + 28 = 7090
+and PASSED = 7090 − 20 = 7070, not 7042. The `-q` summary and the XML attributes
+count different things. The XML is what is pinned, because the summary is a human
+line whose format has changed before — and a pin taken from the wrong reading is
+a pin that passes while measuring something else, which is the whole failure class
+`tasks.md` 7.17 exists to close.
+
+**The nested submodule was genuinely initialized in that run** — "Mint
+openxFactory app token", "Rewrite ssh submodule URLs for token auth" and "Init the
+openXwallet gitlink only" each reported `success` as their own step, which is the
+CI-side answer to the reachability question R1 asked.
 
 ## Still owed — see `tasks.md` Phase 9 and `evidence/operator-acts.md`
 
