@@ -380,6 +380,63 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [declare-sentinel-pin-vocabulary](openspec/changes/declare-sentinel-pin-vocabulary/proposal.md)
+  — **RATIFIED 2026-08-27** (Brett, in-session commissioning of the filing,
+  verbatim: "file the sentinel-vocabulary follow-up change"). A SECOND, EARLIER
+  ruling of the same day constituted the packet rather than ordering it —
+  selected verbatim as "Named follow-up (Recommended): Record it beside the §5.3
+  git_generation() follow-up — they're the same idea (honest non-pins) and should
+  be one future packet" — and is recorded as a distinct act. **THE CITATION
+  COVERS THE DECISION TO FILE AND NOTHING ELSE**: five § Orchestrator decisions
+  stay FLAGGED FOR VETO and four § Open Questions stay OPEN, each with a
+  recommendation and no decision. **THE TWO DEFERRED ITEMS THIS JOINS**:
+  `harden-ideation-readiness-check` § 5.3 and
+  `govern-derived-pin-reachability` § 5.1, both unticked at their archives. **AN
+  UNTRUE PIN IS WORSE THAN AN UNREACHABLE ONE** — an orphan was true once, where
+  a `HEAD` stamped from a dirty tree names a commit that resolves perfectly and
+  describes content no commit ever held, so reachability answers PASS, retention
+  has nothing to retain, and no instrument the pin canon carries reaches it.
+  **THE DEFECT STANDS ON MAIN, re-confirmed 2026-08-27 at `b5fb03f3`**:
+  `scripts/bootstrap-ideation-cross-reference.py:144-154` runs `rev-parse HEAD`
+  with no `status --porcelain`, no `diff --quiet`, no sentinel branch and no
+  fallback. **ONE CORRECTION TO THE INHERITED PREMISE, recorded rather than
+  smoothed**: the archived record states the proposal-support generator "already
+  refuses to write a pin it cannot mean", and measured it does NOT —
+  `git log -S"uncommitted-worktree" -- scripts/` is EMPTY across all history,
+  `repo_revision()` emits a third spelling `"uncommitted"` and only on a
+  `rev-parse` NON-ZERO EXIT, never on a dirty tree, and all seven sentinel values
+  were written BY HAND. That strengthens the case: the practice is real, it was
+  right seven times out of seven, and it lives in no generator and no
+  declaration. **THE SENTINELS ARE INVISIBLE TO THE VERIFICATION BY
+  CONSTRUCTION** — `pin_class.py` binds both site regexes' value group to
+  `([0-9a-f]{40})`, so a sentinel creates no site: not reachable, not orphaned,
+  not lost, and NOT UNCOVERED. The probe reports **65 sites across 22 members —
+  50 reachable, 0 orphaned, 1 lost (discharged), 0 inconclusive, 0 uncovered, 0
+  vanished**: a fully verified class over seven artifacts whose provenance claim
+  nothing has read. **AND THE DRIFT IS ALREADY A LATENT RAISE, run rather than
+  predicted**: three guards in `proposal-support.py` compare against the literal
+  `"uncommitted"`, so `git_blob_sha256(root, "uncommitted-worktree", …)` raises
+  `SupportError` where `"uncommitted"` returns `None` — latent only because all
+  seven sentinel manifests are archived. **SIX UNDECLARED SPELLINGS EXIST**
+  (`"uncommitted"`, `"uncommitted-worktree"`, `"not-applicable-ad-hoc"`,
+  `"unknown"`, `"composed"`, beside the adjacent verdict `"not-applicable"`), two
+  of them in no governance document at all. Four requirements ADDED across two
+  capabilities, sixteen scenarios, NONE MODIFIED: `ideation-cross-reference` gets
+  the two GENERATOR rules (write a declared sentinel rather than an untrue commit,
+  one shared spelling per condition; and declare the committed spellings rather
+  than rewrite them, since all seven sit in archived packets whose bytes this
+  capability's own rule protects); `doc-health` gets the two VERIFICATION rules
+  (a declared sentinel is a LEGAL NON-PIN — a fifth outcome beside reachable,
+  orphaned, lost and uncovered, which does NOT hold full verification open
+  because the artifact is conforming — and an undeclared non-commit value is a
+  defect; plus the vocabulary declared beside the pin class and checked in BOTH
+  directions over that class's own inventory). **ADDS NO DETERMINISTIC CHECK
+  FAMILY and does not restate the enumeration**, on the same two reasons both
+  siblings gave. Five follow-ups carried unticked, including the `corpus.py`
+  `head_sha()` seam that feeds six lanes and the `_VOCAB_RE` trailing-boundary
+  gap found while measuring. (code surface: openxFactory; target release:
+  implemented — ships ACTIVE, archives on merged-plus-green)
+
 - [split-openxwallet-repo](openspec/changes/split-openxwallet-repo/proposal.md)
   — **RATIFIED 2026-08-26** (in-session ruling on PR #391; realization via
   Speckit) — authored 2026-08-26 as the first and only exit of the staged topic
