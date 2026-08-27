@@ -42,6 +42,12 @@ still be edited, which is the only moment the remedy is one line.
 The numbers differ on purpose: the arms are three COMPARISONS between two
 documents, and the fourth class is a defect in a DECLARATION.
 
+**Findings sort SEVERITY-FIRST**, so the gate-bearing `warning` renders above
+the editorial `info` rows. The ledger's population is standing by construction —
+every legitimate MODIFIED block edits something — so on any real tree the one
+precise signal is outnumbered, and a path-first sort buried it among them, which
+is the exact failure the delta split the arms to avoid.
+
 **Advisory at launch, in both halves** — `warning`/`info` severities AND
 deliberate absence from `FAMILY_RESOLUTION`. The second half is the one that is
 easy to lose: `report.uncited_resolutions` turns a `contested` finding that
@@ -99,11 +105,16 @@ two-writers instance § 2.1 was going to create therefore never existed.
 - `promotion_fidelity.py`, `duplicate_packet.py`, `report.py`,
   `.github/workflows/**` and every threshold: **no diff**. Their suites: 90
   passed.
-- **Mutation round: 21 mutants, 21 killed.** The round found THREE missing tests
-  that twenty-one green tests had not — the `FAMILY_RESOLUTION` absence was
-  documented in three places and asserted in none; the marker's change-id group
-  was unpinned; and the no-basis guarantee was asserted on an outcome rather
-  than on the reader's signature. All three are now in the file.
+- **Mutation round: 21 mutants, 21 killed**, re-run after every review nit. The
+  round found THREE missing tests that twenty-one green tests had not — the
+  `FAMILY_RESOLUTION` absence was documented in three places and asserted in
+  none; the marker's change-id group was unpinned because the only
+  quoted-template case also carried a placeholder date; and the no-basis
+  guarantee was asserted on a run OUTCOME rather than on the reader's signature.
+  All three are now pinned. The implementation review independently re-killed its
+  own 15 mutants and found all 10 of its findings to be true positives.
+- **Report ordering verified in a real run**: the family's section opens with the
+  `warning`, not with an `info` row.
 
 ## What this does NOT close
 
@@ -120,10 +131,28 @@ change ships ACTIVE and archives only after this merges green.
 
 ## Decisions still flagged for veto
 
-Ten, listed in `specs/019-modified-block-currency-family/plan.md`
-§ Decisions taken by the orchestrator. Three supply rules the ratified delta does
-not write and are the ones a reviewer should read first: **O6** the dated-bold-
-note predicate, **O9** prose under a scenario heading as a body unit, and the
-ruling that **fenced code blocks are neither units nor markers** — without which
-the delta's own written-out marker examples, which promote into canon, parse as
-two real markers on the requirement that defines them.
+Eleven, listed in `specs/019-modified-block-currency-family/plan.md`
+§ Decisions taken by the orchestrator. Four supply rules the ratified delta does
+not write, and they are the ones a reviewer should read first:
+
+- **O6** — the dated-bold-note predicate (a paragraph opening a bold run that
+  carries an ISO date), measured against the notes canon actually holds.
+- **O9** — prose under a scenario heading is a body unit; population 2 in this
+  corpus. Dropping it would let a block move an obligation into scenario prose
+  where neither carriage arm could see it.
+- **O11** — carriage is SET-BASED, not multiset. 13 of 513 promoted requirements
+  state one normalized unit twice, every instance a repeated scenario-bullet.
+  Set semantics cannot lose a DISTINCT obligation; multiset would report a block
+  for de-duplicating canon's own repetition.
+- **Fenced code blocks are neither units nor markers** — without this the
+  delta's OWN written-out marker examples, which promote into canon, parse as two
+  real markers on the requirement that defines them.
+
+Two further readings are recorded in the module docstring: a marker is voided
+PER NAME rather than wholly, and a marker name matching no canon unit is ignored
+fail-closed (the unit the author meant is still reported by whichever arm owns
+it).
+
+Refs #357 #329 #330
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
