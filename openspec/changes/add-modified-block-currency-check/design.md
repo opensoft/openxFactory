@@ -153,14 +153,21 @@ issue #329 is about. The convention cannot be reused, and reusing it would have
 inverted the check on its own headline case.
 
 So the marker is new, recognized by FORM: a fixed leading token, a change id, a
-date, and backticked unit names. Two spellings, because there are two lawful
-acts — `Removed from canon by <change-id> (<date>):` and
-`Merged into <new title> by <change-id> (<date>):`. Whitespace normalization
-applies to the marker as it does to every other unit, so a marker wrapped
-across two lines still parses. And a marker suppresses only units it names AND
-that are actually absent: a marker naming a scenario the block still restates
-is itself reported, because a declaration that does not describe the block is
-evidence about nothing.
+date, and unit names written as CommonMark code spans. Two spellings, because
+there are two lawful acts — `Removed from canon by <change-id> (<date>):` and
+``Merged into `<destination scenario title>` by <change-id> (<date>):``, the
+destination naming where the superseded scenarios went rather than a unit.
+Whitespace normalization applies to the marker as to every other unit, so a
+marker wrapped across lines is still one marker. Three details the review
+forced and that a naive form would have got wrong: a unit containing backticks
+needs a longer fence, because roughly a third of this corpus's body units and a
+sixth of its bullets cite something like `openxFactory` and a single-backtick
+span would end at the first inner one; the merge destination must be exempt
+from the names, or every valid merge marker reports itself; and a marker must
+not be a carriage unit, or it promotes into canon and every later block has to
+restate it forever. A marker suppresses only units it names AND that are
+actually absent, and one naming a scenario the block still restates is itself
+reported.
 
 ### The false-positive/false-negative trade, priced
 

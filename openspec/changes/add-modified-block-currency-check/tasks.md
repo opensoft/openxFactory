@@ -76,14 +76,24 @@ merge it follows exists.
       never scenario by scenario. `_LAUNCH_SEVERITY` is a module constant so the
       flip in § 7.2 is one line beside one `FAMILY_RESOLUTION` row.
 - [ ] 2.5 The reserved-marker parser, two forms, recognized by form and never by
-      prose: `**Removed from canon by <change-id> (<YYYY-MM-DD>):** ` followed by
-      backticked unit names separated by semicolons and a ` — <reason>`; and
-      `**Merged into <new scenario title> by <change-id> (<YYYY-MM-DD>):** `
-      followed by backticked superseded titles. Whitespace normalization applies
-      to the marker, so a wrapped marker parses. A marker suppresses only units
-      it names AND that are absent from the block; a marker naming a present unit
-      is itself reported. NO fuzzy matching on the marker either.
-- [ ] 2.6 The two-writers resolution: where a second active change carries a
+      prose: `**Removed from canon by <change-id> (<YYYY-MM-DD>):**` followed by
+      the deleted units and a ` — <reason>`; and
+      ``**Merged into `<destination scenario title>` by <change-id> (<YYYY-MM-DD>):**``
+      followed by the superseded titles. Named units are CommonMark code spans,
+      extracted in order per CommonMark — never by splitting on punctuation — and
+      a unit containing backticks carries a longer fence. The merge DESTINATION
+      is not a named unit. A marker is one PARAGRAPH and whitespace normalization
+      applies to it, so a wrapped marker parses. A marker suppresses only units it
+      names AND that are absent; a marker naming a present unit is itself
+      reported; naming a scenario title also declares that scenario's canon
+      bullets removed unless they appear elsewhere in the block. Marker paragraphs
+      are excluded from the ledger in both directions, so a promoted marker never
+      becomes text a later block must restate. No fuzzy matching on the marker.
+- [ ] 2.6 Title resolution, in order: the change's OWN `## RENAMED Requirements`
+      block first — where it renames a promoted requirement to the modified title,
+      the arms run against canon under the OLD name — then active sibling changes'
+      ADDED and RENAMED blocks; a title resolving to none of those is reported.
+- [ ] 2.7 The two-writers resolution: where a second active change carries a
       MODIFIED block for one `(capability, title)`, the later block is measured
       against the earlier change's outcome, and the earlier change's additions
       must be present in it. Where the earlier change is an active RATIFIED
@@ -91,21 +101,21 @@ merge it follows exists.
       token in the later change's own `proposal.md`. "Later" is UNRULED for two
       active changes — see § 7.3; implement whatever § 7.3's ruling settles, and
       until it is settled do not silently pick one.
-- [ ] 2.7 The disposition read: `health/dispositions.yaml` in the aggregation
+- [ ] 2.8 The disposition read: `health/dispositions.yaml` in the aggregation
       checkout, entries naming this family with a `cite`, optionally narrowed by
       `requirement:`, in the shape `promotion_fidelity.py` already implements.
       Reuse that reader; do not write a second one.
-- [ ] 2.8 Registration: one import and one `FAMILIES` line in `families.py`, one
+- [ ] 2.9 Registration: one import and one `FAMILIES` line in `families.py`, one
       `FAMILY_IDS` entry in `__init__.py`, one comment recording why the family
       is deliberately absent from `FAMILY_RESOLUTION`, and the `families.py`
       module docstring's owner list extended.
-- [ ] 2.9 `tests/doc-health/test_lifecycle_scan_set.py`: the twenty-second family
+- [ ] 2.10 `tests/doc-health/test_lifecycle_scan_set.py`: the twenty-second family
       classified as a non-reader of the lifecycle scan set. That test exists to
       fail loudly when a new family is added without classifying it.
 
 ## 3. Speckit F2 — fixtures and tests
 
-- [ ] 3.1 REGRESSION FIXTURE A — the #351 true positive, reconstructed.
+- [ ] 3.1 Regression fixture A — the #351 true positive, reconstructed.
       `add-doxchat-model-intake`'s pre-repair block against the canon of
       2026-08-25: six body clauses, two scenarios (`The menu offers a routing
       rule`, `A fourth provider verb is proposed`) and one reverted scenario line
@@ -113,51 +123,70 @@ merge it follows exists.
       the scenario arm fires on the two scenarios by title; the ledger lists the
       six clauses AND the reverted line; assertions are on the rule text and the
       named units, never on a count.
-- [ ] 3.2 REGRESSION FIXTURE B — the #329 one-of-eight case. A MODIFIED block
+- [ ] 3.2 Regression fixture B — the #329 one-of-eight case. A MODIFIED block
       restating 1 of a promoted requirement's 8 scenarios, with the change's own
       ADDED requirement bringing 7 so the file-level scenario count stays flat.
       ACCEPTANCE: the family fires naming all seven omitted titles, and a second
       assertion pins that the flat file-level count is not what the family reads.
-- [ ] 3.3 RED TEST — RETITLE AND GUT. Rename a scenario, declare the rename with
+- [ ] 3.3 Red test — retitle and gut. Rename a scenario, declare the rename with
       a `Merged into` marker, and drop two of the superseded scenario's four
       bullets. ACCEPTANCE: the scenario arm is quiet (the marker is valid) AND
-      the ledger reports the two dropped bullets. This test fails under any
+      the ledger reports the two dropped bullets — a `Merged into` marker names
+      titles only, so bullets a merge makes redundant must be carried or named in
+      a `Removed from canon` marker of their own. A companion case names them
+      there and asserts the ledger goes quiet. This test fails under any
       scenario-paired bullet comparison and is the reason the delta compares
       bullets across the whole block.
-- [ ] 3.4 RED TEST — CONTAINMENT IS NOT CARRIAGE. A block bullet that CONTAINS
+- [ ] 3.4 Red test — containment is not carriage. A block bullet that CONTAINS
       canon's bullet verbatim as a substring, widened at either end. ACCEPTANCE:
       the ledger reports canon's bullet as uncarried. This is #351's widening
       mechanism and the case the first draft of the delta would have missed.
-- [ ] 3.5 TOKENIZATION FIXTURE — a requirement body carrying backticked tokens
+- [ ] 3.5 Tokenization fixture — a requirement body carrying backticked tokens
       with internal periods (`.openspec.yaml`, `promotion_fidelity.py`,
       `contract-v1.45`), a body bullet list, and a dated bold note spanning
       several sentences. ACCEPTANCE: no unit boundary falls inside a backticked
       span; each bullet is one unit; the note is ONE unit; and an edit to the
       note's third sentence reports the note once, not three times.
-- [ ] 3.6 NEGATIVE — a scenario-complete block stays quiet, including one that
+- [ ] 3.6 Negative — a scenario-complete block stays quiet, including one that
       re-wraps every paragraph it carries. The case line-level matching fails.
-- [ ] 3.7 MARKER TESTS — a valid `Removed from canon by` marker suppresses
-      exactly the units it names and leaves an unnamed sibling reported; a marker
-      naming a unit the block still carries is itself reported; a marker wrapped
-      across two lines parses; a prose dated bold note that is NOT one of the two
-      reserved forms suppresses nothing. The last is the guard on the review's
+- [ ] 3.7 Marker tests. A valid `Removed from canon by` marker suppresses exactly
+      the units it names and leaves an unnamed sibling reported. A marker naming a
+      unit the block still carries is itself reported. A marker wrapped across
+      several lines parses as one. A named unit that itself contains backticks —
+      a clause citing `openxFactory` — is fenced with a longer run and is
+      extracted whole, not truncated at its first inner backtick. A named
+      SCENARIO TITLE suppresses that scenario's canon bullets too, and this is
+      asserted directly: a four-bullet scenario named in a `Removed from canon`
+      marker reports NOTHING at `info`, while the same scenario with one of its
+      bullets surviving elsewhere in the block reports nothing either, because
+      the survivor is carried. A `Merged into` marker's DESTINATION title, which
+      is present in the block, is not read as a named unit — the pin that stops
+      every valid merge marker reporting itself. A prose dated bold note that is
+      not one of the two reserved forms suppresses nothing: the guard on the
       finding that canon's own restoration notes must never be read as
-      declarations of deletion.
-- [ ] 3.8 NEGATIVE — a MODIFIED title resolving to an active sibling's ADDED
-      stays quiet (pending, not absent). POSITIVE — the same title with no
+      declarations of deletion. And a marker paragraph is not a carriage unit —
+      a block whose canon requirement already carries a promoted marker is not
+      required to restate it.
+- [ ] 3.8 Negative — a MODIFIED title resolving to an active sibling's ADDED
+      stays quiet (pending, not absent). Positive — the same title with no
       sibling and no canon requirement fires.
-- [ ] 3.9 TWO-WRITERS — two active changes on one canon requirement: the later
+- [ ] 3.9 Own-rename — a change carrying both `## RENAMED Requirements` and a
+      MODIFIED block under the new title resolves against its own rename first,
+      and the three arms compare it to canon under the OLD name. Without this the
+      family would report every rename-and-amend change as unresolved, and would
+      compare nothing where it should compare everything.
+- [ ] 3.10 Two-writers — two active changes on one canon requirement: the later
       block missing the earlier's addition fires; carrying it stays quiet. Pin
       that an unratified earlier writer creates NO reference obligation, so the
       `ratified` scoping of `release-realization`'s rule is not silently widened.
-- [ ] 3.10 STRUCTURAL PINS ON THE ADVISORY LAUNCH, both halves, so a half-flip in
+- [ ] 3.11 Structural pins on the advisory launch, both halves, so a half-flip in
       either direction fails: `_LAUNCH_SEVERITY` is not `error`, and
       `"modified-block-currency"` is absent from `FAMILY_RESOLUTION`.
-- [ ] 3.11 A scope with no `openspec/changes/` directory reports SKIPPED with its
+- [ ] 3.12 A scope with no `openspec/changes/` directory reports SKIPPED with its
       reason; a scope WITH active changes but no MODIFIED block reports nothing
       and is NOT skipped. The two are different states and canon's skip rule is
       "cannot run", not "found nothing".
-- [ ] 3.12 Determinism: two runs over one fixture tree produce byte-identical
+- [ ] 3.13 Determinism: two runs over one fixture tree produce byte-identical
       findings, including ordering.
 
 ## 4. Speckit F3 — the self-gate against this repository
@@ -200,16 +229,16 @@ merge it follows exists.
 
 ## 6. Evidence recorded at proposal time
 
-- [x] 6.1 THE SPIKE, run under the matching rule exactly as the delta writes it:
+- [x] 6.1 The spike, run under the matching rule exactly as the delta writes it:
       same-kind exact units, backtick-masked sentence split, bullets compared
       across the whole block. Every active change under
       `openspec/changes/*/specs/*/spec.md` (`archive/` excluded) against
       `openspec/specs/*/spec.md`, at `9be81a40`. Not committed.
-- [x] 6.2 THE THREE ARMS, MEASURED SEPARATELY over 23 MODIFIED requirements at
+- [x] 6.2 The three arms, measured separately over 23 MODIFIED requirements at
       the branch point: scenario-title losses **1**; ledger **14 units** (10
       body, 4 scenario-bullet) across **10 requirements**; title-resolution
       **0**. Reported as **+1 warning, +10 info**.
-- [x] 6.3 THE SINGLE SCENARIO-ARM FINDING: `add-composed-view-authoring` /
+- [x] 6.3 The single scenario-arm finding: `add-composed-view-authoring` /
       `ideation-dashboard` / "Composed views are read-only with a repository
       jump", omitting canon's `Gate verbs hide on a composed view` — on
       inspection a deliberate rename to `Tile-bound gate verbs hide on a composed
@@ -224,12 +253,12 @@ merge it follows exists.
       reported. Canon's bullet is a SUBSTRING of the widened replacement, so the
       first draft's containment reading yielded zero here; the finding exists
       only under the exact-unit rule now written into the delta.
-- [x] 6.5 THE D5 EXPERIMENT. The enumeration MODIFIED block was written
+- [x] 6.5 The D5 experiment. The enumeration MODIFIED block was written
       (twenty-one → twenty-two, 8 of 8 scenarios) and `fam_family_enumeration`
       run against the resulting tree: 3 findings, and
       `test_the_real_corpus_reads_zero_on_both_halves` FAILED. Withdrawn to
       § 2.1; with it removed the same call reads 0.
-- [x] 6.6 THE REALIZATION PREDICTION, MEASURED WITH § 2.1's BLOCK PRESENT.
+- [x] 6.6 The realization prediction, measured with § 2.1's block present.
       Measured against `add-family-enumeration-check`'s outcome, § 2.1's block
       does not carry two body sentences — the enumeration sentence and the "Four
       of the twenty-one" sentence — so it adds ONE ledger finding: **16 units
@@ -237,11 +266,11 @@ merge it follows exists.
       corpus's first two-writers instance between two ACTIVE changes; the spike
       resolved "later" by `.openspec.yaml` `created:` (2026-08-27 against
       2026-08-25), which is a reading and not a ruling — § 7.3.
-- [x] 6.7 THE TWO-WRITERS ARM MEASURED ZERO, COMPLIANCE 7 OF 7. Seven
+- [x] 6.7 The two-writers arm measured zero, compliance 7 of 7. Seven
       `(capability, requirement)` pairs are written by two active changes; in all
       seven the modifying proposal names the sibling; all seven are
       MODIFIED-over-a-sibling's-ADDED; zero titles resolve to neither.
-- [x] 6.8 CANON'S STATE CONFIRMED, not assumed: `openspec/specs/doc-health/spec.md`
+- [x] 6.8 Canon's state confirmed, not assumed: `openspec/specs/doc-health/spec.md`
       still reads "twenty check families" with three numerals;
       `add-family-enumeration-check` is active with code landed and delta
       unpromoted; `families.FAMILIES` registers 21. Three families carry a
@@ -274,7 +303,7 @@ merge it follows exists.
       (§ 6.6), so the question is live rather than hypothetical. Candidates:
       `.openspec.yaml` `created:` (what the spike used), the packet's first
       commit timestamp, or an explicit archive-order declaration required in the
-      later packet. OWNER: Brett, before § 2.6 is implemented — § 2.6 is blocked
+      later packet. OWNER: Brett, before § 2.7 is implemented — § 2.7 is blocked
       on this ruling and must not default silently. Until it is ruled, the delta
       states the CONSEQUENCE (the later block is measured against the earlier
       outcome) without stating how "later" is decided.

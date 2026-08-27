@@ -191,9 +191,11 @@ implementation — backticked spans are masked before any sentence split, bullet
 are units, and a dated bold note is one undivided unit. Scenario bullets are
 compared across ALL bullets of the block rather than scenario by scenario, so a
 retitle cannot carry its bullets away with it. And "named as removed" is a NEW
-reserved marker read by form, in two spellings (`Removed from canon by …`,
-`Merged into … by …`), which suppresses only units it names AND that are
-actually absent. The corpus's existing dated-note convention is deliberately
+reserved marker read by form, in two spellings — `Removed from canon by …` and
+``Merged into `<destination>` by …`` — naming units as CommonMark code spans
+(with a longer fence where a unit itself contains backticks), suppressing only
+units it names AND that are actually absent, and never itself becoming a
+carriage unit. The corpus's existing dated-note convention is deliberately
 NOT reused: every such note today records a caught near-miss and a restoration,
 one of them naming seven scenario titles in backticks as restored, so a
 prose-reading rule would read a faithful restatement of `doc-health`'s own

@@ -56,10 +56,13 @@ buried in an editorial one:
   the change intended. It SHALL emit at most one finding per requirement,
   listing the units, rather than one finding per unit.
 - **Title resolution and the two-writers rule.** A MODIFIED block whose
-  capability and requirement title resolve to no promoted requirement SHALL
-  resolve instead to a requirement an active sibling change ADDS or RENAMES,
-  and where a title resolves to neither canon nor an active sibling the block
-  SHALL be reported. Where two active changes carry a MODIFIED block for ONE
+  capability and requirement title resolves to no promoted requirement SHALL be
+  resolved in order: FIRST against the change's own `## RENAMED Requirements`
+  block, and where that block renames a promoted requirement to this title the
+  three arms above SHALL run against canon under the OLD name, a rename being a
+  change of title rather than of the content a block must carry; THEN against a
+  requirement an active sibling change ADDS or RENAMES. Where a title resolves
+  to none of those, the block SHALL be reported. Where two active changes carry a MODIFIED block for ONE
   promoted requirement, the later SHALL be measured against the earlier change's
   outcome rather than against canon, and the earlier change's additions SHALL be
   present in the later block; where the earlier change is an active RATIFIED
@@ -94,31 +97,68 @@ single editorial statement whose sentences mean nothing apart; and every other
 paragraph SHALL be split into sentences at a period, question mark or
 exclamation mark followed by whitespace or the end of the paragraph. In the
 SCENARIOS, each `#### Scenario:` heading SHALL be one title unit and each
-bullet line SHALL be one bullet unit.
+bullet line SHALL be one bullet unit. A paragraph of RESERVED MARKER form —
+defined below — SHALL NOT be a unit of either kind, in canon or in a block.
 
 **A deliberate deletion SHALL be declared by a RESERVED MARKER, recognized by
-form and never by prose.** The marker is a single line inside the MODIFIED
-block, read after the same whitespace normalization every other unit gets so
-that a wrapped marker still parses, in one of exactly two forms:
+form and never by prose.** A marker is ONE PARAGRAPH inside the MODIFIED block,
+read after the same whitespace normalization every other unit gets so that a
+marker wrapped across several lines is still one marker, in one of exactly two
+forms:
 
-- `**Removed from canon by <change-id> (<YYYY-MM-DD>):** ` followed by the
-  deleted units, each quoted in backticks and separated by semicolons, then
-  ` — <reason>`.
-- `**Merged into <new scenario title> by <change-id> (<YYYY-MM-DD>):** `
-  followed by the superseded scenario titles, each quoted in backticks — the
-  form for two scenarios legitimately becoming one.
+- `**Removed from canon by <change-id> (<YYYY-MM-DD>):**` followed by the
+  deleted units, then ` — <reason>`.
+- ``**Merged into `<destination scenario title>` by <change-id> (<YYYY-MM-DD>):**``
+  followed by the superseded scenario titles — the form for two scenarios
+  legitimately becoming one. The destination is written as a code span like
+  every other title this marker carries, and in this one spelling everywhere.
+
+**Every unit a marker names, and the `Merged into` destination, SHALL be written
+as a CommonMark code span, and a unit that itself contains backticks SHALL be
+fenced with a longer run of them.** Roughly a third of this corpus's requirement
+body units and a sixth of its scenario bullets contain a backtick, because they
+cite things like `openxFactory` or `promotion_fidelity.py`; a single-backtick
+span around such a unit ends at its first inner backtick and names a fragment,
+so the marker would name something that is not a unit at all. CommonMark already
+provides the longer fence and this rule adds nothing to it. The parser SHALL
+extract the code spans following the colon, in order, per CommonMark; the reason
+is everything after the last code span's following ` — `. Semicolons and dashes
+inside a unit or inside a reason are therefore irrelevant, because extraction is
+by code span and never by splitting on punctuation.
+
+**The `Merged into` destination is NOT a named unit.** It states where the
+superseded scenarios went, and it is present in the block by construction —
+reading it as a named unit would make every valid merge marker report itself
+under the rule below. Only the code spans after the colon name units.
+
+A marker SHALL suppress only the units it names AND that are in fact absent from
+the block. A marker naming a unit the block still carries declares nothing and
+SHALL itself be reported, because a declaration that does not describe the block
+is a declaration no reader can rely on.
+
+**A named scenario TITLE carries its bullets with it.** Where a
+`Removed from canon` marker names a scenario title, the bullets that scenario
+carried in canon SHALL also be treated as declared removed — unless they appear
+as bullets elsewhere in the block, in which case they are carried and nothing is
+reported about them either way. Declaring a scenario removed and then reporting
+its bullets forever would make the declaration useless for the act it exists to
+declare. **A `Merged into` marker names titles only**, so the superseded
+scenario's bullets SHALL be carried somewhere in the block or named in a
+`Removed from canon` marker of their own; a bullet a merge makes redundant is a
+declared removal, not a permanent editorial row.
+
+**A marker is NOT a carriage unit, in either direction.** A marker promotes into
+canon with the requirement that carries it, and if it were a unit every later
+block would have to restate every marker any predecessor ever wrote, forever.
+The durable record of a deletion is the archived delta, which is where every
+other archived governance act is read from.
 
 Written out, the two forms are exactly:
 
 ```
-**Removed from canon by add-example-change (2026-08-27):** `Gate verbs hide on a composed view`; `Per-tile binding remains a successor change.` — the affordance is now tile-bound and the clause moved to its own requirement
+**Removed from canon by add-example-change (2026-08-27):** `Gate verbs hide on a composed view`; ``an adapter that reaches a hosted provider SHALL obtain its credential through the `openxFactory` broker lane`` — the affordance is now tile-bound and the credential clause moved to its own requirement
 **Merged into `Tile-bound gate verbs hide on a composed view` by add-example-change (2026-08-27):** `Gate verbs hide on a composed view`
 ```
-
-A marker SHALL suppress only the units it names AND that are in fact absent
-from the block. A marker naming a unit the block still carries declares
-nothing and SHALL itself be reported, because a declaration that does not
-describe the block is a declaration no reader can rely on.
 
 **The marker is NEW, and the existing dated-note convention MUST NOT be reused
 for it.** Every dated bold note in this corpus today records a caught near-miss
@@ -162,9 +202,14 @@ is a ruling like any other.
 - **AND** the finding MUST NOT cause a run configured `--fail-on error` or `--fail-on critical` to fail
 
 #### Scenario: A deletion is declared by marker
-- **WHEN** the MODIFIED block carries a `Removed from canon by` or `Merged into` marker naming a unit in backticks, and that unit is absent from the block
+- **WHEN** the MODIFIED block carries a `Removed from canon by` or `Merged into` marker naming a unit as a code span, and that unit is absent from the block
 - **THEN** that unit MUST NOT be reported
 - **AND** the suppression MUST extend to exactly the units named and to no others
+
+#### Scenario: A named scenario title carries its bullets with it
+- **WHEN** a `Removed from canon` marker names a scenario title that is absent from the block
+- **THEN** the bullets that scenario carried in canon MUST NOT be reported either, the title's removal declaring them
+- **AND** a bullet of that scenario that DOES appear elsewhere in the block MUST be treated as carried
 
 #### Scenario: A marker names a unit the block still carries
 - **WHEN** a marker names a scenario title or body unit that the block does in fact restate
@@ -185,12 +230,17 @@ is a ruling like any other.
 - **AND** an addition the earlier block makes that the later block does not carry MUST be reported against the later delta's path
 - **AND** where the earlier change is an active ratified change, the later change's `proposal.md` MUST name it as a whole token, as `release-realization` requires
 
+#### Scenario: A change renames a requirement and modifies it in one delta
+- **WHEN** a MODIFIED block names a title canon does not carry, and the change's own `## RENAMED Requirements` block renames a promoted requirement to that title
+- **THEN** the block MUST NOT be reported as unresolved
+- **AND** the three arms MUST compare it against the promoted requirement under its OLD name, a rename changing a title rather than the content the block must carry
+
 #### Scenario: A MODIFIED title resolves to an active sibling's addition
 - **WHEN** a MODIFIED block names a requirement canon does not carry, and an active sibling change ADDS or RENAMES that title
 - **THEN** the block MUST NOT be reported as unresolved, the promoted requirement being pending rather than absent
 
 #### Scenario: A MODIFIED title resolves to nothing at all
-- **WHEN** a MODIFIED block names a capability and requirement title carried neither by the promoted spec nor by any active change's ADDED or RENAMED block
+- **WHEN** a MODIFIED block names a capability and requirement title carried neither by the promoted spec, nor by the change's own `## RENAMED Requirements` block, nor by any active change's ADDED or RENAMED block
 - **THEN** the run MUST emit a finding naming the unresolved title, a block modifying nothing being a block whose promotion adds text nobody reviewed as an addition
 
 #### Scenario: A finding is dispositioned

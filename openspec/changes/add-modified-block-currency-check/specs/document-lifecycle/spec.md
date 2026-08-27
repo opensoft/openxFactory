@@ -38,10 +38,16 @@ ordinary reading of "write a correct delta" misses.
 **A deliberate deletion is legitimate, and it SHALL be declared by form rather
 than by prose.** Removing a scenario or a clause is a normal governance act;
 removing one by not mentioning it is not. The declaration SHALL be a reserved
-marker line inside the MODIFIED block, naming each deleted unit in backticks:
-`**Removed from canon by <change-id> (<YYYY-MM-DD>):**` for a deletion, and
-`**Merged into <new scenario title> by <change-id> (<YYYY-MM-DD>):**` where two
-scenarios legitimately become one. The marker is deliberately a NEW reserved
+marker paragraph inside the MODIFIED block, naming each deleted unit as a
+CommonMark code span: `**Removed from canon by <change-id> (<YYYY-MM-DD>):**`
+for a deletion, and
+``**Merged into `<destination scenario title>` by <change-id> (<YYYY-MM-DD>):**``
+where two scenarios legitimately become one — the destination being where the
+superseded scenarios went rather than a unit the marker names. A unit that
+itself contains backticks is fenced with a longer run of them, as CommonMark
+provides. Naming a scenario title declares the bullets that scenario carried
+removed with it, unless they appear elsewhere in the block. A marker is not
+itself a unit anything later has to restate. The marker is deliberately a NEW reserved
 form and NOT the corpus's existing dated bold note, because every such note in
 the corpus today records a caught near-miss and a restoration rather than a
 deletion — one of them naming seven scenario titles in backticks as restored —
@@ -73,7 +79,7 @@ therefore carries the earlier change's additions as well as canon's.
 
 #### Scenario: A deletion is deliberate
 - **WHEN** a change intends to delete a scenario or a body clause the promoted requirement carries
-- **THEN** the delta MUST carry a reserved marker naming that unit in backticks
+- **THEN** the delta MUST carry a reserved marker naming that unit as a code span
 - **AND** a declared deletion MUST NOT be reported as a currency defect
 - **AND** a marker naming a unit the block still carries MUST NOT be read as declaring anything
 

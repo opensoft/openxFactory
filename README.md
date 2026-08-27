@@ -366,7 +366,7 @@ Active changes:
   compliance — **+1 warning, +10 info, 0 error**, rising to +11 info once the
   realization writes its own enumeration block. It carries no MODIFIED block on
   "Deterministic check families": canon still enumerates, so one is owed, but a
-  proposal registers no family and the restatement red
+  proposal registers no family and the restatement reds
   `test_the_real_corpus_reads_zero_on_both_halves` — so it is owed at realization
   (`tasks.md` § 2.1), relative to `add-family-enumeration-check`'s outcome, 8 → 8.
   Advisory at launch in both halves. #330 stays open (§ 7.1) and the "which of two
