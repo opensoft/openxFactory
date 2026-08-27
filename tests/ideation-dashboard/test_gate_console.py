@@ -46,6 +46,7 @@ from conftest import BASE_REPO, PINNED_REVISION, REPO_ROOT, FakeGit, find_openxf
 
 from doc_health import families
 from ideation_dashboard import gate_console as gc
+from ideation_dashboard import record_binding as rb
 from ideation_dashboard import round_trip
 from ideation_dashboard import serve as serve_mod
 from ideation_dashboard.boundary import (
@@ -1443,9 +1444,13 @@ def test_a_change_with_no_tasks_file_gets_the_status_alone(tmp_path):
 def test_ratify_writes_the_record_and_a_gate_action_carrying_it(tmp_path):
     root = _tree(tmp_path)
     res = gc.GateConsole(_gate(root)).ratify(CHANGE, "Brett", at=AT)
-    assert res.ratification == {
+    # the ratified facts, unchanged — plus the `binding` block that makes them
+    # tamper-evident (the records-tree-trust gap; `record_binding`).
+    assert {k: v for k, v in res.ratification.items() if k != "binding"} == {
         "kind": "ratification-record", "schema_version": 1,
         "change_id": CHANGE, "ratifier": "Brett", "date": "2026-07-14"}
+    assert res.ratification["binding"]["digest"] == \
+        rb.content_digest(res.ratification)
     # the gate-action record carries the ratification-record artifact (contains-rule).
     kinds = {a["kind"] for a in res.gate_action_record["artifacts"]}
     assert "ratification-record" in kinds

@@ -104,6 +104,7 @@ from staging_shapes import (  # noqa: E402,F401  (re-export, one definition)
 # --------------------------------------------------------------------------
 
 from session_fixtures import (  # noqa: E402,F401  (fixture registration)
+    declared_gate_principals,
     declared_human_console,
     fake_cli_notebook,
     fake_notebook_adapter,

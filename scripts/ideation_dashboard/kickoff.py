@@ -58,6 +58,7 @@ from .gate_console import (
     require_human_gate,
     write_gate_action_record,
 )
+from . import record_binding
 
 # The common codexFactory realization workflow. Domain workflows (e.g. a
 # MedxFactory diagnosis workflow) pass their own `workflow` id; this is only the
@@ -92,12 +93,50 @@ DEFAULT_PROJECT_REGISTER_EDIT_WORKFLOW = "project-register-edit"
 # ratification lookup (agrees with the validator's --context rule)
 # --------------------------------------------------------------------------
 
+def _candidate_change_id(doc: dict) -> str | None:
+    """The change a records-tree document claims a ratification for, or None when
+    it claims none. Unchanged from the original reading — what changed is that
+    the claim is now the START of the check instead of the end of it."""
+    if doc.get("kind") == "gate-action-record" and doc.get("action") == "ratify":
+        cid = (doc.get("target") or {}).get("change_id")
+        return cid if cid else None
+    if doc.get("kind") == "ratification-record" and doc.get("change_id"):
+        return doc["change_id"]
+    return None
+
+
 def ratified_change_ids(*, snapshot: dict | None = None,
-                        records_root: Path | str | None = None) -> set[str]:
-    """Change ids carrying a recorded ratification — read from a snapshot's
-    `changes[].ratification` and/or `ratify` gate-action records (and standalone
-    ratification-record artifacts) under `records_root`. Mirrors the pinned
-    validator's `ratified_change_ids_from` so engine and validator agree."""
+                        records_root: Path | str | None = None,
+                        unbound: list[str] | None = None,
+                        env=None) -> set[str]:
+    """Change ids carrying a VERIFIED ratification.
+
+    THE RECORDS-TREE-TRUST GAP (`ideation/brainstorm/ideation-dashboard.md` item
+    25). This function used to count any YAML under `records_root` that SAID it
+    was a ratification. The proof was the file's location, so anyone who could
+    write a file could manufacture a ratification and the kickoff authority
+    downstream of it. Every candidate is now put to `record_binding`:
+
+      * it must carry a `binding` block whose digest matches its own content
+        (tamper-evidence: the ratifier / date / change id cannot be edited), AND
+      * it must be COMMITTED at `HEAD` with no working-tree drift (a verifiable,
+        attributable property a dropped file cannot have).
+
+    A candidate that fails is REFUSED, not silently dropped: its reason is
+    appended to `unbound` (when given) and the caller — `kickoff` — reports it,
+    so a real ratification that is merely uncommitted tells its human to commit
+    it. `env` is threaded only so a deployment's
+    `XF_GATE_REQUIRE_SIGNED_RATIFICATION` reaches the verifier.
+
+    THE SNAPSHOT LEG IS A KNOWN, DELIBERATE RESIDUAL and is left unchanged.
+    `changes[].ratification` is not an artifact this function can see: the
+    generator derives it from an ARCHIVED change's `.openspec.yaml` in the pinned
+    checkout (`generator._ratification`, archived changes only), so it inherits
+    whatever trust that checkout has and there is nothing here to bind. Closing it
+    means binding the CHECKOUT — verifying the archived change folder is committed
+    — which is a second, separable delta against the generator, and it is recorded
+    here rather than left ambient. The records-tree leg below is the one the
+    accepted risk names, and it is now verified."""
     ids: set[str] = set()
     if snapshot:
         for ch in snapshot.get("changes") or []:
@@ -112,18 +151,23 @@ def ratified_change_ids(*, snapshot: dict | None = None,
                 continue
             if not isinstance(doc, dict):
                 continue
-            if doc.get("kind") == "gate-action-record" and doc.get("action") == "ratify":
-                cid = (doc.get("target") or {}).get("change_id")
-                if cid:
-                    ids.add(cid)
-            if doc.get("kind") == "ratification-record" and doc.get("change_id"):
-                ids.add(doc["change_id"])
+            cid = _candidate_change_id(doc)
+            if not cid:
+                continue
+            verdict = record_binding.verify_ratification(doc, fp, env=env)
+            if not verdict:
+                if unbound is not None:
+                    unbound.append(f"{fp.name} (change {cid}) {verdict.reason}")
+                continue
+            ids.add(cid)
     return ids
 
 
 def is_ratified(change_id: str, *, snapshot: dict | None = None,
-                records_root: Path | str | None = None) -> bool:
-    return change_id in ratified_change_ids(snapshot=snapshot, records_root=records_root)
+                records_root: Path | str | None = None,
+                unbound: list[str] | None = None, env=None) -> bool:
+    return change_id in ratified_change_ids(
+        snapshot=snapshot, records_root=records_root, unbound=unbound, env=env)
 
 
 # --------------------------------------------------------------------------
@@ -171,7 +215,21 @@ def kickoff(
     human = require_human_gate(gate)
     at = at or _utcnow()
     root = records_root if records_root is not None else (human.output.root / records_dir)
-    if not is_ratified(change_id, snapshot=snapshot, records_root=root):
+    # UNVERIFIABLE ratifications are REPORTED, not silently ignored: a human
+    # whose real ratify record is merely uncommitted must be told that, not told
+    # the change was never ratified (`record_binding`, the records-tree-trust gap).
+    unbound: list[str] = []
+    if not is_ratified(change_id, snapshot=snapshot, records_root=root, unbound=unbound):
+        # Only THIS change's refused candidates are reported: another change's
+        # uncommitted ratification is not this human's business, and a refusal
+        # that lists the whole tree tells them nothing actionable.
+        mine = [reason for reason in unbound if f"(change {change_id})" in reason]
+        if mine:
+            raise GateRefused(
+                f"kickoff refused: change {change_id!r} has no ratification this "
+                f"console can VERIFY. A ratification is trusted for a reason, not "
+                f"for its location in the records tree — "
+                + "; ".join(mine))
         raise GateRefused(
             f"kickoff refused: change {change_id!r} carries no recorded ratification "
             "— kickoff is downstream of the ratify gate (D17). Ratify it first.")
