@@ -354,10 +354,40 @@ jobs:
             --output readiness.json
           python3 - <<'PY' >> "$GITHUB_OUTPUT"
           import json, os
-          value = json.load(open("readiness.json", encoding="utf-8"))
-          print(f"ready={str(value['ready']).lower()}")
-          print(f"reason={value['reason']}")
-          print(f"dispatch_label={value.get('dispatch_label', '')}")
+          # FAIL-CLOSED OUTPUT EMISSION (adversarial review 2026-07-26, informational
+          # finding 5a -- the same class as the aggregation approval workflow's
+          # `reason=$REASON`). `$GITHUB_OUTPUT` is a newline-delimited key=value file and
+          # the LAST write of a key WINS, so any value carrying a newline can append its
+          # own `ready=true` line AFTER the verdict below and flip this gate open --
+          # `ready` is written FIRST, so the injected line is the one that counts.
+          # Neither `reason` nor `dispatch_label` is produced by this workflow:
+          # `dispatch_label` is echoed out of the REMOTE Hermes heartbeat, through an
+          # evaluator this repository does not own (the caller's
+          # scripts/check-worker-readiness.py). They are therefore not trusted to be
+          # single-line here. A value that cannot be rendered on one line is REFUSED,
+          # never escaped or truncated: the step emits ready=false with a naming reason
+          # and nothing else, so a malformed or hostile evaluator result can only ever
+          # WITHHOLD the dispatch, never authorise one. `ready` must be a real JSON
+          # boolean for the same reason -- a string "true" is not a verdict.
+          def one_line(value):
+              text = "" if value is None else str(value)
+              return None if ("\n" in text or "\r" in text) else text
+          try:
+              value = json.load(open("readiness.json", encoding="utf-8"))
+              if not isinstance(value, dict):
+                  raise ValueError("readiness result must be an object")
+              ready = value["ready"]
+              reason = one_line(value["reason"])
+              label = one_line(value.get("dispatch_label", ""))
+          except (OSError, KeyError, TypeError, ValueError):
+              ready, reason, label = None, None, None
+          if ready is not True and ready is not False:
+              ready, reason, label = False, "readiness_output_unusable", ""
+          elif reason is None or label is None:
+              ready, reason, label = False, "readiness_output_unsafe", ""
+          print(f"ready={str(ready).lower()}")
+          print(f"reason={reason}")
+          print(f"dispatch_label={label}")
           print(f"correlation_id=semantic-{os.environ['GITHUB_RUN_ID']}-{os.environ['GITHUB_RUN_ATTEMPT']}")
           PY
       - name: Dispatch artifact-only analysis child
@@ -529,10 +559,29 @@ jobs:
             --output catalog-readiness.json
           python3 - <<'PY' >> "$GITHUB_OUTPUT"
           import json, os
-          value = json.load(open("catalog-readiness.json", encoding="utf-8"))
-          print(f"ready={str(value['ready']).lower()}")
-          print(f"reason={value['reason']}")
-          print(f"dispatch_label={value.get('dispatch_label', '')}")
+          # FAIL-CLOSED OUTPUT EMISSION -- cloned verbatim from "Evaluate hosted worker
+          # readiness" above, where the rationale is written out in full. Short form:
+          # $GITHUB_OUTPUT is last-write-wins and `ready` is written FIRST, so a newline
+          # in a value REFUSES rather than being escaped.
+          def one_line(value):
+              text = "" if value is None else str(value)
+              return None if ("\n" in text or "\r" in text) else text
+          try:
+              value = json.load(open("catalog-readiness.json", encoding="utf-8"))
+              if not isinstance(value, dict):
+                  raise ValueError("readiness result must be an object")
+              ready = value["ready"]
+              reason = one_line(value["reason"])
+              label = one_line(value.get("dispatch_label", ""))
+          except (OSError, KeyError, TypeError, ValueError):
+              ready, reason, label = None, None, None
+          if ready is not True and ready is not False:
+              ready, reason, label = False, "readiness_output_unusable", ""
+          elif reason is None or label is None:
+              ready, reason, label = False, "readiness_output_unsafe", ""
+          print(f"ready={str(ready).lower()}")
+          print(f"reason={reason}")
+          print(f"dispatch_label={label}")
           print(f"correlation_id=catalog-{os.environ['GITHUB_RUN_ID']}-{os.environ['GITHUB_RUN_ATTEMPT']}")
           PY
       - name: Dispatch artifact-only cataloger child
@@ -746,10 +795,29 @@ jobs:
             --output organizer-readiness.json
           python3 - <<'PY' >> "$GITHUB_OUTPUT"
           import json, os
-          value = json.load(open("organizer-readiness.json", encoding="utf-8"))
-          print(f"ready={str(value['ready']).lower()}")
-          print(f"reason={value['reason']}")
-          print(f"dispatch_label={value.get('dispatch_label', '')}")
+          # FAIL-CLOSED OUTPUT EMISSION -- cloned verbatim from "Evaluate hosted worker
+          # readiness" above, where the rationale is written out in full. Short form:
+          # $GITHUB_OUTPUT is last-write-wins and `ready` is written FIRST, so a newline
+          # in a value REFUSES rather than being escaped.
+          def one_line(value):
+              text = "" if value is None else str(value)
+              return None if ("\n" in text or "\r" in text) else text
+          try:
+              value = json.load(open("organizer-readiness.json", encoding="utf-8"))
+              if not isinstance(value, dict):
+                  raise ValueError("readiness result must be an object")
+              ready = value["ready"]
+              reason = one_line(value["reason"])
+              label = one_line(value.get("dispatch_label", ""))
+          except (OSError, KeyError, TypeError, ValueError):
+              ready, reason, label = None, None, None
+          if ready is not True and ready is not False:
+              ready, reason, label = False, "readiness_output_unusable", ""
+          elif reason is None or label is None:
+              ready, reason, label = False, "readiness_output_unsafe", ""
+          print(f"ready={str(ready).lower()}")
+          print(f"reason={reason}")
+          print(f"dispatch_label={label}")
           print(f"correlation_id=organizer-{os.environ['GITHUB_RUN_ID']}-{os.environ['GITHUB_RUN_ATTEMPT']}")
           PY
       - name: Dispatch artifact-only organizer child
@@ -1653,10 +1721,29 @@ jobs:
             --output xref-readiness.json
           python3 - <<'PY' >> "$GITHUB_OUTPUT"
           import json, os
-          value = json.load(open("xref-readiness.json", encoding="utf-8"))
-          print(f"ready={str(value['ready']).lower()}")
-          print(f"reason={value['reason']}")
-          print(f"dispatch_label={value.get('dispatch_label', '')}")
+          # FAIL-CLOSED OUTPUT EMISSION -- cloned verbatim from "Evaluate hosted worker
+          # readiness" above, where the rationale is written out in full. Short form:
+          # $GITHUB_OUTPUT is last-write-wins and `ready` is written FIRST, so a newline
+          # in a value REFUSES rather than being escaped.
+          def one_line(value):
+              text = "" if value is None else str(value)
+              return None if ("\n" in text or "\r" in text) else text
+          try:
+              value = json.load(open("xref-readiness.json", encoding="utf-8"))
+              if not isinstance(value, dict):
+                  raise ValueError("readiness result must be an object")
+              ready = value["ready"]
+              reason = one_line(value["reason"])
+              label = one_line(value.get("dispatch_label", ""))
+          except (OSError, KeyError, TypeError, ValueError):
+              ready, reason, label = None, None, None
+          if ready is not True and ready is not False:
+              ready, reason, label = False, "readiness_output_unusable", ""
+          elif reason is None or label is None:
+              ready, reason, label = False, "readiness_output_unsafe", ""
+          print(f"ready={str(ready).lower()}")
+          print(f"reason={reason}")
+          print(f"dispatch_label={label}")
           print(f"correlation_id=readiness-{os.environ['GITHUB_RUN_ID']}-{os.environ['GITHUB_RUN_ATTEMPT']}")
           PY
       - name: Build readiness bundle (per-cluster untrusted payloads)
@@ -2012,10 +2099,29 @@ jobs:
             --output dposs-readiness.json
           python3 - <<'PY' >> "$GITHUB_OUTPUT"
           import json, os
-          value = json.load(open("dposs-readiness.json", encoding="utf-8"))
-          print(f"ready={str(value['ready']).lower()}")
-          print(f"reason={value['reason']}")
-          print(f"dispatch_label={value.get('dispatch_label', '')}")
+          # FAIL-CLOSED OUTPUT EMISSION -- cloned verbatim from "Evaluate hosted worker
+          # readiness" above, where the rationale is written out in full. Short form:
+          # $GITHUB_OUTPUT is last-write-wins and `ready` is written FIRST, so a newline
+          # in a value REFUSES rather than being escaped.
+          def one_line(value):
+              text = "" if value is None else str(value)
+              return None if ("\n" in text or "\r" in text) else text
+          try:
+              value = json.load(open("dposs-readiness.json", encoding="utf-8"))
+              if not isinstance(value, dict):
+                  raise ValueError("readiness result must be an object")
+              ready = value["ready"]
+              reason = one_line(value["reason"])
+              label = one_line(value.get("dispatch_label", ""))
+          except (OSError, KeyError, TypeError, ValueError):
+              ready, reason, label = None, None, None
+          if ready is not True and ready is not False:
+              ready, reason, label = False, "readiness_output_unusable", ""
+          elif reason is None or label is None:
+              ready, reason, label = False, "readiness_output_unsafe", ""
+          print(f"ready={str(ready).lower()}")
+          print(f"reason={reason}")
+          print(f"dispatch_label={label}")
           print(f"correlation_id=derive-possibles-{os.environ['GITHUB_RUN_ID']}-{os.environ['GITHUB_RUN_ATTEMPT']}")
           PY
       - name: Build derive-possibles bundle (per-cluster untrusted payloads)
@@ -2631,10 +2737,29 @@ jobs:
             --output dfr-readiness.json
           python3 - <<'PY' >> "$GITHUB_OUTPUT"
           import json, os
-          value = json.load(open("dfr-readiness.json", encoding="utf-8"))
-          print(f"ready={str(value['ready']).lower()}")
-          print(f"reason={value['reason']}")
-          print(f"dispatch_label={value.get('dispatch_label', '')}")
+          # FAIL-CLOSED OUTPUT EMISSION -- cloned verbatim from "Evaluate hosted worker
+          # readiness" above, where the rationale is written out in full. Short form:
+          # $GITHUB_OUTPUT is last-write-wins and `ready` is written FIRST, so a newline
+          # in a value REFUSES rather than being escaped.
+          def one_line(value):
+              text = "" if value is None else str(value)
+              return None if ("\n" in text or "\r" in text) else text
+          try:
+              value = json.load(open("dfr-readiness.json", encoding="utf-8"))
+              if not isinstance(value, dict):
+                  raise ValueError("readiness result must be an object")
+              ready = value["ready"]
+              reason = one_line(value["reason"])
+              label = one_line(value.get("dispatch_label", ""))
+          except (OSError, KeyError, TypeError, ValueError):
+              ready, reason, label = None, None, None
+          if ready is not True and ready is not False:
+              ready, reason, label = False, "readiness_output_unusable", ""
+          elif reason is None or label is None:
+              ready, reason, label = False, "readiness_output_unsafe", ""
+          print(f"ready={str(ready).lower()}")
+          print(f"reason={reason}")
+          print(f"dispatch_label={label}")
           print(f"correlation_id=dashboard-refresh-{os.environ['GITHUB_RUN_ID']}-{os.environ['GITHUB_RUN_ATTEMPT']}")
           PY
       - name: Ideation-dashboard image refresh — record skip (worker unavailable)

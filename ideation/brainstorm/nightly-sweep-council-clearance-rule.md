@@ -266,6 +266,65 @@ the pull-request resource is read twice (once in full, once for
 Relatedly `.head | .sha` is spelled that way deliberately — the harness
 asserts the literal `head.sha` is absent — so neither should be "tidied".
 
+## Fail-open re-audit (2026-08-26) — where each finding actually lives
+
+A re-audit swept **openxFactory** for live instances of the five fail-opens
+recorded above. Result: **none of the five is in this repository.** The
+tier-1 approval surfaces they describe live in the AGGREGATION repo
+(`opensoft/xFactory`: `.github/workflows/merge-master-approval.yml`,
+`council-convening-lane.yml`) and in codexFactory
+(`scripts/merge_master/envelope.py`). openxFactory owns only the PRODUCER
+half — `doc-health-reusable.yml` builds the report, delivers the rolling PR,
+enables auto-merge and dispatches the approval workflow; it evaluates no
+approval condition and calls neither `gh pr review` nor `gh pr merge`.
+
+Verified in the aggregation repo, findings 1–4 are **already closed** by
+`add-changed-path-completeness` (the "Fix as landed" paragraph above is the
+record): the changed-path gather proves `changed_files_total` against
+`changed_paths_entry_count`; check-runs and statuses both paginate at
+`per_page=100 --paginate --slurp` with a stable `total_count`; every gather
+parks on query failure instead of `|| echo '[]'`; and the `--limit 200`
+open-findings window is gone, replaced by exhausted pagination of
+`repos/{repo}/issues?state=open`. Finding **5(a) remains open** at
+`merge-master-approval.yml` (`echo "reason=$REASON"`, and the `park()`
+helper's `echo "reason=$1"`) — still the aggregation repo's to fix.
+
+**What the sweep DID find here, and closed.** openxFactory carries a sibling
+of 5(a) in its own security gate. Each `Evaluate ... worker readiness` step
+published its verdict as `ready=` **first**, then `reason=` and
+`dispatch_label=`, straight into `$GITHUB_OUTPUT`. Neither trailing value is
+produced by this repository — `dispatch_label` is echoed out of the remote
+Hermes heartbeat, through the caller's `check-worker-readiness.py` — and
+`$GITHUB_OUTPUT` is last-write-wins, so a newline in either appended its own
+`ready=true` after the real verdict and flipped the gate that decides whether
+untrusted per-cluster payloads are shipped to a self-hosted artifact worker.
+Proven by execution against the unpatched workflow, not argued: the effective
+`ready` read `true` from a `ready: false` evaluator result. All six emitters
+now REFUSE an unrenderable value rather than escaping it (`ready=false`,
+`reason=readiness_output_unsafe`, nothing else) and require `ready` to be a
+real JSON boolean. `tests/doc-health/test_readiness_output_fail_closed.py`
+extracts each emitter from the shipped YAML and executes it, so the refusal is
+pinned against the code that actually runs.
+
+Two observations recorded rather than changed, both needing a decision
+elsewhere:
+
+- The `gh issue list --limit 200` in "Supersede stale regression issues"
+  (`doc-health-reusable.yml`) is the audit's literal string but the OPPOSITE
+  failure direction: truncation leaves stale issues OPEN, which can only make
+  the approval gate park. Paginating it would close MORE gate-blocking issues,
+  so it was deliberately left alone.
+- The nightly dispatches `merge-master-approval.yml` in "Commit report"
+  (step 55) but files its `doc-health regressions <date>` issue in step 67,
+  with the bounded dashboard-image stage between them — so the open-findings
+  condition is evaluated up to ~40 minutes before this run's finding exists.
+  Inert today ONLY because the envelope's `open_finding_title_prefixes`
+  (`security finding`, `regression`) are matched with `startswith`, which
+  `doc-health regressions …` does not satisfy, and the issue is filed with no
+  labels. Correcting that prefix — which the review text at item 3 above
+  assumes is already the case — would make the ordering live. Both halves
+  belong to one change; neither is openxFactory's alone.
+
 ## Registered (2026-07-26) — lane identity + federated runtime credential
 
 Brett completed the council-lane registration per codexFactory
