@@ -1223,6 +1223,23 @@ Brett can rule on them alongside, or explicitly defer them.
    (`code_surface: openxFactory, xfactory-avatar-client`); no predecessor change
    is required. Adding the new repo to the aggregation remains a separate
    reviewed change (repo-boundary-governance:57-59), unchanged by this ruling.
+   **AMENDMENT NOTE — 2026-08-27 (this memo's body is a dated record and is not
+   rewritten).** The substance of latent decision 1 was ALREADY SATISFIED when
+   it was ruled: the extraction had been performed on 2026-08-03 under DTN-022,
+   as a full-history subtree split of codexFactory `apps/avatar-client-lab/`
+   into the private `opensoft/openAvatar`. Brett ruled the naming question
+   in-session on 2026-08-27 (via AskUserQuestion), recording three rulings:
+   **R1** the Flutter client repo KEEPS the name `openAvatar` and canon's
+   `xfactory-avatar-client` — a name that predates openAvatar becoming a
+   first-class product — is amended to it; **R2** `openAvatar-server` is
+   recorded as the NAMED FUTURE HOME for deployable avatar server code, created
+   only by whichever change first ships such code; **R3** the parked, empty
+   `opensoft/xfactory-avatar-client` repository was DELETED 2026-08-27, nothing
+   having referenced it. Every `xfactory-avatar-client` occurrence above and
+   below in this memo is the pre-amendment name and reads as `openAvatar` in
+   the amended canon; the change's `repo-boundary-governance` and
+   `avatar-client-lab` deltas, its proposal, and its `tasks.md` §6.4 carry the
+   amended text.
 2. **The named pilot-hardening successor (from Forks 1 and 4).** Both the
    custody fork (durable per-tenant spend counter) and the consent fork
    (retention-class unreservation + retained-real corpus) defer work to a

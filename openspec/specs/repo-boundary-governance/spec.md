@@ -124,8 +124,12 @@ update, and rollback behavior before the pin is treated as supported.
 
 ### Requirement: Neutral avatar-client repository boundary
 The reusable Flutter avatar implementation SHALL live in a private,
-independently released repository named `xfactory-avatar-client`, created by
-the `implement-avatar-client-lab` successor change. From creation it SHALL
+independently released repository named `openAvatar`, created on 2026-08-03 by
+the DTN-022 subtree split that extracted the codexFactory
+`apps/avatar-client-lab/` home that `implement-avatar-client-lab` had
+ratified, which
+`qualify-avatar-live-voice` records as having discharged this boundary's
+creation obligation. From creation it SHALL
 own the Flutter application and packages, client bindings, pure reducers, UI
 and platform adapters, the trusted local disclosure/media gate, constrained
 control and media clients, and client tests. It SHALL pin the compatible
@@ -135,12 +139,15 @@ handler, server provider configuration, or a copied neutral schema without
 pin and fixture-conformance validation.
 
 The openxFactory repository SHALL remain the canonical owner of contracts
-and the reference server trust boundary. The future conventional web console
+and the reference server trust boundary. The named future home for deployable
+avatar server code SHALL be `openAvatar-server`, a repository created only by
+whichever change first ships deployable server code and never in advance of it.
+The future conventional web console
 and its bindings SHALL remain outside the client repository until separately
 approved.
 
 #### Scenario: Client repository is created
-- **WHEN** the successor change creates `xfactory-avatar-client`
+- **WHEN** `openAvatar` stands as the created client repository, as DTN-022 created it on 2026-08-03
 - **THEN** it MUST be private and independently releasable, identify openxFactory as contract and server-control owner, and contain no provider keys or server tool handlers
 
 #### Scenario: Privileged provider code is proposed in the client
@@ -149,7 +156,7 @@ approved.
 
 ### Requirement: Avatar-client release evidence
 Release evidence obligations SHALL activate at the internal-live gate, not
-at repository creation: from that gate, every `xfactory-avatar-client`
+at repository creation: from that gate, every `openAvatar`
 release SHALL identify source revision, Flutter and platform versions, the
 pinned openxFactory bundle tag, exact contract commit and digests, canonical
 fixture-conformance results, dependency lock, secret-scan result, test
@@ -175,7 +182,7 @@ release.
 - **THEN** preflight MUST block live media and governed commands and MUST offer only a compatible upgrade, text fallback, or handoff
 
 ### Requirement: Deferred aggregation and web-console integration
-Adding `xfactory-avatar-client` to the top-level xFactory aggregation SHALL
+Adding `openAvatar` to the top-level xFactory aggregation SHALL
 require a separate reviewed change that records path, remote, visibility,
 exact validated commit, checkout, compatibility, update, and rollback
 behavior. The conventional web console SHALL require its own repository,
@@ -185,7 +192,7 @@ by the live-qualification successor change consistent with this
 capability's routing of runtime operations to install repositories.
 
 #### Scenario: Aggregation integration is proposed
-- **WHEN** xFactory proposes pinning `xfactory-avatar-client`
+- **WHEN** xFactory proposes pinning `openAvatar`
 - **THEN** a dedicated change MUST define and verify gitlink path, remote, commit, checkout, compatibility, update, and rollback behavior
 
 #### Scenario: Web operations console begins

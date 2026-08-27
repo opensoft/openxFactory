@@ -1,5 +1,5 @@
 ---
-code_surface: openxFactory, xfactory-avatar-client (openxFactory — the ADDED AVC-09 voice-adapter-descriptor and AVC-10 voice-latency-sample schemas under `contracts/avatar-client/` with their positive and negative examples, the `interface-lock.yaml` unreservation of exactly those two identifiers, the acceptance-map entries for every requirement and scenario below, `scripts/validate-avatar-client.py`'s rules for the two new contracts and for the neutral relative-regression SLO entry, and the credential-binding record for the broker's server key; xfactory-avatar-client — the private, independently releasable client repository EXTRACTED by this change from codexFactory `apps/avatar-client-lab/`, its live `avc_adapters_live` transport realizing the `SessionTransport` port, and its AVC-10 latency instrumentation on the gated platforms). NOT this change's surface: admitting `xfactory-avatar-client` to the xFactory aggregation, which stays a separate reviewed change under `repo-boundary-governance`; the GPT-Live-1 default swap; and every item this proposal names as deferred to `avatar-pilot-hardening`.
+code_surface: openxFactory, openAvatar (the extraction happened 2026-08-03 as DTN-022 → opensoft/openAvatar; recognized by Brett's 2026-08-27 ruling) (openxFactory — the ADDED AVC-09 voice-adapter-descriptor and AVC-10 voice-latency-sample schemas under `contracts/avatar-client/` with their positive and negative examples, the `interface-lock.yaml` unreservation of exactly those two identifiers, the acceptance-map entries for every requirement and scenario below, `scripts/validate-avatar-client.py`'s rules for the two new contracts and for the neutral relative-regression SLO entry, and the credential-binding record for the broker's server key; openAvatar — the private, independently releasable client repository ALREADY EXTRACTED from codexFactory `apps/avatar-client-lab/`, its live `avc_adapters_live` transport realizing the `SessionTransport` port, and its AVC-10 latency instrumentation on the gated platforms). NOT this change's surface: admitting `openAvatar` to the xFactory aggregation, which was a separate reviewed act under `repo-boundary-governance` and is already recorded in the `opensoft/xFactory` aggregation repo's `.gitmodules`; creating `openAvatar-server`, the named future home for deployable avatar server code, which only the change that first ships such code may create; the GPT-Live-1 default swap; and every item this proposal names as deferred to `avatar-pilot-hardening`.
 target_release: implementation_pending — the requirements land now; realization runs post-ratification against a NAMED INTERNAL-LIVE RELEASE, not the plain main line, because this change's whole content is a release-ring qualification. This surface also moves contract bytes: AVC-09 and AVC-10 are new schemas under `contracts/avatar-client/`, so realization cuts the next additive contract bundle per `docs/contract-versioning-policy.md` and the bundle number is fresh-counted at realization rather than allocated here. The archive gate is merge-plus-green internal-live realization evidence — the four-element ring closed with real evidence (secret scan, telemetry-redaction verification, kill-switch proof, and measured latency evidence from the real Flutter client on the gated platforms) — never on landing alone.
 Status: ratified
 Ratified: 2026-08-27 by Brett Heap — in-session, ruled "ratify avatar" after the eight fork/latent rulings of 2026-08-26 landed as this change's locked decisions (PR #31, PR #384).
@@ -136,10 +136,16 @@ in-flight legs drain; quality and cost breaches are operator-triggered.
 Rollback target is disable-voice into text or handoff — `gpt-realtime-2.1` is
 the first qualified profile, so no model fallback exists.
 
-**Latent 1 — This change owns the extraction.** `qualify-avatar-live-voice`
-performs the `xfactory-avatar-client` extraction from codexFactory
-`apps/avatar-client-lab`; no predecessor change is required. Adding the
-repository to the aggregation remains a separate reviewed change.
+**Latent 1 — This change owns the extraction, and it is already done.**
+`qualify-avatar-live-voice` owns the client extraction from codexFactory
+`apps/avatar-client-lab`; no predecessor change is required. Brett's ruling of
+2026-08-27 records that the extraction ALREADY HAPPENED, on 2026-08-03, as
+DTN-022's subtree split into `opensoft/openAvatar` with full history — so this
+change recognizes `openAvatar` as the extracted client rather than creating a
+second repository, and canon's earlier `xfactory-avatar-client` name (which
+predates openAvatar becoming a first-class product) is amended to it. Adding
+the repository to the aggregation was likewise a separate reviewed act, already
+recorded in the `opensoft/xFactory` aggregation repo's `.gitmodules`.
 
 **Latent 2 — `avatar-pilot-hardening` carries the deferrals.** Confirmed as
 the carrier of both F1's durable per-tenant counter and F4's retention-class
@@ -173,11 +179,15 @@ F3's reservation of replace-the-primary semantics.
   as the reference. Each restates its promoted canon in full and amends only
   the sentences the rulings touch.
 - `repo-boundary-governance`: one MODIFIED requirement — the avatar-client
-  repository boundary, whose named creator moves to this change per latent
-  decision 1. The deferred-aggregation requirement is NOT touched.
+  repository boundary, whose repository is named `openAvatar` and whose
+  creation is recorded as DTN-022's 2026-08-03 extraction per latent decision
+  1 and Brett's 2026-08-27 ruling, and which now records `openAvatar-server`
+  as the named future home for deployable avatar server code. The
+  deferred-aggregation requirement is renamed with the rest of canon and
+  otherwise NOT touched.
 - `avatar-client-lab`: one MODIFIED requirement — the ownership boundary,
-  recording that the codexFactory home holds until the internal-live gate and
-  that this change extracts it there.
+  recording that the codexFactory home held until extraction and that DTN-022
+  performed that extraction into `openAvatar`.
 
 ## Impact
 
@@ -185,10 +195,15 @@ F3's reservation of replace-the-primary semantics.
   interface-lock unreservation, acceptance-map entries, and validator rules.
   Realization cuts the next additive contract bundle; the number is
   fresh-counted at realization.
-- **New repository**: `xfactory-avatar-client`, private and independently
-  releasable, extracted from codexFactory `apps/avatar-client-lab/`, holding
+- **Recognized repository, not a new one**: `openAvatar`, private and
+  independently releasable, extracted from codexFactory
+  `apps/avatar-client-lab/` on 2026-08-03 under DTN-022, holding
   no provider key and no server tool handler. Its release evidence
-  obligations activate AT this gate, not at creation.
+  obligations activate AT this gate, not at creation. The parked empty
+  `opensoft/xfactory-avatar-client` repository was deleted 2026-08-27 with
+  nothing referencing it. `openAvatar-server` is recorded as the NAMED FUTURE
+  HOME for deployable avatar server code; it is created only by whichever
+  change first ships such code, and not by this one.
 - **Consumes as preconditions, does not re-prove**: the released, code-signed
   Flutter client from `implement-avatar-client-lab` with its fail-closed
   `SessionTransport` seam; the contract kernel pinned at exact commit,

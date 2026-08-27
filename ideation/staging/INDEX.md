@@ -425,14 +425,14 @@ factory comparing references by raw string has it.
 ## avatar-pilot-hardening
 
 - Staging ID: `openxFactory:staging:avatar-pilot-hardening`
-- Repository context: openxFactory (neutral capability + pilot-gate acceptance); real Hermes adapters in `installs/hermes-install`; domain overlays/personas in the DomainxFactory repos; the live client in the private `xfactory-avatar-client` repo.
+- Repository context: openxFactory (neutral capability + pilot-gate acceptance); real Hermes adapters in `installs/hermes-install`; domain overlays/personas in the DomainxFactory repos; the live client in the private `openAvatar` repo.
 - Source: named the last successor in the avatar-client parallel-workstream plan; the threat model's deferred-to-pilot items; the reference authority stub in `xfactory/avatar_runtime/`.
 - Claim: replace the reference runtime's static fail-closed authority stub with real Hermes control + delegation behind the frozen ports ("tightens rather than changes the protocol"); add per-domain overlays/personas; commission the formal WCAG audit; stand up operations/telemetry; run a staged live pilot with rollback — closing the threat-model items the kernel deferred to pilot (client-integrity TM-03, privacy review, penetration test, production authorization).
 - Files:
   - [avatar-pilot-hardening.md](avatar-pilot-hardening/avatar-pilot-hardening.md) — primary: scope, claims, gates (qualified live profile + SBOM + license review + formal a11y audit), open questions, exit.
 - Open questions (blocking): see the fragment — plus it is structurally last: it cannot propose until `qualify-avatar-live-voice` publishes a qualified live profile and the client lab lands. That gating change was RAISED 2026-08-26 (`openspec/changes/qualify-avatar-live-voice/`) but is unrealized, so the gate is still shut; raising it does not publish a profile.
 - Named deferrals this topic now CARRIES, confirmed by Brett's latent decision 2 of 2026-08-26: the durable synchronous per-tenant cumulative-spend counter (from that change's Fork 1), the retention-class unreservation with its retained-real evaluation corpus and evaluation consent surface (Fork 4), the contract flag that would make the single-model non-shadowing guarantee structural rather than operational, and the promotion of p99, teardown, degraded-network and per-turn conversational latency from recorded evidence to hard gates (Fork 2).
-- Exit: create `avatar-pilot-hardening` (`code_surface: openxFactory, xfactory-avatar-client, installs/hermes-install, xFactories/*`); archives only on merged + green + recorded pilot-gate evidence.
+- Exit: create `avatar-pilot-hardening` (`code_surface: openxFactory, openAvatar, installs/hermes-install, xFactories/*`); archives only on merged + green + recorded pilot-gate evidence.
 
 ## client-layer-tuning
 

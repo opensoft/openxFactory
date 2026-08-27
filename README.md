@@ -585,8 +585,8 @@ Active changes:
   requirements (the reserved-set release of exactly AVC-09/AVC-10, the
   internal-live-ONLY reading of promotion evidence, and the latency-evidence
   rule) plus `repo-boundary-governance` and `avatar-client-lab`, because
-  latent decision 1 makes this the change that extracts
-  `xfactory-avatar-client` from codexFactory `apps/avatar-client-lab` — an
+  latent decision 1 makes this the change that owns the client extraction
+  from codexFactory `apps/avatar-client-lab` — an
   obligation canon carried with no change owning it. `Status: ratified`
   (2026-08-27, in-session), with §2 (the AVC-09/AVC-10 schemas, their packaged
   positive and negative examples, and the manifest/CHANGELOG registration) and
@@ -604,17 +604,24 @@ Active changes:
   (§4.2-§4.5), the fresh client-side latency baseline and gated cells (§5),
   credential custody and spend containment (§6.1), the live transport (§6.4.3),
   and release evidence (§6.4.4).
-  **§6.4.1-§6.4.2 are BLOCKED as mis-specified against the world** and were not
+  **§6.4.1 is TICKED SATISFIED-BY-DTN-022 and §6.4.2 is RE-SCOPED, on Brett's
+  naming rulings of 2026-08-27** (in-session, via AskUserQuestion). §6.4.1 and
+  §6.4.2 had been raised as mis-specified against the world and were not
   executed: codexFactory `apps/avatar-client-lab/` was deleted on 2026-08-03
   (`2b79da35`, PR #74) when Brett's DTN-022 ruling moved the lab to
   `opensoft/openAvatar` with full subtree-split history — already pinned into
-  the aggregation — while the `xfactory-avatar-client` name points at a repo
-  parked since 2026-07-14. The extraction latent decision 1 asks for has
-  therefore already happened under a different name; executing §6.4.1 as
-  written would fork a live repository, which this change's own
-  `avatar-client-lab` delta forbids. Whether canon should recognize openAvatar
-  or rename it is a ruling for Brett, recorded in the change's §6.4 note.
-  `code_surface: openxFactory, xfactory-avatar-client` and
+  the aggregation — while the `xfactory-avatar-client` name pointed at a repo
+  parked since 2026-07-14. The rulings: **R1** the client repo KEEPS the name
+  `openAvatar` (it already IS the extracted client) and canon's
+  `xfactory-avatar-client` — a name predating openAvatar becoming a
+  first-class product — is amended to it; **R2** `openAvatar-server` is
+  recorded as the named future home for deployable avatar server code, created
+  only by whichever change first ships such code; **R3** the parked, empty
+  `opensoft/xfactory-avatar-client` was deleted 2026-08-27, nothing having
+  referenced it. §6.4.2 is now a RESYNC of `openAvatar/contract_pin.yaml` to
+  `contract-v1.46` at `046466a0`, discharged by a PR in openAvatar and left
+  unticked here until it merges.
+  `code_surface: openxFactory, openAvatar` and
   `target_release: implementation_pending`, so it archives only on merged plus
   green internal-live realization evidence, never on landing. Aggregation
   admission of the client repo, the GPT-Live-1 default swap, and the
