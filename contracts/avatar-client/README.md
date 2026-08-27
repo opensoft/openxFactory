@@ -66,7 +66,25 @@ is a closed enum in `shared-definitions.schema.yaml`, not a registry (analyze A3
   latency-budget and elevated error or quota breaches auto-block-new and let
   in-flight legs drain; quality and cost are operator-triggered. Rollback
   disables voice into text or human handoff — `gpt-realtime-2.1` is the first
-  qualified profile, so no model fallback exists.
+  qualified profile, so no model fallback exists. Its `canary_exit_criteria`
+  and its ROLLBACK-B/C trip points carry the §7.6 and §7.2 values ruled
+  2026-08-27.
+- `latency-sample-minimum.yaml` — the minimum sample count per gated latency
+  cell (`qualify-avatar-live-voice` §7.5, feeding §5.2): n >= 100 per cell,
+  declared BEFORE measuring, spread over >= 3 runs on >= 2 days, with a short
+  cell RECORDED and never gating. A sibling of the acceptance map rather than
+  a block inside it, because the map is a published digest-pinned bundle
+  member and an authoring input does not earn a release cut.
+- `broker-server-key-binding.template.yaml` and
+  `broker-server-key-rotation-policy.yaml` — the internal-live broker
+  server-key custody pair (`qualify-avatar-live-voice` task 6.1.1, §7.1 and
+  §7.3). The binding is the promoted `xfactory_credential_binding_template`
+  shape with the credential reference, owner and rotation label concrete and
+  `provider`/`vault` as PER-INSTALL PLACEHOLDERS: `credential-contracts`
+  forbids a contract artifact hard-coding a vault operator, product or secret
+  value, so the concrete vault lands in the consuming install's `credentials/`
+  tree. The rotation record carries the 90-day cadence and its triggers,
+  because the published binding shape types `rotation_policy` as a string.
 - `evidence-register.yaml` — resolves every scenario to fixture evidence, a
   recorded manual result, or a named owner + fail-closed default.
 - `scripts/validate-avatar-client.py` — reference runner (reproducible tooling,

@@ -519,6 +519,11 @@ def _run_checks(f: Findings, strict: bool, require_realization: bool) -> int:
     # the same reason the frozen identifier lists are.
     check_activation_checklist(f)
     check_canary_rollback_policy(f)
+    # The six §7 authoring inputs ruled 2026-08-27 land in three artifacts. The
+    # canary policy's share is checked inside the policy check above (its exit
+    # criteria and the ROLLBACK-B/C trip points); these two carry the rest.
+    check_latency_sample_minimum(f)
+    check_broker_credential_binding(f)
     ev_ids = check_fixtures(f, registry, docs)
     # The latency comparison cases carry acceptance evidence exactly as the
     # fixtures do, so their ids join the set the evidence register resolves
@@ -637,6 +642,97 @@ POLICY_RULED_CLASSES = {
     "ROLLBACK-C": {"trigger_mode": "operator", "action": "operator_selected",
                    "revoke_active_leases": "operator_selected"},
 }
+
+# ---- the §7 authoring inputs, RULED 2026-08-27 ------------------------------
+# §7 is the list of values "the rulings deliberately left to proposal and
+# realization time", and its own preamble states the hazard: "leaving any unset
+# opens the ring on an unstated assumption". Six of them are now ruled, and the
+# artifacts that carry them are mirrored here for exactly the reason the
+# checklist and the rollback split already are — a hand-copied ruling drifts,
+# and a hand-copied ruling that is machine-compared drifts LOUDLY.
+#
+# §7.6 — the canary exit criteria. These moved `canary_exit_criteria` off
+# `status: unset`, which that block's own statement said existed "so that a
+# canary cannot be declared successful against criteria invented after the
+# fact". Comparing the numbers is how that sentence stays true after the
+# values land: a criterion that can be edited in the artifact it gates is not a
+# criterion.
+POLICY_EXIT_SOAK_DAYS = 14
+POLICY_EXIT_DISTINCT_DAYS = 10
+POLICY_EXIT_SESSIONS = 200
+POLICY_EXIT_COHORT_02_MIN = 50
+POLICY_EXIT_PER_SCENARIO_CLASS_MIN = 3
+POLICY_EXIT_ABNORMAL_OVERALL_PCT = 2
+POLICY_EXIT_ABNORMAL_TRAILING_PCT = 5
+POLICY_EXIT_TRAILING_WINDOW_SESSIONS = 50
+# The two criteria ruled BEYOND the three §7.6 names. Without them the ring's
+# own stated rationale goes undelivered: RING-04 proves the kill SWITCH before
+# any canary traffic, and nothing otherwise proves the DETECTION.
+POLICY_EXIT_ADDITIONAL_IDS = {"EXIT-ROLLBACK-B-REHEARSED", "EXIT-ROLLBACK-A-CLEAR"}
+
+# §7.2 — the numeric ceilings, at the two places the rollback policy consumes
+# them. ROLLBACK-B carried three triggers and trip points for only one of them:
+# `elevated_error_rate` named no rate and `elevated_quota_condition` named no
+# quota, so an "auto-blocker" had nothing to auto-block on.
+ROLLBACK_B_ERROR_TRAILING_PCT = 5
+ROLLBACK_B_TRAILING_WINDOW_SESSIONS = 50
+ROLLBACK_B_SESSION_SECONDS_MAX = 900
+ROLLBACK_B_SESSION_UNITS_MAX = 300
+ROLLBACK_B_PROJECT_CAP_USD = 750
+ROLLBACK_C_TENANT_BUDGET_USD = 150
+
+# ---- §7.5, the minimum sample count per gated cell (feeds §5.2) -------------
+SAMPLE_MIN_FILE = "latency-sample-minimum.yaml"
+SAMPLE_MIN_KIND = "avatar-client-latency-sample-minimum"
+SAMPLE_MIN_N = 100
+SAMPLE_MIN_RUNS = 3
+SAMPLE_MIN_DISTINCT_DAYS = 2
+SAMPLE_MIN_P99_FLOOR = 500
+SAMPLE_MIN_UNDER_EFFECT = "recorded_not_gated"
+
+# ---- §7.1 and §7.3, the broker server-key custody pair (task 6.1.1) ---------
+BINDING_FILE = "broker-server-key-binding.template.yaml"
+BINDING_KIND = "xfactory_credential_binding_template"
+BINDING_ID = "avatar_broker_openai_internal_live"
+# The published shape's own required set, plus `vault`. Mirrored so this check
+# fails on a field the binding template DROPS as loudly as on one it mis-values.
+BINDING_FIELDS = ("provider", "vault", "secret_ref", "owner", "rotation_policy")
+# The two fields that MUST stay per-install placeholders in this repository.
+BINDING_PLACEHOLDER_FIELDS = ("provider", "vault")
+BINDING_SECRET_REF = "avatar-broker-openai-internal-live"
+BINDING_ROTATION_LABEL = "operator_managed"
+ROTATION_FILE = "broker-server-key-rotation-policy.yaml"
+ROTATION_KIND = "xfactory_credential_rotation_policy"
+ROTATION_MAX_KEY_AGE_DAYS = 90
+ROTATION_GLOBAL_TRIGGERS = {"client_offboarding", "suspected_exposure",
+                            "provider_policy_change", "privileged_scope_change"}
+ROTATION_ADDED_TRIGGERS = {"avatar_platform_maintainer_change",
+                           "canary_cohort_change", "release_ring_promotion"}
+# THE CANON PROHIBITION, made mechanical. `credential-contracts` says
+# "Contract artifacts, lane definitions, and domain repositories SHALL NOT
+# hard-code a vault operator, a vault product, or any secret value." This
+# repository IS a contract artifact tree, so the rule binds every value in the
+# custody pair. The token list is the approved provider families from
+# docs/credential-access-model.md plus the vault-naming prefixes the estate
+# actually uses — the point is to catch the paste, not to enumerate the world.
+#
+# Matched against a SQUASHED form of each value — lowercased with every
+# non-alphanumeric character removed — because a product name is the same
+# product whether it is written `azure_key_vault`, `Azure Key Vault` or
+# `azure-key-vault`, and a token list that only knows one spelling catches the
+# careful paste and misses the careless one.
+VAULT_PRODUCT_TOKENS = ("azurekeyvault", "keyvault", "awssecretsmanager",
+                        "secretsmanager", "gcpsecretmanager", "secretmanager",
+                        "1password", "bitwarden", "hashicorpvault",
+                        "vaultazurenet")
+# Vault INSTANCE names, matched raw against the lowercased value: these are
+# naming conventions rather than words, and squashing them would turn `kv-`
+# into a two-letter substring that fires on ordinary prose.
+VAULT_INSTANCE_TOKENS = ("kv-", "vault.azure.net")
+# A raw secret value pasted where a reference belongs — the same markers the
+# credential-contracts validator refuses in a binding's `secret_ref`.
+BINDING_SECRET_MARKERS = ("-----BEGIN", "sk-proj-", "sk-svcacct-", "ghp_",
+                          "github_pat_", "gho_", "ghs_", "AKIA")
 
 
 def _acceptance_map_ids() -> set[str] | None:
@@ -1048,6 +1144,465 @@ def check_canary_rollback_policy(f: Findings) -> None:
                          f"{sorted(want_survives)}")
         _check_map_refs(f, cat, f"{rp} abort_scope",
                         scope.get("acceptance_map_refs"), known)
+
+    _check_section_7_values(f, cat, rp, doc)
+
+
+def _rollback_class(doc: Any, class_id: str) -> dict:
+    """One rollback class by id, or an empty mapping. Re-read from the document
+    rather than threaded down from the split check, so the §7 rules report even
+    when the split itself is malformed — a policy with a broken class list still
+    has trip points worth checking, and a check that silently skips is a check
+    that is not there."""
+    pol = doc.get("rollback_policy")
+    if not isinstance(pol, dict):
+        return {}
+    for c in pol.get("classes") or []:
+        if isinstance(c, dict) and c.get("id") == class_id:
+            return c
+    return {}
+
+
+def _check_section_7_values(f: Findings, cat: str, rp: str, doc: Any) -> None:
+    """§7.6's canary exit criteria and the §7.2 trip points ROLLBACK-B and
+    ROLLBACK-C consume, RULED 2026-08-27.
+
+    Three things here would be dangerous to get wrong, and each is a defect the
+    artifact itself named before the values landed:
+
+    * AN EXIT CRITERION INVENTED AFTER THE FACT. The block's own former
+      statement said the three values were held open "so that a canary cannot
+      be declared successful against criteria invented after the fact". Now
+      that they are set, the way that sentence stays true is that they are
+      compared against the ruling rather than read out of the file that the
+      canary's own operator could edit.
+    * A TRIGGER WITH NO TRIP POINT. ROLLBACK-B is an AUTOMATIC block-new class
+      whose `elevated_error_rate` and `elevated_quota_condition` triggers named
+      no number: an auto-blocker that cannot decide to fire is decoration. So
+      EVERY trigger a class declares must resolve to a threshold, checked by
+      set comparison rather than by spot-checking the ones we remember.
+    * TWO NUMBERS FOR ONE FACT. The canary's trailing-window tolerated error
+      rate and ROLLBACK-B's `elevated_error_rate` are the SAME number by
+      ruling. Ruled apart, the canary could pass its exit criterion while its
+      auto-blocker was tripping, or the reverse. They are compared to each
+      other, not merely each to a constant, so a future edit that moves both
+      consistently still has to move them to the ruled value — and one that
+      moves only one fails on both rules at once.
+    """
+    exit_criteria = doc.get("canary_exit_criteria")
+    if not isinstance(exit_criteria, dict):
+        f.error(cat, f"{rp}: `canary_exit_criteria` missing (fail closed); §7.6's "
+                     f"soak duration, session count and tolerated error rate are "
+                     f"the canary's exit contract")
+        exit_criteria = {}
+    elif exit_criteria.get("status") != "ruled":
+        f.error(cat, f"{rp}: canary_exit_criteria.status is "
+                     f"{exit_criteria.get('status')!r} != 'ruled'; §7.6 was ruled "
+                     f"2026-08-27 and a canary opened against unset criteria can be "
+                     f"declared successful against criteria invented after the fact")
+
+    soak = exit_criteria.get("soak_duration") or {}
+    for key, want in (("consecutive_calendar_days", POLICY_EXIT_SOAK_DAYS),
+                      ("sessions_on_distinct_days_min", POLICY_EXIT_DISTINCT_DAYS)):
+        if soak.get(key) != want:
+            f.error(cat, f"{rp}: canary_exit_criteria.soak_duration.{key} is "
+                         f"{soak.get(key)!r} != the ruled {want}")
+
+    sessions = exit_criteria.get("minimum_session_count") or {}
+    if sessions.get("completed_sessions") != POLICY_EXIT_SESSIONS:
+        f.error(cat, f"{rp}: canary_exit_criteria.minimum_session_count."
+                     f"completed_sessions is {sessions.get('completed_sessions')!r} "
+                     f"!= the ruled {POLICY_EXIT_SESSIONS}; the count is set by "
+                     f"MEASURABILITY — at n=50 a single failure is already 2 percent, "
+                     f"so the tolerated rate could not be evaluated at all")
+    floors = sessions.get("sub_floors") or {}
+    for key, want in (("cohort_02_domain_sandbox_min", POLICY_EXIT_COHORT_02_MIN),
+                      ("per_evaluation_scenario_class_min",
+                       POLICY_EXIT_PER_SCENARIO_CLASS_MIN)):
+        if floors.get(key) != want:
+            f.error(cat, f"{rp}: canary_exit_criteria.minimum_session_count."
+                         f"sub_floors.{key} is {floors.get(key)!r} != the ruled "
+                         f"{want}; without the floors, 199 vendor-org sessions and "
+                         f"one sandbox session would technically satisfy the count")
+
+    rate = exit_criteria.get("tolerated_error_rate") or {}
+    for key, want in (("abnormal_rate_overall_max_pct",
+                       POLICY_EXIT_ABNORMAL_OVERALL_PCT),
+                      ("abnormal_rate_trailing_window_max_pct",
+                       POLICY_EXIT_ABNORMAL_TRAILING_PCT),
+                      ("trailing_window_sessions",
+                       POLICY_EXIT_TRAILING_WINDOW_SESSIONS)):
+        if rate.get(key) != want:
+            f.error(cat, f"{rp}: canary_exit_criteria.tolerated_error_rate.{key} is "
+                         f"{rate.get(key)!r} != the ruled {want}")
+    if not rate.get("abnormal_definition"):
+        f.error(cat, f"{rp}: canary_exit_criteria.tolerated_error_rate carries no "
+                     f"`abnormal_definition`; a rate whose numerator is undefined is "
+                     f"unfalsifiable, and this ring deliberately produces "
+                     f"abnormal-looking terminals (consent drills, injected rollback "
+                     f"rehearsals, operator-fired ROLLBACK-C)")
+
+    got_additional = {a.get("id") for a in exit_criteria.get("additional_criteria") or []
+                      if isinstance(a, dict)}
+    if got_additional != POLICY_EXIT_ADDITIONAL_IDS:
+        f.error(cat, f"{rp}: canary_exit_criteria.additional_criteria "
+                     f"{sorted(got_additional, key=str)} != the ruled "
+                     f"{sorted(POLICY_EXIT_ADDITIONAL_IDS)}; RING-04 proves the kill "
+                     f"SWITCH before any canary traffic and nothing else proves the "
+                     f"DETECTION, which is what Option B was chosen for")
+
+    # --- every declared trigger resolves to a trip point ---
+    rb = _rollback_class(doc, "ROLLBACK-B")
+    thresholds = rb.get("trigger_thresholds")
+    if not isinstance(thresholds, dict):
+        f.error(cat, f"{rp} ROLLBACK-B: `trigger_thresholds` missing (fail closed); "
+                     f"an AUTOMATIC block-new class whose triggers carry no numbers "
+                     f"cannot decide to fire")
+        thresholds = {}
+    declared = {t for t in rb.get("triggers") or [] if isinstance(t, str)}
+    missing = sorted(declared - set(thresholds))
+    if missing:
+        f.error(cat, f"{rp} ROLLBACK-B: trigger(s) {missing} declare no trip point; "
+                     f"every automatic trigger resolves to a threshold or the class "
+                     f"is decoration")
+    extra = sorted(set(thresholds) - declared)
+    if extra:
+        f.error(cat, f"{rp} ROLLBACK-B: trip point(s) {extra} name no declared "
+                     f"trigger; a threshold nothing fires on is a number with no "
+                     f"reader")
+
+    err = thresholds.get("elevated_error_rate") or {}
+    if err.get("abnormal_rate_trailing_window_max_pct") != ROLLBACK_B_ERROR_TRAILING_PCT:
+        f.error(cat, f"{rp} ROLLBACK-B: elevated_error_rate trailing-window rate is "
+                     f"{err.get('abnormal_rate_trailing_window_max_pct')!r} != the "
+                     f"ruled {ROLLBACK_B_ERROR_TRAILING_PCT} percent")
+    if err.get("trailing_window_sessions") != ROLLBACK_B_TRAILING_WINDOW_SESSIONS:
+        f.error(cat, f"{rp} ROLLBACK-B: elevated_error_rate trailing window is "
+                     f"{err.get('trailing_window_sessions')!r} sessions != the ruled "
+                     f"{ROLLBACK_B_TRAILING_WINDOW_SESSIONS}")
+    # THE SAME NUMBER, compared to itself. This is the coupling the ruling
+    # names: the exit criterion and the auto-blocker's trip are one fact.
+    for key in ("abnormal_rate_trailing_window_max_pct", "trailing_window_sessions"):
+        if rate.get(key) is not None and err.get(key) != rate.get(key):
+            f.error(cat, f"{rp}: ROLLBACK-B's elevated_error_rate {key} "
+                         f"{err.get(key)!r} disagrees with canary_exit_criteria."
+                         f"tolerated_error_rate {key} {rate.get(key)!r}; they are ONE "
+                         f"ruled number — apart, the canary can pass its exit "
+                         f"criterion while its auto-blocker is tripping")
+
+    quota = thresholds.get("elevated_quota_condition") or {}
+    for key, want in (("per_session_duration_seconds_max",
+                       ROLLBACK_B_SESSION_SECONDS_MAX),
+                      ("per_session_billable_units_max",
+                       ROLLBACK_B_SESSION_UNITS_MAX),
+                      ("provider_project_monthly_cap_usd",
+                       ROLLBACK_B_PROJECT_CAP_USD)):
+        if quota.get(key) != want:
+            f.error(cat, f"{rp} ROLLBACK-B: elevated_quota_condition.{key} is "
+                         f"{quota.get(key)!r} != the ruled {want} (§7.2)")
+    if quota.get("uncountable_is") != "exhausted":
+        f.error(cat, f"{rp} ROLLBACK-B: elevated_quota_condition.uncountable_is is "
+                     f"{quota.get('uncountable_is')!r} != 'exhausted'; a broker that "
+                     f"cannot determine its accumulated cost REFUSES the session "
+                     f"rather than proceeding blind")
+
+    # --- ROLLBACK-C's cost signal: metered, and with a reader ---
+    rc = _rollback_class(doc, "ROLLBACK-C")
+    cost = (rc.get("trigger_signals") or {}).get("cost_concern") or {}
+    if cost.get("per_tenant_monthly_budget_usd") != ROLLBACK_C_TENANT_BUDGET_USD:
+        f.error(cat, f"{rp} ROLLBACK-C: cost_concern.per_tenant_monthly_budget_usd is "
+                     f"{cost.get('per_tenant_monthly_budget_usd')!r} != the ruled "
+                     f"{ROLLBACK_C_TENANT_BUDGET_USD} (§7.2)")
+    if cost.get("hard_stop_exists") is not False:
+        f.error(cat, f"{rp} ROLLBACK-C: cost_concern.hard_stop_exists is "
+                     f"{cost.get('hard_stop_exists')!r}; Fork 1 Option C DEFERS the "
+                     f"durable synchronous per-tenant counter (task 6.1.5), so "
+                     f"nothing can hard-stop a single tenant and recording this as "
+                     f"hard would be false")
+    if not cost.get("alert_reader"):
+        f.error(cat, f"{rp} ROLLBACK-C: cost_concern names no `alert_reader`; a "
+                     f"metered-only budget with nothing wired to it is the "
+                     f"`budget_envelopes: {{}}` failure this org has already had "
+                     f"flagged in review — §7.4 exists to give this number a reader")
+
+
+def check_latency_sample_minimum(f: Findings) -> None:
+    """§7.5, feeding §5.2: the minimum sample count per gated latency cell.
+
+    §5.2's requirement is an ORDERING — "Declare the minimum sample count per
+    gated cell BEFORE measuring" — and an ordering cannot be checked from the
+    numbers alone once both exist. What CAN be checked, and is, is that the
+    declaration exists, is dated, says of itself that it preceded measurement,
+    and — the rule with teeth — DECLARES THE SAME CELL SET THE SLO GATES. A
+    minimum declared over a different set of platforms, percentiles or
+    intervals than the ones it is supposed to gate is a minimum for nothing:
+    it would read as rigor while leaving every gated cell without a floor.
+
+    The cell COUNT is recomputed from the SLO's own gated axes rather than
+    trusted, because "4 cells" is the kind of number that stays behind when the
+    axes it summarises move.
+
+    Fail closed on a missing or unreadable record: an undeclared minimum is
+    exactly the state §5.2 exists to prevent, and ALV-005-S02 ("A percentile is
+    claimed from an undeclared sample count") is its scenario."""
+    path = AVC / SAMPLE_MIN_FILE
+    rp = f"contracts/avatar-client/{SAMPLE_MIN_FILE}"
+    cat = "sample-minimum"
+    if not path.is_file():
+        f.error(cat, f"{rp} absent; §5.2 requires the minimum sample count per gated "
+                     f"cell to be DECLARED BEFORE MEASURING, so its absence is the "
+                     f"defect and not a deferral (fail closed)")
+        return
+    doc = load_yaml(path) or {}
+    if not isinstance(doc, dict):
+        f.error(cat, f"{rp}: not a mapping (fail closed)")
+        return
+    if doc.get("schema_version") != 1:
+        f.error(cat, f"{rp}: schema_version {doc.get('schema_version')!r} != 1")
+    if doc.get("kind") != SAMPLE_MIN_KIND:
+        f.error(cat, f"{rp}: kind {doc.get('kind')!r} != {SAMPLE_MIN_KIND!r}")
+    known = _resolve_map_ids(f, cat, rp)
+    _check_map_refs(f, cat, rp, doc.get("acceptance_map_refs"), known)
+
+    decl = doc.get("declaration") or {}
+    if decl.get("declared_before_measuring") is not True:
+        f.error(cat, f"{rp}: declaration.declared_before_measuring is "
+                     f"{decl.get('declared_before_measuring')!r}; §5.2's whole "
+                     f"requirement is the ordering — a minimum declared after the "
+                     f"numbers are in is a minimum chosen to fit them")
+    if not decl.get("declared_on"):
+        f.error(cat, f"{rp}: declaration carries no `declared_on`; an undated "
+                     f"declaration cannot be shown to precede the measurements")
+
+    minimum = doc.get("minimum") or {}
+    if minimum.get("n_min") != SAMPLE_MIN_N:
+        f.error(cat, f"{rp}: minimum.n_min is {minimum.get('n_min')!r} != the ruled "
+                     f"{SAMPLE_MIN_N}; at n=30 a p95 estimate is the second-largest "
+                     f"of thirty — a maximum wearing a percentile's name")
+    under = doc.get("under_minimum") or {}
+    if under.get("effect") != SAMPLE_MIN_UNDER_EFFECT:
+        f.error(cat, f"{rp}: under_minimum.effect is {under.get('effect')!r} != "
+                     f"{SAMPLE_MIN_UNDER_EFFECT!r}; a short cell is RECORDED and MUST "
+                     f"NOT GATE")
+    spread = doc.get("spread") or {}
+    for key, want in (("distinct_runs_min", SAMPLE_MIN_RUNS),
+                      ("distinct_days_min", SAMPLE_MIN_DISTINCT_DAYS)):
+        if spread.get(key) != want:
+            f.error(cat, f"{rp}: spread.{key} is {spread.get(key)!r} != the ruled "
+                         f"{want}; a minimum n taken all at once repeats F0's "
+                         f"single-configuration weakness with a bigger number")
+    p99 = doc.get("p99_posture") or {}
+    if p99.get("gate_sample_floor") != SAMPLE_MIN_P99_FLOOR:
+        f.error(cat, f"{rp}: p99_posture.gate_sample_floor is "
+                     f"{p99.get('gate_sample_floor')!r} != {SAMPLE_MIN_P99_FLOOR}")
+    if p99.get("stays_recorded_not_gated") is not True:
+        f.error(cat, f"{rp}: p99_posture.stays_recorded_not_gated is "
+                     f"{p99.get('stays_recorded_not_gated')!r}; at n=100 p99 IS "
+                     f"effectively the maximum, and the acceptance map keeps it "
+                     f"recorded-not-gated")
+
+    # --- the declared cell set must be the set the SLO actually gates ---
+    amap = load_yaml(AVC / "acceptance-map.yaml") if (AVC / "acceptance-map.yaml").is_file() else None
+    slo_entries = _slo_entries(amap) if isinstance(amap, dict) else []
+    if len(slo_entries) != 1:
+        return  # check_latency_posture already reports zero or two
+    gated = slo_entries[0].get("gated") or {}
+    pairs = (("gated_platforms", "platforms"),
+             ("gated_percentiles", "percentiles"),
+             ("gated_intervals", "intervals"))
+    for mine, theirs in pairs:
+        declared = set(minimum.get(mine) or [])
+        actual = set(gated.get(theirs) or [])
+        if declared != actual:
+            f.error(cat, f"{rp}: minimum.{mine} {sorted(declared)} != the SLO's "
+                         f"gated {theirs} {sorted(actual)}; a minimum declared over a "
+                         f"different cell set than the one it gates leaves every "
+                         f"gated cell without a floor")
+    if minimum.get("gated_network_class") != gated.get("network_class"):
+        f.error(cat, f"{rp}: minimum.gated_network_class "
+                     f"{minimum.get('gated_network_class')!r} != the SLO's gated "
+                     f"network class {gated.get('network_class')!r}")
+    # RECOMPUTED, not trusted: platforms x one gated network class x the two
+    # reference classifications the comparison cell separates.
+    expected_cells = len(set(gated.get("platforms") or [])) * 2
+    if expected_cells and minimum.get("cells") != expected_cells:
+        f.error(cat, f"{rp}: minimum.cells is {minimum.get('cells')!r} but the SLO's "
+                     f"gated axes give {expected_cells} "
+                     f"(platforms x nominal network x reference-versus-adapter)")
+
+
+def check_broker_credential_binding(f: Findings) -> None:
+    """§7.1 and §7.3 (task 6.1.1): the broker server-key custody pair.
+
+    The binding is the ring's ONLY deployment source for the provider key —
+    F0's mode-600 local file and its age-escrow copy are explicitly not one —
+    so two properties are worth failing closed on:
+
+    * THE VAULT STAYS OUT OF THE CONTRACT. `credential-contracts` is explicit:
+      "Contract artifacts, lane definitions, and domain repositories SHALL NOT
+      hard-code a vault operator, a vault product, or any secret value." That
+      rule is easy to honour on the day it is written and easy to break six
+      months later, when someone with the install's values in front of them
+      fills in the two placeholders here because they look empty. So every
+      VALUE in both files is scanned for a vault-product token and for raw
+      secret material, and `provider` and `vault` must still be placeholders.
+    * THE OVERRIDE AND THE BINDING CANNOT DRIFT APART. A rotation cadence keyed
+      to a credential name that no binding declares governs nothing, and a
+      binding whose cadence record names a different credential is unrotated
+      while looking rotated. The two names are compared.
+
+    Fail closed on either file missing: task 6.1.1 is the custody discharge,
+    and a missing binding is an unbound key rather than a deferred one."""
+    cat = "broker-credential"
+    bpath = AVC / BINDING_FILE
+    brp = f"contracts/avatar-client/{BINDING_FILE}"
+    if not bpath.is_file():
+        f.error(cat, f"{brp} absent; the internal-live broker server key would have "
+                     f"no binding, and F0's local file plus age escrow is explicitly "
+                     f"NOT a deployment source (fail closed)")
+        return
+    doc = load_yaml(bpath) or {}
+    if not isinstance(doc, dict):
+        f.error(cat, f"{brp}: not a mapping (fail closed)")
+        return
+    if doc.get("schema_version") != 1:
+        f.error(cat, f"{brp}: schema_version {doc.get('schema_version')!r} != 1")
+    if doc.get("kind") != BINDING_KIND:
+        f.error(cat, f"{brp}: kind {doc.get('kind')!r} != {BINDING_KIND!r}; task 6.1.1 "
+                     f"requires the PROMOTED binding-template shape, not a local one")
+    known = _resolve_map_ids(f, cat, brp)
+
+    bindings = doc.get("credential_bindings")
+    if not isinstance(bindings, dict) or BINDING_ID not in bindings:
+        f.error(cat, f"{brp}: credential_bindings does not declare {BINDING_ID!r}")
+        binding = {}
+    else:
+        binding = bindings[BINDING_ID] if isinstance(bindings[BINDING_ID], dict) else {}
+        surplus = sorted(set(bindings) - {BINDING_ID})
+        if surplus:
+            f.error(cat, f"{brp}: credential_bindings also declares {surplus}; this "
+                         f"record binds ONE credential, and a second binding beside "
+                         f"it shares its blast radius without saying so")
+    for field in BINDING_FIELDS:
+        if not binding.get(field):
+            f.error(cat, f"{brp} {BINDING_ID}: `{field}` missing; the published "
+                         f"template shape is followed exactly, never trimmed")
+    for field in BINDING_PLACEHOLDER_FIELDS:
+        value = binding.get(field)
+        if isinstance(value, str) and not (value.startswith("<") and value.endswith(">")):
+            f.error(cat, f"{brp} {BINDING_ID}: `{field}` is {value!r}, a concrete "
+                         f"value; the vault operator and product are a PER-INSTALL "
+                         f"EXECUTION BINDING and may not be hard-coded in a contract "
+                         f"artifact — the concrete value belongs in the install's "
+                         f"credentials/ tree")
+    if binding.get("secret_ref") != BINDING_SECRET_REF:
+        f.error(cat, f"{brp} {BINDING_ID}: secret_ref {binding.get('secret_ref')!r} != "
+                     f"{BINDING_SECRET_REF!r}; task 6.1.2 requires a DEDICATED "
+                     f"internal-live provider project distinct from the F0 lab, so a "
+                     f"distinct key reference follows")
+    if binding.get("rotation_policy") != BINDING_ROTATION_LABEL:
+        f.error(cat, f"{brp} {BINDING_ID}: rotation_policy "
+                     f"{binding.get('rotation_policy')!r} != "
+                     f"{BINDING_ROTATION_LABEL!r}; the numeric cadence lives in "
+                     f"{ROTATION_FILE}, because the published shape types this field "
+                     f"as a string and every corpus instance uses it as an "
+                     f"accountability label")
+    res = doc.get("resolution") or {}
+    if res.get("resolved_by") != "broker_only":
+        f.error(cat, f"{brp}: resolution.resolved_by is {res.get('resolved_by')!r} != "
+                     f"'broker_only'; task 6.1.1 says the binding is 'resolved only by "
+                     f"the broker'")
+    if res.get("materialization") != "ephemeral_process_scope":
+        f.error(cat, f"{brp}: resolution.materialization is "
+                     f"{res.get('materialization')!r} != 'ephemeral_process_scope'; "
+                     f"the fetched value is never baked into an image, committed "
+                     f"config, or a log")
+    _check_map_refs(f, cat, f"{brp} resolution", res.get("acceptance_map_refs"), known)
+    _check_no_vault_or_secret(f, cat, brp, doc)
+
+    # --- the cadence half (§7.3) ---
+    rpath = AVC / ROTATION_FILE
+    rrp = f"contracts/avatar-client/{ROTATION_FILE}"
+    if not rpath.is_file():
+        f.error(cat, f"{rrp} absent; §7.3's cadence has no home — the binding's "
+                     f"`rotation_policy` is a string in the published schema and "
+                     f"cannot hold a maximum key age (fail closed)")
+        return
+    rdoc = load_yaml(rpath) or {}
+    if not isinstance(rdoc, dict):
+        f.error(cat, f"{rrp}: not a mapping (fail closed)")
+        return
+    if rdoc.get("schema_version") != 1:
+        f.error(cat, f"{rrp}: schema_version {rdoc.get('schema_version')!r} != 1")
+    if rdoc.get("kind") != ROTATION_KIND:
+        f.error(cat, f"{rrp}: kind {rdoc.get('kind')!r} != {ROTATION_KIND!r}")
+    if rdoc.get("binds_credential_binding") != BINDING_ID:
+        f.error(cat, f"{rrp}: binds_credential_binding "
+                     f"{rdoc.get('binds_credential_binding')!r} != {BINDING_ID!r}; a "
+                     f"cadence keyed to a credential no binding declares governs "
+                     f"nothing")
+    pol = rdoc.get("rotation_policy") or {}
+    globals_ = set(pol.get("require_rotation_on") or [])
+    if globals_ != ROTATION_GLOBAL_TRIGGERS:
+        f.error(cat, f"{rrp}: rotation_policy.require_rotation_on "
+                     f"{sorted(globals_)} != the inherited global list "
+                     f"{sorted(ROTATION_GLOBAL_TRIGGERS)}; §7.3 inherits it UNCHANGED "
+                     f"and adds to it — narrowing it here would silently drop the "
+                     f"SOP's compromise path, which rides `suspected_exposure`")
+    override = (pol.get("credential_overrides") or {}).get(BINDING_ID) or {}
+    if override.get("max_key_age_days") != ROTATION_MAX_KEY_AGE_DAYS:
+        f.error(cat, f"{rrp}: {BINDING_ID} max_key_age_days is "
+                     f"{override.get('max_key_age_days')!r} != the ruled "
+                     f"{ROTATION_MAX_KEY_AGE_DAYS}; 90 is the org's only enforced "
+                     f"key-age tier, and it is chosen partly so that at most one "
+                     f"rotation can land inside the 14-day canary soak")
+    added = set(override.get("additional_require_rotation_on") or [])
+    if added != ROTATION_ADDED_TRIGGERS:
+        f.error(cat, f"{rrp}: {BINDING_ID} additional_require_rotation_on "
+                     f"{sorted(added)} != the ruled {sorted(ROTATION_ADDED_TRIGGERS)}")
+    record = pol.get("rotation_record") or {}
+    if "secret_value" not in set(record.get("forbidden_fields") or []):
+        f.error(cat, f"{rrp}: rotation_record does not forbid `secret_value`; the "
+                     f"SOP records owner, date, reason and the LOGICAL reference, "
+                     f"never the value")
+    _check_map_refs(f, cat, f"{rrp} rotation_record",
+                    record.get("acceptance_map_refs"), known)
+    _check_no_vault_or_secret(f, cat, rrp, rdoc)
+
+
+def _check_no_vault_or_secret(f: Findings, cat: str, rp: str, node: Any,
+                              trail: str = "") -> None:
+    """Walk every VALUE of a custody record for a hard-coded vault product or
+    raw secret material.
+
+    Values only, and every value — not just the fields we expect to carry one.
+    The prohibition is on the artifact, not on a field list: a vault name
+    pasted into a `note`, a `statement` or a `rationale` is hard-coded in a
+    contract artifact just as surely as one pasted into `vault`, and prose is
+    exactly where such a paste survives review. Comments are not walked,
+    because YAML comments are not content and a comment explaining WHY the
+    product is absent must be allowed to be legible."""
+    if isinstance(node, dict):
+        for key, value in node.items():
+            _check_no_vault_or_secret(f, cat, rp, value, f"{trail}.{key}" if trail else str(key))
+    elif isinstance(node, list):
+        for i, item in enumerate(node):
+            _check_no_vault_or_secret(f, cat, rp, item, f"{trail}[{i}]")
+    elif isinstance(node, str):
+        low = node.lower()
+        squashed = re.sub(r"[^a-z0-9]", "", low)
+        hits = sorted({t for t in VAULT_PRODUCT_TOKENS if t in squashed}
+                      | {t for t in VAULT_INSTANCE_TOKENS if t in low})
+        if hits:
+            f.error(cat, f"{rp}: value at {trail or '<root>'} names vault product or "
+                         f"instance token(s) {hits}; the vault operator and product "
+                         f"are a per-install execution binding and a contract artifact "
+                         f"may not hard-code one")
+        marks = sorted({m for m in BINDING_SECRET_MARKERS if m in node})
+        if marks:
+            f.error(cat, f"{rp}: value at {trail or '<root>'} carries raw secret "
+                         f"marker(s) {marks}; credentials are delivered BY REFERENCE, "
+                         f"never baked into a repository")
 
 
 def check_fixtures(f: Findings, registry: Registry, docs: dict[str, dict]) -> set[str]:
