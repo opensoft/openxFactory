@@ -26,7 +26,7 @@ and its bindings SHALL remain outside the client repository until separately
 approved.
 
 #### Scenario: Client repository is created
-- **WHEN** the successor change creates `openAvatar`
+- **WHEN** `openAvatar` stands as the created client repository, as DTN-022 created it on 2026-08-03
 - **THEN** it MUST be private and independently releasable, identify openxFactory as contract and server-control owner, and contain no provider keys or server tool handlers
 
 #### Scenario: Privileged provider code is proposed in the client

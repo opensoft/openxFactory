@@ -165,10 +165,9 @@ a proposal.
 
 ## Exit
 
-Create `qualify-avatar-live-voice` (`code_surface: openxFactory,
-openAvatar`; `target_release: implemented`, or a named
-internal-live release defined in the aggregation repository at proposal
-time). At the proposal gate,
+Create `qualify-avatar-live-voice` (`code_surface: openxFactory, openAvatar`;
+`target_release: implemented`, or a named internal-live release defined in the
+aggregation repository at proposal time). At the proposal gate,
 move this folder's files into that change's `supporting-docs/`, preserving the
 staging origin; author the full `avatar-live-voice` spec deltas — the AVC-09 and
 AVC-10 ADDED contracts, the `interface-lock.yaml` unreservation, the internal-live

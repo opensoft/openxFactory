@@ -541,8 +541,8 @@ the checklist that produces its evidence.
 >    DELETED.** It was created 2026-07-14 as task 1.1 of
 >    `implement-avatar-client-lab`, then parked the same day when Brett
 >    redirected the lab's code surface to codexFactory. Its README said so, and
->    it held no code. Under R3 it was deleted 2026-08-27; `gh api
->    repos/opensoft/xfactory-avatar-client` now returns 404.
+>    it held no code. Under R3 it was deleted 2026-08-27;
+>    `gh api repos/opensoft/xfactory-avatar-client` now returns 404.
 >
 > **Why this was not worked around.** Creating a fresh repo and copying
 > openAvatar's tree into it would FORK a live product line — precisely what
@@ -651,12 +651,20 @@ the checklist that produces its evidence.
       xFactory aggregation. That is a separate reviewed change recording path,
       remote, visibility, exact validated commit, checkout, compatibility,
       update and rollback behavior. Do not open it here.
-      **ALREADY EXISTS — verified 2026-08-27.** The xFactory aggregation's
-      `.gitmodules` already carries `[submodule "openAvatar"]` at path
-      `openAvatar` with remote `git@github.com:opensoft/openAvatar.git`,
-      admitted by a separate act outside this change. The not-this-change
-      clause therefore stands satisfied by that prior act rather than
-      forbidding work that still needs doing.
+      **THE ADMISSION ALREADY HAPPENED — NO WORK REMAINS. The unticked box is
+      a SCOPE STATEMENT, not a pending item.** House precedent keeps
+      NOT-THIS-CHANGE clauses unticked: there is nothing here for this change
+      to do, and ticking would falsely claim this change did it. The admitting
+      act, verified against the live remote 2026-08-27: xFactory aggregation
+      commit `6a2f418fdc5e` of 2026-08-04, "Pin openAvatar at the neutral root
+      (DTN-022 ruled: own repo)" — the only `.gitmodules` commit that touches
+      this submodule. `.gitmodules` on the aggregation's `main` today carries
+      `[submodule "openAvatar"]` at path `openAvatar` with remote
+      `git@github.com:opensoft/openAvatar.git`. That was a separate reviewed
+      act outside this change, exactly as this clause and
+      `repo-boundary-governance` "Deferred aggregation and web-console
+      integration" require. Nothing in this change opens, re-opens, or depends
+      on it.
 
 ## 7. Authoring inputs to pin (unvalued in the memo, not reopened forks)
 

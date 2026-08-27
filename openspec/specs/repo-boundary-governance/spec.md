@@ -124,8 +124,11 @@ update, and rollback behavior before the pin is treated as supported.
 
 ### Requirement: Neutral avatar-client repository boundary
 The reusable Flutter avatar implementation SHALL live in a private,
-independently released repository named `openAvatar`, created by
-the `implement-avatar-client-lab` successor change. From creation it SHALL
+independently released repository named `openAvatar`, created on 2026-08-03 by
+the DTN-022 subtree split that extracted the codexFactory
+`apps/avatar-client-lab/` home `implement-avatar-client-lab` ratified, which
+`qualify-avatar-live-voice` records as having discharged this boundary's
+creation obligation. From creation it SHALL
 own the Flutter application and packages, client bindings, pure reducers, UI
 and platform adapters, the trusted local disclosure/media gate, constrained
 control and media clients, and client tests. It SHALL pin the compatible
@@ -143,7 +146,7 @@ and its bindings SHALL remain outside the client repository until separately
 approved.
 
 #### Scenario: Client repository is created
-- **WHEN** the successor change creates `openAvatar`
+- **WHEN** `openAvatar` stands as the created client repository, as DTN-022 created it on 2026-08-03
 - **THEN** it MUST be private and independently releasable, identify openxFactory as contract and server-control owner, and contain no provider keys or server tool handlers
 
 #### Scenario: Privileged provider code is proposed in the client
