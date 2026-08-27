@@ -18,7 +18,7 @@ Complete as much of User Story 4 as possible **up to the release gate**:
   release digest inventory + verifier CLI, consumer handoff receipt +
   resolver, documentation), T077 (register everything in the four catalogs +
   wire validator modes), T078 (run every provider gate, record
-  `openspec/changes/add-hermes-customer-subject-runtime-contract/evidence/provider-verification.yaml`),
+  `openspec/changes/archive/2026-08-27-add-hermes-customer-subject-runtime-contract/evidence/provider-verification.yaml`),
   Speckit analysis, adversarial P1/P2 review, ONE squashed US4-provider
   checkpoint commit on `005-customer-subject-runtime`. Then STOP.
 - OUT OF SCOPE / PARKED FOR BRETT AT THE GATE: T079 (release lock + version
@@ -100,7 +100,7 @@ All provider gates GREEN (independently re-verified by the coordinator):
   → exit 1 HGR-RELEASE-INVENTORY-MISSING; candidate w/o resolver → exit 2;
   handoff w/o consumer → exit 2; standard strict → exit 0).
 - T078 provider gates recorded at
-  `openspec/changes/add-hermes-customer-subject-runtime-contract/evidence/provider-verification.yaml`;
+  `openspec/changes/archive/2026-08-27-add-hermes-customer-subject-runtime-contract/evidence/provider-verification.yaml`;
   live domain resolution proven offline against bare mirrors of the five
   local DomainxFactory checkouts (scratchpad `domain-repo-root/`).
 

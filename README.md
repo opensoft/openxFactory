@@ -971,7 +971,7 @@ Active changes:
 
 
 
-- [add-hermes-customer-subject-runtime-contract](openspec/changes/add-hermes-customer-subject-runtime-contract/proposal.md)
+- [add-hermes-customer-subject-runtime-contract](openspec/changes/archive/2026-08-27-add-hermes-customer-subject-runtime-contract/proposal.md)
   — ratified 2026-07-12: domain-neutral Hermes runtime-topology and
   governed-record-integrity contracts separating the Customer/Client/Domain
   role templates from their runtime layer instances, with repeatable

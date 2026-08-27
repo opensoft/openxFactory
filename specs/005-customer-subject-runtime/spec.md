@@ -8,7 +8,7 @@ Status: draft
 
 **Input**: User description: "Resolve Gate G0 by encoding and realizing the universal Customer Hermes instance pattern at the openxFactory neutral level, validating multiple Customer instances in one installation, publishing a content-addressed bundle, and enabling Hermes Install to pin it before multi-subject work continues."
 
-**Governed By**: `openspec/changes/add-hermes-customer-subject-runtime-contract/`
+**Governed By**: `openspec/changes/archive/2026-08-27-add-hermes-customer-subject-runtime-contract/`
 
 ## User Scenarios & Testing
 

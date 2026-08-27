@@ -411,6 +411,22 @@ def test_duplicate_archived_governed_change_fails_closed(
     assert codes == {"HRC-OPENSPEC-ARCHIVE-AMBIGUOUS"}
 
 
+def test_incomplete_archived_governed_change_directory_is_ignored(
+    repository_snapshot: Path,
+) -> None:
+    incomplete = (
+        repository_snapshot
+        / "openspec/changes/archive"
+        / f"2099-01-01-{CHANGE_ID}"
+    )
+    incomplete.mkdir(parents=True)
+
+    result = _run_cli("--repo", str(repository_snapshot), "--strict", "--json")
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert _json_result(result)["status"] == "pass"
+
+
 def test_malformed_canonical_catalog_fails_closed(
     repository_snapshot: Path,
 ) -> None:

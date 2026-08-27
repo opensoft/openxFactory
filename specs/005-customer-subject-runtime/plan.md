@@ -6,7 +6,7 @@ Status: draft
 
 **Input**: Feature specification from `specs/005-customer-subject-runtime/spec.md`
 
-**Governed By**: `openspec/changes/add-hermes-customer-subject-runtime-contract/`
+**Governed By**: `openspec/changes/archive/2026-08-27-add-hermes-customer-subject-runtime-contract/`
 
 ## Summary
 
@@ -177,7 +177,7 @@ tests/hermes_runtime_contracts/
     ├── test_quarantine.py
     └── test_ddl_drift.py
 
-openspec/changes/add-hermes-customer-subject-runtime-contract/
+openspec/changes/archive/2026-08-27-add-hermes-customer-subject-runtime-contract/
 ├── proposal.md
 ├── design.md
 ├── evidence/

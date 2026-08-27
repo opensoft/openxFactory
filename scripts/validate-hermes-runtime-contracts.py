@@ -420,6 +420,7 @@ def _validate_ratified_inventory(
                 if candidate.is_dir()
                 and candidate.name.endswith(suffix)
                 and ARCHIVE_DATE.fullmatch(candidate.name[: -len(suffix)])
+                and (candidate / "specs").is_dir()
             )
             if archive_root.is_dir()
             else []
@@ -428,7 +429,8 @@ def _validate_ratified_inventory(
             findings.append(
                 _finding(
                     "HRC-OPENSPEC-ARCHIVE-AMBIGUOUS",
-                    "governed_change resolves to more than one dated archive packet",
+                    "governed_change resolves to more than one dated archive packet: "
+                    + ", ".join(candidate.name for candidate in archived_changes),
                     path="openspec/changes/archive",
                 )
             )

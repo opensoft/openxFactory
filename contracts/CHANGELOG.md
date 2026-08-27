@@ -2430,7 +2430,7 @@ Host-local metadata removal (FR-042): `contracts/manifest.yaml`
 `source_compatibility_ref.local_source_path` — a host-absolute developer path
 (`/home/brett/...`) — is removed in this additive bundle after the recorded
 repository-wide supported-consumer audit
-(`openspec/changes/add-hermes-customer-subject-runtime-contract/evidence/legacy-source-path-consumer-audit.md`,
+(`openspec/changes/archive/2026-08-27-add-hermes-customer-subject-runtime-contract/evidence/legacy-source-path-consumer-audit.md`,
 `Status: record`) proved no supported consumer requires it. Canonical source
 repository and source-commit provenance are retained; no consumer, validator,
 or DomainxFactory `stack.yaml` resolved the removed field.
