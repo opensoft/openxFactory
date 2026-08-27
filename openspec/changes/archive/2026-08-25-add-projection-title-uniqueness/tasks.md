@@ -268,6 +268,18 @@ a test run.
       `[draft] openxFactory: CHANGELOG`, verified by re-listing the book. All
       seven books were then swept for stray non-bracket titles and the drafts
       book's was the only one.
+      **FORWARD NOTE 2026-08-27 — the race is now FIXED, not merely known.**
+      This entry called it "the known oversized-source readiness race" and
+      repaired it by hand. That was accurate and stands. What it did NOT do was
+      FILE it: the race was treated as an accepted nuisance with a manual
+      remedy, so nothing prevented a recurrence. It recurred 2026-08-27 against
+      the 279KB `openspec/specs/ideation-dashboard/spec.md`, and the recurrence
+      exposed the sharper half — **re-running the book ADDS A SECOND STRAY
+      rather than repairing the first**, so the failure compounds.
+      `add_text_source` now polls until the rename takes, confirms it by reading
+      the source list back rather than trusting the call's return, fails LOUDLY
+      on timeout, and ADOPTS a content-matching stray instead of duplicating.
+      Fixed via `change/fix-oversized-source-rename`.
 - [x] 4.3 Read the counts back from the provider and record them. This is the
       evidence, and it is the same read that produced the "before" column, so
       the two are comparable by construction.
