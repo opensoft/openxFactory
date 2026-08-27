@@ -224,6 +224,17 @@ def test_invalid_scope_and_status_flagged(tmp_path):
     assert "scope 'totally-made-up' is outside" in rules
     assert "routing_status 'archived' is outside" in rules
     assert all(f.resolution == CONTESTED for f in got if "[schema]" in f.rule)
+    # PIN (commissioned 2026-08-27, after `promotion_fidelity._ACTION` was
+    # mutated and 85 tests stayed green — no doc-health family's action line
+    # was pinned anywhere). An action line is operator guidance rendered in
+    # every ranked-plan row; nothing else in this repository notices it
+    # changing, so each family gets one verbatim pin in its own suite. This
+    # family passes literals at many construction sites; the two this fixture
+    # already produces are pinned here rather than duplicated.
+    scope_action = next(f.action for f in got if "scope 'totally-made-up'" in f.rule)
+    status_action = next(f.action for f in got if "routing_status 'archived'" in f.rule)
+    assert scope_action == "record a controlled routing scope"
+    assert status_action == "record a controlled routing status"
 
 
 def test_multi_source_without_dedup_flagged(tmp_path):

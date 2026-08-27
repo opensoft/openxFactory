@@ -214,6 +214,14 @@ def test_coverage_gap_after_baseline_is_flagged(tmp_path):
     assert [(f.severity, f.repo, f.path) for f in got] == [
         (ERROR, "alpha", missing_path)]
     assert got[0].rule == "[coverage] document has no catalog entry"
+    # PIN (commissioned 2026-08-27, after `promotion_fidelity._ACTION` was
+    # mutated and 85 tests stayed green — no doc-health family's action line
+    # was pinned anywhere). An action line is operator guidance rendered in
+    # every ranked-plan row; nothing else in this repository notices it
+    # changing, so each family gets one verbatim pin in its own suite. This
+    # family emits twelve finding classes, each with its own action text;
+    # `coverage`'s is pinned here as the family's representative one.
+    assert got[0].action == "run the mechanical catalog pass to add this document"
 
 
 # --- stale-entry (US3 acceptance 2) --------------------------------------------

@@ -66,6 +66,17 @@ def test_a_missing_family_name_fires_and_names_it():
     assert "'family-enumeration'" in hits[0].rule
     assert "omits 1 of the 22 registered check families" in hits[0].rule
     assert hits[0].path == "openspec/specs/doc-health/spec.md"
+    # PIN (commissioned 2026-08-27, after `promotion_fidelity._ACTION` was
+    # mutated and 85 tests stayed green — no doc-health family's action line
+    # was pinned anywhere). An action line is operator guidance rendered in
+    # every ranked-plan row; nothing else in this repository notices it
+    # changing, so each family gets one verbatim pin in its own suite. This
+    # family uses ONE action string for every finding it raises, regardless
+    # of rule shape.
+    assert hits[0].action == (
+        "restate the enumeration and its counts from "
+        "`families.FAMILIES` — every registered family named once, "
+        "and every numeral derived rather than re-typed")
 
 
 def test_a_stale_numeral_fires_separately_from_the_names():
