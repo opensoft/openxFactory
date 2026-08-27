@@ -1,499 +1,506 @@
 ---
-code_surface: opensoft/LedgerxWallet (new), LedgerxFactory, xFactory aggregation — THREE repositories: a NEW repository, one consumer, and the aggregation's placement record. (1) `opensoft/LedgerxWallet` created EMPTY and scaffolded (it is not a carve — there is no history to preserve, see § Why), holding `contracts/openxwallet-pin.yaml` (`kind: ledgerxwallet_openxwallet_pin`, `relationship: pinned_upstream_composition`), a nested `openXwallet/` gitlink at the SAME commit, `README.md`, `CLAUDE.md`/`AGENTS.md`, `.github/CODEOWNERS`, the relocated profile (`templates/wallet-exercise.template.yaml`, `profile/distinct-holder-constraints/dhc-lx-create-post-01.yaml`, `tests/validate_wallet_estate.py`), a NEW `profile/custody-posture.yaml` (new, not a move — see Impact), and a branch-protection ruleset. (2) LedgerxFactory: `.gitmodules` gains a `LedgerxWallet` entry and a gitlink; `stack.yaml`'s DECLARED `openxwallet:` block (`:51-62`, landed by P5b at `1a8ec62`) is re-sourced from `openxFactory-nested-submodule-pin` to `LedgerxWallet-nested-submodule-pin` with its `contract_ref` unchanged; three profile paths are deleted; `tests/validate_wallet_estate.py` is REPLACED by a delegating bar entry of the same path so the `tests/validate_*.py` glob bar keeps covering the estate, and its two-candidate finder (`:53-78`) narrows to LedgerxWallet's own nested gitlink; `tests/validate_document_estate_surface.py`'s allowed-kind registration for `ledgerx_wallet_exercise_template` is amended because the artifact leaves the tree; `specs/016-posting-segregation-of-duties/runsheet.md:23` and `quickstart.md:15` are repointed because that live window is PREPARED-BUT-UNEXECUTED; `README.md`, `.github/CODEOWNERS` and `models/protected-surface.yaml`'s prose reference. Tenant estate records under `tenants/ledgerxcorp/wallets/` DO NOT MOVE (Q2). (3) The xFactory aggregation: NO change in v1 — the RATIFIED nested placement is taken and the `xFactories/` placement is deliberately not, so `.gitmodules` at the aggregation is untouched and that is a stated decision rather than an omission. Per `release-realization` this change archives ONLY on merged plus green realization evidence, never on landing.
-target_release: implemented — each affected repository's own main line. NO release identity is allocated here: LedgerxWallet's first tag is `lxw-v1.0` cut at scaffold time in its own repository, openXwallet is CONSUMED at the already-published `wallet-v1.1` and not re-cut, and openxFactory publishes NOTHING in this change — no contract bundle, no `contracts/releases/<tag>.digests.yaml`, because no openxFactory-registered artifact is added, changed or removed. The only openxFactory tree change is this packet plus one README Records entry.
+code_surface: opensoft/LedgerxWallet (new), LedgerxFactory, openxFactory — THREE repositories. (1) `opensoft/LedgerxWallet` created EMPTY and scaffolded (not a carve — there is no history to preserve): `contracts/openxwallet-pin.yaml` (`kind: ledgerxwallet_openxwallet_pin`, `relationship: pinned_upstream_composition`), a nested `openXwallet/` gitlink at the SAME commit in the SAME commit, `tests/validate_pin.py` (the refusing validator the ratified rule's own scenarios require), `README.md` with the relocated file's provenance, `CLAUDE.md`/`AGENTS.md`, `.github/CODEOWNERS`, `.github/workflows/pin-validation.yml`, a branch-protection ruleset, and the relocated `templates/wallet-exercise.template.yaml`. (2) LedgerxFactory: `.gitmodules` + a `LedgerxWallet` gitlink; `tests/validate_wallet_estate.py`'s two-candidate upward walk (`:53-78`, `:81-116`) REPLACED by one fixed relative path into the descendant — the validator STAYS; `stack.yaml`'s declared `openxwallet:` block (`:51-62`) re-sourced; `models/protected-surface.yaml`'s `stack.yaml` DIGEST re-pinned (`:384-388`) plus its prose pointer at `:455`; `templates/wallet-exercise.template.yaml` deleted; `tests/validate_document_estate_surface.py`'s kind registration (`:1116-1121`) and its resolution-path comment (`:1086-1098`) amended; `specs/016-posting-segregation-of-duties/{runsheet.md:22-23, quickstart.md:3-7 and :19}` repointed with a new P0.5 precondition; `README.md`; `.github/CODEOWNERS` gains `/.gitmodules` and `/LedgerxWallet`. The tenant estate and the distinct-holder constraint DO NOT MOVE (Q2, and § 2b). (3) openxFactory: this packet plus one README "OpenSpec Records" row — no contract, no schema, no manifest row, no release surface, no validator. The xFactory aggregation is deliberately UNTOUCHED (§ 6), which is a decision and not a surface. Per `release-realization` this change archives ONLY on merged plus green realization evidence, never on landing.
+target_release: implemented — each affected repository's own main line. NO release identity is allocated here: LedgerxWallet's first tag `lxw-v1.0` is cut in its own repository, openXwallet is CONSUMED at the already-published `wallet-v1.1` and not re-cut, and openxFactory publishes NOTHING — no contract bundle and no `contracts/releases/<tag>.digests.yaml`, because no openxFactory-registered artifact is added, changed or removed.
 Status: draft
 ---
 # Proposal: create-ledgerxwallet-overlay-boundary
 
 Status: draft
 Proposed: 2026-08-27 — **P6 of the ratified `split-openxwallet-repo`**, named by
-this id in that change's § Successors named and again as its `tasks.md` 12.1,
-on Brett's in-session ruling of 2026-08-27 over the successor set: verbatim,
+this id in that change's § Successors named and again as its `tasks.md` 12.1, on
+Brett's in-session ruling of 2026-08-27 over the successor set: verbatim,
 "approved. do all of these". The five descendant rules this change instantiates
 were ratified 2026-08-26 (PR opensoft/openxFactory#391); this change does not
-re-litigate them and does not amend them. Registered under DTN-026, whose
-resolution names `LedgerxWallet` as the first descendant (R8).
+re-litigate and does not amend them. Registered under DTN-026, whose resolution
+names `LedgerxWallet` as the first descendant (R8).
+
+**This proposal was narrowed by its own alignment review.** As first authored it
+relocated the estate validator and the distinct-holder constraint as well. Both
+were withdrawn on findings that are arithmetic rather than aesthetic, and § 2b
+records why — because the withdrawn version is the one a reader would otherwise
+reinvent.
 
 ## Constraints carried, not questions asked
 
 `split-openxwallet-repo` ratified `domain-descendant-boundary` with FIVE
-requirements. They are the specification this change is measured against, and
-this proposal's job is to instantiate them for one domain — not to reopen them.
-Stated here in the form this change must satisfy, each with the ratified text's
-own words:
+requirements. They are the specification this change is measured against; its job
+is to instantiate them for one domain.
 
 1. **Consume through the descendant, never by direct integration.** "A
    DomainxFactory SHALL consume a neutral `open*` product through a
    `<Domainx><Product>` DESCENDANT repository and SHALL NOT integrate that
-   product's contracts, schemas, corpus or validator directly into its own
-   tree." The name takes the `<Domainx><Product>` form (R7: `LedgerxWallet`).
-2. **Pin by commit, TWICE, in ONE commit.** A nested gitlink AND
-   `contracts/<product>-pin.yaml` carrying
-   `kind: <descendant_repo_snake>_<product_snake>_pin` and, where the pin covers
-   a whole tree, `relationship: pinned_upstream_composition`; both change in the
-   SAME commit; a disagreement between them REFUSES rather than prefers either.
-3. **Profile, never fork.** "ONLY profiles, overlays, branding, deploy
-   configuration and domain validators over its own profile artifacts" — and
-   anything the profile cannot express is an UPSTREAM change in openXwallet,
-   released and re-pinned, never a local edit.
+   product's contracts, schemas, corpus or validator directly into its own tree."
+   Name form `<Domainx><Product>` (R7: `LedgerxWallet`).
+2. **Pin by commit, TWICE, in ONE commit** — a nested gitlink AND
+   `contracts/<product>-pin.yaml` with
+   `kind: <descendant_repo_snake>_<product_snake>_pin` and
+   `relationship: pinned_upstream_composition`; a disagreement REFUSES.
+3. **Profile, never fork** — "ONLY profiles, overlays, branding, deploy
+   configuration and domain validators over its own profile artifacts".
 4. **One of exactly two placements, whose STANDING differs and must be stated
-   rather than blended.** RATIFIED: nested into its DomainxFactory (MedxAvatar
-   in MedxFactory, DTN-022, 2026-08-03). REALIZED BUT NOT YET RATIFIED: the
-   aggregation's `xFactories/` (MedxChart, whose establishing act
-   `create-medxchart-overlay-boundary` is still `Status: draft`). Both MAY be
-   carried, and then the two gitlinks must name the same commit.
-5. **Created on its first profile, not before.** Lazily and consumer-gated, "so
+   rather than blended.** RATIFIED: nested in the DomainxFactory (MedxAvatar in
+   MedxFactory, DTN-022). REALIZED BUT NOT YET RATIFIED: the aggregation's
+   `xFactories/` (MedxChart, whose establishing act
+   `create-medxchart-overlay-boundary` is `Status: draft`,
+   `target_release: implementation_pending`).
+5. **Created on its first profile, not before** — lazily, consumer-gated, "so
    that an empty boundary is never stood up as precedent."
-
-Rule 5 is why this change exists NOW and only for Ledgerx: the profile artifacts
-already exist, in LedgerxFactory, today.
 
 ## Why
 
-**LedgerxFactory is, today, in breach of rule 1 — and P5b narrowed the breach
-without closing it.** `tests/validate_wallet_estate.py` resolves the neutral
-openXwallet validator by walking UP OUT of its own checkout:
-`VALIDATOR_CANDIDATES` (`:53-78`) holds path tuples and `find_openxfactory()`
-(`:81-116`, the walk at `:109-116`) tries each of them at each of five
-successive parent directories, with the result frozen at import time
-(`VALIDATOR = find_openxfactory()`, `:119`). **After P5b — merged 2026-08-27,
-LedgerxFactory PR #30 at `b131286`, Speckit feature
-`019-openxwallet-consumer-repoints` — exactly TWO candidates remain, and BOTH
-are in other repositories.** Candidate 1 is
-`openxFactory/openXwallet/scripts/validate-openxwallet.py` — openxFactory's
-nested gitlink; candidate 2 is `openXwallet/scripts/validate-openxwallet.py` —
-the aggregation's root gitlink, which the aggregation does not yet carry (P4 is
-open: `/home/brett/projects/xFactory/.gitmodules` pins `openAvatar` at root and
-no `openXwallet`). The third, the pre-carve home, was dropped BY P5b and its
-removal note is emphatic that restoring it would reintroduce a silent pass.
+**The breach rule 1 describes is a RESOLUTION PATH, and P5b narrowed it without
+closing it.** `tests/validate_wallet_estate.py` reaches the neutral openXwallet
+validator by walking UP OUT of its own checkout: `VALIDATOR_CANDIDATES`
+(`:53-78`) holds path tuples, `find_openxfactory()` (`:81-116`, walk at
+`:109-116`) tries each at five successive parents, and the result is frozen at
+import (`VALIDATOR = find_openxfactory()`, `:119`). After P5b — merged 2026-08-27,
+LedgerxFactory PR #30 at `b131286`, work commit `1a8ec62`, Speckit feature
+`019-openxwallet-consumer-repoints` — exactly TWO candidates remain and BOTH are
+paths in other repositories: `openxFactory/openXwallet/scripts/validate-openxwallet.py`
+and the aggregation's root `openXwallet/scripts/validate-openxwallet.py` (which
+the aggregation does not yet carry — P4 is open;
+`/home/brett/projects/xFactory/.gitmodules` pins `openAvatar` at root and no
+`openXwallet`). The third, the pre-carve home, was dropped BY P5b under a note
+that restoring it would reintroduce a silent pass.
 
-So the surface is now at its narrowest and it is still A PATH IN SOMEBODY ELSE'S
-REPOSITORY, reached by directory adjacency. That is precisely "integrat[ing]
-that product's … validator directly into its own tree" in the only form a
-validator can be integrated: as a resolution rule. The finder's own comment
-concedes what is at stake — "the aggregation's root gitlink is governed by
+**A second breach site sits in the same repository and the first draft of this
+proposal misread it.** `specs/016-posting-segregation-of-duties/quickstart.md:19`
+invokes `python3 ../../openxFactory/openXwallet/scripts/validate-openxwallet.py . --strict`
+— the NEUTRAL validator, by relative path, out of another repository's checkout —
+and `:3-7` names "the pinned openxFactory checkout at the workspace root, with
+its nested `openXwallet` gitlink initialized" as a prerequisite. That is the same
+adjacency reach as the finder, written into a procedure a human follows.
+
+So the surface is at its narrowest and is still adjacency, in two places. That is
+"integrat[ing] that product's … validator directly into its own tree" in the only
+form a validator can be integrated: as a resolution rule. The finder's own
+comment concedes the stake — "the aggregation's root gitlink is governed by
 nothing this repo pins" — and answers it with candidate ORDER, which the comment
 itself calls a tie-break ("Candidate order is what breaks the tie"). **P5b took
-the narrowing as far as candidate pruning can take it; a descendant is what
-replaces the tie-break with a pin.**
+candidate pruning as far as it goes; a descendant is what replaces the tie-break
+with a pin.**
+
+**This is not theoretical — the silent pass is observable in this workspace
+today.** `openxFactory/openXwallet` does not exist here and the aggregation
+carries no root `openXwallet`, so on the committed post-P5b finder
+`find_openxfactory()` returns `None` and the bar exits 1, loudly and correctly.
+But the local openxFactory checkout still carries the SHED
+`scripts/validate-openxwallet.py` on disk, and the pre-P5b finder resolves it and
+reports `WALLET ESTATE: PASS` — a green run against a contract version nothing
+pins. After P6 that failure mode is unavailable by construction: there is exactly
+ONE candidate, it lives inside the descendant, and its commit is declared twice.
 
 **The rule 5 gate is satisfied and no other domain's is.** The profile-kind
-artifacts exist in LedgerxFactory now, verified on `origin/main` 2026-08-27:
-`templates/wallet-exercise.template.yaml` (`kind:
-ledgerx_wallet_exercise_template`, `instantiates:
-xfactory_wallet_grant_exercise`), the distinct-holder constraint
-`tenants/ledgerxcorp/wallets/dhc-lx-create-post-01.yaml` (`kind:
-xfactory_wallet_distinct_holder_constraint`), the 822-line domain validator
-`tests/validate_wallet_estate.py`, and the two wallet records plus two grants
-that are the estate it checks. `MedxWallet`, `codexWallet`, `OpsxWallet` and
-`AdxWallet` have no profile artifact of any kind, so rule 5 forbids creating
-them and R7 already registers their names. This change creates exactly one
-repository and argues for exactly one.
+artifact exists in LedgerxFactory now:
+`templates/wallet-exercise.template.yaml`, `kind:
+ledgerx_wallet_exercise_template`, `instantiates: xfactory_wallet_grant_exercise`
+— the domain's own profile of a neutral product kind. `MedxWallet`,
+`codexWallet`, `OpsxWallet` and `AdxWallet` have none, so rule 5 forbids creating
+them; R7 already registers their names.
 
-**The descendant makes "which reader ran" answerable by a pin instead of by a
-directory walk.** Inside LedgerxWallet the nested `openXwallet/` gitlink sits at
-a FIXED relative path, governed by `contracts/openxwallet-pin.yaml` in the same
-commit. The five-level, three-candidate walk collapses to one deterministic
-candidate whose commit is declared, which is the property
-`neutral-product-pin`'s own requirement asks for in openxFactory's direction
-("The consuming repository's pin is authoritative among reachable checkouts").
-This change buys that property for the domain direction, and it is the concrete
-benefit — not tidiness.
-
-**There is no history to carve, and that is a material difference from P2.**
-`split-openxwallet-repo`'s extraction was a `git filter-repo` path carve over
-twelve path sets with a byte-identity floor, because eight registered
-openxFactory artifacts and two promoted capabilities were moving out of a
-governed corpus. Nothing of that kind moves here: the three relocating paths are
-LedgerxFactory-authored, carry no openxFactory manifest row, appear in NO
-`contracts/releases/*.digests.yaml`, and — verified — carry **no digest row in
-`models/protected-surface.yaml`** (that file mentions
-`validate_wallet_estate.py` once, at `:438`, in the PROSE of a `stack.yaml` pin
-entry, and pins none of the three paths). So this is a plain `git mv` across a
-repository boundary plus a scaffold, and the honesty obligation is a different
-one: **preserve authorship provenance in prose**, because a fresh-repo scaffold
-loses `git log`. Named as a task, not assumed.
-
-**The precedent for the placement is the strongest one available and it is in
-this domain's own tree.** LedgerxFactory already nests a descendant:
-`.gitmodules` carries one entry, `path = LedgerxAvatar`, `url =
-git@github.com:opensoft/LedgerxAvatar.git`. MedxFactory nests `MedxAvatar` the
-same way. Both are DTN-022 realizations, and DTN-022 is the ONE ratified
-descendant precedent the corpus has. Taking the ratified placement means this
-change does not have to rest on `create-medxchart-overlay-boundary`, which is
-`Status: draft` and which this packet uses only as a SHAPE template.
+**The placement precedent is in this domain's own tree.** LedgerxFactory already
+nests a descendant: `.gitmodules` carries one entry, `path = LedgerxAvatar`,
+`url = git@github.com:opensoft/LedgerxAvatar.git`. MedxFactory nests `MedxAvatar`
+the same way (`46f595c6`, 2026-08-23). Both are DTN-022 realizations — the ONE
+ratified descendant precedent the corpus has — so this change need not rest its
+placement on `create-medxchart-overlay-boundary`, which is `Status: draft` and
+which this packet uses only as a SHAPE template.
 
 ## What Changes
 
 ### 1. `opensoft/LedgerxWallet` is created and scaffolded
 
-A new private repository under `opensoft`, created EMPTY (no carve, no
-filter-repo, no history import), then scaffolded on `main` with:
+Private, created EMPTY — no carve, no `filter-repo`, no history import — then
+scaffolded on `main`:
 
-- `contracts/openxwallet-pin.yaml` — `schema_version: 1`, `kind:
-  ledgerxwallet_openxwallet_pin`, `relationship: pinned_upstream_composition`,
-  `submodule_path: openXwallet`, `revision`/`revision_kind: commit`,
-  `contract_bundle_tag: wallet-v1.1` as a LABEL beside the commit, and
-  `repository: opensoft/openXwallet`. Shape follows the live descendant example
-  `MedxChart/contracts/openchart-pin.yaml` (`kind: medxchart_openchart_pin`,
-  the same six pin fields) because the ratified rule names it as one of the two
-  it derives the kind form from. The other, `MedxAvatar/pins/openavatar.yaml`,
-  is DELIBERATELY not followed: it lives at `pins/`, carries
-  `source_repo`/`resolved_ref` and NO `relationship:`, and the ratified rule
-  says the forward shape "SHALL NOT be read as retro-fitting" it.
-- A nested `openXwallet/` submodule gitlink at the SAME commit as the pin
-  file's `revision`, added in the SAME commit as the pin file.
-- `README.md` (what the repository is, what it may and may not contain, the
-  pin-bump procedure, and the authorship provenance of the relocated files),
-  `CLAUDE.md` + `AGENTS.md` pointing at the user-global protocol per house
-  style, `.github/CODEOWNERS` naming `@opensoft/xfactory` over
-  `/contracts/`, `/profile/`, `/tests/` and `/.github/` (path-scoped, matching
-  the style LedgerxFactory's own CODEOWNERS states and for the reason that file
-  states: an org ruleset naming nobody requires nothing).
-- A branch-protection ruleset created in EVALUATE mode and promoted to ACTIVE
-  once its first check has reported, mirroring what P2 did for openXwallet.
-- `lxw-v1.0` tagged after the profile lands and the estate run is green.
+- **`contracts/openxwallet-pin.yaml`** — `schema_version: 1`,
+  `kind: ledgerxwallet_openxwallet_pin`, and a `pin:` mapping holding
+  `repository: opensoft/openXwallet`,
+  `remote: git@github.com:opensoft/openXwallet.git`, `revision: <40-hex>`,
+  `revision_kind: commit`, `submodule_path: openXwallet`,
+  `relationship: pinned_upstream_composition`, plus
+  `contract_bundle_tag: wallet-v1.1` as a LABEL beside the commit.
+  **Shape, stated precisely rather than by gesture.** `MedxChart/contracts/openchart-pin.yaml`
+  nests its six fields under a `pin:` mapping (`:4-10`); this file follows that
+  NESTING and carries five of MedxChart's six (`repository`, `remote`, `revision`,
+  `submodule_path`, `relationship`), DROPS `source_path` because
+  `relationship: pinned_upstream_composition` already says the pin covers the
+  whole tree, and ADDS `revision_kind` and `contract_bundle_tag` because the
+  ratified rule forbids a tag as the referent and a label needs to be marked as
+  one. `MedxAvatar/pins/openavatar.yaml` is deliberately NOT followed — it lives
+  at `pins/`, carries `source_repo`/`resolved_ref` and no `relationship:`, and
+  the ratified rule settles the shape "FORWARD only" and says the live
+  disagreement "SHALL NOT be read as retro-fitting them". The KIND takes
+  `medxchart_openchart_pin`'s compressed form rather than
+  `medx_avatar_openavatar_pin`'s underscored one; the rule names both, the corpus
+  disagrees with itself, and the compressed form matches the directory the rule
+  itself names.
+- A **nested `openXwallet/` gitlink** at the same commit, in the SAME commit.
+- **`tests/validate_pin.py`** — the refusing validator rule 2's own scenarios
+  require ("the descendant's OWN VALIDATOR REFUSES the tree rather than
+  preferring either"). It asserts `git ls-tree HEAD openXwallet` equals the pin's
+  `revision`, that `revision` is 40 hex and no bare tag stands in for it, and
+  fails closed with a named exit and the remediation string. Without it the
+  descendant would ship the refusal DECLARED and nothing that refuses.
+- **`.github/workflows/pin-validation.yml`** running it — because a
+  branch-protection ruleset cannot be promoted from EVALUATE to ACTIVE until some
+  check has reported, and nothing else in this change creates one.
+- `README.md` (what the repository may and may not contain, the pin-bump
+  procedure, and the relocated file's provenance), `CLAUDE.md`/`AGENTS.md` per
+  house style, `.github/CODEOWNERS` naming `@opensoft/xfactory` path-scoped over
+  `/contracts/`, `/templates/`, `/tests/` and `/.github/`.
+- `lxw-v1.0` tagged after the template lands and `validate_pin.py` is green.
 
-### 2. The profile relocates; the tenant estate does not
+### 2. What moves: the exercise template, and nothing else
 
-**MOVES into LedgerxWallet** — three paths, and the reason each is profile:
+`templates/wallet-exercise.template.yaml` relocates to LedgerxWallet at the same
+relative path. It is the domain's reusable instantiation stub for a neutral kind,
+it is the artifact that satisfies rule 5's creation gate, and — decisively — it
+is the ONE wallet-adjacent artifact whose move breaks nothing, for a reason its
+own header states: it "deliberately carries a template kind instead, because the
+wallet validator's repo scan adjudicates any wallet-kind YAML as a live record
+and a placeholder record must not be one." Not being adjudicated is its design,
+so relocating it removes nothing from adjudication.
 
-| From (LedgerxFactory) | To (LedgerxWallet) | Why it is profile |
-| --- | --- | --- |
-| `templates/wallet-exercise.template.yaml` | `templates/wallet-exercise.template.yaml` | A reusable INSTANTIATION STUB naming no tenant. Its own header states the domain rule set — presenting-key requirement, `custody_model_in_force` reading, `unattributed` for an unestablishable key, BC transport recorded as transport — which is the domain's interpretation of a neutral kind. |
-| `tenants/ledgerxcorp/wallets/dhc-lx-create-post-01.yaml` | `profile/distinct-holder-constraints/dhc-lx-create-post-01.yaml` | Domain-wide policy MIS-FILED under a tenant path. It names no tenant, no wallet and no key: `declared_by: ledgerx:posting-segregation-of-duties`, `object_kind: purchase_invoice`, `comparison_basis: recorded_holder_of_prior_act`, `distinctness_floor: holder_id`. Creator≠poster holds for every Ledgerx estate, not for ledgerxcorp. The relocation CORRECTS the filing; it is not a re-scoping. |
-| `tests/validate_wallet_estate.py` | `tests/validate_wallet_estate.py` | "A descendant adds a domain validator … that checks its own profile artifacts against the pinned product's schemas" is explicitly permitted by rule 3's third scenario. It carries the domain's own vocabulary as data — `ENVIRONMENT_EVIDENCING`, `PLATFORM_VERIFIABLE` (the measured BC 28.3 RSA-only family), `PIN_VERDICTS`, `EXPECTED_CONSTRAINT` — and the negative-probe corpora. |
+**It is not tenant-free, and the first draft wrongly said it was.** The template
+enumerates this tenant's live ids as placeholder GUIDANCE inside angle brackets —
+`grant_ref` at `:24`, `presenting_key_ref` at `:34`, `wallet_ref` at `:38`,
+`holder_ref` at `:39`, `constraint_ref: dhc-lx-create-post-01` at `:48` — and
+`:4` points instances at `tenants/ledgerxcorp/ledger-estates/`. Those are strings
+in a stub, not declared facts, and this proposal says so rather than claiming a
+tenant-freedom the file does not have. The spec's refusal is scoped to RECORDS
+accordingly.
 
-**STAYS in LedgerxFactory** — and this is Q2's recommended disposition:
+### 2b. What does NOT move, and the two withdrawn relocations
 
-- `tenants/ledgerxcorp/wallets/{wal-lx-creator-01,wal-lx-poster-01}.yaml` and
-  `{grant-lx-create-01,grant-lx-post-01}.yaml`. **Tenant data.** They carry
-  holder ids (`agent:lx-ap-intake-creator`, `agent:lx-posting-agent`), DIDs
-  (`did:web:xforge.us:wallets:lx-*`), key ids, `expires_at`, `issued_by`, and a
-  `state:` that "is kept truthful by the session that closes each window". Their
-  lifecycle is the tenant's live evidence window, not a pin bump. Moving them
-  would put one tenant's identity estate inside a repository whose whole purpose
-  is to be reusable across tenants — the exact inversion of the profile/instance
-  line the descendant standard is built on.
-- `schemas/holder-registry.schema.yaml` (`kind:
-  ledgerx_wallet_holder_registry_contract`). **The platform seam.** Its
-  counterparty is not openXwallet but Business Central: it declares the shape of
-  LedgerLinc table 50200 "LL Wallet Holder Registry" and exists "so the repo and
-  the client system state the same facts". This is R3's line applied one layer
-  down — the product owns the standard, the factory keeps the seam.
-- `specs/016-posting-segregation-of-duties/`,
-  `specs/017-openxwallet-finder/`, `specs/018-openxwallet-pin-bump/`,
-  `specs/019-openxwallet-consumer-repoints/`. **Records of acts LedgerxFactory
-  performed.** Records are not relocated; the archive-record doctrine keeps a
-  record where the act happened. Their PATH REFERENCES are a different matter —
-  see the next sub-section.
-- `models/protected-surface.yaml`, `tests/validate_document_estate_surface.py`,
-  and the rest of the bar. LedgerxFactory's own governance surfaces.
+**The tenant estate stays** —
+`tenants/ledgerxcorp/wallets/{wal-lx-creator-01,wal-lx-poster-01,grant-lx-create-01,grant-lx-post-01}.yaml`.
+That is Q2's recommended disposition and § Open questions carries it.
 
-**The enumeration is COMPLETE, and that is a checkable claim rather than a
-hope.** `git grep '^kind:.*wallet'` over LedgerxFactory `origin/main` returns
-EXACTLY SEVEN files: the exercise template
+**The distinct-holder constraint stays, and the first draft was wrong to move
+it.** `tenants/ledgerxcorp/wallets/dhc-lx-create-post-01.yaml` names no tenant,
+no wallet and no key, so on a profile/instance test it reads as domain policy
+mis-filed under a tenant path — which is why the first draft relocated it. Two
+measured consequences withdraw that:
+
+- `check_real_estate()` loads all three record kinds from `WALLET_DIR` alone
+  (`:39`, `:735-746`) and then does `dhc = constraints.get(EXPECTED_CONSTRAINT)`
+  → `err(f"missing distinct-holder constraint …")` (`:774-776`). Move the file and
+  the lookup returns `None` and the bar REDS.
+- `check_real_estate()` also runs the pinned validator over the repository and
+  asserts a floor: `elif int(m.group(1)) < 5: err(f"expected >=5 wallet-family
+  records validated …")` (`:721`, `:725-729`). The five are the two wallets, the
+  two grants and this constraint. Move it and the count is four.
+
+**And relocating it would not merely red the bar — it would put the file beyond
+every scan.** openXwallet's validator at `wallet-v1.1` PRUNES NESTED
+REPOSITORIES from its sweep by construction: `sweep_candidates()`
+(`scripts/validate-openxwallet.py:2063`) exists because "that sweep then walks
+into every repository nested below that root and adjudicates its carried YAML as
+LIVE RECORDS of the consumer's tree", and the prune is reported as a note
+(`:2135-2142`, "nested repositories pruned (not adjudicated)"). So any wallet-kind
+YAML placed inside a nested `LedgerxWallet` is adjudicated by NOTHING. The prune
+was added at P2b of this very parent change, for the openxFactory case; it
+applies here unchanged.
+
+**The estate validator stays, and that is the largest correction.** The first
+draft moved `tests/validate_wallet_estate.py` and paid for it with a delegating
+bar entry, a declared estate root, an expected-set relocation and a restated
+artifact floor — four seams. The review established that none of them is
+necessary, because **rule 1 forbids integrating THE PRODUCT'S validator, and this
+file is not the product's.** It is LedgerxFactory-authored (its header cites
+feature 016 and the 2026-08-08 Ledgerx ratification; features 018 and 019 record
+it as unpinned LedgerxFactory code). What breaches rule 1 is where it RESOLVES
+the product's validator — and that is fixed by replacing the two-candidate
+upward walk with one fixed relative path into the descendant. The breach closes
+either way; this way opens no seams.
+
+It also avoids four concrete breakages the move would have caused, each measured
+rather than argued: `REPO` (`:38`) is used as four different referents — the
+wallet directory (`:39`), the pinned validator's repo-scan target with the `>= 5`
+floor (`:721`, `:725-729`), `os.path.join(REPO, "stack.yaml")` →
+`yaml.safe_load(fh)["xfactory"]["contract_ref"]` (`:675-676`, a file LedgerxWallet
+has no business owning), and the pin checker's positional argument (`:705`); and
+`find_aggregation()` (`:560-595`) is a SECOND five-level upward walk, hunting a
+`.gitmodules` that names `openxFactory` so `check_pin_reconciliation()` can
+extract the PINNED relocation emitter (`git -C <openx> show
+<pin>:scripts/check-openxfactory-pin.py`, `:687-689`) and run it — a leg the
+parent's ratified `tasks.md` 6.2 makes this bar the ONLY observer of. One
+declared root cannot serve four referents in two repositories.
+
+**Both relocations are named successors**, each with the precondition it needs: a
+descendant-side scan pass that survives the nested prune, and an artifact floor
+restated per root.
+
+**The platform seam stays.** `schemas/holder-registry.schema.yaml`
+(`kind: ledgerx_wallet_holder_registry_contract`) declares the shape of LedgerLinc
+table 50200 "LL Wallet Holder Registry" so "the repo and the client system state
+the same facts". Its counterparty is Business Central, not the pinned product —
+R3 of the parent one layer down: the product owns the standard, the factory keeps
+the seam.
+
+**Records stay.** `specs/016-posting-segregation-of-duties/`,
+`specs/017-openxwallet-finder/`, `specs/018-openxwallet-pin-bump/`,
+`specs/019-openxwallet-consumer-repoints/` — records of acts this repository
+performed. Their PATH REFERENCES are a different matter (§ 4).
+
+**The enumeration is complete, and checkably so.**
+`git grep -l '^kind:.*wallet'` over LedgerxFactory `origin/main` returns EIGHT
+files. Seven are committed YAML artifacts: the exercise template
 (`ledgerx_wallet_exercise_template`), the holder-registry contract
-(`ledgerx_wallet_holder_registry_contract`), the distinct-holder constraint
-(`xfactory_wallet_distinct_holder_constraint`), two grants
-(`xfactory_wallet_grant`) and two wallet records (`xfactory_wallet_record`).
-Two move, five stay, and the validator moves with them — nothing wallet-kinded in
-that tree is unaccounted for above. Only two `ledgerx_wallet_*` kinds exist in
-the whole repository, and both are named in this section.
+(`ledgerx_wallet_holder_registry_contract`), the distinct-holder constraint, two
+grants and two wallet records. The eighth is
+`tests/validate_wallet_estate.py`, which matches because its NEGATIVE-PROBE
+CORPORA are embedded as Python string literals — not an artifact, and named here
+so the count is not quietly seven. ONE of the seven moves. Only two
+`ledgerx_wallet_*` kinds exist in the repository and both are named above.
 
-### 2b. A PREPARED, UNEXECUTED live window points at a relocating path
+### 3. The resolution path becomes a pin, in one repository
 
+In `tests/validate_wallet_estate.py`, `VALIDATOR_CANDIDATES` (`:53-78`) and the
+five-level walk in `find_openxfactory()` (`:81-116`) are replaced by the single
+fixed relative path `LedgerxWallet/openXwallet/scripts/validate-openxwallet.py`,
+resolved from `REPO`, with the upward walk DELETED. There is then nothing to
+break a tie between, and the commit that governs the reader is declared twice in
+`LedgerxWallet` and once in `stack.yaml`.
+
+`find_aggregation()` and `check_pin_reconciliation()` are UNTOUCHED — they
+concern the openxFactory BUNDLE pin (`xfactory.contract_ref`), a different pin,
+and the parent's ratified `tasks.md` 6.2 requires that leg to keep running.
+Leaving them alone is the point of not moving the file.
+
+Refusals gain the remediation string, and it is **`git submodule update --init
+--recursive LedgerxWallet`** — recursive, because the reader is two levels down
+(`LedgerxWallet`, then `openXwallet` inside it) and a non-recursive init
+initializes one of the two.
+
+### 4. `stack.yaml`, its digest, and a prepared live window
+
+**`stack.yaml`** — `openxwallet.contract_source` re-sourced from
+`openxFactory-nested-submodule-pin` to `LedgerxWallet-nested-submodule-pin`,
+because after this change the descendant IS how the domain consumes the product,
+and a `contract_source` naming openxFactory's gitlink would describe a path the
+tree no longer takes. `contract_ref` is UNCHANGED (`63f5a1ad…`), so the re-homing
+is bisectable against a re-pin. The parent's design D9 specified the value being
+replaced; D9 is a DESIGN DECISION rather than a spec requirement, so no delta is
+owed against `split-openxwallet-repo` — the substitution is what rule 1 compels
+once the descendant exists.
+
+**`models/protected-surface.yaml` needs a DIGEST RE-PIN, not just prose — and the
+first draft got this backwards.** That file PINS `stack.yaml` by digest
+(`:384-385`), and `docs/protected-surface.md:66-70` requires "edit it, recompute
+its digest, and update the entry with the reason recorded beside it. An
+unattributed re-pin defeats the point of pinning." The same entry records the
+cost of skipping it (`:442-445`): "The unpinned window showed as `[baseline]
+stack.yaml diverges from its pinned digest` in `validate_onboarding_contracts.py`,
+red on main for seventeen days." P5b re-pinned in the same commit (`:387-388`);
+so does this change. Separately the prose pointer at `:455` is amended — and
+`:455` is the correct coordinate, not the `:438` the first draft cited against a
+pre-P5b tree. Verified: NO digest row exists for the moved template, and
+`templates/` is not among `protected_directories` (exactly `credentials`,
+`adapters`, `policies`, `openspec/specs`, `conformance`).
+
+**A PREPARED, UNEXECUTED live window points at both changing things.**
 `specs/016-posting-segregation-of-duties/runsheet.md` carries `Status: prepared
-(this feature performs NONE of it)`, and its live window has NOT run: `## Phase 0
-— preconditions` records P0.1 and P0.2 SATISFIED and the change's own README
-entry says "What remains is the runsheet's live window (separately authorized;
-open preconditions P0.4 … then phases 1-6)". The ratified change that owns it,
-`modify-ledgerx-posting-authority-for-segregation-of-duties`, is still ACTIVE in
-LedgerxFactory's OpenSpec instance and archives on that window's 6.3.
+(this feature performs NONE of it)`; Phase 0 records P0.1–P0.3 SATISFIED and P0.4
+OPEN; the README confirms "What remains is the runsheet's live window". It links
+the relocating template relatively at `:22-23`, and `quickstart.md:19` invokes
+the neutral validator through openxFactory's checkout with `:3-7` naming that
+checkout as the prerequisite. All are repointed IN THE SAME COMMIT as the move,
+and a **P0.5 precondition is added** naming `git submodule update --init
+--recursive LedgerxWallet` — otherwise the operator inherits a procedure that
+cannot read its own template. LINKS AND PREREQUISITES ONLY: no step, actor, abort
+condition or evidence requirement is touched.
 
-**And the runsheet reaches the relocating template by a RELATIVE LINK.** At
-`runsheet.md:23`: "Record shapes: exercise records instantiate
-[templates/wallet-exercise.template.yaml](../../templates/wallet-exercise.template.yaml)".
-A `git mv` across the repository boundary makes that link dangle in an
-operational procedure whose operator is Brett, whose actors include an ADMIN and
-an OPSX lane, and whose steps mint real keys. `runsheet.md:174` also names
-`dhc-lx-create-post-01`, but BY ID rather than by path, so that reference
-survives the move; the template link does not. `quickstart.md:15` in feature 016
-likewise invokes the validator by a relative path.
+*Rejected: waiting for the window to close.* It parks P6 behind P0.4, a decision
+this change does not own.
 
-**This is a second sequencing constraint, and it is not P5b's.** The profile move
-SHALL NOT interleave with an open live window: either the window has closed and
-`modify-ledgerx-posting-authority-for-segregation-of-duties` has archived, OR the
-runsheet's and quickstart's paths are repointed IN THE SAME COMMIT as the move
-and the window's operator is told. This proposal recommends the second — waiting
-on P0.4 would park P6 behind a decision it does not own — and makes the repoint a
-task rather than an assumption. It is the one place where a topology change can
-break something that is about to be *performed*, rather than something that is
-merely read.
+### 5. The pin agrees three ways, on a declaration P5b has landed
 
-### 3. LedgerxFactory keeps the bar entry, delegating instead of duplicating
-
-LedgerxFactory has **no GitHub Actions workflow at all** — `.github/` holds
-`CODEOWNERS` and `copilot-instructions.md` and nothing else (verified on
-`origin/main`). Its estate is enforced by a HUMAN-RUN GLOB, written down at
-`docs/protected-surface.md:62`:
-
-```sh
-for f in tests/validate_*.py; do python3 "$f" || echo "FAIL $f"; done
-```
-
-**So a plain `git mv` of `tests/validate_wallet_estate.py` silently removes the
-wallet estate from the only bar that ever checks it.** There is no required
-check to repoint, which makes this quieter than a CI break, not safer. The
-change therefore keeps `tests/validate_wallet_estate.py` AT ITS PATH as a THIN
-DELEGATING ENTRY — not a copy — which resolves
-`LedgerxWallet/tests/validate_wallet_estate.py` from the LedgerxFactory root,
-invokes it with this tree as the declared estate root, and propagates its exit
-code. If the `LedgerxWallet` submodule is uninitialized the entry REFUSES with a
-named exit and a remediation string naming `git submodule update --init
-LedgerxWallet` — never a skip, on LedgerxFactory's own 2026-08-07 repo law that
-"an unreadable surface must fail, not degrade to 'empty'". One implementation
-lives in LedgerxWallet; the bar's glob contract is unbroken; nothing is forked.
-
-### 4. The moved validator gains a declared estate root
-
-The validator's scan target — `tenants/ledgerxcorp/wallets/` — stays in
-LedgerxFactory while the validator moves. This is R6's shape one layer down (the
-register stayed in openxFactory; its READER travelled with the validator), and
-it is handled the same way: by a declared scan target rather than by a walk. The
-validator takes the estate root explicitly, defaults to `..` when it is nested
-at `LedgerxFactory/LedgerxWallet`, and REFUSES with a named exit when the estate
-root holds no `tenants/*/wallets/` directory.
-
-**The estate root has THREE jobs, and naming only the first would have made this
-move break silently.** Beyond the estate scan, the validator (a) opens
-`os.path.join(REPO, "stack.yaml")` and reads
-`yaml.safe_load(fh)["xfactory"]["contract_ref"]` inside
-`check_pin_reconciliation()` — a file LedgerxWallet has no business owning — and
-(b) runs a SECOND five-level upward walk, `find_aggregation()` (`:583-594`),
-hunting a `.gitmodules` that mentions `openxFactory` so it can extract the
-PINNED relocation emitter (`git -C <openx> show <pin>:scripts/check-openxfactory-pin.py`,
-`:688`) and run it against this repository. That leg is not incidental: the
-parent's ratified `tasks.md` 6.2 makes this bar the ONLY observer of the
-deprecation window, so dropping it would un-observe an obligation another change
-depends on. All three reads re-base on the declared estate root, the second walk
-STARTS from it so nesting does not silently spend one of its five levels, and
-each of the three gets its own refusal naming which surface was unreadable.
-`design.md` D5 carries the enumeration.
-
-Its `EXPECTED_WALLETS` and
-`EXPECTED_GRANTS` sets — which today hard-code `wal-lx-creator-01`,
-`wal-lx-poster-01`, `grant-lx-create-01`, `grant-lx-post-01` — move OUT of the
-profile validator and into an estate-side declaration that the validator READS,
-because one tenant's wallet ids inside a cross-tenant profile is the same
-inversion § 2 refuses for the records themselves.
-
-### 5. The pin agrees three ways, on a declaration P5b has already landed
-
-**P5b IS MERGED** — LedgerxFactory PR #30, merge commit `b131286`, the work
-commit `1a8ec62` "P5b: the dead finder candidate goes, and the wallet pin becomes
-a declaration", Speckit feature `019-openxwallet-consumer-repoints`, 2026-08-27.
-That was this change's one hard precondition and it is discharged: P6 now amends
-a DECLARED pin rather than inventing one, and narrows a finder nobody else is
-concurrently editing. What P5b left in `stack.yaml` is a sibling `openxwallet:`
-block (`:51-62`) mirroring `xfactory:` field for field —
-`contract_repo: github.com/opensoft/openXwallet`, `contract_ref_type: commit`,
+**P5b IS MERGED**, so P6 amends a declared pin rather than inventing one. The
+block (`stack.yaml:51-62`) mirrors `xfactory:` field for field at
 `contract_ref: 63f5a1adac89f017e70bab9a4ffe7cf02d6e6705`,
-`contract_bundle_tag: wallet-v1.1`, `contract_declared_at: "2026-08-27"`,
-`contract_source: openxFactory-nested-submodule-pin` — under a comment block
-that states its own derivation: "it is openxFactory's nested `openXwallet`
-gitlink at contract-v2.0, which agrees with the `commit:` field of that
-release's contracts/openxwallet-pin.yaml". **That derivation is exactly what this
-change replaces**, because after P6 the domain consumes through its descendant
-and not through openxFactory's gitlink. The invariant this change introduces and
-owes a check:
+`contract_bundle_tag: wallet-v1.1`, `contract_source: openxFactory-nested-submodule-pin`,
+under a comment stating its own derivation — "openxFactory's nested `openXwallet`
+gitlink at contract-v2.0". That derivation is what this change replaces.
 
-> **LedgerxFactory's DECLARED `stack.yaml` `openxwallet.contract_ref` = LedgerxWallet's `contracts/openxwallet-pin.yaml` `revision` = LedgerxWallet's nested `openXwallet` gitlink commit.** Three declarations of one commit, and a disagreement REFUSES rather than picking a winner.
+> **LedgerxWallet's `openXwallet` gitlink = LedgerxWallet's `contracts/openxwallet-pin.yaml` `revision` = LedgerxFactory's `stack.yaml` `openxwallet.contract_ref`.** Three declarations of one commit.
 
-`contract_source:` moves from `openxFactory-nested-submodule-pin` to
-`LedgerxWallet-nested-submodule-pin`, because after this change the descendant IS
-how the domain consumes the product — that is rule 1 — and a `contract_source`
-naming openxFactory's gitlink would describe a consumption path the tree no
-longer takes. `contract_ref` itself does NOT change: openXwallet's `wallet-v1.1`
-is an ANNOTATED tag (`021cdeef…`) dereferencing to commit
-`63f5a1adac89f017e70bab9a4ffe7cf02d6e6705`, which is also openXwallet's `main`
-HEAD and what openxFactory's own `contracts/openxwallet-pin.yaml` pins today —
-so the pin task must resolve `wallet-v1.1^{commit}` and never the bare tag name.
-Re-pointing the pin and re-homing it in the same act would make the change
-unbisectable. **Agreement with openxFactory's pin is the STARTING state, not an
-invariant:** LedgerxWallet and openxFactory are independent consumers of the
-same product, governed by different pins, and may legitimately diverge later.
-Such a divergence is NOT an error and is checked by nothing — stated that way
-deliberately, because an earlier draft of this section said it would be
-"REPORTED" and named no reporter, which is the LS-A3 shape. After this change
-the commit that governs the Ledgerx estate is the one LedgerxWallet pins, and
-that is the whole of the claim. What IS checked is the three-way agreement above,
-by the delegating bar entry, before it invokes anything.
+`wallet-v1.1` is an ANNOTATED tag (object `021cdeef…`) dereferencing to
+`63f5a1adac89f017e70bab9a4ffe7cf02d6e6705`, also openXwallet's `main` HEAD and
+what openxFactory's own pin records — so the pin task resolves
+`wallet-v1.1^{commit}`, never the bare tag.
 
-### 6. Placement: nested only, and the aggregation is untouched
+**What checks it, and what does not.** `LedgerxWallet/tests/validate_pin.py`
+checks (1) against (2) in the descendant, where the ratified rule puts it, and
+its workflow makes that a real check. Whether (3) agrees is checked by the
+estate validator when the bar is run — running code, in a HUMAN-RUN bar, because
+LedgerxFactory has no GitHub Actions workflow at all (`.github/` holds
+`CODEOWNERS` and `copilot-instructions.md`). **That is the honest form of the
+claim, and this change does not dress it as a required check.**
+
+**Three further declarations exist and are deliberately outside the invariant:**
+openxFactory's own pin manifest and nested gitlink, and the aggregation's root
+gitlink when P4 lands. `neutral-product-pin`'s "consuming repository's pin is
+authoritative" requirement binds the aggregation-root ↔ openxFactory-nested pair.
+A THIRD reachable checkout at `LedgerxFactory/LedgerxWallet/openXwallet`
+therefore neither breaks nor widens that rule — **it falls OUTSIDE it, and
+nothing in the corpus will ever compare the descendant's gitlink to either of the
+two the rule covers.** That is accepted rather than overlooked: LedgerxWallet and
+openxFactory are independent consumers of one product, may legitimately pin
+different commits, and such a divergence is NOT an error and is checked by
+nothing. Said plainly because an earlier draft called it "REPORTED" and named no
+reporter, which is the LS-A3 shape this corpus knows by name.
+
+### 6. Placement: nested only, and the price named
 
 LedgerxWallet is nested at `LedgerxFactory/LedgerxWallet` — the RATIFIED
-placement, on the DTN-022 precedent this domain already realizes for
-`LedgerxAvatar`. The aggregation's `xFactories/` placement is **deliberately not
-taken in v1**: the descendant has no standalone-cloning need (its only consumer
-is the tree it is nested in), and the `xFactories/` placement's standing is
-REALIZED-BUT-NOT-YET-RATIFIED until `create-medxchart-overlay-boundary`
-archives. If it is added later, the ratified rule already binds the follow-on:
-both gitlinks must name the same commit. The new LedgerxFactory `.gitmodules`
-section is named `LedgerxWallet`, matching its path — noted because the existing
-entry's section name is `ledgerXavatar` against a path of `LedgerxAvatar`, and
-this change does not propagate that mismatch.
+placement, the one this domain already realizes for `LedgerxAvatar`. The
+aggregation's `xFactories/` placement is NOT taken: the descendant has no
+standalone-cloning need (its only consumer is the tree it is nested in, which is
+the criterion the ratified rule itself names), and that placement's standing is
+REALIZED-BUT-NOT-YET-RATIFIED. If it is added later, the ratified rule binds the
+follow-on — both gitlinks name the same commit. The new `.gitmodules` section is
+named `LedgerxWallet`, matching its path; the existing entry is
+`[submodule "ledgerXavatar"]` against `path = LedgerxAvatar`, and this change
+does not propagate that mismatch.
 
 ## Capabilities
 
 ### New Capabilities
 
-- **`ledgerxwallet-overlay-boundary`** — the repository, pin and profile
-  contract for the FIRST domain descendant created under
-  `domain-descendant-boundary`: that LedgerxWallet is the only path by which
-  the Ledgerx domain consumes openXwallet; that the pin is declared twice and
-  agrees three ways with the domain's `stack.yaml`; that the profile relocates
-  while the tenant estate stays; and that the estate's coverage by
-  LedgerxFactory's glob bar survives the move by delegation rather than by
-  duplication.
+- **`ledgerxwallet-overlay-boundary`** — the repository, pin and profile contract
+  for the FIRST domain descendant created under `domain-descendant-boundary`:
+  that LedgerxWallet is the only path by which the Ledgerx domain RESOLVES
+  openXwallet; that the pin is declared twice in one commit and checked by the
+  descendant's own validator; that the descendant carries profile and never the
+  tenant estate or a fork; and that a relocation reduces no coverage.
 
 ### Modified Capabilities
 
-- None. `domain-descendant-boundary` and `neutral-product-pin` are ratified by
-  `split-openxwallet-repo` and **not yet promoted into `openspec/specs/`** —
-  verified 2026-08-27: `openspec/specs/` holds 52 capabilities and neither of
-  those two is among them, because that change archives only on merged plus
-  green realization evidence. This change therefore cites them as
-  RATIFIED-IN-CHANGE and issues no delta against them. It does not amend them,
-  and if the bench wants one of its rules changed, that is an amendment to
+- None. `domain-descendant-boundary` and `neutral-product-pin` are RATIFIED-IN-CHANGE
+  and **not yet promoted into `openspec/specs/`** — verified: it holds 52
+  capabilities and neither is among them, because that change archives only on
+  merged plus green realization evidence. This change cites them as ratified and
+  issues no delta; a wanted rule change is an amendment to
   `split-openxwallet-repo`, not a requirement here.
 
 ## Impact
 
 - **A new repository exists that did not.** `opensoft/LedgerxWallet` does not
-  exist today (verified 2026-08-27: `gh repo view opensoft/LedgerxWallet` →
-  "Could not resolve to a Repository"). Creating it, its ruleset, and its first
-  tag are `[OPERATOR]` acts and are marked as such.
-- **`profile/custody-posture.yaml` is NEW, not a move, and is named as such.**
-  The Ledgerx wallet custody posture — `custody.model: holder_readable`,
-  environment-evidencing, authority ceiling `act`, "the audit record says
-  'environment', never 'holder'" — exists today ONLY in YAML COMMENTS inside the
-  two wallet records and in the ratification prose of
-  `modify-ledgerx-posting-authority-for-segregation-of-duties` (2026-08-08).
-  There is no custody policy artifact in LedgerxFactory: `policies/` holds eight
-  files and none is wallet custody; `docs/` holds twenty-one and none is either.
-  Declaring the posture as a profile artifact is permitted (it is profile, not
-  fork) and is worth doing in the same act that creates the profile's home — but
-  it is a NEW ARTIFACT and this proposal does not launder it as a relocation.
-  The bench may cut it to a successor with no other consequence.
-- **A registered kind loses its artifact.**
-  `tests/validate_document_estate_surface.py` maintains an allowed-kinds list
-  that registers `ledgerx_wallet_exercise_template` with a CHK002 note
-  ("RED-confirmed 2026-08-08 … on the staged
-  `templates/wallet-exercise.template.yaml`"). When the template leaves the
-  tree, that registration names an artifact that is gone. Amending it is a task
-  in this change; leaving it would be a stale registration in a surface gate,
-  and the surrounding entries show that file treats its registrations as
-  load-bearing.
-- **`models/protected-surface.yaml` needs a prose amendment only.** Verified: it
-  carries NO digest row for any of the three moved paths; the single wallet
-  mention at `:438` is inside the narrative of a `stack.yaml` pin entry
-  ("RED-proven by `validate_wallet_estate.py`'s platform-verifiability pin
-  before the flip"). That sentence stays TRUE as history; what changes is where
-  the named file lives, so the amendment is a pointer, not a re-pin.
-- **Authorship provenance is lost by `git log` and must be kept in prose.** The
-  three moved files were authored under
+  resolve today. Creating it, its ruleset and its first tag are `[OPERATOR]` acts.
+- **The Ledgerx reader becomes gitlink-verified rather than digest-verified.**
+  openxFactory's pin carries eight per-file `sha256` (`:70-86`), a
+  `pinned_by_commit_only:` set (`:95-101`) and `verify_pin:
+  scripts/verify-openxwallet-pin.py` (`:64`). The descendant's pin carries a
+  commit and no digests. This CONFORMS — rule 2 requires only commit-twice of a
+  descendant, and `neutral-product-pin` is scoped to openxFactory and to REQUIRED
+  checks, of which LedgerxFactory has none — but it is a reduction in EFFECT and
+  is stated rather than discovered. Digest verification of openXwallet remains
+  openxFactory's.
+- **A nested-only descendant is outside EVERY governed-repo enumeration in the
+  corpus.** `scripts/sync-notebooklm-books.py:652-653` matches only
+  `^\s*path\s*=\s*(xFactories/\S+)\s*$`, and its `in_nested_checkout()`
+  (`:629-641`, skipped at `:767`) excludes any path below a `.git`-carrying
+  directory — so `xFactories/LedgerxFactory/LedgerxWallet/**` is excluded from
+  LedgerxFactory's OWN book walk by construction.
+  `scripts/doc_health/ideation_routing.py:225-235` admits only `openxFactory` and
+  `xFactories/<Name>`. And the parent's P4b widens exactly these two sites by an
+  allowlist of ROOT-LEVEL neutral products — a nested domain descendant is
+  outside the set before that widening and after it. **The ratified precedent is
+  already in this hole:** the aggregation `.gitmodules` carries no `MedxAvatar`
+  and no `LedgerxAvatar` entry. Accepted here because the descendant carries no
+  ideation corpus; registered as a successor rather than left to be found.
+- **A registered kind loses its artifact, and a maintained comment goes false.**
+  `tests/validate_document_estate_surface.py` registers
+  `ledgerx_wallet_exercise_template` with a CHK002 note (`:1116-1121`), and its
+  comment block at `:1086-1098` says the validator "runs from openxFactory's
+  nested gitlink … see `find_openxfactory()` in `tests/validate_wallet_estate.py`
+  for the ordered candidates. Corrected at P5b". Both become false; that
+  "Corrected at P5b" is proof the prose is maintained and load-bearing, not stale.
+- **P5b and P3b are both DISCHARGED.** P5b as above; P3b — codexFactory's
+  merge-gate floor — merged 2026-08-27T21:53 as PR opensoft/codexFactory#117,
+  merge commit `58bd3cf7`. **P4 remains open** (the aggregation's root
+  `openXwallet` gitlink) and P6 touches no aggregation path, so it does not gate
+  this change. The first draft wrongly listed P3b as open.
+- **Green-run tasks need an initialized checkout as a stated precondition.** In a
+  workspace where `LedgerxWallet/openXwallet` is uninitialized the bar refuses —
+  correctly — so every "the bar is green" claim names the initialization it
+  depended on.
+- **Provenance moves to prose.** The relocated template was authored under
   `modify-ledgerx-posting-authority-for-segregation-of-duties` (ratified
-  2026-08-08) and amended by Speckit features 016/017/018. A fresh-repo scaffold
-  carries none of that history. LedgerxWallet's `README.md` records the origin
-  repository, the authoring change, the Speckit features, and the commit each
-  file came from.
-- **P5b, this change's one precondition on another packet, is DISCHARGED**
-  (LedgerxFactory PR #30, `b131286`, 2026-08-27). The remaining precondition is
-  LedgerxFactory's OWN: the feature-016 live window, handled by § 2b as a
-  same-commit repoint rather than by waiting.
-- **Two other wave items are open and neither gates P6.** P4 — the aggregation's
-  root `openXwallet` gitlink — is not landed (`/home/brett/projects/xFactory/.gitmodules`
-  carries `openAvatar` at root and no `openXwallet`), and P3b — codexFactory's
-  merge-gate floor — is codexFactory's. P6 touches neither surface. Stated so the
-  bench does not have to check.
-- **Two openxFactory files change and nothing else.** This packet and one
-  README "OpenSpec Records" entry. No contract, no schema, no manifest row, no
-  release surface, no validator.
+  2026-08-08). A fresh-repo scaffold carries no `git log`, so LedgerxWallet's
+  `README.md` records the origin repository, the authoring change, and the commit
+  the file came from. Prose provenance is weaker than history; naming it as weaker
+  is the point.
 
 ## Successors named
 
-- **`MedxWallet`, `codexWallet`, `OpsxWallet`, `AdxWallet`** — each lazily, on
-  its domain's first wallet profile artifact (R7/R8 and rule 5). None has one
-  today; the names are registered and no repository is created.
-- **The `xFactories/LedgerxWallet` aggregation placement** — if and when
-  standalone cloning is actually needed, and on the ratified both-placements
-  rule that the two gitlinks then name the same commit.
-- **The `xfactory_wallet_*` → `openxwallet_*` kind-prefix rename** (Q3 of the
-  parent, owned by openXwallet). LedgerxWallet's profile pins those kind
-  strings by name, so it becomes a second re-pin site. Recorded so the
-  successor's blast radius is known, not owned here.
-- **A REQUIRED check for the three-way pin agreement.** LedgerxFactory has no
-  GitHub Actions workflow at all, so what this change builds is RUNNING CODE in a
-  HUMAN-RUN bar — the delegating entry reads all three declarations and refuses
-  on any disagreement before invoking anything — and NOT a required check. The
-  distinction is stated rather than blurred: a control described but not wired is
-  the failure LS-A3 exists to forbid, and the honest form of this claim is "a bar
-  anyone can run, that fails loudly, whose absence from CI is a successor".
-  Giving LedgerxFactory its first workflow is that successor and is bigger than
-  this change.
-- **Governed-repo recognition for a NESTED descendant.** openxFactory's
-  enumerations key on `xFactories/<Name>`, and the parent's P4b widens them by an
-  allowlist of ROOT-LEVEL neutral products — neither admits a nested gitlink. So
-  a nested-only `LedgerxWallet` is outside the notebook projection and the
-  ideation routing, exactly as `MedxAvatar` has been for five months under the
-  same ratified placement. Accepted here because the descendant carries no
-  ideation corpus; the remedy, if it ever does, is the `xFactories/` gitlink or a
-  nested-descendant widening, and either is a separate change.
+- **The estate validator's relocation** — as a validator SPLIT (the governance
+  half, which reads `stack.yaml` and runs the pinned relocation emitter, stays in
+  LedgerxFactory; the profile half moves), with the four measured breakages in
+  § 2b as its work list.
+- **The distinct-holder constraint's relocation** — gated on a descendant-side
+  scan pass that survives openXwallet's nested-repository prune, plus the `>= 5`
+  artifact floor restated per root.
+- **A declared Ledgerx wallet custody posture.** The posture exists today only in
+  YAML comments in the two wallet records and in the 2026-08-08 ratification
+  prose; a first draft authored it here. Withdrawn: nothing would read it (the
+  validator keeps its thresholds at `:141-142` and `:770-773`), and a repo-level
+  posture beside per-record `custody.model` is a second declaration of one fact
+  with no reconciliation rule. The successor decides its reader and its home
+  together — and under LedgerxFactory's own rules an ENFORCED posture belongs in
+  the digest-protected `policies/`, not an unprotected `profile/` tree.
+- **Governed-repo recognition for a NESTED descendant** — which would also
+  finally cover `MedxAvatar` and `LedgerxAvatar`.
+- **A REQUIRED check in LedgerxFactory.** It has no workflow at all; giving it its
+  first one is bigger than this change.
+- **`MedxWallet`, `codexWallet`, `OpsxWallet`, `AdxWallet`** — each lazily, on its
+  domain's first wallet profile artifact.
+- **The `xFactories/LedgerxWallet` placement**, if standalone cloning is ever
+  needed, on the both-gitlinks-one-commit rule.
+- **The `xfactory_wallet_*` → `openxwallet_*` kind-prefix rename** (parent Q3).
+  The relocated template pins those strings by name, so LedgerxWallet becomes a
+  re-pin site.
 
 ## Out of scope, deliberately
 
-- **Moving `tenants/ledgerxcorp/wallets/{wal-*,grant-*}`.** Q2's recommended
-  disposition is that they stay; the bench decides.
-- **Any content change to the moved files beyond the mechanical three:** the
-  DHC's new path, the validator's declared estate root, and the expected-set
-  extraction. No rule is added, removed or re-worded, and the negative-probe
-  corpora are byte-unchanged.
-- **Any change to openXwallet.** It is consumed at the published `wallet-v1.1`
-  and not re-cut. Anything the profile cannot express is an upstream change
-  there — rule 3 — and this change finds nothing of the kind.
-- **Any change to the aggregation.** § 6.
-- **The LedgerLinc / BC enforcement half.** The extension's posting surface,
-  table 50200 and the holder registry are the platform seam and stay.
-- **Re-widening the finder.** P5b narrowed it to two candidates and its removal
-  note forbids restoring the third. This change narrows it further — to
-  LedgerxWallet's own nested gitlink, one deterministic candidate, no upward walk
-  — and adds no candidate back.
-- **Promoting `domain-descendant-boundary` into `openspec/specs/`.** That
-  happens when `split-openxwallet-repo` archives, on its own realization
-  evidence.
+- **Moving the tenant estate** (Q2), **the distinct-holder constraint** or **the
+  estate validator** (§ 2b). All three are successors with stated preconditions.
+- **Any content change to the moved template.** Its placeholder ids stay as they
+  are; generalizing them is a separate act.
+- **Any change to `opensoft/openXwallet`.** Consumed at `wallet-v1.1`, not
+  re-cut. Rule 3 routes anything the profile cannot express upstream, and this
+  change finds nothing of the kind.
+- **Any change to the xFactory aggregation** (§ 6).
+- **The LedgerLinc / Business Central enforcement half.**
+- **Re-widening the finder.** P5b narrowed it to two and forbade restoring the
+  third; this change narrows it to one and adds none back.
+- **Promoting `domain-descendant-boundary` into `openspec/specs/`.**
 
 ## Open questions
 
 **Q2 (carried from the parent, its one open question) — do
-`tenants/ledgerxcorp/wallets/*` move into LedgerxWallet, or stay as tenant
-data?** `split-openxwallet-repo`'s ratification record carries Q2 forward
-explicitly: "Stays for `create-ledgerxwallet-overlay-boundary` (P6); the
-profile/instance line is the owning domain's call."
+`tenants/ledgerxcorp/wallets/*` move into LedgerxWallet, or stay as tenant data?**
+The parent's ratification carries it forward explicitly: "Stays for
+`create-ledgerxwallet-overlay-boundary` (P6); the profile/instance line is the
+owning domain's call."
 
-**Recommendation: STAY in LedgerxFactory as tenant data, while LedgerxWallet
-carries the PROFILE** — the exercise template, the distinct-holder constraint
-set, the estate validator, and the declared custody posture. The line is
-profile-versus-instance, and the four estate records fall on the instance side
-on their own contents: holder ids, DIDs, key ids, `expires_at`, `issued_by`, and
-a `state:` field whose truthfulness is maintained per live evidence window.
-A profile repository holding one tenant's identity estate would be reusable by
-construction and un-reusable in fact. The counter-case is real and worth stating:
-keeping them apart means the validator and its scan target live in two
-repositories, which § 4 pays for with a declared estate root and § 3 pays for
-with a delegating bar entry. That is two seams accepted to keep the
-profile/instance line clean — and the alternative (move everything) buys one
-repository at the cost of making the second Ledgerx tenant a fork question.
+**Recommendation: STAY in LedgerxFactory as tenant data.** Three reasons, in
+increasing force. (1) The records fall on the instance side on their own
+contents — holder ids, DIDs, key ids, `expires_at`, `issued_by`, and a `state:`
+"kept truthful by the session that closes each window". (2) A nested descendant's
+YAML is pruned from openXwallet's own sweep (`sweep_candidates`, `:2063`,
+`:2135-2142`), so moving the estate would move it OUT of adjudication — the
+opposite of what a boundary is for. (3) **Those five files are the commit target
+of the runsheet's unexecuted Phase 3.4** — a procedure that mints real keys and
+flips wallet state. Relocating the write target of a prepared live window is a
+risk with no offsetting benefit.
 
-**This is the one question this proposal carries.** Everything else is either a
-ratified constraint or a decision this packet takes and defends.
+LedgerxWallet therefore carries the PIN and the profile artifact whose move costs
+nothing, and grows the rest of the profile through the two named successors as
+each earns its preconditions.
+
+**This is the one question this proposal carries.** Everything else above is a
+ratified constraint, a decision this packet takes and defends, or a correction it
+made to itself.

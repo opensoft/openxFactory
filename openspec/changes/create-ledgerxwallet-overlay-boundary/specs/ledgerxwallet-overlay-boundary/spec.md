@@ -7,91 +7,98 @@
 `opensoft/openXwallet` product at an IMMUTABLE COMMIT declared TWICE — once as a
 nested submodule gitlink at `openXwallet/`, and once as a committed pin manifest
 at `contracts/openxwallet-pin.yaml` carrying `schema_version: 1`,
-`kind: ledgerxwallet_openxwallet_pin`, `submodule_path: openXwallet`,
-`revision_kind: commit` and `relationship: pinned_upstream_composition` — and
-BOTH declarations SHALL be changed in the SAME commit. The pin MUST identify the
-repository and revision without depending on a host-absolute filesystem path. A
-release tag MAY be recorded beside the commit as a human-readable label
-(`contract_bundle_tag`), never as the thing being trusted, and the pin SHALL NOT
-express a version range. This instantiates
-`domain-descendant-boundary`'s "A descendant pins the product by commit, twice",
-whose kind form `<descendant_repo_snake>_<product_snake>_pin` and whose
-`relationship:` field are taken from the live example
-`MedxChart/contracts/openchart-pin.yaml`; the differently shaped
-`MedxAvatar/pins/openavatar.yaml` is NOT retro-fitted and is NOT followed.
+`kind: ledgerxwallet_openxwallet_pin` and a `pin:` mapping holding `repository`,
+`remote`, `revision`, `revision_kind: commit`, `submodule_path: openXwallet` and
+`relationship: pinned_upstream_composition` — and BOTH declarations SHALL be
+changed in the SAME commit. The pin MUST identify the repository and revision
+without depending on a host-absolute filesystem path. A release tag MAY be
+recorded beside the commit as a human-readable label, never as the thing being
+trusted, and the pin SHALL NOT express a version range. Where the pinned tag is
+ANNOTATED, the recorded revision SHALL be the dereferenced commit and never the
+tag object.
 
 #### Scenario: LedgerxWallet is checked out
 - **WHEN** a developer checks out LedgerxWallet and initializes its submodules
 - **THEN** the nested `openXwallet/` checkout resolves to the commit recorded in `contracts/openxwallet-pin.yaml`
-- **AND** the pin manifest and the gitlink name the same commit
 
 #### Scenario: The pin manifest and the gitlink disagree
 - **WHEN** `contracts/openxwallet-pin.yaml` and the nested `openXwallet/` gitlink name different commits
-- **THEN** the tree is REFUSED rather than either being preferred, because an unanswerable question is never an implicit pass
+- **THEN** the descendant's OWN validator REFUSES the tree rather than preferring either, because an unanswerable question is never an implicit pass
 
 #### Scenario: Only one of the two pins moves
 - **WHEN** a commit changes the gitlink without changing the pin manifest, or changes the pin manifest without moving the gitlink
-- **THEN** the change is refused, because the same-commit rule is what makes the two declarations one act
+- **THEN** the descendant's own validator REFUSES, because the same-commit rule is what makes the two declarations one act
 
 #### Scenario: The pin names a tag and no commit
-- **WHEN** the pin file records `wallet-vN.M` but no 40-hex commit
-- **THEN** the pin is refused, because a tag can be moved and a commit cannot
+- **WHEN** the pin file records a bundle tag but no 40-hex commit, or records an annotated tag's object id in place of the commit
+- **THEN** the descendant's own validator REFUSES, because a tag can be moved and a commit cannot
 
 #### Scenario: Upstream openXwallet advances
 - **WHEN** `opensoft/openXwallet` receives a new commit or a new bundle tag
 - **THEN** the existing LedgerxWallet checkout remains at its prior recorded commit
-- **AND** adopting the new revision is a PIN BUMP that moves both declarations together, never a moving reference
+- **AND** adopting the new revision is a PIN BUMP moving both declarations together, never a moving reference
 
-### Requirement: The Ledgerx domain consumes openXwallet only through the nested LedgerxWallet descendant
-`LedgerxFactory` SHALL consume `openXwallet` exclusively through a
-`LedgerxWallet` descendant nested as a submodule at `LedgerxWallet`, and SHALL
-NOT resolve that product's contracts, schemas, corpus or validator by any path
-outside the descendant — no directory-adjacency walk, no candidate list reaching
-into another repository's checkout, and no in-tree copy. LedgerxFactory's
-`stack.yaml` DECLARED `openxwallet:` block SHALL record
-`contract_source: LedgerxWallet-nested-submodule-pin`, and its `contract_ref`
-SHALL EQUAL both LedgerxWallet declarations, so that the commit governing the
-Ledgerx estate has ONE answer stated in THREE places. The nested placement is the
-RATIFIED placement of `domain-descendant-boundary` (`MedxAvatar` in
-`MedxFactory`, DTN-022); the aggregation's `xFactories/` placement is NOT taken
-here, and if it is ever added the two gitlinks SHALL name the same commit.
+### Requirement: The Ledgerx domain resolves openXwallet only through the nested LedgerxWallet descendant
+`LedgerxFactory` SHALL resolve `openXwallet`'s validator, contracts, schemas and
+corpus exclusively through a `LedgerxWallet` descendant nested as a submodule at
+`LedgerxWallet`, at a FIXED relative path, and SHALL NOT resolve them by
+directory adjacency — no upward walk, no candidate list reaching into another
+repository's checkout, and no in-tree copy. This binds every resolution site in
+the domain tree, tooling and written procedure alike. LedgerxFactory's declared
+`stack.yaml` `openxwallet:` block SHALL record
+`contract_source: LedgerxWallet-nested-submodule-pin` and a `contract_ref` equal
+to both LedgerxWallet declarations, so the commit governing the Ledgerx estate
+has ONE answer stated in THREE places. The nested placement is the RATIFIED
+placement of `domain-descendant-boundary`; the aggregation's `xFactories/`
+placement is not taken here, and if it is ever added the two gitlinks SHALL name
+the same commit.
 
 #### Scenario: A resolver reaches outside the descendant
-- **WHEN** a LedgerxFactory tool resolves the openXwallet validator at a path outside `LedgerxWallet/openXwallet/`, such as a parent directory's `openxFactory/openXwallet/` or the aggregation's root gitlink
+- **WHEN** a LedgerxFactory tool or documented procedure resolves the openXwallet validator at a path outside `LedgerxWallet/openXwallet/` — a parent directory's `openxFactory/openXwallet/`, the aggregation's root gitlink, or a pre-carve in-tree copy
 - **THEN** the resolution is a direct integration of the product and is refused, because only the descendant's own gitlink is governed by `contracts/openxwallet-pin.yaml`
 
+#### Scenario: Candidate order stands in for a pin
+- **WHEN** more than one checkout of the product is reachable and the domain resolves between them by ORDERING candidates
+- **THEN** the ordering is a tie-break rather than a pin, and it does not satisfy this requirement
+
 #### Scenario: The declared pin and the descendant's pin disagree
-- **WHEN** LedgerxFactory's `stack.yaml` `openxwallet.contract_ref` names a commit other than the one LedgerxWallet's pin manifest and gitlink name
-- **THEN** the disagreement REFUSES rather than picking a winner, and the estate is not validated against either
+- **WHEN** `stack.yaml` `openxwallet.contract_ref` names a commit other than the one LedgerxWallet's pin manifest and gitlink name
+- **THEN** the disagreement is a finding of the domain's own estate bar when that bar is run, and the estate is not validated against either
 
 #### Scenario: openxFactory's own pin moves independently
-- **WHEN** `openxFactory`'s `contracts/openxwallet-pin.yaml` is bumped to a different openXwallet commit than LedgerxWallet pins
-- **THEN** that is PERMITTED and is NOT an error, because openxFactory and LedgerxWallet are independent consumers of the same product governed by different pins
-- **AND** the commit governing the Ledgerx estate remains the one LedgerxWallet pins, so no tool is required to reconcile them and none SHALL claim to
+- **WHEN** `openxFactory`'s pin or the aggregation's root gitlink names a different openXwallet commit than LedgerxWallet pins
+- **THEN** that is PERMITTED and is NOT an error, because they are independent consumers governed by different pins
+- **AND** it falls OUTSIDE `neutral-product-pin`'s root-equals-nested rule, so no existing check compares them and none SHALL be described as doing so
 
-#### Scenario: A third placement is proposed
-- **WHEN** LedgerxWallet is aggregated anywhere other than nested in LedgerxFactory or under the aggregation's `xFactories/`
-- **THEN** the placement is refused until a change ratifies it
+#### Scenario: A ratified illustration stops describing this consumer
+- **WHEN** `neutral-product-pin`'s illustration says a walk-up resolver in a consumer repository "resolves the NESTED checkout, because that is the one the consuming repository's pin governs"
+- **THEN** after this change that sentence no longer describes LedgerxFactory, whose governing pin is its DESCENDANT's rather than `openxFactory`'s nested one
+- **AND** the neutral requirement is NOT amended by this capability, because it is a statement about `openxFactory`'s own consumption and the illustration's consumer example is not its normative content
 
-### Requirement: LedgerxWallet carries the Ledgerx wallet PROFILE and never the tenant estate, and never a fork
+#### Scenario: The parent's capabilities are promoted
+- **WHEN** `split-openxwallet-repo` archives and `domain-descendant-boundary` and `neutral-product-pin` enter `openspec/specs/`
+- **THEN** this capability's citations resolve against the promoted specs unchanged, because it restates none of their requirements as its own law
+- **AND** any conflict discovered at that point is resolved in the neutral capability by an explicit delta, never by re-reading this one
+
+### Requirement: LedgerxWallet carries profile, never the tenant estate, and never a fork
 `LedgerxWallet` SHALL carry ONLY the Ledgerx interpretation of the wallet product
-— the exercise-record instantiation template, the distinct-holder constraint
-sets, the declared custody posture, branding and deploy configuration, and domain
-validators over those profile artifacts — and SHALL NOT carry a fork, an edited
-copy or a re-authoring of openXwallet's contracts, schemas, corpus or validator.
-The TENANT ESTATE — wallet records, capability grants, keys, exercise records and
-any other artifact carrying a tenant's holder ids, DIDs, key ids, issuance or
-expiry — SHALL remain in `LedgerxFactory` under `tenants/<tenant>/wallets/`,
-because a profile repository holding one tenant's identity estate is reusable by
-construction and un-reusable in fact. The PLATFORM SEAM — the Business Central
-holder-registry contract and the enforcement projection it declares — SHALL also
-remain in LedgerxFactory. Anything the profile cannot express SHALL be an
-UPSTREAM change in `opensoft/openXwallet`, released and re-pinned, never a local
-edit.
+— instantiation templates, overlays, branding, deploy configuration and domain
+validators over its own artifacts — and SHALL NOT carry a fork, an edited copy or
+a re-authoring of openXwallet's contracts, schemas, corpus or validator. The
+TENANT ESTATE — wallet RECORDS, capability GRANTS, keys and exercise RECORDS
+carrying a tenant's holder ids, DIDs, key ids, issuance or expiry — SHALL remain
+in `LedgerxFactory`. The PLATFORM SEAM — the Business Central holder-registry
+contract and the enforcement projection it declares — SHALL also remain there.
+Anything the profile cannot express SHALL be an UPSTREAM change in
+`opensoft/openXwallet`, released and re-pinned, never a local edit.
 
 #### Scenario: A tenant estate record is proposed into the descendant
 - **WHEN** a wallet record, capability grant or exercise record carrying a tenant's holder id, DID or key id is added to LedgerxWallet
 - **THEN** it is refused and filed in LedgerxFactory's tenant estate, because the profile/instance line is what makes the descendant reusable across tenants
+
+#### Scenario: A template names its domain's live ids as placeholder guidance
+- **WHEN** an instantiation template carries this domain's wallet, grant, key or holder ids as example strings inside placeholder markers rather than as declared facts
+- **THEN** it remains profile, because a stub that shows which ids to substitute is guidance and not an estate record
 
 #### Scenario: The profile cannot express what the domain needs
 - **WHEN** the Ledgerx domain needs wallet behaviour its profile shape cannot express
@@ -99,82 +106,55 @@ edit.
 
 #### Scenario: An edited copy of pinned content appears in the descendant
 - **WHEN** LedgerxWallet's tree holds a modified copy of a file the openXwallet pin covers
-- **THEN** the descendant is a fork, the copy is refused, and the pin's recorded commit is what detects it
+- **THEN** the descendant is a fork and the copy is refused
+- **AND** because this pin records a commit and no per-file digests, what detects it is the descendant's own validator comparing the CHECKED-OUT `openXwallet/` revision and cleanliness to the pin — not the digest comparison `domain-descendant-boundary`'s scenario names, whose detector this pin deliberately does not carry (declared as a reduction in effect, not as an amendment to that rule)
 
-#### Scenario: A domain-wide constraint is filed under a tenant path
-- **WHEN** a distinct-holder constraint set naming no tenant, no wallet and no key sits under `tenants/<tenant>/wallets/`
-- **THEN** it is MIS-FILED domain policy, and it belongs in the descendant's profile rather than in the tenant estate
+### Requirement: A relocation into the descendant SHALL reduce no coverage and break no prepared procedure
+Relocating an artifact from `LedgerxFactory` into `LedgerxWallet` SHALL NOT
+reduce the checking that artifact and its neighbours received before the move,
+and SHALL NOT leave a written procedure pointing at a path that no longer exists.
+Because the pinned product's own sweep PRUNES NESTED REPOSITORIES from
+adjudication, an artifact the sweep adjudicates SHALL NOT be relocated into the
+nested descendant until a scan pass exists that reaches it there; and any
+count-based or lookup-based check whose inputs the relocation changes SHALL be
+restated in the same act. Every reference to a relocated path — tooling, README,
+runsheet, quickstart — SHALL be repointed IN THE SAME COMMIT as the relocation,
+and where reaching the new location requires initializing a submodule, the
+procedures that reach it SHALL gain that initialization as a stated precondition
+with its exact command.
 
-#### Scenario: The descendant adds a domain validator
-- **WHEN** LedgerxWallet adds a validator that checks its own profile artifacts and the domain vocabulary against the pinned product's schemas
-- **THEN** that is permitted, because it interprets the product rather than re-authoring it
+#### Scenario: An adjudicated artifact is proposed for relocation
+- **WHEN** relocating an artifact that the pinned product's repo scan adjudicates as a live record
+- **THEN** the relocation is deferred until a scan pass reaches the descendant, because a nested repository is pruned from that sweep and the artifact would be adjudicated by nothing
 
-### Requirement: Relocating the profile preserves the estate's coverage and declares its scan target
-The relocation of the Ledgerx wallet profile out of `LedgerxFactory` SHALL NOT
-reduce the coverage the estate had before it, and the moved validator SHALL take
-its scan target as a DECLARED ESTATE ROOT rather than by walking directories.
-LedgerxFactory's enforcement is a glob over `tests/validate_*.py`, so the path
-`tests/validate_wallet_estate.py` SHALL continue to exist in LedgerxFactory as a
-DELEGATING ENTRY that invokes the single implementation in
-`LedgerxWallet/tests/validate_wallet_estate.py` and propagates its exit code —
-never as a copy, an edited copy or a second implementation of any rule. Where the
-delegating entry or the moved validator cannot reach what it needs — an
-uninitialized `LedgerxWallet` submodule, an unresolvable estate root, or an
-estate root holding no `tenants/*/wallets/` directory — it SHALL FAIL CLOSED with
-a named exit and a REMEDIATION STRING naming the initializing command, and SHALL
-NOT skip, pass, or degrade to "empty". Tenant-specific expectations SHALL be
-declared in the estate that owns them, not hard-coded in the cross-tenant
-profile validator.
+#### Scenario: A relocation changes a check's inputs
+- **WHEN** a relocation removes an input from a count floor or a keyed lookup that another check performs
+- **THEN** the check is restated in the same act, and a relocation that reds the bar is not complete
 
-#### Scenario: The bar is run after the relocation
-- **WHEN** the LedgerxFactory bar runs its `tests/validate_*.py` glob
-- **THEN** the wallet estate is checked, by the same rules, through the delegating entry
-- **AND** the rules exist in exactly one place
+#### Scenario: A prepared procedure references a relocating path
+- **WHEN** an un-executed runsheet or quickstart references an artifact by a path the relocation changes
+- **THEN** the reference is repointed in the same commit, because a prepared live window whose paths moved underneath it is a broken procedure rather than a stale link
 
-#### Scenario: The LedgerxWallet submodule is uninitialized
-- **WHEN** the delegating entry runs in a checkout where `LedgerxWallet` has not been initialized
-- **THEN** it REFUSES with a named exit and names `git submodule update --init LedgerxWallet`
-- **AND** it does not skip, because an unreadable surface must fail rather than degrade to "empty"
+#### Scenario: Reaching the new location needs an uninitialized submodule
+- **WHEN** a procedure or tool must read a relocated artifact through a submodule that may be uninitialized
+- **THEN** it REFUSES with a named exit rather than skipping, AND names the exact initializing command, recursively where the artifact sits more than one gitlink deep
 
-#### Scenario: A refusal carries no remediation
-- **WHEN** a fail-closed path added by this relocation emits a refusal that names no command
-- **THEN** the refusal is itself a defect of this capability, because it tells the operator that something is wrong without telling them what to run
+### Requirement: LedgerxWallet is created on the Ledgerx profile artifact that already exists
+`LedgerxWallet` SHALL be created because `LedgerxFactory` already carries a
+wallet profile artifact, and this capability SHALL NOT be cited as precedent for
+creating any other `<Domainx>Wallet` repository. The creation gate for sibling
+descendants is `domain-descendant-boundary`'s lazy, consumer-gated rule and not
+this capability's; their names are registered under R7 of
+`split-openxwallet-repo` while no repository is created.
 
-#### Scenario: One tenant's wallet ids sit inside the profile validator
-- **WHEN** the moved validator hard-codes a specific tenant's wallet or grant ids as its expected set
-- **THEN** that expectation is relocated into the estate the ids belong to, and the validator READS it, because a cross-tenant profile cannot enumerate one tenant's estate
+#### Scenario: LedgerxWallet is created
+- **WHEN** this change creates the descendant
+- **THEN** at least one Ledgerx wallet profile artifact relocates into it in the same wave, so the boundary is not stood up empty
 
-#### Scenario: The moved validator needs the domain's own declarations
-- **WHEN** the moved validator must read something only the domain repository holds — the tenant estate, the domain `stack.yaml`, or the aggregation checkout above it
-- **THEN** it reads them relative to the DECLARED ESTATE ROOT and not relative to its own location
-- **AND** each such read that cannot be satisfied REFUSES with its own named exit saying which surface was unreadable, so three different breakages do not present as one
-
-#### Scenario: A relocated validator silently drops an enforcement leg
-- **WHEN** the relocation removes or disables a check the moved validator performed before the move
-- **THEN** the relocation is incomplete, because coverage is measured by what still runs and not by what still exists
-
-#### Scenario: A prepared runsheet references a relocating path
-- **WHEN** an un-executed runsheet or quickstart in LedgerxFactory references a profile artifact by a path this relocation changes
-- **THEN** the reference is repointed IN THE SAME ACT as the move, because a prepared live window whose paths moved underneath it is a broken procedure rather than a stale link
-
-### Requirement: LedgerxWallet is created on the Ledgerx profile that already exists, and no sibling descendant is created without one
-`LedgerxWallet` SHALL be created because `LedgerxFactory` already carries wallet
-profile artifacts, and the sibling descendants `MedxWallet`, `codexWallet`,
-`OpsxWallet` and `AdxWallet` SHALL NOT be created until their own domain tree
-carries at least one wallet profile artifact — descendants are created LAZILY and
-CONSUMER-GATED, so that an empty boundary is never stood up as precedent. Until
-that first artifact exists a sibling's NAME MAY be registered while no repository
-is created. This change creates exactly one repository and SHALL NOT be cited as
-precedent for creating another without its own profile.
-
-#### Scenario: A sibling domain has no wallet profile artifact
-- **WHEN** a domain other than Ledgerx holds no artifact of the wallet product's profile kind
-- **THEN** its descendant repository is NOT created, and only the name is registered
-
-#### Scenario: A sibling domain acquires its first wallet profile artifact
-- **WHEN** that domain's tree acquires its first wallet profile artifact
-- **THEN** its descendant is created and that artifact relocates into it
+#### Scenario: Another domain's descendant is proposed on this precedent
+- **WHEN** a `<Domainx>Wallet` repository is proposed citing this capability
+- **THEN** the citation does not carry, and the proposal is measured against `domain-descendant-boundary`'s creation gate on that domain's own profile artifacts
 
 #### Scenario: An empty wallet descendant exists
 - **WHEN** a `<Domainx>Wallet` repository exists carrying no wallet profile artifact
-- **THEN** it is an empty boundary, and it is REPORTED rather than cited as precedent for creating more
+- **THEN** it is an empty boundary, and it is not cited as precedent for creating more
