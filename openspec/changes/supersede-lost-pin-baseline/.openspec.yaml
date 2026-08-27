@@ -1,0 +1,49 @@
+schema: spec-driven
+created: 2026-08-27
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-27-supersede-lost-pin-baseline
+  reason: >-
+    Commissioned in-session by Brett on 2026-08-27, by a multi-choice put to him
+    by the orchestrating session; the option he selected, verbatim: "Commission
+    the superseding record (Recommended)", described in that choice as "A small
+    follow-up change: supersede the archived record with one that acknowledges
+    the lost baseline, plus the disposition — restores fully_verified truthfully
+    rather than by silencing." Not a staged ideation topic —
+    `ideation/staging/` and its INDEX carry nothing on derivation pins, pin
+    losses or supersession of evidence records, so `kind: staged` is unavailable
+    rather than declined. THE FORCING FACT, re-measured on the day of filing in
+    a fresh worktree off `origin/main` at `175682e2`: the archived record
+    `openspec/changes/archive/2026-08-27-add-hermes-customer-subject-runtime-contract/evidence/provider-verification.yaml:15`
+    pins `66b14064bbd50d1af4e9585d10f8150f2bc352f0` under the key
+    `us3_baseline_commit`, and that object is UNRECOVERABLE, not merely
+    unretained: `git cat-file -t` fails in the shared aggregation object store
+    (the store in which all three of this repository's RECOVERABLE orphans
+    answered `commit`), the pin appears in 0 of the 573 refs
+    `git ls-remote origin` advertises (406 of them `refs/pull/*`),
+    `git fetch origin 66b14064…` is refused by the server with
+    `upload-pack: not our ref`, no `005-customer-subject-runtime` ref survives
+    on the remote, and the three published `refs/retention/pins/*` refs are each
+    at the commit its name states and none is this pin. Retention is therefore
+    IMPOSSIBLE and no code change repairs it. The archived record's bytes are
+    immutable, so re-pinning is refused twice over. `pin_class.KNOWN_LOSSES`
+    declares the loss with that measurement and names the act still owed — a
+    superseding record plus a disposition — and holds `fully_verified` FALSE
+    while it stands; `govern-derived-pin-reachability` § 3.6 and § 5.5 recorded
+    the act as NEEDS BRETT and deliberately performed neither, because a
+    realization that wrote a superseding record for somebody else's archived
+    evidence would be inventing provenance. This packet performs it on Brett's
+    commission. Authored in openxFactory because both the archived record and
+    the verification are openxFactory's own.
+  approved_by: >-
+    Brett — in-session commission of 2026-08-27, recorded as the origin act on
+    the `govern-derived-pin-reachability` / `fix-release-reachability-race`
+    instruction-as-origin-act shape rather than the blank-pair shape. THE
+    CITATION COVERS THE DECISION TO FILE AND NOTHING ELSE: every decision in
+    `proposal.md` § Orchestrator decisions — where the record lives, how the
+    discharge is mechanised, that a spec delta rides at all, and the reading
+    that makes the register row the disposition — was taken by the authoring
+    session and stays flagged for veto, as do the open questions. The verbatim
+    selected option is quoted in `reason` above; no further wording of the
+    commission reached this session, so none is invented.
+  approved_on: 2026-08-27
