@@ -183,9 +183,18 @@ three resolver spellings are fixed in place, exactly as § 2 prescribes.
       A FINDING THIS RUN SURFACED, reported rather than suppressed: in an
       ISOLATED clone the pre-change resolver could not find the repository's
       OWN index at all, so the proof skipped before it ever reached the pin.
-      This repository's own CI `validate` job clones exactly that way. So the
-      assertion was unreachable by two independent routes, not one, and the
-      packet named only the second.
+      This repository's own CI clones exactly that way. So the assertion was
+      unreachable by two independent routes, not one, and the packet named
+      only the second. Measured over the whole doc-health suite in that
+      isolated shape: **pre-change 889 passed / 7 skipped**, **this change 920
+      passed / 0 skipped** — seven real-corpus proofs (the derivation proof,
+      the validator wiring, the pipeline proof) that no runner had ever run.
+
+      **AND THE RUNNER HAS NOW RUN IT.** `pytest-suite` on PR #400, which
+      checks out a fresh clone at `fetch-depth: 0` with no aggregation
+      workspace above it: **6638 passed, 20 skipped, 0 failed** in 13m07s,
+      green. That is the first execution of this assertion on continuous
+      integration in the life of the test.
 - [x] 4.4 **DONE — THE ACCEPTANCE SIGNAL.** Nothing was written to the shared
       checkout: the hazard was reconstructed instead, faithfully, as an
       aggregation root holding a checkout at `openxFactory/` with two fresh
