@@ -309,6 +309,26 @@ POLICY_MUTATIONS = {
         lambda d: _tokens(d).__setitem__(
             "unbound", [{"path": "force_terminated_leg",
                          "candidates": ["revoked", "abandoned"]}]),
+    # THE TRUTHINESS TRAP, three ways. §7.8's claim is "nothing REMAINS
+    # unbound" — an assertion, not the absence of a counter-example — so a
+    # missing key and the falsy stand-ins must all refuse. A truthiness test
+    # passed every one of these, which made deleting the field the easiest
+    # possible way to satisfy the block's strongest sentence.
+    "unbound_key_missing":
+        lambda d: _tokens(d).pop("unbound"),
+    "unbound_is_an_empty_string":
+        lambda d: _tokens(d).__setitem__("unbound", ""),
+    "unbound_is_a_mapping":
+        lambda d: _tokens(d).__setitem__("unbound", {}),
+    # THE POLICY POINTING ONE WAY WHILE THE RULE READS ANOTHER. `registry_ref`
+    # was recorded and never checked, so the artifact could have nominated a
+    # different vocabulary while the membership rule resolved the sanctioned
+    # one — the document and its validator disagreeing in silence.
+    "registry_ref_points_at_another_registry":
+        lambda d: _tokens(d).__setitem__(
+            "registry_ref", "registries/session-result-reasons.registry.yaml"),
+    "registry_ref_dropped":
+        lambda d: _tokens(d).pop("registry_ref"),
     # The same fact carried twice, moved on one side only.
     "class_outcome_drifts_from_the_block":
         lambda d: _rollback(d, "ROLLBACK-B").__setitem__(
@@ -374,6 +394,27 @@ def test_outcome_token_absent_from_the_registry_is_caught(tmp_path, monkeypatch)
                  "members", [m for m in d["members"] if m["id"] != "abandoned"]))
     findings = _run(monkeypatch, avc, "policy")
     joined = _messages(findings)
+    assert "closed `session-outcomes` registry" in joined, joined
+    assert set(_codes(findings)) == {"canary-policy"}
+
+
+def test_a_wrong_registry_ref_does_not_disable_the_membership_rule(
+        tmp_path, monkeypatch):
+    """The claim the fallback rests on, proven rather than asserted: pointing
+    `registry_ref` somewhere else must NOT buy a weaker validation. Break the
+    ref AND invent a token, and both findings land — the ref mismatch, and the
+    invented token caught against the sanctioned registry the rule falls back
+    to. Rewarding a broken reference by skipping the rule it names is the one
+    outcome this must not have."""
+    def mutate(d):
+        _tokens(d)["registry_ref"] = "registries/session-result-reasons.registry.yaml"
+        _path(d, "drained_leg_after_block_new")["outcome"] = "drained"
+
+    avc = _tree(tmp_path)
+    _rewrite(avc, "canary-cohort-and-rollback-policy.yaml", mutate)
+    findings = _run(monkeypatch, avc, "policy")
+    joined = _messages(findings)
+    assert "!= the sanctioned" in joined, joined
     assert "closed `session-outcomes` registry" in joined, joined
     assert set(_codes(findings)) == {"canary-policy"}
 

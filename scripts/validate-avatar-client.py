@@ -702,7 +702,10 @@ POLICY_SWITCH_MODES = {"block_new", "revoke_active"}
 # NO NEW TOKEN is introduced, so the tokens are resolved against the closed
 # registry rather than mirrored here; what is mirrored is the PATH-TO-TOKEN
 # ruling itself.
-OUTCOME_REGISTRY_FILE = "session-outcomes.registry.yaml"
+# The ONE registry §7.8's tokens may be drawn from, spelled as the artifact
+# spells it in `session_outcome_tokens.registry_ref` — AVC-relative, so the two
+# can be compared directly instead of one being reconstructed from the other.
+OUTCOME_REGISTRY_REF = "registries/session-outcomes.registry.yaml"
 POLICY_OUTCOME_PATHS = {
     "consent_or_lease_revocation": "revoked",
     "drained_leg_after_block_new": "abandoned",
@@ -1634,26 +1637,32 @@ def _check_operator_surface(f: Findings, cat: str, rp: str, pol: dict) -> None:
                          f"both modes of both switches before any canary traffic")
 
 
-def _registry_members(f: Findings, cat: str, rp: str, filename: str) -> set[str] | None:
-    """The members of one closed AVC registry, read from the registry file.
+def _registry_members(f: Findings, cat: str, rp: str, ref: str) -> set[str] | None:
+    """The members of one closed AVC registry, read from the registry file at
+    `ref` (a path relative to `contracts/avatar-client/`).
 
     Read rather than mirrored on purpose: §7.8's ruling is that no NEW outcome
     token is introduced, and the way that stays true is that the check resolves
     against the vocabulary the schemas are parity-checked against. A constant
     copied into this module would keep agreeing with itself after the registry
     moved. Returns None when the registry cannot be read — which is reported,
-    never silently skipped."""
-    path = AVC / "registries" / filename
-    if not path.is_file():
-        f.error(cat, f"{rp}: the closed registry `registries/{filename}` is absent, "
-                     f"so the declared tokens cannot be resolved against it (fail "
-                     f"closed)")
+    never silently skipped.
+
+    PRECONDITION: `ref` is a PINNED, in-tree reference — the caller has already
+    compared it against the sanctioned path for that vocabulary. This helper
+    therefore carries no containment guard of its own: a guard that no caller
+    can trip is a guard no test can prove, and an unprovable guard is worth less
+    than the sentence saying where the real one lives."""
+    target = AVC / ref
+    if not target.is_file():
+        f.error(cat, f"{rp}: the closed registry `{ref}` is absent, so the declared "
+                     f"tokens cannot be resolved against it (fail closed)")
         return None
-    doc = load_yaml(path)
+    doc = load_yaml(target)
     members = doc.get("members") if isinstance(doc, dict) else None
     if not isinstance(members, list):
-        f.error(cat, f"{rp}: `registries/{filename}` carries no readable `members` "
-                     f"list (fail closed)")
+        f.error(cat, f"{rp}: `{ref}` carries no readable `members` list (fail "
+                     f"closed)")
         return None
     return {m.get("id") for m in members if isinstance(m, dict)}
 
@@ -1669,7 +1678,14 @@ def _check_session_outcome_tokens(f: Findings, cat: str, rp: str,
     a member of the closed `session-outcomes` registry, because the ruling's
     whole content is that no new token was introduced: a policy that invents
     `drained` or `blocked` would otherwise read as a decision rather than as
-    the schema violation it is."""
+    the schema violation it is.
+
+    Two rules that look like bookkeeping and are not. The artifact's own
+    `registry_ref` is PINNED to the sanctioned vocabulary and then FOLLOWED, so
+    the document cannot name one registry while this rule reads another. And
+    `unbound` must be an EXPLICIT EMPTY LIST: §7.8's claim is "nothing remains
+    unbound", which is asserted, never inferred from a field that is simply
+    absent."""
     block = pol.get("session_outcome_tokens")
     if not isinstance(block, dict):
         f.error(cat, f"{rp}: `rollback_policy.session_outcome_tokens` missing (fail "
@@ -1701,18 +1717,54 @@ def _check_session_outcome_tokens(f: Findings, cat: str, rp: str,
         if entry.get("outcome") != want:
             f.error(cat, f"{rp}: session_outcome_tokens path {path!r} emits "
                          f"{entry.get('outcome')!r} != the ruled {want!r}")
-    # NOTHING MAY REMAIN UNBOUND. The block existed to record the open tokens;
-    # a re-populated `unbound` list is that state returning under a `bound`
-    # status, which reads as closed and is not.
-    unbound = block.get("unbound")
-    if unbound:
-        f.error(cat, f"{rp}: session_outcome_tokens.unbound still carries "
-                     f"{len(unbound)} path(s) while status is 'bound'; §7.8 bound "
-                     f"every path, so an unbound entry is the open state returning "
-                     f"under a closed label")
+    # NOTHING MAY REMAIN UNBOUND — AND THE FIELD MUST SAY SO IN THOSE WORDS.
+    # §7.8's claim is not "no unbound paths are visible", it is "nothing remains
+    # unbound", so the artifact has to ASSERT the empty list rather than merely
+    # fail to carry a non-empty one. A truthiness test read `{}`, `""`, `0` and
+    # a MISSING KEY as "nothing unbound", which means deleting the field — the
+    # single easiest edit — would have silently satisfied the strongest claim in
+    # the block. An explicit empty LIST is the only passing shape.
+    if "unbound" not in block:
+        f.error(cat, f"{rp}: session_outcome_tokens carries no `unbound` key; §7.8's "
+                     f"claim is that NOTHING remains unbound, and a claim that "
+                     f"strong is asserted as an empty list — never inferred from an "
+                     f"absent field")
+    else:
+        unbound = block.get("unbound")
+        if not isinstance(unbound, list):
+            f.error(cat, f"{rp}: session_outcome_tokens.unbound is a "
+                         f"{type(unbound).__name__} ({unbound!r}), not a list; an "
+                         f"empty mapping or empty string reads as 'nothing unbound' "
+                         f"to a truthiness test and as a malformed record to a reader")
+        elif unbound:
+            f.error(cat, f"{rp}: session_outcome_tokens.unbound still carries "
+                         f"{len(unbound)} path(s) while status is 'bound'; §7.8 bound "
+                         f"every path, so an unbound entry is the open state returning "
+                         f"under a closed label")
 
-    # Every token drawn from the closed registry — the ruling in one rule.
-    known = _registry_members(f, cat, rp, OUTCOME_REGISTRY_FILE)
+    # THE ARTIFACT'S OWN REGISTRY REFERENCE IS PINNED, AND THEN FOLLOWED.
+    # `registry_ref` was recorded but never checked, so the policy could have
+    # named one vocabulary while this rule resolved against another — the
+    # document and its validator disagreeing in silence, which is worse than
+    # either being wrong alone. The ref is PINNED rather than freely followed
+    # because the contract grants no choice here: `session-outcomes` is a CLOSED
+    # registry with exactly one file, and letting the artifact nominate its own
+    # vocabulary would invent flexibility that would defeat the closure. So the
+    # ref must equal the sanctioned path — and the read then goes THROUGH it, so
+    # the check demonstrably resolves what the document says it resolves.
+    ref = block.get("registry_ref")
+    if ref != OUTCOME_REGISTRY_REF:
+        f.error(cat, f"{rp}: session_outcome_tokens.registry_ref is {ref!r} != the "
+                     f"sanctioned {OUTCOME_REGISTRY_REF!r}; the outcome vocabulary is "
+                     f"a CLOSED registry, so the artifact may not nominate a "
+                     f"different one — and a ref nobody checks lets the policy point "
+                     f"one way while the rule reads another")
+    # A BAD REF IS NOT A REASON TO SKIP THE MEMBERSHIP RULE. Resolving against
+    # the sanctioned path when the ref is wrong keeps the token check running;
+    # rewarding a broken reference with a weaker validation is the one outcome
+    # this must not have.
+    known = _registry_members(
+        f, cat, rp, ref if ref == OUTCOME_REGISTRY_REF else OUTCOME_REGISTRY_REF)
     if known is not None:
         declared: set[str] = set()
         for entry in bound:
