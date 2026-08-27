@@ -739,6 +739,185 @@ def find_index_validator(start=None, *, announce=_announce_root_fallback):
     return None
 
 
+# =========================================================================
+# CLASS-WIDE DERIVATION-PIN REACHABILITY (govern-derived-pin-reachability,
+# requirement 4), riding this surface rather than adding a check family.
+#
+# WHY HERE. The promoted pin obligation this extends already lives on the
+# readiness proof surface — an unreachable `generation.source_revision` fails
+# the derivation proof — and it covers exactly ONE artifact. This probe answers
+# the same question across the DECLARED CLASS (`doc_health.pin_class`), which is
+# where the two live orphans sat unreported for a day after the index was
+# repaired. It deliberately adds NO deterministic check family: reachability is
+# not deterministic in that requirement's sense, since the same corpus at the
+# same revision answers differently at different clone depths, and every family
+# added owes a wholesale restatement of the enumeration requirement.
+#
+# THE THREE-WAY OUTCOME IS THE PROMOTED SPLIT, REUSED RATHER THAN RE-SPELLED.
+# A pin unreachable in a COMPLETE clone is a defect in the artifact and FAILS. A
+# clone that cannot answer — truncated history, or a retention namespace that
+# could not be consulted — SKIPS with the condition it actually observed, never
+# the conjecture ("shallow clone?") the sibling packet deleted. Everything else
+# passes.
+# =========================================================================
+
+PIN_PROBE_FAIL = "fail"
+PIN_PROBE_SKIP = "skip"
+PIN_PROBE_PASS = "pass"
+
+
+def verify_pin_reachability(repo=None, *, rev: str = "HEAD",
+                            remote: str = "origin",
+                            allow_remote: bool = True):
+    """`(verdict, reason, report)` for the whole declared pin class.
+
+    `verdict` is `PIN_PROBE_PASS`, `PIN_PROBE_FAIL` or `PIN_PROBE_SKIP`, and the
+    caller turns it into whatever its own surface uses — a pytest failure, a
+    preflight finding, a non-zero exit. The reason ALWAYS names what was
+    consulted and, for a defect, the repair route the artifact's own class
+    allows: retention for immutable evidence, reproduction for a regenerable
+    projection. Naming the route at the moment the finding fires is how the
+    landing obligation is discoverable where it binds."""
+    from . import pin_class
+
+    root = Path(repo or Path(__file__).resolve().parents[2])
+    report = pin_class.verify(root, rev=rev, remote=remote,
+                              allow_remote=allow_remote)
+    rendered = pin_class.render(report)
+
+    if report.orphans or report.uncovered or report.vanished or report.arrived:
+        routes = []
+        for result in report.orphans:
+            member = next(m for m in pin_class.PIN_CLASS
+                          if m.id == result.site.member_id)
+            status = _committed_status(root, report.rev, result.site.path)
+            routes.append(f"  {result.site.named()}\n    route -> "
+                          f"{pin_class.repair_route(member, status=status)}")
+        detail = "\n".join(routes)
+        return (PIN_PROBE_FAIL,
+                f"DERIVATION-PIN REACHABILITY FAILED in a COMPLETE clone "
+                f"({report.truncation}). The ref set consulted was "
+                f"{report.main_ref} plus "
+                f"{pin_class.RETENTION_NAMESPACE}/<full-sha> computed from "
+                f"each pin, and no other ref: a commit surviving in this "
+                f"clone's object store is not reachability.\n{rendered}"
+                + (f"\n\nREPAIR ROUTES:\n{detail}" if detail else ""),
+                report)
+
+    if report.inconclusive:
+        return (PIN_PROBE_SKIP,
+                "DERIVATION-PIN REACHABILITY NOT ANSWERABLE here, observed not "
+                "conjectured:\n"
+                + "\n".join(f"  {r.site.named()} — {r.how}"
+                            for r in report.inconclusive)
+                + f"\n{rendered}",
+                report)
+
+    return (PIN_PROBE_PASS, rendered, report)
+
+
+def cluster_skeleton(entry: dict) -> dict:
+    """The comparable shape of one index entry — id, name, topics, tag sources,
+    origin, and each member's path / matched tags / repository.
+
+    Member `stage` is EXCLUDED, and the exclusion is inherited rather than
+    invented here: the landed index's stage annotations are legitimately updated
+    post-generation without a regeneration (a member superseded at a staging
+    exit), so stage can drift from the pinned corpus header while the derivation
+    itself is unchanged. Stage derivation is proved separately.
+
+    Spelled ONCE, here, because the readiness proof and the reproduction check
+    below must compare the same shape; two spellings of "the same skeleton" is
+    how a reproduction claim quietly stops meaning anything."""
+    return {
+        "id": entry["id"], "name": entry["name"], "topics": entry["topics"],
+        "tag_sources": sorted(entry["tag_sources"]),
+        "origin": entry.get("origin"),
+        "members": [{"path": m["path"], "matched_tags": m["matched_tags"],
+                     "repository": m.get("repository")}
+                    for m in entry["members"]],
+    }
+
+
+def index_reproduces_at(repo, pin: str, *, rev: str = "HEAD",
+                        index_rel: str = "ideation/cross-reference.yaml"):
+    """Does the index committed at `rev` REPRODUCE from the corpus at `pin`?
+
+    Returns `(reproduced, detail)` with `reproduced` True, False, or None when
+    the question could not be asked (the pin does not resolve in this clone, or
+    the index is not committed). This is requirement 3's reproduction obligation
+    made checkable for the one member whose tooling defines derivation: the
+    corpus is reconstructed at the pin with a read-only ``git archive`` — no
+    checkout is touched — the derivation is re-run over it, and the result is
+    compared to the committed body.
+
+    IT IS THE CHECK THAT REFUSES A HAND-MOVED PIN. Reachability of a new pin is
+    necessary and nowhere near sufficient: on pull request #322 the pin was
+    edited from one branch commit to another that was, at that moment, a
+    perfectly reachable branch tip, and nothing established that the body listed
+    the clusters the corpus derives there. A reachability-only rule passes that
+    edit; this one does not."""
+    import io
+    import tarfile
+    import tempfile
+
+    import yaml
+
+    from . import pin_class
+
+    root = Path(repo)
+    committed = pin_class.committed_text(root, rev, index_rel)
+    if committed is None:
+        return None, f"{index_rel} is not committed at {rev} in {root}"
+    index = yaml.safe_load(committed)
+    entries = index.get("topic_entries")
+    if not isinstance(entries, list):
+        return None, f"{index_rel} at {rev} carries no topic_entries list"
+
+    archived = subprocess.run(
+        ["git", "-C", str(root), "archive", pin, "ideation"],
+        capture_output=True)
+    if archived.returncode != 0:
+        detail = (archived.stderr.decode("utf-8", "replace").strip()
+                  or f"git archive exited {archived.returncode}")
+        return None, (f"the corpus at {pin} could not be reconstructed, so "
+                      f"reproduction was NOT ASKED rather than answered: "
+                      f"{detail}")
+
+    with tempfile.TemporaryDirectory(prefix="pin-reproduction-") as tmp:
+        tarfile.open(fileobj=io.BytesIO(archived.stdout)).extractall(tmp)
+        derived = derive_clusters(corpus_mod.load_docs("openxFactory",
+                                                       Path(tmp)))
+    got = [cluster_skeleton(e) for e in derived]
+    want = [cluster_skeleton(e) for e in entries]
+    if got == want:
+        return True, (f"{index_rel} at {rev} reproduces from the corpus at its "
+                      f"pin {pin}: {len(want)} entries, skeleton-identical")
+    return False, (
+        f"{index_rel} at {rev} does NOT reproduce from the corpus at {pin} — "
+        f"{len(want)} committed entries against {len(got)} derived there. The "
+        f"pin's reachability is not evidence that the body matches the state it "
+        f"claims; re-derive the body at the pin, or pin the revision the body "
+        f"was derived from.")
+
+
+def _committed_status(repo, rev: str, path: str) -> str | None:
+    """The lifecycle `Status:` a committed artifact carries, or None.
+
+    Read from committed state, and read at all because the REPAIR ROUTE turns on
+    it: a `record` is repaired by retention and never by an edit."""
+    from . import pin_class
+
+    text = pin_class.committed_text(repo, rev, path)
+    if text is None:
+        return None
+    for line in text.splitlines()[:40]:
+        if line.strip().lower().startswith(("status:", '"status":')):
+            value = line.split(":", 1)[1].strip().strip('",').strip("'")
+            return value or None
+    return None
+
+
 def validate_index(index_path, *, validator=None, repo=None,
                    strict: bool = True) -> tuple[bool | None, str]:
     """Validate one written index file against the openxFactory index schema by
