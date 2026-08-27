@@ -343,6 +343,54 @@ $defs:
           properties: { posture: { const: full } }
         then:
           not: { required: [reduced_reason] }
+  provider_retry:
+    # A MID-TURN RE-MINT AND THE PAID RETRY IT BOUGHT (contract-v1.45,
+    # add-doxchat-model-intake task 3.6; handed here by
+    # add-model-provider-broker task 2.4).
+    #
+    # Brett ruled on 2026-08-26 that when a minted token expires part-way
+    # through a turn the dashboard re-mints and retries ONCE, "with the re-mint
+    # and the paid retry VISIBLY RECORDED in the turn record" — a second paid
+    # call the human cannot see is exactly the decision that ruling was made to
+    # avoid. Three records already existed on the server side (the port's
+    # content-free mint ledger, the console's stderr notice, and the broker's own
+    # audit trail correlated by `--retry-of`) and the browser can read NONE of
+    # them, so the fact never reached the person paying for it. This is the field
+    # that carries it to them.
+    #
+    # THE REDACTED FACT AND NOTHING MORE. It states that the turn re-minted once
+    # and made one further paid provider call, and it names the re-mint's audit
+    # reference. It carries no token, no token prefix, no token hash, no
+    # provider status, no provider words, no endpoint and no timing that would
+    # let one be reconstructed — the same redaction discipline the failure
+    # envelope keeps, for the same reason: this record is stored, mirrored into a
+    # thread sidecar and rendered in a page.
+    #
+    # `audit_ref` IS DISCLOSABLE BY CONSTRUCTION rather than by care: the
+    # broker's own declaration records no token material against an audit
+    # reference, and it is the identifier the broker's trail is keyed by — so a
+    # reader of this record and a reader of `broker-audit.jsonl` can be shown to
+    # be reading about the same issuance, which is what makes "visibly recorded"
+    # mean something on both sides of the seam instead of only on the server's.
+    #
+    # `retried: true` is a CONST rather than a boolean anyone may set false. A
+    # turn that did not retry omits the whole object; a `retried: false` would be
+    # a second, weaker spelling of an absence that is already unambiguous, and
+    # two spellings of one fact is how a consumer comes to read the wrong one.
+    #
+    # WHAT `at_most_once` RECORDS: that the ruling's bound HELD. A second expiry
+    # inside one turn does not buy a third call — it surfaces the standard
+    # refusal, and that turn produces a FAILURE envelope rather than this one —
+    # so a success record carrying this object is a record of exactly one retry.
+    # Stated on the record rather than left to a reader who would have to know
+    # the port's internals to infer it.
+    type: object
+    additionalProperties: false
+    required: [retried, at_most_once]
+    properties:
+      retried: { const: true }
+      at_most_once: { const: true }
+      audit_ref: { type: string, minLength: 1, maxLength: 200 }
   request_v2:
     # The widened request. It carries the outline plus every loaded document,
     # and it DECLARES which of them the chat is bound to. `active_document_path`
@@ -414,6 +462,13 @@ $defs:
       # release, never that the context was full. A consumer that needs the
       # posture must read this key and treat its absence as unknown.
       context_packet: { $ref: "#/$defs/context_packet" }
+      # WHAT THE TURN COST (contract-v1.45, add-doxchat-model-intake task 3.6).
+      # OPTIONAL, which is what makes this release additive, and PRESENT ONLY
+      # WHEN IT HAPPENED: a turn that minted once and answered once carries no
+      # such key, and its absence is not a claim — it means "nothing to report,
+      # or a producer older than v1.45". Present on the v2 envelope ONLY: the v1
+      # family is deprecated and its promise is byte-identical stability.
+      provider_retry: { $ref: "#/$defs/provider_retry" }
       bound_buffer: { $ref: "#/$defs/buffer_key" }
       observed_hashes: { $ref: "#/$defs/keyed_observed_hashes" }
       assistant_prose: { type: string, maxLength: 900000 }

@@ -676,19 +676,66 @@ def enforce_contract(raw_output, cluster: dict, sources: dict, *,
 # =========================================================================
 # Validate the assembled index against the openxFactory index schema BEFORE
 # persistence (task 3.2): invoke the pinned `validate-ideation-cross-reference.py`
-# (the dashboard's find-validator walk-up pattern); reject-and-report on failure.
+# (resolved repository-under-test first, per `find_index_validator` below);
+# reject-and-report on failure.
 # =========================================================================
 
-def find_index_validator(start=None):
-    """The pinned openxFactory index validator, discovered by walking up to the
-    sibling aggregation checkout (mirrors the dashboard's
-    `find_openxfactory_validator`). None when unreachable — the caller then
-    records a skip rather than persisting unvalidated output (fail-closed)."""
-    rel = Path("openxFactory") / "scripts" / "validate-ideation-cross-reference.py"
+# The resolution order (harden-ideation-readiness-check, design § 1): the
+# REPOSITORY UNDER TEST first, and any other checkout only as a declared,
+# announced fallback. The ancestor walk alone — what this used to be — always
+# terminates on the one shared checkout beneath an aggregation root, so from an
+# agent worktree it spawned somebody else's validator while the caller believed
+# it had validated against its own. Announced on stderr rather than returned,
+# because every caller of this function wants the path and none of them wants a
+# tuple; the marker is a fixed string so a run can be grepped for it.
+ROOT_FALLBACK_MARKER = "[readiness-root] fallback"
+
+VALIDATOR_REL = Path("scripts") / "validate-ideation-cross-reference.py"
+VALIDATOR_SIBLING_REL = Path("openxFactory") / VALIDATOR_REL
+
+
+def _announce_root_fallback(message: str) -> None:
+    """Say which checkout was resolved and why the fallback was taken.
+
+    stderr, not stdout: the readiness lane's stdout is read by callers that
+    parse it, and a resolution notice is diagnostic rather than result."""
+    print(f"{ROOT_FALLBACK_MARKER}: {message}", file=sys.stderr)
+
+
+def find_index_validator(start=None, *, announce=_announce_root_fallback):
+    """The pinned openxFactory index validator for the REPOSITORY UNDER TEST.
+
+    `start` names that repository (default: the checkout this module lives in).
+    When it carries `scripts/validate-ideation-cross-reference.py` it IS the
+    subject and nothing else is consulted. Only when it does not does the
+    resolver reach further — `OPENXFACTORY_ROOT`, then the ancestor walk to a
+    sibling `openxFactory/` (the aggregation-workspace layout) — and every one
+    of those rungs announces the checkout it resolved and why, so a validator
+    borrowed from another checkout is never borrowed silently.
+
+    None when nothing is reachable — the caller then records a skip rather than
+    persisting unvalidated output (fail-closed)."""
     base = Path(start or Path(__file__).resolve().parents[2]).resolve()
+    own = base / VALIDATOR_REL
+    if own.is_file():
+        return own
+
+    why = (f"the repository under test ({base}) carries no "
+           f"{VALIDATOR_REL.as_posix()}")
+    declared = os.environ.get("OPENXFACTORY_ROOT")
+    if declared:
+        candidate = Path(declared).resolve() / VALIDATOR_REL
+        if candidate.is_file():
+            announce(f"resolved the index validator {candidate} from "
+                     f"OPENXFACTORY_ROOT because {why}")
+            return candidate
+
     for d in [base, *base.parents]:
-        if (d / rel).is_file():
-            return d / rel
+        candidate = d / VALIDATOR_SIBLING_REL
+        if candidate.is_file():
+            announce(f"resolved the index validator {candidate} by walking up "
+                     f"from the repository under test because {why}")
+            return candidate
     return None
 
 

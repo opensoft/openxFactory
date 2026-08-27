@@ -1884,6 +1884,34 @@ svg.edges path.topic { stroke: var(--st-brainstorm); stroke-dasharray: 4 3; opac
    and colouring it like one would misreport what happened. */
 .doxchat-context { color: var(--muted); font-size: 12px; }
 .doxchat-context[hidden] { display: none; }
+/* add-doxchat-model-intake task 3.6: what the last answer cost beyond one
+   provider call. Beside the posture note, in the same muted register, because
+   it is the same class of thing — a fixed, server-derived statement about the
+   answer just rendered. It is a live region, so it is never `display: none`
+   while it carries text; the `[hidden]` rule only applies when it does not. */
+.doxchat-provider-retry { color: var(--muted); font-size: 12px; }
+.doxchat-provider-retry[hidden] { display: none; }
+/* The selector's one non-model option (add-doxchat-model-intake §1). Marked so
+   a human can see at a glance that the first entry is an ACT and not a model —
+   the list it heads is otherwise all models. */
+.doxchat-model-intake { font-style: italic; }
+/* Where the enrolment flow opens: inside the rail, under the controls it is
+   about, and taking no space at all until it is opened. */
+.doxbench-intake-host { margin-top: 8px; }
+.doxbench-intake-host[hidden] { display: none; }
+.swb-intake-panel {
+  display: flex; flex-direction: column; gap: 6px;
+  border: 1px solid var(--border); border-radius: 6px; padding: 8px;
+}
+.swb-intake-heading { margin: 0; font-size: 13px; }
+.swb-intake-note { margin: 0; color: var(--muted); font-size: 12px; }
+.swb-intake-form { display: flex; flex-direction: column; gap: 6px; }
+.swb-intake-field { display: flex; flex-direction: column; gap: 2px; }
+.swb-intake-field[hidden] { display: none; }
+.swb-intake-label { color: var(--muted); font-size: 11px; }
+.swb-intake-input, .swb-intake-dialect, .swb-intake-kind { width: 100%; }
+.swb-intake-status { color: var(--muted); font-size: 12px; }
+.swb-intake-status[hidden] { display: none; }
 /* T100 P2: screen-reader announcement region (visually hidden, aria-live). */
 .doxchat-announce {
   position: absolute; width: 1px; height: 1px; margin: -1px;
