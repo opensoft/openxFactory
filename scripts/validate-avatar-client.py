@@ -421,6 +421,12 @@ def run(strict: bool, require_realization: bool) -> int:
     # added in later phases; each guards on artifact presence so the validator
     # stays green at every phase checkpoint.
     check_interface_lock(f)
+    # qualify-avatar-live-voice §4.1 and §6.3.1-§6.3.2: the ratified rulings are
+    # written down by hand in two governance artifacts beside the acceptance
+    # map, so they are machine-compared against this validator's constants for
+    # the same reason the frozen identifier lists are.
+    check_activation_checklist(f)
+    check_canary_rollback_policy(f)
     ev_ids = check_fixtures(f, registry, docs)
     # The latency comparison cases carry acceptance evidence exactly as the
     # fixtures do, so their ids join the set the evidence register resolves
@@ -484,6 +490,399 @@ LATENCY_CEILING_KEY = re.compile(
     r"(?i)^(?:latency_budgets?|latency_budget_ms|latency_ceiling_ms"
     r"|max_latency_ms|[a-z0-9_]*_budget_ms|[a-z0-9_]*_latency_ceiling_ms)$"
 )
+
+# ---- the internal-live activation checklist (qualify-avatar-live-voice §4.1) --
+# The RATIFIED per-condition classification, mirrored here so the checklist
+# artifact and this validator are two independent statements of the same Fork 3
+# Option C ruling — the same discipline `check_interface_lock` applies to the
+# frozen identifier lists. A hand-copied ruling drifts; a hand-copied ruling
+# that is machine-compared drifts LOUDLY.
+CHECKLIST_FILE = "internal-live-activation-checklist.yaml"
+CHECKLIST_KIND = "avatar-client-internal-live-activation-checklist"
+CHECKLIST_CLASSES = {"hard_preflight", "canary_time", "default_swap_only"}
+# Condition number -> the classification the ruling assigns it. `split` means
+# the condition's two halves fall differently and BOTH must be recorded.
+CHECKLIST_RULED = {
+    1: "hard_preflight",
+    2: "hard_preflight",
+    3: "split",
+    4: "hard_preflight",
+    5: "split",
+    6: "canary_time",
+    7: "split",
+    8: "split",
+}
+# For each split condition, the ruled classification of each named half. The
+# half NAMES are part of the ruling too: a checklist that renamed a half could
+# otherwise satisfy the count while silently reclassifying it.
+CHECKLIST_RULED_HALVES = {
+    3: {"topology": "hard_preflight",
+        "measured_latency_figure": "canary_time"},
+    5: {"deterministic_ui_scenarios": "hard_preflight",
+        "live_domain_voice_evaluation": "canary_time"},
+    7: {"deterministic_blocked_state_and_exact_value": "hard_preflight",
+        "live_cross_domain_evaluations": "canary_time"},
+    8: {"kill_switches_and_rollback_machinery": "hard_preflight",
+        "opt_in_canary": "canary_time"},
+}
+CHECKLIST_RING_ELEMENTS = {
+    "RING-01": "live_provider_qualification",
+    "RING-02": "secret_scan",
+    "RING-03": "telemetry_redaction_verification",
+    "RING-04": "kill_switch_proof",
+    "RING-05": "measured_latency_evidence",
+}
+# The kernel's ring is FOUR EVIDENCE ELEMENTS around live provider
+# qualification, so RING-01 is the qualification and RING-02..05 are the four.
+CHECKLIST_RING_EVIDENCE_COUNT = 4
+
+# ---- the canary cohort and rollback policy (§6.3.1-§6.3.2) -----------------
+POLICY_FILE = "canary-cohort-and-rollback-policy.yaml"
+POLICY_KIND = "avatar-client-canary-cohort-and-rollback-policy"
+# Fork 5 Option B's three-way split, as ratified. The revoke flag is the whole
+# point of the policy — the kernel gives each kill switch an OPTIONAL
+# active-lease revocation and this is the rule that selects the option — so it
+# is compared explicitly rather than trusted.
+POLICY_RULED_CLASSES = {
+    "ROLLBACK-A": {"trigger_mode": "automatic", "action": "abort",
+                   "revoke_active_leases": True},
+    "ROLLBACK-B": {"trigger_mode": "automatic", "action": "block_new",
+                   "revoke_active_leases": False},
+    "ROLLBACK-C": {"trigger_mode": "operator", "action": "operator_selected",
+                   "revoke_active_leases": "operator_selected"},
+}
+
+
+def _acceptance_map_ids() -> set[str]:
+    """Every requirement id, scenario id and SLO id the acceptance map declares.
+    Used to resolve the cross-references the §4.1 and §6.3 artifacts carry, so a
+    reference to a scenario that was renamed or never existed is a finding
+    rather than a decoration."""
+    ids: set[str] = set()
+    path = AVC / "acceptance-map.yaml"
+    if not path.is_file():
+        return ids
+    amap = load_yaml(path) or {}
+    for req in amap.get("requirements") or []:
+        if not isinstance(req, dict):
+            continue
+        if req.get("id"):
+            ids.add(req["id"])
+        for sc in req.get("scenarios") or []:
+            if isinstance(sc, dict) and sc.get("id"):
+                ids.add(sc["id"])
+    slo = amap.get("latency_slo")
+    if isinstance(slo, dict) and slo.get("id"):
+        ids.add(slo["id"])
+    return ids
+
+
+def _check_map_refs(f: Findings, cat: str, where: str,
+                    refs: Any, known: set[str]) -> None:
+    """Every `acceptance_map_refs` entry must resolve. Skipped only when the map
+    itself is missing, which its own check already reports."""
+    if refs is None or not known:
+        return
+    if not isinstance(refs, list):
+        f.error(cat, f"{where}: acceptance_map_refs must be a list")
+        return
+    for r in refs:
+        if r not in known:
+            f.error(cat, f"{where}: acceptance_map_refs names {r!r}, which the "
+                         f"acceptance map does not declare")
+
+
+def check_activation_checklist(f: Findings) -> None:
+    """§4.1: machine-check the internal-live activation checklist against the
+    ratified Fork 3 Option C classification.
+
+    The artifact records a RULING, and a ruling written down by hand is exactly
+    the kind of thing that drifts when someone later "tidies" it. Four
+    obligations:
+
+    1. THE EIGHT ARE ALL THERE, numbered 1..8, no gaps and no duplicates. Seven
+       conditions is a checklist someone edited; nine is one someone extended.
+    2. EVERY CLASSIFICATION MATCHES THE RULING, including the per-half
+       classification of the four split conditions and the half NAMES. A split
+       recorded as a single class is the specific error that would let a live
+       evaluation pass as a deterministic preflight one.
+    3. CONDITION 6 IS RECORDED IN ITS REINTERPRETED FORM ONLY. The as-written
+       comparative reading is reserved to the GPT-Live adoption change; if the
+       artifact ever recorded it as a live second classification, the ring would
+       be gated on a profile beating itself.
+    4. THE RING IS FOUR EVIDENCE ELEMENTS AND THE GATE CONFERS NO DEFAULT. The
+       exit contract cannot widen by editing this file, and the artifact may
+       never say the gate promotes a profile to production.
+
+    Fail closed on a missing or unreadable checklist: §4.1 lands it, and a ring
+    whose classification cannot be read is not a classified ring."""
+    path = AVC / CHECKLIST_FILE
+    rp = f"contracts/avatar-client/{CHECKLIST_FILE}"
+    cat = "activation-checklist"
+    if not path.is_file():
+        f.error(cat, f"{rp} absent; the internal-live per-condition "
+                     f"classification is unverifiable (fail closed)")
+        return
+    doc = load_yaml(path) or {}
+    if not isinstance(doc, dict):
+        f.error(cat, f"{rp}: not a mapping (fail closed)")
+        return
+    if doc.get("schema_version") != 1:
+        f.error(cat, f"{rp}: schema_version {doc.get('schema_version')!r} != 1")
+    if doc.get("kind") != CHECKLIST_KIND:
+        f.error(cat, f"{rp}: kind {doc.get('kind')!r} != {CHECKLIST_KIND!r}")
+
+    known = _acceptance_map_ids()
+
+    # --- 1 + 2: the eight conditions and their ruled classifications ---
+    conditions = doc.get("conditions")
+    if not isinstance(conditions, list):
+        f.error(cat, f"{rp}: `conditions` missing or not a list (fail closed)")
+        return
+    numbers = [c.get("number") for c in conditions if isinstance(c, dict)]
+    if sorted(n for n in numbers if isinstance(n, int)) != list(range(1, 9)):
+        f.error(cat, f"{rp}: condition numbers {sorted(numbers, key=str)} are not "
+                     f"exactly 1..8; the eight-condition checklist must carry all "
+                     f"eight, because a missing condition reads as a satisfied one")
+        return
+
+    for cond in conditions:
+        if not isinstance(cond, dict):
+            continue
+        n = cond.get("number")
+        where = f"{rp} condition {n}"
+        ruled = CHECKLIST_RULED[n]
+        declared = cond.get("classification")
+        _check_map_refs(f, cat, where, cond.get("acceptance_map_refs"), known)
+
+        if ruled == "split":
+            if declared != "split":
+                f.error(cat, f"{where}: classification {declared!r} but the ruling "
+                             f"splits this condition; both halves must be "
+                             f"classified separately")
+                continue
+            if cond.get("split") is not True:
+                f.error(cat, f"{where}: classification is 'split' but `split` is "
+                             f"{cond.get('split')!r}")
+            halves = cond.get("halves")
+            if not isinstance(halves, list):
+                f.error(cat, f"{where}: split condition carries no `halves` list")
+                continue
+            got = {}
+            for h in halves:
+                if not isinstance(h, dict):
+                    continue
+                got[h.get("half")] = h.get("classification")
+                _check_map_refs(f, cat, f"{where} half {h.get('half')!r}",
+                                h.get("acceptance_map_refs"), known)
+            want = CHECKLIST_RULED_HALVES[n]
+            if set(got) != set(want):
+                f.error(cat, f"{where}: halves {sorted(got, key=str)} != the ruled "
+                             f"halves {sorted(want)}")
+            for half, want_cls in want.items():
+                if half in got and got[half] != want_cls:
+                    f.error(cat, f"{where} half {half!r}: classification "
+                                 f"{got[half]!r} != the ruled {want_cls!r}")
+            for half, cls in got.items():
+                if cls not in CHECKLIST_CLASSES:
+                    f.error(cat, f"{where} half {half!r}: classification {cls!r} is "
+                                 f"not one of {sorted(CHECKLIST_CLASSES)}")
+        else:
+            if declared != ruled:
+                f.error(cat, f"{where}: classification {declared!r} != the ruled "
+                             f"{ruled!r}")
+            if cond.get("split"):
+                f.error(cat, f"{where}: recorded as split, but the ruling gives it "
+                             f"a single classification")
+            if cond.get("halves"):
+                f.error(cat, f"{where}: carries `halves` but is not a split "
+                             f"condition")
+
+        # --- 3: condition 6 in its reinterpreted form ONLY ---
+        if n == 6:
+            if cond.get("recorded_form") != "reinterpreted_only":
+                f.error(cat, f"{where}: recorded_form "
+                             f"{cond.get('recorded_form')!r} != "
+                             f"'reinterpreted_only'; task 4.1 records condition 6 "
+                             f"in its reinterpreted form only")
+            if cond.get("as_written_form_is_reserved") is not True:
+                f.error(cat, f"{where}: as_written_form_is_reserved must be true — "
+                             f"the comparative reading belongs to the GPT-Live "
+                             f"adoption change, and applied here it would gate "
+                             f"gpt-realtime-2.1 on beating itself")
+
+    # --- 4: the ring is four evidence elements, and confers no default ---
+    ring = doc.get("ring_elements")
+    if not isinstance(ring, list):
+        f.error(cat, f"{rp}: `ring_elements` missing or not a list (fail closed)")
+    else:
+        got = {}
+        for e in ring:
+            if not isinstance(e, dict):
+                continue
+            got[e.get("id")] = e.get("element")
+            _check_map_refs(f, cat, f"{rp} {e.get('id')}",
+                            e.get("acceptance_map_refs"), known)
+        if got != CHECKLIST_RING_ELEMENTS:
+            f.error(cat, f"{rp}: ring elements {sorted(got.items(), key=str)} != "
+                         f"the kernel's ring {sorted(CHECKLIST_RING_ELEMENTS.items())} "
+                         f"— the binding exit contract is the four-element ring and "
+                         f"nothing wider")
+        if doc.get("ring_evidence_element_count") != CHECKLIST_RING_EVIDENCE_COUNT:
+            f.error(cat, f"{rp}: ring_evidence_element_count "
+                         f"{doc.get('ring_evidence_element_count')!r} != "
+                         f"{CHECKLIST_RING_EVIDENCE_COUNT}")
+
+    confers = doc.get("gate_confers")
+    if not isinstance(confers, dict):
+        f.error(cat, f"{rp}: `gate_confers` missing; the artifact must state that "
+                     f"the gate confers no production default (latent decision 3)")
+    else:
+        if confers.get("production_default") is not False:
+            f.error(cat, f"{rp}: gate_confers.production_default is "
+                         f"{confers.get('production_default')!r}; passing this gate "
+                         f"confers a SELECTABLE internal-live profile and NO "
+                         f"production default")
+        if confers.get("selectable_internal_live_profile") is not True:
+            f.error(cat, f"{rp}: gate_confers.selectable_internal_live_profile must "
+                         f"be true")
+        _check_map_refs(f, cat, f"{rp} gate_confers",
+                        confers.get("acceptance_map_refs"), known)
+
+
+def check_canary_rollback_policy(f: Findings) -> None:
+    """§6.3.1-§6.3.2: machine-check the recorded revoke-versus-block policy.
+
+    This is the document the kernel has referenced since it was written —
+    "revoke affected active leases ACCORDING TO THE RECORDED POLICY" — and Fork
+    5 recorded that it had never actually been written. Now that it exists, the
+    part worth enforcing is the part that would be dangerous to get wrong:
+
+    * THE THREE-WAY SPLIT AND ITS REVOKE FLAGS. Safety breaches revoke active
+      leases; latency and error breaches block new sessions and let in-flight
+      legs DRAIN; quality and cost are operator judgment. Flipping ROLLBACK-B's
+      revoke flag to true would cut people off mid-conversation on a
+      performance regression, and would spend on a latency problem the
+      mechanism the kernel reserves for safety.
+    * NO MODEL FALLBACK. `gpt-realtime-2.1` is the first qualified profile, so
+      rollback can only disable voice into text or handoff. The constraint is
+      task 6.3.4's and it binds this artifact's COPY as well as the later code.
+    * AN ABORT ENDS MEDIA ONLY, and no real external tenant is admitted.
+
+    Fail closed on a missing or unreadable policy."""
+    path = AVC / POLICY_FILE
+    rp = f"contracts/avatar-client/{POLICY_FILE}"
+    cat = "canary-policy"
+    if not path.is_file():
+        f.error(cat, f"{rp} absent; the kernel's 'recorded policy' for kill-switch "
+                     f"scope is unverifiable (fail closed)")
+        return
+    doc = load_yaml(path) or {}
+    if not isinstance(doc, dict):
+        f.error(cat, f"{rp}: not a mapping (fail closed)")
+        return
+    if doc.get("schema_version") != 1:
+        f.error(cat, f"{rp}: schema_version {doc.get('schema_version')!r} != 1")
+    if doc.get("kind") != POLICY_KIND:
+        f.error(cat, f"{rp}: kind {doc.get('kind')!r} != {POLICY_KIND!r}")
+
+    known = _acceptance_map_ids()
+
+    # --- the cohort ---
+    cohort = doc.get("cohort")
+    if not isinstance(cohort, dict):
+        f.error(cat, f"{rp}: `cohort` missing (fail closed)")
+    else:
+        _check_map_refs(f, cat, f"{rp} cohort", cohort.get("acceptance_map_refs"), known)
+        ext = cohort.get("external_tenants") or {}
+        if ext.get("admitted") is not False:
+            f.error(cat, f"{rp}: cohort.external_tenants.admitted is "
+                         f"{ext.get('admitted')!r}; no real external tenant is "
+                         f"admitted to the internal-live canary")
+        opt = cohort.get("opt_in") or {}
+        if opt.get("client_visible_toggle") is not False:
+            f.error(cat, f"{rp}: cohort.opt_in.client_visible_toggle is "
+                         f"{opt.get('client_visible_toggle')!r}; opt-in is "
+                         f"server-side capability resolution, never a client toggle")
+        if opt.get("mechanism") != "server_side_capability_resolution":
+            f.error(cat, f"{rp}: cohort.opt_in.mechanism "
+                         f"{opt.get('mechanism')!r} != "
+                         f"'server_side_capability_resolution'")
+        members = cohort.get("members")
+        if not isinstance(members, list) or len(members) != 2:
+            f.error(cat, f"{rp}: cohort.members must be exactly the vendor-org "
+                         f"accounts and ONE internally-staffed domain sandbox")
+        else:
+            sandbox = [m for m in members if isinstance(m, dict)
+                       and m.get("member") == "internally_staffed_domain_sandbox"]
+            if not sandbox:
+                f.error(cat, f"{rp}: cohort.members names no "
+                             f"internally_staffed_domain_sandbox")
+            elif sandbox[0].get("cardinality") != "exactly_one":
+                f.error(cat, f"{rp}: the domain sandbox cardinality is "
+                             f"{sandbox[0].get('cardinality')!r} != 'exactly_one'; "
+                             f"a second sandbox widens the ring and needs a ruling")
+
+    # --- the three-way rollback split ---
+    pol = doc.get("rollback_policy")
+    if not isinstance(pol, dict):
+        f.error(cat, f"{rp}: `rollback_policy` missing (fail closed)")
+    else:
+        _check_map_refs(f, cat, f"{rp} rollback_policy",
+                        pol.get("acceptance_map_refs"), known)
+        classes = pol.get("classes")
+        if not isinstance(classes, list):
+            f.error(cat, f"{rp}: rollback_policy.classes missing or not a list")
+        else:
+            got = {c.get("id"): c for c in classes if isinstance(c, dict)}
+            if set(got) != set(POLICY_RULED_CLASSES):
+                f.error(cat, f"{rp}: rollback classes {sorted(got, key=str)} != the "
+                             f"ratified three-way split "
+                             f"{sorted(POLICY_RULED_CLASSES)}")
+            for cid, want in POLICY_RULED_CLASSES.items():
+                c = got.get(cid)
+                if not isinstance(c, dict):
+                    continue
+                for key, wanted in want.items():
+                    if c.get(key) != wanted:
+                        f.error(cat, f"{rp} {cid}: {key} is {c.get(key)!r} != the "
+                                     f"ratified {wanted!r}")
+                _check_map_refs(f, cat, f"{rp} {cid}",
+                                c.get("acceptance_map_refs"), known)
+
+    # --- the rollback target: no model fallback ---
+    tgt = doc.get("rollback_target")
+    if not isinstance(tgt, dict):
+        f.error(cat, f"{rp}: `rollback_target` missing (fail closed)")
+    else:
+        if tgt.get("model_fallback_exists") is not False:
+            f.error(cat, f"{rp}: rollback_target.model_fallback_exists is "
+                         f"{tgt.get('model_fallback_exists')!r}; gpt-realtime-2.1 is "
+                         f"the FIRST qualified profile, so no model fallback exists "
+                         f"and none may be implied")
+        if tgt.get("target") != "disable_voice_to_text_or_human_handoff":
+            f.error(cat, f"{rp}: rollback_target.target {tgt.get('target')!r} != "
+                         f"'disable_voice_to_text_or_human_handoff'")
+        _check_map_refs(f, cat, f"{rp} rollback_target",
+                        tgt.get("acceptance_map_refs"), known)
+
+    # --- an abort ends the media plane only ---
+    scope = doc.get("abort_scope")
+    if not isinstance(scope, dict):
+        f.error(cat, f"{rp}: `abort_scope` missing (fail closed)")
+    else:
+        if scope.get("ends") != "media_plane_only":
+            f.error(cat, f"{rp}: abort_scope.ends {scope.get('ends')!r} != "
+                         f"'media_plane_only'; the authority-owned workflow "
+                         f"projection survives every abort")
+        survives = set(scope.get("survives") or [])
+        want_survives = {"authority_owned_workflow_projection",
+                         "policy_required_structured_records"}
+        if survives != want_survives:
+            f.error(cat, f"{rp}: abort_scope.survives {sorted(survives)} != "
+                         f"{sorted(want_survives)}")
+        _check_map_refs(f, cat, f"{rp} abort_scope",
+                        scope.get("acceptance_map_refs"), known)
 
 
 def check_fixtures(f: Findings, registry: Registry, docs: dict[str, dict]) -> set[str]:

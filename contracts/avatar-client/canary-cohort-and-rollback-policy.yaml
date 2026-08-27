@@ -1,0 +1,270 @@
+schema_version: 1
+kind: avatar-client-canary-cohort-and-rollback-policy
+
+# ============================================================================
+# canary-cohort-and-rollback-policy.yaml
+# qualify-avatar-live-voice tasks 6.3.1 (cohort) and 6.3.2 (revoke-vs-block).
+#
+# THIS IS "THE RECORDED POLICY". The contract kernel has referred to it since
+# `define-avatar-client-contract-kernel`: `avatar-client-runtime`
+# "Deterministic-first release gating and kill switches" says two server kill
+# switches exist, "each with optional revocation of active leases", and that
+# rollback "SHALL stop new sessions on the withdrawn profile, revoke affected
+# active leases WHEN SAFETY REQUIRES IT, and preserve only policy-required
+# records" — and its scenario "Emergency kill switch is activated" says the
+# control API MUST "revoke affected active leases ACCORDING TO THE RECORDED
+# POLICY". The kernel named this document and then left it unwritten. Fork 5
+# recorded that plainly as a named gap: "The 'recorded policy' that decides
+# which criteria require active-lease revocation versus block-new is not
+# written anywhere." Task 6.3.2 exists to write it. Until this file landed,
+# "optional revocation" had no rule selecting the option, which meant the
+# safest-looking reading (revoke everything) and the cheapest-looking reading
+# (revoke nothing) were equally defensible — and neither is correct.
+#
+# RATIFIED SHAPE. Brett Heap ruled Fork 5 on 2026-08-26 as OPTION B —
+# vendor-org plus one internally-staffed domain sandbox, with a hybrid
+# auto/operator rollback governed by this written policy. Option B was chosen
+# OVER the simpler Option A precisely for its rehearsal value: Option A never
+# exercises active-lease revocation outside the consent and control terminals,
+# so it would arrive at the pilot gate with the revocation policy still
+# untested, and the pilot ring requires rollback rehearsal. The auto-detection
+# wiring this policy presupposes is task 6.3.3 and is NOT built by this file.
+# ============================================================================
+
+change_id: qualify-avatar-live-voice
+release_ring: internal_live
+candidate_profile: gpt-realtime-2.1
+requirement_id: ALV-008
+requirement: Canary cohort and the recorded revoke-versus-block rollback policy
+ruled: >-
+  2026-08-26 by Brett Heap — Fork 5, Option B (vendor-org plus one internal
+  domain sandbox; hybrid auto/operator rollback under a written policy).
+source: >-
+  openspec/changes/qualify-avatar-live-voice/supporting-docs/fork-decision-memo.md
+  Fork 5, Option B and its RECOMMENDATION section.
+satisfies_kernel_reference:
+  capability: avatar-client-runtime
+  requirement: Deterministic-first release gating and kill switches
+  phrase: "revoke affected active leases according to the recorded policy"
+
+# ---------------------------------------------------------------------------
+# 6.3.1 — THE COHORT
+# ---------------------------------------------------------------------------
+cohort:
+  owning_task: qualify-avatar-live-voice 6.3.1
+  acceptance_map_refs: [ALV-008, ALV-008-S05]
+  members:
+    - id: COHORT-01
+      member: vendor_organization_internal_accounts
+      statement: >-
+        The vendor organization's own internal accounts — internal staff of the
+        organization operating the factory.
+    - id: COHORT-02
+      member: internally_staffed_domain_sandbox
+      statement: >-
+        EXACTLY ONE internally-staffed domain sandbox — an internal test tenant
+        of a single DomainxFactory (a MedxFactory or LedgerxFactory internal
+        sandbox, for example), staffed by internal people.
+      cardinality: exactly_one
+      note: >-
+        "Exactly one" is the ruled boundary, not a starting point. A second
+        domain sandbox widens the ring and requires a new ruling; it is not an
+        operator's call during the canary.
+  audio_policy:
+    permitted: [synthetic, internally_consented]
+    forbidden: [real_external_customer_audio]
+    statement: >-
+      Synthetic or internally-consented audio ONLY. This is continuous with
+      Fork 4's synthetic-first ruling and with F0's synthetic-only precedent.
+  external_tenants:
+    admitted: false
+    statement: >-
+      NO real external tenant is admitted to this cohort. A proposal to admit
+      one MUST be refused and routed to the PILOT ring, which owns
+      data-handling review and real-tenant scale. Internal-live is
+      qualification; it is not the pilot.
+    acceptance_map_refs: [ALV-008-S05]
+  opt_in:
+    mechanism: server_side_capability_resolution
+    allowlist: internal_cohort_allowlist
+    per_session_record: avc_01_request_context
+    client_visible_toggle: false
+    statement: >-
+      Opt-in is SERVER-SIDE capability resolution gated to an allowlisted
+      internal cohort, with the per-session opt-in recorded in the AVC-01
+      request context. It is NOT a client-visible toggle.
+    rationale: >-
+      A client-visible toggle would move cohort membership to the client, where
+      it could neither be enforced nor audited. Resolving server-side keeps the
+      allowlist the single source of membership and leaves a per-session record
+      of who actually opted in.
+  tenant_definition_ref:
+    owning_task: qualify-avatar-live-voice 7.10
+    status: unset
+    note: >-
+      The definition of "tenant" for this ring is a §7 authoring input and is
+      NOT set here. It MUST agree with this cohort or the per-tenant spend and
+      metering dimensions have no subject. Recorded as open rather than
+      silently assumed.
+
+# ---------------------------------------------------------------------------
+# 6.3.2 — THE REVOKE-VERSUS-BLOCK POLICY, in its ratified three-way split.
+#
+# The primitive being governed: TWO server kill switches (all-new-session
+# creation, and per-model-profile), EACH with OPTIONAL revocation of active
+# leases. This policy is the rule that selects the option. The split is
+# faithful to the kernel's own wording — active-lease revocation is mandated
+# "when safety requires it", which is a safety trigger and not a performance
+# one.
+# ---------------------------------------------------------------------------
+rollback_policy:
+  owning_task: qualify-avatar-live-voice 6.3.2
+  acceptance_map_refs: [ALV-008, ALV-008-S01, ALV-008-S02]
+  classes:
+
+    - id: ROLLBACK-A
+      class: hard_safety_or_integrity_breach
+      trigger_mode: automatic
+      action: abort
+      revoke_active_leases: true
+      block_new_sessions: true
+      statement: >-
+        A hard safety or integrity breach AUTO-ABORTS WITH REVOCATION OF ACTIVE
+        LEASES.
+      triggers:
+        - revocation_bound_violation
+        - failed_blocked_state_evaluation
+        - failed_exact_value_evaluation
+        - failed_consent_evaluation
+        - failed_handoff_evaluation
+        - redaction_finding
+        - secret_scan_finding
+        - media_authorization_ordering_violation
+      mechanism: >-
+        Reuses the landed consent-withdraw-mid-speech terminal path — media
+        revoked, capture stops, credential-free terminal, control channel
+        healthy. No new terminal is invented for this class.
+      rationale: >-
+        This is the case the kernel's "when safety requires it" names. A safety
+        breach that is allowed to drain keeps serving the unsafe condition for
+        the length of the drain.
+      detection_wiring_owner: qualify-avatar-live-voice 6.3.3
+
+    - id: ROLLBACK-B
+      class: latency_budget_or_elevated_error_or_quota
+      trigger_mode: automatic
+      action: block_new
+      revoke_active_leases: false
+      block_new_sessions: true
+      statement: >-
+        A latency-budget breach under the relative-regression SLO, or an
+        elevated error or quota condition, AUTO-BLOCKS-NEW WITHOUT revoking
+        active leases; in-flight legs DRAIN to their natural terminal.
+      triggers:
+        - material_regression_on_a_gated_percentile
+        - elevated_error_rate
+        - elevated_quota_condition
+      rationale: >-
+        Revoking an active lease on a latency regression would cut a person off
+        mid-conversation when blocking new sessions is sufficient, and it would
+        burn on a performance problem the exact mechanism that should be
+        reserved for genuine safety trips. The kernel mandates active-lease
+        revocation for safety, not for regression.
+      slo_ref: ALV-SLO-001
+      detection_wiring_owner: qualify-avatar-live-voice 6.3.3
+
+    - id: ROLLBACK-C
+      class: quality_or_cost_judgment
+      trigger_mode: operator
+      action: operator_selected
+      revoke_active_leases: operator_selected
+      block_new_sessions: operator_selected
+      statement: >-
+        A quality or cost concern is OPERATOR-TRIGGERED. It is a judgment call
+        read off telemetry, and the operator selects the kill-switch scope and
+        whether active leases are revoked.
+      triggers:
+        - quality_concern
+        - cost_concern
+      rationale: >-
+        These are not mechanically decidable. Automating them would convert a
+        judgment into a trip wire on a threshold nobody has ratified.
+
+  operator_surface:
+    owning_task: qualify-avatar-live-voice 7.7
+    status: unnamed
+    statement: >-
+      The operator surface that fires the kill switches MUST be named BEFORE
+      the canary opens. The web console is an explicit kernel non-goal, so
+      neither the holder nor the mechanism is inherited, and this policy does
+      not invent one. Recorded as OPEN: a canary opened without a named holder
+      has an unfireable kill switch, which would make ROLLBACK-C undeliverable
+      and ROLLBACK-A dependent on automation alone.
+
+  session_outcome_tokens:
+    owning_task: qualify-avatar-live-voice 7.8
+    status: partially_bound
+    bound:
+      - path: consent_or_lease_revocation
+        outcome: revoked
+        note: Fixture-bound today.
+    unbound:
+      - path: drained_leg_after_block_new
+        candidates: [completed, abandoned]
+      - path: force_terminated_leg
+        candidates: [revoked, abandoned]
+    statement: >-
+      The session outcome each rollback path emits SHALL be DECLARED IN ADVANCE
+      rather than inferred. Only consent and lease revocation is fixture-bound
+      to `revoked` today; the drained-leg and force-terminated-leg tokens are a
+      §7 authoring input and are recorded here as OPEN rather than guessed.
+
+# ---------------------------------------------------------------------------
+# THE ROLLBACK TARGET. Constrained by task 6.3.4 even though 6.3.4's
+# implementation is later: the constraint binds this copy NOW, because a
+# policy document that implied a model fallback would be wrong the moment it
+# was read, not the moment the code was written.
+# ---------------------------------------------------------------------------
+rollback_target:
+  target: disable_voice_to_text_or_human_handoff
+  model_fallback_exists: false
+  statement: >-
+    Rollback DISABLES VOICE and offers TEXT or HUMAN HANDOFF. Because
+    `gpt-realtime-2.1` is the FIRST qualified live profile, NO model fallback
+    exists, and none may be implied in copy or in code.
+  binding_note: >-
+    This constraint is task 6.3.4's and it binds this document's wording as
+    well as the later implementation. No sentence in this policy may be
+    written so that a reader could infer a graceful hot-swap to another model:
+    there is no other qualified profile to swap to.
+  acceptance_map_refs: [ALV-008-S03]
+  constrained_by_task: qualify-avatar-live-voice 6.3.4
+
+# ---------------------------------------------------------------------------
+# WHAT AN ABORT ENDS — and what it must not end.
+# ---------------------------------------------------------------------------
+abort_scope:
+  ends: media_plane_only
+  survives:
+    - authority_owned_workflow_projection
+    - policy_required_structured_records
+  statement: >-
+    An abort ENDS THE MEDIA PLANE ONLY. The workflow projection is
+    authority-owned and orthogonal to the media leg, so revoking a leg ends
+    media and never the logical session's governed record; policy-required
+    structured records are retained on every terminal.
+  acceptance_map_refs: [ALV-008-S04]
+  proof_owner: qualify-avatar-live-voice 6.3.5
+
+# ---------------------------------------------------------------------------
+# Canary exit criteria — deliberately NOT set here.
+# ---------------------------------------------------------------------------
+canary_exit_criteria:
+  owning_task: qualify-avatar-live-voice 7.6
+  status: unset
+  unset_values: [soak_duration, minimum_session_count, tolerated_error_rate]
+  statement: >-
+    Soak duration, minimum session count and tolerated error rate are §7
+    authoring inputs and are NOT set by this policy. They are recorded as open
+    so that a canary cannot be declared successful against criteria invented
+    after the fact.

@@ -280,7 +280,7 @@ ruled.
 The four-element ring is the binding exit contract; the eight conditions are
 the checklist that produces its evidence.
 
-- [ ] 4.1 Record the per-condition classification as a checklist artifact
+- [x] 4.1 Record the per-condition classification as a checklist artifact
       alongside the acceptance map, exactly per the memo's mapping:
       conditions 1, 2, 3-topology, 4, and the deterministic halves of 5 and 7
       are HARD PREFLIGHT; the live domain-voice eval (5), the live
@@ -288,6 +288,46 @@ the checklist that produces its evidence.
       the measured latency figure (3), and the opt-in canary (8) are
       CANARY-TIME; the kill switches and rollback machinery under 8 are HARD
       PREFLIGHT. Condition 6 is recorded in its reinterpreted form only.
+      **Done 2026-08-27.**
+      `contracts/avatar-client/internal-live-activation-checklist.yaml`,
+      beside `acceptance-map.yaml` as the task requires. The eight conditions
+      carry the memo's Fork 3 mapping exactly, and FOUR of them are recorded as
+      SPLITS rather than collapsed to one class — 3 (topology hard preflight /
+      measured figure canary), 5 (deterministic UI hard / live domain-voice
+      canary), 7 (deterministic blocked-state and exact-value hard / live
+      cross-domain evals canary) and 8 (kill switches and rollback machinery
+      HARD PREFLIGHT / opt-in canary canary-time). Collapsing 8 to a single
+      canary class is the specific error that would let a canary open on
+      unproven kill switches, so it is the mutation the check is built around.
+      Condition 6 is recorded in its REINTERPRETED form only
+      (`recorded_form: reinterpreted_only`); the as-written comparative string
+      is carried solely to name what was reserved to the GPT-Live adoption
+      change, flagged `as_written_form_is_reserved: true`, and is never a
+      second classification. The four ring elements each cross-reference the
+      acceptance-map entries that own their evidence — RING-02 to RBG-001 and
+      ALV-001-S03, RING-03 to ACR-011-S01, RING-04 to ACR-012-S04 and
+      ALV-003-S02, RING-05 to ALV-004 and ALV-SLO-001 — and `gate_confers`
+      states the ring yields a selectable internal-live profile and NO
+      production default (latent decision 3, task 4.6's constraint binding this
+      artifact's copy in advance of 4.6's own box).
+      VALIDATOR EXTENDED, per how §3's rules were added: `check_activation_
+      checklist` mirrors the ratified classification in validator constants
+      (`CHECKLIST_RULED`, `CHECKLIST_RULED_HALVES`, `CHECKLIST_RING_ELEMENTS`)
+      and machine-compares the artifact against them, exactly the discipline
+      `check_interface_lock` applies to the frozen identifier lists — a ruling
+      copied by hand drifts, and one that is machine-compared drifts loudly.
+      `_check_map_refs` resolves every `acceptance_map_refs` entry against the
+      map so a renamed scenario is a finding rather than a decoration. THE
+      RELEASED REGISTER IS NOT TOUCHED: `acceptance-map.yaml` and
+      `evidence-register.yaml` were cut at `contract-v1.46` and stay
+      byte-identical, so the new check is deliberately NOT registered as an
+      evidence-check id and no `deferred` status is flipped — the enforcement
+      is the fail-closed check itself, and discharging ALV-003's scenarios is
+      §4.2-§4.6's work against real evidence.
+      MUTATION CHECK: 18 mutations across both §4.1 and §6.3 artifacts, 18
+      caught, 0 missed — including the four that matter most (condition 8
+      collapsed to canary-time, the kill-switch half reclassified, a condition
+      deleted, and the ring widened by a sixth element).
 - [ ] 4.2 RING ELEMENT — secret scan: a green scan across the extracted
       client repository and the broker deployment, with the release-evidence
       obligations of `repo-boundary-governance` "Avatar-client release
@@ -374,17 +414,65 @@ the checklist that produces its evidence.
 
 ### 6.3 Canary and rollback (F5 Option B)
 
-- [ ] 6.3.1 Define the cohort: vendor-organization internal accounts plus
+- [x] 6.3.1 Define the cohort: vendor-organization internal accounts plus
       exactly ONE internally-staffed domain sandbox, synthetic or
       internally-consented audio only, no real external tenant. Opt-in is
       server-side capability resolution against an allowlist with the
       per-session opt-in recorded in the AVC-01 request context — not a
       client-visible toggle.
-- [ ] 6.3.2 WRITE the revoke-versus-block policy the kernel requires and has
+      **Done 2026-08-27** in
+      `contracts/avatar-client/canary-cohort-and-rollback-policy.yaml`
+      (`cohort:`). Two members: COHORT-01 the vendor organization's internal
+      accounts, COHORT-02 the internally-staffed domain sandbox carrying
+      `cardinality: exactly_one` as a checked field rather than as prose,
+      because "exactly one" is the ruled boundary and not a starting point a
+      canary operator may widen. Audio is synthetic or internally-consented
+      only; `external_tenants.admitted: false` with the refusal routed to the
+      pilot ring, which owns data-handling review and real-tenant scale
+      (ALV-008-S05). Opt-in is `server_side_capability_resolution` against the
+      internal allowlist with the per-session record in the AVC-01 request
+      context and `client_visible_toggle: false` — a client toggle would move
+      cohort membership to the client where it can be neither enforced nor
+      audited. The §7.10 "tenant" definition is recorded `status: unset` with
+      the note that it MUST agree with this cohort or the per-tenant spend and
+      metering dimensions have no subject; recorded open rather than assumed.
+- [x] 6.3.2 WRITE the revoke-versus-block policy the kernel requires and has
       never had, in its ratified three-way split: safety/integrity breaches
       auto-abort WITH active-lease revocation; latency-budget and elevated
       error/quota breaches auto-block-new and let in-flight legs drain;
       quality/cost breaches are operator-triggered.
+      **Done 2026-08-27**, same artifact (`rollback_policy:`). This is the
+      document `avatar-client-runtime`'s kill-switch scenario has pointed at
+      since the kernel was written — "revoke affected active leases ACCORDING
+      TO THE RECORDED POLICY" — and which Fork 5 recorded as never actually
+      written; until now "optional revocation" had no rule selecting the
+      option, leaving revoke-everything and revoke-nothing equally defensible.
+      The three-way split is encoded with its triggers: ROLLBACK-A (automatic,
+      abort, `revoke_active_leases: true`) on a revocation-bound violation, a
+      failed blocked-state / exact-value / consent / handoff evaluation, a
+      redaction or secret-scan finding, or a media-authorization ordering
+      violation — reusing the landed consent-withdraw-mid-speech terminal path
+      rather than inventing a terminal; ROLLBACK-B (automatic, block_new,
+      `revoke_active_leases: false`) on a material regression against
+      ALV-SLO-001 or an elevated error or quota condition, letting in-flight
+      legs drain; ROLLBACK-C operator-triggered for quality and cost judgment.
+      ROLLBACK TARGET, per 6.3.4's constraint binding this copy even though
+      6.3.4's implementation is later: `disable_voice_to_text_or_human_handoff`
+      with `model_fallback_exists: false` and an explicit binding note that no
+      sentence here may let a reader infer a hot-swap — `gpt-realtime-2.1` is
+      the first qualified profile and there is nothing to swap to.
+      `abort_scope.ends: media_plane_only` with the authority-owned workflow
+      projection and policy-required records surviving (ALV-008-S04). The
+      §7.7 operator surface is recorded `status: unnamed` and the §7.8 outcome
+      tokens `partially_bound` — only consent and lease revocation is
+      fixture-bound to `revoked` today, so the drained-leg and
+      force-terminated-leg tokens are left OPEN rather than guessed.
+      `check_canary_rollback_policy` machine-checks the split and its revoke
+      flags; the mutation that flips ROLLBACK-B's flag to true — which would
+      cut people off mid-conversation on a performance regression and spend the
+      safety mechanism on a latency problem — is caught.
+      6.3.3's auto-detection wiring is NOT built by this task and is left
+      unticked; the policy names §6.3.3 as its `detection_wiring_owner`.
 - [ ] 6.3.3 Build the auto-detection wiring the policy needs — the latency
       trip off §5's SLO and the safety-eval trip off §6.2.1 — since Option B
       was chosen precisely for this rehearsal value.
@@ -398,14 +486,106 @@ the checklist that produces its evidence.
 
 ### 6.4 The `xfactory-avatar-client` extraction (latent decision 1)
 
+> **BLOCKED 2026-08-27 — §6.4.1 and §6.4.2 are MIS-SPECIFIED AGAINST THE WORLD,
+> and were not executed. They need a ruling, not an implementer.**
+>
+> Both tasks were authored against a repository layout that stopped existing
+> three weeks before this change was ratified. The facts, verified against the
+> live remotes rather than inferred:
+>
+> 1. **codexFactory `apps/avatar-client-lab/` does not exist.** It was deleted
+>    in full on 2026-08-03 by codexFactory `2b79da35` ("Shed the avatar client
+>    lab to opensoft/openAvatar (DTN-022)", PR #74) — 240 files, ~22.9k lines
+>    of Dart, and `apps/` went with it. codexFactory `main` today contains
+>    ZERO `.dart` files and no `pubspec`. There is nothing at that path to
+>    extract. What remains is `specs/002-avatar-client-lab/`, deliberately kept
+>    as frozen Speckit evidence.
+> 2. **The extraction §6.4.1 describes has already happened**, under Brett's
+>    own DTN-022 ruling of 2026-08-03 — but to a DIFFERENTLY NAMED repository.
+>    `opensoft/openAvatar` (private) carries the lab with FULL subtree-split
+>    history (codexFactory `main@25e46fd1` -> openAvatar `main@1998dcf8`), is
+>    actively developed (154 Dart files, melos packages `app`, `avatar_view`,
+>    `avc_contracts`, `avc_session`, `avc_adapters_fixture`, `ui_kit`,
+>    `golden_config`), and is ALREADY pinned into the xFactory aggregation at
+>    `xFactory@6a2f418`. The DTN register records this as `adopted`:
+>    "DTN-022 | Avatar client lab neutral home | own repo `opensoft/openAvatar`
+>    (ruled 2026-08-03); domain descendants are pin-and-profile distributions".
+> 3. **`opensoft/xfactory-avatar-client` already exists and is PARKED.** It was
+>    created 2026-07-14 as task 1.1 of `implement-avatar-client-lab`, then
+>    parked the same day when Brett redirected the lab's code surface to
+>    codexFactory. Its README says so, and it holds no code. `gh repo create`
+>    on that name would simply fail.
+>
+> **Why this was not worked around.** Creating a fresh repo and copying
+> openAvatar's tree into it would FORK a live product line — precisely what
+> this change's own `avatar-client-lab` delta forbids in the scenario it added:
+> "the application and its generated bindings MUST move to
+> `xfactory-avatar-client` RATHER THAN BEING FORKED". It would orphan the
+> history DTN-022 deliberately preserved, duplicate a repository already
+> admitted to the aggregation, and strand `MedxAvatar` and `LedgerxAvatar`,
+> which are pin-and-profile distributions OF openAvatar. The tasks preamble is
+> explicit that "a task that appears to require re-opening [a ruled decision]
+> is mis-specified" — and §6.4.1 as written cannot be executed without
+> re-opening DTN-022.
+>
+> **The substance of latent decision 1 is already satisfied.** openAvatar is
+> private, independently releasable, holds no provider key, no server tool
+> handler and no server provider configuration, and consumes neutral contracts
+> read-only through a digest pin. What `repo-boundary-governance` "Neutral
+> avatar-client repository boundary" requires of the client repository is true
+> of openAvatar today; what is false is only the NAME the requirement records.
+>
+> **The ruling needed** (Brett's, not an implementer's) is which of these the
+> canon should say — and it is a naming and governance question with no code in
+> it either way:
+>
+> * **(a) Recognize openAvatar as the extracted client.** Amend
+>   `repo-boundary-governance` and this change's §6.4 to name
+>   `opensoft/openAvatar`, record DTN-022 as the act that performed the
+>   extraction, and archive or re-point the parked `xfactory-avatar-client`.
+>   §6.4.2's pin work then lands in openAvatar as a resync (see below). This
+>   matches the world and needs no repository surgery.
+> * **(b) Rename `opensoft/openAvatar` to `xfactory-avatar-client`**, keeping
+>   history, and re-point the aggregation pin and the two descendant repos.
+>   Preserves the canon's chosen name at the cost of a rename touching three
+>   other repositories.
+>
+> Note that §6.4.5 is also implicated: it forbids admitting
+> `xfactory-avatar-client` to the aggregation in this change, but openAvatar is
+> already admitted under its own name by a separate act — consistent with
+> §6.4.5's intent, inconsistent with its letter.
+>
+> **§6.4.2 is blocked only on which repo it targets, not on how.** openAvatar
+> already carries the exact mechanism the task asks for: a committed
+> `contract_pin.yaml` (`schema_version: 1`,
+> `kind: avatar-client-lab-contract-pin`) recording bundle, exact 40-hex
+> openxFactory commit and per-file sha256 per member, a `verify_pin` gate that
+> fails closed on an empty or commit-less pin, a `sync_contracts.dart` baker
+> and `docs/pin-resync-runbook.md`. It currently pins `contract-v1.7` and
+> `contract-v1.8` at openxFactory `01960b13`, verified against
+> `contract-v1.12`. The real §6.4.2 work is a RESYNC of that existing pin up to
+> `contract-v1.46` at commit `046466a05590eff13819194f6ce4489798edd815`, taking
+> the per-file digests from `contracts/releases/contract-v1.46.digests.yaml`,
+> executed through the runbook and landed as a PR on the repo the ruling picks.
+> That is a contained, well-understood follow-up once (a) or (b) is chosen.
+
 - [ ] 6.4.1 Create the private, independently releasable
       `xfactory-avatar-client` repository and EXTRACT the app and its
       generated bindings from codexFactory `apps/avatar-client-lab/`. It
       holds no provider key, no server tool handler, no server provider
       configuration, and no unpinned copy of a neutral schema.
+      **BLOCKED 2026-08-27** — see the §6.4 note above. The source path was
+      deleted on 2026-08-03 and the extraction already happened to
+      `opensoft/openAvatar` under DTN-022; the named destination exists and is
+      parked. Executing this task as written would fork a live repository,
+      which this change's own `avatar-client-lab` delta forbids.
 - [ ] 6.4.2 Pin the compatible openxFactory bundle tag plus exact contract
       commit and per-file digests; the co-checkout path reference allowed
       before this gate stops being sufficient at it.
+      **BLOCKED 2026-08-27 on §6.4.1's ruling only.** The mechanism exists in
+      `openAvatar/contract_pin.yaml`; the work is a resync to `contract-v1.46`
+      at `046466a0` against `contracts/releases/contract-v1.46.digests.yaml`,
+      landed wherever the ruling points.
 - [ ] 6.4.3 Realize the live `avc_adapters_live` transport behind the
       existing fail-closed `SessionTransport` port with ZERO reducer or UI
       change, and instrument AVC-10 markers on the gated platforms.
