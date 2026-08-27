@@ -1233,6 +1233,43 @@ def mint_ledger_snapshot(port) -> tuple:
     return tuple(ledger)
 
 
+def fresh_ledger_events(before: tuple, after: tuple) -> list:
+    """The events APPENDED to a mint ledger between two snapshots.
+
+    BY IDENTITY, NEVER BY EQUALITY, and PR #401's review found the reason.
+    `doxbench_provider.MintEvent` is a FROZEN dataclass, so two DISTINCT events
+    whose four fields coincide compare equal — and they coincide exactly when it
+    matters most. A `paid_retry` event carries no `audit_ref` at all, so under a
+    clock that returns the same value twice (a frozen test clock, a coarse
+    timer, two turns inside one tick) the second turn's paid retry is
+    field-for-field the first turn's. An `event not in before` test then filters
+    it out as already-seen, `provider_retry_fact` answers None, and the second
+    paid provider call that Brett's 2026-08-26 ruling requires to be VISIBLE is
+    the one the human never sees. Identity cannot make that mistake: the port's
+    `_record` constructs a fresh object per append, so no event object is ever
+    two events.
+
+    NOT POSITIONAL EITHER, which is the other obvious repair and is wrong here.
+    THE LEDGER IS NOT STRICTLY APPEND-ONLY: it is append-only up to
+    `doxbench_provider.MAX_LEDGER_EVENTS`, past which `_record` trims from the
+    FRONT (`del self.ledger[:-MAX_LEDGER_EVENTS]`). A `ledger[before_len:]`
+    slice reads NOTHING once the ledger sits at that bound — which is the state
+    a long-lived console converges to, so the positional repair would fail in
+    precisely the installs that dispatch the most turns. The invariant that
+    actually holds is weaker and is enough: events are appended at the right and
+    only ever dropped from the left, so an event present in `after` and absent
+    from `before` was appended during the window, and one trimmed away is not in
+    `after` to be counted twice.
+
+    The `id()` set is safe here because `before` is a live tuple for this call's
+    whole duration: nothing it holds can be collected, so no id can be recycled
+    underneath the comparison."""
+    if not before:
+        return list(after)
+    seen = {id(event) for event in before}
+    return [event for event in after if id(event) not in seen]
+
+
 def provider_retry_fact(before: tuple, after: tuple) -> dict | None:
     """THE MID-TURN RE-MINT, as the turn record states it (task 3.6), or None.
 
@@ -1266,7 +1303,7 @@ def provider_retry_fact(before: tuple, after: tuple) -> dict | None:
     construction: the broker's declaration records no token material against
     one."""
     from ideation_dashboard import doxbench_provider
-    fresh = [event for event in after if event not in before]
+    fresh = fresh_ledger_events(before, after)
     if not any(getattr(event, "reason", None) == doxbench_provider.REASON_PAID_RETRY
                for event in fresh):
         return None
@@ -2948,6 +2985,33 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         if length < 0 or length > self.MAX_CREDENTIAL_BYTES:
             if length > 0:
                 _drain_refused_body(self.rfile, length)
+            self._send_error_or_intake(DOXBENCH_ERR_INVALID_INTAKE_REQUEST)
+            return
+        if (length <= 0
+                and declared["kind"] == doxbench_binding.AUTH_KIND_API_KEY):
+            # AN EMPTY BODY IS NOT A CREDENTIAL (PR #401 review). The api_key
+            # kind's whole body IS the secret, so a request declaring
+            # `Content-Length: 0` — or declaring no length at all, which this
+            # route reads as zero — has declared that it is enrolling nothing.
+            # Handing that to the broker would ask a custodian to take custody
+            # of an empty value and would come back with a reference naming it,
+            # and the binding and the PENDING declaration written afterwards
+            # would then say a credential exists where none does. That is worse
+            # than a refusal, because the records are the only thing anyone
+            # afterwards can read.
+            #
+            # REFUSED HERE, WITH THE LENGTH'S OWN KIN, and not one line later:
+            # this is a malformed request rather than a posture the server
+            # declines, so it earns the 400 shape the closed query vocabulary
+            # and the over-bound length already earn — no new failure code, and
+            # the broker child is never spawned. Nothing is drained because
+            # nothing was declared.
+            #
+            # `api_key` ONLY, deliberately. The oauth kind is SUPPOSED to send
+            # an empty body: the dashboard may not be the party that receives a
+            # provider's tokens (OQ-2), so that intake reaches the broker with
+            # an empty source on purpose and is refused — or not — by the
+            # broker's own declared flow rather than by this check.
             self._send_error_or_intake(DOXBENCH_ERR_INVALID_INTAKE_REQUEST)
             return
         try:
