@@ -428,7 +428,13 @@ that a per-artifact sweep does not generalize.
       only on merged-plus-green on the openxFactory main line, in its own commit
       after the merge. **STILL OPEN BY DESIGN**: the realization pull request is
       open and is deliberately NOT merged or archived by the implementing
-      session.
+      session. THE GREEN HALF IS ALREADY EVIDENCED on the pull request head:
+      openxFactory PR **#424**, head `fb134232`, `pytest-suite` **success** —
+      `python3 -m pytest tests/ -q -m "not postgres"` reporting **6933 passed /
+      20 skipped / 338 deselected / 28 subtests passed / 0 failed** in 12m38s
+      (run 33089969860) — and `wallet-validation` **success**. The 20 skips are
+      pre-existing and none is in `tests/doc-health`, which reports zero. What
+      remains for this box is the MERGE and the archive commit after it.
 - [x] 4.4 NO CONTRACT BUNDLE IS OWED — RE-CHECKED AT REALIZATION as this task
       required, and by path rather than by `grep`. All 38
       `contracts/releases/*.digests.yaml` inventories were parsed into their
