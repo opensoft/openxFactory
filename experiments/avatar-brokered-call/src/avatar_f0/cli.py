@@ -13,6 +13,26 @@ import sys
 from pathlib import Path
 from typing import List, Optional
 
+# THE DECLARED SENTINEL VOCABULARY, IMPORTED RATHER THAN RETYPED
+# (`fix-pin-value-boundary-and-sentinel-split`, Q3 ruled 2026-08-28). A
+# generator writing one of these spellings imports the name, which is the whole
+# difference between a vocabulary and a habit: a retyped literal drifts from the
+# declaration silently, and the value it writes is read by a verification that
+# guards on the exact string.
+#
+# THE PATH INSERTION IS THE CROSS-PACKAGE PART AND IS STATED RATHER THAN HIDDEN.
+# `doc_health.pin_sentinels` lives under `<root>/scripts/` and this harness
+# lives under `<root>/experiments/`, so neither is on the other's import path by
+# construction. The module depends on nothing outside the standard library,
+# which is why it can be reached this way at all — the same reasoning
+# `scripts/proposal-support.py` records for its own insertion. Q3 ruled the
+# import in for THIS instance and legislated no general rule; if a second
+# generator retypes a literal, that is the evidence for one.
+_SCRIPTS_DIR = str(Path(__file__).resolve().parents[4] / "scripts")
+if _SCRIPTS_DIR not in sys.path:
+    sys.path.insert(0, _SCRIPTS_DIR)
+from doc_health import pin_sentinels  # noqa: E402
+
 from . import __version__
 from .acceptance_map import AcceptanceMapError, load_acceptance_map
 from .config import PreflightError, RunConfig, VALID_GROUPS, validate_preflight
@@ -41,25 +61,66 @@ def _repo_root() -> Path:
 
 
 def _git_file_commit(root: Path, relpath: str) -> str:
-    """The commit that last modified ``relpath`` — the file's provenance (FR-018)."""
+    """The commit that last modified ``relpath`` — the file's provenance (FR-018).
+
+    WHERE NO COMMIT NAME CAN BE WRITTEN, THE SENTINEL WRITTEN NAMES THE
+    CONDITION THAT ACTUALLY HELD (`fix-pin-value-boundary-and-sentinel-split`).
+    Until this branch existed, `out.returncode` was never read and a single
+    ``"unknown"`` was returned by two different failures: a git run that
+    SUCCEEDED and found no commit holding the path, and a git run that FAILED
+    and produced nothing because it failed. Those are different facts about the
+    repository and the vocabulary declares a different member for each, so the
+    return code has to be read before either can be written honestly.
+    """
     try:
         out = subprocess.run(
             ["git", "-C", str(root), "log", "-1", "--format=%H", "--", relpath],
             capture_output=True, text=True, timeout=10)
-        return out.stdout.strip() or "unknown"
+        if out.returncode != 0:
+            # The repository's own history could not be read at all — nothing
+            # about the content was established (unreadable-repository).
+            return pin_sentinels.UNCOMMITTED
+        # A SUCCESSFUL run that named no commit: the repository is readable,
+        # HEAD resolves, and this content is held by no commit (dirty-worktree
+        # — the content is real and no commit name describes it).
+        return out.stdout.strip() or pin_sentinels.UNCOMMITTED_WORKTREE
     except Exception:
-        return "unknown"
+        # The call itself did not complete (timeout, git absent, not a
+        # repository): unreadable-repository, the same condition the non-zero
+        # return code names.
+        return pin_sentinels.UNCOMMITTED
 
 
 def _git_head(root: Path) -> str:
-    """The current HEAD commit — the F0 source commit this evidence is produced at."""
+    """The current HEAD commit — the F0 source commit this evidence is produced at.
+
+    ONE CONDITION WEARING THREE SPELLINGS OF THE SAME FAILURE. There is no
+    success that answers empty, so the empty-output return and the exception
+    return name the identical unreadable-repository condition and write the
+    identical member.
+
+    THE THIRD SPELLING WAS MEASURED AT REALIZATION AND IS WHY THE RETURN CODE
+    IS READ HERE TOO. `fix-pin-value-boundary-and-sentinel-split` § 3.3 reasoned
+    that a failed `rev-parse HEAD` always produces nothing and that no return
+    code branch was therefore needed. Measured against git rather than assumed,
+    that is false in one case: on an UNBORN `HEAD` the command prints the
+    literal string `HEAD` on stdout and exits non-zero, so the unguarded form
+    returned `"HEAD"` — a value that is neither a commit name nor a declared
+    sentinel, written as though it were the repository's revision. The
+    vocabulary already assigns that case to this member by name
+    (`unreadable-repository`: "`rev-parse HEAD` failed, `HEAD` is unborn, or the
+    path is not a repository"), so reading the return code changes no ruled
+    member; it only stops a third failure being spelled as a pin.
+    """
     try:
         out = subprocess.run(
             ["git", "-C", str(root), "rev-parse", "HEAD"],
             capture_output=True, text=True, timeout=10)
-        return out.stdout.strip() or "unknown"
+        if out.returncode != 0:
+            return pin_sentinels.UNCOMMITTED
+        return out.stdout.strip() or pin_sentinels.UNCOMMITTED
     except Exception:
-        return "unknown"
+        return pin_sentinels.UNCOMMITTED
 
 
 def _dependency_versions(root: Path) -> dict:

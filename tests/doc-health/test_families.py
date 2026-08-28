@@ -18,6 +18,7 @@ import doc_health
 from doc_health import CRITICAL, ERROR, WARNING, INFO
 from doc_health import corpus
 from doc_health import families
+from doc_health import report
 from doc_health.families import FAMILIES
 
 
@@ -41,6 +42,60 @@ def test_status_validity():
         "docs/missing.md":
             "add a Status: header from the controlled taxonomy",
     }
+
+
+def test_projection_is_a_controlled_status_and_not_a_record(tmp_path):
+    """REGRESSION, 2026-08-28 (`declare-generated-projection-status`).
+
+    `ideation/cross-reference.md` is rewritten in place by
+    `scripts/render-ideation-cross-reference.py` on every run, and carried
+    `Status: record` — so `record-immutability` reported a CRITICAL for every
+    legitimate regeneration, making the correct act a finding. Promoted canon
+    in `ideation-cross-reference` already called the index and "its rendered
+    twin" generated artifacts that are NOT records; the header contradicted it.
+
+    The ninth standing ends it AT THE ROOT. Both halves are asserted here,
+    because either alone would be the wrong fix: `projection` must be a
+    CONTROLLED value (so `status-validity` stays silent — the file is not
+    merely unrecognised), and it must NOT be a record (so
+    `record-immutability` never reaches it). Silencing the family instead
+    would have satisfied the second and failed the first.
+    """
+    from doc_health import TAXONOMY
+    assert "projection" in TAXONOMY
+
+    repo = tmp_path / "alpha"
+    (repo / "ideation").mkdir(parents=True)
+    projected = repo / "ideation/index.md"
+    projected.write_text(
+        "# Index\n\nStatus: projection\nKind: report\n\n"
+        "**GENERATED FILE — do not edit by hand.**\n"
+    )
+
+    ctx = make_ctx("status-validity")
+    ctx.repo_paths = {"alpha": repo}
+    ctx.docs = corpus.load_docs("alpha", repo)
+    ctx.lifecycle_docs = []
+    assert FAMILIES["status-validity"](ctx) == []
+
+    # A record's capture blob differs from the tree and the family fires; a
+    # projection's status makes the family skip before it ever asks git, so
+    # the SAME divergence is silent. Asserted against one FakeGit rather than
+    # two, so the only difference between the runs is the status value.
+    git = FakeGit(captures={
+        ("alpha", "ideation/index.md"):
+            "# Index\n\nStatus: record\n\nold body\n"})
+    ctx.git = git
+    assert FAMILIES["record-immutability"](ctx) == []
+
+    # ...and the exemption is not blindness: the same file as a `record`,
+    # against the same git, still reports the critical.
+    projected.write_text(
+        "# Index\n\nStatus: record\nKind: report\n\nnew body\n")
+    ctx.docs = corpus.load_docs("alpha", repo)
+    got = FAMILIES["record-immutability"](ctx)
+    assert [(f.severity, f.path) for f in got] == [
+        (CRITICAL, "ideation/index.md")]
 
 
 def test_standard_backing():
@@ -502,6 +557,15 @@ def test_notebook_projection_drift():
     assert "2 pending operations" in got[0].rule
     # PIN, see test_status_validity's docstring comment.
     assert got[0].action == "run the lifecycle notebook sync with --apply"
+    # PIN (issue #474): the path slot names a REAL artifact, aggregation-root
+    # relative like every other `repo=xFactory` finding, and carries no
+    # whitespace. It used to read `(lifecycle notebooks)` — a synthetic label
+    # whose space made `PLAN_RE`'s `path=(\S+)` unable to read the row back,
+    # so the finding was silently dropped from every `--previous-report`
+    # comparison (live at health/reports/2026-07-09.md:188).
+    assert got[0].path == "openxFactory/docs/lifecycle-notebook-projection.md"
+    assert report.PLAN_RE.match(report.plan_line(got[0])), \
+        "the family's own row must round-trip through the ranked plan"
 
     ctx_clean = make_ctx("status-validity", notebook=lambda: "scan only\n")
     assert drift(ctx_clean) == []

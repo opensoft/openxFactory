@@ -220,6 +220,39 @@ def test_the_four_per_seat_keys_are_asserted_as_adjudicated(
         "positive assertion's negation and confer nothing")
 
 
+def test_the_wallets_five_declared_keys_are_asserted_as_adjudicated(
+        runs: list[str]) -> None:
+    """wallet-v1.3: the wallet DECLARES the four seat keys, and the gate proves
+    the declaration was adjudicated.
+
+    A DIFFERENT FACT from the register assertion above, and the difference is
+    the whole reason this change existed. The register recording a key does not
+    satisfy the pinned validator's rule (r), which refuses a presenting key no
+    WALLET declares — and hermes-install writes the register-recorded `key_id`
+    into every exercise record's `presenting_key_ref`. So a gate proving only
+    the register half would go green on a tree where each convening's exercise
+    record is unrepresentable.
+
+    The count is asserted LITERALLY and the wallet is named: five is the whole
+    declared set (one operator-vaulted root key plus four CI-resident seat
+    keys), the reader emits the note only for a set with more than one member,
+    and it names the ids it stood behind. A sixth key arriving, or one going
+    missing, must break this gate rather than pass under a wildcard.
+    """
+    assertion = next((r for r in runs if "wallet-gate.log" in r
+                      and "validate-openxwallet.py" not in r), None)
+    assert assertion is not None, "the gate has no register-assertion step"
+    assert "wal-agent-mrc-0001" in assertion, (
+        "the gate does not name the wallet whose declared keys it depends on; a "
+        "declared-key note for SOME wallet would be satisfied by the packaged "
+        "corpus's own multi-key fixture, which says nothing about this tree")
+    assert "5 declared key" in assertion, (
+        "the gate does not assert the COUNT of wal-agent-mrc-0001's declared "
+        "keys; the count is what distinguishes a wallet that declares the four "
+        "seat keys from one that lost them")
+    assert "adjudicated" in assertion
+
+
 def test_the_retired_workflow_file_is_gone(runs: list[str]) -> None:
     """The rename is a replacement, not an addition.
 

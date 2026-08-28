@@ -910,6 +910,34 @@ def fam_contract_copy_drift(ctx):
 
 _SYNC_OP = re.compile(r"^\[[^\]]+\]\s+(ADD|DEL|UPD)\s")
 
+# The artifact this family's finding is ABOUT: the standard that owns lifecycle
+# notebook projection (`Status: standard`, backed by the promoted
+# `lifecycle-notebook-projection` spec), spelled relative to the AGGREGATION
+# root because this finding's repo is `xFactory` — the same spelling
+# `runner.SYNC_SCRIPT` already uses for `openxFactory/scripts/
+# sync-notebooklm-books.py`, and the same shape as every other `repo=xFactory`
+# path in the reports (`openxFactory`, `installs/agenttower`, ...).
+#
+# IT USED TO BE THE PROSE LABEL `(lifecycle notebooks)` (issue #474), and the
+# space in it made `report.PLAN_RE`'s `path=(\S+)` unable to read the row back
+# out of the report this family had just written it into —
+# `health/reports/2026-07-09.md:188` is the live instance. So the finding was
+# invisible to `regressions()` and to `uncited_resolutions()`. A REAL PATH is
+# the fix rather than a whitespace-free slug (`lifecycle-notebooks`) because
+# the slot already means "the artifact to open", every other family fills it
+# that way, and here there IS such an artifact — the runbook a reader needs is
+# in that document. `report.plan_line` now refuses a whitespace-bearing path,
+# so this cannot come back silently.
+#
+# NO DISPOSITION MOVES WITH IT: a disposition matches (family, repo, path), and
+# `xFactory/health/dispositions.yaml` carries no `notebook-projection-drift`
+# entry (checked 2026-08-28 — its eleven entries are location-conformance,
+# record-immutability, semantic-contradiction, semantic-normative-prose and
+# uncited-resolution). The old key was never dispositioned, so nothing keys on
+# it. The family is also CONTESTED-free (WARNING only), so no
+# uncited-resolution can be manufactured by the key change.
+NOTEBOOK_PROJECTION_PATH = "openxFactory/docs/lifecycle-notebook-projection.md"
+
 
 def fam_notebook_projection_drift(ctx):
     output = ctx.notebook_dryrun()
@@ -922,7 +950,7 @@ def fam_notebook_projection_drift(ctx):
         return []
     return [Finding(
         WARNING, "notebook-projection-drift", "xFactory",
-        "(lifecycle notebooks)",
+        NOTEBOOK_PROJECTION_PATH,
         f"projection dry-run reports {len(ops)} pending operations",
         "run the lifecycle notebook sync with --apply")]
 

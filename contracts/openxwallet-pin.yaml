@@ -31,7 +31,7 @@ kind: pinned_contract_manifest
 # (`openXwallet/docs/pin-resync-runbook.md`), never a CI read.
 # ============================================================================
 
-contract_bundle_tag: wallet-v1.2
+contract_bundle_tag: wallet-v1.3
 source_repository: opensoft/openXwallet
 
 # ADDED to the realized shape (D1): the gitlink this pin governs. Borrowed from
@@ -40,8 +40,8 @@ source_repository: opensoft/openXwallet
 # gitlink.
 submodule_path: openXwallet
 
-# openXwallet at `wallet-v1.2`. Exactly 40 hex characters.
-commit: "93b0a47fe9086e65f71ef2916f60a82b2ac4cdca"
+# openXwallet at `wallet-v1.3`. Exactly 40 hex characters.
+commit: "6b248d4050e1f88b3ca75c1290ad2c81f465300c"
 revision_kind: commit
 
 digest_algorithm: sha256
@@ -68,8 +68,17 @@ verify_pin: scripts/verify-openxwallet-pin.py
 # manifest carried per-file digests for until `contract-v2.0`; the values are
 # copied unchanged, which is what makes the shed checkable against the carve.
 files:
+  # THE ONE ROW THAT MOVED AT wallet-v1.3 (openXwallet
+  # `add-multi-key-wallets`): the record schema gained an optional `keys:` list
+  # of ADDITIONAL declared keys, each with its own custody, fingerprint and
+  # state, plus an optional `key_fingerprint` on `key_reference`. This is the
+  # FIRST wallet release since the carve in which a digested contract byte
+  # moves, so it is also the first pin bump in which this block changes at all —
+  # every previous one moved `commit:` and `contract_bundle_tag:` and nothing
+  # else. The other seven values below are unchanged and were reverified by
+  # recomputation at the new commit, not carried on trust.
   - path: contracts/openxwallet/openxwallet-record.schema.yaml
-    sha256: "2012ef432616e73ddaead17c5e79aefacef712c2049ff649c15d7230b1d4eb08"
+    sha256: "20ba39c07564c93b8ffe47382126677a165771244d28fb0c4976ab950173c40a"
   - path: contracts/openxwallet/openxwallet-custody-registry.schema.yaml
     sha256: "df72638497a7f90c2a4dff47c429cb794bc4b6e270ce2dd2b17116478ae3b51a"
   - path: contracts/openxwallet/openxwallet-custody.registry.yaml

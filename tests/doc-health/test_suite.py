@@ -3,8 +3,12 @@ regression matching, and threshold deviation reporting."""
 
 from __future__ import annotations
 
+import ast
+import re
 import shutil
 from datetime import date
+
+import pytest
 
 from conftest import AS_OF, FIXTURES, REPO_ROOT, FakeGit, make_ctx
 
@@ -197,6 +201,357 @@ def test_parse_previous_still_reads_rows_from_the_pre_escape_emitter():
     keys, contested = report.parse_previous(old)
     assert keys == {("tag-hygiene", "alpha", "docs/x.md")}
     assert contested == {("tag-hygiene", "alpha", "docs/x.md")}
+
+
+# --- Ranked-plan path: whitespace-free at emit, unparsed rows reported -------
+#
+# The sibling of the quoting defect above, and the same shape: `plan_line`
+# EMITS `path=<value>` unquoted and `PLAN_RE` READS it back as `(\S+)`, so a
+# path carrying a space is emitted into the report and matched by no parser.
+# The row is then silently absent from `--previous-report`, which makes a
+# persistent finding read as a new regression and hides a contested finding's
+# disappearance from `uncited_resolutions`.
+#
+# THE LIVE INSTANCE is `health/reports/2026-07-09.md:188` — the
+# notebook-projection-drift family wrote the SYNTHETIC LABEL
+# `path=(lifecycle notebooks)` into the path slot. Reproduced verbatim below,
+# because a hand-written approximation of a defect is not the defect.
+_LIVE_UNPARSABLE_ROW = (
+    "- severity=warning family=notebook-projection-drift repo=xFactory "
+    "path=(lifecycle notebooks) "
+    'rule="projection dry-run reports 44 pending operations" '
+    'action="run the lifecycle notebook sync with --apply"')
+
+
+def test_the_live_2026_07_09_row_is_the_defect_this_pins():
+    """The row really does match no parser — the premise of everything below.
+    If a future grammar change made it parse, these tests would be pinning
+    nothing and this one says so."""
+    assert report.PLAN_RE.match(_LIVE_UNPARSABLE_ROW) is None
+
+
+def test_plan_line_refuses_a_path_containing_whitespace_under_strict():
+    """Loud at emit, not silent at parse a year later. The error names the
+    family so the fix lands at the construction site, not here."""
+    f = Finding(WARNING, "notebook-projection-drift", "xFactory",
+                "(lifecycle notebooks)", "44 pending operations", "sync")
+    with pytest.raises(ValueError) as excinfo:
+        report.plan_line(f, strict=True)
+    message = str(excinfo.value)
+    assert "notebook-projection-drift" in message
+    assert "(lifecycle notebooks)" in message
+
+
+def test_plan_line_refuses_a_tab_or_newline_in_the_path_under_strict():
+    r"""`(\S+)` is broken by every whitespace character, not just the space
+    that happened to fire."""
+    for bad in ("docs/a\tb.md", "docs/a\nb.md", "docs/a b.md"):
+        f = Finding(ERROR, "tag-hygiene", "alpha", bad, "r", "a")
+        with pytest.raises(ValueError):
+            report.plan_line(f, strict=True)
+
+
+def test_plan_line_refuses_an_empty_path_under_strict():
+    r"""`(\S+)` needs at least one character; an empty path is unreadable for
+    the same reason a spaced one is."""
+    f = Finding(ERROR, "tag-hygiene", "alpha", "", "r", "a")
+    with pytest.raises(ValueError):
+        report.plan_line(f, strict=True)
+
+
+# --- and the PRODUCTION default: sanitize, announce, keep going -------------
+#
+# THE PATH SLOT IS DATA-REACHABLE, which is why `strict` is not the default.
+# `corpus.iter_doc_paths` rglobs every `.md` in the checkout, so a governance
+# file named `docs/Meeting Notes 2026.md` reaches `plan_line` through any
+# family that reports on it. Raising there aborts `render()` BEFORE
+# `--report-out` is written: the nightly's `Run doc-health suite` step carries
+# no `continue-on-error`, so the run would produce NO report and NO artifact
+# until a human renamed the file, and the next run would then baseline against
+# a stale report. The tests below are the nightly's shape, not a unit corner.
+_DATA_WHITESPACE_PATH = "docs/Meeting Notes 2026.md"
+
+
+def test_a_whitespace_path_from_the_corpus_still_renders_a_readable_row(
+        capsys):
+    """Sanitized, not refused, and the repaired row round-trips — which is the
+    whole point: the finding participates in the regression comparison instead
+    of being dropped from it."""
+    f = Finding(ERROR, "status-validity", "alpha", _DATA_WHITESPACE_PATH,
+                "missing status header", "add a Status: header")
+    line = report.plan_line(f)
+    m = report.PLAN_RE.match(line)
+    assert m, f"the sanitized row is still unreadable: {line!r}"
+    assert m.group(4) == "docs/Meeting_Notes_2026.md"
+    keys, _ = report.parse_previous(line)
+    assert keys == {("status-validity", "alpha", "docs/Meeting_Notes_2026.md")}
+    err = capsys.readouterr().err
+    assert report.SANITIZED_PATH_MARKER in err
+    assert "status-validity" in err and "alpha" in err
+    assert _DATA_WHITESPACE_PATH in err
+    assert "docs/Meeting_Notes_2026.md" in err
+
+
+def test_the_nightly_still_gets_a_report_when_the_corpus_names_a_bad_path():
+    """THE BLOCKER THIS ANSWERS (review of PR #477): `render()` must return a
+    report even when a finding carries a whitespace path, or the nightly step
+    fails with nothing written and tomorrow baselines against a stale file."""
+    findings = [
+        Finding(ERROR, "status-validity", "alpha", _DATA_WHITESPACE_PATH,
+                "missing status header", "add a Status: header"),
+        Finding(ERROR, "tag-hygiene", "alpha", "docs/ok.md", "r", "a"),
+    ]
+    text = report.render(date(2026, 8, 28), findings, [], [], [], 0, [], [])
+    assert "## Ranked Plan" in text
+    keys, _ = report.parse_previous(text)
+    assert keys == {("status-validity", "alpha", "docs/Meeting_Notes_2026.md"),
+                    ("tag-hygiene", "alpha", "docs/ok.md")}
+    assert report.unparsed_plan_rows(text) == []
+
+
+def test_sanitizing_is_deterministic_so_the_repaired_key_is_stable():
+    """A key that changed between runs would read as a resolution plus a
+    regression every night. Whitespace RUNS collapse, so the tab and the
+    double space agree with the single space."""
+    for raw, expected in (
+            ("docs/a b.md", "docs/a_b.md"),
+            ("docs/a  b.md", "docs/a_b.md"),
+            ("docs/a\tb.md", "docs/a_b.md"),
+            ("docs/a \t b.md", "docs/a_b.md"),
+            (" leading.md", "_leading.md"),
+            # ONE RULE, no special cases: a path that is nothing but
+            # whitespace is one run and collapses to one `_`. Only a genuinely
+            # empty string has no run to collapse and takes the placeholder.
+            ("   ", "_"),
+            ("", report.EMPTY_PATH_PLACEHOLDER)):
+        assert report.sanitize_path(raw) == expected
+        assert report._PATH_RE.fullmatch(report.sanitize_path(raw))
+
+
+def test_a_clean_path_is_never_announced_as_sanitized(capsys):
+    """Silence on the healthy path — every row of every report written to
+    date. A sanitizer that narrated ordinary rows would be unreadable."""
+    f = Finding(ERROR, "tag-hygiene", "alpha", "docs/x.md", "r", "a")
+    report.plan_line(f)
+    assert capsys.readouterr().err == ""
+
+
+def test_the_emit_guard_admits_exactly_what_the_parser_reads_back():
+    """Guard and grammar are one rule. Every path the guard accepts must
+    round-trip, or the guard is passing rows the parser still drops."""
+    for path in ("docs/x.md", "(drafts)", "installs/agenttower",
+                 "openspec/changes/c/specs/doc-health/spec.md",
+                 "openxFactory/docs/lifecycle-notebook-projection.md",
+                 'a"quoted".md', "a\\backslash.md", "—em-dash.md"):
+        f = Finding(ERROR, "tag-hygiene", "alpha", path, "r", "a")
+        line = report.plan_line(f)
+        m = report.PLAN_RE.match(line)
+        assert m, f"guard admitted a path the parser drops: {path!r}"
+        assert m.group(4) == path
+
+
+def test_plan_line_is_byte_identical_for_a_whitespace_free_path():
+    """The guard adds no bytes. Pinned against the pre-guard format literally
+    so a future path-quoting scheme reds here instead of silently rewriting
+    the diff of every nightly report."""
+    f = Finding(ERROR, "tag-hygiene", "alpha", "docs/x.md",
+                "missing status header", "add a Status: header")
+    assert report.plan_line(f) == (
+        f"- severity={f.severity} family={f.family} repo={f.repo} "
+        f"path={f.path} rule=\"{f.rule}\" action=\"{f.action}\" "
+        f"class=\"{f.resolution}\"")
+
+
+def test_an_unparsable_plan_row_is_reported_not_silently_skipped(capsys):
+    """`parse_previous` used to `continue` past a row it could not read, so
+    the NEXT grammar defect would also take a year and an adversarial review
+    to notice. The 2026-07-09 row is now named, with its line number."""
+    text = "# Doc-Health Report\n\n## Ranked Plan\n\n" + _LIVE_UNPARSABLE_ROW
+    assert report.unparsed_plan_rows(text) == [(5, _LIVE_UNPARSABLE_ROW)]
+    report.parse_previous(text)
+    err = capsys.readouterr().err
+    assert report.UNPARSED_PLAN_ROW_MARKER in err
+    assert report.UNPARSED_PLAN_ROW_TOTAL_MARKER in err
+    assert "line 5" in err
+    assert "(lifecycle notebooks)" in err
+
+
+def test_the_two_unparsed_markers_are_countable_apart(capsys):
+    """`grep -c` for the row marker must return the number of ROWS. The first
+    spelling of the summary was `[ranked-plan] unparsed rows: N`, which
+    contains the row marker as a prefix, so counting rows returned N+1 and the
+    diagnostic misreported its own subject."""
+    assert report.UNPARSED_PLAN_ROW_MARKER not in \
+        report.UNPARSED_PLAN_ROW_TOTAL_MARKER
+    text = "\n".join([_LIVE_UNPARSABLE_ROW, _LIVE_UNPARSABLE_ROW])
+    report.parse_previous(text)
+    lines = capsys.readouterr().err.splitlines()
+    assert len([l for l in lines
+                if report.UNPARSED_PLAN_ROW_MARKER in l]) == 2
+    assert len([l for l in lines
+                if report.UNPARSED_PLAN_ROW_TOTAL_MARKER in l]) == 1
+
+
+def test_parse_previous_and_unparsed_plan_rows_are_one_rule(monkeypatch):
+    """N1: `parse_previous` must ASK `unparsed_plan_rows` which rows are
+    unreadable rather than re-deciding it inline. Two readers of one grammar
+    that can disagree is the defect this whole change is about."""
+    called = []
+    real = report.unparsed_plan_rows
+    monkeypatch.setattr(report, "unparsed_plan_rows",
+                        lambda text: called.append(text) or real(text))
+    report.parse_previous(_LIVE_UNPARSABLE_ROW, announce=None)
+    assert called == [_LIVE_UNPARSABLE_ROW]
+
+
+def test_reporting_an_unparsable_row_does_not_disturb_the_rows_that_parse():
+    """The returned key sets are the contract; the report is diagnostic
+    beside them, never instead of them."""
+    good = ("- severity=error family=tag-hygiene repo=alpha path=docs/x.md "
+            'rule="r" action="a" class="contested"')
+    text = "\n".join([good, _LIVE_UNPARSABLE_ROW, good])
+    keys, contested = report.parse_previous(text)
+    assert keys == {("tag-hygiene", "alpha", "docs/x.md")}
+    assert contested == {("tag-hygiene", "alpha", "docs/x.md")}
+    assert report.unparsed_plan_rows(text) == [(2, _LIVE_UNPARSABLE_ROW)]
+
+
+def test_a_clean_report_reports_no_unparsed_rows_and_says_nothing(capsys):
+    """Silence on the healthy path: the nightly's stderr must not grow a line
+    per run, or the signal is worthless when it does fire."""
+    f = Finding(ERROR, "tag-hygiene", "alpha", "docs/x.md", "r", "a")
+    text = report.render(date(2026, 8, 28), [f], [], [], [], 0, [], [])
+    assert report.unparsed_plan_rows(text) == []
+    report.parse_previous(text)
+    assert capsys.readouterr().err == ""
+
+
+def test_prose_lines_are_not_mistaken_for_unparsable_plan_rows():
+    """Only a line that CLAIMS to be a ranked-plan row is judged as one — the
+    per-family bullets and the headline share the report and must not be
+    reported as broken grammar."""
+    f = Finding(WARNING, "tag-hygiene", "alpha", "docs/x.md", "r", "a")
+    text = report.render(date(2026, 8, 28), [f], [], [], [], 0, [], [])
+    assert "- [warning] alpha:docs/x.md" in text  # a per-family bullet exists
+    assert report.unparsed_plan_rows(text) == []
+
+
+def _finding_path_literals(source):
+    r"""Every statically-known string that reaches the `path` slot of a
+    `Finding(...)` in one module, as `(lineno, text)`.
+
+    THREE SPELLINGS, because a rule that only reads one of them is a rule a
+    refactor walks straight through: the literal in the call, an f-string's
+    literal parts, and a module-level `NAME = "..."` constant named in the
+    slot — which is exactly how the notebook-projection path is spelled after
+    this change, so the narrow version of this check would have gone green on
+    a reverted label. Anything computed at run time is out of reach here and
+    is `plan_line`'s guard to catch.
+    """
+    tree = ast.parse(source.read_text(encoding="utf-8"))
+    constants = {}
+    for node in tree.body:
+        # `NAME = "..."` and `NAME: str = "..."` both. The annotated form was
+        # missing from the first draft, which is a check that fails OPEN: add
+        # one annotation to the offending constant and the rule stops seeing
+        # it. Reported in the review of PR #477.
+        targets, value = (), None
+        if isinstance(node, ast.Assign):
+            targets, value = node.targets, node.value
+        elif isinstance(node, ast.AnnAssign) and node.value is not None:
+            targets, value = (node.target,), node.value
+        if not isinstance(value, ast.Constant) or not isinstance(
+                value.value, str):
+            continue
+        for target in targets:
+            if isinstance(target, ast.Name):
+                constants[target.id] = value.value
+    out = []
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call):
+            continue
+        called = getattr(node.func, "id", None) or getattr(
+            node.func, "attr", None)
+        if called != "Finding":
+            continue
+        arg = node.args[3] if len(node.args) >= 4 else next(
+            (k.value for k in node.keywords if k.arg == "path"), None)
+        if isinstance(arg, ast.Constant) and isinstance(arg.value, str):
+            out.append((node.lineno, arg.value))
+        elif isinstance(arg, ast.JoinedStr):
+            out += [(node.lineno, v.value) for v in arg.values
+                    if isinstance(v, ast.Constant) and isinstance(v.value, str)]
+        elif isinstance(arg, ast.Name) and arg.id in constants:
+            out.append((node.lineno, constants[arg.id]))
+    return out
+
+
+# Statically-known `Finding(...)` paths in `scripts/doc_health/` today. A
+# FLOOR, not an equality: new families raise it, and it is here so the check
+# below cannot pass VACUOUSLY. Both ways it could go blind are real and were
+# found in review — an `ast.AnnAssign` the reader skipped, and a constant moved
+# to a sibling module (which this reader deliberately does not follow) — and
+# either shows up here as a drop below the floor before it shows up as a green
+# check over an empty list. Raise it when a family adds a literal path.
+_MIN_FINDING_PATH_LITERALS = 7
+
+
+def test_no_family_writes_a_whitespace_bearing_path_literal():
+    """The durable form of the grep this change was found by: a path that a
+    family spells out in its own source may not carry whitespace.
+
+    STATIC, because the family that DID violate it cannot be caught any other
+    way: notebook-projection-drift only emits when `nlm` is authenticated and
+    an aggregation checkout is in scope, so it renders no row in any fixture
+    run, in the self-gate, or in CI. This is the check that fires in the pull
+    request that introduces the defect.
+
+    IT IS NOT THE ONLY NET, AND DELIBERATELY NOT THE LAST ONE. It reads source,
+    so a path assembled at run time is invisible to it, and a constant moved to
+    a sibling module would be too (the floor below is what catches that). The
+    REAL net for the one path this change repaired is the runtime value pin in
+    `test_families.test_notebook_projection_drift`, which asserts the family's
+    emitted `Finding.path` and that the row round-trips. `plan_line(strict=
+    True)` is the rule these express; `plan_line`'s sanitizing default is the
+    separate net for a bad path that arrives as DATA rather than as code.
+    """
+    seen, offenders = 0, []
+    for source in sorted(
+            (REPO_ROOT / "scripts" / "doc_health").rglob("*.py")):
+        for lineno, literal in _finding_path_literals(source):
+            seen += 1
+            if re.search(r"\s", literal):
+                offenders.append(f"{source.name}:{lineno}: {literal!r}")
+    assert offenders == []
+    assert seen >= _MIN_FINDING_PATH_LITERALS, (
+        f"the check went blind: it resolved {seen} literal path(s), fewer "
+        f"than the {_MIN_FINDING_PATH_LITERALS} known to exist. A spelling "
+        f"it no longer reads is a spelling it no longer polices.")
+
+
+def test_the_whitespace_literal_check_reads_a_constant_in_the_path_slot(
+        tmp_path):
+    """The check above is only worth its line count if it sees the spelling
+    the tree actually uses — a module constant, not an inline literal. Written
+    against a module that DOES offend, so a reader can see the check catch
+    something rather than take an empty list on faith."""
+    module = tmp_path / "family.py"
+    module.write_text(
+        'LABEL = "(lifecycle notebooks)"\n'
+        'REAL = "docs/real.md"\n'
+        'ANNOTATED: str = "(annotated label)"\n'
+        'a = Finding(WARNING, "fam", "repo", LABEL, "r", "a")\n'
+        'b = Finding(WARNING, "fam", "repo", REAL, "r", "a")\n'
+        'c = Finding(WARNING, "fam", "repo", "docs/inline.md", "r", "a")\n'
+        'd = Finding(WARNING, "fam", "repo", f"docs/{x}/a b.md", "r", "a")\n'
+        'e = Finding(WARNING, "fam", "repo", ANNOTATED, "r", "a")\n',
+        encoding="utf-8")
+    found = [text for _, text in _finding_path_literals(module)]
+    assert found == ["(lifecycle notebooks)", "docs/real.md",
+                     "docs/inline.md", "docs/", "/a b.md",
+                     "(annotated label)"]
+    assert [t for t in found if re.search(r"\s", t)] == [
+        "(lifecycle notebooks)", "/a b.md", "(annotated label)"]
 
 
 def _fixture_catalog_meta(**overrides):
