@@ -46,6 +46,7 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [hermes-stack-topology-per-client](#hermes-stack-topology-per-client) | ADDED neutral `request-intake-and-admission` + MODIFIED topology contract (per-client stack-vs-layer rule made explicit) | 1 | Ready to iterate — cardinality verified against the runtime spec and the live stack; RESOLVED 2026-08-08: each client gets its own stack (client = Tenant), so onboarding is a stack install; the ledgerx fixture + its bound HCS-002-S03 scenario are stale and owe an OpenSpec correction. BLOCKED on the (a) realize-intake-at-Tenant-Hermes vs (b) stand-up-an-Opsx-stack fork; cross-repo input 2026-08-09: OpsxFactory staged its governance trilogy (tenant-request-intake → hermes-approval-envelopes → tenant-operating-postures) designing the fork's intake/approval side; update 2026-08-10: trilogy exit 1 promoted and RATIFIED as OpsxFactory `add-request-intake-boundary` (intake realized at the Tenant layer — fork branch (a) side), Speckit implementation in flight |
 | [mobile-dashboard-surface](#mobile-dashboard-surface) | `avatar-first-ui` realization (possibly a small ADDED requirement) | 1 | Ready to iterate — the layer defaults are already ratified; main forks: shell platform vs the frozen AVC ports, sequencing vs `avatar-pilot-hardening` |
 | [workstation-app-shell](#workstation-app-shell) | `avatar-first-ui` realization (possibly a small ADDED requirement for the workstation shell) + MODIFIED `ideation-dashboard` (the local serve becomes app-managed) | 1 | Ready to iterate — layer defaults already ratified and the motivating defect verified; load-bearing content is the Worker Host App boundary (two OS principals, one shell) and codexFactory's missing subject surface; 5 open questions, the shell-platform fork blocks implementation |
+| [signed-execution-chain](#signed-execution-chain) | ADDED a NEUTRAL signed-execution-chain family in openxFactory (the chain from a wallet-presented ratification through atomic enrollment, the traveling contract, harness + runner attestations, the signed PR-open decision, council review of the signed brief, and a CHAIN-VALIDATING MERGE GATE) — composing with `openxwallet`, `trust-anchor`, `identity-brokering` and `roles-authority-model`; plus the ON-CHAIN anchoring/consent layer Brett ruled 2026-08-27 | 2 | Registered 2026-08-27 from Brett's expansion ruling. **A broken chain is a FRAUD SIGNAL and there is no merge** — the chain is a PRECONDITION the omnigent layer enforces (it refuses to build an unverified chain), not an audit trail written afterwards. TIER MODEL forced by a ratified constraint: authority credentials stay HUMAN-HELD because omnigent workers carry `access_secrets: false`, so runners sign only EPHEMERAL PER-TASK attestations issued by the harness controller under its own cert — and the KEY NEVER ENTERS THE WORKER (the controller signs on the runner's request; `access_secrets: false` holds in every configuration and a short lifetime does not make a key non-secret, so "issued to the runner" would breach the same constraint the split honours — Q7 asks which signing mechanism). Tier 1 answers *who permitted this*, tier 2 *what actually ran*, and neither may stand in for the other. ON CHAIN: **salted keyed commitments** (never plain hashes — EDPB Guidelines 02/2025 v2.0 hold that a hash of personal data IS personal data, so erasure is by SALT DESTRUCTION), commitments to consent-log **checkpoints** (consent STATE stays in the governed permissioned layer, which is publicly unlinkable), and anchors — **raw PHI never**, on HIPAA grounds a public chain is append-only, world-readable and permanent; records stay in encrypted off-chain custody with patient-held keys, and hospitals/insurers verify through presentations. **The evidence plane is OFF chain and IS the record** — a signed RFC-6962-style transparency log; anchoring only makes it externally undeniable. DOMAIN MAPPING is the neutral-layer proof — MedxFactory→**HealthLinc** (treatment plan ratified→simulated→reviewed→"merge" = pushed to the patient app or printed as signed orders) and LedgerxFactory→**LedgerLinc** (analysis/review plans, "merge" = published to the ledger app) run the SAME chain, differing in payload and regulator, not in shape. Sequences BEHIND four ACTIVE changes (not staged topics): `add-wallet-carried-review-authority` (S2 issuer anchor REALIZED — the direct predecessor and link 1's instrument), `add-trust-anchor` (certificates + chain custody, realized at contract-v1.37), `add-identity-brokering` (who a signer is), `implement-openxpki-install-repo` (the CA that issues the controller cert). 7 open questions, none blocks tranche one (Q3/Q6 gate tranche 3, Q7 gates tranche 2). Q3 chain selection is **ANSWERED BY A VENDORED STUDY** (`chain-selection-study.md`, 2026-08-27, sourced + date-checked): transparency log as the evidence plane, **Bitcoin (OpenTimestamps aggregation) primary anchor**, **Kaspa optional secondary** under three conditions (archival node, inclusion proofs retained AT ANCHOR TIME, corroborating-only — Kaspa L1 **prunes tx data after ~3 days**), consent logic in the permissioned layer with anchored state roots, **NOT smart contracts on the anchoring chain and NOT Kasplex/Igra in 2026**; a chain-agnostic MULTI-ANCHOR RECEIPT is the 10-year exit path. Brett's three priors came back **QUALIFIED** (Kaspa "non-captured"), **REFUTED for anchoring** ("Bitcoin too expensive" — aggregation makes it ~$0 marginal), **CONFIRMED** (KAS sub-penny fees). **Q6 is the one needing a ruling**: the ruling's "patients put PHI portions on chain" is read as COMMITMENTS, a narrowing the topic raises rather than assumes. Q7 (added from the review round) asks where an attestation signature physically happens. EXIT: tranche 1 (signed ratification + atomic enrollment + the transparency log) is composable TODAY; tranche 2 attestation needs the omnigent layer + the PKI plane; tranche 3 on-chain anchoring needs rulings on Q3 and Q6, not more analysis |
 | [avatar-pilot-hardening](#avatar-pilot-hardening) | ADDED `avatar-pilot-hardening` | 1 | Blocked — last successor; gated on `qualify-avatar-live-voice` + the client lab landing, plus its own open forks |
 | [ideation-action-plane](#ideation-action-plane) | ADDED `ideation-intent-plane`; MODIFIED `document-lifecycle` (gates happen on main); fragment 2: MODIFIED `lifecycle-notebook-projection` (Drive membrane) | 2 | Exit 1 raised at this gate (`add-ideation-intent-plane`); fragment 2 blocked on the Drive↔NLM markdown-ingestion spike |
 | [client-credential-escrow-registry](#client-credential-escrow-registry) | MODIFIED `credential-contracts` (escrow registry + break-glass custody; possibly a sixth record kind); touches `client-infrastructure-liaison` | 1 | Ready to iterate — design inputs settled with Brett 2026-07-19; 6 open questions (delta shape + break-glass topology hardest); first consumer live (opensoft self-client QA install) |
@@ -1729,6 +1730,115 @@ repo scope.
   turn-record facts with both badges); (c) compress-to-fit disclosure (a third
   `reduced_reason` constant on the released field, plus issue #263's non-blank
   hardening). Raise (a) first, at `Status: draft`.
+
+## signed-execution-chain
+
+- Staging ID: `openxFactory:staging:signed-execution-chain`
+- Repository context: openxFactory owns the neutral family this proposes. It
+  composes with four capabilities already governed here — `openxwallet` (the
+  authority instrument a ratifier presents), `trust-anchor` (certificates and
+  declared chain custody, realized at `contract-v1.37`), `identity-brokering`
+  (who a signer is), and `roles-authority-model` (what authority means). The
+  domain realizations are NOT openxFactory's: MedxFactory carries HealthLinc and
+  LedgerxFactory carries LedgerLinc.
+- Source: Brett Heap's expansion ruling 2026-08-27 — the signed-execution-chain
+  vision goes ON CHAIN definitively, "especially financial and medical records";
+  the domain mapping corrected in the same ruling (patient app = HealthLinc for
+  MedxFactory; LedgerLinc = financial analysis and reviews for LedgerxFactory);
+  and the expansion includes patients putting PHI portions on chain and working
+  with hospitals and insurers through it — which this topic architects honestly
+  as salted keyed commitments and anchored consent CHECKPOINTS on chain, records
+  never, raising the narrowing as Q6 rather than assuming it.
+- Files: `signed-execution-chain.md` (primary fragment, template-conformant);
+  `chain-selection-study.md` (vendored research input, 2026-08-27 — the
+  chain-selection study answering Q3, carried verbatim below a relabelled header;
+  research input, not governance text, and nothing in it is ratified by being
+  vendored).
+- The claim that makes it worth raising: **the chain is a PRECONDITION, not a
+  record.** The weak version — omnigent records what it did and something later
+  checks — yields an audit trail a compromised lane can write falsely. The strong
+  version is that the omnigent layer REFUSES TO EXECUTE a step whose inbound chain
+  does not verify, and the chain-validating merge gate refuses to land work whose
+  chain is broken. A broken link is a FRAUD SIGNAL, never a warning: it means
+  either the act did not happen or something is misrepresenting that it did.
+- The tier model is FORCED BY A RATIFIED CONSTRAINT rather than chosen: omnigent
+  workers carry `access_secrets: false`, so a worker cannot hold an authority
+  credential and any design where a runner signs AUTHORITY contradicts ratified
+  text. Authority stays human-held (tier 1, "who permitted this"); runners sign
+  ephemeral per-task attestations issued by the harness controller under its own
+  certificate (tier 2, "what actually ran"). Neither may stand in for the other.
+  The constraint reaches the attestation key as well, which the first draft
+  missed and the review round caught: the runner never holds it either, so the
+  controller SIGNS on the runner's request and no key bytes cross into a worker
+  — "ephemeral" is a lifetime, not a relaxation of custody (Q7 names the
+  mechanism).
+- The PHI architecture is the part that must not be hand-waved: **raw PHI never
+  goes on a public chain**, because append-only + world-readable + permanent are
+  each individually incompatible with HIPAA, and "encrypted on chain" only makes
+  key management the single permanent point of failure. Records live in encrypted
+  off-chain custody with patient-held keys; the chain carries salted keyed
+  commitments, commitments to consent-log CHECKPOINTS (the consent state itself
+  stays in the governed permissioned layer, where it is not publicly linkable to
+  a person), and the execution anchors. Hospitals and insurers
+  verify through presentations without reading what they were not granted. The
+  limit is stated rather than implied: **nothing on a chain can be un-published**,
+  and no revocation reaches an already-disclosed copy.
+- Why neutral: HealthLinc and LedgerLinc run the SAME chain, differing in payload
+  and regulator rather than in shape, and "merge" is domain-interpreted — a git
+  merge in codexFactory, a push to the patient app or printed signed orders in
+  HealthLinc, a publication in LedgerLinc. A family that only fit one domain would
+  belong in that domain's repository.
+- SEQUENCING, and the collision risk: the four neighbours are ACTIVE OPENSPEC
+  CHANGES, not staged topics, so their ratified text governs and this topic
+  composes with it. `add-wallet-carried-review-authority` is the direct
+  predecessor — its realized S2 issuer anchor IS link 1's instrument, and this
+  topic must not re-invent a signing primitive. The live risk to avoid is
+  inventing a SECOND identity or certificate vocabulary when three of the four
+  already own one; every link should resolve to an existing family or be raised as
+  an explicit gap.
+- A conflict inside the vision itself, recorded rather than smoothed: a broken
+  chain is a fraud signal AND nothing on chain can be un-published, so a false
+  attestation that reaches the chain is permanent. That argues for anchoring LATE
+  — committing only what has been validated — and is a design constraint on
+  tranche three.
+- 7 open questions, none blocking tranche one — Q3 and Q6 are tranche-three
+  blockers, Q7 gates tranche two's contract text: wallet-presentation mechanics; the exact
+  on-chain boundary (recommended as a REFUSING validator rather than prose,
+  mirroring how the hosting record refuses secret-shaped fields by name — and now
+  refusing UNSALTED commitments too); chain selection — **the research fan-out is
+  COMPLETE and vendored as `chain-selection-study.md`**, so Q3 cites its
+  recommendation (Bitcoin primary anchor via OpenTimestamps aggregation, Kaspa
+  optional secondary under three conditions, consent logic in the permissioned
+  layer, no contracts on the anchoring chain) and awaits a RULING rather than more
+  analysis; tranche boundaries; whether smart contracts or an L2 are in scope
+  (evidence-only confirmed, with Ethereum L2 + EAS as the answer IF public
+  programmability is ever forced); and **Q6 — whether the ruling's "patients put
+  PHI portions on chain" means COMMITMENTS**, the one place the topic interprets a
+  ruling rather than applying it, raised for Brett rather than assumed; and
+  **Q7 — where an attestation signature physically happens**, added by the
+  review round on this topic's own PR, which correctly read the draft's per-task
+  key as runner-held custody.
+- The study also settled Brett's three priors, recorded honestly including the one
+  that failed: "Kaspa is one of the only non-captured chains" **QUALIFIED** (launch
+  fairness holds; operational capture — pool concentration, a miner targeting ~16%
+  of hashrate, VC-funded L2s absorbing core devs — does not support the absolute);
+  "Bitcoin is just too expensive" **REFUTED for anchoring** (Merkle aggregation
+  makes it ~$0 marginal, ~$2.1k/yr even self-anchoring hourly) — this refutation is
+  what moved Bitcoin into the primary-anchor seat; "KAS is fractions of a penny"
+  **CONFIRMED and understated** (~$0.000001–0.000003), with the honest caveat that
+  it partly reflects low demand and an unfunded security budget.
+- Exit path: OpenSpec change(s) in three tranches. **Tranche 1 — signed
+  ratification + atomic enrollment, plus the off-chain signed transparency log
+  that IS the record — is composable TODAY** and needs no omnigent layer and no
+  chain. Tranche 2 (harness + runner attestation) needs the omnigent
+  layer and the PKI plane. Tranche 3 (on-chain anchoring) needs rulings on Q3 and
+  Q6, and builds the chain-agnostic MULTI-ANCHOR RECEIPT first — the receipt is
+  what keeps the anchor choice reversible over a 10-year horizon, and it carries
+  the anchor transaction and its inclusion proof rather than a block header and
+  a transaction reference, which prove nothing once the transaction is pruned.
+  The chain-validating gate should exist FROM TRANCHE ONE validating a short
+  chain, so the refusal path is exercised from the start rather than first tested
+  when it matters most.
 
 ## notebook-access-wallet-governance
 
