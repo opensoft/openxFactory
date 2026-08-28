@@ -29,7 +29,9 @@ and open until the merge it follows exists.
       block on the currency requirement), D2 (a fifth `FindingClass` with an
       anchored pattern, rather than an unplaced finding or a severity on the
       report block), D3 (one finding per DISTINCT UNPLACED RULE SHAPE per run —
-      rewritten at packet review 2026-08-27, previously one per run).
+      rewritten at packet review 2026-08-27, previously one per run; its SHAPE
+      IDENTITY was then widened by Brett's amendment of 2026-08-28, § 1.4, and
+      the veto flag on D3 as amended stays open with the other two).
 - [ ] 1.3 IF D1 IS VETOED, this packet grows a `## MODIFIED Requirements` block
       restating "Currency of an active change's MODIFIED requirement blocks" in
       full — 14 scenarios and roughly 90 body lines, byte-for-byte — and the
@@ -38,6 +40,21 @@ and open until the merge it follows exists.
       zero at that moment, and the number must be re-measured before the packet
       is put up again. Recorded so the cost of that veto is visible before it is
       taken.
+- [x] 1.4 AMENDED 2026-08-28 by Brett, in session, verbatim: "Amend: shape = arm
+      template, all interpolations masked". Put to him as a multiple choice by
+      the Speckit 026 review, which had measured that the ratified mask (quoted
+      spans and digit runs only) leaves the promoted spec's path, the
+      `[body]`/`[bullet]` unit-kind list, change-id lists and an unresolved
+      block's `why` clause standing — so ONE dropped class-map entry yields
+      SEVEN unplaced findings in SIX shapes on the 2026-08-28 openxFactory tree,
+      six `warning` rows in the ranked plan for ONE map entry to write. He chose
+      to amend the delta rather than ship the narrower grain. The delta's
+      identity paragraph and its third scenario are reworded accordingly, the
+      family now deriving the mask FROM ITS OWN ARM TEMPLATES; § 2.4 and § 2.6
+      below carry the build. The measured table is in
+      `specs/026-unplaced-finding-drift/plan.md` § OPEN-1. **The predicted
+      severity movement is unchanged — ZERO in every band** — the mask being
+      read only where the residual count is nonzero, which is nowhere today.
 
 ## 2. Speckit F1 — the fifth class and its emit
 
@@ -45,6 +62,15 @@ One feature. RED first on every box that asserts behaviour: the test is written
 against the delta's words, run, and seen to fail for the stated reason before
 the module moves. Every line reference below was read at `69c4a218` and must be
 re-resolved by name if the file has moved under the feature.
+
+**Speckit feature `026-unplaced-finding-drift` is that feature, and it is IN
+FLIGHT.** It carries the group in full, including the shape grammar as AMENDED
+on 2026-08-28 (§ 1.4): the review that raised the amendment is that feature's
+own (`specs/026-unplaced-finding-drift/plan.md` § OPEN-1), and its
+`test_the_drift_grain_is_one_finding_per_masked_arm_text_not_one_per_remedy`
+already MEASURES the grain on the real tree — under the amended mask that
+measurement reads ONE where it read six, and the test, its docstring and the
+claims struck alongside it move with the rule.
 
 - [ ] 2.1 `scripts/doc_health/modified_block_currency.py`: a FOURTH severity
       constant, `_DRIFT_SEVERITY = WARNING`, NOT a reuse of `_LAUNCH_SEVERITY`.
@@ -82,14 +108,25 @@ re-resolved by name if the file has moved under the feature.
       `scenario-titles` and the test says so. This is the delta's fourth
       scenario.
 - [ ] 2.4 `fam_modified_block_currency`: after the arms have run, group the
-      findings `classify` places as `UNCLASSIFIED` BY SHAPE — rule texts equal
-      after every single-quoted span, every double-quoted span and every run of
-      digits is replaced by a fixed placeholder, which is the same grammar
-      `_CLASS_PATTERNS` is written in (`_TITLE_REPR` and `\d+`). Per shape,
-      append EXACTLY ONE `warning` carrying that shape's count, the FIRST
-      instance's rule text VERBATIM, its repo and its delta path, and
-      `_DRIFT_ACTION`. "First" is in the family's own report order, so the emit
-      is deterministic: sort, group, append, sort again.
+      findings `classify` places as `UNCLASSIFIED` BY SHAPE — **rule texts equal
+      after EVERY FIELD THE ARM'S TEMPLATE INTERPOLATES is replaced by a fixed
+      placeholder** (§ 1.4's amendment). Quoted spans and digit runs are the
+      grammar `_CLASS_PATTERNS` is already written in (`_TITLE_REPR` and
+      `\d+`), and they are NOT SUFFICIENT: the arms also interpolate
+      `basis.spec_rel` (a repository-relative path), the `[body]`/`[bullet]`
+      unit-kind list a ledger finding quotes, the ordering arm's change-id list,
+      and the unresolved arm's `why` clause. **The mask is DERIVED FROM THE ARM
+      TEMPLATES, not hand-listed** — the fixed prose of each of the five rule
+      shapes (module `:825`, `:881`, `:992`, `:1165`, `:1267`) is the shape and
+      every interpolation is masked — so the rule cannot drift from the arms the
+      way an enumerated mask would, which is the same failure this whole class
+      exists to report. Per shape, append EXACTLY ONE `warning` carrying that
+      shape's count, the FIRST instance's rule text VERBATIM, its repo and its
+      delta path, and `_DRIFT_ACTION`. "First" is in the family's own report
+      order, so the emit is deterministic: sort, group, append, sort again.
+      MEASURED TARGET, from `specs/026-unplaced-finding-drift/plan.md` § OPEN-1:
+      with `carriage-ledger` dropped from the map, the real tree's 7 unplaced
+      findings collapse to **ONE** drift finding, not six.
 - [ ] 2.5 `classify`, `class_counts` and `class_summary` keep their signatures
       and their no-context discipline —
       `test_the_summary_reads_the_findings_and_nothing_else` asserts both
@@ -101,11 +138,18 @@ re-resolved by name if the file has moved under the feature.
       (2) an unplaced rule text → one `warning` per distinct shape naming that
       shape's count and the first instance's rule text verbatim, carrying its
       repo and path and the action line, AND itself placed into the fifth class
-      so the residual never counts it; (3) two unplaced findings differing only
-      in a quoted span and a digit run → ONE finding naming the count two, and
-      two findings differing outside those → TWO findings; (4) the anchored
-      pattern, per § 2.3; (5) the map extended → the finding and the residual row
-      are both gone, and nothing is reported as an uncited resolution.
+      so the residual never counts it; (3) two unplaced findings FROM THE SAME
+      ARM TEMPLATE differing only in the values it interpolates — a different
+      quoted title, a different `basis.spec_rel`, a different unit-kind list,
+      different change ids → ONE finding naming the count two; and two unplaced
+      findings from DIFFERENT arm templates, differing in the fixed prose the
+      mask leaves standing → TWO findings. **Both halves are written against the
+      AMENDED rule (§ 1.4); a test that passes under the quoted-spans-and-digits
+      mask alone does not discharge this box** — the path-differing and
+      kind-list-differing pairs are exactly the cases the narrow mask split and
+      the amendment joins. (4) the anchored pattern, per § 2.3; (5) the map
+      extended → the finding and the residual row are both gone, and nothing is
+      reported as an uncited resolution.
 - [ ] 2.7 THE STANDING PINS THAT RED ON REALIZATION, moved by name rather than by
       re-running until green. In
       `tests/doc-health/test_modified_block_currency_reporting.py`:
@@ -221,8 +265,11 @@ re-resolved by name if the file has moved under the feature.
       per run — scenario (3)'s two-shapes half must fail; (d) make the pattern
       unanchored — § 2.3's red case must fail; (e) point `_DRIFT_SEVERITY` at
       `_LAUNCH_SEVERITY` — § 2.1's reasoning must be caught by a pin, and if it
-      is not, that pin is missing and is owed here. Each mutation reverted, each
-      failure recorded.
+      is not, that pin is missing and is owed here; (f) NARROW THE MASK BACK to
+      quoted spans and digit runs only — § 2.6's scenario (3) must fail on the
+      pair that differs by an interpolated path or unit-kind list, and the
+      real-tree grain measurement must read six rather than one. Each mutation
+      reverted, each failure recorded.
 - [ ] 2.15 NOTHING ELSE MOVES, proved mechanically: `git diff --stat
       <merge-base> -- .github/ scripts/ tests/ specs/022-modified-block-currency-reporting/contracts/`
       names only `scripts/doc_health/modified_block_currency.py`, the three
@@ -303,9 +350,12 @@ re-resolved by name if the file has moved under the feature.
       per-class report blocks spread, this becomes a shared mechanism question
       rather than a per-family one — named here, not opened.
 - [ ] 4.4 THE SHAPE MASK IS THIS FAMILY'S, NOT THE PACKAGE'S. § 2.4's grouping
-      rule (mask quoted spans and digit runs, compare) is written for this
-      family's rule-text grammar. It is not proposed as a general finding-identity
-      rule and nothing else may import it as one without its own change.
+      rule — mask every field this family's own arm templates interpolate, then
+      compare the fixed prose that remains (as amended 2026-08-28, § 1.4) — is
+      derived from THIS family's five rule shapes and is meaningful only against
+      them. A family with different templates would derive a different mask. It
+      is not proposed as a general finding-identity rule and nothing else may
+      import it as one without its own change.
 
 ## 5. Archive
 
