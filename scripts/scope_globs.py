@@ -35,9 +35,10 @@ Deterministic: text/YAML reads only, no model calls, no writes.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Mapping
+from typing import Iterable, Mapping
 
 try:
     import yaml
@@ -57,45 +58,82 @@ class ScopeGlobsError(Exception):
 
 
 _FENCE = "---"
+_TOP_LEVEL = re.compile(r"^([A-Za-z_][A-Za-z0-9_-]*):(.*)$")
 
 
-def read_front_matter(source: str | Path) -> dict:
-    """Return the YAML front-matter mapping of a `proposal.md`.
-
-    Accepts either the document text or a path to it. The realization-axis block
-    (`code_surface:` / `target_release:` / the new `scope_globs:` sibling) lives
-    in the leading `---`-fenced YAML block; this is the one place the block is
-    parsed for structured (non-flat) fields. Returns an empty dict when the
-    document carries no front-matter fence.
-    """
-    if yaml is None:  # pragma: no cover
-        raise ScopeGlobsError("pyyaml is required to read proposal front-matter")
+def _fenced_lines(source: str | Path) -> list[str] | None:
+    """The lines inside the leading `---`-fenced front-matter block, or None when
+    the document carries no well-formed (opened AND closed) fence."""
     if isinstance(source, Path):
         text = source.read_text(encoding="utf-8")
     else:
         text = source
     lines = text.splitlines()
     if not lines or lines[0].strip() != _FENCE:
-        return {}
+        return None
     body: list[str] = []
     for line in lines[1:]:
         if line.strip() == _FENCE:
-            try:
-                doc = yaml.safe_load("\n".join(body))
-            except yaml.YAMLError as exc:
-                raise ScopeGlobsError(f"proposal front-matter is not valid YAML: {exc}") from exc
-            return doc if isinstance(doc, dict) else {}
+            return body
         body.append(line)
-    # No closing fence — not a well-formed front-matter block.
-    return {}
+    return None  # no closing fence
+
+
+def _field_blocks(lines: list[str]) -> dict[str, list[str]]:
+    """Split front-matter lines into top-level fields, each mapped to its ORIGINAL
+    lines (its `field:` line plus every following indented/continuation line up to
+    the next top-level key). The openxFactory proposal front-matter is a set of
+    PROSE headers — not a strict-YAML document (which is why the dashboard reads it
+    by regex) — so the whole block is never YAML-parsed at once; only the
+    structured `scope_globs` sub-block is (see `read_scope_globs`)."""
+    blocks: dict[str, list[str]] = {}
+    current: str | None = None
+    for line in lines:
+        m = _TOP_LEVEL.match(line)
+        if m:
+            current = m.group(1)
+            blocks.setdefault(current, []).append(line)
+        elif current is not None:
+            blocks[current].append(line)
+    return blocks
+
+
+def read_front_matter(source: str | Path) -> dict:
+    """Return the realization-axis front-matter of a `proposal.md` as a dict.
+
+    Accepts document text or a path. `scope_globs` (when present) is YAML-parsed
+    from ITS sub-block alone and returned as its structured value; every other
+    field is returned as its raw joined string (prose headers are not YAML).
+    Returns an empty dict when there is no well-formed front-matter fence.
+    """
+    if yaml is None:  # pragma: no cover
+        raise ScopeGlobsError("pyyaml is required to read proposal front-matter")
+    lines = _fenced_lines(source)
+    if lines is None:
+        return {}
+    result: dict[str, object] = {}
+    for field, block in _field_blocks(lines).items():
+        if field == "scope_globs":
+            try:
+                parsed = yaml.safe_load("\n".join(block))
+            except yaml.YAMLError as exc:
+                raise ScopeGlobsError(
+                    f"the `scope_globs` front-matter block is not valid YAML: {exc}"
+                ) from exc
+            result[field] = parsed.get("scope_globs") if isinstance(parsed, dict) else parsed
+        else:
+            first = _TOP_LEVEL.match(block[0])
+            rest = [first.group(2)] + block[1:] if first else block
+            result[field] = "\n".join(rest).strip()
+    return result
 
 
 def read_scope_globs(proposal: str | Path) -> object | None:
     """Return the RAW `scope_globs` value from a proposal, or None when absent.
 
     Absence (the field is missing) returns None — the fail-closed default. A
-    present-but-malformed value is returned as-is for `validate_shape` to reject;
-    this reader does not itself validate the shape.
+    present-but-shape-malformed value is returned as-is for `validate_shape` to
+    reject; only YAML that does not parse at all raises here.
     """
     return read_front_matter(proposal).get("scope_globs")
 
@@ -153,3 +191,153 @@ def validate_shape(scope: object) -> ScopeGlobs:
                 f"scope_globs[{repo}] entries must be unique")
         by_repo[repo] = tuple(globs)
     return ScopeGlobs(by_repo=by_repo)
+
+
+# --- the MIRRORED envelope glob dialect --------------------------------------
+#
+# Transcribed byte-for-behaviour from codexFactory
+# `scripts/merge_master/envelope.py` and pinned in lockstep by
+# `tests/scope_globs/test_dialect_lockstep.py`. See the module docstring for the
+# authority's provenance (HEAD 3143f34d, glob region 9ebe805). Keep the names,
+# the tuples, and the rejection order identical to the authority.
+
+#: Keys whose very presence declares a surface as the COMPLEMENT of another set
+#: ("everything except …"). Refused outright: a complement fails open. Mirror of
+#: `envelope._COMPLEMENT_KEYS`.
+COMPLEMENT_KEYS = (
+    "path_denylist", "path_blocklist", "path_exclusions", "exclude_paths",
+    "except_paths", "path_complement", "not_paths", "path_exclude",
+    "codeowners_complement",
+)
+
+#: Globs that admit every path — the complement of the empty set, which would
+#: leave the never-clearable floor the only remaining control. Mirror of
+#: `envelope._UNIVERSAL_PATTERNS`.
+UNIVERSAL_PATTERNS = ("**", "*", "**/*", "/**", "./**")
+
+
+def glob_to_regex(pattern: str) -> re.Pattern[str]:
+    """Translate a repository-relative path glob to an anchored full-match regex.
+
+    Mirror of `envelope._glob_to_regex`: `**` matches any number of path
+    segments including zero, `*` a run of non-separator characters within a
+    segment, `?` one non-separator. Byte-for-behaviour identical, pinned by the
+    lockstep test.
+    """
+    i = 0
+    out: list[str] = ["^"]
+    n = len(pattern)
+    while i < n:
+        c = pattern[i]
+        if c == "*":
+            if i + 1 < n and pattern[i + 1] == "*":
+                i += 2
+                if i < n and pattern[i] == "/":
+                    i += 1
+                    out.append("(?:[^/]+/)*")
+                else:
+                    out.append(".*")
+            else:
+                out.append("[^/]*")
+                i += 1
+        elif c == "?":
+            out.append("[^/]")
+            i += 1
+        else:
+            out.append(re.escape(c))
+            i += 1
+    out.append("$")
+    return re.compile("".join(out))
+
+
+def path_matches(path: str, patterns: Iterable[str]) -> bool:
+    """True when `path` matches at least one glob. Mirror of
+    `envelope.path_matches`."""
+    return any(glob_to_regex(p).match(path) is not None for p in patterns)
+
+
+def validate_glob(where: str, pattern: str) -> None:
+    """Reject the envelope-forbidden forms for a single glob, in the authority's
+    order (negation, universal, leading-slash), then require it compiles under
+    the shared engine. Mirror of the per-pattern arm of
+    `envelope._validate_path_allowlist`."""
+    if pattern.startswith("!"):
+        raise ScopeGlobsError(
+            f"{where} entry {pattern!r} is a negation; the envelope glob dialect "
+            f"has none, and a surface expressed by subtraction is a complement "
+            f"that fails open")
+    if pattern in UNIVERSAL_PATTERNS:
+        raise ScopeGlobsError(
+            f"{where} entry {pattern!r} admits every path, which is the "
+            f"complement of the empty set — declare the paths the scope admits")
+    if pattern.startswith("/"):
+        raise ScopeGlobsError(
+            f"{where} entry {pattern!r} starts with '/'; changed paths are "
+            f"repository-relative and never do, so the pattern is unreachable "
+            f"(the CODEOWNERS dialect is not this one)")
+    try:
+        glob_to_regex(pattern)
+    except re.error as exc:  # pragma: no cover - the dialect cannot produce this
+        raise ScopeGlobsError(
+            f"{where} entry {pattern!r} does not compile under the envelope "
+            f"dialect: {exc}") from exc
+
+
+def validate_dialect(scope: ScopeGlobs) -> None:
+    """Reject complement/denylist-shaped repository keys, then dialect-check
+    every glob. FLOOR-AGNOSTIC: a glob that happens to name a floor path is NOT
+    rejected here (the floor override is a check-time concern of the verifier)."""
+    for repo in scope.by_repo:
+        if repo in COMPLEMENT_KEYS:
+            raise ScopeGlobsError(
+                f"scope_globs key {repo!r} is a complement/denylist-shaped key; "
+                f"a scope is an explicit allowlist, never the complement of "
+                f"another set — a complement fails open")
+    for repo, globs in scope.by_repo.items():
+        for pattern in globs:
+            validate_glob(f"scope_globs[{repo}]", pattern)
+
+
+def validate_cross_consistency(
+    scope: ScopeGlobs, code_surface_repos: Iterable[str]
+) -> None:
+    """Every `scope_globs` repository key MUST be named in `code_surface`; the
+    reverse is NOT required (a code_surface repo may carry no scope and is then
+    simply not provenance-eligible)."""
+    declared = set(code_surface_repos)
+    for repo in scope.by_repo:
+        if repo not in declared:
+            raise ScopeGlobsError(
+                f"scope_globs names repository {repo!r} which is not in "
+                f"code_surface; a scope may not authorize a repository the change "
+                f"declares no realization surface for")
+
+
+def validate_scope_globs(
+    scope: object, code_surface_repos: Iterable[str] | None = None
+) -> ScopeGlobs:
+    """Full validation of a raw `scope_globs` value: shape, dialect conformance,
+    and (when `code_surface_repos` is given) cross-consistency. Returns the
+    validated `ScopeGlobs`. FLOOR-AGNOSTIC throughout."""
+    validated = validate_shape(scope)
+    validate_dialect(validated)
+    if code_surface_repos is not None:
+        validate_cross_consistency(validated, code_surface_repos)
+    return validated
+
+
+def code_surface_repositories(front_matter: Mapping[str, object]) -> set[str]:
+    """Best-effort set of repository tokens named in the `code_surface` header.
+
+    `code_surface` is prose (ratified as repository-granularity free text), so
+    this extracts bare repository-name tokens for the cross-consistency check:
+    every whitespace/comma/parenthesis-separated word that looks like a repo
+    name. `none` yields the empty set. It is intentionally permissive — the
+    cross-consistency check only needs to confirm a scope key APPEARS in the
+    prose, and a false accept here is caught by the human ratification read, while
+    a false reject would wrongly gate a valid scope."""
+    raw = front_matter.get("code_surface")
+    if not isinstance(raw, str):
+        return set()
+    tokens = re.split(r"[\s,()/]+", raw)
+    return {t for t in tokens if t and t != "none"}

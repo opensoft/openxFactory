@@ -54,21 +54,29 @@ path-scope declaration" requirement's value form.
 Maps to a Speckit feature `scope-globs-validate`. Realizes the "Structured
 path-scope validation" requirement. Depends on Group 2.
 
-- [ ] 3.1 Implement the dialect-conformance checks mirroring codexFactory
+- [x] 3.1 Implement the dialect-conformance checks mirroring codexFactory
   `envelope.py:_validate_path_allowlist` EXACTLY: reject leading `/`, leading `!`,
   the universal patterns (`**`, `*`, `**/*`, `/**`, `./**`), and complement/denylist
   keys; require each glob compiles under the envelope dialect (`**`/`*`/`?`,
-  anchored full-match).
-- [ ] 3.2 Implement the `code_surface` cross-consistency check (every `scope_globs`
+  anchored full-match). (`scope_globs.py`: `validate_glob` / `validate_dialect` /
+  `glob_to_regex`.)
+- [x] 3.2 Implement the `code_surface` cross-consistency check (every `scope_globs`
   key must be named in `code_surface`; reverse not required).
-- [ ] 3.3 Keep the validator FLOOR-AGNOSTIC: no floor knowledge, no rejection of
+  (`scope_globs.py`: `validate_cross_consistency` / `code_surface_repositories`.)
+- [x] 3.3 Keep the validator FLOOR-AGNOSTIC: no floor knowledge, no rejection of
   floor-named paths (a positive test asserts a floor-named glob passes validate).
-- [ ] 3.4 Wire the checks into `openspec validate --strict` so a malformed or
-  non-dialect `scope_globs` fails strict validation with a message naming the
-  offending entry and the rule it breaks.
-- [ ] 3.5 Lockstep test pinning the validator's accept/reject set to the same
+  (`test_validate.py::test_validator_is_floor_agnostic_a_floor_named_glob_passes`.)
+- [x] 3.4 Wire the checks into the house validate runner so a malformed or
+  non-dialect `scope_globs` fails validation with a message naming the offending
+  entry and the rule it breaks. (`scripts/validate-scope-globs.py`, run over the
+  live corpus by `test_validate.py::test_corpus_scope_globs_all_validate` on every
+  PR — the `openspec` CLI is external and cannot be extended in-tree, so this is
+  the same enforcement route the other `scripts/validate-*.py` validators use.)
+- [x] 3.5 Lockstep test pinning the validator's accept/reject set to the same
   fixtures as `envelope.py:_validate_path_allowlist`, so the two dialects cannot
-  drift.
+  drift. (`test_dialect_lockstep.py`; parity proven byte-for-behaviour against the
+  live authority at HEAD 3143f34d — constants identical, 0 regex/behaviour
+  mismatches.)
 
 ## Group 4 — Speckit feature: trust-root + archive integrity (code_surface: openxFactory)
 
