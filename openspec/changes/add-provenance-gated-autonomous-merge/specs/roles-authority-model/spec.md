@@ -194,6 +194,27 @@ governance, and council-record surfaces BEFORE any non-docs-shaped class is
 enabled for it, because floor semantics are tree-specific and do not transfer
 between repositories.
 
+The definition-time floor predicate and its protected-surface set SHALL be the
+ENROLLING REPOSITORY'S floor instance, never a neutral default: codexFactory's
+global protected-surface constants are codexFactory's own instance, not the
+canonical floor for any other tree. The floor predicate SHALL be
+repository-parameterized — a per-tree floor input, tree-validated — and
+instantiating it SHALL be a HARD, human-gated precondition sequenced BEFORE any
+provenance-eligible class in a repository other than the floor's origin
+repository, symmetric with how the machine-readable path-scope substrate is
+sequenced.
+
+Every source the verifier reads to establish or authorize a provenance tie
+SHALL be a never-clearable floor member of EVERY enrolled repository —
+specifically (i) the enrollment envelope (`.github/merge-approval-envelope.yml`),
+(ii) the base-branch corroboration record, (iii) the tied OpenSpec change and
+its Status/supersession state, (iv) the machine-readable path-scope
+(`scope_globs`) substrate, and (v) the ratification-signing identity's
+configuration and its invoking workflow. No autonomous provenance merge SHALL
+write to any of these trust-root sources, so an earlier governed merge can never
+author the input a later tie corroborates against — closing the
+self-authorization recursion.
+
 #### Scenario: A provenance class is judged by the shared floor walk
 - **WHEN** a provenance-eligible class's allowlist is validated at definition time
 - **THEN** it is judged by the same union-judged floor walk as any other class,
@@ -210,6 +231,12 @@ between repositories.
   whether the verifier or the definition-time predicate is the primary floor
   enforcement
 - **THEN** the realization is incomplete and the class MUST NOT be published
+
+#### Scenario: A repository lacks its own tree-validated floor or floors a trust-root source outside it
+- **WHEN** a repository enables a non-docs provenance-eligible class WITHOUT its
+  own tree-validated floor, OR with any trust-root source (i)–(v) outside that
+  floor
+- **THEN** the class is REFUSED at definition time
 
 ### Requirement: Full-pipeline-green successor and interim sunset
 The provenance-completeness criterion SHALL be documented as INTERIM, with the

@@ -98,7 +98,10 @@ before any non-docs class is enabled, because floor semantics are tree-specific
 the pilot is `opensoft/openxFactory`). Alternative considered: rely on the
 current floor membership as sufficient. Rejected — the doctrine must be
 membership-independent and portable across enrolled repos. (Systems Concerns 1
-and 3, Adversary Concerns 2 and 5.)
+and 3, Adversary Concerns 2 and 5.) CRITICAL #1 (global-floor parameterization +
+mandatory-minimum trust-root floor) was folded into the `roles-authority-model`
+spec delta per the 2026-08-28 convener disposition (record: codexFactory
+`hermes/domain/review-councils/records/2026-08-28-gate-rules-provenance-gated-autonomous-merge.md`).
 
 ### D5 — codexFactory realization is a SEPARATE dependent change
 The realization (verifier, `council_clearance.py` guard, the ordered-delta

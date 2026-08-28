@@ -5,7 +5,7 @@ target_release: none (no `contracts/schemas/` bundle artifact — this amends th
 
 # Proposal: add-provenance-gated-autonomous-merge
 
-Status: draft
+Status: ratified
 Authored: 2026-08-27, from the convener's ruling of the same date. This packet
 was authored via `opsx:propose`; its alignment-review and council-debate gates
 run against this draft before design/tasks are generated.
@@ -266,3 +266,21 @@ all not yet complete — before any PR benefits.
   `council_clearance.py`, any push or merge, and any change to the tier
   vocabulary or per-tier clearance eligibility (those remain deferred exactly as
   `add-substantive-review-lane` leaves them).
+
+## Ratification record
+
+Ratified: 2026-08-28 by the gate_rules_council (agent-seat mode; full declared
+membership — lead-architect, lead-security, lead-quality, company-policy-lead,
+the vacant symbolic intent-owner slot — plus the client-security-compliance-officer
+conjunction pull-in, which FIRED and was seated by convener act) — RATIFIED AS
+AMENDED (5/5). Convener disposition ACCEPT-AS-AMENDED accepted 2026-08-28 by
+Brett Heap. Record:
+hermes/domain/review-councils/records/2026-08-28-gate-rules-provenance-gated-autonomous-merge.md
+(codexFactory). CRITICAL #1 (global-floor parameterization + mandatory-minimum
+trust-root floor) folded into this spec delta; the remaining CRITICAL (#2 interim
+narrow+floor-disjoint / static primary; #3 positive pilot mandatory and never on
+authority code) and all HIGH + deferred amendments are carried as BINDING
+PRECONDITIONS on the realization change `realize-provenance-gated-autonomous-merge`
+and its first pilot — the provenance axis is ESTABLISHED by this ratification but
+SHALL NOT be EXERCISED (realization shipped / any pilot run) until those
+preconditions hold.
