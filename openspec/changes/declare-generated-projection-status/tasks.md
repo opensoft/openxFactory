@@ -174,8 +174,11 @@ Every read-back was measured on 2026-08-28 in a fresh worktree off
 - [x] 4a.4 The suites that own the edited `contracts/` schema were run too,
       because `tests/doc-health` does not read it — `tests/ideation-dashboard`,
       `tests/ideation_dashboard` and `tests/notebooklm`, the three that
-      reference `ideation-dashboard-snapshot` or `lifecycle_status`. Read-back
-      recorded at the foot of this file.
+      reference `ideation-dashboard-snapshot` or `lifecycle_status`.
+      **DONE — 4869 passed, 16 skipped, 26 subtests passed, 0 failed**, 786.79s
+      (13m06s), under `set -o pipefail` with the exit read from `$?`. Widening
+      an enum is additive and no test pins its contents — verified by grep
+      before the run and confirmed by it.
 - [x] 4a.4b Run the two repo validators that own the artifacts this change
       edits, per the house rule that the local validator runs before pushing.
       **DONE.** `scripts/validate-ideation-dashboard-contracts.py` —
