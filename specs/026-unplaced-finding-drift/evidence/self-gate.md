@@ -10,11 +10,11 @@ class block.
 
 **Not copied from packet § 3.1**, per § 2.13's own instruction — the arms'
 population moves as active changes land, and it had already moved once under
-that packet. Taken at THIS feature's branch point, from a clean extraction of it
-so no working-tree edit could contaminate it:
+that packet. Taken at THIS feature's own base, from a clean extraction of it so
+no working-tree edit could contaminate it:
 
 ```bash
-git archive 86b7ca3f | tar -x -C <scratch>/026-unplaced-finding-drift
+git archive $(git merge-base HEAD origin/main) | tar -x -C <scratch>/026-unplaced-finding-drift
 cd <scratch>/026-unplaced-finding-drift && git init -q .
 python3 scripts/doc-health.py --single-repo . --family modified-block-currency
 ```
@@ -25,7 +25,7 @@ line-comparable.
 
 ## The result
 
-`self-gate-before.txt` (branch point `86b7ca3f`) versus `self-gate-after.txt`
+`self-gate-before.txt` (merge base `22f15cdf`) versus `self-gate-after.txt`
 (this branch, the feature landed):
 
 ```text
@@ -60,6 +60,18 @@ of them rather than only this family's block.
 This reproduces packet § 3.1's figure exactly, which is the state § 2.13 asked
 this feature to reproduce.
 
+## Re-taken after the catch-up merge, and it did not move
+
+The pair was first measured at the original branch point `86b7ca3f` (the
+packet's own merge commit) and read `0 warning, 7 info`, classes `0 / 7 / 0 / 0`
+and residual `0`. `origin/main` then advanced six commits, one of them a new
+proposal (`adopt-medxsoft-repository-identity`), so the branch took a catch-up
+MERGE — never a rebase — and **both figures were re-taken at the new merge base
+`22f15cdf`**. Identical, and the diff is still the same single line. Recorded
+because § 3.1 warns that this figure moves as active changes land: here it did
+not, because the incoming packets carry no `## MODIFIED Requirements` block, and
+that is the only thing this family reads.
+
 ## Dogfood — the block renders in one run and not the other (T042)
 
 ```bash
@@ -79,5 +91,8 @@ claim a measurement nobody took. The fifth class does not change that, and the
 
 ```bash
 OPENSPEC_TELEMETRY=0 openspec validate --all --strict
-Totals: 77 passed, 0 failed (77 items)
+Totals: 78 passed, 0 failed (78 items)
 ```
+
+77 items at the original branch point; 78 after the catch-up merge, which
+brought `adopt-medxsoft-repository-identity` in. Both runs green.

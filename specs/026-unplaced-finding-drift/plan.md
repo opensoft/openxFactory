@@ -12,7 +12,11 @@ map cannot place is itself a finding". Ratified 2026-08-27 by Brett
 ("Amend now"); merged as PR #446, squash `86b7ca3f`, which is this branch's
 base.
 
-**Branch point**: `86b7ca3f4600f5771c48b2baeb2adf85f556fb82`.
+**Branch point**: `86b7ca3f4600f5771c48b2baeb2adf85f556fb82`, the packet's own
+merge commit. `origin/main` advanced six commits during the feature, so the
+branch took a catch-up MERGE (never a rebase) and its merge base at landing is
+`22f15cdf341cac0ec89ed7e4e56f75ecaebc8585`. Both self-gate figures were re-taken
+there and did not move.
 
 ## Summary
 

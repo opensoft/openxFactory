@@ -1,6 +1,8 @@
 # Scope diff — nothing outside the named surface moved (T044, packet § 2.15)
 
-Merge base: `86b7ca3f4600f5771c48b2baeb2adf85f556fb82`.
+Merge base: `22f15cdf341cac0ec89ed7e4e56f75ecaebc8585` (after the catch-up
+merge; the original branch point was `86b7ca3f`, the packet's own merge commit,
+and the diff below is unchanged by the merge).
 
 ## The forbidden surfaces are EMPTY
 

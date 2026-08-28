@@ -10,6 +10,11 @@ python3 -m pytest tests/doc-health -q
 | after the RED tests, before the module | 11 failed, 124 passed *(family files only — see `red-log.md`)* |
 | feature landed | **1227 passed**, 7 warnings |
 | after the mutation round, module restored | **1227 passed**, 7 warnings |
+| after the catch-up merge to `22f15cdf` | **1227 passed**, 7 warnings |
+
+The merge moves neither figure: `git diff 86b7ca3f 22f15cdf -- tests/doc-health/
+scripts/doc_health/` is EMPTY, so the 1215 baseline still stands against the
+merged base.
 
 **+12, and every one is named.** Eleven in
 `test_modified_block_currency_reporting.py`:

@@ -1,6 +1,7 @@
 # Tasks: the fifth finding class — unplaced-finding drift (F5)
 
-**Feature**: `026-unplaced-finding-drift` | **Branch point**: `86b7ca3f`
+**Feature**: `026-unplaced-finding-drift` | **Branch point**: `86b7ca3f` |
+**Merge base at landing**: `22f15cdf` (catch-up merge, never a rebase)
 **Spec**: [spec.md](./spec.md) | **Plan**: [plan.md](./plan.md)
 
 **Realizes**: `openspec/changes/add-unclassified-finding-class` § 2 (boxes
@@ -277,8 +278,8 @@ All 44 boxes are done. Evidence lives in `evidence/`:
 **Headline results.** Test suite 1215 → **1227 passed** (+12, every one named).
 Self-gate before/after diff: **exactly one line**, the fifth class row reading
 `0` — zero movement in every band, over a FULL report so the comparison covers
-all twenty-two families. `openspec validate --all --strict`: **77 passed, 0
-failed**. Mutation round: **9 applied, 9 killed, 0 survivors** (one, the
+all twenty-two families. `openspec validate --all --strict`: **78 passed, 0
+failed** (77 before the catch-up merge). Mutation round: **9 applied, 9 killed, 0 survivors** (one, the
 unanchored-pattern mutant, survived the first attempt and exposed a near-miss
 adversarial title, now fixed). `.github/` and `openspec/` diffs: **empty**.
 

@@ -45,7 +45,7 @@ the count:**
 - unclassified: {n} — findings this family emitted that its own class map does not place; the map has drifted from the arms and the counts above are short by this many
 ```
 
-### Worked example — this checkout at F5's branch point (`86b7ca3f`)
+### Worked example — this checkout at F5's merge base (`22f15cdf`)
 
 Measured with
 `python3 scripts/doc-health.py --single-repo . --family modified-block-currency`.
