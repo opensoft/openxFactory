@@ -121,7 +121,10 @@ answer never reads as permission.
 ## The on-chain layer, as ruled
 
 Brett ruled 2026-08-27 that the anchoring and consent layer goes **on chain**,
-definitively, and **especially for financial and medical records**.
+definitively, and **especially for financial and medical records**. The ruling
+is recorded as it was given; what the study refines is *which* chain each part
+lands on — public commitments for the anchoring layer, a governed permissioned
+ledger whose state roots are anchored for consent, and raw records on neither.
 
 A chain-selection study ran in parallel and is vendored beside this file as
 [`chain-selection-study.md`](chain-selection-study.md) — research input, dated

@@ -19,7 +19,10 @@ as settled. Its original header read `**Status:** brainstorm (research input;
 not a governance doc)`; it is relabelled `staged` here only because a
 brainstorm-status document may not live under `ideation/staging/`
 (document-lifecycle location-conformance) — the relabel changes the filing, not
-the epistemic status. Original meta lines, verbatim:
+the epistemic status. One citation in §1.2 labels a live price page as a
+`2026-08-28 snapshot` where every other source line reads `checked 2026-08-27`;
+the original meta line's *unless noted* clause covers exactly that case, and
+the body is not edited to reconcile it. Original meta lines, verbatim:
 
 **Date:** 2026-08-27 (all prices/fees/network figures are snapshots as of this date unless noted)
 **Scope:** Deep review of Kaspa as the named candidate; comparison set (Bitcoin, Ethereum+L2, Algorand, Hedera, Cardano, Ergo, permissioned/hybrid); architecture recommendation; cost model.
