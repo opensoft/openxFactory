@@ -157,6 +157,26 @@ commit `4bd1214` (2026-07-25):
    safety-relevant surfaces (CCR backend default, learn/memory
    default-on drift, telemetry) on version bumps?
 
+## Deferral with a named gate (recorded 2026-08-28)
+
+**DEFERRED. The gate is the pilot, and the pilot is behind the worker chain.**
+The design is locked (source audit of headroom v0.32.0, RAM-only CCR, the
+three-tier audit model), and the exit change is gated on the codexFactory-lane
+pilot in Omnigent-Install producing MEASURED savings. That pilot runs in the
+omnigent-worker image on a governed worker host, so it sits behind the same
+three acts the `worker-host-app` topic is deferred on, verified as of
+2026-08-28: **Omnigent-Install PR #40** (phase 3 — enrollment-broker client,
+leases, fail-closed floor; raised 2026-07-28, still OPEN), then OpsxFactory
+`add-worker-enrollment-broker-service` **task 8.1** (Brett's hosting-target
+gate) and **task 8.2** (Brett's deployment-credential gate), both unticked.
+The proximate gate is therefore the pilot's measured savings; the reason no
+one can schedule it is the chain above it.
+
+**This deferral is a schedule, not a standing.** It changes no `Status:`, and
+it does NOT stop the topic ageing in doc-health — see the same paragraph in
+the `worker-host-app` topic for why no `deferred` state was invented to make
+it stop.
+
 ## Exit path
 
 Pilot evidence in Omnigent-Install (proof-harness scope, no canonical

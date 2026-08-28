@@ -420,11 +420,94 @@ def test_staged_candidate_aging():
     actions = [f.action for f in sorted(got, key=lambda f: (f.severity, f.path))]
     assert actions == [
         "create the OpenSpec change and add its change= id",
-        "progress the topic to a proposal or mark it deferred",
+        # MOVED by `settle-aging-staging-topics`. The old line read
+        # "progress the topic to a proposal or mark it deferred" and named
+        # an act no staged topic could perform: the `document-lifecycle`
+        # taxonomy has no `deferred` value for a topic, and this change
+        # adds none. The line now names the two records the family honours.
+        "progress the topic to a proposal, or record the outcome it "
+        "already reached — the primary fragment superseded/retired, or "
+        "an Exit taken: line naming the archived change",
         "trend data — no action required",
         "convert the block via an OpenSpec change or drop it",
         "ratify, supersede, or retire the draft",
     ]
+
+
+# --- staged-topic outcomes (`settle-aging-staging-topics`) ------------------
+#
+# Six topics, ONE age, one fixture: every topic below is 130 days untouched,
+# so each of them fires under the rule as it stood before this change and the
+# only thing separating them is the outcome each one records. The three that
+# stay is the regression; the three that still fire is the positive control
+# that the family did not simply go quiet.
+_OUTCOME_TOPICS = ("closed-topic", "exited-topic", "fenced-topic",
+                   "inflight-topic", "retired-topic", "stale-topic")
+
+
+def _outcome_ctx():
+    return make_ctx("staged-topic-outcomes", git=FakeGit(last_dates={
+        ("alpha", f"ideation/staging/{name}"): date(2026, 3, 1)
+        for name in _OUTCOME_TOPICS}))
+
+
+def test_a_recorded_outcome_stops_a_staged_topic_ageing():
+    got = FAMILIES["staged-candidate-aging"](_outcome_ctx())
+    assert keys(got) == [
+        # `Exit taken:` inside a code fence is an EXAMPLE of the record, so
+        # the topic that only shows the grammar keeps ageing.
+        (ERROR, "ideation/staging/fenced-topic",
+         "staged topic untouched 130 days"),
+        # The cited change is ACTIVE: the proposal is in flight, the staged
+        # material is `location-conformance`'s move, and the age is half of
+        # one live obligation — silencing it would hide the other half.
+        (ERROR, "ideation/staging/inflight-topic",
+         "staged topic untouched 130 days"),
+        # No outcome recorded anywhere: the family's original behaviour,
+        # unchanged.
+        (ERROR, "ideation/staging/stale-topic",
+         "staged topic untouched 130 days"),
+    ]
+
+
+def test_the_three_silenced_topics_are_silenced_for_their_own_reason():
+    """Each skip arm alone, so one arm cannot cover another's failure."""
+    ctx = _outcome_ctx()
+    docs_by_path = {(d.repo, d.path): d for d in ctx.docs}
+    archived = families._archived_change_ids(ctx)
+    assert "2026-01-05-add-exited-thing" in archived
+    assert "add-live-thing" not in archived  # active, and never archived
+    staging = ctx.repo_paths["alpha"] / "ideation" / "staging"
+    outcome = {
+        name: families._topic_outcome(
+            ctx, docs_by_path, archived, "alpha",
+            ctx.repo_paths["alpha"], staging / name)
+        for name in _OUTCOME_TOPICS}
+    assert outcome == {
+        "closed-topic": "primary fragment is superseded",
+        "retired-topic": "primary fragment is retired",
+        # read from the staging INDEX's detail section, not from the
+        # fragment: the register row is where this corpus records exits.
+        "exited-topic": "exit taken: 2026-01-05-add-exited-thing (archived)",
+        "fenced-topic": None,
+        "inflight-topic": None,
+        "stale-topic": None,
+    }
+
+
+def test_an_index_exit_record_binds_to_its_own_topic_section():
+    """A neighbouring topic's `Exit taken:` line must not silence this one.
+
+    The index is one document holding every topic's section, so a reader
+    that scanned the whole file would silence the entire register the
+    moment any one topic recorded an exit.
+    """
+    ctx = _outcome_ctx()
+    index = next(d for d in ctx.docs if d.path == "ideation/staging/INDEX.md")
+    assert families._exit_taken_lines(
+        families._index_section(index.text, "exited-topic"))
+    assert not families._exit_taken_lines(
+        families._index_section(index.text, "stale-topic"))
 
 
 def test_register_lifecycle_consistency():

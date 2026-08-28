@@ -1,0 +1,42 @@
+schema: spec-driven
+created: 2026-08-28
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-28-settle-aging-staging-topics
+  reason: >-
+    Commissioned in-session by Brett on 2026-08-28 as FOUR BULK RULINGS over a
+    read-only triage survey. The mechanism is recorded because it is the
+    authorization: an orchestrating session ran a survey of the fourteen
+    staging topics that `doc-health`'s `staged-candidate-aging` family was
+    warning on, grouped them by what the survey found, and put each group to
+    Brett as a MULTI-CHOICE question; his four answers are the rulings this
+    packet executes. R1 (group 1, "family fix + superseded provenance"): teach
+    the aging family to skip a topic whose primary document is `superseded` or
+    `retired` or whose INDEX row records the exit taken, and mark the six
+    COMPLETED topics' primary docs `superseded` where not already, verifying
+    each exit at its own archive. R2 (group 2, worker chain): record
+    `worker-host-app` and `context-compression-runtime` as
+    defer-with-gate-named, the gate being Omnigent-Install PR #40 then
+    OpsxFactory `add-worker-enrollment-broker-service` tasks 8.1/8.2. R3
+    (group 3, progress both): leave `subject-establishment` and
+    `client-credential-escrow-registry` to the agents filing them, correcting
+    only an INDEX readiness line that has become false. R4 (group 4, ratify
+    all): defer-with-gate-named for `proposal-origin-contract`,
+    `layer-vocabulary-machine-migration` and `ideation-action-plane` fragment
+    2, plus four bookkeeping refreshes. Not a staged ideation topic — none
+    exists and none should: the subject of the change is the staging queue
+    itself and the health family that reads it, and a topic about the topics
+    would be the register describing its own describer. Authored here because
+    `doc-health` is an openxFactory capability, the aging family is its own
+    code, and `ideation/staging/INDEX.md` is this repository's register.
+  approved_by: >-
+    Brett — the four bulk rulings of 2026-08-28, given as answers to the
+    survey's multi-choice questions. This records authorization for the
+    DECISIONS THE RULINGS TOOK: which topics close, which defer, which are
+    left alone, and that the family learns to read a recorded outcome. It does
+    NOT cover the design decisions the authoring session took under standing
+    patterns — how the skip is implemented, what an `Exit taken:` line is,
+    which of the six topics takes `superseded` and which takes the exit
+    record, and the delta shape. Those are flagged for veto in the proposal's
+    § Orchestrator Decisions.
+  approved_on: 2026-08-28

@@ -1,6 +1,7 @@
 # Staged: codexFactory Domain Hermes Content (roles, policies, councils, memory, catalog)
 
-Status: staged
+Status: superseded
+Superseded by: [codexFactory 2026-07-22-add-domain-hermes-roles-and-policies](https://github.com/opensoft/codexFactory/tree/main/openspec/changes/archive/2026-07-22-add-domain-hermes-roles-and-policies) and [codexFactory 2026-07-23-add-domain-hermes-councils-and-memory](https://github.com/opensoft/codexFactory/tree/main/openspec/changes/archive/2026-07-23-add-domain-hermes-councils-and-memory)
 Kind: architecture
 Summary: Author the codexFactory Domain Hermes content — the Plane-1 persona
 roster, the stored policy delta, the review councils and agent mixes, the
@@ -18,6 +19,23 @@ Source: ideation/brainstorm/ — codexfactory-domain-hermes-content.md (umbrella
 codexfactory-domain-roster-draft.md, codexfactory-domain-policy-model.md,
 codexfactory-domain-deliberation.md, codexfactory-domain-memory-and-practices.md,
 hermes-persona-character-model.md; decisions recorded 2026-07-22.
+
+## Outcome (recorded 2026-08-28)
+
+COMPLETE. Both exit changes were ratified, realized and ARCHIVED, and both
+archives were verified at the codexFactory tree on 2026-08-28:
+
+| Exit | Repository | Archived packet |
+| --- | --- | --- |
+| Change A — roles + policies + `codex_owns` closure + Omnigent lockstep | codexFactory | `openspec/changes/archive/2026-07-22-add-domain-hermes-roles-and-policies` |
+| Change B — councils, mixes, escalation, memory, catalog | codexFactory | `openspec/changes/archive/2026-07-23-add-domain-hermes-councils-and-memory` |
+
+The canonical codexFactory spec `domain-hermes-content` carries all nine
+requirements, and the Omnigent overlay extension rode change A's
+realization. The topic folder and its `openspec/` drafts are retained as
+PROVENANCE — the reason this document is `superseded` rather than deleted
+— and the open questions listed below were carried into those proposals
+and answered there.
 
 ## Claims (decided 2026-07-22 in the brainstorm cluster)
 
