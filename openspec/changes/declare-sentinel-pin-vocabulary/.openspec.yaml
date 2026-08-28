@@ -1,0 +1,119 @@
+schema: spec-driven
+created: 2026-08-27
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-27-declare-sentinel-pin-vocabulary
+  reason: >-
+    Commissioned in-session by Brett on 2026-08-27, verbatim: "file the
+    sentinel-vocabulary follow-up change". THE PACKET IT COMMISSIONS WAS
+    CONSTITUTED EARLIER THE SAME DAY, by a separate ruling that made two
+    deferred items ONE future packet — Brett selected, verbatim, "Named
+    follow-up (Recommended): Record it beside the §5.3 git_generation()
+    follow-up — they're the same idea (honest non-pins) and should be one future
+    packet" — so this filing has a shape that was ruled before it was ordered,
+    and the two acts are recorded separately because they authorized different
+    things. Not a staged ideation topic: `ideation/staging/` and its `INDEX.md`
+    were searched and carry nothing on derivation pins, non-pin values, or
+    generator provenance. The word "sentinel" DOES appear there and is a false
+    positive worth naming rather than letting a later reader trip on it — in
+    `recurrence-crystallization` it is the statistical sense (a sentinel
+    fraction, `sentinel_epsilon_start`, sentinel sampling rates), a different
+    concept entirely. `kind: staged` is therefore unavailable rather than
+    declined.
+    THE FORCING FACTS, all re-measured 2026-08-27 in a fresh worktree off
+    `origin/main` at `b5fb03f3`. (1) `git_generation()` at
+    `scripts/bootstrap-ideation-cross-reference.py:144-154` pins
+    `rev-parse HEAD` with NO cleanliness check of any kind — no
+    `status --porcelain`, no `diff --quiet`, no fallback branch, and `check=True`
+    so a git failure raises rather than degrading — and its value is written as
+    `generation.source_revision` into `ideation/cross-reference.yaml`. The defect
+    named at `harden-ideation-readiness-check` § 5.3 and carried forward at
+    `govern-derived-pin-reachability` § 5.1 STANDS on current main, unchanged.
+    (2) SEVEN committed proposal-support manifests carry a sentinel where a
+    commit would go — 34 manifests total, 24 with a real forty-character pin,
+    `"uncommitted-worktree"` six times, `"not-applicable-ad-hoc"` once, and
+    `source_revision` absent three times — re-counted here by enumerating the
+    declared `proposal-support-manifest` globs rather than by trusting the
+    archived count.
+    ONE CORRECTION TO THE RECORD THIS PACKET INHERITS, recorded rather than
+    smoothed over because it changes what the packet is FOR.
+    `govern-derived-pin-reachability` § 5.1 and the README entry derived from it
+    state that the proposal-support generator "already refuses to write a pin it
+    cannot mean" and that the sentinel is therefore deployed behaviour awaiting
+    generalization. MEASURED, IT IS NOT. `git log -S"uncommitted-worktree" --
+    scripts/` is EMPTY across all history, and so is the search for
+    `not-applicable-ad-hoc`: neither string has ever existed in any script in
+    this repository. The generator, `scripts/proposal-support.py:175-180`
+    `repo_revision()`, returns `rev-parse HEAD` or the bare string
+    `"uncommitted"` — a THIRD spelling — and only when `rev-parse` EXITS
+    NON-ZERO, never on a dirty tree, so it carries the identical defect
+    `git_generation()` does. All seven sentinel values were written BY HAND into
+    manifests, one packet at a time. That makes the case stronger rather than
+    weaker: the practice is real, it was right every time, and it exists in no
+    generator and no declaration — which is exactly the gap a shared declared
+    vocabulary closes.
+    AND THE DRIFT IS ALREADY A LATENT FAULT, measured rather than predicted.
+    Three guards in `scripts/proposal-support.py` (lines 184, 632, 737) compare
+    the revision against the literal `"uncommitted"` and therefore do not
+    recognize `"uncommitted-worktree"`; a manifest carrying it falls through into
+    `git_blob_sha256`, whose strict 40-or-64-hex check raises. Run here against
+    this worktree: `git_blob_sha256(root, "uncommitted-worktree", "README.md")`
+    raises `SupportError: invalid repository revision: uncommitted-worktree`
+    while `"uncommitted"` returns `None`. It is LATENT rather than live only
+    because all seven sentinel manifests are ARCHIVED and the crashing guard sits
+    on the active-support path.
+    (3) THE SENTINELS ARE INVISIBLE TO THE VERIFICATION BY CONSTRUCTION, and
+    invisible is not the same as excluded. `scripts/doc_health/pin_class.py`
+    binds the value group of both `_field_re` and `_VOCAB_RE` to
+    `([0-9a-f]{40})`, so a sentinel value creates no `PinSite` at all: not
+    reachable, not orphaned, not lost, and NOT UNCOVERED. The seven files are
+    swept, the key is declared, the member is in good standing, and the value is
+    skipped. The probe run here at `b5fb03f3` reports 65 declared pin sites
+    across 22 members — 50 reachable, 0 orphaned, 1 lost (discharged), 0
+    inconclusive, 0 uncovered, 0 vanished — a fully verified class over seven
+    artifacts whose central provenance claim nothing has read.
+    (4) SIX UNDECLARED SPELLINGS ALREADY EXIST across generators, found by
+    sweeping every site that stamps a revision into generated output:
+    `"uncommitted"` (`proposal-support.py:180`), `"uncommitted-worktree"` and
+    `"not-applicable-ad-hoc"` (hand-written, seven manifests), `"unknown"`
+    (`ideation_dashboard/snapshot_registry.py:283` and
+    `experiments/avatar-brokered-call/src/avatar_f0/cli.py:51,60`), and
+    `"composed"` (`snapshot_registry.py:647`), beside the adjacent verdict
+    constant `pin_class.NOT_APPLICABLE = "not-applicable"`. Six spellings, no
+    shared declaration, and each one invisible to every consumer written against
+    a different lane's spelling.
+    Authored in openxFactory because both affected capabilities —
+    `ideation-cross-reference` and `doc-health` — are openxFactory's own, every
+    artifact measured is committed to this repository, and every generator named
+    lives in its `scripts/` tree.
+  approved_by: >-
+    Brett — in-session commissioning of the filing itself on 2026-08-27,
+    verbatim: "file the sentinel-vocabulary follow-up change". This records
+    authorization for the DECISION TO FILE, on the instruction-as-origin-act
+    shape that `govern-derived-pin-reachability` ("file the pin-governance
+    follow-up change"), `supersede-lost-pin-baseline` and
+    `fix-release-reachability-race` set, rather than the blank-pair shape
+    `harden-ideation-readiness-check` was raised under — the distinction being
+    that this packet HAS an instruction behind it and that packet had none.
+    A SECOND, EARLIER ACT OF THE SAME DAY IS RECORDED SEPARATELY because it
+    authorized something different: the ruling that made the sentinel question
+    and the `git_generation()` gap ONE packet rather than two, selected verbatim
+    as "Named follow-up (Recommended): Record it beside the §5.3
+    git_generation() follow-up — they're the same idea (honest non-pins) and
+    should be one future packet". That ruling constituted the packet's SCOPE; it
+    did not order the filing, and it explicitly deferred the substantive question
+    — whether the vocabulary becomes shared and declared — to the future packet,
+    which is this one.
+    THE CITATION COVERS THE DECISION TO FILE AND NOTHING ELSE. Every decision in
+    `proposal.md` § Orchestrator decisions — the two-capability all-ADDED split,
+    the vocabulary's home beside the pin class, grandfathering the committed
+    spellings rather than normalizing them, filing on a corrected premise, and
+    adding no deterministic check family — was taken by the authoring session and
+    stays FLAGGED FOR VETO, as do the four questions in § Open Questions, each of
+    which carries a recommendation and no decision.
+  approved_on: 2026-08-27
+related:
+  - openxFactory:change:govern-derived-pin-reachability   # its § 5.1 carries both halves of this packet and the ruling that made them one; its declared pin class is what this vocabulary qualifies
+  - openxFactory:change:harden-ideation-readiness-check   # its § 5.3 is where the git_generation() dirty-tree defect was first written down
+  - openxFactory:change:supersede-lost-pin-baseline       # the sibling that answered the OTHER branch of the pin class — a pin that stopped resolving, where this one is about a pin that was never true
+  - openxFactory:change:add-family-enumeration-check      # holds the active MODIFIED block for "Deterministic check families"; this packet adds no family and does not restate it
