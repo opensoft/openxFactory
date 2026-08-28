@@ -133,5 +133,24 @@ jobs:
             || fail "the gate log says 'no intake register at this tree' — the scan target was not the openxFactory root, so review authority was adjudicated against nothing"
           ! grep -qE '\[register-[a-z-]+\]' wallet-gate.log \
             || fail "the gate log carries a register-* finding; see the validator output above"
+          # wallet-v1.2 (openXwallet `add-per-seat-register-entries`): the FOUR
+          # per-seat council signing keys were ADJUDICATED, not merely parsed.
+          #
+          # The number is the evidence and the word "adjudicated" is why: the
+          # pinned reader excludes every entry it refused from this count, so
+          # `4 of 4` can only be emitted on a run that stood behind all four
+          # keys. Asserting the note's PRESENCE alone would be satisfied by a
+          # register that records none of them — the reader notes THAT case with
+          # a different line, deliberately — and asserting a parsed count would
+          # prove parsing, which is the class this whole step exists to close.
+          #
+          # The count is LITERAL, not `[0-9]+`. Four seats are minted and
+          # recorded; a fifth arriving, or one going missing, must break this
+          # gate and be a deliberate edit here beside the register edit, not a
+          # silent pass under a wildcard.
+          grep -qE '^note  intake register: 4 of 4 per-seat signing key\(s\) adjudicated and resolved$' wallet-gate.log \
+            || fail "the gate log does not say the four per-seat council signing keys were ADJUDICATED (4 of 4); the register's seat_keys surface was not read, or an entry was refused, or the pinned reader predates wallet-v1.2"
+          ! grep -q 'no per-seat signing key is recorded' wallet-gate.log \
+            || fail "the gate log says no per-seat signing key is recorded — the register lost its seat_keys surface, and a Hermes projection derived from it could authorize no seat"
           echo "register-read conjunction holds:"
-          grep -E '^note  (repo scan:|intake register read:)' wallet-gate.log
+          grep -E '^note  (repo scan:|intake register read:|intake register: )' wallet-gate.log
