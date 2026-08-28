@@ -450,11 +450,27 @@ check.*
       `wallet-v1.1`, annotated `021cdeef`, targets `63f5a1ad`, pushed
       2026-08-27; 8/8 contract digests unchanged, `contract_bundle_version:
       wallet-v1.1`.)
-- [ ] 4.9 **[LedgerxFactory]** Evidence: a GREEN estate run on the v1.1 reader.
+- [x] 4.9 **[LedgerxFactory]** Evidence: a GREEN estate run on the v1.1 reader.
       The prune changes consumer behaviour, so this is a correctness check, not a
       formality — Ledgerx wallet records live at `tenants/ledgerxcorp/wallets/*`
       and not in a submodule, so `run_validator()`'s ≥5 assertion must be
       unaffected, and the `--strict` run must stay green through §4.5's NOTE.
+      (**GREEN, and each of the three assertions checked separately** — LedgerxFactory PR opensoft/LedgerxFactory#30 at `1a8ec624`, feature `019-openxwallet-consumer-repoints`, evidence
+      `specs/019-openxwallet-consumer-repoints/evidence/estate-run.md`. Run on a
+      purpose-made aggregation clone with BOTH gitlinks initialized, so
+      candidate 1 won against a live rival rather than by default: resolved
+      `openxFactory/openXwallet/scripts/validate-openxwallet.py`; `repo scan: 5
+      openxWallet artifact(s) validated, 602 document(s) skipped as another
+      kind` — the ≥5 assertion HOLDS, so the nested-repository prune does not
+      reach records outside a submodule; `0 error(s), 0 warning(s)` under
+      `--strict`, with §4.5's register read emitted as `note  no intake register
+      at this tree` and NOT as a warning — the whole reason §4.5 insisted on an
+      `f.note`, since this consumer runs `--strict`; exit 0. **A finding this
+      run surfaced:** the shared workspace could NOT have produced this evidence
+      — both gitlinks uninitialized, and its `openxFactory` checkout 174 behind
+      and STILL carrying the shed validator — so before §10.1 it resolved
+      candidate 3 and went green against a contract version nothing pins. That
+      is the hazard §10.1 removes, now measured rather than asserted.)
 - [ ] 4.10 Rollback recorded before the step: openxFactory pins `wallet-v1.0` and
       **P3 is BLOCKED** until the prune lands.
 
@@ -1171,11 +1187,27 @@ intermediate.*
       describes, not extended around an inaccuracy.
 - [ ] 9.3 **[xFactory]** `CLAUDE.md` orientation line for the new root-level
       product (its working-rule #1 amendment is §1.12, this change's own diff).
-- [ ] 9.4 **[xFactory]** The root-gitlink-equals-nested-gitlink check invoked
+- [x] 9.4 **[xFactory]** The root-gitlink-equals-nested-gitlink check invoked
       from the aggregation's doc-health run — the only CI that initializes BOTH
       gitlinks — as `verify-openxwallet-pin.py --aggregation-root`. Not a second
       script in xFactory, which has no validator convention of its own and would
       drift a duplicate refusal set.
+      **REALIZED in openxFactory, and the xFactory caller needs NOTHING** —
+      `doc-health-nightly.yml` is a thin caller of
+      `openxFactory/.github/workflows/doc-health-reusable.yml@main`, so the
+      aggregation's doc-health run IS that reusable workflow and the step can
+      only live here. Step "Verify openXwallet root-gitlink parity" in the
+      `prepare` job, after "Init governed submodules only", running `python3
+      openxFactory/scripts/verify-openxwallet-pin.py --aggregation-root .`,
+      guarded on openxFactory declaring the nested gitlink at this pin (the
+      P3→P4 ordering, the same guard the nested init carries). The init was
+      deliberately NOT widened to the root gitlink: `verify_aggregation` reads
+      the RECORDED gitlink through `ls-tree`/`ls-files` and needs no checkout, so
+      widening would add openAvatar's Flutter monorepo to every nightly for no
+      reader. Eight tests pin the command, the flag, the order, the guard, the
+      unconditionality and the non-duplication
+      (`tests/openxwallet_pin/test_aggregation_lane_wiring.py`), collected by the
+      REQUIRED `pytest-suite`. Realized by feature `024-root-governed-repo-recognition`.
 - [ ] 9.5 **[xFactory]** Evidence row: the merged pull request plus that check
       green.
 - [ ] 9.6 **[xFactory]** Rollback recorded before the step: P4 reverts WITH P3, or
@@ -1186,10 +1218,20 @@ intermediate.*
 *Coupled to P3's rollback; dropping the fallback is safe only while the gitlink
 exists.*
 
-- [ ] 10.1 **[LedgerxFactory]** Drop `find_openxfactory()`'s third candidate
+- [x] 10.1 **[LedgerxFactory]** Drop `find_openxfactory()`'s third candidate
       (`openxFactory/scripts/validate-openxwallet.py`) — the pre-P3 fallback,
-      dead once the gitlink exists.
-- [ ] 10.2 **[LedgerxFactory]** A DECLARED `openxwallet:` block in `stack.yaml`,
+      dead once the gitlink exists. (LedgerxFactory PR opensoft/LedgerxFactory#30 at `1a8ec624`. `VALIDATOR_CANDIDATES` is
+      two entries; the docstring, the ratified-order assertion and the probes
+      moved with it. TWO judgements worth a reviewer's eye: `_LEGACY` is
+      **retained** and the `legacy-only` probe **inverted** to expect `None`,
+      because the new fact about that path is that it must resolve NOTHING and
+      the cheapest place to assert it is where it used to be asserted to
+      resolve; and `nearer-level-wins` is re-expressed as
+      `[(_NESTED, 2), (_AGGREGATION, 1)]` so the loop nesting — level order
+      OUTER, candidate order INNER — stays pinned, since that probe is the one
+      a careless narrowing deletes along with `_LEGACY`.
+      `check_finder_loud_failure()` is unchanged and now MORE reachable.)
+- [x] 10.2 **[LedgerxFactory]** A DECLARED `openxwallet:` block in `stack.yaml`,
       a SIBLING of `xfactory:` (`:10-16`) and never nested under it — nesting
       would assert openXwallet is a component of the openxFactory release, and it
       is a separate product openxFactory itself pins. Fields mirror `xfactory:`
@@ -1197,63 +1239,201 @@ exists.*
       `contract_name: openXwallet`, `contract_ref_type: commit`, `contract_ref:
       <40-hex>`, `contract_bundle_tag: wallet-v1.1`, `contract_schema_version: 1`,
       `contract_declared_at`, `contract_source:
-      openxFactory-nested-submodule-pin`.
-- [ ] 10.3 **[LedgerxFactory]** Carry the preserve comment `stack.yaml:18-19`
+      openxFactory-nested-submodule-pin`. (LedgerxFactory PR opensoft/LedgerxFactory#30 at `1a8ec624`. Realized verbatim and
+      verified BY PARSE rather than by eye: `openxwallet` is a top-level key, a
+      sibling of `xfactory` and `hermes`, and is NOT a child of `xfactory`; its
+      field set equals `xfactory`'s plus `contract_bundle_tag`, none omitted and
+      none invented. `contract_ref: 63f5a1adac89f017e70bab9a4ffe7cf02d6e6705`
+      (40 hex), `contract_bundle_tag: wallet-v1.1`, `contract_ref_type: commit`
+      so the tag stays a label. The value was read from openxFactory
+      `contract-v2.0`, where `contracts/openxwallet-pin.yaml`'s `commit:` and
+      the `openXwallet` gitlink AGREE, and `contract_source:` records that
+      provenance so the claim is re-derivable rather than merely trusted.
+      `xfactory.contract_ref` is byte-unchanged at `af7ac0fa…` — consuming the
+      removal major is not a P5b item. `models/protected-surface.yaml` re-pinned
+      `stack.yaml`'s digest in the SAME commit, per that surface's own admission
+      rule.)
+- [x] 10.3 **[LedgerxFactory]** Carry the preserve comment `stack.yaml:18-19`
       already holds onto the new block — "re-pin tooling must preserve this block;
-      regenerating it away is a health finding".
-- [ ] 10.4 **[LedgerxFactory]** `specs/016-posting-segregation-of-duties/data-model.md:5`
+      regenerating it away is a health finding". (LedgerxFactory PR opensoft/LedgerxFactory#30 at `1a8ec624`, in those words,
+      and citing this task as its authority.)
+- [x] 10.4 **[LedgerxFactory]** `specs/016-posting-segregation-of-duties/data-model.md:5`
       is its own item and its own KIND of work: it is a COMMIT pin
       ("`openxFactory/contracts/openxwallet/*.schema.yaml` at `e5554028`"), so it
       needs a NEW repository and a NEW commit — the openXwallet commit at
       `wallet-v1.0` — never a rewritten path. The same commit also appears at
       `plan.md:26`, `quickstart.md:4` and `spec.md:376`; all four are re-pinned,
-      not path-rewritten.
-- [ ] 10.5 **[LedgerxFactory]** Path repoints, each verified present:
+      not path-rewritten. (LedgerxFactory PR opensoft/LedgerxFactory#30 at `1a8ec624`. All four now name `opensoft/openXwallet`
+      `contracts/openxwallet/*.schema.yaml` at **`wallet-v1.0`** =
+      `936ceb2066705d82fa60b333bea3babe6297a1b7`, the tag this task names — a
+      new repository and a new commit, with no path rewritten under the old
+      commit. Why the ratified `wallet-v1.0` and not the PINNED `wallet-v1.1`:
+      `e5554028` was cited to fix the SCHEMA BYTES feature 016 was designed
+      against, and `wallet-v1.0` is the byte-identical carve of exactly those
+      files. The two tags are in fact interchangeable for this purpose —
+      `wallet-v1.1`'s own CHANGELOG records that none of the eight digested
+      artifacts moved — so there was no correctness argument for departing from
+      the ratified tag, only a precision argument for keeping it. Each edit
+      keeps the ORIGINAL citation visible as history rather than overwriting
+      it, so the re-pin is auditable in place.)
+- [x] 10.5 **[LedgerxFactory]** Path repoints, each verified present:
       `specs/016-posting-segregation-of-duties/quickstart.md:15`, `plan.md:27`,
       `spec.md:63`, and `README.md:220` — **not** `:112-135`, which is concept
-      prose with no wallet path.
-- [ ] 10.6 **[LedgerxFactory]** The ownership comment at
-      `tests/validate_document_estate_surface.py:1046-1075`.
-- [ ] 10.7 **[LedgerxFactory]**
+      prose with no wallet path. (LedgerxFactory PR opensoft/LedgerxFactory#30 at `1a8ec624`. THREE of the four repointed, to
+      `openxFactory/openXwallet/scripts/validate-openxwallet.py` — the NESTED
+      candidate, the only location `contracts/openxwallet-pin.yaml` governs.
+      **`README.md:220` IS NOT PRESENT, and this clause's own "each verified
+      present" is what caught it.** LedgerxFactory's README carries no wallet
+      path and no revision of it ever has — checked across the twenty most
+      recent commits that touch the file. Its only `openxFactory/` reference is
+      `README.md:32` → `docs/party-ladder.md`, which this change does not move,
+      and its only two `openxwallet` mentions (`:95`, `:239`) are concept prose
+      with no path — the same class §10.9 records for OpsxFactory. NO edit was
+      invented to make the enumeration come out: this coordinate was written
+      against an earlier state, and a false coordinate in the evidence is worse
+      than an unticked box. **Read `README.md:220` as a site that does not
+      exist, not as work outstanding.**)
+- [x] 10.6 **[LedgerxFactory]** The ownership comment at
+      `tests/validate_document_estate_surface.py:1046-1075`. (LedgerxFactory PR opensoft/LedgerxFactory#30 at `1a8ec624`. The
+      block had drifted to `:1078-1090`, so it was located by CONTENT and not by
+      line. It now states that the shapes are **openXwallet-owned**
+      (`opensoft/openXwallet`, `contracts/openxwallet*/`), that openxFactory
+      shed them at `contract-v2.0` and consumes the bundle by pin, that this
+      repository declares the consumed bundle in its own `stack.yaml`
+      `openxwallet:` block, and that the validator runs from the nested gitlink.
+      The RED-confirmation history already recorded there is PRESERVED — the
+      2026-08-08 CHK002 evidence is what makes the registration honest — and no
+      kind name moved, because a change of publisher does not change what the
+      kinds are.)
+- [x] 10.7 **[LedgerxFactory]**
       `openspec/changes/modify-ledgerx-posting-authority-for-segregation-of-duties/tasks.md:81`
       — inside an ACTIVE change, so a live-change edit rather than a record
-      annotation.
-- [ ] 10.8 **[OpsxFactory]** The ONE path-bearing reference:
+      annotation. (LedgerxFactory PR opensoft/LedgerxFactory#30 at `1a8ec624`. Edited IN PLACE, as this task requires: task
+      3.7 of that change is UNTICKED, so it is an instruction someone will
+      follow and a stale path in it is a defect rather than history. The
+      archived changes' identical citations were left alone for the
+      mirror-image reason. `openspec validate --all --strict` stayed green at
+      16/16, which is the gate proving the live-change edit kept its shape.)
+- [x] 10.8 **[OpsxFactory]** The ONE path-bearing reference:
       `openspec/changes/add-keycloak-administration-workflow/supporting-docs/identity-pki-administration.md:417`,
       which names `openspec/specs/openxwallet/spec.md` — after the split that
-      lives in openXwallet's own OpenSpec instance.
-- [ ] 10.9 **[OpsxFactory]** Record that the other five references
+      lives in openXwallet's own OpenSpec instance. (OpsxFactory PR opensoft/OpsxFactory#129 at `b6a52e65`. The bullet
+      read `openxFactory` as a prefix governing TWO paths; after the split those
+      two paths are in two different repositories, so it is split and says so.
+      Target verified present in `opensoft/openXwallet` at `wallet-v1.1`, and
+      verified to be the copy carrying D12's two prose edits — the `openXwallet
+      SHALL` subject and the filled-in `## Purpose` — i.e. the authoritative
+      one. `make validate` exit 0, `openspec validate --all --strict` 36/36,
+      both measured before the edit and again after it.)
+- [x] 10.9 **[OpsxFactory]** Record that the other five references
       (`identity-pki-administration.md:59`, `:294`,
       `specs/keycloak-administration/spec.md:150`,
       `credentials/requirements.yaml:514`,
       `workflows/keycloak-administration.yaml:56`) name `openxwallet` as a
-      CONCEPT with no path and need NOTHING.
+      CONCEPT with no path and need NOTHING. (**CONFIRMED by re-reading all
+      five** — OpsxFactory PR opensoft/OpsxFactory#129 at `b6a52e65` carries the table in its body. One coordinate
+      drifted: `credentials/requirements.yaml` is now `:481`, not `:514` — the
+      line moved, the class did not. The most load-bearing of the five is
+      `workflows/keycloak-administration.yaml:56`,
+      `credential_contracts_and_openxwallet_grants`: a FROZEN MACHINE TOKEN, so
+      renaming it would be a contract change dressed as a path repoint. That is
+      why this is a task rather than prose.)
 - [ ] 10.10 **[LedgerxFactory]** **[OpsxFactory]** Evidence rows: the merged pull
       requests, plus a green LedgerxFactory estate run resolving through the
-      two-candidate finder.
+      two-candidate finder. (**HALF EARNED, and deliberately left OPEN.** The
+      estate-run half is DONE and recorded at §4.9 above: green, resolving
+      candidate 1 through the two-candidate finder, ≥5 records, 0/0 under
+      `--strict`. The pull-request half is NOT: this task says *merged* pull
+      requests and both are OPEN, awaiting the human merge gate — LedgerxFactory PR opensoft/LedgerxFactory#30 at `1a8ec624` and OpsxFactory PR opensoft/OpsxFactory#129 at `b6a52e65`. Per `release-realization` this row closes
+      on merge and not on submission, so ticking it now would be exactly the
+      substitution that doctrine forbids. **Tick at merge.**)
 
 ## 11. P4b — root-level governed-repo recognition
 
-- [ ] 11.1 `scripts/sync-notebooklm-books.py`: widen the repository set at `:761`
+- [x] 11.1 `scripts/sync-notebooklm-books.py`: widen the repository set at `:761`
       (`["openxFactory", *pinned_factory_paths(root)]`) by an explicit ALLOWLIST of
       root-level neutral products — `openXwallet`, `openAvatar` — not by admitting
       every root-level `.gitmodules` pin, which would enrol `installs/*` as
       governed ideation repositories. `pinned_factory_paths` (`:644-663`) matches
       only `^\s*path\s*=\s*(xFactories/\S+)\s*$` today.
-- [ ] 11.2 `scripts/doc_health/ideation_routing.py` `_governed_repo_ids`
+      **DONE.** `pinned_root_product_paths()` (pinned in `.gitmodules` AND
+      present; no suffix-heuristic fallback, because the aggregation root has no
+      shape to guess from) plus `governed_repo_paths()`, read by the THREE sites
+      that have to agree: `scan()`, `session_repositories()` — whose docstring
+      already CLAIMED "the same repo set `scan()` walks", so widening `scan()`
+      alone would have falsified it — and `_out_of_scope_workbench_dirs()`, where
+      a missed dir means the sweep DELETES a notebook a live manifest binds. A
+      pinned-but-EMPTY root product prints a named remediation instead of reading
+      as document-free. Thirteen tests in
+      `tests/notebooklm/test_sync_notebooklm_books.py::RootLevelGovernedProductTests`,
+      including `installs/*` never admitted. Feature `024-root-governed-repo-recognition`.
+- [x] 11.2 `scripts/doc_health/ideation_routing.py` `_governed_repo_ids`
       (`:224-235`) admits the same allowlist alongside `openxFactory` and
       `xFactories/<Name>`, so a root-level product stops being classed EXTERNAL
       and falling under the nightly-skip / strict-materialization path.
-- [ ] 11.3 The two sites are widened by the SAME allowlist, in one pull request,
+      **DONE**, and admitted UNCONDITIONALLY rather than derived from
+      `ctx.repo_paths`: `corpus.discover_repos` enumerates `openxFactory` plus
+      `xFactories/*` and nothing else, so a set derived from it would have stayed
+      permanently narrow. Rider found while there and fixed in the same site:
+      `_known_repositories`' CONVENTION fallback needed the same allowlist —
+      openxFactory's own `--single-repo` self-gate runs in exactly that mode, and
+      a bare-name repository id has no pattern to be accepted by, so without it a
+      sound reference into `openXwallet` reports as an unknown repository. The
+      refusal message now names the admitted products. Six tests in
+      `tests/doc-health/test_ideation_routing.py`. Feature
+      `024-root-governed-repo-recognition`.
+- [x] 11.3 The two sites are widened by the SAME allowlist, in one pull request,
       so the notebook set and the routing set cannot disagree.
+      **DONE, in one pull request, and the agreement is held BY TEST rather than
+      by one import.** Authority: `ROOT_LEVEL_GOVERNED_PRODUCTS = ("openAvatar",
+      "openXwallet")` in `scripts/doc_health/corpus.py`, the module that already
+      owns what repositories an aggregation has, with the allowlist-not-rule
+      decision and the `installs/*` counter-example recorded at the declaration.
+      `ideation_routing` imports it in-package. `sync-notebooklm-books.py` carries
+      a DELIBERATE SECOND COPY on this repository's own established rule for a
+      hyphenated standalone that cannot be imported (`doc_health.recorded_rel` vs
+      `proposal-support.py`'s `manifest_rel`, "pinned to each other by test") —
+      necessary here because that script's suite loads it BY FILE PATH with
+      `scripts/` absent from `sys.path`, so a package import would work in
+      production and fail in the suite. Pinned by
+      `test_the_allowlist_matches_the_doc_health_authority`, which reads the
+      authority out of `corpus.py`. Feature `024-root-governed-repo-recognition`.
 - [ ] 11.4 Acceptance, two books: `xf-ideation-openxwallet` EXISTS after one
       `python3 openxFactory/scripts/sync-notebooklm-books.py . --apply` and carries
       openXwallet's ideation — and the SAME widening finally produces
       `xf-ideation-openavatar`, absent today five months into the ratified
       openAvatar precedent, which is the living proof that a root-level repository
       derives nothing automatically.
-- [ ] 11.5 Rollback recorded before the step: revert; the books are derived and a
+      **NOT SATISFIED, AND THE WIDENING IS NOT WHY — this acceptance as written is
+      not reachable today (measured 2026-08-27, feature
+      `024-root-governed-repo-recognition`, `specs/024-root-governed-repo-recognition/evidence/acceptance-sweep.md`).**
+      Swept over a tree with openXwallet at `wallet-v1.1` initialized, the
+      widening is real and measurable: openXwallet goes 0 → 4 projected documents
+      and openAvatar 0 → 2, where `origin/main` swept both by nothing at all, and
+      `installs/hermes-install` stays at 0 in both runs (the allowlist holding).
+      But NO `ideation-openxwallet` book derives, and none can: ideation-book
+      membership is STATUS-DERIVED ONLY (`split-ideation-book-per-repo` — a book
+      exists exactly when its repo has at least one brainstorm/staged document),
+      and **openXwallet carries 3 ratified / 2 record / 2 standard and ZERO
+      brainstorm-or-staged; openAvatar carries 2 draft / 1 record and ZERO.** So
+      `xf-ideation-openavatar`'s absence had TWO causes, not the one council
+      concern 4 named; this change removes the recognition cause and the
+      membership cause is a document nobody has written. Proven both ways: no
+      book from the real tree, and the book with exactly the required alias
+      `xf-ideation-openxwallet` and title `xFactory Ideation — openXwallet` the
+      moment one `Status: brainstorm` document exists. `--apply` NOT run and the
+      operator's ordered sequence recorded (P4 lands the root gitlink →
+      openXwallet gains its first ideation document → `--init` then `--apply`,
+      reviewing the plan, because this change also adds 6 documents to the shared
+      cap-bounded `canon`/`drafts` books). `nlm notebook list` answers in this
+      shell, so auth was not the blocker. **This item stays OPEN pending
+      openXwallet's first brainstorm/staged document.**
+- [x] 11.5 Rollback recorded before the step: revert; the books are derived and a
       removed repository id simply stops deriving.
+      **RECORDED.** Revert, and nothing migrates state: the books are DERIVED, so
+      a removed repository id simply stops deriving, and the parity step's guard
+      makes its removal a no-op on any tree without the nested gitlink. Feature
+      `024-root-governed-repo-recognition` `plan.md`.
 
 ## 12. P6 — the first domain descendant
 

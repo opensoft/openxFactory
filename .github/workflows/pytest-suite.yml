@@ -84,12 +84,18 @@
 # at all while `main` simultaneously adds at least as many. Closing that would
 # need a per-directory count, which is a successor and not this change's scope.
 #
-# The 17 skips are self-skipping guards ("no sibling openxFactory checkout",
-# "no aggregation checkout reachable from this tree") that stand down when no
-# aggregation workspace surrounds the repo, which is the case both here and on
-# a runner. Locally, outside this simulation, those same tests resolve the
-# AGGREGATION submodule instead and run — so the two-skip difference between a
-# developer's worktree and CI is expected, not a regression.
+# The skips are self-skipping guards ("no sibling openxFactory checkout", "no
+# aggregation checkout reachable from this tree", "no sibling LedgerxFactory
+# checkout reachable from this tree") that stand down when no aggregation
+# workspace surrounds the repo, which is the case both here and on a runner.
+# Locally, outside this simulation, those same tests resolve the AGGREGATION
+# submodule instead and run — so a difference between a developer's worktree and
+# CI is expected, not a regression. MEASURED 2026-08-27 on this suite: 18 in a
+# developer worktree, 21 on a runner (a three-skip difference; it was two before
+# `024-root-governed-repo-recognition` added the LedgerxFactory fixture-drift
+# guard, which resolves and RUNS in a worktree beside `xFactories/`). The exact
+# runner number is pinned in `EXPECT_SKIPPED` below, where the reason for each
+# move is recorded.
 #
 # WHY THE LOCK, NOT AN AD-HOC PIP LIST. `requirements/hermes-runtime-contracts.lock`
 # is the ratified validator-input source: `specs/005-customer-subject-runtime/
@@ -350,12 +356,26 @@ jobs:
           # actually met rather than the high-water mark of one run.
           MIN_SELECTED: "7090"
           MIN_PASSED: "7070"
-          # EXACT — the anti-vacuity pin. 20 on a runner. A developer worktree
-          # inside the aggregation checkout measures MORE, because the self-skip
-          # guards ("no sibling openxFactory checkout", "no aggregation checkout
-          # reachable from this tree") stand down here and resolve there; this
-          # number is CI's, deliberately.
-          EXPECT_SKIPPED: "20"
+          # EXACT — the anti-vacuity pin. 21 on a runner. A developer worktree
+          # inside the aggregation checkout measures a DIFFERENT number, because
+          # the self-skip guards ("no sibling openxFactory checkout", "no
+          # aggregation checkout reachable from this tree", "no sibling
+          # LedgerxFactory checkout reachable from this tree") stand down here and
+          # resolve there; this number is CI's, deliberately.
+          #
+          # MOVED 20 -> 21 on 2026-08-27 by feature
+          # `024-root-governed-repo-recognition`, with the reason the gate's own
+          # error message demands. The added skip is
+          # `tests/domain_pin_setter/test_set_domain_openxfactory_pin.py::
+          # test_the_fixture_still_matches_the_live_ledgerx_shape`, the
+          # fixture-drift guard on the `set-domain-openxfactory-pin.py` comment
+          # regression: its twelve siblings run everywhere off a literal fixture,
+          # and this one alone compares that literal to the LIVE LedgerxFactory
+          # `stack.yaml` and so must stand down where no sibling checkout exists —
+          # which is here. It is a THIRTEENTH assertion that costs a skip, not a
+          # directory that turned into skips, which is the shape this pin exists
+          # to catch.
+          EXPECT_SKIPPED: "21"
         run: |
           set -euo pipefail
           read -r SELECTED PASSED SKIPPED FAILURES ERRORS < <(python3 - <<'PY'

@@ -10,3 +10,11 @@
 /scripts/verify-openxwallet-pin.py @brettheap
 /openXwallet @brettheap
 /.gitmodules @brettheap
+# The pinned decision core (feature 025-openxfactory-review-lane-caller). Same
+# ground as the wallet pin above and the same 2026-08-23 ruling: a pull request
+# that changes this file changes WHICH codexFactory commit's Merge Master
+# decision core judges this repository's pull requests. openxFactory carries no
+# codexFactory gitlink, so this file is the only recorded referent for that
+# answer, and `tests/review_lane_pin/` is the only thing that stops it drifting
+# away from the caller's `ref:`.
+/contracts/review-lane-pin.yaml @brettheap

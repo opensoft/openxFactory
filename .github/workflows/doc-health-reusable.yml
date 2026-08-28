@@ -175,6 +175,57 @@ jobs:
           else
             echo "openxFactory declares no openXwallet gitlink at this pin; skipping the nested init"
           fi
+      - name: Verify openXwallet root-gitlink parity
+        # split-openxwallet-repo task 9.4 / design D11. THIS IS THE ONLY CI THAT
+        # INITIALIZES BOTH GITLINKS, which is why the check is invoked here and
+        # not from openxFactory's own consumer gate: the invariant is
+        # root-gitlink-equals-nested-gitlink, and openxFactory alone cannot see
+        # the aggregation's root gitlink at all.
+        #
+        # ONE IMPLEMENTATION, ONE REFUSAL VOCABULARY: this is a MODE of
+        # openxFactory's own verifier (`--aggregation-root`), not a second
+        # script in xFactory, which has no validator convention of its own and
+        # would drift a duplicate refusal set. `verify()` runs first inside the
+        # tool and pins the nested gitlink, the nested checkout and the eight
+        # digests to the pin's commit; `verify_aggregation` then requires the
+        # aggregation's OWN gitlink to record that same commit. Every failure
+        # exits 2 and fails this job, which fails the whole reusable call.
+        #
+        # IN `prepare` AND NOT IN `finalize`, once: prepare runs first and its
+        # failure fails the call, so a second invocation would only cost a
+        # second place for the guard to drift.
+        #
+        # NO EXTRA SUBMODULE INIT IS NEEDED and that is a property of the check,
+        # not an omission: `verify_aggregation` reads the RECORDED gitlink
+        # through `git ls-tree HEAD` / `git ls-files -s`, which answer from the
+        # commit and the index without any checkout. The root `openXwallet/`
+        # working tree is never read here, so the governed-submodule init above
+        # is deliberately left alone rather than widened — widening it would add
+        # `openAvatar`'s Flutter monorepo to every nightly for no check that
+        # reads it. That becomes false the day a CI auth strategy for `nlm`
+        # lands and `notebook-projection-drift` stops being skipped, because
+        # that family DOES sweep a root product's documents; the sweep prints a
+        # named WARN for a pinned-but-empty root product rather than reporting
+        # it as document-free, so the day it matters it says so out loud.
+        #
+        # GUARDED ON THE NESTED DECLARATION, exactly as the init above is, and
+        # for the same ordering reason: the aggregation's openxFactory pin bump
+        # and its own root gitlink land in ONE pull request (P4), so before that
+        # bump there is nothing to compare and an unguarded invocation would
+        # fail the nightly for a deploy ordering rather than for a defect.
+        # AFTER the bump the guard is satisfied and the check is fail-closed:
+        # an aggregation whose openxFactory consumes openXwallet but which
+        # records no root gitlink refuses as `pin-member-missing`, because a
+        # consumer that stops carrying the pin is not passing, it is not
+        # participating.
+        run: |
+          if git -C openxFactory config --file .gitmodules \
+               --get submodule.openXwallet.path >/dev/null 2>&1; then
+            python3 openxFactory/scripts/verify-openxwallet-pin.py \
+              --aggregation-root .
+          else
+            echo "openxFactory declares no openXwallet gitlink at this pin; skipping the root-gitlink parity check"
+          fi
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
