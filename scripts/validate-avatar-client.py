@@ -2172,6 +2172,61 @@ def _check_no_vault_or_secret(f: Findings, cat: str, rp: str, node: Any,
                          f"never baked into a repository")
 
 
+# --- shape guards for the §6.2 readers --------------------------------------
+# `x.get("k") or {}` DEFENDS ONLY AGAINST ABSENCE, and absence is the easy
+# case. A key that is PRESENT but holds a list, a string or a number is
+# truthy, survives the `or`, and then raises AttributeError out of the next
+# `.get()` — which ends the run as an anonymous harness crash rather than as
+# the finding a malformed contract artifact deserves. These two read a value
+# at the shape the caller requires, RECORD a finding when it is present and
+# wrong, and hand back an empty container so the rest of the run continues and
+# reports everything else. Fail closed, and say which file and field did it.
+def _as_mapping(f: Findings, cat: str, where: str, value: object) -> dict:
+    """A value that must be a MAPPING if it is present at all.
+
+    Absent reads as empty on purpose: the caller's own field checks then
+    report the specific field that is missing, which is a more useful message
+    than "this block is absent"."""
+    if value is None:
+        return {}
+    if isinstance(value, dict):
+        return value
+    f.error(cat, f"{where} must be a mapping, got {type(value).__name__}; a "
+                 f"malformed shape is a finding, not a crash")
+    return {}
+
+
+def _as_sequence(f: Findings, cat: str, where: str, value: object) -> list:
+    """A value that must be a LIST if it is present at all.
+
+    A string is deliberately NOT accepted as a sequence here. Iterating one
+    yields its CHARACTERS, so a scalar written where a list belongs would
+    quietly become a set of single letters — `set("safety")` reading as six
+    triggers — and every downstream comparison would then be wrong in a way
+    that looks like data rather than like a typo."""
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return value
+    f.error(cat, f"{where} must be a list, got {type(value).__name__}; a "
+                 f"malformed shape is a finding, not a crash")
+    return []
+
+
+def _mappings_in(f: Findings, cat: str, where: str, value: object) -> list[dict]:
+    """Every MAPPING member of a list-valued field, with non-mapping members
+    reported rather than skipped in silence. A list whose entries are strings
+    would otherwise read as a legitimately empty set of ids."""
+    out: list[dict] = []
+    for i, item in enumerate(_as_sequence(f, cat, where, value)):
+        if isinstance(item, dict):
+            out.append(item)
+        else:
+            f.error(cat, f"{where}[{i}] must be a mapping, got "
+                         f"{type(item).__name__}")
+    return out
+
+
 def _rollback_a_triggers(f: Findings, cat: str) -> set[str] | None:
     """ROLLBACK-A's ratified trigger vocabulary, READ FROM THE POLICY.
 
@@ -2187,13 +2242,17 @@ def _rollback_a_triggers(f: Findings, cat: str) -> set[str] | None:
                      f"trigger vocabulary cannot be read; every scenario's "
                      f"emitted trigger is unverifiable (fail closed)")
         return None
-    doc = load_yaml(path)
-    classes = ((doc.get("rollback_policy") or {}).get("classes") or []) \
-        if isinstance(doc, dict) else []
+    prp = f"contracts/avatar-client/{POLICY_FILE}"
+    doc = _as_mapping(f, cat, prp, load_yaml(path))
+    policy = _as_mapping(f, cat, f"{prp} rollback_policy",
+                         doc.get("rollback_policy"))
+    classes = _mappings_in(f, cat, f"{prp} rollback_policy.classes",
+                           policy.get("classes"))
     for entry in classes:
-        if isinstance(entry, dict) and entry.get("id") == "ROLLBACK-A":
-            triggers = entry.get("triggers") or []
-            if not isinstance(triggers, list) or not triggers:
+        if entry.get("id") == "ROLLBACK-A":
+            triggers = _as_sequence(f, cat, f"{prp} ROLLBACK-A.triggers",
+                                    entry.get("triggers"))
+            if not triggers:
                 break
             return {t for t in triggers if isinstance(t, str)}
     f.error(cat, f"{CORPUS_FILE}: {POLICY_FILE} declares no readable ROLLBACK-A "
@@ -2246,7 +2305,7 @@ def check_synthetic_evaluation_corpus(f: Findings) -> None:
                      f"re-run by whoever reads the record")
 
     # Fork 4's first clause, as fields rather than as prose.
-    syn = doc.get("synthesis") or {}
+    syn = _as_mapping(f, cat, f"{rp} synthesis", doc.get("synthesis"))
     if syn.get("content_origin") != "scripted":
         f.error(cat, f"{rp}: synthesis.content_origin is "
                      f"{syn.get('content_origin')!r} != 'scripted'; Fork 4 "
@@ -2255,16 +2314,17 @@ def check_synthetic_evaluation_corpus(f: Findings) -> None:
         if syn.get(field) != "none":
             f.error(cat, f"{rp}: synthesis.{field} is {syn.get(field)!r} != "
                          f"'none'; a corpus carrying either is not synthetic")
-    if (syn.get("audio_synthesis") or {}).get("status") \
-            != "not_performed_by_this_artifact":
+    audio = _as_mapping(f, cat, f"{rp} synthesis.audio_synthesis",
+                        syn.get("audio_synthesis"))
+    if audio.get("status") != "not_performed_by_this_artifact":
         f.error(cat, f"{rp}: synthesis.audio_synthesis.status does not record "
                      f"that rendering to audio is a §5/canary-time act of the "
                      f"RUN; committed audio would be media this ring has no "
                      f"retention class for")
 
     allowed = _rollback_a_triggers(f, cat)
-    scenarios = doc.get("scenarios") or []
-    if not isinstance(scenarios, list) or not scenarios:
+    scenarios = _as_sequence(f, cat, f"{rp} scenarios", doc.get("scenarios"))
+    if not scenarios:
         f.error(cat, f"{rp}: no scenarios; an empty corpus is not a corpus")
         return
 
@@ -2304,10 +2364,13 @@ def check_synthetic_evaluation_corpus(f: Findings) -> None:
         if not isinstance(script, list) or not script:
             f.error(cat, f"{rp}: {sid} carries no scripted exchange; a scenario "
                          f"with no script cannot be run")
-        if not str((sc.get("expected") or {}).get("behavior") or "").strip():
+        expected = _as_mapping(f, cat, f"{rp} {sid} expected",
+                               sc.get("expected"))
+        if not str(expected.get("behavior") or "").strip():
             f.error(cat, f"{rp}: {sid} declares no expected behavior; a "
                          f"scenario with no expectation cannot pass or fail")
-        emit = sc.get("emits_on_failure") or {}
+        emit = _as_mapping(f, cat, f"{rp} {sid} emits_on_failure",
+                           sc.get("emits_on_failure"))
         trig = emit.get("trigger")
         if allowed is not None and trig not in allowed:
             f.error(cat, f"{rp}: {sid} emits trigger {trig!r}, which is not one "
@@ -2348,11 +2411,10 @@ def check_synthetic_evaluation_corpus(f: Findings) -> None:
                          f"fewer")
 
     # the per-class trigger declaration must match what the scenarios emit
-    for entry in (doc.get("classes") or []):
-        if not isinstance(entry, dict):
-            continue
+    for entry in _mappings_in(f, cat, f"{rp} classes", doc.get("classes")):
         cid = entry.get("id")
-        declared = set(entry.get("triggers") or [])
+        declared = set(_as_sequence(f, cat, f"{rp} class {cid!r} triggers",
+                                    entry.get("triggers")))
         actual = class_triggers.get(cid, set())
         if cid in CORPUS_CLASSES and actual and declared != actual:
             f.error(cat, f"{rp}: class {cid!r} declares triggers "
@@ -2360,7 +2422,7 @@ def check_synthetic_evaluation_corpus(f: Findings) -> None:
                          f"{sorted(actual)}")
 
     # (4) recomputed coverage
-    cov = doc.get("coverage") or {}
+    cov = _as_mapping(f, cat, f"{rp} coverage", doc.get("coverage"))
     for key, actual in (("scenarios_total", len(scenarios)),
                         ("cells", len(cells_seen)),
                         ("triggers_covered", len(triggers_seen)),
@@ -2373,7 +2435,10 @@ def check_synthetic_evaluation_corpus(f: Findings) -> None:
                          f"corpus keeps an old claim")
     for key, actual in (("scenarios_by_class", by_class),
                         ("scenarios_by_domain", by_domain)):
-        if (cov.get(key) or {}) != actual:
+        # A comparison rather than a `.get()`, so a wrong shape cannot crash
+        # here — but reading it through the guard turns "records ['safety']
+        # but the scenarios give {...}" into a message that names the shape.
+        if _as_mapping(f, cat, f"{rp} coverage.{key}", cov.get(key)) != actual:
             f.error(cat, f"{rp}: coverage.{key} records {cov.get(key)!r} but "
                          f"the scenarios give {actual}")
 
@@ -2421,9 +2486,11 @@ def check_ephemeral_processing_envelope(f: Findings) -> None:
     reg_path = AVC / "registries" / "consent-purposes.registry.yaml"
     frozen: set[str] = set()
     if reg_path.is_file():
-        frozen = {m.get("id") for m in (load_yaml(reg_path).get("members") or [])
-                  if isinstance(m, dict)}
-    con = doc.get("consent") or {}
+        creg = "contracts/avatar-client/registries/consent-purposes.registry.yaml"
+        frozen = {m.get("id") for m in _mappings_in(
+            f, cat, f"{creg} members",
+            _as_mapping(f, cat, creg, load_yaml(reg_path)).get("members"))}
+    con = _as_mapping(f, cat, f"{rp} consent", doc.get("consent"))
     if frozen and con.get("frozen_purpose_count") != len(frozen):
         f.error(cat, f"{rp}: consent.frozen_purpose_count is "
                      f"{con.get('frozen_purpose_count')!r} but the registry "
@@ -2432,13 +2499,15 @@ def check_ephemeral_processing_envelope(f: Findings) -> None:
         f.error(cat, f"{rp}: consent.new_purposes_introduced is "
                      f"{con.get('new_purposes_introduced')!r} != 0; this ring "
                      f"reuses the frozen purposes and adds none")
-    media = {p.get("id") for p in (con.get("media_leg_purposes") or [])
-             if isinstance(p, dict)}
+    media = {p.get("id") for p in _mappings_in(
+        f, cat, f"{rp} consent.media_leg_purposes",
+        con.get("media_leg_purposes"))}
     if media != ENVELOPE_MEDIA_PURPOSES:
         f.error(cat, f"{rp}: consent.media_leg_purposes {sorted(media, key=str)} "
                      f"!= {sorted(ENVELOPE_MEDIA_PURPOSES)}; task 6.2.2 rules "
                      f"that the media leg rides exactly those two")
-    struct = (con.get("structured_record_purpose") or {}).get("id")
+    struct = _as_mapping(f, cat, f"{rp} consent.structured_record_purpose",
+                         con.get("structured_record_purpose")).get("id")
     if struct != ENVELOPE_STRUCTURED_PURPOSE:
         f.error(cat, f"{rp}: consent.structured_record_purpose.id is "
                      f"{struct!r} != {ENVELOPE_STRUCTURED_PURPOSE!r}")
@@ -2446,21 +2515,25 @@ def check_ephemeral_processing_envelope(f: Findings) -> None:
         for pid in sorted((media | {struct}) - frozen):
             f.error(cat, f"{rp}: consent names purpose {pid!r}, which is not a "
                          f"member of the frozen registry")
-    opt = con.get("optional_stricter_domain_purpose") or {}
+    opt = _as_mapping(f, cat, f"{rp} consent.optional_stricter_domain_purpose",
+                      con.get("optional_stricter_domain_purpose"))
     if opt.get("unresolved_reference_effect") != "deny":
         f.error(cat, f"{rp}: optional_stricter_domain_purpose."
                      f"unresolved_reference_effect is "
                      f"{opt.get('unresolved_reference_effect')!r} != 'deny'; a "
                      f"stricter term that silently falls back to the neutral "
                      f"pair was never obtained")
-    if (con.get("new_evaluation_purpose") or {}).get("admitted") is not False:
+    if _as_mapping(f, cat, f"{rp} consent.new_evaluation_purpose",
+                   con.get("new_evaluation_purpose")
+                   ).get("admitted") is not False:
         f.error(cat, f"{rp}: consent.new_evaluation_purpose.admitted is not "
                      f"False; ALV-007-S03 refuses an evaluation-specific "
                      f"purpose for this ring")
 
     # ---- data classes: permitted from §7.9, forbidden from the registry ----
-    dc = doc.get("data_classes") or {}
-    permitted = set(dc.get("permitted") or [])
+    dc = _as_mapping(f, cat, f"{rp} data_classes", doc.get("data_classes"))
+    permitted = set(_as_sequence(f, cat, f"{rp} data_classes.permitted",
+                                 dc.get("permitted")))
     if permitted != CHECKLIST_S79_DATA_CLASSES:
         f.error(cat, f"{rp}: data_classes.permitted {sorted(permitted, key=str)} "
                      f"!= {sorted(CHECKLIST_S79_DATA_CLASSES)}; the ruled Fork 4 "
@@ -2468,9 +2541,14 @@ def check_ephemeral_processing_envelope(f: Findings) -> None:
     ret_reg = AVC / "registries" / "retention-classes.registry.yaml"
     reserved: set[str] = set()
     if ret_reg.is_file():
-        reserved = {m.get("id") for m in (load_yaml(ret_reg).get("reserved") or [])
-                    if isinstance(m, dict)}
-    never = set((dc.get("never_instantiated") or {}).get("classes") or [])
+        rreg = "contracts/avatar-client/registries/retention-classes.registry.yaml"
+        reserved = {m.get("id") for m in _mappings_in(
+            f, cat, f"{rreg} reserved",
+            _as_mapping(f, cat, rreg, load_yaml(ret_reg)).get("reserved"))}
+    never = set(_as_sequence(
+        f, cat, f"{rp} data_classes.never_instantiated.classes",
+        _as_mapping(f, cat, f"{rp} data_classes.never_instantiated",
+                    dc.get("never_instantiated")).get("classes")))
     if reserved and never != reserved:
         f.error(cat, f"{rp}: data_classes.never_instantiated.classes "
                      f"{sorted(never, key=str)} != the registry's reserved set "
@@ -2484,12 +2562,17 @@ def check_ephemeral_processing_envelope(f: Findings) -> None:
     ck_path = AVC / CHECKLIST_FILE
     ruled_ret: dict = {}
     if ck_path.is_file():
-        ck = load_yaml(ck_path)
-        for cond in (ck.get("conditions") or []) if isinstance(ck, dict) else []:
-            if isinstance(cond, dict) and cond.get("number") == CHECKLIST_S79_CONDITION:
-                ruled_ret = ((cond.get("ruled_values") or {}).get("retention") or {})
+        ckp = f"contracts/avatar-client/{CHECKLIST_FILE}"
+        ck = _as_mapping(f, cat, ckp, load_yaml(ck_path))
+        for cond in _mappings_in(f, cat, f"{ckp} conditions",
+                                 ck.get("conditions")):
+            if cond.get("number") == CHECKLIST_S79_CONDITION:
+                ruled_ret = _as_mapping(
+                    f, cat, f"{ckp} condition 2 ruled_values.retention",
+                    _as_mapping(f, cat, f"{ckp} condition 2 ruled_values",
+                                cond.get("ruled_values")).get("retention"))
                 break
-    ret = doc.get("retention") or {}
+    ret = _as_mapping(f, cat, f"{rp} retention", doc.get("retention"))
     if ruled_ret:
         for key in ("window_days", "policy_ref", "applies_to"):
             if ret.get(key) != ruled_ret.get(key):
@@ -2502,7 +2585,7 @@ def check_ephemeral_processing_envelope(f: Findings) -> None:
                      f"check this envelope's window and reference against")
 
     # ---- withdrawal: the existing outcome, reachable mid-session ----
-    wd = doc.get("withdrawal") or {}
+    wd = _as_mapping(f, cat, f"{rp} withdrawal", doc.get("withdrawal"))
     if wd.get("maps_to_outcome") != ENVELOPE_WITHDRAWAL_OUTCOME:
         f.error(cat, f"{rp}: withdrawal.maps_to_outcome is "
                      f"{wd.get('maps_to_outcome')!r} != "
@@ -2513,8 +2596,10 @@ def check_ephemeral_processing_envelope(f: Findings) -> None:
                      f"closed session-outcomes registry gains no member here")
     out_reg = AVC / "registries" / "session-outcomes.registry.yaml"
     if out_reg.is_file():
-        outcomes = {m.get("id") for m in (load_yaml(out_reg).get("members") or [])
-                    if isinstance(m, dict)}
+        oreg = "contracts/avatar-client/registries/session-outcomes.registry.yaml"
+        outcomes = {m.get("id") for m in _mappings_in(
+            f, cat, f"{oreg} members",
+            _as_mapping(f, cat, oreg, load_yaml(out_reg)).get("members"))}
         if wd.get("maps_to_outcome") not in outcomes:
             f.error(cat, f"{rp}: withdrawal.maps_to_outcome "
                          f"{wd.get('maps_to_outcome')!r} is not a member of the "
@@ -2524,7 +2609,8 @@ def check_ephemeral_processing_envelope(f: Findings) -> None:
             f.error(cat, f"{rp}: withdrawal.{flag} is {wd.get(flag)!r}; task "
                          f"6.2.2 requires withdrawal to STAY REACHABLE during a "
                          f"session")
-    proof = wd.get("reachability_proof") or {}
+    proof = _as_mapping(f, cat, f"{rp} withdrawal.reachability_proof",
+                        wd.get("reachability_proof"))
     claimed = str(proof.get("fixture") or "")
     if not claimed:
         f.error(cat, f"{rp}: withdrawal.reachability_proof names no fixture; a "
@@ -2535,7 +2621,7 @@ def check_ephemeral_processing_envelope(f: Findings) -> None:
             f.error(cat, f"{rp}: withdrawal.reachability_proof.fixture "
                          f"{claimed!r} does not exist; the proof is a filename")
         else:
-            fid = (load_yaml(fx) or {}).get("fixture_id")
+            fid = _as_mapping(f, cat, claimed, load_yaml(fx)).get("fixture_id")
             if fid != proof.get("fixture_id") or fid != WITHDRAWAL_FIXTURE_ID:
                 f.error(cat, f"{rp}: the cited fixture's fixture_id is {fid!r}, "
                              f"which does not match the envelope's "
@@ -2543,8 +2629,9 @@ def check_ephemeral_processing_envelope(f: Findings) -> None:
                              f"{WITHDRAWAL_FIXTURE_ID!r}")
 
     # ---- §6.2.4: the non-shadowing control stays OPERATIONAL ----
-    controls = {c.get("control"): c for c in (doc.get("operational_controls") or [])
-                if isinstance(c, dict)}
+    controls = {c.get("control"): c for c in _mappings_in(
+        f, cat, f"{rp} operational_controls",
+        doc.get("operational_controls"))}
     shadow = controls.get(ENVELOPE_SHADOW_CONTROL)
     if shadow is None:
         f.error(cat, f"{rp}: no operational control named "
@@ -2560,7 +2647,9 @@ def check_ephemeral_processing_envelope(f: Findings) -> None:
     if shadow.get("enforcement") != "operational":
         f.error(cat, f"{rp}: the non-shadowing control records enforcement="
                      f"{shadow.get('enforcement')!r} != 'operational'")
-    flag = shadow.get("enforcing_contract_flag") or {}
+    flag = _as_mapping(
+        f, cat, f"{rp} {ENVELOPE_SHADOW_CONTROL} enforcing_contract_flag",
+        shadow.get("enforcing_contract_flag"))
     if flag.get("status") != "deferred":
         f.error(cat, f"{rp}: the enforcing contract flag records status="
                      f"{flag.get('status')!r} != 'deferred'; it is not built")

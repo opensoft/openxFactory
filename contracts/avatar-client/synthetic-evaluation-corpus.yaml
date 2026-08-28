@@ -176,11 +176,29 @@ domains:
 # ---------------------------------------------------------------------------
 # CLASSES — condition 7's five, and the trigger each failure emits
 # ---------------------------------------------------------------------------
-# THE TRIGGER VOCABULARY IS ROLLBACK-A's AND IS NOT EXTENDED HERE. It is read
-# from `xfactory/avatar_runtime/rollback.py` `CLASS_TRIGGERS[RollbackClass.A]`
-# and mirrored below for readability only. A corpus scenario whose failure
-# mapped to no ratified trigger would be mis-specified, and the validator
-# fails on one rather than letting it through.
+# THE TRIGGER VOCABULARY IS ROLLBACK-A's AND IS NOT EXTENDED HERE. Its SOURCE
+# OF TRUTH is the ratified policy artifact beside this one —
+# `canary-cohort-and-rollback-policy.yaml` `rollback_policy.classes` ROLLBACK-A
+# `triggers` — and that is what `check_synthetic_evaluation_corpus` reads every
+# scenario's trigger against, via `_rollback_a_triggers`. The list repeated
+# below is for readability only; narrowing the POLICY invalidates the scenarios
+# that emit a dropped trigger, which is the point of reading it there rather
+# than from a copy.
+#
+# THE RUNTIME REACHES THE SAME VOCABULARY BY A DIFFERENT ROUTE, and neither
+# route is this file's. `xfactory/avatar_runtime/rollback.py` `CLASS_TRIGGERS`
+# is the runtime's MIRROR of that policy — its own docstring says "mirrored"
+# — `detection.py` consumes it as `SAFETY_TRIGGERS`, and
+# `tests/avatar_runtime/test_ruled_values_pinned.py` asserts the mirror equals
+# the policy's recorded list. So corpus, policy and runtime all resolve to one
+# vocabulary, with the policy as the single thing they resolve TO. The
+# validator never reads `rollback.py`.
+#
+# A corpus scenario whose failure mapped to no ratified trigger would be
+# mis-specified, and the validator fails on one rather than letting it
+# through: `evaluate_safety_signal` answers an unrecognised trigger with
+# `REFUSED_UNKNOWN_TRIGGER`, a NON-tripping verdict, so such a scenario would
+# report a failure at canary time and NOT abort the ring.
 #
 # ONE ASYMMETRY IS RECORDED RATHER THAN SMOOTHED OVER: four of ROLLBACK-A's
 # eight triggers are `failed_<class>_evaluation` and name four of condition

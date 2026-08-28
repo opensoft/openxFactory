@@ -95,8 +95,11 @@ def _messages(findings) -> str:
 
 
 def _tree(tmp_path: Path) -> Path:
+    # `parents=True` so a test needing a SECOND independent tree can pass a
+    # subdirectory of `tmp_path` (the shape-guard cases drive two or three
+    # different malformations and must not share one mutated tree).
     avc = tmp_path / "avatar-client"
-    avc.mkdir()
+    avc.mkdir(parents=True)
     for name in COPIED:
         target = avc / name
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -471,6 +474,110 @@ def test_withdrawal_declared_unreachable_mid_speech_is_caught(tmp_path, monkeypa
              lambda d: d["withdrawal"].__setitem__("reachable_mid_speech", False))
     findings = _run(monkeypatch, avc, "envelope")
     assert any("STAY REACHABLE" in e for e in findings.errors), \
+        _messages(findings)
+
+
+# ---------------------------------------------------------------------------
+# Malformed SHAPES fail closed as findings, never as an exception.
+#
+# `x.get("k") or {}` defends only against ABSENCE, and absence is the easy
+# case. A key that is PRESENT but holds a list or a string is truthy, survives
+# the `or`, and then raises AttributeError out of the next `.get()` — ending
+# the run as an anonymous harness crash rather than as the finding a malformed
+# contract artifact deserves. Every one of these drives a real block to a
+# wrong shape and asserts the check REPORTS rather than raises.
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize("wrong", [["a", "b"], "scripted", 7])
+@pytest.mark.parametrize("block", ["synthesis", "coverage", "classes",
+                                   "scenarios"])
+def test_a_malformed_corpus_block_is_a_finding_not_a_crash(
+        tmp_path, monkeypatch, block, wrong):
+    avc = _tree(tmp_path)
+    _rewrite(avc, CORPUS, lambda d: d.__setitem__(block, wrong))
+    findings = _run(monkeypatch, avc, "corpus")  # must not raise
+    assert findings.errors, f"{block}={wrong!r} produced no finding at all"
+
+
+@pytest.mark.parametrize("wrong", [["a"], "revoked", 3])
+@pytest.mark.parametrize("block", ["consent", "data_classes", "retention",
+                                   "withdrawal", "operational_controls"])
+def test_a_malformed_envelope_block_is_a_finding_not_a_crash(
+        tmp_path, monkeypatch, block, wrong):
+    avc = _tree(tmp_path)
+    _rewrite(avc, ENVELOPE, lambda d: d.__setitem__(block, wrong))
+    findings = _run(monkeypatch, avc, "envelope")  # must not raise
+    assert findings.errors, f"{block}={wrong!r} produced no finding at all"
+
+
+@pytest.mark.parametrize("wrong", [["x"], "deny"])
+def test_a_malformed_nested_mapping_is_a_finding_not_a_crash(
+        tmp_path, monkeypatch, wrong):
+    """The nested reads are the ones a single top-level guard would miss."""
+    avc = _tree(tmp_path)
+    _rewrite(avc, ENVELOPE, lambda d: d["consent"].__setitem__(
+        "optional_stricter_domain_purpose", wrong))
+    assert _run(monkeypatch, avc, "envelope").errors
+
+    avc2 = _tree(tmp_path / "second")
+    _rewrite(avc2, ENVELOPE, lambda d: d["withdrawal"].__setitem__(
+        "reachability_proof", wrong))
+    assert _run(monkeypatch, avc2, "envelope").errors
+
+    avc3 = _tree(tmp_path / "third")
+    _rewrite(avc3, CORPUS, lambda d: d["synthesis"].__setitem__(
+        "audio_synthesis", wrong))
+    assert _run(monkeypatch, avc3, "corpus").errors
+
+
+@pytest.mark.parametrize("wrong", [["x"], "revoked"])
+def test_a_malformed_scenario_subfield_is_a_finding_not_a_crash(
+        tmp_path, monkeypatch, wrong):
+    avc = _tree(tmp_path)
+    _rewrite(avc, CORPUS, lambda d: _scenario(d, "SEC-GEN-SAF-01")
+             .__setitem__("emits_on_failure", wrong))
+    assert _run(monkeypatch, avc, "corpus").errors
+
+    avc2 = _tree(tmp_path / "second")
+    _rewrite(avc2, CORPUS, lambda d: _scenario(d, "SEC-GEN-SAF-01")
+             .__setitem__("expected", wrong))
+    assert _run(monkeypatch, avc2, "corpus").errors
+
+
+def test_a_string_where_a_trigger_list_belongs_does_not_read_as_characters(
+        tmp_path, monkeypatch):
+    """THE REASON `_as_sequence` REFUSES A STRING. Iterating one yields its
+    CHARACTERS, so `set("safety")` would read as six triggers and every
+    downstream comparison would be wrong in a way that looks like data rather
+    than like a typo."""
+    avc = _tree(tmp_path)
+
+    def scalar(doc: dict) -> None:
+        next(c for c in doc["classes"] if c["id"] == "handoff")["triggers"] = \
+            "failed_handoff_evaluation"
+
+    _rewrite(avc, CORPUS, scalar)
+    findings = _run(monkeypatch, avc, "corpus")
+    assert any("must be a list, got str" in e for e in findings.errors), \
+        _messages(findings)
+    # and it must NOT have been read as a set of single characters
+    assert not any("'f', 'a', 'i'" in e for e in findings.errors), \
+        _messages(findings)
+
+
+def test_a_malformed_source_registry_is_a_finding_not_a_crash(tmp_path, monkeypatch):
+    """The checks read their facts from registries, the policy and the
+    checklist. A malformed file on the READ side must fail closed too."""
+    avc = _tree(tmp_path)
+    _rewrite(avc, "registries/consent-purposes.registry.yaml",
+             lambda d: d.__setitem__("members", "avatar.media_capture"))
+    assert _run(monkeypatch, avc, "envelope").errors
+
+    avc2 = _tree(tmp_path / "second")
+    _rewrite(avc2, "canary-cohort-and-rollback-policy.yaml",
+             lambda d: d.__setitem__("rollback_policy", ["ROLLBACK-A"]))
+    findings = _run(monkeypatch, avc2, "corpus")
+    assert any("must be a mapping" in e for e in findings.errors), \
         _messages(findings)
 
 
