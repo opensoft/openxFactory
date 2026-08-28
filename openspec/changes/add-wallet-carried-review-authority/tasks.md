@@ -414,6 +414,22 @@ unimplementable, and `projection.py`'s property 5 said so in as many words.
     validate the bound is recorded as a named successor on openXwallet PR #3,
     because the reader left this repository at the `split-openxwallet-repo`
     carve.
+  - **THE FINDING'S BLIND SPOT IS CLOSED (2026-08-28), and STILL NOT TICKED.**
+    openXwallet's `add-per-seat-register-entries` — ratified by Brett Heap
+    2026-08-28 (openXwallet PR #4, `10cbdca`) and realized at `wallet-v1.2`
+    (PR #5, `93b0a47`) — closes the reader's top level as an ENUMERATED set
+    (`register_version`, `revocation_staleness_bound`, `rows`, `seat_keys`;
+    anything else refused as `register-top-level-unknown`) and brings
+    `revocation_staleness_bound` into the ENFORCED read set. So the vacuous-pass
+    class this task uncovered is now structurally closed rather than fixed once:
+    the NEXT governed declaration added to this file is refused as unknown
+    instead of passing unread. That reader arrives here with THIS pull request
+    (pin + gitlink → `wallet-v1.2`), which is what makes the bound actually
+    adjudicated by the required `wallet-validation` check.
+  - It stays UNTICKED because this task's OWN enforcement half is 7.4's
+    (hermes-install: older-than-the-bound ⇒ REFUSE), and 7.4 is BUILT but not
+    ticked. Closing a reader's blind spot is not the same as the runtime
+    refusing a stale projection. Tick 7.3 when 7.4 ticks.
 - [ ] 7.4 **[hermes-install]** Unreadable register ⇒ REFUSE. Unreachable,
       unparseable, or older than the bound all refuse; never proceed.
   - **BUILT** (hermes-install #51). Half of it existed — absent, unreadable,
