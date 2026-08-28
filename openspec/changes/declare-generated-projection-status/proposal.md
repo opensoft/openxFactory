@@ -153,6 +153,14 @@ generator is demonstrably the file's only author.
 **This is the one obligation this pull request does NOT discharge, and it is
 stated rather than left to be discovered.**
 
+**REASSIGNED 2026-08-28, NOT DISCHARGED.** Brett's ruling of that day directs
+that both pull requests merge on green and that **the entry described below is
+written by the ORCHESTRATING SESSION as part of the merge sequence.** It is
+still owed, still keyed exactly as stated, still in `opensoft/xFactory`, and
+this packet still does not archive until it lands — the ruling names the
+performer, not a waiver. The description that follows is kept unchanged, since
+it is the specification the performing session works from.
+
 `record-immutability` is in the CONTESTED resolution class. When a contested
 finding present in the previous report is absent from the current one,
 `report.uncited_resolutions` re-emits it as an
@@ -198,9 +206,42 @@ change, which is exactly the case the disposition instrument exists to record.
 - **The family registry, the enumeration, the numerals, the report schema, any
   threshold.**
 
-## Orchestrator decisions, flagged for veto
+## Orchestrator decisions, cleared 2026-08-28 (authored: flagged for veto)
 
-**OD-1 — THE VALUE IS SPELLED `projection`, NOT `generated`.** The commission
+**CLEARED 2026-08-28**, by a multi-choice put to Brett by the orchestrating
+session and relayed to this session the same day. The selections that reach
+this packet: **the `projection` SPELLING IS APPROVED** — OD-1's departure from
+the commission's first word stands as authored — and **both pull requests merge
+on green**, which confirms OD-2's premise that this packet lands on its own
+gate rather than folded into its sibling. On both he took the packet's own
+recommendation, so **the clearance moves nothing**: not one of the seven sites
+carrying the value is renamed, and the delta is untouched. OD-3 and OD-4 were
+not put to him and are NOT covered; they stand as authored, still flagged.
+**AND ONE OBLIGATION IS REASSIGNED, NOT DISCHARGED:** the aggregation
+disposition entry § The disposition this owes elsewhere names is now the
+ORCHESTRATING SESSION's to write as part of the merge sequence. It is still
+owed, still keyed the same way, still in another repository — only the
+performer changes, and this packet's archive still depends on it landing.
+No verbatim wording of the ruling reached this session, so none is quoted —
+the approver, the date, the mechanism and the selections are recorded instead.
+**THE ORIGINAL FLAGGED TEXT IS KEPT BELOW AS MARKED HISTORY** rather than
+rewritten: OD-1's argument is the reason the spelling is what it is, and a
+later reader deciding what to call a tenth standing needs the argument, not the
+verdict. This act is DISTINCT from the commission recorded in `.openspec.yaml`:
+that one admitted the packet, this one closed the veto window on its spelling.
+
+
+
+**OD-1 — THE VALUE IS SPELLED `projection`, NOT `generated`.**
+**RULED 2026-08-28: `projection` APPROVED.** Brett was given the spelling, the
+canon-legibility argument for it, and the mechanical-rename remedy, and
+selected the packet's own recommendation. **Nothing moves**: `TAXONOMY`, the
+promotion-fidelity split, the NotebookLM alternation, the dashboard enum, the
+generator line, the regenerated file and the delta all keep the word they were
+written with. The paragraphs below are kept EXACTLY as authored, because they
+are the reason the taxonomy now distinguishes CAPTURED from RE-DERIVED, and a
+later reader naming a tenth standing needs that reasoning. The veto branch this
+decision named for itself was NOT taken. AS AUTHORED, kept: the commission
 named "a `generated`/derived class", offering a shape rather than fixing a
 spelling, and this takes the latitude deliberately — so it is flagged.
 **The reason is canon legibility, and it is concrete.**
@@ -214,7 +255,8 @@ the distinguishing property instead of the misleading one, and it is the word
 projection", "a regenerable projection"
 (`openspec/specs/ideation-cross-reference/spec.md:450-452`). **Alternative not
 taken:** `generated`, matching the file's own banner and the commission's first
-word. **If Brett prefers the ruled spelling this is the decision to veto**; the
+word. **If Brett prefers the ruled spelling this is the decision to veto** —
+*and he did not; see the ruling marker at the head of this decision* — the
 remedy is a mechanical rename across the seven sites listed in `code_surface`
 plus the delta, and nothing about the argument changes.
 

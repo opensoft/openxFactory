@@ -225,6 +225,11 @@ Every read-back was measured on 2026-08-28 in a fresh worktree off
       **citing this change**. Not a silencer: the finding really is resolved
       by a cited change, which is the case that instrument exists to record.
       **This packet does not archive until it lands.**
+      **REASSIGNED 2026-08-28 — the ORCHESTRATING SESSION writes it as part of
+      the merge sequence, not this authoring session.** Left UNTICKED on
+      purpose: reassignment is not discharge, the entry is still owed, and
+      ticking it here would make the packet's own ledger claim an act nobody
+      has performed. It ticks when the entry lands.
 - [ ] 5.2 Merge-plus-green on main: both required checks green on the
       proposing pull request, read back from the check-runs API rather than
       off the pull request page.
@@ -253,3 +258,39 @@ Every read-back was measured on 2026-08-28 in a fresh worktree off
       against a discipline that appends — was named by
       `govern-openspec-corpus-membership` design.md Decision 3 and is still
       open.
+
+## 7. The veto window
+
+- [x] 7.1 Record the rulings of 2026-08-28.
+      **DONE.** By a multi-choice put to Brett by the orchestrating session and
+      relayed the same day. Selections reaching this packet: **the `projection`
+      SPELLING IS APPROVED** (OD-1 stands as authored) and **both pull requests
+      merge on green**, which confirms OD-2's premise that this packet lands on
+      its own gate. On both he took the packet's own recommendation, so **the
+      clearance moved nothing** — none of the seven sites carrying the value is
+      renamed and the delta is untouched. **OD-3 and OD-4 were NOT put to him
+      and are NOT covered**; they stand as authored and remain flagged. No
+      verbatim wording reached this session, so none is quoted; approver, date,
+      mechanism and selections are recorded instead. The original flagged text
+      is KEPT as marked history in `proposal.md` § Orchestrator decisions,
+      because OD-1's argument is what a later reader naming a tenth standing
+      will need.
+- [x] 7.2 Confirm the ruling changed no artifact.
+      **DONE — measured, not assumed.** `git diff` over the ruling commit
+      touches `proposal.md` and `tasks.md` only. `doc_health/__init__.py`,
+      `promotion_fidelity.py`, `sync-notebooklm-books.py`,
+      `render-ideation-cross-reference.py`, the dashboard snapshot schema,
+      `docs/document-lifecycle.md`, the regenerated `ideation/cross-reference.md`
+      and both test files are byte-identical to what the ruling approved.
+- [ ] 7.3 **BEFORE ARCHIVE, THIS PROPOSAL'S OWN HEADER MUST MOVE OFF
+      `Status: draft`.** The header is deliberately left at `draft`: "merge on
+      green" is an authorization to land, and this session will not spell it as
+      a ratification act Brett did not state. But it cannot stay `draft`
+      through archiving — `promotion_fidelity.PRE_RATIFICATION` is
+      `{brainstorm, staged, draft}`, so an archived proposal reading `draft`
+      has its deltas discounted as archived design evidence rather than
+      promoted canon, which would silently drop this packet's
+      `document-lifecycle` MODIFIED block. **110 of 112 archived proposals read
+      `ratified`.** The sibling packet measured this defect from the other end
+      and its § 1.4 is the write-up. Whoever performs the archive owes the
+      header and its citation, derived from the ruling record.
