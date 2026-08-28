@@ -333,12 +333,66 @@ repository's spec corpus, and refusal vocabulary is ratified as the consumer's
 
 ## 7. S5 — revocation, lifecycle, blast radius
 
+**S5's build, 2026-08-27/28. Four pull requests, NONE MERGED, none tickable.**
+`[hermes-install]` #50 (the OpenSpec change `add-wallet-revocation-lifecycle`,
+`Status: draft`) and #51 (Speckit feature `016-wallet-revocation-lifecycle`, the
+code, held on #50's ratification); `[codexFactory]` #123 (7.5's prompt-corpus
+pin); and this branch (7.3's declaration + this ledger). Every box below stays
+UNCHECKED on purpose: this change's own rule is that a successor archives on
+MERGED, green realization evidence, and ticking on an open pull request is the
+described-control-treated-as-an-existing-one shape (design R3) performed by the
+change that names it.
+
+**The honest headline, because an over-claim here would be worth less than a
+gap:** S3 had already discharged more of §7 than §7 assumed, and had left
+exactly the parts it said it was leaving. 7.1's property was structurally true
+the day S3 landed and was merely UNPINNED; 7.2 already refused and merely
+refused ANONYMOUSLY; 7.4 was half-built on a wrong diagnosis; 7.3 was
+unimplementable, and `projection.py`'s property 5 said so in as many words.
+
 - [ ] 7.1 **[hermes-install]** Re-check revocation at VERDICT CONSUMPTION, not
       from the admission stamp. `verdict_for_completion` takes the roster and
       content provenance from the `convening` stamp written at admission, which
       is exactly the issuance-time trust `openxwallet:127-131` forbids.
+  - **PINNED, not built** (hermes-install #51). This task's premise was half
+    wrong and the half that was right is worth keeping. AUTHORITY never came
+    from the admission stamp: S3's `DatabaseSeatExerciseGate._load` already
+    calls `resolve_seat_authority(..., now=occurred_at)` once per required seat
+    inside `check_verdict`, and the reader deliberately does not cache. What did
+    not exist was a test that would FAIL if someone later resolved authority
+    once at admission and stamped it into the envelope — so the property was
+    true and unguarded. `test_a_revocation_after_admission_refuses_the_completion`
+    is now that guard.
+  - What the task's premise got RIGHT and this feature did NOT close: the
+    ROSTER, the subject pin and the council-content provenance are all still
+    taken from the admission stamp, and `domain_council_content` is re-read only
+    when that stamp is empty. The roster being issuance-time is correct — a
+    convening is over the roster it was convened with. Whether the CONTENT
+    PROVENANCE should also be re-derived at consumption is named as an open
+    ruling in #51's realization record and is NOT answered there.
 - [ ] 7.2 **[hermes-install]** On a revoked or expired holder, PARK with a NAMED
       REFUSAL — never silently honour the stamp.
+  - **BUILT** (hermes-install #51), and it uncovered a real defect rather than a
+    naming complaint. The refusal already existed and was already fail-closed
+    before the first durable write, with the run left open. Two things were
+    wrong. First, `GrantNotActiveError` carried ONE code
+    (`review_authority.grant_not_active`) for revoked, expired and
+    unrecognized-state alike, so a consumer could not tell an authority
+    WITHDRAWN from one that RAN OUT — now three codes under the same base, so
+    every existing `except` still catches. Second, and the substantive half:
+    `api/routers/runs.py`'s `except ReviewAuthorityProjectionError` branch
+    HARD-CODED `seat_id=None` into the audit event. A refusal on this path
+    writes nothing durable, so that redacted event is the ONLY trace a convening
+    was refused and why — and a revoked holder parked a convening with the seat
+    named in prose and absent from every structured field. That is the "silent
+    skip" this task forbids, in its real form. Fixed, and pinned over HTTP.
+  - PARKING stays the CONSUMER's semantics, deliberately and with the rejected
+    alternative recorded: there is no `parked` run status in the runtime
+    (`JobsRepository.resolve()` takes only `completed`/`failed`), and the
+    proposal's own §S5 text describes the park as codexFactory's downstream
+    effect of `missing_required_seat: refused`. The runtime's obligation is a
+    fail-closed refusal carrying a reason the consumer can park ON, which is
+    what it now does.
 - [ ] 7.3 Declare the register's staleness bound as a duration.
   - DECLARED in this branch: `governance/review-authority/register.yaml` gains
     the top-level `revocation_staleness_bound: P7D`, with the reasoning recorded
@@ -362,8 +416,59 @@ repository's spec corpus, and refusal vocabulary is ratified as the consumer's
     carve.
 - [ ] 7.4 **[hermes-install]** Unreadable register ⇒ REFUSE. Unreachable,
       unparseable, or older than the bound all refuse; never proceed.
+  - **BUILT** (hermes-install #51). Half of it existed — absent, unreadable,
+    unparseable, wrong-kind and schema-invalid each already had their own named
+    class. The missing half was a WRONG DIAGNOSIS, not a missing refusal: the
+    reader decided absence with `Path.exists()`, which returns `False` for a
+    permission error on a parent directory, so an UNREACHABLE store was reported
+    as an ABSENT one. Nothing was ever wrongly admitted — both refuse — but an
+    operator following that refusal would go and create a file that already
+    existed, which is a repair that cannot work. `os.stat` now separates the two:
+    `FileNotFoundError` is absent (the store answered), any other `OSError` is
+    unreachable (the store could not be consulted, so the answer is unknown).
+  - STALE did not exist at all and is now its own refusal
+    (`review_authority.register_stale`), naming the projection's age and the
+    effective bound. The enforcement half of 7.3 rides here: the projection
+    schema gains `projected_at` and `staleness_bound` as REQUIRED fields, the
+    document version goes 1 → 2 with v1 refused by its own named error, the
+    runtime holds a ceiling, and the effective bound is `min(declared,
+    ceiling)` — an artifact must never widen its own trust window. The version
+    bump is safe because S3 is NOT deployed and no projection exists in
+    production; that fact is recorded in #51 as the reason rather than assumed.
 - [ ] 7.5 **[codexFactory]** Pin model version and prompt corpus as declared
       components; forbid the candidate repository at HEAD as retrieval corpus.
+  - This task is THREE halves, not one, and they are in three different states.
+  - **Retrieval corpus — ALREADY DISCHARGED** by the 4.4 work (codexFactory
+    #115/#119). `agent-mixes.yaml` carries `candidate_repository_head:
+    excluded`, the ontology is pinned by `package_digest`, and
+    `test_review_holder_composition_mutations.py` refuses both a candidate-HEAD
+    corpus and a candidate-branch source. Nothing was rebuilt here.
+  - **Prompt corpus — BUILT**, codexFactory PR #123 (`61a6811`, OPEN, not
+    merged; `validate` / `merge-master-approval` / Sonar all green). #115 left
+    this as a source PATH with a re-render parity check and no content hash;
+    it is now a true content pin. Determinism was PROVEN before pinning, not
+    assumed: `seat_system_prompt` was shown to be a pure function of the seat
+    across repeated calls, a fresh module load under mutated
+    `GITHUB_REPOSITORY`/`GITHUB_SHA`/`PR_NUMBER`/`SEAT`/`MODEL` and a changed
+    cwd, two materially different assembled candidates (one injection-shaped),
+    and the production CLI's bytes versus the in-process render — byte-identical
+    per seat every time. `rendered_set_digest:
+    sha256:9e66f1ad83be6dd1e4920a199567b3dc76923077a6c5ed9cd1ba67a3fb1d0140`
+    over `<seat>` NUL `<prompt>` NUL per seat in lexicographic seat order, with
+    a `digest_basis` that makes it reproducible from the declaration alone.
+    Ten tests in `tests/merge-master/test_review_holder_prompt_pin.py`, inside
+    the REQUIRED gate's pytest path; a prompt edit, a shared-protocol edit, a
+    dropped seat and a per-seat re-pin that forgets the set digest each trip it.
+  - **Model version — BLOCKED, and `pin_status: required_by_s5` deliberately
+    stays.** Flipping `opus`/`sonnet` to exact provider version ids is two
+    decisions this lane does not hold: WHICH model represents a seat is a
+    Gate-Rules Council matter (model-diverse roster ruled 2026-08-22;
+    `council-deliberation-worker.yml:710-723` — "this lane will not choose
+    one"), and WHICH provider version to stand behind is an operator choice.
+    Whether a family pin with an attested resolved-version record is admissible
+    at all is the question carried to the convener under 8.1. So 7.5 stays
+    UNTICKED, and the flip is folded into 7.6's runbook walk rather than
+    performed ahead of it.
 - [ ] 7.6 **[OPERATOR]** Write the governed re-issuance RUNBOOK for a provider
       alias roll, and walk it once against a deliberate composition bump. Without
       it, one provider release revokes every seat grant at once, every convening
@@ -379,12 +484,23 @@ repository's spec corpus, and refusal vocabulary is ratified as the consumer's
 - [ ] 7.7 **Gate:** a revoked holder parks a convening with a named refusal in a
       rehearsed test; an unreadable register refuses; the runbook has been
       walked once.
-  - STAYS OPEN on all three limbs. The first two have rehearsed tests on an
-    unmerged branch (7.1/7.2/7.4 above) and are additionally gated on the
-    hermes-install image deploy — the standing constraint at the head of this
-    file: no reseed until an image at `3de0519`+ ships, and codexFactory
-    convenings currently FAIL CLOSED pending seat-key provisioning. The third
-    limb is 7.6, unstarted.
+  - **RUNTIME HALF DONE, gate NOT met.** Limbs one and two — "a revoked holder
+    parks a convening with a named refusal in a rehearsed test" and "an
+    unreadable register refuses" — are both asserted in hermes-install #51, on
+    real Postgres and over HTTP, not only in unit isolation. They are on an
+    UNMERGED branch whose code is held on #50's ratification, and they are
+    additionally gated on the standing constraint at the head of this file: no
+    reseed until a hermes-install image at `3de0519`+ is deployed, and
+    codexFactory convenings currently FAIL CLOSED pending seat-key provisioning.
+    Limb three is 7.6, unstarted. The gate is not met.
+  - **A DATED CONSEQUENCE, recorded here so it is not a surprise.** The live
+    register row `row-mrc-0001` expires `2026-11-23T12:00:00Z`, and #51 now
+    asserts that boundary in both directions
+    (`test_the_live_register_rows_expiry_is_a_fact_a_test_asserts`) rather than
+    leaving it a date in a file nobody re-reads. On that day every convening
+    parks under `review_authority.grant_expired` with no code change and no
+    deploy to blame. Re-issuance is an operator act with a lead time, and this
+    is where the date is stated as a SCHEDULED EVENT.
 
 ## 8. Bench and governance items carried, not performed
 
