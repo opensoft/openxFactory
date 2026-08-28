@@ -170,13 +170,15 @@ absent secret.
   MUST be structural — the steps that would do those things are absent, not
   disabled by a condition.
 - **FR-008**: The caller MUST declare no enrolled candidate class and MUST ship
-  no `merge-approval-envelope` instance, because the `gate_rules_council` record
-  that defines openxFactory's candidate classes
-  (`add-substantive-review-lane` task 3.2) does not exist.
-  > **STILL GATED — and the reason has CHANGED, 2026-08-28.** The requirement
-  > above is unamended and binding; only its stated ground is now out of date.
-  > A `gate_rules_council` record for this repository now EXISTS, and it
-  > **REFUSED** the class proposed to it:
+  no `merge-approval-envelope` instance, because the `gate_rules_council` has
+  defined **no OPERABLE candidate class** for this repository
+  (`add-substantive-review-lane` task 3.2). The gate holds for as long as that
+  remains true, and is cleared by one thing only: a `gate_rules_council` record
+  DEFINING such a class. The existence of a council record does not by itself
+  clear it — a record that defines no operable class leaves this requirement
+  binding.
+  > **HISTORY, 2026-08-28.** A `gate_rules_council` record for this repository
+  > now exists, and it **REFUSED** the class proposed to it:
   > `opensoft/codexFactory` →
   > `hermes/domain/review-councils/records/2026-08-28-gate-rules-openxfactory-substantive-classes.md`
   > (convener disposition §8; seat returns in the sibling
@@ -190,13 +192,11 @@ absent secret.
   > convening lane bails on that outcome. Measured: **984 admitted paths, 984
   > floored, 0 remaining.** Proven code-level — removing the rule's
   > `gate_integrity` block, or supplying no rule document at all, parks
-  > identically.
+  > identically. **A class that can never convene is not an operable class**, so
+  > that record defines none and the requirement above is unaffected by it.
   >
   > **`add-substantive-review-lane` task 3.2 therefore remains OPEN** (Brett
-  > Heap, 2026-08-28: *"1a, 2 leave open, 3 adopt, 4 adopt all three"*), and
-  > **FR-008 remains GATED: no `merge-approval-envelope` instance may exist here
-  > absent a future OPERABLE class.** "A record exists" does not discharge this
-  > requirement; an operable class would.
+  > Heap, 2026-08-28: *"1a, 2 leave open, 3 adopt, 4 adopt all three"*).
   >
   > The ruled continuation is the **council-reviewed-but-human-approved path**,
   > which per the 2026-08-26 record §7.4 *"needs no class and no flip"* — so it
