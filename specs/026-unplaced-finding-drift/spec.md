@@ -142,16 +142,20 @@ different unplaced rule shapes are reported apart, so both drifted texts are
 quoted; two findings that differ only in a quoted span and a digit run are one
 shape and must not be reported twice.
 
-**THE GRAIN IS FINER THAN "ONE PER REMEDY", MEASURED.** A rule text's unquoted
-parts — the promoted spec's path, the `[body]`/`[bullet]` kind list a ledger
-finding quotes, a change-id list, an unresolved block's `why` clause — are
-shape-bearing under the delta's identity rule. So findings a human would
-discharge with ONE new map entry can be several shapes: dropping
-`carriage-ledger` on this repository leaves SEVEN unplaced findings in SIX
-shapes. That is the ratified rule working as written (its scenario 3 pins
-"differ outside their quoted spans and digit runs → TWO"), and narrowing it is a
-DELTA AMENDMENT rather than an implementation choice — see the open item in
-`plan.md`.
+**THE GRAIN IS ONE FINDING PER ARM TEMPLATE — one shape, one map entry, one
+remedy.** Two rule texts are one shape where they come from the same template,
+whatever their interpolated values: the requirement title, the counts, the
+promoted spec's path, the unit-kind list, a change-id list, an unresolved
+block's `why` clause.
+
+That is an AMENDMENT to the delta, ruled 2026-08-28 by Brett ("Amend: shape =
+arm template, all interpolations masked"). As first ratified the rule masked
+quoted spans and digit runs only, leaving every unquoted interpolation
+shape-bearing: dropping `carriage-ledger` on this repository left SEVEN unplaced
+findings in SIX shapes where one map entry would have placed all seven. This
+feature shipped that faithfully, measured it, declined to widen it unilaterally
+because the delta's third scenario pinned it, and put the amendment up. All four
+measured figures now read ONE — see `plan.md` § OPEN-1, closed.
 
 **Why this priority**: it is the packet's rewritten decision D3, and the half
 that decides whether both drifted texts are quoted.

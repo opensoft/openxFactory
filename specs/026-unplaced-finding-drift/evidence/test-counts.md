@@ -12,6 +12,7 @@ python3 -m pytest tests/doc-health -q
 | after the mutation round, module restored | **1227 passed**, 7 warnings |
 | after the catch-up merge to `22f15cdf` | **1227 passed**, 7 warnings |
 | after the combined review's fixes | **1230 passed**, 7 warnings |
+| after Brett's shape amendment (2026-08-28) | **1236 passed**, 7 warnings |
 
 The merge moves neither figure: `git diff 86b7ca3f 22f15cdf -- tests/doc-health/
 scripts/doc_health/` is EMPTY, so the 1215 baseline still stands against the
@@ -36,7 +37,26 @@ and one in `test_modified_block_currency.py`:
 
 12. `test_the_reserved_flip_of_the_launch_severity_does_not_drag_the_drift_class`
 
-### The combined review added three more (2026-08-28), for **+15 total**
+### Brett's shape amendment added six more, for **+21 total**
+
+Ruled 2026-08-28, verbatim "Amend: shape = arm template, all interpolations
+masked". One test was RENAMED to the new truth
+(`..._one_finding_per_masked_arm_text_not_one_per_remedy` →
+`test_the_drift_grain_is_one_finding_per_arm_template`) and six were added:
+
+16. `test_every_finding_matches_exactly_one_arm_template` — the property the
+    mask rests on, at TEMPLATE level, over every tree and the real corpus.
+17. `test_the_arm_templates_are_the_only_place_the_prose_lives` — no arm may
+    build a rule text inline again, or the mask cannot see it.
+18. `test_two_findings_of_one_template_differing_in_an_unquoted_field_are_one_shape`
+    — the amended scenario 3, first half.
+19. `test_two_findings_of_different_templates_are_two_shapes` — second half.
+20. `test_a_rule_text_no_template_claims_falls_back_and_is_never_merged` — the
+    fail-closed fallback.
+21. `test_a_title_that_embeds_another_arm_s_template_prose_matches_one_template`
+    — why `_shape` masks BEFORE it matches. Added by the mutation round.
+
+### The combined review added three (2026-08-28)
 
 13. `test_the_drift_grain_is_one_finding_per_masked_arm_text_not_one_per_remedy`
     — B1(ii): MEASURES the real grain on the real tree against an independently

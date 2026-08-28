@@ -9,6 +9,41 @@ $ diff -q <pristine> scripts/doc_health/modified_block_currency.py
 MODULE BYTE-IDENTICAL to pre-mutation state
 ```
 
+## Round 3 (2026-08-28, after Brett's shape amendment): 15 applied, **15 killed, 0 survivors**
+
+Four mutants added for the amended shape rule; `(i)` retired, its subject (the
+quoted-spans-only mask) now being the whole of `T1`.
+
+| # | Mutation | Killed by | Verdict |
+|---|---|---|---|
+| **T1** | revert `_shape` to the quoted-spans-only mask — the rule as first ratified | `test_the_drift_grain_is_one_finding_per_arm_template` | KILLED — the real tree goes 1 → 6 |
+| **T2** | drop the fail-closed fallback: merge texts no template claims into a template's bucket | `test_a_rule_text_no_template_claims_falls_back_and_is_never_merged` | KILLED |
+| **T3** | match the templates against RAW text, skipping the repr mask | `test_a_title_that_embeds_another_arm_s_template_prose_matches_one_template` | KILLED **on the second attempt** — see below |
+| **T4** | let an arm build its rule text inline again instead of rendering through its template | `test_the_arm_templates_are_the_only_place_the_prose_lives` | KILLED |
+
+### T3 survived TWICE, and the second survival is the more interesting one
+
+**First survival: no pin existed.** Matching templates against raw text still
+resolved every finding on every tree correctly, because no corpus title carries
+another arm's fixed prose today. A pin had to be constructed — which is exactly
+when a rule is worth pinning, and the same argument F4 made for its own
+adversarial-title test.
+
+**Second survival: the pin was built in the wrong DIRECTION.** The first
+construction was a SCENARIO-TITLES finding whose requirement title embedded the
+carriage-ledger prose. Raw, both templates match — but `_ARM_TEMPLATES` is
+ordered and first match wins with `scenario-titles` FIRST, so the unmasked build
+still answered `scenario-titles` and the assertion passed. The pin has to run
+the ordering AGAINST the answer: a CARRIAGE-LEDGER finding whose title embeds the
+titles prose resolves, unmasked, to `scenario-titles` — the wrong template. Both
+directions are now asserted, and the test carries a guard that fails if the
+registry order ever stops putting the wrong template first, so it cannot quietly
+stop biting.
+
+**RETIRED: `(i)`, "mask only digit runs".** Its subject was the quoted-span half
+of a mask that no longer decides shape on its own; `T1` covers the whole of the
+old rule in one mutant.
+
 ## Round 2 (2026-08-28, after the combined review): 12 applied, **12 killed, 0 survivors**
 
 Three mutants were added and one retired. The table below is round 2's; round
@@ -101,12 +136,16 @@ by design — the numeral sweep (T027/T028) is a read, not a test. That is the
 same gap F4's own round recorded for other families' action constants, and it is
 recorded rather than closed.
 
-## Round 2 gate re-runs
+## Gate re-runs after round 3
 
-| gate | result |
-|---|---|
-| `python3 -m pytest tests/doc-health -q` | **1230 passed**, 7 warnings |
-| CI shape (clean `git archive` extraction) | 7 failed, **1214 passed** — the same seven history-dependent tests as at the branch point, and 1199 → 1214 is the same +15 |
-| `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` | **78 passed, 0 failed** |
-| full-report movement diff | still **exactly one line**: `- unplaced-finding drift: 0 (\`warning\`)` |
-| `git diff --stat <merge-base> -- .github/ openspec/` | **empty** |
+| gate | round 2 | round 3 |
+|---|---|---|
+| `python3 -m pytest tests/doc-health -q` | 1230 passed | **1236 passed**, 7 warnings |
+| CI shape (clean `git archive` extraction) | 7 failed, 1214 passed | 7 failed, **1220 passed** — the same seven history-dependent tests as at the branch point, and 1199 → 1220 is the same +21 |
+| `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` | 78 / 0 | **78 passed, 0 failed** |
+| full-report movement diff | one line | still **exactly one line**: `- unplaced-finding drift: 0 (\`warning\`)` |
+| `git diff --stat <merge-base> -- .github/ openspec/` | empty | **empty** |
+
+**The amendment moved no run's output.** It changes how unplaced findings GROUP,
+and there are none wherever the map is complete — which is every run today. That
+is why the movement diff is unchanged at one line across all three rounds.

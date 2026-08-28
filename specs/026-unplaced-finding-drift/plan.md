@@ -317,61 +317,77 @@ findings, all dispositioned in place rather than deferred:
 least one task. No unmapped task: every one cites a packet box or a constitution
 gate.
 
-## OPEN — for Brett, raised by the combined review (2026-08-28)
+## RULED AND IMPLEMENTED — OPEN-1, closed 2026-08-28
 
-### OPEN-1 — the shape mask is narrower than "one finding per remedy", and closing the gap needs a DELTA AMENDMENT
+### OPEN-1 — shape identity is the ARM TEMPLATE, all interpolations masked
 
-**What was found.** The ratified delta defines shape identity as "rule texts
-equal after every single-quoted span, every double-quoted span and every run of
-digits has been replaced by a fixed placeholder". A rule text's UNQUOTED parts
-are therefore shape-bearing, and this family's arms interpolate several:
+**Status: RULED by Brett 2026-08-28, verbatim: "Amend: shape = arm template,
+all interpolations masked". Implemented in this feature on top of `8841a8ab`.**
+The delta amendment itself is a parallel branch,
+`change/amend-unplaced-shape-rule`; this feature's spec cites the amended text,
+so the PR waits on that landing.
 
-- the promoted spec's path (`basis.spec_rel`), which differs per capability;
-- the `[body]` / `[bullet]` kind list a carriage-ledger finding quotes;
-- a change-id list, in the ordering arm;
-- an unresolved block's `why` clause, which has two forms.
+**What was found.** The delta as first ratified defined shape identity as "rule
+texts equal after every single-quoted span, every double-quoted span and every
+run of digits has been replaced by a fixed placeholder". A rule text's UNQUOTED
+parts were therefore shape-bearing, and this family's arms interpolate several:
+the promoted spec's repo-relative path, the `[body]`/`[bullet]` unit-kind list,
+a change-id list, an unresolved block's `why` clause.
 
-**Measured, and the drop used is named with each figure** (a drop of a
-DIFFERENT pattern exercises a different arm, so the numbers are not comparable
-without it):
+**Measured, before and after, with the pattern dropped named for each row** (a
+drop of a DIFFERENT pattern exercises a different arm, so the figures are not
+comparable without it):
 
-| tree | pattern dropped | unplaced | shapes / drift findings |
-|---|---|---|---|
-| this repository | `carriage-ledger` | 7 | **6** |
-| `-two-writers` | `title-resolution` | 9 | 4 |
-| `-markers` | `carriage-ledger` | 3 | 3 |
-| `-unplaced` (this feature's) | `carriage-ledger` | 3 | **1** |
+| tree | pattern dropped | unplaced | shapes — was | now |
+|---|---|---|---|---|
+| this repository | `carriage-ledger` | 7 | **6** | **1** |
+| `-two-writers` | `title-resolution` | 9 | 4 | **1** |
+| `-markers` | `carriage-ledger` | 3 | 3 | **1** |
+| `-unplaced` (this feature's) | `carriage-ledger` | 3 | 1 | **1** |
 
-SIX drift findings on the real tree where ONE new map entry would place all
-seven. This feature's own tree collapses to 1 only because its three ledger
-findings name the SAME promoted spec and the same unit kind — which is why the
-grain had to be measured against the REAL tree and not against a fixture built
-for it.
+SIX findings on the real tree where ONE new map entry would place all seven —
+now one. The fixture rows read 1 both before and after where their findings
+happened to share every unquoted field, which is precisely why the grain had to
+be measured against the REAL tree and not against a fixture built for it.
 
-**So the shipped grain is:** ONE FINDING PER DISTINCT ARM TEXT AFTER
-QUOTED-SPAN AND DIGIT MASKING — finer than one per remedy. Every claim in this
-feature that said otherwise has been struck (module docstring, test docstrings,
-fixture README, spec.md US4, tasks.md), and
-`test_the_drift_grain_is_one_finding_per_masked_arm_text_not_one_per_remedy`
-now MEASURES it on the real tree against an independently written mask, with the
-six named in its docstring as the figure an amendment would move.
+**The amended rule.** Two rule texts are ONE SHAPE where they come from the SAME
+ARM TEMPLATE, whatever their interpolated values. One shape is one template, one
+template is one map entry to write, and the count of drift findings is the count
+of REMEDIES.
 
-**Why this feature did not fix it.** The obvious fix — mask the arm's whole
-TEMPLATE, i.e. every interpolated field rather than only the quoted ones — would
-take six to one and would CONTRADICT the delta's third scenario, which pins
-"two unplaced findings whose rule texts differ outside their quoted spans and
-digit runs MUST yield two additional findings". That scenario is ratified
-canon-to-be. A realization may not narrow the rule it realizes.
+**THE MECHANISM — derived from the templates, never guessed lexically.** Each
+arm's rule text now renders through one registered `_ArmTemplate`, so the fixed
+prose has exactly one definition and the arm that prints it cannot drift from
+the mask that reads it. `_shape` then works in two steps whose ORDER is
+load-bearing: first every `repr`-emitted span is masked by a left-to-right
+consumer (a quote opens a span only at the start or after a non-alphanumeric,
+which is what keeps the prose apostrophe in `sibling's` from being an opener and
+what keeps a corpus-supplied title from carrying another arm's phrase into the
+match); then the masked text is matched against the registered templates, first
+match wins, and the shape IS the template's id. A text no template claims falls
+back to the old lexical mask rather than being merged into a neighbouring
+template — fail-closed, constitution VII.
 
-**The proposed amendment, for Brett's ruling:** *shape = the arm's rule-text
-TEMPLATE with ALL interpolated fields masked, not only the quoted spans and
-digit runs.* It needs a `## MODIFIED Requirements` block on
-`add-unclassified-finding-class`'s own ADDED requirement — the packet is active,
-so this is an edit to an unarchived delta rather than a change to promoted canon
-— restating the identity paragraph and its third scenario. Predicted effect:
-the drift count on this tree under a dropped `carriage-ledger` goes 6 → 1; zero
-effect on any run where the map is complete, which is every run today.
+**NO FIELD WAS ADDED TO `Finding`.** The report grammar is shared by
+twenty-two families and the semantic lanes; a field added for one family's local
+identity would be a change to that grammar for a local need, which is the same
+argument `classify` already makes for reading off the rule text.
 
-**Not vetoed, not applied, not silently absorbed.** The reviewer is putting it
-to Brett. Until it is ruled, the shipped behaviour is the delta as ratified and
-this document says exactly what that behaviour is.
+**What holds it.** `test_the_drift_grain_is_one_finding_per_arm_template`
+(the four figures, measured against an independently written mask and an
+independently typed set of template probes);
+`test_every_finding_matches_exactly_one_arm_template` (the templates are
+mutually exclusive over masked text, over every fixture tree and the real
+corpus, asserted at TEMPLATE level rather than through `_shape`'s single
+return); `test_the_arm_templates_are_the_only_place_the_prose_lives` (no arm
+builds a rule text inline again);
+`test_two_findings_of_one_template_differing_in_an_unquoted_field_are_one_shape`
+and `test_two_findings_of_different_templates_are_two_shapes` (the amended
+scenario 3, both halves);
+`test_a_rule_text_no_template_claims_falls_back_and_is_never_merged` (the
+fail-closed fallback); and mutant `T1`, which reverts `_shape` to the
+quoted-spans-only mask and must red the grain test.
+
+**Predicted movement, unchanged: ZERO.** The amendment changes how unplaced
+findings GROUP, and there are none on any tree where the map is complete — which
+is every run today. The self-gate diff is still exactly one line.

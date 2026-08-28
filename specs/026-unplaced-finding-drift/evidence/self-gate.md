@@ -96,3 +96,11 @@ Totals: 78 passed, 0 failed (78 items)
 
 77 items at the original branch point; 78 after the catch-up merge, which
 brought `adopt-medxsoft-repository-identity` in. Both runs green.
+
+## Unmoved by Brett's shape amendment (2026-08-28)
+
+The amendment changes how UNPLACED findings group, and there are none wherever
+the class map is complete — which is every run on this tree. Re-measured after
+it landed in this feature: the diff is still exactly the one line, the headline
+is still `0 critical, 0 error, 0 warning, 7 info`, and the class block still
+reads `0 / 7 / 0 / 0` plus `unplaced-finding drift: 0`.

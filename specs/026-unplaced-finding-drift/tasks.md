@@ -314,9 +314,9 @@ adversarial title, now fixed). `.github/` and `openspec/` diffs: **empty**.
    only the ROW would pass that control and then read a vacuous zero. Two names
    declared, with the reason, in the allowlist's own convention.
 
-## OPEN — carried out of the combined review (2026-08-28), for Brett
+## RULED — OPEN-1 closed by Brett 2026-08-28
 
-- [ ] **OPEN-1 — shape identity is narrower than one-per-remedy; the fix is a
+- [x] **OPEN-1 — shape identity is narrower than one-per-remedy; the fix is a
       DELTA AMENDMENT, not an implementation change.** Proposed rule: *shape =
       the arm's rule-text TEMPLATE with ALL interpolated fields masked, not only
       quoted spans and digit runs.* Measured today: dropping `carriage-ledger`
@@ -327,8 +327,23 @@ adversarial title, now fixed). `.github/` and `openspec/` diffs: **empty**.
       `plan.md` § OPEN-1. **Brett's ruling; the reviewer is putting it to him.**
       Everything this feature says about the grain has been corrected to the
       measured truth in the meantime, and
-      `test_the_drift_grain_is_one_finding_per_masked_arm_text_not_one_per_remedy`
-      holds the figure.
+      `test_the_drift_grain_is_one_finding_per_arm_template` holds the figure.
+
+      **RULED 2026-08-28, verbatim: "Amend: shape = arm template, all
+      interpolations masked". IMPLEMENTED here on top of `8841a8ab`.** The delta
+      amendment is a parallel branch (`change/amend-unplaced-shape-rule`); this
+      feature's spec cites the amended text, so the PR waits on that landing.
+      Mechanism: every arm now renders its rule text through one registered
+      `_ArmTemplate`, so the fixed prose has a single definition; `_shape` masks
+      the `repr` spans with the B2-safe left-to-right consumer and then matches
+      the registered templates, first match wins, the shape BEING the template's
+      id; a text no template claims falls back to the old lexical mask rather
+      than being merged into a template. No field was added to `Finding`.
+      Measured, before → after: this repository under a `carriage-ledger` drop
+      **6 → 1** (7 unplaced), `-two-writers` under a `title-resolution` drop
+      **4 → 1** (9 unplaced), `-markers` **3 → 1**, `-unplaced` **1 → 1**. Six
+      new tests, mutants `T1`–`T4` added and all killed; full statement in
+      `plan.md` § OPEN-1, closed.
 
 ---
 

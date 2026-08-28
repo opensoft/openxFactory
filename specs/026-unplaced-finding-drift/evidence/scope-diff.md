@@ -18,8 +18,7 @@ of `add-modified-block-currency-check` and `add-promotion-fidelity-check`.
 
 ## The permitted surface, and only it
 
-**RE-RUN 2026-08-28 after the combined review, and the numbers below are the
-re-run's.** The first recording of this file quoted a 492-line reporting-test
+**RE-RUN after every round, and the numbers below are the last re-run's.** The first recording of this file quoted a 492-line reporting-test
 diff that later grew to 498 without the file being re-run — a stale figure in an
 evidence file, which is the same defect class this family exists to catch, so
 the command is re-run and its output pasted rather than edited.
@@ -27,20 +26,23 @@ the command is re-run and its output pasted rather than edited.
 ```bash
 $ git diff --cached --stat $(git merge-base HEAD origin/main) -- scripts/ tests/ \
       specs/022-modified-block-currency-reporting/contracts/
- scripts/doc_health/modified_block_currency.py      | 263 +++++++-
- .../contracts/report-section.md                    |  89 ++-
- .../modified-block-currency-unplaced/README.md     |  94 +++
+ scripts/doc_health/modified_block_currency.py      | 414 +++++++++-
+ .../contracts/report-section.md                    | 125 ++-
+ .../modified-block-currency-unplaced/README.md     |  97 +++
  .../openspec/changes/add-a-drift-case/proposal.md  |   3 +
  .../add-a-drift-case/specs/drift-cases/spec.md     |  15 +
  .../openspec/changes/add-drift-cases/proposal.md   |   3 +
- .../add-drift-cases/specs/drift-cases/spec.md      |  37 ++
+ .../add-drift-cases/specs/drift-cases/spec.md      |  37 +
  .../openspec/specs/drift-cases/spec.md             |  61 ++
  tests/doc-health/test_modified_block_currency.py   |  65 +-
- .../test_modified_block_currency_fixtures.py       |  85 ++-
- .../test_modified_block_currency_reporting.py      | 658 ++++++++++++++++++++-
+ .../test_modified_block_currency_fixtures.py       |  85 +-
+ .../test_modified_block_currency_reporting.py      | 884 ++++++++++++++++++++-
  .../test_modified_block_currency_self_gate.py      |  41 +-
- 12 files changed, 1346 insertions(+), 68 deletions(-)
+ 12 files changed, 1744 insertions(+), 86 deletions(-)
 ```
+
+RE-RUN AGAIN after Brett's shape amendment (2026-08-28); the module grew by the
+arm-template registry and the five arms' rule construction moved into it.
 
 Six of those twelve are the new fixture tree (`--diff-filter=A` over `tests/`
 names exactly those six and nothing else). The other six are the module, the F4

@@ -73,15 +73,18 @@ what lets one tree drive both halves of the delta's third scenario:
 - remove the `carriage-ledger` AND `scenario-titles` patterns → 4 unplaced
   findings, TWO shapes → TWO drift findings.
 
-**THE GRAIN IS NOT "ONE FINDING PER REMEDY".** It is one finding per distinct
-arm text after quoted-span and digit masking, which is FINER: a rule text's
-unquoted parts (the promoted spec's path, the `[body]`/`[bullet]` kind list, a
-change-id list) are shape-bearing. This tree collapses to one shape only because
-its three ledger findings name the SAME spec and the same kind. On the real
-repository the same dropped map entry yields SIX findings for seven unplaced
-ones. That is the ratified delta's rule working as written; widening it is a
-delta amendment, recorded open in
-`specs/026-unplaced-finding-drift/plan.md`.
+**THE GRAIN IS ONE FINDING PER ARM TEMPLATE**, ruled by Brett on 2026-08-28
+("Amend: shape = arm template, all interpolations masked"). Two rule texts are
+one shape where they come from the same template, whatever their interpolated
+values, so one shape is one map entry and one remedy.
+
+This tree's three ledger findings were one shape under the OLD rule too, because
+they happen to name the same promoted spec and the same unit kind — which is
+exactly why the grain had to be measured against the REAL repository and not
+against a fixture built for it. There, seven unplaced findings named six
+different specs and read as SIX shapes before the amendment and ONE after.
+`test_the_drift_grain_is_one_finding_per_arm_template` carries all four
+measurements.
 
 ## Why this tree is not in F2's `NEW_TREES`
 

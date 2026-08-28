@@ -1502,15 +1502,13 @@ def test_the_new_fixture_tree_declares_its_provenance_and_stays_advisory():
 # ============================================================================
 
 def _independently_masked(rule):
-    """A SECOND implementation of the delta's shape rule, written here on
-    purpose.
+    """A SECOND implementation of the repr-span mask, written here on purpose.
 
-    `mbc._shape` is the subject of the test below, so grouping by it would
-    compare the implementation with itself. This is the delta's sentence read
-    afresh — "equal after every single-quoted span, every double-quoted span and
-    every run of digits has been replaced by a fixed placeholder" — with the one
-    correction the mask needed: a quote only opens a span where a `repr` could
-    have emitted one, so the apostrophe inside `sibling's` is prose.
+    `mbc._mask_repr_spans` is part of the subject below, so using it would
+    compare the implementation with itself. This is the same rule read afresh: a
+    quote opens a span only where a `repr` could have emitted one — at the start
+    of the text, or after a non-alphanumeric — so the apostrophe inside
+    `sibling's` is prose and never an opener.
     """
     out, index = [], 0
     while index < len(rule):
@@ -1523,60 +1521,279 @@ def _independently_masked(rule):
                 continue
         out.append(char)
         index += 1
-    return re.sub(r"\d+", "\x02", "".join(out))
+    return "".join(out)
 
 
-def test_the_drift_grain_is_one_finding_per_masked_arm_text_not_one_per_remedy(
-        monkeypatch):
-    """WHAT THE COUNT ACTUALLY IS, measured on the real tree rather than
-    described.
+# One DISCRIMINATING PHRASE per arm template, typed out here rather than read
+# off `mbc._ARM_TEMPLATES`. That is what makes the grouping below an INDEPENDENT
+# recomputation: the module's registry could be wrong in exactly the way this
+# test exists to catch, and a test that asked the registry which template a rule
+# came from would agree with it either way. Each phrase is a fragment of ONE
+# template's fixed prose and of no other's — the same discipline F2's
+# `CLASSIFIERS` are written under.
+_TEMPLATE_PROBES = {
+    "titles": " omits ",
+    "ledger": " does not carry ",
+    "markers": " marker by ",
+    "unresolved": " resolves to no promoted requirement, ",
+    "ordering": "the ordering of MODIFIED blocks for ",
+    "drift": "this family's own class map has no pattern for ",
+}
 
-    THE GRAIN IS ONE FINDING PER DISTINCT ARM TEXT AFTER QUOTED-SPAN AND DIGIT
-    MASKING — which is FINER than one per remedy. A rule text's UNQUOTED parts
-    are shape-bearing under the delta's identity rule: the promoted spec's path,
-    the `[body]`/`[bullet]` kind list a ledger finding quotes, a change-id list,
-    an unresolved block's `why` clause. Two findings that a human would fix with
-    ONE new map entry can therefore be two shapes, and are then two findings.
 
-    **TODAY THAT NUMBER IS SIX.** Dropping `carriage-ledger` from the map on
-    this repository leaves SEVEN unplaced findings in SIX shapes, because they
-    name six different promoted specs and differ in their kind lists. One map
-    entry would place all seven.
+def _independent_template_of(rule):
+    """Which arm template a rule came from, decided without asking the module."""
+    masked = _independently_masked(rule)
+    hits = [name for name, probe in _TEMPLATE_PROBES.items() if probe in masked]
+    assert len(hits) == 1, (hits, masked[:160])
+    return hits[0]
 
-    THIS IS NOT A DEFECT IN THIS BUILD; it is the ratified delta's rule working
-    as written — its third scenario pins "rule texts that differ outside their
-    quoted spans and digit runs MUST yield two additional findings". Widening
-    the mask to the arm's TEMPLATE (every interpolated field masked, not only
-    the quoted ones) would collapse six to one and would contradict that
-    scenario, so it is a DELTA AMENDMENT for Brett and not a fix this feature
-    may make. Recorded as open in
-    `specs/026-unplaced-finding-drift/plan.md` and `tasks.md`.
 
-    The figure is asserted as a MEASUREMENT against an independent recomputation
-    rather than as the literal 6, so the corpus may move without falling this
-    test due; the 6 is named in this docstring as the number a future amendment
-    would take to 1.
+def test_the_drift_grain_is_one_finding_per_arm_template():
+    """THE GRAIN, MEASURED ON THE REAL TREE — and it is ONE PER REMEDY.
+
+    **AMENDED 2026-08-28 ON BRETT'S RULING**, verbatim: "Amend: shape = arm
+    template, all interpolations masked". Two rule texts are ONE SHAPE where
+    they come from the SAME TEMPLATE, whatever their interpolated values. One
+    shape is one template, one template is one map entry somebody has to write,
+    so the count of drift findings is the count of REMEDIES.
+
+    **THIS TEST IS THE FIGURE THAT MOVED.** Under the rule as first ratified —
+    quoted spans and digit runs masked, and nothing else — every UNQUOTED
+    interpolation was shape-bearing, so dropping ONE class pattern on this
+    repository emitted **SIX** findings for SEVEN unplaced ones where one map
+    entry would have placed all seven. Re-measured under the amendment, at the
+    same drop on the same tree:
+
+    | tree | pattern dropped | unplaced | shapes — was | now |
+    |---|---|---|---|---|
+    | this repository | `carriage-ledger` | 7 | 6 | **1** |
+    | `-two-writers` | `title-resolution` | 9 | 4 | **1** |
+    | `-markers` | `carriage-ledger` | 3 | 3 | **1** |
+    | `-unplaced` | `carriage-ledger` | 3 | 1 | **1** |
+
+    THE COLLAPSE IS ASSERTED AS A REAL ONE, not a vacuous one. The seven
+    findings are first shown to be seven DIFFERENT texts differing in more than
+    their quoted spans — they name several promoted specs — and only then
+    required to be one shape. Without that, a mask that returned a constant
+    would pass.
     """
-    monkeypatch.setattr(mbc, "_CLASS_PATTERNS", tuple(
-        entry for entry in mbc._CLASS_PATTERNS
-        if entry[0] != mbc.CLASS_LEDGER))
-    findings = list(mbc.fam_modified_block_currency(_real_ctx()))
-    unplaced = [f for f in findings if mbc.classify(f) == mbc.UNCLASSIFIED]
+    # EVERYTHING INSIDE THE DRIFTED MAP. `classify` reads `_CLASS_PATTERNS`, so
+    # a measurement taken after the patch is undone reads zero unplaced findings
+    # and passes on nothing — which this test did, once, before the guard below
+    # caught it.
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(mbc, "_CLASS_PATTERNS", tuple(
+            entry for entry in mbc._CLASS_PATTERNS
+            if entry[0] != mbc.CLASS_LEDGER))
+        findings = list(mbc.fam_modified_block_currency(_real_ctx()))
+        unplaced = [f for f in findings
+                    if mbc.classify(f) == mbc.UNCLASSIFIED]
+        drift = _drift_findings(findings)
+
     assert len(unplaced) >= 2, (
-        "fewer than two findings were unplaced, so the grain below is vacuous")
+        "fewer than two findings were unplaced, so the collapse below is "
+        "vacuous — check the resolver before the mask")
 
-    expected = len({_independently_masked(f.rule) for f in unplaced})
-    drift = _drift_findings(findings)
-    assert len(drift) == expected, (
-        f"{len(drift)} drift findings for {expected} distinct masked arm texts "
-        f"over {len(unplaced)} unplaced findings")
+    # they really are different findings, differing OUTSIDE their quoted spans
+    assert len({f.rule for f in unplaced}) == len(unplaced)
+    specs = {re.search(r"(openspec/specs/[\w./-]+)", f.rule).group(1)
+             for f in unplaced}
+    assert len(specs) >= 2, (
+        f"every unplaced finding named the same promoted spec ({specs}), so the "
+        f"collapse below would hold under the OLD rule too and this test no "
+        f"longer measures the amendment")
 
-    # ...and the grain really is finer than one-per-remedy: ONE map entry would
-    # place every one of these, and more than one finding is emitted.
-    assert expected > 1, (
-        "every unplaced finding collapsed to one shape on this corpus, so this "
-        "test no longer measures the gap it exists to record — re-read the "
-        "amendment note in plan.md before relaxing it")
+    # ...and they are nonetheless ONE template, hence ONE remedy, hence ONE finding
+    assert len({_independent_template_of(f.rule) for f in unplaced}) == 1
+    assert len({mbc._shape(f.rule) for f in unplaced}) == 1
+    assert len(drift) == 1, [f.rule[:120] for f in drift]
+
+
+def test_every_finding_matches_exactly_one_arm_template():
+    """THE PROPERTY THE MASK RESTS ON, over every tree and the real corpus.
+
+    `_shape` matches templates FIRST MATCH WINS, so two templates claiming one
+    rule would merge two remedies into one silently. Asserted at the TEMPLATE
+    level rather than through `_shape`'s single return, for the same reason
+    `test_every_finding_over_the_fixture_corpus_lands_in_exactly_one_class`
+    counts pattern matches rather than `classify`'s: a class-level comparison
+    can never exceed one hit however many templates match.
+
+    AND THE MASKING ORDER IS WHY IT HOLDS. Requirement titles and quoted body
+    units come from the corpus and may contain any phrase, including another
+    arm's fixed prose — the same hazard `_BLOCK_HEAD` was measured into
+    existence for. Matching templates against RAW text could file one arm's
+    finding under another's; masked first, the only text left is the module's
+    own prose.
+    """
+    findings = [f for tree in ALL_TREES for f in _fixture_findings(tree)]
+    findings += list(mbc.fam_modified_block_currency(_real_ctx()))
+    assert len(findings) >= 25, len(findings)
+
+    for f in findings:
+        masked = mbc._mask_repr_spans(f.rule)
+        hits = [t.id for t in mbc._ARM_TEMPLATES if t.matches(masked)]
+        assert len(hits) == 1, (hits, f.rule[:140])
+        assert mbc._shape(f.rule) == hits[0], f.rule[:140]
+        # ...and the independent reading agrees, so neither is checking itself
+        assert hits[0].endswith(
+            {"titles": "scenario-titles", "ledger": "carriage-ledger",
+             "markers": "marker-defects", "unresolved": "title-resolution",
+             "ordering": "ordering", "drift": "unplaced-drift"}[
+                 _independent_template_of(f.rule)]), f.rule[:140]
+
+    # every registered template exercised at least once, or the sweep above
+    # proves nothing about the ones it never met
+    seen = {mbc._shape(f.rule) for f in findings}
+    unseen = {t.id for t in mbc._ARM_TEMPLATES} - seen
+    assert unseen == {"template:unplaced-drift"}, (
+        f"expected only the drift template to be unexercised over a corpus "
+        f"whose map places everything; unexercised: {sorted(unseen)}")
+
+
+def test_a_title_that_embeds_another_arm_s_template_prose_matches_one_template():
+    """WHY `_shape` MASKS BEFORE IT MATCHES, and this is the pin that makes the
+    order load-bearing rather than merely sensible.
+
+    Requirement titles come from the CORPUS, so a title may contain any text —
+    including another arm's whole fixed prose. Here a SCENARIO-TITLES finding is
+    built for a requirement titled with the carriage-ledger template's prose. On
+    the RAW rule text both templates match: the ledger template's fixed segments
+    all appear, in order, inside the quoted title. Two templates on one rule
+    means two remedies collapsed into one, or one split into two, depending on
+    which wins — the same misfiling `_BLOCK_HEAD` was measured into existence to
+    prevent, one layer up.
+
+    Masked first, the title is a single placeholder and only its own template
+    matches. Added by the mutation round: the mutant that matches templates
+    against raw text SURVIVED everything else, because no corpus title carries
+    another arm's prose today — which is exactly when a rule is worth pinning.
+    """
+    # THE LEDGER FINDING IS THE ONE TO BUILD, not the titles finding, and the
+    # direction is what makes this falsifiable. `_ARM_TEMPLATES` is ordered and
+    # first match wins, with `scenario-titles` FIRST — so an unmasked ledger
+    # finding whose title embeds the TITLES prose resolves to the wrong
+    # template, while an unmasked titles finding whose title embeds the LEDGER
+    # prose still resolves to titles by luck of the ordering and proves nothing.
+    evil_title = mbc.TEMPLATE_TITLES.render(
+        title="Inner", missing=1, total=2,
+        spec_rel="openspec/specs/inner/spec.md", named="'S'")
+    ledger = Finding(
+        INFO, mbc.FAMILY, "openxFactory", "openspec/changes/c/specs/a/spec.md",
+        mbc.TEMPLATE_LEDGER.render(
+            title=evil_title, missing=1, total=3,
+            spec_rel="openspec/specs/a/spec.md", listed="[body] 'z'"),
+        mbc._ACTION)
+
+    # THE POSITIVE CONTROL FIRST: raw, this really is ambiguous, so the masking
+    # step below is load-bearing rather than defensive.
+    raw_hits = [t.id for t in mbc._ARM_TEMPLATES if t.matches(ledger.rule)]
+    assert set(raw_hits) == {"template:scenario-titles",
+                             "template:carriage-ledger"}, raw_hits
+    assert raw_hits[0] == "template:scenario-titles", (
+        "the ordering no longer puts the wrong template first, so this test "
+        "would pass over an unmasked build and stops being a pin")
+
+    # ...and masked, exactly one claims it, and it is the arm that emitted it.
+    masked_hits = [t.id for t in mbc._ARM_TEMPLATES
+                   if t.matches(mbc._mask_repr_spans(ledger.rule))]
+    assert masked_hits == ["template:carriage-ledger"], masked_hits
+    assert mbc._shape(ledger.rule) == "template:carriage-ledger"
+
+
+def test_the_arm_templates_are_the_only_place_the_prose_lives():
+    """NO ARM MAY BUILD A RULE TEXT ANY OTHER WAY.
+
+    The mask is derived from the templates, so an arm that spelled its prose
+    inline again would emit findings no template claims — and they would fall to
+    the fail-closed lexical fallback and split into as many shapes as they have
+    distinct interpolations, which is the defect the amendment removed.
+
+    Asserted over the module's SOURCE, matched on the f-string prefixes the arms
+    used to carry. Both openings are checked, because both were inline before.
+    """
+    source = inspect.getsource(mbc)
+    for opening in ('f"active MODIFIED block for ',
+                    'f"the ordering of MODIFIED blocks for '):
+        assert opening not in source, (
+            f"an arm is building a rule text inline again ({opening!r}); it must "
+            f"render through an `_ArmTemplate` or the shape mask cannot see it")
+    assert len(mbc._ARM_TEMPLATES) == 6
+    assert len({t.id for t in mbc._ARM_TEMPLATES}) == 6
+
+
+def test_two_findings_of_one_template_differing_in_an_unquoted_field_are_one_shape():
+    """THE AMENDED DELTA'S SCENARIO 3, FIRST HALF: same template, different
+    interpolations → ONE.
+
+    The field varied here is the promoted spec's PATH, which is unquoted and was
+    therefore shape-bearing under the rule as first ratified — this is the exact
+    pair that made the real tree read six. Constructed so the difference is
+    ONLY that field.
+    """
+    def ledger(spec_rel):
+        return Finding(
+            INFO, mbc.FAMILY, "openxFactory", "openspec/changes/c/specs/a/spec.md",
+            mbc.TEMPLATE_LEDGER.render(
+                title="A requirement", missing=1, total=3, spec_rel=spec_rel,
+                listed="[body] 'z'"),
+            mbc._ACTION)
+
+    one = ledger("openspec/specs/alpha/spec.md")
+    two = ledger("openspec/specs/omega/spec.md")
+    assert one.rule != two.rule
+    assert mbc._shape(one.rule) == mbc._shape(two.rule) == "template:carriage-ledger"
+
+    # and the unit-KIND list, the other unquoted field the old rule split on
+    three = Finding(
+        INFO, mbc.FAMILY, "openxFactory", "openspec/changes/c/specs/a/spec.md",
+        mbc.TEMPLATE_LEDGER.render(
+            title="A requirement", missing=2, total=3,
+            spec_rel="openspec/specs/alpha/spec.md",
+            listed="[bullet] 'y'; [body] 'z'"),
+        mbc._ACTION)
+    assert mbc._shape(three.rule) == mbc._shape(one.rule)
+
+
+def test_two_findings_of_different_templates_are_two_shapes():
+    """THE AMENDED DELTA'S SCENARIO 3, SECOND HALF: different templates → TWO.
+
+    Two templates are two map entries to write, so collapsing them would report
+    one remedy where two are owed and quote only one of the two drifted texts.
+    """
+    ledger = Finding(
+        INFO, mbc.FAMILY, "openxFactory", "openspec/changes/c/specs/a/spec.md",
+        mbc.TEMPLATE_LEDGER.render(
+            title="A requirement", missing=1, total=3,
+            spec_rel="openspec/specs/alpha/spec.md", listed="[body] 'z'"),
+        mbc._ACTION)
+    titles = Finding(
+        WARNING, mbc.FAMILY, "openxFactory", "openspec/changes/c/specs/a/spec.md",
+        mbc.TEMPLATE_TITLES.render(
+            title="A requirement", missing=1, total=3,
+            spec_rel="openspec/specs/alpha/spec.md", named="'S'"),
+        mbc._ACTION)
+    assert mbc._shape(ledger.rule) != mbc._shape(titles.rule)
+    assert {mbc._shape(ledger.rule), mbc._shape(titles.rule)} == {
+        "template:carriage-ledger", "template:scenario-titles"}
+
+
+def test_a_rule_text_no_template_claims_falls_back_and_is_never_merged():
+    """FAIL-CLOSED (constitution VII), and the case is an arm's prose drifting
+    from its own template.
+
+    A text no template claims must NOT be absorbed into a neighbouring
+    template's shape — that would merge a remedy nobody has written a template
+    for into one somebody has. It falls back to the old lexical mask, where two
+    such texts group only if they are lexically alike.
+    """
+    stray = "a rule text no template of this family emitted, naming 'x'"
+    assert mbc._shape(stray) not in {t.id for t in mbc._ARM_TEMPLATES}
+    assert mbc._shape(stray) == mbc._shape(
+        "a rule text no template of this family emitted, naming 'y'")
+    assert mbc._shape(stray) != mbc._shape(
+        "a different stray text entirely, naming 'x'")
 
 
 def test_two_unresolved_blocks_differing_only_in_capability_are_one_shape():
@@ -1607,11 +1824,20 @@ def test_two_unresolved_blocks_differing_only_in_capability_are_one_shape():
     a = unresolved("First block", "absent-a")
     b = unresolved("Second block", "absent-b")
     assert a.rule != b.rule
-    assert mbc._shape(a.rule) == mbc._shape(b.rule), (
-        mbc._shape(a.rule), mbc._shape(b.rule))
+    assert mbc._shape(a.rule) == mbc._shape(b.rule) == "template:title-resolution"
 
-    # neither capability nor title survives the mask...
-    for leaked in ("absent-a", "absent-b", "First block", "Second block"):
-        assert leaked not in mbc._shape(a.rule) + mbc._shape(b.rule), leaked
-    # ...and the prose apostrophe does, because it is prose
-    assert "sibling's addition" in mbc._shape(a.rule)
+    # ASSERTED AT THE MASKING LAYER TOO, because that is where the apostrophe
+    # rule lives and where a regression would land. `_shape` now returns a
+    # TEMPLATE ID, which would keep reading the same for both even if the mask
+    # were broken in some other way — the template match would still succeed on
+    # a differently-damaged text. This is the assertion that cannot.
+    for rule in (a.rule, b.rule):
+        masked = mbc._mask_repr_spans(rule)
+        for leaked in ("absent-a", "absent-b", "First block", "Second block"):
+            assert leaked not in masked, (leaked, masked)
+        # ...and the prose apostrophe survives, because it is prose. The
+        # template's own fixed segment carries it, so the match below depends on
+        # it: a mask that ate it would take this finding to the fail-closed
+        # fallback and split the two capabilities apart again.
+        assert "sibling's addition" in masked, masked
+    assert mbc._mask_repr_spans(a.rule) == mbc._mask_repr_spans(b.rule)
