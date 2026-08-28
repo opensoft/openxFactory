@@ -37,7 +37,7 @@ comparison that can see the loss is between an ACTIVE delta and the canon it has
 not yet replaced: a different document pair, read at a different moment, which
 is why this is a separate family rather than a wider reading of that one.
 
-THREE ARMS, FOUR FINDING CLASSES, AND THE NUMBERS DIFFER ON PURPOSE:
+THREE ARMS, FIVE FINDING CLASSES, AND THE NUMBERS DIFFER ON PURPOSE:
 
 1. **Scenario-title completeness** (`_LAUNCH_SEVERITY`, `warning`). Every
    `#### Scenario:` title canon carries must appear as a scenario title in the
@@ -56,6 +56,15 @@ THREE ARMS, FOUR FINDING CLASSES, AND THE NUMBERS DIFFER ON PURPOSE:
    names a unit the block still carries declares nothing and is reported itself.
    It does NOT inherit the ledger's hedge, because a marker naming a carried
    unit is wrong with certainty.
+5. **Unplaced-finding drift** (`_DRIFT_SEVERITY`, `warning`) — not an arm
+   either, and not a comparison between documents at all: it reads THIS MAP's
+   own verdict on the findings the arms just emitted. Where the map cannot place
+   a rule text, one `warning` per DISTINCT unplaced rule SHAPE says so, names
+   how many findings carry that shape and quotes the first of them verbatim.
+   Added by `add-unclassified-finding-class`, because the residual row below is
+   prose: it has no severity, so no `--fail-on` reaches it, and it is not a
+   finding, so the ranked plan never carries it. The row STAYS beside the
+   finding — it is what makes the tally sum to the rows it is printed above.
 
 MATCHING IS SAME-KIND AND EXACT, and both halves of that are load-bearing.
 CONTAINMENT IS FORBIDDEN: canon's bullet `**THEN** the selector MUST show
@@ -134,7 +143,7 @@ _mention = duplicate_packet._mention
 
 FAMILY = "modified-block-currency"
 
-# THE SEVERITIES, THREE OF THEM, NAMED APART ON PURPOSE.
+# THE SEVERITIES, FOUR OF THEM, NAMED APART ON PURPOSE.
 #
 # `_LAUNCH_SEVERITY` is the identifier `promotion_fidelity`, `duplicate_packet`
 # and `family_enumeration` all carry, and it is the grep that ties every reader
@@ -151,9 +160,23 @@ FAMILY = "modified-block-currency"
 # legitimate MODIFIED block edits something, so an editorial band is the honest
 # launch state and a permanent yellow row for a condition nobody should act on
 # is how a report stops being read.
+#
+# `_DRIFT_SEVERITY` is the FOURTH, added by `add-unclassified-finding-class` for
+# the fifth finding class, and the same argument applies to it word for word:
+# § 7.2 flips `_LAUNCH_SEVERITY` and this class must not ride that flip. Here
+# the drag would also be INVISIBLE — `FindingClass.band` reads the constant and
+# the registry pin reads the band off the class, so a shared constant would move
+# the rendered caption and the emitted finding together and no pin would notice.
+# `test_the_reserved_flip_of_the_launch_severity_does_not_drag_the_drift_class`
+# simulates the flip over this module's own source and is what makes that
+# falsifiable rather than merely written down. The class is also DESIGNED to
+# stop being emitted as soon as somebody extends the map, and § 7.2 raises the
+# `contested` classification with the severity — which would turn that
+# disappearance into an `error` under the uncited-resolution rule.
 _LAUNCH_SEVERITY = WARNING
 _RESOLUTION_SEVERITY = WARNING
 _LEDGER_SEVERITY = INFO
+_DRIFT_SEVERITY = WARNING
 
 # The two document sets, and there is no third. `archive/` is excluded by the
 # reader rather than by the glob, because a glob that happened to match an
@@ -170,6 +193,129 @@ CANON_TEMPLATE = "openspec/specs/{capability}/spec.md"
 
 _ACTION = ("restate the requirement as canon currently states it, or declare "
            "the deletion with a `Removed from canon by` marker")
+
+
+# ============================================================================
+# THE ARM TEMPLATES — ONE PLACE THAT KNOWS EACH ARM'S FIXED PROSE
+# ============================================================================
+#
+# WHY THIS REGISTRY EXISTS, AND IT IS NOT TIDYING. `add-unclassified-finding-class`
+# emits ONE finding per distinct unplaced rule SHAPE, and its identity rule was
+# AMENDED on 2026-08-28 by Brett's ruling, verbatim: "Amend: shape = arm
+# template, all interpolations masked". Two rule texts are ONE SHAPE where they
+# come from the SAME TEMPLATE, whatever their interpolated values — so one shape
+# is one template and one remedy, and the delta requires the family to derive
+# that mask FROM ITS OWN ARM TEMPLATES rather than from lexical guessing.
+#
+# WHAT THE OLD RULE GOT WRONG, MEASURED. Masking only quoted spans and digit
+# runs left every UNQUOTED interpolation shape-bearing: the promoted spec's
+# repo-relative path, the `[body]`/`[bullet]` unit-kind list, a change-id list,
+# an unresolved block's `why` clause. Dropping ONE class pattern on this
+# repository then emitted SIX findings for SEVEN unplaced ones, where one new
+# map entry would have placed all seven. Nine on `-two-writers`, three on
+# `-markers`. Under the amended rule each of those is ONE.
+#
+# SO THE ARMS RENDER THROUGH THESE TEMPLATES rather than through their own
+# f-strings. That is the whole mechanism: the fixed prose has exactly one
+# definition, the arm that prints it and the mask that reads it cannot drift
+# apart, and adding an arm without registering its template is impossible
+# because the arm has nowhere else to get its text from.
+#
+# THE RENDERED BYTES ARE UNCHANGED. Every template below is the f-string its arm
+# carried before, field for field. Nothing new was written to prove that: F1's
+# ninety-eight tests and F2's thirteen-tree catalogue already assert this
+# family's rule texts against the corpus, and they were green on the refactor's
+# first run. What IS new is
+# `test_every_finding_matches_exactly_one_arm_template`, which holds the
+# property the MASK depends on — that the six are mutually exclusive over
+# repr-masked text — and `test_the_arm_templates_are_the_only_place_the_prose_lives`,
+# which holds that no arm builds a rule text any other way.
+
+# A `{field}` placeholder in a template, including `{field!r}`. Splitting on it
+# yields the FIXED SEGMENTS, in order, which is all the mask needs to know.
+_FIELD = re.compile(r"\{[^{}]*\}")
+
+
+class _ArmTemplate:
+    """One arm's rule text: the format string, and the fixed prose inside it.
+
+    PRIVATE, deliberately. The module's public surface is snapshotted by
+    `test_this_feature_touches_no_production_module`, and a mechanism for
+    computing a local identity is not something another family should reach for
+    — `add-unclassified-finding-class` § 4.4 scopes this rule to this family.
+
+    `matches` is asked about a rule whose `repr` spans have ALREADY been masked
+    (see `_shape`). That ordering is load-bearing: requirement titles and quoted
+    body units come from the CORPUS and may contain any phrase, including
+    another arm's, so matching templates against raw text could file one arm's
+    finding under another's template. Masked first, the only text left is this
+    module's own prose plus placeholders, and the six templates are then
+    mutually exclusive — asserted, not assumed, by
+    `test_every_finding_matches_exactly_one_arm_template`.
+    """
+
+    __slots__ = ("id", "text", "segments", "_pattern")
+
+    def __init__(self, id: str, text: str):
+        self.id = id
+        self.text = text
+        self.segments = tuple(_FIELD.split(text))
+        # `\Z` is NEAR-INERT and says so rather than looking load-bearing: four
+        # of the six templates END in a field, so their pattern already ends
+        # `(?s:.*?)\Z`, which matches whatever is left. It bites only on the two
+        # that end in fixed prose (`marker-defects`, `ordering`), where it stops
+        # a longer rule text from matching on a prefix. The ANCHOR THAT CARRIES
+        # THE WEIGHT is `re.match` in `matches` below — there is no `^` here,
+        # and switching that one call to `re.search` files a drift finding under
+        # the ledger template through its own quotation.
+        self._pattern = re.compile(
+            r"(?s:.*?)".join(re.escape(seg) for seg in self.segments) + r"\Z")
+
+    def render(self, **fields) -> str:
+        return self.text.format(**fields)
+
+    def matches(self, masked: str) -> bool:
+        return self._pattern.match(masked) is not None
+
+
+TEMPLATE_TITLES = _ArmTemplate("template:scenario-titles", (
+    "active MODIFIED block for {title!r} omits {missing} of the {total} "
+    "scenarios {spec_rel} currently states for it: {named}"))
+
+TEMPLATE_LEDGER = _ArmTemplate("template:carriage-ledger", (
+    "active MODIFIED block for {title!r} does not carry {missing} of the "
+    "{total} body units and scenario bullets {spec_rel} currently states for "
+    "it — a divergence this arm CANNOT distinguish from a deliberate "
+    "rewording, and does not claim to: {listed}"))
+
+TEMPLATE_MARKERS = _ArmTemplate("template:marker-defects", (
+    "active MODIFIED block for {title!r} carries a {form!r} marker by "
+    "{change_id} ({date}) naming {named}, which the block still restates — a "
+    "declaration that does not describe the block"))
+
+TEMPLATE_UNRESOLVED = _ArmTemplate("template:title-resolution", (
+    "active MODIFIED block for {title!r} resolves to no promoted requirement, "
+    "no rename of its own, and no active sibling's addition: {why}"))
+
+TEMPLATE_ORDERING = _ArmTemplate("template:ordering", (
+    "the ordering of MODIFIED blocks for {title!r} is undecided: {names} — "
+    "{why}; each block is meanwhile measured against canon, the only basis a "
+    "reader can name"))
+
+# The fifth class's own rule text is a template like any other, and it is
+# registered like any other: a drift finding the map failed to place must group
+# by template too, or the count that reports drift would itself be split.
+TEMPLATE_DRIFT = _ArmTemplate("template:unplaced-drift", (
+    "this family's own class map has no pattern for {n} finding{s} this run "
+    "emitted, which share one rule shape the map has drifted behind; the first "
+    "of them in this family's own report order reads, verbatim: {rule}"))
+
+# ORDERED, and first match wins, exactly as `_CLASS_PATTERNS` is. The order is
+# not load-bearing today — the six are mutually exclusive over masked text and a
+# test says so — but a deterministic order is what makes a future collision a
+# stable wrong answer instead of an unstable one.
+_ARM_TEMPLATES = (TEMPLATE_TITLES, TEMPLATE_LEDGER, TEMPLATE_MARKERS,
+                  TEMPLATE_UNRESOLVED, TEMPLATE_ORDERING, TEMPLATE_DRIFT)
 
 
 BODY = "body"
@@ -822,9 +968,9 @@ def _arm_titles(repo: str, block: ActiveBlock, basis: PromotedRequirement,
     named = ", ".join(repr(u.text) for u in missing)
     return [_finding(
         _LAUNCH_SEVERITY, repo, block,
-        f"active MODIFIED block for {block.title!r} omits {len(missing)} of the "
-        f"{len(canon_titles)} scenarios {basis.spec_rel} currently states for "
-        f"it: {named}")]
+        TEMPLATE_TITLES.render(title=block.title, missing=len(missing),
+                               total=len(canon_titles),
+                               spec_rel=basis.spec_rel, named=named))]
 
 
 
@@ -878,11 +1024,9 @@ def _arm_ledger(repo: str, block: ActiveBlock, basis: PromotedRequirement,
     listed = "; ".join(_quote(u) for u in missing)
     return [_finding(
         _LEDGER_SEVERITY, repo, block,
-        f"active MODIFIED block for {block.title!r} does not carry "
-        f"{len(missing)} of the {len(canon_units)} body units and scenario "
-        f"bullets {basis.spec_rel} currently states for it — a divergence this "
-        f"arm CANNOT distinguish from a deliberate rewording, and does not "
-        f"claim to: {listed}")]
+        TEMPLATE_LEDGER.render(title=block.title, missing=len(missing),
+                               total=len(canon_units),
+                               spec_rel=basis.spec_rel, listed=listed))]
 
 
 def suppression(markers: list[Marker], canon_units: list[Unit],
@@ -978,9 +1122,9 @@ def _arm_marker_defects(repo: str, block: ActiveBlock, defective: list[Marker],
                         ) -> list[Finding]:
     """THE FOURTH FINDING CLASS — a defect in a DECLARATION, not a comparison.
 
-    Three arms, four classes, and the numbers differ on purpose: the arms read
-    two documents against each other, and this reads one paragraph against the
-    block it sits in. It carries the ledger's `info` band so the advisory launch
+    Three arms, five classes, and the numbers differ on purpose: the arms read
+    two documents against each other, this reads one paragraph against the block
+    it sits in, and the fifth reads the class map's own verdict. It carries the ledger's `info` band so the advisory launch
     holds in both halves, and it deliberately does NOT carry the ledger's hedge:
     a marker naming a unit the block still restates is wrong with certainty.
     """
@@ -989,10 +1133,10 @@ def _arm_marker_defects(repo: str, block: ActiveBlock, defective: list[Marker],
         named = ", ".join(repr(n) for n in marker.names)
         out.append(Finding(
             _LEDGER_SEVERITY, FAMILY, repo, block.delta_rel,
-            f"active MODIFIED block for {block.title!r} carries a "
-            f"{marker.form!r} marker by {marker.change_id} ({marker.date}) "
-            f"naming {named}, which the block still restates — a declaration "
-            f"that does not describe the block", _MARKER_ACTION))
+            TEMPLATE_MARKERS.render(title=block.title, form=marker.form,
+                                    change_id=marker.change_id,
+                                    date=marker.date, named=named),
+            _MARKER_ACTION))
     return out
 
 
@@ -1162,11 +1306,21 @@ def _arm_ordering(repo: str, group: list[ActiveBlock], declared: set
                "than merely unrecorded")
     findings = [
         _finding(_RESOLUTION_SEVERITY, repo, block,
-                 f"the ordering of MODIFIED blocks for {block.title!r} is "
-                 f"undecided: {names} — {why}; each block is meanwhile measured "
-                 f"against canon, the only basis a reader can name")
+                 TEMPLATE_ORDERING.render(title=block.title, names=names,
+                                          why=why))
         for block in ratified]
     return {}, findings
+
+
+def _report_order(finding):
+    """The family's own report order: severity, then repo, then path, then rule.
+
+    Named rather than inlined because it is now applied TWICE — once to the
+    arms' findings, and again after the fifth class's emit appends to them. Two
+    copies of an ordering rule is how two orderings come to differ.
+    """
+    return (SEVERITY_RANK[finding.severity], finding.repo, finding.path,
+            finding.rule)
 
 
 def fam_modified_block_currency(ctx):
@@ -1243,8 +1397,20 @@ def fam_modified_block_currency(ctx):
     # the arms to avoid. `SEVERITY_RANK` is the package's own ordering
     # (critical, error, warning, info), so this agrees with the report-wide sort
     # rather than inventing a second one.
-    findings.sort(key=lambda f: (SEVERITY_RANK[f.severity], f.repo, f.path,
-                                 f.rule))
+    findings.sort(key=_report_order)
+    # THE FIFTH CLASS'S EMIT — `add-unclassified-finding-class`. AFTER the arms
+    # and, load-bearingly, AFTER the sort: "the FIRST of that shape" is defined
+    # in the family's own report order and is undefined over an unsorted list.
+    #
+    # AND THERE IS NO SECOND SORT, deliberately. The first cut appended and then
+    # re-sorted, which read as tidy and was dead code: `runner.run_suite` sorts
+    # the whole result by `Finding.sort_key` and `report.render` sorts again
+    # before it prints, so the order this list is RETURNED in reaches no reader.
+    # A mutation round proved it — deleting that second sort killed nothing —
+    # and a line no test can fail is a line that will be trusted for a guarantee
+    # it does not give. The sort ABOVE stays because it decides which finding
+    # each drift warning names, which is a fact about the OUTPUT.
+    findings.extend(_drift_findings(findings))
     return findings
 
 
@@ -1264,16 +1430,14 @@ def _unresolved_finding(repo: str, block: ActiveBlock, root: Path) -> Finding:
         why = f"{spec_rel} states no requirement under that title"
     return _finding(
         _RESOLUTION_SEVERITY, repo, block,
-        f"active MODIFIED block for {block.title!r} resolves to no promoted "
-        f"requirement, no rename of its own, and no active sibling's addition: "
-        f"{why}")
+        TEMPLATE_UNRESOLVED.render(title=block.title, why=why))
 
 
 # ============================================================================
 # THE REPORT SECTION — F4 (`022-modified-block-currency-reporting`, packet § 5)
 # ============================================================================
 #
-# WHY ANY OF THIS EXISTS. The four classes above are already distinct FINDINGS
+# WHY ANY OF THIS EXISTS. The classes above are already distinct FINDINGS
 # with distinct severities, which is what the delta requires ("SHALL report them
 # as distinct finding classes so that a precise signal is never buried in an
 # editorial one"). The REPORT did not carry the distinction: `report.render`
@@ -1296,7 +1460,7 @@ def _unresolved_finding(repo: str, block: ActiveBlock, root: Path) -> Finding:
 
 
 class FindingClass:
-    """One of this family's four finding classes, as a value.
+    """One of this family's five finding classes, as a value.
 
     `band` and `action` are read from the module constants rather than
     re-spelled. They are used differently and the difference matters:
@@ -1312,11 +1476,11 @@ class FindingClass:
       keeps `_ACTION` and `_MARKER_ACTION` attached to the classes that use
       them rather than re-spelled in a test.
 
-    `gloss` is the parenthetical a reader gets beside the band. Two classes carry
-    one and two do not: the scenario-title arm's says it carries the gate, and
-    the ledger's repeats the hedge every one of its findings already states.
-    Adding a gloss to the other two would pad a line whose whole value is being
-    short enough to read at a glance.
+    `gloss` is the parenthetical a reader gets beside the band. Two of the five
+    carry one and three do not: the scenario-title arm's says it carries the
+    gate, and the ledger's repeats the hedge every one of its findings already
+    states. Adding a gloss to the other three would pad a line whose whole value
+    is being short enough to read at a glance.
     """
 
     __slots__ = ("id", "label", "band", "action", "gloss")
@@ -1334,6 +1498,24 @@ CLASS_TITLES = "scenario-titles"
 CLASS_LEDGER = "carriage-ledger"
 CLASS_RESOLUTION = "title-resolution"
 CLASS_MARKERS = "marker-defects"
+# THE FIFTH, AND NEITHER THE ID NOR THE LABEL MAY CONTAIN `unclassified`.
+# `test_a_finding_the_map_cannot_place_is_counted_and_named` asserts that
+# string's ABSENCE from a fully-classified summary, and a class label renders
+# even at a count of zero — so the obvious name would have reddened a standing
+# pin for a real reason. `unplaced` says the same thing about the FINDING that
+# `unclassified` says about the residual, which is the distinction this class
+# exists to draw.
+CLASS_DRIFT = "unplaced"
+
+# The fifth class's action, and it names BOTH remedies. NO INTERPOLATED PATH:
+# `test_every_finding_carries_its_class_s_band_and_action` compares
+# `f.action == klass.action` against a class constant, so a per-finding path
+# here would make every drift finding's action differ from its class's. The
+# delta path is already the finding's own `path` field, and the drifted rule
+# text is quoted in the finding itself.
+_DRIFT_ACTION = ("extend the class map in "
+                 "`scripts/doc_health/modified_block_currency.py`, or fix the "
+                 "drifted rule text the finding names")
 
 # The residual bucket's name. NOT a class — a class is something the delta
 # defines, and this is the report saying that the map and the arms have drifted
@@ -1346,11 +1528,13 @@ UNCLASSIFIED = "unclassified"
 # reserves must be the arm a reader meets first, or the precise signal is buried
 # in the editorial ones — the exact failure the delta split the arms to avoid.
 #
-# FOUR ENTRIES FOR FIVE RULE SHAPES. The delta's third arm is "Title resolution
+# FIVE ENTRIES FOR SIX RULE SHAPES. The delta's third arm is "Title resolution
 # and ordering": a block resolving to nothing and an ordering no declaration
 # settles are two shapes of ONE arm, sharing a severity and an action, named
-# together in the requirement. Splitting them here would claim a fifth class the
-# delta does not define; merging any other pair would hide a severity difference.
+# together in the requirement. Splitting them here would claim a class the delta
+# does not define; merging any other pair would hide a severity difference. The
+# sixth shape is the fifth class's own finding, which the map must place or the
+# count would name itself.
 CLASSES = (
     FindingClass(CLASS_TITLES, "scenario-title completeness",
                  _LAUNCH_SEVERITY, _ACTION,
@@ -1362,6 +1546,13 @@ CLASSES = (
                  _RESOLUTION_SEVERITY, _ACTION),
     FindingClass(CLASS_MARKERS, "marker defects",
                  _LEDGER_SEVERITY, _MARKER_ACTION),
+    # LAST, because it is not an arm and the ordering comment above is about the
+    # arms: "the gate-bearing arm reads FIRST" is unchanged by appending here.
+    # NO GLOSS, on the rule stated in `FindingClass` — the label already says
+    # what it is, and a fifth parenthetical would pad the one line whose whole
+    # value is being short enough to read at a glance.
+    FindingClass(CLASS_DRIFT, "unplaced-finding drift",
+                 _DRIFT_SEVERITY, _DRIFT_ACTION),
 )
 
 # A requirement title as the arms write it: `{title!r}`, which is single-quoted
@@ -1392,6 +1583,21 @@ _CLASS_PATTERNS = (
     (CLASS_RESOLUTION, re.compile(
         r"^the ordering of MODIFIED blocks for " + _TITLE_REPR
         + r" is undecided: ")),
+    # THE FIFTH CLASS, AND ITS ANCHOR IS LOAD-BEARING TWICE OVER. This finding
+    # QUOTES a rule text the map could not place, and that quotation may itself
+    # begin in the shape of an arm's — so an unanchored probe would file the
+    # drift finding under whichever class its QUOTATION resembles, which is the
+    # misfiling `_BLOCK_HEAD` was measured into existence to prevent. And in the
+    # other direction: a requirement may be TITLED with this class's own opening
+    # phrase, in which case its ledger finding's rule text contains that phrase;
+    # a `.*`-prefixed probe (which `re.match` accepts) would match that ledger
+    # finding too, and two patterns matching one rule reds the partition pin.
+    # Measured on both:
+    # `test_a_drift_finding_quoting_an_arm_shaped_rule_text_is_not_misfiled` and
+    # `test_a_title_that_embeds_the_drift_phrase_still_matches_exactly_one_pattern`.
+    (CLASS_DRIFT, re.compile(
+        r"^this family's own class map has no pattern for \d+ findings? this "
+        r"run emitted, ")),
 )
 
 
@@ -1416,6 +1622,152 @@ def classify(finding) -> str:
         if pattern.match(finding.rule):
             return class_id
     return UNCLASSIFIED
+
+
+# The fifth class's rule text IS one of the arm templates, registered with the
+# others at the top of this module. Named here too because the self-gate probes
+# it and because a reader of this section should not have to go looking.
+_DRIFT_RULE = TEMPLATE_DRIFT.text
+
+# THE SHAPE MASK — AMENDED 2026-08-28 ON BRETT'S RULING, verbatim: "Amend: shape
+# = arm template, all interpolations masked".
+#
+# WHAT IT IS NOW. Two rule texts are ONE SHAPE where they come from the SAME ARM
+# TEMPLATE, whatever their interpolated values. So one shape is one template,
+# one template is one map entry to write, and the count of drift findings is the
+# count of REMEDIES — which is what a ranked plan is a list of.
+#
+# WHAT IT WAS, AND WHY THAT WAS WRONG. The first ratified rule masked quoted
+# spans and digit runs only, which left every UNQUOTED interpolation
+# shape-bearing: the promoted spec's repo-relative path, the `[body]`/`[bullet]`
+# unit-kind list, a change-id list, an unresolved block's `why` clause. MEASURED
+# on this repository: dropping one class pattern emitted SIX findings for SEVEN
+# unplaced ones, where a single new map entry would have placed all seven.
+# `026-unplaced-finding-drift` shipped that faithfully, measured it, refused to
+# widen it unilaterally because the delta's third scenario pinned it, and put it
+# up. Brett amended the delta.
+#
+# TWO STEPS, AND THE ORDER IS LOAD-BEARING.
+#
+# 1. MASK THE `repr` SPANS, left to right. Requirement titles and quoted body
+#    units come from the CORPUS and may contain any phrase, including another
+#    arm's fixed prose, so template matching over RAW text could file one arm's
+#    finding under another's template. Masked first, the only text left is this
+#    module's own prose plus placeholders.
+#
+#    A CONSUMER, NOT A GLOBAL `re.sub`, and that is a bug this function shipped
+#    with. These rule texts are fixed prose interleaved with `repr` spans, and
+#    one of the fixed strings carries an apostrophe: `TEMPLATE_UNRESOLVED`'s "no
+#    active sibling's addition:". A global substitution pairs THAT apostrophe
+#    with the opening quote of the NEXT repr, masks the prose between them, and
+#    leaves the repr's own content exposed — which also destroys the fixed prose
+#    the template match depends on. So a quote OPENS a span only where a `repr`
+#    could have emitted one: at the start, or after a non-alphanumeric. Every
+#    one of this family's templates interpolates its `repr` after a space, and
+#    an apostrophe inside a word never can be. `_TITLE_REPR`'s two alternatives
+#    begin with DIFFERENT characters, so at most one matches at any position,
+#    and an accepted span is jumped past whole — no backtracking into a span
+#    already consumed.
+#
+# 2. MATCH THE ARM TEMPLATES, first match wins. The shape IS the template's id.
+#
+# FAIL-CLOSED FALLBACK. A rule text NO template claims — which means an arm's
+# fixed prose itself drifted from its template, or a text arrived from somewhere
+# this module does not know — falls back to the old lexical mask rather than
+# being merged with any template. Constitution VII: an unrecognized value is
+# never absorbed into a neighbouring bucket.
+#
+# SCOPED TO THIS FAMILY. `add-unclassified-finding-class` § 4.4: this is written
+# for this family's rule-text grammar and is NOT a general finding-identity rule
+# for the package. Nothing else may import it as one without its own change.
+_SHAPE_QUOTED = re.compile(_TITLE_REPR)
+_SHAPE_DIGITS = re.compile(r"\d+")
+_SHAPE_OPENERS = "'\""
+
+
+def _mask_repr_spans(rule: str) -> str:
+    """Every `repr`-emitted span replaced by one placeholder, left to right.
+
+    Step 1 of `_shape`; see the comment above for why it is a consumer and not
+    a global substitution.
+    """
+    out: list[str] = []
+    index, end = 0, len(rule)
+    while index < end:
+        char = rule[index]
+        if char in _SHAPE_OPENERS and (index == 0
+                                       or not rule[index - 1].isalnum()):
+            span = _SHAPE_QUOTED.match(rule, index)
+            if span:
+                out.append("<Q>")
+                index = span.end()
+                continue
+        out.append(char)
+        index += 1
+    return "".join(out)
+
+
+def _shape(rule: str) -> str:
+    """The identity two unplaced findings are grouped by: their ARM TEMPLATE.
+
+    Returns the template's id where one claims the rule, and the old lexical
+    mask where none does.
+    """
+    masked = _mask_repr_spans(rule)
+    for template in _ARM_TEMPLATES:
+        if template.matches(masked):
+            return template.id
+    return _SHAPE_DIGITS.sub("<N>", masked)
+
+
+def _drift_findings(findings) -> list[Finding]:
+    """ONE `warning` per DISTINCT unplaced rule SHAPE — the fifth class's emit.
+
+    NOT AN ARM. The three arms read two documents against each other; this reads
+    the CLASS MAP's own verdict on the findings the arms just emitted, which is
+    why it lives beside `classify` rather than beside them.
+
+    PER SHAPE, NOT PER RUN AND NOT PER REPOSITORY (`add-unclassified-finding-class`
+    D3). Per repository would put ONE remedy into an aggregation run's ranked
+    plan once for every repository in scope, the class map being a module
+    constant compiled once per process — the reading `family_enumeration`
+    already recorded for its missing-direction invariant. Per run collapses two
+    genuinely different drifted shapes into one finding quoting only one of
+    them.
+
+    THE GRAIN IS ONE FINDING PER ARM TEMPLATE, WHICH IS ONE PER REMEDY. Two
+    rule texts are one shape where they come from the SAME TEMPLATE, whatever
+    their interpolated values — the requirement title, the counts, the promoted
+    spec's path, the unit-kind list, a change-id list, an unresolved block's
+    `why` clause. One template is one entry somebody has to add to the class
+    map, and a ranked plan is a list of remedies.
+
+    THAT IS AN AMENDMENT, RULED 2026-08-28 BY BRETT, verbatim: "Amend: shape =
+    arm template, all interpolations masked". As first ratified the rule masked
+    quoted spans and digit runs only, which left every UNQUOTED interpolation
+    shape-bearing: dropping ONE class pattern on this repository emitted SIX
+    findings for SEVEN unplaced ones, and nine unplaced findings on the
+    `-two-writers` fixture became four. `026-unplaced-finding-drift` shipped
+    that faithfully, measured it, declined to widen it unilaterally because the
+    delta's third scenario pinned it, and put the amendment up. All four of
+    those measurements now read ONE — the figures are in
+    `test_the_drift_grain_is_one_finding_per_arm_template`, which holds them.
+
+    """
+    shapes: dict[str, list[Finding]] = {}
+    for finding in findings:
+        if classify(finding) == UNCLASSIFIED:
+            shapes.setdefault(_shape(finding.rule), []).append(finding)
+    out: list[Finding] = []
+    for group in shapes.values():
+        first = group[0]
+        out.append(Finding(
+            _DRIFT_SEVERITY, FAMILY, first.repo, first.path,
+            TEMPLATE_DRIFT.render(n=len(group),
+                                  s="" if len(group) == 1 else "s",
+                                  rule=first.rule),
+            _DRIFT_ACTION))
+    return out
 
 
 def class_counts(findings) -> dict:

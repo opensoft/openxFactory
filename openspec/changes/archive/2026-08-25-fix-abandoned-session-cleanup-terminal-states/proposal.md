@@ -1,3 +1,6 @@
+Status: ratified
+Ratified: 2026-08-25 by Brett Heap — this packet's own origin declaration, `.openspec.yaml` (`approved_by: Brett Heap`, `approved_on: 2026-08-25`), the derivation source the promoted rule names first. No approving OpenSpec change exists to name, so this takes the record-citing spelling `sanction-ratified-record-spelling` sanctioned for that case, and clears its three-way floor on all three axes: approver, date, and a resolvable record path.
+
 ## Why
 
 Abandoned-session cleanup currently recognizes only an exact staged topic linked to an active proposal. Once that proposal archives or is explicitly demoted—or the tile becomes orphaned after its material is dispositioned—the cleanup gate can never open even though durable lifecycle evidence exists, leaving local branches permanently stranded.

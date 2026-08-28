@@ -14,18 +14,98 @@ from datetime import date
 
 from . import CRITICAL, ERROR, FAMILY_IDS, Finding, SEVERITY_RANK
 
+# A free-text ranked-plan field: everything up to the closing `"`, with `\"`
+# and `\\` admitted inside it. The naive `[^"]*` this replaces closed the field
+# on the FIRST `"` and so could not read back a row it had itself emitted —
+# any finding whose rule or action text contains a double quote. Such a row was
+# emitted by `plan_line`, never matched by `PLAN_RE`, and silently dropped from
+# every `--previous-report` comparison, which makes a persistent finding read as
+# a new regression on the next run and hides a contested finding's disappearance
+# from `uncited_resolutions`.
+#
+# THIS ALREADY FIRED IN PRODUCTION, and the family it fired for is NOT the one a
+# reader would guess. The generator is `semantic.py`'s contradiction arm, which
+# wraps a corpus excerpt in curly quotes —
+# `rule = f"[id={pid}] confidence={confidence} “{excerpt}”"` — so a raw `"`
+# inside the excerpt lands inside the field. `health/reports/2026-07-14.md:267`
+# carries one: a `contested` `semantic-contradiction` finding on
+# `openxFactory:docs/xfactory-domain-factory-model.md` whose excerpt quotes
+# `"In this domain, customer Hermes is Managed System or Tenant Hermes."`. On
+# 2026-07-15 that finding VANISHED — and the 18 uncited-resolution errors that
+# run raised did not include it, because the 07-14 row had never parsed into the
+# contested set. The citation requirement simply did not apply to it.
+#
+# The modified-block-currency arms are the OTHER exposure — `{title!r}` switches
+# to DOUBLE quotes when a requirement title contains an apostrophe — but that is
+# a latent one: that family has emitted no row at all in the 27 dated reports
+# written to date. Named here so a reader does not go looking for the fired case
+# there.
+#
+# THE REPAIR IS FORWARD-ONLY, and deliberately so. The 07-14 row carries a RAW
+# `"` inside the field, and no parser can accept a raw `"` as field CONTENT
+# while `"` is also the delimiter — the grammar would be ambiguous. So that row
+# does not parse after this change either; what changes is that a row emitted
+# from HERE ON carries `\"` and does parse. Both parsers, old and new, accept
+# exactly the same 20,997 of the 20,999 historical rows and agree on the key of
+# every one of them (measured across `health/reports/*.md`).
+#
+# THE OTHER HISTORICAL UNPARSED ROW IS A DIFFERENT DEFECT and is NOT fixed here:
+# `health/reports/2026-07-09.md:188` writes `path=(lifecycle notebooks)`, and
+# `path=(\S+)` cannot match a path containing a space. Same regex, unrelated
+# cause, own repair — recorded so the next reader does not read this change as
+# having cleared the whole class.
+#
+# Emit and parse are now symmetric (`escape_field` / `unescape_field`).
+_FIELD = r'((?:[^"\\]|\\.)*)'
+
 PLAN_RE = re.compile(
     r"^- severity=(\w+) family=([\w-]+) repo=(\S+) path=(\S+) "
-    r'rule="([^"]*)" action="([^"]*)"(?: class="([\w-]+)")?'
-    r'(?: disposer="([^"]*)")?$')
+    r'rule="' + _FIELD + r'" action="' + _FIELD + r'"'
+    r'(?: class="([\w-]+)")?'
+    r'(?: disposer="' + _FIELD + r'")?$')
+
+
+def escape_field(value: str) -> str:
+    """Make `value` safe between the `"` delimiters of a ranked-plan field.
+
+    BYTE-IDENTICAL for any value containing neither `"` nor `\\`, so the escape
+    is invisible in the nightly report diff.
+
+    THE ONE ACCEPTED REGRESSION IN READING OLD REPORTS, stated because it is
+    unavoidable rather than overlooked: a row written by the PRE-ESCAPE emitter
+    whose rule, action, or disposer text ENDS with a literal `\\` now parses as
+    an escaped closing quote and the row is silently dropped. `PLAN_RE` cannot
+    tell that row from a new-emitter row, and no reading of the old grammar
+    distinguishes them, so no parser can be compatible with both. Measured
+    before accepting it: ZERO such rows exist across the 20,999 ranked-plan rows
+    in `health/reports/`, and none of those rows contains a backslash at all.
+    """
+    return value.replace("\\", "\\\\").replace('"', '\\"')
+
+
+def unescape_field(value: str) -> str:
+    """Inverse of `escape_field` over a `_FIELD` capture.
+
+    NEW-EMITTER OUTPUT ONLY. It strips EVERY backslash it does not find doubled,
+    so over a field captured from a pre-escape report it corrupts rather than
+    round-trips: a legacy `C:\\temp\\x` reads back as `C:tempx`. That is
+    inconsequential today — no production caller unescapes a field at all
+    (`parse_previous` reads only severity, family, repo, path, and class) — and
+    it is the reason this is a separate function instead of something
+    `parse_previous` applies on everyone's behalf. A future caller that must
+    read field TEXT out of an archived report needs a version-aware reader, not
+    this one.
+    """
+    return re.sub(r"\\(.)", r"\1", value)
 
 
 def plan_line(f: Finding) -> str:
     line = (f"- severity={f.severity} family={f.family} repo={f.repo} "
-            f"path={f.path} rule=\"{f.rule}\" action=\"{f.action}\" "
+            f"path={f.path} rule=\"{escape_field(f.rule)}\" "
+            f"action=\"{escape_field(f.action)}\" "
             f"class=\"{f.resolution}\"")
     if f.disposer:
-        line += f" disposer=\"{f.disposer}\""
+        line += f" disposer=\"{escape_field(f.disposer)}\""
     return line
 
 

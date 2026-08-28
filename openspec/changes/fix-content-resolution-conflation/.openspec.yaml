@@ -1,0 +1,114 @@
+schema: spec-driven
+created: 2026-08-28
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-28-fix-content-resolution-conflation
+  reason: >-
+    Commissioned in-session by Brett on 2026-08-28, in the SAME act that
+    commissioned `fix-pin-value-boundary-and-sentinel-split`. THE EXCHANGE,
+    QUOTED AS IT HAPPENED AND WITH THE TWO VOICES KEPT APART. The orchestrating
+    session put a set of candidate follow-ups and recommended one of them, in
+    its own words, as "the measured-latents bundle". Brett selected it,
+    verbatim: "lets do all 3 in order". The recommendation text is the
+    ORCHESTRATING SESSION'S and is quoted here as a recommendation rather than
+    as an instruction; the SELECTION is Brett's and is the origin act, on the
+    instruction-as-origin-act shape `govern-derived-pin-reachability`,
+    `supersede-lost-pin-baseline`, `fix-release-reachability-race` and
+    `declare-sentinel-pin-vocabulary` set. Not a staged ideation topic:
+    `ideation/staging/` and its `INDEX.md` carry nothing on the release
+    verifier, so `kind: staged` is unavailable rather than declined.
+    THIS PACKET IS THE THIRD DEFECT OF THAT SET, FILED SEPARATELY, and the
+    separation is the AUTHORING SESSION'S decision rather than Brett's. It is
+    recorded as OD-1 in the sibling's `proposal.md` and as OD-1 here, is FLAGGED
+    FOR VETO in both, and is taken on one measured ground: this packet's surface
+    is a contract bundle member and the sibling's is not, so bundling them would
+    hold two zero-cost fixes behind a human-gated contract tag.
+    THE FORCING FACT, re-measured 2026-08-28 in a fresh worktree off
+    `origin/main` at `6612d3239cbc`. `_blob_object_id`
+    (`scripts/hermes_runtime_validation/release.py:312-316`) is four lines:
+    `try: return resolve_git_object(repo, commit, path).blob_oid /
+    except ContentResolutionError: return None`. `resolve_git_object` reaches
+    FIFTEEN `raise ContentResolutionError` sites across
+    `scripts/hermes_runtime_validation/content.py` (14 distinct messages; two
+    share "repository path is not canonical"), and EXACTLY ONE of them —
+    `content.py:125`, "exact Git path is unavailable" — means the thing `None`
+    is the right answer for: there is no blob at this path in this commit.
+    The other fourteen are environment failures and safety refusals. RUN HERE,
+    six conditions returning the same `None` from the same call:
+    a genuinely absent path ("exact Git path is unavailable"); a commit that does
+    not exist ("exact Git object is unavailable"); a repository path that is not
+    a repository ("Git repository is unavailable"); a path that is a DIRECTORY
+    rather than a regular file ("Git path is not a supported regular file"); a
+    non-canonical path ("repository path contains a forbidden segment"); and a
+    revision that is not a full object id ("revision must be a full Git object
+    ID"). A seventh case, a real member, returned `47dc4022e2f7`.
+    RECORDED AS FOLLOW-UP § 6.3 OF THE ARCHIVED
+    `2026-08-26-fix-release-reachability-race` PACKET, in these words, which
+    this filing honours rather than paraphrases: "Adjacent and also not this
+    change: `_blob_object_id` at `:204-209` converts every
+    `ContentResolutionError` into `None`, so 'the blob is absent at this commit'
+    and 'this commit does not exist' are the same value to its callers. § 2.5
+    removes the reachable path to the second case; the conflation itself
+    survives, and it is the kind of thing that makes the next defect in this
+    file hard to read." The line number has moved from `:204-209` to `:312-316`
+    because that packet's own realization added `_resolve_remote_object` above
+    it; the four lines are otherwise unchanged.
+    THE CONSEQUENCE AT THE CALLER, WHICH § 6.3 DID NOT REACH.
+    `_blob_object_id`'s only caller is `_surface_drift`
+    (`release.py:790-806`, reached from `verify_promotion` at `:845`), which
+    compares the two sides at `:796-798`. So a failure on ONE side produces a
+    FALSE `HGR-RELEASE-SURFACE-DRIFT` — a verdict about the release manufactured
+    from an environment fact — and a failure on BOTH sides makes two `None`s
+    compare EQUAL and reports the surface CLEAN, having read neither blob. The
+    second is the worse direction and is the one nothing would notice.
+    A SIBLING CONFLATION OF THE IDENTICAL SHAPE, measured here and not inherited:
+    `_CommitSource.exists` (`release.py:401-405`) returns `False` for every
+    `ContentResolutionError`, and its four callers (`:519`, `:532`, `:611`,
+    `:621`) use that answer to decide release membership and whether
+    `contracts/manifest.yaml` is present at the commit. An environment failure
+    at `:611` reports the manifest ABSENT.
+    THE COST THIS FILING DECLARES UP FRONT: `scripts/hermes_runtime_validation/
+    release.py` IS A NON-EDITORIAL MEMBER OF THE CURRENT CONTRACT BUNDLE
+    INVENTORY, established by PARSE and not by `grep`.
+    `contracts/releases/contract-v2.0.digests.yaml` — the declared bundle per
+    `contracts/manifest.yaml:3` — was loaded and its 192 entries walked: the file
+    is present as `artifact_id: scripts-hermes_runtime_validation-release.py`,
+    `type: validator`, `git_mode: 100644`, `digest:
+    sha256:660e55ca7e6896ea24106483b926e1919a0cb195ef8b9a700a3522f1f393f6b0` —
+    and that digest is EXACTLY what the tree carries today
+    (`sha256sum` of the working file, re-run here). `content.py` is a member on
+    the same terms. Neither is in the editorial set, which
+    `scripts/doc_health/release_inventory.py:62-66` declares as exactly
+    `contracts/CHANGELOG.md`, `contracts/manifest.yaml` and
+    `contracts/README.md`. So the realization OWES an additive contract bundle
+    cut, on the `contract-v1.44` precedent — the same file, cut for the same
+    cause, recorded at that packet's `tasks.md` § 4 — and the minor is allocated
+    AT REALIZATION rather than reserved here.
+    Authored in openxFactory because the verifier, its tests and the obligation
+    it serves are all openxFactory's own.
+  approved_by: >-
+    Brett — in-session selection on 2026-08-28 of the orchestrating session's
+    recommended option, verbatim: "lets do all 3 in order". THE TWO VOICES ARE
+    KEPT APART DELIBERATELY: "the measured-latents bundle" is the ORCHESTRATING
+    SESSION'S wording for the option it recommended, and quoting it as Brett's
+    would attribute an authoring session's phrase to the approver. What Brett
+    said is the eight words above, and they are the approval act. THE SAME ACT
+    IS CITED BY `fix-pin-value-boundary-and-sentinel-split`, because one
+    selection admitted all three defects; the two packets exist because of a
+    decision the authoring session took afterwards, not because of two acts.
+    IT IS AN ADMISSION INTO THE PROPOSAL QUEUE, NOT A RATIFICATION OF CONTENT.
+    The citation covers the DECISION TO FILE and nothing else. Every decision in
+    `proposal.md` § Orchestrator decisions — the two-packet split (OD-1), the
+    owning capability and the all-ADDED two-requirement shape (OD-2), narrowing
+    the obligation to identity-and-presence resolutions so the packet does not
+    ship canon its own file violates (OD-3), the distinguishing-code mechanism
+    over message matching (OD-4), fixing `exists()` alongside the named surface
+    (OD-5), and declaring the bundle cut at filing while reserving no minor
+    (OD-6) — was taken by the authoring session and stays FLAGGED FOR VETO, as
+    do the four questions in § Open Questions, each of which carries a
+    recommendation and no decision.
+  approved_on: 2026-08-28
+related:
+  - openxFactory:change:fix-pin-value-boundary-and-sentinel-split   # the other two defects of the same commissioned set, citing this same origin act
+  - openxFactory:change:fix-release-reachability-race               # its § 6.3 recorded this defect; its ADDED requirements are the family this packet extends; its § 4 is the bundle-cut precedent
+  - openxFactory:change:add-release-inventory-drift-check           # the family that reports a non-editorial member whose bytes moved without a cut

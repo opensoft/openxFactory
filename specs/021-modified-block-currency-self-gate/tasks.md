@@ -503,6 +503,8 @@ the remediation landed.
 
 ## Hand-off to F4
 
+*2026-08-27 (#444): the rename was declared with a `Merged into` marker (the correct form for a retitle — canon reserves `Removed from canon by` for genuine removals); the scenario-arm test was re-aimed to `test_the_scenario_arm_reads_zero_since_the_rename_was_declared`; references below to the old test name and the removal form are pre-#444 history.*
+
 **What F4 must NOT duplicate.** This feature asserts the report's *line
 movement*, not its *rendering*. Packet § 5.1 (the three arms distinguishable
 rather than summed) and § 5.2 (the action line) are untouched here and are F4's
