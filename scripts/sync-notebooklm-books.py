@@ -184,7 +184,12 @@ CHAT_PROMPT = (
     "not as fact."
 )
 
-STATUS_RE = re.compile(r"^Status: (brainstorm|staged|draft|ratified|standard|superseded|retired|record)\s*$", re.M)
+# The alternation is CLOSED on purpose and must track `doc_health.TAXONOMY`:
+# an unmatched value makes `scan()` skip the document silently, which reads
+# identically to a deliberate exclusion. `projection` is listed so the skip is
+# a RULE (it is absent from `PROJECTED_STATUSES` below, like `record`) rather
+# than an accident of a regex that never heard of it.
+STATUS_RE = re.compile(r"^Status: (brainstorm|staged|draft|ratified|standard|superseded|retired|record|projection)\s*$", re.M)
 # tests/ excluded: fixture corpora carry deliberate-violation statuses
 # (fake ratified/standard docs) that must never project into the books.
 SKIP_PARTS = {".git", "node_modules", "installs", "__pycache__", "tests"}
