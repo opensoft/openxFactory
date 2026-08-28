@@ -9,6 +9,22 @@ $ diff -q <pristine> scripts/doc_health/modified_block_currency.py
 MODULE BYTE-IDENTICAL to pre-mutation state
 ```
 
+## Round 4 (2026-08-28, after the re-check): 16 applied, **16 killed, 0 survivors**
+
+| # | Mutation | Killed by | Verdict |
+|---|---|---|---|
+| **MF** | unanchor `_ArmTemplate.matches`: `re.match` → `re.search` | `test_every_finding_matches_exactly_one_arm_template` | KILLED, by an assertion the re-check asked for |
+
+`_ArmTemplate`'s pattern carries `\Z` but no `^` — it relies on `re.match`. Under
+`re.search` the LEDGER template's fixed segments are found INSIDE a drift
+finding's quotation of a ledger rule, and the ledger template is earlier in the
+registry, so a drift finding shapes as `template:carriage-ledger`. Nothing in the
+suite could see it: the SHIPPING path never shapes a drift finding at all —
+`_drift_findings` makes one pass over the arms' findings and its own output is
+never fed back — so the registry's drift entry was defensive AND unreached. One
+assertion now renders a drift template quoting a ledger rule and requires it to
+shape as `template:unplaced-drift`, which reaches the entry and kills MF.
+
 ## Round 3 (2026-08-28, after Brett's shape amendment): 15 applied, **15 killed, 0 survivors**
 
 Four mutants added for the amended shape rule; `(i)` retired, its subject (the
@@ -136,15 +152,19 @@ by design — the numeral sweep (T027/T028) is a read, not a test. That is the
 same gap F4's own round recorded for other families' action constants, and it is
 recorded rather than closed.
 
-## Gate re-runs after round 3
+## Gate re-runs after round 4, at the merge base `6d100e51`
 
-| gate | round 2 | round 3 |
-|---|---|---|
-| `python3 -m pytest tests/doc-health -q` | 1230 passed | **1236 passed**, 7 warnings |
-| CI shape (clean `git archive` extraction) | 7 failed, 1214 passed | 7 failed, **1220 passed** — the same seven history-dependent tests as at the branch point, and 1199 → 1220 is the same +21 |
-| `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` | 78 / 0 | **78 passed, 0 failed** |
-| full-report movement diff | one line | still **exactly one line**: `- unplaced-finding drift: 0 (\`warning\`)` |
-| `git diff --stat <merge-base> -- .github/ openspec/` | empty | **empty** |
+| gate | result |
+|---|---|
+| `python3 -m pytest tests/doc-health -q` | **1270 passed**, 7 warnings |
+| CI shape (clean `git archive` extraction, both sides of the same base) | 11 failed, **1250 passed**; the failure sets are IDENTICAL by name, and 1229 → 1250 is the +21 this feature adds |
+| `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` | **76 passed, 0 failed** |
+| full-report movement diff | still **exactly one line**: `- unplaced-finding drift: 0 (\`warning\`)` |
+| `git diff --stat <merge-base> -- .github/ openspec/` | **empty** |
+
+**The amendment moved no run's output.** It changes how unplaced findings GROUP,
+and there are none wherever the map is complete — which is every run today. That
+is why the movement diff has been exactly one line across all four rounds.
 
 **The amendment moved no run's output.** It changes how unplaced findings GROUP,
 and there are none wherever the map is complete — which is every run today. That

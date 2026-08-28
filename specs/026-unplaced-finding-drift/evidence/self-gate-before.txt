@@ -5,7 +5,7 @@ Kind: report
 
 ## Headline
 
-Canon share by words: 31.6% (212210 canon words / 671413 governance words, promoted specs included).
+Canon share by words: 31.6% (218169 canon words / 690954 governance words, promoted specs included).
 Findings: 0 critical, 0 error, 0 warning, 7 info. New regressions vs previous report: 0.
 
 Non-default configuration (cross-run comparisons must account for this):
@@ -18,15 +18,15 @@ Non-default configuration (cross-run comparisons must account for this):
 | --- | --- | --- |
 | (none) | 2 | 264 |
 | brainstorm | 178 | 141621 |
-| draft | 69 | 109353 |
+| draft | 69 | 109698 |
 | open (operational) | 1 | 1260 |
 | ratified | 23 | 44469 |
 | record | 30 | 74579 |
 | retired | 1 | 1273 |
-| staged | 70 | 127338 |
+| staged | 72 | 140575 |
 | standard | 6 | 13114 |
 | superseded | 2 | 3515 |
-| (promoted specs) | — | 154627 |
+| (promoted specs) | — | 160586 |
 
 ## Preflight
 

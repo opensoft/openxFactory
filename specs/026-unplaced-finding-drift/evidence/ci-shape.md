@@ -15,10 +15,26 @@ python3 -m pytest tests/doc-health -q
 ## Result
 
 ```text
-7 failed, 1220 passed, 9 skipped, 5 warnings in 66.98s
+11 failed, 1250 passed, 9 skipped, 5 warnings in 69.70s
 ```
 
-## The seven failures are the extraction's, not this feature's — measured
+## RE-TAKEN at the merge base `6d100e51` (2026-08-28)
+
+The catch-up merge that brought the landed amendment (PR #461) also brought a
+new doc-health family, so both the baseline and the failure set moved. Both
+sides were re-taken as extractions of the SAME base, and the two failure lists
+were compared with `diff`:
+
+```text
+$ diff base4-fail.txt ci4-fail.txt
+$                                    # IDENTICAL FAILURE SETS, 11 each
+```
+
+Eleven now rather than seven — the four extra are the new family's own
+history-dependent tests. **Identical by name on both sides**, so not one of them
+is this feature's, and 1229 → 1250 passed is exactly the +21 this feature adds.
+
+## The failures are the extraction's, not this feature's — measured
 
 The SAME extraction was taken of the BRANCH POINT `86b7ca3f` (the module
 untouched) and run the same way:
@@ -40,7 +56,7 @@ untouched) and run the same way:
 | `test_readiness_proof_resolution.py::test_the_landed_index_pins_a_revision_this_repository_can_resolve` | resolves a revision |
 
 Every one needs REAL GIT HISTORY, which a `git init` over an extracted tree does
-not have and which CI's clone does. **1199 → 1220 is +21, exactly this feature's
+not have and which CI's clone does. **1229 → 1250 is +21, exactly this feature's
 twenty-one new tests**, and not one of them — nor any pin this feature moved — is
 among the failures.
 

@@ -13,6 +13,12 @@ python3 -m pytest tests/doc-health -q
 | after the catch-up merge to `22f15cdf` | **1227 passed**, 7 warnings |
 | after the combined review's fixes | **1230 passed**, 7 warnings |
 | after Brett's shape amendment (2026-08-28) | **1236 passed**, 7 warnings |
+| after the catch-up merge to `6d100e51` (the amendment on `main`) | **1270 passed**, 7 warnings |
+
+The last row's baseline moved with the merge — `main` brought a new doc-health
+family (`pin_sentinels`) and its suite — so the +21 is read from the CI-shape
+pair instead, where both sides are extractions of the SAME base: 1229 → 1250
+passed with an IDENTICAL 11-test failure set. See `ci-shape.md`.
 
 The merge moves neither figure: `git diff 86b7ca3f 22f15cdf -- tests/doc-health/
 scripts/doc_health/` is EMPTY, so the 1215 baseline still stands against the

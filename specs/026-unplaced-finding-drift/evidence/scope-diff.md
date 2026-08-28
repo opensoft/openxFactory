@@ -1,6 +1,6 @@
 # Scope diff — nothing outside the named surface moved (T044, packet § 2.15)
 
-Merge base: `22f15cdf341cac0ec89ed7e4e56f75ecaebc8585` (after the catch-up
+Merge base: `6d100e519c4fa4e11207b72e778ca1d84b366217` (after the catch-up
 merge; the original branch point was `86b7ca3f`, the packet's own merge commit,
 and the diff below is unchanged by the merge).
 
@@ -26,9 +26,9 @@ the command is re-run and its output pasted rather than edited.
 ```bash
 $ git diff --cached --stat $(git merge-base HEAD origin/main) -- scripts/ tests/ \
       specs/022-modified-block-currency-reporting/contracts/
- scripts/doc_health/modified_block_currency.py      | 414 +++++++++-
+ scripts/doc_health/modified_block_currency.py      | 422 +++++++++-
  .../contracts/report-section.md                    | 125 ++-
- .../modified-block-currency-unplaced/README.md     |  97 +++
+ .../modified-block-currency-unplaced/README.md     |  98 +++
  .../openspec/changes/add-a-drift-case/proposal.md  |   3 +
  .../add-a-drift-case/specs/drift-cases/spec.md     |  15 +
  .../openspec/changes/add-drift-cases/proposal.md   |   3 +
@@ -36,13 +36,12 @@ $ git diff --cached --stat $(git merge-base HEAD origin/main) -- scripts/ tests/
  .../openspec/specs/drift-cases/spec.md             |  61 ++
  tests/doc-health/test_modified_block_currency.py   |  65 +-
  .../test_modified_block_currency_fixtures.py       |  85 +-
- .../test_modified_block_currency_reporting.py      | 884 ++++++++++++++++++++-
+ .../test_modified_block_currency_reporting.py      | 910 ++++++++++++++++++++-
  .../test_modified_block_currency_self_gate.py      |  41 +-
- 12 files changed, 1744 insertions(+), 86 deletions(-)
+ 12 files changed, 1779 insertions(+), 86 deletions(-)
 ```
 
-RE-RUN AGAIN after Brett's shape amendment (2026-08-28); the module grew by the
-arm-template registry and the five arms' rule construction moved into it.
+Re-run at the merge base `6d100e51`, which is the amendment PR #461 itself.
 
 Six of those twelve are the new fixture tree (`--diff-filter=A` over `tests/`
 names exactly those six and nothing else). The other six are the module, the F4

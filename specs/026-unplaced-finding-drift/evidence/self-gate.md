@@ -25,7 +25,8 @@ line-comparable.
 
 ## The result
 
-`self-gate-before.txt` (merge base `22f15cdf`) versus `self-gate-after.txt`
+`self-gate-before.txt` (merge base `6d100e51`, the amendment PR #461) versus
+`self-gate-after.txt`
 (this branch, the feature landed):
 
 ```text
