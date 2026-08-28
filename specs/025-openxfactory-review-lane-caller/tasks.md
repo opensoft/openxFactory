@@ -132,24 +132,93 @@
 
 ## 6. Named follow-ups, not performed here
 
+> **"Not performed HERE" means not by this feature — it does not mean not done.**
+> As of 2026-08-28: **6.2 is COMPLETE** (in codexFactory, PR #125, merge
+> `99fa3ffe`). **6.1, 6.4 and 6.5 remain OPEN.** **6.3 remains OPEN** and its
+> gate is unchanged — the `gate_rules_council` convened 2026-08-28 and REFUSED
+> the class proposed to it, so `add-substantive-review-lane` task 3.2 stays open
+> and FR-008 stays gated. Each box below states its own current status.
+
 - [ ] 6.1 Grant `opensoft/openxFactory` read access to the private decision
       core — either by adding it to the `selected` list for
       `XFACTORY_APP_ID` / `XFACTORY_APP_PRIVATE_KEY`, or by installing the
       repository's own content App on `opensoft/codexFactory`. Operator act;
       no secret is created by this feature.
-- [ ] 6.2 codexFactory side: add `contracts/review-lane-pin.yaml` to
+- [x] 6.2 codexFactory side: add `contracts/review-lane-pin.yaml` to
       `scripts/merge_master/openxfactory-review-authority-floor.yaml`'s
       `never_clearable_paths`. It determines which core judges this repository,
       which is the same argument the wallet pin's entry already makes
       (NR-006).
+      **DONE UPSTREAM 2026-08-28 — BUT NOT YET CONSUMED HERE.** The state is
+      three-part and the tick covers only the first part; read all three before
+      relying on this protection.
+
+      **(i) The codexFactory-side act this task names is COMPLETE.**
+      codexFactory PR **#125** *"Add the openxFactory review-lane pin to the
+      never-clearable floor"*, merged `99fa3ffe` and reachable from
+      `origin/main`. Verified rather than taken on report:
+      `contracts/review-lane-pin.yaml` is present in that file's
+      `never_clearable_paths` at `origin/main`, declared as a fourth entry
+      grounded separately from the wallet-register trio — *"the review-lane pin
+      selects which codexFactory commit's decision core judges this repository.
+      Clearable, it would let a pull request choose its own judge."* The merge
+      carries per-path behavioural tests in
+      `tests/merge-master/test_repository_gate_floor.py` (+45), so the entry is
+      pinned by executing code rather than by declaration alone.
+
+      **(ii) NOT YET CONSUMED BY THIS REPOSITORY, so the protection is NOT live
+      here.** This caller and `contracts/review-lane-pin.yaml` both still name
+      `core_commit: 58bd3cf7…`, which **predates** the entry. Verified:
+      `99fa3ffe` is **not** an ancestor of `58bd3cf7`, and the floor file at the
+      pinned commit contains **zero** occurrences of `review-lane-pin.yaml`
+      against one at `origin/main`. **Consequence, stated plainly: a pull request
+      touching `contracts/review-lane-pin.yaml` today receives a ZERO-MATCH
+      advisory verdict** — the lane reports that the candidate touches none of
+      the never-clearable paths, because the core it runs does not yet know the
+      entry exists. **Do not read the tick as "this path is protected here."**
+
+      **(iii) Consumption happens at the next re-point ceremony — follow-up 6.5,
+      deliberately deferred.** The re-point is CODEOWNERS-routed to a human
+      (FR-013) and is a ceremony in its own right, so it is held until
+      codexFactory **#126** (the convening record) and **#127** (the S-1/S-2
+      guards) land. **One ceremony then converges the floor entry, the convening
+      record and the new guards, instead of three.** Deferring is the choice, not
+      an oversight.
 - [ ] 6.3 `add-substantive-review-lane` task 3.2 — the `gate_rules_council`
       record defining openxFactory's candidate classes — remains the gate on
       any envelope instance here (FR-008).
+      **UPDATED 2026-08-28 — STAYS UNTICKED, and the reason has changed.** The
+      council CONVENED on 2026-08-28 and **REFUSED** the class proposed to it,
+      unanimously 5/5: `openxfactory-proposal-review-advisory` over
+      `openspec/changes/**` can never CONVENE, because its admitted surface lies
+      wholly inside the canonical `GATE_INTEGRITY_FLOOR` (984 admitted paths,
+      984 floored, 0 remaining; proven code-level). Record:
+      `opensoft/codexFactory` →
+      `hermes/domain/review-councils/records/2026-08-28-gate-rules-openxfactory-substantive-classes.md`
+      (disposition §8).
+      Brett Heap ruled the same day — *"1a, 2 leave open, 3 adopt, 4 adopt all
+      three"* — so **task 3.2 remains OPEN and FR-008 remains GATED**: no
+      envelope instance may exist here until **BOTH** of FR-008's discharge
+      conjuncts hold — an **OPERABLE** class **AND** its clearance control
+      carried by a **landed, ACTIVE rule at the pinned `core_commit`**. A record
+      that refuses is still a record, and it does not discharge this gate; **nor
+      would a record that defines one, on its own** — the record authorizes the
+      control, the rule is the control. FR-008 governs; see its definition.
+      The ruled continuation is the council-reviewed-but-human-approved path,
+      which needs no class and no flip, so it requires nothing of this feature.
+      This entry is the REQUIRED pointer to that record (the council's Decision
+      3, adopted): the gate lives in another repository, so the artifact
+      carrying the dependency carries the reference.
 - [ ] 6.4 Task 5.1's RULESET half stays owed, behind S3 and S5 of
       `add-wallet-carried-review-authority` and its own ratified ruleset change
       (NR-001, NR-002, NR-003, NR-007).
 - [ ] 6.5 A future re-point ceremony should converge this pin with xFactory's
       two surfaces (D2).
+      **IT ALSO CONSUMES 6.2.** The floor entry 6.2 records is live upstream but
+      inert here until this ceremony advances `core_commit` past `99fa3ffe` —
+      see 6.2 (ii). Held deliberately until codexFactory #126 and #127 land, so
+      one ceremony converges the floor entry, the convening record and the S-1/S-2
+      guards. The re-point is CODEOWNERS-routed to a human (FR-013).
 
 
 ## Evidence (recorded 2026-08-27)

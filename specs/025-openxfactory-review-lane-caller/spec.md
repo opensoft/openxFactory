@@ -18,8 +18,10 @@ neither: `merge-master` appears in this repository only as prose, contract
 vocabulary, and a cross-repo `gh workflow run` dispatch. Meanwhile codexFactory
 already ships openxFactory's half of the governance data —
 `scripts/merge_master/openxfactory-review-authority-floor.yaml`, a
-`repository_gate_floor` naming three never-clearable openxFactory paths — and
-nothing in openxFactory reads it. This feature lands the **workflow-instance
+`repository_gate_floor` naming three never-clearable openxFactory paths **at the
+commit this caller pins** (a fourth, `contracts/review-lane-pin.yaml`, landed
+upstream 2026-08-28 and reaches this repository only at follow-up 6.5's re-point)
+— and nothing in openxFactory reads it. This feature lands the **workflow-instance
 half only**, as an advisory reporter. The ruleset half of 5.1 is deliberately
 NOT done here: it needs S3 and S5 of `add-wallet-carried-review-authority`
 (the wallet-signed exercise record at `check_verdict`, and revocation at verdict
@@ -170,9 +172,104 @@ absent secret.
   MUST be structural — the steps that would do those things are absent, not
   disabled by a condition.
 - **FR-008**: The caller MUST declare no enrolled candidate class and MUST ship
-  no `merge-approval-envelope` instance, because the `gate_rules_council` record
-  that defines openxFactory's candidate classes
-  (`add-substantive-review-lane` task 3.2) does not exist.
+  no `merge-approval-envelope` instance, because the `gate_rules_council` has
+  defined **no OPERABLE candidate class** for this repository
+  (`add-substantive-review-lane` task 3.2). The gate holds for as long as that
+  remains true, and is discharged only when **BOTH** hold: **(i)** the class is
+  **operable** per the criterion below, **AND (ii)** its clearance control is
+  **ENCODED IN A LANDED, ACTIVE RULE** in the rule directory the decision core
+  executes **at the commit `contracts/review-lane-pin.yaml`'s `core_commit`
+  names**. **Declaration in a council record alone is insufficient**, and a rule
+  that is present but `state: defined_not_wired`, or `active: false`, does
+  **not** satisfy (ii) — a control that is recorded but not deployed is not a
+  control.
+  > **Why (ii) is separate from (i), and not pedantry.** A council record can be
+  > ratified before its executable rule lands: `add-substantive-review-lane`
+  > separates the executable `gate-rules.yaml` change (**task 3.1**) from the
+  > council record (**task 3.2**) as distinct tasks, so the gap between them is
+  > a real interval and not a hypothetical one. During it, a record could
+  > *declare* a class human-only while the core enforces nothing — and per
+  > `011`'s R4 an envelope entry alone can reach the active autonomous chain.
+  > `specs/011-council-feature-clearance/tasks.md:38-42` already draws exactly
+  > this line for its own entries: no live entry lands until the successor has
+  > **LANDED** *and* its protections are **ACTIVE** — *"structurally excluded
+  > from the autonomy branch, not merely intended to be."* Condition (ii) holds
+  > this feature to that same standard.
+
+  **OPERABLE, defined — this requirement's own criterion, dependent on no other
+  document.** A candidate class is **operable for this repository** if and only
+  if the set of paths it admits — its bound `path_allowlist`, evaluated against
+  this repository's actual tree — is **NOT wholly contained** in that class's
+  effective gate-integrity floor (the canonical `GATE_INTEGRITY_FLOOR` plus any
+  widening the class itself declares). Equivalently, and this is the testable
+  form: **at least one admissible candidate can reach classification instead of
+  parking `parked_never_clearable`.**
+
+  **The class's clearability tier is NOT part of this criterion.** A convenable
+  class clears this gate **whatever its tier — advisory and human-only
+  included** — because whatever an envelope may then DO is bounded by that
+  class's **deployed clearance control**: the `clearance_rule` and
+  classification intent as carried by the **landed, active rule the decision core
+  reads from the base branch** at the pinned `core_commit`. **The council record
+  authorizes that control; it is not itself what the core executes** — which is
+  why discharge condition (ii) above names the rule and not the record. It is
+  **never** bounded by anything the envelope itself carries. The
+  envelope schema is `additionalProperties: false` and has no
+  classification-intent field, so posture cannot be expressed there at all;
+  posture lives class-side, in tier-2 state (`011-council-feature-clearance`
+  `research.md` R2).
+
+  **Guard, and it is not optional.** An envelope entry for a class whose posture
+  is **not** so encoded class-side **remains prohibited by this requirement**.
+  `011`'s `research.md` R4 states the reason: with tier-2 ACTIVE, a live envelope
+  entry is *"not merely 'advisory recording'"* — if its facts ever prove
+  clearable, *"the merge-master App could autonomously approve human feature
+  code."* An entry alone can therefore reach the active autonomous chain with no
+  posture encoded anywhere. What this requirement refuses is an envelope for a
+  class that **can never convene at all**, and — by this guard — an envelope for
+  any class that does not satisfy **BOTH** discharge conjuncts above: **operable**
+  (i), **AND** its clearance control carried by a **LANDED, ACTIVE rule at the
+  pinned `core_commit`** (ii). **A governed record declaring the posture does not
+  satisfy (ii)** — the record authorizes the control, the rule is the control —
+  so an envelope is refused throughout the record-landed-but-rule-not-yet-active
+  interval.
+
+  **Vocabulary bridge.** The ratified texts' terms — `human-only`, `clearable` —
+  describe what a verdict may DO. **Operability describes whether any verdict
+  can be PRODUCED**, which is the third property the 2026-08-28 record
+  established the vocabulary lacked (lead-architect's *"unconvenable"* finding:
+  *"a third thing the text has no word for and did not anticipate"*).
+
+  **Machine check, stated honestly.** The same 2026-08-28 ruling adopted a
+  definition-time predicate for exactly this property (gate-rules ballot **S-1**,
+  from LQ-A2 / LS-A5 / LA-A4). **Its realization is in flight in codexFactory and
+  is NOT on `main` today, so no function name is cited here as if it existed.**
+  Once it lands, that predicate's verdict IS the operability test for this
+  requirement; until then, the substantive definition above governs on its own.
+  > **HISTORY, 2026-08-28.** A `gate_rules_council` record for this repository
+  > now exists, and it **REFUSED** the class proposed to it:
+  > `opensoft/codexFactory` →
+  > `hermes/domain/review-councils/records/2026-08-28-gate-rules-openxfactory-substantive-classes.md`
+  > (convener disposition §8; seat returns in the sibling
+  > `2026-08-28-seat-returns/`).
+  >
+  > The council refused `openxfactory-proposal-review-advisory` over
+  > `openspec/changes/**` **UNANIMOUSLY, 5/5**, on the ground that it can never
+  > CONVENE: its admitted surface lies **wholly inside the canonical
+  > `GATE_INTEGRITY_FLOOR`**, which is evaluated before any clearable
+  > classification, so every candidate parks `parked_never_clearable` and the
+  > convening lane bails on that outcome. Measured: **984 admitted paths, 984
+  > floored, 0 remaining.** Proven code-level — removing the rule's
+  > `gate_integrity` block, or supplying no rule document at all, parks
+  > identically. **A class that can never convene is not an operable class**, so
+  > that record defines none and the requirement above is unaffected by it.
+  >
+  > **`add-substantive-review-lane` task 3.2 therefore remains OPEN** (Brett
+  > Heap, 2026-08-28: *"1a, 2 leave open, 3 adopt, 4 adopt all three"*).
+  >
+  > The ruled continuation is the **council-reviewed-but-human-approved path**,
+  > which per the 2026-08-26 record §7.4 *"needs no class and no flip"* — so it
+  > reaches this repository without an envelope and without amending FR-008.
 - **FR-009**: The caller MUST gather the changed-path set PROVABLY COMPLETE — an
   authoritative declared total from the pull-request resource, a paginated
   listing whose entry count is compared against it, and a head-SHA recheck after
@@ -219,12 +316,35 @@ otherwise assume landed.
   artifact, no approving review.
 - **NR-005**: **No tier-1 envelope evaluation, and no envelope instance.** The envelope requires a
   non-empty `candidates` list (schema `minItems: 1`, and the runtime mirror
-  refuses an empty one), and openxFactory has no ratified candidate class to
-  put in it. Shipping a placeholder candidate would be inventing enrollment.
+  refuses an empty one), and openxFactory has no council-defined OPERABLE
+  candidate class to put in it. **What would permit an envelope is FR-008's
+  two-conjunct discharge, not operability alone — see its definition, which
+  governs.** Shipping a placeholder candidate would be inventing
+  enrollment.
 - **NR-006**: **`contracts/review-lane-pin.yaml` is not added to the openxFactory
-  repository gate floor.** It arguably belongs there — it determines which core
-  judges this repository — but that floor file lives in codexFactory. Named as a
-  follow-up, not performed here.
+  repository gate floor BY THIS FEATURE.** It arguably belongs there — it
+  determines which core judges this repository — but that floor file lives in
+  codexFactory. Named as a follow-up (6.2), not performed here.
+  > **The follow-up has since been COMPLETED SEPARATELY, 2026-08-28.** This
+  > non-requirement is unchanged in scope — it bounds what *this feature* does,
+  > and this feature still does not touch that file. What has changed is the
+  > world outside it: codexFactory PR **#125** *"Add the openxFactory review-lane
+  > pin to the never-clearable floor"* **merged** (`99fa3ffe`, reachable from
+  > `origin/main`), so `contracts/review-lane-pin.yaml` **IS** now in
+  > `scripts/merge_master/openxfactory-review-authority-floor.yaml`'s
+  > `never_clearable_paths`, pinned by per-path behavioural tests in
+  > `tests/merge-master/test_repository_gate_floor.py`. **Task 6.2 is ticked.**
+  > Read NR-006 as *"not by this feature"*, never as *"not done"*.
+  >
+  > **AND NOT YET AS "protected here".** That entry is live **upstream** and
+  > **inert in this repository**: the caller and the pin both still name
+  > `core_commit: 58bd3cf7…`, which predates it — verified, `99fa3ffe` is not an
+  > ancestor of `58bd3cf7` and the floor file at the pinned commit contains zero
+  > occurrences of `review-lane-pin.yaml`. **A pull request touching the pin
+  > receives a zero-match advisory verdict today.** It becomes live when the
+  > re-point ceremony of follow-up **6.5** advances the pinned commit, which is
+  > deliberately held until codexFactory #126 and #127 land so one ceremony
+  > converges all three. See tasks 6.2 (ii)–(iii).
 - **NR-007**: **`add-substantive-review-lane` task 5.1 is not ticked.** Its
   ruleset half remains owed, so the task stays open and this feature is recorded
   against it rather than closing it.
@@ -309,6 +429,13 @@ question rather than left as silence.
   codexFactory envelope schema, where `candidates` is required with
   `minItems: 1`. There is no legal "empty enrollment", so the only honest option
   is no envelope at all. Encoded as FR-008 and NR-005.
+  > **The clause above is what was true on 2026-08-27 and is kept as the
+  > decision-log entry it is. It is NOT current fact.** As of 2026-08-28 a
+  > `gate_rules_council` record exists and **refused** the one class put to it
+  > (FR-008's history note has the detail). **The answer is unchanged and the
+  > settled premise is FR-008's: what is absent is a council-defined OPERABLE
+  > candidate class, never the record.** A class that can never convene is not an
+  > operable class, so the refusal defines none. Task 3.2 stays OPEN.
 - **Fixed head ref or a pattern?** Moot, since nothing is enrolled — but had it
   mattered: Brett ruled 2026-08-25 (recorded in `add-substantive-review-lane`
   task 4.4) that first-tranche classes are fixed-branch BY RULING on

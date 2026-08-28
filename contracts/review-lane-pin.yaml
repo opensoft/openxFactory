@@ -133,8 +133,10 @@ scope:
   does_not_evaluate:
     - the tier-1 merge-approval envelope (no candidate class is enrolled for
       this repository; the envelope schema requires a non-empty candidates list
-      and add-substantive-review-lane task 3.2 owes the gate_rules_council
-      record that would define one)
+      and the gate_rules_council has defined no OPERABLE class for openxFactory.
+      A record exists as of 2026-08-28 and REFUSED the class put to it — a class
+      that can never convene is not an operable one — so
+      add-substantive-review-lane task 3.2 stays OPEN)
     - any tier-2 per-repo gate rule
     - any council verdict transport
   never_performs:
