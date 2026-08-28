@@ -136,6 +136,10 @@ corpus" from "broken reader". `test_family_enumeration.py`'s
 subject was promoted, and its docstring records the re-aiming rather than hiding
 it.
 
+**THE TWO HALVES CAN EMPTY SEPARATELY, AND THEY DID.** The warning band emptied
+first, on 2026-08-27 (#444); the ledger has not — the movement-pin re-aim below
+is conditioned on zero FINDINGS and does not yet apply.
+
 **THE MOVEMENT PIN HAS TO BE RE-AIMED IN THE SAME COMMIT, and it is easy to
 miss.** `test_the_report_moves_only_in_this_family_s_lines` carries two vacuity
 guards — `assert f"### {mbc.FAMILY}" in differing` ("this family's own section
