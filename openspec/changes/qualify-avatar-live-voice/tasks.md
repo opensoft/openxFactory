@@ -118,7 +118,7 @@ is mis-specified.
 > openAvatar release to carry is standing up in `opensoft/openAvatar` (PR #6,
 > branch `feat/release-evidence`), as `release_evidence.yaml` beside
 > `contract_pin.yaml`. **It stays UNTICKED here** on 6.4.2's own rule for
-> cross-repo tasks: PR #6 is still open. **6.4.4 ticks when #6 merges.**
+> cross-repo tasks: PR #6 MERGED 2026-08-28T19:02Z (openAvatar main `31502eb`), so **6.4.4 is TICKED** under that same rule.
 >
 > WHAT MAKES IT EVIDENCE RATHER THAN A RECORD OF INTENT: the artifact is
 > GENERATED, and every element carries the command that produced it, that
@@ -1243,7 +1243,7 @@ the checklist that produces its evidence.
       **THE DESCRIPTOR STAYS `candidate`.** It carries zero latency evidence
       refs, which is what §7.9 pinned and what the ring requires until §5's
       measured cells land. Ticking this task moves no ring element.
-- [ ] 6.4.4 Stand up release evidence per `repo-boundary-governance`
+- [x] 6.4.4 Stand up release evidence per `repo-boundary-governance`
       "Avatar-client release evidence" — source revision, Flutter and platform
       versions, pinned bundle and digests, fixture conformance, dependency
       lock, secret scan, test evidence, client integrity (desktop signing or
@@ -1255,7 +1255,10 @@ the checklist that produces its evidence.
       which shows the rule working in BOTH directions rather than as a
       convenience: their openAvatar PRs (#4 and #5) MERGED on 2026-08-27, so
       their boxes are now checked; #6 is still OPEN, so this one is not.
-      **6.4.4 ticks when #6 merges** — that is the only thing standing between
+      **TICKED 2026-08-28: openAvatar PR #6 MERGED 19:02Z, main `31502eb`** —
+      the cross-repo rule that held this box is satisfied; the release gate
+      itself stays BLOCKED on RE-08 exactly as the artifact records. That
+      merge was the only thing standing between
       this record and its tick.
       The artifact is `openAvatar/release_evidence.yaml` (`schema_version: 1`,
       `kind: avatar-client-release-evidence`), standing beside
