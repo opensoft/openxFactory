@@ -7,7 +7,7 @@ terminal replay never needs secret grant material.
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Iterable, Optional
 
 from .values import Grant, OutcomeCode
 
@@ -46,15 +46,32 @@ class GrantCache:
     def has_secret(self, request_id: str) -> bool:
         return request_id in self._grants
 
-    def terminal_items(self) -> tuple[tuple[str, str], ...]:
-        """Every credential-free terminal record, in a stable order.
+    def terminal_items(
+        self, request_ids: Optional[Iterable[str]] = None
+    ) -> tuple[tuple[str, str], ...]:
+        """Credential-free terminal records, in a stable order.
 
         These are policy-required records that survive an abort — they never
         held secret grant material, so nothing here can leak one.
+
+        ``request_ids`` SCOPES the result to those media legs. Callers that
+        attribute records to one logical session MUST pass its legs: the cache
+        is keyed by request id across the whole runtime, so an unscoped read
+        hands back every session's terminals, and a per-session record built
+        from that would name one session while carrying another's evidence.
+        Passing an empty iterable yields nothing; passing None is the
+        deliberate whole-cache read.
         """
-        return tuple(
-            sorted((rid, outcome.value) for rid, outcome in self._terminals.items())
-        )
+        if request_ids is None:
+            selected = self._terminals.items()
+        else:
+            wanted = set(request_ids)
+            selected = [
+                (rid, outcome)
+                for rid, outcome in self._terminals.items()
+                if rid in wanted
+            ]
+        return tuple(sorted((rid, outcome.value) for rid, outcome in selected))
 
     def clear(self) -> None:
         self._grants.clear()

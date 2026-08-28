@@ -220,3 +220,92 @@ def test_uncountable_outranks_a_counted_ceiling(runtime):
 def test_enforcement_on_an_unknown_session_is_a_no_op(runtime, session_id):
     assert runtime.enforce_session_ceilings(session_id) is None
     assert runtime.spend.records == []
+
+
+# --- the journal's idempotency, spelled out -------------------------------- #
+def test_a_second_close_returns_the_same_record_and_appends_nothing(runtime):
+    """A session appended twice is a tenant billed twice."""
+    _granted(runtime)
+    runtime.attribute_spend("s", 120)
+    first = runtime.spend.close(
+        "s", outcome=OutcomeCode.CONNECTED,
+        reason=spend.KillReason.NON_CEILING_TERMINAL, now=10,
+    )
+    assert first is not None
+    assert len(runtime.spend.records) == 1
+
+    second = runtime.spend.close(
+        "s", outcome=OutcomeCode.CONNECTED,
+        reason=spend.KillReason.NON_CEILING_TERMINAL, now=99,
+    )
+    # The SAME record, not None: telling a caller its leg was never metered
+    # would be false.
+    assert second is first
+    assert len(runtime.spend.records) == 1
+
+
+def test_a_second_close_cannot_relabel_the_first_terminal(runtime):
+    """The first terminal a leg reached is the one that happened."""
+    _granted(runtime)
+    runtime.attribute_spend("s", spend.SESSION_BILLABLE_UNIT_CEILING)
+    runtime.enforce_session_ceilings("s")
+    record = runtime.spend.records[-1]
+    assert record.reason is spend.KillReason.COST_CEILING_EXCEEDED
+
+    again = runtime.spend.close(
+        "s", outcome=OutcomeCode.CONNECTED,
+        reason=spend.KillReason.NON_CEILING_TERMINAL, now=500,
+    )
+    assert again is record
+    assert again.reason is spend.KillReason.COST_CEILING_EXCEEDED
+    assert again.cost_triggered is True
+    assert len(runtime.spend.records) == 1
+
+
+def test_closing_a_session_that_never_opened_a_ledger_returns_none(runtime):
+    assert runtime.spend.close(
+        "never-opened", outcome=OutcomeCode.CONNECTED,
+        reason=spend.KillReason.NON_CEILING_TERMINAL, now=1,
+    ) is None
+    assert runtime.spend.records == []
+
+
+def test_a_closed_ledger_accrues_no_further_spend_and_yields_no_verdict(runtime):
+    _granted(runtime)
+    ledger = runtime.spend.ledger("s")
+    runtime.attribute_spend("s", 10)
+    runtime.spend.close(
+        "s", outcome=OutcomeCode.CONNECTED,
+        reason=spend.KillReason.NON_CEILING_TERMINAL, now=10,
+    )
+    assert ledger.closed is True
+
+    # The flag participates: a closed ledger refuses attribution and verdicts.
+    ledger.attribute(spend.SESSION_BILLABLE_UNIT_CEILING)
+    ledger.mark_uncountable()
+    assert ledger.billable_units == 10
+    assert ledger.countable is True
+    assert ledger.verdict(spend.SESSION_DURATION_CEILING_TICKS) is None
+    # ... and the record it already handed the meter still says 10.
+    assert runtime.spend.records[-1].usd_cents == 10
+
+
+def test_a_second_leg_on_the_same_session_is_metered_separately(runtime, provider):
+    """The idempotency window is per-LEG: a resumed session appends twice."""
+    runtime.preflight(make_request("r1", session_id="s"))
+    runtime.attribute_spend("s", 40)
+    # The broker's resume path closes the replaced leg and opens a new ledger
+    # under the same session id.
+    runtime.preflight(make_request("r2", session_id="s", resume_ref="resume-1"))
+    runtime.attribute_spend("s", 70)
+    runtime.spend.close(
+        "s", outcome=OutcomeCode.CONNECTED,
+        reason=spend.KillReason.NON_CEILING_TERMINAL, now=50,
+    )
+
+    assert len(runtime.spend.records) == 2
+    assert [r.attempt_ref for r in runtime.spend.records] == ["r1", "r2"]
+    assert [r.usd_cents for r in runtime.spend.records] == [40, 70]
+    # Both legs belong to the one session, and both are metered to its tenant.
+    assert runtime.session_legs("s") == ("r1", "r2")
+    assert {r.session_id for r in runtime.spend.records} == {"s"}
