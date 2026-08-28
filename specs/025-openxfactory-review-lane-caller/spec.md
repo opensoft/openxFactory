@@ -18,10 +18,12 @@ neither: `merge-master` appears in this repository only as prose, contract
 vocabulary, and a cross-repo `gh workflow run` dispatch. Meanwhile codexFactory
 already ships openxFactory's half of the governance data —
 `scripts/merge_master/openxfactory-review-authority-floor.yaml`, a
-`repository_gate_floor` naming three never-clearable openxFactory paths **at the
-commit this caller pins** (a fourth, `contracts/review-lane-pin.yaml`, landed
-upstream 2026-08-28 and reaches this repository only at follow-up 6.5's re-point)
-— and nothing in openxFactory reads it. This feature lands the **workflow-instance
+`repository_gate_floor` naming, as of follow-up 6.5's re-point ceremony, FOUR
+never-clearable openxFactory paths **at the commit this caller pins** — the
+fourth, `contracts/review-lane-pin.yaml` itself, landed upstream 2026-08-28 in
+codexFactory PR #125 and reaches this repository through that ceremony's own
+pull request, live once it lands on `main` (originally three at this feature's
+2026-08-27 draft) — and nothing in openxFactory reads it. This feature lands the **workflow-instance
 half only**, as an advisory reporter. The ruleset half of 5.1 is deliberately
 NOT done here: it needs S3 and S5 of `add-wallet-carried-review-authority`
 (the wallet-signed exercise record at `check_verdict`, and revocation at verdict
@@ -336,15 +338,24 @@ otherwise assume landed.
   > `tests/merge-master/test_repository_gate_floor.py`. **Task 6.2 is ticked.**
   > Read NR-006 as *"not by this feature"*, never as *"not done"*.
   >
-  > **AND NOT YET AS "protected here".** That entry is live **upstream** and
-  > **inert in this repository**: the caller and the pin both still name
-  > `core_commit: 58bd3cf7…`, which predates it — verified, `99fa3ffe` is not an
-  > ancestor of `58bd3cf7` and the floor file at the pinned commit contains zero
-  > occurrences of `review-lane-pin.yaml`. **A pull request touching the pin
-  > receives a zero-match advisory verdict today.** It becomes live when the
-  > re-point ceremony of follow-up **6.5** advances the pinned commit, which is
-  > deliberately held until codexFactory #126 and #127 land so one ceremony
-  > converges all three. See tasks 6.2 (ii)–(iii).
+  > **AND NOW CONSUMED, PENDING MERGE.** Follow-up **6.5**'s re-point ceremony —
+  > this pull request — advances the caller and the pin from `core_commit:
+  > 58bd3cf7…` to `f4702f647c285012c15717043332f68f1edefc29` (codexFactory
+  > `origin/main` HEAD as of 2026-08-28, PR #127's own merge commit), which
+  > contains `99fa3ffe` as an ancestor (16 commits behind) and whose floor file
+  > names `contracts/review-lane-pin.yaml` as its fourth `never_clearable_paths`
+  > entry — held exactly as long as promised, until codexFactory #126 and #127
+  > landed, so one ceremony converges the floor entry, the convening record and
+  > the S-1/S-2/S-6 guards. **Still not "protected here" until this pull request
+  > lands**: `pull_request_target` evaluates the base branch (D4/5.6), so the
+  > protection is live for the first pull request opened after this one merges,
+  > not for this one's own diff. **And this ceremony converges less than D2
+  > asks**: `opensoft/xFactory`'s two merge-master surfaces
+  > (`merge-master-approval.yml`, `council-convening-lane.yml`) remain pinned at
+  > `3c35ca8ba45cbf350a9d4c1d5ecceb7f11d35738` as of 2026-08-28 — verified,
+  > unchanged — so `lockstep.status: diverged` in
+  > `contracts/review-lane-pin.yaml` stays accurate and untouched by this
+  > ceremony. See tasks 6.2 (ii)–(iii) and 6.5.
 - **NR-007**: **`add-substantive-review-lane` task 5.1 is not ticked.** Its
   ruleset half remains owed, so the task stays open and this feature is recorded
   against it rather than closing it.

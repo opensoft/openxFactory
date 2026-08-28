@@ -57,13 +57,13 @@ repository: opensoft/codexFactory
 # UNCOVERED pin site. `core_commit` is a key the sweep vocabulary did not know,
 # and declaring the member in `scripts/doc_health/pin_class.py` is what teaches
 # it — the same move `carve_commit` made, for the same reason.
-core_commit: "58bd3cf79b91da26aced95c2000576981d9445c8"
+core_commit: "f4702f647c285012c15717043332f68f1edefc29"
 revision_kind: commit
 
 # When this pin was declared, and against what observation. Recorded because a
 # pin with no date cannot be reasoned about at a re-point ceremony.
-declared_at: "2026-08-27"
-declared_from: codexFactory origin/main HEAD as observed on 2026-08-27
+declared_at: "2026-08-28"
+declared_from: codexFactory origin/main HEAD as observed on 2026-08-28
 
 # The caller this pin governs. The test asserts this file exists AND that its
 # checked-out `ref:` equals `core_commit` above.
@@ -84,9 +84,15 @@ pinned_members:
       failure rather than silence.
   - path: scripts/merge_master/openxfactory-review-authority-floor.yaml
     why: >-
-      The `repository_gate_floor` for `opensoft/openxFactory` — the three
-      never-clearable paths this lane reports against. Authored and owned in
-      codexFactory; read here, never authored here.
+      The `repository_gate_floor` for `opensoft/openxFactory` — now FOUR
+      never-clearable paths this lane reports against, since codexFactory PR
+      #125 (merge `99fa3ffe`) added `contracts/review-lane-pin.yaml` itself as
+      the fourth entry, grounded separately from the wallet-register trio: "the
+      review-lane pin selects which codexFactory commit's decision core judges
+      this repository. Clearable, it would let a pull request choose its own
+      judge." This re-point ceremony is what makes that entry LIVE here — see
+      `lockstep` below. Authored and owned in codexFactory; read here, never
+      authored here.
 
 # WHY THIS PIN IS NOT xFACTORY'S PIN — the divergence, and the obligation it
 # creates.
@@ -105,11 +111,14 @@ pinned_members:
 # So the divergence is FORCED BY THE FEATURE, not chosen for freshness — and
 # saying so is not the same as discharging it. The obligation stands:
 lockstep:
-  status: diverged
+  status: converged
   reason: >-
-    xFactory's pinned commit predates both pinned_members above, so it cannot
-    evaluate the openxFactory repository gate floor at all.
-  diverged_from:
+    Converged at the 2026-08-28 re-point ceremony: both xFactory judging
+    surfaces below and this file's core_commit name the same commit
+    (openxFactory PR #483 paired with xFactory commit eae4dc6, one ceremony).
+    Before it, xFactory's pinned commit predated both pinned_members above and
+    could not evaluate the openxFactory repository gate floor at all.
+  converged_with:
     - opensoft/xFactory .github/workflows/merge-master-approval.yml
     - opensoft/xFactory .github/workflows/council-convening-lane.yml
   obligation: >-
