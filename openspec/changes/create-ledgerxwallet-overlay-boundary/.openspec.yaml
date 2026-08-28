@@ -1,0 +1,49 @@
+schema: spec-driven
+created: 2026-08-27
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-27-create-ledgerxwallet-overlay-boundary
+  reason: >-
+    THE RATIFIED SUCCESSOR, OPENED. This change is not a fresh idea: it is
+    named, by this id, in a change that was already ratified.
+    `split-openxwallet-repo` (RATIFIED 2026-08-26 by Brett Heap on PR
+    opensoft/openxFactory#391, both required checks green) names it twice —
+    in § Successors named, verbatim: "**`create-ledgerxwallet-overlay-boundary`**
+    — the first domain descendant, on the standard this change ratifies
+    (template: `create-medxchart-overlay-boundary`, cited as a
+    draft-in-flight shape and not as ratified precedent). Carries Q2." — and
+    as `tasks.md` group 12, task 12.1, whose text is "**[GOVERNANCE]** Open
+    `create-ledgerxwallet-overlay-boundary` — the named successor, on the
+    descendant standard this change ratifies". NO STAGING ORIGIN IS CLAIMED:
+    none exists, and none is needed. The staged topic
+    `ideation/staging/openxwallet-neutral-home/` exited ONCE, into
+    `split-openxwallet-repo`, which is that topic's "first and only exit";
+    a successor named inside a ratified change draws its authority from the
+    ratification, not from a second trip through staging. The forcing fact
+    is a conformance gap that the ratification itself created and that no
+    other change owns: `domain-descendant-boundary`'s first requirement says
+    a DomainxFactory "SHALL consume a neutral `open*` product through a
+    `<Domainx><Product>` DESCENDANT repository and SHALL NOT integrate that
+    product's contracts, schemas, corpus or validator directly into its own
+    tree", and LedgerxFactory today resolves the openXwallet validator by
+    walking UP out of its own checkout
+    (`tests/validate_wallet_estate.py:53-78,81-116`) — TWO declared
+    candidates after P5b (merged 2026-08-27, LedgerxFactory PR #30 at
+    `b131286`), both of them paths in other repositories. P5b took the
+    candidate pruning as far as it goes and the breach survives it.
+    LedgerxFactory is the only domain with a wallet profile
+    today (R8), so it is the only domain the rule currently binds and the
+    only descendant the lazy-creation rule permits.
+  approved_by: >-
+    Brett — in-session on 2026-08-27, verbatim: "approved. do all of these",
+    ruling on the successor set of the ratified `split-openxwallet-repo`, of
+    which this change is P6. THIS IS AN ADMISSION INTO THE PROPOSAL QUEUE
+    AND NOT A RATIFICATION OF CONTENT: it supplies the origin and approval
+    pair the proposal-origin contract requires and nothing more. The packet
+    remains `Status: draft`, it carries no ratification citation, and none
+    is owed — the promoted lifecycle rule requires one only for
+    `Status: ratified`. Whether this change's content is ratified is a
+    separate act that has not happened. The AUTHORITY for the five
+    descendant rules this change instantiates is separate and older:
+    Brett Heap's ratification of `split-openxwallet-repo` on 2026-08-26.
+  approved_on: 2026-08-27
