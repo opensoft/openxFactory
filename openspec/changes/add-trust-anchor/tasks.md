@@ -212,6 +212,39 @@ Each pins the released contract bundle rather than restating its shapes.
       statement that the enumeration is an index rather than a second
       boundary. Grep evidence and reasoning:
       [that change's design D-enumeration](../admit-install-repos-to-aggregation/design.md).
+- [ ] 8.2 **Carried in from `split-openxwallet-repo` (archived 2026-08-28).**
+      That change authored ONE `## MODIFIED Requirements` delta against
+      `trust-anchor` — *Declared chain custody bounds what a certificate
+      evidences* — declared relative to the OUTCOME of THIS change rather
+      than against a promoted spec, because `trust-anchor` is not in
+      `openspec/specs/` and the requirement is one of this change's own
+      ADDED eight. It could not be applied at that change's archive:
+      `openspec archive` aborts on a MODIFIED delta whose target
+      capability does not yet exist (`target spec does not exist; only
+      ADDED requirements are allowed for new specs`), so the delta
+      travelled into the archived packet UNAPPLIED and the obligation
+      falls due HERE. **At this change's promotion the ADDED text of that
+      requirement MUST carry the amendment**: the composition clause reads
+      "composing with the `openxwallet` capability's ratified rule,
+      consumed from `opensoft/openXwallet` at the pin recorded in
+      `contracts/openxwallet-pin.yaml`, that custody caps what a signature
+      evidences" — because after `contract-v2.0` this corpus no longer
+      holds `openxwallet` and the unamended clause is a dangling
+      cross-corpus reference with no resolution path — plus ONE added
+      scenario: WHEN the pinned openXwallet checkout is uninitialized or
+      its custody-registry digest disagrees with the pin THEN the custody
+      question is REFUSED rather than resolved. Verbatim source, including
+      every scenario:
+      [`../archive/2026-08-28-split-openxwallet-repo/deferred-specs/trust-anchor/spec.md`](../archive/2026-08-28-split-openxwallet-repo/deferred-specs/trust-anchor/spec.md).
+      This is `release-realization`'s ordered-delta rule
+      (`openspec/specs/release-realization/spec.md:64-79`) applied by
+      PARITY — its letter covers a requirement already MODIFIED by an
+      active ratified change and this one is ADDED — recorded rather than
+      forced, exactly as that proposal's § Modified Capabilities declared.
+      The realizing code already landed at P3
+      (`scripts/validate-trust-anchor.py` resolving the registry from the
+      pin, and rule (f) failing closed in place of the bare file-absent
+      exit), so only the requirement's TEXT is outstanding.
 
 ## 9. Verification bar
 

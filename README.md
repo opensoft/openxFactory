@@ -496,88 +496,24 @@ Active changes:
   live window's operator that the template's path moved (task 5.7), which is not
   a file edit and which the runsheet's own P0.5 does not substitute for.
 
-- [declare-sentinel-pin-vocabulary](openspec/changes/declare-sentinel-pin-vocabulary/proposal.md)
-  — **RATIFIED 2026-08-27** (Brett, in-session commissioning of the filing,
-  verbatim: "file the sentinel-vocabulary follow-up change"). A SECOND, EARLIER
-  ruling of the same day constituted the packet rather than ordering it —
-  selected verbatim as "Named follow-up (Recommended): Record it beside the §5.3
-  git_generation() follow-up — they're the same idea (honest non-pins) and should
-  be one future packet" — and is recorded as a distinct act. **THE CITATION
-  COVERS THE DECISION TO FILE AND NOTHING ELSE**, and a THIRD act of the same day
-  disposed the rest: **all five § Orchestrator decisions CLEARED AS AUTHORED and
-  all four § Open Questions RULED, 2026-08-27**, by a four-question multi-choice,
-  with the merge approved on green. The clearance moved nothing, but **three of
-  the four rulings MOVED DELTA TEXT** — Q1: declare BOTH spellings with DISTINCT
-  meanings (`"uncommitted-worktree"` canonical for a dirty tree,
-  `"uncommitted"` its own member meaning unreadable repository), so the
-  canonical/legacy marking applies WITHIN one condition and never across a
-  resemblance; Q2: an absent key is NOT an honest non-pin — recognized as a legacy
-  state, refused membership, and never filled in with a sentinel after the fact;
-  Q3: `"unknown"` and `"composed"` JOIN, on a reason the packet had not stated —
-  left out, the undeclared-value-is-a-defect branch would have flagged the
-  snapshot registry's OWN committed output the day it was switched on, which is
-  now generalized as a seeding obligation on the declaration; Q4: the
-  `proposal-support.py` guard repair is IN SCOPE. Scenario counts moved 8/8 → 9/10
-  additively, requirement count unchanged at four. **THE TWO DEFERRED ITEMS THIS
-  JOINS**:
-  `harden-ideation-readiness-check` § 5.3 and
-  `govern-derived-pin-reachability` § 5.1, both unticked at their archives. **AN
-  UNTRUE PIN IS WORSE THAN AN UNREACHABLE ONE** — an orphan was true once, where
-  a `HEAD` stamped from a dirty tree names a commit that resolves perfectly and
-  describes content no commit ever held, so reachability answers PASS, retention
-  has nothing to retain, and no instrument the pin canon carries reaches it.
-  **THE DEFECT STANDS ON MAIN, re-confirmed 2026-08-27 at `b5fb03f3`**:
-  `scripts/bootstrap-ideation-cross-reference.py:144-154` runs `rev-parse HEAD`
-  with no `status --porcelain`, no `diff --quiet`, no sentinel branch and no
-  fallback. **ONE CORRECTION TO THE INHERITED PREMISE, recorded rather than
-  smoothed**: the archived record states the proposal-support generator "already
-  refuses to write a pin it cannot mean", and measured it does NOT —
-  `git log -S"uncommitted-worktree" -- scripts/` is EMPTY across all history,
-  `repo_revision()` emits a third spelling `"uncommitted"` and only on a
-  `rev-parse` NON-ZERO EXIT, never on a dirty tree, and all seven sentinel values
-  were written BY HAND. That strengthens the case: the practice is real, it was
-  right seven times out of seven, and it lives in no generator and no
-  declaration. **THE SENTINELS ARE INVISIBLE TO THE VERIFICATION BY
-  CONSTRUCTION** — `pin_class.py` binds both site regexes' value group to
-  `([0-9a-f]{40})`, so a sentinel creates no site: not reachable, not orphaned,
-  not lost, and NOT UNCOVERED. The probe reports **65 sites across 22 members —
-  50 reachable, 0 orphaned, 1 lost (discharged), 0 inconclusive, 0 uncovered, 0
-  vanished**: a fully verified class over seven artifacts whose provenance claim
-  nothing has read. **AND THE DRIFT IS ALREADY A LATENT RAISE, run rather than
-  predicted**: three guards in `proposal-support.py` compare against the literal
-  `"uncommitted"`, so `git_blob_sha256(root, "uncommitted-worktree", …)` raises
-  `SupportError` where `"uncommitted"` returns `None` — latent only because all
-  seven sentinel manifests are archived. **SIX UNDECLARED SPELLINGS EXIST**
-  (`"uncommitted"`, `"uncommitted-worktree"`, `"not-applicable-ad-hoc"`,
-  `"unknown"`, `"composed"`, beside the adjacent verdict `"not-applicable"`), two
-  of them in no governance document at all. Four requirements ADDED across two
-  capabilities, nineteen scenarios, NONE MODIFIED: `ideation-cross-reference` gets
-  the two GENERATOR rules (write a declared sentinel rather than an untrue commit,
-  one shared spelling per condition; and declare the committed spellings rather
-  than rewrite them, since all seven sit in archived packets whose bytes this
-  capability's own rule protects); `doc-health` gets the two VERIFICATION rules
-  (a declared sentinel is a LEGAL NON-PIN — a fifth outcome beside reachable,
-  orphaned, lost and uncovered, which does NOT hold full verification open
-  because the artifact is conforming — and an undeclared non-commit value is a
-  defect; plus the vocabulary declared beside the pin class and checked in BOTH
-  directions over that class's own inventory). **ADDS NO DETERMINISTIC CHECK
-  FAMILY and does not restate the enumeration**, on the same two reasons both
-  siblings gave. Five follow-ups carried unticked, including the `corpus.py`
-  `head_sha()` seam that feeds six lanes and the `_VOCAB_RE` trailing-boundary
-  gap found while measuring. (code surface: openxFactory; target release:
-  implemented — ships ACTIVE, archives on merged-plus-green)
-
 - [add-unclassified-finding-class](openspec/changes/add-unclassified-finding-class/proposal.md)
   — **RATIFIED 2026-08-27** (in-session commissioning, verbatim "Amend now";
-  realization via Speckit) — the modified-block-currency family's report block
+  realization via Speckit), **AMENDED 2026-08-28 by Brett** (in-session, verbatim
+  "Amend: shape = arm template, all interpolations masked" — D3's shape-identity
+  rule widened from quoted-spans-plus-digits to every interpolated field, after
+  Speckit 026 measured six `warning` rows for one remedy on the real tree;
+  `specs/026-unplaced-finding-drift/plan.md` § OPEN-1) — the
+  modified-block-currency family's report block
   already detects that its own class map has drifted from its arms, and then
   says so in PROSE: the `unclassified` residual row carries no severity, is not
   a finding, and is therefore reached by neither `--fail-on` nor the ranked plan
   that "Health report contract" requires every finding to appear in. One ADDED
   requirement on `doc-health` makes an unplaced rule text emit one `warning`
-  **per distinct rule SHAPE per run** — rule texts equal after every quoted span
-  and every digit run is masked, which is the grammar the class map's own
-  patterns are written in — naming that shape's count and the first instance's
+  **per distinct rule SHAPE per run** — a shape being the ARM'S TEMPLATE with
+  every field it interpolates masked (quoted spans, digit runs, the promoted
+  spec's path, change identifiers, unit-kind lists), the mask derived from the
+  arm templates themselves so it cannot drift from them — naming that shape's
+  count and the first instance's
   rule text verbatim, carrying its repo and delta path, with the action line
   "extend the class map in `scripts/doc_health/modified_block_currency.py`, or
   fix the drifted rule text the finding names". Per shape rather than per run
@@ -611,76 +547,6 @@ Active changes:
   are flagged for veto (ADDED-only; a fifth class rather than a severity on the
   report block; one finding per distinct shape). `target_release: implemented`,
   so it archives only on merged plus green.
-- [split-openxwallet-repo](openspec/changes/split-openxwallet-repo/proposal.md)
-  — **RATIFIED 2026-08-26** (in-session ruling on PR #391; realization via
-  Speckit) — authored 2026-08-26 as the first and only exit of the staged topic
-  `openxwallet-neutral-home`, on Brett Heap's in-session R1–R8 rulings of the
-  same day, carried as LOCKED constraints rather than re-litigated (verbatim:
-  "approve R1-R8 as recommended, stage the topic and propose"); registered as
-  DTN-026. **The wallet's contracts ARE a product, filed as features of a
-  factory layer** — so the product gets its own repository and openxFactory
-  keeps the seam. ADDS two capabilities that outlive the wallet:
-  `domain-descendant-boundary` (five requirements — how a domain consumes a
-  neutral `open*` product through a `<Domainx><Product>` descendant that pins by
-  commit TWICE, carries profile and never fork, sits at one of two placements
-  whose differing STANDING is stated rather than blended, and is created lazily
-  on its first profile artifact) and `neutral-product-pin` (nine — how
-  openxFactory consumes an external neutral product, a direction it has never
-  consumed in: the ratified `pinned_contract_manifest` grammar reused unchanged,
-  fail-closed on an uninitialized submodule or a digest disagreement, the PINNED
-  reader at the PINNED digest as what a required check runs, a pinned validator
-  invoked with no scan target REFUSES rather than self-tests, and the declared
-  pin living at `contracts/<product>-pin.yaml` rather than `stack.yaml`).
-  REMOVES `openxwallet` (8 requirements) and `openxwallet-agent-profile` (3) to
-  `opensoft/openXwallet` at `wallet-v1.0` — **the corpus's first
-  `## REMOVED Requirements` blocks and its first capability exit**, all eleven
-  titles named verbatim because `scripts/doc_health/promotion_fidelity.py` keys
-  on (capability, normalized title). MODIFIES `trust-anchor` (the dangling cross-corpus custody
-  reference, repointed to the pin), `review-authority-intake` (three blocks: the
-  reader becomes "reachable … in-tree or through a digest-pinned submodule", plus
-  every dangling wallet citation the arc holds) and `shared-contract-ownership`
-  (the third case, where openxFactory is the CONSUMER). The first release is a
-  **byte-identical pure move** — eight sha256s equal to the NAMED CARVE COMMIT's
-  manifest rows, an empty subtree diff, and exactly ONE prose carve-out (the
-  `openxFactory SHALL` → `openXwallet SHALL` subject and the `## Purpose`
-  placeholders in the two promoted specs) — because a move whose diff is not
-  provably empty cannot be bisected against. The live REQUIRED check survives by
-  ALIAS, not by repoint: `openxwallet-consumer-gate.yml` keeps
-  `jobs: wallet-validation:`, so ruleset 21538893 is edited by nothing and no
-  operator act stands between P3 and merge. The cut is a MAJOR, so it owes a
-  preceding deprecation minor whose marker is MANIFEST-carried (`relocating:` on
-  the eight rows plus the CHANGELOG migration note, emitted by
-  `check-openxfactory-pin.py`) and never validator-carried, since a validator
-  warning reds LedgerxFactory's `--strict` run and openxFactory's own gate runs
-  without it. P3b widens codexFactory's merge-gate floor to
-  `contracts/openxwallet-pin.yaml` and the `openXwallet` gitlink in the same
-  wave, because `matching_paths` is exact set membership and the pin is what
-  determines WHICH READER RUNS. Successors named: **P2b** (`wallet-v1.1` — the
-  nested-repository sweep prune and the register-read note, the tag openxFactory
-  actually pins), **P4b** (root-level governed-repo recognition, whose living
-  proof is that `xf-ideation-openavatar` does not exist five months into the
-  openAvatar precedent) and **P6** (`create-ledgerxwallet-overlay-boundary`).
-  `Status: draft`; alignment review raised 30 findings across two reviewers (all
-  MISMATCH / DRIFT / GAP applied, each reviewer's missing-`specs/` finding
-  deferred to the specs phase and discharged there), and the council returned 14
-  verdicts — **all VALID, none DISMISSED**, two of them raised jointly — plus the
-  8 NOTED-class constraints carried into `clarifications.md`; all five review
-  records are retained in the packet rather than folded into the proposal. `code_surface` spans SIX
-  repositories and `target_release: implemented`, so it archives only on merged
-  plus green realization evidence, never on landing. **Realization so far**
-  (Speckit features in this repository): `016-openxwallet-split-bookkeeping`
-  (the doctrine and the bookkeeping), `017-openxwallet-carve` (P2 — the carve
-  and the byte-identity proof at the NAMED CARVE COMMIT
-  `30565e48ffe3d8a9773e10af33425701845e10f6`),
-  `018-openxwallet-deprecation-minor` (P2.5 — `contract-v1.47`, the eight
-  `relocating:` rows, the CHANGELOG migration note and the WARN-tier emitter) and
-  `023-openxwallet-consume-shed` (**P3 — the atomic consume-and-shed at
-  `contract-v2.0`**: the `openXwallet` gitlink at `wallet-v1.1`,
-  `contracts/openxwallet-pin.yaml`, `scripts/verify-openxwallet-pin.py`, the
-  trust-anchor repoint, `openxwallet-consumer-gate.yml` keeping the required job
-  id, and the twelve carved path sets shed apart from the three deliberate
-  record exceptions). Still open: P3b (codexFactory), P4/P4b (aggregation),
-  P5a.2/P5b (LedgerxFactory), P6 and the operator's tag.
 - [qualify-avatar-live-voice](openspec/changes/qualify-avatar-live-voice/proposal.md)
   — **RATIFIED 2026-08-27** (in-session, "ratify avatar"; §2/§3 build lands in
   the same round) — authored 2026-08-26 as the staged topic's Exit, executed on Brett Heap's
@@ -1345,6 +1211,263 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [declare-sentinel-pin-vocabulary](openspec/changes/archive/2026-08-28-declare-sentinel-pin-vocabulary/proposal.md)
+  — **ARCHIVED 2026-08-28** on merged-plus-green. Pull request #457 merged
+  2026-08-28T04:57:04Z as merge commit
+  `157e423dfb62b1405d87b49f9681d729526a7c42`, re-verified at this act an ancestor
+  of `origin/main` (`git merge-base --is-ancestor`, exit 0) and a real two-parent
+  merge (`52999f01` + `9142b5e3`) rather than a rewrite — read out of git rather
+  than off the pull request page, which is worth the check in a packet whose
+  sibling capability declares a pin an orphaning rewrite destroyed. Green on the
+  final head `9142b5e3`: `pytest-suite` **selected 7524, passed 7503, skipped 21,
+  0 failures, 0 errors** in 15m16s (run 98756219935, counts read out of the job
+  log), `wallet-validation`, `merge-master-approval` and
+  `copilot-pull-request-reviewer` all pass, read from the check-runs API here.
+  **THE UNGOVERNED HALF OF A PIN IS NOW READ.** Before this, a value that was
+  honestly not a commit — content from a working tree nobody committed, a
+  derivation performed outside any repository, a revision that could not be read
+  — produced **no site at all**: `pin_class.py` bound both site regexes' value
+  group to `([0-9a-f]{40})`, so seven committed sentinels were not reachable, not
+  orphaned, not lost, and **not uncovered**, and the class reported itself fully
+  verified over artifacts whose central provenance claim nothing had ever read.
+  The delivered surface: a registry module `scripts/doc_health/pin_sentinels.py`
+  beside the pin class — five conditions, five members, each stating its
+  condition, its standing and its measured emitters, with absence declared a
+  RECOGNIZED LEGACY STATE and refused membership; a **separate** classification
+  pass in `pin_class.py` whose `_field_re` and `_VOCAB_RE` are byte-unchanged and
+  whose wide regexes skip anything commit-shaped, so no site can be classified
+  twice and no reachability verdict is reachable through the new code; a
+  `status --porcelain` dirty-tree sentinel branch in `git_generation()` **scoped
+  to the corpus pathspecs** (`:(glob)` magic load-bearing — git's default `*`
+  crosses `/`, and a whole-tree check would throw away a true pin over an
+  unrelated open file); the three drifted `proposal-support.py` guards reconciled
+  against the declaration, closing the latent `SupportError` the proposal
+  measured; and 33 new tests, with the 53 in `test_pin_reachability.py` green and
+  **not one line edited**. **THE SEVEN COMMITTED SENTINELS MOVED FROM INVISIBLE
+  TO LEGAL NON-PINS AND NOT ONE MANIFEST BYTE WAS TOUCHED** — the fifth outcome
+  does NOT hold full verification open, because an artifact making an honest
+  claim about content nobody can reconstruct is conforming. The probe at the
+  merge commit, **identical before and after the packet moved**: 66 declared pin
+  sites across 23 class members — 50 reachable, 0 orphaned, 1 lost (declared
+  unrecoverable, 0 awaiting a superseding record), 0 inconclusive, 0 uncovered, 0
+  vanished, 0 future members now carrying pins; **7 legal non-pins, 0 undeclared
+  non-commit values, 3 recognized legacy absences, 0 unused vocabulary members**.
+  That the move changed nothing was CHECKED rather than assumed, on the hazard
+  `supersede-lost-pin-baseline` met: `pin_sentinels.py` and `pin_class.py` were
+  read for packet-path references first, and they name this change only in prose
+  and comments — the packet's own `.openspec.yaml` is a declared NON-MEMBER under
+  a live-plus-archive glob pair, so the move crosses from one arm to the other.
+  **TWO CARRIED DECISIONS WERE TAKEN BY MEASUREMENT, NOT BY PREFERENCE.**
+  `"unknown"` is its OWN condition (`unestablished-revision`, the weakest member)
+  rather than a second spelling of `"uncommitted"`'s: the same-condition rule
+  folds two spellings only where measurement shows one condition, and its three
+  emitters showed three — an index entry whose recorded revision is absent, an
+  unreadable `HEAD`, and a readable repository whose named content was never
+  committed. Folding it would have made every artifact carrying it assert
+  something false at two of the three. The call-site split is follow-up § 5.6.
+  And `"composed"` is declared with the qualified `composed:<repo>@<ref>:<sha>,…`
+  prefix its emitter actually writes, because declaring only the bare spelling
+  would have left the lane's real output undeclared — precisely what Q3's seeding
+  ruling forbids. **ONE DIVERGENCE ARCHIVES STANDING, FLAGGED RATHER THAN
+  HIDDEN**: `repo_revision()` was deliberately NOT given a dirty-tree branch. It
+  has no untrue pin to repair — it compares every source file's sha256 against
+  the committed blob at the revision it stamped and RAISES rather than writing a
+  manifest its content contradicts, so it satisfies the generator obligation BY
+  REFUSING — and adding the branch would loosen a live guard no ruling asked to
+  loosen. Brett was shown that flag on 2026-08-28 and pre-authorized the
+  merge-plus-archive sequence with it standing; it is recorded as a standing
+  divergence-by-measurement at `tasks.md` § 2.7 and § 4.6, not as an oversight.
+  **PROMOTION PROVED BY DIGEST, per capability**: `ideation-cross-reference`
+  **16 → 18 requirements, 48 → 57 scenarios**, +152 / −0 lines, delta body and
+  canon block both 151 lines / 11012 bytes under
+  `sha256:57fd47c62234482e0231a3609df924ed09da46ec2eacf454360c76da58f2b543`;
+  `doc-health` **36 → 38 requirements, 163 → 173 scenarios**, +176 / −0 lines,
+  both 175 lines / 12632 bytes under
+  `sha256:8334a943694ccc17dd1042dc1eb4e8575cdadd540e6c0a7bb74c88a088f44634`. Zero
+  deletions in both, proved rather than eyeballed — the pre-existing file is a
+  byte-exact PREFIX of the promoted one (`cmp -n 28159` and `cmp -n 126872`
+  clean) — and zero `## MODIFIED Requirements` blocks in either delta, so no
+  archive-order question arises and the sibling `add-nightly-dashboard-refresh`
+  block on `doc-health` is untouched. Both archived deltas are byte-identical to
+  the authored files. `.openspec.yaml` MOVED with the packet under openspec 1.2.0
+  (checked by blob id anyway: `24ba794e`, unchanged from ratification), so origin
+  retention holds through the archive. `openspec validate --all --strict` 78 → 77
+  passed / 0 failed, `pytest tests/doc-health -q` **1249 passed** under
+  `set -o pipefail` with the exit code read rather than inferred, doc-health
+  families unmoved at 5 critical / 7 error / 41 warning / 11 info across the act.
+  **NO CONTRACT BUNDLE OWED**, re-affirmed by parse rather than grep: all 40
+  `contracts/releases/*.digests.yaml` inventories walked into 192 distinct member
+  paths, none of the seven touched files among them. Adds no deterministic check
+  family and does not restate the enumeration. **SIX follow-ups carried unticked
+  by decision** — the `corpus.py` `head_sha()` seam feeding six lanes,
+  cross-repository pins, whether `"composed"` belongs in a pin key at all, the
+  unwired preflight half, the `_field_re` / `_VOCAB_RE` trailing-boundary gap
+  found while measuring, and the three `"unknown"` call sites § 5.6 would split
+  onto the conditions they mean. **DISCHARGES** `harden-ideation-readiness-check`
+  § 5.3 and `govern-derived-pin-reachability` § 5.1, the two items Brett ruled
+  were one packet.
+
+- [split-openxwallet-repo](openspec/changes/archive/2026-08-28-split-openxwallet-repo/proposal.md)
+  — **ARCHIVED 2026-08-28** on merged-plus-green realization evidence across SIX
+  repositories, which is what a `code_surface` spanning six of them and
+  `target_release: implemented` obliged: this change could never archive on
+  landing. Authored 2026-08-26 as the first and only exit of the staged topic
+  `openxwallet-neutral-home` and **RATIFIED 2026-08-26** (in-session ruling on PR
+  #391, both required checks green) on Brett Heap's R1–R8 rulings of the same
+  day, carried as LOCKED constraints rather than re-litigated (verbatim: "approve
+  R1-R8 as recommended, stage the topic and propose"); registered as DTN-026,
+  which advances to `adopted` at this act. **The wallet's contracts ARE a
+  product, filed as features of a factory layer** — so the product gets its own
+  repository and openxFactory keeps the seam. R1 the repo and brand are
+  `opensoft/openXwallet` on the house `openX<type>` form; R2 machine keys FROZEN
+  in v1, because a rename in the same change as the move is unbisectable; R3 the
+  new repo owns the wallet's own standard while openxFactory keeps
+  `governance/review-authority/`, Speckit 013/014 and the trust-anchor /
+  identity-brokering / roles-authority-model compositions; R4 the pin is
+  bidirectional and acyclic (openXwallet vendors exactly one openxFactory
+  artifact, `contracts/schemas/hermes-job-envelope.schema.yaml`, because
+  validator rule (g) reads it); R5 a root-level `openXwallet/` submodule in the
+  aggregation; R6 the register stays and its READER travels; R7 descendant casing
+  is `<Domainx><Product>`; R8 `LedgerxWallet` is first. Alignment review raised 30
+  findings across two reviewers (all MISMATCH / DRIFT / GAP applied) and the
+  council returned 14 verdicts — **all VALID, none DISMISSED** — plus 8
+  NOTED-class constraints carried into `clarifications.md`; all five review
+  records travel in the packet.
+  **The wave, in merge order.** P5a.1 LedgerxFactory **#25** (`e2cedb68`, the
+  wallet validator resolved through three ordered candidates, landing before the
+  carve because `validate_wallet_estate.py::find_openxfactory()` fails loudly
+  rather than skipping) → P2 openXwallet **#1** (`936ceb20`, tagged
+  **`wallet-v1.0`**, the carve out of the NAMED CARVE COMMIT
+  `30565e48ffe3d8a9773e10af33425701845e10f6`) → P2b openXwallet **#2**
+  (`63f5a1ad`, **`wallet-v1.1`** — the nested-repository sweep prune and the
+  register-read note, and the tag openxFactory actually pins) → P2.5 openxFactory
+  **#417** (`af7ac0fa`, **`contract-v1.47`**, **renumbered from the proposed
+  v1.46 at merge order**: the eight `relocating:` manifest rows, the CHANGELOG
+  migration note and the WARN-tier emitter, since the cut is a MAJOR and owes a
+  preceding deprecation minor whose marker is MANIFEST-carried and never
+  validator-carried) → P5a.2 LedgerxFactory **#29** (`e09902d7`, pinning that
+  deprecation minor and observing its relocating rows) → P3 openxFactory **#431**
+  (`c9a1500e1a960be827cd714d8024d9aacb40aeb2`, **`contract-v2.0`** — the atomic
+  consume-and-shed, atomic because `scripts/validate-trust-anchor.py` hard-exits
+  without the custody registry) with P3b codexFactory **#117** (`58bd3cf7`,
+  widening the merge-gate floor to `contracts/openxwallet-pin.yaml` and the
+  `openXwallet` gitlink, because `matching_paths` is exact set membership and the
+  pin is what determines WHICH READER RUNS; ratified in codexFactory #118) and P4
+  xFactory **#161** (`0893f0db`, the root-level submodule at the D11
+  gitlink-parity floor) → P5b LedgerxFactory **#30** (`b1312869`) and OpsxFactory
+  **#129** (`f63c7cd2`) → P4b openxFactory **#440** (`86212300`, root-level
+  governed-repo recognition by allowlist and the aggregation parity lane) → P6,
+  ratified in openxFactory **#449** as `create-ledgerxwallet-overlay-boundary`
+  and realized as **LedgerxWallet**: repository created 2026-08-28, ruleset
+  **21701436** requiring `pin-validation` and ACTIVE, PR #1 merged as
+  `0a0141cafc1fecd5d0e38b14e4f40a67a54a08d3` and tagged **`lxw-v1.0`**, consumed
+  by LedgerxFactory **#31** (`38743cf3`) and ticked with its evidence in
+  openxFactory **#454** → P7, this archive.
+  **Green.** P3's post-rebase head `746fe3f9` reported `wallet-validation` run
+  **33115267228** (24s) and `pytest-suite` run **33115267254** (14m39s), with the
+  pinned counts read out of run **33111235491**: `selected=7090 passed=7070
+  skipped=20 failures=0 errors=0`. P2 and P2b are green on both openXwallet
+  checks (runs 33024308629 / 33024308567 and 33035937510 / 33035937545), P2.5 on
+  runs 33086366248 / 33086366020, P4b on 33126031126 / 33126031118, P4 on
+  `validate` run **33117801366** plus `merge-master-approval`, P3b on `validate`,
+  `merge-master-approval` and `sonar`, and P6's LedgerxWallet on `pin-validation`
+  run **33137519688**. LedgerxFactory runs no CI gate beyond the Copilot
+  reviewer, so its estate evidence is the recorded `validate_wallet_estate.py`
+  output rather than a check run. **THE LIVE REQUIRED CHECK SURVIVED BY ALIAS,
+  NOT BY REPOINT**: `openxwallet-consumer-gate.yml` keeps `jobs:
+  wallet-validation:`, ruleset 21538893 re-fetched at this act still requires the
+  same two tokens it required before the wave, and **no ruleset edit occurred
+  anywhere in the wave** — no operator act ever stood between P3 and merge. That
+  the aliased gate can still FAIL was proved rather than assumed: PR **#432**,
+  opened RED-PROOF ONLY and closed unmerged by design, drove `wallet-validation`
+  red in 21s on run **33109857156** with `[register-row-malformed]`.
+  **The first release is a byte-identical pure move, proved before the tag.** The
+  completeness diff of the two sorted listings was EMPTY at **100 files** over 26
+  carried commits; byte identity ran **8/8** three-way against the carve commit's
+  manifest rows, EMPTY on every floored path, **100/100** at the carve layer and
+  **97/100** after the scaffold, the three exceptions declared in advance (the
+  two promoted specs and `wallet-validation.yml`). P3 then shed **92 files** —
+  the carve's 100 minus the 8 that stay — and the post-merge re-verify printed
+  `OK openxwallet-pin verified: openXwallet@63f5a1adac89f017e70bab9a4ffe7cf02d6e6705
+  (tag label wallet-v1.1), gitlink read from HEAD, 8 digest(s) recomputed`, with
+  `contracts/releases/contract-v1.47.digests.yaml` carrying 192 members.
+  **THIS IS THE CORPUS'S FIRST `## REMOVED Requirements` PROMOTION.** The
+  promoted capability directories `openspec/specs/openxwallet/` (8 requirements)
+  and `openspec/specs/openxwallet-agent-profile/` (3) are DELETED from the
+  corpus — the house's first capability exit, not a supersession in place. All
+  eleven titles are named verbatim in the deltas because
+  `scripts/doc_health/promotion_fidelity.py` keys on (capability, normalized
+  title). Their successor is openXwallet's own openspec, and it is recorded in
+  three places so that no reader of any one surface is left holding a dangling
+  capability: the REMOVED deltas' Migration lines, `contracts/openxwallet-pin.yaml`,
+  and `contracts/README.md` with `CHANGELOG.md`. Against those two exits, two
+  capabilities PROMOTE to `openspec/specs/`: `domain-descendant-boundary` (five
+  requirements — how a domain consumes a neutral `open*` product through a
+  `<Domainx><Product>` descendant that pins by commit TWICE, carries profile and
+  never forks, sits at one of two placements whose differing STANDING is stated
+  rather than blended, and is created lazily on its first profile artifact) and
+  `neutral-product-pin` (nine — how openxFactory consumes an external neutral
+  product, a direction it had never consumed in: the ratified
+  `pinned_contract_manifest` grammar reused unchanged, fail-closed on an
+  uninitialized submodule or a digest disagreement, the PINNED reader at the
+  PINNED digest as what a required check runs, a pinned validator invoked with no
+  scan target REFUSING rather than self-testing, and the declared pin living at
+  `contracts/<product>-pin.yaml` rather than `stack.yaml`). The MODIFIED
+  `shared-contract-ownership` delta applied to its promoted spec, one requirement
+  modified — the third case, where openxFactory is the CONSUMER.
+  **Two MODIFIED deltas were HELD BACK from the apply** and travel into the
+  archived packet unapplied: `trust-anchor`, whose target capability lives in the
+  ACTIVE change `add-trust-anchor`, and `review-authority-intake`, whose target
+  lives in the ACTIVE `add-wallet-carried-review-authority`. The CLI refuses a
+  MODIFIED delta whose target capability is not yet in `openspec/specs/`, so
+  applying either here would have written a requirement into a capability the
+  corpus does not hold. That is the ordered-delta rule
+  (`openspec/specs/release-realization/spec.md:64-79`) applied by parity, exactly
+  as the proposal declared it would be, and the pending application is recorded
+  on each active change's own `tasks.md` so the obligation lands with whichever
+  of the two archives first rather than resting on memory.
+  **Successors registered**, named here in one place because the README is the
+  house's successor register. (1) The required-check token rename
+  `wallet-validation` → `openxwallet-consumer-gate`: add the new check alongside
+  the old, land ONE green pull request reporting under both, then drop the old —
+  the alias exists precisely because the token cannot be renamed in place without
+  an operator act, so the rename owes the same care. (2) The kind-prefix rename
+  `xfactory_wallet_*` → `openxwallet_*`, owned by openXwallet and a wallet MAJOR,
+  on Q3's dual-accept window: `wallet-v1.1` accepts either spelling and warns,
+  `wallet-v2.0` refuses the old, and the window closes on consumers-migrated
+  rather than on a date, the consumer set being one. (3) The stale corpus counts
+  inside openXwallet — `contracts/manifest.yaml:1968-1969`'s "16 valid + 33
+  intended-invalid" and `contracts/README.md:108`'s "nineteen rules", against a
+  tree of 17 positives, 36 negatives and 21 rules `(a)`–`(u)` — correctable only
+  AFTER `wallet-v1.0`, because correcting them inside the move would have broken
+  the byte identity the tag exists to prove. (4) `openXwallet-Install` as a
+  registered NAME with no repository (Q4), the runtime having zero footprint
+  today and the whole arc gating successors on consumers. (5) The
+  nested-descendant governed-enumeration gap: P4b widened recognition to
+  root-level governed repos, but a repository nested INSIDE another governed
+  repository — `LedgerxFactory/LedgerxWallet/` — is still enumerated nowhere, so
+  it gets no ideation book, and the ratified openAvatar descendants sit in the
+  same hole. (6) The xFactory ↔ openxFactory review-lane pin convergence
+  ceremony. (7) **A prose-tagging target form for a capability that has left the
+  corpus** — added at the archive itself, because the act produced it: deleting
+  `openspec/specs/openxwallet/` left four `<!-- xspec:candidate target=openxwallet -->`
+  markers in `ideation/staging/` with no referent, since
+  `families.py::_resolve_capability` admits only an in-tree capability or an
+  active change id. Measured, not predicted — a full `--single-repo` doc-health
+  run before and after this archive differs by exactly those four `tag-hygiene`
+  findings and nothing else of substance. They are left standing rather than
+  auto-fixed: retargeting a marker to `domain-descendant-boundary` or
+  `neutral-product-pin` would make it name a capability the tagged prose is not
+  about, and deleting the markers would drop four blocks out of the conversion
+  queue silently. The grammar needs a form that can name a capability now living
+  in a pinned neutral product, which is a change and not an edit. Same class as
+  (5), one layer down: the corpus's first capability exit found two places where
+  the tooling assumes every referent is in-tree. Beyond those seven,
+  `MedxWallet`, `codexWallet`, `OpsxWallet` and
+  `AdxWallet` each arrive lazily on their own domain's first profile artifact,
+  and the review-authority register is promoted as a wallet primitive only if Q1
+  resolves that way AND a second consumer of authority registers exists.
 
 - [supersede-lost-pin-baseline](openspec/changes/archive/2026-08-27-supersede-lost-pin-baseline/proposal.md)
   — **ARCHIVED 2026-08-27** on merged-plus-green, where merged and green are ONE

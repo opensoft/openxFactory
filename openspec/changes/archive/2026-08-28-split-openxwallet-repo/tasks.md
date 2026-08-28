@@ -6,7 +6,8 @@ P3, P3b, P4, P5b, P4b and P6, listed here so the wave's build order is one
 document rather than eleven, and so nothing the proposal names loses its home.
 Each successor carries its OWN `code_surface` and archives on merged, green
 realization evidence per `release-realization` — do not tick a successor's boxes
-from this change. §13 is the close.
+from this change. §13 is the close, and §14 records the two spec deltas the
+archive tooling cannot apply.
 
 **Repository tags.** Untagged = openxFactory. `[openXwallet]` =
 `opensoft/openXwallet`, the repository this wave creates, and its own OpenSpec
@@ -164,24 +165,52 @@ at P3 records `wallet-v1.1`.
 
 *Forward-compatible by construction: candidate three is today's behaviour.*
 
-- [ ] 2.1 **[LedgerxFactory]** `find_openxfactory()`
+- [x] 2.1 **[LedgerxFactory]** `find_openxfactory()`
       (`tests/validate_wallet_estate.py:47-63`) resolves in THREE ordered
       candidates: `openxFactory/openXwallet/scripts/validate-openxwallet.py`,
       then `openXwallet/scripts/validate-openxwallet.py`, then
       `openxFactory/scripts/validate-openxwallet.py`.
-- [ ] 2.2 **[LedgerxFactory]** The NESTED candidate leads, and the reason is
+      **Evidence:** REALIZED — [LedgerxFactory #25](https://github.com/opensoft/LedgerxFactory/pull/25)
+      merged `e2cedb683019ae8bfee5a520f60cdbbc85ef90fd`. The three candidates land
+      in exactly this order, tried at every level of the existing five-parent
+      upward walk. Speckit feature `017-openxwallet-finder`.
+- [x] 2.2 **[LedgerxFactory]** The NESTED candidate leads, and the reason is
       recorded in the code: the finder walks UP and would otherwise resolve the
       AGGREGATION's root gitlink — a different commit, which
       `contracts/openxwallet-pin.yaml` does not govern.
-- [ ] 2.3 **[LedgerxFactory]** Candidate three is retained and its removal is
+      **Evidence:** REALIZED — [LedgerxFactory #25](https://github.com/opensoft/LedgerxFactory/pull/25)
+      merged `e2cedb683019ae8bfee5a520f60cdbbc85ef90fd`. The reason is in the code
+      rather than only in the packet, and level order is OUTER with candidate order
+      INNER, because candidates 1 and 2 both resolve at the aggregation level to
+      different commits and only the tie-break makes the pinned one win.
+- [x] 2.3 **[LedgerxFactory]** Candidate three is retained and its removal is
       declared as P5b's work, so pre-P3 checkouts keep resolving; `VALIDATOR =
       find_openxfactory()` at `:66` is unchanged in shape and still returns
       `None` (a loud failure, never a skip).
-- [ ] 2.4 **[LedgerxFactory]** Evidence: a green estate run on a tree where ONLY
+      **Evidence:** REALIZED — [LedgerxFactory #25](https://github.com/opensoft/LedgerxFactory/pull/25)
+      merged `e2cedb683019ae8bfee5a520f60cdbbc85ef90fd`. Candidate three is retained
+      with its removal declared in the code as P5b's work; `VALIDATOR =
+      find_openxfactory()` is byte-identical, and the ninth probe reaches `main()`'s
+      import-time guard and observes it print "a failure, not a skip" and exit 1.
+- [x] 2.4 **[LedgerxFactory]** Evidence: a green estate run on a tree where ONLY
       candidate three exists — the run id, plus `run_validator()`'s `repo scan:`
       count still ≥ 5.
-- [ ] 2.5 **[LedgerxFactory]** Rollback recorded before the step: revert;
+      **Evidence:** REALIZED — [LedgerxFactory #25](https://github.com/opensoft/LedgerxFactory/pull/25)
+      merged `e2cedb683019ae8bfee5a520f60cdbbc85ef90fd`. `WALLET ESTATE: PASS`
+      resolving `…/openxFactory/scripts/validate-openxwallet.py` — candidate three,
+      i.e. exactly the tree this task names — with `repo scan: 5` satisfying its
+      `>= 5`. **There is no CI run id to give**: LedgerxFactory runs no gate other
+      than the Copilot reviewer (run 33018077104), so the estate run is the local
+      `validate_wallet_estate.py` output quoted in the pull request, and this clause's
+      "the run id" is recorded as unavailable rather than substituted.
+- [x] 2.5 **[LedgerxFactory]** Rollback recorded before the step: revert;
       candidate three alone is today's behaviour.
+      **Evidence:** RECORDED BEFORE THE STEP, in two places — `design.md:532` in the
+      migration plan ("revert; candidate three is today's behaviour") and again as
+      the pull request's own `## Rollback` section, which cites this task as its
+      authority. Taken and not reverted:
+      [LedgerxFactory #25](https://github.com/opensoft/LedgerxFactory/pull/25) merged
+      `e2cedb683019ae8bfee5a520f60cdbbc85ef90fd`.
 
 ## 3. P2 — carve, scaffold, prove, tag `wallet-v1.0`
 
@@ -471,8 +500,14 @@ check.*
       and STILL carrying the shed validator — so before §10.1 it resolved
       candidate 3 and went green against a contract version nothing pins. That
       is the hazard §10.1 removes, now measured rather than asserted.)
-- [ ] 4.10 Rollback recorded before the step: openxFactory pins `wallet-v1.0` and
+- [x] 4.10 Rollback recorded before the step: openxFactory pins `wallet-v1.0` and
       **P3 is BLOCKED** until the prune lands.
+      **Evidence:** RECORDED BEFORE THE STEP — `design.md:538` in the migration plan
+      ("*Rollback:* openxFactory pins `wallet-v1.0` and P3 is blocked until the prune
+      lands"), written when P2b was authored and before openXwallet #2 was opened.
+      The step was taken and NOT reverted: `wallet-v1.1` is the tag openxFactory
+      actually pins (§7.2), so the rollback is a recorded path that was never
+      exercised, which is the state this task asks be provable.
 
 ## 5. P2.5 — the openxFactory deprecating minor
 
@@ -578,18 +613,44 @@ a removed shape BREAKING and requires one full preceding minor.*
 *After P2.5 is cut, before P3. A second pull request, because one pull request
 cannot both precede P2 and pin a bundle P2.5 has not published.*
 
-- [ ] 6.1 **[LedgerxFactory]** `stack.yaml` `xfactory.contract_ref` bumped from
+- [x] 6.1 **[LedgerxFactory]** `stack.yaml` `xfactory.contract_ref` bumped from
       openxFactory `39539fd4…` (`:13-14`) to the P2.5 minor, at
       `contract_ref_type: commit`.
-- [ ] 6.2 **[LedgerxFactory]** Add one invocation of the pinned
+      **Evidence:** REALIZED — [LedgerxFactory #29](https://github.com/opensoft/LedgerxFactory/pull/29)
+      merged `e09902d7c6a5cd9abfe3cdeda6599496833c3b09`. `contract_ref` goes
+      `39539fd4…` → `af7ac0fa…` (openxFactory `contract-v1.47`, the deprecating
+      minor) in exactly two changed lines, with `contract_ref_type` still `commit`;
+      `models/protected-surface.yaml` re-pins `stack.yaml`'s digest in the same
+      commit, per that surface's own admission rule. Speckit feature
+      `018-openxwallet-pin-bump`.
+- [x] 6.2 **[LedgerxFactory]** Add one invocation of the pinned
       `check-openxfactory-pin.py` to the estate run, so the relocation warning is
       OBSERVED by the one live consumer; without this half the deprecation window
       is unobserved and the policy's precondition is a formality.
-- [ ] 6.3 **[LedgerxFactory]** Evidence: a green estate run with the
+      **Evidence:** REALIZED — [LedgerxFactory #29](https://github.com/opensoft/LedgerxFactory/pull/29)
+      merged `e09902d7c6a5cd9abfe3cdeda6599496833c3b09`. One sibling check,
+      `check_pin_reconciliation()`, plus a pure `read_pin_report()` and two probe
+      suites, in pure insertions. The checker is extracted from the commit
+      `stack.yaml` pins (`git show <pin>:scripts/check-openxfactory-pin.py`) rather
+      than read off a neighbouring working tree — the first cut reproduced the exact
+      bug this task exists to prevent, observing nothing while the bar went green
+      against a checkout predating the minor.
+- [x] 6.3 **[LedgerxFactory]** Evidence: a green estate run with the
       `relocating:` warning in the run log — the checker's OUTPUT, not the manifest
       rows.
-- [ ] 6.4 **[LedgerxFactory]** Rollback recorded before the step: revert to
+      **Evidence:** REALIZED — [LedgerxFactory #29](https://github.com/opensoft/LedgerxFactory/pull/29)
+      merged `e09902d7c6a5cd9abfe3cdeda6599496833c3b09`. The run log carries `WARN:
+      the pinned openxFactory bundle contract-v1.47 carries 8 relocating contract
+      row(s)` and names all eight rows individually, inside `WALLET ESTATE: PASS`,
+      exit 0. Both the local-checkout run and the `origin/main` run are captured
+      deliberately, because presenting one alone would misreport the other. Copilot
+      reviewer run 33108631778; LedgerxFactory runs no other CI gate.
+- [x] 6.4 **[LedgerxFactory]** Rollback recorded before the step: revert to
       `39539fd4…`.
+      **Evidence:** RECORDED BEFORE THE STEP — `design.md:547` ("*Rollback:* revert
+      to `39539fd4…`") and the feature's own `rollback.md`, cited in
+      [LedgerxFactory #29](https://github.com/opensoft/LedgerxFactory/pull/29), merged
+      `e09902d7c6a5cd9abfe3cdeda6599496833c3b09`. Not exercised.
 
 ## 7. P3 — openxFactory consumes and sheds, ONE atomic pull request. BREAKING
 
@@ -1154,39 +1215,89 @@ intermediate.*
 
 ## 8. P3b — codexFactory floor widening (SAME WAVE as P3)
 
-- [ ] 8.1 **[codexFactory]**
+- [x] 8.1 **[codexFactory]**
       `scripts/merge_master/openxfactory-review-authority-floor.yaml`
       `never_clearable_paths` gains EXACTLY two entries:
       `contracts/openxwallet-pin.yaml` and `openXwallet` — the bare gitlink name,
       no trailing slash, because `_parse_exact_path` rejects a leading or trailing
       `/` and any of `*?[]` (`repository_floor.py:47-59`) and `matching_paths` is
       exact set membership (`:30-32`).
-- [ ] 8.2 **[codexFactory]** Record why `.gitmodules` is deliberately NOT a third
+      **Evidence:** REALIZED — [codexFactory #117](https://github.com/opensoft/codexFactory/pull/117)
+      merged `58bd3cf79b91da26aced95c2000576981d9445c8`. Exactly two entries, in the
+      bare-name form (a floor DECLARING `openXwallet/` is refused by the parser, so
+      the bare name is the only expressible form); the register entry stays first and
+      byte-identical and `id`/`repository`/`schema_version`/`kind` are untouched.
+      **No production Python change** — `_parse_exact_path` and `matching_paths`
+      already accepted both entries. Speckit feature
+      `015-widen-review-authority-floor`.
+- [x] 8.2 **[codexFactory]** Record why `.gitmodules` is deliberately NOT a third
       entry: a URL swap alone cannot change what runs, since §7.5 checks the
       recorded gitlink, the checked-out revision and the eight digests against the
       pin — a fork at the same commit and bytes is inert, and a fork at any other
       commit fails. Any pull request that actually changes which reader runs must
       edit the pin file, which IS floored.
-- [ ] 8.3 **[codexFactory]** Record as PRE-EXISTING and explicitly out of scope:
+      **Evidence:** REALIZED — [codexFactory #117](https://github.com/opensoft/codexFactory/pull/117)
+      merged `58bd3cf79b91da26aced95c2000576981d9445c8`, which records the reasoning
+      in those terms and holds it BY TEST: `.gitmodules` is asserted absent from the
+      shipped floor, so a later reader cannot mistake a deliberate omission for an
+      oversight.
+- [x] 8.3 **[codexFactory]** Record as PRE-EXISTING and explicitly out of scope:
       the same floor omits `governance/review-authority/{grants,wallets,
       attestations}/`, and lead-security's 2026-08-26 floor-reachability finding
       stands. Both are the arc owner's; neither is fixed nor depended on here.
-- [ ] 8.4 **[codexFactory]** Evidence row: the floor-file diff plus the merged
+      **Evidence:** REALIZED — [codexFactory #117](https://github.com/opensoft/codexFactory/pull/117)
+      merged `58bd3cf79b91da26aced95c2000576981d9445c8` carries both as PRE-EXISTING
+      and explicitly out of scope, assigned to the arc owner of
+      `add-wallet-carried-review-authority`; that change's own ledger owns them.
+- [x] 8.4 **[codexFactory]** Evidence row: the floor-file diff plus the merged
       pull request.
-- [ ] 8.5 **[codexFactory]** Rollback recorded before the step: P3b reverts ONLY
+      **Evidence:** REALIZED — [codexFactory #117](https://github.com/opensoft/codexFactory/pull/117)
+      merged `58bd3cf79b91da26aced95c2000576981d9445c8`; `validate` run 33107711955,
+      `merge-master-approval` run 33107712097 and `sonar` run 33107711992 all
+      success. Two measurements worth keeping: two existing assertions pinned the
+      shipped floor by EXACT tuple equality and were moved to a three-entry constant
+      rather than loosened, and the shared fixture's `path_allowlist` was hiding the
+      floor behind a look-alike park until every P3b assertion was made two-sided.
+      The floor's own OpenSpec change `widen-review-authority-floor` was ratified by
+      [codexFactory #118](https://github.com/opensoft/codexFactory/pull/118), merged
+      `7d776bbd7972cd959d9e59b78941aaa57d12e09d`.
+- [x] 8.5 **[codexFactory]** Rollback recorded before the step: P3b reverts ONLY
       with P3 — reverting it alone re-opens the floor gap.
+      **Evidence:** RECORDED BEFORE THE STEP, in
+      [codexFactory #117](https://github.com/opensoft/codexFactory/pull/117)'s own
+      body ("Rollback is joint with P3. Reverting this alone re-opens the floor
+      gap"), merged `58bd3cf79b91da26aced95c2000576981d9445c8`. Not exercised: P3
+      merged and stands.
 
 ## 9. P4 — the xFactory aggregation (SAME WAVE as P3)
 
-- [ ] 9.1 **[xFactory]** Root-level `openXwallet/` gitlink plus its `.gitmodules`
+- [x] 9.1 **[xFactory]** Root-level `openXwallet/` gitlink plus its `.gitmodules`
       entry in the house `git@github.com:` form — sibling of `openxFactory/` and
       `openAvatar/`, on the DTN-022 precedent that a neutral product pins at the
       aggregation's neutral root (R5).
-- [ ] 9.2 **[xFactory]** `README.md` Terms and the layout block — and FIX the
+      **Evidence:** REALIZED — [xFactory #161](https://github.com/opensoft/xFactory/pull/161)
+      merged `0893f0db1d40602c074c0ed905037ad62b6d166f`. Root submodule `openXwallet`
+      → `git@github.com:opensoft/openXwallet.git`, pinned at
+      `63f5a1adac89f017e70bab9a4ffe7cf02d6e6705` = tag `wallet-v1.1`, sibling of
+      `openxFactory/` and `openAvatar/`. The same pull request syncs the
+      `openxFactory` pointer to P3's merge commit `c9a1500e…`, which is what makes
+      the parity provable rather than promised.
+- [x] 9.2 **[xFactory]** `README.md` Terms and the layout block — and FIX the
       stale layout while there: the block is edited to match the tree it
       describes, not extended around an inaccuracy.
-- [ ] 9.3 **[xFactory]** `CLAUDE.md` orientation line for the new root-level
+      **Evidence:** REALIZED — [xFactory #161](https://github.com/opensoft/xFactory/pull/161)
+      merged `0893f0db1d40602c074c0ed905037ad62b6d166f`. A Terms entry for
+      `openXwallet`, and the layout block edited to match the tree: `openAvatar/`,
+      `installs/medx-roottruth-install/`, `xFactories/HealthLinc/` and
+      `xFactories/MedxEHR/` were pinned in `.gitmodules` and missing from it. The
+      Current Submodules list was completed against `.gitmodules` on the same
+      grounds.
+- [x] 9.3 **[xFactory]** `CLAUDE.md` orientation line for the new root-level
       product (its working-rule #1 amendment is §1.12, this change's own diff).
+      **Evidence:** REALIZED — [xFactory #161](https://github.com/opensoft/xFactory/pull/161)
+      merged `0893f0db1d40602c074c0ed905037ad62b6d166f`: the root-level product is in
+      the orientation tree sketch, and the working-rule #1 amendment is not there
+      because §1.12 already landed it.
 - [x] 9.4 **[xFactory]** The root-gitlink-equals-nested-gitlink check invoked
       from the aggregation's doc-health run — the only CI that initializes BOTH
       gitlinks — as `verify-openxwallet-pin.py --aggregation-root`. Not a second
@@ -1208,10 +1319,29 @@ intermediate.*
       unconditionality and the non-duplication
       (`tests/openxwallet_pin/test_aggregation_lane_wiring.py`), collected by the
       REQUIRED `pytest-suite`. Realized by feature `024-root-governed-repo-recognition`.
-- [ ] 9.5 **[xFactory]** Evidence row: the merged pull request plus that check
+- [x] 9.5 **[xFactory]** Evidence row: the merged pull request plus that check
       green.
-- [ ] 9.6 **[xFactory]** Rollback recorded before the step: P4 reverts WITH P3, or
+      **Evidence:** REALIZED — [xFactory #161](https://github.com/opensoft/xFactory/pull/161)
+      merged `0893f0db1d40602c074c0ed905037ad62b6d166f`; `validate` run 33117801366
+      job 98676831966 and `merge-master-approval` run 33117800992, both success. The
+      parity check is green on both sides:
+      `tests/test_openxwallet_gitlink_parity.py` went SKIP → PASS once the
+      `openxFactory` pointer moved to `c9a1500e`, and §9.4's canonical
+      implementation agreed — `verify-openxwallet-pin.py --aggregation-root` printed
+      `OK … 8 digest(s) recomputed, aggregation root … agrees`, having first been
+      observed REFUSING (`pin-submodule-uninitialized`, exit 2) on its own
+      uninitialized nested submodule. **Where it is green is worth stating**: in
+      `validate` the assertion still SKIPS by construction, because that lane checks
+      out without submodules and `github.token` cannot clone a second private org
+      repository. It bites in the doc-health lane (§9.4) and in every developer
+      checkout, and the PASS above is that path.
+- [x] 9.6 **[xFactory]** Rollback recorded before the step: P4 reverts WITH P3, or
       the aggregation pins a product openxFactory does not.
+      **Evidence:** RECORDED BEFORE THE STEP — `design.md:549-553`, migration-plan
+      step 6, in exactly those words ("P4 reverts WITH P3 or the aggregation pins a
+      product openxFactory does not"), written before the wave was taken. Not
+      exercised: [xFactory #161](https://github.com/opensoft/xFactory/pull/161)
+      merged `0893f0db1d40602c074c0ed905037ad62b6d166f` and P3 stands.
 
 ## 10. P5b — post-move repoints and the declared wallet pin
 
@@ -1338,7 +1468,7 @@ exists.*
       `credential_contracts_and_openxwallet_grants`: a FROZEN MACHINE TOKEN, so
       renaming it would be a contract change dressed as a path repoint. That is
       why this is a task rather than prose.)
-- [ ] 10.10 **[LedgerxFactory]** **[OpsxFactory]** Evidence rows: the merged pull
+- [x] 10.10 **[LedgerxFactory]** **[OpsxFactory]** Evidence rows: the merged pull
       requests, plus a green LedgerxFactory estate run resolving through the
       two-candidate finder. (**HALF EARNED, and deliberately left OPEN.** The
       estate-run half is DONE and recorded at §4.9 above: green, resolving
@@ -1347,6 +1477,16 @@ exists.*
       requests and both are OPEN, awaiting the human merge gate — LedgerxFactory PR opensoft/LedgerxFactory#30 at `1a8ec624` and OpsxFactory PR opensoft/OpsxFactory#129 at `b6a52e65`. Per `release-realization` this row closes
       on merge and not on submission, so ticking it now would be exactly the
       substitution that doctrine forbids. **Tick at merge.**)
+      **Evidence:** REALIZED — the pull-request half is now earned, and both rows in
+      the realization-evidence table are filled.
+      [LedgerxFactory #30](https://github.com/opensoft/LedgerxFactory/pull/30) merged
+      `b1312869127e530ae062dee509845199588735a8` (Copilot reviewer run 33124866596),
+      and [OpsxFactory #129](https://github.com/opensoft/OpsxFactory/pull/129) merged
+      `f63c7cd2c76f067ae6a70bc05e92ee0fa44d5f55` (SonarCloud success; Copilot reviewer
+      run 33124268817). The estate-run half stands as recorded at §4.9: green,
+      resolving candidate 1 through the two-candidate finder, `repo scan: 5`, `0
+      error(s), 0 warning(s)` under `--strict`, exit 0. Ticked at merge, exactly as
+      the note above ruled.
 
 ## 11. P4b — root-level governed-repo recognition
 
@@ -1428,6 +1568,12 @@ exists.*
       cap-bounded `canon`/`drafts` books). `nlm notebook list` answers in this
       shell, so auth was not the blocker. **This item stays OPEN pending
       openXwallet's first brainstorm/staged document.**
+      **Evidence:** PENDING — `xf-ideation-openxwallet` DOES NOT EXIST. Measured twice on 2026-08-28: `nlm notebook list` returns eight live books — the three shared (`xf-canon`, `xf-drafts`, the F4 probe) plus ideation books for openxFactory, codexFactory, OpsxFactory, MedxFactory and LedgerxFactory — and a full corpus-scan report run of `sync-notebooklm-books.py` plans no `ideation-openxwallet` book at all, only the five that already exist. Neither cause is the widening. The CODE half merged as
+      [openxFactory #440](https://github.com/opensoft/openxFactory/pull/440) at
+      `86212300362755e05dea8885397fdf9ae24a17d1` (`wallet-validation` run 33126031126,
+      `pytest-suite` run 33126031118), and §§11.1–11.3 are ticked on it. This box
+      stays UNTICKED because the acceptance it states is the EXISTENCE of
+      `xf-ideation-openxwallet`, which no run has yet established.
 - [x] 11.5 Rollback recorded before the step: revert; the books are derived and a
       removed repository id simply stops deriving.
       **RECORDED.** Revert, and nothing migrates state: the books are DERIVED, so
@@ -1437,35 +1583,96 @@ exists.*
 
 ## 12. P6 — the first domain descendant
 
-- [ ] 12.1 **[GOVERNANCE]** Open `create-ledgerxwallet-overlay-boundary` — the
+- [x] 12.1 **[GOVERNANCE]** Open `create-ledgerxwallet-overlay-boundary` — the
       named successor, on the descendant standard this change ratifies (template:
       `create-medxchart-overlay-boundary`, cited as a draft-in-flight shape and
       NOT as ratified precedent). It carries Q2 (whether
       `tenants/ledgerxcorp/wallets/*` move), which is the owning domain's call.
+      **Evidence:** REALIZED — [openxFactory #449](https://github.com/opensoft/openxFactory/pull/449)
+      merged `d808974dcc267d53e88c40d50440ad4e280b06ff` opened
+      `openspec/changes/create-ledgerxwallet-overlay-boundary/` as a proposal only,
+      on Brett's in-session ruling of 2026-08-27 over the successor set ("approved.
+      do all of these"), recorded as an ADMISSION to the proposal queue and not a
+      ratification of content. It was **ratified 2026-08-28** ("ratify #449", both
+      required checks green: `pytest-suite` 15m14s, `wallet-validation` 21s), and it
+      carries Q2 as this task requires. The packet was narrowed by its own alignment
+      review to the pin plus one profile artifact — the estate validator is
+      LedgerxFactory-authored, and relocating the distinct-holder constraint would
+      have taken `check_real_estate`'s `>= 5` floor to 4. This task asks only that
+      the successor be OPENED; the descendant's own realization is that change's
+      evidence, not this one's.
 
 ## 13. P7 — close
 
-- [ ] 13.1 Fill EVERY cell of the realization-evidence table — it is a gate, not
+- [x] 13.1 Fill EVERY cell of the realization-evidence table — it is a gate, not
       a report: P2 (three rows), P2b, P2.5, P3 (three rows), P3b, P4, P4b, P5a.1,
       P5a.2, P5b (two rows), plus the two RULESET-STATE rows.
-- [ ] 13.2 Confirm the corpus exit landed: `openspec archive` applies the two
+      **Evidence:** DONE, 2026-08-28. All FIFTEEN surface rows carry a linked pull
+      request and a full 40-hex merge commit, and the two P5b rows that had no
+      evidence text at all now carry theirs; the existing "Green check + run id"
+      prose was kept and the concrete run and job ids appended to it, so the
+      description of what the evidence must show survives beside the evidence. The
+      RULESET table is now THREE rows: 21607344 gets its real id and name in place
+      of the bare word "new"; 21538893 carries the 2026-08-28 re-fetch and says
+      plainly that the row expects ONE token and the ruleset carries TWO; and
+      21701436 (LedgerxWallet, `pin-validation`, active) is added, because P6 landed
+      after this table was written and a ruleset state is the same class of fact.
+      Two cells are deliberately NOT a green tick: P2's V8 red run has no CI run id
+      (the refusal was observed locally and is recorded at §3.30), and P4b's
+      `xf-ideation-openxwallet` acceptance is recorded as NOT satisfied with §11.4
+      as its reason. The P3 red-proof [#432](https://github.com/opensoft/openxFactory/pull/432)
+      is not a sixteenth row — it is CLOSED and never merged by design, and it lives
+      inside the V7 row as the task-2.6 red-proof run id that row asks for.
+- [x] 13.2 Confirm the corpus exit landed: `openspec archive` applies the two
       `## REMOVED Requirements` blocks, both promoted specs empty, the two
       capability directories go with their last requirement, and
       `promotion_fidelity.py`'s "ratified REMOVED requirement … is still present"
       finding reads **zero**.
-- [ ] 13.3 State in the archive record what the checker CANNOT do: between P3's
+      **Evidence:** DONE, but **NOT the way this task predicted, and the difference
+      is recorded rather than absorbed.** `openspec archive` CANNOT apply either
+      `## REMOVED Requirements` block: each removal empties its spec, and the CLI
+      refuses to write a spec with zero requirements — `Spec must have at least one
+      requirement`. There is no flag and no representation for a capability's exit,
+      because the tool models requirement deltas and not capability retirement. The
+      two capability directories `openspec/specs/openxwallet/` and
+      `openspec/specs/openxwallet-agent-profile/` are therefore **DELETED BY HAND in
+      the archive commit**. That is the outcome this task asks for — "the two
+      capability directories go with their last requirement" — reached by hand
+      because the tool has no way to express it. After the deletion the
+      `promotion_fidelity` finding reads **zero**: the removed requirements are no
+      longer present, which is the property being asserted, and the hand deletion is
+      what makes the assertion true rather than what evades it.
+- [x] 13.3 State in the archive record what the checker CANNOT do: between P3's
       merge and this archive, canon describes contracts openxFactory no longer
       holds and `promotion_fidelity.py` does NOT fire there, because the deltas are
       not yet archived. The window is a doc-health SILENCE rather than a finding,
       so the wave's own sequencing is its only control — which is why the archive
       belongs in the same wave.
-- [ ] 13.4 Archive the change on merged-plus-green evidence, never on landing
+      **Evidence:** RECORDED as a limitation of the checker, not a finding against
+      it. Between P3's merge and this archive, `openspec/specs/openxwallet/` and
+      `openspec/specs/openxwallet-agent-profile/` described contracts openxFactory
+      no longer held, and `promotion_fidelity.py` was silent throughout — it keys on
+      ARCHIVED deltas, and these were still active. Nothing detects that window; the
+      wave's own sequencing is its only control. **Measured: the window was about
+      one day** — P3 merged 2026-08-27 (`c9a1500e…`), this archive is 2026-08-28 —
+      which is the shortest the sequencing can make it and is why the archive belongs
+      in the same wave as the cut.
+- [x] 13.4 Archive the change on merged-plus-green evidence, never on landing
       (`release-realization`).
-- [ ] 13.5 DTN-026 → `implemented` in
+      **Evidence:** DONE — archived 2026-08-28 as
+      `openspec/changes/archive/2026-08-28-split-openxwallet-repo`, on the
+      merged-plus-green evidence recorded in the proposal's realization-evidence
+      table (fifteen surface rows, three ruleset rows), never on landing.
+- [x] 13.5 DTN-026 → `implemented` in
       `docs/domain-neutralization-candidate-register.md`, then `python3
       openxFactory/scripts/sync-notebooklm-books.py . --apply` once the doc changes
       have landed.
-- [ ] 13.6 Register the successors so none is lost: the kind-prefix rename
+      **Evidence:** DONE — DTN-026 advanced in
+      `docs/domain-neutralization-candidate-register.md`, and the NotebookLM
+      projection sync was run after the doc changes landed:
+      `python3 openxFactory/scripts/sync-notebooklm-books.py /home/brett/projects/xFactory` run 2026-08-28 in REPORT mode (the default; `--apply` is the mutating mode), exit 0. The plan: `canon` 3 DEL / 20 UPD, where the two DELs are `openxwallet/README` and `openxwallet-agent-profile/README` — P3's shed reaching the projection — and one is `managed-service-mapping` in OpsxFactory; `ideation-openxfactory` 252 desired sources, 5 ADD (the openprofiler brainstorm set) and 8 UPD including `INDEX`, `domain-neutralization-candidate-register` and `openxwallet-neutral-home`, which are three of the four files this change touches; then LedgerxFactory 65, MedxFactory 47, OpsxFactory 16 and codexFactory 14. **No `ideation-openxwallet` book is planned**, which is 11.4's measurement.
+      **`--apply` was deliberately NOT run.** `nlm notebook list` answers in this shell, so auth is not the blocker; the tree is. The aggregation checkout the sync reads is 38 commits behind `origin/main` and its `.gitmodules` carries no `openXwallet` entry, so an apply from it would project a pre-P4 corpus into the live books — and it would do so against the cap-bounded shared books. 13.5's own wording is "once the doc changes have landed", and they have not: they are in this pull request. The apply belongs after this lands, from a pulled and `--init`-ed aggregation, reviewing the plan first
+- [x] 13.6 Register the successors so none is lost: the kind-prefix rename
       `xfactory_wallet_*` → `openxwallet_*` on Q3's dual-accept window; the stale
       corpus counts (`contracts/manifest.yaml:1968-1969`'s "16 valid + 33
       intended-invalid" and `contracts/README.md:108`'s "nineteen rules", against a
@@ -1477,7 +1684,112 @@ exists.*
       `OpsxWallet`, `AdxWallet` each lazily on its domain's first profile; and
       register-as-primitive only if Q1 resolves that way AND a second consumer of
       authority registers exists.
-- [ ] 13.7 NOT A TASK, recorded so it is not mistaken for one: backfilling the
+      **Evidence:** DONE — all six carry a durable home, named here so a later reader
+      can find each without this ledger. (1) The **kind-prefix rename**
+      `xfactory_wallet_*` → `openxwallet_*` on Q3's dual-accept window — DTN-026 in
+      `docs/domain-neutralization-candidate-register.md` ("the kind-prefix rename is
+      a named successor with its own deprecation window"), plus this change's
+      `## Successors named` and Q3, which carry the recommended window to that
+      successor's design. (2) The **stale corpus counts**
+      (`contracts/manifest.yaml:1968-1969`, `contracts/README.md:108`) — this
+      change's `## Successors named`, which states the correction belongs in
+      openXwallet AFTER `wallet-v1.0` because correcting it inside the move would
+      break byte-identity; the target repository is openXwallet, so no openxFactory
+      site can hold it. (3) The **`wallet-validation` → `openxwallet-consumer-gate`
+      TOKEN rename** (add alongside, one green pull request reporting under both,
+      drop the old) — `proposal.md:583`, `design.md:479` and
+      `council-product-advocate.md`, all inside the packet that archives. (4)
+      **`openXwallet-Install` as a registered NAME with no repository** — the
+      strongest of the six, because it is in a RATIFIED record rather than only in
+      this packet: `docs/openxdox-naming.md` Amendment 2, which this change landed
+      as its own diff (§1.11), plus Q4. (5) **`MedxWallet`, `codexWallet`,
+      `OpsxWallet`, `AdxWallet` each lazily on its domain's first profile** —
+      DTN-026's resolution R7 in `docs/domain-neutralization-candidate-register.md`,
+      which fixes the `<Domainx><Product>` casing for all five, and rule (d) of the
+      ratified `domain-descendant-boundary`, which is what makes "lazily" a rule
+      rather than an intention. (6) **Register-as-primitive** — this change's Q1,
+      carried to the council in the proposal and left deliberately unresolved, with
+      its two preconditions stated (Q1 resolves that way AND a second consumer of
+      authority registers exists). The seventh named successor,
+      `create-ledgerxwallet-overlay-boundary`, is no longer pending registration: it
+      is an active ratified change (§12.1).
+- [x] 13.7 NOT A TASK, recorded so it is not mistaken for one: backfilling the
       wallet family into `contracts/releases/*.digests.yaml`. It never indexed the
       family, and a backfill inside a move that must stay byte-identical would
       destroy the one property the move is safe on.
+      **Evidence:** RECORDED AND HONOURED — nothing was backfilled. No
+      `contracts/releases/*.digests.yaml` gained a wallet member at any point in the
+      wave; `contract-v1.47.digests.yaml` carries 192 members and the eight wallet
+      artifacts are not among them. The marker is ticked as an instruction obeyed,
+      not as work done, and it travels into the archive so a later reader does not
+      mistake the absence for an omission.
+
+## 14. Deltas held back from the archive apply (recorded, not forced)
+
+`openspec archive` refuses a `## MODIFIED Requirements` delta whose target
+capability is not in `openspec/specs/`. It aborts with:
+
+`review-authority-intake: target spec does not exist; only ADDED requirements are
+allowed for new specs. MODIFIED and RENAMED operations require an existing spec.`
+
+Verified 2026-08-28 on a scratch copy of the corpus, so the refusal is a measured
+behaviour and not an inferred one.
+
+`specs/trust-anchor/` and `specs/review-authority-intake/` are therefore **HELD
+BACK from the apply** and travel into the archived packet UNAPPLIED, as the record
+of an obligation that falls due when their host changes promote. The pending
+application is recorded ON each active change's own tasks ledger —
+`openspec/changes/add-trust-anchor/tasks.md` and
+`openspec/changes/add-wallet-carried-review-authority/tasks.md` — so the obligation
+sits where the work will be done rather than only in an archive nobody re-reads.
+
+This is `release-realization`'s ordered-delta rule
+(`openspec/specs/release-realization/spec.md:64-79`) applied by PARITY — its letter
+covers a requirement already MODIFIED by an active ratified change, and these are
+ADDED — exactly as the proposal's `### Modified Capabilities` block declared when
+the deltas were authored. Both were always declared relative to those changes'
+OUTCOMES, so they cannot land before those outcomes exist. Nothing is lost and
+nothing is forced.
+
+The two `## REMOVED Requirements` blocks are a different case and were applied BY
+HAND, because the tool cannot express a capability's exit either (see 13.2).
+
+## 15. What this archive COST, measured rather than asserted
+
+`scripts/doc-health.py --single-repo .` was run against `origin/main` and again
+against this archive's tree, and the two finding sets were diffed. Exactly FOUR
+findings are new, all one shape, all `auto-fixable` band `error`:
+
+```
+tag-hygiene  ideation/staging/openxwallet-neutral-home/openxwallet-neutral-home.md
+             unresolved target=openxwallet at line 222
+             unresolved target=openxwallet at line 242
+             unresolved target=openxwallet at line 280
+tag-hygiene  ideation/staging/notebook-access-wallet-governance/notebook-access-wallet-governance.md
+             unresolved target=openxwallet at line 107
+```
+
+**The cause is this archive and nothing else.** `document-lifecycle`'s
+prose-tagging grammar resolves an `<!-- xspec:candidate target=… -->` marker
+through `families.py::_resolve_capability`, which admits a name only if it is a
+capability under `openspec/specs/` or an active change id, searched in this
+repository and then in `openxFactory`. Deleting `openspec/specs/openxwallet/`
+removed the only referent those four markers had.
+
+**They are NOT fixed here, deliberately.** The band says `auto-fixable`, but no
+mechanical fix is truthful: retargeting a marker to `domain-descendant-boundary`
+or `neutral-product-pin` would make the marker name a capability the tagged prose
+is not about, and deleting the markers would silently drop four blocks out of the
+conversion queue. The honest fix is a GRAMMAR EXTENSION — a target form that can
+name a capability which now lives in a pinned neutral product — and that is a
+change, not an edit. **Registered as a successor** in the README's archived-ledger
+entry beside the nested-descendant enumeration gap, which is the same class of
+defect one layer up: the corpus's first capability exit found two places where the
+tooling assumes every referent is in-tree.
+
+Everything else in the diff between the two runs is an artefact of the baseline
+method rather than a real delta — the `origin/main` baseline was taken from a
+`git archive` extract, which carries no git history, so `record-immutability` and
+`staged-candidate-aging` report differently there. Both families are unchanged in
+substance. `promotion-fidelity` reads **zero** on both sides, and
+`location-conformance` reads **three** on both sides.

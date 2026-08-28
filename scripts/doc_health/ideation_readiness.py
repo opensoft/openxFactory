@@ -785,7 +785,7 @@ def verify_pin_reachability(repo=None, *, rev: str = "HEAD",
                               allow_remote=allow_remote)
     rendered = pin_class.render(report)
 
-    if report.orphans or report.uncovered or report.vanished or report.arrived:
+    if not report.clean:
         routes = []
         for result in report.orphans:
             member = next(m for m in pin_class.PIN_CLASS
@@ -795,8 +795,14 @@ def verify_pin_reachability(repo=None, *, rev: str = "HEAD",
                           f"{pin_class.repair_route(member, status=status)}")
         detail = "\n".join(routes)
         return (PIN_PROBE_FAIL,
-                f"DERIVATION-PIN REACHABILITY FAILED in a COMPLETE clone "
-                f"({report.truncation}). The ref set consulted was "
+                f"DERIVATION-PIN VERIFICATION FAILED in a COMPLETE clone "
+                f"({report.truncation}). A DEFECT IS EITHER A PIN THAT DOES "
+                f"NOT RESOLVE OR A VALUE THAT WAS NEVER A PIN: an unreachable "
+                f"commit, an uncovered site, a vanished or arrived class "
+                f"member, or a non-commit value the sentinel vocabulary does "
+                f"not declare. A DECLARED sentinel is NOT among them — an "
+                f"artifact carrying one is conforming and is reported as a "
+                f"legal non-pin below. The ref set consulted was "
                 f"{report.main_ref} plus "
                 f"{pin_class.RETENTION_NAMESPACE}/<full-sha> computed from "
                 f"each pin, and no other ref: a commit surviving in this "

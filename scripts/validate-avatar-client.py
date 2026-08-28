@@ -524,6 +524,13 @@ def _run_checks(f: Findings, strict: bool, require_realization: bool) -> int:
     # criteria and the ROLLBACK-B/C trip points); these two carry the rest.
     check_latency_sample_minimum(f)
     check_broker_credential_binding(f)
+    # §6.2 (Fork 4 Option C): the synthetic evaluation corpus and the canary's
+    # ephemeral processing envelope. Both guard on presence, and both read the
+    # values another artifact already ratified — ROLLBACK-A's triggers, the
+    # frozen purposes, the reserved retention classes, §7.9's retention window
+    # — rather than mirroring them into a second copy that can drift.
+    check_synthetic_evaluation_corpus(f)
+    check_ephemeral_processing_envelope(f)
     ev_ids = check_fixtures(f, registry, docs)
     # The latency comparison cases carry acceptance evidence exactly as the
     # fixtures do, so their ids join the set the evidence register resolves
@@ -741,6 +748,38 @@ CHECKLIST_S79_DATA_CLASSES = {"ephemeral_presentation", "structured_record"}
 # compares the recorded list rather than trusting the prose beside it.
 CHECKLIST_S79_NEVER = {"audio", "full_transcript", "independent_transcription"}
 CHECKLIST_S79_RETENTION_DAYS = 90
+
+# ---- §6.2, the canary's consent envelope and its synthetic corpus -----------
+# Fork 4 Option C's two artifacts. They are checked here for the same reason
+# the canary policy is: they are governance artifacts written by hand beside
+# the acceptance map, and the values that matter in them are values another
+# artifact already ratified. Wherever a value exists elsewhere it is READ from
+# there — ROLLBACK-A's trigger vocabulary from the policy, the frozen purpose
+# list from the registry, the reserved retention classes from the registry, the
+# retention window and reference from the checklist's §7.9 block — so these
+# constants are only the identifiers and the ruled shapes.
+CORPUS_FILE = "synthetic-evaluation-corpus.yaml"
+CORPUS_KIND = "avatar-client-synthetic-evaluation-corpus"
+# Condition 7's five classes and three domains, exactly. Condition 7 says the
+# evaluations must pass "for generic, MedxFactory and LedgerxFactory", so a
+# corpus with a fourth domain or a missing class is not the corpus that
+# condition names.
+CORPUS_CLASSES = {"safety", "exact_value", "consent", "handoff", "blocked_state"}
+CORPUS_DOMAINS = {"generic", "MedxFactory", "LedgerxFactory"}
+ENVELOPE_FILE = "canary-ephemeral-processing-envelope.yaml"
+ENVELOPE_KIND = "avatar-client-canary-ephemeral-processing-envelope"
+ENVELOPE_MEDIA_PURPOSES = {"avatar.media_capture", "avatar.provider_processing"}
+ENVELOPE_STRUCTURED_PURPOSE = "avatar.structured_record"
+ENVELOPE_WITHDRAWAL_OUTCOME = "revoked"
+ENVELOPE_SHADOW_CONTROL = "single_model_on_live_canary_audio"
+ENVELOPE_PILOT_SUCCESSOR = "avatar-pilot-hardening"
+# The fixture's IDENTITY is pinned; its PATH deliberately is not. The envelope
+# carries the path in `withdrawal.reachability_proof.fixture` and the check
+# resolves THAT, so the citation is what gets proved. Mirroring the location
+# here as well would be the drift these checks exist to prevent: relocating the
+# fixture would update the envelope and leave this constant behind, and the
+# resulting failure would be about a stale copy rather than about the claim.
+WITHDRAWAL_FIXTURE_ID = "det-consent-withdraw-mid-speech"
 
 # ---- §7.5, the minimum sample count per gated cell (feeds §5.2) -------------
 SAMPLE_MIN_FILE = "latency-sample-minimum.yaml"
@@ -1597,12 +1636,14 @@ def _check_operator_surface(f: Findings, cat: str, rp: str, pol: dict) -> None:
         f.error(cat, f"{rp}: operator_surface.mechanism_ref is {ref!r} != the ruled "
                      f"{POLICY_OPERATOR_RUNBOOK!r}")
     if isinstance(ref, str) and ref:
-        target = (ROOT / ref).resolve()
-        inside = target.is_relative_to(ROOT.resolve()) if hasattr(
-            target, "is_relative_to") else str(target).startswith(str(ROOT.resolve()))
-        if not inside:
-            f.error(cat, f"{rp}: operator_surface.mechanism_ref {ref!r} escapes the "
-                         f"repository; the runbook is a document in this tree")
+        # Routed through the shared `_repo_file` guard rather than keeping a
+        # second hand-rolled containment check here. This site already refused
+        # an escape; what it gains is the SPECIFIC refusal — absolute, or a
+        # `..` segment — and, more usefully, one implementation for every
+        # YAML-supplied path in this validator instead of two that can drift.
+        target = _repo_file(f, cat, f"{rp}: operator_surface.mechanism_ref", ref)
+        if target is None:
+            pass  # refused above with the reason; the filesystem is untouched
         elif not target.is_file():
             f.error(cat, f"{rp}: operator_surface.mechanism_ref {ref!r} resolves to "
                          f"no file; the RULED MECHANISM IS THAT DOCUMENT, so a "
@@ -2137,6 +2178,618 @@ def _check_no_vault_or_secret(f: Findings, cat: str, rp: str, node: Any,
                          f"never baked into a repository")
 
 
+# --- shape guards for the §6.2 readers --------------------------------------
+# `x.get("k") or {}` DEFENDS ONLY AGAINST ABSENCE, and absence is the easy
+# case. A key that is PRESENT but holds a list, a string or a number is
+# truthy, survives the `or`, and then raises AttributeError out of the next
+# `.get()` — which ends the run as an anonymous harness crash rather than as
+# the finding a malformed contract artifact deserves. These two read a value
+# at the shape the caller requires, RECORD a finding when it is present and
+# wrong, and hand back an empty container so the rest of the run continues and
+# reports everything else. Fail closed, and say which file and field did it.
+def _as_mapping(f: Findings, cat: str, where: str, value: object) -> dict:
+    """A value that must be a MAPPING if it is present at all.
+
+    Absent reads as empty on purpose: the caller's own field checks then
+    report the specific field that is missing, which is a more useful message
+    than "this block is absent"."""
+    if value is None:
+        return {}
+    if isinstance(value, dict):
+        return value
+    f.error(cat, f"{where} must be a mapping, got {type(value).__name__}; a "
+                 f"malformed shape is a finding, not a crash")
+    return {}
+
+
+def _as_sequence(f: Findings, cat: str, where: str, value: object) -> list:
+    """A value that must be a LIST if it is present at all.
+
+    A string is deliberately NOT accepted as a sequence here. Iterating one
+    yields its CHARACTERS, so a scalar written where a list belongs would
+    quietly become a set of single letters — `set("safety")` reading as six
+    triggers — and every downstream comparison would then be wrong in a way
+    that looks like data rather than like a typo."""
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return value
+    f.error(cat, f"{where} must be a list, got {type(value).__name__}; a "
+                 f"malformed shape is a finding, not a crash")
+    return []
+
+
+def _mappings_in(f: Findings, cat: str, where: str, value: object) -> list[dict]:
+    """Every MAPPING member of a list-valued field, with non-mapping members
+    reported rather than skipped in silence. A list whose entries are strings
+    would otherwise read as a legitimately empty set of ids."""
+    out: list[dict] = []
+    for i, item in enumerate(_as_sequence(f, cat, where, value)):
+        if isinstance(item, dict):
+            out.append(item)
+        else:
+            f.error(cat, f"{where}[{i}] must be a mapping, got "
+                         f"{type(item).__name__}")
+    return out
+
+
+def _strings_in(f: Findings, cat: str, where: str, value: object) -> set[str]:
+    """The non-blank STRING members of a list-valued field, as a set.
+
+    Two failures this replaces, both of which `set(...)` alone commits:
+
+    A NON-STRING MEMBER IS REPORTED, NEVER DROPPED. Filtering with
+    `if isinstance(t, str)` shrinks a vocabulary silently, so a policy listing
+    seven triggers and one malformed entry would validate a corpus against
+    seven and say nothing — the malformed artifact hides behind the good part
+    of itself. Consistent with `_mappings_in`, the bad member is a finding and
+    the good members still participate; a field with NO usable member is left
+    empty for the caller to refuse.
+
+    AND AN UNHASHABLE MEMBER IS A FINDING RATHER THAN A CRASH. `set()` over a
+    list containing a mapping raises `TypeError: unhashable type: 'dict'`,
+    which ends the run the same anonymous way the `.get()` on a list did."""
+    out: set[str] = set()
+    for i, item in enumerate(_as_sequence(f, cat, where, value)):
+        if isinstance(item, str) and item.strip():
+            out.add(item)
+        else:
+            f.error(cat, f"{where}[{i}] must be a non-empty string, got "
+                         f"{item!r}; a malformed member is reported, not "
+                         f"silently dropped from the set it belongs to")
+    return out
+
+
+def _ids_in(f: Findings, cat: str, where: str, value: object) -> set[str]:
+    """The string `id` of every mapping member of a list-valued field.
+
+    Same discipline as `_strings_in`, for the registries these checks read
+    their vocabularies out of: a member whose `id` is absent or is itself a
+    mapping would otherwise either vanish from the set or raise `TypeError`
+    on the way into it."""
+    out: set[str] = set()
+    for i, item in enumerate(_mappings_in(f, cat, where, value)):
+        ident = item.get("id")
+        if isinstance(ident, str) and ident.strip():
+            out.add(ident)
+        else:
+            f.error(cat, f"{where}[{i}].id must be a non-empty string, got "
+                         f"{ident!r}")
+    return out
+
+
+def _repo_file(f: Findings, cat: str, where: str, claimed: object) -> Path | None:
+    """A repository-relative path READ FROM YAML, resolved safely or refused.
+
+    A path that arrives from a contract artifact reaches `ROOT / value` and
+    then the filesystem, and two ordinary-looking values leave the repository
+    entirely. An ABSOLUTE path discards the left operand — `Path("/repo") /
+    "/etc/passwd"` is `/etc/passwd`, by pathlib's specification rather than by
+    accident — and any `..` segment walks out of the tree. On a CI runner that
+    turns a YAML field into an arbitrary-file-read primitive.
+
+    Both are refused as FINDINGS naming which one it was, never silently. The
+    join is then `resolve()`d and re-checked with `is_relative_to`, because
+    the two syntactic tests alone would not catch a path that is relative and
+    `..`-free yet still leaves the tree by another route.
+
+    SYMLINKS ARE NOT GIVEN SEPARATE HANDLING, deliberately. `resolve()`
+    already follows them, so a symlink inside the repository pointing outside
+    it lands outside ROOT and is refused by the containment check like any
+    other escape. Going further — refusing paths that are symlinked but still
+    contained — would be threat-modelling a validator that reads files from
+    its own repository against an attacker who can already write that
+    repository, which is not a boundary this tool holds or claims to.
+
+    Returns the resolved path, or None when it was refused."""
+    if not isinstance(claimed, str) or not claimed.strip():
+        f.error(cat, f"{where} must be a non-empty string path, got "
+                     f"{claimed!r}; `ROOT / <non-string>` raises rather than "
+                     f"reporting")
+        return None
+    candidate = Path(claimed)
+    if candidate.is_absolute():
+        f.error(cat, f"{where} {claimed!r} is an ABSOLUTE path; joining one to "
+                     f"the repository root discards the root entirely, so this "
+                     f"is refused rather than resolved")
+        return None
+    if ".." in candidate.parts:
+        f.error(cat, f"{where} {claimed!r} contains a '..' segment, which walks "
+                     f"out of the repository; refused rather than resolved")
+        return None
+    root = ROOT.resolve()
+    target = (root / candidate).resolve()
+    if not target.is_relative_to(root):
+        f.error(cat, f"{where} {claimed!r} resolves to {target}, which is "
+                     f"outside the repository; refused rather than read")
+        return None
+    return target
+
+
+def _rollback_a_triggers(f: Findings, cat: str) -> set[str] | None:
+    """ROLLBACK-A's ratified trigger vocabulary, READ FROM THE POLICY.
+
+    Not mirrored as a constant here on purpose. The corpus's whole claim is
+    that every scenario's failure maps to a trigger the rollback policy already
+    ratified; checking it against a second copy in this file would only prove
+    the two copies agree with each other. Returns None (and records a finding)
+    when the vocabulary cannot be read, because a corpus checked against
+    nothing is a corpus that was not checked."""
+    path = AVC / POLICY_FILE
+    if not path.is_file():
+        f.error(cat, f"{CORPUS_FILE}: {POLICY_FILE} is absent, so ROLLBACK-A's "
+                     f"trigger vocabulary cannot be read; every scenario's "
+                     f"emitted trigger is unverifiable (fail closed)")
+        return None
+    prp = f"contracts/avatar-client/{POLICY_FILE}"
+    doc = _as_mapping(f, cat, prp, load_yaml(path))
+    policy = _as_mapping(f, cat, f"{prp} rollback_policy",
+                         doc.get("rollback_policy"))
+    classes = _mappings_in(f, cat, f"{prp} rollback_policy.classes",
+                           policy.get("classes"))
+    for entry in classes:
+        if entry.get("id") == "ROLLBACK-A":
+            # NON-STRING MEMBERS ARE REPORTED, NOT FILTERED AWAY. Dropping them
+            # would shrink the ratified vocabulary in silence: a policy listing
+            # seven usable triggers and one malformed entry would check the
+            # corpus against seven and say nothing, so the malformed artifact
+            # would hide behind the good part of itself. The surviving strings
+            # still participate — the same semantics `_mappings_in` uses — and
+            # a list with NO usable member falls through to the refusal below,
+            # because an empty vocabulary would fail every scenario for the
+            # wrong reason.
+            triggers = _strings_in(f, cat, f"{prp} ROLLBACK-A.triggers",
+                                   entry.get("triggers"))
+            if not triggers:
+                break
+            return triggers
+    f.error(cat, f"{CORPUS_FILE}: {POLICY_FILE} declares no readable ROLLBACK-A "
+                 f"trigger list; the corpus cannot be checked against the "
+                 f"ratified vocabulary (fail closed)")
+    return None
+
+
+def check_synthetic_evaluation_corpus(f: Findings) -> None:
+    """§6.2.1: the synthetic model-versus-model evaluation corpus.
+
+    Four things are checked, and each exists because its failure mode is a
+    corpus that LOOKS complete:
+
+    1. EVERY SCENARIO'S FAILURE MAPS TO A RATIFIED TRIGGER. `detection.py`
+       answers an unrecognised trigger with `REFUSED_UNKNOWN_TRIGGER` — a
+       NON-tripping verdict — so a scenario carrying an invented trigger would
+       fail silently at canary time: the evaluation would report a failure and
+       the ring would not abort. The vocabulary is read from the rollback
+       policy, never from a copy here.
+
+    2. EVERY CLASS x DOMAIN CELL IS COVERED. Condition 7 requires five classes
+       to pass for three domains; a missing cell is a condition-7 claim with no
+       evidence behind it, and §7.6's session floor counts those same 15 cells.
+
+    3. EVERY ROLLBACK-A TRIGGER IS REACHABLE FROM THE CORPUS. §6.3.3 proved the
+       safety trip for all eight recorded triggers; a corpus that can only
+       produce six of them leaves two proven paths unexercised.
+
+    4. THE DECLARED COVERAGE COUNTS ARE RECOMPUTED, never trusted. A totals
+       block that disagrees with the scenarios beneath it is the exact shape of
+       a corpus that was edited without its summary.
+
+    Fail closed on an unreadable corpus; skip silently when the file is absent
+    so the validator stays green at every phase checkpoint."""
+    cat = "eval-corpus"
+    path = AVC / CORPUS_FILE
+    if not path.is_file():
+        return
+    rp = f"contracts/avatar-client/{CORPUS_FILE}"
+    doc = load_yaml(path)
+    if not isinstance(doc, dict):
+        f.error(cat, f"{rp}: top-level mapping required")
+        return
+    if doc.get("kind") != CORPUS_KIND:
+        f.error(cat, f"{rp}: kind {doc.get('kind')!r} != {CORPUS_KIND!r}")
+    if not str(doc.get("corpus_ref") or "").strip():
+        f.error(cat, f"{rp}: no `corpus_ref`; `SafetyEvalSignal.corpus_ref` is "
+                     f"required and non-empty precisely so a verdict can be "
+                     f"re-run by whoever reads the record")
+
+    # Fork 4's first clause, as fields rather than as prose.
+    syn = _as_mapping(f, cat, f"{rp} synthesis", doc.get("synthesis"))
+    if syn.get("content_origin") != "scripted":
+        f.error(cat, f"{rp}: synthesis.content_origin is "
+                     f"{syn.get('content_origin')!r} != 'scripted'; Fork 4 "
+                     f"Option C rules that the evaluation corpus is SYNTHETIC")
+    for field in ("tenant_data", "real_utterances"):
+        if syn.get(field) != "none":
+            f.error(cat, f"{rp}: synthesis.{field} is {syn.get(field)!r} != "
+                         f"'none'; a corpus carrying either is not synthetic")
+    audio = _as_mapping(f, cat, f"{rp} synthesis.audio_synthesis",
+                        syn.get("audio_synthesis"))
+    if audio.get("status") != "not_performed_by_this_artifact":
+        f.error(cat, f"{rp}: synthesis.audio_synthesis.status does not record "
+                     f"that rendering to audio is a §5/canary-time act of the "
+                     f"RUN; committed audio would be media this ring has no "
+                     f"retention class for")
+
+    allowed = _rollback_a_triggers(f, cat)
+    scenarios = _as_sequence(f, cat, f"{rp} scenarios", doc.get("scenarios"))
+    if not scenarios:
+        f.error(cat, f"{rp}: no scenarios; an empty corpus is not a corpus")
+        return
+
+    seen_ids: set[str] = set()
+    cells_seen: set[str] = set()
+    triggers_seen: set[str] = set()
+    by_class: dict[str, int] = {}
+    by_domain: dict[str, int] = {}
+    class_triggers: dict[str, set[str]] = {}
+    for sc in scenarios:
+        if not isinstance(sc, dict):
+            f.error(cat, f"{rp}: a scenario entry is not a mapping")
+            continue
+        sid = sc.get("scenario_id")
+        if not sid:
+            f.error(cat, f"{rp}: a scenario carries no scenario_id")
+            continue
+        if sid in seen_ids:
+            f.error(cat, f"{rp}: duplicate scenario_id {sid!r}")
+        seen_ids.add(sid)
+        klass, domain = sc.get("class"), sc.get("domain")
+        if klass not in CORPUS_CLASSES:
+            f.error(cat, f"{rp}: {sid} names class {klass!r}; condition 7's "
+                         f"classes are {sorted(CORPUS_CLASSES)}")
+        if domain not in CORPUS_DOMAINS:
+            f.error(cat, f"{rp}: {sid} names domain {domain!r}; condition 7's "
+                         f"domains are {sorted(CORPUS_DOMAINS)}")
+        if klass in CORPUS_CLASSES and domain in CORPUS_DOMAINS:
+            cell = f"{klass}/{domain}"
+            cells_seen.add(cell)
+            if sc.get("cell") != cell:
+                f.error(cat, f"{rp}: {sid} records cell {sc.get('cell')!r} but "
+                             f"its class and domain make it {cell!r}")
+            by_class[klass] = by_class.get(klass, 0) + 1
+            by_domain[domain] = by_domain.get(domain, 0) + 1
+        script = sc.get("script")
+        if not isinstance(script, list) or not script:
+            f.error(cat, f"{rp}: {sid} carries no scripted exchange; a scenario "
+                         f"with no script cannot be run")
+        expected = _as_mapping(f, cat, f"{rp} {sid} expected",
+                               sc.get("expected"))
+        if not str(expected.get("behavior") or "").strip():
+            f.error(cat, f"{rp}: {sid} declares no expected behavior; a "
+                         f"scenario with no expectation cannot pass or fail")
+        emit = _as_mapping(f, cat, f"{rp} {sid} emits_on_failure",
+                           sc.get("emits_on_failure"))
+        trig = emit.get("trigger")
+        if allowed is not None and trig not in allowed:
+            f.error(cat, f"{rp}: {sid} emits trigger {trig!r}, which is not one "
+                         f"of ROLLBACK-A's ratified triggers {sorted(allowed)}; "
+                         f"`evaluate_safety_signal` answers an unrecognised "
+                         f"trigger with a NON-tripping verdict, so this "
+                         f"scenario's failure would not abort the ring")
+        elif allowed is not None:
+            triggers_seen.add(trig)
+            if klass in CORPUS_CLASSES:
+                class_triggers.setdefault(klass, set()).add(trig)
+        if emit.get("rollback_class") != "ROLLBACK-A":
+            f.error(cat, f"{rp}: {sid} names rollback_class "
+                         f"{emit.get('rollback_class')!r}; the safety-eval trip "
+                         f"fires ROLLBACK-A and no other class")
+        if emit.get("session_outcome") != ENVELOPE_WITHDRAWAL_OUTCOME:
+            f.error(cat, f"{rp}: {sid} names session_outcome "
+                         f"{emit.get('session_outcome')!r} != "
+                         f"{ENVELOPE_WITHDRAWAL_OUTCOME!r}; §7.8 binds "
+                         f"ROLLBACK-A's force-terminated leg to that token")
+        if emit.get("scenario_class") != klass:
+            f.error(cat, f"{rp}: {sid} emits scenario_class "
+                         f"{emit.get('scenario_class')!r} but is classified "
+                         f"{klass!r}; the signal would misreport its own class")
+
+    # (2) every class x domain cell
+    expected_cells = {f"{k}/{d}" for k in CORPUS_CLASSES for d in CORPUS_DOMAINS}
+    for missing in sorted(expected_cells - cells_seen):
+        f.error(cat, f"{rp}: no scenario covers cell {missing!r}; condition 7 "
+                     f"requires that class to pass for that domain")
+
+    # (3) every ratified trigger reachable
+    if allowed is not None:
+        for unreached in sorted(allowed - triggers_seen):
+            f.error(cat, f"{rp}: no scenario can produce ROLLBACK-A trigger "
+                         f"{unreached!r}; §6.3.3 proved the safety trip for all "
+                         f"eight recorded triggers and this corpus reaches "
+                         f"fewer")
+
+    # The per-class trigger declaration must match what the scenarios emit.
+    # The LOOP still runs when the vocabulary is unreadable, because
+    # `_strings_in` shape-checks each declared list and that is worth doing
+    # either way; only the COMPARISON is conditional (see the note below).
+    for entry in _mappings_in(f, cat, f"{rp} classes", doc.get("classes")):
+        cid = entry.get("id")
+        declared = _strings_in(f, cat, f"{rp} class {cid!r} triggers",
+                               entry.get("triggers"))
+        actual = class_triggers.get(cid, set()) if allowed is not None else set()
+        if cid in CORPUS_CLASSES and actual and declared != actual:
+            f.error(cat, f"{rp}: class {cid!r} declares triggers "
+                         f"{sorted(declared)} but its scenarios emit "
+                         f"{sorted(actual)}")
+
+    # (4) recomputed coverage
+    cov = _as_mapping(f, cat, f"{rp} coverage", doc.get("coverage"))
+    recomputed = [("scenarios_total", len(scenarios)),
+                  ("cells", len(cells_seen)),
+                  ("classes", len(CORPUS_CLASSES)),
+                  ("domains", len(CORPUS_DOMAINS))]
+    # `triggers_covered` IS ONLY RECOMPUTABLE WHEN THE VOCABULARY WAS READ.
+    # With an unreadable policy `triggers_seen` is empty because nothing could
+    # be matched against it — not because the corpus reaches no trigger — so
+    # comparing it would manufacture a coverage mismatch on top of the real
+    # unreadable-policy finding, and the reader would have to work out which
+    # of the two to act on. One true finding is worth more than two.
+    if allowed is not None:
+        recomputed.append(("triggers_covered", len(triggers_seen)))
+    for key, actual in recomputed:
+        if cov.get(key) != actual:
+            f.error(cat, f"{rp}: coverage.{key} records {cov.get(key)!r} but "
+                         f"the scenarios beneath it give {actual}; a summary "
+                         f"that disagrees with its corpus is how an edited "
+                         f"corpus keeps an old claim")
+    for key, actual in (("scenarios_by_class", by_class),
+                        ("scenarios_by_domain", by_domain)):
+        # A comparison rather than a `.get()`, so a wrong shape cannot crash
+        # here — but reading it through the guard turns "records ['safety']
+        # but the scenarios give {...}" into a message that names the shape.
+        if _as_mapping(f, cat, f"{rp} coverage.{key}", cov.get(key)) != actual:
+            f.error(cat, f"{rp}: coverage.{key} records {cov.get(key)!r} but "
+                         f"the scenarios give {actual}")
+
+
+def check_ephemeral_processing_envelope(f: Findings) -> None:
+    """§6.2.2 and §6.2.4: the canary's ephemeral processing envelope.
+
+    The envelope's job is to say, in fields, what Fork 4 Option C ruled in
+    prose. So the checks are the ones that keep those fields honest against the
+    surfaces that already own the facts:
+
+    - THE PURPOSES ARE THE FROZEN THREE, read from the registry rather than
+      mirrored. `new_purposes_introduced` is compared to 0 and the count to the
+      registry's own length, so the envelope cannot admit a fourth purpose by
+      declaring one.
+    - THE NEVER-INSTANTIATED CLASSES ARE ALL FOUR RESERVED CLASSES, read from
+      the registry's `reserved:` block. §7.9's own list names three (it omits
+      `video`, which this ring has no capability for) and is compared set-equal
+      by its own check; this one is the full reserved set, because the promoted
+      requirement names all four.
+    - THE RETENTION WINDOW AND REFERENCE MATCH THE CHECKLIST'S §7.9 BLOCK, read
+      from the checklist. Two artifacts carrying the same 90 days is two places
+      for it to drift.
+    - WITHDRAWAL'S REACHABILITY CITES A FIXTURE THAT EXISTS. A reachability
+      claim whose proof is a filename nobody wrote is not a proof, and the
+      fixture's `fixture_id` is compared so a rename cannot quietly orphan it.
+    - THE NON-SHADOWING CONTROL STAYS OPERATIONAL (§6.2.4). `enforced_by_schema`
+      must be exactly False and the enforcing flag must stay named as
+      pilot-hardening work: no schema field forbids a second-model shadow
+      today, and a later editor flipping this to `true` would be writing the
+      false claim task 6.2.4 exists to refuse."""
+    cat = "eval-envelope"
+    path = AVC / ENVELOPE_FILE
+    if not path.is_file():
+        return
+    rp = f"contracts/avatar-client/{ENVELOPE_FILE}"
+    doc = load_yaml(path)
+    if not isinstance(doc, dict):
+        f.error(cat, f"{rp}: top-level mapping required")
+        return
+    if doc.get("kind") != ENVELOPE_KIND:
+        f.error(cat, f"{rp}: kind {doc.get('kind')!r} != {ENVELOPE_KIND!r}")
+
+    # ---- consent: the frozen three, read from the registry ----
+    reg_path = AVC / "registries" / "consent-purposes.registry.yaml"
+    frozen: set[str] = set()
+    if reg_path.is_file():
+        creg = "contracts/avatar-client/registries/consent-purposes.registry.yaml"
+        frozen = _ids_in(
+            f, cat, f"{creg} members",
+            _as_mapping(f, cat, creg, load_yaml(reg_path)).get("members"))
+    con = _as_mapping(f, cat, f"{rp} consent", doc.get("consent"))
+    if frozen and con.get("frozen_purpose_count") != len(frozen):
+        f.error(cat, f"{rp}: consent.frozen_purpose_count is "
+                     f"{con.get('frozen_purpose_count')!r} but the registry "
+                     f"holds {len(frozen)} purposes")
+    if con.get("new_purposes_introduced") != 0:
+        f.error(cat, f"{rp}: consent.new_purposes_introduced is "
+                     f"{con.get('new_purposes_introduced')!r} != 0; this ring "
+                     f"reuses the frozen purposes and adds none")
+    media = _ids_in(f, cat, f"{rp} consent.media_leg_purposes",
+                    con.get("media_leg_purposes"))
+    if media != ENVELOPE_MEDIA_PURPOSES:
+        f.error(cat, f"{rp}: consent.media_leg_purposes {sorted(media, key=str)} "
+                     f"!= {sorted(ENVELOPE_MEDIA_PURPOSES)}; task 6.2.2 rules "
+                     f"that the media leg rides exactly those two")
+    struct = _as_mapping(f, cat, f"{rp} consent.structured_record_purpose",
+                         con.get("structured_record_purpose")).get("id")
+    if struct != ENVELOPE_STRUCTURED_PURPOSE:
+        f.error(cat, f"{rp}: consent.structured_record_purpose.id is "
+                     f"{struct!r} != {ENVELOPE_STRUCTURED_PURPOSE!r}")
+    if frozen:
+        for pid in sorted((media | {struct}) - frozen):
+            f.error(cat, f"{rp}: consent names purpose {pid!r}, which is not a "
+                         f"member of the frozen registry")
+    opt = _as_mapping(f, cat, f"{rp} consent.optional_stricter_domain_purpose",
+                      con.get("optional_stricter_domain_purpose"))
+    if opt.get("unresolved_reference_effect") != "deny":
+        f.error(cat, f"{rp}: optional_stricter_domain_purpose."
+                     f"unresolved_reference_effect is "
+                     f"{opt.get('unresolved_reference_effect')!r} != 'deny'; a "
+                     f"stricter term that silently falls back to the neutral "
+                     f"pair was never obtained")
+    if _as_mapping(f, cat, f"{rp} consent.new_evaluation_purpose",
+                   con.get("new_evaluation_purpose")
+                   ).get("admitted") is not False:
+        f.error(cat, f"{rp}: consent.new_evaluation_purpose.admitted is not "
+                     f"False; ALV-007-S03 refuses an evaluation-specific "
+                     f"purpose for this ring")
+
+    # ---- data classes: permitted from §7.9, forbidden from the registry ----
+    dc = _as_mapping(f, cat, f"{rp} data_classes", doc.get("data_classes"))
+    permitted = _strings_in(f, cat, f"{rp} data_classes.permitted",
+                            dc.get("permitted"))
+    if permitted != CHECKLIST_S79_DATA_CLASSES:
+        f.error(cat, f"{rp}: data_classes.permitted {sorted(permitted, key=str)} "
+                     f"!= {sorted(CHECKLIST_S79_DATA_CLASSES)}; the ruled Fork 4 "
+                     f"Option C classes are exactly those two")
+    ret_reg = AVC / "registries" / "retention-classes.registry.yaml"
+    reserved: set[str] = set()
+    if ret_reg.is_file():
+        rreg = "contracts/avatar-client/registries/retention-classes.registry.yaml"
+        reserved = _ids_in(
+            f, cat, f"{rreg} reserved",
+            _as_mapping(f, cat, rreg, load_yaml(ret_reg)).get("reserved"))
+    never = _strings_in(
+        f, cat, f"{rp} data_classes.never_instantiated.classes",
+        _as_mapping(f, cat, f"{rp} data_classes.never_instantiated",
+                    dc.get("never_instantiated")).get("classes"))
+    if reserved and never != reserved:
+        f.error(cat, f"{rp}: data_classes.never_instantiated.classes "
+                     f"{sorted(never, key=str)} != the registry's reserved set "
+                     f"{sorted(reserved)}; all four stay forbidden and this "
+                     f"ring instantiates none of them")
+    if permitted & reserved:
+        f.error(cat, f"{rp}: data_classes permits reserved class(es) "
+                     f"{sorted(permitted & reserved)}")
+
+    # ---- retention: read the ruled values from the checklist, not a copy ----
+    ck_path = AVC / CHECKLIST_FILE
+    ruled_ret: dict = {}
+    if ck_path.is_file():
+        ckp = f"contracts/avatar-client/{CHECKLIST_FILE}"
+        ck = _as_mapping(f, cat, ckp, load_yaml(ck_path))
+        for cond in _mappings_in(f, cat, f"{ckp} conditions",
+                                 ck.get("conditions")):
+            if cond.get("number") == CHECKLIST_S79_CONDITION:
+                ruled_ret = _as_mapping(
+                    f, cat, f"{ckp} condition 2 ruled_values.retention",
+                    _as_mapping(f, cat, f"{ckp} condition 2 ruled_values",
+                                cond.get("ruled_values")).get("retention"))
+                break
+    ret = _as_mapping(f, cat, f"{rp} retention", doc.get("retention"))
+    if ruled_ret:
+        for key in ("window_days", "policy_ref", "applies_to"):
+            if ret.get(key) != ruled_ret.get(key):
+                f.error(cat, f"{rp}: retention.{key} is {ret.get(key)!r} but the "
+                             f"checklist's §7.9 ruling says "
+                             f"{ruled_ret.get(key)!r}; the ruled value has one "
+                             f"home and this artifact cites it")
+    elif ck_path.is_file():
+        f.error(cat, f"{rp}: the checklist declares no §7.9 retention block to "
+                     f"check this envelope's window and reference against")
+
+    # ---- withdrawal: the existing outcome, reachable mid-session ----
+    wd = _as_mapping(f, cat, f"{rp} withdrawal", doc.get("withdrawal"))
+    if wd.get("maps_to_outcome") != ENVELOPE_WITHDRAWAL_OUTCOME:
+        f.error(cat, f"{rp}: withdrawal.maps_to_outcome is "
+                     f"{wd.get('maps_to_outcome')!r} != "
+                     f"{ENVELOPE_WITHDRAWAL_OUTCOME!r}")
+    if wd.get("new_outcome_tokens_introduced") != 0:
+        f.error(cat, f"{rp}: withdrawal.new_outcome_tokens_introduced is "
+                     f"{wd.get('new_outcome_tokens_introduced')!r} != 0; the "
+                     f"closed session-outcomes registry gains no member here")
+    out_reg = AVC / "registries" / "session-outcomes.registry.yaml"
+    if out_reg.is_file():
+        oreg = "contracts/avatar-client/registries/session-outcomes.registry.yaml"
+        outcomes = _ids_in(
+            f, cat, f"{oreg} members",
+            _as_mapping(f, cat, oreg, load_yaml(out_reg)).get("members"))
+        if wd.get("maps_to_outcome") not in outcomes:
+            f.error(cat, f"{rp}: withdrawal.maps_to_outcome "
+                         f"{wd.get('maps_to_outcome')!r} is not a member of the "
+                         f"released session-outcomes registry")
+    for flag in ("reachable_mid_session", "reachable_mid_speech"):
+        if wd.get(flag) is not True:
+            f.error(cat, f"{rp}: withdrawal.{flag} is {wd.get(flag)!r}; task "
+                         f"6.2.2 requires withdrawal to STAY REACHABLE during a "
+                         f"session")
+    proof = _as_mapping(f, cat, f"{rp} withdrawal.reachability_proof",
+                        wd.get("reachability_proof"))
+    # THE RAW VALUE GOES TO THE GUARD, UNCOERCED. `str(value or "")` in front
+    # of `_repo_file` defeats the very check it looks like it is helping:
+    # `str(["x"])` is `"['x']"`, a non-empty STRING, so the non-string guard
+    # cannot fire, the name resolves as an ordinary relative path inside the
+    # tree, and a malformed shape is then reported as a missing file — the
+    # wrong finding, arrived at by throwing away the evidence.
+    raw = proof.get("fixture")
+    if raw is None or (isinstance(raw, str) and not raw.strip()):
+        f.error(cat, f"{rp}: withdrawal.reachability_proof names no fixture; a "
+                     f"reachability claim with no proof is an assertion")
+    else:
+        fx = _repo_file(f, cat, f"{rp} withdrawal.reachability_proof.fixture",
+                        raw)
+        if fx is None:
+            pass  # refused above with the reason; never touched the filesystem
+        # `_repo_file` accepted it, so it IS a non-blank string; coercing is
+        # safe only here, AFTER the guard rather than in front of it.
+        elif not fx.is_file():
+            f.error(cat, f"{rp}: withdrawal.reachability_proof.fixture "
+                         f"{raw!r} does not exist; the proof is a filename")
+        else:
+            claimed = str(raw)
+            fid = _as_mapping(f, cat, claimed, load_yaml(fx)).get("fixture_id")
+            if fid != proof.get("fixture_id") or fid != WITHDRAWAL_FIXTURE_ID:
+                f.error(cat, f"{rp}: the cited fixture's fixture_id is {fid!r}, "
+                             f"which does not match the envelope's "
+                             f"{proof.get('fixture_id')!r} / the landed "
+                             f"{WITHDRAWAL_FIXTURE_ID!r}")
+
+    # ---- §6.2.4: the non-shadowing control stays OPERATIONAL ----
+    controls = {c.get("control"): c for c in _mappings_in(
+        f, cat, f"{rp} operational_controls",
+        doc.get("operational_controls"))}
+    shadow = controls.get(ENVELOPE_SHADOW_CONTROL)
+    if shadow is None:
+        f.error(cat, f"{rp}: no operational control named "
+                     f"{ENVELOPE_SHADOW_CONTROL!r}; task 6.2.4 requires the "
+                     f"non-shadowing guarantee to be RECORDED as one")
+        return
+    if shadow.get("enforced_by_schema") is not False:
+        f.error(cat, f"{rp}: the non-shadowing control records "
+                     f"enforced_by_schema="
+                     f"{shadow.get('enforced_by_schema')!r}; NO schema field "
+                     f"forbids a second-model shadow today and claiming "
+                     f"otherwise would be false (task 6.2.4)")
+    if shadow.get("enforcement") != "operational":
+        f.error(cat, f"{rp}: the non-shadowing control records enforcement="
+                     f"{shadow.get('enforcement')!r} != 'operational'")
+    flag = _as_mapping(
+        f, cat, f"{rp} {ENVELOPE_SHADOW_CONTROL} enforcing_contract_flag",
+        shadow.get("enforcing_contract_flag"))
+    if flag.get("status") != "deferred":
+        f.error(cat, f"{rp}: the enforcing contract flag records status="
+                     f"{flag.get('status')!r} != 'deferred'; it is not built")
+    if flag.get("owner_change") != ENVELOPE_PILOT_SUCCESSOR:
+        f.error(cat, f"{rp}: the enforcing contract flag names owner_change="
+                     f"{flag.get('owner_change')!r} != "
+                     f"{ENVELOPE_PILOT_SUCCESSOR!r}; task 6.2.4 requires the "
+                     f"enforcing flag to be named as pilot-hardening work")
+
+
 def check_fixtures(f: Findings, registry: Registry, docs: dict[str, dict]) -> set[str]:
     """US2 (T032): execute every self-describing fixture to its declared `expect`
     and check per-schema + per-class coverage. Returns the set of fixture
@@ -2605,13 +3258,25 @@ def check_client_lab_acceptance_map(f: Findings) -> None:
             g = s.get("gate")
             if g is not None and g not in CLIENT_LAB_GATES:
                 f.error("client-lab-gates", f"{rp}: scenario {sid} gate {g!r} is not one of the nine gates")
+            # Both of these are YAML-SUPPLIED PATHS joined to the repository
+            # root and then handed to the filesystem — `discharge_via` is
+            # `load_yaml`d — so they go through the same containment guard the
+            # §6.2 and §7 readers use. An absolute value discards the root and
+            # a `..` segment walks out of the tree; either would make a
+            # contract artifact an arbitrary-file-read on the runner.
             fx = s.get("fixture")
-            if fx is not None and not (ROOT / fx).is_file():
-                f.error("client-lab-fixture", f"{rp}: scenario {sid} fixture {fx} does not exist")
+            if fx is not None:
+                fxp = _repo_file(f, "client-lab-fixture",
+                                 f"{rp}: scenario {sid} fixture", fx)
+                if fxp is not None and not fxp.is_file():
+                    f.error("client-lab-fixture", f"{rp}: scenario {sid} fixture {fx} does not exist")
             dv = s.get("discharge_via")
             if dv is not None:
-                dvp = ROOT / dv
-                if not dvp.is_file():
+                dvp = _repo_file(f, "client-lab-discharge",
+                                 f"{rp}: scenario {sid} discharge_via", dv)
+                if dvp is None:
+                    pass  # refused with its reason; the filesystem is untouched
+                elif not dvp.is_file():
                     f.error("client-lab-discharge", f"{rp}: scenario {sid} discharge_via {dv} does not exist")
                 else:
                     reg = load_yaml(dvp) or {}

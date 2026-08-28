@@ -179,6 +179,8 @@ Dropping the declared-pin question MUST NOT weaken any other link. The byte chai
 
 Nothing here changes how a consuming repository pins. A domain or install repo SHALL continue to declare the openxFactory release it consumes in its own `stack.yaml`, and tooling reading a contract from a checkout other than its own host SHALL continue to require that declaration.
 
+A THIRD case SHALL be read into the same rule where `openxFactory` is the CONSUMER of an EXTERNAL neutral product rather than the publisher of the contract it reads. There the DECLARED PIN is `contracts/<product>-pin.yaml` — a reverse-direction pin that the `stack.yaml` rule above does not reach, because `openxFactory` declares no `stack.yaml` consumption pin on a product it does not publish — and the byte chain, the fail-closed rule and the manifest-parity obligation SHALL run UNCHANGED against it: digest equality against the pin's recorded per-file `sha256`, parity against the pinned checkout's own `contracts/manifest.yaml`, and refusal on the request that first sees a drifted digest, an uninitialized checkout, or a manifest disagreeing with its own bytes. Shedding a contract family's own validator also removes a PUBLISHER MARKER for that family, so a tree that no longer carries it SHALL take the consumer path with its declared pin intact — which in this direction means the product pin, not `stack.yaml`.
+
 #### Scenario: Tooling runs from a publisher checkout
 - **WHEN** relocated neutral tooling loads a shared contract from the openxFactory checkout it is hosted in
 - **THEN** the released bytes MUST be verified by digest and manifest parity
@@ -201,6 +203,11 @@ Nothing here changes how a consuming repository pins. A domain or install repo S
 #### Scenario: A refusal reason cannot be established
 - **WHEN** the consumed checkout cannot be resolved at all
 - **THEN** verification MUST fail closed rather than treat the unanswered question as a pass
+
+#### Scenario: openxFactory consumes an external neutral product
+- **WHEN** neutral tooling in `openxFactory` reads a contract family published by an external neutral product repository that `openxFactory` pins
+- **THEN** the DECLARED PIN it is checked against is `contracts/<product>-pin.yaml` rather than a `stack.yaml` consumption pin
+- **AND** the byte chain, the fail-closed rule and the manifest-parity obligation apply unchanged, so the absence of a `stack.yaml` entry for that product MUST NOT be read as an exemption from any of them
 
 ### Requirement: Release reachability resolves its remote operand before it compares
 Release verification SHALL make every remote-derived object locally resolvable
@@ -363,3 +370,4 @@ protects would quietly be traded away.
 - **WHEN** the resolution step is removed and the proofs are run
 - **THEN** the skew proof MUST fail, reproducing the original refusal on an absent object
 - **AND** a proof that still passes MUST be treated as unpinned and rewritten rather than accepted
+

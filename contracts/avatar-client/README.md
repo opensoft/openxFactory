@@ -106,6 +106,42 @@ is a closed enum in `shared-definitions.schema.yaml`, not a registry (analyze A3
   `canary-cohort-and-rollback-policy.yaml` `operator_surface.holder` and is
   never copied. A sibling of the acceptance map for the same reason
   `latency-sample-minimum.yaml` is one.
+- `synthetic-evaluation-corpus.yaml` — the SYNTHETIC model-versus-model
+  evaluation corpus (`qualify-avatar-live-voice` task 6.2.1, Fork 4 Option C).
+  35 scripted scenarios across condition 7's five classes — safety,
+  exact-value, consent, handoff, blocked-state — and its three domains —
+  generic, MedxFactory, LedgerxFactory — covering all 15 class x domain cells
+  and reaching all EIGHT of ROLLBACK-A's ratified triggers. Every scenario
+  declares the `SafetyEvalSignal` its FAILURE emits, so §6.3.3's fail-closed
+  input seam finally has a corpus behind the `corpus_ref` it requires; a
+  scenario whose failure mapped to no ratified trigger would be answered by
+  `evaluate_safety_signal` with a NON-tripping verdict, so the validator
+  refuses one. Scripted means scripted: no tenant data, no recorded utterance,
+  and TEXT-LEVEL only — rendering a script to audio is a §5-time and
+  canary-time act of the RUN, because committed audio would be media this ring
+  has no retention class for. A sibling of the acceptance map for the same
+  reason `latency-sample-minimum.yaml` is one; `fixtures/**` is inside the
+  digested semantic surface and an authoring input does not earn a release cut.
+- `canary-ephemeral-processing-envelope.yaml` — the canary's ephemeral
+  processing envelope and its two operational controls
+  (`qualify-avatar-live-voice` tasks 6.2.2 and 6.2.4). Consent rides the
+  existing frozen purposes — the media leg on `avatar.media_capture` and
+  `avatar.provider_processing`, a produced record on
+  `avatar.structured_record` — plus an OPTIONAL stricter domain purpose
+  REFERENCE that is optional to declare and never optional to satisfy: an
+  unresolved one denies rather than falling back to the neutral pair, and a
+  reference is not a registry member, so the frozen count stays 3. Captions and
+  transcript deltas are `ephemeral_presentation`; decisions, consent versions
+  and outcomes are `structured_record` under the ruled 90-day reference
+  `avatar.internal_live.canary.structured_record.retention.v1`, CITED from the
+  checklist's §7.9 block rather than restated. Withdrawal maps onto the
+  existing `revoked` outcome and STAYS REACHABLE MID-SESSION, proved by the
+  landed `det-consent-withdraw-mid-speech` fixture rather than asserted. The
+  non-shadowing guarantee — never two models on live canary audio — is recorded
+  as an OPERATIONAL control with `enforced_by_schema: false` stated plainly and
+  the enforcing contract flag named as `avatar-pilot-hardening` work, because
+  no schema field forbids a second-model shadow today and claiming otherwise
+  would be false.
 - `broker-server-key-binding.template.yaml` and
   `broker-server-key-rotation-policy.yaml` — the internal-live broker
   server-key custody pair (`qualify-avatar-live-voice` task 6.1.1, §7.1 and
