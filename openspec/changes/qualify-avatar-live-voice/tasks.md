@@ -1211,8 +1211,8 @@ the checklist that produces its evidence.
       work runs through `openAvatar/docs/pin-resync-runbook.md` and its
       `sync_contracts.dart` baker.
       **CROSS-REPO DEPENDENCY — this task is discharged by a PR in
-      `opensoft/openAvatar`, not by anything in openxFactory.** It stays
-      UNTICKED here until that PR merges.
+      `opensoft/openAvatar`, not by anything in openxFactory.** It stayed
+      UNTICKED here until that PR merged.
       **TICKED 2026-08-28: THAT PR HAS MERGED.** `opensoft/openAvatar` PR #4,
       "pin: resync contract_pin.yaml to contract-v1.46 (AVC-09/AVC-10 join the
       kernel set)", merged 2026-08-27T17:34:59Z as merge commit `69864612`,
@@ -1268,7 +1268,8 @@ the checklist that produces its evidence.
       the command that produced it, that command's exit code, its own verdict
       line verbatim, and a SHA-256 of its captured output.
       **THE STABLE REFERENCE IS THE ARTIFACT, NOT A SHA.** This record cites
-      `opensoft/openAvatar` PR #6 and the path `release_evidence.yaml`; the
+      `opensoft/openAvatar` PR #6 and the path `openAvatar/release_evidence.yaml`
+      (repo-root `release_evidence.yaml` in that repository); the
       artifact is REGENERATED AT EVERY HEAD of that branch, so its revision,
       `tree_facts_sha256` and run counts move with each review round, and the
       release act regenerates again at the revision actually released. Baking
