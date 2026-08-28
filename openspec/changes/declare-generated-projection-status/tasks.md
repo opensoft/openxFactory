@@ -171,6 +171,28 @@ Every read-back was measured on 2026-08-28 in a fresh worktree off
       this packet's. `test_modified_block_currency_self_gate.py` merged
       cleanly and its ledger carries eight subjects: main's seven and this
       packet's one.
+      **RE-MEASURED AGAIN 2026-08-28 after `origin/main` was merged a SECOND
+      time**, proactively rather than on a conflict report, so this packet does
+      not race its sibling's merge. Main had since landed `#463` (the
+      measured-latents filing) and `#469` (archiving
+      `add-unclassified-finding-class`, whose twenty-one tests this branch
+      already carried from the first merge). The merged head **holds at 1271
+      passed, 0 failed**, 188.24s, EXIT=0 — unmoved, because the second merge
+      brought governance text and an archive act rather than tests.
+      `openspec validate --all --strict` moved 77 → **78 passed, 0 failed**
+      (main's two new active packets), and the floor is **unmoved at 4 critical
+      / 11 error / 41 warning / 12 info**.
+- [x] 4a.3b Resolve the `README.md` conflict main's landing created.
+      **DONE — same shape as the sibling's.** `#463` added two active-change
+      entries at the head of the OpenSpec Records block where this packet had
+      added one: a pure both-sides-inserted-at-the-head conflict in
+      `README.md` ALONE. Every code file, the delta, the regenerated
+      projection and both test files merged clean, and the taxonomy value and
+      the self-gate ledger row were re-checked present afterwards. **Resolved
+      by keeping BOTH sides**, this packet's entry at the head as the newest
+      arrival and main's two blocks verbatim beneath it. Zero conflict markers
+      after; each of the three entries appears exactly once; nothing of
+      main's dropped, reworded or reordered.
 - [x] 4a.4 The suites that own the edited `contracts/` schema were run too,
       because `tests/doc-health` does not read it — `tests/ideation-dashboard`,
       `tests/ideation_dashboard` and `tests/notebooklm`, the three that
