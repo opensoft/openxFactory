@@ -782,7 +782,7 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
 
 
 def test_the_resolution_ordering_and_marker_classes_read_zero_over_the_real_tree():
-    """THE THREE CLASSES THAT READ ZERO, each identified by the module's OWN
+    """THE FOUR CLASSES THAT READ ZERO, each identified by the module's OWN
     wording and each with a POSITIVE CONTROL on its probe.
 
     An "absent from" assertion over a rule-text probe is precisely the shape
@@ -801,18 +801,37 @@ def test_the_resolution_ordering_and_marker_classes_read_zero_over_the_real_tree
     source = _joined_source(mbc)
     unresolved_probe = "resolves to no promoted requirement"
     ordering_probe = "the ordering of MODIFIED blocks for"
+    # THE FOURTH, added by `add-unclassified-finding-class`: the fifth class,
+    # unplaced-finding drift. Its probe is deliberately NOT the residual row's
+    # wording — the row says "its own class map does not place" and the FINDING
+    # says "has no pattern for" — so that this control asserts the FINDING's
+    # constant rather than passing against `_UNCLASSIFIED_LINE`, which would be
+    # the same vacuity in a new place.
+    drift_probe = "class map has no pattern for"
     assert unresolved_probe in source, (
         f"probe {unresolved_probe!r} is not the module's own wording, so the "
         f"absence below would be vacuous")
     assert ordering_probe in source, (
         f"probe {ordering_probe!r} is not the module's own wording, so the "
         f"absence below would be vacuous")
+    # A SHARPER CONTROL THAN THE THREE ABOVE, and it has to be. `source`
+    # contains BOTH the finding's constant and the residual ROW's, so
+    # `drift_probe in source` would pass for a probe that only ever matched the
+    # row — a zero against the corpus would then say nothing about the class.
+    # Pinned against the two constants directly instead.
+    assert drift_probe in mbc._DRIFT_RULE, (
+        f"probe {drift_probe!r} is not the FINDING's own wording, so the "
+        f"absence below would be vacuous")
+    assert drift_probe not in mbc._UNCLASSIFIED_LINE, (
+        "the probe matches the residual ROW as well as the finding, so a zero "
+        "below would say nothing about the class")
     assert mbc._MARKER_ACTION in source
 
     findings = _findings()
     unresolved = [f for f in findings if unresolved_probe in f.rule]
     ordering = [f for f in findings if ordering_probe in f.rule]
     markers = [f for f in findings if f.action == mbc._MARKER_ACTION]
+    drift = [f for f in findings if drift_probe in f.rule]
 
     assert unresolved == [], _moved(
         "the title-resolution class (0 at 76a2ad27)",
@@ -823,6 +842,16 @@ def test_the_resolution_ordering_and_marker_classes_read_zero_over_the_real_tree
     assert markers == [], _moved(
         "the marker-defect class (0 at 76a2ad27)",
         f"{[f.rule[:160] for f in markers]}")
+    # THE FIFTH CLASS READS ZERO, which is the whole predicted movement of
+    # `add-unclassified-finding-class` on this tree: the class map places every
+    # finding the arms emit here, so nothing is unplaced and nothing is
+    # reported. A nonzero here is not a corpus fact — it means this family's own
+    # class map has drifted behind its own arms, and the finding names which
+    # rule text to add a pattern for.
+    assert drift == [], _moved(
+        "the unplaced-finding-drift class (0 at 86b7ca3f, the class's own "
+        "branch point)",
+        f"{[f.rule[:200] for f in drift]}")
 
     # ...and the bands that gate a run do not move at all.
     assert [f for f in findings if f.severity not in (WARNING, INFO)] == [], (
@@ -1327,11 +1356,19 @@ def test_the_gate_reaches_the_corpus_only_through_the_family():
     # finding: the destination title's presence in the block is what makes
     # `Merged into` the right form, and the kind constant is how the family
     # itself names a scenario title. One more name, and still not one regex.
+    # `_DRIFT_RULE` and `_UNCLASSIFIED_LINE` joined the list on 2026-08-28, with
+    # `add-unclassified-finding-class`'s fifth class. Its probe cannot take the
+    # `in source` control the other three take: the module source carries BOTH
+    # the finding's rule template and the residual row's line, so a probe that
+    # only matched the ROW would pass that control and then read a vacuous zero
+    # against the corpus. The control is therefore pinned to the two constants
+    # apart — the probe IS the finding's wording and is NOT the row's. Two more
+    # names, and still not one regex more below.
     allowed = {"ActiveBlock", "active_blocks", "declarations", "derive_units",
                "fam_modified_block_currency", "norm", "parse_delta",
                "promoted", "resolve", "sibling_titles",
                "DELTA_GLOB", "FAMILY", "SCENARIO_TITLE", "_MARKER_ACTION",
-               "_arm_ordering"}
+               "_arm_ordering", "_DRIFT_RULE", "_UNCLASSIFIED_LINE"}
     # OVER CODE, NOT OVER PROSE. This test's own docstring claimed "matched on
     # use" while doing the opposite: naming any family attribute in a docstring
     # or a comment anywhere in this file reddened the equality below. The review
