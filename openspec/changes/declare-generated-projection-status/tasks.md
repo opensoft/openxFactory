@@ -193,6 +193,34 @@ Every read-back was measured on 2026-08-28 in a fresh worktree off
       arrival and main's two blocks verbatim beneath it. Zero conflict markers
       after; each of the three entries appears exactly once; nothing of
       main's dropped, reworded or reordered.
+- [x] 4a.3c Merge `origin/main` a THIRD time, after the sibling packet landed.
+      **DONE 2026-08-28.** `clean-doc-health-floor` merged as `#465`
+      (merge commit `c79d6e54`) and main also gained `#475`, `#472`, `#471` and
+      the wallet-v1.2 register pair. **TWO conflicts, both both-sides-added:**
+      (a) `README.md`, the OpenSpec Records block again — resolved keeping BOTH,
+      this packet's entry at the head and **MAIN'S version of the
+      `clean-doc-health-floor` entry taken verbatim**, since that entry now
+      reflects the landed state main holds; verified byte-identical to
+      `origin/main:README.md` by diff rather than by eye. (b)
+      `tests/doc-health/test_modified_block_currency_self_gate.py`, where the
+      sibling's ledger row and this packet's landed at the same spot —
+      resolved keeping BOTH rows, since `clean-doc-health-floor` is merged but
+      still ACTIVE, so its MODIFIED block is still in the set that arm reads.
+      The ledger now carries NINE subjects. Every other file merged clean, and
+      the `projection` value was re-checked present at all seven of its sites
+      afterwards. **No status-consumer file this packet touches moved in the
+      merge**, verified by diffing the merge against its first parent.
+      **RE-VERIFIED ON THE MERGED HEAD:** `openspec validate
+      declare-generated-projection-status --strict` valid; `--all --strict`
+      **79 passed, 0 failed**; `pytest tests/doc-health -q` under pipefail
+      **1279 passed, 0 failed, EXIT=0**; the census still reads
+      `projection 1 / record 29`, and `ideation/cross-reference.md` is still
+      absent from `record-immutability`'s four criticals.
+      **THE FLOOR NOW SHOWS BOTH PACKETS AT ONCE — 4 critical / 7 error / 41
+      warning / 13 info**, against the 5 critical / 11 error this session
+      started from: the sibling's four cleared errors and this packet's one
+      cleared critical, on one branch for the first time. The thirteenth info
+      is the sibling's own MODIFIED-block subject, now reported here too.
 - [x] 4a.4 The suites that own the edited `contracts/` schema were run too,
       because `tests/doc-health` does not read it — `tests/ideation-dashboard`,
       `tests/ideation_dashboard` and `tests/notebooklm`, the three that
