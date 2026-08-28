@@ -1,0 +1,152 @@
+schema_version: 1
+kind: pinned_workflow
+
+# ============================================================================
+# review-lane-pin.yaml — which codexFactory decision core judges openxFactory.
+#
+# `.github/workflows/merge-master-approval.yml` checks out
+# `opensoft/codexFactory` at an exact commit to obtain the Merge Master decision
+# core. THIS FILE IS THAT CLAIM, recorded where a reviewer can see it change,
+# and `tests/review_lane_pin/test_review_lane_caller.py` is the running code
+# that refuses to let the two disagree.
+#
+# WHY A FILE AT ALL, when xFactory needs none. The aggregation repo VENDORS
+# codexFactory as a submodule, so its working rule #2 can say the workflow's pin
+# MUST equal the gitlink, and `tests/test_review_lane_workflow.py` asserts
+# exactly that — the gitlink is the recorded value and the test is the tie.
+# openxFactory has NO codexFactory gitlink and will not acquire one: it is a
+# peer contracts repository, not an aggregation. So there is nothing structural
+# for a test to compare the workflow against, and without this file "which core
+# judged this pull request" is answerable only by reading a workflow file, while
+# advancing it is a one-line edit nobody is obliged to notice. The pin file plus
+# the test reconstructs the property the gitlink gave xFactory for free.
+#
+# WHY `kind: pinned_workflow` AND NOT `pinned_contract_manifest`. The realized
+# neighbour, `contracts/openxwallet-pin.yaml`, pins a CONTRACT BUNDLE: a
+# commit plus eight content digests, consumed as data. This pins EXECUTABLE
+# GOVERNANCE CODE consumed by a workflow — no bundle, no digest set, and the
+# thing it protects is "which decision core ran", not "which bytes we read".
+# Reusing `pinned_contract_manifest` would have claimed a digest discipline this
+# pin does not have and cannot have (the pinned members are Python modules and a
+# governance YAML in another repository, content-addressed by the commit).
+#
+# NOT A PUBLISHED CONTRACT, so NO `contracts/manifest.yaml` ROW. This follows
+# `contracts/openxwallet-pin.yaml` exactly: that pin was REMOVED from the
+# manifest at `contract-v2.0` because a pin is not a contract this repository
+# publishes to consumers. It lives under `contracts/` because that is where this
+# repository keeps pins, not because it is a bundle member.
+#
+# ROUTED TO A HUMAN. `.github/CODEOWNERS` names this path, on the 2026-08-23
+# convener ruling's ground and for the same reason the wallet pin is named
+# there: a pull request that changes this file changes the code a governance
+# surface executes.
+# ============================================================================
+
+# The pinned repository. Private; the caller mints a read-only content-App token
+# to reach it.
+repository: opensoft/codexFactory
+
+# THE TRUSTED REFERENT. Exactly 40 lowercase hex. `revision_kind: commit` is
+# declared and a tag or branch is REFUSED — a movable ref is not a pin, and the
+# whole point of this file is that the answer to "which core judged this" cannot
+# move without a diff.
+#
+# This key name is deliberately NOT `commit`. `commit` is already a declared
+# member key of this repository's derivation-pin class, bound to
+# `contracts/openxwallet-pin.yaml`; reusing it here would have produced an
+# UNCOVERED pin site. `core_commit` is a key the sweep vocabulary did not know,
+# and declaring the member in `scripts/doc_health/pin_class.py` is what teaches
+# it — the same move `carve_commit` made, for the same reason.
+core_commit: "58bd3cf79b91da26aced95c2000576981d9445c8"
+revision_kind: commit
+
+# When this pin was declared, and against what observation. Recorded because a
+# pin with no date cannot be reasoned about at a re-point ceremony.
+declared_at: "2026-08-27"
+declared_from: codexFactory origin/main HEAD as observed on 2026-08-27
+
+# The caller this pin governs. The test asserts this file exists AND that its
+# checked-out `ref:` equals `core_commit` above.
+governs:
+  - .github/workflows/merge-master-approval.yml
+
+# WHAT THE CALLER ACTUALLY READS OUT OF THE PINNED TREE. Named so a re-point
+# ceremony knows what to re-verify, and so a future reader can tell whether a
+# newer commit still carries what this lane depends on.
+pinned_members:
+  - path: scripts/merge_master/repository_floor.py
+    why: >-
+      The repository-gate-floor parser and loader. Supplies
+      `load_governance_paths` (which refuses an unknown document kind and
+      refuses two floors declaring one repository) and
+      `parse_repository_floor(..., tree_paths=...)`, whose opt-in reachability
+      check the caller opts into so an unreachable floor path is a named
+      failure rather than silence.
+  - path: scripts/merge_master/openxfactory-review-authority-floor.yaml
+    why: >-
+      The `repository_gate_floor` for `opensoft/openxFactory` — the three
+      never-clearable paths this lane reports against. Authored and owned in
+      codexFactory; read here, never authored here.
+
+# WHY THIS PIN IS NOT xFACTORY'S PIN — the divergence, and the obligation it
+# creates.
+#
+# xFactory pins ONE codexFactory commit in BOTH of its merge-master surfaces
+# (`.github/workflows/merge-master-approval.yml` and
+# `.github/workflows/council-convening-lane.yml`) and calls advancing it a
+# recorded re-point ceremony, in lockstep, precisely so two cores never judge
+# one family. Pinning the SAME commit here was the lockstep-preserving choice,
+# and it is impossible: at xFactory's pinned commit (2026-08-21),
+# `scripts/merge_master/` contains NEITHER of the two `pinned_members` above.
+# Both landed later, with codexFactory's `015-widen-review-authority-floor`
+# work. Since the floor evaluation is the ONLY thing this caller does, the older
+# commit cannot run it.
+#
+# So the divergence is FORCED BY THE FEATURE, not chosen for freshness — and
+# saying so is not the same as discharging it. The obligation stands:
+lockstep:
+  status: diverged
+  reason: >-
+    xFactory's pinned commit predates both pinned_members above, so it cannot
+    evaluate the openxFactory repository gate floor at all.
+  diverged_from:
+    - opensoft/xFactory .github/workflows/merge-master-approval.yml
+    - opensoft/xFactory .github/workflows/council-convening-lane.yml
+  obligation: >-
+    A future re-point ceremony should converge all three surfaces onto one
+    commit. Advance this pin only at such a ceremony, and change this file and
+    the caller's `ref:` in ONE reviewed diff — the test fails if they disagree.
+  # The diverging commit is NAMED in the caller's header comment rather than
+  # here on purpose. `.github/` is outside the derivation-pin sweep roots, while
+  # `contracts/**` is inside them: a second commit-shaped value in this file
+  # would be a second pin site needing its own declared class member, for a
+  # value that is documentation about another repository's workflow rather than
+  # a pin this repository consumes.
+
+# WHAT THE PINNED CORE IS AND IS NOT USED FOR HERE. Recorded on the pin because
+# a pin that does not say what it authorizes invites scope creep at the next
+# edit.
+scope:
+  advisory_only: true
+  evaluates:
+    - the repository gate floor for opensoft/openxFactory
+  does_not_evaluate:
+    - the tier-1 merge-approval envelope (no candidate class is enrolled for
+      this repository; the envelope schema requires a non-empty candidates list
+      and add-substantive-review-lane task 3.2 owes the gate_rules_council
+      record that would define one)
+    - any tier-2 per-repo gate rule
+    - any council verdict transport
+  never_performs:
+    - submitting a review
+    - minting an approving identity's token
+    - calling merge
+    - enabling auto-merge
+    - changing any ruleset or branch-protection setting
+
+# The governance record this pin serves.
+realizes: add-substantive-review-lane task 5.1 (workflow-instance half only)
+blocked_half: >-
+  Task 5.1's ruleset half remains owed, behind S3 (the wallet-signed exercise
+  record at check_verdict) and S5 (revocation at verdict consumption) of
+  add-wallet-carried-review-authority, plus a ratified ruleset change.
