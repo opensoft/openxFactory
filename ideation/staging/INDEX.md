@@ -49,7 +49,7 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [signed-execution-chain](#signed-execution-chain) | ADDED a NEUTRAL signed-execution-chain family in openxFactory (the chain from a wallet-presented ratification through atomic enrollment, the traveling contract, harness + runner attestations, the signed PR-open decision, council review of the signed brief, and a CHAIN-VALIDATING MERGE GATE) — composing with `openxwallet`, `trust-anchor`, `identity-brokering` and `roles-authority-model`; plus the ON-CHAIN anchoring/consent layer Brett ruled 2026-08-27 | 2 | Registered 2026-08-27 from Brett's expansion ruling. **A broken chain is a FRAUD SIGNAL and there is no merge** — the chain is a PRECONDITION the omnigent layer enforces (it refuses to build an unverified chain), not an audit trail written afterwards. TIER MODEL forced by a ratified constraint: authority credentials stay HUMAN-HELD because omnigent workers carry `access_secrets: false`, so runners sign only EPHEMERAL PER-TASK attestations issued by the harness controller under its own cert — and the KEY NEVER ENTERS THE WORKER (the controller signs on the runner's request; `access_secrets: false` holds in every configuration and a short lifetime does not make a key non-secret, so "issued to the runner" would breach the same constraint the split honours — Q7 asks which signing mechanism). Tier 1 answers *who permitted this*, tier 2 *what actually ran*, and neither may stand in for the other. ON CHAIN: **salted keyed commitments** (never plain hashes — EDPB Guidelines 02/2025 v2.0 hold that a hash of personal data IS personal data, so erasure is by SALT DESTRUCTION), commitments to consent-log **checkpoints** (consent STATE stays in the governed permissioned layer, which is publicly unlinkable), and anchors — **raw PHI never**, on HIPAA grounds a public chain is append-only, world-readable and permanent; records stay in encrypted off-chain custody with patient-held keys, and hospitals/insurers verify through presentations. **The evidence plane is OFF chain and IS the record** — a signed RFC-6962-style transparency log; anchoring only makes it externally undeniable. DOMAIN MAPPING is the neutral-layer proof — MedxFactory→**HealthLinc** (treatment plan ratified→simulated→reviewed→"merge" = pushed to the patient app or printed as signed orders) and LedgerxFactory→**LedgerLinc** (analysis/review plans, "merge" = published to the ledger app) run the SAME chain, differing in payload and regulator, not in shape. Sequences BEHIND four ACTIVE changes (not staged topics): `add-wallet-carried-review-authority` (S2 issuer anchor REALIZED — the direct predecessor and link 1's instrument), `add-trust-anchor` (certificates + chain custody, realized at contract-v1.37), `add-identity-brokering` (who a signer is), `implement-openxpki-install-repo` (the CA that issues the controller cert). 7 open questions, none blocks tranche one (Q3/Q6 gate tranche 3, Q7 gates tranche 2). Q3 chain selection is **ANSWERED BY A VENDORED STUDY** (`chain-selection-study.md`, 2026-08-27, sourced + date-checked): transparency log as the evidence plane, **Bitcoin (OpenTimestamps aggregation) primary anchor**, **Kaspa optional secondary** under three conditions (archival node, inclusion proofs retained AT ANCHOR TIME, corroborating-only — Kaspa L1 **prunes tx data after ~3 days**), consent logic in the permissioned layer with anchored state roots, **NOT smart contracts on the anchoring chain and NOT Kasplex/Igra in 2026**; a chain-agnostic MULTI-ANCHOR RECEIPT is the 10-year exit path. Brett's three priors came back **QUALIFIED** (Kaspa "non-captured"), **REFUTED for anchoring** ("Bitcoin too expensive" — aggregation makes it ~$0 marginal), **CONFIRMED** (KAS sub-penny fees). **Q6 is the one needing a ruling**: the ruling's "patients put PHI portions on chain" is read as COMMITMENTS, a narrowing the topic raises rather than assumes. Q7 (added from the review round) asks where an attestation signature physically happens. EXIT: tranche 1 (signed ratification + atomic enrollment + the transparency log) is composable TODAY; tranche 2 attestation needs the omnigent layer + the PKI plane; tranche 3 on-chain anchoring needs rulings on Q3 and Q6, not more analysis |
 | [avatar-pilot-hardening](#avatar-pilot-hardening) | ADDED `avatar-pilot-hardening` | 1 | Blocked — last successor; gated on `qualify-avatar-live-voice` + the client lab landing, plus its own open forks |
 | [ideation-action-plane](#ideation-action-plane) | ADDED `ideation-intent-plane`; MODIFIED `document-lifecycle` (gates happen on main); fragment 2: MODIFIED `lifecycle-notebook-projection` (Drive membrane) | 2 | Exit 1 raised at this gate (`add-ideation-intent-plane`); fragment 2 blocked on the Drive↔NLM markdown-ingestion spike |
-| [client-credential-escrow-registry](#client-credential-escrow-registry) | MODIFIED `credential-contracts` (escrow registry + break-glass custody; possibly a sixth record kind); touches `client-infrastructure-liaison` | 1 | Ready to iterate — design inputs settled with Brett 2026-07-19; 6 open questions (delta shape + break-glass topology hardest); first consumer live (opensoft self-client QA install) |
+| [client-credential-escrow-registry](#client-credential-escrow-registry) | ADDED to `credential-contracts` — SPLIT INTO TWO PACKETS by Brett 2026-08-28: exit 1 = the break-glass CHECKOUT path (`add-credential-escrow-checkout`, proposed 2026-08-28), exit 2 = the REGISTRY itself (`add-credential-escrow-registry`, the ruled successor: the additive `escrow:` block on `xfactory_credential_binding_template`, the escrow-entry record kind, the home, inventory completeness and the decryption-free lint); touches `client-infrastructure-liaison` | 1 | **EXIT 1 RAISED 2026-08-28** as `add-credential-escrow-checkout`. Four rulings taken over a read-only decision round (delta shape; key topology; registry home; scope split), so 4 of the 6 open questions are RULED and the remaining 2 (master-key rotation runbook; the registry validator) are the successor's. The topic doc stays staged for exit 2. Forcing fact re-verified at the gate: the QA install has read `execution_binding.mode: opsxfactory_executed` at `status: completed` since 2026-07-20 and `config/clients/opensoft/credentials/` does not exist |
 | [client-layer-tuning](#client-layer-tuning) | MODIFIED client scaffold (`roles/` + FAO + `cost_reporting_steward`); ADDED client content schemas + `validate-client-content`; wizard verb in hermes-install | 1 | **COMPLETE 2026-07-24** — all three exits ratified, realized, archived (2a contract-v1.17 + canonical spec `client-layer-tuning`; 2b codexFactory defaults; 2c wizard + unified client seeding). The opensoft tenant is tuned and seeded live (phase-2 evidence note). Primary doc + drafts retained as provenance |
 | [context-compression-runtime](#context-compression-runtime) | ADDED `context-compression-runtime` (worker-lane compression stage + RAM-only local-store rule + upstream-exclusion obligation + three-tier audit model + per-domain egress-capture knob) | 1 | Ready to iterate — design + headroom v0.32.0 source audit locked with Brett 2026-07-25/26 (RAM-only CCR, audit moved to envelope/transcript/egress tiers); exit gated on the codexFactory-lane pilot in Omnigent-Install producing measured savings |
 | [dashboard-repo-selector](#dashboard-repo-selector) | MODIFIED `ideation-dashboard` (repo selector, (repository, ref) snapshot source, runtime fetch + baked fallback, refresh affordances, dispatchable publication) + ADDED snapshot-index contract; later ADDED runtime capability (neutral install-shipped ideation surface, DTN path) | 1 | **Proposed 2026-07-26** as `add-dashboard-repo-selector` (exit 1) — twelve decisions locked with Brett 2026-07-25/26 (runtime plane is the goal, planes separate, per-repo snapshots + index, sparse wheels, bake the app not the snapshot, baked snapshot demoted to fallback, two refresh bindings, off-cycle publication is CI-only, (repository, ref) keying, displayed freshness, branch snapshots never published); neutral-vs-override fork + data-source ratification deliberately open; exit 2 (runtime plane) still staged |
@@ -413,15 +413,47 @@ factory comparing references by raw string has it.
   has a registry entry) checkable without decryption.
 - Files:
   - [client-credential-escrow-registry.md](client-credential-escrow-registry/client-credential-escrow-registry.md) — primary: custody model, 7 claims, 6 open questions, exit.
-- Open questions (blocking): delta shape (MODIFIED `credential-contracts`
-  vs new capability); master-key rotation/blast-radius runbook;
-  break-glass authorization topology + post-use rotation; dedicated
-  registry-repo escalation criteria; MUST-escrow scope boundary
-  (non-vault plumbing credentials like deploy keys); validator for
-  registry structure + SOPS-metadata lint.
-- Exit: one openxFactory OpenSpec change; archives only on the first
-  escrowed install (opensoft self-client QA) with drift audit green and a
-  REHEARSED break-glass restore drill recorded.
+- Rulings, Brett 2026-08-28 (four multi-choice selections over a
+  READ-ONLY decision round, each taking the prep's recommendation):
+  **A — delta shape**: additive optional `escrow:` relationship block on
+  the existing `xfactory_credential_binding_template` PLUS one new record
+  kind for the escrow entry, on the trust-anchor precedent that "operator
+  escrow is a relationship on the credential record, not a custody tier".
+  **B — key topology**: per-client recipient PLUS one operator root on
+  every file, drills restricted to the per-client key, and the escrow
+  recipient set DISJOINT from every runtime decryption-controller
+  recipient (the live QA Flux age recipient may never be an escrow
+  recipient); the root's worst-case radius is every client, recorded.
+  **C — registry home**: Client Hermes
+  `config/clients/<client_ref>/credentials/` canonical, the openxpki
+  install-repo escrow grandfathered as a named dispositioned exception
+  until migrated, and three structural escalation tests any one of which
+  forces a dedicated registry repo. **D — scope: SPLIT**, checkout first
+  so the standing-admin exception can close; plus two sub-confirmations —
+  the retroactive-request POLICY WINDOW is set by the checkout packet, and
+  the QA Flux deploy key is SHOULD-escrow under the re-mint test (it is
+  regenerable while the operator holds GitHub org ownership).
+- Open questions: 4 of the original 6 are RULED above (delta shape;
+  break-glass authorization topology + after-use rotation; registry-repo
+  escalation criteria; MUST-escrow scope boundary). TWO REMAIN, both the
+  successor's: the master-key rotation / blast-radius runbook, and the
+  validator for registry structure + SOPS-metadata lint. Five NEW
+  questions were raised at the exit-1 gate and carry recommendations
+  there (one drill or one per client; drill cadence; what "domain
+  approval" means at a one-person self-client org; custody of the
+  operator root's own private half; whether the drill must also prove a
+  refusal).
+- Exit: TWO openxFactory OpenSpec changes, not one. **Exit 1 RAISED
+  2026-08-28** as `add-credential-escrow-checkout` — the break-glass
+  authorization, the evidence a checkout leaves, the policy window,
+  after-use rotation, the recipient rules, the re-mint test, and the
+  rehearsed drill as its archive gate (one drill also discharges
+  `deployment-handoff-boundary`'s phased-never-gapped milestone).
+  **Exit 2 open** as the ruled successor `add-credential-escrow-registry`
+  — ruling A's schema surface, ruling C's home and grandfathered
+  exception, inventory completeness bound to managed-install readiness,
+  and the decryption-free lint; it archives on the first escrowed install
+  with the drift audit green.
 
 ## avatar-pilot-hardening
 

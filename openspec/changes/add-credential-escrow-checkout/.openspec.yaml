@@ -1,0 +1,101 @@
+schema: spec-driven
+created: 2026-08-28
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-28-add-credential-escrow-checkout
+  reason: >-
+    Commissioned in-session by Brett on 2026-08-28. THE MECHANISM, RECORDED
+    BECAUSE IT DETERMINES WHAT THE CITATION COVERS. The orchestrating session
+    ran a READ-ONLY decision round over the staged topic
+    `client-credential-escrow-registry` — reading only, authoring nothing — and
+    put FOUR questions to Brett as multi-choice, each carrying the prep's own
+    recommendation. Brett took the recommendation on all four. The
+    RECOMMENDATIONS are the orchestrating session's and are quoted here as
+    recommendations; the SELECTIONS are Brett's and are the origin act, on the
+    instruction-as-origin-act shape that `govern-derived-pin-reachability`,
+    `supersede-lost-pin-baseline`, `fix-release-reachability-race`,
+    `declare-sentinel-pin-vocabulary` and both packets of the 2026-08-28
+    measured-latents set set. The two voices are kept apart deliberately.
+    THE FOUR RULINGS, as selected.
+    A — DELTA SHAPE. `credential-contracts` gains an additive optional `escrow:`
+    relationship block on the existing `xfactory_credential_binding_template`
+    PLUS one new record kind for the escrow entry itself (inventory + restore
+    target), shaped on the running prior art. The governing precedent is
+    Brett's own trust-anchor ruling of 2026-08-21 — "operator escrow is a
+    relationship on the credential record, not a custody tier"
+    (`openspec/changes/add-trust-anchor/proposal.md:5`), whose executable form
+    is the negative fixture
+    `contracts/trust-anchor/examples/negative/custody-registry-escrow-as-a-custody-tier.yaml`
+    and whose consumption rule is restated in `contracts/manifest.yaml:2477`.
+    B — KEY TOPOLOGY. A per-client escrow recipient PLUS one operator root
+    recipient on every escrowed object, with DRILLS restricted to the
+    per-client key; the escrow recipient set must be disjoint from every
+    runtime decryption-controller recipient — the live QA Flux age recipient
+    must never be an escrow recipient. Honest cost recorded at the ruling: the
+    operator root's worst-case blast radius is every client.
+    C — REGISTRY HOME. Client Hermes `config/clients/<client_ref>/credentials/`
+    is canonical; the existing openxpki install-repo escrow is grandfathered as
+    a named, dispositioned exception until migrated, on the
+    phased-never-gapped device `deployment-handoff-boundary` already uses; and
+    three structural escalation tests (readership breadth; whether the home can
+    fall inside the client estate; reviewer-set enforceability) each
+    independently force a dedicated registry repository.
+    D — SCOPE: SPLIT, AND THIS IS THE FIRST OF THE TWO PACKETS. The
+    CHECKOUT / BREAK-GLASS PATH ships first, so that
+    `deployment-handoff-boundary`'s standing-admin exception can close — its
+    promoted text holds the exception open "until the break-glass checkout path
+    is realized and tested"
+    (`openspec/specs/deployment-handoff-boundary/spec.md:122-135`). The full
+    registry follows as packet two, named here as the successor. TWO
+    SUB-CONFIRMATIONS RULED WITH D: this filing SETS the retroactive
+    `client_infrastructure_request` policy window that
+    `add-deployment-handoff-boundary` deferred here (its `design.md:136-138`
+    and its Open Questions at `design.md:219-221`), proposing a concrete window
+    with reasoning and flagging it for veto; and the QA Flux deploy key is
+    SHOULD-escrow rather than MUST-escrow under the re-mint test, because it is
+    regenerable while the operator holds GitHub organization ownership
+    (`Omnigent-Install` `clients/opensoft/docs/qa-subscription-migration-handoff.md:159-162`,
+    "if lost, generate a new pair and update the deploy key + TF var").
+    NOT A BLANK-PAIR AD-HOC FILING. `kind: staged` is NOT taken even though a
+    staged topic exists, because this packet raises EXIT 1 of a two-exit split
+    that the topic does not itself declare: the topic's own Exit names ONE
+    change carrying the whole registry. The split is Brett's ruling D, taken
+    after the topic was written, so the origin act is the ruling and not the
+    staging record. The topic doc stays staged for the successor and its
+    `INDEX.md` row is updated in this packet's commit rather than retired.
+    THE LIVE, UNMET OBLIGATION THAT MAKES THIS URGENT, verified in the working
+    checkout on 2026-08-28 rather than asserted: the opensoft self-client QA
+    install's execution binding already reads
+    `execution_binding.mode: opsxfactory_executed` with `status: completed`
+    (`xFactory-Hermes-Install`
+    `config/clients/opensoft/requests/cir-opensoft-qa-codexfactory-transfer.yaml:65,83`),
+    and `config/clients/opensoft/credentials/` DOES NOT EXIST. The managed-install
+    escrow duty is therefore active today against an absent registry.
+    Authored in openxFactory because `credential-contracts`,
+    `deployment-handoff-boundary` and `roles-authority-model` are all
+    openxFactory capabilities and the contract is domain-neutral.
+  approved_by: >-
+    Brett — four multi-choice selections on 2026-08-28, each taking the
+    orchestrating session's recommended option, over a read-only decision-round
+    prep on `ideation/staging/client-credential-escrow-registry/`. THE TWO
+    VOICES ARE KEPT APART: the option texts are the orchestrating session's
+    wording and attributing them to Brett would credit an authoring session's
+    phrasing to the approver. What Brett did is SELECT, four times, and those
+    selections are the approval act.
+    THE CITATION COVERS FOUR THINGS AND NOTHING ELSE: the delta shape (A), the
+    key topology (B), the registry home and its grandfathered exception (C),
+    and the two-packet split with its two sub-confirmations (D). It is an
+    admission into the proposal queue plus a ratification of those four
+    positions. It is NOT a ratification of this packet's requirement text, of
+    the proposed policy-window NUMBERS, of the decision to carry NO schema
+    surface in this first packet, or of any other decision in
+    `proposal.md` § Orchestrator decisions — every one of those was taken by
+    the authoring session and stays FLAGGED FOR VETO there, as do the open
+    questions, each of which carries a recommendation and no decision.
+  approved_on: 2026-08-28
+related:
+  - openxFactory:change:add-credential-escrow-registry      # the ruled successor (packet two): the escrow relationship block, the escrow-entry record kind, the registry home and its grandfathered exception, inventory completeness and the decryption-free lint
+  - openxFactory:change:add-deployment-handoff-boundary     # archived; its task 2.2 recorded the coordination, its phased-never-gapped requirement consumes this packet's drill, and its D7 deferred the policy window here
+  - openxFactory:change:add-trust-anchor                    # ACTIVE; its OQ2 ruling defers escrow here and promises no schema change there, so this packet touches no trust-anchor schema
+  - openxFactory:change:promote-credential-contracts        # promoted the five record kinds this packet composes rather than extends
+  - openxFactory:change:add-sops-ciphertext-ruling          # the ciphertext controls this packet cites and deliberately does not re-legislate

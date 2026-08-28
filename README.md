@@ -391,6 +391,57 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-credential-escrow-checkout](openspec/changes/add-credential-escrow-checkout/proposal.md)
+  — **EXIT 1 OF A TWO-PACKET SPLIT** ruled by Brett on 2026-08-28, over a
+  read-only decision round on the staged topic
+  `client-credential-escrow-registry`: four multi-choice questions, four
+  selections, each taking the prep's recommendation. The BREAK-GLASS CHECKOUT
+  PATH ships first so that `deployment-handoff-boundary`'s standing-admin
+  exception can close — its promoted text holds the operator's existing standing
+  administrative access open as a named, dispositioned exception "until the
+  break-glass checkout path is realized and tested", and its
+  no-standing-credentials requirement already says human direct access is
+  "a time-boxed credential checkout with evidence, followed by a retroactive
+  request within the governing policy window" while leaving all three of WHO,
+  WHAT EVIDENCE and HOW LONG undefined. That change's own design says so:
+  "Who can break glass, how credentials are custodied, and the window's length
+  belong to `client-credential-escrow-registry`." **Seven ADDED requirements on
+  `credential-contracts`, 28 scenarios, no MODIFIED block anywhere**: the
+  checkout as an administration-tier custody act (the escrow decryption identity
+  is ITSELF a credential, so the ratified `roles-authority-model` custody shape
+  applies unchanged, and a client-layer steward holding references may not
+  authorize release of values); the three correlated records a break-glass
+  leaves, with the audit ENUMERATING EVERY object decrypted; the policy window;
+  after-use rotation scoped to what was DECRYPTED rather than what was
+  reachable, with the escrow identity itself rotating only where its private half
+  left custody onto a non-ephemeral host; escrow recipients DISJOINT from every
+  runtime decryption controller, two per object, drills on the per-client key;
+  the rehearsed drill as the realization gate; and the re-mint test that decides
+  MUST-escrow from SHOULD-escrow. **THE WINDOW THIS SETS**, which
+  `add-deployment-handoff-boundary` deferred here in one line and which has no
+  numeric precedent anywhere in the family: **opened within 24 hours, disposed
+  within 5 business days, both bounds running from the checkout's expiry or
+  revocation, neither tolling.** The opening bound is derived from the DETECTOR,
+  not from taste — a window longer than the evidence-correlation audit's period
+  makes every legitimate break-glass manufacture a finding, and an audit
+  destroyed by its own true positives stops being read. Waits are `conditions` on
+  the request, which is how that contract already models holds; a late filing
+  still correlates and its lateness is its own separate finding, because "late
+  means void" makes silence strictly better than filing. **THE FORCING FACT**,
+  verified rather than asserted: the opensoft QA install has read
+  `execution_binding.mode: opsxfactory_executed` at `status: completed` since
+  2026-07-20 and `config/clients/opensoft/credentials/` does not exist — the
+  managed-install escrow duty has been live and unmet for five weeks. **NO SCHEMA
+  SURFACE** (OD-2): Brett's ruling A — an additive `escrow:` block on the binding
+  template plus an escrow-entry record kind — is deferred WHOLE to the successor
+  `add-credential-escrow-registry`, because the checkout is expressible in the
+  five already-promoted record kinds and the one field it needs beyond them rides
+  the promoted audit policy's open `minimum_fields` array. The code surface is
+  packaged conformance fixtures at the next additive bundle (`contract-v2.0` is
+  declared, so `contract-v2.1` at current merge order), and the ARCHIVE GATE IS
+  MERGE PLUS GREEN PLUS ONE REHEARSED DRILL — the same drill that discharges the
+  boundary's phased-never-gapped milestone and closes its exception.
+
 - [clean-doc-health-floor](openspec/changes/clean-doc-health-floor/proposal.md)
   — authored 2026-08-28 on Brett's in-session commission of the doc-health
   error floor ("lets do all 3 in order"), carrying TWO of the three ruled
