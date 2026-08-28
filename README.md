@@ -385,6 +385,70 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [create-ledgerxwallet-overlay-boundary](openspec/changes/create-ledgerxwallet-overlay-boundary/proposal.md)
+  — **RATIFIED 2026-08-28** (in-session ruling "ratify #449" on PR #449, both
+  required checks green; ratified AS PROPOSED, meaning the NARROWED v1 — see
+  below; realization via Speckit), authored 2026-08-27 as **P6 of the ratified
+  `split-openxwallet-repo`**, which names this change by id in its § Successors
+  named and again as its `tasks.md` 12.1; opened on Brett's in-session ruling of
+  the same day over the successor set ("approved. do all of these"), recorded in
+  `.openspec.yaml` as an ADMISSION to the queue and not a ratification of content.
+  Registered under DTN-026, whose resolution names `LedgerxWallet` as the first
+  descendant (R8). **The FIRST domain descendant repository created under the
+  ratified `domain-descendant-boundary`** — a standard that until now had five
+  requirements and no instance. ADDS one capability,
+  `ledgerxwallet-overlay-boundary` (five requirements): the pin declared TWICE in
+  ONE commit and checked by the descendant's OWN validator; the domain resolving
+  openXwallet only through the nested descendant, at a fixed path, in tooling AND
+  in written procedure; profile-never-estate-never-fork; a relocation reducing no
+  coverage and breaking no prepared procedure; and a creation gate scoped to
+  Ledgerx that CITES the ratified rule for the four sibling names rather than
+  re-legislating it. Issues NO delta against `domain-descendant-boundary` or
+  `neutral-product-pin`, which are RATIFIED-IN-CHANGE and **not yet promoted** —
+  `openspec/specs/` holds 52 capabilities and neither is among them, because that
+  change archives only on merged plus green realization evidence.
+  **What the packet argues:** the rule-1 breach is a RESOLUTION PATH, and P5b
+  (LedgerxFactory PR #30, `b131286`) narrowed it without closing it —
+  `VALIDATOR_CANDIDATES` still holds two candidates and both are paths in other
+  repositories reached by a five-level walk, with a second breach site in
+  `specs/016/quickstart.md:19`, which invokes the neutral validator through
+  openxFactory's checkout. Candidate pruning cannot make a walk into a pin; a
+  descendant can. **What it moves is deliberately small: the pin and
+  `templates/wallet-exercise.template.yaml`, and nothing else.** The packet was
+  **narrowed by its own review** — it originally relocated the estate validator
+  and the distinct-holder constraint too, and withdrew both on arithmetic rather
+  than preference: openXwallet `wallet-v1.1` PRUNES nested repositories from its
+  sweep (`sweep_candidates`, `validate-openxwallet.py:2063`), so a relocated
+  record would be adjudicated by NOTHING; the constraint's move takes
+  `check_real_estate`'s `>= 5` artifact floor to 4 and voids its
+  `EXPECTED_CONSTRAINT` lookup; and the validator is LedgerxFactory-AUTHORED, so
+  rule 1 — which forbids integrating THE PRODUCT'S validator — never required
+  moving it, while moving it would have opened four seams (`REPO` serves four
+  referents; `find_aggregation()` is a second upward walk feeding a leg the
+  parent's ratified `tasks.md` 6.2 makes this bar the only observer of). Both
+  relocations are successors with stated preconditions. Placement is
+  **nested-only** on the RATIFIED DTN-022 precedent this domain already realizes
+  for `LedgerxAvatar`, with its price NAMED: a nested descendant is outside every
+  governed-repo enumeration in the corpus, as `MedxAvatar` and `LedgerxAvatar`
+  already are. Review was heavy and is retained in full: **alignment 37 findings
+  across two reviewers; council 54 verdicts across three seats — Product Advocate
+  and Systems Architect PROCEED WITH CONSTRAINTS, Adversary Engineer
+  RESTRUCTURE**, and **the RESTRUCTURE was TAKEN rather than argued down**.
+  `clarifications.md` carries fourteen constraints plus a register of the findings
+  MOOTED by the narrowing, so the record shows which objections were answered by
+  argument and which by removing the thing objected to. **Q2 — the parent's one
+  open question, do `tenants/ledgerxcorp/wallets/*` move? — is RULED STAY at this
+  ratification and is CLOSED**, on the records' instance-shaped contents, the
+  nested prune (relocating them would move them OUT of adjudication, not into a
+  boundary), and the Product Advocate's own reason: those five files are the
+  commit target of the runsheet's unexecuted Phase 3.4, which mints real keys.
+  Two further ratification items: the **custody-posture cut STANDS** as a
+  successor, and the **nested-only placement's governed-enumeration gap STANDS**
+  with its cost named rather than closed.
+  `code_surface` spans three repositories and `target_release: implemented`, so it
+  archives only on merged plus green realization evidence, never on landing.
+  Realization is Speckit AFTER ratification; preconditions P5b and P3b
+  (codexFactory PR #117, `58bd3cf7`) are both DISCHARGED and P4 does not gate it.
 - [split-openxwallet-repo](openspec/changes/split-openxwallet-repo/proposal.md)
   — **RATIFIED 2026-08-26** (in-session ruling on PR #391; realization via
   Speckit) — authored 2026-08-26 as the first and only exit of the staged topic
