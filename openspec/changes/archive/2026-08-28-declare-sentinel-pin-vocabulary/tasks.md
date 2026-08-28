@@ -634,10 +634,14 @@ is flagged there for review rather than folded in quietly.
       rather than being deleted: it is present at the archive path, `git status`
       shows the old path deleted and the archive folder added (a move, not a
       loss), and `git hash-object` gives blob
-      `24ba794eba87a4348a08373fe435610bd581e29f` — IDENTICAL to the blob
-      `origin/main` carried for that path at the merge commit, so no restoration
-      was needed and no origin field moved. ORIGIN RETENTION therefore holds
-      through the archive as well as through the realization: `kind`, `id`,
+      `24ba794eba87a4348a08373fe435610bd581e29f` — IDENTICAL to the blob at the
+      RATIFYING COMMIT `d52a4c7e` ("The other half of a pin: what a generator
+      writes when no commit is true"), so no restoration was needed and no origin
+      field moved. ORIGIN RETENTION therefore holds through the archive as well
+      as through the realization, and the strongest available form of the claim
+      is the one measured: `git log -- <the live path>` lists exactly TWO commits
+      across all history — the ratifying add and this act's move — so the
+      declaration has never been rewritten by anybody, and `kind`, `id`,
       `reason`, `approved_by` and `approved_on` are unchanged from ratification.
       The rulings taken at this act went into `proposal.md`, this file and the
       README — never into the origin block, because a ruling is not origin
