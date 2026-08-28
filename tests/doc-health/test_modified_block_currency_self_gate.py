@@ -672,9 +672,18 @@ def test_the_scenario_arm_reads_zero_since_the_rename_was_declared():
     produces it too — so the named subject does not leave: it moves from being
     the finding to being the DECLARATION, read back through the family's own
     `active_blocks` as a `Merged into` marker naming exactly the discharged
-    title. Delete the marker and both halves fail, which is the mutation round's
-    check on this re-aim, and so does swapping it for a `Removed from canon by`
-    marker — the wrong form for a retitle declares nothing.
+    title. Delete the marker and BOTH halves fail: the band refills and the
+    declaration is gone.
+
+    AND THE SECOND HALF EARNS ITS KEEP ON ITS OWN, MEASURED. Swap the marker for
+    a `Removed from canon by` one — the wrong form for a retitle — and the BAND
+    STAYS EMPTY: a removal marker naming an absent title suppresses the
+    title-arm finding just as a merge marker does, because `dh:158-168`'s
+    added-title rule governs the removed title's BULLETS and not its title. Only
+    the declaration half fails, on `[('removed', None, [...])] != [('Tile-bound
+    …', ['Gate verbs …'])]`. An empty band alone would have accepted the wrong
+    instrument silently, which is the case that turns "assert zero" from a
+    verdict into a shrug.
 
     NO `assert _SCENARIO_SUBJECT is None` HERE. The first cut carried one and it
     was a module literal asserted against itself three hundred lines from where
