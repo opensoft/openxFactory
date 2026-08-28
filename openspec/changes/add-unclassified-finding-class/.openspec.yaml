@@ -1,0 +1,34 @@
+schema: spec-driven
+created: 2026-08-27
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-27-add-unclassified-finding-class
+  reason: >-
+    Commissioned in-session by Brett on 2026-08-27, verbatim: "Amend now". Not a
+    staged ideation topic — none exists, searched across `ideation/staging/` and
+    its INDEX. The forcing observation is in the report block
+    `add-modified-block-currency-check` § 5.1 landed the same day (PR #433,
+    squash `4def2274`): `classify` is fail-closed and returns `UNCLASSIFIED` for
+    a rule text its own class map does not place, and `class_summary` renders a
+    named residual row saying so — but that row is TEXT. It carries no severity,
+    it is not a finding, and `doc-health`'s own "Health report contract"
+    requirement that every finding reach the ranked plan as a ready-to-stage work
+    item therefore does not reach it, nor does any `--fail-on` configuration. The
+    one class of report content this capability produces that cannot become work
+    is the one reporting a defect in the capability's own tooling. Put to Brett
+    as a choice — leave it a text row, or make a nonzero count emit one `warning`,
+    which adds a FIFTH finding class — he chose the amendment. Authored here
+    because doc-health is an openxFactory capability and the family, the class map
+    and the report block are all its own.
+  approved_by: >-
+    Brett — in-session commissioning of the amendment itself. This records
+    authorization for the DECISION TO BUILD, which is also what the proposal's
+    `Ratified:` line cites. The three design decisions the authoring session took
+    under standing patterns — D1 (ADDED-only, no MODIFIED block on the currency
+    requirement, measured rather than preferred), D2 (a fifth `FindingClass` with
+    an anchored pattern rather than an unplaced finding or a severity on the
+    report block) and D3 (one finding per DISTINCT UNPLACED RULE SHAPE per run,
+    rewritten at packet review on 2026-08-27 from one per run, and never one per
+    repository) — are NOT covered by that authorization and are flagged for veto
+    in the proposal's § Orchestrator Decisions.
+  approved_on: 2026-08-27
