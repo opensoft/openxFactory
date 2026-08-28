@@ -69,13 +69,23 @@ Ten links. Each names what is signed, by whom, and what refuses when it is absen
 | 5 | **Runner attestations** — each runner attests its model, its version, and its local harness | per-task identity (key held at the controller; signature produced there) | the work cannot say what produced it |
 | 6 | **Signed PR-open decision** — opening a pull request is itself a decision and is signed as one | per-task identity (controller-signed) + carried contract | the PR is an orphan act |
 | 7 | **Council review with the signed proposal as the brief** — the council reviews the chain-carrying artifact, not a summary of it | council seats | review is of a restatement, which is the fidelity defect this family keeps finding |
-| 8 | **Chain-validating merge gate** — the gate walks the chain before it permits a merge | gate (verifier) | **no merge** |
+| 8 | **Chain-validating merge gate** — the gate walks links 1–7 before it permits a merge | gate (verifier) | **no merge** |
 | 9 | **Broken chain = fraud signal** — a gap is refused and reported as a fraud signal, never downgraded to a warning | — | (this IS the refusal) |
-| 10 | **Governed post-merge test** — consumes the proposal AND the review notes, so what was promised is what is tested | per-task identity (controller-signed) | the test is disconnected from the claim it should verify |
+| 10 | **Governed post-merge test** — consumes the proposal AND the review notes, so what was promised is what is tested | per-task identity (controller-signed) | the chain never closes: anything that consumes the merge refuses, and link 9 fires |
 
-**Link 8 is the load-bearing one.** Links 1–7 could be recorded by a
-well-behaved lane and forged by a badly-behaved one. Link 8 is what makes the
-chain a permission instead of a story: nothing merges unless the chain validates.
+**Link 8 is the load-bearing one, and it walks links 1–7** — everything that
+exists before a merge can. Links 1–7 could be recorded by a well-behaved lane
+and forged by a badly-behaved one; link 8 is what makes that part of the chain
+a permission instead of a story: nothing merges unless links 1–7 validate.
+Links 9 and 10 sit on the other side of the merge and are enforced at the NEXT
+gate, not this one: the chain is not complete at merge, it is complete at
+CLOSURE, and a merged-but-unclosed chain — link 10 missing, failed, or
+unsigned — is a refusing state for whatever consumes the merge (promotion,
+release, the next chain that builds on it) and fires link 9's fraud signal. A
+merge that already happened cannot be retroactively refused; what an unclosed
+chain forfeits is everything downstream of it. The review round caught the
+first draft implying link 8 walks all ten — a gate cannot walk a link that
+does not exist yet.
 
 ## The tier model
 
