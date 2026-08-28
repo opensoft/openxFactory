@@ -160,8 +160,17 @@ Every read-back was measured on 2026-08-28 in a fresh worktree off
       **77 passed, 0 failed (77 items)**, grown by exactly one for this packet
       joining the active set.
 - [x] 4a.3 `python3 -m pytest tests/doc-health -q` under `set -o pipefail`,
-      exit read from `$?` — **1250 passed, 0 failed**, 158.48s, **EXIT=0**.
-      Baseline 1249; grown by exactly the one regression test 4.4 adds.
+      exit read from `$?` — **1250 passed, 0 failed**, 158.48s, **EXIT=0**, at
+      the branch point. Baseline 1249; grown by exactly the one regression test
+      4.4 adds. **RE-MEASURED AFTER `origin/main` WAS MERGED IN**, and both
+      numbers are kept rather than the later overwriting the earlier: main
+      landed `add-unclassified-finding-class`, which touches
+      `scripts/doc_health/modified_block_currency.py` and adds twenty-one
+      tests and a fixture repository, so the merged head reads **1271 passed,
+      0 failed**, 156.73s, EXIT=0 — grown by main's twenty-one and by none of
+      this packet's. `test_modified_block_currency_self_gate.py` merged
+      cleanly and its ledger carries eight subjects: main's seven and this
+      packet's one.
 - [x] 4a.4 The suites that own the edited `contracts/` schema were run too,
       because `tests/doc-health` does not read it — `tests/ideation-dashboard`,
       `tests/ideation_dashboard` and `tests/notebooklm`, the three that
