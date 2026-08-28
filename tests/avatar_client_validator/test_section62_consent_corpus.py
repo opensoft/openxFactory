@@ -565,6 +565,136 @@ def test_a_string_where_a_trigger_list_belongs_does_not_read_as_characters(
         _messages(findings)
 
 
+# ---------------------------------------------------------------------------
+# A malformed vocabulary member is REPORTED, never silently dropped.
+# ---------------------------------------------------------------------------
+
+def test_a_non_string_trigger_in_the_policy_is_reported_not_dropped(
+        tmp_path, monkeypatch):
+    """FILTERING WITH `isinstance(t, str)` SHRINKS THE VOCABULARY IN SILENCE.
+    A policy listing seven usable triggers and one malformed entry would then
+    check the corpus against seven and say nothing — the malformed artifact
+    hiding behind the good part of itself."""
+    avc = _tree(tmp_path)
+
+    def poison(doc: dict) -> None:
+        entry = next(c for c in doc["rollback_policy"]["classes"]
+                     if c["id"] == "ROLLBACK-A")
+        entry["triggers"] = entry["triggers"] + [{"id": "sneaky"}]
+
+    _rewrite(avc, "canary-cohort-and-rollback-policy.yaml", poison)
+    findings = _run(monkeypatch, avc, "corpus")
+    assert any("must be a non-empty string" in e for e in findings.errors), \
+        _messages(findings)
+
+
+def test_the_surviving_triggers_still_participate(tmp_path, monkeypatch):
+    """The semantics `_mappings_in` already uses: the bad member is a finding
+    and the good members keep working. Proved by the ABSENCE of spurious
+    unknown-trigger errors for the eight real ones."""
+    avc = _tree(tmp_path)
+
+    def poison(doc: dict) -> None:
+        entry = next(c for c in doc["rollback_policy"]["classes"]
+                     if c["id"] == "ROLLBACK-A")
+        entry["triggers"] = entry["triggers"] + [42]
+
+    _rewrite(avc, "canary-cohort-and-rollback-policy.yaml", poison)
+    findings = _run(monkeypatch, avc, "corpus")
+    assert not any("not one of ROLLBACK-A's ratified triggers" in e
+                   for e in findings.errors), _messages(findings)
+    assert not any("no scenario can produce" in e for e in findings.errors), \
+        _messages(findings)
+
+
+def test_a_wholly_unusable_trigger_list_refuses_rather_than_emptying(
+        tmp_path, monkeypatch):
+    """An EMPTY vocabulary would fail every scenario for the wrong reason, so a
+    list with no usable member falls through to the fail-closed refusal."""
+    avc = _tree(tmp_path)
+
+    def poison(doc: dict) -> None:
+        entry = next(c for c in doc["rollback_policy"]["classes"]
+                     if c["id"] == "ROLLBACK-A")
+        entry["triggers"] = [1, 2, 3]
+
+    _rewrite(avc, "canary-cohort-and-rollback-policy.yaml", poison)
+    findings = _run(monkeypatch, avc, "corpus")
+    assert any("no readable ROLLBACK-A" in e for e in findings.errors), \
+        _messages(findings)
+
+
+def test_an_unhashable_member_is_a_finding_not_a_crash(tmp_path, monkeypatch):
+    """`set()` over a list containing a mapping raises `TypeError: unhashable
+    type: 'dict'`, which ends the run the same anonymous way a `.get()` on a
+    list did."""
+    avc = _tree(tmp_path)
+    _rewrite(avc, ENVELOPE, lambda d: d["data_classes"]["permitted"]
+             .append({"nested": "mapping"}))
+    findings = _run(monkeypatch, avc, "envelope")  # must not raise
+    assert findings.errors
+
+
+# ---------------------------------------------------------------------------
+# A YAML-supplied PATH may not leave the repository.
+#
+# `ROOT / value` hands a contract artifact straight to the filesystem, and two
+# ordinary-looking values escape: an ABSOLUTE path discards the root by
+# pathlib's specification (`Path("/repo") / "/etc/passwd"` == `/etc/passwd`),
+# and any `..` segment walks out of the tree. On a CI runner that is an
+# arbitrary-file-read primitive.
+#
+# SYMLINKS GET NO SEPARATE CASE, deliberately: `resolve()` follows them, so a
+# symlink inside the repository pointing out lands outside ROOT and is refused
+# by the containment check like any other escape. Refusing symlinked-but-
+# contained paths would be threat-modelling a validator that reads its own
+# repository against an attacker who can already write that repository.
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize("evil,expect", [
+    ("/etc/passwd", "ABSOLUTE"),
+    ("/etc/hostname", "ABSOLUTE"),
+    ("../../../../../../etc/passwd", "'..'"),
+    ("examples/../../../etc/passwd", "'..'"),
+    ("examples/avatar-first-ui/../../../etc/passwd", "'..'"),
+])
+def test_a_path_escaping_the_repository_is_refused(
+        tmp_path, monkeypatch, evil, expect):
+    avc = _tree(tmp_path)
+    _rewrite(avc, ENVELOPE, lambda d: d["withdrawal"]["reachability_proof"]
+             .__setitem__("fixture", evil))
+    findings = _run(monkeypatch, avc, "envelope")
+    assert any(expect in e for e in findings.errors), _messages(findings)
+    # and it must NOT have been reported merely as "does not exist", which
+    # would mean the join happened and the filesystem was touched
+    assert not any("does not exist; the proof is a filename" in e
+                   for e in findings.errors), _messages(findings)
+
+
+def test_an_absolute_path_that_happens_to_be_inside_the_repo_is_still_refused(
+        tmp_path, monkeypatch):
+    """The containment check alone would PASS this one — the resolved path is
+    genuinely inside ROOT — which is why absoluteness is refused
+    syntactically and not left to `is_relative_to` to notice."""
+    avc = _tree(tmp_path)
+    real = (REPOSITORY_ROOT / "examples/avatar-first-ui/fixtures/deterministic"
+            / "consent-withdraw-mid-speech.yaml")
+    _rewrite(avc, ENVELOPE, lambda d: d["withdrawal"]["reachability_proof"]
+             .__setitem__("fixture", str(real)))
+    findings = _run(monkeypatch, avc, "envelope")
+    assert any("ABSOLUTE" in e for e in findings.errors), _messages(findings)
+
+
+@pytest.mark.parametrize("wrong", [{"path": "x"}, ["x"], 5])
+def test_a_non_string_path_is_a_finding_not_a_crash(tmp_path, monkeypatch, wrong):
+    """`ROOT / <non-string>` raises TypeError rather than reporting."""
+    avc = _tree(tmp_path)
+    _rewrite(avc, ENVELOPE, lambda d: d["withdrawal"]["reachability_proof"]
+             .__setitem__("fixture", wrong))
+    findings = _run(monkeypatch, avc, "envelope")  # must not raise
+    assert findings.errors
+
+
 def test_a_malformed_source_registry_is_a_finding_not_a_crash(tmp_path, monkeypatch):
     """The checks read their facts from registries, the policy and the
     checklist. A malformed file on the READ side must fail closed too."""
