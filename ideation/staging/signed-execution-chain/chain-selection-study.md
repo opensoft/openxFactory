@@ -25,7 +25,12 @@ the original meta line's *unless noted* clause covers exactly that case, and
 the body is not edited to reconcile it. The same policy covers a second
 citation defect, from Copilot's suppressed note: the §2 Bitcoin fee line cites
 a link labeled `Coinbase ETH/BTC price pages` that points at the Ethereum
-page — mislabeled at research time, recorded here, body left unedited.
+page — mislabeled at research time, recorded here, body left unedited. And a
+third: the Layer-1 receipt sketch (digest → Merkle path → {chain, block
+header, tx ref}) is superseded — the fragment's corrected receipt format
+carries the anchor transaction and its transaction-to-block or DAG inclusion
+proof, captured at anchor time, and governs wherever the two differ; the
+study's own Kaspa conditions already demanded exactly that retention.
 Original meta lines, verbatim:
 
 **Date:** 2026-08-27 (all prices/fees/network figures are snapshots as of this date unless noted)

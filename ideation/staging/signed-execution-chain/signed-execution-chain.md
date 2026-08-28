@@ -67,11 +67,11 @@ Ten links. Each names what is signed, by whom, and what refuses when it is absen
 | 3 | **The traveling contract** — the signed ratification becomes an artifact that accompanies the work rather than a row in a table it must be looked up in | — (carried) | the chain cannot be checked at the point of use |
 | 4 | **Harness-controller setup attestation** — the controller attests the environment it prepared | controller certificate | runner attestations have no issuer to chain to |
 | 5 | **Runner attestations** — each runner attests its model, its version, and its local harness | per-task identity (key held at the controller; signature produced there) | the work cannot say what produced it |
-| 6 | **Signed PR-open decision** — opening a pull request is itself a decision and is signed as one | per-task identity + carried contract | the PR is an orphan act |
+| 6 | **Signed PR-open decision** — opening a pull request is itself a decision and is signed as one | per-task identity (controller-signed) + carried contract | the PR is an orphan act |
 | 7 | **Council review with the signed proposal as the brief** — the council reviews the chain-carrying artifact, not a summary of it | council seats | review is of a restatement, which is the fidelity defect this family keeps finding |
 | 8 | **Chain-validating merge gate** — the gate walks the chain before it permits a merge | gate (verifier) | **no merge** |
 | 9 | **Broken chain = fraud signal** — a gap is refused and reported as a fraud signal, never downgraded to a warning | — | (this IS the refusal) |
-| 10 | **Governed post-merge test** — consumes the proposal AND the review notes, so what was promised is what is tested | per-task identity | the test is disconnected from the claim it should verify |
+| 10 | **Governed post-merge test** — consumes the proposal AND the review notes, so what was promised is what is tested | per-task identity (controller-signed) | the test is disconnected from the claim it should verify |
 
 **Link 8 is the load-bearing one.** Links 1–7 could be recorded by a
 well-behaved lane and forged by a badly-behaved one. Link 8 is what makes the
@@ -110,6 +110,21 @@ the controller boundary, *about* the runner, never *by* a key the runner holds.
 "Ephemeral" describes the identity's lifetime, not a relaxation of custody, and
 a design that hands a worker a key for one task has already breached the
 constraint it claims to honour.
+
+**And the controller must not notarize self-report.** A signature at the
+controller boundary proves the controller signed the bytes it was handed —
+nothing more. A compromised runner could submit a false model/version/harness
+payload and links 5, 6 and 10 would still chain, which is exactly the
+fabricated-but-valid-looking record this topic exists to refuse. So the
+controller signs an attestation only where it can BIND the claims: the model,
+version and harness of link 5 are facts the controller *provisioned* in link 4,
+and it corroborates them against its own setup attestation rather than
+accepting them from the runner; measurements only the runner can see are either
+independently observed — hardware-attested where the platform offers it — or
+carried explicitly as runner-claimed, never laundered into controller-attested
+fact. The review round raised this as the second custody-adjacent defect: first
+the key, now the claims — the controller is a signer, not a notary of whatever
+it is told.
 
 The two tiers answer different questions, and conflating them is the failure to
 avoid: tier 1 answers **"who permitted this?"**, tier 2 answers **"what actually
@@ -348,11 +363,12 @@ acceptable, so the question gates the tranche.
 
 ## Open questions
 
-None blocking; all seven are for the eventual clarify round. Q3 and Q5 now carry
-the vendored study's recommendation rather than open analysis; Q6 is the one
-that needs a ruling before tranche three can be drafted honestly; Q7 came out of
-the review round on this topic's own pull request and asks for a mechanism, not
-a ruling.
+None blocks tranche one; all seven are for the eventual clarify round, but they
+are not equal: **Q3 and Q6 are tranche-three blockers** — the exit path waits
+on both rulings before the on-chain tranche can be drafted — and **Q7 gates
+tranche two's contract text**. Q3 and Q5 now carry the vendored study's
+recommendation rather than open analysis; Q7 came out of the review round on
+this topic's own pull request and asks for a mechanism, not a ruling.
 
 ### Q1 — What are the wallet-presentation mechanics?
 
@@ -410,7 +426,11 @@ Explanation: The question is answered on evidence, and the answer changed the
   anchor while leaving it useful as a second witness. Deferring further would be
   deferring past the evidence. What keeps this OPEN rather than settled is that a
   chain selection is a governance decision for a change to carry and Brett to
-  rule, not one a staging topic closes on its own.
+  rule, not one a staging topic closes on its own. One correction governs over
+  the study's compact receipt sketch: receipts carry the anchor transaction and
+  its transaction-to-block or DAG inclusion proof, as the architecture section
+  and claim 7 state — the study's own Kaspa conditions demand the same
+  retention.
 Disposition status: open — research COMPLETE with a recommendation on the
   table; awaiting a ruling, not awaiting more analysis
 
@@ -486,7 +506,11 @@ Explanation: Raised by the review round on this topic's PR, which read the
   the wording contradicted the very constraint the tier split exists to honour.
   The boundary is now stated in the tier model; the mechanism has to be named
   before tranche two drafts contract text, because it decides what the
-  attestation actually proves about the runner.
+  attestation actually proves about the runner. The second review round added
+  the binding requirement on top: whichever mechanism is chosen, the
+  controller corroborates the submitted payload against its own link-4 setup
+  attestation rather than notarizing self-report, so the mechanism question is
+  about WHERE the key lives, never about whether the claims are checked.
 Disposition status: open — for the clarify round; the boundary is forced by
   ratified text, the mechanism is a design choice
 
