@@ -1,0 +1,118 @@
+schema: spec-driven
+created: 2026-08-28
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-28-fix-pin-value-boundary-and-sentinel-split
+  reason: >-
+    Commissioned in-session by Brett on 2026-08-28. THE EXCHANGE, QUOTED AS IT
+    HAPPENED AND WITH THE TWO VOICES KEPT APART. The orchestrating session put a
+    set of candidate follow-ups and recommended one of them, in its own words,
+    as "the measured-latents bundle". Brett selected it, verbatim: "lets do all
+    3 in order". The recommendation text is the ORCHESTRATING SESSION'S and is
+    quoted here as a recommendation rather than as an instruction; the SELECTION
+    is Brett's and is the origin act, on the instruction-as-origin-act shape
+    `govern-derived-pin-reachability`, `supersede-lost-pin-baseline`,
+    `fix-release-reachability-race` and `declare-sentinel-pin-vocabulary` set —
+    rather than the blank-pair shape `harden-ideation-readiness-check` was
+    raised under, the distinction being that this filing HAS an instruction
+    behind it and that packet had none. Not a staged ideation topic:
+    `ideation/staging/` and its `INDEX.md` carry nothing on pin value parsing,
+    sentinel emission or generator provenance, so `kind: staged` is unavailable
+    rather than declined.
+    THE APPROVED SET IS THREE DEFECTS AND THIS PACKET IS TWO OF THEM. The word
+    "bundle" in the recommendation names the SET OF DEFECTS commissioned, not a
+    filing shape, and nothing in the selection bound the number of packets. The
+    authoring session split the set on the contract-bundle boundary and files
+    the third defect separately as `fix-content-resolution-conflation`, whose
+    `.openspec.yaml` cites this same act. THE SPLIT IS THE AUTHORING SESSION'S
+    DECISION, NOT BRETT'S, is recorded as OD-1 in `proposal.md`, and is FLAGGED
+    FOR VETO there with the one-packet alternative argued in full — including
+    the honest cost that it re-sequences the approved 1, 2, 3 as {1, 3} then {2}.
+    THE FORCING FACTS, all re-measured 2026-08-28 in a fresh worktree off
+    `origin/main` at `6612d3239cbc`.
+    (1) FOUR REGEXES IN `scripts/doc_health/pin_class.py` BIND A PIN VALUE TO
+    `([0-9a-f]{40})` WITH A LEADING KEY BOUNDARY AND NO TRAILING HEX BOUNDARY,
+    so a longer hexadecimal run under a swept key yields a FABRICATED forty-
+    character "pin" that is the truncated prefix of a value nobody wrote:
+    `_field_re` (`:194-205`, value group at `:204`), `_VOCAB_RE` (`:977-980`,
+    value group at `:980`), and — found here, and NOT named by the archived
+    record this item inherits — the two PROSE members' own patterns at `:347`
+    (`Source revision:\s*`?([0-9a-f]{40})`?`) and `:406`
+    (`source_revision\s+`?([0-9a-f]{40})`?`), which `PinMember.regex` at
+    `:289-290` compiles directly to build sites. CONSTRUCTED AND RUN HERE
+    against the module as committed, with a 64-hex value: all four return the
+    same fabricated forty-character prefix, and `FULL_SHA_RE` then accepts that
+    prefix as a whole object name. The guard against exactly this is already in
+    the same file, ten lines above `_field_re` — `LOOSE_SHA_RE` at `:159` carries
+    `(?<![0-9a-fA-F])` / `(?![0-9a-fA-F])` and a comment saying why — and returns
+    ZERO matches on the same line the four fabricating regexes match. A guard
+    stated in one place and not carried to the four that actually build sites.
+    RECORDED AS A DELIBERATE EXCLUSION at the `declare-sentinel-pin-vocabulary`
+    filing (its `tasks.md` § 5.5, carried untouched through that packet's
+    realization and its archive on 2026-08-28) — "folding a silent mis-parse fix
+    into a vocabulary packet would hide it" — and re-affirmed there as still
+    open after realization: `_field_re` and `_VOCAB_RE` were left byte-unchanged.
+    LATENT, MEASURED RATHER THAN ASSERTED: 1116 swept files at this revision,
+    ZERO values of 41 or more hexadecimal characters under any vocabulary key.
+    (2) `"unknown"` IS EMITTED BY FIVE SITES SPANNING THREE CONDITIONS, one more
+    site than the archived record names. `declare-sentinel-pin-vocabulary`
+    § 5.6 was raised at that packet's own realization and names three sites by
+    function-plus-representative-line —
+    `ideation_dashboard/snapshot_registry.py:283`, and
+    `experiments/avatar-brokered-call/src/avatar_f0/cli.py:51,60`. Re-read here,
+    `cli.py` carries FOUR `"unknown"` returns, not two: `:49` and `:51` in
+    `_git_file_commit`, `:60` and `:62` in `_git_head`. The extra site matters
+    because `:49` is `out.stdout.strip() or "unknown"` on a `subprocess.run`
+    with NO `check` and NO returncode test, so that ONE site fires on two
+    conditions — `git log` exiting 0 with empty output (the path has never been
+    committed) and `git log` failing (the repository could not be read) — and no
+    split of the function can be correct without branching on the return code
+    first. The promoted `ideation-cross-reference` requirement "A generator that
+    cannot truthfully pin a commit writes a declared sentinel, never a commit
+    name" already obliges the emitter: "the condition it names MUST be the one
+    that actually held". The promoted vocabulary's weakest member states the
+    same duty in the other direction — a generator that CAN distinguish MUST
+    reach for the stronger member. Both are canon as of 2026-08-28.
+    (3) NOT EVERY `"unknown"` SITE IS WRONG, and that is a correction to the
+    inherited record rather than an agreement with it.
+    `snapshot_registry.py:283` projects an INDEX ENTRY whose own
+    `generation.source_revision` was absent, unfetchable or unrecorded; the
+    repository is readable and the emitter genuinely cannot say which stronger
+    condition held. `unestablished-revision` is the member that fits it, so
+    `"unknown"` STAYS there and what changes is that the spelling is imported
+    from the declaration rather than retyped as a literal.
+    (4) NO CONTRACT BUNDLE IS OWED BY THIS PACKET, established by PARSE and not
+    by `grep`: `contracts/releases/contract-v2.0.digests.yaml` — the declared
+    bundle, `contracts/manifest.yaml:3` — was loaded and its 192 entries walked
+    into their member paths. NOT ONE path under `scripts/doc_health/`,
+    `scripts/ideation_dashboard/` or `experiments/` appears in it; the inventory
+    holds exactly 22 `scripts/` members — 18 under
+    `scripts/hermes_runtime_validation/` and four top-level validators, one of
+    which is `scripts/validate-ideation-dashboard-contracts.py`, a NEIGHBOUR of
+    the lane this packet edits and not the file it edits.
+    Authored in openxFactory because the verification, both affected
+    capabilities and every generator named are openxFactory's own.
+  approved_by: >-
+    Brett — in-session selection on 2026-08-28 of the orchestrating session's
+    recommended option, verbatim: "lets do all 3 in order". THE TWO VOICES ARE
+    KEPT APART DELIBERATELY: "the measured-latents bundle" is the ORCHESTRATING
+    SESSION'S wording for the option it recommended, and quoting it as Brett's
+    would attribute an authoring session's phrase to the approver. What Brett
+    said is the eight words above, and they are the approval act.
+    IT IS AN ADMISSION INTO THE PROPOSAL QUEUE, NOT A RATIFICATION OF CONTENT.
+    The citation covers the DECISION TO FILE and nothing else. Every decision in
+    `proposal.md` § Orchestrator decisions — the two-packet split on the
+    contract-bundle boundary (OD-1), the single all-ADDED delta on `doc-health`
+    (OD-2), the realization-only shape for the sentinel split (OD-3), the
+    proposed remedy being a trailing boundary rather than a whole-value rewrite
+    (OD-4), and the decision to correct rather than restate the inherited record
+    of the `"unknown"` sites (OD-5) — was taken by the authoring session and
+    stays FLAGGED FOR VETO, as do the four questions in § Open Questions, each of
+    which carries a recommendation and no decision.
+  approved_on: 2026-08-28
+related:
+  - openxFactory:change:fix-content-resolution-conflation   # the third defect of the same commissioned set, filed separately on the contract-bundle boundary and citing this same origin act
+  - openxFactory:change:declare-sentinel-pin-vocabulary     # the archived packet whose § 5.5 excluded defect 1 deliberately and whose § 5.6 raised defect 2 at realization
+  - openxFactory:change:govern-derived-pin-reachability     # declared the pin class the four fabricating regexes build sites for
+  - openxFactory:change:supersede-lost-pin-baseline         # its OD-3 records how a delta-less-versus-delta call went, and the all-ADDED shape this packet follows
+  - openxFactory:change:add-family-enumeration-check        # holds the active MODIFIED block for "Deterministic check families"; this packet adds no family and does not restate it

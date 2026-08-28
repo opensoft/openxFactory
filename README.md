@@ -391,6 +391,77 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [fix-pin-value-boundary-and-sentinel-split](openspec/changes/fix-pin-value-boundary-and-sentinel-split/proposal.md)
+  — **ALL FIVE ORCHESTRATOR DECISIONS CLEARED AND ALL FOUR QUESTIONS RULED
+  2026-08-28**, by a four-question multi-choice put to Brett over PR #463; he
+  took the packet's recommendation on every one, the two-packet split and its
+  re-sequencing were accepted, merge on green was approved, and **the clearance
+  moved no delta text** (the spec file is byte-unchanged). Realization is
+  pre-commissioned to dispatch FIRST of the pair. Authored 2026-08-28 on
+  Brett's in-session selection ("lets do all 3 in order") of a three-defect set
+  the orchestrating session had recommended as "the measured-latents bundle".
+  **Two of the three**; the third is
+  `fix-content-resolution-conflation`, filed separately because its surface is a
+  contract bundle member and these are not (OD-1, argued in `design.md` § 1 with
+  the one-packet alternative rejected on measured grounds). Both defects were
+  recorded as named follow-ups by the archived `declare-sentinel-pin-vocabulary`
+  and both re-measured larger on the day of filing. **(1) FOUR expressions in
+  `scripts/doc_health/pin_class.py` build a pin site from `([0-9a-f]{40})` with
+  a leading key boundary and no trailing hexadecimal one** — `_field_re`
+  (`:204`), `_VOCAB_RE` (`:980`), and the two PROSE class members' own patterns
+  at `:347` and `:406`, which the inherited record (§ 5.5) did not name. A
+  sixty-four-character value under a swept key therefore yields a FABRICATED
+  forty-character "pin": constructed and run here, all four return the same
+  truncated prefix, `FULL_SHA_RE` then accepts it as a whole object name, and
+  `LOOSE_SHA_RE` ten lines above — which carries the guard and a comment saying
+  why — returns nothing on the same line. Latent, measured: **1116 swept files,
+  0 over-long hex values under any vocabulary key**. **(2) `"unknown"` is
+  emitted by FIVE sites spanning THREE conditions**, one more site than § 5.6
+  names: `cli.py:49` fires on two conditions by itself because its
+  `subprocess.run` has no `check` and its return code is never read, so no split
+  is correct without a branch that does not exist yet; and
+  `snapshot_registry.py:283` measures as ALREADY CORRECT, which corrects the
+  inherited record rather than agreeing with it. ADDS one requirement to
+  `doc-health` (38 → 39, all ADDED); the sentinel split ships as realization
+  under canon promoted 2026-08-28 that already obliges it, with no requirement
+  of its own (OD-3, against the `supersede-lost-pin-baseline` OD-3 measurement
+  re-taken here: **112 of 112 archived changes carry a spec delta**, and this
+  packet carries one). **NO contract bundle is owed**, established by parse:
+  `contract-v2.0`'s 192 entries walked, zero members under
+  `scripts/doc_health/`, `scripts/ideation_dashboard/` or `experiments/`.
+- [fix-content-resolution-conflation](openspec/changes/fix-content-resolution-conflation/proposal.md)
+  — **ALL SIX ORCHESTRATOR DECISIONS CLEARED AND ALL FOUR QUESTIONS RULED
+  2026-08-28** by the same act, every one on the packet's own recommendation,
+  with **no delta text moved**; realization is pre-commissioned to dispatch
+  SECOND, its candidate inventory built in the realization pull request and
+  `verify-promotion` plus the tag left post-merge on the `contract-v1.44`
+  precedent, the next minor allocated at merge order from the current
+  `contract-v2.0`. Authored 2026-08-28 on the same act, the **third defect** of
+  that set, filed separately because of what follows. `_blob_object_id`
+  (`scripts/hermes_runtime_validation/release.py:312-316`) converts every
+  `ContentResolutionError` into `None`; `resolve_git_object` reaches **15 raise
+  sites, 14 distinct messages, and exactly ONE** — `content.py:125`, the tree
+  was read and the path was not in it — for which `None` is the right answer.
+  Run here: six conditions, one value. Its only caller `_surface_drift`
+  compares two of those answers, so one failure manufactures a false
+  `HGR-RELEASE-SURFACE-DRIFT` and **two failures compare EQUAL and report the
+  surface clean, having read neither blob** — the quiet direction, which emits
+  nothing. Recorded as § 6.3 of the archived `fix-release-reachability-race`,
+  whose wording this filing quotes rather than paraphrases; the caller
+  consequence and the identical `_CommitSource.exists` conflation at `:401-405`
+  (whose `False` decides whether `contracts/manifest.yaml` is present at the
+  commit) are measured here and not inherited. ADDS two requirements to
+  `shared-contract-ownership` (10 → 12, all ADDED): the distinction, and
+  executable proofs pinning it — the second copying the sibling family, which
+  exists because that defect was invisible to the suite, as this one is today.
+  **A CONTRACT BUNDLE IS OWED and the packet says so up front**, established by
+  parse rather than `grep`: `release.py` is a NON-EDITORIAL member of
+  `contract-v2.0`'s inventory (`type: validator`, `digest: sha256:660e55ca…`,
+  which is exactly what the tree carries), `content.py` likewise, and the
+  editorial set is three files with neither in it. The minor is allocated AT
+  REALIZATION and none is reserved, on the `contract-v1.28` renumber precedent;
+  the cut follows `contract-v1.44`, which cut this same file for this same cause
+  two days before this filing.
 - [adopt-medxsoft-repository-identity](openspec/changes/adopt-medxsoft-repository-identity/proposal.md)
   — authored 2026-08-27 for the 2026-08-26 transfer of `opensoft/MedxFactory`
   and `opensoft/MedxEHR` to the `MedxSoft` organization, whose operational half
