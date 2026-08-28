@@ -7,6 +7,8 @@ managed_mode: scaffold
 
 # codexFactory Domain Ontology (DRAFT)
 
+Status: draft
+
 Starter-seeded draft package under the openxFactory domain-ontology
 contract (`contracts/domain-ontology/`). Domain Hermes owns everything in
 this tree.

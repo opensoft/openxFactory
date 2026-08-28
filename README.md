@@ -391,6 +391,45 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [clean-doc-health-floor](openspec/changes/clean-doc-health-floor/proposal.md)
+  — authored 2026-08-28 on Brett's in-session commission of the doc-health
+  error floor ("lets do all 3 in order"), carrying TWO of the three ruled
+  workstreams; the third ships as `declare-generated-projection-status`,
+  split off because it extends the controlled taxonomy and owes a disposition
+  in the AGGREGATION repository that these two do not (OD-1). **W1 — four
+  status backfills**, the residue of `govern-openspec-corpus-membership`'s
+  2026-08-23 campaign: the two `contracts/domain-ontology/examples/pilots/`
+  READMEs and `docs/notebooklm-sync-open-item.md`, which that campaign named
+  as out of its own scope, plus the ONE archived proposal that carried no
+  header at all — `2026-08-25-fix-abandoned-session-cleanup-terminal-states`,
+  archived a day after the sweep closed. The three live documents take `draft`;
+  the archived one takes `ratified` plus a citation derived from its own origin
+  declaration, **departing from the ruled `draft` for a measured reason and
+  flagged as OD-5**: all three candidates were run, and `draft` puts the packet
+  in `promotion_fidelity.PRE_RATIFICATION`, which discounts its
+  `ideation-dashboard` delta and makes an INNOCENT third packet report as having
+  failed to promote a scenario — 4 errors cleared and 1 false error created.
+  The commission's cited precedent was
+  verified at the archive, as it instructed, and corrected in three places —
+  `5C.3` is the stop-and-report guard rail rather than the authorization, the
+  count is 44 not 46, and **43 of those took `ratified` plus a citation while
+  exactly ONE took `draft`**, which is what turned the ruled value from the
+  precedent into the exception to it. **W3 — a
+  `location-conformance` predicate fix**: the staged-exit arm read
+  `corpus.change_ids`, which unions active and archived ids, and so demanded
+  material "move into the proposal supporting-docs folder" of packets that had
+  ARCHIVED — a closed folder and an impossible act. A new sibling
+  `corpus.active_change_ids` answers the different question the arm actually
+  asks; the union is untouched, because `ratified-provenance` needs it. MODIFIES
+  one `doc-health` requirement (`Proposal supporting-document integrity
+  checks`), whose promoted text pinned the defect twice in the phrase "active
+  or archived". **The number worth reading**: `status-validity` goes 4 errors →
+  0, but `location-conformance` stays at 3 — the forcing document cites BOTH an
+  archived and an active change, and sorted-first meant the archived one hid the
+  performable remedy, so the fix RE-POINTS the row rather than clearing it. That
+  corrects the commission's stated expectation, and it is the fix working. No
+  contract bundle owed (measured against all 48 inventories); no disposition
+  owed (no finding loses its `(family, repo, path)` match key).
 - [fix-pin-value-boundary-and-sentinel-split](openspec/changes/fix-pin-value-boundary-and-sentinel-split/proposal.md)
   — **ALL FIVE ORCHESTRATOR DECISIONS CLEARED AND ALL FOUR QUESTIONS RULED
   2026-08-28**, by a four-question multi-choice put to Brett over PR #463; he

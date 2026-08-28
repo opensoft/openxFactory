@@ -1,0 +1,56 @@
+schema: spec-driven
+created: 2026-08-28
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-28-clean-doc-health-floor
+  reason: >-
+    Commissioned in-session by Brett on 2026-08-28, by a multi-choice put to him
+    by the orchestrating session over what to work next; the option he selected
+    was that session's recommendation, "the doc-health error floor", and his
+    instruction on the three workstreams it named was, verbatim: "lets do all 3
+    in order". Three further rulings fixed the specifics, relayed to this
+    session as selections rather than as quoted wording, so the mechanism and
+    the selections are recorded and no wording is invented. THIS PACKET CARRIES
+    TWO OF THE THREE — the two whose realization is wholly inside openxFactory:
+    (W1) the four documents failing `status-validity` are backfilled, and the
+    free-form `open (operational)` value maps to `draft`, THE TAXONOMY STAYING
+    CLOSED; (W3) the `location-conformance` finding that demands staged material
+    move into a cited proposal's supporting-docs folder fires only while the
+    cited proposal is ACTIVE and the move is performable. The third ruling —
+    generated projections take a NON-RECORD status — is filed separately as
+    `declare-generated-projection-status`, for the reason recorded in this
+    packet's § Orchestrator decisions OD-1: it extends the controlled taxonomy
+    and owes a disposition entry in the AGGREGATION repository, so coupling it
+    to these two would put their archive gate behind an act in another
+    repository that neither of them needs. Not a staged ideation topic —
+    `ideation/staging/` and its INDEX carry no topic on the doc-health error
+    floor, on status backfills, or on location conformance, so `kind: staged` is
+    UNAVAILABLE rather than declined, verified by grep over every staging
+    fragment and over INDEX.md before this line was written. THE FORCING FACTS,
+    measured on the day of filing in a fresh worktree off `origin/main` at
+    `6612d323` by `python3 scripts/doc-health.py --single-repo .` — 5 critical,
+    11 error, 41 warning, 11 info: `status-validity` reports exactly FOUR errors
+    and they are exactly the four documents W1 names; and
+    `location-conformance` reports THREE errors of which one, on
+    `ideation/staging/avatar-pilot-hardening/avatar-pilot-hardening.md`, is
+    reported against `implement-avatar-client-lab`, archived 2026-08-04 and
+    therefore closed to the move the finding's own action line demands.
+    Authored in openxFactory because the checker and all four documents are
+    openxFactory's own.
+  approved_by: >-
+    Brett — in-session commission of 2026-08-28, recorded as the origin act on
+    the `supersede-lost-pin-baseline` / `govern-derived-pin-reachability`
+    instruction-as-origin-act shape rather than the blank-pair shape. THE
+    CITATION COVERS THE DECISION TO FILE AND THE TWO RULED OUTCOMES AND NOTHING
+    ELSE: every decision in `proposal.md` § Orchestrator decisions — how the
+    three workstreams are packaged, THAT THE ARCHIVED RECORD TAKES `ratified`
+    PLUS A DERIVED CITATION RATHER THAN THE RULED `draft` (OD-5, a departure
+    from the ruling, taken because all three candidates were measured and
+    `draft` manufactures a `promotion-fidelity` error against an innocent
+    third packet, and flagged for veto accordingly), where W3's
+    active/archived predicate lives, and that the archived-record edit is
+    registered — was taken by the
+    authoring session and stays flagged for veto, as do the open questions.
+    Selections are recorded; no verbatim wording of the rulings reached this
+    session beyond the commission quoted in `reason`, so none is invented.
+  approved_on: 2026-08-28
