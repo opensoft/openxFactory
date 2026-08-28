@@ -613,9 +613,12 @@ is flagged there for review rather than folded in quietly.
       --yes` (openspec 1.2.0), which reported `doc-health: update`,
       `ideation-cross-reference: update`, `Totals: + 4, ~ 0, - 0, → 0`. It also
       reported `Task status: 29/39` and warned on ten incomplete tasks, which is
-      CORRECT: this task was the thirtieth, § 4.4 and § 4.5 were already closed
-      at realization, and § 5.1 through § 5.6 survive the archive as named
-      follow-ups. **THE MECHANISM WAS `openspec archive`, NOT `proposal-support
+      CORRECT AND IS WORTH SPELLING OUT: at the moment the CLI ran, the ten were
+      § 4.1, § 4.2, § 4.3, this task, and the six § 5 follow-ups. § 4.4 and § 4.5
+      were already closed at realization. THIS ACT CLOSES THE FOUR § 4 ARMS AND
+      LEAVES THE SIX FOLLOW-UPS OPEN BY DECISION, so the archived file ends at
+      **33/39** — and the six that stay open are exactly the six § 5 items, none
+      of them build work. **THE MECHANISM WAS `openspec archive`, NOT `proposal-support
       archive`, and the choice is deliberate** — that wrapper refuses any change
       whose `tasks.md` still carries a `^- \[ \]` line, a blanket gate that
       cannot tell a ruled-open follow-up from unfinished work. The two things it
