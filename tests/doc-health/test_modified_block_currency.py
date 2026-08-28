@@ -13,11 +13,13 @@ each group fails in:
    on), and normalization stops at whitespace (so a case or trailing-period
    change is a text change, deliberately unlike `promotion_fidelity.norm`).
 
-2. **THE THREE ARMS ARE THREE FINDING CLASSES, AND THERE ARE FOUR CLASSES.**
+2. **THE THREE ARMS ARE THREE FINDING CLASSES, AND THERE ARE FIVE CLASSES.**
    Scenario-title completeness at `warning`, the carriage ledger at `info` and
    at most one finding per requirement, title resolution / ordering at
    `warning` — plus marker defects at `info`, which is a defect in a
-   DECLARATION rather than a comparison between documents.
+   DECLARATION rather than a comparison between documents, and unplaced-finding
+   drift at `warning`, which is a defect in the family's own CLASS MAP
+   (`add-unclassified-finding-class`).
 
 3. **THE MARKER IS RECOGNIZED BY FORM AND NEVER BY PROSE.** The corpus's five
    existing dated notes all record RESTORATIONS, one of them naming seven
@@ -26,10 +28,12 @@ each group fails in:
    declaring seven deletions. The form anchor is asserted on this packet's own
    delta prose, which promotes into canon.
 
-4. **THE ADVISORY LAUNCH IS PINNED IN BOTH HALVES**, and the three severities
+4. **THE ADVISORY LAUNCH IS PINNED IN BOTH HALVES**, and the four severities
    are pinned APART: the flip `add-modified-block-currency-check` § 7.2 reserves
    moves the scenario-title arm alone, so one shared constant would drag the
-   title-resolution arm to `error` on a flip nobody asked for.
+   title-resolution arm to `error` on a flip nobody asked for — and would drag
+   the fifth class with it invisibly, which is what the simulated-flip test
+   below exists to make falsifiable.
 
 5. **ORDERING IS BY DECLARATION, NEVER BY DATE** (ruled 2026-08-27, "By
    declaration"). One test would pass under date ordering and fails under it, so
@@ -79,6 +83,59 @@ def test_the_three_launch_severities_are_named_apart():
             assert all(after[n] == before[n] for n in names if n != name), name
         finally:
             setattr(mbc, name, before[name])
+
+
+def test_the_reserved_flip_of_the_launch_severity_does_not_drag_the_drift_class():
+    """THE FOURTH CONSTANT, AND THE ONLY PIN THAT CAN SEE WHY IT EXISTS.
+
+    `_DRIFT_SEVERITY = WARNING` and `_DRIFT_SEVERITY = _LAUNCH_SEVERITY` are
+    VALUE-IDENTICAL today, so every assertion about the constants' values passes
+    under both — and so does the separately-assignable check above, because
+    rebinding one module attribute never moves another even when both were bound
+    from the same expression. The difference appears only AFTER
+    `add-modified-block-currency-check` § 7.2 flips `_LAUNCH_SEVERITY` to
+    `error`, at which point a shared constant would move the fifth class's
+    rendered caption AND its findings together, and no pin in this suite would
+    notice. The module's own § 2.1 note calls that drag "INVISIBLE"; the remedy
+    for an invisible drag is a test, not a comment.
+
+    SO THE FLIP IS SIMULATED, over the module's REAL SOURCE. One line is
+    substituted, the source is executed as a module in this package's namespace,
+    and the two bands are read off the resulting class registry: the
+    scenario-title arm moved and the drift class did not. Added by the mutation
+    round of `026-unplaced-finding-drift`, which is where
+    `add-unclassified-finding-class` tasks.md § 2.14(e) says this pin is owed if
+    it is missing. It was missing.
+
+    § 7.2 itself is neither advanced nor blocked by this test: it asserts only
+    that the two constants are independent, which is the whole reason the fourth
+    one has its own name.
+    """
+    import inspect
+
+    from doc_health import ERROR
+
+    source = inspect.getsource(mbc)
+    assert source.count("_LAUNCH_SEVERITY = WARNING") == 1, (
+        "the constant is not assigned where this test thinks it is, so the "
+        "substitution below would silently do nothing")
+    flipped = source.replace("_LAUNCH_SEVERITY = WARNING",
+                             f"_LAUNCH_SEVERITY = {ERROR!r}", 1)
+
+    namespace = {"__name__": "doc_health._flip_simulation",
+                 "__package__": "doc_health", "__file__": mbc.__file__}
+    exec(compile(flipped, mbc.__file__, "exec"), namespace)
+
+    bands = {klass.id: klass.band for klass in namespace["CLASSES"]}
+    # the arm the flip reserves moved, so the simulation really flipped something
+    assert bands[mbc.CLASS_TITLES] == ERROR, bands
+    # ...and the fifth class did NOT ride it
+    assert bands[mbc.CLASS_DRIFT] == WARNING, bands
+    assert namespace["_DRIFT_SEVERITY"] == WARNING
+    # the other two arms are untouched too, which is what the split has always
+    # been for
+    assert bands[mbc.CLASS_RESOLUTION] == WARNING, bands
+    assert bands[mbc.CLASS_LEDGER] == INFO, bands
 
 
 def test_the_family_id_is_the_registry_id():

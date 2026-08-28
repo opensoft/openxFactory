@@ -151,6 +151,96 @@ jobs:
         env:
           TOKEN: ${{ steps.app-token.outputs.token || secrets.SUBMODULE_TOKEN || github.token }}
       - uses: actions/checkout@v4
+      # WHY A SECOND TOKEN, AND WHY IT IS DERIVED. An App INSTALLATION token is
+      # scoped to exactly ONE installation, and the mint above asks for
+      # `owner: ${{ github.repository_owner }}` — the caller's organization.
+      # Since aggregation commit 0c6ea39 ("Repoint the Medx submodules at
+      # MedxSoft, where they now live", 2026-08-26) the governed submodule set
+      # SPANS ORGANIZATIONS, so that one token cannot clone all of it: the
+      # nightly died at "Init governed submodules only" with `fatal: repository
+      # 'https://github.com/MedxSoft/MedxEHR.git/' not found` (opensoft/xFactory
+      # runs 33038056012 on 2026-08-27 and 33143248243 on 2026-08-28; the
+      # 2026-08-26 15:43 run, before the repoint, passed). The message reads
+      # like a deleted repository and is really a token minted for the wrong
+      # installation — the App IS installed on the other organization
+      # (installation 157085693, all repositories, contents: write); it only
+      # ever lacked a token of its own.
+      #
+      # THE OWNER IS READ FROM `.gitmodules`, NEVER NAMED HERE. `.gitmodules` is
+      # the only authority on where a submodule lives, so a hardcoded
+      # organization would rot at the next repoint and would stay silent when a
+      # THIRD organization appeared. More than one foreign owner therefore FAILS
+      # the run instead of guessing, because `create-github-app-token` takes one
+      # `owner` per step and a second pair has to be written by hand.
+      - name: Detect foreign submodule owners
+        id: foreign-owner
+        env:
+          SELF_OWNER: ${{ github.repository_owner }}
+        run: |
+          set -euo pipefail
+          # The SAME governed filter the init step below applies, so the two can
+          # never disagree about which submodules a token has to reach.
+          GOVERNED='^(openxFactory|xFactories/)'
+          MODULES=$(git config --file .gitmodules --get-regexp 'submodule\..*\.path' || true)
+          FOREIGN=""
+          while read -r key path; do
+            [ -n "${path:-}" ] || continue
+            printf '%s\n' "$path" | grep -qE "$GOVERNED" || continue
+            name=${key#submodule.}
+            name=${name%.path}
+            url=$(git config --file .gitmodules --get "submodule.${name}.url" || true)
+            owner=$(printf '%s\n' "$url" | sed -nE \
+              -e 's#^git@github\.com:([^/]+)/.+$#\1#p' \
+              -e 's#^https://github\.com/([^/]+)/.+$#\1#p')
+            if [ -z "$owner" ]; then
+              echo "::warning::no GitHub owner could be read from submodule '${path}' url '${url}'; leaving it to the org-wide rewrite"
+              continue
+            fi
+            echo "governed submodule ${path} -> owner ${owner}"
+            if [ "$owner" != "$SELF_OWNER" ]; then
+              FOREIGN="${FOREIGN}${owner}"$'\n'
+            fi
+          done <<< "$MODULES"
+          UNIQUE=$(printf '%s' "$FOREIGN" | sed '/^$/d' | sort -u)
+          COUNT=$(printf '%s\n' "$UNIQUE" | grep -c . || true)
+          if [ "$COUNT" -gt 1 ]; then
+            echo "::error::the governed submodules span $COUNT foreign owners ($(printf '%s' "$UNIQUE" | tr '\n' ' ')) but actions/create-github-app-token mints ONE owner per step; extend this workflow with a mint+rewrite pair per foreign owner"
+            exit 1
+          fi
+          if [ "$COUNT" -eq 1 ]; then
+            echo "has_foreign=true" >> "$GITHUB_OUTPUT"
+            echo "foreign_owner=${UNIQUE}" >> "$GITHUB_OUTPUT"
+            echo "foreign submodule owner ${UNIQUE} needs its own installation token"
+          else
+            echo "has_foreign=false" >> "$GITHUB_OUTPUT"
+            echo "foreign_owner=" >> "$GITHUB_OUTPUT"
+            echo "every governed submodule lives in ${SELF_OWNER}; the org-wide rewrite suffices"
+          fi
+      - name: Mint app token for the foreign submodule owner
+        id: foreign-app-token
+        # NO `|| github.token` FALLBACK, deliberately: if the App is not
+        # installed on that organization this step fails loudly, which is a far
+        # better diagnosis than the "Repository not found" the init printed for
+        # two nights.
+        if: env.HAS_APP_KEY == 'true' && steps.foreign-owner.outputs.has_foreign == 'true'
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.XFACTORY_APP_ID }}
+          private-key: ${{ secrets.XFACTORY_APP_PRIVATE_KEY }}
+          owner: ${{ steps.foreign-owner.outputs.foreign_owner }}
+      # LONGEST PREFIX WINS, so the org-wide rewrite above STAYS. Git resolves
+      # `insteadOf` by the LONGEST matching left-hand side, and
+      # `git@github.com:<owner>/` is longer than `git@github.com:` — this
+      # narrows the earlier rewrite for exactly that owner's submodules and
+      # leaves every other governed submodule on the caller-org token. Removing
+      # the broad rewrite would strand every same-org submodule instead.
+      - name: Rewrite foreign-owner submodule URLs
+        if: env.HAS_APP_KEY == 'true' && steps.foreign-owner.outputs.has_foreign == 'true'
+        run: |
+          git config --global url."https://x-access-token:${TOKEN}@github.com/${OWNER}/".insteadOf "git@github.com:${OWNER}/"
+        env:
+          TOKEN: ${{ steps.foreign-app-token.outputs.token }}
+          OWNER: ${{ steps.foreign-owner.outputs.foreign_owner }}
       - name: Init governed submodules only
         run: |
           SUBS=$(git config --file .gitmodules --get-regexp 'submodule\..*\.path' \
@@ -950,6 +1040,96 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ steps.app-token.outputs.token || github.token }}
+      # WHY A SECOND TOKEN, AND WHY IT IS DERIVED. An App INSTALLATION token is
+      # scoped to exactly ONE installation, and the mint above asks for
+      # `owner: ${{ github.repository_owner }}` — the caller's organization.
+      # Since aggregation commit 0c6ea39 ("Repoint the Medx submodules at
+      # MedxSoft, where they now live", 2026-08-26) the governed submodule set
+      # SPANS ORGANIZATIONS, so that one token cannot clone all of it: the
+      # nightly died at "Init governed submodules only" with `fatal: repository
+      # 'https://github.com/MedxSoft/MedxEHR.git/' not found` (opensoft/xFactory
+      # runs 33038056012 on 2026-08-27 and 33143248243 on 2026-08-28; the
+      # 2026-08-26 15:43 run, before the repoint, passed). The message reads
+      # like a deleted repository and is really a token minted for the wrong
+      # installation — the App IS installed on the other organization
+      # (installation 157085693, all repositories, contents: write); it only
+      # ever lacked a token of its own.
+      #
+      # THE OWNER IS READ FROM `.gitmodules`, NEVER NAMED HERE. `.gitmodules` is
+      # the only authority on where a submodule lives, so a hardcoded
+      # organization would rot at the next repoint and would stay silent when a
+      # THIRD organization appeared. More than one foreign owner therefore FAILS
+      # the run instead of guessing, because `create-github-app-token` takes one
+      # `owner` per step and a second pair has to be written by hand.
+      - name: Detect foreign submodule owners
+        id: foreign-owner
+        env:
+          SELF_OWNER: ${{ github.repository_owner }}
+        run: |
+          set -euo pipefail
+          # The SAME governed filter the init step below applies, so the two can
+          # never disagree about which submodules a token has to reach.
+          GOVERNED='^(openxFactory|xFactories/)'
+          MODULES=$(git config --file .gitmodules --get-regexp 'submodule\..*\.path' || true)
+          FOREIGN=""
+          while read -r key path; do
+            [ -n "${path:-}" ] || continue
+            printf '%s\n' "$path" | grep -qE "$GOVERNED" || continue
+            name=${key#submodule.}
+            name=${name%.path}
+            url=$(git config --file .gitmodules --get "submodule.${name}.url" || true)
+            owner=$(printf '%s\n' "$url" | sed -nE \
+              -e 's#^git@github\.com:([^/]+)/.+$#\1#p' \
+              -e 's#^https://github\.com/([^/]+)/.+$#\1#p')
+            if [ -z "$owner" ]; then
+              echo "::warning::no GitHub owner could be read from submodule '${path}' url '${url}'; leaving it to the org-wide rewrite"
+              continue
+            fi
+            echo "governed submodule ${path} -> owner ${owner}"
+            if [ "$owner" != "$SELF_OWNER" ]; then
+              FOREIGN="${FOREIGN}${owner}"$'\n'
+            fi
+          done <<< "$MODULES"
+          UNIQUE=$(printf '%s' "$FOREIGN" | sed '/^$/d' | sort -u)
+          COUNT=$(printf '%s\n' "$UNIQUE" | grep -c . || true)
+          if [ "$COUNT" -gt 1 ]; then
+            echo "::error::the governed submodules span $COUNT foreign owners ($(printf '%s' "$UNIQUE" | tr '\n' ' ')) but actions/create-github-app-token mints ONE owner per step; extend this workflow with a mint+rewrite pair per foreign owner"
+            exit 1
+          fi
+          if [ "$COUNT" -eq 1 ]; then
+            echo "has_foreign=true" >> "$GITHUB_OUTPUT"
+            echo "foreign_owner=${UNIQUE}" >> "$GITHUB_OUTPUT"
+            echo "foreign submodule owner ${UNIQUE} needs its own installation token"
+          else
+            echo "has_foreign=false" >> "$GITHUB_OUTPUT"
+            echo "foreign_owner=" >> "$GITHUB_OUTPUT"
+            echo "every governed submodule lives in ${SELF_OWNER}; the org-wide rewrite suffices"
+          fi
+      - name: Mint app token for the foreign submodule owner
+        id: foreign-app-token
+        # NO `|| github.token` FALLBACK, deliberately: if the App is not
+        # installed on that organization this step fails loudly, which is a far
+        # better diagnosis than the "Repository not found" the init printed for
+        # two nights.
+        if: env.HAS_APP_KEY == 'true' && steps.foreign-owner.outputs.has_foreign == 'true'
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.XFACTORY_APP_ID }}
+          private-key: ${{ secrets.XFACTORY_APP_PRIVATE_KEY }}
+          owner: ${{ steps.foreign-owner.outputs.foreign_owner }}
+      # LONGEST PREFIX WINS, so the org-wide rewrite above STAYS. Git resolves
+      # `insteadOf` by the LONGEST matching left-hand side, and
+      # `git@github.com:<owner>/` is longer than `git@github.com:` — this
+      # narrows the earlier rewrite for exactly that owner's submodules and
+      # leaves every other governed submodule on the caller-org token. Removing
+      # the broad rewrite would strand every same-org submodule instead.
+      - name: Rewrite foreign-owner submodule URLs
+        if: env.HAS_APP_KEY == 'true' && steps.foreign-owner.outputs.has_foreign == 'true'
+        run: |
+          git config --global url."https://x-access-token:${TOKEN}@github.com/${OWNER}/".insteadOf "git@github.com:${OWNER}/"
+        env:
+          TOKEN: ${{ steps.foreign-app-token.outputs.token }}
+          OWNER: ${{ steps.foreign-owner.outputs.foreign_owner }}
       - name: Init governed submodules only
         run: |
           SUBS=$(git config --file .gitmodules --get-regexp 'submodule\..*\.path' \
