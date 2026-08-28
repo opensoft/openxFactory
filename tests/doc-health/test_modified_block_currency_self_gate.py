@@ -107,10 +107,14 @@ on add-composed-view-authoring now" — that the change's known rename be DECLAR
 with a RESERVED MARKER, so that the scenario-title arm's standing population on
 this repository reaches ZERO, which is the precondition the doc-health delta's
 § 7.2 flip reserves. The marker written was `Merged into`, not the
-`Removed from canon by` the packet's § 6.3 predicted: the block ADDS the
-destination title, and `dh:158-168` makes `Merged into` the author's instrument
-for that shape while a removal marker beside an added title deliberately
-suppresses nothing. AFTER THE DECLARATION this file measures **0 `warning` and
+`Removed from canon by` predicted three paragraphs above. THAT PREDICTION WAS
+THIS FILE'S OWN, echoing the family's generic action line ("declare the deletion
+with a `Removed from canon by` marker", which every arm of the family prints on
+every finding); the packet's § 6.3 names the RENAME and no marker form at all,
+and the correction belongs where the wrong form was written rather than to it.
+The block ADDS the destination title, and `dh:158-168` makes `Merged into` the
+author's instrument for that shape while a removal marker beside an added title
+deliberately suppresses nothing. AFTER THE DECLARATION this file measures **0 `warning` and
 7 `info`** over the same twenty-one blocks, report movement **+0 `warning`,
 +7 `info`**, and the SAME seven named ledger subjects — the composed-view
 ledger row INCLUDED, because a `Merged into` marker names titles only and the
@@ -340,12 +344,17 @@ def _findings():
 # `Removed from canon by`. Brett ruled in session: "Marker on
 # add-composed-view-authoring now", taking the modified-block-currency
 # scenario-title arm's standing population to ZERO on this repository — the
-# precondition the delta's § 7.2 flip reserves. The packet's § 6.3 named the
-# wrong one of the two reserved forms: this is a RENAME, the block carries the
-# destination title, and `dh:158-168` gives `Merged into` as the author's
-# instrument for exactly that shape while `Removed from canon by` beside an
-# added title would have kept the old title's bullets reported. So
-# `_SCENARIO_SUBJECT` is None and the band is asserted EMPTY below.
+# precondition the delta's § 7.2 flip reserves. THE PARAGRAPH ABOVE NAMED THE
+# WRONG ONE OF THE TWO RESERVED FORMS, and the mistake was this file's own: it
+# echoed the family's generic action line, which prints `Removed from canon by`
+# on every finding of every arm. § 6.3 names the rename and no form. This is a
+# RENAME, the block carries the destination title, and `dh:158-168` gives
+# `Merged into` as the author's instrument for exactly that shape, while
+# `Removed from canon by` beside an added title would have kept the old title's
+# bullets reported. So `_SCENARIO_SUBJECT` is None and the band is asserted
+# EMPTY below. IF A LIVE SCENARIO-ARM SUBJECT EVER RETURNS, put its four fields
+# back here and assert them as this file did before 2026-08-27 — do not leave
+# the zero assertion standing beside a populated constant.
 # ============================================================================
 
 _SCENARIO_SUBJECT = None
@@ -664,7 +673,15 @@ def test_the_scenario_arm_reads_zero_since_the_rename_was_declared():
     the finding to being the DECLARATION, read back through the family's own
     `active_blocks` as a `Merged into` marker naming exactly the discharged
     title. Delete the marker and both halves fail, which is the mutation round's
-    check on this re-aim.
+    check on this re-aim, and so does swapping it for a `Removed from canon by`
+    marker — the wrong form for a retitle declares nothing.
+
+    NO `assert _SCENARIO_SUBJECT is None` HERE. The first cut carried one and it
+    was a module literal asserted against itself three hundred lines from where
+    it is written — the shape § 4.1's anti-vacuity rule exists to keep out of
+    this file, and the review of #444 caught it. The instruction it carried now
+    sits in the comment beside the constant, which is where a future editor
+    looks.
 
     § 7.2's flip is what this zero is FOR, and it is not this test's business:
     this file measures, the flip is a delta.
@@ -672,9 +689,6 @@ def test_the_scenario_arm_reads_zero_since_the_rename_was_declared():
     change, capability, requirement, scenario = _DISCHARGED_SCENARIO_SUBJECT
     warnings = [f for f in _findings() if f.severity == WARNING]
 
-    assert _SCENARIO_SUBJECT is None, (
-        "a live scenario-arm subject is named again; assert it by its four "
-        "fields as this test did before 2026-08-27, rather than asserting zero")
     assert not warnings, _moved(
         f"the scenario-title arm's population (EMPTY since {change} declared "
         f"its rename of {scenario!r} on 2026-08-27)",
