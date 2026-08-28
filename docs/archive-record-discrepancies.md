@@ -1826,3 +1826,89 @@ anything. Editing this `Status: record` file trips `record-immutability` as it
 always has; that critical was already standing for this document before this
 entry and is unchanged by it, which was verified by running the checker either
 side of the edit rather than assumed.
+
+## Addendum 2026-08-28 — the forty-fifth archived proposal header (`clean-doc-health-floor`)
+
+The 2026-08-23 campaign recorded above corrected **forty-four** archived
+proposal headers. There was a forty-fifth, and it did not exist yet when the
+campaign ran.
+
+`openspec/changes/archive/2026-08-25-fix-abandoned-session-cleanup-terminal-states/proposal.md`
+was archived on 2026-08-25 — **one day after `govern-openspec-corpus-membership`
+archived** — carrying no `Status:` header at all. It was therefore never in the
+44-document scope, and the one-time sweep that would have taken it had already
+closed. It is the ONLY archived proposal in this repository with no status
+header: measured across all 112, **110 read `Status: ratified`, 1 reads
+`Status: draft`, and this one read nothing.**
+
+`clean-doc-health-floor` backfills it with `Status: ratified` plus a `Ratified:`
+citation derived from the packet's own origin declaration.
+
+### Why `ratified` and not `draft`, measured three ways
+
+The change that commissioned this correction was directed to write `draft`. All
+three candidate values were run before any was written, and the directed one
+does not win:
+
+| Header written | `status-validity` | `ratified-provenance` | `promotion-fidelity` |
+| --- | --- | --- | --- |
+| `Status: draft` | error clears | 0 | **NEW ERROR** |
+| `Status: ratified`, uncited | error clears | **NEW CRITICAL** — "ratified header carries no citation in either sanctioned spelling" | 0 |
+| `Status: ratified` + citation | **error clears** | **0** | **0** |
+
+**`draft` manufactures a false report about a different packet.**
+`promotion_fidelity.PRE_RATIFICATION` is `{brainstorm, staged, draft}`, and a
+packet declaring one of those has its deltas discounted as archived design
+evidence rather than promoted canon. Marking this one `draft` drops its
+`ideation-dashboard` delta as the authority for `Staged-topic proposal
+commissioning`; the family falls back to the earlier
+`2026-08-01-add-workbench-branch-sessions`, and compares that packet's seven
+ratified scenarios against a promoted spec the later packet legitimately
+rewrote — reporting it as having failed to promote one of them. Isolated by
+reverting this single edit and re-running: **`promotion-fidelity` reads 1 error
+with the `draft` backfill and 0 without it.**
+
+The citation written is DERIVED, not invented. The promoted rule
+(`openspec/specs/document-lifecycle/spec.md:39-53`) states that a `ratified`
+value's citation "SHALL be derived from the packet's own record — **its origin
+declaration**, its ratification or archive commit, its own task record, or the
+index row that announced it", naming the origin declaration first. This
+packet's `.openspec.yaml` carries `approved_by: Brett Heap` and
+`approved_on: 2026-08-25`, so the line clears the record-citing spelling's
+three-way floor on all three axes — approver, date, and a resolvable record
+path — rather than on the one it needs.
+
+That is also what the 2026-08-23 campaign actually did: **43 of its 44
+backfills took `ratified` plus a citation, and exactly one took `draft`.** And
+it is the direction of Brett's own ruling of 2026-08-26 (commit `4dc57a4d`),
+which corrected `ratify-doxbench-landed-context-surfaces` FROM `draft` TO
+`ratified` "to match the header convention used by every sibling ratified
+archived packet". Of the 112 archived proposals here, 110 read `ratified`.
+
+Task 5C.3 of that campaign — "It does not get a plausible-looking header, and
+it does not get skipped in silence" — is satisfied rather than strained: the
+header is not plausible-looking, it is derived from the source the promoted rule
+names, and this entry is the "reported BY NAME" half of the same rule.
+
+### What this addendum does NOT claim
+
+It does not claim the packet's origin approval and its ratification are the same
+act. They are distinguished everywhere this repository records one, and the
+citation says exactly which it rests on and where that record lives. What it
+claims is narrower and is what the promoted rule asks for: the packet's own
+record supports a `ratified` value, and it names the derivation source rather
+than asserting an approval nothing backs. If a distinct ratification record is
+found or supplied later, the citation may be re-pointed at it.
+
+It does not claim the class is closed. The 2026-08-23 campaign's own
+"moving-target" note observed that archived proposals keep arriving after any
+census; this is that note proving itself a fifth time. Nothing in this
+repository reports a headerless archived proposal at the moment it archives —
+`status-validity` catches it on the next run, which is how this one was found,
+but no gate refuses the archive act itself. That gap is named here and left
+open.
+
+It does not disposition anything. Editing this `Status: record` file trips
+`record-immutability` as it always has; that critical was already standing for
+this document before this entry and is unchanged by it, verified by running the
+family either side of the edit rather than assumed.

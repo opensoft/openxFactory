@@ -544,6 +544,15 @@ def fam_succession_integrity(ctx):
 
 def fam_location_conformance(ctx):
     findings = []
+    # The staged-exit arm below asks whether material can still be MOVED into
+    # a cited proposal's supporting-docs folder, so it reads the active ids
+    # rather than `ctx.change_ids`, whose union includes the archive. An
+    # archived packet is closed and immutable; demanding a move into one
+    # states a remedy nobody can perform. Derived from `ctx.repo_paths`
+    # rather than threaded through `Context` so the set cannot drift from the
+    # tree the other two arms of this same family already walk.
+    active_ids = {repo: corpus.active_change_ids(path)
+                  for repo, path in ctx.repo_paths.items()}
     for doc in ctx.docs:
         if doc.status == "brainstorm" and not doc.path.startswith(
                 "ideation/brainstorm/"):
@@ -560,7 +569,7 @@ def fam_location_conformance(ctx):
                 "staged fragment outside ideation/",
                 "move it under ideation/staging/ or change its status"))
         if doc.status == "staged" and doc.path.startswith("ideation/staging/"):
-            ids = ctx.change_ids.get(doc.repo, set())
+            ids = active_ids.get(doc.repo, set())
             cited = _staged_exit_changes(doc.text, ids)
             if cited:
                 findings.append(Finding(

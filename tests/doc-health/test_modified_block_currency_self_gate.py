@@ -393,6 +393,22 @@ _LEDGER_SUBJECTS = {
     # path by construction. Verified before deleting the row: no finding names
     # either path this packet ever had, asserted in
     # `test_the_self_finding_is_retired_by_the_archive_act`.
+    # ADDED 2026-08-28 BY `clean-doc-health-floor`. A DELIBERATE NARROWING,
+    # not a lossy carriage: the packet MODIFIES this requirement to stop
+    # `location-conformance` demanding that staged material move into the
+    # supporting-docs folder of a proposal that has ARCHIVED — a closed packet,
+    # so the remedy named an act nobody can perform. The two units this finding
+    # reports as uncarried are exactly the two the narrowing removes, and both
+    # are the same phrase: the body sentence "…already cites an active or
+    # archived proposal" and the scenario bullet "**WHEN** a staged document
+    # names an active or archived OpenSpec change as its exit or proposal".
+    # Canon says "active or archived" and the block says "ACTIVE", which is the
+    # whole point of the change. This arm cannot distinguish a deliberate
+    # rewording from drift and does not claim to — the finding is INFO, it is
+    # the audit trail for the narrowing, and it retires when the packet
+    # archives and its block is promoted.
+    ("clean-doc-health-floor", "doc-health",
+     "Proposal supporting-document integrity checks"),
     # ADDED 2026-08-28 BY `declare-generated-projection-status`. A DELIBERATE
     # WIDENING, not a lossy carriage. The packet adds a NINTH standing,
     # `projection`, so a document a named generator re-derives in place stops
