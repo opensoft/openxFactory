@@ -145,6 +145,24 @@
 - [ ] 6.3 `add-substantive-review-lane` task 3.2 — the `gate_rules_council`
       record defining openxFactory's candidate classes — remains the gate on
       any envelope instance here (FR-008).
+      **UPDATED 2026-08-28 — STAYS UNTICKED, and the reason has changed.** The
+      council CONVENED on 2026-08-28 and **REFUSED** the class proposed to it,
+      unanimously 5/5: `openxfactory-proposal-review-advisory` over
+      `openspec/changes/**` can never CONVENE, because its admitted surface lies
+      wholly inside the canonical `GATE_INTEGRITY_FLOOR` (984 admitted paths,
+      984 floored, 0 remaining; proven code-level). Record:
+      `opensoft/codexFactory` →
+      `hermes/domain/review-councils/records/2026-08-28-gate-rules-openxfactory-substantive-classes.md`
+      (disposition §8).
+      Brett Heap ruled the same day — *"1a, 2 leave open, 3 adopt, 4 adopt all
+      three"* — so **task 3.2 remains OPEN and FR-008 remains GATED**: no
+      envelope instance may exist here absent a future OPERABLE class. A record
+      that refuses is still a record, and it does not discharge this gate.
+      The ruled continuation is the council-reviewed-but-human-approved path,
+      which needs no class and no flip, so it requires nothing of this feature.
+      This entry is the REQUIRED pointer to that record (the council's Decision
+      3, adopted): the gate lives in another repository, so the artifact
+      carrying the dependency carries the reference.
 - [ ] 6.4 Task 5.1's RULESET half stays owed, behind S3 and S5 of
       `add-wallet-carried-review-authority` and its own ratified ruleset change
       (NR-001, NR-002, NR-003, NR-007).

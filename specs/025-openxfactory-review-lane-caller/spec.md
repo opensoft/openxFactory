@@ -173,6 +173,34 @@ absent secret.
   no `merge-approval-envelope` instance, because the `gate_rules_council` record
   that defines openxFactory's candidate classes
   (`add-substantive-review-lane` task 3.2) does not exist.
+  > **STILL GATED — and the reason has CHANGED, 2026-08-28.** The requirement
+  > above is unamended and binding; only its stated ground is now out of date.
+  > A `gate_rules_council` record for this repository now EXISTS, and it
+  > **REFUSED** the class proposed to it:
+  > `opensoft/codexFactory` →
+  > `hermes/domain/review-councils/records/2026-08-28-gate-rules-openxfactory-substantive-classes.md`
+  > (convener disposition §8; seat returns in the sibling
+  > `2026-08-28-seat-returns/`).
+  >
+  > The council refused `openxfactory-proposal-review-advisory` over
+  > `openspec/changes/**` **UNANIMOUSLY, 5/5**, on the ground that it can never
+  > CONVENE: its admitted surface lies **wholly inside the canonical
+  > `GATE_INTEGRITY_FLOOR`**, which is evaluated before any clearable
+  > classification, so every candidate parks `parked_never_clearable` and the
+  > convening lane bails on that outcome. Measured: **984 admitted paths, 984
+  > floored, 0 remaining.** Proven code-level — removing the rule's
+  > `gate_integrity` block, or supplying no rule document at all, parks
+  > identically.
+  >
+  > **`add-substantive-review-lane` task 3.2 therefore remains OPEN** (Brett
+  > Heap, 2026-08-28: *"1a, 2 leave open, 3 adopt, 4 adopt all three"*), and
+  > **FR-008 remains GATED: no `merge-approval-envelope` instance may exist here
+  > absent a future OPERABLE class.** "A record exists" does not discharge this
+  > requirement; an operable class would.
+  >
+  > The ruled continuation is the **council-reviewed-but-human-approved path**,
+  > which per the 2026-08-26 record §7.4 *"needs no class and no flip"* — so it
+  > reaches this repository without an envelope and without amending FR-008.
 - **FR-009**: The caller MUST gather the changed-path set PROVABLY COMPLETE — an
   authoritative declared total from the pull-request resource, a paginated
   listing whose entry count is compared against it, and a head-SHA recheck after
@@ -309,6 +337,12 @@ question rather than left as silence.
   codexFactory envelope schema, where `candidates` is required with
   `minItems: 1`. There is no legal "empty enrollment", so the only honest option
   is no envelope at all. Encoded as FR-008 and NR-005.
+  **Answer UNCHANGED 2026-08-28; its second clause is now the load-bearing one.**
+  The record is no longer absent — it exists and **refused** the one class put to
+  it (see FR-008's note). So the answer is still *no*, but for a stronger reason
+  than "owed": the council found that a class over `openspec/changes/**` can
+  never convene, and **no operable class has been defined for this repository by
+  anyone.** Task 3.2 stays OPEN.
 - **Fixed head ref or a pattern?** Moot, since nothing is enrolled — but had it
   mattered: Brett ruled 2026-08-25 (recorded in `add-substantive-review-lane`
   task 4.4) that first-tranche classes are fixed-branch BY RULING on
