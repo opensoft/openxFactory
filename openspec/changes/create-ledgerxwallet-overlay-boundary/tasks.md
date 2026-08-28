@@ -140,7 +140,7 @@ its digest re-pin, and every repoint.
 - [x] 3.9 RED proof of each of 3.6's four checks: mutate the pin `revision`;
       substitute a tag id; move the gitlink without the manifest; check out
       `openXwallet` at another commit and leave it dirty.
-      **DONE 2026-08-28.** SIX mutations, each REFUSED with exit 1, on a scratch clone. (1) pin `revision` mutated to another well-formed 40-hex commit -> `pin-gitlink-disagrees`. (2) the ANNOTATED TAG OBJECT id `021cdeefbae50127946f147c23edf98c653aa4a5` substituted -> `pin-not-a-commit`, reporting `whose object type is 'tag' and not `commit``. (3) gitlink moved alone -> `pin-split-commit`. (4) manifest moved alone -> `pin-split-commit`, the other direction. (5) `openXwallet` checked out at `936ceb20` (`wallet-v1.0`) -> `pin-checkout-drift` via the `+` flag, the fork detector. (6) checkout at the pinned commit but DIRTY -> `pin-checkout-drift` naming the modified file. A seventh, uninitialized, also refuses rather than skipping. An all-zero revision additionally proved the YAML int-coercion path is handled: `0000…0000` parses as the integer `0`, and the non-string case refuses.
+      **DONE 2026-08-28.** SIX mutations, each REFUSED with exit 1, on a scratch clone. (1) pin `revision` mutated to another well-formed 40-hex commit -> `pin-gitlink-disagrees`. (2) the ANNOTATED TAG OBJECT id `021cdeefbae50127946f147c23edf98c653aa4a5` substituted -> `pin-not-a-commit`, reporting that the object type is `tag` where `commit` was declared. (3) gitlink moved alone -> `pin-split-commit`. (4) manifest moved alone -> `pin-split-commit`, the other direction. (5) `openXwallet` checked out at `936ceb20` (`wallet-v1.0`) -> `pin-checkout-drift` via the `+` flag, the fork detector. (6) checkout at the pinned commit but DIRTY -> `pin-checkout-drift` naming the modified file. A seventh, uninitialized, also refuses rather than skipping. An all-zero revision additionally proved the YAML int-coercion path is handled: `0000…0000` parses as the integer `0`, and the non-string case refuses.
 ## 4. `[LedgerxWallet]` The profile artifact moves in
 
 - [x] 4.1 `templates/wallet-exercise.template.yaml` — moved unchanged. Its
@@ -280,7 +280,7 @@ its digest re-pin, and every repoint.
 - [x] 6.4 The pin-reconciliation leg still reports: the
       `PIN RECONCILIATION -- scripts/check-openxfactory-pin.py at pin …` line with
       the same verdict tier as the pre-change baseline.
-      **DONE 2026-08-28.** `PIN RECONCILIATION -- scripts/check-openxfactory-pin.py at pin af7ac0fa4d31, aggregation /home/brett/projects/xFactory (exit 1):` — same line shape and the SAME verdict tier (the `ERROR: stack pin … is not an ancestor of the aggregation submodule pointer` leg, plus the 8-row relocation notice) as the pre-change baseline. Reported, never enforced, exactly as before.
+      **DONE 2026-08-28.** `PIN RECONCILIATION -- scripts/check-openxfactory-pin.py at pin af7ac0fa4d31, aggregation <the workspace root> (exit 1):` (the emitter prints the resolved root; the literal path is host-specific and is elided here rather than committed) — same line shape and the SAME verdict tier (the `ERROR: stack pin … is not an ancestor of the aggregation submodule pointer` leg, plus the 8-row relocation notice) as the pre-change baseline. Reported, never enforced, exactly as before.
 - [x] 6.5 The migrated finder probes green (5.3a), with the ratified precedence
       properties still asserted and the parent's task ids cited.
       **DONE 2026-08-28.** All NINE migrated probes green, run individually and named. RED-PROVEN TO BITE rather than merely to pass: restoring an upward walk over the two former candidates raises **5** probe errors, including `finder probe nested-resolves-nothing: expected None, got '…'`. The ratified precedence properties survive as the stronger claim that nothing outside the descendant resolves at all, and the parent's task ids are cited in the code.
@@ -309,7 +309,7 @@ its digest re-pin, and every repoint.
 
 - [x] 7.1 No `xFactories/LedgerxWallet` aggregation gitlink (D2). If a later
       change takes it, the ratified rule binds both gitlinks to one commit.
-      **CONFIRMED HELD 2026-08-28.** `/home/brett/projects/xFactory/.gitmodules` is UNTOUCHED by this realization and declares no `xFactories/LedgerxWallet`. The aggregation was not opened.
+      **CONFIRMED HELD 2026-08-28.** the xFactory aggregation's own `.gitmodules` is UNTOUCHED by this realization and declares no `xFactories/LedgerxWallet`. The aggregation was not opened.
 - [x] 7.2 No relocation of the estate validator, the distinct-holder constraint or
       the tenant estate. Each is a named successor with its precondition: a
       validator SPLIT for the first; a descendant-side scan pass that survives the
