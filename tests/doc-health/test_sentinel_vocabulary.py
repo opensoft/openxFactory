@@ -33,6 +33,7 @@ from __future__ import annotations
 
 import importlib.util
 import subprocess
+import sys
 
 import pytest
 import yaml
@@ -623,6 +624,31 @@ def test_the_pin_counts_did_not_move_and_no_site_is_classified_twice():
                   for r in report.non_pins}
     assert pinned & classified == set()
     assert all(pc.FULL_SHA_RE.match(r.site.pin) for r in report.results)
+
+
+def test_pin_class_still_loads_by_path_with_no_package():
+    """MEASURED IN CI, NOT ANTICIPATED. `tests/review_lane_pin/
+    test_review_lane_caller.py` loads `pin_class.py` with
+    `spec_from_file_location` under a private name and NO package — deliberately,
+    so it need not duplicate this directory's conftest `sys.path` insert — and
+    its docstring states the constraint that the module stays stdlib-only and
+    importable that way. A bare `from . import pin_sentinels` raised
+    `ImportError: attempted relative import with no known parent package` there
+    and reddened the full suite while this directory's own run stayed green.
+    Asserted here as well, so the constraint is visible from the suite a
+    realizer actually runs."""
+    name = "_pin_class_no_package_probe"
+    source = REPO_ROOT / "scripts/doc_health/pin_class.py"
+    spec = importlib.util.spec_from_file_location(name, source)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module
+    try:
+        spec.loader.exec_module(module)
+        assert len(module.pin_sentinels.SENTINELS) == len(ps.SENTINELS)
+        assert module.pin_sentinels.is_declared_sentinel(
+            ps.UNCOMMITTED_WORKTREE)
+    finally:
+        sys.modules.pop(name, None)
 
 
 def test_no_deterministic_check_family_is_added():

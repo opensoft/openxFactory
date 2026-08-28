@@ -118,12 +118,33 @@ artifact that drifts.
 
 from __future__ import annotations
 
+import importlib.util
 import re
 import subprocess
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-from . import pin_sentinels
+# THE DECLARED SENTINEL VOCABULARY. Imported as a sibling where this module is
+# loaded as part of its package, and BY PATH where it is not — which is not a
+# hypothetical fallback. `tests/review_lane_pin/test_review_lane_caller.py`
+# loads this file with `spec_from_file_location` under a private name and NO
+# package, deliberately, so that it does not have to duplicate the doc-health
+# conftest's `sys.path` insert from a second directory; its docstring states the
+# constraint that this module stays stdlib-only and importable that way. A bare
+# relative import raises `ImportError: attempted relative import with no known
+# parent package` there, which is how this was measured rather than predicted.
+try:                                          # normal package import
+    from . import pin_sentinels
+except ImportError:                           # loaded by path, no package
+    _spec = importlib.util.spec_from_file_location(
+        "_pin_sentinels_by_path", Path(__file__).with_name("pin_sentinels.py"))
+    pin_sentinels = importlib.util.module_from_spec(_spec)
+    # Registered before exec for the same reason the caller test registers this
+    # module before exec: `@dataclass` resolves a field's annotation through
+    # `sys.modules[cls.__module__].__dict__`.
+    sys.modules[_spec.name] = pin_sentinels
+    _spec.loader.exec_module(pin_sentinels)
 
 # --------------------------------------------------------------- the namespace
 
