@@ -45,6 +45,17 @@ NOT do is guess that a value resembling a declared member was meant as that
 member, since a near-miss spelling is precisely the condition under which every
 consumer guarding on the exact string already fails.
 
+THE DEFECT BRANCH SHALL NOT RED CONFORMING COMMITTED OUTPUT ON THE DAY IT IS
+SWITCHED ON, and this is an obligation on the DECLARATION rather than a softening
+of the check. Every non-commit spelling the corpus already carries under a
+declared pin key SHALL be resolved before the defect branch runs: declared as a
+member where it names a real condition, or corrected at its generator where it
+does not. A verification that launches by reporting a lane's own committed output
+as a defect teaches its readers that the finding is noise, and the first thing a
+reader does with a noisy finding is to stop reading it. This is a seeding
+obligation, not an amnesty: nothing here excuses a spelling from being resolved,
+and a spelling nobody resolves is a defect the moment the branch runs.
+
 THE COMMIT-SHAPED PATH IS UNTOUCHED. A value that is a commit name is verified
 for reachability exactly as the promoted requirement states, and this
 requirement neither restates nor modifies it. Nothing here converts a
@@ -71,6 +82,11 @@ now carries a family to police.
 - **WHEN** a swept artifact carries a commit name under a declared pin key
 - **THEN** the reachability verification proceeds exactly as before, and this classification changes neither its ref set nor its verdicts
 - **AND** no sentinel outcome is emitted for it
+
+#### Scenario: A spelling the corpus already carries is not yet declared
+- **WHEN** the defect branch is switched on while committed output of an existing generator carries a non-commit spelling the vocabulary does not yet declare
+- **THEN** that spelling MUST first be resolved — declared where it names a real condition, or corrected at its generator where it does not — so the branch does not launch by reporting conforming committed output as a defect
+- **AND** the seeding obligation MUST NOT be read as an amnesty: an unresolved spelling is a defect the moment the branch runs
 
 #### Scenario: A sentinel appears under a key no declared member covers
 - **WHEN** a sentinel-valued key is carried by an artifact that no declared class member covers
@@ -115,6 +131,17 @@ keeps the two declarations answering for the same corpus — a vocabulary checke
 over a wider or narrower set than the pins it qualifies would report gaps that
 the pin class does not have, and miss gaps that it does.
 
+AN ABSENT PIN KEY IS RECOGNIZED BY THE DECLARATION AND IS NOT A MEMBER OF IT.
+The declaration SHALL name absence as a legacy state of the corpus — an artifact
+that carries no pin key at all where the class expects one — so the state is
+visible to a reader rather than falling outside both the pin path and the
+sentinel path. It MUST NOT be declared as a vocabulary member, and an absent key
+MUST NOT be filled in with a sentinel after the fact, because a sentinel asserts
+which condition applied and absence records no condition at all. The two are
+therefore reported differently and neither is converted into the other: a
+recognized legacy absence is reported once and repaired never, where an
+undeclared spelling is a defect with a remedy.
+
 THE DECLARATION STATES A CONDITION PER MEMBER, and a member without one is
 itself a defect. A sentinel whose meaning is not written down is a magic string,
 and a reader who meets it in an artifact learns only that somebody chose not to
@@ -140,6 +167,11 @@ untouched and unrestated.
 - **WHEN** a vocabulary member is declared without stating the condition it stands for, or without stating whether it is canonical or legacy
 - **THEN** the declaration MUST be reported as incomplete
 - **AND** the member MUST NOT be accepted on the strength of its spelling being self-explanatory
+
+#### Scenario: An artifact carries no pin key at all
+- **WHEN** a swept artifact of a declared class member carries no pin key where the member declares one
+- **THEN** the declaration MUST recognize the absence as a legacy state of the corpus and report it as such, distinctly from an undeclared spelling
+- **AND** the absence MUST NOT be declared as a vocabulary member, nor filled in with a sentinel after the fact, because absence records no condition to assert
 
 #### Scenario: The scope is questioned at the edge of the class
 - **WHEN** a non-commit value stands under a pin-shaped key in a file the declared pin class excludes as a non-member

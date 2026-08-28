@@ -2,7 +2,7 @@
 code_surface: openxFactory (a declared sentinel vocabulary living beside `scripts/doc_health/pin_class.py` — the registry-module home Q1 of `govern-derived-pin-reachability` ruled for the pin class itself, whose exact placement is OD-2 and is NOT pre-placed by the delta; `scripts/doc_health/pin_class.py` — the sweep's value handling, which today matches `([0-9a-f]{40})` and therefore creates no site at all for a non-commit value, plus the report's fifth outcome and the two-direction declaration check; `scripts/bootstrap-ideation-cross-reference.py` — `git_generation()` at `:144-154`, the dirty-tree stamp this packet exists to fix; `scripts/proposal-support.py` — `repo_revision()` at `:175-180` and the three `== "uncommitted"` guards at `:184`, `:632` and `:737`, whose spelling drift is already a measured latent raise; plus regressions under `tests/doc-health/`. NO change is proposed to the declared `PIN_CLASS` rows, `PIN_KEY_VOCABULARY`, the ref set consulted, `KNOWN_LOSSES` or its discharge mechanism, `repair_route()`, the retention namespace, the deterministic check family registry `scripts/doc_health/families.py`, the family enumeration or its numerals, `health/dispositions.yaml`, or one byte of any committed manifest.)
 target_release: implemented — the openxFactory main line. This surface cuts NO contract bundle, measured rather than assumed: `grep`ing every `contracts/releases/*.digests.yaml` inventory for `pin_class`, `bootstrap-ideation-cross-reference` and `proposal-support` returns nothing, so no schema moves, no digest set changes, and no release tag is owed. The archive gate is therefore merge-plus-green on main: `python3 -m pytest tests/doc-health` green under `set -o pipefail`, `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green, and the declared class reporting its sentinel sites as legal non-pins with the vocabulary check green in both directions. THE CHANGE SHIPS ACTIVE and archives only after that.
 Status: ratified
-Ratified: 2026-08-27 by Brett — in-session commissioning of the filing, verbatim: "file the sentinel-vocabulary follow-up change". THE CITATION COVERS THE DECISION TO FILE THIS CHANGE AND NOTHING ELSE; the five decisions in § Orchestrator decisions below were taken by the authoring session under standing patterns and are NOT covered by it, nor are the four questions in § Open Questions. A separate and EARLIER ruling of the same day constituted the packet's scope rather than ordering it — selected verbatim as "Named follow-up (Recommended): Record it beside the §5.3 git_generation() follow-up — they're the same idea (honest non-pins) and should be one future packet" — and it is recorded in `.openspec.yaml` as a distinct act. The record this citation resolves against is this file, § Orchestrator decisions and § Open Questions. No approving OpenSpec change exists to name, so the citation takes the record spelling `sanction-ratified-record-spelling` sanctioned for exactly that case, and clears its three-way floor on all three axes rather than on the one it needs: approver (`by Brett`), date (`2026-08-27`), and a resolvable record path.
+Ratified: 2026-08-27 by Brett — in-session commissioning of the filing, verbatim: "file the sentinel-vocabulary follow-up change". THE CITATION COVERS THE DECISION TO FILE THIS CHANGE AND NOTHING ELSE. AS FIRST WRITTEN this line continued "the five decisions in § Orchestrator decisions below were taken by the authoring session under standing patterns and are NOT covered by it, nor are the four questions in § Open Questions" — true at authoring and now historical: **a THIRD act, later the same day, disposed everything this citation did not reach.** All five § Orchestrator decisions were CLEARED AS AUTHORED and all four § Open Questions RULED on 2026-08-27, by a four-question multi-choice put to Brett by the orchestrating session and relayed the same day; he took the packet's recommendation on every question, and the merge was approved on green, to be performed by the orchestrating session rather than this one. **THE THREE ACTS STAY DISTINCT ON PURPOSE**: the earlier ruling CONSTITUTED the packet's scope, this citation ADMITTED it, and the later ruling CLOSED the veto window and moved delta text on Q1, Q2 and Q3. A separate and EARLIER ruling of the same day constituted the packet's scope rather than ordering it — selected verbatim as "Named follow-up (Recommended): Record it beside the §5.3 git_generation() follow-up — they're the same idea (honest non-pins) and should be one future packet" — and it is recorded in `.openspec.yaml` as a distinct act. The record this citation resolves against is this file, § Orchestrator decisions and § Open Questions. No approving OpenSpec change exists to name, so the citation takes the record spelling `sanction-ratified-record-spelling` sanctioned for exactly that case, and clears its three-way floor on all three axes rather than on the one it needs: approver (`by Brett`), date (`2026-08-27`), and a resolvable record path.
 Proposed: 2026-08-27
 Origin: The one follow-up two archived packets agreed was a single question. `harden-ideation-readiness-check` § 5.3 recorded that `git_generation()` pins `HEAD` on a dirty tree. `govern-derived-pin-reachability` § 5.1 carried that item forward, found the sentinel practice while realizing, and Brett ruled at that archive that the two are the same idea — honest non-pins — and belong in one future packet. This is that packet, and re-measuring its own premise on the day of filing changed what it is for.
 ---
@@ -194,8 +194,9 @@ the rule is implementable rather than aspirational:
   it emits no `(family, repo, path)` tuple for a disposition to match — the same
   measurement `supersede-lost-pin-baseline` made, and the same conclusion.
 - **The three manifests with no `source_revision` at all.** An absent key is a
-  fourth state, not a sentinel, and converting it is Q2 rather than a decision
-  taken here.
+  fourth state, not a sentinel. **RULED 2026-08-27 (Q2): it stays that way** — the
+  declaration RECOGNIZES absence as a legacy state so it is visible, and refuses it
+  membership; no absent key is filled in with a sentinel after the fact.
 
 ### Named follow-ups, out of scope here
 
@@ -215,12 +216,28 @@ the rule is implementable rather than aspirational:
   is a different key rather than a vocabulary member, and that is a schema change
   this packet does not make.
 
-## Orchestrator decisions, flagged for veto
+## Orchestrator decisions, cleared 2026-08-27 (authored: flagged for veto)
+
+**ALL FIVE CLEARED AS AUTHORED, 2026-08-27**, by a four-question multi-choice put
+to Brett by the orchestrating session and relayed to this session the same day. On
+every question he took the packet's own recommendation, so **the clearance moves
+nothing**: OD-1 (the two-capability all-ADDED split), OD-2 (the vocabulary beside
+the pin class with no path in canon), OD-3 (grandfather the committed spellings
+rather than normalize them), OD-4 (file on the corrected premise) and OD-5 (no
+deterministic check family) all stand exactly as written below. No verbatim
+wording of the ruling reached this session, so none is quoted — the approver, the
+date, the mechanism and the selections are recorded instead, which is what the
+origin requirement asks for. **THE ORIGINAL FLAGGED TEXT IS KEPT BELOW AS MARKED
+HISTORY** rather than rewritten, because what was flagged and why is the part a
+later reader needs. **THIS IS A SECOND ACT, DISTINCT FROM THE COMMISSION**
+recorded in § Ratified: that one admitted the packet, this one closed the veto
+window and approved the merge on green.
 
 Every decision below was taken by the authoring session under standing patterns.
 The commission covers the decision to file and nothing else.
 
 **OD-1 — TWO CAPABILITIES, FOUR REQUIREMENTS, ALL ADDED.**
+**CLEARED 2026-08-27 as authored.**
 `ideation-cross-reference` gets the two GENERATOR rules (write a sentinel rather
 than an untrue commit; declare the committed spellings rather than rewrite them),
 because it owns the repo-local commit-pin obligation and the record-immutability
@@ -237,7 +254,8 @@ seven ADDED requirements about the refresh lane, and no active change touches
 `ideation-cross-reference` at all.
 
 **OD-2 — THE VOCABULARY LIVES BESIDE THE PIN CLASS, AND THE DELTA DOES NOT NAME
-THE PATH.** Q1 of `govern-derived-pin-reachability` ruled the registry module for
+THE PATH.**
+**CLEARED 2026-08-27 as authored.** Q1 of `govern-derived-pin-reachability` ruled the registry module for
 the pin class itself, on the derived-not-restated shape
 `add-family-enumeration-check` established; a vocabulary that qualifies that class
 belongs in the same place and the same form. The delta obliges "declared in the
@@ -248,6 +266,7 @@ is a new module or new constants inside `pin_class.py` is left to realization**,
 and either satisfies the delta.
 
 **OD-3 — THE COMMITTED SPELLINGS ARE GRANDFATHERED, NOT NORMALIZED.**
+**CLEARED 2026-08-27 as authored.**
 `"uncommitted-worktree"` and `"not-applicable-ad-hoc"` enter the vocabulary as
 they stand. Two reasons and the second is decisive. First, they are the practice
 that proved the idea and a declaration that erased them deletes its own
@@ -259,7 +278,8 @@ than one spelling for one condition, which is why the delta obliges a canonical
 member and legacy markings rather than treating all members as equal.
 
 **OD-4 — THE PACKET FILES ON A CORRECTED PREMISE, AND THE CORRECTION IS
-RECORDED.** The archived record and the README entry derived from it both state
+RECORDED.**
+**CLEARED 2026-08-27 as authored.** The archived record and the README entry derived from it both state
 the generator already emits sentinels. It does not, and the measurement is in
 § What was measured. **Filing anyway is a decision**, and the argument for it is
 that the correction strengthens the case: a practice that lives in seven
@@ -270,6 +290,7 @@ latent raise. **The alternative was to file a smaller packet** that only fixed
 would have re-deferred the half Brett's earlier ruling explicitly joined to it.
 
 **OD-5 — NO DETERMINISTIC CHECK FAMILY, AND THE ENUMERATION IS NOT RESTATED.**
+**CLEARED 2026-08-27 as authored.**
 Both sibling packets declined a family for reasons that hold here unchanged: the
 verification this classification rides in already answers differently at
 different clone depths, and the enumeration requirement is one every new family
@@ -279,11 +300,36 @@ stated:** the enforcement surface stays pytest plus the module's own runnable
 entry point, and this packet does not wire the preflight half either — the three
 reasons `govern-derived-pin-reachability` § 5.6 measured are unchanged.
 
-## Open Questions
+## Open Questions, all four ruled 2026-08-27
 
-Each carries a recommendation and no decision.
+All four were ruled by the same four-question multi-choice recorded in
+§ Orchestrator decisions, and on all four Brett took the packet's recommendation.
+No verbatim wording reached this session, so none is quoted — approver, date,
+mechanism and the option selected are stated instead. **THREE OF THE FOUR MOVED
+DELTA TEXT**, and each entry records exactly what moved; each question's original
+text is kept unchanged beneath its ruling, because a recommendation that was
+accepted is the argument for the rule now in the delta.
 
-**Q1 — WHICH SPELLING IS CANONICAL FOR THE DIRTY-TREE CONDITION?** Two candidates
+**Q1 — RULED 2026-08-27: DECLARE BOTH SPELLINGS, WITH DISTINCT MEANINGS.**
+`"uncommitted-worktree"` is canonical for the DIRTY-TREE condition and
+`"uncommitted"` is its own member meaning UNREADABLE REPOSITORY — two members,
+each canonical for its own condition, neither legacy relative to the other. The
+recommendation was taken as authored. **WHAT MOVED:** the
+`ideation-cross-reference` grandfathering requirement gains a paragraph obliging
+the declaration to ESTABLISH WHICH CONDITION EACH SPELLING NAMES BEFORE marking
+any of them legacy — because folding a second condition into the first as a
+legacy spelling would silently restate every artifact carrying it — plus one
+scenario, "Two spellings turn out to name two conditions". The canonical/legacy
+machinery is unchanged and now applies WITHIN a single condition rather than
+across resemblances. **This unblocks `tasks.md` § 2.1**, which moves from "settle
+Q1 first" to the settled answer. **ONE POINT NEITHER RULING SETTLES, recorded
+rather than invented:** Q3 admits `"unknown"`, which also stands for an
+unreadable revision, so whether it is a second spelling of `"uncommitted"`'s
+condition (and therefore which of the two is canonical for it) or a distinct
+condition is left to realization under the same-condition rule. Neither ruling
+reached it and this session does not decide it.
+
+**Q1 AS ASKED — WHICH SPELLING IS CANONICAL FOR THE DIRTY-TREE CONDITION?** Two candidates
 and neither is free. `"uncommitted-worktree"` is the committed practice — six
 artifacts — but is written by no code and is the exact string that raises in
 `proposal-support.py`. `"uncommitted"` is written by the only generator that
@@ -296,7 +342,20 @@ corpus already spells them differently.** The three guards are then reconciled
 against the declaration rather than against one literal, which repairs the latent
 raise as a consequence rather than as a separate act.
 
-**Q2 — IS AN ABSENT PIN KEY AN HONEST NON-PIN OR A DEFECT?** Three archived
+**Q2 — RULED 2026-08-27: AN ABSENT KEY IS NOT AN HONEST NON-PIN.** It is declared
+a RECOGNIZED LEGACY STATE of the corpus and NOT a vocabulary member — the
+recommendation taken as authored. **WHAT MOVED:** the `doc-health` declaration
+requirement gains a paragraph obliging the declaration to name absence as a
+legacy state so it is visible rather than falling outside both the pin path and
+the sentinel path, while refusing it membership and refusing to fill an absent key
+with a sentinel after the fact — absence records no condition to assert — plus one
+scenario, "An artifact carries no pin key at all". The
+`ideation-cross-reference` generator requirement gains the matching sentence for
+the same reason. The two states are reported differently and neither is converted
+into the other: a recognized legacy absence is reported once and repaired never,
+where an undeclared spelling is a defect with a remedy.
+
+**Q2 AS ASKED — IS AN ABSENT PIN KEY AN HONEST NON-PIN OR A DEFECT?** Three archived
 manifests carry no `source_revision` at all, and they are visibly truncated
 stubs — one carries only `change_id` and `files`. **RECOMMENDATION: absent is NOT
 a sentinel and MUST NOT be converted into one.** A missing key says nothing:
@@ -309,7 +368,23 @@ an absent key as the same defect class, this is the question to rule the other
 way**, and the cost is a schema obligation on a generator family whose committed
 instances cannot be edited to satisfy it.
 
-**Q3 — DO `"unknown"` AND `"composed"` JOIN THE VOCABULARY?** Both stand in
+**Q3 — RULED 2026-08-27: BOTH JOIN THE DECLARED VOCABULARY.** `"unknown"` and
+`"composed"` are members — the recommendation taken as authored, including the
+harder half. **THE REASON THE RULING GAVE IS THE ONE THIS PACKET HAD NOT
+STATED**, and it is recorded because it is a real constraint on realization: if
+they stayed out, requirement 2's undeclared-value-is-a-defect clause would flag
+the snapshot registry's OWN COMMITTED OUTPUT the day the branch was switched on.
+**WHAT MOVED:** the `doc-health` classification requirement gains a paragraph
+obliging that every non-commit spelling the corpus already carries be RESOLVED —
+declared where it names a real condition, corrected at its generator where it does
+not — before the defect branch runs, with the trade stated in the same breath so
+it cannot be read as an amnesty: an unresolved spelling is a defect the moment the
+branch runs. One scenario is added, "A spelling the corpus already carries is not
+yet declared". **§ 5.3's caveat survives the ruling unchanged**: if `"composed"`
+turns out to belong in a different KEY rather than a pin key, that is a schema
+change to the snapshot index and still not this packet's to make.
+
+**Q3 AS ASKED — DO `"unknown"` AND `"composed"` JOIN THE VOCABULARY?** Both stand in
 `source_revision`-shaped fields today and neither is declared anywhere.
 **RECOMMENDATION: `"unknown"` joins as a member** — it is a pin key's value
 standing for an unreadable revision, which is exactly a condition the vocabulary
@@ -321,7 +396,21 @@ different KEY rather than a sentinel value in a pin key — is cleaner and is a
 schema change to the snapshot index, which is why it is a question rather than a
 decision.
 
-**Q4 — DOES THE REALIZATION REPAIR THE `proposal-support.py` GUARD DRIFT?** The
+**Q4 — RULED 2026-08-27: YES, THE REPAIR IS IN SCOPE FOR THIS REALIZATION.** The
+three literal-`"uncommitted"` guards are reconciled against the declaration — the
+recommendation taken as authored, and the "against it" argument below is
+overruled rather than quietly dropped: the code surface does widen into a tool
+this packet otherwise only reads, and the ruling accepts that cost. **WHAT MOVED:**
+no delta text, because the obligation was already stated — the
+`ideation-cross-reference` consumer scenario already makes a guard that
+recognizes one spelling a reported coverage gap. `tasks.md` § 2.7 moves from
+conditional to unconditional and the `code_surface` line already named the three
+guards. **AND Q1 SHARPENS THE REPAIR RATHER THAN COMPLICATING IT**: with
+`"uncommitted"` ruled a member in its own right, the guards are not being taught a
+new synonym — they are being taught that the condition they test for has more than
+one member, which is exactly what consulting the declaration means.
+
+**Q4 AS ASKED — DOES THE REALIZATION REPAIR THE `proposal-support.py` GUARD DRIFT?** The
 three `== "uncommitted"` comparisons are a measured latent raise, caused by the
 very vocabulary drift this packet declares away. **RECOMMENDATION: yes, in the
 same realization.** A packet that declares a shared vocabulary while leaving a
@@ -334,9 +423,12 @@ reads, and the fault is not reachable today.
 ## Impact
 
 - **Affected capabilities:** `ideation-cross-reference` — two ADDED requirements,
-  eight scenarios; `doc-health` — two ADDED requirements, eight scenarios. **No
-  requirement MODIFIED in either**, and no deterministic check family added,
-  removed or renumbered.
+  **nine** scenarios; `doc-health` — two ADDED requirements, **ten** scenarios.
+  **No requirement MODIFIED in either**, and no deterministic check family added,
+  removed or renumbered. **AS AUTHORED the counts were eight and eight**; the
+  2026-08-27 rulings on Q1, Q2 and Q3 added three scenarios and four paragraphs
+  and removed nothing, so the growth is additive and the requirement count is
+  unchanged at four.
 - **Affected code:** a declared vocabulary beside `scripts/doc_health/pin_class.py`,
   the sweep's value handling and report in `pin_class.py`, `git_generation()` in
   `scripts/bootstrap-ideation-cross-reference.py`, the three drifted guards in

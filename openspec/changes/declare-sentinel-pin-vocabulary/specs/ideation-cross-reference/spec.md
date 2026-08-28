@@ -100,6 +100,34 @@ legal in committed state and MUST NOT be written afresh. A legacy member without
 that marking is indistinguishable from a second canonical spelling, which is the
 drift this requirement exists to stop rather than to bless.
 
+BUT THE DECLARATION SHALL ESTABLISH WHICH CONDITION EACH SPELLING NAMES BEFORE
+MARKING ANY OF THEM LEGACY, because two spellings that look like variants of one
+condition are sometimes two conditions wearing similar words, and collapsing them
+destroys the distinction the vocabulary exists to carry. A value written when the
+generator READ CONTENT IT COULD NOT PIN and a value written when the generator
+COULD NOT READ THE REPOSITORY AT ALL are different facts with different
+consequences for a reader: the first says the content is real and unreconstructible,
+the second says nothing about the content was established. A declaration that
+folded the second into the first as a legacy spelling would silently restate every
+artifact carrying it. Where the conditions differ, BOTH spellings are members and
+EACH is canonical for its own condition; the legacy marking applies only within a
+single condition.
+
+AND A KEY THAT IS SIMPLY ABSENT IS NOT A MEMBER OF THIS VOCABULARY. An artifact
+carrying no pin key at all makes no claim, honest or otherwise: it cannot be
+distinguished from a generator that crashed before writing, a schema that predates
+the key, or a hand-written stub, where every sentinel names which condition
+applied. Absence SHALL therefore be recognized as a legacy state of the corpus —
+visible, reported once, and never repaired into a sentinel after the fact — rather
+than declared as a spelling. Converting an absent key into a sentinel would assert
+a condition nobody recorded, which is the same falsification as writing a commit
+that was never true.
+
+#### Scenario: Two spellings turn out to name two conditions
+- **WHEN** the corpus carries two spellings that resemble one condition, and the conditions they were written for differ
+- **THEN** both MUST be declared as members, each canonical for the condition it names, and neither marked legacy on the strength of the resemblance
+- **AND** the declaration MUST state the two conditions separately, because folding them would restate every artifact carrying the absorbed spelling
+
 AND THE DECLARATION IS WHERE THE CONSUMERS ARE RECONCILED. A guard that compares
 a pin value against one spelling of a condition SHALL be reconciled against the
 declared vocabulary rather than against whichever spelling its own lane happened

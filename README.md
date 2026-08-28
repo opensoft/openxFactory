@@ -392,9 +392,23 @@ Active changes:
   selected verbatim as "Named follow-up (Recommended): Record it beside the §5.3
   git_generation() follow-up — they're the same idea (honest non-pins) and should
   be one future packet" — and is recorded as a distinct act. **THE CITATION
-  COVERS THE DECISION TO FILE AND NOTHING ELSE**: five § Orchestrator decisions
-  stay FLAGGED FOR VETO and four § Open Questions stay OPEN, each with a
-  recommendation and no decision. **THE TWO DEFERRED ITEMS THIS JOINS**:
+  COVERS THE DECISION TO FILE AND NOTHING ELSE**, and a THIRD act of the same day
+  disposed the rest: **all five § Orchestrator decisions CLEARED AS AUTHORED and
+  all four § Open Questions RULED, 2026-08-27**, by a four-question multi-choice,
+  with the merge approved on green. The clearance moved nothing, but **three of
+  the four rulings MOVED DELTA TEXT** — Q1: declare BOTH spellings with DISTINCT
+  meanings (`"uncommitted-worktree"` canonical for a dirty tree,
+  `"uncommitted"` its own member meaning unreadable repository), so the
+  canonical/legacy marking applies WITHIN one condition and never across a
+  resemblance; Q2: an absent key is NOT an honest non-pin — recognized as a legacy
+  state, refused membership, and never filled in with a sentinel after the fact;
+  Q3: `"unknown"` and `"composed"` JOIN, on a reason the packet had not stated —
+  left out, the undeclared-value-is-a-defect branch would have flagged the
+  snapshot registry's OWN committed output the day it was switched on, which is
+  now generalized as a seeding obligation on the declaration; Q4: the
+  `proposal-support.py` guard repair is IN SCOPE. Scenario counts moved 8/8 → 9/10
+  additively, requirement count unchanged at four. **THE TWO DEFERRED ITEMS THIS
+  JOINS**:
   `harden-ideation-readiness-check` § 5.3 and
   `govern-derived-pin-reachability` § 5.1, both unticked at their archives. **AN
   UNTRUE PIN IS WORSE THAN AN UNREACHABLE ONE** — an orphan was true once, where
@@ -426,7 +440,7 @@ Active changes:
   (`"uncommitted"`, `"uncommitted-worktree"`, `"not-applicable-ad-hoc"`,
   `"unknown"`, `"composed"`, beside the adjacent verdict `"not-applicable"`), two
   of them in no governance document at all. Four requirements ADDED across two
-  capabilities, sixteen scenarios, NONE MODIFIED: `ideation-cross-reference` gets
+  capabilities, nineteen scenarios, NONE MODIFIED: `ideation-cross-reference` gets
   the two GENERATOR rules (write a declared sentinel rather than an untrue commit,
   one shared spelling per condition; and declare the committed spellings rather
   than rewrite them, since all seven sit in archived packets whose bytes this

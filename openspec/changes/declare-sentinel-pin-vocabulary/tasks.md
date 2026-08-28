@@ -13,6 +13,13 @@ committed sentinel values are NOT to be edited** — every one sits inside an
 archived packet, and normalizing their spellings is the content edit this
 capability's own rule refuses. The vocabulary absorbs them; they do not move.
 
+**THE VETO WINDOW CLOSED 2026-08-27 AND THE RULINGS ARE RECORDED IN PLACE**, at
+§ 1.12 with the delta text they moved. Three of them bind realization directly:
+Q1 settles § 2.1 and § 2.6, Q3 adds a seeding obligation that § 2.3 must satisfy
+before the defect branch runs, and Q4 makes § 2.7 unconditional. The paragraphs
+above are unchanged by all of it — nothing ruled licenses deleting a member or
+editing a committed manifest.
+
 ## 1. Filing and admission
 
 - [x] 1.1 ORIGIN AND APPROVAL ARE RECORDED FROM THE COMMISSION ITSELF, on the
@@ -101,21 +108,55 @@ capability's own rule refuses. The vocabulary absorbs them; they do not move.
       `python3 -m pytest tests/doc-health -q` under `set -o pipefail` reports
       **1209 passed** — unchanged from the baseline measured on this worktree
       before anything was written, as it must be for a delta-only filing.
-- [ ] 1.12 THE VETO WINDOW IS OPEN. Five § Orchestrator decisions stay FLAGGED and
-      four § Open Questions stay UNRULED. Nothing in this packet may be realized
-      on the assumption that OD-2 (the vocabulary's home), OD-3 (grandfathering)
-      or Q1 (which spelling is canonical) resolved the way the packet recommends.
+- [x] 1.12 THE VETO WINDOW IS CLOSED, 2026-08-27. All five § Orchestrator
+      decisions CLEARED AS AUTHORED and all four § Open Questions RULED, by a
+      four-question multi-choice put to Brett by the orchestrating session and
+      relayed the same day. He took the packet's recommendation on every question,
+      so **the clearance moved nothing** — OD-1 through OD-5 stand exactly as
+      written — but **three of the four rulings MOVED DELTA TEXT**, which the
+      clearance did not: Q1 (declare BOTH spellings with DISTINCT meanings —
+      `"uncommitted-worktree"` canonical for a dirty tree, `"uncommitted"` its own
+      member meaning unreadable repository), Q2 (an absent key is NOT an honest
+      non-pin; declared a recognized legacy state, never a member) and Q3
+      (`"unknown"` and `"composed"` JOIN, so the undeclared-value-is-a-defect
+      clause cannot flag the snapshot registry's own committed output at
+      realization). Q4 RULED: the `proposal-support.py` guard repair is IN SCOPE
+      for this realization. Scenario counts moved 8/8 → 9/10, additively; the
+      requirement count is unchanged at four. **THIS IS A THIRD ACT, DISTINCT FROM
+      BOTH THE COMMISSION (§ 1.1) AND THE CONSTITUTING RULING (§ 1.2).** No
+      verbatim wording reached this session, so none is quoted — approver, date,
+      mechanism and selections are recorded instead.
+- [x] 1.13 THE MERGE IS APPROVED ON GREEN AND IS NOT THIS SESSION'S TO PERFORM.
+      The orchestrating session merges; this session records the rulings, pushes
+      and stops. Recorded because a packet that says "archives only after green"
+      should also say who does it.
 
 ## 2. Implementation — unstarted
 
-- [ ] 2.1 SETTLE Q1 FIRST. Which spelling is canonical for the dirty-tree
-      condition determines what `git_generation()` writes, what the vocabulary
-      declares as legacy, and whether the `proposal-support.py` guards change. No
-      code before that ruling.
+- [x] 2.1 Q1 IS SETTLED AND THE BLOCK IS LIFTED, 2026-08-27. **Both spellings are
+      members with DISTINCT meanings**: `"uncommitted-worktree"` canonical for the
+      DIRTY-TREE condition, `"uncommitted"` its own member meaning UNREADABLE
+      REPOSITORY. Neither is legacy relative to the other, because they name
+      different conditions. This determines what `git_generation()` writes
+      (§ 2.6 — the dirty-tree member), what the declaration may mark legacy
+      (§ 2.2 — only within one condition), and what the guards are reconciled
+      against (§ 2.7). **The box is ticked because the ruling is the task**; the
+      code it unblocks is § 2.2 onward and stays unticked.
 - [ ] 2.2 DECLARE THE VOCABULARY beside `scripts/doc_health/pin_class.py`, in the
       registry-module form Q1 of `govern-derived-pin-reachability` ruled for the
       class itself. Every member states its condition and whether it is canonical
       for new output or a legacy spelling retained for committed state.
+      **THE RULED MEMBERSHIP, from the 2026-08-27 rulings**: the dirty-tree
+      condition (`"uncommitted-worktree"`, canonical), the unreadable-repository
+      condition (`"uncommitted"`, Q1; `"unknown"`, Q3), the outside-a-repository
+      condition (`"not-applicable-ad-hoc"`), and the composed-projection condition
+      (`"composed"`, Q3). **ONE POINT NEITHER RULING SETTLES AND THIS PACKET DOES
+      NOT INVENT**: `"unknown"` also stands for an unreadable revision, so whether
+      it is a second spelling of `"uncommitted"`'s condition — and if so which of
+      the two is canonical for it — or a condition of its own is resolved at
+      realization under the same-condition rule the delta states. **AND ABSENCE IS
+      NOT A MEMBER** (Q2): the declaration recognizes it as a legacy state and
+      refuses it membership.
 - [ ] 2.3 CLASSIFY THE VALUE in `pin_class.py`. A non-commit value under a
       declared pin key becomes a site with one of two outcomes — legal non-pin
       (declared) or defect (undeclared) — rather than no site at all. The
@@ -137,9 +178,12 @@ capability's own rule refuses. The vocabulary absorbs them; they do not move.
       `ideation_dashboard/record_binding.py:202-210`,
       `intent_apply_lane.py:560`, `register_edit_lane.py:223`.
 - [ ] 2.7 RECONCILE THE `proposal-support.py` GUARDS against the declaration
-      rather than the literal `"uncommitted"` — IF Q4 rules that the repair rides
-      this packet. If it does not, the latent raise is carried to § 5 unticked
-      rather than left unrecorded.
+      rather than the literal `"uncommitted"`. **RULED IN SCOPE 2026-08-27 (Q4)**,
+      so the conditional is gone: all three comparisons (`:184`, `:632`, `:737`)
+      consult the vocabulary, and the latent `SupportError` raise measured at
+      § 1.7 closes with them. Q1 sharpens rather than complicates this — the guards
+      are not learning a synonym, they are learning that the condition they test
+      for has more than one member.
 - [ ] 2.8 REGRESSIONS under `tests/doc-health/`, covering at minimum: dirty tree
       yields a sentinel and not `HEAD`; clean tree yields the real pin unchanged;
       a declared sentinel reports as a legal non-pin and does not hold
@@ -147,7 +191,13 @@ capability's own rule refuses. The vocabulary absorbs them; they do not move.
       naming artifact, key and value; a near-miss spelling is NOT matched to the
       nearest declared member; a declared member nothing carries reports as
       unused; and the real repository's seven sentinel sites all classify as legal
-      non-pins. **The existing 53 tests in `test_pin_reachability.py` must stay
+      non-pins. **PLUS the three the 2026-08-27 rulings added**: two spellings
+      naming two conditions are both members and neither is marked legacy (Q1); an
+      artifact with no pin key reports as a recognized legacy absence and is
+      neither a member nor filled in (Q2); and the defect branch reports nothing
+      against the snapshot registry's and the avatar F0 lane's existing committed
+      output, which is the seeding obligation Q3's ruling turned into a
+      requirement. **The existing 53 tests in `test_pin_reachability.py` must stay
       green unchanged** — none of them asserts anything about a non-commit value
       today, which is itself the coverage gap.
 - [ ] 2.9 NO DETERMINISTIC CHECK FAMILY. The test that pins `pin_class` out of the
@@ -172,10 +222,18 @@ capability's own rule refuses. The vocabulary absorbs them; they do not move.
       `2026-07-29-add-crystallizer-contracts`, `2026-07-29-add-pattern-ledger`,
       `2026-07-30-add-capability-steward`. All archived, all visibly truncated
       stubs — `add-pattern-ledger` carries only `change_id` and `files`. **An
-      absent key is a fourth state and this packet does not convert it**; Q2.
+      absent key is a fourth state and this packet does not convert it.**
+      **RULED 2026-08-27 (Q2), as recommended**: absence is declared a RECOGNIZED
+      LEGACY STATE — visible, reported once, repaired never — and is NOT a
+      vocabulary member. None of the three is filled in with a sentinel.
 - [ ] 3.4 THE TWO SPELLINGS NO GOVERNANCE DOCUMENT MENTIONS — `"unknown"` and
       `"composed"` — are inventoried here rather than left to the realization to
-      discover. Q3.
+      discover. **RULED 2026-08-27 (Q3): BOTH JOIN the declared vocabulary**, and
+      the reason the ruling gave is a constraint on § 2.3 rather than a
+      preference — left out, the undeclared-value-is-a-defect branch would flag
+      the snapshot registry's own committed output the day it was switched on.
+      The seeding obligation now stated in the `doc-health` classification
+      requirement is what generalizes that.
 - [ ] 3.5 AFTER REALIZATION, RE-RUN THE PROBE AND RECORD THE SPLIT. The expected
       shape is the same site and member counts with the sentinel sites moved from
       invisible to legal non-pins, `0 uncovered` unchanged, and the class still
@@ -194,9 +252,13 @@ capability's own rule refuses. The vocabulary absorbs them; they do not move.
       archive: no edited file is a member of any `contracts/releases/*.digests.yaml`
       inventory, and the act's own doc-health run reports `release-inventory-drift`
       at 0 findings before and after.
-- [ ] 4.5 The five § Orchestrator decisions cleared or vetoed, and the four
+- [x] 4.5 The five § Orchestrator decisions cleared or vetoed, and the four
       § Open Questions ruled, with approver, date and mechanism recorded whether
-      or not verbatim wording reaches the session.
+      or not verbatim wording reaches the session. **DISCHARGED 2026-08-27** —
+      all five cleared as authored, all four ruled, recorded at § 1.12 and in
+      `proposal.md` § Orchestrator decisions and § Open Questions. **This is the
+      one arm of the gate a filing session can close**; the rest wait on
+      realization.
 - [ ] 4.6 Merged plus green on main, with the merge read out of git — parents and
       `merge-base --is-ancestor` — rather than off the pull request page.
 
