@@ -117,21 +117,51 @@ re-resolved by name if the file has moved under the feature.
       `test_the_block_renders_under_the_heading_before_the_first_row` (`:422`,
       which pins the `marker defects` bullet as the LAST row and asserts the
       blank line after it — the new class is appended last, so both assertions
-      move to it); `test_the_block_renders_on_a_run_that_found_nothing` (`:429`,
-      "All four counts read 0"); `test_every_finding_carries_its_class_s_band_and_action`
+      move to it); `test_every_finding_carries_its_class_s_band_and_action`
       (`:538-547`); and the `len(block) == 5` pin inside
       `test_the_block_is_not_a_finding_and_cannot_become_one` (`:707` → 6). That
       last test's SUBJECT — that the block never re-enters
       `report.parse_previous` — must not weaken by one assertion.
+      NOT in this roster, deliberately:
+      `test_the_block_renders_on_a_run_that_found_nothing` (`:429`) carries "All
+      four counts read 0" in its DOCSTRING only — its assertions survive the
+      fifth class untouched, so it is a numeral fix and belongs to § 2.12, not
+      here. A pin roster that lists prose is a roster a reader stops trusting.
 - [ ] 2.8 THE FIXTURE TREE, ruled at packet review 2026-08-27 and BEHAVIOURAL
       rather than an exemption: `tests/doc-health/fixtures/modified-block-currency-unplaced/`.
-      `ALL_TREES` globs `modified-block-currency*`, so the tree joins every
-      corpus-wide pin automatically. **RED EXPECTATION**: with the tree present
-      and the fifth class absent, `:538-547`'s `all(checked.values())` fails on
-      `unplaced: 0`; with the class present and the emit wired, the tree drives
-      one drift finding through `fam_modified_block_currency`, `classify`,
-      `class_summary` and `report.render`, and the pin passes on a measured row
-      rather than a constructed `Finding`.
+      `ALL_TREES` globs `modified-block-currency*`, so the tree joins the
+      corpus-wide pins that iterate it — but **its presence in `ALL_TREES` does
+      NOT by itself exercise the fifth class.** `_fixture_findings` calls
+      `fam_modified_block_currency` with no seam, so over the unmodified map this
+      tree contributes only PLACED findings and `:538-547`'s
+      `all(checked.values())` still fails on `unplaced: 0`. **`:538-547`
+      therefore gains a MONKEYPATCHED PASS over this tree — one pattern removed
+      from `_CLASS_PATTERNS` — and that pass is what exercises the class.**
+      **RED EXPECTATION**: with the tree present and the fifth class absent, the
+      amended `:538-547` fails on `unplaced: 0`; with the class present and the
+      emit wired, the monkeypatched pass drives one drift finding through
+      `fam_modified_block_currency`, `classify`, `class_summary` and
+      `report.render`, and the pin passes on a measured row rather than a
+      constructed `Finding`.
+      **THE AMENDED PASS MUST NOT INDEX `by_id` WITH `UNCLASSIFIED`.** `:542` is
+      `by_id[mbc.classify(f)]`, and `UNCLASSIFIED` is deliberately not a class id,
+      so the induced-unplaced arm findings raise `KeyError` there — a red that is
+      a crash rather than the assertion this pin exists to make. The pass asserts
+      explicitly over the induced-unplaced findings, or skips them into the drift
+      count, and the drift finding itself goes through `by_id` like any other.
+      **THE TREE'S REQUIREMENT TITLES MUST BE PLAIN** — no title may contain
+      another class's phrase (`omits`, `does not carry`, `carries a … marker by`,
+      `resolves to no promoted requirement`, `the ordering of MODIFIED blocks`).
+      F2's `CLASSIFIERS` (`test_modified_block_currency_fixtures.py:139-145`) are
+      UNANCHORED substring probes, and
+      `test_every_finding_falls_into_exactly_one_class` asserts `len(hits) == 1`
+      over `ALL_TREES`, so a corpus-supplied phrase in a title would fail that
+      pin from the new tree — the trap that narrowed F1's own `_ledger` helper.
+      **THE TREE CARRIES A PROVENANCE README**, per F2's convention and its
+      checker `test_every_fixture_tree_this_feature_adds_carries_a_provenance_note`:
+      line 3 is the machine-readable provenance line and this tree is
+      `SYNTHESIZED` (case-sensitive, whole-word), being constructed for this
+      class rather than reconstructed from history.
       **THE TRIGGER IS A REMOVED PATTERN, NOT A CRAFTED TITLE, AND THAT IS
       MEASURED** — see § 3.5. No corpus can produce an unplaced rule text while
       the map is complete, because every arm's rule text is a fixed prefix plus
@@ -237,8 +267,10 @@ re-resolved by name if the file has moved under the feature.
       the fifth class, and the honest behavioural trigger is the drift itself.
 - [x] 3.6 THE PINS THAT WILL RED, enumerated before the feature starts so none is
       discovered as a surprise: `…_reporting.py` `:115`, `:150`, `:287-294`,
-      `:422`, `:429`, `:538-547`, `:707`; `…_self_gate.py:661-702`;
-      `…_fixtures.py:1127-1146`. Read at `69c4a218`.
+      `:422`, `:538-547`, `:707`; `…_self_gate.py:661-702`;
+      `…_fixtures.py:1127-1146`. Read at `69c4a218`. `:429` is NOT among them —
+      its "All four counts read 0" is a docstring numeral and its assertions
+      survive; it is § 2.12's, not § 2.7's.
 
 ## 4. Open — recorded, not fixed
 
