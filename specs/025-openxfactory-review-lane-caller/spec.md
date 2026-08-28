@@ -173,9 +173,26 @@ absent secret.
   no `merge-approval-envelope` instance, because the `gate_rules_council` has
   defined **no OPERABLE candidate class** for this repository
   (`add-substantive-review-lane` task 3.2). The gate holds for as long as that
-  remains true, and is cleared by one thing only: a `gate_rules_council` record
-  DEFINING an operable class. The existence of a council record does not by
-  itself clear it.
+  remains true, and is discharged only when **BOTH** hold: **(i)** the class is
+  **operable** per the criterion below, **AND (ii)** its clearance control is
+  **ENCODED IN A LANDED, ACTIVE RULE** in the rule directory the decision core
+  executes **at the commit `contracts/review-lane-pin.yaml`'s `core_commit`
+  names**. **Declaration in a council record alone is insufficient**, and a rule
+  that is present but `state: defined_not_wired`, or `active: false`, does
+  **not** satisfy (ii) — a control that is recorded but not deployed is not a
+  control.
+  > **Why (ii) is separate from (i), and not pedantry.** A council record can be
+  > ratified before its executable rule lands: `add-substantive-review-lane`
+  > separates the executable `gate-rules.yaml` change (**task 3.1**) from the
+  > council record (**task 3.2**) as distinct tasks, so the gap between them is
+  > a real interval and not a hypothetical one. During it, a record could
+  > *declare* a class human-only while the core enforces nothing — and per
+  > `011`'s R4 an envelope entry alone can reach the active autonomous chain.
+  > `specs/011-council-feature-clearance/tasks.md:38-42` already draws exactly
+  > this line for its own entries: no live entry lands until the successor has
+  > **LANDED** *and* its protections are **ACTIVE** — *"structurally excluded
+  > from the autonomy branch, not merely intended to be."* Condition (ii) holds
+  > this feature to that same standard.
 
   **OPERABLE, defined — this requirement's own criterion, dependent on no other
   document.** A candidate class is **operable for this repository** if and only
@@ -189,9 +206,12 @@ absent secret.
   **The class's clearability tier is NOT part of this criterion.** A convenable
   class clears this gate **whatever its tier — advisory and human-only
   included** — because whatever an envelope may then DO is bounded by that
-  class's **governed clearance control**: the `clearance_rule` and classification
-  intent declared in the `gate_rules_council` record that the decision core
-  executes. It is **never** bounded by anything the envelope itself carries. The
+  class's **deployed clearance control**: the `clearance_rule` and
+  classification intent as carried by the **landed, active rule the decision core
+  reads from the base branch** at the pinned `core_commit`. **The council record
+  authorizes that control; it is not itself what the core executes** — which is
+  why discharge condition (ii) above names the rule and not the record. It is
+  **never** bounded by anything the envelope itself carries. The
   envelope schema is `additionalProperties: false` and has no
   classification-intent field, so posture cannot be expressed there at all;
   posture lives class-side, in tier-2 state (`011-council-feature-clearance`
@@ -294,9 +314,19 @@ otherwise assume landed.
   feature rests on. Shipping a placeholder candidate would be inventing
   enrollment.
 - **NR-006**: **`contracts/review-lane-pin.yaml` is not added to the openxFactory
-  repository gate floor.** It arguably belongs there — it determines which core
-  judges this repository — but that floor file lives in codexFactory. Named as a
-  follow-up, not performed here.
+  repository gate floor BY THIS FEATURE.** It arguably belongs there — it
+  determines which core judges this repository — but that floor file lives in
+  codexFactory. Named as a follow-up (6.2), not performed here.
+  > **The follow-up has since been COMPLETED SEPARATELY, 2026-08-28.** This
+  > non-requirement is unchanged in scope — it bounds what *this feature* does,
+  > and this feature still does not touch that file. What has changed is the
+  > world outside it: codexFactory PR **#125** *"Add the openxFactory review-lane
+  > pin to the never-clearable floor"* **merged** (`99fa3ffe`, reachable from
+  > `origin/main`), so `contracts/review-lane-pin.yaml` **IS** now in
+  > `scripts/merge_master/openxfactory-review-authority-floor.yaml`'s
+  > `never_clearable_paths`, pinned by per-path behavioural tests in
+  > `tests/merge-master/test_repository_gate_floor.py`. **Task 6.2 is ticked.**
+  > Read NR-006 as *"not by this feature"*, never as *"not done"*.
 - **NR-007**: **`add-substantive-review-lane` task 5.1 is not ticked.** Its
   ruleset half remains owed, so the task stays open and this feature is recorded
   against it rather than closing it.

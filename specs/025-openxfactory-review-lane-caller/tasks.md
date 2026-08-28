@@ -132,6 +132,13 @@
 
 ## 6. Named follow-ups, not performed here
 
+> **"Not performed HERE" means not by this feature — it does not mean not done.**
+> As of 2026-08-28: **6.2 is COMPLETE** (in codexFactory, PR #125, merge
+> `99fa3ffe`). **6.1, 6.4 and 6.5 remain OPEN.** **6.3 remains OPEN** and its
+> gate is unchanged — the `gate_rules_council` convened 2026-08-28 and REFUSED
+> the class proposed to it, so `add-substantive-review-lane` task 3.2 stays open
+> and FR-008 stays gated. Each box below states its own current status.
+
 - [ ] 6.1 Grant `opensoft/openxFactory` read access to the private decision
       core — either by adding it to the `selected` list for
       `XFACTORY_APP_ID` / `XFACTORY_APP_PRIVATE_KEY`, or by installing the
