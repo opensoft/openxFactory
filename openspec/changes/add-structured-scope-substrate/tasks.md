@@ -34,16 +34,20 @@ this change.
 Maps to a Speckit feature `scope-globs-schema`. Realizes the "Structured
 path-scope declaration" requirement's value form.
 
-- [ ] 2.1 Add a lightweight schema / data model for the `scope_globs` front-matter
+- [x] 2.1 Add a lightweight schema / data model for the `scope_globs` front-matter
   field: mapping of string repo-key → non-empty, unique list of non-empty
   strings. No jsonschema dependency required to stay in step with the
-  dependency-free posture of the envelope core.
-- [ ] 2.2 A front-matter parser that reads `scope_globs` from a change's
-  `proposal.md` YAML block alongside `code_surface` / `target_release` (reuse the
-  ideation-dashboard `_release_frontmatter` header reader's location as the one
-  place the realization-axis block is parsed).
-- [ ] 2.3 Unit fixtures: absent field (valid, not-eligible), empty map, empty
+  dependency-free posture of the envelope core. (`scripts/scope_globs.py`:
+  `validate_shape` / `ScopeGlobs`.)
+- [x] 2.2 A front-matter parser that reads `scope_globs` from a change's
+  `proposal.md` YAML block alongside `code_surface` / `target_release`
+  (`scripts/scope_globs.py`: `read_front_matter` / `read_scope_globs` — the one
+  place the realization-axis block is parsed for a structured, non-flat field;
+  the ideation-dashboard `_release_frontmatter` reader handles only the flat
+  `code_surface` / `target_release` headers).
+- [x] 2.3 Unit fixtures: absent field (valid, not-eligible), empty map, empty
   list, non-string keys/values, duplicate entries.
+  (`tests/scope_globs/test_schema.py`.)
 
 ## Group 3 — Speckit feature: dialect-conformant validator hook (code_surface: openxFactory)
 
