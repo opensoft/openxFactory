@@ -53,7 +53,7 @@ implemented/promoted, `adopted` = adopted.
 | DTN-023 | Governance change-review lane | `split` | P2 | `seed` | change-review half of the review lane (ten governance-document dimensions) |
 | DTN-024 | Governed recommendation artifact (evidence-cited, hypothesis-only, authority-slotted proposal) | `split` | P2 | `seed` | neutral recommendation-artifact skeleton: evidence-citation + knowledge_basis vocabulary, empty-authority-slot invariant, refusal documents, seeded-defect critique harness pattern |
 | DTN-025 | Shared across 3 factories: docs/credentialing.md | `promote` | P2 | `seed` | to be determined at staging (the shared surface, neutralized once) |
-| DTN-026 | openXwallet neutral home | `split` | P1 | `staged` | own repo `opensoft/openXwallet` (ruled 2026-08-26); domain descendants are pin-and-profile repos — **`opensoft/LedgerxWallet` CREATED 2026-08-28**, the first; status held at `staged` pending the domain re-pin and P4 |
+| DTN-026 | openXwallet neutral home | `split` | P1 | `adopted` | own repo `opensoft/openXwallet` (ruled 2026-08-26); domain descendants are pin-and-profile repos — **`opensoft/LedgerxWallet` CREATED 2026-08-28**, the first; **ADOPTED 2026-08-28** on the archive of `split-openxwallet-repo`: openxFactory re-pinned at `contracts/openxwallet-pin.yaml` and retired 92 local copies at `contract-v2.0`, LedgerxFactory re-pinned through `LedgerxWallet` |
 
 ## Candidate Details
 
@@ -821,13 +821,23 @@ path. So the PATTERN this entry promotes now has a realization rather than only
 precedents — pin by commit twice, carry only profile, nest into the
 DomainxFactory, create lazily on the domain's first profile artifact.
 
-**The status does NOT advance on that.** This register's own definition
-requires the domain re-pin AND the local-copy retirement to be COMPLETE, and
-`status: staged` is what the evidence supports today: the LedgerxFactory re-pin
-is open as PR #31 rather than merged, and P4 — the xFactory aggregation's root
-`openXwallet` gitlink — has not landed. Ratification is not realization, and a
-created repository is not a completed one. Recorded here so a later reader sees
-the descendant exists WITHOUT reading the status as having moved.
+**ADOPTED 2026-08-28.** `split-openxwallet-repo` was archived as
+`openspec/changes/archive/2026-08-28-split-openxwallet-repo/` on merged-plus-green
+realization evidence across six repositories, and both halves of this register's
+own definition of `adopted` are now met. The domain re-pin: openxFactory consumes
+openXwallet at `contracts/openxwallet-pin.yaml`, gitlink and digest pin agreeing
+on `63f5a1adac89f017e70bab9a4ffe7cf02d6e6705` (tag label `wallet-v1.1`, eight
+digests recomputed at the post-merge re-verify), and LedgerxFactory re-pins
+through `opensoft/LedgerxWallet` — PR #30 turned its finder into a declaration,
+PR #31 nested the descendant, and LedgerxWallet is tagged `lxw-v1.0`
+(`0a0141cafc1fecd5d0e38b14e4f40a67a54a08d3`) under the ACTIVE `pin-validation`
+ruleset 21701436. The local-copy retirement: **92 files deleted** at P3
+(openxFactory PR #431, released as `contract-v2.0` =
+`c9a1500e1a960be827cd714d8024d9aacb40aeb2`), the carve's 100 files minus the 8
+that stay. The intermediate states were passed through rather than occupied —
+`openspec` at the 2026-08-26 ratification, `implemented` at P3's realization — so
+the row advances straight from `staged` to `adopted` at this archive, skipping no
+gate that carries a meaning.
 
 The nested-only placement carries a KNOWN GAP, registered rather than
 discovered: a descendant nested inside a DomainxFactory is outside every
@@ -869,12 +879,12 @@ casing is `<Domainx><Product>` — `MedxWallet`, `LedgerxWallet`, `codexWallet`,
 `OpsxWallet`, `AdxWallet`. R8 `LedgerxWallet` is first, created at extraction
 time, because LedgerxFactory is the only live consumer. The first release is a
 byte-identical pure move — the eight artifact sha256s must equal openxFactory
-HEAD's manifest rows before `wallet-v1.0` is tagged. Status stays `staged` rather
-than `adopted` until the extraction actually lands: nothing has moved yet, and
-this register's own alias table defines `adopted` as domain re-pin and local-copy
-retirement COMPLETE. Pending change: `split-openxwallet-repo`, declaring a code
-surface of scripts, CI workflows, pin files and submodule gitlinks, so it archives
-only on merged plus green realization evidence. That change was **RATIFIED
-2026-08-26** (PR opensoft/openxFactory#391, both required checks green; ratified
-as proposed, realization through Speckit features) — the status advances from
-`staged` at the domain re-pin, not at ratification.
+HEAD's manifest rows before `wallet-v1.0` is tagged, and they did — 8/8
+three-way, on a completeness diff that was empty at 100 files. The change
+`split-openxwallet-repo` was **RATIFIED 2026-08-26** (PR
+opensoft/openxFactory#391, both required checks green; ratified as proposed,
+realization through Speckit features), declaring a code surface of scripts, CI
+workflows, pin files and submodule gitlinks, so it archived only on merged plus
+green realization evidence rather than on landing. It archived 2026-08-28 and
+carried this status with it: the advance came at the domain re-pin, not at
+ratification.
