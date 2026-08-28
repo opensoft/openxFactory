@@ -100,16 +100,23 @@ def test_uncited_contested_resolution_becomes_finding():
 # `plan_line` EMITS a row and `PLAN_RE`/`parse_previous` READ one back; a
 # finding whose rule or action text contains the field delimiter itself must
 # survive that round trip, or `--previous-report` silently forgets it. It was
-# not surviving: `PLAN_RE` closed the field on the FIRST `"`, so a row like
-# `rule="active MODIFIED block for "Brett's ruling" omits ..."` — the shape
-# every modified-block-currency arm writes when the requirement title it
-# quotes with `{title!r}` contains an apostrophe, because `repr()` then
-# switches to double quotes — was emitted and never parsed back. The finding
-# read as absent from the previous report on the NEXT run, which makes a
-# persistent finding look like a fresh regression and makes a contested
-# finding's disappearance invisible to `uncited_resolutions`.
+# not surviving: `PLAN_RE` closed the field on the FIRST `"`, so such a row was
+# emitted and never parsed back. The finding read as absent from the previous
+# report on the NEXT run, which makes a persistent finding look like a fresh
+# regression and makes a contested finding's disappearance invisible to
+# `uncited_resolutions`.
 #
-# The rule text below is a real arm's, verbatim in shape.
+# THE FIRED CASE IS `semantic.py`'s CONTRADICTION ARM, not the shape exercised
+# below: `health/reports/2026-07-14.md:267` carries a contested
+# semantic-contradiction row whose corpus excerpt embeds a raw `"`, it vanished
+# on 07-15, and that run's 18 uncited-resolution errors did not include it. The
+# full account is the comment over `_FIELD` in `report.py`.
+#
+# The shape exercised below is the modified-block-currency arms' — `{title!r}`
+# switches to double quotes when a requirement title contains an apostrophe —
+# which is a LATENT exposure (that family has emitted no row in 27 reports). It
+# is used here because it is the narrowest reproduction of the emit/parse
+# asymmetry; the round trip it pins is generator-independent.
 _QUOTED_TITLE_RULE = (
     "active MODIFIED block for \"Brett's ruling\" omits 1 of the 2 "
     "scenarios in the promoted requirement")
