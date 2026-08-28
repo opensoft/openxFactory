@@ -26,9 +26,11 @@
 # `.gitmodules` deliberately keeps `git@github.com:` — openXwallet is private, so
 # an anonymous HTTPS clone fails and a token is needed either way, while an HTTPS
 # URL would make every human clone prompt for credentials instead of using the
-# operator's key. The house pattern (`doc-health-reusable.yml:140-158`) is
-# therefore adopted: mint an App token, then rewrite the SSH URL to a token URL
-# with `insteadOf` BEFORE checkout. The SECRET NAMES differ from that file's on
+# operator's key. The house pattern (`doc-health-reusable.yml`, prepare job:
+# `Mint xFactory app token` → `Rewrite ssh submodule URLs for token auth` →
+# `Init governed submodules only`) is therefore adopted: mint an App token,
+# then rewrite the SSH URL to a token URL with `insteadOf` BEFORE checkout.
+# The SECRET NAMES differ from that file's on
 # purpose: the org secret `XFACTORY_APP_ID` is visibility-`selected` and
 # openxFactory is not among its repositories, while this repository already holds
 # `OPENXFACTORY_APP_ID` / `OPENXFACTORY_APP_PRIVATE_KEY` for the content App
