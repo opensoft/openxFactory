@@ -260,6 +260,14 @@ class _ArmTemplate:
         self.id = id
         self.text = text
         self.segments = tuple(_FIELD.split(text))
+        # `\Z` is NEAR-INERT and says so rather than looking load-bearing: four
+        # of the six templates END in a field, so their pattern already ends
+        # `(?s:.*?)\Z`, which matches whatever is left. It bites only on the two
+        # that end in fixed prose (`marker-defects`, `ordering`), where it stops
+        # a longer rule text from matching on a prefix. The ANCHOR THAT CARRIES
+        # THE WEIGHT is `re.match` in `matches` below — there is no `^` here,
+        # and switching that one call to `re.search` files a drift finding under
+        # the ledger template through its own quotation.
         self._pattern = re.compile(
             r"(?s:.*?)".join(re.escape(seg) for seg in self.segments) + r"\Z")
 

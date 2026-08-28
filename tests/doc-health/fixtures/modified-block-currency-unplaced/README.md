@@ -64,8 +64,9 @@ finding and the pin passes either way — which is exactly what the mutation rou
 measured against this tree's first, single-directory version: the mutant
 "emit before the first sort" SURVIVED it.
 
-The three ledger findings are ONE SHAPE (their rule texts are equal once every
-quoted span and digit run is masked) and the titles finding is a SECOND. That is
+The three ledger findings are ONE SHAPE (they come from the same arm template,
+differing only in the values it interpolates) and the titles finding is a SECOND
+(a different template). That is
 what lets one tree drive both halves of the delta's third scenario:
 
 - remove the `carriage-ledger` pattern → 3 unplaced findings, ONE shape → ONE

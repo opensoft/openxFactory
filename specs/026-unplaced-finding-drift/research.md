@@ -75,9 +75,19 @@ and this feature tests it directly.
 
 ## R3 — The shape mask, and the order of its two substitutions
 
-**Decision.** `_shape(rule)` replaces every single-quoted span and every
-double-quoted span with one fixed placeholder, then every run of digits with
-another. Quoted spans FIRST.
+> **SUPERSEDED 2026-08-28 by Brett's ruling**, verbatim: "Amend: shape = arm
+> template, all interpolations masked" — landed on `main` as `6d100e51` /
+> PR #461. The decision recorded below was correct against the delta AS FIRST
+> RATIFIED and is kept because it is the reasoning the amendment overturned and
+> because two of its findings survive it: the left-to-right consumer (see R3b)
+> and the two-placeholder rule both still hold, now inside step 1 and step 3 of
+> the amended mask. **The live rule is `data-model.md` § 4 and `plan.md`
+> § OPEN-1 (RULED AND IMPLEMENTED).** What this section describes is now the
+> FALLBACK only — the mask a rule text gets when no arm template claims it.
+
+**Decision (superseded).** `_shape(rule)` replaces every single-quoted span and
+every double-quoted span with one fixed placeholder, then every run of digits
+with another. Quoted spans FIRST.
 
 **Rationale.** The delta states the rule; the packet notes it is the same
 grammar `_CLASS_PATTERNS` is written in (`_TITLE_REPR` and `\d+`) so a reader

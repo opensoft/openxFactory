@@ -1651,6 +1651,23 @@ def test_every_finding_matches_exactly_one_arm_template():
         f"expected only the drift template to be unexercised over a corpus "
         f"whose map places everything; unexercised: {sorted(unseen)}")
 
+    # THE SIXTH TEMPLATE, REACHED — and this assertion is also what keeps
+    # `_ArmTemplate.matches` ANCHORED. Its pattern carries `\Z` but no `^`: it
+    # relies on `re.match`, so switching that one call to `re.search` finds the
+    # ledger template's segments INSIDE the drift finding's quotation and files
+    # a drift finding under `carriage-ledger` — the ledger template being
+    # earlier in the registry. Nothing else in this suite can see that, because
+    # the SHIPPING path never shapes a drift finding at all: `_drift_findings`
+    # makes one pass over the arms' findings and its own output is never fed
+    # back in. The registry entry is defensive, and this is the test that stops
+    # it from being defensive AND untested.
+    quoting_a_ledger = mbc.TEMPLATE_DRIFT.render(
+        n=1, s="", rule=mbc.TEMPLATE_LEDGER.render(
+            title="A requirement", missing=1, total=3,
+            spec_rel="openspec/specs/alpha/spec.md", listed="[body] 'z'"))
+    assert mbc._shape(quoting_a_ledger) == "template:unplaced-drift", (
+        mbc._shape(quoting_a_ledger))
+
 
 def test_a_title_that_embeds_another_arm_s_template_prose_matches_one_template():
     """WHY `_shape` MASKS BEFORE IT MATCHES, and this is the pin that makes the
@@ -1712,6 +1729,15 @@ def test_the_arm_templates_are_the_only_place_the_prose_lives():
 
     Asserted over the module's SOURCE, matched on the f-string prefixes the arms
     used to carry. Both openings are checked, because both were inline before.
+
+    ITS REACH, STATED PLAINLY. This catches a REVERTED arm — one that goes back
+    to the two openings this family has ever used. It does NOT catch a brand-new
+    arm written inline with new prose and firing only on a state the corpus does
+    not currently reach; nothing here can, short of enumerating arms, and
+    `test_every_finding_matches_exactly_one_arm_template` only sees findings the
+    corpus actually produces. What DOES cover the realistic case is measured:
+    rebuilding the module with an arm's prose drifted from its template reds 24
+    tests, because every rule-text pin in F1 and F2 reads the rendered bytes.
     """
     source = inspect.getsource(mbc)
     for opening in ('f"active MODIFIED block for ',

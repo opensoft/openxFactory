@@ -160,20 +160,23 @@ measured figures now read ONE — see `plan.md` § OPEN-1, closed.
 **Why this priority**: it is the packet's rewritten decision D3, and the half
 that decides whether both drifted texts are quoted.
 
-**Independent Test**: construct two unplaced findings whose rule texts are equal
-after every quoted span and every digit run is masked, and two whose rule texts
-differ outside those; observe one additional finding for the first pair naming
-the count two, and two additional findings for the second.
+**Independent Test**: construct two unplaced findings from the SAME arm template
+that differ in the values it interpolates — a different quoted title, a
+different promoted-spec path, a different unit-kind list — and two from
+DIFFERENT arm templates; observe ONE additional finding for the first pair
+naming the count two, and TWO for the second.
 
 **Acceptance Scenarios**:
 
-1. **Given** two unplaced findings whose rule texts are equal after every
-   single-quoted span, every double-quoted span and every run of digits is
-   replaced by a fixed placeholder, **When** the family runs, **Then** ONE
-   additional finding is emitted for both, naming the count two.
-2. **Given** two unplaced findings whose rule texts differ outside their quoted
-   spans and digit runs, **When** the family runs, **Then** TWO additional
-   findings are emitted.
+1. **Given** two unplaced findings that come from the SAME arm template and
+   differ only in the values that template interpolates — a different quoted
+   title, a different promoted-spec path, a different unit-kind list, different
+   change identifiers — **When** the family runs, **Then** ONE additional
+   finding is emitted for both, naming the count two, one drifted arm template
+   being one remedy.
+2. **Given** two unplaced findings from DIFFERENT arm templates, differing in
+   the fixed prose the mask leaves standing, **When** the family runs, **Then**
+   TWO additional findings are emitted, being two remedies.
 3. **Given** any drifted run, **When** the additional findings are read,
    **Then** each carries the repository and delta path of the FIRST finding of
    its shape in the family's own report order, and two runs over the same tree
@@ -248,9 +251,22 @@ example, the class-map grammar and the action-line table agreeing with the code.
 - **FR-005**: Where the map places every finding the family emits, NO such
   finding MUST be emitted. *(delta ¶1; scenario 1)*
 - **FR-006**: Two unplaced findings MUST be treated as ONE SHAPE where their
-  rule texts are equal after every single-quoted span, every double-quoted span
-  and every run of digits has been replaced by a fixed placeholder. *(delta ¶2;
-  packet § 2.4)*
+  rule texts are equal after EVERY FIELD THE ARM'S TEMPLATE INTERPOLATES has
+  been replaced by a fixed placeholder — quoted spans, runs of digits,
+  repository-relative paths, change identifiers, unit-kind lists, and any other
+  value the arm substitutes into its fixed prose — so that one shape is one
+  template and one remedy. *(amended delta ¶2; the rule as FIRST ratified masked
+  quoted spans and digit runs only, and this feature measured what that cost:
+  6 findings where 1 was owed. Amended 2026-08-28 on Brett's ruling, landed on
+  `main` as `6d100e51` / PR #461.)*
+- **FR-006a**: The family MUST derive that mask FROM ITS OWN ARM TEMPLATES — an
+  arm's FIXED PROSE is the shape and every value the arm interpolates into it is
+  not — so the rule cannot drift from the arms it describes. *(amended delta ¶3)*
+- **FR-006b**: A rule text NO arm template claims MUST NOT be merged into any
+  template's shape; it falls back to the lexical mask (quoted spans and digit
+  runs), fail-closed. *(constitution VII; the amended delta defines the mask over
+  the arms' own templates and is silent on a text from outside them, so the
+  family refuses rather than guesses.)*
 - **FR-007**: The finding's action line MUST be, verbatim, "extend the class map
   in `scripts/doc_health/modified_block_currency.py`, or fix the drifted rule
   text the finding names", and MUST interpolate no path of its own. *(delta ¶3;
@@ -310,8 +326,14 @@ example, the class-map grammar and the action-line table agreeing with the code.
 - **Class map** — the ordered list of (class id, anchored pattern) pairs the
   classifier reads a finding's rule text against, first match wins, with a
   fail-closed residual.
-- **Rule shape** — the identity a run groups unplaced findings by: the rule text
-  with every quoted span and every digit run masked to a fixed placeholder.
+- **Arm template** — one arm's rule text as a format string: its FIXED PROSE
+  plus the fields it interpolates. Six of them, registered in one place, and
+  every arm renders through its own.
+- **Rule shape** — the identity a run groups unplaced findings by: the ARM
+  TEMPLATE a rule text came from. Two rule texts are one shape where they come
+  from the same template, whatever their interpolated values, so one shape is
+  one map entry and one remedy. A text no template claims falls back to the
+  lexical mask rather than joining a template's shape.
 - **Residual row** — the report block's named line for findings the map does not
   place; rendered only when nonzero; not a finding, and it stays that way.
 - **Drift finding** — the new `warning`: one per distinct unplaced rule shape

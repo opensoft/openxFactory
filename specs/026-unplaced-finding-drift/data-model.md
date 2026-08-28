@@ -49,19 +49,51 @@ Load-bearing against a corpus-supplied requirement title that embeds the phrase
 
 ## 4. Rule shape — the identity two unplaced findings are grouped by
 
+**AMENDED 2026-08-28 on Brett's ruling** ("Amend: shape = arm template, all
+interpolations masked"), landed on `main` as `6d100e51` / PR #461. What is
+described below is the amended rule; the superseded one — quoted spans and digit
+runs masked, and nothing else — survives only as the FALLBACK in step 3.
+
+### 4a. The arm templates
+
+Six, registered in one place, and every arm RENDERS its rule text through its
+own. That is what makes the mask derivable rather than guessed: the fixed prose
+has exactly one definition, so the arm that prints it cannot drift from the mask
+that reads it.
+
+| template id | arm |
+|---|---|
+| `template:scenario-titles` | scenario-title completeness |
+| `template:carriage-ledger` | the carriage ledger |
+| `template:marker-defects` | marker defects |
+| `template:title-resolution` | a block resolving to nothing |
+| `template:ordering` | an undecided ordering between two writers |
+| `template:unplaced-drift` | the fifth class's own finding |
+
+### 4b. `_shape`, in three steps
+
 ```text
-shape(rule) = digits_masked(quoted_spans_masked(rule))
+1. masked = mask_repr_spans(rule)
+      every `repr`-emitted span -> one placeholder, LEFT TO RIGHT.
+      A quote OPENS a span only at index 0 or after a NON-ALPHANUMERIC, so the
+      apostrophe inside the fixed prose `sibling's` is never an opener.
+2. first template whose FIXED SEGMENTS match `masked`, in registry order
+      -> the shape IS that template's id
+3. no template matches
+      -> fall back to digits_masked(masked): the superseded lexical rule,
+         kept as the FAIL-CLOSED default and nothing else
 ```
 
-- `quoted_spans_masked` replaces every span matching `_TITLE_REPR`'s own
-  alternation (single-quoted or double-quoted, escapes admitted) with one fixed
-  placeholder.
-- `digits_masked` replaces every `\d+` run with a second, different placeholder.
+**The order of 1 and 2 is load-bearing.** Requirement titles and quoted body
+units come from the CORPUS and may contain another arm's whole fixed prose, so
+matching templates against RAW text files one arm's finding under another's —
+measured, and pinned by
+`test_a_title_that_embeds_another_arm_s_template_prose_matches_one_template`.
 
-Two unplaced findings are ONE SHAPE iff their shapes are equal (FR-006). The
-grammar is the class map's own (`_TITLE_REPR` and `\d+`), so a reader can check
-a grouping by eye. Scoped to this family by the packet's § 4.4; nothing else may
-import it as a general finding-identity rule.
+Two unplaced findings are ONE SHAPE iff their shapes are equal (FR-006), which
+now means: iff they came from the same arm template. Scoped to this family by
+the packet's § 4.4; nothing else may import it as a general finding-identity
+rule.
 
 ## 5. The drift `Finding`
 
