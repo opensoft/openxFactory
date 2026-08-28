@@ -189,8 +189,23 @@ absent secret.
   **The class's clearability tier is NOT part of this criterion.** A convenable
   class clears this gate **whatever its tier — advisory and human-only
   included** — because whatever an envelope may then DO is bounded by that
-  class's own `classification_intent`. What this requirement refuses is an
-  envelope for a class that **can never convene at all**.
+  class's **governed clearance control**: the `clearance_rule` and classification
+  intent declared in the `gate_rules_council` record that the decision core
+  executes. It is **never** bounded by anything the envelope itself carries. The
+  envelope schema is `additionalProperties: false` and has no
+  classification-intent field, so posture cannot be expressed there at all;
+  posture lives class-side, in tier-2 state (`011-council-feature-clearance`
+  `research.md` R2).
+
+  **Guard, and it is not optional.** An envelope entry for a class whose posture
+  is **not** so encoded class-side **remains prohibited by this requirement**.
+  `011`'s `research.md` R4 states the reason: with tier-2 ACTIVE, a live envelope
+  entry is *"not merely 'advisory recording'"* — if its facts ever prove
+  clearable, *"the merge-master App could autonomously approve human feature
+  code."* An entry alone can therefore reach the active autonomous chain with no
+  posture encoded anywhere. What this requirement refuses is an envelope for a
+  class that **can never convene at all**, and — by this guard — an envelope for
+  a class whose posture the governed record does not carry.
 
   **Vocabulary bridge.** The ratified texts' terms — `human-only`, `clearable` —
   describe what a verdict may DO. **Operability describes whether any verdict
