@@ -47,9 +47,13 @@ FOURTEEN submodules that carry `openspec/changes/` (of the nineteen in
 nobody has a fixture for would first appear.
 
 **It reads zero today, and that is the argument for building it now rather than
-later.** Measured on this tree at `b5fb03f3` and re-measured unchanged after the
-catch-up merge to `d808974d`: `unclassified: 0`, the residual row absent from the
-block. The population this change would report is empty, so the
+later.** Measured on this tree at `b5fb03f3`, and re-measured at each catch-up
+merge since (`d808974d`, then `45ba637a`): `unclassified: 0` every time, the
+residual row absent from the block. The arms' own population moved under this
+packet while it was in review — PR #444 declared
+`add-composed-view-authoring`'s rename with a `Merged into` marker and took the
+scenario arm's standing population to zero — and the residual did not move,
+because it never depended on any arm reading anything. The population this change would report is empty, so the
 amendment costs nothing to land and the standing state it pins is the one every
 reader currently assumes.
 
@@ -96,21 +100,24 @@ reader currently assumes.
   `tests/doc-health/test_modified_block_currency_self_gate.py`, the FR-023 snapshot
   in `tests/doc-health/test_modified_block_currency_fixtures.py`, and
   `specs/022-modified-block-currency-reporting/contracts/report-section.md`.
-- **Predicted severity movement: ZERO, in every band.** Measured on this tree at
-  `b5fb03f3`, and again at the catch-up merge to `d808974d`, with
+- **Predicted severity movement: ZERO, in every band.** Measured with
   `python3 scripts/doc-health.py --single-repo . --family
-  modified-block-currency`: **1 `warning`, 7 `info`** both times, class counts
-  `scenario-title completeness 1 / carriage ledger 7 / title resolution and
-  ordering 0 / marker defects 0`, and **`unclassified` 0** — the residual row does
-  not render. The finding this change adds fires only where that count is nonzero,
-  so the run after realization emits the same eight findings, and the class block
-  gains one row reading `0`. The canon-share headline, the per-stage census, the
-  inventory and the catalog are untouched, because the family reads neither the
-  governed corpus nor the lifecycle scan set.
+  modified-block-currency` at the current base `45ba637a`: **0 `warning`,
+  7 `info`**, class counts `scenario-title completeness 0 / carriage ledger 7 /
+  title resolution and ordering 0 / marker defects 0`, and **`unclassified` 0** —
+  the residual row does not render. (At `b5fb03f3` and `d808974d` the same run
+  read **1 `warning`, 7 `info`** with the scenario arm at 1; PR #444 discharged
+  that finding by declaring the rename with a `Merged into` marker, which is the
+  arm working as designed and is unrelated to this change.) The finding this
+  change adds fires only where the residual count is nonzero, so the run after
+  realization emits the same seven findings, and the class block gains one row
+  reading `0`. The canon-share headline, the per-stage census, the inventory and
+  the catalog are untouched, because the family reads neither the governed corpus
+  nor the lifecycle scan set.
 - **Predicted movement from this PACKET's own delta: ZERO.** This packet carries an
   ADDED block and no MODIFIED block, and the family reads
   `## MODIFIED Requirements` blocks only. Verified by running the family over this
-  tree with the packet present: **1 `warning`, 7 `info`, `unclassified` 0** —
+  tree with the packet present: **0 `warning`, 7 `info`, `unclassified` 0** —
   byte-identical to the baseline above, no finding naming any path under
   `openspec/changes/add-unclassified-finding-class/`.
 - **Measured effect on every other repository**: unknown until an aggregation run,

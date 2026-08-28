@@ -206,10 +206,14 @@ re-resolved by name if the file has moved under the feature.
       stating a count that this change makes false, and a count only a human
       re-reads is the drift class `family_enumeration` exists for.
 - [ ] 2.13 SELF-GATE. `python3 scripts/doc-health.py --single-repo . --family
-      modified-block-currency` on the realization branch reports the SAME eight
-      findings as § 3.1, with the class block carrying a fifth row reading `0`
-      and no residual row. Zero movement in every band, recorded in the feature's
-      evidence as a before/after pair rather than asserted.
+      modified-block-currency` on the realization branch reports the SAME
+      findings as the run taken at that branch point — seven at `45ba637a`, per
+      § 3.1 — with the class block carrying a fifth row reading `0` and no
+      residual row. **Take the before figure at the branch point rather than
+      reading § 3.1's**: the arms' population moves as active changes land, and
+      it has already moved once under this packet. Zero movement in every band,
+      recorded in the feature's evidence as a before/after pair rather than
+      asserted.
 - [ ] 2.14 MUTATION ROUND. At minimum: (a) delete the fifth class's pattern from
       `_CLASS_PATTERNS` — § 2.6's scenario (2) must fail on the drift finding
       counting itself; (b) change the emit from `> 0` to unconditional —
@@ -229,12 +233,20 @@ re-resolved by name if the file has moved under the feature.
 ## 3. Evidence recorded at proposal time
 
 - [x] 3.1 Baseline, `python3 scripts/doc-health.py --single-repo . --family
-      modified-block-currency` at `b5fb03f3`, and unchanged at the catch-up
-      merge to `d808974d` (which brought `create-ledgerxwallet-overlay-boundary`
-      into the active set): **1 `warning`, 7 `info`**; class
-      counts scenario-title completeness **1**, carriage ledger **7**, title
-      resolution and ordering **0**, marker defects **0**; `unclassified` **0**,
-      the residual row absent. This is the state § 2.13 must reproduce.
+      modified-block-currency`. **AT THE CURRENT BASE `45ba637a`: 0 `warning`,
+      7 `info`**; class counts scenario-title completeness **0**, carriage ledger
+      **7**, title resolution and ordering **0**, marker defects **0**;
+      `unclassified` **0**, the residual row absent. **This is the state § 2.13
+      must reproduce**, and it must be RE-TAKEN at the realization branch point
+      rather than copied from here — this figure has already moved once under
+      this packet. History, so the movement is legible: at `b5fb03f3` and at the
+      first catch-up merge `d808974d` the same run read **1 `warning`, 7 `info`**
+      with the scenario arm at 1, against
+      `add-composed-view-authoring` / "Composed views are read-only with a
+      repository jump"; PR #444 declared that rename with a `Merged into` marker
+      and the arm's standing population reached zero. The arm discharging its
+      own finding is that arm working, and it says nothing about this change:
+      the residual read `0` before and after.
 - [x] 3.2 THE MEASUREMENT D1 TURNS ON. `openspec/specs/doc-health/spec.md`
       contains `class map`, `finding classes`, `residual` and `class summary` at
       exactly ONE line between them — 1530, the three-arms sentence — and
