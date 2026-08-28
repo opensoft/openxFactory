@@ -18,6 +18,7 @@ import doc_health
 from doc_health import CRITICAL, ERROR, WARNING, INFO
 from doc_health import corpus
 from doc_health import families
+from doc_health import report
 from doc_health.families import FAMILIES
 
 
@@ -556,6 +557,15 @@ def test_notebook_projection_drift():
     assert "2 pending operations" in got[0].rule
     # PIN, see test_status_validity's docstring comment.
     assert got[0].action == "run the lifecycle notebook sync with --apply"
+    # PIN (issue #474): the path slot names a REAL artifact, aggregation-root
+    # relative like every other `repo=xFactory` finding, and carries no
+    # whitespace. It used to read `(lifecycle notebooks)` — a synthetic label
+    # whose space made `PLAN_RE`'s `path=(\S+)` unable to read the row back,
+    # so the finding was silently dropped from every `--previous-report`
+    # comparison (live at health/reports/2026-07-09.md:188).
+    assert got[0].path == "openxFactory/docs/lifecycle-notebook-projection.md"
+    assert report.PLAN_RE.match(report.plan_line(got[0])), \
+        "the family's own row must round-trip through the ranked plan"
 
     ctx_clean = make_ctx("status-validity", notebook=lambda: "scan only\n")
     assert drift(ctx_clean) == []
