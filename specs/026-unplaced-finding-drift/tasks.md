@@ -129,10 +129,12 @@ scenario-title class moves, the drift class does not.
 
 ---
 
-## Phase 6: User Story 4 — two shapes are two remedies (P2)
+## Phase 6: User Story 4 — two shapes are two findings (P2)
 
 **Goal**: one finding per DISTINCT unplaced rule shape — not one per run, not
-one per repository, not one per unplaced finding.
+one per repository, not one per unplaced finding. **Not one per remedy either**:
+the grain is finer, and how much finer is measured rather than described (see
+the open amendment item below).
 
 **Independent test**: two unplaced findings equal after masking → ONE additional
 finding naming the count two; two that differ outside the masked spans → TWO.
@@ -256,7 +258,8 @@ incoherent, and it is why this whole change is ONE feature.
 
 US3 and US4 add no production code beyond what US1's slice already lands; their
 value is that the behaviour is PINNED — the disappearance is clean, the flip
-cannot drag the band, and the per-shape count is the count of remedies.
+cannot drag the band, and the per-shape count is the count the delta's identity
+rule defines — which is NOT the count of remedies, and the gap is measured.
 
 US5 is documentation fidelity and lands last, after the code it describes.
 
@@ -310,3 +313,61 @@ adversarial title, now fixed). `.github/` and `openspec/` diffs: **empty**.
    form, because the module source carries BOTH constants and a probe matching
    only the ROW would pass that control and then read a vacuous zero. Two names
    declared, with the reason, in the allowlist's own convention.
+
+## OPEN — carried out of the combined review (2026-08-28), for Brett
+
+- [ ] **OPEN-1 — shape identity is narrower than one-per-remedy; the fix is a
+      DELTA AMENDMENT, not an implementation change.** Proposed rule: *shape =
+      the arm's rule-text TEMPLATE with ALL interpolated fields masked, not only
+      quoted spans and digit runs.* Measured today: dropping `carriage-ledger`
+      on this repository yields SIX drift findings for SEVEN unplaced ones,
+      where one map entry would place all seven. Widening the mask inside this
+      feature would contradict the ratified delta's third scenario, so it is out
+      of scope here. Full statement, measurement and predicted effect in
+      `plan.md` § OPEN-1. **Brett's ruling; the reviewer is putting it to him.**
+      Everything this feature says about the grain has been corrected to the
+      measured truth in the meantime, and
+      `test_the_drift_grain_is_one_finding_per_masked_arm_text_not_one_per_remedy`
+      holds the figure.
+
+---
+
+## Combined-review round (2026-08-28) — what was found and what was done
+
+The review reproduced every gate and confirmed the trigger claim independently
+(20,040 fuzzed rule texts, 0 unplaceable). It found two defects in `_shape` and
+two surviving mutants. All are fixed; one finding is a delta amendment and is
+carried OPEN above rather than absorbed.
+
+- [x] **B1 — the shape mask is narrower than "one finding per remedy".** Not
+      fixable here: widening it would contradict the ratified delta's third
+      scenario. Every claim to the contrary struck from the module docstring,
+      the test docstrings, the fixture README, `spec.md` US4 and this file; the
+      real grain stated instead; a new test MEASURES it on the real tree (7
+      unplaced → 6 shapes) against an independently written mask. Recorded as
+      **OPEN-1** for Brett.
+- [x] **B2 — the quoted-span mask was a global `re.sub`**, so the prose
+      apostrophe in `_unresolved_finding`'s "no active sibling's addition:"
+      paired with the next `repr`'s opening quote and leaked the capability
+      name. Two unresolved blocks differing only in capability read as two
+      shapes. Fixed in the MASK, not the prose: a left-to-right consumer where a
+      quote opens a span only at the start or after a non-alphanumeric, the two
+      `_TITLE_REPR` alternatives being first-char-disjoint and an accepted span
+      jumped past whole. RED test added; mutant `B2` restores the bug and dies.
+- [x] **N1 — two surviving mutants.** The redundant second sort is DELETED
+      (`runner.run_suite` and `report.render` both re-sort by
+      `Finding.sort_key`, so it was presentational only and no test could fail
+      on it). The load-bearing sort BEFORE the emit is now pinned by a tree
+      whose emission order and report order DISAGREE — a second change
+      directory, `add-a-drift-case/`. Mutants `M8` and `M9` both die.
+- [x] **N2** — `test_a_family_skipped_by_run_configuration_carries_no_block`'s
+      docstring now reads `0 · 0 · 0 · 0 · 0`.
+- [x] **N3** — `evidence/scope-diff.md` re-run and its output pasted; the stale
+      492-line figure is disclosed and replaced.
+- [x] **N4** — the tree-count comment now says F1's six + F2's seven + F5's one
+      = 14 on disk, and the assertion is a floor.
+- [x] **N5** — F2's `CLASSIFIERS` gains a `drift` key. The other five needed a
+      guard: a drift finding QUOTES an arm's whole rule text, so every
+      unanchored probe would match it. The coupling to the module's
+      `_DRIFT_RULE` is declared in a comment AND asserted by
+      `test_the_drift_classifier_matches_the_module_s_own_opening`.

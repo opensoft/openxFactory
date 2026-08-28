@@ -18,23 +18,39 @@ of `add-modified-block-currency-check` and `add-promotion-fidelity-check`.
 
 ## The permitted surface, and only it
 
+**RE-RUN 2026-08-28 after the combined review, and the numbers below are the
+re-run's.** The first recording of this file quoted a 492-line reporting-test
+diff that later grew to 498 without the file being re-run — a stale figure in an
+evidence file, which is the same defect class this family exists to catch, so
+the command is re-run and its output pasted rather than edited.
+
 ```bash
-$ git diff --stat $(git merge-base HEAD origin/main) -- scripts/ tests/ \
+$ git diff --cached --stat $(git merge-base HEAD origin/main) -- scripts/ tests/ \
       specs/022-modified-block-currency-reporting/contracts/
- scripts/doc_health/modified_block_currency.py      | 203 ++++++++-
- .../contracts/report-section.md                    |  79 +++-
- tests/doc-health/test_modified_block_currency.py   |  65 ++-
- .../test_modified_block_currency_fixtures.py       |  18 +-
- .../test_modified_block_currency_reporting.py      | 492 +++++++++++++++++++--
+ scripts/doc_health/modified_block_currency.py      | 263 +++++++-
+ .../contracts/report-section.md                    |  89 ++-
+ .../modified-block-currency-unplaced/README.md     |  94 +++
+ .../openspec/changes/add-a-drift-case/proposal.md  |   3 +
+ .../add-a-drift-case/specs/drift-cases/spec.md     |  15 +
+ .../openspec/changes/add-drift-cases/proposal.md   |   3 +
+ .../add-drift-cases/specs/drift-cases/spec.md      |  37 ++
+ .../openspec/specs/drift-cases/spec.md             |  61 ++
+ tests/doc-health/test_modified_block_currency.py   |  65 +-
+ .../test_modified_block_currency_fixtures.py       |  85 ++-
+ .../test_modified_block_currency_reporting.py      | 658 ++++++++++++++++++++-
  .../test_modified_block_currency_self_gate.py      |  41 +-
- 6 files changed, 837 insertions(+), 61 deletions(-)
+ 12 files changed, 1346 insertions(+), 68 deletions(-)
 ```
 
-Plus two additions, untracked at the time of this measurement:
+Six of those twelve are the new fixture tree (`--diff-filter=A` over `tests/`
+names exactly those six and nothing else). The other six are the module, the F4
+contract, and the four `test_modified_block_currency*.py` files. Plus
+`specs/026-unplaced-finding-drift/` — this feature's own Speckit artifacts.
 
-- `tests/doc-health/fixtures/modified-block-currency-unplaced/` — the new
-  behavioural tree (4 files)
-- `specs/026-unplaced-finding-drift/` — this feature's own Speckit artifacts
+**The fixture tree carries TWO change directories.** `add-a-drift-case/` exists
+so the tree's emission order disagrees with the family's report order; without
+that disagreement the "first instance in report order" pin cannot fail, and the
+mutation round proved it by surviving the single-directory version.
 
 **FOUR test files, not three.** The packet's § 2.15 says "the three
 `tests/doc-health/test_modified_block_currency*.py` files". There are four, and

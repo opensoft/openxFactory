@@ -86,15 +86,25 @@ Finding classes, counted apart so the gate-bearing arm is never read as one of t
 - title resolution and ordering: 0 (`warning`)
 - marker defects: 0 (`info`)
 - unplaced-finding drift: 1 (`warning`)
-- unclassified: 2 — findings this family emitted that its own class map does not place; the map has drifted from the arms and the counts above are short by this many
+- unclassified: 3 — findings this family emitted that its own class map does not place; the map has drifted from the arms and the counts above are short by this many
 ```
 
-Five class rows plus the residual, summing to the four rows printed beneath —
-the two ledger findings the map no longer places, the titles finding it still
+Five class rows plus the residual, summing to the five rows printed beneath —
+the three ledger findings the map no longer places, the titles finding it still
 does, and the one drift `warning` naming them. **The residual row and the drift
 finding are counted APART**: the row counts the arms' unplaced findings, the
 class counts the finding that reports them, and the two are two readings of one
 fact rather than alternatives.
+
+**THE GRAIN, STATED SO THE CONTRACT IS NOT READ AS PROMISING MORE.** One finding
+per DISTINCT ARM TEXT after quoted-span and digit masking — which is FINER than
+one per remedy, because a rule text's unquoted parts (the promoted spec's path,
+the `[body]`/`[bullet]` kind list, a change-id list) are shape-bearing under the
+identity rule. The three ledger findings above collapse to one shape only
+because they name the same spec and the same kind; the same dropped map entry on
+the openxFactory tree yields SIX findings for seven unplaced ones. Narrowing
+that is a delta amendment, open in
+`specs/026-unplaced-finding-drift/plan.md` § OPEN-1.
 
 ## 2. State rules
 

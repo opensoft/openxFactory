@@ -15,7 +15,7 @@ python3 -m pytest tests/doc-health -q
 ## Result
 
 ```text
-7 failed, 1211 passed, 9 skipped, 5 warnings in 62.30s
+7 failed, 1214 passed, 9 skipped, 5 warnings in 66.61s
 ```
 
 ## The seven failures are the extraction's, not this feature's — measured
@@ -40,8 +40,8 @@ untouched) and run the same way:
 | `test_readiness_proof_resolution.py::test_the_landed_index_pins_a_revision_this_repository_can_resolve` | resolves a revision |
 
 Every one needs REAL GIT HISTORY, which a `git init` over an extracted tree does
-not have and which CI's clone does. **1199 → 1211 is +12, exactly this feature's
-twelve new tests**, and not one of them — nor any pin this feature moved — is
+not have and which CI's clone does. **1199 → 1214 is +15, exactly this feature's
+fifteen new tests**, and not one of them — nor any pin this feature moved — is
 among the failures.
 
 **No new test of this feature is environment-sensitive.** The behavioural tests

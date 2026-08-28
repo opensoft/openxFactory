@@ -135,16 +135,26 @@ an error.
 
 ---
 
-### User Story 4 - Two drifted shapes are two remedies (Priority: P2)
+### User Story 4 - Two drifted shapes are two findings (Priority: P2)
 
 A drifted class map may be short by more than one pattern. Two genuinely
-different unplaced rule shapes are two map entries to write; collapsing them
-into one finding reports one remedy where two are owed and quotes only one of
-them. Two findings that differ only in a requirement title and a count are one
-remedy, and must not be reported twice.
+different unplaced rule shapes are reported apart, so both drifted texts are
+quoted; two findings that differ only in a quoted span and a digit run are one
+shape and must not be reported twice.
 
-**Why this priority**: it is the ranked plan's own semantics — a plan is a list
-of remedies — and it is the packet's rewritten decision D3.
+**THE GRAIN IS FINER THAN "ONE PER REMEDY", MEASURED.** A rule text's unquoted
+parts — the promoted spec's path, the `[body]`/`[bullet]` kind list a ledger
+finding quotes, a change-id list, an unresolved block's `why` clause — are
+shape-bearing under the delta's identity rule. So findings a human would
+discharge with ONE new map entry can be several shapes: dropping
+`carriage-ledger` on this repository leaves SEVEN unplaced findings in SIX
+shapes. That is the ratified rule working as written (its scenario 3 pins
+"differ outside their quoted spans and digit runs → TWO"), and narrowing it is a
+DELTA AMENDMENT rather than an implementation choice — see the open item in
+`plan.md`.
+
+**Why this priority**: it is the packet's rewritten decision D3, and the half
+that decides whether both drifted texts are quoted.
 
 **Independent Test**: construct two unplaced findings whose rule texts are equal
 after every quoted span and every digit run is masked, and two whose rule texts

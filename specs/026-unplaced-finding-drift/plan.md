@@ -316,3 +316,62 @@ findings, all dispositioned in place rather than deferred:
 **Coverage**: 24/24 functional requirements and 7/7 success criteria have at
 least one task. No unmapped task: every one cites a packet box or a constitution
 gate.
+
+## OPEN — for Brett, raised by the combined review (2026-08-28)
+
+### OPEN-1 — the shape mask is narrower than "one finding per remedy", and closing the gap needs a DELTA AMENDMENT
+
+**What was found.** The ratified delta defines shape identity as "rule texts
+equal after every single-quoted span, every double-quoted span and every run of
+digits has been replaced by a fixed placeholder". A rule text's UNQUOTED parts
+are therefore shape-bearing, and this family's arms interpolate several:
+
+- the promoted spec's path (`basis.spec_rel`), which differs per capability;
+- the `[body]` / `[bullet]` kind list a carriage-ledger finding quotes;
+- a change-id list, in the ordering arm;
+- an unresolved block's `why` clause, which has two forms.
+
+**Measured, and the drop used is named with each figure** (a drop of a
+DIFFERENT pattern exercises a different arm, so the numbers are not comparable
+without it):
+
+| tree | pattern dropped | unplaced | shapes / drift findings |
+|---|---|---|---|
+| this repository | `carriage-ledger` | 7 | **6** |
+| `-two-writers` | `title-resolution` | 9 | 4 |
+| `-markers` | `carriage-ledger` | 3 | 3 |
+| `-unplaced` (this feature's) | `carriage-ledger` | 3 | **1** |
+
+SIX drift findings on the real tree where ONE new map entry would place all
+seven. This feature's own tree collapses to 1 only because its three ledger
+findings name the SAME promoted spec and the same unit kind — which is why the
+grain had to be measured against the REAL tree and not against a fixture built
+for it.
+
+**So the shipped grain is:** ONE FINDING PER DISTINCT ARM TEXT AFTER
+QUOTED-SPAN AND DIGIT MASKING — finer than one per remedy. Every claim in this
+feature that said otherwise has been struck (module docstring, test docstrings,
+fixture README, spec.md US4, tasks.md), and
+`test_the_drift_grain_is_one_finding_per_masked_arm_text_not_one_per_remedy`
+now MEASURES it on the real tree against an independently written mask, with the
+six named in its docstring as the figure an amendment would move.
+
+**Why this feature did not fix it.** The obvious fix — mask the arm's whole
+TEMPLATE, i.e. every interpolated field rather than only the quoted ones — would
+take six to one and would CONTRADICT the delta's third scenario, which pins
+"two unplaced findings whose rule texts differ outside their quoted spans and
+digit runs MUST yield two additional findings". That scenario is ratified
+canon-to-be. A realization may not narrow the rule it realizes.
+
+**The proposed amendment, for Brett's ruling:** *shape = the arm's rule-text
+TEMPLATE with ALL interpolated fields masked, not only the quoted spans and
+digit runs.* It needs a `## MODIFIED Requirements` block on
+`add-unclassified-finding-class`'s own ADDED requirement — the packet is active,
+so this is an edit to an unarchived delta rather than a change to promoted canon
+— restating the identity paragraph and its third scenario. Predicted effect:
+the drift count on this tree under a dropped `carriage-ledger` goes 6 → 1; zero
+effect on any run where the map is complete, which is every run today.
+
+**Not vetoed, not applied, not silently absorbed.** The reviewer is putting it
+to Brett. Until it is ruled, the shipped behaviour is the delta as ratified and
+this document says exactly what that behaviour is.

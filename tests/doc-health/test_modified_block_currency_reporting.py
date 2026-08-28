@@ -84,9 +84,19 @@ TREE_RESOLUTION = "modified-block-currency-resolution"  # 2 resolution + 1 ledge
 TREE_TITLES = "modified-block-currency-history-329"     # 1 titles + 1 ledger
 TREE_QUIET = "modified-block-currency-quiet"        # ran, found nothing
 TREE_NOSCOPE = "modified-block-currency-noscope"    # the family's own Skip
-# F5 (`026-unplaced-finding-drift`): 1 titles + 2 ledger, ALL PLACED over the
+# F5 (`026-unplaced-finding-drift`): 1 titles + 3 ledger, ALL PLACED over the
 # unmodified map. It becomes the fifth class's exercise only under an induced
 # drift — see `_drifted` below.
+#
+# TWO CHANGE DIRECTORIES, AND THAT IS THE POINT OF THE SECOND. The arms emit by
+# (capability, normalized title) — Alpha, Beta, Gamma, Zeta — while the family's
+# own report order is severity, then repo, then PATH. `add-a-drift-case/` sorts
+# before `add-drift-cases/`, so Zeta's ledger finding is FIRST in report order
+# and THIRD in emission order. The two orders disagree, which is the only way
+# "the first of that shape in report order" can be asserted at all: over a tree
+# where they agree, grouping before the sort and grouping after it name the same
+# finding and the pin passes either way. A mutation round proved that — the
+# earlier one-directory tree let "emit before the first sort" survive.
 TREE_UNPLACED = "modified-block-currency-unplaced"
 
 ALL_TREES = tuple(sorted(
@@ -480,7 +490,7 @@ def test_the_block_renders_on_a_run_that_found_nothing():
 
 
 def test_a_family_skipped_by_run_configuration_carries_no_block():
-    """A SKIP IS THE ABSENCE OF A MEASUREMENT, and `0 · 0 · 0 · 0` beside one
+    """A SKIP IS THE ABSENCE OF A MEASUREMENT, and `0 · 0 · 0 · 0 · 0` beside one
     would claim a measurement nobody took — precisely what canon's skip rule
     exists to prevent ("cannot run", not "found nothing").
 
@@ -1189,7 +1199,7 @@ def test_a_rule_text_the_map_does_not_place_emits_one_warning_naming_it(
     path. See the honesty note above for why the drift is induced.
     """
     findings, unplaced = _drifted(monkeypatch, mbc.CLASS_LEDGER)
-    assert len(unplaced) == 2, [f.rule[:80] for f in unplaced]
+    assert len(unplaced) == 3, [f.rule[:80] for f in unplaced]
 
     drift = _drift_findings(findings)
     assert len(drift) == 1, [f.rule[:120] for f in drift]
@@ -1199,7 +1209,7 @@ def test_a_rule_text_the_map_does_not_place_emits_one_warning_naming_it(
     assert one.family == mbc.FAMILY
     assert one.action == mbc._DRIFT_ACTION
     # the count of that shape, stated
-    assert "2 findings" in one.rule, one.rule[:200]
+    assert "3 findings" in one.rule, one.rule[:200]
     # VERBATIM, and that word is load-bearing: a `repr`-wrapped quotation would
     # escape the rule's own quotes and this suffix comparison would be false.
     assert one.rule.endswith(unplaced[0].rule), one.rule[-200:]
@@ -1228,12 +1238,13 @@ def test_the_drift_warning_is_worked_from_the_ranked_plan(monkeypatch):
     assert len(rows) == 1, plan
     assert "severity=warning" in rows[0]
     assert "repo=driftFactory" in rows[0]
-    assert "path=openspec/changes/add-drift-cases/" in rows[0]
+    # the FIRST of the shape in report order, which is the other change dir
+    assert "path=openspec/changes/add-a-drift-case/" in rows[0]
 
     section = _section(text)
     assert "- unplaced-finding drift: 1 (`warning`)" in section
     # ...and the residual row is NOT replaced by the finding
-    assert "- unclassified: 2 —" in section
+    assert "- unclassified: 3 —" in section
 
 
 def test_the_drift_finding_is_placed_by_the_map_and_never_by_the_residual(
@@ -1255,13 +1266,13 @@ def test_the_drift_finding_is_placed_by_the_map_and_never_by_the_residual(
 
     counts = mbc.class_counts(findings)
     assert counts[mbc.CLASS_DRIFT] == 1
-    assert counts[mbc.UNCLASSIFIED] == 2      # the ARMS' unplaced findings only
+    assert counts[mbc.UNCLASSIFIED] == 3      # the ARMS' unplaced findings only
     assert sum(counts.values()) == len(findings)
 
     # and the rendered lines say the same thing, which is what a reader has
     lines = mbc.class_summary(findings)
     assert "- unplaced-finding drift: 1 (`warning`)" in lines
-    assert any(line.startswith("- unclassified: 2 —") for line in lines), lines
+    assert any(line.startswith("- unclassified: 3 —") for line in lines), lines
 
 
 def test_a_drift_finding_quoting_an_arm_shaped_rule_text_is_not_misfiled(
@@ -1347,31 +1358,36 @@ def test_two_unplaced_findings_of_one_shape_are_one_remedy(monkeypatch):
     are one shape, so they are ONE map entry to write and ONE finding to report.
     """
     findings, unplaced = _drifted(monkeypatch, mbc.CLASS_LEDGER)
-    assert len(unplaced) == 2
-    assert unplaced[0].rule != unplaced[1].rule          # genuinely two findings
-    assert mbc._shape(unplaced[0].rule) == mbc._shape(unplaced[1].rule)
+    assert len(unplaced) == 3
+    assert len({f.rule for f in unplaced}) == 3      # genuinely three findings
+    assert len({mbc._shape(f.rule) for f in unplaced}) == 1
 
     drift = _drift_findings(findings)
     assert len(drift) == 1, [f.rule[:120] for f in drift]
-    assert "2 findings" in drift[0].rule
+    assert "3 findings" in drift[0].rule
 
 
 def test_two_unplaced_shapes_are_two_remedies(monkeypatch):
-    """DELTA SCENARIO 3, SECOND HALF — two shapes are two remedies.
+    """DELTA SCENARIO 3, SECOND HALF — two SHAPES are two findings.
 
-    Collapsing them would report ONE remedy where TWO are owed and would quote
-    only one of them. A ranked plan is a list of remedies, so the count of
-    findings is the count of map entries somebody has to write.
+    Collapsing them would quote only one of the two drifted texts, which is the
+    half of the delta this scenario protects.
+
+    NOT "TWO REMEDIES", AND THE DIFFERENCE IS MEASURED. The grain is one finding
+    per distinct arm text after masking, which is FINER than one per remedy —
+    see `test_the_drift_grain_is_one_finding_per_masked_arm_text_not_one_per_remedy`
+    for the real-tree figure and for why widening it is a delta amendment rather
+    than a fix.
     """
     findings, unplaced = _drifted(monkeypatch, mbc.CLASS_LEDGER, mbc.CLASS_TITLES)
-    assert len(unplaced) == 3
+    assert len(unplaced) == 4
 
     shapes = {mbc._shape(f.rule) for f in unplaced}
     assert len(shapes) == 2, shapes
 
     drift = _drift_findings(findings)
     assert len(drift) == 2, [f.rule[:120] for f in drift]
-    assert sorted("2 findings" in f.rule for f in drift) == [False, True]
+    assert sorted("3 findings" in f.rule for f in drift) == [False, True]
     assert any("1 finding this run emitted" in f.rule for f in drift), (
         "the singular is not spelled, so a one-finding shape reads wrongly")
 
@@ -1394,9 +1410,31 @@ def test_the_drift_finding_names_the_first_instance_in_report_order_and_is_deter
         named = next(f for f in unplaced if one.rule.endswith(f.rule))
         same_shape = [f for f in unplaced
                       if mbc._shape(f.rule) == mbc._shape(named.rule)]
-        assert named is same_shape[0], (named.rule[:120],
-                                        same_shape[0].rule[:120])
+        # RE-SORTED HERE, not read off the family's output order, so this
+        # compares against the RULE rather than against the implementation.
+        assert named is min(same_shape, key=mbc._report_order), (
+            named.rule[:120], min(same_shape, key=mbc._report_order).rule[:120])
         assert (one.repo, one.path) == (named.repo, named.path)
+
+    # THE PIN ONLY BITES ON A TREE WHOSE TWO ORDERS DISAGREE, so the tree is
+    # asserted to be such a tree. The arms EMIT by normalized requirement title
+    # — Alpha, Beta, Gamma, Zeta — and report order sorts by PATH within a
+    # severity, where `add-a-drift-case/` precedes `add-drift-cases/`. So the
+    # ledger shape's report-order-first is ZETA and its emission-order-first is
+    # ALPHA. Without this, grouping before the sort and grouping after it name
+    # the same finding and the assertion above passes over a mutant. Measured:
+    # the mutation round's "emit before the first sort" SURVIVED the earlier
+    # single-directory tree.
+    ledger_shape = [f for f in unplaced if "does not carry" in f.rule]
+    assert len(ledger_shape) == 3
+    first_by_report = min(ledger_shape, key=mbc._report_order)
+    first_by_title = min(ledger_shape, key=lambda f: f.rule)
+    assert "add-a-drift-case" in first_by_report.path
+    assert "'Zeta boundary is declared'" in first_by_report.rule
+    assert "'Alpha boundary is declared'" in first_by_title.rule
+    assert first_by_report is not first_by_title, (
+        "the two orders agree on this tree, so the assertion above cannot fail "
+        "on a build that groups before it sorts")
 
     again = _fixture_findings(TREE_UNPLACED)
     assert [f.__dict__ for f in again] == [f.__dict__ for f in findings]
@@ -1457,3 +1495,123 @@ def test_the_new_fixture_tree_declares_its_provenance_and_stays_advisory():
     findings = _fixture_findings(TREE_UNPLACED)
     assert findings, "a vacuous pass is not a pass"
     assert {f.severity for f in findings} <= {WARNING, INFO}
+
+
+# ============================================================================
+# 6b. THE GRAIN, MEASURED — and it is FINER than "one finding per remedy"
+# ============================================================================
+
+def _independently_masked(rule):
+    """A SECOND implementation of the delta's shape rule, written here on
+    purpose.
+
+    `mbc._shape` is the subject of the test below, so grouping by it would
+    compare the implementation with itself. This is the delta's sentence read
+    afresh — "equal after every single-quoted span, every double-quoted span and
+    every run of digits has been replaced by a fixed placeholder" — with the one
+    correction the mask needed: a quote only opens a span where a `repr` could
+    have emitted one, so the apostrophe inside `sibling's` is prose.
+    """
+    out, index = [], 0
+    while index < len(rule):
+        char = rule[index]
+        if char in "'\"" and (index == 0 or not rule[index - 1].isalnum()):
+            span = re.compile(mbc._TITLE_REPR).match(rule, index)
+            if span:
+                out.append("\x01")
+                index = span.end()
+                continue
+        out.append(char)
+        index += 1
+    return re.sub(r"\d+", "\x02", "".join(out))
+
+
+def test_the_drift_grain_is_one_finding_per_masked_arm_text_not_one_per_remedy(
+        monkeypatch):
+    """WHAT THE COUNT ACTUALLY IS, measured on the real tree rather than
+    described.
+
+    THE GRAIN IS ONE FINDING PER DISTINCT ARM TEXT AFTER QUOTED-SPAN AND DIGIT
+    MASKING — which is FINER than one per remedy. A rule text's UNQUOTED parts
+    are shape-bearing under the delta's identity rule: the promoted spec's path,
+    the `[body]`/`[bullet]` kind list a ledger finding quotes, a change-id list,
+    an unresolved block's `why` clause. Two findings that a human would fix with
+    ONE new map entry can therefore be two shapes, and are then two findings.
+
+    **TODAY THAT NUMBER IS SIX.** Dropping `carriage-ledger` from the map on
+    this repository leaves SEVEN unplaced findings in SIX shapes, because they
+    name six different promoted specs and differ in their kind lists. One map
+    entry would place all seven.
+
+    THIS IS NOT A DEFECT IN THIS BUILD; it is the ratified delta's rule working
+    as written — its third scenario pins "rule texts that differ outside their
+    quoted spans and digit runs MUST yield two additional findings". Widening
+    the mask to the arm's TEMPLATE (every interpolated field masked, not only
+    the quoted ones) would collapse six to one and would contradict that
+    scenario, so it is a DELTA AMENDMENT for Brett and not a fix this feature
+    may make. Recorded as open in
+    `specs/026-unplaced-finding-drift/plan.md` and `tasks.md`.
+
+    The figure is asserted as a MEASUREMENT against an independent recomputation
+    rather than as the literal 6, so the corpus may move without falling this
+    test due; the 6 is named in this docstring as the number a future amendment
+    would take to 1.
+    """
+    monkeypatch.setattr(mbc, "_CLASS_PATTERNS", tuple(
+        entry for entry in mbc._CLASS_PATTERNS
+        if entry[0] != mbc.CLASS_LEDGER))
+    findings = list(mbc.fam_modified_block_currency(_real_ctx()))
+    unplaced = [f for f in findings if mbc.classify(f) == mbc.UNCLASSIFIED]
+    assert len(unplaced) >= 2, (
+        "fewer than two findings were unplaced, so the grain below is vacuous")
+
+    expected = len({_independently_masked(f.rule) for f in unplaced})
+    drift = _drift_findings(findings)
+    assert len(drift) == expected, (
+        f"{len(drift)} drift findings for {expected} distinct masked arm texts "
+        f"over {len(unplaced)} unplaced findings")
+
+    # ...and the grain really is finer than one-per-remedy: ONE map entry would
+    # place every one of these, and more than one finding is emitted.
+    assert expected > 1, (
+        "every unplaced finding collapsed to one shape on this corpus, so this "
+        "test no longer measures the gap it exists to record — re-read the "
+        "amendment note in plan.md before relaxing it")
+
+
+def test_two_unresolved_blocks_differing_only_in_capability_are_one_shape():
+    """THE APOSTROPHE IN `sibling's`, AND WHY THE MASK IS A SCANNER.
+
+    `_unresolved_finding`'s rule text is fixed prose interleaved with `repr`
+    spans, and one of the fixed strings carries an apostrophe: "no active
+    sibling's addition:". A GLOBAL substitution pairs that apostrophe with the
+    opening quote of the NEXT `repr`, masks the prose between them, and leaves
+    the capability name exposed — so two blocks that differ ONLY in an
+    interpolated capability read as two shapes and the family reports two
+    remedies for one.
+
+    Constructed rather than fixtured, because the corpus resolves every block
+    today; that is exactly when a rule is worth pinning. Both halves are
+    asserted: the two collapse, AND the title `repr` is still masked, so the fix
+    did not buy this by masking less.
+    """
+    def unresolved(title, capability):
+        return Finding(
+            WARNING, mbc.FAMILY, "openxFactory",
+            "openspec/changes/c/specs/a/spec.md",
+            f"active MODIFIED block for {title!r} resolves to no promoted "
+            f"requirement, no rename of its own, and no active sibling's "
+            f"addition: capability {capability!r} has no promoted spec at all",
+            mbc._ACTION)
+
+    a = unresolved("First block", "absent-a")
+    b = unresolved("Second block", "absent-b")
+    assert a.rule != b.rule
+    assert mbc._shape(a.rule) == mbc._shape(b.rule), (
+        mbc._shape(a.rule), mbc._shape(b.rule))
+
+    # neither capability nor title survives the mask...
+    for leaked in ("absent-a", "absent-b", "First block", "Second block"):
+        assert leaked not in mbc._shape(a.rule) + mbc._shape(b.rule), leaked
+    # ...and the prose apostrophe does, because it is prose
+    assert "sibling's addition" in mbc._shape(a.rule)

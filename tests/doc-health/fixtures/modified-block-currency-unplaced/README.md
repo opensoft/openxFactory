@@ -1,4 +1,4 @@
-# Fixture: three plain-titled blocks whose findings the class map places
+# Fixture: four plain-titled blocks whose findings the class map places
 
 **SYNTHESIZED** — this text is invented and reproduces no historical instance.
 
@@ -39,23 +39,49 @@ this tree — the trap that narrowed F1's own `_ledger` helper.
 
 ## What the family reports here, over the UNMODIFIED map
 
-Three findings, all placed:
+Four findings, all placed:
 
 | finding | class | why |
 | --- | --- | --- |
 | `Gamma boundary is declared` omits 1 of 2 scenarios | `scenario-titles` (`warning`) | the block restates one scenario heading and pools the other's bullets under it |
+| `Zeta boundary is declared` does not carry 1 of 7 units | `carriage-ledger` (`info`) | one body sentence dropped — in the OTHER change directory |
 | `Alpha boundary is declared` does not carry 1 of 7 units | `carriage-ledger` (`info`) | one body sentence dropped |
 | `Beta boundary is declared` does not carry 1 of 7 units | `carriage-ledger` (`info`) | one body sentence dropped |
 
-The two ledger findings are ONE SHAPE (their rule texts are equal once every
+## Why there are TWO change directories
+
+`add-a-drift-case/` carries Zeta alone, and it exists so the tree's EMISSION
+order disagrees with the family's REPORT order. The arms emit by (capability,
+normalized requirement title) — Alpha, Beta, Gamma, Zeta — while report order is
+severity, then repo, then PATH, and `add-a-drift-case/` sorts before
+`add-drift-cases/`. So the ledger shape's first-in-report-order is ZETA and its
+first-in-emission-order is ALPHA.
+
+That disagreement is the only thing that can falsify "the finding names the
+FIRST of its shape in the family's own report order". Over a tree where the two
+orders agree, grouping before the sort and grouping after it name the same
+finding and the pin passes either way — which is exactly what the mutation round
+measured against this tree's first, single-directory version: the mutant
+"emit before the first sort" SURVIVED it.
+
+The three ledger findings are ONE SHAPE (their rule texts are equal once every
 quoted span and digit run is masked) and the titles finding is a SECOND. That is
 what lets one tree drive both halves of the delta's third scenario:
 
-- remove the `carriage-ledger` pattern → 2 unplaced findings, ONE shape → ONE
-  drift finding naming the count 2;
-- remove the `carriage-ledger` AND `scenario-titles` patterns → 3 unplaced
-  findings, TWO shapes → TWO drift findings, because two drifted shapes are two
-  map entries to write.
+- remove the `carriage-ledger` pattern → 3 unplaced findings, ONE shape → ONE
+  drift finding naming the count 3;
+- remove the `carriage-ledger` AND `scenario-titles` patterns → 4 unplaced
+  findings, TWO shapes → TWO drift findings.
+
+**THE GRAIN IS NOT "ONE FINDING PER REMEDY".** It is one finding per distinct
+arm text after quoted-span and digit masking, which is FINER: a rule text's
+unquoted parts (the promoted spec's path, the `[body]`/`[bullet]` kind list, a
+change-id list) are shape-bearing. This tree collapses to one shape only because
+its three ledger findings name the SAME spec and the same kind. On the real
+repository the same dropped map entry yields SIX findings for seven unplaced
+ones. That is the ratified delta's rule working as written; widening it is a
+delta amendment, recorded open in
+`specs/026-unplaced-finding-drift/plan.md`.
 
 ## Why this tree is not in F2's `NEW_TREES`
 

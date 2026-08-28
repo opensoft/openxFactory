@@ -9,7 +9,37 @@ $ diff -q <pristine> scripts/doc_health/modified_block_currency.py
 MODULE BYTE-IDENTICAL to pre-mutation state
 ```
 
-## Result: 9 applied, **9 killed, 0 survivors**
+## Round 2 (2026-08-28, after the combined review): 12 applied, **12 killed, 0 survivors**
+
+Three mutants were added and one retired. The table below is round 2's; round
+1's nine are unchanged in it, and the round-1 narrative for `(d)` is kept because
+it is why `(d)` is written the way it is.
+
+| # | Mutation | Killed by | Verdict |
+|---|---|---|---|
+| **M8** | delete the family's sort entirely, so grouping reads an unsorted list | `test_the_drift_finding_names_the_first_instance_in_report_order_and_is_deterministic` | KILLED |
+| **M9** | emit BEFORE the sort (group over an unsorted list, then sort) | same | KILLED |
+| **B2** | restore the global `re.sub` quoted-span mask — the bug this build shipped with | `test_two_unresolved_blocks_differing_only_in_capability_are_one_shape` | KILLED |
+
+**RETIRED: "drop the trailing `findings.sort(key=_report_order)`".** It survived
+round 1 because the line it mutated could not change any output:
+`runner.run_suite` sorts the whole result by `Finding.sort_key` and
+`report.render` sorts again before printing, so the order this family RETURNS in
+reaches no reader. The ruling was to DELETE the line rather than pin it — a line
+no test can fail is a line that will later be trusted for a guarantee it does not
+give — so there is nothing left to mutate. What remains load-bearing is the sort
+BEFORE the emit, which decides which finding each drift warning names; M8 and M9
+are what hold it.
+
+**WHY M9 COULD NOT BE KILLED BEFORE.** The first fixture tree had ONE change
+directory, so its emission order (by normalized requirement title) and its report
+order (severity, repo, PATH, rule) agreed, and grouping before or after the sort
+named the same finding. A second change directory, `add-a-drift-case/`, was added
+to make the two orders disagree: the ledger shape's first-in-report-order is now
+ZETA and its first-in-emission-order is ALPHA. The pin now asserts the
+disagreement itself, so it cannot silently stop biting.
+
+## Round 1: 9 applied, **9 killed, 0 survivors**
 
 | # | Mutation | Killed by | Verdict |
 |---|---|---|---|
@@ -70,3 +100,13 @@ The module's PROSE. Mutating a comment or a docstring numeral reds nothing here,
 by design — the numeral sweep (T027/T028) is a read, not a test. That is the
 same gap F4's own round recorded for other families' action constants, and it is
 recorded rather than closed.
+
+## Round 2 gate re-runs
+
+| gate | result |
+|---|---|
+| `python3 -m pytest tests/doc-health -q` | **1230 passed**, 7 warnings |
+| CI shape (clean `git archive` extraction) | 7 failed, **1214 passed** — the same seven history-dependent tests as at the branch point, and 1199 → 1214 is the same +15 |
+| `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` | **78 passed, 0 failed** |
+| full-report movement diff | still **exactly one line**: `- unplaced-finding drift: 0 (\`warning\`)` |
+| `git diff --stat <merge-base> -- .github/ openspec/` | **empty** |

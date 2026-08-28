@@ -11,6 +11,7 @@ python3 -m pytest tests/doc-health -q
 | feature landed | **1227 passed**, 7 warnings |
 | after the mutation round, module restored | **1227 passed**, 7 warnings |
 | after the catch-up merge to `22f15cdf` | **1227 passed**, 7 warnings |
+| after the combined review's fixes | **1230 passed**, 7 warnings |
 
 The merge moves neither figure: `git diff 86b7ca3f 22f15cdf -- tests/doc-health/
 scripts/doc_health/` is EMPTY, so the 1215 baseline still stands against the
@@ -34,6 +35,16 @@ merged base.
 and one in `test_modified_block_currency.py`:
 
 12. `test_the_reserved_flip_of_the_launch_severity_does_not_drag_the_drift_class`
+
+### The combined review added three more (2026-08-28), for **+15 total**
+
+13. `test_the_drift_grain_is_one_finding_per_masked_arm_text_not_one_per_remedy`
+    — B1(ii): MEASURES the real grain on the real tree against an independently
+    written mask. Today: 7 unplaced findings, **6** shapes, 6 drift findings.
+14. `test_two_unresolved_blocks_differing_only_in_capability_are_one_shape`
+    — B2: the `sibling's` apostrophe case, RED before the mask fix.
+15. `test_the_drift_classifier_matches_the_module_s_own_opening`
+    — N5: pins F2's new `drift` classifier key against the module's own constant.
 
 **No test was deleted.** One was RENAMED —
 `test_each_of_the_five_rule_shapes_classifies_into_its_own_class` →

@@ -1279,14 +1279,18 @@ def fam_modified_block_currency(ctx):
     # rather than inventing a second one.
     findings.sort(key=_report_order)
     # THE FIFTH CLASS'S EMIT — `add-unclassified-finding-class`. AFTER the arms
-    # and AFTER the sort, because "the FIRST of that shape" is defined in the
-    # family's own report order and is undefined over an unsorted list. Then
-    # sort again, so the new `warning`s land where the report-wide ordering puts
-    # them. Two sorts of a list this size is free; the alternative — sorting
-    # once and inserting by position — would put the ordering rule in two
-    # places, which is the defect `_report_order` exists to prevent.
+    # and, load-bearingly, AFTER the sort: "the FIRST of that shape" is defined
+    # in the family's own report order and is undefined over an unsorted list.
+    #
+    # AND THERE IS NO SECOND SORT, deliberately. The first cut appended and then
+    # re-sorted, which read as tidy and was dead code: `runner.run_suite` sorts
+    # the whole result by `Finding.sort_key` and `report.render` sorts again
+    # before it prints, so the order this list is RETURNED in reaches no reader.
+    # A mutation round proved it — deleting that second sort killed nothing —
+    # and a line no test can fail is a line that will be trusted for a guarantee
+    # it does not give. The sort ABOVE stays because it decides which finding
+    # each drift warning names, which is a fact about the OUTPUT.
     findings.extend(_drift_findings(findings))
-    findings.sort(key=_report_order)
     return findings
 
 
@@ -1534,6 +1538,7 @@ _DRIFT_RULE = (
 # for the package. Nothing else may import it as one without its own change.
 _SHAPE_QUOTED = re.compile(_TITLE_REPR)
 _SHAPE_DIGITS = re.compile(r"\d+")
+_SHAPE_OPENERS = "'\""
 
 
 def _shape(rule: str) -> str:
@@ -1543,8 +1548,44 @@ def _shape(rule: str) -> str:
     is immaterial to the order (a digit inside a quoted span is masked either
     way, the whole span being replaced), but a reader checking this by eye reads
     it in the delta's order.
+
+    A LEFT-TO-RIGHT CONSUMER, NOT A GLOBAL `re.sub`, AND THE DIFFERENCE IS A BUG
+    THIS FUNCTION SHIPPED WITH. These rule texts are FIXED PROSE interleaved
+    with `repr`-emitted spans, and one of the fixed prose strings contains an
+    apostrophe: `_unresolved_finding`'s "no active sibling's addition:". A global
+    substitution pairs THAT apostrophe with the opening quote of the NEXT repr,
+    masks the prose between them, and leaves the repr's own content — the
+    capability name — exposed. Two unresolved blocks differing only in their
+    capability then read as two shapes, and the family reports two remedies for
+    one. Measured: `capability 'absent-a'` and `capability 'absent-b'` grouped
+    apart.
+
+    So a quote only OPENS a span where a `repr` could have emitted one: at the
+    start of the rule, or after a non-alphanumeric. Every one of this family's
+    five templates interpolates its `repr` after a space, and an apostrophe
+    inside a word never can be. The scan is then unambiguous in both directions
+    a regex is not: `_TITLE_REPR`'s two alternatives begin with DIFFERENT
+    characters, so at most one can match at any position, and an accepted span
+    is jumped past whole, so the scanner never re-enters one it has consumed.
+
+    THE PROSE IS NOT THE FIX. Rewording "sibling's" would change a rule text
+    readers and pins depend on, to work around a masking bug; the mask is what
+    was wrong.
     """
-    return _SHAPE_DIGITS.sub("<N>", _SHAPE_QUOTED.sub("<Q>", rule))
+    out: list[str] = []
+    index, end = 0, len(rule)
+    while index < end:
+        char = rule[index]
+        if char in _SHAPE_OPENERS and (index == 0
+                                       or not rule[index - 1].isalnum()):
+            span = _SHAPE_QUOTED.match(rule, index)
+            if span:
+                out.append("<Q>")
+                index = span.end()
+                continue
+        out.append(char)
+        index += 1
+    return _SHAPE_DIGITS.sub("<N>", "".join(out))
 
 
 def _drift_findings(findings) -> list[Finding]:
@@ -1559,9 +1600,28 @@ def _drift_findings(findings) -> list[Finding]:
     plan once for every repository in scope, the class map being a module
     constant compiled once per process — the reading `family_enumeration`
     already recorded for its missing-direction invariant. Per run collapses two
-    genuinely different drifted shapes, which are two map entries to write, into
-    one finding quoting only one of them. PER SHAPE IS THE COUNT OF REMEDIES,
-    and a ranked plan is a list of remedies.
+    genuinely different drifted shapes into one finding quoting only one of
+    them.
+
+    THE GRAIN IS NOT "ONE PER REMEDY", AND SAYING SO WOULD BE FALSE. It is ONE
+    FINDING PER DISTINCT ARM TEXT AFTER QUOTED-SPAN AND DIGIT MASKING, which is
+    FINER. A rule text's UNQUOTED parts are shape-bearing under the delta's
+    identity rule — the promoted spec's path, the `[body]`/`[bullet]` kind list
+    a ledger finding quotes, a change-id list, an unresolved block's `why`
+    clause — so findings a human would discharge with ONE new map entry can be
+    several shapes. MEASURED: dropping `carriage-ledger` on this repository
+    leaves SEVEN unplaced findings in SIX shapes, and one map entry places all
+    seven.
+
+    That is the ratified delta working as written, not a defect here: its third
+    scenario pins "rule texts that differ outside their quoted spans and digit
+    runs MUST yield two additional findings". Masking the arm's whole TEMPLATE
+    instead — every interpolated field, not only the quoted ones — would take
+    six to one and would contradict that scenario, so it is a DELTA AMENDMENT
+    and not a change this module may make on its own. Open, and recorded in
+    `specs/026-unplaced-finding-drift/plan.md`;
+    `test_the_drift_grain_is_one_finding_per_masked_arm_text_not_one_per_remedy`
+    measures the six so the amendment has a figure to move.
 
     THE REPRESENTATIVE IS THE FIRST OF ITS SHAPE IN THE FAMILY'S OWN REPORT
     ORDER, so the emit is deterministic: the caller sorts before calling, the

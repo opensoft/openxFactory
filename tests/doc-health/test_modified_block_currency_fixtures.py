@@ -136,12 +136,35 @@ def _texts(units):
 # block") and both blocks of the mutual-declaration ordering pair ("2
 # declarations stand between them, and mutual declaration decides nothing").
 # F1's own `_ledger` helper had to be narrowed away from the same trap.
+#
+# **THE SIXTH KEY, AND WHY THE OTHER FIVE NEEDED A GUARD** — added 2026-08-28
+# with `add-unclassified-finding-class`'s fifth finding class. That class's
+# finding QUOTES, verbatim, the rule text its map could not place, so a drift
+# finding's text CONTAINS an arm's. The five probes above are unanchored
+# substring tests, so every one of them would match a drift finding through its
+# quotation and `test_every_finding_falls_into_exactly_one_class` would read two
+# hits for one finding. `_arm` excludes the drift shape from each of them.
+#
+# **THIS IS A DECLARED COUPLING TO THE PRODUCTION MODULE.** `_DRIFT_OPENING`
+# below is `modified_block_currency._DRIFT_RULE`'s opening phrase, spelled out
+# here rather than imported for the same reason every other key is spelled out:
+# a wording drifting in EITHER file must fail loudly instead of silently
+# reclassifying. If that phrase changes, this line changes with it — and
+# `test_the_drift_classifier_matches_the_module_s_own_opening` is what says so.
+_DRIFT_OPENING = "this family's own class map has no pattern for "
+
+
+def _arm(probe):
+    return lambda r: not r.startswith(_DRIFT_OPENING) and probe(r)
+
+
 CLASSIFIERS = {
-    "titles": lambda r: "omits" in r and "scenarios" in r,
-    "ledger": lambda r: "does not carry" in r and "body units" in r,
-    "marker": lambda r: "carries a" in r and "marker by" in r,
-    "ordering": lambda r: "the ordering of MODIFIED blocks" in r,
-    "resolution": lambda r: "resolves to no promoted requirement" in r,
+    "titles": _arm(lambda r: "omits" in r and "scenarios" in r),
+    "ledger": _arm(lambda r: "does not carry" in r and "body units" in r),
+    "marker": _arm(lambda r: "carries a" in r and "marker by" in r),
+    "ordering": _arm(lambda r: "the ordering of MODIFIED blocks" in r),
+    "resolution": _arm(lambda r: "resolves to no promoted requirement" in r),
+    "drift": lambda r: r.startswith(_DRIFT_OPENING),
 }
 
 
@@ -163,7 +186,10 @@ def test_the_tree_enumeration_finds_every_tree():
     on_disk = sorted(p.name for p in FIXTURES.iterdir()
                      if p.is_dir() and p.name.startswith("modified-block-currency"))
     assert ALL_TREES == on_disk
-    assert len(ALL_TREES) >= 13, ALL_TREES          # F1's six + this feature's seven
+    # F1's six + F2's seven + F5's one (`026-unplaced-finding-drift`) = 14 on
+    # disk today. A FLOOR, never an equality: this must not fall due the next
+    # time a feature adds a tree.
+    assert len(ALL_TREES) >= 14, ALL_TREES
     for tree in NEW_TREES:
         assert tree in ALL_TREES, tree
 
@@ -188,6 +214,35 @@ def test_every_finding_falls_into_exactly_one_class():
             hits = [k for k, fn in CLASSIFIERS.items() if fn(f.rule)]
             assert len(hits) == 1, (tree, hits, f.rule[:120])
     assert seen > 20, f"only {seen} findings — discovery is broken, not clean"
+
+    # THE SIXTH KEY, EXERCISED. The map places everything over every tree above,
+    # so `drift` matches nothing there and the partition would say nothing about
+    # it. The class fires only under a drifted map — one entry removed from
+    # `_CLASS_PATTERNS`, which is the live condition it reports — so the drift is
+    # induced here, and the drift finding is required to match EXACTLY ONE key
+    # despite carrying an arm's whole rule text inside it.
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(mbc, "_CLASS_PATTERNS", tuple(
+            entry for entry in mbc._CLASS_PATTERNS
+            if entry[0] != mbc.CLASS_LEDGER))
+        drifted = _tree("modified-block-currency-unplaced")
+        drift = [f for f in drifted if mbc.classify(f) == mbc.CLASS_DRIFT]
+        assert len(drift) == 1, [f.rule[:120] for f in drift]
+        assert "does not carry" in drift[0].rule, (
+            "the quotation is missing, so the exclusivity below is vacuous")
+        hits = [k for k, fn in CLASSIFIERS.items() if fn(drift[0].rule)]
+        assert hits == ["drift"], hits
+
+
+def test_the_drift_classifier_matches_the_module_s_own_opening():
+    """The declared coupling above, asserted rather than commented.
+
+    `_DRIFT_OPENING` is typed out in this file on the same argument every other
+    key is: comparing it with the module's own constant catches the wording
+    drifting in EITHER file, where importing it would silently follow one of
+    them."""
+    assert mbc._DRIFT_RULE.startswith(_DRIFT_OPENING)
+    assert mbc._CLASS_PATTERNS[-1][0] == mbc.CLASS_DRIFT
 
 
 def test_the_naive_declaration_key_would_collide():
