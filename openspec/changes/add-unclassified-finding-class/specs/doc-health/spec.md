@@ -11,8 +11,14 @@ first finding's repository and delta path. Where the map places every finding
 the family emits, no such finding SHALL be emitted.
 
 Two unplaced findings SHALL be treated as ONE SHAPE where their rule texts are
-equal after every single-quoted span, every double-quoted span and every run of
-digits has been replaced by a fixed placeholder.
+equal after EVERY FIELD THE ARM'S TEMPLATE INTERPOLATES has been replaced by a
+fixed placeholder — quoted spans, runs of digits, repository-relative paths,
+change identifiers, unit-kind lists, and any other value the arm substitutes
+into its fixed prose — so that one shape is one template and one remedy.
+
+The family SHALL derive that mask from its own arm templates: an arm's FIXED
+PROSE is the shape and every value the arm interpolates into it is not, so the
+rule cannot drift from the arms it describes.
 
 The finding's action line SHALL name both remedies and where the first is
 applied: "extend the class map in `scripts/doc_health/modified_block_currency.py`,
@@ -49,10 +55,10 @@ unrestated.
 - **AND** each such finding MUST carry the repository and delta path of that first finding, and the action line this requirement states
 - **AND** each such finding MUST itself be placed by the map into the fifth class, so that it is never counted by the residual it reports and the rendered counts still sum to the rows
 
-#### Scenario: Two unplaced findings differ only in a title and a count
-- **WHEN** two unplaced findings have rule texts that are equal after every quoted span and every run of digits is replaced by a fixed placeholder
-- **THEN** ONE additional finding MUST be emitted for both, naming the count two, one drifted rule shape being one remedy
-- **AND** two unplaced findings whose rule texts differ outside their quoted spans and digit runs MUST yield two additional findings, being two remedies
+#### Scenario: Two unplaced findings from one arm template
+- **WHEN** two unplaced findings come from the SAME arm template and differ only in the values that template interpolates — a different quoted title, a different promoted-spec path, a different unit-kind list, different change identifiers
+- **THEN** ONE additional finding MUST be emitted for both, naming the count two, one drifted arm template being one remedy
+- **AND** two unplaced findings from DIFFERENT arm templates — differing in the fixed prose the mask leaves standing — MUST yield two additional findings, being two remedies
 
 #### Scenario: The quoted rule text begins in the shape of an arm
 - **WHEN** an unplaced rule text itself begins with the phrase an arm's rule texts begin with, and this finding quotes it

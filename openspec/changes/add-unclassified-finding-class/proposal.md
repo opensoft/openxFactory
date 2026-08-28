@@ -3,6 +3,7 @@ code_surface: openxFactory (`scripts/doc_health/modified_block_currency.py` — 
 target_release: implemented — the openxFactory main line. This surface cuts no contract bundle: no schema under `contracts/schemas/` changes, no digest set moves, and no release tag is owed. The archive gate is therefore merge-plus-green on main, following `add-modified-block-currency-check` and `add-family-enumeration-check` exactly: `python3 -m pytest tests/doc-health` green, `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green, and a doc-health single-repo run whose severity counts move by exactly the amount this proposal predicts — zero — and in no other line. The change therefore ships ACTIVE and archives only after the merge.
 Status: ratified
 Ratified: 2026-08-27 by Brett — in-session commissioning, verbatim: "Amend now". The citation covers the DECISION TO BUILD THIS AMENDMENT and nothing else; the three design decisions in § Orchestrator Decisions below were taken by the authoring session under standing patterns, are NOT covered by this citation, and are flagged there for veto. No approving OpenSpec change exists to name, so this cites the record in the spelling `sanction-ratified-record-spelling` sanctioned for that case, clearing its three-way floor on two axes rather than the one it needs: approver (`by Brett`) and date (`2026-08-27`).
+Amended: 2026-08-28 by Brett — in-session commissioning, verbatim: "Amend: shape = arm template, all interpolations masked". D3's shape-identity rule is widened from quoted-spans-plus-digit-runs to EVERY field the arm's template interpolates; the measured cause is recorded in § Orchestrator Decisions and in `specs/026-unplaced-finding-drift/plan.md` § OPEN-1. Nothing else in this packet moves and the predicted severity movement stays ZERO.
 Proposed: 2026-08-27
 Origin: the F4 report block landed by `add-modified-block-currency-check` § 5.1 (PR #433, squash `4def2274`), read in session on 2026-08-27. Its residual row — `scripts/doc_health/modified_block_currency.py`'s `_UNCLASSIFIED_LINE`, pinned by `test_a_finding_the_map_cannot_place_is_counted_and_named` — is the only report content this capability produces that is not a finding and cannot become work. Put to Brett as a choice between leaving it as a text row and making a nonzero count emit one `warning`, he answered "Amend now".
 ---
@@ -130,6 +131,12 @@ Brett commissioned the amendment. The three decisions below were taken by the
 authoring session under standing patterns and are named so they can be reversed
 on a word. D3 was rewritten at packet review on 2026-08-27; the flag stays.
 
+**Amended 2026-08-28 by Brett** — in-session commissioning, verbatim: "Amend:
+shape = arm template, all interpolations masked" — D3's identity rule widened
+from quoted-spans+digits to every interpolated field; measured cause (6 rows for
+1 remedy on the 2026-08-28 tree) recorded in
+`specs/026-unplaced-finding-drift/plan.md` § OPEN-1.
+
 **D1 — ADDED-ONLY. No MODIFIED block on "Currency of an active change's MODIFIED
 requirement blocks", and this was measured rather than preferred.** The obvious
 shape for "a fifth finding class" is a MODIFIED block on the requirement that
@@ -200,8 +207,11 @@ drift`**, neither containing the substring `unclassified`, because
 ABSENCE from a fully-classified summary and a class label renders even at a count
 of zero — the obvious name would have reddened a standing pin for a real reason.
 
-**D3 — ONE finding per DISTINCT UNPLACED RULE SHAPE per run.** *(Rewritten at
-packet review, 2026-08-27; previously one per run.)* Three readings were on the
+**D3 — ONE finding per DISTINCT UNPLACED RULE SHAPE per run, a shape being the
+ARM'S TEMPLATE with every interpolated field masked.** *(Rewritten at packet
+review, 2026-08-27; previously one per run. Shape identity widened by Brett's
+amendment of 2026-08-28, above; as first ratified the mask covered quoted spans
+and digit runs only.)* Three readings were on the
 table: one per repository, one per run, and one per shape. Per repository is wrong
 because the class map is a module constant compiled once per process, so a
 per-repository emit would put ONE remedy into an aggregation run's ranked plan once
@@ -212,9 +222,28 @@ per run is wrong in the other direction: two genuinely different drifted rule
 shapes are two map entries to write, and collapsing them reports one remedy where
 two are owed and quotes only one of them. **Per shape is the count of remedies**,
 which is what a ranked plan is a list of. Shape identity is mechanical and stated
-in the delta — rule texts equal after every quoted span and every digit run is
-masked — which is the same grammar the class map's own patterns are written in
-(`<REPR>` and `\d+`), so a reader can check it by eye. The emitted finding's
+in the delta — rule texts equal after EVERY FIELD THE ARM'S TEMPLATE
+INTERPOLATES is replaced by a fixed placeholder: quoted spans, digit runs,
+repository-relative paths, change identifiers, unit-kind lists, and whatever
+else an arm substitutes into its fixed prose — so one shape is one arm template,
+which is one map entry to write. The mask is derived FROM THE ARM TEMPLATES
+THEMSELVES (the fixed prose is the shape; the interpolations are not), so it
+cannot drift from the code the way a hand-listed mask would.
+
+**Why the mask is the whole template and not only the quoted spans.** The
+narrower rule was measured during realization (Speckit 026) and it does not
+count remedies: the arms interpolate the promoted spec's path (`basis.spec_rel`),
+the `[body]`/`[bullet]` unit-kind list a carriage-ledger finding quotes, a
+change-id list in the ordering arm, and an unresolved block's `why` clause,
+none of which the quoted-span-and-digit mask touches. On the 2026-08-28
+openxFactory tree, ONE dropped class-map entry (`carriage-ledger`) yielded SEVEN
+unplaced findings in SIX shapes — six `warning` rows in the ranked plan for ONE
+map entry to write. The measured table, including
+`-two-writers` 9 unplaced → 4 shapes, `-markers` 3 → 3 and this feature's own
+`-unplaced` tree 3 → 1, is in `specs/026-unplaced-finding-drift/plan.md`
+§ OPEN-1. Under the amended mask the real tree reads ONE. The realization could
+not apply the wider mask on its own, the third scenario as first ratified
+pinning the narrower one, which is why this amendment exists. The emitted finding's
 identity is (family, repo, path of the FIRST instance of that shape in the family's
 own report order), which is deterministic; and because the band is `warning`, that
 identity never reaches `regressions()`, which matches `critical` and `error`
