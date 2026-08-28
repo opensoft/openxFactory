@@ -36,9 +36,11 @@ Unstructured, kept because the reasoning is younger than the vocabulary.
   is misrepresenting that it did. Both are refusals.
 - The tier split fell out of a constitutional fact rather than a design
   preference: omnigent workers carry `access_secrets: false`. A worker therefore
-  CANNOT hold an authority credential. So authority stays human-held, and the
-  thing a runner signs with is an ephemeral per-task identity issued by the
-  harness controller under its own certificate. The worker proves *this task ran
+  CANNOT hold an authority credential. So authority stays human-held, and
+  runner attestations carry an ephemeral per-task identity issued — and signed
+  — at the harness controller, whose key never enters the worker (the PR's own
+  review round caught the first draft handing the runner the key; Q7 records
+  the correction and asks for the mechanism). The worker proves *this task ran
   as declared*; it never proves *someone authorized this*.
 - On-chain arrived from the medical side first, and the honest constraint arrived
   with it: PHI cannot go on a public chain, and a design that hand-waves that is
@@ -64,7 +66,7 @@ Ten links. Each names what is signed, by whom, and what refuses when it is absen
 | 2 | **Ratified ⇒ enrolled, atomically, inside the signed handshake** — enrollment is not a second act that could diverge | same signature as link 1 | a ratified-but-unenrolled state, which is the divergence this link exists to make impossible |
 | 3 | **The traveling contract** — the signed ratification becomes an artifact that accompanies the work rather than a row in a table it must be looked up in | — (carried) | the chain cannot be checked at the point of use |
 | 4 | **Harness-controller setup attestation** — the controller attests the environment it prepared | controller certificate | runner attestations have no issuer to chain to |
-| 5 | **Runner attestations** — each runner attests its model, its version, and its local harness | ephemeral per-task key, issued by the controller | the work cannot say what produced it |
+| 5 | **Runner attestations** — each runner attests its model, its version, and its local harness | per-task identity (key held at the controller; signature produced there) | the work cannot say what produced it |
 | 6 | **Signed PR-open decision** — opening a pull request is itself a decision and is signed as one | per-task identity + carried contract | the PR is an orphan act |
 | 7 | **Council review with the signed proposal as the brief** — the council reviews the chain-carrying artifact, not a summary of it | council seats | review is of a restatement, which is the fidelity defect this family keeps finding |
 | 8 | **Chain-validating merge gate** — the gate walks the chain before it permits a merge | gate (verifier) | **no merge** |
