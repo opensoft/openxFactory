@@ -515,6 +515,22 @@ def test_the_rendered_counts_equal_the_rendered_rows():
 _ARMS_ACTION = ("restate the requirement as canon currently states it, or "
                 "declare the deletion with a `Removed from canon by` marker")
 
+# A FRESH LITERAL, TYPED INDEPENDENTLY OF `mbc._MARKER_ACTION` — the same
+# argument `_ARMS_ACTION` makes above, applied to the family's SECOND action
+# string. Comparing a finding's action to `mbc._MARKER_ACTION` itself (as
+# `test_the_marker_class_keeps_its_own_action_and_not_the_arms_one` already
+# did, below) is tautological: it passes whatever `_MARKER_ACTION` had been
+# mutated to. A reviewer proved this on 2026-08-28 by mutating "does not
+# restate" to "does not carry" in `_MARKER_ACTION` and finding the whole
+# suite — this file included — stayed green. This constant is § 5.2's
+# marker-class wording, spelled out here once, so the comparison below is
+# against WORDS rather than against the module's own (possibly mutated) copy
+# of them.
+_MARKER_ACTION_TEXT = (
+    "name a unit the block does not restate, or drop the "
+    "declaration — a marker that does not describe the block "
+    "declares nothing")
+
 
 def test_the_arms_action_is_verbatim_what_the_packet_asks_for():
     """§ 5.2's text, spelled out here ONCE and compared with the module's own
@@ -577,6 +593,10 @@ def test_the_marker_class_keeps_its_own_action_and_not_the_arms_one():
     assert len(marker_findings) == 1
     assert marker_findings[0].action == mbc._MARKER_ACTION
     assert _ARMS_ACTION not in marker_findings[0].action
+    # THE BEHAVIOURAL PIN, against the independent literal above — this is
+    # the assertion the two lines above cannot be, because they compare the
+    # finding to `mbc._MARKER_ACTION` rather than to typed-out words.
+    assert marker_findings[0].action == _MARKER_ACTION_TEXT
 
 
 def _other_family_findings():

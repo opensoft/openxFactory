@@ -31,18 +31,35 @@ def test_status_validity():
         (ERROR, "docs/freeform.md", "free-form status 'active'"),
         (ERROR, "docs/missing.md", "missing status header"),
     ]
+    # PIN (commissioned 2026-08-27, after `promotion_fidelity._ACTION` was
+    # mutated and 85 tests stayed green — no doc-health family's action line
+    # was pinned anywhere). An action line is operator guidance rendered in
+    # every ranked-plan row; nothing else in this repository notices it
+    # changing, so each family gets one verbatim pin in its own suite.
+    assert {f.path: f.action for f in got} == {
+        "docs/freeform.md": "replace with a controlled taxonomy value",
+        "docs/missing.md":
+            "add a Status: header from the controlled taxonomy",
+    }
 
 
 def test_standard_backing():
     got = FAMILIES["standard-backing"](make_ctx("standard-backing"))
     assert [(f.severity, f.path) for f in got] == [
         (CRITICAL, "docs/unbacked.md")]
+    # PIN, see test_status_validity's docstring comment.
+    assert got[0].action == (
+        "add a Backed by: line resolving to a promoted spec or canonical "
+        "contract, or demote to draft")
 
 
 def test_ratified_provenance():
     got = FAMILIES["ratified-provenance"](make_ctx("ratified-provenance"))
     assert [(f.severity, f.path) for f in got] == [
         (CRITICAL, "docs/dangling.md")]
+    # PIN, see test_status_validity's docstring comment.
+    assert got[0].action == (
+        "point Ratified by: at an existing active or archived change")
 
 
 def test_succession_integrity():
@@ -51,11 +68,22 @@ def test_succession_integrity():
         (ERROR, "docs/lost.md"),
         (ERROR, "docs/retired-noreason.md"),
     ]
+    # PIN, see test_status_validity's docstring comment.
+    assert {f.path: f.action for f in got} == {
+        "docs/lost.md":
+            "add a Superseded by: line naming the successor document",
+        "docs/retired-noreason.md":
+            "add a Retired:/Reason: line naming the reason or decision "
+            "record",
+    }
 
 
 def test_location_conformance():
     got = FAMILIES["location-conformance"](make_ctx("location-conformance"))
     assert [(f.severity, f.path) for f in got] == [(ERROR, "docs/stray.md")]
+    # PIN, see test_status_validity's docstring comment.
+    assert got[0].action == (
+        "move it under ideation/brainstorm/ or change its status")
 
 
 def test_proposal_support_location_conformance(tmp_path):
@@ -277,6 +305,9 @@ def test_record_immutability():
                                                    git=git))
     assert [(f.severity, f.path) for f in got] == [
         (CRITICAL, "docs/mutated.md")]
+    # PIN, see test_status_validity's docstring comment.
+    assert got[0].action == (
+        "revert the content edit or re-issue as a new record")
 
 
 def test_staged_candidate_aging():
@@ -301,6 +332,17 @@ def test_staged_candidate_aging():
         (WARNING, "docs/aging.md"),               # candidate 38d >= 30
         (WARNING, "docs/aging.md"),               # draft 99d >= 60
     ]
+    # PIN, see test_status_validity's docstring comment. `sorted` is stable,
+    # so the two (WARNING, "docs/aging.md") ties keep the family's own
+    # append order: candidate before draft.
+    actions = [f.action for f in sorted(got, key=lambda f: (f.severity, f.path))]
+    assert actions == [
+        "create the OpenSpec change and add its change= id",
+        "progress the topic to a proposal or mark it deferred",
+        "trend data — no action required",
+        "convert the block via an OpenSpec change or drop it",
+        "ratify, supersede, or retire the draft",
+    ]
 
 
 def test_register_lifecycle_consistency():
@@ -310,6 +352,12 @@ def test_register_lifecycle_consistency():
     assert len(rules) == 2
     assert "DTN-002" in rules[0] and "not a documented alias" in rules[0]
     assert "DTN-003" in rules[1] and "adopted without resolvable" in rules[1]
+    # PIN, see test_status_validity's docstring comment.
+    by_rule = {f.rule: f.action for f in got}
+    dtn002 = next(a for r, a in by_rule.items() if "DTN-002" in r)
+    dtn003 = next(a for r, a in by_rule.items() if "DTN-003" in r)
+    assert dtn002 == "use a documented lifecycle alias"
+    assert dtn003 == "point the adopted entry at its promoted artifact"
 
 
 def test_tag_hygiene():
@@ -327,6 +375,11 @@ def test_tag_hygiene():
                      "unclosed candidate fence"):
         assert expected in rules, expected
     assert "record document" in by_path["docs/record-candidate.md"][0]
+    # PIN, see test_status_validity's docstring comment.
+    record_finding = next(
+        f for f in got if f.path == "docs/record-candidate.md")
+    assert record_finding.action == (
+        "records are excluded from the conversion queue")
 
 
 def test_submodule_pin_drift(tmp_path):
@@ -338,6 +391,8 @@ def test_submodule_pin_drift(tmp_path):
     got = FAMILIES["submodule-pin-drift"](ctx)
     assert [(f.severity, f.path) for f in got] == [
         (WARNING, "xFactories/alpha")]
+    # PIN, see test_status_validity's docstring comment.
+    assert got[0].action == "sync the submodule pointer or push the submodule"
 
 
 def test_contract_copy_drift(tmp_path):
@@ -352,6 +407,8 @@ def test_contract_copy_drift(tmp_path):
     got = FAMILIES["contract-copy-drift"](ctx)
     assert [(f.severity, f.repo, f.path) for f in got] == [
         (WARNING, "beta", "stack.yaml")]
+    # PIN, see test_status_validity's docstring comment.
+    assert got[0].action == "review upstream contract changes and re-pin"
 
 
 def test_notebook_projection_drift():
@@ -361,6 +418,8 @@ def test_notebook_projection_drift():
     got = drift(ctx)
     assert len(got) == 1 and got[0].severity == WARNING
     assert "2 pending operations" in got[0].rule
+    # PIN, see test_status_validity's docstring comment.
+    assert got[0].action == "run the lifecycle notebook sync with --apply"
 
     ctx_clean = make_ctx("status-validity", notebook=lambda: "scan only\n")
     assert drift(ctx_clean) == []
@@ -441,6 +500,13 @@ def test_non_conformance_is_never_gate_blocking(tmp_path):
     assert len(got) == 1
     assert got[0].severity == WARNING
     assert "REQUIRED" in got[0].rule
+    # PIN, see test_status_validity's docstring comment. Every finding this
+    # family raises carries this one action string, regardless of gap shape
+    # or the required/opt-in posture.
+    assert got[0].action == (
+        "add the missing sections, or give every open question its "
+        "Context / Recommended answer / Explanation / Disposition "
+        "status sub-fields")
 
 
 def test_obligation_follows_the_staging_date_not_the_last_touch(tmp_path):

@@ -124,6 +124,14 @@ def test_shared_identity_material_fires_on_the_same_identity_ref():
     assert "[shared-identity-material]" in finding.rule
     assert "identity_ref" in finding.rule and "shared-bc-observer" in finding.rule
     assert "alphaxfactory" in finding.rule and "betaxfactory" in finding.rule
+    # PIN (commissioned 2026-08-27, after `promotion_fidelity._ACTION` was
+    # mutated and 85 tests stayed green — no doc-health family's action line
+    # was pinned anywhere). An action line is operator guidance rendered in
+    # every ranked-plan row; nothing else in this repository notices it
+    # changing, so each family gets one verbatim pin in its own suite.
+    assert finding.action == (
+        "give each domain its own identity in 'client-shared', or record "
+        "the shared holding as a deliberate, cited arrangement")
 
 
 def test_shared_identity_material_fires_on_an_equal_provider_object_ref_alone():

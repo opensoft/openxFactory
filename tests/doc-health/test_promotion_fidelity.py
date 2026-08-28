@@ -101,6 +101,13 @@ def test_the_codex_regression_shape_fires():
     assert "without 4 of its 6 ratified scenarios" in finding.rule
     assert "Activation requires a freshly accepted record" in finding.rule
     assert "openspec/specs/merge-master-approval/spec.md" in finding.rule
+    # PIN (commissioned 2026-08-27, after this exact constant —
+    # `promotion_fidelity._ACTION` — was mutated and 85 tests stayed green).
+    # An action line is operator guidance rendered in every ranked-plan row;
+    # nothing else in this repository notices it changing.
+    assert finding.action == (
+        "apply the ratified delta to the promoted spec through an "
+        "OpenSpec change, or record the non-promotion as deliberate")
 
 
 def test_a_whole_added_requirement_that_never_arrived_fires():

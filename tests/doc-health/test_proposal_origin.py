@@ -90,6 +90,14 @@ def test_missing_origin_post_contract_is_error(tmp_path):
                 "schema: spec-driven\ncreated: 2026-09-01\n")
     [f] = po.check_change("r", tmp_path, d, frozenset(), False)
     assert f.severity == ERROR and "no origin declaration" in f.rule
+    # PIN (commissioned 2026-08-27, after `promotion_fidelity._ACTION` was
+    # mutated and 85 tests stayed green — no doc-health family's action line
+    # was pinned anywhere). An action line is operator guidance rendered in
+    # every ranked-plan row; nothing else in this repository notices it
+    # changing, so each family gets one verbatim pin in its own suite.
+    assert f.action == (
+        "declare `origin:` in .openspec.yaml (staged or ad_hoc per the "
+        "document-lifecycle origin requirement)")
 
 
 def test_missing_origin_pre_contract_is_warning(tmp_path):
