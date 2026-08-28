@@ -14,18 +14,49 @@ from datetime import date
 
 from . import CRITICAL, ERROR, FAMILY_IDS, Finding, SEVERITY_RANK
 
+# A free-text ranked-plan field: everything up to the closing `"`, with `\"`
+# and `\\` admitted inside it. The naive `[^"]*` this replaces closed the field
+# on the FIRST `"` and so could not read back a row it had itself emitted —
+# any finding whose rule or action text contains a double quote. The live
+# case is a modified-block-currency arm: it writes the requirement title as
+# `{title!r}`, and `repr()` switches to DOUBLE quotes when the title contains
+# an apostrophe (`"Brett's ruling"`), so the row was emitted by `plan_line`,
+# never matched by `PLAN_RE`, and silently dropped from every
+# `--previous-report` comparison — making a persistent finding read as a new
+# regression on the next run, and hiding a contested finding's disappearance
+# from `uncited_resolutions`. Emit and parse are now symmetric
+# (`escape_field` / `unescape_field`).
+_FIELD = r'((?:[^"\\]|\\.)*)'
+
 PLAN_RE = re.compile(
     r"^- severity=(\w+) family=([\w-]+) repo=(\S+) path=(\S+) "
-    r'rule="([^"]*)" action="([^"]*)"(?: class="([\w-]+)")?'
-    r'(?: disposer="([^"]*)")?$')
+    r'rule="' + _FIELD + r'" action="' + _FIELD + r'"'
+    r'(?: class="([\w-]+)")?'
+    r'(?: disposer="' + _FIELD + r'")?$')
+
+
+def escape_field(value: str) -> str:
+    """Make `value` safe between the `"` delimiters of a ranked-plan field.
+
+    BYTE-IDENTICAL for any value containing neither `"` nor `\\` — which is
+    every row of every report written to date — so the escape is invisible in
+    the nightly report diff and old reports keep parsing unchanged.
+    """
+    return value.replace("\\", "\\\\").replace('"', '\\"')
+
+
+def unescape_field(value: str) -> str:
+    """Inverse of `escape_field` over a `_FIELD` capture."""
+    return re.sub(r"\\(.)", r"\1", value)
 
 
 def plan_line(f: Finding) -> str:
     line = (f"- severity={f.severity} family={f.family} repo={f.repo} "
-            f"path={f.path} rule=\"{f.rule}\" action=\"{f.action}\" "
+            f"path={f.path} rule=\"{escape_field(f.rule)}\" "
+            f"action=\"{escape_field(f.action)}\" "
             f"class=\"{f.resolution}\"")
     if f.disposer:
-        line += f" disposer=\"{f.disposer}\""
+        line += f" disposer=\"{escape_field(f.disposer)}\""
     return line
 
 

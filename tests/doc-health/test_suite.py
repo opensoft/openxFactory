@@ -95,6 +95,103 @@ def test_uncited_contested_resolution_becomes_finding():
         dispositions={("location-conformance", "alpha", "docs/reg.md")}) == []
 
 
+# --- Ranked-plan field quoting round-trip ------------------------------------
+#
+# `plan_line` EMITS a row and `PLAN_RE`/`parse_previous` READ one back; a
+# finding whose rule or action text contains the field delimiter itself must
+# survive that round trip, or `--previous-report` silently forgets it. It was
+# not surviving: `PLAN_RE` closed the field on the FIRST `"`, so a row like
+# `rule="active MODIFIED block for "Brett's ruling" omits ..."` — the shape
+# every modified-block-currency arm writes when the requirement title it
+# quotes with `{title!r}` contains an apostrophe, because `repr()` then
+# switches to double quotes — was emitted and never parsed back. The finding
+# read as absent from the previous report on the NEXT run, which makes a
+# persistent finding look like a fresh regression and makes a contested
+# finding's disappearance invisible to `uncited_resolutions`.
+#
+# The rule text below is a real arm's, verbatim in shape.
+_QUOTED_TITLE_RULE = (
+    "active MODIFIED block for \"Brett's ruling\" omits 1 of the 2 "
+    "scenarios in the promoted requirement")
+
+
+def test_a_rule_containing_a_double_quote_round_trips_through_the_plan():
+    f = Finding(ERROR, "modified-block-currency", "openxFactory",
+                "openspec/changes/c/specs/doc-health/spec.md",
+                _QUOTED_TITLE_RULE, "carry the missing scenario")
+    text = report.render(date(2026, 8, 28), [f], [], [], [], 0, [], [])
+    keys, _ = report.parse_previous(text)
+    assert f.match_key() in keys, "the emitted row did not parse back"
+    # ... and the next run therefore does NOT report it as a new regression.
+    assert report.regressions([f], keys) == []
+
+
+def test_an_action_containing_a_double_quote_round_trips_through_the_plan():
+    f = Finding(ERROR, "tag-hygiene", "alpha", "docs/x.md",
+                "marker missing a change= attribute",
+                'add change="add-thing" to the marker')
+    text = report.render(date(2026, 8, 28), [f], [], [], [], 0, [], [])
+    keys, _ = report.parse_previous(text)
+    assert f.match_key() in keys
+    assert report.regressions([f], keys) == []
+
+
+def test_a_contested_quoted_rule_round_trips_into_the_contested_set():
+    f = Finding(ERROR, "modified-block-currency", "openxFactory",
+                "openspec/changes/c/specs/doc-health/spec.md",
+                _QUOTED_TITLE_RULE, "carry the missing scenario",
+                resolution="contested", disposer='the "gate" convener')
+    text = report.render(date(2026, 8, 28), [f], [], [], [], 0, [], [])
+    keys, contested = report.parse_previous(text)
+    assert contested == {f.match_key()}
+    # vanished with no disposition -> the uncited-resolution error is raised
+    assert [g.family for g in report.uncited_resolutions(
+        [], contested, dispositions=set())] == ["uncited-resolution"]
+
+
+def test_quote_heavy_and_backslash_bearing_fields_round_trip():
+    for rule, action in (
+            ('"""', 'a'),
+            ('a \\ b', 'c \\ d'),
+            ('ends with a backslash \\', 'starts "quoted"'),
+            ('\\"', '"\\'),
+            ('every "word" is "quoted" here', 'and "so" is the action')):
+        f = Finding(ERROR, "tag-hygiene", "alpha", "docs/x.md", rule, action)
+        line = report.plan_line(f)
+        m = report.PLAN_RE.match(line)
+        assert m, f"unparsed: {line!r}"
+        assert report.unescape_field(m.group(5)) == rule
+        assert report.unescape_field(m.group(6)) == action
+        keys, _ = report.parse_previous(line)
+        assert f.match_key() in keys
+
+
+def test_plan_line_is_byte_identical_for_fields_with_no_quote_or_backslash():
+    """The escape is invisible to every row that needs none — the whole
+    corpus of existing reports. Pinned against the pre-escape format
+    literally, so a future escaping scheme that reshapes ordinary rows
+    (percent-encoding, `repr()` quoting) reds here rather than silently
+    rewriting the diff of every nightly report."""
+    f = Finding(ERROR, "tag-hygiene", "alpha", "docs/x.md",
+                "missing status header", "add a Status: header",
+                resolution="contested", disposer="alpha authority")
+    assert report.plan_line(f) == (
+        f"- severity={f.severity} family={f.family} repo={f.repo} "
+        f"path={f.path} rule=\"{f.rule}\" action=\"{f.action}\" "
+        f"class=\"{f.resolution}\" disposer=\"{f.disposer}\"")
+
+
+def test_parse_previous_still_reads_rows_from_the_pre_escape_emitter():
+    """Backward compatibility: yesterday's report was written by the old
+    emitter, and tonight's run diffs against it."""
+    old = ("- severity=error family=tag-hygiene repo=alpha path=docs/x.md "
+           'rule="missing status header" action="add a Status: header" '
+           'class="contested" disposer="alpha authority"')
+    keys, contested = report.parse_previous(old)
+    assert keys == {("tag-hygiene", "alpha", "docs/x.md")}
+    assert contested == {("tag-hygiene", "alpha", "docs/x.md")}
+
+
 def _fixture_catalog_meta(**overrides):
     fields = {
         "snapshot_refs": [
