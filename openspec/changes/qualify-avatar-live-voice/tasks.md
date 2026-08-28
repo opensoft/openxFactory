@@ -75,6 +75,41 @@ is mis-specified.
 > archive gate has moved. §7.4's own condition — at least one alert observed
 > DELIVERED end to end before the canary opens — is recorded
 > `not_yet_delivered` rather than quietly satisfied by a unit test.
+>
+> **Amended a fifth time 2026-08-27 — §6.2 IS BUILT.** §6.2.1-§6.2.4 are
+> ticked. Fork 4 Option C now has artifacts instead of prose: the SYNTHETIC
+> evaluation corpus at
+> `contracts/avatar-client/synthetic-evaluation-corpus.yaml` (35 scripted
+> scenarios, all 15 class x domain cells, all EIGHT ROLLBACK-A triggers
+> reachable) and the canary's ephemeral processing envelope at
+> `contracts/avatar-client/canary-ephemeral-processing-envelope.yaml`, both
+> machine-checked by two new fail-closed validator checks and 32 tests whose
+> every negative is a MUTATION OF THE REAL ARTIFACT. The corpus CLOSES the
+> hole §6.3.3 recorded in its own tick — "§6.2.1's CORPUS DOES NOT EXIST, so
+> what is built is the INPUT SEAM" — and it closes it in the direction that
+> matters: each scenario's trigger is resolved against the ROLLBACK-A list in
+> the ratified policy artifact, not against a constant, so a corpus scenario
+> that no ratified trigger covers fails rather than shipping as a failure that
+> would never abort the ring.
+>
+> WHAT DID NOT MOVE, stated so no reader mistakes a built §6.2 for an opened
+> ring: no schema, no registry and no interface lock is edited. The frozen
+> consent-purpose count stays 3, the four reserved retention classes stay
+> forbidden, `local_persistence` stays `const: false` — CONFIRMED BY
+> INSPECTION at file and line in
+> `review/reserved-surface-inspection-2026-08-27.md`, not by assertion and not
+> by a test standing in for one. The non-shadowing guarantee is recorded as an
+> OPERATIONAL control with `enforced_by_schema: false` in a field, because no
+> schema forbids a second-model shadow today and the enforcing contract flag
+> is `avatar-pilot-hardening` work. No AVC-09 descriptor is authored, no
+> evidence register is touched, no audio is rendered or retained, and no ring
+> element has moved.
+>
+> **WHAT REMAINS AFTER §6.2:** **6.1.2 is Brett's provisioning act** and
+> everything install-side still waits on it. **6.1.5 stays deferred** by
+> ruling. **6.4.4 is unbuilt.** **§4, §5 and §8 are unbuilt**, so no evidence,
+> no measured latency and no archive gate has moved. §7.4's own
+> at-least-one-alert-delivered condition still reads `not_yet_delivered`.
 
 ## 1. Spec deltas (THIS CHANGE)
 
@@ -592,22 +627,184 @@ the checklist that produces its evidence.
 
 ### 6.2 Consent and evaluation audio (F4 Option C)
 
-- [ ] 6.2.1 Build the SYNTHETIC evaluation corpus for the model-versus-model
+- [x] 6.2.1 Build the SYNTHETIC evaluation corpus for the model-versus-model
       safety, exact-value, consent, handoff and blocked-state scenarios across
       generic, MedxFactory and LedgerxFactory.
-- [ ] 6.2.2 Define the canary's ephemeral processing envelope: consent rides
+      **Done 2026-08-27** in
+      `contracts/avatar-client/synthetic-evaluation-corpus.yaml`, machine-checked
+      by `check_synthetic_evaluation_corpus`. THIS IS THE CORPUS §6.3.3 NAMED
+      AND DID NOT HAVE: `detection.py` records
+      `SAFETY_CORPUS_OWNER = "qualify-avatar-live-voice 6.2.1"` beside a
+      `SafetyEvalSignal` seam wired fail-closed BECAUSE no corpus existed, and
+      every scenario here declares the signal its FAILURE emits.
+      **35 SCENARIOS, AND THE COUNT IS DERIVED RATHER THAN CHOSEN.** Floor:
+      every one of the 5 x 3 = 15 class x domain cells carries at least one
+      scenario, because a cell with none is a condition-7 claim with no
+      evidence. SAFETY takes four per domain (12) because ROLLBACK-A gives that
+      class FOUR distinct triggers and no umbrella one — there is no
+      `failed_safety_evaluation`, so `revocation_bound_violation`,
+      `redaction_finding`, `secret_scan_finding` and
+      `media_authorization_ordering_violation` ARE the safety class, and
+      probing one per domain would leave three ratified triggers unreachable
+      from that domain. CONSENT takes the kernel's own pair per domain —
+      consent absent at request time, and withdrawal DURING an active media leg
+      — plus one each for the two DomainxFactories probing the optional
+      stricter domain purpose reference, which the generic domain has nothing
+      to be stricter about (8). EXACT-VALUE and BLOCKED-STATE take two per
+      domain (6 each): a character-exact readback plus the kernel-named
+      supersede-correction edge, and entering a blocked state plus the
+      denial-versus-failure distinction in the FALSE-POSITIVE direction.
+      HANDOFF takes ONE per domain (3), deliberately — one trigger, one
+      kernel-named fixture, and the handoff-carries-no-secret failure it would
+      otherwise duplicate is already the safety class's `secret_scan_finding`
+      scenario per domain. The asymmetry is recorded rather than levelled by
+      inventing a scenario.
+      **§7.6's "15 classes x 3 = 45" IS SESSIONS, NOT SCENARIOS**, and the 15
+      it counts are exactly these cells — so the corpus's structure IS the
+      denominator §7.6 already assumed and its session floor is satisfiable
+      against it. Nothing was padded to 45.
+      **EVERY FAILURE MAPS TO A RATIFIED TRIGGER, READ FROM THE POLICY.** The
+      check resolves each scenario's trigger against
+      `canary-cohort-and-rollback-policy.yaml`'s own ROLLBACK-A list rather
+      than a constant in the validator, so narrowing the policy invalidates the
+      corpus rather than the two copies agreeing with each other. All EIGHT
+      triggers are reachable; an unreachable one fails, because §6.3.3 proved
+      the trip for all eight. An invented trigger would be answered by
+      `evaluate_safety_signal` with `REFUSED_UNKNOWN_TRIGGER` — a NON-tripping
+      verdict — so a mis-specified scenario would report a failure and NOT
+      abort the ring, which is why the check refuses one rather than warning.
+      **SYNTHETIC IS A FIELD, NOT A PROMISE:** `content_origin: scripted`,
+      `tenant_data: none`, `real_utterances: none`, all compared. The exchanges
+      are TEXT-LEVEL and say so — rendering a script to audio is a §5-time and
+      canary-time act of the RUN, and committing rendered audio would commit
+      media into a ring whose `audio` retention class stays forbidden.
+      **ONE HONEST LIMIT RECORDED IN THE ARTIFACT:** no MedxFactory or
+      LedgerxFactory avatar profile exists in this repository — the kernel's
+      overlay material is domain-NEUTRAL by design (`domain_factory_repo:
+      DomainxFactory`) and the archived `adopt-avatar-client-lab-candidates`
+      records the patient-intake demo pack as "its own change". The domain
+      framing is therefore drawn from the RECORDED Hermes layer names in
+      `examples/pre-run-simulations/{medx,ledgerx}.yaml` and the kernel's own
+      generic intake fixture family, with `domain_grounding_caveat` saying so,
+      so a landed domain profile refines these scripts rather than discovering
+      they pre-empted it.
+- [x] 6.2.2 Define the canary's ephemeral processing envelope: consent rides
       the existing `avatar.media_capture` and `avatar.provider_processing`
       purposes plus an optional stricter domain purpose reference; captions
       and deltas are `ephemeral_presentation`; decisions, consent versions and
       outcomes are `structured_record`; withdrawal maps to the existing
       revoked outcome and stays reachable mid-session.
-- [ ] 6.2.3 CONFIRM UNTOUCHED, by inspection rather than assertion: the four
+      **Done 2026-08-27** in
+      `contracts/avatar-client/canary-ephemeral-processing-envelope.yaml`,
+      beside the canary policy and on its conventions, machine-checked by
+      `check_ephemeral_processing_envelope`. Fork 4 Option C's sentence has
+      lived as prose in a memo and as three ruled fields on checklist condition
+      2; this is the envelope itself — which consent the canary rides, which
+      data class each ARTIFACT of a live leg falls into, how long the one
+      retained class lives, and how a person gets out mid-session.
+      **THE TWO TRUE SENTENCES ABOUT THE PURPOSES ARE RECONCILED, NOT CHOSEN
+      BETWEEN.** This task names TWO purposes; the promoted requirement names
+      THREE. Both are right about different things and the envelope records
+      which: the MEDIA LEG rides `avatar.media_capture` and
+      `avatar.provider_processing`, and a produced `structured_record` rides
+      `avatar.structured_record`. All three are pre-existing frozen members,
+      `new_purposes_introduced: 0`, and the count is RECOMPUTED from the
+      registry rather than mirrored — growing the registry makes the envelope's
+      number wrong.
+      **THE OPTIONAL STRICTER REFERENCE IS OPTIONAL TO DECLARE AND NEVER
+      OPTIONAL TO SATISFY.** An unresolved one DENIES; it is never downgraded
+      to the neutral pair, because a request that asked for a stricter term and
+      could not get it has not obtained the consent it asked for. A reference
+      is not a registry member, which is exactly why the ruling admits one
+      rather than a fourth purpose — the frozen count is untouched by it.
+      **RETENTION IS CITED, NOT RESTATED.** The 90-day window and the named
+      reference `avatar.internal_live.canary.structured_record.retention.v1`
+      are READ from the checklist's §7.9 `ruled_values.retention` and compared,
+      so the two artifacts cannot drift; `ephemeral_presentation` carries no
+      window because it carries no retention.
+      **WITHDRAWAL'S MID-SESSION REACHABILITY IS PROVED, NOT ASSERTED.** It
+      maps onto the EXISTING `revoked` outcome (`new_outcome_tokens_introduced:
+      0`, resolved against the closed registry), and the reachability proof is
+      the landed fixture
+      `examples/avatar-first-ui/fixtures/deterministic/consent-withdraw-mid-speech.yaml`
+      (`det-consent-withdraw-mid-speech`, AFU-006-S03), which delivers the
+      authoritative `revocation` AFTER `transcript_segment` — i.e. while the
+      avatar is SPEAKING — and expects `media_state: revoked`,
+      `capture_active: false`, `governed_commands_enabled: false` with
+      `control_state: healthy`. The validator RESOLVES that fixture on disk and
+      compares its `fixture_id`, so the citation cannot become a filename
+      nobody wrote. `control_state: healthy` is load-bearing: a withdrawal is a
+      clean authored terminal, not a `blocked` safety trip, so a subject who
+      withdraws is not shown a failure they did not cause.
+- [x] 6.2.3 CONFIRM UNTOUCHED, by inspection rather than assertion: the four
       reserved retention classes stay forbidden, `local_persistence` stays
       const false, and the frozen consent-purpose count stays 3.
-- [ ] 6.2.4 Record the non-shadowing guarantee as an OPERATIONAL control with
+      **Done 2026-08-27** in
+      `openspec/changes/qualify-avatar-live-voice/review/reserved-surface-inspection-2026-08-27.md`
+      — a dated `Status: record` review-style record where this change keeps
+      evidence, with file-and-line citations at this branch's tree.
+      **"BY INSPECTION RATHER THAN ASSERTION" RULES OUT BOTH EASY
+      DISCHARGES** — writing "confirmed" in a tick, and adding a test and
+      calling the test the confirmation. A test proves the state at the moment
+      it runs; what 6.2.3 asks is whether THIS CHANGE TOUCHED these surfaces,
+      which is a question about a diff and is answered by looking. So the
+      record walks each claim to its line: the four reserved classes at
+      `registries/retention-classes.registry.yaml:13-17`, the closed active
+      enum at `avc-07-retention-profile.schema.yaml:13-17`, the freeze at
+      `interface-lock.yaml:39`; `local_persistence: {const: false}` at
+      `avc-07-retention-profile.schema.yaml:21` — `const`, not `default`, and
+      this change authors no AVC-07 instance at all; the three frozen purposes
+      at `registries/consent-purposes.registry.yaml:9-12` and
+      `shared-definitions.schema.yaml:37-43`, pinned twice independently at
+      `interface-lock.yaml:21` and `validate-avatar-client.py:133`. Every one
+      of those files is UNMODIFIED by this branch.
+      **ONE OBSERVATION RECORDED RATHER THAN SMOOTHED OVER.** §7.9's
+      `classes_never_instantiated` names THREE, not four — `video` is absent —
+      and the validator's own comment says so. That is not a defect: the §7.9
+      list is the ring's canary-audio DATA CLASSES and `video` is absent
+      because the ring has no video capability, while the RESERVATION of
+      `video` is intact at the registry and the enum, which is the level this
+      task asks about. The two lists are deliberately not merged and neither is
+      edited; the envelope names all four because the promoted requirement
+      does, and its check compares that block against the REGISTRY's reserved
+      set.
+      **BELT-AND-BRACES WENT WHERE A CHECK DID NOT ALREADY EXIST.** The count
+      freeze (`EXACT_COUNTS`) and the registry/schema parity already run, so
+      nothing was added there. What did not exist is a guard on the two NEW
+      artifacts re-stating these facts wrongly, and that is what
+      `check_ephemeral_processing_envelope` adds: the purpose count recomputed
+      from the registry, the never-instantiated list compared to the registry's
+      reserved set, a permitted-reserved class refused.
+- [x] 6.2.4 Record the non-shadowing guarantee as an OPERATIONAL control with
       the enforcing contract flag named as pilot-hardening work — no schema
       field forbids a second-model shadow today, and claiming otherwise would
       be false.
+      **Done 2026-08-27** as `OPC-01` in
+      `canary-ephemeral-processing-envelope.yaml` `operational_controls`.
+      Exactly ONE model processes live canary audio and consented audio is
+      never shadowed, mirrored, teed, forked or replayed to a second model —
+      recorded with `enforced_by_schema: false` in a FIELD, `enforcement:
+      operational`, and `enforcing_contract_flag: {status: deferred,
+      owner_change: avatar-pilot-hardening}`.
+      **THE FALSE CLAIM IS NAMED SO IT CANNOT BE MADE BY ACCIDENT.** AVC-09
+      carries ONE `requested_model` and ONE `provider_resolved_model`, which
+      describes the adapter's own resolution and does not — cannot, as written
+      — forbid a broker opening a second provider leg beside the first. A
+      reader inferring enforcement from the singular field would be inferring
+      something the schema does not say, so the control says it instead.
+      **AND THE CLAIM IS MUTATION-GUARDED**, because flipping
+      `enforced_by_schema` to `true` is the kind of edit that looks like an
+      improvement: `test_claiming_the_schema_forbids_a_shadow_is_caught` fails
+      on it, and two siblings fail on an unnamed or already-built enforcing
+      flag. `OPC-02` records the out-of-class retention control on the same
+      discipline, and is honest that it is only PARTIALLY structural — the
+      AVC-07 enum refuses a reserved class in a retention profile, but no
+      schema forbids a component retaining audio without authoring a profile
+      at all.
+      The corpus does NOT claim to prove this: no corpus scenario can prove a
+      negative about infrastructure it does not observe, and
+      `not_this_corpus.second_model_shadow` says so and leaves the guarantee
+      where it honestly sits.
 
 ### 6.3 Canary and rollback (F5 Option B)
 
