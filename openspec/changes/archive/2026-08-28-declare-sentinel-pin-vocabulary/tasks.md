@@ -341,6 +341,17 @@ is flagged there for review rather than folded in quietly.
       else, which is the unreadable-repository condition
       (`test_repo_revision_still_means_the_unreadable_repository`). If the
       loosening IS wanted, it is a behaviour change owed its own decision.
+      **THE FLAG WAS ANSWERED, 2026-08-28, AND THE DIVERGENCE STANDS.** It was
+      relayed to Brett by the orchestrating session BEFORE the merge, and the
+      merge-plus-archive sequence was pre-authorized with it in view rather than
+      around it. So this is not an unreviewed departure carried into the archive
+      on the realizing session's own judgement: it archives as a STANDING
+      DIVERGENCE-BY-MEASUREMENT, seen and left standing, and it is recorded in
+      `proposal.md`'s `target_release`, in § 4.6 and in the README's archived row
+      so no later reader has to reach this task to find it. Its family is
+      § 5.1's — the generators the rule binds and this packet does not repair —
+      with the distinction that this one needs no repair, having satisfied the
+      obligation by refusing all along.
 - [x] 2.8 REGRESSIONS under `tests/doc-health/`, covering at minimum: dirty tree
       yields a sentinel and not `HEAD`; clean tree yields the real pin unchanged;
       a declared sentinel reports as a legal non-pin and does not hold
@@ -451,13 +462,20 @@ is flagged there for review rather than folded in quietly.
 
 ## 4. Archive gate
 
-- [ ] 4.1 `OPENSPEC_TELEMETRY=0 openspec validate declare-sentinel-pin-vocabulary
+- [x] 4.1 `OPENSPEC_TELEMETRY=0 openspec validate declare-sentinel-pin-vocabulary
       --strict` and `--all --strict` green on the merged tree.
       **GREEN ON THE REALIZATION BRANCH 2026-08-27**: `Change
       'declare-sentinel-pin-vocabulary' is valid`, and `--all --strict` totals
       `76 passed, 0 failed (76 items)`. Left unticked because this arm asks for
       green ON THE MERGED TREE, which is not this session's to produce.
-- [ ] 4.2 `python3 -m pytest tests/doc-health -q` green under `set -o pipefail`,
+      **CLOSED ON THE MERGED TREE 2026-08-28.** In a fresh worktree off
+      `origin/main` at the merge commit `157e423d`, `--all --strict` reports
+      **78 passed, 0 failed (78 items)** BEFORE the archive act — the packet
+      still active and still valid, which is what this arm was waiting for —
+      and **77 passed, 0 failed (77 items)** AFTER it, the active set having
+      lost exactly this change and nothing else. The total moved by one in the
+      direction an archive moves it; no other item changed state.
+- [x] 4.2 `python3 -m pytest tests/doc-health -q` green under `set -o pipefail`,
       with the count read out of the run rather than off a summary, and compared
       against the 1209 measured at filing plus whatever main has grown.
       **MEASURED ON THE REALIZATION BRANCH 2026-08-27**: baseline at
@@ -488,11 +506,51 @@ is flagged there for review rather than folded in quietly.
       this realization touches is under `tests/trust-anchor/`, and CI — where
       the submodule IS initialized — passed the identical selection at the
       identical commit.
-- [ ] 4.3 The declared class reporting its sentinel sites as legal non-pins, the
+      **CLOSED ON THE MERGED TREE 2026-08-28, AND THE COUNT IS READ OUT OF THE
+      RUN.** In a fresh worktree off `origin/main` at the merge commit
+      `157e423d`, `set -o pipefail; python3 -m pytest tests/doc-health -q`
+      reports **1249 passed, 0 failed, 0 skipped** in 161.18s with
+      `DOCHEALTH_EXIT=0` — the exit code read rather than inferred, which is the
+      discipline this repository learned the hard way from a `pytest | tail`
+      that masked a red. **1249 = 1248 + 1**: the 1248 this task measured on the
+      realization branch, plus one test main grew after that measurement and
+      before the merge landed. None of the 33 new tests was displaced and none
+      of the 1215 pre-existing ones stopped being collected. THE FULL CI
+      SELECTION is answered by CI itself at § 4.6 rather than re-run locally,
+      for the reason the paragraph above states in its own words: this venue
+      cannot answer it, and the local 93 `tests/trust-anchor/` refusals are an
+      uninitialized-submodule artifact of an agent worktree rather than a
+      finding about this packet.
+- [x] 4.3 The declared class reporting its sentinel sites as legal non-pins, the
       vocabulary check green in both directions, and `fully_verified` unchanged.
       **MEASURED 2026-08-27**, recorded in full at § 3.5: seven legal non-pins,
       zero undeclared values, zero unused members, zero declaration defects, and
       `fully_verified` True before and after. Unticked pending the merged tree.
+      **CLOSED ON THE MERGED TREE 2026-08-28, AND THE ARCHIVE'S OWN HAZARD WAS
+      CHECKED RATHER THAN ASSUMED.** The probe run at the merge commit
+      `157e423d` reports **66 declared pin sites across 23 class members: 50
+      reachable, 0 orphaned, 1 lost (declared unrecoverable, 0 awaiting a
+      superseding record), 0 inconclusive; 0 uncovered site(s), 0 vanished
+      member(s), 0 future member(s) now carrying pins; 7 legal non-pin(s), 0
+      undeclared non-commit value(s), 3 recognized legacy absence(s), 0 unused
+      vocabulary member(s)` — `clean` true, exit 0 — and the SAME LINE, number
+      for number, after the packet moved to its archive path. **THE HAZARD THIS
+      ARM HAD TO RULE OUT IS THE ONE `supersede-lost-pin-baseline` MET**: that
+      packet's `KNOWN_LOSSES` row cited a record inside its own folder, so its
+      archive could have dangled the citation and only a live-plus-archive glob
+      pair saved it. THE SAME QUESTION WAS PUT TO THIS PACKET AND ANSWERED
+      FIRST, by reading `pin_sentinels.py` and `pin_class.py` for packet-path
+      references before the move rather than after: `pin_sentinels.py` names
+      `declare-sentinel-pin-vocabulary` ONLY in a prose docstring line, and
+      `pin_class.py` names it only in three comments — no glob, no path, no
+      resolution depends on it. The packet's own `.openspec.yaml` IS reached by
+      the sweep's roots and is a DECLARED NON-MEMBER under the glob pair
+      `openspec/changes/*/.openspec.yaml` + `openspec/changes/archive/*/.openspec.yaml`,
+      so the move crosses from one arm of that pair to the other and the
+      exclusion holds on both sides. Nothing else in the packet carries a
+      pin-shaped value: it has no `supporting-docs/` manifest and no
+      `evidence/` folder. The identical probe line is the proof, not the
+      prediction.
 - [x] 4.4 NO CONTRACT BUNDLE IS OWED, re-affirmed rather than re-assumed at the
       archive: no edited file is a member of any `contracts/releases/*.digests.yaml`
       inventory, and the act's own doc-health run reports `release-inventory-drift`
@@ -513,10 +571,142 @@ is flagged there for review rather than folded in quietly.
       `proposal.md` § Orchestrator decisions and § Open Questions. **This is the
       one arm of the gate a filing session can close**; the rest wait on
       realization.
-- [ ] 4.6 Merged plus green on main, with the merge read out of git — parents and
+- [x] 4.6 Merged plus green on main, with the merge read out of git — parents and
       `merge-base --is-ancestor` — rather than off the pull request page.
+      **DISCHARGED 2026-08-28, AND THIS ENTRY IS THE ARCHIVE ACT.**
+
+      **THE SEQUENCE ITSELF IS RULED.** Brett pre-authorized the merge-plus-
+      archive sequence on 2026-08-28, by a relay from the orchestrating session
+      that carried the § 2.7 divergence flag with it — so the sequence was
+      approved WITH that divergence standing rather than in ignorance of it. No
+      verbatim wording reached the archiving session, so none is quoted:
+      approver, date, mechanism and what the approval was given over are stated
+      instead, the shape this packet uses for every ruling it carries.
+
+      **CODE MERGED ON THE IMPLEMENTED TARGET, READ OUT OF GIT.** Pull request
+      #457 ("Realize declare-sentinel-pin-vocabulary: a non-commit pin value is
+      classified, not skipped") merged 2026-08-28T04:57:04Z as merge commit
+      `157e423dfb62b1405d87b49f9681d729526a7c42`. Re-verified HERE rather than
+      taken from the pull request page: `git merge-base --is-ancestor
+      157e423d origin/main` exits 0, and `git cat-file -p` shows a REAL
+      TWO-PARENT MERGE — `52999f011cc99224e564d058842171e64669d27b` (main) and
+      `9142b5e3085c271f15b8cb0e8221762eebb97e55` (the realization head) — rather
+      than a rewrite. That check earns its place in this packet more than in
+      most: a rewriting landing is how the `us3_baseline_commit` object this
+      capability now declares unrecoverable was lost.
+
+      **THE RUNNABLE SURFACE RAN GREEN ON THE FINAL HEAD**, read back from the
+      check-runs API at this act rather than from the merge notification: head
+      `9142b5e3085c271f15b8cb0e8221762eebb97e55`, `pytest-suite` **success**
+      04:40:50Z → 04:56:06Z (15m16s), `wallet-validation` **success** 04:40:48Z
+      → 04:41:13Z, `merge-master-approval` **success** 04:40:46Z → 04:41:04Z,
+      and `copilot-pull-request-reviewer` **success**. The suite line was read
+      out of the job log of run 98756219935 rather than summarized:
+      **selected 7524, passed 7503, skipped 21, failures 0, errors 0**, clearing
+      the workflow's own floors by 434 selected and 433 passed. That is the arm
+      § 4.2 could not answer locally, answered where the submodule is
+      initialized.
+
+      **THE ACT.** ARCHIVED to
+      `openspec/changes/archive/2026-08-28-declare-sentinel-pin-vocabulary/` by
+      `OPENSPEC_TELEMETRY=0 openspec archive declare-sentinel-pin-vocabulary
+      --yes` (openspec 1.2.0), which reported `doc-health: update`,
+      `ideation-cross-reference: update`, `Totals: + 4, ~ 0, - 0, → 0`. It also
+      reported `Task status: 29/39` and warned on ten incomplete tasks, which is
+      CORRECT: this task was the thirtieth, § 4.4 and § 4.5 were already closed
+      at realization, and § 5.1 through § 5.6 survive the archive as named
+      follow-ups. **THE MECHANISM WAS `openspec archive`, NOT `proposal-support
+      archive`, and the choice is deliberate** — that wrapper refuses any change
+      whose `tasks.md` still carries a `^- \[ \]` line, a blanket gate that
+      cannot tell a ruled-open follow-up from unfinished work. The two things it
+      adds were run anyway, on both sides of the move: `python3
+      scripts/proposal-support.py . verify declare-sentinel-pin-vocabulary` →
+      `proposal support verification ok` BEFORE, and the whole-corpus `verify`
+      (no argument) → ok both BEFORE and AFTER; packaging is a lawful no-op for
+      an ad-hoc origin with no `supporting-docs/` folder. The precedent is the
+      three sibling archives of 2026-08-27.
+
+      **THE KNOWN CLI HAZARD DID NOT FIRE, VERIFIED BY BLOB ID RATHER THAN
+      ASSUMED.** Under openspec 1.2.0 `.openspec.yaml` MOVED with the packet
+      rather than being deleted: it is present at the archive path, `git status`
+      shows the old path deleted and the archive folder added (a move, not a
+      loss), and `git hash-object` gives blob
+      `24ba794eba87a4348a08373fe435610bd581e29f` — IDENTICAL to the blob
+      `origin/main` carried for that path at the merge commit, so no restoration
+      was needed and no origin field moved. ORIGIN RETENTION therefore holds
+      through the archive as well as through the realization: `kind`, `id`,
+      `reason`, `approved_by` and `approved_on` are unchanged from ratification.
+      The rulings taken at this act went into `proposal.md`, this file and the
+      README — never into the origin block, because a ruling is not origin
+      provenance.
+
+      **PROMOTION VERIFIED PER CAPABILITY, BY DIGEST, which is the whole point
+      of the act.** Both deltas promoted whole, both diffs purely additive at
+      the tail, and for each one the delta's requirement body (everything below
+      `## ADDED Requirements`) and canon's appended block share a single digest
+      with `cmp` reporting no difference:
+
+      | capability | requirements | scenarios | lines | diff | sha256 of delta body = canon block |
+      | --- | --- | --- | --- | --- | --- |
+      | `ideation-cross-reference` | 16 → **18** (+2) | 48 → **57** (+9) | 458 → 610 | +152 / **−0** | `57fd47c62234482e0231a3609df924ed09da46ec2eacf454360c76da58f2b543` (151 lines / 11012 bytes both sides) |
+      | `doc-health` | 36 → **38** (+2) | 163 → **173** (+10) | 1859 → 2035 | +176 / **−0** | `8334a943694ccc17dd1042dc1eb4e8575cdadd540e6c0a7bb74c88a088f44634` (175 lines / 12632 bytes both sides) |
+
+      **CANON'S STARTING COUNTS WERE READ AT THIS ACT, NOT PREDICTED FROM
+      § 1.10.** That task measured 36 and 16 at filing and both still held at
+      the merge commit, but main moves and the reading is what the proof rests
+      on. The counts are the proposal's own — two and two requirements, nine and
+      ten scenarios, nineteen scenarios in total — and canon's totals moved by
+      exactly those numbers, so nothing was dropped in the promotion and nothing
+      arrived that the delta did not carry. ZERO DELETIONS in both files, proved
+      rather than eyeballed: `cmp -n 28159` and `cmp -n 126872` of each new file
+      against the file as it stood are clean on every pre-existing byte, so every
+      pre-existing requirement in both capabilities is byte-identical after the
+      act. Both archived `specs/<capability>/spec.md` deltas are themselves
+      byte-identical to the authored files (`cmp` clean), so the record of what
+      was promoted stays in the packet. **NOTHING WAS MODIFIED ANYWHERE** — the
+      count of `## MODIFIED Requirements` blocks in both deltas is zero, which is
+      what makes the archive order irrelevant that § 1.10 measured, and it is why
+      the sibling `add-nightly-dashboard-refresh` block on `doc-health` is
+      untouched by this promotion. THE ONE LINE EACH FILE GAINS BEYOND ITS DELTA
+      BODY IS MEASURED RATHER THAN ASSUMED: the delta body begins with a blank
+      line and the appended region ends with one, so the two regions are equal
+      byte counts (11013 and 12633) that differ only by that rotation; drop the
+      delta's leading blank and canon's trailing blank and the digests above are
+      identical.
+
+      **THE DIVERGENCE ARCHIVES STANDING, NOT SILENTLY.** § 2.7's
+      `repo_revision()` decision — no dirty-tree branch, because that mover
+      refuses rather than lying and the branch would loosen a live guard — was
+      relayed to Brett on 2026-08-28 before the merge was authorized, and the
+      sequence was approved with it in view. It is therefore recorded in
+      `target_release`, in the README's archived row and here as a STANDING
+      DIVERGENCE-BY-MEASUREMENT: a decision taken on evidence, seen, and left
+      standing, rather than an unnoticed gap or a deferred repair. If the
+      loosening IS ever wanted it is a behaviour change owed its own decision,
+      exactly as § 2.7 says.
+
+      **AND THE DOC-HEALTH FAMILIES WERE MEASURED ACROSS THE ACT.** `python3
+      scripts/doc-health.py --single-repo .` reports **5 critical, 7 error, 41
+      warning, 11 info** with `New regressions vs previous report: 0` BEFORE the
+      act, and the same four numbers AFTER it. No family gained a finding from
+      the move, `promotion-fidelity` included — which is the family that would
+      have spoken if a delta reached canon in anything other than the form it
+      was authored in.
 
 ## 5. Named follow-ups, out of scope and deliberately not written
+
+**ALL SIX SURVIVE THE ARCHIVE UNTICKED, AND EACH IS A DECISION RATHER THAN A
+LOOSE END** — restated at the archive act 2026-08-28 so a later reader meets a
+disposition and not a blank box. FIVE were named at filing; § 5.6 was raised at
+realization by a measurement the filing could not have made, and it archives on
+the same footing as the other five. An unticked box in this section is what made
+`openspec archive` the mechanism rather than `proposal-support archive`, which
+cannot tell a ruled-open follow-up from unfinished work; the count it warned on
+— ten incomplete tasks — is these six plus the four § 4 arms this act closed as
+it went. **NOT ONE OF THE SIX IS BLOCKED ON ANYTHING THIS PACKET LEFT BROKEN**:
+every one names a surface that works today and could work better, which is the
+distinction between a follow-up and a defect. § 5.5 and § 5.6 additionally carry
+post-realization measurements, kept where they were taken.
 
 - [ ] 5.1 **THE OTHER GENERATORS ARE BOUND BY THE RULE AND NOT REPAIRED BY THIS
       PACKET.** `_head_sha()` (`ideation_dashboard/nightly_lane.py:117`),
@@ -527,20 +717,50 @@ is flagged there for review rather than folded in quietly.
       and family lanes all draw from it — so a cleanliness check there changes six
       record families at once. That is a sweep with its own evidence; this packet
       states the rule it would be measured against and performs one instance.
+      **CARRIED UNTICKED BY DECISION AT THE ARCHIVE, AND IT NOW HAS AN
+      ENFORCEABLE RULE BEHIND IT WHERE IT HAD NONE.** The promoted
+      `ideation-cross-reference` generator requirement is canon as of this act,
+      so the three unrepaired seams are no longer merely observed — they are
+      measured against a standing obligation, and the sweep that repairs them
+      has a rule to cite rather than an argument to make. § 2.7's
+      `repo_revision()` decision belongs to this item's family and is recorded
+      there: that mover satisfies the obligation BY REFUSING, which is why it is
+      not on this list.
 - [ ] 5.2 **CROSS-REPOSITORY PINS STAY OUT**, exactly as
       `govern-derived-pin-reachability` § 5.2 left them. Whether a sentinel is even
       meaningful for a gitlink, a `pinned_contract_manifest` entry, a release
       digest or an image digest is a different question, answered against a
       different remote by a different authority.
+      **CARRIED UNTICKED BY DECISION AT THE ARCHIVE, ON THE SAME BOUNDARY BOTH
+      SIBLINGS DREW.** The probe at this act still reports every cross-repository
+      site as `[n/a]` with its declared reason, and no sentinel outcome is
+      emitted for any of them — the classification inherits the pin class's own
+      inventory, so the boundary held without being restated in code.
 - [ ] 5.3 **`"composed"` MAY NOT BELONG IN A PIN KEY AT ALL.** A composed view
       genuinely has no single source revision, which is a different fact from "I
       could not read one". Q3 recommends declaring it as a member; if that is
       wrong, the honest answer is a different KEY on the snapshot index, which is
       a schema change this packet does not make.
+      **CARRIED UNTICKED BY DECISION AT THE ARCHIVE, AND THE CAVEAT SURVIVED THE
+      RULING INTACT.** Q3 ruled `"composed"` a member and the realization
+      declared it — with the qualified `composed:<repo>@<ref>:<sha>,…` prefix its
+      emitter actually writes, since declaring only the bare spelling would have
+      left the lane's real output undeclared. That settles what the VERIFICATION
+      does with the value; it does not settle whether a composed projection
+      should be carrying a pin key at all, which is the question this item holds
+      open and which no ruling reached.
 - [ ] 5.4 **THE PREFLIGHT HALF OF THE ENFORCEMENT HOME STAYS UNWIRED**, for the
       three reasons `govern-derived-pin-reachability` § 5.6 measured, none of which
       this packet changes. The classification rides inside a verification that is
       already pytest-plus-entry-point rather than nightly-gated.
+      **CARRIED UNTICKED BY DECISION AT THE ARCHIVE.** One thing the realization
+      did change is worth recording under this item rather than leaving to be
+      found: `ideation_readiness.verify_pin_reachability` now fails on
+      `not report.clean` rather than on four hard-coded defect collections, so
+      the new undeclared-value defect actually reddens the probe instead of being
+      reported and ignored. That widens what the EXISTING enforcement surface
+      answers for; it does not add a second one, which is what this item holds
+      open.
 - [ ] 5.5 **THE `_field_re` / `_VOCAB_RE` TRAILING-BOUNDARY GAP, FOUND WHILE
       MEASURING AND NOT FIXED HERE.** Both regexes have a leading key boundary and
       no trailing hex boundary, so a 64-hex sha256 under a vocabulary key yields a
@@ -559,6 +779,12 @@ is flagged there for review rather than folded in quietly.
       classification as an undeclared non-commit value AT THE SAME TIME as the
       pin path made its bogus pin. Inert today — no vocabulary key holds a
       sha256 in a swept root, re-measured at 45ba637a — and it is not a fix.
+      **CARRIED UNTICKED BY DECISION AT THE ARCHIVE, AND RE-MEASURED ONCE MORE
+      AT THE MERGE COMMIT `157e423d`**: the probe reports 0 undeclared non-commit
+      values and 0 uncovered sites, so the interaction described above is still
+      unreached by committed state. Folding a silent mis-parse fix into a
+      vocabulary packet would have hidden it; folding it into the archive of one
+      would hide it twice.
 - [ ] 5.6 **RECORDED AT REALIZATION 2026-08-27, NOT AT FILING: THE THREE
       `"unknown"` CALL SITES SHOULD BE SPLIT ONTO THE CONDITIONS THEY MEAN.**
       Deciding the point § 2.2 carried required measuring them, and the
@@ -575,3 +801,17 @@ is flagged there for review rather than folded in quietly.
       exactly as it binds the other unrepaired generators. NOT DONE HERE, and
       the declaration says so in its own note rather than implying the spelling
       is precise.
+      **CARRIED UNTICKED BY DECISION AT THE ARCHIVE, AND IT IS THE ONE ITEM THIS
+      SECTION GAINED RATHER THAN INHERITED.** § 5.1 through § 5.5 were named at
+      filing; this one exists because deciding the point § 2.2 carried required
+      opening all three emitters, and the measurement found one spelling doing
+      three jobs. THE CARRIED DECISION IT PRODUCED IS THE PACKET'S, NOT A
+      RULING'S: `"unknown"` is its OWN condition (`unestablished-revision`, the
+      weakest member) rather than a second spelling of `"uncommitted"`'s, taken
+      by measurement under the delta's own same-condition rule — which folds two
+      spellings only where measurement shows ONE condition, and here shows three.
+      The decision is pinned by
+      `test_unknown_is_not_folded_into_the_unreadable_repository_condition`,
+      which re-reads both emitter sites, so a later split cannot silently
+      contradict it. The split itself is a change to two lanes' output in three
+      places, each owing its own evidence.
