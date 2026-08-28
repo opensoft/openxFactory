@@ -95,6 +95,13 @@ class AvatarRuntime:
         # In-memory registries (no persistence).
         self.sessions = self.registry  # backward-compat alias
         self.attempts_by_request: dict = {}
+        # Which media legs belong to which logical session, in creation order.
+        # The grant cache is keyed by request id across the WHOLE runtime, so
+        # this is what lets a per-session record be scoped to its own legs
+        # instead of carrying every session's terminals. It is media-plane
+        # bookkeeping and deliberately NOT a field of `LogicalSession`, whose
+        # fields are the authority-owned projection.
+        self._session_legs: dict[str, list[str]] = {}
         self._event_logs: dict[str, EventLog] = {}
         self._command_procs: dict[str, CommandProcessor] = {}
         self._destroyed = False
@@ -111,6 +118,16 @@ class AvatarRuntime:
     def _pending(self, session_id: str):
         session = self.registry.get(session_id)
         return session.pending_attempt if session else None
+
+    def record_leg(self, session_id: str, request_id: str) -> None:
+        """Register a fresh media leg against its logical session."""
+        legs = self._session_legs.setdefault(session_id, [])
+        if request_id not in legs:
+            legs.append(request_id)
+
+    def session_legs(self, session_id: str) -> tuple[str, ...]:
+        """Every media leg this logical session has had, in creation order."""
+        return tuple(self._session_legs.get(session_id, ()))
 
     # ------------------------------------------------------------------ #
     # THE media-plane termination act — one act, four callers
@@ -509,10 +526,15 @@ class AvatarRuntime:
         session = self.registry.get(session_id)
         if session is None:
             return None
+        # SCOPED to this session's own legs. The grant cache is keyed by
+        # request id across the whole runtime, so an unscoped read would give
+        # this record every other session's terminals too — a record naming one
+        # session while carrying another's evidence, and a digest that moved
+        # whenever an unrelated leg terminated.
         return projection.policy_required_records(
             session,
             self._event_logs.get(session_id),
-            self.grants.terminal_items(),
+            self.grants.terminal_items(self.session_legs(session_id)),
             tuple(r for r in self.spend.records if r.session_id == session_id),
         )
 
@@ -555,6 +577,7 @@ class AvatarRuntime:
         self.registry.clear()
         self.grants.clear()
         self.attempts_by_request.clear()
+        self._session_legs.clear()
         self._event_logs.clear()
         self._command_procs.clear()
         self.spend.clear()

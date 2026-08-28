@@ -71,18 +71,59 @@ class FailClosed(RuntimeError):
     """A value the alert cannot honestly be sent without."""
 
 
+def _load_policy(policy_path: Path) -> dict:
+    """Parse the recorded policy, NAMING the file when it does not parse.
+
+    The same boundary `validate-avatar-client.py`'s `MalformedYAML` draws: a
+    parser error is caught at the read and re-raised as this script's own
+    fail-closed error carrying the file's identity, so an unreadable policy
+    exits with the harness code and a sentence a human can act on rather than
+    a `yaml.scanner.ScannerError` traceback. A policy that cannot be parsed is
+    a policy whose named recipient cannot be read, which is exactly the
+    condition §7.4 refuses to send an alert under.
+    """
+    try:
+        text = policy_path.read_text(encoding="utf-8")
+    except OSError as exc:
+        raise FailClosed(f"cannot read recorded policy {policy_path}: {exc}") from exc
+    try:
+        doc = yaml.safe_load(text)
+    except yaml.YAMLError as exc:
+        raise FailClosed(
+            f"recorded policy {policy_path} does not parse as YAML: {exc}"
+        ) from exc
+    if doc is None:
+        raise FailClosed(f"recorded policy {policy_path} is empty")
+    if not isinstance(doc, dict):
+        raise FailClosed(
+            f"recorded policy {policy_path} must be a mapping, "
+            f"got {type(doc).__name__}"
+        )
+    return doc
+
+
 def operator_surface(policy_path: Path = POLICY) -> tuple[str, str]:
     """Read the page target and its runbook from the recorded policy.
 
-    Fails closed on an absent file, an unnamed surface, or a missing
-    mechanism reference. §7.4's condition was that the person who learns about
-    the spend is the person who can stop it, so an alert that cannot name
-    either is refused rather than sent unaddressed.
+    Fails closed on an absent file, an unparseable one, an unnamed surface, or
+    a missing mechanism reference. §7.4's condition was that the person who
+    learns about the spend is the person who can stop it, so an alert that
+    cannot name either is refused rather than sent unaddressed.
     """
     if not policy_path.is_file():
         raise FailClosed(f"recorded policy not found at {policy_path}")
-    doc = yaml.safe_load(policy_path.read_text(encoding="utf-8")) or {}
-    surface = ((doc.get("rollback_policy") or {}).get("operator_surface") or {})
+    doc = _load_policy(policy_path)
+    rollback_policy = doc.get("rollback_policy")
+    if not isinstance(rollback_policy, dict):
+        raise FailClosed(
+            f"recorded policy {policy_path} carries no `rollback_policy` mapping"
+        )
+    surface = rollback_policy.get("operator_surface")
+    if not isinstance(surface, dict):
+        raise FailClosed(
+            f"recorded policy {policy_path} carries no "
+            f"`rollback_policy.operator_surface` mapping"
+        )
     if surface.get("status") != "named":
         raise FailClosed(
             "rollback_policy.operator_surface.status is not 'named'; "

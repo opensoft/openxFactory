@@ -181,4 +181,7 @@ def preflight(rt, request: Request) -> PreflightResult:
     rt.spend.open_ledger(
         session.session_id, request.tenant_ref, request.request_id, now
     )
+    # ... and register the leg against its session, so a per-session record can
+    # be scoped to its own legs rather than to the whole runtime's grant cache.
+    rt.record_leg(session.session_id, request.request_id)
     return PreflightResult.of_grant(grant)

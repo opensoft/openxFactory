@@ -25,7 +25,7 @@ from xfactory.avatar_runtime.values import (
     SessionState,
 )
 
-from _support import PROFILE, authorize, make_request
+from _support import PROFILE, SUBJECT, authorize, make_request
 
 
 def _live_session(runtime, session_id="s", request_id="r1"):
@@ -130,6 +130,97 @@ def test_the_abort_does_not_touch_the_event_log(runtime):
     assert runtime.event_log("s").last_sequence == sequence_before
     assert runtime.event_log("s").records() == records_before
     assert attempt.is_terminal
+
+
+def test_each_session_carries_only_its_own_policy_required_records(runtime, consent):
+    """Two concurrent sessions; abort ONE. Each record stays self-consistent.
+
+    The grant cache is keyed by request id across the whole runtime, so a
+    per-session record built from an unscoped read of it would carry every
+    session's terminals. That defect is invisible to a single-session test —
+    worse, it would make the digest-stability assertion above pass FOR THE
+    WRONG REASON, because both sessions' terminals would always be present in
+    both records. This is the test that separates the two readings: session B
+    is aborted by nothing, so its record's digest must not move when session A
+    terminates.
+    """
+    attempt_a = _live_session(runtime, "sa", "ra")
+    attempt_b = _live_session(runtime, "sb", "rb")
+
+    records_a = runtime.policy_required_records("sa")
+    records_b = runtime.policy_required_records("sb")
+    digest_b_before = records_b.digest()
+
+    # Each session knows its own legs, and the two sets are disjoint.
+    assert runtime.session_legs("sa") == ("ra",)
+    assert runtime.session_legs("sb") == ("rb",)
+    assert records_a.session_id == "sa" and records_b.session_id == "sb"
+    assert set(records_a.credential_free_terminals).isdisjoint(
+        records_b.credential_free_terminals
+    )
+
+    # Abort session A ONLY, through the landed consent-withdraw terminal path
+    # ROLLBACK-A reuses. Session B is not touched.
+    consent.invalidate(SUBJECT)
+    runtime.revoke_consent("sa")
+    assert attempt_a.status is AttemptStatus.REVOKED
+    assert not attempt_b.is_terminal and attempt_b.lease.active
+
+    records_a_after = runtime.policy_required_records("sa")
+    records_b_after = runtime.policy_required_records("sb")
+
+    # A's record gained A's terminal, and names only A's legs.
+    gained = set(records_a_after.credential_free_terminals) - set(
+        records_a.credential_free_terminals
+    )
+    assert gained == {("ra", "consent_revoked")}
+    assert {rid for rid, _ in records_a_after.credential_free_terminals} <= {"ra"}
+    assert {r[0] for r in records_a_after.spend_records} <= {"sa"}
+
+    # B's record did NOT move. This is the assertion the unscoped read failed:
+    # B would have gained A's terminal and its digest would have changed.
+    assert records_b_after == records_b
+    assert records_b_after.serialize() == records_b.serialize()
+    assert records_b_after.digest() == digest_b_before
+    assert "ra" not in {rid for rid, _ in records_b_after.credential_free_terminals}
+    assert {r[0] for r in records_b_after.spend_records} <= {"sb"}
+
+
+def test_a_ring_wide_abort_still_leaves_each_record_scoped_to_its_session(runtime):
+    """Both legs revoked at once — each record still names only its own."""
+    _live_session(runtime, "sa", "ra")
+    _live_session(runtime, "sb", "rb")
+
+    runtime.apply_rollback(
+        rollback.decide(
+            rollback.RollbackClass.A, trigger="secret_scan_finding", profile=PROFILE
+        )
+    )
+    assert runtime.session_outcome("sa") == runtime.session_outcome("sb") == "revoked"
+
+    for session_id, own_leg, foreign_leg in (("sa", "ra", "rb"), ("sb", "rb", "ra")):
+        records = runtime.policy_required_records(session_id)
+        terminals = {rid for rid, _ in records.credential_free_terminals}
+        assert terminals == {own_leg}
+        assert foreign_leg not in terminals
+        assert {r[0] for r in records.spend_records} == {session_id}
+
+
+def test_an_unscoped_grant_cache_read_is_the_defect_this_scoping_prevents(runtime):
+    """The scoping is load-bearing: the whole-cache read really is different."""
+    _live_session(runtime, "sa", "ra")
+    _live_session(runtime, "sb", "rb")
+    runtime.apply_rollback(
+        rollback.decide(
+            rollback.RollbackClass.A, trigger="redaction_finding", profile=PROFILE
+        )
+    )
+    whole_cache = runtime.grants.terminal_items()
+    scoped = runtime.grants.terminal_items(runtime.session_legs("sa"))
+    assert len(whole_cache) > len(scoped)
+    assert set(scoped) < set(whole_cache)
+    # An empty leg set yields nothing rather than everything.
+    assert runtime.grants.terminal_items(()) == ()
 
 
 def test_a_second_session_projection_is_untouched_by_another_leg_abort(runtime):

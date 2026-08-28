@@ -216,7 +216,15 @@ class SessionSpendLedger:
 
         A negative or non-integer attribution is not a cheaper session, it is
         an uncountable one: the ledger fails closed rather than subtracting.
+
+        A CLOSED ledger refuses further attribution. Its record has already
+        been handed to the journal the metering job reads, so spend accrued
+        afterwards could never reach a tenant's counters — and silently
+        accepting it would leave the ledger and the record disagreeing about
+        the same session.
         """
+        if self.closed:
+            return
         if isinstance(units, bool) or not isinstance(units, int) or units < 0:
             self.countable = False
             return
@@ -224,6 +232,8 @@ class SessionSpendLedger:
 
     def mark_uncountable(self) -> None:
         """The provider usage block was absent or unreadable (`uncountable_is: exhausted`)."""
+        if self.closed:
+            return
         self.countable = False
 
     def elapsed(self, now: int) -> int:
@@ -232,6 +242,9 @@ class SessionSpendLedger:
     def verdict(self, now: int) -> Optional[SpendVerdict]:
         """The crossed ceiling, or None while the session is inside all three.
 
+        A CLOSED ledger yields no verdict: its leg already reached a terminal,
+        and a ceiling cannot be crossed by a session that has stopped running.
+
         PRECEDENCE, stated rather than left to evaluation order: uncountable
         first (a broker that cannot count must not then reason about what it
         counted), then the cost ceiling, then the duration ceiling. Cost
@@ -239,6 +252,8 @@ class SessionSpendLedger:
         cost is the reason that carries an escalation (§7.4), and recording
         the escalating reason is the more useful of two true facts.
         """
+        if self.closed:
+            return None
         elapsed = self.elapsed(now)
         if not self.countable:
             return self._verdict(KillReason.COST_UNCOUNTABLE, elapsed)
@@ -268,6 +283,13 @@ class SpendJournal:
     def __init__(self, ceilings: Optional[SessionCeilings] = None) -> None:
         self.ceilings = ceilings or SessionCeilings()
         self._open: dict[str, SessionSpendLedger] = {}
+        # The record each session's CURRENT leg closed with. This is the
+        # idempotency window, and it is per-LEG rather than per-session on
+        # purpose: `open_ledger` clears the session's entry, so a session that
+        # legitimately runs a second leg (the broker's resume path closes one
+        # ledger and opens another under the same session id) still appends a
+        # second record instead of being handed the first one back.
+        self._closed: dict[str, SessionSpendRecord] = {}
         self.records: list[SessionSpendRecord] = []
 
     # -- open side (synchronous, in the broker) ----------------------------- #
@@ -282,6 +304,10 @@ class SpendJournal:
             ceilings=self.ceilings,
         )
         self._open[session_id] = ledger
+        # A fresh leg opens a fresh idempotency window: the prior leg's record
+        # stays in `records` for the meter, but it no longer answers a close of
+        # THIS leg.
+        self._closed.pop(session_id, None)
         return ledger
 
     def ledger(self, session_id: str) -> Optional[SessionSpendLedger]:
@@ -316,14 +342,29 @@ class SpendJournal:
         reason: KillReason,
         now: int,
     ) -> Optional[SessionSpendRecord]:
-        """Close a session's ledger exactly once and append its spend record.
+        """Close a session's current leg and append its spend record. IDEMPOTENT.
 
-        Idempotent: closing an unknown or already-closed session is a no-op
-        returning None, so every terminal path in the runtime may call this
-        without first asking whether some other path got there first.
+        Every terminal path in the runtime may call this without first asking
+        whether another path got there first, so the outcomes are spelled out:
+
+        * FIRST close of an open leg — appends one record and returns it.
+        * SECOND close of the same leg — appends NOTHING and returns THE SAME
+          record. The journal is the metering job's only input, so a session
+          appended twice is a tenant billed twice; and returning None instead
+          would tell a caller its leg was never metered, which is false.
+        * A session that never opened a ledger — returns None. Nothing was
+          metered because nothing ran.
+
+        The `outcome` and `reason` of a second close are DISCARDED, not
+        merged: the first terminal a leg reached is the one that happened, and
+        letting a later caller relabel it would make the audit reason depend on
+        which cleanup path ran last.
         """
+        prior = self._closed.get(session_id)
+        if prior is not None:
+            return prior
         ledger = self._open.pop(session_id, None)
-        if ledger is None or ledger.closed:
+        if ledger is None:
             return None
         ledger.closed = True
         record = SessionSpendRecord(
@@ -340,6 +381,7 @@ class SpendJournal:
             closed_at=now,
         )
         self.records.append(record)
+        self._closed[session_id] = record
         return record
 
     def cost_triggered_kills(self) -> list[SessionSpendRecord]:
@@ -348,4 +390,5 @@ class SpendJournal:
 
     def clear(self) -> None:
         self._open.clear()
+        self._closed.clear()
         self.records.clear()
