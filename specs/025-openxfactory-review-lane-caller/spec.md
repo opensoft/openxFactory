@@ -247,8 +247,10 @@ otherwise assume landed.
   artifact, no approving review.
 - **NR-005**: **No tier-1 envelope evaluation, and no envelope instance.** The envelope requires a
   non-empty `candidates` list (schema `minItems: 1`, and the runtime mirror
-  refuses an empty one), and openxFactory has no ratified candidate class to
-  put in it. Shipping a placeholder candidate would be inventing enrollment.
+  refuses an empty one), and openxFactory has no council-defined OPERABLE
+  candidate class to put in it — the premise FR-008 states, and the only one this
+  feature rests on. Shipping a placeholder candidate would be inventing
+  enrollment.
 - **NR-006**: **`contracts/review-lane-pin.yaml` is not added to the openxFactory
   repository gate floor.** It arguably belongs there — it determines which core
   judges this repository — but that floor file lives in codexFactory. Named as a
@@ -337,12 +339,13 @@ question rather than left as silence.
   codexFactory envelope schema, where `candidates` is required with
   `minItems: 1`. There is no legal "empty enrollment", so the only honest option
   is no envelope at all. Encoded as FR-008 and NR-005.
-  **Answer UNCHANGED 2026-08-28; its second clause is now the load-bearing one.**
-  The record is no longer absent — it exists and **refused** the one class put to
-  it (see FR-008's note). So the answer is still *no*, but for a stronger reason
-  than "owed": the council found that a class over `openspec/changes/**` can
-  never convene, and **no operable class has been defined for this repository by
-  anyone.** Task 3.2 stays OPEN.
+  > **The clause above is what was true on 2026-08-27 and is kept as the
+  > decision-log entry it is. It is NOT current fact.** As of 2026-08-28 a
+  > `gate_rules_council` record exists and **refused** the one class put to it
+  > (FR-008's history note has the detail). **The answer is unchanged and the
+  > settled premise is FR-008's: what is absent is a council-defined OPERABLE
+  > candidate class, never the record.** A class that can never convene is not an
+  > operable class, so the refusal defines none. Task 3.2 stays OPEN.
 - **Fixed head ref or a pattern?** Moot, since nothing is enrolled — but had it
   mattered: Brett ruled 2026-08-25 (recorded in `add-substantive-review-lane`
   task 4.4) that first-tranche classes are fixed-branch BY RULING on
