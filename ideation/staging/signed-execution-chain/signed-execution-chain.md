@@ -98,6 +98,17 @@ design in which a runner signs *authority* contradicts a ratified constraint. Th
 tier split is what that constraint looks like when you still want signed
 execution.
 
+**And the per-task key never enters the worker.** The same constraint reaches
+the attestation key too: `access_secrets: false` is written to hold in *every*
+configuration, and a short lifetime does not stop a private key being a secret.
+So tier 2's issuing controller is also its SIGNER — the runner submits the
+payload it wants attested and receives a signature over it, and no key bytes
+cross into the worker at any point. Links 5, 6 and 10 read that way: signed at
+the controller boundary, *about* the runner, never *by* a key the runner holds.
+"Ephemeral" describes the identity's lifetime, not a relaxation of custody, and
+a design that hands a worker a key for one task has already breached the
+constraint it claims to honour.
+
 The two tiers answer different questions, and conflating them is the failure to
 avoid: tier 1 answers **"who permitted this?"**, tier 2 answers **"what actually
 ran?"**. A chain needs both and must never let one stand in for the other.
@@ -145,8 +156,14 @@ record**:
   via OpenTimestamps-style aggregation; **Kaspa as an optional low-latency
   secondary anchor**, honouring the named candidate and adding an independent
   proof-of-work witness under different governance. Receipts in a
-  **chain-agnostic multi-anchor format** (digest → Merkle path → {chain, block
-  header, tx ref} list).
+  **chain-agnostic multi-anchor format** (digest → aggregation Merkle path →
+  per-chain {anchor transaction, its transaction-to-block or DAG inclusion
+  proof, block header} list). The transaction and its inclusion proof are part
+  of the receipt, not a lookup deferred to verification time: a block header
+  commits only to a transaction root, so a header plus a bare transaction
+  reference proves nothing once the transaction itself is unavailable — which
+  on Kaspa is a certainty within days, and on any chain is the ten-year
+  assumption.
 - **Consent and execution logic: NOT on the anchoring chain.** Consent,
   enrollment and access policy are authority questions and belong in the
   governed policy plane, and — where several external covered entities must
@@ -283,7 +300,8 @@ must carry or refute.
    blockchain *is* the record has confused the witness for the evidence — and
    would also be the design that cannot satisfy erasure.
 7. **Anchoring is multi-target and reversible by construction.** Receipts use a
-   chain-agnostic format (digest → Merkle path → {chain, block header, tx ref}),
+   chain-agnostic format (digest → aggregation Merkle path → per-chain {anchor
+   transaction, inclusion proof, block header}), captured whole at anchor time,
    so anchor targets are added or dropped without touching the evidence plane.
    This is the claim that makes a ten-year commitment survivable, and it is why
    Q3's answer is a starting configuration rather than a permanent one.
@@ -328,9 +346,11 @@ acceptable, so the question gates the tranche.
 
 ## Open questions
 
-None blocking; all six are for the eventual clarify round. Q3 and Q5 now carry
+None blocking; all seven are for the eventual clarify round. Q3 and Q5 now carry
 the vendored study's recommendation rather than open analysis; Q6 is the one
-that needs a ruling before tranche three can be drafted honestly.
+that needs a ruling before tranche three can be drafted honestly; Q7 came out of
+the review round on this topic's own pull request and asks for a mechanism, not
+a ruling.
 
 ### Q1 — What are the wallet-presentation mechanics?
 
@@ -446,6 +466,27 @@ Explanation: A topic must not quietly narrow a ruling, and this reading does
   reading genuinely serve the patient rather than merely comply.
 Disposition status: open — needs Brett's confirmation; this is the one
   question where the topic has interpreted a ruling rather than applied it
+
+### Q7 — Where does an attestation signature physically happen?
+
+Context: Tier 2 forbids the runner holding the per-task key, which forces
+  signing to the controller boundary but does not name a mechanism. A remote
+  signing call the controller serves, a co-process holding the key behind an
+  attested boundary, and a hardware-backed signer are all consistent with
+  `access_secrets: false`, and they differ in exactly what an attacker who owns
+  a runner for one task can obtain.
+Recommended answer: Remote signing served by the harness controller, with the
+  runner's signing REQUEST recorded alongside the signature it received, so the
+  chain shows both what was attested and who asked for the attestation.
+Explanation: Raised by the review round on this topic's PR, which read the
+  original tier-2 wording — a key "issued" to the runner — as key custody, and
+  was right to: shortening a credential's life does not make it non-secret, so
+  the wording contradicted the very constraint the tier split exists to honour.
+  The boundary is now stated in the tier model; the mechanism has to be named
+  before tranche two drafts contract text, because it decides what the
+  attestation actually proves about the runner.
+Disposition status: open — for the clarify round; the boundary is forced by
+  ratified text, the mechanism is a design choice
 
 ## Exit path
 
