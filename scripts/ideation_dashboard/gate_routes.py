@@ -2526,9 +2526,12 @@ def execute_open_pr(gate, git, *, session, pull_requests, records_dir: str,
         # and `open_or_update`'s create fallback), and that '' flowed straight into
         # the record's `reference`, which the schema requires NON-EMPTY: a 200 was
         # reported to the human while an FR-029 audit record naming NOTHING landed
-        # in the served corpus, where `validate-docs.sh` then fails on it (PR #49
-        # tail finding B5, reproduced). Refused HERE — before the marker and before
-        # the record — and honestly, because the push already happened.
+        # in the served corpus, where codexFactory's `scripts/validate-docs.sh`
+        # then failed on it (PR #49 tail finding B5, reproduced) — that script ran
+        # these tests when they lived in codexFactory, before the doc-health
+        # relocation (adopt-neutral-tooling-home, ratified 2026-08-03; archived
+        # 2026-08-05). Refused HERE — before the marker and before the record —
+        # and honestly, because the push already happened.
         raise branch_session.SessionRefused(
             f"the branch {session.branch!r} WAS pushed, but the pull-request port's "
             f"`open_or_update` returned NO url for it, so there is nothing for the "
