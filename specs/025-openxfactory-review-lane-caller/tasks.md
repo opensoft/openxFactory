@@ -137,11 +137,22 @@
       `XFACTORY_APP_ID` / `XFACTORY_APP_PRIVATE_KEY`, or by installing the
       repository's own content App on `opensoft/codexFactory`. Operator act;
       no secret is created by this feature.
-- [ ] 6.2 codexFactory side: add `contracts/review-lane-pin.yaml` to
+- [x] 6.2 codexFactory side: add `contracts/review-lane-pin.yaml` to
       `scripts/merge_master/openxfactory-review-authority-floor.yaml`'s
       `never_clearable_paths`. It determines which core judges this repository,
       which is the same argument the wallet pin's entry already makes
       (NR-006).
+      **DONE 2026-08-28** — codexFactory PR **#125** *"Add the openxFactory
+      review-lane pin to the never-clearable floor"*, merged `99fa3ffe` and
+      reachable from `origin/main`. Verified rather than taken on report:
+      `contracts/review-lane-pin.yaml` is present in that file's
+      `never_clearable_paths` at `origin/main`, declared as a fourth entry
+      grounded separately from the wallet-register trio — *"the review-lane pin
+      selects which codexFactory commit's decision core judges this repository.
+      Clearable, it would let a pull request choose its own judge."* The merge
+      carries per-path behavioural tests in
+      `tests/merge-master/test_repository_gate_floor.py` (+45), so the entry is
+      pinned by executing code rather than by declaration alone.
 - [ ] 6.3 `add-substantive-review-lane` task 3.2 — the `gate_rules_council`
       record defining openxFactory's candidate classes — remains the gate on
       any envelope instance here (FR-008).
