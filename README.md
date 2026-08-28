@@ -425,6 +425,77 @@ Active changes:
   root citing this change, because `record-immutability` is CONTESTED and
   `health/dispositions.yaml` does not exist in this repository. No contract
   bundle owed, measured.
+- [fix-pin-value-boundary-and-sentinel-split](openspec/changes/fix-pin-value-boundary-and-sentinel-split/proposal.md)
+  — **ALL FIVE ORCHESTRATOR DECISIONS CLEARED AND ALL FOUR QUESTIONS RULED
+  2026-08-28**, by a four-question multi-choice put to Brett over PR #463; he
+  took the packet's recommendation on every one, the two-packet split and its
+  re-sequencing were accepted, merge on green was approved, and **the clearance
+  moved no delta text** (the spec file is byte-unchanged). Realization is
+  pre-commissioned to dispatch FIRST of the pair. Authored 2026-08-28 on
+  Brett's in-session selection ("lets do all 3 in order") of a three-defect set
+  the orchestrating session had recommended as "the measured-latents bundle".
+  **Two of the three**; the third is
+  `fix-content-resolution-conflation`, filed separately because its surface is a
+  contract bundle member and these are not (OD-1, argued in `design.md` § 1 with
+  the one-packet alternative rejected on measured grounds). Both defects were
+  recorded as named follow-ups by the archived `declare-sentinel-pin-vocabulary`
+  and both re-measured larger on the day of filing. **(1) FOUR expressions in
+  `scripts/doc_health/pin_class.py` build a pin site from `([0-9a-f]{40})` with
+  a leading key boundary and no trailing hexadecimal one** — `_field_re`
+  (`:204`), `_VOCAB_RE` (`:980`), and the two PROSE class members' own patterns
+  at `:347` and `:406`, which the inherited record (§ 5.5) did not name. A
+  sixty-four-character value under a swept key therefore yields a FABRICATED
+  forty-character "pin": constructed and run here, all four return the same
+  truncated prefix, `FULL_SHA_RE` then accepts it as a whole object name, and
+  `LOOSE_SHA_RE` ten lines above — which carries the guard and a comment saying
+  why — returns nothing on the same line. Latent, measured: **1116 swept files,
+  0 over-long hex values under any vocabulary key**. **(2) `"unknown"` is
+  emitted by FIVE sites spanning THREE conditions**, one more site than § 5.6
+  names: `cli.py:49` fires on two conditions by itself because its
+  `subprocess.run` has no `check` and its return code is never read, so no split
+  is correct without a branch that does not exist yet; and
+  `snapshot_registry.py:283` measures as ALREADY CORRECT, which corrects the
+  inherited record rather than agreeing with it. ADDS one requirement to
+  `doc-health` (38 → 39, all ADDED); the sentinel split ships as realization
+  under canon promoted 2026-08-28 that already obliges it, with no requirement
+  of its own (OD-3, against the `supersede-lost-pin-baseline` OD-3 measurement
+  re-taken here: **112 of 112 archived changes carry a spec delta**, and this
+  packet carries one). **NO contract bundle is owed**, established by parse:
+  `contract-v2.0`'s 192 entries walked, zero members under
+  `scripts/doc_health/`, `scripts/ideation_dashboard/` or `experiments/`.
+- [fix-content-resolution-conflation](openspec/changes/fix-content-resolution-conflation/proposal.md)
+  — **ALL SIX ORCHESTRATOR DECISIONS CLEARED AND ALL FOUR QUESTIONS RULED
+  2026-08-28** by the same act, every one on the packet's own recommendation,
+  with **no delta text moved**; realization is pre-commissioned to dispatch
+  SECOND, its candidate inventory built in the realization pull request and
+  `verify-promotion` plus the tag left post-merge on the `contract-v1.44`
+  precedent, the next minor allocated at merge order from the current
+  `contract-v2.0`. Authored 2026-08-28 on the same act, the **third defect** of
+  that set, filed separately because of what follows. `_blob_object_id`
+  (`scripts/hermes_runtime_validation/release.py:312-316`) converts every
+  `ContentResolutionError` into `None`; `resolve_git_object` reaches **15 raise
+  sites, 14 distinct messages, and exactly ONE** — `content.py:125`, the tree
+  was read and the path was not in it — for which `None` is the right answer.
+  Run here: six conditions, one value. Its only caller `_surface_drift`
+  compares two of those answers, so one failure manufactures a false
+  `HGR-RELEASE-SURFACE-DRIFT` and **two failures compare EQUAL and report the
+  surface clean, having read neither blob** — the quiet direction, which emits
+  nothing. Recorded as § 6.3 of the archived `fix-release-reachability-race`,
+  whose wording this filing quotes rather than paraphrases; the caller
+  consequence and the identical `_CommitSource.exists` conflation at `:401-405`
+  (whose `False` decides whether `contracts/manifest.yaml` is present at the
+  commit) are measured here and not inherited. ADDS two requirements to
+  `shared-contract-ownership` (10 → 12, all ADDED): the distinction, and
+  executable proofs pinning it — the second copying the sibling family, which
+  exists because that defect was invisible to the suite, as this one is today.
+  **A CONTRACT BUNDLE IS OWED and the packet says so up front**, established by
+  parse rather than `grep`: `release.py` is a NON-EDITORIAL member of
+  `contract-v2.0`'s inventory (`type: validator`, `digest: sha256:660e55ca…`,
+  which is exactly what the tree carries), `content.py` likewise, and the
+  editorial set is three files with neither in it. The minor is allocated AT
+  REALIZATION and none is reserved, on the `contract-v1.28` renumber precedent;
+  the cut follows `contract-v1.44`, which cut this same file for this same cause
+  two days before this filing.
 - [adopt-medxsoft-repository-identity](openspec/changes/adopt-medxsoft-repository-identity/proposal.md)
   — authored 2026-08-27 for the 2026-08-26 transfer of `opensoft/MedxFactory`
   and `opensoft/MedxEHR` to the `MedxSoft` organization, whose operational half
@@ -530,57 +601,6 @@ Active changes:
   live window's operator that the template's path moved (task 5.7), which is not
   a file edit and which the runsheet's own P0.5 does not substitute for.
 
-- [add-unclassified-finding-class](openspec/changes/add-unclassified-finding-class/proposal.md)
-  — **RATIFIED 2026-08-27** (in-session commissioning, verbatim "Amend now";
-  realization via Speckit), **AMENDED 2026-08-28 by Brett** (in-session, verbatim
-  "Amend: shape = arm template, all interpolations masked" — D3's shape-identity
-  rule widened from quoted-spans-plus-digits to every interpolated field, after
-  Speckit 026 measured six `warning` rows for one remedy on the real tree;
-  `specs/026-unplaced-finding-drift/plan.md` § OPEN-1) — the
-  modified-block-currency family's report block
-  already detects that its own class map has drifted from its arms, and then
-  says so in PROSE: the `unclassified` residual row carries no severity, is not
-  a finding, and is therefore reached by neither `--fail-on` nor the ranked plan
-  that "Health report contract" requires every finding to appear in. One ADDED
-  requirement on `doc-health` makes an unplaced rule text emit one `warning`
-  **per distinct rule SHAPE per run** — a shape being the ARM'S TEMPLATE with
-  every field it interpolates masked (quoted spans, digit runs, the promoted
-  spec's path, change identifiers, unit-kind lists), the mask derived from the
-  arm templates themselves so it cannot drift from them — naming that shape's
-  count and the first instance's
-  rule text verbatim, carrying its repo and delta path, with the action line
-  "extend the class map in `scripts/doc_health/modified_block_currency.py`, or
-  fix the drifted rule text the finding names". Per shape rather than per run
-  because two drifted shapes are two map entries to write, and per shape rather
-  than per repository because the map is one module constant with one remedy.
-  The finding is itself placed by the map into a FIFTH `FindingClass` (id
-  `unplaced`, label `unplaced-finding drift` — neither may contain the substring
-  `unclassified`, which a standing pin asserts absent from a clean summary) under
-  a FOURTH severity constant `_DRIFT_SEVERITY`, so § 7.2's flip of
-  `_LAUNCH_SEVERITY` cannot drag it; and its pattern is ANCHORED at the start of
-  the rule text, because the finding quotes a rule text that may itself begin in
-  the shape of an arm. The residual row stays; it is what makes the tally sum.
-  **NO `## MODIFIED Requirements` block**, and that is a measurement rather than
-  a preference: canon enumerates the three comparison ARMS and never the classes,
-  the class map, or the residual, so restating 14 scenarios of "Currency of an
-  active change's MODIFIED requirement blocks" would risk the defect the family
-  exists to catch in order to say something canon does not say. The requirement
-  BODY is deliberately lean — 36 lines, down from 70 — because every body line is
-  carriage-ledger surface a future MODIFIED block must restate. Adds NO check
-  family; the enumeration and its numerals are untouched. Band `warning` and the
-  family stays absent from `FAMILY_RESOLUTION`, so the finding retiring when
-  somebody extends the map cannot become an uncited-resolution `error`; § 7.2's
-  flip is untouched and still owed. Predicted movement **zero in every band** —
-  the tree reads `unclassified: 0` today. Realization moves seven standing pins
-  by name, adds a behavioural fixture tree
-  (`modified-block-currency-unplaced` — measured: no corpus title can produce an
-  unplaced rule text, 20,065 fuzzed rule texts, 0 unplaceable), and AMENDS the
-  byte-level report contract
-  `specs/022-modified-block-currency-reporting/contracts/report-section.md`,
-  which enumerates the four classes four times over. Three orchestrator decisions
-  are flagged for veto (ADDED-only; a fifth class rather than a severity on the
-  report block; one finding per distinct shape). `target_release: implemented`,
-  so it archives only on merged plus green.
 - [qualify-avatar-live-voice](openspec/changes/qualify-avatar-live-voice/proposal.md)
   — **RATIFIED 2026-08-27** (in-session, "ratify avatar"; §2/§3 build lands in
   the same round) — authored 2026-08-26 as the staged topic's Exit, executed on Brett Heap's
@@ -1245,6 +1265,98 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [add-unclassified-finding-class](openspec/changes/archive/2026-08-28-add-unclassified-finding-class/proposal.md)
+  — **ARCHIVED 2026-08-28** on the merge-plus-green rule the packet declared, and
+  on TWO merges rather than one, this packet having been amended mid-flight.
+  Realization pull request #466 merged as squash `db2442ce` (Speckit
+  `026-unplaced-finding-drift`), preceded by the DELTA AMENDMENT pull request
+  #461, squash `6d100e51` — both re-verified at this act as ancestors of
+  `origin/main` (`git merge-base --is-ancestor`, exit 0 on each) rather than read
+  off a pull-request page. The amendment had to land FIRST, the realization's
+  spec citing the amended text. **RATIFIED 2026-08-27** (in-session
+  commissioning, verbatim "Amend now"), **AMENDED 2026-08-28 by Brett**
+  (in-session, verbatim "Amend: shape = arm template, all interpolations masked"
+  — D3's shape-identity rule widened from quoted-spans-plus-digits to every
+  interpolated field, after Speckit 026 measured SIX `warning` rows for ONE
+  remedy on the real tree; `specs/026-unplaced-finding-drift/plan.md` § OPEN-1).
+  **THE GATE NUMBERS**, base `db2442ce`, before → after the act:
+  `pytest tests/doc-health` **1270 → 1270 passed, 0 failed**, no test falling due
+  and none re-aimed; `openspec validate --all --strict` **76 → 75 passed, 0
+  failed** (24 active + 52 specs → 23 + 52, **−1** exactly as promotion of one
+  change predicts); `doc-health --single-repo .` **byte-identical at 5 critical,
+  11 error, 41 warning, 11 info, 0 new regressions**, moving **+0 `warning` / +7
+  `info`** against `--skip-family modified-block-currency` in both readings,
+  equal to the family's own counts. Promotion is a **PURE APPEND**: canon 38 → 39
+  requirements and 173 → 179 scenarios, `git diff --stat` **73 insertions(+), 0
+  deletions(-)**, the remainder byte-identical at **139505 == 139505** raw and
+  canon before a strict byte PREFIX of canon after — the strongest reading a
+  promotion admits, and one a `MODIFIED` block could never offer. The whole
+  report diff across the act is THREE lines and none is a finding — canon words
+  218169 → 219088 (+919), the SAME +919 in governance words as those words move
+  from active-change prose into promoted prose, canon share 31.6% → 31.7%, and
+  the promoted-specs row — an ADDED-only packet having drawn no self-finding to
+  depart, which is where this act differs from its sibling
+  `add-modified-block-currency-check`, whose archive re-aimed five tests and
+  retired one. **THE FIFTH CLASS READ ZERO ON THE DAY IT SHIPPED, AND THAT IS THE
+  WHOLE OF ITS EVIDENCE**: the family's block renders `unplaced-finding drift: 0`
+  and the residual row does not render at all. Substantively —
+  the modified-block-currency family's report block
+  already detects that its own class map has drifted from its arms, and then
+  says so in PROSE: the `unclassified` residual row carries no severity, is not
+  a finding, and is therefore reached by neither `--fail-on` nor the ranked plan
+  that "Health report contract" requires every finding to appear in. One ADDED
+  requirement on `doc-health` makes an unplaced rule text emit one `warning`
+  **per distinct rule SHAPE per run** — a shape being the ARM'S TEMPLATE with
+  every field it interpolates masked (quoted spans, digit runs, the promoted
+  spec's path, change identifiers, unit-kind lists), the mask derived from the
+  arm templates themselves so it cannot drift from them — naming that shape's
+  count and the first instance's
+  rule text verbatim, carrying its repo and delta path, with the action line
+  "extend the class map in `scripts/doc_health/modified_block_currency.py`, or
+  fix the drifted rule text the finding names". Per shape rather than per run
+  because two drifted shapes are two map entries to write, and per shape rather
+  than per repository because the map is one module constant with one remedy.
+  The finding is itself placed by the map into a FIFTH `FindingClass` (id
+  `unplaced`, label `unplaced-finding drift` — neither may contain the substring
+  `unclassified`, which a standing pin asserts absent from a clean summary) under
+  a FOURTH severity constant `_DRIFT_SEVERITY`, so § 7.2's flip of
+  `_LAUNCH_SEVERITY` cannot drag it; and its pattern is ANCHORED at the start of
+  the rule text, because the finding quotes a rule text that may itself begin in
+  the shape of an arm. The residual row stays; it is what makes the tally sum.
+  **NO `## MODIFIED Requirements` block**, and that is a measurement rather than
+  a preference: canon enumerates the three comparison ARMS and never the classes,
+  the class map, or the residual, so restating 14 scenarios of "Currency of an
+  active change's MODIFIED requirement blocks" would risk the defect the family
+  exists to catch in order to say something canon does not say. The requirement
+  BODY is deliberately lean — 36 lines, down from 70 — because every body line is
+  carriage-ledger surface a future MODIFIED block must restate. Adds NO check
+  family; the enumeration and its numerals are untouched. Band `warning` and the
+  family stays absent from `FAMILY_RESOLUTION`, so the finding retiring when
+  somebody extends the map cannot become an uncited-resolution `error`; § 7.2's
+  flip is untouched and still owed. Predicted movement **zero in every band**,
+  and the act measured exactly that. Realization moved the standing pins by name
+  — of the EIGHT sites § 3.6 predicted would red, five actually did — added a
+  behavioural fixture tree (`modified-block-currency-unplaced`; no corpus title
+  can produce an unplaced rule text, measured at 20,065 fuzzed rule texts and 0
+  unplaceable, so the honest trigger is a REMOVED map pattern rather than a
+  crafted title), and AMENDED the byte-level report contract
+  `specs/022-modified-block-currency-reporting/contracts/report-section.md`,
+  which enumerated the four classes four times over.
+  Group 2 is ticked against #466, EIGHT of its fifteen boxes carrying a
+  `RECONCILED` clause rather than a silent tick: § 2.4, § 2.6 and § 2.14 moved by
+  the amendment, and § 2.3, § 2.7, § 2.8, § 2.10 and § 2.15 by defects in the
+  packet that realization found and recorded as plan decisions O3–O8 — the
+  three-versus-four test files, the eight predicted reds that were five, the
+  function rename the pin roster did not ask for, F2's provenance checker that
+  would not have covered the new tree, the mutant no value comparison can kill,
+  and an unforeseen allowlist pin. § 4 stays OPEN as authored — § 4.2's first
+  nightly with this emit present is the measurement no archive act can supply,
+  the population being empty on this tree and unmeasured everywhere else — and
+  § 1.2's veto flag on the three orchestrator decisions stays open with it,
+  not-vetoed being neither vetoed nor ruled. `add-modified-block-currency-check`
+  § 7.2's flip of the scenario-title arm to `error` is untouched and still owed;
+  `_DRIFT_SEVERITY` exists so that flip cannot drag this class with it.
 
 - [declare-sentinel-pin-vocabulary](openspec/changes/archive/2026-08-28-declare-sentinel-pin-vocabulary/proposal.md)
   — **ARCHIVED 2026-08-28** on merged-plus-green. Pull request #457 merged
