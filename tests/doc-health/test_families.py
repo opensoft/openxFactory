@@ -122,6 +122,88 @@ def test_proposal_support_location_conformance(tmp_path):
     assert "under canonical specs" in rules
 
 
+def test_staged_citation_of_an_archived_proposal_is_silent(tmp_path):
+    """REGRESSION, 2026-08-28 (`clean-doc-health-floor` W3). The staged-exit
+    arm demanded material "move into the proposal supporting-docs folder"
+    even when the cited proposal had ARCHIVED — a closed, immutable packet,
+    so the remedy named an act nobody can perform. `corpus.change_ids` unions
+    active and archived ids (including the `YYYY-MM-DD-` stripped spelling),
+    and the arm read that union, so archived-ness was invisible to it.
+
+    The finding now fires only while the cited proposal is ACTIVE.
+    """
+    repo = tmp_path / "alpha"
+    staged = repo / "ideation/staging/topic-a"
+    staged.mkdir(parents=True)
+    (staged / "source.md").write_text(
+        "# Source\n\nStatus: staged\nKind: architecture\n\n"
+        "## Exit\n\nExit: change-a\n"
+    )
+    # Archived, in the real date-prefixed folder shape `corpus.change_ids`
+    # strips — so the id resolves by BOTH spellings and the exemption is
+    # proven against the branch that actually matched before this fix.
+    archived = repo / "openspec/changes/archive/2026-07-09-change-a"
+    archived.mkdir(parents=True)
+
+    ctx = make_ctx("location-conformance")
+    ctx.repo_paths = {"alpha": repo}
+    ctx.docs = corpus.load_docs("alpha", repo)
+    ctx.change_ids = {"alpha": {"change-a", "2026-07-09-change-a"}}
+    assert FAMILIES["location-conformance"](ctx) == []
+    # The union still carries the id, so this proves the ARM stopped reading
+    # it — not that the id stopped resolving.
+    assert "change-a" in corpus.change_ids(repo)
+    assert corpus.active_change_ids(repo) == set()
+
+    # ...and the exemption is not blindness: give the same citation a live
+    # active packet and the finding lands again, unchanged.
+    (repo / "openspec/changes/change-a").mkdir(parents=True)
+    got = FAMILIES["location-conformance"](ctx)
+    assert [(f.severity, f.path, f.rule) for f in got] == [(
+        ERROR, "ideation/staging/topic-a/source.md",
+        "staged material already cites proposal change-a")]
+
+
+def test_staged_citation_prefers_the_active_proposal_over_an_archived_one(
+        tmp_path):
+    """REGRESSION, 2026-08-28 (`clean-doc-health-floor` W3). A staged fragment
+    may cite BOTH an archived and an active change — `avatar-pilot-hardening`
+    in this repository cites `implement-avatar-client-lab` (archived
+    2026-08-04) and `qualify-avatar-live-voice` (active). `_staged_exit_changes`
+    returns its ids SORTED and the finding reports `cited[0]`, so the archived
+    id won on alphabetical order and hid the performable remedy behind an
+    impossible one.
+
+    Narrowing the set to active ids re-points the finding at the change the
+    material can actually move into. The row does NOT disappear, and this test
+    pins that: the fix is a correction of the named target, not a silencer.
+    """
+    repo = tmp_path / "alpha"
+    staged = repo / "ideation/staging/topic-a"
+    staged.mkdir(parents=True)
+    # `aaa-change` sorts BEFORE `zzz-change`, so the archived id is the one
+    # that would be reported if the union were still read.
+    (staged / "source.md").write_text(
+        "# Source\n\nStatus: staged\nKind: architecture\n\n"
+        "## Exit\n\nBlocked on aaa-change; exits via zzz-change.\n"
+    )
+    (repo / "openspec/changes/archive/2026-07-09-aaa-change").mkdir(
+        parents=True)
+    (repo / "openspec/changes/zzz-change").mkdir(parents=True)
+
+    ctx = make_ctx("location-conformance")
+    ctx.repo_paths = {"alpha": repo}
+    ctx.docs = corpus.load_docs("alpha", repo)
+    ctx.change_ids = {"alpha": {"aaa-change", "zzz-change"}}
+    got = FAMILIES["location-conformance"](ctx)
+    assert [(f.severity, f.path, f.rule) for f in got] == [(
+        ERROR, "ideation/staging/topic-a/source.md",
+        "staged material already cites proposal zzz-change")]
+    # PIN, see test_status_validity's docstring comment.
+    assert got[0].action == (
+        "move selected material into the proposal supporting-docs folder")
+
+
 def test_source_snapshots_keep_their_staged_status(tmp_path):
     """REGRESSION, 2026-08-15. `source-snapshots/` holds BYTE-EXACT copies of
     the staged files as they were at the move, and the manifest proves that

@@ -1,6 +1,6 @@
 # NotebookLM Projection Sync — Open Operational Item
 
-Status: open (operational)
+Status: draft
 Owner: openxFactory (the projection capability and its tooling live here —
 `scripts/sync-notebooklm-books.py`, `docs/lifecycle-notebook-projection.md`).
 Opened: 2026-08-19 (handoff from the 08-14→08-19 cross-repo session).

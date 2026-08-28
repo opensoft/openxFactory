@@ -316,6 +316,31 @@ def spec_capabilities(repo_path: Path) -> set[str]:
     return caps
 
 
+def active_change_ids(repo_path: Path) -> set[str]:
+    """Ids of ACTIVE changes only — the archive deliberately excluded.
+
+    `change_ids` unions three vocabularies (active folder names, archived
+    folder names, and archived names stripped of their `YYYY-MM-DD-` prefix)
+    into one flat set, which is what its callers want when the question is
+    "does this id name a change that ever existed": `ratified-provenance`
+    accepts a citation of an archived change, and must.
+
+    It is the wrong set when the question is instead "can an act still be
+    performed against this change". An archived packet is closed, so a
+    finding whose remedy is to move material INTO it states an impossible
+    remedy. This sibling answers that second question, and is kept separate
+    rather than replacing the union so the first one keeps its answer.
+    """
+    ids: set[str] = set()
+    changes = repo_path / "openspec" / "changes"
+    if not changes.is_dir():
+        return ids
+    for child in changes.iterdir():
+        if child.is_dir() and child.name != "archive":
+            ids.add(child.name)
+    return ids
+
+
 def change_ids(repo_path: Path) -> set[str]:
     ids: set[str] = set()
     changes = repo_path / "openspec" / "changes"
