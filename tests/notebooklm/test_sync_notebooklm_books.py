@@ -13,6 +13,7 @@ import contextlib
 import functools
 import importlib.util
 import io
+import json
 import itertools
 import re
 import subprocess
@@ -1296,8 +1297,20 @@ class SplitIdeationBookTests(unittest.TestCase):
                 state["notebooks"].append(nb)
                 state["sources"].setdefault(nb["id"], [])
                 return ""
+            if head == ("source", "rename"):
+                # MODELS THE WRITE. `_rename_source_when_ready` confirms a
+                # rename by reading the source list back rather than trusting
+                # the call's return (the CLI has been seen erroring while
+                # exiting 0), so a fake that accepted renames without recording
+                # them would make every rename look like it never took.
+                sid, new_title = args[2], args[3]
+                for _nid, rows in state["sources"].items():
+                    for row in rows:
+                        if row.get("id") == sid:
+                            row["title"] = new_title
+                return ""
             if head in {("alias", "set"), ("tag", "add"), ("chat", "configure"),
-                        ("source", "delete"), ("source", "rename")}:
+                        ("source", "delete")}:
                 return ""
             if head == ("source", "list"):
                 return list(state["sources"].get(args[2], []))
@@ -1423,6 +1436,232 @@ class SplitIdeationBookTests(unittest.TestCase):
             adds = [c for c in calls if c[:2] == ("source", "add")
                     and c[6] != sync.CHARTER_TITLE]
             self.assertEqual(len(adds), 6)
+
+    # ---- the oversized-source rename defect (fixed 2026-08-27) --------------
+    #
+    # Live failure: a 279KB document uploaded, the fixed `time.sleep(2)` was too
+    # short, the rename silently did not take, and the source stranded under
+    # `xf-sync-*.md` where parity read it MISSING. Worse, the documented repair —
+    # re-run the book — ADDED A SECOND STRAY rather than repairing the first.
+
+    def _slow_rename_fake(self, notebooks, ready_after: int):
+        """A provider whose rename only takes on the `ready_after`-th attempt."""
+        calls, attempts = [], {"n": 0}
+        state = {"notebooks": [dict(n) for n in notebooks], "sources": {}}
+
+        def fake(*args, parse=True):
+            calls.append(args)
+            head = args[:2]
+            if head == ("notebook", "list"):
+                return list(state["notebooks"])
+            if head == ("source", "list"):
+                return list(state["sources"].get(args[2], []))
+            if head == ("source", "add"):
+                nid = args[2]
+                sid = f"s{len(state['sources'].setdefault(nid, [])) + 1}"
+                state["sources"][nid].append({"id": sid,
+                                              "title": "xf-sync-abc123.md"})
+                return f"Added source: xf-sync-abc123.md\nSource ID: {sid}\n"
+            if head == ("source", "rename"):
+                attempts["n"] += 1
+                if attempts["n"] < ready_after:
+                    return ""            # accepted, but does NOT take
+                for rows in state["sources"].values():
+                    for row in rows:
+                        if row.get("id") == args[2]:
+                            row["title"] = args[3]
+                return ""
+            if head in {("alias", "set"), ("tag", "add"), ("chat", "configure"),
+                        ("source", "delete")}:
+                return ""
+            raise AssertionError(f"unexpected nlm call: {args}")
+
+        return fake, calls, state, attempts
+
+    def test_a_slow_rename_is_polled_until_it_takes(self):
+        """Where `sleep(2)` gave up, polling succeeds."""
+        fake, calls, state, attempts = self._slow_rename_fake(
+            [{"id": "nbX", "title": "T"}], ready_after=4)
+        with patch.object(sync, "nlm", fake), \
+                patch.object(sync, "MAX_TEXT_ARG_BYTES", 200), \
+                patch.object(sync.time, "sleep", lambda _s: None), \
+                contextlib.redirect_stdout(io.StringIO()):
+            sync.add_text_source("nbX", "x" * 5000, "[spec] openxFactory: big")
+        self.assertEqual(attempts["n"], 4, "should have kept trying")
+        titles = [r["title"] for r in state["sources"]["nbX"]]
+        self.assertEqual(titles, ["[spec] openxFactory: big"])
+        self.assertEqual(len([c for c in calls if c[:2] == ("source", "add")]), 1)
+
+    def test_a_rename_that_never_takes_fails_LOUDLY(self):
+        """The silent failure is what stranded the source. It must raise."""
+        fake, _calls, state, _a = self._slow_rename_fake(
+            [{"id": "nbX", "title": "T"}], ready_after=10**6)
+        with patch.object(sync, "nlm", fake), \
+                patch.object(sync, "MAX_TEXT_ARG_BYTES", 200), \
+                patch.object(sync.time, "sleep", lambda _s: None), \
+                patch.object(sync, "RENAME_READY_TIMEOUT_S", 9), \
+                patch.object(sync, "RENAME_POLL_INTERVAL_S", 3), \
+                contextlib.redirect_stdout(io.StringIO()):
+            with self.assertRaises(RuntimeError) as caught:
+                sync.add_text_source("nbX", "x" * 5000, "[spec] openxFactory: big")
+        msg = str(caught.exception)
+        self.assertIn("rename never took", msg)
+        self.assertIn("do NOT re-run the sync to fix it", msg)
+        # and it names the hand repair, since that is what the operator must run
+        self.assertIn("nlm source rename", msg)
+        self.assertEqual([r["title"] for r in state["sources"]["nbX"]],
+                         ["xf-sync-abc123.md"])
+
+    def test_a_rerun_ADOPTS_the_stray_instead_of_adding_a_duplicate(self):
+        """The compounding failure, converted to self-healing.
+
+        Live on 2026-08-27 a re-run added a SECOND `xf-sync-*.md` for one
+        document; canon reached 120 sources and had to be repaired by hand.
+        """
+        text = "x" * 5000
+        digest_body = text
+        calls = []
+        state = {"sources": {"nbX": [{"id": "stray1",
+                                      "title": "xf-sync-deadbeef.md"}]}}
+
+        def fake(*args, parse=True):
+            calls.append(args)
+            head = args[:2]
+            if head == ("source", "list"):
+                return list(state["sources"].get(args[2], []))
+            if head == ("source", "content"):
+                return digest_body
+            if head == ("source", "rename"):
+                for rows in state["sources"].values():
+                    for row in rows:
+                        if row.get("id") == args[2]:
+                            row["title"] = args[3]
+                return ""
+            raise AssertionError(f"unexpected nlm call: {args}")
+
+        with patch.object(sync, "nlm", fake), \
+                patch.object(sync, "MAX_TEXT_ARG_BYTES", 200), \
+                patch.object(sync.time, "sleep", lambda _s: None), \
+                contextlib.redirect_stdout(io.StringIO()):
+            sync.add_text_source("nbX", text, "[spec] openxFactory: big")
+
+        self.assertEqual([c for c in calls if c[:2] == ("source", "add")], [],
+                         "the stray was this document; adding again duplicates it")
+        self.assertEqual([r["title"] for r in state["sources"]["nbX"]],
+                         ["[spec] openxFactory: big"])
+
+    def test_a_stray_whose_CONTENT_differs_is_left_alone(self):
+        """Adoption is keyed on content, so it can repair or do nothing —
+        never claim an unrelated source."""
+        state = {"sources": {"nbX": [{"id": "other",
+                                      "title": "xf-sync-deadbeef.md"}]}}
+        calls = []
+
+        def fake(*args, parse=True):
+            calls.append(args)
+            head = args[:2]
+            if head == ("source", "list"):
+                return list(state["sources"].get(args[2], []))
+            if head == ("source", "content"):
+                return "a completely different document"
+            if head == ("source", "add"):
+                sid = f"s{len(state['sources']['nbX']) + 1}"
+                state["sources"]["nbX"].append({"id": sid,
+                                                "title": "xf-sync-new.md"})
+                return f"Source ID: {sid}\n"
+            if head == ("source", "rename"):
+                for row in state["sources"]["nbX"]:
+                    if row.get("id") == args[2]:
+                        row["title"] = args[3]
+                return ""
+            raise AssertionError(f"unexpected nlm call: {args}")
+
+        with patch.object(sync, "nlm", fake), \
+                patch.object(sync, "MAX_TEXT_ARG_BYTES", 200), \
+                patch.object(sync.time, "sleep", lambda _s: None), \
+                contextlib.redirect_stdout(io.StringIO()):
+            sync.add_text_source("nbX", "x" * 5000, "[spec] openxFactory: big")
+
+        self.assertEqual(len([c for c in calls if c[:2] == ("source", "add")]), 1,
+                         "an unrelated stray must not be adopted")
+        self.assertIn("xf-sync-deadbeef.md",
+                      [r["title"] for r in state["sources"]["nbX"]])
+
+    def test_a_DUPLICATE_TITLE_does_not_satisfy_the_rename_verifier(self):
+        """Copilot on PR #438 — a fail-open inside the fail-open fix.
+
+        The verifier asked "does any source carry this title?". When a
+        pre-existing source already wore it, that returned success while the
+        source just uploaded sat un-renamed. The assertion is a PAIR: THIS id
+        now bears THIS title.
+        """
+        title = "[spec] openxFactory: big"
+        state = {"sources": {"nbX": [{"id": "OLD", "title": title}]}}
+
+        def fake(*args, parse=True):
+            head = args[:2]
+            if head == ("source", "list"):
+                return list(state["sources"]["nbX"])
+            if head == ("source", "rename"):
+                return ""                      # accepted, never takes
+            raise AssertionError(f"unexpected nlm call: {args}")
+
+        with patch.object(sync, "nlm", fake), \
+                patch.object(sync.time, "sleep", lambda _s: None), \
+                patch.object(sync, "RENAME_READY_TIMEOUT_S", 9), \
+                patch.object(sync, "RENAME_POLL_INTERVAL_S", 3), \
+                contextlib.redirect_stdout(io.StringIO()):
+            with self.assertRaises(RuntimeError):
+                sync._rename_source_when_ready("nbX", "NEW", title)
+
+    def test_adoption_UNWRAPS_a_json_wrapped_body_before_hashing(self):
+        """Codex P1 / Copilot on PR #438 — the repair could never fire.
+
+        `nlm source content` may return the body inside a JSON envelope, which
+        `source_content_text()` exists to tolerate. Hashing raw stdout meant a
+        wrapped response never matched, so adoption silently degraded to a
+        plain add — fail-safe, but a repair that cannot fire is not a repair.
+        """
+        text = "x" * 5000
+        state = {"sources": {"nbX": [{"id": "stray1",
+                                      "title": "xf-sync-deadbeef.md"}]}}
+        calls = []
+
+        def fake(*args, parse=True):
+            calls.append(args)
+            head = args[:2]
+            if head == ("source", "list"):
+                return list(state["sources"]["nbX"])
+            if head == ("source", "content"):
+                # THE WRAPPED FORM the normalizer exists for
+                return json.dumps({"value": {"content": text}})
+            if head == ("source", "rename"):
+                for row in state["sources"]["nbX"]:
+                    if row.get("id") == args[2]:
+                        row["title"] = args[3]
+                return ""
+            raise AssertionError(f"unexpected nlm call: {args}")
+
+        with patch.object(sync, "nlm", fake), \
+                patch.object(sync, "MAX_TEXT_ARG_BYTES", 200), \
+                patch.object(sync.time, "sleep", lambda _s: None), \
+                contextlib.redirect_stdout(io.StringIO()):
+            sync.add_text_source("nbX", text, "[spec] openxFactory: big")
+
+        self.assertEqual([c for c in calls if c[:2] == ("source", "add")], [],
+                         "the wrapped stray matched; adding again duplicates it")
+        self.assertEqual([r["title"] for r in state["sources"]["nbX"]],
+                         ["[spec] openxFactory: big"])
+
+    def test_the_content_digest_is_one_mechanism_for_both_sides(self):
+        """Normalising only the fetched half is what created the mismatch."""
+        text = "hello body"
+        self.assertEqual(sync._content_digest(text),
+                         sync._content_digest(json.dumps({"value": {"content": text}})))
+        self.assertEqual(sync._content_digest(text),
+                         sync._content_digest(json.dumps({"content": text})))
+        self.assertNotEqual(sync._content_digest(text),
+                            sync._content_digest("a different body"))
 
     def test_oversized_source_rides_a_file_and_is_renamed_to_its_title(self):
         # Linux MAX_ARG_STRLEN killed the canon book live 2026-08-10: a doc
@@ -2775,3 +3014,223 @@ class ParityProvesDocumentsTests(unittest.TestCase):
         self.assertIn("parity: PROVEN", text)
         self.assertIn("documents in", text)
         self.assertNotIn("COLLAPSED", text)
+
+
+# ---------------------------------------------------------------------------
+# P4b — root-level governed-repo recognition (split-openxwallet-repo §11)
+# ---------------------------------------------------------------------------
+
+def _root_product_world(root: Path, *, products=("openXwallet",),
+                        declare=None, initialize=True, extra_pins=()):
+    """An aggregation root pinning `products` as ROOT-LEVEL siblings.
+
+    `declare` overrides which names go into `.gitmodules` (default: `products`),
+    so the tests can separate "pinned" from "present on disk" — the two halves
+    `pinned_root_product_paths` requires jointly. `initialize=False` leaves the
+    directory EMPTY, which is exactly what an uninitialized submodule looks
+    like.
+    """
+    (root / "openxFactory" / "ideation" / "staging" / "demo-topic").mkdir(
+        parents=True)
+    (root / "openxFactory" / STAGED_DOC).write_text(
+        "Status: staged\n\n# openxFactory topic\n", encoding="utf-8")
+    lines = []
+    for name in (declare if declare is not None else products):
+        lines.append(f'[submodule "{name}"]\n\tpath = {name}\n'
+                     f'\turl = https://example.invalid/{name}.git\n')
+    for pin in extra_pins:
+        lines.append(f'[submodule "{pin}"]\n\tpath = {pin}\n'
+                     f'\turl = https://example.invalid/{pin}.git\n')
+    (root / ".gitmodules").write_text("".join(lines), encoding="utf-8")
+    for name in products:
+        base = root / name
+        base.mkdir(parents=True, exist_ok=True)
+        if initialize:
+            (base / "ideation" / "brainstorm").mkdir(parents=True)
+            (base / "ideation" / "brainstorm" / "wallet-idea.md").write_text(
+                "Status: brainstorm\n\n# a wallet idea\n", encoding="utf-8")
+    return root
+
+
+class RootLevelGovernedProductTests(unittest.TestCase):
+    """The notebook half of P4b (task 11.1) and the cross-site pin (task 11.3).
+
+    The defect: `scan()` built its repository set as `["openxFactory",
+    *pinned_factory_paths(root)]` and `pinned_factory_paths` matches only
+    `^\\s*path\\s*=\\s*(xFactories/\\S+)\\s*$`, so a product pinned at the
+    aggregation ROOT was swept by nothing and derived no book. The empirical
+    proof it was a real gap rather than a theoretical one: no
+    `xf-ideation-openavatar` book exists, five months into the ratified
+    openAvatar precedent (`council-systems-architect.md` concern 4).
+    """
+
+    def test_the_allowlist_matches_the_doc_health_authority(self):
+        """TASK 11.3 — the two sites are widened by the SAME allowlist so the
+        notebook set and the doc-health routing set cannot disagree.
+
+        A deliberate second copy, on this repository's own rule for a
+        hyphenated standalone that cannot be imported (`doc_health.recorded_rel`
+        vs `proposal-support.py`'s `manifest_rel`), pinned to its authority
+        here. Without this assertion the copies are just two constants.
+        """
+        corpus_path = REPO_ROOT / "scripts" / "doc_health" / "corpus.py"
+        source = corpus_path.read_text(encoding="utf-8")
+        # read the AUTHORITY without importing the package (which would pull
+        # `doc_health/__init__` and PyYAML into a hermetic notebook test)
+        namespace: dict = {}
+        for line in source.splitlines():
+            if line.startswith("ROOT_LEVEL_GOVERNED_PRODUCTS"):
+                exec(line, namespace)  # noqa: S102  (one literal tuple)
+                break
+        self.assertIn("ROOT_LEVEL_GOVERNED_PRODUCTS", namespace,
+                      f"{corpus_path} no longer declares the authority")
+        self.assertEqual(namespace["ROOT_LEVEL_GOVERNED_PRODUCTS"],
+                         sync.ROOT_LEVEL_GOVERNED_PRODUCTS,
+                         "the notebook sweep and doc-health routing disagree "
+                         "about which root-level repositories are governed")
+        self.assertEqual(sync.ROOT_LEVEL_GOVERNED_PRODUCTS,
+                         ("openAvatar", "openXwallet"))
+
+    def test_a_pinned_and_present_root_product_is_found(self):
+        with TemporaryDirectory() as td:
+            root = _root_product_world(Path(td))
+            self.assertEqual(sync.pinned_root_product_paths(root),
+                             ["openXwallet"])
+
+    def test_a_present_but_unpinned_root_product_is_not_found(self):
+        """Pin-state is the authoritative filter, as it is for the factories: a
+        bare directory in a scratch root is not a governed repository."""
+        with TemporaryDirectory() as td:
+            root = _root_product_world(Path(td), declare=())
+            self.assertEqual(sync.pinned_root_product_paths(root), [])
+
+    def test_a_pinned_but_absent_root_product_is_not_found(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            (root / ".gitmodules").write_text(
+                '[submodule "openXwallet"]\n\tpath = openXwallet\n'
+                '\turl = https://example.invalid/openXwallet.git\n',
+                encoding="utf-8")
+            self.assertEqual(sync.pinned_root_product_paths(root), [])
+
+    def test_installs_are_never_admitted(self):
+        """THE ALLOWLIST, NOT THE RULE. Admitting every root-level pin would
+        enrol the nine `installs/*` runtime repositories as governed ideation
+        repositories, each deriving its own book."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            (root / "installs" / "hermes-install").mkdir(parents=True)
+            root = _root_product_world(
+                root, extra_pins=("installs/hermes-install",))
+            found = sync.pinned_root_product_paths(root)
+            self.assertEqual(found, ["openXwallet"])
+            self.assertNotIn("installs/hermes-install",
+                             sync.governed_repo_paths(root))
+
+    def test_no_gitmodules_admits_nothing(self):
+        """No suffix-heuristic fallback, deliberately: the aggregation root
+        holds `installs/`, `openspec/`, docs and worktree containers, so there
+        is no shape to guess from."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            (root / "openXwallet").mkdir()
+            self.assertEqual(sync.pinned_root_product_paths(root), [])
+
+    def test_an_uninitialized_root_product_warns_instead_of_reading_empty(self):
+        """A declared-but-uninitialized submodule is an EXISTING, EMPTY
+        directory. Returned silently it makes the sweep compute "this product
+        has no ideation documents", which is indistinguishable in the output
+        from the truth — and the book that should exist would simply never be
+        created."""
+        with TemporaryDirectory() as td:
+            root = _root_product_world(Path(td), initialize=False)
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                found = sync.pinned_root_product_paths(root)
+            self.assertEqual(found, ["openXwallet"])
+            text = buf.getvalue()
+            self.assertIn("openXwallet", text)
+            self.assertIn("uninitialized submodule", text)
+            self.assertIn("git submodule update --init openXwallet", text)
+
+    def test_governed_repo_paths_puts_root_products_before_the_factories(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            (root / "xFactories" / "codexFactory").mkdir(parents=True)
+            root = _root_product_world(
+                root, extra_pins=("xFactories/codexFactory",))
+            self.assertEqual(sync.governed_repo_paths(root),
+                             ["openXwallet", "xFactories/codexFactory"])
+
+    def test_scan_derives_the_openxwallet_ideation_book(self):
+        """TASK 11.4's acceptance, as a hermetic unit: the book key, its alias
+        `xf-ideation-openxwallet`, its title, and the document inside it."""
+        with TemporaryDirectory() as td:
+            root = _root_product_world(Path(td))
+            desired, specs = sync.scan(root)
+        self.assertIn("ideation-openxwallet", desired)
+        spec = specs["ideation-openxwallet"]
+        self.assertEqual(spec.alias, "xf-ideation-openxwallet")
+        self.assertEqual(spec.title, "xFactory Ideation — openXwallet")
+        self.assertIn("openXwallet/ideation/brainstorm/wallet-idea.md",
+                      desired["ideation-openxwallet"])
+        self.assertEqual(
+            desired["ideation-openxwallet"][
+                "openXwallet/ideation/brainstorm/wallet-idea.md"],
+            "[brainstorm] openXwallet: wallet-idea")
+        # and it did NOT displace openxFactory's own book
+        self.assertIn(f"openxFactory/{STAGED_DOC}",
+                      desired["ideation-openxfactory"])
+
+    def test_scan_derives_the_openavatar_book_by_the_same_widening(self):
+        """openAvatar is admitted on the SAME footing, which is what makes the
+        widening a rule about root-level products rather than a special case
+        for the wallet. (In the live tree openAvatar carries no
+        brainstorm/staged document, so no book derives there yet — membership
+        is STATUS-derived, and the widening removes only the recognition half
+        of the two reasons the book is absent.)"""
+        with TemporaryDirectory() as td:
+            root = _root_product_world(Path(td), products=("openAvatar",))
+            desired, specs = sync.scan(root)
+        self.assertEqual(specs["ideation-openavatar"].alias,
+                         "xf-ideation-openavatar")
+        self.assertIn("openAvatar/ideation/brainstorm/wallet-idea.md",
+                      desired["ideation-openavatar"])
+
+    def test_a_root_product_with_no_ideation_document_derives_no_book(self):
+        """Recognition is not membership: an ideation book exists exactly when
+        its repo has at least one brainstorm/staged document
+        (split-ideation-book-per-repo). This is why the live tree will still
+        have no `xf-ideation-openavatar` after this widening lands."""
+        with TemporaryDirectory() as td:
+            root = _root_product_world(Path(td), products=())
+            (root / "openXwallet" / "docs").mkdir(parents=True)
+            (root / "openXwallet" / "docs" / "a.md").write_text(
+                "Status: ratified\n", encoding="utf-8")
+            (root / ".gitmodules").write_text(
+                '[submodule "openXwallet"]\n\tpath = openXwallet\n'
+                '\turl = https://example.invalid/openXwallet.git\n',
+                encoding="utf-8")
+            desired, specs = sync.scan(root)
+        self.assertNotIn("ideation-openxwallet", desired)
+        self.assertNotIn("ideation-openxwallet", specs)
+
+    def test_session_repositories_keeps_its_stated_agreement_with_scan(self):
+        """Its docstring claims "deliberately the same repo set `scan()` walks";
+        widening `scan()` alone would have quietly falsified it."""
+        with TemporaryDirectory() as td:
+            root = _root_product_world(Path(td))
+            names = [name for name, _p in sync.session_repositories(root)]
+        self.assertEqual(names, ["openxFactory", "openXwallet"])
+
+    def test_the_workbench_sweep_sees_a_root_products_manifests(self):
+        """The widening is the SAFE direction here: a workbench dir this misses
+        is a live manifest the sweep cannot see, and the sweep DELETES the
+        `xf-wb-*` notebook no live manifest binds."""
+        with TemporaryDirectory() as td:
+            root = _root_product_world(Path(td))
+            (root / "openXwallet" / "ideation" / "workbench").mkdir(
+                parents=True)
+            dirs = sync._out_of_scope_workbench_dirs(root)
+        self.assertIn("openXwallet",
+                      {p.parent.parent.name for p in dirs})

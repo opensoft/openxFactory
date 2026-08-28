@@ -427,11 +427,32 @@ Re-running the book, which the documented precedent prescribes, **did not fix it
 settled), and the duplicate was deleted. Canon went 120 → 119 sources with
 exactly one correctly-titled spec.
 
-Recorded as an OPEN DEFECT for the sync: the 2-second sleep is too short for the
-largest projected document, and the failure is silent — the run reports success
-while leaving a mistitled source. A re-run compounds it rather than repairing it.
-The 2026-08-25 record called this "the known oversized-source readiness race" and
-believed it repaired; it is not.
+**FIXED 2026-08-27** (`add_text_source`, via `change/fix-oversized-source-rename`),
+having first been recorded here as an open defect. The fix has two halves,
+because the defect did:
+
+* the fixed `time.sleep(2)` becomes a **bounded poll** that confirms the rename
+  by READING THE SOURCE LIST BACK — never by trusting the call's return, since
+  this CLI has been observed erroring while exiting 0 — and **raises loudly** on
+  timeout instead of leaving a stranded source behind a successful-looking run;
+* the add path first looks for an `xf-sync-*.md` stray whose CONTENT matches the
+  document and **adopts it by rename instead of adding a duplicate**, converting
+  the failure from compounding to self-healing. Adoption is keyed on the
+  manifest's own digest, so it can repair or do nothing — never claim an
+  unrelated source.
+
+Proven hermetically — slow rename polled to success, a rename that never takes
+fails loudly, a re-run adopts the stray and adds nothing, and a
+content-mismatched stray is left alone — and mutation-proved 4/4.
+**A live re-verification against the provider was deliberately NOT run**: the
+honest evidence path is the hermetic proof plus the next real apply exercising it
+naturally, rather than re-uploading a 279KB source to watch it work.
+
+On the earlier record, fairly: the 2026-08-25 entry called this "the known
+oversized-source readiness race" and repaired it by hand, which was accurate.
+What it did not do was FILE it — the race was treated as an accepted nuisance
+with a manual remedy, so nothing prevented the recurrence or the compounding
+re-run that followed.
 
 **This is the document Brett's retirement gate turned on.** Its projected form is
 what cleared the hold, so its title landing correctly is not a cosmetic matter.

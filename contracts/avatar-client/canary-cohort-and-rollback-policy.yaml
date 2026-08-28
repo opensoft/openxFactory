@@ -100,12 +100,30 @@ cohort:
       of who actually opted in.
   tenant_definition_ref:
     owning_task: qualify-avatar-live-voice 7.10
-    status: unset
+    status: set
+    ruled: >-
+      2026-08-27 by Brett Heap — §7.10, in session: TENANT = COHORT MEMBER,
+      exactly the cohort defined above. Nothing wider, nothing finer.
+    tenant_is: cohort_member
+    resolves_to: cohort.members
+    tenant_ids: [COHORT-01, COHORT-02]
+    tenant_count: 2
+    per_tenant_budget_subject: >-
+      §7.2's $150-per-calendar-month metered per-tenant budget applies ONCE PER
+      COHORT MEMBER. Two members means two budgeted subjects, and $300 of
+      metered per-tenant exposure against a $750 provider-project hard cap.
+    sizing_still_valid: true
     note: >-
-      The definition of "tenant" for this ring is a §7 authoring input and is
-      NOT set here. It MUST agree with this cohort or the per-tenant spend and
-      metering dimensions have no subject. Recorded as open rather than
-      silently assumed.
+      This ruling is what §7.2's per-tenant figure was sized against, so the
+      figure stands unchanged: §7.10 recorded that a "tenant" ruled as anything
+      OTHER than a cohort member would force a re-size against a new
+      denominator, and this ruling is the assumed denominator made explicit
+      rather than a new one. A per-session participant would have made the
+      $150 meaningless; a whole DomainxFactory would have collapsed COHORT-02
+      into a unit larger than the sandbox actually admitted to the ring.
+      `tenant_count` is CHECKED against `cohort.members` rather than trusted —
+      a count that outlives the membership it summarises is the drift this
+      field exists to catch.
 
 # ---------------------------------------------------------------------------
 # 6.3.2 — THE REVOKE-VERSUS-BLOCK POLICY, in its ratified three-way split.
@@ -144,6 +162,11 @@ rollback_policy:
         Reuses the landed consent-withdraw-mid-speech terminal path — media
         revoked, capture stops, credential-free terminal, control channel
         healthy. No new terminal is invented for this class.
+      # RULED 2026-08-27 (§7.8). Carried on the class as well as in
+      # `session_outcome_tokens` so the class a reader lands on states its own
+      # terminal; the two are machine-compared, so they cannot drift apart.
+      session_outcome: revoked
+      session_outcome_path: force_terminated_leg
       rationale: >-
         This is the case the kernel's "when safety requires it" names. A safety
         breach that is allowed to drain keeps serving the unsafe condition for
@@ -207,6 +230,11 @@ rollback_policy:
         burn on a performance problem the exact mechanism that should be
         reserved for genuine safety trips. The kernel mandates active-lease
         revocation for safety, not for regression.
+      # RULED 2026-08-27 (§7.8), and it is the token the ABNORMAL-SESSION RATE
+      # reads: a drained leg is `abandoned`, unless it reached its natural
+      # terminal inside the drain, in which case it is an ordinary `completed`.
+      session_outcome: abandoned
+      session_outcome_path: drained_leg_after_block_new
       slo_ref: ALV-SLO-001
       detection_wiring_owner: qualify-avatar-live-voice 6.3.3
 
@@ -223,6 +251,14 @@ rollback_policy:
       triggers:
         - quality_concern
         - cost_concern
+      # RULED 2026-08-27 (§7.8). The outcome follows the SCOPE the operator
+      # selects, in the same idiom this class already uses for `action` and
+      # `revoke_active_leases`: a revoke-active act emits `revoked` on the
+      # force-terminated path, a block-new act emits `abandoned` (or
+      # `completed`) on the drained path. There is no third token, and this
+      # class introduces none of its own.
+      session_outcome: operator_selected
+      session_outcome_paths: [force_terminated_leg, drained_leg_after_block_new]
       rationale: >-
         These are not mechanically decidable. Automating them would convert a
         judgment into a trip wire on a threshold nobody has ratified.
@@ -238,6 +274,17 @@ rollback_policy:
           enforcement: metered_and_alerted_only
           hard_stop_exists: false
           alert_reader: gh_issue_on_the_doc_health_pattern
+          # RULED 2026-08-27 (§7.10): the SUBJECT this per-tenant number is
+          # metered against is one COHORT MEMBER — see
+          # `cohort.tenant_definition_ref`. Two members, so two budgeted
+          # subjects, which is the denominator §7.2 sized $150 against.
+          budget_subject: cohort_member
+          # RULED 2026-08-27 (§7.7): the ROLE the §7.4 ruling recorded is now a
+          # PERSON. `rollback_policy.operator_surface.holder` is the single
+          # place that name is written down; naming it twice would let the
+          # alert's recipient drift away from the switch's holder, which is the
+          # exact coupling the two rulings exist to guarantee.
+          alert_recipient_ref: rollback_policy.operator_surface.holder
           note: >-
             The alert reader is NOT decoration. The org has already been bitten
             by a budget number nothing consumes — a council reviewer flagged an
@@ -246,36 +293,108 @@ rollback_policy:
             threshold with no alert wired to it is that same artifact, so §7.4
             gives this number its reader: one issue per metering run, on the
             doc-health supersede-and-close pattern, mentioning the named human
-            who also holds the §7.7 kill switch. See tasks.md §7.4.
+            who also holds the §7.7 kill switch. That human is named as of
+            §7.7's ruling, so the recipient is a PERSON and no longer a role.
+            See tasks.md §7.4, §7.7 and §7.10.
 
   operator_surface:
     owning_task: qualify-avatar-live-voice 7.7
-    status: unnamed
+    status: named
+    ruled: >-
+      2026-08-27 by Brett Heap — §7.7, in session. The holder is a PERSON, the
+      mechanism is a DOCUMENTED RUNBOOK ACT on the serving install, and the
+      rota is deferred to `avatar-pilot-hardening`.
+    holder: Brett Heap
+    holder_kind: named_person
+    holds: both_switches
+    mechanism: documented_runbook_act_on_the_serving_install
+    mechanism_ref: docs/sops/avatar-internal-live-kill-switch.md
+    web_console_used: false
+    rota_deferred_to: avatar-pilot-hardening
+    switches:
+      - id: SWITCH-ALL-NEW
+        scope: all_new_session_creation
+        modes: [block_new, revoke_active]
+      - id: SWITCH-PROFILE
+        scope: per_model_profile
+        profile: gpt-realtime-2.1
+        modes: [block_new, revoke_active]
+    also_the_alert_page_target: true
     statement: >-
-      The operator surface that fires the kill switches MUST be named BEFORE
-      the canary opens. The web console is an explicit kernel non-goal, so
-      neither the holder nor the mechanism is inherited, and this policy does
-      not invent one. Recorded as OPEN: a canary opened without a named holder
-      has an unfireable kill switch, which would make ROLLBACK-C undeliverable
-      and ROLLBACK-A dependent on automation alone.
+      The operator surface that fires the kill switches is NAMED, as this
+      policy required before the canary opens. It is not a web console — the
+      console is an explicit kernel non-goal, so nothing was inherited and
+      nothing is invented: the surface IS the runbook at `mechanism_ref`,
+      which carries the two switch scopes, the block-new and revoke-active
+      modes of each, the procedure's contract-level shape, and the honest
+      statement of what stays install-side until task 6.1.2 provisions the
+      serving install.
+    closes_alert_recipient_gap: >-
+      The named holder is ALSO §7.4's page target, by ruling. An alert with no
+      named recipient and a kill switch with no named holder were one gap seen
+      twice; §7.4 recorded its page target as a ROLE precisely because §7.7 was
+      open, and this ruling supplies the person both ends were waiting for —
+      the human who learns about the spend is the human who can stop it.
+    rota_note: >-
+      ONE named human, deliberately, and only for this ring. The cohort is
+      internal staff plus one internally-staffed domain sandbox, so single-
+      holder coverage is proportionate here and is NOT proportionate at the
+      pilot, which admits real tenants. The rota question is deferred to
+      `avatar-pilot-hardening` rather than answered thinly now.
 
   session_outcome_tokens:
     owning_task: qualify-avatar-live-voice 7.8
-    status: partially_bound
+    status: bound
+    ruled: >-
+      2026-08-27 by Brett Heap — §7.8, in session. Every rollback path's
+      session outcome is drawn from the EXISTING closed registry; no new
+      outcome token is introduced.
+    registry_ref: registries/session-outcomes.registry.yaml
+    new_outcome_token_introduced: false
     bound:
       - path: consent_or_lease_revocation
         outcome: revoked
-        note: Fixture-bound today.
-    unbound:
+        note: >-
+          Fixture-bound before this ruling and UNCHANGED by it. It is the
+          terminal path the other two rulings are measured against.
       - path: drained_leg_after_block_new
-        candidates: [completed, abandoned]
+        rollback_class: ROLLBACK-B
+        outcome: abandoned
+        also_permitted: [completed]
+        also_permitted_when: >-
+          The leg reached its own natural terminal before the drain ran out —
+          then it is a `completed` session that happened to be in flight when
+          new work was blocked, and recording it as `abandoned` would be false.
+        note: >-
+          `abandoned` is the honest token for the ordinary case: ROLLBACK-B
+          blocks NEW sessions and lets in-flight legs drain, so a leg that is
+          still draining when the drain window closes was given up, not
+          completed and not revoked. `revoked` is refused for this path outright
+          — nothing was revoked, and reusing the revocation token here would
+          make the revocation evidence unreadable by hiding real revocations
+          among performance rollbacks.
       - path: force_terminated_leg
-        candidates: [revoked, abandoned]
+        rollback_class: ROLLBACK-A
+        outcome: revoked
+        reuses_path: consent_or_lease_revocation
+        reuse_is_exact: true
+        note: >-
+          The SAME token and the SAME terminal path as consent withdrawal,
+          exactly — media revoked, capture stopped, credential-free terminal,
+          control channel healthy. ROLLBACK-A's own `mechanism` already says it
+          reuses that landed path rather than inventing a terminal, so emitting
+          a different token from the same path would contradict the class
+          directly above. `abandoned` is refused for this path: a leg that was
+          force-terminated under a safety trip was not given up, it was cut,
+          and the two are distinguishable facts worth keeping distinguishable.
+    unbound: []
     statement: >-
-      The session outcome each rollback path emits SHALL be DECLARED IN ADVANCE
-      rather than inferred. Only consent and lease revocation is fixture-bound
-      to `revoked` today; the drained-leg and force-terminated-leg tokens are a
-      §7 authoring input and are recorded here as OPEN rather than guessed.
+      The session outcome each rollback path emits IS DECLARED IN ADVANCE, as
+      this block required, and every declared token is a member of the closed
+      `session-outcomes` registry. The declaration is what makes the canary's
+      abnormal-session rate readable: `tolerated_error_rate` counts terminals,
+      so a path whose token was inferred after the fact would let the same
+      event be counted differently by two readers.
 
 # ---------------------------------------------------------------------------
 # THE ROLLBACK TARGET. Constrained by task 6.3.4 even though 6.3.4's

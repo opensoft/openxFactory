@@ -88,6 +88,24 @@ IDEATION_KEY_PREFIX = "ideation-"
 IDEATION_ALIAS_PREFIX = "xf-ideation-"
 IDEATION_TITLE_PREFIX = "xFactory Ideation — "
 
+# The root-level NEUTRAL PRODUCTS the aggregation pins as SIBLINGS of
+# `openxFactory/` — governed repositories whose aggregation-relative id is a
+# bare name. An explicit ALLOWLIST, never "every root-level `.gitmodules` pin",
+# which would enrol the nine `installs/*` runtime repositories as governed
+# ideation repositories (`split-openxwallet-repo` design D11).
+#
+# A DELIBERATE SECOND COPY of `doc_health.corpus.ROOT_LEVEL_GOVERNED_PRODUCTS`,
+# on the rule this repository already applies to `doc_health.recorded_rel` and
+# `proposal-support.py`'s `manifest_rel`: this script is a HYPHENATED standalone
+# and cannot be imported, and its own tests load it by file path with `scripts/`
+# absent from `sys.path`, so an import of the package constant would work in
+# production and fail in the suite — the worst of the two directions. The two
+# copies are PINNED TO EACH OTHER BY TEST
+# (`tests/notebooklm/test_sync_notebooklm_books.py`), because the notebook set
+# and the doc-health routing set disagreeing about which repositories are
+# governed is exactly the failure `split-openxwallet-repo` task 11.3 forbids.
+ROOT_LEVEL_GOVERNED_PRODUCTS = ("openAvatar", "openXwallet")
+
 # NotebookLM's per-notebook source cap (plan-dependent platform property;
 # contract surface per the projection capability's capacity guard — recorded
 # in docs/lifecycle-notebook-projection.md). The 2026-08-10 incident: the
@@ -663,6 +681,62 @@ def pinned_factory_paths(root: Path) -> list[str]:
             if p.is_dir() and not p.name.endswith(SESSION_CONTAINER_SUFFIX)]
 
 
+def pinned_root_product_paths(root: Path) -> list[str]:
+    """Allowlisted root-level neutral products this workspace pins AND has on
+    disk — `openXwallet`, `openAvatar` (`ROOT_LEVEL_GOVERNED_PRODUCTS`).
+
+    Pin-state is the authoritative filter, the same discipline as
+    `pinned_factory_paths`: a bare directory of that name in a scratch root is
+    not a governed repository until the aggregation pins it. Unlike the factory
+    finder there is NO suffix-heuristic fallback for a missing `.gitmodules`,
+    and deliberately: `xFactories/` is a container whose children are all
+    factories, while the aggregation root holds `installs/`, `openspec/`, docs
+    and worktree containers, so there is no shape to guess from — without the
+    pin declaration the honest answer is none.
+
+    AN EMPTY DIRECTORY IS REPORTED, NOT SILENTLY DROPPED. A declared-but-
+    uninitialized submodule is an existing, empty directory, and returning it
+    would make the sweep compute "this product has no ideation documents" —
+    indistinguishable in the output from the truth, and a book that should
+    exist would simply never be created. The warning names the remediation;
+    the path is still returned, because a product with genuinely no ideation
+    documents derives no book either way and the caller must not have to know
+    which case it is looking at.
+    """
+    gm = root / ".gitmodules"
+    if not gm.is_file():
+        return []
+    declared = set(re.findall(r"^\s*path\s*=\s*(\S+)\s*$",
+                              gm.read_text(), re.M))
+    found = []
+    for name in ROOT_LEVEL_GOVERNED_PRODUCTS:
+        if name not in declared or not (root / name).is_dir():
+            continue
+        if not any((root / name).iterdir()):
+            print(f"WARN {name} is pinned at the aggregation root but its "
+                  f"checkout is empty (uninitialized submodule); its ideation "
+                  f"documents cannot be swept. Remediation: run "
+                  f"`git submodule update --init {name}`.")
+        found.append(name)
+    return found
+
+
+def governed_repo_paths(root: Path) -> list[str]:
+    """Every governed repository path below `root` EXCEPT `openxFactory` itself:
+    the allowlisted root-level neutral products, then the pinned factories.
+
+    ONE function for the three call sites that have to agree — `scan()`'s book
+    derivation, `session_repositories()` and `_out_of_scope_workbench_dirs()`.
+    Before this existed the three each spelled `pinned_factory_paths(root)`
+    inline, which is why widening the repository set is a change to one line in
+    each rather than a change anyone can make in one place and forget in two.
+    `openxFactory` stays out because the callers disagree about it: `scan()` and
+    `session_repositories()` name it first, the workbench sweep excludes it as
+    already in the v1 scope.
+    """
+    return [*pinned_root_product_paths(root), *pinned_factory_paths(root)]
+
+
 # A source title is the projection's IDENTITY KEY: scan() derives a set keyed
 # by document PATH and sync_book() reconciles it against a live book BY TITLE,
 # holding each title at one source. A derivation that is not injective
@@ -758,7 +832,7 @@ def scan(root: Path) -> tuple[dict[str, dict[str, str]], dict[str, BookSpec]]:
     desired: dict[str, dict[str, str]] = {b: {} for b in STATIC_BOOKS}
     specs: dict[str, BookSpec] = {b: static_spec(b) for b in STATIC_BOOKS}
     found: list[tuple[str, str, str, tuple[str, ...]]] = []
-    for base in ["openxFactory", *pinned_factory_paths(root)]:
+    for base in ["openxFactory", *governed_repo_paths(root)]:
         basep = root / base
         for f in sorted(basep.rglob("*.md")):
             rel = f.relative_to(root)
@@ -927,12 +1001,151 @@ def _add_with_one_retry(*args: str) -> str:
         return nlm(*args, parse=False)
 
 
+#: A source still wearing the temp filename an oversized upload lands under.
+#: `tempfile.mkstemp(suffix=".md", prefix="xf-sync-")` produces exactly this.
+STRAY_TEMP_TITLE_RE = re.compile(r"^xf-sync-[A-Za-z0-9_]+\.md$")
+
+#: How long to keep trying the post-upload rename, and how often. A 279KB source
+#: was live-proven on 2026-08-27 to be unready well past the two seconds this
+#: used to wait; the ceiling is generous because the alternative — giving up —
+#: strands the source under its temp name.
+RENAME_READY_TIMEOUT_S = 180
+RENAME_POLL_INTERVAL_S = 3
+
+
+def _content_digest(raw: str) -> str:
+    """The ONE way this module compares source content.
+
+    UNWRAPS FIRST. `nlm source content` may return the body inside a JSON
+    envelope, which `source_content_text()` already exists to tolerate — and the
+    first cut of stray adoption hashed the RAW stdout instead. Against a wrapped
+    response the digests could never match, so the repair silently never fired
+    (Codex P1 / Copilot, PR #438). Fail-safe, in that it degraded to a plain add
+    — but a repair that cannot fire is not a repair.
+
+    Applied to BOTH sides of every comparison. Normalising only the fetched half
+    is what created the mismatch, and one shared function is what stops a second
+    call site drifting the same way. On already-plain text the unwrap is a no-op,
+    so the symmetry costs nothing.
+
+    Digest form matches the manifest's own (`sha256(...)[:16]`).
+    """
+    return hashlib.sha256(source_content_text(str(raw)).encode()).hexdigest()[:16]
+
+
+def _source_rows(handle: str) -> list[dict]:
+    rows = nlm("source", "list", handle, "--json")
+    if isinstance(rows, dict):
+        rows = rows.get("sources") or []
+    return [r for r in (rows or []) if isinstance(r, dict)]
+
+
+def _rename_source_when_ready(handle: str, source_id: str, title: str) -> None:
+    """Rename an uploaded source, POLLING until it takes, or fail LOUDLY.
+
+    Replaces a fixed `time.sleep(2)`. That wait was too short for the largest
+    projected document (279KB, live 2026-08-27): the add succeeded, the rename
+    silently did not, and the source stranded under `xf-sync-*.md` — where parity
+    correctly reported it MISSING, because by title it was.
+
+    VERIFIES THE STATE, NOT THE RETURN. The `nlm` CLI has been observed printing
+    `API error (code 7)` while exiting 0, so a rename is confirmed by reading the
+    source list back and finding the title — never by trusting the call's own
+    report. That is the same rule the harness lessons keep arriving at from other
+    directions.
+
+    Raises on timeout rather than returning quietly: a silent failure here is
+    what produced the stranded source and, worse, what let a re-run add a second
+    one instead of repairing the first.
+    """
+    # BOUNDED BY ATTEMPTS AS WELL AS WALL TIME. A caller that patches
+    # `time.sleep` to a no-op (every test in this suite does) would otherwise
+    # turn the wall-clock deadline into a busy-wait spinning until the timeout
+    # elapsed in real seconds. Two bounds, whichever arrives first.
+    max_attempts = max(1, RENAME_READY_TIMEOUT_S // RENAME_POLL_INTERVAL_S)
+    deadline = time.monotonic() + RENAME_READY_TIMEOUT_S
+    attempts = 0
+    last = ""
+    while True:
+        attempts += 1
+        try:
+            nlm("source", "rename", source_id, title, "--notebook", handle,
+                parse=False)
+        except RuntimeError as exc:                       # noqa: PERF203
+            last = str(exc)[:200]
+        # The read-back IS the check — AND IT KEYS ON THE SOURCE ID, not the
+        # title alone. Asking "does any source carry this title?" returns
+        # success when a PRE-EXISTING source already wears it while the one just
+        # uploaded sits un-renamed: a fail-open inside the verifier written to
+        # close a fail-open (Copilot, PR #438). The pair is what is being
+        # asserted — THIS source now bears THIS title.
+        try:
+            if any(str(r.get("id") or "") == source_id
+                   and str(r.get("title") or "") == title
+                   for r in _source_rows(handle)):
+                if attempts > 1:
+                    print(f"    rename settled after {attempts} attempts")
+                return
+        except RuntimeError as exc:
+            last = f"source list unreadable: {str(exc)[:160]}"
+        if attempts >= max_attempts or time.monotonic() >= deadline:
+            raise RuntimeError(
+                f"oversized source {title!r} uploaded as {source_id} but the "
+                f"rename never took after {attempts} attempts over "
+                f"{RENAME_READY_TIMEOUT_S}s (last: {last or 'no error reported'}). "
+                f"It is live under its temp filename; rename it by hand with "
+                f"`nlm source rename {source_id} {title!r} --notebook {handle}` "
+                f"— do NOT re-run the sync to fix it")
+        time.sleep(RENAME_POLL_INTERVAL_S)
+
+
+def _adopt_matching_stray(handle: str, text: str, title: str) -> bool:
+    """Rename an already-uploaded stray into place instead of adding a duplicate.
+
+    THE SELF-HEALING HALF. Before this, a run that failed to rename left a
+    stray, and the documented repair — re-run the book — ADDED A SECOND ONE
+    (proven live 2026-08-27: canon reached 120 sources with two `xf-sync-*.md`
+    entries for one document). The failure compounded instead of healing.
+
+    A stray is adopted only when its CONTENT MATCHES the document being added,
+    on the same digest the manifest uses. If the provider does not return the
+    body verbatim the digests differ, no stray is adopted, and the caller falls
+    through to a normal add — the pre-existing behaviour. So the check can only
+    repair or do nothing; it can never adopt the wrong source.
+    """
+    want = _content_digest(text)
+    try:
+        rows = _source_rows(handle)
+    except RuntimeError:
+        return False
+    for row in rows:
+        row_title = str(row.get("title") or "")
+        source_id = row.get("id")
+        if not source_id or not STRAY_TEMP_TITLE_RE.match(row_title):
+            continue
+        try:
+            body = nlm("source", "content", source_id, parse=False) or ""
+        except RuntimeError:
+            continue
+        if _content_digest(body) != want:
+            continue
+        print(f"    adopting stray {row_title} as {title!r} "
+              f"(a previous run's rename did not take)")
+        _rename_source_when_ready(handle, source_id, title)
+        return True
+    return False
+
+
 def add_text_source(handle: str, text: str, title: str) -> None:
     """Add one text source, riding a temp file + rename when the content is
     too large for a single argv string (see MAX_TEXT_ARG_BYTES)."""
     if len(text.encode("utf-8", "replace")) <= MAX_TEXT_ARG_BYTES:
         _add_with_one_retry("source", "add", handle, "--text", text,
                             "--title", title)
+        return
+    # Repair before adding: a stray from a previous run's failed rename is this
+    # document already uploaded, and adding again would duplicate it.
+    if _adopt_matching_stray(handle, text, title):
         return
     fd, tmp = tempfile.mkstemp(suffix=".md", prefix="xf-sync-")
     try:
@@ -944,9 +1157,7 @@ def add_text_source(handle: str, text: str, title: str) -> None:
             raise RuntimeError(
                 f"oversized source {title!r} uploaded but the CLI echoed no "
                 f"source id to rename — rename it to the contract title by hand")
-        time.sleep(2)
-        nlm("source", "rename", m.group(1), title, "--notebook", handle,
-            parse=False)
+        _rename_source_when_ready(handle, m.group(1), title)
     finally:
         os.unlink(tmp)
 
@@ -1022,6 +1233,10 @@ def sync_book(root: Path, spec: BookSpec, desired: dict[str, str],
     # adds and content updates
     for rel, title in sorted(desired.items()):
         text = (root / rel).read_text(errors="replace")
+        # Raw hash, not `_content_digest`, deliberately: this is REPO text read
+        # from disk and compared against the manifest's stored value. There is no
+        # provider response here and so nothing to unwrap — the digest FORM is
+        # the same, which is what keeps the two comparable.
         digest = hashlib.sha256(text.encode()).hexdigest()[:16]
         prev = mf.get(rel)
         if title in by_title and prev and prev.get("hash") == digest:
@@ -1051,12 +1266,19 @@ V1_WORKBENCH_DIR = "openxFactory/ideation/workbench/"
 
 def _out_of_scope_workbench_dirs(root: Path) -> list[Path]:
     """Workbench dirs OUTSIDE the v1 openxFactory sweep scope that could carry
-    live manifests: the aggregation root's own and each xFactories/<repo>'s
-    (worktree containers excluded, matching scan())."""
+    live manifests: the aggregation root's own, each xFactories/<repo>'s, and
+    each allowlisted root-level neutral product's (worktree containers
+    excluded, matching scan()).
+
+    THE WIDENING IS THE SAFE DIRECTION HERE and is not merely for symmetry: a
+    workbench dir this function misses is a live manifest the sweep cannot see,
+    and the sweep DELETES the `xf-wb-*` notebook no live manifest binds. Missing
+    a directory therefore destroys a bound notebook, while including a directory
+    that holds nothing costs one `is_dir()`.
+    """
     dirs = [root / "ideation" / "workbench"]
-    if (root / "xFactories").is_dir():
-        for rel in pinned_factory_paths(root):
-            dirs.append(root / rel / "ideation" / "workbench")
+    for rel in governed_repo_paths(root):
+        dirs.append(root / rel / "ideation" / "workbench")
     return [d for d in dirs if d.is_dir()]
 
 
@@ -1233,11 +1455,15 @@ def _dashboard_module(name: str):
 
 def session_repositories(root: Path) -> list[tuple[str, Path]]:
     """(repository, checkout) pairs a session worktree can belong to: the
-    openxFactory checkout plus every PINNED factory — deliberately the same repo
-    set `scan()` walks, so the books and the sessions agree on what a repository
-    is (and neither treats a worktree container as one)."""
+    openxFactory checkout plus every governed repository below the root — the
+    pinned factories AND the allowlisted root-level neutral products —
+    deliberately the same repo set `scan()` walks, so the books and the sessions
+    agree on what a repository is (and neither treats a worktree container as
+    one). That agreement is why this reads `governed_repo_paths` and not
+    `pinned_factory_paths`: the docstring's claim was load-bearing and widening
+    `scan()` alone would have quietly falsified it."""
     pairs = [("openxFactory", root / "openxFactory")]
-    for rel in pinned_factory_paths(root):
+    for rel in governed_repo_paths(root):
         pairs.append((Path(rel).name, root / rel))
     return [(name, path) for name, path in pairs if path.is_dir()]
 

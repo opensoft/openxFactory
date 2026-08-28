@@ -681,6 +681,67 @@ ROLLBACK_B_SESSION_UNITS_MAX = 300
 ROLLBACK_B_PROJECT_CAP_USD = 750
 ROLLBACK_C_TENANT_BUDGET_USD = 150
 
+# §7.7 — the operator surface, RULED 2026-08-27. The artifact's own former
+# statement was that "a canary opened without a named holder has an unfireable
+# kill switch", so the rules here are the ones that keep the surface FIREABLE:
+# a person rather than a role, a mechanism, and a runbook that RESOLVES. A
+# `mechanism_ref` pointing at a document nobody wrote is the same unfireable
+# switch wearing a filename.
+POLICY_OPERATOR_HOLDER = "Brett Heap"
+POLICY_OPERATOR_HOLDER_KIND = "named_person"
+POLICY_OPERATOR_MECHANISM = "documented_runbook_act_on_the_serving_install"
+POLICY_OPERATOR_RUNBOOK = "docs/sops/avatar-internal-live-kill-switch.md"
+# The kernel's TWO switches and no more: "all new session creation, and per
+# model profile — each with optional revocation of active leases". Finer scopes
+# are deferred with the features they would govern, so a third scope recorded
+# here is a switch the runtime does not have.
+POLICY_SWITCH_SCOPES = {"all_new_session_creation", "per_model_profile"}
+POLICY_SWITCH_MODES = {"block_new", "revoke_active"}
+
+# §7.8 — the session-outcome token each rollback path emits. The ruling is that
+# NO NEW TOKEN is introduced, so the tokens are resolved against the closed
+# registry rather than mirrored here; what is mirrored is the PATH-TO-TOKEN
+# ruling itself.
+# The ONE registry §7.8's tokens may be drawn from, spelled as the artifact
+# spells it in `session_outcome_tokens.registry_ref` — AVC-relative, so the two
+# can be compared directly instead of one being reconstructed from the other.
+OUTCOME_REGISTRY_REF = "registries/session-outcomes.registry.yaml"
+POLICY_OUTCOME_PATHS = {
+    "consent_or_lease_revocation": "revoked",
+    "drained_leg_after_block_new": "abandoned",
+    "force_terminated_leg": "revoked",
+}
+# The same fact carried twice on purpose — once on the class a reader lands on,
+# once in the block that owns §7.8 — and therefore compared, exactly as the
+# error rate is. `(outcome, path)` per class; ROLLBACK-C is operator-selected
+# and names no single token.
+POLICY_CLASS_OUTCOMES = {
+    "ROLLBACK-A": ("revoked", "force_terminated_leg"),
+    "ROLLBACK-B": ("abandoned", "drained_leg_after_block_new"),
+}
+POLICY_ROLLBACK_C_OUTCOME = "operator_selected"
+
+# §7.10 — "tenant" for this ring. The per-tenant spend and metering dimensions
+# have no subject without it, and §7.2's $150 was sized on this denominator.
+POLICY_TENANT_IS = "cohort_member"
+
+# §7.9 — the declared region, data-control classes and retention window, pinned
+# on the activation checklist's condition 2 (the condition that APPROVES the
+# regional, retention and data-control terms and already names §7.9 as an
+# owning task). No AVC-09 descriptor instance exists yet; these are the values
+# descriptor authoring consumes.
+CHECKLIST_S79_CONDITION = 2
+CHECKLIST_S79_REGION = "provider_project_us_default"
+# Fork 4 Option C, exactly: captions and deltas ephemeral, decisions and
+# outcomes structured. Held as an ORDERED-INSENSITIVE set and compared
+# set-equal, because a class quietly ADDED is the failure mode here.
+CHECKLIST_S79_DATA_CLASSES = {"ephemeral_presentation", "structured_record"}
+# The three the ruling says are never instantiated in this ring. They are also
+# three of the four RESERVED retention classes, which stay forbidden; the check
+# compares the recorded list rather than trusting the prose beside it.
+CHECKLIST_S79_NEVER = {"audio", "full_transcript", "independent_transcription"}
+CHECKLIST_S79_RETENTION_DAYS = 90
+
 # ---- §7.5, the minimum sample count per gated cell (feeds §5.2) -------------
 SAMPLE_MIN_FILE = "latency-sample-minimum.yaml"
 SAMPLE_MIN_KIND = "avatar-client-latency-sample-minimum"
@@ -832,6 +893,10 @@ def check_activation_checklist(f: Findings) -> None:
     4. THE RING IS FOUR EVIDENCE ELEMENTS AND THE GATE CONFERS NO DEFAULT. The
        exit contract cannot widen by editing this file, and the artifact may
        never say the gate promotes a profile to production.
+    5. CONDITION 2 CARRIES §7.9's RULED VALUES. That condition is the one that
+       APPROVES the regional, retention and data-control terms, it is HARD
+       PREFLIGHT, and it already named §7.9 as an owning task — so the values
+       descriptor authoring will consume live there, and are checked there.
 
     Fail closed on a missing or unreadable checklist: §4.1 lands it, and a ring
     whose classification cannot be read is not a classified ring."""
@@ -964,6 +1029,11 @@ def check_activation_checklist(f: Findings) -> None:
                              f"adoption change, and applied here it would gate "
                              f"gpt-realtime-2.1 on beating itself")
 
+    # --- 5: §7.9's ruled region, data-control and retention values ---
+    _check_section_7_9_values(
+        f, cat, rp,
+        next((c for c in conditions if c["number"] == CHECKLIST_S79_CONDITION), {}))
+
     # --- 4: the ring is four evidence elements, and confers no default ---
     ring = doc.get("ring_elements")
     if not isinstance(ring, list):
@@ -1001,6 +1071,102 @@ def check_activation_checklist(f: Findings) -> None:
                          f"be true")
         _check_map_refs(f, cat, f"{rp} gate_confers",
                         confers.get("acceptance_map_refs"), known)
+
+
+def _check_section_7_9_values(f: Findings, cat: str, rp: str, cond: dict) -> None:
+    """§7.9: the declared region, data-control classes and retention window,
+    RULED 2026-08-27 and pinned on activation-checklist condition 2.
+
+    THE DESCRIPTOR DOES NOT EXIST YET, and that is the reason these rules
+    matter rather than a reason to skip them. AVC-09's `region_and_data_controls`
+    is the single home for the values; the adapter is unbuilt and task 6.1.2 has
+    not provisioned the serving install, so what is pinned is what the descriptor
+    SHALL declare when it is authored. An authoring input that is not checked is
+    an authoring input the author gets to re-decide.
+
+    The rule with real teeth is the data-control set comparison. Fork 4 Option C
+    permits EXACTLY two classes for canary audio, and the hazard is a class
+    quietly ADDED — `audio` or `full_transcript` appearing here would unreserve
+    by editing a checklist what the kernel says only a successor change may
+    unreserve. So the permitted classes are compared set-equal and the
+    never-instantiated list is compared set-equal too, rather than either being
+    spot-checked or trusted to the prose beside it."""
+    vals = cond.get("ruled_values") if isinstance(cond, dict) else None
+    if not isinstance(vals, dict):
+        f.error(cat, f"{rp} condition {CHECKLIST_S79_CONDITION}: no `ruled_values` "
+                     f"block (fail closed); §7.9's region, data-control and retention "
+                     f"values are a HARD PREFLIGHT term of this condition, and an "
+                     f"unpinned authoring input opens the ring on an unstated "
+                     f"assumption")
+        return
+    if vals.get("status") != "ruled":
+        f.error(cat, f"{rp} §7.9: ruled_values.status is {vals.get('status')!r} != "
+                     f"'ruled'")
+
+    region = vals.get("region") or {}
+    if region.get("declared_region") != CHECKLIST_S79_REGION:
+        f.error(cat, f"{rp} §7.9: region.declared_region is "
+                     f"{region.get('declared_region')!r} != the ruled "
+                     f"{CHECKLIST_S79_REGION!r}")
+    # HONESTY IS THE RULING, not a footnote to it. F0 recorded `region: null`
+    # and the provider project is unprovisioned, so a descriptor claiming a
+    # pinned region the project does not enforce would be false in the one field
+    # the ring points at for locality.
+    if region.get("declare_honestly") is not True:
+        f.error(cat, f"{rp} §7.9: region.declare_honestly is "
+                     f"{region.get('declare_honestly')!r}; the ruled value is the "
+                     f"provider project's default DECLARED HONESTLY, not a residency "
+                     f"guarantee the project does not enforce")
+
+    dc = vals.get("data_control") or {}
+    permitted = set(dc.get("classes_permitted") or [])
+    if permitted != CHECKLIST_S79_DATA_CLASSES:
+        f.error(cat, f"{rp} §7.9: data_control.classes_permitted "
+                     f"{sorted(permitted, key=str)} != the Fork 4 Option C classes "
+                     f"{sorted(CHECKLIST_S79_DATA_CLASSES)}; a class added here "
+                     f"unreserves by checklist edit what the kernel says only a "
+                     f"successor change may unreserve")
+    never = set(dc.get("classes_never_instantiated") or [])
+    if never != CHECKLIST_S79_NEVER:
+        f.error(cat, f"{rp} §7.9: data_control.classes_never_instantiated "
+                     f"{sorted(never, key=str)} != {sorted(CHECKLIST_S79_NEVER)}; the "
+                     f"ruling is that no such instance is EVER created in this ring")
+    if permitted & CHECKLIST_S79_NEVER:
+        f.error(cat, f"{rp} §7.9: data_control permits and forbids "
+                     f"{sorted(permitted & CHECKLIST_S79_NEVER)} at once")
+    if dc.get("reserved_classes_untouched") is not True:
+        f.error(cat, f"{rp} §7.9: data_control.reserved_classes_untouched is "
+                     f"{dc.get('reserved_classes_untouched')!r}; this change "
+                     f"unreserves exactly AVC-09 and AVC-10 and no retention class")
+    # NO SCHEMA FIELD FORBIDS A SECOND-MODEL SHADOW TODAY. Recording the
+    # guarantee as enforced would be the false claim task 6.2.4 exists to refuse.
+    if dc.get("enforcement") != "operational":
+        f.error(cat, f"{rp} §7.9: data_control.enforcement is "
+                     f"{dc.get('enforcement')!r} != 'operational'; no schema field "
+                     f"forbids an out-of-class instance or a second-model shadow "
+                     f"today, and claiming otherwise would be false (task 6.2.4)")
+
+    ret = vals.get("retention") or {}
+    if ret.get("window_days") != CHECKLIST_S79_RETENTION_DAYS:
+        f.error(cat, f"{rp} §7.9: retention.window_days is "
+                     f"{ret.get('window_days')!r} != the ruled "
+                     f"{CHECKLIST_S79_RETENTION_DAYS}")
+    if ret.get("applies_to") != "canary_derived_structured_record":
+        f.error(cat, f"{rp} §7.9: retention.applies_to is "
+                     f"{ret.get('applies_to')!r} != "
+                     f"'canary_derived_structured_record'; the window is ruled for "
+                     f"canary-derived structured records, not for the ring at large")
+    # A WINDOW WITH NO POLICY REFERENCE IS AN INLINE DURATION. The kernel's
+    # split is references-only: domains own the record, the descriptor cites it.
+    if not ret.get("policy_ref"):
+        f.error(cat, f"{rp} §7.9: retention names no `policy_ref`; the ruled window "
+                     f"is carried by a NAMED DOMAIN-OWNED policy reference that the "
+                     f"descriptor cites — a duration with no reference is the inline "
+                     f"retention the kernel's reference-only split refuses")
+    if ret.get("policy_owner") != "domain":
+        f.error(cat, f"{rp} §7.9: retention.policy_owner is "
+                     f"{ret.get('policy_owner')!r} != 'domain'; the retention record "
+                     f"is domain-owned, as consent evidence already is")
 
 
 def check_canary_rollback_policy(f: Findings) -> None:
@@ -1200,6 +1366,28 @@ def _check_section_7_values(f: Findings, cat: str, rp: str, doc: Any) -> None:
       other, not merely each to a constant, so a future edit that moves both
       consistently still has to move them to the ruled value — and one that
       moves only one fails on both rules at once.
+
+    §7.7, §7.8 and §7.10 were ruled the same day and close the three gaps this
+    artifact recorded against itself, each with the same shape of hazard:
+
+    * AN UNFIREABLE KILL SWITCH. `operator_surface` said of itself that "a
+      canary opened without a named holder has an unfireable kill switch". A
+      holder recorded as a ROLE, or a `mechanism_ref` naming a runbook nobody
+      wrote, is that same unfireable switch with a value in the field — so the
+      holder must be a named person and the runbook must RESOLVE ON DISK.
+    * AN OUTCOME TOKEN INFERRED AFTER THE FACT. The block required the outcome
+      "DECLARED IN ADVANCE rather than inferred", and the ruling introduces NO
+      new token. Both halves are checked: the path-to-token mapping against the
+      ruling, and every token against the closed `session-outcomes` REGISTRY
+      rather than against a list mirrored here — a mirrored list would let the
+      registry shrink underneath a policy still naming a member of it. The
+      token is also carried on the rollback class itself and compared, for the
+      same reason the error rate is.
+    * A BUDGET WITH NO SUBJECT. The per-tenant figure is metered against a
+      "tenant" that was `status: unset`. Tenant is now a cohort member, and the
+      recorded `tenant_count` is RECOMPUTED from `cohort.members` rather than
+      trusted — a count that outlives the membership it summarises is exactly
+      how a re-sized budget goes unnoticed.
     """
     exit_criteria = doc.get("canary_exit_criteria")
     if not isinstance(exit_criteria, dict):
@@ -1336,6 +1524,338 @@ def _check_section_7_values(f: Findings, cat: str, rp: str, doc: Any) -> None:
                      f"metered-only budget with nothing wired to it is the "
                      f"`budget_envelopes: {{}}` failure this org has already had "
                      f"flagged in review — §7.4 exists to give this number a reader")
+
+    pol = doc.get("rollback_policy")
+    pol = pol if isinstance(pol, dict) else {}
+    _check_operator_surface(f, cat, rp, pol)
+    _check_session_outcome_tokens(f, cat, rp, doc, pol)
+    _check_tenant_definition(f, cat, rp, doc)
+
+
+def _check_operator_surface(f: Findings, cat: str, rp: str, pol: dict) -> None:
+    """§7.7: the operator surface that fires the kill switches, RULED
+    2026-08-27 — a named PERSON, a documented runbook act, and a runbook that
+    exists.
+
+    Fail closed on absence: the block's own former statement is that a canary
+    opened without a named holder has an unfireable kill switch, which would
+    make ROLLBACK-C undeliverable and ROLLBACK-A dependent on automation alone.
+    Deleting the block is therefore the defect, not a deferral."""
+    surface = pol.get("operator_surface")
+    if not isinstance(surface, dict):
+        f.error(cat, f"{rp}: `rollback_policy.operator_surface` missing (fail "
+                     f"closed); the surface that fires the kill switches MUST be "
+                     f"named before the canary opens")
+        return
+    if surface.get("status") != "named":
+        f.error(cat, f"{rp}: operator_surface.status is "
+                     f"{surface.get('status')!r} != 'named'; §7.7 was ruled "
+                     f"2026-08-27 and a canary opened without a named holder has an "
+                     f"unfireable kill switch")
+    if surface.get("holder") != POLICY_OPERATOR_HOLDER:
+        f.error(cat, f"{rp}: operator_surface.holder is {surface.get('holder')!r} != "
+                     f"the ruled {POLICY_OPERATOR_HOLDER!r}")
+    # A ROLE IS THE FAILURE THIS FIELD EXISTS TO CATCH. §7.4 recorded its page
+    # target as a role precisely BECAUSE §7.7 was open; a holder recorded as a
+    # role again would re-open the gap while looking closed.
+    if surface.get("holder_kind") != POLICY_OPERATOR_HOLDER_KIND:
+        f.error(cat, f"{rp}: operator_surface.holder_kind is "
+                     f"{surface.get('holder_kind')!r} != "
+                     f"{POLICY_OPERATOR_HOLDER_KIND!r}; §7.7 requires a PERSON, and "
+                     f"a role recorded here is the same gap §7.4 was already holding "
+                     f"open")
+    if surface.get("holds") != "both_switches":
+        f.error(cat, f"{rp}: operator_surface.holds is {surface.get('holds')!r} != "
+                     f"'both_switches'; the kernel gives this ring two switches and "
+                     f"the ruled holder holds both")
+    if surface.get("mechanism") != POLICY_OPERATOR_MECHANISM:
+        f.error(cat, f"{rp}: operator_surface.mechanism is "
+                     f"{surface.get('mechanism')!r} != {POLICY_OPERATOR_MECHANISM!r}")
+    if surface.get("web_console_used") is not False:
+        f.error(cat, f"{rp}: operator_surface.web_console_used is "
+                     f"{surface.get('web_console_used')!r}; the web console is an "
+                     f"explicit kernel non-goal and no operator surface is inherited "
+                     f"from it")
+    if not surface.get("rota_deferred_to"):
+        f.error(cat, f"{rp}: operator_surface names no `rota_deferred_to`; ONE named "
+                     f"holder is proportionate to this ring and not to the pilot, so "
+                     f"the deferral is part of the ruling and not an omission")
+    # §7.4's page target and §7.7's holder are ONE human by ruling — "the person
+    # who learns about the spend is the person who can stop it".
+    if surface.get("also_the_alert_page_target") is not True:
+        f.error(cat, f"{rp}: operator_surface.also_the_alert_page_target is "
+                     f"{surface.get('also_the_alert_page_target')!r}; §7.4's page "
+                     f"target and §7.7's holder are ONE human by ruling — an alert "
+                     f"with no named recipient and a kill switch with no named "
+                     f"holder are the same gap seen twice")
+
+    # THE MECHANISM IS A DOCUMENT, SO THE DOCUMENT MUST EXIST. A `mechanism_ref`
+    # that resolves to nothing is an unfireable switch with a filename in the
+    # field, which is the failure this whole block was opened against.
+    ref = surface.get("mechanism_ref")
+    if ref != POLICY_OPERATOR_RUNBOOK:
+        f.error(cat, f"{rp}: operator_surface.mechanism_ref is {ref!r} != the ruled "
+                     f"{POLICY_OPERATOR_RUNBOOK!r}")
+    if isinstance(ref, str) and ref:
+        target = (ROOT / ref).resolve()
+        inside = target.is_relative_to(ROOT.resolve()) if hasattr(
+            target, "is_relative_to") else str(target).startswith(str(ROOT.resolve()))
+        if not inside:
+            f.error(cat, f"{rp}: operator_surface.mechanism_ref {ref!r} escapes the "
+                         f"repository; the runbook is a document in this tree")
+        elif not target.is_file():
+            f.error(cat, f"{rp}: operator_surface.mechanism_ref {ref!r} resolves to "
+                         f"no file; the RULED MECHANISM IS THAT DOCUMENT, so a "
+                         f"dangling reference is an unfireable kill switch wearing a "
+                         f"filename")
+
+    # The two switches the kernel gives this ring, and their two modes each.
+    switches = surface.get("switches")
+    if not isinstance(switches, list):
+        f.error(cat, f"{rp}: operator_surface carries no `switches` list; the holder "
+                     f"holds two named switches, not an unspecified control")
+        return
+    scopes = [s.get("scope") for s in switches if isinstance(s, dict)]
+    if len(scopes) != len(switches):
+        f.error(cat, f"{rp}: operator_surface.switches carries entries that are not "
+                     f"mappings; a switch that cannot be read is never counted as "
+                     f"present")
+    if set(scopes) != POLICY_SWITCH_SCOPES:
+        f.error(cat, f"{rp}: operator_surface switch scopes {sorted(scopes, key=str)} "
+                     f"!= the kernel's two {sorted(POLICY_SWITCH_SCOPES)}; finer "
+                     f"scopes are DEFERRED with the features they would govern, so a "
+                     f"third scope here is a switch the runtime does not have")
+    for s in switches:
+        if not isinstance(s, dict):
+            continue
+        modes = set(s.get("modes") or [])
+        if modes != POLICY_SWITCH_MODES:
+            f.error(cat, f"{rp}: switch {s.get('id')!r} declares modes "
+                         f"{sorted(modes, key=str)} != "
+                         f"{sorted(POLICY_SWITCH_MODES)}; each kill switch carries "
+                         f"OPTIONAL active-lease revocation, and RING-04 exercises "
+                         f"both modes of both switches before any canary traffic")
+
+
+def _registry_members(f: Findings, cat: str, rp: str, ref: str) -> set[str] | None:
+    """The members of one closed AVC registry, read from the registry file at
+    `ref` (a path relative to `contracts/avatar-client/`).
+
+    Read rather than mirrored on purpose: §7.8's ruling is that no NEW outcome
+    token is introduced, and the way that stays true is that the check resolves
+    against the vocabulary the schemas are parity-checked against. A constant
+    copied into this module would keep agreeing with itself after the registry
+    moved. Returns None when the registry file is absent — which is reported,
+    never silently skipped; a present-but-unparseable registry instead raises
+    MalformedYAML, which the run() boundary turns into its own finding.
+
+    PRECONDITION: `ref` is a PINNED, in-tree reference — the caller has already
+    compared it against the sanctioned path for that vocabulary. This helper
+    therefore carries no containment guard of its own: a guard that no caller
+    can trip is a guard no test can prove, and an unprovable guard is worth less
+    than the sentence saying where the real one lives."""
+    target = AVC / ref
+    if not target.is_file():
+        f.error(cat, f"{rp}: the closed registry `{ref}` is absent, so the declared "
+                     f"tokens cannot be resolved against it (fail closed)")
+        return None
+    doc = load_yaml(target)
+    members = doc.get("members") if isinstance(doc, dict) else None
+    if not isinstance(members, list):
+        f.error(cat, f"{rp}: `{ref}` carries no readable `members` list (fail "
+                     f"closed)")
+        return None
+    return {m.get("id") for m in members if isinstance(m, dict)}
+
+
+def _check_session_outcome_tokens(f: Findings, cat: str, rp: str,
+                                  doc: Any, pol: dict) -> None:
+    """§7.8: the session outcome each rollback path emits, RULED 2026-08-27.
+
+    Two rules, and the second is the one with teeth. First, the path-to-token
+    mapping matches the ruling — a drained leg is `abandoned`, a
+    force-terminated leg is `revoked` on the same terminal path consent
+    withdrawal already uses. Second, EVERY token named anywhere in the block is
+    a member of the closed `session-outcomes` registry, because the ruling's
+    whole content is that no new token was introduced: a policy that invents
+    `drained` or `blocked` would otherwise read as a decision rather than as
+    the schema violation it is.
+
+    Two rules that look like bookkeeping and are not. The artifact's own
+    `registry_ref` is PINNED to the sanctioned vocabulary and then FOLLOWED, so
+    the document cannot name one registry while this rule reads another. And
+    `unbound` must be an EXPLICIT EMPTY LIST: §7.8's claim is "nothing remains
+    unbound", which is asserted, never inferred from a field that is simply
+    absent."""
+    block = pol.get("session_outcome_tokens")
+    if not isinstance(block, dict):
+        f.error(cat, f"{rp}: `rollback_policy.session_outcome_tokens` missing (fail "
+                     f"closed); the outcome each rollback path emits is DECLARED IN "
+                     f"ADVANCE rather than inferred")
+        return
+    if block.get("status") != "bound":
+        f.error(cat, f"{rp}: session_outcome_tokens.status is "
+                     f"{block.get('status')!r} != 'bound'; §7.8 was ruled 2026-08-27 "
+                     f"and every path now carries a declared token")
+    if block.get("new_outcome_token_introduced") is not False:
+        f.error(cat, f"{rp}: session_outcome_tokens.new_outcome_token_introduced is "
+                     f"{block.get('new_outcome_token_introduced')!r}; the ruling's "
+                     f"content is that NO new outcome token is introduced")
+
+    bound = block.get("bound")
+    if not isinstance(bound, list):
+        f.error(cat, f"{rp}: session_outcome_tokens.bound missing or not a list")
+        bound = []
+    got = {e.get("path"): e for e in bound if isinstance(e, dict)}
+    if set(got) != set(POLICY_OUTCOME_PATHS):
+        f.error(cat, f"{rp}: session_outcome_tokens bound paths "
+                     f"{sorted(got, key=str)} != the ruled "
+                     f"{sorted(POLICY_OUTCOME_PATHS)}")
+    for path, want in POLICY_OUTCOME_PATHS.items():
+        entry = got.get(path)
+        if not isinstance(entry, dict):
+            continue
+        if entry.get("outcome") != want:
+            f.error(cat, f"{rp}: session_outcome_tokens path {path!r} emits "
+                         f"{entry.get('outcome')!r} != the ruled {want!r}")
+    # NOTHING MAY REMAIN UNBOUND — AND THE FIELD MUST SAY SO IN THOSE WORDS.
+    # §7.8's claim is not "no unbound paths are visible", it is "nothing remains
+    # unbound", so the artifact has to ASSERT the empty list rather than merely
+    # fail to carry a non-empty one. A truthiness test read `{}`, `""`, `0` and
+    # a MISSING KEY as "nothing unbound", which means deleting the field — the
+    # single easiest edit — would have silently satisfied the strongest claim in
+    # the block. An explicit empty LIST is the only passing shape.
+    if "unbound" not in block:
+        f.error(cat, f"{rp}: session_outcome_tokens carries no `unbound` key; §7.8's "
+                     f"claim is that NOTHING remains unbound, and a claim that "
+                     f"strong is asserted as an empty list — never inferred from an "
+                     f"absent field")
+    else:
+        unbound = block.get("unbound")
+        if not isinstance(unbound, list):
+            f.error(cat, f"{rp}: session_outcome_tokens.unbound is a "
+                         f"{type(unbound).__name__} ({unbound!r}), not a list; an "
+                         f"empty mapping or empty string reads as 'nothing unbound' "
+                         f"to a truthiness test and as a malformed record to a reader")
+        elif unbound:
+            f.error(cat, f"{rp}: session_outcome_tokens.unbound still carries "
+                         f"{len(unbound)} path(s) while status is 'bound'; §7.8 bound "
+                         f"every path, so an unbound entry is the open state returning "
+                         f"under a closed label")
+
+    # THE ARTIFACT'S OWN REGISTRY REFERENCE IS PINNED, AND THEN FOLLOWED.
+    # `registry_ref` was recorded but never checked, so the policy could have
+    # named one vocabulary while this rule resolved against another — the
+    # document and its validator disagreeing in silence, which is worse than
+    # either being wrong alone. The ref is PINNED rather than freely followed
+    # because the contract grants no choice here: `session-outcomes` is a CLOSED
+    # registry with exactly one file, and letting the artifact nominate its own
+    # vocabulary would invent flexibility that would defeat the closure. So the
+    # ref must equal the sanctioned path — and the read then goes THROUGH it, so
+    # the check demonstrably resolves what the document says it resolves.
+    ref = block.get("registry_ref")
+    if ref != OUTCOME_REGISTRY_REF:
+        f.error(cat, f"{rp}: session_outcome_tokens.registry_ref is {ref!r} != the "
+                     f"sanctioned {OUTCOME_REGISTRY_REF!r}; the outcome vocabulary is "
+                     f"a CLOSED registry, so the artifact may not nominate a "
+                     f"different one — and a ref nobody checks lets the policy point "
+                     f"one way while the rule reads another")
+    # A BAD REF IS NOT A REASON TO SKIP THE MEMBERSHIP RULE. Resolving against
+    # the sanctioned path when the ref is wrong keeps the token check running;
+    # rewarding a broken reference with a weaker validation is the one outcome
+    # this must not have.
+    known = _registry_members(
+        f, cat, rp, ref if ref == OUTCOME_REGISTRY_REF else OUTCOME_REGISTRY_REF)
+    if known is not None:
+        declared: set[str] = set()
+        for entry in bound:
+            if not isinstance(entry, dict):
+                continue
+            if isinstance(entry.get("outcome"), str):
+                declared.add(entry["outcome"])
+            declared.update(t for t in entry.get("also_permitted") or []
+                            if isinstance(t, str))
+        invented = sorted(declared - known)
+        if invented:
+            f.error(cat, f"{rp}: session_outcome_tokens names {invented}, which "
+                         f"is/are not member(s) of the closed `session-outcomes` "
+                         f"registry; §7.8 introduces NO new outcome token")
+
+    # THE SAME FACT, CARRIED TWICE, COMPARED. The class a reader lands on states
+    # its own terminal; the §7.8 block owns the mapping. Apart, a class could
+    # promise one terminal while the policy bound another.
+    for cid, (want_outcome, want_path) in POLICY_CLASS_OUTCOMES.items():
+        c = _rollback_class(doc, cid)
+        if c.get("session_outcome") != want_outcome:
+            f.error(cat, f"{rp} {cid}: session_outcome is "
+                         f"{c.get('session_outcome')!r} != the ruled "
+                         f"{want_outcome!r} (§7.8)")
+        if c.get("session_outcome_path") != want_path:
+            f.error(cat, f"{rp} {cid}: session_outcome_path is "
+                         f"{c.get('session_outcome_path')!r} != {want_path!r}")
+        entry = got.get(want_path)
+        if isinstance(entry, dict) and entry.get("outcome") != c.get("session_outcome"):
+            f.error(cat, f"{rp}: {cid}'s session_outcome "
+                         f"{c.get('session_outcome')!r} disagrees with "
+                         f"session_outcome_tokens path {want_path!r} "
+                         f"{entry.get('outcome')!r}; they are ONE ruled fact")
+    rc = _rollback_class(doc, "ROLLBACK-C")
+    if rc.get("session_outcome") != POLICY_ROLLBACK_C_OUTCOME:
+        f.error(cat, f"{rp} ROLLBACK-C: session_outcome is "
+                     f"{rc.get('session_outcome')!r} != "
+                     f"{POLICY_ROLLBACK_C_OUTCOME!r}; the operator selects the scope "
+                     f"and the scope binds the token, so this class names no single "
+                     f"outcome of its own")
+
+
+def _check_tenant_definition(f: Findings, cat: str, rp: str, doc: Any) -> None:
+    """§7.10: "tenant" for this ring, RULED 2026-08-27 as the cohort member.
+
+    The recorded `tenant_count` is RECOMPUTED from `cohort.members` rather than
+    read. §7.2's per-tenant budget was sized on two tenants sitting comfortably
+    under the project cap; if the cohort ever grew and the count stayed at 2,
+    the budget would silently be metering against a denominator that no longer
+    exists, which is precisely the re-sizing the task said would be needed."""
+    cohort = doc.get("cohort")
+    cohort = cohort if isinstance(cohort, dict) else {}
+    ref = cohort.get("tenant_definition_ref")
+    if not isinstance(ref, dict):
+        f.error(cat, f"{rp}: `cohort.tenant_definition_ref` missing (fail closed); "
+                     f"without it the per-tenant spend and metering dimensions have "
+                     f"no subject")
+        return
+    if ref.get("status") != "set":
+        f.error(cat, f"{rp}: cohort.tenant_definition_ref.status is "
+                     f"{ref.get('status')!r} != 'set'; §7.10 was ruled 2026-08-27 and "
+                     f"§7.2's per-tenant budget has no subject until it is")
+    if ref.get("tenant_is") != POLICY_TENANT_IS:
+        f.error(cat, f"{rp}: cohort.tenant_definition_ref.tenant_is is "
+                     f"{ref.get('tenant_is')!r} != the ruled {POLICY_TENANT_IS!r}; "
+                     f"a tenant ruled as anything else re-opens §7.2's sizing against "
+                     f"a new denominator")
+
+    members = cohort.get("members")
+    members = members if isinstance(members, list) else []
+    member_ids = {m.get("id") for m in members if isinstance(m, dict)}
+    declared_ids = set(ref.get("tenant_ids") or [])
+    if declared_ids != member_ids:
+        f.error(cat, f"{rp}: cohort.tenant_definition_ref.tenant_ids "
+                     f"{sorted(declared_ids, key=str)} != the cohort's own members "
+                     f"{sorted(member_ids, key=str)}; tenant IS cohort member, so the "
+                     f"two lists are one list")
+    if ref.get("tenant_count") != len(member_ids):
+        f.error(cat, f"{rp}: cohort.tenant_definition_ref.tenant_count is "
+                     f"{ref.get('tenant_count')!r} but the cohort carries "
+                     f"{len(member_ids)} member(s); §7.2's $"
+                     f"{ROLLBACK_C_TENANT_BUDGET_USD}/month per-tenant figure was "
+                     f"sized on this denominator, so a count that outlives its "
+                     f"membership re-sizes the budget silently")
+    if ref.get("sizing_still_valid") is not True:
+        f.error(cat, f"{rp}: cohort.tenant_definition_ref.sizing_still_valid is "
+                     f"{ref.get('sizing_still_valid')!r}; the ruling is the "
+                     f"denominator §7.2 already assumed, so it must state that the "
+                     f"per-tenant figure stands — or §7.2 needs re-ruling, not a "
+                     f"quiet flag")
 
 
 def check_latency_sample_minimum(f: Findings) -> None:

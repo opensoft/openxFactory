@@ -68,6 +68,10 @@ cheaper of the two and the one #330 itself calls "where it is cheap", and
 building the net first would have been building the second-best half first. The
 open box carries an owner and a trigger — `tasks.md` § 7.1.
 
+**Affirmed 2026-08-27 by Brett** — in session, multiple choice, verbatim
+"Affirm (Recommended)", after a walkthrough stating the rationale and cost of
+reversal.
+
 ## D2 — Same-kind exact units, three arms, and a new reserved marker
 
 ### Why not lines
@@ -184,6 +188,10 @@ in this change's own delta states that a finding "MUST NOT assert that the
 divergence is unintended, the arm having no means to distinguish a rewording
 from stale text".
 
+**Affirmed 2026-08-27 by Brett** — in session, multiple choice, verbatim
+"Affirm (Recommended)", after a walkthrough stating the rationale and cost of
+reversal.
+
 ## D3 — Advisory at launch, and what stays advisory
 
 `warning` and `info` keep the family out of `runner.main`'s `{CRITICAL}` and
@@ -215,6 +223,10 @@ draft said "ever", which was a decision this packet has no standing to take and
 which would have quietly consigned seven of #351's nine items to permanent
 advisory status without saying so. The proposal now says which items those are,
 in a table, so the scope of the gate is visible rather than inferred.
+
+**Affirmed 2026-08-27 by Brett** — in session, multiple choice, verbatim
+"Affirm (Recommended)", after a walkthrough stating the rationale and cost of
+reversal.
 
 ## D4 — Reuse `release-realization`, do not restate or widen it
 
@@ -285,6 +297,10 @@ that canon ALREADY carries — the `add-doxchat-model-intake` /
 concluding that "archive safety is asymmetric" and that intake must archive
 first. Which is also the case this change's own § 2.1 creates; see D5.
 
+**Affirmed 2026-08-27 by Brett** — in session, multiple choice, verbatim
+"Affirm (Recommended)", after a walkthrough stating the rationale and cost of
+reversal.
+
 ## D5 — The dogfooding decision, decided by running the check on itself
 
 **Canon still enumerates.** `openspec/specs/doc-health/spec.md` opens "The
@@ -340,6 +356,14 @@ rather than an evasion of it.** A change cannot commit the currency defect in a
 block it does not have. What it can do — and what § 2.1 pins — is owe the block
 at the moment the tree can make it true, write it relative to the other active
 writer's outcome, and record the per-requirement count at that gate.
+
+**Affirmed 2026-08-27 by Brett** — in session, multiple choice, verbatim
+"Affirm (Recommended)", after a walkthrough stating the rationale and cost of
+reversal.
+
+2026-08-27: all eleven decisions D1–D5 / O6–O11 affirmed by Brett in the same
+session (see each flag). The record moves from 'not vetoed' to 'affirmed';
+nothing was vetoed.
 
 ## What was considered and not done
 

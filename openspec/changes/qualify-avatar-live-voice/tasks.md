@@ -24,6 +24,20 @@ is mis-specified.
 > this change does not touch. The rest of §4 through §6 remains unbuilt: 6.1.2
 > is Brett's provisioning act, 6.1.3 and 6.1.4 are the wiring slice, and 6.1.5
 > is deferred by ruling.
+>
+> **Amended a third time 2026-08-27.** §7.7-§7.10 were RULED in session and
+> are ticked, so **§7 IS NOW FULLY RULED** — every authoring input the rulings
+> deliberately left to proposal time carries a value, and the sentence above
+> about 7.7 needing a person named is discharged: Brett Heap holds both kill
+> switches, and the mechanism is the runbook at
+> `docs/sops/avatar-internal-live-kill-switch.md`. The two cross-dependencies
+> §7 was carrying against itself are closed with them: §7.4's page target is a
+> named person rather than a role, and §7.2's metered per-tenant budget has a
+> subject (tenant = cohort member, so two tenants, which is the denominator
+> $150/month was sized against — no re-sizing needed). What did NOT change:
+> §4 through §6 are still unbuilt apart from 6.1.1, 6.3.1 and 6.3.2, the
+> AVC-09 descriptor is NOT authored — §7.9 pins the values it will declare,
+> nothing more — and the ring's archive gate is unmoved.
 
 ## 1. Spec deltas (THIS CHANGE)
 
@@ -447,8 +461,14 @@ the checklist that produces its evidence.
       metering job following the doc-health pattern verbatim (one issue per
       run, supersede-and-close the prior) on a per-tenant metered crossing of
       $150/month or any cost-triggered session kill. The page target is the
-      §7.7 kill-switch holder — see §7.4's tick for why that is recorded as a
-      ROLE today and what has to happen before the canary opens.
+      §7.7 kill-switch holder, and §7.7 was RULED later the same day, so this
+      task inherits a NAMED PERSON rather than the role §7.4 first recorded:
+      read the recipient from
+      `canary-cohort-and-rollback-policy.yaml` `operator_surface.holder`,
+      never from a copy. The metered per-tenant crossing also has its subject
+      now — §7.10 rules tenant = cohort member, so this job meters two
+      tenants — and the runbook the alert escalates into is
+      `docs/sops/avatar-internal-live-kill-switch.md`.
 - [ ] 6.1.5 DEFERRED, NOT BUILT: the durable synchronous per-tenant
       cumulative-spend counter. Record it as `avatar-pilot-hardening`'s work
       and record the resulting limit — the provider-project cap is the only
@@ -497,6 +517,12 @@ the checklist that produces its evidence.
       audited. The §7.10 "tenant" definition is recorded `status: unset` with
       the note that it MUST agree with this cohort or the per-tenant spend and
       metering dimensions have no subject; recorded open rather than assumed.
+      **§7.10 RULED later the same day**, and it agrees with this cohort by
+      construction: TENANT = COHORT MEMBER, so the two members above ARE the
+      two tenants. `tenant_definition_ref` now reads `status: set`, and the
+      validator recomputes its `tenant_count` from `cohort.members` rather
+      than trusting the recorded 2 — if this cohort ever widened by ruling,
+      the tenant count could not quietly stay behind.
 - [x] 6.3.2 WRITE the revoke-versus-block policy the kernel requires and has
       never had, in its ratified three-way split: safety/integrity breaches
       auto-abort WITH active-lease revocation; latency-budget and elevated
@@ -532,6 +558,16 @@ the checklist that produces its evidence.
       flags; the mutation that flips ROLLBACK-B's flag to true — which would
       cut people off mid-conversation on a performance regression and spend the
       safety mechanism on a latency problem — is caught.
+      **BOTH OPEN RECORDS CLOSED later the same day** by §7.7 and §7.8, so
+      this artifact no longer carries an open field: `operator_surface` reads
+      `status: named` with Brett Heap as holder and the runbook at
+      `docs/sops/avatar-internal-live-kill-switch.md` as `mechanism_ref`, and
+      `session_outcome_tokens` reads `status: bound` with all three paths
+      mapped — drained leg `abandoned` (or `completed` on a natural terminal),
+      force-terminated leg `revoked` on the same consent-withdraw path
+      ROLLBACK-A's `mechanism` already names. ROLLBACK-A and ROLLBACK-B carry
+      their own `session_outcome` and the validator compares the two copies,
+      so a class cannot promise one terminal while the policy binds another.
       6.3.3's auto-detection wiring is NOT built by this task and is left
       unticked; the policy names §6.3.3 as its `detection_wiring_owner`.
 - [ ] 6.3.3 Build the auto-detection wiring the policy needs — the latency
@@ -734,12 +770,22 @@ Each of these is a value the rulings deliberately left to proposal and
 realization time. None reopens a ruled fork; leaving any unset opens the ring
 on an unstated assumption.
 
+> **§7 IS FULLY RULED as of 2026-08-27.** All ten entries carry a value, a
+> provenance and a grounding line; none is left to be decided at realization
+> time, which is what this section's own preamble says the hazard would be.
+>
 > **7.1-7.6 RULED 2026-08-27** by Brett Heap, in session, on the research in
 > `supporting-docs/section-7-authoring-inputs-memo.md` — every recommendation
-> that memo carried, adopted as written. 7.7-7.10 stay OPEN; 7.7 in particular
-> needs a person or rota named and cannot be closed by research (see its
-> entry). Each tick below carries the ruled value, the provenance, and one
-> line of grounding.
+> that memo carried, adopted as written.
+>
+> **7.7-7.10 RULED 2026-08-27**, later the same day, by Brett Heap in session.
+> These four were NOT memo recommendations and could not have been: 7.7 needed
+> a person named, which is Brett's act and not a value research can propose,
+> and the other three were held open behind it or behind each other. Ruling
+> them closed the last two cross-dependencies §7 was carrying against itself —
+> §7.4's page target had no named recipient until 7.7 named the holder, and
+> §7.2's metered per-tenant budget had no subject until 7.10 defined "tenant" —
+> so no entry in this section now depends on an unruled one.
 
 - [x] 7.1 The concrete vault for the internal-live server key. F0's mode-600
       local file plus age escrow is explicitly NOT a deployment source.
@@ -877,6 +923,17 @@ on an unstated assumption.
       NOT a personal name. §7.7 must name a person or rota before the canary
       opens; an alert with no named recipient and a kill switch with no named
       holder are the same gap seen twice.
+      **EDGE CLOSED LATER THE SAME DAY, by §7.7.** The clause above stands as
+      written because it records what this ruling could and could not decide
+      on its own. It is now discharged: §7.7 names BRETT HEAP as the holder of
+      both kill switches, so the page target is a PERSON and no longer a role,
+      and the metering alert has a named recipient. The name is written down
+      in exactly one place —
+      `canary-cohort-and-rollback-policy.yaml` `operator_surface.holder` — and
+      ROLLBACK-C's `cost_concern` points at it as `alert_recipient_ref` rather
+      than repeating it, because a second copy is how the alert's recipient
+      drifts away from the switch's holder, which is the one coupling these
+      two rulings exist to guarantee.
       **AN UNTESTED ALERT PATH IS INDISTINGUISHABLE FROM NO ALERT PATH:** at
       least one alert must be observed DELIVERED end to end — a threshold
       deliberately tripped low, or a test issue filed — before the canary
@@ -948,38 +1005,159 @@ on an unstated assumption.
       `canary_exit_criteria`, moved from `status: unset` to `status: ruled`
       BEFORE the canary opened — which that block's own statement says is the
       point, so the ordering is itself the evidence.
-- [ ] 7.7 The operator surface that fires the kill switches — the web console
+- [x] 7.7 The operator surface that fires the kill switches — the web console
       is a kernel non-goal, so the holder and the mechanism must be named
       before the canary opens.
-      **STILL OPEN, and it cannot be closed by research.** This one needs a
-      PERSON OR ROTA named, which is Brett's act and not a value any memo can
-      recommend. Flagged here because §7.4 now depends on it: the ruled page
-      target for the usage meter is "the human who also holds the §7.7 kill
-      switch", recorded as a ROLE until this task names the holder, so an
-      unnamed §7.7 leaves the alert with no named recipient. The policy
-      artifact says the same thing from the other side —
-      `canary-cohort-and-rollback-policy.yaml` `operator_surface.status:
-      unnamed`, with the note that "a canary opened without a named holder has
-      an unfireable kill switch". An alert with no named recipient and a kill
-      switch with no named holder are the same gap seen twice, and closing
-      7.7 closes both.
-- [ ] 7.8 The session-outcome token each rollback path emits (`revoked` versus
+      **RULED 2026-08-27 by Brett Heap, in session: BRETT HEAP holds BOTH kill
+      switches for the internal-live ring; the mechanism is a DOCUMENTED
+      RUNBOOK ACT on the serving install — flipping the two server-side
+      kill-switch flags; and the ROTA question is DEFERRED to
+      `avatar-pilot-hardening`.** This is the one §7 entry that could not be
+      closed by research: it needed a person named, which is Brett's act and
+      not a value any memo can recommend, and the memo said so.
+      **IT CLOSES TWO GAPS, WHICH WERE ALWAYS ONE GAP.** (1) The policy's
+      `operator_surface.status: unnamed`, whose own note read "a canary opened
+      without a named holder has an unfireable kill switch, which would make
+      ROLLBACK-C undeliverable and ROLLBACK-A dependent on automation alone" —
+      now `status: named` with the holder, the mechanism and the two switches
+      recorded. (2) §7.4's ALERT RECIPIENT. That ruling recorded its page
+      target as a ROLE only because this task was open; the ruling names the
+      person both ends were waiting for, so the metering alert now has a named
+      recipient and §7.4's open edge is closed. An alert with no named
+      recipient and a kill switch with no named holder were the same gap seen
+      twice; one ruling closes both, which is why they were recorded as one.
+      LANDED, in two places: `docs/sops/avatar-internal-live-kill-switch.md` —
+      the runbook, in this repository's SOP home beside the F0 lab-credential
+      SOP, carrying the two switch scopes (`SWITCH-ALL-NEW` for all new
+      session creation, `SWITCH-PROFILE` for `gpt-realtime-2.1`), the
+      `block_new` and `revoke_active` modes each carries, which mode each
+      rollback class selects, the rollback target's no-model-fallback fact,
+      the escalation path, and RING-04's pre-canary obligation; and
+      `canary-cohort-and-rollback-policy.yaml` `operator_surface`, which
+      points at it as `mechanism_ref`. The validator requires that reference
+      to RESOLVE ON DISK — a mechanism that IS a document is unfireable if the
+      document does not exist, which is the same defect wearing a filename.
+      **THE MECHANISM SPLITS ACROSS TWO REPOSITORIES, exactly as §7.1's does.**
+      The runbook states the two scopes, the two modes and the selection rule;
+      it does NOT state a flag name or a command, because the serving install
+      does not exist yet — task 6.1.2 is unticked — and a procedure written
+      for a system nobody has run is a fabricated procedure. The concrete half
+      lands in the consuming install's own PR, and the runbook says so in
+      those words rather than leaving the gap to be discovered.
+      **THE ROTA DEFERRAL IS PART OF THE RULING, not an omission.** One named
+      human is proportionate to a cohort of internal staff plus one
+      internally-staffed sandbox. It is not proportionate to a pilot admitting
+      real tenants, and `avatar-pilot-hardening` owns that widening.
+- [x] 7.8 The session-outcome token each rollback path emits (`revoked` versus
       `abandoned` for a drained leg versus a force-terminated leg); only
       consent/lease revocation is fixture-bound today.
-- [ ] 7.9 The declared region and data-control values recorded in the AVC-09
+      **RULED 2026-08-27 by Brett Heap, in session: a ROLLBACK-B DRAINED leg
+      ends `abandoned` — or `completed` if it reached its natural terminal
+      first; a ROLLBACK-A FORCE-TERMINATED leg emits `revoked`, reusing the
+      fixture-bound consent-withdraw terminal path EXACTLY. NO NEW OUTCOME
+      TOKEN.** GROUNDING: every token is already a member of the closed
+      `session-outcomes` registry, and the ruling is deliberately the reading
+      that keeps the two facts DISTINGUISHABLE. A drained leg was given up
+      when the drain window closed — it was not revoked, and spending
+      `revoked` on it would hide real revocations among performance rollbacks,
+      which is the one place the revocation evidence has to stay legible. A
+      force-terminated leg was cut, not given up, and it is cut by the very
+      terminal path ROLLBACK-A's own `mechanism` already says it reuses, so
+      emitting anything but `revoked` would contradict the class one line
+      above it. The `completed` alternative is not a hedge: a leg that reached
+      its own terminal inside the drain IS a completed session that happened
+      to be in flight when new work was blocked, and recording it as
+      `abandoned` would be false.
+      **THE TOKENS ARE WHAT MAKES §7.6's ERROR RATE READABLE.** The
+      abnormal-session rate counts terminals, so a path whose token was
+      inferred after the fact would let one event be counted two ways by two
+      readers — which is why this block always said the outcome SHALL be
+      "DECLARED IN ADVANCE rather than inferred".
+      LANDED: `canary-cohort-and-rollback-policy.yaml`
+      `session_outcome_tokens` moves from `partially_bound` to `bound` with
+      all three paths mapped and `unbound` emptied, and the token is ALSO
+      carried on the ROLLBACK-A and ROLLBACK-B class blocks
+      (`session_outcome`, `session_outcome_path`) so the class a reader lands
+      on states its own terminal. The two copies are machine-compared, on the
+      same discipline as §7.6's error rate. ROLLBACK-C carries
+      `session_outcome: operator_selected`, in that class's existing idiom:
+      the operator picks the scope and the scope binds the token. The
+      validator resolves every declared token against the REGISTRY rather than
+      against a list mirrored in the validator, so the "no new token" ruling
+      cannot be satisfied by a copy that agrees only with itself.
+- [x] 7.9 The declared region and data-control values recorded in the AVC-09
       descriptor, and the retention window for any canary-derived
       `structured_record` as a domain-owned policy reference.
-- [ ] 7.10 The definition of "tenant" for this ring, which must agree with
+      **RULED 2026-08-27 by Brett Heap, in session: REGION = the provider
+      project's US default, declared HONESTLY in the AVC-09 descriptor when it
+      is authored; DATA-CONTROL = exactly the F4 Option C classes
+      (`ephemeral_presentation` + `structured_record`), with no `audio`,
+      `full_transcript` or `independent_transcription` instance ever created;
+      RETENTION = 90 days for canary-derived `structured_record`, carried by a
+      NAMED DOMAIN-OWNED policy reference the descriptor cites.** GROUNDING:
+      F0 recorded `region: null` from one harness in one sitting and the
+      dedicated internal-live provider project is unprovisioned (task 6.1.2),
+      so the only truthful declaration is the default the project will
+      actually run under — a descriptor claiming a pinned region the project
+      does not enforce would be false in the single field the ring points at
+      for locality, and the honesty is the ruling rather than a caveat on it.
+      The data classes are Fork 4 Option C unchanged, which is what keeps the
+      four reserved retention classes forbidden and the consent-purpose count
+      frozen at 3. Ninety days outlives the ring — §7.6's soak is 14
+      consecutive days — so a record survives long enough to answer a question
+      asked after the canary closes, which is when such questions are actually
+      asked, without a qualification ring accruing a standing retention
+      obligation it never justified.
+      **THE VALUES ARE PINNED; THE DESCRIPTOR IS NOT AUTHORED.** AVC-09's
+      `region_and_data_controls` is their single home and no descriptor
+      instance exists yet, so what this ruling fixes is what the descriptor
+      SHALL declare — descriptor authoring consumes a ruling instead of making
+      one. LANDED on `internal-live-activation-checklist.yaml` condition 2,
+      which is the condition that APPROVES the regional, retention and
+      data-control terms, is HARD PREFLIGHT, and already named §7.9 as an
+      owning task. Recorded there as `ruled_values`, machine-checked: the
+      permitted class set is compared SET-EQUAL, because the failure mode is a
+      class quietly ADDED — `audio` appearing there would unreserve by
+      checklist edit what the kernel says only a successor change may
+      unreserve.
+      **TWO THINGS RECORDED SO SILENCE IS NOT READ AS A RULING.** AVC-09's
+      three OPTIONAL fields (`data_residency`, `provider_retention`,
+      `provider_training_opt_out`) are NOT pinned here and are authored from
+      the provider's actual terms at descriptor time. And the data-control
+      guarantee is OPERATIONAL: no schema field forbids an out-of-class
+      instance or a second-model shadow today, the enforcing contract flag is
+      pilot-hardening work (task 6.2.4), and claiming otherwise would be
+      false. Also stated in the artifact: §7.3's `max_key_age_days: 90` and
+      this 90-day retention window are two unrelated numbers that happen to
+      share a value; nothing couples them.
+- [x] 7.10 The definition of "tenant" for this ring, which must agree with
       §6.3.1's cohort or the per-tenant dimension has no subject.
-      **STILL OPEN, and §7.2 now depends on it.** The ruled per-tenant budget
-      ($150/month, metered) has no SUBJECT until "tenant" is defined, and the
-      figure was sized on the assumption that tenant = cohort member, i.e.
-      two tenants, so that the pair sits comfortably under the project cap.
-      `canary-cohort-and-rollback-policy.yaml` records the same dependency at
-      `cohort.tenant_definition_ref.status: unset`. Recorded here rather than
-      silently assumed: if this task rules "tenant" as anything other than a
-      cohort member, §7.2's per-tenant figure needs re-sizing against the new
-      denominator.
+      **RULED 2026-08-27 by Brett Heap, in session: TENANT = COHORT MEMBER —
+      exactly §6.3.1's cohort, so the vendor-organization internal cohort and
+      the one internally-staffed domain sandbox are TWO TENANTS.**
+      **THIS IS WHAT GIVES §7.2's METERED BUDGET ITS SUBJECT.** The ruled
+      $150-per-calendar-month per-tenant budget had no subject at all until
+      now — a metered figure with an undefined denominator is not a budget, it
+      is a number — and §7.2 explicitly recorded that it was SIZED on the
+      assumption that tenant = cohort member, i.e. two tenants, so that the
+      pair sits comfortably under the $750 provider-project cap. This ruling
+      makes the assumed denominator explicit rather than replacing it, so
+      §7.2's figure stands unchanged and needs no re-sizing: two budgeted
+      subjects, $300 of metered per-tenant exposure against a $750 hard cap.
+      The alternatives were both worse and are recorded as refused. A
+      per-session participant would have made $150 meaningless at this scale;
+      a whole DomainxFactory would have collapsed COHORT-02 into a unit larger
+      than the sandbox actually admitted to the ring, which would have widened
+      the ring by arithmetic rather than by ruling.
+      LANDED: `canary-cohort-and-rollback-policy.yaml`
+      `cohort.tenant_definition_ref` moves from `status: unset` to `status:
+      set` with `tenant_is: cohort_member`, the two tenant ids, the count, and
+      `sizing_still_valid: true`; and ROLLBACK-C's `cost_concern` gains
+      `budget_subject: cohort_member` so the metered number names its
+      denominator at the point of use. The validator RECOMPUTES `tenant_count`
+      from `cohort.members` rather than reading it — a count that outlives the
+      membership it summarises is exactly how a budget silently starts
+      metering against a denominator that no longer exists.
 
 ## 8. Realization gate
 

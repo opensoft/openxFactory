@@ -58,7 +58,16 @@ is a closed enum in `shared-definitions.schema.yaml`, not a registry (analyze A3
   of the eight-condition checklist that PRODUCES the four-element ring's
   evidence (`qualify-avatar-live-voice` §4.1). The ring is the binding exit
   contract; the eight conditions are not. Condition 6 is recorded in its
-  reinterpreted no-material-regression form only.
+  reinterpreted no-material-regression form only. Condition 2 — the hard
+  preflight that approves the regional, retention and data-control terms —
+  carries the §7.9 values ruled 2026-08-27: the provider project's US default
+  region declared honestly, exactly the two Fork 4 Option C data classes
+  (`ephemeral_presentation` + `structured_record`, with `audio`,
+  `full_transcript` and `independent_transcription` never instantiated), and a
+  90-day retention window for canary-derived `structured_record` carried by a
+  named domain-owned policy reference. They are pinned as AUTHORING INPUTS:
+  AVC-09's `region_and_data_controls` remains their single home and no
+  descriptor instance is authored here.
 - `canary-cohort-and-rollback-policy.yaml` — the canary cohort and **the
   recorded policy** the kernel's kill-switch requirement has referenced since
   it was written but never had (`qualify-avatar-live-voice` §6.3.1-§6.3.2):
@@ -68,7 +77,14 @@ is a closed enum in `shared-definitions.schema.yaml`, not a registry (analyze A3
   disables voice into text or human handoff — `gpt-realtime-2.1` is the first
   qualified profile, so no model fallback exists. Its `canary_exit_criteria`
   and its ROLLBACK-B/C trip points carry the §7.6 and §7.2 values ruled
-  2026-08-27.
+  2026-08-27, and the same day's later rulings close its three open records:
+  `operator_surface` is `named` (holder Brett Heap, mechanism the runbook at
+  `docs/sops/avatar-internal-live-kill-switch.md` — the web console is a
+  kernel non-goal, §7.7), `session_outcome_tokens` is `bound` with every
+  rollback path's token drawn from the closed `session-outcomes` registry and
+  no new token introduced (§7.8), and `cohort.tenant_definition_ref` is `set`
+  to tenant = cohort member, which gives the metered per-tenant budget its
+  subject (§7.10).
 - `latency-sample-minimum.yaml` — the minimum sample count per gated latency
   cell (`qualify-avatar-live-voice` §7.5, feeding §5.2): n >= 100 per cell,
   declared BEFORE measuring, spread over >= 3 runs on >= 2 days, with a short
