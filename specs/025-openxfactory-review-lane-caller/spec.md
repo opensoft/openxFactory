@@ -227,7 +227,12 @@ absent secret.
   code."* An entry alone can therefore reach the active autonomous chain with no
   posture encoded anywhere. What this requirement refuses is an envelope for a
   class that **can never convene at all**, and — by this guard — an envelope for
-  a class whose posture the governed record does not carry.
+  any class that does not satisfy **BOTH** discharge conjuncts above: **operable**
+  (i), **AND** its clearance control carried by a **LANDED, ACTIVE rule at the
+  pinned `core_commit`** (ii). **A governed record declaring the posture does not
+  satisfy (ii)** — the record authorizes the control, the rule is the control —
+  so an envelope is refused throughout the record-landed-but-rule-not-yet-active
+  interval.
 
   **Vocabulary bridge.** The ratified texts' terms — `human-only`, `clearable` —
   describe what a verdict may DO. **Operability describes whether any verdict
@@ -312,8 +317,9 @@ otherwise assume landed.
 - **NR-005**: **No tier-1 envelope evaluation, and no envelope instance.** The envelope requires a
   non-empty `candidates` list (schema `minItems: 1`, and the runtime mirror
   refuses an empty one), and openxFactory has no council-defined OPERABLE
-  candidate class to put in it — the premise FR-008 states, and the only one this
-  feature rests on. Shipping a placeholder candidate would be inventing
+  candidate class to put in it. **What would permit an envelope is FR-008's
+  two-conjunct discharge, not operability alone — see its definition, which
+  governs.** Shipping a placeholder candidate would be inventing
   enrollment.
 - **NR-006**: **`contracts/review-lane-pin.yaml` is not added to the openxFactory
   repository gate floor BY THIS FEATURE.** It arguably belongs there — it

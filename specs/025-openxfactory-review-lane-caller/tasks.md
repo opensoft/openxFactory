@@ -198,8 +198,12 @@
       (disposition §8).
       Brett Heap ruled the same day — *"1a, 2 leave open, 3 adopt, 4 adopt all
       three"* — so **task 3.2 remains OPEN and FR-008 remains GATED**: no
-      envelope instance may exist here absent a future OPERABLE class. A record
-      that refuses is still a record, and it does not discharge this gate.
+      envelope instance may exist here until **BOTH** of FR-008's discharge
+      conjuncts hold — an **OPERABLE** class **AND** its clearance control
+      carried by a **landed, ACTIVE rule at the pinned `core_commit`**. A record
+      that refuses is still a record, and it does not discharge this gate; **nor
+      would a record that defines one, on its own** — the record authorizes the
+      control, the rule is the control. FR-008 governs; see its definition.
       The ruled continuation is the council-reviewed-but-human-approved path,
       which needs no class and no flip, so it requires nothing of this feature.
       This entry is the REQUIRED pointer to that record (the council's Decision
