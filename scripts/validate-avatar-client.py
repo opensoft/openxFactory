@@ -524,6 +524,13 @@ def _run_checks(f: Findings, strict: bool, require_realization: bool) -> int:
     # criteria and the ROLLBACK-B/C trip points); these two carry the rest.
     check_latency_sample_minimum(f)
     check_broker_credential_binding(f)
+    # §6.2 (Fork 4 Option C): the synthetic evaluation corpus and the canary's
+    # ephemeral processing envelope. Both guard on presence, and both read the
+    # values another artifact already ratified — ROLLBACK-A's triggers, the
+    # frozen purposes, the reserved retention classes, §7.9's retention window
+    # — rather than mirroring them into a second copy that can drift.
+    check_synthetic_evaluation_corpus(f)
+    check_ephemeral_processing_envelope(f)
     ev_ids = check_fixtures(f, registry, docs)
     # The latency comparison cases carry acceptance evidence exactly as the
     # fixtures do, so their ids join the set the evidence register resolves
@@ -741,6 +748,34 @@ CHECKLIST_S79_DATA_CLASSES = {"ephemeral_presentation", "structured_record"}
 # compares the recorded list rather than trusting the prose beside it.
 CHECKLIST_S79_NEVER = {"audio", "full_transcript", "independent_transcription"}
 CHECKLIST_S79_RETENTION_DAYS = 90
+
+# ---- §6.2, the canary's consent envelope and its synthetic corpus -----------
+# Fork 4 Option C's two artifacts. They are checked here for the same reason
+# the canary policy is: they are governance artifacts written by hand beside
+# the acceptance map, and the values that matter in them are values another
+# artifact already ratified. Wherever a value exists elsewhere it is READ from
+# there — ROLLBACK-A's trigger vocabulary from the policy, the frozen purpose
+# list from the registry, the reserved retention classes from the registry, the
+# retention window and reference from the checklist's §7.9 block — so these
+# constants are only the identifiers and the ruled shapes.
+CORPUS_FILE = "synthetic-evaluation-corpus.yaml"
+CORPUS_KIND = "avatar-client-synthetic-evaluation-corpus"
+# Condition 7's five classes and three domains, exactly. Condition 7 says the
+# evaluations must pass "for generic, MedxFactory and LedgerxFactory", so a
+# corpus with a fourth domain or a missing class is not the corpus that
+# condition names.
+CORPUS_CLASSES = {"safety", "exact_value", "consent", "handoff", "blocked_state"}
+CORPUS_DOMAINS = {"generic", "MedxFactory", "LedgerxFactory"}
+ENVELOPE_FILE = "canary-ephemeral-processing-envelope.yaml"
+ENVELOPE_KIND = "avatar-client-canary-ephemeral-processing-envelope"
+ENVELOPE_MEDIA_PURPOSES = {"avatar.media_capture", "avatar.provider_processing"}
+ENVELOPE_STRUCTURED_PURPOSE = "avatar.structured_record"
+ENVELOPE_WITHDRAWAL_OUTCOME = "revoked"
+ENVELOPE_SHADOW_CONTROL = "single_model_on_live_canary_audio"
+ENVELOPE_PILOT_SUCCESSOR = "avatar-pilot-hardening"
+WITHDRAWAL_FIXTURE = (ROOT / "examples" / "avatar-first-ui" / "fixtures"
+                      / "deterministic" / "consent-withdraw-mid-speech.yaml")
+WITHDRAWAL_FIXTURE_ID = "det-consent-withdraw-mid-speech"
 
 # ---- §7.5, the minimum sample count per gated cell (feeds §5.2) -------------
 SAMPLE_MIN_FILE = "latency-sample-minimum.yaml"
@@ -2135,6 +2170,405 @@ def _check_no_vault_or_secret(f: Findings, cat: str, rp: str, node: Any,
             f.error(cat, f"{rp}: value at {trail or '<root>'} carries raw secret "
                          f"marker(s) {marks}; credentials are delivered BY REFERENCE, "
                          f"never baked into a repository")
+
+
+def _rollback_a_triggers(f: Findings, cat: str) -> set[str] | None:
+    """ROLLBACK-A's ratified trigger vocabulary, READ FROM THE POLICY.
+
+    Not mirrored as a constant here on purpose. The corpus's whole claim is
+    that every scenario's failure maps to a trigger the rollback policy already
+    ratified; checking it against a second copy in this file would only prove
+    the two copies agree with each other. Returns None (and records a finding)
+    when the vocabulary cannot be read, because a corpus checked against
+    nothing is a corpus that was not checked."""
+    path = AVC / POLICY_FILE
+    if not path.is_file():
+        f.error(cat, f"{CORPUS_FILE}: {POLICY_FILE} is absent, so ROLLBACK-A's "
+                     f"trigger vocabulary cannot be read; every scenario's "
+                     f"emitted trigger is unverifiable (fail closed)")
+        return None
+    doc = load_yaml(path)
+    classes = ((doc.get("rollback_policy") or {}).get("classes") or []) \
+        if isinstance(doc, dict) else []
+    for entry in classes:
+        if isinstance(entry, dict) and entry.get("id") == "ROLLBACK-A":
+            triggers = entry.get("triggers") or []
+            if not isinstance(triggers, list) or not triggers:
+                break
+            return {t for t in triggers if isinstance(t, str)}
+    f.error(cat, f"{CORPUS_FILE}: {POLICY_FILE} declares no readable ROLLBACK-A "
+                 f"trigger list; the corpus cannot be checked against the "
+                 f"ratified vocabulary (fail closed)")
+    return None
+
+
+def check_synthetic_evaluation_corpus(f: Findings) -> None:
+    """§6.2.1: the synthetic model-versus-model evaluation corpus.
+
+    Four things are checked, and each exists because its failure mode is a
+    corpus that LOOKS complete:
+
+    1. EVERY SCENARIO'S FAILURE MAPS TO A RATIFIED TRIGGER. `detection.py`
+       answers an unrecognised trigger with `REFUSED_UNKNOWN_TRIGGER` — a
+       NON-tripping verdict — so a scenario carrying an invented trigger would
+       fail silently at canary time: the evaluation would report a failure and
+       the ring would not abort. The vocabulary is read from the rollback
+       policy, never from a copy here.
+
+    2. EVERY CLASS x DOMAIN CELL IS COVERED. Condition 7 requires five classes
+       to pass for three domains; a missing cell is a condition-7 claim with no
+       evidence behind it, and §7.6's session floor counts those same 15 cells.
+
+    3. EVERY ROLLBACK-A TRIGGER IS REACHABLE FROM THE CORPUS. §6.3.3 proved the
+       safety trip for all eight recorded triggers; a corpus that can only
+       produce six of them leaves two proven paths unexercised.
+
+    4. THE DECLARED COVERAGE COUNTS ARE RECOMPUTED, never trusted. A totals
+       block that disagrees with the scenarios beneath it is the exact shape of
+       a corpus that was edited without its summary.
+
+    Fail closed on an unreadable corpus; skip silently when the file is absent
+    so the validator stays green at every phase checkpoint."""
+    cat = "eval-corpus"
+    path = AVC / CORPUS_FILE
+    if not path.is_file():
+        return
+    rp = f"contracts/avatar-client/{CORPUS_FILE}"
+    doc = load_yaml(path)
+    if not isinstance(doc, dict):
+        f.error(cat, f"{rp}: top-level mapping required")
+        return
+    if doc.get("kind") != CORPUS_KIND:
+        f.error(cat, f"{rp}: kind {doc.get('kind')!r} != {CORPUS_KIND!r}")
+    if not str(doc.get("corpus_ref") or "").strip():
+        f.error(cat, f"{rp}: no `corpus_ref`; `SafetyEvalSignal.corpus_ref` is "
+                     f"required and non-empty precisely so a verdict can be "
+                     f"re-run by whoever reads the record")
+
+    # Fork 4's first clause, as fields rather than as prose.
+    syn = doc.get("synthesis") or {}
+    if syn.get("content_origin") != "scripted":
+        f.error(cat, f"{rp}: synthesis.content_origin is "
+                     f"{syn.get('content_origin')!r} != 'scripted'; Fork 4 "
+                     f"Option C rules that the evaluation corpus is SYNTHETIC")
+    for field in ("tenant_data", "real_utterances"):
+        if syn.get(field) != "none":
+            f.error(cat, f"{rp}: synthesis.{field} is {syn.get(field)!r} != "
+                         f"'none'; a corpus carrying either is not synthetic")
+    if (syn.get("audio_synthesis") or {}).get("status") \
+            != "not_performed_by_this_artifact":
+        f.error(cat, f"{rp}: synthesis.audio_synthesis.status does not record "
+                     f"that rendering to audio is a §5/canary-time act of the "
+                     f"RUN; committed audio would be media this ring has no "
+                     f"retention class for")
+
+    allowed = _rollback_a_triggers(f, cat)
+    scenarios = doc.get("scenarios") or []
+    if not isinstance(scenarios, list) or not scenarios:
+        f.error(cat, f"{rp}: no scenarios; an empty corpus is not a corpus")
+        return
+
+    seen_ids: set[str] = set()
+    cells_seen: set[str] = set()
+    triggers_seen: set[str] = set()
+    by_class: dict[str, int] = {}
+    by_domain: dict[str, int] = {}
+    class_triggers: dict[str, set[str]] = {}
+    for sc in scenarios:
+        if not isinstance(sc, dict):
+            f.error(cat, f"{rp}: a scenario entry is not a mapping")
+            continue
+        sid = sc.get("scenario_id")
+        if not sid:
+            f.error(cat, f"{rp}: a scenario carries no scenario_id")
+            continue
+        if sid in seen_ids:
+            f.error(cat, f"{rp}: duplicate scenario_id {sid!r}")
+        seen_ids.add(sid)
+        klass, domain = sc.get("class"), sc.get("domain")
+        if klass not in CORPUS_CLASSES:
+            f.error(cat, f"{rp}: {sid} names class {klass!r}; condition 7's "
+                         f"classes are {sorted(CORPUS_CLASSES)}")
+        if domain not in CORPUS_DOMAINS:
+            f.error(cat, f"{rp}: {sid} names domain {domain!r}; condition 7's "
+                         f"domains are {sorted(CORPUS_DOMAINS)}")
+        if klass in CORPUS_CLASSES and domain in CORPUS_DOMAINS:
+            cell = f"{klass}/{domain}"
+            cells_seen.add(cell)
+            if sc.get("cell") != cell:
+                f.error(cat, f"{rp}: {sid} records cell {sc.get('cell')!r} but "
+                             f"its class and domain make it {cell!r}")
+            by_class[klass] = by_class.get(klass, 0) + 1
+            by_domain[domain] = by_domain.get(domain, 0) + 1
+        script = sc.get("script")
+        if not isinstance(script, list) or not script:
+            f.error(cat, f"{rp}: {sid} carries no scripted exchange; a scenario "
+                         f"with no script cannot be run")
+        if not str((sc.get("expected") or {}).get("behavior") or "").strip():
+            f.error(cat, f"{rp}: {sid} declares no expected behavior; a "
+                         f"scenario with no expectation cannot pass or fail")
+        emit = sc.get("emits_on_failure") or {}
+        trig = emit.get("trigger")
+        if allowed is not None and trig not in allowed:
+            f.error(cat, f"{rp}: {sid} emits trigger {trig!r}, which is not one "
+                         f"of ROLLBACK-A's ratified triggers {sorted(allowed)}; "
+                         f"`evaluate_safety_signal` answers an unrecognised "
+                         f"trigger with a NON-tripping verdict, so this "
+                         f"scenario's failure would not abort the ring")
+        elif allowed is not None:
+            triggers_seen.add(trig)
+            if klass in CORPUS_CLASSES:
+                class_triggers.setdefault(klass, set()).add(trig)
+        if emit.get("rollback_class") != "ROLLBACK-A":
+            f.error(cat, f"{rp}: {sid} names rollback_class "
+                         f"{emit.get('rollback_class')!r}; the safety-eval trip "
+                         f"fires ROLLBACK-A and no other class")
+        if emit.get("session_outcome") != ENVELOPE_WITHDRAWAL_OUTCOME:
+            f.error(cat, f"{rp}: {sid} names session_outcome "
+                         f"{emit.get('session_outcome')!r} != "
+                         f"{ENVELOPE_WITHDRAWAL_OUTCOME!r}; §7.8 binds "
+                         f"ROLLBACK-A's force-terminated leg to that token")
+        if emit.get("scenario_class") != klass:
+            f.error(cat, f"{rp}: {sid} emits scenario_class "
+                         f"{emit.get('scenario_class')!r} but is classified "
+                         f"{klass!r}; the signal would misreport its own class")
+
+    # (2) every class x domain cell
+    expected_cells = {f"{k}/{d}" for k in CORPUS_CLASSES for d in CORPUS_DOMAINS}
+    for missing in sorted(expected_cells - cells_seen):
+        f.error(cat, f"{rp}: no scenario covers cell {missing!r}; condition 7 "
+                     f"requires that class to pass for that domain")
+
+    # (3) every ratified trigger reachable
+    if allowed is not None:
+        for unreached in sorted(allowed - triggers_seen):
+            f.error(cat, f"{rp}: no scenario can produce ROLLBACK-A trigger "
+                         f"{unreached!r}; §6.3.3 proved the safety trip for all "
+                         f"eight recorded triggers and this corpus reaches "
+                         f"fewer")
+
+    # the per-class trigger declaration must match what the scenarios emit
+    for entry in (doc.get("classes") or []):
+        if not isinstance(entry, dict):
+            continue
+        cid = entry.get("id")
+        declared = set(entry.get("triggers") or [])
+        actual = class_triggers.get(cid, set())
+        if cid in CORPUS_CLASSES and actual and declared != actual:
+            f.error(cat, f"{rp}: class {cid!r} declares triggers "
+                         f"{sorted(declared)} but its scenarios emit "
+                         f"{sorted(actual)}")
+
+    # (4) recomputed coverage
+    cov = doc.get("coverage") or {}
+    for key, actual in (("scenarios_total", len(scenarios)),
+                        ("cells", len(cells_seen)),
+                        ("triggers_covered", len(triggers_seen)),
+                        ("classes", len(CORPUS_CLASSES)),
+                        ("domains", len(CORPUS_DOMAINS))):
+        if cov.get(key) != actual:
+            f.error(cat, f"{rp}: coverage.{key} records {cov.get(key)!r} but "
+                         f"the scenarios beneath it give {actual}; a summary "
+                         f"that disagrees with its corpus is how an edited "
+                         f"corpus keeps an old claim")
+    for key, actual in (("scenarios_by_class", by_class),
+                        ("scenarios_by_domain", by_domain)):
+        if (cov.get(key) or {}) != actual:
+            f.error(cat, f"{rp}: coverage.{key} records {cov.get(key)!r} but "
+                         f"the scenarios give {actual}")
+
+
+def check_ephemeral_processing_envelope(f: Findings) -> None:
+    """§6.2.2 and §6.2.4: the canary's ephemeral processing envelope.
+
+    The envelope's job is to say, in fields, what Fork 4 Option C ruled in
+    prose. So the checks are the ones that keep those fields honest against the
+    surfaces that already own the facts:
+
+    - THE PURPOSES ARE THE FROZEN THREE, read from the registry rather than
+      mirrored. `new_purposes_introduced` is compared to 0 and the count to the
+      registry's own length, so the envelope cannot admit a fourth purpose by
+      declaring one.
+    - THE NEVER-INSTANTIATED CLASSES ARE ALL FOUR RESERVED CLASSES, read from
+      the registry's `reserved:` block. §7.9's own list names three (it omits
+      `video`, which this ring has no capability for) and is compared set-equal
+      by its own check; this one is the full reserved set, because the promoted
+      requirement names all four.
+    - THE RETENTION WINDOW AND REFERENCE MATCH THE CHECKLIST'S §7.9 BLOCK, read
+      from the checklist. Two artifacts carrying the same 90 days is two places
+      for it to drift.
+    - WITHDRAWAL'S REACHABILITY CITES A FIXTURE THAT EXISTS. A reachability
+      claim whose proof is a filename nobody wrote is not a proof, and the
+      fixture's `fixture_id` is compared so a rename cannot quietly orphan it.
+    - THE NON-SHADOWING CONTROL STAYS OPERATIONAL (§6.2.4). `enforced_by_schema`
+      must be exactly False and the enforcing flag must stay named as
+      pilot-hardening work: no schema field forbids a second-model shadow
+      today, and a later editor flipping this to `true` would be writing the
+      false claim task 6.2.4 exists to refuse."""
+    cat = "eval-envelope"
+    path = AVC / ENVELOPE_FILE
+    if not path.is_file():
+        return
+    rp = f"contracts/avatar-client/{ENVELOPE_FILE}"
+    doc = load_yaml(path)
+    if not isinstance(doc, dict):
+        f.error(cat, f"{rp}: top-level mapping required")
+        return
+    if doc.get("kind") != ENVELOPE_KIND:
+        f.error(cat, f"{rp}: kind {doc.get('kind')!r} != {ENVELOPE_KIND!r}")
+
+    # ---- consent: the frozen three, read from the registry ----
+    reg_path = AVC / "registries" / "consent-purposes.registry.yaml"
+    frozen: set[str] = set()
+    if reg_path.is_file():
+        frozen = {m.get("id") for m in (load_yaml(reg_path).get("members") or [])
+                  if isinstance(m, dict)}
+    con = doc.get("consent") or {}
+    if frozen and con.get("frozen_purpose_count") != len(frozen):
+        f.error(cat, f"{rp}: consent.frozen_purpose_count is "
+                     f"{con.get('frozen_purpose_count')!r} but the registry "
+                     f"holds {len(frozen)} purposes")
+    if con.get("new_purposes_introduced") != 0:
+        f.error(cat, f"{rp}: consent.new_purposes_introduced is "
+                     f"{con.get('new_purposes_introduced')!r} != 0; this ring "
+                     f"reuses the frozen purposes and adds none")
+    media = {p.get("id") for p in (con.get("media_leg_purposes") or [])
+             if isinstance(p, dict)}
+    if media != ENVELOPE_MEDIA_PURPOSES:
+        f.error(cat, f"{rp}: consent.media_leg_purposes {sorted(media, key=str)} "
+                     f"!= {sorted(ENVELOPE_MEDIA_PURPOSES)}; task 6.2.2 rules "
+                     f"that the media leg rides exactly those two")
+    struct = (con.get("structured_record_purpose") or {}).get("id")
+    if struct != ENVELOPE_STRUCTURED_PURPOSE:
+        f.error(cat, f"{rp}: consent.structured_record_purpose.id is "
+                     f"{struct!r} != {ENVELOPE_STRUCTURED_PURPOSE!r}")
+    if frozen:
+        for pid in sorted((media | {struct}) - frozen):
+            f.error(cat, f"{rp}: consent names purpose {pid!r}, which is not a "
+                         f"member of the frozen registry")
+    opt = con.get("optional_stricter_domain_purpose") or {}
+    if opt.get("unresolved_reference_effect") != "deny":
+        f.error(cat, f"{rp}: optional_stricter_domain_purpose."
+                     f"unresolved_reference_effect is "
+                     f"{opt.get('unresolved_reference_effect')!r} != 'deny'; a "
+                     f"stricter term that silently falls back to the neutral "
+                     f"pair was never obtained")
+    if (con.get("new_evaluation_purpose") or {}).get("admitted") is not False:
+        f.error(cat, f"{rp}: consent.new_evaluation_purpose.admitted is not "
+                     f"False; ALV-007-S03 refuses an evaluation-specific "
+                     f"purpose for this ring")
+
+    # ---- data classes: permitted from §7.9, forbidden from the registry ----
+    dc = doc.get("data_classes") or {}
+    permitted = set(dc.get("permitted") or [])
+    if permitted != CHECKLIST_S79_DATA_CLASSES:
+        f.error(cat, f"{rp}: data_classes.permitted {sorted(permitted, key=str)} "
+                     f"!= {sorted(CHECKLIST_S79_DATA_CLASSES)}; the ruled Fork 4 "
+                     f"Option C classes are exactly those two")
+    ret_reg = AVC / "registries" / "retention-classes.registry.yaml"
+    reserved: set[str] = set()
+    if ret_reg.is_file():
+        reserved = {m.get("id") for m in (load_yaml(ret_reg).get("reserved") or [])
+                    if isinstance(m, dict)}
+    never = set((dc.get("never_instantiated") or {}).get("classes") or [])
+    if reserved and never != reserved:
+        f.error(cat, f"{rp}: data_classes.never_instantiated.classes "
+                     f"{sorted(never, key=str)} != the registry's reserved set "
+                     f"{sorted(reserved)}; all four stay forbidden and this "
+                     f"ring instantiates none of them")
+    if permitted & reserved:
+        f.error(cat, f"{rp}: data_classes permits reserved class(es) "
+                     f"{sorted(permitted & reserved)}")
+
+    # ---- retention: read the ruled values from the checklist, not a copy ----
+    ck_path = AVC / CHECKLIST_FILE
+    ruled_ret: dict = {}
+    if ck_path.is_file():
+        ck = load_yaml(ck_path)
+        for cond in (ck.get("conditions") or []) if isinstance(ck, dict) else []:
+            if isinstance(cond, dict) and cond.get("number") == CHECKLIST_S79_CONDITION:
+                ruled_ret = ((cond.get("ruled_values") or {}).get("retention") or {})
+                break
+    ret = doc.get("retention") or {}
+    if ruled_ret:
+        for key in ("window_days", "policy_ref", "applies_to"):
+            if ret.get(key) != ruled_ret.get(key):
+                f.error(cat, f"{rp}: retention.{key} is {ret.get(key)!r} but the "
+                             f"checklist's §7.9 ruling says "
+                             f"{ruled_ret.get(key)!r}; the ruled value has one "
+                             f"home and this artifact cites it")
+    elif ck_path.is_file():
+        f.error(cat, f"{rp}: the checklist declares no §7.9 retention block to "
+                     f"check this envelope's window and reference against")
+
+    # ---- withdrawal: the existing outcome, reachable mid-session ----
+    wd = doc.get("withdrawal") or {}
+    if wd.get("maps_to_outcome") != ENVELOPE_WITHDRAWAL_OUTCOME:
+        f.error(cat, f"{rp}: withdrawal.maps_to_outcome is "
+                     f"{wd.get('maps_to_outcome')!r} != "
+                     f"{ENVELOPE_WITHDRAWAL_OUTCOME!r}")
+    if wd.get("new_outcome_tokens_introduced") != 0:
+        f.error(cat, f"{rp}: withdrawal.new_outcome_tokens_introduced is "
+                     f"{wd.get('new_outcome_tokens_introduced')!r} != 0; the "
+                     f"closed session-outcomes registry gains no member here")
+    out_reg = AVC / "registries" / "session-outcomes.registry.yaml"
+    if out_reg.is_file():
+        outcomes = {m.get("id") for m in (load_yaml(out_reg).get("members") or [])
+                    if isinstance(m, dict)}
+        if wd.get("maps_to_outcome") not in outcomes:
+            f.error(cat, f"{rp}: withdrawal.maps_to_outcome "
+                         f"{wd.get('maps_to_outcome')!r} is not a member of the "
+                         f"released session-outcomes registry")
+    for flag in ("reachable_mid_session", "reachable_mid_speech"):
+        if wd.get(flag) is not True:
+            f.error(cat, f"{rp}: withdrawal.{flag} is {wd.get(flag)!r}; task "
+                         f"6.2.2 requires withdrawal to STAY REACHABLE during a "
+                         f"session")
+    proof = wd.get("reachability_proof") or {}
+    claimed = str(proof.get("fixture") or "")
+    if not claimed:
+        f.error(cat, f"{rp}: withdrawal.reachability_proof names no fixture; a "
+                     f"reachability claim with no proof is an assertion")
+    else:
+        fx = ROOT / claimed
+        if not fx.is_file():
+            f.error(cat, f"{rp}: withdrawal.reachability_proof.fixture "
+                         f"{claimed!r} does not exist; the proof is a filename")
+        else:
+            fid = (load_yaml(fx) or {}).get("fixture_id")
+            if fid != proof.get("fixture_id") or fid != WITHDRAWAL_FIXTURE_ID:
+                f.error(cat, f"{rp}: the cited fixture's fixture_id is {fid!r}, "
+                             f"which does not match the envelope's "
+                             f"{proof.get('fixture_id')!r} / the landed "
+                             f"{WITHDRAWAL_FIXTURE_ID!r}")
+
+    # ---- §6.2.4: the non-shadowing control stays OPERATIONAL ----
+    controls = {c.get("control"): c for c in (doc.get("operational_controls") or [])
+                if isinstance(c, dict)}
+    shadow = controls.get(ENVELOPE_SHADOW_CONTROL)
+    if shadow is None:
+        f.error(cat, f"{rp}: no operational control named "
+                     f"{ENVELOPE_SHADOW_CONTROL!r}; task 6.2.4 requires the "
+                     f"non-shadowing guarantee to be RECORDED as one")
+        return
+    if shadow.get("enforced_by_schema") is not False:
+        f.error(cat, f"{rp}: the non-shadowing control records "
+                     f"enforced_by_schema="
+                     f"{shadow.get('enforced_by_schema')!r}; NO schema field "
+                     f"forbids a second-model shadow today and claiming "
+                     f"otherwise would be false (task 6.2.4)")
+    if shadow.get("enforcement") != "operational":
+        f.error(cat, f"{rp}: the non-shadowing control records enforcement="
+                     f"{shadow.get('enforcement')!r} != 'operational'")
+    flag = shadow.get("enforcing_contract_flag") or {}
+    if flag.get("status") != "deferred":
+        f.error(cat, f"{rp}: the enforcing contract flag records status="
+                     f"{flag.get('status')!r} != 'deferred'; it is not built")
+    if flag.get("owner_change") != ENVELOPE_PILOT_SUCCESSOR:
+        f.error(cat, f"{rp}: the enforcing contract flag names owner_change="
+                     f"{flag.get('owner_change')!r} != "
+                     f"{ENVELOPE_PILOT_SUCCESSOR!r}; task 6.2.4 requires the "
+                     f"enforcing flag to be named as pilot-hardening work")
 
 
 def check_fixtures(f: Findings, registry: Registry, docs: dict[str, dict]) -> set[str]:
