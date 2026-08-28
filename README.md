@@ -498,15 +498,22 @@ Active changes:
 
 - [add-unclassified-finding-class](openspec/changes/add-unclassified-finding-class/proposal.md)
   — **RATIFIED 2026-08-27** (in-session commissioning, verbatim "Amend now";
-  realization via Speckit) — the modified-block-currency family's report block
+  realization via Speckit), **AMENDED 2026-08-28 by Brett** (in-session, verbatim
+  "Amend: shape = arm template, all interpolations masked" — D3's shape-identity
+  rule widened from quoted-spans-plus-digits to every interpolated field, after
+  Speckit 026 measured six `warning` rows for one remedy on the real tree;
+  `specs/026-unplaced-finding-drift/plan.md` § OPEN-1) — the
+  modified-block-currency family's report block
   already detects that its own class map has drifted from its arms, and then
   says so in PROSE: the `unclassified` residual row carries no severity, is not
   a finding, and is therefore reached by neither `--fail-on` nor the ranked plan
   that "Health report contract" requires every finding to appear in. One ADDED
   requirement on `doc-health` makes an unplaced rule text emit one `warning`
-  **per distinct rule SHAPE per run** — rule texts equal after every quoted span
-  and every digit run is masked, which is the grammar the class map's own
-  patterns are written in — naming that shape's count and the first instance's
+  **per distinct rule SHAPE per run** — a shape being the ARM'S TEMPLATE with
+  every field it interpolates masked (quoted spans, digit runs, the promoted
+  spec's path, change identifiers, unit-kind lists), the mask derived from the
+  arm templates themselves so it cannot drift from them — naming that shape's
+  count and the first instance's
   rule text verbatim, carrying its repo and delta path, with the action line
   "extend the class map in `scripts/doc_health/modified_block_currency.py`, or
   fix the drifted rule text the finding names". Per shape rather than per run
