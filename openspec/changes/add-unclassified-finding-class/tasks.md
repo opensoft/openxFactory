@@ -199,7 +199,9 @@ re-resolved by name if the file has moved under the feature.
 ## 3. Evidence recorded at proposal time
 
 - [x] 3.1 Baseline, `python3 scripts/doc-health.py --single-repo . --family
-      modified-block-currency` at `b5fb03f3`: **1 `warning`, 7 `info`**; class
+      modified-block-currency` at `b5fb03f3`, and unchanged at the catch-up
+      merge to `d808974d` (which brought `create-ledgerxwallet-overlay-boundary`
+      into the active set): **1 `warning`, 7 `info`**; class
       counts scenario-title completeness **1**, carriage ledger **7**, title
       resolution and ordering **0**, marker defects **0**; `unclassified` **0**,
       the residual row absent. This is the state § 2.13 must reproduce.

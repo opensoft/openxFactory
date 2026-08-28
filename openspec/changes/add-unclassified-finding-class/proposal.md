@@ -47,8 +47,9 @@ FOURTEEN submodules that carry `openspec/changes/` (of the nineteen in
 nobody has a fixture for would first appear.
 
 **It reads zero today, and that is the argument for building it now rather than
-later.** Measured on this tree at `b5fb03f3`: `unclassified: 0`, the residual row
-absent from the block. The population this change would report is empty, so the
+later.** Measured on this tree at `b5fb03f3` and re-measured unchanged after the
+catch-up merge to `d808974d`: `unclassified: 0`, the residual row absent from the
+block. The population this change would report is empty, so the
 amendment costs nothing to land and the standing state it pins is the one every
 reader currently assumes.
 
@@ -96,8 +97,9 @@ reader currently assumes.
   in `tests/doc-health/test_modified_block_currency_fixtures.py`, and
   `specs/022-modified-block-currency-reporting/contracts/report-section.md`.
 - **Predicted severity movement: ZERO, in every band.** Measured on this tree at
-  `b5fb03f3` with `python3 scripts/doc-health.py --single-repo . --family
-  modified-block-currency`: **1 `warning`, 7 `info`**, class counts
+  `b5fb03f3`, and again at the catch-up merge to `d808974d`, with
+  `python3 scripts/doc-health.py --single-repo . --family
+  modified-block-currency`: **1 `warning`, 7 `info`** both times, class counts
   `scenario-title completeness 1 / carriage ledger 7 / title resolution and
   ordering 0 / marker defects 0`, and **`unclassified` 0** — the residual row does
   not render. The finding this change adds fires only where that count is nonzero,
