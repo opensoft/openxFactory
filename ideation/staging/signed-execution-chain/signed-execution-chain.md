@@ -2,21 +2,24 @@
 
 Status: staged
 Kind: capability-proposal
-Summary: A ratification signed with a presented wallet begins a CHAIN that travels
-with the work — enrollment, harness setup, each runner's attestation, the decision
-to open a pull request, the council's review, and the merge gate that validates the
-whole chain before it lets anything land. A broken link is not a warning; it is a
-fraud signal and there is no merge. The omnigent layer REFUSES to build an
-unverified chain, so the chain is a precondition of execution rather than a record
-of it. Brett ruled 2026-08-27 that the anchoring layer goes ON CHAIN — definitively
-for financial and medical records — with patients anchoring commitments and consent
-checkpoints and working with hospitals and insurers through verifiable presentations.
-The same chain shape serves MedxFactory through HealthLinc and LedgerxFactory
-through LedgerLinc, which is what proves the family belongs in the neutral layer.
-A chain-selection study is vendored beside this file and answers Q3: the signed
-transparency log is the record, Bitcoin is the primary anchor with Kaspa an
-optional secondary, consent logic stays in a governed permissioned layer, and
-nothing anchored is ever an unsalted hash.
+Summary: A ratification signed with a presented wallet begins a CHAIN that
+travels with the work — enrollment, harness setup, each runner's attestation,
+the decision to open a pull request, the council's review, and the merge gate
+that validates links 1–7 — everything that exists pre-merge — before it lets
+anything land; links 9–10 enforce at closure. A broken link is not a warning;
+it is a fraud signal: no merge if it breaks before the gate, no closure and
+nothing downstream if it breaks after. The omnigent layer REFUSES to build an
+unverified chain, so the chain is a precondition of execution rather than a
+record of it. Brett ruled 2026-08-27 that the anchoring layer goes ON CHAIN —
+definitively for financial and medical records — with patients anchoring
+commitments and consent checkpoints and working with hospitals and insurers
+through verifiable presentations. The same chain shape serves MedxFactory
+through HealthLinc and LedgerxFactory through LedgerLinc, which is what proves
+the family belongs in the neutral layer. A chain-selection study is vendored
+beside this file and answers Q3: the signed transparency log is the record,
+Bitcoin is the primary anchor with Kaspa an optional secondary, consent logic
+stays in a governed permissioned layer, and nothing anchored is ever an
+unsalted hash.
 
 ## Pre-document idea notes
 
