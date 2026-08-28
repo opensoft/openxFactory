@@ -694,17 +694,15 @@ mutation round live in that feature's tasks.md and evidence.
       Preambles identical, no title removed, every pre-existing title still in
       its original position, and both files still ending in a blank line before
       and after, so no appended requirement consumed an EOF newline.
-      **ONE REVIEW FINDING ON PR #434 IS RECORDED AS CONTESTED RATHER THAN
-      APPLIED**, per `document-lifecycle`'s contested-finding rule, because the
-      alternative was to write a figure this gate cannot reproduce into the
-      record of a change whose whole subject is unverified restatement. Review
-      finding N2 read this equality as holding only AFTER trailing-newline
-      normalization, at raw 88343 vs 88342 and 48731 vs 48730, "the appended
-      requirement having consumed each file's EOF blank line". Re-derived at the
-      review: the raw remainders ARE equal, both documents still end in a blank
-      line before and after the act, and no remainder definition this gate could
-      construct yields 88343 or 48731. The raw equality is the stronger claim, so
-      the definition above is made explicit and the normalized figures are
-      recorded beside the raw ones rather than the claim being qualified into
-      something the measurement does not support. N2 is owed a re-derivation or a
-      withdrawal.
+      **RESOLVED 2026-08-27** by PR #445: re-derived byte-for-byte from
+      `4def2274`/`8997e00b`. **doc-health 88343 == 88343 raw (88341
+      normalized); document-lifecycle 48731 == 48731 raw (48729 normalized)**
+      — equality holds, as both readings agreed; neither pair matches the
+      derivation above exactly. **N2 EXPLAINED**: `split('\n### ')` + drop +
+      `'\n### '.join` reproduces 88343/88342 and 48731/48730 verbatim —
+      lossless except when the dropped chunk is the file's LAST heading, true
+      only of the appended requirement, costing one join newline on `after`
+      alone; no EOF blank line is truly consumed. The session's own
+      88197/48653 pair could not be reproduced by any construction tried and
+      stays unexplained, though self-consistent like the true figure. N2 is
+      discharged by this derivation.
