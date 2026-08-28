@@ -1632,12 +1632,14 @@ def _check_operator_surface(f: Findings, cat: str, rp: str, pol: dict) -> None:
         f.error(cat, f"{rp}: operator_surface.mechanism_ref is {ref!r} != the ruled "
                      f"{POLICY_OPERATOR_RUNBOOK!r}")
     if isinstance(ref, str) and ref:
-        target = (ROOT / ref).resolve()
-        inside = target.is_relative_to(ROOT.resolve()) if hasattr(
-            target, "is_relative_to") else str(target).startswith(str(ROOT.resolve()))
-        if not inside:
-            f.error(cat, f"{rp}: operator_surface.mechanism_ref {ref!r} escapes the "
-                         f"repository; the runbook is a document in this tree")
+        # Routed through the shared `_repo_file` guard rather than keeping a
+        # second hand-rolled containment check here. This site already refused
+        # an escape; what it gains is the SPECIFIC refusal — absolute, or a
+        # `..` segment — and, more usefully, one implementation for every
+        # YAML-supplied path in this validator instead of two that can drift.
+        target = _repo_file(f, cat, f"{rp}: operator_surface.mechanism_ref", ref)
+        if target is None:
+            pass  # refused above with the reason; the filesystem is untouched
         elif not target.is_file():
             f.error(cat, f"{rp}: operator_surface.mechanism_ref {ref!r} resolves to "
                          f"no file; the RULED MECHANISM IS THAT DOCUMENT, so a "
@@ -2227,6 +2229,99 @@ def _mappings_in(f: Findings, cat: str, where: str, value: object) -> list[dict]
     return out
 
 
+def _strings_in(f: Findings, cat: str, where: str, value: object) -> set[str]:
+    """The non-blank STRING members of a list-valued field, as a set.
+
+    Two failures this replaces, both of which `set(...)` alone commits:
+
+    A NON-STRING MEMBER IS REPORTED, NEVER DROPPED. Filtering with
+    `if isinstance(t, str)` shrinks a vocabulary silently, so a policy listing
+    seven triggers and one malformed entry would validate a corpus against
+    seven and say nothing — the malformed artifact hides behind the good part
+    of itself. Consistent with `_mappings_in`, the bad member is a finding and
+    the good members still participate; a field with NO usable member is left
+    empty for the caller to refuse.
+
+    AND AN UNHASHABLE MEMBER IS A FINDING RATHER THAN A CRASH. `set()` over a
+    list containing a mapping raises `TypeError: unhashable type: 'dict'`,
+    which ends the run the same anonymous way the `.get()` on a list did."""
+    out: set[str] = set()
+    for i, item in enumerate(_as_sequence(f, cat, where, value)):
+        if isinstance(item, str) and item.strip():
+            out.add(item)
+        else:
+            f.error(cat, f"{where}[{i}] must be a non-empty string, got "
+                         f"{item!r}; a malformed member is reported, not "
+                         f"silently dropped from the set it belongs to")
+    return out
+
+
+def _ids_in(f: Findings, cat: str, where: str, value: object) -> set[str]:
+    """The string `id` of every mapping member of a list-valued field.
+
+    Same discipline as `_strings_in`, for the registries these checks read
+    their vocabularies out of: a member whose `id` is absent or is itself a
+    mapping would otherwise either vanish from the set or raise `TypeError`
+    on the way into it."""
+    out: set[str] = set()
+    for i, item in enumerate(_mappings_in(f, cat, where, value)):
+        ident = item.get("id")
+        if isinstance(ident, str) and ident.strip():
+            out.add(ident)
+        else:
+            f.error(cat, f"{where}[{i}].id must be a non-empty string, got "
+                         f"{ident!r}")
+    return out
+
+
+def _repo_file(f: Findings, cat: str, where: str, claimed: object) -> Path | None:
+    """A repository-relative path READ FROM YAML, resolved safely or refused.
+
+    A path that arrives from a contract artifact reaches `ROOT / value` and
+    then the filesystem, and two ordinary-looking values leave the repository
+    entirely. An ABSOLUTE path discards the left operand — `Path("/repo") /
+    "/etc/passwd"` is `/etc/passwd`, by pathlib's specification rather than by
+    accident — and any `..` segment walks out of the tree. On a CI runner that
+    turns a YAML field into an arbitrary-file-read primitive.
+
+    Both are refused as FINDINGS naming which one it was, never silently. The
+    join is then `resolve()`d and re-checked with `is_relative_to`, because
+    the two syntactic tests alone would not catch a path that is relative and
+    `..`-free yet still leaves the tree by another route.
+
+    SYMLINKS ARE NOT GIVEN SEPARATE HANDLING, deliberately. `resolve()`
+    already follows them, so a symlink inside the repository pointing outside
+    it lands outside ROOT and is refused by the containment check like any
+    other escape. Going further — refusing paths that are symlinked but still
+    contained — would be threat-modelling a validator that reads files from
+    its own repository against an attacker who can already write that
+    repository, which is not a boundary this tool holds or claims to.
+
+    Returns the resolved path, or None when it was refused."""
+    if not isinstance(claimed, str) or not claimed.strip():
+        f.error(cat, f"{where} must be a non-empty string path, got "
+                     f"{claimed!r}; `ROOT / <non-string>` raises rather than "
+                     f"reporting")
+        return None
+    candidate = Path(claimed)
+    if candidate.is_absolute():
+        f.error(cat, f"{where} {claimed!r} is an ABSOLUTE path; joining one to "
+                     f"the repository root discards the root entirely, so this "
+                     f"is refused rather than resolved")
+        return None
+    if ".." in candidate.parts:
+        f.error(cat, f"{where} {claimed!r} contains a '..' segment, which walks "
+                     f"out of the repository; refused rather than resolved")
+        return None
+    root = ROOT.resolve()
+    target = (root / candidate).resolve()
+    if not target.is_relative_to(root):
+        f.error(cat, f"{where} {claimed!r} resolves to {target}, which is "
+                     f"outside the repository; refused rather than read")
+        return None
+    return target
+
+
 def _rollback_a_triggers(f: Findings, cat: str) -> set[str] | None:
     """ROLLBACK-A's ratified trigger vocabulary, READ FROM THE POLICY.
 
@@ -2250,11 +2345,20 @@ def _rollback_a_triggers(f: Findings, cat: str) -> set[str] | None:
                            policy.get("classes"))
     for entry in classes:
         if entry.get("id") == "ROLLBACK-A":
-            triggers = _as_sequence(f, cat, f"{prp} ROLLBACK-A.triggers",
-                                    entry.get("triggers"))
+            # NON-STRING MEMBERS ARE REPORTED, NOT FILTERED AWAY. Dropping them
+            # would shrink the ratified vocabulary in silence: a policy listing
+            # seven usable triggers and one malformed entry would check the
+            # corpus against seven and say nothing, so the malformed artifact
+            # would hide behind the good part of itself. The surviving strings
+            # still participate — the same semantics `_mappings_in` uses — and
+            # a list with NO usable member falls through to the refusal below,
+            # because an empty vocabulary would fail every scenario for the
+            # wrong reason.
+            triggers = _strings_in(f, cat, f"{prp} ROLLBACK-A.triggers",
+                                   entry.get("triggers"))
             if not triggers:
                 break
-            return {t for t in triggers if isinstance(t, str)}
+            return triggers
     f.error(cat, f"{CORPUS_FILE}: {POLICY_FILE} declares no readable ROLLBACK-A "
                  f"trigger list; the corpus cannot be checked against the "
                  f"ratified vocabulary (fail closed)")
@@ -2413,8 +2517,8 @@ def check_synthetic_evaluation_corpus(f: Findings) -> None:
     # the per-class trigger declaration must match what the scenarios emit
     for entry in _mappings_in(f, cat, f"{rp} classes", doc.get("classes")):
         cid = entry.get("id")
-        declared = set(_as_sequence(f, cat, f"{rp} class {cid!r} triggers",
-                                    entry.get("triggers")))
+        declared = _strings_in(f, cat, f"{rp} class {cid!r} triggers",
+                               entry.get("triggers"))
         actual = class_triggers.get(cid, set())
         if cid in CORPUS_CLASSES and actual and declared != actual:
             f.error(cat, f"{rp}: class {cid!r} declares triggers "
@@ -2487,9 +2591,9 @@ def check_ephemeral_processing_envelope(f: Findings) -> None:
     frozen: set[str] = set()
     if reg_path.is_file():
         creg = "contracts/avatar-client/registries/consent-purposes.registry.yaml"
-        frozen = {m.get("id") for m in _mappings_in(
+        frozen = _ids_in(
             f, cat, f"{creg} members",
-            _as_mapping(f, cat, creg, load_yaml(reg_path)).get("members"))}
+            _as_mapping(f, cat, creg, load_yaml(reg_path)).get("members"))
     con = _as_mapping(f, cat, f"{rp} consent", doc.get("consent"))
     if frozen and con.get("frozen_purpose_count") != len(frozen):
         f.error(cat, f"{rp}: consent.frozen_purpose_count is "
@@ -2499,9 +2603,8 @@ def check_ephemeral_processing_envelope(f: Findings) -> None:
         f.error(cat, f"{rp}: consent.new_purposes_introduced is "
                      f"{con.get('new_purposes_introduced')!r} != 0; this ring "
                      f"reuses the frozen purposes and adds none")
-    media = {p.get("id") for p in _mappings_in(
-        f, cat, f"{rp} consent.media_leg_purposes",
-        con.get("media_leg_purposes"))}
+    media = _ids_in(f, cat, f"{rp} consent.media_leg_purposes",
+                    con.get("media_leg_purposes"))
     if media != ENVELOPE_MEDIA_PURPOSES:
         f.error(cat, f"{rp}: consent.media_leg_purposes {sorted(media, key=str)} "
                      f"!= {sorted(ENVELOPE_MEDIA_PURPOSES)}; task 6.2.2 rules "
@@ -2532,8 +2635,8 @@ def check_ephemeral_processing_envelope(f: Findings) -> None:
 
     # ---- data classes: permitted from §7.9, forbidden from the registry ----
     dc = _as_mapping(f, cat, f"{rp} data_classes", doc.get("data_classes"))
-    permitted = set(_as_sequence(f, cat, f"{rp} data_classes.permitted",
-                                 dc.get("permitted")))
+    permitted = _strings_in(f, cat, f"{rp} data_classes.permitted",
+                            dc.get("permitted"))
     if permitted != CHECKLIST_S79_DATA_CLASSES:
         f.error(cat, f"{rp}: data_classes.permitted {sorted(permitted, key=str)} "
                      f"!= {sorted(CHECKLIST_S79_DATA_CLASSES)}; the ruled Fork 4 "
@@ -2542,13 +2645,13 @@ def check_ephemeral_processing_envelope(f: Findings) -> None:
     reserved: set[str] = set()
     if ret_reg.is_file():
         rreg = "contracts/avatar-client/registries/retention-classes.registry.yaml"
-        reserved = {m.get("id") for m in _mappings_in(
+        reserved = _ids_in(
             f, cat, f"{rreg} reserved",
-            _as_mapping(f, cat, rreg, load_yaml(ret_reg)).get("reserved"))}
-    never = set(_as_sequence(
+            _as_mapping(f, cat, rreg, load_yaml(ret_reg)).get("reserved"))
+    never = _strings_in(
         f, cat, f"{rp} data_classes.never_instantiated.classes",
         _as_mapping(f, cat, f"{rp} data_classes.never_instantiated",
-                    dc.get("never_instantiated")).get("classes")))
+                    dc.get("never_instantiated")).get("classes"))
     if reserved and never != reserved:
         f.error(cat, f"{rp}: data_classes.never_instantiated.classes "
                      f"{sorted(never, key=str)} != the registry's reserved set "
@@ -2597,9 +2700,9 @@ def check_ephemeral_processing_envelope(f: Findings) -> None:
     out_reg = AVC / "registries" / "session-outcomes.registry.yaml"
     if out_reg.is_file():
         oreg = "contracts/avatar-client/registries/session-outcomes.registry.yaml"
-        outcomes = {m.get("id") for m in _mappings_in(
+        outcomes = _ids_in(
             f, cat, f"{oreg} members",
-            _as_mapping(f, cat, oreg, load_yaml(out_reg)).get("members"))}
+            _as_mapping(f, cat, oreg, load_yaml(out_reg)).get("members"))
         if wd.get("maps_to_outcome") not in outcomes:
             f.error(cat, f"{rp}: withdrawal.maps_to_outcome "
                          f"{wd.get('maps_to_outcome')!r} is not a member of the "
@@ -2616,8 +2719,11 @@ def check_ephemeral_processing_envelope(f: Findings) -> None:
         f.error(cat, f"{rp}: withdrawal.reachability_proof names no fixture; a "
                      f"reachability claim with no proof is an assertion")
     else:
-        fx = ROOT / claimed
-        if not fx.is_file():
+        fx = _repo_file(f, cat, f"{rp} withdrawal.reachability_proof.fixture",
+                        claimed)
+        if fx is None:
+            pass  # refused above with the reason; never touched the filesystem
+        elif not fx.is_file():
             f.error(cat, f"{rp}: withdrawal.reachability_proof.fixture "
                          f"{claimed!r} does not exist; the proof is a filename")
         else:
@@ -3128,13 +3234,25 @@ def check_client_lab_acceptance_map(f: Findings) -> None:
             g = s.get("gate")
             if g is not None and g not in CLIENT_LAB_GATES:
                 f.error("client-lab-gates", f"{rp}: scenario {sid} gate {g!r} is not one of the nine gates")
+            # Both of these are YAML-SUPPLIED PATHS joined to the repository
+            # root and then handed to the filesystem — `discharge_via` is
+            # `load_yaml`d — so they go through the same containment guard the
+            # §6.2 and §7 readers use. An absolute value discards the root and
+            # a `..` segment walks out of the tree; either would make a
+            # contract artifact an arbitrary-file-read on the runner.
             fx = s.get("fixture")
-            if fx is not None and not (ROOT / fx).is_file():
-                f.error("client-lab-fixture", f"{rp}: scenario {sid} fixture {fx} does not exist")
+            if fx is not None:
+                fxp = _repo_file(f, "client-lab-fixture",
+                                 f"{rp}: scenario {sid} fixture", fx)
+                if fxp is not None and not fxp.is_file():
+                    f.error("client-lab-fixture", f"{rp}: scenario {sid} fixture {fx} does not exist")
             dv = s.get("discharge_via")
             if dv is not None:
-                dvp = ROOT / dv
-                if not dvp.is_file():
+                dvp = _repo_file(f, "client-lab-discharge",
+                                 f"{rp}: scenario {sid} discharge_via", dv)
+                if dvp is None:
+                    pass  # refused with its reason; the filesystem is untouched
+                elif not dvp.is_file():
                     f.error("client-lab-discharge", f"{rp}: scenario {sid} discharge_via {dv} does not exist")
                 else:
                     reg = load_yaml(dvp) or {}
