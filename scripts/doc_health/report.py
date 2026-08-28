@@ -10,6 +10,7 @@ its own.
 from __future__ import annotations
 
 import re
+import sys
 from datetime import date
 
 from . import CRITICAL, ERROR, FAMILY_IDS, Finding, SEVERITY_RANK
@@ -58,11 +59,49 @@ from . import CRITICAL, ERROR, FAMILY_IDS, Finding, SEVERITY_RANK
 # Emit and parse are now symmetric (`escape_field` / `unescape_field`).
 _FIELD = r'((?:[^"\\]|\\.)*)'
 
+# THE RANKED-PLAN PATH FIELD, and the whole of its grammar. Unlike `rule=` and
+# `action=` above, `path=` carries no delimiters: it starts after `path=` and
+# ends at the space before `rule=`, so it is exactly "one or more
+# non-whitespace characters" and can be nothing else.
+#
+# ISSUE #474, THE SIBLING OF THE QUOTING DEFECT ABOVE, AND IT ALSO FIRED. The
+# notebook-projection-drift family wrote a SYNTHETIC LABEL into the path slot —
+# `health/reports/2026-07-09.md:188` reads `path=(lifecycle notebooks)` — and
+# that space makes the row match no parser, old or new. Emitted into the
+# report, read back by nothing: absent from `regressions()` (so the finding
+# reads as NEW on the next run) and absent from the contested set (so
+# `uncited_resolutions` cannot notice it vanish). Harmless in that instance
+# (a warning, not contested) and not harmless as a mechanism.
+#
+# THE REPAIR IS AT THE EMIT SIDE, NOT IN THE GRAMMAR. Quoting `path=` the way
+# #472 quoted `rule=` would reshape all 20,999 ranked-plan rows written to date
+# and buy nothing: no legitimate value for this field contains whitespace. A
+# path is a repository-relative file path — every tracked file in every one of
+# the twelve checkouts in the workspace is whitespace-free, measured — and a
+# finding about something that is not one file names it with a slug. So
+# `plan_line` REFUSES a path this pattern cannot read, and the one label that
+# violated it became a real path (`families.fam_notebook_projection_drift`).
+#
+# ONE PATTERN, TWO USES, so the guard and the grammar cannot drift apart: the
+# regex below interpolates it, and `plan_line`'s guard fullmatches it.
+_PATH = r"\S+"
+_PATH_RE = re.compile(_PATH)
+
 PLAN_RE = re.compile(
-    r"^- severity=(\w+) family=([\w-]+) repo=(\S+) path=(\S+) "
+    r"^- severity=(\w+) family=([\w-]+) repo=(\S+) path=(" + _PATH + r") "
     r'rule="' + _FIELD + r'" action="' + _FIELD + r'"'
     r'(?: class="([\w-]+)")?'
     r'(?: disposer="' + _FIELD + r'")?$')
+
+# A line that CLAIMS to be a ranked-plan row. `parse_previous` judges a line by
+# this prefix before it reports the line as unreadable, so the report's prose,
+# its per-family bullets, and its tables are never mistaken for broken grammar.
+PLAN_ROW_PREFIX = "- severity="
+
+# Fixed, greppable, on stderr — the convention `ideation_readiness`'s
+# ROOT_FALLBACK_MARKER already sets for a diagnostic a run must be searchable
+# for after the fact.
+UNPARSED_PLAN_ROW_MARKER = "[ranked-plan] unparsed row"
 
 
 def escape_field(value: str) -> str:
@@ -100,6 +139,35 @@ def unescape_field(value: str) -> str:
 
 
 def plan_line(f: Finding) -> str:
+    r"""Render one ranked-plan row, or REFUSE to render an unreadable one.
+
+    THE REFUSAL IS THE POINT (issue #474). A path carrying whitespace produces
+    a row that `PLAN_RE` cannot read back, and the old behaviour was to write
+    it anyway: the report looked complete, and the row quietly took no part in
+    any `--previous-report` comparison from then on. It took a year and an
+    adversarial review to notice the one instance. Failing the run instead is
+    the same trade `recorded_rel` states for a skipped check — a row that
+    silently does not participate cannot be seen to have missed anything —
+    and it puts the cost on the author of the finding, at the moment the
+    remedy is one string.
+
+    NOT GUARDED HERE: `repo=`, which shares the `\S+` shape. It is a checkout
+    directory name and has never been anything but `[A-Za-z]+`, and the
+    general net for a defect in ANY field is the other half of this change —
+    `parse_previous` now REPORTS the rows it cannot read, so the next one
+    surfaces on the first run rather than the hundredth.
+    """
+    if not isinstance(f.path, str) or not _PATH_RE.fullmatch(f.path):
+        raise ValueError(
+            f"doc-health family {f.family!r} (repo {f.repo!r}) built a "
+            f"finding whose ranked-plan path the report grammar cannot read "
+            f"back: {f.path!r}. The `path=` field is unquoted and ends at the "
+            f"space before `rule=`, so it must be one or more NON-WHITESPACE "
+            f"characters. Name a real repository-relative path, or — if the "
+            f"finding is not about one file — a whitespace-free slug. A prose "
+            f"label in the path slot is emitted into the report and read back "
+            f"by nothing (issue #474; the live case was "
+            f"`path=(lifecycle notebooks)`).")
     line = (f"- severity={f.severity} family={f.family} repo={f.repo} "
             f"path={f.path} rule=\"{escape_field(f.rule)}\" "
             f"action=\"{escape_field(f.action)}\" "
@@ -109,19 +177,62 @@ def plan_line(f: Finding) -> str:
     return line
 
 
-def parse_previous(text: str):
+def unparsed_plan_rows(text: str) -> list[tuple[int, str]]:
+    """`(line number, line)` for every ranked-plan row the grammar rejects.
+
+    A line counts as a ranked-plan row when it starts with `PLAN_ROW_PREFIX`,
+    so nothing else in the report can be reported as broken grammar. Over
+    `health/reports/` today this returns exactly two rows across 27 reports:
+    the raw-`"` row #472 recorded as unfixable, and the `(lifecycle notebooks)`
+    row #474 fixes at its source.
+    """
+    return [(n, line) for n, line in enumerate(text.splitlines(), 1)
+            if line.startswith(PLAN_ROW_PREFIX) and not PLAN_RE.match(line)]
+
+
+def _announce_unparsed_plan_rows(rows: list[tuple[int, str]]) -> None:
+    """Say which rows of the previous report took no part in the comparison.
+
+    stderr, not the rendered report: this is a fact about READING a prior
+    artifact, not a finding about the corpus, and the run that discovers it is
+    not the run that can fix it.
+    """
+    for lineno, line in rows:
+        print(f"{UNPARSED_PLAN_ROW_MARKER}: line {lineno}: {line}",
+              file=sys.stderr)
+    print(f"{UNPARSED_PLAN_ROW_MARKER}: {len(rows)} ranked-plan row(s) in the "
+          f"previous report matched no parser and therefore took no part in "
+          f"the regression or uncited-resolution comparison",
+          file=sys.stderr)
+
+
+def parse_previous(text: str, *, announce=_announce_unparsed_plan_rows):
     """(error_keys, contested_keys) from a prior report's ranked plan.
-    Reports predating resolution classes yield an empty contested set."""
-    keys, contested = set(), set()
-    for line in text.splitlines():
+    Reports predating resolution classes yield an empty contested set.
+
+    UNREADABLE ROWS ARE REPORTED, NOT DROPPED (issue #474). This used to
+    `continue` past any line `PLAN_RE` rejected, which is right for the 200-odd
+    prose lines of a report and catastrophic for a ranked-plan row: a grammar
+    defect cost the comparison a finding and said nothing, so both instances
+    found so far were found by reading the regex, not by running it. Rows that
+    DO parse are unaffected — the returned key sets are byte-for-byte what they
+    always were — and `announce=None` silences the diagnostic for a caller that
+    wants the sets alone.
+    """
+    keys, contested, unparsed = set(), set(), []
+    for lineno, line in enumerate(text.splitlines(), 1):
         m = PLAN_RE.match(line)
         if not m:
+            if line.startswith(PLAN_ROW_PREFIX):
+                unparsed.append((lineno, line))
             continue
         key = (m.group(2), m.group(3), m.group(4))
         if m.group(1) in (CRITICAL, ERROR):
             keys.add(key)
         if m.group(7) == "contested":
             contested.add(key)
+    if unparsed and announce is not None:
+        announce(unparsed)
     return keys, contested
 
 
