@@ -61,7 +61,7 @@ Unstructured, kept because the reasoning is younger than the vocabulary.
 
 ## The chain
 
-Ten links. Each names what is signed, by whom, and what refuses when it is absent.
+Ten links. Each names what is signed, by whom, and what refuses when it is absent; every signature also covers the chain identity and its predecessor, per the binding rule below the table.
 
 | # | Link | Signed by | Absent ⇒ |
 | --- | --- | --- | --- |
@@ -74,7 +74,18 @@ Ten links. Each names what is signed, by whom, and what refuses when it is absen
 | 7 | **Council review with the signed proposal as the brief** — the council reviews the chain-carrying artifact, not a summary of it | council seats | review is of a restatement, which is the fidelity defect this family keeps finding |
 | 8 | **Chain-validating merge gate** — the gate walks links 1–7 before it permits a merge | gate (verifier) | **no merge** |
 | 9 | **Broken chain = fraud signal** — a gap is refused and reported as a fraud signal, never downgraded to a warning | — | (this IS the refusal) |
-| 10 | **Governed post-merge test** — consumes the proposal AND the review notes, so what was promised is what is tested | per-task identity (controller-signed) | the chain never closes: anything that consumes the merge refuses, and link 9 fires |
+| 10 | **Governed post-merge test** — consumes the proposal AND the review notes, so what was promised is what is tested | per-task identity (controller-signed) | the chain never closes: anything that consumes the merge refuses (remediation excepted), and link 9 fires |
+
+**A chain is hash-linked, not a bag of signatures.** Every link from
+enrollment onward signs over two things besides its own content: the chain
+identity — the digest of the signed ratification that link 3 carries — and
+the digest of the link that precedes it. Link 8 validates that continuity,
+not merely the presence of the required signatures: individually valid
+setup, runner, PR-open and review artifacts from DIFFERENT executions must
+not assemble into a chain, because with concurrent or repeated tasks a
+signature bag is exactly what a badly-behaved lane would submit. The review
+round supplied this as the mix-and-match attack; the binding is what makes
+"the chain travels with the work" cryptographic rather than narrative.
 
 **Link 8 is the load-bearing one, and it walks links 1–7** — everything that
 exists before a merge can. Links 1–7 could be recorded by a well-behaved lane
@@ -86,9 +97,17 @@ CLOSURE, and a merged-but-unclosed chain — link 10 missing, failed, or
 unsigned — is a refusing state for whatever consumes the merge (promotion,
 release, the next chain that builds on it) and fires link 9's fraud signal. A
 merge that already happened cannot be retroactively refused; what an unclosed
-chain forfeits is everything downstream of it. The review round caught the
-first draft implying link 8 walks all ten — a gate cannot walk a link that
-does not exist yet.
+chain forfeits is everything downstream of it. One consumer is exempt by
+design, or the invariant deadlocks: the remediation chain. When link 10 fails
+on an ordinary defect, the corrective or revert change is itself a next chain
+that builds on the merge — refuse it too and the repository can never repair
+what it cannot retroactively unmerge. So an unclosed chain refuses every
+consumer EXCEPT a chain whose declared, signed subject is that failure; a
+remediation chain is still a full chain, ratified and signed like any other,
+and promotion and release stay refused until a chain closes over the merge.
+Fail-closed means the failure can be repaired, not that it is trapped. The
+review round caught the first draft implying link 8 walks all ten — a gate
+cannot walk a link that does not exist yet.
 
 ## The tier model
 
