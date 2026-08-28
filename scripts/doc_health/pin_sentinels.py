@@ -72,10 +72,34 @@ artifact carrying it assert "the repository could not be read at all", which is
 FALSE at two of the three sites. It is declared instead as the weakest member of
 the vocabulary — the revision was not established and the emitter cannot say
 which stronger condition held — and the declaration says outright that a
-generator able to distinguish must reach for the stronger member instead. THE
-FOLLOW-UP IS NAMED RATHER THAN PERFORMED: those three call sites deserve to be
-split onto the three conditions they actually mean, which is a change to three
-generators' output in two lanes and is not this packet's one instance.
+generator able to distinguish must reach for the stronger member instead.
+
+THE FOLLOW-UP THAT PARAGRAPH NAMED HAS BEEN PERFORMED
+(`fix-pin-value-boundary-and-sentinel-split`, 2026-08-28), and the measurement
+above is kept because it is the evidence the member rests on rather than a
+description of today's call sites. THE SPLIT AS BUILT, and it is FIVE emission
+sites rather than the three this record found — the inherited count missed the
+two `except` returns, and one of the three fired on TWO conditions by itself:
+
+* `snapshot_registry.py` `index_entry` — UNCHANGED as to the member, because
+  its condition WAS `unestablished-revision` all along. Only the literal moved,
+  to the imported constant. This is now the sole emitter of `unknown`.
+* `avatar_f0/cli.py` `_git_file_commit` — SPLIT IN TWO, and the split required
+  a branch that did not exist: the `subprocess.run` carried no `check` and
+  `out.returncode` was never read, so one `"unknown"` was reached by a
+  SUCCESSFUL `git log` finding no commit for the path AND by a FAILED one
+  producing nothing because it failed. The first is `dirty-worktree` (the
+  content is real and held by no commit) and writes `uncommitted-worktree`; the
+  second is `unreadable-repository` and writes `uncommitted`, as does the
+  `except` return.
+* `avatar_f0/cli.py` `_git_head` — both returns write `uncommitted`. `rev-parse
+  HEAD` has no success that answers empty, so the empty-output return and the
+  exception return are one condition wearing two spellings of the same failure.
+
+NO COMMITTED BYTES MOVED. No committed artifact carried `"unknown"` under a
+swept key at the split — measured, seven legal non-pins, six
+`uncommitted-worktree` and one `not-applicable-ad-hoc` — so the split changes
+future output only.
 """
 
 from __future__ import annotations
@@ -169,6 +193,8 @@ SENTINELS: tuple[SentinelMember, ...] = (
         standing=CANONICAL,
         emitters=(
             "scripts/bootstrap-ideation-cross-reference.py (git_generation)",
+            "experiments/avatar-brokered-call/src/avatar_f0/cli.py "
+            "(_git_file_commit)",
         ),
         note="THE SIX COMMITTED SITES, and the spelling the corpus chose "
              "before any tooling did. All six sit in proposal-support "
@@ -182,7 +208,11 @@ SENTINELS: tuple[SentinelMember, ...] = (
         value=UNCOMMITTED,
         condition=UNREADABLE_REPOSITORY,
         standing=CANONICAL,
-        emitters=("scripts/proposal-support.py (repo_revision)",),
+        emitters=(
+            "scripts/proposal-support.py (repo_revision)",
+            "experiments/avatar-brokered-call/src/avatar_f0/cli.py "
+            "(_git_file_commit, _git_head)",
+        ),
         note="NOT A LEGACY SPELLING OF THE MEMBER ABOVE, and Q1 ruled it so on "
              "2026-08-27 after measuring what its emitter means. "
              "`repo_revision()` returns it on a NON-ZERO EXIT from `rev-parse "
@@ -233,20 +263,24 @@ SENTINELS: tuple[SentinelMember, ...] = (
         standing=CANONICAL,
         emitters=(
             "scripts/ideation_dashboard/snapshot_registry.py (index_entry)",
-            "experiments/avatar-brokered-call/src/avatar_f0/cli.py "
-            "(_git_file_commit, _git_head)",
         ),
-        note="CANONICAL FOR ITS OWN CONDITION, decided at realization on the "
-             "measurement recorded in this module's docstring rather than on "
-             "the resemblance to `uncommitted`. Its three call sites span "
-             "three conditions — an entry with no recorded revision, an "
-             "unreadable `HEAD`, and content that has never been committed — "
-             "so it measures as more than one condition and cannot be folded "
-             "into any single stronger member. It is declared as the weakest "
-             "claim in the vocabulary and carries the instruction that goes "
-             "with that: a generator that can distinguish must not reach for "
-             "it. Splitting those three call sites onto the conditions they "
-             "mean is a named follow-up, not this packet's work.",
+        note="CANONICAL FOR ITS OWN CONDITION, and — since "
+             "`fix-pin-value-boundary-and-sentinel-split` — DOWN TO ONE "
+             "EMITTER, which is what the declaration always said it should "
+             "be. `declare-sentinel-pin-vocabulary` found three call sites "
+             "spanning three conditions and named the split as a follow-up "
+             "rather than performing it; the follow-up has now landed. The "
+             "avatar harness distinguishes what it can, so it writes the "
+             "stronger members instead: `uncommitted-worktree` where a "
+             "SUCCESSFUL `git log` names no commit for real content, and "
+             "`uncommitted` where the repository could not be read at all. "
+             "What remains here is the one site that genuinely cannot say "
+             "more — a snapshot index entry with no recorded revision, where "
+             "the repository is readable and whether the generation lacked a "
+             "revision, could not fetch one or never recorded one is not "
+             "knowable from the projector. THE INSTRUCTION IS UNCHANGED AND "
+             "IS NOW OBEYED BY EVERY EMITTER: a generator that CAN "
+             "distinguish must not reach for this member.",
     ),
 )
 

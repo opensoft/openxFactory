@@ -152,11 +152,28 @@ RETENTION_NAMESPACE = "refs/retention/pins"
 
 FULL_SHA_RE = re.compile(r"^[0-9a-f]{40}$")
 
+# THE WHOLE-OBJECT-NAME BOUNDARY, stated ONCE and carried by every expression
+# that builds a pin site (`fix-pin-value-boundary-and-sentinel-split`).
+#
+# `(?![0-9a-fA-F])` rather than `\b`, because `\b` treats a hex digit boundary
+# inside a longer hex run as a word boundary — so a sha256 digest under a
+# declared pin key would yield a spurious "pin" that is the truncated first
+# forty characters of a value nobody wrote. A fabricated pin is the one value
+# this verification must never produce: it reports ORPHANED against an artifact
+# whose recorded value is intact, or — worse — COLLIDES with a real object and
+# certifies a provenance claim the artifact never made.
+#
+# Named as a constant rather than retyped four times so that the rule has one
+# home; the structural test over this module asserts every site-building
+# expression carries it, which is what stops a future prose member declaring an
+# unguarded `pattern`.
+HEX_BOUNDARY = r"(?![0-9a-fA-F])"
+
 # A 40-hex token standing alone — not a prefix of a 64-hex sha256, not a suffix
-# of one. `(?<![0-9a-fA-F])` / `(?![0-9a-fA-F])` rather than `\b`, because `\b`
-# treats a hex digit boundary inside a longer hex run as a word boundary and a
-# sha256 digest would then yield two spurious "pins".
-LOOSE_SHA_RE = re.compile(r"(?<![0-9a-fA-F])[0-9a-f]{40}(?![0-9a-fA-F])")
+# of one. Both directions here, because this one scans free text where a hex
+# run may precede the token as well as follow it.
+LOOSE_SHA_RE = re.compile(
+    r"(?<![0-9a-fA-F])[0-9a-f]{40}" + HEX_BOUNDARY)
 
 
 def retention_ref(pin: str) -> str:
@@ -199,9 +216,19 @@ def _field_re(key: str) -> re.Pattern:
     without it the key `commit` matches the tail of `consumer_commit`, and the
     first real-repository run reported the hermes handoff receipt's
     CROSS-REPOSITORY consumer pin as a repo-local orphan. A substring match on a
-    key name is not a key."""
+    key name is not a key.
+
+    The trailing `(?![0-9a-fA-F])` is `HEX_BOUNDARY` and is equally
+    load-bearing: without it a sixty-four-character digest under this key
+    yields a FABRICATED forty-character prefix — a value nobody wrote, judged
+    for reachability as though the artifact had claimed it. The guard is copied
+    from `LOOSE_SHA_RE` rather than invented, so the module states the rule
+    once. No LEADING guard is added: the value group is already anchored by
+    `\\s*"?` after the colon, so a leading guard could never fire, and an inert
+    guard beside a live one reads as live to the next editor."""
     return re.compile(
-        rf'(?<![A-Za-z0-9_])"?{re.escape(key)}"?\s*:\s*"?([0-9a-f]{{40}})"?')
+        rf'(?<![A-Za-z0-9_])"?{re.escape(key)}"?\s*:\s*"?'
+        rf'([0-9a-f]{{40}}){HEX_BOUNDARY}"?')
 
 
 # WHAT A NON-COMMIT VALUE LOOKS LIKE, and why this regex is stricter about the
@@ -344,7 +371,9 @@ PIN_CLASS: tuple[PinMember, ...] = (
         note="THE PROSE MEMBER a key-name scanner misses. The pin is the "
              "rendered line `- Source revision: `<sha>``, in a markdown "
              "projection of the yaml index; it must agree with its twin.",
-        pattern=r"Source revision:\s*`?([0-9a-f]{40})`?",
+        # `HEX_BOUNDARY`: a prose member's own pattern builds a site, so it
+        # carries the whole-object-name guard exactly as the field forms do.
+        pattern=r"Source revision:\s*`?([0-9a-f]{40})" + HEX_BOUNDARY + r"`?",
     ),
     # ---- immutable derivation and readiness evidence -----------------------
     PinMember(
@@ -403,7 +432,8 @@ PIN_CLASS: tuple[PinMember, ...] = (
              "sentence, `… recipe: checked none · pinned none · at "
              "source_revision <sha>`. One of the 25 committed gate-action "
              "records carries one today.",
-        pattern=r"source_revision\s+`?([0-9a-f]{40})`?",
+        # `HEX_BOUNDARY`: see the sibling prose member above.
+        pattern=r"source_revision\s+`?([0-9a-f]{40})" + HEX_BOUNDARY + r"`?",
     ),
     # ---- spec traceability -------------------------------------------------
     PinMember(
@@ -974,10 +1004,13 @@ PIN_KEY_VOCABULARY: tuple[str, ...] = tuple(sorted({
     "us3_baseline_commit",
 }))
 
+# `HEX_BOUNDARY` on the value for the same reason `_field_re` carries it: this
+# is a SITE-BUILDING expression, and a longer hexadecimal run under a
+# vocabulary key must fail to match here rather than yield a truncated prefix.
 _VOCAB_RE = re.compile(
     r'(?<![A-Za-z0-9_])"?(' + "|".join(re.escape(k) for k in sorted(
         PIN_KEY_VOCABULARY, key=len, reverse=True))
-    + r')"?\s*:\s*"?([0-9a-f]{40})"?')
+    + r')"?\s*:\s*"?([0-9a-f]{40})' + HEX_BOUNDARY + r'"?')
 
 # The same key set with the value widened, for the non-commit classification.
 # Its key anchor is the mapping-position one rather than `_VOCAB_RE`'s bare
