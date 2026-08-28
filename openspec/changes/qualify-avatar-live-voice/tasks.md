@@ -127,7 +127,7 @@ is mis-specified.
 > command's exit code, its own verdict line verbatim, and a digest of its
 > captured output. Eight of the nine elements are satisfied by a real run —
 > the pin's 71 files recomputed offline, six conformance replays, 93 locked
-> packages with ZERO unpinned sources, a real 13-pattern secret scan over 435
+> packages with ZERO unpinned sources, a real 13-pattern secret scan over 438
 > files with ZERO findings, and `melos run ci` green end to end at 533 tests
 > across 11 suites on a Linux bench, so the authoritative pixel goldens and the
 > eleven accessibility capabilities executed rather than self-skipping. The
@@ -1224,8 +1224,8 @@ the checklist that produces its evidence.
       --generated-at=<ISO-8601>` and never hand-edited: every element carries
       the command that produced it, that command's exit code, its own verdict
       line verbatim, and a SHA-256 of its captured output. Generated against
-      openAvatar `b7e89f2d`; `tree_facts_sha256`
-      `656e2bb44409f7446069ed4258412234a7ef8e31a8217e7f9ad7bde74cf22550`.
+      openAvatar `2db12e89`; `tree_facts_sha256`
+      `a5096a0bfdce3fa5836b495be96008853ca0c0098aba8bda5c0f0469725627ff`.
       **EIGHT OF THE NINE ELEMENTS ARE SATISFIED BY A REAL RUN**, none by
       assertion: RE-01 source revision (git, worktree clean); RE-02 Flutter
       3.44.4 / Dart 3.12.2 / framework `ad70ec4617…`, declared in
@@ -1239,7 +1239,7 @@ the checklist that produces its evidence.
       / gate ix), gate ix recorded as `GREEN-WITH-TRACKED-GAPS` rather than
       rounded up; RE-05 dependency lock (93 packages, **0 unpinned sources**,
       7 sdk-sourced, enforced by CI's `flutter pub get --enforce-lockfile`);
-      RE-06 secret scan — a REAL scan, 13 key-shape patterns over 435 files,
+      RE-06 secret scan — a REAL scan, 13 key-shape patterns over 438 files,
       **0 findings**; RE-07 test evidence — `melos run ci` green end to end on
       a Linux bench, **533 tests across 11 suites**, so the authoritative pixel
       goldens and the eleven accessibility capabilities EXECUTED rather than
@@ -1280,6 +1280,18 @@ the checklist that produces its evidence.
       `contracts/avatar-client/redaction/sentinels.yaml`, whose own text
       instructs the content scan to permit those exact strings and flag
       everything else, so widening it means moving a pinned digest.
+      CI on the openAvatar PR is GREEN ON ALL THREE LEGS — linux, windows and
+      web. The windows leg red-flagged one real defect on the way, worth
+      recording because it is the class of thing this evidence exists to catch:
+      `Process.runSync` decodes through the host console code page unless told
+      otherwise, so a recorded summary line and output digest would have
+      depended on the runner's locale rather than on the tool. Both capture
+      paths are now pinned to UTF-8. A second, self-inflicted finding was
+      caught in review: the artifact's `freshness_check` claimed coverage of
+      the secret scan's pattern digest that `--check` did not actually
+      recompute, and the fix was to MAKE THE CLAIM TRUE — tree facts now carry
+      the scanner's own source digest, which pins its patterns, allowlist and
+      exemption logic in one value.
       RING-02 note: this discharges the CLIENT half only. The broker
       deployment's secret scan is install-side and is not touched here.
       Out of scope by the requirement's own carve-out, and correctly absent:
