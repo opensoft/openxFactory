@@ -362,7 +362,15 @@ def test_the_runtime_phantom_check_still_guards_its_direction():
     REPORT can act on, and asserted against a synthetic registry so it does
     not merely restate the invariant."""
     assert fe._check_reporting_list(REPO, list(FAMILIES)) == []
-    assert len(fe._check_reporting_list(REPO, ["only-this-one"])) == 1
+    hits = fe._check_reporting_list(REPO, ["only-this-one"])
+    assert len(hits) == 1
+    # PIN (issue #485). `test_a_missing_family_name_fires_and_names_it`'s pin
+    # above covers the enumeration-drift shapes' shared action; the
+    # phantom-registration shape at `family_enumeration.py:409` uses its OWN
+    # action string and had no assertion on `.action` anywhere in this
+    # suite, so it could be mutated with zero test failures. A fresh
+    # literal, typed independently of the source.
+    assert hits[0].action == "remove the entry, or register the family"
 
 
 def test_every_registered_family_can_render_a_section():
