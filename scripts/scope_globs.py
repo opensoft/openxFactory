@@ -36,6 +36,7 @@ Deterministic: text/YAML reads only, no model calls, no writes.
 from __future__ import annotations
 
 import re
+import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable, Mapping
@@ -341,3 +342,81 @@ def code_surface_repositories(front_matter: Mapping[str, object]) -> set[str]:
         return set()
     tokens = re.split(r"[\s,()/]+", raw)
     return {t for t in tokens if t and t != "none"}
+
+
+# --- scope retention at archive (the FREEZE) ---------------------------------
+#
+# Mirrors the "Origin retention at archive" gate (release-realization): a
+# ratified declaration is auditable and immutable, so a change cannot silently
+# widen the paths its realization was authorized to touch between ratification and
+# archive. Realizes the FROZEN-AFTER-RATIFICATION property of the trust-root
+# integrity requirement. Contested class: reversing this reverses a gate decision.
+
+
+def _canonical(scope: object) -> object:
+    """A comparable, order-insensitive-over-repos canonical form of a raw
+    `scope_globs` value. None stays None; a well-formed value becomes a sorted
+    tuple of (repo, glob-tuple) pairs; an unparseable value becomes a sentinel so
+    that a mutation INTO malformed shape still registers as a change rather than
+    crashing the gate."""
+    if scope is None:
+        return None
+    try:
+        by_repo = validate_shape(scope).by_repo
+    except ScopeGlobsError:
+        return ("__unparseable__", repr(scope))
+    return tuple(sorted((repo, by_repo[repo]) for repo in by_repo))
+
+
+def scope_retention_problem(ratified: object, current: object) -> str | None:
+    """Return a contested-class problem string when `current` differs from the
+    `ratified` `scope_globs` declaration, or None when unchanged.
+
+    Both may be None (no scope declared — the common case, trivially retained).
+    Adding, removing, widening, or reordering the declaration after ratification
+    all register as mutations. Glob-list ORDER is significant (the frozen
+    declaration is compared as authored); repository-key order is not."""
+    if _canonical(ratified) == _canonical(current):
+        return None
+    return (
+        f"scope_globs was mutated after ratification (ratified: {ratified!r}; "
+        f"current: {current!r}); a ratified scope is frozen — restoring or "
+        f"accepting the mutation is a contested-class act requiring an explicit "
+        f"disposition"
+    )
+
+
+def _git_toplevel(path: Path) -> Path:
+    out = subprocess.run(
+        ["git", "-C", str(path if path.is_dir() else path.parent),
+         "rev-parse", "--show-toplevel"],
+        capture_output=True, text=True, check=True,
+    )
+    return Path(out.stdout.strip())
+
+
+def scope_globs_at_ref(repo_root: Path, ref: str, proposal_rel: str) -> object | None:
+    """Read the `scope_globs` value from `proposal_rel` as it stood at git `ref`
+    (the ratified snapshot). Returns None when the field is absent at that ref."""
+    out = subprocess.run(
+        ["git", "-C", str(repo_root), "show", f"{ref}:{proposal_rel}"],
+        capture_output=True, text=True, check=True,
+    )
+    return read_scope_globs(out.stdout)
+
+
+def scope_retention_at_archive(change_dir: str | Path, ratified_ref: str) -> str | None:
+    """Archive-gate freeze check for one change directory.
+
+    Reads `scope_globs` from the change's `proposal.md` at `ratified_ref` (the
+    ratified snapshot) and from the current working tree, and returns a
+    contested-class problem string if they differ (None when retained). Mirrors
+    the origin-retention gate's compare-recorded-vs-live mechanism via git object
+    reads."""
+    change_path = Path(change_dir)
+    proposal = change_path / "proposal.md"
+    repo_root = _git_toplevel(change_path)
+    proposal_rel = proposal.resolve().relative_to(repo_root.resolve()).as_posix()
+    ratified = scope_globs_at_ref(repo_root, ratified_ref, proposal_rel)
+    current = read_scope_globs(proposal) if proposal.is_file() else None
+    return scope_retention_problem(ratified, current)

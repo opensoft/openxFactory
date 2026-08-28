@@ -111,6 +111,10 @@ Core domain-neutral docs:
 - [Domain Repo Review Improvements](docs/domain-repo-review-improvements.md)
 - [Document Lifecycle](docs/document-lifecycle.md)
 - [Release Realization Flow](docs/release-realization-flow.md)
+- [The `scope_globs` Scope Surface Is a Never-Clearable Trust-Root Floor](docs/scope-globs-trust-root-floor.md)
+  (the machine-readable path-scope substrate from `add-structured-scope-substrate`:
+  `scripts/scope_globs.py` + `scripts/validate-scope-globs.py`; the trust-root
+  floor doctrine consumed by the provenance-tie verifier)
 - [Doc-Health Contract](docs/doc-health.md)
   (implementation in-repo since `adopt-neutral-tooling-home`:
   `scripts/doc_health/` + `scripts/doc-health.py`, the reusable nightly

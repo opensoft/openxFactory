@@ -84,16 +84,23 @@ Maps to a Speckit feature `scope-globs-integrity`. Realizes "Trust-root integrit
 of the structured scope declaration" and "Scope retention at archive". Depends on
 Group 2.
 
-- [ ] 4.1 Add the scope-retention archive-gate check mirroring the existing
+- [x] 4.1 Add the scope-retention archive-gate check mirroring the existing
   "Origin retention at archive" implementation: reject any mutation of
   `scope_globs` between ratification and archive; a mutated scope is a
   contested-class failure requiring an explicit disposition.
-- [ ] 4.2 Document (as neutral doctrine + a check where openxFactory can assert it)
+  (`scope_globs.py`: `scope_retention_problem` / `scope_retention_at_archive`
+  — compares the ratified git snapshot against the working tree, as the origin
+  gate compares the recorded-at-ratification manifest against the live
+  `.openspec.yaml`; `validate-scope-globs.py --archive-gate`.)
+- [x] 4.2 Document (as neutral doctrine + a check where openxFactory can assert it)
   that the `openspec/changes/` scope-carrying surface must be a never-clearable
   floor member in every enrolled repository, and that no autonomous provenance
   merge writes it — the enforcement lives in each repo's envelope + verifier
   (Group 5), so this task records the requirement and any openxFactory-side
-  assertion available.
+  assertion available. (`docs/scope-globs-trust-root-floor.md`, linked in the
+  README doc index; the openxFactory-side assertions are the freeze gate 4.1 and
+  the floor-agnostic validator, both stated in the doc and pinned by
+  `tests/scope_globs/test_integrity.py`.)
 
 ## Group 5 — codexFactory consumption (NOT this change; B's realization)
 
