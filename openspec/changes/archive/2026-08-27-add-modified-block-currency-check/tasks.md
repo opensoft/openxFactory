@@ -691,15 +691,15 @@ mutation round live in that feature's tasks.md and evidence.
       Preambles identical, no title removed, every pre-existing title still in
       its original position, and both files still ending in a blank line before
       and after, so no appended requirement consumed an EOF newline.
-      **RESOLVED 2026-08-27** by `record/rederive-mbc-archive-remainder`: re-
-      derived byte-for-byte from `4def2274`/`8997e00b`. **doc-health 88343 ==
-      88343 raw (88341 normalized); document-lifecycle 48731 == 48731 raw
-      (48729 normalized)** — equality holds, as both readings agreed; neither
-      pair matches this exactly. **N2 EXPLAINED**: `split('\n### ')` + drop +
-      `'\n'.join` reproduces 88343/88342 and 48731/48730 verbatim — lossless
-      except when the dropped chunk is the file's LAST heading, true only of
-      the appended requirement, costing one join newline on `after` alone; no
-      EOF blank line is truly consumed. The session's own 88197/48653 pair
-      could not be reproduced by any construction tried and stays unexplained,
-      though self-consistent like the true figure. N2 is discharged by this
-      derivation.
+      **RESOLVED 2026-08-27** by PR #445: re-derived byte-for-byte from
+      `4def2274`/`8997e00b`. **doc-health 88343 == 88343 raw (88341
+      normalized); document-lifecycle 48731 == 48731 raw (48729 normalized)**
+      — equality holds, as both readings agreed; neither pair matches the
+      derivation above exactly. **N2 EXPLAINED**: `split('\n### ')` + drop +
+      `'\n### '.join` reproduces 88343/88342 and 48731/48730 verbatim —
+      lossless except when the dropped chunk is the file's LAST heading, true
+      only of the appended requirement, costing one join newline on `after`
+      alone; no EOF blank line is truly consumed. The session's own
+      88197/48653 pair could not be reproduced by any construction tried and
+      stays unexplained, though self-consistent like the true figure. N2 is
+      discharged by this derivation.
