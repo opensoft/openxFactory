@@ -354,9 +354,10 @@ class TheRealFiles(unittest.TestCase):
         self.assertFalse(
             envelope.exists(),
             "an envelope instance implies an enrolled candidate class. The "
-            "schema requires a non-empty `candidates` list and "
-            "add-substantive-review-lane task 3.2 owes the gate_rules_council "
-            "record that would define one for this repository.")
+            "schema requires a non-empty `candidates` list and the "
+            "gate_rules_council has defined no OPERABLE class for this "
+            "repository — a record exists (2026-08-28) and REFUSED the class "
+            "put to it, so add-substantive-review-lane task 3.2 stays OPEN.")
 
     def test_the_caller_evaluates_this_repositorys_floor(self) -> None:
         self.assertIn(

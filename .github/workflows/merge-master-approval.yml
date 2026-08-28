@@ -27,11 +27,15 @@
 #   * NO ENROLLED CANDIDATE CLASS, and no `.github/merge-approval-envelope.yml`.
 #     codexFactory's envelope schema requires `candidates` with `minItems: 1`
 #     and `envelope.py` mirrors that at runtime, so there is no legal empty
-#     envelope — and the `gate_rules_council` record that would DEFINE
-#     openxFactory's candidate classes (`add-substantive-review-lane` task 3.2)
-#     does not exist. A placeholder candidate would be inventing the enrollment
-#     that task 3.2 exists to grant. So no tier-1 envelope decision is computed
-#     here at all.
+#     envelope — and the `gate_rules_council` has defined no OPERABLE candidate
+#     class for openxFactory (`add-substantive-review-lane` task 3.2). A record
+#     DOES exist as of 2026-08-28: the council convened and REFUSED the class
+#     proposed to it, unanimously, because a class over `openspec/changes/**`
+#     can never convene — its admitted surface lies wholly inside the canonical
+#     GATE_INTEGRITY_FLOOR. A class that can never convene is not an operable
+#     class, so that record defines none and task 3.2 stays OPEN. A placeholder
+#     candidate would be inventing the enrollment that task 3.2 exists to grant.
+#     So no tier-1 envelope decision is computed here at all.
 #   * NO WALLET-BOUND EXERCISE RECORD. `governance/review-authority/register.yaml`
 #     records `act`-tier review authority for the merge-readiness council over
 #     `opensoft/openxFactory` (row `row-mrc-0001`). This lane claims no exercise
@@ -617,10 +621,12 @@ jobs:
               echo
               echo "That is NOT a clearance and NOT an approval. It means only"
               echo "that the repository gate floor does not, by itself, forbid"
-              echo "one. No candidate class is enrolled for this repository"
-              echo "(\`add-substantive-review-lane\` task 3.2 owes the"
-              echo "\`gate_rules_council\` record), so no envelope decision and no"
-              echo "council verdict exist here at all."
+              echo "one. No candidate class is enrolled for this repository:"
+              echo "the \`gate_rules_council\` has defined no OPERABLE class for"
+              echo "it. A record exists (2026-08-28) and REFUSED the class put"
+              echo "to it, so \`add-substantive-review-lane\` task 3.2 stays"
+              echo "OPEN. No envelope decision and no council verdict exist"
+              echo "here at all."
             fi
             echo
             echo "The floor, for reference:"
