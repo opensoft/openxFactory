@@ -13,6 +13,28 @@ from pathlib import Path, PurePosixPath
 import re
 import shutil
 import subprocess
+import sys
+
+# THE DECLARED SENTINEL VOCABULARY, CONSULTED RATHER THAN RESPELLED
+# (`declare-sentinel-pin-vocabulary` § 2.7). The three revision guards below
+# compared against the literal `"uncommitted"` and therefore recognized ONE
+# spelling of ONE condition; every other declared member reached them as though
+# it were a commit name, and `git_blob_sha256` raised `SupportError` on four of
+# the five. That is a real crash on a real archived manifest, not a
+# hypothetical.
+#
+# IMPORTED RATHER THAN COPIED, unlike `manifest_rel` further down. That
+# duplication is deliberate and stated — the shared rule lives in a package this
+# script cannot assume — but `doc_health.pin_sentinels` is a sibling of this
+# file under `scripts/` and depends on nothing outside the standard library. The
+# path insertion covers the case this script is loaded by
+# `spec_from_file_location` (which the tests do) rather than invoked, where
+# Python inserts nothing. `scripts/bootstrap-ideation-cross-reference.py`
+# already converts on the same reasoning.
+_SCRIPTS_DIR = str(Path(__file__).resolve().parent)
+if _SCRIPTS_DIR not in sys.path:
+    sys.path.insert(0, _SCRIPTS_DIR)
+from doc_health.pin_sentinels import is_declared_sentinel  # noqa: E402
 
 try:
     import yaml
@@ -173,6 +195,20 @@ def reject_symlinks(path: Path) -> None:
 
 
 def repo_revision(root: Path) -> str:
+    """The commit this transition is recorded at, or the declared sentinel for
+    an unreadable repository.
+
+    UNCHANGED BY `declare-sentinel-pin-vocabulary`, deliberately. `"uncommitted"`
+    is returned on a NON-ZERO EXIT from `rev-parse HEAD` and on nothing else, so
+    the value this writes means exactly the condition Q1 ruled it names: the
+    repository's revision could not be read at all. It is NOT a dirty-tree
+    stamp, and the dirty-tree branch is not added here, because this mover does
+    not have the defect that branch repairs — it never records a pin that does
+    not describe the content. `move()` compares every source file's sha256
+    against the committed blob at this revision and RAISES rather than writing a
+    manifest whose pin the content contradicts. Converting that refusal into a
+    sentinel would loosen a guard nobody asked to loosen; the honest note is
+    that this generator already satisfies the obligation by refusing."""
     result = subprocess.run(  # NOSONAR: argv is allowlisted; shell is disabled
         ["git", "-C", str(root), "rev-parse", "HEAD"],
         capture_output=True, text=True, check=False,
@@ -181,7 +217,14 @@ def repo_revision(root: Path) -> str:
 
 
 def git_blob_sha256(root: Path, revision: str, source_path: str) -> str | None:
-    if revision == "uncommitted":
+    # ANY DECLARED SENTINEL, not the one spelling this lane happens to write.
+    # A sentinel names a condition under which no commit describes the content,
+    # so there is no blob to resolve and None is the answer for every member of
+    # the vocabulary. Before this consulted the declaration it compared against
+    # the literal `"uncommitted"` and raised `SupportError: invalid repository
+    # revision` on the other four — including `uncommitted-worktree`, which six
+    # archived manifests carry, so `verify` on any of them crashed.
+    if is_declared_sentinel(revision):
         return None
     if not re.fullmatch(r"(?:[0-9a-f]{40}|[0-9a-f]{64})", revision):
         raise SupportError(f"invalid repository revision: {revision}")
@@ -629,7 +672,11 @@ def transition(root: Path, change: str, source_arg: str, requested: list[str],
         }
         for path in selected
     ]
-    if revision != "uncommitted":
+    # The committed-blob comparison is only askable where the revision names a
+    # commit. Under ANY declared sentinel there is no tree to resolve against,
+    # which is the same reasoning that returned None above and is now spelled
+    # against the declaration rather than against one literal.
+    if not is_declared_sentinel(revision):
         for entry in entries:
             committed = git_blob_sha256(
                 root, revision, entry["source_path"])
@@ -734,7 +781,11 @@ def verify_active_support(directory: Path) -> list[str]:
                 errors.append(f"source snapshot checksum mismatch: {snapshot}")
             else:
                 snapshot_valid = True
-        if source_sha256 and revision != "uncommitted":
+        # THE GUARD THE MEASURED CRASH REACHED THROUGH. Verifying any of the six
+        # archived `uncommitted-worktree` manifests fell into this branch,
+        # called `git_blob_sha256` with a value no commit shape matches, and
+        # raised out of a function whose contract is to append findings.
+        if source_sha256 and not is_declared_sentinel(revision):
             committed = git_blob_sha256(
                 root, revision, entry.get("source_path", ""))
             if committed is None and not snapshot_valid:
