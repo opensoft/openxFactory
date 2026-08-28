@@ -33,7 +33,7 @@ flip) and § 7.4 (the domain factories are unmeasured).
       the packet's `.openspec.yaml` records queue admission by the orchestrating
       session on those filed issues, and says in its own words that it is not an
       approval. Ratification is a separate act.
-- [ ] 1.2 THE FIVE ORCHESTRATOR DECISIONS WERE NOT VETOED at the ratification of
+- [x] 1.2 THE FIVE ORCHESTRATOR DECISIONS WERE NOT VETOED at the ratification of
       2026-08-27, and this box stays OPEN because not-vetoed is not the same as
       affirmatively ruled. Reverting any one of them remains an edit to this
       change rather than a new one. Each is independently
@@ -46,6 +46,9 @@ flip) and § 7.4 (the domain factories are unmeasured).
       block in this packet; owed at realization). A veto on D1 re-scopes the
       change; a veto on D2, D3 or D4 rewrites one requirement paragraph; a veto
       on D5 requires `add-family-enumeration-check` to archive first.
+      2026-08-27: all eleven decisions D1–D5 / O6–O11 affirmed by Brett in the
+      same session (see each flag). The record moves from 'not vetoed' to
+      'affirmed'; nothing was vetoed.
 - [ ] 1.3 If D1 is vetoed in favour of #330's shape 1, this packet becomes a
       `promotion-fidelity` extension and "The promotion fidelity measurement
       basis is declared" must be amended in the same change to declare a third

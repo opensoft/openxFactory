@@ -360,20 +360,36 @@ test returns None. One of exactly TWO rules F1 supplies that the delta does not
 write (the other is O9). A veto moves unit counts and therefore the predicted
 ledger figure.
 
+**Affirmed 2026-08-27 by Brett** — in session, multiple choice, verbatim
+"Affirm (Recommended)", after a walkthrough stating the rationale and cost of
+reversal.
+
 **O7 — "A resolvable change-id" in the marker anchor means "matches the
 change-id token grammar", not "names an existing change"** (research R7). The
 delta requires a marker to keep parsing after the change that wrote it archives,
 which the existence reading would break. A veto makes markers rot on archive.
 
+**Affirmed 2026-08-27 by Brett** — in session, multiple choice, verbatim
+"Affirm (Recommended)", after a walkthrough stating the rationale and cost of
+reversal.
+
 **O8 — Three severity constants, not one** (research R11), so § 7.2's flip
 moves the scenario-title arm alone. A veto (one constant) drags the
 title-resolution arm to `error` on a flip nobody asked for.
+
+**Affirmed 2026-08-27 by Brett** — in session, multiple choice, verbatim
+"Affirm (Recommended)", after a walkthrough stating the rationale and cost of
+reversal.
 
 **O9 — Prose under a scenario heading is a `body` unit** (research R5). The
 delta defines a scenario region's heading and its bullets and is silent on a
 non-bullet paragraph inside one. Deriving it as a body unit keeps it under both
 carriage arms; dropping it would let a block move an obligation into scenario
 prose and have neither arm see it. A veto makes that text uncheckable.
+
+**Affirmed 2026-08-27 by Brett** — in session, multiple choice, verbatim
+"Affirm (Recommended)", after a walkthrough stating the rationale and cost of
+reversal.
 
 **O10 — What "the declared sibling's OUTCOME" is computed as.** `dh:74-76`
 requires a declaring block to be "measured against the declared sibling's
@@ -391,6 +407,10 @@ of which this corpus has seven, and measured blocks the delta says must not be
 measured: `dh:278-280` calls such a title "pending rather than absent", and
 pending means nothing is compared. The deleted clause would have invented
 roughly six `info` findings against text no promoted requirement carries.
+
+**Affirmed 2026-08-27 by Brett** — in session, multiple choice, verbatim
+"Affirm (Recommended)", after a walkthrough stating the rationale and cost of
+reversal.
 
 **One consequence of reusing `duplicate_packet._mention`, noted rather than
 hidden (N8)**: its boundaries are `[\w-]`, so a change id appearing inside a
@@ -414,6 +434,14 @@ is an editorial improvement rather than a deletion — thirteen standing finding
 nobody should act on. Ruled 2026-08-27 at the implementation review; flagged for
 veto like the rest, and a veto here needs a rule for which of two identical
 units the block is failing to carry.
+
+**Affirmed 2026-08-27 by Brett** — in session, multiple choice, verbatim
+"Affirm (Recommended)", after a walkthrough stating the rationale and cost of
+reversal.
+
+2026-08-27: all eleven decisions D1–D5 / O6–O11 affirmed by Brett in the same
+session (see each flag). The record moves from 'not vetoed' to 'affirmed';
+nothing was vetoed.
 
 ## Complexity Tracking
 
