@@ -518,8 +518,72 @@ Explanation: A topic must not quietly narrow a ruling, and this reading does
   literal reading and putting PHI-derived data on a public ledger that cannot
   forget. The erasure-by-salt-destruction property is what makes the narrowed
   reading genuinely serve the patient rather than merely comply.
-Disposition status: open — needs Brett's confirmation; this is the one
-  question where the topic has interpreted a ruling rather than applied it
+Disposition status: **ANSWERED 2026-08-28 — Brett Heap confirmed the
+  commitment reading after working the alternative through.** The topic's
+  interpretation is now the ruling's operative form and no later change may
+  re-litigate it without a fresh ruling.
+
+  THE ALTERNATIVE WAS PUT AND REJECTED ON ITS MERITS, not waved off. Brett
+  proposed encrypting the PHI and placing it on chain, tied to the de-PHI'd
+  record through the patient wallet, on the grounds that an immutable record
+  cannot be forged or altered — which is the correct goal and a real gap in the
+  FHIR/TEFCA rails that carry US interoperability today.
+
+  It was rejected because THE INTEGRITY PROPERTY DOES NOT COME FROM THE
+  LOCATION OF THE BYTES. A signed record whose salted commitment is anchored is
+  exactly as forgery-resistant as one published on chain: alter a byte and the
+  commitment breaks. Publishing the ciphertext therefore adds permanence
+  without adding integrity, and permanence costs three things that bite harder
+  for PHI than for almost any other data:
+
+  1. **Harvest now, decrypt later.** A public chain is permanent and
+     world-readable. Medical records stay sensitive for 50-100 years, longer
+     than any cryptographic assumption that can responsibly be made. A key
+     compromise at ANY future point retroactively exposes everything, with no
+     withdrawal possible. That is a different risk class from encrypted data at
+     rest, which can be re-keyed or deleted.
+  2. **No erasure.** Crypto-shredding — destroy the key, call it erased — is
+     contested, and the direction of travel is against it. This topic already
+     cites EDPB Guidelines 02/2025 v2.0 holding that a HASH of personal data is
+     personal data; ciphertext of personal data reasons the same way.
+     "Encrypted, therefore fine" does not hold.
+  3. **Immutability fights the right to amend.** HIPAA 164.526 gives patients
+     the right to request amendment, and corrections are routine — wrong
+     patient, wrong lab, transcription error. An append-only chain can record a
+     superseding entry, but the ERRONEOUS record stays permanently readable. A
+     mis-attributed diagnosis becomes an unrevokable publication.
+
+  THE RULED DESIGN KEEPS EVERY PROPERTY THE ALTERNATIVE WAS REACHING FOR:
+  records signed by the issuing clinician's certificate under `trust-anchor`;
+  encrypted records held off chain, content-addressed, under patient-held keys;
+  one salted keyed commitment per record, anchored — and that commitment IS the
+  tie between the de-PHI'd record and the PHI; the wallet holds the salt, so
+  only the holder can resolve or prove the linkage; amendment is a new signed
+  record with a new commitment and recorded supersession; erasure is salt
+  destruction plus off-chain deletion, which BREAKS the link rather than
+  asserting it is broken.
+
+  Unforgeable, alteration-evident, patient-controlled, amendable, erasable —
+  all five, without a permanent public ciphertext carrying risk it was never
+  buying integrity for.
+
+  WHAT THE CHAIN IS STILL DOING, recorded because the narrowing invites the
+  question: one job — being a witness nobody controls, including us. The
+  transparency log is operator-run, so "trust us, we did not rewrite it" is
+  exactly the assurance a hospital, insurer or court should not have to accept.
+  Anchoring removes that assumption: once a checkpoint is committed, the
+  operator cannot alter history without producing a contradiction anyone can
+  check. THE ADVERSARY THE CHAIN DEFENDS AGAINST IS OPENSOFT. That property
+  cannot come from Opensoft's own infrastructure by definition.
+
+  The honest alternative is named rather than hidden: independent operators
+  cross-signing each other's checkpoints (the Certificate Transparency model)
+  would give a similar property without a chain. The chain wins on two
+  practical grounds — no consortium to assemble and keep honest, and via
+  OpenTimestamps aggregation a marginal cost of about zero, which is the
+  specific prior the study REFUTED. The study's chain-agnostic multi-anchor
+  receipt keeps the chain a REPLACEABLE component, which is the correct weight
+  for it.
 
 ### Q7 — Where does an attestation signature physically happen?
 
