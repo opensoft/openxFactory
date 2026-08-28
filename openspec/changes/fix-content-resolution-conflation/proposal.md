@@ -2,7 +2,7 @@
 code_surface: openxFactory (`scripts/hermes_runtime_validation/release.py` — `_blob_object_id` at `:312-316`, four lines converting every `ContentResolutionError` into `None`; its only caller `_surface_drift` at `:790-806`, whose comparison is `:796-798` and which is reached from `verify_promotion` at `:845`; and the sibling conflation `_CommitSource.exists` at `:401-405`, whose `False` is consumed at `:519`, `:532`, `:611` and `:621` to decide release membership and whether `contracts/manifest.yaml` is present at the commit. `scripts/hermes_runtime_validation/content.py` — `ContentResolutionError` at `:19-26`, whose `code` keyword already exists, defaults to `HRC-CONTENT-DEPENDENCY` and is read by NOTHING in this repository; and the one raise site among fifteen that means the path is absent from the tree, `:125` "exact Git path is unavailable". Plus regressions under `tests/hermes_runtime_contracts/` — `test_release_inventory.py` and `test_content_resolution.py`, over the established fixture pairs. NO change to the finding codes, their severities or their meanings; to the inventory schema, the membership closure, the digest rule or the mode comparison; to the CLI's exit codes; to what counts as reachable; or to any successful resolution's return value. `scripts/validate-contract-release.py:173` already catches `ContentResolutionError` alongside `ReleaseDependencyError`, so no CLI edit is required for either to fail closed.)
 target_release: next additive contract bundle, allocated AT REALIZATION per `docs/contract-versioning-policy.md` and NOT reserved here — `contract-v2.0` is the declared bundle (`contracts/manifest.yaml:3`) and the `contract-v1.28` renumber sweep is the precedent for why a proposal must not claim a minor before merge order is known. **A BUNDLE IS OWED, AND THAT IS THE CONDITION THIS FIELD EXISTS TO NAME.** Established by PARSE rather than by `grep`: `contracts/releases/contract-v2.0.digests.yaml` loaded, its 192 entries walked, and `scripts/hermes_runtime_validation/release.py` present as `artifact_id: scripts-hermes_runtime_validation-release.py`, `type: validator`, `git_mode: 100644`, `digest: sha256:660e55ca7e6896ea24106483b926e1919a0cb195ef8b9a700a3522f1f393f6b0` — which is EXACTLY what the tree carries today, re-verified here by `sha256sum` of the working file. `scripts/hermes_runtime_validation/content.py` is a member on the same terms, so a fix that touches both files still owes ONE cut rather than two. Neither file is in the editorial set, which `scripts/doc_health/release_inventory.py:62-66` declares as exactly `contracts/CHANGELOG.md`, `contracts/manifest.yaml` and `contracts/README.md`; editing a non-editorial member without cutting leaves the declared inventory describing bytes the repository no longer holds, which `release-surface-integrity` names a defect and doc-health's release-inventory-drift family reports at `error`. THE PRECEDENT IS EXACT RATHER THAN ARGUED: `contract-v1.44` was cut on 2026-08-26 as an additive re-realization for PRECISELY this cause, on PRECISELY this file, by `fix-release-reachability-race` — the packet whose § 6.3 recorded the defect this change fixes — and `contract-v1.10` before it for the same reason (`contracts/CHANGELOG.md:2170-2185`). The class is additive: no schema moves, `contract_schema_version` is unchanged, no contract instance valid at `contract-v2.0` is narrowed, and every consumer pinned there stays conformant until it upgrades. The archive gate is therefore merge-plus-green PLUS the cut: `python3 -m pytest tests/hermes_runtime_contracts` green, `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green, and manifest / changelog / digest inventory / verified annotated tag agreeing on the new bundle. The change ships ACTIVE and archives only after that. THIS COUPLING IS WHY THE PACKET IS SEPARATE FROM ITS SIBLING (OD-1): `fix-pin-value-boundary-and-sentinel-split` touches no inventory member at all and can archive on a green suite alone.
 Status: ratified
-Ratified: 2026-08-28 by Brett — in-session selection of the orchestrating session's recommended option, verbatim: "lets do all 3 in order". The recommendation this selected was the orchestrating session's own wording, "the measured-latents bundle", and the two voices are kept apart deliberately rather than merged into one quotation. THE SAME ACT IS CITED BY `fix-pin-value-boundary-and-sentinel-split`: one selection admitted all three defects, and the two packets exist because of a decision the authoring session took afterwards. THE CITATION COVERS THE DECISION TO FILE AND NOTHING ELSE: the six decisions in § Orchestrator decisions below were taken by the authoring session under standing patterns, are NOT covered by this citation, and are flagged there for veto, as are the four questions in § Open Questions. No approving OpenSpec change exists to name, so the citation takes the record spelling `sanction-ratified-record-spelling` sanctioned for exactly that case, and clears its three-way floor on all three axes: approver (`by Brett`), date (`2026-08-28`), and a resolvable record path (this file, § Orchestrator decisions and § Open Questions).
+Ratified: 2026-08-28 by Brett — in-session selection of the orchestrating session's recommended option, verbatim: "lets do all 3 in order". The recommendation this selected was the orchestrating session's own wording, "the measured-latents bundle", and the two voices are kept apart deliberately rather than merged into one quotation. THE SAME ACT IS CITED BY `fix-pin-value-boundary-and-sentinel-split`: one selection admitted all three defects, and the two packets exist because of a decision the authoring session took afterwards. THE CITATION COVERS THE DECISION TO FILE AND NOTHING ELSE. AS FIRST WRITTEN this line continued "the six decisions in § Orchestrator decisions below were taken by the authoring session under standing patterns, are NOT covered by this citation, and are flagged there for veto, as are the four questions in § Open Questions" — true at authoring and now historical: **A SECOND ACT LATER THE SAME DAY CLOSED THE VETO WINDOW.** All six § Orchestrator decisions were CLEARED AS AUTHORED and all four § Open Questions RULED on 2026-08-28, by a four-question multi-choice put to Brett by the orchestrating session over pull request #463 and relayed the same day; he took the packet's recommendation on every question, the re-sequencing OD-1 flagged was accepted on the record, the merge was approved on green to be performed by the orchestrating session rather than this one, and BOTH realizations were pre-commissioned to dispatch in order with the sibling first and this packet second. THE TWO ACTS STAY DISTINCT ON PURPOSE, because they authorized different things: this citation ADMITTED the packet, and the later ruling CLOSED the veto window and moved no delta text. No approving OpenSpec change exists to name, so the citation takes the record spelling `sanction-ratified-record-spelling` sanctioned for exactly that case, and clears its three-way floor on all three axes: approver (`by Brett`), date (`2026-08-28`), and a resolvable record path (this file, § Orchestrator decisions and § Open Questions).
 Proposed: 2026-08-28
 Origin: Follow-up § 6.3 of the archived `2026-08-26-fix-release-reachability-race`, recorded there as measured-and-deliberately-not-fixed: "`_blob_object_id` … converts every `ContentResolutionError` into `None`, so 'the blob is absent at this commit' and 'this commit does not exist' are the same value to its callers … the conflation itself survives, and it is the kind of thing that makes the next defect in this file hard to read." Re-measured on the day of filing, the conflation is wider than two conditions and its caller turns it into a verdict.
 ---
@@ -190,13 +190,53 @@ the tree's copy today. `scripts/hermes_runtime_validation/content.py`:
    of unearned answer these packets are about.
 3. **The eleven-minute exposure window** of § 6.2, unmoved.
 
-## Orchestrator decisions flagged for veto
+## Orchestrator decisions, cleared 2026-08-28 (authored: flagged for veto)
 
-Every decision below was taken by the AUTHORING SESSION under standing patterns.
-Brett's citation authorizes the FILING and reaches none of them.
+**ALL SIX CLEARED AS AUTHORED — Brett, 2026-08-28.** Ruled by a four-question
+multi-choice put to him by the orchestrating session over pull request #463 and
+relayed the same day; on every question he took the packet's own recommendation.
+OD-1 (the two-packet split, **with the re-sequencing of 1, 2, 3 into {1, 3} then
+{2} accepted on the record**), OD-2 (the capability home and the all-ADDED
+two-requirement shape), OD-3 (the obligation scoped to presence-and-identity
+reductions), OD-4 (a declared code rather than a matched message), OD-5 (fixing
+`_CommitSource.exists` alongside the named surface) and OD-6 (the cut declared
+without a minor reserved) all stand exactly as written below. No verbatim
+wording of the ruling reached this session, so none is quoted — the approver,
+the date, the mechanism and the selections are recorded instead, which is what
+the origin requirement asks for.
+
+**THE CLEARANCE MOVED NOTHING.** Every ruling took the recommendation as
+authored, so not one word of `specs/shared-contract-ownership/spec.md` changed,
+neither requirement was added, removed or reworded, and no scenario moved. This
+is stated rather than left to inference, because a clearance that is silent
+about delta text is indistinguishable from a clearance nobody checked.
+
+**THE ORIGINAL FLAGGED TEXT IS KEPT BELOW AS MARKED HISTORY** rather than
+rewritten, because what was flagged and why is the part a later reader needs;
+the per-decision clearance markers say which act closed each one. **THIS ACT IS
+DISTINCT FROM THE COMMISSION RECORDED IN § Ratified**: that one admitted the
+packet, this one closed the veto window.
+
+**THREE FURTHER THINGS THE SAME ACT SETTLED, recorded here because they govern
+what happens next rather than what the packet says.** (1) **MERGE ON GREEN IS
+APPROVED, and the merge is the ORCHESTRATING SESSION'S act, not the authoring
+session's** — this session pushes and stops. (2) **BOTH REALIZATIONS ARE
+PRE-COMMISSIONED TO DISPATCH IN ORDER once the filing lands:
+`fix-pin-value-boundary-and-sentinel-split` FIRST, realized and archived on its
+own green, and THIS PACKET SECOND** — with its realization and its CANDIDATE
+inventory built in the realization pull request, and `verify-promotion` plus the
+annotated tag left to the post-merge act, exactly as the `contract-v1.44`
+precedent discharged them. That ordering is OD-1 doing what it was argued for.
+(3) **THE BUNDLE STATE WAS RE-AFFIRMED AT THE RULING RATHER THAN CARRIED FROM
+THE FILING: `contract-v2.0` is current, and the cut allocates the NEXT number at
+merge order** — no minor is reserved by this act any more than by OD-6, and the
+collision check of `tasks.md` § 4.1 still runs before a number is claimed.
 
 **OD-1 — THIS PACKET IS ONE OF TWO, SPLIT FROM THE APPROVED THREE-DEFECT SET ON
-THE CONTRACT-BUNDLE BOUNDARY.** Full argument at
+THE CONTRACT-BUNDLE BOUNDARY.**
+**CLEARED 2026-08-28 AS AUTHORED, AND THE RE-SEQUENCING WAS ACCEPTED WITH IT** —
+which is the half that mattered, because it is the only part of this decision
+that changed what was approved. Full argument at
 `fix-pin-value-boundary-and-sentinel-split`'s OD-1 and its `design.md` § 1,
 where the rejected one-packet alternative is argued in full. The half that
 belongs here: this packet's surface is an inventory member at the digest the
@@ -208,7 +248,7 @@ stated rather than buried:** Brett said "in order", and the split re-sequences
 the approved 1, 2, 3 as {1, 3} then {2}.
 
 **OD-2 — THE DELTA LANDS ON `shared-contract-ownership`, ALL ADDED, TWO
-REQUIREMENTS.** That capability owns the release verifier surface — SCO-002 and
+REQUIREMENTS.** **CLEARED 2026-08-28 as authored.** That capability owns the release verifier surface — SCO-002 and
 the three requirements `fix-release-reachability-race` added there — and it
 stands at 10 requirements; this makes 12. No active change carries a
 `shared-contract-ownership` delta — checked across the 24 active changes that
@@ -226,7 +266,10 @@ consequence of the mechanics rather than part of the obligation — the exact
 distinction the sibling family drew and gave its reason for.
 
 **OD-3 — THE OBLIGATION IS SCOPED TO RESOLUTIONS REDUCED TO PRESENCE OR
-IDENTITY, WHICH IS NARROWER THAN "EVERY CONTENT RESOLUTION".** The requirement
+IDENTITY, WHICH IS NARROWER THAN "EVERY CONTENT RESOLUTION".**
+**CLEARED 2026-08-28 as authored**, so `HGR-RELEASE-PATH-UNRESOLVABLE` stays a
+named follow-up (`tasks.md` § 7.1) and the requirement's scope is unchanged.
+The requirement
 governs the places where a resolution collapses into a boolean or a blob
 identity — `_blob_object_id` and `exists` — and does not reach a resolution that
 already produces a named finding, which is what `:713-719` does. THE REASON IS
@@ -238,7 +281,8 @@ disposition, which would make an unfixed site a paperwork problem instead of a
 scoping decision.
 
 **OD-4 — THE DISTINCTION IS CARRIED BY A DECLARED CODE ON THE RESOLVER, NOT BY
-MATCHING ITS MESSAGE.** `ContentResolutionError` already takes a `code`; nothing
+MATCHING ITS MESSAGE.** **CLEARED 2026-08-28 as authored**, and Q2 below settles
+that it is ONE code rather than fifteen. `ContentResolutionError` already takes a `code`; nothing
 reads it; `content.py:125` gains a distinct one. **Rejected: matching the string
 "exact Git path is unavailable".** It would work today and fail silently the
 first time somebody improves the message — reclassifying a safety refusal as
@@ -250,6 +294,8 @@ commit first, then the path — which doubles the git invocations on the ordinar
 path and still cannot separate the twelve remaining conditions.
 
 **OD-5 — `_CommitSource.exists` IS FIXED HERE ALTHOUGH § 6.3 DID NOT NAME IT.**
+**CLEARED 2026-08-28 as authored**, so the widening of the inherited follow-up
+stands and `tasks.md` § 2.4 is in scope.
 Identical shape, same file, four lines away, and one of its four callers decides
 whether `contracts/manifest.yaml` is present at the commit. Leaving it would
 ship a requirement with a live counterexample beside the site it was written
@@ -259,18 +305,40 @@ the inherited follow-up, and the widening is the authoring session's, on a
 measurement § 6.3 did not make.
 
 **OD-6 — THE BUNDLE CUT IS DECLARED AT FILING AND NO MINOR IS RESERVED.**
+**CLEARED 2026-08-28 as authored, and re-affirmed by the same act**, which
+restated that `contract-v2.0` is current and that the cut allocates the next
+number at merge order.
 `target_release` states the cut, its cause, the parsed evidence of membership,
 the additive class and the precedent; it names no number, because merge order
 decides the next minor and the `contract-v1.28` renumber sweep is the precedent
 for why a proposal must not reserve one. **Rejected:** naming `contract-v2.1`,
 which is the collision this repository has already paid for once.
 
-## Open Questions
+## Open Questions, all four ruled 2026-08-28
 
-Each carries a RECOMMENDATION and no decision.
+All four were ruled by the same four-question multi-choice recorded in
+§ Orchestrator decisions, and on all four Brett took the packet's recommendation.
+No verbatim wording of the ruling reached this session, so none is quoted —
+approver, date, mechanism and the option selected are stated instead.
 
-**Q1 — Should the refusal be `ReleaseDependencyError` or the `ContentResolution
-Error` re-raised unwrapped?** Both are `RuntimeError` with `exit_code = 2` and
+**NONE OF THE FOUR MOVED DELTA TEXT**, and that is a measurement rather than an
+assumption: all four ruled answers are realization mechanics — which exception
+class carries the refusal, how many codes the resolver declares, which fixtures
+the proofs reuse, and how the failing condition is driven — and both
+requirements were written to govern the OUTCOME rather than the mechanism. The
+delta is byte-unchanged from the filing. **Each question's original text is kept
+verbatim beneath its ruling**, because a recommendation that was accepted is the
+argument for the rule now standing.
+
+**Q1 — RULED 2026-08-28: THE REFUSAL IS `ReleaseDependencyError`, WRAPPING THE
+ORIGINAL WITH `from`.** The recommendation was taken as authored. **WHAT MOVED:
+nothing.** The requirement asks for a fail-closed dependency refusal whose reason
+names the condition observed and does not name a class, so the ruling settles the
+mechanism `tasks.md` § 2.3 carried as conditional and leaves the obligation as
+written. Both classes already exit 2 and both are already caught at
+`validate-contract-release.py:173`, so no CLI edit follows from it either.
+*Question as authored:* Should the refusal be `ReleaseDependencyError` or the `ContentResolution
+Error` re-raised unwrapped? Both are `RuntimeError` with `exit_code = 2` and
 `validate-contract-release.py:173` catches both, so both fail closed.
 **RECOMMENDATION: `ReleaseDependencyError`, wrapping the original with `from`.**
 The promoted sibling requirement puts the fail-closed refusal in the dependency
@@ -278,23 +346,43 @@ class by name and asks that the reason name the retrieval; wrapping keeps the
 release verifier's refusals in one class while `from` preserves the resolver's
 own message for the reader.
 
-**Q2 — Should `content.py` declare one absent-path code, or a code per
-condition?** A code per condition would let every caller distinguish everything.
+**Q2 — RULED 2026-08-28: ONE CODE FOR THE ABSENT-PATH CONDITION, NOT FIFTEEN.**
+The recommendation was taken as authored. **WHAT MOVED: nothing.** The
+requirement treats the other fourteen as one outcome by design — "the question
+could not be asked" — so a single declared code is exactly what it needs, and
+`tasks.md` § 7.4 keeps the open item for the day a second caller needs to
+distinguish two of the fourteen. That is the evidence a wider vocabulary would
+require, and it does not exist yet.
+*Question as authored:* Should `content.py` declare one absent-path code, or a code per
+condition? A code per condition would let every caller distinguish everything.
 **RECOMMENDATION: one code for the absent-path condition, and nothing more.**
 That is the only distinction the requirement needs; the remaining fourteen are
 all "the question could not be asked", which the requirement treats as one
 outcome by design. A code per raise site would be a vocabulary nothing consumes,
 which is the drift the sentinel declaration's second direction exists to report.
 
-**Q3 — Should the offline and unavailable-store proofs reuse the race packet's
-`_bare_origin` / `_repo_with_committed_inventory` fixture pair?** They already
+**Q3 — RULED 2026-08-28: REUSE THE EXISTING FIXTURES**, with the release-surface
+proofs on the `_bare_origin` / `_repo_with_committed_inventory` pair and the
+resolver proofs in `test_content_resolution.py`. The recommendation was taken as
+authored. **WHAT MOVED: nothing** — the proof requirement names the conditions a
+proof must establish and deliberately names no fixture, so the ruling settles
+`tasks.md` § 3.5 without touching canon.
+*Question as authored:* Should the offline and unavailable-store proofs reuse the race packet's
+`_bare_origin` / `_repo_with_committed_inventory` fixture pair? They already
 exist in `tests/hermes_runtime_contracts/test_release_inventory.py`.
 **RECOMMENDATION: reuse them for the release-surface proofs and add the resolver
 proofs to `test_content_resolution.py`, which is where the fifteen refusals
 already live.** Two homes, each beside the code it proves.
 
-**Q4 — Does the "both sides fail" proof need a real slow or broken store, or may
-it drive the condition by argument?** A genuine timeout is slow and flaky; a
+**Q4 — RULED 2026-08-28: DRIVE THE CONDITION BY ARGUMENT, AND SAY SO IN THE
+PROOF.** The recommendation was taken as authored. **WHAT MOVED: nothing.** The
+requirement's third scenario asks for a refusal when both sides fail and is
+silent on how they are made to fail, which is deliberate — and the pinning rule
+it carries (remove the distinction, watch the proof fail) is
+mechanism-independent, so a proof driven by argument is pinned exactly as
+tightly as one driven by a timeout. Settles `tasks.md` § 3.6.
+*Question as authored:* Does the "both sides fail" proof need a real slow or broken store, or may
+it drive the condition by argument? A genuine timeout is slow and flaky; a
 non-canonical path or an absent repository reaches the same branch instantly.
 **RECOMMENDATION: drive it by argument, and say so in the proof.** The
 requirement is about the DISTINCTION, not about any one way of failing, and the

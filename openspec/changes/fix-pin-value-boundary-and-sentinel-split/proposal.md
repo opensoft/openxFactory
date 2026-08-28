@@ -2,7 +2,7 @@
 code_surface: openxFactory (`scripts/doc_health/pin_class.py` — the FOUR expressions that build a pin site, each binding its value group to `([0-9a-f]{40})` with a leading key boundary and no trailing hexadecimal boundary: `_field_re` at `:194-205` with its value group at `:204`, `_VOCAB_RE` at `:977-980` with its value group at `:980`, and the two PROSE class members' own declared patterns at `:347` and `:406`, which `PinMember.regex` at `:289-290` compiles directly; `LOOSE_SHA_RE` at `:159` is the guard that already states the rule and is NOT edited, only carried. `experiments/avatar-brokered-call/src/avatar_f0/cli.py` — `_git_file_commit` at `:43-51` (its `"unknown"` returns at `:49` and `:51`) and `_git_head` at `:54-62` (`:60` and `:62`), four emission sites across two functions, of which `:49` fires on two conditions because `subprocess.run` is called with no `check` and its return code is never read. `scripts/ideation_dashboard/snapshot_registry.py:283` — `self.source_revision or "unknown"` in `index_entry`, whose MEMBER does not change and whose LITERAL does. `scripts/doc_health/pin_sentinels.py` — the `emitters` tuples of `UNCOMMITTED_WORKTREE`, `UNCOMMITTED` and `UNKNOWN`, which are measured by test and must follow the split. Plus regressions under `tests/doc-health/` (`test_pin_reachability.py`, `test_sentinel_vocabulary.py`). NO change is proposed to the declared `PIN_CLASS` rows, `PIN_KEY_VOCABULARY`, `NON_MEMBERS`, the ref set consulted, `KNOWN_LOSSES` or its discharge mechanism, `repair_route()`, the retention namespace, the sentinel `CONDITIONS` map or the set of declared members, the deterministic check family registry `scripts/doc_health/families.py`, the family enumeration or its numerals, `health/dispositions.yaml`, or one byte of any committed artifact.)
 target_release: none — no contract bundle is owed, and this is established by PARSE rather than by `grep`. `contracts/releases/contract-v2.0.digests.yaml` is the declared bundle (`contracts/manifest.yaml:3`); it was loaded and its 192 entries walked into their member paths, and NOT ONE path under `scripts/doc_health/`, `scripts/ideation_dashboard/` or `experiments/` appears in it. The inventory carries exactly 22 `scripts/` members: 18 under `scripts/hermes_runtime_validation/` and four top-level validators, one of which — `scripts/validate-ideation-dashboard-contracts.py` — is a NEIGHBOUR of the lane this packet edits and is not the file it edits. So no schema moves, no digest set changes, and no release tag is owed. THE SIBLING PACKET OF THE SAME COMMISSIONED SET IS THE OPPOSITE CASE, and separating them is why this one can archive on its own evidence: `fix-content-resolution-conflation` edits `scripts/hermes_runtime_validation/release.py`, which IS a non-editorial member of that same inventory, and therefore owes an additive cut. The archive gate here is merge-plus-green on main: `python3 -m pytest tests/doc-health` green under `set -o pipefail`, `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green, and the declared pin class reporting `clean` with its site count, its outcome split and its sentinel classification unchanged except where this packet's own realization moved them. The change ships ACTIVE and archives only after that.
 Status: ratified
-Ratified: 2026-08-28 by Brett — in-session selection of the orchestrating session's recommended option, verbatim: "lets do all 3 in order". The recommendation this selected was the orchestrating session's own wording, "the measured-latents bundle", and the two voices are kept apart deliberately rather than merged into one quotation. THE CITATION COVERS THE DECISION TO FILE AND NOTHING ELSE: the five decisions in § Orchestrator decisions below — including the split of the approved three-defect set into TWO packets — were taken by the authoring session under standing patterns, are NOT covered by this citation, and are flagged there for veto, as are the four questions in § Open Questions. No approving OpenSpec change exists to name, so the citation takes the record spelling `sanction-ratified-record-spelling` sanctioned for exactly that case, and clears its three-way floor on all three axes: approver (`by Brett`), date (`2026-08-28`), and a resolvable record path (this file, § Orchestrator decisions and § Open Questions).
+Ratified: 2026-08-28 by Brett — in-session selection of the orchestrating session's recommended option, verbatim: "lets do all 3 in order". The recommendation this selected was the orchestrating session's own wording, "the measured-latents bundle", and the two voices are kept apart deliberately rather than merged into one quotation. THE CITATION COVERS THE DECISION TO FILE AND NOTHING ELSE. AS FIRST WRITTEN this line continued "the five decisions in § Orchestrator decisions below — including the split of the approved three-defect set into TWO packets — were taken by the authoring session under standing patterns, are NOT covered by this citation, and are flagged there for veto, as are the four questions in § Open Questions" — true at authoring and now historical: **A SECOND ACT LATER THE SAME DAY CLOSED THE VETO WINDOW.** All five § Orchestrator decisions were CLEARED AS AUTHORED and all four § Open Questions RULED on 2026-08-28, by a four-question multi-choice put to Brett by the orchestrating session over pull request #463 and relayed the same day; he took the packet's recommendation on every question, the re-sequencing OD-1 flagged was accepted on the record, and the merge was approved on green to be performed by the orchestrating session rather than this one. THE TWO ACTS STAY DISTINCT ON PURPOSE, because they authorized different things: this citation ADMITTED the packet, and the later ruling CLOSED the veto window and moved no delta text. No approving OpenSpec change exists to name, so the citation takes the record spelling `sanction-ratified-record-spelling` sanctioned for exactly that case, and clears its three-way floor on all three axes: approver (`by Brett`), date (`2026-08-28`), and a resolvable record path (this file, § Orchestrator decisions and § Open Questions).
 Proposed: 2026-08-28
 Origin: Two defects the corpus already measured and deliberately declined to fix in the packet that found them. `declare-sentinel-pin-vocabulary` § 5.5 recorded the trailing-boundary gap at its filing and carried it untouched through realization and archive, on the stated ground that folding a silent mis-parse fix into a vocabulary packet would hide it. Its § 5.6 was raised at that packet's own realization: `"unknown"` measured as one spelling doing three jobs, and the vocabulary absorbed it as the weakest member while naming the split as owed. Both were re-measured here on the day of filing, and both measurements moved.
 ---
@@ -198,13 +198,48 @@ four top-level validators. **No cut is owed.**
    Raised by this packet's own realization of the projector site and recorded as
    Q3 below rather than legislated here.
 
-## Orchestrator decisions flagged for veto
+## Orchestrator decisions, cleared 2026-08-28 (authored: flagged for veto)
 
-Every decision below was taken by the AUTHORING SESSION under standing patterns.
-Brett's citation authorizes the FILING and reaches none of them.
+**ALL FIVE CLEARED AS AUTHORED — Brett, 2026-08-28.** Ruled by a four-question
+multi-choice put to him by the orchestrating session over this pull request and
+relayed the same day; on every question he took the packet's own recommendation.
+OD-1 (the two-packet split on the contract-bundle boundary, **with the
+re-sequencing of 1, 2, 3 into {1, 3} then {2} accepted on the record**), OD-2
+(the single-capability all-ADDED delta), OD-3 (the sentinel split as
+realization-only under existing canon), OD-4 (a trailing hexadecimal boundary
+rather than a whole-value rewrite) and OD-5 (correcting the inherited record
+rather than restating it) all stand exactly as written below. No verbatim
+wording of the ruling reached this session, so none is quoted — the approver,
+the date, the mechanism and the selections are recorded instead, which is what
+the origin requirement asks for.
+
+**THE CLEARANCE MOVED NOTHING.** Every ruling took the recommendation as
+authored, so not one word of `specs/doc-health/spec.md` changed, no requirement
+was added, removed or reworded, and no scenario moved. This is stated rather
+than left to inference, because a clearance that is silent about delta text is
+indistinguishable from a clearance nobody checked.
+
+**THE ORIGINAL FLAGGED TEXT IS KEPT BELOW AS MARKED HISTORY** rather than
+rewritten, because what was flagged and why is the part a later reader needs;
+the per-decision clearance markers say which act closed each one. **THIS ACT IS
+DISTINCT FROM THE COMMISSION RECORDED IN § Ratified**: that one admitted the
+packet, this one closed the veto window.
+
+**TWO FURTHER THINGS THE SAME ACT SETTLED, recorded here because they govern
+what happens next rather than what the packet says.** (1) **MERGE ON GREEN IS
+APPROVED, and the merge is the ORCHESTRATING SESSION'S act, not the authoring
+session's** — this session pushes and stops. (2) **BOTH REALIZATIONS ARE
+PRE-COMMISSIONED TO DISPATCH IN ORDER once the filing lands: this packet FIRST,
+realized and archived on its own green, and `fix-content-resolution-conflation`
+SECOND.** That ordering is the two-packet split doing the work OD-1 argued it
+would do — this packet's archive gate is a green suite and nothing else, so it
+does not wait on a contract tag.
 
 **OD-1 — THE APPROVED THREE-DEFECT SET IS FILED AS TWO PACKETS, SPLIT ON THE
-CONTRACT-BUNDLE BOUNDARY.** This packet carries defects 1 and 3;
+CONTRACT-BUNDLE BOUNDARY.**
+**CLEARED 2026-08-28 AS AUTHORED, AND THE RE-SEQUENCING WAS ACCEPTED WITH IT** —
+which is the half that mattered, because it is the only part of this decision
+that changed what was approved. This packet carries defects 1 and 3;
 `fix-content-resolution-conflation` carries defect 2 and cites the same origin
 act. THE REASON IS THE ARCHIVE GATE, and it is measured rather than argued.
 Defect 2's only surface, `scripts/hermes_runtime_validation/release.py`, is a
@@ -236,7 +271,7 @@ flags the reading here so it can be overruled cheaply — the two packets can be
 merged into one before either is reviewed.
 
 **OD-2 — THE DELTA IS SINGLE-CAPABILITY AND ALL ADDED: ONE REQUIREMENT ON
-`doc-health`.** `doc-health` owns the pin verification — the promoted
+`doc-health`.** **CLEARED 2026-08-28 as authored.** `doc-health` owns the pin verification — the promoted
 "Derivation-pin reachability is verified across a declared artifact class" and
 both promoted sentinel requirements live there — and it is the capability whose
 code produces the fabricated pin. It stands at 38 requirements; this makes 39.
@@ -251,7 +286,9 @@ the classification requirement, which would restate promoted prose wholesale to
 add one sentence, and put canon at the mercy of archive order for no gain.
 
 **OD-3 — THE `"unknown"` SPLIT SHIPS AS REALIZATION UNDER EXISTING CANON, WITH NO
-REQUIREMENT OF ITS OWN.** The promoted `ideation-cross-reference` generator
+REQUIREMENT OF ITS OWN.** **CLEARED 2026-08-28 as authored**, so
+`ideation-cross-reference` stays at 18 requirements and this packet issues no
+delta against it. The promoted `ideation-cross-reference` generator
 requirement already says the condition named must be the one that actually held,
 and the promoted vocabulary already says a generator that can distinguish must
 reach for the stronger member. Both were promoted on 2026-08-28. Four sites
@@ -268,7 +305,7 @@ emission site, one condition", which is the same sentence promoted canon already
 carries with a scenario attached.
 
 **OD-4 — THE REMEDY IS A TRAILING HEXADECIMAL BOUNDARY, NOT A WHOLE-VALUE
-REWRITE.** The four expressions gain `(?![0-9a-fA-F])` after the value group —
+REWRITE.** **CLEARED 2026-08-28 as authored.** The four expressions gain `(?![0-9a-fA-F])` after the value group —
 the identical construction `LOOSE_SHA_RE` already carries, so the module states
 the rule once and applies it consistently. Verified against the fix: the
 sixty-four-character case matches nothing (no backtracking route exists, because
@@ -282,6 +319,7 @@ grammars to keep in agreement where one boundary character suffices. A leading
 would be inert, and an inert guard reads as a live one.
 
 **OD-5 — THE INHERITED RECORD IS CORRECTED ON TWO COUNTS RATHER THAN RESTATED.**
+**CLEARED 2026-08-28 as authored.**
 § 5.5 named two fabricating expressions; there are four. § 5.6 named three
 `"unknown"` sites all owing a split; there are five, one of them fires on two
 conditions, and one of them is already correct. Both corrections are stated in
@@ -291,11 +329,30 @@ rather than the file. **Rejected:** filing on the inherited numbers and noting
 the difference at realization, which is how a filing's own premise goes
 unmeasured.
 
-## Open Questions
+## Open Questions, all four ruled 2026-08-28
 
-Each carries a RECOMMENDATION and no decision.
+All four were ruled by the same four-question multi-choice recorded in
+§ Orchestrator decisions, and on all four Brett took the packet's recommendation.
+No verbatim wording of the ruling reached this session, so none is quoted —
+approver, date, mechanism and the option selected are stated instead.
 
-**Q1 — Should the refused value produce a distinct finding, or ride the existing
+**NONE OF THE FOUR MOVED DELTA TEXT**, and that is a measurement rather than an
+assumption: the ruled answers are all realization mechanics — which finding a
+refused value rides, which sentinel member a failed `git log` writes, whether a
+constant is imported or retyped, and where the boundary rule is asserted — and
+the requirement was written to govern the outcome rather than the mechanism. The
+delta is byte-unchanged from the filing. **Each question's original text is kept
+verbatim beneath its ruling**, because a recommendation that was accepted is the
+argument for the rule now standing.
+
+**Q1 — RULED 2026-08-28: RIDE THE EXISTING UNDECLARED-NON-COMMIT DEFECT, AND ADD
+NO DISTINCT FINDING CLASS.** The recommendation was taken as authored. **WHAT
+MOVED: nothing.** The delta's first scenario already asks only that the whole
+value reach the classification and be reported there; it names no new class, so
+the ruling confirms the text rather than changing it. It also settles a
+realization question the tasks carried: `tasks.md` § 2.4 proves a defect naming
+the full value and NOT a second finding beside it.
+*Question as authored:* Should the refused value produce a distinct finding, or ride the existing
 undeclared-non-commit defect?** Today a sixty-four-character value under a swept
 key already produces the classification defect; after the fix it produces that
 and nothing else. A distinct "malformed pin value" finding would tell a reader
@@ -306,16 +363,31 @@ name apart from an invented spelling — "the remedy is the same for all of them
 declare the value or fix the generator" — and adding a class the canon says not
 to distinguish would contradict a requirement promoted this month.
 
-**Q2 — Should `cli.py`'s return-code branch treat a non-zero `git log` as
-`unreadable-repository`, or refuse to emit at all?** A generator that cannot run
+**Q2 — RULED 2026-08-28: A NON-ZERO `git log` IS THE `unreadable-repository`
+CONDITION AND THE GENERATOR WRITES THAT MEMBER**, rather than refusing to emit.
+The recommendation was taken as authored. **WHAT MOVED: nothing in the delta** —
+this is `ideation-cross-reference` canon applied at a call site, which is
+precisely why OD-3 raises no requirement for it. It unblocks `tasks.md` § 3.2,
+whose return-code branch now has both of its arms ruled rather than one.
+*Question as authored:* Should `cli.py`'s return-code branch treat a non-zero `git log` as
+`unreadable-repository`, or refuse to emit at all? A generator that cannot run
 git arguably should fail rather than record a sentinel.
 **RECOMMENDATION: `unreadable-repository`.** That is precisely the condition the
 member declares, the promoted requirement's scenario names omission and
 placeholders as the wrong answers, and this is an experiment lane whose evidence
 record is more useful with an honest condition in it than absent.
 
-**Q3 — Should a generator be obliged to IMPORT the declared spelling rather than
-retype the literal?** The vocabulary module says so in its own prose; no promoted
+**Q3 — RULED 2026-08-28: IMPORT THE CONSTANT, AND LEGISLATE NOTHING.** The
+recommendation was taken as authored, cross-package import included:
+`scripts/ideation_dashboard/snapshot_registry.py` reaches
+`scripts/doc_health/pin_sentinels.py`, which is stdlib-only by design for exactly
+this. **WHAT MOVED: nothing.** No requirement is added, so the obligation stays
+where the vocabulary module already states it, and `tasks.md` § 6.4 keeps the
+open item — a second generator retyping a literal is the evidence a rule would
+need. `tasks.md` § 3.4's conditional branch ("if Brett rules against the
+cross-package import") is settled and does not fire.
+*Question as authored:* Should a generator be obliged to IMPORT the declared spelling rather than
+retype the literal? The vocabulary module says so in its own prose; no promoted
 requirement does. `snapshot_registry.py` importing `pin_sentinels` also crosses a
 package boundary (`scripts/ideation_dashboard/` → `scripts/doc_health/`), which
 is a real coupling question rather than a style one.
@@ -324,7 +396,13 @@ stdlib-only by design, explicitly so that standalone scripts can import it
 without dragging a package in. Do it here, and raise a requirement only if a
 second generator retypes a literal — which is the evidence a rule would need.
 
-**Q4 — Should the boundary be enforced structurally rather than by review?** A
+**Q4 — RULED 2026-08-28: A TEST OVER THE DECLARATION, NOT A RUNTIME CHECK.** The
+recommendation was taken as authored. **WHAT MOVED: nothing.** The delta's fourth
+scenario already states the obligation on every site-building expression; the
+ruling settles HOW it is proved, which is `tasks.md` § 4.4, and it deliberately
+does not become a deterministic check family — the requirement says so and the
+ruling does not disturb it.
+*Question as authored:* Should the boundary be enforced structurally rather than by review? A
 future class member could declare a new prose `pattern` without the boundary,
 and the requirement's fourth scenario would be violated silently.
 **RECOMMENDATION: a test over the declaration, not a runtime check.** Assert that

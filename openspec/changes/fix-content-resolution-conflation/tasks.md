@@ -21,10 +21,37 @@ number owes a re-measurement at realization, not a copy of the number.
 - [ ] 1.3 `OPENSPEC_TELEMETRY=0 openspec validate fix-content-resolution-conflation --strict`
       and `--all --strict` green. Baseline before the pair: **76 passed, 0
       failed**.
-- [ ] 1.4 § Orchestrator decisions OD-1 … OD-6 and § Open Questions Q1 … Q4 are
+- [x] 1.4 § Orchestrator decisions OD-1 … OD-6 and § Open Questions Q1 … Q4 are
       open at filing. **OD-1 is the one that changes what was approved**; put it
       to Brett first, because merging the two packets back into one is cheapest
       before either is reviewed.
+      **DONE — RULED 2026-08-28, ALL TEN, AND NOT ONE OF THEM MOVED DELTA
+      TEXT.** A four-question multi-choice put to Brett by the orchestrating
+      session over pull request #463 and relayed the same day: all six
+      orchestrator decisions CLEARED AS AUTHORED, **including OD-1's
+      re-sequencing of the approved 1, 2, 3 into {1, 3} then {2}, accepted on
+      the record**, and all four questions RULED on the packet's own
+      recommendation — Q1 `ReleaseDependencyError` wrapping the original with
+      `from`, Q2 one declared code rather than fifteen, Q3 reuse of the existing
+      fixture pair plus `test_content_resolution.py`, Q4 driving the failing
+      condition by argument. `specs/shared-contract-ownership/spec.md` is
+      byte-unchanged from the filing, which is checked rather than assumed.
+      The mechanism, the date, the approver and the selections are recorded;
+      no verbatim wording of the ruling reached this session, so none is
+      quoted. Full record at `proposal.md` § Orchestrator decisions and
+      § Open Questions.
+      **WHAT THE SAME ACT ALSO SETTLED, and none of it is this session's to
+      perform:** merge on green is APPROVED and is the ORCHESTRATING SESSION'S
+      act; both realizations are PRE-COMMISSIONED TO DISPATCH IN ORDER once the
+      filing lands — `fix-pin-value-boundary-and-sentinel-split` FIRST, then
+      THIS PACKET, with its realization and its CANDIDATE inventory built in the
+      realization pull request and `verify-promotion` plus the annotated tag
+      left to the post-merge act exactly as the `contract-v1.44` precedent
+      discharged them (§ 4.5); and the bundle state was RE-AFFIRMED at the
+      ruling rather than carried from the filing — `contract-v2.0` is current
+      and the cut allocates the NEXT number at merge order, so § 4.1's
+      collision check still runs before any number is claimed. The conditional
+      branch § 2.3 carried is settled and does not fire.
 
 ## 2. Implementation — the distinction
 

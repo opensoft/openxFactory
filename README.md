@@ -392,9 +392,15 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [fix-pin-value-boundary-and-sentinel-split](openspec/changes/fix-pin-value-boundary-and-sentinel-split/proposal.md)
-  — authored 2026-08-28 on Brett's in-session selection ("lets do all 3 in
-  order") of a three-defect set the orchestrating session had recommended as
-  "the measured-latents bundle". **Two of the three**; the third is
+  — **ALL FIVE ORCHESTRATOR DECISIONS CLEARED AND ALL FOUR QUESTIONS RULED
+  2026-08-28**, by a four-question multi-choice put to Brett over PR #463; he
+  took the packet's recommendation on every one, the two-packet split and its
+  re-sequencing were accepted, merge on green was approved, and **the clearance
+  moved no delta text** (the spec file is byte-unchanged). Realization is
+  pre-commissioned to dispatch FIRST of the pair. Authored 2026-08-28 on
+  Brett's in-session selection ("lets do all 3 in order") of a three-defect set
+  the orchestrating session had recommended as "the measured-latents bundle".
+  **Two of the three**; the third is
   `fix-content-resolution-conflation`, filed separately because its surface is a
   contract bundle member and these are not (OD-1, argued in `design.md` § 1 with
   the one-packet alternative rejected on measured grounds). Both defects were
@@ -424,8 +430,14 @@ Active changes:
   `contract-v2.0`'s 192 entries walked, zero members under
   `scripts/doc_health/`, `scripts/ideation_dashboard/` or `experiments/`.
 - [fix-content-resolution-conflation](openspec/changes/fix-content-resolution-conflation/proposal.md)
-  — authored 2026-08-28 on the same act, the **third defect** of that set, filed
-  separately because of what follows. `_blob_object_id`
+  — **ALL SIX ORCHESTRATOR DECISIONS CLEARED AND ALL FOUR QUESTIONS RULED
+  2026-08-28** by the same act, every one on the packet's own recommendation,
+  with **no delta text moved**; realization is pre-commissioned to dispatch
+  SECOND, its candidate inventory built in the realization pull request and
+  `verify-promotion` plus the tag left post-merge on the `contract-v1.44`
+  precedent, the next minor allocated at merge order from the current
+  `contract-v2.0`. Authored 2026-08-28 on the same act, the **third defect** of
+  that set, filed separately because of what follows. `_blob_object_id`
   (`scripts/hermes_runtime_validation/release.py:312-316`) converts every
   `ContentResolutionError` into `None`; `resolve_git_object` reaches **15 raise
   sites, 14 distinct messages, and exactly ONE** — `content.py:125`, the tree

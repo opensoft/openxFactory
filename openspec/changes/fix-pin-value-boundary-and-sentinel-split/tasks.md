@@ -20,11 +20,33 @@ number owes a re-measurement at realization, not a copy of the number.
 - [ ] 1.3 `OPENSPEC_TELEMETRY=0 openspec validate fix-pin-value-boundary-and-sentinel-split --strict`
       and `--all --strict` green. Baseline before the packet: **76 passed, 0
       failed**.
-- [ ] 1.4 § Orchestrator decisions OD-1 … OD-5 and § Open Questions Q1 … Q4 are
+- [x] 1.4 § Orchestrator decisions OD-1 … OD-5 and § Open Questions Q1 … Q4 are
       open at filing and stay open until an act closes them. **OD-1 is the one
       that changes what was approved** and is the first thing to put to Brett;
       overruling it is a directory move plus one `.openspec.yaml` edit and is
       cheapest before either packet is reviewed.
+      **DONE — RULED 2026-08-28, ALL NINE, AND NOT ONE OF THEM MOVED DELTA
+      TEXT.** A four-question multi-choice put to Brett by the orchestrating
+      session over pull request #463 and relayed the same day: all five
+      orchestrator decisions CLEARED AS AUTHORED, **including OD-1's
+      re-sequencing of the approved 1, 2, 3 into {1, 3} then {2}, accepted on
+      the record**, and all four questions RULED on the packet's own
+      recommendation — Q1 rides the existing undeclared-non-commit defect, Q2
+      writes `unreadable-repository` for a failed `git log`, Q3 imports the
+      declared constant across the package boundary, Q4 asserts the boundary
+      rule by a test over the declaration. `specs/doc-health/spec.md` is
+      byte-unchanged from the filing, which is checked rather than assumed.
+      The mechanism, the date, the approver and the selections are recorded;
+      no verbatim wording of the ruling reached this session, so none is
+      quoted. Full record at `proposal.md` § Orchestrator decisions and
+      § Open Questions.
+      **WHAT THE SAME ACT ALSO SETTLED, and neither part is this session's to
+      perform:** merge on green is APPROVED and is the ORCHESTRATING SESSION'S
+      act; and both realizations are PRE-COMMISSIONED TO DISPATCH IN ORDER once
+      the filing lands — THIS PACKET FIRST, realized and archived on its own
+      green, then `fix-content-resolution-conflation`. The conditional branches
+      § 3.4 carried ("if Brett rules against the cross-package import") and
+      § 2.3's alternative are settled and do not fire.
 
 ## 2. Implementation — defect 1, the trailing hexadecimal boundary
 
