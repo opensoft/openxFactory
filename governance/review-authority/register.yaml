@@ -23,6 +23,38 @@
 # live lookup on the Hermes runtime (S5 successor). This file is right for
 # the MVP's one row; it must not be pretended into a revocation surface.
 register_version: 1
+
+# THE REVOCATION STALENESS BOUND (ratified task 7.3, S5). Q1c above says this
+# file is an issuance-time snapshot and the revocation surface is a live lookup
+# on the Hermes runtime. That runtime does not read THIS file: it reads an
+# operator-established PROJECTION of it. A projection is therefore a lagging
+# copy of a revocation surface, and a lagging revocation surface with no
+# declared bound is an UNBOUNDED window in which a revoked holder keeps
+# reviewing. This line is that bound, and it is declared HERE - beside the rows
+# it bounds, on the human-only surface - rather than in a deploy setting,
+# because how long a revocation may go unhonoured is a governance decision and
+# not an operations one.
+#
+# WHAT IT BOUNDS, precisely: the maximum age of the projection the runtime
+# resolves a seat's authority against, measured from the instant the projection
+# was taken to the instant an exercise is judged. Older than this and the
+# exercise is REFUSED - never proceeded with on the stale copy. The runtime
+# additionally holds a CEILING of its own and honours whichever is tighter, so
+# this declaration can only ever narrow the window a deploy already allows: an
+# artifact must never be able to widen its own trust window.
+#
+# WHY P7D AND NOT SOMETHING TIGHT. Nothing refreshes the projection
+# automatically today - an operator establishes it by hand. A bound tighter
+# than the refresh cadence does not make revocation faster; it parks every
+# convening, and the only routine exit from a parked candidate under a sole
+# code owner is `--admin` (design R1/R5) - the ritual this whole change exists
+# to end. So the FIRST bound is deliberately loose and deliberately honest:
+# seven days is the window a revocation may go unhonoured today, and saying so
+# is worth more than a tight number nobody can meet. TIGHTENING IT IS AN EDIT
+# TO THIS LINE AND NOTHING ELSE - no code change, no deploy - and the intended
+# target once projection refresh is automated is P1D or tighter.
+revocation_staleness_bound: P7D
+
 rows:
   # The MVP row: ONE holder, ONE target repository, ONE act, tier act, ONE
   # expires_at. Backed by grant-mrc-0001 (root, issued_by the anchored
