@@ -89,8 +89,12 @@ FAMILY = "promotion-fidelity"
 # silence, which is precisely the class of silence the 2026-08-24 ruling
 # closed.
 PRE_RATIFICATION = frozenset({"brainstorm", "staged", "draft"})
+# `projection` joins the second set for the same reason `record` is in it:
+# neither is a proposal STANDING at all, and this split's question is only
+# "did the packet declare a standing BELOW ratification". A value that does
+# not is a packet that archived, which is what the family presumes from.
 RATIFIED_OR_BEYOND = frozenset({"ratified", "standard", "superseded",
-                                "retired", "record"})
+                                "retired", "record", "projection"})
 
 # The two measurement bases, named once. `pinned` is the checked-out tree —
 # what every other family measures and the default here. `live-main` is this

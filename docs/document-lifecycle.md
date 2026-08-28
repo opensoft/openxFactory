@@ -45,7 +45,8 @@ controlled list. Status is *state*, never genre.
 | `standard` | promoted | Backed by a promoted spec or canonical contract; the only status allowed to claim shared-standard authority |
 | `superseded` | superseded | Kept for provenance; header names the successor |
 | `retired` | retired | Withdrawn; header names the reason or decision record |
-| `record` | out of band | Immutable evidence artifact (generated reports, simulations, audits); excluded from prose-to-spec conversion and contradiction checks |
+| `record` | out of band | Immutable evidence artifact CAPTURED ONCE (simulation output, audit reports, dated run reports); excluded from prose-to-spec conversion and contradiction checks |
+| `projection` | out of band | Deterministic RE-DERIVED rendering of a declared source of truth, rewritten in place by a named generator; never authoritative, never hand-edited, and not immutable — regenerating it is the correct act, not a violation |
 
 An optional `Kind:` header carries genre, from the recommended vocabulary:
 `architecture | plan | process | runbook | report | register | template |
@@ -81,8 +82,19 @@ reference`.
     add `by <Name>`; never invent a date or a record the evidence does not
     carry.
 - A `superseded` header names the successor artifact.
-- Generated evidence (simulation output, runbook transcripts, audit reports)
-  is always `record`, regardless of how normative its content sounds.
+- Generated evidence CAPTURED ONCE (simulation output, runbook transcripts,
+  audit reports, dated run reports) is always `record`, regardless of how
+  normative its content sounds.
+- **Being generated is not what makes a document a `record`; being CAPTURED
+  is.** A deterministic projection that a named generator rewrites in place
+  from a declared source of truth carries `projection`, not `record`. The test
+  is whether re-running the generator over the same path is the CORRECT act:
+  for a projection it is the only way to update it, so there is no captured
+  state for immutability to protect, and reporting each regeneration as a
+  content edit to a record would make the correct act a critical finding. For
+  a one-shot capture it is not — a dated report is written once and a second
+  run writes a different path. A `projection` document declares its generator
+  and its source, and is never hand-edited.
 - An OpenSpec change packet's `proposal.md`, and every `review/` record under
   that packet — whatever that record's subject — are governance documents for
   these rules. Both make a claim about standing (a proposal says whether it is
@@ -364,7 +376,8 @@ its own.>
 - `organized -> proposed`: an OpenSpec change is created carrying the spec
   deltas; selected staged material moves with Git history into
   `openspec/changes/<change-id>/supporting-docs/`. Proposed prose becomes
-  `draft`; immutable evidence stays `record`.
+  `draft`; immutable evidence stays `record`; a re-derived projection carries
+  `projection`.
 - **Origin at the proposal gate** (the promoted `document-lifecycle` proposal
   origin requirements — referenced here, never restated): every proposal
   declares exactly ONE origin in its `.openspec.yaml`, fixed at creation and

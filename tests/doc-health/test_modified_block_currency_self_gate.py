@@ -409,6 +409,21 @@ _LEDGER_SUBJECTS = {
     # archives and its block is promoted.
     ("clean-doc-health-floor", "doc-health",
      "Proposal supporting-document integrity checks"),
+    # ADDED 2026-08-28 BY `declare-generated-projection-status`. A DELIBERATE
+    # WIDENING, not a lossy carriage. The packet adds a NINTH standing,
+    # `projection`, so a document a named generator re-derives in place stops
+    # carrying `record` and stops being reported by `record-immutability` for
+    # every legitimate regeneration. The two units this arm reports as
+    # uncarried are exactly the two the widening rewrites: the vocabulary
+    # sentence, which now lists nine values rather than eight, and the WHEN of
+    # the old `A generated artifact is stored` scenario, which is split into a
+    # captured-once case and a re-derived case. The scenario TITLE half of that
+    # split is declared to the marker arm — `**Merged into ... by
+    # declare-generated-projection-status (2026-08-28):**` — which is why that
+    # arm reads zero here and only the carriage arm speaks. Retires when the
+    # packet archives and its block is promoted.
+    ("declare-generated-projection-status", "document-lifecycle",
+     "Controlled document status taxonomy"),
     ("add-notebook-projection-identity", "lifecycle-notebook-projection",
      "The session namespace is reconciled against live sessions"),
     ("declare-client-standing-policy-contract", "client-layer-tuning",

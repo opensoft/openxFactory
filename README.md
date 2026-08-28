@@ -442,6 +442,40 @@ Active changes:
   MERGE PLUS GREEN PLUS ONE REHEARSED DRILL — the same drill that discharges the
   boundary's phased-never-gapped milestone and closes its exception.
 
+- [declare-generated-projection-status](openspec/changes/declare-generated-projection-status/proposal.md)
+  — authored 2026-08-28 on Brett's in-session commission of the doc-health
+  error floor ("lets do all 3 in order"), carrying the THIRD of the three ruled
+  workstreams; the other two ship as `clean-doc-health-floor`, split off because
+  this one extends the controlled taxonomy and owes an act in another
+  repository. **The forcing contradiction is on two lines of one file:**
+  `ideation/cross-reference.md` reads "**GENERATED FILE — do not edit by hand**"
+  on line 8 and `Status: record` on line 3. It is re-rendered in place from
+  `ideation/cross-reference.yaml` by `scripts/render-ideation-cross-reference.py`,
+  so the only correct way to update it is the act `record-immutability` reports
+  as a CRITICAL — one of the five standing, named as pre-existing by three prior
+  packets rather than fixed. **And promoted canon already says the header is
+  wrong**: `ideation-cross-reference` calls "the cross-reference index and its
+  rendered twin" generated artifacts that are NOT records, because "nothing
+  about a regenerable projection is immutable evidence". ADDS a NINTH standing
+  to the controlled taxonomy, `projection` — spelled that way rather than
+  `generated` (OD-1) because `docs/document-lifecycle.md` must keep saying
+  generated evidence is `record`, and the distinguishing property is not being
+  generated but being RE-DERIVED IN PLACE rather than CAPTURED ONCE. The
+  conflation dates to the vocabulary's first day, when no re-derived projection
+  existed. Every existing value was tried and none is both honest and inert —
+  the five projected statuses would start pushing a 4,797-line index into a
+  NotebookLM book, and `superseded`/`retired` are false about a live file.
+  MODIFIES one `document-lifecycle` requirement (`Controlled document status
+  taxonomy`), splitting its generated-artifact scenario and binding the
+  GENERATOR to emit the value so regeneration cannot reintroduce `record`.
+  **`record-immutability` goes 5 criticals → 4, and NO family is skipped, no
+  path allowlisted, no finding suppressed** — the file leaves the list because
+  it is no longer a record, which is what the ruling required. The four
+  remaining are genuine records and still fire. One act is owed ELSEWHERE and
+  is named rather than left to be found: a disposition entry at the aggregation
+  root citing this change, because `record-immutability` is CONTESTED and
+  `health/dispositions.yaml` does not exist in this repository. No contract
+  bundle owed, measured.
 - [clean-doc-health-floor](openspec/changes/clean-doc-health-floor/proposal.md)
   — authored 2026-08-28 on Brett's in-session commission of the doc-health
   error floor ("lets do all 3 in order"), carrying TWO of the three ruled
