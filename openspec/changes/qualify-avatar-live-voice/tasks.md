@@ -38,6 +38,43 @@ is mis-specified.
 > §4 through §6 are still unbuilt apart from 6.1.1, 6.3.1 and 6.3.2, the
 > AVC-09 descriptor is NOT authored — §7.9 pins the values it will declare,
 > nothing more — and the ring's archive gate is unmoved.
+>
+> **Amended a fourth time 2026-08-27 — THE WIRING SLICE IS BUILT.** §6.1.3,
+> §6.1.4 and §6.3.3-§6.3.5 are ticked. They are wired ONTO the landed
+> reference runtime and invent nothing: the session hard-kill terminates
+> through the kernel's existing duration-or-quota outcome with the same
+> media-plane termination act the kill switch and the consent-withdraw path
+> already perform (now factored out and shared by four callers rather than
+> duplicated four times), the rollback act IS the existing two-switch kill
+> switch, and ROLLBACK-A's abort reuses the consent-withdraw terminal exactly.
+> The closed `OutcomeCode`, `AttemptStatus` and released `session-outcomes`
+> registries are UNCHANGED — not one member added anywhere — and the frozen
+> `contract-v1.7` conformance coordinates are undisturbed
+> (`check_conformance.py` reports the same 106 required scenarios and 106 map
+> entries as before, with the two pre-existing acr source-drift findings
+> unchanged in number and kind). Every ruled number the wiring consumes is
+> READ BACK from its own artifact by
+> `tests/avatar_runtime/test_ruled_values_pinned.py` — the §7.2 ceilings and
+> caps, the §7.4 channels, §7.5's declared n, ALV-SLO-001's materiality and
+> gated set, the three-way split with its triggers and revoke flags, §7.7's
+> operator surface, §7.8's tokens and §7.10's tenant count — so a drift in
+> either the contract or the mirror fails a test rather than surfacing when
+> the canary trips on the wrong number.
+>
+> WHAT REMAINS AFTER THIS SLICE, stated so no reader mistakes a built wiring
+> for an opened ring: **6.1.2 is Brett's provisioning act** and everything
+> install-side waits on it — the dedicated spend-capped provider project, its
+> native budget notifications, and the scheduled job that actually invokes
+> `gh issue create`, which is recorded rather than committed because a
+> workflow with no input would be a fabricated procedure. **6.1.5 stays
+> deferred** by ruling, and the provider-project cap remains the ring's only
+> per-tenant hard stop. **§6.2 is unbuilt** — 6.2.1's synthetic corpus in
+> particular, which is why 6.3.3's safety trip lands as a fail-closed INPUT
+> SEAM rather than as a wired corpus. **6.4.4 is unbuilt.** **§4, §5 and §8
+> are unbuilt**, so no evidence, no measured latency, no ring element and no
+> archive gate has moved. §7.4's own condition — at least one alert observed
+> DELIVERED end to end before the canary opens — is recorded
+> `not_yet_delivered` rather than quietly satisfied by a unit test.
 
 ## 1. Spec deltas (THIS CHANGE)
 
@@ -446,14 +483,93 @@ the checklist that produces its evidence.
 - [ ] 6.1.2 Provision the DEDICATED spend-capped internal-live provider
       project, distinct from the F0 lab project, with its project budget and
       rate controls set BEFORE any live trial (the F0-proven pattern).
-- [ ] 6.1.3 Wire the session hard-kill onto the EXISTING duration/quota
+- [x] 6.1.3 Wire the session hard-kill onto the EXISTING duration/quota
       terminal outcome plus kill switch plus lease revocation — no new
       terminal is invented — and give a cost-triggered kill an auditable
       reason distinguishable from an ordinary duration or quota terminal.
-- [ ] 6.1.4 Wire asynchronous usage metering and threshold alerting for
+      **Done 2026-08-27** in the reference runtime:
+      `xfactory/avatar_runtime/spend.py` plus the wiring on
+      `runtime.enforce_session_ceilings`, proven by
+      `tests/avatar_runtime/test_session_hard_kill.py` (16 tests).
+      NOTHING WAS INVENTED AT EITHER END. The three ruled ceilings are read
+      back from `canary-cohort-and-rollback-policy.yaml` ROLLBACK-B
+      `elevated_quota_condition` by
+      `tests/avatar_runtime/test_ruled_values_pinned.py`, so 900 s, 300
+      billable units, $3.00 and `uncountable_is: exhausted` are a checked
+      mirror rather than a second source. The terminal is the kernel's own:
+      `REASON_OUTCOMES` maps every ceiling reason onto `QUOTA_EXCEEDED` or
+      `DURATION_EXCEEDED` and onto nothing else, and the closed `OutcomeCode`
+      and `AttemptStatus` registries are UNCHANGED — not one member added.
+      The act is the LANDED consent-withdraw-mid-speech path, now factored out
+      as `AvatarRuntime._terminate_media_leg` and shared by four callers (the
+      kill switch, the lease-expiry terminal, this hard-kill and ROLLBACK-A)
+      rather than four lookalikes: lease revoked, idempotent provider hangup,
+      terminal attempt status, credential-free grant-cache terminal.
+      **THE AUDITABLE REASON, and where it had to live.** The closed
+      `OutcomeCode` registry has no reason slot and widening it would widen a
+      released closed registry, so the reason rides the two shapes the runtime
+      already had for one: `TelemetryRecord.reason` (`reason` is an
+      allowlisted stable telemetry key, so the record passes redaction and is
+      published rather than dropped) and the new credential-free
+      `SessionSpendRecord`. A cost kill reads `cost_ceiling_exceeded` or
+      `cost_uncountable`; the ORDINARY cap terminal in the broker now publishes
+      `ordinary_quota_exceeded` / `ordinary_duration_exceeded` on the same
+      shape, so the test asserts the same `OutcomeCode` carrying two different
+      reasons — which is the whole of what "distinguishable" means here.
+      `uncountable_is: exhausted` is treated as COST-triggered by ruling: a
+      broker that refuses because it cannot count is containing spend, not
+      enforcing a quota. Precedence is stated rather than left to evaluation
+      order (uncountable, then cost, then duration).
+- [x] 6.1.4 Wire asynchronous usage metering and threshold alerting for
       per-tenant visibility.
-      **NOT DONE — the wiring is a later slice. What it no longer has to
-      decide:** §7.4 was RULED 2026-08-27, so this task now has its channel,
+      **NOW DONE 2026-08-27** — `xfactory/avatar_runtime/metering.py`,
+      `scripts/avatar-metering-alert.py`,
+      `contracts/avatar-client/usage-metering-and-alerting.yaml`, proven by
+      `tests/avatar_runtime/test_usage_metering.py` (25 tests). The note below
+      records what this task no longer had to decide when it was built; it is
+      kept because it is the reason the wiring needed no invention.
+      **ASYNCHRONOUS BY CONSTRUCTION, NOT BY PROMISE.** Every counter is a
+      pure function over CLOSED `SessionSpendRecord`s, and neither `broker.py`
+      nor `runtime.py` imports the metering module — a metering call cannot
+      appear in the dispatch path of a module that cannot see it. The test
+      parses both dispatch modules with `ast` and asserts the absent import
+      rather than trusting a docstring. The per-SESSION ceilings stay
+      synchronous in the broker, as §7.2 ruled; only the per-TENANT view is
+      asynchronous.
+      **THE MARKS AND THEIR CHANNELS.** Both figures are evaluated at 50%,
+      80% and the budget itself. The project's 50%/80% ($375/$600) route to
+      the provider's own native notifications and the cap to the provider's
+      hard stop — both RECORDED as install-side halves owned by 6.1.2 and
+      neither faked here; nothing in this repository emits them. The
+      per-tenant crossing of $150 and ANY cost-triggered session kill route to
+      `gh issue create` on the doc-health pattern. The tenant 50%/80% marks are
+      computed and RECORDED but not paged: §7.4 rules the gh-issue channel at
+      the budget itself, and firing at 50% would be a trigger nobody ratified.
+      They are still computed because they are the telemetry ROLLBACK-C's
+      `cost_concern` judgment is read off.
+      **THE PATTERN IS MIRRORED, NOT APPROXIMATED.** One issue per run, title
+      `avatar internal-live metering <YYYY-MM-DD>`, superseded by a STRICTLY
+      OLDER date comparison so a run can never close its own issue — the
+      doc-health rule verbatim, and the split is doc-health's too: the Python
+      half computes and writes the body, a job step runs
+      `gh issue create --body-file`. THE JOB STEP IS DELIBERATELY NOT
+      COMMITTED. The metering job has no input until 6.1.2 provisions the
+      serving install, and a scheduled workflow reading nothing would be the
+      fabricated procedure the §7.7 runbook refuses to write for the
+      kill-switch command. Recorded as the outstanding half, with §7.4's
+      "at least one alert observed DELIVERED end to end" left
+      `not_yet_delivered` rather than quietly satisfied by a unit test.
+      **THE RECIPIENT IS READ, NEVER COPIED.** `build_alert` takes the
+      recipient and the runbook as arguments and RAISES
+      `AlertRecipientUnresolved` without them; the script reads both from
+      `canary-cohort-and-rollback-policy.yaml` `operator_surface.holder` and
+      `mechanism_ref` at run time. The holder's name appears nowhere in
+      `xfactory/avatar_runtime/`, in code or in prose, and a test greps the
+      whole package for it — an alert with no named recipient and a kill
+      switch with no named holder were one gap seen twice, and a second copy
+      of the name is how it would re-open.
+      **What it no longer had to decide:** §7.4 was RULED 2026-08-27, so this
+      task had its channel,
       its thresholds and its page target rather than having to invent them
       while building. Two channels, neither of which builds new
       infrastructure: the provider project's own native budget notifications
@@ -570,16 +686,119 @@ the checklist that produces its evidence.
       so a class cannot promise one terminal while the policy binds another.
       6.3.3's auto-detection wiring is NOT built by this task and is left
       unticked; the policy names §6.3.3 as its `detection_wiring_owner`.
-- [ ] 6.3.3 Build the auto-detection wiring the policy needs — the latency
+- [x] 6.3.3 Build the auto-detection wiring the policy needs — the latency
       trip off §5's SLO and the safety-eval trip off §6.2.1 — since Option B
       was chosen precisely for this rehearsal value.
-- [ ] 6.3.4 Implement rollback as disable-voice into text or human handoff.
+      **Done 2026-08-27** in `xfactory/avatar_runtime/detection.py`, fired
+      through `runtime.latency_detection` and `runtime.safety_detection`,
+      proven by `tests/avatar_runtime/test_rollback_detection.py` (36 tests).
+      This is the wiring the policy names itself as waiting for:
+      `detection_wiring_owner: qualify-avatar-live-voice 6.3.3` on both
+      automatic classes.
+      **THE LATENCY TRIP fires ROLLBACK-B** — auto-block-new, in-flight legs
+      drain — on a material regression against ALV-SLO-001, evaluated at p50
+      AND p95, using the ruled `greater_of` rule unchanged (`adapter >
+      reference + max(0.15 x reference, 150)`). THREE REFUSALS STACK, and each
+      one means "does not trip": a cell outside the gated set (platform,
+      `network_class: nominal`, the two gated intervals) is
+      `refused_not_a_gated_cell` with its numbers still recorded — the refusal
+      attaches to the CLAIM of the gated tier, not to the cell, exactly as the
+      map's own note requires; a cell holding fewer than the DECLARED n>=100
+      is `recorded_not_gated_under_minimum` and NEVER trips, on either side of
+      the comparison, because at n=30 a p95 estimate is a maximum wearing a
+      percentile's name and auto-blocking a ring on one would be auto-blocking
+      on noise; an incomplete or cross-region comparison is refused rather
+      than pooled. The percentile is nearest-rank and non-interpolating, so
+      two readers cannot disagree about whether a gate tripped.
+      **THE SAFETY-EVAL TRIP fires ROLLBACK-A** — auto-abort WITH active-lease
+      revocation through the landed consent-withdraw terminal path, proven for
+      all EIGHT recorded triggers.
+      **§6.2.1's CORPUS DOES NOT EXIST, so what is built is the INPUT SEAM.**
+      `SafetyEvalSignal` is the shape a §6.2.1 run will feed — `run_id`,
+      `corpus_ref`, `scenario_class`, `trigger`, `verdict` — and the module
+      names `SAFETY_CORPUS_OWNER` rather than implying a corpus is there. The
+      seam is wired FAIL-CLOSED IN THE DETECTOR'S DIRECTION: an absent signal,
+      a malformed one, a foreign object, an unparseable verdict and an
+      unrecognised trigger each return a distinct NON-tripping verdict, and a
+      parametrised test drives all six cases and asserts that no lease was
+      revoked and no new session was blocked. `REFUSED_ABSENT` is deliberately
+      a different value from `NO_TRIP_PASSED`: "no evaluation arrived" is a
+      canary gate condition, not a green light, and collapsing the two would
+      let an unrun evaluation read as a passed one. Revoking live leases on a
+      parse error would spend the safety mechanism on a data problem.
+- [x] 6.3.4 Implement rollback as disable-voice into text or human handoff.
       `gpt-realtime-2.1` is the FIRST qualified profile, so no model fallback
       exists and none may be implied in copy or code.
-- [ ] 6.3.5 Prove that an abort ends the media plane only: the logical
+      **Done 2026-08-27** in `xfactory/avatar_runtime/rollback.py`, proven by
+      `tests/avatar_runtime/test_rollback_target.py` (16 tests). The act is the
+      EXISTING kill switch and nothing else: a `RollbackDecision` resolves to a
+      `KillSwitchState`, and the scope follows the runbook's own selection rule
+      — `SWITCH-PROFILE` unless the condition is not specific to the candidate
+      profile, `SWITCH-ALL-NEW` being the wider blast radius. The mode is the
+      policy, not the operator's mood: A and B carry their ruled flags and
+      refuse an override, and ROLLBACK-C REFUSES TO DEFAULT — the operator must
+      state the choice, because revoke-everything and revoke-nothing were the
+      two equally defensible readings this policy exists to settle. The
+      session-creation path answers a withdrawn profile with a credential-free
+      `killed` terminal plus a `RollbackPosture`: `voice_enabled: false`,
+      offered modes `text` and `human_handoff` (both released `fallback-modes`
+      registry members), `model_fallback_exists: false` and
+      `qualified_profiles_remaining: ()`.
+      **THE COPY CONSTRAINT IS ENFORCED ON THIS CHANGE'S OWN SOURCE.** A test
+      greps every `.py` in `xfactory/avatar_runtime/` for the phrasings that
+      would leave a reader expecting a swap — a fall-back-to-another-model
+      sentence, a truthy `model_fallback`, a hot-swap, a "previously qualified
+      profile". It caught one occurrence in this slice's own prose and that
+      line was rewritten, which is the only evidence worth having that the
+      guard is live rather than decorative. `qualified_profiles_remaining` is
+      empty because there is no other qualified profile in existence, not
+      because one is switched off, and the posture says so in a shape a caller
+      can read rather than only in prose.
+- [x] 6.3.5 Prove that an abort ends the media plane only: the logical
       session's authority-owned workflow projection and its policy-required
       records survive, reusing the landed consent-withdraw-mid-speech terminal
       path.
+      **Done 2026-08-27** — `xfactory/avatar_runtime/projection.py` makes the
+      two planes separately addressable, and
+      `tests/avatar_runtime/test_abort_scope.py` (7 tests) is the proof.
+      **THE CLAIM IS TURNED INTO BYTES.** A session is driven to authorization
+      (appending the authoritative `media_authorized`), given an accepted
+      governed command so its projection carries real state, then aborted
+      under ROLLBACK-A. The assertion is not "the projection still exists" but
+      `serialize()` and `digest()` IDENTICAL either side of the abort, with a
+      negative control appending one authoritative event and asserting the
+      digest moves — so the byte-intactness claim is not vacuous. The event
+      log is asserted untouched, a second session's projection is asserted
+      byte-intact across another leg's abort, and the logical session is shown
+      still `ACTIVE` with its epoch, revision, policy version and consent
+      version unmoved.
+      **IT HOLDS STRUCTURALLY, NOT BY PROMISE.** The shared termination act
+      touches media state only — lease, provider call, attempt status, grant
+      cache — and appends nothing to the event log, so there is no path from
+      an abort to the projection to test for. That is why the audit reason
+      rides telemetry and the spend record rather than an authoritative event:
+      an abort that wrote its own reason into the workflow projection would
+      have falsified `abort_scope.ends: media_plane_only` in the act of
+      recording itself.
+      **THE RECORDS ARE APPEND-ONLY ACROSS AN ABORT**, so the test asserts the
+      pre-abort authoritative events are UNCHANGED and the pre-abort terminals
+      and spend records are a SUBSET of the post-abort set — retention, not
+      byte-freezing, which is the honest reading of "policy-required records
+      survive".
+      **BOTH RULED MAPPINGS ARE EXERCISED.** ROLLBACK-A emits `revoked` on the
+      force-terminated path — media revoked, capture stopped, credential-free
+      terminal, held answer and control descriptor erased, control channel
+      healthy — reusing the consent-withdraw path exactly. ROLLBACK-B leaves
+      the in-flight leg alone (not terminal, lease active, provider still
+      live) while refusing new work, and then: `abandoned` when the drain
+      window closes on a leg still in flight, `completed` when the leg reached
+      its own natural terminal inside the drain, with a closing window
+      refusing to relabel a finished leg. Every token emitted is a member of
+      the released closed `session-outcomes` registry — a test enumerates the
+      whole terminal cross-product and checks membership — and `TIMED_OUT` and
+      an unqualified `TERMINATED` map to None rather than to a guess, because
+      a token inferred after the fact is how two readers count the same event
+      differently.
 
 ### 6.4 The `openAvatar` extraction (latent decision 1)
 

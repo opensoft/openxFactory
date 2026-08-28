@@ -91,6 +91,21 @@ is a closed enum in `shared-definitions.schema.yaml`, not a registry (analyze A3
   cell RECORDED and never gating. A sibling of the acceptance map rather than
   a block inside it, because the map is a published digest-pinned bundle
   member and an authoring input does not earn a release cut.
+- `usage-metering-and-alerting.yaml` — the asynchronous per-tenant usage
+  meter's channel routing and, honestly, WHICH HALF IS BUILT HERE
+  (`qualify-avatar-live-voice` task 6.1.4, executing §7.4). Both figures — the
+  $150 metered-only per-tenant budget and the $750 hard provider-project cap —
+  are evaluated at the 50%, 80% and full marks; the project's sub-marks route
+  to the provider's own native budget notifications and the cap to the
+  provider's hard stop, both RECORDED as install-side halves owned by task
+  6.1.2 and neither emitted from this repository. The per-tenant crossing of
+  $150 and any cost-triggered session kill route to `gh issue create` on the
+  doc-health pattern (one issue per run, superseded by a strictly-older date).
+  The tenant sub-marks are computed and recorded but not paged: §7.4 rules the
+  gh-issue channel at the budget itself. The recipient resolves INTO
+  `canary-cohort-and-rollback-policy.yaml` `operator_surface.holder` and is
+  never copied. A sibling of the acceptance map for the same reason
+  `latency-sample-minimum.yaml` is one.
 - `broker-server-key-binding.template.yaml` and
   `broker-server-key-rotation-policy.yaml` — the internal-live broker
   server-key custody pair (`qualify-avatar-live-voice` task 6.1.1, §7.1 and
