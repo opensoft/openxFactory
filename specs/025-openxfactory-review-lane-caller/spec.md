@@ -174,9 +174,36 @@ absent secret.
   defined **no OPERABLE candidate class** for this repository
   (`add-substantive-review-lane` task 3.2). The gate holds for as long as that
   remains true, and is cleared by one thing only: a `gate_rules_council` record
-  DEFINING such a class. The existence of a council record does not by itself
-  clear it — a record that defines no operable class leaves this requirement
-  binding.
+  DEFINING an operable class. The existence of a council record does not by
+  itself clear it.
+
+  **OPERABLE, defined — this requirement's own criterion, dependent on no other
+  document.** A candidate class is **operable for this repository** if and only
+  if the set of paths it admits — its bound `path_allowlist`, evaluated against
+  this repository's actual tree — is **NOT wholly contained** in that class's
+  effective gate-integrity floor (the canonical `GATE_INTEGRITY_FLOOR` plus any
+  widening the class itself declares). Equivalently, and this is the testable
+  form: **at least one admissible candidate can reach classification instead of
+  parking `parked_never_clearable`.**
+
+  **The class's clearability tier is NOT part of this criterion.** A convenable
+  class clears this gate **whatever its tier — advisory and human-only
+  included** — because whatever an envelope may then DO is bounded by that
+  class's own `classification_intent`. What this requirement refuses is an
+  envelope for a class that **can never convene at all**.
+
+  **Vocabulary bridge.** The ratified texts' terms — `human-only`, `clearable` —
+  describe what a verdict may DO. **Operability describes whether any verdict
+  can be PRODUCED**, which is the third property the 2026-08-28 record
+  established the vocabulary lacked (lead-architect's *"unconvenable"* finding:
+  *"a third thing the text has no word for and did not anticipate"*).
+
+  **Machine check, stated honestly.** The same 2026-08-28 ruling adopted a
+  definition-time predicate for exactly this property (gate-rules ballot **S-1**,
+  from LQ-A2 / LS-A5 / LA-A4). **Its realization is in flight in codexFactory and
+  is NOT on `main` today, so no function name is cited here as if it existed.**
+  Once it lands, that predicate's verdict IS the operability test for this
+  requirement; until then, the substantive definition above governs on its own.
   > **HISTORY, 2026-08-28.** A `gate_rules_council` record for this repository
   > now exists, and it **REFUSED** the class proposed to it:
   > `opensoft/codexFactory` →
