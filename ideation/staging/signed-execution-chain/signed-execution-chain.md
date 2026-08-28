@@ -67,7 +67,7 @@ Ten links. Each names what is signed, by whom, and what refuses when it is absen
 | --- | --- | --- | --- |
 | 1 | **Ratify with the wallet presented** — the ratifying human presents a wallet-carried authority; the ratification records the presentation | human authority credential | no ratification; nothing downstream can begin |
 | 2 | **Ratified ⇒ enrolled, atomically, inside the signed handshake** — enrollment is not a second act that could diverge | same signature as link 1 | a ratified-but-unenrolled state, which is the divergence this link exists to make impossible |
-| 3 | **The traveling contract** — the signed ratification becomes an artifact that accompanies the work rather than a row in a table it must be looked up in | — (carried) | the chain cannot be checked at the point of use |
+| 3 | **The traveling contract** — the signed ratification becomes an artifact that accompanies the work rather than a row in a table it must be looked up in | link 1's signature, carried | the chain cannot be checked at the point of use |
 | 4 | **Harness-controller setup attestation** — the controller attests the environment it prepared | controller certificate | runner attestations have no issuer to chain to |
 | 5 | **Runner attestations** — each runner attests its model, its version, and its local harness | per-task identity (key held at the controller; signature produced there) | the work cannot say what produced it |
 | 6 | **Signed PR-open decision** — opening a pull request is itself a decision and is signed as one | per-task identity (controller-signed) + carried contract | the PR is an orphan act |
