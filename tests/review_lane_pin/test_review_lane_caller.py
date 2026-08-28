@@ -253,16 +253,22 @@ class TheRealFiles(unittest.TestCase):
             "the pin must name the floor document, so a re-point ceremony "
             "knows what to re-verify")
 
-    def test_the_pin_records_its_divergence_from_the_aggregation_pin(self) -> None:
-        """A forced divergence is still a divergence, and must be declared."""
+    def test_the_pin_records_its_lockstep_state_with_the_aggregation_pin(self) -> None:
+        """Diverged or converged, the state must be declared — never implied.
+
+        Diverged since declaration; CONVERGED at the 2026-08-28 re-point
+        ceremony (this repository's PR #483 paired with xFactory eae4dc6).
+        """
         pin = yaml.safe_load(self.pin_text)
         lockstep = pin.get("lockstep") or {}
-        self.assertEqual(lockstep.get("status"), "diverged")
+        self.assertEqual(lockstep.get("status"), "converged")
         self.assertTrue(str(lockstep.get("reason") or "").strip(),
-                        "a diverged pin must state WHY")
+                        "the lockstep state must state WHY")
         self.assertTrue(str(lockstep.get("obligation") or "").strip(),
-                        "a diverged pin must state the convergence obligation")
-        self.assertEqual(len(lockstep.get("diverged_from") or []), 2,
+                        "the standing rule for future advances must remain: "
+                        "advance only at a ceremony converging all three "
+                        "surfaces")
+        self.assertEqual(len(lockstep.get("converged_with") or []), 2,
                          "both xFactory merge-master surfaces must be named")
 
     def test_the_pin_declares_advisory_scope_and_the_never_performs_set(self) -> None:

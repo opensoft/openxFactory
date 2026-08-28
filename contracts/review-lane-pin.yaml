@@ -111,11 +111,14 @@ pinned_members:
 # So the divergence is FORCED BY THE FEATURE, not chosen for freshness — and
 # saying so is not the same as discharging it. The obligation stands:
 lockstep:
-  status: diverged
+  status: converged
   reason: >-
-    xFactory's pinned commit predates both pinned_members above, so it cannot
-    evaluate the openxFactory repository gate floor at all.
-  diverged_from:
+    Converged at the 2026-08-28 re-point ceremony: both xFactory judging
+    surfaces below and this file's core_commit name the same commit
+    (openxFactory PR #483 paired with xFactory commit eae4dc6, one ceremony).
+    Before it, xFactory's pinned commit predated both pinned_members above and
+    could not evaluate the openxFactory repository gate floor at all.
+  converged_with:
     - opensoft/xFactory .github/workflows/merge-master-approval.yml
     - opensoft/xFactory .github/workflows/council-convening-lane.yml
   obligation: >-
