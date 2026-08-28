@@ -1,0 +1,157 @@
+# Doc-Health Report — 2026-08-28
+
+Status: record
+Kind: report
+
+## Headline
+
+Canon share by words: 31.6% (218169 canon words / 690954 governance words, promoted specs included).
+Findings: 0 critical, 0 error, 0 warning, 7 info. New regressions vs previous report: 0.
+
+Non-default configuration (cross-run comparisons must account for this):
+- scope limited to single repo 026-unplaced-finding-drift
+- scope limited to family modified-block-currency
+
+## Per-Stage Counts
+
+| Status | Docs | Words |
+| --- | --- | --- |
+| (none) | 2 | 264 |
+| brainstorm | 178 | 141621 |
+| draft | 69 | 109698 |
+| open (operational) | 1 | 1260 |
+| ratified | 23 | 44469 |
+| record | 30 | 74579 |
+| retired | 1 | 1273 |
+| staged | 72 | 140575 |
+| standard | 6 | 13114 |
+| superseded | 2 | 3515 |
+| (promoted specs) | — | 160586 |
+
+## Preflight
+
+
+## Findings By Family
+
+### status-validity
+
+No findings.
+
+### staged-topic-template
+
+No findings.
+
+### standard-backing
+
+No findings.
+
+### ratified-provenance
+
+No findings.
+
+### succession-integrity
+
+No findings.
+
+### location-conformance
+
+No findings.
+
+### record-immutability
+
+No findings.
+
+### staged-candidate-aging
+
+No findings.
+
+### register-lifecycle-consistency
+
+No findings.
+
+### tag-hygiene
+
+No findings.
+
+### submodule-pin-drift
+
+No findings.
+
+### contract-copy-drift
+
+No findings.
+
+### notebook-projection-drift
+
+No findings.
+
+### document-catalog
+
+No findings.
+
+### ideation-routing
+
+No findings.
+
+### proposal-origin
+
+No findings.
+
+### client-identity-composition
+
+No findings.
+
+### promotion-fidelity
+
+No findings.
+
+### release-inventory-drift
+
+No findings.
+
+### duplicate-packet
+
+No findings.
+
+### family-enumeration
+
+No findings.
+
+### modified-block-currency
+
+Finding classes, counted apart so the gate-bearing arm is never read as one of the editorial rows:
+- scenario-title completeness: 0 (`warning` — the arm carrying this family's gate)
+- carriage ledger: 7 (`info` — editorial, and the arm says so in every finding)
+- title resolution and ordering: 0 (`warning`)
+- marker defects: 0 (`info`)
+
+- [info] 026-unplaced-finding-drift:openspec/changes/add-composed-view-authoring/specs/ideation-dashboard/spec.md — active MODIFIED block for 'Composed views are read-only with a repository jump' does not carry 2 of the 6 body units and scenario bullets openspec/specs/ideation-dashboard/spec.md currently states for it — a divergence this arm CANNOT distinguish from a deliberate rewording, and does not claim to: [body] 'On a composed snapshot every gate-bearing affordance SHALL hide — a gate verb binds to one served checkout, and a composed view has none — a…'; [bullet] 'THEN no gate-bearing affordance renders anywhere in the view'
+- [info] 026-unplaced-finding-drift:openspec/changes/add-doxchat-model-intake/specs/ideation-dashboard/spec.md — active MODIFIED block for 'doxBench model catalog and provider boundary' does not carry 1 of the 38 body units and scenario bullets openspec/specs/ideation-dashboard/spec.md currently states for it — a divergence this arm CANNOT distinguish from a deliberate rewording, and does not claim to: [bullet] '**THEN** the selector MUST show exactly the available catalog entries and their data-handling badges'
+- [info] 026-unplaced-finding-drift:openspec/changes/add-notebook-projection-identity/specs/lifecycle-notebook-projection/spec.md — active MODIFIED block for 'The session namespace is reconciled against live sessions' does not carry 2 of the 35 body units and scenario bullets openspec/specs/lifecycle-notebook-projection/spec.md currently states for it — a divergence this arm CANNOT distinguish from a deliberate rewording, and does not claim to: [body] 'Without reconciliation such a notebook survives its session indefinitely on an account shared across the family, holding quota and misstatin…'; [body] 'The account is shared between workspaces, so a session notebook whose repository segment names a repository this workspace does not carry be…'
+- [info] 026-unplaced-finding-drift:openspec/changes/declare-client-standing-policy-contract/specs/client-layer-tuning/spec.md — active MODIFIED block for 'Client content shapes are contract-validated' does not carry 1 of the 5 body units and scenario bullets openspec/specs/client-layer-tuning/spec.md currently states for it — a divergence this arm CANNOT distinguish from a deliberate rewording, and does not claim to: [bullet] '**THEN** every packaged example passes and every negative fails for its declared reason'
+- [info] 026-unplaced-finding-drift:openspec/changes/qualify-avatar-live-voice/specs/avatar-client-lab/spec.md — active MODIFIED block for 'Repository and ownership boundary' does not carry 1 of the 5 body units and scenario bullets openspec/specs/avatar-client-lab/spec.md currently states for it — a divergence this arm CANNOT distinguish from a deliberate rewording, and does not claim to: [body] 'The Flutter avatar client application and its generated Dart bindings SHALL live in codexFactory under `apps/avatar-client-lab/`, while open…'
+- [info] 026-unplaced-finding-drift:openspec/changes/qualify-avatar-live-voice/specs/avatar-client-runtime/spec.md — active MODIFIED block for 'Redacted telemetry and latency evidence' does not carry 1 of the 6 body units and scenario bullets openspec/specs/avatar-client-runtime/spec.md currently states for it — a divergence this arm CANNOT distinguish from a deliberate rewording, and does not claim to: [body] 'Latency evidence in this kernel SHALL be structured logging with monotonic timestamps for broker setup, sideband attach, media connected, an…'
+- [info] 026-unplaced-finding-drift:openspec/changes/qualify-avatar-live-voice/specs/avatar-client-runtime/spec.md — active MODIFIED block for 'Versioned neutral avatar-client contract kernel' does not carry 1 of the 17 body units and scenario bullets openspec/specs/avatar-client-runtime/spec.md currently states for it — a divergence this arm CANNOT distinguish from a deliberate rewording, and does not claim to: [body] 'AVC-03 and AVC-05 are absorbed as described; AVC-09 and AVC-10 remain reserved for the live-qualification successor change and their identif…'
+
+### semantic-normative-prose
+
+No findings.
+
+### semantic-contradiction
+
+No findings.
+
+### preflight
+
+No findings.
+
+## Ranked Plan
+
+- severity=info family=modified-block-currency repo=026-unplaced-finding-drift path=openspec/changes/add-composed-view-authoring/specs/ideation-dashboard/spec.md rule="active MODIFIED block for 'Composed views are read-only with a repository jump' does not carry 2 of the 6 body units and scenario bullets openspec/specs/ideation-dashboard/spec.md currently states for it — a divergence this arm CANNOT distinguish from a deliberate rewording, and does not claim to: [body] 'On a composed snapshot every gate-bearing affordance SHALL hide — a gate verb binds to one served checkout, and a composed view has none — a…'; [bullet] 'THEN no gate-bearing affordance renders anywhere in the view'" action="restate the requirement as canon currently states it, or declare the deletion with a `Removed from canon by` marker" class="auto-fixable"
+- severity=info family=modified-block-currency repo=026-unplaced-finding-drift path=openspec/changes/add-doxchat-model-intake/specs/ideation-dashboard/spec.md rule="active MODIFIED block for 'doxBench model catalog and provider boundary' does not carry 1 of the 38 body units and scenario bullets openspec/specs/ideation-dashboard/spec.md currently states for it — a divergence this arm CANNOT distinguish from a deliberate rewording, and does not claim to: [bullet] '**THEN** the selector MUST show exactly the available catalog entries and their data-handling badges'" action="restate the requirement as canon currently states it, or declare the deletion with a `Removed from canon by` marker" class="auto-fixable"
+- severity=info family=modified-block-currency repo=026-unplaced-finding-drift path=openspec/changes/add-notebook-projection-identity/specs/lifecycle-notebook-projection/spec.md rule="active MODIFIED block for 'The session namespace is reconciled against live sessions' does not carry 2 of the 35 body units and scenario bullets openspec/specs/lifecycle-notebook-projection/spec.md currently states for it — a divergence this arm CANNOT distinguish from a deliberate rewording, and does not claim to: [body] 'Without reconciliation such a notebook survives its session indefinitely on an account shared across the family, holding quota and misstatin…'; [body] 'The account is shared between workspaces, so a session notebook whose repository segment names a repository this workspace does not carry be…'" action="restate the requirement as canon currently states it, or declare the deletion with a `Removed from canon by` marker" class="auto-fixable"
+- severity=info family=modified-block-currency repo=026-unplaced-finding-drift path=openspec/changes/declare-client-standing-policy-contract/specs/client-layer-tuning/spec.md rule="active MODIFIED block for 'Client content shapes are contract-validated' does not carry 1 of the 5 body units and scenario bullets openspec/specs/client-layer-tuning/spec.md currently states for it — a divergence this arm CANNOT distinguish from a deliberate rewording, and does not claim to: [bullet] '**THEN** every packaged example passes and every negative fails for its declared reason'" action="restate the requirement as canon currently states it, or declare the deletion with a `Removed from canon by` marker" class="auto-fixable"
+- severity=info family=modified-block-currency repo=026-unplaced-finding-drift path=openspec/changes/qualify-avatar-live-voice/specs/avatar-client-lab/spec.md rule="active MODIFIED block for 'Repository and ownership boundary' does not carry 1 of the 5 body units and scenario bullets openspec/specs/avatar-client-lab/spec.md currently states for it — a divergence this arm CANNOT distinguish from a deliberate rewording, and does not claim to: [body] 'The Flutter avatar client application and its generated Dart bindings SHALL live in codexFactory under `apps/avatar-client-lab/`, while open…'" action="restate the requirement as canon currently states it, or declare the deletion with a `Removed from canon by` marker" class="auto-fixable"
+- severity=info family=modified-block-currency repo=026-unplaced-finding-drift path=openspec/changes/qualify-avatar-live-voice/specs/avatar-client-runtime/spec.md rule="active MODIFIED block for 'Redacted telemetry and latency evidence' does not carry 1 of the 6 body units and scenario bullets openspec/specs/avatar-client-runtime/spec.md currently states for it — a divergence this arm CANNOT distinguish from a deliberate rewording, and does not claim to: [body] 'Latency evidence in this kernel SHALL be structured logging with monotonic timestamps for broker setup, sideband attach, media connected, an…'" action="restate the requirement as canon currently states it, or declare the deletion with a `Removed from canon by` marker" class="auto-fixable"
+- severity=info family=modified-block-currency repo=026-unplaced-finding-drift path=openspec/changes/qualify-avatar-live-voice/specs/avatar-client-runtime/spec.md rule="active MODIFIED block for 'Versioned neutral avatar-client contract kernel' does not carry 1 of the 17 body units and scenario bullets openspec/specs/avatar-client-runtime/spec.md currently states for it — a divergence this arm CANNOT distinguish from a deliberate rewording, and does not claim to: [body] 'AVC-03 and AVC-05 are absorbed as described; AVC-09 and AVC-10 remain reserved for the live-qualification successor change and their identif…'" action="restate the requirement as canon currently states it, or declare the deletion with a `Removed from canon by` marker" class="auto-fixable"
+
