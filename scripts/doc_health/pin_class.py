@@ -31,6 +31,18 @@ THE TWO DIRECTIONS ARE BOTH CHECKED, because a declaration drifts both ways:
    why `presence` distinguishes a member that has committed instances TODAY from
    one whose schema requires a pin but whose first instance has not landed.
 
+A VALUE THAT IS NOT A COMMIT NAME IS CLASSIFIED RATHER THAN SKIPPED
+(`declare-sentinel-pin-vocabulary`, 2026-08-27). Until that change this module
+bound every value group to forty hex characters, so a sentinel produced NO SITE:
+not reachable, not orphaned, not lost, and not uncovered either. The run reported
+a fully verified class over seven archived artifacts whose central provenance
+claim nothing had read. Now a non-commit value under a declared pin key is a
+LEGAL NON-PIN where `pin_sentinels` declares it — a fifth outcome that does NOT
+hold `fully_verified` open, because an artifact carrying an honest sentinel is
+conforming — or a DEFECT where it does not. The commit-shaped path is untouched
+by all of it: same regexes, same ref set, same verdicts, and a commit-shaped
+value is skipped by the classification pass entirely.
+
 THE REF SET CONSULTED IS `main` PLUS `refs/retention/pins/<full-sha>`, AND NO
 MORE (delta requirement 4). Both halves matter:
 
@@ -106,10 +118,33 @@ artifact that drifts.
 
 from __future__ import annotations
 
+import importlib.util
 import re
 import subprocess
+import sys
 from dataclasses import dataclass
 from pathlib import Path
+
+# THE DECLARED SENTINEL VOCABULARY. Imported as a sibling where this module is
+# loaded as part of its package, and BY PATH where it is not — which is not a
+# hypothetical fallback. `tests/review_lane_pin/test_review_lane_caller.py`
+# loads this file with `spec_from_file_location` under a private name and NO
+# package, deliberately, so that it does not have to duplicate the doc-health
+# conftest's `sys.path` insert from a second directory; its docstring states the
+# constraint that this module stays stdlib-only and importable that way. A bare
+# relative import raises `ImportError: attempted relative import with no known
+# parent package` there, which is how this was measured rather than predicted.
+try:                                          # normal package import
+    from . import pin_sentinels
+except ImportError:                           # loaded by path, no package
+    _spec = importlib.util.spec_from_file_location(
+        "_pin_sentinels_by_path", Path(__file__).with_name("pin_sentinels.py"))
+    pin_sentinels = importlib.util.module_from_spec(_spec)
+    # Registered before exec for the same reason the caller test registers this
+    # module before exec: `@dataclass` resolves a field's annotation through
+    # `sys.modules[cls.__module__].__dict__`.
+    sys.modules[_spec.name] = pin_sentinels
+    _spec.loader.exec_module(pin_sentinels)
 
 # --------------------------------------------------------------- the namespace
 
@@ -168,6 +203,55 @@ def _field_re(key: str) -> re.Pattern:
     return re.compile(
         rf'(?<![A-Za-z0-9_])"?{re.escape(key)}"?\s*:\s*"?([0-9a-f]{{40}})"?')
 
+
+# WHAT A NON-COMMIT VALUE LOOKS LIKE, and why this regex is stricter about the
+# KEY than `_field_re` is rather than looser about the value.
+#
+# `_field_re` gets away with a bare key boundary because its value group can
+# only match forty hex characters, and a sentence almost never contains one in
+# the position after a colon. Widen the value to "any scalar" and that safety
+# net is gone: measured over this repository at 45ba637a, a naive widening
+# reported two sites that are not mapping keys at all — `Live commit:path
+# resolution of the five supported DomainxFactory…` inside a folded `detail: >-`
+# block, and a `` `commit:` above `` inside a YAML comment. Both are PROSE
+# QUOTING A KEY NAME, which is exactly the hazard `NON_MEMBERS` already excludes
+# whole markdown files for.
+#
+# So the key must stand at a MAPPING POSITION: the start of a line (after
+# indentation and any number of YAML sequence dashes) or immediately after a
+# `{`, `,` or `[` — which is where a key stands in compact JSON. Comment lines
+# are dropped by the callers. Both false positives fail the anchor structurally
+# rather than by their value's shape, which matters because a value's shape is
+# precisely what this path may not judge on.
+_MAPPING_KEY_ANCHOR = r'(?:^|[{,\[])\s*(?:-\s+)*'
+
+# The value: a quoted scalar, or a bare one running to the next separator or
+# comment. `[^\s,#\]}]` for the first character keeps an empty value out and
+# stops the match at a line that is only a key (`generation:`), whose value is
+# the block beneath it rather than anything on the line.
+_SCALAR_VALUE = (r'(?P<value>"[^"]*"|\'[^\']*\'|'
+                 r'[^\s,#\]}][^,#\]}]*?)\s*(?=$|[,\]}]|\s#)')
+
+
+def _wide_field_re(key: str) -> re.Pattern:
+    return re.compile(_MAPPING_KEY_ANCHOR + r'"?' + re.escape(key)
+                      + r'"?\s*:\s*' + _SCALAR_VALUE)
+
+
+def _scalar(raw: str) -> str:
+    """The value a wide match found, unquoted and untrimmed of meaning."""
+    value = raw.strip()
+    if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
+        value = value[1:-1]
+    return value.strip().strip("`")
+
+
+def is_comment_line(line: str) -> bool:
+    """A whole-line YAML comment. JSON has none, so this only ever fires on the
+    serialization that has them."""
+    return line.lstrip().startswith("#")
+
+
 CURRENT = "current"                # committed instances carry real pins today
 FUTURE = "future"                  # a schema requires the pin; no committed
                                    # instance holds a real one yet
@@ -193,11 +277,27 @@ class PinMember:
     note: str
     pattern: str = ""              # prose members state their own
     locality_from: tuple[str, ...] = ()
+    # Whether an artifact matching this member is EXPECTED to carry the key.
+    # Only meaningful for the absent-key report (`declare-sentinel-pin-
+    # vocabulary`, Q2): absence is a recognized legacy state where the class
+    # expects a pin, and is simply the normal shape where the key is optional.
+    # Default True because every member but one writes the key unconditionally;
+    # a False is a MEASUREMENT and states it.
+    key_expected: bool = True
 
     def line_re(self) -> re.Pattern:
         if self.pattern:
             return re.compile(self.pattern)
         return _field_re(self.key)
+
+    def value_re(self) -> re.Pattern:
+        """The WIDE form of `line_re` — same key, any scalar value.
+
+        Field members only: a prose member's pin has no field to hold a
+        non-commit value, and a sentence is not a mapping. Used exclusively by
+        the non-pin classification; the commit-shaped path still runs
+        `line_re()` and is untouched by it."""
+        return _wide_field_re(self.key)
 
 
 @dataclass(frozen=True)
@@ -316,6 +416,16 @@ PIN_CLASS: tuple[PinMember, ...] = (
         locality=REPO_LOCAL,
         presence=CURRENT,
         note="Four traceability files are committed; one carries a pin.",
+        # MEASURED at 45ba637a rather than assumed, because the absent-key
+        # report is only honest where the key is genuinely expected. Three
+        # traceability files are committed and ONE carries `source_revision`
+        # (008), where it sits inside an optional per-feature verification
+        # block rather than at the top level; 007 and 009 have no such block at
+        # all, and no schema requires the key. So absence here is the normal
+        # shape of the artifact, not a legacy state of the corpus, and
+        # reporting it would be the launch noise the seeding clause warns
+        # against.
+        key_expected=False,
     ),
     # ---- the proposal-support transition tool ------------------------------
     PinMember(
@@ -869,6 +979,15 @@ _VOCAB_RE = re.compile(
         PIN_KEY_VOCABULARY, key=len, reverse=True))
     + r')"?\s*:\s*"?([0-9a-f]{40})"?')
 
+# The same key set with the value widened, for the non-commit classification.
+# Its key anchor is the mapping-position one rather than `_VOCAB_RE`'s bare
+# boundary — see `_MAPPING_KEY_ANCHOR` for the two prose sites that measured
+# that difference into existence.
+_WIDE_VOCAB_RE = re.compile(
+    _MAPPING_KEY_ANCHOR + r'"?(?P<key>' + "|".join(
+        re.escape(k) for k in sorted(PIN_KEY_VOCABULARY, key=len, reverse=True))
+    + r')"?\s*:\s*' + _SCALAR_VALUE)
+
 
 # WHAT THE SWEEP DELIBERATELY DOES NOT TREAT AS A MEMBER. Each row states its
 # reason, because an exclusion nobody can read is a coverage gap in disguise.
@@ -881,6 +1000,24 @@ NON_MEMBERS: tuple[NonMember, ...] = (
                "they must be excluded by DECLARATION rather than by whether "
                "they happen to resolve: an example is not an artifact making a "
                "provenance claim about itself.",
+    ),
+    NonMember(
+        paths=("**/*.template.yaml", "**/*.template.yml",
+               "**/*.template.json"),
+        reason="INSTANTIATION TEMPLATES — the same category as the examples "
+               "above, and declared here on evidence rather than by analogy. "
+               "Three are committed inside the scan roots and none carries a "
+               "forty-character value, so this row is inert for the "
+               "reachability sweep; what it excludes is a non-commit value, "
+               "and one is committed: `document-catalog.template.yaml:42` "
+               "holds `revision: <current full commit>`, a placeholder telling "
+               "an instantiator what to write. A template is not an artifact "
+               "making a provenance claim about itself, its placeholder names "
+               "no condition so it cannot be declared a sentinel, it has no "
+               "generator to correct, and it sits inside an archived packet so "
+               "its bytes may not be edited — the declaration is the only "
+               "route the seeding obligation leaves open, and it is the same "
+               "route the examples row already takes.",
     ),
     NonMember(
         paths=("**/negative/**", "**/*.negative.yaml", "**/*.negative.yml",
@@ -898,6 +1035,23 @@ NON_MEMBERS: tuple[NonMember, ...] = (
         reason="schemas DECLARE the keys; they carry no pins of their own. A "
                "schema whose required `source_revision` has no committed "
                "instance yet is a FUTURE member above, not a site here.",
+    ),
+    NonMember(
+        paths=("**/*.schema.yaml", "**/*.schema.yml", "**/*.schema.json"),
+        reason="THE SAME REASON AS THE ROW ABOVE, AT THE PATHS THAT ROW'S GLOB "
+               "DOES NOT REACH — and found by measurement rather than by "
+               "tidiness. 114 committed schema files sit inside the scan roots "
+               "outside `contracts/schemas/`, and the widened value check "
+               "reported one of them: "
+               "`specs/002-avc-f0-feasibility/contracts/"
+               "f0-interface-impact.schema.yaml:34` holds `source_commit: "
+               "{type: string, minLength: 1}`, which is a key DECLARATION in "
+               "JSON-Schema and not a value at all. A schema states what a pin "
+               "must look like; it never makes a derivation claim about "
+               "itself. Inert for the reachability sweep — no committed schema "
+               "in the scan roots carries a forty-character value — so this "
+               "row only ever excludes a type declaration being read as a "
+               "spelling.",
     ),
     NonMember(
         paths=("**/*.md",),
@@ -1314,6 +1468,216 @@ def uncovered_sites(repo, rev: str = "HEAD",
             if covering_member(s.path, s.key) is None]
 
 
+# ------------------------------------------------------- the non-commit value
+# `declare-sentinel-pin-vocabulary`. Everything from here to the report is the
+# FIFTH OUTCOME and its defect twin, and it is deliberately a separate pass over
+# the same inventory rather than a widening of the pin path. The commit-shaped
+# path above keeps its regexes, its ref set and its verdicts exactly as they
+# were: a value that IS a commit name is skipped here, so no site can be
+# classified twice and no reachability verdict can be reached through this code.
+
+@dataclass(frozen=True)
+class NonPinSite:
+    """A NON-COMMIT value standing under a declared pin key.
+
+    Invisible before this existed, and invisibly so: the value regexes bound the
+    value to forty hex characters, so a sentinel produced no site at all — not
+    reachable, not orphaned, not lost, and not UNCOVERED either. The artifact was
+    swept, the key was declared, the member was in good standing, and the value
+    was skipped, which is how a run could report a fully verified class over
+    seven artifacts whose central provenance claim nothing had read."""
+    path: str
+    key: str
+    value: str
+    line: int
+    member_id: str | None      # None for a site no declared member covers
+
+    def named(self) -> str:
+        return f"{self.path}:{self.line} ({self.key}) -> {self.value!r}"
+
+
+@dataclass(frozen=True)
+class NonPinResult:
+    """One classified non-commit value: a LEGAL NON-PIN or a DEFECT.
+
+    Exactly two outcomes and no third, because leaving such a value
+    unclassified is the state this whole pass replaces. `sentinel` is the
+    declared member where the value is declared and None where it is not; `how`
+    states the condition for the first and what is owed for the second."""
+    site: NonPinSite
+    sentinel: object | None    # pin_sentinels.SentinelMember | None
+    how: str
+
+    @property
+    def legal(self) -> bool:
+        return self.sentinel is not None
+
+
+@dataclass(frozen=True)
+class AbsentKey:
+    """A member artifact carrying NO pin key at all.
+
+    A recognized legacy state of the corpus, never a vocabulary member and never
+    filled in (`pin_sentinels.ABSENT_KEY`). Reported so the state is visible to
+    a reader rather than falling outside both the pin path and the sentinel
+    path — an artifact that carries no key looks identical, from every other
+    report, to one that was never swept."""
+    path: str
+    key: str
+    member_id: str
+
+
+def classify_value(site: NonPinSite) -> NonPinResult:
+    """The two outcomes, and no guessing between them.
+
+    A value neither commit-shaped nor declared is a DEFECT naming the artifact,
+    the key and the value — and the classification does NOT try to tell an
+    invented spelling from a truncated object name from a member drifted by one
+    character, because the remedy is identical for all three and because a
+    near-miss match is precisely the condition under which every consumer
+    guarding on an exact string already fails."""
+    member = pin_sentinels.declared(site.value)
+    if member is not None:
+        statement = pin_sentinels.CONDITIONS.get(member.condition, "")
+        return NonPinResult(
+            site, member,
+            f"declared sentinel ({member.standing}) for the "
+            f"{member.condition} condition: {statement}")
+    return NonPinResult(
+        site, None,
+        "UNDECLARED: this value is neither a commit name nor a member of the "
+        "declared sentinel vocabulary. Declare it in "
+        "`doc_health.pin_sentinels` where it names a real condition, or "
+        "correct the generator that wrote it where it does not. It is NOT "
+        "matched to the nearest declared member: a near-miss spelling is the "
+        "condition under which every consumer guarding on the exact string "
+        "already fails.")
+
+
+def _non_pin_in(text: str, key: str, pattern: re.Pattern, path: str,
+                member_id: str | None) -> tuple[list[NonPinSite], bool]:
+    """`(non-commit sites, the key was seen at all)` for one artifact."""
+    found: list[NonPinSite] = []
+    seen = False
+    for n, line in enumerate(text.splitlines(), start=1):
+        if is_comment_line(line):
+            continue
+        for m in pattern.finditer(line):
+            value = _scalar(m.group("value"))
+            if not value:
+                continue
+            seen = True
+            if FULL_SHA_RE.match(value):
+                continue           # the commit path owns this one
+            found.append(NonPinSite(path, key, value, n, member_id))
+    return found, seen
+
+
+def member_non_pin_sites(repo, rev: str = "HEAD",
+                         *, paths: list[str] | None = None
+                         ) -> tuple[list[NonPinSite], list[AbsentKey]]:
+    """Non-commit values under a DECLARED member's key, plus the absences.
+
+    FIELD MEMBERS ONLY. A prose member's pin sits inside a sentence and has no
+    field a non-commit value could stand in, and widening a prose pattern to
+    accept any scalar would make every sentence quoting the marker a site.
+    FUTURE members are skipped for the absence half by construction — having no
+    committed instance is what `presence=FUTURE` states."""
+    paths = paths if paths is not None else committed_paths(repo, rev)
+    sites: list[NonPinSite] = []
+    absent: list[AbsentKey] = []
+    for member in PIN_CLASS:
+        if member.key_form != "field":
+            continue
+        pattern = member.value_re()
+        for path in paths:
+            if not path_matches(path, member.paths):
+                continue
+            text = committed_text(repo, rev, path)
+            if text is None:
+                continue
+            found, seen = _non_pin_in(text, member.key, pattern, path,
+                                      member.id)
+            sites.extend(found)
+            if (not seen and member.key_expected
+                    and member.presence == CURRENT):
+                absent.append(AbsentKey(path, member.key, member.id))
+    return sites, absent
+
+
+def swept_non_pin_sites(repo, rev: str = "HEAD",
+                        *, paths: list[str] | None = None) -> list[NonPinSite]:
+    """Non-commit values under any vocabulary key inside the scan roots.
+
+    The same inventory, the same roots, the same serializations and the same
+    declared exclusions as `swept_sites` — stated rather than inferred, because
+    a vocabulary checked over a wider or narrower set than the pins it qualifies
+    would report gaps the pin class does not have and miss gaps it does."""
+    paths = paths if paths is not None else committed_paths(repo, rev)
+    out: list[NonPinSite] = []
+    for path in paths:
+        if not path.endswith(SCAN_SUFFIXES):
+            continue
+        if not path_matches(path, SCAN_ROOTS):
+            continue
+        if non_member_reason(path) is not None:
+            continue
+        text = committed_text(repo, rev, path)
+        if text is None:
+            continue
+        for n, line in enumerate(text.splitlines(), start=1):
+            if is_comment_line(line):
+                continue
+            for m in _WIDE_VOCAB_RE.finditer(line):
+                value = _scalar(m.group("value"))
+                if not value or FULL_SHA_RE.match(value):
+                    continue
+                out.append(NonPinSite(path, m.group("key"), value, n, None))
+    return out
+
+
+def non_pin_sites(repo, rev: str = "HEAD",
+                  *, paths: list[str] | None = None
+                  ) -> tuple[list[NonPinSite], list[NonPinSite],
+                             list[AbsentKey]]:
+    """`(classified sites, uncovered non-pin sites, absences)`.
+
+    The uncovered half is returned SEPARATELY as well as being classified,
+    because a sentinel standing under a key no declared member covers is TWO
+    findings: the class has a coverage gap, and the value has a classification.
+    Letting either mask the other would leave one of them unreported."""
+    paths = paths if paths is not None else committed_paths(repo, rev)
+    covered, absent = member_non_pin_sites(repo, rev, paths=paths)
+    known = {(s.path, s.key, s.line) for s in covered}
+    uncovered = [s for s in swept_non_pin_sites(repo, rev, paths=paths)
+                 if (s.path, s.key, s.line) not in known
+                 and covering_member(s.path, s.key) is None]
+    return covered + uncovered, uncovered, absent
+
+
+def unused_sentinels(sites) -> tuple:
+    """Declared members that no committed artifact carries AND no code emits.
+
+    THE SECOND DIRECTION, and the unobvious one. Corpus-against-declaration
+    catches a generator inventing a spelling — the failure everybody expects.
+    Declaration-against-corpus catches a vocabulary accumulating entries nobody
+    writes, which is slower and more corrosive: a reader looks up a value, finds
+    a plausible-sounding condition, and believes something about an artifact no
+    generator has ever produced.
+
+    A DECLARED EMITTER EXEMPTS A MEMBER, and that is not a loophole. Reporting a
+    stale member is not deleting it: a condition may be declared before its
+    first committed instance lands, exactly as the pin class declares FUTURE
+    members, and a member whose generator exists but whose output has not been
+    committed yet is in that state rather than stale. `emitters` is measured by
+    test rather than believed, so a phantom emitter cannot hold a stale member
+    alive."""
+    carried = {s.value for s in sites}
+    return tuple(m for m in pin_sentinels.SENTINELS
+                 if not m.emitters
+                 and not any(m.matches(v) for v in carried))
+
+
 # THE REPOSITORY THIS DECLARATION DESCRIBES. `PIN_CLASS` is a statement about
 # openxFactory's own artifacts, so the ABSENCE of a declared artifact only means
 # something here. Run over a fixture repository or any other checkout, every row
@@ -1407,6 +1771,33 @@ class PinClassReport:
     uncovered: tuple[PinSite, ...]
     vanished: tuple[PinMember, ...]
     arrived: tuple[tuple[PinMember, tuple[PinSite, ...]], ...]
+    # `declare-sentinel-pin-vocabulary`. Defaulted so a caller constructing a
+    # report by hand — the existing tests do — keeps working unchanged.
+    non_pins: tuple[NonPinResult, ...] = ()
+    uncovered_non_pins: tuple[NonPinSite, ...] = ()
+    absent_keys: tuple[AbsentKey, ...] = ()
+    unused_sentinels: tuple = ()
+    declaration_defects: tuple[str, ...] = ()
+
+    @property
+    def legal_non_pins(self) -> list[NonPinResult]:
+        """Declared sentinels — the FIFTH OUTCOME, and a conforming one.
+
+        It sits beside reachable, orphaned, lost and uncovered rather than
+        inside any of them. Not reachable (no commit, so reporting it as
+        reachable would claim a resolution nobody performed); not orphaned or
+        lost (those say a NAMED commit cannot be found, and here none was
+        named, so a repair route would be offered for a defect that does not
+        exist); not uncovered (the key IS declared and the sweep DID read the
+        site, so a coverage finding would send the next reader to widen a
+        declaration that is already correct); not inconclusive (the clone
+        answered perfectly, and the answer is "no commit here")."""
+        return [r for r in self.non_pins if r.legal]
+
+    @property
+    def undeclared_values(self) -> list[NonPinResult]:
+        """Non-commit values the vocabulary does not declare — the defect."""
+        return [r for r in self.non_pins if not r.legal]
 
     @property
     def orphans(self) -> list[PinResult]:
@@ -1443,9 +1834,20 @@ class PinClassReport:
         with no code repair available, and reddening every unrelated change on
         it would be enforcement arriving through the back door — the same
         reasoning four doc-health families launched advisory over a standing
-        population under. `fully_verified` is the property that stays False."""
+        population under. `fully_verified` is the property that stays False.
+
+        AN UNDECLARED NON-COMMIT VALUE IS A REPAIRABLE DEFECT AND IS CONSULTED
+        HERE; A DECLARED SENTINEL IS NOT. The second half is the deliberate
+        part: an artifact carrying an honest sentinel is CONFORMING — it did
+        what the generator obligation asks — and holding verification open on
+        it would punish exactly the behaviour the vocabulary exists to require,
+        which is the fastest way to teach the next generator author to stamp
+        `HEAD` and stay quiet. A recognized legacy absence is likewise reported
+        and not held against the class: it is repaired never, so there is
+        nothing for a red to ask for."""
         return not (self.orphans or self.uncovered or self.vanished
-                    or self.arrived)
+                    or self.arrived or self.undeclared_values
+                    or self.uncovered_non_pins or self.declaration_defects)
 
     @property
     def fully_verified(self) -> bool:
@@ -1476,7 +1878,12 @@ class PinClassReport:
                 f"{len(self.inconclusive)} inconclusive; "
                 f"{len(self.uncovered)} uncovered site(s), "
                 f"{len(self.vanished)} vanished member(s), "
-                f"{len(self.arrived)} future member(s) now carrying pins")
+                f"{len(self.arrived)} future member(s) now carrying pins; "
+                f"{len(self.legal_non_pins)} legal non-pin(s), "
+                f"{len(self.undeclared_values)} undeclared non-commit "
+                f"value(s), {len(self.absent_keys)} recognized legacy "
+                f"absence(s), {len(self.unused_sentinels)} unused vocabulary "
+                f"member(s)")
 
 
 def verify(repo, *, rev: str = "HEAD", remote: str = "origin",
@@ -1569,6 +1976,9 @@ def verify(repo, *, rev: str = "HEAD", remote: str = "origin",
             continue
         results.append(PinResult(site, ORPHAN, detail))
 
+    classified, uncovered_non_pins, absent = non_pin_sites(
+        repo, rev_sha, paths=paths)
+
     return PinClassReport(
         rev=rev_sha, main_ref=main_ref, main_sha=main_sha,
         truncated=truncated, truncation=truncation,
@@ -1577,6 +1987,11 @@ def verify(repo, *, rev: str = "HEAD", remote: str = "origin",
         vanished=tuple(vanished_members(repo, rev_sha, paths=paths)),
         arrived=tuple((m, tuple(s)) for m, s in
                       arrived_future_members(repo, rev_sha, paths=paths)),
+        non_pins=tuple(classify_value(s) for s in classified),
+        uncovered_non_pins=tuple(uncovered_non_pins),
+        absent_keys=tuple(absent),
+        unused_sentinels=unused_sentinels(classified),
+        declaration_defects=pin_sentinels.declaration_defects(),
     )
 
 
@@ -1647,6 +2062,28 @@ def render(report: PinClassReport) -> str:
         lines.append(f"  [ARRIVED] future member {member.id} now carries "
                      f"{len(sites)} committed pin(s); promote its row to "
                      "presence=current")
+    for result in report.non_pins:
+        mark = "non-pin" if result.legal else "UNDECLARED"
+        lines.append(f"  [{mark}] {result.site.named()} — {result.how}")
+    for site in report.uncovered_non_pins:
+        lines.append(f"  [UNCOVERED] {site.named()} — no declared class member "
+                     "covers this artifact and key. Reported beside the value's "
+                     "own classification above rather than instead of it: a "
+                     "coverage gap in the declaration and the meaning of the "
+                     "value are separate findings.")
+    for absence in report.absent_keys:
+        lines.append(f"  [ABSENT] {absence.path} carries no `{absence.key}` "
+                     f"where member {absence.member_id} expects one. "
+                     f"{pin_sentinels.ABSENT_KEY}")
+    for member in report.unused_sentinels:
+        lines.append(f"  [UNUSED] vocabulary member {member.value!r} "
+                     f"({member.condition}) is carried by no committed "
+                     "artifact and emitted by no declared generator. This is "
+                     "NOT an instruction to delete it — a condition may be "
+                     "declared before its generator lands — but the state is "
+                     "reported rather than assumed.")
+    for defect in report.declaration_defects:
+        lines.append(f"  [DECLARATION] {defect}")
     return "\n".join(lines)
 
 

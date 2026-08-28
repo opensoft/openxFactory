@@ -72,6 +72,7 @@ except ImportError:  # pragma: no cover
 # reach `doc_health` (which would keep a local copy joined to the shared rule
 # by an agreement test instead), this one converts.
 from doc_health.lines import split_keepends
+from doc_health import pin_sentinels
 
 ROOT = Path(__file__).resolve().parents[1]
 RENDERER = ROOT / "scripts" / "render-ideation-cross-reference.py"
@@ -141,16 +142,52 @@ def slug(token: str) -> str:
     return SLUG_RE.sub("-", token.lower()).strip("-")
 
 
+# THE CORPUS THIS INDEX IS DERIVED FROM, as git pathspecs, spelled to match
+# `collect()` below EXACTLY. `:(glob)` magic is load-bearing: without it git's
+# default pathspec `*` crosses `/`, so a dirty file under
+# `ideation/brainstorm/inbox/` — which `collect()` does NOT read — would be
+# reported and the pin would be thrown away for content that never entered the
+# derivation. A sentinel is never a licence to skip a pin that was available.
+CORPUS_PATHSPECS = (":(glob)ideation/brainstorm/*.md",
+                    ":(glob)ideation/staging/*/*.md")
+
+
 def git_generation(repo: Path) -> dict[str, str]:
-    def _git(args: list[str]) -> str:
+    """`generation` for the index: the corpus revision, its date, the generator.
+
+    `source_revision` CLAIMS THE CORPUS, NOT THE CHECKOUT, which is what decides
+    both halves of this function. `generator_version` beside it already claims
+    the generator, so a dirty script is that key's problem and not this one; what
+    would make `source_revision` UNTRUE is content read from a working tree no
+    commit holds.
+
+    SO THE CLEANLINESS CHECK IS SCOPED TO THE CORPUS AND MEASURED WITH `status
+    --porcelain` (`declare-sentinel-pin-vocabulary` § 2.6). Scoped, because a
+    whole-tree check would emit a sentinel while the corpus was perfectly
+    committed and some unrelated file was open in an editor — discarding a true
+    pin. `status --porcelain` rather than `diff --quiet`, because `diff` cannot
+    see an UNTRACKED file, and a brand-new brainstorm document is read by
+    `collect()`, changes the index, and is held by no commit — the dirty
+    condition in its purest form. Deletions and additions inside the two globs
+    are caught for the same reason.
+
+    ON A CLEAN CORPUS THE BEHAVIOUR IS BYTE-IDENTICAL TO BEFORE: the same
+    `rev-parse HEAD`, written to the same key. Only the dirty branch is new, and
+    what it writes is the DECLARED spelling for the condition rather than a
+    string of this generator's own invention — imported from
+    `doc_health.pin_sentinels` so that a consumer guarding on the vocabulary and
+    this writer can never drift apart."""
+    def _git(args: list[str], check: bool = True) -> str:
         return subprocess.run(
             ["git", "-C", str(repo), *args],
-            capture_output=True, text=True, check=True,
+            capture_output=True, text=True, check=check,
             env={"TZ": "UTC", "PATH": __import__("os").environ.get("PATH", "")},
         ).stdout.strip()
 
-    rev = _git(["rev-parse", "HEAD"])
     at = _git(["show", "-s", "--format=%cd", "--date=format-local:%Y-%m-%dT%H:%M:%SZ", "HEAD"])
+    dirty = _git(["status", "--porcelain", "--", *CORPUS_PATHSPECS])
+    rev = (pin_sentinels.UNCOMMITTED_WORKTREE if dirty
+           else _git(["rev-parse", "HEAD"]))
     return {"source_revision": rev, "generated_at": at, "generator_version": GENERATOR_VERSION}
 
 
