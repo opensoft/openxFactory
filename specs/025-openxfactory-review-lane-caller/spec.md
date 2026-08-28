@@ -18,8 +18,10 @@ neither: `merge-master` appears in this repository only as prose, contract
 vocabulary, and a cross-repo `gh workflow run` dispatch. Meanwhile codexFactory
 already ships openxFactory's half of the governance data —
 `scripts/merge_master/openxfactory-review-authority-floor.yaml`, a
-`repository_gate_floor` naming three never-clearable openxFactory paths — and
-nothing in openxFactory reads it. This feature lands the **workflow-instance
+`repository_gate_floor` naming three never-clearable openxFactory paths **at the
+commit this caller pins** (a fourth, `contracts/review-lane-pin.yaml`, landed
+upstream 2026-08-28 and reaches this repository only at follow-up 6.5's re-point)
+— and nothing in openxFactory reads it. This feature lands the **workflow-instance
 half only**, as an advisory reporter. The ruleset half of 5.1 is deliberately
 NOT done here: it needs S3 and S5 of `add-wallet-carried-review-authority`
 (the wallet-signed exercise record at `check_verdict`, and revocation at verdict
@@ -327,6 +329,16 @@ otherwise assume landed.
   > `never_clearable_paths`, pinned by per-path behavioural tests in
   > `tests/merge-master/test_repository_gate_floor.py`. **Task 6.2 is ticked.**
   > Read NR-006 as *"not by this feature"*, never as *"not done"*.
+  >
+  > **AND NOT YET AS "protected here".** That entry is live **upstream** and
+  > **inert in this repository**: the caller and the pin both still name
+  > `core_commit: 58bd3cf7…`, which predates it — verified, `99fa3ffe` is not an
+  > ancestor of `58bd3cf7` and the floor file at the pinned commit contains zero
+  > occurrences of `review-lane-pin.yaml`. **A pull request touching the pin
+  > receives a zero-match advisory verdict today.** It becomes live when the
+  > re-point ceremony of follow-up **6.5** advances the pinned commit, which is
+  > deliberately held until codexFactory #126 and #127 land so one ceremony
+  > converges all three. See tasks 6.2 (ii)–(iii).
 - **NR-007**: **`add-substantive-review-lane` task 5.1 is not ticked.** Its
   ruleset half remains owed, so the task stays open and this feature is recorded
   against it rather than closing it.

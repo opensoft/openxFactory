@@ -149,9 +149,14 @@
       `never_clearable_paths`. It determines which core judges this repository,
       which is the same argument the wallet pin's entry already makes
       (NR-006).
-      **DONE 2026-08-28** — codexFactory PR **#125** *"Add the openxFactory
-      review-lane pin to the never-clearable floor"*, merged `99fa3ffe` and
-      reachable from `origin/main`. Verified rather than taken on report:
+      **DONE UPSTREAM 2026-08-28 — BUT NOT YET CONSUMED HERE.** The state is
+      three-part and the tick covers only the first part; read all three before
+      relying on this protection.
+
+      **(i) The codexFactory-side act this task names is COMPLETE.**
+      codexFactory PR **#125** *"Add the openxFactory review-lane pin to the
+      never-clearable floor"*, merged `99fa3ffe` and reachable from
+      `origin/main`. Verified rather than taken on report:
       `contracts/review-lane-pin.yaml` is present in that file's
       `never_clearable_paths` at `origin/main`, declared as a fourth entry
       grounded separately from the wallet-register trio — *"the review-lane pin
@@ -160,6 +165,25 @@
       carries per-path behavioural tests in
       `tests/merge-master/test_repository_gate_floor.py` (+45), so the entry is
       pinned by executing code rather than by declaration alone.
+
+      **(ii) NOT YET CONSUMED BY THIS REPOSITORY, so the protection is NOT live
+      here.** This caller and `contracts/review-lane-pin.yaml` both still name
+      `core_commit: 58bd3cf7…`, which **predates** the entry. Verified:
+      `99fa3ffe` is **not** an ancestor of `58bd3cf7`, and the floor file at the
+      pinned commit contains **zero** occurrences of `review-lane-pin.yaml`
+      against one at `origin/main`. **Consequence, stated plainly: a pull request
+      touching `contracts/review-lane-pin.yaml` today receives a ZERO-MATCH
+      advisory verdict** — the lane reports that the candidate touches none of
+      the never-clearable paths, because the core it runs does not yet know the
+      entry exists. **Do not read the tick as "this path is protected here."**
+
+      **(iii) Consumption happens at the next re-point ceremony — follow-up 6.5,
+      deliberately deferred.** The re-point is CODEOWNERS-routed to a human
+      (FR-013) and is a ceremony in its own right, so it is held until
+      codexFactory **#126** (the convening record) and **#127** (the S-1/S-2
+      guards) land. **One ceremony then converges the floor entry, the convening
+      record and the new guards, instead of three.** Deferring is the choice, not
+      an oversight.
 - [ ] 6.3 `add-substantive-review-lane` task 3.2 — the `gate_rules_council`
       record defining openxFactory's candidate classes — remains the gate on
       any envelope instance here (FR-008).
@@ -186,6 +210,11 @@
       (NR-001, NR-002, NR-003, NR-007).
 - [ ] 6.5 A future re-point ceremony should converge this pin with xFactory's
       two surfaces (D2).
+      **IT ALSO CONSUMES 6.2.** The floor entry 6.2 records is live upstream but
+      inert here until this ceremony advances `core_commit` past `99fa3ffe` —
+      see 6.2 (ii). Held deliberately until codexFactory #126 and #127 land, so
+      one ceremony converges the floor entry, the convening record and the S-1/S-2
+      guards. The re-point is CODEOWNERS-routed to a human (FR-013).
 
 
 ## Evidence (recorded 2026-08-27)
