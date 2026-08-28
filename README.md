@@ -385,6 +385,29 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [adopt-medxsoft-repository-identity](openspec/changes/adopt-medxsoft-repository-identity/proposal.md)
+  — authored 2026-08-27 for the 2026-08-26 transfer of `opensoft/MedxFactory`
+  and `opensoft/MedxEHR` to the `MedxSoft` organization, whose operational half
+  (remotes, aggregation `.gitmodules`, `medx-roottruth-install` pins) was
+  rewired the same day outside OpenSpec. ADDS one capability,
+  `repository-identity` (four requirements): the canonical `<owner>/<repo>`
+  owed on live normative surfaces, a provider redirect being a grace period
+  rather than an identity; the published transfer mapping
+  `contracts/policies/repository-identity.yaml`, sibling of
+  `layer-vocabulary.yaml`; the freeze on archived packets, dated decision
+  records and point-in-time verification tables; and the additive change class a
+  transfer takes. Follows `adopt-subject-tenant-domain-vocabulary` exactly —
+  rename the live surfaces, freeze the recorded spellings, resolve the frozen
+  ones by lookup — with the freeze here justified by evidence integrity rather
+  than by pinned consumers. **30 occurrences across 23 files: 20 renamed across
+  15, 10 frozen across 8.** Owes a contract bundle, measured: six edited files
+  are non-editorial members of the declared `contract-v2.0` digest inventory, so
+  `release-inventory-drift` reports six `ERROR`s until the cut re-baselines the
+  inventory; the minor is allocated at realization and none is reserved here.
+  The consequence a sweep would have missed is recorded in `design.md` § 4 —
+  the regression denominator is bytewise sorted, `M` precedes `o`, so the entry
+  moves to the head of the list and `PINNED_TABLE` moves with it in the same
+  commit.
 - [create-ledgerxwallet-overlay-boundary](openspec/changes/create-ledgerxwallet-overlay-boundary/proposal.md)
   — **RATIFIED 2026-08-28** (in-session ruling "ratify #449" on PR #449, both
   required checks green; ratified AS PROPOSED, meaning the NARROWED v1 — see
