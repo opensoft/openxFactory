@@ -340,6 +340,26 @@ repository's spec corpus, and refusal vocabulary is ratified as the consumer's
 - [ ] 7.2 **[hermes-install]** On a revoked or expired holder, PARK with a NAMED
       REFUSAL — never silently honour the stamp.
 - [ ] 7.3 Declare the register's staleness bound as a duration.
+  - DECLARED in this branch: `governance/review-authority/register.yaml` gains
+    the top-level `revocation_staleness_bound: P7D`, with the reasoning recorded
+    beside it — the runtime does not read this file but an operator-established
+    PROJECTION of it, so the bound is the maximum age of that projection at the
+    instant an exercise is judged; the runtime holds a ceiling of its own and
+    honours whichever is tighter, so this declaration can only ever NARROW the
+    window a deploy allows. P7D is deliberately loose: nothing refreshes the
+    projection automatically, and a bound tighter than the refresh cadence parks
+    every convening — design R1/R5's `--admin` pressure. Tightening it is an
+    edit to that one line, no code and no deploy; the target once refresh is
+    automated is P1D or tighter.
+  - NOT YET TICKED because the enforcement half is unmerged (see 7.4) and this
+    declaration is itself unmerged. **A FINDING this task uncovered:** the
+    pinned reader ACCEPTS the new key silently — `check_register` is strict on
+    the row field set but reads only `register_version` and `rows` at the top
+    level — so a governed declaration sits in a required check's blind spot,
+    which is the vacuous-pass class (design R3). Extending the reader to
+    validate the bound is recorded as a named successor on openXwallet PR #3,
+    because the reader left this repository at the `split-openxwallet-repo`
+    carve.
 - [ ] 7.4 **[hermes-install]** Unreadable register ⇒ REFUSE. Unreachable,
       unparseable, or older than the bound all refuse; never proceed.
 - [ ] 7.5 **[codexFactory]** Pin model version and prompt corpus as declared
@@ -350,9 +370,21 @@ repository's spec corpus, and refusal vocabulary is ratified as the consumer's
       parks under `missing_required_seat: refused`, and the only routine exit
       under a sole code owner is `--admin` — the ritual this change exists to
       break.
+  - STAYS OPEN, and it is now the load-bearing operator item of S5. 7.5's model
+    half is blocked ON it: the seat model is a Gate-Rules Council decision
+    (`council-deliberation-worker.yml:710-723`, ruled 2026-08-22 — "this lane
+    will not choose one"), so the alias-to-exact-version flip IS the deliberate
+    composition bump this runbook is supposed to be walked against. The runbook
+    and that flip are one act, not two.
 - [ ] 7.7 **Gate:** a revoked holder parks a convening with a named refusal in a
       rehearsed test; an unreadable register refuses; the runbook has been
       walked once.
+  - STAYS OPEN on all three limbs. The first two have rehearsed tests on an
+    unmerged branch (7.1/7.2/7.4 above) and are additionally gated on the
+    hermes-install image deploy — the standing constraint at the head of this
+    file: no reseed until an image at `3de0519`+ ships, and codexFactory
+    convenings currently FAIL CLOSED pending seat-key provisioning. The third
+    limb is 7.6, unstarted.
 
 ## 8. Bench and governance items carried, not performed
 
@@ -370,6 +402,52 @@ repository's spec corpus, and refusal vocabulary is ratified as the consumer's
     empty-register notification rides the HEC decision-ready packet; exact
     model versions only, no family pinning. Cascade enforcement rides the
     named core deltas at S5.
+  - CORE DELTAS AUTHORED at S5, in openXwallet as the Addendum requires:
+    **openXwallet PR #3** (`change/add-composition-drift-cascade`, `fc68f13`,
+    `Status: draft`, checks green, NOT merged — held for the convener's
+    ratification). Two MODIFIED requirements, the first `## MODIFIED
+    Requirements` block that repository has ever carried. `openxwallet`
+    "Revocation propagates through the chain" gains: a recorded revocation
+    reason class that is NEVER consulted to narrow propagation, so DRIFT
+    cascades exactly as CAUSE (stated in the CORE because the profile delegates
+    there); every propagated revocation records the edge it descends from; a
+    revoked grant never returns to active, so resumption is a NEW grant naming
+    what it supersedes; a holder left with no active standing reaches a human
+    through the consuming capability's declared escalation path rather than a
+    log line. `openxwallet-agent-profile` "A composition change revokes the
+    agent's grants immediately" gains: the change is a DRIFT-class revocation
+    cascading under the core rule; `grants_state:
+    revoked_on_composition_change` is a DECLARATION and not the revocation, so
+    a declaration standing beside a still-active grant is a validation failure
+    — this closes the real mechanical gap, which was that nothing walked from
+    the composition record's self-declaration to the wallet's actual grant
+    records the way the core's chain check already does for parent and holder
+    revocation; resumption requires an explicit human-ratified issuance act;
+    and a declared model component names an EXACT version, a family or alias
+    being a validation failure (limb (d), restated where it binds).
+  - Q8's REISSUANCE POLICY PROPOSED by S5's implementer, per this task's
+    reservation, in that PR's `design.md`: reissuance is a first-class ACT
+    recording the superseding grant, the superseded grant, the composition hash
+    issued against, the ratifying human and the instant — an act and not a
+    state transition, because anything triggerable can be triggered by the very
+    thing it polices; no standing form exists, a standing reissue being a
+    pre-signed blanket for a composition that did not yet exist. Derived grants
+    survive NEITHER class; the class is evidence, never a gate. Notification
+    takes the decision-ready packet shape, deduped by root cause. Design R1 is
+    named honestly as MADE LOAD-BEARING rather than closed: the exit from a
+    fleet-wide park is task 7.6's runbook, not an automatic reissue.
+  - **AWAITING THE CONVENER — the model-family pin, carried and NOT decided.**
+    Limb (d) ratified exact-versions-only and left family pinning revisitable
+    "only through a future core delta that can police it". The question put
+    back to Brett, verbatim from the proposal: *"Should the core delta being
+    authored now define that policing mechanism — a family pin PLUS an attested
+    resolved-version record, re-attested on every roll — or does
+    exact-versions-only stand un-revisited?"* Both exits are costed there; the
+    admitting exit's hidden cost is a NEW window between the roll and the
+    re-attestation — a fresh fail-open inside a change that exists to close
+    one. The authored deltas are consistent with the standing ruling, so this
+    question sits AHEAD of PR #3's ratification gate: admitting the family pin
+    would amend a paragraph of the delta before it is ratified, not after.
 - [x] 8.2 **[GOVERNANCE]** Rule **Q9** — the floor's source-of-truth inversion.
       Either move the floor's source of truth into a seedable, schema-validated
       `.yaml` carrier and demote the record to evidence, or amend
