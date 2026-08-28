@@ -378,6 +378,12 @@ Every DomainxFactory must validate against the canonical contract:
   proves the non-deployable, stdlib-only boundary of `xfactory/avatar_runtime/`
   (no listener, provider SDK, persistence, credential loading, or provisional
   import) for feature `specs/003-avc-reference-runtime`.
+- Avatar internal-live metering alert: `scripts/avatar-metering-alert.py`
+  renders the per-tenant metering issue body and title on the doc-health
+  pattern (`qualify-avatar-live-voice` task 6.1.4), reading the page target and
+  its runbook from `canary-cohort-and-rollback-policy.yaml`
+  `operator_surface`. Like the doc-health checker it never invokes `gh`
+  itself; the job step that does lands with the serving install (task 6.1.2).
 - Versioning: [Contract Versioning Policy](docs/contract-versioning-policy.md)
   and [contracts/CHANGELOG.md](contracts/CHANGELOG.md).
 

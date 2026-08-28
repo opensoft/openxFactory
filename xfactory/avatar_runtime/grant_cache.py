@@ -46,6 +46,16 @@ class GrantCache:
     def has_secret(self, request_id: str) -> bool:
         return request_id in self._grants
 
+    def terminal_items(self) -> tuple[tuple[str, str], ...]:
+        """Every credential-free terminal record, in a stable order.
+
+        These are policy-required records that survive an abort — they never
+        held secret grant material, so nothing here can leak one.
+        """
+        return tuple(
+            sorted((rid, outcome.value) for rid, outcome in self._terminals.items())
+        )
+
     def clear(self) -> None:
         self._grants.clear()
         self._fingerprints.clear()
