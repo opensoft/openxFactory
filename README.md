@@ -387,28 +387,43 @@ Active changes:
   says so in PROSE: the `unclassified` residual row carries no severity, is not
   a finding, and is therefore reached by neither `--fail-on` nor the ranked plan
   that "Health report contract" requires every finding to appear in. One ADDED
-  requirement on `doc-health` makes a nonzero residual emit exactly ONE
-  `warning` per run, naming the count and the first unplaced rule text verbatim,
-  carrying that finding's repo and delta path and the action line "extend the
-  class map, or fix the rule text drift". The finding is itself placed by the
-  map into a FIFTH `FindingClass` — an unplaced finding about unplaced findings
-  would be counted by the residual it reports — and its pattern is ANCHORED at
-  the start of the rule text, because the finding quotes a rule text that may
-  itself begin in the shape of an arm. The residual row stays; it is what makes
-  the tally sum. **NO `## MODIFIED Requirements` block**, and that is a
-  measurement rather than a preference: canon enumerates the three comparison
-  ARMS and never the classes, the class map, or the residual, so restating 14
-  scenarios of "Currency of an active change's MODIFIED requirement blocks"
-  would risk the defect the family exists to catch in order to say something
-  canon does not say. Adds NO check family; the enumeration and its numerals are
-  untouched. Band `warning` and the family stays absent from `FAMILY_RESOLUTION`,
-  so the finding retiring when somebody extends the map cannot become an
-  uncited-resolution `error`; § 7.2's flip is untouched and still owed. Predicted
-  movement **zero in every band** — the tree reads `unclassified: 0` today.
-  Three orchestrator decisions are flagged for veto (ADDED-only; a fifth class
-  rather than a severity on the report block; one finding per run rather than per
-  repository). `code_surface` is one module and one test file;
-  `target_release: implemented`, so it archives only on merged plus green.
+  requirement on `doc-health` makes an unplaced rule text emit one `warning`
+  **per distinct rule SHAPE per run** — rule texts equal after every quoted span
+  and every digit run is masked, which is the grammar the class map's own
+  patterns are written in — naming that shape's count and the first instance's
+  rule text verbatim, carrying its repo and delta path, with the action line
+  "extend the class map in `scripts/doc_health/modified_block_currency.py`, or
+  fix the drifted rule text the finding names". Per shape rather than per run
+  because two drifted shapes are two map entries to write, and per shape rather
+  than per repository because the map is one module constant with one remedy.
+  The finding is itself placed by the map into a FIFTH `FindingClass` (id
+  `unplaced`, label `unplaced-finding drift` — neither may contain the substring
+  `unclassified`, which a standing pin asserts absent from a clean summary) under
+  a FOURTH severity constant `_DRIFT_SEVERITY`, so § 7.2's flip of
+  `_LAUNCH_SEVERITY` cannot drag it; and its pattern is ANCHORED at the start of
+  the rule text, because the finding quotes a rule text that may itself begin in
+  the shape of an arm. The residual row stays; it is what makes the tally sum.
+  **NO `## MODIFIED Requirements` block**, and that is a measurement rather than
+  a preference: canon enumerates the three comparison ARMS and never the classes,
+  the class map, or the residual, so restating 14 scenarios of "Currency of an
+  active change's MODIFIED requirement blocks" would risk the defect the family
+  exists to catch in order to say something canon does not say. The requirement
+  BODY is deliberately lean — 36 lines, down from 70 — because every body line is
+  carriage-ledger surface a future MODIFIED block must restate. Adds NO check
+  family; the enumeration and its numerals are untouched. Band `warning` and the
+  family stays absent from `FAMILY_RESOLUTION`, so the finding retiring when
+  somebody extends the map cannot become an uncited-resolution `error`; § 7.2's
+  flip is untouched and still owed. Predicted movement **zero in every band** —
+  the tree reads `unclassified: 0` today. Realization moves seven standing pins
+  by name, adds a behavioural fixture tree
+  (`modified-block-currency-unplaced` — measured: no corpus title can produce an
+  unplaced rule text, 20,065 fuzzed rule texts, 0 unplaceable), and AMENDS the
+  byte-level report contract
+  `specs/022-modified-block-currency-reporting/contracts/report-section.md`,
+  which enumerates the four classes four times over. Three orchestrator decisions
+  are flagged for veto (ADDED-only; a fifth class rather than a severity on the
+  report block; one finding per distinct shape). `target_release: implemented`,
+  so it archives only on merged plus green.
 - [split-openxwallet-repo](openspec/changes/split-openxwallet-repo/proposal.md)
   — **RATIFIED 2026-08-26** (in-session ruling on PR #391; realization via
   Speckit) — authored 2026-08-26 as the first and only exit of the staged topic

@@ -27,7 +27,8 @@ origin:
     under standing patterns — D1 (ADDED-only, no MODIFIED block on the currency
     requirement, measured rather than preferred), D2 (a fifth `FindingClass` with
     an anchored pattern rather than an unplaced finding or a severity on the
-    report block) and D3 (one finding per run rather than one per repository) —
-    are NOT covered by that authorization and are flagged for veto in the
-    proposal's § Orchestrator Decisions.
+    report block) and D3 (one finding per DISTINCT UNPLACED RULE SHAPE per run,
+    rewritten at packet review on 2026-08-27 from one per run, and never one per
+    repository) — are NOT covered by that authorization and are flagged for veto
+    in the proposal's § Orchestrator Decisions.
   approved_on: 2026-08-27
