@@ -478,6 +478,23 @@ Active changes:
   archives only on merged plus green realization evidence, never on landing.
   Realization is Speckit AFTER ratification; preconditions P5b and P3b
   (codexFactory PR #117, `58bd3cf7`) are both DISCHARGED and P4 does not gate it.
+  **REALIZATION, 2026-08-28 — groups 3, 4 and 5 built; NOT yet archivable.**
+  `opensoft/LedgerxWallet` EXISTS (private, created empty; `main` at
+  `0a0141ca`): the pin manifest and the nested `openXwallet/` gitlink at
+  `63f5a1adac89f017e70bab9a4ffe7cf02d6e6705` in ONE commit (`304cd3c`),
+  `tests/validate_pin.py` with four fail-closed checks all RED-proven,
+  `.github/workflows/pin-validation.yml`, and
+  `templates/wallet-exercise.template.yaml` carried byte-identically (blob
+  `dda063c0` in both trees). Ruleset `21701436` went EVALUATE -> reported (PR #1)
+  -> **ACTIVE**, so `pin-validation` is a REQUIRED context on that repository's
+  `main`. LedgerxFactory PR #31 (feature `020-ledgerxwallet-descendant-nest`)
+  carries group 5 as ONE commit with the full 17-validator bar green, the
+  artifact floor still at 5, the pin-reconciliation leg still reporting, and the
+  parent's finder evidence MIGRATED rather than deleted. **Two things remain
+  before archive:** that pull request is open rather than merged, and the tag
+  `lxw-v1.0` (task 6.10) is an unperformed `[OPERATOR]` act — as is telling the
+  live window's operator that the template's path moved (task 5.7), which is not
+  a file edit and which the runsheet's own P0.5 does not substitute for.
 
 - [declare-sentinel-pin-vocabulary](openspec/changes/declare-sentinel-pin-vocabulary/proposal.md)
   — **RATIFIED 2026-08-27** (Brett, in-session commissioning of the filing,

@@ -53,7 +53,7 @@ implemented/promoted, `adopted` = adopted.
 | DTN-023 | Governance change-review lane | `split` | P2 | `seed` | change-review half of the review lane (ten governance-document dimensions) |
 | DTN-024 | Governed recommendation artifact (evidence-cited, hypothesis-only, authority-slotted proposal) | `split` | P2 | `seed` | neutral recommendation-artifact skeleton: evidence-citation + knowledge_basis vocabulary, empty-authority-slot invariant, refusal documents, seeded-defect critique harness pattern |
 | DTN-025 | Shared across 3 factories: docs/credentialing.md | `promote` | P2 | `seed` | to be determined at staging (the shared surface, neutralized once) |
-| DTN-026 | openXwallet neutral home | `split` | P1 | `staged` | own repo `opensoft/openXwallet` (ruled 2026-08-26); domain descendants are pin-and-profile repos (`LedgerxWallet` first) |
+| DTN-026 | openXwallet neutral home | `split` | P1 | `staged` | own repo `opensoft/openXwallet` (ruled 2026-08-26); domain descendants are pin-and-profile repos — **`opensoft/LedgerxWallet` CREATED 2026-08-28**, the first; status held at `staged` pending the domain re-pin and P4 |
 
 ## Candidate Details
 
@@ -807,6 +807,36 @@ Evidence:
 - precedent: DTN-022 above (`opensoft/openAvatar`, ruled 2026-08-03) plus the
   descendant-boundary changes `create-medxchart-overlay-boundary` and
   `create-medxpractice-overlay-boundary`
+
+**THE FIRST DESCENDANT EXISTS, 2026-08-28.** `opensoft/LedgerxWallet` was
+created by the ratified `create-ledgerxwallet-overlay-boundary` and realized:
+`contracts/openxwallet-pin.yaml` (`kind: ledgerxwallet_openxwallet_pin`,
+`relationship: pinned_upstream_composition`) and a nested `openXwallet/`
+gitlink at `63f5a1adac89f017e70bab9a4ffe7cf02d6e6705` (`wallet-v1.1^{commit}`)
+in ONE commit; `tests/validate_pin.py` with four fail-closed checks; the
+REQUIRED `pin-validation` check under ruleset `21701436`, ACTIVE; and the
+relocated `templates/wallet-exercise.template.yaml`. LedgerxFactory nests it at
+`LedgerxWallet/` and resolves openXwallet through it at one fixed relative
+path. So the PATTERN this entry promotes now has a realization rather than only
+precedents — pin by commit twice, carry only profile, nest into the
+DomainxFactory, create lazily on the domain's first profile artifact.
+
+**The status does NOT advance on that.** This register's own definition
+requires the domain re-pin AND the local-copy retirement to be COMPLETE, and
+`status: staged` is what the evidence supports today: the LedgerxFactory re-pin
+is open as PR #31 rather than merged, and P4 — the xFactory aggregation's root
+`openXwallet` gitlink — has not landed. Ratification is not realization, and a
+created repository is not a completed one. Recorded here so a later reader sees
+the descendant exists WITHOUT reading the status as having moved.
+
+The nested-only placement carries a KNOWN GAP, registered rather than
+discovered: a descendant nested inside a DomainxFactory is outside every
+governed-repo enumeration in the corpus (`scripts/sync-notebooklm-books.py`
+matches `xFactories/<Name>` only; `scripts/doc_health/ideation_routing.py`
+admits `openxFactory` and `xFactories/<Name>`). The ratified precedent is
+already in that hole — the aggregation `.gitmodules` carries no `MedxAvatar`
+and no `LedgerxAvatar` entry either — and closing it is a named successor that
+would cover all three at once.
 
 Domain-local exclusions: `governance/review-authority/` stays in openxFactory —
 it is openxFactory's OWN review authority (`target_repo: opensoft/openxFactory`)
