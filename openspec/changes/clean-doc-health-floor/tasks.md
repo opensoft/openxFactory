@@ -230,12 +230,33 @@ predicted from the one before.
       --strict` — **valid**.
 - [x] 4.2 `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` —
       **77 passed, 0 failed (77 items)**, grown by exactly one for this
-      packet joining the active set (76 before).
+      packet joining the active set (76 before); **78 passed, 0 failed** after
+      the second main merge, for main's own reasons (see 4.3).
+- [x] 4.2b Resolve the `README.md` conflict main's landing created.
+      **DONE.** `#463` added two active-change entries at the head of the
+      OpenSpec Records block, where this packet had added one — a pure
+      both-sides-inserted-at-the-head conflict in the one file, with
+      `tests/doc-health/test_modified_block_currency_self_gate.py`
+      auto-merging cleanly around this packet's ledger row. **Resolved by
+      keeping BOTH sides**, this packet's entry at the head as the newest
+      arrival and main's two blocks verbatim beneath it, per the block's
+      newest-first convention. Verified after: zero conflict markers, and each
+      of the three entries appears exactly once. No content of main's was
+      dropped, reworded or reordered.
 - [x] 4.3 `python3 -m pytest tests/doc-health -q` under `set -o pipefail`,
       exit read from `$?` rather than from the tail of a pipe —
       **1251 passed, 0 failed**, 159.03s, **EXIT=0**. Baseline was 1249;
       grown by exactly the two regression tests task 2.3 adds, and by nothing
-      else.
+      else. **RE-MEASURED 2026-08-28 AFTER `origin/main` WAS MERGED IN A
+      SECOND TIME**, and both numbers are kept rather than the later
+      overwriting the earlier: main landed `#463` (the measured-latents
+      filing, two packets), `#466`/`#469` (`add-unclassified-finding-class`
+      realized and archived) and a nightly token fix, which together add
+      twenty-one tests. The merged head reads **1272 passed, 0 failed**,
+      179.44s, EXIT=0 — grown by main's twenty-one and by none of this
+      packet's. `openspec validate --all --strict` moved 77 → **78 passed,
+      0 failed** for the same reason, and the floor is **unmoved at 5 critical
+      / 7 error / 41 warning / 12 info**.
 - [x] 4.4 Full doc-health single-repo run, before vs after, whole-run counts.
       **DONE — 5 critical / 11 error / 41 warning / 11 info → 5 critical /
       7 error / 41 warning / 12 info.** Four errors cleared, all four from
