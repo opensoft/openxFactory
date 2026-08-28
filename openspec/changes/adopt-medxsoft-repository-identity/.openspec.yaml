@@ -1,0 +1,42 @@
+schema: spec-driven
+created: 2026-08-27
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-27-adopt-medxsoft-repository-identity
+  reason: >-
+    THE FORCING FACT IS AN ACCOMPLISHED TRANSFER, NOT A PROPOSAL. On 2026-08-26
+    the GitHub repositories `opensoft/MedxFactory` and `opensoft/MedxEHR` were
+    transferred to the `MedxSoft` organization. Every OPERATIONAL consequence
+    was rewired the same day and outside OpenSpec, correctly: git remotes, the
+    aggregation `.gitmodules`, and the `medx-roottruth-install` deploy manifests
+    and pins. What that pass could not touch is the one thing that is
+    contract-governed rather than operational — `opensoft/MedxFactory` as
+    REPOSITORY IDENTITY inside openxFactory's governed content, where it is a
+    normative value in the supported-domain regression denominator (a
+    release-surface member of the declared `contract-v2.0` bundle), in three
+    negative regression fixtures, in the omnigent negative manifest fixture, in
+    an installation example, in one test that keeps the fixture honest, and in
+    seven live governance documents. Thirty occurrences across twenty-three
+    files, of which twenty across fifteen files are live normative surfaces and
+    ten across eight files are immutable or dated records that must keep their
+    recorded spelling. GitHub's redirect from the old owner covers the
+    operational surfaces today and dies the moment `opensoft` reuses either
+    name, so a redirect is a grace period rather than an identity. This packet
+    is the governed act: it declares the canonical identity, publishes the
+    transfer mapping that keeps every frozen legacy string machine-readable,
+    and schedules the rename as implementation work rather than performing it.
+  approved_by: >-
+    Brett — the transfer act of 2026-08-26 (his decision, executed that day),
+    together with the per-surface disposition set that accompanies it: which
+    surfaces are RENAMED, that a machine-readable transfer mapping is ADDED
+    beside `contracts/policies/layer-vocabulary.yaml`, and which surfaces are
+    LEFT VERBATIM and interpreted through that mapping. Those dispositions were
+    settled before authoring and relayed to the authoring session by the
+    orchestrating session. NO VERBATIM WORDING REACHED THIS SESSION, so none is
+    quoted; approver, date and mechanism are stated instead — the shape
+    `supersede-lost-pin-baseline` used for exactly this situation on 2026-08-27.
+    THIS IS AN ADMISSION TO THE QUEUE PLUS THE DISPOSITION SET, NOT A
+    RATIFICATION OF CONTENT: the packet is `Status: draft`, it carries no
+    ratification citation, and none is owed until its content is ratified as a
+    separate act.
+  approved_on: 2026-08-26

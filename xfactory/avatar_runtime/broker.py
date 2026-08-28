@@ -12,6 +12,8 @@ from __future__ import annotations
 from .attempt import MediaAttempt
 from .authority import PolicyResolver
 from .killswitch import KillSwitchGate
+from .spend import KillReason
+from .telemetry import INTERNAL_LIVE_SCOPE, TelemetryRecord
 from .values import (
     AttemptStatus,
     ControlDescriptor,
@@ -20,6 +22,15 @@ from .values import (
     PreflightResult,
     Request,
 )
+
+
+#: The audit reason each ORDINARY cap terminal carries. A cost-triggered kill
+#: reaches the same two OutcomeCodes with a cost reason instead, and that is
+#: what makes the two distinguishable in an audit record (task 6.1.3).
+_ORDINARY_CAP_REASONS = {
+    OutcomeCode.QUOTA_EXCEEDED: KillReason.ORDINARY_QUOTA_EXCEEDED,
+    OutcomeCode.DURATION_EXCEEDED: KillReason.ORDINARY_DURATION_EXCEEDED,
+}
 
 
 def preflight(rt, request: Request) -> PreflightResult:
@@ -69,11 +80,23 @@ def preflight(rt, request: Request) -> PreflightResult:
     if not rt.consent_gate.is_valid_now(request.subject_id):
         return PreflightResult.of_denial(request.request_id, OutcomeCode.CONSENT_REVOKED)
 
-    # 6. Usage caps (concurrency).
+    # 6. Usage caps (concurrency). This is the ORDINARY quota/duration terminal
+    #    the §7.2 cost kill must stay distinguishable from, so it publishes the
+    #    ordinary reason on the same audit shape the cost kill uses. Same
+    #    OutcomeCode, different reason — which is the whole distinction.
     cap = rt.usage_meter.cap_outcome(bundle, request.tenant_ref)
     if cap is not None:
         rt.usage_meter.record(
             request.tenant_ref, request.request_id, cap, rt.clock.wall()
+        )
+        rt.telemetry.publish(
+            TelemetryRecord(
+                test_id=INTERNAL_LIVE_SCOPE,
+                transition="created->terminal",
+                clock_ts=now,
+                reason=_ORDINARY_CAP_REASONS[cap].value,
+                usage_outcome=cap.value,
+            )
         )
         return PreflightResult.of_terminal(request.request_id, cap)
 
@@ -97,6 +120,14 @@ def preflight(rt, request: Request) -> PreflightResult:
                 rt.provider.hangup(pending.provider_call_ref)
             pending.terminate(AttemptStatus.ABANDONED, OutcomeCode.ABANDONED)
             rt.grants.invalidate(pending.request_id, OutcomeCode.ABANDONED)
+            # The replaced leg's ledger closes with it, so the asynchronous
+            # meter sees every session exactly once.
+            rt.spend.close(
+                session.session_id,
+                outcome=OutcomeCode.ABANDONED,
+                reason=KillReason.NON_CEILING_TERMINAL,
+                now=now,
+            )
             session.pending_attempt = None
         else:
             return PreflightResult.of_denial(
@@ -143,4 +174,14 @@ def preflight(rt, request: Request) -> PreflightResult:
     session.pending_attempt = attempt
     rt.attempts_by_request[request.request_id] = attempt
     rt.grants.put(request.request_id, grant, fp)
+    # Open this session's spend ledger. The §7.2 per-session ceilings are
+    # enforced SYNCHRONOUSLY IN THE BROKER, so the ledger opens on the same
+    # act that creates the leg; the per-tenant metering that reads its closed
+    # records is asynchronous and lives outside this module entirely.
+    rt.spend.open_ledger(
+        session.session_id, request.tenant_ref, request.request_id, now
+    )
+    # ... and register the leg against its session, so a per-session record can
+    # be scoped to its own legs rather than to the whole runtime's grant cache.
+    rt.record_leg(session.session_id, request.request_id)
     return PreflightResult.of_grant(grant)

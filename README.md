@@ -378,6 +378,12 @@ Every DomainxFactory must validate against the canonical contract:
   proves the non-deployable, stdlib-only boundary of `xfactory/avatar_runtime/`
   (no listener, provider SDK, persistence, credential loading, or provisional
   import) for feature `specs/003-avc-reference-runtime`.
+- Avatar internal-live metering alert: `scripts/avatar-metering-alert.py`
+  renders the per-tenant metering issue body and title on the doc-health
+  pattern (`qualify-avatar-live-voice` task 6.1.4), reading the page target and
+  its runbook from `canary-cohort-and-rollback-policy.yaml`
+  `operator_surface`. Like the doc-health checker it never invokes `gh`
+  itself; the job step that does lands with the serving install (task 6.1.2).
 - Versioning: [Contract Versioning Policy](docs/contract-versioning-policy.md)
   and [contracts/CHANGELOG.md](contracts/CHANGELOG.md).
 
@@ -385,6 +391,29 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [adopt-medxsoft-repository-identity](openspec/changes/adopt-medxsoft-repository-identity/proposal.md)
+  — authored 2026-08-27 for the 2026-08-26 transfer of `opensoft/MedxFactory`
+  and `opensoft/MedxEHR` to the `MedxSoft` organization, whose operational half
+  (remotes, aggregation `.gitmodules`, `medx-roottruth-install` pins) was
+  rewired the same day outside OpenSpec. ADDS one capability,
+  `repository-identity` (four requirements): the canonical `<owner>/<repo>`
+  owed on live normative surfaces, a provider redirect being a grace period
+  rather than an identity; the published transfer mapping
+  `contracts/policies/repository-identity.yaml`, sibling of
+  `layer-vocabulary.yaml`; the freeze on archived packets, dated decision
+  records and point-in-time verification tables; and the additive change class a
+  transfer takes. Follows `adopt-subject-tenant-domain-vocabulary` exactly —
+  rename the live surfaces, freeze the recorded spellings, resolve the frozen
+  ones by lookup — with the freeze here justified by evidence integrity rather
+  than by pinned consumers. **30 occurrences across 23 files: 20 renamed across
+  15, 10 frozen across 8.** Owes a contract bundle, measured: six edited files
+  are non-editorial members of the declared `contract-v2.0` digest inventory, so
+  `release-inventory-drift` reports six `ERROR`s until the cut re-baselines the
+  inventory; the minor is allocated at realization and none is reserved here.
+  The consequence a sweep would have missed is recorded in `design.md` § 4 —
+  the regression denominator is bytewise sorted, `M` precedes `o`, so the entry
+  moves to the head of the list and `PINNED_TABLE` moves with it in the same
+  commit.
 - [create-ledgerxwallet-overlay-boundary](openspec/changes/create-ledgerxwallet-overlay-boundary/proposal.md)
   — **RATIFIED 2026-08-28** (in-session ruling "ratify #449" on PR #449, both
   required checks green; ratified AS PROPOSED, meaning the NARROWED v1 — see
@@ -449,6 +478,23 @@ Active changes:
   archives only on merged plus green realization evidence, never on landing.
   Realization is Speckit AFTER ratification; preconditions P5b and P3b
   (codexFactory PR #117, `58bd3cf7`) are both DISCHARGED and P4 does not gate it.
+  **REALIZATION, 2026-08-28 — groups 3, 4 and 5 built; NOT yet archivable.**
+  `opensoft/LedgerxWallet` EXISTS (private, created empty; `main` at
+  `0a0141ca`): the pin manifest and the nested `openXwallet/` gitlink at
+  `63f5a1adac89f017e70bab9a4ffe7cf02d6e6705` in ONE commit (`304cd3c`),
+  `tests/validate_pin.py` with four fail-closed checks all RED-proven,
+  `.github/workflows/pin-validation.yml`, and
+  `templates/wallet-exercise.template.yaml` carried byte-identically (blob
+  `dda063c0` in both trees). Ruleset `21701436` went EVALUATE -> reported (PR #1)
+  -> **ACTIVE**, so `pin-validation` is a REQUIRED context on that repository's
+  `main`. LedgerxFactory PR #31 (feature `020-ledgerxwallet-descendant-nest`)
+  carries group 5 as ONE commit with the full 17-validator bar green, the
+  artifact floor still at 5, the pin-reconciliation leg still reporting, and the
+  parent's finder evidence MIGRATED rather than deleted. **Two things remain
+  before archive:** that pull request is open rather than merged, and the tag
+  `lxw-v1.0` (task 6.10) is an unperformed `[OPERATOR]` act — as is telling the
+  live window's operator that the template's path moved (task 5.7), which is not
+  a file edit and which the runsheet's own P0.5 does not substitute for.
 
 - [declare-sentinel-pin-vocabulary](openspec/changes/declare-sentinel-pin-vocabulary/proposal.md)
   — **RATIFIED 2026-08-27** (Brett, in-session commissioning of the filing,

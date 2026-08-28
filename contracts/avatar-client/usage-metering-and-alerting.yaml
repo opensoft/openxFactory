@@ -1,0 +1,206 @@
+schema_version: 1
+kind: avatar-client-usage-metering-and-alerting
+
+# ============================================================================
+# usage-metering-and-alerting.yaml
+# qualify-avatar-live-voice task 6.1.4, executing the §7.4 ruling.
+#
+# WHAT §6.1.4 ASKS FOR: "Wire asynchronous usage metering and threshold
+# alerting for per-tenant visibility." §7.4 gave that task its channels, its
+# thresholds and its page target before it was built, and §7.7 and §7.10 then
+# gave it a named recipient and a subject. This file is the RECORD of the
+# resulting split — which half is built in this repository and which half is
+# the serving install's — so a reader can tell a wired path from a described
+# one without reading the code.
+#
+# WHY A SIBLING ARTIFACT AND NOT A BLOCK IN THE ACCEPTANCE MAP. Identical to
+# the reasoning in `latency-sample-minimum.yaml`: `acceptance-map.yaml` is a
+# published, digest-pinned member of the released contract bundle, so moving
+# its bytes is a contract release. This file follows the pattern the ring's
+# other governance artifacts already use — `internal-live-activation-checklist.yaml`,
+# `canary-cohort-and-rollback-policy.yaml` and `latency-sample-minimum.yaml`
+# all sit beside the map, resolve their references INTO it, and are not bundle
+# members.
+#
+# WHY NO WORKFLOW IS COMMITTED FOR THE METERING JOB. The doc-health nightly
+# splits its alert in two: a Python half that computes the findings and writes
+# `issue-body.md`, and a workflow step that runs `gh issue create --body-file`.
+# The Python half of the metering equivalent IS built and tested here. The
+# workflow half is NOT committed, because the metering job has no input until
+# task 6.1.2 provisions the serving install and its dedicated provider
+# project — a scheduled workflow that reads nothing and files nothing would be
+# a fabricated procedure. That is the same call
+# `docs/sops/avatar-internal-live-kill-switch.md` makes about the concrete
+# flag-write command: "Writing a command here that nobody has run would be a
+# fabricated procedure, which is worse than an honest gap."
+# ============================================================================
+
+change_id: qualify-avatar-live-voice
+release_ring: internal_live
+owning_task: qualify-avatar-live-voice 6.1.4
+requirement_id: ALV-006
+requirement: Broker-held custody with layered fail-closed spend containment
+acceptance_map_refs: [ALV-006, ALV-006-S01, ALV-006-S02, ALV-006-S04]
+ruled: >-
+  2026-08-27 by Brett Heap — §7.4 (the two channels, the thresholds and the
+  page target), §7.7 (the page target is a named person, and the same person
+  who holds the kill switches), §7.10 (tenant = cohort member, so this job
+  meters two tenants).
+source: openspec/changes/qualify-avatar-live-voice/tasks.md §7.2, §7.4, §7.7, §7.10
+
+# ---------------------------------------------------------------------------
+# THE SUBJECT AND THE FIGURES. Both resolve INTO the recorded policy rather
+# than restating it; the runtime constants are machine-compared against that
+# policy by tests/avatar_runtime/test_ruled_values_pinned.py.
+# ---------------------------------------------------------------------------
+subject:
+  tenant_is: cohort_member
+  resolves_to: canary-cohort-and-rollback-policy.yaml#cohort.tenant_definition_ref
+  tenant_count: 2
+  note: >-
+    §7.10 ruled TENANT = COHORT MEMBER. Two members means two metered
+    subjects. The metering job COUNTS the tenants it observed rather than
+    trusting this number, for the same reason the policy recomputes its own
+    `tenant_count` from `cohort.members`.
+
+figures:
+  per_tenant_monthly_budget_usd: 150
+  per_tenant_enforcement: metered_and_alerted_only
+  per_tenant_hard_stop_exists: false
+  provider_project_monthly_cap_usd: 750
+  provider_project_cap_enforcement: hard_at_the_provider_project
+  resolves_to: >-
+    canary-cohort-and-rollback-policy.yaml#rollback_policy.classes[ROLLBACK-C].trigger_signals.cost_concern
+    and #rollback_policy.classes[ROLLBACK-B].trigger_thresholds.elevated_quota_condition
+  stated_limit: >-
+    The provider-project cap is the ONLY per-tenant hard stop at this ring
+    until task 6.1.5's durable synchronous per-tenant cumulative-spend counter
+    lands. Nothing here can stop a single tenant, and recording the $150 as
+    hard would be false (ALV-006-S04).
+
+marks:
+  percentages: [50, 80, 100]
+  evaluated_for: [tenant, provider_project]
+  note: >-
+    Both figures are evaluated at the ruled 50 and 80 marks and at the budget
+    itself. What differs is the CHANNEL each crossing reaches — see below. The
+    tenant sub-marks are computed and recorded rather than paged: §7.4 rules
+    the gh-issue channel at the metered crossing of $150, and firing at 50
+    percent would be a trigger nobody ratified. They are still computed
+    because they are the telemetry ROLLBACK-C's `cost_concern` judgment is
+    read off, and a threshold with no reader is the `budget_envelopes: {}`
+    artifact this org has already been bitten by.
+
+# ---------------------------------------------------------------------------
+# THE CHANNELS. `built_in_this_repository` is the honest half of the record.
+# ---------------------------------------------------------------------------
+channels:
+  - id: gh_issue_on_the_doc_health_pattern
+    fires_on:
+      - per_tenant_metered_crossing_of_the_monthly_budget
+      - any_cost_triggered_session_kill
+    built_in_this_repository: true
+    pattern_source: .github/workflows/doc-health-reusable.yml
+    pattern:
+      one_issue_per_run: true
+      title_shape: "avatar internal-live metering <YYYY-MM-DD>"
+      supersede_and_close_prior: true
+      supersede_comparison: strictly_older_run_date
+      body_delivery: gh_issue_create_body_file
+    built_halves:
+      payload_producer: xfactory/avatar_runtime/metering.py
+      renderer: scripts/avatar-metering-alert.py
+      tests: tests/avatar_runtime/test_usage_metering.py
+    unbuilt_half:
+      what: the scheduled job that invokes `gh issue create` with the rendered body
+      why_not_built: >-
+        The job has no input until task 6.1.2 provisions the serving install
+        and its dedicated provider project. A scheduled workflow reading
+        nothing would be a fabricated procedure, and the SOP makes exactly
+        this call about the concrete kill-switch command.
+      lands_with: qualify-avatar-live-voice 6.1.2
+    note: >-
+      The strictly-older comparison is the doc-health rule verbatim, and it is
+      what guarantees a run can never close the issue it just opened. ISO
+      dates compare correctly as strings.
+
+  - id: provider_native_budget_notification
+    fires_on:
+      - provider_project_spend_at_50_percent_of_the_cap
+      - provider_project_spend_at_80_percent_of_the_cap
+    built_in_this_repository: false
+    install_side_owner: qualify-avatar-live-voice 6.1.2
+    install_side_location: >-
+      Provider-project budget configuration on the DEDICATED spend-capped
+      internal-live provider project, set BEFORE any live trial per the
+      F0-proven pattern. It is provider-side configuration, not code, and no
+      file in this repository emits it.
+    observed_here_as: >-
+      The metering job COMPUTES the same two marks and routes them to this
+      channel, so a reader can reconcile what the provider sent against what
+      the meter saw. Computing them is not emitting them.
+
+  - id: provider_project_hard_cap
+    fires_on: [provider_project_spend_at_the_cap]
+    built_in_this_repository: false
+    install_side_owner: qualify-avatar-live-voice 6.1.2
+    install_side_location: >-
+      The provider project's own hard cap. All further sessions on that
+      project fail closed rather than continuing under monitoring
+      (ALV-006-S02).
+
+  - id: metered_recorded_only
+    fires_on: [per_tenant_spend_at_50_or_80_percent_of_the_monthly_budget]
+    built_in_this_repository: true
+    note: >-
+      Recorded, not paged. No alert act is ruled for the tenant sub-marks, and
+      inventing one would put a trip wire on a threshold nobody ratified.
+
+# ---------------------------------------------------------------------------
+# THE RECIPIENT. Written down in exactly one place, and read from there.
+# ---------------------------------------------------------------------------
+recipient:
+  resolves_to: canary-cohort-and-rollback-policy.yaml#rollback_policy.operator_surface.holder
+  runbook_resolves_to: canary-cohort-and-rollback-policy.yaml#rollback_policy.operator_surface.mechanism_ref
+  copied_here: false
+  fail_closed: >-
+    `metering.build_alert` RAISES `AlertRecipientUnresolved` when either value
+    is missing, rather than emitting an unaddressed issue. §7.4's whole
+    condition was that the person who learns about the spend is the person who
+    can stop it; an alert nobody is named on re-opens that gap quietly.
+  statement: >-
+    The holder's name appears NOWHERE in `xfactory/avatar_runtime/`, in code
+    or in prose — a test greps the package for it. The renderer reads it from
+    the policy at run time, so the alert's recipient and the kill switch's
+    holder cannot drift apart.
+
+# ---------------------------------------------------------------------------
+# ASYNCHRONY. The claim, and how it is checked rather than asserted.
+# ---------------------------------------------------------------------------
+asynchrony:
+  metering_is_asynchronous: true
+  session_ceilings_are_synchronous: true
+  mechanism: >-
+    Per-session ceiling enforcement is synchronous in the broker (§7.2). The
+    per-tenant meter is a set of pure functions over CLOSED session spend
+    records, and neither `broker.py` nor `runtime.py` imports the metering
+    module — so a metering call cannot appear in the dispatch path of a module
+    that cannot see it.
+  checked_by: >-
+    tests/avatar_runtime/test_usage_metering.py parses both dispatch modules
+    with `ast` and asserts the import is absent, rather than trusting a
+    docstring.
+
+# ---------------------------------------------------------------------------
+# WHAT REMAINS BEFORE THE CANARY OPENS.
+# ---------------------------------------------------------------------------
+pre_canary_obligation:
+  requirement: >-
+    At least one alert observed DELIVERED end to end before the canary opens
+    (§7.4). An untested alert path is indistinguishable from no alert path.
+  status: not_yet_delivered
+  blocked_on: qualify-avatar-live-voice 6.1.2
+  note: >-
+    Recorded as outstanding rather than quietly satisfied by a unit test. The
+    payload, its routing and its refusals are proven here; DELIVERY is proven
+    when a real run files a real issue against a real serving install.

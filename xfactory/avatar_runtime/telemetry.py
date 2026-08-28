@@ -52,6 +52,13 @@ FORBIDDEN_KEYS = frozenset(
 # Permitted reference prefixes for otherwise-sensitive values.
 ALLOWED_PREFIXES = ("sha256:", "fixture:")
 
+#: The stable, low-cardinality scope label this ring's audit records carry in
+#: `test_id`. One definition, because two literals in two modules is how the
+#: broker's ordinary-cap audit record and the runtime's ceiling-kill audit
+#: record would stop being comparable — and comparing them is the whole of
+#: what task 6.1.3's "distinguishable reason" means.
+INTERNAL_LIVE_SCOPE = "avatar-internal-live"
+
 # Credential shapes (mirrors xfactory/memory_gateway.py's SECRET_RE spirit).
 _SECRET_RE = re.compile(
     r"-----BEGIN .*PRIVATE KEY-----"
