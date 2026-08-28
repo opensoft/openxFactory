@@ -212,6 +212,16 @@ def test_non_editorial_drift_is_an_error():
     assert [f.path for f in errors] == [SCHEMA]
     assert "cut a release" in errors[0].action
     assert "never hand-edit" in errors[0].action
+    # VERBATIM PIN (commissioned 2026-08-27, after `promotion_fidelity._ACTION`
+    # was mutated and 85 tests stayed green — no doc-health family's action
+    # line was pinned anywhere VERBATIM; the two substring checks above do not
+    # catch a mutation that preserves both phrases). An action line is
+    # operator guidance rendered in every ranked-plan row; nothing else in
+    # this repository notices it changing.
+    assert errors[0].action == (
+        "cut a release through the bundle realization order; never "
+        "hand-edit an inventory or contract_bundle_version to make "
+        "this comparison pass")
 
 
 def test_editorial_drift_is_info_and_reddens_no_gate():

@@ -449,6 +449,78 @@ Active changes:
   archives only on merged plus green realization evidence, never on landing.
   Realization is Speckit AFTER ratification; preconditions P5b and P3b
   (codexFactory PR #117, `58bd3cf7`) are both DISCHARGED and P4 does not gate it.
+
+- [declare-sentinel-pin-vocabulary](openspec/changes/declare-sentinel-pin-vocabulary/proposal.md)
+  — **RATIFIED 2026-08-27** (Brett, in-session commissioning of the filing,
+  verbatim: "file the sentinel-vocabulary follow-up change"). A SECOND, EARLIER
+  ruling of the same day constituted the packet rather than ordering it —
+  selected verbatim as "Named follow-up (Recommended): Record it beside the §5.3
+  git_generation() follow-up — they're the same idea (honest non-pins) and should
+  be one future packet" — and is recorded as a distinct act. **THE CITATION
+  COVERS THE DECISION TO FILE AND NOTHING ELSE**, and a THIRD act of the same day
+  disposed the rest: **all five § Orchestrator decisions CLEARED AS AUTHORED and
+  all four § Open Questions RULED, 2026-08-27**, by a four-question multi-choice,
+  with the merge approved on green. The clearance moved nothing, but **three of
+  the four rulings MOVED DELTA TEXT** — Q1: declare BOTH spellings with DISTINCT
+  meanings (`"uncommitted-worktree"` canonical for a dirty tree,
+  `"uncommitted"` its own member meaning unreadable repository), so the
+  canonical/legacy marking applies WITHIN one condition and never across a
+  resemblance; Q2: an absent key is NOT an honest non-pin — recognized as a legacy
+  state, refused membership, and never filled in with a sentinel after the fact;
+  Q3: `"unknown"` and `"composed"` JOIN, on a reason the packet had not stated —
+  left out, the undeclared-value-is-a-defect branch would have flagged the
+  snapshot registry's OWN committed output the day it was switched on, which is
+  now generalized as a seeding obligation on the declaration; Q4: the
+  `proposal-support.py` guard repair is IN SCOPE. Scenario counts moved 8/8 → 9/10
+  additively, requirement count unchanged at four. **THE TWO DEFERRED ITEMS THIS
+  JOINS**:
+  `harden-ideation-readiness-check` § 5.3 and
+  `govern-derived-pin-reachability` § 5.1, both unticked at their archives. **AN
+  UNTRUE PIN IS WORSE THAN AN UNREACHABLE ONE** — an orphan was true once, where
+  a `HEAD` stamped from a dirty tree names a commit that resolves perfectly and
+  describes content no commit ever held, so reachability answers PASS, retention
+  has nothing to retain, and no instrument the pin canon carries reaches it.
+  **THE DEFECT STANDS ON MAIN, re-confirmed 2026-08-27 at `b5fb03f3`**:
+  `scripts/bootstrap-ideation-cross-reference.py:144-154` runs `rev-parse HEAD`
+  with no `status --porcelain`, no `diff --quiet`, no sentinel branch and no
+  fallback. **ONE CORRECTION TO THE INHERITED PREMISE, recorded rather than
+  smoothed**: the archived record states the proposal-support generator "already
+  refuses to write a pin it cannot mean", and measured it does NOT —
+  `git log -S"uncommitted-worktree" -- scripts/` is EMPTY across all history,
+  `repo_revision()` emits a third spelling `"uncommitted"` and only on a
+  `rev-parse` NON-ZERO EXIT, never on a dirty tree, and all seven sentinel values
+  were written BY HAND. That strengthens the case: the practice is real, it was
+  right seven times out of seven, and it lives in no generator and no
+  declaration. **THE SENTINELS ARE INVISIBLE TO THE VERIFICATION BY
+  CONSTRUCTION** — `pin_class.py` binds both site regexes' value group to
+  `([0-9a-f]{40})`, so a sentinel creates no site: not reachable, not orphaned,
+  not lost, and NOT UNCOVERED. The probe reports **65 sites across 22 members —
+  50 reachable, 0 orphaned, 1 lost (discharged), 0 inconclusive, 0 uncovered, 0
+  vanished**: a fully verified class over seven artifacts whose provenance claim
+  nothing has read. **AND THE DRIFT IS ALREADY A LATENT RAISE, run rather than
+  predicted**: three guards in `proposal-support.py` compare against the literal
+  `"uncommitted"`, so `git_blob_sha256(root, "uncommitted-worktree", …)` raises
+  `SupportError` where `"uncommitted"` returns `None` — latent only because all
+  seven sentinel manifests are archived. **SIX UNDECLARED SPELLINGS EXIST**
+  (`"uncommitted"`, `"uncommitted-worktree"`, `"not-applicable-ad-hoc"`,
+  `"unknown"`, `"composed"`, beside the adjacent verdict `"not-applicable"`), two
+  of them in no governance document at all. Four requirements ADDED across two
+  capabilities, nineteen scenarios, NONE MODIFIED: `ideation-cross-reference` gets
+  the two GENERATOR rules (write a declared sentinel rather than an untrue commit,
+  one shared spelling per condition; and declare the committed spellings rather
+  than rewrite them, since all seven sit in archived packets whose bytes this
+  capability's own rule protects); `doc-health` gets the two VERIFICATION rules
+  (a declared sentinel is a LEGAL NON-PIN — a fifth outcome beside reachable,
+  orphaned, lost and uncovered, which does NOT hold full verification open
+  because the artifact is conforming — and an undeclared non-commit value is a
+  defect; plus the vocabulary declared beside the pin class and checked in BOTH
+  directions over that class's own inventory). **ADDS NO DETERMINISTIC CHECK
+  FAMILY and does not restate the enumeration**, on the same two reasons both
+  siblings gave. Five follow-ups carried unticked, including the `corpus.py`
+  `head_sha()` seam that feeds six lanes and the `_VOCAB_RE` trailing-boundary
+  gap found while measuring. (code surface: openxFactory; target release:
+  implemented — ships ACTIVE, archives on merged-plus-green)
+
 - [add-unclassified-finding-class](openspec/changes/add-unclassified-finding-class/proposal.md)
   — **RATIFIED 2026-08-27** (in-session commissioning, verbatim "Amend now";
   realization via Speckit) — the modified-block-currency family's report block

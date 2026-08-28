@@ -11,6 +11,8 @@ CREATING A NEW DOCUMENT is not tile-bound and SHALL remain available on a compos
 
 The serve SHALL DECLARE that repository on its capabilities route, reported from the same authority a write is refused against, so the two cannot disagree. A client SHALL NOT infer it: under a composed view the rendered snapshot's repository is the PROJECT identifier, which names no repository and is correctly refused. A created document SHALL name the declared repository, and the existing refusal of any write naming a repository this serve does not write to SHALL remain in force unchanged.
 
+**Merged into `Tile-bound gate verbs hide on a composed view` by add-composed-view-authoring (2026-08-27):** `Gate verbs hide on a composed view`
+
 #### Scenario: Tile-bound gate verbs hide on a composed view
 - WHEN the rendered snapshot carries `generation.composed_from`
 - THEN no tile-bound gate-bearing affordance renders anywhere in the view
