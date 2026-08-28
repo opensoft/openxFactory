@@ -2,6 +2,16 @@
 
 Byte-level. Everything here is asserted by a test; nothing is a suggestion.
 
+**AMENDED 2026-08-28 by `add-unclassified-finding-class`, realized as Speckit
+feature `026-unplaced-finding-drift`.** That change adds a FIFTH finding class,
+`unplaced-finding drift`, and this contract enumerated the four classes FOUR
+TIMES OVER — the per-class bullets, the worked example, the class map and the
+action-line table. A fifth class landing without this amendment would leave the
+corpus carrying a byte-level contract that is FALSE about the code it describes,
+which is the class of defect the family this contract describes exists to catch.
+All four enumerations below carry the fifth class; the residual bullet is
+unchanged.
+
 ## 1. The rendered subtotal block
 
 Rendered under `### modified-block-currency`, after any `FAMILY_NOTES` lines,
@@ -21,7 +31,12 @@ Finding classes, counted apart so the gate-bearing arm is never read as one of t
 - carriage ledger: {n} (`info` — editorial, and the arm says so in every finding)
 - title resolution and ordering: {n} (`warning`)
 - marker defects: {n} (`info`)
+- unplaced-finding drift: {n} (`warning`)
 ```
+
+The fifth bullet is LAST and carries NO gloss: the ordering comment's contract
+is "the gate-bearing arm reads FIRST", which appending leaves untouched, and two
+of the five classes carry a gloss where three do not.
 
 **The residual bullet, rendered ONLY when its count is nonzero, verbatim except
 the count:**
@@ -30,21 +45,56 @@ the count:**
 - unclassified: {n} — findings this family emitted that its own class map does not place; the map has drifted from the arms and the counts above are short by this many
 ```
 
-### Worked example — this checkout at F4's branch point
+### Worked example — this checkout at F5's branch point (`86b7ca3f`)
+
+Measured with
+`python3 scripts/doc-health.py --single-repo . --family modified-block-currency`.
 
 ```text
 ### modified-block-currency
 
 Finding classes, counted apart so the gate-bearing arm is never read as one of the editorial rows:
-- scenario-title completeness: 1 (`warning` — the arm carrying this family's gate)
-- carriage ledger: 8 (`info` — editorial, and the arm says so in every finding)
+- scenario-title completeness: 0 (`warning` — the arm carrying this family's gate)
+- carriage ledger: 7 (`info` — editorial, and the arm says so in every finding)
 - title resolution and ordering: 0 (`warning`)
 - marker defects: 0 (`info`)
+- unplaced-finding drift: 0 (`warning`)
 
-- [warning] openxFactory:openspec/changes/add-composed-view-authoring/specs/ideation-dashboard/spec.md — active MODIFIED block for 'Composed views are read-only with a repository jump' omits 1 of the 2 scenarios …
 - [info] openxFactory:openspec/changes/add-composed-view-authoring/specs/ideation-dashboard/spec.md — active MODIFIED block for 'Composed views are read-only with a repository jump' does not carry 2 of the 6 body units …
 …
 ```
+
+**The scenario-title row read `1` and the ledger row `8` at F4's own branch
+point**, against `add-composed-view-authoring` / "Composed views are read-only
+with a repository jump". PR #444 declared that rename with a `Merged into`
+marker and the arm's standing population reached zero; the ledger's moved from 8
+to 7 as packets archived. Both are the arms working, and neither is anything to
+do with the fifth class, whose row has read `0` at every measurement.
+
+### Worked example — the fifth class firing
+
+The class reads `0` wherever the map is complete, so the only way to see it is
+the drift itself — one entry removed from `_CLASS_PATTERNS`, which is the live
+condition it reports. Over
+`tests/doc-health/fixtures/modified-block-currency-unplaced/` with the
+`carriage-ledger` pattern removed:
+
+```text
+Finding classes, counted apart so the gate-bearing arm is never read as one of the editorial rows:
+- scenario-title completeness: 1 (`warning` — the arm carrying this family's gate)
+- carriage ledger: 0 (`info` — editorial, and the arm says so in every finding)
+- title resolution and ordering: 0 (`warning`)
+- marker defects: 0 (`info`)
+- unplaced-finding drift: 1 (`warning`)
+- unclassified: 2 — findings this family emitted that its own class map does not place; the map has drifted from the arms and the counts above are short by this many
+```
+
+Five class rows plus the residual, summing to the four rows printed beneath —
+the two ledger findings the map no longer places, the titles finding it still
+does, and the one drift `warning` naming them. **The residual row and the drift
+finding are counted APART**: the row counts the arms' unplaced findings, the
+class counts the finding that reports them, and the two are two readings of one
+fact rather than alternatives.
 
 ## 2. State rules
 
@@ -61,7 +111,10 @@ Finding classes, counted apart so the gate-bearing arm is never read as one of t
 - No subtotal line matches `report.PLAN_RE`, so `report.parse_previous` cannot
   read one back as a ranked-plan item, cannot enter `previous_keys`, and cannot
   reach `regressions()` or `uncited_resolutions()`.
-- No subtotal line appears in `## Ranked Plan`.
+- No subtotal line appears in `## Ranked Plan`. **The drift finding is not part
+  of the block**: it is an ordinary `Finding`, so it DOES appear there, on the
+  same terms as every other row. The block and the finding are separate objects
+  and this bullet is about the block.
 - No `## Headline` severity count moves because of it.
 - Nothing in it reaches `--new-findings-out`.
 
@@ -106,12 +159,21 @@ carriage-ledger   <TITLED>does not carry \d+ of the \d+ body units and scenario 
 marker-defects    <TITLED>carries a '\w+' marker by<space>
 title-resolution  <TITLED>resolves to no promoted requirement,<space>
 title-resolution  ^the ordering of MODIFIED blocks for <REPR> is undecided:<space>
+unplaced          ^this family's own class map has no pattern for \d+ findings? this run emitted,<space>
 ```
 
 Every pattern is anchored at the start of the rule and past the closing quote of
 the requirement title's `repr`, so a corpus-supplied title containing another
 class's phrase cannot misfile the finding (research R2; measured against a
 constructed case and against the real nine).
+
+The fifth entry is anchored for BOTH directions of that hazard, and both are
+measured. Its finding QUOTES a rule text the map could not place, and that
+quotation may itself begin in the shape of an arm's — so an unanchored probe
+would file the drift finding under whichever class its quotation resembles. And
+a requirement may be TITLED with the fifth class's own opening phrase, in which
+case its ledger finding's rule text contains that phrase and a `.*`-prefixed
+probe matches BOTH — two patterns on one rule, which reds the partition pin.
 
 ## 6. The action lines, pinned not added
 
@@ -121,5 +183,12 @@ constructed case and against the real nine).
 | carriage ledger | same |
 | title resolution and ordering | same |
 | marker defects | name a unit the block does not restate, or drop the declaration — a marker that does not describe the block declares nothing |
+| unplaced-finding drift | extend the class map in `scripts/doc_health/modified_block_currency.py`, or fix the drifted rule text the finding names |
 
 Rendered as `action="…"` in every one of the family's ranked-plan rows.
+
+The fifth action names BOTH remedies and interpolates NO path of its own: the
+delta path is already the finding's own `path` field, the drifted rule text is
+quoted in the finding itself, and
+`test_every_finding_carries_its_class_s_band_and_action` compares each finding's
+action with its CLASS's constant — which a per-finding path would break.

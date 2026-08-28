@@ -1112,9 +1112,21 @@ def test_this_feature_touches_no_production_module():
     `test_the_family_publishes_no_basis_note` owns it, and a second copy is the
     duplication FR-002 forbids.
 
+    **AMENDED AGAIN BY F5 (`026-unplaced-finding-drift`), 2026-08-28.**
+    `add-unclassified-finding-class` adds a FIFTH finding class, so the severity
+    tuple above gains `_DRIFT_SEVERITY` — the snapshot's job is to be COMPLETE
+    over the module's severity constants, and a fourth constant it did not name
+    would be a gap rather than a pass. **The public-callable list below is
+    UNCHANGED and that is the assertion**, not an omission: the new class is a
+    `FindingClass` INSTANCE and every one of F5's new names
+    (`_DRIFT_SEVERITY`, `_DRIFT_ACTION`, `_DRIFT_RULE`, `_shape`,
+    `_drift_findings`, `_report_order`) is private, so the emit adds no public
+    callable. This amendment did NOT come from a red — a positive list does not
+    notice a new private name, which is worth knowing about this guard's reach.
+
     **AMENDED BY F4 (`022-modified-block-currency-reporting`), 2026-08-27, AND
     THE GUARD WORKED.** F4 realizes packet § 5.1 — the family's report section
-    must show its four finding classes distinguishably — and that IS added
+    must show its finding classes distinguishably — and that IS added
     behaviour, so this snapshot reddened on F4's first full run and was updated
     with the four names below rather than loosened: `FindingClass`, `classify`,
     `class_counts`, `class_summary`. Nothing this file asserts about F2's own
@@ -1124,8 +1136,8 @@ def test_this_feature_touches_no_production_module():
     asks for.
     """
     assert (mbc.FAMILY, mbc._LAUNCH_SEVERITY, mbc._RESOLUTION_SEVERITY,
-            mbc._LEDGER_SEVERITY) == ("modified-block-currency", WARNING,
-                                      WARNING, INFO)
+            mbc._LEDGER_SEVERITY, mbc._DRIFT_SEVERITY) == (
+                "modified-block-currency", WARNING, WARNING, INFO, WARNING)
     assert mbc.DELTA_GLOB == "openspec/changes/*/specs/*/spec.md"
     assert mbc.CANON_TEMPLATE == "openspec/specs/{capability}/spec.md"
     assert (mbc.BODY, mbc.SCENARIO_TITLE, mbc.SCENARIO_BULLET) == (

@@ -2,7 +2,7 @@
 
 `add-modified-block-currency-check`, Speckit feature
 `022-modified-block-currency-reporting` (packet § 5.1–5.3). F1
-(`019-…-family`) built the family and its four finding classes; F2
+(`019-…-family`) built the family and its first four finding classes; F2
 (`020-…-fixtures`) built the regression catalogue; F3 (`021-…-self-gate`)
 asserted the verdict over this repository. **F4 is where the split the delta
 drew reaches the reader**, and where two boundaries that hold by accident start
@@ -36,11 +36,12 @@ WHAT THIS FILE ASSERTS, in the three groups the packet splits:
 
 THREE SPELLINGS OF ONE CLASSIFICATION, AND THAT IS DELIBERATE. F2's
 `CLASSIFIERS` dict is a test-side classifier over five keys; this feature's
-`modified_block_currency.CLASSES` is the production map over FOUR classes (the
-delta names three arms and one non-arm class, and "title resolution and
-ordering" is ONE arm with two shapes); and `test_every_finding_over_the_fixture_
-corpus_lands_in_exactly_one_class` below recomputes the partition
-independently. F2's own docstring argues for the redundancy — "an arm's wording
+`modified_block_currency.CLASSES` is the production map over FIVE classes (the
+delta names three arms and one non-arm class, "title resolution and ordering" is
+ONE arm with two shapes, and `add-unclassified-finding-class` later added a
+fifth non-arm class that reads the map's own verdict); and
+`test_every_finding_over_the_fixture_corpus_lands_in_exactly_one_class` below
+recomputes the partition independently. F2's own docstring argues for the redundancy — "an arm's wording
 drifting in EITHER file fails loudly instead of silently reclassifying" — and
 this file adds a third witness rather than collapsing the other two.
 
@@ -83,6 +84,10 @@ TREE_RESOLUTION = "modified-block-currency-resolution"  # 2 resolution + 1 ledge
 TREE_TITLES = "modified-block-currency-history-329"     # 1 titles + 1 ledger
 TREE_QUIET = "modified-block-currency-quiet"        # ran, found nothing
 TREE_NOSCOPE = "modified-block-currency-noscope"    # the family's own Skip
+# F5 (`026-unplaced-finding-drift`): 1 titles + 2 ledger, ALL PLACED over the
+# unmodified map. It becomes the fifth class's exercise only under an induced
+# drift — see `_drifted` below.
+TREE_UNPLACED = "modified-block-currency-unplaced"
 
 ALL_TREES = tuple(sorted(
     p.name for p in FIXTURES.iterdir()
@@ -113,8 +118,10 @@ def _fixture_findings(tree):
 # ============================================================================
 
 def test_the_class_registry_is_closed_ordered_and_states_a_band_per_class():
-    """FOUR CLASSES, and the module's own docstring already says so: "THREE
-    ARMS, FOUR FINDING CLASSES, AND THE NUMBERS DIFFER ON PURPOSE".
+    """FIVE CLASSES, and the module's own docstring already says so: "THREE
+    ARMS, FIVE FINDING CLASSES, AND THE NUMBERS DIFFER ON PURPOSE". The fifth,
+    `unplaced`, is `add-unclassified-finding-class`'s: not an arm, and not a
+    comparison between documents — it reads this map's own verdict.
 
     Ordered, because the rendered block's order is part of its contract — the
     gate-bearing arm reads first, for the same reason the family sorts its own
@@ -127,13 +134,20 @@ def test_the_class_registry_is_closed_ordered_and_states_a_band_per_class():
     """
     ids = [c.id for c in mbc.CLASSES]
     assert ids == ["scenario-titles", "carriage-ledger",
-                   "title-resolution", "marker-defects"]
+                   "title-resolution", "marker-defects", "unplaced"]
     bands = {c.id: c.band for c in mbc.CLASSES}
     assert bands == {
         "scenario-titles": mbc._LAUNCH_SEVERITY,
         "carriage-ledger": mbc._LEDGER_SEVERITY,
         "title-resolution": mbc._RESOLUTION_SEVERITY,
         "marker-defects": mbc._LEDGER_SEVERITY,
+        # ITS OWN CONSTANT, not `_LAUNCH_SEVERITY`. They are value-identical
+        # today, so this line cannot tell them apart — that is what
+        # `test_modified_block_currency.py::
+        # test_the_reserved_flip_of_the_launch_severity_does_not_drag_the_drift_class`
+        # is for. This line's job is that the band is read from the MODULE and
+        # never re-spelled as a literal.
+        "unplaced": mbc._DRIFT_SEVERITY,
     }
     actions = {c.id: c.action for c in mbc.CLASSES}
     assert actions == {
@@ -141,22 +155,39 @@ def test_the_class_registry_is_closed_ordered_and_states_a_band_per_class():
         "carriage-ledger": mbc._ACTION,
         "title-resolution": mbc._ACTION,
         "marker-defects": mbc._MARKER_ACTION,
+        "unplaced": mbc._DRIFT_ACTION,
     }
     # every class carries a rendered label, and no two share one
     labels = [c.label for c in mbc.CLASSES]
-    assert len(set(labels)) == 4, labels
+    assert len(set(labels)) == 5, labels
+    # NEITHER THE FIFTH ID NOR ITS LABEL MAY CONTAIN `unclassified`:
+    # `test_a_finding_the_map_cannot_place_is_counted_and_named` asserts that
+    # string's absence from a fully-classified summary, and a class label
+    # renders even at a count of zero.
+    assert "unclassified" not in mbc.CLASS_DRIFT
+    assert "unclassified" not in dict(
+        (c.id, c.label) for c in mbc.CLASSES)[mbc.CLASS_DRIFT]
+    # ...and the fifth carries NO gloss, on the module's own stated rule
+    assert dict((c.id, c.gloss) for c in mbc.CLASSES)[mbc.CLASS_DRIFT] == ""
 
 
-def test_each_of_the_five_rule_shapes_classifies_into_its_own_class():
-    """FIVE SHAPES, FOUR CLASSES. The delta's third arm is "Title resolution and
+def test_each_of_the_six_rule_shapes_classifies_into_its_own_class(monkeypatch):
+    """SIX SHAPES, FIVE CLASSES. The delta's third arm is "Title resolution and
     ordering" — one arm, two shapes (a block resolving to nothing, and an
     ordering no declaration settles). They share a severity and an action and
     the delta names them together, so splitting them in the report would claim a
-    fifth class the delta does not define.
+    class the delta does not define.
 
-    Driven by F2's fixture trees rather than by hand-written rule text: a
-    hand-copied rule text in this file could drift from the arms and the test
-    would keep passing on its own copy.
+    RENAMED FROM `..._five_rule_shapes_...` BY `026-unplaced-finding-drift`. The
+    sixth shape is the fifth class's own finding: the arms build five fixed
+    prefixes and the drift emit builds a sixth. A count in a FUNCTION NAME that
+    the code contradicts is the same defect the numeral sweep exists to remove
+    from the prose, so the name moved with the numbers.
+
+    Driven by fixture trees rather than by hand-written rule text: a hand-copied
+    rule text in this file could drift from the arms and the test would keep
+    passing on its own copy. The sixth shape is reached the only honest way, by
+    inducing the drift — see the honesty note in section 6.
     """
     def classes_over(tree):
         return {mbc.classify(f) for f in _fixture_findings(tree)}
@@ -173,6 +204,12 @@ def test_each_of_the_five_rule_shapes_classifies_into_its_own_class():
              for f in _fixture_findings(tree)
              if mbc.classify(f) == "title-resolution"}
     assert opens == {"active MODIFIED block", "the ordering of MODIFIED blocks"}
+
+    # ...and the SIXTH shape, which no corpus can supply: the fifth class's own
+    # finding, reached by removing one entry from the map.
+    drifted, _ = _drifted(monkeypatch, mbc.CLASS_LEDGER)
+    assert {mbc.classify(f) for f in drifted} == {
+        "scenario-titles", mbc.UNCLASSIFIED, mbc.CLASS_DRIFT}
 
 
 def test_every_finding_over_the_fixture_corpus_lands_in_exactly_one_class():
@@ -291,6 +328,7 @@ def test_the_summary_states_every_class_with_its_count_and_band():
         "every finding)",
         "- title resolution and ordering: 0 (`warning`)",
         "- marker defects: 1 (`info`)",
+        "- unplaced-finding drift: 0 (`warning`)",
     ]
 
 
@@ -418,15 +456,18 @@ def test_the_block_renders_under_the_heading_before_the_first_row():
     assert "- marker defects: 1 (`info`)" in section
     assert section.index(_LEAD) < section.index("- [info] ")
     # the block is followed by a blank line, so it reads as a block rather than
-    # as the first of the rows
-    assert "- marker defects: 1 (`info`)\n\n- [" in section
+    # as the first of the rows. BOTH assertions moved to the fifth class when
+    # `add-unclassified-finding-class` appended it LAST — the row that ends the
+    # block is the row this test is about, and it is no longer `marker defects`.
+    assert "- unplaced-finding drift: 0 (`warning`)" in section
+    assert "- unplaced-finding drift: 0 (`warning`)\n\n- [" in section
 
 
 def test_the_block_renders_on_a_run_that_found_nothing():
     """A clean run is exactly where an unstated split misleads: "No findings."
     reads as a verdict, and a reader who does not know WHICH classes were
     measured cannot tell a quiet corpus from an arm that stopped firing. All
-    four counts read 0 and the block still renders — the same argument
+    five counts read 0 and the block still renders — the same argument
     `test_the_report_states_the_basis_on_a_family_with_no_findings` makes for the
     basis note."""
     result = _suite(TREE_QUIET)
@@ -552,13 +593,43 @@ def test_every_finding_carries_its_class_s_band_and_action():
     """
     by_id = {klass.id: klass for klass in mbc.CLASSES}
     checked = {klass.id: 0 for klass in mbc.CLASSES}
-    findings = [f for tree in ALL_TREES for f in _fixture_findings(tree)]
-    findings += list(mbc.fam_modified_block_currency(_real_ctx()))
-    for f in findings:
-        klass = by_id[mbc.classify(f)]
-        checked[klass.id] += 1
-        assert f.severity == klass.band, (klass.id, f.severity, f.rule[:120])
-        assert f.action == klass.action, (klass.id, f.rule[:120])
+
+    def check(findings, induced=()):
+        for f in findings:
+            class_id = mbc.classify(f)
+            # NEVER INDEX `by_id` WITH `UNCLASSIFIED`. It is deliberately not a
+            # class id — that is the whole point of the residual — so an
+            # induced-unplaced finding would raise `KeyError` here, and a pin
+            # that CRASHES is not the assertion this pin exists to make. The
+            # induced ones are asserted directly instead: the drift emit does
+            # not rewrite them, so each still carries the band and action of the
+            # arm that produced it.
+            if class_id == mbc.UNCLASSIFIED:
+                assert f in induced, f.rule[:120]
+                assert f.severity in (WARNING, INFO), f.rule[:120]
+                assert f.action in (mbc._ACTION, mbc._MARKER_ACTION), f.rule[:120]
+                continue
+            klass = by_id[class_id]
+            checked[klass.id] += 1
+            assert f.severity == klass.band, (klass.id, f.severity, f.rule[:120])
+            assert f.action == klass.action, (klass.id, f.rule[:120])
+
+    check([f for tree in ALL_TREES for f in _fixture_findings(tree)])
+    check(list(mbc.fam_modified_block_currency(_real_ctx())))
+
+    # THE FIFTH CLASS'S PASS, AND IT IS WHY THIS PIN IS NOT VACUOUS FOR IT.
+    # `unplaced` reads 0 over every tree above and over this repository, so
+    # `all(checked.values())` would fail on it — the map places everything, and
+    # the tree's mere PRESENCE in `ALL_TREES` does not exercise the class. So
+    # this pass induces the drift the class exists to report (one entry removed
+    # from `_CLASS_PATTERNS`; see the honesty note in section 6) and drives the
+    # finding through `fam_modified_block_currency`, `classify` and this same
+    # comparison — a MEASURED row rather than a constructed `Finding`.
+    with pytest.MonkeyPatch.context() as patch:
+        drifted, induced = _drifted(patch, mbc.CLASS_LEDGER)
+        assert induced, "no drift was induced, so the pass below proves nothing"
+        check(drifted, induced=induced)
+
     # every class actually exercised, or the loop above proves nothing about it
     assert all(checked.values()), checked
 
@@ -750,7 +821,7 @@ def test_the_block_is_not_a_finding_and_cannot_become_one(monkeypatch):
     block = [line for line in section.splitlines()
              if line == _LEAD or (line.startswith("- ")
                                   and not line.startswith("- ["))]
-    assert len(block) == 5, block
+    assert len(block) == 6, block          # the lead plus five class rows
     for line in block:
         assert report.PLAN_RE.match(line) is None, line
     plan = with_summary[with_summary.index("## Ranked Plan"):]
@@ -1019,3 +1090,370 @@ def test_the_checker_exposes_no_option_named_after_this_family():
              str(scope), flag, mbc.FAMILY, "--report-out", "/dev/null"],
             cwd=str(REPO_ROOT), capture_output=True, text=True)
         assert proc.returncode == 0, (flag, proc.stderr[-2000:])
+
+
+# ============================================================================
+# 6. THE FIFTH CLASS — unplaced-finding drift
+#    (`add-unclassified-finding-class`, Speckit feature
+#     `026-unplaced-finding-drift`; delta scenarios 1–6)
+# ============================================================================
+#
+# WHAT THE DELTA ADDS. The family already detects that its own class map has
+# drifted — `classify` is fail-closed and `class_summary` renders a named
+# residual row — and then tells nobody who can act on it: the row is prose, so
+# it has no severity, no `--fail-on` reach and no ranked-plan reach. The fifth
+# class makes a nonzero residual emit ONE `warning` per DISTINCT unplaced rule
+# SHAPE per run, and places that warning by the map so it is never counted by
+# the residual it reports.
+#
+# ####################################################################
+# THE LIVE-TRIGGER HONESTY NOTE, AND IT APPLIES TO EVERY TEST BELOW.
+#
+# NO CRAFTED FIXTURE TITLE CAN EXERCISE THIS CLASS. Every rule text this family
+# constructs is one of FIVE fixed prefixes plus `{title!r}`, and `_TITLE_REPR`
+# admits both `repr` quotings and the `\\.` escape, so no corpus-supplied title
+# can fall outside the map. Fuzzed at packet review (`add-unclassified-finding-class`
+# tasks.md § 3.5): 13 adversarial titles (empty, both quote kinds together,
+# trailing backslash, tab, `\x7f`, and titles that themselves read
+# `omits 1 of the 2 scenarios` and `carries a 'removed' marker by`) plus 4000
+# random titles over an alphabet of quotes, backslashes, control characters and
+# class phrases, times the five rule shapes = **20,065 rule texts, 0
+# unplaceable**.
+#
+# SO THE TRIGGER IS THE DRIFT ITSELF. `_drifted` removes ONE entry from
+# `_CLASS_PATTERNS`, which is precisely the live condition the class exists to
+# report — "the map has drifted behind the arms". The family, the classifier,
+# the summary and the renderer all run UNMODIFIED underneath it. The seam is a
+# recorded decision of `026-unplaced-finding-drift` (plan § O2), reversible, and
+# a one-test change if a reviewer prefers a different one.
+# ####################################################################
+
+
+def _drifted(monkeypatch, *dropped, tree=TREE_UNPLACED):
+    """The family's findings over `tree` with `dropped` classes removed from the
+    class map — the map having drifted behind the arms by exactly that much.
+
+    Returns `(findings, unplaced)`: everything the family emitted, and the
+    subset the map no longer places. See the honesty note above.
+    """
+    monkeypatch.setattr(mbc, "_CLASS_PATTERNS", tuple(
+        entry for entry in mbc._CLASS_PATTERNS if entry[0] not in dropped))
+    findings = _fixture_findings(tree)
+    unplaced = [f for f in findings if mbc.classify(f) == mbc.UNCLASSIFIED]
+    return findings, unplaced
+
+
+def _drift_findings(findings):
+    """The findings the FIFTH class places, read off the class map rather than
+    off a hand-copied rule text."""
+    return [f for f in findings if mbc.classify(f) == mbc.CLASS_DRIFT]
+
+
+def test_a_run_the_map_places_entirely_emits_no_additional_finding():
+    """DELTA SCENARIO 1 — the state this requirement exists to LEAVE ALONE.
+
+    The map and the arms agreeing is the normal state and the state of this
+    repository, so the expensive half of this feature is the half that must do
+    nothing. Over every fixture tree AND the real tree: no drift finding, and
+    the counts still sum to the findings they were handed.
+
+    POSITIVE CONTROL FIRST. "No finding is in the fifth class" is vacuously true
+    of a registry that has no fifth class, which is exactly how an "absent from"
+    assertion lies (F1's mutation round, three times over).
+    """
+    assert mbc.CLASS_DRIFT in {klass.id for klass in mbc.CLASSES}, (
+        "there is no fifth class, so the absence below would be vacuous")
+
+    def counts_in(lines):
+        return sum(int(m.group(1)) for line in lines
+                   for m in [re.search(r": (\d+) \(`", line)] if m)
+
+    for tree in ALL_TREES:
+        findings = _fixture_findings(tree)
+        assert _drift_findings(findings) == [], tree
+        assert counts_in(mbc.class_summary(findings)) == len(findings), tree
+
+    real = list(mbc.fam_modified_block_currency(_real_ctx()))
+    assert _drift_findings(real) == []
+    assert counts_in(mbc.class_summary(real)) == len(real)
+
+
+def test_a_rule_text_the_map_does_not_place_emits_one_warning_naming_it(
+        monkeypatch):
+    """DELTA SCENARIO 2 — the emit, measured through the family rather than
+    constructed.
+
+    One `warning` for the shape, naming HOW MANY of the run's findings carry it
+    and quoting, VERBATIM, the rule text of the FIRST of them in the family's
+    own report order, and carrying that first finding's repository and delta
+    path. See the honesty note above for why the drift is induced.
+    """
+    findings, unplaced = _drifted(monkeypatch, mbc.CLASS_LEDGER)
+    assert len(unplaced) == 2, [f.rule[:80] for f in unplaced]
+
+    drift = _drift_findings(findings)
+    assert len(drift) == 1, [f.rule[:120] for f in drift]
+    one = drift[0]
+
+    assert one.severity == mbc._DRIFT_SEVERITY == WARNING
+    assert one.family == mbc.FAMILY
+    assert one.action == mbc._DRIFT_ACTION
+    # the count of that shape, stated
+    assert "2 findings" in one.rule, one.rule[:200]
+    # VERBATIM, and that word is load-bearing: a `repr`-wrapped quotation would
+    # escape the rule's own quotes and this suffix comparison would be false.
+    assert one.rule.endswith(unplaced[0].rule), one.rule[-200:]
+    # ...carrying the FIRST instance's repo and delta path
+    assert (one.repo, one.path) == (unplaced[0].repo, unplaced[0].path)
+
+
+def test_the_drift_warning_is_worked_from_the_ranked_plan(monkeypatch):
+    """DELTA SCENARIO 5 — the whole point. The residual row could never become
+    work; this finding is work.
+
+    Rendered, not asserted about a `Finding` object: the ranked plan is what a
+    session reads, and a field nothing prints is not a work item. The residual
+    row MUST still render in the family's own block beside it — the two are two
+    readings of one fact rather than alternatives.
+    """
+    monkeypatch.setattr(mbc, "_CLASS_PATTERNS", tuple(
+        entry for entry in mbc._CLASS_PATTERNS
+        if entry[0] != mbc.CLASS_LEDGER))
+    text = _render(_suite(TREE_UNPLACED))
+
+    plan = text[text.index("## Ranked Plan"):]
+    rows = [line for line in plan.splitlines()
+            if f"family={mbc.FAMILY}" in line
+            and f'action="{mbc._DRIFT_ACTION}"' in line]
+    assert len(rows) == 1, plan
+    assert "severity=warning" in rows[0]
+    assert "repo=driftFactory" in rows[0]
+    assert "path=openspec/changes/add-drift-cases/" in rows[0]
+
+    section = _section(text)
+    assert "- unplaced-finding drift: 1 (`warning`)" in section
+    # ...and the residual row is NOT replaced by the finding
+    assert "- unclassified: 2 —" in section
+
+
+def test_the_drift_finding_is_placed_by_the_map_and_never_by_the_residual(
+        monkeypatch):
+    """DELTA SCENARIO 2's third clause, and decision D2's whole argument.
+
+    A drift finding the map could not place would be counted by the residual it
+    reports: the count would name itself, the next run would report a drift the
+    map had just been extended to describe, and the tally still would not sum.
+    Rejected as incoherent in the packet; asserted here as behaviour.
+    """
+    findings, unplaced = _drifted(monkeypatch, mbc.CLASS_LEDGER)
+    drift = _drift_findings(findings)
+    assert len(drift) == 1
+
+    assert mbc.classify(drift[0]) == mbc.CLASS_DRIFT
+    assert mbc.classify(drift[0]) != mbc.UNCLASSIFIED
+    assert drift[0] not in unplaced
+
+    counts = mbc.class_counts(findings)
+    assert counts[mbc.CLASS_DRIFT] == 1
+    assert counts[mbc.UNCLASSIFIED] == 2      # the ARMS' unplaced findings only
+    assert sum(counts.values()) == len(findings)
+
+    # and the rendered lines say the same thing, which is what a reader has
+    lines = mbc.class_summary(findings)
+    assert "- unplaced-finding drift: 1 (`warning`)" in lines
+    assert any(line.startswith("- unclassified: 2 —") for line in lines), lines
+
+
+def test_a_drift_finding_quoting_an_arm_shaped_rule_text_is_not_misfiled(
+        monkeypatch):
+    """DELTA SCENARIO 4 — WHY THE MAP IS ANCHORED, from the new class's side.
+
+    This finding QUOTES an unrecognized rule text, and that quotation may itself
+    begin in the shape of an arm's. Here it does: the scenario-titles pattern is
+    the one removed, so the quoted text opens
+    `active MODIFIED block for '…' omits 1 of the 2 scenarios …`. An unanchored
+    or substring probe files the drift finding under `scenario-titles` — a
+    `warning` counted under the gate-bearing arm, on the one line § 5.1 exists
+    so a reader can trust without counting.
+    """
+    findings, unplaced = _drifted(monkeypatch, mbc.CLASS_TITLES)
+    assert len(unplaced) == 1
+    assert unplaced[0].rule.startswith("active MODIFIED block for ")
+    assert "omits 1 of the 2 scenarios" in unplaced[0].rule
+
+    drift = _drift_findings(findings)
+    assert len(drift) == 1
+    assert mbc.classify(drift[0]) == mbc.CLASS_DRIFT
+    assert mbc.classify(drift[0]) != mbc.CLASS_TITLES
+
+    # THE POSITIVE CONTROL, in F4's own idiom: the unanchored reading really
+    # would have matched, so the anchor is load-bearing rather than defensive.
+    assert re.search(r"omits \d+ of the \d+ scenarios ", drift[0].rule)
+
+    # ...and the finding it names is STILL counted by the residual: the two are
+    # counted apart.
+    counts = mbc.class_counts(findings)
+    assert counts[mbc.UNCLASSIFIED] == 1
+    assert counts[mbc.CLASS_DRIFT] == 1
+
+
+def test_a_title_that_embeds_the_drift_phrase_still_matches_exactly_one_pattern():
+    """WHY THE FIFTH PATTERN IS ANCHORED, from the ARMS' side — and this is the
+    half a reader is likeliest to think is decoration, because `classify` calls
+    `re.match`, which already anchors at position 0.
+
+    It is not decoration. Requirement titles come from the corpus, so a
+    requirement may be TITLED with this class's own opening phrase. Its ledger
+    finding's rule text then CONTAINS that phrase, and a pattern written as a
+    substring probe (`.*`-prefixed, which `re.match` happily accepts) matches it
+    as well as the ledger pattern does. Two hits reds
+    `test_every_finding_over_the_fixture_corpus_lands_in_exactly_one_class`,
+    which counts PATTERN matches rather than `classify`'s single return — the
+    stronger property the combined review of 2026-08-27 installed for exactly
+    this shape of defect.
+
+    Constructed, because the corpus has no such title today, which is exactly
+    when a rule is worth pinning (F4's own argument for its evil-title test).
+    """
+    assert mbc.CLASS_DRIFT in {class_id for class_id, _ in mbc._CLASS_PATTERNS}, (
+        "the fifth pattern is not in the map, so the assertion below is vacuous")
+
+    # THE TITLE MUST CARRY THE WHOLE PREFIX, and the mutation round is what
+    # taught this file so. The first cut stopped at `… for 2 findings`, which
+    # the pattern does not reach — it also requires `this run emitted, ` — so
+    # the unanchored mutant matched nothing and SURVIVED. A near-miss adversary
+    # is not an adversary.
+    evil_title = ("this family's own class map has no pattern for 2 findings "
+                  "this run emitted, and somebody should extend it")
+    ledger = Finding(
+        INFO, mbc.FAMILY, "openxFactory", "openspec/changes/c/specs/a/spec.md",
+        f"active MODIFIED block for {evil_title!r} does not carry 1 of the 3 "
+        f"body units and scenario bullets openspec/specs/a/spec.md currently "
+        f"states for it — a divergence this arm CANNOT distinguish from a "
+        f"deliberate rewording, and does not claim to: [body] 'z'",
+        mbc._ACTION)
+
+    hits = [class_id for class_id, pattern in mbc._CLASS_PATTERNS
+            if pattern.match(ledger.rule)]
+    assert hits == [mbc.CLASS_LEDGER], hits
+    assert mbc.classify(ledger) == mbc.CLASS_LEDGER
+
+
+def test_two_unplaced_findings_of_one_shape_are_one_remedy(monkeypatch):
+    """DELTA SCENARIO 3, FIRST HALF — one drifted rule SHAPE is one remedy.
+
+    The two ledger findings of this tree differ only in a quoted requirement
+    title and a quoted body unit; every digit run is identical too. Masked, they
+    are one shape, so they are ONE map entry to write and ONE finding to report.
+    """
+    findings, unplaced = _drifted(monkeypatch, mbc.CLASS_LEDGER)
+    assert len(unplaced) == 2
+    assert unplaced[0].rule != unplaced[1].rule          # genuinely two findings
+    assert mbc._shape(unplaced[0].rule) == mbc._shape(unplaced[1].rule)
+
+    drift = _drift_findings(findings)
+    assert len(drift) == 1, [f.rule[:120] for f in drift]
+    assert "2 findings" in drift[0].rule
+
+
+def test_two_unplaced_shapes_are_two_remedies(monkeypatch):
+    """DELTA SCENARIO 3, SECOND HALF — two shapes are two remedies.
+
+    Collapsing them would report ONE remedy where TWO are owed and would quote
+    only one of them. A ranked plan is a list of remedies, so the count of
+    findings is the count of map entries somebody has to write.
+    """
+    findings, unplaced = _drifted(monkeypatch, mbc.CLASS_LEDGER, mbc.CLASS_TITLES)
+    assert len(unplaced) == 3
+
+    shapes = {mbc._shape(f.rule) for f in unplaced}
+    assert len(shapes) == 2, shapes
+
+    drift = _drift_findings(findings)
+    assert len(drift) == 2, [f.rule[:120] for f in drift]
+    assert sorted("2 findings" in f.rule for f in drift) == [False, True]
+    assert any("1 finding this run emitted" in f.rule for f in drift), (
+        "the singular is not spelled, so a one-finding shape reads wrongly")
+
+
+def test_the_drift_finding_names_the_first_instance_in_report_order_and_is_deterministic(
+        monkeypatch):
+    """"FIRST" IS IN THE FAMILY'S OWN REPORT ORDER, which is what makes the emit
+    deterministic: sort, group, append, sort again.
+
+    Both halves matter. Naming an arbitrary member of the shape would make the
+    finding's identity churn between runs over an unchanged tree; and because
+    the family's own sort is severity-then-repo-then-path-then-rule, "first" is
+    a property of the report a reader can check by eye.
+    """
+    findings, unplaced = _drifted(monkeypatch, mbc.CLASS_LEDGER, mbc.CLASS_TITLES)
+    drift = _drift_findings(findings)
+    assert len(drift) == 2
+
+    for one in drift:
+        named = next(f for f in unplaced if one.rule.endswith(f.rule))
+        same_shape = [f for f in unplaced
+                      if mbc._shape(f.rule) == mbc._shape(named.rule)]
+        assert named is same_shape[0], (named.rule[:120],
+                                        same_shape[0].rule[:120])
+        assert (one.repo, one.path) == (named.repo, named.path)
+
+    again = _fixture_findings(TREE_UNPLACED)
+    assert [f.__dict__ for f in again] == [f.__dict__ for f in findings]
+
+
+def test_extending_the_map_removes_both_the_finding_and_the_residual_row(
+        monkeypatch):
+    """DELTA SCENARIO 6 — the remedy works, and its success is not itself
+    reported as a defect.
+
+    This finding is DESIGNED to stop being emitted the moment somebody extends
+    the map. `report.uncited_resolutions` turns a `contested` finding that
+    VANISHES between reports into an `error`, so a `contested` classification
+    here would red the nightly on the very run that proves the remedy landed.
+    The family's deliberate absence from `FAMILY_RESOLUTION` is what prevents
+    that, and it is asserted here rather than assumed.
+    """
+    from doc_health.families import FAMILIES, FAMILY_RESOLUTION
+
+    drifted, unplaced = _drifted(monkeypatch, mbc.CLASS_LEDGER)
+    assert len(_drift_findings(drifted)) == 1
+    assert unplaced
+
+    monkeypatch.undo()                     # the map is extended to place them
+    restored = _fixture_findings(TREE_UNPLACED)
+    assert _drift_findings(restored) == []
+    assert [f for f in restored if mbc.classify(f) == mbc.UNCLASSIFIED] == []
+    assert not any("unclassified" in line
+                   for line in mbc.class_summary(restored))
+
+    assert mbc.FAMILY in FAMILIES, "the absence below means nothing otherwise"
+    assert mbc.FAMILY not in FAMILY_RESOLUTION
+
+
+def test_the_new_fixture_tree_declares_its_provenance_and_stays_advisory():
+    """F2's convention, checked for a tree F2's own checker cannot reach.
+
+    `test_every_fixture_tree_this_feature_adds_carries_a_provenance_note`
+    iterates `NEW_TREES` and additionally requires each README to cite an F2
+    AUDIT ROW and an `add-modified-block-currency-check § 3.x` section. This
+    tree belongs to `026-unplaced-finding-drift` and to neither of those, so
+    joining `NEW_TREES` would mean fabricating an audit-row citation to satisfy
+    a checker — the false-documentation defect this whole family exists to
+    catch. The convention is kept and pinned HERE instead (plan § O5).
+
+    The band sweep rides along for the same reason: F2's
+    `test_no_new_tree_reports_an_error_or_critical_finding` also iterates
+    `NEW_TREES`, so nothing else asserts that this tree stays advisory.
+    """
+    note = FIXTURES / TREE_UNPLACED / "README.md"
+    assert note.is_file()
+    lines = note.read_text().splitlines()
+    assert len(lines) >= 3
+    assert re.search(r"\bSYNTHESIZED\b", lines[2]), lines[2]
+    assert not re.search(r"\b[0-9a-f]{40}\b", lines[2]), lines[2]
+    assert "add-unclassified-finding-class" in note.read_text()
+
+    findings = _fixture_findings(TREE_UNPLACED)
+    assert findings, "a vacuous pass is not a pass"
+    assert {f.severity for f in findings} <= {WARNING, INFO}
