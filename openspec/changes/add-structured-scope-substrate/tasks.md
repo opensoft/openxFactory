@@ -24,10 +24,14 @@ this change.
 - [x] 1.4 Author `design.md` (decisions D1–D6, risks, open questions carried for
   ratification).
 - [x] 1.5 `OPENSPEC_TELEMETRY=0 openspec validate add-structured-scope-substrate --strict` and `--all --strict` pass.
-- [ ] 1.6 Convener ratification read (resolve Open Questions 1–6; confirm whether
-  `gate_rules_council` co-sign is required). Human-gated.
-- [ ] 1.7 On ratification: set `Status: ratified` + `Ratified by:`; list in the
-  openxFactory README "OpenSpec Records" block.
+- [x] 1.6 Convener ratification read (resolve Open Questions 1–6; confirm whether
+  `gate_rules_council` co-sign is required). Human-gated. (Brett Heap, 2026-08-28
+  — see proposal.md § Ratification record: Q1/Q2 ADOPTED as authored, freeze
+  REQUIRED, Q3b/Q4/Q5 carried as named follow-ons, gate_rules_council co-sign NOT
+  separately required.)
+- [x] 1.7 On ratification: set `Status: ratified` + `Ratified by:`; list in the
+  openxFactory README "OpenSpec Records" block. (`Status: ratified` +
+  `## Ratification record` in proposal.md; README "OpenSpec Records" entry added.)
 
 ## Group 2 — Speckit feature: scope_globs schema + parser (code_surface: openxFactory)
 

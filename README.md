@@ -395,6 +395,20 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-structured-scope-substrate](openspec/changes/add-structured-scope-substrate/proposal.md)
+  — **RATIFIED 2026-08-28** (Brett Heap, convener). MODIFIES `release-realization`
+  to add the OPTIONAL front-matter sibling `scope_globs:` — a per-repository map
+  of repository-relative globs in the merge-gate envelope dialect — the
+  machine-readable path-scope substrate CRITICAL #1 of
+  `add-provenance-gated-autonomous-merge` requires. Absence is fail-closed (never
+  "all paths"). One MODIFIED requirement + four ADDED (structured declaration,
+  dialect validation, trust-root integrity, scope retention at archive, floor
+  primacy at check time). Built post-ratification via Speckit
+  (`scripts/scope_globs.py`, `scripts/validate-scope-globs.py`,
+  `docs/scope-globs-trust-root-floor.md`, `tests/scope_globs/`); the glob dialect
+  mirrors the single codexFactory envelope authority byte-for-behaviour, pinned by
+  lockstep test. The codexFactory provenance-tie verifier that CONSUMES
+  `scope_globs` is downstream (B's realization), NOT this change's surface.
 - [adopt-medxsoft-repository-identity](openspec/changes/adopt-medxsoft-repository-identity/proposal.md)
   — authored 2026-08-27 for the 2026-08-26 transfer of `opensoft/MedxFactory`
   and `opensoft/MedxEHR` to the `MedxSoft` organization, whose operational half
