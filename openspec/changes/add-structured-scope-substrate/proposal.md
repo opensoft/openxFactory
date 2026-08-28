@@ -5,7 +5,7 @@ target_release: implemented (the affected repository's main line — openxFactor
 
 # Proposal: add-structured-scope-substrate
 
-Status: draft
+Status: ratified
 Authored: 2026-08-28, as the first exit of the staged topic
 `openxFactory:staging:structured-scope-substrate`.
 Directed by: the staged topic fragment (Brett Heap, openxFactory operator
@@ -17,6 +17,20 @@ RESOLVED in the staged topic (Q2, the glob dialect, floor-override-at-check-time
 the per-repo map, and the grandfather backward-compat story), and the residual
 alignment/council concerns are carried forward verbatim as this proposal's Open
 Questions (see `design.md` § Open questions) for the convener read at task 1.5.
+
+## Ratification record
+
+Ratified: 2026-08-28 by Brett Heap (convener, openxFactory operator authority) —
+accepting the proposal as authored. This change realizes CRITICAL #1 of the
+2026-08-28 gate_rules_council disposition of
+add-provenance-gated-autonomous-merge (record: codexFactory
+hermes/domain/review-councils/records/2026-08-28-gate-rules-provenance-gated-autonomous-merge.md).
+Open-question disposition: front-matter map form and per-repo map ADOPTED as
+authored; scope freeze REQUIRED (built here); "assert realized ⊆ scope",
+ordered-delta scope composition, and advisory floor-lint CARRIED as named
+follow-ons; gate_rules_council co-sign NOT separately required for this
+release-realization schema change — convener ratification suffices (the doctrine
+that makes scope_globs a floor surface was already council-ratified in B).
 
 ## Why
 
