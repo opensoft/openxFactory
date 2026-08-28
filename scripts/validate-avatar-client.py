@@ -773,8 +773,12 @@ ENVELOPE_STRUCTURED_PURPOSE = "avatar.structured_record"
 ENVELOPE_WITHDRAWAL_OUTCOME = "revoked"
 ENVELOPE_SHADOW_CONTROL = "single_model_on_live_canary_audio"
 ENVELOPE_PILOT_SUCCESSOR = "avatar-pilot-hardening"
-WITHDRAWAL_FIXTURE = (ROOT / "examples" / "avatar-first-ui" / "fixtures"
-                      / "deterministic" / "consent-withdraw-mid-speech.yaml")
+# The fixture's IDENTITY is pinned; its PATH deliberately is not. The envelope
+# carries the path in `withdrawal.reachability_proof.fixture` and the check
+# resolves THAT, so the citation is what gets proved. Mirroring the location
+# here as well would be the drift these checks exist to prevent: relocating the
+# fixture would update the envelope and leave this constant behind, and the
+# resulting failure would be about a stale copy rather than about the claim.
 WITHDRAWAL_FIXTURE_ID = "det-consent-withdraw-mid-speech"
 
 # ---- §7.5, the minimum sample count per gated cell (feeds §5.2) -------------
@@ -2514,12 +2518,15 @@ def check_synthetic_evaluation_corpus(f: Findings) -> None:
                          f"eight recorded triggers and this corpus reaches "
                          f"fewer")
 
-    # the per-class trigger declaration must match what the scenarios emit
+    # The per-class trigger declaration must match what the scenarios emit.
+    # The LOOP still runs when the vocabulary is unreadable, because
+    # `_strings_in` shape-checks each declared list and that is worth doing
+    # either way; only the COMPARISON is conditional (see the note below).
     for entry in _mappings_in(f, cat, f"{rp} classes", doc.get("classes")):
         cid = entry.get("id")
         declared = _strings_in(f, cat, f"{rp} class {cid!r} triggers",
                                entry.get("triggers"))
-        actual = class_triggers.get(cid, set())
+        actual = class_triggers.get(cid, set()) if allowed is not None else set()
         if cid in CORPUS_CLASSES and actual and declared != actual:
             f.error(cat, f"{rp}: class {cid!r} declares triggers "
                          f"{sorted(declared)} but its scenarios emit "
@@ -2527,11 +2534,19 @@ def check_synthetic_evaluation_corpus(f: Findings) -> None:
 
     # (4) recomputed coverage
     cov = _as_mapping(f, cat, f"{rp} coverage", doc.get("coverage"))
-    for key, actual in (("scenarios_total", len(scenarios)),
-                        ("cells", len(cells_seen)),
-                        ("triggers_covered", len(triggers_seen)),
-                        ("classes", len(CORPUS_CLASSES)),
-                        ("domains", len(CORPUS_DOMAINS))):
+    recomputed = [("scenarios_total", len(scenarios)),
+                  ("cells", len(cells_seen)),
+                  ("classes", len(CORPUS_CLASSES)),
+                  ("domains", len(CORPUS_DOMAINS))]
+    # `triggers_covered` IS ONLY RECOMPUTABLE WHEN THE VOCABULARY WAS READ.
+    # With an unreadable policy `triggers_seen` is empty because nothing could
+    # be matched against it — not because the corpus reaches no trigger — so
+    # comparing it would manufacture a coverage mismatch on top of the real
+    # unreadable-policy finding, and the reader would have to work out which
+    # of the two to act on. One true finding is worth more than two.
+    if allowed is not None:
+        recomputed.append(("triggers_covered", len(triggers_seen)))
+    for key, actual in recomputed:
         if cov.get(key) != actual:
             f.error(cat, f"{rp}: coverage.{key} records {cov.get(key)!r} but "
                          f"the scenarios beneath it give {actual}; a summary "
@@ -2714,19 +2729,28 @@ def check_ephemeral_processing_envelope(f: Findings) -> None:
                          f"session")
     proof = _as_mapping(f, cat, f"{rp} withdrawal.reachability_proof",
                         wd.get("reachability_proof"))
-    claimed = str(proof.get("fixture") or "")
-    if not claimed:
+    # THE RAW VALUE GOES TO THE GUARD, UNCOERCED. `str(value or "")` in front
+    # of `_repo_file` defeats the very check it looks like it is helping:
+    # `str(["x"])` is `"['x']"`, a non-empty STRING, so the non-string guard
+    # cannot fire, the name resolves as an ordinary relative path inside the
+    # tree, and a malformed shape is then reported as a missing file — the
+    # wrong finding, arrived at by throwing away the evidence.
+    raw = proof.get("fixture")
+    if raw is None or (isinstance(raw, str) and not raw.strip()):
         f.error(cat, f"{rp}: withdrawal.reachability_proof names no fixture; a "
                      f"reachability claim with no proof is an assertion")
     else:
         fx = _repo_file(f, cat, f"{rp} withdrawal.reachability_proof.fixture",
-                        claimed)
+                        raw)
         if fx is None:
             pass  # refused above with the reason; never touched the filesystem
+        # `_repo_file` accepted it, so it IS a non-blank string; coercing is
+        # safe only here, AFTER the guard rather than in front of it.
         elif not fx.is_file():
             f.error(cat, f"{rp}: withdrawal.reachability_proof.fixture "
-                         f"{claimed!r} does not exist; the proof is a filename")
+                         f"{raw!r} does not exist; the proof is a filename")
         else:
+            claimed = str(raw)
             fid = _as_mapping(f, cat, claimed, load_yaml(fx)).get("fixture_id")
             if fid != proof.get("fixture_id") or fid != WITHDRAWAL_FIXTURE_ID:
                 f.error(cat, f"{rp}: the cited fixture's fixture_id is {fid!r}, "

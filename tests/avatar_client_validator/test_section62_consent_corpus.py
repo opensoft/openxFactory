@@ -686,13 +686,83 @@ def test_an_absolute_path_that_happens_to_be_inside_the_repo_is_still_refused(
 
 
 @pytest.mark.parametrize("wrong", [{"path": "x"}, ["x"], 5])
-def test_a_non_string_path_is_a_finding_not_a_crash(tmp_path, monkeypatch, wrong):
-    """`ROOT / <non-string>` raises TypeError rather than reporting."""
+def test_a_non_string_path_is_reported_as_a_shape_not_a_missing_file(
+        tmp_path, monkeypatch, wrong):
+    """THIS ASSERTION USED TO BE TOO WEAK, and the weakness hid a real defect.
+
+    It asserted only that SOME finding fired, which it did — but the finding
+    was "does not exist", because `str(value or "")` in front of the guard
+    turned `["x"]` into the non-empty string `"['x']"`, which the non-string
+    guard cannot catch and which then resolves as an ordinary relative path.
+    A malformed shape was being reported as a missing file: the right colour
+    of failure for the wrong reason. Asserting the SPECIFIC message is what
+    makes this a test of the guard rather than a test that something went
+    wrong."""
     avc = _tree(tmp_path)
     _rewrite(avc, ENVELOPE, lambda d: d["withdrawal"]["reachability_proof"]
              .__setitem__("fixture", wrong))
     findings = _run(monkeypatch, avc, "envelope")  # must not raise
-    assert findings.errors
+    assert any("must be a non-empty string path" in e for e in findings.errors), \
+        _messages(findings)
+    assert not any("does not exist" in e for e in findings.errors), \
+        _messages(findings)
+
+
+def test_a_blank_fixture_string_is_the_no_proof_finding(tmp_path, monkeypatch):
+    """Absent and blank keep their own dedicated message — the guard did not
+    swallow the case that was already handled well."""
+    avc = _tree(tmp_path)
+    _rewrite(avc, ENVELOPE, lambda d: d["withdrawal"]["reachability_proof"]
+             .__setitem__("fixture", "   "))
+    findings = _run(monkeypatch, avc, "envelope")
+    assert any("names no fixture" in e for e in findings.errors), \
+        _messages(findings)
+
+
+def test_an_unreadable_policy_does_not_manufacture_a_coverage_mismatch(
+        tmp_path, monkeypatch):
+    """ONE TRUE FINDING BEATS TWO. With the vocabulary unreadable,
+    `triggers_seen` is empty because nothing could be matched against it — not
+    because the corpus reaches no trigger — so recomputing
+    `coverage.triggers_covered` against it would report a mismatch that is an
+    artifact of the first failure, leaving a reader to work out which of the
+    two findings to act on."""
+    avc = _tree(tmp_path)
+    _rewrite(avc, "canary-cohort-and-rollback-policy.yaml",
+             lambda d: d.__setitem__("rollback_policy", ["nope"]))
+    findings = _run(monkeypatch, avc, "corpus")
+    assert any("no readable ROLLBACK-A" in e for e in findings.errors), \
+        _messages(findings)
+    assert not any("coverage.triggers_covered" in e for e in findings.errors), \
+        _messages(findings)
+    # and the genuine recomputations still run
+    assert not any("coverage.scenarios_total" in e for e in findings.errors), \
+        _messages(findings)
+
+
+def test_an_unreadable_policy_does_not_manufacture_class_trigger_mismatches(
+        tmp_path, monkeypatch):
+    """The sibling half of the same cascade. This one was already prevented by
+    the `and actual` guard rather than by intent, so it is pinned here to keep
+    it prevented on purpose."""
+    avc = _tree(tmp_path)
+    _rewrite(avc, "canary-cohort-and-rollback-policy.yaml",
+             lambda d: d.__setitem__("rollback_policy", ["nope"]))
+    findings = _run(monkeypatch, avc, "corpus")
+    assert not any("declares triggers" in e for e in findings.errors), \
+        _messages(findings)
+
+
+def test_the_real_coverage_recomputation_still_fires_with_a_good_policy(
+        tmp_path, monkeypatch):
+    """The skip is conditional on the policy being UNREADABLE, not a blanket
+    disabling of the trigger-coverage check."""
+    avc = _tree(tmp_path)
+    _rewrite(avc, CORPUS,
+             lambda d: d["coverage"].__setitem__("triggers_covered", 3))
+    findings = _run(monkeypatch, avc, "corpus")
+    assert any("coverage.triggers_covered records 3" in e
+               for e in findings.errors), _messages(findings)
 
 
 def test_a_malformed_source_registry_is_a_finding_not_a_crash(tmp_path, monkeypatch):
