@@ -692,6 +692,27 @@ is flagged there for review rather than folded in quietly.
       loosening IS ever wanted it is a behaviour change owed its own decision,
       exactly as § 2.7 says.
 
+      **RE-MEASURED AFTER `origin/main` WAS MERGED IN, AND BOTH SETS OF NUMBERS
+      ARE KEPT RATHER THAN THE LATER OVERWRITING THE EARLIER.** Main gained
+      pull request #459 — the archive of `split-openxwallet-repo` — while this
+      act was open, and it edited README.md's archived block, so the two acts
+      conflicted there and nowhere else. THE RESOLUTION KEEPS BOTH ROWS: this
+      packet's above the wallet split's, both under the same 2026-08-28 date,
+      and neither row's text is altered by the other. THE CONFLICT WAS
+      README-ONLY AND THAT WAS MEASURED, NOT HOPED: `#459` promoted into
+      `domain-descendant-boundary`, `neutral-product-pin`,
+      `openxwallet-agent-profile`, `openxwallet` and
+      `shared-contract-ownership`, and touched NEITHER `doc-health` NOR
+      `ideation-cross-reference` — `git diff 157e423d origin/main --` over both
+      canon files is empty. THE DIGEST PROOF WAS RE-RUN ON THE MERGED TREE
+      ANYWAY and did not move: both sha256s above hold, both prefix `cmp`s stay
+      clean, and both requirement and scenario counts are unchanged at 38/173
+      and 18/57. Gate on the merged tree: `openspec validate --all --strict`
+      **76 passed / 0 failed** (one lower again, main's own archive having left
+      the active set too), `python3 -m pytest tests/doc-health -q` **1249
+      passed** under `set -o pipefail`, and the probe reporting the same line
+      number for number.
+
       **AND THE DOC-HEALTH FAMILIES WERE MEASURED ACROSS THE ACT.** `python3
       scripts/doc-health.py --single-repo .` reports **5 critical, 7 error, 41
       warning, 11 info** with `New regressions vs previous report: 0` BEFORE the

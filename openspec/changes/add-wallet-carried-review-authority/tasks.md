@@ -626,3 +626,48 @@ is a job id and the renamed workflow retains it. The declined narrowed floor
 (8.5) stands. The pre-existing gap that codexFactory's floor omits
 `governance/review-authority/{grants,wallets,attestations}/` is neither fixed nor
 depended on by P3, and remains this change's to own.
+
+## 9. Deltas carried in from `split-openxwallet-repo` P7 (2026-08-28)
+
+`split-openxwallet-repo` archived 2026-08-28 as
+[`../archive/2026-08-28-split-openxwallet-repo/`](../archive/2026-08-28-split-openxwallet-repo/proposal.md).
+It authored THREE `## MODIFIED Requirements` deltas against `review-authority-intake`,
+declared relative to the OUTCOME of THIS change rather than against a promoted spec,
+because `review-authority-intake` is not in `openspec/specs/` and all three targets are
+among this change's own twelve ADDED requirements.
+
+**They could not be applied at that archive, and were not forced.** `openspec archive`
+aborts on a MODIFIED delta whose target capability does not yet exist — verbatim:
+`review-authority-intake: target spec does not exist; only ADDED requirements are allowed
+for new specs. MODIFIED and RENAMED operations require an existing spec.` The delta
+directory therefore travelled into the archived packet UNAPPLIED, as the record of an
+obligation that falls due HERE. This is `release-realization`'s ordered-delta rule
+(`openspec/specs/release-realization/spec.md:64-79`) applied by PARITY — its letter covers
+a requirement already MODIFIED by an active ratified change and these are ADDED — recorded
+rather than forced, exactly as that proposal's § Modified Capabilities declared.
+
+- [ ] 9.1 **At this change's promotion, the ADDED text of these three requirements MUST
+      carry the amendments.** Verbatim source, with every scenario:
+      [`../archive/2026-08-28-split-openxwallet-repo/deferred-specs/review-authority-intake/spec.md`](../archive/2026-08-28-split-openxwallet-repo/deferred-specs/review-authority-intake/spec.md).
+      1. *A grant with no reader in a required check confers nothing* — the reader test
+         moves from "present" to "present, whether in-tree or REACHABLE THROUGH A
+         DIGEST-PINNED SUBMODULE, in which case the pin's digest is what makes WHICH READER
+         RAN auditable". This STRENGTHENS the rule rather than narrowing it, and it is not
+         optional: after `contract-v2.0` the validator is no longer in this repository at
+         all, so the unamended scenario is UNSATISFIABLE. Two scenarios are added — the
+         reader invoked as `python3 openXwallet/scripts/validate-openxwallet.py .` from the
+         openxFactory root under a required check at the pinned digest, and the malformed-row
+         red proof discharging in the register-holding repository and never in the product
+         repository.
+      2. *Review authority is held as an openxwallet grant and by nothing else* — the
+         citations at that spec's `:10` and `:15` are repointed, because they resolve into
+         paths that left this repository.
+      3. *A reviewing holder's composition is pinned, and a composition roll is a governed
+         re-issuance* — the citation at `:208` is repointed for the same reason.
+      **What does NOT change in any of the three:** the register's location, its human-only
+      floor, or the fact that it is openxFactory's own review authority. R6 kept the register
+      here; only the READER travelled.
+      Realizing code already landed at P3 (`.github/workflows/openxwallet-consumer-gate.yml`
+      invoking the pinned reader as a required check; red proof discharged on pull request
+      [#432](https://github.com/opensoft/openxFactory/pull/432), run 33109857156, job
+      98649492960), so only the requirements' TEXT is outstanding.
