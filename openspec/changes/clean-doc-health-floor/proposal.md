@@ -272,9 +272,40 @@ family cannot remedy, and that is the one case it now stays quiet for.
 - **The family registry, the enumeration, the numerals, the report schema, any
   threshold.**
 
-## Orchestrator decisions, flagged for veto
+## Orchestrator decisions, cleared 2026-08-28 (authored: flagged for veto)
+
+**CLEARED 2026-08-28**, by a multi-choice put to Brett by the orchestrating
+session and relayed to this session the same day. The selections that reach
+this packet: **OD-5 KEEP `ratified` plus the derived citation** — the measured
+deviation from the ruled `draft` is APPROVED as taken — and **both pull
+requests merge on green**. On OD-5 he took the packet's own recommendation, so
+**the clearance moves nothing**: not one byte of the archived record's header
+changes, and the three-way measurement stands as the reason. OD-1's split is
+confirmed by the same act in the form that matters — the sibling packet is
+merged on its own gate rather than folded back in — and **the aggregation
+disposition entry that split turned on is assigned to the ORCHESTRATING
+SESSION as part of the merge sequence, not to this one.** OD-2, OD-3 and OD-4
+were not put to him and are NOT covered; they stand as authored, still flagged.
+No verbatim wording of the ruling reached this session, so none is quoted —
+the approver, the date, the mechanism and the selections are recorded instead,
+which is what the origin requirement asks for. **THE ORIGINAL FLAGGED TEXT IS
+KEPT BELOW AS MARKED HISTORY** rather than rewritten, because what was flagged
+and why is the part a later reader needs. This act is DISTINCT from the
+commission recorded in `.openspec.yaml`: that one admitted the packet, this one
+closed the veto window on the decision that departed from a ruling.
+
+
 
 **OD-1 — THE THIRD RULED WORKSTREAM IS FILED SEPARATELY, NOT IN THIS PACKET.**
+**CONFIRMED 2026-08-28 in the form that matters, and ONE CLAUSE OF IT
+REASSIGNED.** The same ruling directs that BOTH pull requests merge on green —
+so the split stands and the sibling lands on its own gate rather than being
+folded back in. **The aggregation disposition entry this decision turned on is
+now the ORCHESTRATING SESSION's to write, as part of the merge sequence, and is
+NOT owed by either packet's authoring session.** That reassignment does not
+weaken the argument below — the entry is still owed, still in another
+repository, and still the reason these two workstreams were not coupled to the
+third — it changes only WHO performs it. The text below is kept as authored.
 Brett commissioned three workstreams together ("lets do all 3 in order"), and
 this packet carries two. The third — generated projections take a NON-RECORD
 status, ending the `record-immutability` critical on `ideation/cross-reference.md`
@@ -343,7 +374,16 @@ family already carries an explicit MUST-NOT-emit carve-out in canon (the
 
 **OD-5 — THE ARCHIVED PROPOSAL TAKES `Status: ratified` PLUS A DERIVED
 CITATION, NOT THE RULED `Status: draft`. THIS IS A DEPARTURE FROM A RULING AND
-IS FLAGGED AS ONE.** It is the only decision in this packet that contradicts an
+IS FLAGGED AS ONE.**
+**RULED 2026-08-28: KEEP `ratified` plus the derived citation — the deviation
+is APPROVED as taken.** Brett was given the departure, its three-way
+measurement and the one-line-revert remedy, and selected the packet's own
+recommendation, so **nothing in the file or in this decision moves.** The
+paragraphs below are kept EXACTLY as authored, because the argument they make
+is the standard the ruling approved rather than a case now closed: the next
+session backfilling an archived header needs the measurement, not the verdict.
+The veto branch this decision named for itself was NOT taken.
+AS AUTHORED, kept: it is the only decision in this packet that contradicts an
 instruction rather than filling a gap in one, and it is taken for a measured
 reason, not a preferred one.
 
@@ -374,7 +414,8 @@ three-way floor on all three axes. Brett's own ruling of 2026-08-26 (commit
 `draft` to `ratified` — "to match the header convention used by every sibling
 ratified archived packet". Of 112 archived proposals here, 110 read `ratified`.
 
-**THIS IS THE DECISION TO VETO IF THE READING IS WRONG**, and the veto is
+**THIS IS THE DECISION TO VETO IF THE READING IS WRONG** — *and it was not
+vetoed; see the ruling marker at the head of this decision* — and the veto is
 cheap: the remedy is a one-line revert to `Status: draft`, at the cost of the
 `promotion-fidelity` error above, which would then itself need a disposition or
 its own change. The alternative this packet declined — obey the ruling

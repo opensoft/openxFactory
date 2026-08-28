@@ -279,6 +279,50 @@ predicted from the one before.
       lifecycle condition is real. Q2 recommends recording the gap rather than
       inventing a home for it inside a location-conformance fix;
       `staged-candidate-aging` is the plausible owner.
-- [ ] 5.3 **The third ruled workstream ships separately** as
+- [x] 5.3 **The third ruled workstream ships separately** as
       `declare-generated-projection-status` (OD-1), and owes a disposition
       entry in the AGGREGATION repository that this packet does not.
+      **DISCHARGED AS A DECISION 2026-08-28**: Brett ruled that BOTH pull
+      requests merge on green, so the split stands and the sibling lands on
+      its own gate. **The aggregation disposition entry is assigned to the
+      ORCHESTRATING SESSION as part of the merge sequence** and is not owed by
+      either authoring session — recorded here so a later reader does not go
+      looking for it in this packet's realization.
+
+## 6. The veto window
+
+- [x] 6.1 Record the rulings of 2026-08-28.
+      **DONE.** By a multi-choice put to Brett by the orchestrating session
+      and relayed the same day. Selections reaching this packet: **OD-5 KEEP
+      `ratified` plus the derived citation** — the measured deviation from the
+      ruled `draft` APPROVED as taken — and **both pull requests merge on
+      green**, which confirms OD-1's split in the form that matters. On OD-5
+      he took the packet's own recommendation, so **the clearance moved
+      nothing**: not one byte of the archived record's header changed.
+      **OD-2, OD-3 and OD-4 were NOT put to him and are NOT covered** — they
+      stand as authored and remain flagged. No verbatim wording reached this
+      session, so none is quoted; approver, date, mechanism and selections are
+      recorded instead. The original flagged text is KEPT as marked history in
+      `proposal.md` § Orchestrator decisions rather than rewritten.
+- [x] 6.2 Confirm the ruling changed no artifact.
+      **DONE — measured, not assumed.** `git diff` over the ruling commit
+      touches `proposal.md` and `tasks.md` only. The archived record's header,
+      the register addendum, the three live backfills, `corpus.py`,
+      `families.py` and both test files are byte-identical to what the ruling
+      approved.
+- [ ] 6.3 **BEFORE ARCHIVE, THIS PROPOSAL'S OWN HEADER MUST MOVE OFF
+      `Status: draft` — AND THIS PACKET IS THE REASON THAT MATTERS.** The
+      header is deliberately left at `draft` here: the 2026-08-28 ruling
+      approved OD-5 and directed the merge, and this session will not spell
+      that as a ratification act Brett did not state, which is the same
+      refusal § 1.4 makes about somebody else's archived record. But the
+      header cannot STAY `draft` through archiving, and the defect is the one
+      W1 measured: `promotion_fidelity.PRE_RATIFICATION` is
+      `{brainstorm, staged, draft}`, so an archived proposal reading `draft`
+      has its deltas discounted as archived design evidence rather than
+      promoted canon — exactly what would have happened to an innocent third
+      packet in § 1.4, here aimed at this packet's own `doc-health` MODIFIED
+      block. Measured against the tree: **110 of 112 archived proposals read
+      `ratified`.** Whoever performs the archive owes the header and its
+      citation, derived from the ruling record. Named here rather than
+      discovered later.
