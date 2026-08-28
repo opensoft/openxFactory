@@ -381,7 +381,9 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [create-ledgerxwallet-overlay-boundary](openspec/changes/create-ledgerxwallet-overlay-boundary/proposal.md)
-  — `Status: draft`, authored 2026-08-27 as **P6 of the ratified
+  — **RATIFIED 2026-08-28** (in-session ruling "ratify #449" on PR #449, both
+  required checks green; ratified AS PROPOSED, meaning the NARROWED v1 — see
+  below; realization via Speckit), authored 2026-08-27 as **P6 of the ratified
   `split-openxwallet-repo`**, which names this change by id in its § Successors
   named and again as its `tasks.md` 12.1; opened on Brett's in-session ruling of
   the same day over the successor set ("approved. do all of these"), recorded in
@@ -429,11 +431,15 @@ Active changes:
   RESTRUCTURE**, and **the RESTRUCTURE was TAKEN rather than argued down**.
   `clarifications.md` carries fourteen constraints plus a register of the findings
   MOOTED by the narrowing, so the record shows which objections were answered by
-  argument and which by removing the thing objected to. Carries **Q2**, the
-  parent's one open question — do `tenants/ledgerxcorp/wallets/*` move? —
-  recommending **STAY**, on the records' instance-shaped contents, the nested
-  prune, and the Product Advocate's own reason: those five files are the commit
-  target of the runsheet's unexecuted Phase 3.4, which mints real keys.
+  argument and which by removing the thing objected to. **Q2 — the parent's one
+  open question, do `tenants/ledgerxcorp/wallets/*` move? — is RULED STAY at this
+  ratification and is CLOSED**, on the records' instance-shaped contents, the
+  nested prune (relocating them would move them OUT of adjudication, not into a
+  boundary), and the Product Advocate's own reason: those five files are the
+  commit target of the runsheet's unexecuted Phase 3.4, which mints real keys.
+  Two further ratification items: the **custody-posture cut STANDS** as a
+  successor, and the **nested-only placement's governed-enumeration gap STANDS**
+  with its cost named rather than closed.
   `code_surface` spans three repositories and `target_release: implemented`, so it
   archives only on merged plus green realization evidence, never on landing.
   Realization is Speckit AFTER ratification; preconditions P5b and P3b

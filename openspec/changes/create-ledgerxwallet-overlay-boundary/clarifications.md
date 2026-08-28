@@ -208,7 +208,11 @@ unsatisfiable — nothing in the change created a workflow in LedgerxWallet.
 and 6.10 order it before promotion. Green-run tasks name the initialized checkout
 they depend on (`tasks.md` 6.1), because the bar is red-by-construction without it.
 
-## Q2 — the one carried question
+## Q2 — the one carried question, RULED STAY 2026-08-28
+
+**RULED at ratification** by Brett Heap ("ratify #449"), adopting the
+recommendation below; see `proposal.md` § Ratification record, item 2. Q2 is
+CLOSED and does not travel to a further change.
 
 **Do `tenants/ledgerxcorp/wallets/*` move into LedgerxWallet, or stay?**
 Recommendation: **STAY.** The Product Advocate seat voted STAY independently and

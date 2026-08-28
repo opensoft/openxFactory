@@ -487,7 +487,11 @@ boundary, Speckit builds it.
 digest row. No upstream history is rewritten and no openXwallet content is
 touched.
 
-## Open questions
+## Open questions — closed
+
+**Q2 was RULED STAY on 2026-08-28** by Brett Heap, at the ratification of this
+change (`proposal.md` § Ratification record, item 2). The recommendation below is
+retained as the reasoning the ruling adopted, not as a live question.
 
 **Q2 — do `tenants/ledgerxcorp/wallets/*` move into LedgerxWallet, or stay as
 tenant data?** Recommended: **STAY**, on three grounds of increasing force — the

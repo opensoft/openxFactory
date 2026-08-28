@@ -1,11 +1,14 @@
 ---
 code_surface: opensoft/LedgerxWallet (new), LedgerxFactory, openxFactory — THREE repositories. (1) `opensoft/LedgerxWallet` created EMPTY and scaffolded (not a carve — there is no history to preserve): `contracts/openxwallet-pin.yaml` (`kind: ledgerxwallet_openxwallet_pin`, `relationship: pinned_upstream_composition`), a nested `openXwallet/` gitlink at the SAME commit in the SAME commit, `tests/validate_pin.py` (the refusing validator the ratified rule's own scenarios require), `README.md` with the relocated file's provenance, `CLAUDE.md`/`AGENTS.md`, `.github/CODEOWNERS`, `.github/workflows/pin-validation.yml`, a branch-protection ruleset, and the relocated `templates/wallet-exercise.template.yaml`. (2) LedgerxFactory: `.gitmodules` + a `LedgerxWallet` gitlink; `tests/validate_wallet_estate.py`'s two-candidate upward walk (`:53-78`, `:81-116`) REPLACED by one fixed relative path into the descendant — the validator STAYS; `stack.yaml`'s declared `openxwallet:` block (`:51-62`) re-sourced; `models/protected-surface.yaml`'s `stack.yaml` DIGEST re-pinned (`:384-388`) plus its prose pointer at `:455`; `templates/wallet-exercise.template.yaml` deleted; `tests/validate_document_estate_surface.py`'s kind registration (`:1116-1121`) and its resolution-path comment (`:1086-1098`) amended; `specs/016-posting-segregation-of-duties/{runsheet.md:22-23, quickstart.md:3-7 and :19}` repointed with a new P0.5 precondition; `README.md`; `.github/CODEOWNERS` gains `/.gitmodules` and `/LedgerxWallet`. The tenant estate and the distinct-holder constraint DO NOT MOVE (Q2, and § 2b). (3) openxFactory: this packet plus one README "OpenSpec Records" row — no contract, no schema, no manifest row, no release surface, no validator. The xFactory aggregation is deliberately UNTOUCHED (§ 6), which is a decision and not a surface. Per `release-realization` this change archives ONLY on merged plus green realization evidence, never on landing.
 target_release: implemented — each affected repository's own main line. NO release identity is allocated here: LedgerxWallet's first tag `lxw-v1.0` is cut in its own repository, openXwallet is CONSUMED at the already-published `wallet-v1.1` and not re-cut, and openxFactory publishes NOTHING — no contract bundle and no `contracts/releases/<tag>.digests.yaml`, because no openxFactory-registered artifact is added, changed or removed.
-Status: draft
+Status: ratified
 ---
 # Proposal: create-ledgerxwallet-overlay-boundary
 
-Status: draft
+Status: ratified
+Ratified: 2026-08-28 by Brett Heap (openxFactory operator authority) — in-session
+ruling ("ratify #449") on PR #449 with both checks green. Realization proceeds
+per tasks.md through Speckit features, §3 (create and scaffold) first.
 Proposed: 2026-08-27 — **P6 of the ratified `split-openxwallet-repo`**, named by
 this id in that change's § Successors named and again as its `tasks.md` 12.1, on
 Brett's in-session ruling of 2026-08-27 over the successor set: verbatim,
@@ -19,6 +22,57 @@ relocated the estate validator and the distinct-holder constraint as well. Both
 were withdrawn on findings that are arithmetic rather than aesthetic, and § 2b
 records why — because the withdrawn version is the one a reader would otherwise
 reinvent.
+
+## Ratification record, 2026-08-28
+
+Recorded from the convener's in-session ruling, taken after PR #449's required
+checks reported green (`pytest-suite` 15m14s, `wallet-validation` 21s): verbatim,
+**"ratify #449"**. Four things this record fixes, in the order they bind:
+
+1. **RATIFIED AS PROPOSED — meaning the NARROWED v1, not the packet as first
+   authored.** What is ratified is the version this file now describes: the
+   descendant is created with **the pin declared twice in one commit**, **one
+   profile artifact** (`templates/wallet-exercise.template.yaml`), and **a
+   four-check pin validator plus its workflow** — where the fourth check reads the
+   CHECKED-OUT `openXwallet/` revision and cleanliness, because a pin whose
+   verifier reads only the recorded declarations lets a fork at another commit
+   execute while all three agree. **The tenant estate, the distinct-holder
+   constraint and `tests/validate_wallet_estate.py` STAY in LedgerxFactory.** Only
+   the validator's RESOLUTION moves — `VALIDATOR_CANDIDATES` and its five-level
+   walk collapse to one fixed path into the descendant — because ratified rule 1
+   binds the resolution path and not the file's address, and that file is
+   LedgerxFactory-authored rather than the product's. The RESTRUCTURE the
+   adversary seat returned was TAKEN before this ratification, not argued down;
+   ratifying "as proposed" ratifies the taken restructure.
+2. **Q2 IS RULED: STAY.** `tenants/ledgerxcorp/wallets/*` remain in
+   LedgerxFactory as tenant data. The parent carried this question forward
+   explicitly to P6 as "the owning domain's call", and it is now made, on the
+   three grounds § Open questions records: the records are instance-shaped on
+   their own contents (holder ids, DIDs, key ids, `expires_at`, live `state:`); a
+   nested descendant's YAML is PRUNED from openXwallet's own sweep
+   (`sweep_candidates`, `validate-openxwallet.py:2063`), so relocating them would
+   move them OUT of adjudication rather than into a boundary; and those five files
+   are the commit target of the runsheet's **unexecuted Phase 3.4**, a procedure
+   that mints real keys. **Q2 is closed and does not travel to another change.**
+3. **The custody-posture cut STANDS.** No `profile/custody-posture.yaml` is
+   authored here. It remains a named successor, which decides its reader and its
+   home together — and under LedgerxFactory's own rules an ENFORCED posture
+   belongs in the digest-protected `policies/` rather than an unprotected
+   `profile/` tree.
+4. **The nested-only placement's governed-enumeration gap STANDS, as a registered
+   successor.** A nested descendant is outside every governed-repo enumeration in
+   the corpus — `sync-notebooklm-books.py`'s `xFactories/<Name>` match and its
+   `in_nested_checkout()` exclusion, and `ideation_routing.py`'s
+   `_governed_repo_ids` — before the parent's P4b widening and after it. The
+   ratified precedent (`MedxAvatar`, `LedgerxAvatar`) already sits in it. This
+   ratification accepts the gap with its cost named rather than closing it, and
+   the remedy stays a separate change.
+
+The merge of PR #449 is the convener's own act and is NOT performed by this
+record, which lands on `change/create-ledgerxwallet-overlay-boundary` ahead of it.
+Realization — the repository creation, the nesting, the move — is Speckit work
+that begins after this ratification, and per `release-realization` this change
+archives only on merged plus green realization evidence, never on landing.
 
 ## Constraints carried, not questions asked
 
@@ -478,7 +532,12 @@ does not propagate that mismatch.
   third; this change narrows it to one and adds none back.
 - **Promoting `domain-descendant-boundary` into `openspec/specs/`.**
 
-## Open questions
+## Open questions — none remaining; Q2 was RULED at ratification
+
+**Q2 — RULED 2026-08-28: STAY** (see § Ratification record, item 2). It is
+recorded below in the form it was carried and recommended, because the grounds
+are what the ruling adopted and a reader tracing the parent's carry-forward needs
+to find them here rather than in a review record.
 
 **Q2 (carried from the parent, its one open question) — do
 `tenants/ledgerxcorp/wallets/*` move into LedgerxWallet, or stay as tenant data?**
@@ -501,6 +560,7 @@ LedgerxWallet therefore carries the PIN and the profile artifact whose move cost
 nothing, and grows the rest of the profile through the two named successors as
 each earns its preconditions.
 
-**This is the one question this proposal carries.** Everything else above is a
-ratified constraint, a decision this packet takes and defends, or a correction it
-made to itself.
+**This was the one question this proposal carried, and it is now CLOSED** — ruled
+STAY on 2026-08-28, so it does not travel to a further change. Everything else
+above is a ratified constraint, a decision this packet takes and defends, or a
+correction it made to itself.

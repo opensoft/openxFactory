@@ -62,7 +62,13 @@ its digest re-pin, and every repoint.
       `split-openxwallet-repo`. Same path, family, severity and `contested` class.
       Recorded so nobody later reads it as a regression this packet caused.
 - [ ] 1.12 Proposal-only pull request. No realization in the same PR.
-- [ ] 1.13 **[OPERATOR]** Ratification. Not performed by this packet.
+- [x] 1.13 **[OPERATOR]** Ratification. **DONE 2026-08-28** — Brett Heap,
+      in-session ("ratify #449") on PR #449 with both required checks green
+      (`pytest-suite` 15m14s, `wallet-validation` 21s). Ratified as proposed,
+      meaning the NARROWED v1; **Q2 RULED STAY**; the custody-posture cut and the
+      nested-only enumeration gap both STAND. Recorded at `proposal.md`
+      § Ratification record, 2026-08-28. The MERGE is the convener's own act and is
+      not this packet's.
 
 ## 2. Preconditions — all discharged, and the check recorded
 
