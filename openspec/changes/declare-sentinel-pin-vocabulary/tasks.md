@@ -466,6 +466,28 @@ is flagged there for review rather than folded in quietly.
       new tests, none removed and none edited. Read out of the run under
       `set -o pipefail` with the exit code unmasked. Unticked for the same
       reason as § 4.1: the merged tree is where this arm closes.
+      **THE FULL CI SELECTION IS THE ARM THAT ACTUALLY FOUND SOMETHING, and it
+      is recorded rather than smoothed over.** `python3 -m pytest tests/ -q -m
+      "not postgres"` reddened on the first push:
+      `tests/review_lane_pin/test_review_lane_caller.py` loads `pin_class.py`
+      with `spec_from_file_location` under a private name and NO package —
+      deliberately, so it need not duplicate this directory's conftest
+      `sys.path` insert — and a bare `from . import pin_sentinels` raised
+      `ImportError: attempted relative import with no known parent package`
+      there while `tests/doc-health` stayed green. The vocabulary is now
+      imported as a sibling where the package exists and BY PATH where it does
+      not, and the constraint is asserted from the doc-health suite as well
+      (`test_pin_class_still_loads_by_path_with_no_package`), so the next reader
+      meets it before CI does. GitHub Actions on `710a9cf8`: `pytest-suite`
+      pass, `merge-master-approval` pass, `wallet-validation` pass.
+      **THE LOCAL FULL SELECTION IS NOT A CLEAN VENUE FOR THIS ARM AND SAYS SO
+      IN ITS OWN WORDS.** In this fresh agent worktree it reports `93 failed,
+      7218 passed`, and every one of the 93 is under `tests/trust-anchor/` with
+      the same cause the test itself prints: `REFUSE
+      pin-submodule-uninitialized: openXwallet/.git does not exist`. No file
+      this realization touches is under `tests/trust-anchor/`, and CI — where
+      the submodule IS initialized — passed the identical selection at the
+      identical commit.
 - [ ] 4.3 The declared class reporting its sentinel sites as legal non-pins, the
       vocabulary check green in both directions, and `fully_verified` unchanged.
       **MEASURED 2026-08-27**, recorded in full at § 3.5: seven legal non-pins,
