@@ -616,7 +616,7 @@ Cost facts put to him between the rounds (2026-08-27 prices, from the vendored
   study): Kaspa ~$0.000001 per transaction; Bitcoin via OpenTimestamps $0
   marginal per item on public calendars, or ~$2.1k/yr for a self-run hourly
   calendar; a raw Bitcoin transaction $0.12–0.36 with a spike history; and a
-  cheaper sidechain buys federation trust while saving nothing.
+  cheaper sidechain adds federation trust and saves nothing.
 Disposition, ROUND 2 (2026-08-29, RULED BY BRETT HEAP — the OPERATIVE
   configuration): **"Bitcoin-via-OTS on everything."** BOTH witnesses on EVERY
   anchored item. **Kaspa FIRST** — seconds; the primary, OPERATIONAL witness,

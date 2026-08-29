@@ -1740,13 +1740,14 @@ repo scope.
   Q3/Q6 gated tranche 3, Q7 gated tranche 2's contract text, tranche 1 was never
   gated.
 - **Q3's divergence, in two rounds and recorded as such.** Round 1, verbatim:
-  "lets [sic] use Kaspa as primary and bitcoin as secondary" — inverting the study's
-  ordering, and kept in the record because a two-round ruling is only honest if
-  the first round survives inside it. Cost facts were then put to him (Kaspa
-  ~$0.000001/tx; Bitcoin-via-OTS $0 marginal per item on public calendars and
-  ~$2.1k/yr for a self-run hourly calendar; a raw BTC transaction $0.12–0.36 with
-  a spike history; a cheaper sidechain buying federation trust and saving
-  nothing), and round 2 is the operative configuration: **"Bitcoin-via-OTS on
+  "lets [sic] use Kaspa as primary and bitcoin as secondary" — inverting the
+  study's ordering. It is kept in the record because a two-round ruling is only
+  honest if the first round survives inside it. Cost facts were then put to him
+  (Kaspa ~$0.000001/tx; Bitcoin-via-OTS $0 marginal per item on public calendars
+  and ~$2.1k/yr for a self-run hourly calendar; a raw BTC transaction
+  $0.12–0.36 with a spike history; a cheaper sidechain adds federation trust and
+  saves nothing), and round 2 is the operative configuration:
+  **"Bitcoin-via-OTS on
   everything"** — BOTH witnesses on EVERY anchored item, **Kaspa FIRST** as the
   primary/OPERATIONAL witness under the study's three unchanged conditions,
   **Bitcoin batched via OpenTimestamps as the DURABILITY witness with ten-year
