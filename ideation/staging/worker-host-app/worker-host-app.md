@@ -136,17 +136,17 @@ refresh: {policy: rebuild-on-base-cve, cadence: monthly}
   [`supporting-docs/worker-enrollment-broker.md`](../../../openspec/changes/add-worker-enrollment-broker/supporting-docs/worker-enrollment-broker.md)
   under origin id `openxFactory:staging:worker-enrollment-broker`;
   contract family `contracts/worker-enrollment/`). This was the parked
-  decision behind the fail-closed `runner_services` refusal in PRs
-  #36/#37: there was no legitimate
-  way to hand a host a runner registration token, because minting one needs an
-  administration-tier GitHub App key that must not sit on hosts. The resolution
-  inverts the question — enrollment grants a renewable LEASE, and the host asks
-  a standalone broker for a short-lived single-use registration token against
-  that lease. Minting authority (the opsxfactory administration-tier App key)
-  stays in the broker alone, remove-token brokering for drift repair rides the
-  same authority and audit path, and the app persists only the lease. So
-  `runner_services` gains a broker call in the seam that already refuses, and no
-  key ever reaches a worker host.
+  decision behind the fail-closed `runner_services` refusal in PRs #36/#37:
+  there was no legitimate way to hand a host a runner registration token,
+  because minting one needs an administration-tier GitHub App key that must
+  not sit on hosts. The resolution inverts the question — enrollment grants a
+  renewable LEASE, and the host asks a standalone broker for a short-lived
+  single-use registration token against that lease. Minting authority (the
+  opsxfactory administration-tier App key) stays in the broker alone,
+  remove-token brokering for drift repair rides the same authority and audit
+  path, and the app persists only the lease. So `runner_services` gains a
+  broker call in the seam that already refuses, and no key ever reaches a
+  worker host.
 - **Container engine**: docker-ce in WSL (leaning) vs Podman (rootless).
 - **App implementation v1**: PowerShell module + supervisor scheduled task
   (leaning — fast, auditable, no toolchain on the host) vs compiled service;
