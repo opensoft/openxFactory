@@ -20,7 +20,7 @@ standing in for a ruleset state.
 
 ## 1. Spec deltas and the packet (THIS PULL REQUEST)
 
-- [x] 1.1 `signed-execution-chain` — **NINE ADDED requirements over 40
+- [x] 1.1 `signed-execution-chain` — **NINE ADDED requirements over 42
       scenarios**: wallet-presented ratification proven by possession and BOUND
       to the exact ratification (Q1 **as ruled**, no longer flagged); the
       recorded ACTOR bound to the wallet that signed, in the direction the

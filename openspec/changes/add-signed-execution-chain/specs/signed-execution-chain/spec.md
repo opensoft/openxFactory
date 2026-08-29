@@ -426,7 +426,21 @@ this capability's digest requirement fixes:
    identity check;
 4. the inception leaf commits to that same chain identity; and
 5. the traveling contract's carried chain identity and carried leaf digest EQUAL
-   the values established above.
+   the values established above; and
+6. the ACTOR the chain records is bound to the wallet that signed, per this
+   capability's actor-binding requirement — the actor's subject carries a wallet
+   attestation, that attestation names the wallet whose key made the exercise,
+   and the binding falls inside the signed bytes.
+
+**CHECK 6 IS NOT OPTIONAL AND ITS ABSENCE IS NOT COVERED BY THE OTHERS.** Checks
+1–5 establish that ONE chain is internally consistent; none of them establishes
+WHOSE it is. A ratification signed by one holder whose actor field names another
+passes every one of them — the signature verifies, the digests agree, the
+inception leaf commits, the traveling contract matches — while the chain records
+authority that its signer never exercised. A gate that enumerates its checks
+exhaustively and omits this one permits misattributed authority at the terminal
+act, which is the precise harm the actor-binding requirement exists to prevent.
+Stating the requirement without walking it at the gate would leave it inert.
 
 **Checks 2 and 3 SHALL NOT be collapsed into one comparison.** Equating the
 content digest with the chain identity would reject every conforming chain,
@@ -468,6 +482,12 @@ gate cannot walk a link that does not exist yet.
 - WHEN any of links 1–3 is absent
 - THEN the gate REFUSES and reports a fraud signal
 - AND the outcome is never downgraded to a warning, an advisory, or a finding to be triaged
+
+#### Scenario: the signer and the recorded actor differ
+
+- WHEN a chain is offered whose signature, digests, inception leaf and traveling contract are all internally consistent, but whose recorded actor attests a different wallet than the one whose key signed
+- THEN the gate REFUSES, because internal consistency establishes that one chain is whole and not whose it is
+- AND the five structural checks passing is never accepted in place of the actor binding
 
 #### Scenario: the gate compares the content digest against the chain identity
 

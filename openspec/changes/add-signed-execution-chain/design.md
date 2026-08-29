@@ -336,6 +336,48 @@ over"* while D7.2b immediately below establishes that link 3 has no signer — s
 a reader skimming headings carried away the intermediate repair as the final
 answer. D7.2 now names its own supersession in place.
 
+## D7.7 — The gate enumerated its checks "exactly" and left the harvested actor binding out of the list
+
+**Found by Codex as a P1 on `a576f774`, one round after D7.6, and it is the SAME
+failure a second time.** D7.6's fix rewrote the gate rule as five ordered checks
+over named digest subjects. Requirement 2 — the actor-to-wallet binding
+harvested from #494 — was not among them, and the rewritten rule says the gate
+validates **exactly** those checks.
+
+**So the harvested requirement was inert at the only place that runs.** Codex's
+case is airtight: Alice signs a ratification whose actor field names Bob, and
+all five checks pass — the signature verifies, both digests agree, the inception
+leaf commits, the traveling contract matches — because every one of them tests
+whether ONE CHAIN IS INTERNALLY CONSISTENT, and none tests WHOSE IT IS. The
+chain would carry authority its signer never exercised, through the terminal
+act, with the requirement forbidding exactly that sitting four requirements
+above and never consulted.
+
+The gate now walks **six** checks, with the sixth stated as non-optional and its
+independence argued rather than asserted: structural consistency and correct
+attribution are different properties, and no amount of the first establishes the
+second. A scenario refuses a chain that passes all five structural checks and
+fails the binding.
+
+**The lesson is D7.6's, and the repetition is the finding.** D7.6 recorded that
+adding a rule without sweeping for what it falsifies is more dangerous than not
+having the rule, because the packet then *reads* as though it is covered. D7.7
+is the mirror image: **writing an EXHAUSTIVE list is itself a definition gaining
+a conjunct** — the word "exactly" converts every requirement absent from the
+list into a requirement the gate does not enforce. The sweep owed after
+enumerating a closed list is a pass over every requirement asking *is this one
+in the list, and should it be?* That pass was not run. It has been now, and
+requirement 9's named-reader rule is the reason it matters: a requirement no
+reader walks confers nothing, which this capability states about itself.
+
+**The P2 in the same round is a smaller instance of the same class.** `tasks.md`
+still claimed 40 scenarios after README and `proposal.md` moved to 41, because
+the count claim is LINE-WRAPPED there and a single-line `sed` could not see it.
+A count restated in three places is one invariant; a check that assumes one
+spelling verifies two of the three and reports success. The count is now
+verified with a whitespace-normalizing pass over all three files rather than a
+literal match, which is why this round's move to 42 landed in all three.
+
 ## D8 — Four hardenings HARVESTED from the closed #494, cited to their source
 
 **Decision.** Four requirements or requirement-parts in this delta did not

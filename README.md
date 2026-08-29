@@ -432,7 +432,7 @@ Active changes:
   `xfactory_wallet_grant_exercise` pair at the `contracts/openxwallet-pin.yaml`
   digest pin, whose closed refusal enumeration already separates
   `missing_proof_of_possession` from `missing_grant`. **NINE ADDED requirements
-  over 41 scenarios, no MODIFIED block anywhere.** **NARROWING A IS RULED** —
+  over 42 scenarios, no MODIFIED block anywhere.** **NARROWING A IS RULED** —
   Brett Heap, 2026-08-29, in session, the clarify sitting having taken the seven
   questions and nothing else: **tier 1 is RATIFYING authority**, agent-held
   REVIEW wallets stay lawful, and the realized `wal-agent-mrc-0001` is untouched.

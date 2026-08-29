@@ -198,7 +198,7 @@ and this spec's wording are never read as two different acts.
 ### New Capabilities
 
 - `signed-execution-chain`: the neutral tranche-one chain, **NINE ADDED
-  requirements over 41 scenarios**, no `## MODIFIED Requirements` block anywhere
+  requirements over 42 scenarios**, no `## MODIFIED Requirements` block anywhere
   — a ratification admitted only on wallet-carried authority PROVEN BY POSSESSION
   in the shipped `openxwallet` vocabulary and BOUND to the exact ratification;
   the recorded ACTOR bound to the wallet that signed, in the direction the pinned
