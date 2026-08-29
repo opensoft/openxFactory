@@ -1,9 +1,10 @@
 # Tasks: add-signed-execution-chain (tranche one)
 
-Governance-level and dependency-ordered. **This change is not ratified and is
-not being implemented now.** §1 is authored in this pull request; **§2 is
-Brett's ratification act**; §3 onward are for the implementer and belong to a
-single Speckit contract feature. Do not duplicate the executable contract list
+Governance-level and dependency-ordered. **This change is RATIFIED (2026-08-29,
+Brett Heap — `review/ratification-2026-08-29.md`) and is NOT being implemented
+now.** §1 was authored in the pull request; **§2 is Brett's ratification act and
+is DISCHARGED**; §3 onward are for the implementer and belong to a single
+Speckit contract feature. Do not duplicate the executable contract list
 here — §5 hands it off.
 
 **THE CLARIFY ROUND THIS FILE USED TO CARRY AS §2 IS DISCHARGED, NOT DROPPED.**
@@ -20,7 +21,7 @@ standing in for a ruleset state.
 
 ## 1. Spec deltas and the packet (THIS PULL REQUEST)
 
-- [x] 1.1 `signed-execution-chain` — **NINE ADDED requirements over 42
+- [x] 1.1 `signed-execution-chain` — **NINE ADDED requirements over 45
       scenarios**: wallet-presented ratification proven by possession and BOUND
       to the exact ratification (Q1 **as ruled**, no longer flagged); the
       recorded ACTOR bound to the wallet that signed, in the direction the
@@ -108,9 +109,11 @@ standing in for a ruleset state.
 gave on 2026-08-29 is NOT this; it authorized the packet's existence and nothing
 in its text.
 
-- [ ] 2.1 Brett ratifies proposal, design and the delta. **Ratification of this
-      packet authorizes tranche one only** and creates no attestation identity,
-      no certificate authority, no anchor and no chain.
+- [x] 2.1 **RATIFIED 2026-08-29 by Brett Heap**, in session via question
+      prompts; record at `review/ratification-2026-08-29.md`. **Ratification of
+      this packet authorizes tranche one only** and creates no attestation
+      identity, no certificate authority, no anchor and no chain. It performs no
+      realization.
 - [ ] 2.2 Confirm `target_release`. It is named **`contract-v2.3`**,
       FRESH-COUNTED at this branch's tip — `contracts/manifest.yaml:3` declares
       `contract-v2.2` and `contracts/releases/contract-v2.2.digests.yaml` is a

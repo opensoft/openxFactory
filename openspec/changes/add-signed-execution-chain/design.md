@@ -378,6 +378,49 @@ spelling verifies two of the three and reports success. The count is now
 verified with a whitespace-normalizing pass over all three files rather than a
 literal match, which is why this round's move to 42 landed in all three.
 
+## D7.8 — Third appearance of the closed-list defect, and the fix is a MAP rather than a third patch
+
+**Two more P1s from Codex on `cf7536fd`, and they are D7.7's defect a third
+time.** The gate's closed list — which D7.7 had just extended to six checks —
+still omitted the REVOCATION check that requirement 1 states and the
+HOLDER-CLASS check that requirement 8 states. Two chains would have passed every
+enumerated check and had to be refused: one whose ratifying signature is
+cryptographically valid over an exercise recording a **revoked** grant, since
+revocation does not invalidate a signature; and one signed by an **agent-held**
+wallet that **correctly attests itself**, where the attribution is honest and it
+is the holder class that is refused. Either would have authorized work at the
+terminal act under authority the capability's own text refuses.
+
+**D7.7 named the owed pass and this session did not run it.** Its words were:
+*"the pass owed after closing a list is: for every requirement, is it in the
+list, and should it be?"* What was done instead was to add the one requirement
+the finding named. That is patching an instance of a defect whose general form
+had already been written down one round earlier — and it is why the same finding
+came back twice more in a single round.
+
+**So the third appearance is unified, on this estate's standing rule that a
+defect's second appearance gets a unification rather than a patch.** The gate now
+walks EIGHT checks, and — the actual fix — carries a
+**requirement-to-enforcement map** that states, for EVERY requirement of this
+capability, whether it is walked at the gate or enforced elsewhere. The two
+inception-time refusals (atomicity and per-act uniqueness) are named there as
+DELIBERATE omissions with their reason, so they read as decided rather than
+overlooked.
+
+**Why the map closes the class and a longer list would not.** The defect was
+never a missing check; it was that a CLOSED LIST silently converts every
+requirement absent from it into a requirement nobody enforces, while the packet
+still reads as though it is covered. A longer list has the identical property
+and fails the moment a tenth requirement is added. The map fails LOUDLY instead:
+a requirement with no row is visibly missing, and the obligation to give it one
+is stated in the requirement text rather than left to an author's memory.
+
+**The transferable lesson, stated plainly because three rounds paid for it:**
+*when a rule is written about a class of defect, the next instance is a test of
+whether the rule was executed or merely recorded.* D7.6 wrote the sweep rule,
+D7.7 recorded that it had not been run, and D7.8 is what it cost to not run it
+the second time either. All three were found by the bench, none by the author.
+
 ## D8 — Four hardenings HARVESTED from the closed #494, cited to their source
 
 **Decision.** Four requirements or requirement-parts in this delta did not

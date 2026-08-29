@@ -24,12 +24,13 @@ rulings diverge from what was recommended — Q3 seats KASPA as the primary,
 operational witness and BITCOIN-VIA-OPENTIMESTAMPS ON EVERY ANCHORED ITEM as the
 durability witness, inverting the study's ordering and dropping its optionality;
 Q5 keeps the door open for on-chain contract code in a future change instead of
-refusing it forever. The topic is fully ruled; tranche one was draftable on
-Brett's word — the sitting answered the questions and did NOT green-light the
-drafting, so "draftable" was a readiness state and not an authorization — and
+refusing it forever. The topic is fully ruled, and tranche one is DRAFTED,
+RATIFIED and RAISED: the sitting answered the questions and did NOT green-light
+the drafting — "draftable" was a readiness state and not an authorization — and
 THAT WORD CAME 2026-08-29 in a separate in-session act, which also collapsed the
 two parallel tranche-one packets onto pull request #495 and adopted Narrowing A
-(tier 1 is RATIFYING authority; agent-held REVIEW wallets stay lawful).
+(tier 1 is RATIFYING authority; agent-held REVIEW wallets stay lawful). Brett
+Heap RATIFIED that packet the same day.
 Staging ID: openxFactory:staging:signed-execution-chain
 
 ## Pre-document idea notes

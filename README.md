@@ -392,7 +392,7 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [add-signed-execution-chain](openspec/changes/add-signed-execution-chain/proposal.md)
-  — **UNRATIFIED; the clarify round it once waited on is DISCHARGED.** Exit 1 of
+  — **RATIFIED 2026-08-29 by Brett Heap** (`review/ratification-2026-08-29.md`); realization is a later commission. Exit 1 of
   three of the staged topic `signed-execution-chain`, and its boundary is
   **RULED**: Brett Heap ruled all seven of the topic's questions on 2026-08-29
   (#499, squash `9c501df6`), **Q4** fixing tranche one at **links 1–3 only**
@@ -432,7 +432,7 @@ Active changes:
   `xfactory_wallet_grant_exercise` pair at the `contracts/openxwallet-pin.yaml`
   digest pin, whose closed refusal enumeration already separates
   `missing_proof_of_possession` from `missing_grant`. **NINE ADDED requirements
-  over 42 scenarios, no MODIFIED block anywhere.** **NARROWING A IS RULED** —
+  over 45 scenarios, no MODIFIED block anywhere.** **NARROWING A IS RULED** —
   Brett Heap, 2026-08-29, in session, the clarify sitting having taken the seven
   questions and nothing else: **tier 1 is RATIFYING authority**, agent-held
   REVIEW wallets stay lawful, and the realized `wal-agent-mrc-0001` is untouched.

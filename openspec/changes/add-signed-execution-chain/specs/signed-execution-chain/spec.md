@@ -430,17 +430,46 @@ this capability's digest requirement fixes:
 6. the ACTOR the chain records is bound to the wallet that signed, per this
    capability's actor-binding requirement — the actor's subject carries a wallet
    attestation, that attestation names the wallet whose key made the exercise,
-   and the binding falls inside the signed bytes.
+   and the binding falls inside the signed bytes;
+7. the exercise's PROOF OF POSSESSION was supplied AND verified, and its outcome
+   is the authenticated one — never a `verification_failure` and never an
+   `unauthenticated_request`; and
+8. the STANDING of the authority was current AT EXERCISE — the exercise's
+   revocation check returns not-revoked for the grant, for every ancestor of it,
+   and for the holder — and the HOLDER CLASS is one this capability admits for a
+   RATIFYING act, which per the human-held requirement means a named human and
+   never an agent, runner, lane or workflow identity.
 
-**CHECK 6 IS NOT OPTIONAL AND ITS ABSENCE IS NOT COVERED BY THE OTHERS.** Checks
-1–5 establish that ONE chain is internally consistent; none of them establishes
-WHOSE it is. A ratification signed by one holder whose actor field names another
-passes every one of them — the signature verifies, the digests agree, the
-inception leaf commits, the traveling contract matches — while the chain records
-authority that its signer never exercised. A gate that enumerates its checks
-exhaustively and omits this one permits misattributed authority at the terminal
-act, which is the precise harm the actor-binding requirement exists to prevent.
-Stating the requirement without walking it at the gate would leave it inert.
+**THE LIST IS CLOSED, AND CLOSING IT IS ITSELF AN OBLIGATION.** Because the gate
+validates EXACTLY these checks before the terminal act, **every requirement of
+this capability is either walked here or has its enforcement point named
+below** — a requirement absent from both is a requirement this capability does
+not enforce, however firmly its own text is written. The mapping is stated
+rather than left to a reader to reconstruct:
+
+| Requirement | Where it is enforced |
+| --- | --- |
+| Presentation proven by possession, bound to this ratification, standing current at exercise | Checks 1, 3, 7, 8 |
+| The actor is bound to the wallet that signed | Check 6 |
+| Ratification and inception are one signed act | Check 4; the atomicity itself is an INCEPTION-TIME refusal, not a gate check, because a gate sees only chains that were incepted |
+| Per-ratification uniqueness of the per-act value | INCEPTION-TIME refusal — the gate cannot see the set of all chains from one presented chain, and this is named so the omission is deliberate rather than overlooked |
+| One digest construction, subjects named | Checks 2 and 3 recompute under it; a digest naming no subject fails them |
+| The traveling contract | Check 5 |
+| The transparency log is the record | Check 4 reads the leaf; the log's append-only property is a STORE obligation, not a per-chain check |
+| Ratifying authority is human-held | Check 8's holder-class half |
+| A named reader runs as a required check | This gate IS that reader; until it is REQUIRED, every check above confers nothing |
+
+**WHY CHECKS 6, 7 AND 8 ARE NOT COVERED BY THE STRUCTURAL ONES.** Checks 1–5
+establish that ONE CHAIN IS INTERNALLY CONSISTENT. None of them establishes
+WHOSE it is, whether the holder actually demonstrated possession, whether the
+authority still stood, or whether the holder was ever eligible to ratify. Three
+chains pass every structural check and must still be refused: one whose actor
+names a different holder than the signer; one whose signature is cryptographically
+valid over an exercise recording a REVOKED grant, since revocation does not
+invalidate a signature; and one signed by an AGENT-HELD wallet that correctly
+attests itself, where the attribution is honest and the holder class is refused.
+A gate that enumerates exhaustively and omits any of them authorizes work under
+misattributed, revoked, or machine-held authority at the terminal act.
 
 **Checks 2 and 3 SHALL NOT be collapsed into one comparison.** Equating the
 content digest with the chain identity would reject every conforming chain,
@@ -482,6 +511,24 @@ gate cannot walk a link that does not exist yet.
 - WHEN any of links 1–3 is absent
 - THEN the gate REFUSES and reports a fraud signal
 - AND the outcome is never downgraded to a warning, an advisory, or a finding to be triaged
+
+#### Scenario: the grant was revoked before the exercise
+
+- WHEN a chain is offered whose ratifying signature is cryptographically valid, but whose exercise records a revoked grant, a revoked ancestor, or a revoked holder
+- THEN the gate REFUSES, because a valid signature is not current authority and revocation does not invalidate a signature
+- AND the structural checks passing is never accepted in place of standing at exercise
+
+#### Scenario: a machine-held wallet signs and attests itself honestly
+
+- WHEN an agent-held wallet signs a ratification and the recorded actor correctly attests that same wallet
+- THEN the gate REFUSES on HOLDER CLASS, because ratifying authority is human-held
+- AND correct attribution is never accepted as evidence that the attributed holder was eligible to ratify
+
+#### Scenario: the proof of possession was never verified
+
+- WHEN a chain is offered whose exercise records the proof as presented but carries a verification failure, or records an unauthenticated request
+- THEN the gate REFUSES
+- AND the presence of an exercise record is never accepted in place of a verified proof
 
 #### Scenario: the signer and the recorded actor differ
 
