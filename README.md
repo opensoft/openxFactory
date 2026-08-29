@@ -757,38 +757,6 @@ Active changes:
   allowance passes explicitly, and revocation blocks the next dispatch and
   admission. Realization cuts the next additive contract bundle; no domain
   detector, runtime registry service or allowance instance lives here.
-- [add-model-capability-vocabulary](openspec/changes/add-model-capability-vocabulary/proposal.md)
-  — authored 2026-08-24, **NOT YET RATIFIED** (`Status: draft`). Exit (a) of the
-  staged topic `doxchat-auto-fit-routing`, whose six questions were
-  dispositioned the same day. `contract-v1.38` gave the catalog a routing rule
-  whose resolution is STATIC; Brett's direction at that release's rule-5 ruling
-  was that the destination be chosen PER TURN by whether the model can
-  accommodate the turn — and he named a dimension the catalog cannot express
-  ("if we need multi modal then we have to select from that"). The entry says
-  how MUCH a model accepts (`input_limit_bytes`) and nothing about WHAT KIND, so
-  a router asked to keep an image turn away from a text-only model has nothing
-  to read. Adds ONE optional, closed `modalities` declaration — exactly `text`
-  and `image` — extended only by the change that governs a new member, the rule
-  the client-identity roster already applies to admission surfaces. Optional and
-  absence-tolerant because requiring it would break every catalog released
-  before it: absence means "a producer older than the field" and is read as
-  text-only for routing, reusing the chat-turn family's own idiom. Per Q3's
-  batching obligation it also DECIDES the two recorded catalog follow-ups rather
-  than passing them by, and TAKES both after reproducing each: the released
-  64-entry cap is unenforced type-side (a 65-entry catalog constructs), and
-  `model_id` is not held to its released length and pattern (a 200-character id,
-  and one containing a space, both construct) — the same type-weaker-than-wire
-  divergence this capability already closed once for `routes_to`, and N7's
-  recorded reason for deferring ("a behaviour change belonging to no release")
-  is dissolved because this IS that release. Requirements are ADDED, not
-  MODIFIED: the requirement governing the catalog already carries a live
-  MODIFIED delta from the ratified-but-unbuilt intake lane. **Realization is a
-  CONTRACT RELEASE** — schema bytes move — but the bundle number is deliberately
-  NOT allocated in the proposal: `contract-v1.41` only if the pending Unreleased
-  block has not folded first, fresh-counted at allocation. Exits (b) fit-aware
-  routing and (c) compress-to-fit disclosure are named successors; (a) touches
-  only the schema, the type and the validator, which is why it is safe to raise
-  while (b) must be sequenced against the intake build.
 - [add-notebook-hosting-credential-custody](openspec/changes/add-notebook-hosting-credential-custody/proposal.md)
   — authored 2026-08-23, **NOT YET RATIFIED** (`Status: draft`). The follow-up
   to `add-notebook-projection-identity`, on Brett Heap's direction the same day:
@@ -1331,6 +1299,42 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [add-model-capability-vocabulary](openspec/changes/archive/2026-08-29-add-model-capability-vocabulary/proposal.md)
+  — **ARCHIVED on merged-plus-green PLUS THE CUT.** Ratified 2026-08-24 with TWO
+  rulings in one read (ratify; **the parity scope is ALL FIVE**, overriding the
+  proposal's own two-plus-a-follow-up recommendation), then realized directly as
+  `contract-v2.2`: pull request #498, squash `8ccfb67b`, annotated tag object
+  `f86f2212` peeling FROM THE REMOTE to that commit, `verify-commit` and
+  `verify-tag` both green, and the `unpublished:contract-v2.2` REF sentinel
+  resolved to the published commit in `0b9e31c8`. Adds ONE optional, closed
+  `modalities` declaration on `$defs/model_entry` — exactly `text` and `image`,
+  extended only by the change that governs a new member — whose ABSENCE CARRIES
+  NO CLAIM in either direction: an undeclared entry is a producer that predates
+  the field, read as text-only for routing while recorded as having declared
+  nothing, reusing the chat-turn family's own idiom. `contains: {const: text}`
+  is in the SHAPE and not only the type, because `minItems` plus an item enum
+  would have accepted `modalities: [image]` and left the wire gate the weakest
+  one. The declaration is PROJECTED deliberately — `as_public_dict` emits an
+  explicit key list, so it would otherwise have been validated in process and
+  silently dropped by `GET /workbench/model-catalog` — and that is proved at the
+  ROUTE. The parity half closed SIX reproduced gaps with no residue: the
+  released 64-entry catalog cap, `model_id`'s length and pattern (N7's deferral,
+  whose recorded reason was "a behaviour change belonging to no release",
+  dissolved because this WAS that release), and `label`/`provider_class`/
+  `data_handling`'s lengths, which Brett's ruling added; `resolved_model_id` was
+  already enforced and its helper was REUSED rather than respelled. No-residue
+  is proved FROM THE SCHEMA — the test walks `$defs/model_entry` and holds the
+  bounded-string set to a hard equality — rather than from a list of four names.
+  Requirements were ADDED, never MODIFIED, so the ratified-but-unbuilt intake
+  lane's live MODIFIED delta on the governing requirement was never contended;
+  that lane's "closed seven-field shape" prose is RECONCILED in the CHANGELOG
+  and its packet deliberately unedited, on the `contract-v1.38` precedent.
+  Promotion verified byte-for-byte at archive: 2 ADDED requirements and 9
+  scenarios in, `ideation-dashboard` 100 → 102 requirements and 457 → 466
+  scenarios, no sibling scenario lost, no capability directory added.
+  Exits (b) fit-aware routing and (c) compress-to-fit disclosure remain named
+  successors; the staged topic `doxchat-auto-fit-routing` keeps its row.
 
 - [fix-content-resolution-conflation](openspec/changes/archive/2026-08-29-fix-content-resolution-conflation/proposal.md)
   — **ARCHIVED on merged-plus-green PLUS THE CUT**, which is the gate its own
