@@ -213,9 +213,16 @@ ratification record REFERENCE the exercise by identifier. The shipped
 `request_digest`, makes `object_ref` OPTIONAL, and carries no required digest of
 the thing approved — so **a previously successful exercise could be REPLAYED as
 the proof for a different ratification** and satisfy every check as written. The
-human would have signed something else. The requirement now binds: `object_ref`
-names this ratification, `signed_over` is the request digest, and that digest
-EQUALS the ratification's content digest. **This is a scope restriction by the
+human would have signed something else. **The requirement binds in the shape
+D7.1b arrives at, and this sentence states THAT shape rather than the first
+repair's**: `object_ref` CARRIES the ratification's content digest — a value, in
+the shipped identifier grammar, so the comparison is recomputable — and
+`proof_of_possession.signed_over` is the SELECTOR `request_digest`, naming what
+the signature covered without holding it. Written the other way round, as this
+note first was, it equates an enum selector with a digest value and describes a
+comparison no validator can run; the correction is D7.1b's and is stated here so
+a reader of D7.1 alone is not handed the defect the section exists to record.
+**This is a scope restriction by the
 consuming capability, not a schema change** — the same move S2 made when it
 required `issued_by` for review-class grants while leaving the shared grant
 schema untouched, which is why it costs no bundle edit in openXwallet.
