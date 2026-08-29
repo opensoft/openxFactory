@@ -126,9 +126,22 @@ concludes something is missing — or worse, invents an anchor format that tranc
 three then has to displace, which is the one-way door the topic's multi-anchor
 receipt exists to avoid.
 
-## D5 — Tier 1 narrowed to RATIFYING authority, against a realized artifact
+## D5 — Tier 1 narrowed to RATIFYING authority — RAISED HERE, RULED BY BRETT HEAP
 
-**Decision.** Requirement 6 governs the authority that INCEPTS a chain, not
+**Status: RULED 2026-08-29 by Brett Heap, in session.** This decision was
+authored as a flagged narrowing and is no longer one. He ruled that **tier 1 is
+RATIFYING authority**: agent-held REVIEW wallets stay lawful, and what a chain
+refuses is an agent-held wallet performing the RATIFYING act. The requirement's
+grounding cites his ruling; this design note keeps the reasoning that was put to
+him, so the ruling can be read against what it decided.
+
+**The sitting did not reach it.** The 2026-08-29 clarify sitting took the seven
+questions and nothing else — `#499` touches neither the tier model nor either
+narrowing — so this went to him separately and was ruled separately. Recording
+that distinction matters: a reader who saw "ruled 2026-08-29" beside the seven
+dispositions would otherwise conclude the sitting covered it.
+
+**Decision.** Requirement 8 governs the authority that INCEPTS a chain, not
 every authority credential in the family.
 
 **Why the narrowing is forced.** The topic says tier-1 authority credentials are
@@ -147,9 +160,12 @@ by the custody rule, before any tier vocabulary is invoked. The tier boundary
 and the custody boundary agree; the narrowing just says which one is doing the
 work.
 
-**Flagged.** The narrowing is a reading of the topic against a ratified
-artifact, so it goes to the clarify round with Q1 rather than standing on this
-document's own authority.
+**Why it needed a ruling anyway, given that the custody rule already settles
+it.** Because the custody rule settles what the wallet CAN carry, not what the
+topic's sentence SAYS. The sentence as written refuses the artifact, and a
+packet that narrows a topic's text on its own authority — even correctly — is
+doing the quiet-narrowing thing this family refuses. So it was raised rather
+than assumed, and it stands now on his word rather than on this document's.
 
 ## D6 — Q1's "no new artifact" is read as "invent no new artifact"
 
@@ -166,9 +182,15 @@ purpose-built for exactly this: `proof_of_possession` with `presented`,
 enumeration that already distinguishes `missing_proof_of_possession` from
 `missing_grant` because *"the grant was supplied and is not what was lacking"*.
 Q1's intent is plainly to prevent a SECOND proof vocabulary, and referencing the
-first one is the strongest possible way to honour it. **The reading is flagged
-in the requirement**, because a reading of an unruled recommendation is not a
-ruling.
+first one is the strongest possible way to honour it.
+
+**The reading is now the RULING's, and the flag is gone.** Q1 was ruled AS
+RECOMMENDED on 2026-08-29 and its disposition says in terms that "no new
+artifact is created for it" — which is this reading in the ruling's own words.
+Narrowing B therefore needed no separate act and got none. The flag came out of
+the requirement at the same commit that encoded the ruling: a flag left standing
+after its question is ruled is a stale contested marker, and doc-health's
+contested-finding rule is what makes that a defect rather than untidiness.
 
 ## D7 — Five corrections the review rounds forced, recorded as corrections
 
@@ -258,13 +280,56 @@ residual under the realization-conformance obligation. That is `add-trust-anchor
 ratified rule applied to ourselves: an undeclared shortfall is non-conformance,
 the identical shortfall declared is conformant.
 
+## D8 — Four hardenings HARVESTED from the closed #494, cited to their source
+
+**Decision.** Four requirements or requirement-parts in this delta did not
+originate here. They come from **pull request #494**, the parallel tranche-one
+packet that Brett Heap closed on 2026-08-29 when he ruled the collapse, and they
+are cited rather than absorbed so that four Codex rounds of adversarial work are
+provably carried rather than quietly re-derived.
+
+**Why cite at all.** A harvested rule with no provenance reads as this session's
+insight, and the next author who wants to weaken it has no idea what it cost to
+find. Each of these four was a **live defect in a packet that had already passed
+several review rounds** — which is the argument for keeping them, stated better
+than any reasoning this document could supply.
+
+| # | What #494's bench found | Where it lands here |
+| --- | --- | --- |
+| 1 | **The actor a chain records was unbound to the wallet that signed.** A link could reference Alice's valid exercise and record Bob's well-formed opaque subject with every enumerated check passing — the exercise proves who SIGNED, and nothing tied that to whom the act is RECORDED AS | Requirement 2, four scenarios |
+| 2 | **Naming a per-act value does not make it unique.** #494's own earlier fix named the exercise identifier as the value that makes re-ratification produce a new chain; the round after it showed the pinned schema constrains no reuse, so a producer reusing one reproduces identical bytes and the collision returns | Requirement 3, two scenarios |
+| 3 | **A second digest with no construction rule.** #494 declared one construction for the chain identity and left the predecessor digest with none — the same defect twice — and unified rather than adding a second rule | Requirement 4 |
+| 4 | **A validator in no required check enforces nothing.** `review-authority-intake` already ratifies that a grant with no reader in a required check confers nothing; #494 carried it explicitly because a rule relied on by implication is a rule nobody checks | Requirement 9 |
+
+**The binding DIRECTION in item 1 is taken from the pinned contract, not from
+the finding's wording, and that is worth recording.** #494's Codex round asked
+that the actor "resolve through the wallet subject attestation to the exercise
+holder". The pinned `openxwallet-subject-attestation` closes
+`resolution.resolved_by` to `subject_ref` **precisely so that a record cannot
+declare it resolves a subject through a wallet** — the ratified rule that a
+wallet identifier never becomes a subject identifier. So the finding named a real
+defect and its suggested repair would have inverted the direction the consumed
+contract allows. Requirement 2 checks the wallet reference as an ATTESTATION and
+never uses it to resolve who the actor is. **A finding can be right about the
+hole and wrong about the patch**, and the consumed contract is what decides.
+
+**One #494 requirement was deliberately NOT harvested.** Its rule that every link
+after genesis signs the chain identity and its predecessor's digest cannot be
+performed on any link this tranche defines: D7.2 establishes that inception
+cannot sign over an identity derived from its own signature, and that link 3 has
+no signer at all. Importing it would have put a rule in force that no tranche-one
+link can satisfy — the "a rule that names a link it cannot apply to" defect this
+packet corrected once already. The hash-linked SIGNING rule stays declared at
+tranche two's first signed link, and tranche one's continuity is derivation and
+comparison.
+
 ## What tranche one DELIBERATELY DEFERS, and where each lands
 
 Recorded so that nothing here is mistaken for silence.
 
 | Deferred | Why it cannot land here | Where it lands |
 | --- | --- | --- |
-| **Q7 — where an attestation signature physically happens** | It decides what an attestation PROVES about a runner, and this tranche mints no attestation identity at all | Tranche two's contract text; the question is answered in the clarify round, the mechanism is drafted there |
+| **Q7 — where an attestation signature physically happens** | It decides what an attestation PROVES about a runner, and this tranche mints no attestation identity at all | Tranche two's contract text. **RULED 2026-08-29** — remote signing served by the harness controller, the runner's signing request recorded beside the signature, the controller corroborating against its own link-4 setup attestation. The gate is OPEN; the mechanism is drafted there and is named nowhere here |
 | **The remediation exemption's full form** | It is an exemption on link 10's CLOSURE invariant — an unclosed chain refuses every consumer except a chain whose declared, signed subject is that failure. Link 10 does not exist at this tranche, so the exemption has nothing to except and drafting it here would be drafting a rule against a state the system cannot enter | Tranche two, alongside link 10; the shape is already argued in the staged topic and is carried, not re-derived |
 | **The controller-does-not-notarize-self-report rule** | It binds link 5's claims against link 4's setup attestation; both are tranche two | Tranche two |
 | **The on-chain boundary, the salted keyed commitment, the multi-anchor receipt** | Gated on rulings for Q3 and Q6, and on the PKI plane being real | Tranche three |

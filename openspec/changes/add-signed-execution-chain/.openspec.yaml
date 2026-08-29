@@ -26,29 +26,39 @@ origin:
     `chain-selection-study.md` beside it is research input, cited and not
     re-argued.
 
-    THIS PACKET IS NOT RATIFIED AND CLAIMS NO RATIFICATION. Drafting was
-    commissioned in the 2026-08-28 session handoff whose board names "draft the
-    signed-execution-chain change tranche one"; that act commissioned the
-    DRAFT and nothing else. A CLARIFY ROUND PRECEDES RATIFICATION — the topic's
-    seven open questions in one sitting, of which Q1 (wallet-presentation
-    mechanics) is the only blocker for this tranche, together with two
-    narrowings this packet flags rather than assumes: tier 1 narrowed to
-    RATIFYING authority (the literal topic text would refuse the realized
-    agent-held `wal-agent-mrc-0001` review wallet), and Q1's "rather than a new
-    artifact" read as "invent no new artifact", honoured by referencing the
-    shipped `xfactory_wallet_grant_exercise` rather than minting a second proof
-    vocabulary. Ratification is Brett Heap's act and is recorded in `tasks.md`
-    §3 as an open box.
+    THIS PACKET IS NOT RATIFIED AND CLAIMS NO RATIFICATION. THE CLARIFY ROUND
+    IT ONCE WAITED ON IS DISCHARGED: Brett Heap ruled all seven of the topic's
+    open questions on 2026-08-29 (openxFactory pull request #499, squash
+    `9c501df6`), and ruled Narrowing A — tier 1 is RATIFYING authority, so
+    agent-held REVIEW wallets stay lawful and the realized `wal-agent-mrc-0001`
+    is untouched — separately and in session on the same day, the sitting having
+    taken the seven questions and nothing else. Narrowing B needed no separate
+    act: Q1's disposition itself says no new artifact is created for the
+    presentation. Q1 is encoded AS RULED in requirement 1 and no longer flagged;
+    Q4's two sequencing facts were already met; Q5 is complied with by writing
+    no contract-code posture and NO TRIGGER CONDITION; Q2, Q3, Q6 and Q7 govern
+    later tranches and are pre-encoded nowhere. Ratification is Brett Heap's act
+    and is recorded in `tasks.md` §2 as an open box.
   approved_by: >-
     NOT AN APPROVAL TO RATIFY, and the field is spelled out because its usual
-    reading is stronger than the fact. What was approved is the DRAFTING of this
-    packet, commissioned through the 2026-08-28 session handoff board, whose
-    second item reads "draft the signed-execution-chain change tranche one".
-    That board is the ORCHESTRATING SESSION'S record of Brett Heap's direction
-    and not his verbatim words; the two voices are kept apart here rather than
-    merged into one attribution, which is the same discipline the 2026-08-28
-    measured-latents packets applied to their own origin lines. NOTHING ELSE IS
-    APPROVED — not the requirement text, not the vocabulary act, not the
-    provisional `target_release`, not the two flagged narrowings, and above all
-    not ratification.
-  approved_on: 2026-08-28
+    reading is stronger than the fact. What is approved is the DRAFTING of this
+    packet, GREEN-LIT BY BRETT HEAP ON 2026-08-29 IN SESSION.
+    THIS FIELD WAS CORRECTED, AND THE CORRECTION IS THE POINT. As first filed it
+    cited the 2026-08-28 session-handoff board, which is an orchestrating
+    session's record of his direction and not his word — a weaker warrant than
+    the field's usual reading implies. The 2026-08-29 clarify sitting then said
+    in terms that it did NOT green-light the drafting and that "the next act is
+    his". So the original citation was not merely thin, it named an
+    authorization the record explicitly said was still outstanding. He gave it
+    separately, in session, on 2026-08-29 — in the same ruling that COLLAPSED
+    the two parallel tranche-one packets (#494 and #495) onto this one and
+    ADOPTED Narrowing A.
+    NOTHING ELSE IS APPROVED — not the requirement text, not the vocabulary act,
+    not `target_release`, and above all not ratification.
+  approved_on: 2026-08-29
+related:
+  - openxFactory:change:add-wallet-carried-review-authority  # ACTIVE; link 1's instrument — the wallet-carried review-authority grant with its root issuer anchored outside the register. Consumed here; no second signing primitive is invented
+  - openxFactory:change:add-trust-anchor                     # ACTIVE, realized at contract-v1.37; owns certificates, declared chain custody and anchor records. Tranche one holds NO certificate, and its declared-custody rule is what makes the Narrowing A ruling cost nothing in strictness
+  - openxFactory:change:add-identity-brokering               # ACTIVE; owns WHO a signer is (the stable opaque subject). This packet owns WHAT a signature attests, and binds the two in the direction the pinned subject-attestation contract fixes
+  - openxFactory:change:implement-openxpki-install-repo      # ACTIVE; the runtime CA that would issue the harness-controller certificate. A tranche-TWO dependency, deliberately not assumed here
+  - openxFactory:change:add-worker-enrollment-broker         # ACTIVE; owns "enrollment" for WORKERS joining a fleet. A THIRD sense of the word beside 025 FR-008's candidate-class enrollment, and the reason this capability takes the word at all — it says `chain inception`

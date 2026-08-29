@@ -47,12 +47,22 @@ proof vocabulary to escape a gap in the first. The staged topic's own
 instruction governs: every link resolves to an existing family OR is raised as
 an explicit gap.
 
-**THIS REQUIREMENT CARRIES A RECOMMENDED-BUT-UNRULED ANSWER.** It encodes the
-staged topic's Q1 recommendation — grant vocabulary plus a proof-of-possession
-step, recorded in the ratification record — and it reads Q1's "rather than a new
-artifact" as *invent no new artifact*, honoured by referencing the shipped
-exercise record. Q1 is OPEN and is answered in the clarify round that precedes
-ratification; if it is ruled otherwise, this requirement is the text that moves.
+**THIS REQUIREMENT IS Q1 AS RULED.** Brett Heap ruled Q1 on 2026-08-29 AS
+RECOMMENDED: presentation is expressed in the SHIPPED grant vocabulary plus a
+PROOF-OF-POSSESSION step, and the presentation is recorded in the RATIFICATION
+RECORD ITSELF, with no new artifact created for it. This requirement is written
+to that ruling and no longer flags it as open. Q1's "rather than a new artifact"
+is read as *invent no new artifact* — Narrowing B as it was raised — and the
+ruling settles that reading directly, since it says in terms that no new
+artifact is created for the presentation; the shipped exercise record is
+therefore REFERENCED and nothing is minted beside it.
+
+**WHAT THIS REQUIREMENT ADDS BEYOND THE RULING IS THE BINDING, AND IT IS ADDITIVE
+RATHER THAN INTERPRETIVE.** Q1 settles WHERE the presentation is recorded; it
+does not say that recording a valid exercise makes it this ratification's
+exercise. The `object_ref` and `signed_over` obligations above close the replay
+hole that silence would leave open, and they narrow the consuming capability
+without touching the ruled answer or the pinned schema.
 
 #### Scenario: a grant is presented with no proof of possession
 
@@ -90,6 +100,54 @@ ratification; if it is ruled otherwise, this requirement is the text that moves.
 - THEN the ratification is REFUSED
 - AND validity recorded at issuance is not accepted as evidence of validity at presentation
 
+### Requirement: The actor a chain records is bound to the wallet that signed
+
+openxFactory SHALL bind the ACTOR a chain link records to the WALLET whose key
+made the exercise that link descends from, and SHALL NOT accept a valid exercise
+as evidence of WHOM the act is recorded as. The chain records its actor as
+`identity-brokering`'s stable opaque subject; that subject SHALL carry a wallet
+attestation naming the wallet whose key made the exercise; the chain SHALL check
+that the two agree; and the binding SHALL be covered by the signed bytes so it
+cannot be attached after the signature. Without this, a link may reference one
+holder's valid exercise while recording a different, well-formed opaque subject,
+and every other check in this capability still passes — the exercise proves who
+SIGNED, and nothing else in the delta ties that to whom the act is ATTRIBUTED.
+
+**THE DIRECTION OF THE BINDING IS FIXED BY THE PINNED CONTRACT AND THIS
+CAPABILITY DOES NOT REVERSE IT.** `openxwallet-subject-attestation`, consumed at
+the `wallet-v1.3` pin (`contracts/openxwallet-pin.yaml`), closes
+`resolution.resolved_by` to `subject_ref` precisely so that a record cannot
+declare it resolves a subject THROUGH a wallet — the ratified rule that a wallet
+identifier never becomes a subject identifier. A subject is therefore resolved by
+its own identifier and never through a wallet, and the wallet reference is checked
+as an ATTESTATION only. Stating the obligation without its direction would invite
+a realization to satisfy it by resolving the actor from the wallet, which the
+pinned contract refuses.
+
+#### Scenario: the recorded actor is not the holder that signed
+
+- WHEN a link names a well-formed opaque subject and references a valid exercise, but that subject attests a different wallet than the one whose key made the exercise
+- THEN the link is REFUSED
+- AND the validity of the exercise does not admit it, because the exercise proves who signed and not whom the act is recorded as
+
+#### Scenario: the recorded actor attests no wallet at all
+
+- WHEN a link's actor subject carries no wallet attestation
+- THEN the link is REFUSED rather than accepted on the strength of the exercise alone
+- AND the absence is never read as an attestation that happens to be omitted
+
+#### Scenario: the binding is attached after the signature
+
+- WHEN the actor-to-wallet binding is present but falls outside the bytes the ratifying signature covers
+- THEN it is REFUSED, because a binding attachable afterwards is a binding anyone can attach
+- AND the link is not accepted on the strength of the binding's mere presence
+
+#### Scenario: a realization resolves the actor through the wallet
+
+- WHEN a realization resolves the actor subject by looking up the wallet that signed
+- THEN it is REFUSED, because the pinned subject-attestation contract closes `resolution.resolved_by` to `subject_ref`
+- AND the wallet reference is checked as an attestation and never used to resolve identity
+
 ### Requirement: Ratification and chain inception are one signed act
 
 openxFactory SHALL perform CHAIN INCEPTION — the registration of a ratification
@@ -113,6 +171,27 @@ the rule itself is not surface-dependent**, because a pipeline that CLEARS
 candidates cannot also be what CONFERS the authority those candidates are
 cleared against — a chain whose first link is minted by the mechanism it exists
 to permit is circular, and would be circular on any surface, floored or not.
+
+**RE-RATIFYING AN UNCHANGED SUBJECT SHALL PRODUCE A DIFFERENT CHAIN, AND THE
+SIGNED BYTES ARE WHAT MAKE THAT TRUE.** The chain identity is the digest of the
+signed ratification, so re-ratifying an unchanged subject would otherwise produce
+identical bytes, an identical digest and — under a deterministic signature
+scheme — an identical signature: the "new" chain would silently BE the old one,
+and no refusal in this capability would catch it, because nothing would look
+wrong. The bytes covered by the ratifying signature SHALL therefore carry a value
+UNIQUE TO THE RATIFYING ACT, and this capability NAMES that value rather than
+minting one: the identifier of the grant exercise that proved link 1, since one
+exercise is one act and the pinned exercise record already carries it.
+
+**NAMING THE VALUE IS NECESSARY AND NOT SUFFICIENT — UNIQUENESS IS ENFORCED
+HERE.** The pinned schema validates the exercise identifier as a generic
+identifier and constrains nothing about its reuse, so a producer that reuses one
+while re-ratifying an unchanged subject reproduces the identical bytes and the
+collision returns by the back door. This capability SHALL therefore REFUSE an
+inception whose named per-act value has already been consumed by an existing
+chain. The rule is stated rather than assumed because an obligation a consumed
+contract does not carry is this capability's to enforce or to declare as a
+dependency, never to take on trust.
 
 **CHAIN INCEPTION IS NOT ENROLLMENT.** `specs/025-openxfactory-review-lane-caller/spec.md`
 FR-008 owns the word "enrollment" in this repository for a different act — the
@@ -146,6 +225,57 @@ discharges, amends or relies on it.
 - WHEN a reader or an implementer treats chain inception as an enrolled candidate class
 - THEN the two acts are distinguished by name and neither substitutes for the other
 - AND no `merge-approval-envelope` instance is created by this capability
+
+#### Scenario: an identical subject is ratified twice
+
+- WHEN the same unchanged subject is ratified on two separate occasions
+- THEN the two ratifications mint TWO DISTINCT chain identities, because each signs a different per-act value
+- AND neither is accepted as a continuation or a re-issue of the other
+
+#### Scenario: a per-act value is reused across inceptions
+
+- WHEN an inception names a per-act value already consumed by an existing chain
+- THEN it is REFUSED
+- AND the refusal does not depend on the pinned schema having constrained reuse, which it does not
+
+### Requirement: One digest construction governs every digest this capability computes
+
+openxFactory SHALL put exactly ONE digest construction in force for this
+capability — a named algorithm and an exact, order-fixed byte serialization —
+and that construction SHALL govern EVERY digest the capability computes: the
+chain identity, the digest of any predecessor a later tranche's link binds to,
+the transparency-log leaf digests, and any digest a later tranche adds. The
+construction SHALL be declared in the contract rather than restated in this
+specification, so that one fact lives in one place, and every digest a record
+carries SHALL be algorithm-tagged so a later migration is a readable change
+rather than a silent reinterpretation.
+
+**THE RULE IS STATED ONCE, DELIBERATELY, AND NOT PER DIGEST.** A requirement that
+mandates agreement between readers while naming neither algorithm nor encoding
+makes agreement impossible: two readers serializing the same record differently
+derive different digests, and neither can verify the other. Declaring the
+construction beside each digest that needs it would repair one site and invite a
+third rule beside the second — which is exactly how this defect appeared twice in
+this packet's ancestry, once for the chain identity and once for the predecessor
+digest. A capability that computes digests SHALL NOT carry a second construction
+rule anywhere.
+
+#### Scenario: a reader derives a digest under its own serialization
+
+- WHEN a reader computes a chain identity or a leaf digest under a serialization other than the one in force
+- THEN the value it derives does not match and the record is REFUSED
+- AND the disagreement is reported as a construction mismatch rather than as a broken chain
+
+#### Scenario: a later tranche adds a digest
+
+- WHEN a later tranche introduces a digest this capability did not previously compute
+- THEN it is computed under the SAME construction already in force
+- AND no second construction rule is declared beside the first
+
+#### Scenario: a digest is carried untagged
+
+- WHEN a record carries a digest with no algorithm tag
+- THEN it is REFUSED, because an untagged digest cannot be migrated without silently changing meaning
 
 ### Requirement: The signed ratification travels with the work
 
@@ -316,14 +446,29 @@ agent, a runner, a lane, a workflow identity, or any other machine holder. The
 ground is constitutional rather than conventional: every omnigent worker
 archetype carries `access_secrets: false`, so a worker cannot hold an authority
 credential, and a design in which a runner signs AUTHORITY contradicts ratified
-text. The narrowing to RATIFYING authority is exact and is the reason this
-requirement does not disturb a realized artifact: an agent-held wallet backing a
-`review`-act grant is not a ratifying credential, and its `holder_readable`
-custody evidences that the HOST acted — which under the ratified declared-custody
-rule is precisely what a ratification may not stand on. Tier 2 — ephemeral
-per-task attestation identities, whose keys never enter a worker — is the named
-tranche-two boundary and is NOT defined here; no attestation identity of any
-kind is created by this capability.
+text. Tier 2 — ephemeral per-task attestation identities, whose keys never enter
+a worker — is the named tranche-two boundary and is NOT defined here; no
+attestation identity of any kind is created by this capability.
+
+**THE SCOPE OF "AUTHORITY" HERE IS NARROWING A, RULED BY BRETT HEAP ON
+2026-08-29 IN SESSION.** The staged topic's tier model says tier-1 credentials
+are "never held by an agent, a runner, or a lane". Read literally that refuses
+`wal-agent-mrc-0001` — a REALIZED agent-held wallet backing an active `review`
+grant that this repository runs today — so the literal reading would make a
+shipped artifact nonconformant on this capability's first day. He ruled that
+**tier 1 is RATIFYING authority**: the human-held constraint binds the RATIFYING
+act, agent-held REVIEW wallets stay lawful, and what this requirement refuses is
+an agent-held wallet performing a RATIFICATION. This is a ruling of record, not
+a reading this capability adopted on its own authority; it was raised as a
+narrowing, it was not reached by the 2026-08-29 clarify sitting, and it was ruled
+separately in the same session.
+
+The ruling is also independently supported by ratified text, which is why it
+narrows nothing that matters: an agent-held wallet's custody is
+`holder_readable`, and under `add-trust-anchor`'s ratified declared-custody rule
+that evidences the HOST acted — precisely what a ratification may not stand on.
+So the review wallet could never have carried a ratifying grant regardless, and
+the ruling removes a false refusal without creating a real permission.
 
 #### Scenario: a machine holder is named as ratifying authority
 
@@ -348,3 +493,44 @@ kind is created by this capability.
 - WHEN an agent-held wallet exercises a `review`-act grant
 - THEN this requirement does not refuse it, because reviewing is not incepting a chain
 - AND the same holder remains refused for any ratifying act
+
+### Requirement: The capability confers and refuses nothing until a named reader runs as a required check
+
+This capability SHALL confer and refuse nothing until a NAMED validator that
+reads its records runs as a REQUIRED check on the repository that holds them,
+and until that check is required its records SHALL be treated as documentation
+that governs nothing. No statement of this capability SHALL describe a rule
+inside a validator as though the description were the enforcement, and any
+statement of what the chain enforces SHALL NAME the check that enforces it;
+where no such check exists, the requirement is UNMET rather than partially met.
+
+The rule is carried HERE rather than inherited by implication from
+`review-authority-intake`'s ratified *"A grant with no reader in a required
+check confers nothing"*, because a rule relied on by implication is a rule
+nobody checks. It is also what keeps the gate requirement above honest: a
+workflow file that validates chains is not evidence that chains are validated —
+the ruleset state is, which is the same distinction
+`add-wallet-carried-review-authority` tasks 2.5/2.6 already drew for
+`wallet-validation` in this repository.
+
+#### Scenario: the validator exists in no required check
+
+- WHEN the chain validator is present in the repository but appears in no workflow that is a required check
+- THEN every chain record confers nothing, and the capability states so rather than asserting the chain's properties in the present tense
+
+#### Scenario: a described control is offered as an existing one
+
+- WHEN a requirement of this capability is stated as satisfied by a rule inside a validator
+- THEN the statement MUST name the required check under which that validator executes
+- AND where no such check exists the requirement is UNMET, not partially met
+
+#### Scenario: the capability is promoted before any reader exists
+
+- WHEN this capability's requirements reach the promoted specification and no reader is yet required anywhere
+- THEN the capability is recorded as conferring nothing yet, with the reader named as the outstanding realization obligation
+
+#### Scenario: a merged workflow file is offered as the required check
+
+- WHEN a merged workflow that runs the validator is offered as evidence that the check is required
+- THEN it is REFUSED as evidence, because merging a workflow does not make it required
+- AND the ruleset state naming the check is what discharges the obligation

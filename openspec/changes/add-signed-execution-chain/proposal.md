@@ -1,21 +1,29 @@
 ---
 code_surface: openxFactory — A NEW NEUTRAL CONTRACT FAMILY PLUS ITS RUNNING GATE, declared honestly because this tranche is not doctrine-only. `contracts/signed-execution-chain/` gains the chain-inception record (the ratification's signed registration, carrying the chain identity and the reference to the `openxwallet` exercise record that proved presentation), the traveling-contract artifact (the carried form of the signed ratification), the transparency-log leaf record (append-only, signed, hash-linked), and the realization conformance declaration on `trust-anchor`'s declared-shortfall pattern — plus packaged positive AND negative examples for every named refusal, and the canonical `scripts/validate-signed-execution-chain.py`. The GATE is a running check, not a described one: a short-chain verifier over links 1–3 wired as a pull-request check, on the shape `wallet-validation` already proved in this repository (`add-wallet-carried-review-authority` tasks 2.5/2.6 — a workflow file is not evidence; the ruleset state is). Registration in `contracts/manifest.yaml` + `contracts/CHANGELOG.md` at the next additive bundle cut. NO attestation record of any kind, NO controller certificate, NO per-task identity, NO certificate authority, NO key service, NO anchor, NO chain, NO commitment format, NO consent plane — links 4–6 and 10 are the named tranche-two successor and the anchoring layer is the named tranche-three successor, each carrying its OWN code surface. NO second identity, grant, proof-of-possession or certificate vocabulary is defined: link 1's instrument is the SHIPPED `xfactory_wallet_grant` / `xfactory_wallet_grant_exercise` pair consumed at the digest pin, and a new one here would be the collision the staged topic names as its first risk.
-target_release: PROVISIONAL, FOR BRETT TO CONFIRM AT RATIFICATION — the next additive contract bundle after `contract-v2.1`, deliberately NOT numbered here and allocated AT REALIZATION by merge order per `docs/contract-versioning-policy.md`, on `add-trust-anchor`'s precedent for a new neutral contract family ("next additive contract bundle (allocated at realization per docs/contract-versioning-policy.md)") and `add-credential-escrow-checkout`'s stated reason for not spending a number a parallel packet may already be spending. THE GROUND, MEASURED RATHER THAN REMEMBERED: `contracts/manifest.yaml:3` declares `contract_bundle_version: contract-v2.1`, so the era is v2.x; the pre-split v1.4x numbers are spent, `contract-v1.45` included — `contracts/releases/contract-v1.45.digests.yaml` is a cut inventory in the tree today, so any reservation of that number for a later candidate is already historical and this change could not take it even if it wanted to. THE CLASS IS ADDITIVE and nothing narrows: a new contract family is the versioning policy's "new contracts" case verbatim, no existing schema changes, no consumer pinned at `contract-v2.1` is made non-conformant, and no domain is obliged to adopt a chain. The archive gate is merge-plus-green-plus-the-cut; realization is a later commission.
+target_release: **`contract-v2.3`** — the next additive contract bundle, FRESH-COUNTED at this branch's tip rather than remembered: `contracts/manifest.yaml:3` declares `contract_bundle_version: contract-v2.2` AND `contracts/releases/contract-v2.2.digests.yaml` is a cut inventory in the tree, so v2.2 is spent and v2.3 is next. The number is named because the count was taken here and not carried from an earlier reading — the packet as first filed reasoned from `contract-v2.1`, which #498 had already superseded on the same day, and a `target_release` reasoned from a stale manifest is the defect this line exists to avoid. **It remains ALLOCATED AT REALIZATION BY MERGE ORDER** per `docs/contract-versioning-policy.md`: several changes ride one additive cut, so a sibling reaching the cut first does not renumber this one, and the realization confirms the number against the manifest at ITS tip. THE CLASS IS ADDITIVE and nothing narrows — a new contract family is the versioning policy's "new contracts" case verbatim, no existing schema changes, no consumer pinned at `contract-v2.2` is made non-conformant, and no domain is obliged to adopt a chain.
 Status: draft
 Proposed: 2026-08-29
-Origin: `openxFactory:staging:signed-execution-chain`, EXIT 1 OF THREE — the tranche the staged topic's own `## Exit path` marks "Composable TODAY", raised without waiting for the two rulings its siblings wait on. The topic was registered 2026-08-27 from Brett Heap's expansion ruling and hardened by five adversarial review rounds on its own pull request (PR #452, squash `6612d323`). Tranches two and three are named successors in this document and NOT drafted here.
+Origin: `openxFactory:staging:signed-execution-chain`, EXIT 1 OF THREE — the tranche the staged topic's own `## Exit path` marks "Composable TODAY", and Q4 ruled that boundary on 2026-08-29. The topic was registered 2026-08-27 from Brett Heap's expansion ruling and hardened by five adversarial review rounds on its own pull request (PR #452, squash `6612d323`). Tranches two and three are named successors in this document and NOT drafted here. **THE DRAFTING AUTHORIZATION IS BRETT HEAP'S IN-SESSION RULING OF 2026-08-29**, and it is named precisely because the earlier claim was weaker than the fact required: this packet as first filed cited the 2026-08-28 session-handoff board, which is an orchestrating session's record of direction and not his word, and the clarify sitting's own closing note says in terms that the sitting did NOT green-light the drafting. He gave the green-light separately, in session, on 2026-08-29, in the same ruling that collapsed pull requests #494 and #495 onto this one and adopted Narrowing A. Nothing else is authorized by it — not the requirement text, not the vocabulary act, not `target_release`, and above all not ratification.
 ---
 
 # Proposal: add-signed-execution-chain
 
-**THIS DOCUMENT IS NOT RATIFIED, AND A CLARIFY ROUND PRECEDES ITS
-RATIFICATION.** The staged topic carries seven open questions; **Q1 is the one
-this tranche's own text depends on**, and its recommended answer is carried
-here FLAGGED rather than assumed. Q3, Q6 and Q7 gate the later tranches and are
-recorded here only so the clarify round can take all seven in one sitting, per
-the standing clarify rules (the full block goes to a file in the change
-directory and to the terminal, path echoed top and bottom). Nothing in this
-proposal is ratified-shape until that round is answered and Brett Heap rules.
+**THIS DOCUMENT IS NOT RATIFIED. THE CLARIFY ROUND IT USED TO WAIT ON HAS
+HAPPENED.** Brett Heap ruled all seven of the staged topic's open questions on
+**2026-08-29** in a clarify sitting, landed as pull request **#499** (squash
+`9c501df6`), and this packet is amended to those rulings rather than flagging
+them. Q1 — the only one this tranche's own text depended on — was ruled AS
+RECOMMENDED and is encoded as ruled in requirement 1. Q4 ruled tranche one's
+boundary and its two sequencing facts, which this packet already met. Q2, Q3,
+Q6 and Q7 govern the later tranches: they are RECORDED here and **pre-encoded
+nowhere** — this packet names no chain, no anchor, no commitment format and no
+contract-code posture.
+
+**Ratification is a separate act and is Brett Heap's.** `tasks.md` §2 carries it
+as an open box. What he HAS given, on 2026-08-29 in session, is the DRAFTING
+GREEN-LIGHT the sitting deliberately withheld, together with the ruling that
+collapsed two parallel packets onto this one and the ruling that adopted
+Narrowing A. Those three acts are recorded in this document where each binds.
 
 ## Why
 
@@ -54,21 +62,24 @@ one domain would belong in that domain's repository.
 
 ## What this change is — TRANCHE ONE, and its boundary is the point
 
-The staged topic's `## Exit path` fixes tranche one's scope and this proposal
-does not widen it:
+Tranche one's scope is **RULED**, not proposed. Brett Heap ruled **Q4** on
+2026-08-29 AS RECOMMENDED — *"Tranche one is links 1–3 ONLY"* — and ruled two
+sequencing facts with it, both of which this packet already met and now cites as
+rulings rather than as the topic's instruction:
 
 - **Links 1–3** — the wallet-presented ratification, the atomic
   ratified⇒chain-incepted act, and the traveling contract.
-- **PLUS the signed transparency log**, which that same text places in tranche
-  one by its own sequencing argument: *"the evidence plane of claim 6 — the
-  signed transparency log — is a **tranche 1** artifact, not a tranche 3 one.
-  The log is the record; the anchors are late additions to it. Building the log
-  last would mean tranches 1 and 2 had nowhere to write their signed leaves."*
-- **PLUS the gate, existing from tranche one and validating a SHORT chain**,
-  again on the topic's own instruction: *"The gate should exist from tranche one
-  validating a short chain, rather than arriving at the end validating a long
-  one"*, so the refusal path is exercised from the start rather than first
-  tested when it matters most.
+- **PLUS the signed transparency log, a TRANCHE-1 artifact BY RULING.** Q4's
+  disposition: *"the **signed transparency log is a TRANCHE-1 artifact**, because
+  tranches 1–2 need somewhere to write their signed leaves."* The log is the
+  record; the anchors are late additions to it, and building the log last would
+  leave tranches one and two nowhere to write.
+- **PLUS the gate, existing FROM TRANCHE ONE and validating a SHORT chain, BY
+  RULING.** Q4's disposition: *"the **chain-validating gate exists FROM TRANCHE
+  ONE**, validating a short chain, so the refusal path is exercised from the
+  start rather than first tested when it matters most."* This is why the packet
+  ships a running gate rather than refusal semantics alone — the difference is
+  now a ruling and not a judgement call.
 
 **Named successors, NOT drafted here:**
 
@@ -76,12 +87,19 @@ does not widen it:
   4–6 and 10, the harness-controller setup attestation, per-task attestation
   identities, the signed PR-open decision and the governed post-merge test. It
   needs the omnigent layer to enforce the precondition and
-  `implement-openxpki-install-repo` to issue the controller certificate, and its
-  contract text is gated on **Q7**.
+  `implement-openxpki-install-repo` to issue the controller certificate. **Its
+  Q7 gate is OPEN** — ruled 2026-08-29 as remote signing served by the harness
+  controller, with the runner's signing request recorded beside the signature it
+  received and the controller corroborating the payload against its own link-4
+  setup attestation — so what remains for tranche two is MACHINERY, not a
+  ruling. None of that mechanism is named in this packet's delta.
 - **Tranche three — `add-signed-execution-chain-anchoring`** (working id): the
   commitment and anchor layer plus the permissioned consent plane whose state
-  roots it anchors. Gated on rulings for **Q3** and **Q6**, not on more
-  analysis.
+  roots it anchors. **Both its question-gates are OPEN** — Q3 and Q6 were ruled
+  on 2026-08-29 — so what holds tranche three is the PKI plane being real, not a
+  ruling. The ruled configuration is recorded in the staged topic and is
+  **deliberately absent from this packet's delta**: tranche one places nothing on
+  any chain, so it names no chain, no witness ordering and no receipt format.
 
 **Neither successor's content appears in this change**, and no requirement here
 may be read as authorizing it.
@@ -179,15 +197,23 @@ and this spec's wording are never read as two different acts.
 
 ### New Capabilities
 
-- `signed-execution-chain`: the neutral tranche-one chain — a ratification
-  admitted only on wallet-carried authority PROVEN BY POSSESSION in the shipped
-  `openxwallet` vocabulary; ratification and chain inception as one signed act,
-  performed out-of-pipeline, so a ratified-but-uninscribed state is
-  constructively impossible; the signed ratification as a TRAVELING CONTRACT
-  checkable at the point of use; an append-only signed transparency log as THE
-  RECORD; a gate that validates links 1–3 as a HASH-LINKED chain and refuses a
-  break as a fraud signal rather than reporting it as a warning; and tier-1
-  ratifying authority held by a human, never by an agent, runner or lane.
+- `signed-execution-chain`: the neutral tranche-one chain, **NINE ADDED
+  requirements over 38 scenarios**, no `## MODIFIED Requirements` block anywhere
+  — a ratification admitted only on wallet-carried authority PROVEN BY POSSESSION
+  in the shipped `openxwallet` vocabulary and BOUND to the exact ratification;
+  the recorded ACTOR bound to the wallet that signed, in the direction the pinned
+  subject-attestation contract fixes; ratification and chain inception as one
+  signed act, performed out-of-pipeline, so a ratified-but-uninscribed state is
+  constructively impossible and re-ratifying an unchanged subject cannot silently
+  reproduce an existing chain; ONE digest construction governing every digest the
+  capability computes; the signed ratification as a TRAVELING CONTRACT checkable
+  at the point of use; an append-only signed transparency log as THE RECORD, with
+  its one uncovered residual declared rather than papered over; a gate that
+  validates links 1–3 as a HASH-LINKED chain and refuses a break as a fraud
+  signal rather than reporting it as a warning; tier-1 RATIFYING authority held
+  by a human, never by an agent, runner or lane, per Brett Heap's Narrowing A
+  ruling of 2026-08-29; and the rule that none of it confers or refuses anything
+  until a named reader runs as a REQUIRED check.
 
 ### Modified Capabilities
 
@@ -224,8 +250,8 @@ under which its Conflicts table admits this tranche at all.
     issuer anchor, the register and its reader, and the first wallet, all read
     inside the REQUIRED `wallet-validation` check (org ruleset **21538893**).
   - `add-trust-anchor`'s ratified declared-custody rule — custody bounds what a
-    signature evidences — which is what makes requirement 6's narrowing exact
-    rather than assertive.
+    signature evidences — which is what makes requirement 8's ruled narrowing
+    exact rather than assertive.
 - **Composes with, and is bounded by**: `specs/025-openxfactory-review-lane-caller/spec.md`
   FR-008 (untouched, still gated), the 2026-08-28 convening record (both
   constraints above), and `omnigent-domain-overlay`'s constitutional
@@ -235,35 +261,84 @@ under which its Conflicts table admits this tranche at all.
   none. MedxFactory/HealthLinc and LedgerxFactory/LedgerLinc are named as the
   neutrality proof, not as consumers under obligation.
 
-## Where the staged topic and a ratified artifact pull against each other
+## Where the staged topic and a ratified artifact pulled against each other — BOTH SETTLED
 
-Recorded rather than smoothed, on this family's contested-finding rule. Both are
-carried into the clarify round.
+Recorded rather than smoothed, on this family's contested-finding rule. Both
+were raised as narrowings; **both are now settled, and neither is settled by
+this packet's own authority.**
 
-**1. "Tier 1 — authority credentials, HUMAN-HELD … never held by an agent"
-versus a realized agent-held wallet.** The topic's tier model says authority
-credentials are never held by an agent. But `wal-agent-mrc-0001` is a REALIZED
-wallet whose holder is `agent:merge-readiness-council`, custody model
-`holder_readable`, backing an active `review`-act grant — shipped, validated,
-and register-backed. Read literally the topic refuses an artifact this
-repository already runs. **This change narrows rather than contradicts**: tier 1
-in requirement 6 is **RATIFYING** authority — the authority that INCEPTS a chain
-— and that is human-held. A `review` grant is not a ratifying grant, and the
-narrowing is not a convenience: `holder_readable` custody evidences that the
-HOST acted, which under `add-trust-anchor`'s ratified custody rule is exactly
-what a ratification may not stand on. The topic's stronger sentence is
-preserved where it is true and narrowed where a ratified artifact contradicts
-it, and the narrowing is flagged for Brett.
+**1. NARROWING A — "Tier 1 … never held by an agent" versus a realized
+agent-held wallet. RULED BY BRETT HEAP, 2026-08-29, IN SESSION.** The topic's
+tier model says authority credentials are never held by an agent. But
+`wal-agent-mrc-0001` is a REALIZED wallet whose holder is
+`agent:merge-readiness-council`, custody model `holder_readable`, backing an
+active `review`-act grant — shipped, validated, and register-backed. Read
+literally the topic refuses an artifact this repository already runs.
+**He ruled that tier 1 is RATIFYING authority**: agent-held REVIEW wallets stay
+lawful, and what a chain refuses is an agent-held wallet performing the
+RATIFYING act. Requirement 8 is written to that ruling.
 
-**2. Q1's "rather than a new artifact" versus a shipped record kind for exactly
-this act.** Q1's recommended answer says to record the presentation *"in the
-ratification record rather than a new artifact"*. The family already HAS an
-artifact for it — `xfactory_wallet_grant_exercise`, shipped at `wallet-v1.3`.
-This change reads Q1's intent as **invent no new artifact**, which is honoured
-exactly by REFERENCING the existing exercise record from the ratification record
-rather than minting a second proof vocabulary. Minting one would be the
-collision the topic's Conflicts table names first. **The reading is flagged, not
-assumed** — it is the Q1 flag on requirement 1.
+*The 2026-08-29 clarify sitting did not reach this narrowing* — it took the
+seven questions and nothing else, and `#499` touches neither the tier model nor
+either narrowing. So it was put to him separately and ruled separately, and this
+document says so rather than letting a reader infer that the sitting covered it.
+The ruling also costs nothing in strictness: `holder_readable` custody evidences
+that the HOST acted, which under `add-trust-anchor`'s ratified custody rule is
+exactly what a ratification may not stand on, so the review wallet could never
+have carried a ratifying grant anyway. **The ruling removes a false refusal
+without creating a real permission.**
+
+**2. NARROWING B — Q1's "rather than a new artifact" versus a shipped record kind
+for exactly this act. SETTLED BY Q1'S OWN RULING, 2026-08-29.** Q1's recommended
+answer said to record the presentation *"in the ratification record rather than a
+new artifact"*, while the family already HAS an artifact for it —
+`xfactory_wallet_grant_exercise`, shipped at `wallet-v1.3`. This packet read that
+as **invent no new artifact**, honoured by REFERENCING the shipped exercise
+record. **Q1 was ruled AS RECOMMENDED and its disposition says in terms that "no
+new artifact is created for it"**, which is that reading in the ruling's own
+words — so Narrowing B needed no separate act and gets none. The reading is no
+longer flagged on requirement 1.
+
+## The collapse of two parallel packets, and what was carried across
+
+**Two sessions raised this same tranche into the same change directory three
+minutes apart** — pull request **#494** (`change/add-signed-execution-chain`,
+08:55:44Z) and this one, **#495** (08:58:21Z) — neither able to see the other.
+Both were authored before the seven rulings landed. **Brett Heap ruled the
+collapse on 2026-08-29 in session: #495 is the surviving base and #494 is
+closed.**
+
+The deciding ground was **Q4**, and it is worth stating because it is a ruling
+and not a preference. #494 deliberately shipped **no gate** — its proposal says
+*"the packet creates no merge gate"*, and one of its requirement scenarios is
+normatively against the claim, requiring that any statement that a gate validates
+chains "is corrected". Q4 then ruled that **the chain-validating gate exists FROM
+TRANCHE ONE**. Conforming #494 would have meant reversing its thesis, three
+recorded design decisions and a normative scenario; this packet already carried
+the gate, argued from the same convening record, and drew the line #494 collapsed
+— **out-of-pipeline INCEPTION and a required-check GATE are different objects**,
+and only the first is what the 2026-08-28 seats refused.
+
+**#494 was ahead on hardening, and none of it is discarded.** Four Codex rounds
+and five Copilot rounds ran on it and closed thirteen findings. **Four are
+harvested into this packet's delta**, cited here so the work is provably carried
+rather than lost with the branch:
+
+| Harvested from #494 | Lands as |
+| --- | --- |
+| **The actor↔wallet attestation binding** — a link could reference one holder's valid exercise and record a different well-formed subject, with every other check passing. The binding direction is taken from the pinned contract: `openxwallet-subject-attestation` closes `resolution.resolved_by` to `subject_ref`, so a wallet is checked as an ATTESTATION and never resolves a subject | Requirement 2 (new) |
+| **Per-ratification uniqueness, ENFORCED and not merely named** — the identity is the digest of the signed bytes, so re-ratifying an unchanged subject reproduces them; naming the exercise identifier as the per-act value is necessary and not sufficient, because the pinned schema constrains no reuse | Requirement 3, two new scenarios |
+| **ONE digest construction governing EVERY digest** — identity, predecessor, leaves, and any a later tranche adds; declared once in the contract. #494 met this defect twice, once per digest, and unified rather than adding a second rule | Requirement 4 (new) |
+| **The named-reader required-check rule** — the capability confers nothing until a named validator runs as a REQUIRED check, and a merged workflow file is not that. Carried explicitly rather than inherited by implication from `review-authority-intake` | Requirement 9 (new) |
+
+**What was NOT harvested, and why.** #494's requirement that every link sign the
+chain identity and its predecessor's digest is not carried as written: this
+packet's gate requirement establishes that inception cannot sign over an identity
+derived from its own signature, and that link 3 has no signer at all, so at
+tranche one continuity is established by derivation and comparison and the
+hash-linked SIGNING rule takes effect at tranche two's first signed link. Taking
+#494's formulation would have imported a rule that cannot be performed on any
+link this tranche defines.
 
 ## What the review rounds corrected, before ratification
 
@@ -305,29 +380,65 @@ authoritative table gives no signer.
    realization-conformance obligation — `add-trust-anchor`'s ratified rule
    applied to ourselves — with tranche-three anchoring named as what closes it.
 
-## Open questions — the clarify round that precedes ratification
+## The seven questions — ALL RULED 2026-08-29, and what each means here
 
-Per Brett's standing clarify rules, the full block WILL BE written to
-`openspec/changes/add-signed-execution-chain/clarify-questions.md` (tasks.md
-§2.1 — the file does not exist yet and this proposal does not pretend it does)
-and presented in the terminal in block form with that path echoed top and
-bottom. All seven of the staged topic's questions go in one sitting; only Q1
-blocks this tranche.
+Brett Heap ruled all seven in a clarify sitting on 2026-08-29, landed as **#499**
+(squash `9c501df6`). This packet carries no clarify round of its own; the table
+records what each ruling means for THIS tranche. **Four of the seven govern later
+tranches and are pre-encoded nowhere in this delta** — recording a ruling is not
+building to it.
 
-| Q | Subject | Bearing on THIS change |
+| Q | Ruling (2026-08-29) | Bearing on THIS change |
 | --- | --- | --- |
-| **Q1** | Wallet-presentation mechanics | **BLOCKING for tranche one.** Requirement 1 carries the recommended answer FLAGGED. Plus the two narrowings above. |
-| Q2 | Where the on-chain boundary falls | Tranche three; recorded so the sitting is complete |
-| Q3 | Which chain | Tranche three blocker; the vendored study's recommendation is on the table awaiting a ruling, not more analysis |
-| Q4 | Where the tranche boundaries fall | **Partly answered by this document**: tranche one is links 1–3 **plus the log plus the gate**, on the exit path's own two sequencing sentences. The clarify round should confirm that reading. |
-| Q5 | Smart contracts or an L2 | Tranche three; direction confirmed by the study, trigger condition still to be stated |
-| Q6 | Does "patients put PHI portions on chain" mean commitments | Tranche three blocker; the one place the topic INTERPRETED a ruling |
-| Q7 | Where an attestation signature physically happens | Tranche two's contract text; nothing in this tranche depends on it |
+| **Q1** wallet presentation | **AS RECOMMENDED** — the shipped grant vocabulary plus a proof-of-possession step, recorded in the ratification record itself; no new artifact | **Encoded as ruled** in requirement 1; the flag is struck. Narrowing B is settled by this ruling's own words |
+| **Q2** on-chain boundary | AS RECOMMENDED — salted keyed commitments, consent-checkpoint commitments and anchors on chain; every payload, consent state and the salts off chain; a validator refusing payload-shaped records AND unsalted commitments | **Tranche three.** Nothing here places anything on any chain, so no boundary is drawn and none is pre-empted |
+| **Q3** which chain | **DIVERGES from the recommendation, in two rounds** — Kaspa FIRST as the operational witness, Bitcoin-via-OpenTimestamps on EVERY anchored item as the durability witness; no selectivity, no third chain | **Tranche three, and NOT pre-encoded.** This delta names no chain, no witness, no ordering and no receipt format. Its transparency-log requirement states positively that the log's standing does not depend on any external witness, which is the shape the ruling assumes |
+| **Q4** tranche boundaries | AS RECOMMENDED — **tranche one is links 1–3 ONLY**, with the **signed transparency log a TRANCHE-1 artifact** and the **chain-validating gate existing FROM TRANCHE ONE** validating a short chain | **Directly governs this packet, and it already conformed.** Links 1–3, the log (requirement 6) and the short-chain gate (requirement 7). The scope section now cites the ruling rather than the topic's instruction |
+| **Q5** contract code or an L2 | **OVERRIDES the recommendation** — *"allow contract code later."* Evidence-only stays today's posture; the change **MUST NOT constitutionalize "no contract code ever"** and **MUST NOT gate a future adoption on any trigger condition written in advance** | **Complied with by silence, deliberately.** This delta contains no contract-code posture, no "never", and **no trigger condition** — see below |
+| **Q6** PHI portions on chain | **CONFIRMED as recommended, and it is the ruling's OPERATIVE FORM** — salted keyed commitments, the portion disclosed off-chain under an anchored consent checkpoint, salt destruction as erasure; no later change re-litigates it | **Tranche three.** This packet defines no commitment format and touches no PHI |
+| **Q7** where an attestation signature happens | AS RECOMMENDED — remote signing served by the harness controller, the runner's signing request recorded beside the signature, the controller corroborating against its own link-4 setup attestation | **Tranche two.** This packet contains no attestation link at all |
+
+### Q5 needs a positive statement, not just an absence
+
+Q5's ruling has a REFUSAL in it that a packet can breach by writing too much, so
+this one states its compliance rather than leaving it to be inferred. What Q5
+preserved is the posture — the anchoring chains stay evidence-only today, and no
+tranche now planned puts contract code on any of them. What it REFUSED is the
+permanence the recommendation asked for.
+
+**This change therefore does three things and no more.** It puts no contract
+code anywhere, because tranche one touches no chain. It writes **no "never"** —
+there is no requirement, scenario or design note in this packet forbidding
+on-chain contract code in a future change. And it writes **NO TRIGGER
+CONDITION**: the recommendation would have gated any future adoption on
+patient-facing verifiability across organizations sharing no consortium, and the
+ruling refuses that gate, so this packet names no condition under which contract
+code would become admissible. **A later change may adopt on-chain contract code
+on its own merits and answers to its own evidence, not to anything written
+here.** The study's cautions — the EDPB/HIPAA posture, the unaudited-stack risk,
+the irrevocable-deployment vulnerability class — survive as ADVISORY CONTEXT that
+a later author must answer, never as this packet's permission to withhold.
+
+*Recorded because the earlier draft of this section got it wrong in the ruling's
+own direction:* it described Q5 as open with "the trigger condition still to be
+stated", which is exactly the sentence the ruling forbids. The correction is left
+visible rather than smoothed, on the same footing as the review-round corrections
+above.
 
 ## Ratification
 
-**Not ratified.** Ratification is Brett Heap's act and follows the clarify
-round. It would authorize exactly one Speckit contract feature plus its gate,
-and would create no certificate authority, no attestation identity, no anchor,
-no chain, and no runtime beyond the validator and the pull-request check named
-in `code_surface`.
+**Not ratified.** Ratification is Brett Heap's act; `tasks.md` §2 carries it as
+an open box, and this pull request asks for review of the packet rather than for
+ratification.
+
+**What he HAS ruled, 2026-08-29, all in session and all recorded above:** the
+seven clarify questions (#499); the DRAFTING GREEN-LIGHT, which the sitting
+deliberately withheld and which is the authority this packet now cites for its
+own existence; the COLLAPSE of #494 and #495 onto this packet; and NARROWING A.
+None of those four is a ratification, and this document does not read any of them
+as one.
+
+Ratification would authorize exactly one Speckit contract feature plus its gate,
+and would create no certificate authority, no attestation identity, no anchor, no
+chain, and no runtime beyond the validator and the pull-request check named in
+`code_surface`.
