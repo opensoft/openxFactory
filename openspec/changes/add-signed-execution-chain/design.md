@@ -134,7 +134,7 @@ substrate"* refuses in its own domain and which would be the same mistake here.
 an exercise record to name its own chain, that is a publisher-side change plus a
 pin bump, and this packet says so rather than minting a second exercise record.
 
-### D5 — The unwalleted root ratifier, which is a live collision and is resolved by declaration
+### D5 — The unwalleted root ratifier, a live collision resolved by a declared GAP rather than by a weaker chain
 
 **The collision.** The staged topic's link 1 has "the ratifying human presents a
 wallet-carried authority". But `review-authority-intake`'s ratified requirement
@@ -345,6 +345,23 @@ cryptographically wrong. This is the mix-and-match case: individually valid
 artifacts from different executions must not assemble into one chain. A verifier
 that checks signatures without checking binding has verified a bag.
 
+### Case E — one predecessor with two verifying successors
+
+Refused, and the consumer does not choose. Added by the second Codex round: two
+links binding the same predecessor under the same chain identity each satisfied
+R4's binding rule independently, so an authorized signer could offer either of two
+conflicting histories and both would validate. R4 now requires successor
+uniqueness and defines no fork, branch or resolution semantics at all — no
+longest-chain rule, no first-seen rule, no timestamp tiebreak — because every such
+rule is a way of ACCEPTING one of two histories that should both have been
+refused. Repair is a new handshake beginning a new chain, which is what repair is
+everywhere else in this capability.
+
+**Why this belongs beside Case D rather than inside it.** Case D is a link that
+does not bind; Case E is a link that binds correctly and is still inadmissible.
+A validator written against Case D alone passes Case E, which is exactly what the
+review found.
+
 ## Proving tranche one is Q6/Q7-independent
 
 Not asserted — checked, and the check is repeatable.
@@ -466,7 +483,7 @@ parts were second thoughts.
    and R9 as drafted would have excluded them. Corrected to bind on the SURFACE
    the handshake writes rather than on the instrument the authority holds.
 
-## The Codex round, and how each finding was taken
+## The first Codex round, and how each finding was taken
 
 Three P1 findings on `a367eaa7`, all real, all taken — one of them narrowed, with
 the narrowing argued rather than asserted.
