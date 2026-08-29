@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v2.1
+contract_bundle_version: contract-v2.2
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -1585,7 +1585,7 @@ contracts:
     source_path: openxFactory/contracts/schemas/ideation-dashboard-snapshot.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 6a3b496c59cea9cfb232e35d21b4864a928287c7b98b5436aac0c83d9c14e9b3
+    sha256: 9c44da235e8b4771b721b3ea0f88e0f6adcdaf4854cac045924abd9981c9ea9c
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -2039,6 +2039,62 @@ contracts:
   # the pinned `openXwallet/scripts/validate-openxwallet.py` is this family's
   # conformance validator from this major forward. Migration path: contracts/CHANGELOG.md
   # § contract-v2.0 and openXwallet/docs/pin-resync-runbook.md.
+  # ---- standing-policy intent compliance — contract-v2.2 registration ----
+  - id: intent-compliance-veto-class-vocabulary
+    path: contracts/intent-compliance/veto-class-vocabulary.schema.yaml
+    source_path: openxFactory/contracts/intent-compliance/veto-class-vocabulary.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: cf7d5bf8bf1c9cc5b68a8bac3d39cffcde86aa50a284f07bb33a1d371ebe9f4d
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: intent-compliance-policy-allowance
+    path: contracts/intent-compliance/policy-allowance.schema.yaml
+    source_path: openxFactory/contracts/intent-compliance/policy-allowance.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: bcccca1d57c935e3d69efb73cc0cd37041eb8d1504d15c434b5d4f4a38c5087d
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: intent-compliance-policy-allowance-revocation
+    path: contracts/intent-compliance/policy-allowance-revocation.schema.yaml
+    source_path: openxFactory/contracts/intent-compliance/policy-allowance-revocation.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 0955b88f664c37f8620a0e3d7ca5cce1e024edc9b888211c31fd27e101b5c7e9
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: intent-compliance-policy-allowance-registry
+    path: contracts/intent-compliance/policy-allowance-registry.schema.yaml
+    source_path: openxFactory/contracts/intent-compliance/policy-allowance-registry.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 7b7433b5bd93397596f6be190b345162e98476d1a43fc8b2836db47ba19521ad
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: intent-compliance-decision
+    path: contracts/intent-compliance/compliance-decision.schema.yaml
+    source_path: openxFactory/contracts/intent-compliance/compliance-decision.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: abe277ae8c632995f2097152acb3099ccdf166fa755af29adc6a22708c5f4f8a
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: intent-compliance-conformance-validator
+    path: scripts/validate-intent-compliance.py
+    source_path: openxFactory/scripts/validate-intent-compliance.py
+    type: tool
+    schema_version: 1
+    intended_consumers:
+      - openxFactory release checks
+      - DomainxFactory approval and dispatch gates
+      - post-build admission gates
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Consumers invoke this validator from their pinned openxFactory checkout;
+      concrete veto classes, policy instances, detectors, scope resolvers and
+      runtime records remain domain-owned and are validated against this family.
   # ---- client-identity-roster + the credential-contracts first registration —
   # contract-v1.33 registration (add-client-identity-roster, feature
   # 007-client-identity-roster) ----

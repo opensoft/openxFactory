@@ -9,7 +9,100 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
+## contract-v2.2 — 2026-08-29 (additive; intent compliance and exact evidence hardening)
+
+**Change class: ADDITIVE (minor)** under
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md).
+This release adds a new neutral contract family, hardens evidence collection
+for existing Hermes runtime contracts, and supersedes one incorrect per-file
+digest carried by the `contract-v2.1` manifest. It does not narrow or invalidate
+any instance accepted by `contract-v2.1`; consumers remain conformant until
+they deliberately advance their exact commit and digest pins. The published
+`contract-v2.1` tag and `contracts/releases/contract-v2.1.digests.yaml` remain
+immutable provenance.
+
+### Intent-compliance family
+
+- Adds five closed Draft 2020-12 schemas under `contracts/intent-compliance/`:
+  the veto-class vocabulary, immutable policy allowance, append-only allowance
+  revocation, append-only allowance registry revision, and bounded redacted
+  compliance decision. Each schema carries `contract_schema_version: 1`, has a
+  safe sibling template, and is registered with the SHA-256 of its current raw
+  bytes.
+- Adds `scripts/validate-intent-compliance.py` as the canonical, commit-addressed
+  validator without a separate manifest digest, following the repository's
+  validator convention. It validates schema closure, immutable policy and
+  ratification authority, canonical digests, registry and revocation history,
+  scope, deterministic/classifier composition, cross-gate binding, and static
+  dispatch evidence conditioned on the evaluated registry head. A trusted head
+  change makes conditioned evidence stale; issuance, replay prevention, atomic
+  consumption, and invocation remain domain-runtime obligations.
+- Concrete veto classes, policy instances, detectors, prompts, scope resolvers,
+  registry instances, and runtime records remain DomainxFactory-owned. This cut
+  publishes neutral shapes and evidence rules only.
+
+### Static Hermes evidence
+
+- Replaces executable `pytest --collect-only` evidence discovery with bounded
+  static source analysis. The collector proves canonical pytest decorator
+  provenance, statement-order bindings, parameter arity and exact IDs, stable
+  collections, module/class marks, fixture aliases, autouse and transitive
+  fixture parameters, and statically decidable suppression without importing a
+  repository `conftest.py` or running test bodies.
+- Fails closed on collection hooks or configuration that can rewrite the node
+  set, unproved dynamic values, duplicate or substituted node IDs, and exceeded
+  source, evaluation, parameter-product, or total-node budgets. Strict YAML
+  loading is additionally bounded to 4 MiB, depth 128, and 100,000 nodes before
+  semantic use.
+
+### PostgreSQL runtime evidence
+
+- The PostgreSQL 15/16 runner now derives the exact expected node IDs for each
+  major from the indexed modules, invokes only those modules with the matching
+  major marker expression, and captures collected, started, and phase reports.
+  Evidence is refused for a substituted or duplicate node, a skip, an xfail, a
+  missing phase, or any disagreement with JUnit counts. The evidence records
+  remain at 171 executed tests per major and now carry the node-set profile and
+  digest that make that denominator reproducible.
+- The migration concurrency probes set PostgreSQL `lock_timeout` and
+  `statement_timeout` to zero for sessions that must wait on the tested lock;
+  bounded client-process deadlines remain the harness stop. The assertions now
+  accept only the intended frozen-write or
+  `HGR-MIGRATION-BOUNDARY-MISMATCH` boundary, so a server timeout cannot stand in
+  for the behavior under test.
+- The compose fixture is networkless (`network_mode: none`), keeps no host port,
+  and uses throwaway storage. Signal termination has one cleanup path, and an
+  attempted run invalidates prior pass evidence before dependencies start.
+
+### Superseding correction for the contract-v2.1 manifest digest
+
+- `contracts/schemas/ideation-dashboard-snapshot.schema.yaml` has identical
+  bytes at `contract-v2.1`, `origin/main`, and this release, with the true raw
+  SHA-256
+  `9c44da235e8b4771b721b3ea0f88e0f6adcdaf4854cac045924abd9981c9ea9c`.
+  The `contract-v2.1` manifest instead recorded
+  `6a3b496c59cea9cfb232e35d21b4864a928287c7b98b5436aac0c83d9c14e9b3`.
+  This cut corrects only that manifest identity; no schema byte or accepted
+  shape changes.
+- The published `contract-v2.1` tag and digest inventory remain unchanged and
+  internally verify their own bytes. Consumers that require the corrected
+  per-file manifest identity must repin the exact `contract-v2.2` commit or
+  annotated tag and verify this release inventory.
+
+Per-file SHA-256 inventory:
+`contracts/releases/contract-v2.2.digests.yaml`.
+
 ## contract-v2.1 — 2026-08-28 (additive; the release verifier tells the one content condition it can act on from the fourteen it cannot)
+
+> **Erratum (2026-08-29, superseded by `contract-v2.2`):** this release's
+> `contracts/manifest.yaml` records
+> `6a3b496c59cea9cfb232e35d21b4864a928287c7b98b5436aac0c83d9c14e9b3`
+> for `contracts/schemas/ideation-dashboard-snapshot.schema.yaml`, whose actual
+> raw bytes hash to
+> `9c44da235e8b4771b721b3ea0f88e0f6adcdaf4854cac045924abd9981c9ea9c`.
+> The tag and `contract-v2.1` digest inventory remain immutable and internally
+> honest. Consumers needing the corrected per-file manifest identity must
+> upgrade to and verify `contract-v2.2`.
 
 **Change class: ADDITIVE (minor)** under
 [`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md).

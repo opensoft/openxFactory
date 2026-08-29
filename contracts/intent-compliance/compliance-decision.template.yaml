@@ -1,0 +1,44 @@
+schema_version: 1
+kind: compliance_decision
+decision_id: example.decision
+governed_binding_id: example.binding
+enforcement_point: approval
+outcome: allow
+evaluated_content_digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+policy_source:
+  repository: example/domain-factory
+  path: policies/standing-policy.md
+  revision: "0000000000000000000000000000000000000000"
+  content_digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+  ratification_record:
+    path: governance/ratification.md
+    content_digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+vocabulary:
+  vocabulary_id: example.policy.v1
+  vocabulary_digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+registry:
+  registry_id: example.registry
+  revision_id: example.revision.1
+  revision_digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+allowance_references: []
+resolutions: []
+findings: []
+rationale_codes: [example.no_veto_class]
+redacted_detail_codes: [example.detail_redacted]
+correlation_refs: [example.correlation]
+evaluator:
+  evaluator_id: example.evaluator
+  version: 1.0.0
+deterministic_evidence:
+  evaluated_content_digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+  vocabulary_id: example.policy.v1
+  vocabulary_digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+  registry_id: example.registry
+  revision_digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+  evaluator_id: example.evaluator
+  evaluator_version: 1.0.0
+  finding_digests: []
+  evidence_codes: [example.deterministic_scan_complete]
+  ambiguity_refs: []
+  evidence_digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+evaluated_at: "2026-01-01T00:00:00Z"

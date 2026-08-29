@@ -506,3 +506,96 @@ def test_pytest_node_collection_never_runs_test_bodies(
 
     assert result.returncode == 0, result.stdout + result.stderr
     assert _json_result(result)["status"] == "pass"
+
+
+def test_static_test_inventory_never_imports_repository_conftest(
+    repository_snapshot: Path, tmp_path: Path
+) -> None:
+    sentinel = tmp_path / "collection-executed"
+    conftest = repository_snapshot / "tests/hermes_runtime_contracts/conftest.py"
+    original = conftest.read_text(encoding="utf-8")
+    conftest.write_text(
+        f"from pathlib import Path\nPath({str(sentinel)!r}).write_text('executed')\n"
+        + original,
+        encoding="utf-8",
+    )
+    assert not sentinel.exists()
+
+    result = _run_cli("--repo", str(repository_snapshot), "--strict", "--json")
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert not sentinel.exists()
+
+
+def test_static_test_inventory_rejects_non_test_function(
+    repository_snapshot: Path,
+) -> None:
+    module = repository_snapshot / "tests/hermes_runtime_contracts/test_helpers.py"
+    module.write_text("def helper():\n    return True\n", encoding="utf-8")
+    evidence_path = (
+        repository_snapshot / "contracts/hermes-runtime/evidence-register.yaml"
+    )
+    evidence = _read_yaml(evidence_path)
+    entry = next(item for item in evidence["entries"] if item["test_node_ids"])
+    entry["test_node_ids"] = [
+        "tests/hermes_runtime_contracts/test_helpers.py::helper"
+    ]
+    _write_yaml(evidence_path, evidence)
+
+    result = _run_cli("--repo", str(repository_snapshot), "--strict", "--json")
+
+    assert result.returncode == 1
+    findings = _json_result(result)["findings"]
+    assert any(finding["code"] == "HRC-PARITY-DANGLING" for finding in findings)
+
+
+def test_static_test_inventory_rejects_method_on_non_test_class(
+    repository_snapshot: Path,
+) -> None:
+    module = repository_snapshot / "tests/hermes_runtime_contracts/test_helpers.py"
+    module.write_text(
+        "class Helpers:\n    def test_looks_collectable(self):\n        return True\n",
+        encoding="utf-8",
+    )
+    evidence_path = (
+        repository_snapshot / "contracts/hermes-runtime/evidence-register.yaml"
+    )
+    evidence = _read_yaml(evidence_path)
+    entry = next(item for item in evidence["entries"] if item["test_node_ids"])
+    entry["test_node_ids"] = [
+        "tests/hermes_runtime_contracts/test_helpers.py::Helpers::test_looks_collectable"
+    ]
+    _write_yaml(evidence_path, evidence)
+
+    result = _run_cli("--repo", str(repository_snapshot), "--strict", "--json")
+
+    assert result.returncode == 1
+    findings = _json_result(result)["findings"]
+    assert any(finding["code"] == "HRC-PARITY-DANGLING" for finding in findings)
+
+
+def test_static_test_inventory_rejects_unknown_parameter_id(
+    repository_snapshot: Path,
+) -> None:
+    module = repository_snapshot / "tests/hermes_runtime_contracts/test_parameters.py"
+    module.write_text(
+        "import pytest\n\n"
+        "@pytest.mark.parametrize('case', ['known'])\n"
+        "def test_parameter(case):\n    assert case\n",
+        encoding="utf-8",
+    )
+    evidence_path = (
+        repository_snapshot / "contracts/hermes-runtime/evidence-register.yaml"
+    )
+    evidence = _read_yaml(evidence_path)
+    entry = next(item for item in evidence["entries"] if item["test_node_ids"])
+    entry["test_node_ids"] = [
+        "tests/hermes_runtime_contracts/test_parameters.py::test_parameter[missing]"
+    ]
+    _write_yaml(evidence_path, evidence)
+
+    result = _run_cli("--repo", str(repository_snapshot), "--strict", "--json")
+
+    assert result.returncode == 1
+    findings = _json_result(result)["findings"]
+    assert any(finding["code"] == "HRC-PARITY-DANGLING" for finding in findings)

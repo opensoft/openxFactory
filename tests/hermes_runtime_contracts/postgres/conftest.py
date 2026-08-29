@@ -77,15 +77,10 @@ class EphemeralCredential:
         return hashlib.sha256(self.value.encode("utf-8")).hexdigest()
 
 
-def _selected_postgres_majors() -> tuple[str, ...]:
-    selected = os.environ.get("HERMES_RUNTIME_POSTGRES_MAJOR", "").strip()
-    if not selected:
-        return ("15", "16")
-    if selected not in {"15", "16"}:
-        raise pytest.UsageError(
-            "HERMES_RUNTIME_POSTGRES_MAJOR must be 15 or 16 when set"
-        )
-    return (selected,)
+POSTGRES_MAJORS = (
+    pytest.param("15", id="15", marks=pytest.mark.postgres_15),
+    pytest.param("16", id="16", marks=pytest.mark.postgres_16),
+)
 
 
 def _render_process(result: subprocess.CompletedProcess[str]) -> str:
@@ -351,9 +346,11 @@ def pytest_configure(config: pytest.Config) -> None:
         "markers",
         "postgres: requires a digest-pinned real PostgreSQL 15 or 16 container",
     )
+    config.addinivalue_line("markers", "postgres_15: PostgreSQL 15 fixture variant")
+    config.addinivalue_line("markers", "postgres_16: PostgreSQL 16 fixture variant")
 
 
-@pytest.fixture(scope="session", params=_selected_postgres_majors())
+@pytest.fixture(scope="session", params=POSTGRES_MAJORS)
 def postgres_cluster(
     request: pytest.FixtureRequest,
     run_postgres_subprocess: Callable[..., subprocess.CompletedProcess[str]],

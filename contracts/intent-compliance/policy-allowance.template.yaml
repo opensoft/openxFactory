@@ -1,0 +1,32 @@
+schema_version: 1
+kind: policy_allowance
+registry_id: example.registry
+allowance_id: example.allowance
+vocabulary:
+  vocabulary_id: example.policy.v1
+  vocabulary_digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+class_id: example.restricted_action
+scope:
+  scope_kind: example.resource
+  scope_ref: example.resource_ref
+  operations: [example.operation]
+  scope_digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+issuer:
+  principal_id: example.issuer
+  authority_role: example.allowance_issuer
+  authority_source:
+    repository: example/domain-factory
+    path: governance/intent-compliance-authority.yaml
+    revision: "0000000000000000000000000000000000000000"
+    content_digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+policy_approval:
+  approval_id: example.approval_record
+  authority_source:
+    repository: example/domain-factory
+    path: governance/intent-compliance-authority.yaml
+    revision: "0000000000000000000000000000000000000000"
+    content_digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+approved_at: "2026-01-01T00:00:00Z"
+valid_from: "2026-01-01T00:00:00Z"
+valid_until: "2026-12-31T23:59:59Z"
+approval_digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"

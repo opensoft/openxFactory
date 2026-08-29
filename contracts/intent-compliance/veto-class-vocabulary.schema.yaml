@@ -1,0 +1,95 @@
+schema_version: 1
+kind: openxfactory-intent-compliance-contract-schema
+name: veto_class_vocabulary
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/intent-compliance/v1/veto-class-vocabulary.schema.yaml"
+contract_id: intent-compliance
+contract_schema_version: 1
+title: Veto-class vocabulary record
+description: >-
+  A domain-owned standing-policy vocabulary bound to immutable policy and
+  ratification bytes. Detection metadata is bounded evidence, never authority.
+type: object
+additionalProperties: false
+required: [schema_version, kind, vocabulary_id, vocabulary_digest, policy_source, classes]
+properties:
+  schema_version: {const: 1}
+  kind: {const: veto_class_vocabulary}
+  vocabulary_id: {$ref: "#/$defs/identifier"}
+  vocabulary_digest: {$ref: "#/$defs/digest"}
+  policy_source: {$ref: "#/$defs/policy_source"}
+  classes:
+    type: array
+    minItems: 1
+    maxItems: 64
+    items: {$ref: "#/$defs/veto_class"}
+$defs:
+  identifier:
+    type: string
+    pattern: "^[a-z][a-z0-9_.:-]{2,127}$"
+  digest:
+    type: string
+    pattern: "^sha256:[0-9a-f]{64}$"
+  authority_role:
+    type: string
+    pattern: "^[a-z][a-z0-9_.:-]{2,95}$"
+  policy_source:
+    type: object
+    additionalProperties: false
+    required: [repository, path, revision, content_digest, ratification_record]
+    properties:
+      repository:
+        type: string
+        pattern: "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+      path:
+        type: string
+        minLength: 1
+        maxLength: 512
+        pattern: '^(?!/)(?!.*(?:^|/)\.\.(?:/|$)).+$'
+      revision: {type: string, pattern: "^[0-9a-f]{40}$"}
+      content_digest: {$ref: "#/$defs/digest"}
+      ratification_record:
+        type: object
+        additionalProperties: false
+        required: [path, content_digest]
+        properties:
+          path:
+            type: string
+            minLength: 1
+            maxLength: 512
+            pattern: '^(?!/)(?!.*(?:^|/)\.\.(?:/|$)).+$'
+          content_digest: {$ref: "#/$defs/digest"}
+  detection_metadata:
+    type: object
+    additionalProperties: false
+    properties:
+      deterministic_signal_ids:
+        type: array
+        maxItems: 64
+        uniqueItems: true
+        items: {$ref: "#/$defs/identifier"}
+      sensitive_surface_ids:
+        type: array
+        maxItems: 64
+        uniqueItems: true
+        items: {$ref: "#/$defs/identifier"}
+  veto_class:
+    type: object
+    additionalProperties: false
+    required: [class_id, owner_role, allowance_issuer_roles, allowance_revoker_roles]
+    properties:
+      class_id: {$ref: "#/$defs/identifier"}
+      owner_role: {$ref: "#/$defs/authority_role"}
+      allowance_issuer_roles:
+        type: array
+        minItems: 1
+        maxItems: 16
+        uniqueItems: true
+        items: {$ref: "#/$defs/authority_role"}
+      allowance_revoker_roles:
+        type: array
+        minItems: 1
+        maxItems: 16
+        uniqueItems: true
+        items: {$ref: "#/$defs/authority_role"}
+      detection_metadata: {$ref: "#/$defs/detection_metadata"}

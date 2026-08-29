@@ -1,0 +1,20 @@
+schema_version: 1
+kind: veto_class_vocabulary
+vocabulary_id: example.policy.v1
+vocabulary_digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+policy_source:
+  repository: example/domain-factory
+  path: policies/standing-policy.md
+  revision: "0000000000000000000000000000000000000000"
+  content_digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+  ratification_record:
+    path: governance/ratification.md
+    content_digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+classes:
+  - class_id: example.restricted_action
+    owner_role: example.policy_owner
+    allowance_issuer_roles: [example.allowance_issuer]
+    allowance_revoker_roles: [example.allowance_revoker]
+    detection_metadata:
+      deterministic_signal_ids: [example.signal]
+      sensitive_surface_ids: [example.surface]

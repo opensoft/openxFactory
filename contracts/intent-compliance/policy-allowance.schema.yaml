@@ -1,0 +1,83 @@
+schema_version: 1
+kind: openxfactory-intent-compliance-contract-schema
+name: policy_allowance
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/intent-compliance/v1/policy-allowance.schema.yaml"
+contract_id: intent-compliance
+contract_schema_version: 1
+title: Immutable policy-allowance approval record
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - kind
+  - registry_id
+  - allowance_id
+  - vocabulary
+  - class_id
+  - scope
+  - issuer
+  - policy_approval
+  - approved_at
+  - valid_from
+  - valid_until
+  - approval_digest
+properties:
+  schema_version: {const: 1}
+  kind: {const: policy_allowance}
+  registry_id: {$ref: "#/$defs/identifier"}
+  allowance_id: {$ref: "#/$defs/identifier"}
+  vocabulary:
+    type: object
+    additionalProperties: false
+    required: [vocabulary_id, vocabulary_digest]
+    properties:
+      vocabulary_id: {$ref: "#/$defs/identifier"}
+      vocabulary_digest: {$ref: "#/$defs/digest"}
+  class_id: {$ref: "#/$defs/identifier"}
+  scope:
+    type: object
+    additionalProperties: false
+    required: [scope_kind, scope_ref, operations, scope_digest]
+    properties:
+      scope_kind: {$ref: "#/$defs/identifier"}
+      scope_ref: {$ref: "#/$defs/identifier"}
+      operations:
+        type: array
+        minItems: 1
+        maxItems: 32
+        uniqueItems: true
+        items: {$ref: "#/$defs/identifier"}
+      scope_digest: {$ref: "#/$defs/digest"}
+  issuer: {$ref: "#/$defs/authority_proof"}
+  policy_approval:
+    type: object
+    additionalProperties: false
+    required: [approval_id, authority_source]
+    properties:
+      approval_id: {$ref: "#/$defs/identifier"}
+      authority_source: {$ref: "#/$defs/authority_source"}
+  approved_at: {type: string, format: date-time}
+  valid_from: {type: string, format: date-time}
+  valid_until: {type: string, format: date-time}
+  approval_digest: {$ref: "#/$defs/digest"}
+$defs:
+  identifier: {type: string, pattern: "^[a-z][a-z0-9_.:-]{2,127}$"}
+  digest: {type: string, pattern: "^sha256:[0-9a-f]{64}$"}
+  authority_proof:
+    type: object
+    additionalProperties: false
+    required: [principal_id, authority_role, authority_source]
+    properties:
+      principal_id: {$ref: "#/$defs/identifier"}
+      authority_role: {$ref: "#/$defs/identifier"}
+      authority_source: {$ref: "#/$defs/authority_source"}
+  authority_source:
+    type: object
+    additionalProperties: false
+    required: [repository, path, revision, content_digest]
+    properties:
+      repository: {type: string, pattern: "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"}
+      path: {type: string, minLength: 1, maxLength: 512, pattern: '^(?!/)(?!.*(?:^|/)\.\.(?:/|$)).+$'}
+      revision: {type: string, pattern: "^[0-9a-f]{40}$"}
+      content_digest: {$ref: "#/$defs/digest"}

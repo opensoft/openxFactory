@@ -77,12 +77,14 @@ authorized to revoke the approval. Approval facts SHALL NOT be rewritten.
 - **THEN** the revocation event and registry revision are invalid
 - **AND** the unresolved claimed allowance produces `needs_human_review` rather than trusting the event
 
-### Requirement: Registry resolution reads current append-only state atomically
+### Requirement: Registry resolution reads one coherent append-only snapshot
 
 openxFactory SHALL define a governed registry with stable registry identity,
 append-only revisions linked by predecessor digest, allowance IDs that are
 unique for the registry lifetime and never reused in a later revision, and
-atomic current-revision lookup. A claimed allowance reference SHALL contain
+coherent current-revision lookup from one caller-trusted snapshot. This static
+lookup does not establish runtime linearization or atomic token consumption. A
+claimed allowance reference SHALL contain
 only `(registry_id, allowance_id)`; copied/embedded allowance payloads are
 unconditionally forbidden. Decisions SHALL record the current revision digest
 and resolved approval/revocation digests. Historical revision selection SHALL
@@ -91,7 +93,7 @@ NOT satisfy current-state evaluation.
 #### Scenario: current allowance is resolved
 
 - **WHEN** an evaluation claims `(registry_id, allowance_id)`
-- **THEN** the evaluator atomically reads the registry's current revision and records its digest
+- **THEN** the evaluator reads one coherent trusted snapshot of the registry's current revision and records its digest
 - **AND** it resolves and records the approval and applicable revocation-event digests
 
 #### Scenario: copied payload appears anywhere
@@ -170,15 +172,16 @@ digest mismatch SHALL keep the binding blocked or in review.
 
 ### Requirement: Dispatch keeps a permanent deterministic floor and closed composition
 
-openxFactory SHALL require deterministic compliance immediately before worker
-invocation regardless of prior approval, classifier use or live Hermes review.
-All deterministic, classifier and Hermes findings SHALL compose into one
-decision under precedence `block > needs_human_review > allow`; no higher layer
-may erase a deterministic block. Evaluation failure SHALL stop dispatch. The
-evaluator SHALL issue a dispatch-authorization token conditioned on the current
-registry revision digest, and worker invocation SHALL atomically compare that
-condition with the registry head at a shared linearization point. A mismatch
-SHALL invalidate authorization and require current-state re-evaluation.
+openxFactory SHALL define static evidence for a domain's claimed deterministic
+pre-dispatch compliance evaluation regardless of prior approval, classifier use
+or live Hermes review. All deterministic, classifier and Hermes findings SHALL
+compose into one decision under precedence
+`block > needs_human_review > allow`; no higher layer may erase a deterministic
+block. A dispatch `allow` decision SHALL carry static authorization evidence
+bound to the decision, evaluated content, registry revision, evaluator, and
+evidence-validity timestamp. This evidence SHALL NOT represent a credential or
+claim issuance, replay prevention, atomic consumption, or invocation; those
+operational guarantees remain domain-runtime responsibilities.
 
 #### Scenario: deterministic floor finds a veto class
 
@@ -190,11 +193,11 @@ SHALL invalidate authorization and require current-state re-evaluation.
 - **WHEN** deterministic evaluation allows but Hermes adds a review finding
 - **THEN** the composed decision is `needs_human_review` and all layer findings are retained
 
-#### Scenario: revocation races worker invocation
+#### Scenario: dispatch evidence names another registry revision
 
-- **WHEN** the registry head changes after evaluation but before the worker-invocation linearization point
-- **THEN** the dispatch-authorization comparison fails and worker invocation does not occur
-- **AND** compliance is re-evaluated against the new current revision
+- **WHEN** static dispatch evidence names a registry revision different from the decision's evaluated revision
+- **THEN** contract validation fails with a dispatch-evidence binding finding
+- **AND** the neutral record makes no claim about whether a domain runtime invoked a worker
 
 ### Requirement: Classifier escalation has closed triggers, hard caps and fail-closed results
 

@@ -1,0 +1,20 @@
+schema_version: 1
+kind: veto_class_vocabulary
+vocabulary_id: neutral.policy.v1
+vocabulary_digest: "sha256:d6a84d77b6e2c5c168124fd31c13776a76a8285f62855825b0ee3fb1677ab8bb"
+policy_source:
+  repository: example/domain-factory
+  path: policies/standing-policy.md
+  revision: "1111111111111111111111111111111111111111"
+  content_digest: "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+  ratification_record:
+    path: governance/ratification.md
+    content_digest: "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+classes:
+  - class_id: neutral.restricted_action
+    owner_role: neutral.policy_owner
+    allowance_issuer_roles: [neutral.allowance_issuer]
+    allowance_revoker_roles: [neutral.allowance_revoker]
+    detection_metadata:
+      deterministic_signal_ids: [neutral.restricted_signal]
+      sensitive_surface_ids: [neutral.sensitive_surface]

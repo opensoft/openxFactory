@@ -10,31 +10,9 @@ services:
       interval: 1s
       timeout: 5s
       retries: 30
-    networks:
-      - hermes-runtime
+    network_mode: none
     volumes:
       - postgres-data:/var/lib/postgresql/data
       - ../../..:/workspace:ro
-
-  psql-client:
-    image: "${POSTGRES_IMAGE:?a digest-pinned PostgreSQL image is required}"
-    depends_on:
-      postgres:
-        condition: service_healthy
-    environment:
-      PGHOST: postgres
-      PGDATABASE: hermes_runtime_contracts
-      PGUSER: hermes_runtime
-      PGPASSWORD: "${POSTGRES_PASSWORD:?an ephemeral password is required}"
-    entrypoint: ["psql", "-X", "-v", "ON_ERROR_STOP=1", "-c", "SELECT 1"]
-    networks:
-      - hermes-runtime
-    volumes:
-      - ../../..:/workspace:ro
-
-networks:
-  hermes-runtime:
-    internal: true
-
 volumes:
   postgres-data: {}
