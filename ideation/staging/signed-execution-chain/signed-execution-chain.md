@@ -2,6 +2,7 @@
 
 Status: staged
 Kind: capability-proposal
+Staging ID: openxFactory:staging:signed-execution-chain
 Summary: A ratification signed with a presented wallet begins a CHAIN that
 travels with the work — enrollment, harness setup, each runner's attestation,
 the decision to open a pull request, the council's review, and the merge gate

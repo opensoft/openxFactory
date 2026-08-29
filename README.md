@@ -391,6 +391,23 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-signed-execution-chain](openspec/changes/add-signed-execution-chain/proposal.md)
+  — TRANCHE ONE of the staged topic `signed-execution-chain`: the act that
+  ratifies and the act that enrols that ratification in a signed execution
+  chain become ONE signed handshake, so there is no ratified object without
+  its chain and no chain without its ratification. ADDS one neutral
+  capability with ten requirements over links 1-3 of the topic's ten-link
+  model, plus the hash-linking rule and the off-chain evidence plane those
+  links need to be stateable; no MODIFIED delta anywhere. **The handshake is
+  out-of-pipeline by proof, not by preference**: codexFactory's
+  `gate_rules_council` refused a class over `openspec/changes/**` UNANIMOUSLY
+  5/5 on 2026-08-28 because that surface sits inside the canonical
+  `GATE_INTEGRITY_FLOOR` and parks before classification — code-level, proven
+  by execution by three seats independently, and ruled by Brett at §8.2 of the
+  record. Tranches two (attestation) and three (on-chain anchoring) are NOT
+  raised and their gating questions Q7 and Q6 stay open for Brett's clarify
+  sitting; the packet records a repeatable check that no tranche-one
+  requirement changes meaning under either answer.
 - [settle-aging-staging-topics](openspec/changes/settle-aging-staging-topics/proposal.md)
   — authored 2026-08-28 on Brett's four bulk rulings over a read-only triage
   survey of the fourteen staging topics `doc-health`'s

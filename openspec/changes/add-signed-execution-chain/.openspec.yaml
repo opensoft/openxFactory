@@ -1,0 +1,51 @@
+schema: spec-driven
+created: 2026-08-29
+origin:
+  kind: staged
+  id: openxFactory:staging:signed-execution-chain
+  path: ideation/staging/signed-execution-chain
+  reason: >-
+    TRANCHE ONE of the staged topic's own three-tranche exit path — the
+    tranche its `## Exit path` section calls "composable TODAY" because it
+    needs no omnigent layer, no PKI plane and no chain. The topic was
+    registered 2026-08-27 from Brett Heap's expansion ruling of that day and
+    landed as openxFactory pull request #452 on 2026-08-28 with a vendored
+    chain-selection study beside it; its doctrine was hardened across five
+    Codex bench rounds on that pull request, and this packet carries the
+    settled half of it forward without re-arguing it.
+    NO STAGED FILE MOVES AT THIS GATE. This is a partial promotion of ZERO
+    files: both documents in the topic folder — the primary fragment and the
+    vendored study — are load-bearing for tranches two and three, which are
+    NOT raised here, so the topic stays staged for them and its `INDEX.md`
+    row records that tranche one was raised. The precedent is the same-week
+    `add-credential-escrow-checkout`, whose ruled two-packet split left
+    `client-credential-escrow-registry` staged for exit two and updated the
+    index row in the packet's own commit. The `Staging ID:` header the origin
+    contract requires at the proposal transition is added to the primary
+    fragment in this packet's commit; it was absent when the topic was
+    registered.
+    WHY THIS TRANCHE IS RAISED NOW AND NOT LATER. The topic's tranche-two and
+    tranche-three boundaries are gated on rulings and on layers that do not
+    exist (Q7 gates tranche two's contract text; Q3 and Q6 gate tranche
+    three). Tranche one is gated on nothing: its instrument —
+    `add-wallet-carried-review-authority`'s wallet-carried review authority
+    with its issuer anchored to the responsible operator — is ratified text
+    with its S2 issuer anchor realized, and the wallet primitives it exercises
+    are pinned into this repository at `wallet-v1.3`
+    (`contracts/openxwallet-pin.yaml`).
+  approved_by: >-
+    Brett Heap's expansion ruling of 2026-08-27, which registered the topic
+    and its three-tranche exit path, together with his authorization of
+    2026-08-28 to stage the topic as pull request #452.
+    THIS RECORDS THE ORIGIN OF THE MATERIAL AND NOTHING MORE. It is not a
+    ratification of this packet: `proposal.md` carries `Status: draft`, every
+    requirement below was authored by this session, and the two open questions
+    the topic reserves for Brett's clarify sitting (Q6 and Q7) are untouched
+    here by design.
+  approved_on: 2026-08-27
+related:
+  - openxFactory:change:add-wallet-carried-review-authority  # ACTIVE; link 1's instrument — the wallet-carried review-authority grant with its root issuer anchored outside the register. This packet consumes it and invents no second signing primitive
+  - openxFactory:change:add-trust-anchor                     # ACTIVE, realized at contract-v1.37; owns certificates, declared chain custody and anchor records. Tranche one holds NO certificate; the dependency is named for tranche two
+  - openxFactory:change:add-identity-brokering               # ACTIVE; owns WHO a signer is (the stable opaque subject). This packet owns WHAT a signature attests and reuses that seam rather than respelling it
+  - openxFactory:change:implement-openxpki-install-repo      # ACTIVE; the runtime CA that would issue the harness-controller certificate. A tranche-TWO dependency, deliberately not assumed here
+  - openxFactory:change:add-worker-enrollment-broker         # ACTIVE; owns "enrollment" for WORKERS joining a fleet. A different act over a different subject — this packet always spells its own act CHAIN ENROLLMENT so the two are never read as one
