@@ -16,12 +16,32 @@ _CLOSED_REPOSITORY_PATH = re.compile(
 )
 
 
+# The resolver's DECLARED condition vocabulary.
+#
+# `CONTENT_DEPENDENCY` is the default and stays the code every existing raise
+# site takes: the repository will not open, git will not run, the read timed
+# out, the argument was malformed, or an unsafe or inexact object was refused.
+# None of those establishes anything about the tree that was being read.
+#
+# `CONTENT_PATH_ABSENT` is declared for the ONE refusal that is a fact about
+# that tree: `ls-tree` resolved the commit AND its tree, and the path was not
+# in it.  A caller that reduces a resolution to a presence answer or to a blob
+# identity may act on that condition and must refuse every other one.
+#
+# The distinction is carried HERE, by a value the resolver declares, and never
+# by matching the message: a message is prose, prose is edited for clarity, and
+# a near-miss match would then silently reclassify a safety refusal as data —
+# the same hazard the sentinel vocabulary refuses near-miss spellings for.
+CONTENT_DEPENDENCY = "HRC-CONTENT-DEPENDENCY"
+CONTENT_PATH_ABSENT = "HRC-CONTENT-PATH-ABSENT"
+
+
 class ContentResolutionError(RuntimeError):
     """An unavailable or unsafe content dependency (CLI exit code 2)."""
 
     exit_code = 2
 
-    def __init__(self, message: str, *, code: str = "HRC-CONTENT-DEPENDENCY") -> None:
+    def __init__(self, message: str, *, code: str = CONTENT_DEPENDENCY) -> None:
         super().__init__(message)
         self.code = code
 
@@ -122,7 +142,13 @@ def resolve_git_object(
     )
     records = [record for record in listing.split(b"\0") if record]
     if len(records) != 1 or b"\t" not in records[0]:
-        raise ContentResolutionError("exact Git path is unavailable")
+        # The tree was read and the path was not in it.  This is the only
+        # refusal in this module that is a fact about the commit rather than
+        # about the environment or an unsafe object, so it is the only one that
+        # declares a code of its own.
+        raise ContentResolutionError(
+            "exact Git path is unavailable", code=CONTENT_PATH_ABSENT
+        )
     metadata, encoded_path = records[0].split(b"\t", 1)
     try:
         git_mode, object_type, blob_oid = metadata.decode("ascii").split(" ", 2)
