@@ -1,0 +1,21 @@
+# INVALID (modality-vocabulary): the entry declares `audio`, which is not a
+# member of the closed contract-v2.2 vocabulary `text` / `image`. The remedy is
+# the change that governs the new modality — a member enters with the ratified
+# change that needs it, never because a capability is imaginable — and never a
+# wider field.
+{
+  "schema_version": 1,
+  "kind": "workbench-model-catalog",
+  "models": [
+    {
+      "model_id": "local-audio-1",
+      "label": "Approved authoring model",
+      "provider_class": "on-tenant",
+      "available": true,
+      "input_limit_bytes": 800000,
+      "output_limit_bytes": 900000,
+      "data_handling": "Processed in the approved tenant boundary; no retention.",
+      "modalities": ["text", "audio"]
+    }
+  ]
+}

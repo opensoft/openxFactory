@@ -1107,9 +1107,17 @@ def test_a_turn_naming_the_affordance_refuses_through_the_existing_refusal(
 def test_the_closed_catalog_entry_does_not_widen(scratch_repo, tmp_path):
     """Task 3.5, asserted rather than asserted-about. Proposed-versus-approved
     is a SERVER-SIDE distinction and a pending declaration is simply not in the
-    catalog, so the public entry's seven-field shape is untouched — widening it
-    is a separate, already-owed additive release (Phase B task 11.7) and this
-    change does not spend it."""
+    catalog, so the public entry's shape is untouched — widening it is a
+    separate, governed additive release and this change does not spend one.
+
+    THE REFERENT MOVES, THE CLAIM DOES NOT. This docstring said "seven-field"
+    and named Phase B task 11.7 as the owed widening. That widening landed
+    (contract-v1.38's routing declaration), and a second followed
+    (contract-v2.2's `modalities`), so the count is no longer the shape and the
+    named successor is no longer pending. What this test asserts is unchanged
+    and still passes byte-for-byte: an APPROVED plain entry projects exactly
+    `PUBLIC_ENTRY_FIELDS`, because each optional group is emitted only by an
+    entry that declares it."""
     from ideation_dashboard.doxbench_model import (
         PUBLIC_ENTRY_FIELDS, catalog_wire_envelope)
     program, _record = _write_broker(tmp_path)

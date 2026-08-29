@@ -9,6 +9,235 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
+## contract-v2.2 — 2026-08-29 (additive; a catalog entry may say WHAT KIND of input it accepts, and the type stops being weaker than its own wire)
+
+Realizes `add-model-capability-vocabulary`, ratified 2026-08-24 with TWO rulings
+in one read (`openspec/changes/add-model-capability-vocabulary/review/ratification-2026-08-24.md`):
+ratify the requirement set, and **the parity scope is ALL FIVE** — every string
+bound the released schema declares gets type-side enforcement in THIS release,
+with no residue and no named follow-up. Ruling 2 overrode the proposal's own
+recommendation, which had closed two bounds and recorded three as a follow-up.
+
+**Change class: ADDITIVE (minor)** under
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md).
+ONE OPTIONAL PROPERTY is added to one `$defs`; nothing is required, deprecated,
+removed or narrowed, and no instance valid at `contract-v2.1` becomes invalid.
+A consumer pinned at `contract-v2.1` remains conformant until it deliberately
+upgrades, and a consumer that never reads the new key stays correct against
+every catalog it could already read. `contract_schema_version` is unchanged.
+
+**THE BUNDLE NUMBER WAS FRESH-COUNTED AT REALIZATION, twice** — at the branch
+base and again before the landing squash — as the proposal, the design's
+non-decision and the ratification's third acceptance note all insist, because
+this repository has renumbered mid-flight more than once. It is `contract-v2.2`
+and NOT the `contract-v1.41` the packet speculated about: v1.41 through v1.47,
+v2.0 and v2.1 were all allocated between ratification and realization, no
+Unreleased block was pending, and `contract-v2.1` is the published tip.
+
+### What moved
+
+* `contracts/schemas/xfactory-workbench-model-catalog.schema.yaml` —
+  `$defs/model_entry` gains OPTIONAL `modalities`: an array,
+  `uniqueItems: true`, `minItems: 1`, `items.enum` exactly `text` and `image`,
+  and `contains: {const: text}`. It is NOT in `required`, so absence stays valid
+  and every catalog released before this one still validates.
+* `scripts/ideation_dashboard/doxbench_model.py` — the type reads, validates and
+  PROJECTS the declaration, and closes the six bound gaps below.
+* `scripts/validate-ideation-dashboard-contracts.py` — `check_model_catalog`
+  now records, in the place a later reader looks for a delegated rule, that the
+  three modality refusals are deliberately NOT delegated.
+* `examples/ideation-dashboard/` — one positive declaring `[text, image]`, three
+  negatives (one per refusal), the absence case named on the existing local
+  example, and the index rows for all four.
+* `contracts/manifest.yaml`, `contracts/README.md`, `contracts/CHANGELOG.md` —
+  the editorial members, re-baselined; the manifest's `consumption_rule` states
+  the absence rule and the closed-vocabulary extension route.
+* `contracts/releases/contract-v2.2.digests.yaml` — this cut's inventory, built
+  AFTER the `contract_bundle_version` bump.
+
+### `contains: {const: text}` is load-bearing, and that is a review finding
+
+`minItems` plus an item enum does NOT encode required `text` membership. Without
+the `contains` clause the shape would have accepted `modalities: [image]` — an
+instance the catalog TYPE refuses — so a schema-only consumer would have treated
+as conformant a catalog the type rejects. THE WIRE GATE MUST NOT BE THE WEAKEST
+ONE, which is the very divergence class this release's second requirement closes
+pointing the other way.
+
+**THE TYPE IS THE ONLY OTHER GATE**, stated precisely because the obvious
+phrasing overstates it. The ratified task says such an instance is one "the type
+and the standalone validator both refuse"; that is not so, and this release's own
+measurement is what shows it. The delegated validator does not restate the
+modality rules — all three are expressible in the shape — so it refuses
+`modalities: [image]` BY APPLYING THESE BYTES, and the revert that removes
+`contains` sends the packaged validator to `1 error(s)` precisely because the
+image-only negative STOPS being refused. So in the counterfactual the type
+refuses alone, which is reason enough for the clause and is the honest reason.
+
+### Absence is not a claim, in either direction
+
+An entry that declares nothing is a PRODUCER THAT PREDATES THE FIELD, not a
+model that rejects images. A reader treats it as text-only FOR ROUTING — the
+safe reading — while recording that no declaration was made, so a conservative
+default stays distinguishable from a stated capability. The type carries both
+facts (`declares_modalities`, `routing_modalities`) and keeps `None` and `()`
+DIFFERENT VALUES, exactly as the wire does: no key versus `minItems: 1`.
+
+This is not invented here. The chat-turn family already uses this idiom for
+`context_posture`, where absence means "a producer older than contract-v1.40"
+rather than a posture claim, and reusing it keeps one rule in a reader's head.
+
+### The declaration REACHES THE WIRE, and that was not automatic
+
+`ModelCatalogEntry.as_public_dict()` emits an EXPLICIT key list rather than
+serializing the dataclass, so a declared set would have been validated in
+process and then silently dropped by `GET /workbench/model-catalog` — leaving
+consumers and the routing successor with nothing to read, which is the entire
+purpose of the field. The pre-ratification bot round found this; the projection
+is deliberate, follows the present-only-when-declared idiom the routing fields
+already use, and is proved AT THE ROUTE (a real request through the real
+released-schema validation) rather than only at the projection. An undeclared
+entry emits no key, so its served bytes are byte-identical across this boundary.
+
+### THE PARITY HALF: six gaps, all reproduced, all closed, no residue
+
+The catalog type refused less than its own released schema. Every gap below was
+REPRODUCED by construction before it was closed, at the ratification commit and
+again at this branch's base:
+
+| field | released bound | probe | before | after |
+| --- | --- | --- | --- | --- |
+| `model_id` | `maxLength: 128` | 129 chars | accepted | refused |
+| `model_id` | pattern | `'has space'` | accepted | refused |
+| `label` | `maxLength: 200` | 201 chars | accepted | refused |
+| `provider_class` | `maxLength: 64` | 65 chars | accepted | refused |
+| `data_handling` | `maxLength: 500` | 501 chars | accepted | refused |
+| `models` | `maxItems: 64` | 65 entries | accepted | refused |
+| `resolved_model_id` | `maxLength: 128` + pattern | 129 chars, `'has space'` | already refused | unchanged |
+
+`resolved_model_id` is the fifth string-bounded field and was ALREADY enforced
+through `_require_model_reference`. That is what made the widening cheap: the
+pattern existed, worked, and is REUSED for `model_id` rather than respelled.
+
+**N7's deferral is discharged by name.** The code said tightening `model_id`
+"would be a behaviour change belonging to no release". This is that release: it
+opens `$defs/model_entry` and the same construction gate anyway, and the fix
+moves no schema byte, so it rides at no additional release surface. The test
+that pinned the laxity said in as many words that a release closing the gap
+should make it fail and be rewritten; it did, and it was.
+
+**TWO BEHAVIOUR CHANGES, stated plainly.** Constructions that succeed today will
+fail after this lands: a 65-entry catalog, and an out-of-bounds `model_id`,
+`label`, `provider_class` or `data_handling`. ALL WERE ALREADY UNSERVABLE — the
+catalog route validates the projected envelope against these bytes — so what
+changes is WHERE they fail, not whether. The existing corpus and fixtures were
+checked before landing rather than discovered in a gate: no packaged example, no
+fixture and no in-repo catalog carries a value any of the six now refuses.
+
+The entry-count cap takes its OWN exception class, `CatalogEntryCountError`. No
+single entry is wrong, so `InvalidCatalogEntryError` — whose docstring says a
+single field failed — would be a false statement about what happened, and an
+over-large catalog of plain entries is not a routing inconsistency, so
+`InvalidRoutingRuleError` is wrong for the opposite reason. The split this
+module keeps is by HOW MUCH CONTEXT A REFUSAL NEEDS.
+
+**NO-RESIDUE IS PROVED FROM THE SCHEMA, not from a list.** The ratified
+requirement's last scenario says a field the schema bounds but the type does not
+is a DEFECT IN THE REQUIREMENT rather than an accepted residue. A test that
+enumerated four names could not see a fifth bound added later, so the proof
+walks the released `$defs/model_entry`, collects every string property carrying
+a `maxLength` or `pattern`, and drives a violating value through the real
+construction gate for each.
+
+ITS REACH, STATED EXACTLY rather than rounded up: it walks the TOP-LEVEL string
+properties of the entry, and it holds the set of them to a hard equality — so a
+future release that adds a bounded top-level string and forgets the type fails
+there. A bound added under an ARRAY'S `items` (the shape `routes_to` already
+has) or inside a nested object is outside its walk and would still need a
+reader. That is the honest boundary of the guarantee.
+
+**ONE PLACE THE TWO GATES DIFFER, and it is the type being STRICTER.** The
+requirement asks that the type refuse everything the schema refuses; it does.
+The reverse does not quite hold: `label`, `provider_class` and `data_handling`
+keep the blankness refusal they have always had, so a whitespace-only value is
+refused at construction while the released schema — `minLength: 1`, no pattern —
+accepts it. That predates this release and is deliberately not softened: the
+length bound is ADDED to the blankness check rather than substituted for it, and
+a tightening removed to make a symmetry claim tidier would be a regression
+dressed as parity. Recorded so "exact parity" is read as the requirement states
+it, in one direction.
+
+### What this release does NOT do
+
+It does not READ `modalities` to choose a destination. Fit-aware routing is
+exit (b) of the staged topic `doxchat-auto-fit-routing` and CONSUMES this
+vocabulary; compress-to-fit disclosure is exit (c). No route, selector or
+browser file changes here, which is why this exit was sequenced first: it
+deliberately avoids the ratified-but-unbuilt intake lane that (b) must be
+sequenced against.
+
+No second capability dimension enters. Audio, video, tool-calling, structured
+output, latency class and cost class are each plausible and none has a consumer;
+a member enters with the ratified change that governs it, on the roster's
+`admission_surface` rule.
+
+The three modality refusals are NOT delegated to
+`scripts/validate-ideation-dashboard-contracts.py`. All three are expressible in
+the shape, so the released schema that validator already applies refuses them,
+and a fourth spelling would be a second gate to keep in step with no rule to
+enforce. The three packaged negatives prove the refusal happens.
+
+### RECONCILIATION with `add-doxchat-model-intake`
+
+That change's proposal describes the catalog entry as "the closed seven-field
+shape" and promises its proposed-versus-approved distinction "does NOT widen"
+it. Both remain true of THAT change: its packet is another lane's and IS NOT
+EDITED HERE, its descriptions were accurate when ratified, and its no-widening
+promise is about its own delta. What changes is the REFERENT — the closed entry
+is now the v2.2 shape: seven required base fields, plus `modalities`, plus the
+three routing-declaration fields. This is exactly the reconciliation
+`contract-v1.38` recorded for the same packet and the same sentence, and it is
+recorded the same way, in this entry rather than by editing a ratified record.
+
+Its realized module `scripts/ideation_dashboard/doxbench_intake.py` carried the
+count in a docstring, where the sentence had become false rather than merely
+dated; it now names `DECLARABLE_ENTRY_FIELDS` instead of a number, so the claim
+it actually makes — that THIS module widens nothing — survives the next growth.
+
+### The consumer re-pin
+
+codexFactory pins this schema by digest. The growth is additive and a consumer
+may ignore the field entirely, but the digest moves from
+`sha256:dff513fa…` to `sha256:e563cc9f…` and the pin moves with it. Updating it
+is codexFactory's own governed act under the domain upgrade runbook; no file in
+that repository is touched here, and this entry is the notice.
+
+The in-repo consumer pin moves in this cut:
+`scripts/ideation_dashboard/doxbench_contracts.py` and its companion test carry
+the new catalog digest and the `unpublished:contract-v2.2` REF SENTINEL across
+the realization branch, on the v1.34/v1.38/v1.40/v1.45 precedent — the policy
+publishes the annotated tag against the commit that LANDS, so until that commit
+exists there is nothing honest to name, and the sentinel is spelled as a value
+no `stack.yaml` can declare so a consumer comparing against it REFUSES rather
+than matching by accident.
+
+RECORDED, because a reader will find it: the `contract-v1.45` repin left
+`unpublished:contract-v1.45` standing after that tag was published, so its own
+task 4.2 went undischarged. This cut SUPERSEDES that sentinel rather than
+repairing it — there is no honest way to resolve a sentinel for a bundle these
+bytes no longer belong to.
+
+### Release obligation still open at this entry
+
+Per the versioning policy, CHANGELOG presence is the availability test and the
+annotated tag is cut at the realization squash against the commit that actually
+lands. `releases/contract-v2.2.digests.yaml` ships INSIDE this cut, built after
+the version bump, and `verify-commit` passes on the candidate.
+
+Realized by `add-model-capability-vocabulary`. The change itself does NOT archive
+with this cut: it carries a code surface, and the archive gate wants the merge
+and a green run first.
+
 ## contract-v2.1 — 2026-08-28 (additive; the release verifier tells the one content condition it can act on from the fourteen it cannot)
 
 **Change class: ADDITIVE (minor)** under

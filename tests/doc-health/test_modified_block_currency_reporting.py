@@ -165,7 +165,15 @@ def test_the_class_registry_is_closed_ordered_and_states_a_band_per_class():
         "carriage-ledger": mbc._ACTION,
         "title-resolution": mbc._ACTION,
         "marker-defects": mbc._MARKER_ACTION,
-        "unplaced": mbc._DRIFT_ACTION,
+        # A FRESH LITERAL, TYPED INDEPENDENTLY OF `mbc._DRIFT_ACTION` — the
+        # same tautology `_MARKER_ACTION` had here until #448's review caught
+        # it (see `_MARKER_ACTION_TEXT` below): comparing a finding's action
+        # to the constant it was BUILT from passes whatever that constant had
+        # been mutated to, because `mbc.CLASSES` reads `_DRIFT_ACTION` at
+        # import time too — both sides move together. Issue #485.
+        "unplaced": ("extend the class map in "
+                     "`scripts/doc_health/modified_block_currency.py`, or "
+                     "fix the drifted rule text the finding names"),
     }
     # every class carries a rendered label, and no two share one
     labels = [c.label for c in mbc.CLASSES]

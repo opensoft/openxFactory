@@ -16,10 +16,20 @@ records — with patients anchoring commitments and consent checkpoints and
 working with hospitals and insurers through verifiable presentations. The same
 chain shape serves MedxFactory through HealthLinc and LedgerxFactory through
 LedgerLinc, which is what proves the family belongs in the neutral layer. A
-chain-selection study is vendored beside this file and answers Q3: the signed
-transparency log is the record, Bitcoin is the primary anchor with Kaspa an
-optional secondary, consent logic stays in a governed permissioned layer, and
-nothing anchored is ever an unsalted hash.
+chain-selection study is vendored beside this file as Q3's research input: the
+signed transparency log is the record, consent logic stays in a governed
+permissioned layer, and nothing anchored is ever an unsalted hash. ALL SEVEN
+OPEN QUESTIONS WERE RULED 2026-08-29 by Brett Heap in a clarify sitting, and two
+rulings diverge from what was recommended — Q3 seats KASPA as the primary,
+operational witness and BITCOIN-VIA-OPENTIMESTAMPS ON EVERY ANCHORED ITEM as the
+durability witness, inverting the study's ordering and dropping its optionality;
+Q5 keeps the door open for on-chain contract code in a future change instead of
+refusing it forever. The topic is fully ruled; tranche one was draftable on
+Brett's word — the sitting answered the questions and did NOT green-light the
+drafting, so "draftable" was a readiness state and not an authorization — and
+THAT WORD CAME 2026-08-29 in a separate in-session act, which also collapsed the
+two parallel tranche-one packets onto pull request #495 and adopted Narrowing A
+(tier 1 is RATIFYING authority; agent-held REVIEW wallets stay lawful).
 Staging ID: openxFactory:staging:signed-execution-chain
 
 ## Pre-document idea notes
@@ -43,9 +53,11 @@ Unstructured, kept because the reasoning is younger than the vocabulary.
   CANNOT hold an authority credential. So authority stays human-held, and
   runner attestations carry an ephemeral per-task identity issued — and signed
   — at the harness controller, whose key never enters the worker (the PR's own
-  review round caught the first draft handing the runner the key; Q7 records
-  the correction and asks for the mechanism). The worker proves *this task ran
-  as declared*; it never proves *someone authorized this*.
+  review round caught the first draft handing the runner the key; Q7 recorded
+  the correction and asked for the mechanism, and 2026-08-29 ruled it: REMOTE
+  SIGNING SERVED BY THE CONTROLLER, with the runner's request recorded beside
+  the signature). The worker proves *this task ran as declared*; it never proves
+  *someone authorized this*.
 - On-chain arrived from the medical side first, and the honest constraint arrived
   with it: PHI cannot go on a public chain, and a design that hand-waves that is
   worse than no design. What goes on chain is the commitment, not the record.
@@ -159,6 +171,16 @@ fact. The review round raised this as the second custody-adjacent defect: first
 the key, now the claims — the controller is a signer, not a notary of whatever
 it is told.
 
+**The mechanism is now named: remote signing served by the controller.** Brett
+ruled Q7 on 2026-08-29 as recommended. The runner submits the payload it wants
+attested to a signing service that the HARNESS CONTROLLER serves, and the runner's
+signing REQUEST is recorded alongside the signature it received — so the chain
+shows both what was attested and who asked for the attestation, which a bare
+signature does not. A hardware-backed signer (HSM) is a later HARDENING of that
+same shape rather than a different answer, so adopting one changes where the key
+sits and nothing about what the chain carries. Tranche two's contract text may
+now name the mechanism; until this ruling it could not.
+
 The two tiers answer different questions, and conflating them is the failure to
 avoid: tier 1 answers **"who permitted this?"**, tier 2 answers **"what actually
 ran?"**. A chain needs both and must never let one stand in for the other.
@@ -183,19 +205,26 @@ answer never reads as permission.
 
 Brett ruled 2026-08-27 that the anchoring and consent layer goes **on chain**,
 definitively, and **especially for financial and medical records**. The ruling
-is recorded as it was given; what the study refines is *which* chain each part
-lands on — public commitments for the anchoring layer, a governed permissioned
-ledger whose state roots are anchored for consent, and raw records on neither.
+is recorded as it was given; what the study refined, and what his 2026-08-29 Q3
+ruling then configured, is *which* chain each part lands on — public commitments
+for the anchoring layer, a governed permissioned ledger whose state roots are
+anchored for consent, and raw records on neither.
 
 A chain-selection study ran in parallel and is vendored beside this file as
 [`chain-selection-study.md`](chain-selection-study.md) — research input, dated
 2026-08-27, sourced and date-checked. This section cites its recommendation; it
-does not re-argue it, and Q3 defers to it rather than restating the analysis.
+does not re-argue it. **Brett ruled Q3 on 2026-08-29 and his configuration
+DIVERGES from the study's anchor ordering**, so both are recorded below, in
+order: the study's recommendation as it came back, then the ruled configuration
+that governs. The study itself is NOT edited — it is a dated research record,
+and a record rewritten to agree with a later ruling stops being evidence.
 
 ### The recommended architecture, from the study
 
 Three layers, and the load-bearing point is that **the blockchain is not the
-record**:
+record**. Its anchor ORDERING is superseded by the 2026-08-29 ruling in the next
+subsection; everything else here — the evidence plane, the Kaspa conditions, the
+consent split, the receipt format — still governs:
 
 - **Evidence plane (off-chain).** An append-only signed transparency log
   (RFC-6962 / Certificate-Transparency and Sigstore-Rekor pattern) inside the
@@ -223,16 +252,56 @@ record**:
 
 **The Kaspa conditions are not optional.** Kaspa L1 **prunes transaction data
 after roughly three days**, which cuts directly against a ten-year evidentiary
-claim. Adopting it as a secondary anchor therefore requires running an archival
-node, **capturing and retaining full inclusion proofs at anchor time**, and
-treating Kaspa anchors as **corroborating evidence, never sole** evidence. A
-design that anchors to Kaspa and expects to re-derive the proof later has
-already lost it.
+claim. Anchoring to it therefore requires running an archival node, **capturing
+and retaining full inclusion proofs at anchor time**, and treating Kaspa anchors
+as **corroborating evidence, never sole** evidence. A design that anchors to
+Kaspa and expects to re-derive the proof later has already lost it. The three
+conditions are stated without reference to which seat Kaspa holds, and the
+2026-08-29 ruling carries all three forward unchanged.
 
 **The multi-anchor receipt is the ten-year exit path**, and it is why chain
 selection is not a one-way door: anchor targets can be added or dropped without
-touching the evidence plane. If Kaspa matures, promote it; if it fades, drop it
-and lose nothing.
+touching the evidence plane. That reversibility is what makes a ruling on
+ordering a configuration rather than a commitment.
+
+### The ruled configuration (Q3, ruled 2026-08-29 by Brett Heap)
+
+**Both witnesses on every anchored item — Kaspa first, Bitcoin on everything.**
+This is Brett's configuration of the study, not the study's own ordering, and it
+is what governs.
+
+- **Kaspa FIRST — the primary, OPERATIONAL witness.** Seconds, not hours. It is
+  what answers when something needs to know now that a leaf was anchored. It is
+  adopted under the study's three conditions, unchanged: an archival node,
+  inclusion proofs captured AND retained at anchor time, and corroborating
+  status. "Primary" here is order of arrival, never evidentiary weight — the
+  pruning finding is not softened by the promotion.
+- **Bitcoin batched via OpenTimestamps aggregation — the DURABILITY witness, on
+  EVERY anchored item.** Hours, not seconds. **Ten-year claims cite Bitcoin.**
+  There is no selectivity: no per-item judgement about which items are worth a
+  Bitcoin anchor, because a rule that decides per item is a rule that will
+  eventually decide wrong about the item that matters.
+- **No third chain**, and nothing here reopens Kasplex or Igra in 2026.
+- **Receipts stay chain-agnostic and multi-anchor and carry BOTH proofs** —
+  digest → aggregation Merkle path → a per-chain list of {chain, block header,
+  transaction reference}. The topic's standing correction over the study's
+  identical shorthand still governs and does not contest it: each per-chain
+  entry ALSO carries the transaction-to-block or DAG inclusion proof, captured
+  whole at anchor time. His own Kaspa condition demands exactly that
+  independently, and without it a header plus a bare transaction reference
+  proves nothing once the transaction is pruned.
+- **The transparency log remains the evidence plane**, and **consent logic stays
+  in the governed permissioned layer** with anchored state roots. Neither half
+  of the ruling moves anything onto a chain that the study kept off one.
+
+**What the divergence actually is.** The study seated Bitcoin as the primary
+anchor and Kaspa as an OPTIONAL secondary; the ruling keeps both chains, reverses
+which one is called primary, and makes neither optional. The reasoning it was
+ruled on is recorded because a two-round ruling is only honest with both rounds
+in it, and the cost facts are what turned round one into round two — see Q3.
+Every substantive finding of the study survives: its Kaspa conditions, its
+pruning finding, its refuted cost prior, its refusal of contract code on the
+anchoring chain. What changed is ordering and optionality.
 
 ### The three priors, tested
 
@@ -242,12 +311,16 @@ verdicts are recorded as they came back, including the one that did not hold.
 | Prior | Verdict | What the study found |
 | --- | --- | --- |
 | "Kaspa is one of the only non-captured chains besides Bitcoin" | **QUALIFIED** | Launch fairness and absence of foundation control check out. Operational capture does not support the absolute: mining-pool concentration roughly as bad as Bitcoin's, one public miner targeting ~16% of hashrate, VC-funded L2 companies absorbing core devs — and the set of credibly neutral chains is larger than {Bitcoin, Kaspa}. |
-| "Bitcoin is just too expensive" | **REFUTED for anchoring** | Merkle aggregation (OpenTimestamps) makes Bitcoin anchoring ~$0 marginal per record; even naive hourly self-anchoring is ≈$2.1k/yr. The objection holds *only* for per-record individual transactions and for contract execution, which Bitcoin cannot do anyway. This refutation is what puts Bitcoin in the primary-anchor seat. |
+| "Bitcoin is just too expensive" | **REFUTED for anchoring** | Merkle aggregation (OpenTimestamps) makes Bitcoin anchoring ~$0 marginal per record; even naive hourly self-anchoring is ≈$2.1k/yr. The objection holds *only* for per-record individual transactions and for contract execution, which Bitcoin cannot do anyway. This refutation is what put Bitcoin in an anchor seat at all — the study's primary one, and, after the 2026-08-29 ruling, the durability witness on every anchored item. |
 | "KAS is fractions of a penny per transaction" | **CONFIRMED**, and understated | Typical fees are fractions of a *thousandth* of a penny (~$0.000001–0.000003). Caveat carried honestly: this is partly a symptom of low demand and a security budget the fee market does not yet fund. |
 
 Recording the refuted prior is the point of the exercise. The cost objection was
 the reason to look past Bitcoin, and it did not survive aggregation — so the
-architecture changed rather than the evidence being read to fit.
+architecture changed rather than the evidence being read to fit. The same fact
+did the same work a second time in the clarify sitting: round one inverted the
+ordering, the cost facts were put, and round two put Bitcoin on **everything**
+(Q3). A refuted prior that only changes a document is decoration; this one
+changed a ruling.
 
 ### What goes on chain, and what must not
 
@@ -288,6 +361,13 @@ both corrections narrow the vision: consent *state* does not go on chain (it
 would be publicly linkable to a person), and no anchored value is ever an
 unsalted hash.
 
+**Q2 ruled this boundary exactly as drawn, 2026-08-29 (Brett Heap).** The split
+above is not guidance to be interpreted: it becomes CONTRACT TEXT carrying a
+validator that refuses a payload-shaped record AND refuses an unsalted
+commitment. Prose about not putting PHI on a chain erodes; a refusal holds. The
+unsalted half is the one an implementer is most likely to get wrong, because a
+plain SHA-256 of a record looks like exactly the right thing to anchor.
+
 ### Patients, hospitals, insurers
 
 The expansion vision: a patient anchors record-commitments and consent
@@ -305,9 +385,17 @@ the faithful reading, is that the patient puts *a verifiable handle to a PHI
 portion* on chain — a salted keyed commitment — and discloses the portion itself
 off-chain under a consent whose checkpoint is anchored. The patient-facing
 behaviour the ruling asks for is preserved: they choose what to share, with
-whom, provably. What changes is where the bytes live. **This reading needs
-Brett's confirmation** (Q6) rather than being assumed, because it narrows a
-ruling and a topic should never quietly narrow one.
+whom, provably. What changes is where the bytes live. The topic raised this as
+**Q6** rather than assuming it, because it narrows a ruling and a topic should
+never quietly narrow one.
+
+**Confirmed 2026-08-29 by Brett Heap, and it is now the ruling's OPERATIVE
+FORM.** "Patients put PHI portions on chain" means SALTED KEYED COMMITMENTS: a
+verifiable public handle, the portion itself disclosed off-chain under an
+anchored consent checkpoint, and salt destruction as the erasure mechanism.
+Literal raw PHI, encrypted PHI and plain-hashed PHI on chain stay refused. No
+later change re-litigates this — the commitment reading is no longer an
+interpretation a later author may revisit, it is what the ruling says.
 
 A second reality check from the study, worth carrying now so tranche three is
 not designed in a vacuum: US hospital and insurer interoperability runs on
@@ -354,7 +442,10 @@ must carry or refute.
    transaction, inclusion proof, block header}), captured whole at anchor time,
    so anchor targets are added or dropped without touching the evidence plane.
    This is the claim that makes a ten-year commitment survivable, and it is why
-   Q3's answer is a starting configuration rather than a permanent one.
+   the configuration Q3 was ruled to on 2026-08-29 — Kaspa first, Bitcoin via
+   OpenTimestamps on everything — is a starting configuration rather than a
+   permanent one. The receipt carries BOTH witnesses' proofs; adding or dropping
+   a target changes the list, not the format.
 
 ## Conflicts
 
@@ -385,23 +476,55 @@ sharpens it: because anchoring is aggregated and batched anyway, anchoring late
 costs latency measured in an aggregation interval, not in architecture — the
 constraint is cheap to honour and expensive to ignore.
 
-**A second conflict, between the ruling and the research**, and the more
-consequential one. The 2026-08-27 ruling has patients putting PHI portions on
-chain; the research refuses raw PHI, encrypted PHI and plain hashes alike. This
-topic reads the ruling as *commitments*, preserves every patient-facing
-behaviour it asked for, and raises the narrowing as **Q6** rather than adopting
-it silently. Until Q6 is ruled, tranche three cannot be drafted without either
-guessing at a ruling or building something the regulators named. Neither is
-acceptable, so the question gates the tranche.
+**A second conflict, between the ruling and the research** — the more
+consequential one, and **RESOLVED 2026-08-29**. The 2026-08-27 ruling has
+patients putting PHI portions on chain; the research refuses raw PHI, encrypted
+PHI and plain hashes alike. This topic read the ruling as *commitments*,
+preserved every patient-facing behaviour it asked for, and raised the narrowing
+as **Q6** rather than adopting it silently — because until Q6 was ruled, tranche
+three could only be drafted by guessing at a ruling or by building something the
+regulators named. Brett CONFIRMED the commitment reading on 2026-08-29 and it is
+now the ruling's operative form, so the conflict is closed rather than managed:
+there is one reading, and it is his.
 
-## Open questions
+**A third conflict, between a ruling and a recommendation, and it is left
+OPEN by design.** Q5's recommendation was that contract code never runs on the
+anchoring chain. Brett ruled against the permanence of that — "allow contract
+code later" — while leaving today's evidence-only posture exactly as
+recommended. So this topic carries a standing tension it must not resolve on its
+own: the regulatory and maturity caution the study documented is real and is
+recorded, and it is ADVISORY to a future change rather than a bar on one. A
+later author who reads the caution as a refusal has misread the ruling; a later
+author who ignores it has misread the record.
 
-None blocks tranche one; all seven are for the eventual clarify round, but they
-are not equal: **Q3 and Q6 are tranche-three blockers** — the exit path waits
-on both rulings before the on-chain tranche can be drafted — and **Q7 gates
-tranche two's contract text**. Q3 and Q5 now carry the vendored study's
-recommendation rather than open analysis; Q7 came out of the review round on
-this topic's own pull request and asks for a mechanism, not a ruling.
+## Open questions — all seven SETTLED 2026-08-29
+
+**ALL SEVEN ARE RULED.** The clarify sitting was held **2026-08-29** and Brett
+Heap ruled every question in it; each disposition below carries its date and its
+ruling authority. The section keeps every question and its structure — the
+heading gains a closure stamp, nothing is removed — because a question and its
+recommendation are the record a disposition is read against, and deleting the
+question would leave the ruling answering nothing.
+
+*The heading declares the closure because that is where the readiness gate reads
+it.* `completeness._open_question_items` closes a question section either by a
+resolution word in the HEADING or by an uppercase closure token
+(`RESOLVED`/`ANSWERED`/`CLOSED`/`DECIDED`/`SETTLED`) in the body — and `RULED`
+is not one of them, so a section full of rulings would still have counted as one
+standing open item and refused proposal commissioning for a topic that is
+actually decided. **A later author who adds a Q8 must strike `SETTLED` from this
+heading**, or the gate will count the new question as already closed. The
+declaration is in the heading rather than buried in prose for exactly that
+reason: it is where someone adding a question cannot miss it.
+
+Four were ruled AS RECOMMENDED (Q1, Q2, Q4, Q7) and one CONFIRMED as recommended
+(Q6). **Two diverge, and both are labelled where they land**: **Q3** was ruled in
+TWO ROUNDS to Brett's own configuration of the study rather than to the study's
+ordering, and **Q5** OVERRIDES its recommendation.
+
+The gates these questions held are now open. **Q3 and Q6 were tranche-three
+blockers**; **Q7 gated tranche two's contract text**; tranche one was gated by
+none of them and never was.
 
 ### Q1 — What are the wallet-presentation mechanics?
 
@@ -416,7 +539,15 @@ Recommended answer: Express presentation in the existing grant vocabulary
 Explanation: The family already refuses a wallet address as identity proof;
   possession must be demonstrated, not asserted. Reusing the grant vocabulary
   keeps one instrument rather than two.
-Disposition status: open
+Disposition status: ruled 2026-08-29 — Brett Heap, in session; AS RECOMMENDED
+Disposition (2026-08-29, RULED BY BRETT HEAP): as recommended. Presentation is
+  expressed in the SHIPPED grant vocabulary plus a PROOF-OF-POSSESSION step, and
+  the presentation is recorded in the RATIFICATION RECORD ITSELF. No new
+  artifact is created for it. Tranche one therefore consumes
+  `add-wallet-carried-review-authority`'s realized instrument rather than
+  extending it, which is the whole reason link 1 is composable today.
+Dispositioned-by: Claude Opus 5 (session, encoding Brett Heap's clarify ruling)
+  · 2026-08-29
 
 ### Q2 — Where exactly is the on-chain boundary?
 
@@ -433,8 +564,16 @@ Explanation: "Don't put PHI on chain" as prose will erode; as a refusal it
   The unsalted-commitment refusal is the new half, and it is the one an
   implementer is most likely to get wrong, because a plain SHA-256 of a record
   looks like exactly the right thing to anchor until you read EDPB 02/2025 v2.0.
-Disposition status: open — boundary corrected by the vendored study; the
-  refusing-validator shape still to be specified
+Disposition status: ruled 2026-08-29 — Brett Heap, in session; AS RECOMMENDED
+Disposition (2026-08-29, RULED BY BRETT HEAP): as recommended. ON CHAIN, and
+  nothing else: salted keyed commitments, commitments to consent-log
+  CHECKPOINTS, and the chain anchors. OFF CHAIN: every payload without
+  exception, plus consent STATE and the SALTS. The line is drawn as CONTRACT
+  TEXT carrying a validator that refuses a payload-shaped record AND refuses an
+  unsalted commitment — the refusal is the durable form because prose about
+  where PHI may not go erodes and a validator does not.
+Dispositioned-by: Claude Opus 5 (session, encoding Brett Heap's clarify ruling)
+  · 2026-08-29
 
 ### Q3 — Which chain?
 
@@ -457,15 +596,67 @@ Explanation: The question is answered on evidence, and the answer changed the
   architecture: the cost objection that pointed away from Bitcoin did not survive
   aggregation, and Kaspa's ~3-day L1 pruning disqualifies it as a sole ten-year
   anchor while leaving it useful as a second witness. Deferring further would be
-  deferring past the evidence. What keeps this OPEN rather than settled is that a
+  deferring past the evidence. What kept this open rather than settled was that a
   chain selection is a governance decision for a change to carry and Brett to
-  rule, not one a staging topic closes on its own. One correction governs over
+  rule, not one a staging topic closes on its own — which is exactly how it went:
+  he ruled it on 2026-08-29, and to a different configuration than the one
+  recommended here. One correction governs over
   the study's compact receipt sketch: receipts carry the anchor transaction and
   its transaction-to-block or DAG inclusion proof, as the architecture section
   and claim 7 state — the study's own Kaspa conditions demand the same
   retention.
-Disposition status: open — research COMPLETE with a recommendation on the
-  table; awaiting a ruling, not awaiting more analysis
+Disposition status: ruled 2026-08-29 in TWO ROUNDS — Brett Heap, in session;
+  **DIVERGES from the recommendation above**
+Disposition, ROUND 1 (2026-08-29, RULED BY BRETT HEAP — his text verbatim):
+  "lets [sic] use Kaspa as primary and bitcoin as secondary". That INVERTS the
+  study's ordering. It is recorded verbatim, before the cost facts were put to
+  him, because a two-round ruling is only honest if the first round survives
+  inside it — a record that shows only the final answer hides what the answer
+  was reached against. The bracketed [sic] marks his spelling, and the lowercase
+  "bitcoin" is his too: both are preserved because a verbatim record that tidies
+  its subject's typing has stopped being verbatim, and the brackets are what
+  keep the tidying visible instead of silent.
+Cost facts put to him between the rounds (2026-08-27 prices, from the vendored
+  study): Kaspa ~$0.000001 per transaction; Bitcoin via OpenTimestamps $0
+  marginal per item on public calendars, or ~$2.1k/yr for a self-run hourly
+  calendar; a raw Bitcoin transaction $0.12–0.36 with a spike history; and a
+  cheaper sidechain adds federation trust and saves nothing.
+Disposition, ROUND 2 (2026-08-29, RULED BY BRETT HEAP — the OPERATIVE
+  configuration): **"Bitcoin-via-OTS on everything."** BOTH witnesses on EVERY
+  anchored item. **Kaspa FIRST** — seconds; the primary, OPERATIONAL witness,
+  adopted under the study's three conditions unchanged (archival node;
+  inclusion proofs captured AND retained at anchor time; corroborating
+  evidence, never sole). **Bitcoin batched via OpenTimestamps aggregation** —
+  hours; the DURABILITY witness, and **ten-year claims cite Bitcoin**. Receipts
+  stay chain-agnostic and multi-anchor and carry BOTH proofs: digest →
+  aggregation Merkle path → a per-chain list of {chain, block header,
+  transaction reference}. **No selectivity** — no per-item choice of which
+  witness an item gets — and **no third chain**. The transparency log remains
+  the evidence plane and consent logic stays in the governed permissioned layer
+  with anchored state roots.
+How this diverges, stated plainly: the study seated **Bitcoin as PRIMARY** with
+  **Kaspa an OPTIONAL secondary**. The ruling keeps both chains, REVERSES which
+  is called primary, and makes NEITHER optional. "Primary" in the ruling is
+  order of arrival, not evidentiary weight — Kaspa's ~3-day L1 pruning finding
+  is carried forward untouched, which is why its corroborating-only condition
+  still holds even in the primary seat, and why the ten-year claim rests on
+  Bitcoin. Every substantive finding of the study survives; ordering and
+  optionality are what changed.
+One shorthand, reconciled rather than smoothed: the round-2 receipt sketch names
+  {chain, header, transaction reference}, the same compact form this question's
+  Explanation already corrected in the study. The correction still governs and
+  does not contest the ruling — each per-chain entry ALSO carries the
+  transaction-to-block or DAG inclusion proof, captured whole at anchor time,
+  which his own Kaspa condition demands independently and without which a
+  header plus a bare transaction reference proves nothing once the transaction
+  is pruned.
+The vendored study is NOT edited. It is a dated research record; a record
+  rewritten to agree with a later ruling stops being evidence, so the divergence
+  is carried here and the study stands as it came back.
+Gate: this was one of two TRANCHE-THREE blockers. With Q6 confirmed in the same
+  sitting, **tranche three is OPEN**.
+Dispositioned-by: Claude Opus 5 (session, encoding Brett Heap's clarify ruling)
+  · 2026-08-29
 
 ### Q4 — Where do the tranche boundaries fall?
 
@@ -477,7 +668,18 @@ Recommended answer: Tranche one = links 1–3 only, because they need nothing
   chain selection are real.
 Explanation: A tranche that depends on an unbuilt layer is a plan, not a
   tranche. The family's own release-realization discipline is the precedent.
-Disposition status: open
+Disposition status: ruled 2026-08-29 — Brett Heap, in session; AS RECOMMENDED
+Disposition (2026-08-29, RULED BY BRETT HEAP): as recommended. **Tranche one is
+  links 1–3 ONLY.** The later boundaries are RE-DERIVED when the omnigent layer
+  and the PKI plane are real, not fixed now — a boundary drawn against an
+  unbuilt layer is a guess wearing a tranche number. Two sequencing facts are
+  ruled with it: the **signed transparency log is a TRANCHE-1 artifact**,
+  because tranches 1–2 need somewhere to write their signed leaves; and the
+  **chain-validating gate exists FROM TRANCHE ONE**, validating a short chain,
+  so the refusal path is exercised from the start rather than first tested when
+  it matters most.
+Dispositioned-by: Claude Opus 5 (session, encoding Brett Heap's clarify ruling)
+  · 2026-08-29
 
 ### Q5 — Are smart contracts or an L2 in scope?
 
@@ -498,8 +700,36 @@ Explanation: This question was drafted as a judgement call and came back
   regulated logic on an unaudited stack compounds that with a maturity risk. The
   permissioned layer is also the only posture EDPB and HIPAA guidance cleanly
   supports, so the split is regulatory as much as architectural.
-Disposition status: open — direction confirmed by the study; the trigger
-  condition for a public programmable layer still needs stating
+Disposition status: ruled 2026-08-29 — Brett Heap, in session; **RULED AGAINST
+  THE RECOMMENDATION — his OVERRIDE of the study's answer**
+Disposition (2026-08-29, RULED BY BRETT HEAP, OVERRIDING THE RECOMMENDATION —
+  his words): **"Allow contract code later."** What the ruling PRESERVES is the
+  posture: the anchoring chains stay EVIDENCE-ONLY today, and **no tranche now
+  planned puts contract code on any of them**. What it REFUSES is the permanence
+  the recommendation asked for. This change **MUST NOT constitutionalize "no
+  contract code ever"**, and **MUST NOT gate a future adoption on the
+  recommendation's stated trigger** — patient-facing verifiability across
+  organizations sharing no consortium. The door stays open by his ruling: a
+  future change MAY adopt on-chain contract code **on its own merits**, and it
+  answers to its own evidence rather than to a condition written here in
+  advance.
+What becomes of the study's caution: it is RECORDED as ADVISORY CONTEXT for that
+  future change, not as a gate on it — the EDPB/HIPAA posture that cleanly
+  supports only the off-chain split; the unaudited-stack risk that made Kasplex
+  and Igra a refusal in 2026; and the irrevocable-deployment vulnerability class
+  that contract code carries. A later author must ANSWER these; a later author
+  does not need this topic's permission to answer them differently. The study's
+  IF-forced answer — an Ethereum L2 with EAS, explicitly not Kasplex or Igra in
+  2026 — likewise survives as advice, not as the only door.
+Why the divergence is recorded rather than smoothed: the recommendation asked
+  for a "never", and a staging topic that converts a "not now" into a "never"
+  has legislated past its own authority. The ruling differs from the
+  recommendation in exactly one dimension — DURATION, where it is the LESS
+  absolute of the two — and every other word of the recommendation is adopted.
+  Encoding a "not now" as a "never" would be the quiet-narrowing defect this
+  topic already refused once at Q6, run in the opposite direction.
+Dispositioned-by: Claude Opus 5 (session, encoding Brett Heap's clarify ruling)
+  · 2026-08-29
 
 ### Q6 — Does "patients put PHI portions on chain" mean commitments?
 
@@ -519,8 +749,25 @@ Explanation: A topic must not quietly narrow a ruling, and this reading does
   literal reading and putting PHI-derived data on a public ledger that cannot
   forget. The erasure-by-salt-destruction property is what makes the narrowed
   reading genuinely serve the patient rather than merely comply.
-Disposition status: open — needs Brett's confirmation; this is the one
-  question where the topic has interpreted a ruling rather than applied it
+Disposition status: CONFIRMED 2026-08-29 — Brett Heap, in session; AS
+  RECOMMENDED, and this is the ruling's OPERATIVE FORM
+Disposition (2026-08-29, CONFIRMED BY BRETT HEAP): the commitment reading is
+  confirmed and becomes the 2026-08-27 ruling's OPERATIVE FORM. "Patients put
+  PHI portions on chain" means **SALTED KEYED COMMITMENTS** — a verifiable
+  public handle to a PHI portion, with the portion itself disclosed OFF-CHAIN
+  under an anchored consent checkpoint, and **salt destruction as the erasure
+  mechanism**. Literal raw PHI, encrypted PHI and plain-hashed PHI on chain stay
+  REFUSED. **No later change re-litigates this**: the reading is no longer an
+  interpretation a later author may revisit, it is what the ruling says.
+Why the confirmation mattered: this was the one place the topic INTERPRETED a
+  ruling rather than applying it, and it narrowed one. The narrowing is now
+  authorized at the source, so the patient-facing behaviour the 2026-08-27
+  ruling asked for stands whole — patients choose what to share, with whom,
+  provably — and only the location of the bytes was ever in question.
+Gate: this was one of two TRANCHE-THREE blockers. With Q3 ruled in the same
+  sitting, **tranche three is OPEN**.
+Dispositioned-by: Claude Opus 5 (session, encoding Brett Heap's clarify ruling)
+  · 2026-08-29
 
 ### Q7 — Where does an attestation signature physically happen?
 
@@ -544,32 +791,63 @@ Explanation: Raised by the review round on this topic's PR, which read the
   controller corroborates the submitted payload against its own link-4 setup
   attestation rather than notarizing self-report, so the mechanism question is
   about WHERE the key lives, never about whether the claims are checked.
-Disposition status: open — for the clarify round; the boundary is forced by
-  ratified text, the mechanism is a design choice
+Disposition status: ruled 2026-08-29 — Brett Heap, in session; AS RECOMMENDED
+Disposition (2026-08-29, RULED BY BRETT HEAP): as recommended. Attestation
+  signatures happen by **REMOTE SIGNING SERVED BY THE HARNESS CONTROLLER**. The
+  runner's signing **REQUEST is recorded alongside the signature it received**,
+  so the chain shows both what was attested and who asked for the attestation —
+  a bare signature shows only the first. The controller **corroborates the
+  submitted payload against its own link-4 setup attestation**: it signs, it
+  does not notarize self-report. An **HSM remains a later HARDENING of the same
+  shape**, not a different answer, so adopting one moves where the key sits and
+  changes nothing about what the chain carries.
+Gate: this gated **TRANCHE TWO's contract text**, which may now name the
+  mechanism. The gate is OPEN.
+Dispositioned-by: Claude Opus 5 (session, encoding Brett Heap's clarify ruling)
+  · 2026-08-29
 
 ## Exit path
 
 OpenSpec change(s), in three tranches, each gated on what actually exists.
 
-**Tranche 1 — signed ratification + atomic enrollment. Composable TODAY.**
-Links 1–3. Consumes `add-wallet-carried-review-authority`'s realized issuer
-anchor and the shipped grant vocabulary; needs no omnigent layer and no chain.
-This is the tranche that can become a change as soon as the topic is ruled.
+**Gate state after the 2026-08-29 clarify sitting.** Tranche 1 was **never
+gated** by an open question. Tranche 2 was gated by **Q7**, and that gate is now
+**OPEN**. Tranche 3 was gated by **Q3 and Q6**, and both gates are now **OPEN**.
+No tranche is held by a question any more. What still holds tranches 2 and 3 is
+unbuilt machinery — a different kind of wait, and stated per tranche below so
+the two are never confused.
 
-**Tranche 2 — harness and runner attestation.** Links 4–6 and 10. Needs the
-omnigent layer to enforce the precondition, and `implement-openxpki-install-repo`
-to issue the controller certificate. Expresses its certificates in
-`trust-anchor` vocabulary and its signer identity in `identity-brokering`.
+**Tranche 1 — signed ratification + atomic enrollment. Composable TODAY, and
+UNGATED.** Links 1–3. Consumes `add-wallet-carried-review-authority`'s realized
+issuer anchor and the shipped grant vocabulary — Q1 ruled the presentation INTO
+that vocabulary plus a proof-of-possession step, rather than into a new artifact
+— and needs no omnigent layer and no chain. Q4 fixed the boundary at links 1–3
+and put the signed transparency log inside it. This tranche waits on nothing but
+the word to draft it.
 
-**Tranche 3 — on-chain anchoring.** The commitment and anchor layer, plus the
-permissioned consent plane whose state roots it anchors. The chain-selection
-research is COMPLETE and its recommendation is on the table (Q3), so what this
-tranche now waits on is a ruling — Q3's configuration and Q6's reading of the PHI
-boundary — and the PKI plane being real. It carries the Q2 boundary as contract
-text with a validator that refuses both payload-shaped records and unsalted
-commitments, and it builds the multi-anchor receipt format first, because the
-receipt is what makes the anchor choice reversible; anchoring to a single chain
-with a bespoke receipt would be the one-way door this design exists to avoid.
+**Tranche 2 — harness and runner attestation. Its question-gate is OPEN (Q7).**
+Links 4–6 and 10. Its contract text may now NAME the mechanism: remote signing
+served by the harness controller, the runner's signing request recorded beside
+the signature it received, the controller corroborating the payload against its
+own link-4 setup attestation. What remains is machinery rather than a ruling —
+the omnigent layer to enforce the precondition, and
+`implement-openxpki-install-repo` to issue the controller certificate. Expresses
+its certificates in `trust-anchor` vocabulary and its signer identity in
+`identity-brokering`.
+
+**Tranche 3 — on-chain anchoring. Both question-gates are OPEN (Q3 and Q6).**
+The commitment and anchor layer, plus the permissioned consent plane whose state
+roots it anchors. It builds to the RULED configuration rather than to the
+study's: **Kaspa first** as the operational witness under its three unchanged
+conditions, **Bitcoin via OpenTimestamps aggregation on every anchored item** as
+the durability witness, no selectivity and no third chain. It carries the Q2
+boundary as contract text with a validator that refuses both payload-shaped
+records and unsalted commitments, and Q6's commitment reading as its operative
+form. It builds the multi-anchor receipt format FIRST — the receipt is what
+makes the anchor choice reversible, and it must carry BOTH witnesses' proofs
+from the start; anchoring to a single chain with a bespoke receipt would be the
+one-way door this design exists to avoid. What still holds this tranche is the
+PKI plane being real, not a ruling.
 
 Sequencing note: the evidence plane of claim 6 — the signed transparency log —
 is a **tranche 1** artifact, not a tranche 3 one. The log is the record; the
@@ -580,4 +858,43 @@ Links 7–9 — council review of the signed brief, the chain-validating merge g
 and the fraud-signal refusal — span tranches: each tranche extends what the gate
 validates. **The gate should exist from tranche one validating a short chain,
 rather than arriving at the end validating a long one**, so the refusal path is
-exercised from the start rather than first tested when it matters most.
+exercised from the start rather than first tested when it matters most. Q4 ruled
+that sequencing on 2026-08-29, so it is settled rather than proposed.
+
+**Closing note — the topic is FULLY RULED.** All seven open questions were ruled
+by Brett Heap on 2026-08-29; no tranche is waiting on a clarification any more,
+and every disposition above carries its date and its ruling authority.
+**Tranche one is draftable on Brett's word.** Its drafting was NOT green-lit in
+that sitting, and this fragment does not read "ruled" as "authorized to draft" —
+the questions being answered is what makes the drafting possible, not what
+authorizes it. The next act is his.
+
+**The word came, 2026-08-29, in a separate act — DRAFTING IS GREEN-LIT.** Brett
+Heap authorized the tranche-one drafting in session, after the sitting, and the
+two acts are kept apart here rather than merged into one because the sitting's
+own record says it did not authorize drafting. Rewriting that sentence to agree
+with the later word would delete the distinction the sitting was careful to
+draw; recording the authorization beneath it keeps both true. The same ruling
+did two further things, and both are recorded where they bind rather than only
+here: it COLLAPSED the two parallel tranche-one packets — pull requests #494 and
+#495, raised into the same change directory three minutes apart by two sessions
+that could not see each other — onto **#495** as the surviving base, with #494's
+four hardenings carried across by harvest rather than discarded; and it ADOPTED
+**Narrowing A**, which the sitting did not reach.
+
+**Narrowing A, RULED BY BRETT HEAP 2026-08-29 in session: tier 1 is RATIFYING
+authority.** The tier model above says tier-1 authority credentials are
+"never held by an agent, a runner, or a lane". Read literally that refuses
+`wal-agent-mrc-0001` — a REALIZED agent-held wallet backing an active `review`
+grant, which this repository runs today — so the literal reading would have made
+a shipped artifact nonconformant on the capability's first day. The ruling
+narrows the TIER, not the artifact: the human-held constraint binds the
+**ratifying** act, agent-held **review** wallets stay lawful, and what a chain
+refuses is an agent-held wallet performing a **ratification**. The tier-model
+paragraph above is left as written, because it states the constitutional ground
+(`access_secrets: false`) correctly and it is the scope of the word "authority"
+that was ruled, not the ground. **Narrowing B** — Q1's "rather than a new
+artifact" read as *invent no new artifact* — needed no separate ruling: Q1 as
+ruled already says no new artifact is created for the presentation.
+Dispositioned-by: Claude Opus 5 (session, encoding Brett Heap's in-session
+ruling) · 2026-08-29

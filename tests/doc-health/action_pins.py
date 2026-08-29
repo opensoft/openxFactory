@@ -36,23 +36,39 @@ corpus:
     path, detail, action, resolution=...)`` / ``bad(cls, detail, action)``
     wrappers in `ideation_routing.py` are exactly this shape.
 
-A literal reached through a module-level NAME (``_CUT_ACTION = "..."``,
-resolved from a plain top-level ``NAME = "<literal>"`` assignment) is
-resolved to its string VALUE, so a table pins the TEXT, never a constant's
-name — the mistake `#448`'s own review caught and fixed
+A literal reached through a NAME (``_CUT_ACTION = "..."``, resolved from a
+plain ``NAME = "<literal>"`` assignment anywhere in the module — see
+`harvest_static`'s own comment for the walk-order and last-assignment-wins
+details) is resolved to its string VALUE, so a table pins the TEXT, never a
+constant's name — the mistake `#448`'s own review caught and fixed
 (`test_the_marker_class_keeps_its_own_action_and_not_the_arms_one` compared a
 finding's action to `mbc._MARKER_ACTION` itself, which passed whatever that
 constant had been mutated to; see `4def2274`/the `#448` merge commit body).
 
-Every family in this corpus writes its action text as a fixed literal — the
-operator-guidance text does not vary; only `rule`, the finding's dynamic
-per-occurrence detail, is built with f-strings or `.format()`. A
-non-literal expression bound to an `action` parameter (there are none today)
-is silently skipped by the static harvester: it cannot be pinned verbatim
-because it has no fixed text to type. This is a completeness statement about
-the corpus AS WRITTEN, not a language-level guarantee — which is exactly why
-each family's table test also states, in its own docstring, which strings it
-pins BEHAVIOURALLY and which STATICALLY.
+Most families in this corpus write their action text as a fixed literal, but
+not all: `client_identity_composition.py` (two sites), `neutrality_dispatch.py`,
+and `semantic.py` build their action with an f-string — operator guidance
+that interpolates a per-occurrence detail (a client name, a disposer, a seed
+reference) rather than staying fixed. None of those three modules uses this
+harvester (each pins its handful of actions directly in its own suite,
+compared against the finding's `.action` at a real, fixed input); every
+family that DOES go through `harvest_static`/`harvest_behavioral` writes
+every action as a literal, which is why a non-literal expression bound to an
+`action` parameter, though it exists elsewhere in the corpus, is silently
+skipped by the static harvester here rather than handled: it cannot be
+pinned verbatim because it has no fixed text to type, and there is nothing in
+this module's own corpus of callers for it to skip. Because every action
+those nine families can emit is a literal, `harvest_static` — which walks
+every branch regardless of which the fixtures exercise — finds everything
+`harvest_behavioral` finds and often more (`static ⊇ behavioral`, verified
+per family: equal where the fixtures exercise every branch, a proper
+superset where they do not, e.g. tag-hygiene's twelve actions against seven
+behaviorally-reached ones). `assert_actions_pinned`'s two-directional check
+(`expected == behavioral | static`) does not depend on that relationship —
+it would hold even if a family's static and behavioral sets were disjoint —
+but the relationship is why static alone is sometimes enough: each family's
+table test states, in its own docstring, which strings it pins BEHAVIOURALLY
+and which STATICALLY.
 
 The two-directional check
 --------------------------
@@ -85,13 +101,29 @@ def _module_source(module_or_path) -> str:
 
 def _action_param_index(func_def: ast.FunctionDef) -> int | None:
     """Index of the parameter literally named `action` in a positional
-    (posonly + regular) parameter list, or None if `action` is absent from
-    that list (it may still be reachable as a call-site keyword only, or not
-    a parameter of this function at all)."""
+    (posonly + regular) parameter list; `None` if `action` is absent from
+    that list AND from the function's keyword-only parameters (not a
+    parameter of this function at all).
+
+    A keyword-only `action` (declared after a bare `*` in the signature) can
+    never be filled positionally in a valid call, so it is given a sentinel
+    index no real call's `node.args` can ever reach rather than a genuine
+    positional slot. Registering it at all is the point: `harvest_static`
+    only recognizes a callee as an action-taker when this function returns
+    non-`None`, and a keyword-only `action` previously fell through that
+    check entirely — even a call site passing `action=...` by keyword would
+    have gone unmatched, because the callee was never added to
+    `action_takers` in the first place. The keyword-matching pass at the
+    call site is what actually resolves such a value; this index exists only
+    to get the callee registered.
+    """
     positional = list(func_def.args.posonlyargs) + list(func_def.args.args)
     for i, arg in enumerate(positional):
         if arg.arg == "action":
             return i
+    for arg in func_def.args.kwonlyargs:
+        if arg.arg == "action":
+            return 1 << 30   # unreachable via `node.args[idx]`; see above
     return None
 
 
@@ -114,11 +146,18 @@ def harvest_static(module_or_path, *, functions: frozenset[str] | None = None
     source = _module_source(module_or_path)
     tree = ast.parse(source)
 
-    # Module-level NAME -> literal string, so `action=_SOME_CONST` resolves
-    # to the constant's TEXT rather than being dropped as "not a literal".
-    # Always read from the WHOLE module — a constant is legitimately
-    # defined once at module level even when only one scoped function uses
-    # it.
+    # NAME -> literal string, so `action=_SOME_CONST` resolves to the
+    # constant's TEXT rather than being dropped as "not a literal". `ast.walk`
+    # here covers the WHOLE module tree, not just its top-level statements —
+    # a constant is legitimately defined once at module level even when only
+    # one scoped function uses it, so this cannot be limited to `functions`'
+    # own subtree(s) the way the call-site walk below is. Walking the whole
+    # tree also means it visits `Assign` nodes nested inside function and
+    # class bodies, not only true module-level ones, and the loop keeps
+    # overwriting the dict entry for each `NAME` it sees — so on a name
+    # assigned more than once anywhere in the module, the LAST assignment
+    # `ast.walk`'s traversal order reaches wins, not necessarily the
+    # outermost or first one in source order.
     constants: dict[str, str] = {}
     for node in ast.walk(tree):
         if isinstance(node, ast.Assign):
@@ -205,11 +244,23 @@ def assert_actions_pinned(expected, behavioral, static, *, family: str) -> None:
     `behavioral | static` is everything this derivation shows the family CAN
     emit. `expected` must equal it exactly:
 
-      1. nothing reachable is missing from `expected` (the un-pinned-drift
-         gap `#448` measured — mutating an action string nothing pins reds
-         zero tests); and
-      2. nothing in `expected` is unreachable (a table entry the source no
-         longer emits — dead weight the table could rot around).
+      1. nothing STATICALLY PRESENT OR BEHAVIORALLY EMITTED is missing from
+         `expected` (the un-pinned-drift gap `#448` measured — mutating an
+         action string nothing pins reds zero tests); and
+      2. nothing in `expected` is neither statically present nor behaviorally
+         emitted (a table entry the source no longer has any trace of — dead
+         weight the table could rot around).
+
+    "Statically present" is not "live": `harvest_static` proves only that a
+    literal reaches an `action` parameter syntactically, and an `ast.walk`
+    descends into a branch whether or not anything can ever take it. Two of
+    `ideation-routing`'s pinned strings (`ideation_routing.py:315`, `:319`)
+    are exactly this — `_shape_findings`'s only caller filters every record
+    to `isinstance(data, dict) and data.get("kind") == RECORD_KIND` before
+    calling it, so `_shape_findings`'s own `isinstance`/`kind` guards can
+    never fire — and this check still counts them as covered, on the
+    static half, because static presence is what it verifies. It does not,
+    and cannot, verify liveness.
 
     Raises via a plain `assert` so pytest's own introspection renders the
     set diff; the message additionally states which literal is on which
