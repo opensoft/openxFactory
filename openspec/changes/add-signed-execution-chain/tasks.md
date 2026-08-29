@@ -39,8 +39,13 @@ quietly answered by an implementer.
       staged-origin scenario (`release-realization`, "Origin retention at
       archive"), which expects a readable support manifest carrying the identical
       origin id and path, has something to read. Raised by Codex on PR #494 and
-      taken in that narrowed form; `proposal-support.py verify
-      add-signed-execution-chain` passes.
+      taken in that narrowed form. The check that passes is
+      `python3 scripts/proposal-support.py . verify add-signed-execution-chain` —
+      the repository ROOT is a positional argument BEFORE the subcommand, so the
+      rootless spelling this task first recorded would have taken `verify` as the
+      root and rejected the change id. The command that ran was always the
+      correct one; what was wrong was the command written down, which is worse
+      than a failing check because it reads as reproducible.
 - [x] 1.4 `ideation/staging/INDEX.md` — the topic's row and detail section record
       that tranche one was raised and that tranches two and three stay staged,
       in this packet's own commit.
@@ -55,8 +60,10 @@ quietly answered by an implementer.
 
 - [ ] 2.1 `contracts/signed-execution-chain/` — ONE record kind,
       `xfactory_execution_chain_link`, carrying: the chain identity; the link's
-      ordinal and kind; the predecessor link digest (absent exactly on the genesis
-      link); a reference to the `xfactory_wallet_grant_exercise` by `exercise_id`;
+      ordinal and kind — the chain identity carried ALGORITHM-TAGGED, since R3
+      requires every reader to compute it and an untagged digest cannot be
+      checked across readers; the predecessor link digest (absent exactly on the
+      genesis link); a reference to the `xfactory_wallet_grant_exercise` by `exercise_id`;
       the actor as `identity-brokering`'s stable opaque subject; the signature
       block naming what the signature covers — the ratification's subject AND the
       chain-enrollment declaration for a genesis link, the chain identity AND the
@@ -85,7 +92,14 @@ quietly answered by an implementer.
       other fixture still passes, which is why this pair is named rather than
       left implicit.
       **R3:** a link claiming a chain identity that is not the digest of the
-      signed ratification it carries.
+      signed ratification it carries; a ratification whose signed bytes carry no
+      value unique to the ratifying act; and a link tagged with a digest
+      construction other than the one the contract declares in force, which must
+      be refused rather than re-computed under the reader's default. Plus one
+      POSITIVE fixture the others cannot stand in for: two ratifications of an
+      IDENTICAL subject and declaration yielding two DISTINCT chain identities,
+      which is the property R3 promises and which a deterministic signature
+      scheme would otherwise break.
       **R4:** a successor link signing neither the chain identity nor its
       predecessor's digest despite its own signature verifying; links from
       DIFFERENT executions offered as one chain; and a FORK — two links binding
@@ -110,6 +124,10 @@ quietly answered by an implementer.
       at that point (R6). A test SHALL assert that the fixture set and the
       validator's refusal codes stand in one-to-one correspondence, so a refusal
       added to the delta later cannot ship with neither a fixture nor a rule.
+- [ ] 2.4a Declare the ONE digest construction in force — algorithm plus the
+      canonical byte encoding it is computed over — in the contract, not in the
+      spec, per R3. One fact, one place; the spec states the obligation and the
+      contract names the value.
 - [ ] 2.4 Register the family in `contracts/manifest.yaml` and
       `contracts/CHANGELOG.md` at the next additive bundle cut. The train is at
       `contract-v2.1` (declared at `contracts/manifest.yaml:3`, cut and tagged

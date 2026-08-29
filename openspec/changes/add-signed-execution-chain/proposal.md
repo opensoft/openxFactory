@@ -244,7 +244,8 @@ evidence on it), Q5 (open — direction confirmed, trigger condition unstated).
   retention at archive" scenario expects a staged origin's readable support
   manifest to carry the identical origin id and path, and a change with no
   manifest gives that gate nothing to read. So the manifest lands and the
-  documents stay. `proposal-support.py verify add-signed-execution-chain` passes.
+  documents stay. `python3 scripts/proposal-support.py . verify
+  add-signed-execution-chain` passes.
 - **`ideation/staging/INDEX.md`** — the topic's row and detail section record
   that tranche one was raised and that tranches two and three stay staged.
 - **`README.md`** — one entry in the OpenSpec Records active block.

@@ -515,8 +515,8 @@ the narrowing argued rather than asserted.
    id and path, and a packet with no manifest gives that gate nothing to read. So
    the manifest lands — zero selected files, both remaining staged paths, the
    source revision, the repeated origin — and the documents stay where the later
-   tranches need them. `proposal-support.py verify add-signed-execution-chain`
-   passes, and doc-health's `location-conformance` support arm is satisfied by a
+   tranches need them. `python3 scripts/proposal-support.py . verify
+   add-signed-execution-chain` passes, and doc-health's `location-conformance` support arm is satisfied by a
    manifest whose `files` list is empty.
 
 ## The second Codex round
@@ -549,6 +549,47 @@ superseded rather than silently skipped.
    wallet, which begins NO chain — is already in tasks 2.2's R1 list. This is the
    patch-then-unify sequence of D5 seen from the fixture side: had the branch
    been patched rather than removed, this fixture would have been owed.
+
+## The third Codex round
+
+Four findings. Two P1 reaching R3, one P2 already fixed before the round landed,
+one P2 on a command this packet had written down wrong.
+
+7. **"Make re-ratification change the signed payload." TAKEN IN FULL, and it is
+   the sharpest finding of the three rounds** because it defeats a promise the
+   requirement makes in its own text. R3 said re-ratifying begins a NEW chain —
+   but the identity is the digest of the signed bytes, so re-ratifying an
+   UNCHANGED subject produces identical bytes, an identical digest, and under a
+   deterministic signature scheme an identical signature. The "new" chain would
+   silently BE the old one, and nothing in the delta would have caught it. R3 now
+   requires the signed bytes to carry a value unique to the ratifying act, and
+   names that value rather than inventing one: the identifier of R1's grant
+   exercise, since one exercise is one act and the pinned exercise record already
+   carries it. **This is D4's rule paying off** — the composition seam supplies
+   the uniqueness, so no new identifier vocabulary is minted for it.
+8. **"Specify the chain-identity digest construction." TAKEN IN FULL.** R3
+   required every reader to COMPUTE the identity and named no algorithm and no
+   encoding, so two conforming readers could derive different identities from one
+   ratification and neither could verify the other's chain — a requirement that
+   mandates agreement while making agreement impossible. R3 now requires exactly
+   ONE construction in force, declared IN THE CONTRACT rather than here (one
+   fact, one place), identities carried algorithm-tagged, and a link tagged with
+   a construction not in force refused rather than re-computed under the reader's
+   own default.
+9. **"Remove the deleted standing-authority origin from R9." ALREADY FIXED**, in
+   the commit that landed between the reviewed commit and this round — found
+   independently by Copilot on the same commit, and the sweep it triggered found a
+   fourth survivor the reviews had not reported.
+10. **"Put the repository root before the verify subcommand." TAKEN, and it is
+    the most embarrassing of the four.** The packet recorded
+    `proposal-support.py verify add-signed-execution-chain` as a passing check.
+    That spelling does not run — the repository root is a positional argument
+    BEFORE the subcommand, so it would take `verify` as the root. The command
+    actually executed was always the correct `python3 scripts/proposal-support.py
+    . verify add-signed-execution-chain`; what was wrong was the command WRITTEN
+    DOWN, which is worse than a failing check, because a wrong command that
+    reads as reproducible sends the next reader to a failure and teaches them to
+    distrust the record.
 
 ## Risks that survive
 

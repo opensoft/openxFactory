@@ -142,6 +142,26 @@ The signed bytes carry the enrollment DECLARATION and never the identity derived
 from them, so the identity is a consequence of the signature rather than an input
 to it.
 
+THE SIGNED BYTES SHALL CARRY A VALUE UNIQUE TO THE RATIFYING ACT, and this
+capability names that value as the identifier of R1's grant exercise, because one
+exercise is one act and the pinned exercise record already carries it. Without
+it, re-ratifying an UNCHANGED subject would produce identical bytes, hash to the
+existing identity, and — under a deterministic signature scheme — reproduce the
+same signature, so the NEW CHAIN the paragraph above promises would silently be
+the old one. A ratification whose signed bytes carry no such value SHALL be
+refused rather than enrolled under whichever identity they happen to produce.
+
+EXACTLY ONE DIGEST CONSTRUCTION SHALL BE IN FORCE at a time, declared in the
+contract that realizes this capability, naming both the digest algorithm and the
+canonical byte encoding it is computed over; and every chain identity SHALL be
+carried ALGORITHM-TAGGED so a reader can tell which construction produced it.
+This capability states the obligation and does not name the algorithm — that is
+the contract's to name, and naming it here would put one fact in two places. A
+link whose tag names a construction not in force SHALL be refused, and a reader
+SHALL NOT re-compute an identity under its own default, because two conforming
+readers choosing different digests would derive different identities from one
+ratification and neither could verify the other's chain.
+
 #### Scenario: The same signed bytes are recorded twice
 
 - **WHEN** a genesis link is re-recorded after a failed write
@@ -159,6 +179,23 @@ to it.
 - **WHEN** an object that already carries a chain is ratified again
 - **THEN** a new chain begins with its own identity
 - **AND** the earlier chain is neither extended nor re-pointed at the new ratification
+
+#### Scenario: An unchanged subject is ratified again
+
+- **WHEN** the second ratification names the same subject and the same enrollment declaration as the first
+- **THEN** its signed bytes still differ, because they carry the identifier of a different grant exercise
+- **AND** the new chain's identity therefore differs from the first, rather than colliding with it
+
+#### Scenario: The signed bytes carry no per-act value
+
+- **WHEN** a ratification's signed bytes carry no value unique to the ratifying act
+- **THEN** it is refused rather than enrolled under whichever identity those bytes happen to produce
+
+#### Scenario: A link is tagged with a construction not in force
+
+- **WHEN** a link carries a chain identity tagged with a digest construction other than the one the contract declares in force
+- **THEN** the link is refused
+- **AND** the reader does not re-compute the identity under its own default
 
 ### Requirement: Every link signs the chain identity and its predecessor's digest
 
