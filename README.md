@@ -1383,14 +1383,16 @@ Archived changes:
   it lands in the archived copy — necessary because
   `promotion_fidelity.PRE_RATIFICATION` is `{brainstorm, staged, draft}`, so an
   archived proposal reading `draft` would have had this packet's own
-  `document-lifecycle` delta discounted as design evidence. **ONE OBLIGATION IS
-  CARRIED AND UNDISCHARGED, NAMED HERE RATHER THAN LEFT TO BE FOUND**: § 5.1's
+  `document-lifecycle` delta discounted as design evidence. **THE ACT OWED IN
+  ANOTHER REPOSITORY LANDED FIRST, AND THE ARCHIVE WAITED ON IT**: § 5.1's
   disposition entry at the AGGREGATION root, keyed `(record-immutability,
-  openxFactory, ideation/cross-reference.md)` and citing this change, does NOT
-  exist — read at this act. `health/dispositions.yaml` lives only at the
-  aggregation root, so no act in this repository can write it, and until it
-  lands the next aggregation nightly re-emits the resolved critical as an
-  `uncited-resolution` ERROR. Three further follow-ups archive CARRIED with
+  openxFactory, ideation/cross-reference.md)` and citing this change, is present
+  at aggregation commit `20aafc4b` of 2026-08-28,
+  `health/dispositions.yaml:239-249` — the cited-resolution case that instrument
+  exists to record, not a silencer. Verified against that repository's
+  `origin/main` rather than its shared working tree, a distinction this packet's
+  own § 5.1 records because the first reading got it wrong. Three further
+  follow-ups archive CARRIED with
   written dispositions rather than blank boxes: the prose-only generator
   declaration (a class of one — the census reads `projection | 1`), the
   mirror-image re-class hole whose honest remedy is `--check`-mode regeneration

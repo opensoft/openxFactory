@@ -264,7 +264,7 @@ Every read-back was measured on 2026-08-28 in a fresh worktree off
 
 ## 5. Owed at realization
 
-- [ ] 5.1 **THE DISPOSITION ENTRY AT THE AGGREGATION ROOT.**
+- [x] 5.1 **THE DISPOSITION ENTRY AT THE AGGREGATION ROOT.**
       `record-immutability` is CONTESTED, so a finding present in the previous
       report and absent from the current one is re-emitted by
       `report.uncited_resolutions` as an `uncited-resolution` ERROR unless an
@@ -307,6 +307,33 @@ Every read-back was measured on 2026-08-28 in a fresh worktree off
       PULL REQUEST IS MERGED**, and that is the sharpest item on the pull
       request body rather than a footnote. Ticking it here on a promise would
       be exactly the thing the paragraph above refuses.
+      **DISCHARGED — AND THE PARAGRAPH ABOVE IS WRONG ABOUT THE FACT, KEPT AS
+      WRITTEN BECAUSE THE ERROR IS INSTRUCTIVE.** The entry LANDED on
+      2026-08-28, before this archive was composed. What the paragraph read was
+      the SHARED CHECKOUT'S WORKING FILE at
+      `/home/brett/projects/xFactory/health/dispositions.yaml`, a tree thirteen
+      or more commits behind that repository's `origin/main` — so "measured
+      rather than assumed" measured the wrong artifact, which is exactly what a
+      working tree in a multi-session checkout produces and the reason the
+      register must be read as
+      `git -C /home/brett/projects/xFactory show origin/main:<path>`.
+      Re-read that way the entry is there: aggregation commit
+      **`20aafc4b0ad9befbd6309363d6a52a8107403600`** (2026-08-28T06:48:51-04:00,
+      "Restore the dispositions register: 84656c6 dropped the pre-existing
+      entries while appending one — every original entry is back verbatim, the
+      new record-immutability disposition kept"), carrying at
+      `health/dispositions.yaml:239-249` exactly the key § 5.1 named —
+      `family: record-immutability`, `repo: openxFactory`,
+      `path: ideation/cross-reference.md`, `severity: critical`,
+      `disposer: openxFactory ratify gate`, `adjudicated_by: Brett (ruling
+      2026-08-28, relayed by the orchestrating session)`, `date: 2026-08-28`,
+      `cite: declare-generated-projection-status`. It is the CITED-RESOLUTION
+      case the instrument exists to record rather than a silencer: its own
+      rationale says the finding disappears because the document is no longer a
+      record, nothing having been edited to satisfy the family. The
+      `uncited-resolution` ERROR the paragraph above predicted for the next
+      aggregation nightly therefore cannot arise, and this archive gate is met
+      in full.
 - [x] 5.2 Merge-plus-green on main: both required checks green on the
       proposing pull request, read back from the check-runs API rather than
       off the pull request page. **DISCHARGED 2026-08-28 AT THE ARCHIVE, and
@@ -488,10 +515,17 @@ after `openspec archive`, and re-read rather than predicted.
 - [x] 8.7 `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` **78 → 77
       passed, 0 failed** across this packet's archive. `pytest tests/doc-health`
       counts are in the pull request body, exit code read from `$?`.
-- [ ] 8.8 **THE ONE CONDITION THIS ARCHIVE DOES NOT MEET IS § 5.1's, AND IT IS
-      LEFT OPEN RATHER THAN WAVED THROUGH.** The aggregation-root disposition
-      entry does not exist, measured at this act. The archive LANDS when the
-      pull request carrying it merges, so the condition can still be met — by
-      the entry landing at the aggregation root FIRST. Whoever merges owes that
-      order.
+- [x] 8.8 **§ 5.1's CONDITION IS MET, AND THE CORRECTION IS RECORDED RATHER
+      THAN QUIETLY SWEPT.** This box was first written to say the
+      aggregation-root disposition entry did not exist. It did — it landed
+      2026-08-28 at aggregation commit
+      `20aafc4b0ad9befbd6309363d6a52a8107403600`, keyed `(record-immutability,
+      openxFactory, ideation/cross-reference.md)` and citing this change. The
+      first reading took the shared checkout's WORKING file, thirteen or more
+      commits behind that repository's `origin/main`; re-read against
+      `origin/main` the entry stands at `health/dispositions.yaml:239-249`. The
+      lesson is worth more than the retraction: in a checkout several sessions
+      share, a working file is not evidence of what the repository holds —
+      `git show origin/main:<path>` is. Nothing about the archive changes; the
+      gate that looked unmet was met before the act began.
 
