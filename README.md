@@ -391,6 +391,78 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-binding-consumer-identity](openspec/changes/add-binding-consumer-identity/proposal.md)
+  — authored 2026-08-29, **RATIFIED 2026-08-29** (`Status: ratified`; record
+  `review/ratification-2026-08-29.md`). **THE FIRST PACKET THROUGH THE §7.4 PATH
+  END TO END**: a council sitting returned SPLIT 2–2 on the verdict word and
+  UNANIMOUS 4/4 that the text as drafted was not ratifiable, with fifteen
+  blocking amendments across four seats; Brett ruled the same day — accept all
+  blocking, one fix round, ratification read after — and ratified the amended
+  text with the Codex-two-heads-back verification gap in view rather than waiting
+  on a bot at its usage limit. **Ratification authorizes REALIZATION and does not
+  perform it**: the change stays ACTIVE until merged code, green evidence and the
+  contract cut exist. **Three further rulings the bench routed
+  to him came back the same day**: Decision 2 takes ROUTE (i) (phase the
+  requiredness, keep the promise); the parked P-2 is DISCHARGED — packaged
+  fixtures use SYNTHETIC identifiers and the live sync-lane/openXdox fetch
+  identities stay in the consuming installs; and P-3's estate-level delta-pair
+  gap is FILED as issue #502, which this change neither closes nor waits on. The
+  ratification act followed the same day.
+  THE NAMED SUCCESSOR OF A RATIFIED ADMISSION: `add-notebook-hosting-credential-custody`
+  ratified one-identity / per-system-authority on 2026-08-23 and admitted in the
+  same read that the invariant is **held by review rather than by the record** —
+  the published `xfactory_credential_binding_template` requires only
+  `[provider, secret_ref, owner, rotation_policy]`, carries no consumer or
+  access-identity field, and the validator compares no authorities, so two
+  bindings on one vault principal validate cleanly. That gap is registered FIVE
+  times in the predecessor — its requirement's own scenario, its Impact section,
+  its design, its tasks §4.5 and its ratification record — and this change is
+  what discharges it. **The sharpest statement of it is canon's own**: promoted
+  `credential-contracts` says a consuming lane receives "only bindings: an opaque
+  secret reference and a fetch-identity identifier" — the shape carries the first
+  and not the second. **MEASURED, not assumed**: a `consumer:` key carrying
+  arbitrary contents validates against the pinned schema TODAY, because the
+  binding object is not closed, which makes this a field-shaped hole rather than
+  a missing field. The change adds ONE additive optional `consumer:` block
+  (`holder_ref`, `fetch_identity`, a QUALIFIED `requirement_ref`, and const-true
+  `shared_credential_acknowledged` and `instantiation_stub` tokens) in vocabulary
+  the estate already ratified: `holder_ref` is `identity-brokering`'s shipped
+  spelling and a consuming system is emphatically NOT a persona, `fetch_identity`
+  is `credential-contracts`'s own words. **THE BLOCK IS DECLARED AT THIS MINOR
+  AND CONSTRAINED AT THE MAJOR — all three narrowing acts together.** Requiring
+  members, closing the member set and imposing the identifier grammar each refuse
+  a shape the current major accepts, so each is breaking and all three wait for
+  one deprecation window. An earlier draft phased only the closure; four seats
+  proved by construction that the other two refused a locally shaped object, a
+  scalar, a list and the generator's own placeholder style, falsifying a scenario
+  that would have promoted into canon. **NOTHING NARROWS AT THIS CUT, and that is
+  now a measurement**: six shapes a domain could already hold were built and
+  driven, and all six validate. **IT TIGHTENS BEFORE IT LIFTS** —
+  `shared-secret-identity` keeps its refusal as the default, a new
+  `shared-authority-identity` names the real fault (two systems, one authority),
+  and the two-consumers-of-one-identity shape the predecessor had to DECLINE
+  becomes expressible only through SIX independent fail-closed conditions over
+  EVERY PAIR, the sixth of which binds each reference to its own binding's map key
+  because a security seat drove the five-condition draft into granting the lift
+  on this capability's only red proof of serving-tier separation. **EIGHT warning
+  codes carry the deprecation, one per shape the major refuses**, five of them
+  added when bot rounds on the fix round itself found that an empty
+  `consumer: {}` matched no code, that the map-key grammar had been prescribed
+  with no phasing, that the false-token refusal was written as an immediate error
+  though such a record validates today, and that `access_mode` and the document
+  reference declared their phasing in prose with no code to serve it — five more
+  instances of the very defect the council convened over, arriving inside its own
+  repair, and the reason the warning set is now derived from the refusal list
+  rather than counted. **CARRIES A
+  CONTRACT CUT AT REALIZATION** — its realization moves schema bytes, though THIS
+  PACKET MOVES NONE and leaves `contracts/` untouched; the minor is allocated at
+  realization by merge order, because `add-credential-escrow-checkout` is already
+  spending one on the same file and main is a third writer of that manifest.
+  1 MODIFIED requirement (carriage re-measured after the amendment round: six
+  scenarios in, six out, five byte-identical, zero units lost) and 3 ADDED. Six
+  authoring decisions and five open questions are recorded with their rejected
+  alternatives; the open questions are now RULED, one of them against the
+  author's own recommendation.
 - [settle-aging-staging-topics](openspec/changes/settle-aging-staging-topics/proposal.md)
   — authored 2026-08-28 on Brett's four bulk rulings over a read-only triage
   survey of the fourteen staging topics `doc-health`'s
