@@ -1,6 +1,6 @@
 # Ideation Cross-Reference Readiness Index
 
-Status: record
+Status: projection
 Kind: report
 Repository context: openxFactory
 

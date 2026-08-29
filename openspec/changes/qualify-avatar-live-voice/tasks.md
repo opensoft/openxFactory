@@ -110,6 +110,67 @@ is mis-specified.
 > ruling. **6.4.4 is unbuilt.** **§4, §5 and §8 are unbuilt**, so no evidence,
 > no measured latency and no archive gate has moved. §7.4's own
 > at-least-one-alert-delivered condition still reads `not_yet_delivered`.
+>
+> **Amended a sixth time 2026-08-28 — §6.4.4 IS BUILT, AND IT REPORTS A
+> BLOCKED RELEASE GATE.** The sentence "6.4.4 is unbuilt" above is superseded;
+> the rest of that paragraph stands. The release evidence that
+> `repo-boundary-governance` "Avatar-client release evidence" obliges every
+> openAvatar release to carry is standing up in `opensoft/openAvatar` (PR #6,
+> branch `feat/release-evidence`), as `release_evidence.yaml` beside
+> `contract_pin.yaml`. **It stays UNTICKED here** on 6.4.2's own rule for
+> cross-repo tasks: PR #6 MERGED 2026-08-28T19:02Z (openAvatar main `31502eb`), so **6.4.4 is TICKED** under that same rule.
+>
+> WHAT MAKES IT EVIDENCE RATHER THAN A RECORD OF INTENT: the artifact is
+> GENERATED, and every element carries the command that produced it, that
+> command's exit code, its own verdict line verbatim, and a digest of its
+> captured output. Eight of the nine elements are satisfied by a real run —
+> the pin's 71 files recomputed offline, six conformance replays, 93 locked
+> packages with ZERO unpinned sources, a real 13-pattern secret scan over the
+> whole working tree with ZERO findings, and `melos run ci` green end to end on
+> a Linux bench, so the authoritative pixel goldens and the eleven
+> accessibility capabilities executed rather than self-skipping. Exact
+> revisions, digests and counts live in the artifact itself and move with each
+> regeneration; they are deliberately not restated here. The
+> rollback target is not asserted either: `text` and `human_handoff` are
+> checked as members of the digest-pinned `fallback-modes` registry, and the
+> closed set is checked to contain no member a reader could take for the model
+> swap 6.3.4 forbids.
+>
+> **THE NINTH ELEMENT IS THE POINT.** RE-08 client integrity is
+> `not_yet_satisfiable`, `blocks_release: true`, and the artifact's own
+> verdict reads BLOCKED. That is scenario RBG-002-S02 being OBEYED, not missed:
+> a client that cannot prove desktop signing or web deployment integrity for
+> the code enforcing disclosure and local media gating must FAIL release
+> validation, because the confidentiality trusted computing base is not
+> established. Neither surface exists — the generator probes for both and
+> records what it looked for, so the verdict is reproducible and flips by
+> itself when material lands. **The desktop half is Brett's, install-side: it
+> needs a code-signing certificate, the same class of act as 6.1.2. The web
+> half has NO OWNER YET** — the production deployment home is routed by
+> `repo-boundary-governance` to this change's live-qualification successor, and
+> openAvatar's web CI leg is a smoke that ships nothing. Either surface
+> discharges the element; the desktop path is the shorter one.
+>
+> WHAT DID NOT MOVE: no schema, registry, interface lock or acceptance-map
+> entry is edited, no AVC-09 descriptor is promoted (it stays `candidate`, with
+> zero latency evidence refs, exactly as §7.9 and §6.4.3 left it), no ring
+> element is closed, and no archive gate has moved. RING-02 gains its CLIENT
+> half only — the broker deployment's scan is install-side and untouched.
+> **§6.4.2 AND §6.4.3 ARE TICKED IN THE SAME PASS — their bookkeeping was
+> simply overdue.** Both are cross-repo tasks whose discharging openAvatar PRs
+> MERGED on 2026-08-27 (#4 `69864612`, the `contract-v1.46` pin resync; #5
+> `c6b54967`, the live `avc_adapters_live` transport with its AVC-10
+> instrumentation), verified present on openAvatar `main` against the live
+> remote on 2026-08-28. The rule 6.4.2 states for itself — unticked until the
+> PR merges — is thereby exercised in both directions in one pass: two boxes
+> close because their PRs landed, and 6.4.4's stays open because its PR has not.
+> Ticking them moves NO ring element: the AVC-09 descriptor remains `candidate`
+> with zero latency evidence refs, exactly as §7.9 pinned it.
+>
+> **WHAT REMAINS: 6.1.2 (Brett), 6.1.5 (deferred by ruling), §4, §5 and §8
+> (unbuilt), §7.4's `not_yet_delivered` alert condition, RE-08's
+> client-integrity blocker with its two named owners, and 6.4.4's own tick on
+> the merge of openAvatar #6.**
 
 ## 1. Spec deltas (THIS CHANGE)
 
@@ -1138,7 +1199,7 @@ the checklist that produces its evidence.
       `contract_pin.yaml`. Under ruling R3 the parked, empty
       `opensoft/xfactory-avatar-client` was DELETED 2026-08-27 — nothing
       referenced it, and the name now returns 404.
-- [ ] 6.4.2 Resync `openAvatar`'s `contract_pin.yaml` to `contract-v1.46` at
+- [x] 6.4.2 Resync `openAvatar`'s `contract_pin.yaml` to `contract-v1.46` at
       openxFactory commit `046466a05590eff13819194f6ce4489798edd815` — pinning
       the compatible openxFactory bundle tag plus exact contract
       commit and per-file digests; the co-checkout path reference allowed
@@ -1150,16 +1211,144 @@ the checklist that produces its evidence.
       work runs through `openAvatar/docs/pin-resync-runbook.md` and its
       `sync_contracts.dart` baker.
       **CROSS-REPO DEPENDENCY — this task is discharged by a PR in
-      `opensoft/openAvatar`, not by anything in openxFactory.** It stays
-      UNTICKED here until that PR merges.
-- [ ] 6.4.3 Realize the live `avc_adapters_live` transport behind the
+      `opensoft/openAvatar`, not by anything in openxFactory.** It stayed
+      UNTICKED here until that PR merged.
+      **TICKED 2026-08-28: THAT PR HAS MERGED.** `opensoft/openAvatar` PR #4,
+      "pin: resync contract_pin.yaml to contract-v1.46 (AVC-09/AVC-10 join the
+      kernel set)", merged 2026-08-27T17:34:59Z as merge commit `69864612`,
+      verified present on openAvatar `main` against the live remote 2026-08-28.
+      The pin on `main` now reads `verified_against_version: contract-v1.46`
+      with BOTH bundles — `contract-v1.7` and `contract-v1.8` — at openxFactory
+      commit `046466a05590eff13819194f6ce4489798edd815`, which is exactly the
+      resync this task specifies. The digests were taken from
+      `contracts/manifest.yaml` at that pinned commit through the runbook's sole
+      sanctioned baker, and `verify_pin` recomputes all 71 content-addressed
+      files offline on every CI run of that repository.
+- [x] 6.4.3 Realize the live `avc_adapters_live` transport behind the
       existing fail-closed `SessionTransport` port with ZERO reducer or UI
       change, and instrument AVC-10 markers on the gated platforms.
-- [ ] 6.4.4 Stand up release evidence per `repo-boundary-governance`
+      **DONE 2026-08-27, TICKED 2026-08-28 ON ITS MERGE.** `opensoft/openAvatar`
+      PR #5, "qualify-avatar-live-voice §6.4.3: realize avc_adapters_live behind
+      the existing SessionTransport port", merged 2026-08-27T21:14:24Z as merge
+      commit `c6b54967`, verified present on openAvatar `main` against the live
+      remote 2026-08-28. The package `packages/avc_adapters_live` is on `main`
+      with the transport behind the existing port, the AVC-10 latency recorder,
+      and the AVC-09 descriptor. The zero-reducer-change constraint is not
+      asserted but TESTED, by `test/zero_reducer_change_test.dart`; conformance
+      of the descriptor and of the AVC-10 samples the recorder actually emits is
+      gated by `gate-live-adapter-conformance`, which also refuses the two
+      ring rules that are schema-legal but ring-forbidden — the descriptor must
+      declare `broker_held_server_key` custody, and it may not claim `approved`
+      without measured latency evidence.
+      **THE DESCRIPTOR STAYS `candidate`.** It carries zero latency evidence
+      refs, which is what §7.9 pinned and what the ring requires until §5's
+      measured cells land. Ticking this task moves no ring element.
+- [x] 6.4.4 Stand up release evidence per `repo-boundary-governance`
       "Avatar-client release evidence" — source revision, Flutter and platform
       versions, pinned bundle and digests, fixture conformance, dependency
       lock, secret scan, test evidence, client integrity (desktop signing or
       web deployment integrity/CSP), and rollback target.
+      **BUILT 2026-08-28 in `opensoft/openAvatar` PR #6, branch
+      `feat/release-evidence`. CROSS-REPO DEPENDENCY — discharged by that PR,
+      not by anything in openxFactory, so it STAYS UNTICKED here until the PR
+      merges**, on 6.4.2's own stated rule. The same pass ticks 6.4.2 and 6.4.3,
+      which shows the rule working in BOTH directions rather than as a
+      convenience: their openAvatar PRs (#4 and #5) MERGED on 2026-08-27, so
+      their boxes are now checked; #6 is still OPEN, so this one is not.
+      **TICKED 2026-08-28: openAvatar PR #6 MERGED 19:02Z, main `31502eb`** —
+      the cross-repo rule that held this box is satisfied; the release gate
+      itself stays BLOCKED on RE-08 exactly as the artifact records. That
+      merge was the only thing standing between
+      this record and its tick.
+      The artifact is `openAvatar/release_evidence.yaml` (`schema_version: 1`,
+      `kind: avatar-client-release-evidence`), standing beside
+      `contract_pin.yaml` because it answers the same kind of question. It is
+      GENERATED by `packages/avc_contracts/tool/gen_release_evidence.dart
+      --generated-at=<ISO-8601>` and never hand-edited: every element carries
+      the command that produced it, that command's exit code, its own verdict
+      line verbatim, and a SHA-256 of its captured output.
+      **THE STABLE REFERENCE IS THE ARTIFACT, NOT A SHA.** This record cites
+      `opensoft/openAvatar` PR #6 and the path `openAvatar/release_evidence.yaml`
+      (repo-root `release_evidence.yaml` in that repository); the
+      artifact is REGENERATED AT EVERY HEAD of that branch, so its revision,
+      `tree_facts_sha256` and run counts move with each review round, and the
+      release act regenerates again at the revision actually released. Baking
+      those values in here would stale them on the next fix commit — read the
+      artifact at #6's head for the current ones. The figures below are ONE
+      LABELLED SNAPSHOT, true of the generating commit named with them and kept
+      only to show the shape of the evidence.
+      **EIGHT OF THE NINE ELEMENTS ARE SATISFIED BY A REAL RUN**, none by
+      assertion (snapshot generated against openAvatar `a1c170de`,
+      `tree_facts_sha256` `dfaedb85…`): RE-01 source revision (git, worktree clean); RE-02 Flutter
+      3.44.4 / Dart 3.12.2 / framework `ad70ec4617…`, declared in
+      `toolchain.lock.json` + `.fvmrc` and confirmed by `flutter --version
+      --machine` and `verify_toolchain`; RE-03 the pin — `contract-v1.7` +
+      `contract-v1.8`, both at openxFactory
+      `046466a05590eff13819194f6ce4489798edd815`, 68 bundle members + 3
+      vendored evidence inputs = the 71 files `verify_pin` recomputes offline;
+      RE-04 fixture conformance across six replays (36 schema cases / 12 AFUV
+      negatives / 17 loader cases / 5 intake seeds / 4 AVC-09+AVC-10 documents
+      / gate ix), gate ix recorded as `GREEN-WITH-TRACKED-GAPS` rather than
+      rounded up; RE-05 dependency lock (93 packages, **0 unpinned sources**,
+      7 sdk-sourced, enforced by CI's `flutter pub get --enforce-lockfile`);
+      RE-06 secret scan — a REAL scan, all 13 key-shape patterns over 438
+      files, **0 findings**; RE-07 test evidence — `melos run ci` green end to end on
+      a Linux bench, **540 tests across 11 suites**, so the authoritative pixel
+      goldens and the eleven accessibility capabilities EXECUTED rather than
+      self-skipping; RE-09 rollback target machine-checked against the pinned
+      `fallback-modes` registry — `text` and `human_handoff` are members and
+      the closed set contains NO model-fallback member, matching 6.3.4's
+      ruling that `gpt-realtime-2.1` is the first qualified profile and no
+      swap exists or may be implied.
+      **THE NINTH ELEMENT IS A NAMED BLOCKER, NOT A TRACKED GAP.** RE-08
+      client integrity is recorded `not_yet_satisfiable` with
+      `blocks_release: true`, and the artifact's own `verdict.release_gate`
+      reads **BLOCKED**. This is what scenario RBG-002-S02 demands rather than
+      a shortfall against it: when an internal-live client cannot prove desktop
+      signing or web deployment integrity for the code enforcing disclosure and
+      local media gating, release validation MUST FAIL, because the
+      confidentiality trusted computing base is not established. The generator
+      PROBES for both surfaces and records the probe list, so the finding is
+      reproducible and the element flips automatically when material lands —
+      both sets are empty today. **Desktop half: no code-signing certificate
+      exists; owner Brett Heap, install-side, the same class of provisioning
+      act as 6.1.2.** **Web half: no web deployment exists and its owner is not
+      yet appointed** — `repo-boundary-governance` "Deferred aggregation and
+      web-console integration" routes the production deployment home to this
+      change's live-qualification successor, and openAvatar's web CI leg is a
+      headless-Chrome SMOKE that ships nothing. Either surface discharges the
+      element; the desktop path is the shorter one, needing a certificate
+      rather than a decision about where the product lives.
+      Two gates were added to `melos run ci` AND `ci-agnostic`, appended after
+      the existing gates so no pre-existing guard, gate or test changes
+      semantics or order — no gate was faked to have something to cite:
+      `gate-secret-scan` (proven live rather than decorative on eight
+      credential shapes and both fail-closed paths, 16 tests) and
+      `gate-release-evidence-freshness`, which re-derives the TREE-DERIVED half
+      of the artifact and fails when the committed record stops describing the
+      tree or when any dependency resolves from a git or path source. The
+      secret scan's exemption set is not a local decision: it READS the
+      permitted bounded forms from the vendored digest-pinned
+      `contracts/avatar-client/redaction/sentinels.yaml`, whose own text
+      instructs the content scan to permit those exact strings and flag
+      everything else, so widening it means moving a pinned digest.
+      CI on the openAvatar PR is GREEN ON ALL THREE LEGS — linux, windows and
+      web. The windows leg red-flagged one real defect on the way, worth
+      recording because it is the class of thing this evidence exists to catch:
+      `Process.runSync` decodes through the host console code page unless told
+      otherwise, so a recorded summary line and output digest would have
+      depended on the runner's locale rather than on the tool. Both capture
+      paths are now pinned to UTF-8. A second, self-inflicted finding was
+      caught in review: the artifact's `freshness_check` claimed coverage of
+      the secret scan's pattern digest that `--check` did not actually
+      recompute, and the fix was to MAKE THE CLAIM TRUE — tree facts now carry
+      the scanner's own source digest, which pins its patterns, allowlist and
+      exemption logic in one value.
+      RING-02 note: this discharges the CLIENT half only. The broker
+      deployment's secret scan is install-side and is not touched here.
+      Out of scope by the requirement's own carve-out, and correctly absent:
+      SBOM, dependency-license review and the formal accessibility audit are
+      pilot-gate obligations, not per-release ones.
 - [ ] 6.4.5 NOT THIS CHANGE: admitting `openAvatar` to the
       xFactory aggregation. That is a separate reviewed change recording path,
       remote, visibility, exact validated commit, checkout, compatibility,

@@ -26,6 +26,8 @@ from doc_health import corpus, ideation_routing, runner
 from doc_health.families import FAMILIES
 from doc_health.runner import Context
 
+from action_pins import assert_actions_pinned, harvest_static
+
 fam = FAMILIES["ideation-routing"]
 BASE = FIXTURES / "ideation-routing"
 DAY_STR = AS_OF.isoformat()
@@ -920,3 +922,373 @@ def test_allowlist_lives_in_corpus_as_the_single_authority():
     assert corpus.ROOT_LEVEL_GOVERNED_PRODUCTS == ("openAvatar", "openXwallet")
     assert (ideation_routing.ROOT_LEVEL_GOVERNED_PRODUCTS
             is corpus.ROOT_LEVEL_GOVERNED_PRODUCTS)
+
+
+def test_every_action_string_the_ideation_routing_family_can_emit_is_pinned_verbatim(
+        tmp_path):
+    """`fam_ideation_routing` raises SIXTY-THREE distinct action strings
+    across its nineteen finding classes. `#448` (`cadc05ec`) pinned two of
+    them (`test_invalid_scope_and_status_flagged`, above — the family's
+    thinnest coverage of the twenty pinned in that change, 2 of 42 measured
+    at the time). Steward follow-up (Brett, 2026-08-28) widens that to the
+    whole set, table-driven.
+
+    SIXTY-ONE are pinned BEHAVIOURALLY: one consolidated `tmp_path` corpus
+    below packs a central routing-index (duplicate allocation, an
+    unallocated record, a broken allocation pointer, a bad structured
+    reference), a maximally-malformed routing record (bad idea_id/scope/
+    status/schema_version, three defective sources, a broken transition
+    chain, six defective claims covering every claim-shape/claim-id/
+    blocker/routed-acceptance branch, and five defective structured
+    references covering unknown-repository/missing-path/backslash-
+    normalization/traversal/external-path), two records sharing one Idea ID
+    (duplicate-idea, corpus claim uniqueness), a routed record whose active
+    claim trips the routed-record gate, two records isolating the
+    missing-sources and non-list-claims shapes, two paired-document defects
+    (missing pairing, mismatched Idea ID), a consolidated Markdown
+    destination (copied-record, multiple/misleading Idea ID headers,
+    unresolved staged-pointers, both `Routing records:` header defects), an
+    aggregation-root ideation backlog, an external (unmaterialized) pinned
+    repository read in both nightly and strict mode, two active-proposal
+    manifests covering every `ideation_provenance` shape defect, and two
+    unparseable YAML files (index and record) in a second repo — into one
+    run of the family (plus a second run with `ctx.routing_strict = True`
+    for the strict-mode external-path action).
+
+    The remaining TWO are pinned STATICALLY because they are structurally
+    UNREACHABLE through `fam_ideation_routing`'s own collection path, not
+    merely uncovered by this fixture: `_collect` only appends a parsed
+    YAML document to `records` when it is a `dict` AND
+    `dict.get("kind") == RECORD_KIND` — so a record whose top-level YAML is
+    not a mapping, or whose `kind` is wrong, is silently skipped by
+    `_collect` itself and never reaches `_shape_findings`, where the
+    "restore the routing-record shape or remove the file" and "declare the
+    canonical routing-record kind" literals live. Read via `ast` (scoped to
+    the whole module — `ideation_routing.py` is a single-family module) as
+    the honest fallback the module docstring describes for exactly this
+    case.
+    """
+    root = tmp_path
+    openx = root / "openxFactory"
+    for d in ("ideation/inbox/XFI-2026-001", "ideation/inbox/XFI-2026-002",
+              "ideation/inbox/XFI-2026-003", "ideation/inbox/XFI-2026-005",
+              "ideation/inbox/XFI-2026-006", "ideation/cross-domain/XFI-2026-004",
+              "ideation/cross-domain/consolidated"):
+        (openx / d).mkdir(parents=True)
+
+    (openx / "ideation/routing-index.yaml").write_text("""\
+kind: xfactory_ideation_routing_index
+schema_version: 1
+allocations:
+  - idea_id: XFI-2026-001
+    routing_record:
+      repository: openxFactory
+      path: ideation/inbox/XFI-2026-001/routing.yaml
+  - idea_id: XFI-2026-001
+    routing_record:
+      repository: openxFactory
+      path: ideation/inbox/XFI-2026-001/routing.yaml
+  - idea_id: XFI-2026-099
+    routing_record:
+      repository: openxFactory
+      path: ideation/inbox/XFI-2026-099/routing.yaml
+stray_reference:
+  repository: bad
+  path: ../escape.md
+""")
+
+    # RECORD A: the shape/claim/transition/reference showcase. idea_id is
+    # deliberately malformed ("BAD-ID") sitting in a directory literally
+    # named "XFI-2026-001", which doubles as the paired-document mismatch
+    # scenario (directory name vs. the record's own idea_id).
+    (openx / "ideation/inbox/XFI-2026-001/routing.yaml").write_text("""\
+kind: xfactory_idea_routing_record
+schema_version: 2
+idea_id: "BAD-ID"
+scope: not-a-scope
+routing_status: not-a-status
+sources:
+  - repository: openxFactory
+    path: ideation/inbox/XFI-2026-001/idea.md
+    revision: short
+  - repository: openxFactory
+    path: ideation/inbox/XFI-2026-001/idea.md
+    revision: pending_capture
+  - not-a-mapping-source
+transitions:
+  - from: "not-null"
+    to: intake
+    occurred_at: "2026-01-01T00:00:00Z"
+  - from: bogus_from
+    to: intake
+    occurred_at: "2026-01-02T00:00:00Z"
+  - from: intake
+    to: not_a_real_state
+    occurred_at: "2026-01-03T00:00:00Z"
+  - not-a-mapping-transition
+claims:
+  - claim_id: "wrong-format"
+  - claim_id: "dup-claim"
+    disposition: unresolved
+  - claim_id: "dup-claim"
+    disposition: unresolved
+    blocker: "same blocker"
+  - claim_id: "wrong-format2"
+    disposition: proposed
+  - claim_id: "wrong-format3"
+    disposition: routed
+  - not-a-mapping-claim
+bad_ref_unknown_repo:
+  repository: "totally-unknown-repo-xyz"
+  path: "some/path"
+bad_ref_no_path:
+  repository: openxFactory
+bad_ref_backslash_ok:
+  repository: openxFactory
+  path: "docs\\\\legacy.md"
+bad_ref_traversal:
+  repository: openxFactory
+  path: "../outside.md"
+bad_ref_external:
+  repository: "installs/agenttower"
+  path: "some/file"
+  revision: "0123456789012345678901234567890123456789"
+""")
+    (openx / "ideation/inbox/XFI-2026-001/idea.md").write_text(
+        "Idea ID: XFI-2026-001\n")
+
+    # RECORD B1/B2: the SAME idea (and the SAME claim) canonically defined
+    # twice — duplicate-idea and corpus-claim-uniqueness.
+    record_b = """\
+kind: xfactory_idea_routing_record
+schema_version: 1
+idea_id: XFI-2026-002
+scope: unclassified
+routing_status: intake
+sources:
+  - repository: openxFactory
+    path: ideation/inbox/XFI-2026-002/idea.md
+    revision: pending_capture
+transitions:
+  - from: null
+    to: intake
+    occurred_at: "2020-01-01T00:00:00Z"
+claims:
+  - claim_id: XFI-2026-002-C01
+    disposition: unresolved
+    blocker: capacity
+"""
+    (openx / "ideation/inbox/XFI-2026-002/routing.yaml").write_text(record_b)
+    (openx / "ideation/inbox/XFI-2026-002/idea.md").write_text(
+        "Idea ID: XFI-2026-002\n")
+    (openx / "ideation/cross-domain/XFI-2026-004/routing.yaml").write_text(record_b)
+    (openx / "ideation/cross-domain/XFI-2026-004/idea.md").write_text(
+        "Idea ID: XFI-2026-002\n")
+
+    # RECORD C: routed while an active claim remains unresolved (the
+    # routed-record gate), on an otherwise-clean transition chain.
+    (openx / "ideation/inbox/XFI-2026-003/routing.yaml").write_text("""\
+kind: xfactory_idea_routing_record
+schema_version: 1
+idea_id: XFI-2026-003
+scope: unclassified
+routing_status: routed
+sources:
+  - repository: openxFactory
+    path: ideation/inbox/XFI-2026-003/idea.md
+    revision: pending_capture
+transitions:
+  - from: null
+    to: intake
+    occurred_at: "2026-01-01T00:00:00Z"
+  - from: intake
+    to: triaging
+    occurred_at: "2026-01-02T00:00:00Z"
+  - from: triaging
+    to: routed
+    occurred_at: "2026-01-03T00:00:00Z"
+claims:
+  - claim_id: XFI-2026-003-C01
+    disposition: unresolved
+    blocker: still deciding
+""")
+    (openx / "ideation/inbox/XFI-2026-003/idea.md").write_text(
+        "Idea ID: XFI-2026-003\n")
+
+    # RECORD F: no `sources` key at all, and no paired document.
+    (openx / "ideation/inbox/XFI-2026-005/routing.yaml").write_text("""\
+kind: xfactory_idea_routing_record
+schema_version: 1
+idea_id: XFI-2026-005
+scope: unclassified
+routing_status: intake
+transitions:
+  - from: null
+    to: intake
+    occurred_at: "2026-01-01T00:00:00Z"
+claims: []
+""")
+
+    # RECORD G: `claims` is a scalar, not a list; its paired document
+    # declares the WRONG Idea ID.
+    (openx / "ideation/inbox/XFI-2026-006/routing.yaml").write_text("""\
+kind: xfactory_idea_routing_record
+schema_version: 1
+idea_id: XFI-2026-006
+scope: unclassified
+routing_status: intake
+sources:
+  - repository: openxFactory
+    path: ideation/inbox/XFI-2026-006/idea.md
+    revision: pending_capture
+transitions:
+  - from: null
+    to: intake
+    occurred_at: "2026-01-01T00:00:00Z"
+claims: oops-not-a-list
+""")
+    (openx / "ideation/inbox/XFI-2026-006/idea.md").write_text(
+        "Idea ID: XFI-2026-999\n")
+
+    # A consolidated Markdown destination: copied-record, two Idea ID
+    # headers (both the "too many" and "misleading singular on a
+    # destination" findings), unresolved Source Idea IDs / Claim IDs, and
+    # both `Routing records:` header defects.
+    (openx / "ideation/cross-domain/consolidated/note.md").write_text("""\
+# Consolidated
+
+Idea ID: XFI-2026-001
+Idea ID: XFI-2026-777
+Source Idea IDs: XFI-2026-001, XFI-2026-888
+Claim IDs: XFI-2026-001-C01, XFI-2026-777-C99
+Routing records: not-valid-json
+Routing records: [{"repository": "openxFactory", "path": "x"}]
+
+This consolidated destination also embeds xfactory_idea_routing_record as
+prose, which the family reads as a copied record.
+""")
+
+    # Aggregation-root ideation backlog.
+    (root / "ideation").mkdir(parents=True, exist_ok=True)
+
+    # Proposal provenance: every `ideation_provenance` shape defect.
+    (openx / "openspec/changes/change-x/supporting-docs").mkdir(parents=True)
+    (openx / "openspec/changes/change-x/supporting-docs/manifest.yaml"
+     ).write_text("format_version: 1\nideation_provenance: not-a-list\n")
+    (openx / "openspec/changes/change-y/supporting-docs").mkdir(parents=True)
+    (openx / "openspec/changes/change-y/supporting-docs/manifest.yaml"
+     ).write_text("""\
+format_version: 1
+ideation_provenance:
+  - "not-a-mapping"
+  - idea_id: "BAD"
+    claim_ids: []
+    routing_record:
+      revision: pending_capture
+  - idea_id: XFI-2026-002
+    claim_ids: ["XFF-BOGUS"]
+  - idea_id: XFI-2026-999
+    claim_ids: ["whatever"]
+    routing_record:
+      revision: "0123456789012345678901234567890123456789"
+""")
+
+    # A second repo with two unparseable routing YAML files.
+    gamma = root / "gamma"
+    (gamma / "ideation").mkdir(parents=True)
+    (gamma / "ideation/routing-index.yaml").write_text("key: [1, 2\n")
+    (gamma / "ideation/inbox/broken").mkdir(parents=True)
+    (gamma / "ideation/inbox/broken/routing.yaml").write_text("key: [1, 2\n")
+
+    repo_paths = {"openxFactory": openx, "gamma": gamma}
+    docs = []
+    for name, path in repo_paths.items():
+        docs.extend(corpus.load_docs(name, path))
+    ctx = Context(
+        repo_paths=repo_paths, docs=docs,
+        capabilities={n: corpus.spec_capabilities(p)
+                      for n, p in repo_paths.items()},
+        change_ids={n: corpus.change_ids(p) for n, p in repo_paths.items()},
+        git=None, thresholds=dict(DEFAULT_THRESHOLDS), as_of=AS_OF,
+        agg_root=root)
+
+    behavioral = set(f.action for f in fam(ctx))
+    ctx.routing_strict = True
+    behavioral |= set(f.action for f in fam(ctx))
+    behavioral = frozenset(behavioral)
+
+    static = harvest_static(ideation_routing)
+
+    EXPECTED_ACTIONS = {
+        "restore the routing-record shape or remove the file",
+        "declare the canonical routing-record kind",
+        "pin schema_version: 1 per the promoted routing-record schema",
+        "allocate a central Idea ID matching the promoted grammar",
+        "record a controlled routing scope",
+        "record a controlled routing status",
+        "list every source the routing record derives from",
+        "record repository/path/revision for every source",
+        "commit the source revision before leaving intake",
+        "pin a full committed revision (or pending_capture in intake)",
+        "record why the sources are one canonical idea",
+        "record claims as a list",
+        "resolve or defer every active claim before routing the record",
+        "record each transition as a mapping",
+        "begin the append-only history at null",
+        "keep the transition history contiguous and append-only",
+        "use a controlled transition edge",
+        "follow the promoted transition graph",
+        "end the transition history at the current state",
+        "record each claim as a mapping",
+        "assign a Claim ID derived from the record's Idea ID",
+        "record a controlled claim disposition",
+        "name the blocker keeping the claim unresolved, or dispose it",
+        "name the proposed owner or return the claim to unresolved",
+        "record destination-owner acceptance before routing a claim",
+        "record the committed destination reference for the routed claim",
+        "record the acceptance actor, time, and evidence",
+        "record the append-only transition history",
+        "align the Claim ID prefix with the record's Idea ID",
+        "define each Claim ID exactly once",
+        "point the reference at a resolvable aggregation repository id",
+        "record a POSIX repository-relative path",
+        "normalize the path separator to POSIX '/'",
+        "align the routing directory name with the record's Idea ID",
+        "add the paired idea.md or routing-summary.md",
+        "make the paired document and routing record agree on the Idea ID",
+        "remove the duplicate allocation and rebase",
+        "allocate the Idea ID in openxFactory/ideation/routing-index.yaml "
+        "in the same change",
+        "point the allocation at the committed routing record",
+        "keep exactly one canonical routing record per idea",
+        "define each Claim ID in exactly one canonical record",
+        "progress the routing record or record an explicit deferral",
+        "capture ideas in openxFactory or the owning DomainxFactory, never "
+        "the aggregation repository",
+        "materialize the pinned repository (git submodule update) and "
+        "re-run the strict gate",
+        "materialize the repository to resolve referenced paths, or run "
+        "the strict organize/proposal gate",
+        "replace the copied record with Source Idea IDs / Claim IDs / "
+        "Routing records pointers",
+        "keep a single Idea ID header, or use Source Idea IDs on a "
+        "destination",
+        "drop the singular Idea ID header on a consolidated destination",
+        "create the canonical routing record or remove the Idea ID header",
+        "point Source Idea IDs at real canonical routing records",
+        "point Claim IDs at claims defined in a canonical routing record",
+        "encode Routing records as the canonical compact JSON array",
+        "use the canonical committed_reference object shape",
+        "record ideation_provenance as a list of entries",
+        "record each provenance entry as a mapping",
+        "name a valid source Idea ID",
+        "pin the proposal to a real canonical routing record",
+        "name every selected Claim ID",
+        "select only Claim IDs defined in the pinned routing record",
+        "record a committed routing-record reference",
+        "pin the full committed routing-record revision",
+        "repair the routing-index YAML",
+        "repair the routing-record YAML",
+    }
+    assert_actions_pinned(EXPECTED_ACTIONS, behavioral, static,
+                          family="ideation-routing")

@@ -18,7 +18,12 @@ import doc_health
 from doc_health import CRITICAL, ERROR, WARNING, INFO
 from doc_health import corpus
 from doc_health import families
+from doc_health import report
+from doc_health.corpus import Doc
 from doc_health.families import FAMILIES
+from doc_health.runner import Context
+
+from action_pins import assert_actions_pinned, harvest_behavioral, harvest_static
 
 
 def keys(findings):
@@ -41,6 +46,60 @@ def test_status_validity():
         "docs/missing.md":
             "add a Status: header from the controlled taxonomy",
     }
+
+
+def test_projection_is_a_controlled_status_and_not_a_record(tmp_path):
+    """REGRESSION, 2026-08-28 (`declare-generated-projection-status`).
+
+    `ideation/cross-reference.md` is rewritten in place by
+    `scripts/render-ideation-cross-reference.py` on every run, and carried
+    `Status: record` — so `record-immutability` reported a CRITICAL for every
+    legitimate regeneration, making the correct act a finding. Promoted canon
+    in `ideation-cross-reference` already called the index and "its rendered
+    twin" generated artifacts that are NOT records; the header contradicted it.
+
+    The ninth standing ends it AT THE ROOT. Both halves are asserted here,
+    because either alone would be the wrong fix: `projection` must be a
+    CONTROLLED value (so `status-validity` stays silent — the file is not
+    merely unrecognised), and it must NOT be a record (so
+    `record-immutability` never reaches it). Silencing the family instead
+    would have satisfied the second and failed the first.
+    """
+    from doc_health import TAXONOMY
+    assert "projection" in TAXONOMY
+
+    repo = tmp_path / "alpha"
+    (repo / "ideation").mkdir(parents=True)
+    projected = repo / "ideation/index.md"
+    projected.write_text(
+        "# Index\n\nStatus: projection\nKind: report\n\n"
+        "**GENERATED FILE — do not edit by hand.**\n"
+    )
+
+    ctx = make_ctx("status-validity")
+    ctx.repo_paths = {"alpha": repo}
+    ctx.docs = corpus.load_docs("alpha", repo)
+    ctx.lifecycle_docs = []
+    assert FAMILIES["status-validity"](ctx) == []
+
+    # A record's capture blob differs from the tree and the family fires; a
+    # projection's status makes the family skip before it ever asks git, so
+    # the SAME divergence is silent. Asserted against one FakeGit rather than
+    # two, so the only difference between the runs is the status value.
+    git = FakeGit(captures={
+        ("alpha", "ideation/index.md"):
+            "# Index\n\nStatus: record\n\nold body\n"})
+    ctx.git = git
+    assert FAMILIES["record-immutability"](ctx) == []
+
+    # ...and the exemption is not blindness: the same file as a `record`,
+    # against the same git, still reports the critical.
+    projected.write_text(
+        "# Index\n\nStatus: record\nKind: report\n\nnew body\n")
+    ctx.docs = corpus.load_docs("alpha", repo)
+    got = FAMILIES["record-immutability"](ctx)
+    assert [(f.severity, f.path) for f in got] == [
+        (CRITICAL, "ideation/index.md")]
 
 
 def test_standard_backing():
@@ -560,6 +619,292 @@ def test_submodule_pin_drift(tmp_path):
     assert got[0].action == "sync the submodule pointer or push the submodule"
 
 
+def _gzip_tar(members: dict) -> bytes:
+    """A deterministic `.tar.gz` bundle of `{member_name: content_bytes}`,
+    the exact shape `test_clean_and_corrupt_archived_support` builds by hand
+    for a single member — factored out here because the table test below
+    needs several distinct archived bundles."""
+    buffer = io.BytesIO()
+    with gzip.GzipFile(fileobj=buffer, mode="wb", filename="", mtime=0) as gz:
+        with tarfile.open(fileobj=gz, mode="w") as tar:
+            for name, content in members.items():
+                info = tarfile.TarInfo(name)
+                info.size = len(content)
+                tar.addfile(info, io.BytesIO(content))
+    return buffer.getvalue()
+
+
+def test_every_action_string_the_tag_hygiene_family_can_emit_is_pinned_verbatim():
+    """`fam_tag_hygiene` raises TWELVE distinct finding classes through its
+    local `hit(sev, doc, rule, action)` wrapper — `#448` (`cadc05ec`) pinned
+    exactly one of them (`test_tag_hygiene` above, "records are excluded
+    from the conversion queue"). Steward follow-up (Brett, 2026-08-28)
+    widens that to the whole set, table-driven, in this family's own suite.
+
+    SEVEN are pinned BEHAVIOURALLY: the same read-only
+    `fixtures/tag-hygiene/` corpus `test_tag_hygiene` reads already drives
+    seven of the twelve through one real run of the family (heading-cross,
+    unresolved target=, record-candidate, unmatched close, missing spec=,
+    malformed marker, unclosed fence). The remaining FIVE — nested fence,
+    missing target=, unresolved supersedes capability, unresolved
+    supersedes change=, and the doc-level `spec-candidate` status — have no
+    branch in that fixture and are pinned STATICALLY instead: read from
+    `families.py`'s own source via `ast`, scoped to `fam_tag_hygiene` (which
+    finds its nested `hit` wrapper and every one of its call sites, since
+    scoping walks that function's whole subtree rather than filtering a
+    flat module walk).
+    """
+    behavioral = harvest_behavioral(FAMILIES["tag-hygiene"],
+                                    make_ctx("tag-hygiene"))
+    static = harvest_static(families, functions=frozenset({"fam_tag_hygiene"}))
+
+    EXPECTED_ACTIONS = {
+        "close the fence before the heading (document-lifecycle grammar)",
+        "candidate blocks cannot nest (document-lifecycle grammar)",
+        "add target=<capability> (document-lifecycle grammar)",
+        "name a capability under openspec/specs/ or an active change "
+        "(document-lifecycle grammar)",
+        "records are excluded from the conversion queue",
+        "remove or pair the close fence (document-lifecycle grammar)",
+        "add the spec= attribute (document-lifecycle grammar)",
+        "name an existing capability (document-lifecycle grammar)",
+        "name an existing active or archived change (document-lifecycle grammar)",
+        "use one of the three canonical marker forms (document-lifecycle grammar)",
+        "add the matching /xspec:candidate close fence (document-lifecycle grammar)",
+        "candidacy is block-level only; remove the status value",
+    }
+    assert_actions_pinned(EXPECTED_ACTIONS, behavioral, static,
+                          family="tag-hygiene")
+
+
+def test_every_action_string_the_ratified_provenance_family_can_emit_is_pinned_verbatim():
+    """`fam_ratified_provenance` raises FOUR distinct finding classes.
+    `#448` pinned one (`test_ratified_provenance` above). All four are
+    pinned BEHAVIOURALLY here: three tiny, self-contained `Doc`/`Context`
+    scenarios (mirroring `test_ratified_citation_spellings.py`'s own `_run`
+    helper, which builds a `Context` directly rather than through
+    `conftest.make_ctx` because what is under test is exact header content)
+    plus the existing read-only `fixtures/ratified-provenance/` corpus for
+    the dangling `Ratified by:` case `test_ratified_provenance` already
+    reads. No branch here needs a static fallback.
+    """
+    def run(text):
+        doc = Doc("alpha", "docs/subject.md", text,
+                  corpus.parse_status(text), corpus.parse_kind(text))
+        ctx = Context(repo_paths={"alpha": Path("/nonexistent")}, docs=[doc],
+                      capabilities={}, change_ids={"alpha": {"real-change"}},
+                      git=None, thresholds={}, as_of=AS_OF, agg_root=None)
+        return families.fam_ratified_provenance(ctx)
+
+    behavioral = harvest_behavioral(FAMILIES["ratified-provenance"],
+                                    make_ctx("ratified-provenance"))
+    for text in (
+            "# Subject\n\nStatus: ratified\n\nNo citation here.\n",
+            "# Subject\n\nStatus: ratified\n\nRatified by: some-change\n\n"
+            "Ratified: 2026-01-01\n",
+            "# Subject\n\nStatus: ratified\n\nRatified: nothing here\n"):
+        behavioral |= frozenset(f.action for f in run(text))
+    static = harvest_static(families,
+                            functions=frozenset({"fam_ratified_provenance"}))
+
+    EXPECTED_ACTIONS = {
+        "add Ratified by: <change> where an approving OpenSpec change exists, "
+        "otherwise Ratified: naming an approver, a date, or a resolvable "
+        "record path",
+        "keep exactly one: Ratified by: where an approving OpenSpec change "
+        "exists, Ratified: where none does",
+        "name at least one of an approver, a date, or a resolvable record "
+        "path — or cite the approving change with Ratified by: if one exists",
+        "point Ratified by: at an existing active or archived change",
+    }
+    assert_actions_pinned(EXPECTED_ACTIONS, behavioral, static,
+                          family="ratified-provenance")
+
+
+def test_every_action_string_the_location_conformance_family_can_emit_is_pinned_verbatim(
+        tmp_path):
+    """`fam_location_conformance` raises TEN distinct finding classes across
+    three passes: doc-level brainstorm/staged placement, ACTIVE proposal
+    support (`_active_support_findings`), and ARCHIVED proposal support
+    (`_archive_support_findings`). `#448` pinned one
+    (`test_location_conformance` above). All TEN are pinned BEHAVIOURALLY:
+    one consolidated `tmp_path` corpus, modeled on the separate scenarios
+    `test_proposal_support_location_conformance` and
+    `test_clean_and_corrupt_archived_support` already exercise, packs a
+    brainstorm doc, a staged-outside-ideation doc, a staged doc citing an
+    active proposal, two active supporting-docs changes (one with no
+    manifest plus staged prose, one with a checksum mismatch), three
+    archived changes (incomplete, bundle checksum mismatch, member
+    inventory mismatch), and a misplaced `specs/` bundle into one run. No
+    branch here needs a static fallback.
+    """
+    repo = tmp_path / "alpha"
+
+    # --- doc-level findings -------------------------------------------
+    (repo / "docs").mkdir(parents=True)
+    (repo / "docs/stray-brainstorm.md").write_text(
+        "# Stray\n\nStatus: brainstorm\n")
+    (repo / "docs/stray-staged.md").write_text(
+        "# Stray\n\nStatus: staged\nKind: architecture\n")
+    staged = repo / "ideation/staging/topic-a"
+    staged.mkdir(parents=True)
+    (staged / "source.md").write_text(
+        "# Source\n\nStatus: staged\nKind: architecture\n\n"
+        "## Exit\n\nExit: change-cite\n")
+    (repo / "openspec/changes/change-cite").mkdir(parents=True)
+
+    # --- active support: change-a has no manifest + staged prose ------
+    support_a = repo / "openspec/changes/change-a/supporting-docs"
+    support_a.mkdir(parents=True)
+    (support_a / "prose.md").write_text("# Prose\n\nStatus: staged\n")
+
+    # --- active support: change-b has a valid manifest, wrong checksum
+    support_b = repo / "openspec/changes/change-b/supporting-docs"
+    support_b.mkdir(parents=True)
+    (support_b / "prose.md").write_text("# Prose\n\nStatus: draft\n")
+    (support_b / "manifest.yaml").write_text(json.dumps({
+        "format_version": 1,
+        "files": [{"path": "prose.md", "sha256": "0" * 64}],
+    }))
+
+    # --- archive: change-c incomplete (bundle, no manifest) -----------
+    archive_c = repo / "openspec/changes/archive/change-c"
+    archive_c.mkdir(parents=True)
+    (archive_c / "supporting-docs.tar.gz").write_bytes(b"x")
+
+    # --- archive: change-d bundle checksum mismatch -------------------
+    archive_d = repo / "openspec/changes/archive/change-d"
+    archive_d.mkdir(parents=True)
+    content_d = b"# D\n\nStatus: draft\n"
+    bundle_d = _gzip_tar({"d.md": content_d})
+    (archive_d / "supporting-docs.tar.gz").write_bytes(bundle_d + b"corrupt")
+    (archive_d / "supporting-docs.manifest.yaml").write_text(json.dumps({
+        "format_version": 1,
+        "bundle": {"sha256": hashlib.sha256(bundle_d).hexdigest()},
+        "files": [{"path": "d.md",
+                   "sha256": hashlib.sha256(content_d).hexdigest()}],
+    }))
+
+    # --- archive: change-e member inventory mismatch ------------------
+    archive_e = repo / "openspec/changes/archive/change-e"
+    archive_e.mkdir(parents=True)
+    content_e = b"# E\n\nStatus: draft\n"
+    bundle_e = _gzip_tar({"e.md": content_e})
+    (archive_e / "supporting-docs.tar.gz").write_bytes(bundle_e)
+    (archive_e / "supporting-docs.manifest.yaml").write_text(json.dumps({
+        "format_version": 1,
+        "bundle": {"sha256": hashlib.sha256(bundle_e).hexdigest()},
+        "files": [{"path": "WRONG.md",
+                   "sha256": hashlib.sha256(content_e).hexdigest()}],
+    }))
+
+    # --- misplaced bundle under canonical specs -----------------------
+    misplaced = repo / "openspec/specs/cap"
+    misplaced.mkdir(parents=True)
+    (misplaced / "supporting-docs.tar.gz").write_bytes(b"x")
+
+    ctx = make_ctx("location-conformance")
+    ctx.repo_paths = {"alpha": repo}
+    ctx.docs = corpus.load_docs("alpha", repo)
+    ctx.change_ids = {"alpha": {"change-cite"}}
+
+    behavioral = harvest_behavioral(FAMILIES["location-conformance"], ctx)
+    behavioral |= harvest_behavioral(FAMILIES["location-conformance"],
+                                     make_ctx("location-conformance"))
+    static = harvest_static(
+        families,
+        functions=frozenset({"fam_location_conformance",
+                             "_active_support_findings",
+                             "_archive_support_findings"}))
+
+    EXPECTED_ACTIONS = {
+        "move it under ideation/brainstorm/ or change its status",
+        "move it under ideation/staging/ or change its status",
+        "move selected material into the proposal supporting-docs folder",
+        "create the proposal supporting-document manifest",
+        "change proposed prose to draft or immutable evidence to record",
+        "refresh or correct the supporting-document manifest",
+        "restore both the readable manifest and compressed bundle",
+        "rebuild the deterministic bundle and manifest",
+        "restore or rebuild the archive from verified proposal support",
+        "move the bundle beside its archived OpenSpec change",
+    }
+    assert_actions_pinned(EXPECTED_ACTIONS, behavioral, static,
+                          family="location-conformance")
+
+
+def test_every_action_string_the_register_lifecycle_consistency_family_can_emit_is_pinned_verbatim(
+        tmp_path):
+    """`fam_register_lifecycle_consistency` raises THREE distinct finding
+    classes. `#448` pinned two of them
+    (`test_register_lifecycle_consistency` above, DTN-002/DTN-003). The
+    third — a malformed (fewer than six-column) register row — has no
+    branch in the read-only `fixtures/register-lifecycle-consistency/`
+    corpus, so this table adds ONE `tmp_path` register carrying all three
+    row shapes at once; all three are pinned BEHAVIOURALLY and no static
+    fallback is needed.
+    """
+    repo = tmp_path / "openxFactory"
+    (repo / "docs").mkdir(parents=True)
+    reg = repo / families.REGISTER_PATH
+    reg.write_text(
+        "# Register\n\nStatus: staged\n\n"
+        "| ID | Topic | Decision | Priority | Status | Likely artifact |\n"
+        "| --- | --- | --- | --- | --- | --- |\n"
+        "| DTN-001 | Malformed |\n"
+        "| DTN-002 | BadAlias | `promote` | P0 | `pending` | `docs/x.md` |\n"
+        "| DTN-003 | GhostAdopted | `promote` | P1 | `adopted` | "
+        "`contracts/ghost.yaml` |\n")
+    ctx = Context(repo_paths={"openxFactory": repo}, docs=[], capabilities={},
+                  change_ids={}, git=FakeGit(), thresholds={}, as_of=AS_OF,
+                  agg_root=None)
+
+    behavioral = harvest_behavioral(
+        FAMILIES["register-lifecycle-consistency"], ctx)
+    behavioral |= harvest_behavioral(
+        FAMILIES["register-lifecycle-consistency"],
+        make_ctx("register-lifecycle-consistency"))
+    static = harvest_static(
+        families, functions=frozenset({"fam_register_lifecycle_consistency"}))
+
+    EXPECTED_ACTIONS = {
+        "restore the six-column register row shape",
+        "use a documented lifecycle alias",
+        "point the adopted entry at its promoted artifact",
+    }
+    assert_actions_pinned(EXPECTED_ACTIONS, behavioral, static,
+                          family="register-lifecycle-consistency")
+
+
+def test_every_action_string_the_submodule_pin_drift_family_can_emit_is_pinned_verbatim(
+        tmp_path):
+    """`fam_submodule_pin_drift` raises TWO distinct finding classes.
+    `#448` pinned one (`test_submodule_pin_drift` above, the drift case).
+    The other — an unreachable remote — is pinned here BEHAVIOURALLY by
+    widening that same scenario with a second pinned submodule whose remote
+    the `FakeGit` stub simply has no entry for; no static fallback is
+    needed.
+    """
+    ctx = make_ctx("status-validity", agg_root=tmp_path, git=FakeGit(
+        pins={"xFactories/alpha": "a" * 40, "xFactories/beta": "d" * 40,
+             "openxFactory": "b" * 40},
+        remotes={"alpha": "c" * 40, "openxFactory": "b" * 40}))
+    (tmp_path / "xFactories/alpha").mkdir(parents=True)
+    (tmp_path / "xFactories/beta").mkdir(parents=True)
+    (tmp_path / "openxFactory").mkdir()
+
+    behavioral = harvest_behavioral(FAMILIES["submodule-pin-drift"], ctx)
+    static = harvest_static(families,
+                            functions=frozenset({"fam_submodule_pin_drift"}))
+
+    EXPECTED_ACTIONS = {
+        "sync the submodule pointer or push the submodule",
+        "re-run with network access to the submodule remote",
+    }
+    assert_actions_pinned(EXPECTED_ACTIONS, behavioral, static,
+                          family="submodule-pin-drift")
+
+
 def test_contract_copy_drift(tmp_path):
     ctx = make_ctx("status-validity", git=FakeGit(heads={
         "openxFactory": "e" * 40}))
@@ -585,6 +930,15 @@ def test_notebook_projection_drift():
     assert "2 pending operations" in got[0].rule
     # PIN, see test_status_validity's docstring comment.
     assert got[0].action == "run the lifecycle notebook sync with --apply"
+    # PIN (issue #474): the path slot names a REAL artifact, aggregation-root
+    # relative like every other `repo=xFactory` finding, and carries no
+    # whitespace. It used to read `(lifecycle notebooks)` — a synthetic label
+    # whose space made `PLAN_RE`'s `path=(\S+)` unable to read the row back,
+    # so the finding was silently dropped from every `--previous-report`
+    # comparison (live at health/reports/2026-07-09.md:188).
+    assert got[0].path == "openxFactory/docs/lifecycle-notebook-projection.md"
+    assert report.PLAN_RE.match(report.plan_line(got[0])), \
+        "the family's own row must round-trip through the ranked plan"
 
     ctx_clean = make_ctx("status-validity", notebook=lambda: "scan only\n")
     assert drift(ctx_clean) == []

@@ -270,9 +270,11 @@ jobs:
       # THE NESTED GITLINK. `tests/trust-anchor/` reads the openxWallet custody
       # registry through `openXwallet/`, which is a SECOND, PRIVATE org
       # repository: `github.token` is scoped to this repository alone and cannot
-      # clone it. The house pattern of `doc-health-reusable.yml:140-158` is
-      # therefore used — mint an App token, rewrite the SSH URL with `insteadOf`
-      # BEFORE checkout, then init the one gitlink by name. The secret names are
+      # clone it. The house pattern of `doc-health-reusable.yml` (prepare job:
+      # `Mint xFactory app token` → `Rewrite ssh submodule URLs for token auth`
+      # → `Init governed submodules only`) is therefore used — mint an App
+      # token, rewrite the SSH URL with `insteadOf` BEFORE checkout, then init
+      # the one gitlink by name. The secret names are
       # this repository's own content App (App 4253636, installation 145372182,
       # `repository_selection: all`), because the org secret `XFACTORY_APP_ID`
       # is visibility-`selected` and openxFactory is not among its repositories.
