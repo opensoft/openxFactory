@@ -438,14 +438,18 @@ Active changes:
   `shared-authority-identity` names the real fault (two systems, one authority),
   and the two-consumers-of-one-identity shape the predecessor had to DECLINE
   becomes expressible only through SIX independent fail-closed conditions over
-  EVERY PAIR, the sixth binding each reference to its own binding's map key
+  EVERY PAIR, the sixth of which binds each reference to its own binding's map key
   because a security seat drove the five-condition draft into granting the lift
-  on this capability's only red proof of serving-tier separation. **FIVE warning
-  codes carry the deprecation**, two of them added when a bot round on the fix
-  round itself found that an empty `consumer: {}` matched none of the first three
-  and that the map-key grammar had been prescribed with no phasing at all — the
-  fourth and fifth instances of the very defect the council convened over,
-  arriving inside its own repair. **CARRIES A
+  on this capability's only red proof of serving-tier separation. **EIGHT warning
+  codes carry the deprecation, one per shape the major refuses**, five of them
+  added when bot rounds on the fix round itself found that an empty
+  `consumer: {}` matched no code, that the map-key grammar had been prescribed
+  with no phasing, that the false-token refusal was written as an immediate error
+  though such a record validates today, and that `access_mode` and the document
+  reference declared their phasing in prose with no code to serve it — five more
+  instances of the very defect the council convened over, arriving inside its own
+  repair, and the reason the warning set is now derived from the refusal list
+  rather than counted. **CARRIES A
   CONTRACT CUT AT REALIZATION** — its realization moves schema bytes, though THIS
   PACKET MOVES NONE and leaves `contracts/` untouched; the minor is allocated at
   realization by merge order, because `add-credential-escrow-checkout` is already

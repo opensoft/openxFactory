@@ -428,7 +428,8 @@ P1 round had all read the prescription instead of executing it.
 **So the phasing is now uniform and the rule is one sentence:** at the
 introducing minor the schema constrains NOTHING about `consumer:` — it declares
 the property, describes its members, and stops. Every constraint arrives together
-at the major, behind one deprecation window and FIVE warning codes. That also
+at the major, behind one deprecation window and EIGHT warning codes — one per
+shape the major refuses, derived from that list rather than counted. That also
 dissolves the layer problem §5b had, because at the minor every consumer check
 lives in the validator, which is the layer the stub exemption can reach.
 
@@ -498,12 +499,26 @@ fetch_identity)` is expressible at the major and was verified by construction.
 And at the minor the question does not arise, because §5's correction leaves the
 schema constraining nothing.
 
-**The generator now emits NO block at all** — a named comment instead. That is
-what makes a freshly scaffolded repository validate clean at both releases, and
-it is what this packet's own principle asked for in the first place:
-*scaffolding that manufactures conformance is worse than scaffolding that omits
-it, because only the second is visible.* Emitting a placeholder was the packet
-declining to take its own advice.
+**The generator emits `consumer: {instantiation_stub: true}` — the token alone.**
+That is the third draft of this instruction, and the second was wrong in a way
+worth keeping visible. Draft two said *emit no block at all, a named comment
+instead*, on the principle that *scaffolding which manufactures conformance is
+worse than scaffolding that omits it.* The principle is right; the application
+was not. A bot round showed that a blockless template **cannot stay clean at the
+major either**: a missing block is an ERROR there, the stub token is the ONLY
+exemption, and the generator was emitting neither — so the
+scaffolded-repo-validates-clean assertion would have become impossible the moment
+requiredness activated, which is the same class of defect as the placeholder it
+replaced, one release later.
+
+**The token is the resolution, and it is not a third sentinel.** A placeholder
+`holder_ref` asserts an identity that does not exist; `instantiation_stub: true`
+asserts only that the record is a stub, **which is true of a file written before
+any install exists.** Verified by construction: the token alone validates at the
+minor and at the major, while a blockless template validates at the major's
+schema and is refused by its validator. So the rule generalises past this
+packet: *scaffolding that manufactures conformance is worse than scaffolding that
+omits it — and scaffolding that DECLARES ITS OWN STATUS is better than either.*
 
 ## 6. What this makes provable — and the reach it does not have
 

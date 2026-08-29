@@ -116,20 +116,27 @@ within the block, closing the block's member set, and imposing a grammar on the
 members' values — and each is therefore the BREAKING class however additive the
 new vocabulary looks. All three SHALL land together at the next MAJOR. At the
 introducing minor the conformance validator SHALL emit WARNINGS instead —
-naming, as FOUR distinct findings, a binding that declares no block, a block that
-EXISTS but omits either identifier, a block carrying an undeclared member, and a
-member whose value does not match the identifier grammar — and every such record
-SHALL REMAIN VALID. The four are enumerated rather than summarised because a
-warning set that leaves any refused-at-the-major shape unwarned does not serve
-the deprecation the major depends on: a block present but empty matches none of
-the other three, and would otherwise cross the whole minor in silence.
+naming a DISTINCT finding for EVERY shape the major will refuse, and every such
+record SHALL REMAIN VALID. The set is ENUMERATED against the refusals rather than
+summarised, and the enumeration is the requirement: a binding that declares no
+block; a block that EXISTS but omits either identifier; a block carrying an
+undeclared member; a member whose value does not match the identifier grammar; a
+const-true token declared false; a `credential_bindings` MAP KEY outside the key
+grammar; an `access_mode` outside the closed vocabulary; and a
+`requirements_document_ref` outside the path grammar. **A WARNING SET THAT LEAVES
+ANY REFUSED-AT-THE-MAJOR SHAPE UNWARNED DOES NOT SERVE THE DEPRECATION THE MAJOR
+DEPENDS ON**, and the shapes that go missing are the ones no single arm happens
+to look at — a block present but empty matches none of the first four, and a
+constraint written on a neighbouring record matches none of them at all.
 
-THE SAME PHASING GOVERNS EVERY OTHER NARROWING THIS CHANGE INTRODUCES, wherever
-it sits. Constraining the `credential_bindings` MAP KEY to a grammar, closing
-`access_mode` to a vocabulary, and constraining `requirements_document_ref` to a
-path grammar each refuse a value the current major accepts, so each WARNS at the
-introducing minor and is enforced only at the major. None of them is exempt for
-sitting outside the block. The removal version SHALL be stated where a consumer
+THE SAME PHASING GOVERNS EVERY NARROWING THIS CHANGE INTRODUCES, WHEREVER IT
+SITS — on the block, on the map that holds the block, or on a neighbouring
+record. Constraining the map key, closing `access_mode`, and constraining
+`requirements_document_ref` each refuse a value the current major accepts, so
+each warns at the minor and is enforced only at the major. **None is exempt for
+sitting outside the block, and none is exempt for being a validator rule rather
+than a schema rule**: the test is whether the current major accepts the value,
+not where the refusal is written. The removal version SHALL be stated where a consumer
 upgrading across it will read it, and it SHALL name EVERY act that lands there
 rather than only the first.
 
@@ -203,9 +210,10 @@ omits it, because only the second is visible.
 - **THEN** its wallet's identifier is an admissible holder reference and nothing further is required
 - **AND** a wallet reference MUST NOT be made the required type of the field, because the wallet family is consumed here at a pin rather than owned, and most consumers of a credential binding carry no wallet
 
-#### Scenario: The acknowledgment is declared false
+#### Scenario: A const-true token is declared false
 - **WHEN** a `consumer:` block declares the shared-credential acknowledgment, or the instantiation-stub token, with the value false
-- **THEN** the validator MUST report an error — the token is declared or absent, and a false value reads as governance while asserting nothing
+- **THEN** it WARNS at the introducing minor and remains VALID, and is refused at the major — a false-valued token reads as governance while asserting nothing, but the binding object is open today so `{shared_credential_acknowledged: false}` validates on the current major and refusing it in a minor would narrow like any other act
+- **AND** the lift is UNAVAILABLE to a pair carrying a false-valued acknowledgment at either release, because the lift requires the token DECLARED TRUE and a false value is not a declaration — withholding a lift is not the same act as refusing a record
 
 #### Scenario: An instantiation stub declares itself
 - **WHEN** a record that is an instantiation stub carries the const-true stub token and no identifiers

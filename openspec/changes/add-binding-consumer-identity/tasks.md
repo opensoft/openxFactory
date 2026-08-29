@@ -126,7 +126,7 @@ found by executing it.
   const-true, why a persona is not admissible in `holder_ref`, and **what lands
   at the major**.
 
-## 2. The validator — a warning channel it does not have, and five codes
+## 2. The validator — a warning channel it does not have, and eight deprecation codes
 
 - [ ] 2.1 BUILD THE WARNING CHANNEL FIRST. `scripts/validate-credential-contracts.py`
   prints `ERROR` and counts errors; it has no warning severity at all, so the
@@ -154,6 +154,26 @@ found by executing it.
   phasing. **This code exists because the member grammar is one of the breaking
   acts deferred to the major**: without it the grammar would be unserved by any
   deprecation, and the major could not land on the policy's own precondition.
+- [ ] 2.2c `consumer-token-not-true` — WARNING on a const-true token
+  (`shared_credential_acknowledged`, `instantiation_stub`) declared FALSE. The
+  delta originally made this an immediate ERROR; a bot round pointed out that
+  `consumer: {shared_credential_acknowledged: false}` VALIDATES on the current
+  major (verified), so refusing it in a minor is a new refusal like any other.
+  It warns now, errors at the major. **Withholding the LIFT from such a pair is
+  a different act and needs no phasing** — the lift requires the token declared
+  TRUE, and declining to grant an exemption is not refusing a record.
+- [ ] 2.2d `consumer-binding-key-grammar` — WARNING on a `credential_bindings`
+  map key outside the key grammar (§1.3). Errors at the major.
+- [ ] 2.2e `consumer-access-mode-vocabulary` — WARNING on an `access_mode`
+  outside §1.4's closed vocabulary. Errors at the major.
+- [ ] 2.2f `consumer-requirement-ref-grammar` — WARNING on a
+  `requirements_document_ref` outside §1.5's path grammar. Errors at the major.
+  **2.2e and 2.2f exist because a bot round found that §1.4 and §1.5 declared
+  their phasing and then had no code to serve it** — a constraint that phases in
+  prose but warns through nothing crosses the minor silently and fails at the
+  major with the deprecation unserved. **EIGHT codes now, and the set is
+  enumerated against the refusals rather than counted**: every shape the major
+  refuses has exactly one warning that names it.
 - [ ] 2.3 `shared-secret-identity` — keep the predicate and the refusal as the
   DEFAULT, and add the SIX-condition lift exactly as the requirement states it,
   each condition failing closed. **The sixth condition — the resolved
@@ -244,10 +264,17 @@ found by executing it.
   positives fails the self-test as *"unexpectedly invalid"*, and placed in
   `negative/` fails it as *"has no registered expectation"* — the corpus has no
   third channel. Add a `warning/` directory and a `WARNING_EXPECTATIONS` map so
-  `consumer-identity-undeclared`, `consumer-block-unknown-member` and
-  `consumer-member-grammar` each carry a packaged probe. **A deprecation the
-  major depends on cannot be evidenced by a corpus with no place to hold its
-  proof**, and the whole two-step rests on those warnings having been served.
+  **all EIGHT codes** carry a packaged probe: `consumer-identity-undeclared`,
+  `consumer-block-incomplete`, `consumer-block-unknown-member`,
+  `consumer-member-grammar`, `consumer-token-not-true`,
+  `consumer-binding-key-grammar`, `consumer-access-mode-vocabulary` and
+  `consumer-requirement-ref-grammar`. **A deprecation the major depends on cannot
+  be evidenced by a corpus with no place to hold its proof**, and a corpus that
+  probes SOME of the codes is worse than one that probes none, because the
+  major's preconditions then LOOK evidenced. A bot round caught this list at
+  three of eight; the coverage rule is now stated as a rule — **one registered
+  probe per warning code, checked by count against the code list itself**, so the
+  next code added cannot silently ship unprobed.
 - [ ] 3.4 THE SELF-TEST COUNT STRING AND THE BY-NAME INVENTORY.
   `tests/credential_contracts/test_dispatch_credential_contract.py:35` asserts
   `"self-test: 3 positive + 5 negative example(s) confirmed"` verbatim. **Ruled:
@@ -286,16 +313,27 @@ incomplete sweep inside the section written to discharge the incomplete-sweep
 lesson. All thirteen are listed below with a stated in/out disposition, because
 the section's authority comes from being exhaustive.
 
-- [ ] 4.1 `scripts/apply-domain-starter.py:2096-2102` — **THE GENERATOR, and it
-  emits NO `consumer:` BLOCK.** A named comment instead. The earlier draft told
-  it to emit the block in the template's own placeholder style; that style FAILS
-  the identifier grammar, and a grammar-passing sentinel would SUPPRESS the
-  omission warning while naming nothing. **Both were refused by the packet's own
-  principle** — scaffolding that manufactures conformance is worse than
-  scaffolding that omits it — and omission is what makes §6.2's
-  scaffolded-repo-validates-clean assertion true rather than aspirational.
+- [ ] 4.1 `scripts/apply-domain-starter.py:2096-2102` — **THE GENERATOR EMITS
+  `consumer: {instantiation_stub: true}` AND NOTHING ELSE.** Not placeholders,
+  not a bare comment. Three drafts converged here and the last two were both
+  wrong for opposite reasons. Draft one emitted the block in the template's own
+  `<placeholder>` style, which FAILS the identifier grammar. Draft two emitted no
+  block at all — and a bot round showed **that cannot stay clean either**: §2.2
+  makes a missing block an ERROR at the major, and the only exemption is the
+  stub token, so a scaffolded repository would be refused the moment requiredness
+  activates and §6.2's assertion would become impossible. Verified by
+  construction: the token alone validates at the minor AND at the major, and a
+  blockless template validates at the major's SCHEMA but is refused by its
+  VALIDATOR.
+  **The token is the honest emission, not a third sentinel.** A placeholder
+  `holder_ref` claims an identity that does not exist; `instantiation_stub: true`
+  claims only that this record is a stub, **which is exactly true of a file the
+  generator writes before any install exists.** Scaffolding that manufactures
+  conformance is worse than scaffolding that omits it — and scaffolding that
+  DECLARES ITS OWN STATUS is better than either.
 - [ ] 4.2 `docs/domain-factory-starter-pack.md:804-810` — the same template in
-  prose. Same treatment: the comment, not a placeholder.
+  prose. Same treatment: the stub token, not a placeholder and not an omission,
+  with the one-line explanation of what an instantiator replaces it with.
 - [ ] 4.3 `docs/credential-access-model.md:219-225` — the worked binding example,
   plus the invariant's prose home. **AND `:228-229`'s sentence — "It must not
   include the raw secret value" — is extended to the new fields in the SAME
@@ -337,16 +375,20 @@ the section's authority comes from being exhaustive.
 - [ ] 5.1 `docs/contract-versioning-policy.md` § Deprecations Currently In Force
   — **UNCONDITIONAL, not "subject to the council's ruling": the council ruled
   YES, unanimously, and two seats escalated it to load-bearing.** The entry names
-  the removal version, the migration path, and **EVERY act that lands there**:
-  `consumer-identity-undeclared`, `consumer-block-incomplete`,
+  the removal version, the migration path, and **EVERY act that lands there** —
+  all EIGHT deprecation codes
+  (`consumer-identity-undeclared`, `consumer-block-incomplete`,
   `consumer-block-unknown-member`, `consumer-member-grammar`,
-  `consumer-binding-key-grammar`, the block's closure, the member requiredness,
-  the `access_mode` vocabulary, the `requirements_document_ref` grammar and the
-  `credential_bindings` map-key grammar. **Ten items, and the entry lists all
-  ten** — every one is a shape the current major accepts and the next one
-  refuses, so every one owes its minor of warnings. Without the entry, at the
-  major nothing can demonstrate the policy's own precondition was met and the
-  requiredness becomes unauditable.
+  `consumer-token-not-true`, `consumer-binding-key-grammar`,
+  `consumer-access-mode-vocabulary`, `consumer-requirement-ref-grammar`) and the
+  acts they serve — the member requiredness, the block's closure, the member
+  grammar, the const-true token enforcement, the `credential_bindings` map-key
+  grammar, the `access_mode` vocabulary and the `requirements_document_ref`
+  grammar. **The entry is written from the refusal list, not from memory**: every
+  shape the current major accepts and the next one refuses owes its minor of
+  warnings, and the entry is the only place a reader learns they are one act.
+  Without it, at the major nothing can demonstrate the policy's own precondition
+  was met and the requiredness becomes unauditable.
 - [ ] 5.1a **THE ENTRY GATES THE MAJOR ON THE DEGRADED MODE.** It states that
   the requiredness does not land until the degraded fetch-identity mode is
   declarable. A security seat ruled against keeping OQ-5 out: at the major an
@@ -389,9 +431,15 @@ the section's authority comes from being exhaustive.
 - [ ] 6.2 `python3 -m pytest tests/ -q -m "not postgres"` — what CI runs — with
   `tests/credential_contracts` and `tests/doc-health` named explicitly. **Includes
   the scaffolded-repo assertion**: generate a repo with
-  `apply-domain-starter.py`, run the validator over it, and require CLEAN. Under
-  §4.1 that passes because the generator emits no block; under the earlier draft
-  it could not have passed at all, and the test was asserted rather than run.
+  `apply-domain-starter.py`, run the validator over it, and require CLEAN **at
+  BOTH releases — the introducing minor and the major** — because a scaffold that
+  is clean only until requiredness activates is a scaffold that breaks every new
+  domain repository on the upgrade. Under §4.1 that passes because the generator
+  emits the stub token; under the first draft it could not pass at the minor
+  (the placeholder fails the grammar) and under the second it could not pass at
+  the major (a missing block is an error there). The two-release form of this
+  assertion is what makes the difference visible, and the test is RUN, not
+  asserted.
 - [ ] 6.3 doc-health zero-new against a same-clock `origin/main` baseline.
 - [ ] 6.4 `python3 scripts/validate-credential-contracts.py .` clean, self-test
   included. Note it reports `0 contract(s) checked` against openxFactory's own
