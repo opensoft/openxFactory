@@ -90,9 +90,26 @@ test.
   IN THE SAME COMMIT: the self-test count string moves "3 positive + 5 negative"
   → "4 positive + 7 negative", and the fixture-presence test gains the three new
   filenames. The custody packet's task 4.1 named this coupling in advance.
-- [ ] 3.7 Add a test that a positive fixture carrying no authority fields
-  produces a WARNING and still exits 0 — the deprecation's own proof, in both
-  directions.
+- [ ] 3.7 Prove the warning on ALL THREE migration states, not just the empty
+  one: a binding declaring NEITHER field, one declaring `consumer` ONLY, and one
+  declaring `fetch_identity` ONLY. Each case asserts that a warning is raised,
+  that it NAMES ONLY THE FIELD ACTUALLY MISSING, and that the run still exits 0.
+  **A neither-only test cannot fail on the defect it exists to catch**: an
+  implementation keeping a `not consumer and not fetch_identity` predicate stays
+  silent on the half-declared binding and passes anyway, and an implementation
+  that always names both fields passes while violating 2.2's message contract.
+  That is this repository's own mutation-harness lesson — a proof that cannot go
+  red on the fault is not a proof of the fault — and the half-declared shape is
+  precisely where the review found the defect in the first place.
+- [ ] 3.8 Pin 2.3's FAIL-OPEN the same way, because it has the same weakness:
+  two bindings sharing a `fetch_identity` with `consumer` absent on one side must
+  raise NO `shared-fetch-identity` error AND must still raise the
+  undeclared-authority warning, asserted together in one case. Asserting only the
+  silence would pass for an implementation that had simply dropped the rule, and
+  the whole justification for staying silent is that the warning is standing
+  instead — so a test that does not check the warning is not testing the
+  reasoning. Applying the lesson where it recurs rather than patching only the
+  instance the review named.
 
 ## 4. Documentation
 
