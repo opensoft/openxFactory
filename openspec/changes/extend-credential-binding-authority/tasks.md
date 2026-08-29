@@ -145,8 +145,7 @@ test.
   it deliberately upgrades. State it as the four properties, not as the word
   "additive".
 - [ ] 5.6 Rebuild the inventory wholesale —
-  `scripts/validate-contract-release.py build --tag <tag> --output
-  contracts/releases/<tag>.digests.yaml` — then `verify-commit --commit <sha>`
+  `scripts/validate-contract-release.py build --tag <tag> --output contracts/releases/<tag>.digests.yaml` — then `verify-commit --commit <sha>`
   green, then `verify-promotion` before tagging, then the annotated tag, then
   `verify-tag` from an INDEPENDENT clone. The tag points at the realized
   commit; a bundle is not published until its tag exists.

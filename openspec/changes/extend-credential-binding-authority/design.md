@@ -14,8 +14,7 @@ Read from the tree on 2026-08-29 rather than recalled:
 
 - `xfactory_credential_binding_template` in
   `contracts/schemas/xfactory-credential-contracts.schema.yaml` puts each entry
-  of `credential_bindings` under `required: [provider, secret_ref, owner,
-  rotation_policy]` with `vault` optional and no other properties. There is no
+  of `credential_bindings` under `required: [provider, secret_ref, owner, rotation_policy]` with `vault` optional and no other properties. There is no
   consumer field and no identity field.
 - `scripts/validate-credential-contracts.py` runs three semantic checks over
   that kind — `baked-secret` and `shared-secret-identity` on bindings, and the

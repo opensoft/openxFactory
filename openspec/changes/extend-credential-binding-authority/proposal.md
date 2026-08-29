@@ -40,8 +40,7 @@ contract-release ritual. This packet is that successor, and it carries the
 ritual.
 
 **The gap is measurable, not rhetorical.**
-`xfactory_credential_binding_template` requires `[provider, secret_ref, owner,
-rotation_policy]` with `vault` optional. There is no field for who consumes the
+`xfactory_credential_binding_template` requires `[provider, secret_ref, owner, rotation_policy]` with `vault` optional. There is no field for who consumes the
 credential and none for what identity reaches the store, and
 `scripts/validate-credential-contracts.py` compares no authorities at all. Two
 bindings naming one vault principal validate cleanly today. So does one binding
@@ -52,8 +51,7 @@ artifact.** This is the forcing fact, and it was found by reading the tree
 rather than by reasoning about it.
 `contracts/avatar-client/broker-server-key-binding.template.yaml` is
 `kind: xfactory_credential_binding_template` — the very record kind this packet
-extends — and it already carries `fetch_identity:
-install_federated_workload_identity`, in a document-level `resolution:` block
+extends — and it already carries `fetch_identity: install_federated_workload_identity`, in a document-level `resolution:` block
 that the schema neither declares nor forbids. That is precisely the defect this
 same schema's `issuance_preconditions` vocabulary was added to retire, in the
 words of its own description: *"the mechanism existed as a domain-local extra
@@ -132,8 +130,7 @@ credential resolved to one secret. Those two bindings HAVE distinct consumers �
 a zero-write serving tier and a privileged CI apply lane — and under the
 promoted dispatch-only separation requirement they must also hold distinct
 identities. So an exemption keyed on "distinct consumers and distinct fetch
-identities" would admit the exact record `examples/credential-contracts/negative/
-dispatch-reuses-content-secret.yaml` exists to refuse. Only "the sharing
+identities" would admit the exact record `examples/credential-contracts/negative/dispatch-reuses-content-secret.yaml` exists to refuse. Only "the sharing
 bindings resolve the SAME credential requirement" separates one key serving two
 PURPOSES from one key serving two CONSUMERS of one purpose.
 
