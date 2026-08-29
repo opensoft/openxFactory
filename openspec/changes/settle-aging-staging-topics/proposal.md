@@ -126,26 +126,44 @@ to fire under either reading:
 The six that go quiet are exactly the six in § Why's table, and they go quiet
 PERMANENTLY. Nothing else moves.
 
-**The run as it stands today**: `staged-candidate-aging` goes 15 findings → 9
-(14 staged-topic warnings → 8, plus the unchanged draft-distribution `info`);
-the whole single-repo report goes `5 critical, 7 error, 41 warning, 12 info` →
-`5 critical, 7 error, 35 warning, 12 info`. No other family's count moves in
-either direction: `staged-topic-template` 27, `modified-block-currency` 8,
-`record-immutability` 5, `tag-hygiene` 4, `location-conformance` 3,
-`ideation-routing` 2, `document-catalog` 1, before and after.
+**The run as it stands today, RE-MEASURED on the merged head.** The first
+numbers this section carried were taken against `e4bcbdb1`'s base and with
+§ 4's corpus edits still UNCOMMITTED; both halves have since moved, neither
+for a reason this change caused, and both are restated rather than left
+standing. Single-repo, default as-of: `4 critical, 7 error, 41 warning, 13
+info` → `4 critical, 7 error, 30 warning, 13 info`. Per family, before →
+after: `staged-candidate-aging` 15 → 4 and EVERY OTHER FAMILY UNCHANGED —
+`staged-topic-template` 27, `modified-block-currency` 9, `record-immutability`
+4, `tag-hygiene` 4, `location-conformance` 3, `ideation-routing` 2,
+`document-catalog` 1, before and after.
 
-**What the number will do next, said plainly.** Of the eight staged-topic
-warnings left, five are topics this change WROTE INTO (`worker-host-app`,
-`context-compression-runtime`, `proposal-origin-contract`,
-`layer-vocabulary-machine-migration`, `ideation-action-plane`). Once this
-merges, their folders are freshly committed and they will fall silent for
-thirty days — a MTIME RESET, not a silencing, and they return on 2026-09-27
-still deferred and still unstarted. Only three topics warn continuously from
-here: `client-credential-escrow-registry`, `subject-establishment` and
-`worker-enrollment-broker`, which is correct — all three are live work.
+**Two corrections, each with its cause named.** The BASELINE moved because
+main advanced: `record-immutability` went 5 criticals → 4 when
+`declare-generated-projection-status` landed, and `modified-block-currency`
+8 → 9 and `info` 12 → 13 from the same window. Not this change; the before
+and after columns move together and the invariant they were written to state
+— no family but `staged-candidate-aging` moves — holds unchanged. The AFTER
+column moved because § 4's edits are now COMMITTED, which is precisely the
+mtime reset § 5.3 predicted, arriving early: the five deferred topics fell
+silent on merge rather than after it, so today's staged-topic warnings read
+14 → 3 instead of 14 → 8.
 
-**Tests**: `python3 -m pytest tests/doc-health` 1278 → 1281 passed, zero
-failed.
+**Which is why the load-bearing number is the other one, and it did NOT
+move.** Re-run on the merged head, `--as-of 2026-12-31` still reads **33 →
+27**, still exactly the six topics of § Why's table — that measurement was
+built to be immune to the mtime reset, and it was.
+
+**What the number will do next, said plainly.** The three topics warning
+today are `client-credential-escrow-registry`, `subject-establishment` and
+`worker-enrollment-broker`, which is correct — all three are live work. The
+five this change WROTE INTO (`worker-host-app`, `context-compression-runtime`,
+`proposal-origin-contract`, `layer-vocabulary-machine-migration`,
+`ideation-action-plane`) are silent by MTIME RESET, not by rule, and they
+return on 2026-09-27 still deferred and still unstarted.
+
+**Tests**: `python3 -m pytest tests/doc-health tests/proposal-support
+tests/ideation_routing tests/document_catalog` 1455 passed, zero failed on
+the merged head.
 
 ## Orchestrator Decisions — FLAGGED FOR VETO
 

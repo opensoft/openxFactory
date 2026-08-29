@@ -417,9 +417,11 @@ Active changes:
   KEEP AGEING, and each says so in its own text. **The number worth reading**:
   measured at a common `--as-of 2026-12-31` so that a folder this change
   touched cannot be mistaken for a folder it silenced, staged-topic findings
-  go **33 → 27**, exactly the six. Today's run goes 14 → 8, and five of the
-  eight left fall silent for thirty days on merge by MTIME RESET rather than
-  by rule, returning 2026-09-27 still deferred. MODIFIES one `doc-health`
+  go **33 → 27**, exactly the six — re-measured on the merged head and
+  unmoved, which is why that as-of and not today's is the load-bearing
+  number. Today's run goes 14 → 3, because the five deferred topics fell
+  silent by MTIME RESET rather than by rule the moment their folders were
+  committed; they return 2026-09-27 still deferred. MODIFIES one `doc-health`
   requirement (`Aging threshold defaults`), whose promoted text pins the
   mtime-only reading and already carries the exact analogue of the new
   exclusion one clause later, for routing records. Five orchestrator

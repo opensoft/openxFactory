@@ -135,20 +135,33 @@ measurement.
       `client-layer-tuning`, `codexfactory-domain-hermes-content`,
       `layer-content-materialization`, `medxfactory-domain-hermes-content`
       and `dashboard-repo-selector`.
-- [x] 5.2 THE RUN AS IT STANDS TODAY. Single-repo, default as-of:
-      `5 critical, 7 error, 41 warning, 12 info` → `5 critical, 7 error, 35
-      warning, 12 info`. Per family, before → after: `staged-candidate-aging`
-      15 → 9 and EVERY OTHER FAMILY UNCHANGED — `staged-topic-template` 27,
-      `modified-block-currency` 8, `record-immutability` 5, `tag-hygiene` 4,
+- [x] 5.2 THE RUN AS IT STANDS TODAY, RE-MEASURED ON THE MERGED HEAD after
+      main advanced sixteen commits and § 4's edits were committed. Both
+      columns moved, neither because of this change, and this is the number
+      task 7.1's archive gate is read against. Single-repo, default as-of:
+      `4 critical, 7 error, 41 warning, 13 info` → `4 critical, 7 error, 30
+      warning, 13 info`. Per family, before → after: `staged-candidate-aging`
+      15 → 4 and EVERY OTHER FAMILY UNCHANGED — `staged-topic-template` 27,
+      `modified-block-currency` 9, `record-immutability` 4, `tag-hygiene` 4,
       `location-conformance` 3, `ideation-routing` 2, `document-catalog` 1.
-- [x] 5.3 THE HONEST CAVEAT, stated because the number is about to move for a
-      reason that is not this change: five of the eight remaining staged-topic
-      warnings are topics § 4 WROTE INTO, and they fall silent for thirty days
-      on merge by MTIME RESET, returning 2026-09-27 still deferred. Only
+      THE FIRST READING OF THIS TASK said `5 critical … 41 warning, 12 info` →
+      `… 35 warning, 12 info` with `staged-candidate-aging` 15 → 9; it is
+      superseded on two independent counts, each named at § Impact — the
+      baseline moved with `declare-generated-projection-status`'s landing
+      (`record-immutability` 5 → 4) and the after column moved because the
+      mtime reset 5.3 predicted arrived on the merge rather than after it.
+      The invariant the task exists to state is untouched: no family but
+      `staged-candidate-aging` moves in either direction.
+- [x] 5.3 THE HONEST CAVEAT, WRITTEN AS A PREDICTION AND NOW OBSERVED. It said
+      the five staged-topic warnings on topics § 4 WROTE INTO would fall
+      silent by MTIME RESET rather than by rule, leaving only
       `client-credential-escrow-registry`, `subject-establishment` and
-      `worker-enrollment-broker` warn continuously from here, and all three
-      are live work. **Deferrals do not silence, and this change does not
-      pretend otherwise.**
+      `worker-enrollment-broker` warning continuously. The merged-head run
+      reads exactly those three and no others, so the caveat was right and
+      the reset landed one step earlier than described — on the commit, not
+      on the merge. The five return 2026-09-27 still deferred.
+      **Deferrals do not silence, and this change does not pretend
+      otherwise.**
 - [x] 5.4 EVERY ARCHIVE CITED WAS RESOLVED AT ITS OWN TREE on 2026-08-28, not
       inferred from the register: openxFactory (3 packets), codexFactory (3),
       MedxFactory (2), OpsxFactory (1), hermes-install (2), LedgerxFactory
