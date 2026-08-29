@@ -41,9 +41,10 @@ $defs:
   model_entry:
     # The public allowlist, exactly: the SEVEN REQUIRED base fields
     # (data-model.md Section 6) plus, since contract-v1.38, the THREE OPTIONAL
-    # routing-declaration fields below. An entry that declares none of the
-    # three is byte-for-byte the entry this schema has always accepted, which
-    # is what makes the growth additive.
+    # routing-declaration fields below, and since contract-v2.2 the ONE
+    # OPTIONAL `modalities` capability declaration. An entry that declares
+    # none of the four optional fields is byte-for-byte the entry this schema
+    # has always accepted, which is what makes each growth additive.
     type: object
     additionalProperties: false
     required: [model_id, label, provider_class, available,
@@ -89,6 +90,59 @@ $defs:
       # that must be split, or whose members' badges must be written more
       # tightly.
       data_handling: { type: string, minLength: 1, maxLength: 500 }
+      # --- the input-modality declaration (contract-v2.2, additive) ---
+      #
+      # OPTIONAL, and it says WHAT KIND of input the model accepts — the one
+      # thing `input_limit_bytes` and `output_limit_bytes` cannot say, because
+      # they describe how MUCH a model accepts and never what kind. It exists
+      # so a routing decision can ask whether a candidate can carry what a turn
+      # actually contains, rather than inferring capability from a model's name
+      # or from `provider_class`, which is a governance classification.
+      #
+      # ABSENCE IS NOT A CLAIM IN EITHER DIRECTION. An entry that declares
+      # nothing is a producer that predates this field, exactly as an absent
+      # `context_posture` means "a producer older than contract-v1.40" in the
+      # chat-turn family rather than a stated posture. A reader treats an
+      # undeclared entry as text-only FOR ROUTING — the safe reading — while
+      # recording that no declaration was made, so a conservative default is
+      # never mistaken for a stated capability. Requiring the field would have
+      # invalidated every catalog released before it, which an additive growth
+      # must not do.
+      #
+      # THE VOCABULARY IS CLOSED AND EXTENDS ONLY BY THE CHANGE THAT GOVERNS A
+      # NEW MEMBER — the rule `admission_surface` states for the client-identity
+      # roster. `image` enters because a turn carrying an image is the named
+      # near-term consumer. Audio, video, tool-calling, structured output,
+      # latency class and cost class do NOT enter: nothing consumes them, and a
+      # vocabulary guessed ahead of its consumers is one nothing validates
+      # against. INPUT ACCEPTANCE ONLY — output modality and tool/structured
+      # output are different questions with different consumers, and one set
+      # answering several would mean different things to different readers.
+      #
+      # `contains: {const: text}` is load-bearing and is NOT redundant with
+      # `minItems`: without it this shape would accept `modalities: [image]`,
+      # which the type and the delegated validator both refuse, leaving the
+      # WIRE GATE THE WEAKEST ONE — the very divergence class this release
+      # closes in the other direction. A chat turn always carries text, so a
+      # model that cannot accept text is not routable here at all.
+      #
+      # No `maxItems`: `uniqueItems` over a two-member closed enum already
+      # bounds the array at two, and a `maxItems` literal would be a second
+      # place to edit when the vocabulary grows by a governing change.
+      modalities:
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items:
+          enum: [text, image]
+        contains:
+          const: text
+        description: >-
+          The input modalities this model accepts, from the closed vocabulary
+          `text` and `image`. Optional; absence means the producer predates
+          the field and is read as text-only for routing while being recorded
+          as no declaration. Where present the set is non-empty, carries no
+          repeats, and must contain `text`.
       # --- the routing-rule declaration (contract-v1.38, additive) ---
       #
       # OPTIONAL, and all three travel together (see dependentRequired and the

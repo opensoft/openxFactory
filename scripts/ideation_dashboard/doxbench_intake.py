@@ -21,8 +21,13 @@ never sees a credential — which is why it is safe for it to be the surface a
 browser talks to.
 
 WHAT IT DOES NOT WIDEN, also deliberately: the BINDING's closed nine-field
-record (`doxbench_binding.BINDING_FIELDS`) and the CATALOG entry's closed
-seven-field public shape (`doxbench_model.ModelCatalogEntry`). Proposed-versus-
+record (`doxbench_binding.BINDING_FIELDS`) and the CATALOG entry's closed public
+shape (`doxbench_model.DECLARABLE_ENTRY_FIELDS`). The count is named by that
+tuple rather than restated here, because the shape has grown twice by governing
+release since this module was written — the routing declaration at
+contract-v1.38 and the input-modality declaration at contract-v2.2 — and this
+paragraph's claim is that THIS module widens nothing, which is unchanged by
+either. Proposed-versus-
 approved is a SERVER-SIDE distinction and a pending declaration is simply not in
 the catalog, so neither released shape gains a field and neither needs a release
 act. The declaration is a SECOND record beside the binding, not a tenth field on

@@ -1,0 +1,26 @@
+# INVALID (modality-text-membership): the entry declares an image-only set. A
+# chat turn always carries text, so a model that cannot accept text is not a
+# model this catalog can route a turn to at all.
+#
+# THIS ONE IS REFUSED BY THE SHAPE, deliberately. `minItems` plus an item enum
+# would have accepted it, leaving a schema-only consumer treating as conformant
+# an instance the type and this validator both refuse — the wire gate weaker
+# than the type gate, in the very release whose second requirement closes that
+# divergence pointing the other way. `contains: {const: text}` on
+# `$defs/model_entry.modalities` is what refuses it here.
+{
+  "schema_version": 1,
+  "kind": "workbench-model-catalog",
+  "models": [
+    {
+      "model_id": "local-image-only-1",
+      "label": "Approved authoring model",
+      "provider_class": "on-tenant",
+      "available": true,
+      "input_limit_bytes": 800000,
+      "output_limit_bytes": 900000,
+      "data_handling": "Processed in the approved tenant boundary; no retention.",
+      "modalities": ["image"]
+    }
+  ]
+}

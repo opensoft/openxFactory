@@ -8,8 +8,10 @@ This module owns exactly five things:
 * the PURE projection of a catalog into the RELEASED
   ``workbench-model-catalog`` wire envelope (``catalog_wire_envelope``), added
   once the additive openxFactory schema was released and pinned at
-  contract-v1.27 (``d09d5820de5b63b9528f6baea884a6dccde9b158``) and grown at
-  contract-v1.38 to carry a ROUTING RULE's declaration (task 11.7);
+  contract-v1.27 (``d09d5820de5b63b9528f6baea884a6dccde9b158``), grown at
+  contract-v1.38 to carry a ROUTING RULE's declaration (task 11.7) and at
+  contract-v2.2 to carry an entry's INPUT-MODALITY declaration
+  (add-model-capability-vocabulary);
 * the pure byte-limit arithmetic a turn must apply before disclosure
   (``effective_limit_bytes``);
 * the narrow ``WorkbenchModelPort`` seam (research R6) plus its
@@ -95,11 +97,41 @@ ROUTING_ENTRY_FIELDS: tuple[str, ...] = (
     "resolved_model_id",
 )
 
-# Every key any public dict this module produces may hold, in projection order.
-# Nothing outside this tuple may ever appear.
-DECLARABLE_ENTRY_FIELDS: tuple[str, ...] = (
-    PUBLIC_ENTRY_FIELDS + ROUTING_ENTRY_FIELDS
+# The CAPABILITY declaration (contract-v2.2, add-model-capability-vocabulary).
+# One optional field saying WHAT KIND of input a model accepts, disclosed only
+# by an entry that actually declares it -- the same present-only-when-declared
+# idiom the routing fields use, and for the same reason: an entry that declares
+# nothing projects the bytes it always projected.
+CAPABILITY_ENTRY_FIELDS: tuple[str, ...] = (
+    "modalities",
 )
+
+# Every key any public dict this module produces may hold, in projection order.
+# Nothing outside this tuple may ever appear. The base seven stay a PREFIX, so
+# each optional group is an append rather than a reshuffle.
+DECLARABLE_ENTRY_FIELDS: tuple[str, ...] = (
+    PUBLIC_ENTRY_FIELDS + CAPABILITY_ENTRY_FIELDS + ROUTING_ENTRY_FIELDS
+)
+
+# ---- the CLOSED input-modality vocabulary (contract-v2.2) ----
+#
+# Exactly two members, and the set EXTENDS ONLY BY THE CHANGE THAT GOVERNS A NEW
+# MEMBER -- the rule the client-identity roster's `admission_surface` states.
+# `image` is here because a turn carrying an image is the named near-term
+# consumer; audio, video, tool-calling, structured output, latency class and
+# cost class are not, because nothing consumes them and a vocabulary guessed
+# ahead of its consumers is one nothing validates against.
+#
+# RESTATED from the released schema's `items.enum`, not read from it, for the
+# reason every bound in this module is restated: the whole import list is
+# `dataclasses` and `typing`, so this module cannot open the schema. The
+# companion test reads the RELEASED BYTES and pins these equal to them.
+CATALOG_MODALITIES: tuple[str, ...] = ("text", "image")
+
+# The member the released schema's `contains: {const: text}` requires wherever
+# the field is declared. A chat turn always carries text, so a model that cannot
+# accept text is not a model this catalog can route a turn to at all.
+REQUIRED_MODALITY = "text"
 
 # ---- the routing badge's SEGMENT GRAMMAR (contract-v1.38, adversarial review
 # round 1 F1) ----
@@ -132,15 +164,39 @@ MAX_ROUTING_TARGETS = 64
 # ...and its OPERATIVE maximum is 63, not 64. `models` is itself capped at 64,
 # and a routing rule occupies one of those slots, so the largest routable set a
 # WIRE-CONFORMANT catalog can express is rule + 63 targets. 64 is the right
-# number to enforce here -- it is `routes_to`'s own bound, and this type must not
-# invent the catalog-level one it has never enforced -- but a reader reasoning
-# about real catalogs should reason about 63.
+# number to enforce here -- it is `routes_to`'s own bound -- but a reader
+# reasoning about real catalogs should reason about 63. Since contract-v2.2 the
+# catalog-level bound is enforced too, by `MAX_CATALOG_ENTRIES` below, so a
+# 65-entry catalog no longer constructs and the "wire-conformant" qualifier is
+# now redundant rather than load-bearing.
+
+# The released schema's `models.maxItems`. Enforced at contract-v2.2
+# (add-model-capability-vocabulary, Brett's ALL-FIVE ruling of 2026-08-24 and
+# the batched follow-up it rode with): before it, a 65-entry catalog constructed
+# cleanly in process while `GET /workbench/model-catalog` refused to serve the
+# very catalog holding it, because the route validates the projected envelope
+# against the released schema. RESTATED, not read, for the reason every bound in
+# this module is restated, and pinned to the released bytes by the companion
+# test.
+MAX_CATALOG_ENTRIES = 64
 
 # The released schema's `items.maxLength` / `items.pattern` on `routes_to`, which
-# `resolved_model_id` repeats. RESTATED for the same reason the cap is, and
-# pinned to the released bytes by the same companion test.
+# `resolved_model_id` and `model_id` all repeat. RESTATED for the same reason the
+# cap is, and pinned to the released bytes by the same companion test.
 MODEL_REFERENCE_MAX_LENGTH = 128
 MODEL_REFERENCE_PATTERN = "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+
+# The released schema's `maxLength` on the three DESCRIPTIVE string fields.
+# Enforced at contract-v2.2; before it each was checked for blankness alone, so
+# 201-, 65- and 501-character values all constructed while the wire refused
+# them. After this release EVERY string bound the released schema declares is
+# enforced at construction, with no residue -- which is what makes the parity
+# requirement checkable rather than aspirational, and what the schema-driven
+# companion test asserts by walking the released `$defs/model_entry` rather than
+# by listing these four names a second time.
+LABEL_MAX_LENGTH = 200
+PROVIDER_CLASS_MAX_LENGTH = 64
+DATA_HANDLING_MAX_LENGTH = 500
 
 
 def _is_conformant_model_reference(value: str) -> bool:
@@ -165,14 +221,22 @@ def _is_conformant_model_reference(value: str) -> bool:
 
 
 def _require_model_reference(field: str, value: object) -> None:
-    """A model-id REFERENCE, held to the released schema's own bounds.
+    """A model id, held to the released schema's own bounds.
 
-    Applied to ``routes_to`` members and ``resolved_model_id`` -- the two
-    id-bearing fields contract-v1.38 introduced. Deliberately NOT applied to
-    ``model_id`` itself: that field has accepted over-length and
-    out-of-pattern values since the seven-field type shipped, and tightening it
-    here would be a behaviour change belonging to no release. That gap is
-    recorded, not fixed (review N7)."""
+    Applied to ALL THREE id-bearing fields since contract-v2.2: ``model_id``
+    itself, ``routes_to`` members and ``resolved_model_id``. The released schema
+    gives every one of them the same ``maxLength: 128`` and the same character
+    pattern, so one spelling holds all three.
+
+    ``model_id`` JOINED THEM at contract-v2.2 (review N7, closed). It had
+    accepted over-length and out-of-pattern values since the seven-field type
+    shipped, and the deferral reason recorded here was that tightening it "would
+    be a behaviour change belonging to no release". That release arrived: the
+    change that added ``modalities`` opened ``$defs/model_entry`` and this
+    construction gate anyway, so the fix rode with it at no additional release
+    surface. What changes is WHERE such an id fails, not whether -- it was
+    always unservable, because the route validates the projected envelope
+    against the released schema."""
     _require_non_blank_str(field, value)
     if len(value) > MODEL_REFERENCE_MAX_LENGTH:
         raise InvalidCatalogEntryError(
@@ -274,6 +338,22 @@ class InvalidCatalogEntryError(ModelCatalogError):
     ``ModelCatalogEntry.__post_init__`` for the exact split."""
 
 
+class CatalogEntryCountError(ModelCatalogError):
+    """A catalog declares more entries than the released schema's
+    ``models.maxItems`` permits (contract-v2.2).
+
+    A WHOLE-CATALOG refusal, and its own class for the same reason
+    ``DuplicateModelIdError`` is: no single entry is wrong, so
+    ``InvalidCatalogEntryError`` -- whose docstring says "a single
+    ``ModelCatalogEntry`` field failed value-level validation" -- would be a
+    false statement about what happened. The split this module keeps is by HOW
+    MUCH CONTEXT THE REFUSAL NEEDS, and this one needs the whole list.
+
+    Not ``InvalidRoutingRuleError`` either: that class's first sentence is that
+    every member of it is a routing inconsistency, and an over-large catalog of
+    plain entries is not one."""
+
+
 class DuplicateModelIdError(ModelCatalogError):
     """Two entries in one catalog share a ``model_id`` (data-model.md
     Section 6: ``model_id`` is unique). Raised by
@@ -338,6 +418,23 @@ def _require_non_blank_str(field: str, value: object) -> None:
         raise InvalidCatalogEntryError(f"{field} must not be blank")
 
 
+def _require_bounded_str(field: str, value: object, maximum: int) -> None:
+    """A non-blank string held to the released schema's ``maxLength`` for its
+    field (contract-v2.2).
+
+    The three DESCRIPTIVE fields -- ``label``, ``provider_class`` and
+    ``data_handling`` -- were checked for blankness alone until this release, so
+    a 201-, 65- or 501-character value constructed cleanly while
+    ``GET /workbench/model-catalog`` refused to serve the catalog holding it.
+    The id-bearing fields take ``_require_model_reference`` instead, which adds
+    the character pattern those three do not carry."""
+    _require_non_blank_str(field, value)
+    if len(value) > maximum:
+        raise InvalidCatalogEntryError(
+            f"{field} is {len(value)} characters, above the {maximum} the "
+            f"released catalog schema permits")
+
+
 def _require_positive_capped_int(field: str, value: object, cap: int) -> None:
     if isinstance(value, bool) or not isinstance(value, int):
         raise TypeError(f"{field} must be a non-bool int, got {type(value).__name__}")
@@ -374,6 +471,22 @@ class ModelCatalogEntry:
     covering -- belong to ``ModelCatalog`` because that is the smallest scope
     that can answer them.
 
+    THE MODALITY DECLARATION (contract-v2.2, add-model-capability-vocabulary).
+    An entry MAY declare which input modalities it accepts, from the closed
+    two-member vocabulary ``CATALOG_MODALITIES``. It is OPTIONAL and its default
+    is ``None`` -- UNDECLARED, which is not a capability claim in either
+    direction: an entry that declares nothing is a producer that predates the
+    field. ``None`` and an EMPTY set are deliberately different values here,
+    exactly as they are on the wire: the released schema has no key for the
+    first and ``minItems: 1`` for the second, so ``modalities=()`` is a refusal
+    rather than a synonym for absence.
+
+    NOTHING IN THIS RELEASE READS THE DECLARATION TO CHOOSE A DESTINATION. The
+    field is declared, validated and projected; fit-aware routing is exit (b) of
+    the staged topic and consumes it. ``routing_modalities`` states the safe
+    reading a router will apply, and ``declares_modalities`` keeps that
+    conservative default distinguishable from a stated capability.
+
     NOT ON THIS TYPE, deliberately: the harness provider id. Task 11.6 placed
     it on ``LaunchConfig.provider_id``, the install-side declaration, precisely
     so a harness-routing fact could not be smuggled into a governance record;
@@ -387,15 +500,23 @@ class ModelCatalogEntry:
     input_limit_bytes: int
     output_limit_bytes: int
     data_handling: str
+    modalities: tuple[str, ...] | None = None
     routing_rule: bool = False
     routes_to: tuple[str, ...] = ()
     resolved_model_id: str | None = None
 
     def __post_init__(self) -> None:
-        _require_non_blank_str("model_id", self.model_id)
-        _require_non_blank_str("label", self.label)
-        _require_non_blank_str("provider_class", self.provider_class)
-        _require_non_blank_str("data_handling", self.data_handling)
+        # EVERY BOUND THE RELEASED SCHEMA DECLARES, enforced here (contract-v2.2,
+        # Brett's ALL-FIVE ruling of 2026-08-24). `model_id` takes the reference
+        # spelling because the schema gives it a character pattern as well as a
+        # length; the three descriptive fields take the length alone, which is
+        # all the schema declares for them.
+        _require_model_reference("model_id", self.model_id)
+        _require_bounded_str("label", self.label, LABEL_MAX_LENGTH)
+        _require_bounded_str("provider_class", self.provider_class,
+                             PROVIDER_CLASS_MAX_LENGTH)
+        _require_bounded_str("data_handling", self.data_handling,
+                             DATA_HANDLING_MAX_LENGTH)
         if not isinstance(self.available, bool):
             raise TypeError(
                 f"available must be a bool, got {type(self.available).__name__}"
@@ -406,7 +527,81 @@ class ModelCatalogEntry:
         _require_positive_capped_int(
             "output_limit_bytes", self.output_limit_bytes, SERVER_MAX_OUTPUT_LIMIT_BYTES
         )
+        self._validate_modalities()
         self._validate_routing_declaration()
+
+    def _validate_modalities(self) -> None:
+        """The closed input-modality vocabulary (contract-v2.2).
+
+        Three refusals, each one the released schema's own: a member outside the
+        closed set (`items.enum`), an empty declared set (`minItems: 1`), and a
+        declared set omitting ``text`` (`contains: {const: text}`). Plus the
+        repeat the schema's ``uniqueItems`` refuses.
+
+        ABSENCE IS ``None`` AND RETURNS EARLY, before any of them. That is the
+        additive property at the type: every construction written before this
+        release names no ``modalities`` and is judged exactly as it was."""
+        if self.modalities is None:
+            return
+        if isinstance(self.modalities, (str, bytes)):
+            raise TypeError(
+                "modalities must be an iterable of modality names, not a "
+                f"single {type(self.modalities).__name__}")
+        try:
+            declared = tuple(self.modalities)
+        except TypeError as error:
+            raise TypeError(
+                "modalities must be an iterable of modality names, got "
+                f"{type(self.modalities).__name__}") from error
+        object.__setattr__(self, "modalities", declared)
+        if not declared:
+            raise InvalidCatalogEntryError(
+                "a declared modality set must not be empty; omit the field "
+                "entirely to declare nothing, which is not a claim in either "
+                "direction")
+        for member in declared:
+            if not isinstance(member, str):
+                raise TypeError(
+                    "modalities members must be str, got "
+                    f"{type(member).__name__}")
+            if member not in CATALOG_MODALITIES:
+                raise InvalidCatalogEntryError(
+                    f"modalities member {member!r} is outside the closed "
+                    f"vocabulary {list(CATALOG_MODALITIES)}; the vocabulary is "
+                    "extended by the change that governs a new modality, never "
+                    "by a wider field")
+        if len(set(declared)) != len(declared):
+            raise InvalidCatalogEntryError(
+                "modalities must not repeat a member")
+        if REQUIRED_MODALITY not in declared:
+            raise InvalidCatalogEntryError(
+                f"a declared modality set must contain {REQUIRED_MODALITY!r}: "
+                "a chat turn always carries text, so a model that cannot "
+                "accept text is not routable here")
+
+    @property
+    def declares_modalities(self) -> bool:
+        """Whether this entry MADE a modality declaration at all.
+
+        The half of the absence rule that must not be lost: a reader that only
+        ever saw ``routing_modalities`` could not tell a conservative default
+        from a stated capability, and the requirement says both facts are
+        recorded."""
+        return self.modalities is not None
+
+    @property
+    def routing_modalities(self) -> tuple[str, ...]:
+        """The modality set a router READS for this entry -- the declared set,
+        or ``("text",)`` where nothing was declared.
+
+        THE SAFE READING, stated once so no consumer has to invent it: never
+        route a turn carrying an image to a model that has not said it accepts
+        images. This is a projection of the ratified absence rule and NOT a
+        routing decision -- nothing in this release chooses a destination by it;
+        exit (b) is where that happens."""
+        if self.modalities is None:
+            return (REQUIRED_MODALITY,)
+        return self.modalities
 
     def _validate_routing_declaration(self) -> None:
         """The PER-ENTRY half of the contract-v1.38 routing rules, mirroring
@@ -474,10 +669,11 @@ class ModelCatalogEntry:
                 "routes_to nor resolved_model_id")
 
     def as_public_dict(self) -> dict:
-        """Exactly ``PUBLIC_ENTRY_FIELDS``, in that order, plus
-        ``ROUTING_ENTRY_FIELDS`` after them WHEN AND ONLY WHEN this entry is a
-        routing rule. No version marker and no discriminator marker -- see the
-        module docstring's deferral list.
+        """Exactly ``PUBLIC_ENTRY_FIELDS``, in that order, then ``modalities``
+        WHEN AND ONLY WHEN this entry declared one, then
+        ``ROUTING_ENTRY_FIELDS`` WHEN AND ONLY WHEN this entry is a routing
+        rule. No version marker and no discriminator marker -- see the module
+        docstring's deferral list.
 
         PRESENT-ONLY-WHEN-DECLARED, and that is a decision (task 11.7's tick
         flags it). The alternative -- always emitting the three keys with their
@@ -488,7 +684,19 @@ class ModelCatalogEntry:
         meant, so a plain entry's public dict is byte-identical across the
         release boundary. The released schema tolerates BOTH producers: an
         explicit `routing_rule: false` with no siblings is valid there, it is
-        simply not what this projection emits."""
+        simply not what this projection emits.
+
+        ``modalities`` FOLLOWS THAT IDIOM, and projecting it at all is
+        deliberate rather than automatic (contract-v2.2; the pre-ratification
+        bot round found the gap). This method emits an EXPLICIT key list rather
+        than serializing the dataclass, so a declared set would otherwise have
+        been validated in process and then silently dropped by
+        `GET /workbench/model-catalog` -- leaving consumers and the routing
+        successor with nothing to read, which is the entire purpose of the
+        field. An UNDECLARED entry emits no key, so its public dict stays
+        byte-identical across this release boundary too. Absence on the wire
+        carries exactly what absence carries here: no claim in either
+        direction."""
         public = {
             "model_id": self.model_id,
             "label": self.label,
@@ -498,6 +706,10 @@ class ModelCatalogEntry:
             "output_limit_bytes": self.output_limit_bytes,
             "data_handling": self.data_handling,
         }
+        if self.modalities is not None:
+            # A LIST (JSON has no tuple), freshly built, so a caller mutating
+            # the projection cannot reach the frozen entry.
+            public["modalities"] = list(self.modalities)
         if self.routing_rule is True:
             public["routing_rule"] = True
             public["routes_to"] = list(self.routes_to)
@@ -541,6 +753,23 @@ class ModelCatalog:
             if entry.model_id in seen_ids:
                 raise DuplicateModelIdError(f"duplicate model_id: {entry.model_id!r}")
             seen_ids.add(entry.model_id)
+        # THE ENTRY-COUNT CAP (contract-v2.2). The released schema caps `models`
+        # at 64 and this type did not, so a 65-entry catalog constructed cleanly
+        # and could be dispatched by the turn route -- which checks only
+        # `isinstance(catalog, ModelCatalog)` -- while
+        # `GET /workbench/model-catalog` refused to serve the very catalog
+        # holding it, because serve.py validates the projected envelope against
+        # the released schema. The same divergence `MAX_ROUTING_TARGETS` closed
+        # for `routes_to`, one level up.
+        #
+        # It is checked AFTER the element-type and duplicate scans so those two
+        # refusals are unchanged for every catalog that has them, and BEFORE the
+        # routing walk so an over-large catalog is named for what is wrong with
+        # it rather than for the first routing rule in it.
+        if len(materialized) > MAX_CATALOG_ENTRIES:
+            raise CatalogEntryCountError(
+                f"catalog declares {len(materialized)} entries, above the "
+                f"{MAX_CATALOG_ENTRIES} the released catalog schema permits")
         self._validate_routing_targets(materialized)
 
     @staticmethod
