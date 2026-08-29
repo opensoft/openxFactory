@@ -198,8 +198,33 @@ from referencing.jsonschema import DRAFT202012
 # comparing against it REFUSES rather than matching by accident. Task 4.2
 # replaces it with the commit `contract-v1.45` dereferences to, at the moment the
 # tag is published — never before.
-CONTRACT_REF = "unpublished:contract-v1.45"
-CONTRACT_TAG = "contract-v1.45"
+# RE-CUT TO contract-v2.2 (add-model-capability-vocabulary, tasks 4.2/4.4).
+# The CATALOG schema's bytes moved this time — `$defs/model_entry` gained the
+# optional closed `modalities` declaration — so this consumer pin has to name
+# the release those bytes belong to. Leaving it at v1.45 would not have been
+# conservatism: `_verified_bytes` hashes the file and refuses a mismatch, so
+# every doxBench model route would have failed CLOSED on a checkout carrying the
+# very schema this repository ships. The MIRROR of the v1.45 repin, which moved
+# the chat-turn digest and left this one; the chat-turn bytes are unchanged here
+# and are re-declared at this bundle because a pin names ONE release for both
+# files.
+#
+# THE REF IS THE SENTINEL until the tag is published, exactly as it was across
+# the v1.40 and v1.45 realization branches and for the same reason: the
+# versioning policy allocates the version and builds the digest inventory AT
+# REALIZATION and publishes the annotated tag against the commit that actually
+# LANDS, so until that commit exists there is nothing honest to name. It is
+# spelled as a value no `stack.yaml` can declare, so a consumer comparing
+# against it REFUSES rather than matching by accident.
+#
+# RECORDED, because it is visible in this file's history and a reader will ask:
+# the v1.45 repin left `unpublished:contract-v1.45` standing after
+# `contract-v1.45` was published, so its own task 4.2 went undischarged. That
+# residue is superseded here rather than repaired in place — this pin now names
+# contract-v2.2, and there is no honest way to resolve a sentinel for a bundle
+# these bytes no longer belong to.
+CONTRACT_REF = "unpublished:contract-v2.2"
+CONTRACT_TAG = "contract-v2.2"
 
 CATALOG_SCHEMA_FILE = "xfactory-workbench-model-catalog.schema.yaml"
 CHAT_TURN_SCHEMA_FILE = "xfactory-workbench-chat-turn.schema.yaml"
@@ -207,7 +232,7 @@ CHAT_TURN_SCHEMA_FILE = "xfactory-workbench-chat-turn.schema.yaml"
 # sha256 over each schema file's exact bytes at the release.
 SCHEMA_DIGESTS = {
     CATALOG_SCHEMA_FILE:
-        "dff513fa6b607c417a39e5529964f9df2c8f56841ae3b0a894c85b6d1dea0675",
+        "afa7de17ed7323d11c08e5e266dfe32d5ebc426e06520300387ee8e5b0cfb125",
     CHAT_TURN_SCHEMA_FILE:
         "2ff5f222af5cdccd545417203898a919be0365cdd0d2d5138e87e23f7ebfe1cf",
 }

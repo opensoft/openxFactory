@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v2.1
+contract_bundle_version: contract-v2.2
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -1602,7 +1602,7 @@ contracts:
     source_path: openxFactory/contracts/schemas/xfactory-workbench-model-catalog.schema.yaml
     type: schema
     schema_version: 1
-    sha256: dff513fa6b607c417a39e5529964f9df2c8f56841ae3b0a894c85b6d1dea0675
+    sha256: afa7de17ed7323d11c08e5e266dfe32d5ebc426e06520300387ee8e5b0cfb125
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -1619,13 +1619,27 @@ contracts:
       entry MUST read all three: routing_rule says the entry is a rule rather
       than a model, resolved_model_id is the model that ANSWERS (and is what
       a turn record's model_id carries), and the entry's own data_handling
-      states the posture of every model in routes_to. Consumed through the
-      pinned openxFactory checkout at the contract-v1.38 tag; per-file sha256
-      verified before any copy is treated as current. Catalog rules the shape
-      cannot express — routing resolution, the badge covering, the
-      availability and headroom rules — are enforced by
+      states the posture of every model in routes_to.
+      SINCE contract-v2.2 an entry MAY additionally declare `modalities` — the
+      input modalities it accepts, from the CLOSED vocabulary whose members are
+      exactly `text` and `image`. It is optional and ABSENT from a producer that
+      predates it, and its ABSENCE IS NOT A CLAIM IN EITHER DIRECTION: a
+      consumer reads an undeclared entry as text-only FOR ROUTING while
+      recording that no declaration was made, never as a statement that the
+      model rejects images. Where present the set is non-empty, carries no
+      repeat, and MUST contain `text`, because a chat turn always carries text.
+      THE VOCABULARY IS CLOSED AND EXTENDS ONLY BY THE CHANGE THAT GOVERNS A NEW
+      MEMBER — the rule the client-identity roster's admission_surface states —
+      so a consumer may treat any other value as a refused catalog rather than
+      as a value it must tolerate. Consumed through the pinned openxFactory
+      checkout at the contract-v2.2 tag; per-file sha256 verified before any
+      copy is treated as current. Catalog rules the shape cannot express —
+      routing resolution, the badge covering, the availability and headroom
+      rules — are enforced by
       scripts/validate-ideation-dashboard-contracts.py (the family's
-      delegated owner), never re-implemented by consumers.
+      delegated owner), never re-implemented by consumers; the three modality
+      refusals are NOT among them, being expressible in the shape and therefore
+      enforced by these bytes.
   # WHY THIS ROW'S `consumption_rule` GAINED THE NON-BLANK RULE WITHOUT A
   # RELEASE CUT (issue #263). Read this before editing it again.
   #

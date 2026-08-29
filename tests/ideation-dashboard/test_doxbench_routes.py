@@ -783,6 +783,53 @@ def test_success_body_carries_the_released_catalog_envelope(tmp_path):
     assert payload["kind"] == "workbench-model-catalog"
 
 
+def test_a_declared_modality_set_REACHES_THE_WIRE_and_silence_does_not(tmp_path):
+    """contract-v2.2, THE ROUTE-LEVEL PROOF. The pre-ratification bot round
+    found that a declared `modalities` would be validated in process and then
+    silently dropped, because `as_public_dict` emits an explicit key list rather
+    than serializing the dataclass — leaving consumers and the routing successor
+    with nothing to read, which is the entire purpose of the field. So the claim
+    "it reaches the wire" is proved HERE, over a real request through the real
+    route and the real released-schema validation, and not only at the
+    projection.
+
+    The second entry declares nothing, and its served bytes are asserted to be
+    exactly the seven base fields — the additive property, measured at the wire
+    rather than argued."""
+    catalog = ModelCatalog.from_entries([
+        ModelCatalogEntry(
+            model_id="model-vision",
+            label="Available Model A (accepts images)",
+            provider_class="on-tenant",
+            available=True,
+            input_limit_bytes=800_000,
+            output_limit_bytes=900_000,
+            data_handling="Processed in the approved tenant boundary",
+            modalities=("text", "image")),
+        ModelCatalogEntry(
+            model_id="model-silent",
+            label="Available Model B",
+            provider_class="on-tenant",
+            available=True,
+            input_limit_bytes=800_000,
+            output_limit_bytes=900_000,
+            data_handling="Processed in the approved tenant boundary"),
+    ])
+    port = FakeWorkbenchModelPort(catalog)
+    with _serving(tmp_path, model_port_factory=lambda: port) as (httpd, host, p):
+        caps = _capabilities(host, p)
+        status, payload, _headers, _raw = _request(
+            host, p, "GET", ROUTE, headers=_console_headers(caps))
+    assert status == 200, payload
+    declaring, silent = payload["models"]
+    assert declaring["modalities"] == ["text", "image"]
+    assert list(declaring) == list(PUBLIC_ENTRY_FIELDS) + ["modalities"]
+    # SILENCE IS NOT A CLAIM, and it is not a key either.
+    assert "modalities" not in silent
+    assert set(silent) == set(PUBLIC_ENTRY_FIELDS)
+    assert port.calls == ["catalog"]
+
+
 def test_catalog_success_body_is_validated_against_the_released_schema_before_send(tmp_path):
     """The console never serves an unvalidated wire shape: the enveloped
     response is checked against the injected released-schema validator BEFORE

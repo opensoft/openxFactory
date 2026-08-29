@@ -62,11 +62,19 @@ CHAT_TURN_SCHEMA_FILE = "xfactory-workbench-chat-turn.schema.yaml"
 # moved and the consumer pin moved with them. The ref carries the
 # realization SENTINEL until the tag is published against the commit that
 # lands — the same posture the v1.40 cut carried across its own branch.
-RELEASED_REF = "unpublished:contract-v1.45"
-RELEASED_TAG = "contract-v1.45"
+# RE-PINNED at contract-v2.2 (add-model-capability-vocabulary 4.2/4.4), and the
+# MIRROR of v1.45: there the chat-turn digest moved and the catalog's did not,
+# here the CATALOG digest moves and the chat-turn's does not, because this
+# release grows `$defs/model_entry` with the optional closed `modalities`
+# declaration. The ref carries the realization SENTINEL for the same reason it
+# did then, and the v1.45 sentinel it replaces was never resolved to a commit —
+# superseded here rather than repaired, since these bytes no longer belong to
+# that bundle.
+RELEASED_REF = "unpublished:contract-v2.2"
+RELEASED_TAG = "contract-v2.2"
 RELEASED_DIGESTS = {
     CATALOG_SCHEMA_FILE:
-        "dff513fa6b607c417a39e5529964f9df2c8f56841ae3b0a894c85b6d1dea0675",
+        "afa7de17ed7323d11c08e5e266dfe32d5ebc426e06520300387ee8e5b0cfb125",
     CHAT_TURN_SCHEMA_FILE:
         "2ff5f222af5cdccd545417203898a919be0365cdd0d2d5138e87e23f7ebfe1cf",
 }
@@ -796,9 +804,13 @@ def test_packaged_positives_validate_structurally(released_root):
     # and one explicitly full. (The pre-release record that states NO posture is
     # the unchanged `workbench-chat-turn-v2-success` instance already counted
     # here — its continued validity is the additive claim, so the release adds
-    # two files rather than three.) The exact count IS the pin, so it advances
-    # with the release rather than being loosened to an inequality.
-    assert len(positives) == 14, [p.name for p in positives]
+    # two files rather than three.) 14 -> 15 at contract-v2.2, which adds the
+    # entry DECLARING `[text, image]`. The ABSENCE case needs no file of its
+    # own: `workbench-model-catalog-local.example.yaml` is already counted here
+    # and its continued validity IS the additive claim, exactly as the
+    # no-posture record was at contract-v1.40. The exact count IS the pin, so it
+    # advances with the release rather than being loosened to an inequality.
+    assert len(positives) == 15, [p.name for p in positives]
 
     for path in positives:
         doc = yaml.safe_load(path.read_text(encoding="utf-8"))
@@ -868,12 +880,132 @@ def test_the_types_target_cap_is_pinned_to_the_RELEASED_schemas_maxItems(
     for shape in (routes_to["items"], resolved):
         assert shape["maxLength"] == MODEL_REFERENCE_MAX_LENGTH
         assert shape["pattern"] == MODEL_REFERENCE_PATTERN
-    # `model_id`'s bounds are IDENTICAL and the type does NOT enforce them —
-    # a pre-existing gap this release deliberately did not close. Pinned so the
-    # sameness is a fact on the record rather than an assumption.
+    # `model_id`'s bounds are IDENTICAL and the type ENFORCES them since
+    # contract-v2.2 (review N7, closed by Brett's ALL-FIVE ruling). Pinned so
+    # the sameness is a fact on the record rather than an assumption, and so
+    # the one spelling `_require_model_reference` applies to all three stays
+    # correct for all three.
     model_id = entry["properties"]["model_id"]
     assert model_id["maxLength"] == MODEL_REFERENCE_MAX_LENGTH
     assert model_id["pattern"] == MODEL_REFERENCE_PATTERN
+
+
+def test_the_types_catalog_cap_is_pinned_to_the_RELEASED_schemas_maxItems(
+        released_root):
+    """`MAX_CATALOG_ENTRIES` mirrors `models.maxItems`, restated for the same
+    reason `MAX_ROUTING_TARGETS` is and pinned the same way (contract-v2.2)."""
+    from ideation_dashboard.doxbench_model import MAX_CATALOG_ENTRIES
+    schema = yaml.safe_load(
+        (released_root / "contracts" / "schemas" / CATALOG_SCHEMA_FILE)
+        .read_text(encoding="utf-8"))
+    assert schema["properties"]["models"]["maxItems"] == MAX_CATALOG_ENTRIES
+
+
+def test_the_types_descriptive_string_bounds_are_pinned_to_the_RELEASED_schema(
+        released_root):
+    """The three bounds Brett's ALL-FIVE ruling added (contract-v2.2).
+
+    Each is a literal in a module that cannot open the schema, so each is read
+    out of the RELEASED BYTES here and pinned equal — the same discipline
+    `MAX_ROUTING_TARGETS` got, applied to the three fields that carried a
+    `maxLength` in the schema and a blankness check in the type."""
+    from ideation_dashboard.doxbench_model import (
+        DATA_HANDLING_MAX_LENGTH, LABEL_MAX_LENGTH, PROVIDER_CLASS_MAX_LENGTH)
+    properties = _model_entry_subschema(released_root)["properties"]
+    assert properties["label"]["maxLength"] == LABEL_MAX_LENGTH
+    assert properties["provider_class"]["maxLength"] == PROVIDER_CLASS_MAX_LENGTH
+    assert properties["data_handling"]["maxLength"] == DATA_HANDLING_MAX_LENGTH
+
+
+def test_the_closed_modality_vocabulary_is_pinned_to_the_RELEASED_schema(
+        released_root):
+    """The contract-v2.2 vocabulary, read from the released bytes.
+
+    `contains: {const: text}` is asserted here as well as the enum, because it
+    is the clause that keeps the WIRE GATE from being the weakest one: without
+    it the shape accepts `modalities: [image]`, which the type and the delegated
+    validator both refuse."""
+    from ideation_dashboard.doxbench_model import (
+        CATALOG_MODALITIES, REQUIRED_MODALITY)
+    modalities = _model_entry_subschema(released_root)["properties"]["modalities"]
+    assert tuple(modalities["items"]["enum"]) == CATALOG_MODALITIES
+    assert modalities["contains"]["const"] == REQUIRED_MODALITY
+    assert modalities["minItems"] == 1
+    assert modalities["uniqueItems"] is True
+    # OPTIONAL, and that is the additive property: absence must stay valid.
+    entry = _model_entry_subschema(released_root)
+    assert "modalities" not in entry["required"]
+
+
+def test_EVERY_string_bound_the_released_schema_declares_is_enforced_at_construction(
+        released_root):
+    """THE NO-RESIDUE PROOF (contract-v2.2), driven from the released bytes
+    rather than from a list of field names.
+
+    The ratified requirement's last scenario says a field the schema bounds but
+    the type does not is A DEFECT IN THE REQUIREMENT, not an accepted residue.
+    A test that enumerated the four names could not detect a FIFTH bound added
+    later, so this one walks `$defs/model_entry`, finds every string-valued
+    property carrying a `maxLength` or a `pattern`, and drives one violating
+    value through the real construction gate for each. A future release that
+    bounds a new string field in the schema and forgets the type fails HERE.
+
+    `resolved_model_id` and `routes_to`'s items are id-bearing and only
+    constructible on a routing rule, so they are driven through a rule; every
+    other bounded string is driven on a plain entry."""
+    from ideation_dashboard.doxbench_model import (
+        InvalidCatalogEntryError, ModelCatalogEntry)
+
+    entry_schema = _model_entry_subschema(released_root)
+    bounded = {
+        name: shape for name, shape in entry_schema["properties"].items()
+        if shape.get("type") == "string"
+        and ("maxLength" in shape or "pattern" in shape)
+    }
+    # The four base-entry strings plus the id-bearing `resolved_model_id`.
+    assert set(bounded) == {"model_id", "label", "provider_class",
+                            "data_handling", "resolved_model_id"}, bounded
+
+    def _construct(field, value):
+        if field == "resolved_model_id":
+            return ModelCatalogEntry(**{
+                **_PLAIN_ENTRY, "model_id": "auto", "routing_rule": True,
+                "routes_to": ["target-a"], "resolved_model_id": value})
+        return ModelCatalogEntry(**{**_PLAIN_ENTRY, field: value})
+
+    for field, shape in sorted(bounded.items()):
+        if "maxLength" in shape:
+            over = "a" * (shape["maxLength"] + 1)
+            with pytest.raises(InvalidCatalogEntryError) as caught:
+                _construct(field, over)
+            # The refusal NAMES the measured length and the released maximum,
+            # which is what the ratified scenario asks of it.
+            assert str(shape["maxLength"]) in str(caught.value)
+            assert str(len(over)) in str(caught.value)
+        if "pattern" in shape:
+            with pytest.raises(InvalidCatalogEntryError):
+                _construct(field, "has space")
+
+    # …and the ARRAY bound one level up, which the same requirement names.
+    _assert_the_entry_count_cap_is_enforced(released_root)
+
+
+def _assert_the_entry_count_cap_is_enforced(released_root):
+    from ideation_dashboard.doxbench_model import (
+        CatalogEntryCountError, ModelCatalog, ModelCatalogEntry)
+    schema = yaml.safe_load(
+        (released_root / "contracts" / "schemas" / CATALOG_SCHEMA_FILE)
+        .read_text(encoding="utf-8"))
+    cap = schema["properties"]["models"]["maxItems"]
+    entries = tuple(
+        ModelCatalogEntry(**{**_PLAIN_ENTRY, "model_id": f"m{i}"})
+        for i in range(cap + 1))
+    with pytest.raises(CatalogEntryCountError) as caught:
+        ModelCatalog(entries)
+    assert str(cap) in str(caught.value)
+    assert str(cap + 1) in str(caught.value)
+    # …and exactly at the cap it still constructs.
+    assert len(ModelCatalog(entries[:cap]).entries) == cap
 
 
 def _model_entry_subschema(released_root):
