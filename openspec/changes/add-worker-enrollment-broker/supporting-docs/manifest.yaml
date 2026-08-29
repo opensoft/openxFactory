@@ -1,0 +1,23 @@
+{
+  "change_id": "add-worker-enrollment-broker",
+  "files": [
+    {
+      "path": "worker-enrollment-broker.md",
+      "sha256": "ef5e1dd1a5f65f0e97733fda7048eef5a9917acdf07ade516d182358e5f10e9a",
+      "source_path": "ideation/staging/worker-enrollment-broker/worker-enrollment-broker.md",
+      "source_sha256": "1517bc307604d53b6d903650558b8cf1c92978fdf5d4d0e48480da507365e12e",
+      "source_snapshot_path": "source-snapshots/worker-enrollment-broker.md"
+    }
+  ],
+  "format_version": 1,
+  "notebook_workspace": null,
+  "origin": {
+    "id": "openxFactory:staging:worker-enrollment-broker",
+    "kind": "staged",
+    "path": "ideation/staging/worker-enrollment-broker"
+  },
+  "origin_path": "ideation/staging/worker-enrollment-broker",
+  "remaining_paths": [],
+  "source_revision": "93f883f4e385581a76c63fcf34ac2de20da2606d",
+  "transitioned_at": "2026-08-28"
+}
