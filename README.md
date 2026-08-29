@@ -392,18 +392,22 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [add-binding-consumer-identity](openspec/changes/add-binding-consumer-identity/proposal.md)
-  — authored 2026-08-29, **NOT YET RATIFIED** (`Status: draft`).
-  **COUNCIL-REVIEWED 2026-08-29 and AMENDED**: a §7.4-shaped sitting returned
-  SPLIT 2–2 on the verdict word and UNANIMOUS 4/4 that the text as drafted was
-  not ratifiable, with fifteen blocking amendments across four seats; Brett ruled
-  the same day — accept all blocking amendments, one fix round, ratification read
-  after — and this packet is that round. **Three further rulings the bench routed
+  — authored 2026-08-29, **RATIFIED 2026-08-29** (`Status: ratified`; record
+  `review/ratification-2026-08-29.md`). **THE FIRST PACKET THROUGH THE §7.4 PATH
+  END TO END**: a council sitting returned SPLIT 2–2 on the verdict word and
+  UNANIMOUS 4/4 that the text as drafted was not ratifiable, with fifteen
+  blocking amendments across four seats; Brett ruled the same day — accept all
+  blocking, one fix round, ratification read after — and ratified the amended
+  text with the Codex-two-heads-back verification gap in view rather than waiting
+  on a bot at its usage limit. **Ratification authorizes REALIZATION and does not
+  perform it**: the change stays ACTIVE until merged code, green evidence and the
+  contract cut exist. **Three further rulings the bench routed
   to him came back the same day**: Decision 2 takes ROUTE (i) (phase the
   requiredness, keep the promise); the parked P-2 is DISCHARGED — packaged
   fixtures use SYNTHETIC identifiers and the live sync-lane/openXdox fetch
   identities stay in the consuming installs; and P-3's estate-level delta-pair
   gap is FILED as issue #502, which this change neither closes nor waits on. The
-  ratification act is still to come.
+  ratification act followed the same day.
   THE NAMED SUCCESSOR OF A RATIFIED ADMISSION: `add-notebook-hosting-credential-custody`
   ratified one-identity / per-system-authority on 2026-08-23 and admitted in the
   same read that the invariant is **held by review rather than by the record** —

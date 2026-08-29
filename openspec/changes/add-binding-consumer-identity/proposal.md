@@ -5,18 +5,21 @@ target_release: THE NEXT ADDITIVE MINOR, DELIBERATELY NOT NUMBERED HERE — allo
 
 # Proposal: add-binding-consumer-identity
 
-Status: draft
-**NOT YET RATIFIED** — the `Status:` header above carries the controlled
-taxonomy value and cannot say so itself, so it is said here. (A first attempt
-put the words in the header and `doc-health`'s `status-validity` family refused
-it as a free-form status; the refusal was right and the fix is this line.)
+Status: ratified
+Ratified: 2026-08-29 by Brett Heap (repository owner) — in-session via
+question prompt, with the Codex-two-heads-back verification gap in view.
+Record: `review/ratification-2026-08-29.md`. Council-reviewed the same day
+(§7.4 sitting: split 2–2 on the word, unanimous 4/4 that the drafted text was
+not ratifiable, fifteen blocking amendments) — his ruling was ACCEPT ALL
+BLOCKING, one fix round, ratification read after; this text is that round.
 Proposed: 2026-08-29, on Brett Heap's in-session lane authorization of the same
 day. Council-reviewed 2026-08-29 (§7.4 sitting, split 2–2 on the word, unanimous
 4/4 that the text as drafted was not ratifiable); **Brett ruled the same day:
 accept all blocking amendments, one fix round, ratification read after.** This
-revision is that round. **RATIFICATION HAS NOT HAPPENED.** Brett's authorization
-covers AUTHORING this proposal and RULING on the council's amendments; it covers
-none of this packet's own content, and the ratification act is still to come.
+revision is that round. **RATIFICATION HAS NOW HAPPENED** — 2026-08-29, after the fix round, recorded at
+`review/ratification-2026-08-29.md`. It authorizes REALIZATION; it does not
+perform it. The change stays ACTIVE until merged code, green evidence and the
+contract cut exist, per `release-realization`.
 
 ## Why
 

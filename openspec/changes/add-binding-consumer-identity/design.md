@@ -1,6 +1,12 @@
 # Design: add-binding-consumer-identity
 
-Status: draft
+Status: ratified
+Ratified: 2026-08-29 by Brett Heap (repository owner) — in-session via
+question prompt, with the Codex-two-heads-back verification gap in view.
+Record: `review/ratification-2026-08-29.md`. Council-reviewed the same day
+(§7.4 sitting: split 2–2 on the word, unanimous 4/4 that the drafted text was
+not ratifiable, fifteen blocking amendments) — his ruling was ACCEPT ALL
+BLOCKING, one fix round, ratification read after; this text is that round.
 
 The proposal states WHAT and WHY. This records what the repository's own
 evidence said when each option was checked against it, including the two places

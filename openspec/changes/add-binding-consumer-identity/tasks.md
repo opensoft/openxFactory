@@ -1,14 +1,20 @@
 # Tasks: add-binding-consumer-identity
 
-Status: draft
-**NOT YET RATIFIED** — stated beside the header rather than in it, because the
-`Status:` value is a controlled taxonomy member.
+Status: ratified
+Ratified: 2026-08-29 by Brett Heap (repository owner) — in-session via
+question prompt, with the Codex-two-heads-back verification gap in view.
+Record: `review/ratification-2026-08-29.md`. Council-reviewed the same day
+(§7.4 sitting: split 2–2 on the word, unanimous 4/4 that the drafted text was
+not ratifiable, fifteen blocking amendments) — his ruling was ACCEPT ALL
+BLOCKING, one fix round, ratification read after; this text is that round.
 
-**NOTHING BELOW RUNS BEFORE RATIFICATION, and ratification is not what landing
-this packet seeks.** This change's own diff is the spec delta and these records.
-The sequence Brett authorized on 2026-08-29 is: author the packet → a
-§7.4-shaped council reads it adversarially, convened OUTSIDE the clearance
-pipeline → Brett rules → only then does anything in §1–§7 begin.
+**RATIFICATION HAS HAPPENED; REALIZATION HAS NOT.** The sequence Brett
+authorized on 2026-08-29 ran in full: author the packet → a §7.4-shaped council
+read it adversarially, convened OUTSIDE the clearance pipeline → Brett ruled
+ACCEPT ALL BLOCKING → one fix round → the ratification read. **§1–§7 are now
+AUTHORIZED and none of them has been performed.** They carry the contract-release
+ritual, and the change stays ACTIVE until merged code, green evidence and the cut
+exist.
 
 **No task here creates, moves, or reads a live secret.** The block this change
 adds holds identifiers; it holds no credential material, and its realization
@@ -37,11 +43,13 @@ found by executing it.
   at four sites) is corrected with D-1's third ground re-derived. Reversals are
   recorded AS reversals: two seats re-aimed their own B12 answers mid-round and
   both are quoted rather than smoothed.
-- [ ] 0.3 Ratification act by Brett Heap, recorded under `review/` in this
-  packet, naming what the citation covers and what it does not. **STILL OPEN —
-  this is the next act.** It SHALL re-read the bundle figure against main at that
-  date, because the compatibility argument is indexed to a bundle and main has
-  moved.
+- [x] 0.3 Ratification act by Brett Heap, recorded under `review/` in this
+  packet, naming what the citation covers and what it does not. **DONE
+  2026-08-29** — `review/ratification-2026-08-29.md`. Ratified WITH the
+  Codex-two-heads-back verification gap in view; he chose to ratify rather than
+  wait for a bot whose usage limit had refused six requests. The record names the
+  bundle drift and requires the figure re-read at realization, since the
+  compatibility argument is indexed to a bundle and main has moved.
 
 ## 1. The schema — one block, DECLARED here and CONSTRAINED at the major
 
