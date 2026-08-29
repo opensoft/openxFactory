@@ -1,0 +1,89 @@
+schema: spec-driven
+created: 2026-08-29
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-29-add-binding-access-identity
+  reason: >-
+    THE NAMED SUCCESSOR OF A RATIFIED CHANGE, WHOSE SCOPE IS QUOTED RATHER THAN
+    COMPOSED. `add-notebook-hosting-credential-custody` was ratified by Brett
+    Heap on 2026-08-23 (`review/ratification-2026-08-23.md`, "Ratifier: Brett
+    Heap (repository owner) — in-session via question prompts"). That
+    ratification did two things this packet stands on. FIRST, it promoted a
+    requirement whose governing sentence is "One identity MAY be shared; one
+    AUTHORITY SHALL NOT" — each system authenticating as a shared operated
+    identity reaches it through its OWN binding, with its own access identity,
+    grant, rotation visibility and audit trail. SECOND, it recorded, as one of
+    THREE ITEMS DELIBERATELY PUT BEFORE THE RATIFIER AT THE READ, that the
+    published record cannot express that requirement, and named the successor
+    that must fix it. Decision item 3, verbatim: "Per-system authority is NOT
+    machine-provable today: the published `xfactory_credential_binding_template`
+    requires only `[provider, secret_ref, owner, rotation_policy]` with optional
+    `vault`, carries no consumer or access-identity field, and
+    `scripts/validate-credential-contracts.py` compares no authorities — so two
+    bindings naming the same vault principal validate cleanly. The invariant is
+    held TODAY by review and by estate wiring. Making it provable means
+    extending `contracts/schemas/`, which carries the full contract-release
+    ritual, and is named as an owed successor (tasks §4.5) rather than folded in
+    here."
+    THE OBLIGATION IS IN PROMOTED SPEC TEXT, NOT ONLY IN A TASK NOTE, which is
+    why it is an origin and not a memory. The ratified requirement ships the
+    scenario "The published binding shape cannot yet express the access
+    identity", whose third bullet reads: "the gap is recorded as owed to a
+    successor that extends the shape, not left implied as enforced"
+    (`specs/credential-contracts/spec.md:60-63`). A successor that never arrives
+    turns that promoted sentence into a false statement about the corpus.
+    THE SECOND HALF OF THE SCOPE COMES FROM THE SAME CHANGE'S TASK 4.1, which
+    DECLINED a conformance fixture and stated the precondition for ever shipping
+    one: a later change "must first decide whether `shared-secret-identity`
+    should distinguish 'two credentials collapsed into one' from 'two consumers
+    of one credential'", with the self-test count in
+    `tests/credential_contracts/` riding along. The capability is therefore in a
+    state where its own mandated shape CANNOT BE WRITTEN DOWN — the requirement
+    stands and every attempt to record a conforming instance is refused by a
+    check that reads one fact. This packet takes that decision.
+    NO STAGING ORIGIN IS CLAIMED BECAUSE NONE EXISTS, verified in BOTH
+    DIRECTIONS at this branch point because the staging queue moves: searched
+    `ideation/staging/` and its `INDEX.md` on 2026-08-29, no topic covers the
+    binding-template shape, the access-identity gap or the
+    `shared-secret-identity` discrimination, and this packet carries no
+    `Staging ID:` header. `kind: staged` would claim a source that cannot
+    resolve.
+    THE QUEUED DESIGNATION IS STALE AND IS FLAGGED RATHER THAN CARRIED. This
+    successor was queued in the session record as a "v1.45 candidate".
+    `contract-v1.45` was CUT on 2026-08-26 by `add-doxchat-model-intake` and is
+    spent; the declared bundle is now `contract-v2.1`
+    (`contracts/manifest.yaml:3`). The number is not re-spent and no replacement
+    number is written into the proposal — it is allocated at realization by
+    merge order per `docs/contract-versioning-policy.md`, because
+    `add-credential-escrow-checkout` is spending an additive minor against the
+    same schema file in parallel.
+  approved_by: >-
+    Brett Heap (repository owner) — by his ratification of
+    `add-notebook-hosting-credential-custody` on 2026-08-23, recorded at
+    `openspec/changes/add-notebook-hosting-credential-custody/review/ratification-2026-08-23.md`.
+    WHAT THAT ACT COVERS, STATED NARROWLY SO IT IS NOT READ FOR MORE THAN IT IS.
+    It covers the EXISTENCE and the SCOPE of this successor and nothing else: he
+    ratified a change with the enforcement gap explicitly before him as one of
+    three flagged items, and the packet he ratified names the successor, states
+    what it must extend, and states that it carries the full contract-release
+    ritual. Authoring the change that discharge names is authorized by that act.
+    IT IS NOT A RATIFICATION OF THIS PACKET'S CONTENT, AND NO SUCH ACT HAS
+    HAPPENED. Every requirement, every field name, the three-fact discrimination,
+    the six orchestrator decisions and the three open questions were taken by the
+    AUTHORING SESSION and are flagged for veto in `proposal.md`. This packet
+    stands at `Status: draft`, carries no ratification citation, and none is owed
+    — the promoted lifecycle rule requires one only for `Status: ratified`.
+    THE RATIFYING ACT IS SEPARATE, SCHEDULED, AND ITS PATH IS PART OF THIS
+    PACKET'S POINT: this change is the designated FIRST SUBJECT of the
+    §7.4-shaped council-reviewed-but-human-approved path, the continuation of
+    the 2026-08-28 gate-rules ruling. Council review PRECEDES ratification and
+    ratifies nothing itself; Brett's approve is the merge act. Recording an
+    authoring authorization as if it were that approval is exactly the
+    conflation this packet is the first test of.
+  approved_on: 2026-08-23
+related:
+  - openxFactory:change:add-notebook-hosting-credential-custody  # RATIFIED; owes this packet by tasks §4.5 and by the promoted gap scenario, and its §4.1 set the discrimination precondition. Its §4.5/§4.1 are ticked as discharged at this packet's archive
+  - openxFactory:change:add-credential-escrow-checkout           # ACTIVE; edits the SAME schema file and holds a live MODIFIED block on `Canonical credential record shapes`, which is why this packet carries ADDED requirements only and records the shape-ownership sentence as owed to whichever archives second
+  - openxFactory:change:add-notebook-projection-identity         # ACTIVE; carried the operated-identity generalization the custody requirements presume
+  - openxFactory:change:promote-credential-contracts             # promoted the five record kinds and the binding-template shape this packet extends
+  - openxFactory:change:add-dispatch-credential-contract         # authored the `shared-secret-identity` refusal this packet discriminates rather than relaxes, and its dispatch/content fixtures are the regression probe

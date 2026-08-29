@@ -391,6 +391,44 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-binding-access-identity](openspec/changes/add-binding-access-identity/proposal.md)
+  — **THE NAMED SUCCESSOR `add-notebook-hosting-credential-custody` OWES**, and
+  the first subject of the §7.4-shaped **council-reviewed but human-approved**
+  path continuing the 2026-08-28 gate-rules ruling: council review PRECEDES
+  ratification, and Brett's approve is the merge act. That change ratified "One
+  identity MAY be shared; one AUTHORITY SHALL NOT" and — as one of three items
+  deliberately put before the ratifier — recorded that **the published record
+  cannot express it**: `xfactory_credential_binding_template` requires only
+  `[provider, secret_ref, owner, rotation_policy]`, names no consumer or access
+  identity, and the validator "compares no authorities, so two bindings naming
+  the same vault principal validate cleanly". The gap ships in PROMOTED spec
+  text, whose scenario says it is "owed to a successor that extends the shape,
+  not left implied as enforced". **The obvious fix regresses the check it
+  refines, and a fixture already in the tree proves it**: let a shared
+  `secret_ref` pass whenever the sharing bindings name different principals, and
+  `negative/dispatch-reuses-content-secret.yaml` — two bindings genuinely served
+  by two different workload identities — becomes CONFORMING, silently retiring
+  the refusal that keeps dispatch and content key material apart. What separates
+  the cases is INTENT, and intent must be declared: two credentials collapsed
+  into one declare no operated identity, because there is no one identity to
+  declare. So TWO additive optional fields (`access_identity`,
+  `operated_identity`) and a **three-fact conjunction** — same operated
+  identity, pairwise-distinct access identities, or refuse. Silence still
+  refuses; every new refusal is reachable only through a field no earlier record
+  could carry. Also takes the decision that change's task 4.1 said a successor
+  must take FIRST — whether `shared-secret-identity` distinguishes "two
+  credentials collapsed into one" from "two consumers of one credential" — which
+  unblocks the conformance fixture it declined, with the self-test count moving
+  in the same commit. **Carries NO `MODIFIED` block deliberately**:
+  `add-credential-escrow-checkout` holds a live one on `Canonical credential
+  record shapes`, and two live deltas on one requirement text is the
+  silent-scenario-loss class of #329/#330 — the shape-ownership sentence is
+  recorded as OWED to whichever of the two archives second, scenario-complete.
+  **The queued `contract-v1.45` designation is STALE and is flagged, not
+  carried**: v1.45 was cut 2026-08-26 by `add-doxchat-model-intake` and the
+  declared bundle is now `contract-v2.1`, so the additive minor is allocated at
+  realization by merge order. 3 ADDED requirements, 12 scenarios; six
+  orchestrator decisions and three open questions flagged for veto.
 - [settle-aging-staging-topics](openspec/changes/settle-aging-staging-topics/proposal.md)
   — authored 2026-08-28 on Brett's four bulk rulings over a read-only triage
   survey of the fourteen staging topics `doc-health`'s
