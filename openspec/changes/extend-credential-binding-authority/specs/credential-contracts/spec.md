@@ -47,6 +47,17 @@ across the major boundary too, and is obligatory only where a record CLAIMS the
 shared-secret exemption — a condition of that claim, stated in the requirement
 that grants it, and not a property of every binding.
 
+AN IDENTITY NAME IS SCOPED BY THE STORE IT NAMES, NEVER GLOBAL. `provider` and
+`vault` are per-binding and unconstrained, so `fetch_identity` is a name IN a
+provider's identity namespace and `secret_ref` a name IN a vault — two bindings
+on different providers or different vaults may carry identical strings meaning
+entirely unrelated things. Every comparison of these names for sameness SHALL
+therefore be made on the QUALIFIED value — the provider and vault together with
+the name — and SHALL NOT treat bare string equality as evidence of a shared
+authority or a shared secret. `requirement_id` needs no such qualification and
+SHALL NOT receive one: a requirement is a sibling record in the same domain's
+own contract tree, not a name in a third party's namespace.
+
 THE MAP KEY IS A BINDING IDENTIFIER AND `requirement_id` IS THE DECLARED
 RELATION, which resolves an ambiguity the shape has carried unstated. Every
 packaged record so far keys `credential_bindings` BY the requirement id, so the
@@ -103,7 +114,7 @@ retiring.
 - **AND** reconciling it to the per-binding declaration is recorded as owed to the change that owns that record, not performed by this one
 
 ### Requirement: One operated identity may be shared, but one fetch identity may not
-Two credential bindings SHALL NOT declare the same `fetch_identity` while naming DIFFERENT consumers; the validator SHALL report `shared-fetch-identity` when they do. This does not restate the obligation that each consuming system reaches a shared operated identity through its own binding — it makes that obligation CHECKABLE, by giving the record the field whose collision is the obligation's exact violation.
+Two credential bindings SHALL NOT declare the same QUALIFIED `fetch_identity` — the same identity name under the same `provider` and the same `vault` — while naming DIFFERENT consumers; the validator SHALL report `shared-fetch-identity` when they do. This does not restate the obligation that each consuming system reaches a shared operated identity through its own binding — it makes that obligation CHECKABLE, by giving the record the field whose collision is the obligation's exact violation.
 
 ONE SYSTEM REACHING TWO CREDENTIALS THROUGH ONE FETCH IDENTITY IS NOT THIS
 FAULT and SHALL NOT be reported as one. A consumer holds one identity against
@@ -118,6 +129,22 @@ finding; the undeclared-authority warning already stands on those bindings and
 is the correct report. Silence on the shared identity is therefore never a
 clearance — it is the warning saying the record does not yet answer.
 
+SAMENESS IS DECIDED ON THE QUALIFIED IDENTITY, NOT ON THE STRING. Two bindings
+naming `runtime_identity` against different providers are two identities that
+happen to share a label, and refusing them would be a false collision invented
+by the checker. Where the qualification CANNOT BE ESTABLISHED — the names match
+but one binding declares a `vault` and the other omits it, so the record does
+not say whether they address one store — the validator SHALL raise
+`authority-scope-indeterminate` as a WARNING and SHALL NOT refuse. That is the
+same posture this requirement already takes for an undeclared consumer: report
+what the record fails to answer, never a verdict it does not support.
+
+WHAT QUALIFICATION DOES NOT BUY, said plainly. A binding that MISDECLARES its
+provider or vault escapes the comparison, and no check here detects that,
+because nothing reads the store. Qualification removes false refusals; it does
+not defend against a false record, which stays exactly what the record-is-an-
+assertion limit above already says it is.
+
 THE COMPARISON IS SCOPED TO ONE TEMPLATE DOCUMENT, and that bound SHALL be
 recorded rather than implied away. Bindings held in separate documents are not
 compared, so an estate that splits two consumers across two files defeats this
@@ -125,8 +152,16 @@ rule without any record saying so. Cross-document comparison needs a scan the
 validator does not perform and is named as owed to a successor.
 
 #### Scenario: Two consuming systems share one fetch identity
-- **WHEN** two bindings name different consumers and declare the same fetch identity
+- **WHEN** two bindings name different consumers and declare the same fetch identity under the same provider and vault
 - **THEN** the validator MUST report `shared-fetch-identity`, because one authority is serving two systems
+
+#### Scenario: The same identity label under different providers
+- **WHEN** two bindings name different consumers and declare the same fetch-identity string, but their providers differ, or their providers match and their vaults differ
+- **THEN** no collision is reported, because the label names a principal in each provider's own namespace and the two are not the same authority
+
+#### Scenario: The record cannot establish the scope
+- **WHEN** two bindings declare the same fetch-identity string under the same provider, and one declares a vault while the other omits it
+- **THEN** the validator raises `authority-scope-indeterminate` as a WARNING and does NOT refuse, because the record does not say whether the two address one store
 
 #### Scenario: Two consuming systems each hold their own
 - **WHEN** two bindings name different consumers and declare different fetch identities
@@ -146,7 +181,7 @@ validator does not perform and is named as owed to a successor.
 - **THEN** the rule does not compare them, and that document scope is a recorded limit of the check rather than a statement that the estate conforms
 
 ### Requirement: A shared secret reference is conforming only where the record shows one requirement and distinct authorities
-A shared `secret_ref` SHALL remain a `shared-secret-identity` refusal EXCEPT where every binding sharing it declares the SAME `requirement_id` AND pairwise-DISTINCT `consumer` AND pairwise-DISTINCT `fetch_identity` values; where any of those three conditions is unmet or undeclared, the refusal stands exactly as it stood before this requirement existed. This is what lets the record carry a deliberately shared operated identity — one account, two systems, two authorities — without weakening the check that keeps two different credentials from collapsing into one.
+A shared QUALIFIED `secret_ref` — the same secret name under the same `provider` and the same `vault` — SHALL remain a `shared-secret-identity` refusal EXCEPT where every binding sharing it declares the SAME `requirement_id` AND pairwise-DISTINCT `consumer` AND pairwise-DISTINCT QUALIFIED `fetch_identity` values; where any of those three conditions is unmet or undeclared, the refusal stands exactly as it stood before this requirement existed. This is what lets the record carry a deliberately shared operated identity — one account, two systems, two authorities — without weakening the check that keeps two different credentials from collapsing into one.
 
 THE EXEMPTION SHALL NOT BE KEYED ON DISTINCT CONSUMERS ALONE, and the reason is
 executable rather than theoretical. The fault this check exists to catch — a
@@ -169,6 +204,17 @@ none of the three fields is adjudicated exactly as before, because every
 condition of the exemption is a positive declaration that such a record does not
 make. The exemption is opened by saying more, never by saying nothing.
 
+THE SECRET COMPARISON IS QUALIFIED ON THE SAME TERMS AS THE IDENTITY COMPARISON,
+and unifying them is deliberate rather than incidental. `secret_ref` is a name in
+a vault exactly as `fetch_identity` is a name in a provider's identity namespace,
+so two bindings carrying `api-key` against two different vaults are two secrets
+and refusing them was always a false collision — a defect this requirement
+inherits rather than introduces. Fixing it in one place and not the other would
+leave the exemption resting on a qualified identity test and an unqualified
+secret test, which is the shape that lets one half of a rule contradict the
+other. Where the qualification cannot be established, the same
+`authority-scope-indeterminate` WARNING applies and the refusal is not raised.
+
 A RECORD THAT FAILS THIS RULE AND THE SHARED-FETCH-IDENTITY RULE TOGETHER SHALL
 HEAR BOTH, and the overlap is deliberate rather than an unnoticed duplication.
 Bindings sharing a secret reference, a requirement and a fetch identity fail the
@@ -190,8 +236,12 @@ anyway.
 - **THEN** they validate, because the record now shows one credential reached by two authorities
 
 #### Scenario: A dispatch credential reuses the content credential's secret
-- **WHEN** a dispatch binding and a content-write binding share one secret reference
+- **WHEN** a dispatch binding and a content-write binding share one secret reference under the same provider and vault
 - **THEN** the validator MUST still report `shared-secret-identity`, because they resolve different credential requirements and the exemption's first condition is unmet
+
+#### Scenario: The same secret label in two different vaults
+- **WHEN** two bindings carry the same secret-reference string but name different vaults, or different providers
+- **THEN** no collision is reported, because they name two secrets that share a label rather than one secret reached twice
 
 #### Scenario: Distinct consumers and identities but different requirements
 - **WHEN** two bindings share a secret reference and declare distinct consumers and distinct fetch identities, but name different requirements or name none

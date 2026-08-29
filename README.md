@@ -407,10 +407,17 @@ Active changes:
   forbids — the same defect, on the same schema, that its own
   `issuance_preconditions` vocabulary was added to retire. Adds THREE ADDITIVE
   OPTIONAL fields (`consumer`, `fetch_identity`, `requirement_id`), one new
-  refusal (`shared-fetch-identity`), and the validator's FIRST WARNING CHANNEL —
-  optional plus warning is the additive class, and `consumer`/`fetch_identity`
-  becoming required is the breaking class, which owes a full minor of warnings
-  first (`contract-v1.34`'s pattern). `requirement_id` is deliberately kept OFF
+  refusal (`shared-fetch-identity`), and the validator's FIRST WARNING CHANNEL.
+  Review added one more: sameness is decided on the QUALIFIED name
+  `(provider, vault, name)` and never on the bare string, because `provider` and
+  `vault` are per-binding and unconstrained — so two consumers labelling their
+  principals `runtime_identity` against unrelated providers are not one
+  authority. That corrects the SAME latent defect in the published
+  `shared-secret-identity`, which groups by bare `secret_ref` today, so it is
+  fixed once for both rather than left to appear twice. On the release class:
+  optional fields plus new validator warnings is the ADDITIVE class, and
+  `consumer`/`fetch_identity` becoming required is the BREAKING class, which
+  owes a full minor of warnings first (`contract-v1.34`'s pattern). `requirement_id` is deliberately kept OFF
   that path: its absence never warns, so no major may require it. **The
   decision it puts to the council** is the question task 4.1 left open: should
   `shared-secret-identity` distinguish two credentials collapsed into one from

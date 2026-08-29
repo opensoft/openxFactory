@@ -225,16 +225,69 @@ hazard the custody packet's design refused for its own text. Three ADDED
 requirements avoid it, and the obligations are genuinely additive: the ability of
 a record to STATE an authority is not a refinement of the shapes requirement.
 
+## Ruling: an identity name is scoped by the store it names
+
+Raised in review as a P2 and accepted: comparing `fetch_identity` by bare string
+equality is unsound. Measured against the schema rather than argued —
+`credential_bindings` entries carry their own `provider` (required) and `vault`
+(optional), and `provider`, `vault`, `secret_ref` and `fetch_identity` are all
+unconstrained strings. So `fetch_identity` is a name IN a provider's identity
+namespace, and two consumers labelling their principals `runtime_identity`
+against unrelated providers would have been refused as sharing one authority.
+A checker that manufactures a collision out of a coincidence of labels is worse
+than no checker, because its refusals stop being evidence.
+
+**THE COMPARISON KEY IS THE QUALIFIED TRIPLE** — `(provider, vault, name)` — for
+the identity and for the secret alike.
+
+**AND THE DEFECT WAS NOT NEW, WHICH IS WHY THE FIX IS UNIFIED RATHER THAN
+LOCAL.** The published `shared-secret-identity` groups bindings by bare
+`secret_ref` today, so two bindings naming `api-key` in two different vaults have
+always been a false refusal waiting to happen. The proposed rule would have been
+that defect's SECOND APPEARANCE, and this repository's own lesson on a defect's
+second appearance is to unify rather than patch the instance. Qualifying one
+comparison and not the other would also leave the shared-secret exemption
+resting on a qualified identity test beside an unqualified secret test — one
+half of a rule able to contradict the other.
+
+Regrouping a published check is a behaviour change and is flagged as decision 8.
+It only ever NARROWS a refusal, and only where the two secrets are genuinely
+distinct. Checked against the fixture that matters rather than assumed:
+`negative/dispatch-reuses-content-secret.yaml` declares
+`provider: azure_key_vault` and `vault: kv-opensoft-xfactory-qa` on both
+bindings, so its qualified keys are equal and it stays red.
+
+**WHERE THE QUALIFICATION CANNOT BE ESTABLISHED, WARN.** `vault` is optional, so
+two bindings may match on bare name and same provider while one declares a vault
+and the other omits it. The record does not say whether they address one store.
+Refusing would invent a verdict; staying silent would let a real collision hide
+behind an omitted optional field. `authority-scope-indeterminate` reports it as
+a warning — the same posture already taken for the undeclared consumer, applied
+to a second place it is owed.
+
+**`requirement_id` is deliberately NOT qualified.** It names a sibling record in
+the domain's own contract tree, not a name in a third party's namespace, so
+provider-scoping it would be a coherence error rather than a safety measure.
+
+**What qualification does not buy:** a binding that MISDECLARES its provider or
+vault escapes the comparison entirely, and nothing here detects that, because
+nothing reads the store. It removes false refusals; it is no defence against a
+false record — which is the assertion-not-proof limit already recorded, reaching
+one step further than first stated.
+
 ## The validator, precisely
 
 Three changes to `scripts/validate-credential-contracts.py`, specified here so
 realization is mechanical.
 
-1. **`shared-fetch-identity` (ERROR).** Within one document, two bindings
-   declaring equal `fetch_identity` and both declaring `consumer`, where the
-   consumers differ. Not raised when either side omits `consumer` — see 3.
-2. **`shared-secret-identity` (ERROR, refined).** Group bindings by
-   `secret_ref`. A group of size > 1 raises unless EVERY member declares
+1. **`shared-fetch-identity` (ERROR).** Within one document, two bindings whose
+   QUALIFIED key `(provider, vault, fetch_identity)` is equal and both declaring
+   `consumer`, where the consumers differ. Never on the bare string. Not raised
+   when either side omits `consumer` — see 3 — nor when the qualification is
+   indeterminate — see 4.
+2. **`shared-secret-identity` (ERROR, refined).** Group bindings by the
+   qualified key `(provider, vault, secret_ref)`, not by the bare `secret_ref`
+   they are grouped by today. A group of size > 1 raises unless EVERY member declares
    `requirement_id`, all equal; and every member declares `consumer` and
    `fetch_identity`, each pairwise distinct across the group. The existing
    message is kept for the unexempted case, because it is the same finding.
@@ -251,6 +304,10 @@ realization is mechanical.
    and the existing packaged positives WILL warn, which is correct and is the
    deprecation working, not a fixture defect.
 
+4. **`authority-scope-indeterminate` (WARNING).** Bare names match under one
+   provider, but one binding declares a `vault` and the other omits it. Warn,
+   naming both bindings and the missing `vault`; never refuse.
+
 **The fail-open is deliberate and bounded.** Rule 1 stays silent when a consumer
 is undeclared because the record genuinely cannot distinguish one consumer from
 two, and inventing a verdict from an absent field is how a check earns
@@ -261,9 +318,11 @@ pre-contract changes — report the absence, never infer the fact.
 
 ## Fixtures and the count string
 
-`examples/credential-contracts/` gains one positive and two negatives; the
-self-test line moves from "3 positive + 5 negative" to "4 positive + 7
-negative", and `tests/credential_contracts/test_dispatch_credential_contract.py`
+`examples/credential-contracts/` gains two positives and three negatives once
+the qualification fixtures are counted; the self-test line moves from
+"3 positive + 5 negative" to whatever the fixtures actually added make it —
+derived once at realization rather than written here, because it was already
+restated twice while this packet was in review — and `tests/credential_contracts/test_dispatch_credential_contract.py`
 asserts that string and lists the fixture filenames, so it moves in the same
 commit. The custody packet's task 4.1 warned about exactly this coupling.
 

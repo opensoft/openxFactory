@@ -1,5 +1,5 @@
 ---
-code_surface: openxFactory — a SCHEMA CHANGE plus its validator, fixtures and tests. `contracts/schemas/xfactory-credential-contracts.schema.yaml` gains THREE ADDITIVE OPTIONAL FIELDS on each entry of `credential_bindings` in the existing `xfactory_credential_binding_template`: `consumer`, `fetch_identity` and `requirement_id`. `scripts/validate-credential-contracts.py` gains one new refusal (`shared-fetch-identity`), one refinement of an existing refusal (`shared-secret-identity` gains a narrowly-conditioned exemption that opens only on positive declarations), and its FIRST WARNING CHANNEL (`binding-authority-undeclared`, warning across the current major line and error at the next major version). `examples/credential-contracts/` gains one positive fixture and two negatives; `tests/credential_contracts/test_dispatch_credential_contract.py` moves with them, including the self-test count string it asserts. NO NEW RECORD KIND. NO REQUIRED FIELD. `contracts/` IS UNTOUCHED BY THIS PROPOSAL — the release ritual is scheduled in tasks.md § 5 for realization, and no bundle is cut by the packet that proposes it.
+code_surface: openxFactory — a SCHEMA CHANGE plus its validator, fixtures and tests. `contracts/schemas/xfactory-credential-contracts.schema.yaml` gains THREE ADDITIVE OPTIONAL FIELDS on each entry of `credential_bindings` in the existing `xfactory_credential_binding_template`: `consumer`, `fetch_identity` and `requirement_id`. `scripts/validate-credential-contracts.py` gains one new refusal (`shared-fetch-identity`), one refinement of an existing refusal (`shared-secret-identity` gains a narrowly-conditioned exemption that opens only on positive declarations, AND is regrouped onto the qualified key `(provider, vault, secret_ref)` rather than the bare `secret_ref` it groups by today — decision 8, the one change this packet makes to a check it did not author), and its FIRST WARNING CHANNEL, carrying two codes (`binding-authority-undeclared`, warning across the current major line and error at the next major version; and `authority-scope-indeterminate`, where an omitted optional `vault` leaves two matching names un-adjudicable). `examples/credential-contracts/` gains one positive fixture and two negatives; `tests/credential_contracts/test_dispatch_credential_contract.py` moves with them, including the self-test count string it asserts. NO NEW RECORD KIND. NO REQUIRED FIELD. `contracts/` IS UNTOUCHED BY THIS PROPOSAL — the release ritual is scheduled in tasks.md § 5 for realization, and no bundle is cut by the packet that proposes it.
 target_release: THE NEXT ADDITIVE MINOR, DELIBERATELY NOT NUMBERED HERE. `docs/contract-versioning-policy.md` states the rule this front-matter obeys: "A proposed change MUST NOT reserve a minor number before merge order is known." Measured on this branch's base rather than recalled: `contracts/manifest.yaml:3` declares `contract-v2.1` and `contracts/CHANGELOG.md:12` heads at `contract-v2.1 — 2026-08-28`, so `contract-v2.1` IS SPENT and any earlier note naming it, or any other specific number, as this work's target is stale. `contract-v2.2` is the EXPECTED allocation and is deliberately NOT RESERVED here, because the active ratified packet `add-credential-escrow-checkout` edits the same schema file and owes the same next minor — a number written here is a number another packet may spend first, which is what the policy sentence above exists to prevent. That packet's front-matter declines to number itself for exactly this reason, and the `contract-v1.28` renumber sweep is the standing precedent for the cost of doing otherwise. The number is allocated at realization by merge order (tasks.md § 5.2). WHY A CUT IS OWED AT ALL, MEASURED RATHER THAN ASSUMED: parsed on 2026-08-29, `contracts/releases/contract-v2.1.digests.yaml` holds 192 entries, exactly five of them under `contracts/schemas/`, and `xfactory-credential-contracts.schema.yaml` IS NOT ONE OF THEM — neither is its validator, nor anything under `examples/`. So the cut is NOT forced by `release-inventory-drift`, which is the usual reason a schema edit owes one. It is owed by the VERSIONING POLICY instead: the schema is a registered bundle contract (`contracts/manifest.yaml`, `id: credential-contracts`), and a registered contract gaining optional fields and validator warnings is that policy's ADDITIVE (MINOR) class verbatim, under which "Domain repos on the same major version remain conformant without changes". `consumer` and `fetch_identity` becoming REQUIRED is the BREAKING (MAJOR) class and is scheduled for the next major, not for this cut; `requirement_id` stays optional across it, because its absence never warns and a major may not break what no minor deprecated.
 ---
 
@@ -87,8 +87,19 @@ The ratified custody text is not edited to match: a ratified delta is not
 rewritten for a successor's convenience, and the requirement states the
 synonymy instead.
 
+**Sameness is decided on the QUALIFIED name, never the bare string.** `provider`
+and `vault` are per-binding and unconstrained, so `fetch_identity` is a name in a
+provider's identity namespace and `secret_ref` a name in a vault. Two consumers
+labelling their principals `runtime_identity` against unrelated providers are not
+one authority, and refusing them would be a collision the checker invented. Every
+comparison uses `(provider, vault, name)`; where a `vault` is declared on one side
+and omitted on the other the record cannot say, and that warns rather than
+refuses. This corrects the same latent defect in the published
+`shared-secret-identity`, which groups by bare `secret_ref` today — the proposed
+rule would have been its second appearance, so it is fixed once for both.
+
 **One new refusal.** `shared-fetch-identity`: two bindings declaring the same
-fetch identity while naming different consumers. That collision IS the
+qualified fetch identity while naming different consumers. That collision IS the
 violation of "one identity may be shared, one authority may not", and it is now
 a finding rather than a review note.
 
@@ -203,6 +214,14 @@ each is flagged for veto. None is covered by the origin citation.
    narrowing reserved for the next major version, and the limit is stated in the requirement
    rather than left for a reader to discover.
 7. **One combined cut or two sequential ones**, with `add-credential-escrow-checkout`.
+8. **Regrouping the PUBLISHED `shared-secret-identity` check** onto the qualified
+   key `(provider, vault, secret_ref)` instead of the bare `secret_ref` it groups
+   by today. This is a behaviour change to a check this packet did not author,
+   and it is the one place this packet reaches beyond its own surface. It only
+   ever narrows a refusal, and only where the two secrets are genuinely distinct;
+   the packaged negative stays red because it declares one provider and one vault
+   across both bindings. Vetoing it leaves the exemption resting on a qualified
+   identity test beside an unqualified secret test — see the honest gaps.
 
 ## Honest gaps, recorded rather than assumed away
 
@@ -215,6 +234,15 @@ each is flagged for veto. None is covered by the origin citation.
   so. That bound was already true of `shared-secret-identity` and is now stated
   instead of implied; cross-document comparison is owed to a successor.
 - **A second spelling validates silently at this minor.** See decision 6.
+- **Qualification is no defence against a false record.** A binding that
+  misdeclares its provider or vault escapes every comparison here, because
+  nothing reads the store. Qualification removes false refusals; it does not
+  make a declared authority true.
+- **`vault` is optional, so the qualification is sometimes indeterminate.** The
+  packet warns rather than guessing in either direction, which means a real
+  collision can sit behind an omitted optional field with only a warning
+  against it. Making `vault` required would close that and is a narrowing this
+  minor may not perform.
 - **The shipped `resolution.fetch_identity` in
   `contracts/avatar-client/broker-server-key-binding.template.yaml` is not
   migrated by this change.** It stays valid — nothing narrows — and

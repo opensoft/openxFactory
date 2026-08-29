@@ -47,20 +47,44 @@ test.
   a missing `requirement_id` — warning on it would put it on the deprecation
   path this packet deliberately keeps it off.
 - [ ] 2.3 `shared-fetch-identity` (ERROR): within one document, two bindings
-  declaring equal `fetch_identity` while both declare `consumer` and the
-  consumers differ. NOT raised when either side omits `consumer`: the record
+  whose QUALIFIED identity key `(provider, vault, fetch_identity)` is equal,
+  while both declare `consumer` and the consumers differ. COMPARE THE TRIPLE,
+  NEVER THE BARE STRING — `provider` and `vault` are per-binding and
+  unconstrained, so `fetch_identity` is a name in one provider's namespace and
+  two bindings labelling a principal `runtime_identity` against different
+  providers are not one authority. NOT raised when either side omits `consumer`: the record
   cannot distinguish one consumer from two, 2.2's warning already stands on
   that binding, and inventing a verdict from an absent field is how a check
   earns distrust.
-- [ ] 2.4 Refine `shared-secret-identity` (ERROR): group bindings by
-  `secret_ref`; a group of size > 1 raises UNLESS every member declares an equal
-  `requirement_id` and pairwise-distinct `consumer` and `fetch_identity`. The
+- [ ] 2.4 Refine `shared-secret-identity` (ERROR): group bindings by the
+  QUALIFIED secret key `(provider, vault, secret_ref)` — not by the bare
+  `secret_ref` it groups by today; a group of size > 1 raises UNLESS every
+  member declares an equal `requirement_id` and pairwise-distinct `consumer`
+  and pairwise-distinct QUALIFIED `fetch_identity`.
+  **THE REGROUPING IS A BEHAVIOUR CHANGE TO A PUBLISHED CHECK and is decision 8,
+  flagged for veto.** It only ever narrows a refusal, and only where the two
+  secrets are genuinely distinct — two bindings naming `api-key` in two vaults
+  are two secrets, and refusing them was a false collision the family has
+  carried since the check was written. Prove on the packaged negative that it
+  does not flip: `dispatch-reuses-content-secret.yaml` declares
+  `provider: azure_key_vault` and `vault: kv-opensoft-xfactory-qa` on BOTH
+  bindings, so its qualified keys are equal and it stays red.
+  `requirement_id` is NOT qualified and must not be: it names a sibling record
+  in the domain's own contract tree, not a name in a third party's namespace. The
   exemption is UNANIMOUS — one unaccounted member in a group of three is a
   refusal. Keep the existing message for the unexempted case; it is the same
   finding.
 - [ ] 2.5 Assert the backward-compatibility property as a test, not as a claim:
   a record declaring none of the three fields is adjudicated exactly as it was
   before this change.
+
+- [ ] 2.6 `authority-scope-indeterminate` (WARNING): two bindings whose bare
+  `fetch_identity` or bare `secret_ref` match under the same `provider`, where
+  one declares a `vault` and the other omits it, so the record does not say
+  whether they address one store. WARN, never refuse — the same
+  don't-invent-a-verdict posture as 2.3's fail-open — and name both bindings and
+  the missing `vault` so the remedy is obvious. Silence here would let a real
+  collision hide behind an omitted optional field.
 
 ## 3. Fixtures and the count string, which move together
 
@@ -87,9 +111,12 @@ test.
   RED. It is the backward-compatibility proof, and a green result there means
   the exemption was written wrong.
 - [ ] 3.6 Update `tests/credential_contracts/test_dispatch_credential_contract.py`
-  IN THE SAME COMMIT: the self-test count string moves "3 positive + 5 negative"
-  → "4 positive + 7 negative", and the fixture-presence test gains the three new
-  filenames. The custody packet's task 4.1 named this coupling in advance.
+  IN THE SAME COMMIT as any fixture change: it asserts the self-test count string
+  LITERALLY ("3 positive + 5 negative" today) and lists the fixture filenames, so
+  both move with the fixtures. The final count is derived once, at 3.11, from
+  what was actually added — 3.1-3.3 alone would make it "4 positive + 7
+  negative", and 3.9-3.10 move it again, so no number is written here. The
+  custody packet's task 4.1 named this coupling in advance.
 - [ ] 3.7 Prove the warning on ALL THREE migration states, not just the empty
   one: a binding declaring NEITHER field, one declaring `consumer` ONLY, and one
   declaring `fetch_identity` ONLY. Each case asserts that a warning is raised,
@@ -110,6 +137,23 @@ test.
   instead — so a test that does not check the warning is not testing the
   reasoning. Applying the lesson where it recurs rather than patching only the
   instance the review named.
+
+- [ ] 3.9 POSITIVE, cross-provider: two bindings naming the SAME
+  `fetch_identity` string under DIFFERENT providers, with different consumers.
+  Must produce NO `shared-fetch-identity`. This is the fixture that proves the
+  comparison is qualified; under the bare-string rule it is a false refusal, so
+  it goes red the moment someone reverts the qualification.
+- [ ] 3.10 NEGATIVE `negative/authority-scope-indeterminate.yaml`: same provider,
+  same bare `fetch_identity`, `vault` declared on one binding only. Registered
+  for the WARNING rather than an error — which means the self-test's negative
+  adjudication must be able to register a warning expectation as well as an
+  error one, or this case has no home. Widen it deliberately rather than
+  dropping the fixture; a refusal class with no probe is the gap 2.1's own
+  comment warns about.
+- [ ] 3.11 Re-derive the self-test count string from the fixtures actually
+  added, and update `tests/credential_contracts/` to match. Do NOT carry
+  3.6's "4 positive + 7 negative" forward as if it were still true — 3.9 and
+  3.10 move it again, and the string is asserted literally.
 
 ## 4. Documentation
 
@@ -211,6 +255,10 @@ test.
 
 ## 8. NOT part of this change
 
+- Constraining `fetch_identity`, `provider` or `vault` to a grammar. The
+  qualification makes comparison sound WITHOUT narrowing what those strings may
+  be; adding a format constraint would invalidate records valid today and is a
+  major-version act.
 - Cross-document authority comparison. Every rule here compares bindings within
   one template document, which was already true of `shared-secret-identity`.
   Estate-wide comparison needs a scan the validator does not perform; owed to a
