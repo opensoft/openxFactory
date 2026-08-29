@@ -14,7 +14,6 @@ unavailable or unsafe dependency raises :class:`ReleaseDependencyError`
 from __future__ import annotations
 
 import hashlib
-import os
 import posixpath
 import re
 import subprocess
@@ -26,6 +25,7 @@ import yaml
 from scripts.hermes_runtime_validation.content import (
     CONTENT_PATH_ABSENT,
     ContentResolutionError,
+    _sanitized_git_environment,
     resolve_git_object,
 )
 
@@ -109,15 +109,6 @@ RELEASE_SURFACE_PATHS = (
     "docs/contract-versioning-policy.md",
 )
 
-_SCRUBBED_GIT_ENVIRONMENT = (
-    "GIT_COMMON_DIR",
-    "GIT_DIR",
-    "GIT_WORK_TREE",
-    "GIT_INDEX_FILE",
-    "GIT_OBJECT_DIRECTORY",
-    "GIT_REPLACE_REF_BASE",
-)
-
 
 class ReleaseDependencyError(RuntimeError):
     """An unavailable or unsafe release dependency (CLI exit code 2)."""
@@ -175,10 +166,6 @@ def _is_release_inventory_path(path: object) -> bool:
 def _run_git(
     repo: Path, *arguments: str, binary: bool = False, allow_failure: bool = False
 ) -> subprocess.CompletedProcess:
-    environment = os.environ.copy()
-    for name in _SCRUBBED_GIT_ENVIRONMENT:
-        environment.pop(name, None)
-    environment["GIT_NO_REPLACE_OBJECTS"] = "1"
     try:
         result = subprocess.run(
             ["git", "--no-replace-objects", "-C", str(repo), *arguments],
@@ -186,7 +173,7 @@ def _run_git(
             text=not binary,
             check=False,
             timeout=30,
-            env=environment,
+            env=_sanitized_git_environment(),
         )
     except (OSError, subprocess.TimeoutExpired) as exc:
         raise ReleaseDependencyError("Git command is unavailable") from exc

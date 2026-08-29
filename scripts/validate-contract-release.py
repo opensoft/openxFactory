@@ -16,7 +16,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 from pathlib import Path
 import subprocess
 import sys
@@ -32,6 +31,7 @@ if str(_ENTRYPOINT_REPO) not in sys.path:
 from scripts.hermes_runtime_validation import release  # noqa: E402
 from scripts.hermes_runtime_validation.content import (  # noqa: E402
     ContentResolutionError,
+    _sanitized_git_environment,
 )
 
 
@@ -63,10 +63,6 @@ def _parser() -> argparse.ArgumentParser:
 
 
 def _git_root(path: Path) -> Path | None:
-    environment = os.environ.copy()
-    for name in release._SCRUBBED_GIT_ENVIRONMENT:
-        environment.pop(name, None)
-    environment["GIT_NO_REPLACE_OBJECTS"] = "1"
     try:
         result = subprocess.run(
             [
@@ -81,7 +77,7 @@ def _git_root(path: Path) -> Path | None:
             text=True,
             check=False,
             timeout=10,
-            env=environment,
+            env=_sanitized_git_environment(),
         )
     except (OSError, subprocess.TimeoutExpired):
         return None

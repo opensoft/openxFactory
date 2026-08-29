@@ -710,6 +710,22 @@ def test_verify_promotion_accepts_a_reviewed_reachable_candidate(
     assert release.verify_promotion(repo, commit=commit, remote="origin", tag=tag) == []
 
 
+def test_verify_promotion_uses_repo_origin_despite_indexed_config_override(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    tag = "contract-v2.0"
+    repo, commit = _repo_with_committed_inventory(tmp_path, "repo", tag)
+    origin = _bare_origin(tmp_path, "origin.git")
+    hostile = _bare_origin(tmp_path, "hostile.git")
+    _git(repo, "remote", "add", "origin", str(origin))
+    _git(repo, "push", "--quiet", "origin", "main")
+    monkeypatch.setenv("GIT_CONFIG_COUNT", "1")
+    monkeypatch.setenv("GIT_CONFIG_KEY_0", f"url.{hostile.as_uri()}.insteadOf")
+    monkeypatch.setenv("GIT_CONFIG_VALUE_0", str(origin))
+
+    assert release.verify_promotion(repo, commit=commit, remote="origin", tag=tag) == []
+
+
 def test_verify_promotion_rejects_an_already_published_tag(tmp_path: Path) -> None:
     tag = "contract-v2.0"
     repo, commit = _repo_with_committed_inventory(tmp_path, "repo", tag)
@@ -767,6 +783,25 @@ def test_verify_tag_accepts_an_annotated_reachable_tag(tmp_path: Path) -> None:
     _git(repo, "push", "--quiet", "origin", "main")
     _git(repo, "tag", "-a", tag, "-m", "release", commit)
     _git(repo, "push", "--quiet", "origin", tag)
+    assert release.verify_tag(repo, remote="origin", tag=tag) == []
+
+
+def test_verify_tag_uses_repo_origin_despite_config_parameters_override(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    tag = "contract-v2.0"
+    repo, commit = _repo_with_committed_inventory(tmp_path, "repo", tag)
+    origin = _bare_origin(tmp_path, "origin.git")
+    hostile = _bare_origin(tmp_path, "hostile.git")
+    _git(repo, "remote", "add", "origin", str(origin))
+    _git(repo, "push", "--quiet", "origin", "main")
+    _git(repo, "tag", "-a", tag, "-m", "release", commit)
+    _git(repo, "push", "--quiet", "origin", tag)
+    monkeypatch.setenv(
+        "GIT_CONFIG_PARAMETERS",
+        f"'url.{hostile.as_uri()}.insteadOf={origin}'",
+    )
+
     assert release.verify_tag(repo, remote="origin", tag=tag) == []
 
 
@@ -837,6 +872,29 @@ def _object_is_absent(repo: Path, object_id: str) -> bool:
         ["git", "cat-file", "-e", f"{object_id}^{{object}}"], cwd=repo
     )
     return probe.returncode != 0
+
+
+def test_remote_object_probe_rejects_an_alternate_only_object(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    repo, _ = _synthetic_repo(tmp_path, "repo")
+    origin = _bare_origin(tmp_path, "origin.git")
+    _git(repo, "remote", "add", "origin", str(origin))
+    _git(repo, "push", "--quiet", "origin", "main")
+    alternate, _ = _synthetic_repo(tmp_path, "alternate")
+    (alternate / "alternate-only.txt").write_text(
+        "alternate object\n", encoding="utf-8"
+    )
+    alternate_commit = _commit_all(alternate, "alternate-only object")
+    assert _object_is_absent(repo, alternate_commit)
+    monkeypatch.setenv(
+        "GIT_ALTERNATE_OBJECT_DIRECTORIES", str(alternate / ".git" / "objects")
+    )
+
+    with pytest.raises(release.ReleaseDependencyError) as excinfo:
+        release._resolve_remote_object(repo, "origin", alternate_commit)
+
+    assert "fetch" in str(excinfo.value)
 
 
 def _advance_remote_main_from_a_peer_clone(
@@ -1347,6 +1405,42 @@ def test_cli_verify_commit_uses_requested_repo_under_hostile_common_dir(
     hostile_common_dir = tmp_path / "hostile-common"
     hostile_common_dir.mkdir()
     monkeypatch.setenv("GIT_COMMON_DIR", str(hostile_common_dir))
+
+    result = _run_cli(
+        "verify-commit",
+        "--commit",
+        commit,
+        "--json",
+        repo=repo,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert json.loads(result.stdout)["findings"] == []
+
+
+@pytest.mark.parametrize(
+    "inherited_config",
+    [
+        {"GIT_CONFIG_PARAMETERS": "'core.bare=true'"},
+        {
+            "GIT_CONFIG_COUNT": "1",
+            "GIT_CONFIG_KEY_0": "core.bare",
+            "GIT_CONFIG_VALUE_0": "true",
+        },
+    ],
+    ids=["parameters", "indexed"],
+)
+def test_cli_root_discovery_ignores_inherited_command_scope_config(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    inherited_config: dict[str, str],
+) -> None:
+    tag = "contract-v2.0"
+    primary, commit = _repo_with_committed_inventory(tmp_path, "primary", tag)
+    repo = tmp_path / "requested"
+    _git(primary, "worktree", "add", "--quiet", "-b", "requested", str(repo), commit)
+    for name, value in inherited_config.items():
+        monkeypatch.setenv(name, value)
 
     result = _run_cli(
         "verify-commit",
