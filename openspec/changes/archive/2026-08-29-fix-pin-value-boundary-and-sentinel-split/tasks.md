@@ -399,17 +399,82 @@ validator are green on the branch and § 5.3's parse re-affirms no bundle is
 owed (§ 4.1, § 4.5, § 4.6) — both owe a re-run on the merged tree, which is
 what these boxes are for.
 
-- [ ] 5.1 Merged to `origin/main` with both required checks green, the merge
+**THE ARCHIVING SESSION TOOK THEM ON 2026-08-29**, and the paragraph above is
+kept as authored rather than rewritten, because it is the record of WHY the
+realization left them blank. Every measurement below was taken in a fresh
+worktree at `origin/main` = `82a28086`, which carries the merge these boxes
+name; none is carried forward from the realization's own numbers, and where a
+number MOVED since that run the move is stated with its cause rather than
+smoothed to match.
+
+- [x] 5.1 Merged to `origin/main` with both required checks green, the merge
       commit re-verified an ancestor of `origin/main` and a real two-parent
       merge read out of `git cat-file -p` rather than off the pull request page.
-- [ ] 5.2 On the merged tree: `pytest tests/doc-health` green under
+      **DONE — READ OUT OF GIT RATHER THAN OFF A PAGE.** Pull request #478
+      merged 2026-08-28T11:33:42Z as merge commit `8690ec29`, an ancestor of
+      `origin/main` by `git merge-base --is-ancestor` (exit 0) and a real
+      two-parent merge (`31344941` + `0529fb4a`) by `git cat-file -p`. Green on
+      the FINAL head `0529fb4a`, all four checks from the check-runs API:
+      `pytest-suite` **selected 7650, passed 7629, skipped 21, 0 failures, 0
+      errors** (run 33165708443, counts read out of the job log rather than off
+      the conclusion field), plus `wallet-validation`, `merge-master-approval`
+      and `copilot-pull-request-reviewer`, every one `success`.
+- [x] 5.2 On the merged tree: `pytest tests/doc-health` green under
       `set -o pipefail`, `openspec validate --all --strict` green, and the
       declared pin class reporting `clean` with § 2.5's numbers re-measured.
-- [ ] 5.3 No contract tag is owed (§ 4.6). This is what lets the packet archive
+      **DONE — AND ONE NUMBER MOVED, FOR A CAUSE THAT IS NAMED RATHER THAN
+      ROUNDED AWAY.** `set -o pipefail; python3 -m pytest tests/doc-health -q`
+      on the untouched tree at `82a28086`: **1333 passed, 0 failed**, exit code
+      read from `$?` rather than inferred from a tail, 178.34s.
+      `OPENSPEC_TELEMETRY=0 openspec validate --all --strict`: **79 passed, 0
+      failed** across 79 items. `python3 scripts/doc_health/pin_class.py --repo .
+      --rev HEAD --remote origin` exits **0**, which is `clean` true, and reports
+      **67 declared pin sites across 23 class members — 51 reachable, 0 orphaned,
+      1 lost (declared unrecoverable, 0 awaiting a superseding record), 0
+      inconclusive; 0 uncovered, 0 vanished, 0 arrived; 7 legal non-pins, 0
+      undeclared non-commit values, 3 recognized legacy absences, 0 unused
+      vocabulary members**. Against § 2.5's **66 sites / 50 reachable**, TWO
+      counts moved and thirteen did not, and the move is not this packet's:
+      `openspec/changes/add-worker-enrollment-broker/supporting-docs/manifest.yaml:21`
+      is a NEW pin site, added by `21bc40ac` in pull request #489 on 2026-08-28,
+      pinning `93f883f4` and reachable as an ancestor of `origin/main`. Proven
+      rather than asserted — `git ls-tree 8690ec29 <path>` is empty and
+      `git ls-tree HEAD <path>` is not, and `git log --diff-filter=A` names
+      `21bc40ac`. Every full promotion writes a supporting-docs manifest and a
+      manifest is a pin site, so the census reads 67 for a reason canon already
+      states. The corpus sweep behind § 2.5's zero was re-run at this act as
+      well: **1124 scan-suffix files in the scan roots** (1119 at realization —
+      `main` added five), **184 read after non-member exclusion** (182), and
+      **0 values of 41 or more hexadecimal characters under any vocabulary
+      key**. That last zero is the one that must not move, and it did not.
+- [x] 5.3 No contract tag is owed (§ 4.6). This is what lets the packet archive
       without waiting on its sibling, and it is the whole argument of OD-1 — so
       it is re-affirmed at the archive rather than carried from the filing.
-- [ ] 5.4 Every § 6 follow-up carries a disposition rather than a blank box, and
+      **RE-AFFIRMED AT THE ARCHIVE BY PARSE, AGAINST THE BUNDLE AS IT STANDS
+      TODAY RATHER THAN AS IT STOOD AT FILING.** The declared bundle has MOVED
+      since this packet was written — `contracts/manifest.yaml:3` now reads
+      `contract-v2.1`, cut by the sibling packet's own realization — so the
+      re-affirmation is worth more than a carry-forward would have been.
+      `contracts/releases/contract-v2.1.digests.yaml` was LOADED and its **192**
+      entries walked into their member paths: not one path under
+      `scripts/doc_health/`, `scripts/ideation_dashboard/` or `experiments/`
+      appears in it, exactly as at filing. No schema moves, no digest set
+      changes, no release tag is owed by THIS packet, and doc-health's
+      `release-inventory-drift` family reports **no findings** on this tree.
+      OD-1's argument therefore holds at the archive: this packet archives on a
+      green suite alone, and the sibling's tag is the sibling's.
+- [x] 5.4 Every § 6 follow-up carries a disposition rather than a blank box, and
       every OD and Q carries a ruling or an explicit carry-forward.
+      **DONE, AND THE BOXES THAT STAY OPEN STAY OPEN ON PURPOSE.** All five § 6
+      items carried a realization disposition already; each now carries a second
+      line taken AT THE ARCHIVE, re-measured rather than restated. None is
+      ticked, because ticking a follow-up the archive did not perform is the
+      same falsification § 5's own preamble refuses. On the other half: all five
+      § Orchestrator decisions were CLEARED AS AUTHORED and all four § Open
+      Questions RULED on 2026-08-28 — recorded in `proposal.md`, which is why
+      this packet needed no header move at the archive: it already reads
+      `Status: ratified` with a citation clearing the record spelling's
+      three-way floor.
 
 ## 6. Open — deliberately not closed by this change
 
@@ -434,6 +499,15 @@ what these boxes are for.
       literal string `HEAD` on an unborn repository today. That is no longer
       a conjecture about what they might do; it is measured, and the item is
       more urgent than when it was inherited.
+      **AT THE ARCHIVE 2026-08-29: CARRIED, NOT DISCHARGED, AND STILL
+      THREE.** Re-read on the merged tree at `82a28086`: `_head_sha()`
+      (`ideation_dashboard/nightly_lane.py`), `git_head_revision()`
+      (`dashboard_refresh_lane.py`) and `RealGit.head_sha()`
+      (`doc_health/corpus.py`) are byte-unchanged by the merge and by this
+      archive. The archive act performs none of them and must not be read as
+      closing them; the owner is whoever next opens the widest-fanout pin
+      source, and the archived record is where they will find the
+      unborn-`HEAD` measurement that makes the item urgent.
 - [ ] 6.2 **WHETHER A COMPOSED PROJECTION SHOULD CARRY A PIN KEY AT ALL.**
       Inherited § 5.3. A schema question about the snapshot index, adjacent to
       this packet's `snapshot_registry.py` edit and deliberately not answered by
@@ -445,6 +519,13 @@ what these boxes are for.
       composed projection should carry a pin key at all. If the answer
       turns out to be that it should not, the line this packet touched is
       deleted rather than re-argued, and nothing here makes that harder.
+      **AT THE ARCHIVE 2026-08-29: CARRIED AS A SCHEMA QUESTION,
+      UNPREJUDGED AND NOW HARDER TO LOSE.** The promotion this act performs
+      adds no requirement about whether a composed projection should carry a
+      pin key, so the question is exactly as open in canon as it was in the
+      delta. The one thing that changed is where a reader finds it: it is an
+      archived record now rather than an active packet, which is why it is
+      re-stated here instead of being allowed to lapse with the folder.
 - [ ] 6.3 **THE PREFLIGHT HALF OF THE ENFORCEMENT HOME STAYS UNWIRED.**
       Inherited § 5.4. The classification rides inside a verification that is
       pytest-plus-entry-point rather than nightly-gated.
@@ -455,6 +536,15 @@ what these boxes are for.
       so a corpus that acquires an over-long value between runs is caught at
       the next pull request rather than the next night. No deterministic
       check family was added, per the delta's own statement.
+      **AT THE ARCHIVE 2026-08-29: CARRIED, AND THE PROMOTION DOES NOT MOVE
+      IT.** The requirement reaching canon by this act says in its own last
+      paragraph that it adds no deterministic check family, and the family
+      enumeration and its numerals are untouched by the archive — measured
+      rather than assumed: doc-health's `family-enumeration` reports no
+      findings on this tree. So the enforcement home is unchanged by
+      promotion: `pytest tests/doc-health` plus the class's own entry point,
+      on every pull request and not nightly. Still the weakest point, still
+      open, still owed its own packet.
 - [ ] 6.4 **WHETHER A GENERATOR MUST IMPORT A DECLARED SPELLING RATHER THAN
       RETYPE IT.** Q3 recommends doing it here and legislating nothing, on the
       ground that one instance is not evidence for a rule. If a second generator
@@ -473,6 +563,12 @@ what these boxes are for.
       under which legislating it costs nothing — but Q3 ruled to legislate
       nothing here and this session did not. The next reader deciding
       otherwise now has the count.
+      **AT THE ARCHIVE 2026-08-29: CARRIED, AND THE COUNT IS RE-READ RATHER
+      THAN REPEATED.** Four generators import the declared spelling and none
+      retypes it, unchanged on the merged tree. No rule was legislated here
+      and none is legislated by the archive — Q3 ruled to leave it, and
+      promoting the boundary requirement asserts nothing about import
+      discipline. The item stays where the evidence would land.
 - [ ] 6.5 **CROSS-REPOSITORY PINS STAY OUT**, on the boundary both sibling
       packets drew. Whether a boundary defect or a sentinel is even meaningful
       for a gitlink, a `pinned_contract_manifest` entry, a release digest or an
@@ -492,3 +588,13 @@ what these boxes are for.
       stood. Measured consequence: `contract-v2.0`'s 192 entries and the
       other 39 bundles' 7204 remain outside the sweep entirely (§ 4.6), and
       the class still reports 66 sites across 23 members (§ 2.5).
+      **AT THE ARCHIVE 2026-08-29: STILL OUT, AND THE ONE NUMBER IN THIS
+      ITEM IS CORRECTED RATHER THAN LEFT TO AGE.** The class reports **67**
+      sites across 23 members at `82a28086`, not 66 — the sixty-seventh is the
+      supporting-docs manifest pull request #489 landed, not a digest that
+      crossed the boundary (§ 5.2 proves which). The boundary itself held: the
+      declared class, its key vocabulary and its non-member exclusions are
+      byte-unchanged by both the realization and this archive, and the
+      cross-repository values stay outside the sweep. A release digest is
+      still sixty-four hexadecimal characters and still somebody else's
+      question.

@@ -506,77 +506,6 @@ Active changes:
   Ruling C's home, grandfathered exception and escalation tests STAY with the
   successor; only the schema half moved.
 
-- [fix-pin-value-boundary-and-sentinel-split](openspec/changes/fix-pin-value-boundary-and-sentinel-split/proposal.md)
-  — **ALL FIVE ORCHESTRATOR DECISIONS CLEARED AND ALL FOUR QUESTIONS RULED
-  2026-08-28**, by a four-question multi-choice put to Brett over PR #463; he
-  took the packet's recommendation on every one, the two-packet split and its
-  re-sequencing were accepted, merge on green was approved, and **the clearance
-  moved no delta text** (the spec file is byte-unchanged). Realization is
-  pre-commissioned to dispatch FIRST of the pair. Authored 2026-08-28 on
-  Brett's in-session selection ("lets do all 3 in order") of a three-defect set
-  the orchestrating session had recommended as "the measured-latents bundle".
-  **Two of the three**; the third is
-  `fix-content-resolution-conflation`, filed separately because its surface is a
-  contract bundle member and these are not (OD-1, argued in `design.md` § 1 with
-  the one-packet alternative rejected on measured grounds). Both defects were
-  recorded as named follow-ups by the archived `declare-sentinel-pin-vocabulary`
-  and both re-measured larger on the day of filing. **(1) FOUR expressions in
-  `scripts/doc_health/pin_class.py` build a pin site from `([0-9a-f]{40})` with
-  a leading key boundary and no trailing hexadecimal one** — `_field_re`
-  (`:204`), `_VOCAB_RE` (`:980`), and the two PROSE class members' own patterns
-  at `:347` and `:406`, which the inherited record (§ 5.5) did not name. A
-  sixty-four-character value under a swept key therefore yields a FABRICATED
-  forty-character "pin": constructed and run here, all four return the same
-  truncated prefix, `FULL_SHA_RE` then accepts it as a whole object name, and
-  `LOOSE_SHA_RE` ten lines above — which carries the guard and a comment saying
-  why — returns nothing on the same line. Latent, measured: **1116 swept files,
-  0 over-long hex values under any vocabulary key**. **(2) `"unknown"` is
-  emitted by FIVE sites spanning THREE conditions**, one more site than § 5.6
-  names: `cli.py:49` fires on two conditions by itself because its
-  `subprocess.run` has no `check` and its return code is never read, so no split
-  is correct without a branch that does not exist yet; and
-  `snapshot_registry.py:283` measures as ALREADY CORRECT, which corrects the
-  inherited record rather than agreeing with it. ADDS one requirement to
-  `doc-health` (38 → 39, all ADDED); the sentinel split ships as realization
-  under canon promoted 2026-08-28 that already obliges it, with no requirement
-  of its own (OD-3, against the `supersede-lost-pin-baseline` OD-3 measurement
-  re-taken here: **112 of 112 archived changes carry a spec delta**, and this
-  packet carries one). **NO contract bundle is owed**, established by parse:
-  `contract-v2.0`'s 192 entries walked, zero members under
-  `scripts/doc_health/`, `scripts/ideation_dashboard/` or `experiments/`.
-- [fix-content-resolution-conflation](openspec/changes/fix-content-resolution-conflation/proposal.md)
-  — **ALL SIX ORCHESTRATOR DECISIONS CLEARED AND ALL FOUR QUESTIONS RULED
-  2026-08-28** by the same act, every one on the packet's own recommendation,
-  with **no delta text moved**; realization is pre-commissioned to dispatch
-  SECOND, its candidate inventory built in the realization pull request and
-  `verify-promotion` plus the tag left post-merge on the `contract-v1.44`
-  precedent, the next minor allocated at merge order from the current
-  `contract-v2.0`. Authored 2026-08-28 on the same act, the **third defect** of
-  that set, filed separately because of what follows. `_blob_object_id`
-  (`scripts/hermes_runtime_validation/release.py:312-316`) converts every
-  `ContentResolutionError` into `None`; `resolve_git_object` reaches **15 raise
-  sites, 14 distinct messages, and exactly ONE** — `content.py:125`, the tree
-  was read and the path was not in it — for which `None` is the right answer.
-  Run here: six conditions, one value. Its only caller `_surface_drift`
-  compares two of those answers, so one failure manufactures a false
-  `HGR-RELEASE-SURFACE-DRIFT` and **two failures compare EQUAL and report the
-  surface clean, having read neither blob** — the quiet direction, which emits
-  nothing. Recorded as § 6.3 of the archived `fix-release-reachability-race`,
-  whose wording this filing quotes rather than paraphrases; the caller
-  consequence and the identical `_CommitSource.exists` conflation at `:401-405`
-  (whose `False` decides whether `contracts/manifest.yaml` is present at the
-  commit) are measured here and not inherited. ADDS two requirements to
-  `shared-contract-ownership` (10 → 12, all ADDED): the distinction, and
-  executable proofs pinning it — the second copying the sibling family, which
-  exists because that defect was invisible to the suite, as this one is today.
-  **A CONTRACT BUNDLE IS OWED and the packet says so up front**, established by
-  parse rather than `grep`: `release.py` is a NON-EDITORIAL member of
-  `contract-v2.0`'s inventory (`type: validator`, `digest: sha256:660e55ca…`,
-  which is exactly what the tree carries), `content.py` likewise, and the
-  editorial set is three files with neither in it. The minor is allocated AT
-  REALIZATION and none is reserved, on the `contract-v1.28` renumber precedent;
-  the cut follows `contract-v1.44`, which cut this same file for this same cause
-  two days before this filing.
 - [adopt-medxsoft-repository-identity](openspec/changes/adopt-medxsoft-repository-identity/proposal.md)
   — authored 2026-08-27 for the 2026-08-26 transfer of `opensoft/MedxFactory`
   and `opensoft/MedxEHR` to the `MedxSoft` organization, whose operational half
@@ -1347,6 +1276,96 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
+- [fix-content-resolution-conflation](openspec/changes/archive/2026-08-29-fix-content-resolution-conflation/proposal.md)
+  — **ARCHIVED on merged-plus-green PLUS THE CUT**, which is the gate its own
+  `target_release` field named at filing and the reason it was split from its
+  sibling. Pull request #490 merged 2026-08-29T02:26:14Z as merge commit
+  `571e64d5540cbe6240cfb068ef137778e53611f8`, re-verified at this act an
+  ancestor of `origin/main` (`git merge-base --is-ancestor`, exit 0) and a real
+  two-parent merge (`3cebf83e` + `b57874f3`) read out of `git cat-file -p`
+  rather than off the pull request page; the sibling's merge `8690ec29` is an
+  ancestor of it, so the order Brett directed is legible in the graph. Green on
+  the final head `b57874f3`, all four checks from the check-runs API:
+  `pytest-suite` **selected 7704, passed 7683, skipped 21, 0 failures, 0
+  errors** (run 33228174754, counts read out of the job log), plus
+  `wallet-validation`, `merge-master-approval` and
+  `copilot-pull-request-reviewer`. **THE CUT IS `contract-v2.1` AND ALL FOUR
+  SURFACES AGREE**, re-read at the archive rather than quoted from the
+  realization: `contracts/manifest.yaml:3` reads `contract-v2.1`, the changelog
+  opens with the `contract-v2.1 — 2026-08-28 (additive)` section, the digest
+  inventory `contracts/releases/contract-v2.1.digests.yaml` carries **192**
+  entries — the same count as `contract-v2.0`, the additive class showing in
+  the membership rather than being asserted — and both moved members carry new
+  digests equal to the tree's own `sha256sum`: `release.py` `660e55ca…` →
+  `bb845d70…`, `content.py` `bad04c65…` → `509ad91b…`. The tag is ANNOTATED and
+  on the merge (`tag e2a1fcc4` over commit `571e64d5`), `verify-tag --remote
+  origin --tag contract-v2.1` re-run here reports `pass`, **exit 0**, and
+  doc-health's `release-inventory-drift` family reports **no findings**. The one
+  command that no longer passes is reported rather than omitted:
+  `verify-promotion` now exits 1 with `HGR-RELEASE-TAG-EXISTS`, which is the
+  PRE-tag gate refusing a tag that exists — it passed in the window before the
+  tag was cut, and `verify-tag` is the post-tag proof. **PROMOTION PROVED BY
+  DIGEST, PER REQUIREMENT**: `shared-contract-ownership` goes **10 → 12
+  requirements**, **39 → 46 scenarios**, 373 → 506 lines, `git diff --stat`
+  **+133 / −0**. Every `### Requirement:` block was hashed either side of the
+  act and the two sets compared: **0 removed, 2 added, 0 changed bytes, 10 of
+  10 pre-existing byte-identical**. The two promoted blocks are the delta's own
+  bodies byte-for-byte — `sha256:3f20ecb4…` (5782 bytes, 4 scenarios, the
+  distinction) and `sha256:7c7f4d3f…` (3278 bytes, 3 scenarios, the executable
+  proofs) — the same digests computed from `specs/shared-contract-ownership/
+  spec.md` in the archived folder, so zero deletions is a measured fact about
+  all ten untouched requirements rather than an inference from a diff stat.
+  `.openspec.yaml` MOVED with the packet under openspec 1.2.0, checked by blob
+  id rather than by presence: `aa517729`, unchanged. No header move was owed —
+  the packet already read `Status: ratified` with a citation clearing the record
+  spelling's three-way floor, all six orchestrator decisions cleared and all
+  four questions ruled 2026-08-28. All four § 7 follow-ups stay OPEN with an
+  archive-time disposition each, none ticked, because the archive performed
+  none of them.
+- [fix-pin-value-boundary-and-sentinel-split](openspec/changes/archive/2026-08-29-fix-pin-value-boundary-and-sentinel-split/proposal.md)
+  — **ARCHIVED on merged-plus-green ALONE**, and that it could is the whole
+  argument of OD-1: this packet touches no contract inventory member, so it
+  never had to wait on its sibling's human-gated tag. Pull request #478 merged
+  2026-08-28T11:33:42Z as merge commit
+  `8690ec297e9bbe276e77cc61262b71913f443087`, re-verified at this act an
+  ancestor of `origin/main` (exit 0) and a real two-parent merge (`31344941` +
+  `0529fb4a`) read out of `git cat-file -p`. Green on the final head
+  `0529fb4a`: `pytest-suite` **selected 7650, passed 7629, skipped 21, 0
+  failures, 0 errors** (run 33165708443, counts read out of the job log), plus
+  `wallet-validation`, `merge-master-approval` and
+  `copilot-pull-request-reviewer`. **THE PIN CLASS REPORTS `clean` AND ONE
+  NUMBER MOVED, FOR A CAUSE THAT IS NAMED RATHER THAN ROUNDED AWAY**:
+  `scripts/doc_health/pin_class.py` exits 0 and reads **67 declared pin sites
+  across 23 class members — 51 reachable, 0 orphaned, 1 lost (declared
+  unrecoverable, 0 awaiting a superseding record), 0 inconclusive; 0 uncovered,
+  0 vanished, 0 arrived; 7 legal non-pins, 0 undeclared non-commit values, 3
+  recognized legacy absences, 0 unused vocabulary members**. Against the
+  realization's **66 sites / 50 reachable**, two counts moved and thirteen did
+  not, and the move is not this packet's: the sixty-seventh site is
+  `openspec/changes/add-worker-enrollment-broker/supporting-docs/manifest.yaml:21`,
+  added by `21bc40ac` in pull request #489, pinning `93f883f4` and reachable —
+  proven by `git ls-tree` at both commits and `git log --diff-filter=A`, not
+  asserted. Every full promotion writes a supporting-docs manifest and a
+  manifest is a pin site. The corpus sweep behind the packet's zero was re-run
+  too: **1124 scan-suffix files, 184 read after non-member exclusion, and 0
+  values of 41 or more hexadecimal characters under any vocabulary key** — the
+  one number that must not move, and it did not. **NO CONTRACT TAG OWED,
+  re-affirmed at the archive by PARSE against the bundle as it stands today**
+  rather than as it stood at filing, which matters because the bundle MOVED to
+  `contract-v2.1` under this packet's own sibling: the inventory's 192 entries
+  were walked and not one path under `scripts/doc_health/`,
+  `scripts/ideation_dashboard/` or `experiments/` appears in it.
+  **PROMOTION PROVED BY DIGEST**: `doc-health` goes **39 → 40 requirements**,
+  **181 → 185 scenarios**, 2127 → 2208 lines, `git diff --stat` **+81 / −0**,
+  with **0 requirements removed, 1 added, 0 changed bytes and 39 of 39
+  pre-existing byte-identical** under a per-block sha256 set comparison taken
+  either side of the act. The promoted block is the delta's own 5953-byte /
+  4-scenario body under `sha256:5d364da4…`, byte-for-byte. `.openspec.yaml`
+  MOVED with the packet, checked by blob id: `cef67a9b`, unchanged. No header
+  move was owed — `Status: ratified` with a citation was already in place, all
+  five orchestrator decisions cleared and all four questions ruled 2026-08-28.
+  All five § 6 follow-ups stay OPEN with an archive-time disposition each, and
+  § 6.5's stale "66 sites" is corrected to 67 in place rather than left to age.
 - [declare-generated-projection-status](openspec/changes/archive/2026-08-29-declare-generated-projection-status/proposal.md)
   — **ARCHIVED on merged-plus-green**, where merged and green are ONE event: the
   realization RODE IN the proposing pull request, so the argument for the value

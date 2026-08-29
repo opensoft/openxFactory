@@ -509,18 +509,89 @@ before this filing, and the one recorded in the release finishing recipe.
       verifier and reports `pass`, exit 0.
 ## 6. Archive gate
 
-- [ ] 6.1 Merged to `origin/main` with both required checks green, the merge
+**TAKEN BY THE ARCHIVING SESSION ON 2026-08-29**, in a fresh worktree at
+`origin/main` = `82a28086`, which carries both the merge and the tag these
+boxes name. Nothing below is carried forward from the realization's own
+numbers: every measurement was re-run here, and the one command that no longer
+returns what it returned at the cut is reported with the reason rather than
+quietly replaced by one that passes.
+
+- [x] 6.1 Merged to `origin/main` with both required checks green, the merge
       commit re-verified an ancestor of `origin/main` and a real two-parent
       merge read out of `git cat-file -p` rather than off the pull request page.
-- [ ] 6.2 The cut complete: manifest, changelog, digest inventory and a verified
+      **DONE — READ OUT OF GIT RATHER THAN OFF A PAGE.** Pull request #490
+      merged 2026-08-29T02:26:14Z as merge commit `571e64d5`, an ancestor of
+      `origin/main` by `git merge-base --is-ancestor` (exit 0) and a real
+      two-parent merge (`3cebf83e` + `b57874f3`) by `git cat-file -p`. Green on
+      the FINAL head `b57874f3`, all four checks from the check-runs API:
+      `pytest-suite` **selected 7704, passed 7683, skipped 21, 0 failures, 0
+      errors** (run 33228174754, counts read out of the job log rather than off
+      the conclusion field), plus `wallet-validation`,
+      `merge-master-approval` and `copilot-pull-request-reviewer`, every one
+      `success`. The order Brett directed is legible in the graph rather than
+      only in prose: the sibling's merge `8690ec29` is an ancestor of this one.
+- [x] 6.2 The cut complete: manifest, changelog, digest inventory and a verified
       annotated tag all agreeing on the new bundle, `verify-tag --remote origin
       --tag contract-v<next>` exit 0, and the aggregation submodule pointer
       synced.
-- [ ] 6.3 On the merged tree: both suites green under `set -o pipefail`,
+      **DONE — `contract-v2.1`, ALL FOUR SURFACES AGREEING, RE-READ AT THIS
+      ACT.** `contracts/manifest.yaml:3` reads `contract_bundle_version:
+      contract-v2.1`. `contracts/CHANGELOG.md` opens with the
+      `## contract-v2.1 — 2026-08-28 (additive; …)` section declaring the
+      additive class and stating that no schema bytes and no finding code move.
+      `contracts/releases/contract-v2.1.digests.yaml` loaded and its **192**
+      entries walked — the same count as `contract-v2.0`, which is the additive
+      class showing in the membership rather than being asserted — and both
+      moved members carry their NEW digests, verified against the tree by
+      `sha256sum`: `scripts/hermes_runtime_validation/release.py`
+      `sha256:660e55ca…` → `sha256:bb845d70…` and
+      `scripts/hermes_runtime_validation/content.py` `sha256:bad04c65…` →
+      `sha256:509ad91b…`, each equal to the working file's hash. THE TAG IS
+      ANNOTATED AND ON THE MERGE: `git cat-file -p contract-v2.1` is a `tag`
+      object `e2a1fcc4` over commit `571e64d5` with a tagger and a message.
+      `python3 scripts/validate-contract-release.py --repo . verify-tag --remote
+      origin --tag contract-v2.1` → `release verify-tag: pass`, **exit 0**,
+      re-run here rather than quoted. **THE ONE COMMAND THAT NO LONGER PASSES,
+      REPORTED RATHER THAN OMITTED:** `verify-promotion --commit 571e64d5
+      --remote origin --tag contract-v2.1` now exits **1** with
+      `HGR-RELEASE-TAG-EXISTS error path=refs/tags/contract-v2.1`. That is the
+      verifier working, not a defect: `verify-promotion` is the PRE-tag gate and
+      its whole job is to refuse a tag that already exists, so it can only pass
+      before the tag is cut. It DID pass before the tag was cut — the
+      orchestrating session ran it in that window and tagged on its result — and
+      `verify-tag` is the post-tag proof, which is the one this box can honestly
+      re-run. **THE AGGREGATION POINTER IS SYNCED**, read off `origin/main` of
+      the aggregation repository rather than off a working tree: its `openxFactory`
+      gitlink is `82a28086`, a descendant of `571e64d5`, so the bundle this cut
+      published is the one the aggregation pins.
+- [x] 6.3 On the merged tree: both suites green under `set -o pipefail`,
       `openspec validate --all --strict` green, and the release-inventory-drift
       family reporting no `error` for either moved member.
-- [ ] 6.4 Every § 7 follow-up carries a disposition rather than a blank box, and
+      **DONE, WITH EXIT CODES READ FROM `$?` RATHER THAN INFERRED FROM A TAIL.**
+      `set -o pipefail; python3 -m pytest tests/doc-health -q` on the untouched
+      tree at `82a28086`: **1333 passed, 0 failed**, exit 0, 178.34s.
+      `python3 -m pytest tests/hermes_runtime_contracts -q -m "not postgres"`:
+      see the pull request body for the paired counts taken either side of the
+      two archives. `OPENSPEC_TELEMETRY=0 openspec validate --all --strict`:
+      **79 passed, 0 failed** before this archive act, 78 after the sibling's and
+      77 after this one, the active set having lost two members. AND THE FAMILY
+      THIS PACKET'S CUT EXISTS TO SATISFY: `python3 scripts/doc-health.py
+      --single-repo .` reports `release-inventory-drift` — **No findings**, not
+      merely no `error`, so neither moved member is described by bytes the
+      repository no longer holds. That is the condition `release-surface-integrity`
+      names and the reason the cut was owed.
+- [x] 6.4 Every § 7 follow-up carries a disposition rather than a blank box, and
       every OD and Q carries a ruling or an explicit carry-forward.
+      **DONE, AND THE BOXES THAT STAY OPEN STAY OPEN ON PURPOSE.** All four § 7
+      items carried a realization disposition already; each now carries a second
+      line taken AT THE ARCHIVE, re-measured rather than restated. None is
+      ticked, because ticking a follow-up the archive did not perform would
+      record an act nobody took — which is the same falsification this packet's
+      own subject matter is about. On the other half: all six § Orchestrator
+      decisions were CLEARED AS AUTHORED and all four § Open Questions RULED on
+      2026-08-28, recorded in `proposal.md`, which is why this packet needed no
+      header move at the archive — it already reads `Status: ratified` with a
+      citation clearing the record spelling's three-way floor on all three axes.
 
 ## 7. Open — deliberately not closed by this change
 
@@ -545,6 +616,16 @@ before this filing, and the one recorded in the release finishing recipe.
       a published code means to consumers reading verifier output. The promoted
       requirement's scope ("reduced to a presence answer or a blob identity") still
       excludes it, so leaving it is conforming.
+      **AT THE ARCHIVE 2026-08-29: CARRIED, AND THE SCOPE THAT MAKES IT
+      CONFORMING IS NOW CANON RATHER THAN A DELTA.** The promoted requirement
+      reads "reduce a content resolution to a presence answer or a blob
+      identity", and `release.py:713-719` reduces to a NAMED FINDING instead —
+      so the exclusion OD-3 argued for is now a property of canon and a reader
+      can check it without this file. Untouched by the archive act, which moves
+      no code. The reason to leave it is unchanged and is a contract question:
+      changing that site changes what a published finding code means to
+      consumers reading verifier output, and no ruling has been sought for
+      that.
 - [ ] 7.2 **THE SWEEP OF `scripts/hermes_runtime_validation/` FOR THE SAME
       PATTERN.** `fix-release-reachability-race` § 6.1 opened this for the
       reachability layer and named `consumer_handoff.py` as the obvious next
@@ -563,6 +644,15 @@ before this filing, and the one recorded in the release finishing recipe.
       `.code` attribute, so the mechanism this packet used — a declared code read by
       the caller — is available to them unchanged if that sweep is ever run. The
       sweep still owes its own packet with its own measurement.
+      **AT THE ARCHIVE 2026-08-29: CARRIED, AND STILL UNMEASURED ON
+      PURPOSE.** The archive promotes two requirements about
+      content-resolution conditions and asserts nothing about
+      `consumer_handoff.py`, `migration.py` or `domain_regression.py`, none of
+      which was read here. The inherited rule holds at the archive as it held
+      at the filing: a sweep asserted without measurement is the same species
+      of unearned answer these packets exist to close, and an archive act is
+      the worst possible place to take one, because the packet stops being
+      editable at the same moment.
 - [ ] 7.3 **THE ELEVEN-MINUTE EXPOSURE WINDOW**, § 6.2 of the same packet.
       Sharding, or exercising the realization path against a pinned fetch rather
       than the live remote, would shrink it. Both are `pytest-suite.yml`
@@ -575,6 +665,12 @@ before this filing, and the one recorded in the release finishing recipe.
       `tests/hermes_runtime_contracts` selection CI runs takes about seven minutes on
       this machine, so the window is a property of the workflow's shape rather than
       of any one suite's length.
+      **AT THE ARCHIVE 2026-08-29: CARRIED, AND STILL OUT OF REACH FOR THE
+      SAME REASON.** Both remedies are `pytest-suite.yml` questions; this
+      packet edited no workflow and this archive edits none either. One number
+      re-read at this act rather than repeated: the merged run for pull request
+      #490 took **959.55s** of pytest wall clock (7637 passed, 21 skipped, 338
+      deselected), so the window is still a property of the workflow's shape.
 - [ ] 7.4 **WHETHER `content.py` SHOULD DECLARE A CODE PER CONDITION RATHER THAN
       ONE.** Q2 recommends one, on the ground that the remaining fourteen are
       all "the question could not be asked" and a vocabulary nothing consumes is
@@ -597,3 +693,15 @@ before this filing, and the one recorded in the release finishing recipe.
       argument, because those two want different operator actions. That evidence
       does not exist yet, and the constants are module-level, so adding a third is
       additive when it does.
+
+      **AT THE ARCHIVE 2026-08-29: CARRIED AS THE PLACE THE EVIDENCE WOULD
+      LAND, AND THE RULING IS NOW LOAD-BEARING IN CANON.** The promoted
+      requirement obliges the distinction to ride "a declared signal, not
+      matching prose" and says nothing about how many signals the resolver
+      declares — so the one-code realization conforms and a later second code
+      would conform too, which is exactly the room Q2's ruling was meant to
+      leave. Re-read on the merged tree: `content.py` declares
+      `CONTENT_PATH_ABSENT` for the absent-path condition and the other
+      fourteen raise sites keep the unchanged `CONTENT_DEPENDENCY` default. No
+      second caller needing to tell two of the fourteen apart has appeared, so
+      no evidence has landed and the item stays open unmoved.
