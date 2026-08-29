@@ -111,8 +111,8 @@ created for the presentation.
 ## What was corrected before ratification, and by whom
 
 Recorded because this packet's own doctrine is that corrective text earns the
-same scrutiny as original text. **Four adversarial rounds ran on #495 after the
-rulings landed; eight findings, all real, all taken** — three Codex P1s among
+same scrutiny as original text. **Five adversarial rounds ran on #495 after the
+rulings landed; eleven findings, all real, all taken** — three Codex P1s among
 them, each one a defect in text this session had just written.
 
 | Round | Finding | Class |
@@ -122,6 +122,12 @@ them, each one a defect in text this session had just written.
 | 2 | **P1** — the newly added digest-subject distinction FALSIFIED the gate's own sentence; as written it *"rejects every conforming chain"* | Sweep failure |
 | 3 | **P1** — the rewritten gate said it validates EXACTLY five checks and omitted the actor binding just harvested, leaving it inert at the only place that runs | Sweep failure, mirrored |
 | 4 | **P1 ×2** — the same closed list still omitted the REVOCATION check and the HOLDER-CLASS check, so a valid signature over a revoked grant, or an honestly self-attesting agent wallet, would pass every enumerated check | Third appearance |
+| 5 | **The ratification commit itself** left four sites still asserting "not ratified" — this document's own front matter said ratified while `proposal.md`'s body, `tasks.md`'s boxes, `.openspec.yaml` and `INDEX.md` said otherwise | Fourth appearance |
+
+**Round 5's findings were caused BY the ratification commit** and were repaired
+in the same pull request before merge, which is why this record describes them:
+a ratification record that omitted the defects its own commit introduced would
+be the least trustworthy document in the packet.
 
 **The third appearance was unified rather than patched again**, on this
 estate's own rule. The gate now walks **eight** checks and carries a
@@ -132,7 +138,15 @@ look overlooked. The defect class was that a closed list silently converts every
 absent requirement into an unenforced one; the map is what closes it, because a
 future requirement added without a row is visibly missing.
 
-Recorded in `design.md` as **D7.6**, **D7.7** and **D7.8**.
+**The fourth appearance is what made the class legible**, because a state flip
+is neither a rule gaining a conjunct nor a closed list, and it failed
+identically: *any edit that changes what the packet asserts about itself is a
+definition change, and owes a sweep of every site asserting the same thing.* The
+method changed with it — a grep-first sweep over the status vocabulary,
+re-running the same grep and requiring it empty, which is what found the two
+sites no reviewer had named.
+
+Recorded in `design.md` as **D7.6**, **D7.7**, **D7.8** and **D7.9**.
 
 ## What this ratification does NOT authorize
 
