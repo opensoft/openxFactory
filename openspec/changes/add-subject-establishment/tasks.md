@@ -128,6 +128,14 @@ path this change writes.
       single new site is this packet's manifest, joining the EXISTING
       `proposal-support-manifest` member class, which is why the member-count
       assertion beside it is unchanged at 23.
+      **THE COUNT MOVED TWICE ON 2026-08-28 AND THE MERGE KEPT BOTH STEPS.**
+      The sibling `add-worker-enrollment-broker` promotion took it 66 → 67 for
+      exactly the same reason and landed on `origin/main` first, so merging it
+      in conflicted on this one line. Resolved ADDITIVELY rather than by
+      overwrite: both comments survive, attributed to their own packets, and the
+      assertion reads **68** — re-enumerated with `pin_class.verify()` on the
+      merged commit rather than arithmetic, since `pc.verify` reads the
+      COMMITTED tree and would have answered 67 before the merge commit existed.
 
 ## Verification
 
@@ -156,6 +164,15 @@ path this change writes.
       `location-conformance` (3 → 3), `modified-block-currency` (10 → 10),
       `proposal-origin` (0 → 0), `promotion-fidelity` (0 → 0) and
       `release-inventory-drift` (0 → 0) among them.
+      **RE-MEASURED ON THE MERGED HEAD**, after `origin/main` brought in the
+      sibling `add-worker-enrollment-broker` full promotion: 4 / 47 / 97 / 14,
+      with `staged-candidate-aging` 114 → 112, `staged-topic-template` 27 → 25
+      and `location-conformance` 3 → 2. The extra −1 in each family is the
+      SIBLING's promotion, not this one's — attributed rather than absorbed,
+      because a merged number that silently doubles a claimed effect is worse
+      than no number. This packet's own contribution is unchanged at −1 and −1,
+      and it moves no `location-conformance` finding because the topic carried
+      none.
 
 ## Archive gate
 
