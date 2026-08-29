@@ -43,7 +43,7 @@ exact candidate commit and the public validator runs from a refreshed checkout.
 - [x] T018 [P] [US3] Complete family usage and residency documentation in `contracts/intent-compliance/README.md`
 - [x] T019 [US3] Register five schemas and validator in `contracts/manifest.yaml` and `contracts/README.md`
 - [x] T020 [US3] Refresh remote tags and allocate the next additive version in `contracts/manifest.yaml` and `contracts/CHANGELOG.md`
-- [x] T021 [US3] Build and verify the release inventory in `contracts/releases/contract-v2.2.digests.yaml`
+- [x] T021 [US3] Reallocate the release inventory target to `contracts/releases/contract-v2.3.digests.yaml`; generate it only after final release bytes and PostgreSQL evidence stabilize
 
 ## Phase 6: Verification and handoff
 

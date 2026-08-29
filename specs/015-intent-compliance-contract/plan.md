@@ -100,7 +100,7 @@ tests/intent-compliance/
 └── test_intent_compliance_negative_corpus.py
 contracts/manifest.yaml
 contracts/CHANGELOG.md
-contracts/releases/contract-v2.2.digests.yaml
+contracts/releases/contract-v2.3.digests.yaml
 contracts/README.md
 ```
 

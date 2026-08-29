@@ -21,16 +21,19 @@ python3 scripts/validate-intent-compliance.py --strict --trusted-repository ../t
 ## Prepare the additive release
 
 After refreshing `origin/main` and remote tags, allocate the next free additive
-bundle. This realization allocated `contract-v2.2` after the breaking
-`contract-v2.0` openxWallet extraction landed first:
+bundle. This realization allocated `contract-v2.3` after verifying that release
+name was still free:
 
 ```bash
 python3 scripts/validate-manifest-digests.py
 python3 scripts/validate-contract-release.py build \
-  --tag contract-v2.2 \
-  --output contracts/releases/contract-v2.2.digests.yaml
+  --tag contract-v2.3 \
+  --output contracts/releases/contract-v2.3.digests.yaml
 python3 scripts/validate-contract-release.py verify-commit --commit "$(git rev-parse HEAD)"
 ```
+
+Generate the v2.3 inventory only after every release-member byte and PostgreSQL
+evidence file has stabilized. Do not create it during metadata reconciliation.
 
 Run the repository-wide validator suite and OpenSpec strict validation before
 publication. Verify promotion and the annotated remote tag only against the
