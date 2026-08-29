@@ -94,6 +94,41 @@ requirements and relocates a packet, so `contracts/releases/contract-v2.2.digest
 still describes the bytes the repository holds and the published tag keeps
 verifying at its own commit.
 
+## The one path this archive strands, and why it stays stranded
+
+`contracts/CHANGELOG.md` line 15, inside the `contract-v2.2` entry, cites
+
+```
+openspec/changes/add-model-capability-vocabulary/review/ratification-2026-08-24.md
+```
+
+and that directory no longer exists: the packet is now under
+`openspec/changes/archive/2026-08-29-add-model-capability-vocabulary/`. Swept at
+this commit, it is the ONLY dangling change-packet citation in the whole
+changelog — every other reference already uses the `openspec/changes/archive/`
+form. So this is a real path broken by this act, found here rather than by a
+later reader, and it is left alone deliberately on two independent grounds.
+
+**It was true when the release shipped.** `contract-v2.2` was cut and tagged on
+2026-08-29 while the packet stood at exactly that path. A CHANGELOG entry is the
+immutable record of what a release SHIPPED, and this repository has already
+ruled on precisely this shape: the `contract-v1.40` entry was deliberately NOT
+edited when its "TWO DELEGATED RULES" claim went outdated, on the reasoning that
+"editing it would make it describe a bundle that was never published"
+(recorded in `contracts/manifest.yaml`'s own comment block). The same reasoning
+governs a path.
+
+**And an archive moves no contract bytes.** `contracts/CHANGELOG.md` is a
+digested member of `contracts/releases/contract-v2.2.digests.yaml`. Editing it
+here would put editorial drift into a surface this act has no business touching,
+purely to tidy a reference whose target is one predictable directory away. The
+archived packet is discoverable from the README's "Archived changes:" row, from
+the archive directory's own date-prefixed name, and from this record.
+
+Recorded rather than silently accepted, so that a reader who follows that link
+and lands nowhere finds the reason here instead of assuming the archive was
+botched.
+
 ## What archiving does NOT close
 
 The staged topic `doxchat-auto-fit-routing` KEEPS ITS ROW (§6.2). This is exit
