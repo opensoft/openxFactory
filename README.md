@@ -395,7 +395,12 @@ Active changes:
   — **EXIT 1 OF A TWO-PACKET SPLIT** ruled by Brett on 2026-08-28, over a
   read-only decision round on the staged topic
   `client-credential-escrow-registry`: four multi-choice questions, four
-  selections, each taking the prep's recommendation. The BREAK-GLASS CHECKOUT
+  selections, each taking the prep's recommendation. **A SECOND ACT THE SAME DAY,
+  over PR #479, closed the veto window and changed the packet's shape**: OD-2
+  VETOED (the schema comes in here after all), OD-4 APPROVED as authored, the
+  other five CLEARED, and all five open questions ruled — four on the packet's
+  own recommendations and ONE against it (the drill must also prove a live
+  refusal). The BREAK-GLASS CHECKOUT
   PATH ships first so that `deployment-handoff-boundary`'s standing-admin
   exception can close — its promoted text holds the operator's existing standing
   administrative access open as a named, dispositioned exception "until the
@@ -438,9 +443,31 @@ Active changes:
   five already-promoted record kinds and the one field it needs beyond them rides
   the promoted audit policy's open `minimum_fields` array. The code surface is
   packaged conformance fixtures at the next additive bundle (`contract-v2.0` is
-  declared, so `contract-v2.1` at current merge order), and the ARCHIVE GATE IS
+  declared; the minor is allocated at realization by merge order and is not spent
+  here), and the ARCHIVE GATE IS
   MERGE PLUS GREEN PLUS ONE REHEARSED DRILL — the same drill that discharges the
-  boundary's phased-never-gapped milestone and closes its exception.
+  boundary's phased-never-gapped milestone and closes its exception. **AND THEN
+  THE SCHEMA CAME BACK.** The OD-2 veto moved ruling A's `escrow:` relationship
+  block on `xfactory_credential_binding_template` and the sixth record kind
+  `xfactory_credential_escrow_entry` into this packet on A's literal shape,
+  taking the delta from 7 ADDED / 28 scenarios / no MODIFIED block to **9 ADDED +
+  1 MODIFIED / 46 scenarios**. The MODIFIED block is surgical and its size is the
+  point: a promoted requirement enumerating FIVE record kinds becomes false the
+  moment a sixth exists, so five becomes six, two promoted scenarios carrying
+  "five" are amended (the only promoted words that move), and two scenarios are
+  added pinning the property the whole cut depends on — a binding predating the
+  block still validates. The entry shape is the RUNNING PRIOR ART made neutral
+  rather than a fresh design, and its one load-bearing property is that every
+  field is non-secret metadata, which is what makes the successor's
+  decryption-free lint possible at all. **The cut is owed, but not for the usual
+  reason, and this was measured rather than assumed**: the credential schema is
+  NOT among the 192 entries of `contracts/releases/contract-v2.0.digests.yaml`
+  (the closure is `contracts/hermes-runtime/contract-index.yaml` `release_member`
+  entries, which hold no credential entry), so release-inventory-drift does not
+  force it — the VERSIONING POLICY does, a registered bundle contract gaining a
+  record kind and an optional field being the additive minor class verbatim.
+  Ruling C's home, grandfathered exception and escalation tests STAY with the
+  successor; only the schema half moved.
 
 - [declare-generated-projection-status](openspec/changes/declare-generated-projection-status/proposal.md)
   — authored 2026-08-28 on Brett's in-session commission of the doc-health
