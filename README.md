@@ -392,57 +392,58 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [add-binding-consumer-identity](openspec/changes/add-binding-consumer-identity/proposal.md)
-  — **`Status: draft`. THE NAMED SUCCESSOR OF A RATIFIED ADMISSION**, authored
-  2026-08-29 on Brett's in-session lane authorization and written to be read
-  adversarially by a §7.4-shaped council convened OUTSIDE the clearance pipeline
-  (proposals are never-convenable through it, unanimously, 2026-08-28). Nothing
-  here is ratified. `add-notebook-hosting-credential-custody` ratified
-  one-identity / per-system-authority on 2026-08-23 and admitted in the same
-  read that the invariant is **held by review rather than by the record** — the
-  published `xfactory_credential_binding_template` requires only
+  — authored 2026-08-29, **NOT YET RATIFIED** (`Status: draft`).
+  **COUNCIL-REVIEWED 2026-08-29 and AMENDED**: a §7.4-shaped sitting returned
+  SPLIT 2–2 on the verdict word and UNANIMOUS 4/4 that the text as drafted was
+  not ratifiable, with fifteen blocking amendments across four seats; Brett ruled
+  the same day — accept all blocking amendments, one fix round, ratification read
+  after — and this packet is that round. The ratification act is still to come.
+  THE NAMED SUCCESSOR OF A RATIFIED ADMISSION: `add-notebook-hosting-credential-custody`
+  ratified one-identity / per-system-authority on 2026-08-23 and admitted in the
+  same read that the invariant is **held by review rather than by the record** —
+  the published `xfactory_credential_binding_template` requires only
   `[provider, secret_ref, owner, rotation_policy]`, carries no consumer or
   access-identity field, and the validator compares no authorities, so two
   bindings on one vault principal validate cleanly. That gap is registered FIVE
   times in the predecessor — its requirement's own scenario, its Impact section,
   its design, its tasks §4.5 and its ratification record — and this change is
-  what discharges it. **The sharpest statement of it is
-  canon's own**: promoted `credential-contracts` says a consuming lane receives
-  "only bindings: an opaque secret reference and a fetch-identity identifier" —
-  the shape carries the first and not the second. **MEASURED, not assumed**: a
-  `consumer:` key carrying arbitrary contents validates against the pinned
-  schema TODAY, because the binding object is not closed, which makes this a
-  field-shaped hole rather than a missing field — the same defect this schema's
-  `issuance_preconditions` design names one record kind over. The change adds ONE
-  additive optional `consumer:` block (`holder_ref`, `fetch_identity`, an
-  optional `requirement_ref`, an optional const-true
-  `shared_credential_acknowledged`) in vocabulary the estate already ratified:
-  `holder_ref` is `identity-brokering`'s shipped spelling and a consuming system
-  is emphatically NOT a persona, `fetch_identity` is `credential-contracts`'s own
-  words, and the requirement reference is that family's shipped
-  `credential_reference` pair rather than a bare id (a bare id is not unique in
-  the tree the validator scans). **The block is DECLARED now and CLOSED at the
-  major**, because the binding object is open today and a domain may already
-  hold a locally shaped `consumer:` object the current major accepts — closing it
-  in a minor would narrow. **IT TIGHTENS BEFORE IT LIFTS** — `shared-secret-identity` keeps its
-  refusal as the default, a new `shared-authority-identity` names the real fault
-  (two systems, one authority), and the two-consumers-of-one-identity shape the
-  predecessor had to DECLINE becomes expressible only through five
-  independent fail-closed conditions, the fifth of which stops the
-  dispatch/content collapse laundering itself as intentional sharing. **CARRIES
-  A CONTRACT CUT AT REALIZATION** — unlike its predecessor its realization
-  will move schema bytes, though THIS PACKET MOVES NONE and leaves `contracts/`
-  untouched; the minor is allocated at realization by merge order, because
-  `add-credential-escrow-checkout`
-  is already spending one on the same file. Migration is
-  additive-optional-plus-warning now, required at the next MAJOR, which is the
-  versioning policy's own sequence rather than a preference. 1 MODIFIED
-  requirement (the predecessor's, declared relative to its outcome per
-  `release-realization`'s ordered-deltas rule) and 3 ADDED. Five authoring
-  decisions and five open questions are flagged for the council with their
-  rejected alternatives, D-1 first: the delta modifies the requirement its
-  arrival makes stale and deliberately does NOT modify "Canonical credential
-  record shapes", declining to create a third instance of the lossy-sibling-delta
-  class open as issues #329 and #330.
+  what discharges it. **The sharpest statement of it is canon's own**: promoted
+  `credential-contracts` says a consuming lane receives "only bindings: an opaque
+  secret reference and a fetch-identity identifier" — the shape carries the first
+  and not the second. **MEASURED, not assumed**: a `consumer:` key carrying
+  arbitrary contents validates against the pinned schema TODAY, because the
+  binding object is not closed, which makes this a field-shaped hole rather than
+  a missing field. The change adds ONE additive optional `consumer:` block
+  (`holder_ref`, `fetch_identity`, a QUALIFIED `requirement_ref`, and const-true
+  `shared_credential_acknowledged` and `instantiation_stub` tokens) in vocabulary
+  the estate already ratified: `holder_ref` is `identity-brokering`'s shipped
+  spelling and a consuming system is emphatically NOT a persona, `fetch_identity`
+  is `credential-contracts`'s own words. **THE BLOCK IS DECLARED AT THIS MINOR
+  AND CONSTRAINED AT THE MAJOR — all three narrowing acts together.** Requiring
+  members, closing the member set and imposing the identifier grammar each refuse
+  a shape the current major accepts, so each is breaking and all three wait for
+  one deprecation window. An earlier draft phased only the closure; four seats
+  proved by construction that the other two refused a locally shaped object, a
+  scalar, a list and the generator's own placeholder style, falsifying a scenario
+  that would have promoted into canon. **NOTHING NARROWS AT THIS CUT, and that is
+  now a measurement**: six shapes a domain could already hold were built and
+  driven, and all six validate. **IT TIGHTENS BEFORE IT LIFTS** —
+  `shared-secret-identity` keeps its refusal as the default, a new
+  `shared-authority-identity` names the real fault (two systems, one authority),
+  and the two-consumers-of-one-identity shape the predecessor had to DECLINE
+  becomes expressible only through SIX independent fail-closed conditions over
+  EVERY PAIR, the sixth binding each reference to its own binding's map key
+  because a security seat drove the five-condition draft into granting the lift
+  on this capability's only red proof of serving-tier separation. **CARRIES A
+  CONTRACT CUT AT REALIZATION** — its realization moves schema bytes, though THIS
+  PACKET MOVES NONE and leaves `contracts/` untouched; the minor is allocated at
+  realization by merge order, because `add-credential-escrow-checkout` is already
+  spending one on the same file and main is a third writer of that manifest.
+  1 MODIFIED requirement (carriage re-measured after the amendment round: six
+  scenarios in, six out, five byte-identical, zero units lost) and 3 ADDED. Six
+  authoring decisions and five open questions are recorded with their rejected
+  alternatives; the open questions are now RULED, one of them against the
+  author's own recommendation.
 - [settle-aging-staging-topics](openspec/changes/settle-aging-staging-topics/proposal.md)
   — authored 2026-08-28 on Brett's four bulk rulings over a read-only triage
   survey of the fourteen staging topics `doc-health`'s

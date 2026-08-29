@@ -11,13 +11,27 @@ Everything below was read at `origin/main` on 2026-08-29 (bundle
 `contract-v2.1`). Where a figure is stated it was executed, not remembered, and
 the execution is named beside it.
 
-THREE SECTIONS RECORD A CORRECTION RATHER THAN A CHOICE — §3's qualified
-requirement reference, §5's two-step closure, and §5b's template exemption.
-Each was a P1 from the bot round on pull request #497, each was taken, and each
-is written with the rejected first draft still visible, because a design
-document that shows only the position it ended at hides the argument that moved
-it. In all three the packet already held the principle and had applied it one
-level too shallow, which is the shape of finding this estate keeps producing.
+SIX SECTIONS RECORD A CORRECTION RATHER THAN A CHOICE, from two rounds of
+adversarial reading, and every one keeps the rejected draft visible beside the
+fix — because a design document that shows only the position it ended at hides
+the argument that moved it.
+
+From the BOT round on pull request #497 (three P1s): §3's qualified requirement
+reference, §5's deferred closure, §5b's template exemption. From the §7.4 COUNCIL
+round of 2026-08-29 (fifteen blocking amendments across four seats, ruled by
+Brett the same day as ACCEPT ALL): §1's rival-vocabulary correction, §3's
+rebuilt lift, §5's UNIFORM phasing, §5b's re-keyed exemption, §6's fourth limit,
+and §7's replaced grounds.
+
+**In every one the packet already held the principle and had applied it one level
+too shallow** — the shape of finding this estate keeps producing, which this
+design named about its own predecessors before the bench found it three more
+times in the document that named it. The bench's own sentence for the lesson is
+the one worth carrying: **a prescribed fix applied without a verifier is an
+unverified change, whatever its provenance.** Four seats found §5's residue by
+BUILDING the prescribed schema and driving a record through it; two Copilot
+reviews, three author self-catches and a Codex P1 round had all read it
+instead.
 
 ## 1. The naming question, which the estate had already answered twice
 
@@ -76,11 +90,43 @@ receives:
 > a vault URI plus the runtime's own fetch identity
 
 **The shape carries the first and not the second.** `secret_ref` is a required
-property; the fetch identity appears nowhere in the schema. That is not a design
+property; the fetch identity appears nowhere in the SCHEMA. That is not a design
 insight this packet contributes — it is canon's own two-item list, checked
 against the shape that is supposed to carry it. It is also why the field is not
 called `access_identity`, `vault_principal` or `service_principal`: three
-plausible names for a thing canon has already named once.
+plausible names for a thing canon has already named.
+
+**CORRECTION, from a council seat: canon has named it TWICE, and the second
+naming is not prose.** The first draft of this section said *"a thing canon has
+already named once"*, and a shipped, digest-pinned machine key falsifies that.
+`contracts/avatar-client/broker-server-key-binding.template.yaml` declares
+`kind: xfactory_credential_binding_template` — the very kind this change extends
+— and carries a top-level `resolution:` block with
+`fetch_identity: install_federated_workload_identity`, plus a top-level
+`requirement_id`, plus nine undeclared top-level keys, all validating against the
+pinned schema with ZERO errors. Reproduced by this session before amending.
+
+That is a rival vocabulary in `contracts/`, and D-5's whole content is *"no rival
+vocabulary"*, so a one-line disclaimer does not discharge it. Four things are
+owed and all four are done. **(i) The artifact is NAMED**, here and in D-5.
+**(ii) The "named it once" claim is corrected**, in this paragraph. **(iii) The
+one-home-or-two question is RULED**, in the proposal's § The rival that already
+ships: the two are not two spellings of one fact but two SCOPES — a document-level
+resolution posture for one install, and a per-binding declaration of one
+binding's holder — and where both are present the per-binding declaration is the
+operative one for that binding. The estate's own doctrine, on the very family
+this vocabulary is borrowed from, is *"Composition, not a second custody
+vocabulary … so the two cannot disagree"*, and a scope rule is what makes them
+unable to. **(iv) The second validator is SCOPED OUT**: two validators read this
+one kind with divergent rules, `validate-credential-contracts.py` never seeing
+the avatar file at all, and this change adds no obligation to
+`validate-avatar-client.py`; the divergence is recorded as an owed successor
+rather than widened in silence.
+
+The same artifact also settles two other things the packet had wrong. It is a
+FOURTH writer of the binding shape, checked-and-exempt, which §4 of the task list
+had not named; and it ships `degraded_mode_permitted: true`, which falsifies
+OQ-5's stated premise of *"no machine-readable home"* — see §9.
 
 ## 2. The wallet question, answered without creating a rival
 
@@ -169,9 +215,9 @@ unverified claim travels inside a record that reads as validated. What that
 schema did about it — make the wrong combinations UNREPRESENTABLE by requiring
 independent conditions per class — is what (c) does here.
 
-**(c) A lift with independent, fail-closed preconditions — CHOSEN.** The
-refusal is the default and stays the default. It lifts only when FIVE
-conditions hold at once, each of which an adversary must satisfy separately:
+**(c) A lift with independent, fail-closed preconditions — CHOSEN, and then
+DEFEATED BY EXECUTION AND REBUILT.** The refusal is the default and stays the
+default. The first cut lifted on five conditions:
 
 | # | Condition | What it stops |
 | --- | --- | --- |
@@ -179,86 +225,113 @@ conditions hold at once, each of which an adversary must satisfy separately:
 | 2 | `holder_ref`s differ | one system wearing two hats |
 | 3 | `fetch_identity`s differ | two systems on one authority — the custody invariant itself |
 | 4 | both declare `shared_credential_acknowledged: true` | a one-sided declaration exempting a pair |
-| 5 | both name a QUALIFIED `requirement_ref` (id + requirements document) resolving in-repository to EXACTLY ONE requirement, with equal `access_mode`, not `dispatch_only` | the dispatch/content collapse laundering itself as intentional sharing — and an ambiguous id picking the permissive match |
+| 5 | both name a QUALIFIED `requirement_ref` resolving in-repository to EXACTLY ONE requirement, with equal `access_mode`, not `dispatch_only` | the dispatch/content collapse laundering itself as intentional sharing |
 
-Every one FAILS CLOSED, and the list is the whole five rather than a sample: an
+**A security seat drove that lift and it failed three ways on the one fixture it
+exists to protect.** The subject was
+`examples/credential-contracts/negative/dispatch-reuses-content-secret.yaml` —
+this capability's ONLY red proof of serving-tier separation — byte-unchanged in
+its secret sharing, with four declarations added:
+
+```
+L1  HONEST refs: the two requirements the map keys name   -> refusal stands   (modes differ)
+L2  BOTH refs point at the CONTENT requirement            -> LIFT GRANTED
+L3  both refs point at a doc carrying NO access_mode      -> LIFT GRANTED     (None == None)
+L4  both refs point at 'Dispatch_Only'                    -> LIFT GRANTED     (spelling variant)
+```
+
+**L2 is the one that matters.** Condition 5 severed the lift from the map key —
+correctly, because the key was an unenforced convention — and put NOTHING in its
+place. The author chooses where the reference points, so the condition is
+satisfied by the author's own word about which requirement this binding serves.
+That is candidate (b) again at one remove: the declaration now has five parts
+instead of one, and the fifth is still an unverified assertion. **A precondition
+an author can satisfy by choosing where to point is not a precondition** — the
+same sentence this design already uses against the map key, arriving at its own
+replacement.
+
+**A fourth defeat came from arity.** The inherited predicate keeps the FIRST
+binding seen per `secret_ref` and compares later ones against it, so with three
+bindings the pair (b,c) is never examined — and a record where b and c share a
+fetch identity lifts on both examined pairs and ships the exact fault
+`shared-authority-identity` exists to name.
+
+**So the lift now has SIX conditions, an every-pair arity, and a closed
+discriminator:**
+
+- **Condition 6 — the reference names its own binding.** `requirement_id` MUST
+  equal the `credential_bindings` map key, **and the schema constrains the key**
+  to the identifier grammar so the key stops being a convention. That is the
+  repair the rejection of candidate (a) implied but did not perform: the answer
+  to an unenforced convention is to enforce it, not to discard it and trust
+  something weaker. L2 is refused by condition 6.
+- **`access_mode` is closed to a declared vocabulary, and unreadable means
+  UNAVAILABLE.** Today it is `{type: string}` with no `enum`, read by one line
+  comparing to one exact spelling — so two absent modes compare equal (L3) and a
+  variant spelling compares equal to itself (L4). Both now make the lift
+  unavailable. This is the `release_inventory.py` fail-open rule this design
+  already cites, applied to the field the lift turns on rather than only to the
+  reference that reaches it.
+- **The resolution target is constrained.** References resolve ONLY against
+  requirement records the validator itself discovered and schema-checked in the
+  scanned tree; the document reference is repository-relative, non-escaping and
+  non-foreign by grammar; **the validator never opens a path taken from a
+  record.** Verified by construction: `../x.yaml`, `/etc/x.yaml` and
+  `OpsxFactory:credentials/r.yaml` are all refused by the pattern.
+- **The arity is every pair**, and the inherited first-against-rest shape is
+  REPLACED rather than extended.
+
+Every one FAILS CLOSED, and the list is the whole set rather than a sample: an
 absent block, a shared `holder_ref`, a shared `fetch_identity`, a one-sided or
-missing acknowledgment, a requirement reference resolving to ZERO or to MORE
-THAN ONE record, and a mixed or dispatch-only access mode each leave the
-original refusal standing. That direction is deliberate and it is the estate's own lesson, with
-running code to cite. `scripts/doc_health/release_inventory.py:235-248` records
-a fail-open the release-inventory-drift family shipped with and a bot round
-caught: two comparisons written as `if recorded.get(field) and …`, so *"an
-entry missing its `digest` skipped the byte check entirely — and if the mode
-still matched, the family reported the member CLEAN while its bytes had
-drifted. That is fail-open: the one failure mode a drift check must not have,
-arriving through a field nobody thought could be absent (PR #324, Codex)."* The
-repair is the rule this change adopts: an entry that cannot answer the question
-is not a matching entry. Condition 5 is where that discipline earns its
-keep: an unreadable requirement reference makes the lift UNAVAILABLE rather than
-UNCHECKED.
+missing acknowledgment, a reference resolving to zero or to more than one record,
+a reference whose id does not equal its binding's key, an ungrammatical or
+escaping document reference, and an access mode that is absent, unrecognised,
+mixed or dispatch-only each leave the original refusal standing. That direction
+is the estate's own lesson, with running code to cite:
+`scripts/doc_health/release_inventory.py:235-248` records a fail-open the
+release-inventory-drift family shipped with and a bot round caught — two
+comparisons written as `if recorded.get(field) and …`, so *"an entry missing its
+`digest` skipped the byte check entirely … That is fail-open: the one failure
+mode a drift check must not have, arriving through a field nobody thought could
+be absent (PR #324, Codex)."* The repair is the rule this change adopts: an entry
+that cannot answer the question is not a matching entry.
 
-**Condition 5 OVER-REFUSES ON PURPOSE, and the over-refusal is named rather than
-left to be discovered.** It excludes `dispatch_only` on BOTH sides, so two
-consumers of ONE dispatch-only credential cannot be lifted either — a shape
-nothing in canon actually forbids. The choice is deliberate: the dispatch class
-is where the serving-tier separation rule lives, the population of real
+**The access-mode exclusion OVER-REFUSES ON PURPOSE, and the over-refusal is
+named rather than left to be discovered.** It excludes `dispatch_only` on BOTH
+sides, so two consumers of ONE dispatch-only credential cannot be lifted either —
+a shape nothing in canon actually forbids. The choice is deliberate: the dispatch
+class is where the serving-tier separation rule lives, the population of real
 two-consumer dispatch cases is currently zero, and a rule that refuses a shape
 nobody needs is cheaper to relax later than a rule that permits one nobody
-checked. If such a case appears, relaxing this half is a successor with its own
-evidence; a seat that thinks the exclusion should be narrower now should say so.
-
-**Condition 5 is why `requirement_ref` exists at all**, and TWO alternatives
-were rejected — the second only after a bot round.
-
-The first was the map key. `credential_bindings`'s key is the requirement id BY
-CONVENTION — the packaged example's keys `intent_dispatch` and
-`corpus_content_write` are exactly the requirement ids in its sibling
-requirements example — but the schema declares `additionalProperties` with no key
-grammar and no validator reads the key as an id. A safety precondition resting
-on a convention nothing enforces is not a precondition, so the reference is
-explicit. It is optional on the block, required only for the lift, and the
-ordinary single-consumer binding pays nothing for it.
-
-The second was a BARE requirement id, which is what the packet carried until
-Codex's second P1 (PR #497). The schema requires only a string `id` on a
-requirement and imposes NO repository-wide uniqueness, while
-`scripts/validate-credential-contracts.py` rglobs a whole `credentials/` tree —
-so one id may match records in several documents whose `access_mode` DIFFERS. An
-implementation could then lift the refusal on a non-dispatch match while a
-dispatch-only match stood beside it, and which it found would depend on
-traversal order. **A precondition whose outcome depends on directory iteration
-order is not a precondition either** — the same sentence as the map-key
-rejection, arriving at a different field, which is the signal the packet had
-been thinking about uniqueness on one side only.
-
-So the reference is QUALIFIED: `requirement_id` PLUS
-`requirements_document_ref`. That is not a shape invented for the repair — it is
-the pair identity-brokering's shipped `credential_reference` already carries for
-this exact pointer, which means the composition §1 claimed on `holder_ref` now
-holds for the reference beside it too. And ambiguity is treated as
-UNREADABILITY, not resolved: zero matches and two matches both report and both
-withhold the lift, on the same fail-closed rule as an absent block.
+checked.
 
 **The promoted dispatch requirement is NOT modified, and that was checked rather
-than skipped.** "Dispatch-only credential least privilege and serving-tier
-separation" carries the scenario *"WHEN a dispatch binding names the same App or
-key identity as a content-write binding, THEN it MUST be rejected"*. Condition 5
-exists so that scenario stays TRUE after the lift: the collapse is refused
-however it is declared, and ADDED requirement 2 carries a scenario saying so in
-those terms. Since no sentence of the promoted requirement becomes false, it is
-left alone — the same test applied to "Canonical credential record shapes" in
-§7. A seat may prefer it MODIFIED so the interaction is recorded in the
-requirement's own text rather than in a neighbour's; that is a reasonable
-ruling, and its cost is a second MODIFIED block with the ledger row it implies.
+than skipped — but the reason had to be repaired first.** "Dispatch-only
+credential least privilege and serving-tier separation" carries the scenario
+*"WHEN a dispatch binding names the same App or key identity as a content-write
+binding, THEN it MUST be rejected"* — unconditional in canon, no lift, no
+acknowledgment. The first draft said condition 5 kept that scenario true; L2
+falsified that by execution. **Condition 6 is what actually keeps it true**, and
+a security seat's adjacent ruling is taken with it: because a promoted
+unconditional refusal now has a conditional exemption declared in a neighbouring
+requirement, the reader of canon must be able to see that. The exemption's
+conditions are stated in the ADDED requirement in full, and the packaged negative
+is asserted to STAY refused however many declarations are added to it — the
+assertion the earlier task list made and could not have kept.
 
 **`shared-authority-identity` is a new code and not a new message on an old
 one.** Condition 3's failure is already refused by the default rule, so the code
 adds no refusal — it adds a refusal that NAMES THE FAULT. A record with two
 bindings, one secret and one fetch identity is not "two credentials collapsed";
 it is the exact violation of "one identity MAY be shared; one AUTHORITY SHALL
-NOT", and a reader who is told about secret reuse will fix the wrong thing. The
-doc-health family's own rule applies — the failure message is a deliverable.
+NOT", and a reader who is told about secret reuse will fix the wrong thing. **And
+its scope is no longer the `secret_ref` proxy.** Two different holders declaring
+one fetch identity is the collapse whatever their `secret_ref`s; scoping the
+finding to a shared reference leaves the same fault unreported when two spellings
+name one secret. The subtraction that matters was performed before widening it:
+one holder legitimately reuses its fetch identity across its own bindings, so the
+check keys on DIFFERENT holders sharing ONE fetch identity, never on the fetch
+identity alone.
 
 ## 4. The const-true declaration, following a precedent in the same file
 
@@ -275,86 +348,132 @@ same false comfort, and the family has a registered negative fixture for that
 exact shape one record kind over
 (`examples/credential-contracts/negative/issuance-precondition-valued-false.yaml`).
 
-## 5. The block's closure, and the argument that turned it into two steps
+## 5. The block is DECLARED at the minor and CONSTRAINED at the major — all of it
 
-`additionalProperties: false` goes ON THE BLOCK, is NOT proposed for the binding
-object around it, and DOES NOT LAND AT THE SAME RELEASE AS THE BLOCK. The last
-clause is a correction, and the correction is instructive enough to keep the
-original reasoning visible beside it.
+`additionalProperties: false` goes on the block, is NOT proposed for the binding
+object around it, and does not land at the same release as the block. Nor does
+`required:`. Nor does the identifier `pattern`. **All three are the breaking
+class and all three wait for the major**, and getting there took two corrections
+that are both kept visible below, because this is the section whose incomplete
+first two drafts a bench of four then found in a third place.
 
-**The hole is measured.** Executed on 2026-08-29 against
-`contracts/schemas/xfactory-credential-contracts.schema.yaml`: a binding
-carrying `consumer: {holder_ref: …, fetch_identity: …, totally: unchecked}`
-validates with ZERO errors, because the binding object declares properties
-without closing them. So the field this change adds already exists as an
-unenforceable free-text hole, and any domain may be writing into it now,
-invisibly to every consumer of the pinned contract.
+**The hole is measured.** Executed against
+`contracts/schemas/xfactory-credential-contracts.schema.yaml`: a binding carrying
+`consumer: {holder_ref: …, fetch_identity: …, totally: unchecked}` validates with
+ZERO errors, because the binding object declares properties without closing them.
+The field this change adds already exists as an unenforceable free-text hole.
 
-**THE FIRST DRAFT DREW THE WRONG CONCLUSION FROM THAT MEASUREMENT, and Codex
-caught it (PR #497, P1).** The packet said: declare the block and close it, in
-one additive minor. But the measurement's own premise defeats that. If the key
-is writable today, then a domain may ALREADY hold a binding carrying a locally
-shaped `consumer:` object, and that record VALIDATES on the current major.
-Closing the block in a minor refuses it. That is a NARROWING — the breaking
-class, however additive the four new members look — and it is exactly what
-§ Compatibility Direction forbids: *"nothing in a new openxFactory release may
-retroactively invalidate an old pin."*
+**CORRECTION ONE, from a bot round.** The first draft said: declare the block and
+close it, in one additive minor. But the measurement's own premise defeats that.
+If the key is writable today, a domain may ALREADY hold a locally shaped
+`consumer:` object that the current major accepts, and closing the block in a
+minor refuses it — a NARROWING wearing an additive label, and what
+§ Compatibility Direction forbids outright. The packet had the argument in hand
+and stopped one level out: it already said closing the BINDING OBJECT would be
+breaking *"because it removes a shape (arbitrary extra keys) that pinned
+consumers may be relying on"*. So `additionalProperties: false` moved to the
+major.
 
-The packet had the argument in hand and did not apply it one level down. It
-already said, correctly, that closing the BINDING OBJECT would be breaking
-because *"it removes a shape (arbitrary extra keys) that pinned consumers may be
-relying on"*. Closing the `consumer:` object removes arbitrary extra keys within
-that one name — the identical act, one level in. THE LESSON IS THE FAMILIAR ONE
-IN A NEW PLACE: a settled fact was chased to the enclosing object and stopped
-there.
+**CORRECTION TWO, from four council seats at once, and it is the decisive one.**
+The same argument condemns two further acts that the corrected draft still landed
+in the minor. `required: [holder_ref, fetch_identity]` removes shapes the object
+could previously take — over a strictly LARGER set than the closure, because it
+also refuses `consumer: {holder_ref: x}`, which the closure would have accepted.
+And the identifier `pattern` removes every value that does not match it,
+including the generator's own placeholder style. Built and driven against the
+prescribed minor schema:
 
-**So the closure phases exactly as the requiredness does.** At the introducing
-minor an undeclared member WARNS (`consumer-block-unknown-member`) and the
-record stays valid; at the next major it is refused, alongside
-`consumer-identity-undeclared`. Same policy clause, same reason, same release.
-This also removes an inconsistency the first draft carried without noticing:
-requiring the field was phased and closing it was not, though both are the
-breaking class.
+| shape a domain could already hold | today | as first prescribed | as corrected |
+| --- | --- | --- | --- |
+| object with neither declared member | VALID | **REFUSED** | VALID |
+| a scalar `consumer:` value | VALID | **REFUSED** | VALID |
+| a list `consumer:` value | VALID | **REFUSED** | VALID |
+| declared members, placeholder values | VALID | **REFUSED** | VALID |
+| declared members + an undeclared extra | VALID | VALID | VALID |
+| no block at all | VALID | VALID | VALID |
+
+**And the first prescription falsified a scenario that would have promoted into
+canon** — `spec.md`'s own *"it stays VALID across this addition and is warned
+rather than refused"*. A ratifiable promise contradicted by its own build
+instruction is the silent-loss shape this estate has paid for before.
+
+**THE LESSON, THIRD TIME IN ONE PACKET.** `design.md`'s own diagnosis of the
+drafts it replaced — *"a settled fact was chased to the enclosing object and
+stopped there"* — describes correction one's own residue exactly. The analysis
+was chased from the binding object down to the block and stopped there; it did
+not reach the members WITHIN the block. Four seats reached it independently, and
+none of them reached it by reading: **every one built the schema and drove a
+record through it.** Two Copilot reviews, three author self-catches and a Codex
+P1 round had all read the prescription instead of executing it.
+
+**So the phasing is now uniform and the rule is one sentence:** at the
+introducing minor the schema constrains NOTHING about `consumer:` — it declares
+the property, describes its members, and stops. Every constraint arrives together
+at the major, behind one deprecation window and three warning codes. That also
+dissolves the layer problem §5b had, because at the minor every consumer check
+lives in the validator, which is the layer the stub exemption can reach.
 
 **Still NOT the binding object.** That closure is a further breaking act with a
-much wider blast radius, and it stays a named successor rather than riding an
-additive change — the same restraint the escrow packet exercised when it kept
-its `escrow:` block optional.
+much wider blast radius, and it stays a named successor.
 
-## 5b. Templates are not instances, and a conforming placeholder is the worse failure
+## 5b. Templates are not instances — and the exemption must be a TOKEN, not a name
 
-Codex's third P1 (PR #497) hit the sweep's own remedy rather than the packet's
-requirement text, which makes it the sharpest of the three.
+A bot round hit the sweep's own remedy: task §4.1 asked the domain-starter
+generator to emit the `consumer:` block, on the reasoning that a field its own
+scaffolder does not emit is a field every new domain starts out of conformance
+with. That reasoning is sound about INSTANCES and wrong about this artifact — the
+generator emits a TEMPLATE, written before any install, vault or fetch identity
+exists. Its placeholder style FAILS the identifier grammar, and the obvious
+repair, a grammar-passing sentinel, is worse: it suppresses the warning and reads
+as the record fact the change exists to establish while naming nothing.
 
-Task §4.1 asked `scripts/apply-domain-starter.py` to emit the `consumer:` block,
-on the reasoning that a field its own scaffolder does not emit is a field every
-new domain starts out of conformance with. That reasoning is sound about
-INSTANCES and wrong about this artifact. The generator emits
-`credentials/bindings.template.yaml` — a domain-level TEMPLATE, written before
-any client install, any vault, or any fetch identity exists, in a document whose
-own neighbouring guidance says *"Domain repos provide templates only."*
+**Two council seats then showed the adopted remedy could not work, on two
+independent grounds, and both are taken.**
 
-Requiring the block there leaves two outcomes and both are bad. The template's
-established placeholder style is `<client-vault-name>`, which FAILS the
-identifier grammar this change reuses from identity-brokering. And the obvious
-repair — a syntactically valid sentinel — is worse: it suppresses
-`consumer-identity-undeclared` and reads as the record fact the whole change
-exists to establish, while naming nothing. **Scaffolding that manufactures
-conformance is worse than scaffolding that omits it, because only the second is
-visible.**
+**(i) A filename is not a declaration.** The exemption was keyed on
+`*.template.yaml` / `*.example.yaml` — a property of the PATH, chosen by the
+author, invisible in the record's bytes. The generator emits exactly
+`credentials/bindings.template.yaml` into every scaffolded repo; an install that
+fills it in and does not rename it is permanently exempt from the omission
+warning and, at the major, from the requirement itself. A real binding record
+named `prod.template.yaml` escapes a required field by what it is called. That is
+the "declared exemption" shape §3 rejects, degraded — *a declaration is at least
+visible as a declaration.* **The packet already held the right mechanism** and
+used it one field over: the declared-or-absent const-true token. So the exemption
+is `instantiation_stub: true`, and a record carrying live values must not declare
+it.
 
-The fix uses a distinction this repository already draws rather than inventing
-one: `.template.yaml` and `.example.yaml` are instantiation stubs, not records.
-Neither the omission warning nor the major's refusal applies to a stub. The
-generator emits the block in the template's own placeholder style so an
-instantiator sees the field exists; the validator does not read that placeholder
-as a declaration.
+**(ii) The exemption sat in the wrong LAYER, and the token is what moves it.**
+This is the sharper of the two. `spec.md` exempted a stub from *"the omission
+warning"* and *"the major's refusal"* — both validator behaviours — while the
+placeholder's failure was a **jsonschema error against the pinned contract**. A
+pinned schema cannot carry a filename-conditional branch, because cross-repository
+consumers validate against it by digest. So the exemption could never reach the
+case it was adopted for, and the acceptance test *"a freshly scaffolded repo
+validates clean"* **could not have passed as drafted** — proven by running the
+real validator over the generator's own emitted bytes.
+
+The token fixes the layer as well as the key: a schema CAN condition on a
+property, so `if: not required(instantiation_stub) then: required(holder_ref,
+fetch_identity)` is expressible at the major and was verified by construction.
+And at the minor the question does not arise, because §5's correction leaves the
+schema constraining nothing.
+
+**The generator now emits NO block at all** — a named comment instead. That is
+what makes a freshly scaffolded repository validate clean at both releases, and
+it is what this packet's own principle asked for in the first place:
+*scaffolding that manufactures conformance is worse than scaffolding that omits
+it, because only the second is visible.* Emitting a placeholder was the packet
+declining to take its own advice.
 
 ## 6. What this makes provable — and the reach it does not have
 
-Three limits, recorded here rather than left to be discovered, because the
-predecessor change's ratification turned on exactly this kind of honesty and a
-bot round caught the one place it had overclaimed.
+FOUR limits — three under-claims and one DISCLOSURE — recorded here rather than
+left to be discovered. The first three were in the earlier draft; the fourth was
+not, and a security seat's finding is that its absence was itself the defect,
+because a requirement that legislates a "both halves" disclosure rule for
+adopting documents and then defines the halves as two under-claims is a
+requirement with a hole in it.
 
 **(i) Revocation of ACCESS becomes readable and actionable. Eviction does not.**
 With `fetch_identity` on the record, "revoke this consumer" resolves to a
@@ -386,6 +505,38 @@ own family (`client-identity-roster`'s drift finding is the model), and it is
 out of scope here. The claim this packet makes is bounded and exact: the
 authority moves from held-by-review to stated-in-the-record.
 
+**(iv) AND THE RECORD NOW PUBLISHES WHICH PRINCIPAL REACHES WHICH SECRET.** The
+three limits above are all under-claims; none of them says what the declaration
+ADDS to the record's information surface. The binding already carries `vault`,
+`secret_ref` and `owner`. This block adds the principal that can fetch that
+secret and the system that holds it, in the same object. The defensive gain is
+stated exactly right elsewhere — *"which grant to revoke … is a lookup rather
+than an inference"* — and the symmetry is exact: for anyone who can read the
+record, "which principal do I take over to reach this secret" becomes a lookup
+too. This is not speculative. The family this vocabulary is borrowed from already
+ships live estate principal names in its packaged examples
+(`opsx:service-subject:keycloak-opensoft-shared`,
+`opsx:service-subject:aks-opensoft-qa`). Two aggravations were named with it: a
+proposed positive fixture would have put the LIVE xFactory sync-lane and openXdox
+fetch identities into the digest-pinned, distributed corpus, and at the major the
+declaration becomes REQUIRED so the disclosure stops being opt-in.
+
+**The finding is not "do not do this."** The declaration is worth having, and the
+residency model bounds it by keeping instance records in the consuming installs.
+The repair is that the requirement STATES it — as a third half of the disclosure
+obligation, with its own scenario — and that packaged fixtures use fixture values
+rather than live identifiers. **Whether the corpus may ever name the live
+identifiers is PARKED for the operator**, because it turns on the repository's
+audience and on whether those identifiers are already public, and the seat that
+raised it parked rather than resolved it under its own escalation rule. The
+conservative answer holds in the meantime.
+
+**A note on who found this, because it bears on the record.** This is precisely
+the client-security-compliance reading, and that seat was NOT seated at the
+convening on a disputed convener act; a domain seat carried the question and
+produced the finding. Its provenance is recorded rather than smoothed over: the
+mitigation worked, and it is not the same thing as the seat having been present.
+
 ## 7. Delta placement, and the two active writers on this capability
 
 Two active changes already write `credential-contracts` deltas, and this change
@@ -405,11 +556,16 @@ false, and it does not modify it.** The substance is carried by ADDED
 requirements — which is exactly how the escrow packet carries ITS substance too
 ("The escrow relationship rides the credential binding, never a custody tier"
 is an ADDED requirement declaring a block on the binding template). Declining
-the second modification also declines to create a third instance of a defect
-class that is currently open twice over as issues #329 and #330. The proposal
-records this as D-1 with the rejected alternative, so a seat can rule the other
-way; the cost of ruling that way is a second live writer plus a ledger row in
-the same commit.
+the second modification was also argued as declining a third instance of an OPEN
+defect class — **and that ground was false: #329 and #330 both closed on
+2026-08-27, which the same README this diff edits already records.** It is
+replaced by a measured one: this delta is provably loss-free, while the escrow
+sibling's block on the alternative target is currently REPORTED lossy on this
+very branch, missing 3 of that requirement's 20 units. The proposal records this
+as D-1 with the rejected alternative, so a seat can rule the other way; the cost
+of ruling that way is a second live writer plus a ledger row in the same commit.
+A council seat ACCEPTED the placement and REFUSED its stated grounds, which is
+what this section now reflects.
 
 **The requirement this change DOES modify is the custody change's**, and that
 placement is chosen because it is the text this change makes stale. Its scenario
@@ -418,9 +574,20 @@ once the shape expresses it, and leaving a false scenario to promote into canon
 would be worse than any ordering cost. Three facts make the placement safe
 rather than merely defensible:
 
-1. **`release-realization` governs it.** "Ordered deltas and branch vocabulary"
-   requires the later proposal to reference the earlier change and declare its
-   deltas relative to that change's outcome. The proposal does both, by name.
+1. **`release-realization` does NOT govern it, and the earlier draft said it
+   did.** Read in its own text, the rule's antecedent is a requirement *"already
+   MODIFIED by an active ratified change"* — twice, in the body and in its only
+   scenario — and the custody change **ADDS** this requirement; canon carries it
+   nowhere. `document-lifecycle`'s restatement adds *"two active RATIFIED
+   writers"*, and this packet is `draft`. So the rule is SILENT on this shape
+   rather than satisfied by it, and citing it as settled authority would leave a
+   later reader with a citation that does not carry. **The honest statement:** no
+   promoted requirement governs MODIFIED-over-a-sibling's-ADDED; the estate has
+   RULED the shape PENDING in running code
+   (`modified_block_currency.py:1149-1155`); the proposal declares its delta
+   relative to the custody change's outcome because that is the right thing to
+   do; and the placement stands on the NARROWNESS argument, which is sound on its
+   own and is the ground of record.
 2. **The doc-health family already anticipates this shape and reports
    nothing.** `scripts/doc_health/modified_block_currency.py:1176-1201`
    (`resolve`) returns PENDING for a MODIFIED block whose title an active
@@ -434,6 +601,18 @@ rather than merely defensible:
    8 info findings, exactly the 8 the self-gate names, and none of them is this
    change's block. `_arm_ordering` is silent for a second reason too — it scopes
    to active RATIFIED writers, and this packet is `draft`.
+   **BUT THAT SILENCE IS NOT EVIDENCE OF SAFETY, and offering it as one was the
+   error the earlier draft made.** The block is dropped at
+   `modified_block_currency.py:1374-1375`'s `if status == "pending": continue`
+   BEFORE any arm runs; the family's own docstring says *"there is nothing to
+   compare"*. **The family DECLINES TO MEASURE this shape, so its silence neither
+   supports nor opposes the placement** — and this estate has the doctrine in
+   running code, in the very repository that convened the review:
+   *"Unevaluable NEVER means absent … It must never be read as 'the condition
+   does not hold'."* The actual evidence for losslessness is the DIFF, re-run
+   after this amendment round: six scenarios in, six out, five byte-identical,
+   the one changed body paragraph a strict prefix of its successor, the title
+   byte-identical, zero units lost.
 3. **The ordering is determinate in practice and stated as an obligation
    anyway.** The custody change carries `target_release: none` and its
    realization tasks §1–§3 are complete, so it archives on evidence that already
@@ -441,7 +620,25 @@ rather than merely defensible:
    list nonetheless states the inverse case and its remedy — convert the block
    to `ADDED` before archiving — because "the natural order will hold" is not a
    guarantee and the failure mode is a MODIFIED requirement promoting against
-   canon that does not carry it.
+   canon that does not carry it. **AND THE OBLIGATION NOW HAS A BACKSTOP THAT
+   RUNS**, because a prose task in a class the checker provably cannot see is not
+   a control. Measured: the group for this block has size ONE and always will —
+   `_arm_ordering` needs two RATIFIED *MODIFIED* blocks and the custody change's
+   block is ADDED, so it is structurally ineligible for the group. In the SAFE
+   order the requirement enters canon, `resolve` returns `canon`, and the
+   carriage arms run; in the UNSAFE order nothing checks anything. **The one case
+   the obligation exists to guard is the one case with no guard**, so the archive
+   checklist gains a mechanical assertion that
+   `openspec/specs/credential-contracts/spec.md` contains the requirement title
+   before this change archives — a one-line check that fails loudly in exactly
+   the inverted order.
+
+4. **And the estate-level gap under all of this is named as the estate's, not
+   this packet's.** MODIFIED-over-a-sibling's-ADDED is governed by no promoted
+   requirement, evaluated by no arm, and populated EIGHT times in this corpus
+   with zero markers. Two seats raised it as owed a home of its own and both said
+   this change must not be asked to close it and must not be delayed for it. It
+   is recorded here as an owed successor.
 
 ## 8. The contracts-and-release decision
 
@@ -464,10 +661,22 @@ obligation, not a follow-up.** `tests/credential_contracts/test_dispatch_credent
 asserts the validator's self-test line verbatim — `"self-test: 3 positive + 5
 negative example(s) confirmed"` — and the packaged corpus currently holds
 exactly 3 positives and 5 negatives. Any fixture this change adds moves that
-string in the same commit or the suite fails. The escrow packet's design
-recorded the identical hazard about the identical assertion; two packets tripping
-over one string is a signal about the assertion, and whether the count should be
-derived rather than asserted is worth a seat's opinion.
+string in the same commit or the suite fails. **ATTRIBUTION CORRECTED:** the
+packet that recorded the identical hazard about this identical assertion is
+`add-notebook-hosting-credential-custody`, NOT the escrow packet — escrow
+contains zero occurrences of "self-test", "3 positive" or
+`test_dispatch_credential_contract` across all four of its files. The
+substantive claim survives (two packets HAD tripped over the string; with this
+one, three), and the seat ruled: **DERIVE the count.** The evidence is stronger
+than "two packets tripped" — the verbatim assertion is already REDUNDANT, because
+`test_the_example_files_are_present` at `:38-51` enumerates all three positives
+and all five negatives BY NAME, which strictly dominates a count: it catches
+every drop AND says which. Deriving is safe on ONE condition, and the condition
+is the actual control: **every fixture this change adds joins that by-name
+inventory in the same commit.** Deriving without that is the fail-open version
+and would silently accept a shrinking corpus of security probes. The derivation
+is filed as its own `credential-contracts` test-hygiene issue rather than folded
+in here.
 
 **And one that is genuinely missing rather than merely owed.**
 `scripts/validate-credential-contracts.py` has NO warning channel. It prints
@@ -492,8 +701,17 @@ surface and is listed as such.
 - **Not a change to the hosting record.** Its singular `custody.binding_id` is
   raised as OQ-3 and left to its owning capability.
 - **Not a closure of the binding object.** Named as a successor in §5.
-- **Not a closure of the `consumer:` block at this release either.** Declared
-  here, executed at the major alongside the requiredness — §5.
+- **Not a constraint of any kind on the `consumer:` block at this release.**
+  Declared here; requiredness, closure AND the member grammar all execute at the
+  major, in one window — §5.
+- **Not a reconciliation of the two validators that read this record kind.**
+  `validate-avatar-client.py` is the avatar family's surface and is scoped OUT;
+  the divergence is an owed successor — §1.
+- **Not a home for the MODIFIED-over-a-sibling's-ADDED gap.** Eight pairs, no
+  governing requirement, no evaluating arm; two seats said this change must
+  neither close it nor be delayed for it — §7.
+- **Not the self-test count derivation.** Ruled DERIVE, filed as its own issue —
+  §8.
 - **Not a second identity vocabulary.** Both identifiers are words this estate
   ratified before this packet existed.
 - **Not a live secret act.** Nothing here creates, moves, or reads credential

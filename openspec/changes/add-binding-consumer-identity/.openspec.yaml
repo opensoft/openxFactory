@@ -37,6 +37,15 @@ origin:
     successor. The organized source is the ratified custody packet, cited above
     and quoted again in proposal.md and design.md, so `ad_hoc` is correct and is
     not a substitute for staging.
+    AND THIS FILING IS A FRESH INSTANCE OF ISSUE #318, CITED HERE RATHER THAN
+    RE-DERIVED. #318 names the origin-shape gap for drafts: an `ad_hoc` origin's
+    own vocabulary pairs naturally with "approved", so a packet that is
+    AUTHORIZED but NOT RATIFIED must do by PROSE what the taxonomy has no kind to
+    do by declaration — which is exactly the disclaiming work `approved_by` below
+    performs at length. The precedent for citing it in this slot is
+    `add-modified-block-currency-check/.openspec.yaml`, which faced the analogous
+    question and named the issue by number. Joining that queue is cheaper than
+    every packet re-deriving the disclaimer from first principles.
   approved_by: >-
     Brett Heap (openxFactory operator authority) — 2026-08-29, in session,
     authorizing this lane: author the queued binding-template consumer-identity
@@ -50,6 +59,31 @@ origin:
     pipeline by design — proposals are never-convenable through it on the
     unanimous ruling of 2026-08-28.
   approved_on: 2026-08-29
+  # A SECOND ACT THE SAME DAY, recorded separately because it authorized a
+  # different thing. A §7.4-shaped council reviewed this packet at `e6da07a4`
+  # and returned SPLIT 2-2 on the verdict word with a UNANIMOUS 4/4 that the
+  # text as drafted was not ratifiable — fifteen blocking amendments across four
+  # seats. Brett ruled the same day: ACCEPT ALL BLOCKING AMENDMENTS, one fix
+  # round, the ratification read after. That ruling authorized THIS REVISION and
+  # nothing further. It is NOT a ratification of the amended text, and the
+  # ratification act remains OPEN.
+  council_review:
+    held: 2026-08-29
+    object: openxFactory PR 497 at e6da07a4
+    outcome: >-
+      Split 2-2 on the verdict word (lead-architect and lead-security REFUSE AS
+      DEFINED; lead-quality and company-policy-lead ACCEPT AS AMENDED, both
+      saying in terms that the word was the only thing separating them);
+      UNANIMOUS 4/4 that the text as drafted was not ratifiable. Four seats
+      independently reached ONE amendment — the block's `required:` list was an
+      unphased narrowing at the minor, falsifying a scenario that would have
+      promoted into canon — and every one of them found it by BUILDING the
+      prescribed schema rather than reading it. The convener separately found
+      that issues #329 and #330, asserted OPEN at four sites in this packet,
+      had both closed on 2026-08-27; no seat found that.
+    ruling: >-
+      Brett Heap, 2026-08-29, in session: ACCEPT ALL BLOCKING AMENDMENTS; one
+      fix round; ratification read after. Authorizes this revision only.
 related:
   - openxFactory:change:add-notebook-hosting-credential-custody  # RATIFIED 2026-08-23, ACTIVE. Its tasks §4.5 names this change; this change MODIFIES its "Each consuming system reaches a shared operated identity through its own binding" requirement and declares its delta relative to that change's outcome per release-realization's ordered-deltas requirement
   - openxFactory:change:add-credential-escrow-checkout           # RATIFIED 2026-08-28, ACTIVE. The OTHER active writer on this schema file: an additive optional `escrow:` block on the same binding kind plus a sixth record kind. Two additive blocks on one shape, two cuts owed on one file — the coordination is stated in proposal.md § The other writer on this file

@@ -3,11 +3,22 @@
 THE MODIFIED BLOCK'S BASIS IS `add-notebook-hosting-credential-custody`'s
 OUTCOME, not canon. That requirement is ADDED by that active ratified change and
 is not yet promoted, so this delta is declared relative to its outcome per
-`release-realization`'s "Ordered deltas and branch vocabulary". The body and
-five of its six scenarios are carried verbatim; the sixth — "The published
-binding shape cannot yet express the access identity" — is REPLACED, because
-this change is the successor that packet named and its arrival is what makes
-that scenario false.
+`release-realization`'s "Ordered deltas and branch vocabulary" — a citation
+whose antecedent is *"already MODIFIED"* while the custody change ADDS, so it
+is an EXTENSION of that rule to a shape no promoted requirement reaches, not an
+application of it (LA-A3).
+
+THE CARRIAGE, STATED AS MEASURED RATHER THAN AS SUMMARISED (LQ-A1). **ALL SIX**
+scenarios are carried: five byte-identical, and the sixth — "The published
+binding shape cannot yet express the access identity" — REPLACED, because this
+change is the successor that packet named and its arrival is what makes that
+scenario false. The body is carried IN FULL **with two additions, both named**:
+a new paragraph ("THE AUTHORITY IS A RECORD FACT…") and one sentence appended to
+the WHAT-REVOCATION-REACHES paragraph, which is otherwise a strict prefix of its
+successor. Nothing is dropped. The earlier wording of this note said "the body
+… carried verbatim", which the diff contradicts; the correction is recorded
+because in the lossy-delta class the phrase "carried verbatim" is the sentence
+that stops the next auditor looking.
 
 ## MODIFIED Requirements
 
@@ -16,7 +27,7 @@ Where more than one system authenticates as the SAME operated identity, each con
 
 Per-system bindings are what make the consequential acts separable. With one shared route, revoking either system's access revokes both, the store's access log cannot say which system read the secret, and a compromise of one is indistinguishable from a compromise of the other. Each binding SHALL therefore be revocable on its own, and revoking one SHALL NOT disturb the other's ability to fetch.
 
-THE AUTHORITY IS A RECORD FACT, NOT AN ASSERTION ABOUT THE ESTATE. Each such binding SHALL declare, in its own record, the consuming system that holds it and the identity that system USES TO AUTHENTICATE to the secret store, so that which system a binding belongs to and what its revocation reaches are READ rather than inferred. A binding that declares neither is not thereby non-conforming while the declaration is optional under the contract's own migration posture, but the per-system authority it participates in is then unproven, and a change adopting this requirement SHALL NOT describe an undeclared pair as proven.
+THE AUTHORITY IS A RECORD FACT, NOT AN ASSERTION ABOUT THE ESTATE. Each such binding SHALL declare, in its own record, the consuming system that holds it and the identity that system USES TO AUTHENTICATE to the secret store, so that which system a binding belongs to and what its revocation reaches are READ rather than inferred. A binding that declares neither is not thereby non-conforming while the declaration is optional under the contract's own migration posture, but the per-system authority it participates in is then unproven, and a change adopting this requirement SHALL NOT describe an undeclared pair as proven. THAT LAST OBLIGATION IS THE REQUIREMENT'S AND NOT A CHECKER'S: whether a document "describes a pair as proven" is a judgment over prose, so any check offered against it MUST state which shapes it actually detects and MUST NOT be described as deciding the general case.
 
 WHAT REVOCATION REACHES, STATED HONESTLY, because a shared bearer secret bounds it. Revoking a binding stops that system's FUTURE fetches and nothing more: it cannot un-disclose a password already fetched, and it cannot terminate a session already established with it. Evicting a consumer that has already read the secret requires ROTATING it, and rotation necessarily reaches EVERY consumer of that identity — the one act per-system bindings cannot make independent. A change adopting this requirement SHALL record that cost rather than let per-system bindings read as per-system containment, and SHALL NOT claim an isolation the credential class cannot deliver. Declaring the consuming system and its fetch identity SHALL NOT be read as narrowing that limit: it makes the revocable thing nameable, not the disclosed thing recallable.
 
@@ -53,7 +64,7 @@ A shared ambient session SHALL NOT be used as a substitute for a second binding.
 ## ADDED Requirements
 
 ### Requirement: A credential binding declares the consuming system that holds it and the identity it fetches with
-The canonical credential schema SHALL own an ADDITIVE OPTIONAL `consumer:` block on each entry of `credential_bindings` in `xfactory_credential_binding_template`, carrying the consuming system's HOLDER REFERENCE and the FETCH IDENTITY that system USES TO AUTHENTICATE to the secret store, and the block's member set SHALL be closed IN TWO STEPS — an undeclared member warns at the introducing minor and is refused at the next major.
+The canonical credential schema SHALL own an ADDITIVE OPTIONAL `consumer:` block on each entry of `credential_bindings` in `xfactory_credential_binding_template`, carrying the consuming system's HOLDER REFERENCE and the FETCH IDENTITY that system USES TO AUTHENTICATE to the secret store — and the block SHALL be DECLARED AT THE INTRODUCING MINOR AND CONSTRAINED AT THE MAJOR: at the minor the schema imposes no type, no member grammar, no requiredness and no closure on it, and every one of those arrives together at the next major.
 
 THE TWO IDENTIFIERS ARE VOCABULARY THIS FAMILY ALREADY USES, and a second naming
 scheme SHALL NOT be introduced for either. The holder reference is the
@@ -66,98 +77,100 @@ capability's own promoted text already names as one of the two bindings a
 consuming lane receives — the other being the opaque secret reference the shape
 already carries.
 
-THE BLOCK MAY ALSO CARRY a reference to the requirement the binding resolves,
-and an acknowledgment that the credential is deliberately reached by more than
-one consumer. The acknowledgment SHALL be a DECLARED-OR-ABSENT token whose only
-valid value is true, on the same reasoning this schema already applies to
-issuance preconditions: a false-valued declaration reads as governance while
+THE BLOCK MAY ALSO CARRY a reference to the requirement the binding resolves, an
+acknowledgment that the credential is deliberately reached by more than one
+consumer, and a declaration that the record is an instantiation stub. The
+acknowledgment and the stub declaration SHALL each be a DECLARED-OR-ABSENT token
+whose only valid value is true, on the same reasoning this schema already applies
+to issuance preconditions: a false-valued declaration reads as governance while
 asserting nothing.
 
 THE REQUIREMENT REFERENCE SHALL BE QUALIFIED, NOT A BARE IDENTIFIER, and it
-SHALL take the shape the identity-brokering family already ships for exactly
-this pointer: a requirement id TOGETHER WITH the requirements document that
-declares it. A bare id resolves ambiguously — this schema requires only a string
-`id` on a requirement and imposes no repository-wide uniqueness, while the
-canonical validator scans a whole `credentials/` tree, so one id may match
-records in several documents with DIFFERENT access modes. A reference that can
-match two records with different meanings is not a reference, and any rule built
-on it would vary with traversal order. Where a qualified reference resolves to
-ZERO or to MORE THAN ONE requirement, the reference SHALL be reported and SHALL
+SHALL take the shape the identity-brokering family already ships for this
+pointer: a requirement id TOGETHER WITH the requirements document that declares
+it. A bare id resolves ambiguously — this schema requires only a string `id` on a
+requirement and imposes no repository-wide uniqueness, while the canonical
+validator scans a whole `credentials/` tree, so one id may match records in
+several documents with DIFFERENT access modes.
+
+AND THE DOCUMENT REFERENCE SHALL CARRY A GRAMMAR AND A RESOLUTION RULE, because
+the shape it borrows carries neither. In identity-brokering
+`requirements_document_ref` is an unconstrained string that no script and no test
+resolves; promoting it to a resolution input feeding a security precondition
+without a grammar would rest that precondition on an unenforced convention —
+which is the very objection this requirement raises against the map key. So:
+the reference SHALL be a REPOSITORY-RELATIVE path to a YAML document, SHALL NOT
+be absolute, SHALL NOT traverse upward, and SHALL NOT carry a foreign-repository
+prefix; it SHALL resolve ONLY against `xfactory_credential_requirements` records
+the validator itself discovered and schema-checked in the scanned tree; and the
+validator SHALL NEVER OPEN A PATH TAKEN FROM A RECORD. A reference that is
+ungrammatical, that names a repository other than the one under validation, or
+that resolves to zero or to more than one requirement SHALL be reported and SHALL
 NOT be treated as resolved.
 
-THE BLOCK IS OPTIONAL AND ADDITIVE AT ITS INTRODUCING RELEASE, AND THE PHASING
-IS THE VERSIONING POLICY'S RATHER THAN A PREFERENCE. A binding declaring no
-`consumer:` block SHALL remain valid at that release and every consumer pinned
-at the prior bundle SHALL remain conformant until it upgrades; the conformance
-validator SHALL emit a WARNING naming the omission, and the omission SHALL
-become an ERROR only at a MAJOR release, because the policy admits a newly
-required field only in the breaking class and only after a full minor release
-in which the old shape produced deprecation warnings. The removal version SHALL
-be stated where a consumer upgrading across it will read it.
+THE PHASING IS THE VERSIONING POLICY'S RATHER THAN A PREFERENCE, AND IT COVERS
+EVERY NARROWING VECTOR RATHER THAN ONE OF THEM. The binding object is OPEN on the
+current major, so a `consumer:` key of any shape validates today. Three distinct
+acts would each refuse a shape the current major accepts — requiring members
+within the block, closing the block's member set, and imposing a grammar on the
+members' values — and each is therefore the BREAKING class however additive the
+new vocabulary looks. All three SHALL land together at the next MAJOR. At the
+introducing minor the conformance validator SHALL emit WARNINGS instead — naming
+a binding that declares no block, a block missing either identifier, a block
+carrying an undeclared member, and a member whose value does not match the
+identifier grammar — and every such record SHALL REMAIN VALID. The removal
+version SHALL be stated where a consumer upgrading across it will read it, and it
+SHALL name every one of the acts that land there rather than only the first.
 
-A BLOCK-SHAPED HOLE IS NOT A FIELD. The reason the block is DECLARED rather than
-left to convention is that an undeclared key on this object already validates:
-the binding object is not closed, so a `consumer:` key carrying anything at all
-passes the pinned schema today, unenforceable and invisible to every consumer of
-that contract. Declaring the block is what gives that hole a shape.
+A BLOCK-SHAPED HOLE IS NOT A FIELD, and DECLARING it is what this minor does.
+The reason the block is declared rather than left to convention is that an
+undeclared key on this object already validates: the binding object is not
+closed, so a `consumer:` key carrying anything at all passes the pinned schema
+today, unenforceable and invisible to every consumer of that contract. Declaring
+it — as a named, described property of the pinned contract — gives the hole a
+name, a meaning and a warning. CONSTRAINING it is the breaking half, and it waits
+for the major. Closing the BINDING OBJECT around the block is a further, separate
+breaking act and SHALL NOT ride either release.
 
-AND CLOSING IT IS THE SAME BREAKING ACT AS REQUIRING IT, SO IT PHASES THE SAME
-WAY. Because the binding object is open TODAY, a domain may already hold a
-binding carrying a locally shaped `consumer:` object, and that record validates
-at the current major. Refusing it the moment this block lands would NARROW a
-shape the current major accepts — the breaking class, however additive the new
-members look — and the compatibility direction forbids a new release
-retroactively invalidating an old pin. So the closure serves the same
-deprecation the requiredness does: at the introducing minor an undeclared member
-WARNS and the record stays VALID; at the next major it is REFUSED. A change that
-declared the members and closed them in one minor would be a breaking change
-wearing an additive label, which is the failure this sequencing exists to
-prevent.
-
-Closing the BINDING OBJECT around the block is a further, separate breaking act
-and SHALL NOT ride this addition at all.
-
-A TEMPLATE IS NOT AN INSTANTIATED BINDING. An instantiation stub — the
-`.template.yaml` and `.example.yaml` shapes this family already treats as stubs
-rather than records — declares no consuming system because none exists yet, and
-the omission warning and the major's refusal SHALL NOT apply to one. The reason
-is not convenience: a stub forced to satisfy the field would satisfy it with a
-placeholder, and a placeholder that passes the identifier grammar is a
-declaration that reads as an authority fact while naming nothing. Scaffolding
-that manufactures conformance is worse than scaffolding that omits it, because
-only the second is visible.
+A TEMPLATE IS NOT AN INSTANTIATED BINDING, AND ITS EXEMPTION SHALL BE A DECLARED
+TOKEN RATHER THAN A FILENAME. An instantiation stub declares no consuming system
+because none exists yet, and neither the omission warning nor the major's
+requiredness SHALL apply to one. But the exemption SHALL be keyed on a
+declared-or-absent const-true token IN THE RECORD, never on a `*.template.yaml`
+or `*.example.yaml` path: a filename-keyed exemption is one the author writes by
+naming, invisible in the bytes a pinned consumer validates, and it would let a
+record carrying live values escape a required field by what it is called. The
+declared token is also the only form that can reach the layer where the refusal
+lands — a filename is invisible to a pinned schema, while a token is a property
+the schema can condition on, so the exemption holds at the major as well as at
+the minor. A stub SHALL NOT satisfy the field with a placeholder instead: a
+grammar-passing sentinel reads as an authority declaration while naming nothing,
+and scaffolding that manufactures conformance is worse than scaffolding that
+omits it, because only the second is visible.
 
 #### Scenario: A binding declares its consumer
 - **WHEN** a credential binding declares a `consumer:` block naming a holder reference and a fetch identity
 - **THEN** it validates, and which consuming system holds the binding and which identity it authenticates with are facts of the record
 
-#### Scenario: A binding declares no consumer at the introducing release
+#### Scenario: A binding declares no consumer at the introducing minor
 - **WHEN** a credential binding carries no `consumer:` block at the release that introduces it
 - **THEN** it remains VALID and the validator emits a warning naming the omission and the release at which it becomes an error
 - **AND** a consumer pinned at the prior bundle remains conformant without changing anything
 
-#### Scenario: A binding declares no consumer at the major that requires it
-- **WHEN** a credential binding carries no `consumer:` block at the major release that requires it
-- **THEN** the validator MUST report an error
-- **AND** that release MUST have been preceded by a full minor in which the omission produced a warning, because a required field arriving without one is a breaking change served with no deprecation
-
-#### Scenario: The block carries a member outside its declared set, at the introducing minor
-- **WHEN** a `consumer:` block declares a member the shape does not declare, at the release that introduces the block
-- **THEN** the record remains VALID and the validator emits a warning naming the declared set and the release at which the member becomes an error
-- **AND** it is NOT refused, because the binding object is open on the current major and a locally shaped `consumer:` object validates there — refusing it now would narrow a shape the major accepts
-
-#### Scenario: The block carries a member outside its declared set, at the major that closes it
-- **WHEN** a `consumer:` block declares an undeclared member at the major release that closes the block
-- **THEN** the validator MUST report an error naming the declared set, rather than accepting a local key riding a neutral schema that neither declares nor forbids it
-
 #### Scenario: An existing record already carries a locally shaped consumer key
-- **WHEN** a domain's binding already carries a `consumer:` object of its own shaping, written while the binding object was open
-- **THEN** it stays VALID across this addition and is warned rather than refused, and the migration path to the declared members is stated where a consumer upgrading across the major will read it
+- **WHEN** a domain's binding already carries a `consumer:` value of its own shaping — an object with neither declared member, a scalar, or a list — written while the binding object was open
+- **THEN** it stays VALID at the introducing minor and is warned rather than refused, in EVERY one of those shapes, because the schema constrains nothing about the block at that release
+- **AND** the migration path is stated where a consumer upgrading across the major will read it
 
-#### Scenario: An instantiation stub carries no consumer
-- **WHEN** a `.template.yaml` or `.example.yaml` instantiation stub carries a binding with no `consumer:` block
-- **THEN** neither the omission warning nor the major's refusal applies, because a stub has no consuming system to name
-- **AND** a stub that satisfied the field with a grammar-passing placeholder would be WORSE, because it would read as an authority declaration while naming nothing
+#### Scenario: A member's value does not match the identifier grammar, at the minor
+- **WHEN** a `consumer:` block at the introducing minor carries a `holder_ref` or `fetch_identity` whose value does not match the identifier grammar
+- **THEN** the record remains VALID and the validator warns, because imposing the grammar is one of the three breaking acts deferred to the major
+- **AND** a release that imposed the grammar while declaring the block additive would be a narrowing wearing an additive label
+
+#### Scenario: The block is constrained at the major
+- **WHEN** the major release that constrains the block is validated against
+- **THEN** a `consumer:` value that is not an object, a block missing either identifier, a block carrying an undeclared member, and a member failing the identifier grammar are each an ERROR
+- **AND** that release MUST have been preceded by a full minor in which every one of those produced a warning, because a required field or a narrowed shape arriving without one is a breaking change served with no deprecation
 
 #### Scenario: A consuming system is offered as a persona
 - **WHEN** a binding names its consuming system by a broker persona or actor-subject reference
@@ -170,60 +183,93 @@ only the second is visible.
 - **AND** a wallet reference MUST NOT be made the required type of the field, because the wallet family is consumed here at a pin rather than owned, and most consumers of a credential binding carry no wallet
 
 #### Scenario: The acknowledgment is declared false
-- **WHEN** a `consumer:` block declares the shared-credential acknowledgment with the value false
+- **WHEN** a `consumer:` block declares the shared-credential acknowledgment, or the instantiation-stub token, with the value false
 - **THEN** the validator MUST report an error — the token is declared or absent, and a false value reads as governance while asserting nothing
 
-### Requirement: Two bindings on one secret are refused unless both declare distinct consumers and both acknowledge the sharing
-Two bindings in one credential binding template that share a `secret_ref` SHALL be REFUSED by default, and that refusal SHALL be lifted ONLY where every one of five conditions holds together: both bindings declare a `consumer:` block; their holder references DIFFER; their fetch identities DIFFER; both declare the shared-credential acknowledgment; and both name a QUALIFIED requirement reference — a requirement id together with the requirements document declaring it — each resolving in the repository under validation to EXACTLY ONE requirement, whose access modes are equal and are not dispatch-only.
+#### Scenario: An instantiation stub declares itself
+- **WHEN** a record that is an instantiation stub carries the const-true stub token and no identifiers
+- **THEN** neither the omission warning nor the major's requiredness applies to it, and it validates at both releases
+- **AND** a record carrying LIVE values MUST NOT declare the token, and a `*.template.yaml` filename alone MUST NOT exempt anything
 
-EVERY CONDITION FAILS CLOSED. An absent block, a shared holder reference, a
-shared fetch identity, a one-sided or missing acknowledgment, a requirement
-reference resolving to zero or to more than one record, and a mixed or
-dispatch-only access mode each leave the default refusal standing. An unreadable
+#### Scenario: A document reference escapes the tree under validation
+- **WHEN** a `requirement_ref` names a document reference that is absolute, that traverses upward, or that carries a foreign-repository prefix
+- **THEN** it is ungrammatical, it is reported, and it is NOT treated as resolved
+- **AND** the validator MUST NOT open the path — resolution is against records the validator itself discovered in the scanned tree, never against a path a record supplies
+
+### Requirement: Two bindings on one secret are refused unless every pair declares distinct consumers, acknowledges the sharing, and names a requirement bound to the binding
+Bindings in one credential binding template that share a `secret_ref` SHALL be REFUSED by default, and that refusal SHALL be lifted ONLY where every one of six conditions holds together, OVER EVERY PAIR that shares that reference: both bindings declare a `consumer:` block; their holder references DIFFER; their fetch identities DIFFER; both declare the shared-credential acknowledgment; both name a QUALIFIED requirement reference resolving, in the repository under validation, to EXACTLY ONE requirement whose ACCESS MODE IS A MEMBER OF THE DECLARED VOCABULARY, equal across the pair and not dispatch-only; and each reference's `requirement_id` EQUALS THE MAP KEY of the binding that carries it.
+
+THE SIXTH CONDITION IS THE ONE THAT MAKES THE OTHER FIVE MEAN ANYTHING, and it
+exists because the fifth alone is the author's own unverified word. Severing the
+lift from the map key removed an unenforced convention and put nothing in its
+place: the binding's author chooses which requirement the reference names, so a
+pair may point both references at whichever requirement lets them through, and
+the packaged negative that is this capability's only red proof of serving-tier
+separation is admitted with four declarations added and its shared secret
+untouched. THE REMEDY IS NOT TO TRUST THE KEY BUT TO ENFORCE IT: the schema SHALL
+constrain the `credential_bindings` map key to the identifier grammar so the key
+stops being a convention, and the reference SHALL be required to name the
+binding it sits on. A precondition an author can satisfy by choosing where to
+point is not a precondition — the same sentence this requirement already uses
+against the map key, applied to its replacement. If no such binding link can be
+specified, the lift SHALL NOT ship.
+
+THE ACCESS MODE SHALL BE READABLE, AND UNREADABLE SHALL MEAN UNAVAILABLE. The
+schema types the discriminator as an unconstrained string and one line of code
+compares it to one exact spelling, so today an ABSENT access mode compares equal
+to another absent one, and a variant spelling compares equal to itself — both
+"equal, and not dispatch-only", both lifting. The schema SHALL therefore close
+`access_mode` to a DECLARED VOCABULARY, and an access mode that is absent,
+non-string, or outside that vocabulary on either resolved record SHALL make the
+lift UNAVAILABLE rather than satisfied. This is the rule this capability's own
+estate already learned from a fail-open drift check — an entry that cannot answer
+the question is not a matching entry — applied to the field the lift turns on
+rather than only to the reference that reaches it.
+
+EVERY CONDITION FAILS CLOSED, and the list is the whole six rather than a sample:
+an absent block, a shared holder reference, a shared fetch identity, a one-sided
+or missing acknowledgment, a reference resolving to zero or to more than one
+record, a reference whose id does not equal its binding's key, an ungrammatical
+or escaping document reference, and an access mode that is absent, unrecognised,
+mixed or dispatch-only each leave the default refusal standing. An unreadable
 precondition makes the lift UNAVAILABLE and never merely UNCHECKED, because a
-check that treats what it could not read as satisfied is the fail-open shape
-this family has already had to repair once.
+check that treats what it could not read as satisfied is the fail-open shape this
+family has already had to repair once.
 
-AMBIGUITY IS UNREADABILITY, AND IS TREATED AS SUCH. A bare requirement id cannot
-carry this condition: the schema requires only a string `id` on a requirement,
-imposes no repository-wide uniqueness, and the canonical validator scans a whole
-`credentials/` tree, so one id may match records in several documents whose
-access modes DIFFER. An implementation resolving a bare id could select a
-non-dispatch match and lift the refusal while a dispatch-only match stood beside
-it, and which one it found would depend on traversal order. The reference is
-therefore QUALIFIED by its requirements document, on the shape the
-identity-brokering family already ships for this pointer, and a reference
-matching zero or more than one record SHALL be reported and SHALL NOT be treated
-as resolved.
+THE ARITY IS EVERY PAIR, NOT THE FIRST AGAINST THE REST. The predicate this rule
+inherits keeps the FIRST binding seen for each secret reference and compares
+every later one against it, so with three bindings on one secret the second and
+third are never compared with each other — and a record in which those two share
+a fetch identity carries the authority collapse and is accepted on both examined
+pairs. The conditions above SHALL hold over EVERY PAIR sharing the reference, and
+the inherited first-against-rest shape SHALL be REPLACED rather than extended.
 
-THE FIFTH CONDITION IS WHAT KEEPS THE ORIGINAL RULE INTACT, and it exists
-because the lift would otherwise be the laundering route for the exact fault the
-rule was built to refuse. This capability already forbids a dispatch-only
-credential and a content-write credential collapsing into one identity; without
-a resolvable requirement on both sides, a pair could declare that collapse to be
-deliberate sharing and buy its way past. The requirement reference is therefore
-REQUIRED FOR THE LIFT even though it is optional on the block, and it SHALL NOT
-be inferred from the binding's map key: the key is a requirement id by
-convention only, the shape enforces no key grammar, and a safety precondition
-resting on an unenforced convention is not a precondition.
+THE FIFTH CONDITION'S ACCESS-MODE EXCLUSION OVER-REFUSES DELIBERATELY. Excluding
+dispatch-only on both sides means two consumers of ONE dispatch-only credential
+are refused too, which nothing else in this capability forbids. That is a chosen
+conservatism, not an oversight: the dispatch class is where serving-tier
+separation lives, and a rule that refuses a shape no consumer currently needs is
+cheaper to relax on evidence than a rule that admits one nobody checked.
+Relaxing it SHALL be a separate act carrying its own case.
 
-AND IT OVER-REFUSES DELIBERATELY. Excluding dispatch-only on both
-sides means two consumers of ONE dispatch-only credential are refused too, which
-nothing else in this capability forbids. That is a chosen conservatism, not an
-oversight: the dispatch class is where serving-tier separation lives, and a rule
-that refuses a shape no consumer currently needs is cheaper to relax on evidence
-than a rule that admits one nobody checked. Relaxing it SHALL be a separate act
-carrying its own case.
+A REFUSAL SHALL NAME THE FAULT IT FOUND, AND NAME IT ONCE. Two bindings whose
+FETCH IDENTITIES are the same while their HOLDER REFERENCES DIFFER SHALL be
+refused under a distinct finding that names two systems sharing one authority,
+rather than under the finding about two credentials collapsing into one. They are
+different faults with different remedies, and a reader told about the wrong one
+repairs the wrong thing. Where the distinct finding applies it REPLACES the
+default finding for that pair rather than accompanying it: one fault SHALL
+produce one finding, or a reader repairing the named fault is left with a second
+refusal describing the same record.
 
-A REFUSAL SHALL NAME THE FAULT IT FOUND, AND NAME IT ONCE. Two bindings on one
-secret whose FETCH IDENTITIES are the same SHALL be refused under a distinct
-finding that names two systems sharing one authority, rather than under the
-finding about two credentials collapsing into one. They are different faults
-with different remedies, and a reader told about the wrong one repairs the wrong
-thing. Where the distinct finding applies it REPLACES the default finding for
-that pair rather than accompanying it: one fault SHALL produce one finding, or a
-reader repairing the named fault is left with a second refusal describing the
-same record.
+AND THAT FAULT IS NOT THE SHARED SECRET REFERENCE. Two different holders
+declaring one fetch identity is the authority collapse WHATEVER their
+`secret_ref`s, because a shared secret reference is a proxy for the rule and not
+the rule; scoping the finding to a shared reference leaves the same collapse
+unreported when two spellings name one secret. The finding SHALL be raised on the
+holder/fetch-identity pair within one document, independently of the secret
+reference. One holder reusing its own fetch identity across its own bindings is
+NOT the fault and SHALL NOT be reported.
 
 THE COMPARISON IS WITHIN ONE RECORD. These conditions are evaluated across the
 bindings of a single template by a validator that reads one repository, and
@@ -234,13 +280,32 @@ authority readable at each site, and reconciling the sites is an estate-level
 act this requirement does not perform.
 
 #### Scenario: Two consuming systems reach one operated identity
-- **WHEN** two bindings share a `secret_ref`, declare different holder references and different fetch identities, both declare the shared-credential acknowledgment, and both name requirements of the same non-dispatch access mode
+- **WHEN** two bindings share a `secret_ref`, declare different holder references and different fetch identities, both declare the shared-credential acknowledgment, and both name a qualified requirement whose id equals their own map key and whose access mode is the same declared non-dispatch member
 - **THEN** the record validates, and it states two consumers of one deliberately shared credential rather than two credentials collapsed into one
 
+#### Scenario: A pair points its references at a requirement neither binding is
+- **WHEN** two bindings sharing a `secret_ref` name requirement references whose ids do not equal their own map keys — for instance both pointing at the content requirement so their access modes compare equal
+- **THEN** the lift is UNAVAILABLE and the default refusal stands, because a condition the author satisfies by choosing where to point is no condition at all
+- **AND** the packaged dispatch-versus-content negative MUST stay refused however many declarations are added to it
+
+#### Scenario: A resolved requirement cannot answer the access-mode question
+- **WHEN** a resolved requirement carries no access mode, a non-string access mode, or a spelling outside the declared vocabulary
+- **THEN** the lift is UNAVAILABLE and the record is reported — never "equal, and not dispatch-only"
+- **AND** two records that both cannot answer MUST NOT compare equal to each other
+
+#### Scenario: Three bindings share one secret and two of them share an authority
+- **WHEN** three bindings share a `secret_ref` and the second and third declare the same fetch identity while the first differs from both
+- **THEN** the record MUST be refused, because the conditions hold over every pair and not merely over each pair containing the first binding
+- **AND** an implementation carrying the inherited first-against-rest shape MUST be replaced rather than extended
+
 #### Scenario: Two bindings on one secret share a fetch identity
-- **WHEN** two bindings share a `secret_ref` and declare the same fetch identity
+- **WHEN** two bindings declare different holder references and the same fetch identity
 - **THEN** they MUST be rejected under a finding naming two systems on one authority, because one identity may be shared and one authority may not
-- **AND** the finding MUST NOT be the one about two credentials collapsing into one, which would send the reader to the wrong repair
+- **AND** the finding fires whether or not their `secret_ref`s are equal, and MUST NOT be the one about two credentials collapsing into one
+
+#### Scenario: One holder reuses its fetch identity across its own bindings
+- **WHEN** one holder reference declares the same fetch identity on more than one of its own bindings
+- **THEN** nothing is reported, because a system legitimately authenticates as itself across the credentials it holds
 
 #### Scenario: One binding acknowledges the sharing and the other does not
 - **WHEN** two bindings share a `secret_ref` and only one declares the shared-credential acknowledgment
@@ -293,6 +358,21 @@ the declaration and the store disagree, the store governs, and detecting that
 disagreement is a live-estate reconciliation with its own home — the same
 posture this family already takes for observed-versus-declared identity drift.
 
+AND WHAT IT PUBLISHES SHALL BE STATED, because the reach is honest in one
+direction only until it is. The binding already carries the vault, the secret
+reference and the owner; this block adds the principal that can fetch that secret
+and the system that holds it, IN THE SAME OBJECT. The defensive gain and the
+exposure are the same fact read from two sides: for an operator, "which grant do
+I revoke" becomes a lookup rather than an inference — and for anyone who can read
+the record, so does "which principal reaches this secret". That is not
+speculative; the family this vocabulary is borrowed from already publishes live
+estate principal names in its packaged, digest-pinned examples. At the major the
+declaration becomes REQUIRED, so the disclosure stops being opt-in and becomes
+estate-wide. The disclosure is worth accepting and the residency model bounds it
+by keeping instance records in the consuming installs — but it SHALL be stated
+rather than omitted, and a packaged fixture SHALL NOT carry a live fetch identity
+merely because a live one would be more illustrative.
+
 #### Scenario: A consumer must be denied further access
 - **WHEN** an operator must stop one consuming system fetching a shared operated identity's credential
 - **THEN** the binding's declared fetch identity names the grant to revoke and the revocation's reach is bounded to that consumer's future fetches
@@ -308,7 +388,17 @@ posture this family already takes for observed-versus-declared identity drift.
 - **THEN** the store's actual grants govern, and the divergence is a reconciliation finding rather than a validation pass
 - **AND** the schema-level check MUST NOT be described as having verified the grant
 
+#### Scenario: The record is read by someone who should not reach the secret
+- **WHEN** a binding declares a fetch identity beside its vault and secret reference
+- **THEN** the record publishes, in one object, which principal reaches which secret — and an adopting change SHALL record that as a consequence of the declaration rather than describing only the revocation gain
+- **AND** at the major, where the declaration is required, that publication is estate-wide rather than per-record
+
+#### Scenario: A packaged fixture is offered a live fetch identity
+- **WHEN** a fixture destined for the packaged, digest-pinned corpus would name a live install's fetch identity or holder reference
+- **THEN** it SHALL use a fixture value instead, because the corpus is distributed to every consumer that pins the contract and illustrative realism is not a reason to widen a disclosure
+
 #### Scenario: An adopting document describes the field
 - **WHEN** a change, runbook or contract document adopts the consumer field
-- **THEN** it states both halves — revocation of access becomes readable, and a bearer secret already fetched stays shared until rotation
-- **AND** a description carrying only the first half is non-conforming, because the omission is what turns a readability gain into a containment claim
+- **THEN** it states all three halves — revocation of access becomes readable, a bearer secret already fetched stays shared until rotation, and the record now publishes which principal reaches which secret
+- **AND** a description carrying only the first is non-conforming, because the omission is what turns a readability gain into a containment claim
+- **AND** THIS OBLIGATION IS THE REQUIREMENT'S RATHER THAN A CHECKER'S — whether arbitrary prose "states all three" is a judgment over unbounded document space, so any check offered against this scenario MUST state which shapes it actually detects and MUST NOT be described as deciding the general case
