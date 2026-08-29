@@ -643,6 +643,12 @@ the checklist that produces its evidence.
       the budget itself, and firing at 50% would be a trigger nobody ratified.
       They are still computed because they are the telemetry ROLLBACK-C's
       `cost_concern` judgment is read off.
+      **AMENDED 2026-08-28 (§7.2 re-ruling): the dollar figures this
+      paragraph quotes moved. The project cap is $100 with provider-native
+      notifications at 50% ($50) and 80% ($80), and the per-tenant metered
+      crossing is $40.** The marks, the channels, the routing and the
+      install-side split are unchanged; only the amounts they are computed
+      against moved.
       **THE PATTERN IS MIRRORED, NOT APPROXIMATED.** One issue per run, title
       `avatar internal-live metering <YYYY-MM-DD>`, superseded by a STRICTLY
       OLDER date comparison so a run can never close its own issue — the
@@ -672,7 +678,8 @@ the checklist that produces its evidence.
       at 50% and 80% of the §7.2 project cap, and `gh issue create` from the
       metering job following the doc-health pattern verbatim (one issue per
       run, supersede-and-close the prior) on a per-tenant metered crossing of
-      $150/month or any cost-triggered session kill. The page target is the
+      $150/month (now $40/month, per §7.2's 2026-08-28 re-ruling) or any
+      cost-triggered session kill. The page target is the
       §7.7 kill-switch holder, and §7.7 was RULED later the same day, so this
       task inherits a NAMED PERSON rather than the role §7.4 first recorded:
       read the recipient from
@@ -1462,6 +1469,29 @@ on an unstated assumption.
       cap, `uncountable_is: exhausted`) and ROLLBACK-C `cost_concern` (the
       metered per-tenant budget, `hard_stop_exists: false`, and its alert
       reader).
+      **RE-RULED 2026-08-28 by Brett Heap, in session — THE TWO DOLLAR
+      FIGURES ONLY. Provider-project cap $750 -> $100 per calendar month,
+      still HARD at the provider, with notifications at 50% ($50) and 80%
+      ($80); per-tenant metered budget $150 -> $40 per calendar month, still
+      METERED AND ALERTED ONLY.** The paragraphs above are the 2026-08-27
+      ruling as it was recorded and are left standing; this amends them.
+      UNCHANGED: the per-session ceilings (900 s, 300 billable units = $3.00,
+      both hard and broker-enforced), `uncountable_is: exhausted`, the
+      metered-only posture of the per-tenant number, and its §7.4 reader.
+      RATIONALE: $750 was a CEILING SIZED WITH HEADROOM — ~2.4x a modelled
+      ~$310 of whole-ring consumption — and Brett re-sized it to ACTUAL
+      EXPECTED SPEND, because the ring's tests are not expected to exceed
+      ~$50 a month. The per-tenant figure is a DEPENDENT value rather than a
+      second decision: a metered budget sitting ABOVE the hard cap is
+      meaningless, so $150 could not survive a $100 cap. At $40 the ring's two
+      tenants (§7.10) carry $80 of metered exposure, still under the cap, and
+      the denominator §7.10 ruled is untouched. LANDED: the same two trip
+      points in `canary-cohort-and-rollback-policy.yaml`, plus
+      `contracts/avatar-client/usage-metering-and-alerting.yaml` `figures`,
+      `xfactory/avatar_runtime/metering.py`'s
+      `TENANT_MONTHLY_BUDGET_USD_CENTS` / `PROJECT_MONTHLY_CAP_USD_CENTS`,
+      and `scripts/validate-avatar-client.py`'s
+      `ROLLBACK_B_PROJECT_CAP_USD` / `ROLLBACK_C_TENANT_BUDGET_USD`.
 - [x] 7.3 Rotation cadence and trigger for the server key, written into the
       binding's `rotation_policy`; the SOP gives the procedure but no
       interval.
@@ -1610,6 +1640,29 @@ on an unstated assumption.
       `canary_exit_criteria`, moved from `status: unset` to `status: ruled`
       BEFORE the canary opened — which that block's own statement says is the
       point, so the ordering is itself the evidence.
+      **RE-RULED 2026-08-28 by Brett Heap, in session — THE SESSION COUNT
+      ONLY. Minimum = 100 completed canary sessions (was 200), with sub-floors
+      of >= 25 from COHORT-02 (was 50) and >= 3 per §6.2.1 evaluation scenario
+      class UNCHANGED.** UNCHANGED: the 14-day soak with sessions on >= 10
+      distinct days, the <= 2% overall and <= 5% trailing-50 abnormal rates
+      (still one number with ROLLBACK-B's `elevated_error_rate`), the >= 1
+      live ROLLBACK-B trip, the zero-open-ROLLBACK-A criterion, and the
+      definition of ABNORMAL. RATIONALE: this is a DEPENDENT consequence of
+      the same day's §7.2 re-ruling, not a fresh judgment about
+      measurability. 200 sessions at the §7.2 expected per-session cost is
+      ~$110 (~$106 at gpt-realtime-2.1's cached rate), which would hit the
+      re-ruled $100 provider-project cap BEFORE the canary could exit — the
+      count and the cap would have been ruled to fight each other, which is
+      exactly what this block's own `cost_check` exists to prevent. At n=100
+      the §6.2.1 coverage floor (15 classes x 3 = 45) is still cleared with
+      ~2.2x headroom, and the tolerated rates are still countable thresholds:
+      2% is 2 sessions and 5% is 5. The COHORT-02 sub-floor keeps its
+      one-quarter share of the count. The 2026-08-27 ruling above stands as
+      recorded; this paragraph amends it.
+      The re-ruled count landed in the same block, beside the 2026-08-27
+      `ruled:` provenance rather than replacing it: `re_ruled:`,
+      `completed_sessions: 100`, `cohort_02_domain_sandbox_min: 25`, and a
+      `cost_check` that now shows the arithmetic it turns on.
 - [x] 7.7 The operator surface that fires the kill switches — the web console
       is a kernel non-goal, so the holder and the mechanism must be named
       before the canary opens.
@@ -1763,6 +1816,13 @@ on an unstated assumption.
       from `cohort.members` rather than reading it — a count that outlives the
       membership it summarises is exactly how a budget silently starts
       metering against a denominator that no longer exists.
+      **AMENDED 2026-08-28: §7.2's two dollar figures were re-ruled the next
+      day and THIS ruling is untouched by it.** Tenant is still COHORT MEMBER
+      and the denominator is still two; §7.2 moved because its ceiling was
+      re-sized to expected spend, not because the denominator changed, so
+      `sizing_still_valid: true` still holds and the arithmetic above simply
+      restates as $40 per tenant, $80 of metered per-tenant exposure against a
+      $100 provider-project hard cap.
 
 ## 8. Realization gate
 

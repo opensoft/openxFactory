@@ -6,7 +6,7 @@ its alert in two: a Python half that computes the findings and writes
 ``issue-body.md``, and a workflow step that runs ``gh issue create
 --body-file``. This is the metering equivalent's Python half. It reads a
 metering input file, aggregates per-tenant counters, evaluates the ruled
-50/80/100 marks against the $150-per-tenant and $750-project figures, and
+50/80/100 marks against the $40-per-tenant and $100-project figures, and
 writes the issue body plus the title. IT NEVER INVOKES ``gh`` ITSELF, exactly
 as ``dashboard-refresh-nightly.py`` and the doc-health checker never do.
 

@@ -51,6 +51,25 @@ decision aid it was, so a later reader can see what was in front of the ruler.
 Where the body says "recommendation, not a ruling", read it as the state of the
 document *before* 2026-08-27.
 
+## Amended 2026-08-28 — two values were re-ruled the day after they landed
+
+**Both summary tables below, and the six sections after them, are left as they were
+written on 2026-08-27.** Two of the values they record have since been re-ruled by Brett,
+in session on 2026-08-28, and the dated amendment notes at the head of §7.2 and §7.6
+carry the reasoning:
+
+| Section | Ruled 2026-08-27 | RE-RULED 2026-08-28 |
+| --- | --- | --- |
+| **7.2** | $750/month provider-project cap (hard), alerts at 50% ($375) / 80% ($600) | **$100/month**, alerts at **50% ($50)** / **80% ($80)** |
+| **7.2** | $150/tenant/month metered budget | **$40/tenant/month** |
+| **7.6** | 200 completed canary sessions, ≥50 from COHORT-02 | **100 sessions**, **≥25** from COHORT-02 |
+
+Everything else in §7 is UNCHANGED — the per-session ceilings (15 min / 300 units /
+$3.00), the 14-day soak on ≥10 distinct days, the ≤2% / ≤5% abnormal rates, and both
+additional exit criteria. Read every figure below as the 2026-08-27 record; the live
+values are in `contracts/avatar-client/canary-cohort-and-rollback-policy.yaml` and
+`contracts/avatar-client/usage-metering-and-alerting.yaml`.
+
 ## Where the rulings landed
 
 | Input | Ruled value | Artifact carrying it |
@@ -287,6 +306,31 @@ deliberate *not now*, with a note that the two custody stories should converge l
 ---
 
 # 7.2 — Numeric ceilings
+
+> **AMENDED 2026-08-28 — the two dollar figures below were re-ruled, and this section is
+> otherwise unchanged.** Brett re-ruled §7.2 in session on 2026-08-28: the
+> provider-project HARD CAP is **$100 per calendar month** (was $750), with the
+> provider's own native notifications at **50% ($50)** and **80% ($80)**; the METERED
+> per-tenant budget is **$40 per calendar month** (was $150). The per-session ceilings —
+> 15 minutes (900 s) and 300 billable units at 1 unit = 1 US cent (= $3.00), both hard
+> and broker-enforced — are UNCHANGED, as is `uncountable_is: exhausted`, the
+> metered-only posture of the per-tenant number and its §7.4 reader.
+>
+> **Why.** The $750 recommended and ruled below is a CEILING SIZED WITH HEADROOM: ~2.4×
+> the ~$310 of whole-ring consumption modelled in the table further down. Brett re-sized
+> it to ACTUAL EXPECTED SPEND, because the ring's tests are not expected to exceed ~$50.
+> Note the two are not in conflict — the modelled ~$310 is the WHOLE qualification and
+> the cap is PER CALENDAR MONTH — but the cap is now sized to the month it governs
+> rather than to a runaway's outer bound. The per-tenant figure is a DEPENDENT value,
+> not a second decision: a metered budget sitting above the hard cap is meaningless, so
+> $150 could not survive a $100 cap. At $40, §7.10's two tenants carry $80 of metered
+> exposure, still under the cap.
+>
+> The recommendation, grounding, alternatives and verifier notes below are left EXACTLY
+> as written on 2026-08-27, because they are the record of what was recommended and what
+> was ruled then. Read every dollar figure below as "recommended and ruled 2026-08-27";
+> the live values are in `contracts/avatar-client/canary-cohort-and-rollback-policy.yaml`
+> and `contracts/avatar-client/usage-metering-and-alerting.yaml`.
 
 ### The task's own constraint text (tasks.md:678–679)
 
@@ -947,6 +991,24 @@ knowingly.
 ---
 
 # 7.6 — Canary exit criteria
+
+> **AMENDED 2026-08-28 — the session count below was re-ruled, and nothing else in this
+> section moved.** The minimum is **100 completed canary sessions** (was 200), with
+> sub-floors of **≥25 from COHORT-02** (was ≥50) and **≥3 per evaluation scenario class**
+> UNCHANGED. The 14-day soak on ≥10 distinct days, the ≤2% overall / ≤5% trailing-50
+> rates, the definition of ABNORMAL and both additional criteria are UNCHANGED.
+>
+> **Why.** This is a DEPENDENT consequence of the same day's §7.2 re-ruling, not a new
+> measurability judgment. The cost check at the end of this section's grounding —
+> 200 sessions × ~$0.55 ≈ $110 — was written against a $750 project cap; against the
+> re-ruled **$100** cap the same arithmetic hits the cap BEFORE the canary can exit, so
+> the count had to follow the cap or the two would have been ruled to fight each other.
+> At n=100 the §6.2.1 coverage floor (15 × 3 = 45) is still cleared with ~2.2× headroom
+> and the tolerated rates are still countable thresholds: 2% is 2 sessions and 5% is 5.
+> The COHORT-02 sub-floor keeps its one-quarter share of the count.
+>
+> The recommendation and grounding below stand as written on 2026-08-27; read their
+> numbers as the 2026-08-27 record.
 
 ### The task's own constraint text (tasks.md:686–687)
 

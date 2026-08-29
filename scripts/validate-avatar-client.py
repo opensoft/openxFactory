@@ -666,8 +666,12 @@ POLICY_RULED_CLASSES = {
 # criterion.
 POLICY_EXIT_SOAK_DAYS = 14
 POLICY_EXIT_DISTINCT_DAYS = 10
-POLICY_EXIT_SESSIONS = 200
-POLICY_EXIT_COHORT_02_MIN = 50
+# RE-RULED 2026-08-28: 200 -> 100 completed sessions and a 50 -> 25 COHORT-02
+# sub-floor, a dependent move of §7.2's project cap ($750 -> $100). 200
+# sessions at the §7.2 expected per-session cost is ~$110 and would hit the new
+# cap before the canary could exit.
+POLICY_EXIT_SESSIONS = 100
+POLICY_EXIT_COHORT_02_MIN = 25
 POLICY_EXIT_PER_SCENARIO_CLASS_MIN = 3
 POLICY_EXIT_ABNORMAL_OVERALL_PCT = 2
 POLICY_EXIT_ABNORMAL_TRAILING_PCT = 5
@@ -685,8 +689,12 @@ ROLLBACK_B_ERROR_TRAILING_PCT = 5
 ROLLBACK_B_TRAILING_WINDOW_SESSIONS = 50
 ROLLBACK_B_SESSION_SECONDS_MAX = 900
 ROLLBACK_B_SESSION_UNITS_MAX = 300
-ROLLBACK_B_PROJECT_CAP_USD = 750
-ROLLBACK_C_TENANT_BUDGET_USD = 150
+# RE-RULED 2026-08-28: the project cap moves $750 -> $100 (re-sized from a
+# headroom ceiling to actual expected monthly spend) and the metered per-tenant
+# budget follows it $150 -> $40, because a metered budget above the hard cap is
+# meaningless. The per-session ceilings above did NOT move.
+ROLLBACK_B_PROJECT_CAP_USD = 100
+ROLLBACK_C_TENANT_BUDGET_USD = 40
 
 # §7.7 — the operator surface, RULED 2026-08-27. The artifact's own former
 # statement was that "a canary opened without a named holder has an unfireable
@@ -729,7 +737,8 @@ POLICY_CLASS_OUTCOMES = {
 POLICY_ROLLBACK_C_OUTCOME = "operator_selected"
 
 # §7.10 — "tenant" for this ring. The per-tenant spend and metering dimensions
-# have no subject without it, and §7.2's $150 was sized on this denominator.
+# have no subject without it, and §7.2's per-tenant figure was sized on this
+# denominator.
 POLICY_TENANT_IS = "cohort_member"
 
 # §7.9 — the declared region, data-control classes and retention window, pinned
@@ -1451,9 +1460,11 @@ def _check_section_7_values(f: Findings, cat: str, rp: str, doc: Any) -> None:
     if sessions.get("completed_sessions") != POLICY_EXIT_SESSIONS:
         f.error(cat, f"{rp}: canary_exit_criteria.minimum_session_count."
                      f"completed_sessions is {sessions.get('completed_sessions')!r} "
-                     f"!= the ruled {POLICY_EXIT_SESSIONS}; the count is set by "
-                     f"MEASURABILITY — at n=50 a single failure is already 2 percent, "
-                     f"so the tolerated rate could not be evaluated at all")
+                     f"!= the ruled {POLICY_EXIT_SESSIONS}; the count is bounded "
+                     f"BELOW by measurability — at n=50 a single failure is already "
+                     f"2 percent, so the tolerated rate could not be evaluated at "
+                     f"all — and ABOVE by §7.2's provider-project cap, which is what "
+                     f"moved it from 200 on 2026-08-28")
     floors = sessions.get("sub_floors") or {}
     for key, want in (("cohort_02_domain_sandbox_min", POLICY_EXIT_COHORT_02_MIN),
                       ("per_evaluation_scenario_class_min",
@@ -1461,7 +1472,7 @@ def _check_section_7_values(f: Findings, cat: str, rp: str, doc: Any) -> None:
         if floors.get(key) != want:
             f.error(cat, f"{rp}: canary_exit_criteria.minimum_session_count."
                          f"sub_floors.{key} is {floors.get(key)!r} != the ruled "
-                         f"{want}; without the floors, 199 vendor-org sessions and "
+                         f"{want}; without the floors, 99 vendor-org sessions and "
                          f"one sandbox session would technically satisfy the count")
 
     rate = exit_criteria.get("tolerated_error_rate") or {}
