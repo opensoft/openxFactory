@@ -114,14 +114,15 @@ in its text.
       this packet authorizes tranche one only** and creates no attestation
       identity, no certificate authority, no anchor and no chain. It performs no
       realization.
-- [ ] 2.2 Confirm `target_release`. It is named **`contract-v2.3`**,
+- [x] 2.2 **CONFIRMED at ratification.** `target_release` is **`contract-v2.3`**,
       FRESH-COUNTED at this branch's tip — `contracts/manifest.yaml:3` declares
       `contract-v2.2` and `contracts/releases/contract-v2.2.digests.yaml` is a
       cut inventory in the tree, so v2.2 is spent. It stays ALLOCATED AT
       REALIZATION by merge order per `docs/contract-versioning-policy.md`, and
       the realization re-counts against the manifest at ITS tip rather than
-      trusting this line.
-- [ ] 2.3 On ratification, set front-matter `Status: ratified` and add the
+      trusting this line — that recount is §4's obligation, not an open half of
+      this box.
+- [x] 2.3 **DONE in the ratification commit.** Front-matter `Status: ratified` plus the
       `Ratified:` line naming approver, date and a resolvable record path, per
       the `sanction-ratified-record-spelling` three-way floor.
 

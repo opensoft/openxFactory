@@ -421,6 +421,43 @@ whether the rule was executed or merely recorded.* D7.6 wrote the sweep rule,
 D7.7 recorded that it had not been run, and D7.8 is what it cost to not run it
 the second time either. All three were found by the bench, none by the author.
 
+## D7.9 — Fourth appearance: flipping a status is a definition change too
+
+**Found by Copilot on `4ef39833`, three findings, all real.** The ratification
+commit set `Status: ratified` in the proposal front matter and left FOUR sites
+still asserting the opposite: the proposal's own `## Ratification` section said
+*"Not ratified"* directly beneath its ratified front matter; `tasks.md`'s header
+called §2 discharged while 2.2 and 2.3 sat unchecked; `.openspec.yaml` said
+*"THIS PACKET IS NOT RATIFIED AND CLAIMS NO RATIFICATION"*; and
+`ideation/staging/INDEX.md` said the packet *"remains UNRATIFIED"* in both its
+row and its detail section.
+
+**This is D7.6–D7.8's class a FOURTH time, and the new instance is what makes
+the general form legible.** The first three were about a rule gaining a
+conjunct and about closing a list. This one is neither — **it is a state flip**
+— and it failed identically, which shows the class was never really about rules
+or lists:
+
+> Any edit that changes what the packet ASSERTS ABOUT ITSELF is a definition
+> change, and it owes a sweep of every site that asserts the same thing.
+
+A status is asserted in more places than a rule is, because prose restates it
+naturally: front matter, a body section, a task header, task boxes, an origin
+manifest, a staging row, a staging detail section. Seven sites, one fact.
+
+**What was done differently this time, and it is the only durable part.** The
+fix was not four edits — it was a **grep-first sweep**: enumerate every
+occurrence of the status vocabulary across the packet AND its two out-of-packet
+assertion sites (README, INDEX), edit from that list, then **re-run the same
+grep and require it empty**. Fixing what a reviewer names finds one site;
+grepping the vocabulary finds the ones nobody named. Two of the four here — the
+`.openspec.yaml` line and the INDEX row — were in neither Copilot's list nor the
+first pass, and the re-grep is what caught them.
+
+**The honest summary of D7.6 through D7.9:** four rounds, one defect class, and
+the author fixed the named instance three times before writing the sweep down as
+a procedure rather than a lesson. The bench found every one.
+
 ## D8 — Four hardenings HARVESTED from the closed #494, cited to their source
 
 **Decision.** Four requirements or requirement-parts in this delta did not

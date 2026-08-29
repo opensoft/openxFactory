@@ -425,18 +425,22 @@ above.
 
 ## Ratification
 
-**Not ratified.** Ratification is Brett Heap's act; `tasks.md` §2 carries it as
-an open box, and this pull request asks for review of the packet rather than for
+**RATIFIED 2026-08-29 by Brett Heap** (repository owner), in session via
+question prompts. Record: `review/ratification-2026-08-29.md`. `tasks.md` §2 is
+discharged.
+
+**FOUR ACTS REACHED THIS PACKET AND ONLY THE LAST IS THE RATIFICATION**, all his
+and all on 2026-08-29, kept apart because merging them would misstate what each
+authorized: the seven clarify questions (#499, squash `9c501df6`); the DRAFTING
+GREEN-LIGHT, which the sitting deliberately withheld and which authorized this
+packet's existence and no word of its text; the COLLAPSE of #494 and #495 onto
+this packet; and NARROWING A. The first three are ratification's INPUT, not
 ratification.
 
-**What he HAS ruled, 2026-08-29, all in session and all recorded above:** the
-seven clarify questions (#499); the DRAFTING GREEN-LIGHT, which the sitting
-deliberately withheld and which is the authority this packet now cites for its
-own existence; the COLLAPSE of #494 and #495 onto this packet; and NARROWING A.
-None of those four is a ratification, and this document does not read any of them
-as one.
-
-Ratification would authorize exactly one Speckit contract feature plus its gate,
-and would create no certificate authority, no attestation identity, no anchor, no
-chain, and no runtime beyond the validator and the pull-request check named in
-`code_surface`.
+**What ratification authorizes: exactly one Speckit contract feature plus its
+gate.** It creates no certificate authority, no attestation identity, no anchor,
+no chain, and no runtime beyond the validator and the pull-request check named
+in `code_surface`. **It performs no realization** — contract bytes, fixtures and
+the required-check wiring are a later commission tracked in `tasks.md` §4, and
+`target_release` is re-counted there against the manifest at that tip rather
+than spent here.
