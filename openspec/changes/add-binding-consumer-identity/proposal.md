@@ -106,7 +106,7 @@ traversal order. The qualified shape is `identity-brokering`'s own
 `credential_reference` pair (`requirement_id` + `requirements_document_ref`),
 which is the second half of the composition this change is already making.
 
-Neither identifier invents a naming scheme, and that is deliberate:
+None of the three references invents a naming scheme, and that is deliberate:
 
 - **`holder_ref` is `identity-brokering`'s own spelling, already shipped and
   digest-pinned at `contract-v1.37`** — `contracts/identity-brokering/broker-client-declaration.schema.yaml:113-121`
