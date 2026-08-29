@@ -33,6 +33,11 @@ $defs:
   authority_role:
     type: string
     pattern: "^[a-z][a-z0-9_.:-]{2,95}$"
+  repository_path:
+    type: string
+    minLength: 1
+    maxLength: 512
+    pattern: '^(?!\.{1,2}(?:/|$))[A-Za-z0-9._-]+(?:/(?!\.{1,2}(?:/|$))[A-Za-z0-9._-]+)*$(?![\s\S])'
   policy_source:
     type: object
     additionalProperties: false
@@ -41,11 +46,7 @@ $defs:
       repository:
         type: string
         pattern: "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
-      path:
-        type: string
-        minLength: 1
-        maxLength: 512
-        pattern: '^(?!/)(?!.*(?:^|/)\.\.(?:/|$)).+$'
+      path: {$ref: "#/$defs/repository_path"}
       revision: {type: string, pattern: "^[0-9a-f]{40}$"}
       content_digest: {$ref: "#/$defs/digest"}
       ratification_record:
@@ -53,11 +54,7 @@ $defs:
         additionalProperties: false
         required: [path, content_digest]
         properties:
-          path:
-            type: string
-            minLength: 1
-            maxLength: 512
-            pattern: '^(?!/)(?!.*(?:^|/)\.\.(?:/|$)).+$'
+          path: {$ref: "#/$defs/repository_path"}
           content_digest: {$ref: "#/$defs/digest"}
   detection_metadata:
     type: object
