@@ -33,8 +33,10 @@ step, never an implicit copy or a silent status edit.
 ### Requirement: Controlled document status taxonomy
 Every governance document SHALL carry a `Status:` header drawn from the
 controlled taxonomy: `brainstorm`, `staged`, `draft`, `ratified`, `standard`,
-`superseded`, `retired`, `record`. Document genre SHALL NOT be encoded in the
+`superseded`, `retired`, `record`, `projection`. Document genre SHALL NOT be encoded in the
 status value; an optional `Kind:` header carries genre.
+
+**The `projection` standing.** A document that a named generator RE-DERIVES IN PLACE from a declared source of truth SHALL carry `projection` rather than `record`. Being generated is not what makes a document a record; being CAPTURED ONCE is. The test SHALL be whether re-running the generator over the same path is the correct way to update the document: where it is, the document holds no captured state for immutability to protect, and each regeneration would otherwise be reported as a content edit to a record — making the correct act a finding. A `projection` document SHALL name its generator and its source, SHALL NOT be hand-edited, and SHALL NOT be treated as authoritative over the source it renders. A one-shot capture — a simulation report, an audit output, a dated run report, a byte-exact evidence snapshot — is NOT a projection and SHALL keep `record`; a second run of such a generator writes a different path rather than rewriting the same one.
 
 **Ratification citation.** A `ratified` header SHALL name its ratification. A bare, uncited `Status: ratified` is a violation whatever else the document says, because the header asserts an approval the document does not point at. TWO citation spellings are sanctioned, and they are not interchangeable — each has a condition of use, and the condition is what decides which one is correct:
 
@@ -49,15 +51,28 @@ The floor SHALL apply to the `Ratified:` form only and SHALL NOT be applied to `
 
 A ratification citation is read in the document's lifecycle header, alongside the `Status:` header it justifies. Prose elsewhere in a document that begins with the same word — a section-level decision label, a sentence starting "Ratified together with…" — is body text and is NOT a ratification citation.
 
+**Merged into `A generated artifact is captured once` by declare-generated-projection-status (2026-08-28):** `A generated artifact is stored`
+
 #### Scenario: A document claims standard authority
 - **WHEN** a document's header declares `standard` status or its prose claims to be a shared xFactory standard
 - **THEN** a promoted OpenSpec spec or canonical contract MUST back the claim
 - **AND** absent such backing the document MUST carry `draft` or lower status
 
-#### Scenario: A generated artifact is stored
-- **WHEN** a simulation report, generated runbook, audit output, or other evidence artifact is committed
+#### Scenario: A generated artifact is captured once
+- **WHEN** a simulation report, generated runbook, audit output, dated run report, or other evidence artifact is committed as a one-shot capture
 - **THEN** it MUST carry `record` status
 - **AND** it MUST be excluded from prose-to-spec conversion and contradiction checks
+
+#### Scenario: A generated artifact is re-derived in place
+- **WHEN** a document is deterministically re-rendered over the same path by a named generator from a declared source of truth
+- **THEN** it MUST carry `projection` status rather than `record`
+- **AND** regenerating it MUST NOT be reported as a content edit to a record, because re-derivation is the only correct way to update it
+- **AND** it MUST be excluded from prose-to-spec conversion and contradiction checks, as a `record` is
+
+#### Scenario: A generator emits the status it declares
+- **WHEN** a generator writes a document this capability classifies as a projection
+- **THEN** the generator MUST emit `Status: projection` itself
+- **AND** a later regeneration MUST NOT reintroduce a status the classification has moved away from
 
 #### Scenario: A document is superseded
 - **WHEN** a later artifact replaces a document's content

@@ -283,10 +283,22 @@ predicted from the one before.
       retirement condition stated. **`pytest
       tests/doc-health/test_modified_block_currency_self_gate.py` — 15
       passed.**
-- [ ] 4.6 Merge-plus-green on main: both required checks green on the
+- [x] 4.6 Merge-plus-green on main: both required checks green on the
       proposing pull request, read back from the check-runs API rather than
-      off the pull request page. **OWED AT REALIZATION** — this packet ships
-      ACTIVE and archives only after the merge.
+      off the pull request page. **DISCHARGED 2026-08-28 AT THE ARCHIVE, and
+      merged and green are ONE event here** — the realization RODE IN the
+      proposing pull request, so the argument and the act were reviewed
+      together. Pull request **#465** merged **2026-08-28T10:47:25Z** as merge
+      commit `c79d6e54cf5093d18565f06afa1c2ea6216418de`, re-verified at this
+      act rather than read off the pull request page: `git merge-base
+      --is-ancestor c79d6e54 origin/main` exits 0, and `git cat-file -p` shows
+      a real TWO-PARENT merge (`0c0075df` + `a1067f08`) rather than a rewrite.
+      Green on the final head `a1067f08`, ALL FOUR checks read back from the
+      check-runs API: `pytest-suite` success (run 33159846355, 09:33:38Z →
+      09:49:38Z, **selected 7629, passed 7608, skipped 21, failures 0,
+      errors 0** read out of the job log rather than off a summary),
+      `wallet-validation` success, `merge-master-approval` success,
+      `copilot-pull-request-reviewer` success.
 
 ## 5. Named follow-ups, out of scope here
 
@@ -294,12 +306,29 @@ predicted from the one before.
       citing two ACTIVE changes names one of two possible destinations.
       Proposal § Open Questions Q1 recommends leaving it: it changes the
       finding COUNT rather than its content and needs its own cross-repository
-      before/after.
+      before/after. **DISPOSITION AT THE ARCHIVE 2026-08-28: CARRIED, NOT
+      DISCHARGED — deliberately left open and re-measured rather than closed by
+      the archive.** Still true of the merged tree: the doc-health single-repo
+      run taken at this act reports three `location-conformance` staged-exit
+      errors, each naming exactly one cited proposal. Q1's reason to leave it
+      is unchanged — a count change owes a cross-repository before/after that
+      no archive act can take — so the box stays open ON PURPOSE, with an owner
+      named rather than a blank: it belongs to whoever next opens the
+      staged-exit arm, and the archived record is where they will find the
+      measurement.
 - [ ] 5.2 **A staged fragment whose every cited exit has archived is now
       reported by nothing.** The silence is right for this family, and the
       lifecycle condition is real. Q2 recommends recording the gap rather than
       inventing a home for it inside a location-conformance fix;
-      `staged-candidate-aging` is the plausible owner.
+      `staged-candidate-aging` is the plausible owner. **DISPOSITION AT THE
+      ARCHIVE 2026-08-28: CARRIED AS A NAMED LIFECYCLE GAP, NOT DISCHARGED.**
+      The archive does not close it and must not be read as closing it — this
+      packet's own MODIFIED requirement is what CREATED the silence, promoted
+      into canon by this act, so the gap is now a property of canon rather than
+      of an active delta. Left open with `staged-candidate-aging` named as the
+      plausible owner, exactly as Q2 recommended, rather than given an invented
+      home inside a location-conformance fix at the moment that fix stops being
+      editable.
 - [x] 5.3 **The third ruled workstream ships separately** as
       `declare-generated-projection-status` (OD-1), and owes a disposition
       entry in the AGGREGATION repository that this packet does not.
@@ -331,7 +360,7 @@ predicted from the one before.
       the register addendum, the three live backfills, `corpus.py`,
       `families.py` and both test files are byte-identical to what the ruling
       approved.
-- [ ] 6.3 **BEFORE ARCHIVE, THIS PROPOSAL'S OWN HEADER MUST MOVE OFF
+- [x] 6.3 **BEFORE ARCHIVE, THIS PROPOSAL'S OWN HEADER MUST MOVE OFF
       `Status: draft` — AND THIS PACKET IS THE REASON THAT MATTERS.** The
       header is deliberately left at `draft` here: the 2026-08-28 ruling
       approved OD-5 and directed the merge, and this session will not spell
@@ -347,3 +376,83 @@ predicted from the one before.
       `ratified`.** Whoever performs the archive owes the header and its
       citation, derived from the ruling record. Named here rather than
       discovered later.
+      **DISCHARGED 2026-08-28 BY THE ARCHIVING SESSION, ON BRETT'S RULING OF
+      THE SAME DAY**, which directed the merge and the archive together and is
+      what the citation names. `Status: draft` → `Status: ratified` plus one
+      `Ratified:` line, written BEFORE `openspec archive` ran so it lands in
+      the archived copy rather than being retrofitted onto it. The line takes
+      the record-citing spelling because no approving OpenSpec change exists to
+      name, and clears its three-way floor on all three axes — approver
+      (`by Brett`), date (`2026-08-28`), and a resolvable record path (§ 6.1 of
+      this file, which records the selections). The two voices are kept apart:
+      the ruling's mechanism and its selections are recorded, and nothing is
+      quoted, because no verbatim wording reached the authoring session.
+
+## 7. The archive act
+
+Everything below was measured in this worktree at `6ce295c2` (`origin/main` at
+the act), before and after `openspec archive`, and re-read rather than predicted
+from the realization's own numbers.
+
+- [x] 7.1 THE MERGE, READ OUT OF GIT RATHER THAN OFF A PAGE. § 4.6 above carries
+      it in full: pull request #465, merge commit `c79d6e54`, an ancestor of
+      `origin/main` by `git merge-base --is-ancestor` (exit 0) and a real
+      two-parent merge (`0c0075df` + `a1067f08`) by `git cat-file -p`. Its
+      SIBLING `4d3f540d` (#468) names `c79d6e54` as its first parent, so the
+      order Brett directed — this packet first — is legible in the graph and not
+      only in the prose.
+- [x] 7.2 THE HEADER MOVED FIRST, THEN THE PACKET. `proposal.md` went
+      `Status: draft` → `Status: ratified` plus one `Ratified:` line BEFORE
+      `openspec archive` ran, so the archived copy carries it rather than having
+      it retrofitted. § 6.3 is the reason and § 6.1 is the record the citation
+      resolves to.
+- [x] 7.3 PROMOTION PROVED BY DIGEST, PER REQUIREMENT, NOT BY EYE.
+      `openspec/specs/doc-health/spec.md`: **39 → 39 requirements**, **179 → 181
+      scenarios**, 2108 → 2127 lines, `git diff --stat` **+21 / −2**. Every
+      `### Requirement:` block was hashed either side of the act and the two sets
+      compared: **0 requirements removed, 0 added, exactly 1 changed bytes** —
+      `Proposal supporting-document integrity checks`, the one and only title
+      this packet's MODIFIED block names — and **38 of 39 byte-identical**.
+      Canon's replaced block was 1390 bytes / 23 lines / 4 scenarios under
+      `sha256:b0e1bc81916bd8ed865565544021670aeb0089fffa7e1955dd153edf0416081c`,
+      the text that pinned "active or archived" twice; the promoted block is
+      2628 bytes / 42 lines / 6 scenarios under
+      `sha256:81267524a00f7ae9582347067687959a445997cc11bab3f07947067b7e2591b2`
+      — **byte-identical to the delta body**, the same digest computed from
+      `specs/doc-health/spec.md` in this archived folder. Zero deletions is
+      therefore a measured fact about all 38 untouched requirements, not an
+      inference from a diff stat.
+- [x] 7.4 THE ARCHIVED DELTA IS THE AUTHORED DELTA. `diff` between the file at
+      `HEAD:openspec/changes/clean-doc-health-floor/specs/doc-health/spec.md` and
+      the archived `specs/doc-health/spec.md` is EMPTY. `.openspec.yaml` MOVED
+      with the packet under openspec 1.2.0 rather than being deleted — checked by
+      blob id, not by presence: `fa04b8a7d46c89c2e415b7ac362bc402c2dcffad`,
+      unchanged since the PR #465 amendment that corrected its `approved_by`
+      narrative, so origin retention holds across the archive.
+- [x] 7.5 THE SELF-GATE ROW RETIRED ON ITS OWN STATED CONDITION, AND ITS
+      SIBLING'S WITH IT. § 4.5 added
+      `('clean-doc-health-floor', 'doc-health', 'Proposal supporting-document
+      integrity checks')` to `_LEDGER_SUBJECTS` and wrote its retirement
+      condition into the row: "it retires when the packet archives and its block
+      is promoted". Both halves were verified BEFORE the row was deleted — the
+      packet is at
+      `openspec/changes/archive/2026-08-29-clean-doc-health-floor/` and § 7.3's
+      digest proves the promotion. The set is compared with `==` rather than
+      `<=`, so leaving the row would have failed the gate exactly as adding it
+      late did. The sibling packet's row retired in the same commit on the same
+      condition: **carriage-ledger population 9 → 7, with no other subject
+      moving in either direction.**
+- [x] 7.6 THE FLOOR MOVED BY EXACTLY TWO INFO AND IN NO OTHER LINE. Full
+      single-repo run before and after the act: **4 critical / 7 error / 41
+      warning / 13 info → 4 critical / 7 error / 41 warning / 11 info.** The
+      finding lists were diffed line by line: the ONLY two lines that changed are
+      the two `modified-block-currency` INFOs naming this packet's and its
+      sibling's active delta paths. Nothing else appeared, disappeared or moved.
+- [x] 7.7 THE TWO GATES, WITH THE EXIT CODE READ RATHER THAN INFERRED.
+      `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` **79 → 78 passed,
+      0 failed** across this packet's archive (77 after the sibling's, the active
+      set having lost two members). `python3 -m pytest tests/doc-health -q` under
+      `set -o pipefail` — see the pull request body for the paired before/after
+      counts; the baseline on the untouched tree was **1330 passed, 0 failed**,
+      exit 0.
+

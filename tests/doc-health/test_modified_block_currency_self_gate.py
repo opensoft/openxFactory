@@ -410,37 +410,49 @@ _LEDGER_SUBJECTS = {
     # path by construction. Verified before deleting the row: no finding names
     # either path this packet ever had, asserted in
     # `test_the_self_finding_is_retired_by_the_archive_act`.
-    # ADDED 2026-08-28 BY `clean-doc-health-floor`. A DELIBERATE NARROWING,
-    # not a lossy carriage: the packet MODIFIES this requirement to stop
-    # `location-conformance` demanding that staged material move into the
-    # supporting-docs folder of a proposal that has ARCHIVED — a closed packet,
-    # so the remedy named an act nobody can perform. The two units this finding
-    # reports as uncarried are exactly the two the narrowing removes, and both
-    # are the same phrase: the body sentence "…already cites an active or
-    # archived proposal" and the scenario bullet "**WHEN** a staged document
-    # names an active or archived OpenSpec change as its exit or proposal".
-    # Canon says "active or archived" and the block says "ACTIVE", which is the
-    # whole point of the change. This arm cannot distinguish a deliberate
-    # rewording from drift and does not claim to — the finding is INFO, it is
-    # the audit trail for the narrowing, and it retires when the packet
-    # archives and its block is promoted.
-    ("clean-doc-health-floor", "doc-health",
-     "Proposal supporting-document integrity checks"),
-    # ADDED 2026-08-28 BY `declare-generated-projection-status`. A DELIBERATE
-    # WIDENING, not a lossy carriage. The packet adds a NINTH standing,
-    # `projection`, so a document a named generator re-derives in place stops
-    # carrying `record` and stops being reported by `record-immutability` for
-    # every legitimate regeneration. The two units this arm reports as
-    # uncarried are exactly the two the widening rewrites: the vocabulary
-    # sentence, which now lists nine values rather than eight, and the WHEN of
-    # the old `A generated artifact is stored` scenario, which is split into a
-    # captured-once case and a re-derived case. The scenario TITLE half of that
-    # split is declared to the marker arm — `**Merged into ... by
-    # declare-generated-projection-status (2026-08-28):**` — which is why that
-    # arm reads zero here and only the carriage arm speaks. Retires when the
-    # packet archives and its block is promoted.
-    ("declare-generated-projection-status", "document-lifecycle",
-     "Controlled document status taxonomy"),
+    # ADDED 2026-08-28 BY `clean-doc-health-floor` AND REMOVED THE NEXT DAY BY
+    # ITS ARCHIVE ACT — ('clean-doc-health-floor', 'doc-health', 'Proposal
+    # supporting-document integrity checks'). THE ROW RETIRED ON THE CONDITION
+    # IT WAS WRITTEN WITH, which is why this is a retirement and not a loss.
+    # It recorded a DELIBERATE NARROWING rather than a lossy carriage: the
+    # packet MODIFIED this requirement to stop `location-conformance` demanding
+    # that staged material move into the supporting-docs folder of a proposal
+    # that has ARCHIVED — a closed packet, so the remedy named an act nobody
+    # can perform. The two units the finding reported as uncarried were exactly
+    # the two the narrowing removed, both the same phrase: the body sentence
+    # "…already cites an active or archived proposal" and the scenario bullet
+    # "**WHEN** a staged document names an active or archived OpenSpec change
+    # as its exit or proposal". The row's own stated condition was "it retires
+    # when the packet archives and its block is promoted". BOTH HALVES ARE MET
+    # AND WERE VERIFIED BEFORE THE ROW WAS DELETED, not after: the packet
+    # archived to `openspec/changes/archive/2026-08-29-clean-doc-health-floor/`,
+    # and the block WAS promoted — canon's "Proposal supporting-document
+    # integrity checks" is now byte-identical to the delta body under
+    # `sha256:81267524a00f7ae9582347067687959a445997cc11bab3f07947067b7e2591b2`
+    # and says "an ACTIVE proposal" and "an ACTIVE OpenSpec change" where it
+    # said "active or archived". The family reads no archived path by
+    # construction, so no finding names either path this packet ever had.
+    # ADDED 2026-08-28 BY `declare-generated-projection-status` AND REMOVED THE
+    # NEXT DAY BY ITS ARCHIVE ACT — ('declare-generated-projection-status',
+    # 'document-lifecycle', 'Controlled document status taxonomy'). THE SECOND
+    # ROW RETIRED BY THE SAME PULL REQUEST, on its own stated condition. It
+    # recorded a DELIBERATE WIDENING rather than a lossy carriage: the packet
+    # added a NINTH standing, `projection`, so a document a named generator
+    # re-derives in place stops carrying `record` and stops being reported by
+    # `record-immutability` for every legitimate regeneration. The two units
+    # the arm reported as uncarried were exactly the two the widening rewrote —
+    # the vocabulary sentence, which now lists nine values rather than eight,
+    # and the WHEN of the old `A generated artifact is stored` scenario, split
+    # into a captured-once case and a re-derived case. The scenario TITLE half
+    # of that split was declared to the marker arm, which is why that arm read
+    # zero and only the carriage arm spoke. The row's condition was "retires
+    # when the packet archives and its block is promoted", and BOTH halves were
+    # verified before the deletion: the packet archived to
+    # `openspec/changes/archive/2026-08-29-declare-generated-projection-status/`
+    # and canon's "Controlled document status taxonomy" is now byte-identical
+    # to the delta body under
+    # `sha256:04537b7fdb210a74a35038e35cba85e02bccc21bdac68e19efb80d1a926c4e53`,
+    # carrying the ninth value and both halves of the split scenario.
     ("add-notebook-projection-identity", "lifecycle-notebook-projection",
      "The session namespace is reconciled against live sessions"),
     ("declare-client-standing-policy-contract", "client-layer-tuning",
@@ -782,7 +794,7 @@ def test_the_scenario_arm_reads_zero_since_the_rename_was_declared():
 
 
 def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
-    """PACKET § 4.1's editorial arm, as an EXACT SET of ten named subjects.
+    """PACKET § 4.1's editorial arm, as an EXACT SET of eight named subjects.
 
     COMPARED WITH `==`, NOT `<=`, and the reason is the family's own subject: a
     subset comparison would let a newly lossy MODIFIED block land unreported,
@@ -801,9 +813,11 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
 
     assert not gone and not fresh, _moved(
         "the carriage-ledger population (9 named subjects at 76a2ad27; 8 after "
-        "PR #424's rename; 7 since this packet archived on 2026-08-27; 10 since "
-        "the OD-2 veto of 2026-08-28 gave add-credential-escrow-checkout a "
-        "MODIFIED block, alongside the two 2026-08-28 packets already named)",
+        "PR #424's rename; 7 since this packet archived on 2026-08-27; 9 again "
+        "while the two doc-health-floor packets of 2026-08-28 stood active; 10 "
+        "since the OD-2 veto of 2026-08-28 gave add-credential-escrow-checkout "
+        "a MODIFIED block; 8 since the two doc-health-floor packets archived "
+        "together)",
         f"{len(gone)} named subject(s) NO LONGER reported "
         f"{sorted(gone)}; {len(fresh)} unnamed subject(s) NEWLY reported "
         f"{sorted(fresh)}")
