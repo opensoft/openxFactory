@@ -25,7 +25,8 @@ operational witness and BITCOIN-VIA-OPENTIMESTAMPS ON EVERY ANCHORED ITEM as the
 durability witness, inverting the study's ordering and dropping its optionality;
 Q5 keeps the door open for on-chain contract code in a future change instead of
 refusing it forever. The topic is fully ruled; tranche one is draftable on
-Brett's word.
+Brett's word — the sitting answered the questions and did NOT green-light the
+drafting, so "draftable" is a readiness state and not an authorization.
 
 ## Pre-document idea notes
 
@@ -492,13 +493,24 @@ recorded, and it is ADVISORY to a future change rather than a bar on one. A
 later author who reads the caution as a refusal has misread the ruling; a later
 author who ignores it has misread the record.
 
-## Open questions
+## Open questions — all seven SETTLED 2026-08-29
 
 **ALL SEVEN ARE RULED.** The clarify sitting was held **2026-08-29** and Brett
 Heap ruled every question in it; each disposition below carries its date and its
 ruling authority. The section keeps its name and its structure because a
 question and its recommendation are the record a disposition is read against —
 deleting the question would leave the ruling answering nothing.
+
+*The heading declares the closure because that is where the readiness gate reads
+it.* `completeness._open_question_items` closes a question section either by a
+resolution word in the HEADING or by an uppercase closure token
+(`RESOLVED`/`ANSWERED`/`CLOSED`/`DECIDED`/`SETTLED`) in the body — and `RULED`
+is not one of them, so a section full of rulings would still have counted as one
+standing open item and refused proposal commissioning for a topic that is
+actually decided. **A later author who adds a Q8 must strike `SETTLED` from this
+heading**, or the gate will count the new question as already closed. The
+declaration is in the heading rather than buried in prose for exactly that
+reason: it is where someone adding a question cannot miss it.
 
 Four were ruled AS RECOMMENDED (Q1, Q2, Q4, Q7) and one CONFIRMED as recommended
 (Q6). **Two diverge, and both are labelled where they land**: **Q3** was ruled in
