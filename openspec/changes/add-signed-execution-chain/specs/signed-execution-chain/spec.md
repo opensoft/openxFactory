@@ -424,16 +424,16 @@ this capability's digest requirement fixes:
    ratification's CONTENT digest, taken over the subject ratified — a DIFFERENT
    comparison over a DIFFERENT subject, which is the replay check and not the
    identity check;
-4. the inception leaf commits to that same chain identity; and
+4. the inception leaf commits to that same chain identity;
 5. the traveling contract's carried chain identity and carried leaf digest EQUAL
-   the values established above; and
+   the values established above;
 6. the ACTOR the chain records is bound to the wallet that signed, per this
    capability's actor-binding requirement — the actor's subject carries a wallet
    attestation, that attestation names the wallet whose key made the exercise,
    and the binding falls inside the signed bytes;
 7. the exercise's PROOF OF POSSESSION was supplied AND verified, and its outcome
    is the authenticated one — never a `verification_failure` and never an
-   `unauthenticated_request`; and
+   `unauthenticated_request`; and finally
 8. the STANDING of the authority was current AT EXERCISE — the exercise's
    revocation check returns not-revoked for the grant, for every ancestor of it,
    and for the holder — and the HOLDER CLASS is one this capability admits for a
