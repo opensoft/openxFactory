@@ -39,15 +39,13 @@ test.
   count a warning as an error by accident.
 - [ ] 2.2 `binding-authority-undeclared` (WARNING): a binding that does not
   declare BOTH `consumer` and `fetch_identity`. FIRES ON EITHER ABSENCE, not
-  only on both — the two are refused together at the next major, so a record
-  declaring one and omitting the other must be warned or it breaks there with no
-  notice. The message names whichever is missing and states the removal version
-  allocated at 5.2; a deprecation warning that does not say when it becomes an
-  error is not a migration path. NOT raised for a missing `requirement_id` —
-  warning on it would put it on the deprecation path this packet deliberately
-  keeps it off. The message names BOTH fields and states the
-  removal version allocated at 5.2 — a deprecation warning that does not say
-  when it becomes an error is not a migration path.
+  only on both — the two are refused together at the next major version, so a
+  record declaring one and omitting the other must be warned or it breaks there
+  with no notice. The message NAMES WHICHEVER IS MISSING (both, when both are)
+  and states the removal version allocated at 5.2; a deprecation warning that
+  does not say when it becomes an error is not a migration path. NOT raised for
+  a missing `requirement_id` — warning on it would put it on the deprecation
+  path this packet deliberately keeps it off.
 - [ ] 2.3 `shared-fetch-identity` (ERROR): within one document, two bindings
   declaring equal `fetch_identity` while both declare `consumer` and the
   consumers differ. NOT raised when either side omits `consumer`: the record

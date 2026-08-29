@@ -241,9 +241,9 @@ realization is mechanical.
    message is kept for the unexempted case, because it is the same finding.
 3. **`binding-authority-undeclared` (WARNING).** A binding that does not declare
    BOTH `consumer` and `fetch_identity` — on EITHER absence, not only on both,
-   because the two are refused together at the next major version and a record declaring one
-   while omitting the other would otherwise sail through every minor and break
-   there unwarned. Not raised for a missing `requirement_id`, which is off the
+   because the two are refused together at the next major version, and a record
+   declaring one while omitting the other would otherwise sail through every
+   minor and break there unwarned. The message names whichever is missing. Not raised for a missing `requirement_id`, which is off the
    deprecation path by design. This requires the validator's FIRST warning
    channel: warnings print with a `WARN` prefix, do not increment `errors`, and
    do not change the exit code. Two consequences to get right — the self-test
