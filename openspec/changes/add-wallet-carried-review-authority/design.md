@@ -362,6 +362,12 @@ Dependency-ordered. Each is a SEPARATE successor change with its own
 | S3 | Exercise at verdict conformance: seat key minted in the deliberation job; signature verified at `check_verdict`; exercise recorded | hermes-install (`council-orchestration`) | A seat return with no verifiable signature is refused fail-closed; a conforming one writes an exercise record |
 | S5 | Revocation re-check at verdict consumption; staleness bound; unreadable ⇒ refuse; composition pinning + re-issuance runbook | hermes-install + openxFactory | A revoked holder parks a convening with a named refusal in a rehearsed test; an unreadable register refuses; the runbook is walked once against a deliberate composition bump |
 
+**Supporting guidance only:** the [S5 model-version governance research
+report](research/s5-model-version-governance-research-report.md) organizes
+implementation evidence and unresolved decisions but does not amend this design,
+authorize implementation, or satisfy the S5 gate; it selects no Council model or
+Operator version, discharges no task, and reopens no Q8.
+
 **Ordering constraints that are not negotiable.** S1 precedes everything (until a
 reader exists, issuing a grant issues nothing). S2 precedes the first wallet (an
 unanchored root grant is an unbounded one). S4 cannot precede S1 by its own
