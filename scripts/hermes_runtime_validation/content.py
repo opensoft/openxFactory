@@ -11,8 +11,18 @@ import subprocess
 
 
 _OBJECT_ID = re.compile(r"[0-9a-fA-F]{40}|[0-9a-fA-F]{64}")
-_CLOSED_REPOSITORY_PATH = re.compile(
-    r"[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*"
+_CLOSED_REPOSITORY_PATH = re.compile(r"[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*")
+_INDEXED_GIT_CONFIG_ENVIRONMENT = re.compile(r"GIT_CONFIG_(?:KEY|VALUE)_[0-9]+")
+_SCRUBBED_GIT_ENVIRONMENT = (
+    "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+    "GIT_COMMON_DIR",
+    "GIT_CONFIG_COUNT",
+    "GIT_CONFIG_PARAMETERS",
+    "GIT_DIR",
+    "GIT_INDEX_FILE",
+    "GIT_OBJECT_DIRECTORY",
+    "GIT_REPLACE_REF_BASE",
+    "GIT_WORK_TREE",
 )
 
 
@@ -76,20 +86,18 @@ def normalize_repository_path(path: str | os.PathLike[str]) -> str:
     return normalized
 
 
-def _git(repo: Path, *arguments: str, binary: bool = False) -> str | bytes:
-    environment = os.environ.copy()
-    # A caller-controlled Git environment must not redirect this exact-object
-    # lookup to another repository or activate replacement-object semantics.
-    for name in (
-        "GIT_COMMON_DIR",
-        "GIT_DIR",
-        "GIT_WORK_TREE",
-        "GIT_INDEX_FILE",
-        "GIT_OBJECT_DIRECTORY",
-        "GIT_REPLACE_REF_BASE",
-    ):
-        environment.pop(name, None)
+def _sanitized_git_environment() -> dict[str, str]:
+    environment = {
+        name: value
+        for name, value in os.environ.items()
+        if name not in _SCRUBBED_GIT_ENVIRONMENT
+        and _INDEXED_GIT_CONFIG_ENVIRONMENT.fullmatch(name) is None
+    }
     environment["GIT_NO_REPLACE_OBJECTS"] = "1"
+    return environment
+
+
+def _git(repo: Path, *arguments: str, binary: bool = False) -> str | bytes:
     try:
         result = subprocess.run(
             ["git", "--no-replace-objects", "-C", str(repo), *arguments],
@@ -97,7 +105,7 @@ def _git(repo: Path, *arguments: str, binary: bool = False) -> str | bytes:
             text=not binary,
             check=False,
             timeout=30,
-            env=environment,
+            env=_sanitized_git_environment(),
         )
     except (OSError, subprocess.TimeoutExpired) as exc:
         raise ContentResolutionError("Git content dependency is unavailable") from exc
@@ -124,10 +132,14 @@ def resolve_git_object(
     if not isinstance(revision, str) or _OBJECT_ID.fullmatch(revision) is None:
         raise ContentResolutionError("revision must be a full Git object ID")
 
-    commit_oid = str(_git(repo, "rev-parse", "--verify", f"{revision}^{{commit}}")).strip()
+    commit_oid = str(
+        _git(repo, "rev-parse", "--verify", f"{revision}^{{commit}}")
+    ).strip()
     if _OBJECT_ID.fullmatch(commit_oid) is None:
         raise ContentResolutionError("Git returned an invalid commit object ID")
-    tree_oid = str(_git(repo, "rev-parse", "--verify", f"{commit_oid}^{{tree}}")).strip()
+    tree_oid = str(
+        _git(repo, "rev-parse", "--verify", f"{commit_oid}^{{tree}}")
+    ).strip()
 
     listing = bytes(
         _git(
