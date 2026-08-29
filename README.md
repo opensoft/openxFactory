@@ -391,6 +391,41 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [extend-credential-binding-authority](openspec/changes/extend-credential-binding-authority/proposal.md)
+  — the NAMED SUCCESSOR owed by task 4.5 of
+  `add-notebook-hosting-credential-custody`, which Brett ratified 2026-08-23
+  with its admitted enforcement gap in view. That packet ruled ONE IDENTITY /
+  PER-SYSTEM AUTHORITY and then recorded, in a scenario of its own ratified
+  delta, that the published record cannot express it: the binding template
+  requires `[provider, secret_ref, owner, rotation_policy]`, carries no
+  consumer and no identity field, and `scripts/validate-credential-contracts.py`
+  compares no authorities — so two bindings naming one vault principal validate
+  cleanly and the invariant is held by review. **The unclaimed key is already
+  in the tree**: `contracts/avatar-client/broker-server-key-binding.template.yaml`
+  is `kind: xfactory_credential_binding_template` and already carries
+  `fetch_identity` in a document-level block the schema neither declares nor
+  forbids — the same defect, on the same schema, that its own
+  `issuance_preconditions` vocabulary was added to retire. Adds THREE ADDITIVE
+  OPTIONAL fields (`consumer`, `fetch_identity`, `requirement_id`), one new
+  refusal (`shared-fetch-identity`), and the validator's FIRST WARNING CHANNEL —
+  optional plus warning is the additive class, required is the breaking class
+  and owes a full minor of warnings first (`contract-v1.34`'s pattern). **The
+  decision it puts to the council** is the question task 4.1 left open: should
+  `shared-secret-identity` distinguish two credentials collapsed into one from
+  two consumers of one credential? Its position is YES, discriminated by the
+  SHARED `requirement_id` and NEVER by the distinct consumer — because the
+  packaged negative `dispatch-reuses-content-secret.yaml` HAS distinct consumers
+  and, under the dispatch-only separation requirement, must have distinct
+  identities, so the obvious exemption would turn this repository's own test
+  fixture green. The alternative — leave the check unconditional — is recorded
+  with its honest cost: the ratified two-consumer shape then has no conforming
+  single-document representation, and the per-document comparison means the
+  estate can split it across two files and trip nothing. THREE ADDED
+  requirements and NO MODIFIED block, deliberately: two of the seven promoted
+  requirements already carry live deltas. `contracts/` is untouched by the
+  proposal; the additive cut is scheduled for realization with its minor
+  allocated by merge order, coupled to `add-credential-escrow-checkout`, which
+  edits the same schema and owes the same minor.
 - [settle-aging-staging-topics](openspec/changes/settle-aging-staging-topics/proposal.md)
   — authored 2026-08-28 on Brett's four bulk rulings over a read-only triage
   survey of the fourteen staging topics `doc-health`'s

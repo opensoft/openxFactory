@@ -1,0 +1,47 @@
+schema: spec-driven
+created: 2026-08-29
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-29-extend-credential-binding-authority
+  reason: >-
+    THE NAMED SUCCESSOR OWED BY A RATIFIED CHANGE, raised on its own terms
+    rather than on a fresh instruction. `add-notebook-hosting-credential-custody`
+    was ratified by Brett Heap on 2026-08-23
+    (`openspec/changes/add-notebook-hosting-credential-custody/review/ratification-2026-08-23.md`),
+    and its task 4.5 records this packet's whole subject as OWED and NAMED:
+    "extend the published binding shape so the per-system authority is
+    REPRESENTABLE. Today `xfactory_credential_binding_template` requires only
+    `[provider, secret_ref, owner, rotation_policy]` with optional `vault`,
+    carries no consumer or access-identity field, and the validator compares no
+    authorities — so two bindings using the same vault principal validate
+    cleanly and the invariant is held by review rather than by the record."
+    That gap was one of the three items the ratifying read had in view: the
+    ratification record states that Brett ratified with "the admitted
+    enforcement gap with its schema successor named" before him. So the origin
+    act is the ratification of a packet that named this successor and deferred
+    it deliberately, and the deferral's stated reason — that extending
+    `contracts/schemas/` carries the full contract-release ritual — is the
+    reason this is a separate packet rather than an amendment to that one.
+    NO STAGING FOLDER IS CLAIMED. The organized source is the ratified task and
+    the two ratified requirements it serves, cited in proposal.md and design.md,
+    so `ad_hoc` is the correct kind and is not standing in for staging.
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — by ratifying
+    `add-notebook-hosting-credential-custody` on 2026-08-23 with its task 4.5
+    and its admitted enforcement gap in view, which authorized the successor to
+    be AUTHORED.
+    THE CITATION COVERS TWO THINGS AND NOTHING ELSE: that a successor extending
+    the binding shape is owed, and that it is a separate packet carrying the
+    release ritual. It does NOT cover this packet's field names, its rule
+    shapes, its position on the `shared-secret-identity` question that task 4.1
+    left open, or any other decision in proposal.md § Decisions put to the
+    review. Every one of those was taken by the authoring session, is FLAGGED
+    there for the council review and for Brett's ruling, and is unratified.
+    This packet stands at `Status: draft` until that ruling happens.
+  approved_on: 2026-08-23
+related:
+  - openxFactory:change:add-notebook-hosting-credential-custody  # ACTIVE and ratified; its task 4.5 names this successor and its two ADDED requirements are the obligations this packet makes checkable
+  - openxFactory:change:add-notebook-projection-identity         # ACTIVE; carries the live MODIFIED delta on "The credential vault operator is an execution binding", which is one of the two canon requirements this packet deliberately does not modify
+  - openxFactory:change:add-credential-escrow-checkout           # ACTIVE and ratified; edits the SAME schema file and the SAME validator, and owes the same next additive minor — the merge-order coupling is stated in design.md
+  - openxFactory:change:qualify-avatar-live-voice                # ACTIVE; owns contracts/avatar-client/broker-server-key-binding.template.yaml, the shipped record already carrying an undeclared `fetch_identity` key on this very record kind
+  - openxFactory:change:promote-credential-contracts             # promoted the binding-template shape this packet extends
