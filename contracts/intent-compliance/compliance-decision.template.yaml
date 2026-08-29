@@ -17,6 +17,7 @@ vocabulary:
   vocabulary_id: example.policy.v1
   vocabulary_digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
 registry:
+  status: resolved
   registry_id: example.registry
   revision_id: example.revision.1
   revision_digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
@@ -33,8 +34,11 @@ deterministic_evidence:
   evaluated_content_digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
   vocabulary_id: example.policy.v1
   vocabulary_digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
-  registry_id: example.registry
-  revision_digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+  registry:
+    status: resolved
+    registry_id: example.registry
+    revision_id: example.revision.1
+    revision_digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
   evaluator_id: example.evaluator
   evaluator_version: 1.0.0
   finding_digests: []

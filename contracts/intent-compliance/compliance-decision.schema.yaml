@@ -44,14 +44,7 @@ properties:
     properties:
       vocabulary_id: {$ref: "#/$defs/identifier"}
       vocabulary_digest: {$ref: "#/$defs/digest"}
-  registry:
-    type: object
-    additionalProperties: false
-    required: [registry_id, revision_id, revision_digest]
-    properties:
-      registry_id: {$ref: "#/$defs/identifier"}
-      revision_id: {$ref: "#/$defs/identifier"}
-      revision_digest: {$ref: "#/$defs/digest"}
+  registry: {$ref: "#/$defs/registry_state"}
   allowance_references:
     type: array
     maxItems: 64
@@ -153,6 +146,27 @@ $defs:
     properties:
       registry_id: {$ref: "#/$defs/identifier"}
       allowance_id: {$ref: "#/$defs/identifier"}
+  registry_state:
+    oneOf:
+      - {$ref: "#/$defs/resolved_registry_state"}
+      - {$ref: "#/$defs/unresolved_registry_state"}
+  resolved_registry_state:
+    type: object
+    additionalProperties: false
+    required: [status, registry_id, revision_id, revision_digest]
+    properties:
+      status: {const: resolved}
+      registry_id: {$ref: "#/$defs/identifier"}
+      revision_id: {$ref: "#/$defs/identifier"}
+      revision_digest: {$ref: "#/$defs/digest"}
+  unresolved_registry_state:
+    type: object
+    additionalProperties: false
+    required: [status, registry_id, reason_code]
+    properties:
+      status: {const: unresolved}
+      registry_id: {$ref: "#/$defs/identifier"}
+      reason_code: {enum: [registry_not_found, registry_head_ambiguous]}
   resolution:
     oneOf:
       - {$ref: "#/$defs/resolved_resolution"}
@@ -258,13 +272,12 @@ $defs:
   deterministic_evidence:
     type: object
     additionalProperties: false
-    required: [evaluated_content_digest, vocabulary_id, vocabulary_digest, registry_id, revision_digest, evaluator_id, evaluator_version, finding_digests, evidence_codes, ambiguity_refs, evidence_digest]
+    required: [evaluated_content_digest, vocabulary_id, vocabulary_digest, registry, evaluator_id, evaluator_version, finding_digests, evidence_codes, ambiguity_refs, evidence_digest]
     properties:
       evaluated_content_digest: {$ref: "#/$defs/digest"}
       vocabulary_id: {$ref: "#/$defs/identifier"}
       vocabulary_digest: {$ref: "#/$defs/digest"}
-      registry_id: {$ref: "#/$defs/identifier"}
-      revision_digest: {$ref: "#/$defs/digest"}
+      registry: {$ref: "#/$defs/registry_state"}
       evaluator_id: {$ref: "#/$defs/identifier"}
       evaluator_version: {type: string, pattern: '^[0-9]+\.[0-9]+\.[0-9]+$'}
       finding_digests:
