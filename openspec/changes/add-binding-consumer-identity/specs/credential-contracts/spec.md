@@ -53,7 +53,7 @@ A shared ambient session SHALL NOT be used as a substitute for a second binding.
 ## ADDED Requirements
 
 ### Requirement: A credential binding declares the consuming system that holds it and the identity it fetches with
-The canonical credential schema SHALL own an ADDITIVE OPTIONAL `consumer:` block on each entry of `credential_bindings` in `xfactory_credential_binding_template`, carrying the consuming system's HOLDER REFERENCE and the FETCH IDENTITY that system USES TO AUTHENTICATE to the secret store, and the block SHALL be CLOSED — a member outside the declared set is invalid.
+The canonical credential schema SHALL own an ADDITIVE OPTIONAL `consumer:` block on each entry of `credential_bindings` in `xfactory_credential_binding_template`, carrying the consuming system's HOLDER REFERENCE and the FETCH IDENTITY that system USES TO AUTHENTICATE to the secret store, and the block's member set SHALL be closed IN TWO STEPS — an undeclared member warns at the introducing minor and is refused at the next major.
 
 THE TWO IDENTIFIERS ARE VOCABULARY THIS FAMILY ALREADY USES, and a second naming
 scheme SHALL NOT be introduced for either. The holder reference is the
@@ -73,6 +73,18 @@ valid value is true, on the same reasoning this schema already applies to
 issuance preconditions: a false-valued declaration reads as governance while
 asserting nothing.
 
+THE REQUIREMENT REFERENCE SHALL BE QUALIFIED, NOT A BARE IDENTIFIER, and it
+SHALL take the shape the identity-brokering family already ships for exactly
+this pointer: a requirement id TOGETHER WITH the requirements document that
+declares it. A bare id resolves ambiguously — this schema requires only a string
+`id` on a requirement and imposes no repository-wide uniqueness, while the
+canonical validator scans a whole `credentials/` tree, so one id may match
+records in several documents with DIFFERENT access modes. A reference that can
+match two records with different meanings is not a reference, and any rule built
+on it would vary with traversal order. Where a qualified reference resolves to
+ZERO or to MORE THAN ONE requirement, the reference SHALL be reported and SHALL
+NOT be treated as resolved.
+
 THE BLOCK IS OPTIONAL AND ADDITIVE AT ITS INTRODUCING RELEASE, AND THE PHASING
 IS THE VERSIONING POLICY'S RATHER THAN A PREFERENCE. A binding declaring no
 `consumer:` block SHALL remain valid at that release and every consumer pinned
@@ -87,9 +99,33 @@ A BLOCK-SHAPED HOLE IS NOT A FIELD. The reason the block is DECLARED rather than
 left to convention is that an undeclared key on this object already validates:
 the binding object is not closed, so a `consumer:` key carrying anything at all
 passes the pinned schema today, unenforceable and invisible to every consumer of
-that contract. Closing the block is what converts that hole into a shape with a
-refusal. Closing the BINDING OBJECT around it is a separate, breaking act and
-SHALL NOT ride this addition.
+that contract. Declaring the block is what gives that hole a shape.
+
+AND CLOSING IT IS THE SAME BREAKING ACT AS REQUIRING IT, SO IT PHASES THE SAME
+WAY. Because the binding object is open TODAY, a domain may already hold a
+binding carrying a locally shaped `consumer:` object, and that record validates
+at the current major. Refusing it the moment this block lands would NARROW a
+shape the current major accepts — the breaking class, however additive the new
+members look — and the compatibility direction forbids a new release
+retroactively invalidating an old pin. So the closure serves the same
+deprecation the requiredness does: at the introducing minor an undeclared member
+WARNS and the record stays VALID; at the next major it is REFUSED. A change that
+declared the members and closed them in one minor would be a breaking change
+wearing an additive label, which is the failure this sequencing exists to
+prevent.
+
+Closing the BINDING OBJECT around the block is a further, separate breaking act
+and SHALL NOT ride this addition at all.
+
+A TEMPLATE IS NOT AN INSTANTIATED BINDING. An instantiation stub — the
+`.template.yaml` and `.example.yaml` shapes this family already treats as stubs
+rather than records — declares no consuming system because none exists yet, and
+the omission warning and the major's refusal SHALL NOT apply to one. The reason
+is not convenience: a stub forced to satisfy the field would satisfy it with a
+placeholder, and a placeholder that passes the identifier grammar is a
+declaration that reads as an authority fact while naming nothing. Scaffolding
+that manufactures conformance is worse than scaffolding that omits it, because
+only the second is visible.
 
 #### Scenario: A binding declares its consumer
 - **WHEN** a credential binding declares a `consumer:` block naming a holder reference and a fetch identity
@@ -105,9 +141,23 @@ SHALL NOT ride this addition.
 - **THEN** the validator MUST report an error
 - **AND** that release MUST have been preceded by a full minor in which the omission produced a warning, because a required field arriving without one is a breaking change served with no deprecation
 
-#### Scenario: The block carries a member outside its declared set
-- **WHEN** a `consumer:` block declares a member the shape does not declare
-- **THEN** the validator MUST report an error naming the closed set, rather than accepting a local key riding a neutral schema that neither declares nor forbids it
+#### Scenario: The block carries a member outside its declared set, at the introducing minor
+- **WHEN** a `consumer:` block declares a member the shape does not declare, at the release that introduces the block
+- **THEN** the record remains VALID and the validator emits a warning naming the declared set and the release at which the member becomes an error
+- **AND** it is NOT refused, because the binding object is open on the current major and a locally shaped `consumer:` object validates there — refusing it now would narrow a shape the major accepts
+
+#### Scenario: The block carries a member outside its declared set, at the major that closes it
+- **WHEN** a `consumer:` block declares an undeclared member at the major release that closes the block
+- **THEN** the validator MUST report an error naming the declared set, rather than accepting a local key riding a neutral schema that neither declares nor forbids it
+
+#### Scenario: An existing record already carries a locally shaped consumer key
+- **WHEN** a domain's binding already carries a `consumer:` object of its own shaping, written while the binding object was open
+- **THEN** it stays VALID across this addition and is warned rather than refused, and the migration path to the declared members is stated where a consumer upgrading across the major will read it
+
+#### Scenario: An instantiation stub carries no consumer
+- **WHEN** a `.template.yaml` or `.example.yaml` instantiation stub carries a binding with no `consumer:` block
+- **THEN** neither the omission warning nor the major's refusal applies, because a stub has no consuming system to name
+- **AND** a stub that satisfied the field with a grammar-passing placeholder would be WORSE, because it would read as an authority declaration while naming nothing
 
 #### Scenario: A consuming system is offered as a persona
 - **WHEN** a binding names its consuming system by a broker persona or actor-subject reference
@@ -124,14 +174,27 @@ SHALL NOT ride this addition.
 - **THEN** the validator MUST report an error — the token is declared or absent, and a false value reads as governance while asserting nothing
 
 ### Requirement: Two bindings on one secret are refused unless both declare distinct consumers and both acknowledge the sharing
-Two bindings in one credential binding template that share a `secret_ref` SHALL be REFUSED by default, and that refusal SHALL be lifted ONLY where every one of five conditions holds together: both bindings declare a `consumer:` block; their holder references DIFFER; their fetch identities DIFFER; both declare the shared-credential acknowledgment; and both name a requirement reference that resolves, in the repository under validation, to requirements whose access modes are equal and are not dispatch-only.
+Two bindings in one credential binding template that share a `secret_ref` SHALL be REFUSED by default, and that refusal SHALL be lifted ONLY where every one of five conditions holds together: both bindings declare a `consumer:` block; their holder references DIFFER; their fetch identities DIFFER; both declare the shared-credential acknowledgment; and both name a QUALIFIED requirement reference — a requirement id together with the requirements document declaring it — each resolving in the repository under validation to EXACTLY ONE requirement, whose access modes are equal and are not dispatch-only.
 
-EVERY CONDITION FAILS CLOSED. An absent block, a one-sided acknowledgment, a
-shared fetch identity, an unresolvable requirement reference and a mixed access
-mode each leave the default refusal standing. An unreadable precondition makes
-the lift UNAVAILABLE and never merely UNCHECKED, because a check that treats
-what it could not read as satisfied is the fail-open shape this family has
-already had to repair once.
+EVERY CONDITION FAILS CLOSED. An absent block, a shared holder reference, a
+shared fetch identity, a one-sided or missing acknowledgment, a requirement
+reference resolving to zero or to more than one record, and a mixed or
+dispatch-only access mode each leave the default refusal standing. An unreadable
+precondition makes the lift UNAVAILABLE and never merely UNCHECKED, because a
+check that treats what it could not read as satisfied is the fail-open shape
+this family has already had to repair once.
+
+AMBIGUITY IS UNREADABILITY, AND IS TREATED AS SUCH. A bare requirement id cannot
+carry this condition: the schema requires only a string `id` on a requirement,
+imposes no repository-wide uniqueness, and the canonical validator scans a whole
+`credentials/` tree, so one id may match records in several documents whose
+access modes DIFFER. An implementation resolving a bare id could select a
+non-dispatch match and lift the refusal while a dispatch-only match stood beside
+it, and which one it found would depend on traversal order. The reference is
+therefore QUALIFIED by its requirements document, on the shape the
+identity-brokering family already ships for this pointer, and a reference
+matching zero or more than one record SHALL be reported and SHALL NOT be treated
+as resolved.
 
 THE FIFTH CONDITION IS WHAT KEEPS THE ORIGINAL RULE INTACT, and it exists
 because the lift would otherwise be the laundering route for the exact fault the
@@ -191,6 +254,15 @@ act this requirement does not perform.
 - **WHEN** two bindings share a `secret_ref` and a named requirement reference resolves to nothing in the repository under validation
 - **THEN** the lift is UNAVAILABLE and the default refusal stands
 - **AND** the unresolvable reference is reported rather than treated as an absent condition that happens not to fail
+
+#### Scenario: The requirement reference resolves to more than one record
+- **WHEN** a named requirement reference matches requirement records in more than one document, or more than one record in a document
+- **THEN** the lift is UNAVAILABLE and the ambiguity is reported, exactly as a reference resolving to nothing is
+- **AND** an implementation MUST NOT resolve the ambiguity by picking one — the two matches may carry different access modes, and a rule whose outcome depends on which was found first is not a rule
+
+#### Scenario: A bare requirement id is offered instead of a qualified reference
+- **WHEN** a `consumer:` block names a requirement by id alone, with no requirements document
+- **THEN** the reference does not satisfy the lift's condition, because a bare id is not unique in the tree the validator scans
 
 #### Scenario: Two bindings share a secret and declare nothing
 - **WHEN** two bindings share a `secret_ref` and neither declares a `consumer:` block

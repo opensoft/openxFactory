@@ -402,9 +402,10 @@ Active changes:
   published `xfactory_credential_binding_template` requires only
   `[provider, secret_ref, owner, rotation_policy]`, carries no consumer or
   access-identity field, and the validator compares no authorities, so two
-  bindings on one vault principal validate cleanly. That gap is registered three
-  times in the predecessor (its own scenario, its Impact section, and tasks
-  §4.5) and this change is what discharges it. **The sharpest statement of it is
+  bindings on one vault principal validate cleanly. That gap is registered FIVE
+  times in the predecessor — its requirement's own scenario, its Impact section,
+  its design, its tasks §4.5 and its ratification record — and this change is
+  what discharges it. **The sharpest statement of it is
   canon's own**: promoted `credential-contracts` says a consuming lane receives
   "only bindings: an opaque secret reference and a fetch-identity identifier" —
   the shape carries the first and not the second. **MEASURED, not assumed**: a
@@ -417,7 +418,12 @@ Active changes:
   `shared_credential_acknowledged`) in vocabulary the estate already ratified:
   `holder_ref` is `identity-brokering`'s shipped spelling and a consuming system
   is emphatically NOT a persona, `fetch_identity` is `credential-contracts`'s own
-  words. **IT TIGHTENS BEFORE IT LIFTS** — `shared-secret-identity` keeps its
+  words, and the requirement reference is that family's shipped
+  `credential_reference` pair rather than a bare id (a bare id is not unique in
+  the tree the validator scans). **The block is DECLARED now and CLOSED at the
+  major**, because the binding object is open today and a domain may already
+  hold a locally shaped `consumer:` object the current major accepts — closing it
+  in a minor would narrow. **IT TIGHTENS BEFORE IT LIFTS** — `shared-secret-identity` keeps its
   refusal as the default, a new `shared-authority-identity` names the real fault
   (two systems, one authority), and the two-consumers-of-one-identity shape the
   predecessor had to DECLINE becomes expressible only through five

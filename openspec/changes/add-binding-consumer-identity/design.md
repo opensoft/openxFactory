@@ -11,6 +11,14 @@ Everything below was read at `origin/main` on 2026-08-29 (bundle
 `contract-v2.1`). Where a figure is stated it was executed, not remembered, and
 the execution is named beside it.
 
+THREE SECTIONS RECORD A CORRECTION RATHER THAN A CHOICE — §3's qualified
+requirement reference, §5's two-step closure, and §5b's template exemption.
+Each was a P1 from the bot round on pull request #497, each was taken, and each
+is written with the rejected first draft still visible, because a design
+document that shows only the position it ended at hides the argument that moved
+it. In all three the packet already held the principle and had applied it one
+level too shallow, which is the shape of finding this estate keeps producing.
+
 ## 1. The naming question, which the estate had already answered twice
 
 The brief for this change asked what an access identity may reference — a
@@ -171,12 +179,13 @@ conditions hold at once, each of which an adversary must satisfy separately:
 | 2 | `holder_ref`s differ | one system wearing two hats |
 | 3 | `fetch_identity`s differ | two systems on one authority — the custody invariant itself |
 | 4 | both declare `shared_credential_acknowledged: true` | a one-sided declaration exempting a pair |
-| 5 | both name a `requirement_ref` resolving in-repository to requirements with equal `access_mode`, not `dispatch_only` | the dispatch/content collapse laundering itself as intentional sharing |
+| 5 | both name a QUALIFIED `requirement_ref` (id + requirements document) resolving in-repository to EXACTLY ONE requirement, with equal `access_mode`, not `dispatch_only` | the dispatch/content collapse laundering itself as intentional sharing — and an ambiguous id picking the permissive match |
 
 Every one FAILS CLOSED, and the list is the whole five rather than a sample: an
 absent block, a shared `holder_ref`, a shared `fetch_identity`, a one-sided or
-missing acknowledgment, an unresolvable requirement reference and a mixed or
-dispatch-only access mode each leave the original refusal standing. That direction is deliberate and it is the estate's own lesson, with
+missing acknowledgment, a requirement reference resolving to ZERO or to MORE
+THAN ONE record, and a mixed or dispatch-only access mode each leave the
+original refusal standing. That direction is deliberate and it is the estate's own lesson, with
 running code to cite. `scripts/doc_health/release_inventory.py:235-248` records
 a fail-open the release-inventory-drift family shipped with and a bot round
 caught: two comparisons written as `if recorded.get(field) and …`, so *"an
@@ -199,15 +208,37 @@ nobody needs is cheaper to relax later than a rule that permits one nobody
 checked. If such a case appears, relaxing this half is a successor with its own
 evidence; a seat that thinks the exclusion should be narrower now should say so.
 
-**Condition 5 is why `requirement_ref` exists at all**, and the alternative was
-checked before it was rejected. The `credential_bindings` map key is the
-requirement id BY CONVENTION — the packaged example's keys `intent_dispatch` and
+**Condition 5 is why `requirement_ref` exists at all**, and TWO alternatives
+were rejected — the second only after a bot round.
+
+The first was the map key. `credential_bindings`'s key is the requirement id BY
+CONVENTION — the packaged example's keys `intent_dispatch` and
 `corpus_content_write` are exactly the requirement ids in its sibling
-requirements example — but the schema declares `additionalProperties` with no
-key grammar and no validator reads the key as an id. A safety precondition
-resting on a convention nothing enforces is not a precondition, so the reference
-is explicit. It is optional on the block, required only for the lift, and the
+requirements example — but the schema declares `additionalProperties` with no key
+grammar and no validator reads the key as an id. A safety precondition resting
+on a convention nothing enforces is not a precondition, so the reference is
+explicit. It is optional on the block, required only for the lift, and the
 ordinary single-consumer binding pays nothing for it.
+
+The second was a BARE requirement id, which is what the packet carried until
+Codex's second P1 (PR #497). The schema requires only a string `id` on a
+requirement and imposes NO repository-wide uniqueness, while
+`scripts/validate-credential-contracts.py` rglobs a whole `credentials/` tree —
+so one id may match records in several documents whose `access_mode` DIFFERS. An
+implementation could then lift the refusal on a non-dispatch match while a
+dispatch-only match stood beside it, and which it found would depend on
+traversal order. **A precondition whose outcome depends on directory iteration
+order is not a precondition either** — the same sentence as the map-key
+rejection, arriving at a different field, which is the signal the packet had
+been thinking about uniqueness on one side only.
+
+So the reference is QUALIFIED: `requirement_id` PLUS
+`requirements_document_ref`. That is not a shape invented for the repair — it is
+the pair identity-brokering's shipped `credential_reference` already carries for
+this exact pointer, which means the composition §1 claimed on `holder_ref` now
+holds for the reference beside it too. And ambiguity is treated as
+UNREADABILITY, not resolved: zero matches and two matches both report and both
+withhold the lift, on the same fail-closed rule as an absent block.
 
 **The promoted dispatch requirement is NOT modified, and that was checked rather
 than skipped.** "Dispatch-only credential least privilege and serving-tier
@@ -244,27 +275,80 @@ same false comfort, and the family has a registered negative fixture for that
 exact shape one record kind over
 (`examples/credential-contracts/negative/issuance-precondition-valued-false.yaml`).
 
-## 5. The closed block, and the hole it closes
+## 5. The block's closure, and the argument that turned it into two steps
 
-`additionalProperties: false` goes ON THE BLOCK and is not proposed for the
-binding object around it.
+`additionalProperties: false` goes ON THE BLOCK, is NOT proposed for the binding
+object around it, and DOES NOT LAND AT THE SAME RELEASE AS THE BLOCK. The last
+clause is a correction, and the correction is instructive enough to keep the
+original reasoning visible beside it.
 
-**On the block, because the hole is measured.** Executed on 2026-08-29 against
+**The hole is measured.** Executed on 2026-08-29 against
 `contracts/schemas/xfactory-credential-contracts.schema.yaml`: a binding
 carrying `consumer: {holder_ref: …, fetch_identity: …, totally: unchecked}`
 validates with ZERO errors, because the binding object declares properties
 without closing them. So the field this change adds already exists as an
 unenforceable free-text hole, and any domain may be writing into it now,
-invisibly to every consumer of the pinned contract. Declaring the block and
-closing it is what converts that into a shape with a refusal.
+invisibly to every consumer of the pinned contract.
 
-**NOT on the binding object, and the restraint is the point.** Closing the
-binding object would be a BREAKING change under the policy's own class
-definition — it removes a shape (arbitrary extra keys) that pinned consumers may
-be relying on — and it would do it silently, with no deprecation minor served.
-The wider closure is named as a successor rather than smuggled in behind an
-additive one, which is the same restraint the escrow packet exercised when it
-kept its `escrow:` block optional.
+**THE FIRST DRAFT DREW THE WRONG CONCLUSION FROM THAT MEASUREMENT, and Codex
+caught it (PR #497, P1).** The packet said: declare the block and close it, in
+one additive minor. But the measurement's own premise defeats that. If the key
+is writable today, then a domain may ALREADY hold a binding carrying a locally
+shaped `consumer:` object, and that record VALIDATES on the current major.
+Closing the block in a minor refuses it. That is a NARROWING — the breaking
+class, however additive the four new members look — and it is exactly what
+§ Compatibility Direction forbids: *"nothing in a new openxFactory release may
+retroactively invalidate an old pin."*
+
+The packet had the argument in hand and did not apply it one level down. It
+already said, correctly, that closing the BINDING OBJECT would be breaking
+because *"it removes a shape (arbitrary extra keys) that pinned consumers may be
+relying on"*. Closing the `consumer:` object removes arbitrary extra keys within
+that one name — the identical act, one level in. THE LESSON IS THE FAMILIAR ONE
+IN A NEW PLACE: a settled fact was chased to the enclosing object and stopped
+there.
+
+**So the closure phases exactly as the requiredness does.** At the introducing
+minor an undeclared member WARNS (`consumer-block-unknown-member`) and the
+record stays valid; at the next major it is refused, alongside
+`consumer-identity-undeclared`. Same policy clause, same reason, same release.
+This also removes an inconsistency the first draft carried without noticing:
+requiring the field was phased and closing it was not, though both are the
+breaking class.
+
+**Still NOT the binding object.** That closure is a further breaking act with a
+much wider blast radius, and it stays a named successor rather than riding an
+additive change — the same restraint the escrow packet exercised when it kept
+its `escrow:` block optional.
+
+## 5b. Templates are not instances, and a conforming placeholder is the worse failure
+
+Codex's third P1 (PR #497) hit the sweep's own remedy rather than the packet's
+requirement text, which makes it the sharpest of the three.
+
+Task §4.1 asked `scripts/apply-domain-starter.py` to emit the `consumer:` block,
+on the reasoning that a field its own scaffolder does not emit is a field every
+new domain starts out of conformance with. That reasoning is sound about
+INSTANCES and wrong about this artifact. The generator emits
+`credentials/bindings.template.yaml` — a domain-level TEMPLATE, written before
+any client install, any vault, or any fetch identity exists, in a document whose
+own neighbouring guidance says *"Domain repos provide templates only."*
+
+Requiring the block there leaves two outcomes and both are bad. The template's
+established placeholder style is `<client-vault-name>`, which FAILS the
+identifier grammar this change reuses from identity-brokering. And the obvious
+repair — a syntactically valid sentinel — is worse: it suppresses
+`consumer-identity-undeclared` and reads as the record fact the whole change
+exists to establish, while naming nothing. **Scaffolding that manufactures
+conformance is worse than scaffolding that omits it, because only the second is
+visible.**
+
+The fix uses a distinction this repository already draws rather than inventing
+one: `.template.yaml` and `.example.yaml` are instantiation stubs, not records.
+Neither the omission warning nor the major's refusal applies to a stub. The
+generator emits the block in the template's own placeholder style so an
+instantiator sees the field exists; the validator does not read that placeholder
+as a declaration.
 
 ## 6. What this makes provable — and the reach it does not have
 
@@ -408,6 +492,8 @@ surface and is listed as such.
 - **Not a change to the hosting record.** Its singular `custody.binding_id` is
   raised as OQ-3 and left to its owning capability.
 - **Not a closure of the binding object.** Named as a successor in §5.
+- **Not a closure of the `consumer:` block at this release either.** Declared
+  here, executed at the major alongside the requiredness — §5.
 - **Not a second identity vocabulary.** Both identifiers are words this estate
   ratified before this packet existed.
 - **Not a live secret act.** Nothing here creates, moves, or reads credential

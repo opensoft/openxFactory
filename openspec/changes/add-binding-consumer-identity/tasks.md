@@ -31,12 +31,19 @@ touches no vault.
 - [ ] 1.1 Add `consumer:` to each entry of `credential_bindings` in
   `xfactory_credential_binding_template`
   (`contracts/schemas/xfactory-credential-contracts.schema.yaml`): `holder_ref`
-  and `fetch_identity` REQUIRED WITHIN THE BLOCK, `requirement_ref` optional,
-  `shared_credential_acknowledged` optional with `const: true`.
-  `additionalProperties: false` ON THE BLOCK.
+  and `fetch_identity` REQUIRED WITHIN THE BLOCK, `requirement_ref` optional and
+  QUALIFIED (`requirement_id` + `requirements_document_ref`, the shipped
+  `credential_reference` pair), `shared_credential_acknowledged` optional with
+  `const: true`.
+- [ ] 1.1a **DO NOT SET `additionalProperties: false` ON THE BLOCK AT THIS CUT.**
+  The binding object is open today, so a domain may already hold a locally shaped
+  `consumer:` object that the current major accepts; refusing it in a minor is a
+  narrowing wearing an additive label (design §5, Codex P1). The closure lands at
+  the MAJOR, with the requiredness. A test asserts the schema ACCEPTS an
+  undeclared member at this cut and that the validator warns about it.
 - [ ] 1.2 The block itself stays OPTIONAL on the binding, and the binding object
-  stays UNCLOSED. Closing the binding object is a breaking act and is NOT this
-  change — see design §5. A test asserts the un-narrowing: a binding template
+  stays UNCLOSED. Closing the binding object is a further breaking act and is NOT
+  this change — see design §5. A test asserts the un-narrowing: a binding template
   carrying no `consumer:` block validates unchanged.
 - [ ] 1.3 Identifier grammar reuses the shipped one rather than inventing a
   third: `identity-brokering`'s `identifier` pattern
@@ -58,7 +65,12 @@ touches no vault.
   schema owns) rather than inventing a fourth shape.
 - [ ] 2.2 `consumer-identity-undeclared` — WARNING on a binding with no
   `consumer:` block, naming the release at which it becomes an error. It is an
-  ERROR only at that major and MUST NOT be one before.
+  ERROR only at that major and MUST NOT be one before. IT DOES NOT FIRE ON AN
+  INSTANTIATION STUB (`*.template.yaml`, `*.example.yaml`) — see §4.1.
+- [ ] 2.2a `consumer-block-unknown-member` — WARNING on a `consumer:` block
+  member outside the declared set, naming the declared set and the release at
+  which it becomes an error. Same phasing as 2.2 and for the same policy clause:
+  the closure is the breaking half, not the declaration.
 - [ ] 2.3 `shared-secret-identity` — keep the predicate and the refusal as the
   DEFAULT, and add the five-condition lift exactly as the requirement states it,
   each condition failing closed. A test per condition, each proving the
@@ -66,10 +78,15 @@ touches no vault.
 - [ ] 2.4 `shared-authority-identity` — NEW error: two bindings on one
   `secret_ref` declaring the same `fetch_identity`. The message names two
   systems on one authority and does not mention secret reuse.
-- [ ] 2.5 The fifth condition's resolution: `requirement_ref` resolves against
-  the `xfactory_credential_requirements` records in the repository under
-  validation. UNRESOLVABLE MUST REPORT AND WITHHOLD THE LIFT — never pass
-  silently, never treat what could not be read as satisfied.
+- [ ] 2.5 The fifth condition's resolution: the QUALIFIED `requirement_ref`
+  resolves against the `xfactory_credential_requirements` records in the
+  repository under validation. ZERO MATCHES **AND MORE THAN ONE MATCH** BOTH
+  REPORT AND WITHHOLD THE LIFT — never pass silently, never treat what could not
+  be read as satisfied, and never disambiguate by picking one: requirement ids
+  carry no repository-wide uniqueness, two matches may differ in `access_mode`,
+  and a rule whose outcome depends on traversal order is not a rule (Codex P1).
+  A test drives the two-match case explicitly, with the two records carrying
+  DIFFERENT access modes so a picking implementation is caught.
 - [ ] 2.6 A mutation round over §2.3–§2.5, one mutant per condition, and each
   mutant's death asserted by a NAMED test rather than by a count. A harness has
   a fourth state: a mutant that dies because its anchor is missing has proved
@@ -81,12 +98,15 @@ touches no vault.
   template — the fixture `add-notebook-hosting-credential-custody` §4.1 DECLINED
   because the unsharpened rule refuses it. Landing it is this change's own
   evidence that the decision handed forward has been taken.
-- [ ] 3.2 NEGATIVES, one per named refusal: same fetch identity; one-sided
-  acknowledgment; acknowledgment valued false; a member outside the closed
-  block; a dispatch/content pair declaring itself shared; an unresolvable
-  requirement reference. Each registered in the validator's
-  `NEGATIVE_EXPECTATIONS` map, because an unregistered negative is reported by
-  the self-test as having no expectation.
+- [ ] 3.2 NEGATIVES, one per named refusal: same fetch identity; same holder
+  reference; one-sided acknowledgment; acknowledgment valued false; a
+  dispatch/content pair declaring itself shared; a requirement reference
+  resolving to nothing; a requirement reference resolving to TWO records with
+  different access modes; a bare id offered instead of a qualified reference.
+  Each registered in the validator's `NEGATIVE_EXPECTATIONS` map, because an
+  unregistered negative is reported by the self-test as having no expectation.
+  (A member outside the declared set is NOT a negative at this cut — it is a
+  WARNING fixture, and the negatives map is an error-code map.)
 - [ ] 3.3 UPDATE THE SELF-TEST COUNT STRING IN THE SAME COMMIT.
   `tests/credential_contracts/test_dispatch_credential_contract.py:35` asserts
   `"self-test: 3 positive + 5 negative example(s) confirmed"` verbatim. Any
@@ -105,11 +125,21 @@ and shipped artifacts included. Three writers of the binding shape were found by
 grep on 2026-08-29, and one of them is executable.
 
 - [ ] 4.1 `scripts/apply-domain-starter.py:2096-2102` — THE GENERATOR, and the
-  one that matters. It emits `credentials/bindings.template.yaml` into every
-  newly scaffolded domain repository. If it does not emit the `consumer:` block,
-  every new domain repo is seeded with a binding the new validator warns about on
-  its first run, and the field's own scaffolder is its first non-conformant
-  consumer.
+  one that needed a correction before it needed a change. It emits
+  `credentials/bindings.template.yaml` into every newly scaffolded domain
+  repository. The first draft of this task said simply "emit the block", and
+  Codex's third P1 showed why that is wrong: what it emits is a domain-level
+  TEMPLATE written before any install, vault or fetch identity exists, so the
+  block can only be emitted as a placeholder — and the template's own
+  `<client-vault-name>` style FAILS the identifier grammar, while a
+  grammar-passing sentinel would SUPPRESS `consumer-identity-undeclared` and read
+  as the record fact this change exists to establish, while naming nothing.
+  **Scaffolding that manufactures conformance is worse than scaffolding that
+  omits it.** So: the generator emits the block in the template's OWN placeholder
+  style, and the validator EXEMPTS instantiation stubs (`*.template.yaml`,
+  `*.example.yaml`) from the omission warning and from the major's refusal —
+  reusing the stub-versus-record distinction this repository already draws rather
+  than inventing one. A test asserts a freshly scaffolded repo validates clean.
 - [ ] 4.2 `docs/domain-factory-starter-pack.md:804-810` — the same template in
   prose, and the document that already says "Bindings belong to client or tenant
   deployments, not the domain repo. Domain repos provide templates only." The
@@ -119,10 +149,13 @@ grep on 2026-08-29, and one of them is executable.
   plus the invariant's prose home: what a declared consumer buys and the bearer
   limit that survives it, stated together as the requirement demands.
 - [ ] 4.4 RE-RUN THE SWEEP AT REALIZATION rather than trusting this list. It was
-  taken at one commit; `grep -rln "rotation_policy"` over tracked `*.md`,
-  `*.yaml` and `*.py` is the command, and the frozen records under
-  `openspec/changes/**` are correctly excluded — an active packet's own text is a
-  record of what was true when it was written.
+  taken at one commit, and the command is reproducible as written rather than as
+  described (Copilot): `git grep -l "rotation_policy" -- '*.md' '*.yaml' '*.py'
+  ':(exclude)openspec/changes/**'`. The exclusion is SPELLED because the frozen
+  records under `openspec/changes/**` are correctly out of scope — an active
+  packet's own text is a record of what was true when it was written — and a
+  plain `grep -rln` would sweep them back in while the sentence beside it claimed
+  they were excluded.
 
 ## 5. The release ritual
 
@@ -175,6 +208,9 @@ grep on 2026-08-29, and one of them is executable.
 
 - **Closing the binding object.** Breaking, deserves its own deprecation minor,
   named as a successor in design §5.
+- **Closing the `consumer:` block itself.** Also breaking, and it lands at the
+  MAJOR alongside the requiredness rather than in this cut — declared here,
+  executed there.
 - **Cross-repository reconciliation of two consumers' bindings.** No
   per-repository validator can perform it; named as a successor in design §6(ii).
 - **Live binding instances.** The residency model holds: they live in the

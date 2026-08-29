@@ -1,6 +1,6 @@
 ---
-code_surface: openxFactory — A SCHEMA CHANGE PLUS PACKAGED FIXTURES PLUS A VALIDATOR CHANNEL THAT DOES NOT EXIST YET. `contracts/schemas/xfactory-credential-contracts.schema.yaml` gains ONE additive optional `consumer:` block on each entry of `credential_bindings` in the existing `xfactory_credential_binding_template` (`holder_ref`, `fetch_identity`, an optional `requirement_ref`, and an optional const-true `shared_credential_acknowledged`), closed with `additionalProperties: false` on the block itself. `scripts/validate-credential-contracts.py` gains (a) a WARNING channel — it has none today, it prints `ERROR` and counts errors and nothing else, so the deprecation posture below is not merely unimplemented but currently unexpressible — and (b) three finding codes: `consumer-identity-undeclared` (warning now, error at the next major), the sharpened `shared-secret-identity`, and the new `shared-authority-identity`. Packaged fixtures under the existing `examples/credential-contracts/` tree: the two-consumers-of-one-operated-identity POSITIVE that the custody change had to DECLINE because the current rule refuses it, and one negative per named refusal. `tests/credential_contracts/test_dispatch_credential_contract.py` asserts the self-test count string `"3 positive + 5 negative"` verbatim at `:35` and MUST move in the same commit as the fixtures. Registration in `contracts/manifest.yaml` (the `credential-contracts` row's `sha256` and `consumption_rule`) and `contracts/CHANGELOG.md` at the cut, a `Deprecations Currently In Force` entry in `docs/contract-versioning-policy.md`, and the invariant's prose home `docs/credential-access-model.md` (whose worked binding at `:219-225` is one of the artifacts below). AND THE THREE SHIPPED ARTIFACTS THAT ALREADY WRITE THIS SHAPE, swept for rather than assumed — a settled fact is chased to the whole repository including generators: `scripts/apply-domain-starter.py:2096-2102`, which EMITS `credentials/bindings.template.yaml` into every newly scaffolded domain repository and would otherwise seed each one with a binding the new validator warns about on its first run; `docs/domain-factory-starter-pack.md:804-810`, the same template in prose; and `docs/credential-access-model.md:219-225`, the worked example. A schema field whose own scaffolder does not emit it is a field every new consumer starts out of conformance with. NOT THIS CHANGE'S SURFACE, each for a stated reason: the LIVE binding instances (residency model — `contracts/manifest.yaml` records that "openxFactory ships no instance records"); the openXdox binding (its own repository's lane); the hosting record's singular `custody.binding_id` pointer (raised as OQ-3, not resolved here); and any cross-repository comparison of two consumers' bindings (named as an owed successor in § Honest reach).
-target_release: THE NEXT ADDITIVE MINOR, DELIBERATELY NOT NUMBERED HERE — allocated AT REALIZATION by merge order per `docs/contract-versioning-policy.md`. `contract-v2.1` is the declared bundle (`contracts/manifest.yaml:3`). A number written here would be a number another packet is already spending: `add-credential-escrow-checkout` is ratified and owes an additive minor on THIS SAME FILE, and the `contract-v1.28` renumber sweep is the standing precedent for why a proposal must not spend a minor before merge order is known. THE CLASS IS ADDITIVE (MINOR) TODAY AND BREAKING (MAJOR) LATER, and the policy's own three-class definition (`docs/contract-versioning-policy.md:242-255`) is what makes that a sequence rather than a preference: "Additive (minor) — new optional fields, new contracts, new validator warnings" covers the block and the warning exactly; "Breaking (major) — a required field is added ... Requires: a CHANGELOG migration note, at least one full minor release where the old shape produced deprecation warnings, and an update to the conformance validator that accepts the new shape and rejects the old one only at the new major version" is what making `consumer:` REQUIRED costs, and the full minor of warnings that clause demands is the one THIS cut begins serving. So the required-at target is the next MAJOR (`contract-v3.0` at today's numbering) and it is named in the deprecation entry rather than executed here. A binding declaring no `consumer:` block stays VALID at this cut, every consumer pinned at `contract-v2.1` stays conformant until it upgrades, and nothing narrows.
+code_surface: openxFactory — A SCHEMA CHANGE PLUS PACKAGED FIXTURES PLUS A VALIDATOR CHANNEL THAT DOES NOT EXIST YET. `contracts/schemas/xfactory-credential-contracts.schema.yaml` gains ONE additive optional `consumer:` block on each entry of `credential_bindings` in the existing `xfactory_credential_binding_template` (`holder_ref`, `fetch_identity`, an optional QUALIFIED `requirement_ref` carrying a requirement id plus the requirements document declaring it, and an optional const-true `shared_credential_acknowledged`). THE BLOCK IS NOT CLOSED AT THIS CUT: `additionalProperties: false` on it lands at the MAJOR, because the binding object is open today and a domain may already hold a locally shaped `consumer:` object that the current major accepts — see § What Changes. `scripts/validate-credential-contracts.py` gains (a) a WARNING channel — it has none today, it prints `ERROR` and counts errors and nothing else, so the deprecation posture below is not merely unimplemented but currently unexpressible — and (b) four finding codes: `consumer-identity-undeclared` and `consumer-block-unknown-member` (both warning now, error at the next major), the sharpened `shared-secret-identity`, and the new `shared-authority-identity`. Packaged fixtures under the existing `examples/credential-contracts/` tree: the two-consumers-of-one-operated-identity POSITIVE that the custody change had to DECLINE because the current rule refuses it, and one negative per named refusal. `tests/credential_contracts/test_dispatch_credential_contract.py` asserts the self-test count string `"3 positive + 5 negative"` verbatim at `:35` and MUST move in the same commit as the fixtures. Registration in `contracts/manifest.yaml` (the `credential-contracts` row's `sha256` and `consumption_rule`) and `contracts/CHANGELOG.md` at the cut, a `Deprecations Currently In Force` entry in `docs/contract-versioning-policy.md`, and the invariant's prose home `docs/credential-access-model.md` (whose worked binding at `:219-225` is one of the artifacts below). AND THE THREE SHIPPED ARTIFACTS THAT ALREADY WRITE THIS SHAPE, swept for rather than assumed — a settled fact is chased to the whole repository including generators: `scripts/apply-domain-starter.py:2096-2102`, which EMITS `credentials/bindings.template.yaml` into every newly scaffolded domain repository and would otherwise seed each one with a binding the new validator warns about on its first run; `docs/domain-factory-starter-pack.md:804-810`, the same template in prose; and `docs/credential-access-model.md:219-225`, the worked example. A schema field whose own scaffolder does not emit it is a field every new consumer starts out of conformance with — BUT what the scaffolder emits is a STUB, so the validator exempts `.template.yaml` and `.example.yaml` from the omission warning rather than letting a placeholder satisfy it. NOT THIS CHANGE'S SURFACE, each for a stated reason: the LIVE binding instances (residency model — `contracts/manifest.yaml` records that "openxFactory ships no instance records"); the openXdox binding (its own repository's lane); the hosting record's singular `custody.binding_id` pointer (raised as OQ-3, not resolved here); and any cross-repository comparison of two consumers' bindings (named as an owed successor in § Honest reach).
+target_release: THE NEXT ADDITIVE MINOR, DELIBERATELY NOT NUMBERED HERE — allocated AT REALIZATION by merge order per `docs/contract-versioning-policy.md`. `contract-v2.1` is the declared bundle (`contracts/manifest.yaml:3`). A number written here would be a number another packet is already spending: `add-credential-escrow-checkout` is ratified and owes an additive minor on THIS SAME FILE, and the `contract-v1.28` renumber sweep is the standing precedent for why a proposal must not spend a minor before merge order is known. THE CLASS IS ADDITIVE (MINOR) TODAY AND BREAKING (MAJOR) LATER, and the policy's own three-class definition (`docs/contract-versioning-policy.md:242-255`) is what makes that a sequence rather than a preference: "Additive (minor) — new optional fields, new contracts, new validator warnings" covers the block and the warning exactly; "Breaking (major) — a required field is added ... Requires: a CHANGELOG migration note, at least one full minor release where the old shape produced deprecation warnings, and an update to the conformance validator that accepts the new shape and rejects the old one only at the new major version" is what making `consumer:` REQUIRED costs, and the full minor of warnings that clause demands is the one THIS cut begins serving. So the required-at target is the next MAJOR (`contract-v3.0` at today's numbering) and it is named in the deprecation entry rather than executed here. A binding declaring no `consumer:` block stays VALID at this cut, a binding already carrying a locally shaped `consumer:` object stays VALID at this cut TOO (it warns), every consumer pinned at `contract-v2.1` stays conformant until it upgrades, and NOTHING NARROWS — which is a property this packet had to be corrected into: the first draft closed the block in the same minor, which would have refused an existing record the current major accepts. Both the requiredness AND the closure land at the major, for the same clause and the same reason.
 ---
 
 # Proposal: add-binding-consumer-identity
@@ -88,10 +88,23 @@ and shipped.** Each entry of `credential_bindings` MAY declare:
 ```yaml
 consumer:
   holder_ref: opsx:service-subject:aks-opensoft-qa   # WHO holds this binding
-  fetch_identity: <identifier>                        # what it authenticates to the store AS
-  requirement_ref: <identifier>                       # optional; which requirement this binding resolves
-  shared_credential_acknowledged: true                # optional const true; see the lift below
+  fetch_identity: <identifier>                       # the identity it authenticates to the store with
+  requirement_ref:                                   # optional; QUALIFIED, never a bare id
+    requirement_id: <identifier>
+    requirements_document_ref: <path>
+  shared_credential_acknowledged: true               # optional const true; see the lift below
 ```
+
+**The requirement reference is QUALIFIED, and a bare id was rejected for a
+reason a bot found before the council did.** This schema requires only a string
+`id` on a requirement and imposes no repository-wide uniqueness, while
+`scripts/validate-credential-contracts.py` scans a whole `credentials/` tree —
+so one id may match records in several documents whose `access_mode` DIFFERS. A
+rule resolving a bare id could lift the refusal on a non-dispatch match while a
+dispatch-only match stood beside it, and which it found would depend on
+traversal order. The qualified shape is `identity-brokering`'s own
+`credential_reference` pair (`requirement_id` + `requirements_document_ref`),
+which is the second half of the composition this change is already making.
 
 Neither identifier invents a naming scheme, and that is deliberate:
 
@@ -110,6 +123,24 @@ Neither identifier invents a naming scheme, and that is deliberate:
   two requirements quoted above. The block adds no term the capability does not
   already use.
 
+**THE BLOCK IS DECLARED NOW AND CLOSED AT THE MAJOR, and the two-step is not
+tidiness.** The binding object is open TODAY, so a domain may already hold a
+binding carrying a locally shaped `consumer:` object that the current major
+accepts. Declaring the members AND refusing every other member in one minor
+would refuse that record — a NARROWING wearing an additive label, and the one
+thing `docs/contract-versioning-policy.md` § Compatibility Direction forbids
+outright. So the closure serves the same deprecation the requiredness does:
+`consumer-block-unknown-member` WARNS at this cut and becomes an error at the
+major, alongside `consumer-identity-undeclared`. Same clause, same reason, same
+release.
+
+**A TEMPLATE IS EXEMPT, because a conforming placeholder is worse than an
+absent field.** `.template.yaml` and `.example.yaml` instantiation stubs declare
+no consuming system because none exists when they are written. Forcing the field
+onto them yields either a `<placeholder>` that fails the identifier grammar or a
+grammar-passing sentinel that suppresses the warning and reads as an authority
+fact while naming nothing. Neither warning nor major refusal applies to a stub.
+
 **The refusal is sharpened, and it is sharpened by TIGHTENING FIRST.** Nothing
 that validates today becomes invalid at this cut, and nothing that is refused
 today becomes accepted by default:
@@ -118,11 +149,13 @@ today becomes accepted by default:
 - **One narrow lift, fail-closed on every precondition.** Two bindings sharing a
   `secret_ref` are permitted ONLY when BOTH declare a `consumer:` block, their
   `holder_ref`s differ, their `fetch_identity`s differ, BOTH declare
-  `shared_credential_acknowledged: true`, and BOTH name a `requirement_ref`
-  resolving in the same repository to requirements whose `access_mode` is equal
-  and is not `dispatch_only`. Silence, a one-sided acknowledgment, a shared
-  fetch identity, an unresolvable requirement reference, or a mixed access mode
-  each leave the refusal standing. This is what closes the laundering route the
+  `shared_credential_acknowledged: true`, and BOTH name a QUALIFIED
+  `requirement_ref` resolving in the same repository to EXACTLY ONE requirement,
+  with equal `access_mode` that is not `dispatch_only`. Silence, a shared
+  `holder_ref`, a shared `fetch_identity`, a one-sided acknowledgment, a
+  reference resolving to zero OR to more than one record, and a mixed or
+  dispatch-only access mode each leave the refusal standing — ambiguity is
+  treated as unreadability, never resolved by picking one match. This is what closes the laundering route the
   lift would otherwise open: the dispatch/content collapse the rule exists to
   refuse cannot buy its way past by declaring itself intentional.
 - **`shared-authority-identity` is NEW and it is a tightening.** Two bindings on
@@ -133,7 +166,8 @@ today becomes accepted by default:
   of "the invariant is held by review" becoming "the invariant is held by the
   record".
 - `consumer-identity-undeclared` warns on a binding that declares no block, and
-  becomes an error at the next major. See the front-matter for why the policy
+  `consumer-block-unknown-member` warns on a member outside the declared set;
+  both become errors at the next major. See the front-matter for why the policy
   makes that a sequence rather than a choice.
 
 **The migration posture is additive-optional-first, required-at-next-major**,
@@ -142,8 +176,9 @@ makes "a required field is added" the BREAKING class and conditions it on "at
 least one full minor release where the old shape produced deprecation
 warnings". Requiring `consumer:` at this cut would skip a precondition the
 policy states, so the real question put to the council is not whether to phase
-but which major and whether the warning is registered as a formal deprecation
-(OQ-1).
+but which major and whether the warnings are registered as formal deprecations
+(OQ-1). The same clause governs the CLOSURE, which is why both halves phase
+together rather than the block arriving closed.
 
 ## The other writer on this file, and how the two are ordered
 
@@ -247,16 +282,21 @@ a second live writer on a requirement that already has one, and a
 carriage-ledger row in `tests/doc-health/test_modified_block_currency_self_gate.py`
 owed in the same commit.
 
-**D-2. `requirement_ref` is in the block at all.** It is the field that makes
-the lift safe: without a resolvable requirement on both sides, the validator
-cannot see that a dispatch-only credential and a content-write credential are
-being declared "one shared credential", and the lift becomes the laundering
-route for the exact collapse `shared-secret-identity` exists to refuse. It is
-optional on the block and REQUIRED for the lift, so the ordinary binding pays
-nothing. REJECTED ALTERNATIVE: rely on the convention that the
-`credential_bindings` map key IS the requirement id. It is only a convention —
-the schema says `additionalProperties` and enforces no key grammar — and a
-safety precondition resting on an unenforced convention is not a precondition.
+**D-2. `requirement_ref` is in the block at all, and it is QUALIFIED.** It is
+the field that makes the lift safe: without a resolvable requirement on both
+sides, the validator cannot see that a dispatch-only credential and a
+content-write credential are being declared "one shared credential", and the
+lift becomes the laundering route for the exact collapse `shared-secret-identity`
+exists to refuse. It is optional on the block and REQUIRED for the lift, so the
+ordinary binding pays nothing. TWO REJECTED ALTERNATIVES, and the second was
+rejected only after a bot round found it: (a) rely on the convention that the
+`credential_bindings` map key IS the requirement id — only a convention, since
+the schema says `additionalProperties` and enforces no key grammar, and a safety
+precondition resting on an unenforced convention is not a precondition; (b) a
+BARE requirement id, which the packet carried until Codex pointed out that this
+schema imposes no repository-wide uniqueness on requirement ids while the
+validator scans a whole tree, so one id may match records with different access
+modes and the lift's outcome would depend on traversal order.
 
 **D-3. The lift exists at all.** REJECTED ALTERNATIVE: keep
 `shared-secret-identity` absolute, express the two-consumer shape only across
@@ -289,9 +329,12 @@ section is where a consumer upgrading across the removal looks, and the policy's
 own § Deprecations Executed says a deprecation that never appeared there is
 indistinguishable from one that was never honoured.
 
-**OQ-2. Which major requires the block?** Recommendation: the next major after
-this change's minor (`contract-v3.0` at today's numbering), named in the
-deprecation entry rather than in the schema.
+**OQ-2. Which major requires the block AND closes it?** Both breaking halves
+land together. Recommendation: the next major after this change's minor
+(`contract-v3.0` at today's numbering), named in the deprecation entries rather
+than in the schema. A seat may want them separated — closure at one major,
+requiredness at a later one — on the argument that a domain can adopt the
+declared members long before it can name a consumer for every binding.
 
 **OQ-3. Does the hosting record's custody pointer become plural?**
 `examples/notebook-projection-hosting.yaml` names a SINGLE `custody.binding_id`,
