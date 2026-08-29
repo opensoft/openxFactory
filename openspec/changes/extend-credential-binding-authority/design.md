@@ -210,7 +210,7 @@ and `fetch_identity` warn when absent, because a binding that is the only one
 resolving its requirement already carries that fact in its map key and gains
 nothing but redundancy from restating it. A field whose absence never warns
 cannot be made required at a major without breaking what no minor deprecated —
-so `requirement_id` stays optional across the major, and is obligatory only as a
+so `requirement_id` stays optional across the major boundary too, and is obligatory only as a
 CONDITION OF CLAIMING the shared-secret exemption, where the record is asserting
 something extra and must pay for it. An earlier draft of this packet said "the
 three fields become required at the next major"; that sentence was true of two
@@ -239,8 +239,12 @@ realization is mechanical.
    `requirement_id`, all equal; and every member declares `consumer` and
    `fetch_identity`, each pairwise distinct across the group. The existing
    message is kept for the unexempted case, because it is the same finding.
-3. **`binding-authority-undeclared` (WARNING).** A binding declaring neither
-   `consumer` nor `fetch_identity`. This requires the validator's FIRST warning
+3. **`binding-authority-undeclared` (WARNING).** A binding that does not declare
+   BOTH `consumer` and `fetch_identity` — on EITHER absence, not only on both,
+   because the two are refused together at the next major version and a record declaring one
+   while omitting the other would otherwise sail through every minor and break
+   there unwarned. Not raised for a missing `requirement_id`, which is off the
+   deprecation path by design. This requires the validator's FIRST warning
    channel: warnings print with a `WARN` prefix, do not increment `errors`, and
    do not change the exit code. Two consequences to get right — the self-test
    must assert positives raise no ERRORS while REPORTING their warning count, so

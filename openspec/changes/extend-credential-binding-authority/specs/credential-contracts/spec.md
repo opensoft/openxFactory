@@ -20,9 +20,15 @@ and in the projection documentation, NAMES THE SAME THING as `fetch_identity`;
 the prose synonym stands and the RECORD has exactly one spelling.
 
 ALL THREE FIELDS ARE OPTIONAL AT THE MINOR THAT INTRODUCES THEM, AND EXACTLY TWO
-OF THEM BECOME REQUIRED AT THE NEXT MAJOR. A binding declaring neither a
-`consumer` nor a `fetch_identity` SHALL raise a validator WARNING naming both
-fields, SHALL remain valid at this major, and SHALL be refused at the next: an
+OF THEM BECOME REQUIRED AT THE NEXT MAJOR. A binding that does not declare BOTH a
+`consumer` AND a `fetch_identity` SHALL raise a validator WARNING naming
+whichever is missing, SHALL remain valid throughout the CURRENT MAJOR LINE (every
+`contract-v2.x` bundle), and SHALL be refused at the next MAJOR VERSION. THE WARNING FIRES ON EITHER ABSENCE, NOT ONLY ON BOTH, because both
+fields become required together: a record declaring one and omitting the other
+would otherwise pass silently through every minor of the current line and break
+at the next major version with no notice, which is the same defect this requirement refuses one paragraph below
+for `requirement_id`. A deprecation that skips half the shapes it will refuse is
+not a migration path. an
 optional field plus a new validator warning is the additive class, and a
 required field is the breaking class that owes at least one full minor of
 warnings first. The warning is the migration path, and the removal version SHALL
@@ -34,7 +40,7 @@ warns, because a binding that is the only one resolving its requirement already
 carries that fact in its map key and would gain nothing but redundancy; so a
 major that made it required would be a breaking change no minor had ever warned
 about, which the versioning policy forbids. `requirement_id` stays optional
-across the major and is obligatory only where a record CLAIMS the shared-secret
+across the major boundary too, and is obligatory only where a record CLAIMS the shared-secret
 exemption — which is a condition of that claim, stated in the requirement that
 grants it, and not a property of every binding.
 
@@ -59,7 +65,7 @@ thing that would be wrong.
 THE SHAPE DOES NOT REFUSE A SECOND SPELLING AT THIS MINOR, and that is a limit
 rather than an oversight. The binding object does not close its properties, so
 a record spelling the field `access_identity` validates silently; closing the
-object is a NARROWING and belongs to the major. Until then the single spelling
+object is a NARROWING and belongs to the next major version. Until then the single spelling
 is held by this requirement and by review, which is the same posture — named,
 not hidden — that this capability took for the invariant this packet is
 retiring.
@@ -70,18 +76,23 @@ retiring.
 
 #### Scenario: A binding declares no authority
 - **WHEN** a credential binding declares neither a consumer nor a fetch identity
-- **THEN** it remains VALID at this major, because the fields are optional and nothing previously conforming is invalidated
+- **THEN** it remains VALID for every bundle on the current major line, because the fields are optional and nothing previously conforming is invalidated
 - **AND** the validator raises a warning naming both fields, so the absence is visible rather than silent
 
+#### Scenario: A binding declares one of the two and omits the other
+- **WHEN** a credential binding declares a fetch identity but no consumer, or a consumer but no fetch identity
+- **THEN** the validator raises the same warning, naming the one that is missing
+- **AND** it is not passed over as partially migrated, because both fields are refused together at the next major version and a shape that never warned cannot be broken there
+
 #### Scenario: The next major arrives
-- **WHEN** the major release that ends the deprecation lands
-- **THEN** a binding declaring neither `consumer` nor `fetch_identity` is REFUSED, the requirement having served at least one full minor release of warnings and the changelog having named the removal version
+- **WHEN** the next MAJOR VERSION — the release that ends the deprecation — lands
+- **THEN** a binding not declaring BOTH `consumer` and `fetch_identity` is REFUSED, the requirement having served at least one full minor release of warnings and the changelog having named the removal version
 - **AND** a binding declaring no `requirement_id` is NOT refused, because its absence never warned and a major may not break what no minor deprecated
 
 #### Scenario: A record uses a second spelling for the store identity
 - **WHEN** a binding declares `access_identity` instead of `fetch_identity`
 - **THEN** it is non-conforming to this requirement, which admits ONE record spelling
-- **AND** the published shape does not itself refuse the key at this minor, because refusing unknown keys narrows what was valid and is reserved for the major — so the refusal is a review act until then, and is recorded as one
+- **AND** the published shape does not itself refuse the key at this minor, because refusing unknown keys narrows what was valid and is reserved for the next major version — so the refusal is a review act until then, and is recorded as one
 
 #### Scenario: A shipped record already carries the identity outside the binding
 - **WHEN** an existing record of this kind carries a fetch identity in a document-level block rather than per binding
@@ -125,7 +136,7 @@ validator does not perform and is named as owed to a successor.
 #### Scenario: A shared fetch identity with the consumer undeclared
 - **WHEN** two bindings declare the same fetch identity and at least one of them names no consumer
 - **THEN** no `shared-fetch-identity` finding is raised, because the record cannot distinguish one consumer from two
-- **AND** the undeclared-authority warning stands on the binding, so the silence is not read as a clearance
+- **AND** the undeclared-authority warning stands on the binding that omitted its consumer, so the silence is not read as a clearance
 
 #### Scenario: Two consumers are split across two documents
 - **WHEN** two bindings sharing one fetch identity are held in separate template documents

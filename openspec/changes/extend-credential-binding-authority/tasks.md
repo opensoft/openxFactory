@@ -37,8 +37,13 @@ test.
   code. Keep it structurally separate from `_semantic_findings` rather than
   smuggling a severity marker into the existing strings, so a caller cannot
   count a warning as an error by accident.
-- [ ] 2.2 `binding-authority-undeclared` (WARNING): a binding declaring neither
-  `consumer` nor `fetch_identity`. NOT raised for a missing `requirement_id` —
+- [ ] 2.2 `binding-authority-undeclared` (WARNING): a binding that does not
+  declare BOTH `consumer` and `fetch_identity`. FIRES ON EITHER ABSENCE, not
+  only on both — the two are refused together at the next major, so a record
+  declaring one and omitting the other must be warned or it breaks there with no
+  notice. The message names whichever is missing and states the removal version
+  allocated at 5.2; a deprecation warning that does not say when it becomes an
+  error is not a migration path. NOT raised for a missing `requirement_id` —
   warning on it would put it on the deprecation path this packet deliberately
   keeps it off. The message names BOTH fields and states the
   removal version allocated at 5.2 — a deprecation warning that does not say

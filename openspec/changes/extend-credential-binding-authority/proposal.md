@@ -1,5 +1,5 @@
 ---
-code_surface: openxFactory — a SCHEMA CHANGE plus its validator, fixtures and tests. `contracts/schemas/xfactory-credential-contracts.schema.yaml` gains THREE ADDITIVE OPTIONAL FIELDS on each entry of `credential_bindings` in the existing `xfactory_credential_binding_template`: `consumer`, `fetch_identity` and `requirement_id`. `scripts/validate-credential-contracts.py` gains one new refusal (`shared-fetch-identity`), one refinement of an existing refusal (`shared-secret-identity` gains a narrowly-conditioned exemption that opens only on positive declarations), and its FIRST WARNING CHANNEL (`binding-authority-undeclared`, warning at this major and error at the next). `examples/credential-contracts/` gains one positive fixture and two negatives; `tests/credential_contracts/test_dispatch_credential_contract.py` moves with them, including the self-test count string it asserts. NO NEW RECORD KIND. NO REQUIRED FIELD. `contracts/` IS UNTOUCHED BY THIS PROPOSAL — the release ritual is scheduled in tasks.md § 5 for realization, and no bundle is cut by the packet that proposes it.
+code_surface: openxFactory — a SCHEMA CHANGE plus its validator, fixtures and tests. `contracts/schemas/xfactory-credential-contracts.schema.yaml` gains THREE ADDITIVE OPTIONAL FIELDS on each entry of `credential_bindings` in the existing `xfactory_credential_binding_template`: `consumer`, `fetch_identity` and `requirement_id`. `scripts/validate-credential-contracts.py` gains one new refusal (`shared-fetch-identity`), one refinement of an existing refusal (`shared-secret-identity` gains a narrowly-conditioned exemption that opens only on positive declarations), and its FIRST WARNING CHANNEL (`binding-authority-undeclared`, warning across the current major line and error at the next major version). `examples/credential-contracts/` gains one positive fixture and two negatives; `tests/credential_contracts/test_dispatch_credential_contract.py` moves with them, including the self-test count string it asserts. NO NEW RECORD KIND. NO REQUIRED FIELD. `contracts/` IS UNTOUCHED BY THIS PROPOSAL — the release ritual is scheduled in tasks.md § 5 for realization, and no bundle is cut by the packet that proposes it.
 target_release: THE NEXT ADDITIVE MINOR, DELIBERATELY NOT NUMBERED HERE. `docs/contract-versioning-policy.md` states the rule this front-matter obeys: "A proposed change MUST NOT reserve a minor number before merge order is known." Measured on this branch's base rather than recalled: `contracts/manifest.yaml:3` declares `contract-v2.1` and `contracts/CHANGELOG.md:12` heads at `contract-v2.1 — 2026-08-28`, so `contract-v2.1` IS SPENT and any earlier note naming it, or any other specific number, as this work's target is stale. `contract-v2.2` is the EXPECTED allocation and is deliberately NOT RESERVED here, because the active ratified packet `add-credential-escrow-checkout` edits the same schema file and owes the same next minor — a number written here is a number another packet may spend first, which is what the policy sentence above exists to prevent. That packet's front-matter declines to number itself for exactly this reason, and the `contract-v1.28` renumber sweep is the standing precedent for the cost of doing otherwise. The number is allocated at realization by merge order (tasks.md § 5.2). WHY A CUT IS OWED AT ALL, MEASURED RATHER THAN ASSUMED: parsed on 2026-08-29, `contracts/releases/contract-v2.1.digests.yaml` holds 192 entries, exactly five of them under `contracts/schemas/`, and `xfactory-credential-contracts.schema.yaml` IS NOT ONE OF THEM — neither is its validator, nor anything under `examples/`. So the cut is NOT forced by `release-inventory-drift`, which is the usual reason a schema edit owes one. It is owed by the VERSIONING POLICY instead: the schema is a registered bundle contract (`contracts/manifest.yaml`, `id: credential-contracts`), and a registered contract gaining optional fields and validator warnings is that policy's ADDITIVE (MINOR) class verbatim, under which "Domain repos on the same major version remain conformant without changes". `consumer` and `fetch_identity` becoming REQUIRED is the BREAKING (MAJOR) class and is scheduled for the next major, not for this cut; `requirement_id` stays optional across it, because its absence never warns and a major may not break what no minor deprecated.
 ---
 
@@ -101,14 +101,16 @@ Every existing record is adjudicated exactly as before, because each condition
 is a positive declaration no existing record makes — including the packaged
 negative, which stays red.
 
-**A warning channel the validator has never had.** A binding declaring neither a
-consumer nor a fetch identity warns, naming both fields, and stays valid. New
+**A warning channel the validator has never had.** A binding that does not
+declare BOTH a consumer and a fetch identity warns, naming whichever is missing,
+and stays valid — on either absence, not only on both, since the two are refused
+together at the next major version and a shape that never warned cannot be broken there. New
 optional fields plus new validator warnings is the additive class; THOSE TWO
 fields become required at the next major, which is the breaking class and owes
 at least one full minor of warnings first. `requirement_id` is deliberately not
 on that path — its absence never warns, so no major may require it — and it is
 obligatory only where a record claims the shared-secret exemption. This is the `contract-v1.34` pattern — deprecate
-in a minor with the removal version named in the changelog, refuse at the major.
+in a minor with the removal version named in the changelog, refuse at the next major version.
 
 **The fixture task 4.1 could not write.** With the record able to tell the two
 cases apart, the custody packet's own two-consumer shape becomes packageable, so
@@ -201,7 +203,7 @@ each is flagged for veto. None is covered by the origin citation.
    path by the same rule, since its absence never warns.
 6. **No `additionalProperties: false` on the binding object**, so a second
    spelling is not machine-refused at this minor; closing the object is a
-   narrowing reserved for the major, and the limit is stated in the requirement
+   narrowing reserved for the next major version, and the limit is stated in the requirement
    rather than left for a reader to discover.
 7. **One combined cut or two sequential ones**, with `add-credential-escrow-checkout`.
 
