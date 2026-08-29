@@ -80,13 +80,12 @@ def _bind_current_registry(decision: Record, records: list[RecordDocument]) -> N
         and record.data.get("revision_id") == "neutral.revision.2"
     )
     decision["registry"] = {
+        "status": "resolved",
         "registry_id": current["registry_id"],
         "revision_id": current["revision_id"],
         "revision_digest": current["revision_digest"],
     }
-    decision["deterministic_evidence"]["revision_digest"] = current[
-        "revision_digest"
-    ]
+    decision["deterministic_evidence"]["registry"] = copy.deepcopy(decision["registry"])
     decision["evaluated_at"] = "2026-06-01T00:00:02Z"
     revocations = current["allowances"][0]["revocation_digests"]
     for resolution in decision["resolutions"]:
@@ -145,6 +144,7 @@ def test_revoked_allowance_when_effective_then_block_is_valid() -> None:
             ]
             changed["evaluated_at"] = f"2026-07-01T00:00:0{offset}Z"
             changed["registry"] = {
+                "status": "resolved",
                 "registry_id": latest["registry_id"],
                 "revision_id": latest["revision_id"],
                 "revision_digest": latest["revision_digest"],
@@ -154,7 +154,7 @@ def test_revoked_allowance_when_effective_then_block_is_valid() -> None:
             ]
             changed["findings"][0]["disposition"] = "block"
             evidence = changed["deterministic_evidence"]
-            evidence["revision_digest"] = latest["revision_digest"]
+            evidence["registry"] = copy.deepcopy(changed["registry"])
             changed.pop("dispatch_authorization_evidence", None)
             _refresh_evidence(changed)
         changed_records.append(RecordDocument(record.path, changed))
@@ -166,7 +166,9 @@ def test_revoked_allowance_when_effective_then_block_is_valid() -> None:
     assert codes == set()
 
 
-def test_unresolved_allowance_when_current_head_revokes_then_review_is_rejected() -> None:
+def test_unresolved_allowance_when_current_head_revokes_then_review_is_rejected() -> (
+    None
+):
     # Given
     records = _positive()
     changed_records: list[RecordDocument] = []
@@ -334,9 +336,7 @@ def test_decision_when_resolution_is_duplicated_then_reference_is_rejected() -> 
     changed = copy.deepcopy(approval.data)
     changed["resolutions"].append(copy.deepcopy(changed["resolutions"][0]))
     changed_records = [
-        record
-        for record in records
-        if record.data.get("kind") != "compliance_decision"
+        record for record in records if record.data.get("kind") != "compliance_decision"
     ]
     changed_records.append(RecordDocument(approval.path, changed))
 
@@ -361,9 +361,7 @@ def test_decision_when_ambiguity_has_no_classifier_then_review_is_required() -> 
     evidence["ambiguity_refs"] = ["neutral.ambiguous.surface"]
     evidence["evidence_digest"] = canonical_digest(evidence, "evidence_digest")
     changed_records = [
-        record
-        for record in records
-        if record.data.get("kind") != "compliance_decision"
+        record for record in records if record.data.get("kind") != "compliance_decision"
     ]
     changed_records.append(RecordDocument(approval.path, changed))
 
