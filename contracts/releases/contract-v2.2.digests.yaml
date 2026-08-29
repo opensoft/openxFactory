@@ -1448,7 +1448,7 @@ entries:
   path: tests/intent-compliance/test_intent_compliance_security.py
   type: documentation
   git_mode: '100644'
-  digest: sha256:4525597668482e5ed434bcee31039739e482731ebac359da6a4322617832cbe9
+  digest: sha256:de3db7b3495e148784ec8a788ab124b49a48b657143ae20f5cc2abf1d75e657c
 - artifact_id: tests-intent-compliance-test_intent_compliance_validator_gate.py
   path: tests/intent-compliance/test_intent_compliance_validator_gate.py
   type: documentation
