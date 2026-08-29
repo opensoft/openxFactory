@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 import hashlib
 import subprocess
+from collections.abc import Callable
 from pathlib import Path
 
 import pytest
@@ -14,8 +15,13 @@ from scripts.intent_compliance.model import (
     RecordDocument,
     load_record_documents,
 )
+from scripts.intent_compliance.schema_validation import (
+    schema_findings,
+    schema_validators,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
+FAMILY = ROOT / "contracts" / "intent-compliance"
 POSITIVE = ROOT / "contracts" / "intent-compliance" / "examples" / "positive"
 
 
@@ -121,6 +127,53 @@ def authority_context(
         tmp_path, "example/domain-factory", revision
     )
     return tmp_path, revision, snapshot
+
+
+@pytest.mark.parametrize(
+    ("record_factory", "authority_field"),
+    [
+        pytest.param(_allowance, "issuer", id="issuer"),
+        pytest.param(_allowance, "policy_approval", id="policy-approver"),
+        pytest.param(_revocation, "revoker", id="revoker"),
+    ],
+)
+@pytest.mark.parametrize(
+    "invalid_path",
+    [
+        pytest.param("", id="empty"),
+        pytest.param("/governance.yaml", id="absolute"),
+        pytest.param(":governance.yaml", id="leading-colon"),
+        pytest.param("governance:authority.yaml", id="colon"),
+        pytest.param("governance//authority.yaml", id="empty-segment"),
+        pytest.param("governance/", id="trailing-empty-segment"),
+        pytest.param("governance/../authority.yaml", id="traversal"),
+        pytest.param("governance/./authority.yaml", id="dot-segment"),
+        pytest.param("governance\\authority.yaml", id="backslash"),
+        pytest.param("governance/autorité.yaml", id="unicode"),
+        pytest.param("governance/authority source.yaml", id="space"),
+        pytest.param("governance/authority\t.yaml", id="control-character"),
+    ],
+)
+def test_authority_source_when_path_is_resolver_invalid_then_schema_rejects(
+    authority_context: tuple[Path, str, authority_validation.TrustedSnapshot],
+    record_factory: Callable[[Path, str], RecordDocument],
+    authority_field: str,
+    invalid_path: str,
+) -> None:
+    # Given
+    repository, revision, _snapshot = authority_context
+    record = record_factory(repository, revision)
+    authority = record.data[authority_field]
+    assert isinstance(authority, dict)
+    source = authority["authority_source"]
+    assert isinstance(source, dict)
+    source["path"] = invalid_path
+
+    # When
+    findings = schema_findings(record, schema_validators(FAMILY))
+
+    # Then
+    assert "schema" in {finding.code for finding in findings}
 
 
 def test_authority_source_when_issuer_tuple_is_not_authorized_then_rejected(
