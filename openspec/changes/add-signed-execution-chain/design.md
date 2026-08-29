@@ -32,10 +32,15 @@ synonyms in practice.
 **Rejected alternatives.** *"Chain registration"* — collides with the
 review-authority **register** and its reader, which is a live artifact in the
 same tree. *"Chain minting"* — reads as key material. *"Chain opening"* — no
-refusal shape (what is a "failed opening"?). **`inception`** appears nowhere in
-this repository (grepped 2026-08-29, zero hits outside this packet), it names
-the beginning of a chain rather than an administrative entry, and it composes
-with the chain identity it mints.
+refusal shape (what is a "failed opening"?). **`inception`** appeared nowhere in
+this repository BEFORE this change — grepped 2026-08-29 against `origin/main` at
+`3ffd6a8f`, zero hits — it names the beginning of a chain rather than an
+administrative entry, and it composes with the chain identity it mints. (The
+tense is exact because the first draft's "appears nowhere … outside this packet"
+was already false of this change's own README and `INDEX.md` edits, which a
+review round caught. The evidence is kept rather than deleted: it is the reason
+the word was chosen, and deleting evidence to repair a tense would be the wrong
+repair.)
 
 **Where the non-collision is stated.** In requirement text, not only here: the
 inception requirement's body carries the bolded distinction and its fourth
@@ -164,6 +169,52 @@ Q1's intent is plainly to prevent a SECOND proof vocabulary, and referencing the
 first one is the strongest possible way to honour it. **The reading is flagged
 in the requirement**, because a reading of an unruled recommendation is not a
 ruling.
+
+## D7 — Three corrections the first review round forced, recorded as corrections
+
+All three came from the bot bench on this packet's own pull request (PR #495,
+`chatgpt-codex-connector`, all rated P1, all real). They are recorded here
+rather than silently patched, because each one is a case of a rule naming
+something it could not actually do — the family's most-repeated defect shape.
+
+**D7.1 — A reference is not a binding.** Requirement 1 originally had the
+ratification record REFERENCE the exercise by identifier. The shipped
+`xfactory_wallet_grant_exercise` records `signed_over` as `request` or
+`request_digest`, makes `object_ref` OPTIONAL, and carries no required digest of
+the thing approved — so **a previously successful exercise could be REPLAYED as
+the proof for a different ratification** and satisfy every check as written. The
+human would have signed something else. The requirement now binds: `object_ref`
+names this ratification, `signed_over` is the request digest, and that digest
+EQUALS the ratification's content digest. **This is a scope restriction by the
+consuming capability, not a schema change** — the same move S2 made when it
+required `issued_by` for review-class grants while leaving the shared grant
+schema untouched, which is why it costs no bundle edit in openXwallet.
+
+**D7.2 — The chain identity could not be signed by the act that mints it.** The
+binding rule said "every link from inception onward signs over the chain
+identity". But the chain identity IS the digest of the signed ratification, and
+inception is that same signed act — so the signature input would depend on the
+completed signature and **no implementation could construct link 2 at all**. The
+rule now starts AFTER inception: inception mints the identity and carries it,
+bound to the ratification by BEING it; the traveling contract is the first link
+with a predecessor to sign over. The staged topic's "every link from enrollment
+onward" carries the same defect and is corrected in the spec text, on exactly
+the footing its own review round corrected "link 8 walks all ten".
+
+**D7.3 — Deletion detection was promised at a strength the tranche cannot
+deliver.** "The log's hash structure is what makes an alteration detectable" is
+true for a prefix someone has observed and FALSE for suffix truncation nobody
+has: a store that drops its newest leaves and presents an earlier valid signed
+tree head shows a shorter log that verifies perfectly to a fresh reader. With
+anchors deferred to tranche three, the unconditional guarantee was not
+implementable — and an unimplementable guarantee on the PRIMARY RECORD is the
+worst place in this design to have one. The requirement now states the guarantee
+at its real strength, names the two things that do reach at this tranche
+(consistency proofs against an observed head, and the traveling contract's
+carried leaf digest catching truncation at the point of use), and DECLARES the
+residual under the realization-conformance obligation. That is `add-trust-anchor`'s
+ratified rule applied to ourselves: an undeclared shortfall is non-conformance,
+the identical shortfall declared is conformant.
 
 ## What tranche one DELIBERATELY DEFERS, and where each lands
 

@@ -259,6 +259,33 @@ rather than minting a second proof vocabulary. Minting one would be the
 collision the topic's Conflicts table names first. **The reading is flagged, not
 assumed** — it is the Q1 flag on requirement 1.
 
+## What the first review round corrected, before ratification
+
+Three P1 findings from the bot bench on this proposal's own pull request, all
+real, all of the same shape — a rule naming something it could not actually do.
+Recorded here rather than silently patched; the full reasoning is `design.md`
+D7.
+
+1. **A reference is not a binding.** Requirement 1 had the ratification record
+   merely REFERENCE the exercise. The shipped schema makes `object_ref` optional
+   and carries no digest of the thing approved, so **a previously successful
+   exercise could be REPLAYED as the proof for a different ratification** and
+   pass every stated check. It now binds — `object_ref` names this ratification
+   and the signed request digest EQUALS the ratification's content digest — as a
+   scope restriction by the consuming capability, exactly the move S2 made for
+   `issued_by`, so no openXwallet schema moves.
+2. **The chain identity could not be signed by the act that mints it.** "Every
+   link from inception onward signs over the chain identity" made the signature
+   input depend on the completed signature; no implementation could construct
+   link 2. The rule now starts AFTER inception. The staged topic's own "from
+   enrollment onward" carries the same defect and is corrected in spec text.
+3. **Deletion detection was promised at a strength this tranche cannot
+   deliver.** A store that drops its newest leaves and presents an earlier valid
+   signed tree head shows a shorter log that verifies perfectly. The guarantee
+   is now stated at its real strength, and the residual is DECLARED under the
+   realization-conformance obligation — `add-trust-anchor`'s ratified rule
+   applied to ourselves — with tranche-three anchoring named as what closes it.
+
 ## Open questions — the clarify round that precedes ratification
 
 Per Brett's standing clarify rules, the full block WILL BE written to

@@ -17,6 +17,19 @@ possession claim that is asserted rather than demonstrated is not a
 presentation, and a second vocabulary for the same act would be the two-records-
 of-one-decision defect at contract scale.
 
+**THE EXERCISE SHALL BE BOUND TO THE EXACT RATIFICATION, AND A REFERENCE IS NOT
+A BINDING.** An identifier alone would let a previously successful exercise be
+REPLAYED as the proof for a different ratification, satisfying every other check
+while the human signed something else — so this capability requires two things
+the shipped schema leaves optional, as a SCOPE RESTRICTION BY THE CONSUMING
+CAPABILITY rather than as a schema change (the S2 precedent, which made
+`issued_by` required for review-class grants without editing the shared grant
+schema): the exercise SHALL carry `object_ref` naming this ratification, and its
+`proof_of_possession.signed_over` SHALL be the request digest, which SHALL equal
+the ratification's own content digest. An exercise whose signed content is not
+this ratification's digest is REFUSED AS A REPLAY, and its own validity is not a
+defence.
+
 **THIS REQUIREMENT CARRIES A RECOMMENDED-BUT-UNRULED ANSWER.** It encodes the
 staged topic's Q1 recommendation — grant vocabulary plus a proof-of-possession
 step, recorded in the ratification record — and it reads Q1's "rather than a new
@@ -41,6 +54,12 @@ ratification; if it is ruled otherwise, this requirement is the text that moves.
 - WHEN the presented proof verifies against the presenting key
 - THEN the ratification record names the exercise record, the grant, and the presenting key
 - AND no new proof artifact, key record, or grant kind is created by this capability
+
+#### Scenario: a valid exercise from an earlier ratification is presented
+
+- WHEN an exercise that verified for one ratification is offered as the proof for a different one
+- THEN the ratification is REFUSED as a replay, because the signed request digest is not this ratification's digest
+- AND the exercise's own validity is not accepted as a defence
 
 #### Scenario: the grant was valid at issuance and is revoked now
 
@@ -144,9 +163,24 @@ governed store as the primary chain of custody, and SHALL record every act this
 capability governs as a SIGNED LEAF on the RFC-6962 / Certificate-Transparency
 and Sigstore-Rekor pattern: the wallet-presented ratification, the chain
 inception, the issuance of a traveling contract, and every verdict the
-short-chain gate returns. Leaves are appended and never edited or removed, and
-the log's own hash structure — not an access control and not a convention — is
-what makes an alteration detectable. THE LOG IS THE RECORD. Public anchoring is
+short-chain gate returns. Leaves are appended and never edited or removed.
+
+**THE DETECTION GUARANTEE IS STATED AT THE STRENGTH IT ACTUALLY HAS**, because
+an overstated guarantee is worse than a declared gap. The log's hash structure —
+not an access control and not a convention — detects any alteration WITHIN A
+PREFIX SOME PARTY HAS ALREADY OBSERVED: a consistency proof against a previously
+observed signed tree head fails, and every traveling contract carries the digest
+of the leaf that recorded its inception, so a truncation dropping an observed
+leaf is caught AT THE POINT OF USE. **What the log ALONE cannot detect is suffix
+truncation no party has yet observed** — a store that deletes its newest leaves
+and rolls back to an earlier valid signed tree head presents a shorter log that
+still verifies to a fresh reader. That residual SHALL be DECLARED under the
+realization-conformance obligation rather than covered by a promise this tranche
+cannot keep, and it is exactly what the tranche-three anchor closes, by making a
+tree head externally witnessed. An undeclared shortfall is non-conformance; the
+identical shortfall, declared, is conformant.
+
+THE LOG IS THE RECORD. Public anchoring is
 a LATER ADDITION that makes the record externally undeniable and belongs to the
 named tranche-three successor; the absence of an anchor at this tranche is
 therefore NOT a defect, and no requirement here may be read as claiming external
@@ -158,11 +192,17 @@ undeniability the log alone does not provide.
 - THEN the act is UNPROVEN and every consumer that requires the chain refuses it
 - AND the act's own success is not evidence that it was permitted
 
-#### Scenario: a leaf is altered or removed
+#### Scenario: a leaf inside an observed prefix is altered or removed
 
-- WHEN a leaf's bytes are changed or a leaf is deleted from the log
-- THEN the log's hash structure fails verification and the alteration is detected
-- AND the alteration is reported as a fraud signal rather than as a corrupted file
+- WHEN a leaf's bytes change, or a leaf is dropped, within a prefix some party has already observed
+- THEN the consistency proof against that observed signed tree head fails and the alteration is detected
+- AND it is reported as a fraud signal rather than as a corrupted file
+
+#### Scenario: the newest leaves are truncated before anyone observes them
+
+- WHEN a store deletes its newest leaves and presents an earlier valid signed tree head
+- THEN the log alone cannot detect it, and the realization DECLARES that residual rather than claiming coverage
+- AND the declaration names tranche-three anchoring as what closes it, so the gap is visible instead of implied
 
 #### Scenario: an external anchor is expected at this tranche
 
@@ -174,10 +214,23 @@ undeniability the log alone does not provide.
 
 openxFactory SHALL operate, FROM THIS TRANCHE, a gate that validates links 1–3
 before permitting the terminal act, and SHALL validate them as a HASH-LINKED
-CHAIN rather than as a bag of signatures: every link from inception onward signs
-over the chain identity AND the digest of the link that precedes it, and the
-gate validates that CONTINUITY, never merely the presence of the required
-signatures. Individually valid artifacts drawn from DIFFERENT executions MUST
+CHAIN rather than as a bag of signatures: every link AFTER inception signs over
+the chain identity AND the digest of the link that precedes it, and the gate
+validates that CONTINUITY, never merely the presence of the required signatures.
+
+**INCEPTION ITSELF DOES NOT SIGN OVER THE CHAIN IDENTITY, AND CANNOT.** The
+chain identity is the digest of the signed ratification, and inception is that
+same signed act, so requiring inception to sign over the identity would make the
+signature input depend on the completed signature — an implementation could not
+construct the link at all. Inception is the act that MINTS the identity and the
+first record that CARRIES it; it is bound to the ratification by BEING it, not
+by signing over it. The binding rule therefore starts at the traveling contract,
+which is the first link with a predecessor to sign over. The staged topic's
+"every link from enrollment onward" is corrected here on the same footing its own
+review round corrected "link 8 walks all ten": a rule that names a link it
+cannot apply to is a rule that has not been executed in the head.
+
+Individually valid artifacts drawn from DIFFERENT executions MUST
 NOT assemble into a chain, because with concurrent or repeated work a signature
 bag is exactly what a badly-behaved lane would submit. A BROKEN OR MISSING LINK
 IS A FRAUD SIGNAL AND A REFUSAL, never a warning and never a finding downgraded
