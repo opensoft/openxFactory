@@ -43,6 +43,27 @@ Target capabilities: lifecycle-notebook-projection (MODIFIED — mirror + intake
    and the provisioning runbook home.
 5. Whether workbench ad-hoc sets get ephemeral Drive exports.
 
+## Deferral with a named gate (recorded 2026-08-28)
+
+**DEFERRED. The gate is a spike nobody owns.** Fragment 1 (the intent
+plane) exited at its gate and is live as the ACTIVE change
+`add-ideation-intent-plane`; this fragment did not go with it, and open
+question 1 above is the reason.
+
+**GATE: the Drive↔NLM markdown-ingestion spike** — does Drive↔NLM sync
+ingest markdown well, and what are its cadence and quota behaviours over a
+few-hundred-file tree? The spike is unassigned and unscheduled. Every other
+question here (folder↔notebook mapping, export transform, credential
+custody, ephemeral workbench exports) is answerable only after it, so the
+fragment cannot be advanced by design work alone — which is exactly what
+distinguishes this from a topic that is merely waiting for attention.
+
+**This deferral is a schedule, not a standing.** It changes no `Status:`,
+and it does NOT stop the topic ageing in doc-health: there is no `deferred`
+state for a staged topic and this change deliberately adds none. The
+`ideation-action-plane` topic folder holds both fragments, so it keeps
+ageing on fragment 1's account too until that change lands.
+
 ## Exit path
 
 Own change (working name `add-drive-membrane`) AFTER the ingestion spike

@@ -1,6 +1,7 @@
 # Staged: MedxFactory Domain Hermes Content (clinical roster, policies, councils, memory, catalog)
 
-Status: staged
+Status: superseded
+Superseded by: [MedxFactory 2026-07-29-add-domain-hermes-roles-and-policies](https://github.com/MedxSoft/MedxFactory/tree/main/openspec/changes/archive/2026-07-29-add-domain-hermes-roles-and-policies) and [MedxFactory 2026-07-30-add-domain-hermes-councils-and-memory](https://github.com/MedxSoft/MedxFactory/tree/main/openspec/changes/archive/2026-07-30-add-domain-hermes-councils-and-memory)
 Kind: architecture
 Summary: Author the Medx Domain Hermes content — the clinical Plane-1 persona
 roster directing the 11 ratified worker classes, the stored medical policy
@@ -23,6 +24,23 @@ safety pair, foundational-data-reliability); the codexFactory pattern
 (archived `add-domain-hermes-roles-and-policies` +
 `add-domain-hermes-councils-and-memory`); material inventory + pattern map
 verified against both trees 2026-07-24.
+
+## Outcome (recorded 2026-08-28)
+
+COMPLETE. Both exit changes were ratified, realized and ARCHIVED, and both
+archives were verified at the MedxFactory tree on 2026-08-28 — including
+change B, which the staging INDEX row still described as outstanding:
+
+| Exit | Repository | Archived packet |
+| --- | --- | --- |
+| Change A — roles + policies + `medx_owns` closure + Omnigent `directed_by` lockstep | MedxFactory | `openspec/changes/archive/2026-07-29-add-domain-hermes-roles-and-policies` |
+| Change B — councils, mixes, escalation, memory, catalog | MedxFactory | `openspec/changes/archive/2026-07-30-add-domain-hermes-councils-and-memory` |
+
+The residual non-gating items recorded in the decision round below
+(practice-catalog seed set, client-layer-defaults analog timing) exited
+WITH change B or sit in the MedxFactory capability spec; none is carried
+here. The topic folder is retained as PROVENANCE — the reason this
+document is `superseded` rather than deleted.
 
 ## Claims (verified 2026-07-24 against the trees; no roster decision yet)
 

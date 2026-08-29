@@ -614,6 +614,122 @@ def fam_record_immutability(ctx):
     return findings
 
 
+# --- staged-topic outcomes (`settle-aging-staging-topics`) ---------------
+#
+# A staged topic ages as UNPROGRESSED WORK, and until this rule the family
+# read exactly one fact about it — the topic folder's last commit date. It
+# read no `Status:`, no register row, and no exit record, so a topic whose
+# work was FINISHED aged exactly like one nobody had touched. Six of the
+# fourteen topics warning on 2026-08-28 were complete: every exit change
+# ratified, realized and ARCHIVED, the folder deliberately retained as
+# provenance, and the warning telling a reader to "progress the topic to a
+# proposal" that had already been raised, landed and closed.
+#
+# TWO states say the topic is not unprogressed work, and both are READ from
+# a record an author wrote rather than inferred:
+#
+#   (a) the primary fragment carries `Status: superseded` or `retired`.
+#       `fam_succession_integrity` already requires the first to name a
+#       resolvable successor and the second a reason, so neither state can
+#       be claimed emptily to buy silence.
+#   (b) the topic's entry in the repository's staging INDEX — or the
+#       primary fragment itself, for a repository that keeps no index —
+#       carries an `Exit taken:` line naming a change that has ARCHIVED.
+#
+# (b) IS `fam_location_conformance`'s ARCHIVED-PACKET RULE APPLIED TO THE
+# OTHER SIDE OF THE SAME LIFECYCLE (`clean-doc-health-floor`): a finding
+# whose remedy names an act nobody can perform is a finding with no
+# conforming resolution. There the impossible act was moving material into
+# a closed packet; here it is raising a proposal that has already archived.
+# A citation of an ACTIVE change does NOT silence — that topic's proposal is
+# in flight, its staged material is the move `location-conformance` is
+# reporting, and hiding the age would hide half of one live obligation.
+#
+# `Exit taken:` IS NOT A STATUS AND CREATES NO LIFECYCLE STATE. The family's
+# old action line told a reader to "mark it deferred", which no staged topic
+# could do, because the `document-lifecycle` taxonomy has no deferred value
+# and this change deliberately does not add one: a deferral is a schedule,
+# not a standing, and a topic parked behind a named gate is still open work
+# that SHOULD keep ageing. The action line is corrected to the two records
+# the family now honours.
+_EXIT_TAKEN_PREFIX = "Exit taken:"
+_STAGING_INDEX = "ideation/staging/INDEX.md"
+
+
+def _archived_change_ids(ctx) -> set[str]:
+    """Every change id in scope that has ARCHIVED.
+
+    `ctx.change_ids` is `corpus.change_ids` — the union of active names,
+    archived names, and archived names stripped of their date prefix — and
+    `corpus.active_change_ids` is its live half, so the difference is the
+    archived half. Derived from `ctx.repo_paths` for the reason
+    `fam_location_conformance` gives for deriving its own active set there:
+    a second copy threaded through `Context` could drift from the tree the
+    families walk.
+
+    UNIONED ACROSS REPOSITORIES, and subtracted across them too, so an id
+    that is active anywhere is archived nowhere. A staged topic's exit is
+    routinely a change in ANOTHER factory — four of the six topics this
+    rule was written for exit through codexFactory, MedxFactory,
+    OpsxFactory or hermes-install — and a single-repo run cannot see those
+    trees at all. It then resolves nothing, the topic keeps ageing, and
+    that is the honest answer for a run that cannot read the evidence:
+    silence bought by an unreadable citation would be worse than the noise.
+    """
+    union: set[str] = set()
+    active: set[str] = set()
+    for repo, path in ctx.repo_paths.items():
+        union |= ctx.change_ids.get(repo, set())
+        active |= corpus.active_change_ids(path)
+    return union - active
+
+
+def _exit_taken_lines(text: str) -> list[str]:
+    """`Exit taken:` lines outside code fences, as WRITTEN.
+
+    Not run through `_strip_inline_code`: the change id on such a line is
+    conventionally in backticks, and stripping inline code would delete the
+    very token the caller matches. Fence tracking is what this needs — a
+    fenced line is an EXAMPLE of the record, never the record.
+    """
+    return [line for _, line, fenced in _scan_lines(text)
+            if not fenced
+            and line.lstrip("-*+ \t").startswith(_EXIT_TAKEN_PREFIX)]
+
+
+def _index_section(index_text: str, topic: str) -> str:
+    """The `## <topic>` detail section of a staging INDEX, or ""."""
+    out, collecting = [], False
+    for _, line, fenced in _scan_lines(index_text):
+        if not fenced and line.startswith("## "):
+            collecting = line[3:].strip() == topic
+            continue
+        if collecting:
+            out.append(line)
+    return "\n".join(out)
+
+
+def _topic_outcome(ctx, docs_by_path, archived, repo, repo_path, topic):
+    """Why this staged topic is not unprogressed work, or None if it is."""
+    primary = _primary_fragment(topic)
+    if primary is None:
+        return None  # an empty topic folder is another family's business
+    rel = primary.relative_to(repo_path).as_posix()
+    doc = docs_by_path.get((repo, rel))
+    if doc is not None and doc.status in ("superseded", "retired"):
+        return f"primary fragment is {doc.status}"
+    index = docs_by_path.get((repo, _STAGING_INDEX))
+    sources = [doc.text] if doc is not None else []
+    if index is not None:
+        sources.append(_index_section(index.text, topic.name))
+    for text in sources:
+        for line in _exit_taken_lines(text):
+            named = sorted(cid for cid in archived if cid in line)
+            if named:
+                return f"exit taken: {named[0]} (archived)"
+    return None
+
+
 def fam_staged_candidate_aging(ctx):
     findings = []
     th = ctx.thresholds
@@ -627,13 +743,20 @@ def fam_staged_candidate_aging(ctx):
             return WARNING
         return None
 
-    # Staged topics: ideation/staging/<topic>/ untouched.
+    # Staged topics: ideation/staging/<topic>/ untouched AND carrying no
+    # recorded outcome — see the block above `fam_staged_candidate_aging`
+    # for why the second half is read at all.
+    docs_by_path = {(d.repo, d.path): d for d in ctx.docs}
+    archived = _archived_change_ids(ctx)
     for repo, repo_path in ctx.repo_paths.items():
         staging = repo_path / "ideation" / "staging"
         if not staging.is_dir():
             continue
         for topic in sorted(p for p in staging.iterdir() if p.is_dir()):
             rel = topic.relative_to(repo_path).as_posix()
+            if _topic_outcome(ctx, docs_by_path, archived,
+                              repo, repo_path, topic):
+                continue
             days = _age_days(ctx.as_of,
                              ctx.git.last_commit_date(repo_path, rel))
             sev = aged("staged", days, th["staged_warning_days"],
@@ -642,7 +765,10 @@ def fam_staged_candidate_aging(ctx):
                 findings.append(Finding(
                     sev, "staged-candidate-aging", repo, rel,
                     f"staged topic untouched {days} days",
-                    "progress the topic to a proposal or mark it deferred"))
+                    "progress the topic to a proposal, or record the "
+                    "outcome it already reached — the primary fragment "
+                    "superseded/retired, or an Exit taken: line naming "
+                    "the archived change"))
 
     # Candidate blocks and supersedes markers age by their line's commit.
     for doc in ctx.docs:
