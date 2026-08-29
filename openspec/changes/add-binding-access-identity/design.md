@@ -29,7 +29,8 @@ an invariant MORE provable.
 
 The custody change anticipated the general shape of this without naming the
 mechanism: "relaxing the rule is a change to a check that exists to keep the
-dispatch and content credentials apart" (`tasks.md:60-62`). Distinct access
+dispatch and content credentials apart"
+(`openspec/changes/add-notebook-hosting-credential-custody/tasks.md:60-62`). Distinct access
 identities alone IS that relaxation, wearing a governance field.
 
 **What actually separates the two cases is intent, and intent has to be
@@ -91,7 +92,7 @@ carrying the sixth record kind and the optional `escrow:` block. The custody
 change refused this collision deliberately and its ratification states the
 discipline in terms: *"no requirement is MODIFIED here precisely so that two
 active changes never hold two live deltas on one requirement text"*
-(`review/ratification-2026-08-23.md:46-48`).
+(`openspec/changes/add-notebook-hosting-credential-custody/review/ratification-2026-08-23.md:46-48`).
 
 The reason is mechanical, not stylistic. `MODIFIED` REPLACES a requirement
 wholesale; it does not merge. Two live blocks on one requirement means the

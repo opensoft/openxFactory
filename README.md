@@ -406,7 +406,7 @@ Active changes:
   not left implied as enforced". **The obvious fix regresses the check it
   refines, and a fixture already in the tree proves it**: let a shared
   `secret_ref` pass whenever the sharing bindings name different principals, and
-  `negative/dispatch-reuses-content-secret.yaml` — two bindings genuinely served
+  `examples/credential-contracts/negative/dispatch-reuses-content-secret.yaml` — two bindings genuinely served
   by two different workload identities — becomes CONFORMING, silently retiring
   the refusal that keeps dispatch and content key material apart. What separates
   the cases is INTENT, and intent must be declared: two credentials collapsed

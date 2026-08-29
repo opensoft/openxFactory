@@ -6,7 +6,9 @@ origin:
   reason: >-
     THE NAMED SUCCESSOR OF A RATIFIED CHANGE, WHOSE SCOPE IS QUOTED RATHER THAN
     COMPOSED. `add-notebook-hosting-credential-custody` was ratified by Brett
-    Heap on 2026-08-23 (`review/ratification-2026-08-23.md`, "Ratifier: Brett
+    Heap on 2026-08-23
+    (`openspec/changes/add-notebook-hosting-credential-custody/review/ratification-2026-08-23.md`,
+    "Ratifier: Brett
     Heap (repository owner) — in-session via question prompts"). That
     ratification did two things this packet stands on. FIRST, it promoted a
     requirement whose governing sentence is "One identity MAY be shared; one
@@ -30,7 +32,8 @@ origin:
     scenario "The published binding shape cannot yet express the access
     identity", whose third bullet reads: "the gap is recorded as owed to a
     successor that extends the shape, not left implied as enforced"
-    (`specs/credential-contracts/spec.md:60-63`). A successor that never arrives
+    (`openspec/changes/add-notebook-hosting-credential-custody/specs/credential-contracts/spec.md:60-63`).
+    A successor that never arrives
     turns that promoted sentence into a false statement about the corpus.
     THE SECOND HALF OF THE SCOPE COMES FROM THE SAME CHANGE'S TASK 4.1, which
     DECLINED a conformance fixture and stated the precondition for ever shipping

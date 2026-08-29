@@ -24,7 +24,7 @@ tasks §4.4 and is not re-scheduled here.
       (`openspec/changes/add-credential-escrow-checkout/specs/credential-contracts/spec.md:5`),
       and the custody ratification's stated discipline is that two active changes
       never hold two live deltas on one requirement text
-      (`review/ratification-2026-08-23.md:46-48`).
+      (`openspec/changes/add-notebook-hosting-credential-custody/review/ratification-2026-08-23.md:46-48`).
 - [x] 1.3 Consequence of 1.2, recorded rather than assumed: this packet is NOT a
       subject of the `modified-block-currency` carriage ledger, because it
       carries no MODIFIED block. It therefore does NOT edit

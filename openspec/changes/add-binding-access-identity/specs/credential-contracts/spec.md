@@ -8,7 +8,7 @@ block on exactly that requirement today
 Two active changes holding two live deltas on one requirement text is the shape
 `add-notebook-hosting-credential-custody` refused on purpose — "no requirement is
 MODIFIED here precisely so that two active changes never hold two live deltas on
-one requirement text" (`review/ratification-2026-08-23.md:46-48`) — and the
+one requirement text" (`openspec/changes/add-notebook-hosting-credential-custody/review/ratification-2026-08-23.md:46-48`) — and the
 scenario-loss class that produced issues #329 and #330 is what happens when that
 discipline lapses. The shape-ownership sentence is therefore OWED, not dropped:
 tasks §2.3 carries it as a sequencing obligation on whichever of the two packets

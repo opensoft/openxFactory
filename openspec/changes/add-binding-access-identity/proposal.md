@@ -36,7 +36,7 @@ grant, its own rotation visibility, its own audit trail. Its governing sentence:
 
 The published record cannot express that. Quoting the ratification record's third
 flagged item, which was before the ratifier at the read
-(`review/ratification-2026-08-23.md:49-60`):
+(`openspec/changes/add-notebook-hosting-credential-custody/review/ratification-2026-08-23.md:49-60`):
 
 > **The enforcement gap, admitted rather than papered over.** Per-system
 > authority is NOT machine-provable today: the published
@@ -51,7 +51,7 @@ flagged item, which was before the ratifier at the read
 
 The obligation is also carried in the PROMOTED spec text, so it is not merely a
 task note. The custody change's ADDED requirement ships this scenario
-(`specs/credential-contracts/spec.md:60-63`):
+(`openspec/changes/add-notebook-hosting-credential-custody/specs/credential-contracts/spec.md:60-63`):
 
 > **Scenario: The published binding shape cannot yet express the access identity**
 > — **WHEN** two bindings for one operated identity are recorded in the promoted
@@ -61,7 +61,8 @@ task note. The custody change's ADDED requirement ships this scenario
 > is recorded as owed to a successor that extends the shape, not left implied as
 > enforced.
 
-And the successor's own scope is written out, at `tasks.md:81-90`:
+And the successor's own scope is written out, at
+`openspec/changes/add-notebook-hosting-credential-custody/tasks.md:81-90`:
 
 > **4.5 NAMED SUCCESSOR, owed:** extend the published binding shape so the
 > per-system authority is REPRESENTABLE. Today `xfactory_credential_binding_template`
@@ -79,7 +80,8 @@ That is the whole scope of this packet, and it is quoted rather than composed.
 ## The second half the same change told this successor to decide first
 
 The gap has a twin, and the custody change was explicit that the successor must
-settle it BEFORE shipping a fixture. At `tasks.md:53-66`, recording why its own
+settle it BEFORE shipping a fixture. At
+`openspec/changes/add-notebook-hosting-credential-custody/tasks.md:53-66`, recording why its own
 planned conformance fixture was DECLINED:
 
 > ...a fixture would TRIP the validator: `shared-secret-identity` fires whenever
@@ -181,7 +183,7 @@ holding a LIVE `MODIFIED` block on exactly that requirement right now**
 carrying the sixth record kind and the optional `escrow:` block.
 
 The custody change refused this collision explicitly, and its ratification record
-states the discipline (`review/ratification-2026-08-23.md:46-48`): *"no
+states the discipline (`openspec/changes/add-notebook-hosting-credential-custody/review/ratification-2026-08-23.md:46-48`): *"no
 requirement is MODIFIED here precisely so that two active changes never hold two
 live deltas on one requirement text."* OpenSpec's `MODIFIED` REPLACES wholesale;
 two live blocks on one requirement is the exact machinery that produced the
