@@ -107,10 +107,10 @@ The requirements, one line each:
 
 | Id | Requirement | What it settles |
 | --- | --- | --- |
-| R1 | A governed ratification enters a signed execution chain only as a key-attributed grant exercise whose proof of possession was verified | Link 1's instrument is the wallet, exercised — not presented |
+| R1 | A governed ratification enters a signed execution chain only as a key-attributed grant exercise whose proof of possession was verified | Link 1's instrument is the wallet, EXERCISED — not presented; and a ratifier holding standing authority with no wallet begins no chain, recorded as a declared gap |
 | R2 | Ratification and chain enrollment are one atomic act, and neither half stands alone | Link 2 — the divergence the handshake exists to make impossible |
 | R3 | The chain identity is the digest of the signed ratification, fixed once at chain enrollment | What a chain IS identified by, and that re-ratification is a new chain |
-| R4 | Every link signs the chain identity and its predecessor's digest | Hash-linked, so a bag of individually valid signatures is not a chain |
+| R4 | Every link signs the chain identity and its predecessor's digest | Hash-linked, so a bag of individually valid signatures is not a chain — and at most ONE link succeeds any link, so a fork of two verifying histories is refused rather than resolved |
 | R5 | The chain travels with the work as a carried contract, verifiable at the point of use | Link 3 — checkable without resolving a mutable table |
 | R6 | A gap in the links a chain is required to carry is refused as a fraud signal, never downgraded | Link 9's semantics; the required set comes from the consumer's declared expectation, never from what it was handed |
 | R7 | The evidence plane is an append-only signed log in the governed store, and it is the record | Where a link is written; anchoring is explicitly not in scope |
