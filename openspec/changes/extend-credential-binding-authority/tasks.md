@@ -38,7 +38,9 @@ test.
   smuggling a severity marker into the existing strings, so a caller cannot
   count a warning as an error by accident.
 - [ ] 2.2 `binding-authority-undeclared` (WARNING): a binding declaring neither
-  `consumer` nor `fetch_identity`. The message names BOTH fields and states the
+  `consumer` nor `fetch_identity`. NOT raised for a missing `requirement_id` —
+  warning on it would put it on the deprecation path this packet deliberately
+  keeps it off. The message names BOTH fields and states the
   removal version allocated at 5.2 — a deprecation warning that does not say
   when it becomes an error is not a migration path.
 - [ ] 2.3 `shared-fetch-identity` (ERROR): within one document, two bindings
@@ -203,6 +205,8 @@ test.
   because this change narrows nothing.
 - Closing the binding object to unknown keys. A narrowing, and a major-version
   act.
-- Making the three fields required. The breaking class, scheduled for the next
-  major after a full minor of warnings.
+- Making `consumer` and `fetch_identity` required. The breaking class,
+  scheduled for the next major after a full minor of warnings. `requirement_id`
+  is NOT on that path: its absence never warns, so no major may require it, and
+  it is obligatory only where a record claims the shared-secret exemption.
 - Any edit to ratified custody text to align its "access identity" prose.

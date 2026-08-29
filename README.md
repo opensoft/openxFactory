@@ -408,8 +408,10 @@ Active changes:
   `issuance_preconditions` vocabulary was added to retire. Adds THREE ADDITIVE
   OPTIONAL fields (`consumer`, `fetch_identity`, `requirement_id`), one new
   refusal (`shared-fetch-identity`), and the validator's FIRST WARNING CHANNEL —
-  optional plus warning is the additive class, required is the breaking class
-  and owes a full minor of warnings first (`contract-v1.34`'s pattern). **The
+  optional plus warning is the additive class, and `consumer`/`fetch_identity`
+  becoming required is the breaking class, which owes a full minor of warnings
+  first (`contract-v1.34`'s pattern). `requirement_id` is deliberately kept OFF
+  that path: its absence never warns, so no major may require it. **The
   decision it puts to the council** is the question task 4.1 left open: should
   `shared-secret-identity` distinguish two credentials collapsed into one from
   two consumers of one credential? Its position is YES, discriminated by the

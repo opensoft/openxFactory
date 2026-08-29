@@ -204,6 +204,18 @@ preference: "a required field is added" is its BREAKING (major) class, requiring
 "at least one full minor release where the old shape produced deprecation
 warnings". The warning IS the migration path, and it is served first.
 
+**Putting `requirement_id` on the deprecation path with the other two.**
+DECLINED, and the reason is the same rule read the other way. Only `consumer`
+and `fetch_identity` warn when absent, because a binding that is the only one
+resolving its requirement already carries that fact in its map key and gains
+nothing but redundancy from restating it. A field whose absence never warns
+cannot be made required at a major without breaking what no minor deprecated —
+so `requirement_id` stays optional across the major, and is obligatory only as a
+CONDITION OF CLAIMING the shared-secret exemption, where the record is asserting
+something extra and must pay for it. An earlier draft of this packet said "the
+three fields become required at the next major"; that sentence was true of two
+of the three and was corrected here and in every other place it appeared.
+
 **Modifying a promoted requirement to hang this on.** DECLINED after checking
 which requirements are already spoken for. `add-credential-escrow-checkout`
 carries a live MODIFIED block on "Canonical credential record shapes";

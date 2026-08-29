@@ -19,13 +19,24 @@ existing field of that name rather than coining a `_ref` variant beside it.
 and in the projection documentation, NAMES THE SAME THING as `fetch_identity`;
 the prose synonym stands and the RECORD has exactly one spelling.
 
-THE THREE FIELDS ARE OPTIONAL AT THE MINOR THAT INTRODUCES THEM AND REQUIRED AT
-THE NEXT MAJOR. A binding declaring neither a consumer nor a fetch identity
-SHALL raise a validator WARNING naming both fields, and SHALL remain valid: an
+ALL THREE FIELDS ARE OPTIONAL AT THE MINOR THAT INTRODUCES THEM, AND EXACTLY TWO
+OF THEM BECOME REQUIRED AT THE NEXT MAJOR. A binding declaring neither a
+`consumer` nor a `fetch_identity` SHALL raise a validator WARNING naming both
+fields, SHALL remain valid at this major, and SHALL be refused at the next: an
 optional field plus a new validator warning is the additive class, and a
 required field is the breaking class that owes at least one full minor of
-warnings first. The warning is the migration path, and the removal version
-SHALL be stated in the changelog entry that introduces it.
+warnings first. The warning is the migration path, and the removal version SHALL
+be stated in the changelog entry that introduces it.
+
+`requirement_id` IS DELIBERATELY NOT ON THAT PATH, and the asymmetry is a
+consequence of the deprecation rule rather than an omission. Its absence never
+warns, because a binding that is the only one resolving its requirement already
+carries that fact in its map key and would gain nothing but redundancy; so a
+major that made it required would be a breaking change no minor had ever warned
+about, which the versioning policy forbids. `requirement_id` stays optional
+across the major and is obligatory only where a record CLAIMS the shared-secret
+exemption — which is a condition of that claim, stated in the requirement that
+grants it, and not a property of every binding.
 
 THE MAP KEY IS A BINDING IDENTIFIER AND `requirement_id` IS THE DECLARED
 RELATION, which resolves an ambiguity the shape has carried unstated. Every
@@ -64,7 +75,8 @@ retiring.
 
 #### Scenario: The next major arrives
 - **WHEN** the major release that ends the deprecation lands
-- **THEN** a binding declaring neither field is REFUSED, the requirement having served at least one full minor release of warnings and the changelog having named the removal version
+- **THEN** a binding declaring neither `consumer` nor `fetch_identity` is REFUSED, the requirement having served at least one full minor release of warnings and the changelog having named the removal version
+- **AND** a binding declaring no `requirement_id` is NOT refused, because its absence never warned and a major may not break what no minor deprecated
 
 #### Scenario: A record uses a second spelling for the store identity
 - **WHEN** a binding declares `access_identity` instead of `fetch_identity`
