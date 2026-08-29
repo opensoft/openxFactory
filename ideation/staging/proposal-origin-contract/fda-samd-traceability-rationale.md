@@ -333,3 +333,24 @@ The recommended sequence is to complete `add-proposal-origin-contract`, then
 organize this rationale into a distinct staged topic named
 `regulated-traceability-profile`. The origin proposal must not claim to solve
 the full regulated traceability problem.
+
+## Deferral with a named gate (recorded 2026-08-28)
+
+**DEFERRED. The gate is a consumer, not a decision.** The origin contract
+this rationale was staged beside was promoted on 2026-07-12 and is canon;
+what remains here is the regulatory argument that origin provenance is a
+NECESSARY first traceability edge and not a SUFFICIENT one for FDA SaMD.
+Nothing in it is unresolved and nothing about it is stale — it is read-only
+evidence held for a future regulated-traceability profile.
+
+**GATE: a regulated domain that actually needs this rationale** — in
+practice MedxFactory reaching a SaMD-classified surface, at which point the
+trace-graph, QMS and validation work scoped below becomes a real proposal
+and this fragment exits with it. Until a domain needs it, writing the
+profile would be authoring a compliance posture nobody is obliged by, which
+is the failure mode the document itself warns about.
+
+**This deferral is a schedule, not a standing.** It changes no `Status:`,
+and it does NOT stop the topic ageing in doc-health: there is no `deferred`
+state for a staged topic and this change deliberately adds none.
+

@@ -391,6 +391,43 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [settle-aging-staging-topics](openspec/changes/settle-aging-staging-topics/proposal.md)
+  — authored 2026-08-28 on Brett's four bulk rulings over a read-only triage
+  survey of the fourteen staging topics `doc-health`'s
+  `staged-candidate-aging` family was warning on. **The family read one fact
+  about a staged topic — the folder's last commit date — and no `Status:`, no
+  register row, no exit record**, so SIX of the fourteen were finished work:
+  every exit change ratified, realized and ARCHIVED, the folder retained as
+  provenance, and the finding telling a reader to raise a proposal that had
+  already landed and closed. One of the six, `github-administration-plane`,
+  had carried `Status: superseded` for forty-two days and warned anyway —
+  which is the proof the defect was in the READING, not in the corpus's
+  record-keeping. The family now honours two records and no others: a primary
+  fragment that is `superseded`/`retired`, or an `Exit taken:` line naming a
+  change that has ARCHIVED. **A citation of an ACTIVE change does not
+  silence** — that is `clean-doc-health-floor`'s archived-packet rule arriving
+  from the other side of the same lifecycle, and hiding the age would hide
+  half of one live obligation. The unperformable action line ("mark it
+  deferred") is corrected: **no `deferred` state exists for a staged topic and
+  this change deliberately adds none**, so the five topics it records as
+  deferred-with-gate-named — `worker-host-app` and
+  `context-compression-runtime` behind Omnigent-Install PR #40 then
+  OpsxFactory tasks 8.1/8.2, `proposal-origin-contract`,
+  `layer-vocabulary-machine-migration`, `ideation-action-plane` fragment 2 —
+  KEEP AGEING, and each says so in its own text. **The number worth reading**:
+  measured at a common `--as-of 2026-12-31` so that a folder this change
+  touched cannot be mistaken for a folder it silenced, staged-topic findings
+  go **33 → 27**, exactly the six — re-measured on the merged head and
+  unmoved, which is why that as-of and not today's is the load-bearing
+  number. Today's run goes 14 → 3, because the five deferred topics fell
+  silent by MTIME RESET rather than by rule the moment their folders were
+  committed; they return 2026-09-27 still deferred. MODIFIES one `doc-health`
+  requirement (`Aging threshold defaults`), whose promoted text pins the
+  mtime-only reading and already carries the exact analogue of the new
+  exclusion one clause later, for routing records. Five orchestrator
+  decisions flagged for veto, OD-1 first: `dashboard-repo-selector` takes the
+  exit record rather than `superseded`, because its exit 2 is unproposed and
+  closing it would declare a topic finished that still holds live design.
 - [fix-pin-value-boundary-and-sentinel-split](openspec/changes/fix-pin-value-boundary-and-sentinel-split/proposal.md)
   — **ALL FIVE ORCHESTRATOR DECISIONS CLEARED AND ALL FOUR QUESTIONS RULED
   2026-08-28**, by a four-question multi-choice put to Brett over PR #463; he
