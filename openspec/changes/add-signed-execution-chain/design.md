@@ -37,12 +37,20 @@ were the enforcement. R10 exists so this packet cannot commit it.
 traveling contract). Plus the hash-linking rule (R4) and the evidence plane
 (R7). Out: everything else.
 
-**Why R4 is in.** Without it, "enrolled in a chain" reduces to "signed twice".
-The topic's own mix-and-match attack — individually valid artifacts from
-DIFFERENT executions assembling into one apparent chain — is defeated by the
-binding, not by the presence of signatures. Link 2 is the first successor link
-in the model, so the successor rule has to exist the moment link 2 does, or link
-2 is under-specified from birth and every later tranche inherits it.
+**Why R4 is in, stated exactly rather than flatteringly.** R4 governs no link
+that tranche one alone creates: links 1 and 2 share ONE signature (the topic's
+own table says link 2 is signed by "same signature as link 1"), so the genesis
+link is links 1-and-2 together, and link 3 is CARRIED rather than signed. **R4
+first bites in tranche two.** It is in scope anyway for two reasons. First, R3's
+chain identity is otherwise an identifier that nothing consumes — a value defined
+with no rule about what may be done with it, which is how identifiers acquire
+incompatible uses. Second, the topic's binding rule is a property of the chain's
+SHAPE, not of any one link: "every link from enrollment onward signs over … the
+chain identity … and the digest of the link that precedes it". Fixing the shape
+at the root is what lets tranche two extend a chain rather than renegotiate one,
+and the topic's own mix-and-match finding — individually valid artifacts from
+DIFFERENT executions assembling into one apparent chain — is what happens when
+the binding is designed after the links exist.
 
 **Why R7 is in.** The staged topic's own sequencing note settles it: the signed
 transparency log is a tranche-1 artifact, "not a tranche 3 one … Building the log
@@ -167,7 +175,7 @@ claim the machinery cannot keep.
 
 **The mechanism.** The handshake produces ONE signed object. The ratifier signs
 ONE byte-string that already contains both halves: the ratification's subject and
-the declaration that signing it enrols that subject in a signed execution chain.
+the declaration that signing it enrolls that subject in a signed execution chain.
 Because the enrollment declaration is INSIDE the signed bytes, there is no second
 act to keep in step — this is bind-before-sign, applied at the root. The exercise
 record and the genesis chain link are two VIEWS of that one signed object, not
@@ -292,11 +300,19 @@ broken on the record.
 choice.** A is recoverable because nothing has yet claimed to descend from an
 unrecorded root. B is not, because something already has.
 
-### Case C — two genesis links under one chain identity
+### Case C — a link asserting a chain identity its own bytes do not produce
 
-Refused, not appended. R3 fixes the chain identity once at chain enrollment, and
-D6's idempotency is what makes a retry safe rather than a way to mint a rival
-chain for one ratification.
+Refused. **The earlier drafting of this case was wrong and is corrected here
+rather than quietly replaced.** It said "two genesis links under one chain
+identity are refused, not appended" — which cannot happen: the identity IS the
+digest of the signed bytes, so different bytes are a different identity, and the
+refusal described an impossible input while the reachable attack went unnamed.
+The reachable attack is a link that CLAIMS an identity, and the answer is that
+every reader COMPUTES the identity and never accepts an asserted one (R3).
+One-ratification-one-chain then holds by construction, and R3 says so instead of
+posing it as a separate refusal a validator would be expected to enforce
+independently. D6's idempotency still does its own job: re-recording the same
+signed bytes after a failed write yields the same chain rather than a rival.
 
 ### Case D — a successor link that verifies but does not bind
 
@@ -398,6 +414,32 @@ Carried unchanged. None is decided here.
   trigger condition for a public programmable layer still unstated. Tranche three.
 - **Q6 and Q7 — HELD for Brett's clarify sitting**, per `proposal.md` and the
   independence proof above.
+
+## Self-review pass, recorded rather than folded in silently
+
+Five corrections were made to the delta by this session's own re-reading after
+the packet was first pushed. They are listed because corrective text earns the
+same scrutiny as original text, and a reader of the diff deserves to know which
+parts were second thoughts.
+
+1. **R1 — a standing-authority origin could be self-asserted.** As first drafted,
+   any actor could declare the origin that excuses a missing signature, which
+   turns a declared gap into a bypass. Corrected: the origin is admissible only
+   for an authority already anchored OUTSIDE the record it writes into, which is
+   the anchor `review-authority-intake` already requires of a root issuer.
+2. **R2 — "recovery SHALL NOT be a fresh signature" was too absolute.** A fresh
+   signature is lawful; it simply produces a DIFFERENT chain. Corrected to say
+   that, rather than forbidding an act the corpus permits.
+3. **R3 — the one-ratification-one-chain refusal was vacuous.** See Case C.
+4. **R6 — "validate every link that EXISTS" made completeness unfalsifiable.** A
+   chain judged against the links it supplied is complete by definition, so a
+   lane that simply omitted a link would pass. Corrected: the required set comes
+   from the consumer's own DECLARED EXPECTATION, and a consumer holding none
+   refuses.
+5. **R9 — "by a human authority acting under standing authority" was true of one
+   caller only.** R1 admits a wallet-carried holder who is not the root issuer,
+   and R9 as drafted would have excluded them. Corrected to bind on the SURFACE
+   the handshake writes rather than on the instrument the authority holds.
 
 ## Risks that survive
 

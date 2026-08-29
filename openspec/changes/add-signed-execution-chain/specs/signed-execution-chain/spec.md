@@ -6,7 +6,7 @@ and no requirement below reaches them.
 
 ## ADDED Requirements
 
-### Requirement: A governed ratification enters a signed execution chain only as a key-attributed grant exercise whose proof of possession verified
+### Requirement: A governed ratification enters a signed execution chain only as a key-attributed grant exercise whose proof of possession was verified
 
 A governed ratification SHALL enter a signed execution chain only where it is
 recorded as an exercise of a wallet-carried authority whose proof of possession
@@ -29,6 +29,12 @@ DECLARE its origin as standing authority rather than treating the absent
 signature as an exemption, and such a chain SHALL NOT be presented as, or
 accepted for, an assurance that requires a signature-rooted origin. A chain
 declaring no origin SHALL be read as the weaker of the two, never the stronger.
+
+A standing-authority origin SHALL NOT be self-asserted. It is admissible only for
+an authority whose standing is already anchored OUTSIDE the record it writes into
+— the root-issuer anchor `review-authority-intake` requires — and an actor
+claiming it without that anchor SHALL be refused, because an origin anyone may
+declare is not a declaration but a bypass.
 
 #### Scenario: A grant is presented without proof of possession
 
@@ -60,6 +66,12 @@ declaring no origin SHALL be read as the weaker of the two, never the stronger.
 - **THEN** the chain records its origin as standing authority
 - **AND** the chain is refused wherever a signature-rooted origin is required, rather than being accepted as though it carried one
 
+#### Scenario: An actor declares a standing-authority origin for itself
+
+- **WHEN** an actor whose standing is not anchored outside the record it writes into declares its chain's origin as standing authority
+- **THEN** the declaration is refused
+- **AND** the absence of a wallet is not accepted as a reason to admit the act
+
 ### Requirement: Ratification and chain enrollment are one atomic act, and neither half stands alone
 
 A ratification and the CHAIN ENROLLMENT of what it ratifies SHALL be one signed
@@ -74,8 +86,9 @@ as a partial success.
 A ratification whose genesis link is not present in the evidence plane SHALL NOT
 be presented as ratified, because a ratification's standing is DERIVED from its
 link and is never stored beside it. Recovery from a failed record SHALL be
-re-recording the same signed bytes, which is idempotent on the chain identity,
-and SHALL NOT be a fresh signature. A chain whose ratification cannot be resolved
+re-recording the same signed bytes, which is idempotent on the chain identity; a
+fresh signature produces a DIFFERENT chain and SHALL NOT be presented as recovery
+of the first. A chain whose ratification cannot be resolved
 or does not verify SHALL NOT be repaired by producing a ratification afterwards;
 the remedy is a new handshake producing a new chain, and the broken chain stays
 broken on the record.
@@ -106,11 +119,15 @@ broken on the record.
 
 A signed execution chain SHALL be identified by the digest of the signed
 ratification that begins it, computed over the signed bytes at CHAIN ENROLLMENT
-and immutable thereafter. Two distinct ratifications SHALL NOT share a chain
-identity, and one ratification SHALL NOT yield two chains: a second genesis link
-presented under an existing chain identity SHALL be refused rather than appended.
-Re-ratifying an object SHALL begin a NEW chain with a new identity and SHALL NOT
-re-use, extend, or re-point an existing one.
+and immutable thereafter. The identity SHALL be COMPUTED by every reader and
+never accepted as asserted: a link whose claimed chain identity does not equal the
+digest of the signed ratification it carries SHALL be refused. Because the
+identity is that digest, one ratification yields exactly one identity and two
+distinct ratifications cannot share one — those two properties hold BY
+CONSTRUCTION and SHALL NOT be restated as separate refusals a reader might expect
+a validator to enforce independently. Re-ratifying an object SHALL begin a NEW
+chain with a new identity and SHALL NOT re-use, extend, or re-point an existing
+one.
 
 The signed bytes carry the enrollment DECLARATION and never the identity derived
 from them, so the identity is a consequence of the signature rather than an input
@@ -122,10 +139,11 @@ to it.
 - **THEN** the chain identity is unchanged and one chain exists
 - **AND** the second record is recognized as the same enrollment rather than as a new chain
 
-#### Scenario: A second genesis link appears under an existing chain identity
+#### Scenario: A link asserts an identity its own bytes do not produce
 
-- **WHEN** a genesis link is presented for a chain identity that already has one, with different signed bytes
-- **THEN** it is refused rather than appended
+- **WHEN** a link claims a chain identity that is not the digest of the signed ratification it carries
+- **THEN** it is refused
+- **AND** the claimed value is not adopted, because the identity is computed by the reader and never accepted as asserted
 
 #### Scenario: An object is ratified a second time
 
@@ -188,16 +206,21 @@ differ in exactly what an attacker who controls the table can do.
 - **THEN** it records that it verified a lookup
 - **AND** it MUST NOT report that as verification of a carried contract
 
-### Requirement: A gap in the links that exist is refused as a fraud signal, never downgraded
+### Requirement: A gap in the links a chain is required to carry is refused as a fraud signal, never downgraded
 
-A consumer that validates a signed execution chain SHALL validate EVERY link that
-exists at the point of validation, and a link that is missing, unverifiable, or
-not bound to the chain SHALL be refused and reported as a FRAUD SIGNAL rather than
-downgraded to a warning, an advisory, or a degraded pass — a gap means either the
+A consumer that validates a signed execution chain SHALL determine the links the
+chain is REQUIRED to carry at that point from its OWN DECLARED EXPECTATION, never
+from the set of links it was handed, and SHALL validate every one of them; a link
+that is missing, unverifiable, or not bound to the chain SHALL be refused and
+reported as a FRAUD SIGNAL rather than downgraded to a warning, an advisory, or a
+degraded pass — a gap means either the
 act did not happen or something is misrepresenting that it did, and both are
 refusals. A consumer that CANNOT evaluate the chain SHALL refuse rather than
 proceed, because an unevaluable answer is never permission, and every refusal
-SHALL name which link failed and why.
+SHALL name which link failed and why. A consumer holding NO declared expectation
+SHALL refuse rather than accept whatever it was handed, because a chain judged
+against the links it supplied is complete by definition and can never be found
+short.
 
 This requirement binds what a validating consumer must DO. It creates, names and
 requires no enforcement point, and SHALL NOT be read as asserting that any gate,
@@ -207,9 +230,16 @@ governed.
 
 #### Scenario: A required link is absent
 
-- **WHEN** a consumer validating a chain finds a link of the chain absent
-- **THEN** it refuses and reports a fraud signal naming the absent link
-- **AND** it does not proceed with a warning
+- **WHEN** a chain is offered carrying fewer links than the consumer's declared expectation requires at that point
+- **THEN** the absent links are refused as MISSING and reported as a fraud signal naming each one
+- **AND** the supplied set is not accepted as evidence that no more were required
+- **AND** the consumer does not proceed with a warning
+
+#### Scenario: A consumer holds no declared expectation
+
+- **WHEN** a consumer validates a chain without a declared expectation of the links required at that point
+- **THEN** it refuses
+- **AND** it does not accept the chain on the strength of every supplied link verifying
 
 #### Scenario: The chain cannot be evaluated
 
@@ -294,8 +324,10 @@ chain SHALL always be spelled CHAIN ENROLLMENT and never bare "enrollment", whic
 ### Requirement: The ratify-and-enroll handshake is performed outside the clearance pipeline
 
 The ratify-and-enroll handshake SHALL be performed OUTSIDE the substantive-review
-clearance pipeline, by a human authority acting under standing authority, and its
-record SHALL NOT be presented as, or counted as, a clearance. The placement is
+clearance pipeline, by a human authority, and its record SHALL NOT be presented
+as, or counted as, a clearance. The placement follows from the SURFACE the
+handshake writes and not from which instrument the authority holds, so it binds
+equally a wallet-carried exercise and the standing-authority origin of R1. The placement is
 forced rather than preferred: codexFactory's `gate_rules_council` returned a
 unanimous 5/5 refusal on 2026-08-28 of a candidate class over
 `openspec/changes/**` on the ground that such a class can NEVER commission a

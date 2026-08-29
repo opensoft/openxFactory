@@ -18,7 +18,7 @@ wallet-carried grant and anchors its root issuer to a named operator. What no
 ratified text does yet is carry that signature FORWARD: the ratification is
 signed, and then the work happens in a lane that cannot prove it descended from
 that ratification. This packet closes the first gap — the act that ratifies and
-the act that enrols that ratification in a chain become ONE signed handshake, so
+the act that enrolls that ratification in a chain become ONE signed handshake, so
 there is no ratified object without its chain and no chain without its
 ratification.
 
@@ -107,12 +107,12 @@ The requirements, one line each:
 
 | Id | Requirement | What it settles |
 | --- | --- | --- |
-| R1 | A governed ratification enters a signed execution chain only as a key-attributed grant exercise whose proof of possession verified | Link 1's instrument is the wallet, exercised — not presented |
+| R1 | A governed ratification enters a signed execution chain only as a key-attributed grant exercise whose proof of possession was verified | Link 1's instrument is the wallet, exercised — not presented |
 | R2 | Ratification and chain enrollment are one atomic act, and neither half stands alone | Link 2 — the divergence the handshake exists to make impossible |
 | R3 | The chain identity is the digest of the signed ratification, fixed once at chain enrollment | What a chain IS identified by, and that re-ratification is a new chain |
 | R4 | Every link signs the chain identity and its predecessor's digest | Hash-linked, so a bag of individually valid signatures is not a chain |
 | R5 | The chain travels with the work as a carried contract, verifiable at the point of use | Link 3 — checkable without resolving a mutable table |
-| R6 | A gap in the links that exist is refused as a fraud signal, never downgraded | Link 9's semantics, scoped to the links tranche one creates |
+| R6 | A gap in the links a chain is required to carry is refused as a fraud signal, never downgraded | Link 9's semantics; the required set comes from the consumer's declared expectation, never from what it was handed |
 | R7 | The evidence plane is an append-only signed log in the governed store, and it is the record | Where a link is written; anchoring is explicitly not in scope |
 | R8 | The chain names no identity, certificate or custody term of its own | The collision the staged topic names as its live risk |
 | R9 | The ratify-and-enroll handshake is performed outside the clearance pipeline | The never-convenable finding, made normative |
@@ -150,8 +150,8 @@ PHI reading), and neither is decided here.
 7 (council review of the signed brief) and link 8 (the chain-validating merge
 gate). The staged topic argues the gate should exist from tranche one validating
 a short chain, and this packet honours that intent in the only way it lawfully
-can: R6 states what ANY validating consumer must do with the links that exist, so
-the refusal path is specified from the start. It does NOT create a merge gate,
+can: R6 states what ANY validating consumer must do with the links a chain is
+required to carry, so the refusal path is specified from the start. It does NOT create a merge gate,
 because a merge gate over this repository's proposal surface is precisely the
 never-convenable object §2 of the council record refuses, and because R10 forbids
 describing an enforcement point that does not exist.

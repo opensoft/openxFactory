@@ -393,7 +393,7 @@ Active changes:
 
 - [add-signed-execution-chain](openspec/changes/add-signed-execution-chain/proposal.md)
   — TRANCHE ONE of the staged topic `signed-execution-chain`: the act that
-  ratifies and the act that enrols that ratification in a signed execution
+  ratifies and the act that enrolls that ratification in a signed execution
   chain become ONE signed handshake, so there is no ratified object without
   its chain and no chain without its ratification. ADDS one neutral
   capability with ten requirements over links 1-3 of the topic's ten-link
