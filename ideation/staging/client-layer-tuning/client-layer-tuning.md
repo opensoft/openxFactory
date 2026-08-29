@@ -1,6 +1,7 @@
 # Staged: Client Layer Tuning (scaffold roles, content schemas, validators, wizard)
 
-Status: staged
+Status: superseded
+Superseded by: openspec/changes/archive/2026-07-24-add-client-layer-tuning-contracts (openxFactory), [codexFactory 2026-07-24-add-client-layer-defaults](https://github.com/opensoft/codexFactory/tree/main/openspec/changes/archive/2026-07-24-add-client-layer-defaults), and [hermes-install 2026-07-24-add-client-tuning-and-seeding](https://github.com/opensoft/xFactory-Hermes-Install/tree/main/openspec/changes/archive/2026-07-24-add-client-tuning-and-seeding)
 Kind: architecture
 Summary: Make the Client ("Company Policy") layer tunable: extend the neutral
 scaffold with the house-team `roles/` (11 personas incl. the new Finance &
@@ -18,6 +19,23 @@ Source: ideation/brainstorm/ — client-layer-scaffold.md, client-layer-roster-d
 client-layer-content-draft.md, client-policy-wizard.md; decisions recorded
 2026-07-22; risk/legal details in client-risk-and-assurance-model.md and
 hermes-legal-compliance-model.md (still brainstorm).
+
+## Outcome (recorded 2026-08-28)
+
+COMPLETE. All three exit changes were ratified, realized and ARCHIVED on
+2026-07-24, and each archive was verified at its own tree on 2026-08-28:
+
+| Exit | Repository | Archived packet |
+| --- | --- | --- |
+| 2a scaffold + content schemas + validator | openxFactory | `openspec/changes/archive/2026-07-24-add-client-layer-tuning-contracts` (canonical spec `client-layer-tuning`, `contract-v1.17`) |
+| 2b domain client defaults | codexFactory | `openspec/changes/archive/2026-07-24-add-client-layer-defaults` |
+| 2c policy wizard + unified client seeding | xFactory-Hermes-Install | `openspec/changes/archive/2026-07-24-add-client-tuning-and-seeding` |
+
+The opensoft tenant is tuned and seeded live. The topic folder and its
+drafts are retained as PROVENANCE — the reason this document is
+`superseded` rather than deleted — and the open questions listed below
+were carried into those proposals and answered there; they are read here
+as the record of what the topic asked, never as live work.
 
 ## Claims (decided 2026-07-22)
 
