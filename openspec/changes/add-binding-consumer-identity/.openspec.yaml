@@ -1,0 +1,60 @@
+schema: spec-driven
+created: 2026-08-29
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-29-add-binding-consumer-identity
+  reason: >-
+    THE NAMED SUCCESSOR OF A RATIFIED CHANGE, RAISED ON BRETT HEAP'S IN-SESSION
+    LANE AUTHORIZATION OF 2026-08-29. `add-notebook-hosting-credential-custody`
+    was ratified on 2026-08-23 with three items deliberately put to the
+    ratifier rather than decided quietly, and its third is this change's whole
+    subject. Quoted from that change's own ratification record
+    (`openspec/changes/add-notebook-hosting-credential-custody/review/ratification-2026-08-23.md`
+    § "The three flagged items"): *"The enforcement gap, admitted rather than
+    papered over. Per-system authority is NOT machine-provable today: the
+    published `xfactory_credential_binding_template` requires only
+    `[provider, secret_ref, owner, rotation_policy]` with optional `vault`,
+    carries no consumer or access-identity field, and
+    `scripts/validate-credential-contracts.py` compares no authorities — so two
+    bindings naming the same vault principal validate cleanly. The invariant is
+    held TODAY by review and by estate wiring. Making it provable means
+    extending `contracts/schemas/`, which carries the full contract-release
+    ritual, and is named as an owed successor (tasks §4.5) rather than folded in
+    here."* That successor is registered a second time in the same packet's
+    task list (§4.5, verbatim: *"NAMED SUCCESSOR, owed: extend the published
+    binding shape so the per-system authority is REPRESENTABLE"*) and a third
+    time in its "Next" section. This change is that successor and nothing wider.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, checked rather than assumed. No
+    staged topic carries this subject. The nearest is
+    `ideation/staging/notebook-access-wallet-governance/`, whose subject is the
+    OUTBOUND half — how a HUMAN grantee's access to a shared notebook is held
+    and revoked — and which explicitly targets `lifecycle-notebook-projection`
+    and the share-out roster. This change is the INBOUND half: which of OUR
+    SYSTEMS holds a binding to a credential and under which fetch identity. The
+    two touch the same account and share no delta, and taking `staged` against
+    a topic that neither declares this exit nor carries its claims would put a
+    staging record behind an origin act that was a ratification's own named
+    successor. The organized source is the ratified custody packet, cited above
+    and quoted again in proposal.md and design.md, so `ad_hoc` is correct and is
+    not a substitute for staging.
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — 2026-08-29, in session,
+    authorizing this lane: author the queued binding-template consumer-identity
+    extension as an OpenSpec proposal in openxFactory, to be put to a
+    §7.4-shaped council review before any ratification act. THIS RECORDS
+    AUTHORIZATION TO AUTHOR, NOT RATIFICATION OF CONTENT. Ratification is a
+    separate act that has NOT happened: this packet stands at `Status: draft`,
+    every decision in it is the authoring session's and is flagged for the
+    council and for Brett in proposal.md § Authoring decisions put to the
+    council, and the council review is commissioned OUTSIDE the clearance
+    pipeline by design — proposals are never-convenable through it on the
+    unanimous ruling of 2026-08-28.
+  approved_on: 2026-08-29
+related:
+  - openxFactory:change:add-notebook-hosting-credential-custody  # RATIFIED 2026-08-23, ACTIVE. Its tasks §4.5 names this change; this change MODIFIES its "Each consuming system reaches a shared operated identity through its own binding" requirement and declares its delta relative to that change's outcome per release-realization's ordered-deltas requirement
+  - openxFactory:change:add-credential-escrow-checkout           # RATIFIED 2026-08-28, ACTIVE. The OTHER active writer on this schema file: an additive optional `escrow:` block on the same binding kind plus a sixth record kind. Two additive blocks on one shape, two cuts owed on one file — the coordination is stated in proposal.md § The other writer on this file
+  - openxFactory:change:add-identity-brokering                   # RATIFIED 2026-08-21, ACTIVE, contracts SHIPPED at contract-v1.37. Source of the `holder_ref` spelling this change reuses, and of the "Workloads are not personas" rule that forbids spelling a consuming system as a persona
+  - openxFactory:change:add-wallet-carried-review-authority      # RATIFIED 2026-08-23, ACTIVE. Checked for overlap: its instrument is a wallet grant whose `audience.wallet_ref` names a holder's WALLET. This change creates no rival — see design.md § The wallet question
+  - openxFactory:change:add-notebook-projection-identity         # RATIFIED 2026-08-23, ACTIVE. The operated-identity generalization both this change and the custody change presume, unpromoted until it archives
+  - openxFactory:change:promote-credential-contracts             # archived; promoted the binding-template shape this change extends
+  - openxFactory:change:add-client-identity-roster               # archived; the `issuance_preconditions` precedent this change's closed-shape and const-true reasoning follows

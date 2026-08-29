@@ -391,6 +391,50 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-binding-consumer-identity](openspec/changes/add-binding-consumer-identity/proposal.md)
+  — **`Status: draft`. THE NAMED SUCCESSOR OF A RATIFIED ADMISSION**, authored
+  2026-08-29 on Brett's in-session lane authorization and written to be read
+  adversarially by a §7.4-shaped council convened OUTSIDE the clearance pipeline
+  (proposals are never-convenable through it, unanimously, 2026-08-28). Nothing
+  here is ratified. `add-notebook-hosting-credential-custody` ratified
+  one-identity / per-system-authority on 2026-08-23 and admitted in the same
+  read that the invariant is **held by review rather than by the record** — the
+  published `xfactory_credential_binding_template` requires only
+  `[provider, secret_ref, owner, rotation_policy]`, carries no consumer or
+  access-identity field, and the validator compares no authorities, so two
+  bindings on one vault principal validate cleanly. That gap is registered three
+  times in the predecessor (its own scenario, its Impact section, and tasks
+  §4.5) and this change is what discharges it. **The sharpest statement of it is
+  canon's own**: promoted `credential-contracts` says a consuming lane receives
+  "only bindings: an opaque secret reference and a fetch-identity identifier" —
+  the shape carries the first and not the second. **MEASURED, not assumed**: a
+  `consumer:` key carrying arbitrary contents validates against the pinned
+  schema TODAY, because the binding object is not closed, which makes this a
+  field-shaped hole rather than a missing field — the same defect this schema's
+  `issuance_preconditions` design names one record kind over. The change adds ONE
+  additive optional `consumer:` block (`holder_ref`, `fetch_identity`, an
+  optional `requirement_ref`, an optional const-true
+  `shared_credential_acknowledged`) in vocabulary the estate already ratified:
+  `holder_ref` is `identity-brokering`'s shipped spelling and a consuming system
+  is emphatically NOT a persona, `fetch_identity` is `credential-contracts`'s own
+  words. **IT TIGHTENS BEFORE IT LIFTS** — `shared-secret-identity` keeps its
+  refusal as the default, a new `shared-authority-identity` names the real fault
+  (two systems, one authority), and the two-consumers-of-one-identity shape the
+  predecessor had to DECLINE becomes expressible only through five
+  independent fail-closed conditions, the fifth of which stops the
+  dispatch/content collapse laundering itself as intentional sharing. **CARRIES
+  A CONTRACT CUT** — unlike its predecessor it moves schema bytes; the minor is
+  allocated at realization by merge order, because `add-credential-escrow-checkout`
+  is already spending one on the same file. Migration is
+  additive-optional-plus-warning now, required at the next MAJOR, which is the
+  versioning policy's own sequence rather than a preference. 1 MODIFIED
+  requirement (the predecessor's, declared relative to its outcome per
+  `release-realization`'s ordered-deltas rule) and 3 ADDED. Five authoring
+  decisions and five open questions are flagged for the council with their
+  rejected alternatives, D-1 first: the delta modifies the requirement its
+  arrival makes stale and deliberately does NOT modify "Canonical credential
+  record shapes", declining to create a third instance of the lossy-sibling-delta
+  class open as issues #329 and #330.
 - [settle-aging-staging-topics](openspec/changes/settle-aging-staging-topics/proposal.md)
   — authored 2026-08-28 on Brett's four bulk rulings over a read-only triage
   survey of the fourteen staging topics `doc-health`'s
