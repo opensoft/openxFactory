@@ -824,7 +824,7 @@ entries:
   path: contracts/manifest.yaml
   type: manifest
   git_mode: '100644'
-  digest: sha256:da6b92262d8fc88babbeb327721c0307da8a662bfee53dea04a7dc1160fe0b7f
+  digest: sha256:8575235ddc0554d6db34c799e353b314d5e766bec38d9db0fc871a862a82da17
 - artifact_id: contracts-releases-release-digest-inventory.schema.yaml
   path: contracts/releases/release-digest-inventory.schema.yaml
   type: schema

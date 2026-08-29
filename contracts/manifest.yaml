@@ -1611,9 +1611,11 @@ contracts:
       /workbench/model-catalog success body, public allowlist only,
       structurally closed against credentials/endpoints/secret names. An
       empty models array is the successful editor-only posture. The allowlist
-      is the SEVEN REQUIRED base fields plus, since contract-v1.38, the THREE
-      OPTIONAL routing-declaration fields — routing_rule, routes_to,
-      resolved_model_id — which travel together and are ABSENT from a plain
+      is the SEVEN REQUIRED base fields plus TWO OPTIONAL GROUPS, each absent
+      from a producer that predates it: the routing declaration since
+      contract-v1.38, and `modalities` since contract-v2.2 (below).
+      THE ROUTING DECLARATION is the THREE fields routing_rule, routes_to and
+      resolved_model_id, which travel together and are ABSENT from a plain
       entry, so a consumer that reads only the seven stays correct against
       every catalog it could already read. A consumer that offers an `auto`
       entry MUST read all three: routing_rule says the entry is a rule rather
