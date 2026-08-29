@@ -391,79 +391,6 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
-- [declare-generated-projection-status](openspec/changes/declare-generated-projection-status/proposal.md)
-  — authored 2026-08-28 on Brett's in-session commission of the doc-health
-  error floor ("lets do all 3 in order"), carrying the THIRD of the three ruled
-  workstreams; the other two ship as `clean-doc-health-floor`, split off because
-  this one extends the controlled taxonomy and owes an act in another
-  repository. **The forcing contradiction is on two lines of one file:**
-  `ideation/cross-reference.md` reads "**GENERATED FILE — do not edit by hand**"
-  on line 8 and `Status: record` on line 3. It is re-rendered in place from
-  `ideation/cross-reference.yaml` by `scripts/render-ideation-cross-reference.py`,
-  so the only correct way to update it is the act `record-immutability` reports
-  as a CRITICAL — one of the five standing, named as pre-existing by three prior
-  packets rather than fixed. **And promoted canon already says the header is
-  wrong**: `ideation-cross-reference` calls "the cross-reference index and its
-  rendered twin" generated artifacts that are NOT records, because "nothing
-  about a regenerable projection is immutable evidence". ADDS a NINTH standing
-  to the controlled taxonomy, `projection` — spelled that way rather than
-  `generated` (OD-1) because `docs/document-lifecycle.md` must keep saying
-  generated evidence is `record`, and the distinguishing property is not being
-  generated but being RE-DERIVED IN PLACE rather than CAPTURED ONCE. The
-  conflation dates to the vocabulary's first day, when no re-derived projection
-  existed. Every existing value was tried and none is both honest and inert —
-  the five projected statuses would start pushing a 4,797-line index into a
-  NotebookLM book, and `superseded`/`retired` are false about a live file.
-  MODIFIES one `document-lifecycle` requirement (`Controlled document status
-  taxonomy`), splitting its generated-artifact scenario and binding the
-  GENERATOR to emit the value so regeneration cannot reintroduce `record`.
-  **`record-immutability` goes 5 criticals → 4, and NO family is skipped, no
-  path allowlisted, no finding suppressed** — the file leaves the list because
-  it is no longer a record, which is what the ruling required. The four
-  remaining are genuine records and still fire. One act is owed ELSEWHERE and
-  is named rather than left to be found: a disposition entry at the aggregation
-  root citing this change, because `record-immutability` is CONTESTED and
-  `health/dispositions.yaml` does not exist in this repository. No contract
-  bundle owed, measured.
-- [clean-doc-health-floor](openspec/changes/clean-doc-health-floor/proposal.md)
-  — authored 2026-08-28 on Brett's in-session commission of the doc-health
-  error floor ("lets do all 3 in order"), carrying TWO of the three ruled
-  workstreams; the third ships as `declare-generated-projection-status`,
-  split off because it extends the controlled taxonomy and owes a disposition
-  in the AGGREGATION repository that these two do not (OD-1). **W1 — four
-  status backfills**, the residue of `govern-openspec-corpus-membership`'s
-  2026-08-23 campaign: the two `contracts/domain-ontology/examples/pilots/`
-  READMEs and `docs/notebooklm-sync-open-item.md`, which that campaign named
-  as out of its own scope, plus the ONE archived proposal that carried no
-  header at all — `2026-08-25-fix-abandoned-session-cleanup-terminal-states`,
-  archived a day after the sweep closed. The three live documents take `draft`;
-  the archived one takes `ratified` plus a citation derived from its own origin
-  declaration, **departing from the ruled `draft` for a measured reason and
-  flagged as OD-5**: all three candidates were run, and `draft` puts the packet
-  in `promotion_fidelity.PRE_RATIFICATION`, which discounts its
-  `ideation-dashboard` delta and makes an INNOCENT third packet report as having
-  failed to promote a scenario — 4 errors cleared and 1 false error created.
-  The commission's cited precedent was
-  verified at the archive, as it instructed, and corrected in three places —
-  `5C.3` is the stop-and-report guard rail rather than the authorization, the
-  count is 44 not 46, and **43 of those took `ratified` plus a citation while
-  exactly ONE took `draft`**, which is what turned the ruled value from the
-  precedent into the exception to it. **W3 — a
-  `location-conformance` predicate fix**: the staged-exit arm read
-  `corpus.change_ids`, which unions active and archived ids, and so demanded
-  material "move into the proposal supporting-docs folder" of packets that had
-  ARCHIVED — a closed folder and an impossible act. A new sibling
-  `corpus.active_change_ids` answers the different question the arm actually
-  asks; the union is untouched, because `ratified-provenance` needs it. MODIFIES
-  one `doc-health` requirement (`Proposal supporting-document integrity
-  checks`), whose promoted text pinned the defect twice in the phrase "active
-  or archived". **The number worth reading**: `status-validity` goes 4 errors →
-  0, but `location-conformance` stays at 3 — the forcing document cites BOTH an
-  archived and an active change, and sorted-first meant the archived one hid the
-  performable remedy, so the fix RE-POINTS the row rather than clearing it. That
-  corrects the commission's stated expectation, and it is the fix working. No
-  contract bundle owed (measured against all 48 inventories); no disposition
-  owed (no finding loses its `(family, repo, path)` match key).
 - [fix-pin-value-boundary-and-sentinel-split](openspec/changes/fix-pin-value-boundary-and-sentinel-split/proposal.md)
   — **ALL FIVE ORCHESTRATOR DECISIONS CLEARED AND ALL FOUR QUESTIONS RULED
   2026-08-28**, by a four-question multi-choice put to Brett over PR #463; he
@@ -1304,6 +1231,105 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [declare-generated-projection-status](openspec/changes/archive/2026-08-29-declare-generated-projection-status/proposal.md)
+  — **ARCHIVED on merged-plus-green**, where merged and green are ONE event: the
+  realization RODE IN the proposing pull request, so the argument for the value
+  and the value itself were reviewed together. Pull request #468 merged
+  2026-08-28T11:25:39Z as merge commit
+  `4d3f540d7a8c762e1077751b040a4839ae14e35f`, re-verified at this act an
+  ancestor of `origin/main` (`git merge-base --is-ancestor`, exit 0) and a real
+  two-parent merge (`c79d6e54` — the sibling packet's own merge, so the order
+  Brett directed is legible in the graph — and `cb67a02d`), read out of
+  `git cat-file -p` rather than off the pull request page. Green on the final
+  head `cb67a02d`, all four checks from the check-runs API: `pytest-suite`
+  **selected 7637, passed 7616, skipped 21, 0 failures, 0 errors** (run
+  33165034882, counts read out of the job log), `wallet-validation`,
+  `merge-master-approval` and `copilot-pull-request-reviewer` all pass. **THE
+  PREDICTION HELD EXACTLY AND WAS RE-MEASURED RATHER THAN ASSUMED**:
+  `record-immutability` reads **4 criticals** on the merged tree, and
+  `ideation/cross-reference.md` is absent from them — not allowlisted, not
+  suppressed, not skipped, but no longer a record, its line 3 now reading
+  `Status: projection` because the generator emits it. The four that remain are
+  the genuine hand-maintained records the packet named, all untouched, all still
+  firing. **PROMOTION PROVED BY DIGEST**: `document-lifecycle` holds at **17
+  requirements**, scenarios **77 → 79**, +18 / −3 lines, and of the 17
+  requirement blocks **exactly ONE changed bytes** — `Controlled document status
+  taxonomy`, the one the MODIFIED block names — the other 16 byte-identical
+  under a per-block sha256 set comparison taken either side of the act. The
+  promoted block is the delta's 7882-byte / 72-line body under
+  `sha256:04537b7fdb210a74a35038e35cba85e02bccc21bdac68e19efb80d1a926c4e53`,
+  byte-for-byte; canon's replaced text was 5912 bytes / 57 lines under
+  `sha256:65dc437f12c73b48b4add97df28297313ebdbff2eba74cd2f9de8aace19b81de`.
+  `.openspec.yaml` MOVED with the packet under openspec 1.2.0, checked by blob
+  id rather than by eye (`6e750e85`, unchanged). **THE HEADER MOVED AT THE
+  ARCHIVE**: `Status: draft` → `ratified` with a `Ratified:` line citing Brett's
+  2026-08-28 merge-and-archive ruling, written before `openspec archive` ran so
+  it lands in the archived copy — necessary because
+  `promotion_fidelity.PRE_RATIFICATION` is `{brainstorm, staged, draft}`, so an
+  archived proposal reading `draft` would have had this packet's own
+  `document-lifecycle` delta discounted as design evidence. **ONE OBLIGATION IS
+  CARRIED AND UNDISCHARGED, NAMED HERE RATHER THAN LEFT TO BE FOUND**: § 5.1's
+  disposition entry at the AGGREGATION root, keyed `(record-immutability,
+  openxFactory, ideation/cross-reference.md)` and citing this change, does NOT
+  exist — read at this act. `health/dispositions.yaml` lives only at the
+  aggregation root, so no act in this repository can write it, and until it
+  lands the next aggregation nightly re-emits the resolved critical as an
+  `uncited-resolution` ERROR. Three further follow-ups archive CARRIED with
+  written dispositions rather than blank boxes: the prose-only generator
+  declaration (a class of one — the census reads `projection | 1`), the
+  mirror-image re-class hole whose honest remedy is `--check`-mode regeneration
+  in CI, and the four remaining record-immutability criticals, which are the
+  append-discipline collision `govern-openspec-corpus-membership` already owns.
+
+- [clean-doc-health-floor](openspec/changes/archive/2026-08-29-clean-doc-health-floor/proposal.md)
+  — **ARCHIVED on merged-plus-green**, on the same terms and in the same act as
+  its sibling above: the realization rode in the proposing pull request. Pull
+  request #465 merged 2026-08-28T10:47:25Z as merge commit
+  `c79d6e54cf5093d18565f06afa1c2ea6216418de`, re-verified at this act an
+  ancestor of `origin/main` (`git merge-base --is-ancestor`, exit 0) and a real
+  two-parent merge (`0c0075df` + `a1067f08`) read out of `git cat-file -p`.
+  Green on the final head `a1067f08`, all four checks from the check-runs API:
+  `pytest-suite` **selected 7629, passed 7608, skipped 21, 0 failures, 0 errors**
+  (run 33159846355, counts read out of the job log), `wallet-validation`,
+  `merge-master-approval` and `copilot-pull-request-reviewer` all pass. **THE
+  NUMBER WORTH READING IS THE ONE THAT DID NOT MOVE.** `status-validity` went
+  **4 errors → 0** on the four backfills, as the packet predicted; but
+  `location-conformance` stayed at **3**, and that is the fix working rather
+  than failing. The forcing document cites TWO changes — the archived
+  `implement-avatar-client-lab` and the active `qualify-avatar-live-voice` — and
+  the arm reported `cited[0]` off a sorted list, so the ARCHIVED id won on
+  alphabetical order and HID a performable remedy behind an impossible one. The
+  row is now re-pointed at the active proposal and stays an error, correctly,
+  because that move CAN be performed. That corrects the commission's own stated
+  expectation and is recorded as such rather than smoothed over. **PROMOTION
+  PROVED BY DIGEST**: `doc-health` holds at **39 requirements**, scenarios
+  **179 → 181**, +21 / −2 lines, and of the 39 requirement blocks **exactly ONE
+  changed bytes** — `Proposal supporting-document integrity checks`, the one the
+  MODIFIED block names — the other 38 byte-identical under a per-block sha256
+  set comparison taken either side of the act. The promoted block is the delta's
+  2628-byte / 42-line body under
+  `sha256:81267524a00f7ae9582347067687959a445997cc11bab3f07947067b7e2591b2`,
+  byte-for-byte; canon's replaced text was the 1390-byte / 23-line block under
+  `sha256:b0e1bc81916bd8ed865565544021670aeb0089fffa7e1955dd153edf0416081c`, the
+  one that pinned "active or archived" twice. `.openspec.yaml` MOVED with the
+  packet under openspec 1.2.0, checked by blob id (`fa04b8a7`, unchanged since
+  the PR #465 amendment that corrected its `approved_by` narrative). **THE
+  HEADER MOVED AT THE ARCHIVE**, as § 6.3 said whoever performed it would owe:
+  `Status: draft` → `ratified` with a `Ratified:` line citing Brett's 2026-08-28
+  merge-and-archive ruling, for the defect § 6.3 measured from the other end —
+  an archived `draft` has its deltas discounted, which would have silently
+  dropped this packet's own MODIFIED block, the very failure § 1.4 measured
+  against somebody ELSE's archived record. The `modified-block-currency`
+  SELF-GATE row this packet added on filing was REMOVED by the same act, on the
+  retirement condition the row itself stated, and its sibling's row with it —
+  the carriage-ledger population 9 → 7 with no other subject moving. Two
+  follow-ups archive CARRIED with written dispositions: the staged-exit arm
+  still reports only `cited[0]` where two ACTIVE changes are cited (Q1 — a count
+  change owing its own cross-repository before/after), and a staged fragment
+  whose every cited exit has archived is now reported by nothing (Q2 — a real
+  lifecycle gap, now a property of canon, whose plausible owner is
+  `staged-candidate-aging`).
 
 - [add-unclassified-finding-class](openspec/changes/archive/2026-08-28-add-unclassified-finding-class/proposal.md)
   — **ARCHIVED 2026-08-28** on the merge-plus-green rule the packet declared, and

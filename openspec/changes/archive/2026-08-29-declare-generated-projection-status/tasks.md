@@ -280,12 +280,66 @@ Every read-back was measured on 2026-08-28 in a fresh worktree off
       purpose: reassignment is not discharge, the entry is still owed, and
       ticking it here would make the packet's own ledger claim an act nobody
       has performed. It ticks when the entry lands.
-- [ ] 5.2 Merge-plus-green on main: both required checks green on the
+      **STILL UNTICKED AT THE ARCHIVE, 2026-08-29 (UTC) — AND MEASURED RATHER
+      THAN ASSUMED, BECAUSE THIS IS THE ONE CONDITION THIS ARCHIVE DOES NOT
+      MEET.** `/home/brett/projects/xFactory/health/dispositions.yaml` was read
+      at this act: it carries THREE `record-immutability` entries and none of
+      them is this one — `docs/domain-ontology-pilot-report.md`,
+      `examples/patient-assembly/runs/08-connector-input/p1-divergence-report.md`
+      and `docs/archive-record-discrepancies.md`. No entry keyed
+      `(record-immutability, openxFactory, ideation/cross-reference.md)` exists.
+      The obligation is therefore LIVE, and the mechanism is confirmed by
+      reading the code rather than the packet's own summary of it:
+      `report.uncited_resolutions` re-emits any contested finding that was in
+      the previous report and is absent from the current one as an
+      `uncited-resolution` ERROR unless `(family, repo, path)` is in
+      `dispositions`. The last committed aggregation report,
+      `health/reports/2026-08-26.md:235`, still names
+      `openxFactory:ideation/cross-reference.md — record document changed after
+      capture`, and the finding is gone from the merged tree — so the next
+      aggregation nightly raises that ERROR until the entry lands.
+      **WHY THE ARCHIVE PROCEEDS ANYWAY, STATED RATHER THAN SMOOTHED OVER.**
+      The condition binds the moment the archive LANDS, not the moment it is
+      composed, and the archive lands when this pull request MERGES. This
+      session cannot discharge it: the aggregation root is another session's
+      working tree by the lane it was given, and `health/dispositions.yaml` does
+      not exist in this repository at all. **THE ENTRY MUST LAND BEFORE THIS
+      PULL REQUEST IS MERGED**, and that is the sharpest item on the pull
+      request body rather than a footnote. Ticking it here on a promise would
+      be exactly the thing the paragraph above refuses.
+- [x] 5.2 Merge-plus-green on main: both required checks green on the
       proposing pull request, read back from the check-runs API rather than
-      off the pull request page.
-- [ ] 5.3 Re-measure `record-immutability` on the merged tree and confirm it
+      off the pull request page. **DISCHARGED 2026-08-28 AT THE ARCHIVE, and
+      merged and green are ONE event here** — the realization RODE IN the
+      proposing pull request, as § code_surface said it would. Pull request
+      **#468** merged **2026-08-28T11:25:39Z** as merge commit
+      `4d3f540d7a8c762e1077751b040a4839ae14e35f`, re-verified at this act rather
+      than read off the pull request page: `git merge-base --is-ancestor
+      4d3f540d origin/main` exits 0, and `git cat-file -p` shows a real
+      TWO-PARENT merge (`c79d6e54` — the sibling packet's own merge, so the
+      ordering Brett directed is legible in the graph — and `cb67a02d`). Green
+      on the final head `cb67a02d`, ALL FOUR checks read back from the
+      check-runs API: `pytest-suite` success (run 33165034882, 10:52:58Z →
+      11:08:45Z, **selected 7637, passed 7616, skipped 21, failures 0,
+      errors 0** read out of the job log rather than off a summary),
+      `wallet-validation` success, `merge-master-approval` success,
+      `copilot-pull-request-reviewer` success.
+- [x] 5.3 Re-measure `record-immutability` on the merged tree and confirm it
       reads **4 critical**, with the four remaining being the genuine
       hand-maintained records and `ideation/cross-reference.md` absent.
+      **DONE — THE PREDICTION HELD EXACTLY.** `python3 scripts/doc-health.py
+      --single-repo .` over the merged tree at `6ce295c2`, before this archive
+      act touched anything: **4 critical**, and they are
+      `docs/archive-record-discrepancies.md`,
+      `docs/domain-ontology-adoption-handoff.md`,
+      `docs/domain-ontology-pilot-report.md` and
+      `docs/notebook-projection-migration-evidence-2026-08-24.md` — the four the
+      packet named, all genuine hand-maintained records, all untouched.
+      `ideation/cross-reference.md` is ABSENT from the family, and the reason is
+      readable in the file rather than inferred: its line 3 now says
+      `Status: projection`, emitted by the generator itself. No family is
+      skipped, no path is allowlisted, and no finding is suppressed — the
+      document left the family because it stopped being a record.
 
 ## 6. Named follow-ups, out of scope here
 
@@ -294,6 +348,13 @@ Every read-back was measured on 2026-08-28 in a fresh worktree off
       projection exists — the rule-of-three has not fired, and a
       `Generated-by:` header would be a second new vocabulary item plus a new
       check for a class of one.
+      **DISPOSITION AT THE ARCHIVE 2026-08-29 (UTC): CARRIED, NOT DISCHARGED.**
+      Still a class of ONE — `ideation/cross-reference.md` is the only
+      `projection` in the corpus at this act, confirmed by the per-stage census
+      reading `projection | 1`. The rule-of-three has not fired, so the
+      recommendation is unchanged and the box stays open on purpose, owned by
+      whoever files the SECOND projection.
+
 - [ ] 6.2 **Nothing stops a projection being re-classed to `record` to silence
       a real hand edit** (Q2) — the mirror image of the defect fixed here.
       Recommendation: the honest check is not on the status but on whether the
@@ -301,6 +362,16 @@ Every read-back was measured on 2026-08-28 in a fresh worktree off
       (`--check`-mode regeneration in CI). That subsumes the question and
       deserves its own change rather than a guard bolted onto a family whose
       scope this packet deliberately did not touch.
+      **DISPOSITION AT THE ARCHIVE 2026-08-29 (UTC): CARRIED, NOT DISCHARGED,
+      and now a property of CANON rather than of an active delta.** The
+      `document-lifecycle` block promoted by this act is what creates the
+      re-class route, so the mirror-image gap it opens outlives the packet.
+      Recommendation unchanged: the honest check is `--check`-mode regeneration
+      in CI, comparing committed bytes against what the declared generator
+      produces, which subsumes the question and deserves its own change rather
+      than a guard bolted onto `record-immutability`, whose scope this packet
+      deliberately did not touch.
+
 - [ ] 6.3 **The four remaining `record-immutability` criticals are untouched**
       and are a different problem: genuine `Status: record` documents that are
       nonetheless hand-amended under the archive register's append discipline.
@@ -308,6 +379,14 @@ Every read-back was measured on 2026-08-28 in a fresh worktree off
       against a discipline that appends — was named by
       `govern-openspec-corpus-membership` design.md Decision 3 and is still
       open.
+      **DISPOSITION AT THE ARCHIVE 2026-08-29 (UTC): CARRIED, NOT DISCHARGED,
+      AND RE-MEASURED.** All four still fire on the merged tree (§ 5.3), and
+      none of them is a projection — each is a one-shot capture that was
+      afterwards hand-amended. The collision named by
+      `govern-openspec-corpus-membership` design.md Decision 3 — a family whose
+      remedy is "revert the content edit" against a register discipline that
+      APPENDS — is untouched by this change and remains open with that packet's
+      decision as its record.
 
 ## 7. The veto window
 
@@ -332,7 +411,7 @@ Every read-back was measured on 2026-08-28 in a fresh worktree off
       `render-ideation-cross-reference.py`, the dashboard snapshot schema,
       `docs/document-lifecycle.md`, the regenerated `ideation/cross-reference.md`
       and both test files are byte-identical to what the ruling approved.
-- [ ] 7.3 **BEFORE ARCHIVE, THIS PROPOSAL'S OWN HEADER MUST MOVE OFF
+- [x] 7.3 **BEFORE ARCHIVE, THIS PROPOSAL'S OWN HEADER MUST MOVE OFF
       `Status: draft`.** The header is deliberately left at `draft`: "merge on
       green" is an authorization to land, and this session will not spell it as
       a ratification act Brett did not state. But it cannot stay `draft`
@@ -344,3 +423,75 @@ Every read-back was measured on 2026-08-28 in a fresh worktree off
       `ratified`.** The sibling packet measured this defect from the other end
       and its § 1.4 is the write-up. Whoever performs the archive owes the
       header and its citation, derived from the ruling record.
+      **DISCHARGED 2026-08-28 BY THE ARCHIVING SESSION, ON BRETT'S RULING OF
+      THE SAME DAY**, which directed the merge and the archive together and is
+      what the citation names. `Status: draft` → `Status: ratified` plus one
+      `Ratified:` line, written BEFORE `openspec archive` ran so it lands in the
+      archived copy rather than being retrofitted onto it — which is also what
+      makes the promotion of this packet's `document-lifecycle` block count as
+      design evidence rather than being discounted. The line takes the
+      record-citing spelling because no approving OpenSpec change exists to
+      name, and clears its three-way floor on all three axes — approver
+      (`by Brett`), date (`2026-08-28`), and a resolvable record path (§ 7.1 of
+      this file, which records the selections). Nothing is quoted, because no
+      verbatim wording reached the authoring session.
+
+## 8. The archive act
+
+Measured in this worktree at `6ce295c2` (`origin/main` at the act), before and
+after `openspec archive`, and re-read rather than predicted.
+
+- [x] 8.1 THE MERGE, READ OUT OF GIT. § 5.2 carries it in full: pull request
+      #468, merge commit `4d3f540d`, an ancestor of `origin/main` by
+      `git merge-base --is-ancestor` (exit 0) and a real two-parent merge whose
+      FIRST parent is `c79d6e54`, the sibling packet's own merge — so the order
+      Brett directed is legible in the graph rather than only in the prose.
+- [x] 8.2 THE HEADER MOVED FIRST, THEN THE PACKET. `proposal.md` went
+      `Status: draft` → `Status: ratified` plus one `Ratified:` line BEFORE
+      `openspec archive` ran, so the archived copy carries it. § 7.3 is the
+      reason and § 7.1 is the record the citation resolves to.
+- [x] 8.3 PROMOTION PROVED BY DIGEST, PER REQUIREMENT.
+      `openspec/specs/document-lifecycle/spec.md`: **17 → 17 requirements**,
+      **77 → 79 scenarios**, 762 → 777 lines, `git diff --stat` **+18 / −3**.
+      Every `### Requirement:` block hashed either side and the sets compared:
+      **0 removed, 0 added, exactly 1 changed bytes** — `Controlled document
+      status taxonomy`, the only title this packet's MODIFIED block names — and
+      **16 of 17 byte-identical**. Canon's replaced block was 5912 bytes / 57
+      lines / 8 scenarios under
+      `sha256:65dc437f12c73b48b4add97df28297313ebdbff2eba74cd2f9de8aace19b81de`;
+      the promoted block is 7882 bytes / 72 lines / 10 scenarios under
+      `sha256:04537b7fdb210a74a35038e35cba85e02bccc21bdac68e19efb80d1a926c4e53`
+      — **byte-identical to the delta body** in this archived folder. The two
+      added scenarios are the split the packet argued for: `A generated artifact
+      is captured once` and `A generated artifact is re-derived in place`, plus
+      `A generator emits the status it declares`, in place of the single
+      `A generated artifact is stored`. The rename half is DECLARED in the
+      promoted text by the `Merged into` marker, which is why the
+      scenario-title arm read zero throughout.
+- [x] 8.4 THE ARCHIVED DELTA IS THE AUTHORED DELTA. `diff` between
+      `HEAD:openspec/changes/declare-generated-projection-status/specs/document-lifecycle/spec.md`
+      and the archived `specs/document-lifecycle/spec.md` is EMPTY.
+      `.openspec.yaml` MOVED rather than being deleted, checked by blob id:
+      `6e750e851a2dbf89ebcab921e230f7242a2aa80f`, unchanged.
+- [x] 8.5 THE SELF-GATE ROW RETIRED ON ITS OWN STATED CONDITION. The row
+      `('declare-generated-projection-status', 'document-lifecycle', 'Controlled
+      document status taxonomy')` named its retirement as "when the packet
+      archives and its block is promoted"; both halves verified before deletion,
+      § 8.3 being the promotion proof. Removed in the same commit as the sibling
+      packet's row: **carriage-ledger population 9 → 7, no other subject moving.**
+- [x] 8.6 THE FLOOR MOVED BY EXACTLY TWO INFO AND IN NO OTHER LINE, ACROSS BOTH
+      ARCHIVES TOGETHER: **4 critical / 7 error / 41 warning / 13 info → 4
+      critical / 7 error / 41 warning / 11 info**, the finding lists diffed line
+      by line. The per-stage census is unmoved by the archive act itself —
+      `projection | 1`, `record | 29` before and after — because this packet's
+      corpus effect landed at the realization, not here.
+- [x] 8.7 `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` **78 → 77
+      passed, 0 failed** across this packet's archive. `pytest tests/doc-health`
+      counts are in the pull request body, exit code read from `$?`.
+- [ ] 8.8 **THE ONE CONDITION THIS ARCHIVE DOES NOT MEET IS § 5.1's, AND IT IS
+      LEFT OPEN RATHER THAN WAVED THROUGH.** The aggregation-root disposition
+      entry does not exist, measured at this act. The archive LANDS when the
+      pull request carrying it merges, so the condition can still be met — by
+      the entry landing at the aggregation root FIRST. Whoever merges owes that
+      order.
+
