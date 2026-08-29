@@ -136,7 +136,7 @@ non-separable and the access log unable to say which system read the secret.
 WHERE THE RECORD CANNOT ADJUDICATE, THE VALIDATOR SHALL NOT INVENT A VERDICT.
 Two bindings sharing a fetch identity with a consumer undeclared on either side
 are not comparable on this rule, and SHALL raise no `shared-fetch-identity`
-finding; the undeclared-authority warning already stands on those bindings and
+finding; the `binding-authority-undeclared` warning already stands on those bindings and
 is the correct report. Silence on the shared identity is therefore never a
 clearance — it is the warning saying the record does not yet answer.
 
@@ -201,7 +201,7 @@ validator does not perform and is named as owed to a successor.
 #### Scenario: A shared fetch identity with the consumer undeclared
 - **WHEN** two bindings declare the same fetch identity and at least one of them names no consumer
 - **THEN** no `shared-fetch-identity` finding is raised, because the record cannot distinguish one consumer from two
-- **AND** the undeclared-authority warning stands on the binding that omitted its consumer, so the silence is not read as a clearance
+- **AND** the `binding-authority-undeclared` warning stands on the binding that omitted its consumer, so the silence is not read as a clearance
 
 #### Scenario: Two consumers are split across two documents
 - **WHEN** two bindings sharing one fetch identity are held in separate template documents

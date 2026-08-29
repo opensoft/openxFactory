@@ -147,11 +147,11 @@ is the largest obligation in this packet.
 - [ ] 3.8 Pin 2.3's FAIL-OPEN the same way, because it has the same weakness:
   two bindings sharing a `fetch_identity` with `consumer` absent on one side must
   raise NO `shared-fetch-identity` error AND must still raise the
-  undeclared-authority warning, asserted together in one case. Asserting only the
-  silence would pass for an implementation that had simply dropped the rule, and
-  the whole justification for staying silent is that the warning is standing
-  instead — so a test that does not check the warning is not testing the
-  reasoning. Applying the lesson where it recurs rather than patching only the
+  `binding-authority-undeclared` warning, asserted together in one case.
+  Asserting only the silence would pass for an implementation that had simply
+  dropped the rule, and the whole justification for staying silent is that the
+  warning is standing instead — so a test that does not check the warning is not
+  testing the reasoning. Applying the lesson where it recurs rather than patching only the
   instance the review named.
 
 - [ ] 3.9 POSITIVE, cross-provider: two bindings naming the SAME
