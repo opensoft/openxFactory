@@ -140,7 +140,7 @@ entries:
   path: contracts/hermes-runtime/evidence-register.yaml
   type: evidence-register
   git_mode: '100644'
-  digest: sha256:5b52871ab8bcaf9dc28781af0dc4e3cb9dd4fba54780fcb4bfb8418830b5e7fc
+  digest: sha256:5fce9c1ec8eb4c093e37d3351445648460621243a18109c150dae9939c27f917
 - artifact_id: contracts-hermes-runtime-fixtures-approvals-approval-authority-chain-unreachable.yaml
   path: contracts/hermes-runtime/fixtures/approvals/approval-authority-chain-unreachable.yaml
   type: fixture
