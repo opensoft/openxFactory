@@ -66,11 +66,17 @@ CHAT_TURN_SCHEMA_FILE = "xfactory-workbench-chat-turn.schema.yaml"
 # MIRROR of v1.45: there the chat-turn digest moved and the catalog's did not,
 # here the CATALOG digest moves and the chat-turn's does not, because this
 # release grows `$defs/model_entry` with the optional closed `modalities`
-# declaration. The ref carries the realization SENTINEL for the same reason it
-# did then, and the v1.45 sentinel it replaces was never resolved to a commit —
-# superseded here rather than repaired, since these bytes no longer belong to
-# that bundle.
-RELEASED_REF = "unpublished:contract-v2.2"
+# declaration.
+#
+# The REF carried the unresolved-until-published sentinel across the realization
+# branch, on v1.34's, v1.38's and v1.40's precedent — the policy publishes the
+# annotated tag against the commit that LANDS, so until that commit existed
+# there was nothing honest to name — and now names it: `contract-v2.2^{}` ==
+# 8ccfb67b, the squash-merge of PR #498, tag object f86f2212, peeled FROM THE
+# REMOTE. The v1.45 sentinel it replaced was never resolved to a commit
+# (that repin's own task 4.2 went undischarged); it was superseded rather than
+# repaired, since these bytes no longer belong to that bundle.
+RELEASED_REF = "8ccfb67bc0fabfa728d709a2efa0cd87b14656fb"
 RELEASED_TAG = "contract-v2.2"
 RELEASED_DIGESTS = {
     CATALOG_SCHEMA_FILE:
