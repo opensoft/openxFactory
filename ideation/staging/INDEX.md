@@ -1827,7 +1827,12 @@ repo scope.
   possession, never a presentation, because openXwallet rules that
   presentation alone confers nothing; and the root ratifier who holds standing
   authority with NO wallet — which `review-authority-intake` expressly permits
-  — makes the chain DECLARE its origin rather than take a silent exemption.
+  — begins NO chain at all, recorded as a DECLARED GAP naming the missing
+  instrument, because with no signed bytes there is no digest for the chain
+  identity to be. The packet defines no origin, tier or mode under which a chain
+  begins without a verified signature, so until the root issuer holds a wallet the
+  capability governs that ratifier's acts not at all rather than governing them
+  weakly.
   One dependency is declared rather than respelled: the wallet's exercise
   record is `additionalProperties: false` and owned by `opensoft/openXwallet`,
   so a chain link REFERENCES an exercise and never extends its schema.

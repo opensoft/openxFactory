@@ -352,8 +352,9 @@ chain SHALL always be spelled CHAIN ENROLLMENT and never bare "enrollment", whic
 The ratify-and-enroll handshake SHALL be performed OUTSIDE the substantive-review
 clearance pipeline, by a human authority, and its record SHALL NOT be presented
 as, or counted as, a clearance. The placement follows from the SURFACE the
-handshake writes and not from which instrument the authority holds, so it binds
-equally a wallet-carried exercise and the standing-authority origin of R1. The placement is
+handshake writes and not from the instrument the authority holds, so it binds any
+instrument this capability admits — today the wallet-carried exercise R1 requires,
+and equally whatever a later tranche admits. The placement is
 forced rather than preferred: codexFactory's `gate_rules_council` returned a
 unanimous 5/5 refusal on 2026-08-28 of a candidate class over
 `openspec/changes/**` on the ground that such a class can NEVER commission a

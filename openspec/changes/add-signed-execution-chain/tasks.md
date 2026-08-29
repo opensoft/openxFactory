@@ -11,7 +11,8 @@ quietly answered by an implementer.
 
 - [x] 1.1 `signed-execution-chain` — TEN ADDED requirements, tranche one only:
       the ratification as a verified, key-attributed grant exercise with the
-      standing-authority origin declared rather than exempted (R1); ratification
+      standing-authority case beginning NO chain and recorded as a declared gap
+      rather than admitted as a weaker one (R1); ratification
       and CHAIN ENROLLMENT as one signed act with neither half standing alone
       (R2); the chain identity as the digest of the signed ratification, fixed
       once (R3); every successor link signing the chain identity and its

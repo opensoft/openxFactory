@@ -76,9 +76,13 @@ pull requests **is** sound practice here, with the need measured on openxFactory
 issues #351 and #357.
 
 **So the only lawful home for a governance act over this surface is one that does
-not enter the clearance pipeline at all** — a human authority acting under
-standing authority, whose act is made checkable by a signature rather than by a
-verdict. That is exactly what the ratify-and-enroll handshake is, and this packet
+not enter the clearance pipeline at all** — a human authority whose standing to
+act comes from somewhere other than a verdict, and whose act is made checkable by
+a SIGNATURE rather than by a clearance. Note the two halves are separate: where
+the standing comes from is what puts the act outside the pipeline, and R1's
+wallet-carried exercise is what makes it checkable. An authority with standing
+but no wallet has the first half and not the second, which is why R1 gives that
+case no chain at all rather than a signature-free one. That is exactly what the ratify-and-enroll handshake is, and this packet
 states it normatively (R9) rather than leaving it as a rationale a later reader
 would have to reconstruct.
 
