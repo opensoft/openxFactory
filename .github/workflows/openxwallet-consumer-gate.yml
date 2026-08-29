@@ -26,9 +26,11 @@
 # `.gitmodules` deliberately keeps `git@github.com:` — openXwallet is private, so
 # an anonymous HTTPS clone fails and a token is needed either way, while an HTTPS
 # URL would make every human clone prompt for credentials instead of using the
-# operator's key. The house pattern (`doc-health-reusable.yml:140-158`) is
-# therefore adopted: mint an App token, then rewrite the SSH URL to a token URL
-# with `insteadOf` BEFORE checkout. The SECRET NAMES differ from that file's on
+# operator's key. The house pattern (`doc-health-reusable.yml`, prepare job:
+# `Mint xFactory app token` → `Rewrite ssh submodule URLs for token auth` →
+# `Init governed submodules only`) is therefore adopted: mint an App token,
+# then rewrite the SSH URL to a token URL with `insteadOf` BEFORE checkout.
+# The SECRET NAMES differ from that file's on
 # purpose: the org secret `XFACTORY_APP_ID` is visibility-`selected` and
 # openxFactory is not among its repositories, while this repository already holds
 # `OPENXFACTORY_APP_ID` / `OPENXFACTORY_APP_PRIVATE_KEY` for the content App
@@ -152,5 +154,26 @@ jobs:
             || fail "the gate log does not say the four per-seat council signing keys were ADJUDICATED (4 of 4); the register's seat_keys surface was not read, or an entry was refused, or the pinned reader predates wallet-v1.2"
           ! grep -q 'no per-seat signing key is recorded' wallet-gate.log \
             || fail "the gate log says no per-seat signing key is recorded — the register lost its seat_keys surface, and a Hermes projection derived from it could authorize no seat"
+          # wallet-v1.3 (openXwallet `add-multi-key-wallets`): the WALLET now
+          # DECLARES those four seat keys, and a green gate must prove the
+          # declaration was adjudicated.
+          #
+          # WHY THIS IS A SEPARATE ASSERTION FROM THE ONE ABOVE. The register
+          # recording a key and the wallet declaring it are different facts, and
+          # only the second one satisfies the pinned validator's rule (r): a
+          # presenting key no wallet declares is refused, which is exactly what
+          # would have happened to the first exercise record hermes-install
+          # writes carrying a per-seat `key_id`. A gate that proved only the
+          # register half would go green on a tree where every convening's
+          # exercise record is unrepresentable.
+          #
+          # The COUNT is literal and the WALLET ID is named. The reader emits
+          # this note only for a wallet whose declared set has more than one
+          # member, and it names the ids it stood behind — so five is the whole
+          # set (one operator-vaulted root plus four CI-resident seats) and a
+          # sixth arriving, or one going missing, must break this gate and force
+          # a deliberate edit here beside the wallet edit.
+          grep -qE "^note  wallet 'wal-agent-mrc-0001': 5 declared key\(s\) adjudicated " wallet-gate.log \
+            || fail "the gate log does not say wal-agent-mrc-0001's FIVE declared keys were adjudicated; the wallet lost its keys: block, or an entry was refused, or the pinned reader predates wallet-v1.3 — in any of which cases rule (r) refuses every exercise record naming a per-seat key"
           echo "register-read conjunction holds:"
-          grep -E '^note  (repo scan:|intake register read:|intake register: )' wallet-gate.log
+          grep -E "^note  (repo scan:|intake register read:|intake register: |wallet 'wal-agent-mrc-0001':)" wallet-gate.log

@@ -64,10 +64,16 @@ subject:
     `tenant_count` from `cohort.members`.
 
 figures:
-  per_tenant_monthly_budget_usd: 150
+  # RULED 2026-08-27 (§7.2), RE-RULED 2026-08-28 on the two dollar amounts
+  # alone: the project cap moves $750 -> $100 (re-sized from a headroom
+  # ceiling to actual expected monthly spend) and the per-tenant budget
+  # follows it $150 -> $40, because a metered budget above the hard cap is
+  # meaningless. Two tenants x $40 = $80, under the $100 cap. The marks, the
+  # channels and the enforcement postures below are unchanged.
+  per_tenant_monthly_budget_usd: 40
   per_tenant_enforcement: metered_and_alerted_only
   per_tenant_hard_stop_exists: false
-  provider_project_monthly_cap_usd: 750
+  provider_project_monthly_cap_usd: 100
   provider_project_cap_enforcement: hard_at_the_provider_project
   resolves_to: >-
     canary-cohort-and-rollback-policy.yaml#rollback_policy.classes[ROLLBACK-C].trigger_signals.cost_concern
@@ -75,7 +81,7 @@ figures:
   stated_limit: >-
     The provider-project cap is the ONLY per-tenant hard stop at this ring
     until task 6.1.5's durable synchronous per-tenant cumulative-spend counter
-    lands. Nothing here can stop a single tenant, and recording the $150 as
+    lands. Nothing here can stop a single tenant, and recording the $40 as
     hard would be false (ALV-006-S04).
 
 marks:
@@ -85,7 +91,7 @@ marks:
     Both figures are evaluated at the ruled 50 and 80 marks and at the budget
     itself. What differs is the CHANNEL each crossing reaches — see below. The
     tenant sub-marks are computed and recorded rather than paged: §7.4 rules
-    the gh-issue channel at the metered crossing of $150, and firing at 50
+    the gh-issue channel at the metered crossing of $40, and firing at 50
     percent would be a trigger nobody ratified. They are still computed
     because they are the telemetry ROLLBACK-C's `cost_concern` judgment is
     read off, and a threshold with no reader is the `budget_envelopes: {}`

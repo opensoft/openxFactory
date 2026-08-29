@@ -14,6 +14,7 @@ history (pre-contract legacy reports WARNING, never ERROR).
 from __future__ import annotations
 
 import importlib.util
+import subprocess
 import sys
 from pathlib import Path
 
@@ -25,6 +26,9 @@ sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
 from doc_health import ERROR, WARNING, CONTESTED  # noqa: E402
 from doc_health import proposal_origin as po  # noqa: E402
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from action_pins import assert_actions_pinned, harvest_static  # noqa: E402
 
 _SUPPORT_SPEC = importlib.util.spec_from_file_location(
     "proposal_support_gate", REPO_ROOT / "scripts" / "proposal-support.py")
@@ -347,3 +351,141 @@ def test_transition_writes_origin_and_manifest_repeats_it(tmp_path):
     assert packet["origin"] == manifest["origin"]
     assert support.origin_errors(tmp_path, d, strict=True,
                                  manifest=manifest) == []
+
+
+def test_every_action_string_the_proposal_origin_family_can_emit_is_pinned_verbatim(
+        tmp_path):
+    """`fam_proposal_origin`'s `check_change` raises ELEVEN distinct action
+    strings across its five finding classes (module docstring). `#448`
+    (`cadc05ec`) pinned one (`test_missing_origin_post_contract_is_error`,
+    above). Steward follow-up (Brett, 2026-08-28) widens that to the whole
+    set, table-driven.
+
+    ALL ELEVEN are pinned BEHAVIOURALLY, reusing this suite's own `_change`
+    helper and `STAGED`/`ADHOC` packet constants exactly as the existing
+    per-defect tests above use them — one small `tmp_path` change directory
+    per finding class, `po.check_change(...)` called directly (its own
+    signature, not through a `Context`/family-registry indirection, exactly
+    as every other test in this file already calls it) and the resulting
+    actions unioned. The git-backed `source_revision` check (class
+    staged-origin-unresolvable, mismatch arm) needs a REAL git repository —
+    a real `git init`/commit under its own `tmp_path`, following
+    `test_the_recorded_revision_check_resolves_either_spelling`'s own
+    precedent, but recording a revision whose tree does NOT contain the
+    declared staging folder, so the check fires instead of resolving
+    cleanly. No static fallback is needed.
+    """
+    behavioral = set()
+
+    # missing origin (post-contract -> ERROR)
+    d = _change(tmp_path, "pin-missing",
+                "schema: spec-driven\ncreated: 2026-09-01\n")
+    behavioral |= {f.action for f in
+                  po.check_change("r", tmp_path, d, frozenset(), False)}
+
+    # unknown kind
+    packet = STAGED.replace("kind: staged", "kind: bogus")
+    d = _change(tmp_path, "pin-unknown-kind", packet)
+    behavioral |= {f.action for f in
+                  po.check_change("r", tmp_path, d, frozenset(), False)}
+
+    # both kinds declared (id says adhoc, kind says staged)
+    packet = STAGED.replace("id: repo:staging:topic-a",
+                           "id: repo:adhoc:2026-08-10-topic")
+    d = _change(tmp_path, "pin-both-kinds", packet)
+    behavioral |= {f.action for f in
+                  po.check_change("r", tmp_path, d, frozenset(), False)}
+
+    # malformed durable id
+    packet = STAGED.replace("repo:staging:topic-a", "not-a-durable-id")
+    d = _change(tmp_path, "pin-malformed-id", packet)
+    behavioral |= {f.action for f in
+                  po.check_change("r", tmp_path, d, frozenset(), False)}
+
+    # ad-hoc incomplete provenance
+    packet = ADHOC.replace("  approved_by: Brett\n", "")
+    d = _change(tmp_path, "pin-adhoc-incomplete", packet)
+    behavioral |= {f.action for f in
+                  po.check_change("r", tmp_path, d, frozenset(), False)}
+
+    # manifest disagreement (archived, contested mutation)
+    d = _change(tmp_path, "2026-08-10-pin-mismatch", STAGED,
+                manifest={"origin": {"kind": "staged", "id": "repo:staging:OTHER",
+                                     "path": "ideation/staging/topic-a"}},
+                archived=True)
+    behavioral |= {f.action for f in
+                  po.check_change("r", tmp_path, d, frozenset(), True)}
+
+    # staged origin lacks `path`
+    packet = STAGED.replace("  path: ideation/staging/topic-a\n", "")
+    d = _change(tmp_path, "pin-no-path", packet)
+    behavioral |= {f.action for f in
+                  po.check_change("r", tmp_path, d, frozenset(), False)}
+
+    # staging-header linkage broken (active, folder still exists)
+    folder = tmp_path / "ideation" / "staging" / "pin-linkage"
+    folder.mkdir(parents=True)
+    (folder / "pin-linkage.md").write_text(
+        "Staging ID: repo:staging:DIFFERENT\n")
+    packet = STAGED.replace("path: ideation/staging/topic-a",
+                           "path: ideation/staging/pin-linkage")
+    d = _change(tmp_path, "pin-bad-linkage", packet)
+    behavioral |= {f.action for f in
+                  po.check_change("r", tmp_path, d, frozenset(), False)}
+
+    # unparseable packet metadata
+    d = _change(tmp_path, "pin-unparseable", "origin:\n  reason: broken: colon\n")
+    behavioral |= {f.action for f in
+                  po.check_change("r", tmp_path, d, frozenset(), False)}
+
+    # migration-recorded backfill removed after the fact (contested)
+    d = _change(tmp_path, "2026-07-01-pin-old", None, archived=True)
+    migrated = frozenset({"2026-07-01-pin-old"})
+    behavioral |= {f.action for f in
+                  po.check_change("r", tmp_path, d, migrated, True)}
+
+    # staged origin path does not resolve at the recorded source revision
+    # (its OWN real git repo, under a fresh tmp_path).
+    git_root = tmp_path / "pin-git-mismatch"
+    git_root.mkdir()
+    (git_root / "unrelated.txt").write_text("nothing staged here\n")
+    subprocess.run(["git", "init", "-q", str(git_root)], check=True)
+    subprocess.run(["git", "-C", str(git_root), "add", "-A"], check=True)
+    subprocess.run(
+        ["git", "-C", str(git_root), "-c", "user.name=T", "-c",
+         "user.email=t@example.invalid", "commit", "-qm", "fixture"],
+        check=True)
+    revision = subprocess.run(
+        ["git", "-C", str(git_root), "rev-parse", "HEAD"],
+        capture_output=True, text=True, check=True).stdout.strip()
+    d = _change(git_root, "pin-git-mismatch", STAGED,
+               manifest={"source_revision": revision,
+                         "origin": {"kind": "staged",
+                                    "id": "repo:staging:topic-a",
+                                    "path": "ideation/staging/topic-a"}})
+    behavioral |= {f.action for f in
+                  po.check_change("r", git_root, d, frozenset(), False)}
+
+    behavioral = frozenset(behavioral)
+    static = harvest_static(po)
+
+    EXPECTED_ACTIONS = {
+        "declare `origin:` in .openspec.yaml (staged or ad_hoc per the "
+        "document-lifecycle origin requirement)",
+        "declare kind: staged or kind: ad_hoc",
+        "make the durable id match the declared kind",
+        "use <repo>:staging:<topic-slug> or <repo>:adhoc:<date>-<slug>",
+        "record the explicit approval provenance the ad-hoc exception "
+        "requires",
+        "reconcile the manifest against the declaration recorded at "
+        "transition; resolving reverses a gate decision",
+        "record the original staging folder path",
+        "restore the staging-header linkage or record the folder's move",
+        "repair the packet metadata (quote scalars containing ': '), "
+        "preserving the declared origin text",
+        "restore the origin block recorded in the migration evidence",
+        "the recorded provenance must contain the staging folder; correct "
+        "the manifest or the declaration",
+    }
+    assert_actions_pinned(EXPECTED_ACTIONS, behavioral, static,
+                          family="proposal-origin")

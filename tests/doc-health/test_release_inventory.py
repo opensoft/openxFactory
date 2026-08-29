@@ -31,12 +31,15 @@ import pytest
 from conftest import FakeGit  # noqa: F401  (sys.path side effect)
 
 from doc_health import ERROR, INFO, Skip
+from doc_health import release_inventory
 from doc_health.corpus import RealGit
 from doc_health.families import FAMILIES, FAMILY_RESOLUTION
 from doc_health.release_inventory import (
     EDITORIAL, FAMILY, check_repo, inventory_path_for, parse_declared_bundle,
     parse_inventory,
 )
+
+from action_pins import assert_actions_pinned, harvest_static
 
 REPO = "openxFactory"
 BUNDLE = "contract-v1.40"
@@ -590,3 +593,72 @@ def test_a_well_formed_entry_is_still_compared_on_both_fields():
     present, drift on each is still reported."""
     assert _sev(_run(_world(BASE, blob_overrides={SCHEMA: b"x\n"})), ERROR)
     assert _sev(_run(_world(BASE, mode_overrides={SCHEMA: "100755"})), ERROR)
+
+
+def test_every_action_string_the_release_inventory_drift_family_can_emit_is_pinned_verbatim():
+    """`release_inventory.check_repo`/`fam_release_inventory_drift` raise FIVE
+    distinct action strings. `#448` (`cadc05ec`) pinned one
+    (`test_non_editorial_drift_is_an_error`, above — its VERBATIM pin, not
+    the two substring checks beside it, which cannot catch a mutation that
+    preserves both phrases). Steward follow-up (Brett, 2026-08-28) widens
+    that to the whole set, table-driven.
+
+    ALL FIVE are pinned BEHAVIOURALLY, reusing this suite's own `_run`,
+    `_world`, `_world_missing` and `BASE` fixture helpers exactly as the
+    existing per-arm tests above use them, plus one `fam_release_inventory_drift`
+    call (the family-level per-repository skip precedent,
+    `test_a_skipped_repository_is_REPORTED_not_silently_omitted`) for the
+    "no action" INFO action a bare `check_repo` call never reaches. No
+    static fallback is needed.
+    """
+    from doc_health.release_inventory import fam_release_inventory_drift
+
+    behavioral = set()
+
+    # non-editorial byte drift (also proves the VERBATIM _CUT_ACTION text)
+    behavioral |= {f.action for f in
+                  _run(_world(BASE, blob_overrides={SCHEMA: b"changed\n"}))}
+
+    # declared bundle with no inventory
+    behavioral |= {f.action for f in
+                  _run(_world(BASE, drop_inventory=True))}
+
+    # inventory names no members at all
+    empty_inventory_git = _world(BASE)
+    empty_inventory_git.blobs[(REPO, inventory_path_for(BUNDLE))] = (
+        b"schema_version: 1\nentries:\n")
+    behavioral |= {f.action for f in _run(empty_inventory_git)}
+
+    # an inventory entry missing digest/git_mode cannot report the member clean
+    behavioral |= {f.action for f in _run(_world_missing("digest", SCHEMA))}
+
+    # the per-repository skip, reported as an INFO finding rather than
+    # dropped — needs a SECOND, askable repository, or the family collapses
+    # to an all-skip (test_all_repositories_skipping_is_still_a_family_skip
+    # precedent) and never reaches the per-repository INFO finding at all.
+    declaring = _world(BASE)
+    class Ctx:
+        repo_paths = {"declaring": Path("declaring"), "silent": Path("silent")}
+        git = FakeGit(
+            blobs={("declaring", k[1]): v for k, v in declaring.blobs.items()},
+            modes={("declaring", k[1]): v for k, v in declaring.modes.items()})
+    behavioral |= {f.action for f in fam_release_inventory_drift(Ctx())}
+
+    behavioral = frozenset(behavioral)
+    static = harvest_static(release_inventory)
+
+    EXPECTED_ACTIONS = {
+        "cut a release through the bundle realization order; never "
+        "hand-edit an inventory or contract_bundle_version to make this "
+        "comparison pass",
+        "declare a bundle whose inventory exists, or create the inventory "
+        "through the bundle realization order",
+        "rebuild the inventory with scripts/validate-contract-release.py "
+        "build",
+        "rebuild the inventory with scripts/validate-contract-release.py "
+        "build; an entry that cannot answer is not an entry that matches",
+        "no action — this repository's release surface was not evaluated, "
+        "and the reason is recorded rather than omitted",
+    }
+    assert_actions_pinned(EXPECTED_ACTIONS, behavioral, static,
+                          family="release-inventory-drift")

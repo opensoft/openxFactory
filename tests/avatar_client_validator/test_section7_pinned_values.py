@@ -190,7 +190,7 @@ POLICY_MUTATIONS = {
     "distinct_day_floor_dropped":
         lambda d: _exit(d)["soak_duration"].__setitem__("sessions_on_distinct_days_min", 1),
     "session_count_halved":
-        lambda d: _exit(d)["minimum_session_count"].__setitem__("completed_sessions", 100),
+        lambda d: _exit(d)["minimum_session_count"].__setitem__("completed_sessions", 50),
     "cohort_02_floor_removed":
         lambda d: _exit(d)["minimum_session_count"]["sub_floors"].pop(
             "cohort_02_domain_sandbox_min"),
@@ -345,8 +345,8 @@ POLICY_MUTATIONS = {
         lambda d: _tenant(d).__setitem__("status", "unset"),
     "tenant_definition_deleted":
         lambda d: d["cohort"].pop("tenant_definition_ref"),
-    # Ruled as anything but a cohort member, §7.2's $150 needs re-sizing
-    # against a new denominator.
+    # Ruled as anything but a cohort member, §7.2's per-tenant figure needs
+    # re-sizing against a new denominator.
     "tenant_ruled_wider_than_a_cohort_member":
         lambda d: _tenant(d).__setitem__("tenant_is", "domain_factory"),
     # The count that outlives the membership it summarises.

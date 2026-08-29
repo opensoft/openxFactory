@@ -88,10 +88,12 @@ minimum:
     split minimum for the sake of one cheap cell is a two-number rule buying
     almost nothing, so the flat 100 stands.
   cost_note: >-
-    4 cells x 100 setup-only sessions is a small fraction of the ruled
-    provider-project cap (§7.2), so the statistically defensible number and the
-    affordable one are the same number. The usual excuse for a small n does not
-    apply here and should not be reached for later.
+    4 cells x 100 setup-only sessions is ~$20 at ~$0.05 a setup-only session —
+    about a fifth of the ruled provider-project cap (§7.2, $100/month as
+    re-ruled 2026-08-28, and these cells do not all fall in one month), so the
+    statistically defensible number and the affordable one are the same
+    number. The usual excuse for a small n does not apply here and should not
+    be reached for later.
 
 under_minimum:
   effect: recorded_not_gated

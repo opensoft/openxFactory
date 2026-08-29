@@ -18,7 +18,7 @@
     {
       "note": "Session-authored decision aid for tasks.md 7.1-7.6, added 2026-08-27 by pin-avatar-authoring-inputs. It has NO staging source and therefore no source_path / source_sha256 / source_snapshot_path: it was never a staged fragment, so there is no prior revision for a snapshot to preserve. The checksum above is the whole of its integrity claim.",
       "path": "section-7-authoring-inputs-memo.md",
-      "sha256": "dc0be405eea6dc69bb8493b331b91bd003ed7428ad42d1ecee428ba889b2ee9a"
+      "sha256": "dab95b53cff93861987930e2cbdea7969cae60dfa9a7d01629ba77c3440b0f5a"
     }
   ],
   "format_version": 1,
