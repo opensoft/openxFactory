@@ -62,7 +62,6 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [medxfactory-domain-hermes-content](#medxfactory-domain-hermes-content) | MedxFactory `hermes/domain/` content (changes A + B) + Omnigent `directed_by` lockstep + overlay-manifest digest re-pin | 1 | **Change A COMPLETE 2026-07-29** — authored, ratified, realized, and archived the same day (`archive/2026-07-29-add-domain-hermes-roles-and-policies`; canonical Medx spec `domain-hermes-content`, 6 requirements): eight personas incl. the dedicated ontology-steward, eight medical policy files, the v1.15 overlay with a proven 43-item two-way `medx_owns` closure, `directed_by` on all 11 workers with the manifest re-pinned (omnigent-install fixture digest flagged stale to its own change), and the v13 ontology scaffold landed DRAFT (ruled stewardship policy, explicit content manifest incl. `domain_ontology`, canonical validators in `make validate`, readiness `domain_scaffold_required` pending Domain Hermes publication). **TOPIC COMPLETE — change B realized 2026-07-29, archived 2026-07-30** (`archive/2026-07-30-add-domain-hermes-councils-and-memory`; the canonical Medx `domain-hermes-content` spec carries all TWELVE requirements; MedxFactory is the second domain complete on BOTH layers — one params file from a deployable medical stack pending the flagged omnigent-install fixture digest refresh and the governed ontology publication: review-ensemble mixes with the stated convergence-flow boundary, MxD-MRR formalized with the ontology seats and the three-gate cross-layer flow, escalation elevation preserving the stub items, gateway-vocabulary memory boundaries, `medx_practice_catalog` with the four ruled seeds). (roster DECIDED the same day — decision round with Brett): the derived seven personas PLUS a dedicated ontology-steward (eight total; accountable ontology steward per ratified `add-domain-ontology-layer`); MxD-MRR domain-owned only; convergence flow + review mixes; content manifest declared explicitly incl. `domain_ontology`. No external gates (omnigent overlay realization archived at contract-v1.16); **CHANGE B IS ALSO COMPLETE — this row said otherwise until 2026-08-28**: `archive/2026-07-30-add-domain-hermes-councils-and-memory` was verified at the MedxFactory tree. **CLOSED 2026-08-28 by `settle-aging-staging-topics`: primary doc marked `superseded`** naming both archived exits; folder retained as provenance |
 | [proposal-origin-contract](#proposal-origin-contract) | none yet — retained rationale for a future regulated-traceability profile | 1 | Held as read-only evidence; the origin contract itself was promoted from this topic 2026-07-12 (pointer in `ideation/README.md`'s promoted list) |
 | [worker-host-app](#worker-host-app) | ADDED `worker-host-manifest` + `bench-manifest` (first-consumer drafts in Omnigent-Install, DTN path); realization app in Omnigent-Install + Intune packaging in OpsxFactory | 2 | Ready to iterate — build decision by Brett 2026-07-23; realization under way (substrate steps 1–2 merged); 7 open questions (Omni-001 admin path + SYSTEM-context WSL distro registration, runner-under-virtual-account, bench-manifest home hardest); **DEFERRED WITH GATE NAMED 2026-08-28** (`settle-aging-staging-topics`): Omnigent-Install **PR #40** (phase 3 — enrollment-broker client, leases, fail-closed floor; raised 2026-07-28, STILL OPEN) → OpsxFactory `add-worker-enrollment-broker-service` **tasks 8.1/8.2**, Brett's hosting-target and deployment-credential gates, both unticked. Upstream of all three the broker service itself is MERGED (broker PRs #1 2026-07-27, #2 2026-07-28). A deferral is a schedule, not a standing — the topic keeps ageing |
-| [worker-enrollment-broker](#worker-enrollment-broker) | ADDED `worker-enrollment-broker` (neutral enrollment/lease contract); realization = standalone broker service (home DECIDED: a new Opsx-owned repo, container app on the platform subscription, NOT the QA AKS cluster) + Omnigent-Install (registration-via-broker, lease renewal) + OpsxFactory (App key, policy, temp runner group) | 1 | **Proposed 2026-07-26** as `add-worker-enrollment-broker` (exit 1) — 7 rulings locked with Brett 2026-07-26 (broker-first standalone, two auth modes, lease + fail-closed version floor, fleet hard-pin vs temp self-update, segregated temp group + trust tier) carried as decided context; all 10 open questions carried as design decisions D1–D10, and **all ten ADOPTED AS DECIDED with Brett's approval of the change on 2026-07-26** — D1 (broker home + hosting) no longer blocks the first realization; the contract (phase-1 tasks 1.1–1.10 + 1.12) is REALIZED, shipping six schemas + a canonical validator, the broker service / Omnigent-Install / OpsxFactory realizations are named successor changes, and the heartbeat/readiness projection is left to a coordinated three-places change |
 | [session-notebook-reconciliation](#session-notebook-reconciliation) | MODIFIED `lifecycle-notebook-projection` (a fourth sync mode: reconcile the `xf-session-` namespace against live sessions, fail-closed, report-only by default) + MODIFIED `ideation-dashboard` (a third retirement route for a session that ended without one) | 1 | Ready to iterate — organized 2026-08-10 from the `session-teardown-notebook-coupling` brainstorm on the day two live orphans had to be deleted BY HAND; the five claims are settled (forward-derived detection, fail closed on incomplete knowledge, scoped to this workspace's session repositories, report-only default, `retire` never `delete`); 3 open questions, none blocking (is an orphan evidence worth an import pass; whether hand teardown should be narrowed; cadence) |
 | [tier2-council-clearance-pattern](#tier2-council-clearance-pattern) | ADDED neutral `council-clearance-gate-rule` pattern contract (tier-2 council-clearance template: clearable set, never-clearable floor, anti-normalization, activation gate) | 6 | **Demoted back 2026-08-05** — proposed and demoted the same day (Brett's propose commission, then Brett's reasoned demote: "rule-of-three trigger not fired — no second consumer has named itself"); the full draft packet (proposal, design, tasks, spec delta) sits in the topic's `openspec/` workspace per the draft-proposal convention, ready to re-cross the gate the day a second consumer appears. Organized 2026-08-05 from accepted possible `pos-derived-reusable-tier-2-council-clearance-pattern-beyond`; the first full possible→staged→proposed→demoted traversal of the wheel verbs |
 | [recurrence-crystallization](#recurrence-crystallization) | ADDED `pattern-ledger`, `crystallization-decision`, `crystallization-build`, `crystallization-consent`, `crystallized-capability-registry`, `crystallization-dispatch`, `capability-health`; MODIFIED `omnigent-domain-overlay` (crystallized-executor class + rung ceilings) | 2 | Ready to iterate — organized 2026-07-29 from the 19-doc brainstorm packet (2026-07-28) with D1–D11 + V1–V2 locked (authority conservation; artifacts digest-pinned while authority status is live-read (D10); v1 dispatch admits only pure/idempotent effect classes (D11); neutral schemas first (D6)); MVP family DECIDED: packet-capture mechanics at L3, evidenced by two same-shape runs on 2026-07-28; cross-tenant deliberately out of wave (stays brainstorm); exit = add-pattern-ledger (realized contract-v1.19, ARCHIVED 2026-07-29; fragment under the archived change's supporting-docs/) → add-crystallizer-contracts (realized contract-v1.20, ARCHIVED 2026-07-29; fragments under the archived change's supporting-docs/) → add-capability-steward (realized contract-v1.21, ARCHIVED 2026-07-30; fragment under the archived change's supporting-docs/). ALL THREE EXITS ARCHIVED — the staged remainder is the dials register |
@@ -716,80 +715,13 @@ factory comparing references by raw string has it.
   2026-07-26 by `add-worker-enrollment-broker` — enrollment grants a renewable
   lease and a short-lived single-use registration token from a standalone
   broker that holds the opsxfactory administration-tier App key alone, so no
-  minting authority ever reaches a host. See the `worker-enrollment-broker`
-  topic below and `contracts/worker-enrollment/`.
+  minting authority ever reaches a host. See that topic's promoted fragment
+  under [`add-worker-enrollment-broker` supporting-docs](../../openspec/changes/add-worker-enrollment-broker/supporting-docs/worker-enrollment-broker.md)
+  and `contracts/worker-enrollment/`.
 - Exit: openxFactory OpenSpec change (manifests), Omnigent-Install change
   (the app), OpsxFactory change (packaging); archives on Omni-001 green
   readiness via the app + a governed lane run on an Omni-001 worker +
   operator-CPC rider retirement.
-
-## worker-enrollment-broker
-
-- Staging ID: `openxFactory:staging:worker-enrollment-broker`
-- Repository context: openxFactory (neutral enrollment/lease contract);
-  standalone broker service (home DECIDED by D1: a new Opsx-owned repo,
-  container app on the existing platform subscription, deliberately NOT the
-  QA AKS cluster);
-  Omnigent-Install (registration-via-broker in `runner_services`, lease
-  renewal in the supervisor); OpsxFactory (opsxfactory App key custody,
-  minimum-version policy, temp runner group, engineer eligibility).
-- Source: clarifying session with Brett 2026-07-26 at the worker-host-app
-  runner_services gate, resolving its registration-credential parked
-  decision; driving scenario = staff workstations self-installing the
-  Worker Host App as long-lived (months) temp workers.
-- Claim: one standalone broker owns enrollment for both estates — fleet
-  hosts authenticate per-host (Opsx KV standard), volunteers as the
-  engineer (device-code, no standing secret) — holding the opsxfactory
-  App key centrally (minting authority never on hosts), granting
-  renewable LEASES whose renewal enforces a minimum-app-version floor
-  fail-closed (below-floor workers stop working until the engineer
-  updates); fleet runners hard-pinned via manifest rollouts
-  (v2.336.0 + sha256 ruled), temp runners self-update; temp workers ride
-  a segregated runner group with a trust tier.
-- Files:
-  - [worker-enrollment-broker.md](worker-enrollment-broker/worker-enrollment-broker.md)
-    — primary: 7 binding rulings, 4 claims, 10 open questions, exit with
-    the volunteer-workstation acceptance test (first volunteer = Brett's
-    machine, doubling as the NT SERVICE fact-check).
-- Open questions (all carried into the proposal's `design.md` as
-  decisions D1–D10 with recommendations, and **all ten adopted as DECIDED
-  by Brett's approval of the change on 2026-07-26** — none of them is a
-  live gate; do not re-escalate): broker home/hosting + credential
-  custody (D1 — a dedicated Opsx-owned repo, container app on the
-  existing platform subscription and NOT the QA AKS cluster, whose blast
-  radius and lifecycle a production control-plane dependency must not
-  inherit); lease cadence + grace (D2 — 24h TTL,
-  hourly renewal, 12h grace); version-floor policy home (D3 —
-  OpsxFactory-owned policy the broker consumes, floor raises through the
-  governed lane); enrollment approval (D4 — Entra-group auto-approve in
-  v1, trust tier carries the difference, Hermes approval arrives through
-  the same door without a contract delta); temp-worker manifest content +
-  serving (D5 — broker-served at enrollment, one worker, no benches in
-  v1); engineer eligibility (D6 — existing engineering group, one machine
-  per engineer); teardown semantics (D7 — full cleanup on volunteer
-  uninstall, stop-only on expiry, immediate stop on revocation);
-  trust-tier mechanics (D8 — first-class lease field projected into
-  runner group/labels and the readiness attestation; labels alone
-  rejected as host-assertable); fleet per-host secret provisioning (D9 —
-  issued at Intune enrollment, escrow-at-birth, rotatable without
-  re-enrollment); heartbeat/readiness lease-state integration (D10 —
-  three-places rule, rides the bench-inventory heartbeat delta if it
-  lands first).
-- Readiness: **exit 1 proposed AND phase-1 realized 2026-07-26** as
-  `add-worker-enrollment-broker` — the neutral contract (one enrollment
-  point / two auth modes, lease + short-lived token, minting authority
-  broker-only incl. remove tokens, renewal carrying the floor,
-  fail-closed below-floor and revoked workers, revocation as refusal,
-  estate package split, temp segregation + trust tier, audited decisions
-  with token values unrepresentable), shipping six schemas, packaged
-  positive/negative examples, and `scripts/validate-worker-enrollment.py`
-  at the next additive bundle. The heartbeat delta is deliberately
-  excluded.
-- Exit: `add-worker-enrollment-broker` OpenSpec change (contract,
-  PROPOSED 2026-07-26) + realization changes (broker service,
-  Omnigent-Install, OpsxFactory); acceptance = the end-to-end volunteer
-  workstation scenario on Brett's machine, which doubles as the
-  NT SERVICE fact-check.
 
 ## session-notebook-reconciliation
 

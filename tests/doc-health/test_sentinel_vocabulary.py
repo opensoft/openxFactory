@@ -906,17 +906,28 @@ def test_the_pin_counts_did_not_move_and_no_site_is_classified_twice():
     network. What it does assert is the separation the design turns on — the
     commit path and the classification path never see the same site."""
     report = pc.verify(REPO_ROOT, allow_remote=False)
-    # 66 -> 67 on 2026-08-28 by `add-subject-establishment`, whose FULL
-    # promotion of the `subject-establishment` staged topic wrote one new
-    # `openspec/changes/add-subject-establishment/supporting-docs/manifest.yaml`
-    # carrying a `source_revision` pin. It joins the EXISTING
-    # `proposal-support-manifest` member class — twenty-five manifests now, one
-    # member — which is why the member count below is unchanged at 23. This
-    # count moves by design on every full promotion: the gate compares by exact
-    # number so a new pin site reds the suite until somebody looks at it, and
-    # this comment is that look. Enumerated rather than inferred: the single
-    # added site is the manifest above and nothing else moved.
-    assert len(report.results) == 67
+    # 68, not the 66 this census landed with, and the two steps are kept apart
+    # because they were taken by different packets on the same day.
+    #
+    # 66 -> 67, `add-worker-enrollment-broker`: a `proposal-support.py transition`
+    # writes a `supporting-docs/manifest.yaml` carrying a `source_revision`, and
+    # that key is a declared `proposal-support-manifest` pin site — so EVERY full
+    # promotion moves this number by one, by design. The 67th was written when the
+    # `worker-enrollment-broker` topic was promoted in full. Note this test cannot
+    # see an uncommitted manifest — `pc.verify` reads the committed tree — so a
+    # promotion's own pre-commit run passes and CI is where the count lands.
+    #
+    # 67 -> 68, `add-subject-establishment`: the same mechanism, one branch later.
+    # The FULL promotion of the `subject-establishment` staged topic wrote
+    # `openspec/changes/add-subject-establishment/supporting-docs/manifest.yaml`,
+    # and the two packets merged into each other rather than one overwriting the
+    # other's number. Enumerated rather than inferred at the merge: both manifests
+    # are present and the census reads 68.
+    #
+    # Only the SITE count moves in either step. The member count is unchanged
+    # because both manifests join a class that already held twenty-four others,
+    # and `lost` / `uncovered` / `vanished` / `arrived` are untouched.
+    assert len(report.results) == 68
     assert len({r.site.member_id for r in report.results}) == 23
     assert len(report.lost) == 1
     assert len(report.lost_awaiting_record) == 0
