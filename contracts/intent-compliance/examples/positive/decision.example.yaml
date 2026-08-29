@@ -7,13 +7,13 @@ outcome: allow
 evaluated_content_digest: "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
 policy_source: {repository: example/domain-factory, path: policies/standing-policy.md, revision: "1111111111111111111111111111111111111111", content_digest: "sha256:1111111111111111111111111111111111111111111111111111111111111111", ratification_record: {path: governance/ratification.md, content_digest: "sha256:2222222222222222222222222222222222222222222222222222222222222222"}}
 vocabulary: {vocabulary_id: neutral.policy.v1, vocabulary_digest: "sha256:d6a84d77b6e2c5c168124fd31c13776a76a8285f62855825b0ee3fb1677ab8bb"}
-registry: {registry_id: neutral.registry, revision_id: neutral.revision.1, revision_digest: "sha256:806256d273af9c5088dd987a8a7b910ad44b46fccc662597ae3e6f646e97b4c4"}
+registry: {status: resolved, registry_id: neutral.registry, revision_id: neutral.revision.1, revision_digest: "sha256:388db5d20feebfa770ded1e5ceaf822bbd9fa4cf9a616e262b8b293383435319"}
 allowance_references: [{registry_id: neutral.registry, allowance_id: neutral.allowance.1}]
 resolutions:
   - class_id: neutral.restricted_action
     status: resolved
     allowance_reference: {registry_id: neutral.registry, allowance_id: neutral.allowance.1}
-    approval_digest: "sha256:0959a2d37d440289fbd7bbdf815832f3dfdcee812bedcc823d83950165133f1f"
+    approval_digest: "sha256:219383e0dae21b8f703c79bc8ca9062ef152a8748bbc4fabd007562cbf02fae5"
     revocation_digests: []
     scope: {scope_kind: neutral.resource, scope_ref: neutral.resource.1, operations: [neutral.execute], scope_digest: "sha256:a0ad00c17f245fbfd79b0e23a049b0908699dff28dae0f6e2e81437c2b1bb039"}
     scope_verdict: {resolver_id: neutral.scope_resolver, resolver_version: 1.0.0, evaluated_content_digest: "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", scope_digest: "sha256:a0ad00c17f245fbfd79b0e23a049b0908699dff28dae0f6e2e81437c2b1bb039", verdict: covers, verdict_digest: "sha256:2df29d4bc0f6cd4dcd32ee02578587784e9d9f6de7ef50fed2bd0e1447e2a83a"}
@@ -22,7 +22,7 @@ rationale_codes: [neutral.allowance_covers]
 redacted_detail_codes: [neutral.detail_redacted]
 correlation_refs: [neutral.telemetry.1]
 evaluator: {evaluator_id: neutral.evaluator, version: 1.0.0}
-deterministic_evidence: {evaluated_content_digest: "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", vocabulary_id: neutral.policy.v1, vocabulary_digest: "sha256:d6a84d77b6e2c5c168124fd31c13776a76a8285f62855825b0ee3fb1677ab8bb", registry_id: neutral.registry, revision_digest: "sha256:806256d273af9c5088dd987a8a7b910ad44b46fccc662597ae3e6f646e97b4c4", evaluator_id: neutral.evaluator, evaluator_version: 1.0.0, finding_digests: ["sha256:3678bc8d5a92a6ec6f1e90ef4adf8ab12b98a03afa085b9bfe74fdd7f0078492"], evidence_codes: [neutral.deterministic_scan_complete], ambiguity_refs: [], evidence_digest: "sha256:d5e0e0e746fe0d47d6136b983befc2c2af7a0ce8f49d6973592a17e6fa9168d9"}
+deterministic_evidence: {evaluated_content_digest: "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", vocabulary_id: neutral.policy.v1, vocabulary_digest: "sha256:d6a84d77b6e2c5c168124fd31c13776a76a8285f62855825b0ee3fb1677ab8bb", registry: {status: resolved, registry_id: neutral.registry, revision_id: neutral.revision.1, revision_digest: "sha256:388db5d20feebfa770ded1e5ceaf822bbd9fa4cf9a616e262b8b293383435319"}, evaluator_id: neutral.evaluator, evaluator_version: 1.0.0, finding_digests: ["sha256:3678bc8d5a92a6ec6f1e90ef4adf8ab12b98a03afa085b9bfe74fdd7f0078492"], evidence_codes: [neutral.deterministic_scan_complete], ambiguity_refs: [], evidence_digest: "sha256:869b4b5b1a74980ac0b9c653337dfda5c5e829a6b6c9e661e9f9371919425566"}
 evaluated_at: "2026-02-01T00:00:00Z"
 ---
 schema_version: 1
@@ -34,13 +34,13 @@ outcome: allow
 evaluated_content_digest: "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
 policy_source: {repository: example/domain-factory, path: policies/standing-policy.md, revision: "1111111111111111111111111111111111111111", content_digest: "sha256:1111111111111111111111111111111111111111111111111111111111111111", ratification_record: {path: governance/ratification.md, content_digest: "sha256:2222222222222222222222222222222222222222222222222222222222222222"}}
 vocabulary: {vocabulary_id: neutral.policy.v1, vocabulary_digest: "sha256:d6a84d77b6e2c5c168124fd31c13776a76a8285f62855825b0ee3fb1677ab8bb"}
-registry: {registry_id: neutral.registry, revision_id: neutral.revision.1, revision_digest: "sha256:806256d273af9c5088dd987a8a7b910ad44b46fccc662597ae3e6f646e97b4c4"}
+registry: {status: resolved, registry_id: neutral.registry, revision_id: neutral.revision.1, revision_digest: "sha256:388db5d20feebfa770ded1e5ceaf822bbd9fa4cf9a616e262b8b293383435319"}
 allowance_references: [{registry_id: neutral.registry, allowance_id: neutral.allowance.1}]
 resolutions:
   - class_id: neutral.restricted_action
     status: resolved
     allowance_reference: {registry_id: neutral.registry, allowance_id: neutral.allowance.1}
-    approval_digest: "sha256:0959a2d37d440289fbd7bbdf815832f3dfdcee812bedcc823d83950165133f1f"
+    approval_digest: "sha256:219383e0dae21b8f703c79bc8ca9062ef152a8748bbc4fabd007562cbf02fae5"
     revocation_digests: []
     scope: {scope_kind: neutral.resource, scope_ref: neutral.resource.1, operations: [neutral.execute], scope_digest: "sha256:a0ad00c17f245fbfd79b0e23a049b0908699dff28dae0f6e2e81437c2b1bb039"}
     scope_verdict: {resolver_id: neutral.scope_resolver, resolver_version: 1.0.0, evaluated_content_digest: "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", scope_digest: "sha256:a0ad00c17f245fbfd79b0e23a049b0908699dff28dae0f6e2e81437c2b1bb039", verdict: covers, verdict_digest: "sha256:2df29d4bc0f6cd4dcd32ee02578587784e9d9f6de7ef50fed2bd0e1447e2a83a"}
@@ -49,8 +49,8 @@ rationale_codes: [neutral.allowance_covers]
 redacted_detail_codes: [neutral.detail_redacted]
 correlation_refs: [neutral.telemetry.2]
 evaluator: {evaluator_id: neutral.evaluator, version: 1.0.0}
-deterministic_evidence: {evaluated_content_digest: "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", vocabulary_id: neutral.policy.v1, vocabulary_digest: "sha256:d6a84d77b6e2c5c168124fd31c13776a76a8285f62855825b0ee3fb1677ab8bb", registry_id: neutral.registry, revision_digest: "sha256:806256d273af9c5088dd987a8a7b910ad44b46fccc662597ae3e6f646e97b4c4", evaluator_id: neutral.evaluator, evaluator_version: 1.0.0, finding_digests: ["sha256:3678bc8d5a92a6ec6f1e90ef4adf8ab12b98a03afa085b9bfe74fdd7f0078492"], evidence_codes: [neutral.deterministic_scan_complete], ambiguity_refs: [], evidence_digest: "sha256:d5e0e0e746fe0d47d6136b983befc2c2af7a0ce8f49d6973592a17e6fa9168d9"}
-dispatch_authorization_evidence: {decision_id: neutral.decision.dispatch, decision_digest: "sha256:bc791aada615a8e5bcd9bb4a5ccafddf7e1b2990e7d0610e532c64ff52f10bdb", evaluated_content_digest: "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", registry_id: neutral.registry, conditioned_revision_digest: "sha256:806256d273af9c5088dd987a8a7b910ad44b46fccc662597ae3e6f646e97b4c4", evaluator_id: neutral.evaluator, evaluator_version: 1.0.0, expires_at: "2026-02-01T00:01:00Z", evidence_digest: "sha256:e7aff035f4a6141f2bc2585440b3571d06a4f764fbd59bb6afef82f04f7fefe9"}
+deterministic_evidence: {evaluated_content_digest: "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", vocabulary_id: neutral.policy.v1, vocabulary_digest: "sha256:d6a84d77b6e2c5c168124fd31c13776a76a8285f62855825b0ee3fb1677ab8bb", registry: {status: resolved, registry_id: neutral.registry, revision_id: neutral.revision.1, revision_digest: "sha256:388db5d20feebfa770ded1e5ceaf822bbd9fa4cf9a616e262b8b293383435319"}, evaluator_id: neutral.evaluator, evaluator_version: 1.0.0, finding_digests: ["sha256:3678bc8d5a92a6ec6f1e90ef4adf8ab12b98a03afa085b9bfe74fdd7f0078492"], evidence_codes: [neutral.deterministic_scan_complete], ambiguity_refs: [], evidence_digest: "sha256:869b4b5b1a74980ac0b9c653337dfda5c5e829a6b6c9e661e9f9371919425566"}
+dispatch_authorization_evidence: {decision_id: neutral.decision.dispatch, decision_digest: "sha256:eca695eb0f12834cb625a4e478a22c884d4cf8f60edfc8d2aa6af14551b8ef76", evaluated_content_digest: "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", registry_id: neutral.registry, conditioned_revision_digest: "sha256:388db5d20feebfa770ded1e5ceaf822bbd9fa4cf9a616e262b8b293383435319", evaluator_id: neutral.evaluator, evaluator_version: 1.0.0, expires_at: "2026-02-01T00:01:00Z", evidence_digest: "sha256:ecec0425bb0708e8303a13c0c3d2200a564e970c1e7bb5e6a2e938d901d0add1"}
 evaluated_at: "2026-02-01T00:00:01Z"
 ---
 schema_version: 1
@@ -62,14 +62,14 @@ outcome: block
 evaluated_content_digest: "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
 policy_source: {repository: example/domain-factory, path: policies/standing-policy.md, revision: "1111111111111111111111111111111111111111", content_digest: "sha256:1111111111111111111111111111111111111111111111111111111111111111", ratification_record: {path: governance/ratification.md, content_digest: "sha256:2222222222222222222222222222222222222222222222222222222222222222"}}
 vocabulary: {vocabulary_id: neutral.policy.v1, vocabulary_digest: "sha256:d6a84d77b6e2c5c168124fd31c13776a76a8285f62855825b0ee3fb1677ab8bb"}
-registry: {registry_id: neutral.registry, revision_id: neutral.revision.2, revision_digest: "sha256:0d3a30e50eafab7f2477a678809831ccbc93f11f7e32a0381c86860a07e50ec5"}
+registry: {status: resolved, registry_id: neutral.registry, revision_id: neutral.revision.2, revision_digest: "sha256:5e8e309317d634ab7546f647a269773e25ef8cf6f603c09df1608704e443d758"}
 allowance_references: [{registry_id: neutral.registry, allowance_id: neutral.allowance.1}]
 resolutions:
   - class_id: neutral.restricted_action
     status: resolved
     allowance_reference: {registry_id: neutral.registry, allowance_id: neutral.allowance.1}
-    approval_digest: "sha256:0959a2d37d440289fbd7bbdf815832f3dfdcee812bedcc823d83950165133f1f"
-    revocation_digests: ["sha256:909c4fe5bc84a8d91cb1a515e95d9b855cc94f8cd17bd12344524c38e6f8d8ce"]
+    approval_digest: "sha256:219383e0dae21b8f703c79bc8ca9062ef152a8748bbc4fabd007562cbf02fae5"
+    revocation_digests: ["sha256:87fa2a0d74e5bfd00991b675b898f0e4eaa766f9d3bffb38b3ae9d253da9584d"]
     scope: {scope_kind: neutral.resource, scope_ref: neutral.resource.1, operations: [neutral.execute], scope_digest: "sha256:a0ad00c17f245fbfd79b0e23a049b0908699dff28dae0f6e2e81437c2b1bb039"}
     scope_verdict: {resolver_id: neutral.scope_resolver, resolver_version: 1.0.0, evaluated_content_digest: "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", scope_digest: "sha256:a0ad00c17f245fbfd79b0e23a049b0908699dff28dae0f6e2e81437c2b1bb039", verdict: covers, verdict_digest: "sha256:2df29d4bc0f6cd4dcd32ee02578587784e9d9f6de7ef50fed2bd0e1447e2a83a"}
 findings: [{layer: deterministic, class_id: neutral.restricted_action, disposition: block, evidence_digest: "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"}]
@@ -77,5 +77,5 @@ rationale_codes: [neutral.allowance_revoked]
 redacted_detail_codes: [neutral.detail_redacted]
 correlation_refs: [neutral.telemetry.3]
 evaluator: {evaluator_id: neutral.evaluator, version: 1.0.0}
-deterministic_evidence: {evaluated_content_digest: "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", vocabulary_id: neutral.policy.v1, vocabulary_digest: "sha256:d6a84d77b6e2c5c168124fd31c13776a76a8285f62855825b0ee3fb1677ab8bb", registry_id: neutral.registry, revision_digest: "sha256:0d3a30e50eafab7f2477a678809831ccbc93f11f7e32a0381c86860a07e50ec5", evaluator_id: neutral.evaluator, evaluator_version: 1.0.0, finding_digests: ["sha256:fe1f92ec52cd4e332245c5189e0c21e5f052b838db079f4aae93557002fb5390"], evidence_codes: [neutral.deterministic_scan_complete], ambiguity_refs: [], evidence_digest: "sha256:61eb51479bc786f42a907a5b314aaea7952e15321e3e03b7cc56c992d98aebff"}
+deterministic_evidence: {evaluated_content_digest: "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", vocabulary_id: neutral.policy.v1, vocabulary_digest: "sha256:d6a84d77b6e2c5c168124fd31c13776a76a8285f62855825b0ee3fb1677ab8bb", registry: {status: resolved, registry_id: neutral.registry, revision_id: neutral.revision.2, revision_digest: "sha256:5e8e309317d634ab7546f647a269773e25ef8cf6f603c09df1608704e443d758"}, evaluator_id: neutral.evaluator, evaluator_version: 1.0.0, finding_digests: ["sha256:fe1f92ec52cd4e332245c5189e0c21e5f052b838db079f4aae93557002fb5390"], evidence_codes: [neutral.deterministic_scan_complete], ambiguity_refs: [], evidence_digest: "sha256:53ed20ad88559b9cae9d5d9b399b36bbf22602f6eed4f85b34553f84826c54a8"}
 evaluated_at: "2026-07-01T00:00:02Z"
