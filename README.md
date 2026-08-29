@@ -423,8 +423,10 @@ Active changes:
   predecessor had to DECLINE becomes expressible only through five
   independent fail-closed conditions, the fifth of which stops the
   dispatch/content collapse laundering itself as intentional sharing. **CARRIES
-  A CONTRACT CUT** — unlike its predecessor it moves schema bytes; the minor is
-  allocated at realization by merge order, because `add-credential-escrow-checkout`
+  A CONTRACT CUT AT REALIZATION** — unlike its predecessor its realization
+  will move schema bytes, though THIS PACKET MOVES NONE and leaves `contracts/`
+  untouched; the minor is allocated at realization by merge order, because
+  `add-credential-escrow-checkout`
   is already spending one on the same file. Migration is
   additive-optional-plus-warning now, required at the next MAJOR, which is the
   versioning policy's own sequence rather than a preference. 1 MODIFIED

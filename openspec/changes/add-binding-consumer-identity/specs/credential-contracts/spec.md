@@ -16,7 +16,7 @@ Where more than one system authenticates as the SAME operated identity, each con
 
 Per-system bindings are what make the consequential acts separable. With one shared route, revoking either system's access revokes both, the store's access log cannot say which system read the secret, and a compromise of one is indistinguishable from a compromise of the other. Each binding SHALL therefore be revocable on its own, and revoking one SHALL NOT disturb the other's ability to fetch.
 
-THE AUTHORITY IS A RECORD FACT, NOT AN ASSERTION ABOUT THE ESTATE. Each such binding SHALL declare the consuming system that holds it and the identity that system authenticates to the secret store as, in the binding's own record, so that which system a binding belongs to and what its revocation reaches are READ rather than inferred. A binding that declares neither is not thereby non-conforming while the declaration is optional under the contract's own migration posture, but the per-system authority it participates in is then unproven, and a change adopting this requirement SHALL NOT describe an undeclared pair as proven.
+THE AUTHORITY IS A RECORD FACT, NOT AN ASSERTION ABOUT THE ESTATE. Each such binding SHALL declare, in its own record, the consuming system that holds it and the identity that system USES TO AUTHENTICATE to the secret store, so that which system a binding belongs to and what its revocation reaches are READ rather than inferred. A binding that declares neither is not thereby non-conforming while the declaration is optional under the contract's own migration posture, but the per-system authority it participates in is then unproven, and a change adopting this requirement SHALL NOT describe an undeclared pair as proven.
 
 WHAT REVOCATION REACHES, STATED HONESTLY, because a shared bearer secret bounds it. Revoking a binding stops that system's FUTURE fetches and nothing more: it cannot un-disclose a password already fetched, and it cannot terminate a session already established with it. Evicting a consumer that has already read the secret requires ROTATING it, and rotation necessarily reaches EVERY consumer of that identity — the one act per-system bindings cannot make independent. A change adopting this requirement SHALL record that cost rather than let per-system bindings read as per-system containment, and SHALL NOT claim an isolation the credential class cannot deliver. Declaring the consuming system and its fetch identity SHALL NOT be read as narrowing that limit: it makes the revocable thing nameable, not the disclosed thing recallable.
 
@@ -53,7 +53,7 @@ A shared ambient session SHALL NOT be used as a substitute for a second binding.
 ## ADDED Requirements
 
 ### Requirement: A credential binding declares the consuming system that holds it and the identity it fetches with
-The canonical credential schema SHALL own an ADDITIVE OPTIONAL `consumer:` block on each entry of `credential_bindings` in `xfactory_credential_binding_template`, carrying the consuming system's HOLDER REFERENCE and the FETCH IDENTITY that system authenticates to the secret store as, and the block SHALL be CLOSED — a member outside the declared set is invalid.
+The canonical credential schema SHALL own an ADDITIVE OPTIONAL `consumer:` block on each entry of `credential_bindings` in `xfactory_credential_binding_template`, carrying the consuming system's HOLDER REFERENCE and the FETCH IDENTITY that system USES TO AUTHENTICATE to the secret store, and the block SHALL be CLOSED — a member outside the declared set is invalid.
 
 THE TWO IDENTIFIERS ARE VOCABULARY THIS FAMILY ALREADY USES, and a second naming
 scheme SHALL NOT be introduced for either. The holder reference is the
@@ -93,7 +93,7 @@ SHALL NOT ride this addition.
 
 #### Scenario: A binding declares its consumer
 - **WHEN** a credential binding declares a `consumer:` block naming a holder reference and a fetch identity
-- **THEN** it validates, and which consuming system holds the binding and what it authenticates as are facts of the record
+- **THEN** it validates, and which consuming system holds the binding and which identity it authenticates with are facts of the record
 
 #### Scenario: A binding declares no consumer at the introducing release
 - **WHEN** a credential binding carries no `consumer:` block at the release that introduces it

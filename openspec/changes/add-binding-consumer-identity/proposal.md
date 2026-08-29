@@ -213,9 +213,10 @@ precedent of naming the gap instead of implying enforcement.
   outcome) and 3 ADDED requirements (the block; the sharpened refusal; the
   honest reach).
 - **Affected code, at realization**: as enumerated in `code_surface`.
-- **`contracts/` IS touched, and a cut IS owed.** Unlike its predecessor, this
-  change moves schema bytes. It cuts nothing itself: allocation is at
-  realization by merge order.
+- **`contracts/` IS touched AT REALIZATION, and a cut IS owed then.** Unlike its
+  predecessor, this change's realization moves schema bytes. THIS PACKET MOVES
+  NONE: its own diff is the delta and these records, `contracts/` is untouched
+  by it, and it cuts nothing — allocation is at realization by merge order.
 - **No live secret is created, moved, or read by this change**, and none is by
   its realization either. The block names identifiers; it holds no material.
 - **Every consumer pinned at `contract-v2.1` stays conformant until it
