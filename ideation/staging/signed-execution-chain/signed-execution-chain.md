@@ -497,9 +497,10 @@ author who ignores it has misread the record.
 
 **ALL SEVEN ARE RULED.** The clarify sitting was held **2026-08-29** and Brett
 Heap ruled every question in it; each disposition below carries its date and its
-ruling authority. The section keeps its name and its structure because a
-question and its recommendation are the record a disposition is read against —
-deleting the question would leave the ruling answering nothing.
+ruling authority. The section keeps every question and its structure — the
+heading gains a closure stamp, nothing is removed — because a question and its
+recommendation are the record a disposition is read against, and deleting the
+question would leave the ruling answering nothing.
 
 *The heading declares the closure because that is where the readiness gate reads
 it.* `completeness._open_question_items` closes a question section either by a
