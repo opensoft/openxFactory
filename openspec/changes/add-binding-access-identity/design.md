@@ -131,21 +131,44 @@ re-verifying that membership AT the cut and naming in the CHANGELOG which of the
 two reasons applied, because a forcing reason recorded from memory is how a
 "working as designed" catch turns into a missed one.
 
-**The compatibility argument, which is the one a reviewer should attack.** Three
-facts, each checkable:
+**The compatibility argument, which is the one a reviewer should attack — AND
+DID.** Three facts were offered; the third was false and is withdrawn.
 
-1. `required` is unchanged. A binding declaring neither field validates exactly
-   as before.
+1. `required` is unchanged. A binding declaring none of the three fields
+   validates exactly as before. **Holds.**
 2. `contract_schema_version` is unchanged; no field is removed, renamed or
-   re-typed.
-3. Every NEW refusal is reachable only through a field no earlier record could
-   carry, because the field did not exist. A pre-extension repository's findings
-   are its findings, unmoved.
+   re-typed. **Holds.**
+3. ~~Every NEW refusal is reachable only through a field no earlier record could
+   carry, because the field did not exist.~~ **FALSE. Withdrawn on Codex's proof
+   in the bot round.**
 
-Point 3 is the load-bearing one and the easiest to get wrong. It holds because
-default-refuse is preserved in the right direction: silence still REFUSES a
-shared reference. The extension only ever widens what may be RECORDED — it never
-converts a previously-valid record into an invalid one.
+Point 3 was named here as the load-bearing one and the easiest to get wrong, and
+it was got wrong. The binding entry object sets NO `additionalProperties: false`
+(`contracts/schemas/xfactory-credential-contracts.schema.yaml:138-146`; the only
+such setting in the file is at `:56`, on a different object). An open object
+accepts unknown keys, so a record valid at `contract-v2.1` can ALREADY carry a
+key named `access_identity` today — inert, meaning nothing, validating fine. This
+change gives that key MEANING. A record already carrying it could therefore be
+newly refused, which is precisely what point 3 denied.
+
+**What replaces it is narrower and true:** a record that declares NONE of the
+three fields is unaffected, and default-refuse still holds in the right direction
+— silence still REFUSES a shared reference. The records this change can newly
+refuse are exactly the records that make a claim the extension gives meaning to.
+
+**And the gap between "narrower and true" and "safe" is closed by MEASUREMENT,
+not by argument.** Tasks §4.6 greps every pinned consumer's `credentials/` tree
+and this repository's `examples/` for the three key names before the cut, and
+records the count — including a zero — in the CHANGELOG as the evidence the class
+claim rests on. An empty population makes the ADDITIVE classification safe in
+fact rather than in theory; a non-empty one triages each record and answers OQ-4
+on the measurement.
+
+THE GENERAL LESSON, worth more than this instance: **a compatibility claim that
+rests on "the field did not exist" is only as strong as the schema's closure.**
+In an open object no key has ever failed to exist — it has only ever failed to
+mean anything. The safe formulation asks what a record DECLARES, never what the
+schema happened to name.
 
 ## Risks
 

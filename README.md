@@ -411,9 +411,9 @@ Active changes:
   the refusal that keeps dispatch and content key material apart. What separates
   the cases is INTENT, and intent must be declared: two credentials collapsed
   into one declare no operated identity, because there is no one identity to
-  declare. So TWO additive optional fields (`access_identity`,
-  `operated_identity`) and a **three-fact conjunction** — same operated
-  identity, pairwise-distinct access identities, or refuse. Silence still
+  declare. So THREE additive optional fields (`access_identity`,
+  `operated_identity`, `consumer`) and a **conjunction** — same operated
+  identity, pairwise-distinct NON-BLANK access identities, or refuse. Silence still
   refuses; every new refusal is reachable only through a field no earlier record
   could carry. Also takes the decision that change's task 4.1 said a successor
   must take FIRST — whether `shared-secret-identity` distinguishes "two
@@ -427,8 +427,15 @@ Active changes:
   **The queued `contract-v1.45` designation is STALE and is flagged, not
   carried**: v1.45 was cut 2026-08-26 by `add-doxchat-model-intake` and the
   declared bundle is now `contract-v2.1`, so the additive minor is allocated at
-  realization by merge order. 3 ADDED requirements, 12 scenarios; six
-  orchestrator decisions and three open questions flagged for veto.
+  realization by merge order. 3 ADDED requirements, 15 scenarios; seven
+  orchestrator decisions and four open questions flagged for veto. **The bot
+  round moved real text**: Codex disproved the compatibility claim (the binding
+  object sets no `additionalProperties: false`, so these keys could ALREADY be
+  carried inertly and now gain meaning — withdrawn, replaced by a pre-cut
+  measurement), disproved the reasoning that omitted `consumer` (the map is
+  keyed by REQUIREMENT ID, not by system), showed the reused `baked-secret`
+  detector would miss connection strings, `password=` and JWTs, and caught that
+  unconstrained strings let `""` and `"  "` satisfy "pairwise distinct".
 - [settle-aging-staging-topics](openspec/changes/settle-aging-staging-topics/proposal.md)
   — authored 2026-08-28 on Brett's four bulk rulings over a read-only triage
   survey of the fourteen staging topics `doc-health`'s
