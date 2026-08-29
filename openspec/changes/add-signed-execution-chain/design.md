@@ -591,6 +591,50 @@ one P2 on a command this packet had written down wrong.
     reads as reproducible sends the next reader to a failure and teaches them to
     distrust the record.
 
+## The fourth Codex round
+
+Three P1 findings, all real, all taken. Two of them are the same defect class
+found one layer deeper than the third round found it, which is the round's real
+result.
+
+11. **"Define the predecessor-link digest construction." TAKEN BY UNIFYING, NOT
+    BY ADDING A SECOND RULE.** Round three's fix declared one digest construction
+    for the CHAIN IDENTITY; R4's predecessor digest was left with none, so two
+    readers serializing a link differently would derive different predecessor
+    digests and neither could verify the other's successor. This is the second
+    appearance of one defect, and the packet's own D5 lesson says what to do with
+    that: the construction rule now governs EVERY digest this capability computes
+    — identity, predecessor, and any a later tranche adds — stated once, with R4
+    pointing at it rather than restating it. Task 2.4a says the same on the
+    realization side, and says why it is declared once and not per digest: a
+    second rule beside the first invites a third.
+12. **"Enforce uniqueness of the per-ratification value." TAKEN IN FULL, and it
+    is the sharper half of round three's own fix.** Naming the exercise
+    identifier as the per-act value was necessary and not sufficient: the pinned
+    schema validates it as a generic identifier and constrains nothing about
+    reuse, so a producer reusing one while re-ratifying an unchanged subject
+    reproduces identical bytes and the collision returns. Uniqueness is now
+    enforced HERE, with the reason stated as a rule rather than as an excuse — an
+    obligation a consumed contract does not carry is this capability's to enforce
+    or to declare as a dependency, never to assume. A negative reuse fixture joins
+    the positive distinct-value one, because the positive fixture passes whether
+    or not reuse is refused.
+13. **"Bind the actor subject to the exercising wallet." TAKEN IN FULL, and the
+    binding direction was checked against the pinned contract rather than taken
+    from the finding's wording.** A link could reference Alice's valid exercise
+    and record Bob's well-formed opaque subject, and every check enumerated in the
+    packet would pass: the exercise proves who SIGNED, and nothing tied that to
+    whom the act is RECORDED AS. R1 now requires the actor's subject to carry a
+    wallet attestation naming the wallet whose key made the exercise, requires the
+    chain to check that they agree, and requires the binding to be covered by the
+    signed bytes so it cannot be attached afterwards. **The direction matters and
+    the finding's phrasing would have inverted it.** The pinned
+    `openxwallet-subject-attestation` contract closes `resolution.resolved_by` to
+    `subject_ref` precisely so that a record cannot declare it resolves a subject
+    THROUGH a wallet — the ratified rule that a wallet identifier never becomes a
+    subject identifier. So the wallet reference is checked as an ATTESTATION and
+    never used to resolve who the actor is, and R1 says so in as many words.
+
 ## Risks that survive
 
 1. **A capability that governs nothing until its reader ships.** Accepted under

@@ -60,11 +60,14 @@ quietly answered by an implementer.
 
 - [ ] 2.1 `contracts/signed-execution-chain/` — ONE record kind,
       `xfactory_execution_chain_link`, carrying: the chain identity; the link's
-      ordinal and kind — the chain identity carried ALGORITHM-TAGGED, since R3
-      requires every reader to compute it and an untagged digest cannot be
-      checked across readers; the predecessor link digest (absent exactly on the
-      genesis link); a reference to the `xfactory_wallet_grant_exercise` by `exercise_id`;
-      the actor as `identity-brokering`'s stable opaque subject; the signature
+      ordinal and kind — EVERY digest the record carries computed under the one
+      construction R3 puts in force and carried ALGORITHM-TAGGED, the chain
+      identity and the predecessor digest alike, since R3 requires every reader
+      to compute them and an untagged digest cannot be checked across readers;
+      the predecessor link digest (absent exactly on the genesis link); a reference to the `xfactory_wallet_grant_exercise` by `exercise_id`;
+      the actor as `identity-brokering`'s stable opaque subject, WITH the wallet
+      attestation R1 requires that subject to carry, so the recorded actor is
+      checkable against the wallet that actually signed; the signature
       block naming what the signature covers — the ratification's subject AND the
       chain-enrollment declaration for a genesis link, the chain identity AND the
       predecessor digest for a successor; and the evidence-plane leaf reference.
@@ -81,9 +84,13 @@ quietly answered by an implementer.
       missing PROOF, never a missing grant); signature present and failing
       verification, recorded distinctly from no signature at all; unattributed
       act reaching its surface through a shared credential; grant revoked, or
-      derived from a revoked ancestor, before exercise; and a ratification
-      offered under standing authority with no wallet, which begins NO chain
-      rather than a weaker one.
+      derived from a revoked ancestor, before exercise; a ratification offered
+      under standing authority with no wallet, which begins NO chain rather than
+      a weaker one; and the ACTOR-BINDING pair — a link whose well-formed opaque
+      subject attests a DIFFERENT wallet than the one whose key made the
+      exercise, and a link whose subject attests no wallet at all. Both are cases
+      where every other check passes and the act is recorded as another persona's,
+      which is why neither can be left to the exercise fixture.
       **R2 — the bind-before-sign pair, and the invariant fails silently without
       both:** a chain-enrollment declaration recorded OUTSIDE the bytes the
       ratifier signed, and a genesis link whose named ratifying exercise does not
@@ -93,9 +100,12 @@ quietly answered by an implementer.
       left implicit.
       **R3:** a link claiming a chain identity that is not the digest of the
       signed ratification it carries; a ratification whose signed bytes carry no
-      value unique to the ratifying act; and a link tagged with a digest
-      construction other than the one the contract declares in force, which must
-      be refused rather than re-computed under the reader's default. Plus one
+      value unique to the ratifying act; a ratification REUSING a per-act value
+      already recorded against a chain, which the pinned exercise schema does not
+      prevent and this capability therefore must; and — for EACH digest the record
+      carries, the chain identity AND the predecessor digest — one tagged with a
+      construction other than the one in force, which must be refused rather than
+      re-computed under the reader's default. Plus one
       POSITIVE fixture the others cannot stand in for: two ratifications of an
       IDENTICAL subject and declaration yielding two DISTINCT chain identities,
       which is the property R3 promises and which a deterministic signature
@@ -126,8 +136,18 @@ quietly answered by an implementer.
       added to the delta later cannot ship with neither a fixture nor a rule.
 - [ ] 2.4a Declare the ONE digest construction in force — algorithm plus the
       canonical byte encoding it is computed over — in the contract, not in the
-      spec, per R3. One fact, one place; the spec states the obligation and the
-      contract names the value.
+      spec, per R3. It governs EVERY digest the family computes: the chain
+      identity, the predecessor-link digest, and any digest a later tranche adds.
+      One fact, one place; the spec states the obligation and the contract names
+      the value. Declared ONCE and not per digest, because the review round that
+      found the predecessor digest uncovered was the second appearance of a single
+      defect and a second rule beside the first would invite a third.
+- [ ] 2.4b Enforce per-act value UNIQUENESS in the validator — refuse a
+      ratification whose per-act value is already recorded against a chain. This
+      obligation is this capability's and not the wallet's: the pinned exercise
+      schema validates that field as a generic identifier and constrains nothing
+      about reuse, so relying on it would be assuming an obligation a consumed
+      contract does not carry.
 - [ ] 2.4 Register the family in `contracts/manifest.yaml` and
       `contracts/CHANGELOG.md` at the next additive bundle cut. The train is at
       `contract-v2.1` (declared at `contracts/manifest.yaml:3`, cut and tagged

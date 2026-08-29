@@ -46,6 +46,21 @@ OWES the root issuer a wallet before any ratification that authority performs ca
 be enrolled, and until it holds one this capability governs that ratifier's acts
 not at all rather than governing them weakly.
 
+THE ACTOR A CHAIN RECORDS SHALL BE BOUND TO THE WALLET THAT SIGNED. The chain
+records its actor as `identity-brokering`'s stable opaque subject; that subject
+SHALL carry a wallet attestation naming the wallet whose key made the exercise
+the chain descends from, the chain SHALL check that the two agree, and the
+binding SHALL be covered by the signed bytes so it cannot be attached
+afterwards. A link whose subject is well-formed and whose exercise is valid, but
+whose subject attests no wallet or attests a different one, SHALL be refused —
+without this, a valid ratification by one holder can be recorded as the act of
+another persona and every other check still passes.
+
+The DIRECTION of that binding is fixed by the pinned contract and this
+capability does not reverse it: a subject is resolved by its own identifier and
+never through a wallet, so the wallet reference is checked as an ATTESTATION and
+is never used to resolve who the actor is.
+
 #### Scenario: A grant is presented without proof of possession
 
 - **WHEN** a ratification offers a grant with no signature over the request from the audience wallet
@@ -69,6 +84,17 @@ not at all rather than governing them weakly.
 - **WHEN** the grant, an ancestor of it, or the holder's standing was revoked before the ratifying exercise
 - **THEN** the exercise is refused and no chain begins
 - **AND** issuance-time validity is not accepted as evidence of current validity
+
+#### Scenario: The recorded actor is not the holder that signed
+
+- **WHEN** a link names a well-formed opaque subject and references a valid exercise, but that subject attests a different wallet than the one whose key made the exercise
+- **THEN** the link is refused
+- **AND** the validity of the exercise does not admit it, because the exercise proves who signed and not whom the act is recorded as
+
+#### Scenario: The recorded actor attests no wallet at all
+
+- **WHEN** a link's actor subject carries no wallet attestation
+- **THEN** the link is refused rather than accepted on the strength of the exercise alone
 
 #### Scenario: The only available ratifier holds no wallet
 
@@ -151,16 +177,31 @@ same signature, so the NEW CHAIN the paragraph above promises would silently be
 the old one. A ratification whose signed bytes carry no such value SHALL be
 refused rather than enrolled under whichever identity they happen to produce.
 
+NAMING THE VALUE IS NOT ENOUGH; ITS UNIQUENESS SHALL BE ENFORCED. The pinned
+exercise schema validates its identifier as a generic identifier and constrains
+nothing about reuse, so a producer that reuses one while re-ratifying the same
+subject and declaration reproduces identical bytes and the collision returns. A
+per-act value SHALL therefore be refused where it has already been recorded
+against a chain, and this capability SHALL NOT rely on the pinned schema to
+prevent the reuse: an obligation a consumed contract does not carry is this
+capability's to enforce or to declare as a dependency, never to assume.
+
 EXACTLY ONE DIGEST CONSTRUCTION SHALL BE IN FORCE at a time, declared in the
 contract that realizes this capability, naming both the digest algorithm and the
-canonical byte encoding it is computed over; and every chain identity SHALL be
-carried ALGORITHM-TAGGED so a reader can tell which construction produced it.
-This capability states the obligation and does not name the algorithm — that is
-the contract's to name, and naming it here would put one fact in two places. A
-link whose tag names a construction not in force SHALL be refused, and a reader
-SHALL NOT re-compute an identity under its own default, because two conforming
-readers choosing different digests would derive different identities from one
-ratification and neither could verify the other's chain.
+canonical byte encoding it is computed over. It SHALL govern EVERY digest this
+capability computes — the chain identity, the predecessor-link digest R4 binds,
+and any digest a later tranche adds — and every such digest SHALL be carried
+ALGORITHM-TAGGED so a reader can tell which construction produced it. The rule is
+written once and over all of them deliberately: it was first drafted for the
+chain identity alone, and the review round that found the predecessor digest
+uncovered is the second appearance of one defect, which this capability answers
+by UNIFYING rather than by adding a second rule beside the first. This capability
+states the obligation and does not name the algorithm — that is the contract's to
+name, and naming it here would put one fact in two places. A digest whose tag
+names a construction not in force SHALL be refused, and a reader SHALL NOT
+re-compute it under its own default, because two conforming readers choosing
+different digests would derive different values from the same bytes and neither
+could verify the other's chain.
 
 #### Scenario: The same signed bytes are recorded twice
 
@@ -191,6 +232,12 @@ ratification and neither could verify the other's chain.
 - **WHEN** a ratification's signed bytes carry no value unique to the ratifying act
 - **THEN** it is refused rather than enrolled under whichever identity those bytes happen to produce
 
+#### Scenario: A per-act value is reused
+
+- **WHEN** a ratification's per-act value has already been recorded against a chain
+- **THEN** the ratification is refused
+- **AND** the refusal is this capability's, because the pinned schema validates that field as a generic identifier and constrains nothing about reuse
+
 #### Scenario: A link is tagged with a construction not in force
 
 - **WHEN** a link carries a chain identity tagged with a digest construction other than the one the contract declares in force
@@ -201,8 +248,9 @@ ratification and neither could verify the other's chain.
 
 Every link of a signed execution chain after the genesis link SHALL cover, WITHIN
 the bytes it signs, both the chain identity and the digest of the link that
-immediately precedes it, so that a chain is hash-linked rather than a collection
-of signatures about the same subject. A verifier SHALL check that continuity and
+immediately precedes it — each computed under the ONE digest construction R3 puts
+in force and carried algorithm-tagged, so that a chain is hash-linked rather than
+a collection of signatures about the same subject. A verifier SHALL check that continuity and
 not merely the presence of the required signatures: individually valid links
 produced by DIFFERENT executions SHALL NOT assemble into one chain, and a link
 whose own signature verifies but which does not bind the chain identity and its

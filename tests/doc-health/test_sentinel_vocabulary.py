@@ -906,17 +906,30 @@ def test_the_pin_counts_did_not_move_and_no_site_is_classified_twice():
     network. What it does assert is the separation the design turns on — the
     commit path and the classification path never see the same site."""
     report = pc.verify(REPO_ROOT, allow_remote=False)
-    # 67, not the 66 this census landed with. A `proposal-support.py transition`
-    # writes a `supporting-docs/manifest.yaml` carrying a `source_revision`, and
-    # that key is a declared `proposal-support-manifest` pin site — so EVERY full
-    # promotion moves this number by one, by design. The 67th is
-    # `add-worker-enrollment-broker`'s, written when the `worker-enrollment-broker`
-    # topic was promoted in full. Only the SITE count moves: the member count is
-    # unchanged because the class already had 24 other manifests in it, and
-    # `lost`/`uncovered`/`vanished`/`arrived` are untouched. Note this test cannot
-    # see an uncommitted manifest — `pc.verify` reads the committed tree — so a
-    # promotion's own pre-commit run passes and CI is where the count lands.
-    assert len(report.results) == 67
+    # 68, not the 66 this census landed with. A `supporting-docs/manifest.yaml`
+    # carries a `source_revision`, and that key is a declared
+    # `proposal-support-manifest` pin site — so EVERY manifest written moves this
+    # number by one, by design. The 67th is `add-worker-enrollment-broker`'s,
+    # written when the `worker-enrollment-broker` topic was promoted in full.
+    #
+    # THE 68TH IS THE FIRST THAT NO PROMOTION PRODUCED, and the distinction is
+    # worth the two lines because the comment above used to say "every full
+    # promotion" as though promotion were the only writer.
+    # `add-signed-execution-chain` is tranche ONE of a three-tranche staged topic
+    # whose remaining two tranches need both staged documents, so it selected
+    # ZERO files and its manifest carries an empty `files` list. It exists
+    # anyway, because `release-realization`'s "Origin retention at archive"
+    # scenario expects a staged origin's readable support manifest to carry the
+    # identical origin id and path, and a packet with no manifest gives that gate
+    # nothing to read. A zero-selection manifest still pins a `source_revision`,
+    # so it still lands here.
+    #
+    # Only the SITE count moves: the member count is unchanged because the class
+    # already had other manifests in it, and `lost`/`uncovered`/`vanished`/
+    # `arrived` are untouched. Note this test cannot see an uncommitted manifest —
+    # `pc.verify` reads the committed tree — so a packet's own pre-commit run
+    # passes and CI is where the count lands.
+    assert len(report.results) == 68
     assert len({r.site.member_id for r in report.results}) == 23
     assert len(report.lost) == 1
     assert len(report.lost_awaiting_record) == 0
