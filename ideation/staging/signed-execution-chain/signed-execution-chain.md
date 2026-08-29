@@ -168,7 +168,7 @@ it is told.
 
 **The mechanism is now named: remote signing served by the controller.** Brett
 ruled Q7 on 2026-08-29 as recommended. The runner submits the payload it wants
-attested to a signing service the HARNESS CONTROLLER serves, and the runner's
+attested to a signing service that the HARNESS CONTROLLER serves, and the runner's
 signing REQUEST is recorded alongside the signature it received — so the chain
 shows both what was attested and who asked for the attestation, which a bare
 signature does not. A hardware-backed signer (HSM) is a later HARDENING of that
@@ -591,11 +591,14 @@ Explanation: The question is answered on evidence, and the answer changed the
 Disposition status: ruled 2026-08-29 in TWO ROUNDS — Brett Heap, in session;
   **DIVERGES from the recommendation above**
 Disposition, ROUND 1 (2026-08-29, RULED BY BRETT HEAP — his text verbatim):
-  "lets use Kaspa as primary and bitcoin as secondary". That INVERTS the study's
-  ordering. It is recorded verbatim, before the cost facts were put to him,
-  because a two-round ruling is only honest if the first round survives inside
-  it — a record that shows only the final answer hides what the answer was
-  reached against.
+  "lets [sic] use Kaspa as primary and bitcoin as secondary". That INVERTS the
+  study's ordering. It is recorded verbatim, before the cost facts were put to
+  him, because a two-round ruling is only honest if the first round survives
+  inside it — a record that shows only the final answer hides what the answer
+  was reached against. The bracketed [sic] marks his spelling, and the lowercase
+  "bitcoin" is his too: both are preserved because a verbatim record that tidies
+  its subject's typing has stopped being verbatim, and the brackets are what
+  keep the tidying visible instead of silent.
 Cost facts put to him between the rounds (2026-08-27 prices, from the vendored
   study): Kaspa ~$0.000001 per transaction; Bitcoin via OpenTimestamps $0
   marginal per item on public calendars, or ~$2.1k/yr for a self-run hourly
