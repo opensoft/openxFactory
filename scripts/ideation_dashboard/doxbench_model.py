@@ -107,8 +107,14 @@ CAPABILITY_ENTRY_FIELDS: tuple[str, ...] = (
 )
 
 # Every key any public dict this module produces may hold, in projection order.
-# Nothing outside this tuple may ever appear. The base seven stay a PREFIX, so
-# each optional group is an append rather than a reshuffle.
+# Nothing outside this tuple may ever appear.
+#
+# THE BASE SEVEN STAY A PREFIX. That is the property callers rely on, and it is
+# the one asserted; the capability group was INSERTED between the base seven and
+# the routing three rather than appended after them, so the routing keys did
+# move within this tuple. Nothing indexes it, and each optional group is still
+# emitted only by an entry that declares it, so a plain entry's projection is
+# unchanged either way.
 DECLARABLE_ENTRY_FIELDS: tuple[str, ...] = (
     PUBLIC_ENTRY_FIELDS + CAPABILITY_ENTRY_FIELDS + ROUTING_ENTRY_FIELDS
 )

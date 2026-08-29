@@ -75,13 +75,25 @@ rather than a fixture being made to fit:
 
 ## §1.1 — why the schema, not only the type, requires `text`
 
-`minItems: 1` plus an item enum accepts `modalities: [image]`. The type and the
-standalone validator both refuse that instance, so a schema-only consumer would
-have treated as conformant a catalog every other gate rejects — the WIRE GATE
-THE WEAKEST ONE, in the release whose second requirement is about that
-divergence pointing the other way. `contains: {const: text}` is what closes it,
-and `negative/workbench-model-catalog-modality-image-only.negative.yaml` is the
+`minItems: 1` plus an item enum accepts `modalities: [image]`. The catalog TYPE
+refuses that instance, so a schema-only consumer would have treated as
+conformant a catalog the type rejects — the WIRE GATE THE WEAKEST ONE, in the
+release whose second requirement is about that divergence pointing the other
+way. `contains: {const: text}` is what closes it, and
+`negative/workbench-model-catalog-modality-image-only.negative.yaml` is the
 packaged proof that the shape itself refuses it.
+
+A CORRECTION TO THE TASK'S OWN PHRASING, kept because the fix depends on it.
+§1.1 says such an instance is one "the type and the standalone validator both
+reject". The standalone validator does NOT reject it independently: the modality
+rules are all expressible in the shape, so the validator refuses by APPLYING
+these bytes and has no rule of its own to fall back on. R7 below is the
+measurement — removing `contains` sends the packaged validator to `1 error(s)`
+*because the image-only negative stops being refused*. The clause is still
+right, and its reason is "the type refuses alone", not "every other gate
+refuses". Written this way in the schema comment, the CHANGELOG, the negative
+example and the pinning test, so the five spellings agree with the measurement
+rather than with each other.
 
 ## §2.1b — the wire projection, proved at the route
 

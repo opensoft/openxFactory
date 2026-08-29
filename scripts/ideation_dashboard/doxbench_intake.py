@@ -29,9 +29,12 @@ contract-v1.38 and the input-modality declaration at contract-v2.2 — and this
 paragraph's claim is that THIS module widens nothing, which is unchanged by
 either. Proposed-versus-
 approved is a SERVER-SIDE distinction and a pending declaration is simply not in
-the catalog, so neither released shape gains a field and neither needs a release
-act. The declaration is a SECOND record beside the binding, not a tenth field on
-it.
+the catalog, so NEITHER SHAPE GAINS A FIELD FROM THIS MODULE and this module
+needs no release act. (Both statements are scoped to this module deliberately.
+The catalog shape HAS gained fields — by the governing releases named above —
+and each of those was a release act; what has never happened, and is what this
+paragraph promises, is this module widening either shape.) The declaration is a
+SECOND record beside the binding, not a tenth field on it.
 
 WHY PENDING-NESS IS A DECLARED FACT AND NOT A DEFAULT. A binding this document
 says nothing about is UNAFFECTED: it resolves exactly as it resolved before this

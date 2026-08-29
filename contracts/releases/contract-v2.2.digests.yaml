@@ -10,7 +10,7 @@ entries:
   path: contracts/CHANGELOG.md
   type: changelog
   git_mode: '100644'
-  digest: sha256:57c81fb1c551ea5eabaa958ed10642fbc688df68480789ca16e8a706ebe0d5a3
+  digest: sha256:5a7bd5ea98e7f96ec3d23ec557533a094b7a54f0e0d7a55420ce8c181741ddf2
 - artifact_id: contracts-readme.md
   path: contracts/README.md
   type: documentation
@@ -824,7 +824,7 @@ entries:
   path: contracts/manifest.yaml
   type: manifest
   git_mode: '100644'
-  digest: sha256:8575235ddc0554d6db34c799e353b314d5e766bec38d9db0fc871a862a82da17
+  digest: sha256:7fee3b8f3dcbf5b3fa6b7b2745075ade5133e1a5327022461bf024bd31737bf5
 - artifact_id: contracts-releases-release-digest-inventory.schema.yaml
   path: contracts/releases/release-digest-inventory.schema.yaml
   type: schema
@@ -864,7 +864,7 @@ entries:
   git_mode: '100644'
   schema_id: xfactory-workbench-model-catalog
   schema_version: 1
-  digest: sha256:afa7de17ed7323d11c08e5e266dfe32d5ebc426e06520300387ee8e5b0cfb125
+  digest: sha256:e563cc9fc6ede03dfd62537935d0ae0842617d7de46702aee6ad9026aa021635
 - artifact_id: worker-enrollment-audit-record
   path: contracts/worker-enrollment/worker-enrollment-audit-record.schema.yaml
   type: release-schema

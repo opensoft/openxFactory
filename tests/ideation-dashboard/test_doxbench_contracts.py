@@ -74,7 +74,7 @@ RELEASED_REF = "unpublished:contract-v2.2"
 RELEASED_TAG = "contract-v2.2"
 RELEASED_DIGESTS = {
     CATALOG_SCHEMA_FILE:
-        "afa7de17ed7323d11c08e5e266dfe32d5ebc426e06520300387ee8e5b0cfb125",
+        "e563cc9fc6ede03dfd62537935d0ae0842617d7de46702aee6ad9026aa021635",
     CHAT_TURN_SCHEMA_FILE:
         "2ff5f222af5cdccd545417203898a919be0365cdd0d2d5138e87e23f7ebfe1cf",
 }
@@ -923,8 +923,12 @@ def test_the_closed_modality_vocabulary_is_pinned_to_the_RELEASED_schema(
 
     `contains: {const: text}` is asserted here as well as the enum, because it
     is the clause that keeps the WIRE GATE from being the weakest one: without
-    it the shape accepts `modalities: [image]`, which the type and the delegated
-    validator both refuse."""
+    it the shape accepts `modalities: [image]`, which the catalog TYPE refuses.
+
+    NOT "which the type and the validator both refuse" — the delegated validator
+    restates no modality rule, so it refuses that instance by applying these
+    very bytes. This clause is the whole file-side refusal, which is why it is
+    pinned rather than assumed."""
     from ideation_dashboard.doxbench_model import (
         CATALOG_MODALITIES, REQUIRED_MODALITY)
     modalities = _model_entry_subschema(released_root)["properties"]["modalities"]
@@ -950,9 +954,19 @@ def test_EVERY_string_bound_the_released_schema_declares_is_enforced_at_construc
     value through the real construction gate for each. A future release that
     bounds a new string field in the schema and forgets the type fails HERE.
 
-    `resolved_model_id` and `routes_to`'s items are id-bearing and only
-    constructible on a routing rule, so they are driven through a rule; every
-    other bounded string is driven on a plain entry."""
+    SCOPE, stated so the docstring does not claim more than the code drives:
+    this walks the TOP-LEVEL string properties of `$defs/model_entry`. A bound
+    added later under an array's `items` — the shape `routes_to` already has —
+    or inside a nested object would not be reached. What IS airtight is the hard
+    `assert set(bounded) == {…}` below: a new top-level bounded string cannot be
+    added to the schema without failing here, which is the case this proof
+    exists for. (`routes_to`'s own members ARE enforced, at
+    `_validate_routing_declaration`; they are simply not driven by this test.)
+
+    `resolved_model_id` is id-bearing and only constructible on a routing rule,
+    so it is driven through one; every other bounded string is driven on a plain
+    entry. Its refusal is raised BEFORE the `resolved_model_id not in
+    routes_to` membership check, so this drives the bound and not that rule."""
     from ideation_dashboard.doxbench_model import (
         InvalidCatalogEntryError, ModelCatalogEntry)
 

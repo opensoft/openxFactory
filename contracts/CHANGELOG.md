@@ -59,10 +59,20 @@ Unreleased block was pending, and `contract-v2.1` is the published tip.
 
 `minItems` plus an item enum does NOT encode required `text` membership. Without
 the `contains` clause the shape would have accepted `modalities: [image]` — an
-instance the type and the standalone validator both refuse — so a schema-only
-consumer would have treated as conformant a catalog every other gate rejects.
-THE WIRE GATE MUST NOT BE THE WEAKEST ONE, which is the very divergence class
-this release's second requirement closes pointing the other way.
+instance the catalog TYPE refuses — so a schema-only consumer would have treated
+as conformant a catalog the type rejects. THE WIRE GATE MUST NOT BE THE WEAKEST
+ONE, which is the very divergence class this release's second requirement closes
+pointing the other way.
+
+**THE TYPE IS THE ONLY OTHER GATE**, stated precisely because the obvious
+phrasing overstates it. The ratified task says such an instance is one "the type
+and the standalone validator both refuse"; that is not so, and this release's own
+measurement is what shows it. The delegated validator does not restate the
+modality rules — all three are expressible in the shape — so it refuses
+`modalities: [image]` BY APPLYING THESE BYTES, and the revert that removes
+`contains` sends the packaged validator to `1 error(s)` precisely because the
+image-only negative STOPS being refused. So in the counterfactual the type
+refuses alone, which is reason enough for the clause and is the honest reason.
 
 ### Absence is not a claim, in either direction
 
@@ -137,8 +147,25 @@ is a DEFECT IN THE REQUIREMENT rather than an accepted residue. A test that
 enumerated four names could not see a fifth bound added later, so the proof
 walks the released `$defs/model_entry`, collects every string property carrying
 a `maxLength` or `pattern`, and drives a violating value through the real
-construction gate for each. A future release that bounds a new string field and
-forgets the type fails there.
+construction gate for each.
+
+ITS REACH, STATED EXACTLY rather than rounded up: it walks the TOP-LEVEL string
+properties of the entry, and it holds the set of them to a hard equality — so a
+future release that adds a bounded top-level string and forgets the type fails
+there. A bound added under an ARRAY'S `items` (the shape `routes_to` already
+has) or inside a nested object is outside its walk and would still need a
+reader. That is the honest boundary of the guarantee.
+
+**ONE PLACE THE TWO GATES DIFFER, and it is the type being STRICTER.** The
+requirement asks that the type refuse everything the schema refuses; it does.
+The reverse does not quite hold: `label`, `provider_class` and `data_handling`
+keep the blankness refusal they have always had, so a whitespace-only value is
+refused at construction while the released schema — `minLength: 1`, no pattern —
+accepts it. That predates this release and is deliberately not softened: the
+length bound is ADDED to the blankness check rather than substituted for it, and
+a tightening removed to make a symmetry claim tidier would be a regression
+dressed as parity. Recorded so "exact parity" is read as the requirement states
+it, in one direction.
 
 ### What this release does NOT do
 
@@ -181,7 +208,7 @@ it actually makes — that THIS module widens nothing — survives the next grow
 
 codexFactory pins this schema by digest. The growth is additive and a consumer
 may ignore the field entirely, but the digest moves from
-`sha256:dff513fa…` to `sha256:afa7de17…` and the pin moves with it. Updating it
+`sha256:dff513fa…` to `sha256:e563cc9f…` and the pin moves with it. Updating it
 is codexFactory's own governed act under the domain upgrade runbook; no file in
 that repository is touched here, and this entry is the notice.
 

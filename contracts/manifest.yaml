@@ -1602,7 +1602,7 @@ contracts:
     source_path: openxFactory/contracts/schemas/xfactory-workbench-model-catalog.schema.yaml
     type: schema
     schema_version: 1
-    sha256: afa7de17ed7323d11c08e5e266dfe32d5ebc426e06520300387ee8e5b0cfb125
+    sha256: e563cc9fc6ede03dfd62537935d0ae0842617d7de46702aee6ad9026aa021635
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-

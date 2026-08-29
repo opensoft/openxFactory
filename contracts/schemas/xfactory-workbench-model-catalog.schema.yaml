@@ -121,10 +121,17 @@ $defs:
       #
       # `contains: {const: text}` is load-bearing and is NOT redundant with
       # `minItems`: without it this shape would accept `modalities: [image]`,
-      # which the type and the delegated validator both refuse, leaving the
-      # WIRE GATE THE WEAKEST ONE — the very divergence class this release
-      # closes in the other direction. A chat turn always carries text, so a
-      # model that cannot accept text is not routable here at all.
+      # which the catalog TYPE refuses, leaving the WIRE GATE THE WEAKEST ONE —
+      # the very divergence class this release closes in the other direction.
+      # A chat turn always carries text, so a model that cannot accept text is
+      # not routable here at all.
+      #
+      # THE TYPE IS THE ONLY OTHER GATE, and that is worth stating exactly. The
+      # delegated validator does NOT restate the modality rules — they are all
+      # expressible here, so it enforces them BY APPLYING THESE BYTES. This
+      # clause is therefore the whole of the file-side refusal, not a second
+      # opinion beside one: remove it and the packaged image-only negative
+      # stops being refused at all.
       #
       # No `maxItems`: `uniqueItems` over a two-member closed enum already
       # bounds the array at two, and a `maxItems` literal would be a second

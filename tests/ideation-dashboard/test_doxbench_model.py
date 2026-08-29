@@ -1235,8 +1235,10 @@ def test_the_field_tuples_are_the_base_seven_then_the_optional_groups():
     assert CAPABILITY_ENTRY_FIELDS == ("modalities",)
     assert DECLARABLE_ENTRY_FIELDS == (
         PUBLIC_ENTRY_FIELDS + CAPABILITY_ENTRY_FIELDS + ROUTING_ENTRY_FIELDS)
-    # The base seven are a PREFIX of the declarable set, which is what makes
-    # each optional group's projection an append rather than a reshuffle.
+    # The base seven are a PREFIX of the declarable set — the property callers
+    # rely on. The capability group was INSERTED before the routing three
+    # rather than appended after them, so the routing keys moved within this
+    # tuple; nothing indexes it, and a plain entry's projection is unchanged.
     assert DECLARABLE_ENTRY_FIELDS[:len(PUBLIC_ENTRY_FIELDS)] == PUBLIC_ENTRY_FIELDS
     # No key appears twice, so the projection order is a total order.
     assert len(set(DECLARABLE_ENTRY_FIELDS)) == len(DECLARABLE_ENTRY_FIELDS)
