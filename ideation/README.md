@@ -309,6 +309,35 @@ staged file is added, removed, or promoted.
 
 Active proposals promoted from staging:
 
+- [add-subject-establishment](../openspec/changes/add-subject-establishment/proposal.md)
+  — raised 2026-08-28 as the FULL promotion of the `subject-establishment`
+  staged topic, whose row and detail section leave
+  [staging/INDEX.md](staging/INDEX.md) with this pointer. The topic took its
+  OWN declared exit path: both of its stated gates had cleared — the
+  LedgerxFactory first instantiation reached proposal and archived on
+  2026-08-04, and codexFactory new-project was decided as the second consumer
+  on 2026-07-28 — and Brett's ruling of 2026-08-28, verbatim "Progress both",
+  is the instruction that raised the exit. It ADDS the NEW neutral
+  `subject-establishment` capability in eleven requirements: the ordered
+  pipeline over two artifact kinds (neutral subject design, platform
+  realization), provenance-graded facts, a vendor-free design and a
+  one-system-per-realization overlay, the reference-archetype lifecycle whose
+  harvest never invalidates a subject retroactively, conformance tiering
+  expressed as `roles-authority-model`'s ratified route/park/interrupt ladder,
+  the cross-factory apply seam riding `deployment-handoff-boundary`'s
+  client-infrastructure-request crossing rather than a new record kind,
+  verify-by-read-back with pre-authorization probes refused by name, the two
+  authority classes that never share a grant, the audit-lift mirror, and layer
+  ownership without a storage rule. Registered as DTN-017, whose register row
+  moves `staged` → `openspec` in the same commit. Owns the single staged
+  fragment (`subject-establishment.md`) under `supporting-docs/`.
+  `Status: ratified` with `code_surface: none` and `target_release: none` —
+  but it does NOT archive on landing: six orchestrator decisions are flagged
+  for veto and six open questions carry recommendations and no decisions, and
+  the archive gate is merge plus green PLUS that ruling round. The two artifact
+  kinds' SCHEMAS are deliberately absent and named as the successor
+  `add-subject-establishment-contracts` (OD-1, against a live counter-precedent
+  from the same day).
 - [qualify-avatar-live-voice](../openspec/changes/qualify-avatar-live-voice/proposal.md)
   — raised 2026-08-26 as the FULL promotion of the
   `qualify-avatar-live-voice` staged topic, whose row and detail section
