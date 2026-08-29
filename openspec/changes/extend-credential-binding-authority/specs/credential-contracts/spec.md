@@ -204,6 +204,14 @@ none of the three fields is adjudicated exactly as before, because every
 condition of the exemption is a positive declaration that such a record does not
 make. The exemption is opened by saying more, never by saying nothing.
 
+THE EXEMPTION IS NEVER DECIDED ON AN INDETERMINATE QUALIFICATION, and this
+follows from the grouping rather than needing a rule of its own. Members of a
+group share the qualified secret key, so their `provider` and `vault` are equal
+by construction; the qualified identity comparison inside that group therefore
+reduces to the identity name alone and can never be indeterminate. A reader
+checking whether a record could claim the exemption while its authority
+distinctness is merely unestablished will find that it cannot.
+
 THE SECRET COMPARISON IS QUALIFIED ON THE SAME TERMS AS THE IDENTITY COMPARISON,
 and unifying them is deliberate rather than incidental. `secret_ref` is a name in
 a vault exactly as `fetch_identity` is a name in a provider's identity namespace,
