@@ -26,11 +26,20 @@ quietly answered by an implementer.
 - [x] 1.2 NO MODIFIED delta on any existing capability — a decision recorded at
       design D7 with its three grounds, not an omission. The openxFactory
       lifecycle binding is task 3.3, performed when the reader exists.
-- [x] 1.3 NO staged file moves. Partial promotion of ZERO files: both documents
-      in `ideation/staging/signed-execution-chain/` stay staged for tranches two
-      and three. The primary fragment gains the `Staging ID:` header the origin
+- [x] 1.3 NO staged file moves, WITH the support manifest written anyway. Partial
+      promotion of ZERO files: both documents in
+      `ideation/staging/signed-execution-chain/` stay staged for tranches two and
+      three. The primary fragment gains the `Staging ID:` header the origin
       contract requires at the proposal transition; the vendored
-      `chain-selection-study.md` is not edited at all.
+      `chain-selection-study.md` is not edited at all. The packet nonetheless owns
+      `supporting-docs/manifest.yaml` recording zero selected files, both
+      remaining staged paths, the source revision, and the repeated origin — so
+      the provenance a staged origin owes exists, and the archive gate's
+      staged-origin scenario (`release-realization`, "Origin retention at
+      archive"), which expects a readable support manifest carrying the identical
+      origin id and path, has something to read. Raised by Codex on PR #494 and
+      taken in that narrowed form; `proposal-support.py verify
+      add-signed-execution-chain` passes.
 - [x] 1.4 `ideation/staging/INDEX.md` — the topic's row and detail section record
       that tranche one was raised and that tranches two and three stay staged,
       in this packet's own commit.
@@ -46,29 +55,60 @@ quietly answered by an implementer.
 - [ ] 2.1 `contracts/signed-execution-chain/` — ONE record kind,
       `xfactory_execution_chain_link`, carrying: the chain identity; the link's
       ordinal and kind; the predecessor link digest (absent exactly on the genesis
-      link); the declared chain ORIGIN (`wallet_exercise` | `standing_authority`,
-      per R1); a reference to the `xfactory_wallet_grant_exercise` by
-      `exercise_id` for a `wallet_exercise` origin; the actor as
-      `identity-brokering`'s stable opaque subject; the signature block naming
-      what the signature covers; and the evidence-plane leaf reference. **No field
-      is added to any openXwallet schema** (design D4) — the wallet family is
+      link); a reference to the `xfactory_wallet_grant_exercise` by `exercise_id`;
+      the actor as `identity-brokering`'s stable opaque subject; the signature
+      block naming what the signature covers — the ratification's subject AND the
+      chain-enrollment declaration for a genesis link, the chain identity AND the
+      predecessor digest for a successor; and the evidence-plane leaf reference.
+      **No field is added to any openXwallet schema** (design D4) — the wallet family is
       consumed at `wallet-v1.3` through `contracts/openxwallet-pin.yaml`, its
       exercise schema is `additionalProperties: false`, and an extension there is
       a publisher-side change plus a pin bump.
 - [ ] 2.2 Packaged conformance examples: a positive genesis link; a positive
-      successor link; and one NEGATIVE fixture per named refusal — grant presented
-      without proof of possession; signature present and failing verification
-      (distinct from no signature at all); unattributed act reaching its surface
-      through a shared credential; grant revoked before exercise; second genesis
-      link under an existing chain identity; successor link signing neither the
-      chain identity nor its predecessor; links from different executions offered
-      as one chain; carried copy not reproducing its chain identity; a chain link
-      carrying its own actor identifier instead of the opaque subject; a leaf
-      rewritten in place rather than superseded; and an undeclared chain origin
-      offered for a signature-rooted assurance.
+      successor link; and one NEGATIVE fixture per named refusal. The set is
+      enumerated because task 2.3 requires the validator to reject exactly what
+      this task packages — a refusal named in a requirement and absent from this
+      list is a refusal realization can complete without ever implementing.
+      **R1:** grant presented without proof of possession (the refusal names the
+      missing PROOF, never a missing grant); signature present and failing
+      verification, recorded distinctly from no signature at all; unattributed
+      act reaching its surface through a shared credential; grant revoked, or
+      derived from a revoked ancestor, before exercise; and a ratification
+      offered under standing authority with no wallet, which begins NO chain
+      rather than a weaker one.
+      **R2 — the bind-before-sign pair, and the invariant fails silently without
+      both:** a chain-enrollment declaration recorded OUTSIDE the bytes the
+      ratifier signed, and a genesis link whose named ratifying exercise does not
+      resolve or does not verify. A validator that accepts an unsigned enrollment
+      declaration has defeated the one-signed-handshake invariant while every
+      other fixture still passes, which is why this pair is named rather than
+      left implicit.
+      **R3:** a link claiming a chain identity that is not the digest of the
+      signed ratification it carries.
+      **R4:** a successor link signing neither the chain identity nor its
+      predecessor's digest despite its own signature verifying; links from
+      DIFFERENT executions offered as one chain; and a FORK — two links binding
+      the same predecessor under the same chain identity, each with a verifying
+      signature, which must be refused rather than resolved.
+      **R5:** a carried copy whose bytes do not reproduce the chain identity they
+      claim.
+      **R6 — a truncated chain is the case a signature-only validator passes:**
+      a correctly signed but SHORT chain, supplying fewer links than the declared
+      expectation requires at that point, which must read as MISSING rather than
+      as complete; and a consumer holding NO declared expectation, which must
+      refuse rather than accept whatever it was handed. Neither is a link that is
+      malformed — every link present is valid — which is exactly why both need
+      their own fixtures.
+      **R7:** a leaf rewritten in place rather than superseded by a new leaf
+      naming it.
+      **R8:** a chain link carrying its own actor identifier instead of the
+      broker-issued stable opaque subject.
 - [ ] 2.3 `scripts/validate-signed-execution-chain.py` — reads the family, refuses
-      every fixture in 2.2, and refuses a chain it cannot evaluate rather than
-      passing it (R6).
+      every fixture in 2.2, refuses a chain it cannot evaluate rather than passing
+      it, and refuses when it holds no declared expectation of the links required
+      at that point (R6). A test SHALL assert that the fixture set and the
+      validator's refusal codes stand in one-to-one correspondence, so a refusal
+      added to the delta later cannot ship with neither a fixture nor a rule.
 - [ ] 2.4 Register the family in `contracts/manifest.yaml` and
       `contracts/CHANGELOG.md` at the next additive bundle cut. The train is at
       `contract-v2.1` (declared at `contracts/manifest.yaml:3`, cut and tagged
@@ -148,7 +188,7 @@ questions are open.
 - [ ] 5.6 **Q4 — where do the tranche boundaries fall. OPEN**, and this packet is
       the first evidence on it: authoring tranche one showed that links 1–3
       additionally require the hash-linking rule and the evidence plane to be
-      stateable at all (design D1). Offered to the question, not closing it.
+      statable at all (design D1). Offered to the question, not closing it.
 - [ ] 5.7 **Q5 — smart contracts or an L2. OPEN.** Direction confirmed by the
       study; the trigger condition for a public programmable layer still unstated.
       Tranche three.

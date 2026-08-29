@@ -398,7 +398,7 @@ Active changes:
   its chain and no chain without its ratification. ADDS one neutral
   capability with ten requirements over links 1-3 of the topic's ten-link
   model, plus the hash-linking rule and the off-chain evidence plane those
-  links need to be stateable; no MODIFIED delta anywhere. **The handshake is
+  links need to be statable; no MODIFIED delta anywhere. **The handshake is
   out-of-pipeline by proof, not by preference**: codexFactory's
   `gate_rules_council` refused a class over `openspec/changes/**` UNANIMOUSLY
   5/5 on 2026-08-28 because that surface sits inside the canonical

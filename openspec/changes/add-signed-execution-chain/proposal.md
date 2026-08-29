@@ -122,7 +122,7 @@ The requirements, one line each:
 
 **IN SCOPE.** Links 1, 2 and 3 of the staged topic's ten-link model, plus the two
 rules the atomicity and chain-identity claims strictly need in order to be
-stateable at all: the hash-linking rule (R4), without which "enrolled in a chain"
+statable at all: the hash-linking rule (R4), without which "enrolled in a chain"
 means only "signed twice", and the evidence plane (R7), without which enrollment
 has nowhere to write. R6's refusal semantics and R9's out-of-pipeline placement
 are in scope because both are properties of the links tranche one creates. R8 and
@@ -169,7 +169,7 @@ and a map is auditable where prose is not.
 | Link 1's attribution | openXwallet `openxwallet`: *"Every exercise is key-attributed"* | The presenting wallet key is the actor; a shared credential is transport; an unattributable act is `unattributed` and is not assigned to a holder |
 | Link 1's currency | openXwallet `openxwallet`: *"Revocation propagates through the chain"* + `review-authority-intake`: *"Revocation is re-checked at verdict consumption against a declared staleness bound"* | Revocation is checked at exercise; issuance-time validity is not current validity |
 | What a signature EVIDENCES | openXwallet `openxwallet`: *"Custody is declared and bounds what a signature evidences"*, composed by `add-trust-anchor`: *"Declared chain custody bounds what a certificate evidences"* | Custody caps the claim; this packet restates no custody model of its own |
-| The unwalleted root ratifier | `review-authority-intake`: *"Every review-authority grant names its issuer, and a root grant's issuer is anchored outside the register"* — the root issuer is the responsible operator, whose standing *"requires no wallet and no grant of its own"* | R1's second scenario: a standing-authority root is a DECLARED chain origin, never a silent exemption, and such a chain is never presented as signature-rooted |
+| The unwalleted root ratifier | `review-authority-intake`: *"Every review-authority grant names its issuer, and a root grant's issuer is anchored outside the register"* — the root issuer is the responsible operator, whose standing *"requires no wallet and no grant of its own"* | R1: that ratifier begins NO chain, and the case is a DECLARED GAP naming the missing instrument; no signature-free chain mode is defined, so the gap stays visible instead of being filled with a weaker object |
 | Who a signer IS | `add-identity-brokering`: *"A governed record binds its actor to a stable opaque subject"* | The actor reference on a link; this packet owns WHAT is attested, never WHO the signer is |
 | Non-human signers | `add-identity-brokering`: *"Workloads are not personas"* | A workload's authority comes from a grant, never from a persona — which is why tranche one's only signer is human |
 | The reader rule | `review-authority-intake`: *"A grant with no reader in a required check confers nothing"* and *"The register and the reader are ratified together"* | R10 verbatim in effect: no described control is stated as an existing one |
@@ -224,11 +224,23 @@ evidence on it), Q5 (open — direction confirmed, trigger condition unstated).
   realization: one record kind, its examples, its validator, its manifest and
   changelog registration, at the next additive bundle cut.
 - **No existing capability is modified.** No promoted requirement text moves.
-- **No staged file moves.** `ideation/staging/signed-execution-chain/` keeps
-  both documents for tranches two and three; the primary fragment gains the
-  `Staging ID:` header the origin contract requires, and nothing else in it is
-  edited. The vendored `chain-selection-study.md` is not touched at all — it is
-  annotate-only research input, and nothing in it is ratified by being vendored.
+- **No staged file moves, but the support manifest lands anyway.**
+  `ideation/staging/signed-execution-chain/` keeps both documents for tranches two
+  and three; the primary fragment gains the `Staging ID:` header the origin
+  contract requires, and nothing else in it is edited. The vendored
+  `chain-selection-study.md` is not touched at all — it is annotate-only research
+  input, and nothing in it is ratified by being vendored. The packet nonetheless
+  owns `supporting-docs/manifest.yaml` recording ZERO selected files, both
+  remaining staged paths, the source revision and the repeated origin. Written on
+  Codex's P1 over this packet, in a NARROWED form: the proposal-gate requirement
+  binds "the SELECTED source documents" and nothing here is selected — three
+  sibling ACTIVE staged-origin changes (`add-ideation-intent-plane`,
+  `add-model-capability-vocabulary`, `add-notebook-projection-identity`) carry no
+  supporting folder on the same reading — but `release-realization`'s "Origin
+  retention at archive" scenario expects a staged origin's readable support
+  manifest to carry the identical origin id and path, and a change with no
+  manifest gives that gate nothing to read. So the manifest lands and the
+  documents stay. `proposal-support.py verify add-signed-execution-chain` passes.
 - **`ideation/staging/INDEX.md`** — the topic's row and detail section record
   that tranche one was raised and that tranches two and three stay staged.
 - **`README.md`** — one entry in the OpenSpec Records active block.

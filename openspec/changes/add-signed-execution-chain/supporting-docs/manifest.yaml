@@ -1,0 +1,18 @@
+{
+  "change_id": "add-signed-execution-chain",
+  "files": [],
+  "format_version": 1,
+  "notebook_workspace": null,
+  "origin": {
+    "id": "openxFactory:staging:signed-execution-chain",
+    "kind": "staged",
+    "path": "ideation/staging/signed-execution-chain"
+  },
+  "origin_path": "ideation/staging/signed-execution-chain",
+  "remaining_paths": [
+    "ideation/staging/signed-execution-chain/chain-selection-study.md",
+    "ideation/staging/signed-execution-chain/signed-execution-chain.md"
+  ],
+  "source_revision": "99a6ff8d8e9bd7a349ff3be3817d450dbc44906e",
+  "transitioned_at": "2026-08-29"
+}

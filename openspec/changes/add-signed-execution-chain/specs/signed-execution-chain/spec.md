@@ -10,7 +10,11 @@ and no requirement below reaches them.
 
 A governed ratification SHALL enter a signed execution chain only where it is
 recorded as an exercise of a wallet-carried authority whose proof of possession
-was PRESENTED AND VERIFIED, whose attribution is key-attributed to the presenting
+was SUPPLIED AND VERIFIED — `proof_of_possession.presented` and `.verified` in
+the pinned exercise record, named as FIELDS rather than restated as prose,
+because "presented" is that schema's name for the proof and never a synonym for
+the presentation this requirement refuses — whose attribution is key-attributed
+to the presenting
 wallet key, and whose revocation was checked AT EXERCISE rather than inherited
 from issuance. Authority travels as an attenuated grant and by nothing else, per
 `review-authority-intake`'s requirement *"Review authority is held as an
@@ -21,20 +25,23 @@ missing grant. What a signature EVIDENCES is bounded by the declared custody of
 the key that made it, and this capability SHALL derive that bound from the
 custody declaration rather than restating a custody model of its own.
 
-Where the ratifying authority holds standing authority with no wallet and no
-grant — the root-issuer case `review-authority-intake` expressly permits, in
-which the responsible operator's authority is standing under the Human Escalation
-Contract and "requires no wallet and no grant of its own" — the chain SHALL
-DECLARE its origin as standing authority rather than treating the absent
-signature as an exemption, and such a chain SHALL NOT be presented as, or
-accepted for, an assurance that requires a signature-rooted origin. A chain
-declaring no origin SHALL be read as the weaker of the two, never the stronger.
+A ratifying authority holding STANDING AUTHORITY WITH NO WALLET AND NO GRANT —
+the root-issuer case `review-authority-intake` expressly permits, in which the
+responsible operator's authority is standing under the Human Escalation Contract
+and "requires no wallet and no grant of its own" — SHALL NOT begin a signed
+execution chain, and the case SHALL be recorded as a DECLARED GAP naming the
+instrument it lacks. There is nothing for a chain to be built from: with no
+signed bytes there is no digest for the chain identity to be, and no predecessor
+for a successor link to bind to.
 
-A standing-authority origin SHALL NOT be self-asserted. It is admissible only for
-an authority whose standing is already anchored OUTSIDE the record it writes into
-— the root-issuer anchor `review-authority-intake` requires — and an actor
-claiming it without that anchor SHALL be refused, because an origin anyone may
-declare is not a declaration but a bypass.
+This capability SHALL NOT define an origin, tier, mode or exemption under which a
+chain begins without a verified signature. An object called a chain that carries
+no signature would be accepted wherever a chain is required, which is the whole
+of what this capability exists to prevent; a gap that is declared is visible,
+while a weaker chain admitted beside the real one is not. Realization therefore
+OWES the root issuer a wallet before any ratification that authority performs can
+be enrolled, and until it holds one this capability governs that ratifier's acts
+not at all rather than governing them weakly.
 
 #### Scenario: A grant is presented without proof of possession
 
@@ -60,17 +67,16 @@ declare is not a declaration but a bypass.
 - **THEN** the exercise is refused and no chain begins
 - **AND** issuance-time validity is not accepted as evidence of current validity
 
-#### Scenario: A standing authority with no wallet ratifies
+#### Scenario: The only available ratifier holds no wallet
 
 - **WHEN** the ratifying authority is the root issuer acting under standing authority with no wallet and no grant
-- **THEN** the chain records its origin as standing authority
-- **AND** the chain is refused wherever a signature-rooted origin is required, rather than being accepted as though it carried one
+- **THEN** no signed execution chain begins, and the case is recorded as a declared gap naming the missing instrument
+- **AND** the absence is not recorded as a chain of a weaker kind
 
-#### Scenario: An actor declares a standing-authority origin for itself
+#### Scenario: A signature-free chain mode is proposed
 
-- **WHEN** an actor whose standing is not anchored outside the record it writes into declares its chain's origin as standing authority
-- **THEN** the declaration is refused
-- **AND** the absence of a wallet is not accepted as a reason to admit the act
+- **WHEN** a realization proposes an origin, tier or mode under which a chain begins without a verified signature
+- **THEN** it is refused, because such an object would be accepted wherever a chain is required
 
 ### Requirement: Ratification and chain enrollment are one atomic act, and neither half stands alone
 
@@ -162,6 +168,18 @@ produced by DIFFERENT executions SHALL NOT assemble into one chain, and a link
 whose own signature verifies but which does not bind the chain identity and its
 predecessor SHALL be refused despite verifying.
 
+AT MOST ONE LINK SHALL SUCCEED ANY GIVEN LINK within one chain. A second link
+binding the same predecessor under the same chain identity SHALL be refused
+rather than admitted as a branch, and this capability defines NO fork, branch or
+resolution semantics: a chain is a SEQUENCE, so a consumer offered two candidate
+successors of one predecessor SHALL refuse rather than choose between them,
+prefer the longer or the earlier history, or accept whichever it was handed
+first. Without this, a signer authorized to extend a chain could produce two
+conflicting histories that each validate, and a consumer shown either one would
+see a well-formed chain — the mix-and-match defect arriving from INSIDE the chain
+rather than from outside it. Repair is what it is everywhere else in this
+capability: a new handshake beginning a new chain, never a branch of the old one.
+
 #### Scenario: Valid links from different executions are assembled
 
 - **WHEN** links that each verify individually, but which name different chain identities or do not form one predecessor sequence, are offered as one chain
@@ -173,6 +191,12 @@ predecessor SHALL be refused despite verifying.
 - **WHEN** a successor link's signed bytes cover its content but neither the chain identity nor its predecessor's digest
 - **THEN** the link is refused
 - **AND** the validity of its signature does not admit it
+
+#### Scenario: One predecessor has two successors
+
+- **WHEN** two links binding the same predecessor under the same chain identity are presented, each with a verifying signature
+- **THEN** the chain is refused
+- **AND** the consumer does not choose between them, prefer the longer or earlier history, or accept whichever it was handed first
 
 #### Scenario: A verifier checks signatures only
 

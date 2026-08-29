@@ -30,7 +30,7 @@ were the enforcement. R10 exists so this packet cannot commit it.
 
 ## Decisions
 
-### D1 — Tranche one is links 1–3, plus exactly the two rules those links need to be stateable
+### D1 — Tranche one is links 1–3, plus exactly the two rules those links need to be statable
 
 **Decision.** In: links 1 (ratify with a wallet-carried authority), 2 (ratified
 ⇒ chain-enrolled, atomically, inside the one signed handshake) and 3 (the
@@ -146,23 +146,46 @@ its own**." Today's ratifier IS that operator. A requirement demanding a wallet
 signature from him would contradict ratified text on day one — and the topic's
 own conflicts section says that where the two disagree, the ratified text wins.
 
-**Decision.** R1 carries the collision instead of hiding it. A chain declares its
-ORIGIN: `wallet_exercise` (the signature-rooted case) or `standing_authority`
-(the root-issuer case ratified text expressly permits). A `standing_authority`
-chain is a real chain — it binds, it hash-links, it refuses on a gap — but it
-SHALL NOT be presented as, or accepted for, an assurance requiring a
-signature-rooted origin, and the declaration is what makes that checkable.
+**Decision, and it is the SECOND answer to this collision — the first was wrong
+and Codex caught it.** That ratifier begins NO signed execution chain. The case
+is recorded as a DECLARED GAP naming the instrument it lacks, and this capability
+defines no origin, tier, mode or exemption under which a chain begins without a
+verified signature.
 
-**Why declaration and not exemption.** An exemption is a hole a reader cannot
-see. This is the exact shape `add-trust-anchor` already ratified for custody —
-"a certificate whose declared custody is host-held SHALL NOT be presented as, or
-accepted for, an assurance that requiring hardware-bound custody", with an
-undeclared custody evidencing "the weakest member of the defined set". The chain
-origin is that rule applied one layer up: an undeclared origin is treated as the
-weaker member, and raising a chain's origin is a change of instrument, not a
-change of claim. It is also the honest reading of the topic's own tier model,
-which insists tier 1 answers *who permitted this* and that nothing may stand in
-for it.
+**What the first answer was, and why it could not stand.** The packet as first
+pushed had a chain DECLARE its origin — `wallet_exercise` or
+`standing_authority` — and forbade a standing-authority chain being accepted for
+a signature-rooted assurance. That was modelled on `add-trust-anchor`'s ratified
+custody rule, where an undeclared custody evidences "the weakest member of the
+defined set". **The analogy does not carry, and the reason is structural rather
+than stylistic.** A host-held key is still a key: it produces a signature, and
+the custody declaration bounds what that signature EVIDENCES. A standing
+authority with no wallet produces no signature at all — so there are no signed
+bytes for R3's chain identity to be the digest of, and no predecessor for R4's
+successor binding to cover. The branch was therefore admitting an object that
+could not satisfy R2, R3 or R4: a permitted origin whose chains are unconformant
+by construction. Codex raised exactly that on PR #494 and it is right.
+
+**Why the gap and not a weaker chain.** An object called a chain that carries no
+signature would be accepted wherever a chain is required — the substitution this
+whole capability exists to prevent. A declared gap is visible and has a named
+remedy; a weaker chain sitting beside the real one is neither. This is the shape
+`add-trust-anchor` ratified for obligations rather than for custody: *"A
+realization declares the obligations it cannot meet."*
+
+**The consequence, accepted plainly.** Until the root issuer holds a wallet,
+this capability governs that ratifier's acts NOT AT ALL rather than governing
+them weakly, and realization owes the wallet. That dependency is real and already
+booked: `add-wallet-carried-review-authority`'s own build plan carries "the first
+wallet: one holder, `holder_readable`, with its custody attestation row" as
+openxFactory S-work.
+
+**One lesson recorded, because it is the second appearance of a pattern this
+corpus has met before.** This session's own first-pass correction had patched the
+branch by forbidding a SELF-ASSERTED standing-authority origin — a real hole,
+patched at the point it showed. The right move was to remove the branch, which
+dissolves the self-assertion hole along with it. Unify on a defect's second
+appearance rather than patching it again.
 
 ### D6 — The atomicity mechanism: ONE signed object, TWO views — bind before sign
 
@@ -424,9 +447,11 @@ parts were second thoughts.
 
 1. **R1 — a standing-authority origin could be self-asserted.** As first drafted,
    any actor could declare the origin that excuses a missing signature, which
-   turns a declared gap into a bypass. Corrected: the origin is admissible only
-   for an authority already anchored OUTSIDE the record it writes into, which is
-   the anchor `review-authority-intake` already requires of a root issuer.
+   turns a declared gap into a bypass. Patched by requiring the origin be anchored
+   outside the record it writes into — and then **SUPERSEDED ENTIRELY** by the
+   Codex round, which showed the branch itself could not conform to R2, R3 or R4.
+   The branch is gone; see D5. Kept in this list because the patch-then-unify
+   sequence is the lesson, not the patch.
 2. **R2 — "recovery SHALL NOT be a fresh signature" was too absolute.** A fresh
    signature is lawful; it simply produces a DIFFERENT chain. Corrected to say
    that, rather than forbidding an act the corpus permits.
@@ -441,16 +466,85 @@ parts were second thoughts.
    and R9 as drafted would have excluded them. Corrected to bind on the SURFACE
    the handshake writes rather than on the instrument the authority holds.
 
+## The Codex round, and how each finding was taken
+
+Three P1 findings on `a367eaa7`, all real, all taken — one of them narrowed, with
+the narrowing argued rather than asserted.
+
+1. **"Define how standing authority signs the handshake." TAKEN IN FULL**, and it
+   is the most consequential correction in the packet. See D5: the branch is
+   removed and replaced by a declared gap.
+2. **"Test enrollment declarations attached after signing." TAKEN IN FULL.** The
+   fixture list in tasks 2.2 omitted R2's central case — a chain-enrollment
+   declaration recorded outside the signed bytes — and the ratification/genesis
+   mismatch beside it. Because task 2.3 requires the validator to reject exactly
+   what 2.2 packages, realization could have completed with a validator that
+   accepts an unsigned enrollment declaration while every other fixture passed.
+   The list is now organized per requirement, the bind-before-sign pair is called
+   out as the silent-failure case, and 2.3 gains a test asserting one-to-one
+   correspondence between the fixture set and the validator's refusal codes so a
+   later-added refusal cannot ship with neither.
+3. **"Move selected tranche material into supporting-docs." TAKEN IN A NARROWED
+   FORM, and the narrowing is the honest part.** The ratified proposal-gate
+   requirement binds "the SELECTED source documents", and nothing here is
+   selected: both staged documents are load-bearing for tranches two and three,
+   and moving them would strand those tranches. That reading is not this
+   packet's invention — three sibling ACTIVE staged-origin changes
+   (`add-ideation-intent-plane`, `add-model-capability-vocabulary`,
+   `add-notebook-projection-identity`) carry no supporting folder at all. **But
+   the finding's second half is right and was not answered by that.**
+   `release-realization`'s "Origin retention at archive" scenario expects a
+   staged-origin change's READABLE SUPPORT MANIFEST to carry the identical origin
+   id and path, and a packet with no manifest gives that gate nothing to read. So
+   the manifest lands — zero selected files, both remaining staged paths, the
+   source revision, the repeated origin — and the documents stay where the later
+   tranches need them. `proposal-support.py verify add-signed-execution-chain`
+   passes, and doc-health's `location-conformance` support arm is satisfied by a
+   manifest whose `files` list is empty.
+
+## The second Codex round
+
+Three P1 findings on `d3ff87c6`. Two taken, one judged SUPERSEDED — recorded as
+superseded rather than silently skipped.
+
+4. **"Reject forks after a predecessor." TAKEN IN FULL, and it is a real hole in
+   the constitution R4 exists to be.** Two successor links binding the same
+   predecessor under the same chain identity each satisfied R4 independently, so
+   an authorized signer could produce two conflicting histories that both
+   validate and a consumer shown either would see a well-formed chain. R4 now
+   requires successor UNIQUENESS and states plainly that this capability defines
+   no fork, branch or resolution semantics — a consumer offered two candidate
+   successors REFUSES rather than preferring the longer, the earlier, or the one
+   it was handed. **The lesson generalizes:** the mix-and-match attack the topic
+   found was framed as coming from OUTSIDE the chain, and R4 as first drafted
+   defeated only that framing; the same attack from a signer INSIDE the chain
+   walked through. A binding rule has to close both directions or it closes one.
+5. **"Test omission of a required chain link." TAKEN.** R6's fixture line now
+   names the truncated-but-correctly-signed chain and the no-declared-expectation
+   consumer as two separate fixtures, with the reason spelled out: neither is a
+   malformed link, so a validator built only against malformed-link fixtures
+   passes both.
+6. **"Test self-asserted standing authority." SUPERSEDED, not declined.** The
+   finding is correct against the commit it reviewed, but the round-1 correction
+   to the same requirement removed the branch it tests: there is no
+   `standing_authority` origin any more, so there is nothing to self-assert. The
+   replacement fixture — a ratification offered under standing authority with no
+   wallet, which begins NO chain — is already in tasks 2.2's R1 list. This is the
+   patch-then-unify sequence of D5 seen from the fixture side: had the branch
+   been patched rather than removed, this fixture would have been owed.
+
 ## Risks that survive
 
 1. **A capability that governs nothing until its reader ships.** Accepted under
    D7 and made visible by R10 rather than hidden. The mitigation is that R10 makes
    the gap a stated property of the family instead of something a reader discovers.
-2. **`standing_authority` origins could become the default rather than the
-   exception** if no wallet is ever issued to the operator. D5 makes such a chain
-   declare itself and forbids it being accepted for a signature-rooted assurance,
-   which bounds the damage; it does not by itself create pressure to issue the
-   wallet. Named as a residual risk rather than mitigated away.
+2. **The family may govern nothing for its only current ratifier.** After D5's
+   correction there is no weaker branch to fall back to: until the root issuer
+   holds a wallet, ratifications by that authority begin no chain. This is the
+   honest state and it is deliberately uncomfortable — it converts "we have a
+   chain of a lesser kind" into "we have no chain yet, and here is the missing
+   instrument". Named as a residual risk because the remedy is another change's
+   S-work, not this packet's.
 3. **Tranche two could find R4's binding rule insufficient** once four more link
    types exist. Tranche two extends it; the shape it extends is fixed here
    deliberately, because the topic's mix-and-match finding shows what happens when
