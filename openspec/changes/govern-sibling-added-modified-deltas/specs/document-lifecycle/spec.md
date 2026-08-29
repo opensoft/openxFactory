@@ -1,0 +1,84 @@
+# document-lifecycle Specification Delta
+
+ADDED ONLY. No `## MODIFIED Requirements` block is opened on "A MODIFIED
+requirement block restates the requirement as canon currently states it" —
+see the proposal's § Orchestrator Decisions D2, which measures rather than
+prefers that shape.
+
+## ADDED Requirements
+
+### Requirement: A MODIFIED block over a requirement no promoted specification carries declares its basis by marker
+A `## MODIFIED Requirements` block SHALL declare its basis by a reserved marker
+inside that block where the requirement it names is one the promoted
+specification does not carry and an active change ADDS or RENAMES to that
+title, naming the change whose addition the block is written over.
+
+**THE SHAPE IS LAWFUL, AND IT IS THE DECLARATION THAT MAKES IT SO.** Modifying
+a requirement a sibling is still adding is a legitimate and frequent act in a
+corpus where changes are long-lived: the successor arrives before the
+predecessor archives, and asking it to wait would be asking governance to run at
+the speed of the slowest packet. What is not lawful is doing it silently. The
+obligation to order the two writers belongs to `release-realization` ("Ordered
+deltas and branch vocabulary"), which this requirement neither restates nor
+widens; the obligation this requirement adds is that the pairing be declared
+where a reader and a checker can both find it, per requirement rather than per
+packet.
+
+**THE MARKER IS A THIRD RESERVED FORM, recognized by form and never by prose**,
+taking its place beside the two this capability already defines and read under
+the same rules: one paragraph inside the MODIFIED block, read after the same
+whitespace normalization every other unit gets, and of marker form only where it
+begins with the prefix COMPLETE. The form is
+``**Modified over `<basis change-id>`'s addition by <change-id> (<YYYY-MM-DD>):**``
+followed by ` — <reason>`. The basis change-id is written as a code span, as
+every change-id this capability's markers name already is.
+
+**THIS FORM NAMES NO UNITS, and that is the difference that matters.** The two
+existing forms name units they declare removed; this one names a DOCUMENT PAIR
+and declares nothing about carriage, because in this shape there is nothing to
+compare — no promoted requirement exists to compare against. A marker of this
+form SHALL NOT suppress any unit, SHALL NOT be read as naming any unit, and
+SHALL NOT be reported under the rule that reports a marker naming a unit the
+block still carries. Like every marker, it is NOT itself a carriage unit in
+either direction, so no later block restates it and dropping it declares
+nothing.
+
+**THE PROPOSAL'S CROSS-REFERENCE IS STILL OWED AND IS NOT A SUBSTITUTE.**
+`release-realization` requires the modifying proposal to reference the change it
+is declared relative to, and that reference is a fact about the two CHANGES. The
+marker is a fact about the two BLOCKS: a proposal may name a sibling for a dozen
+reasons and may carry several MODIFIED blocks, so a change-level mention cannot
+say which requirement rests on which sibling. Both are required and they are
+different declarations.
+
+**A BASIS THAT IS NOT RATIFIED SHALL BE DECLARED AS SUCH AND NOT AS CANON.**
+`release-realization` scopes its ordering obligation to an active RATIFIED
+change and this requirement does not widen it. Where the declared basis is a
+change that is not ratified, the declaring block rests on text no authority has
+accepted; the marker is still owed, the reason clause SHALL say that the basis
+is unratified, and the modifying change SHALL NOT describe the requirement it
+modifies as settled.
+
+#### Scenario: A block is written over a sibling's addition
+- **WHEN** an active change's `## MODIFIED Requirements` block names a requirement the promoted specification does not carry, and an active change ADDS or RENAMES to that title
+- **THEN** the block MUST carry a marker of the reserved `Modified over` form naming that change as a code span
+- **AND** the change's own `proposal.md` MUST still reference that change as `release-realization` requires, the two declarations being about different things
+
+#### Scenario: The marker names a change that does not add the requirement
+- **WHEN** a `Modified over` marker names a change that neither ADDS nor RENAMES to the block's capability and requirement title
+- **THEN** the declaration MUST be reported, a basis that does not exist being worse than an undeclared one because it stops the next reader looking
+
+#### Scenario: The marker is read as declaring a deletion
+- **WHEN** a block carries a `Modified over` marker and omits a unit
+- **THEN** the marker MUST NOT be read as declaring that omission, this form naming no units
+- **AND** the marker MUST NOT itself be reported as a marker naming a unit the block still carries, that rule reaching only the forms that name units
+
+#### Scenario: The declared basis is not ratified
+- **WHEN** the change whose addition a block is written over carries a status other than `ratified`
+- **THEN** the marker MUST still be carried and its reason clause MUST state that the basis is unratified
+- **AND** `release-realization`'s ordering obligation MUST NOT be read as reaching that change, its antecedent naming an active ratified change and this requirement widening it in no way
+
+#### Scenario: One change both adds and modifies one requirement
+- **WHEN** a single change carries both an `## ADDED Requirements` block and a `## MODIFIED Requirements` block for one capability and requirement title
+- **THEN** the delta MUST be reported, a change modifying its own unpromoted addition having written two texts for one requirement where the second is simply the first
+- **AND** a `Modified over` marker naming the change itself MUST NOT be read as curing it

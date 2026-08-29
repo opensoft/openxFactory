@@ -1,0 +1,38 @@
+schema: spec-driven
+created: 2026-08-29
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-29-govern-sibling-added-modified-deltas
+  reason: >-
+    Filed on Brett's ruling of 2026-08-29, verbatim "file the successor now",
+    taken in session out of the §7.4 council sitting on PR #497
+    (`add-binding-consumer-identity`) and recorded in that PR's ratification
+    comment under "P-3 — FILED: openxFactory issue #502". Two seats raised the
+    gap and both attached the same condition. `lead-architect` under
+    `cross_cutting_design`, LA-C2, verbatim: "The MODIFIED-over-a-sibling's-ADDED
+    gap is recorded as the estate's, not this packet's. Four blocks, zero
+    markers, no governing requirement, no evaluating arm. I raise it under
+    `cross_cutting_design` as an issue owed a home of its own. This change must
+    not be asked to close it and must not be delayed for it." `lead-quality`
+    concurring, LQ-C5, verbatim: "neither the normative rule nor the checker
+    reaches the shape ... that gap deserves its own successor rather than another
+    per-packet manual obligation." The condensing council record carries the same
+    disposition twice, in §8.5 and §10. THE ISSUE IS THE COMMISSION AND ITS
+    CONTENT: openxFactory #502 states three measured holes and four questions a
+    successor must settle, and this packet answers them in that order. NO STAGING
+    ORIGIN IS CLAIMED: none exists, searched across `ideation/staging/` and its
+    INDEX. Authored here because `release-realization`, `document-lifecycle` and
+    `doc-health` are all openxFactory capabilities and the obligation being
+    governed is the neutral corpus's own delta-authoring rule.
+  approved_by: >-
+    Brett — in session on 2026-08-29, for the DECISION TO FILE THE SUCCESSOR and
+    for nothing further. The ruling is quoted in PR #497's ratification comment
+    ("Ruled: file the successor now") and repeated in issue #502's own closing
+    line. IT IS NOT A RATIFICATION OF THIS PACKET, and this packet does not claim
+    one: `Status: draft`, no `Ratified:` line, and every design decision the
+    authoring session took is named in the proposal's § Orchestrator Decisions
+    for a §7.4 council sitting and Brett's ratification to accept or reverse.
+    This is the state issue #318 describes — an `ad_hoc` origin owes
+    `approved_on`, and what is recorded here is approval to file rather than
+    approval of the content — and it is recorded as such rather than dressed up.
+  approved_on: 2026-08-29

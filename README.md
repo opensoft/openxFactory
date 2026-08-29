@@ -391,6 +391,48 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [govern-sibling-added-modified-deltas](openspec/changes/govern-sibling-added-modified-deltas/proposal.md)
+  — authored 2026-08-29, **`Status: draft` — A PROPOSAL, NOT A RATIFICATION**,
+  filed on Brett's in-session ruling "file the successor now" out of the §7.4
+  sitting on PR #497. **THE SUCCESSOR ISSUE #502 NAMES**: a
+  `## MODIFIED Requirements` block whose requirement exists only as an active
+  sibling's `ADDED` is governed by no promoted requirement, evaluated by no
+  doc-health arm, and declared by no marker. Raised by `lead-architect` (LA-C2,
+  `cross_cutting_design`) and concurred by `lead-quality` (LQ-C5), both attaching
+  the condition that `add-binding-consumer-identity` must neither close it nor be
+  delayed for it — honoured, and this packet is the separate home both seats
+  asked for. **Three holes, three answers.** `release-realization`'s "Ordered
+  deltas and branch vocabulary" is MODIFIED so its antecedent reaches a
+  requirement an active ratified change ADDS and not only one it MODIFIES — the
+  two antecedents are disjoint by construction — and it gains the archive-ordering
+  obligation the four live packets have each been hand-writing as a pre-archive
+  `grep`. `document-lifecycle` gains a THIRD reserved marker form,
+  ``**Modified over `<basis change-id>`'s addition by <change-id> (<date>):**``,
+  read by form and never by prose, naming no units and therefore never a carriage
+  declaration. `doc-health` gains the arm that evaluates the `pending` shape
+  instead of dropping it at `modified_block_currency.py`'s
+  `if status == "pending": continue` — three reported states (undeclared,
+  misdeclared, self-referential), silent on the fourth (declared and resolving) —
+  plus, as the archive ordering's only possible mechanical backstop, a class that
+  reports an active `## ADDED Requirements` block for a title canon already
+  carries. **THE 2026-08-27 RULING IS NOT REOPENED**: nothing compares requirement
+  text, and no fourth comparison arm is added; what changes is that the block is
+  no longer dropped before anything looks at it, so the arms' silence stops
+  reading as clearance. **Measured at `91cf0a46`**: 19 active MODIFIED blocks, 15
+  `canon`, 4 `pending`, zero markers, all four adding siblings `ratified`;
+  predicted movement **+4 `warning`**, zero in every other band, and zero from
+  this packet's own delta — its `release-realization` block resolves `canon` and
+  restates both promoted body sentences and both promoted scenarios
+  byte-identical, so `_LEDGER_SUBJECTS` gains no row. **Four is the live number;
+  eight is the cumulative one** — LQ-C5's figure counted the docstring's
+  historical seven plus #497's block, while LA-C2's own return says four.
+  **ADVISORY at launch in both halves**, the family staying absent from
+  `FAMILY_RESOLUTION`; the band flip follows the discharge of the four standing
+  pairs and is not proposed here. **It does not close #502 and says so**: the
+  packet states that it MAY say `Closes #502` on archive and states it as intent
+  rather than performing it. Five decisions are FLAGGED FOR VETO (D5, the
+  collision class, is the one the proposal names as most worth vetoing) and five
+  open questions are routed to the sitting.
 - [add-binding-consumer-identity](openspec/changes/add-binding-consumer-identity/proposal.md)
   — authored 2026-08-29, **RATIFIED 2026-08-29** (`Status: ratified`; record
   `review/ratification-2026-08-29.md`). **THE FIRST PACKET THROUGH THE §7.4 PATH
