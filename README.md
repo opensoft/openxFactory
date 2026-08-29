@@ -408,13 +408,16 @@ Active changes:
   `issuance_preconditions` vocabulary was added to retire. Adds THREE ADDITIVE
   OPTIONAL fields (`consumer`, `fetch_identity`, `requirement_id`), one new
   refusal (`shared-fetch-identity`), and the validator's FIRST WARNING CHANNEL.
-  Review added one more: sameness is decided on the QUALIFIED name
-  `(provider, vault, name)` and never on the bare string, because `provider` and
-  `vault` are per-binding and unconstrained — so two consumers labelling their
-  principals `runtime_identity` against unrelated providers are not one
-  authority. That corrects the SAME latent defect in the published
-  `shared-secret-identity`, which groups by bare `secret_ref` today, so it is
-  fixed once for both rather than left to appear twice. On the release class:
+  Review added more: sameness is decided on a QUALIFIED name, never the bare
+  string, and the two keys DIFFER ON PURPOSE — `(provider, fetch_identity)` for
+  the authority and `(provider, vault, secret_ref)` for the secret. An identity
+  does not live in a vault: one principal granted on two vaults is ONE
+  authority, so a vault-qualified identity key would report nothing on exactly
+  the record the ratified per-system rule forbids, while two consumers
+  labelling principals `runtime_identity` against unrelated providers are not
+  one authority. The secret half corrects the SAME latent defect in the
+  published `shared-secret-identity`, which groups by bare `secret_ref` today,
+  so it is fixed once for both rather than left to appear twice. On the release class:
   optional fields plus new validator warnings is the ADDITIVE class, and
   `consumer`/`fetch_identity` becoming required is the BREAKING class, which
   owes a full minor of warnings first (`contract-v1.34`'s pattern). `requirement_id` is deliberately kept OFF

@@ -5,7 +5,7 @@ Status: draft
 NOTHING BELOW RUNS BEFORE RATIFICATION. This packet's own diff is the four
 records and one README entry; every task here is authorized by a ratification
 that has not happened yet. **No task creates, moves, or reads a live secret**:
-the whole realization surface is a schema, a validator, three fixtures and a
+the whole realization surface is a schema, a validator, six fixtures and a
 test.
 
 ## 1. The schema carries the authority
@@ -47,12 +47,13 @@ test.
   a missing `requirement_id` — warning on it would put it on the deprecation
   path this packet deliberately keeps it off.
 - [ ] 2.3 `shared-fetch-identity` (ERROR): within one document, two bindings
-  whose QUALIFIED identity key `(provider, vault, fetch_identity)` is equal,
-  while both declare `consumer` and the consumers differ. COMPARE THE TRIPLE,
-  NEVER THE BARE STRING — `provider` and `vault` are per-binding and
-  unconstrained, so `fetch_identity` is a name in one provider's namespace and
-  two bindings labelling a principal `runtime_identity` against different
-  providers are not one authority. NOT raised when either side omits `consumer`: the record
+  whose QUALIFIED identity key `(provider, fetch_identity)` is equal, while both
+  declare `consumer` and the consumers differ. NEVER the bare string, and NEVER
+  qualified by `vault`: `fetch_identity` is a name in the PROVIDER'S IDENTITY
+  namespace, so two bindings labelling a principal `runtime_identity` against
+  different providers are not one authority — but ONE principal granted on TWO
+  vaults IS one authority, and a vault-qualified key would report nothing on
+  exactly the record the ratified per-system rule forbids. NOT raised when either side omits `consumer`: the record
   cannot distinguish one consumer from two, 2.2's warning already stands on
   that binding, and inventing a verdict from an absent field is how a check
   earns distrust.
@@ -60,7 +61,9 @@ test.
   QUALIFIED secret key `(provider, vault, secret_ref)` — not by the bare
   `secret_ref` it groups by today; a group of size > 1 raises UNLESS every
   member declares an equal `requirement_id` and pairwise-distinct `consumer`
-  and pairwise-distinct QUALIFIED `fetch_identity`.
+  and pairwise-distinct QUALIFIED `fetch_identity` on
+  `(provider, fetch_identity)` — the secret key carries `vault`, the identity
+  key does not.
   **THE REGROUPING IS A BEHAVIOUR CHANGE TO A PUBLISHED CHECK and is decision 8,
   flagged for veto.** It only ever narrows a refusal, and only where the two
   secrets are genuinely distinct — two bindings naming `api-key` in two vaults
@@ -78,10 +81,13 @@ test.
   a record declaring none of the three fields is adjudicated exactly as it was
   before this change.
 
-- [ ] 2.6 `authority-scope-indeterminate` (WARNING): two bindings whose bare
-  `fetch_identity` or bare `secret_ref` match under the same `provider`, where
-  one declares a `vault` and the other omits it, so the record does not say
-  whether they address one store. WARN, never refuse — the same
+- [ ] 2.6 `authority-scope-indeterminate` (WARNING), SECRET COMPARISON ONLY: two
+  bindings whose bare `secret_ref` matches under the same `provider`, where one
+  declares a `vault` and the other omits it, so the record does not say whether
+  they address one store. It CANNOT arise on the identity key, which is
+  `(provider, fetch_identity)` and always fully formed because `provider` is
+  required — do not add a symmetrical identity branch, which would be dead code
+  asserting a case the shape forbids. WARN, never refuse — the same
   don't-invent-a-verdict posture as 2.3's fail-open — and name both bindings and
   the missing `vault` so the remedy is obvious. Silence here would let a real
   collision hide behind an omitted optional field.
@@ -105,8 +111,11 @@ test.
   **This fixture is the executable form of the 4.1 argument** — green under the
   rejected discriminator, red under the ruled one — so the decision cannot be
   reversed later without a test going red.
-- [ ] 3.4 Register both negatives in `NEGATIVE_EXPECTATIONS`; an unregistered
-  negative is already a self-test error, by design.
+- [ ] 3.4 Register EVERY new negative in `NEGATIVE_EXPECTATIONS` — all four
+  (3.2, 3.3, 3.10, 3.11), not the two this task named before the qualification
+  fix added the others; an unregistered negative is already a self-test error,
+  by design, and 3.11 additionally needs the warning-expectation support that
+  task 3.11 itself calls for.
 - [ ] 3.5 Leave `negative/dispatch-reuses-content-secret.yaml` UNCHANGED and
   RED. It is the backward-compatibility proof, and a green result there means
   the exemption was written wrong.
@@ -143,17 +152,23 @@ test.
   Must produce NO `shared-fetch-identity`. This is the fixture that proves the
   comparison is qualified; under the bare-string rule it is a false refusal, so
   it goes red the moment someone reverts the qualification.
-- [ ] 3.10 NEGATIVE `negative/authority-scope-indeterminate.yaml`: same provider,
-  same bare `fetch_identity`, `vault` declared on one binding only. Registered
+- [ ] 3.10 NEGATIVE `negative/shared-fetch-identity-across-vaults.yaml`: two
+  consumers, ONE provider, ONE `fetch_identity`, DIFFERENT `vault`s. Expect
+  `shared-fetch-identity`. **This is the fixture that pins the identity key
+  against re-acquiring `vault`** — it is green under the rejected
+  vault-qualified key and red under the ruled one, so the decision cannot be
+  silently reversed. Pair it with 3.9: together they prove the key is neither
+  too wide nor too narrow, which no single fixture can.
+- [ ] 3.11 NEGATIVE `negative/authority-scope-indeterminate.yaml`: same provider,
+  same bare `secret_ref`, `vault` declared on one binding only. Registered
   for the WARNING rather than an error — which means the self-test's negative
   adjudication must be able to register a warning expectation as well as an
   error one, or this case has no home. Widen it deliberately rather than
   dropping the fixture; a refusal class with no probe is the gap 2.1's own
   comment warns about.
-- [ ] 3.11 Re-derive the self-test count string from the fixtures actually
+- [ ] 3.12 Re-derive the self-test count string from the fixtures actually
   added, and update `tests/credential_contracts/` to match. Do NOT carry
-  3.6's "4 positive + 7 negative" forward as if it were still true — 3.9 and
-  3.10 move it again, and the string is asserted literally.
+  3.6's "4 positive + 7 negative" forward as if it were still true — 3.9-3.11 move it again, and the string is asserted literally.
 
 ## 4. Documentation
 

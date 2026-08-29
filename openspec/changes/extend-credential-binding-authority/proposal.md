@@ -1,5 +1,5 @@
 ---
-code_surface: openxFactory — a SCHEMA CHANGE plus its validator, fixtures and tests. `contracts/schemas/xfactory-credential-contracts.schema.yaml` gains THREE ADDITIVE OPTIONAL FIELDS on each entry of `credential_bindings` in the existing `xfactory_credential_binding_template`: `consumer`, `fetch_identity` and `requirement_id`. `scripts/validate-credential-contracts.py` gains one new refusal (`shared-fetch-identity`), one refinement of an existing refusal (`shared-secret-identity` gains a narrowly-conditioned exemption that opens only on positive declarations, AND is regrouped onto the qualified key `(provider, vault, secret_ref)` rather than the bare `secret_ref` it groups by today — decision 8, the one change this packet makes to a check it did not author), and its FIRST WARNING CHANNEL, carrying two codes (`binding-authority-undeclared`, warning across the current major line and error at the next major version; and `authority-scope-indeterminate`, where an omitted optional `vault` leaves two matching names un-adjudicable). `examples/credential-contracts/` gains one positive fixture and two negatives; `tests/credential_contracts/test_dispatch_credential_contract.py` moves with them, including the self-test count string it asserts. NO NEW RECORD KIND. NO REQUIRED FIELD. `contracts/` IS UNTOUCHED BY THIS PROPOSAL — the release ritual is scheduled in tasks.md § 5 for realization, and no bundle is cut by the packet that proposes it.
+code_surface: openxFactory — a SCHEMA CHANGE plus its validator, fixtures and tests. `contracts/schemas/xfactory-credential-contracts.schema.yaml` gains THREE ADDITIVE OPTIONAL FIELDS on each entry of `credential_bindings` in the existing `xfactory_credential_binding_template`: `consumer`, `fetch_identity` and `requirement_id`. `scripts/validate-credential-contracts.py` gains one new refusal (`shared-fetch-identity`), one refinement of an existing refusal (`shared-secret-identity` gains a narrowly-conditioned exemption that opens only on positive declarations, AND is regrouped onto the qualified key `(provider, vault, secret_ref)` rather than the bare `secret_ref` it groups by today — decision 8, the one change this packet makes to a check it did not author), and its FIRST WARNING CHANNEL, carrying two codes (`binding-authority-undeclared`, warning across the current major line and error at the next major version; and `authority-scope-indeterminate`, SECRET COMPARISON ONLY, where an omitted optional `vault` leaves two matching secret references un-adjudicable). The two comparison keys are qualified and DELIBERATELY DIFFERENT — `(provider, fetch_identity)` for the authority, `(provider, vault, secret_ref)` for the secret — because a principal granted on two vaults is ONE authority and a vault-qualified identity key would report nothing on exactly the record the ratified per-system rule forbids. `examples/credential-contracts/` gains SIX fixtures, enumerated here by name so the count is checkable rather than recalled — TWO POSITIVES (`notebook-hosting.binding-template.example.yaml`, the two-consumer shape; and a cross-provider positive) and FOUR NEGATIVES (`negative/shared-fetch-identity.yaml`; `negative/shared-secret-different-requirements.yaml`; `negative/shared-fetch-identity-across-vaults.yaml`, which pins the identity key against re-acquiring `vault`; and `negative/authority-scope-indeterminate.yaml`) — and `tests/credential_contracts/test_dispatch_credential_contract.py` moves with them, including the self-test count string it asserts, which is derived once at realization rather than written here. NO NEW RECORD KIND. NO REQUIRED FIELD. `contracts/` IS UNTOUCHED BY THIS PROPOSAL — the release ritual is scheduled in tasks.md § 5 for realization, and no bundle is cut by the packet that proposes it.
 target_release: THE NEXT ADDITIVE MINOR, DELIBERATELY NOT NUMBERED HERE. `docs/contract-versioning-policy.md` states the rule this front-matter obeys: "A proposed change MUST NOT reserve a minor number before merge order is known." Measured on this branch's base rather than recalled: `contracts/manifest.yaml:3` declares `contract-v2.1` and `contracts/CHANGELOG.md:12` heads at `contract-v2.1 — 2026-08-28`, so `contract-v2.1` IS SPENT and any earlier note naming it, or any other specific number, as this work's target is stale. `contract-v2.2` is the EXPECTED allocation and is deliberately NOT RESERVED here, because the active ratified packet `add-credential-escrow-checkout` edits the same schema file and owes the same next minor — a number written here is a number another packet may spend first, which is what the policy sentence above exists to prevent. That packet's front-matter declines to number itself for exactly this reason, and the `contract-v1.28` renumber sweep is the standing precedent for the cost of doing otherwise. The number is allocated at realization by merge order (tasks.md § 5.2). WHY A CUT IS OWED AT ALL, MEASURED RATHER THAN ASSUMED: parsed on 2026-08-29, `contracts/releases/contract-v2.1.digests.yaml` holds 192 entries, exactly five of them under `contracts/schemas/`, and `xfactory-credential-contracts.schema.yaml` IS NOT ONE OF THEM — neither is its validator, nor anything under `examples/`. So the cut is NOT forced by `release-inventory-drift`, which is the usual reason a schema edit owes one. It is owed by the VERSIONING POLICY instead: the schema is a registered bundle contract (`contracts/manifest.yaml`, `id: credential-contracts`), and a registered contract gaining optional fields and validator warnings is that policy's ADDITIVE (MINOR) class verbatim, under which "Domain repos on the same major version remain conformant without changes". `consumer` and `fetch_identity` becoming REQUIRED is the BREAKING (MAJOR) class and is scheduled for the next major, not for this cut; `requirement_id` stays optional across it, because its absence never warns and a major may not break what no minor deprecated.
 ---
 
@@ -92,9 +92,13 @@ and `vault` are per-binding and unconstrained, so `fetch_identity` is a name in 
 provider's identity namespace and `secret_ref` a name in a vault. Two consumers
 labelling their principals `runtime_identity` against unrelated providers are not
 one authority, and refusing them would be a collision the checker invented. Every
-comparison uses `(provider, vault, name)`; where a `vault` is declared on one side
-and omitted on the other the record cannot say, and that warns rather than
-refuses. This corrects the same latent defect in the published
+comparison is qualified, and the two keys DIFFER ON PURPOSE:
+`(provider, fetch_identity)` for the authority and `(provider, vault, secret_ref)`
+for the secret. An identity does not live in a vault — one principal granted on
+two vaults is ONE authority, and folding `vault` into the identity key would
+report nothing on exactly the record the ratified per-system rule forbids. On the
+secret side `vault` is optional, so where it is declared on one side only the
+record cannot say, and that warns rather than refuses. This corrects the same latent defect in the published
 `shared-secret-identity`, which groups by bare `secret_ref` today — the proposed
 rule would have been its second appearance, so it is fixed once for both.
 
@@ -172,7 +176,7 @@ in § Decisions put to the review.
   Carrying no MODIFIED block also means this packet owes no
   `modified-block-currency` carriage-ledger registration.
 - **Affected code, at realization**: the schema's three optional fields, the
-  validator's new refusal, refined refusal and warning channel, three fixtures,
+  validator's new refusal, refined refusal and warning channel, six fixtures,
   and the test file that asserts the self-test counts.
 - **The promoted dispatch-only separation requirement is untouched**, in text
   and in force: its bindings resolve two requirements, so the exemption's first
@@ -222,6 +226,13 @@ each is flagged for veto. None is covered by the origin citation.
    the packaged negative stays red because it declares one provider and one vault
    across both bindings. Vetoing it leaves the exemption resting on a qualified
    identity test beside an unqualified secret test — see the honest gaps.
+9. **`provider` as the identity namespace, accepting a cross-tenant
+   over-report**, rather than adding a fourth optional field to carry the
+   tenant or account. Two identically-named principals in two tenants of one
+   provider compare equal and are reported. The direction is chosen on a stated
+   principle — a false refusal is visible and escapable, a false clearance is
+   silent and defeats the obligation — but the council may prefer the field, and
+   a declared identity-namespace field is the alternative.
 
 ## Honest gaps, recorded rather than assumed away
 
@@ -238,11 +249,17 @@ each is flagged for veto. None is covered by the origin citation.
   misdeclares its provider or vault escapes every comparison here, because
   nothing reads the store. Qualification removes false refusals; it does not
   make a declared authority true.
-- **`vault` is optional, so the qualification is sometimes indeterminate.** The
-  packet warns rather than guessing in either direction, which means a real
-  collision can sit behind an omitted optional field with only a warning
-  against it. Making `vault` required would close that and is a narrowing this
-  minor may not perform.
+- **`vault` is optional, so the SECRET qualification is sometimes
+  indeterminate.** The packet warns rather than guessing in either direction,
+  which means a real collision can sit behind an omitted optional field with
+  only a warning against it. Making `vault` required would close that and is a
+  narrowing this minor may not perform. The identity comparison never reaches
+  this state, because `provider` is required.
+- **The identity namespace is only as fine as `provider`.** The published shape
+  carries no tenant or account field, so two identically-named principals in two
+  tenants of one provider are reported as a collision. Chosen over the silent
+  opposite and escapable by naming the identities distinctly; a declared
+  identity-namespace field is decision 9 and, if not taken, a named successor.
 - **The shipped `resolution.fetch_identity` in
   `contracts/avatar-client/broker-server-key-binding.template.yaml` is not
   migrated by this change.** It stays valid — nothing narrows — and

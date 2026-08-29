@@ -237,8 +237,28 @@ against unrelated providers would have been refused as sharing one authority.
 A checker that manufactures a collision out of a coincidence of labels is worse
 than no checker, because its refusals stop being evidence.
 
-**THE COMPARISON KEY IS THE QUALIFIED TRIPLE** — `(provider, vault, name)` — for
-the identity and for the secret alike.
+**THE COMPARISON KEYS ARE QUALIFIED, AND THEY ARE DELIBERATELY DIFFERENT:**
+`(provider, fetch_identity)` for the authority and `(provider, vault, secret_ref)`
+for the secret.
+
+A first attempt used one triple for both, and review caught it as a false
+negative on the rule that matters most. An identity does not live in a vault: a
+single provider principal can be granted on two vaults, and folding `vault` into
+the identity key reports that as two authorities — which is exactly the shared
+authority the ratified per-system obligation exists to forbid, made invisible by
+a key that looked tidy. A vault is where a SECRET lives, so it belongs in the
+secret key and nowhere else. The asymmetry is the correct answer, not an
+inconsistency to be smoothed away.
+
+**THE COARSEST NAMESPACE THE SHAPE OFFERS IS `provider`, AND THE ERROR DIRECTION
+IS CHOSEN.** There is no tenant or account field, so two identically-named
+principals in two tenants of one provider compare equal and are reported. That
+over-report is preferred to its opposite on a stated principle: a false refusal
+is VISIBLE and ESCAPABLE — rename one identity — while a false clearance is
+SILENT and defeats the obligation. A rule for catching a shared authority errs
+toward reporting. A declared identity-namespace field would close it and is
+named as owed rather than added, because adding a fourth field to carry a
+second-order case is scope this packet has not been given (decision 9).
 
 **AND THE DEFECT WAS NOT NEW, WHICH IS WHY THE FIX IS UNIFIED RATHER THAN
 LOCAL.** The published `shared-secret-identity` groups bindings by bare
@@ -281,10 +301,11 @@ Three changes to `scripts/validate-credential-contracts.py`, specified here so
 realization is mechanical.
 
 1. **`shared-fetch-identity` (ERROR).** Within one document, two bindings whose
-   QUALIFIED key `(provider, vault, fetch_identity)` is equal and both declaring
-   `consumer`, where the consumers differ. Never on the bare string. Not raised
-   when either side omits `consumer` — see 3 — nor when the qualification is
-   indeterminate — see 4.
+   QUALIFIED key `(provider, fetch_identity)` is equal and both declaring
+   `consumer`, where the consumers differ. Never on the bare string, and NEVER
+   qualified by `vault` — one principal granted on two vaults is one authority.
+   Not raised when either side omits `consumer` — see 3. This key is always
+   fully formed, because `provider` is required, so rule 4 cannot apply to it.
 2. **`shared-secret-identity` (ERROR, refined).** Group bindings by the
    qualified key `(provider, vault, secret_ref)`, not by the bare `secret_ref`
    they are grouped by today. A group of size > 1 raises unless EVERY member declares
@@ -304,9 +325,11 @@ realization is mechanical.
    and the existing packaged positives WILL warn, which is correct and is the
    deprecation working, not a fixture defect.
 
-4. **`authority-scope-indeterminate` (WARNING).** Bare names match under one
-   provider, but one binding declares a `vault` and the other omits it. Warn,
-   naming both bindings and the missing `vault`; never refuse.
+4. **`authority-scope-indeterminate` (WARNING).** SECRET COMPARISON ONLY: bare
+   `secret_ref` matches under one provider, but one binding declares a `vault`
+   and the other omits it. Warn, naming both bindings and the missing `vault`;
+   never refuse. It cannot arise on the identity key, which needs only the
+   required `provider`.
 
 **The fail-open is deliberate and bounded.** Rule 1 stays silent when a consumer
 is undeclared because the record genuinely cannot distinguish one consumer from
@@ -318,8 +341,14 @@ pre-contract changes — report the absence, never infer the fact.
 
 ## Fixtures and the count string
 
-`examples/credential-contracts/` gains two positives and three negatives once
-the qualification fixtures are counted; the self-test line moves from
+`examples/credential-contracts/` gains TWO POSITIVES and FOUR NEGATIVES — the
+two-consumer positive and the cross-provider positive; and negatives for
+`shared-fetch-identity`, the different-requirements case, the same identity
+across two vaults, and the indeterminate secret scope. The proposal's
+`code_surface` enumerates the same six BY NAME, because a code-surface
+declaration that undercounts is a realization instruction to skip the regression
+probes it omits — which is how it was caught, having still declared three after
+the qualification fix added two; the self-test line moves from
 "3 positive + 5 negative" to whatever the fixtures actually added make it —
 derived once at realization rather than written here, because it was already
 restated twice while this packet was in review — and `tests/credential_contracts/test_dispatch_credential_contract.py`
