@@ -11,6 +11,7 @@ from .authority_repository import (
     source_ancestry_findings,
     trusted_family_paths,
 )
+from .authority_source import parse_authority_authorizations
 from .model import (
     Finding,
     Record,
@@ -54,9 +55,7 @@ def load_authoritative_documents(
             ) from error
     parsed = load_record_document_texts(inputs)
     documents = [
-        document
-        for document in parsed
-        if document.data.get("kind") in AUTHORITY_KINDS
+        document for document in parsed if document.data.get("kind") in AUTHORITY_KINDS
     ]
     if not documents:
         findings.append(
@@ -95,7 +94,7 @@ def verify_authoritative_sources(
 class _AuthorityVerifier:
     def __init__(self, snapshot: TrustedSnapshot) -> None:
         self.snapshot: TrustedSnapshot = snapshot
-        self.cache: set[tuple[str, str, str]] = set()
+        self.cache: dict[tuple[str, str, str], bytes] = {}
 
     def verify(self, documents: list[RecordDocument]) -> list[Finding]:
         findings: list[Finding] = []
@@ -108,7 +107,14 @@ class _AuthorityVerifier:
                     issuer = as_record(document.data.get("issuer")) or {}
                     approval = as_record(document.data.get("policy_approval")) or {}
                     findings.extend(self._attribution_source(issuer, label))
-                    findings.extend(self._attribution_source(approval, label))
+                    approval_id = approval.get("approval_id")
+                    findings.extend(
+                        self._attribution_source(
+                            approval,
+                            label,
+                            approval_id if isinstance(approval_id, str) else None,
+                        )
+                    )
                 case "policy_allowance_revocation":
                     revoker = as_record(document.data.get("revoker")) or {}
                     findings.extend(self._attribution_source(revoker, label))
@@ -123,7 +129,7 @@ class _AuthorityVerifier:
         source = as_record(vocabulary.get("policy_source"))
         if source is None:
             return []
-        findings = self._trusted_source(source, label)
+        _, findings = self._trusted_source(source, label)
         ratification = as_record(source.get("ratification_record"))
         if ratification is not None:
             combined = {
@@ -131,25 +137,29 @@ class _AuthorityVerifier:
                 "repository": source.get("repository"),
                 "revision": source.get("revision"),
             }
-            findings.extend(self._trusted_source(combined, label))
+            _, ratification_findings = self._trusted_source(combined, label)
+            findings.extend(ratification_findings)
         return findings
 
     def _trusted_source(
         self, source: Record, label: str
-    ) -> list[Finding]:
+    ) -> tuple[bytes | None, list[Finding]]:
         repository = source.get("repository")
         revision = source.get("revision")
         path = source.get("path")
         expected = source.get("content_digest")
-        match repository, revision, path, expected:
-            case str(), str(), str(), str():
-                coordinates = SourceCoordinates(revision, path, expected)
-            case _:
-                return [
-                    Finding("authority-source", label, "source reference is incomplete")
-                ]
+        if (
+            not isinstance(repository, str)
+            or not isinstance(revision, str)
+            or not isinstance(path, str)
+            or not isinstance(expected, str)
+        ):
+            return None, [
+                Finding("authority-source", label, "source reference is incomplete")
+            ]
+        coordinates = SourceCoordinates(revision, path, expected)
         if repository.lower() != self.snapshot.repository_id.lower():
-            return [
+            return None, [
                 Finding(
                     "authority-repository",
                     label,
@@ -158,17 +168,19 @@ class _AuthorityVerifier:
             ]
         cache_key = (revision, path, expected)
         if cache_key in self.cache:
-            return []
+            return self.cache[cache_key], []
         findings = source_ancestry_findings(self.snapshot, revision, label)
         if findings:
-            return findings
+            return None, findings
         data, findings = read_git_blob(self.snapshot.repository, coordinates, label)
         if data is None or findings:
-            return findings
-        self.cache.add(cache_key)
-        return []
+            return None, findings
+        self.cache[cache_key] = data
+        return data, []
 
-    def _attribution_source(self, proof: Record, label: str) -> list[Finding]:
+    def _attribution_source(
+        self, proof: Record, label: str, approval_id: str | None = None
+    ) -> list[Finding]:
         source = as_record(proof.get("authority_source"))
         if source is None:
             return [
@@ -176,4 +188,39 @@ class _AuthorityVerifier:
                     "authority-source", label, "principal authority source is missing"
                 )
             ]
-        return self._trusted_source(source, label)
+        data, findings = self._trusted_source(source, label)
+        if data is None or findings:
+            return findings
+        authorizations, content_findings = parse_authority_authorizations(data, label)
+        if authorizations is None:
+            return content_findings
+        principal_id = proof.get("principal_id")
+        authority_role = proof.get("authority_role")
+        if not isinstance(principal_id, str) or not isinstance(authority_role, str):
+            return [
+                Finding(
+                    "authority-attribution",
+                    label,
+                    "principal and authority role are required",
+                )
+            ]
+        authorization = next(
+            (
+                item
+                for item in authorizations
+                if item.principal_id == principal_id
+                and item.authority_role == authority_role
+            ),
+            None,
+        )
+        if authorization is None or (
+            approval_id is not None and approval_id not in authorization.approval_ids
+        ):
+            return [
+                Finding(
+                    "authority-attribution",
+                    label,
+                    "principal, authority role, and approval do not resolve together",
+                )
+            ]
+        return []
