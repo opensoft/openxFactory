@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -62,13 +63,25 @@ def _parser() -> argparse.ArgumentParser:
 
 
 def _git_root(path: Path) -> Path | None:
+    environment = os.environ.copy()
+    for name in release._SCRUBBED_GIT_ENVIRONMENT:
+        environment.pop(name, None)
+    environment["GIT_NO_REPLACE_OBJECTS"] = "1"
     try:
         result = subprocess.run(
-            ["git", "-C", str(path), "rev-parse", "--show-toplevel"],
+            [
+                "git",
+                "--no-replace-objects",
+                "-C",
+                str(path),
+                "rev-parse",
+                "--show-toplevel",
+            ],
             capture_output=True,
             text=True,
             check=False,
             timeout=10,
+            env=environment,
         )
     except (OSError, subprocess.TimeoutExpired):
         return None

@@ -108,6 +108,7 @@ RELEASE_SURFACE_PATHS = (
 )
 
 _SCRUBBED_GIT_ENVIRONMENT = (
+    "GIT_COMMON_DIR",
     "GIT_DIR",
     "GIT_WORK_TREE",
     "GIT_INDEX_FILE",
@@ -620,7 +621,17 @@ def _collect_members(
         ):
             intent_registrations.append(entry)
 
-    if intent_registrations:
+    intent_contract_members = source.list_files(INTENT_CONTRACT_PREFIX)
+    intent_implementation_members = source.list_python(INTENT_IMPLEMENTATION_PACKAGE)
+    intent_test_members = source.list_python(INTENT_TEST_PACKAGE)
+    intent_surface_present = bool(
+        intent_contract_members
+        or intent_implementation_members
+        or intent_test_members
+        or source.exists(INTENT_VALIDATOR_PATH)
+    )
+
+    if intent_registrations or intent_surface_present:
         registrations_by_identity = {
             (entry.get("id"), entry.get("path"), entry.get("type")): entry
             for entry in intent_registrations
@@ -643,11 +654,12 @@ def _collect_members(
                 "contract_schema_version": registration.get("schema_version"),
                 "type": artifact_type,
             }
-        for member in source.list_files(INTENT_CONTRACT_PREFIX):
+        for member in intent_contract_members:
             members.add(member)
-        for package in (INTENT_IMPLEMENTATION_PACKAGE, INTENT_TEST_PACKAGE):
-            for member in source.list_python(package):
-                members.add(member)
+        for member in intent_implementation_members:
+            members.add(member)
+        for member in intent_test_members:
+            members.add(member)
         members.add(INTENT_VALIDATOR_PATH)
         members.add("scripts/__init__.py")
 
