@@ -250,6 +250,20 @@ specification, so that one fact lives in one place, and every digest a record
 carries SHALL be algorithm-tagged so a later migration is a readable change
 rather than a silent reinterpretation.
 
+**ONE CONSTRUCTION, DISTINCT SUBJECTS — AND THE DISTINCTION IS LOAD-BEARING.**
+The construction is shared; what each digest is taken OVER is not, and this
+capability computes three that a reader can conflate. The **ratification's
+content digest** is taken over the subject being ratified, and it is what an
+exercise's `object_ref` carries. The **chain identity** is taken over the SIGNED
+ratification — a superset of that content, since the signed bytes also carry the
+reference to the exercise and its per-act value. A **leaf digest** is taken over
+a transparency-log leaf. Each record SHALL name which subject its digest is
+taken over, because a construction rule that fixes the algorithm while leaving
+the subject implicit produces readers that agree on how to hash and disagree on
+what. The content digest and the chain identity in particular MUST NOT be
+equated: doing so would make the exercise's `object_ref` depend on the signature
+that has not been made yet, and no implementation could construct the record.
+
 **THE RULE IS STATED ONCE, DELIBERATELY, AND NOT PER DIGEST.** A requirement that
 mandates agreement between readers while naming neither algorithm nor encoding
 makes agreement impossible: two readers serializing the same record differently
@@ -276,6 +290,17 @@ rule anywhere.
 
 - WHEN a record carries a digest with no algorithm tag
 - THEN it is REFUSED, because an untagged digest cannot be migrated without silently changing meaning
+
+#### Scenario: the content digest is equated with the chain identity
+
+- WHEN a realization treats the ratification's content digest and the chain identity as the same value
+- THEN it is REFUSED, because the chain identity is taken over the SIGNED ratification and the content digest over the subject ratified
+- AND the equation is unbuildable in any case, since it would make an exercise's `object_ref` depend on a signature not yet made
+
+#### Scenario: a digest names no subject
+
+- WHEN a record carries a correctly constructed, algorithm-tagged digest that does not name what it was taken over
+- THEN it is REFUSED, because readers that agree on how to hash can still disagree on what was hashed
 
 ### Requirement: The signed ratification travels with the work
 
