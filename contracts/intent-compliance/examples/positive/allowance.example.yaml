@@ -21,6 +21,8 @@ issuer:
     content_digest: "sha256:5555555555555555555555555555555555555555555555555555555555555555"
 policy_approval:
   approval_id: neutral.policy_approval.1
+  principal_id: neutral.approver.1
+  authority_role: neutral.policy_approver
   authority_source:
     repository: example/domain-factory
     path: governance/intent-compliance-authority.yaml
@@ -29,4 +31,4 @@ policy_approval:
 approved_at: "2026-01-01T00:00:00Z"
 valid_from: "2026-01-01T00:00:00Z"
 valid_until: "2027-01-01T00:00:00Z"
-approval_digest: "sha256:0959a2d37d440289fbd7bbdf815832f3dfdcee812bedcc823d83950165133f1f"
+approval_digest: "sha256:219383e0dae21b8f703c79bc8ca9062ef152a8748bbc4fabd007562cbf02fae5"

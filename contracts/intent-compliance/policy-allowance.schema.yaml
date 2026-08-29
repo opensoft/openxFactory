@@ -53,9 +53,11 @@ properties:
   policy_approval:
     type: object
     additionalProperties: false
-    required: [approval_id, authority_source]
+    required: [approval_id, principal_id, authority_role, authority_source]
     properties:
       approval_id: {$ref: "#/$defs/identifier"}
+      principal_id: {$ref: "#/$defs/identifier"}
+      authority_role: {$ref: "#/$defs/identifier"}
       authority_source: {$ref: "#/$defs/authority_source"}
   approved_at: {type: string, format: date-time}
   valid_from: {type: string, format: date-time}

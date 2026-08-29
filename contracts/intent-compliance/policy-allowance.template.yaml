@@ -21,6 +21,8 @@ issuer:
     content_digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
 policy_approval:
   approval_id: example.approval_record
+  principal_id: example.approver
+  authority_role: example.policy_approver
   authority_source:
     repository: example/domain-factory
     path: governance/intent-compliance-authority.yaml

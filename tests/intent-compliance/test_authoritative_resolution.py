@@ -6,6 +6,10 @@ from pathlib import Path
 
 from scripts.intent_compliance import authority_validation
 from scripts.intent_compliance.model import RecordDocument, load_record_documents
+from scripts.intent_compliance.schema_validation import (
+    schema_findings,
+    schema_validators,
+)
 from scripts.intent_compliance.state_validation import canonical_digest
 from scripts.intent_compliance.validator import validate_documents
 
@@ -58,11 +62,15 @@ def test_registry_when_listed_revocation_record_is_missing_then_rejected() -> No
     assert "registry-revocation" in codes
 
 
-def test_allowance_when_role_exists_only_in_other_vocabulary_digest_then_rejected() -> None:
+def test_allowance_when_role_exists_only_in_other_vocabulary_digest_then_rejected() -> (
+    None
+):
     # Given
     records = _positive()
     vocabulary = next(
-        record for record in records if record.data.get("kind") == "veto_class_vocabulary"
+        record
+        for record in records
+        if record.data.get("kind") == "veto_class_vocabulary"
     )
     allowance = next(
         record for record in records if record.data.get("kind") == "policy_allowance"
@@ -82,7 +90,9 @@ def test_allowance_when_role_exists_only_in_other_vocabulary_digest_then_rejecte
         changed_allowance, "approval_digest"
     )
     changed_records = [
-        RecordDocument(record.path, changed_allowance) if record is allowance else record
+        RecordDocument(record.path, changed_allowance)
+        if record is allowance
+        else record
         for record in records
     ]
     changed_records.append(RecordDocument(vocabulary.path, substituted_vocabulary))
@@ -92,6 +102,30 @@ def test_allowance_when_role_exists_only_in_other_vocabulary_digest_then_rejecte
 
     # Then
     assert "authority-attribution" in codes
+
+
+def test_policy_approval_when_principal_and_role_are_missing_then_schema_rejects() -> (
+    None
+):
+    # Given
+    records = _positive()
+    allowance = next(
+        record for record in records if record.data.get("kind") == "policy_allowance"
+    )
+    changed = copy.deepcopy(allowance.data)
+    approval = changed["policy_approval"]
+    assert isinstance(approval, dict)
+    approval.pop("principal_id", None)
+    approval.pop("authority_role", None)
+
+    # When
+    findings = schema_findings(
+        RecordDocument(allowance.path, changed),
+        schema_validators(ROOT / "contracts" / "intent-compliance"),
+    )
+
+    # Then
+    assert "schema" in {finding.code for finding in findings}
 
 
 def test_submission_when_candidate_omits_newer_trusted_registry_then_rejected(
