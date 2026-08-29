@@ -391,6 +391,51 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-signed-execution-chain](openspec/changes/add-signed-execution-chain/proposal.md)
+  — **UNRATIFIED, AND A CLARIFY ROUND PRECEDES ITS RATIFICATION.** Exit 1 of
+  three of the staged topic `signed-execution-chain`: **the tranche its own exit
+  path marks "Composable TODAY"** — links 1–3 (a ratification admitted only on
+  wallet-carried authority PROVEN BY POSSESSION, ratification and chain
+  inception as ONE signed act, and the signed ratification carried as a
+  TRAVELING CONTRACT), plus the append-only signed transparency log (a
+  tranche-one artifact by that same text's sequencing note — *"the log is the
+  record; the anchors are late additions to it"*), plus the gate existing from
+  tranche one **validating a SHORT chain** so the refusal path is exercised from
+  the start rather than first tested when it matters most. **The inversion is
+  the point: a validated chain is not an audit trail, it is a PERMISSION** — an
+  audit trail is written after the fact and can be forged after the fact, while
+  a chain the gate walks before it permits the terminal act cannot be, because
+  the act does not happen without it. **A broken or missing link is a FRAUD
+  SIGNAL and a refusal, never a warning**, and an unevaluable chain refuses on
+  the family's fail-closed doctrine. The gate validates HASH-LINKED CONTINUITY,
+  never a bag of signatures: individually valid artifacts from DIFFERENT
+  executions must not assemble into a chain. **TWO CONSTRAINTS COME FROM THE
+  2026-08-28 `gate_rules_council` CONVENING** (codexFactory
+  `hermes/domain/review-councils/records/2026-08-28-gate-rules-openxfactory-substantive-classes.md`,
+  unanimous 5/5): the chain-inception act is **OUT-OF-PIPELINE BY PROVEN
+  NECESSITY** — a class over `openspec/changes/**` can never commission a
+  council, measured 984 admitted / 984 floored / 0 remaining and reproduced
+  code-level, so routing inception through the envelope would describe a control
+  that cannot run; and link 7 composes with the **§7.4
+  council-reviewed-but-human-approved path**, which "needs no class and no
+  flip", NOT with the clearance envelope — `025`'s FR-008 is left gated exactly
+  where the convening left it. **THE VOCABULARY ACT**: link 2's act is named
+  **`chain inception`**, NOT enrollment, because FR-008 already owns that word
+  here for candidate-class entry into a `merge-approval-envelope` and
+  `add-worker-enrollment-broker` carries a third sense; the non-collision is
+  stated in requirement text, not only in the proposal. **Composes with the
+  REALIZED wallet artifacts and invents no second vocabulary**: link 1's
+  instrument is the shipped `xfactory_wallet_grant` /
+  `xfactory_wallet_grant_exercise` pair at the `contracts/openxwallet-pin.yaml`
+  digest pin, whose closed refusal enumeration already separates
+  `missing_proof_of_possession` from `missing_grant`. Six ADDED requirements, no
+  MODIFIED block anywhere. **Two narrowings are FLAGGED rather than assumed**
+  and go to the clarify round with Q1: tier 1 narrowed to RATIFYING authority
+  (the literal tier-model sentence would refuse the realized agent-held
+  `wal-agent-mrc-0001` review wallet), and Q1's "rather than a new artifact"
+  read as "invent no new artifact". Tranches two (attestation, links 4–6 and 10,
+  gated on Q7) and three (on-chain anchoring, gated on Q3 and Q6) are NAMED
+  successors and are not drafted.
 - [settle-aging-staging-topics](openspec/changes/settle-aging-staging-topics/proposal.md)
   — authored 2026-08-28 on Brett's four bulk rulings over a read-only triage
   survey of the fourteen staging topics `doc-health`'s

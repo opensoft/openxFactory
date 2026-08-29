@@ -1814,6 +1814,25 @@ repo scope.
   The chain-validating gate should exist FROM TRANCHE ONE validating a short
   chain, so the refusal path is exercised from the start rather than first tested
   when it matters most.
+- **EXIT 1 IS RAISED, 2026-08-29 — the active change `add-signed-execution-chain`**
+  (`openspec/changes/add-signed-execution-chain/proposal.md`), carrying links 1–3
+  plus the transparency log plus the short-chain gate, with a NEW neutral
+  `signed-execution-chain` capability of six ADDED requirements. **NOT recorded
+  as `Exit taken:`, deliberately**: that record silences `staged-candidate-aging`
+  only when it names an ARCHIVED change, and this topic must keep ageing while
+  tranches two and three are unraised. The packet renames link 2's act **`chain
+  inception`** — `specs/025-openxfactory-review-lane-caller/spec.md` FR-008
+  already owns "enrollment" here for the entry of a candidate class into a
+  `merge-approval-envelope`, and a second adjacent sense on the same pull
+  requests is the collision the 2026-08-28 seats named as the live risk. It also
+  flags TWO narrowings for the clarify round rather than assuming them: tier 1
+  narrowed to RATIFYING authority (the literal tier-model sentence would refuse
+  the realized agent-held `wal-agent-mrc-0001` review wallet, whose
+  `holder_readable` custody is separately why it could never carry a ratifying
+  grant), and Q1's "rather than a new artifact" read as "invent no new artifact",
+  honoured by referencing the shipped `xfactory_wallet_grant_exercise`. The
+  packet is UNRATIFIED; the clarify round on all seven questions precedes
+  Brett's ratification.
 
 ## notebook-access-wallet-governance
 

@@ -1,0 +1,41 @@
+schema: spec-driven
+created: 2026-08-29
+origin:
+  kind: staged
+  id: openxFactory:staging:signed-execution-chain
+  path: ideation/staging/signed-execution-chain
+  reason: >-
+    EXIT 1 OF THREE of the staged topic — the tranche its own `## Exit path`
+    marks "Composable TODAY", raised without waiting for the rulings its
+    siblings wait on. Links 1–3, PLUS the signed transparency log (a tranche-one
+    artifact by that same text's sequencing note — "the log is the record; the
+    anchors are late additions to it"), PLUS the gate existing from tranche one
+    "validating a short chain, rather than arriving at the end validating a long
+    one". Tranche two (attestation, links 4–6 and 10, gated on Q7 and on the
+    omnigent layer plus `implement-openxpki-install-repo`) and tranche three
+    (on-chain anchoring, gated on rulings for Q3 and Q6) are NAMED successors
+    and are not drafted here.
+
+    THE TOPIC was registered 2026-08-27 from Brett Heap's expansion ruling of
+    that day and hardened by five adversarial review rounds on its own pull
+    request (openxFactory PR #452, squash `6612d323`), which is why it is the
+    design authority for this packet rather than a starting point: the ten
+    links, the hash-linked binding rule, the two enforcement horizons with the
+    remediation exemption, the tier model forced by `access_secrets: false`, and
+    the on-chain boundary all arrived through that bench. The vendored
+    `chain-selection-study.md` beside it is research input, cited and not
+    re-argued.
+
+    THIS PACKET IS NOT RATIFIED AND CLAIMS NO RATIFICATION. Drafting was
+    commissioned in the 2026-08-28 session handoff whose board names "draft the
+    signed-execution-chain change tranche one"; that act commissioned the
+    DRAFT and nothing else. A CLARIFY ROUND PRECEDES RATIFICATION — the topic's
+    seven open questions in one sitting, of which Q1 (wallet-presentation
+    mechanics) is the only blocker for this tranche, together with two
+    narrowings this packet flags rather than assumes: tier 1 narrowed to
+    RATIFYING authority (the literal topic text would refuse the realized
+    agent-held `wal-agent-mrc-0001` review wallet), and Q1's "rather than a new
+    artifact" read as "invent no new artifact", honoured by referencing the
+    shipped `xfactory_wallet_grant_exercise` rather than minting a second proof
+    vocabulary. Ratification is Brett Heap's act and is recorded in `tasks.md`
+    §3 as an open box.

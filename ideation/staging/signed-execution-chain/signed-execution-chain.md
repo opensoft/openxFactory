@@ -20,6 +20,7 @@ chain-selection study is vendored beside this file and answers Q3: the signed
 transparency log is the record, Bitcoin is the primary anchor with Kaspa an
 optional secondary, consent logic stays in a governed permissioned layer, and
 nothing anchored is ever an unsalted hash.
+Staging ID: openxFactory:staging:signed-execution-chain
 
 ## Pre-document idea notes
 
