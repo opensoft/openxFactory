@@ -111,7 +111,8 @@ SHALL NOT ride this addition.
 
 #### Scenario: A consuming system is offered as a persona
 - **WHEN** a binding names its consuming system by a broker persona or actor-subject reference
-- **THEN** it MUST be rejected, because a workload is not a persona and its authority comes from this capability's grants and from wallet holders
+- **THEN** the record is NON-CONFORMING, because a workload is not a persona and its authority comes from this capability's grants and from wallet holders
+- **AND** the refusal is the REQUIREMENT'S rather than the validator's wherever the identifier's form does not distinguish the two — a check offered against this scenario MUST state which shapes it actually detects and MUST NOT be described as deciding the general case
 
 #### Scenario: The consumer is a wallet-carrying governed actor
 - **WHEN** the consuming system is a governed actor that carries a wallet
@@ -132,14 +133,6 @@ the lift UNAVAILABLE and never merely UNCHECKED, because a check that treats
 what it could not read as satisfied is the fail-open shape this family has
 already had to repair once.
 
-THE FIFTH CONDITION OVER-REFUSES DELIBERATELY. Excluding dispatch-only on both
-sides means two consumers of ONE dispatch-only credential are refused too, which
-nothing else in this capability forbids. That is a chosen conservatism, not an
-oversight: the dispatch class is where serving-tier separation lives, and a rule
-that refuses a shape no consumer currently needs is cheaper to relax on evidence
-than a rule that admits one nobody checked. Relaxing it SHALL be a separate act
-carrying its own case.
-
 THE FIFTH CONDITION IS WHAT KEEPS THE ORIGINAL RULE INTACT, and it exists
 because the lift would otherwise be the laundering route for the exact fault the
 rule was built to refuse. This capability already forbids a dispatch-only
@@ -151,11 +144,23 @@ be inferred from the binding's map key: the key is a requirement id by
 convention only, the shape enforces no key grammar, and a safety precondition
 resting on an unenforced convention is not a precondition.
 
-A REFUSAL SHALL NAME THE FAULT IT FOUND. Two bindings on one secret whose FETCH
-IDENTITIES are the same SHALL be refused under a distinct finding that names
-two systems sharing one authority, rather than under the finding about two
-credentials collapsing into one. They are different faults with different
-remedies, and a reader told about the wrong one repairs the wrong thing.
+AND IT OVER-REFUSES DELIBERATELY. Excluding dispatch-only on both
+sides means two consumers of ONE dispatch-only credential are refused too, which
+nothing else in this capability forbids. That is a chosen conservatism, not an
+oversight: the dispatch class is where serving-tier separation lives, and a rule
+that refuses a shape no consumer currently needs is cheaper to relax on evidence
+than a rule that admits one nobody checked. Relaxing it SHALL be a separate act
+carrying its own case.
+
+A REFUSAL SHALL NAME THE FAULT IT FOUND, AND NAME IT ONCE. Two bindings on one
+secret whose FETCH IDENTITIES are the same SHALL be refused under a distinct
+finding that names two systems sharing one authority, rather than under the
+finding about two credentials collapsing into one. They are different faults
+with different remedies, and a reader told about the wrong one repairs the wrong
+thing. Where the distinct finding applies it REPLACES the default finding for
+that pair rather than accompanying it: one fault SHALL produce one finding, or a
+reader repairing the named fault is left with a second refusal describing the
+same record.
 
 THE COMPARISON IS WITHIN ONE RECORD. These conditions are evaluated across the
 bindings of a single template by a validator that reads one repository, and
