@@ -84,6 +84,46 @@ origin:
     ruling: >-
       Brett Heap, 2026-08-29, in session: ACCEPT ALL BLOCKING AMENDMENTS; one
       fix round; ratification read after. Authorizes this revision only.
+    # THREE FURTHER RULINGS, 2026-08-29 in session, recorded separately because
+    # each decides a question the bench deliberately left to the liaison rather
+    # than a question the bench answered.
+    rulings:
+      - id: decision-2-route
+        question: >-
+          The four-seat convergent amendment offered two routes and the bench
+          expressed no preference: (i) PHASE the block's `required:` list to the
+          major with the closure, or (ii) DELETE THE PROMISE that a pre-existing
+          locally shaped `consumer:` object stays valid, striking the scenario
+          from spec.md, proposal.md, design.md and the README.
+        ruled: >-
+          ROUTE (i) CONFIRMED. The promise is kept and the narrowing is phased,
+          rather than the promise being withdrawn to match a narrowing. Recorded
+          at design.md section 5's head, where route (ii) is also preserved as a
+          coherent design that was considered and ruled against.
+      - id: P-2-packaged-fixture-identifiers
+        question: >-
+          Parked by lead-security under its own escalation rule (LS-C1): whether
+          the packaged, digest-pinned, distributed corpus may name the LIVE
+          xFactory sync-lane and openXdox fetch identities.
+        ruled: >-
+          SYNTHETIC IDENTIFIERS. The positive two-consumer fixture MUST NOT name
+          the live identities; they stay in the consuming installs' own
+          credentials/ trees under the residency model. P-2 is DISCHARGED rather
+          than parked. Encoded at spec.md's disclosure scenario and tasks 3.1
+          and 3.5.
+      - id: P-3-delta-pair-governance-gap
+        question: >-
+          Raised by lead-architect (LA-C2) and concurred by lead-quality (LQ-C5):
+          the estate-level MODIFIED-over-a-sibling's-ADDED gap — no governing
+          requirement, no evaluating arm, no marker. Both seats said this change
+          must neither close it nor be delayed for it.
+        ruled: >-
+          FILE THE SUCCESSOR NOW. Filed as openxFactory issue #502, carrying the
+          three holes with line citations, the four questions a successor must
+          settle, and the measured population (FOUR live PENDING pairs on
+          origin/main 3b342561; the seats' "eight" is the cumulative figure).
+          This change neither closes nor waits on it. Cited from design.md
+          section 7 and tasks section 8.
 related:
   - openxFactory:change:add-notebook-hosting-credential-custody  # RATIFIED 2026-08-23, ACTIVE. Its tasks §4.5 names this change; this change MODIFIES its "Each consuming system reaches a shared operated identity through its own binding" requirement and declares its delta relative to that change's outcome per release-realization's ordered-deltas requirement
   - openxFactory:change:add-credential-escrow-checkout           # RATIFIED 2026-08-28, ACTIVE. The OTHER active writer on this schema file: an additive optional `escrow:` block on the same binding kind plus a sixth record kind. Two additive blocks on one shape, two cuts owed on one file — the coordination is stated in proposal.md § The other writer on this file

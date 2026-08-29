@@ -350,6 +350,25 @@ exact shape one record kind over
 
 ## 5. The block is DECLARED at the minor and CONSTRAINED at the major — all of it
 
+> **RULED BY BRETT HEAP, 2026-08-29 (in session): Decision 2, ROUTE (i).** The
+> council put two routes and left the choice to `lead-architect`: **(i) PHASE
+> IT** — the block's `required:` list moves to the major with the closure — or
+> **(ii) DELETE THE PROMISE** — declare that a pre-existing locally shaped
+> `consumer:` object is a shape the estate declines to protect, and strike the
+> scenario that says otherwise from `spec.md`, `proposal.md`, `design.md` and the
+> README. The bench was unanimous that one of the two was required before
+> ratification and expressed no preference between them. **Brett confirmed route
+> (i)**, which is what this section builds: the promise is kept and the
+> narrowing is phased, rather than the promise being withdrawn to match a
+> narrowing.
+>
+> The ruling is recorded here because it is an `architecture_direction` decision
+> the council explicitly routed to a decision-maker, not an authoring choice —
+> and because route (ii) remains a coherent design that a later reader might
+> otherwise assume was never considered. It was; it was ruled against. The
+> convening record cross-reference is in `.openspec.yaml`'s `council_review`
+> block under `rulings`.
+
 `additionalProperties: false` goes on the block, is NOT proposed for the binding
 object around it, and does not land at the same release as the block. Nor does
 `required:`. Nor does the identifier `pattern`. **All three are the breaking
@@ -409,9 +428,29 @@ P1 round had all read the prescription instead of executing it.
 **So the phasing is now uniform and the rule is one sentence:** at the
 introducing minor the schema constrains NOTHING about `consumer:` — it declares
 the property, describes its members, and stops. Every constraint arrives together
-at the major, behind one deprecation window and three warning codes. That also
+at the major, behind one deprecation window and FIVE warning codes. That also
 dissolves the layer problem §5b had, because at the minor every consumer check
 lives in the validator, which is the layer the stub exemption can reach.
+
+**CORRECTION THREE, from a bot round on the fix round itself, and it is the
+reason this section now says "wherever it sits" rather than "about the block".**
+Two narrowings escaped the uniform rule because they were written down somewhere
+other than the block. `consumer: {}` — a block that exists and declares neither
+identifier — matched NONE of the three warning codes then defined, so it would have crossed
+the whole minor in silence and been refused at the major, leaving the
+requiredness change without the warning release the policy requires. And the
+`credential_bindings` MAP-KEY grammar was prescribed with no phasing at all while
+its two immediate neighbours in the same task list, the `access_mode` vocabulary
+and the `requirements_document_ref` grammar, both had it. Measured: of five
+plausible existing keys, four are VALID today and REFUSED by the grammar.
+
+**That is the fourth and fifth instance of one defect, and the last two arrived
+inside the repair for the first three.** The generalisation the section had been
+missing, now written where it cannot be missed: *every* act that refuses a value
+the current major accepts phases, whether it sits on the block, on the map, or on
+a neighbouring record — and the warning set is ENUMERATED against the refusals it
+must cover, never summarised. Nothing about this was hard to see once someone
+enumerated what an empty block matches; nobody had.
 
 **Still NOT the binding object.** That closure is a further breaking act with a
 much wider blast radius, and it stays a named successor.
@@ -525,11 +564,20 @@ declaration becomes REQUIRED so the disclosure stops being opt-in.
 residency model bounds it by keeping instance records in the consuming installs.
 The repair is that the requirement STATES it — as a third half of the disclosure
 obligation, with its own scenario — and that packaged fixtures use fixture values
-rather than live identifiers. **Whether the corpus may ever name the live
-identifiers is PARKED for the operator**, because it turns on the repository's
-audience and on whether those identifiers are already public, and the seat that
-raised it parked rather than resolved it under its own escalation rule. The
-conservative answer holds in the meantime.
+rather than live identifiers. **RULED BY BRETT HEAP, 2026-08-29: the packaged fixtures use SYNTHETIC
+IDENTIFIERS.** A security seat parked this question under its own escalation
+rule (P-2, LS-C1) rather than resolving it — it turns on the repository's
+audience and on whether those identifiers are already public — and the liaison
+has now ruled it. **The positive two-consumer fixture MUST NOT name the live
+xFactory sync-lane or openXdox fetch identities.** Those stay where the residency
+model already puts them: in the consuming installs' own `credentials/` trees,
+which is where a live estate fact belongs and where its readership is the
+install's rather than every consumer that pins the contract. The fixture
+demonstrates the SHAPE, which is all a fixture owes; naming the real principals
+would buy illustrative realism with a permanent, digest-pinned widening of who
+knows which principal reaches which secret. **P-2 is discharged, not still
+parked**, and the packaged corpus is synthetic by rule rather than by
+convention.
 
 **A note on who found this, because it bears on the record.** This is precisely
 the client-security-compliance reading, and that seat was NOT seated at the
@@ -633,12 +681,23 @@ rather than merely defensible:
    before this change archives — a one-line check that fails loudly in exactly
    the inverted order.
 
-4. **And the estate-level gap under all of this is named as the estate's, not
-   this packet's.** MODIFIED-over-a-sibling's-ADDED is governed by no promoted
-   requirement, evaluated by no arm, and populated EIGHT times in this corpus
-   with zero markers. Two seats raised it as owed a home of its own and both said
-   this change must not be asked to close it and must not be delayed for it. It
-   is recorded here as an owed successor.
+4. **And the estate-level gap under all of this is FILED, as the estate's and
+   not this packet's — issue #502.** MODIFIED-over-a-sibling's-ADDED is governed
+   by no promoted requirement, evaluated by no arm, and declared by no marker.
+   Two seats raised it as owed a home of its own (LA-C2, LQ-C5) and both said
+   this change must neither close it nor be delayed for it. **Brett ruled on
+   2026-08-29 that the successor be filed now**, and it is: openxFactory
+   **#502**, carrying the three holes with their line citations, the four
+   settlement questions a successor must answer, and the measured population.
+   **On that population, a precision the seats' figure needs:** they cited
+   EIGHT, which is the family docstring's historical seven (counted at the
+   2026-08-27 ruling) plus this packet's own block. Measured live on
+   `origin/main` `3b342561` with the family's own `resolve`, the corpus carries
+   **FOUR** PENDING pairs, zero markers between them — this change,
+   `add-wallet-carried-review-authority`, `implement-keycloak-install-repo` and
+   `implement-openxpki-install-repo`. Four is the live number; eight is the
+   cumulative one. That the two differ, and that nothing tracks the turnover, is
+   itself part of what #502 exists for.
 
 ## 8. The contracts-and-release decision
 
@@ -707,9 +766,10 @@ surface and is listed as such.
 - **Not a reconciliation of the two validators that read this record kind.**
   `validate-avatar-client.py` is the avatar family's surface and is scoped OUT;
   the divergence is an owed successor — §1.
-- **Not a home for the MODIFIED-over-a-sibling's-ADDED gap.** Eight pairs, no
-  governing requirement, no evaluating arm; two seats said this change must
-  neither close it nor be delayed for it — §7.
+- **Not a home for the MODIFIED-over-a-sibling's-ADDED gap — FILED as issue
+  #502** on Brett's ruling of 2026-08-29. Four live PENDING pairs measured, no
+  governing requirement, no evaluating arm, no marker; two seats said this change
+  must neither close it nor be delayed for it, and it does neither — §7.
 - **Not the self-test count derivation.** Ruled DERIVE, filed as its own issue —
   §8.
 - **Not a second identity vocabulary.** Both identifiers are words this estate

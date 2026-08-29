@@ -115,12 +115,23 @@ acts would each refuse a shape the current major accepts — requiring members
 within the block, closing the block's member set, and imposing a grammar on the
 members' values — and each is therefore the BREAKING class however additive the
 new vocabulary looks. All three SHALL land together at the next MAJOR. At the
-introducing minor the conformance validator SHALL emit WARNINGS instead — naming
-a binding that declares no block, a block missing either identifier, a block
-carrying an undeclared member, and a member whose value does not match the
-identifier grammar — and every such record SHALL REMAIN VALID. The removal
-version SHALL be stated where a consumer upgrading across it will read it, and it
-SHALL name every one of the acts that land there rather than only the first.
+introducing minor the conformance validator SHALL emit WARNINGS instead —
+naming, as FOUR distinct findings, a binding that declares no block, a block that
+EXISTS but omits either identifier, a block carrying an undeclared member, and a
+member whose value does not match the identifier grammar — and every such record
+SHALL REMAIN VALID. The four are enumerated rather than summarised because a
+warning set that leaves any refused-at-the-major shape unwarned does not serve
+the deprecation the major depends on: a block present but empty matches none of
+the other three, and would otherwise cross the whole minor in silence.
+
+THE SAME PHASING GOVERNS EVERY OTHER NARROWING THIS CHANGE INTRODUCES, wherever
+it sits. Constraining the `credential_bindings` MAP KEY to a grammar, closing
+`access_mode` to a vocabulary, and constraining `requirements_document_ref` to a
+path grammar each refuse a value the current major accepts, so each WARNS at the
+introducing minor and is enforced only at the major. None of them is exempt for
+sitting outside the block. The removal version SHALL be stated where a consumer
+upgrading across it will read it, and it SHALL name EVERY act that lands there
+rather than only the first.
 
 A BLOCK-SHAPED HOLE IS NOT A FIELD, and DECLARING it is what this minor does.
 The reason the block is declared rather than left to convention is that an
@@ -167,10 +178,20 @@ omits it, because only the second is visible.
 - **THEN** the record remains VALID and the validator warns, because imposing the grammar is one of the three breaking acts deferred to the major
 - **AND** a release that imposed the grammar while declaring the block additive would be a narrowing wearing an additive label
 
+#### Scenario: A consumer block is present but declares neither identifier
+- **WHEN** a binding carries a `consumer:` block that exists and omits `holder_ref` or `fetch_identity`, at the introducing minor
+- **THEN** it remains VALID and the validator emits its OWN warning for that shape, distinct from the no-block warning
+- **AND** a warning set in which this shape matches nothing MUST be treated as incomplete, because it is refused at the major and would otherwise cross the whole minor unwarned
+
 #### Scenario: The block is constrained at the major
 - **WHEN** the major release that constrains the block is validated against
 - **THEN** a `consumer:` value that is not an object, a block missing either identifier, a block carrying an undeclared member, and a member failing the identifier grammar are each an ERROR
 - **AND** that release MUST have been preceded by a full minor in which every one of those produced a warning, because a required field or a narrowed shape arriving without one is a breaking change served with no deprecation
+
+#### Scenario: A binding key does not match the grammar the lift depends on
+- **WHEN** a `credential_bindings` map key does not match the identifier grammar
+- **THEN** it WARNS at the introducing minor and remains VALID, and is refused only at the major — the map accepts arbitrary keys today, so constraining it is a narrowing like any other and is not exempt for sitting outside the block
+- **AND** the lift's binding-link condition still holds at the minor, because it compares the reference's id to the key as a string and needs no grammar to do so
 
 #### Scenario: A consuming system is offered as a persona
 - **WHEN** a binding names its consuming system by a broker persona or actor-subject reference
@@ -370,8 +391,9 @@ estate principal names in its packaged, digest-pinned examples. At the major the
 declaration becomes REQUIRED, so the disclosure stops being opt-in and becomes
 estate-wide. The disclosure is worth accepting and the residency model bounds it
 by keeping instance records in the consuming installs — but it SHALL be stated
-rather than omitted, and a packaged fixture SHALL NOT carry a live fetch identity
-merely because a live one would be more illustrative.
+rather than omitted, and a packaged fixture SHALL carry SYNTHETIC identifiers and
+SHALL NOT carry a live fetch identity merely because a live one would be more
+illustrative.
 
 #### Scenario: A consumer must be denied further access
 - **WHEN** an operator must stop one consuming system fetching a shared operated identity's credential
@@ -395,7 +417,8 @@ merely because a live one would be more illustrative.
 
 #### Scenario: A packaged fixture is offered a live fetch identity
 - **WHEN** a fixture destined for the packaged, digest-pinned corpus would name a live install's fetch identity or holder reference
-- **THEN** it SHALL use a fixture value instead, because the corpus is distributed to every consumer that pins the contract and illustrative realism is not a reason to widen a disclosure
+- **THEN** it SHALL use a SYNTHETIC value instead, because the corpus is distributed to every consumer that pins the contract and illustrative realism is not a reason to widen a disclosure
+- **AND** the live identifiers remain in the consuming installs' own credential trees, where the residency model already places an estate fact and where the readership is the install's rather than every pinning consumer
 
 #### Scenario: An adopting document describes the field
 - **WHEN** a change, runbook or contract document adopts the consumer field

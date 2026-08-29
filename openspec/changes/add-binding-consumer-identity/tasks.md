@@ -80,6 +80,20 @@ found by executing it.
   reference's `requirement_id` to EQUAL its binding's key. The answer to an
   unenforced convention is to enforce it, not to discard it and trust something
   weaker.
+  **AND IT PHASES, LIKE EVERY OTHER NARROWING HERE — this task said nothing
+  about phasing while its two neighbours did, and a bot round caught the
+  asymmetry.** The map accepts arbitrary keys today. Measured: of five plausible
+  existing keys, `corpus content write`, `m365-admin (legacy)`,
+  `_leading_underscore` and `sync.lane#1` are all VALID today and all REFUSED by
+  the grammar. Imposing it at the minor would refuse four shapes the current
+  major accepts and falsify this packet's own nothing-narrows claim — **the
+  fourth instance of the exact defect the council convened over, arriving inside
+  the fix round for it.** So: `consumer-binding-key-grammar` WARNS at this minor,
+  the grammar is enforced only at the major, and the deprecation entry names it
+  with the others. **The sixth lift condition is unaffected at the minor**: it
+  compares `requirement_id` to the key as a STRING, which needs no grammar to be
+  equal — the grammar's job is to stop a key being a shape the comparison cannot
+  express, and that job is a major-release job.
 - [ ] 1.4 **Close `access_mode` to a declared vocabulary** on
   `xfactory_credential_requirements`. It is `{type: string}` today with no
   `enum`, read by one line comparing to one exact spelling — so two ABSENT modes
@@ -125,9 +139,19 @@ found by executing it.
   at that major. Does not fire on a record declaring `instantiation_stub: true`.
 - [ ] 2.2a `consumer-block-unknown-member` — WARNING on a member outside the
   declared set. Same phasing, same clause.
+- [ ] 2.2aa `consumer-block-incomplete` — WARNING on a `consumer:` block that
+  EXISTS but omits `holder_ref` or `fetch_identity`. **This code was missing and
+  a bot round found the hole by enumerating what `consumer: {}` matches: not
+  2.2 (the block is present), not 2.2a (no unknown member), not 2.2b (no
+  malformed value) — so an empty or half-filled block would have upgraded through
+  the whole minor UNWARNED and then been refused at the major.** That is the
+  requiredness change landing without the full warning release
+  `docs/contract-versioning-policy.md:250-254` mandates, and it contradicted this
+  packet's own delta text, which already promises a warning for exactly this
+  shape. Does not fire on a record declaring `instantiation_stub: true`.
 - [ ] 2.2b `consumer-member-grammar` — WARNING on a `holder_ref` or
   `fetch_identity` whose value does not match the identifier grammar. Same
-  phasing. **This code exists because the grammar is one of the three breaking
+  phasing. **This code exists because the member grammar is one of the breaking
   acts deferred to the major**: without it the grammar would be unserved by any
   deprecation, and the major could not land on the policy's own precondition.
 - [ ] 2.3 `shared-secret-identity` — keep the predicate and the refusal as the
@@ -195,9 +219,10 @@ found by executing it.
 - [ ] 3.1 POSITIVE: two consuming systems reaching one operated identity in one
   template — the fixture the custody change DECLINED because the unsharpened rule
   refuses it. It carries all six lift conditions, including each reference's
-  `requirement_id` equal to its own map key. **FIXTURE VALUES, NOT LIVE ONES**:
-  it must not name the live xFactory sync-lane or openXdox fetch identities, on
-  §3.5.
+  `requirement_id` equal to its own map key. **SYNTHETIC IDENTIFIERS, RULED BY
+  BRETT 2026-08-29**: it MUST NOT name the live xFactory sync-lane or openXdox
+  fetch identities. Those stay in the consuming installs' own `credentials/`
+  trees. See §3.5.
 - [ ] 3.2 NEGATIVES, one per named refusal: same fetch identity with different
   holders; same holder reference; one-sided acknowledgment; acknowledgment valued
   false; stub token valued false; a dispatch/content pair declaring itself
@@ -232,14 +257,18 @@ found by executing it.
   inventory in the SAME COMMIT**, including the new `warning/` members. Deriving
   the count without that is fail-open and would silently accept a shrinking
   corpus of security probes.
-- [ ] 3.5 **NO LIVE IDENTIFIER IN THE PACKAGED CORPUS.** The corpus is
-  digest-pinned and distributed to every consumer that pins the contract, and a
-  declared `fetch_identity` beside a `vault` and a `secret_ref` publishes which
-  principal reaches which secret. Fixture values only. **Whether the corpus may
-  EVER name the live identifiers is PARKED for the operator** — it turns on the
-  repository's audience and on whether those identifiers are already public; a
-  security seat parked it under its own escalation rule rather than resolving it,
-  and the conservative answer holds until the operator rules.
+- [ ] 3.5 **NO LIVE IDENTIFIER IN THE PACKAGED CORPUS — RULED, NOT PARKED.** The
+  corpus is digest-pinned and distributed to every consumer that pins the
+  contract, and a declared `fetch_identity` beside a `vault` and a `secret_ref`
+  publishes which principal reaches which secret. **Brett ruled on 2026-08-29:
+  packaged fixtures use SYNTHETIC identifiers.** A security seat had parked the
+  question under its own escalation rule (P-2, LS-C1) because it turns on the
+  repository's audience; the liaison has now decided it, so P-2 is DISCHARGED
+  rather than open. The live xFactory sync-lane and openXdox fetch identities
+  stay in the consuming installs' own `credentials/` trees — where the residency
+  model already puts an estate fact, and where the readership is the install's
+  rather than every pinning consumer. A grep of the packaged corpus for the live
+  identifier strings rides with §6.4.
 - [ ] 3.6 The existing `dispatch-reuses-content-secret.yaml` negative KEEPS
   RAISING `shared-secret-identity`. Assert it EXPLICITLY and assert it the way
   the seat broke it: add the four declarations that granted the lift under the
@@ -309,10 +338,14 @@ the section's authority comes from being exhaustive.
   — **UNCONDITIONAL, not "subject to the council's ruling": the council ruled
   YES, unanimously, and two seats escalated it to load-bearing.** The entry names
   the removal version, the migration path, and **EVERY act that lands there**:
-  `consumer-identity-undeclared`, `consumer-block-unknown-member`,
-  `consumer-member-grammar`, the block's closure, the `access_mode` vocabulary
-  and the `requirements_document_ref` grammar. Without the entry, at the major
-  nothing can demonstrate the policy's own precondition was met and the
+  `consumer-identity-undeclared`, `consumer-block-incomplete`,
+  `consumer-block-unknown-member`, `consumer-member-grammar`,
+  `consumer-binding-key-grammar`, the block's closure, the member requiredness,
+  the `access_mode` vocabulary, the `requirements_document_ref` grammar and the
+  `credential_bindings` map-key grammar. **Ten items, and the entry lists all
+  ten** — every one is a shape the current major accepts and the next one
+  refuses, so every one owes its minor of warnings. Without the entry, at the
+  major nothing can demonstrate the policy's own precondition was met and the
   requiredness becomes unauditable.
 - [ ] 5.1a **THE ENTRY GATES THE MAJOR ON THE DEGRADED MODE.** It states that
   the requiredness does not land until the degraded fetch-identity mode is
@@ -405,10 +438,14 @@ the section's authority comes from being exhaustive.
 - **Reconciling the two validators that read `xfactory_credential_binding_template`.**
   `validate-avatar-client.py` is the avatar family's surface; the divergence is
   an owed successor, named in design §1 rather than widened in silence.
-- **A home for the MODIFIED-over-a-sibling's-ADDED gap.** Eight pairs in this
-  corpus, no governing requirement, no evaluating arm. Two seats raised it as
-  owed a home of its own and both said this change must neither close it nor be
-  delayed for it.
+- **A home for the MODIFIED-over-a-sibling's-ADDED gap — FILED AS ISSUE #502.**
+  No governing requirement, no evaluating arm, no marker; FOUR live PENDING pairs
+  measured on `origin/main` `3b342561` (the seats' "eight" is the cumulative
+  figure, being the family docstring's historical seven plus this block). Two
+  seats raised it as owed a home of its own and both said this change must
+  neither close it nor be delayed for it; **Brett ruled on 2026-08-29 that the
+  successor be filed now**, and #502 is that filing. This change carries only its
+  own local stopgap — §7.2's pre-archive assertion — and does not wait on #502.
 - **The self-test count derivation.** Ruled DERIVE; filed as its own
   `credential-contracts` test-hygiene issue.
 - **Live binding instances.** The residency model holds: they live in the
@@ -420,7 +457,8 @@ the section's authority comes from being exhaustive.
   evict one of two consumers believing they evicted the access.
 - **Reconciling a declared fetch identity against the store's actual grants.**
   A live-estate act with its own home; the requirement says the store governs.
-- **Whether the packaged corpus may name LIVE fetch identities.** PARKED for the
-  operator; fixture values until then.
+- **~~Whether the packaged corpus may name LIVE fetch identities.~~ RULED
+  2026-08-29 — SYNTHETIC identifiers, and the live ones stay in the installs.
+  No longer parked; see §3.5.**
 - **Any change to `shared-secret-identity`'s behaviour on records that declare
   no consumer.** They are refused today and are refused after this change.

@@ -1,5 +1,5 @@
 ---
-code_surface: openxFactory — A SCHEMA CHANGE PLUS PACKAGED FIXTURES PLUS A VALIDATOR CHANNEL THAT DOES NOT EXIST YET. `contracts/schemas/xfactory-credential-contracts.schema.yaml` gains ONE additive optional `consumer:` block on each entry of `credential_bindings` in the existing `xfactory_credential_binding_template`, DECLARED AT THIS MINOR AS AN ANNOTATION ONLY — no `type`, no member grammar, no `required:`, no `additionalProperties: false`. Its members (`holder_ref`, `fetch_identity`, a qualified `requirement_ref` of `requirement_id` + a repository-relative `requirements_document_ref`, a const-true `shared_credential_acknowledged`, and a const-true `instantiation_stub`) are described in the schema and enforced only at the MAJOR, where all three breaking acts land together: requiredness, closure, and the identifier grammar. The schema also gains a grammar on the `credential_bindings` MAP KEY and a closed `access_mode` vocabulary — both preconditions of the lift, not decoration. `scripts/validate-credential-contracts.py` gains (a) a WARNING channel — it has none today, it prints `ERROR` and counts errors and nothing else — and (b) the finding codes: `consumer-identity-undeclared`, `consumer-block-unknown-member`, `consumer-member-grammar` (all three WARN at this minor and ERROR at the major), the sharpened `shared-secret-identity`, and the new `shared-authority-identity`; it also extends `_looks_like_raw_secret` over `consumer.holder_ref` and `consumer.fetch_identity` under `baked-secret`, and REPLACES its first-against-rest `seen`-map with an every-pair comparison. Packaged fixtures under the existing `examples/credential-contracts/` tree — including a `warning/` directory and a `WARNING_EXPECTATIONS` map the self-test does not have today, without which the deprecation the major depends on ships with no probe — and every new fixture joins the by-name inventory at `tests/credential_contracts/test_dispatch_credential_contract.py:38-51` in the same commit. That file also asserts the self-test count string verbatim at `:35`; the count is DERIVED rather than asserted, in its own issue rather than here. Registration in `contracts/manifest.yaml` and `contracts/CHANGELOG.md` at the cut, a `Deprecations Currently In Force` entry in `docs/contract-versioning-policy.md` naming ALL of the acts that land at the major, and `docs/credential-access-model.md` — whose worked binding at `:219-225` is one of the artifacts below and whose `:228-229` no-raw-secret sentence is extended to the new fields in the same commit. AND THE SHIPPED ARTIFACTS THAT ALREADY WRITE THIS SHAPE, swept for rather than assumed: `scripts/apply-domain-starter.py:2096-2102`, which EMITS `credentials/bindings.template.yaml` into every newly scaffolded domain repository and which SHALL emit no `consumer:` block at all (a named comment instead), because a placeholder that fails the identifier grammar and a sentinel that passes it are both worse than omission; `docs/domain-factory-starter-pack.md:804-810`, the same template in prose; `docs/credential-access-model.md:219-225`, the worked example; and `contracts/avatar-client/broker-server-key-binding.template.yaml`, a SHIPPED record of this very kind carrying `resolution.fetch_identity` — named, reconciled and scoped rather than left unmentioned. The full sweep command returns THIRTEEN paths and each carries a stated in/out disposition. NOT THIS CHANGE'S SURFACE, each for a stated reason: the LIVE binding instances (residency model); the openXdox binding (its own repository's lane); the hosting record's singular `custody.binding_id` pointer (OQ-3); and any cross-repository comparison of two consumers' bindings (an owed successor in § Honest reach).
+code_surface: openxFactory — A SCHEMA CHANGE PLUS PACKAGED FIXTURES PLUS A VALIDATOR CHANNEL THAT DOES NOT EXIST YET. `contracts/schemas/xfactory-credential-contracts.schema.yaml` gains ONE additive optional `consumer:` block on each entry of `credential_bindings` in the existing `xfactory_credential_binding_template`, DECLARED AT THIS MINOR AS AN ANNOTATION ONLY — no `type`, no member grammar, no `required:`, no `additionalProperties: false`. Its members (`holder_ref`, `fetch_identity`, a qualified `requirement_ref` of `requirement_id` + a repository-relative `requirements_document_ref`, a const-true `shared_credential_acknowledged`, and a const-true `instantiation_stub`) are described in the schema and enforced only at the MAJOR, where all three breaking acts land together: requiredness, closure, and the identifier grammar. The schema also gains a grammar on the `credential_bindings` MAP KEY and a closed `access_mode` vocabulary — both preconditions of the lift, not decoration. `scripts/validate-credential-contracts.py` gains (a) a WARNING channel — it has none today, it prints `ERROR` and counts errors and nothing else — and (b) the finding codes: `consumer-identity-undeclared`, `consumer-block-incomplete`, `consumer-block-unknown-member`, `consumer-member-grammar` and `consumer-binding-key-grammar` (all five WARN at this minor and ERROR at the major), the sharpened `shared-secret-identity`, and the new `shared-authority-identity`; it also extends `_looks_like_raw_secret` over `consumer.holder_ref` and `consumer.fetch_identity` under `baked-secret`, and REPLACES its first-against-rest `seen`-map with an every-pair comparison. Packaged fixtures under the existing `examples/credential-contracts/` tree — including a `warning/` directory and a `WARNING_EXPECTATIONS` map the self-test does not have today, without which the deprecation the major depends on ships with no probe — and every new fixture joins the by-name inventory at `tests/credential_contracts/test_dispatch_credential_contract.py:38-51` in the same commit. That file also asserts the self-test count string verbatim at `:35`; the count is DERIVED rather than asserted, in its own issue rather than here. Registration in `contracts/manifest.yaml` and `contracts/CHANGELOG.md` at the cut, a `Deprecations Currently In Force` entry in `docs/contract-versioning-policy.md` naming ALL of the acts that land at the major, and `docs/credential-access-model.md` — whose worked binding at `:219-225` is one of the artifacts below and whose `:228-229` no-raw-secret sentence is extended to the new fields in the same commit. AND THE SHIPPED ARTIFACTS THAT ALREADY WRITE THIS SHAPE, swept for rather than assumed: `scripts/apply-domain-starter.py:2096-2102`, which EMITS `credentials/bindings.template.yaml` into every newly scaffolded domain repository and which SHALL emit no `consumer:` block at all (a named comment instead), because a placeholder that fails the identifier grammar and a sentinel that passes it are both worse than omission; `docs/domain-factory-starter-pack.md:804-810`, the same template in prose; `docs/credential-access-model.md:219-225`, the worked example; and `contracts/avatar-client/broker-server-key-binding.template.yaml`, a SHIPPED record of this very kind carrying `resolution.fetch_identity` — named, reconciled and scoped rather than left unmentioned. The full sweep command returns THIRTEEN paths and each carries a stated in/out disposition. NOT THIS CHANGE'S SURFACE, each for a stated reason: the LIVE binding instances (residency model); the openXdox binding (its own repository's lane); the hosting record's singular `custody.binding_id` pointer (OQ-3); and any cross-repository comparison of two consumers' bindings (an owed successor in § Honest reach).
 target_release: THE NEXT ADDITIVE MINOR, DELIBERATELY NOT NUMBERED HERE — allocated AT REALIZATION by merge order per `docs/contract-versioning-policy.md`. `contract-v2.1` is the bundle at this branch's merge-base and `origin/main` has since advanced to `contract-v2.2`; the figure is re-read at the ratification act, since the whole compatibility argument is indexed to a bundle. A number written here would be a number another packet is already spending: `add-credential-escrow-checkout` is ratified and owes an additive minor on THIS SAME FILE, and `contracts/manifest.yaml` now has THREE writers rather than two, main included. THE CLASS IS ADDITIVE (MINOR) TODAY AND BREAKING (MAJOR) LATER, and the policy's own three-class definition (`docs/contract-versioning-policy.md:242-255`) is what makes that a sequence rather than a preference: "Additive (minor) — new optional fields, new contracts, new validator warnings" covers an annotation-only declaration and its warnings exactly; "Breaking (major) — a required field is added, a shape is removed … Requires: a CHANGELOG migration note, at least one full minor release where the old shape produced deprecation warnings, and an update to the conformance validator that accepts the new shape and rejects the old one only at the new major version" is what requiredness, closure AND the member grammar each cost — three breaking acts, one release, one deprecation window. NOTHING NARROWS AT THIS CUT, AND THAT IS NOW VERIFIED BY CONSTRUCTION RATHER THAN ASSERTED: the prescribed minor schema was built and driven against every shape a domain could already hold — a locally shaped object with neither declared member, a scalar, a list, placeholder-styled values, an undeclared extra member, and no block at all — and all six validate at the minor exactly as they validate today. The first draft of this packet claimed that property while prescribing a `required:` list that refused three of them; four council seats found it independently and it is repaired here. Every consumer pinned at the prior bundle stays conformant until it upgrades.
 ---
 
@@ -199,8 +199,17 @@ it, and this packet now takes its own advice.
   proxy would leave the same collapse unreported when two spellings name one
   secret. One holder reusing its own fetch identity across its own bindings is
   not the fault and is not reported.
-- `consumer-identity-undeclared`, `consumer-block-unknown-member` and
-  `consumer-member-grammar` all WARN at this minor and ERROR at the major.
+- **FIVE warning codes, and the set is enumerated rather than summarised.**
+  `consumer-identity-undeclared`, `consumer-block-incomplete`,
+  `consumer-block-unknown-member`, `consumer-member-grammar` and
+  `consumer-binding-key-grammar` all WARN at this minor and ERROR at the major.
+  Two of the five were added by a bot round on the fix round itself: an empty
+  `consumer: {}` matched none of the first three and would have crossed the whole
+  minor unwarned before being refused at the major, and the map-key grammar was
+  prescribed with no phasing at all while its two neighbours had it. **Both are
+  the same defect the council convened over, recurring a fourth and fifth time
+  inside its own repair** — which is the strongest argument this packet can make
+  for why the verifier, not the reader, is what finds this class.
 - **The two new fields are screened.** `holder_ref` and `fetch_identity` are free
   strings on the one record kind whose invariant is "never bake a secret", and
   the existing screen reads `secret_ref` and nothing else — a raw token in either
@@ -375,10 +384,10 @@ precedent of naming the gap instead of implying enforcement.
   xFactory sync lane and openXdox are what this change makes checkable; their
   binding instances remain their own repositories' acts under the residency
   model, exactly as ratified on 2026-08-23. **Whether a packaged fixture may name
-  their LIVE fetch identities is PARKED for the operator** — it turns on the
-  repository's audience and on whether those identifiers are already public, and
-  a security seat parked rather than resolved it. The requirement's answer in the
-  meantime is the conservative one: fixture values.
+  their LIVE fetch identities was parked by a security seat and is now RULED**:
+  Brett decided on 2026-08-29 that packaged fixtures use SYNTHETIC identifiers
+  and the live ones stay in the consuming installs. P-2 is discharged; the
+  conservative answer is the settled one rather than an interim.
 
 ## Impact
 
@@ -578,6 +587,47 @@ itself calls worse than omission, *"arriving through the front door of the very
 field this change adds."* **So the major is GATED on it**: the deprecation entry
 SHALL state that the requiredness does not land until the degraded mode is
 declarable. That is the dissenting seat's own second branch, taken.
+
+## Three rulings the bench routed to the liaison, and how they came back
+
+The council answered what it could and deliberately left three questions to
+Brett. All three were ruled on 2026-08-29, in session, and all three are encoded
+in this revision rather than noted for later.
+
+**Decision 2 — which route.** The four-seat convergent amendment offered two:
+**(i)** phase the block's `required:` list to the major with the closure, or
+**(ii)** delete the promise that a pre-existing locally shaped `consumer:` object
+stays valid, striking the scenario from every document that repeats it. The bench
+was unanimous that one was required and expressed no preference. **RULED: route
+(i).** The promise is kept and the narrowing is phased, rather than the promise
+being withdrawn to match a narrowing. Route (ii) is preserved in design.md §5 as
+a coherent design that was considered and ruled against, so a later reader does
+not have to guess whether it was seen.
+
+**P-2 — may the packaged corpus name live identifiers?** Parked by
+`lead-security` under its own escalation rule, because it turns on the
+repository's audience and on whether those identifiers are already public.
+**RULED: SYNTHETIC IDENTIFIERS.** The positive two-consumer fixture MUST NOT name
+the live xFactory sync-lane or openXdox fetch identities; they stay in the
+consuming installs' own `credentials/` trees, where the residency model already
+puts an estate fact and where the readership is the install's rather than every
+consumer that pins the contract. A fixture owes the SHAPE, and naming the real
+principals would buy illustrative realism with a permanent, digest-pinned
+widening of who knows which principal reaches which secret. **P-2 is discharged,
+not still parked.**
+
+**P-3 — the estate-level delta-pair gap.** Raised by `lead-architect` under
+`cross_cutting_design` and concurred by `lead-quality`; both said this change
+must neither close it nor be delayed for it. **RULED: file the successor now** —
+openxFactory **[#502](https://github.com/opensoft/openxFactory/issues/502)**,
+carrying the three holes with their line citations, the four questions a
+successor must settle, and the measured population. **A precision on that
+population**, since the packet is obliged to reproduce a figure before repeating
+it: the seats cited EIGHT, which is the family docstring's historical seven plus
+this block. Measured live, the corpus carries **FOUR** PENDING pairs with zero
+markers between them. Four is the live number, eight the cumulative one, and the
+fact that nothing tracks the difference is part of what #502 is for. This change
+carries only its own local stopgap and does not wait on it.
 
 ## The §7.4 council round, and what it changed
 
