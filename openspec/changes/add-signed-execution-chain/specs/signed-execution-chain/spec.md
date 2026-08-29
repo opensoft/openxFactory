@@ -24,11 +24,28 @@ while the human signed something else — so this capability requires two things
 the shipped schema leaves optional, as a SCOPE RESTRICTION BY THE CONSUMING
 CAPABILITY rather than as a schema change (the S2 precedent, which made
 `issued_by` required for review-class grants without editing the shared grant
-schema): the exercise SHALL carry `object_ref` naming this ratification, and its
-`proof_of_possession.signed_over` SHALL be the request digest, which SHALL equal
-the ratification's own content digest. An exercise whose signed content is not
-this ratification's digest is REFUSED AS A REPLAY, and its own validity is not a
-defence.
+schema): the exercise SHALL carry `object_ref` holding THE RATIFICATION'S
+CONTENT DIGEST, spelled in the shipped identifier grammar so the value is
+recomputable and comparable rather than merely nominal; and its
+`proof_of_possession.signed_over` SHALL be `request_digest`. An exercise whose
+`object_ref` digest is not this ratification's digest is REFUSED AS A REPLAY,
+and its own validity is not a defence.
+
+**AND THE RESIDUAL IS RAISED AS AN EXPLICIT GAP RATHER THAN CLAIMED AS CLOSED.**
+`signed_over` is an ENUM SELECTOR — it names WHAT the signature covers, and the
+pinned schema carries NO field holding the signed digest VALUE. So the record
+alone cannot prove the signed request included `object_ref`, and this
+requirement does not pretend otherwise: the digest comparison above is
+enforceable today, the step from "the record names this ratification" to "the
+signature covers this ratification" rests on the realization ESTABLISHING that
+the signed request includes `object_ref`, and a realization that cannot
+establish it SHALL DECLARE the shortfall rather than assert the binding. The
+durable repair is an additive optional field on the exercise record carrying the
+signed subject digest, and it belongs to `opensoft/openXwallet` as a NAMED
+SUCCESSOR — not to this capability, which would otherwise be defining a second
+proof vocabulary to escape a gap in the first. The staged topic's own
+instruction governs: every link resolves to an existing family OR is raised as
+an explicit gap.
 
 **THIS REQUIREMENT CARRIES A RECOMMENDED-BUT-UNRULED ANSWER.** It encodes the
 staged topic's Q1 recommendation — grant vocabulary plus a proof-of-possession
@@ -58,8 +75,14 @@ ratification; if it is ruled otherwise, this requirement is the text that moves.
 #### Scenario: a valid exercise from an earlier ratification is presented
 
 - WHEN an exercise that verified for one ratification is offered as the proof for a different one
-- THEN the ratification is REFUSED as a replay, because the signed request digest is not this ratification's digest
+- THEN the ratification is REFUSED as a replay, because its `object_ref` digest is not this ratification's digest
 - AND the exercise's own validity is not accepted as a defence
+
+#### Scenario: the realization cannot establish what the signature covered
+
+- WHEN a realization cannot establish that the signed request included `object_ref`
+- THEN it DECLARES that shortfall and does not assert the binding it cannot prove
+- AND the declaration names the openXwallet successor field as what closes it, so the gap is visible rather than implied
 
 #### Scenario: the grant was valid at issuance and is revoked now
 
@@ -213,10 +236,12 @@ undeniability the log alone does not provide.
 ### Requirement: A gate validates the short chain as a hash-linked chain
 
 openxFactory SHALL operate, FROM THIS TRANCHE, a gate that validates links 1–3
-before permitting the terminal act, and SHALL validate them as a HASH-LINKED
-CHAIN rather than as a bag of signatures: every link AFTER inception signs over
-the chain identity AND the digest of the link that precedes it, and the gate
-validates that CONTINUITY, never merely the presence of the required signatures.
+before permitting the terminal act, and SHALL validate them as A CHAIN rather
+than as a bag of signatures — CONTINUITY, never merely the presence of the
+required signatures. Continuity means one chain identity carried unbroken from
+the ratification that minted it through every link the gate walks; how each link
+binds to it depends on whether that link has a signer, which the two paragraphs
+below settle for tranche one and for tranche two respectively.
 
 **INCEPTION ITSELF DOES NOT SIGN OVER THE CHAIN IDENTITY, AND CANNOT.** The
 chain identity is the digest of the signed ratification, and inception is that
@@ -224,11 +249,29 @@ same signed act, so requiring inception to sign over the identity would make the
 signature input depend on the completed signature — an implementation could not
 construct the link at all. Inception is the act that MINTS the identity and the
 first record that CARRIES it; it is bound to the ratification by BEING it, not
-by signing over it. The binding rule therefore starts at the traveling contract,
-which is the first link with a predecessor to sign over. The staged topic's
-"every link from enrollment onward" is corrected here on the same footing its own
-review round corrected "link 8 walks all ten": a rule that names a link it
-cannot apply to is a rule that has not been executed in the head.
+by signing over it.
+
+**AND THE TRAVELING CONTRACT CANNOT SIGN EITHER, BECAUSE IT HAS NO SIGNER.** The
+authoritative link table gives link 3 no signature of its own — it is CARRIED —
+so requiring it to sign over inception's digest would invent a signing act and a
+signer that nothing in this capability defines, and the ratification's own
+signature cannot cover an inception record created from it. **At this tranche
+continuity is therefore established BY DERIVATION AND COMPARISON, not by a third
+signature**, and the gate SHALL validate exactly that: the ratification's
+signature verifies and its content digest EQUALS the chain identity; the
+inception leaf commits to that same chain identity; and the traveling contract's
+carried chain identity and carried leaf digest EQUAL both. That is a complete
+continuity check over links 1–3 using only artifacts that exist, and it defeats
+assembly just as a signature chain would, because artifacts from different
+executions carry different chain identities.
+
+**THE HASH-LINKED SIGNING RULE TAKES EFFECT AT THE FIRST LINK THAT HAS A SIGNER
+OF ITS OWN**, which is the harness-controller setup attestation — tranche two.
+It is stated here so the rule is declared where it applies rather than asserted
+where it cannot be performed. The staged topic's "every link from enrollment
+onward" is corrected on both counts, on the same footing its own review round
+corrected "link 8 walks all ten": a rule that names a link it cannot apply to is
+a rule that has not been executed in the head.
 
 Individually valid artifacts drawn from DIFFERENT executions MUST
 NOT assemble into a chain, because with concurrent or repeated work a signature

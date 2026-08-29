@@ -265,26 +265,39 @@ rather than minting a second proof vocabulary. Minting one would be the
 collision the topic's Conflicts table names first. **The reading is flagged, not
 assumed** — it is the Q1 flag on requirement 1.
 
-## What the first review round corrected, before ratification
+## What the review rounds corrected, before ratification
 
-Three P1 findings from the bot bench on this proposal's own pull request, all
+Five P1 findings across two bot rounds on this proposal's own pull request, all
 real, all of the same shape — a rule naming something it could not actually do.
 Recorded here rather than silently patched; the full reasoning is `design.md`
-D7.
+D7. **The second round falsified the first round's fix twice**, which is the
+finding worth carrying forward on its own: a repair authored against the
+vocabulary one REMEMBERS rather than the vocabulary one RE-READS reproduces the
+defect it is repairing. Both relapses were exactly that — one equated an enum
+selector with a digest value, the other handed a signing duty to a link the
+authoritative table gives no signer.
 
 1. **A reference is not a binding.** Requirement 1 had the ratification record
    merely REFERENCE the exercise. The shipped schema makes `object_ref` optional
    and carries no digest of the thing approved, so **a previously successful
    exercise could be REPLAYED as the proof for a different ratification** and
-   pass every stated check. It now binds — `object_ref` names this ratification
-   and the signed request digest EQUALS the ratification's content digest — as a
-   scope restriction by the consuming capability, exactly the move S2 made for
-   `issued_by`, so no openXwallet schema moves.
-2. **The chain identity could not be signed by the act that mints it.** "Every
-   link from inception onward signs over the chain identity" made the signature
-   input depend on the completed signature; no implementation could construct
-   link 2. The rule now starts AFTER inception. The staged topic's own "from
-   enrollment onward" carries the same defect and is corrected in spec text.
+   pass every stated check. **The first repair was itself unenforceable** — it
+   equated `signed_over`, an enum selector holding no digest, with a digest
+   value the pinned schema cannot represent. The digest now lives where a digest
+   can live: `object_ref` carries the ratification's content digest in the
+   shipped identifier grammar, so the comparison is recomputable. The step from
+   "the record names this ratification" to "the signature covers it" is **raised
+   as an explicit gap**, with the durable repair named as an openXwallet
+   successor field — defining it here would mint the second proof vocabulary the
+   requirement exists to avoid.
+2. **The chain identity could not be signed by the act that mints it** — and
+   then **the traveling contract could not sign either, because link 3 has no
+   signer** (`— (carried)` in the authoritative table). At tranche one there is
+   no link after inception with a signer at all, so continuity is established by
+   **derivation and comparison** rather than a third signature, and the
+   hash-linked SIGNING rule is declared to take effect at tranche two's first
+   signed link. The staged topic's "from enrollment onward" carries both defects
+   and is corrected on both counts.
 3. **Deletion detection was promised at a strength this tranche cannot
    deliver.** A store that drops its newest leaves and presents an earlier valid
    signed tree head shows a shorter log that verifies perfectly. The guarantee

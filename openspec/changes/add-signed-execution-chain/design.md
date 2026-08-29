@@ -170,12 +170,20 @@ first one is the strongest possible way to honour it. **The reading is flagged
 in the requirement**, because a reading of an unruled recommendation is not a
 ruling.
 
-## D7 — Three corrections the first review round forced, recorded as corrections
+## D7 — Five corrections the review rounds forced, recorded as corrections
 
-All three came from the bot bench on this packet's own pull request (PR #495,
+All five came from the bot bench on this packet's own pull request (PR #495,
 `chatgpt-codex-connector`, all rated P1, all real). They are recorded here
 rather than silently patched, because each one is a case of a rule naming
 something it could not actually do — the family's most-repeated defect shape.
+
+**AND THE SECOND ROUND FALSIFIED THE FIRST ROUND'S FIX, TWICE.** D7.1 and D7.2
+below each carry a second correction on top of the first, because the repairs
+reached for machinery that does not exist: one equated an enum selector with a
+digest value, the other gave a signing duty to a link the authoritative table
+gives no signer. That is the same defect shape recurring INSIDE its own repair,
+which is worth naming — a fix authored against the vocabulary one remembers
+rather than the vocabulary one re-reads will reproduce the defect it is fixing.
 
 **D7.1 — A reference is not a binding.** Requirement 1 originally had the
 ratification record REFERENCE the exercise by identifier. The shipped
@@ -190,6 +198,23 @@ consuming capability, not a schema change** — the same move S2 made when it
 required `issued_by` for review-class grants while leaving the shared grant
 schema untouched, which is why it costs no bundle edit in openXwallet.
 
+**D7.1b — and the first repair was itself unenforceable.** It said
+`proof_of_possession.signed_over` "SHALL be the request digest, which SHALL
+equal the ratification's content digest". But `signed_over` is an **enum
+selector** whose only values are `request` and `request_digest`; it names WHAT
+was signed and holds no digest, and the pinned schema carries no field that does.
+A validator had nothing to compare. The repair equated a selector with a value —
+the identical defect one level down. The requirement now puts the digest where a
+digest can actually live: **`object_ref` carries the ratification's content
+digest** in the shipped identifier grammar, which admits it, so the comparison is
+recomputable. The step from "the record NAMES this ratification" to "the
+SIGNATURE COVERS this ratification" is not closable from the record alone, and
+that residual is **raised as an explicit gap** with the durable repair named as
+an `opensoft/openXwallet` successor (an additive optional signed-subject-digest
+field). Defining that field HERE would be minting the second proof vocabulary
+this whole requirement exists to avoid. The staged topic sanctions exactly this:
+every link resolves to an existing family OR is raised as an explicit gap.
+
 **D7.2 — The chain identity could not be signed by the act that mints it.** The
 binding rule said "every link from inception onward signs over the chain
 identity". But the chain identity IS the digest of the signed ratification, and
@@ -197,9 +222,26 @@ inception is that same signed act — so the signature input would depend on the
 completed signature and **no implementation could construct link 2 at all**. The
 rule now starts AFTER inception: inception mints the identity and carries it,
 bound to the ratification by BEING it; the traveling contract is the first link
-with a predecessor to sign over. The staged topic's "every link from enrollment
-onward" carries the same defect and is corrected in the spec text, on exactly
-the footing its own review round corrected "link 8 walks all ten".
+with a predecessor to sign over.
+
+**D7.2b — and "the traveling contract signs" was wrong too, for a reason the
+authoritative table states outright.** Link 3 has NO SIGNER: the staged topic's
+own table records it as `— (carried)`. Requiring it to sign over inception's
+digest invents a signing act and a signer nothing defines, and the ratification's
+signature cannot cover an inception record created from it. So at tranche one
+there is no link after inception with a signer at all, and **continuity is
+established by DERIVATION AND COMPARISON rather than by a third signature**: the
+ratification verifies and its digest equals the chain identity, the inception
+leaf commits to that identity, and the traveling contract's carried identity and
+carried leaf digest equal both. That is a complete continuity check over links
+1–3 built only from artifacts that exist, and it defeats mix-and-match exactly as
+a signature chain would, because artifacts from different executions carry
+different chain identities. **The hash-linked SIGNING rule takes effect at the
+first link that has a signer of its own — the controller setup attestation, in
+tranche two** — and the spec now says so, which is the honest place for a rule
+whose machinery arrives with a later tranche. The staged topic's "every link
+from enrollment onward" carries BOTH defects and is corrected on both counts, on
+exactly the footing its own review round corrected "link 8 walks all ten".
 
 **D7.3 — Deletion detection was promised at a strength the tranche cannot
 deliver.** "The log's hash structure is what makes an alteration detectable" is
