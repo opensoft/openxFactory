@@ -161,7 +161,13 @@ carried in requirement text:**
 inception creates no envelope, names no candidate class, touches no ruleset,
 produces no verdict, and changes nothing FR-008 governs; and 025's enrollment
 mints no chain identity, signs nothing, and is not a link in any chain. **The
-two never appear in the same sentence except this one.** The delta states the
+two appear together ONLY where they are being told apart** — here, in the
+inception requirement's body, and in that requirement's fourth scenario — and
+never as alternatives to one another, which is the property that matters. (This
+sentence first read "the two never appear in the same sentence except this one",
+which the packet's own spec text falsified the moment it stated the distinction
+in requirement form; a review round caught it. The claim was rhetoric standing
+where a precise one belonged.) The delta states the
 non-collision in the requirement that owns the act, so a reader who arrives at
 the spec without this proposal still finds it (`## ADDED Requirements`, the
 inception requirement's body and its fourth scenario). The staged topic's own
