@@ -15,11 +15,12 @@ from __future__ import annotations
 
 import hashlib
 import os
-from pathlib import Path
-import subprocess
-from typing import Iterable, Mapping
-
 import posixpath
+import re
+import subprocess
+from collections.abc import Iterable, Mapping
+from pathlib import Path
+
 import yaml
 
 from scripts.hermes_runtime_validation.content import (
@@ -46,6 +47,7 @@ INTENT_CONTRACT_PREFIX = "contracts/intent-compliance"
 INTENT_IMPLEMENTATION_PACKAGE = "scripts/intent_compliance"
 INTENT_TEST_PACKAGE = "tests/intent-compliance"
 INTENT_VALIDATOR_PATH = "scripts/validate-intent-compliance.py"
+INTENT_RELEASE_FLOOR = (2, 3)
 INTENT_REQUIRED_REGISTRATIONS = (
     (
         "intent-compliance-veto-class-vocabulary",
@@ -336,14 +338,11 @@ def _refuse_unreachable_in_a_shallow_clone(
     measurement and independently on openxFactory pull request #390's review).
     """
 
-    result = _run_git(
-        repo, "rev-parse", "--is-shallow-repository", allow_failure=True
-    )
+    result = _run_git(repo, "rev-parse", "--is-shallow-repository", allow_failure=True)
     if result.returncode != 0 or str(result.stdout).strip() != "true":
         return
     raise ReleaseDependencyError(
-        "ancestry cannot be judged in a shallow clone: "
-        f"{ancestor} against {descendant}"
+        f"ancestry cannot be judged in a shallow clone: {ancestor} against {descendant}"
     )
 
 
@@ -499,11 +498,7 @@ class _CommitSource:
         return True
 
     def list_python(self, package: str) -> list[str]:
-        return [
-            entry
-            for entry in self.list_files(package)
-            if entry.endswith(".py")
-        ]
+        return [entry for entry in self.list_files(package) if entry.endswith(".py")]
 
     def list_files(self, directory: str) -> list[str]:
         return _list_tree(self.root, self.commit, directory)
@@ -584,8 +579,7 @@ def _collect_members(
         # (PR #45 review finding 1).
         if repo_path == ".." or repo_path.startswith("../"):
             raise ReleaseDependencyError(
-                "catalog path escapes the repository after normalization: "
-                f"{relative}",
+                f"catalog path escapes the repository after normalization: {relative}",
                 code="HGR-RELEASE-MEMBER-ESCAPES",
             )
         # Two DISTINCT entries normalizing to one repository file would let a
@@ -603,6 +597,20 @@ def _collect_members(
     manifest = source.load_yaml(MANIFEST_PATH)
     if not isinstance(manifest, Mapping):
         raise ReleaseDependencyError("contract manifest is not a mapping")
+    raw_bundle_tag = manifest.get("contract_bundle_version")
+    bundle_match = (
+        re.fullmatch(r"contract-v(\d+)\.(\d+)", raw_bundle_tag)
+        if isinstance(raw_bundle_tag, str)
+        else None
+    )
+    release_version = (
+        (int(bundle_match.group(1)), int(bundle_match.group(2)))
+        if bundle_match is not None
+        else None
+    )
+    intent_floor_active = (
+        release_version is not None and release_version >= INTENT_RELEASE_FLOOR
+    )
     intent_registrations = []
     for entry in manifest.get("contracts", []) or []:
         if not isinstance(entry, Mapping):
@@ -610,8 +618,7 @@ def _collect_members(
         identifier = entry.get("id")
         path = entry.get("path")
         if (
-            isinstance(identifier, str)
-            and identifier.startswith("intent-compliance-")
+            isinstance(identifier, str) and identifier.startswith("intent-compliance-")
         ) or (
             isinstance(path, str)
             and (
@@ -631,21 +638,46 @@ def _collect_members(
         or source.exists(INTENT_VALIDATOR_PATH)
     )
 
-    if intent_registrations or intent_surface_present:
-        registrations_by_identity = {
-            (entry.get("id"), entry.get("path"), entry.get("type")): entry
+    if intent_floor_active or intent_registrations or intent_surface_present:
+        registration_identities = [
+            (entry.get("id"), entry.get("path"), entry.get("type"))
             for entry in intent_registrations
+        ]
+        registrations_by_identity = {
+            identity: entry
+            for identity, entry in zip(
+                registration_identities, intent_registrations, strict=True
+            )
         }
         missing = set(INTENT_REQUIRED_REGISTRATIONS) - registrations_by_identity.keys()
-        if missing:
+        unexpected = registrations_by_identity.keys() - set(
+            INTENT_REQUIRED_REGISTRATIONS
+        )
+        registrations_are_exact = (
+            len(registration_identities) == len(INTENT_REQUIRED_REGISTRATIONS)
+            and not missing
+            and not unexpected
+        )
+        if missing or (intent_floor_active and not registrations_are_exact):
             missing_ids = ", ".join(sorted(identifier for identifier, _, _ in missing))
+            unexpected_ids = ", ".join(
+                sorted(str(identifier) for identifier, _, _ in unexpected)
+            )
             raise ReleaseDependencyError(
-                "intent-compliance release registration is incomplete; missing: "
-                + missing_ids,
+                "intent-compliance release registration must contain exactly six "
+                "canonical tuples; missing: "
+                f"{missing_ids or '<none>'}; unexpected: "
+                f"{unexpected_ids or '<none>'}",
                 code="HGR-RELEASE-INTENT-REGISTRATION-INCOMPLETE",
             )
         for identity in INTENT_REQUIRED_REGISTRATIONS:
             identifier, path, artifact_type = identity
+            if not source.exists(path):
+                raise ReleaseDependencyError(
+                    f"intent-compliance required release member is unavailable: {path}",
+                    code="HGR-RELEASE-INTENT-MEMBER-MISSING",
+                )
+            members.add(path)
             if artifact_type != "schema":
                 continue
             registration = registrations_by_identity[identity]
