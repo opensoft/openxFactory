@@ -76,10 +76,10 @@ neither inventory is rewritten to make the old release describe a later tree.
 
 ### Release obligation still open at this entry
 
-`contracts/releases/contract-v2.3.digests.yaml` is intentionally absent at this
-stage. It is generated only after these release-member bytes and the PostgreSQL
-evidence stabilize, then verified against the exact candidate commit before the
-annotated tag is published. The downstream first conformer remains
+`contracts/releases/contract-v2.3.digests.yaml` is committed with 281 entries.
+It must be regenerated after the current review-repair bytes stabilize, then
+verified against the exact final candidate commit. Merge, tagging, and
+publication remain pending. The downstream first conformer remains
 codexFactory's `add-intent-compliance-gate` realization.
 
 ## contract-v2.2 — 2026-08-29 (additive; a catalog entry may say WHAT KIND of input it accepts, and the type stops being weaker than its own wire)
