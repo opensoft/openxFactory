@@ -23,6 +23,7 @@ import posixpath
 import yaml
 
 from scripts.hermes_runtime_validation.content import (
+    CONTENT_PATH_ABSENT,
     ContentResolutionError,
     resolve_git_object,
 )
@@ -309,10 +310,52 @@ def _refuse_unreachable_in_a_shallow_clone(
     )
 
 
+def _resolution_established_absence(
+    exc: ContentResolutionError, commit: str, path: str
+) -> bool:
+    """Whether ``exc`` established that ``path`` is absent from ``commit``'s tree.
+
+    Fifteen refusals reach this from ``resolve_git_object`` and exactly one of
+    them is a fact about the release: the tree was read and the path was not in
+    it.  The other fourteen say the commit is not in the store, the repository
+    cannot be opened, git cannot be run, the read timed out, the argument was
+    malformed, or an unsafe or inexact object was refused — and none of them
+    establishes anything about the release.
+
+    Spelling all fifteen the same way is how a verification reports a surface
+    it never read.  It fails in BOTH directions and the quiet one is worse: a
+    failure on one side of a comparison manufactures a drift finding out of an
+    environment fact, and a failure on BOTH sides makes two identical
+    non-answers compare EQUAL and reports the surface undrifted, emitting
+    nothing a reader could notice.  So everything but the one data condition
+    becomes a fail-closed dependency refusal whose reason names the CONDITION
+    OBSERVED rather than a conclusion about the release.
+
+    The condition is read off the resolver's DECLARED code and never off its
+    message (OD-4): a message is prose, and a near-miss match on edited prose
+    would silently reclassify a safety refusal as release data.
+
+    `HGR-RELEASE-PATH-UNRESOLVABLE` at the inventory-path read is deliberately
+    NOT routed through here — it already emits a named finding rather than a
+    silent value, and changing what a published finding code means to consumers
+    is a contract question rather than a defect fix
+    (`fix-content-resolution-conflation` OD-3, tasks.md § 7.1).
+    """
+
+    if exc.code == CONTENT_PATH_ABSENT:
+        return True
+    raise ReleaseDependencyError(
+        f"release content could not be resolved at {commit}: {path}: {exc}"
+    ) from exc
+
+
 def _blob_object_id(repo: Path, commit: str, path: str) -> str | None:
+    """The blob object id at ``commit``, or ``None`` ONLY for an established absence."""
+
     try:
         return resolve_git_object(repo, commit, path).blob_oid
-    except ContentResolutionError:
+    except ContentResolutionError as exc:
+        _resolution_established_absence(exc, commit, path)
         return None
 
 
@@ -398,9 +441,20 @@ class _CommitSource:
         return yaml.safe_load(resolved.data)
 
     def exists(self, path: str) -> bool:
+        """Presence at the pinned commit, or a refusal — never a manufactured absence.
+
+        Four callers consume this answer as data: two decide whether a
+        validator or a normative doc is a release member, one decides whether
+        ``contracts/manifest.yaml`` is present at the commit, and one decides
+        membership for a listed path.  A ``False`` produced by an environment
+        failure is a verdict about the release read off a fact about the
+        machine.
+        """
+
         try:
             resolve_git_object(self.root, self.commit, path)
-        except ContentResolutionError:
+        except ContentResolutionError as exc:
+            _resolution_established_absence(exc, self.commit, path)
             return False
         return True
 
