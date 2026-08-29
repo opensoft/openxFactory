@@ -37,9 +37,7 @@ def gate_document(documents: list[RecordDocument], gate: str) -> RecordDocument:
 
 def recompute_authority_state(documents: list[RecordDocument]) -> None:
     vocabulary = kind_document(documents, "veto_class_vocabulary").data
-    vocabulary["vocabulary_digest"] = canonical_digest(
-        vocabulary, "vocabulary_digest"
-    )
+    vocabulary["vocabulary_digest"] = canonical_digest(vocabulary, "vocabulary_digest")
     allowance = kind_document(documents, "policy_allowance").data
     vocabulary_ref = required_record(
         as_record(allowance.get("vocabulary")), "policy_allowance.vocabulary"
@@ -62,9 +60,7 @@ def recompute_authority_state(documents: list[RecordDocument]) -> None:
     revocation = kind_document(documents, "policy_allowance_revocation").data
     revocation["approval_digest"] = allowance["approval_digest"]
     revocation["predecessor_revision_digest"] = root["revision_digest"]
-    revocation["revocation_digest"] = canonical_digest(
-        revocation, "revocation_digest"
-    )
+    revocation["revocation_digest"] = canonical_digest(revocation, "revocation_digest")
     child = registries[1]
     child["predecessor_revision_digest"] = root["revision_digest"]
     child_entry = as_records(child.get("allowances"))[0]
@@ -94,7 +90,14 @@ def recompute_authority_state(documents: list[RecordDocument]) -> None:
         resolution["approval_digest"] = allowance["approval_digest"]
         resolution["revocation_digests"] = selected_entry["revocation_digests"]
         deterministic["vocabulary_digest"] = vocabulary["vocabulary_digest"]
-        deterministic["revision_digest"] = selected["revision_digest"]
+        deterministic_registry = required_record(
+            as_record(deterministic.get("registry")),
+            "decision.deterministic_evidence.registry",
+        )
+        deterministic_registry["status"] = "resolved"
+        deterministic_registry["registry_id"] = selected["registry_id"]
+        deterministic_registry["revision_id"] = selected["revision_id"]
+        deterministic_registry["revision_digest"] = selected["revision_digest"]
         authorization = as_record(decision.get("dispatch_authorization_evidence"))
         if authorization is not None:
             authorization["conditioned_revision_digest"] = root["revision_digest"]
@@ -154,7 +157,9 @@ def append_reused_allowance(documents: list[RecordDocument]) -> None:
     child["revision_digest"] = canonical_digest(child, "revision_digest")
     documents.append(RecordDocument(latest.path, child))
     admission = gate_document(documents, "admission").data
-    registry = required_record(as_record(admission.get("registry")), "decision.registry")
+    registry = required_record(
+        as_record(admission.get("registry")), "decision.registry"
+    )
     registry["revision_id"] = child["revision_id"]
     registry["revision_digest"] = child["revision_digest"]
     resolution = as_records(admission.get("resolutions"))[0]
@@ -164,4 +169,9 @@ def append_reused_allowance(documents: list[RecordDocument]) -> None:
         as_record(admission.get("deterministic_evidence")),
         "decision.deterministic_evidence",
     )
-    deterministic["revision_digest"] = child["revision_digest"]
+    deterministic_registry = required_record(
+        as_record(deterministic.get("registry")),
+        "decision.deterministic_evidence.registry",
+    )
+    deterministic_registry["revision_id"] = child["revision_id"]
+    deterministic_registry["revision_digest"] = child["revision_digest"]

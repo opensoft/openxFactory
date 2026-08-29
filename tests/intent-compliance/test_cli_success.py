@@ -97,9 +97,7 @@ def test_public_cli_when_target_and_snapshot_are_valid_then_exits_zero(
             }
         ],
     }
-    vocabulary["vocabulary_digest"] = canonical_digest(
-        vocabulary, "vocabulary_digest"
-    )
+    vocabulary["vocabulary_digest"] = canonical_digest(vocabulary, "vocabulary_digest")
     registry: Record = {
         "schema_version": 1,
         "kind": "policy_allowance_registry",
@@ -123,8 +121,12 @@ def test_public_cli_when_target_and_snapshot_are_valid_then_exits_zero(
         "evaluated_content_digest": "sha256:" + "b" * 64,
         "vocabulary_id": vocabulary["vocabulary_id"],
         "vocabulary_digest": vocabulary["vocabulary_digest"],
-        "registry_id": registry["registry_id"],
-        "revision_digest": registry["revision_digest"],
+        "registry": {
+            "status": "resolved",
+            "registry_id": registry["registry_id"],
+            "revision_id": registry["revision_id"],
+            "revision_digest": registry["revision_digest"],
+        },
         "evaluator_id": "neutral.evaluator",
         "evaluator_version": "1.0.0",
         "finding_digests": [],
@@ -149,6 +151,7 @@ def test_public_cli_when_target_and_snapshot_are_valid_then_exits_zero(
             "vocabulary_digest": vocabulary["vocabulary_digest"],
         },
         "registry": {
+            "status": "resolved",
             "registry_id": registry["registry_id"],
             "revision_id": registry["revision_id"],
             "revision_digest": registry["revision_digest"],
