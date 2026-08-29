@@ -30,7 +30,9 @@ def _decision(records: list[RecordDocument], gate: str) -> RecordDocument:
     )
 
 
-def test_allowance_when_revocation_is_effective_at_admission_then_allow_is_rejected() -> None:
+def test_allowance_when_revocation_is_effective_at_admission_then_allow_is_rejected() -> (
+    None
+):
     records = _positive()
     admission = _decision(records, "admission")
     latest = next(
@@ -49,6 +51,7 @@ def test_allowance_when_revocation_is_effective_at_admission_then_allow_is_rejec
     changed["findings"][0]["disposition"] = "satisfied"
     changed["evaluated_at"] = "2026-07-01T00:00:00Z"
     changed["registry"] = {
+        "status": "resolved",
         "registry_id": latest["registry_id"],
         "revision_id": latest["revision_id"],
         "revision_digest": latest["revision_digest"],
@@ -56,7 +59,7 @@ def test_allowance_when_revocation_is_effective_at_admission_then_allow_is_rejec
     resolution = changed["resolutions"][0]
     resolution["revocation_digests"] = [revocation["revocation_digest"]]
     deterministic = changed["deterministic_evidence"]
-    deterministic["revision_digest"] = latest["revision_digest"]
+    deterministic["registry"] = copy.deepcopy(changed["registry"])
     deterministic["evidence_digest"] = canonical_digest(
         deterministic, "evidence_digest"
     )
@@ -74,16 +77,16 @@ def test_allowance_when_revoked_before_registry_update_then_allow_is_rejected() 
     changed = copy.deepcopy(approval.data)
     changed["evaluated_at"] = "2026-06-01T00:00:02Z"
     changed_records = [
-        record
-        for record in records
-        if record.data.get("kind") != "compliance_decision"
+        record for record in records if record.data.get("kind") != "compliance_decision"
     ]
     changed_records.append(RecordDocument(approval.path, changed))
 
     assert "allowance-state" in _codes(changed_records)
 
 
-def test_decisions_when_only_completed_gates_are_present_then_corpus_is_accepted() -> None:
+def test_decisions_when_only_completed_gates_are_present_then_corpus_is_accepted() -> (
+    None
+):
     records = _positive()
     without_admission = [
         record
@@ -102,9 +105,7 @@ def test_decisions_when_prefix_is_missing_then_gate_set_is_rejected(gate: str) -
     records = _positive()
     selected = _decision(records, gate)
     changed_records = [
-        record
-        for record in records
-        if record.data.get("kind") != "compliance_decision"
+        record for record in records if record.data.get("kind") != "compliance_decision"
     ]
     changed_records.append(selected)
 
@@ -166,7 +167,9 @@ def test_allowance_when_expired_then_allow_outcome_is_rejected() -> None:
     assert "composition-outcome" in _codes(changed_records)
 
 
-def test_decisions_when_only_correlation_matches_then_it_does_not_supply_governance() -> None:
+def test_decisions_when_only_correlation_matches_then_it_does_not_supply_governance() -> (
+    None
+):
     records = _positive()
     dispatch = _decision(records, "dispatch")
     changed = copy.deepcopy(dispatch.data)
@@ -179,7 +182,9 @@ def test_decisions_when_only_correlation_matches_then_it_does_not_supply_governa
     assert "dispatch-authorization-evidence-binding" in _codes(changed_records)
 
 
-def test_decision_when_deterministic_evidence_is_missing_then_schema_rejects_it() -> None:
+def test_decision_when_deterministic_evidence_is_missing_then_schema_rejects_it() -> (
+    None
+):
     records = _positive()
     dispatch = _decision(records, "dispatch")
     changed = copy.deepcopy(dispatch.data)

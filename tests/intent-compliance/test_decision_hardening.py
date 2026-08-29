@@ -29,13 +29,11 @@ def _approval(records: list[RecordDocument]) -> RecordDocument:
     )
 
 
-def test_decision_when_tuple_references_only_share_colon_encoding_then_rejected() -> None:
-    left = [
-        {"registry_id": "neutral.registry:a", "allowance_id": "neutral.b"}
-    ]
-    right = [
-        {"registry_id": "neutral.registry", "allowance_id": "a:neutral.b"}
-    ]
+def test_decision_when_tuple_references_only_share_colon_encoding_then_rejected() -> (
+    None
+):
+    left = [{"registry_id": "neutral.registry:a", "allowance_id": "neutral.b"}]
+    right = [{"registry_id": "neutral.registry", "allowance_id": "a:neutral.b"}]
 
     left_keys = enforcement_validation.reference_keys(left)
     right_keys = enforcement_validation.reference_keys(right)
@@ -43,7 +41,9 @@ def test_decision_when_tuple_references_only_share_colon_encoding_then_rejected(
     assert left_keys != right_keys
 
 
-def test_decision_when_no_signal_requires_block_then_unsupported_block_is_rejected() -> None:
+def test_decision_when_no_signal_requires_block_then_unsupported_block_is_rejected() -> (
+    None
+):
     records = _positive()
     approval = _approval(records)
     changed = copy.deepcopy(approval.data)
@@ -58,7 +58,9 @@ def test_decision_when_no_signal_requires_block_then_unsupported_block_is_reject
     assert "composition-outcome" in codes
 
 
-def test_decision_when_no_signal_requires_review_then_unsupported_review_is_rejected() -> None:
+def test_decision_when_no_signal_requires_review_then_unsupported_review_is_rejected() -> (
+    None
+):
     records = _positive()
     approval = _approval(records)
     changed = copy.deepcopy(approval.data)
@@ -73,7 +75,9 @@ def test_decision_when_no_signal_requires_review_then_unsupported_review_is_reje
     assert "composition-outcome" in codes
 
 
-def test_decision_when_allowance_lookup_is_unresolved_then_schema_accepts_bounded_reason() -> None:
+def test_decision_when_allowance_lookup_is_unresolved_then_schema_accepts_bounded_reason() -> (
+    None
+):
     records = _positive()
     approval = _approval(records)
     changed = copy.deepcopy(approval.data)
@@ -100,7 +104,9 @@ def test_decision_when_allowance_lookup_is_unresolved_then_schema_accepts_bounde
     assert "schema" not in codes
 
 
-def test_decision_when_deterministic_finding_is_unclaimed_then_outcome_must_block() -> None:
+def test_decision_when_deterministic_finding_is_unclaimed_then_outcome_must_block() -> (
+    None
+):
     records = _positive()
     approval = _approval(records)
     changed = copy.deepcopy(approval.data)
@@ -115,7 +121,7 @@ def test_decision_when_deterministic_finding_is_unclaimed_then_outcome_must_bloc
 
     codes = _codes(changed_records)
 
-    assert "allowance-claim-closure" in codes
+    assert "allowance-claim-closure" not in codes
     assert "composition-outcome" in codes
 
 
@@ -150,7 +156,9 @@ def test_decision_when_covering_allowance_is_reported_as_block_then_rejected() -
     assert "allowance-disposition" in _codes(changed_records)
 
 
-def test_decision_when_noncovering_allowance_is_reported_satisfied_then_rejected() -> None:
+def test_decision_when_noncovering_allowance_is_reported_satisfied_then_rejected() -> (
+    None
+):
     records = _positive()
     approval = _approval(records)
     changed = copy.deepcopy(approval.data)

@@ -45,11 +45,19 @@ def decision_findings(records: list[Record]) -> list[Finding]:
                     "reference sets differ",
                 )
             )
-        deterministic_classes = [
-            str(item.get("class_id"))
+        deterministic_findings = [
+            item
             for item in as_records(decision.get("findings"))
             if item.get("layer") == "deterministic"
         ]
+        deterministic_classes = [
+            str(item.get("class_id")) for item in deterministic_findings
+        ]
+        satisfied_classes = {
+            str(item.get("class_id"))
+            for item in deterministic_findings
+            if item.get("disposition") == "satisfied"
+        }
         resolution_classes = [
             str(item.get("class_id"))
             for item in as_records(decision.get("resolutions"))
@@ -57,7 +65,8 @@ def decision_findings(records: list[Record]) -> list[Finding]:
         if (
             len(deterministic_classes) != len(set(deterministic_classes))
             or len(resolution_classes) != len(set(resolution_classes))
-            or set(deterministic_classes) != set(resolution_classes)
+            or not satisfied_classes <= set(resolution_classes)
+            or not set(resolution_classes) <= set(deterministic_classes)
         ):
             findings.append(
                 Finding(
@@ -78,6 +87,7 @@ def decision_findings(records: list[Record]) -> list[Finding]:
         chains.setdefault(binding_id, []).append(decision)
     findings.extend(enforcement_findings(chains))
     return findings
+
 
 def _outcome_findings(
     decision: Record,
@@ -128,15 +138,14 @@ def _derived_outcome(
         if (scope := as_record(resolution.get("scope_verdict"))) is not None
     }
     classifier = as_record(decision.get("classifier"))
+    registry = as_record(decision.get("registry")) or {}
     classifier_result = None if classifier is None else classifier.get("result")
     has_revocation = any(
         resolution.get("status") == "resolved"
         and bool(resolution.get("revocation_digests"))
         for resolution in resolutions
     )
-    resolution_classes = {
-        str(resolution.get("class_id")) for resolution in resolutions
-    }
+    resolution_classes = {str(resolution.get("class_id")) for resolution in resolutions}
     has_unclaimed_deterministic_finding = any(
         finding.get("layer") == "deterministic"
         and str(finding.get("class_id")) not in resolution_classes
@@ -148,8 +157,16 @@ def _derived_outcome(
         and (
             approval := approvals.get(
                 (
-                    str((as_record(resolution.get("allowance_reference")) or {}).get("registry_id")),
-                    str((as_record(resolution.get("allowance_reference")) or {}).get("allowance_id")),
+                    str(
+                        (as_record(resolution.get("allowance_reference")) or {}).get(
+                            "registry_id"
+                        )
+                    ),
+                    str(
+                        (as_record(resolution.get("allowance_reference")) or {}).get(
+                            "allowance_id"
+                        )
+                    ),
                     str(resolution.get("approval_digest")),
                 )
             )
@@ -176,6 +193,7 @@ def _derived_outcome(
         or classifier_result in {"veto_signal", "indeterminate", "error"}
         or (classifier is not None and classifier_caps_exceeded(classifier))
         or any(resolution.get("status") == "unresolved" for resolution in resolutions)
+        or registry.get("status") == "unresolved"
     ):
         return "needs_human_review"
     return "allow"
