@@ -10,12 +10,12 @@ entries:
   path: contracts/CHANGELOG.md
   type: changelog
   git_mode: '100644'
-  digest: sha256:7f604a9a00b5f58441600b17efb023217dbce55ff68a5d9af616c21acaa56936
+  digest: sha256:5a7bd5ea98e7f96ec3d23ec557533a094b7a54f0e0d7a55420ce8c181741ddf2
 - artifact_id: contracts-readme.md
   path: contracts/README.md
   type: documentation
   git_mode: '100644'
-  digest: sha256:5efb0cfd5aa0ee38e3d50a39c833fbc438050d1b46f92f739a9fee7a162d638a
+  digest: sha256:4b9206b0d73e70fcbeb55c05e2347091ad16a4b3d404eb1c74de024d39aa81eb
 - artifact_id: hermes-runtime-contract-readme
   path: contracts/hermes-runtime/README.md
   type: documentation
@@ -820,161 +820,11 @@ entries:
   schema_id: traceability-edge
   schema_version: 2
   digest: sha256:b7aab9292d907b6e5bfa185c871831b8b8f87e0416200ebf68ba38d1a267d1ad
-- artifact_id: contracts-intent-compliance-readme.md
-  path: contracts/intent-compliance/README.md
-  type: documentation
-  git_mode: '100644'
-  digest: sha256:0e1d2bbb3d83fb3c78ac9e86a97d49bc6789b073ea2fa7c52d4759a4bd910439
-- artifact_id: intent-compliance-decision
-  path: contracts/intent-compliance/compliance-decision.schema.yaml
-  type: schema
-  git_mode: '100644'
-  schema_id: intent-compliance-decision
-  schema_version: 1
-  digest: sha256:abe277ae8c632995f2097152acb3099ccdf166fa755af29adc6a22708c5f4f8a
-- artifact_id: contracts-intent-compliance-compliance-decision.template.yaml
-  path: contracts/intent-compliance/compliance-decision.template.yaml
-  type: documentation
-  git_mode: '100644'
-  digest: sha256:77217d23a4346b38b2e8865540f28e6d05fe41ca2978001cfba30164dde9e3db
-- artifact_id: contracts-intent-compliance-examples-negative-allowance-reference-substitution.yaml
-  path: contracts/intent-compliance/examples/negative/allowance-reference-substitution.yaml
-  type: documentation
-  git_mode: '100644'
-  digest: sha256:d8b712d9b16eae57f84a724ad9f7ac2127bd8b4d462a652fa52f34ee3f17d974
-- artifact_id: contracts-intent-compliance-examples-negative-approval-content-changed.yaml
-  path: contracts/intent-compliance/examples/negative/approval-content-changed.yaml
-  type: documentation
-  git_mode: '100644'
-  digest: sha256:2bd7c16ab661ac5ab5bbf48b34a9eb6382df5e7fd1693b3ebbcbd51d6fa64ce2
-- artifact_id: contracts-intent-compliance-examples-negative-classifier-error-as-allow.yaml
-  path: contracts/intent-compliance/examples/negative/classifier-error-as-allow.yaml
-  type: documentation
-  git_mode: '100644'
-  digest: sha256:a40d6651e8746d0fb6ee080a12ceb89e2e8ec9c469a1a93040790ec29aeedfcb
-- artifact_id: contracts-intent-compliance-examples-negative-duplicate-class-id.yaml
-  path: contracts/intent-compliance/examples/negative/duplicate-class-id.yaml
-  type: documentation
-  git_mode: '100644'
-  digest: sha256:0251ca0dfb61982eea92881e5a51a6dec8c8ac1a4815e606fc4c7b803b9e9890
-- artifact_id: contracts-intent-compliance-examples-negative-hermes-review-as-allow.yaml
-  path: contracts/intent-compliance/examples/negative/hermes-review-as-allow.yaml
-  type: documentation
-  git_mode: '100644'
-  digest: sha256:51a7ea8335ed5de4766c034b8957d8ebb6e1b1978eacde122e9676a0330baead
-- artifact_id: contracts-intent-compliance-examples-negative-indeterminate-scope-as-allow.yaml
-  path: contracts/intent-compliance/examples/negative/indeterminate-scope-as-allow.yaml
-  type: documentation
-  git_mode: '100644'
-  digest: sha256:30fa5a647194475359c605fd8e8c9cd496bba450a42d4524a7017250d293e0b0
-- artifact_id: contracts-intent-compliance-examples-negative-missing-classifier-limits.yaml
-  path: contracts/intent-compliance/examples/negative/missing-classifier-limits.yaml
-  type: documentation
-  git_mode: '100644'
-  digest: sha256:4e6baf7d15b8554a8c2fd7086593f43db82309f47c1db6f6b7f278b737fd114d
-- artifact_id: contracts-intent-compliance-examples-negative-raw-intent-evidence.yaml
-  path: contracts/intent-compliance/examples/negative/raw-intent-evidence.yaml
-  type: documentation
-  git_mode: '100644'
-  digest: sha256:00888535b9e792ca4fee89b15782ece1034bbaa29a108c5433119649a428121c
-- artifact_id: contracts-intent-compliance-examples-negative-reused-allowance-id.yaml
-  path: contracts/intent-compliance/examples/negative/reused-allowance-id.yaml
-  type: documentation
-  git_mode: '100644'
-  digest: sha256:2cad7086ace16076b9cc3fa62202c74ff39fc9e0fa84e2fd4b9503ecc0b6646b
-- artifact_id: contracts-intent-compliance-examples-negative-unauthorized-issuer.yaml
-  path: contracts/intent-compliance/examples/negative/unauthorized-issuer.yaml
-  type: documentation
-  git_mode: '100644'
-  digest: sha256:94526c7ce6594a9ccfe5131a29d21a21923a52c68129f8a25f2fb78d30fc8ad1
-- artifact_id: contracts-intent-compliance-examples-negative-unauthorized-revoker.yaml
-  path: contracts/intent-compliance/examples/negative/unauthorized-revoker.yaml
-  type: documentation
-  git_mode: '100644'
-  digest: sha256:9c33c069e5dabe7ea47558f90fc26d25a787f52a8d80c328af1e45bd8bc47b02
-- artifact_id: contracts-intent-compliance-examples-negative-unclaimed-veto-as-allow.yaml
-  path: contracts/intent-compliance/examples/negative/unclaimed-veto-as-allow.yaml
-  type: documentation
-  git_mode: '100644'
-  digest: sha256:e10bec847fd58a182c128bad46688d4599ee912fce26e3aa119bb0db30c94346
-- artifact_id: contracts-intent-compliance-examples-positive-allowance.example.yaml
-  path: contracts/intent-compliance/examples/positive/allowance.example.yaml
-  type: documentation
-  git_mode: '100644'
-  digest: sha256:80f8a0d6d5c266831d9d079066a8f39ce312377a79098e5bee693895a091510e
-- artifact_id: contracts-intent-compliance-examples-positive-decision.example.yaml
-  path: contracts/intent-compliance/examples/positive/decision.example.yaml
-  type: documentation
-  git_mode: '100644'
-  digest: sha256:8ba9284be41e0eae72acad6952f26f6248e72cf611211e88594db6497bfecf0e
-- artifact_id: contracts-intent-compliance-examples-positive-registry.example.yaml
-  path: contracts/intent-compliance/examples/positive/registry.example.yaml
-  type: documentation
-  git_mode: '100644'
-  digest: sha256:72ea89f0d09d1e71c3f60b1745cc97116efb6712123014b7d2a1507f58fdc880
-- artifact_id: contracts-intent-compliance-examples-positive-revocation.example.yaml
-  path: contracts/intent-compliance/examples/positive/revocation.example.yaml
-  type: documentation
-  git_mode: '100644'
-  digest: sha256:446085008da2e516cb02d51add017f15f775c2ba92e09213db3f4aad76b6a8ce
-- artifact_id: contracts-intent-compliance-examples-positive-vocabulary.example.yaml
-  path: contracts/intent-compliance/examples/positive/vocabulary.example.yaml
-  type: documentation
-  git_mode: '100644'
-  digest: sha256:2cc3e0273c7b2873c6b8106dc96347e7101ca3473e7bd2f96e075ccd2b665115
-- artifact_id: intent-compliance-policy-allowance-registry
-  path: contracts/intent-compliance/policy-allowance-registry.schema.yaml
-  type: schema
-  git_mode: '100644'
-  schema_id: intent-compliance-policy-allowance-registry
-  schema_version: 1
-  digest: sha256:7b7433b5bd93397596f6be190b345162e98476d1a43fc8b2836db47ba19521ad
-- artifact_id: contracts-intent-compliance-policy-allowance-registry.template.yaml
-  path: contracts/intent-compliance/policy-allowance-registry.template.yaml
-  type: documentation
-  git_mode: '100644'
-  digest: sha256:46afa2fb053f3ee3e21bca496304e304ee881d10c2633318876a38e80a0a5bc4
-- artifact_id: intent-compliance-policy-allowance-revocation
-  path: contracts/intent-compliance/policy-allowance-revocation.schema.yaml
-  type: schema
-  git_mode: '100644'
-  schema_id: intent-compliance-policy-allowance-revocation
-  schema_version: 1
-  digest: sha256:0955b88f664c37f8620a0e3d7ca5cce1e024edc9b888211c31fd27e101b5c7e9
-- artifact_id: contracts-intent-compliance-policy-allowance-revocation.template.yaml
-  path: contracts/intent-compliance/policy-allowance-revocation.template.yaml
-  type: documentation
-  git_mode: '100644'
-  digest: sha256:aa2dbf6563d699f7e98bf83d4bb9b9719fb44cb1ca4b37545417f8077d03bb92
-- artifact_id: intent-compliance-policy-allowance
-  path: contracts/intent-compliance/policy-allowance.schema.yaml
-  type: schema
-  git_mode: '100644'
-  schema_id: intent-compliance-policy-allowance
-  schema_version: 1
-  digest: sha256:bcccca1d57c935e3d69efb73cc0cd37041eb8d1504d15c434b5d4f4a38c5087d
-- artifact_id: contracts-intent-compliance-policy-allowance.template.yaml
-  path: contracts/intent-compliance/policy-allowance.template.yaml
-  type: documentation
-  git_mode: '100644'
-  digest: sha256:82825a770d98dc35bb7cea2c31980f45d26cdde30ce5e7862435294ff912c840
-- artifact_id: intent-compliance-veto-class-vocabulary
-  path: contracts/intent-compliance/veto-class-vocabulary.schema.yaml
-  type: schema
-  git_mode: '100644'
-  schema_id: intent-compliance-veto-class-vocabulary
-  schema_version: 1
-  digest: sha256:cf7d5bf8bf1c9cc5b68a8bac3d39cffcde86aa50a284f07bb33a1d371ebe9f4d
-- artifact_id: contracts-intent-compliance-veto-class-vocabulary.template.yaml
-  path: contracts/intent-compliance/veto-class-vocabulary.template.yaml
-  type: documentation
-  git_mode: '100644'
-  digest: sha256:4d14cf90d8f33fd282dee4b8ace18e3871bde41da7a881da8904a232edd89d61
 - artifact_id: contracts-manifest.yaml
   path: contracts/manifest.yaml
   type: manifest
   git_mode: '100644'
-  digest: sha256:71cf9fc76b285ab8420c3878a2ddbb86363f27fa3de7c492717e547b6462003e
+  digest: sha256:7fee3b8f3dcbf5b3fa6b7b2745075ade5133e1a5327022461bf024bd31737bf5
 - artifact_id: contracts-releases-release-digest-inventory.schema.yaml
   path: contracts/releases/release-digest-inventory.schema.yaml
   type: schema
@@ -1014,7 +864,7 @@ entries:
   git_mode: '100644'
   schema_id: xfactory-workbench-model-catalog
   schema_version: 1
-  digest: sha256:dff513fa6b607c417a39e5529964f9df2c8f56841ae3b0a894c85b6d1dea0675
+  digest: sha256:e563cc9fc6ede03dfd62537935d0ae0842617d7de46702aee6ad9026aa021635
 - artifact_id: worker-enrollment-audit-record
   path: contracts/worker-enrollment/worker-enrollment-audit-record.schema.yaml
   type: release-schema
@@ -1089,11 +939,6 @@ entries:
   type: requirements
   git_mode: '100644'
   digest: sha256:5558f14c22437dceee36d26f2c59c3d4d7d243b838c622388d4f2813fbd2608e
-- artifact_id: scripts-__init__.py
-  path: scripts/__init__.py
-  type: validator
-  git_mode: '100644'
-  digest: sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
 - artifact_id: scripts-hermes-runtime-dataset-digest.py
   path: scripts/hermes-runtime-dataset-digest.py
   type: validator
@@ -1133,87 +978,22 @@ entries:
   path: scripts/hermes_runtime_validation/fixtures.py
   type: validator
   git_mode: '100644'
-  digest: sha256:d7761cd4fca58571d3ac50f914ac79a71b8de5539bf65db84f9d23016537f47a
+  digest: sha256:5623ffccc8ddde3a7b07252186202c5d1a533bbe80718dcf6a4dfbb5789f4245
 - artifact_id: scripts-hermes_runtime_validation-loader.py
   path: scripts/hermes_runtime_validation/loader.py
   type: validator
   git_mode: '100644'
-  digest: sha256:66ba2c5fd702b1894b1de264c58a687812b877b5c71a67c09995b3a80328d9ba
+  digest: sha256:fad33d3277d0bc894283b4846d8736a2bf71c6527c3539eb7bcc443536747b06
 - artifact_id: scripts-hermes_runtime_validation-migration.py
   path: scripts/hermes_runtime_validation/migration.py
   type: validator
   git_mode: '100644'
   digest: sha256:e7436d9c36427903093c08d56b2ddd4092363959a8718978f8047df06b3a95e9
-- artifact_id: scripts-hermes_runtime_validation-pytest_bindings.py
-  path: scripts/hermes_runtime_validation/pytest_bindings.py
-  type: validator
-  git_mode: '100644'
-  digest: sha256:02aefcc7c2b01c7e68339e06cf5e81b4a1d575e8a1f54b26ad5293e7460c2b5a
-- artifact_id: scripts-hermes_runtime_validation-pytest_config.py
-  path: scripts/hermes_runtime_validation/pytest_config.py
-  type: validator
-  git_mode: '100644'
-  digest: sha256:1d20aacb8b29ea0e7212443987b62a1fdbe169022d37c679a6d42d8ac0ea32e0
-- artifact_id: scripts-hermes_runtime_validation-pytest_count.py
-  path: scripts/hermes_runtime_validation/pytest_count.py
-  type: validator
-  git_mode: '100644'
-  digest: sha256:a267f90ec4bde9a8c20ef48e4f878d9899a3169e3380cec875900e34c1049262
-- artifact_id: scripts-hermes_runtime_validation-pytest_execution_report.py
-  path: scripts/hermes_runtime_validation/pytest_execution_report.py
-  type: validator
-  git_mode: '100644'
-  digest: sha256:ea04fdfde70f7184a98c5b400a2a70c73e605fb3c0f83945154527b16910118f
-- artifact_id: scripts-hermes_runtime_validation-pytest_execution_validation.py
-  path: scripts/hermes_runtime_validation/pytest_execution_validation.py
-  type: validator
-  git_mode: '100644'
-  digest: sha256:4a3cdb320e44b44fc4f2d440a604d9e5db109438a39f5cd971780e053cbe1d4c
-- artifact_id: scripts-hermes_runtime_validation-pytest_fixtures.py
-  path: scripts/hermes_runtime_validation/pytest_fixtures.py
-  type: validator
-  git_mode: '100644'
-  digest: sha256:f37f70d862391a50a17086e7c3758bc044c8723c33e024d47bc34d45b3532b8f
-- artifact_id: scripts-hermes_runtime_validation-pytest_inventory.py
-  path: scripts/hermes_runtime_validation/pytest_inventory.py
-  type: validator
-  git_mode: '100644'
-  digest: sha256:1da8b6bcdf5579d08ba372b77852db8a901a0842182aae644ef5f90b0edbc85d
-- artifact_id: scripts-hermes_runtime_validation-pytest_parameter_ids.py
-  path: scripts/hermes_runtime_validation/pytest_parameter_ids.py
-  type: validator
-  git_mode: '100644'
-  digest: sha256:eff269681404bf9882514d8061dbbaf69701ddc6a7709269fd8df687d415d6bd
-- artifact_id: scripts-hermes_runtime_validation-pytest_paths.py
-  path: scripts/hermes_runtime_validation/pytest_paths.py
-  type: validator
-  git_mode: '100644'
-  digest: sha256:3217b765dd4a7f5240f5b0c4713c566a739401d78786d8ec1bc9535fdadc5c8b
-- artifact_id: scripts-hermes_runtime_validation-pytest_source.py
-  path: scripts/hermes_runtime_validation/pytest_source.py
-  type: validator
-  git_mode: '100644'
-  digest: sha256:047d455d3e302826cb5f65ad89d66355989327372dfaf41dd3b91e20bb5900d7
-- artifact_id: scripts-hermes_runtime_validation-pytest_static_values.py
-  path: scripts/hermes_runtime_validation/pytest_static_values.py
-  type: validator
-  git_mode: '100644'
-  digest: sha256:61b4d7bcbc8f235f0f9524599238596d60ff82539769fa78db80376ed7a8c555
-- artifact_id: scripts-hermes_runtime_validation-pytest_support.py
-  path: scripts/hermes_runtime_validation/pytest_support.py
-  type: validator
-  git_mode: '100644'
-  digest: sha256:52bf0ba796c2a04be5ada78746202e3e8f04e45e535104cbaf532c716690e5ad
-- artifact_id: scripts-hermes_runtime_validation-pytest_targets.py
-  path: scripts/hermes_runtime_validation/pytest_targets.py
-  type: validator
-  git_mode: '100644'
-  digest: sha256:85032c7e10d323f51c5a5d0b861e494651a729ce000de9e73c096de4df281daf
 - artifact_id: scripts-hermes_runtime_validation-release.py
   path: scripts/hermes_runtime_validation/release.py
   type: validator
   git_mode: '100644'
-  digest: sha256:45da78b4357355b19d1f8b3c08a8e2f8d4c005cfaf719eb568c3943d6a009fa5
+  digest: sha256:bb845d7069eb1686cfdf31bba294eb0c73c961c8c5806808f8a4687d724b1f76
 - artifact_id: scripts-hermes_runtime_validation-schema_registry.py
   path: scripts/hermes_runtime_validation/schema_registry.py
   type: validator
@@ -1254,131 +1034,6 @@ entries:
   type: validator
   git_mode: '100644'
   digest: sha256:048964f4af81ac96d8bda22b58e29d58ee52191df8b57e4884b92ec80d77d712
-- artifact_id: scripts-intent_compliance-__init__.py
-  path: scripts/intent_compliance/__init__.py
-  type: validator
-  git_mode: '100644'
-  digest: sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
-- artifact_id: scripts-intent_compliance-authority_repository.py
-  path: scripts/intent_compliance/authority_repository.py
-  type: validator
-  git_mode: '100644'
-  digest: sha256:1d329754db19d7f914692600fd75d2947cc46c519ea664deb26a9e31403bfd50
-- artifact_id: scripts-intent_compliance-authority_validation.py
-  path: scripts/intent_compliance/authority_validation.py
-  type: validator
-  git_mode: '100644'
-  digest: sha256:aa34d86aa88dc9c98965b5be77d5f435980af9ec923d6420048d4d3ac0f4f090
-- artifact_id: scripts-intent_compliance-canonical.py
-  path: scripts/intent_compliance/canonical.py
-  type: validator
-  git_mode: '100644'
-  digest: sha256:23d9f388bfe2ce0e69236ecfeb77dfb6a005a3ef70eebb6d6189e669032533fb
-- artifact_id: scripts-intent_compliance-classifier_validation.py
-  path: scripts/intent_compliance/classifier_validation.py
-  type: validator
-  git_mode: '100644'
-  digest: sha256:96dd5c0dfc84985b0a390a6be67f1449a667b2f9fe827b65da82e73403eaeb54
-- artifact_id: scripts-intent_compliance-decision_validation.py
-  path: scripts/intent_compliance/decision_validation.py
-  type: validator
-  git_mode: '100644'
-  digest: sha256:bc53967429a054056058de0fe6e466ae76d3a143885c3ca8fa2976ec22be3fc1
-- artifact_id: scripts-intent_compliance-discovery.py
-  path: scripts/intent_compliance/discovery.py
-  type: validator
-  git_mode: '100644'
-  digest: sha256:b63d9f4c3cb1b78f3b57b669ad427b39c96038d92c1e3ce4801284c1e840c303
-- artifact_id: scripts-intent_compliance-enforcement_validation.py
-  path: scripts/intent_compliance/enforcement_validation.py
-  type: validator
-  git_mode: '100644'
-  digest: sha256:9cccd9830f931b1e36860c6b9c49b288782f08b3acf54267f37c5b01b40feb8e
-- artifact_id: scripts-intent_compliance-evidence_validation.py
-  path: scripts/intent_compliance/evidence_validation.py
-  type: validator
-  git_mode: '100644'
-  digest: sha256:3fff68d0051f26b1b0b5c4c5eb4cd54197b2815b20924d49c535e0a1c8d42f17
-- artifact_id: scripts-intent_compliance-fixture_metadata.py
-  path: scripts/intent_compliance/fixture_metadata.py
-  type: validator
-  git_mode: '100644'
-  digest: sha256:2ab0883a12c7e3a3fa4d163a51daf8513759b087307bdd4e22c894492e2d97e7
-- artifact_id: scripts-intent_compliance-input_io.py
-  path: scripts/intent_compliance/input_io.py
-  type: validator
-  git_mode: '100644'
-  digest: sha256:182e3b176fc42b8a6b241a8a85e26c31c074e5b6d4ea546ca456629552d4f2f8
-- artifact_id: scripts-intent_compliance-model.py
-  path: scripts/intent_compliance/model.py
-  type: validator
-  git_mode: '100644'
-  digest: sha256:81d56343557184de9eedcec99a3a77f7cb3b69d538b3280fad28c8a71a07cc8f
-- artifact_id: scripts-intent_compliance-negative_corpus.py
-  path: scripts/intent_compliance/negative_corpus.py
-  type: validator
-  git_mode: '100644'
-  digest: sha256:0d4cdd701b4b89e14792d462492ba53176eab9a6042fe6eab0a75366bad6c0b4
-- artifact_id: scripts-intent_compliance-negative_state.py
-  path: scripts/intent_compliance/negative_state.py
-  type: validator
-  git_mode: '100644'
-  digest: sha256:a74800a0728ce6f3bde386edbf6d419218760421bb74c42f70b7fd7373a51f2d
-- artifact_id: scripts-intent_compliance-pipeline.py
-  path: scripts/intent_compliance/pipeline.py
-  type: validator
-  git_mode: '100644'
-  digest: sha256:adae8ee851e26bd9f6ef0cb9c674b7ae8c44d96e0c0d0b05f17ce57e9ce843e6
-- artifact_id: scripts-intent_compliance-records.py
-  path: scripts/intent_compliance/records.py
-  type: validator
-  git_mode: '100644'
-  digest: sha256:c730531ffc4a5683e0469fe08f04db10e15a8073b71b5500859a8e6c7e4ccb45
-- artifact_id: scripts-intent_compliance-registry_validation.py
-  path: scripts/intent_compliance/registry_validation.py
-  type: validator
-  git_mode: '100644'
-  digest: sha256:1c3e7b7baaca0db92f2fc06ab9bec06e04fd20c7902e2d8e5e277c1a1faa6bae
-- artifact_id: scripts-intent_compliance-resolution_validation.py
-  path: scripts/intent_compliance/resolution_validation.py
-  type: validator
-  git_mode: '100644'
-  digest: sha256:82597ab78c710e1a5b2d854fb804fd31d88b187b708dfeaa24b6732dc25fe8f9
-- artifact_id: scripts-intent_compliance-revocation_validation.py
-  path: scripts/intent_compliance/revocation_validation.py
-  type: validator
-  git_mode: '100644'
-  digest: sha256:ac5203b5d689a82d6e2b9161e20849ebbcf700e73ace3341d7513241203af764
-- artifact_id: scripts-intent_compliance-schema_validation.py
-  path: scripts/intent_compliance/schema_validation.py
-  type: validator
-  git_mode: '100644'
-  digest: sha256:fbdc692e9a4239bf584988973493a74c864361ae49800482dfd50a6b83339bb1
-- artifact_id: scripts-intent_compliance-semantic_validation.py
-  path: scripts/intent_compliance/semantic_validation.py
-  type: validator
-  git_mode: '100644'
-  digest: sha256:886d8d2b5acc28ad65352752b6136ce7fb1a2d21d33bfe68e55c3b1d989bd920
-- artifact_id: scripts-intent_compliance-state_validation.py
-  path: scripts/intent_compliance/state_validation.py
-  type: validator
-  git_mode: '100644'
-  digest: sha256:7b7247f5856d27e731c0e3b0c74fd02b8cdbabcd3fb987c01b53f0ca6563f971
-- artifact_id: scripts-intent_compliance-temporal.py
-  path: scripts/intent_compliance/temporal.py
-  type: validator
-  git_mode: '100644'
-  digest: sha256:e480c6a9f486bdb98ab63cdcd3d4fcfdfee3c2715dc78e68b42d8ada57f7ddff
-- artifact_id: scripts-intent_compliance-validator.py
-  path: scripts/intent_compliance/validator.py
-  type: validator
-  git_mode: '100644'
-  digest: sha256:5d42bb323a72938933e8d98fb015bacba4d5d1de4b102f6858e5cac2cbd27c1a
-- artifact_id: scripts-intent_compliance-yaml_discovery.py
-  path: scripts/intent_compliance/yaml_discovery.py
-  type: validator
-  git_mode: '100644'
-  digest: sha256:8e26332fa373307585429f7ba49398f89beb584e2113b3e6a6c677edbff1dd4f
 - artifact_id: scripts-validate-contract-release.py
   path: scripts/validate-contract-release.py
   type: validator
@@ -1388,99 +1043,14 @@ entries:
   path: scripts/validate-hermes-runtime-contracts.py
   type: validator
   git_mode: '100755'
-  digest: sha256:0acaf9650dc75b1787668b3576647ff0ae2fae62d6e61222ea593081e3bff382
+  digest: sha256:42ce9af13446cf75df7f5d589384d713daca3dc1f46d9f7cc7fdef9769aa0993
 - artifact_id: scripts-validate-ideation-dashboard-contracts.py
   path: scripts/validate-ideation-dashboard-contracts.py
   type: validator
   git_mode: '100755'
-  digest: sha256:c88fbf5d4d48cdd75accb9a619b85a50e08f53ceb12b245f1a3bb67c745e5fa5
-- artifact_id: scripts-validate-intent-compliance.py
-  path: scripts/validate-intent-compliance.py
-  type: validator
-  git_mode: '100644'
-  digest: sha256:97cc9ee1dd851bda813fc4d402edf80edb227c5f1864e32d5d101be0c27c4d80
+  digest: sha256:38df086068126356fb8ab045fd05f52f9da3ff2c9b0843ddf62ad34f7bba1fa3
 - artifact_id: tests-hermes_runtime_contracts-postgres-images.lock.yaml
   path: tests/hermes_runtime_contracts/postgres/images.lock.yaml
   type: image-lock
   git_mode: '100644'
   digest: sha256:d201b6ae50025c6fef4121addbd264903cbbe7c5ea0fb89ce66b949e30912d06
-- artifact_id: tests-intent-compliance-test_authoritative_resolution.py
-  path: tests/intent-compliance/test_authoritative_resolution.py
-  type: documentation
-  git_mode: '100644'
-  digest: sha256:f86fef17b68e0562d8576bf98555ff21938e62c08a11285489b62f0129699b2c
-- artifact_id: tests-intent-compliance-test_classifier_coherence.py
-  path: tests/intent-compliance/test_classifier_coherence.py
-  type: documentation
-  git_mode: '100644'
-  digest: sha256:865085c3845cff026e8efba7164c07c06730faf2c834593c55f6b08ccdeeb8f7
-- artifact_id: tests-intent-compliance-test_cli_success.py
-  path: tests/intent-compliance/test_cli_success.py
-  type: documentation
-  git_mode: '100644'
-  digest: sha256:aa0ce0a0b0ad1550d7c8ad7fdbfb348bfabef4e149ca6c7acce43cd9b9c3173e
-- artifact_id: tests-intent-compliance-test_decision_hardening.py
-  path: tests/intent-compliance/test_decision_hardening.py
-  type: documentation
-  git_mode: '100644'
-  digest: sha256:34bf82a87d5e380b8f23d6781b8b1b76b28f5ed0cc9f4c0b0aa9c0d24c304ac4
-- artifact_id: tests-intent-compliance-test_enforcement_security.py
-  path: tests/intent-compliance/test_enforcement_security.py
-  type: documentation
-  git_mode: '100644'
-  digest: sha256:0aaa8c8a83451da668a83b10f94ee478ba6e867f7637611d01eb768c82d87737
-- artifact_id: tests-intent-compliance-test_evidence_integrity.py
-  path: tests/intent-compliance/test_evidence_integrity.py
-  type: documentation
-  git_mode: '100644'
-  digest: sha256:46957ceed0650903eeac0323b2aa0fe43e22b8592c5d0df4fe3d1fc80f70c995
-- artifact_id: tests-intent-compliance-test_input_limits.py
-  path: tests/intent-compliance/test_input_limits.py
-  type: documentation
-  git_mode: '100644'
-  digest: sha256:e2c1f949d1449e6867c94056e5073a0cc67f22e07693963ed815cc14ddde20a5
-- artifact_id: tests-intent-compliance-test_intent_compliance_negative_corpus.py
-  path: tests/intent-compliance/test_intent_compliance_negative_corpus.py
-  type: documentation
-  git_mode: '100644'
-  digest: sha256:d2146734bf9b08a58be17cfbe60834ee0d0abfd5e59fcd2461050b714510166b
-- artifact_id: tests-intent-compliance-test_intent_compliance_security.py
-  path: tests/intent-compliance/test_intent_compliance_security.py
-  type: documentation
-  git_mode: '100644'
-  digest: sha256:de3db7b3495e148784ec8a788ab124b49a48b657143ae20f5cc2abf1d75e657c
-- artifact_id: tests-intent-compliance-test_intent_compliance_validator_gate.py
-  path: tests/intent-compliance/test_intent_compliance_validator_gate.py
-  type: documentation
-  git_mode: '100644'
-  digest: sha256:17f55b7f6413ffe738a0a68f97fc9b32c619a371d7f3cf699995ee4326302041
-- artifact_id: tests-intent-compliance-test_outcome_scenarios.py
-  path: tests/intent-compliance/test_outcome_scenarios.py
-  type: documentation
-  git_mode: '100644'
-  digest: sha256:bc45f1a43b2c82865a87c06ca44c7b7cdacdb5d4428d6a00d76224f06c500b66
-- artifact_id: tests-intent-compliance-test_redaction_boundaries.py
-  path: tests/intent-compliance/test_redaction_boundaries.py
-  type: documentation
-  git_mode: '100644'
-  digest: sha256:980b168f07479cd3eedf21765333a47df9c370af2f07f58718ee8408b05d9aff
-- artifact_id: tests-intent-compliance-test_registry_hardening.py
-  path: tests/intent-compliance/test_registry_hardening.py
-  type: documentation
-  git_mode: '100644'
-  digest: sha256:d27c988b737ffb9c051dedb13cfa741e5e181e3f921cc72318f40596a59e1f69
-- artifact_id: tests-intent-compliance-test_release_boundary.py
-  path: tests/intent-compliance/test_release_boundary.py
-  type: documentation
-  git_mode: '100644'
-  digest: sha256:ff53c012825d410e953e420ccd895609ecf72a97bc9cd7307b48f4f7ec23a998
-- artifact_id: tests-intent-compliance-test_temporal.py
-  path: tests/intent-compliance/test_temporal.py
-  type: documentation
-  git_mode: '100644'
-  digest: sha256:c4bfa1377b32ae8b5450654ff0ccc73c3a54c19a524b1dfd263a44d350bb9dc0
-- artifact_id: tests-intent-compliance-test_trusted_snapshot.py
-  path: tests/intent-compliance/test_trusted_snapshot.py
-  type: documentation
-  git_mode: '100644'
-  digest: sha256:30cda27c06d17c315cca823a31426aea882004e5ac8f4e67b36b01e7d0621853

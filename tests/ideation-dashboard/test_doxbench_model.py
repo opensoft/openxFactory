@@ -38,9 +38,17 @@ from ideation_dashboard.doxbench_model import (
     FakeWorkbenchModelPort,
     InvalidCatalogEntryError,
     InvalidRoutingRuleError,
+    MAX_CATALOG_ENTRIES,
     MAX_ROUTING_TARGETS,
     MODEL_REFERENCE_MAX_LENGTH,
     MODEL_REFERENCE_PATTERN,
+    CATALOG_MODALITIES,
+    CAPABILITY_ENTRY_FIELDS,
+    CatalogEntryCountError,
+    DATA_HANDLING_MAX_LENGTH,
+    LABEL_MAX_LENGTH,
+    PROVIDER_CLASS_MAX_LENGTH,
+    REQUIRED_MODALITY,
     DECLARABLE_ENTRY_FIELDS,
     ROUTING_ENTRY_FIELDS,
     ModelCatalog,
@@ -780,7 +788,8 @@ def test_wire_envelope_literals_are_confined_to_the_released_catalog_projection(
     assert "kind" not in catalog.as_public_dict()
     # And in the envelope they are the ONLY additions: a plain entry stays
     # exactly the seven required base fields (contract-v1.38's three routing
-    # fields are disclosed only by an entry that declares itself a rule).
+    # fields are disclosed only by an entry that declares itself a rule, and
+    # contract-v2.2's `modalities` only by an entry that declares one).
     envelope = catalog_wire_envelope(catalog)
     assert set(envelope) - {"models"} == {"schema_version", "kind"}
     assert set(envelope["models"][0]) == set(PUBLIC_ENTRY_FIELDS)
@@ -1220,19 +1229,31 @@ def test_the_routing_fields_are_declared_optional_and_default_to_a_plain_model()
     assert list(plain.as_public_dict()) == list(PUBLIC_ENTRY_FIELDS)
 
 
-def test_the_field_tuples_are_the_base_seven_then_the_routing_three():
+def test_the_field_tuples_are_the_base_seven_then_the_optional_groups():
     assert ROUTING_ENTRY_FIELDS == (
         "routing_rule", "routes_to", "resolved_model_id")
-    assert DECLARABLE_ENTRY_FIELDS == PUBLIC_ENTRY_FIELDS + ROUTING_ENTRY_FIELDS
-    # The base seven are a PREFIX of the declarable set, which is what makes a
-    # routing entry's projection an append rather than a reshuffle.
+    assert CAPABILITY_ENTRY_FIELDS == ("modalities",)
+    assert DECLARABLE_ENTRY_FIELDS == (
+        PUBLIC_ENTRY_FIELDS + CAPABILITY_ENTRY_FIELDS + ROUTING_ENTRY_FIELDS)
+    # The base seven are a PREFIX of the declarable set — the property callers
+    # rely on. The capability group was INSERTED before the routing three
+    # rather than appended after them, so the routing keys moved within this
+    # tuple; nothing indexes it, and a plain entry's projection is unchanged.
     assert DECLARABLE_ENTRY_FIELDS[:len(PUBLIC_ENTRY_FIELDS)] == PUBLIC_ENTRY_FIELDS
+    # No key appears twice, so the projection order is a total order.
+    assert len(set(DECLARABLE_ENTRY_FIELDS)) == len(DECLARABLE_ENTRY_FIELDS)
 
 
 def test_a_routing_entry_discloses_the_three_fields_after_the_base_seven():
     rule = _rule()
     public = rule.as_public_dict()
-    assert list(public) == list(DECLARABLE_ENTRY_FIELDS)
+    # A rule that declares no modalities projects the base seven then the
+    # routing three, and skips the capability group entirely — each optional
+    # group is present ONLY when declared, which is why this is not simply
+    # `DECLARABLE_ENTRY_FIELDS` (the entry declaring BOTH groups has its own
+    # test, and that one is).
+    assert list(public) == list(PUBLIC_ENTRY_FIELDS) + list(ROUTING_ENTRY_FIELDS)
+    assert "modalities" not in public
     assert public["routing_rule"] is True
     assert public["routes_to"] == ["a", "b"]
     assert public["resolved_model_id"] == "a"
@@ -1247,7 +1268,8 @@ def test_the_wire_envelope_carries_a_routing_entry_and_leaves_plain_ones_alone()
         [_rule(routes_to=("a",), resolved="a"), _entry("a")])
     envelope = catalog_wire_envelope(catalog)
     assert list(envelope) == list(WIRE_ENVELOPE_FIELDS)
-    assert set(envelope["models"][0]) == set(DECLARABLE_ENTRY_FIELDS)
+    assert set(envelope["models"][0]) == set(PUBLIC_ENTRY_FIELDS) | set(
+        ROUTING_ENTRY_FIELDS)
     assert set(envelope["models"][1]) == set(PUBLIC_ENTRY_FIELDS)
 
 
@@ -1335,7 +1357,10 @@ def test_routes_to_above_the_released_cap_is_refused_by_the_type():
     assert MAX_WIRE_CONFORMANT_TARGETS == MAX_ROUTING_TARGETS - 1
 
 
-@pytest.mark.parametrize("reference, valid, why", [
+# ONE table, driven through all three id-bearing fields. `model_id` joined the
+# other two at contract-v2.2, and reusing the table rather than writing a fourth
+# set of boundary values is what makes "one spelling holds all three" checkable.
+MODEL_REFERENCE_CASES = [
     ("m", True, "one character is the shortest legal id"),
     ("ok.id-1_2", True, "dot, hyphen and underscore are all legal after the head"),
     ("9starts-with-a-digit", True, "the head may be a digit"),
@@ -1347,7 +1372,10 @@ def test_routes_to_above_the_released_cap_is_refused_by_the_type():
     ("-leading", False, "the head must be alphanumeric"),
     ("tráiling", False, "non-ASCII is refused though str.isalnum() accepts it"),
     ("has/slash", False, "the badge separator's character is not an id character"),
-])
+]
+
+
+@pytest.mark.parametrize("reference, valid, why", MODEL_REFERENCE_CASES)
 def test_the_two_NEW_id_bearing_fields_are_held_to_the_schemas_item_bounds(
         reference, valid, why):
     """FINAL REVIEW N7. The type learned `routes_to`'s `maxItems` and stopped
@@ -1374,18 +1402,277 @@ def test_the_two_NEW_id_bearing_fields_are_held_to_the_schemas_item_bounds(
             build()
 
 
-def test_model_id_itself_keeps_its_PRE_EXISTING_laxity():
-    """The other half of N7's scope call, pinned so it is a recorded decision
-    rather than an oversight: `model_id` carries the SAME `maxLength`/`pattern`
-    in the schema and the type does NOT enforce them — it has accepted
-    over-length and out-of-pattern ids since the seven-field type shipped.
-    Tightening it here would be a behaviour change belonging to no release, so
-    the gap is recorded and left. If a future release closes it, this test is
-    the one that should fail and be rewritten."""
-    lax = ModelCatalogEntry(**{**CONTRACT_EXAMPLE, "model_id": "has spaces!"})
-    assert lax.model_id == "has spaces!"
-    assert len(ModelCatalogEntry(
-        **{**CONTRACT_EXAMPLE, "model_id": "m" * 500}).model_id) == 500
+@pytest.mark.parametrize("reference, valid, why", MODEL_REFERENCE_CASES)
+def test_model_id_itself_is_now_held_to_the_SAME_released_bounds(reference,
+                                                                 valid, why):
+    """N7 CLOSED (contract-v2.2, Brett's ALL-FIVE ruling of 2026-08-24).
+
+    This test is the rewrite its predecessor asked for. It used to pin
+    `model_id`'s laxity as a recorded decision — the deferral reason being that
+    tightening it "would be a behaviour change belonging to no release" — and
+    said in as many words that if a future release closed the gap, this is the
+    test that should fail and be rewritten. That release arrived, so it did.
+
+    The cases are the SAME table the reference fields are driven through, which
+    is the point: one spelling, three fields, no fourth set of boundary
+    values."""
+    build = lambda: ModelCatalogEntry(  # noqa: E731
+        **{**CONTRACT_EXAMPLE, "model_id": reference})
+    if valid:
+        assert build().model_id == reference, why
+    else:
+        with pytest.raises(InvalidCatalogEntryError):
+            build()
+
+
+def test_the_model_id_refusal_names_the_measured_length_and_the_released_bound():
+    with pytest.raises(InvalidCatalogEntryError) as caught:
+        ModelCatalogEntry(**{**CONTRACT_EXAMPLE, "model_id": "m" * 500})
+    assert "500 characters" in str(caught.value)
+    assert str(MODEL_REFERENCE_MAX_LENGTH) in str(caught.value)
+
+
+# ---------------------------------------------------------------------------
+# contract-v2.2 — THE THREE DESCRIPTIVE STRING BOUNDS
+#
+# `label`, `provider_class` and `data_handling` were checked type-side for
+# blankness alone; the released schema bounds all three by length. Brett's
+# ALL-FIVE ruling (2026-08-24) closed them in the same release as `model_id`, so
+# that after it EVERY string bound the schema declares is enforced at
+# construction with no residue. The schema-DRIVEN proof of "no residue" lives in
+# `test_doxbench_contracts.py`, which walks the released bytes rather than this
+# list of three names; these are the boundary cases and the message contract.
+# ---------------------------------------------------------------------------
+
+DESCRIPTIVE_BOUNDS = [
+    ("label", LABEL_MAX_LENGTH),
+    ("provider_class", PROVIDER_CLASS_MAX_LENGTH),
+    ("data_handling", DATA_HANDLING_MAX_LENGTH),
+]
+
+
+@pytest.mark.parametrize("field, maximum", DESCRIPTIVE_BOUNDS)
+def test_a_descriptive_field_exactly_at_its_released_maximum_constructs(field,
+                                                                        maximum):
+    entry = ModelCatalogEntry(**{**CONTRACT_EXAMPLE, field: "a" * maximum})
+    assert len(getattr(entry, field)) == maximum
+
+
+@pytest.mark.parametrize("field, maximum", DESCRIPTIVE_BOUNDS)
+def test_a_descriptive_field_one_over_its_released_maximum_is_refused(field,
+                                                                      maximum):
+    """Reproduced before the ruling and closed by it: 201, 65 and 501
+    characters respectively all constructed cleanly while
+    `GET /workbench/model-catalog` refused to serve the catalog holding them."""
+    with pytest.raises(InvalidCatalogEntryError) as caught:
+        ModelCatalogEntry(**{**CONTRACT_EXAMPLE, field: "a" * (maximum + 1)})
+    message = str(caught.value)
+    # The ratified scenario asks the refusal to name the measured length AND the
+    # released maximum for that field.
+    assert field in message
+    assert str(maximum + 1) in message
+    assert str(maximum) in message
+
+
+@pytest.mark.parametrize("field, _maximum", DESCRIPTIVE_BOUNDS)
+def test_a_descriptive_field_keeps_its_pre_existing_blankness_refusal(field,
+                                                                      _maximum):
+    """The length bound is ADDED to the blankness check, never substituted for
+    it — a bound that silently replaced the older refusal would be a regression
+    dressed as a tightening."""
+    with pytest.raises(InvalidCatalogEntryError, match="must not be blank"):
+        ModelCatalogEntry(**{**CONTRACT_EXAMPLE, field: "   "})
+
+
+# ---------------------------------------------------------------------------
+# contract-v2.2 — THE CATALOG-LEVEL ENTRY CAP
+# ---------------------------------------------------------------------------
+
+
+def _n_entries(count):
+    return tuple(_entry(f"m{i}") for i in range(count))
+
+
+def test_a_catalog_exactly_at_the_released_entry_maximum_constructs():
+    assert len(ModelCatalog(_n_entries(MAX_CATALOG_ENTRIES)).entries) == \
+        MAX_CATALOG_ENTRIES
+
+
+def test_a_catalog_over_the_released_entry_maximum_is_refused_at_construction():
+    """Reproduced before the release: a 65-entry catalog constructed cleanly and
+    could be dispatched by the turn route, while the catalog route refused to
+    serve the very catalog holding it."""
+    with pytest.raises(CatalogEntryCountError) as caught:
+        ModelCatalog(_n_entries(MAX_CATALOG_ENTRIES + 1))
+    message = str(caught.value)
+    assert str(MAX_CATALOG_ENTRIES + 1) in message
+    assert str(MAX_CATALOG_ENTRIES) in message
+
+
+def test_the_entry_cap_is_a_WHOLE_CATALOG_refusal_and_says_so_in_its_class():
+    """Which exception, and why. No single entry is wrong, so
+    `InvalidCatalogEntryError` — whose docstring says a single field failed —
+    would be a false statement about what happened; and an over-large catalog of
+    plain entries is not a routing inconsistency, so `InvalidRoutingRuleError`
+    is wrong for the opposite reason. Its own class, exactly as
+    `DuplicateModelIdError` has one for its own whole-catalog condition."""
+    assert issubclass(CatalogEntryCountError, ModelCatalogError)
+    assert not issubclass(CatalogEntryCountError, InvalidCatalogEntryError)
+    assert not issubclass(CatalogEntryCountError, InvalidRoutingRuleError)
+    assert not issubclass(CatalogEntryCountError, DuplicateModelIdError)
+
+
+def test_from_entries_and_the_direct_constructor_both_enforce_the_cap():
+    for build in (ModelCatalog, ModelCatalog.from_entries):
+        with pytest.raises(CatalogEntryCountError):
+            build(_n_entries(MAX_CATALOG_ENTRIES + 1))
+
+
+def test_the_pre_existing_duplicate_refusal_still_wins_on_an_oversize_catalog():
+    """Ordering, pinned: the element-type and duplicate scans run first, so
+    every catalog that had one of those refusals keeps exactly it."""
+    entries = _n_entries(MAX_CATALOG_ENTRIES) + (_entry("m0"),)
+    with pytest.raises(DuplicateModelIdError):
+        ModelCatalog(entries)
+
+
+# ---------------------------------------------------------------------------
+# contract-v2.2 — THE CLOSED INPUT-MODALITY VOCABULARY
+# ---------------------------------------------------------------------------
+
+
+def test_the_vocabulary_is_exactly_text_and_image():
+    assert CATALOG_MODALITIES == ("text", "image")
+    assert REQUIRED_MODALITY == "text"
+    assert REQUIRED_MODALITY in CATALOG_MODALITIES
+
+
+def test_an_entry_may_declare_that_it_accepts_images():
+    entry = ModelCatalogEntry(**{**CONTRACT_EXAMPLE,
+                                 "modalities": ["text", "image"]})
+    assert entry.modalities == ("text", "image")
+    assert entry.declares_modalities is True
+    assert entry.routing_modalities == ("text", "image")
+
+
+def test_a_text_only_declaration_is_a_declaration():
+    entry = ModelCatalogEntry(**{**CONTRACT_EXAMPLE, "modalities": ["text"]})
+    assert entry.declares_modalities is True
+    assert entry.routing_modalities == ("text",)
+    # …and it is DISTINGUISHABLE from silence, which is the whole point of the
+    # absence rule: the same routing set, a different recorded fact.
+    silent = ModelCatalogEntry(**CONTRACT_EXAMPLE)
+    assert silent.routing_modalities == entry.routing_modalities
+    assert silent.declares_modalities is False
+
+
+def test_an_entry_that_declares_nothing_is_valid_and_makes_no_claim():
+    """THE ADDITIVE PROPERTY, at the type. Absence is not "this model rejects
+    images"; it is "this producer predates the field". The reader gets the safe
+    reading for routing AND the fact that nothing was declared."""
+    plain = ModelCatalogEntry(**CONTRACT_EXAMPLE)
+    assert plain.modalities is None
+    assert plain.declares_modalities is False
+    assert plain.routing_modalities == (REQUIRED_MODALITY,)
+    assert plain.as_public_dict() == CONTRACT_EXAMPLE
+
+
+def test_absence_and_the_empty_set_are_DIFFERENT_values():
+    """`None` and `()` are not synonyms here, exactly as they are not on the
+    wire: the released schema has no key for the first and `minItems: 1` for
+    the second. A default of `()` would have made a producer's empty
+    declaration indistinguishable from silence."""
+    assert ModelCatalogEntry(**CONTRACT_EXAMPLE).modalities is None
+    with pytest.raises(InvalidCatalogEntryError, match="must not be empty"):
+        ModelCatalogEntry(**{**CONTRACT_EXAMPLE, "modalities": []})
+
+
+@pytest.mark.parametrize("declared, match", [
+    (["text", "audio"], "outside the closed vocabulary"),
+    (["audio"], "outside the closed vocabulary"),
+    (["Text"], "outside the closed vocabulary"),
+    (["image"], "must contain 'text'"),
+    (["text", "text"], "must not repeat a member"),
+    ([], "must not be empty"),
+])
+def test_a_nonconforming_modality_declaration_is_refused_at_construction(
+        declared, match):
+    with pytest.raises(InvalidCatalogEntryError, match=match):
+        ModelCatalogEntry(**{**CONTRACT_EXAMPLE, "modalities": declared})
+
+
+def test_the_out_of_vocabulary_refusal_names_the_closed_set_and_its_remedy():
+    """The ratified scenario's THEN: the refusal names the closed vocabulary,
+    and the remedy is the change that governs the new modality — never a wider
+    field."""
+    with pytest.raises(InvalidCatalogEntryError) as caught:
+        ModelCatalogEntry(**{**CONTRACT_EXAMPLE, "modalities": ["text", "audio"]})
+    message = str(caught.value)
+    assert "text" in message and "image" in message
+    assert "change that governs" in message
+
+
+@pytest.mark.parametrize("bad", ["text", b"text", 7, object()])
+def test_modalities_that_is_not_an_iterable_of_names_is_a_TypeError(bad):
+    """A bare string is the trap worth naming: it IS iterable, and iterating it
+    would silently declare four single-character modalities."""
+    with pytest.raises(TypeError):
+        ModelCatalogEntry(**{**CONTRACT_EXAMPLE, "modalities": bad})
+
+
+def test_a_non_string_modality_member_is_a_TypeError():
+    with pytest.raises(TypeError):
+        ModelCatalogEntry(**{**CONTRACT_EXAMPLE, "modalities": ["text", 7]})
+
+
+def test_a_declared_set_is_materialized_to_a_tuple_the_caller_cannot_mutate():
+    source = ["text", "image"]
+    entry = ModelCatalogEntry(**{**CONTRACT_EXAMPLE, "modalities": source})
+    source.append("audio")
+    assert entry.modalities == ("text", "image")
+
+
+def test_a_declared_set_reaches_the_public_dict_after_the_base_seven():
+    """THE WIRE GAP THE BOT ROUND FOUND. `as_public_dict` emits an explicit key
+    list rather than serializing the dataclass, so without a deliberate
+    projection a declared set would have been validated in process and then
+    silently dropped — leaving consumers and the routing successor with nothing
+    to read, which is the entire purpose of the field."""
+    entry = ModelCatalogEntry(**{**CONTRACT_EXAMPLE,
+                                 "modalities": ["text", "image"]})
+    public = entry.as_public_dict()
+    assert list(public) == list(PUBLIC_ENTRY_FIELDS) + ["modalities"]
+    assert public["modalities"] == ["text", "image"]
+    # A LIST (JSON has no tuple), sharing no state with the frozen entry.
+    public["modalities"].append("smuggled")
+    assert entry.modalities == ("text", "image")
+
+
+def test_an_undeclared_entrys_public_dict_is_byte_identical_across_the_release():
+    """The additive property at the wire: an entry that declares nothing emits
+    no key, so its bytes are exactly the bytes it emitted before this release."""
+    plain = ModelCatalogEntry(**CONTRACT_EXAMPLE).as_public_dict()
+    assert "modalities" not in plain
+    assert list(plain) == list(PUBLIC_ENTRY_FIELDS)
+
+
+def test_a_routing_rule_may_also_declare_modalities_and_the_order_is_fixed():
+    """Both optional groups on one entry: the capability field sits between the
+    base seven and the routing three, which is what `DECLARABLE_ENTRY_FIELDS`
+    declares and what makes each group an append."""
+    rule = _rule(modalities=["text", "image"])
+    public = rule.as_public_dict()
+    assert list(public) == list(DECLARABLE_ENTRY_FIELDS)
+
+
+def test_the_wire_envelope_carries_a_declared_set_and_leaves_silent_entries_alone():
+    catalog = ModelCatalog.from_entries([
+        _entry("declaring", modalities=["text", "image"]),
+        _entry("silent"),
+    ])
+    envelope = catalog_wire_envelope(catalog)
+    assert envelope["models"][0]["modalities"] == ["text", "image"]
+    assert "modalities" not in envelope["models"][1]
 
 
 def test_the_pattern_predicate_needs_no_regex_import():

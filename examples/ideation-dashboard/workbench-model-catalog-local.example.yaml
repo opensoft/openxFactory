@@ -1,6 +1,13 @@
 # VALID: one approved local/on-tenant model, the seven required base fields
 # only — no routing declaration, which is the shape every producer that
 # predates contract-v1.38 emits and which stays valid unchanged.
+#
+# It is also the ABSENCE case for contract-v2.2's `modalities`: this entry
+# declares no modalities and is valid exactly as it was. Its silence is not a
+# claim in either direction — it says the producer predates the field, not that
+# the model rejects images — and a reader treats it as text-only FOR ROUTING
+# while recording that no declaration was made. The declaring counterpart is
+# `workbench-model-catalog-multimodal.example.yaml`.
 {
   "schema_version": 1,
   "kind": "workbench-model-catalog",

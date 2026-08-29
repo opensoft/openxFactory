@@ -485,6 +485,11 @@ unimplementable, and `projection.py`'s property 5 said so in as many words.
     at all is the question carried to the convener under 8.1. So 7.5 stays
     UNTICKED, and the flip is folded into 7.6's runbook walk rather than
     performed ahead of it.
+  - **Supporting guidance only:** the [S5 model-version governance research
+    report](research/s5-model-version-governance-research-report.md) prepares
+    decision/evidence packets but selects no Council model or Operator version
+    and does not discharge 7.5; it authorizes no implementation, reopens no
+    Q8, amends no design, and satisfies no S5 gate.
 - [ ] 7.6 **[OPERATOR]** Write the governed re-issuance RUNBOOK for a provider
       alias roll, and walk it once against a deliberate composition bump. Without
       it, one provider release revokes every seat grant at once, every convening
@@ -497,6 +502,12 @@ unimplementable, and `projection.py`'s property 5 said so in as many words.
     will not choose one"), so the alias-to-exact-version flip IS the deliberate
     composition bump this runbook is supposed to be walked against. The runbook
     and that flip are one act, not two.
+  - **Supporting guidance only:** the [S5 model-version governance research
+    report](research/s5-model-version-governance-research-report.md)'s
+    unresolved-decision matrix informs the runbook but is not a runbook walk,
+    re-issuance act, or completion evidence; it selects no Council model or
+    Operator version, authorizes no implementation, discharges no task,
+    reopens no Q8, amends no design, and satisfies no S5 gate.
 - [ ] 7.7 **Gate:** a revoked holder parks a convening with a named refusal in a
       rehearsed test; an unreadable register refuses; the runbook has been
       walked once.
@@ -517,6 +528,11 @@ unimplementable, and `projection.py`'s property 5 said so in as many words.
     parks under `review_authority.grant_expired` with no code change and no
     deploy to blame. Re-issuance is an operator act with a lead time, and this
     is where the date is stated as a SCHEDULED EVENT.
+  - **Supporting guidance only:** research completion in the [S5 model-version
+    governance research report](research/s5-model-version-governance-research-report.md)
+    is not gate completion; it selects no Council model or Operator version,
+    authorizes no implementation, discharges no task, reopens no Q8, amends no
+    design, and satisfies no S5 gate.
 
 ## 8. Bench and governance items carried, not performed
 
@@ -534,6 +550,12 @@ unimplementable, and `projection.py`'s property 5 said so in as many words.
     empty-register notification rides the HEC decision-ready packet; exact
     model versions only, no family pinning. Cascade enforcement rides the
     named core deltas at S5.
+  - **Supporting guidance only:** the [S5 model-version governance research
+    report](research/s5-model-version-governance-research-report.md) is
+    post-ruling research under the exact-version Q8 baseline; it neither
+    reopens Q8 nor changes 8.1's checked state, selects no Council model or
+    Operator version, authorizes no implementation, discharges no task, amends
+    no design, and satisfies no S5 gate.
   - CORE DELTAS AUTHORED at S5, in openXwallet as the Addendum requires:
     **openXwallet PR #3** (`change/add-composition-drift-cascade`, `fc68f13`,
     `Status: draft`, checks green, NOT merged — held for the convener's
