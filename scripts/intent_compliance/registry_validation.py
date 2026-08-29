@@ -1,10 +1,62 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from dataclasses import dataclass
+from typing import Literal, TypeAlias
 
 from .model import Finding, Record, as_records, as_strings
 from .revocation_validation import revocation_findings
 from .temporal import parse_timestamp
+
+RegistryReasonCode: TypeAlias = Literal["registry_not_found", "registry_head_ambiguous"]
+
+
+@dataclass(frozen=True, slots=True)
+class ResolvedRegistryState:
+    registry_id: str
+    head: Record
+
+    def as_record(self) -> Record:
+        return {
+            "status": "resolved",
+            "registry_id": self.registry_id,
+            "revision_id": str(self.head.get("revision_id")),
+            "revision_digest": str(self.head.get("revision_digest")),
+        }
+
+
+@dataclass(frozen=True, slots=True)
+class UnresolvedRegistryState:
+    registry_id: str
+    reason_code: RegistryReasonCode
+
+    def as_record(self) -> Record:
+        return {
+            "status": "unresolved",
+            "registry_id": self.registry_id,
+            "reason_code": self.reason_code,
+        }
+
+
+RegistryState: TypeAlias = ResolvedRegistryState | UnresolvedRegistryState
+
+
+def derive_registry_state(registry_id: str, revisions: list[Record]) -> RegistryState:
+    predecessors = {
+        str(item.get("predecessor_revision_digest"))
+        for item in revisions
+        if item.get("predecessor_revision_digest") is not None
+    }
+    heads = [
+        item
+        for item in revisions
+        if str(item.get("revision_digest")) not in predecessors
+    ]
+    if not heads:
+        return UnresolvedRegistryState(registry_id, "registry_not_found")
+    if len(heads) == 1:
+        return ResolvedRegistryState(registry_id, heads[0])
+    return UnresolvedRegistryState(registry_id, "registry_head_ambiguous")
 
 
 def registry_chain_findings(records: list[Record]) -> list[Finding]:
@@ -33,11 +85,17 @@ def registry_chain_findings(records: list[Record]) -> list[Finding]:
                 roots += 1
             elif predecessor not in by_digest:
                 findings.append(
-                    Finding("registry-chain", registry_id, "missing same-registry predecessor")
+                    Finding(
+                        "registry-chain",
+                        registry_id,
+                        "missing same-registry predecessor",
+                    )
                 )
             else:
                 children[str(predecessor)].append(revision)
-                findings.extend(_child_revision_findings(by_digest[str(predecessor)], revision))
+                findings.extend(
+                    _child_revision_findings(by_digest[str(predecessor)], revision)
+                )
             entries = as_records(revision.get("allowances"))
             allowance_ids = [str(entry.get("allowance_id")) for entry in entries]
             for allowance_id in set(allowance_ids):
@@ -63,21 +121,31 @@ def registry_chain_findings(records: list[Record]) -> list[Finding]:
                 prior = bindings.get(allowance_id)
                 if prior is not None and prior != approval_digest:
                     findings.append(
-                        Finding("allowance-id-reused", allowance_id, "approval digest changed")
+                        Finding(
+                            "allowance-id-reused",
+                            allowance_id,
+                            "approval digest changed",
+                        )
                     )
                 bindings[allowance_id] = approval_digest
         if roots != 1:
             findings.append(
-                Finding("registry-chain-fork", registry_id, "registry must have one root")
+                Finding(
+                    "registry-chain-fork", registry_id, "registry must have one root"
+                )
             )
         for predecessor, child_revisions in children.items():
             if len(child_revisions) > 1:
                 findings.append(
-                    Finding("registry-chain-fork", registry_id, f"fork after {predecessor}")
+                    Finding(
+                        "registry-chain-fork", registry_id, f"fork after {predecessor}"
+                    )
                 )
         if _has_cycle(revisions, by_digest):
             findings.append(
-                Finding("registry-chain-cycle", registry_id, "predecessor cycle detected")
+                Finding(
+                    "registry-chain-cycle", registry_id, "predecessor cycle detected"
+                )
             )
     findings.extend(revocation_findings(records, registries_by_id))
     return findings
@@ -105,9 +173,9 @@ def _child_revision_findings(parent: Record, child: Record) -> list[Finding]:
     }
     for allowance_id, parent_entry in parent_entries.items():
         child_entry = child_entries.get(allowance_id)
-        if child_entry is None or child_entry.get("approval_digest") != parent_entry.get(
+        if child_entry is None or child_entry.get(
             "approval_digest"
-        ):
+        ) != parent_entry.get("approval_digest"):
             findings.append(
                 Finding(
                     "registry-append-only",
@@ -135,5 +203,7 @@ def _has_cycle(revisions: list[Record], by_digest: dict[str, Record]) -> bool:
                 return True
             visited.add(digest)
             predecessor = current.get("predecessor_revision_digest")
-            current = by_digest.get(str(predecessor)) if predecessor is not None else None
+            current = (
+                by_digest.get(str(predecessor)) if predecessor is not None else None
+            )
     return False
