@@ -622,7 +622,7 @@ How this diverges, stated plainly: the study seated **Bitcoin as PRIMARY** with
   still holds even in the primary seat, and why the ten-year claim rests on
   Bitcoin. Every substantive finding of the study survives; ordering and
   optionality are what changed.
-One shorthand carried forward unchanged: the round-2 receipt sketch names
+One shorthand, reconciled rather than smoothed: the round-2 receipt sketch names
   {chain, header, transaction reference}, the same compact form this question's
   Explanation already corrected in the study. The correction still governs and
   does not contest the ruling — each per-chain entry ALSO carries the
@@ -703,10 +703,11 @@ What becomes of the study's caution: it is RECORDED as ADVISORY CONTEXT for that
   2026 — likewise survives as advice, not as the only door.
 Why the divergence is recorded rather than smoothed: the recommendation asked
   for a "never", and a staging topic that converts a "not now" into a "never"
-  has legislated past its own authority. The ruling is narrower than the
-  recommendation in exactly one dimension — duration — and encoding it as
-  agreement would be the quiet-narrowing defect this topic already refused once
-  at Q6, run in the opposite direction.
+  has legislated past its own authority. The ruling differs from the
+  recommendation in exactly one dimension — DURATION, where it is the LESS
+  absolute of the two — and every other word of the recommendation is adopted.
+  Encoding a "not now" as a "never" would be the quiet-narrowing defect this
+  topic already refused once at Q6, run in the opposite direction.
 Dispositioned-by: Claude Opus 5 (session, encoding Brett Heap's clarify ruling)
   · 2026-08-29
 
