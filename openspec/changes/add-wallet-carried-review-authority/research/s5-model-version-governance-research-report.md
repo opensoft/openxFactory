@@ -297,6 +297,13 @@ trimmed, wording otherwise unchanged):
 | C: three-provider | Anthropic, OpenAI, and Google | "Not currently constructible without violating the standing ruling." |
 | D: single-provider | 4 Anthropic seats | "Compliant and operationally simplest, and Anthropic has the strongest published immutability guarantee - but forfeits the diversity objective and concentrates correlated failure." |
 
+Correction on lifecycle evidence: Anthropic publishes retirement dates for the
+surveyed snapshots; for the surveyed OpenAI snapshots only the six-month notice
+commitment is published and no retirement date is announced (register rows
+above; lifecycle summary in section 3). The two-provider option's "best
+available" standing rests on pin compliance and independence, not on symmetric
+lifecycle evidence. [9][20][21]
+
 The recommended picks above are Option D, and its price is stated rather than
 hidden: Option D forfeits cross-provider diversity, which the ratified floor does
 not require. The reason given for it is that moving all four seats to Anthropic
@@ -558,7 +565,10 @@ hatches are recorded: "Family pinning may be revisited only through a future
 core delta that can police it", and "Admitting a family pin would now be a new
 change." The Options table and the completeness checklist below are retained as
 the constructibility bar such a new change would have to clear. The ruling
-closed the question; recording it here does not reopen it. [1][26]
+closed the question; recording it here does not reopen it. The authoritative
+task ledger records the same outcome as a dated addendum under task 8.1
+(tasks.md), so the ledger and this report no longer state different Packet 3
+postures. [1][2][26]
 
 ### Options
 
@@ -1013,8 +1023,9 @@ section sign dropped); no word is changed. [19]
     (`https://arxiv.org/abs/2606.10484`); and Agent3Sigma-Canary
     (`https://github.com/antgroup/Agent3Sigma-Canary`).
 19. **S5 Model-Version Research And Decision Preparation (parallel pass)**,
-    `~/projects/xFactory/s5-model-version-research-2026-08-29.md`, sections 0-6.
-    Workspace point-in-time evidence, fidelity-reviewed, folded into this report
+    `s5-model-version-research-2026-08-29.md`, sections 0-6. Workspace
+    point-in-time evidence held outside the repository beside the session
+    handoffs, not a committed file; fidelity-reviewed, folded into this report
     on 2026-08-29. It rests on two verified facts files compiled 2026-08-29, a
     repository-side extraction and a first-party provider survey; the citations
     in sources 20-32 are its underlying sources, reproduced here.

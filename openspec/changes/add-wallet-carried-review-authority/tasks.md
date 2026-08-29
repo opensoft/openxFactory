@@ -586,6 +586,21 @@ unimplementable, and `projection.py`'s property 5 said so in as many words.
     one. The authored deltas are consistent with the standing ruling, so this
     question sits AHEAD of PR #3's ratification gate: admitting the family pin
     would amend a paragraph of the delta before it is ratified, not after.
+  - **RESOLVED — recorded 2026-08-29; the ruling is dated 2026-08-28.**
+    The question above was answered by ratification: Brett ratified
+    openXwallet PR #3 (`add-composition-drift-cascade`) AS AUTHORED on
+    2026-08-28 (`f3f72c6`), and the ratified change's own text records the
+    outcome — `proposal.md:115-117` and `design.md:227-229`, verbatim and
+    identical in both: *"Resolved 2026-08-28 by ratification as proposed:
+    the delta's exact-version rule stands — a declared model component
+    names an exact version, and a family pin is a validation failure.
+    Admitting a family pin would now be a new change."* Brett confirmed on
+    2026-08-29 that this ratification settled the question:
+    exact-versions-only stands un-revisited, and a family pin is a
+    NEW-CHANGE act, not a pending convener decision. No checkbox changes
+    here; the research report's section 4 "Ruling Of Record"
+    (`research/s5-model-version-governance-research-report.md`) mirrors
+    this entry.
 - [x] 8.2 **[GOVERNANCE]** Rule **Q9** — the floor's source-of-truth inversion.
       Either move the floor's source of truth into a seedable, schema-validated
       `.yaml` carrier and demote the record to evidence, or amend
