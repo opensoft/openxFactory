@@ -94,12 +94,13 @@ is a closed enum in `shared-definitions.schema.yaml`, not a registry (analyze A3
 - `usage-metering-and-alerting.yaml` — the asynchronous per-tenant usage
   meter's channel routing and, honestly, WHICH HALF IS BUILT HERE
   (`qualify-avatar-live-voice` task 6.1.4, executing §7.4). Both figures — the
-  $150 metered-only per-tenant budget and the $750 hard provider-project cap —
+  $40 metered-only per-tenant budget and the $100 hard provider-project cap,
+  re-ruled from $150 and $750 on 2026-08-28 —
   are evaluated at the 50%, 80% and full marks; the project's sub-marks route
   to the provider's own native budget notifications and the cap to the
   provider's hard stop, both RECORDED as install-side halves owned by task
   6.1.2 and neither emitted from this repository. The per-tenant crossing of
-  $150 and any cost-triggered session kill route to `gh issue create` on the
+  $40 and any cost-triggered session kill route to `gh issue create` on the
   doc-health pattern (one issue per run, superseded by a strictly-older date).
   The tenant sub-marks are computed and recorded but not paged: §7.4 rules the
   gh-issue channel at the budget itself. The recipient resolves INTO

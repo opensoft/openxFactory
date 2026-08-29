@@ -3,7 +3,7 @@
 Four claims are proved here: the metering is ASYNCHRONOUS (statically — the
 dispatch path does not import it); the counters are per-tenant and aggregated
 off the closed session records; the ruled 50/80 marks are evaluated for both
-the $150-per-tenant and the $750-project figures and routed to the channel each
+the $40-per-tenant and the $100-project figures and routed to the channel each
 ruling gives them; and the alert act is the doc-health `gh issue create`
 pattern, one issue per run, superseding the prior by a STRICTLY OLDER date.
 """
@@ -129,18 +129,18 @@ def test_records_are_aggregated_off_a_real_runtime_journal(runtime):
 
 # --- the ruled marks and their channels ------------------------------------ #
 def test_the_ruled_figures_are_the_ruled_figures():
-    assert metering.TENANT_MONTHLY_BUDGET_USD_CENTS == 15_000  # $150
-    assert metering.PROJECT_MONTHLY_CAP_USD_CENTS == 75_000  # $750
+    assert metering.TENANT_MONTHLY_BUDGET_USD_CENTS == 4_000  # $40
+    assert metering.PROJECT_MONTHLY_CAP_USD_CENTS == 10_000  # $100
     assert metering.THRESHOLD_MARKS_PCT == (50, 80, 100)
 
 
 @pytest.mark.parametrize(
     "usd_cents,marks",
     [
-        (7_499, []),
-        (7_500, [50]),        # 50% of $150
-        (12_000, [50, 80]),   # 80% of $150
-        (15_000, [50, 80, 100]),
+        (1_999, []),
+        (2_000, [50]),       # 50% of $40
+        (3_200, [50, 80]),   # 80% of $40
+        (4_000, [50, 80, 100]),
     ],
 )
 def test_tenant_marks_are_evaluated_at_fifty_eighty_and_the_budget(usd_cents, marks):
@@ -153,10 +153,10 @@ def test_tenant_marks_are_evaluated_at_fifty_eighty_and_the_budget(usd_cents, ma
 @pytest.mark.parametrize(
     "usd_cents,marks",
     [
-        (37_499, []),
-        (37_500, [50]),   # $375
-        (60_000, [50, 80]),  # $600
-        (75_000, [50, 80, 100]),
+        (4_999, []),
+        (5_000, [50]),      # $50
+        (8_000, [50, 80]),  # $80
+        (10_000, [50, 80, 100]),
     ],
 )
 def test_project_marks_are_evaluated_at_fifty_eighty_and_the_cap(usd_cents, marks):
@@ -172,7 +172,7 @@ def test_project_marks_are_evaluated_at_fifty_eighty_and_the_cap(usd_cents, mark
 
 def test_each_mark_routes_to_the_channel_its_ruling_gives_it():
     usages = metering.aggregate_tenants(
-        [_record(COHORT_01, "s1", 40_000), _record(COHORT_02, "s2", 40_000)]
+        [_record(COHORT_01, "s1", 4_000), _record(COHORT_02, "s2", 4_000)]
     )
     routed = {
         (c.subject_kind, c.mark_pct): c.channel
@@ -181,7 +181,7 @@ def test_each_mark_routes_to_the_channel_its_ruling_gives_it():
     # The provider's own native notifications carry the project sub-marks...
     assert routed[("provider_project", 50)] is metering.AlertChannel.PROVIDER_NATIVE_BUDGET_NOTIFICATION
     assert routed[("provider_project", 80)] is metering.AlertChannel.PROVIDER_NATIVE_BUDGET_NOTIFICATION
-    # ... and the per-tenant crossing of $150 is the gh-issue path.
+    # ... and the per-tenant crossing of $40 is the gh-issue path.
     assert routed[("tenant", 100)] is metering.AlertChannel.GH_ISSUE_ON_THE_DOC_HEALTH_PATTERN
     # ... while the tenant sub-marks are metered and recorded, not paged: §7.4
     # rules the gh-issue channel at the budget itself, and paging at 50% would
@@ -191,7 +191,7 @@ def test_each_mark_routes_to_the_channel_its_ruling_gives_it():
 
 
 def test_the_provider_side_channels_are_recorded_as_install_side_not_emitted():
-    usages = metering.aggregate_tenants([_record(COHORT_01, "s", 40_000)])
+    usages = metering.aggregate_tenants([_record(COHORT_01, "s", 10_000)])
     project_crossings = [
         c for c in metering.evaluate_thresholds(usages) if c.subject_kind == "provider_project"
     ]
@@ -206,9 +206,9 @@ def test_the_provider_side_channels_are_recorded_as_install_side_not_emitted():
 
 # --- the alert act, on the doc-health pattern ------------------------------ #
 def test_a_tenant_crossing_produces_one_issue_per_run():
-    usages = metering.aggregate_tenants([_record(COHORT_01, "s", 15_000)])
+    usages = metering.aggregate_tenants([_record(COHORT_01, "s", 4_000)])
     _, _, crossings, alert = metering.meter(
-        [_record(COHORT_01, "s", 15_000)],
+        [_record(COHORT_01, "s", 4_000)],
         "2026-08-27",
         recipient=HOLDER,
         runbook_ref=RUNBOOK,
@@ -219,7 +219,7 @@ def test_a_tenant_crossing_produces_one_issue_per_run():
     assert HOLDER in alert.body() and RUNBOOK in alert.body()
     assert "metered_and_alerted" not in alert.body()
     assert "no per-tenant hard stop exists" in alert.body()
-    assert usages[COHORT_01].usd_cents == 15_000
+    assert usages[COHORT_01].usd_cents == 4_000
     assert any(c.mark_pct == 100 for c in crossings)
 
 
@@ -245,7 +245,7 @@ def test_a_quiet_run_files_no_issue():
 
 def test_supersede_closes_only_a_strictly_older_issue():
     _, _, _, alert = metering.meter(
-        [_record(COHORT_01, "s", 15_000)],
+        [_record(COHORT_01, "s", 4_000)],
         "2026-08-27",
         recipient=HOLDER,
         runbook_ref=RUNBOOK,
@@ -261,7 +261,7 @@ def test_supersede_closes_only_a_strictly_older_issue():
 
 def test_an_alert_with_no_named_recipient_is_refused():
     """§7.4's whole condition: the person who learns about the spend can stop it."""
-    records = [_record(COHORT_01, "s", 15_000)]
+    records = [_record(COHORT_01, "s", 4_000)]
     for missing in ("", "   "):
         with pytest.raises(metering.AlertRecipientUnresolved):
             metering.meter(records, "2026-08-27", recipient=missing, runbook_ref=RUNBOOK)
@@ -278,7 +278,7 @@ def test_the_recipient_is_never_hard_coded_in_the_runtime_package():
 def test_a_bad_run_date_is_refused():
     with pytest.raises(ValueError):
         metering.meter(
-            [_record(COHORT_01, "s", 15_000)],
+            [_record(COHORT_01, "s", 4_000)],
             "27-08-2026",
             recipient=HOLDER,
             runbook_ref=RUNBOOK,
