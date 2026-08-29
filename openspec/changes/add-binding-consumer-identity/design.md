@@ -173,9 +173,10 @@ conditions hold at once, each of which an adversary must satisfy separately:
 | 4 | both declare `shared_credential_acknowledged: true` | a one-sided declaration exempting a pair |
 | 5 | both name a `requirement_ref` resolving in-repository to requirements with equal `access_mode`, not `dispatch_only` | the dispatch/content collapse laundering itself as intentional sharing |
 
-Every one FAILS CLOSED: an absent block, an unresolvable reference, a mixed
-access mode and a missing acknowledgment all leave the original refusal
-standing. That direction is deliberate and it is the estate's own lesson, with
+Every one FAILS CLOSED, and the list is the whole five rather than a sample: an
+absent block, a shared `holder_ref`, a shared `fetch_identity`, a one-sided or
+missing acknowledgment, an unresolvable requirement reference and a mixed or
+dispatch-only access mode each leave the original refusal standing. That direction is deliberate and it is the estate's own lesson, with
 running code to cite. `scripts/doc_health/release_inventory.py:235-248` records
 a fail-open the release-inventory-drift family shipped with and a bot round
 caught: two comparisons written as `if recorded.get(field) and …`, so *"an
