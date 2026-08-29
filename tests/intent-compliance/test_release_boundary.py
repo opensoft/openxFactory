@@ -17,14 +17,18 @@ ROOT = Path(__file__).resolve().parents[2]
 
 class ReleaseState(StrEnum):
     CURRENT = "contract-v2.1"
-    FEATURE = "contract-v2.2"
+    FEATURE = "contract-v2.3"
 
 
 def _release_state() -> ReleaseState:
     prefix = "contract_bundle_version: "
     manifest = (ROOT / "contracts" / "manifest.yaml").read_text(encoding="utf-8")
     value = next(
-        (line.removeprefix(prefix) for line in manifest.splitlines() if line.startswith(prefix)),
+        (
+            line.removeprefix(prefix)
+            for line in manifest.splitlines()
+            if line.startswith(prefix)
+        ),
         None,
     )
     try:
@@ -50,7 +54,9 @@ def _feature_release_members() -> set[str]:
     return family | implementation | tests | {"scripts/validate-intent-compliance.py"}
 
 
-def test_release_membership_when_registration_changes_then_transition_is_atomic() -> None:
+def test_release_membership_when_registration_changes_then_transition_is_atomic() -> (
+    None
+):
     members = {path.as_posix() for path in release_membership(ROOT)}
     feature_members = _feature_release_members()
 
@@ -63,7 +69,9 @@ def test_release_membership_when_registration_changes_then_transition_is_atomic(
             assert_never(unreachable)
 
 
-def test_release_inventory_when_registration_changes_then_schema_pins_are_atomic() -> None:
+def test_release_inventory_when_registration_changes_then_schema_pins_are_atomic() -> (
+    None
+):
     state = _release_state()
     inventory = build_release_inventory(ROOT, bundle_tag=state)
     entries = {
@@ -105,7 +113,7 @@ def test_release_membership_when_intent_registration_is_partial_then_fails_close
     )
     (contract_root / "manifest.yaml").write_text(
         """schema_version: 1
-contract_bundle_version: contract-v2.2
+contract_bundle_version: contract-v2.3
 contracts:
 - id: intent-compliance-veto-class-vocabulary
   path: contracts/intent-compliance/veto-class-vocabulary.schema.yaml
@@ -145,7 +153,7 @@ def test_release_membership_when_surface_exists_without_registration_then_fails_
     )
     (contract_root / "manifest.yaml").write_text(
         """schema_version: 1
-contract_bundle_version: contract-v2.2
+contract_bundle_version: contract-v2.3
 contracts: []
 """,
         encoding="utf-8",

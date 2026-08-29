@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v2.2
+contract_bundle_version: contract-v2.3
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -2055,7 +2055,7 @@ contracts:
   # the pinned `openXwallet/scripts/validate-openxwallet.py` is this family's
   # conformance validator from this major forward. Migration path: contracts/CHANGELOG.md
   # § contract-v2.0 and openXwallet/docs/pin-resync-runbook.md.
-  # ---- standing-policy intent compliance — contract-v2.2 registration ----
+  # ---- standing-policy intent compliance — contract-v2.3 registration ----
   - id: intent-compliance-veto-class-vocabulary
     path: contracts/intent-compliance/veto-class-vocabulary.schema.yaml
     source_path: openxFactory/contracts/intent-compliance/veto-class-vocabulary.schema.yaml
@@ -2069,7 +2069,7 @@ contracts:
     source_path: openxFactory/contracts/intent-compliance/policy-allowance.schema.yaml
     type: schema
     schema_version: 1
-    sha256: bcccca1d57c935e3d69efb73cc0cd37041eb8d1504d15c434b5d4f4a38c5087d
+    sha256: 8f9c5244f7926a75091d5c889ee33a7efdfa8a50341f49bf4e64aa880e2b5101
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
   - id: intent-compliance-policy-allowance-revocation
@@ -2093,7 +2093,7 @@ contracts:
     source_path: openxFactory/contracts/intent-compliance/compliance-decision.schema.yaml
     type: schema
     schema_version: 1
-    sha256: abe277ae8c632995f2097152acb3099ccdf166fa755af29adc6a22708c5f4f8a
+    sha256: 38c82fa22f815f5f9eec0556d0640bb07e720b799320a82c05474ec71d94a73a
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
   - id: intent-compliance-conformance-validator
