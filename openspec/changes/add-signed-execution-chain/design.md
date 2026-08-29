@@ -67,6 +67,16 @@ and does not run, which is LS-A3, the failure this family has now named three
 times. The requirement carries the measurement so the impossibility is on the
 face of the spec.
 
+**The measurement is not the whole ground, and the requirement says so.** The
+984/984/0 figure covers the surface this repository's ratifications actually land
+on. If it were the ONLY ground, a later implementer could argue that inception
+of a chain over some other surface may route through the pipeline once a class
+exists there. It may not, for a reason independent of any floor: **a pipeline
+that CLEARS candidates cannot also be what CONFERS the authority those
+candidates are cleared against.** A chain whose first link is minted by the
+mechanism it exists to permit is circular on any surface. The measurement makes
+the rule unarguable here; the circularity makes it correct everywhere.
+
 **What this does NOT do.** It does not amend FR-008, define a candidate class,
 create an envelope, touch a ruleset, or discharge `add-substantive-review-lane`
 task 3.2 — all of which the convening left exactly where they are.

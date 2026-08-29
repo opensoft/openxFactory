@@ -65,7 +65,12 @@ council, because that surface lies wholly inside the canonical
 `GATE_INTEGRITY_FLOOR`, which is evaluated before any clearable classification
 (984 admitted paths, 984 floored, 0 remaining; `gate_integrity` declared, absent,
 and no rule document at all all park identically). Routing inception through the
-pipeline would describe a control that provably cannot run.
+pipeline would describe a control that provably cannot run. **That measurement
+is the ground for the surface this repository's ratifications actually land on;
+the rule itself is not surface-dependent**, because a pipeline that CLEARS
+candidates cannot also be what CONFERS the authority those candidates are
+cleared against — a chain whose first link is minted by the mechanism it exists
+to permit is circular, and would be circular on any surface, floored or not.
 
 **CHAIN INCEPTION IS NOT ENROLLMENT.** `specs/025-openxfactory-review-lane-caller/spec.md`
 FR-008 owns the word "enrollment" in this repository for a different act — the
@@ -129,6 +134,7 @@ signal under this capability's refusal requirement rather than a stale copy.
 
 - WHEN a checker at the point of use cannot resolve the registry or any live service
 - THEN it can still establish the traveling contract's internal consistency from the artifact alone
+- AND that establishes consistency ONLY — a check whose question requires the log still refuses while the log is unreachable, per this capability's gate requirement
 - AND an unresolvable external lookup never converts into permission
 
 ### Requirement: The signed transparency log is the record

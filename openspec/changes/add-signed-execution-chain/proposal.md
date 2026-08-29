@@ -116,6 +116,14 @@ in requirement text, citing this record. A design that routed inception through
 the envelope would be describing a control that cannot run, which is the LS-A3
 failure this family has now named three times.
 
+**And the measurement is not the whole ground.** 984/984/0 covers the surface
+this repository's ratifications land on; the rule itself is not
+surface-dependent, because **a pipeline that CLEARS candidates cannot also be
+what CONFERS the authority those candidates are cleared against.** A chain whose
+first link is minted by the mechanism it exists to permit is circular on any
+surface, floored or not. The measurement makes the rule unarguable here; the
+circularity makes it correct everywhere, and both are in the requirement.
+
 ### Constraint B — link 7 composes with the §7.4 path, not with the clearance envelope
 
 The convener's ruled continuation is *"the council-reviewed-but-human-approved
