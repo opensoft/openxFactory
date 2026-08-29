@@ -63,8 +63,8 @@ THREE INDEPENDENT GUARDS, and the independence is the design:
      asserted in its own test naming no severity, no change and no requirement.
      Delete every named-subject assertion below and this one still fails on a
      vacuous read.
-  3. THE NAMED SUBJECTS — the `warning` by all four of its fields, the nine
-     `info` as an exact SET, and the three empty classes by the module's own
+  3. THE NAMED SUBJECTS — the `warning` by all four of its fields, the `info`
+     rows as an exact SET, and the three empty classes by the module's own
      rule text with a positive control on each probe.
 
 Guard 3 alone passes on a clean corpus read by a broken family (an empty finding
@@ -381,6 +381,23 @@ _LEDGER_SUBJECTS = {
      "Composed views are read-only with a repository jump"),
     ("add-doxchat-model-intake", "ideation-dashboard",
      "doxBench model catalog and provider boundary"),
+    # ADDED 2026-08-28 BY `add-credential-escrow-checkout`, when Brett VETOED
+    # that packet's OD-2 over PR #479 and moved a schema surface into it that it
+    # had been authored to defer. A DELIBERATE AMENDMENT, and the narrowest one
+    # the corpus admits: canon's requirement ENUMERATES the record kinds, so a
+    # sixth kind (`xfactory_credential_escrow_entry`) falsifies the sentence the
+    # moment it exists. The three units this arm reports as uncarried are
+    # exactly the three occurrences of "five" the amendment rewrites to "six" —
+    # the body sentence naming the kinds the schema owns, and the two scenario
+    # bullets that say "one of the five kinds" and "outside the five contract
+    # kinds". Every other promoted unit of the requirement, including the whole
+    # `issuance_preconditions` paragraph and the other four scenarios, is
+    # carried verbatim. This arm cannot distinguish a forced amendment from
+    # drift and does not claim to; the finding is INFO and it is the audit trail
+    # for the amendment. Retires when the packet archives and its block is
+    # promoted.
+    ("add-credential-escrow-checkout", "credential-contracts",
+     "Canonical credential record shapes"),
     # REMOVED 2026-08-27 BY THE ARCHIVE ACT — ('add-modified-block-currency-
     # check', 'doc-health', 'Deterministic check families'). THE SELF-FINDING,
     # and the second time this gate fell due. It was expected evidence that the
@@ -765,7 +782,7 @@ def test_the_scenario_arm_reads_zero_since_the_rename_was_declared():
 
 
 def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
-    """PACKET § 4.1's editorial arm, as an EXACT SET of nine named subjects.
+    """PACKET § 4.1's editorial arm, as an EXACT SET of ten named subjects.
 
     COMPARED WITH `==`, NOT `<=`, and the reason is the family's own subject: a
     subset comparison would let a newly lossy MODIFIED block land unreported,
@@ -784,7 +801,9 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
 
     assert not gone and not fresh, _moved(
         "the carriage-ledger population (9 named subjects at 76a2ad27; 8 after "
-        "PR #424's rename; 7 since this packet archived on 2026-08-27)",
+        "PR #424's rename; 7 since this packet archived on 2026-08-27; 10 since "
+        "the OD-2 veto of 2026-08-28 gave add-credential-escrow-checkout a "
+        "MODIFIED block, alongside the two 2026-08-28 packets already named)",
         f"{len(gone)} named subject(s) NO LONGER reported "
         f"{sorted(gone)}; {len(fresh)} unnamed subject(s) NEWLY reported "
         f"{sorted(fresh)}")

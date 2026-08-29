@@ -1,5 +1,75 @@
 # credential-contracts
 
+## MODIFIED Requirements
+
+### Requirement: Canonical credential record shapes
+Credential contract records SHALL validate against the canonical
+`contracts/schemas/xfactory-credential-contracts.schema.yaml`, which owns
+the six record kinds: `xfactory_credential_requirements`,
+`xfactory_runtime_capability_grant_template`,
+`xfactory_credential_binding_template`,
+`xfactory_credential_broker_contract`,
+`xfactory_credential_audit_policy`, and
+`xfactory_credential_escrow_entry`. Domain content — credential families,
+scopes, providers, workflow and action names — is domain-local; the schema
+constrains shape only, and semantic invariants remain owned by the
+credential access model.
+The schema SHALL additionally own an `issuance_preconditions` vocabulary: a
+CLOSED set of neutral precondition tokens that a credential requirement
+record MAY declare, each naming a governed condition which must hold before a
+grant is issued against that requirement. Its first member is the
+ROSTER-DRIFT precondition — an open drift finding recorded against the roster
+entry covering the identity a grant would name blocks issuance of that grant.
+Declaring a precondition is optional and additive; declaring a member outside
+the vocabulary is invalid, because a free-text precondition riding a schema
+that neither declares nor forbids it is unenforceable and invisible to every
+consumer of the pinned contract. Precondition EVALUATION — which drift
+records exist and who reads them — stays with the owning contract families
+and the domain mint surface that issues the grant; this schema owns the
+vocabulary and the declaration shape only.
+The schema SHALL FURTHER own an ADDITIVE OPTIONAL `escrow:` block on
+`xfactory_credential_binding_template`, whose shape and meaning are stated in
+the escrow-relationship requirement, and the sixth record kind
+`xfactory_credential_escrow_entry` the block refers to. BOTH ADDITIONS ARE
+ADDITIVE AND NEITHER NARROWS AN EXISTING SHAPE: a binding template that
+declares no `escrow:` block remains valid unchanged, and a repository holding
+none of the sixth kind remains conformant, so every consumer pinned at the
+prior bundle stays conformant until it upgrades.
+
+#### Scenario: A domain authors a credential contract
+- **WHEN** a DomainxFactory adds or edits a file under `credentials/` carrying one of the six kinds
+- **THEN** it MUST validate against the pinned canonical schema
+
+#### Scenario: A file lacks the envelope
+- **WHEN** a credentials file has no `kind`
+- **THEN** the validator MUST report an error
+
+#### Scenario: A domain policy record is present
+- **WHEN** a credentials file carries a kind outside the six contract kinds
+- **THEN** the validator MUST skip it with notice — such kinds are candidates for future promotion, not silent failures
+
+#### Scenario: A requirement record declares the roster-drift precondition
+- **WHEN** a credential requirement record declares the roster-drift member of `issuance_preconditions`
+- **THEN** it validates, and the declaration is the neutral expression of the ratified refusal: an open drift finding on the covering roster entry blocks issuance of a grant naming that identity
+- **AND** a requirement record declaring no preconditions remains valid, because the vocabulary is optional and additive
+
+#### Scenario: A precondition outside the vocabulary
+- **WHEN** a requirement record declares an `issuance_preconditions` member that is not in the closed vocabulary
+- **THEN** the validator MUST report an error naming the closed vocabulary rather than accepting an unenforceable free-text condition
+
+#### Scenario: The neutral layer proves the precondition by fixture
+- **WHEN** the neutral realization of the roster-drift precondition is demonstrated
+- **THEN** the demonstration is a conformant requirement-record fixture declaring it, because the neutral layer holds no producer of live drift findings and issues no grant itself
+- **AND** at this capability's modification no live drift producer existed anywhere in the family, so the fixture is the whole neutral criterion and live refuse-then-allow behaviour is proven at the domain mint surface as a follow-up
+
+#### Scenario: A binding template predating the escrow block is revalidated
+- **WHEN** an existing `xfactory_credential_binding_template` carrying no `escrow:` block is validated against the schema that owns the sixth kind
+- **THEN** it MUST validate unchanged, because the addition is optional and additive and a pinned consumer is not obliged to move
+
+#### Scenario: The sixth kind appears under `credentials/`
+- **WHEN** a repository adds a file carrying `kind: xfactory_credential_escrow_entry`
+- **THEN** it is a contract record validated against the canonical schema, not a domain policy record skipped with notice
+
 ## ADDED Requirements
 
 ### Requirement: Break-glass escrow checkout is an administration-tier custody act
@@ -202,8 +272,10 @@ pass for one. It SHALL comprise: a fresh clone holding no prior local state; the
 per-client escrow decryption identity retrieved from its custody through a REAL
 approval-and-grant cycle rather than a simulated one; at least one escrowed object
 DECRYPTED and its recovered value verified against its declared restore target;
-the three correlated records produced; after-use rotation dispatched for every
-enumerated object; and the retroactive request completed inside the policy window.
+AT LEAST ONE LIVE REFUSAL DEMONSTRATED, so that the authorization half is proven
+to BITE rather than merely to have been walked past; the three correlated records
+produced; after-use rotation dispatched for every enumerated object; and the
+retroactive request completed inside the policy window.
 
 ONE DRILL DISCHARGES TWO GATES. Its evidence is this change's archive gate AND the
 milestone that `deployment-handoff-boundary`'s phased-never-gapped adoption waits
@@ -221,6 +293,14 @@ capability's named, dispositioned exception closes.
 #### Scenario: Standing access is removed first
 - **WHEN** standing administrative assignments are removed before a drill has been recorded
 - **THEN** the removal violates the phased-never-gapped rule, because the emergency path has not provably worked
+
+#### Scenario: The drill proves only the success path
+- **WHEN** a rehearsal recovers a verified value through a real approval-and-grant cycle but demonstrates no refusal
+- **THEN** it does not discharge the gate, because a path that has never been observed to refuse has been shown to work and not shown to govern
+
+#### Scenario: The drill demonstrates a refusal
+- **WHEN** the rehearsal attempts a checkout with no recorded human-and-domain approval and the issuance is refused
+- **THEN** the refusal is recorded as drill evidence alongside the successful recovery, and the authorization requirement is proven live rather than by fixture alone
 
 #### Scenario: The drill's rotation is treated as optional
 - **WHEN** a drill decrypts a real escrowed object and the credential it recovered is not rotated afterwards
@@ -253,3 +333,83 @@ loss then takes the re-mint path with it.
 #### Scenario: A vault-held value has no re-mint path
 - **WHEN** a credential's only copy is the runtime vault value and no authority can re-mint it
 - **THEN** it is MUST-escrow, and its absence from the registry blocks the managed install's readiness
+
+### Requirement: The escrow relationship rides the credential binding, never a custody tier
+A credential's escrow relationship SHALL be expressed ONLY as an additive optional `escrow:` block on its credential binding template, which a binding MAY declare and MAY omit; a custody model, an assurance tier, or any other axis SHALL NOT carry an escrow discriminator.
+
+THE BLOCK NAMES THREE THINGS AND NO MORE: the escrow entry that holds the
+recoverable value, the escrow scope the entry lives in, and the MUST-escrow or
+SHOULD-escrow classification with, for a SHOULD, the retained authority the
+re-mint test requires it to name. It carries no value, no recipient private
+half, and no restore instruction — those belong to the entry.
+
+THIS IS BRETT'S RATIFIED TRUST-ANCHOR RULING APPLIED WHERE IT POINTED. Escrow
+answers "WHO ELSE can obtain this credential", which is orthogonal to the
+question a custody axis asks — "can the using host read it". The family already
+carries the executable proof of what conflating them costs: the negative fixture
+`contracts/trust-anchor/examples/negative/custody-registry-escrow-as-a-custody-tier.yaml`
+shows an escrow member forced to declare exactly the same two booleans as the
+member above it, because the escrow fact is invisible to that axis. Two members
+that differ only in something their axis cannot express make both unreadable,
+and the reading that gets lost is the one at the point of use.
+
+THE ADDITION IS OPTIONAL AND ADDITIVE. A binding template declaring no `escrow:`
+block remains valid, so the relationship's arrival narrows nothing.
+
+#### Scenario: A binding declares its escrow relationship
+- **WHEN** a credential binding template declares an `escrow:` block naming an escrow entry, its scope, and a MUST-escrow classification
+- **THEN** it validates, and the credential's escrow relationship resolves from the binding rather than from any custody or assurance axis
+
+#### Scenario: A binding declares no escrow relationship
+- **WHEN** a credential binding template carries no `escrow:` block
+- **THEN** it remains valid, because the block is optional and additive and its absence asserts nothing
+
+#### Scenario: An escrow discriminator is added to a custody axis
+- **WHEN** a custody model, assurance tier, or comparable axis gains a member whose only distinction is that an operator holds a recoverable copy
+- **THEN** it MUST be rejected, on the ratified ruling that operator escrow is a relationship on the credential record and not a custody tier
+
+#### Scenario: A SHOULD classification names no retained authority
+- **WHEN** an `escrow:` block declares SHOULD-escrow without naming the retained authority its re-mint path depends on
+- **THEN** it MUST be rejected, because an unnamed re-mint path cannot be verified after the estate that would have needed it is gone
+
+### Requirement: The escrow entry records what was escrowed and where it restores
+An escrow entry record SHALL name its source credential, the runtime target it
+restores into, and the escrow artifact holding the recoverable value — and SHALL
+carry no secret value, no private decryption identity, and no decrypted output.
+
+THE SHAPE IS THE RUNNING PRIOR ART MADE NEUTRAL, because a contract invented
+ahead of practice is a guess and this one has been in service. The entry SHALL
+carry: a SOURCE naming the credential's kind, owner and requirement reference,
+with non-secret identifying material only (a fingerprint or thumbprint, never
+the material it identifies); a RUNTIME TARGET naming the provider coordinates
+and secret name the value is restored into; an ESCROW artifact reference naming
+its format, its file, and the ENCRYPTED FIELD NAMES it holds; and a RESTORE
+declaration naming the target and the structural validations a restore must
+pass before the recovered value is trusted.
+
+EVERY FIELD IS NON-SECRET METADATA, AND THAT IS THE POINT RATHER THAN A
+SIDE-EFFECT: it is what lets a check verify an escrow estate — that entries
+exist, that recipients are the declared ones, that no plaintext is present, that
+every entry has a restore target — WITHOUT any decryption capability. Field
+names are metadata; field values are not, and an entry naming a value has become
+the thing it exists to avoid.
+
+WHERE THE RUNTIME STORE HOLDS A DERIVATIVE, THE ENTRY HOLDS THE RECOVERABLE
+VALUE. A runtime vault legitimately holding only a hash of a credential does not
+discharge the escrow duty, because a hash restores nothing.
+
+#### Scenario: An entry names its encrypted fields
+- **WHEN** an escrow entry names the fields its artifact encrypts, without their values
+- **THEN** it validates, because field names are non-secret metadata and are what a decryption-free check reads
+
+#### Scenario: An entry carries a value or a private identity
+- **WHEN** an escrow entry carries a secret value, a decrypted output, or a private decryption identity
+- **THEN** it MUST be rejected as a raw credential under the rule this capability already carries, which no escrow context relaxes
+
+#### Scenario: An entry names no restore target
+- **WHEN** an escrow entry declares a source and an artifact but no runtime target to restore into
+- **THEN** it MUST be rejected, because a recoverable value nobody can put back is not escrow
+
+#### Scenario: The runtime store holds only a derivative
+- **WHEN** the runtime vault holds a hash or other derivative of a credential and the escrow entry mirrors that derivative
+- **THEN** the entry does not discharge the escrow duty, because restoring a derivative restores nothing; the entry MUST hold the recoverable value

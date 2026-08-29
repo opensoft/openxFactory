@@ -1,10 +1,14 @@
 # Design: add-credential-escrow-checkout
 
 Six questions. § 1 is why the scope split lands where it lands and what the
-first packet must contain to be worth splitting off. § 2 is the one decision that
-departs from what Brett ruled — no schema here — argued against the alternative
-rather than asserted. § 3 is why the checkout needs no new record kind, which is
-§ 2's load-bearing claim. § 4 is the policy window, derived from the detection
+first packet must contain to be worth splitting off. **§ 2 is the one decision
+that departed from what Brett ruled — no schema here — and it was VETOED on
+2026-08-28; it is rewritten as vetoed-and-reversed, with the authored argument
+kept beneath because a veto is only readable against what it overturned.** § 3 is
+why the checkout needed no new record kind — the authored § 2's load-bearing
+claim, which SURVIVED the veto as a true statement that stopped being the
+governing one — and § 3.5 is new: what the schema now carries, and why the entry
+shape is the prior art rather than an invention. § 4 is the policy window, derived from the detection
 mechanism rather than chosen. § 5 is the recipient topology and the one thing it
 costs. § 6 is what makes a drill a drill.
 
@@ -44,14 +48,44 @@ BOX. None of it is needed to prove the checkout works, and all of it is needed
 to prove the registry is complete. That is a clean seam, and it is the seam
 Brett's ruling D drew.
 
-## 2. The decision that departs: no schema surface in this packet
+## 2. VETOED AND REVERSED: the schema comes into this packet
 
-Ruling A says the shape is an additive optional `escrow:` block on
-`xfactory_credential_binding_template` plus one new record kind for the escrow
-entry. Ruling D says the checkout may introduce them "if the checkout path needs
-them to be testable". This packet introduces neither, and the honest framing is
-that this is a DEPARTURE FROM THE DEFAULT READING OF A, permitted by D and
-flagged as OD-2.
+**RULING, 2026-08-28, over PR #479.** OD-2 is vetoed. The `escrow:` relationship
+block on `xfactory_credential_binding_template` AND the escrow-entry record kind
+come into THIS packet, on ruling A's literal shape. Brett accepted the stated
+consequence: realization now owes the additive contract cut. OD-3's deferral of
+ruling C — the registry home, the grandfathered openxpki exception, the three
+escalation tests — expressly STANDS; only the schema half moved.
+
+**Why the veto is right on its own terms, stated before the history.** The
+authored argument (below) was that the escrow entry is half of a relationship
+whose other half is not here. That is true. What it under-weighted is that
+**ruling A is itself the other half's design decision** — Brett had already ruled
+the entry's shape ("inventory + restore target, shaped on the running prior
+art"), so its fields were not open questions waiting on the successor's registry
+work. They were settled, and deferring settled content to a later packet buys
+nothing and costs a round trip. The successor's genuinely open work — where the
+registry LIVES, whether every credential HAS an entry, and how a lint reads the
+estate — none of it constrains what an entry CONTAINS.
+
+**And the veto makes the successor's lint possible earlier.** That lint is only
+buildable if the entry is non-secret metadata BY CONTRACT rather than by
+convention. Requirement 9 now states that property where it can be enforced,
+instead of leaving it to the lint's author to preserve by discipline.
+
+**What the veto costs, recorded honestly.** A contract cut this packet did not
+previously owe, and a wider realization: the schema, its validator and the
+fixtures now stand between the merge and the drill. `tasks.md` § 5 is unchanged
+in substance but now sits behind a § 4 that grew.
+
+**THE AUTHORED ARGUMENT, KEPT AS HISTORY.** As filed, this section read:
+
+> Ruling A says the shape is an additive optional `escrow:` block on
+> `xfactory_credential_binding_template` plus one new record kind for the escrow
+> entry. Ruling D says the checkout may introduce them "if the checkout path
+> needs them to be testable". This packet introduces neither, and the honest
+> framing is that this is a DEPARTURE FROM THE DEFAULT READING OF A, permitted by
+> D and flagged as OD-2.
 
 **The alternative, argued fairly.** Introducing the escrow entry kind here would
 let this packet's fixtures name a real escrow object, would let requirement 2's
@@ -87,9 +121,24 @@ than by field name, and requires it through the promoted audit policy's
 becomes a list of typed references without this packet's text changing a word.
 That is the property that makes the deferral safe rather than merely convenient.
 
-## 3. Why the checkout needs no new record kind
+**How that authored design fared under the veto — the part worth keeping.** The
+structural phrasing was written to survive the entry kind's arrival "without this
+packet's text changing a word", and the arrival came the same day rather than a
+packet later. **The text did not change a word.** Requirement 2 reads exactly as
+filed and now resolves against a typed kind, and OD-7 stayed cleared because the
+enumeration never needed to move into the schema. A design defended as
+future-proof was tested almost immediately, which is more than most get.
 
-The claim OD-2 rests on, stated so it can be checked.
+## 3. Why the checkout needed no new record kind — TRUE, AND NO LONGER GOVERNING
+
+The claim the authored OD-2 rested on, stated so it can be checked — and it does
+check. **The veto did not refute it; it out-weighed it.** The checkout path
+genuinely is expressible in the five promoted kinds, which is why the seven
+authored requirements needed no schema and still need none. What the veto decided
+is that ruling A's content was already settled and had no reason to wait, not
+that this table is wrong. Kept in full, because a reader who later asks "could
+the checkout have shipped without the schema?" deserves the measured answer,
+which is yes.
 
 **The escrow decryption identity is itself a credential**, and the five promoted
 record kinds already carry it end to end:
@@ -110,7 +159,57 @@ requirement, not a schema.
 requirements are written to survive its arrival (§ 2), and until it arrives the
 enumeration is a list of references the audit record already accommodates
 (`evidence_refs` in the credential access audit shape at
-`docs/credential-access-model.md:336-357`).
+`docs/credential-access-model.md:336-357`). **AND THEN IT ARRIVED.** The OD-2
+veto supplies exactly this handle — `xfactory_credential_escrow_entry` — so the
+one genuine absence the authored design admitted is the one thing the veto
+filled.
+
+## 3.5. What the schema now carries, and why the entry shape is not invented
+
+**The MODIFIED block is surgical, and its size is the point.** A promoted
+requirement enumerating FIVE record kinds becomes false the moment a sixth
+exists, so the block restates that requirement with six, adds the sixth name, and
+adds one closing paragraph declaring both additions additive. Two of the six
+promoted scenarios carry "five" in their own text and are amended to "six" — the
+ONLY promoted words that move. Two scenarios are added, and they are added to pin
+the property the whole cut depends on: a binding predating the block still
+validates, and the sixth kind is a contract record rather than a domain policy
+record skipped with notice. Those two scenarios are what make "additive" a
+testable claim rather than a promise in a changelog.
+
+**The escrow block names three things and refuses a fourth.** The entry it refers
+to, the scope, and the MUST/SHOULD classification with its retained authority. It
+carries no value, no recipient private half, and no restore instruction — those
+are the ENTRY's, and splitting them this way is what keeps the binding readable
+at the point of use. The refusal it enforces is Brett's trust-anchor ruling: no
+custody or assurance axis may carry an escrow discriminator, because escrow
+answers "who else can obtain this" and a custody axis answers "can the using host
+read it". The family already holds the executable proof of what conflating them
+costs — the negative fixture in which the escrow member is forced to declare
+exactly the same two booleans as the member above it, differing only in something
+the axis cannot express.
+
+**The entry shape is the running prior art made neutral, and that is a
+methodological choice worth defending.** `Opensoft-Tenant-openxpki-qa` has been
+carrying `escrow/**/inventory.yaml` and `restore-map.yaml` in service:
+`source.credential_requirement` with a non-secret fingerprint, `runtime_target`
+with vault coordinates and secret name, `escrow.format: sops-age` with `file` and
+`encrypted_fields`, and a restore map whose `validation` includes
+`prohibit_plaintext_git_material`. Requirement 9 generalizes THAT rather than
+designing a fresh record, because a contract invented ahead of practice is a
+guess and this one has already survived contact with real disaster-recovery
+material.
+
+**One property does all the successor's work: every field is non-secret
+metadata.** Field NAMES are metadata; field VALUES are not. That single line is
+what makes a decryption-free lint possible at all — entries exist, recipients are
+the declared ones, no plaintext is present, every entry has a restore target, all
+checkable with no decryption capability anywhere in CI.
+
+**And the derivative rule closes the gap the runtime store creates.** A vault
+legitimately holding only a hash does not discharge the escrow duty, because a
+hash restores nothing. This is the QA dashboard htpasswd case from the staged
+topic's claim 5, promoted from an example into a rule.
 
 ## 4. The policy window, derived rather than chosen
 
@@ -191,6 +290,16 @@ specific way of passing without proving anything:
 - **A REAL approval-and-grant cycle** excludes a simulated approval. The
   authorization path is half of what is being proven; a drill that skips it
   proves the cryptography and nothing about the governance.
+- **AT LEAST ONE LIVE REFUSAL** excludes a rehearsal that walks the happy path
+  and infers the rest. This element was NOT authored — it arrived with OQ5's
+  ruling of 2026-08-28, which went against this design's own recommendation that
+  refusals be left to the negative fixtures. The argument that beat the
+  recommendation is short and correct: the element above proves that the
+  authorization path was FOLLOWED, and nothing in the authored list proves it
+  would have BITTEN. A path observed only to permit has been shown to work and
+  not shown to govern, and a fixture proves the schema refuses, not that the
+  live grant surface does. The natural instance is a checkout attempted with no
+  recorded human-and-domain approval.
 - **At least one object decrypted AND verified against its restore target**
   excludes a decryption that produces bytes nobody checks. Recovering the wrong
   value successfully is the failure this catches.
@@ -215,17 +324,22 @@ leave the family with neither a standing path nor a proven emergency one.
 
 **A drill that is run once and believed forever.** The gate proves the path
 worked on one day with one operator. Key custody rots, password-manager items
-move, and the operator who knows the runbook leaves. OQ2 asks the cadence
-question and recommends anchoring it to escrow-identity rotation; until it is
-answered, this packet's gate is honest about being a point measurement.
+move, and the operator who knows the runbook leaves. **OQ2 IS NOW RULED**
+(2026-08-28, on the recommendation): the cadence is every escrow-identity
+rotation plus at least annually, set in the successor alongside the rotation
+runbook because rotation is what it is anchored to. The risk is not retired by
+the ruling — this packet's own gate is still a point measurement, and the
+cadence only starts binding when the successor states it.
 
 **Thin approval at the first drill.** The opensoft tenant is a one-person
 self-client, so the "human AND domain approval" requirement 1 imposes will be
 satisfied by one person holding structurally distinct roles — the exact shape the
 existing `thin-independent-approval` accepted-risk record already names for a
-different scope. OQ3 recommends extending that record explicitly rather than
-reusing it silently, because a silent reuse would make the drill look like it
-proved an approval separation it did not.
+different scope. **OQ3 IS NOW RULED** (2026-08-28, on the recommendation): that
+record is extended by an EXPLICIT SCOPE AMENDMENT covering escrow checkout,
+never reused silently, and the amendment is a hard precondition of the drill
+(`tasks.md` § 5.4). The ruling makes the thinness VISIBLE; it does not make the
+approval thick, and the risk stands as written.
 
 **A window nobody measures.** Both bounds are only real if something computes
 them. The evidence-correlation audit that would compute the first is
@@ -233,7 +347,22 @@ them. The evidence-correlation audit that would compute the first is
 OpsxFactory rather than a thing this packet builds. Stated plainly: until that
 audit runs, the window is a rule with a manual detector.
 
-**Deferring the schema could strand the enumeration.** If the successor slips,
-requirement 2's enumeration stays a list of untyped references for longer than
-intended. The mitigation is that it is USABLE untyped — the drill can enumerate
-paths — so the deferral degrades rather than blocks.
+**~~Deferring the schema could strand the enumeration.~~ SPENT BY THE OD-2 VETO.**
+As authored: "If the successor slips, requirement 2's enumeration stays a list of
+untyped references for longer than intended. The mitigation is that it is USABLE
+untyped — the drill can enumerate paths — so the deferral degrades rather than
+blocks." The schema now lands here, so the risk is gone.
+
+**The risk that replaced it: a wider realization before the drill can start.**
+The schema, its validator and the fixtures now stand between merge and the
+rehearsal, and the boundary's standing-admin exception stays open for all of it.
+OQ5's ruling adds a live refusal to the drill on top. The honest reading is that
+the veto bought a better contract at the cost of a later milestone, and that
+trade was made with the consequence stated.
+
+**A schema whose only conformant instances are fixtures.** Requirements 8 and 9
+will be proven at realization by packaged examples, because the neutral layer
+holds no escrow estate of its own — the same shape this capability's own
+roster-drift precondition already uses and states in its promoted scenario. The
+first REAL instances arrive with the Client Hermes records in `tasks.md` § 5, and
+until then the schema is exercised rather than used.
