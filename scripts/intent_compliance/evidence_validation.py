@@ -40,9 +40,7 @@ def dispatch_evidence_findings(decision: Record, head: Record) -> list[Finding]:
                 "evidence fields differ from decision",
             )
         ]
-    if evidence.get("evidence_digest") != canonical_digest(
-        evidence, "evidence_digest"
-    ):
+    if evidence.get("evidence_digest") != canonical_digest(evidence, "evidence_digest"):
         return [Finding("canonical-digest", decision_id, "dispatch evidence")]
     if parse_timestamp(evidence.get("expires_at")) <= parse_timestamp(
         decision.get("evaluated_at")
@@ -58,7 +56,7 @@ def dispatch_evidence_findings(decision: Record, head: Record) -> list[Finding]:
 
 
 def deterministic_evidence_findings(
-    decision: Record, head: Record
+    decision: Record, registry_state: Record
 ) -> list[Finding]:
     evidence = as_record(decision.get("deterministic_evidence"))
     if evidence is None:
@@ -69,8 +67,7 @@ def deterministic_evidence_findings(
         "evaluated_content_digest": decision.get("evaluated_content_digest"),
         "vocabulary_id": vocabulary.get("vocabulary_id"),
         "vocabulary_digest": vocabulary.get("vocabulary_digest"),
-        "registry_id": head.get("registry_id"),
-        "revision_digest": head.get("revision_digest"),
+        "registry": registry_state,
         "evaluator_id": evaluator.get("evaluator_id"),
         "evaluator_version": evaluator.get("version"),
         "finding_digests": sorted(

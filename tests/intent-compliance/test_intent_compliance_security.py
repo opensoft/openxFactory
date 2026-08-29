@@ -45,7 +45,9 @@ def _decision(records: list[RecordDocument], gate: str) -> RecordDocument:
 
 def test_yaml_when_key_is_duplicated_then_input_is_rejected(tmp_path: Path) -> None:
     path = tmp_path / "duplicate.yaml"
-    path.write_text("schema_version: 1\nkind: compliance_decision\nkind: policy_allowance\n")
+    path.write_text(
+        "schema_version: 1\nkind: compliance_decision\nkind: policy_allowance\n"
+    )
 
     with pytest.raises(InputLimitError, match="duplicate YAML key"):
         load_record_documents([path])
@@ -59,9 +61,13 @@ def test_yaml_when_alias_is_used_then_input_is_rejected(tmp_path: Path) -> None:
         load_record_documents([path])
 
 
-def test_yaml_when_document_exceeds_size_cap_then_input_is_rejected(tmp_path: Path) -> None:
+def test_yaml_when_document_exceeds_size_cap_then_input_is_rejected(
+    tmp_path: Path,
+) -> None:
     path = tmp_path / "large.yaml"
-    path.write_text("schema_version: 1\nkind: policy_allowance\npadding: " + "x" * 1_048_577)
+    path.write_text(
+        "schema_version: 1\nkind: policy_allowance\npadding: " + "x" * 1_048_577
+    )
 
     with pytest.raises(InputLimitError, match="byte limit"):
         load_record_documents([path])
@@ -75,7 +81,9 @@ def test_canonical_json_when_float_is_present_then_input_is_rejected() -> None:
 def test_registry_when_applicable_history_forks_then_unique_head_is_rejected() -> None:
     records = _positive()
     registry = next(
-        record for record in records if record.data.get("kind") == "policy_allowance_registry"
+        record
+        for record in records
+        if record.data.get("kind") == "policy_allowance_registry"
     )
     child = copy.deepcopy(registry.data)
     child["revision_id"] = "neutral.revision.fork"
@@ -86,15 +94,25 @@ def test_registry_when_applicable_history_forks_then_unique_head_is_rejected() -
     sibling["revision_id"] = "neutral.revision.sibling"
     sibling["revision_digest"] = canonical_digest(sibling, "revision_digest")
 
-    findings = _codes([*records, RecordDocument(registry.path, child), RecordDocument(registry.path, sibling)])
+    findings = _codes(
+        [
+            *records,
+            RecordDocument(registry.path, child),
+            RecordDocument(registry.path, sibling),
+        ]
+    )
 
     assert "registry-chain-fork" in findings
 
 
-def test_allowance_identity_when_registry_differs_then_id_is_not_globally_reused() -> None:
+def test_allowance_identity_when_registry_differs_then_id_is_not_globally_reused() -> (
+    None
+):
     records = _positive()
     registry = next(
-        record for record in records if record.data.get("kind") == "policy_allowance_registry"
+        record
+        for record in records
+        if record.data.get("kind") == "policy_allowance_registry"
     )
     other = copy.deepcopy(registry.data)
     other["registry_id"] = "neutral.other-registry"
@@ -108,10 +126,14 @@ def test_allowance_identity_when_registry_differs_then_id_is_not_globally_reused
     assert "allowance-id-reused" not in findings
 
 
-def test_registry_when_newer_revision_exists_then_historical_selection_is_rejected() -> None:
+def test_registry_when_newer_revision_exists_then_historical_selection_is_rejected() -> (
+    None
+):
     records = _positive()
     registry = next(
-        record for record in records if record.data.get("kind") == "policy_allowance_registry"
+        record
+        for record in records
+        if record.data.get("kind") == "policy_allowance_registry"
     )
     future = copy.deepcopy(registry.data)
     future["revision_id"] = "neutral.revision.future"
@@ -135,14 +157,13 @@ def test_terminal_decision_when_linear_head_revokes_then_history_is_rejected() -
     )
     changed = copy.deepcopy(admission.data)
     changed["registry"] = {
+        "status": "resolved",
         "registry_id": historical["registry_id"],
         "revision_id": historical["revision_id"],
         "revision_digest": historical["revision_digest"],
     }
     changed["resolutions"][0]["revocation_digests"] = []
-    changed["deterministic_evidence"]["revision_digest"] = historical[
-        "revision_digest"
-    ]
+    changed["deterministic_evidence"]["registry"] = copy.deepcopy(changed["registry"])
     changed["deterministic_evidence"]["evidence_digest"] = canonical_digest(
         changed["deterministic_evidence"], "evidence_digest"
     )
@@ -167,7 +188,9 @@ def test_decision_when_credential_shaped_value_is_in_evidence_then_rejected() ->
     assert "raw-evidence" in _codes(changed_records)
 
 
-def test_registry_when_child_publication_is_not_monotonic_then_chain_is_rejected() -> None:
+def test_registry_when_child_publication_is_not_monotonic_then_chain_is_rejected() -> (
+    None
+):
     records = _positive()
     child = next(
         record
@@ -198,9 +221,7 @@ def test_revocation_when_predecessor_is_not_effective_head_then_rejected() -> No
     intermediate["revision_id"] = "neutral.revision.intermediate"
     intermediate["predecessor_revision_digest"] = root.data["revision_digest"]
     intermediate["published_at"] = "2026-05-01T00:00:00Z"
-    intermediate["revision_digest"] = canonical_digest(
-        intermediate, "revision_digest"
-    )
+    intermediate["revision_digest"] = canonical_digest(intermediate, "revision_digest")
 
     findings = _codes([*records, RecordDocument(root.path, intermediate)])
 
@@ -266,6 +287,4 @@ def test_discovery_when_kind_uses_valid_yaml_syntax_then_record_is_discovered(
 
     documents = discover_record_documents([path])
 
-    assert [document.data["kind"] for document in documents] == [
-        "compliance_decision"
-    ]
+    assert [document.data["kind"] for document in documents] == ["compliance_decision"]
