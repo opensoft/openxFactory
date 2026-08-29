@@ -652,6 +652,20 @@ def test_verify_reads_exact_commit_not_a_short_or_symbolic_revision(
     assert release.verify_inventory_against_commit(repo, commit, inventory) == []
 
 
+def test_verify_uses_the_requested_repository_under_a_hostile_common_dir(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    primary, commit = _synthetic_repo(tmp_path, "primary")
+    repo = tmp_path / "requested"
+    _git(primary, "worktree", "add", "--quiet", "-b", "requested", str(repo), commit)
+    inventory = _canonical_inventory(repo)
+    hostile = support.init_git_repo(tmp_path / "hostile")
+    support.commit_files(hostile, {"hostile.txt": "unrelated repository\n"})
+    monkeypatch.setenv("GIT_COMMON_DIR", str(hostile / ".git"))
+
+    assert release.verify_inventory_against_commit(repo, commit, inventory) == []
+
+
 # --- promotion ----------------------------------------------------------------
 
 
@@ -1182,30 +1196,21 @@ def test_a_shallow_clone_still_answers_when_merge_base_can_say_yes(
 # --- candidate / realization modes --------------------------------------------
 
 
-def test_validate_candidate_passes_on_the_realized_repository() -> None:
-    # Post-realization (contract-v1.9): the realized release digest inventory is
-    # committed at contracts/releases/contract-v1.9.digests.yaml, which is the
-    # thing this test actually needs to prove -- the pre-realization
-    # missing-inventory state (HGR-RELEASE-INVENTORY-MISSING) is gone for both
-    # candidate and realization validation.
-    #
-    # It does NOT assert `== []`: main keeps moving after a release is cut, and
-    # release members (e.g. contracts/README.md) legitimately drift from the
-    # frozen contract-v1.9 digest inventory in between releases -- that is
-    # correct product behavior (you re-realize for the next version), not a
-    # bug. So drift findings like HGR-RELEASE-DIGEST-MISMATCH are expected and
-    # acceptable here; only the missing-inventory failure mode is disallowed.
-    inventory_path = ROOT / "contracts/releases/contract-v1.9.digests.yaml"
-    assert inventory_path.is_file(), inventory_path
-    catalog = load_yaml_document(ROOT / "contracts/hermes-runtime/contract-index.yaml")
-    candidate = release.validate_candidate(ROOT, catalog=catalog)
-    assert "HGR-RELEASE-INVENTORY-MISSING" not in [
-        finding["code"] for finding in candidate
-    ]
-    realization = release.validate_realization(ROOT, catalog=catalog)
-    assert "HGR-RELEASE-INVENTORY-MISSING" not in [
-        finding["code"] for finding in realization
-    ]
+def test_validate_candidate_and_realization_pass_for_a_local_annotated_release(
+    tmp_path: Path,
+) -> None:
+    tag = "contract-v2.0"
+    repo, commit = _repo_with_committed_inventory(tmp_path, "repo", tag)
+    origin = _bare_origin(tmp_path)
+    _git(repo, "remote", "add", "origin", str(origin))
+    _git(repo, "push", "--quiet", "origin", "main")
+    _git(repo, "tag", "-a", tag, "-m", "release", commit)
+    _git(repo, "push", "--quiet", "origin", tag)
+    assert Path(_git(repo, "remote", "get-url", "origin")) == origin
+    catalog = load_yaml_document(repo / "contracts/hermes-runtime/contract-index.yaml")
+
+    assert release.validate_candidate(repo, catalog=catalog) == []
+    assert release.validate_realization(repo, catalog=catalog) == []
 
 
 def test_validate_candidate_passes_for_a_committed_synthetic_candidate(
@@ -1330,6 +1335,29 @@ def test_cli_verify_commit_pass_and_missing_inventory(tmp_path: Path) -> None:
     assert missing.returncode == 1
     payload = json.loads(missing.stdout)
     assert payload["findings"][0]["code"] == "HGR-RELEASE-INVENTORY-MISSING"
+
+
+def test_cli_verify_commit_uses_requested_repo_under_hostile_common_dir(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    tag = "contract-v2.0"
+    primary, commit = _repo_with_committed_inventory(tmp_path, "primary", tag)
+    repo = tmp_path / "requested"
+    _git(primary, "worktree", "add", "--quiet", "-b", "requested", str(repo), commit)
+    hostile_common_dir = tmp_path / "hostile-common"
+    hostile_common_dir.mkdir()
+    monkeypatch.setenv("GIT_COMMON_DIR", str(hostile_common_dir))
+
+    result = _run_cli(
+        "verify-commit",
+        "--commit",
+        commit,
+        "--json",
+        repo=repo,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert json.loads(result.stdout)["findings"] == []
 
 
 def test_cli_verify_commit_reports_findings_with_exit_one(tmp_path: Path) -> None:

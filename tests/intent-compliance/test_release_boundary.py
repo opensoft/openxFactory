@@ -118,3 +118,43 @@ contracts:
         release_membership(tmp_path)
 
     assert error.value.code == "HGR-RELEASE-INTENT-REGISTRATION-INCOMPLETE"
+
+
+@pytest.mark.parametrize(
+    "surface_path",
+    [
+        "contracts/intent-compliance/veto-class-vocabulary.schema.yaml",
+        "scripts/validate-intent-compliance.py",
+        "scripts/intent_compliance/authority_repository.py",
+        "tests/intent-compliance/test_release_boundary.py",
+    ],
+)
+def test_release_membership_when_surface_exists_without_registration_then_fails_closed(
+    tmp_path: Path,
+    surface_path: str,
+) -> None:
+    contract_root = tmp_path / "contracts"
+    family_root = contract_root / "hermes-runtime"
+    fixture_root = family_root / "fixtures"
+    fixture_root.mkdir(parents=True)
+    (family_root / "contract-index.yaml").write_text(
+        "schema_version: 1\ncontracts: []\n", encoding="utf-8"
+    )
+    (fixture_root / "index.yaml").write_text(
+        "schema_version: 1\ncases: []\n", encoding="utf-8"
+    )
+    (contract_root / "manifest.yaml").write_text(
+        """schema_version: 1
+contract_bundle_version: contract-v2.2
+contracts: []
+""",
+        encoding="utf-8",
+    )
+    surface = tmp_path / surface_path
+    surface.parent.mkdir(parents=True, exist_ok=True)
+    surface.write_text("schema_version: 1\n", encoding="utf-8")
+
+    with pytest.raises(ReleaseDependencyError) as error:
+        release_membership(tmp_path)
+
+    assert error.value.code == "HGR-RELEASE-INTENT-REGISTRATION-INCOMPLETE"
