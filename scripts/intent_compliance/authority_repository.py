@@ -21,6 +21,7 @@ UNTRUSTED_GIT_ENVIRONMENT: Final = (
     "GIT_INDEX_FILE",
     "GIT_OBJECT_DIRECTORY",
     "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+    "GIT_COMMON_DIR",
     "GIT_REPLACE_REF_BASE",
 )
 
@@ -59,9 +60,12 @@ class TrustedSnapshot:
             raise TrustedSnapshotError(
                 self.repository, "trusted commit must be a full lowercase SHA-1"
             )
-        if _git(
-            self.repository, "cat-file", "-e", f"{self.commit}^{{commit}}"
-        ).returncode != 0:
+        if (
+            _git(
+                self.repository, "cat-file", "-e", f"{self.commit}^{{commit}}"
+            ).returncode
+            != 0
+        ):
             raise TrustedSnapshotError(
                 self.repository, "trusted commit is unavailable in repository"
             )
@@ -152,11 +156,7 @@ def trusted_family_paths(snapshot: TrustedSnapshot) -> list[str]:
         raise TrustedSnapshotError(
             snapshot.repository, "authoritative family listing was not binary"
         )
-    paths = [
-        item.decode("utf-8")
-        for item in raw_output.split(b"\0")
-        if item
-    ]
+    paths = [item.decode("utf-8") for item in raw_output.split(b"\0") if item]
     if len(paths) > MAX_DISCOVERY_FILES:
         raise TrustedSnapshotError(
             snapshot.repository,
@@ -172,9 +172,7 @@ def trusted_family_paths(snapshot: TrustedSnapshot) -> list[str]:
     return eligible
 
 
-def read_trusted_family_blob(
-    snapshot: TrustedSnapshot, path: str
-) -> bytes:
+def read_trusted_family_blob(snapshot: TrustedSnapshot, path: str) -> bytes:
     try:
         resolved = _resolve_bounded_git_object(
             snapshot.repository,

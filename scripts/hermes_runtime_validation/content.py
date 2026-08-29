@@ -81,6 +81,7 @@ def _git(repo: Path, *arguments: str, binary: bool = False) -> str | bytes:
     # A caller-controlled Git environment must not redirect this exact-object
     # lookup to another repository or activate replacement-object semantics.
     for name in (
+        "GIT_COMMON_DIR",
         "GIT_DIR",
         "GIT_WORK_TREE",
         "GIT_INDEX_FILE",

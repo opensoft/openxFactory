@@ -6,11 +6,13 @@ import subprocess
 from pathlib import Path
 
 import pytest
+import yaml
 
 from scripts.intent_compliance import authority_validation
 from scripts.intent_compliance.authority_repository import TrustedSnapshotError
 from scripts.intent_compliance.model import (
     InputLimitError,
+    Record,
     RecordDocument,
     load_record_documents,
 )
@@ -38,23 +40,68 @@ def _initialize_repository(repository: Path) -> None:
 
 def _positive_allowance() -> RecordDocument:
     records = load_record_documents(sorted(POSITIVE.glob("*.yaml")))
-    return next(record for record in records if record.data.get("kind") == "policy_allowance")
+    return next(
+        record for record in records if record.data.get("kind") == "policy_allowance"
+    )
+
+
+def _commit_authority_source(repository: Path, authorizations: list[Record]) -> str:
+    source = repository / "governance.yaml"
+    source.write_text(
+        yaml.safe_dump(
+            {
+                "schema_version": 1,
+                "kind": "intent_compliance_authority",
+                "authorizations": authorizations,
+            },
+            sort_keys=False,
+        )
+    )
+    _git(repository, "add", "governance.yaml")
+    _git(repository, "commit", "-qm", "authority source")
+    return _git(repository, "rev-parse", "HEAD")
+
+
+def _source_reference(repository: Path, revision: str) -> dict[str, str]:
+    return {
+        "repository": "example/domain-factory",
+        "path": "governance.yaml",
+        "revision": revision,
+        "content_digest": "sha256:"
+        + hashlib.sha256((repository / "governance.yaml").read_bytes()).hexdigest(),
+    }
+
+
+def _authority_records() -> list[Record]:
+    return [
+        {
+            "principal_id": "neutral.issuer.1",
+            "authority_role": "neutral.allowance_issuer",
+            "approval_ids": [],
+        },
+        {
+            "principal_id": "neutral.revoker.1",
+            "authority_role": "neutral.allowance_revoker",
+            "approval_ids": [],
+        },
+        {
+            "principal_id": "neutral.approver.1",
+            "authority_role": "neutral.policy_approver",
+            "approval_ids": ["neutral.policy_approval.1"],
+        },
+    ]
 
 
 def _allowance_with_source(repository: Path, revision: str) -> RecordDocument:
     allowance = _positive_allowance()
     changed = copy.deepcopy(allowance.data)
-    source_path = repository / "governance.yaml"
-    source = {
-        "repository": "example/domain-factory",
-        "path": "governance.yaml",
-        "revision": revision,
-        "content_digest": "sha256:" + hashlib.sha256(source_path.read_bytes()).hexdigest(),
-    }
+    source = _source_reference(repository, revision)
     issuer = changed["issuer"]
     approval = changed["policy_approval"]
     assert isinstance(issuer, dict) and isinstance(approval, dict)
     issuer["authority_source"] = source
+    approval["principal_id"] = "neutral.approver.1"
+    approval["authority_role"] = "neutral.policy_approver"
     approval["authority_source"] = source
     return RecordDocument(allowance.path, changed)
 
@@ -64,10 +111,7 @@ def test_authority_source_when_revision_and_repository_match_snapshot_then_it_is
 ) -> None:
     # Given
     _initialize_repository(tmp_path)
-    (tmp_path / "governance.yaml").write_text("trusted source\n")
-    _git(tmp_path, "add", "governance.yaml")
-    _git(tmp_path, "commit", "-qm", "trusted source")
-    source_revision = _git(tmp_path, "rev-parse", "HEAD")
+    source_revision = _commit_authority_source(tmp_path, _authority_records())
     (tmp_path / "snapshot.txt").write_text("trusted snapshot\n")
     _git(tmp_path, "add", "snapshot.txt")
     _git(tmp_path, "commit", "-qm", "trusted snapshot")
@@ -172,6 +216,31 @@ def test_trusted_snapshot_when_git_environment_redirects_repository_then_ignores
 
     # Then
     assert snapshot.commit == trusted_commit
+
+
+def test_trusted_snapshot_when_git_common_dir_redirects_blob_reads_then_ignores_it(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # Given
+    trusted = tmp_path / "trusted"
+    trusted.mkdir()
+    _initialize_repository(trusted)
+    trusted_commit = _commit_authority_source(trusted, _authority_records())
+    redirected = tmp_path / "redirected"
+    redirected.mkdir()
+    _initialize_repository(redirected)
+    monkeypatch.setenv("GIT_COMMON_DIR", str(redirected / ".git"))
+
+    # When
+    snapshot = authority_validation.TrustedSnapshot(
+        trusted, "example/domain-factory", trusted_commit
+    )
+    findings = authority_validation.verify_authoritative_sources(
+        [_allowance_with_source(trusted, trusted_commit)], snapshot
+    )
+
+    # Then
+    assert findings == []
 
 
 def test_trusted_snapshot_when_family_exceeds_aggregate_budget_then_rejected(
