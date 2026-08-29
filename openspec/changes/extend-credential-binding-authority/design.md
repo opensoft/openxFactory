@@ -396,6 +396,16 @@ question, not a conflict of substance:
   describing two unrelated additions; two cuts keep each packet's evidence with
   its own bundle. This packet has no stake in the answer and will take the
   ruling.
-- Its self-test fixtures live under `contracts/credentials/examples/`, a
-  different tree from `examples/credential-contracts/`, so the count string this
-  packet moves is not one that packet also moves. Verified rather than assumed.
+- Its self-test fixtures are DECLARED for `contracts/credentials/examples/`, a
+  different tree from `examples/credential-contracts/`, so ON THE DECLARATIONS AS
+  WRITTEN the count string this packet moves is not one that packet also moves.
+  **Stated precisely, because an earlier draft of this bullet claimed the stronger
+  thing.** What was checked is that packet's `code_surface`; `contracts/credentials/`
+  DOES NOT EXIST in the tree today, because that packet is ratified but
+  unrealized, so nothing about the path can have been verified by observation and
+  the words "verified rather than assumed" did not belong here.
+  THE RESIDUAL RISK IS REAL AND BELONGS TO DECISION 7. If that realization instead
+  lands its fixtures under `examples/credential-contracts/`, the two packets DO
+  share a self-test count string, and whichever merges second breaks the other's
+  literal assertion. That is an argument for the combined cut, and it is offered
+  as one — not as a settled fact, since neither packet has realized.

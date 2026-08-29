@@ -2,11 +2,18 @@
 
 Status: draft
 
-NOTHING BELOW RUNS BEFORE RATIFICATION. This packet's own diff is the four
-records and one README entry; every task here is authorized by a ratification
-that has not happened yet. **No task creates, moves, or reads a live secret**:
-the whole realization surface is a schema, a validator, six fixtures and a
-test.
+NOTHING BELOW RUNS BEFORE RATIFICATION. This packet's own diff is its FIVE
+records — `.openspec.yaml`, `proposal.md`, `design.md`, `tasks.md` and the
+`credential-contracts` spec delta — plus one README entry; every task here is
+authorized by a ratification that has not happened yet. The count is stated
+because it SCOPES what changes before ratification, so an enumeration that omits
+a record understates exactly the thing it exists to bound.
+
+**No task creates, moves, or reads a live secret.** The realization surface is
+a schema, a validator, six fixtures and a test — and, beyond that code surface,
+the documentation of § 4, the contract-release ritual of § 5, and the validation
+of § 6. Naming only the code half would let a reader skim past the ritual, which
+is the largest obligation in this packet.
 
 ## 1. The schema carries the authority
 
