@@ -9,6 +9,124 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
+## contract-v2.1 — 2026-08-28 (additive; the release verifier tells the one content condition it can act on from the fourteen it cannot)
+
+**Change class: ADDITIVE (minor)** under
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md).
+NO SCHEMA BYTES CHANGE: nothing under `contracts/schemas/` moves,
+`contract_schema_version` is unchanged, no field is added, deprecated or
+removed, and no instance valid at `contract-v2.0` is narrowed or invalidated. A
+consumer pinned at `contract-v2.0` remains conformant until it deliberately
+upgrades. NO FINDING CODE is added, removed, renamed or re-severitied:
+`HGR-RELEASE-SURFACE-DRIFT`, `HGR-RELEASE-MEMBER-MISSING` and
+`HGR-RELEASE-PATH-UNRESOLVABLE` fire on exactly the population they fired on
+before, and the refusals this cut introduces take the EXISTING
+`HGR-RELEASE-DEPENDENCY` class. The inventory schema, the membership closure,
+the digest rule, the mode comparison and the CLI exit codes are untouched.
+
+WHY THIS CUT EXISTS, stated as membership rather than as preference. Both edited
+validators are NON-EDITORIAL members of the declared bundle's own digest
+inventory (`contracts/releases/contract-v2.0.digests.yaml`, established by
+PARSE: the document loaded and its 192 entries walked, not grepped).
+`scripts/hermes_runtime_validation/release.py` is present as `type: validator`
+at `sha256:660e55ca…` and `scripts/hermes_runtime_validation/content.py` on the
+same terms, each exactly what the tree carried before this change;
+`contracts/hermes-runtime/evidence-register.yaml` is present as
+`type: evidence-register` and moves too, because the new proofs are bound in it.
+The editorial set is exactly three files — `contracts/CHANGELOG.md`,
+`contracts/manifest.yaml` and `contracts/README.md`
+(`scripts/doc_health/release_inventory.py:62-66`) — and none of the three moved
+members is in it. Editing them without cutting would leave the declared
+inventory describing bytes the repository no longer holds, which
+`release-surface-integrity` names a defect, whose prescribed remedy is a release
+cut and NEVER a hand-edit of an inventory to match a tree, and which doc-health's
+release-inventory-drift family reports at `error` rather than at a warning.
+TOUCHING THREE MEMBERS OWES ONE CUT, NOT THREE: the inventory is rebuilt
+wholesale from the manifest plus the contract index, so one build re-baselines
+every moved member at once. THE PRECEDENT IS THE SAME FILE FOR THE SAME CAUSE:
+`contract-v1.44` was cut two days ago as an additive re-realization because
+`fix-release-reachability-race` changed this very file, and `contract-v1.10`
+before it for the same reason.
+
+WHAT MOVED:
+
+* `scripts/hermes_runtime_validation/content.py` — the resolver now DECLARES
+  which condition it observed. `resolve_git_object` reaches fifteen refusals
+  carrying fourteen distinct messages, and exactly ONE of them is a fact about
+  the release: `ls-tree` resolved the commit AND its tree, and the path was not
+  in it. That site alone raises with `code=CONTENT_PATH_ABSENT`
+  (`HRC-CONTENT-PATH-ABSENT`); every other site keeps the default
+  `HRC-CONTENT-DEPENDENCY`, whose spelling and value are unchanged. Purely
+  additive, and measured rather than assumed: nothing in this repository reads
+  `ContentResolutionError.code` — the four `.code` readers that exist read
+  `MigrationContractError`, `DomainRegressionDependencyError`,
+  `ReleaseDependencyError` and `ConsumerHandoffDependencyError` — so no observed
+  surface changes for any consumer that never asked.
+* `scripts/hermes_runtime_validation/release.py` — `_blob_object_id` converted
+  EVERY `ContentResolutionError` into `None`, and `_CommitSource.exists`
+  converted every one into `False`. Both answers are then consumed as DATA: the
+  first is one side of `_surface_drift`'s comparison, the second decides release
+  membership and whether `contracts/manifest.yaml` is present at the commit.
+  So a fact about the MACHINE became a verdict about the RELEASE, and it failed
+  in both directions with the quiet one worse — a failure on ONE side
+  manufactured a drift finding out of an environment fact, and a failure on BOTH
+  sides made two identical non-answers compare EQUAL and reported the surface
+  UNDRIFTED having read neither side of it, emitting nothing a reader could
+  notice. Measured against this repository before the fix: seven distinct
+  conditions — the path absent, the commit absent, the repository absent, the
+  directory that is not a repository, a path that is a directory, a path that is
+  not canonical, a revision that is not a full object id — all produced the same
+  `None` and the same `False`, carrying the same code. Now a single
+  `_resolution_established_absence` reads the resolver's declared code: the one
+  data condition still yields `None` / `False` unchanged, and every other
+  condition becomes a fail-closed `ReleaseDependencyError` whose reason NAMES THE
+  CONDITION OBSERVED (`release content could not be resolved at <commit>:
+  <path>: <the resolver's own refusal>`) rather than a conclusion about the
+  release, with the original chained by `from`.
+* **The distinction is carried by a DECLARED CODE and never by matching the
+  message.** A message is prose, prose is edited for clarity, and a near-miss
+  match would then silently reclassify a safety refusal as release data — the
+  same hazard the sentinel vocabulary refuses near-miss spellings for. Pinned at
+  SOURCE level rather than behaviourally, because the rejected mechanism passes
+  every behavioural test on the day it is written: substituting a message match
+  for the code comparison left all nine behavioural proofs green and was caught
+  only by the structural assertion.
+* **THE SAFETY REFUSALS STAY REFUSALS.** A release-surface path that is a
+  directory or a nested repository link at one commit takes the resolver's
+  deliberate "not a supported regular file" refusal, and it is no longer read as
+  absence. That is reachable from COMMITTED DATA rather than only from a broken
+  environment, and it is not softened because the same path resolves cleanly at
+  the other commit under comparison.
+* **`HGR-RELEASE-PATH-UNRESOLVABLE` at the inventory-path read is deliberately
+  NOT changed.** It already emits a NAMED FINDING rather than a silent value, and
+  changing what a published finding code means to consumers reading verifier
+  output is a contract question rather than a defect fix. The obligation is
+  scoped to resolutions reduced to presence or identity, so leaving that site is
+  conforming rather than a self-violation.
+* `tests/hermes_runtime_contracts/test_release_inventory.py` and
+  `test_content_resolution.py` — twelve new proofs over the module's established
+  `_bare_origin` / `_repo_with_committed_inventory` fixture pair, which DRIVE
+  each condition by argument or by committed data rather than by a real store
+  timeout: the absent path in both directions, the unavailable store, the quiet
+  direction with both sides failing, and the unsafe object at one commit only.
+  Ten of the twelve fail against the committed module. Mutation-pinned at source
+  level in three directions: flattening every refusal back to absence fails all
+  seven refusal proofs while both absent-path proofs still pass; flattening
+  absence into a refusal fails both absent-path proofs; and substituting a
+  message match for the declared code fails the structural proof alone.
+* `contracts/hermes-runtime/evidence-register.yaml` — the twelve proofs are
+  bound under the `SCO-002` scenarios they serve (`S03` pinned-file drift, `S04`
+  verification without a usable network). Test node ids added to existing
+  scenarios; no scenario id added.
+* `contracts/CHANGELOG.md` and `contracts/manifest.yaml` — the editorial
+  members, re-baselined.
+
+THE SAME FORTUNATE PROPERTY `contract-v1.44` recorded holds again: the cut runs
+the NEW code, so `verify-promotion` exercises the fix before the release that
+carries it is tagged.
+
+Realized by `fix-content-resolution-conflation`.
+
 ## contract-v2.0 — 2026-08-27 (BREAKING; the eight openxWallet contracts are REMOVED and the family is consumed at a pin)
 
 Realizes `split-openxwallet-repo` **P3** (`tasks.md` §7), the atomic
