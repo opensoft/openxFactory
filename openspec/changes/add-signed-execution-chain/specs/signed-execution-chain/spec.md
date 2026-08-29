@@ -10,18 +10,21 @@ and no requirement below reaches them.
 
 A governed ratification SHALL enter a signed execution chain only where it is
 recorded as an exercise of a wallet-carried authority whose proof of possession
-was SUPPLIED AND VERIFIED — `proof_of_possession.presented` and `.verified` in
-the pinned exercise record, named as FIELDS rather than restated as prose,
-because "presented" is that schema's name for the proof and never a synonym for
-the presentation this requirement refuses — whose attribution is key-attributed
-to the presenting
+was SUPPLIED AND VERIFIED, whose attribution is key-attributed to the presenting
 wallet key, and whose revocation was checked AT EXERCISE rather than inherited
 from issuance. Authority travels as an attenuated grant and by nothing else, per
 `review-authority-intake`'s requirement *"Review authority is held as an
 openxwallet grant and by nothing else"*; possession of a grant is not its
 exercise, per the pinned openXwallet requirement *"Use requires proof of
 possession, not presentation"*, whose refusal names the MISSING PROOF and not a
-missing grant. What a signature EVIDENCES is bounded by the declared custody of
+missing grant.
+
+The two conditions above are the pinned exercise record's
+`proof_of_possession.presented` and `proof_of_possession.verified`, cited as
+FIELDS rather than restated as prose: `presented` is that schema's name for the
+proof, never a synonym for the presentation this requirement refuses, and a
+reader who meets the word in the record should not have to decide which sense it
+carries. What a signature EVIDENCES is bounded by the declared custody of
 the key that made it, and this capability SHALL derive that bound from the
 custody declaration rather than restating a custody model of its own.
 
@@ -236,10 +239,9 @@ A consumer that validates a signed execution chain SHALL determine the links the
 chain is REQUIRED to carry at that point from its OWN DECLARED EXPECTATION, never
 from the set of links it was handed, and SHALL validate every one of them; a link
 that is missing, unverifiable, or not bound to the chain SHALL be refused and
-reported as a FRAUD SIGNAL rather than downgraded to a warning, an advisory, or a
-degraded pass — a gap means either the
-act did not happen or something is misrepresenting that it did, and both are
-refusals. A consumer that CANNOT evaluate the chain SHALL refuse rather than
+reported as a FRAUD SIGNAL rather than downgraded to a warning, an advisory, or
+a degraded pass — a gap means either the act did not happen or something is
+misrepresenting that it did, and both are refusals. A consumer that CANNOT evaluate the chain SHALL refuse rather than
 proceed, because an unevaluable answer is never permission, and every refusal
 SHALL name which link failed and why. A consumer holding NO declared expectation
 SHALL refuse rather than accept whatever it was handed, because a chain judged
