@@ -110,8 +110,15 @@ cut.
 
 ## 6. Bookkeeping
 
-- [ ] 6.1 README OpenSpec Records: move this change from active to archived
-  when it archives.
+- [x] 6.1 README OpenSpec Records: move this change from active to archived
+  when it archives. DONE 2026-08-29, in the archive commit itself: the row left
+  the "Active changes:" list — where it still read "**NOT YET RATIFIED**
+  (`Status: draft`)`", stale by five days and two rulings — and entered
+  "Archived changes:" pointing at
+  `openspec/changes/archive/2026-08-29-add-model-capability-vocabulary/`, with
+  the realization recorded (PR #498, squash `8ccfb67b`, tag object `f86f2212`,
+  sentinel resolved in `0b9e31c8`) and the promotion numbers stated. Evidence:
+  `review/archive-verification-2026-08-29.md`.
 - [x] 6.2 The staged topic keeps its row: this is exit (a) of three, and the
   topic exits only when (b) and (c) have landed too.
 
