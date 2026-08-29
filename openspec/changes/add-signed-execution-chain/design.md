@@ -250,8 +250,13 @@ identity". But the chain identity IS the digest of the signed ratification, and
 inception is that same signed act — so the signature input would depend on the
 completed signature and **no implementation could construct link 2 at all**. The
 rule now starts AFTER inception: inception mints the identity and carries it,
-bound to the ratification by BEING it; the traveling contract is the first link
-with a predecessor to sign over.
+bound to the ratification by BEING it. **The first repair then named the
+traveling contract as the next link to sign over a predecessor, and D7.2b below
+shows that was wrong too** — link 3 has no signer. The correction is stated
+here rather than only below, so a reader who skims headings does not carry away
+the intermediate answer as the final one: at tranche one **no** link after
+inception signs, and the hash-linked signing rule takes effect at tranche two's
+first signed link.
 
 **D7.2b — and "the traveling contract signs" was wrong too, for a reason the
 authoritative table states outright.** Link 3 has NO SIGNER: the staged topic's
@@ -260,9 +265,13 @@ digest invents a signing act and a signer nothing defines, and the ratification'
 signature cannot cover an inception record created from it. So at tranche one
 there is no link after inception with a signer at all, and **continuity is
 established by DERIVATION AND COMPARISON rather than by a third signature**: the
-ratification verifies and its digest equals the chain identity, the inception
-leaf commits to that identity, and the traveling contract's carried identity and
-carried leaf digest equal both. That is a complete continuity check over links
+ratification's signature verifies, **the digest of the SIGNED ratification —
+recomputed, and taken over the signed bytes rather than over the ratified
+subject — equals the chain identity**, the inception leaf commits to that
+identity, and the traveling contract's carried identity and carried leaf digest
+equal both. The bare phrase "its digest" stood here until the round below caught
+what the same looseness had already done in the delta; a note about which digest
+is which cannot itself leave the referent to context. That is a complete continuity check over links
 1–3 built only from artifacts that exist, and it defeats mix-and-match exactly as
 a signature chain would, because artifacts from different executions carry
 different chain identities. **The hash-linked SIGNING rule takes effect at the
@@ -286,6 +295,46 @@ carried leaf digest catching truncation at the point of use), and DECLARES the
 residual under the realization-conformance obligation. That is `add-trust-anchor`'s
 ratified rule applied to ourselves: an undeclared shortfall is non-conformance,
 the identical shortfall declared is conformant.
+
+## D7.6 — The harvested digest rule falsified a sentence in the gate, and I did not sweep for it
+
+**Found by Codex as a P1 on `61ab5d84`, and it is the packet's own lesson used
+against the packet.** Requirement 4 — harvested from #494 — was extended in this
+session with the rule that the ratification's CONTENT digest (over the subject
+ratified) and the CHAIN IDENTITY (over the SIGNED ratification) are different
+values and MUST NOT be equated. The gate requirement already contained the
+sentence *"the ratification's signature verifies and its content digest EQUALS
+the chain identity"*, written before that distinction existed. Adding the
+distinction **falsified a sentence elsewhere in the same delta**, and the
+addition shipped without the sweep.
+
+**The consequence was not cosmetic.** As written the gate rule *"rejects every
+conforming chain"* — Codex's words, and correct: the signed bytes are a strict
+SUPERSET of the ratified subject, since they also carry the exercise reference
+and the per-act value, so the two digests can never be equal for a conforming
+record. A realization building to that sentence would have produced a gate that
+refuses everything, and the delta would have contained both the rule and its
+contradiction with no test able to see the conflict.
+
+**The rule is now stated as five ordered checks over NAMED digest subjects**,
+with the identity check recomputing the digest of the SIGNED ratification and
+the `object_ref` comparison kept separate as the REPLAY check over the CONTENT
+digest — two comparisons over two subjects, and a sentence forbidding their
+collapse in either direction. A scenario refuses a gate that implements the
+identity check with the content digest.
+
+**The lesson is one this family already wrote down and this session still
+missed:** *when a definition gains a conjunct, sweep every one-conjunct sentence
+immediately.* Requirement 4's distinction WAS the new conjunct. The sweep is now
+done and recorded — every "content digest" occurrence in the packet was checked,
+and one further ambiguity was repaired in D7.2b, where a bare "its digest"
+left the referent to context in the very note explaining which digest is which.
+
+**Copilot's finding in the same round was the same shape one level up.** D7.2
+said the traveling contract *"is the first link with a predecessor to sign
+over"* while D7.2b immediately below establishes that link 3 has no signer — so
+a reader skimming headings carried away the intermediate repair as the final
+answer. D7.2 now names its own supersession in place.
 
 ## D8 — Four hardenings HARVESTED from the closed #494, cited to their source
 

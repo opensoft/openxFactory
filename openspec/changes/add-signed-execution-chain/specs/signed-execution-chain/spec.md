@@ -412,13 +412,31 @@ so requiring it to sign over inception's digest would invent a signing act and a
 signer that nothing in this capability defines, and the ratification's own
 signature cannot cover an inception record created from it. **At this tranche
 continuity is therefore established BY DERIVATION AND COMPARISON, not by a third
-signature**, and the gate SHALL validate exactly that: the ratification's
-signature verifies and its content digest EQUALS the chain identity; the
-inception leaf commits to that same chain identity; and the traveling contract's
-carried chain identity and carried leaf digest EQUAL both. That is a complete
-continuity check over links 1–3 using only artifacts that exist, and it defeats
-assembly just as a signature chain would, because artifacts from different
-executions carry different chain identities.
+signature**, and the gate SHALL validate exactly that, over the digest subjects
+this capability's digest requirement fixes:
+
+1. the ratification's signature VERIFIES;
+2. the digest of the SIGNED RATIFICATION, RECOMPUTED by the gate under the one
+   construction in force, EQUALS the carried chain identity — this is the
+   chain-identity check, and it is taken over the signed bytes, never over the
+   ratified subject;
+3. the exercise that proved link 1 carries an `object_ref` equal to the
+   ratification's CONTENT digest, taken over the subject ratified — a DIFFERENT
+   comparison over a DIFFERENT subject, which is the replay check and not the
+   identity check;
+4. the inception leaf commits to that same chain identity; and
+5. the traveling contract's carried chain identity and carried leaf digest EQUAL
+   the values established above.
+
+**Checks 2 and 3 SHALL NOT be collapsed into one comparison.** Equating the
+content digest with the chain identity would reject every conforming chain,
+because the signed bytes are a strict superset of the ratified subject — they
+also carry the exercise reference and the per-act value. It is also unbuildable
+in the other direction, since an exercise's `object_ref` would then have to
+commit to a signature not yet made. That is a complete continuity check over
+links 1–3 using only artifacts that exist, and it defeats assembly just as a
+signature chain would, because artifacts from different executions carry
+different chain identities.
 
 **THE HASH-LINKED SIGNING RULE TAKES EFFECT AT THE FIRST LINK THAT HAS A SIGNER
 OF ITS OWN**, which is the harness-controller setup attestation — tranche two.
@@ -450,6 +468,12 @@ gate cannot walk a link that does not exist yet.
 - WHEN any of links 1–3 is absent
 - THEN the gate REFUSES and reports a fraud signal
 - AND the outcome is never downgraded to a warning, an advisory, or a finding to be triaged
+
+#### Scenario: the gate compares the content digest against the chain identity
+
+- WHEN a gate implements the chain-identity check by comparing the ratification's content digest to the carried chain identity
+- THEN it is REFUSED as an incorrect gate, because that comparison rejects every conforming chain
+- AND the conforming check recomputes the digest of the SIGNED ratification, the content digest belonging to the separate replay check
 
 #### Scenario: the gate cannot evaluate the chain
 
