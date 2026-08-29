@@ -79,7 +79,7 @@ That is the whole scope of this packet, and it is quoted rather than composed.
 ## The second half the same change told this successor to decide first
 
 The gap has a twin, and the custody change was explicit that the successor must
-settle it BEFORE shipping a fixture. At `tasks.md:55-66`, recording why its own
+settle it BEFORE shipping a fixture. At `tasks.md:53-66`, recording why its own
 planned conformance fixture was DECLINED:
 
 > ...a fixture would TRIP the validator: `shared-secret-identity` fires whenever
@@ -181,7 +181,7 @@ holding a LIVE `MODIFIED` block on exactly that requirement right now**
 carrying the sixth record kind and the optional `escrow:` block.
 
 The custody change refused this collision explicitly, and its ratification record
-states the discipline (`review/ratification-2026-08-23.md:24-27`): *"no
+states the discipline (`review/ratification-2026-08-23.md:46-48`): *"no
 requirement is MODIFIED here precisely so that two active changes never hold two
 live deltas on one requirement text."* OpenSpec's `MODIFIED` REPLACES wholesale;
 two live blocks on one requirement is the exact machinery that produced the

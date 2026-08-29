@@ -91,7 +91,7 @@ carrying the sixth record kind and the optional `escrow:` block. The custody
 change refused this collision deliberately and its ratification states the
 discipline in terms: *"no requirement is MODIFIED here precisely so that two
 active changes never hold two live deltas on one requirement text"*
-(`review/ratification-2026-08-23.md:24-27`).
+(`review/ratification-2026-08-23.md:46-48`).
 
 The reason is mechanical, not stylistic. `MODIFIED` REPLACES a requirement
 wholesale; it does not merge. Two live blocks on one requirement means the
