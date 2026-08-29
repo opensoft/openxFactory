@@ -20,19 +20,22 @@ and in the projection documentation, NAMES THE SAME THING as `fetch_identity`;
 the prose synonym stands and the RECORD has exactly one spelling.
 
 ALL THREE FIELDS ARE OPTIONAL AT THE MINOR THAT INTRODUCES THEM, AND EXACTLY TWO
-OF THEM BECOME REQUIRED AT THE NEXT MAJOR. A binding that does not declare BOTH a
-`consumer` AND a `fetch_identity` SHALL raise a validator WARNING naming
-whichever is missing, SHALL remain valid throughout the CURRENT MAJOR LINE (every
-`contract-v2.x` bundle), and SHALL be refused at the next MAJOR VERSION. THE WARNING FIRES ON EITHER ABSENCE, NOT ONLY ON BOTH, because both
-fields become required together: a record declaring one and omitting the other
-would otherwise pass silently through every minor of the current line and break
-at the next major version with no notice, which is the same defect this requirement refuses one paragraph below
-for `requirement_id`. A deprecation that skips half the shapes it will refuse is
-not a migration path. an
-optional field plus a new validator warning is the additive class, and a
-required field is the breaking class that owes at least one full minor of
-warnings first. The warning is the migration path, and the removal version SHALL
+OF THEM BECOME REQUIRED AT THE NEXT MAJOR VERSION. A binding that does not
+declare BOTH a `consumer` AND a `fetch_identity` SHALL raise a validator
+WARNING naming whichever is missing, SHALL remain valid throughout the CURRENT
+MAJOR LINE (every `contract-v2.x` bundle), and SHALL be refused at the next
+MAJOR VERSION. That sequence is what the change classes require: an optional
+field plus a new validator warning is the ADDITIVE class, while a required field
+is the BREAKING class, which owes at least one full minor release of deprecation
+warnings first. The warning IS the migration path, and the removal version SHALL
 be stated in the changelog entry that introduces it.
+
+THE WARNING FIRES ON EITHER ABSENCE, NOT ONLY ON BOTH, because the two fields
+become required together. A record declaring one and omitting the other would
+otherwise pass silently through every minor of the current line and break at the
+next major version with no notice — the same defect this requirement refuses one
+paragraph below for `requirement_id`, reached from the other direction. A
+deprecation that skips half the shapes it will refuse is not a migration path.
 
 `requirement_id` IS DELIBERATELY NOT ON THAT PATH, and the asymmetry is a
 consequence of the deprecation rule rather than an omission. Its absence never
@@ -40,9 +43,9 @@ warns, because a binding that is the only one resolving its requirement already
 carries that fact in its map key and would gain nothing but redundancy; so a
 major that made it required would be a breaking change no minor had ever warned
 about, which the versioning policy forbids. `requirement_id` stays optional
-across the major boundary too, and is obligatory only where a record CLAIMS the shared-secret
-exemption — which is a condition of that claim, stated in the requirement that
-grants it, and not a property of every binding.
+across the major boundary too, and is obligatory only where a record CLAIMS the
+shared-secret exemption — a condition of that claim, stated in the requirement
+that grants it, and not a property of every binding.
 
 THE MAP KEY IS A BINDING IDENTIFIER AND `requirement_id` IS THE DECLARED
 RELATION, which resolves an ambiguity the shape has carried unstated. Every
