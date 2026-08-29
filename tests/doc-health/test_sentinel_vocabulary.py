@@ -906,7 +906,17 @@ def test_the_pin_counts_did_not_move_and_no_site_is_classified_twice():
     network. What it does assert is the separation the design turns on — the
     commit path and the classification path never see the same site."""
     report = pc.verify(REPO_ROOT, allow_remote=False)
-    assert len(report.results) == 66
+    # 66 -> 67 on 2026-08-28 by `add-subject-establishment`, whose FULL
+    # promotion of the `subject-establishment` staged topic wrote one new
+    # `openspec/changes/add-subject-establishment/supporting-docs/manifest.yaml`
+    # carrying a `source_revision` pin. It joins the EXISTING
+    # `proposal-support-manifest` member class — twenty-five manifests now, one
+    # member — which is why the member count below is unchanged at 23. This
+    # count moves by design on every full promotion: the gate compares by exact
+    # number so a new pin site reds the suite until somebody looks at it, and
+    # this comment is that look. Enumerated rather than inferred: the single
+    # added site is the manifest above and nothing else moved.
+    assert len(report.results) == 67
     assert len({r.site.member_id for r in report.results}) == 23
     assert len(report.lost) == 1
     assert len(report.lost_awaiting_record) == 0

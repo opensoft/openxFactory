@@ -4,8 +4,14 @@ Governance-level and dependency-ordered. **This change is not implemented
 here**: § Admission and § Implementation are done at authoring, and everything
 after them belongs to a later ruling round, to the named successor, and to
 consuming repositories. Every fact quoted below was measured on 2026-08-28 in a
-fresh worktree off `origin/main` at `3cebf83e`; a task citing a line number
-owes a re-read at realization rather than a copy of the number.
+fresh worktree off `origin/main` at `3cebf83e` and re-measured after
+`origin/main` was merged in at `571e64d5`; a task citing a line number owes a
+re-read at realization rather than a copy of the number. **One number moved at
+that merge and is corrected rather than left standing**: the declared contract
+bundle went `contract-v2.0` → `contract-v2.1` under this branch, so
+`proposal.md`'s `target_release` parse was rerun against
+`contracts/releases/contract-v2.1.digests.yaml` — 192 entries, none of them a
+path this change writes.
 
 ## Admission
 
@@ -85,11 +91,43 @@ owes a re-read at realization rather than a copy of the number.
       nothing is promoted until this change archives. The DTN-017 detail
       section gains a dated line naming this change.
 - [x] B.4 Repository README "OpenSpec Records" active entry.
-- [x] B.5 `ideation/cross-reference.*` REGENERATED with the repository's own
-      generator, never hand-edited.
+- [x] B.5 `ideation/cross-reference.*` DELIBERATELY NOT REGENERATED, and the
+      reason is a measurement rather than a preference. The index is NOT
+      produced by a mechanical script: `scripts/bootstrap-ideation-cross-reference.py`
+      is a ONE-TIME SEED whose own help text says the real clustering and
+      scoring is realized by the codexFactory readiness worker, and the landed
+      index carries `Generator: ideation-xref-scorer-0.1.0` with a pinned
+      `generation.source_revision`. Running the bootstrap here was TRIED and
+      REVERTED: it produced a 3177-line deletion, dropped the corpus from 290
+      clusters to 287, regressed the generator id to
+      `ideation-xref-bootstrap-0.1.0`, and replaced the pinned source revision
+      with `uncommitted-worktree` — a destructive downgrade of the scorer's
+      output, not a regeneration of it. The correct regenerator is the nightly
+      readiness lane (`scripts/ideation-readiness-nightly.py`, an LLM dispatch),
+      which is not this packet's to run. **AND THE INDEX IS NOT STALENED BY THIS
+      CHANGE**, which is the load-bearing fact: the index is REVISION-ADDRESSED
+      and is proved against the corpus AT ITS OWN PIN rather than against HEAD,
+      a property `6f9d9e0c` established on purpose. Verified rather than
+      asserted — `tests/doc-health/test_pin_reachability.py`,
+      `test_ideation_readiness.py` and `test_readiness_proof_resolution.py`, 126
+      passed, after the topic file moved. The index's one membership row naming
+      `ideation/staging/subject-establishment/subject-establishment.md` is
+      correct AS OF ITS PIN and is superseded at the next nightly lane run.
 - [x] B.6 Test and doc-health measurements recorded before and after, with the
       families that legitimately move named in advance and every other family
       asserted unmoved.
+- [x] B.7 Re-baseline the PIN-SITE SELF-GATE in the same commit that moves it.
+      `tests/doc-health/test_sentinel_vocabulary.py::test_the_pin_counts_did_not_move_and_no_site_is_classified_twice`
+      asserts an exact site count, and this packet's
+      `supporting-docs/manifest.yaml` carries a `source_revision` pin, so the
+      count goes 66 → 67. **This is the gate working, not a test edited to
+      pass**: the count moves by design on every full promotion, the assertion
+      exists so that nobody adds a pin site without a human looking at it, and
+      the edit carries a comment recording exactly which site arrived and why.
+      Enumerated rather than inferred — `pin_class.verify()` was run and the
+      single new site is this packet's manifest, joining the EXISTING
+      `proposal-support-manifest` member class, which is why the member-count
+      assertion beside it is unchanged at 23.
 
 ## Verification
 
@@ -98,7 +136,11 @@ owes a re-read at realization rather than a copy of the number.
 - [x] V.2 `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` — green.
 - [x] V.3 `set -o pipefail; python3 -m pytest tests/doc-health
       tests/proposal-support tests/ideation_routing tests/document_catalog -q`
-      — green before and after, exact counts recorded in the pull request.
+      — 1455 passed, rc 0, BEFORE; 1455 passed, rc 0, AFTER, once B.7's pin-site
+      self-gate was re-baselined. The intermediate state is recorded rather than
+      hidden: the first after-run was 1 failed / 1454 passed on exactly that
+      gate, which is how B.7 was found. No client-identity doc-health failure
+      appeared in this worktree.
 - [x] V.4 doc-health single-repo run before and after at a common `--as-of`, so
       a day boundary cannot be mistaken for an effect. Families expected to
       move and why: `staged-candidate-aging` −1 (the topic folder leaves
@@ -106,7 +148,14 @@ owes a re-read at realization rather than a copy of the number.
       staging). `location-conformance` is expected UNMOVED — measured at
       authoring, this topic carried none of its three findings. Every other
       family asserted unmoved, and any movement reported rather than explained
-      away.
+      away. **MEASURED, at a common `--as-of 2026-12-31`, single-repo**:
+      headline 4 critical / 50 error / 99 warning / 14 info BEFORE, 4 / 49 / 98
+      / 14 AFTER. Exactly the two predicted families moved —
+      `staged-candidate-aging` 114 → 113 and `staged-topic-template` 27 → 26 —
+      and all twenty-three other families are byte-identical in count,
+      `location-conformance` (3 → 3), `modified-block-currency` (10 → 10),
+      `proposal-origin` (0 → 0), `promotion-fidelity` (0 → 0) and
+      `release-inventory-drift` (0 → 0) among them.
 
 ## Archive gate
 
