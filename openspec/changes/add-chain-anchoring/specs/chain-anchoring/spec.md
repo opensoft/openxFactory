@@ -537,12 +537,20 @@ whose whole purpose is external verifiability, an unrecorded verification attemp
 is a hole in exactly the surface the design exposes. Checkpoints over these
 leaves are anchored through the configuration above like any other checkpoint.
 
-**THIS OBLIGATION IS CARRIED FROM A NAMED SOURCE.** The vendored MedxChain notes
+**THIS OBLIGATION IS CARRIED FROM A NAMED SOURCE, AND THE SOURCE IS NOT IN THE
+TREE YET.** The MedxChain notes
 (`ideation/brainstorm/medxchain-blockchain-medical-records.md`) log views, edits,
 FAILED ATTEMPTS and administrative actions, and their appendix names
 verification-attempt auditing as an addition the neutral family's ten links do
 not yet carry, since those links are framed around what was signed and produced.
-This requirement carries it.
+**That file is vendored by openxFactory pull request #509, which is IN FLIGHT at
+this revision**, so the path resolves once #509 lands and is a dead reference
+before it — said here, in the requirement, rather than only in the proposal,
+because a reader arrives at a spec without one. **The obligation does not depend
+on the citation**: it is normative on its own ground — an evidence plane that
+records only what was written answers what happened and cannot answer who tried
+— and the citation is PROVENANCE, naming where the obligation came from and whose
+design sketch first stated it.
 
 **AND THESE LEAVES ARE BOUND BY THE BOUNDARY LIKE EVERYTHING ELSE.** An attempt
 leaf SHALL carry no payload and no unsalted commitment, and the checkpoint over
@@ -593,7 +601,8 @@ carefully.
 
 **THE CROSS-PLANE JOIN KEY IS THE DEFECT THIS REQUIREMENT CLOSES, AND IT IS A
 CORRECTION TO THE SOURCE SKETCH RATHER THAN A RESTATEMENT OF IT.** The vendored
-MedxChain notes segregate three databases but carry ONE shared record digest
+MedxChain notes (cited above; vendored by pull request #509, IN FLIGHT at this
+revision) segregate three databases but carry ONE shared record digest
 across all three, which makes that digest a join key: anyone holding a
 demographic row and an identity row can link them without either plane's
 permission. So the per-plane key SHALL be derived under that plane's OWN salt,
@@ -603,7 +612,7 @@ only structural if the keys are.
 
 **AND THE LANE IS A NAMED CONSUMER RATHER THAN AN EMERGENT PROPERTY.**
 Meta-analysis across the record and demographic planes is a first-class use case
-of this capability, carried from the MedxChain notes' appendix, which observes
+of this capability, carried from the same in-flight MedxChain notes' appendix, which observes
 that the neutral family's tranche-three text does not yet name this consumer
 though the anchored, segregated design already supports it.
 
@@ -645,7 +654,8 @@ under obligation.
 
 **THE MAPPING IS NAMED HERE AND AUTHORED ELSEWHERE.** MedxChain and HealthLinc
 are MedxFactory's instantiations of this capability; LedgerLinc is
-LedgerxFactory's. The vendored MedxChain notes read as an early, domain-specific
+LedgerxFactory's. The MedxChain notes cited above — vendored by pull request
+#509, IN FLIGHT at this revision — read as an early, domain-specific
 sketch of this same shape, predating the neutral family by eighteen months. This
 capability names those instantiations to show the shape occurs twice; it authors
 no content for any of them, and no domain is obliged to adopt a chain.
