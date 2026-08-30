@@ -139,7 +139,48 @@ def test_condition_3_a_MISSING_fetch_identity_is_refused():
     del doc["credential_bindings"]["projection_editor_surface"]["consumer"]["fetch_identity"]
     findings = _findings(doc)
     assert _codes(doc) == ["shared-secret-identity"]
-    assert "fetch_identity is missing" in findings[0]
+    assert "fetch_identity is None, which is not an identifier" in findings[0]
+
+
+@pytest.mark.parametrize("member", ["holder_ref", "fetch_identity"])
+def test_a_GRAMMAR_INVALID_identity_never_grants_the_lift(member):
+    """PR #516, Codex P1 — and the sharpest finding of the whole round.
+
+    A pair carrying `<holder-a>`/`<holder-b>` is DISTINCT as strings while
+    naming nobody, and with the acknowledgment and two resolvable non-dispatch
+    requirements it TOOK the lift — removing a `shared-secret-identity` error
+    that stands today. This change tightens before it lifts, and nothing that is
+    refused today may become accepted by silence. A placeholder is exactly the
+    "grammar-passing sentinel" the packet calls worse than omission, arriving
+    through the exemption door rather than the front one.
+
+    Note the phasing direction: withholding a lift is not a new refusal. The
+    record this refuses is one the current major already refuses."""
+    doc = _conforming_pair()
+    for i, binding in enumerate(doc["credential_bindings"].values()):
+        binding["consumer"][member] = f"<placeholder-{i}>"
+    assert _codes(doc) == ["shared-secret-identity"]
+    assert "is not an identifier" in _findings(doc)[0]
+
+
+def test_an_EXPLICIT_NULL_requirement_ref_is_warned():
+    """PR #516, Codex P2. `requirement_ref: null` is a DECLARED member whose
+    value is not an object, and the major refuses it — but `.get()` made it
+    indistinguishable from an absent optional member, so the shape crossed the
+    deprecation release in silence. The test is whether the KEY is there."""
+    doc = _conforming_pair()
+    binding = doc["credential_bindings"]["projection_sync_lane"]
+    binding["consumer"]["requirement_ref"] = None
+    assert "consumer-member-grammar" in [c for c, _ in V._deprecation_warnings(doc)]
+
+
+def test_an_ABSENT_requirement_ref_is_still_silent():
+    """The negative control: the member is OPTIONAL, and a record that simply
+    does not declare it owes no warning."""
+    doc = _conforming_pair()
+    for binding in doc["credential_bindings"].values():
+        del binding["consumer"]["requirement_ref"]
+    assert [c for c, _ in V._deprecation_warnings(doc)] == []
 
 
 def test_condition_4_a_one_sided_acknowledgment_is_refused():

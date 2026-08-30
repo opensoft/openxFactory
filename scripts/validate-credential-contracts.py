@@ -377,20 +377,36 @@ def _lift_refusal_detail(first: tuple[str, dict], second: tuple[str, dict],
         if not isinstance(con, dict):
             return "c1-consumer-declared", f"binding {name!r} declares no consumer block"
 
-    # 2. holder references differ
+    # 2. holder references differ — AND ARE IDENTITIES AT ALL.
+    #
+    # THE GRAMMAR GUARD IS A LIFT CONDITION, NOT A TIDINESS (PR #516, Codex P1).
+    # A pair carrying `<holder-a>`/`<holder-b>` and `<fetch-a>`/`<fetch-b>` is
+    # DISTINCT as strings while naming nobody, and with the acknowledgment and
+    # two resolvable non-dispatch requirements it took the lift — REMOVING a
+    # `shared-secret-identity` error that stands today. This change tightens
+    # before it lifts, and nothing that is refused today may become accepted by
+    # silence; a placeholder is exactly the "grammar-passing sentinel" the
+    # packet calls worse than omission, arriving through the exemption door.
+    # Withholding the lift is safe in the phasing direction too: the record it
+    # refuses is one the current major already refuses.
     holder_a, holder_b = con_a.get("holder_ref"), con_b.get("holder_ref")
-    if not isinstance(holder_a, str) or not isinstance(holder_b, str):
-        return ("c2-holders-differ",
-                "a holder_ref is missing, so the two consumers are not distinguishable")
+    for name, holder in ((name_a, holder_a), (name_b, holder_b)):
+        if not _is_identifier(holder):
+            return ("c2-holders-differ",
+                    f"binding {name!r}'s holder_ref is {holder!r}, which is not an identifier "
+                    f"({IDENTIFIER.pattern}) — a value that names nobody establishes no consumer, "
+                    f"however distinct it is from the other one")
     if holder_a == holder_b:
         return ("c2-holders-differ",
                 f"both bindings declare holder_ref {holder_a!r} — one system wearing two hats")
 
-    # 3. fetch identities differ
+    # 3. fetch identities differ, and are identities
     fetch_a, fetch_b = con_a.get("fetch_identity"), con_b.get("fetch_identity")
-    if not isinstance(fetch_a, str) or not isinstance(fetch_b, str):
-        return ("c3-fetch-identities-differ",
-                "a fetch_identity is missing, so the per-system authority is unproven")
+    for name, fetch in ((name_a, fetch_a), (name_b, fetch_b)):
+        if not _is_identifier(fetch):
+            return ("c3-fetch-identities-differ",
+                    f"binding {name!r}'s fetch_identity is {fetch!r}, which is not an identifier "
+                    f"({IDENTIFIER.pattern}), so the per-system authority is unproven")
     if fetch_a == fetch_b:
         return ("c3-fetch-identities-differ",
                 f"both bindings fetch with {fetch_a!r} — one identity MAY be shared, "
@@ -611,8 +627,13 @@ def _consumer_block_warnings(name: str, binding: dict) -> list[tuple[str, str]]:
                         f"as an authority declaration while naming nothing; a stub declares "
                         f"`instantiation_stub: true` instead. ERROR at {MAJOR_RELEASE}"))
 
-    ref = consumer.get("requirement_ref")
-    if ref is not None:
+    # MEMBERSHIP, NOT TRUTHINESS (PR #516, Codex P2). `requirement_ref: null` is
+    # a DECLARED member whose value is not an object, and the major refuses it;
+    # `.get()` made it indistinguishable from an absent optional member, so the
+    # shape crossed the deprecation release in silence. The test is whether the
+    # key is there.
+    if "requirement_ref" in consumer:
+        ref = consumer["requirement_ref"]
         if not isinstance(ref, dict) or set(ref) != set(REQUIREMENT_REF_MEMBERS):
             out.append(("consumer-member-grammar",
                         f"binding {name!r}'s consumer.requirement_ref is not a QUALIFIED "
