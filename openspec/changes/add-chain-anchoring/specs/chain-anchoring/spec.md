@@ -671,13 +671,40 @@ the same honesty the credential-custody work applied to bearer secrets.
 
 ### Requirement: Verification attempts and refused access are logged leaves
 
-openxFactory SHALL write VERIFY events, FAILED verifications and REFUSED ACCESS
-ATTEMPTS as signed leaves in the evidence plane, on the same footing as the
-events that produce material. An evidence plane that records only what was
-written answers what happened and cannot answer who tried — and for a capability
-whose whole purpose is external verifiability, an unrecorded verification attempt
-is a hole in exactly the surface the design exposes. Checkpoints over these
-leaves are anchored through the configuration above like any other checkpoint.
+openxFactory SHALL write the VERIFY events, FAILED verifications and REFUSED
+ACCESS ATTEMPTS THAT THE FACTORY SERVES as signed leaves in the evidence plane,
+on the same footing as the events that produce material. The SERVED surface is
+this capability's own verification surfaces, the permissioned plane's access
+decisions, and any attempt against material the factory holds. An evidence plane
+that records only what was written answers what happened and cannot answer who
+tried — and for a capability whose whole purpose is external verifiability, an
+unrecorded attempt against a surface this factory operates is a hole in exactly
+the surface the design exposes. Checkpoints over these leaves are anchored
+through the configuration above like any other checkpoint.
+
+**AND WHAT THE FACTORY CANNOT OBSERVE IS NAMED HERE RATHER THAN DEMANDED,
+BECAUSE A REQUIREMENT CANNOT BIND WHAT NOTHING CAN SEE.** The receipt
+requirement above exists precisely so that a holder can check a receipt WITHOUT
+contacting the party that minted it, against a canonical header set the holder
+obtains for itself. A party doing exactly that is therefore INVISIBLE here by
+construction: there is no request to serve, no surface to instrument, and no
+honest way to write a leaf for an event this factory has no knowledge of.
+**That invisibility is a PROPERTY OF THE DESIGN AND NOT A GAP IN THIS
+REQUIREMENT** — it is what *"the receipt's trust root is a PUBLIC CHAIN the
+verifier can independently reach"* means when it is true. This requirement
+SHALL NOT therefore be read as claiming a census of every verification of
+anchored material anywhere; **its completeness claim is over the SERVED surface,
+and it names which surface that is.**
+
+**AND THE OBVIOUS WAY TO CLOSE THAT GAP IS REFUSED, BECAUSE IT WOULD COST THE
+PROPERTY THE CAPABILITY IS FOR.** A realization SHALL NOT discharge this
+requirement by imposing a REPORTING OBLIGATION on independent verifiers — an
+authenticated call-home before or after a local verification — because that
+trades the receipt's self-sufficiency for a telemetry channel, makes the
+minter's reachability a precondition of verification again, and turns the
+who-verified-what trail this requirement's own last paragraph keeps off a public
+ledger into a trail the minter collects instead. An unobservable verification is
+the correct outcome, not a defect to instrument away.
 
 **THIS OBLIGATION IS CARRIED FROM A NAMED SOURCE, AND THE SOURCE IS NOT IN THE
 TREE YET.** The MedxChain notes
@@ -694,23 +721,48 @@ records only what was written answers what happened and cannot answer who tried
 — and the citation is PROVENANCE, naming where the obligation came from and whose
 design sketch first stated it.
 
+**AND THE SERVED SCOPING IS WHAT THE SOURCE ACTUALLY SAID, WHICH IS WORTH
+STATING BECAUSE THIS PACKET GOT IT WRONG FIRST.** The notes log *"every access
+attempt to the … data"* and *"views, edits, failed access attempts, and
+administrative actions"* — mediated access, against a system that serves it —
+and their appendix asks the neutral family for *"a generic verification-ATTEMPT
+scenario alongside the successful-access case"*. **The over-reach was this
+packet's own**, in first carrying that as an obligation over any verification by
+any party anywhere, which is wider than the source and wider than anything a
+factory can observe. The scoping above is therefore a correction to this
+requirement's carrying of its source and **NOT a further correction to the
+source**, which is why it is not numbered among the corrections requirement 8
+records.
+
 **AND THESE LEAVES ARE BOUND BY THE BOUNDARY LIKE EVERYTHING ELSE.** An attempt
 leaf SHALL carry no payload and no unsalted commitment, and the checkpoint over
 attempt leaves is what a chain sees — never an attempt row, which would publish a
 who-looked-at-what trail to a permanent public ledger and leak by metadata what
 the payload rules keep off it.
 
-#### Scenario: a verification succeeds
+#### Scenario: a verification the factory serves succeeds
 
-- WHEN an external party successfully verifies an anchored item
+- WHEN an external party asks one of this capability's verification surfaces to verify an anchored item and it succeeds
 - THEN the verification is written as a leaf naming what was verified and the outcome
 - AND the leaf is covered by an anchored checkpoint like any other leaf
 
-#### Scenario: a verification fails
+#### Scenario: a verification the factory serves fails
 
-- WHEN a verification is attempted and does not verify
+- WHEN a verification the factory serves is attempted and does not verify
 - THEN the failure is written as a leaf recorded as a failure, never as an absent event
-- AND a log that shows no leaf for the attempt is non-conformant with this requirement
+- AND a log that shows no leaf for that served attempt is non-conformant with this requirement
+
+#### Scenario: an independent holder verifies a receipt locally
+
+- WHEN a party holding a receipt verifies it on its own machine against a canonical header set it obtains for itself, without contacting the factory
+- THEN NO leaf exists for that verification and none is claimed, because the factory has no knowledge of an event it did not serve
+- AND the absence is NOT non-conformance, because it is the receipt's self-sufficiency working as the requirement above designed it
+
+#### Scenario: a reporting obligation on independent verifiers is proposed
+
+- WHEN a realization proposes requiring independent verifiers to report their local verifications so that every verification produces a leaf
+- THEN it is REFUSED, because it makes the minter reachable-or-nothing again and collects the who-verified-what trail this requirement keeps off a public ledger
+- AND the served scoping above is how this requirement is satisfied instead
 
 #### Scenario: an access attempt is refused
 
@@ -720,7 +772,7 @@ the payload rules keep off it.
 
 #### Scenario: a realization logs only successful writes
 
-- WHEN an evidence plane records produced material and no verification or attempt events
+- WHEN an evidence plane records produced material and none of the verification or attempt events the factory served
 - THEN it is REFUSED as non-conformant, naming this requirement
 - AND the absence is not read as an implementation detail, because the missing events are the ones an attacker generates
 
@@ -753,6 +805,45 @@ and the anchored commitment — derived under the record's salt, held in the
 governed layer — SHALL NOT function as a cross-plane join key. The segregation is
 only structural if the keys are.
 
+**AND THE LANE STILL NEEDS A JOIN, SO THE JOIN IS DEFINED RATHER THAN LEFT
+IMPOSSIBLE.** Correlating a demographic attribute with a record attribute
+requires SOME correspondence between the two planes' rows, and the paragraph
+above refuses the one thing that would silently supply it. Left there, this
+requirement would name a first-class use case that its own refusals forbid —
+**an unachievable-by-construction obligation, which is a worse defect than the
+join key it closes**, because a stable key is a hazard an implementer can see
+and an impossible requirement is one they will satisfy by inventing the hazard
+back.
+
+**THE MECHANISM IS AN AUTHORIZED, SCOPED LINKAGE DERIVATION, AND EVERY ADJECTIVE
+IS LOAD-BEARING.** A realization SHALL provide cross-plane correlation only
+through a derivation that is: **ISSUED BY THE IDENTITY PLANE**, which is the
+only place linkage is permitted to live, and **UNDER AN ANCHORED CONSENT
+CHECKPOINT**, on the same footing the ruled boundary already gives an off-chain
+disclosure; **PER-ANALYSIS AND NEVER STABLE**, derived under a parameter unique
+to the authorized analysis so that two analyses' derivations do not correlate
+with each other or with anything outside them; **EXPIRING AND REVOCABLE**, so an
+authorization that ends actually ends; **USABLE ONLY WITHIN THAT ANALYSIS**,
+resolving no person and travelling to no other consumer; and **WRITTEN AS
+LEAVES** at issuance and at use, on the served surface the requirement above
+defines. The validator REFUSES a correlation path that is none of these.
+
+**WHAT STAYS REFUSED IS UNCHANGED, AND THE HEADLINE ABOVE STAYS TRUE.** The
+stable shared cross-plane key remains refused; a derivation minted anywhere but
+the identity plane, or without an anchored consent checkpoint, or re-used across
+analyses, is refused as that same key wearing a different name. **The identity
+plane is still not READ BY the analysis**: the derivation is issued in advance
+and under consent, the analysis runs over the record and demographic planes
+alone, and no person-resolving identifier enters it — which is exactly what this
+requirement's opening sentence claims and all it has ever claimed.
+
+**AND THE NEUTRAL LAYER DEFINES THE SHAPE, NOT THE OCCASION.** This capability
+fixes what a lawful correlation path must BE; it does not say when a lane may be
+authorized, who may authorize it, or against what standard — those are domain
+law and domain judgement, and the neutrality requirement below keeps them in the
+domain overlay. A capability that answered them would be writing one domain's
+research-governance policy into a neutral contract.
+
 **AND THE LANE IS A NAMED CONSUMER RATHER THAN AN EMERGENT PROPERTY.**
 Meta-analysis across the record and demographic planes is a first-class use case
 of this capability, carried from the same in-flight MedxChain notes' appendix, which observes
@@ -763,9 +854,10 @@ analysis to run without the identity plane; it does not de-identify the result.
 
 **AND WHAT PLANE SEPARATION BUYS THAT LANE IS STATED WITHOUT OVERSTATEMENT,
 BECAUSE NOT QUERYING THE IDENTITY PLANE IS NOT DE-IDENTIFICATION.** What the
-segregation delivers is that the identity plane is NOT REQUIRED for the
-analysis, that neither analyzed plane carries a direct identifier, and that no
-anchored value serves as a cross-plane join key. What it does NOT deliver is a
+segregation delivers is that the identity plane is NOT READ BY the analysis —
+correlation being authorized in advance by the derivation above rather than
+resolved during the run — that neither analyzed plane carries a direct
+identifier, and that no anchored value serves as a cross-plane join key. What it does NOT deliver is a
 DE-IDENTIFIED result, and this requirement SHALL NOT be read as delivering one:
 the attributes that remain — the demographic values and the record-plane
 material the analysis exists to read — can SINGLE OUT a person in combination,
@@ -791,6 +883,24 @@ because the identity plane was not queried is REFUSED.
 - THEN it runs, and no DIRECT identifier is exposed because neither plane carries one
 - AND the result is unaffected by whether the identity plane was reachable
 - AND the result is NOT thereby de-identified, and remains governed personal data until a named de-identification determination is made against it
+
+#### Scenario: an authorized analysis correlates the two planes
+
+- WHEN an analysis holding a per-analysis linkage derivation issued by the identity plane under an anchored consent checkpoint correlates demographic rows with record rows
+- THEN the correlation is PERMITTED within that analysis, and its issuance and its use are each written as leaves
+- AND the derivation resolves no person, expires, is revocable, and is usable in no other analysis
+
+#### Scenario: a linkage derivation is re-used across analyses
+
+- WHEN a derivation issued for one authorized analysis is carried into a second one, or is derived so that two analyses' derivations agree
+- THEN it is REFUSED, because a derivation that is stable across analyses is the shared cross-plane key under another name
+- AND the per-analysis parameter is what keeps the refusal above from being reintroduced by convenience
+
+#### Scenario: a correlation path is derived outside the identity plane
+
+- WHEN a realization derives a cross-plane correspondence without the identity plane issuing it, or without an anchored consent checkpoint
+- THEN it is REFUSED, because linkage lives only in the identity plane and an unauthorized derivation is a join key minted by whoever wanted one
+- AND the refusal holds however the value is computed, since the defect is the missing authorization and not the arithmetic
 
 #### Scenario: a plane-separated result is labelled de-identified
 

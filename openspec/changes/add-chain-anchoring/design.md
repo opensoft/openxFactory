@@ -378,6 +378,34 @@ named as a correction to a vendored source rather than folded silently into a
 requirement — the source is Brett Heap's own design sketch, and a packet that
 quietly improved it would leave him no way to see that it had.
 
+**AMENDED 2026-08-30, SECOND BOT ROUND — CODEX P1: THE CORRECTION HAD LEFT THE
+LANE WITH NO LAWFUL JOIN AT ALL.** Refusing the stable shared key closed the
+join-key defect and, with it, the only correspondence the named meta-analysis
+consumer had between a demographic row and a record row: person linkage lives
+only in the identity plane, the shared key is prohibited, and an analysis
+excluding the identity plane could therefore inspect two datasets side by side
+and correlate nothing. **The requirement named a first-class use case its own
+refusals forbade** — an unachievable-by-construction obligation, which is the
+family the 2026-08-28 convening unanimously refused a class over, and it is
+worse than the hazard it replaced: a stable key is a hazard an implementer can
+see, while an impossible requirement is one they satisfy by quietly inventing
+that hazard back.
+
+**The mechanism, defined in neutral terms because the shape is neutral and the
+occasion is not.** Correlation runs only through an AUTHORIZED, SCOPED LINKAGE
+DERIVATION — issued BY THE IDENTITY PLANE under an ANCHORED CONSENT CHECKPOINT,
+PER-ANALYSIS and never stable, EXPIRING and REVOCABLE, usable only inside the
+authorized analysis, with issuance and use written as leaves. The stable shared
+key stays refused, and a derivation minted outside the identity plane, without a
+consent checkpoint, or re-used across analyses is refused as that key wearing a
+different name. **Q6's ruled pattern is the precedent, not an invention here**:
+the ruling already puts a PHI portion *"disclosed OFF-CHAIN under an anchored
+consent checkpoint"*, and this applies the same governed-authorization shape to
+a join instead of to a disclosure. **Requirement 9's boundary is untouched** —
+the neutral family says what a lawful correlation path must BE; the domain
+overlay says when a lane may be authorized and against what standard, because
+those are domain law.
+
 **AMENDED 2026-08-30 BY A BOT FINDING THE DISPOSITION FOLDED INTO THIS FIX ROUND
 (disposition §4, item 14) — and it crosses because requirement 8 carries this
 lane.** Codex, reviewing the vendored notes on pull request #509, found that
@@ -490,6 +518,41 @@ the TRANSACTION is the thing a pruning chain will not return, so the receipt
 carries it. The header SET is the one thing a verifier always fetches for
 itself, and fetching it from the minter was never the design — it was simply
 unstated, and unstated is how an implementer ends up doing it.
+
+## D10 — The audit obligation is scoped to what the factory SERVES
+
+**Raised by Codex on the fix round, and it is the third control in this packet
+that could not run as written.** Requirement 7 demanded a signed leaf for every
+verification attempt. Requirement 1 exists to let a holder check a receipt
+WITHOUT contacting the minter, and its scenarios say so. Put together, the audit
+requirement demanded a record of events the factory has no way to observe —
+**there is no request to serve, no surface to instrument, and no honest way to
+write a leaf for something nothing here can see.** A completeness claim over
+verifications-anywhere was unsatisfiable, and worse, it made the log look
+complete when it could not be.
+
+**The decision: scope the obligation honestly, and name the unobservable half as
+a property rather than a gap.** The requirement covers the SERVED surface — this
+capability's own verification surfaces, the permissioned plane's access
+decisions, attempts against material the factory holds. An independent local
+verification produces no leaf, none is claimed, and the absence is **not**
+non-conformance. That invisibility is what *"the receipt's trust root is a
+public chain the verifier can independently reach"* MEANS when it is true.
+
+**Rejected: an authenticated reporting obligation on independent verifiers**,
+which Codex named as the alternative. It would make the minter's reachability a
+precondition of verification again — undoing D9 and the whole receipt-first exit
+path — and it would collect the who-verified-what trail requirement 7's own last
+paragraph works to keep off a public ledger, merely relocating it to the minter.
+An unobservable verification is the correct outcome.
+
+**And the scoping is what the SOURCE said**, which is worth recording because
+this packet got it wrong first. The MedxChain notes log *"every access attempt to
+the … data"* and *"views, edits, failed access attempts"* — mediated access —
+and ask the neutral family for *"a generic verification-ATTEMPT scenario
+alongside the successful-access case"*. **The over-reach was this packet's own
+generalization**, so this is a correction to requirement 7's carrying of its
+source and NOT a fifth correction to the source itself.
 
 ## Realization dependencies — what this tranche actually waits on
 

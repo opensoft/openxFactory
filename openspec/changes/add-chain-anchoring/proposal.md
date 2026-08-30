@@ -318,8 +318,9 @@ the packet, and a sweep is part of the fix.
 ### New Capabilities
 
 - `chain-anchoring`: the neutral public anchoring layer and the permissioned
-  consent plane, **NINE ADDED requirements over 61 scenarios** (52 at the head
-  the council judged; the 2026-08-30 fix round and its bot round added nine), no `## MODIFIED
+  consent plane, **NINE ADDED requirements over 66 SCENARIOS** (52 scenarios at
+  the head the council judged; the 2026-08-30 fix round and its two bot rounds
+  added fourteen scenarios and no new requirement), no `## MODIFIED
   Requirements` block anywhere — a chain-agnostic multi-anchor receipt defined
   FIRST and refused at capture time if any of its four per-chain elements is
   missing; the ruled two-witness configuration with no selectivity and no third

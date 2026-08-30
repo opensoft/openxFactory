@@ -22,9 +22,10 @@ standing in for a ruleset state.
 
 ## 1. Spec deltas and the packet (THIS PULL REQUEST)
 
-- [x] 1.1 `chain-anchoring` — **NINE ADDED requirements over 61 scenarios** (52
-      at the head the council judged, `cf5a24b8`; the 2026-08-30 fix round of
-      §2.4 and its bot round added nine and no requirement), in
+- [x] 1.1 `chain-anchoring` — **NINE ADDED requirements over 66 SCENARIOS** (52
+      SCENARIOS at the head the council judged, `cf5a24b8`; the 2026-08-30 fix
+      round of §2.4 and its two bot rounds added FOURTEEN SCENARIOS and NO NEW
+      REQUIREMENT — the requirement count is unchanged at nine), in
       the order the exit path requires: the multi-anchor receipt FIRST, then the
       ruled two-witness configuration, the missing-witness semantics, anchor-late,
       the commitment boundary with its refusing validator, the permissioned
@@ -40,14 +41,25 @@ standing in for a ruleset state.
       the declared-construction commitment refusal and its EDPB ground (D4), the
       identity-plane placement and why selecting a permissioned ledger does not
       re-open Q3 (D5), the naming divergence (D6), the per-plane key correction
-      to a vendored source (D7), plus realization dependencies and what the
-      design does NOT decide.
+      to a vendored source (D7), the item/checkpoint split that narrows
+      anchor-late (D8), the fourth receipt element (D9), and the audit
+      obligation scoped to what the factory SERVES (D10) — plus realization
+      dependencies and what the design does NOT decide. D8, D9 and D10 each
+      record a control that could not run as first written, all three raised by
+      a bot on this packet's own pull requests.
 - [x] 1.4 `OPENSPEC_TELEMETRY=0 openspec validate add-chain-anchoring --strict`
       green and `--all --strict` green before commit; counts recorded in the
       pull-request body.
 - [x] 1.5 doc-health zero-new against `origin/main`, baseline worktree basename
       matching the working clone's (issue #342 — a mismatched-identity
-      `--previous-report` manufactures phantom regressions).
+      `--previous-report` manufactures phantom regressions). **This box closes
+      over THE AUTHORED BYTES and says so, because at the current head the run
+      is NOT zero**: carrying the sitting into `review/` added four
+      `status-validity` findings that are the frozen bundle's and are ruled
+      pending, §2.4. Every authored byte of this packet — §1's spec, design,
+      proposal and tasks, and every amendment — remains zero-new, which is the
+      claim this box was ever making. Read the two together; neither is the
+      whole state on its own.
 - [x] 1.6 README "OpenSpec Records" active block updated, newest first. Expect a
       union-merge with tranche two's line; both lines are kept.
 - [x] 1.7 `ideation/staging/INDEX.md` — the topic's detail section records that
@@ -155,13 +167,31 @@ standing in for a ruleset state.
       which prescribes the same remedy recorded above and does not change whose
       act it is.
 
+      **A SECOND BOT ROUND, ON THE HEAD THE FIRST ONE PRODUCED, RETURNED TWO
+      MORE P1s — AND BOTH WERE REAL.** Codex: (a) requirement 7 demanded a leaf
+      for EVERY verification attempt while requirement 1 exists to let a holder
+      verify a receipt WITHOUT contacting the minter, so the audit obligation
+      reached events the factory cannot observe — now scoped to the SERVED
+      surface, with the unobservable half named as a property of the receipt's
+      self-sufficiency and the tempting alternative (a reporting obligation on
+      independent verifiers) refused for what it would cost; (b) requirement 8
+      named the meta-analysis lane a first-class consumer while its own fourth
+      correction refused the stable shared key that lane needed to correlate
+      anything — **an unachievable-by-construction obligation, the family the
+      2026-08-28 convening refused a class over** — now answered by an
+      AUTHORIZED, SCOPED LINKAGE DERIVATION whose every adjective is a refusal.
+      Recorded as `design.md` D10 and as an amendment note under D7.
+      **Three of this packet's ten design decisions now exist because a bot
+      found a control that could not run**, which is the argument for the bot
+      round being part of the work rather than a formality.
+
       SHOULD-FIX items (LA-A7, LS-A7/A8/A9, LQ-A10/A11/A12/A14, CPL-A5) are
       **UNDISPOSED by the ruling and stay open** — disposition §6 says so
       expressly, and no silence here rules them.
 
       **§1.4 AND §1.5 RE-RUN, AND THE RESULT IS REPORTED RATHER THAN ROUNDED.**
       §1.4: `--strict` green and `--all --strict` **79 passed / 0 failed**;
-      NINE requirements unchanged, **52 → 61 scenarios**, still no `## MODIFIED`
+      NINE requirements unchanged, **52 → 66 scenarios**, still no `## MODIFIED`
       block. §1.5: doc-health against `origin/main` with a matched baseline
       basename returns **four new findings, all `status-validity`, all on the
       carried `review/` bundle** — the sitting's four top-level records write
@@ -223,8 +253,10 @@ discharged, so 3.1 is the next act on this packet.
       the anchor-bound commitment record (declared construction, SALT and KEY
       custody references, declared salt source and width), the anchor-state
       record (per-witness, with declared horizons and NO aggregate boolean), the
-      consent-checkpoint commitment record, and the plane-separation
-      declaration.
+      consent-checkpoint commitment record, the plane-separation declaration,
+      and the AUTHORIZED LINKAGE DERIVATION record (issuing plane, anchored
+      consent checkpoint, per-analysis parameter, expiry and revocation, and
+      the leaves issuance and use write).
 - [ ] 4.2 Packaged POSITIVE and NEGATIVE examples for every named refusal — a
       receipt missing inclusion proof; a receipt missing transaction bytes; a
       receipt missing chain-acceptance evidence; a receipt whose header is
@@ -242,7 +274,10 @@ discharged, so 3.1 is the next act on this packet.
       commitment key shared across planes**; a per-subject consent row offered
       for anchoring; an attempt row offered for direct anchoring; a
       direct identifier in the demographic plane; a shared cross-plane key;
-      **a plane-separated analysis result labelled de-identified**; a
+      **a plane-separated analysis result labelled de-identified**; **a linkage
+      derivation re-used across analyses**; **a correlation path derived
+      outside the identity plane or without a consent checkpoint**; **a
+      reporting obligation imposed on independent verifiers**; a
       domain record kind; an overlay relaxing a neutral refusal. The bolded
       entries are the refusals the 2026-08-30 fix round added.
 - [ ] 4.3 `scripts/validate-chain-anchoring.py` — the canonical refusing
@@ -292,6 +327,11 @@ discharged, so 3.1 is the next act on this packet.
 - [ ] 5.3 Fix the NEW LEAF KINDS against tranche one's leaf grammar — verification,
       verification failure, refused access, anchor-pending, horizon breach, anchor
       completion. This packet adds no second grammar and must not.
+- [ ] 5.5 Fix the LINKAGE-DERIVATION CONSTRUCTION — the per-analysis parameter,
+      the expiry and revocation surface, and how the identity plane binds an
+      issuance to its anchored consent checkpoint. Requirement 8 fixes the
+      SHAPE and the refusals and deliberately not the construction; the
+      domain overlay fixes the OCCASION and the standard.
 - [ ] 5.4 Select the PERMISSIONED PLANE INSTANCE (D5), unless the council rules it
       should be fixed at ratification instead. The class is Fabric or Besu; the
       instance is not an anchor chain and selecting one re-opens nothing Q3 closed.
