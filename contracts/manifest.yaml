@@ -2061,7 +2061,7 @@ contracts:
     source_path: openxFactory/contracts/intent-compliance/veto-class-vocabulary.schema.yaml
     type: schema
     schema_version: 1
-    sha256: af679bfa614c73a1e1bb4582602f1ff5abce25721b246d1f9229a58bc3b68202
+    sha256: 6161d5e006e6cf6f6a3c6cc088cb1a63ea96991f9ac50424f5f77cf96fc55edb
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
   - id: intent-compliance-policy-allowance
@@ -2069,7 +2069,7 @@ contracts:
     source_path: openxFactory/contracts/intent-compliance/policy-allowance.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 696bfa046ea23640e12c3c0e99465b7435a4be22f510a894fed24bc99d620e5d
+    sha256: 1d4e5ae739c0cdecd0a0bd42598520729ea3d34a5fa714f941a1f688b8003d5d
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
   - id: intent-compliance-policy-allowance-revocation
@@ -2077,7 +2077,7 @@ contracts:
     source_path: openxFactory/contracts/intent-compliance/policy-allowance-revocation.schema.yaml
     type: schema
     schema_version: 1
-    sha256: b55e0a86f841c8d01f0a34ca326f14b02bbd07e24604265a4b6b802a63174743
+    sha256: 28f1eb43e511dccc0f5e456e34ff3077e15893d22caab298cf50e36d8ebb4d76
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
   - id: intent-compliance-policy-allowance-registry
@@ -2093,7 +2093,7 @@ contracts:
     source_path: openxFactory/contracts/intent-compliance/compliance-decision.schema.yaml
     type: schema
     schema_version: 1
-    sha256: f577334ef2b28aa5c188f1ba5bb520d3031d12cd86d9c42cc0db9f33eab77624
+    sha256: 4c5ad6a7fd33ab7d70490dd8c44e3a1732edcba1a38d83023ee7b674a3df5276
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
   - id: intent-compliance-conformance-validator
