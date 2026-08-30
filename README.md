@@ -391,6 +391,41 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-chain-attestation](openspec/changes/add-chain-attestation/proposal.md)
+  — authored 2026-08-29, **`Status: draft` — NOT RATIFIED, filed FOR REVIEW**.
+  **TRANCHE TWO of the signed-execution-chain family: links 4–6 and 10** — the
+  harness-controller setup attestation, the per-task runner attestations, the
+  signed pull-request-open decision, and the governed post-merge test that CLOSES
+  a chain. **NINE ADDED requirements over 50 scenarios, no `## MODIFIED
+  Requirements` block anywhere.** It realizes the declaration tranche one could
+  only make: the SIGNED HASH-LINK RULE takes effect at link 4, the first link in
+  the family with a signer of its own, and the short-chain gate's walk extends
+  from links 1–3 to links 1–6 — the same required check walking further, never a
+  second gate. **Q7 as ruled** (Brett Heap, 2026-08-29, as recommended) is the
+  mechanism in contract text — remote signing served by the harness controller,
+  the runner's signing REQUEST recorded beside the signature it received, the
+  controller CORROBORATING the payload against its own link-4 setup attestation —
+  and requirement 3 carries the half a mechanism does not discharge, because Q7
+  settles WHERE THE KEY LIVES and never whether the claims are checked: an
+  evidence class PER FACT (`controller_corroborated` / `hardware_attested` /
+  `runner_claimed`), with an unclassed fact refused. **CLOSURE is where a chain
+  completes**: a merged-but-unclosed chain refuses everything downstream and fires
+  the fraud signal, a merge that already happened is not retroactively refused,
+  and the ONE admitted consumer is a remediation chain whose declared, signed
+  subject is that failure — an exemption that is **not inheritable** and that owes
+  its own closure. **TWO ACTS MUST FOLLOW, IN ORDER**: a §7.4 council review and
+  then Brett Heap's ratification, on the pattern `add-binding-consumer-identity`
+  set the same day. **THREE PULLS ARE RECORDED RATHER THAN SMOOTHED**, and the
+  first two go to the council unresolved: **Q4's re-derivation instruction** —
+  later boundaries are re-derived "when the omnigent layer and the PKI plane are
+  real", and neither is — versus drafting this tranche now; **tranche one's gate
+  scope note** versus the extended walk, read as SELF-LIMITING and written into
+  requirement text rather than applied silently, with a scenario-complete MODIFIED
+  restatement named as the repair if a seat disagrees; and the topic's SINGULAR
+  hash-link rule versus its PLURAL link 5, which this packet resolves by addition
+  — a successor commits to an ORDERED, DEDUPLICATED enumeration of every
+  predecessor and a subset commitment is refused, because otherwise a lane drops
+  the attestation it dislikes and still presents a continuous chain.
 - [add-binding-consumer-identity](openspec/changes/add-binding-consumer-identity/proposal.md)
   — authored 2026-08-29, **RATIFIED 2026-08-29** (`Status: ratified`; record
   `review/ratification-2026-08-29.md`). **THE FIRST PACKET THROUGH THE §7.4 PATH

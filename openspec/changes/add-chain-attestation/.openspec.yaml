@@ -1,0 +1,56 @@
+schema: spec-driven
+created: 2026-08-29
+origin:
+  kind: staged
+  id: openxFactory:staging:signed-execution-chain
+  path: ideation/staging/signed-execution-chain
+  reason: >-
+    EXIT 2 OF THREE of the staged topic — the tranche its `## Exit path` calls
+    "harness and runner attestation": links 4–6 and 10. The harness-controller
+    setup attestation, the per-task runner attestations, the signed
+    pull-request-open decision, and the governed post-merge test that CLOSES a
+    chain — plus the three rules that ride with them because the links themselves
+    create the holes: the SIGNED HASH-LINK RULE taking effect at link 4 (which
+    tranche one DECLARED and could not perform, having no link after inception
+    with a signer of its own), tier-2 custody, and the omnigent precondition.
+
+    THE QUESTION-GATE IS OPEN. Q7 was ruled by Brett Heap on 2026-08-29 AS
+    RECOMMENDED — remote signing served by the harness controller, the runner's
+    signing REQUEST recorded beside the signature it received, the controller
+    corroborating the submitted payload against its own link-4 setup attestation,
+    an HSM a later hardening of the same shape — and the topic records that this
+    "gated TRANCHE TWO's contract text, which may now name the mechanism". This
+    packet names it.
+
+    TRANCHE ONE (`add-signed-execution-chain`, RATIFIED 2026-08-29, PR #495) is
+    the direct predecessor and its ratified text governs every point of contact:
+    the chain identity, the ONE digest construction, the traveling contract, the
+    transparency log, and the short-chain gate this change extends from links 1–3
+    to links 1–6. Tranche three (`add-chain-anchoring`, in parallel drafting) is
+    a named sibling and none of its content appears here.
+
+    WHAT Q4 SAYS ABOUT RAISING THIS NOW IS RECORDED RATHER THAN ANSWERED. Its
+    ruling adds that later boundaries are "RE-DERIVED when the omnigent layer and
+    the PKI plane are real, not fixed now", and neither is real today. The packet
+    ratifies-not-realizes, writes requirements naming no interface either plane
+    must expose, and carries the re-derivation as an obligation OF THE
+    REALIZATION (`tasks.md` §5.1) — but the literal reading, that tranche two
+    should not be drafted yet, is available on the text and is routed to the
+    council rather than ruled out here.
+  approved_by: >-
+    NOBODY YET, AND THE FIELD SAYS SO RATHER THAN IMPLYING OTHERWISE. This packet
+    is a DRAFT filed FOR REVIEW. Two acts stand between it and realization and
+    neither has happened: a §7.4 COUNCIL REVIEW — the council-reviewed-but-
+    human-approved path that needs no candidate class and no flip and reaches
+    this repository without an envelope — and, after it, BRETT HEAP'S
+    RATIFICATION. The house pattern is `add-binding-consumer-identity`, the first
+    packet through that path end to end on 2026-08-29, whose `review/` directory
+    this packet's own `review/` will mirror. Nothing here is ratified, and no
+    requirement in this delta confers or refuses anything.
+  approved_on: null
+related:
+  - openxFactory:change:add-signed-execution-chain         # ACTIVE, RATIFIED 2026-08-29 (PR #495). Tranche one — links 1–3, the transparency log and the short-chain gate. Its declaration that the hash-link rule takes effect at the first link with a signer of its own is what this change realizes; its ONE digest construction governs every digest here and no second one is declared
+  - openxFactory:change:add-trust-anchor                   # ACTIVE, realized at contract-v1.37. Owns certificates, anchor records, declared chain custody, revocation-at-use and the conformance-declaration rule. Link 4's controller certificate is expressed in this vocabulary and in no parallel one
+  - openxFactory:change:add-identity-brokering             # ACTIVE. Owns signer identity. Its ratified "Workloads are not personas" requirement is what bounds link 5: a per-task attestation identity is a workload, never a persona, and never the actor of a governed act
+  - openxFactory:change:implement-openxpki-install-repo    # ACTIVE (22/30). The runtime CA that would issue the controller certificate, at opensoft/OpenXPKI-Install. A REALIZATION DEPENDENCY named and deliberately not assumed — this packet creates no certificate authority
+  - openxFactory:change:add-wallet-carried-review-authority # ACTIVE. Link 1's instrument in tranche one; cited here for the required-check evidence standard (task 2.5 — a merged workflow file is not evidence, the live ruleset state is) that the extended gate must meet
