@@ -21,7 +21,7 @@ standing in for a ruleset state.
 
 ## 1. Spec deltas and the packet (THIS PULL REQUEST)
 
-- [x] 1.1 `chain-anchoring` — **NINE ADDED requirements over 48 scenarios**, in
+- [x] 1.1 `chain-anchoring` — **NINE ADDED requirements over 52 scenarios**, in
       the order the exit path requires: the multi-anchor receipt FIRST, then the
       ruled two-witness configuration, the missing-witness semantics, anchor-late,
       the commitment boundary with its refusing validator, the permissioned
@@ -100,12 +100,17 @@ standing in for a ruleset state.
 
 ## 4. Realization — the contract family and its validator
 
-- [ ] 4.1 `contracts/chain-anchoring/` — the multi-anchor receipt record, the
+- [ ] 4.1 `contracts/chain-anchoring/` — the multi-anchor receipt record (four
+      per-chain elements plus the declared header source), the log-checkpoint
+      anchor record with its never-read-as-validation disclaimer, the
       anchor-bound commitment record, the anchor-state record (per-witness, with
       declared horizons and NO aggregate boolean), the consent-checkpoint
       commitment record, and the plane-separation declaration.
 - [ ] 4.2 Packaged POSITIVE and NEGATIVE examples for every named refusal — a
       receipt missing inclusion proof; a receipt missing transaction bytes; a
+      receipt missing chain-acceptance evidence; a receipt whose header is
+      non-canonical; a verification run against a minter-supplied header source;
+      a checkpoint inclusion presented as validation; a
       single-witness item presented as anchored; a per-item selectivity rule; a
       third anchor target; a content-bearing field; ciphertext; an absent
       construction declaration; an honestly-declared plain digest; a salt custody
@@ -127,7 +132,8 @@ standing in for a ruleset state.
 - [ ] 4.6 **[OPERATOR] Inclusion-proof CAPTURE AT ANCHOR TIME** — Q3's second
       condition, and the half most likely to be deferred. Evidence is a captured
       receipt for a real anchor carrying transaction bytes, inclusion proof and
-      header, verified from the receipt alone with the chain unreachable.
+      header and chain-acceptance evidence, verified with the chain unreachable
+      against an independently obtained canonical header set.
 - [ ] 4.7 **[OPERATOR] Inclusion-proof RETENTION** — Q3's second condition's other
       half. Evidence is a receipt verified AFTER the operational chain has pruned
       the transaction, which is the only test that actually proves retention.
@@ -140,8 +146,8 @@ standing in for a ruleset state.
 - [ ] 4.10 The BOTH-WITNESSES rule is exercised end to end, including its
       degraded paths: an item with each witness missing in turn reaches
       `anchor_incomplete` naming that witness, a horizon breach writes its leaf,
-      and the durability-calendar recovery COMPLETES the pending receipt rather
-      than re-anchoring.
+      and the durability-calendar recovery UPGRADES THE PENDING DURABILITY PROOF
+      and appends its entry rather than re-anchoring.
 - [ ] 4.11 Registration in `contracts/manifest.yaml` and `contracts/CHANGELOG.md`
       at the additive bundle cut, with `target_release` confirmed against the
       manifest at that tip.

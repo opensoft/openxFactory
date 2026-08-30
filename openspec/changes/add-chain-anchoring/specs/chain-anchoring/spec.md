@@ -9,9 +9,10 @@ record before it defines any anchor target, and SHALL express every anchor this
 capability ever mints in that one format. The receipt is: the anchored DIGEST,
 then the AGGREGATION MERKLE PATH from that digest to the aggregated root, then a
 PER-CHAIN LIST whose every entry carries — for that chain — the ANCHOR
-TRANSACTION BYTES, the TRANSACTION-TO-BLOCK OR DAG INCLUSION PROOF, and the
-BLOCK HEADER. All three per-chain elements are CAPTURED WHOLE AT ANCHOR TIME and
-stored in the receipt; none of them is a lookup deferred to verification time.
+TRANSACTION BYTES, the TRANSACTION-TO-BLOCK OR DAG INCLUSION PROOF, the BLOCK
+HEADER, and the CHAIN-ACCEPTANCE EVIDENCE defined below. All four per-chain
+elements are CAPTURED WHOLE AT ANCHOR TIME and stored in the receipt; none of
+them is a lookup deferred to verification time.
 
 **A TRANSACTION REFERENCE PLUS A HEADER IS NOT A PROOF, AND THIS FORMAT REFUSES
 TO PRETEND IT IS.** A block header commits only to a transaction root, so a
@@ -21,6 +22,27 @@ on any chain is the ten-year assumption. A receipt that omits the transaction
 bytes or the inclusion proof for any chain in its list SHALL BE REFUSED AT
 CAPTURE TIME, not accepted and flagged, because a receipt is only ever captured
 once and the missing material cannot be recovered afterwards.
+
+**AND A HEADER IS NOT CANONICALITY EITHER — THE FOURTH ELEMENT EXISTS BECAUSE
+THE FIRST THREE STOP ONE STEP SHORT.** Transaction bytes plus an inclusion proof
+establish that the transaction sits under the Merkle root of THE SUPPLIED
+HEADER, and nothing more: a fabricated or non-canonical header satisfies all
+three and proves nothing about either witness. Every per-chain entry SHALL
+therefore also carry CHAIN-ACCEPTANCE EVIDENCE — for a linear chain, the block
+HEIGHT plus the header-chain linkage a verifier checks against an independently
+obtained canonical header set; for a DAG, the DAG-acceptance proof for the
+anchoring block — together with a NAMED, INDEPENDENTLY OBTAINABLE HEADER SOURCE
+the verification is performed against.
+
+**AND THE LIMIT OF THAT IS STATED RATHER THAN OVERSOLD.** A receipt cannot carry
+a whole chain, so this capability does NOT claim that a receipt is
+self-sufficient against a forged history. What it claims, and what the fourth
+element delivers, is that a receipt is checkable against a canonical header set
+the verifier obtains for itself — so the receipt's trust root is a PUBLIC CHAIN
+the verifier can independently reach, never a header this capability handed it.
+A realization SHALL declare which header source its verification uses; a
+verification performed against a header source supplied by the same party that
+minted the receipt is REFUSED, because it proves only self-consistency.
 
 **THE RECEIPT IS WHY ANCHOR SELECTION IS REVERSIBLE, AND THAT IS ITS PURPOSE
 RATHER THAN A SIDE EFFECT.** Anchor targets SHALL be addable and droppable by
@@ -36,6 +58,18 @@ exit path names building the receipt first for exactly this reason.
 - WHEN a receipt is offered whose per-chain entry names a transaction and a block header and carries no transaction-to-block or DAG inclusion proof
 - THEN the receipt is REFUSED AT CAPTURE TIME
 - AND the refusal names the missing inclusion proof rather than reporting the receipt as incomplete-but-stored
+
+#### Scenario: a receipt carries a well-formed header that is not on the canonical chain
+
+- WHEN a receipt's per-chain entry carries transaction bytes and an inclusion proof against a header that is fabricated or non-canonical
+- THEN verification FAILS on the chain-acceptance evidence, because the first three elements prove only that the transaction sits under THAT header's root
+- AND a receipt offered without chain-acceptance evidence is REFUSED at capture time rather than accepted as a shorter proof
+
+#### Scenario: verification is performed against a header source the minter supplied
+
+- WHEN a receipt is verified against a header set provided by the same party that minted it
+- THEN the verification is REFUSED, because it establishes self-consistency and not canonicality
+- AND the realization's declared, independently obtainable header source is what verification runs against instead
 
 #### Scenario: a receipt defers the transaction bytes to verification time
 
@@ -58,8 +92,8 @@ exit path names building the receipt first for exactly this reason.
 #### Scenario: a receipt is verified after its operational chain has pruned
 
 - WHEN an anchor is verified long after the anchoring chain has discarded the transaction
-- THEN verification succeeds from the transaction bytes, inclusion proof and header the receipt itself carries
-- AND no request to the chain is required for the receipt to prove what it proves
+- THEN verification succeeds from the transaction bytes, inclusion proof, header and chain-acceptance evidence the receipt itself carries, checked against an independently obtained canonical header set
+- AND no request for the TRANSACTION is required, because the receipt carries it — the header set is the one thing a verifier always fetches for itself, and fetching it from the receipt's minter would prove only self-consistency
 
 #### Scenario: a single-chain receipt shape is proposed for convenience
 
@@ -92,8 +126,11 @@ pruning finding, which is why a ten-year claim still rests on the other witness.
 decides per item which witness that item is worth SHALL BE REFUSED, on the
 ruling's own ground: a rule that decides per item is a rule that will eventually
 decide wrong about the item that matters. There is likewise no aggregate
-`anchored` boolean anywhere in this capability — the receipt records PER-WITNESS
-status, so no single true value can stand where a witness is missing.
+`anchored` boolean anywhere in this capability — PER-WITNESS status lives in the
+ANCHOR-STATE record, which is where every surface reads it, so no single true
+value can stand where a witness is missing. The RECEIPT holds proof material and
+never state: it gains a per-chain entry when that chain's material is captured
+whole, and carries no field describing what has not happened yet.
 
 **THE CONFIGURATION NAMES EXACTLY TWO ANCHOR CHAINS, AND A THIRD IS A RULING AND
 NOT AN IMPLEMENTATION CHOICE.** Q3 ruled no third chain. This requirement
@@ -167,21 +204,23 @@ anchored — while the ten-year claim over it IS available, because that claim
 rests on the witness that landed. Where the DURABILITY witness's aggregation
 calendar is unreachable, the operational witness completes and ten-year claims
 are REFUSED until the durability anchor lands; and because an aggregation proof
-completes by UPGRADE, the pending receipt SHALL be completed in place when the
-calendar returns and the item SHALL NOT be re-anchored — re-anchoring would mint
-a second transaction for the same digest and leave two proofs to keep where one
-was owed.
+completes by UPGRADE, the PENDING DURABILITY PROOF — held in the anchor-state
+record, not in the receipt — SHALL be upgraded and appended to the receipt when
+the calendar returns, and the item SHALL NOT be re-anchored: re-anchoring would
+mint a second transaction for the same digest and leave two proofs to keep where
+one was owed.
 
-**A PENDING WITNESS CONTRIBUTES NO RECEIPT ENTRY, WHICH IS WHY THIS DOES NOT
-CONTRADICT THE CAPTURE-TIME REFUSAL ABOVE.** The receipt's per-chain list SHALL
-gain an entry only when that chain's anchor transaction bytes, inclusion proof
-and block header have been captured WHOLE — so a witness still in flight is
-recorded in the ANCHOR-STATE record as pending, and never as a half-filled
-receipt entry. "Completing the pending receipt in place" therefore means
-APPENDING the entry once the material is captured whole, against the same
+**THE RECEIPT IS PROOF MATERIAL AND THE ANCHOR-STATE RECORD IS STATE, AND
+KEEPING THEM APART IS WHAT STOPS THE TWO REQUIREMENTS COLLIDING.** The receipt's
+per-chain list SHALL gain an entry only when that chain's anchor transaction
+bytes, inclusion proof, block header and chain-acceptance evidence have been
+captured WHOLE. A witness still in flight is therefore recorded in the
+ANCHOR-STATE record as a PENDING DURABILITY PROOF or a pending operational
+anchor — never as a half-filled receipt entry, and never as a status field
+inside the receipt. Upgrading a pending proof APPENDS an entry against the same
 digest the receipt already commits to; there is no state in which a receipt
-carries an entry missing its bytes or its proof, and the requirement above
-refuses that entry at capture time exactly as written.
+carries an entry missing any of its four elements, and the receipt requirement
+above refuses such an entry at capture time exactly as written.
 
 **THE INCOMPLETENESS IS ITSELF EVIDENCE, SO A SILENT GAP IS IMPOSSIBLE.** Entry
 into `anchor_pending`, every horizon breach, and the eventual completion SHALL
@@ -203,7 +242,7 @@ stops it becoming a habit.
 
 - WHEN the aggregation calendar cannot be reached and only the operational anchor completes
 - THEN the item is `anchor_incomplete`, and every ten-year claim over it is REFUSED until the durability anchor lands
-- AND the pending receipt is COMPLETED IN PLACE when the calendar returns, rather than the item being anchored a second time
+- AND the PENDING DURABILITY PROOF held in the anchor-state record is upgraded and appended to the receipt when the calendar returns, rather than the item being anchored a second time
 
 #### Scenario: a verification runs against an incomplete item
 
@@ -225,33 +264,63 @@ stops it becoming a habit.
 
 #### Scenario: a receipt entry is written for a witness still in flight
 
-- WHEN a realization writes a per-chain receipt entry for an anchor whose bytes and inclusion proof are not yet captured
+- WHEN a realization writes a per-chain receipt entry for an anchor whose four elements are not yet captured whole
 - THEN it is REFUSED at capture time, and the pending witness is recorded in the anchor-state record instead
-- AND completion later APPENDS the entry against the same digest, so no receipt ever carries an entry missing its proof
+- AND the upgrade later APPENDS the entry against the same digest, so no receipt ever carries an entry missing any element
 
 #### Scenario: an aggregate anchored flag is proposed
 
 - WHEN a realization proposes a single `anchored: true` field summarizing an item's anchors
 - THEN it is REFUSED, because such a field can read true while a configured witness is missing
-- AND per-witness status in the receipt is what every surface reads instead
+- AND the anchor-state record's per-witness status is what every surface reads instead, the receipt holding proof material and never state
 
-### Requirement: Only validated, gate-passed material is anchored
+### Requirement: Only validated, gate-passed material is anchored AS AN ITEM
 
-openxFactory SHALL anchor only material that has already passed its governing
-gate, and SHALL NOT provide any path by which unvalidated material reaches a
-chain. The ground is stated in the staged topic as a design constraint on this
-tranche and not as a detail: a broken chain is a fraud signal, nothing on a
-chain can be un-published, and a false attestation that reaches a chain is
-therefore PERMANENT. Anchoring late is what keeps that from happening, and
-because anchoring is aggregated and batched in any case, the cost of lateness is
-one aggregation interval rather than an architectural concession.
+openxFactory SHALL mint an ITEM ANCHOR only for material that has already passed
+its governing gate, and SHALL NOT provide any path by which unvalidated material
+acquires an item anchor. The ground is stated in the staged topic as a design
+constraint on this tranche and not as a detail: a broken chain is a fraud signal,
+nothing on a chain can be un-published, and a false attestation that reaches a
+chain is therefore PERMANENT. Anchoring late is what keeps that from happening,
+and because anchoring is aggregated and batched in any case, the cost of lateness
+is one aggregation interval rather than an architectural concession.
+
+**AND THE TWO KINDS OF ANCHOR ARE TOLD APART HERE, BECAUSE AN APPEND-ONLY LOG
+MAKES THEM DIFFERENT OBJECTS.** A LOG CHECKPOINT commits to the log's whole
+prefix by construction — every leaf in it, refusals and later-invalidated events
+included — so no amount of waiting can keep an earlier leaf out of a later signed
+tree head. Anchoring a checkpoint therefore DOES place a commitment to
+unvalidated leaves on a chain, and this requirement says so rather than promising
+a purity the mechanics cannot deliver:
+
+- An **ITEM ANCHOR** is a commitment to a specific piece of material, and it is
+  what the anchor-late rule governs. Only gate-passed material gets one.
+- A **LOG CHECKPOINT ANCHOR** witnesses that the LOG SAID something at a time. It
+  is a claim about the log's integrity and ordering, and **it is NOT a claim
+  about the validity of any leaf inside it** — a checkpoint covering a refusal
+  leaf is evidence that the refusal happened, which is exactly what the evidence
+  plane is for.
+- **Inclusion in an anchored checkpoint SHALL NEVER be read, presented or
+  verified as validation.** A surface that reports a leaf as validated because a
+  checkpoint covering it was anchored is REFUSED, and the checkpoint record
+  SHALL carry that disclaimer in its own contract text rather than leaving it to
+  a reader.
 
 **THE EVIDENCE PLANE HOLDS EVERYTHING; THE CHAINS WITNESS CHECKPOINTS OF IT.**
 The transparency log SHALL NOT be held back waiting for validation — a leaf is
 written when the event happens, including a leaf recording a refusal — and only
-the ANCHORING of a checkpoint waits. The two are different acts against
-different stores, and conflating them would either delay the record or publish
-the unvalidated.
+the ITEM ANCHOR waits. The two are different acts against different stores, and
+conflating them would either delay the record or mint an item anchor over
+unvalidated material.
+
+**THIS IS RECORDED AS A TENSION THE STAGED TOPIC DID NOT RESOLVE, NOT AS A
+RESTATEMENT OF IT.** The topic's constraint reads *"anchoring LATE (commit only
+what has been validated)"*, which taken literally is unachievable against an
+append-only log whose checkpoints commit to every prefix. What the constraint
+PROTECTS — that a false attestation must not become permanently backed by a
+chain as valid — is honoured by the item/checkpoint split above and by the
+never-read-as-validation rule. The narrowing is raised here rather than applied
+silently, because a topic's constraint is not a packet's to quietly reinterpret.
 
 **A RETRACTION IS A NEW LEAF AND A NEW ANCHOR, NEVER AN ERASURE.** Where
 anchored material is later found wrong, the correction SHALL be recorded and
@@ -262,15 +331,27 @@ the COMMITMENT rather than of the anchor.
 
 #### Scenario: material is submitted for anchoring before its gate has passed
 
-- WHEN unvalidated material is submitted to the anchoring path
+- WHEN unvalidated material is submitted to the ITEM-ANCHOR path
 - THEN it is REFUSED, and the refusal is recorded as a leaf
-- AND no configuration, operator flag or urgency argument admits it, because the resulting anchor would be permanent
+- AND no configuration, operator flag or urgency argument admits it, because the resulting item anchor would be permanent
 
 #### Scenario: a leaf is written for an event that then fails validation
 
 - WHEN an event is written to the transparency log and its validation subsequently fails
-- THEN the leaf stands, the failure is written as a further leaf, and neither is anchored as validated material
+- THEN the leaf stands, the failure is written as a further leaf, and NEITHER receives an item anchor
 - AND the log is never held back waiting for a validation outcome
+
+#### Scenario: an anchored checkpoint covers a refused leaf
+
+- WHEN a log checkpoint is anchored whose prefix necessarily includes a leaf recording a refusal
+- THEN the anchor is correct and expected, because a checkpoint witnesses what the log said and makes no claim about any leaf's validity
+- AND the checkpoint record carries that disclaimer in its own contract text rather than leaving it to a reader
+
+#### Scenario: inclusion in an anchored checkpoint is presented as validation
+
+- WHEN a surface reports a leaf as validated on the strength of an anchored checkpoint covering it
+- THEN it is REFUSED, because the checkpoint proves the log's integrity and ordering and nothing about the leaf
+- AND the item anchor, which only gate-passed material receives, is what a validity claim rests on
 
 #### Scenario: anchored material is later found wrong
 

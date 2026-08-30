@@ -414,8 +414,8 @@ Active changes:
   stands, cited for GROUNDS only. **THE MULTI-ANCHOR RECEIPT IS BUILT FIRST**,
   per the exit path, and in the CORRECTED form: digest → aggregation Merkle path
   → per-chain {**anchor transaction bytes**, **transaction-to-block or DAG
-  inclusion proof**, block header}, captured whole at anchor time, **REFUSED AT
-  CAPTURE TIME** if any is missing — a header beside a bare transaction reference
+  inclusion proof**, block header, **chain-acceptance evidence**}, captured whole
+  at anchor time, **REFUSED AT CAPTURE TIME** if any is missing — a header beside a bare transaction reference
   proves nothing once the transaction is pruned, and a bespoke single-chain
   receipt is the one-way door the design exists to avoid. **Q2 AND Q6 BECOME
   CONTRACT TEXT WITH A REFUSING VALIDATOR**: on chain, salted keyed commitments,
@@ -439,7 +439,20 @@ Active changes:
   claims are refused while the durability witness is missing, every horizon breach
   is a leaf, and **there is no aggregate `anchored` boolean anywhere**. The two
   outages are ASYMMETRIC and the requirement says so; a returning aggregation
-  calendar **COMPLETES the pending receipt in place** and never re-anchors. Also
+  calendar **UPGRADES THE PENDING DURABILITY PROOF and appends its entry** and
+  never re-anchors — the receipt holds proof material, the ANCHOR-STATE record
+  holds state, and keeping them apart is what stops the two rules colliding.
+  **THE REVIEW ROUND CORRECTED TWO CONTROLS THAT COULD NOT RUN**, both real,
+  both recorded rather than patched: an append-only log's checkpoints commit to
+  every prefix, so "no unvalidated material reaches a chain" was unachievable —
+  resolved by telling an **ITEM ANCHOR** (gate-passed material only) apart from a
+  **LOG CHECKPOINT ANCHOR** (witnesses what the log SAID, **never a validity
+  claim**, inclusion never read as validation), which **NARROWS the staged
+  topic's anchor-late constraint, recorded rather than applied silently**; and a
+  block header is not canonicality, so the receipt gained its **fourth element**
+  and a **named independently obtainable header source**, with the limit stated —
+  a receipt is checkable against a header set the verifier fetches for itself,
+  never self-sufficient against a forged history. Also
   carried, from Brett Heap's own 2024 MedxChain notes vendored by **PR #509 (IN
   FLIGHT)**: **verification-attempt auditing** (verify events and refused access
   are leaves — an evidence plane that records only writes cannot answer who
@@ -452,7 +465,7 @@ Active changes:
   per-plane keys are derived under per-plane salts. **Q5 IS COMPLIED WITH
   POSITIVELY**: today's evidence-only posture is stated in the present tense, with
   **no "never"** and **NO TRIGGER CONDITION**, because the ruling refused both.
-  **NINE ADDED requirements over 48 scenarios, no MODIFIED block anywhere** — a
+  **NINE ADDED requirements over 52 scenarios, no MODIFIED block anywhere** — a
   NEW capability `chain-anchoring` rather than a second ADDED block on
   `signed-execution-chain`, which avoids the sibling-delta shape of issue #502
   outright. The change id and capability **diverge from the ratified working id**

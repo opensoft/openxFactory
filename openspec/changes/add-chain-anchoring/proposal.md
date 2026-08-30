@@ -1,5 +1,5 @@
 ---
-code_surface: openxFactory — A NEW NEUTRAL CONTRACT FAMILY PLUS ITS REFUSING VALIDATOR, declared honestly because this tranche is not doctrine-only. `contracts/chain-anchoring/` gains the MULTI-ANCHOR RECEIPT record (digest, aggregation Merkle path, and a per-chain list whose entries carry anchor transaction bytes, transaction-to-block or DAG inclusion proof, and block header), the ANCHOR-BOUND COMMITMENT record (declared construction — algorithm, keyed, salted — plus a salt custody reference resolving into the governed layer), the ANCHOR STATE record (`anchor_pending` / `anchor_incomplete` / complete, per-witness, with declared completion horizons and no aggregate boolean), the CONSENT-CHECKPOINT commitment record, the PLANE-SEPARATION declaration (per-plane keys under per-plane salts), and the realization conformance declaration on `add-trust-anchor`'s declared-shortfall pattern — plus packaged POSITIVE and NEGATIVE examples for every named refusal, and the canonical `scripts/validate-chain-anchoring.py`. Registration in `contracts/manifest.yaml` + `contracts/CHANGELOG.md` at the next additive bundle cut. NOT THIS CHANGE'S SURFACE, each for a stated reason - the anchoring RUNTIME (an archival node for the operational witness, an aggregation-calendar client for the durability witness, the batching scheduler) is OPERATOR INFRASTRUCTURE commissioned at realization and named in `tasks.md` §4, not contract bytes; the PERMISSIONED LEDGER SELECTION (Fabric or Besu class) is a realization decision this packet deliberately does not fix; the DOMAIN OVERLAYS (MedxChain/HealthLinc, LedgerLinc) belong to their own repositories; and the TRANSPARENCY LOG itself is `add-signed-execution-chain`'s tranche-one artifact, consumed here and not redefined. NO attestation record, NO controller certificate, NO per-task identity and NO certificate authority - those are tranche two's surface.
+code_surface: openxFactory — A NEW NEUTRAL CONTRACT FAMILY PLUS ITS REFUSING VALIDATOR, declared honestly because this tranche is not doctrine-only. `contracts/chain-anchoring/` gains the MULTI-ANCHOR RECEIPT record (digest, aggregation Merkle path, and a per-chain list whose entries carry FOUR elements — anchor transaction bytes, transaction-to-block or DAG inclusion proof, block header, and chain-acceptance evidence — plus the declared independently-obtainable header source verification runs against), the ANCHOR-BOUND COMMITMENT record (declared construction — algorithm, keyed, salted — plus a salt custody reference resolving into the governed layer), the ANCHOR STATE record (`anchor_pending` / `anchor_incomplete` / complete, per-witness, with declared completion horizons and no aggregate boolean), the CONSENT-CHECKPOINT commitment record, the LOG-CHECKPOINT ANCHOR record carrying its own never-read-as-validation disclaimer, the PLANE-SEPARATION declaration (per-plane keys under per-plane salts), and the realization conformance declaration on `add-trust-anchor`'s declared-shortfall pattern — plus packaged POSITIVE and NEGATIVE examples for every named refusal, and the canonical `scripts/validate-chain-anchoring.py`. Registration in `contracts/manifest.yaml` + `contracts/CHANGELOG.md` at the next additive bundle cut. NOT THIS CHANGE'S SURFACE, each for a stated reason - the anchoring RUNTIME (an archival node for the operational witness, an aggregation-calendar client for the durability witness, the batching scheduler) is OPERATOR INFRASTRUCTURE commissioned at realization and named in `tasks.md` §4, not contract bytes; the PERMISSIONED LEDGER SELECTION (Fabric or Besu class) is a realization decision this packet deliberately does not fix; the DOMAIN OVERLAYS (MedxChain/HealthLinc, LedgerLinc) belong to their own repositories; and the TRANSPARENCY LOG itself is `add-signed-execution-chain`'s tranche-one artifact, consumed here and not redefined. NO attestation record, NO controller certificate, NO per-task identity and NO certificate authority - those are tranche two's surface.
 target_release: THE NEXT ADDITIVE MINOR, DELIBERATELY NOT NUMBERED HERE — allocated AT REALIZATION by merge order per `docs/contract-versioning-policy.md`. The count was taken at this branch's tip rather than remembered: `contracts/manifest.yaml:3` declares `contract_bundle_version: contract-v2.2` and `contracts/releases/contract-v2.2.digests.yaml` is a cut inventory in the tree, so the era is v2.2 and the next additive minor is unspent. A NUMBER IS NOT WRITTEN HERE BECAUSE A SIBLING ALREADY HOLDS THE NEXT ONE: `add-signed-execution-chain` is ratified and names `contract-v2.3`, and `add-chain-attestation` (tranche two, in flight) reaches the same cut — several changes ride one additive cut, and a packet that spends a minor before merge order is known is the `contract-v1.28` renumber sweep repeating. THE CLASS IS ADDITIVE and nothing narrows: a new contract family is the versioning policy's "new contracts" case verbatim, no existing schema changes, no consumer pinned at the current bundle is made non-conformant, and no domain is obliged to adopt a chain.
 ---
 
@@ -124,7 +124,7 @@ Requirements` block anywhere**, so it restates nothing and can drop nothing.
 | **Q2** — on chain: salted keyed commitments, consent-log CHECKPOINT commitments, the anchors. Off chain: every payload without exception, consent STATE, the SALTS. Drawn as CONTRACT TEXT with a validator refusing a payload-shaped record AND an unsalted commitment | Q2's Disposition, 2026-08-29 | Requirements 5 and 6 |
 | **Q6, CONFIRMED and now the 2026-08-27 ruling's OPERATIVE FORM** — "patients put PHI portions on chain" means SALTED KEYED COMMITMENTS: a verifiable public handle, the bytes disclosed off-chain under an anchored consent checkpoint, erasure by salt destruction. Raw, encrypted and plain-hashed regulated content on chain stay REFUSED, and **no later change re-litigates it** | Q6's Disposition, 2026-08-29 | Requirement 5, including the erasure consequence |
 | **Q5** — *"Allow contract code later."* Evidence-only is today's posture; the change MUST NOT constitutionalize "no contract code ever" and MUST NOT gate a future adoption on any trigger condition written in advance | Q5's Disposition, 2026-08-29 | Requirement 6's third block, and § Q5 compliance below |
-| **The receipt-first instruction, and the corrected receipt form** — digest → aggregation Merkle path → per-chain {anchor transaction bytes, transaction-to-block or DAG inclusion proof, block header}, captured whole at anchor time | § "Exit path", tranche 3; and the topic's standing correction over the study's compact sketch, recorded at Q3's Explanation and at claim 7 | Requirement 1, whole |
+| **The receipt-first instruction, and the corrected receipt form** — digest → aggregation Merkle path → per-chain {anchor transaction bytes, transaction-to-block or DAG inclusion proof, block header}, captured whole at anchor time. A FOURTH element, chain-acceptance evidence, is added by this packet's review round and is named in § What the review round corrected | § "Exit path", tranche 3; and the topic's standing correction over the study's compact sketch, recorded at Q3's Explanation and at claim 7 | Requirement 1, whole |
 | **ANCHOR LATE** — a false attestation reaching a chain is permanent, so only validated material is anchored; the cost of lateness is one aggregation interval | § "Conflicts", the conflict inside the vision; and `ideation/staging/INDEX.md`'s topic detail | Requirement 4 |
 | **Consent and execution logic NOT on the anchoring chain** — the governed policy plane, and a permissioned consortium ledger where several external covered entities share state, whose state roots are anchored; no smart contracts on the anchoring chain; not Kasplex or Igra in 2026 | § "The recommended architecture, from the study", carried unchanged by the ruling | Requirement 6 |
 
@@ -258,19 +258,65 @@ made Kasplex and Igra a refusal in 2026, the irrevocable-deployment vulnerabilit
 class — survive as **ADVISORY CONTEXT** a later author must answer, never as this
 packet's permission to withhold.
 
+## What the review round corrected, before the council ever sits
+
+Two Codex P1 findings and a Copilot cluster on this packet's own pull request,
+all real, and all of the same shape the family keeps meeting — **a rule naming
+something it could not actually do.** Recorded here rather than silently
+patched; the full reasoning is `design.md` **D8** and **D9**.
+
+1. **An anchored checkpoint cannot exclude an earlier leaf, so "no unvalidated
+   material reaches a chain" was unachievable as written.** The log is
+   append-only: every signed tree head commits to the whole prefix, refusals
+   included, so anchoring late cannot keep a refused leaf out of a later
+   checkpoint. **Resolved by naming two anchors rather than weakening one rule** —
+   an ITEM ANCHOR, which only gate-passed material receives and which the
+   anchor-late rule governs; and a LOG CHECKPOINT ANCHOR, which witnesses that the
+   log SAID something and **makes no claim about any leaf's validity**, with
+   inclusion never read, presented or verified as validation. **The staged
+   topic's constraint is thereby NARROWED, and the narrowing is recorded rather
+   than applied silently** — the constraint governs item anchors, and what it
+   protects is honoured by the split.
+2. **A block header is not canonicality.** Transaction bytes plus an inclusion
+   proof establish only that the transaction sits under THE SUPPLIED HEADER's
+   Merkle root; a fabricated header satisfies all three elements. The receipt
+   gains a **fourth per-chain element — CHAIN-ACCEPTANCE EVIDENCE** (block height
+   plus header-chain linkage, or a DAG-acceptance proof) and a NAMED,
+   INDEPENDENTLY OBTAINABLE HEADER SOURCE, with the limit stated: a receipt is
+   **checkable against** a canonical header set the verifier fetches for itself,
+   never self-sufficient against a forged history, and a verification against a
+   header source the minter supplied is REFUSED. This is the same defect class
+   the requirement already refused one step earlier — the draft caught the
+   header-plus-bare-reference shape and missed the fabricated-header shape.
+3. **Terminology: the receipt was doubling as the state record.** Copilot read
+   "the receipt records per-witness status" and "the pending receipt" as
+   contradicting requirement 1's fully-populated receipt, and was right.
+   **PER-WITNESS STATUS lives in the ANCHOR-STATE record; the receipt holds proof
+   material and never state**, and a witness in flight is a PENDING DURABILITY
+   PROOF that is upgraded and appended, never a half-filled receipt entry. The
+   structure was already this; the words were not.
+
+*One of these was self-caught before the bots ran* — the pending-entry collision,
+commit `455bbdaa` — *and the round then showed the fix had repaired the structure
+while leaving the vocabulary that caused it.* That is worth carrying: a
+correction stated in a new paragraph does not retire the old wording elsewhere in
+the packet, and a sweep is part of the fix.
+
 ## Capabilities
 
 ### New Capabilities
 
 - `chain-anchoring`: the neutral public anchoring layer and the permissioned
-  consent plane, **NINE ADDED requirements over 48 scenarios**, no `## MODIFIED
+  consent plane, **NINE ADDED requirements over 52 scenarios**, no `## MODIFIED
   Requirements` block anywhere — a chain-agnostic multi-anchor receipt defined
-  FIRST and refused at capture time if it omits transaction bytes or an inclusion
-  proof; the ruled two-witness configuration with no selectivity and no third
+  FIRST and refused at capture time if any of its four per-chain elements is
+  missing; the ruled two-witness configuration with no selectivity and no third
   chain, the operational witness under its three unchanged conditions and
   ten-year claims citing the durability witness; a missing witness as a DECLARED
   fail-closed state that degrades the claim and never the factory; anchoring only
-  gate-passed material, because a false attestation on a chain is permanent; the
+  gate-passed material AS AN ITEM, with a log checkpoint told apart from an item
+  anchor because an append-only prefix cannot be held back and a checkpoint is
+  never a validity claim; the
   on-chain boundary as contract text with a validator refusing payload-shaped
   records STRUCTURALLY and unsalted commitments BY DECLARED CONSTRUCTION, with
   salt destruction's erasure and its permanent unverifiability stated together;

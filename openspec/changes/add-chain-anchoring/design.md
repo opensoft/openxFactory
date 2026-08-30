@@ -95,36 +95,42 @@ instantaneous.
   complete.
 - **There is no aggregate `anchored` boolean anywhere in the capability.** A
   single summarizing flag is the field that reads true while a witness is
-  missing, so the receipt carries per-witness status and every surface reads
-  that.
+  missing. Per-witness status lives in the ANCHOR-STATE record, which is what
+  every surface reads; the RECEIPT holds proof material and never state.
 
 **The two outages are NOT symmetric, and the requirement says which is which.**
 
 | Outage | What completes | Item state | Ten-year claim | Repair |
 | --- | --- | --- | --- | --- |
 | **Operational witness unreachable** | the durability anchor, on its own horizon | `anchor_incomplete` — not the configured completeness, so not "anchored" | **AVAILABLE**, because that claim rests on the witness that landed | anchor the operational witness when it returns; the receipt gains its entry |
-| **Durability calendar unreachable** | the operational anchor, in seconds | `anchor_incomplete` | **REFUSED** until the durability anchor lands | **COMPLETE THE PENDING RECEIPT IN PLACE** when the calendar returns — do NOT re-anchor |
+| **Durability calendar unreachable** | the operational anchor, in seconds | `anchor_incomplete` | **REFUSED** until the durability anchor lands | **UPGRADE THE PENDING DURABILITY PROOF** and append its entry when the calendar returns — do NOT re-anchor |
 
 **The do-not-re-anchor rule is not a style note.** An aggregation proof completes
-by upgrade: the pending receipt already commits to the right digest, and the
-calendar's later confirmation is what fills it in. Re-anchoring would mint a
+by upgrade: the pending durability proof already commits to the right digest,
+and the calendar's later confirmation is what completes it. Re-anchoring would mint a
 SECOND transaction for the same digest, leaving two proofs to capture, retain and
 reconcile where one was owed — and on the operational witness, whose transactions
 are pruned within days, a second anchor is a second thing that must be captured
 before it disappears. The cheapest correct act is completion.
 
-**A PENDING WITNESS CONTRIBUTES NO RECEIPT ENTRY, AND THIS IS WHERE THE TWO
-REQUIREMENTS WOULD OTHERWISE COLLIDE.** Requirement 1 refuses a receipt entry
-missing its transaction bytes or inclusion proof AT CAPTURE TIME; requirement 3
-speaks of a "pending receipt" completed in place. Read carelessly those are in
-tension, and the tension is resolved by the receipt's own rule rather than by an
-exception to it: **the per-chain list gains an entry only when that chain's
-material is captured WHOLE**, so a witness in flight lives in the ANCHOR-STATE
-record and never as a half-filled entry. "Completing in place" is APPENDING an
-entry against the digest the receipt already commits to. The clarification is
-written into requirement 3 with its own scenario, because a reader who has to
-derive it will instead implement the half-filled entry — and a half-filled entry
-is precisely the receipt shape that proves nothing.
+**THE RECEIPT IS PROOF MATERIAL; THE ANCHOR-STATE RECORD IS STATE. KEEPING THEM
+APART IS WHAT STOPS THE TWO REQUIREMENTS COLLIDING.** Requirement 1 refuses a
+per-chain entry missing any of its four elements AT CAPTURE TIME; requirement 3
+has to describe a witness in flight. Resolved by the receipt's own rule rather
+than by an exception to it: **the per-chain list gains an entry only when that
+chain's material is captured WHOLE**, so a witness in flight lives in the
+ANCHOR-STATE record as a PENDING DURABILITY PROOF or a pending operational
+anchor — never as a half-filled entry, and never as a status field inside the
+receipt. Upgrading appends an entry against the digest the receipt already
+commits to.
+
+*Corrected in the bot round, and the correction was terminological rather than
+structural.* The first draft of this note had the right structure but wrote
+"pending receipt" and "the receipt records per-witness status", which Copilot
+read — correctly — as the receipt doubling as the state representation. A reader
+who has to derive the split will instead implement the half-filled entry, and a
+half-filled entry is precisely the receipt shape that proves nothing. The words
+now match the structure.
 
 **Rejected alternatives, and why each fails.**
 
@@ -319,6 +325,81 @@ This is a fourth, found while carrying the meta-analysis lane forward, and it is
 named as a correction to a vendored source rather than folded silently into a
 requirement — the source is Brett Heap's own design sketch, and a packet that
 quietly improved it would leave him no way to see that it had.
+
+## D8 — An anchored checkpoint witnesses the LOG, it does not validate a LEAF
+
+**Raised by Codex on this packet's own pull request, and it is a real
+contradiction in the first draft.** Requirement 4 promised that no unvalidated
+material reaches a chain while requirement 4's own second block had the
+transparency log written immediately, refusals included. Against an APPEND-ONLY
+log those cannot both hold: every signed tree head commits to the whole prefix,
+so a checkpoint anchored at any later time necessarily commits to the refused
+leaf as well. **No amount of anchoring late can exclude an earlier leaf from a
+prefix.** The rule as written described a control that cannot run.
+
+**The resolution is to name two anchors rather than to weaken one rule.**
+
+| | **Item anchor** | **Log checkpoint anchor** |
+| --- | --- | --- |
+| Commits to | a specific piece of material | the log's whole prefix, by construction |
+| Governed by | the anchor-late rule — gate-passed material only | nothing can hold it back; the prefix is the prefix |
+| Claims | that THIS material existed unchanged at this time | that the LOG SAID this at this time |
+| Says about validity | that the material passed its gate | **NOTHING**, and the contract text says so |
+
+A checkpoint covering a refusal leaf is not a leak — it is evidence that the
+refusal happened, which is the whole point of an evidence plane. What would be a
+defect is a reader taking inclusion for validation, so **inclusion in an anchored
+checkpoint is never read, presented or verified as validation**, the checkpoint
+record carries that disclaimer in its own contract text, and a surface that
+breaks the rule is refused.
+
+**AND THE NARROWING IS RECORDED RATHER THAN APPLIED SILENTLY.** The staged
+topic's constraint reads *"anchoring LATE (commit only what has been
+validated)"*. Taken literally that is unachievable against an append-only log,
+and this packet narrows it: the constraint governs ITEM anchors, and what it
+PROTECTS — that a false attestation must not become permanently backed by a chain
+as valid — is honoured by the split plus the never-read-as-validation rule. A
+topic's constraint is not a packet's to quietly reinterpret, so the narrowing is
+in the requirement text, here, and in the pull-request record.
+
+**Rejected: a second, validated-only tree whose checkpoints are the anchored
+ones.** It would satisfy the literal constraint, and it would cost a second log,
+a second tree head, and a permanent question about which of two logs is the
+record — reintroducing the two-records-of-one-decision defect the family keeps
+refusing. It also loses the property that makes an evidence plane worth having:
+that refusals are IN it.
+
+## D9 — A header is not canonicality, so the receipt carries a fourth element
+
+**Also raised by Codex, and also a control that could not run as first
+written.** Transaction bytes plus an inclusion proof establish that the
+transaction sits under the Merkle root of THE SUPPLIED HEADER — and nothing
+else. A fabricated or non-canonical header satisfies the first three elements
+perfectly. The receipt shape as drafted could therefore be satisfied without
+proving either witness, which is the same class of defect as the header-plus-bare-
+reference shape the requirement already refused; the draft caught the first
+instance and missed the second.
+
+**The fix: a fourth per-chain element.** CHAIN-ACCEPTANCE EVIDENCE — for a linear
+chain, the block height plus the header-chain linkage a verifier checks against
+an independently obtained canonical header set; for a DAG, the DAG-acceptance
+proof for the anchoring block — together with a NAMED, INDEPENDENTLY OBTAINABLE
+HEADER SOURCE the verification runs against. The study's own note that
+OpenTimestamps stays verifiable against a header chain is the ground.
+
+**AND THE LIMIT IS STATED RATHER THAN OVERSOLD.** A receipt cannot carry a whole
+chain, so the packet does NOT claim a receipt is self-sufficient against a forged
+history. What it claims is that a receipt is CHECKABLE against a canonical header
+set the verifier obtains for itself — so the trust root is a public chain the
+verifier can independently reach, never a header this capability handed it. A
+verification performed against a header source supplied by the receipt's own
+minter is refused, because it proves self-consistency and calls it canonicality.
+
+**What this does NOT change.** The pruning argument stands exactly as it was:
+the TRANSACTION is the thing a pruning chain will not return, so the receipt
+carries it. The header SET is the one thing a verifier always fetches for
+itself, and fetching it from the minter was never the design — it was simply
+unstated, and unstated is how an implementer ends up doing it.
 
 ## Realization dependencies — what this tranche actually waits on
 
