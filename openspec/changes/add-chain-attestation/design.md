@@ -241,11 +241,15 @@ take the subset OF. A gate reading only the artifacts handed to it has no
 authoritative set: a lane that omits an unwanted link-5 record BEFORE presenting
 link 6 leaves an enumeration that is ordered, deduplicated and complete over
 everything visible — so the rule as written passed exactly the chain it was
-written to refuse. **The set is now DERIVED BY THE GATE FROM THE LOG** by a
+written to refuse. **That round's repair DERIVED THE SET FROM THE LOG** by a
 defined query (every link-5 leaf committing to this chain identity, at or before
-the successor's own leaf), and the enumeration must be EQUAL to it — not a subset
-and not a superset, since a record enumerated but never written as a leaf is
-UNPROVEN under tranche one's own rule.
+the successor's own leaf), requiring the enumeration to be EQUAL to it — not a
+subset and not a superset, since a record enumerated but never written as a leaf
+is UNPROVEN under tranche one's own rule. **THAT REPAIR IS SUPERSEDED and the
+paragraphs below say why: a log query cannot see a leaf that was never written,
+so the authority is now LINK 4's COMMITTED EXPECTATION and the log comparison is
+a SECONDARY check.** The equality discipline and the UNPROVEN rule survive the
+change of authority; only the source of the set moved.
 
 **AND THE "WHY THE LOG AND NOT LINK 4" REASONING WAS WRONG — CORRECTED, NOT
 DELETED.** This section previously rejected the other candidate outright:
@@ -511,9 +515,12 @@ not a binding"*, arriving three separate times at three different links.
    authoritative set to take the subset OF, so a lane omitting an unwanted link-5
    record before presenting link 6 produced an enumeration that was complete over
    everything visible — the rule passed the exact chain it was written to refuse.
-   Repaired by DERIVING the complete set from the transparency log by a defined
-   query and requiring EQUALITY, with tranche one's suffix-truncation residual
-   inherited rather than re-declared.
+   Repaired **at that round** by DERIVING the complete set from the transparency
+   log by a defined query and requiring EQUALITY, with tranche one's
+   suffix-truncation residual inherited rather than re-declared. **That repair is
+   SUPERSEDED — see D11 and D4:** a log query cannot see a leaf that was never
+   written, so the authoritative set is now link 4's COMMITTED EXPECTATION and the
+   log comparison is secondary.
 3. **Closure bound to review-record BYTES and not to review AUTHORITY**
    (requirement 7). A digest establishes only that the bytes did not change after
    the controller signed them, so a supplied or fabricated review record could be
@@ -524,9 +531,17 @@ not a binding"*, arriving three separate times at three different links.
    declared and a walked link-7 check named as what closes it.
 
 **None of the three was repaired by inventing vocabulary.** The attribution is
-stated as what must be ESTABLISHED, the complete set comes from the log tranche
-one already makes the record, and the review authority is the instrument this
-repository already reads inside a required check.
+stated as what must be ESTABLISHED, that round's complete set came from the log
+tranche one already makes the record, and the review authority is the instrument
+this repository already reads inside a required check.
+
+**FINDING 2's REPAIR DID NOT HOLD, AND D11 RECORDS WHAT REPLACED IT.** Deriving
+the set from the log closed omission from the SUBMISSION and left omission from
+the LOG open, which the second bot round and `lead-security`'s LS-F5 both reached
+independently. The authority is now link 4's COMMITTED EXPECTATION; the log
+comparison is retained as a secondary check in both directions. **This entry is
+kept as the record of what round one did**, not as a statement of the rule in
+force.
 
 ## D11 — What the SECOND bot round corrected, recorded as corrections
 
@@ -558,6 +573,67 @@ detect nothing or forbid the very artifact the capability requires.
    authorized record kinds — task attestation (link 5), PR-open decision record
    (link 6), post-merge test record (link 10) — rather than by minting SEPARATE
    task-scoped identities, which was the other option offered.
+
+### D11a — the THIRD round: the same conflict one level up, in SUBJECT rather than FORM
+
+**The widening above fixed FORM and left SUBJECT unfixed, and a third bot round
+caught it.** Link 6 is ONE decision committing to EVERY link-5 attestation for
+the work it proposes; link 10 is ONE test outcome over that same whole. A signer
+valid for one task and authorized only for records ABOUT that task therefore
+still could not produce either **the moment a chain fans out to more than one
+task** — whichever task's identity signed, the record would cover work from the
+others. **The ordinary dynamic-fan-out case had no conforming link 6 through two
+successive repairs**, which is the finding worth keeping: the first repair made
+the record kinds legal and left the subject scope illegal, and the second reader
+had to look one level up to see it.
+
+**Decision: TIER 2 SPLITS BY SUBJECT SCOPE.** The controller issues, alongside
+the per-task identities, exactly ONE **CHAIN-SCOPED tier-2 identity** per chain.
+The enumerations split with it — per-task shrinks to the task attestation (link
+5) alone; chain-scoped carries the aggregate records (link 6, link 10). Both are
+tier 2, both are ephemeral, both keep the key at the controller's signing
+boundary, and `access_secrets: false` is untouched: **adding a SUBJECT SCOPE
+moves no key and widens no permission.** Authority records stay outside BOTH
+enumerations forever, so the chain-scoped identity is broader in SUBJECT and not
+in AUTHORITY.
+
+**The alternative was refused on the ratified table.** Defining how several
+task-scoped decisions COMPOSE into links 6 and 10 was the other option offered.
+The staged topic's authoritative link table gives link 6 ONE signed decision —
+*"opening a pull request is itself a decision and is signed as one"* — and a rule
+assembling one link out of N signatures would invent a link this family does not
+have, then owe an ordering and a completeness rule for the assembly. That is a
+second plural-predecessor problem bought to avoid a second identity.
+
+**What it departs from, flagged so a reviewer can disagree.** The topic's link
+table names a *"per-task identity (controller-signed)"* as the signer for links 6
+and 10. **This packet departs from that**, on the same footing D4 departs from
+the topic's SINGULAR hash-link rule beside its PLURAL link 5 — the table's own
+row 6 calls the PR-open one decision, so the table is internally in tension and
+this delta resolves it toward the row rather than the column. Tranche one's
+ratified text characterizes tier 2 as *"ephemeral per-task attestation
+identities"* and, in the same sentence, says tier 2 *"is the named tranche-two
+boundary and is NOT defined here"*, creating no attestation identity of any kind.
+**Defining it is this tranche's act**, and the two operative constraints that
+sentence does impose — EPHEMERAL, keys never entering a worker — bind the
+chain-scoped identity exactly as they bind the per-task ones. **No seat return is
+touched:** every custody passage in the four returns is about KEY MATERIAL
+(`lead-security` §1.3's C1–C6 subtraction, LS-A3's reachability), and no return
+makes any claim about identity CARDINALITY or record-kind scope.
+
+**And the gate's enforcement mapping was stale in the same round.** The
+scenario-complete MODIFIED block still described the gate as carrying a
+*"log-derived authoritative set"*, contradicting D4's corrected rule one file
+over. A realization following the mapping would have re-opened the
+dropped-attestation attack the correction had just closed. **The mapping now
+names link 4's committed expectation as THE AUTHORITY and the bidirectional log
+comparison as SECONDARY**, and a sweep of the whole packet for every
+authority-of-the-set phrase and every predicate-shaped sentence about what the
+gate compares found four further sites reading in the superseded present tense —
+all corrected, with the round-one narratives kept as history and explicitly
+marked superseded. **This is the new-conjunct sweep this estate keeps paying
+for**: a correction stated in a new paragraph does not retire the wording that
+caused it elsewhere in the packet.
 
 **Why widening and not separate identities.** Separate identities would have
 multiplied the per-task credential population by three for no gain in what any

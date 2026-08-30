@@ -15,7 +15,7 @@ in for a ruleset state.
 
 ## 1. Spec deltas and the packet (THIS PULL REQUEST)
 
-- [x] 1.1 `signed-execution-chain` — **NINE ADDED requirements over 76
+- [x] 1.1 `signed-execution-chain` — **NINE ADDED requirements over 78
       scenarios**: the harness-controller setup attestation under a certificate
       expressed in `add-trust-anchor` vocabulary, with the issuing authority named
       as a realization dependency and never assumed; runner attestations signed AT
@@ -110,9 +110,38 @@ in for a ruleset state.
       and closure bound to the review record's BYTES rather than its AUTHORITY, so
       a fabricated review record could close a chain. Each repair uses an existing
       instrument — attribution stated as what must be ESTABLISHED, the complete
-      set derived from tranche one's log by a defined query, and review authority
-      in `add-wallet-carried-review-authority`'s shipped vocabulary — and each
-      carries its residual DECLARED rather than closed.
+      set derived AT THAT ROUND from tranche one's log by a defined query, and
+      review authority in `add-wallet-carried-review-authority`'s shipped
+      vocabulary — and each carries its residual DECLARED rather than closed.
+      **THE SECOND REPAIR DID NOT HOLD AND WAS REPLACED AT 1.10** — a log query
+      cannot see a leaf that was never written — so the authoritative set is now
+      LINK 4's COMMITTED EXPECTATION, with the log comparison secondary. This box
+      records what round one did and is not a statement of the rule in force.
+- [x] 1.11 **THE THIRD BOT ROUND'S TWO P1 FINDINGS ARE CLOSED, AND RECORDED AS
+      CORRECTIONS** (`design.md` D11a; `proposal.md` § "What the THIRD bot round
+      corrected"). (i) The record-kind enumeration fixed FORM and left SUBJECT
+      unfixed: link 6 is ONE decision committing to EVERY link-5 attestation and
+      link 10 ONE test outcome over the same whole, so a task-scoped signer still
+      could not produce either **once a chain fans out past one task** — the
+      ordinary case had no conforming link 6 through two successive repairs.
+      **TIER 2 NOW SPLITS BY SUBJECT SCOPE**: one chain-scoped identity per chain
+      for the aggregate records, per-task identities shrunk to link 5, both under
+      one custody rule, authority records outside both enumerations forever.
+      Composing N task-scoped decisions was REFUSED on the topic's authoritative
+      link table, which gives link 6 one signed decision. **This DEPARTS from the
+      topic's signer column for links 6 and 10 and is flagged as such**, on D4's
+      footing; tranche one's ratified text defers tier 2's definition to this
+      tranche and imposes only EPHEMERAL and keys-never-in-a-worker, both of which
+      bind the new scope. **No seat return is touched** — every custody passage in
+      the four returns is key-material, and none makes an identity-cardinality
+      claim. (ii) The MODIFIED block's enforcement mapping still said
+      *"log-derived authoritative set"*, contradicting the corrected rule; it now
+      names link 4's committed expectation as THE AUTHORITY with the bidirectional
+      log comparison SECONDARY. **A packet-wide NEW-CONJUNCT SWEEP** over every
+      authority-of-the-set phrase and every predicate-shaped sentence about what
+      the gate compares found four further sites in the superseded present tense,
+      all corrected, with round-one narratives kept as history and marked
+      superseded.
 - [x] 1.10 **THE SECOND BOT ROUND'S TWO P1 FINDINGS ARE CLOSED, AND RECORDED AS
       CORRECTIONS** (`design.md` D11; `proposal.md` § "What the SECOND bot round
       corrected"). Both were one shape, and a DIFFERENT shape from the first
@@ -248,6 +277,14 @@ Each is contract content — cheap now, expensive after a bundle ships.
       WITH tranche one's single digest construction and never beside it.
 - [ ] 4.5 Confirm the extended gate stays **ONE required check walking further**,
       never a second gate.
+- [ ] 4.7 Fix the **chain-scoped identity's issuance and lifetime** — when the
+      controller mints the one chain-scoped tier-2 identity per chain, and when it
+      is destroyed. The requirement fixes that there is EXACTLY ONE per chain
+      identity, that it is ephemeral, that its key stays at the controller's
+      signing boundary, and that its authorized record kinds are links 6 and 10
+      and nothing else; it does not fix the mint point. Settled WITH the per-task
+      identities' lifetime and never beside it, since both are tier 2 under one
+      custody rule.
 - [ ] 4.6 Fix the **per-task reference** the expected attestation set is written
       in — the value link 4 commits to and the link-5 attestation carries back,
       settled WITH tranche one's single digest construction and never beside it.
@@ -308,8 +345,9 @@ Each is contract content — cheap now, expensive after a bundle ships.
       **controller-signed commitment-extension record**, the runner-attestation
       record together with the signing-request record, the PR-open decision
       record, the closure record, the remediation declaration, the per-fact
-      evidence class, and the **closed enumeration of record kinds a per-task
-      tier-2 identity may sign**.
+      evidence class, and **tier 2's TWO SUBJECT SCOPES with their two closed
+      enumerations of authorized record kinds** — per-task (link 5) and
+      chain-scoped (links 6 and 10), with authority records outside both.
 - [ ] 5.5 Packaged POSITIVE and NEGATIVE examples for every named refusal: no
       anchor held, host-held custody offered for hardware-bound assurance, absent
       link 4, empty setup attestation, runner-produced signature, missing signing
@@ -337,7 +375,12 @@ Each is contract content — cheap now, expensive after a bundle ships.
       leaf never written at all, an attestation produced outside the committed
       expectation, a tier-2 identity offered for a record kind outside its closed
       enumeration, and the positive case of that identity signing its task's
-      link-6 and link-10 records.
+      link-6 and link-10 records — **plus the four the third bot round added**: a
+      multi-task fan-out whose single link-6 decision is signed by the chain-scoped
+      identity (the positive case that proves producibility), a per-task identity
+      offered for the PR-open decision, the chain-scoped identity offered for a
+      runner attestation, and a tier-2 identity of EITHER scope offered for an
+      authority record.
 - [ ] 5.6 `scripts/validate-signed-execution-chain.py` extended — one named
       refusal per negative example above.
 - [ ] 5.7 The SAME required pull-request check walks links 1–6. **A merged
