@@ -490,6 +490,17 @@ unimplementable, and `projection.py`'s property 5 said so in as many words.
     decision/evidence packets but selects no Council model or Operator version
     and does not discharge 7.5; it authorizes no implementation, reopens no
     Q8, amends no design, and satisfies no S5 gate.
+  - **RULINGS RECORDED 2026-08-29** ([`rulings-2026-08-29.md`](rulings-2026-08-29.md),
+    R1–R5). Brett ruled the TARGET composition: Option D, all-Anthropic 2:2 —
+    `lead-quality` → `claude-sonnet-5`, `lead-security` and `lead-integration`
+    → `claude-opus-5`, and the tenant declaring `claude-sonnet-5` for
+    `company-policy-lead` in its parallel lane; the Operator plane is direct
+    Anthropic via Claude Code, with the opt-in server-side `fallbacks` beta
+    asserted UNSET. A ruled target is not a Council selection: the Gate-Rules
+    Council's soak-evidenced selection act and the roster-change Lead's
+    `lead_accepted_recorded` acceptance are STILL OWED, and the Council must
+    rule in the same act whether the alias-to-exact flip re-opens the soak. So
+    **7.5 stays UNTICKED** and the flip stays folded into 7.6's runbook walk.
 - [ ] 7.6 **[OPERATOR]** Write the governed re-issuance RUNBOOK for a provider
       alias roll, and walk it once against a deliberate composition bump. Without
       it, one provider release revokes every seat grant at once, every convening
@@ -508,6 +519,16 @@ unimplementable, and `projection.py`'s property 5 said so in as many words.
     re-issuance act, or completion evidence; it selects no Council model or
     Operator version, authorizes no implementation, discharges no task,
     reopens no Q8, amends no design, and satisfies no S5 gate.
+  - **THE RUNBOOK'S TARGET SHAPE IS NOW RULED, 2026-08-29**
+    ([`rulings-2026-08-29.md`](rulings-2026-08-29.md)). R8 fixes the
+    re-issuance record the runbook must produce — superseding grant ref,
+    superseded grant ref, composition hash, ratifying human, effective time,
+    as a MINIMUM and not a ceiling. R9 fixes the in-flight behavior it must
+    describe — a revoked holder PARKS with a named refusal, no
+    grandfathering, no earlier admission stamp honored, resume only under a
+    new human-ratified issuance. Write the runbook against those; neither
+    ruling is enforced until the change carrying R6–R12 is ratified, so this
+    task stays OPEN.
 - [ ] 7.7 **Gate:** a revoked holder parks a convening with a named refusal in a
       rehearsed test; an unreadable register refuses; the runbook has been
       walked once.
@@ -617,6 +638,10 @@ unimplementable, and `projection.py`'s property 5 said so in as many words.
     here; the research report's section 4 "Ruling Of Record"
     (`research/s5-model-version-governance-research-report.md`) mirrors
     this entry.
+    The remaining Packet 4 rulings this ratification did NOT settle —
+    canonical serialization, digest, re-issuance grammar, corpus drift,
+    lifecycle roles, and the signer deferral — are recorded as R6–R12 in
+    [`rulings-2026-08-29.md`](rulings-2026-08-29.md), dated 2026-08-29.
 - [x] 8.2 **[GOVERNANCE]** Rule **Q9** — the floor's source-of-truth inversion.
       Either move the floor's source of truth into a seedable, schema-validated
       `.yaml` carrier and demote the record to evidence, or amend
