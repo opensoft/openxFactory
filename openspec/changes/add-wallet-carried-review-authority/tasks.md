@@ -507,8 +507,9 @@ unimplementable, and `projection.py`'s property 5 said so in as many words.
     **7.5 stays UNTICKED** and the flip stays folded into 7.6's runbook walk.
   - **THE COUNCIL SAT 2026-08-29.** `gate_rules_council` convened on the S5
     seat-to-model selection and returned **UNANIMOUS ACCEPT AS AMENDED, 5/5**,
-    and **UNANIMOUS 5/5 that no slot can carry an unqualified SELECT on today's
-    evidence**. The record of authority is codexFactory
+    and **UNANIMOUS 5/5 that no slot can carry an unqualified SELECT on the
+    evidence before the bench on 2026-08-29**. The record of authority is
+    codexFactory
     `hermes/domain/review-councils/records/2026-08-29-gate-rules-s5-seat-model-selection.md`
     — **its §8 is the sole disposition** — with the verbatim seat returns beside
     it at `hermes/domain/review-councils/records/2026-08-29-seat-returns-s5/`,
@@ -517,17 +518,20 @@ unimplementable, and `projection.py`'s property 5 said so in as many words.
     and the convening packet at
     `hermes/domain/review-councils/convening-packets/2026-08-29-s5-seat-model-selection.md`
     (codexFactory **PR #139**).
-    - **All four pins are CONDITIONAL SELECT**, on the union of the bench's
-      conditions: `lead-quality` → `claude-sonnet-5`, `lead-security` →
-      `claude-opus-5`, and `lead-integration` → `claude-opus-5` **conditional on
-      LA-C3**, the four-class integration soak, being run and recorded first.
-      **No unqualified SELECT was returned by any seat or recorded by the
-      convener.**
+    - **The THREE DOMAIN pins are CONDITIONAL SELECT**, on the union of the
+      bench's conditions (record §8.3): `lead-quality` → `claude-sonnet-5`,
+      `lead-security` → `claude-opus-5`, and `lead-integration` →
+      `claude-opus-5` **additionally conditional on LA-C3**, the four-class
+      integration soak, being run and recorded first (§8.4). **The TENANT slot
+      is not on that union** — see the next bullet. **No unqualified SELECT was
+      returned by any seat or recorded by the convener.**
     - **R4 is an OWED TENANT ACT**, not a completed declaration. Four seats
       measured that the tenant's authority file still reads `model: sonnet` with
       no `claude-` string in it; `company-policy-lead` CONFIRMED the family and
       WITHHELD confirmation of the exact-version act. The tenant edit lands in
       the same change as the domain roster edit — red in either order alone.
+      **It is expressly NOT gated on CPL-C2**: ballot option (b), commissioning
+      CPL's policy case before the tenant act, was declined (record §8.5).
     - **Seven blocking repairs accepted** (R-I…R-VII), chief among them carrying
       the SERVED model read-back into a durable artifact and refusing on
       mismatch; twenty should-fix items accepted as should-fix, not as gates.
