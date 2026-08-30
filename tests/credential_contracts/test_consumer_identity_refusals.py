@@ -367,6 +367,69 @@ def test_a_NON_STRING_KEY_is_reported_rather_than_raised(record):
     assert isinstance(V._semantic_findings(record, INDEX), list)
 
 
+MALFORMED_RECORDS = {
+    "credential_bindings is a list": {
+        "schema_version": 1, "kind": "xfactory_credential_binding_template",
+        "client": {"id": "c"}, "credential_bindings": ["a", "b"]},
+    "credential_bindings is a scalar": {
+        "schema_version": 1, "kind": "xfactory_credential_binding_template",
+        "client": {"id": "c"}, "credential_bindings": "not-a-map"},
+    "requirements is a scalar": {
+        "schema_version": 1, "kind": "xfactory_credential_requirements",
+        "domain": {"id": "d"}, "requirements": 7},
+    "minimum_scopes is a scalar": {
+        "schema_version": 1, "kind": "xfactory_credential_requirements",
+        "domain": {"id": "d"},
+        "requirements": [{"id": "r", "purpose": "p", "access_mode": "dispatch_only",
+                          "minimum_scopes": 3, "allowed_workflows": 4,
+                          "requires_domain_approval": True, "requires_human_approval": False,
+                          "max_grant_minutes": 60, "audit_required": True}]},
+}
+
+
+@pytest.mark.parametrize("shape", sorted(MALFORMED_RECORDS))
+def test_a_MALFORMED_record_is_reported_rather_than_raised(shape):
+    """PR #516, Copilot. A SCHEMA-INVALID record reaches the semantic pass —
+    the two passes run BESIDE each other, not one behind the other — so
+    `credential_bindings: [a, b]` reached `.items()` and raised AttributeError,
+    and `requirements: 7` was iterated. Either aborts the WHOLE repository scan,
+    so one malformed record silenced every finding about every other file.
+
+    Same class as the sorted-keys crash, same answer: report, never raise."""
+    record = MALFORMED_RECORDS[shape]
+    assert isinstance(V._semantic_findings(record, INDEX), list)
+    assert isinstance(V._deprecation_warnings(record), list)
+    assert isinstance(V.requirements_index({"r.yaml": record}), dict)
+
+
+def test_the_schema_error_sort_survives_non_string_keys(tmp_path):
+    """PR #516, Copilot. Error paths from a record with `1: foo` mix ints and
+    strings at one position, and a bare sort over those raises — turning a
+    SCHEMA ERROR into a crash, which is the one outcome worse than a wrong
+    verdict."""
+    import subprocess
+    import sys
+    repo = tmp_path / "domain"
+    (repo / "credentials").mkdir(parents=True)
+    (repo / "credentials" / "b.yaml").write_text(
+        "schema_version: 1\n"
+        "kind: xfactory_credential_binding_template\n"
+        "client:\n  id: c\n"
+        "credential_bindings:\n"
+        "  1:\n"
+        "    provider: p\n"
+        "    secret_ref: s\n"
+        "    owner: o\n"
+        "    rotation_policy: rp\n"
+        "    consumer:\n"
+        "      2: an int member\n")
+    result = subprocess.run(
+        [sys.executable, str(ROOT / "scripts" / "validate-credential-contracts.py"), str(repo)],
+        capture_output=True, text=True, check=False)
+    assert "Traceback" not in result.stderr, result.stderr
+    assert result.returncode in (0, 1), result.stdout + result.stderr
+
+
 def test_an_overlong_document_reference_does_not_resolve():
     doc = _conforming_pair()
     overlong = "credentials/" + ("a" * 400) + ".yaml"

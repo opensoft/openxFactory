@@ -193,6 +193,23 @@ def _is_document_ref(value: object) -> bool:
             and bool(DOCUMENT_REF.fullmatch(value)))
 
 
+def _mapping(value: object) -> dict:
+    """The value as a mapping, or an empty one. A SCHEMA-INVALID record reaches
+    the semantic pass — the two passes run BESIDE each other, not one behind the
+    other — so `credential_bindings: [a, b]` would otherwise reach `.items()`
+    and raise AttributeError, aborting the whole repository scan. The crash
+    class Codex found on sorted keys is the same class Copilot then found on
+    assumed types; both are answered the same way: report, never raise."""
+    return value if isinstance(value, dict) else {}
+
+
+def _sequence(value: object) -> list:
+    """The value as a list, or an empty one — `requirements: 7` iterated is a
+    TypeError, and a scan that dies on one malformed record reports nothing
+    about the rest of the tree."""
+    return value if isinstance(value, list) else []
+
+
 def _consumer(binding: object) -> object:
     """The raw `consumer:` value, whatever shape it is. The block is UNCONSTRAINED
     at this minor, so this deliberately returns scalars and lists too."""
@@ -275,7 +292,7 @@ def requirements_index(documents: dict[str, dict]) -> dict[str, list[dict]]:
     for rel, doc in documents.items():
         if not isinstance(doc, dict) or doc.get("kind") != "xfactory_credential_requirements":
             continue
-        reqs = [r for r in (doc.get("requirements") or []) if isinstance(r, dict)]
+        reqs = [r for r in _sequence(doc.get("requirements")) if isinstance(r, dict)]
         index[rel] = reqs
     return index
 
@@ -439,7 +456,7 @@ def _binding_findings(doc: dict, index: dict[str, list[dict]]) -> list[str]:
     shared-secret refusal with its six-condition lift, and the distinct
     shared-authority finding."""
     out: list[str] = []
-    bindings = [(n, b) for n, b in (doc.get("credential_bindings") or {}).items()
+    bindings = [(n, b) for n, b in _mapping(doc.get("credential_bindings")).items()
                 if isinstance(b, dict)]
 
     # THE SCREEN, over THREE sinks rather than one. `secret_ref` was the only
@@ -521,19 +538,19 @@ def _semantic_findings(doc: dict, index: dict[str, list[dict]] | None = None) ->
     kind = doc.get("kind")
     out: list[str] = []
     if kind == "xfactory_credential_requirements":
-        for req in doc.get("requirements") or []:
+        for req in _sequence(doc.get("requirements")):
             if not isinstance(req, dict):
                 continue
             rid = req.get("id", "<?>")
             out.extend(_issuance_precondition_findings(rid, req))
             if req.get("access_mode") != "dispatch_only":
                 continue
-            bad = [s for s in (req.get("minimum_scopes") or []) if s not in DISPATCH_SCOPES]
+            bad = [s for s in _sequence(req.get("minimum_scopes")) if s not in DISPATCH_SCOPES]
             if bad:
                 out.append(f"dispatch-scope-ceiling: requirement {rid!r} is dispatch_only but "
                            f"requests non-trigger scope(s) {bad}; a dispatch credential carries no "
                            f"contents authority (allowed: {sorted(DISPATCH_SCOPES)})")
-            if len(req.get("allowed_workflows") or []) > 1:
+            if len(_sequence(req.get("allowed_workflows"))) > 1:
                 out.append(f"dispatch-one-workflow: requirement {rid!r} is dispatch_only but names "
                            f">1 allowed_workflow; a dispatch credential triggers exactly one")
     elif kind == "xfactory_credential_binding_template":
@@ -643,7 +660,7 @@ def _deprecation_warnings(doc: dict) -> list[tuple[str, str]]:
     kind = doc.get("kind")
     out: list[tuple[str, str]] = []
     if kind == "xfactory_credential_requirements":
-        for req in doc.get("requirements") or []:
+        for req in _sequence(doc.get("requirements")):
             if not isinstance(req, dict):
                 continue
             mode = req.get("access_mode")
@@ -657,7 +674,7 @@ def _deprecation_warnings(doc: dict) -> list[tuple[str, str]]:
                             f"unreadable mode as UNAVAILABLE, and the `enum` lands at "
                             f"{MAJOR_RELEASE}"))
     elif kind == "xfactory_credential_binding_template":
-        for name, binding in (doc.get("credential_bindings") or {}).items():
+        for name, binding in _mapping(doc.get("credential_bindings")).items():
             if not _is_identifier(name):
                 out.append(("consumer-binding-key-grammar",
                             f"credential_bindings key {name!r} is outside the identifier grammar "
@@ -831,7 +848,12 @@ def main() -> None:
     # PASS TWO: adjudicate.
     for rel, doc in parsed:
         checked += 1
-        for err in sorted(validator.iter_errors(doc), key=lambda e: list(e.absolute_path)):
+        # `repr` per path element: a record with non-string mapping keys
+        # (`1: foo`) produces error paths that mix ints and strings at one
+        # position, and a bare sort over those raises — turning a SCHEMA
+        # ERROR into a crash (PR #516, Copilot).
+        for err in sorted(validator.iter_errors(doc),
+                          key=lambda e: [repr(p) for p in e.absolute_path]):
             loc = "/".join(str(p) for p in err.absolute_path) or "<root>"
             # oneOf noise: report the sub-errors that are not kind mismatches
             if err.validator == "oneOf":
