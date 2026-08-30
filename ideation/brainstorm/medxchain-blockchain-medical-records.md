@@ -213,9 +213,14 @@ current text does not yet name, and one framing worth stating explicitly:
   Blockchain Logging section logs "failed attempts" alongside views,
   edits, and admin actions — auditing verification and access ATTEMPTS,
   not only successful writes. `signed-execution-chain`'s ten links are
-  framed around what was signed and produced; MedxChain's instinct to log
-  failed and attempted access is a scenario tranche 3's contract text
-  should carry explicitly alongside the successful-access case.
+  framed around what was signed and produced, so the neutral hook
+  tranche 3's contract text should carry explicitly is a generic
+  verification-ATTEMPT scenario alongside the successful-access case —
+  not MedxChain's own patient-record access and failed-access-attempt
+  logging, which is the domain-specific clinical audit case named above
+  (Medx clinical-use event family) and routes to the HealthLinc/
+  MedxFactory domain realization, not into this neutral family's
+  contract text.
 - **MedxChain as the MedxFactory-domain instantiation.** `signed-execution-chain`'s
   claim 2 names **HealthLinc** as the patient-facing app through which a
   ratified treatment plan is "merged" (pushed to the patient app, or
