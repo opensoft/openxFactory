@@ -1,10 +1,11 @@
 # Tasks: add-chain-anchoring (tranche three)
 
 Governance-level and dependency-ordered. **This change is a DRAFT and is NOT
-being implemented now.** §1 is authored in this pull request; **§2 is the §7.4
-council review and §3 is Brett Heap's ratification act, and BOTH ARE OPEN**; §4
-onward are for the implementer and belong to Speckit contract features. Do not
-duplicate the executable contract list here — §6 hands off the successors.
+being implemented now.** §1 is authored in this pull request; **§2 — the §7.4
+council review — is COMPLETE as of 2026-08-30, and §3, Brett Heap's ratification
+act, IS THE NEXT ACT AND IS OPEN**; §4 onward are for the implementer and belong
+to Speckit contract features. Do not duplicate the executable contract list
+here — §6 hands off the successors.
 
 **RATIFICATION IS NOT SOUGHT BY THIS PACKET'S LANDING.** The order is: land the
 draft, convene the council OUTSIDE the clearance pipeline, record the sitting in
@@ -21,7 +22,9 @@ standing in for a ruleset state.
 
 ## 1. Spec deltas and the packet (THIS PULL REQUEST)
 
-- [x] 1.1 `chain-anchoring` — **NINE ADDED requirements over 52 scenarios**, in
+- [x] 1.1 `chain-anchoring` — **NINE ADDED requirements over 60 scenarios** (52
+      at the head the council judged, `cf5a24b8`; the 2026-08-30 fix round of
+      §2.4 added eight and no requirement), in
       the order the exit path requires: the multi-anchor receipt FIRST, then the
       ruled two-witness configuration, the missing-witness semantics, anchor-late,
       the commitment boundary with its refusing validator, the permissioned
@@ -62,33 +65,98 @@ standing in for a ruleset state.
       to it (the cross-plane join key) recorded as a correction rather than
       folded in silently.
 
-## 2. §7.4 COUNCIL REVIEW — OPEN, and it precedes ratification
+## 2. §7.4 COUNCIL REVIEW — HELD AND DISPOSED 2026-08-30; it preceded ratification
 
-- [ ] 2.1 Convene a §7.4-shaped council on this packet, **OUTSIDE the clearance
+- [x] 2.1 Convene a §7.4-shaped council on this packet, **OUTSIDE the clearance
       pipeline**. The ground is measured and code-level: a class over
       `openspec/changes/**` can never commission a council — 984 admitted paths,
       984 floored, 0 remaining on this repository's real tree — so the review
       reaches this repository on the council-reviewed-but-human-approved path,
       which needs no class and no flip (2026-08-28 `gate_rules_council` convening
-      record, unanimous 5/5).
-- [ ] 2.2 Put the six AUTHORING DECISIONS to the seats explicitly (proposal
+      record, unanimous 5/5). **HELD 2026-08-30**, four seats returning —
+      `lead-architect`, `lead-security`, `lead-quality`, `company-policy-lead` —
+      judged at this packet's head `cf5a24b8`. It was a COMBINED sitting over
+      #510, #513 and #509, and the disposition RULES THAT INSTRUMENT WRONG
+      (item 9): future sittings split, the chain pair together. That ruling is
+      against the convening and not against this packet.
+- [x] 2.2 Put the six AUTHORING DECISIONS to the seats explicitly (proposal
       § Authoring decisions put to the council): **D-A** the missing-witness
       semantics, **D-B** the structural payload refusal, **D-C** the
       declared-construction commitment refusal and its declared residual, **D-D**
       the change id and capability name, **D-E** deferring the permissioned-ledger
       selection to realization, **D-F** the per-plane key correction to a vendored
-      source. D-A is the largest and should be read first.
-- [ ] 2.3 Record the sitting in `review/`, on `add-binding-consumer-identity`'s
+      source. D-A is the largest and should be read first. **All six were put and
+      all six returned**; a SEVENTH decision this line did not carry was added by
+      the convening as ballot C-1 and is 2.5 below.
+- [x] 2.3 Record the sitting in `review/`, on `add-binding-consumer-identity`'s
       pattern: seats, verdicts, blocking amendments, and the convener disposition.
       The directory is CREATED WITH THAT RECORD — this packet ships no empty
       `review/`, because an empty one would assert a sitting that has not
-      happened.
-- [ ] 2.4 Execute the amendment round the sitting returns, and re-run §1.4 and
-      §1.5 against the amended text.
+      happened. **DISCHARGED IN FULL**: `review/` carries the convening packet,
+      the ballot exactly as put (unedited, its two preserved convening errors
+      included), the four verbatim seat returns — **which GOVERN over every
+      summary** — the council record, and
+      **`review/disposition-2026-08-30.md`, the SOLE disposition of record**,
+      carried byte-identically in #510's bundle so one act cannot become two.
+      Verdicts on this packet: **ACCEPT** from `lead-architect`; **ACCEPT AS
+      AMENDED** from `lead-security`, `lead-quality`, and `company-policy-lead`
+      within its charter only.
+- [x] 2.4 Execute the amendment round the sitting returns, and re-run §1.4 and
+      §1.5 against the amended text. **EXECUTED 2026-08-30 against the ruled
+      ballot — "accept all fifteen as recommended, 14 folds into the fix
+      rounds".** This packet's blocking set is THREE (disposition §5) and all
+      three are discharged, plus the one crossing bot finding item 14 folded in:
+      * **LS-A5** — the receipt now carries the CONFIGURED WITNESS SET AT MINT
+        TIME, so a one-entry receipt is self-evidently incomplete to an
+        independent holder and the fail-closed disclosure travels with the
+        artifact. Configuration, not status; the receipt/state split is intact.
+      * **LS-A6** — requirement 5 gains a KEY CUSTODY REFERENCE on the salt's
+        footing (with a shared-across-planes refusal) and a DECLARED SALT SOURCE
+        AND WIDTH with a refusal below 128 bits. These are the two parameters
+        Q6's erasure property rests on.
+      * **LQ-A5, its #513 limb** (disposition item 5) — the wrong *"eighteen
+        months"* is STRUCK from requirement 9 rather than restated, on the seat's
+        own alternative, since the requirement does not depend on the interval
+        and a derived figure in normative text is how the error propagated in the
+        first place. **Two seats measured the same gap and got different
+        answers** — `lead-quality` 21 whole months (657 days, LQ-F4),
+        `company-policy-lead` ~22 (CPL-A1, should-fix) — which is a further
+        reason not to seat a contested arithmetic in contract text. The measured
+        interval belongs to #509's own fix round, where it is provenance.
+      * **The crossing Codex P2**, *"Require de-identification before treating
+        metadata as reusable"* — requirement 8 now separates what plane
+        separation delivers from what it does not, refuses the de-identified
+        label on the strength of separation alone, and leaves the named
+        determination to the domain overlay.
+      SHOULD-FIX items (LA-A7, LS-A7/A8/A9, LQ-A10/A11/A12/A14, CPL-A5) are
+      **UNDISPOSED by the ruling and stay open** — disposition §6 says so
+      expressly, and no silence here rules them.
+- [x] 2.5 **THE ANCHOR-LATE NARROWING IS ROUTED, NOT ONLY RECORDED.** The staged
+      topic's constraint — *"anchoring LATE (commit only what has been
+      validated)"*,
+      `ideation/staging/signed-execution-chain/signed-execution-chain.md:471-478`,
+      sitting in that topic's `## Conflicts` section and reached by none of its
+      seven Q-dispositions — is NARROWED by this packet (requirement 4, design
+      D8). **2.2 did not put it to the seats, so the convening added it as ballot
+      C-1**, and it was RULED at disposition item 6: **(i) correct and faithfully
+      recorded — the narrowing stands.** The ruling's other half is a standing
+      rule on FUTURE packets: a packet that narrows a staged topic's constraint
+      SHALL ROUTE the narrowing to its council as an explicit decision rather
+      than merely record it (`review/disposition-2026-08-30.md` §3.1;
+      `review/council-review-2026-08-30.md` §8.1). Recorded here because
+      **recorded is not ruled**, and a `## Conflicts` section carries unruled
+      material by design.
 
-## 3. Ratification gate — Brett Heap's act, AFTER the review
+## 3. Ratification gate — Brett Heap's act, AFTER the review — THIS IS NEXT
 
-- [ ] 3.1 Brett Heap ratifies or declines, having read the council record.
+**The review is behind this line and the ratification is in front of it.** The
+2026-08-30 disposition authorized fix rounds and **ratifies nothing**: *"It
+ratifies nothing, merges nothing, and moves no contract byte"* (§6). §2 is now
+discharged, so 3.1 is the next act on this packet.
+
+- [ ] 3.1 Brett Heap ratifies or declines, having read the council record
+      (`review/council-review-2026-08-30.md`), the disposition
+      (`review/disposition-2026-08-30.md`) and this fix round.
       Ratification would authorize REALIZATION and would perform none of it.
 - [ ] 3.2 On ratification: `target_release` is CONFIRMED against
       `contracts/manifest.yaml` at that tip rather than at this one, and remains
@@ -101,26 +169,38 @@ standing in for a ruleset state.
 ## 4. Realization — the contract family and its validator
 
 - [ ] 4.1 `contracts/chain-anchoring/` — the multi-anchor receipt record (four
-      per-chain elements plus the declared header source), the log-checkpoint
-      anchor record with its never-read-as-validation disclaimer, the
-      anchor-bound commitment record, the anchor-state record (per-witness, with
-      declared horizons and NO aggregate boolean), the consent-checkpoint
-      commitment record, and the plane-separation declaration.
+      per-chain elements, the declared header source, and the CONFIGURED WITNESS
+      SET AT MINT TIME, which the receipt carries or commits to), the
+      log-checkpoint anchor record with its never-read-as-validation disclaimer,
+      the anchor-bound commitment record (declared construction, SALT and KEY
+      custody references, declared salt source and width), the anchor-state
+      record (per-witness, with declared horizons and NO aggregate boolean), the
+      consent-checkpoint commitment record, and the plane-separation
+      declaration.
 - [ ] 4.2 Packaged POSITIVE and NEGATIVE examples for every named refusal — a
       receipt missing inclusion proof; a receipt missing transaction bytes; a
       receipt missing chain-acceptance evidence; a receipt whose header is
       non-canonical; a verification run against a minter-supplied header source;
+      **a receipt carrying no configured witness set**; **a captured receipt
+      whose configured witness set was rewritten to match its entries**;
       a checkpoint inclusion presented as validation; a
       single-witness item presented as anchored; a per-item selectivity rule; a
       third anchor target; a content-bearing field; ciphertext; an absent
       construction declaration; an honestly-declared plain digest; a salt custody
-      reference resolving onto a chain; a per-subject consent row offered for
-      anchoring; an attempt row offered for direct anchoring; a
-      direct identifier in the demographic plane; a shared cross-plane key; a
-      domain record kind; an overlay relaxing a neutral refusal.
+      reference resolving onto a chain; **a construction declaring no salt source
+      or width**; **a declared salt width below the floor**; **a KEY custody
+      reference resolving onto a chain or into the anchored record**; **a
+      commitment key shared across planes**; a per-subject consent row offered
+      for anchoring; an attempt row offered for direct anchoring; a
+      direct identifier in the demographic plane; a shared cross-plane key;
+      **a plane-separated analysis result labelled de-identified**; a
+      domain record kind; an overlay relaxing a neutral refusal. The bolded
+      entries are the refusals the 2026-08-30 fix round added.
 - [ ] 4.3 `scripts/validate-chain-anchoring.py` — the canonical refusing
       validator. The payload refusal is STRUCTURAL (D3); the unsalted-commitment
-      refusal is by DECLARED CONSTRUCTION plus salt-custody resolution (D4).
+      refusal is by DECLARED CONSTRUCTION plus salt-custody resolution, KEY-
+      custody resolution, and the declared salt source and width against the
+      floor (D4, as amended by LS-A6).
 - [ ] 4.4 **The declared residual of D4 is discharged or DECLARED**: establish
       that the commitment path is the ONLY path that can mint an anchor-bound
       value, so an undeclared construction is unreachable; a realization that

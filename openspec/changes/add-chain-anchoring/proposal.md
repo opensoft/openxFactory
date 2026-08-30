@@ -307,7 +307,8 @@ the packet, and a sweep is part of the fix.
 ### New Capabilities
 
 - `chain-anchoring`: the neutral public anchoring layer and the permissioned
-  consent plane, **NINE ADDED requirements over 52 scenarios**, no `## MODIFIED
+  consent plane, **NINE ADDED requirements over 60 scenarios** (52 at the head
+  the council judged; the 2026-08-30 fix round added eight), no `## MODIFIED
   Requirements` block anywhere — a chain-agnostic multi-anchor receipt defined
   FIRST and refused at capture time if any of its four per-chain elements is
   missing; the ruled two-witness configuration with no selectivity and no third
@@ -401,3 +402,15 @@ divergence the record itself already reconciles, in the direction it names.
    `add-binding-consumer-identity`'s pattern.
 3. **Brett Heap ratifies, or does not**, after that review. Ratification would
    authorize realization and would perform none of it.
+
+**STEPS 1 AND 2 ARE DONE; STEP 3 IS WHAT IS NOW OPEN.** The council sat
+**2026-08-30** — four seats, judged at head `cf5a24b8` — and returned ACCEPT
+(`lead-architect`) and ACCEPT AS AMENDED (`lead-security`, `lead-quality`,
+`company-policy-lead` within its charter). Brett Heap ruled the ballot *"accept
+all fifteen as recommended, 14 folds into the fix rounds"*, which accepted this
+packet's **three blocking amendments** — LS-A5, LS-A6, and LQ-A5's #513 limb —
+and folded in one crossing bot finding. **All four are discharged in this
+packet** (`tasks.md:2.4`), and the whole sitting is in `review/`, where
+`review/disposition-2026-08-30.md` is the sole disposition of record and the
+verbatim seat returns govern over every summary of them, this one included.
+**The ruling authorized a fix round and ratified nothing.**

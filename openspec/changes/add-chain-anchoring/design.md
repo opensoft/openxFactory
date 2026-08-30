@@ -158,6 +158,23 @@ transit does not finish. An item that never reaches both witnesses never becomes
 anchored — it stays visibly, permanently incomplete, and says which witness it
 lacks.
 
+**AMENDED BY THE §7.4 COUNCIL, 2026-08-30 — `lead-security`'s LS-A5, BLOCKING,
+accepted at disposition item 3.** The split above was right and INCOMPLETE at the
+composition seam: because the receipt is stateless by design, a one-entry receipt
+in an independent holder's hands is byte-indistinguishable from a receipt minted
+under a one-witness configuration, so the fail-closed disclosure this decision
+writes did not TRAVEL with the artifact requirement 1 exists to make
+independently checkable. It lived only in the minter's anchor-state record, and
+consulting the minter is the one thing an independent verifier cannot be asked to
+do. **The discharge is the seat's own and it does not disturb the split**: the
+receipt now carries the CONFIGURED WITNESS SET AT MINT TIME, which is
+CONFIGURATION rather than "what has not happened yet", so the receipt still holds
+no status — and a per-chain list shorter than that set is incomplete on its face,
+with the missing witnesses readable as the difference. The set is fixed at mint
+time and rewriting it to match the entries present is refused, since that edit is
+exactly how a missing witness would be laundered into a one-witness
+configuration.
+
 ## D3 — The payload refusal is STRUCTURAL, and that is what makes it neutral
 
 Q2 ruled the boundary is drawn as contract text with a validator that refuses a
@@ -235,6 +252,24 @@ handle that could still be verified would still be a handle to a person. A
 surface offering erasure states the loss before performing it, because a subject
 choosing erasure is choosing to give up their own future ability to prove the
 record.
+
+**AMENDED BY THE §7.4 COUNCIL, 2026-08-30 — `lead-security`'s LS-A6, BLOCKING,
+accepted at disposition item 3.** The seat drove Q6 in both directions and found
+the decision honest in the overclaim direction and short in the understatement
+one: **the erasure property is the authority for this whole narrowing, and it
+rested on two parameters the contract never fixed.** (i) The commitment is KEYED
+and the decision above custodies only the SALT — a realization could hold the
+commitment KEY on chain, inside the anchored record, or shared across planes, and
+no drafted check refused it, while requirement 8 was already careful to demand
+per-plane keys under per-plane salts. The packet knew the shape and applied it in
+one place only. (ii) *"Salted"* carried NO ENTROPY FLOOR: an eight-bit salt
+passes every check written above and is exhaustible, so the mechanism was
+asserted against the exact attack its own EDPB citation names — the guessable
+input. **The discharge is the seat's**: a KEY CUSTODY REFERENCE on the salt's
+footing with the same three refusals plus a shared-across-planes refusal, and a
+declared salt SOURCE and WIDTH with a refusal below 128 bits. Neither adds a
+second custody vocabulary; both are this decision's own rule applied to the
+parameters it left out.
 
 ## D5 — Where the identity plane sits, and why the permissioned ledger is NOT selected here
 
@@ -326,6 +361,27 @@ named as a correction to a vendored source rather than folded silently into a
 requirement — the source is Brett Heap's own design sketch, and a packet that
 quietly improved it would leave him no way to see that it had.
 
+**AMENDED 2026-08-30 BY A BOT FINDING THE DISPOSITION FOLDED INTO THIS FIX ROUND
+(disposition §4, item 14) — and it crosses because requirement 8 carries this
+lane.** Codex, reviewing the vendored notes on pull request #509, found that
+querying the record and demographic planes WITHOUT the identity plane does not
+make the result de-identified: the attributes that remain can single out a person
+and can link back to a record, and the estate requires a NAMED de-identification
+determination rather than an assumed one
+(`docs/knowledge-lifecycle-model.md`, the de-identify gate — *"the privacy
+boundary … a named gate, not an assumed property"*). Describing the lane as
+*"already supported"* could let a realization treat the output as reusable and
+bypass that boundary. **The consequence taken here**: requirement 8 now states
+what plane separation DOES buy (no direct identifier, no cross-plane join key,
+the identity plane not required) and what it does NOT (a de-identified result),
+refuses the de-identified label on the strength of separation alone, and leaves
+the determination to the DOMAIN OVERLAY — this capability naming no standard for
+it, since a determination standard is domain law and naming one would breach
+requirement 9. **This is the crossing the
+disposition names**: a privacy-boundary claim corrected in #509's brainstorm
+colour and left standing in this packet's requirement text would reproduce the
+error in governed text, which is LQ-A5's failure mode exactly.
+
 ## D8 — An anchored checkpoint witnesses the LOG, it does not validate a LEAF
 
 **Raised by Codex on this packet's own pull request, and it is a real
@@ -361,6 +417,23 @@ PROTECTS — that a false attestation must not become permanently backed by a ch
 as valid — is honoured by the split plus the never-read-as-validation rule. A
 topic's constraint is not a packet's to quietly reinterpret, so the narrowing is
 in the requirement text, here, and in the pull-request record.
+
+**AND RECORDING IT WAS NOT ENOUGH — IT IS NOW ROUTED, WHICH IS THE OTHER HALF.**
+The constraint is the staged topic's, at
+`ideation/staging/signed-execution-chain/signed-execution-chain.md:471-478`, in
+its `## Conflicts` section — where two of the three conflicts carry disposition
+stamps and this one does not, and none of the topic's seven Q-dispositions
+reaches it, so **a constraint sitting inside a fully-ruled topic was not thereby
+ruled**. This packet narrowed it and put six authoring decisions to its council
+(`tasks.md:2.2`) WITHOUT this one; the convening had to add it as ballot **C-1**.
+It was then RULED at disposition item 6 — **(i) correct and faithfully
+recorded** — and the ruling produced a standing rule for future packets: **a
+packet that NARROWS a constraint carried in a staged topic SHALL ROUTE the
+narrowing to its council as an explicit decision, not merely RECORD it in its own
+text** (`review/disposition-2026-08-30.md` §3.1;
+`review/council-review-2026-08-30.md` §8.1). The rule is this packet's own
+sentence, now binding — and it is a process obligation on future packets, **not**
+a defect finding against this narrowing, which stands.
 
 **Rejected: a second, validated-only tree whose checkpoints are the anchored
 ones.** It would satisfy the literal constraint, and it would cost a second log,

@@ -7,12 +7,13 @@
 openxFactory SHALL define the anchor receipt as a CHAIN-AGNOSTIC MULTI-ANCHOR
 record before it defines any anchor target, and SHALL express every anchor this
 capability ever mints in that one format. The receipt is: the anchored DIGEST,
-then the AGGREGATION MERKLE PATH from that digest to the aggregated root, then a
-PER-CHAIN LIST whose every entry carries — for that chain — the ANCHOR
-TRANSACTION BYTES, the TRANSACTION-TO-BLOCK OR DAG INCLUSION PROOF, the BLOCK
-HEADER, and the CHAIN-ACCEPTANCE EVIDENCE defined below. All four per-chain
-elements are CAPTURED WHOLE AT ANCHOR TIME and stored in the receipt; none of
-them is a lookup deferred to verification time.
+then the AGGREGATION MERKLE PATH from that digest to the aggregated root, then
+the CONFIGURED WITNESS SET AT MINT TIME defined below, then a PER-CHAIN LIST
+whose every entry carries — for that chain — the ANCHOR TRANSACTION BYTES, the
+TRANSACTION-TO-BLOCK OR DAG INCLUSION PROOF, the BLOCK HEADER, and the
+CHAIN-ACCEPTANCE EVIDENCE defined below. All four per-chain elements are
+CAPTURED WHOLE AT ANCHOR TIME and stored in the receipt; none of them is a
+lookup deferred to verification time.
 
 **A TRANSACTION REFERENCE PLUS A HEADER IS NOT A PROOF, AND THIS FORMAT REFUSES
 TO PRETEND IT IS.** A block header commits only to a transaction root, so a
@@ -43,6 +44,32 @@ the verifier can independently reach, never a header this capability handed it.
 A realization SHALL declare which header source its verification uses; a
 verification performed against a header source supplied by the same party that
 minted the receipt is REFUSED, because it proves only self-consistency.
+
+**AND THE RECEIPT NAMES THE CONFIGURATION IT WAS MINTED UNDER, SO THE
+INCOMPLETENESS TRAVELS WITH THE ARTIFACT.** Every receipt SHALL carry the
+CONFIGURED WITNESS SET AT MINT TIME — the witnesses the anchoring configuration
+demanded of this item at the moment the receipt was minted — and a receipt
+offered without it SHALL BE REFUSED AT CAPTURE TIME on the same footing as a
+missing inclusion proof. The reason is that this receipt is handed to
+independent parties: without the configured set, a receipt whose per-chain list
+holds ONE entry is byte-indistinguishable from a receipt minted under a
+one-witness configuration, and a holder who cannot reach the minter cannot tell
+"one witness because the other was unreachable" from "one witness by design".
+**A per-chain list shorter than the configured witness set SHALL therefore be
+read as INCOMPLETE by any verifier, from the receipt alone**, with the missing
+witnesses named as the difference between the two — no consultation of the
+minter's anchor-state record, and no service only the minter can run.
+
+**THE CONFIGURED SET IS CONFIGURATION AND NOT STATUS, WHICH IS WHY IT CAN LIVE
+IN A STATELESS RECEIPT.** It records what was DEMANDED at mint time, never what
+has or has not happened since, so the receipt still carries no field describing
+work in flight and the receipt/state split of the requirements below is
+undisturbed. The set is FIXED AT MINT TIME: a realization that rewrites a
+captured receipt's configured witness set to match the entries actually present
+SHALL BE REFUSED, because that edit silently converts a missing witness into a
+one-witness configuration and destroys the only signal an independent holder
+has. Where the receipt is stored as a companion object rather than one blob, the
+receipt SHALL COMMIT to the configured set, so the same tamper is detectable.
 
 **THE RECEIPT IS WHY ANCHOR SELECTION IS REVERSIBLE, AND THAT IS ITS PURPOSE
 RATHER THAN A SIDE EFFECT.** Anchor targets SHALL be addable and droppable by
@@ -88,6 +115,25 @@ exit path names building the receipt first for exactly this reason.
 - WHEN a new anchor target is adopted by a ruling
 - THEN the per-chain list of receipts minted afterwards gains an entry and the receipt FORMAT is unchanged
 - AND no earlier receipt is rewritten to claim a witness it never had
+- AND an earlier receipt stays COMPLETE against the configured witness set IT was minted under, because that set is what its own completeness is judged against
+
+#### Scenario: a one-entry receipt reaches a holder who cannot reach the minter
+
+- WHEN a receipt carrying ONE per-chain entry and a configured witness set naming TWO witnesses is verified by an independent party
+- THEN the verification returns INCOMPLETE and names the missing witness as the difference between the configured set and the per-chain list
+- AND the answer is reached from the receipt alone, without consulting the minter's anchor-state record
+
+#### Scenario: a receipt is offered with no configured witness set
+
+- WHEN a receipt is offered whose per-chain entries are whole but which names no configured witness set
+- THEN it is REFUSED AT CAPTURE TIME, on the same footing as a missing inclusion proof
+- AND the refusal names the missing configured set rather than accepting a receipt whose completeness no independent holder could judge
+
+#### Scenario: a captured receipt's configured witness set is rewritten to match its entries
+
+- WHEN a one-entry receipt minted under a two-witness configuration has its configured witness set edited afterwards to name one witness
+- THEN it is REFUSED, because the set is fixed at mint time and the edit converts a missing witness into a one-witness configuration
+- AND where the set is held as a companion object, the receipt's commitment to it is what makes the edit detectable
 
 #### Scenario: a receipt is verified after its operational chain has pruned
 
@@ -130,7 +176,11 @@ decide wrong about the item that matters. There is likewise no aggregate
 ANCHOR-STATE record, which is where every surface reads it, so no single true
 value can stand where a witness is missing. The RECEIPT holds proof material and
 never state: it gains a per-chain entry when that chain's material is captured
-whole, and carries no field describing what has not happened yet.
+whole, and carries no field describing what has not happened yet. What the
+receipt DOES carry is the CONFIGURED WITNESS SET IT WAS MINTED UNDER, required
+by the requirement above — configuration rather than status, and the reason a
+holder of the receipt alone can tell a MISSING witness from a one-witness
+configuration.
 
 **THE CONFIGURATION NAMES EXACTLY TWO ANCHOR CHAINS, AND A THIRD IS A RULING AND
 NOT AN IMPLEMENTATION CHOICE.** Q3 ruled no third chain. This requirement
@@ -222,6 +272,17 @@ digest the receipt already commits to; there is no state in which a receipt
 carries an entry missing any of its four elements, and the receipt requirement
 above refuses such an entry at capture time exactly as written.
 
+**AND THE DISCLOSURE IS NOT A SERVICE ONLY THE MINTER CAN RUN.** This
+requirement's `anchor_incomplete` answer is given by the party holding the
+anchor-state record, and an anchored item's whole purpose is to be checkable by
+someone who holds only the receipt. The CONFIGURED WITNESS SET the receipt
+carries is what lets that holder reach the SAME conclusion independently: a
+per-chain list shorter than the configured set is incomplete, with the missing
+witnesses named as the difference. A verification run against the receipt alone
+SHALL therefore return `anchor_incomplete` in exactly the case this requirement
+names, and SHALL NOT return a bare pass on the strength of the entries that are
+present.
+
 **THE INCOMPLETENESS IS ITSELF EVIDENCE, SO A SILENT GAP IS IMPOSSIBLE.** Entry
 into `anchor_pending`, every horizon breach, and the eventual completion SHALL
 each be written as a leaf in the evidence plane. Past its horizon an item stays
@@ -249,6 +310,7 @@ stops it becoming a habit.
 - WHEN an external party verifies an item that is `anchor_incomplete`
 - THEN the verification returns `anchor_incomplete` naming the missing witnesses
 - AND it returns neither a bare pass nor a bare fail, because the record supports neither answer
+- AND a party holding only the receipt reaches the same answer from the receipt's configured witness set, without the anchor-state record
 
 #### Scenario: a witness outage is proposed as a reason to hold the gate
 
@@ -320,7 +382,10 @@ append-only log whose checkpoints commit to every prefix. What the constraint
 PROTECTS — that a false attestation must not become permanently backed by a
 chain as valid — is honoured by the item/checkpoint split above and by the
 never-read-as-validation rule. The narrowing is raised here rather than applied
-silently, because a topic's constraint is not a packet's to quietly reinterpret.
+silently, because a topic's constraint is not a packet's to quietly reinterpret
+— and it was ROUTED to this change's §7.4 council as an explicit decision rather
+than left recorded in this text, and RULED CORRECT AND FAITHFULLY RECORDED by
+the convener on 2026-08-30.
 
 **A RETRACTION IS A NEW LEAF AND A NEW ANCHOR, NEVER AN ERASURE.** Where
 anchored material is later found wrong, the correction SHALL be recorded and
@@ -391,13 +456,38 @@ the boundary, and the structural refusal reaches all three.
 CANNOT TELL YOU.** A salted keyed commitment and a plain digest of the same
 record are INDISTINGUISHABLE BY INSPECTION — both are opaque values of the same
 width — so this capability SHALL require every anchor-bound commitment to
-DECLARE its construction: the algorithm, that it is KEYED and SALTED, and a SALT
-CUSTODY REFERENCE resolving into the governed layer. The validator REFUSES a
-record declaring no construction, a construction that is not keyed and salted,
-and a record whose salt custody reference resolves onto a chain or into the
-anchored record itself. This is the half an implementer is most likely to get
-wrong, because a plain digest of a record looks like exactly the right thing to
-anchor.
+DECLARE its construction: the algorithm, that it is KEYED and SALTED, a SALT
+CUSTODY REFERENCE resolving into the governed layer, a KEY CUSTODY REFERENCE on
+the same footing, and the SALT'S ENTROPY. The validator REFUSES a record
+declaring no construction, a construction that is not keyed and salted, and a
+record whose salt custody reference resolves onto a chain or into the anchored
+record itself. This is the half an implementer is most likely to get wrong,
+because a plain digest of a record looks like exactly the right thing to anchor.
+
+**THE KEY IS CUSTODIED ON THE SAME FOOTING AS THE SALT, BECAUSE A KEYED
+COMMITMENT HAS TWO SECRETS AND ONLY ONE OF THEM WAS GOVERNED.** The erasure
+property this boundary rests on is destroyed by a reachable KEY exactly as it is
+by a reachable salt, so the KEY CUSTODY REFERENCE SHALL resolve into the
+governed layer, and the validator REFUSES a record declaring none, a record
+whose key custody reference resolves ONTO A CHAIN or INTO THE ANCHORED RECORD
+ITSELF, and a key SHARED ACROSS PLANES. The last refusal is the plane-separation
+requirement below applied where it also bites: a key common to two planes is a
+join key whatever their salts do, and that requirement already requires per-plane
+keys under per-plane salts. Nothing here is a second custody vocabulary — it is
+the salt's own rule, applied to the parameter that was left out of it.
+
+**AND "SALTED" WITHOUT A WIDTH IS NOT A PROPERTY, SO THE SALT CARRIES A DECLARED
+ENTROPY FLOOR.** A declared construction SHALL name the salt's SOURCE as a
+cryptographically secure random generator and SHALL declare its WIDTH IN BITS,
+and salts SHALL be per-record rather than shared. The validator REFUSES a
+declaration omitting either the source or the width, and REFUSES a declared
+width BELOW 128 BITS. The ground is the same EDPB reading this requirement
+already cites below: what makes a hash of personal data personal data is that
+the input space can be searched, and an eight-bit salt satisfies every other
+check written here while leaving that search trivial — so a floor is what keeps
+the mechanism from being asserted against the precise attack its own citation
+names. A domain overlay MAY raise the floor; on the neutrality requirement's
+rule it SHALL NOT lower it.
 
 **AND THE RESIDUAL IS RAISED AS AN EXPLICIT GAP RATHER THAN CLAIMED AS CLOSED.**
 A record that DECLARES a salted keyed construction while anchoring a plain digest
@@ -438,6 +528,30 @@ Safe-Harbor de-identified either.
 - WHEN an anchor-bound commitment is offered with no declared algorithm, keying, salting or salt custody reference
 - THEN it is REFUSED, because the value alone cannot show what it is
 - AND the refusal names the missing declaration rather than reporting an unverifiable value
+
+#### Scenario: a construction declares a salt with no source or width
+
+- WHEN a construction declares that it is salted and names neither a cryptographically secure source nor a width in bits for the salt
+- THEN it is REFUSED, because "salted" without a declared width is not a property a validator or a reader can judge
+- AND the refusal names the missing entropy declaration rather than accepting the keying and salting claims on their own
+
+#### Scenario: a declared salt width is below the floor
+
+- WHEN a construction declares a salt narrower than 128 bits from a named secure source
+- THEN it is REFUSED, because a salt whose input space can be searched leaves the anchored value linkable by exhaustion
+- AND the refusal cites this requirement's own EDPB ground, which is the guessable-input problem the salting exists to defeat
+
+#### Scenario: the commitment key is held where the anchor can reach it
+
+- WHEN a record's KEY custody reference resolves onto a chain or into the anchored record itself
+- THEN it is REFUSED on the same footing as a reachable salt, because a keyed commitment whose key is public is an unkeyed one
+- AND the key stays in the governed layer, on the rule this requirement writes for the salt and now writes for the key
+
+#### Scenario: one commitment key is used across planes
+
+- WHEN a realization declares one commitment key shared across the record, demographic and identity planes
+- THEN it is REFUSED, because a key common to two planes joins them whatever their salts do
+- AND per-plane keys under per-plane salts are used instead, as the plane-separation requirement below requires
 
 #### Scenario: a plain digest is declared honestly as a plain digest
 
@@ -595,9 +709,10 @@ and the DEMOGRAPHIC plane is possible WITHOUT the IDENTITY plane, BY
 CONSTRUCTION rather than by policy. A record-plane entry and a demographic-plane
 entry SHALL carry no identifier that resolves a person, and the linkage that
 joins either to a person SHALL exist only inside the governed permissioned
-identity plane. Analysis over the first two planes therefore exposes no personal
-identifiers because there are none to expose, not because a query was written
-carefully.
+identity plane. Analysis over the first two planes therefore exposes no DIRECT
+identifier because there is none to expose, not because a query was written
+carefully — a structural property, and a narrower one than de-identification,
+which the block below distinguishes rather than assumes.
 
 **THE CROSS-PLANE JOIN KEY IS THE DEFECT THIS REQUIREMENT CLOSES, AND IT IS A
 CORRECTION TO THE SOURCE SKETCH RATHER THAN A RESTATEMENT OF IT.** The vendored
@@ -616,11 +731,42 @@ of this capability, carried from the same in-flight MedxChain notes' appendix, w
 that the neutral family's tranche-three text does not yet name this consumer
 though the anchored, segregated design already supports it.
 
+**AND WHAT PLANE SEPARATION BUYS THAT LANE IS STATED WITHOUT OVERSTATEMENT,
+BECAUSE NOT QUERYING THE IDENTITY PLANE IS NOT DE-IDENTIFICATION.** What the
+segregation delivers is that the identity plane is NOT REQUIRED for the
+analysis, that neither analyzed plane carries a direct identifier, and that no
+anchored value serves as a cross-plane join key. What it does NOT deliver is a
+DE-IDENTIFIED result, and this requirement SHALL NOT be read as delivering one:
+the attributes that remain — the demographic values and the record-plane
+material the analysis exists to read — can SINGLE OUT a person in combination,
+and can be linked back to a record, with no direct identifier present anywhere.
+**A result of this lane SHALL NOT be labelled, released or reused as
+de-identified on the strength of plane separation alone.**
+
+**THE DE-IDENTIFICATION DETERMINATION IS A SEPARATE, LATER, NAMED GATE, AND IT
+IS THE DOMAIN OVERLAY'S TO NAME.** The estate already holds that this boundary
+is *"a named gate, not an assumed property"* (`docs/knowledge-lifecycle-model.md`,
+the de-identify gate), and the standard that determination is made against is
+domain law and domain judgement — which the neutrality requirement below forbids
+this capability to carry. So this capability names NO determination standard,
+provides no path by which one is presumed, and SHALL NOT stand in for one:
+absent the overlay's named determination, a plane-separated result remains
+GOVERNED PERSONAL DATA and stays in the governed layer under the same custody as
+the planes it came from. A realization that treats the lane's output as reusable
+because the identity plane was not queried is REFUSED.
+
 #### Scenario: an analysis runs across the record and demographic planes
 
 - WHEN an analysis queries the record and demographic planes without the identity plane
-- THEN it runs, and no personal identifier is exposed because neither plane carries one
+- THEN it runs, and no DIRECT identifier is exposed because neither plane carries one
 - AND the result is unaffected by whether the identity plane was reachable
+- AND the result is NOT thereby de-identified, and remains governed personal data until a named de-identification determination is made against it
+
+#### Scenario: a plane-separated result is labelled de-identified
+
+- WHEN a realization treats an analysis result as de-identified, releasable or reusable because the identity plane was not queried
+- THEN it is REFUSED, because the absence of the identity plane removes the direct linkage and not the identifying power of the attributes that remain
+- AND the domain overlay's named de-identification determination is what carries that label, this neutral capability naming no standard for it and standing in for none
 
 #### Scenario: a demographic-plane entry carries a direct identifier
 
@@ -656,9 +802,12 @@ under obligation.
 are MedxFactory's instantiations of this capability; LedgerLinc is
 LedgerxFactory's. The MedxChain notes cited above — vendored by pull request
 #509, IN FLIGHT at this revision — read as an early, domain-specific
-sketch of this same shape, predating the neutral family by eighteen months. This
-capability names those instantiations to show the shape occurs twice; it authors
-no content for any of them, and no domain is obliged to adopt a chain.
+sketch of this same shape, PREDATING the neutral family. No interval is stated
+here: nothing in this requirement turns on how long, and the dates the reader
+would measure it from belong to the vendored document rather than to contract
+text. This capability names those instantiations to show the shape occurs twice;
+it authors no content for any of them, and no domain is obliged to adopt a
+chain.
 
 **THE STRUCTURAL REFUSALS ARE WHAT MAKES NEUTRALITY AFFORDABLE.** Because the
 payload refusal and the identifier refusal above are shape-based rather than
