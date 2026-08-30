@@ -1,5 +1,5 @@
 ---
-code_surface: openxFactory — A NEW NEUTRAL CONTRACT FAMILY PLUS ITS REFUSING VALIDATOR, declared honestly because this tranche is not doctrine-only. `contracts/chain-anchoring/` gains the MULTI-ANCHOR RECEIPT record (digest, aggregation Merkle path, and a per-chain list whose entries carry FOUR elements — anchor transaction bytes, transaction-to-block or DAG inclusion proof, block header, and chain-acceptance evidence — plus the declared independently-obtainable header source verification runs against), the ANCHOR-BOUND COMMITMENT record (declared construction — algorithm, keyed, salted — plus a salt custody reference resolving into the governed layer), the ANCHOR STATE record (`anchor_pending` / `anchor_incomplete` / complete, per-witness, with declared completion horizons and no aggregate boolean), the CONSENT-CHECKPOINT commitment record, the LOG-CHECKPOINT ANCHOR record carrying its own never-read-as-validation disclaimer, the PLANE-SEPARATION declaration (per-plane keys under per-plane salts), and the realization conformance declaration on `add-trust-anchor`'s declared-shortfall pattern — plus packaged POSITIVE and NEGATIVE examples for every named refusal, and the canonical `scripts/validate-chain-anchoring.py`. Registration in `contracts/manifest.yaml` + `contracts/CHANGELOG.md` at the next additive bundle cut. NOT THIS CHANGE'S SURFACE, each for a stated reason - the anchoring RUNTIME (an archival node for the operational witness, an aggregation-calendar client for the durability witness, the batching scheduler) is OPERATOR INFRASTRUCTURE commissioned at realization and named in `tasks.md` §4, not contract bytes; the PERMISSIONED LEDGER SELECTION (Fabric or Besu class) is a realization decision this packet deliberately does not fix; the DOMAIN OVERLAYS (MedxChain/HealthLinc, LedgerLinc) belong to their own repositories; and the TRANSPARENCY LOG itself is `add-signed-execution-chain`'s tranche-one artifact, consumed here and not redefined. NO attestation record, NO controller certificate, NO per-task identity and NO certificate authority - those are tranche two's surface.
+code_surface: openxFactory — A NEW NEUTRAL CONTRACT FAMILY PLUS ITS REFUSING VALIDATOR, declared honestly because this tranche is not doctrine-only. `contracts/chain-anchoring/` gains the MULTI-ANCHOR RECEIPT record (digest, aggregation Merkle path, and a per-chain list whose entries carry FOUR elements — anchor transaction bytes, transaction-to-block or DAG inclusion proof, block header, and chain-acceptance evidence — plus the declared independently-obtainable header source verification runs against, AND the CONFIGURED WITNESS SET AT MINT TIME, which the ANCHORED DIGEST commits to in every representation so a rewritten set breaks the same proofs that check the anchor), the ANCHOR-BOUND COMMITMENT record (declared construction — algorithm, keyed, salted — plus a SALT custody reference AND a KEY custody reference, both resolving into the governed layer, and the salt's declared cryptographically-secure source and width at or above the floor), the ANCHOR STATE record (`anchor_pending` / `anchor_incomplete` / complete, per-witness, with declared completion horizons and no aggregate boolean), the CONSENT-CHECKPOINT commitment record, the LOG-CHECKPOINT ANCHOR record carrying its own never-read-as-validation disclaimer, the PLANE-SEPARATION declaration (per-plane keys under per-plane salts), and the realization conformance declaration on `add-trust-anchor`'s declared-shortfall pattern — plus packaged POSITIVE and NEGATIVE examples for every named refusal, and the canonical `scripts/validate-chain-anchoring.py`. Registration in `contracts/manifest.yaml` + `contracts/CHANGELOG.md` at the next additive bundle cut. NOT THIS CHANGE'S SURFACE, each for a stated reason - the anchoring RUNTIME (an archival node for the operational witness, an aggregation-calendar client for the durability witness, the batching scheduler) is OPERATOR INFRASTRUCTURE commissioned at realization and named in `tasks.md` §4, not contract bytes; the PERMISSIONED LEDGER SELECTION (Fabric or Besu class) is a realization decision this packet deliberately does not fix; the DOMAIN OVERLAYS (MedxChain/HealthLinc, LedgerLinc) belong to their own repositories; and the TRANSPARENCY LOG itself is `add-signed-execution-chain`'s tranche-one artifact, consumed here and not redefined. NO attestation record, NO controller certificate, NO per-task identity and NO certificate authority - those are tranche two's surface.
 target_release: THE NEXT ADDITIVE MINOR, DELIBERATELY NOT NUMBERED HERE — allocated AT REALIZATION by merge order per `docs/contract-versioning-policy.md`. The count was taken at this branch's tip rather than remembered: `contracts/manifest.yaml:3` declares `contract_bundle_version: contract-v2.2` and `contracts/releases/contract-v2.2.digests.yaml` is a cut inventory in the tree, so the era is v2.2 and the next additive minor is unspent. A NUMBER IS NOT WRITTEN HERE BECAUSE A SIBLING ALREADY HOLDS THE NEXT ONE: `add-signed-execution-chain` is ratified and names `contract-v2.3`, and `add-chain-attestation` (tranche two, in flight) reaches the same cut — several changes ride one additive cut, and a packet that spends a minor before merge order is known is the `contract-v1.28` renumber sweep repeating. THE CLASS IS ADDITIVE and nothing narrows: a new contract family is the versioning policy's "new contracts" case verbatim, no existing schema changes, no consumer pinned at the current bundle is made non-conformant, and no domain is obliged to adopt a chain.
 ---
 
@@ -14,11 +14,20 @@ never-convenable through it, unanimously, 2026-08-28 — and Brett Heap's
 ratification follows that review. The house pattern is
 `add-binding-consumer-identity`, whose `review/` directory holds the sitting's
 record and whose ratification came after it; a `review/` directory is CREATED
-HERE WHEN THAT RECORD LANDS and deliberately does not exist yet, because an
-empty one would assert a sitting that has not happened. Every decision the
-authoring session took is
+HERE WHEN THAT RECORD LANDS, because an empty one would assert a sitting that
+has not happened. Every decision the authoring session took is
 listed in § Authoring decisions put to the council rather than presented as
 settled.
+
+**THE COUNCIL HAS SINCE SAT, 2026-08-30, AND `review/` NOW EXISTS.** It holds
+the convening packet, the ballot as put, the four verbatim seat returns, this
+packet's council record and `disposition-2026-08-30.md`, the sole disposition of
+record. Brett Heap ruled *"accept all fifteen as recommended, 14 folds into the
+fix rounds"*; this packet's three blocking amendments and one folded bot finding
+are discharged in the fix round, and the paragraph above now describes how the
+directory came to be rather than the state of the tree. **RATIFICATION IS THE
+NEXT ACT AND HAS STILL NOT HAPPENED** — the ruling authorized a fix round and
+*"ratifies nothing, merges nothing, and moves no contract byte"*.
 
 ## Why
 
@@ -309,8 +318,8 @@ the packet, and a sweep is part of the fix.
 ### New Capabilities
 
 - `chain-anchoring`: the neutral public anchoring layer and the permissioned
-  consent plane, **NINE ADDED requirements over 60 scenarios** (52 at the head
-  the council judged; the 2026-08-30 fix round added eight), no `## MODIFIED
+  consent plane, **NINE ADDED requirements over 61 scenarios** (52 at the head
+  the council judged; the 2026-08-30 fix round and its bot round added nine), no `## MODIFIED
   Requirements` block anywhere — a chain-agnostic multi-anchor receipt defined
   FIRST and refused at capture time if any of its four per-chain elements is
   missing; the ruled two-witness configuration with no selectivity and no third

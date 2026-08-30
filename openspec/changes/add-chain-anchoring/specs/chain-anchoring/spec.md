@@ -64,12 +64,32 @@ minter's anchor-state record, and no service only the minter can run.
 IN A STATELESS RECEIPT.** It records what was DEMANDED at mint time, never what
 has or has not happened since, so the receipt still carries no field describing
 work in flight and the receipt/state split of the requirements below is
-undisturbed. The set is FIXED AT MINT TIME: a realization that rewrites a
-captured receipt's configured witness set to match the entries actually present
-SHALL BE REFUSED, because that edit silently converts a missing witness into a
-one-witness configuration and destroys the only signal an independent holder
-has. Where the receipt is stored as a companion object rather than one blob, the
-receipt SHALL COMMIT to the configured set, so the same tamper is detectable.
+undisturbed.
+
+**AND THE SET IS BOUND TO THE PROOF RATHER THAN CARRIED BESIDE IT, BECAUSE THE
+HOLDER OF AN INCOMPLETE RECEIPT IS EXACTLY WHO WOULD REWRITE IT.** A refusal
+addressed to the minter does not reach a third party: given a receipt carrying
+two configured witnesses and one entry, a holder who wants it to read complete
+strips nothing and edits the SET to name one witness — and every per-chain proof
+still validates, because those proofs are about the transaction and the digest
+and know nothing of a field sitting next to them. **The ANCHORED DIGEST SHALL
+therefore COMMIT to the configured witness set**, the set being part of the
+material the digest is taken over, so a rewritten set changes the digest and
+breaks the aggregation Merkle path and every inclusion proof in the receipt at
+once. The tamper is then caught by the SAME verification that checks the anchor,
+against the public chain rather than against the minter's word. **The MATERIAL
+DIGEST stays nameable in its own right** — the receipt carries it, and a
+verifier recomputes the anchored digest from the material digest and the
+configured set — so binding the set costs the ability to say what was anchored
+nothing.
+
+**This binding holds in EVERY REPRESENTATION** — one blob, a companion object,
+or any later encoding — and a representation that carries the configured set
+without such a commitment SHALL BE REFUSED, because a set a holder can edit is
+not a completeness signal, it is a decoration. The set is FIXED AT MINT TIME and
+never re-derived from the entries present: a re-mint under a changed
+configuration is a different receipt over a different digest, and a captured
+receipt is never rewritten.
 
 **THE RECEIPT IS WHY ANCHOR SELECTION IS REVERSIBLE, AND THAT IS ITS PURPOSE
 RATHER THAN A SIDE EFFECT.** Anchor targets SHALL be addable and droppable by
@@ -129,11 +149,17 @@ exit path names building the receipt first for exactly this reason.
 - THEN it is REFUSED AT CAPTURE TIME, on the same footing as a missing inclusion proof
 - AND the refusal names the missing configured set rather than accepting a receipt whose completeness no independent holder could judge
 
-#### Scenario: a captured receipt's configured witness set is rewritten to match its entries
+#### Scenario: an untrusted holder rewrites the configured witness set to make an incomplete receipt read complete
 
-- WHEN a one-entry receipt minted under a two-witness configuration has its configured witness set edited afterwards to name one witness
-- THEN it is REFUSED, because the set is fixed at mint time and the edit converts a missing witness into a one-witness configuration
-- AND where the set is held as a companion object, the receipt's commitment to it is what makes the edit detectable
+- WHEN a holder of a one-entry receipt minted under a two-witness configuration edits its configured witness set to name one witness
+- THEN VERIFICATION FAILS, because the anchored digest commits to the configured set, so the edit breaks the aggregation Merkle path and every per-chain inclusion proof the receipt carries
+- AND the failure is detected by the same verification that checks the anchor, against the public chain rather than against the minter's word
+
+#### Scenario: a representation carries the configured set without committing to it
+
+- WHEN a receipt representation places the configured witness set beside the proof material with no commitment binding the two
+- THEN it is REFUSED, whether the set is held in one blob or as a companion object
+- AND the ground is that a set a holder can edit without breaking a proof is a decoration and not a completeness signal
 
 #### Scenario: a receipt is verified after its operational chain has pruned
 

@@ -175,6 +175,23 @@ time and rewriting it to match the entries present is refused, since that edit i
 exactly how a missing witness would be laundered into a one-witness
 configuration.
 
+**AND THE FIRST DRAFT OF THAT DISCHARGE WAS ITSELF A DESCRIBED CONTROL — CODEX
+P1, ON THIS FIX ROUND'S OWN PULL REQUEST.** It required a commitment only where
+the set is held as a companion object, and wrote the one-blob case as a REFUSAL
+addressed to a realization. A refusal addressed to the minter does not reach the
+party the amendment exists to protect against: the untrusted HOLDER of an
+incomplete receipt edits the set rather than the entries, and every per-chain
+proof still validates, because those proofs are about a transaction and a digest
+and know nothing of a field beside them. **That is LS-F2's shape exactly — a fix
+that repairs the record and not the control — reproduced by the fix for LS-F7,
+and caught by a bot rather than by me.** The binding is now cryptographic and
+uniform: the ANCHORED DIGEST commits to the configured set, so a rewritten set
+breaks the aggregation Merkle path and every inclusion proof at once and the
+tamper is caught by the same verification that checks the anchor. The MATERIAL
+DIGEST stays carried in its own right, so nothing about naming what was anchored
+is lost, and a representation carrying the set unbound is refused in every
+encoding rather than in one.
+
 ## D3 — The payload refusal is STRUCTURAL, and that is what makes it neutral
 
 Q2 ruled the boundary is drawn as contract text with a validator that refuses a

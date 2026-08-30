@@ -22,9 +22,9 @@ standing in for a ruleset state.
 
 ## 1. Spec deltas and the packet (THIS PULL REQUEST)
 
-- [x] 1.1 `chain-anchoring` — **NINE ADDED requirements over 60 scenarios** (52
+- [x] 1.1 `chain-anchoring` — **NINE ADDED requirements over 61 scenarios** (52
       at the head the council judged, `cf5a24b8`; the 2026-08-30 fix round of
-      §2.4 added eight and no requirement), in
+      §2.4 and its bot round added nine and no requirement), in
       the order the exit path requires: the multi-anchor receipt FIRST, then the
       ruled two-witness configuration, the missing-witness semantics, anchor-late,
       the commitment boundary with its refusing validator, the permissioned
@@ -140,13 +140,28 @@ standing in for a ruleset state.
       standing** — Copilot caught it on the fix round's own pull request, which
       is the same propagation path LQ-F4 named.
 
+      **A BOT ROUND RAN ON THE FIX ROUND ITSELF, AND IT FOUND A P1 IN THE FIX.**
+      Codex: LS-A5's discharge as first written bound the configured witness set
+      to the proof only in the companion-object form, so in the one-blob form an
+      untrusted HOLDER could edit the set rather than the entries and every
+      per-chain proof would still validate — **a refusal addressed to the minter
+      protecting against the holder, which is LS-F2's own shape reproduced by
+      the fix for LS-F7.** Taken: the ANCHORED DIGEST now commits to the set in
+      every representation. Two further Codex P2s taken — the `code_surface`
+      front matter synchronized with the amended receipt and commitment records,
+      and the proposal's *"a `review/` directory … deliberately does not exist
+      yet"* paragraph corrected now that it does. The four
+      `status-validity` findings are **independently confirmed by Copilot**,
+      which prescribes the same remedy recorded above and does not change whose
+      act it is.
+
       SHOULD-FIX items (LA-A7, LS-A7/A8/A9, LQ-A10/A11/A12/A14, CPL-A5) are
       **UNDISPOSED by the ruling and stay open** — disposition §6 says so
       expressly, and no silence here rules them.
 
       **§1.4 AND §1.5 RE-RUN, AND THE RESULT IS REPORTED RATHER THAN ROUNDED.**
       §1.4: `--strict` green and `--all --strict` **79 passed / 0 failed**;
-      NINE requirements unchanged, **52 → 60 scenarios**, still no `## MODIFIED`
+      NINE requirements unchanged, **52 → 61 scenarios**, still no `## MODIFIED`
       block. §1.5: doc-health against `origin/main` with a matched baseline
       basename returns **four new findings, all `status-validity`, all on the
       carried `review/` bundle** — the sitting's four top-level records write
@@ -202,7 +217,8 @@ discharged, so 3.1 is the next act on this packet.
 
 - [ ] 4.1 `contracts/chain-anchoring/` — the multi-anchor receipt record (four
       per-chain elements, the declared header source, and the CONFIGURED WITNESS
-      SET AT MINT TIME, which the receipt carries or commits to), the
+      SET AT MINT TIME, which the ANCHORED DIGEST commits to in every
+      representation, the material digest staying nameable beside it), the
       log-checkpoint anchor record with its never-read-as-validation disclaimer,
       the anchor-bound commitment record (declared construction, SALT and KEY
       custody references, declared salt source and width), the anchor-state
@@ -214,7 +230,8 @@ discharged, so 3.1 is the next act on this packet.
       receipt missing chain-acceptance evidence; a receipt whose header is
       non-canonical; a verification run against a minter-supplied header source;
       **a receipt carrying no configured witness set**; **a captured receipt
-      whose configured witness set was rewritten to match its entries**;
+      whose configured witness set a holder has rewritten**; **a representation
+      carrying the configured set with no commitment binding it to the proof**;
       a checkpoint inclusion presented as validation; a
       single-witness item presented as anchored; a per-item selectivity rule; a
       third anchor target; a content-bearing field; ciphertext; an absent
