@@ -878,6 +878,49 @@ carries on the §7.4 path. A test consuming only the proposal tests what was
 promised and not what was reviewed; one consuming only the review notes tests the
 amendments and not the commitment. Both, or the record is not this link.
 
+**AND THE OUTCOME ITSELF SHALL BE ESTABLISHED AND NEVER NOTARIZED — THIS IS BIND
+BEFORE SIGN'S LAST UNCOVERED LIMB.** Every other link moved its CLAIMS to the
+controller and this one had left its RESULT with the lane: the corroboration rule
+binds a submitted attestation's fields against link 4, and nothing in it
+establishes that the post-merge test RAN, or that it PASSED, or that it ran
+against the merged work. **A lane supplying a fabricated passing outcome on an
+otherwise valid chain would therefore obtain a controller signature over it, with
+correct proposal and review bindings, and CLOSE THE CHAIN — unblocking promotion
+and release.** That is the fabricated-but-valid-looking record this family exists
+to refuse, arriving at the one link with no gate behind it. Link 10 SHALL
+therefore BIND, INSIDE THE CONTROLLER-SIGNED BYTES, all three of:
+
+1. **AN AUTHENTICATED TEST EXECUTION** — one the controller ITSELF DISPATCHED OR
+   OBSERVED, on exactly the footing its link-4 corroboration already stands on.
+   The controller signs what it can ESTABLISH and never notarizes an outcome it
+   was handed.
+2. **THE EXACT TESTED REVISION**, which SHALL EQUAL the merge commit the chain
+   closed over. **A REVISION MISMATCH IS A REFUSAL**, because a test that passed
+   against other bytes is evidence about other bytes.
+3. **THE RESULT** — the outcome that execution produced, covered by the same
+   signature, so a result attachable afterwards is not a result anyone can
+   attach.
+
+**AN OUTCOME THAT IS MERELY RUNNER-CLAIMED OR LANE-CLAIMED IS REFUSED AS CLOSURE
+GROUNDS**, fail-closed, on this capability's standing doctrine: the chain stays
+MERGED-BUT-UNCLOSED and every consumer of that merge refuses, exactly as the two
+enforcement horizons below already provide. Nothing here reaches back through the
+merge; what it refuses is the CLOSURE, which was always the thing this link
+controls.
+
+**AND NO DECLARED-SHORTFALL PATH EXISTS FOR THE OUTCOME, WHICH THIS REQUIREMENT
+STATES RATHER THAN LEAVING TO BE INFERRED.** Requirement 1's declared-shortfall
+floor governs: a declaration records honestly that a control CANNOT BE MET and
+**never converts an unmeetable control into a met one**, and a declaration whose
+disqualified set is empty is not a declaration but an exemption. A realization
+that cannot establish its test's execution, revision or result therefore cannot
+DECLARE its way to a closed chain — **the declaration would disqualify the chain
+from closure, which is the only thing closure does**, leaving nothing for the
+declaration to permit. This is precisely the class the floor exists for, and it
+is named here so that the two shortfalls this requirement DOES declare — the
+per-seat residual below, and the revocation-at-exercise one after it — are not
+read as a pattern extending to the outcome.
+
 **BINDING TO THE REVIEW RECORD'S BYTES IS NOT ENOUGH, AND CLOSURE SHALL
 ESTABLISH THE REVIEW'S AUTHORITY.** A digest over a review record proves only
 that the bytes did not change after the controller signed them; it establishes
@@ -936,17 +979,48 @@ REFUSING STATE for whatever consumes the merge (promotion, release, the next
 chain that builds on it) and FIRES link 9's FRAUD SIGNAL. It is not a pending
 state, not an advisory, and not a warning.
 
-**MISSING, FAILED AND UNSIGNED ARE THREE OUTCOMES AND ARE RECORDED AS THREE.** A
-failed test is a stronger signal than an absent one and an unsigned pass is
-stronger than an absent record, on the same footing as tranche one's rule that a
-failed proof of possession is never the weaker reading of a missing one.
-Collapsing them loses the distinction a responder needs first.
+**MISSING, FAILED, UNSIGNED AND UNESTABLISHED ARE FOUR OUTCOMES AND ARE RECORDED
+AS FOUR.** A failed test is a stronger signal than an absent one and an unsigned
+pass is stronger than an absent record, on the same footing as tranche one's rule
+that a failed proof of possession is never the weaker reading of a missing one.
+Collapsing them loses the distinction a responder needs first. **THE FOURTH IS
+ADDED HERE DELIBERATELY AND IS NAMED AS AN ADDITION**: an UNESTABLISHED outcome —
+one whose execution, tested revision or result the controller could not establish
+— is a DIFFERENT FACT from a test that ran and FAILED, and a responder who
+conflates them will go looking for a defect in the work when what is missing is
+evidence about the test. All four are REFUSING states for whatever consumes the
+merge; they differ in what they tell the responder to do next, which is the whole
+reason this paragraph enumerates rather than summarizes.
 
 #### Scenario: the post-merge test consumes the proposal only
 
 - WHEN a post-merge test binds to the ratified proposal and to no review record
 - THEN it is not link 10 and the chain does not close on it
 - AND its own passing is not evidence that what was reviewed was tested
+
+#### Scenario: a lane supplies a fabricated passing outcome
+
+- WHEN a lane hands the controller a passing post-merge test outcome the controller neither dispatched nor observed, on a chain whose proposal and review bindings are correct
+- THEN the chain does NOT close and the outcome is REFUSED as closure grounds, recorded as UNESTABLISHED rather than as a pass
+- AND the controller's willingness to sign the bytes is never accepted in place of establishing that the test ran, because a signer is not a notary of an outcome it was handed
+
+#### Scenario: the tested revision is not the merge commit the chain closed over
+
+- WHEN a link-10 record binds an authenticated execution and a result whose tested revision does not EQUAL the merge commit the chain closed over
+- THEN closure is REFUSED
+- AND the execution's being genuine and its result passing are not accepted, because a test that passed against other bytes is evidence about other bytes
+
+#### Scenario: the controller dispatches the post-merge test and binds its result
+
+- WHEN the controller dispatches the governed post-merge test, the tested revision EQUALS the merge commit the chain closed over, and the execution, the revision and the result all fall inside the bytes the controller signs
+- THEN the outcome is established and the chain CLOSES on it, the proposal and review-record bindings being satisfied
+- AND nothing about the result is taken from the lane, which is what makes this record closure grounds rather than a report
+
+#### Scenario: a realization declares it cannot establish the test outcome
+
+- WHEN a realization declares, under the conformance-declaration rule, that its platform cannot establish the post-merge test's execution, revision or result
+- THEN the declaration does NOT admit closure, because a declared shortfall never converts an unmeetable control into a met one and closure is the only thing this link confers
+- AND the chain stays MERGED-BUT-UNCLOSED, its downstream refusing, because a declaration that disqualified nothing here would be an exemption and this capability admits none
 
 #### Scenario: a fabricated review record is supplied to the post-merge test
 
