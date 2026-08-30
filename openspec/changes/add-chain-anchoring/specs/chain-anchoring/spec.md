@@ -6,9 +6,11 @@
 
 openxFactory SHALL define the anchor receipt as a CHAIN-AGNOSTIC MULTI-ANCHOR
 record before it defines any anchor target, and SHALL express every anchor this
-capability ever mints in that one format. The receipt is: the anchored DIGEST,
-then the AGGREGATION MERKLE PATH from that digest to the aggregated root, then
-the CONFIGURED WITNESS SET AT MINT TIME defined below, then a PER-CHAIN LIST
+capability ever mints in that one format. The receipt is: the MATERIAL DIGEST
+naming what was anchored, then the ANCHORED DIGEST, which commits to the
+material digest together with the CONFIGURED WITNESS SET AT MINT TIME defined
+below, then that configured set itself, then the AGGREGATION MERKLE PATH from
+the anchored digest to the aggregated root, then a PER-CHAIN LIST
 whose every entry carries — for that chain — the ANCHOR TRANSACTION BYTES, the
 TRANSACTION-TO-BLOCK OR DAG INCLUSION PROOF, the BLOCK HEADER, and the
 CHAIN-ACCEPTANCE EVIDENCE defined below. All four per-chain elements are
