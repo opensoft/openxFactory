@@ -9,6 +9,39 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
+## contract-v2.5 — 2026-08-31 (additive; resolved council seats become an independently reproducible provider contract)
+
+Realizes `add-resolved-council-seats` and Speckit feature
+`026-add-resolved-council-seats`. This additive minor introduces the neutral
+`council-convening` contract family: the closed
+`resolved-council-convening.schema.yaml`, complete indexed 14-case corpus,
+portable strict validator, acceptance map, ownership boundary, and successor
+handoff. No previously valid contract instance is narrowed or invalidated.
+
+The bundle number was allocated after the prior local reconciliation was
+preserved twice and rebased onto `origin/main` at
+`afdf0e88f329740150654d5ad67a1984a104e83b`. The refreshed manifest,
+changelog, and latest inventory all identify `contract-v2.4`; fetched tags stop
+at `contract-v2.2`; and neither release surfaces nor tags claim
+`contract-v2.5`. It is therefore the next no-gap additive minor. No Git tag is
+created by this local candidate.
+
+### Hard-cutover migration note
+
+This family has no compatibility parser or dual-protocol window. Publish and
+pin this provider bundle first, land and independently verify the codexFactory
+producer and xFactory-Hermes-Install consumer, quiesce and drain the council
+lane, then enable producer emission and consumer requirement in one coordinated
+window. An ordering failure parks convenings. Rollback restores the preceding
+producer and consumer pair together; it never reconstructs a roster, accepts an
+obsolete payload, or restores a root/shared signing-key path. Release, merged
+successor, live OIDC, deployment, and coordinated-cutover evidence remain open
+until their authorized operators perform those acts.
+
+The candidate release inventory is
+`contracts/releases/contract-v2.5.digests.yaml`, generated only after the final
+local release-member bytes settle. Publication remains pending.
+
 ## contract-v2.4 — 2026-08-31 (additive; a credential binding declares who holds it and what it fetches with)
 
 Realizes `add-binding-consumer-identity`, ratified 2026-08-29 by the repository

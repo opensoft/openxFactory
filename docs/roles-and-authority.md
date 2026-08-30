@@ -1,7 +1,7 @@
 # Roles And Authority
 
 Status: ratified
-Ratified by: define-human-escalation-contract; amended by add-github-app-identity-tiers
+Ratified by: define-human-escalation-contract; amended by add-github-app-identity-tiers, add-resolved-council-seats
 Kind: architecture
 
 This document is the canonical `openxFactory` cross-factory role and
@@ -241,6 +241,46 @@ opensoft/codexFactory/docs/pr-admission-merge-readiness.md
 
 Other DomainxFactories use the same neutral gates but specialize them with their
 own domain artifacts and review roles.
+
+## Resolved Council Convening Authority
+
+The neutral council-convening contract defines admission obligations and the
+authority split; it does not implement or attest downstream runtime behavior.
+Before any seat job exists, the Hermes consumer MUST independently validate the
+resolved roster and provenance and atomically freeze both in one immutable
+snapshot. A failed validation or freeze issues no jobs. A successful freeze
+issues exactly one job for each frozen seat, with no job allowed to add, remove,
+or re-derive membership.
+
+Return admission MUST use only the frozen seat-to-job mapping. A return from an
+unlisted seat or mismatched job is refused and contributes nothing to
+substantive counting, unanimity, or completion. If any frozen required seat has
+no admissible substantive return, the candidate parks. Rich signed return
+objects participate in unanimity only through their declared outcome value;
+signature and provenance fields do not participate in outcome equality.
+Existing verdict-less failure handling and open-run recovery remain unchanged.
+
+Each admitted seat job MUST generate one ephemeral Ed25519 key inside that job,
+register only the public key under its seat-job identity, use the private key
+only to sign that job's return, and discard it without persistence. No private
+key may cross a job boundary. A convening-wide root key, shared private key, or
+private-key field in neutral artifacts is forbidden.
+
+Activation is a coordinated hard cutover. The producer emits and the consumer
+requires the new envelope in the same activation window; neither side may retain
+a legacy parser, seed a roster from obsolete content, or reconstruct missing
+membership. Rollback MUST restore the previously compatible producer and
+consumer versions as a pair, never re-enable a root/shared-key path or a
+compatibility reconstruction branch.
+
+Evidence follows implementation authority. openxFactory owns the neutral
+schema, fixtures, validator, and provider-local checks. The Hermes successor
+owns snapshot, job, return, persistence, parking, and recovery evidence. The
+codexFactory successor owns candidate-fact, roster-production, job-local
+signing, and governed OIDC evidence. Coordinated operators own activation and
+paired-rollback evidence. Local provider proof MUST NOT claim that downstream
+commits, deployment, live OIDC, or rollback acts have occurred; unavailable
+external evidence remains open and blocking.
 
 ## Hermes Profiles And Groups
 

@@ -134,11 +134,12 @@ from pathlib import Path
 # constraint that this module stays stdlib-only and importable that way. A bare
 # relative import raises `ImportError: attempted relative import with no known
 # parent package` there, which is how this was measured rather than predicted.
-try:                                          # normal package import
+try:  # normal package import
     from . import pin_sentinels
-except ImportError:                           # loaded by path, no package
+except ImportError:  # loaded by path, no package
     _spec = importlib.util.spec_from_file_location(
-        "_pin_sentinels_by_path", Path(__file__).with_name("pin_sentinels.py"))
+        "_pin_sentinels_by_path", Path(__file__).with_name("pin_sentinels.py")
+    )
     pin_sentinels = importlib.util.module_from_spec(_spec)
     # Registered before exec for the same reason the caller test registers this
     # module before exec: `@dataclass` resolves a field's annotation through
@@ -172,8 +173,7 @@ HEX_BOUNDARY = r"(?![0-9a-fA-F])"
 # A 40-hex token standing alone — not a prefix of a 64-hex sha256, not a suffix
 # of one. Both directions here, because this one scans free text where a hex
 # run may precede the token as well as follow it.
-LOOSE_SHA_RE = re.compile(
-    r"(?<![0-9a-fA-F])[0-9a-f]{40}" + HEX_BOUNDARY)
+LOOSE_SHA_RE = re.compile(r"(?<![0-9a-fA-F])[0-9a-f]{40}" + HEX_BOUNDARY)
 
 
 def retention_ref(pin: str) -> str:
@@ -187,20 +187,21 @@ def retention_ref(pin: str) -> str:
     if not FULL_SHA_RE.match(pin or ""):
         raise ValueError(
             f"a retention ref is named for a FULL forty-character object name; "
-            f"{pin!r} is not one")
+            f"{pin!r} is not one"
+        )
     return f"{RETENTION_NAMESPACE}/{pin}"
 
 
 # ------------------------------------------------------------- the declaration
 
-TOOL_DEFINED = "tool-defined"      # a generator re-derives the body; reproduction
-                                   # is byte-for-byte comparable at a new pin
-MEASURED = "measured"              # no generator re-derives it; a re-pin owes a
-                                   # NAMED measurement instead of bytes
+TOOL_DEFINED = "tool-defined"  # a generator re-derives the body; reproduction
+# is byte-for-byte comparable at a new pin
+MEASURED = "measured"  # no generator re-derives it; a re-pin owes a
+# NAMED measurement instead of bytes
 
-REPO_LOCAL = "repo-local"          # a commit of THIS repository
-CROSS_REPOSITORY = "cross-repository"   # state in another repository, answered
-                                        # against another remote by another authority
+REPO_LOCAL = "repo-local"  # a commit of THIS repository
+CROSS_REPOSITORY = "cross-repository"  # state in another repository, answered
+# against another remote by another authority
 
 # The spellings that mean THIS repository where an artifact names the repository
 # a pin belongs to. Both are committed today: the routing records say
@@ -228,7 +229,8 @@ def _field_re(key: str) -> re.Pattern:
     guard beside a live one reads as live to the next editor."""
     return re.compile(
         rf'(?<![A-Za-z0-9_])"?{re.escape(key)}"?\s*:\s*"?'
-        rf'([0-9a-f]{{40}}){HEX_BOUNDARY}"?')
+        rf'([0-9a-f]{{40}}){HEX_BOUNDARY}"?'
+    )
 
 
 # WHAT A NON-COMMIT VALUE LOOKS LIKE, and why this regex is stricter about the
@@ -250,19 +252,22 @@ def _field_re(key: str) -> re.Pattern:
 # are dropped by the callers. Both false positives fail the anchor structurally
 # rather than by their value's shape, which matters because a value's shape is
 # precisely what this path may not judge on.
-_MAPPING_KEY_ANCHOR = r'(?:^|[{,\[])\s*(?:-\s+)*'
+_MAPPING_KEY_ANCHOR = r"(?:^|[{,\[])\s*(?:-\s+)*"
 
 # The value: a quoted scalar, or a bare one running to the next separator or
 # comment. `[^\s,#\]}]` for the first character keeps an empty value out and
 # stops the match at a line that is only a key (`generation:`), whose value is
 # the block beneath it rather than anything on the line.
-_SCALAR_VALUE = (r'(?P<value>"[^"]*"|\'[^\']*\'|'
-                 r'[^\s,#\]}][^,#\]}]*?)\s*(?=$|[,\]}]|\s#)')
+_SCALAR_VALUE = (
+    r'(?P<value>"[^"]*"|\'[^\']*\'|'
+    r"[^\s,#\]}][^,#\]}]*?)\s*(?=$|[,\]}]|\s#)"
+)
 
 
 def _wide_field_re(key: str) -> re.Pattern:
-    return re.compile(_MAPPING_KEY_ANCHOR + r'"?' + re.escape(key)
-                      + r'"?\s*:\s*' + _SCALAR_VALUE)
+    return re.compile(
+        _MAPPING_KEY_ANCHOR + r'"?' + re.escape(key) + r'"?\s*:\s*' + _SCALAR_VALUE
+    )
 
 
 def _scalar(raw: str) -> str:
@@ -279,9 +284,9 @@ def is_comment_line(line: str) -> bool:
     return line.lstrip().startswith("#")
 
 
-CURRENT = "current"                # committed instances carry real pins today
-FUTURE = "future"                  # a schema requires the pin; no committed
-                                   # instance holds a real one yet
+CURRENT = "current"  # committed instances carry real pins today
+FUTURE = "future"  # a schema requires the pin; no committed
+# instance holds a real one yet
 
 
 @dataclass(frozen=True)
@@ -293,16 +298,17 @@ class PinMember:
     rendered line carries. `pattern` is the regex that lifts the pin out of a
     matching line; it is derived from `key` for field members and stated
     explicitly for prose ones."""
+
     id: str
     paths: tuple[str, ...]
     key: str
-    key_form: str                  # "field" | "prose"
+    key_form: str  # "field" | "prose"
     generator: str
-    reproduction: str              # TOOL_DEFINED | MEASURED
-    locality: str                  # REPO_LOCAL | CROSS_REPOSITORY
-    presence: str                  # CURRENT | FUTURE
+    reproduction: str  # TOOL_DEFINED | MEASURED
+    locality: str  # REPO_LOCAL | CROSS_REPOSITORY
+    presence: str  # CURRENT | FUTURE
     note: str
-    pattern: str = ""              # prose members state their own
+    pattern: str = ""  # prose members state their own
     locality_from: tuple[str, ...] = ()
     # Whether an artifact matching this member is EXPECTED to carry the key.
     # Only meaningful for the absent-key report (`declare-sentinel-pin-
@@ -334,6 +340,7 @@ class NonMember:
     Declared rather than silently skipped: an exclusion nobody can read is
     indistinguishable from a coverage gap, and the reason is what a later
     reader needs in order to decide whether it still holds."""
+
     paths: tuple[str, ...]
     reason: str
 
@@ -348,16 +355,15 @@ PIN_CLASS: tuple[PinMember, ...] = (
         paths=("ideation/cross-reference.yaml",),
         key="source_revision",
         key_form="field",
-        generator="scripts/bootstrap-ideation-cross-reference.py "
-                  "(git_generation)",
+        generator="scripts/bootstrap-ideation-cross-reference.py (git_generation)",
         reproduction=TOOL_DEFINED,
         locality=REPO_LOCAL,
         presence=CURRENT,
         note="`generation.source_revision`. The one member whose reproduction "
-             "is byte-comparable today: the bootstrap re-derives the body and "
-             "the strict index validator checks it, which is the mechanism "
-             "`harden-ideation-readiness-check` used to prove its own re-pin "
-             "at three revisions.",
+        "is byte-comparable today: the bootstrap re-derives the body and "
+        "the strict index validator checks it, which is the mechanism "
+        "`harden-ideation-readiness-check` used to prove its own re-pin "
+        "at three revisions.",
     ),
     PinMember(
         id="cross-reference-rendered",
@@ -369,8 +375,8 @@ PIN_CLASS: tuple[PinMember, ...] = (
         locality=REPO_LOCAL,
         presence=CURRENT,
         note="THE PROSE MEMBER a key-name scanner misses. The pin is the "
-             "rendered line `- Source revision: `<sha>``, in a markdown "
-             "projection of the yaml index; it must agree with its twin.",
+        "rendered line `- Source revision: `<sha>``, in a markdown "
+        "projection of the yaml index; it must agree with its twin.",
         # `HEX_BOUNDARY`: a prose member's own pattern builds a site, so it
         # carries the whole-object-name guard exactly as the field forms do.
         pattern=r"Source revision:\s*`?([0-9a-f]{40})" + HEX_BOUNDARY + r"`?",
@@ -386,18 +392,17 @@ PIN_CLASS: tuple[PinMember, ...] = (
         locality=REPO_LOCAL,
         presence=CURRENT,
         note="`status: record`, so an orphaned pin here is repaired by "
-             "RETENTION and never by editing the record (requirement 2). Two "
-             "of this repository's three orphans are these records, and both "
-             "now resolve through the retention namespace with their original "
-             "pins UNEDITED.",
+        "RETENTION and never by editing the record (requirement 2). Two "
+        "of this repository's three orphans are these records, and both "
+        "now resolve through the retention namespace with their original "
+        "pins UNEDITED.",
     ),
     PinMember(
         id="derive-possibles-run",
         paths=("health/derive-possibles/*/*.yaml",),
         key="source_revision",
         key_form="field",
-        generator="the possibles-derivation lane "
-                  "(doc_health.derive_possibles)",
+        generator="the possibles-derivation lane (doc_health.derive_possibles)",
         reproduction=MEASURED,
         locality=REPO_LOCAL,
         presence=CURRENT,
@@ -410,13 +415,13 @@ PIN_CLASS: tuple[PinMember, ...] = (
         key="source_revision",
         key_form="field",
         generator="the dashboard gate console "
-                  "(scripts/ideation_dashboard, transition manifests)",
+        "(scripts/ideation_dashboard, transition manifests)",
         reproduction=MEASURED,
         locality=REPO_LOCAL,
         presence=CURRENT,
         note="The manifest records the revision a promotion or demotion moved "
-             "files at. Nothing re-derives it, so a re-pin owes a named "
-             "measurement rather than bytes.",
+        "files at. Nothing re-derives it, so a re-pin owes a named "
+        "measurement rather than bytes.",
     ),
     PinMember(
         id="gate-action-record",
@@ -428,10 +433,10 @@ PIN_CLASS: tuple[PinMember, ...] = (
         locality=REPO_LOCAL,
         presence=CURRENT,
         note="THE SECOND PROSE MEMBER, and the wrinkle that forced the class "
-             "to be declared: the pin has no field of its own — it sits in a "
-             "sentence, `… recipe: checked none · pinned none · at "
-             "source_revision <sha>`. One of the 25 committed gate-action "
-             "records carries one today.",
+        "to be declared: the pin has no field of its own — it sits in a "
+        "sentence, `… recipe: checked none · pinned none · at "
+        "source_revision <sha>`. One of the 25 committed gate-action "
+        "records carries one today.",
         # `HEX_BOUNDARY`: see the sibling prose member above.
         pattern=r"source_revision\s+`?([0-9a-f]{40})" + HEX_BOUNDARY + r"`?",
     ),
@@ -460,46 +465,50 @@ PIN_CLASS: tuple[PinMember, ...] = (
     # ---- the proposal-support transition tool ------------------------------
     PinMember(
         id="proposal-support-manifest",
-        paths=("openspec/changes/*/supporting-docs.manifest.yaml",
-               "openspec/changes/*/supporting-docs/*manifest.yaml",
-               "openspec/changes/archive/*/supporting-docs.manifest.yaml",
-               "openspec/changes/archive/*/supporting-docs/*manifest.yaml"),
+        paths=(
+            "openspec/changes/*/supporting-docs.manifest.yaml",
+            "openspec/changes/*/supporting-docs/*manifest.yaml",
+            "openspec/changes/archive/*/supporting-docs.manifest.yaml",
+            "openspec/changes/archive/*/supporting-docs/*manifest.yaml",
+        ),
         key="source_revision",
         key_form="field",
-        generator="the proposal-support transition tool "
-                  "(scripts/proposal_support)",
+        generator="the proposal-support transition tool (scripts/proposal_support)",
         reproduction=MEASURED,
         locality=REPO_LOCAL,
         presence=CURRENT,
         note="THE GENERATOR FAMILY THE PACKET'S SWEEP MISSED ENTIRELY — 31 "
-             "committed manifests, the largest member of the class, and the "
-             "carrier of this repository's THIRD orphaned pin "
-             "(74022ea5, at 2026-08-22-add-doxbench-editing-phase-b, retained "
-             "2026-08-27 at realization). A manifest inside an ARCHIVED packet "
-             "is not editable and nothing re-derives it, so retention is its "
-             "only route too.",
+        "committed manifests, the largest member of the class, and the "
+        "carrier of this repository's THIRD orphaned pin "
+        "(74022ea5, at 2026-08-22-add-doxbench-editing-phase-b, retained "
+        "2026-08-27 at realization). A manifest inside an ARCHIVED packet "
+        "is not editable and nothing re-derives it, so retention is its "
+        "only route too.",
     ),
     # ---- the avatar-client kernel and its lab ------------------------------
     PinMember(
         id="avatar-client-f0-pin",
-        paths=("contracts/avatar-client/interface-lock.yaml",
-               "contracts/avatar-client/kernel-handoff.yaml"),
+        paths=(
+            "contracts/avatar-client/interface-lock.yaml",
+            "contracts/avatar-client/kernel-handoff.yaml",
+        ),
         key="f0_source_commit",
         key_form="field",
-        generator="the avatar-client kernel realization "
-                  "(F0 publication gate)",
+        generator="the avatar-client kernel realization (F0 publication gate)",
         reproduction=MEASURED,
         locality=REPO_LOCAL,
         presence=CURRENT,
         note="The commit F0 published its evidence schemas at. Repo-local: "
-             "the F0 change lives in this repository.",
+        "the F0 change lives in this repository.",
     ),
     PinMember(
         id="avatar-client-f0-evidence",
-        paths=("openspec/changes/*/evidence/f0-*.yaml",
-               "openspec/changes/*/evidence/f0-*.json",
-               "openspec/changes/archive/*/evidence/f0-*.yaml",
-               "openspec/changes/archive/*/evidence/f0-*.json"),
+        paths=(
+            "openspec/changes/*/evidence/f0-*.yaml",
+            "openspec/changes/*/evidence/f0-*.json",
+            "openspec/changes/archive/*/evidence/f0-*.yaml",
+            "openspec/changes/archive/*/evidence/f0-*.json",
+        ),
         key="source_commit",
         key_form="field",
         generator="the F0 feasibility evidence lane",
@@ -507,7 +516,7 @@ PIN_CLASS: tuple[PinMember, ...] = (
         locality=REPO_LOCAL,
         presence=CURRENT,
         note="The F0 results and interface-impact records each pin the commit "
-             "they were taken at.",
+        "they were taken at.",
     ),
     PinMember(
         id="avatar-client-lab-transcription",
@@ -515,12 +524,12 @@ PIN_CLASS: tuple[PinMember, ...] = (
         key="openxfactory_commit",
         key_form="field",
         generator="the avatar-client-lab transcription "
-                  "(read-only consult of a spec delta)",
+        "(read-only consult of a spec delta)",
         reproduction=MEASURED,
         locality=REPO_LOCAL,
         presence=CURRENT,
         note="`source.openxfactory_commit` — the commit a verbatim "
-             "transcription was taken from.",
+        "transcription was taken from.",
     ),
     PinMember(
         id="avatar-client-lab-delta-touch",
@@ -532,8 +541,8 @@ PIN_CLASS: tuple[PinMember, ...] = (
         locality=REPO_LOCAL,
         presence=CURRENT,
         note="`source.spec_delta_last_touched_commit` — the second pin in the "
-             "same file, which is why a member is a (path, key) pair rather "
-             "than a path.",
+        "same file, which is why a member is a (path, key) pair rather "
+        "than a path.",
     ),
     # ---- cross-factory ideation routing -----------------------------------
     PinMember(
@@ -546,21 +555,22 @@ PIN_CLASS: tuple[PinMember, ...] = (
         locality=REPO_LOCAL,
         presence=CURRENT,
         note="Every routing record's `sources[].revision`, "
-             "`destination.revision` and `evidence_refs[].revision` pins the "
-             "commit a cited passage was read at, and each names its own "
-             "`repository:` beside it — a hub record routing a Ledgerx "
-             "brainstorm pins LEDGERX commits. So locality is read PER SITE "
-             "out of the artifact; five of the eleven sites committed today "
-             "are cross-repository and must not be answered against this "
-             "repository's refs.",
+        "`destination.revision` and `evidence_refs[].revision` pins the "
+        "commit a cited passage was read at, and each names its own "
+        "`repository:` beside it — a hub record routing a Ledgerx "
+        "brainstorm pins LEDGERX commits. So locality is read PER SITE "
+        "out of the artifact; five of the eleven sites committed today "
+        "are cross-repository and must not be answered against this "
+        "repository's refs.",
         locality_from=("repository",),
     ),
     # ---- the hermes-runtime contract handoff ------------------------------
     PinMember(
         id="hermes-consumer-handoff-provider",
-        paths=("openspec/changes/*/evidence/hermes-install-g0-handoff.yaml",
-               "openspec/changes/archive/*/evidence/"
-               "hermes-install-g0-handoff.yaml"),
+        paths=(
+            "openspec/changes/*/evidence/hermes-install-g0-handoff.yaml",
+            "openspec/changes/archive/*/evidence/hermes-install-g0-handoff.yaml",
+        ),
         key="commit",
         key_form="field",
         generator="the hermes-runtime consumer handoff receipt",
@@ -568,46 +578,47 @@ PIN_CLASS: tuple[PinMember, ...] = (
         locality=REPO_LOCAL,
         presence=CURRENT,
         note="`provider.commit`, repo-local because `provider.repository` IS "
-             "this repository — read out of the artifact rather than asserted. "
-             "The receipt's `consumer_commit` in the same file is "
-             "CROSS-REPOSITORY and is declared separately below: ONE FILE, TWO "
-             "LOCALITIES, which is the case the delta's locality clause exists "
-             "for.",
+        "this repository — read out of the artifact rather than asserted. "
+        "The receipt's `consumer_commit` in the same file is "
+        "CROSS-REPOSITORY and is declared separately below: ONE FILE, TWO "
+        "LOCALITIES, which is the case the delta's locality clause exists "
+        "for.",
         locality_from=("repository",),
     ),
     PinMember(
         id="hermes-provider-verification-contract-ref",
-        paths=("openspec/changes/*/evidence/provider-verification.yaml",
-               "openspec/changes/archive/*/evidence/"
-               "provider-verification.yaml"),
+        paths=(
+            "openspec/changes/*/evidence/provider-verification.yaml",
+            "openspec/changes/archive/*/evidence/provider-verification.yaml",
+        ),
         key="expected_contract_ref",
         key_form="field",
         generator="the hermes-runtime provider verification lane",
         reproduction=MEASURED,
         locality=REPO_LOCAL,
         presence=CURRENT,
-        note="The openxFactory commit every domain's stack was verified "
-             "against.",
+        note="The openxFactory commit every domain's stack was verified against.",
     ),
     PinMember(
         id="hermes-provider-verification-us3-baseline",
-        paths=("openspec/changes/*/evidence/provider-verification.yaml",
-               "openspec/changes/archive/*/evidence/"
-               "provider-verification.yaml"),
+        paths=(
+            "openspec/changes/*/evidence/provider-verification.yaml",
+            "openspec/changes/archive/*/evidence/provider-verification.yaml",
+        ),
         key="us3_baseline_commit",
         key_form="field",
         generator="the hermes-runtime provider verification lane "
-                  "(the US3 checkpoint baseline)",
+        "(the US3 checkpoint baseline)",
         reproduction=MEASURED,
         locality=REPO_LOCAL,
         presence=CURRENT,
         note="THE KEY THE VOCABULARY DID NOT KNOW, and the reason a renamed "
-             "key is a coverage hole rather than an inconvenience: this pin "
-             "was invisible to the packet's sweep AND to this module's first "
-             "draft, because the generator spelled `commit` with a prefix "
-             "nobody had enumerated. It is the class's ONE UNRECOVERABLE "
-             "orphan — see KNOWN_LOSSES, which carries the measurement and the "
-             "governance act still owed.",
+        "key is a coverage hole rather than an inconvenience: this pin "
+        "was invisible to the packet's sweep AND to this module's first "
+        "draft, because the generator spelled `commit` with a prefix "
+        "nobody had enumerated. It is the class's ONE UNRECOVERABLE "
+        "orphan — see KNOWN_LOSSES, which carries the measurement and the "
+        "governance act still owed.",
     ),
     # ---- declared CROSS-REPOSITORY members --------------------------------
     # Not verified against this repository's refs. Declared anyway, because an
@@ -619,21 +630,21 @@ PIN_CLASS: tuple[PinMember, ...] = (
         paths=("contracts/manifest.yaml",),
         key="source_commit",
         key_form="field",
-        generator="the contract bundle release "
-                  "(source_compatibility_ref)",
+        generator="the contract bundle release (source_compatibility_ref)",
         reproduction=MEASURED,
         locality=CROSS_REPOSITORY,
         presence=CURRENT,
         note="`source_compatibility_ref.source_commit`, whose sibling key "
-             "says `repo: opensoft/Omnigent-Install`. Answered against that "
-             "remote by that repository's authority; this pin does not resolve "
-             "here and must not be reported as an orphan.",
+        "says `repo: opensoft/Omnigent-Install`. Answered against that "
+        "remote by that repository's authority; this pin does not resolve "
+        "here and must not be reported as an orphan.",
     ),
     PinMember(
         id="hermes-consumer-handoff-consumer",
-        paths=("openspec/changes/*/evidence/hermes-install-g0-handoff.yaml",
-               "openspec/changes/archive/*/evidence/"
-               "hermes-install-g0-handoff.yaml"),
+        paths=(
+            "openspec/changes/*/evidence/hermes-install-g0-handoff.yaml",
+            "openspec/changes/archive/*/evidence/hermes-install-g0-handoff.yaml",
+        ),
         key="consumer_commit",
         key_form="field",
         generator="the hermes-runtime consumer handoff receipt",
@@ -644,9 +655,10 @@ PIN_CLASS: tuple[PinMember, ...] = (
     ),
     PinMember(
         id="hermes-provider-verification-domain",
-        paths=("openspec/changes/*/evidence/provider-verification.yaml",
-               "openspec/changes/archive/*/evidence/"
-               "provider-verification.yaml"),
+        paths=(
+            "openspec/changes/*/evidence/provider-verification.yaml",
+            "openspec/changes/archive/*/evidence/provider-verification.yaml",
+        ),
         key="commit",
         key_form="field",
         generator="the hermes-runtime provider verification lane",
@@ -654,14 +666,16 @@ PIN_CLASS: tuple[PinMember, ...] = (
         locality=CROSS_REPOSITORY,
         presence=CURRENT,
         note="`domains[].commit`, each beside its own `repository:` naming a "
-             "DomainxFactory. Seven sites today; locality is read per site so "
-             "an openxFactory row in the same list would be verified here.",
+        "DomainxFactory. Seven sites today; locality is read per site so "
+        "an openxFactory row in the same list would be verified here.",
         locality_from=("repository",),
     ),
     PinMember(
         id="neutrality-drift-baseline",
-        paths=("health/neutrality-drift/baseline/*.yaml",
-               "health/neutrality-drift/baseline/*.json"),
+        paths=(
+            "health/neutrality-drift/baseline/*.yaml",
+            "health/neutrality-drift/baseline/*.json",
+        ),
         key="commit",
         key_form="field",
         generator="the neutrality-drift lane's baseline record",
@@ -669,12 +683,12 @@ PIN_CLASS: tuple[PinMember, ...] = (
         locality=CROSS_REPOSITORY,
         presence=CURRENT,
         note="THE SITE THE FIRST REAL-REPOSITORY RUN FOUND UNCOVERED, which is "
-             "the coverage half of requirement 4 working on its first outing "
-             "rather than in a fixture: `status: record`, `repo: codexFactory`, "
-             "and a `commit:` naming that repository's post-shed tip. Locality "
-             "is read from the artifact's own `repo:` key, so an openxFactory "
-             "baseline landing here would be verified against this "
-             "repository's refs.",
+        "the coverage half of requirement 4 working on its first outing "
+        "rather than in a fixture: `status: record`, `repo: codexFactory`, "
+        "and a `commit:` naming that repository's post-shed tip. Locality "
+        "is read from the artifact's own `repo:` key, so an openxFactory "
+        "baseline landing here would be verified against this "
+        "repository's refs.",
         locality_from=("repo", "repository"),
     ),
     # ---- the neutral-product pin: ONE artifact, TWO localities -------------
@@ -692,19 +706,19 @@ PIN_CLASS: tuple[PinMember, ...] = (
         key="carve_commit",
         key_form="field",
         generator="authored with the pin (split-openxwallet-repo P3, feature "
-                  "023-openxwallet-consume-shed)",
+        "023-openxwallet-consume-shed)",
         reproduction=MEASURED,
         locality=REPO_LOCAL,
         presence=CURRENT,
         note="THE NAMED CARVE COMMIT — an openxFactory commit, and the one "
-             "value in this file that MUST stay reachable here. It is the "
-             "byte-identity referent for the whole extraction: the eight "
-             "`sha256` digests below it are the values `contracts/manifest.yaml` "
-             "recorded AT THIS COMMIT, and the claim that the move was "
-             "byte-identical is checkable only while the commit can be "
-             "reconstructed. `carve_commit` was a key this vocabulary did not "
-             "know; declaring the member is what teaches it, since "
-             "`PIN_KEY_VOCABULARY` is the union of the declared field keys.",
+        "value in this file that MUST stay reachable here. It is the "
+        "byte-identity referent for the whole extraction: the eight "
+        "`sha256` digests below it are the values `contracts/manifest.yaml` "
+        "recorded AT THIS COMMIT, and the claim that the move was "
+        "byte-identical is checkable only while the commit can be "
+        "reconstructed. `carve_commit` was a key this vocabulary did not "
+        "know; declaring the member is what teaches it, since "
+        "`PIN_KEY_VOCABULARY` is the union of the declared field keys.",
     ),
     PinMember(
         id="openxwallet-pin-product-commit",
@@ -712,22 +726,22 @@ PIN_CLASS: tuple[PinMember, ...] = (
         key="commit",
         key_form="field",
         generator="authored with the pin (split-openxwallet-repo P3, feature "
-                  "023-openxwallet-consume-shed)",
+        "023-openxwallet-consume-shed)",
         reproduction=MEASURED,
         locality=CROSS_REPOSITORY,
         presence=CURRENT,
         note="`source_repository: opensoft/openXwallet` — the PINNED PRODUCT'S "
-             "commit, at tag label `wallet-v1.1`. It does not resolve in this "
-             "repository and must not be reported as an orphan; it is answered "
-             "by openXwallet's own authority and, locally, by "
-             "`scripts/verify-openxwallet-pin.py`, which compares it against "
-             "BOTH the recorded gitlink and the checked-out revision of the "
-             "`openXwallet/` submodule and recomputes the eight digests. That "
-             "verifier is a stronger reachability guarantee than a ref here "
-             "could give, which is why the cross-repository declaration is not "
-             "a gap. Locality is declared on the member rather than read per "
-             "site: this key is ALWAYS the product's, and `carve_commit` above "
-             "is ALWAYS this repository's.",
+        "commit, at tag label `wallet-v1.1`. It does not resolve in this "
+        "repository and must not be reported as an orphan; it is answered "
+        "by openXwallet's own authority and, locally, by "
+        "`scripts/verify-openxwallet-pin.py`, which compares it against "
+        "BOTH the recorded gitlink and the checked-out revision of the "
+        "`openXwallet/` submodule and recomputes the eight digests. That "
+        "verifier is a stronger reachability guarantee than a ref here "
+        "could give, which is why the cross-repository declaration is not "
+        "a gap. Locality is declared on the member rather than read per "
+        "site: this key is ALWAYS the product's, and `carve_commit` above "
+        "is ALWAYS this repository's.",
     ),
     # ---- the pinned decision core: executable governance, not a bundle -----
     # `contracts/review-lane-pin.yaml` (feature 025-openxfactory-review-lane-caller)
@@ -743,24 +757,24 @@ PIN_CLASS: tuple[PinMember, ...] = (
         key="core_commit",
         key_form="field",
         generator="authored with the pin (add-substantive-review-lane task 5.1, "
-                  "feature 025-openxfactory-review-lane-caller)",
+        "feature 025-openxfactory-review-lane-caller)",
         reproduction=MEASURED,
         locality=CROSS_REPOSITORY,
         presence=CURRENT,
         note="`repository: opensoft/codexFactory` — the DECISION CORE'S commit. "
-             "It does not resolve in this repository and must not be reported "
-             "as an orphan; codexFactory answers for it, and locally "
-             "`.github/workflows/merge-master-approval.yml` compares this "
-             "recorded value against BOTH its own literal `ref:` and the commit "
-             "`actions/checkout` actually produced, refusing the run on any "
-             "disagreement. What is pinned is EXECUTABLE GOVERNANCE rather than "
-             "contract bytes, so there is no digest set to check and the commit "
-             "is the whole referent. `core_commit` was a key this vocabulary "
-             "did not know, and it is deliberately not `commit`: that name is "
-             "already bound to `openxwallet-pin-product-commit` above, so "
-             "reusing it here would have left this site UNCOVERED. Declaring "
-             "the member is what teaches the key, since `PIN_KEY_VOCABULARY` is "
-             "the union of the declared field keys.",
+        "It does not resolve in this repository and must not be reported "
+        "as an orphan; codexFactory answers for it, and locally "
+        "`.github/workflows/merge-master-approval.yml` compares this "
+        "recorded value against BOTH its own literal `ref:` and the commit "
+        "`actions/checkout` actually produced, refusing the run on any "
+        "disagreement. What is pinned is EXECUTABLE GOVERNANCE rather than "
+        "contract bytes, so there is no digest set to check and the commit "
+        "is the whole referent. `core_commit` was a key this vocabulary "
+        "did not know, and it is deliberately not `commit`: that name is "
+        "already bound to `openxwallet-pin-product-commit` above, so "
+        "reusing it here would have left this site UNCOVERED. Declaring "
+        "the member is what teaches the key, since `PIN_KEY_VOCABULARY` is "
+        "the union of the declared field keys.",
     ),
     # ---- FUTURE members: schema-declared, no committed real pin yet --------
     # Declared now rather than on discovery. The day the first instance lands
@@ -768,8 +782,10 @@ PIN_CLASS: tuple[PinMember, ...] = (
     # case the declaration exists to catch: nobody will remember to add them.
     PinMember(
         id="ideation-dashboard-snapshot",
-        paths=("health/ideation-dashboard/*snapshot.json",
-               "health/ideation-dashboard/*snapshot.yaml"),
+        paths=(
+            "health/ideation-dashboard/*snapshot.json",
+            "health/ideation-dashboard/*snapshot.yaml",
+        ),
         key="source_revision",
         key_form="field",
         generator="the ideation dashboard snapshot builder",
@@ -777,13 +793,15 @@ PIN_CLASS: tuple[PinMember, ...] = (
         locality=REPO_LOCAL,
         presence=FUTURE,
         note="`contracts/schemas/ideation-dashboard-snapshot.schema.yaml` "
-             "REQUIRES `generation.source_revision`. No committed instance "
-             "today; the only instances are examples.",
+        "REQUIRES `generation.source_revision`. No committed instance "
+        "today; the only instances are examples.",
     ),
     PinMember(
         id="ideation-dashboard-snapshot-index",
-        paths=("health/ideation-dashboard/*snapshot-index.json",
-               "health/ideation-dashboard/*snapshot-index.yaml"),
+        paths=(
+            "health/ideation-dashboard/*snapshot-index.json",
+            "health/ideation-dashboard/*snapshot-index.yaml",
+        ),
         key="source_revision",
         key_form="field",
         generator="the ideation dashboard snapshot index builder",
@@ -791,15 +809,14 @@ PIN_CLASS: tuple[PinMember, ...] = (
         locality=REPO_LOCAL,
         presence=FUTURE,
         note="`ideation-dashboard-snapshot-index.schema.yaml` requires a "
-             "`source_revision` per entry, and derives each entry's "
-             "`generated_at` from that revision's commit date — so an "
-             "unreachable pin there loses a timestamp as well as a provenance "
-             "claim.",
+        "`source_revision` per entry, and derives each entry's "
+        "`generated_at` from that revision's commit date — so an "
+        "unreachable pin there loses a timestamp as well as a provenance "
+        "claim.",
     ),
     PinMember(
         id="ideation-workbench",
-        paths=("ideation/workbench/**/*.yaml",
-               "ideation/workbench/**/*.json"),
+        paths=("ideation/workbench/**/*.yaml", "ideation/workbench/**/*.json"),
         key="source_revision",
         key_form="field",
         generator="the ideation workbench",
@@ -807,21 +824,20 @@ PIN_CLASS: tuple[PinMember, ...] = (
         locality=REPO_LOCAL,
         presence=FUTURE,
         note="`ideation-workbench.schema.yaml` requires `source_revision` on a "
-             "seeded recipe — the snapshot revision the recipe was last "
-             "evaluated against.",
+        "seeded recipe — the snapshot revision the recipe was last "
+        "evaluated against.",
     ),
     PinMember(
         id="organizer-recommendations",
         paths=("health/ideation-organizer/**/*.yaml",),
         key="source_revision",
         key_form="field",
-        generator="the ideation organizer lane "
-                  "(doc_health.organizer)",
+        generator="the ideation organizer lane (doc_health.organizer)",
         reproduction=MEASURED,
         locality=REPO_LOCAL,
         presence=FUTURE,
         note="`xfactory-ideation-organizer-recommendations.schema.yaml` lists "
-             "`source_revision` as required.",
+        "`source_revision` as required.",
     ),
     PinMember(
         id="gate-intent-snapshot-rev",
@@ -833,8 +849,8 @@ PIN_CLASS: tuple[PinMember, ...] = (
         locality=REPO_LOCAL,
         presence=FUTURE,
         note="`gate-intent.schema.yaml` carries `snapshot_rev_seen` for "
-             "optimistic concurrency. It pins repository state like every "
-             "other member, so it is declared; no committed instance today.",
+        "optimistic concurrency. It pins repository state like every "
+        "other member, so it is declared; no committed instance today.",
     ),
 )
 
@@ -876,6 +892,7 @@ class KnownLoss:
     measurement; what changes is that the class stops calling itself
     incompletely verified over an obligation somebody has since met
     (`supersede-lost-pin-baseline`, 2026-08-27)."""
+
     pin: str
     path: str
     key: str
@@ -889,56 +906,57 @@ KNOWN_LOSSES: tuple[KnownLoss, ...] = (
     KnownLoss(
         pin="66b14064bbd50d1af4e9585d10f8150f2bc352f0",
         path="openspec/changes/archive/2026-08-27-add-hermes-customer-subject-"
-             "runtime-contract/evidence/provider-verification.yaml",
+        "runtime-contract/evidence/provider-verification.yaml",
         key="us3_baseline_commit",
         measured="2026-08-27, at origin/main. `git cat-file -t` fails in the "
-                 "shared aggregation object store; the pin appears in NONE of "
-                 "the 566 refs `git ls-remote origin` advertises (403 of them "
-                 "`refs/pull/*`); and `git fetch origin "
-                 "66b14064bbd50d1af4e9585d10f8150f2bc352f0` is refused by the "
-                 "server with `upload-pack: not our ref`, which is the "
-                 "strongest available statement that the remote cannot reach "
-                 "it either. The branch it was taken on, "
-                 "`005-customer-subject-runtime`, is gone from the remote. "
-                 "Retention is therefore IMPOSSIBLE rather than merely not yet "
-                 "performed.",
+        "shared aggregation object store; the pin appears in NONE of "
+        "the 566 refs `git ls-remote origin` advertises (403 of them "
+        "`refs/pull/*`); and `git fetch origin "
+        "66b14064bbd50d1af4e9585d10f8150f2bc352f0` is refused by the "
+        "server with `upload-pack: not our ref`, which is the "
+        "strongest available statement that the remote cannot reach "
+        "it either. The branch it was taken on, "
+        "`005-customer-subject-runtime`, is gone from the remote. "
+        "Retention is therefore IMPOSSIBLE rather than merely not yet "
+        "performed.",
         owed="A superseding evidence record for "
-             "`add-hermes-customer-subject-runtime-contract` naming the loss "
-             "and what is no longer verifiable at that baseline, plus a "
-             "disposition for the standing finding. Both are governance acts "
-             "with a named authority; neither is a code change, and this "
-             "realization deliberately performs neither. The record's own note "
-             "argues the pin is not load-bearing for it — \"Evidence is bound "
-             "to canonical content, not to its own commit\" — which is exactly "
-             "the claim a superseding record should state and cite rather than "
-             "leave in a comment.",
+        "`add-hermes-customer-subject-runtime-contract` naming the loss "
+        "and what is no longer verifiable at that baseline, plus a "
+        "disposition for the standing finding. Both are governance acts "
+        "with a named authority; neither is a code change, and this "
+        "realization deliberately performs neither. The record's own note "
+        'argues the pin is not load-bearing for it — "Evidence is bound '
+        'to canonical content, not to its own commit" — which is exactly '
+        "the claim a superseding record should state and cite rather than "
+        "leave in a comment.",
         superseding_record=(
             "openspec/changes/supersede-lost-pin-baseline/evidence/"
             "pin-loss-supersession.yaml",
             "openspec/changes/archive/*-supersede-lost-pin-baseline/evidence/"
-            "pin-loss-supersession.yaml"),
+            "pin-loss-supersession.yaml",
+        ),
         discharged="SUPERSEDED 2026-08-27 by `supersede-lost-pin-baseline`, "
-                   "commissioned by Brett that day. THE MEASUREMENT ABOVE WAS "
-                   "RE-RUN BEFORE THE RECORD WAS WRITTEN and its answer did not "
-                   "move: 0 matches, now across 573 advertised refs rather than "
-                   "566, the remote having gained seven refs in a day. THE "
-                   "OBJECT IS STILL GONE "
-                   "and this row stays declared and re-measured; what the "
-                   "record supplies is the standing the archived evidence "
-                   "keeps without it, and the NAMED MEASUREMENT that "
-                   "establishes it. The US3 checkpoint's CONTENT survives "
-                   "under a rewritten object name — "
-                   "`8f7c99f0db065fb153b7d9498eb1e16b3c3c306b`, an ancestor of "
-                   "`main` and the parent of "
-                   "`e8ae366cda7b5814b73942891837175b5c43d929`, the commit "
-                   "that added the record — and the identification is "
-                   "corroborated by all three counts the record itself states "
-                   "against its baseline, each re-measured at both commits: "
-                   "catalog members 34 -> 39, schema members 27 -> 32, fixture "
-                   "cases 79 -> 110. What is permanently lost is the OBJECT "
-                   "NAME the record carries, so no reader can prove tree "
-                   "equality against it; the equivalence is corroboration, and "
-                   "the record says so rather than claiming recovery.",
+        "commissioned by Brett that day. THE MEASUREMENT ABOVE WAS "
+        "RE-RUN BEFORE THE RECORD WAS WRITTEN and its answer did not "
+        "move: 0 matches, now across 573 advertised refs rather than "
+        "566, the remote having gained seven refs in a day. THE "
+        "OBJECT IS STILL GONE "
+        "and this row stays declared and re-measured; what the "
+        "record supplies is the standing the archived evidence "
+        "keeps without it, and the NAMED MEASUREMENT that "
+        "establishes it. The US3 checkpoint's CONTENT survives "
+        "under a rewritten object name — "
+        "`8f7c99f0db065fb153b7d9498eb1e16b3c3c306b`, an ancestor of "
+        "`main` and the parent of "
+        "`e8ae366cda7b5814b73942891837175b5c43d929`, the commit "
+        "that added the record — and the identification is "
+        "corroborated by all three counts the record itself states "
+        "against its baseline, each re-measured at both commits: "
+        "catalog members 34 -> 39, schema members 27 -> 32, fixture "
+        "cases 79 -> 110. What is permanently lost is the OBJECT "
+        "NAME the record carries, so no reader can prove tree "
+        "equality against it; the equivalence is corroboration, and "
+        "the record says so rather than claiming recovery.",
     ),
 )
 
@@ -950,8 +968,9 @@ def known_loss(pin: str) -> KnownLoss | None:
     return None
 
 
-def discharging_record(repo, rev: str, loss: KnownLoss, *,
-                       paths: list[str] | None = None) -> str | None:
+def discharging_record(
+    repo, rev: str, loss: KnownLoss, *, paths: list[str] | None = None
+) -> str | None:
     """The committed superseding record that DISCHARGES `loss`, or None.
 
     MEASURED, NEVER TRUSTED, and that is the whole point of reading committed
@@ -977,7 +996,11 @@ def discharging_record(repo, rev: str, loss: KnownLoss, *,
 # WHERE THE COVERAGE SWEEP LOOKS. Governance artifacts live under these roots;
 # a pin-shaped value anywhere in them is a candidate site.
 SCAN_ROOTS: tuple[str, ...] = (
-    "ideation/**", "health/**", "specs/**", "contracts/**", "openspec/**",
+    "ideation/**",
+    "health/**",
+    "specs/**",
+    "contracts/**",
+    "openspec/**",
 )
 
 # ...and in which serializations. A pin recorded as a FIELD is recorded in one
@@ -990,145 +1013,186 @@ SCAN_SUFFIXES: tuple[str, ...] = (".yaml", ".yml", ".json")
 # sibling names a generator might plausibly reach for — the packet's own sweep
 # vocabulary, kept so a renamed key still lands as an UNCOVERED site rather
 # than as silence.
-PIN_KEY_VOCABULARY: tuple[str, ...] = tuple(sorted({
-    *(m.key for m in PIN_CLASS if m.key_form == "field"),
-    "source_revision", "source_commit", "source_rev", "source_ref",
-    "corpus_revision", "revision", "commit", "commit_sha", "base_commit",
-    "pinned_commit", "head_commit", "git_commit", "derived_from",
-    "generated_from", "contract_ref", "snapshot_rev_seen",
-    # Added on evidence, not on speculation: `us3_baseline_commit` is a real
-    # committed pin this vocabulary did not know, found by enumerating every key
-    # name that carries a 40-hex value in committed structured state rather than
-    # by guessing which names a generator might pick. That enumeration is the
-    # honest way to seed this tuple and is pinned by test.
-    "us3_baseline_commit",
-}))
+PIN_KEY_VOCABULARY: tuple[str, ...] = tuple(
+    sorted(
+        {
+            *(m.key for m in PIN_CLASS if m.key_form == "field"),
+            "source_revision",
+            "source_commit",
+            "source_rev",
+            "source_ref",
+            "corpus_revision",
+            "revision",
+            "commit",
+            "commit_sha",
+            "base_commit",
+            "pinned_commit",
+            "head_commit",
+            "git_commit",
+            "derived_from",
+            "generated_from",
+            "contract_ref",
+            "snapshot_rev_seen",
+            # Added on evidence, not on speculation: `us3_baseline_commit` is a real
+            # committed pin this vocabulary did not know, found by enumerating every key
+            # name that carries a 40-hex value in committed structured state rather than
+            # by guessing which names a generator might pick. That enumeration is the
+            # honest way to seed this tuple and is pinned by test.
+            "us3_baseline_commit",
+        }
+    )
+)
 
 # `HEX_BOUNDARY` on the value for the same reason `_field_re` carries it: this
 # is a SITE-BUILDING expression, and a longer hexadecimal run under a
 # vocabulary key must fail to match here rather than yield a truncated prefix.
 _VOCAB_RE = re.compile(
-    r'(?<![A-Za-z0-9_])"?(' + "|".join(re.escape(k) for k in sorted(
-        PIN_KEY_VOCABULARY, key=len, reverse=True))
-    + r')"?\s*:\s*"?([0-9a-f]{40})' + HEX_BOUNDARY + r'"?')
+    r'(?<![A-Za-z0-9_])"?('
+    + "|".join(re.escape(k) for k in sorted(PIN_KEY_VOCABULARY, key=len, reverse=True))
+    + r')"?\s*:\s*"?([0-9a-f]{40})'
+    + HEX_BOUNDARY
+    + r'"?'
+)
 
 # The same key set with the value widened, for the non-commit classification.
 # Its key anchor is the mapping-position one rather than `_VOCAB_RE`'s bare
 # boundary — see `_MAPPING_KEY_ANCHOR` for the two prose sites that measured
 # that difference into existence.
 _WIDE_VOCAB_RE = re.compile(
-    _MAPPING_KEY_ANCHOR + r'"?(?P<key>' + "|".join(
-        re.escape(k) for k in sorted(PIN_KEY_VOCABULARY, key=len, reverse=True))
-    + r')"?\s*:\s*' + _SCALAR_VALUE)
+    _MAPPING_KEY_ANCHOR
+    + r'"?(?P<key>'
+    + "|".join(re.escape(k) for k in sorted(PIN_KEY_VOCABULARY, key=len, reverse=True))
+    + r')"?\s*:\s*'
+    + _SCALAR_VALUE
+)
 
 
 # WHAT THE SWEEP DELIBERATELY DOES NOT TREAT AS A MEMBER. Each row states its
 # reason, because an exclusion nobody can read is a coverage gap in disguise.
 NON_MEMBERS: tuple[NonMember, ...] = (
     NonMember(
-        paths=("**/examples/**", "examples/**", "**/*.example.yaml",
-               "**/*.example.yml", "**/*.example.json"),
+        paths=(
+            "**/examples/**",
+            "examples/**",
+            "**/*.example.yaml",
+            "**/*.example.yml",
+            "**/*.example.json",
+        ),
         reason="instantiation stubs and sample data. Some carry values copied "
-               "from real records and therefore resolve, which is exactly why "
-               "they must be excluded by DECLARATION rather than by whether "
-               "they happen to resolve: an example is not an artifact making a "
-               "provenance claim about itself.",
+        "from real records and therefore resolve, which is exactly why "
+        "they must be excluded by DECLARATION rather than by whether "
+        "they happen to resolve: an example is not an artifact making a "
+        "provenance claim about itself.",
     ),
     NonMember(
-        paths=("**/*.template.yaml", "**/*.template.yml",
-               "**/*.template.json"),
+        paths=("**/*.template.yaml", "**/*.template.yml", "**/*.template.json"),
         reason="INSTANTIATION TEMPLATES — the same category as the examples "
-               "above, and declared here on evidence rather than by analogy. "
-               "Three are committed inside the scan roots and none carries a "
-               "forty-character value, so this row is inert for the "
-               "reachability sweep; what it excludes is a non-commit value, "
-               "and one is committed: `document-catalog.template.yaml:42` "
-               "holds `revision: <current full commit>`, a placeholder telling "
-               "an instantiator what to write. A template is not an artifact "
-               "making a provenance claim about itself, its placeholder names "
-               "no condition so it cannot be declared a sentinel, it has no "
-               "generator to correct, and it sits inside an archived packet so "
-               "its bytes may not be edited — the declaration is the only "
-               "route the seeding obligation leaves open, and it is the same "
-               "route the examples row already takes.",
+        "above, and declared here on evidence rather than by analogy. "
+        "Three are committed inside the scan roots and none carries a "
+        "forty-character value, so this row is inert for the "
+        "reachability sweep; what it excludes is a non-commit value, "
+        "and one is committed: `document-catalog.template.yaml:42` "
+        "holds `revision: <current full commit>`, a placeholder telling "
+        "an instantiator what to write. A template is not an artifact "
+        "making a provenance claim about itself, its placeholder names "
+        "no condition so it cannot be declared a sentinel, it has no "
+        "generator to correct, and it sits inside an archived packet so "
+        "its bytes may not be edited — the declaration is the only "
+        "route the seeding obligation leaves open, and it is the same "
+        "route the examples row already takes.",
     ),
     NonMember(
-        paths=("**/negative/**", "**/*.negative.yaml", "**/*.negative.yml",
-               "**/*.negative.json"),
+        paths=(
+            "**/negative/**",
+            "**/*.negative.yaml",
+            "**/*.negative.yml",
+            "**/*.negative.json",
+        ),
         reason="negative-case sample data, deliberately invalid.",
     ),
     NonMember(
         paths=("**/fixtures/**", "tests/**"),
         reason="test fixtures. Their pins are synthetic (`dddd…`, `1111…`) or "
-               "frozen sample data; a fixture is the subject of a test, not a "
-               "record of a derivation.",
+        "frozen sample data; a fixture is the subject of a test, not a "
+        "record of a derivation.",
     ),
     NonMember(
         paths=("contracts/schemas/**",),
         reason="schemas DECLARE the keys; they carry no pins of their own. A "
-               "schema whose required `source_revision` has no committed "
-               "instance yet is a FUTURE member above, not a site here.",
+        "schema whose required `source_revision` has no committed "
+        "instance yet is a FUTURE member above, not a site here.",
     ),
     NonMember(
         paths=("**/*.schema.yaml", "**/*.schema.yml", "**/*.schema.json"),
         reason="THE SAME REASON AS THE ROW ABOVE, AT THE PATHS THAT ROW'S GLOB "
-               "DOES NOT REACH — and found by measurement rather than by "
-               "tidiness. 114 committed schema files sit inside the scan roots "
-               "outside `contracts/schemas/`, and the widened value check "
-               "reported one of them: "
-               "`specs/002-avc-f0-feasibility/contracts/"
-               "f0-interface-impact.schema.yaml:34` holds `source_commit: "
-               "{type: string, minLength: 1}`, which is a key DECLARATION in "
-               "JSON-Schema and not a value at all. A schema states what a pin "
-               "must look like; it never makes a derivation claim about "
-               "itself. Inert for the reachability sweep — no committed schema "
-               "in the scan roots carries a forty-character value — so this "
-               "row only ever excludes a type declaration being read as a "
-               "spelling.",
+        "DOES NOT REACH — and found by measurement rather than by "
+        "tidiness. 114 committed schema files sit inside the scan roots "
+        "outside `contracts/schemas/`, and the widened value check "
+        "reported one of them: "
+        "`specs/002-avc-f0-feasibility/contracts/"
+        "f0-interface-impact.schema.yaml:34` holds `source_commit: "
+        "{type: string, minLength: 1}`, which is a key DECLARATION in "
+        "JSON-Schema and not a value at all. A schema states what a pin "
+        "must look like; it never makes a derivation claim about "
+        "itself. Inert for the reachability sweep — no committed schema "
+        "in the scan roots carries a forty-character value — so this "
+        "row only ever excludes a type declaration being read as a "
+        "spelling.",
     ),
     NonMember(
         paths=("**/*.md",),
         reason="PROSE, and the one line this module cannot draw mechanically. "
-               "Governance prose quotes pins constantly — a proposal narrating "
-               "a landing, a migration-evidence file listing twelve manifests, "
-               "an archive record naming a merge commit — and none of those is "
-               "the quoting file's own derivation claim. A markdown file that "
-               "genuinely carries its own pin is DECLARED "
-               "(`ideation/cross-reference.md` is the one today) and verified "
-               "like any other member. THE TRADE IS STATED: a future markdown "
-               "projection that pins its source and is never declared would go "
-               "unswept, where a yaml one would be caught. That is the cost of "
-               "prose being unparseable, and it is the reason the class is a "
-               "declaration in the first place.",
+        "Governance prose quotes pins constantly — a proposal narrating "
+        "a landing, a migration-evidence file listing twelve manifests, "
+        "an archive record naming a merge commit — and none of those is "
+        "the quoting file's own derivation claim. A markdown file that "
+        "genuinely carries its own pin is DECLARED "
+        "(`ideation/cross-reference.md` is the one today) and verified "
+        "like any other member. THE TRADE IS STATED: a future markdown "
+        "projection that pins its source and is never declared would go "
+        "unswept, where a yaml one would be caught. That is the cost of "
+        "prose being unparseable, and it is the reason the class is a "
+        "declaration in the first place.",
     ),
     NonMember(
-        paths=("openspec/changes/*/.openspec.yaml",
-               "openspec/changes/archive/*/.openspec.yaml"),
+        paths=(
+            "openspec/changes/*/.openspec.yaml",
+            "openspec/changes/archive/*/.openspec.yaml",
+        ),
         reason="origin declarations. Their `reason` fields narrate the acts "
-               "that created a change and quote pins as evidence — the "
-               "`govern-derived-pin-reachability` origin block quotes both "
-               "readiness orphans. A quotation of a pin is not a pin.",
+        "that created a change and quote pins as evidence — the "
+        "`govern-derived-pin-reachability` origin block quotes both "
+        "readiness orphans. A quotation of a pin is not a pin.",
+    ),
+    NonMember(
+        paths=(
+            "openspec/changes/add-resolved-council-seats/evidence/provider-local-validation.yaml",
+        ),
+        reason="point-in-time validation evidence cites the exact commits each "
+        "recorded run observed; those historical citations are not the "
+        "evidence file's own derivation pin.",
     ),
     NonMember(
         paths=SUPERSESSION_RECORD_PATHS,
         reason="PIN-LOSS SUPERSESSION RECORDS, whose SUBJECT is a pin. Such a "
-               "record exists to name a commit declared unrecoverable, to say "
-               "what can and cannot still be verified without it, and to cite "
-               "the surviving state a named measurement identified — so every "
-               "pin-shaped value in one is a citation of another artifact's "
-               "derivation claim, and none is the record's own. DECLARED here "
-               "rather than dodged by choosing a key nobody enumerated, which "
-               "is the coverage hazard `us3_baseline_commit` already proved: a "
-               "pin-shaped value in a swept root is declared as a member or as "
-               "a non-member with a reason, or it is a silent gap. THE TRADE "
-               "IS STATED: a supersession record makes no derivation claim "
-               "about itself today, and a future one that did would go "
-               "unswept here.",
+        "record exists to name a commit declared unrecoverable, to say "
+        "what can and cannot still be verified without it, and to cite "
+        "the surviving state a named measurement identified — so every "
+        "pin-shaped value in one is a citation of another artifact's "
+        "derivation claim, and none is the record's own. DECLARED here "
+        "rather than dodged by choosing a key nobody enumerated, which "
+        "is the coverage hazard `us3_baseline_commit` already proved: a "
+        "pin-shaped value in a swept root is declared as a member or as "
+        "a non-member with a reason, or it is a silent gap. THE TRADE "
+        "IS STATED: a supersession record makes no derivation claim "
+        "about itself today, and a future one that did would go "
+        "unswept here.",
     ),
 )
 
 
 # --------------------------------------------------------------- glob matching
+
 
 def _glob_re(glob: str) -> re.Pattern:
     """POSIX-path glob -> regex, with `**` crossing separators and `*` not.
@@ -1183,7 +1247,8 @@ def non_member_reason(path: str) -> str | None:
 # of the artifact where the artifact itself declares it
 
 _REPOSITORY_VALUE_RE = re.compile(
-    r'(?<![A-Za-z0-9_])"?(?P<key>[A-Za-z0-9_]+)"?\s*:\s*"?(?P<value>[^"\s,]+)"?')
+    r'(?<![A-Za-z0-9_])"?(?P<key>[A-Za-z0-9_]+)"?\s*:\s*"?(?P<value>[^"\s,]+)"?'
+)
 
 
 def _key_indent(line: str) -> int:
@@ -1222,7 +1287,7 @@ def _block_range(lines: list[str], idx: int) -> range:
             break
         lo -= 1
         if _key_indent(prev) == depth and _is_item_start(prev):
-            break                      # this line OPENS the entry
+            break  # this line OPENS the entry
     hi = idx
     while hi + 1 < len(lines):
         nxt = lines[hi + 1]
@@ -1232,13 +1297,12 @@ def _block_range(lines: list[str], idx: int) -> range:
         if _key_indent(nxt) < depth:
             break
         if _key_indent(nxt) == depth and _is_item_start(nxt):
-            break                      # the NEXT entry begins
+            break  # the NEXT entry begins
         hi += 1
     return range(lo, hi + 1)
 
 
-def site_locality(member: PinMember, lines: list[str], idx: int
-                  ) -> tuple[str, str]:
+def site_locality(member: PinMember, lines: list[str], idx: int) -> tuple[str, str]:
     """`(locality, why)` for one pin site.
 
     Most members are wholly repo-local or wholly cross-repository and say so.
@@ -1260,14 +1324,18 @@ def site_locality(member: PinMember, lines: list[str], idx: int
             continue
         value = found.group("value").strip().rstrip(",")
         own = value.lower() in OWN_REPOSITORY_SPELLINGS
-        return ((REPO_LOCAL if own else CROSS_REPOSITORY),
-                f"the artifact declares {found.group('key')}: {value}")
+        return (
+            (REPO_LOCAL if own else CROSS_REPOSITORY),
+            f"the artifact declares {found.group('key')}: {value}",
+        )
     return member.locality, (
         f"no {'/'.join(member.locality_from)} declared in this block; fell "
-        f"back to the class member's own locality")
+        f"back to the class member's own locality"
+    )
 
 
 # ------------------------------------------------------------- git, refs only
+
 
 class GitUnavailable(RuntimeError):
     """The repository could not be asked. Never silently a pass."""
@@ -1282,8 +1350,13 @@ def _git(repo, *args, check: bool = False):
     carries no pin". `SCAN_SUFFIXES` keeps binaries out of the sweep; this keeps
     an unexpected one from taking the run down."""
     return subprocess.run(
-        ["git", "-C", str(repo), *args], capture_output=True, check=check,
-        text=True, encoding="utf-8", errors="replace")
+        ["git", "-C", str(repo), *args],
+        capture_output=True,
+        check=check,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+    )
 
 
 def is_truncated(repo) -> tuple[bool, str]:
@@ -1295,14 +1368,16 @@ def is_truncated(repo) -> tuple[bool, str]:
     already draws and this module reuses rather than re-spells."""
     shallow = _git(repo, "rev-parse", "--is-shallow-repository")
     if shallow.returncode == 0 and shallow.stdout.strip() == "true":
-        return True, ("`git rev-parse --is-shallow-repository` is true for "
-                      f"{repo}")
+        return True, (f"`git rev-parse --is-shallow-repository` is true for {repo}")
     promisor = _git(repo, "config", "--get-regexp", r"^remote\..*\.promisor")
     if promisor.returncode == 0 and promisor.stdout.strip():
-        return True, (f"{repo} is a partial clone "
-                      f"({promisor.stdout.strip().splitlines()[0]})")
-    return False, (f"`git rev-parse --is-shallow-repository` is false for "
-                   f"{repo} and it declares no promisor remote")
+        return True, (
+            f"{repo} is a partial clone ({promisor.stdout.strip().splitlines()[0]})"
+        )
+    return False, (
+        f"`git rev-parse --is-shallow-repository` is false for "
+        f"{repo} and it declares no promisor remote"
+    )
 
 
 # The resolution order for `main`, the ONE branch half of the ref set. THE
@@ -1333,12 +1408,12 @@ def reachable_from_main(repo, pin: str, main_ref: str) -> bool:
     """`git merge-base --is-ancestor <pin> <main_ref>` — git's own ancestry
     relation, nothing invented. NOT `cat-file`: an object surviving in this
     clone's store is not reachability (see the module docstring)."""
-    return _git(repo, "merge-base", "--is-ancestor", pin, main_ref
-                ).returncode == 0
+    return _git(repo, "merge-base", "--is-ancestor", pin, main_ref).returncode == 0
 
 
-def remote_retention_refs(repo, remote: str = "origin"
-                          ) -> tuple[dict[str, str] | None, str]:
+def remote_retention_refs(
+    repo, remote: str = "origin"
+) -> tuple[dict[str, str] | None, str]:
     """`({refname: sha}, detail)` for the WHOLE namespace, in ONE `ls-remote`.
 
     One call rather than one per pin, because the namespace is small and a
@@ -1348,9 +1423,11 @@ def remote_retention_refs(repo, remote: str = "origin"
     silently convert an unaskable question into an answer."""
     listed = _git(repo, "ls-remote", remote, f"{RETENTION_NAMESPACE}/*")
     if listed.returncode != 0:
-        return None, (f"`git ls-remote {remote} {RETENTION_NAMESPACE}/*` could "
-                      f"not be performed: "
-                      f"{listed.stderr.strip() or listed.returncode}")
+        return None, (
+            f"`git ls-remote {remote} {RETENTION_NAMESPACE}/*` could "
+            f"not be performed: "
+            f"{listed.stderr.strip() or listed.returncode}"
+        )
     found: dict[str, str] = {}
     for line in listed.stdout.strip().splitlines():
         parts = line.split("\t")
@@ -1359,10 +1436,15 @@ def remote_retention_refs(repo, remote: str = "origin"
     return found, f"{len(found)} ref(s) advertised by {remote}"
 
 
-def retention_holder(repo, pin: str, *, remote: str = "origin",
-                     allow_remote: bool = True,
-                     remote_index: dict[str, str] | None = None,
-                     remote_error: str | None = None) -> tuple[str | None, str]:
+def retention_holder(
+    repo,
+    pin: str,
+    *,
+    remote: str = "origin",
+    allow_remote: bool = True,
+    remote_index: dict[str, str] | None = None,
+    remote_error: str | None = None,
+) -> tuple[str | None, str]:
     """Whether `refs/retention/pins/<pin>` exists AND names `pin`.
 
     Returns `(where, detail)` with `where` one of `"local"`, `"remote"`, or
@@ -1380,11 +1462,15 @@ def retention_holder(repo, pin: str, *, remote: str = "origin",
     if local.returncode == 0 and local.stdout.strip():
         if local.stdout.strip() == pin:
             return "local", f"local {ref}"
-        return None, (f"local {ref} points at {local.stdout.strip()} rather "
-                      f"than at the commit its name states")
+        return None, (
+            f"local {ref} points at {local.stdout.strip()} rather "
+            f"than at the commit its name states"
+        )
     if not allow_remote:
-        return None, (f"no local {ref}, and the remote namespace was not "
-                      "consulted (allow_remote=False)")
+        return None, (
+            f"no local {ref}, and the remote namespace was not "
+            "consulted (allow_remote=False)"
+        )
     if remote_index is None and remote_error is None:
         remote_index, remote_error = remote_retention_refs(repo, remote)
         if remote_index is not None:
@@ -1394,21 +1480,25 @@ def retention_holder(repo, pin: str, *, remote: str = "origin",
     if ref in remote_index:
         if remote_index[ref] == pin:
             return "remote", f"{remote} {ref}"
-        return None, (f"{remote} {ref} points at {remote_index[ref]} rather "
-                      f"than at the commit its name states")
+        return None, (
+            f"{remote} {ref} points at {remote_index[ref]} rather "
+            f"than at the commit its name states"
+        )
     return None, f"no {ref} on {remote} and none locally"
 
 
 # --------------------------------------------------------- committed pin sites
 
+
 @dataclass(frozen=True)
 class PinSite:
     """One pin found in committed state: which artifact, which key, which pin."""
+
     path: str
     key: str
     pin: str
     line: int
-    member_id: str | None      # None for a site no declared member covers
+    member_id: str | None  # None for a site no declared member covers
     locality: str = REPO_LOCAL
     locality_why: str = ""
 
@@ -1424,7 +1514,8 @@ def committed_paths(repo, rev: str = "HEAD") -> list[str]:
     if listed.returncode != 0:
         raise GitUnavailable(
             f"cannot list committed paths at {rev} in {repo}: "
-            f"{listed.stderr.strip() or listed.returncode}")
+            f"{listed.stderr.strip() or listed.returncode}"
+        )
     return [p for p in listed.stdout.split("\n") if p]
 
 
@@ -1439,13 +1530,15 @@ def _sites_in(text: str, member: PinMember, path: str) -> list[PinSite]:
     for n, line in enumerate(lines, start=1):
         for m in pat.finditer(line):
             locality, why = site_locality(member, lines, n - 1)
-            found.append(PinSite(path, member.key, m.group(1), n, member.id,
-                                 locality, why))
+            found.append(
+                PinSite(path, member.key, m.group(1), n, member.id, locality, why)
+            )
     return found
 
 
-def member_sites(repo, rev: str = "HEAD",
-                 *, paths: list[str] | None = None) -> list[PinSite]:
+def member_sites(
+    repo, rev: str = "HEAD", *, paths: list[str] | None = None
+) -> list[PinSite]:
     """Every pin every declared member actually carries at `rev`."""
     paths = paths if paths is not None else committed_paths(repo, rev)
     out: list[PinSite] = []
@@ -1460,8 +1553,9 @@ def member_sites(repo, rev: str = "HEAD",
     return out
 
 
-def swept_sites(repo, rev: str = "HEAD",
-                *, paths: list[str] | None = None) -> list[PinSite]:
+def swept_sites(
+    repo, rev: str = "HEAD", *, paths: list[str] | None = None
+) -> list[PinSite]:
     """Every vocabulary site inside the scan roots, minus declared non-members.
 
     The safety net over the declaration: a generator that renames its key, or a
@@ -1494,11 +1588,15 @@ def covering_member(path: str, key: str) -> PinMember | None:
     return None
 
 
-def uncovered_sites(repo, rev: str = "HEAD",
-                    *, paths: list[str] | None = None) -> list[PinSite]:
+def uncovered_sites(
+    repo, rev: str = "HEAD", *, paths: list[str] | None = None
+) -> list[PinSite]:
     """Swept sites no declared member covers — requirement 4's second half."""
-    return [s for s in swept_sites(repo, rev, paths=paths)
-            if covering_member(s.path, s.key) is None]
+    return [
+        s
+        for s in swept_sites(repo, rev, paths=paths)
+        if covering_member(s.path, s.key) is None
+    ]
 
 
 # ------------------------------------------------------- the non-commit value
@@ -1508,6 +1606,7 @@ def uncovered_sites(repo, rev: str = "HEAD",
 # path above keeps its regexes, its ref set and its verdicts exactly as they
 # were: a value that IS a commit name is skipped here, so no site can be
 # classified twice and no reachability verdict can be reached through this code.
+
 
 @dataclass(frozen=True)
 class NonPinSite:
@@ -1519,11 +1618,12 @@ class NonPinSite:
     swept, the key was declared, the member was in good standing, and the value
     was skipped, which is how a run could report a fully verified class over
     seven artifacts whose central provenance claim nothing had read."""
+
     path: str
     key: str
     value: str
     line: int
-    member_id: str | None      # None for a site no declared member covers
+    member_id: str | None  # None for a site no declared member covers
 
     def named(self) -> str:
         return f"{self.path}:{self.line} ({self.key}) -> {self.value!r}"
@@ -1537,8 +1637,9 @@ class NonPinResult:
     unclassified is the state this whole pass replaces. `sentinel` is the
     declared member where the value is declared and None where it is not; `how`
     states the condition for the first and what is owed for the second."""
+
     site: NonPinSite
-    sentinel: object | None    # pin_sentinels.SentinelMember | None
+    sentinel: object | None  # pin_sentinels.SentinelMember | None
     how: str
 
     @property
@@ -1555,6 +1656,7 @@ class AbsentKey:
     a reader rather than falling outside both the pin path and the sentinel
     path — an artifact that carries no key looks identical, from every other
     report, to one that was never swept."""
+
     path: str
     key: str
     member_id: str
@@ -1573,22 +1675,27 @@ def classify_value(site: NonPinSite) -> NonPinResult:
     if member is not None:
         statement = pin_sentinels.CONDITIONS.get(member.condition, "")
         return NonPinResult(
-            site, member,
+            site,
+            member,
             f"declared sentinel ({member.standing}) for the "
-            f"{member.condition} condition: {statement}")
+            f"{member.condition} condition: {statement}",
+        )
     return NonPinResult(
-        site, None,
+        site,
+        None,
         "UNDECLARED: this value is neither a commit name nor a member of the "
         "declared sentinel vocabulary. Declare it in "
         "`doc_health.pin_sentinels` where it names a real condition, or "
         "correct the generator that wrote it where it does not. It is NOT "
         "matched to the nearest declared member: a near-miss spelling is the "
         "condition under which every consumer guarding on the exact string "
-        "already fails.")
+        "already fails.",
+    )
 
 
-def _non_pin_in(text: str, key: str, pattern: re.Pattern, path: str,
-                member_id: str | None) -> tuple[list[NonPinSite], bool]:
+def _non_pin_in(
+    text: str, key: str, pattern: re.Pattern, path: str, member_id: str | None
+) -> tuple[list[NonPinSite], bool]:
     """`(non-commit sites, the key was seen at all)` for one artifact."""
     found: list[NonPinSite] = []
     seen = False
@@ -1601,14 +1708,14 @@ def _non_pin_in(text: str, key: str, pattern: re.Pattern, path: str,
                 continue
             seen = True
             if FULL_SHA_RE.match(value):
-                continue           # the commit path owns this one
+                continue  # the commit path owns this one
             found.append(NonPinSite(path, key, value, n, member_id))
     return found, seen
 
 
-def member_non_pin_sites(repo, rev: str = "HEAD",
-                         *, paths: list[str] | None = None
-                         ) -> tuple[list[NonPinSite], list[AbsentKey]]:
+def member_non_pin_sites(
+    repo, rev: str = "HEAD", *, paths: list[str] | None = None
+) -> tuple[list[NonPinSite], list[AbsentKey]]:
     """Non-commit values under a DECLARED member's key, plus the absences.
 
     FIELD MEMBERS ONLY. A prose member's pin sits inside a sentence and has no
@@ -1629,17 +1736,16 @@ def member_non_pin_sites(repo, rev: str = "HEAD",
             text = committed_text(repo, rev, path)
             if text is None:
                 continue
-            found, seen = _non_pin_in(text, member.key, pattern, path,
-                                      member.id)
+            found, seen = _non_pin_in(text, member.key, pattern, path, member.id)
             sites.extend(found)
-            if (not seen and member.key_expected
-                    and member.presence == CURRENT):
+            if not seen and member.key_expected and member.presence == CURRENT:
                 absent.append(AbsentKey(path, member.key, member.id))
     return sites, absent
 
 
-def swept_non_pin_sites(repo, rev: str = "HEAD",
-                        *, paths: list[str] | None = None) -> list[NonPinSite]:
+def swept_non_pin_sites(
+    repo, rev: str = "HEAD", *, paths: list[str] | None = None
+) -> list[NonPinSite]:
     """Non-commit values under any vocabulary key inside the scan roots.
 
     The same inventory, the same roots, the same serializations and the same
@@ -1669,10 +1775,9 @@ def swept_non_pin_sites(repo, rev: str = "HEAD",
     return out
 
 
-def non_pin_sites(repo, rev: str = "HEAD",
-                  *, paths: list[str] | None = None
-                  ) -> tuple[list[NonPinSite], list[NonPinSite],
-                             list[AbsentKey]]:
+def non_pin_sites(
+    repo, rev: str = "HEAD", *, paths: list[str] | None = None
+) -> tuple[list[NonPinSite], list[NonPinSite], list[AbsentKey]]:
     """`(classified sites, uncovered non-pin sites, absences)`.
 
     The uncovered half is returned SEPARATELY as well as being classified,
@@ -1682,9 +1787,12 @@ def non_pin_sites(repo, rev: str = "HEAD",
     paths = paths if paths is not None else committed_paths(repo, rev)
     covered, absent = member_non_pin_sites(repo, rev, paths=paths)
     known = {(s.path, s.key, s.line) for s in covered}
-    uncovered = [s for s in swept_non_pin_sites(repo, rev, paths=paths)
-                 if (s.path, s.key, s.line) not in known
-                 and covering_member(s.path, s.key) is None]
+    uncovered = [
+        s
+        for s in swept_non_pin_sites(repo, rev, paths=paths)
+        if (s.path, s.key, s.line) not in known
+        and covering_member(s.path, s.key) is None
+    ]
     return covered + uncovered, uncovered, absent
 
 
@@ -1706,9 +1814,11 @@ def unused_sentinels(sites) -> tuple:
     test rather than believed, so a phantom emitter cannot hold a stale member
     alive."""
     carried = {s.value for s in sites}
-    return tuple(m for m in pin_sentinels.SENTINELS
-                 if not m.emitters
-                 and not any(m.matches(v) for v in carried))
+    return tuple(
+        m
+        for m in pin_sentinels.SENTINELS
+        if not m.emitters and not any(m.matches(v) for v in carried)
+    )
 
 
 # THE REPOSITORY THIS DECLARATION DESCRIBES. `PIN_CLASS` is a statement about
@@ -1717,7 +1827,8 @@ def unused_sentinels(sites) -> tuple:
 # would "vanish" and the report would be noise. Two markers rather than one,
 # because a single common path is easy to create by accident.
 DECLARATION_SUBJECT_MARKERS: tuple[str, ...] = (
-    "contracts/manifest.yaml", "ideation/cross-reference.yaml",
+    "contracts/manifest.yaml",
+    "ideation/cross-reference.yaml",
 )
 
 
@@ -1726,8 +1837,9 @@ def is_declaration_subject(paths) -> bool:
     return all(marker in present for marker in DECLARATION_SUBJECT_MARKERS)
 
 
-def vanished_members(repo, rev: str = "HEAD",
-                     *, paths: list[str] | None = None) -> list[PinMember]:
+def vanished_members(
+    repo, rev: str = "HEAD", *, paths: list[str] | None = None
+) -> list[PinMember]:
     """Declared CURRENT members whose artifact no committed path matches.
 
     The other direction of declaration drift: a registry row left behind by a
@@ -1749,9 +1861,9 @@ def vanished_members(repo, rev: str = "HEAD",
     return gone
 
 
-def arrived_future_members(repo, rev: str = "HEAD",
-                           *, paths: list[str] | None = None
-                           ) -> list[tuple[PinMember, list[PinSite]]]:
+def arrived_future_members(
+    repo, rev: str = "HEAD", *, paths: list[str] | None = None
+) -> list[tuple[PinMember, list[PinSite]]]:
     """FUTURE members that now carry committed pins — the arrival this
     declaration exists to catch. Reported so the row is promoted to CURRENT
     deliberately rather than left describing a state that has moved."""
@@ -1776,9 +1888,9 @@ def arrived_future_members(repo, rev: str = "HEAD",
 
 PASS = "pass"
 ORPHAN = "orphan"
-LOST = "lost"                  # orphaned AND unrecoverable; declared in
-                               # KNOWN_LOSSES, with the superseding act either
-                               # still owed or discharged by a cited record
+LOST = "lost"  # orphaned AND unrecoverable; declared in
+# KNOWN_LOSSES, with the superseding act either
+# still owed or discharged by a cited record
 INCONCLUSIVE = "inconclusive"
 NOT_APPLICABLE = "not-applicable"
 
@@ -1786,11 +1898,11 @@ NOT_APPLICABLE = "not-applicable"
 @dataclass(frozen=True)
 class PinResult:
     site: PinSite
-    verdict: str               # PASS | ORPHAN | INCONCLUSIVE | NOT_APPLICABLE
-    how: str                   # which half of the ref set answered, or why not
-    discharge: str | None = None    # LOST only: the committed superseding
-                                    # record found at this revision, or None
-                                    # while the governance act is still owed
+    verdict: str  # PASS | ORPHAN | INCONCLUSIVE | NOT_APPLICABLE
+    how: str  # which half of the ref set answered, or why not
+    discharge: str | None = None  # LOST only: the committed superseding
+    # record found at this revision, or None
+    # while the governance act is still owed
 
 
 @dataclass(frozen=True)
@@ -1878,9 +1990,15 @@ class PinClassReport:
         `HEAD` and stay quiet. A recognized legacy absence is likewise reported
         and not held against the class: it is repaired never, so there is
         nothing for a red to ask for."""
-        return not (self.orphans or self.uncovered or self.vanished
-                    or self.arrived or self.undeclared_values
-                    or self.uncovered_non_pins or self.declaration_defects)
+        return not (
+            self.orphans
+            or self.uncovered
+            or self.vanished
+            or self.arrived
+            or self.undeclared_values
+            or self.uncovered_non_pins
+            or self.declaration_defects
+        )
 
     @property
     def fully_verified(self) -> bool:
@@ -1897,30 +2015,32 @@ class PinClassReport:
         (`supersede-lost-pin-baseline`, 2026-08-27). Restoring it any other way
         would mean deleting a row, and deleting the row is how a known defect
         becomes background noise."""
-        return (self.clean and not self.lost_awaiting_record
-                and not self.inconclusive)
+        return self.clean and not self.lost_awaiting_record and not self.inconclusive
 
     def summary(self) -> str:
         by_member = len({r.site.member_id for r in self.results})
         awaiting = len(self.lost_awaiting_record)
-        return (f"{len(self.results)} declared pin sites across {by_member} "
-                f"class members at {self.rev[:12]}: {len(self.verified)} "
-                f"reachable, {len(self.orphans)} orphaned, "
-                f"{len(self.lost)} lost (declared unrecoverable, {awaiting} "
-                f"awaiting a superseding record), "
-                f"{len(self.inconclusive)} inconclusive; "
-                f"{len(self.uncovered)} uncovered site(s), "
-                f"{len(self.vanished)} vanished member(s), "
-                f"{len(self.arrived)} future member(s) now carrying pins; "
-                f"{len(self.legal_non_pins)} legal non-pin(s), "
-                f"{len(self.undeclared_values)} undeclared non-commit "
-                f"value(s), {len(self.absent_keys)} recognized legacy "
-                f"absence(s), {len(self.unused_sentinels)} unused vocabulary "
-                f"member(s)")
+        return (
+            f"{len(self.results)} declared pin sites across {by_member} "
+            f"class members at {self.rev[:12]}: {len(self.verified)} "
+            f"reachable, {len(self.orphans)} orphaned, "
+            f"{len(self.lost)} lost (declared unrecoverable, {awaiting} "
+            f"awaiting a superseding record), "
+            f"{len(self.inconclusive)} inconclusive; "
+            f"{len(self.uncovered)} uncovered site(s), "
+            f"{len(self.vanished)} vanished member(s), "
+            f"{len(self.arrived)} future member(s) now carrying pins; "
+            f"{len(self.legal_non_pins)} legal non-pin(s), "
+            f"{len(self.undeclared_values)} undeclared non-commit "
+            f"value(s), {len(self.absent_keys)} recognized legacy "
+            f"absence(s), {len(self.unused_sentinels)} unused vocabulary "
+            f"member(s)"
+        )
 
 
-def verify(repo, *, rev: str = "HEAD", remote: str = "origin",
-           allow_remote: bool = True) -> PinClassReport:
+def verify(
+    repo, *, rev: str = "HEAD", remote: str = "origin", allow_remote: bool = True
+) -> PinClassReport:
     """Verify the whole declared class over committed state at `rev`.
 
     The ref set is `main` plus `refs/retention/pins/<full-sha>` computed from
@@ -1930,8 +2050,9 @@ def verify(repo, *, rev: str = "HEAD", remote: str = "origin",
     about the wrong repository."""
     resolved = _git(repo, "rev-parse", rev)
     if resolved.returncode != 0:
-        raise GitUnavailable(f"cannot resolve {rev} in {repo}: "
-                             f"{resolved.stderr.strip()}")
+        raise GitUnavailable(
+            f"cannot resolve {rev} in {repo}: {resolved.stderr.strip()}"
+        )
     rev_sha = resolved.stdout.strip()
     truncated, truncation = is_truncated(repo)
     main = resolve_main(repo)
@@ -1948,18 +2069,26 @@ def verify(repo, *, rev: str = "HEAD", remote: str = "origin",
     for site in member_sites(repo, rev_sha, paths=paths):
         member = next(m for m in PIN_CLASS if m.id == site.member_id)
         if site.locality == CROSS_REPOSITORY:
-            results.append(PinResult(
-                site, NOT_APPLICABLE,
-                f"cross-repository pin ({member.generator}); "
-                f"{site.locality_why}; answered against another remote by "
-                f"another authority"))
+            results.append(
+                PinResult(
+                    site,
+                    NOT_APPLICABLE,
+                    f"cross-repository pin ({member.generator}); "
+                    f"{site.locality_why}; answered against another remote by "
+                    f"another authority",
+                )
+            )
             continue
         if main_ref is None:
-            results.append(PinResult(
-                site, INCONCLUSIVE,
-                f"no `main` in this clone (looked for "
-                f"{', '.join(MAIN_REF_ORDER)}), so the branch half of the ref "
-                f"set could not be consulted"))
+            results.append(
+                PinResult(
+                    site,
+                    INCONCLUSIVE,
+                    f"no `main` in this clone (looked for "
+                    f"{', '.join(MAIN_REF_ORDER)}), so the branch half of the ref "
+                    f"set could not be consulted",
+                )
+            )
             continue
         if reachable_from_main(repo, site.pin, main_ref):
             results.append(PinResult(site, PASS, f"ancestor of {main_ref}"))
@@ -1970,56 +2099,79 @@ def verify(repo, *, rev: str = "HEAD", remote: str = "origin",
                 remote_error = None
             listed_remote = True
         where, detail = retention_holder(
-            repo, site.pin, remote=remote, allow_remote=allow_remote,
-            remote_index=remote_index, remote_error=remote_error)
+            repo,
+            site.pin,
+            remote=remote,
+            allow_remote=allow_remote,
+            remote_index=remote_index,
+            remote_error=remote_error,
+        )
         if where is not None:
             results.append(PinResult(site, PASS, f"retained: {detail}"))
             continue
         if truncated:
-            results.append(PinResult(
-                site, INCONCLUSIVE,
-                f"TRUNCATED CLONE, observed not conjectured: {truncation}; "
-                f"{detail}"))
+            results.append(
+                PinResult(
+                    site,
+                    INCONCLUSIVE,
+                    f"TRUNCATED CLONE, observed not conjectured: {truncation}; "
+                    f"{detail}",
+                )
+            )
             continue
         if "could not be performed" in detail:
-            results.append(PinResult(
-                site, INCONCLUSIVE,
-                f"the retention namespace could not be consulted, so the "
-                f"question was not answerable rather than answered: {detail}"))
+            results.append(
+                PinResult(
+                    site,
+                    INCONCLUSIVE,
+                    f"the retention namespace could not be consulted, so the "
+                    f"question was not answerable rather than answered: {detail}",
+                )
+            )
             continue
         loss = known_loss(site.pin)
         if loss is not None:
             record = discharging_record(repo, rev_sha, loss, paths=paths)
             if record is None:
-                results.append(PinResult(
-                    site, LOST,
-                    f"DECLARED UNRECOVERABLE: {loss.measured} "
-                    f"OWED: {loss.owed}"))
+                results.append(
+                    PinResult(
+                        site,
+                        LOST,
+                        f"DECLARED UNRECOVERABLE: {loss.measured} OWED: {loss.owed}",
+                    )
+                )
             else:
-                results.append(PinResult(
-                    site, LOST,
-                    f"DECLARED UNRECOVERABLE: {loss.measured} "
-                    f"DISCHARGED: {loss.discharged} The superseding record "
-                    f"stands at {record}, read from committed state at this "
-                    f"revision and naming this pin. THE LOSS IS NOT SILENCED "
-                    f"BY IT: this row is never deleted, and the day the object "
-                    f"turns out to be recoverable, retention is the route and "
-                    f"the re-measurement says so.",
-                    discharge=record))
+                results.append(
+                    PinResult(
+                        site,
+                        LOST,
+                        f"DECLARED UNRECOVERABLE: {loss.measured} "
+                        f"DISCHARGED: {loss.discharged} The superseding record "
+                        f"stands at {record}, read from committed state at this "
+                        f"revision and naming this pin. THE LOSS IS NOT SILENCED "
+                        f"BY IT: this row is never deleted, and the day the object "
+                        f"turns out to be recoverable, retention is the route and "
+                        f"the re-measurement says so.",
+                        discharge=record,
+                    )
+                )
             continue
         results.append(PinResult(site, ORPHAN, detail))
 
-    classified, uncovered_non_pins, absent = non_pin_sites(
-        repo, rev_sha, paths=paths)
+    classified, uncovered_non_pins, absent = non_pin_sites(repo, rev_sha, paths=paths)
 
     return PinClassReport(
-        rev=rev_sha, main_ref=main_ref, main_sha=main_sha,
-        truncated=truncated, truncation=truncation,
+        rev=rev_sha,
+        main_ref=main_ref,
+        main_sha=main_sha,
+        truncated=truncated,
+        truncation=truncation,
         results=tuple(results),
         uncovered=tuple(uncovered_sites(repo, rev_sha, paths=paths)),
         vanished=tuple(vanished_members(repo, rev_sha, paths=paths)),
-        arrived=tuple((m, tuple(s)) for m, s in
-                      arrived_future_members(repo, rev_sha, paths=paths)),
+        arrived=tuple(
+            (m, tuple(s)) for m, s in arrived_future_members(repo, rev_sha, paths=paths)
+        ),
         non_pins=tuple(classify_value(s) for s in classified),
         uncovered_non_pins=tuple(uncovered_non_pins),
         absent_keys=tuple(absent),
@@ -2029,6 +2181,7 @@ def verify(repo, *, rev: str = "HEAD", remote: str = "origin",
 
 
 # ----------------------------------------------------------- repair semantics
+
 
 def repair_route(member: PinMember, *, status: str | None = None) -> str:
     """The route an orphaned pin on `member` is repaired by — named at the
@@ -2045,24 +2198,29 @@ def repair_route(member: PinMember, *, status: str | None = None) -> str:
     revision and re-pin it, with the re-pin defined by the body reproducing
     there — a reachable-but-unreproduced re-pin is refused, because that is
     precisely the hand-move that produced this repository's second orphan."""
-    immutable = (status == "record"
-                 or member.id == "proposal-support-manifest")
+    immutable = status == "record" or member.id == "proposal-support-manifest"
     if immutable:
-        return ("RETENTION: publish "
-                f"{RETENTION_NAMESPACE}/<full-sha> on the repository's own "
-                "remote, computed from the pin, and leave the artifact's bytes "
-                "unchanged. Editing the pin is refused: it would make an "
-                "immutable record state something the run did not read.")
+        return (
+            "RETENTION: publish "
+            f"{RETENTION_NAMESPACE}/<full-sha> on the repository's own "
+            "remote, computed from the pin, and leave the artifact's bytes "
+            "unchanged. Editing the pin is refused: it would make an "
+            "immutable record state something the run did not read."
+        )
     if member.reproduction == TOOL_DEFINED:
-        return (f"REPRODUCTION: re-derive the body with {member.generator} at a "
-                "reachable revision and re-pin it, then prove the committed "
-                "body reproduces BYTE-FOR-BYTE at the new pin. A pin moved to "
-                "a reachable value without regeneration is refused.")
-    return (f"REPRODUCTION: nothing re-derives this artifact "
-            f"({member.generator}), so a re-pin owes a NAMED MEASUREMENT that "
-            "established equivalence at the new pin, or the artifact is "
-            "regenerated so the question does not arise. Where the artifact "
-            "cannot be edited at all, retention is the route instead.")
+        return (
+            f"REPRODUCTION: re-derive the body with {member.generator} at a "
+            "reachable revision and re-pin it, then prove the committed "
+            "body reproduces BYTE-FOR-BYTE at the new pin. A pin moved to "
+            "a reachable value without regeneration is refused."
+        )
+    return (
+        f"REPRODUCTION: nothing re-derives this artifact "
+        f"({member.generator}), so a re-pin owes a NAMED MEASUREMENT that "
+        "established equivalence at the new pin, or the artifact is "
+        "regenerated so the question does not arise. Where the artifact "
+        "cannot be edited at all, retention is the route instead."
+    )
 
 
 def tool_defined_members() -> tuple[PinMember, ...]:
@@ -2074,47 +2232,67 @@ def tool_defined_members() -> tuple[PinMember, ...]:
 
 # --------------------------------------------------------------------- report
 
+
 def render(report: PinClassReport) -> str:
     """A human-readable rendering, used by the probe's failure text and by
     anyone running this module directly."""
-    lines = [report.summary(),
-             f"  ref set: {report.main_ref or '(no main resolved)'} + "
-             f"{RETENTION_NAMESPACE}/<full-sha>",
-             f"  clone:   {report.truncation}"]
+    lines = [
+        report.summary(),
+        f"  ref set: {report.main_ref or '(no main resolved)'} + "
+        f"{RETENTION_NAMESPACE}/<full-sha>",
+        f"  clone:   {report.truncation}",
+    ]
     for result in report.results:
-        mark = {PASS: "ok  ", ORPHAN: "ORPH", LOST: "LOST",
-                INCONCLUSIVE: "skip", NOT_APPLICABLE: "n/a "}[result.verdict]
+        mark = {
+            PASS: "ok  ",
+            ORPHAN: "ORPH",
+            LOST: "LOST",
+            INCONCLUSIVE: "skip",
+            NOT_APPLICABLE: "n/a ",
+        }[result.verdict]
         lines.append(f"  [{mark}] {result.site.named()} — {result.how}")
     for site in report.uncovered:
-        lines.append(f"  [UNCOVERED] {site.named()} — no declared class member "
-                     "covers this artifact and key")
+        lines.append(
+            f"  [UNCOVERED] {site.named()} — no declared class member "
+            "covers this artifact and key"
+        )
     for member in report.vanished:
-        lines.append(f"  [VANISHED] declared member {member.id} matches no "
-                     f"committed path ({', '.join(member.paths)})")
+        lines.append(
+            f"  [VANISHED] declared member {member.id} matches no "
+            f"committed path ({', '.join(member.paths)})"
+        )
     for member, sites in report.arrived:
-        lines.append(f"  [ARRIVED] future member {member.id} now carries "
-                     f"{len(sites)} committed pin(s); promote its row to "
-                     "presence=current")
+        lines.append(
+            f"  [ARRIVED] future member {member.id} now carries "
+            f"{len(sites)} committed pin(s); promote its row to "
+            "presence=current"
+        )
     for result in report.non_pins:
         mark = "non-pin" if result.legal else "UNDECLARED"
         lines.append(f"  [{mark}] {result.site.named()} — {result.how}")
     for site in report.uncovered_non_pins:
-        lines.append(f"  [UNCOVERED] {site.named()} — no declared class member "
-                     "covers this artifact and key. Reported beside the value's "
-                     "own classification above rather than instead of it: a "
-                     "coverage gap in the declaration and the meaning of the "
-                     "value are separate findings.")
+        lines.append(
+            f"  [UNCOVERED] {site.named()} — no declared class member "
+            "covers this artifact and key. Reported beside the value's "
+            "own classification above rather than instead of it: a "
+            "coverage gap in the declaration and the meaning of the "
+            "value are separate findings."
+        )
     for absence in report.absent_keys:
-        lines.append(f"  [ABSENT] {absence.path} carries no `{absence.key}` "
-                     f"where member {absence.member_id} expects one. "
-                     f"{pin_sentinels.ABSENT_KEY}")
+        lines.append(
+            f"  [ABSENT] {absence.path} carries no `{absence.key}` "
+            f"where member {absence.member_id} expects one. "
+            f"{pin_sentinels.ABSENT_KEY}"
+        )
     for member in report.unused_sentinels:
-        lines.append(f"  [UNUSED] vocabulary member {member.value!r} "
-                     f"({member.condition}) is carried by no committed "
-                     "artifact and emitted by no declared generator. This is "
-                     "NOT an instruction to delete it — a condition may be "
-                     "declared before its generator lands — but the state is "
-                     "reported rather than assumed.")
+        lines.append(
+            f"  [UNUSED] vocabulary member {member.value!r} "
+            f"({member.condition}) is carried by no committed "
+            "artifact and emitted by no declared generator. This is "
+            "NOT an instruction to delete it — a condition may be "
+            "declared before its generator lands — but the state is "
+            "reported rather than assumed."
+        )
     for defect in report.declaration_defects:
         lines.append(f"  [DECLARATION] {defect}")
     return "\n".join(lines)
@@ -2122,22 +2300,27 @@ def render(report: PinClassReport) -> str:
 
 def main(argv=None) -> int:
     import argparse
+
     parser = argparse.ArgumentParser(
         description="Verify derivation-pin reachability across the declared "
-                    "artifact class.")
-    parser.add_argument("--repo", default=str(Path(__file__).resolve()
-                                              .parents[2]))
+        "artifact class."
+    )
+    parser.add_argument("--repo", default=str(Path(__file__).resolve().parents[2]))
     parser.add_argument("--rev", default="HEAD")
     parser.add_argument("--remote", default="origin")
-    parser.add_argument("--no-remote", action="store_true",
-                        help="do not consult the retention namespace on the "
-                             "remote; unresolved pins report INCONCLUSIVE")
+    parser.add_argument(
+        "--no-remote",
+        action="store_true",
+        help="do not consult the retention namespace on the "
+        "remote; unresolved pins report INCONCLUSIVE",
+    )
     args = parser.parse_args(argv)
-    report = verify(args.repo, rev=args.rev, remote=args.remote,
-                    allow_remote=not args.no_remote)
+    report = verify(
+        args.repo, rev=args.rev, remote=args.remote, allow_remote=not args.no_remote
+    )
     print(render(report))
     return 1 if not report.clean else 0
 
 
-if __name__ == "__main__":   # pragma: no cover - module entry point
+if __name__ == "__main__":  # pragma: no cover - module entry point
     raise SystemExit(main())

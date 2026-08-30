@@ -1,6 +1,230 @@
 schema_version: 1
 kind: openxfactory-hermes-runtime-contract-index
 contracts:
+- contract_id: resolved-council-convening
+  path: ../council-convening/resolved-council-convening.schema.yaml
+  type: release-schema
+  contract_schema_version: 1
+  consumers: [openxfactory-validator, openxfactory-release-verifier, xfactory-codexfactory-council, xfactory-hermes-install]
+  semantic_member: true
+  release_member: true
+- contract_id: council-convening-readme
+  path: ../council-convening/README.md
+  type: documentation
+  contract_schema_version: 1
+  consumers: [openxfactory-validator, xfactory-codexfactory-council, xfactory-hermes-install]
+  semantic_member: false
+  release_member: true
+- contract_id: council-convening-fixture-index
+  path: ../council-convening/fixtures/index.yaml
+  type: fixture-index
+  contract_schema_version: 1
+  consumers: [openxfactory-validator, openxfactory-release-verifier]
+  semantic_member: true
+  release_member: true
+- contract_id: council-convening-acceptance-map
+  path: ../../specs/026-add-resolved-council-seats/contracts/acceptance-map.yaml
+  type: acceptance-map
+  contract_schema_version: 1
+  consumers: [openxfactory-validator, openxfactory-release-verifier]
+  semantic_member: true
+  release_member: true
+- contract_id: council-convening-envelope
+  path: ../../specs/026-add-resolved-council-seats/contracts/council-convening-envelope.md
+  type: documentation
+  contract_schema_version: 1
+  consumers: [openxfactory-validator, xfactory-codexfactory-council, xfactory-hermes-install]
+  semantic_member: true
+  release_member: true
+- contract_id: council-convening-conformance-corpus
+  path: ../../specs/026-add-resolved-council-seats/contracts/conformance-corpus.md
+  type: documentation
+  contract_schema_version: 1
+  consumers: [openxfactory-validator, xfactory-codexfactory-council, xfactory-hermes-install]
+  semantic_member: true
+  release_member: true
+- contract_id: council-convening-successor-handoff
+  path: ../../specs/026-add-resolved-council-seats/contracts/successor-handoff.md
+  type: documentation
+  contract_schema_version: 1
+  consumers: [xfactory-codexfactory-council, xfactory-hermes-install]
+  semantic_member: true
+  release_member: true
+- contract_id: council-convening-validator-entrypoint
+  path: ../../scripts/validate-council-convening.py
+  type: validator
+  contract_schema_version: 1
+  consumers: [openxfactory-validator, openxfactory-release-verifier]
+  semantic_member: false
+  release_member: true
+- contract_id: council-convening-validator-package
+  path: ../../scripts/council_convening_validation/__init__.py
+  type: validator
+  contract_schema_version: 1
+  consumers: [openxfactory-validator, openxfactory-release-verifier]
+  semantic_member: false
+  release_member: true
+- contract_id: council-convening-validator-cli
+  path: ../../scripts/council_convening_validation/cli.py
+  type: validator
+  contract_schema_version: 1
+  consumers: [openxfactory-validator, openxfactory-release-verifier]
+  semantic_member: false
+  release_member: true
+- contract_id: council-convening-validator-fixture
+  path: ../../scripts/council_convening_validation/fixture.py
+  type: validator
+  contract_schema_version: 1
+  consumers: [openxfactory-validator, openxfactory-release-verifier]
+  semantic_member: false
+  release_member: true
+- contract_id: council-convening-validator-index
+  path: ../../scripts/council_convening_validation/index.py
+  type: validator
+  contract_schema_version: 1
+  consumers: [openxfactory-validator, openxfactory-release-verifier]
+  semantic_member: false
+  release_member: true
+- contract_id: council-convening-validator-models
+  path: ../../scripts/council_convening_validation/models.py
+  type: validator
+  contract_schema_version: 1
+  consumers: [openxfactory-validator, openxfactory-release-verifier]
+  semantic_member: false
+  release_member: true
+- contract_id: council-convening-validator-paths
+  path: ../../scripts/council_convening_validation/paths.py
+  type: validator
+  contract_schema_version: 1
+  consumers: [openxfactory-validator, openxfactory-release-verifier]
+  semantic_member: false
+  release_member: true
+- contract_id: council-convening-validator-provenance
+  path: ../../scripts/council_convening_validation/provenance.py
+  type: validator
+  contract_schema_version: 1
+  consumers: [openxfactory-validator, openxfactory-release-verifier]
+  semantic_member: false
+  release_member: true
+- contract_id: council-convening-validator-runner
+  path: ../../scripts/council_convening_validation/runner.py
+  type: validator
+  contract_schema_version: 1
+  consumers: [openxfactory-validator, openxfactory-release-verifier]
+  semantic_member: false
+  release_member: true
+- contract_id: council-convening-validator-validation
+  path: ../../scripts/council_convening_validation/validation.py
+  type: validator
+  contract_schema_version: 1
+  consumers: [openxfactory-validator, openxfactory-release-verifier]
+  semantic_member: false
+  release_member: true
+- contract_id: council-convening-validator-yaml-io
+  path: ../../scripts/council_convening_validation/yaml_io.py
+  type: validator
+  contract_schema_version: 1
+  consumers: [openxfactory-validator, openxfactory-release-verifier]
+  semantic_member: false
+  release_member: true
+- contract_id: council-convening-fixture-standing-roster
+  path: ../council-convening/fixtures/positive/standing-roster.yaml
+  type: fixture
+  contract_schema_version: 1
+  consumers: [openxfactory-validator, openxfactory-release-verifier]
+  semantic_member: true
+  release_member: true
+- contract_id: council-convening-fixture-conditional-seat-required
+  path: ../council-convening/fixtures/positive/conditional-seat-required.yaml
+  type: fixture
+  contract_schema_version: 1
+  consumers: [openxfactory-validator, openxfactory-release-verifier]
+  semantic_member: true
+  release_member: true
+- contract_id: council-convening-fixture-candidate-head-stale
+  path: ../council-convening/fixtures/negative/candidate-head-stale.yaml
+  type: fixture
+  contract_schema_version: 1
+  consumers: [openxfactory-validator, openxfactory-release-verifier]
+  semantic_member: true
+  release_member: true
+- contract_id: council-convening-fixture-condition-result-drift
+  path: ../council-convening/fixtures/negative/condition-result-drift.yaml
+  type: fixture
+  contract_schema_version: 1
+  consumers: [openxfactory-validator, openxfactory-release-verifier]
+  semantic_member: true
+  release_member: true
+- contract_id: council-convening-fixture-fact-missing
+  path: ../council-convening/fixtures/negative/fact-missing.yaml
+  type: fixture
+  contract_schema_version: 1
+  consumers: [openxfactory-validator, openxfactory-release-verifier]
+  semantic_member: true
+  release_member: true
+- contract_id: council-convening-fixture-provenance-opaque
+  path: ../council-convening/fixtures/negative/provenance-opaque.yaml
+  type: fixture
+  contract_schema_version: 1
+  consumers: [openxfactory-validator, openxfactory-release-verifier]
+  semantic_member: true
+  release_member: true
+- contract_id: council-convening-fixture-roster-absent
+  path: ../council-convening/fixtures/negative/roster-absent.yaml
+  type: fixture
+  contract_schema_version: 1
+  consumers: [openxfactory-validator, openxfactory-release-verifier]
+  semantic_member: true
+  release_member: true
+- contract_id: council-convening-fixture-roster-duplicate
+  path: ../council-convening/fixtures/negative/roster-duplicate.yaml
+  type: fixture
+  contract_schema_version: 1
+  consumers: [openxfactory-validator, openxfactory-release-verifier]
+  semantic_member: true
+  release_member: true
+- contract_id: council-convening-fixture-roster-empty
+  path: ../council-convening/fixtures/negative/roster-empty.yaml
+  type: fixture
+  contract_schema_version: 1
+  consumers: [openxfactory-validator, openxfactory-release-verifier]
+  semantic_member: true
+  release_member: true
+- contract_id: council-convening-fixture-roster-malformed
+  path: ../council-convening/fixtures/negative/roster-malformed.yaml
+  type: fixture
+  contract_schema_version: 1
+  consumers: [openxfactory-validator, openxfactory-release-verifier]
+  semantic_member: true
+  release_member: true
+- contract_id: council-convening-fixture-roster-mismatch
+  path: ../council-convening/fixtures/negative/roster-mismatch.yaml
+  type: fixture
+  contract_schema_version: 1
+  consumers: [openxfactory-validator, openxfactory-release-verifier]
+  semantic_member: true
+  release_member: true
+- contract_id: council-convening-fixture-roster-standing-incomplete
+  path: ../council-convening/fixtures/negative/roster-standing-incomplete.yaml
+  type: fixture
+  contract_schema_version: 1
+  consumers: [openxfactory-validator, openxfactory-release-verifier]
+  semantic_member: true
+  release_member: true
+- contract_id: council-convening-fixture-roster-unknown-seat
+  path: ../council-convening/fixtures/negative/roster-unknown-seat.yaml
+  type: fixture
+  contract_schema_version: 1
+  consumers: [openxfactory-validator, openxfactory-release-verifier]
+  semantic_member: true
+  release_member: true
+- contract_id: council-convening-fixture-rule-revision-unavailable
+  path: ../council-convening/fixtures/negative/rule-revision-unavailable.yaml
+  type: fixture
+  contract_schema_version: 1
+  consumers: [openxfactory-validator, openxfactory-release-verifier]
+  semantic_member: true
+  release_member: true
 - contract_id: xfactory-workbench-model-catalog
   path: ../schemas/xfactory-workbench-model-catalog.schema.yaml
   type: release-schema

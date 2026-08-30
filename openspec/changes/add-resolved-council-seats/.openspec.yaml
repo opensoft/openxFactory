@@ -1,0 +1,19 @@
+schema: spec-driven
+created: 2026-08-28
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-28-add-resolved-council-seats
+  reason: >-
+    Commissioned in-session by Brett on 2026-08-28 after investigation of the
+    Hermes admission and codexFactory conditional-seat flow. Brett first chose
+    "Create dedicated change (Recommended)", authorizing this neutral contract
+    packet, and then ratified the completed strict-valid packet by selecting
+    "Ratify and proceed (Recommended)". No staged ideation topic governs this
+    runtime contract amendment.
+  approved_by: >-
+    Brett — in-session ratification of the complete add-resolved-council-seats
+    packet on 2026-08-28 by selecting "Ratify and proceed (Recommended)".
+  approved_on: 2026-08-28
+related:
+  - openxFactory:change:add-substantive-review-lane
+  - openxFactory:change:add-wallet-carried-review-authority
