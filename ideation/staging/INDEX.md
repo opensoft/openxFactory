@@ -1910,6 +1910,30 @@ repo scope.
   Ratification authorizes tranche one only and **performs no realization**: the
   contract family, its validator and the required-check wiring are a later
   commission, and `target_release` (`contract-v2.3`) is re-counted at that tip.
+- **EXIT 3 IS RAISED, 2026-08-29 — the DRAFT change `add-chain-anchoring`**
+  (`openspec/changes/add-chain-anchoring/proposal.md`), the public anchoring layer
+  plus the permissioned consent plane, as a NEW neutral `chain-anchoring`
+  capability of **nine ADDED requirements over 47 scenarios**. It builds to the
+  RULED configuration — Kaspa first as the operational witness under its three
+  unchanged conditions, Bitcoin via OpenTimestamps on every anchored item as the
+  durability witness, no selectivity, no third chain — with the **multi-anchor
+  receipt built FIRST** in its corrected form (transaction bytes and inclusion
+  proof captured whole, refused at capture time if missing), Q2's boundary as
+  contract text with a refusing validator, Q6's commitment reading as its
+  operative form, and anchor-late. **`Status: draft` — ratification is NOT sought
+  by its landing**: a §7.4-shaped council reviews it OUTSIDE the clearance
+  pipeline and Brett's ratification follows, on
+  `add-binding-consumer-identity`'s pattern. The packet's own largest decision —
+  the semantics of a missing witness, which nothing ruled answers — is **put to
+  the council** rather than presented as settled: what fails closed is the CLAIM,
+  not the factory. The change id and capability **diverge from the ratified
+  working id** `add-signed-execution-chain-anchoring`, recorded in the packet.
+  Three obligations are carried from Brett Heap's own 2024 MedxChain notes
+  (`ideation/brainstorm/medxchain-blockchain-medical-records.md`, vendored by
+  PR #509, IN FLIGHT) — verification-attempt auditing, the meta-analysis lane, and
+  the domain-instantiation boundary — plus one CORRECTION to them, the cross-plane
+  join key. **The topic is still not `Exit taken:`**: tranche two is in flight and
+  no tranche is archived.
 
 ## notebook-access-wallet-governance
 

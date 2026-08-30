@@ -1,0 +1,351 @@
+# Design: add-chain-anchoring (tranche three)
+
+The decisions this packet took, with their grounds and their rejected
+alternatives. Where a decision is RULED it is cited and not re-argued; where the
+authoring session decided, the decision says so and is listed in the proposal's
+§ Authoring decisions put to the council.
+
+The load-bearing distinction throughout: **the ruled texts fix the
+configuration, and this packet fixes the machinery.** A design note that
+re-argues a ruling has misread its job; a design note that leaves a machinery
+question to an implementer has left the gap the review round will find.
+
+## D1 — Q3 DIVERGES from the study, the ruling governs, and the study is preserved unedited
+
+**The divergence.** The vendored `chain-selection-study.md` (dated 2026-08-27,
+sourced and date-checked) recommends, at its §7 and §10: **Bitcoin as the primary
+anchor** via OpenTimestamps aggregation, and **Kaspa as an OPTIONAL low-latency
+SECONDARY anchor** under three conditions. Brett Heap ruled Q3 on 2026-08-29 in
+TWO ROUNDS, and round two is the operative configuration: **both witnesses on
+every anchored item**, **Kaspa FIRST** as the primary, OPERATIONAL witness under
+the same three conditions unchanged, **Bitcoin batched via OpenTimestamps as the
+DURABILITY witness on EVERY anchored item**, ten-year claims citing Bitcoin, **no
+selectivity** and **no third chain**.
+
+**What actually changed is ORDERING and OPTIONALITY, and nothing else.** The
+staged topic states it in terms: *"The study seated Bitcoin as the primary anchor
+and Kaspa as an OPTIONAL secondary; the ruling keeps both chains, reverses which
+one is called primary, and makes neither optional… Every substantive finding of
+the study survives: its Kaspa conditions, its pruning finding, its refuted cost
+prior, its refusal of contract code on the anchoring chain."* This packet builds
+to the ruling and cites the study for grounds, and the two are never in tension
+in any requirement text, because the requirement carries the ruling's
+configuration while its ground carries the study's evidence.
+
+**"Primary" is order of arrival, not evidentiary weight**, and the requirement
+text says so because the word is the trap. The pruning finding is not softened by
+the promotion — the operational witness is still corroborating-only, still needs
+an archival node, still needs its inclusion proofs captured at anchor time, and
+the ten-year claim still rests on the other witness. A reader who takes "primary"
+as "the one the claim rests on" has inverted the ruling.
+
+**The study is NOT edited by this packet, and a later author must not edit it
+either.** It is a dated research record; a record rewritten to agree with a later
+ruling stops being evidence. The reconciliation lives in the staged topic, which
+carries both rounds, the cost facts put between them, and the divergence stated
+plainly. This packet adds nothing to that reconciliation and subtracts nothing
+from it.
+
+**Rejected: re-deriving chain selection here.** A proposal that re-argued the
+selection would be relitigating a governance decision the repository owner has
+already ruled, on evidence a research fan-out already gathered. The packet cites
+and builds.
+
+## D2 — What happens when a witness is unavailable — THE PACKET'S LARGEST DECISION
+
+**Nothing ruled answers this.** Q3 fixes the configuration; the topic's exit path
+fixes the ordering of the build; neither says what an item IS when a witness
+cannot be reached. A tranche-three packet that left it unstated would be shipping
+the interesting half as an implementer's choice, and the choice is precisely
+where "an item with one witness is basically fine" becomes a habit — which is
+selectivity arriving by the back door that the ruling closed at the front.
+
+**The structural fact that forces the shape.** The durability witness's
+aggregation is DEFERRED BY HOURS in the healthy path — that is what
+OpenTimestamps aggregation IS, and it is why the study's cost model works at all:
+a calendar batches commitments and the Bitcoin attestation completes by UPGRADE
+when the calendar's own commitment confirms. So a rule of the form "an item is
+anchored only when both witnesses have landed, and an item that is not anchored
+is refused" would refuse EVERY item for hours, every day, with nothing wrong.
+Any honest semantics has to be **two-phase and deadline-bounded** rather than
+instantaneous.
+
+**The decision: what fails closed is the CLAIM, not the factory.**
+
+- An item enters `anchor_pending` when validated material is submitted, and each
+  witness carries a declared COMPLETION HORIZON (minutes for the operational
+  witness, hours for the durability witness, matching its calendar's cycle).
+- An item carrying fewer witnesses than the configuration demands is
+  `anchor_incomplete`, **with its missing witnesses NAMED**, and is never
+  reported, presented or verified as anchored.
+- **A witness outage never blocks ratification, execution, review or any gate.**
+  The ground is claim 6 and tranche one's ruled sequencing: the transparency log
+  is the evidence plane and IS the record; anchors are LATE ADDITIONS to its
+  leaves. A leaf's standing has never depended on an anchor, so an outage in the
+  witness layer cannot invalidate a leaf and must not be allowed to stop the
+  factory.
+- **What the outage blocks is the CLAIM.** Verification of an incomplete item
+  returns `anchor_incomplete` naming the missing witnesses — **never a bare pass
+  and never a bare fail**, because the record supports neither. A ten-year claim
+  over an item missing the durability witness is REFUSED outright.
+- **The incompleteness is itself evidence.** Entry into `anchor_pending`, every
+  horizon breach and the eventual completion are each written as leaves, so a
+  silent gap is impossible. Past its horizon an item stays incomplete and an
+  operator obligation is raised; nothing but a CAPTURED RECEIPT moves an item to
+  complete.
+- **There is no aggregate `anchored` boolean anywhere in the capability.** A
+  single summarizing flag is the field that reads true while a witness is
+  missing, so the receipt carries per-witness status and every surface reads
+  that.
+
+**The two outages are NOT symmetric, and the requirement says which is which.**
+
+| Outage | What completes | Item state | Ten-year claim | Repair |
+| --- | --- | --- | --- | --- |
+| **Operational witness unreachable** | the durability anchor, on its own horizon | `anchor_incomplete` — not the configured completeness, so not "anchored" | **AVAILABLE**, because that claim rests on the witness that landed | anchor the operational witness when it returns; the receipt gains its entry |
+| **Durability calendar unreachable** | the operational anchor, in seconds | `anchor_incomplete` | **REFUSED** until the durability anchor lands | **COMPLETE THE PENDING RECEIPT IN PLACE** when the calendar returns — do NOT re-anchor |
+
+**The do-not-re-anchor rule is not a style note.** An aggregation proof completes
+by upgrade: the pending receipt already commits to the right digest, and the
+calendar's later confirmation is what fills it in. Re-anchoring would mint a
+SECOND transaction for the same digest, leaving two proofs to capture, retain and
+reconcile where one was owed — and on the operational witness, whose transactions
+are pruned within days, a second anchor is a second thing that must be captured
+before it disappears. The cheapest correct act is completion.
+
+**Rejected alternatives, and why each fails.**
+
+1. **Refuse the act until both witnesses land.** Refuses every item for hours in
+   the healthy path, and makes the factory's ability to operate depend on a
+   third-party calendar's reachability. It also inverts claim 6 — it would make
+   the WITNESS the record.
+2. **Treat one witness as sufficient and log the other as best-effort.** This is
+   selectivity, arrived at by circumstance instead of by rule, and the ruling
+   refused selectivity on the ground that a per-item decision will eventually
+   decide wrong about the item that matters. An outage is a per-item
+   circumstance.
+3. **A single `anchored: true` flag with a warning beside it.** The flag is what
+   downstream code reads and the warning is what it ignores. This is the
+   "described control" defect the family has now named several times: a state
+   that can read complete while incomplete is a state that will.
+4. **Retry until complete, with no declared state.** Unbounded retry hides the
+   outage from the record, and the outage is exactly the thing an auditor needs
+   to see. The horizon-breach leaf is what makes the gap visible.
+
+**What this decision does NOT do.** It does not soften "both witnesses on every
+anchored item". The configuration is unchanged; what is named is the honest
+TRANSIT between submission and completion, and the honest DEGRADATION when the
+transit does not finish. An item that never reaches both witnesses never becomes
+anchored — it stays visibly, permanently incomplete, and says which witness it
+lacks.
+
+## D3 — The payload refusal is STRUCTURAL, and that is what makes it neutral
+
+Q2 ruled the boundary is drawn as contract text with a validator that refuses a
+payload-shaped record AND an unsalted commitment. It does not say HOW the
+validator recognizes a payload, and the obvious reading — refuse protected health
+information — cannot be implemented in the neutral layer without breaching
+requirement 9.
+
+**The decision: refuse EVERY payload, BY SHAPE.** The validator refuses any
+anchor-bound record carrying a field that holds record content — cleartext,
+ciphertext, or any content-bearing blob — on the field's declared shape, never on
+what the content is about.
+
+**Why it is both neutral and stricter.** A validator that refused PHI by name
+would need to know what PHI is, which is domain semantics the neutral capability
+is forbidden to carry; it would also need to be right about the boundary, and
+would silently admit a regulated payload it failed to classify. A validator that
+refuses every payload needs no domain knowledge and admits no payload at all.
+Raw, encrypted and plain-hashed regulated content are all outside Q2's boundary,
+and the structural refusal reaches all three without classifying any of them.
+
+**Rejected: a classification hook the domain overlays fill in.** It moves the
+neutral layer's correctness onto a domain's list, which means the neutral refusal
+is only as good as the least careful overlay. Requirement 9's rule — an overlay
+may ADD refusals and may never RELAX one — is the same principle from the other
+side.
+
+## D4 — The unsalted-commitment refusal is BY DECLARED CONSTRUCTION, and its residual is declared
+
+**The fact that forces this.** A salted keyed commitment (an HMAC over content
+under a per-record secret salt) and a plain SHA-256 of the same content are
+**indistinguishable by inspection** — both are opaque 32-byte values. There is no
+check over the anchored VALUE that can tell them apart. A requirement claiming
+the validator "refuses unsalted commitments" by looking at them would be
+describing a control that cannot run, which is the failure this family has now
+named several times.
+
+**The decision.** Every anchor-bound commitment DECLARES its construction — the
+algorithm, that it is KEYED and SALTED, and a SALT CUSTODY REFERENCE resolving
+into the governed layer — and the validator refuses: an absent declaration, a
+declaration that is not keyed and salted, and a salt custody reference resolving
+onto a chain or into the anchored record itself. That last check is the one that
+matters most in practice: a salt reachable from the anchor destroys the erasure
+property the salting exists to provide, and it is an easy mistake to make while
+trying to make verification convenient.
+
+**The residual, DECLARED and not claimed as closed.** A record that DECLARES a
+salted keyed construction while anchoring a plain digest is not detectable from
+the record. The declaration and the custody reference are enforceable today; the
+step from "the record declares a salted keyed commitment" to "the anchored value
+IS one" rests on the realization making the commitment path the ONLY path that
+can mint an anchor-bound value — so an undeclared construction is UNREACHABLE
+rather than merely refused. A realization that cannot establish that DECLARES the
+shortfall on `add-trust-anchor`'s ratified declared-shortfall pattern. This is
+the same move tranche one made with the `signed_over` enum selector, and it is
+made for the same reason: a requirement that overclaims what a record can prove
+is worse than one that names its gap.
+
+**The EDPB ground, cited because the requirement rests on it.** The vendored
+study §6 records **EDPB Guidelines 02/2025 (v2.0, adopted 2026-07-07)**: do not
+store clear, encrypted **or hashed** personal data on-chain, because *a hash of
+personal data is itself personal data*, and erasure and rectification must be
+designed in from the start. Under HIPAA a bare record hash is not Safe-Harbor
+de-identified either. The design consequence the study draws, and which Q2 and Q6
+then ruled: anchor only salted keyed commitments, salt custody in the governed
+layer, and **erasure by salt destruction** — destroy the salt and the on-chain
+residue is effectively anonymous, which satisfies erasure by design against a
+ledger that cannot forget.
+
+**And the erasure's cost is stated in the requirement rather than in a footnote.**
+Destroying the salt makes the handle PERMANENTLY UNVERIFIABLE: no later party,
+the subject included, can ever again prove that a held copy matches the anchored
+value. That is not a defect of the mechanism — it IS the mechanism, since a
+handle that could still be verified would still be a handle to a person. A
+surface offering erasure states the loss before performing it, because a subject
+choosing erasure is choosing to give up their own future ability to prove the
+record.
+
+## D5 — Where the identity plane sits, and why the permissioned ledger is NOT selected here
+
+**The placement.** Consent state, access-control lists, subject-to-record
+linkage and the commitment SALTS all live in the governed permissioned plane.
+Only that plane's STATE ROOTS and its consent-log CHECKPOINTS are anchored. The
+grounds, in the order they bind:
+
+1. **A per-subject consent row on a public chain is publicly linkable to a
+   person**, permanently. The study's §6 and the topic's own correction to its
+   first draft both land here: consent STATE does not go on chain; only opaque
+   commitments to consent-log checkpoints do.
+2. **The salts must be somewhere the anchor cannot reach**, or the erasure
+   property is decorative. The governed plane is that somewhere, and requirement
+   5 refuses a salt custody reference that resolves onto a chain.
+3. **Several external covered entities have to SHARE this state**, which is what
+   a consortium ledger is for and what a single organization's private database
+   is not. The study names the live precedents and notes both pivoted toward
+   FHIR-based utility networks where the chain is plumbing rather than product —
+   which is also the reality check the topic carries: US interoperability runs on
+   FHIR and TEFCA rails, and a chain layer earns its place as the neutral
+   INTEGRITY WITNESS those rails lack, not as a replacement for them.
+4. **It is the only posture EDPB and HIPAA guidance cleanly supports**, per the
+   study §6 and §7.
+
+**The selection is a REALIZATION decision, and this is not Q3 being
+re-litigated.** The class is named — Hyperledger Fabric or Besu class — and the
+instance is not. **Q3's "no third chain" governs ANCHOR chains**: the chains that
+witness commitments. A permissioned consortium ledger is not an anchor chain; it
+is a shared-state plane whose state roots are anchored BY the two ruled
+witnesses. Selecting one adds no anchor target, changes no receipt, and
+re-opens nothing Q3 closed. Stated explicitly here because "we are adding a
+ledger" reads at a glance like the thing the ruling refused, and a reviewer
+should be able to see in one place that it is not.
+
+**Why it is deferred rather than fixed.** The selection turns on facts a proposal
+cannot supply: which entities are actually in the consortium, what they already
+run, and what the operator will host. Fixing it now would be a boundary drawn
+against an unbuilt layer — which is exactly what Q4's ruling refused for tranche
+boundaries, applied to a component. The council may rule that it should be fixed
+now; it is listed as **D-E** in the proposal's authoring decisions for that
+reason.
+
+## D6 — The change id, the capability name, and the sibling-delta shape
+
+**The ratified working ids are not used.** `add-signed-execution-chain` names
+this successor `add-signed-execution-chain-anchoring` **(working id)** and
+tranche two `add-signed-execution-chain-attestation` **(working id)**. Both are
+raised under shorter ids — `add-chain-anchoring` and `add-chain-attestation`. The
+word "working" in the ratified text is what admits the change; the divergence is
+recorded in the proposal rather than glossed, so a reader arriving from the
+ratified packet finds out in one place why the longer name is not there.
+
+**The capability is `chain-anchoring`, not more `## ADDED Requirements` on
+`signed-execution-chain`.** Two active changes writing ADDED requirements into
+one capability is the sibling-delta shape openxFactory issue **#502** was filed
+about and `govern-sibling-added-modified-deltas` (PR #504) is proposing rules
+for. A distinct capability avoids the shape outright rather than navigating it.
+It is also the right decomposition on its own terms: the anchoring plane has its
+own contracts, its own validator, its own refusals, and a domain may adopt the
+chain without adopting an anchor.
+
+**This packet carries no `## MODIFIED Requirements` block anywhere**, so it
+restates nothing and can drop nothing — the promotion-fidelity loss class
+(#329/#330) has no surface here.
+
+## D7 — The per-plane key correction, and why a vendored source is corrected rather than inherited
+
+The MedxChain notes segregate three databases — record, demographic, identity —
+and carry ONE shared record digest across all three as the linkage. **That makes
+the digest a cross-plane join key**: a holder of a demographic row and an
+identity row can link them without either plane's permission, and the
+segregation the design exists for becomes nominal. The notes' own stated benefit
+— that meta-analysis can run without exposing PII — holds only against an analyst
+who has no identity rows, never against one who has both.
+
+**The correction.** Per-plane keys derived under per-plane salts, and the
+anchored commitment — derived under the record's own salt, held in the governed
+layer — does not function as a cross-plane join key. The segregation is only
+structural if the keys are, which is the difference between plane separation
+enforced by construction and plane separation enforced by hoping nobody joins.
+
+**Why it is recorded as a correction.** The notes' appendix already lists three
+2026 upgrades to the 2024 sketch (plain hashes → salted keyed commitments; an
+on-chain encrypted PII database → a permissioned plane with anchored state roots;
+per-access public entries → signed leaves with batched anchored checkpoints).
+This is a fourth, found while carrying the meta-analysis lane forward, and it is
+named as a correction to a vendored source rather than folded silently into a
+requirement — the source is Brett Heap's own design sketch, and a packet that
+quietly improved it would leave him no way to see that it had.
+
+## Realization dependencies — what this tranche actually waits on
+
+**A ruling is not what holds this tranche.** The topic's exit path says so:
+*"What still holds this tranche is the PKI plane being real, not a ruling."*
+Recorded here in dependency order, so realization is commissioned against facts
+rather than against optimism.
+
+| Dependency | State | What it gates |
+| --- | --- | --- |
+| **`add-signed-execution-chain` (tranche one) realized** | RATIFIED 2026-08-29; realization is a later commission | The TRANSPARENCY LOG. This capability writes leaves into it and anchors checkpoints of it; with no log there is nothing to anchor. Hard prerequisite. |
+| **The PKI plane — `implement-openxpki-install-repo`** | 22 done / 8 open | The signing identities the anchoring subsystem itself uses, and the certificate chain tranche two needs. The topic names this as what holds tranche three. |
+| **`add-chain-attestation` (tranche two)** | IN FLIGHT beside this packet | Not a hard prerequisite for anchoring a checkpoint, but the attested chain is most of what is WORTH anchoring — anchoring a log of unattested leaves witnesses less than the family intends. Sequencing, not blocking. |
+| **The archival node for the operational witness** | Operator infrastructure, not yet commissioned | Requirement 2's first condition. Without it, the inclusion proofs cannot be captured before pruning and the witness cannot be used at all. |
+| **The aggregation-calendar path for the durability witness** | Operator decision: public calendars, or a self-run hourly calendar | Requirement 2's durability half. The study's §8 cost model puts the public path at $0 marginal per item and a self-run hourly calendar at ≈$2.1k/yr. |
+| **The permissioned plane instance** | Class named, instance deliberately unselected (D5) | Requirement 6. Realization-time selection. |
+
+**The three Kaspa conditions are realization tasks, not prose.** An archival
+node; inclusion proofs captured AND retained at anchor time; corroborating
+status, never sole. `tasks.md` §4 carries each one as its own task with its own
+evidence, because a condition recorded only in a requirement is a condition
+nobody is assigned.
+
+## What this design does NOT decide
+
+- **The digest algorithm and byte encoding.** `add-signed-execution-chain`'s ONE
+  digest construction requirement already governs every digest the family
+  computes *"and any a later tranche adds"*. This packet declares no second
+  digest rule and inherits that one; the algorithm is settled in tranche one's
+  own §3 settling tasks.
+- **The leaf grammar** for the new leaf kinds (verification attempt, refused
+  access, anchor state, horizon breach). Tranche one owns the leaf grammar and
+  settles it before schemas are authored; this packet names the leaf KINDS it
+  needs and adds no second grammar.
+- **The aggregation interval.** A realization-time tuning decision bounded by the
+  horizons requirement 3 requires be DECLARED, not by a number written here.
+- **Whether a future change may put contract code on an anchoring chain.** Q5
+  refused the permanence and refused any trigger condition written in advance.
+  This packet states today's evidence-only posture in the present tense and
+  writes neither a "never" nor a condition. A later change answers to its own
+  evidence.
+- **Any domain's record kinds, regulators or product surfaces.** Requirement 9,
+  and it is a refusal rather than a deferral.

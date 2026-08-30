@@ -1,0 +1,54 @@
+schema: spec-driven
+created: 2026-08-29
+origin:
+  kind: staged
+  id: openxFactory:staging:signed-execution-chain
+  path: ideation/staging/signed-execution-chain
+  reason: >-
+    EXIT 3 OF THREE of the staged topic — the on-chain anchoring layer plus the
+    permissioned consent plane whose state roots it anchors. Its two question
+    gates were opened by Brett Heap's clarify sitting of 2026-08-29 (openxFactory
+    pull request #499, squash `9c501df6`): the topic's own `## Exit path` records
+    that "Tranche 3 was gated by Q3 and Q6, and both gates are now OPEN". What
+    still holds the tranche is machinery — the PKI plane being real — and not a
+    ruling, which is what makes a proposal the right next act.
+
+    IT BUILDS TO THE RULED CONFIGURATION AND RE-ARGUES NONE OF IT. Q3 was ruled
+    in TWO ROUNDS and DIVERGES from the vendored `chain-selection-study.md`: both
+    witnesses on every anchored item, Kaspa FIRST as the primary OPERATIONAL
+    witness under the study's three conditions unchanged (archival node;
+    inclusion proofs captured AND retained at anchor time; corroborating
+    evidence, never sole), Bitcoin batched via OpenTimestamps as the DURABILITY
+    witness on everything, ten-year claims citing Bitcoin, no selectivity and no
+    third chain. "Primary" is order of arrival, never evidentiary weight. The
+    study is NOT edited by this packet and is cited for GROUNDS only — a dated
+    research record rewritten to agree with a later ruling stops being evidence.
+    Q2's boundary is carried as CONTRACT TEXT with a refusing validator, and Q6's
+    salted-keyed-commitment reading is carried as the 2026-08-27 ruling's
+    OPERATIVE FORM. Q5 is complied with positively: today's evidence-only posture
+    is stated in the present tense, with no "never" and NO TRIGGER CONDITION.
+    The multi-anchor receipt is built FIRST, per the exit path, because the
+    receipt is what makes the anchor choice reversible.
+
+    THE PACKET IS A DRAFT AND SEEKS NO RATIFICATION BY ITS LANDING. It is
+    authored to be read adversarially by a §7.4-shaped council convened OUTSIDE
+    the clearance pipeline — a class over `openspec/changes/**` can never
+    commission one, measured 984 admitted / 984 floored / 0 remaining and
+    reproduced code-level (the 2026-08-28 `gate_rules_council` record, unanimous
+    5/5) — and Brett Heap's ratification follows that review. Six authoring
+    decisions are listed for the seats rather than presented as settled, the
+    largest being the semantics of a missing witness, which nothing ruled
+    answers.
+
+    NO APPROVAL FIELD IS CLAIMED HERE, DELIBERATELY. `approved_by` is required
+    of an ad-hoc origin and not of a staged one, and this packet does not record
+    one it cannot cite: the drafting was commissioned by an orchestrating
+    session, which is not Brett Heap's word. Tranche one's own origin record was
+    corrected for exactly that overstatement — it first cited a session-handoff
+    board as the drafting authorization and had to name his separate in-session
+    green-light instead — and the lesson is carried rather than repeated.
+related:
+  - openxFactory:change:add-signed-execution-chain           # ACTIVE, RATIFIED 2026-08-29. Tranche one, and a HARD PREREQUISITE: its signed transparency log is the evidence plane this capability writes leaves into and anchors checkpoints of. Its ONE-digest-construction requirement already governs "any a later tranche adds", so this packet declares no second digest rule. Its DECLARED deletion residual names tranche-three anchoring as what closes it
+  - openxFactory:change:add-chain-attestation                # Tranche two, IN FLIGHT beside this packet. Sequencing rather than blocking: an anchored log of unattested leaves witnesses less than the family intends. This packet defines no attestation, no controller certificate and no per-task identity
+  - openxFactory:change:add-trust-anchor                     # ACTIVE, realized at contract-v1.37. Its ratified DECLARED-SHORTFALL pattern is what the unsalted-commitment residual is declared under, rather than asserted closed
+  - openxFactory:change:implement-openxpki-install-repo      # ACTIVE; the PKI plane the staged topic names as what still holds this tranche. A realization dependency, deliberately not assumed
