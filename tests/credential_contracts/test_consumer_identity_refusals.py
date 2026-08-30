@@ -327,6 +327,46 @@ def test_a_reference_carrying_an_EXTRA_member_does_not_resolve():
     assert "consumer-member-grammar" in [c for c, _ in V._deprecation_warnings(doc)]
 
 
+@pytest.mark.parametrize("record", [
+    {"schema_version": 1, "kind": "xfactory_credential_binding_template",
+     "client": {"id": "c"},
+     "credential_bindings": {"r": {"provider": "p", "secret_ref": "s", "owner": "o",
+                                   "rotation_policy": "rp",
+                                   "consumer": {"holder_ref": "example:holder",
+                                                "fetch_identity": "example-identity",
+                                                "requirement_ref": {
+                                                    "requirement_id": "r",
+                                                    "requirements_document_ref": "r.yaml",
+                                                    1: "an int key"}}}}},
+    {"schema_version": 1, "kind": "xfactory_credential_binding_template",
+     "client": {"id": "c"},
+     "credential_bindings": {"r": {"provider": "p", "secret_ref": "s", "owner": "o",
+                                   "rotation_policy": "rp",
+                                   "consumer": {"holder_ref": "example:holder",
+                                                "fetch_identity": "example-identity",
+                                                2: "an int member"}}}},
+    {"schema_version": 1, "kind": "xfactory_credential_requirements",
+     "domain": {"id": "d"},
+     "requirements": [{"id": "r", "purpose": "p", "access_mode": "workload_identity",
+                       "requires_domain_approval": True, "requires_human_approval": False,
+                       "max_grant_minutes": 60, "audit_required": True,
+                       "issuance_preconditions": {"accepted_request_required": True,
+                                                  3: True}}]},
+], ids=["reference-key", "block-member", "issuance-precondition"])
+def test_a_NON_STRING_KEY_is_reported_rather_than_raised(record):
+    """PR #516, Codex round 2. The block is UNCONSTRAINED at this minor, so a
+    record may hold a mapping whose keys are not all strings — YAML writes
+    `1: extra` as an int key — and a bare `sorted()` over mixed types raises
+    TypeError, aborting the WHOLE repository scan on a record this release
+    promises stays valid and warned. A crash is not a verdict.
+
+    The parametrisation is the SWEEP rather than the one line a bot pointed at:
+    this validator sorts record-controlled keys in three places, and all three
+    are driven here."""
+    assert isinstance(V._deprecation_warnings(record), list)
+    assert isinstance(V._semantic_findings(record, INDEX), list)
+
+
 def test_an_overlong_document_reference_does_not_resolve():
     doc = _conforming_pair()
     overlong = "credentials/" + ("a" * 400) + ".yaml"

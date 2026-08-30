@@ -238,7 +238,14 @@ def _issuance_precondition_findings(rid: str, req: dict) -> list[str]:
     if not isinstance(preconditions, dict):
         return []
     out: list[str] = []
-    for name in sorted(preconditions):
+    # `key=repr` — THE SWEEP, not the one instance a bot round happened to land
+    # on. The crash class Codex found on `requirement_ref` is a property of
+    # sorting record-controlled keys, and this validator sorts them in three
+    # places; a settled fact is chased to the whole file rather than to the line
+    # that was pointed at. A non-string key here is already a SCHEMA error
+    # (`issuance_preconditions` is closed), but the semantic pass runs beside
+    # the schema pass rather than behind it, so the crash was reachable.
+    for name in sorted(preconditions, key=repr):
         if name not in ISSUANCE_PRECONDITIONS:
             out.append(f"issuance-precondition-unknown: requirement {rid!r} declares issuance "
                        f"precondition {name!r}, which is outside the closed vocabulary "
@@ -283,7 +290,7 @@ def resolve_requirement(ref: object, index: dict[str, list[dict]]) -> tuple[str,
     carry no repository-wide uniqueness, two matches may differ in `access_mode`,
     and a rule whose outcome depends on traversal order is not a rule.
     """
-    if not isinstance(ref, dict) or sorted(ref) != sorted(REQUIREMENT_REF_MEMBERS):
+    if not isinstance(ref, dict) or set(ref) != set(REQUIREMENT_REF_MEMBERS):
         # AN EXTRA MEMBER IS MALFORMED, not a decorated success (PR #516,
         # Copilot). The docstring promised "the two-member object" while the
         # code checked only that the two were present, so a reference carrying
@@ -292,6 +299,13 @@ def resolve_requirement(ref: object, index: dict[str, list[dict]]) -> tuple[str,
         # a new refusal of any record: it withholds an exemption, and the
         # default shared-secret refusal it leaves standing is the one that
         # already stands today.
+        #
+        # COMPARED AS SETS, NEVER SORTED (PR #516, Codex round 2). The block is
+        # UNCONSTRAINED at this minor, so a record may hold a mapping whose keys
+        # are not all strings — YAML writes `1: extra` as an int key — and
+        # `sorted()` over mixed types raises TypeError. That would abort the
+        # whole repository scan on a record this release promises stays VALID
+        # and warned. A crash is not a verdict.
         return "malformed", None
     rid = ref.get("requirement_id")
     doc_ref = ref.get("requirements_document_ref")
@@ -560,10 +574,14 @@ def _consumer_block_warnings(name: str, binding: dict) -> list[tuple[str, str]]:
                         f"the no-block nor the unknown-member finding, and would otherwise cross "
                         f"the whole minor unwarned. ERROR at {MAJOR_RELEASE}"))
 
+    # `key=repr` for the same reason the reference is compared as a set: an
+    # unconstrained block may carry non-string member keys, and a bare
+    # `sorted()` over mixed types raises rather than reports.
     unknown = [m for m in consumer if m not in CONSUMER_MEMBERS]
     if unknown:
         out.append(("consumer-block-unknown-member",
-                    f"binding {name!r}'s consumer block declares {sorted(unknown)}, outside the "
+                    f"binding {name!r}'s consumer block declares "
+                    f"{sorted(unknown, key=repr)}, outside the "
                     f"declared member set {list(CONSUMER_MEMBERS)}; the block is closed at "
                     f"{MAJOR_RELEASE}, where this is an ERROR"))
 
@@ -578,7 +596,7 @@ def _consumer_block_warnings(name: str, binding: dict) -> list[tuple[str, str]]:
 
     ref = consumer.get("requirement_ref")
     if ref is not None:
-        if not isinstance(ref, dict) or sorted(ref) != sorted(REQUIREMENT_REF_MEMBERS):
+        if not isinstance(ref, dict) or set(ref) != set(REQUIREMENT_REF_MEMBERS):
             out.append(("consumer-member-grammar",
                         f"binding {name!r}'s consumer.requirement_ref is not a QUALIFIED "
                         f"reference — an object of exactly {list(REQUIREMENT_REF_MEMBERS)}. A "
