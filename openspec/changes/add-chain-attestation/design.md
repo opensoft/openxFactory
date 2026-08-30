@@ -247,16 +247,63 @@ the successor's own leaf), and the enumeration must be EQUAL to it — not a sub
 and not a superset, since a record enumerated but never written as a leaf is
 UNPROVEN under tranche one's own rule.
 
-**Why the log and not link 4.** Declaring the expected task set in the setup
-attestation was the other candidate and is worse: link 4 is signed BEFORE the
-runners execute, so a dynamically fanned-out task set is not knowable at that
-point, and a rule requiring it would be unbuildable for the ordinary case. The
-log is written as the acts happen, which is the property the derivation needs.
-**The residual is tranche one's declared one and is inherited, not re-declared:**
-a store truncating its newest unobserved leaves could hide a link-5 leaf and make
-an incomplete enumeration look equal — the suffix truncation tranche one's
-transparency-log requirement already declares it cannot detect, with tranche-three
-anchoring named as what closes it.
+**AND THE "WHY THE LOG AND NOT LINK 4" REASONING WAS WRONG — CORRECTED, NOT
+DELETED.** This section previously rejected the other candidate outright:
+*"Declaring the expected task set in the setup attestation was the other
+candidate and is worse: link 4 is signed BEFORE the runners execute, so a
+dynamically fanned-out task set is not knowable at that point, and a rule
+requiring it would be unbuildable for the ordinary case."* **The buildability
+objection was real. The conclusion drawn from it was not**, and the difference
+cost the packet the whole attack.
+
+**A LOG-DERIVED SET CANNOT SEE A LEAF THAT WAS NEVER WRITTEN.** The query is
+*"every leaf … at or before the successor's own leaf"*, so a lane that never
+writes an unwanted attestation — rather than omitting it from the submission —
+produces an enumeration EQUAL to the derived set, and the gate PERMITS. The
+leaf-ordering obligation (LQ-A3) does not repair it: refusing the late leaf when
+it eventually appears lands after a merge this capability's own two-horizon
+doctrine says is not retroactively refused, and a leaf never written never
+appears at all. **`lead-security` had already named the missing instrument in
+these words** (LS-F5, §1.6): *"link 4 records the provisioned environment but no
+count of expected runner tasks, so there is no independent cardinality to check
+equality against. Suppression at source is undetected."* The second bot round
+reached the same place independently. **Two independent readers finding one hole
+is the finding.**
+
+**THE DECISION IS THEREFORE REVERSED: THE AUTHORITATIVE SET IS LINK 4'S COMMITTED
+EXPECTATION.** The controller — the party that dispatches, and the only party
+trusted at that boundary — commits the expected attestation set inside the bytes
+it signs, and the gate compares link 6's enumeration for EQUALITY against that,
+never against leaves already present. This is **BIND BEFORE SIGN's sibling one
+link earlier**: at link 5 the controller refuses to sign a claim it cannot
+corroborate; at link 4 it states, before any runner executes, what claims are
+owed. A completeness rule whose expectation is inferred from the side that
+benefits from shrinking it is satisfiable by writing less.
+
+**AND THE BUILDABILITY OBJECTION IS ANSWERED RATHER THAN OVERRIDDEN**, because a
+rule describing a control that cannot run is the failure this family has now
+named several times. Where the task set is not knowable at link-4 signing time,
+the commitment is EXTENDED by a controller-signed extension record written as a
+leaf BEFORE the attestation it covers. The expected set is link 4 AS EXTENDED.
+Three refusals stop the extension becoming the hole: an extension written after
+the attestation it covers is refused; an attestation for a task no commitment
+covers is refused; and an extension signed anywhere but at the controller is
+refused. **Dynamic fan-out is served by extension and never by silence.**
+
+**Why not simply oblige the controller to write every link-5 leaf**, which was
+the third candidate. It fixes WHO WRITES and still fixes no EXPECTATION: a
+controller that writes every leaf it is asked to write still has no independent
+statement of how many were owed, so the same lane omits the request rather than
+the leaf. Committing the expectation is strictly stronger and subsumes it.
+
+**Two residuals, both declared.** A store truncating its newest unobserved leaves
+could hide a link-5 leaf — tranche one's suffix truncation, inherited and not
+re-declared, with tranche-three anchoring named as what closes it. And a
+COMPROMISED CONTROLLER can under-commit: dispatch a task and never name it. That
+one is not a gap this rule opens but **the trust boundary the tier split already
+draws** — the controller's signature is the root of every fact link 5 carries in
+any case — so the requirement claims detection against a lane, a runner or a
+store and says so in terms.
 
 ## D5 — An HSM is deferred hardening, and the contract is written so that adopting one changes nothing
 
@@ -480,6 +527,57 @@ not a binding"*, arriving three separate times at three different links.
 stated as what must be ESTABLISHED, the complete set comes from the log tranche
 one already makes the record, and the review authority is the instrument this
 repository already reads inside a required check.
+
+## D11 — What the SECOND bot round corrected, recorded as corrections
+
+Two P1 findings on the council fix round's own head (`b7bc4f1f`), both real, and
+**both of one shape — a rule that could not be CONSTRUCTED as written.** Recorded
+here on D10's pattern, because the shape is the transferable part and it is a
+different shape from D10's: D10's three were records that NAMED where a record
+that ESTABLISHES belonged; these two are rules that, executed literally, either
+detect nothing or forbid the very artifact the capability requires.
+
+1. **The completeness rule could not see the attack it was written for**
+   (requirements 1 and 6). The authoritative set was DERIVED FROM THE LOG, so a
+   lane that never wrote an unwanted link-5 leaf produced an enumeration equal to
+   the derived set and passed the gate; the ordering obligation could only refuse
+   the leaf once it appeared, which is after a merge that is not retroactively
+   refused. **Repaired by moving the authority to link 4's COMMITTED EXPECTATION**
+   — the controller commits the dispatched task set inside the bytes it signs,
+   extensible before each attestation it covers, with the log comparison retained
+   as a second check in both directions. Full reasoning at D4. **`lead-security`'s
+   LS-F5 had named the same missing instrument**, so this discharges a seat
+   finding as well as a bot one.
+2. **No conforming link 6 was constructible** (requirements 2, 5 and 7).
+   Requirement 2 bounded the per-task tier-2 identity to *"exactly one thing —
+   signing an attestation about that task"*, while requirements 5 and 7 required
+   that same identity to sign a DECISION and a TEST OUTCOME. A realization
+   enforcing the first could not produce the second: **two requirements of one
+   capability demanding opposite things, with every realization forced to breach
+   one.** Repaired by **WIDENING TO A CLOSED, NAMED ENUMERATION** of the identity's
+   authorized record kinds — task attestation (link 5), PR-open decision record
+   (link 6), post-merge test record (link 10) — rather than by minting SEPARATE
+   task-scoped identities, which was the other option offered.
+
+**Why widening and not separate identities.** Separate identities would have
+multiplied the per-task credential population by three for no gain in what any
+signature proves: all three records are produced at the same signing boundary,
+under the same custody rule, about the same task, and the property that matters
+— *this identity can say things about its task and can permit nothing* — is
+carried by the ENUMERATION being closed, not by how many identities carry it.
+Three identities with the same authority are one authority with more bookkeeping,
+and each additional per-task credential is another thing a realization must mint,
+scope and destroy.
+
+**What closing the enumeration buys, and why it is stated as a permanent
+exclusion.** The risk in widening a signer's authority is that the next widening
+happens quietly. So the enumeration is CLOSED, and AUTHORITY RECORDS — a
+ratification, an approval, a review grant, anything that CONFERS PERMISSION —
+are excluded from it FOREVER rather than merely absent from it today. **Tier 2
+answers *what ran*; tier 1 answers *who permitted*.** The exclusion is what keeps
+a fourth record kind, added later for convenience, from moving an act across that
+line; and it is the same discipline requirement 5 already states when it says
+signing an open is not permitting a merge.
 
 ## What this design does NOT decide
 

@@ -15,7 +15,7 @@ in for a ruleset state.
 
 ## 1. Spec deltas and the packet (THIS PULL REQUEST)
 
-- [x] 1.1 `signed-execution-chain` — **NINE ADDED requirements over 67
+- [x] 1.1 `signed-execution-chain` — **NINE ADDED requirements over 76
       scenarios**: the harness-controller setup attestation under a certificate
       expressed in `add-trust-anchor` vocabulary, with the issuing authority named
       as a realization dependency and never assumed; runner attestations signed AT
@@ -113,6 +113,24 @@ in for a ruleset state.
       set derived from tranche one's log by a defined query, and review authority
       in `add-wallet-carried-review-authority`'s shipped vocabulary — and each
       carries its residual DECLARED rather than closed.
+- [x] 1.10 **THE SECOND BOT ROUND'S TWO P1 FINDINGS ARE CLOSED, AND RECORDED AS
+      CORRECTIONS** (`design.md` D11; `proposal.md` § "What the SECOND bot round
+      corrected"). Both were one shape, and a DIFFERENT shape from the first
+      round's: **a rule that could not be CONSTRUCTED as written.** (i) The
+      completeness rule derived its authoritative set FROM THE LOG, which cannot
+      see a leaf that was never written — so a lane that never wrote an unwanted
+      attestation passed the gate, and the council's own LQ-A3 leaf-ordering
+      obligation could only refuse the leaf once it appeared, after a merge that
+      is not retroactively refused. **The authority moves to link 4's COMMITTED
+      EXPECTATION**, extensible before each attestation it covers, with the log
+      comparison kept as a second check in both directions — which also
+      discharges `lead-security`'s **LS-F5**, that named the identical missing
+      instrument in the sitting. (ii) Requirement 2 bounded the per-task tier-2
+      identity to *"exactly one thing — signing an attestation about that task"*
+      while requirements 5 and 7 required it to sign a DECISION and a TEST
+      OUTCOME, so **no conforming link 6 was constructible**. Repaired by a
+      CLOSED, NAMED ENUMERATION of authorized record kinds (links 5, 6, 10), with
+      authority records excluded permanently. Neither repair invents vocabulary.
 
 ## 2. §7.4 COUNCIL REVIEW — **HELD 2026-08-30. THE FIRST GATE IS DISCHARGED.**
 
@@ -230,6 +248,14 @@ Each is contract content — cheap now, expensive after a bundle ships.
       WITH tranche one's single digest construction and never beside it.
 - [ ] 4.5 Confirm the extended gate stays **ONE required check walking further**,
       never a second gate.
+- [ ] 4.6 Fix the **per-task reference** the expected attestation set is written
+      in — the value link 4 commits to and the link-5 attestation carries back,
+      settled WITH tranche one's single digest construction and never beside it.
+      The requirement fixes that the reference is STABLE, that it falls inside the
+      controller's signed bytes, and that an attestation for an uncommitted task
+      is refused; it does not fix the reference's shape. **The extension record's
+      own shape rides with it**, since an extension is the same commitment written
+      later, and both are refused if the reference cannot be matched.
 
 ## 5. Realization — ONE Speckit contract feature, GATED ON MACHINERY
 
@@ -277,10 +303,13 @@ Each is contract content — cheap now, expensive after a bundle ships.
 - [ ] 5.3 **[GATE] The omnigent layer real enough to enforce a precondition.**
       Until a running layer refuses, requirement 9 is UNMET rather than partially
       met, and this packet claims no enforcement it cannot name a check for.
-- [ ] 5.4 `contracts/signed-execution-chain/` gains the setup-attestation record,
-      the runner-attestation record together with the signing-request record, the
-      PR-open decision record, the closure record, the remediation declaration, and
-      the per-fact evidence class.
+- [ ] 5.4 `contracts/signed-execution-chain/` gains the setup-attestation record
+      **carrying its committed expected attestation set**, the
+      **controller-signed commitment-extension record**, the runner-attestation
+      record together with the signing-request record, the PR-open decision
+      record, the closure record, the remediation declaration, the per-fact
+      evidence class, and the **closed enumeration of record kinds a per-task
+      tier-2 identity may sign**.
 - [ ] 5.5 Packaged POSITIVE and NEGATIVE examples for every named refusal: no
       anchor held, host-held custody offered for hardware-bound assurance, absent
       link 4, empty setup attestation, runner-produced signature, missing signing
@@ -300,7 +329,15 @@ Each is contract content — cheap now, expensive after a bundle ships.
       from the scope the runner executes within, a controller co-located inside the
       runner's trust boundary, a link-5 leaf written after its link-6 successor's,
       and a review-authority standing read from a projection older than the
-      register's declared staleness bound.
+      register's declared staleness bound — **plus the nine the second bot round
+      added**: a setup attestation committing to no expected attestation set, an
+      expectation carried outside the signed bytes, a commitment extension written
+      after the attestation it covers, an attestation for a task no commitment
+      covers, an extension signed away from the controller, a dispatched runner's
+      leaf never written at all, an attestation produced outside the committed
+      expectation, a tier-2 identity offered for a record kind outside its closed
+      enumeration, and the positive case of that identity signing its task's
+      link-6 and link-10 records.
 - [ ] 5.6 `scripts/validate-signed-execution-chain.py` extended — one named
       refusal per negative example above.
 - [ ] 5.7 The SAME required pull-request check walks links 1–6. **A merged

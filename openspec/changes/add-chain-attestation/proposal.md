@@ -1,5 +1,5 @@
 ---
-code_surface: openxFactory — AN EXTENSION OF THE TRANCHE-ONE CONTRACT FAMILY PLUS AN EXTENSION OF ITS RUNNING GATE, declared honestly because this tranche is not doctrine-only. `contracts/signed-execution-chain/` gains FIVE record kinds and one field discipline — the harness-controller SETUP ATTESTATION (link 4), the RUNNER ATTESTATION (link 5) carried together with the SIGNING REQUEST recorded beside its signature, the signed PR-OPEN DECISION (link 6), the CLOSURE record of the governed post-merge test (link 10), and the REMEDIATION DECLARATION that names an unclosed chain as a repairing chain's signed subject — plus the per-fact EVIDENCE CLASS (`controller_corroborated` / `independently_observed` / `runner_claimed`, ORDERED and composed with the ratified `contracts/trust-anchor/trust-anchor-chain-custody.registry.yaml` rather than beside it) that keeps a runner's self-report from being read as controller-attested fact. `scripts/validate-signed-execution-chain.py` gains one named refusal per negative example, and the SHORT-CHAIN GATE tranche one wired as a required pull-request check EXTENDS from links 1–3 to links 1–6 — the same check, a longer walk, not a second gate. Packaged positive AND negative examples for every named refusal. Registration in `contracts/manifest.yaml` + `contracts/CHANGELOG.md` at the next additive bundle cut. NO CERTIFICATE AUTHORITY, NO issuance pipeline, NO key service, NO HSM procurement, NO anchor, NO chain, NO commitment format, NO consent plane — anchoring is the named tranche-three successor `add-chain-anchoring` and carries its own code surface. NO CHANGE TO `contracts/omnigent/omnigent-domain-overlay.schema.yaml` — no sixth archetype, no seventh permission boolean, and no widening of a closed matrix. NO SECOND identity, certificate, digest or proof vocabulary is defined: certificates are `add-trust-anchor`'s, signer identity is `add-identity-brokering`'s, and the digest construction is the ONE tranche one already put in force for every digest this capability computes. ONE `## MODIFIED Requirements` BLOCK, added in the 2026-08-30 council fix round, restates tranche one's gate requirement SCENARIO-COMPLETE AT ALL NINE SCENARIOS to re-scope the gate and extend its closed-list mapping table to all eighteen of this capability's requirements — it moves the SAME contract bytes the ADDED-only draft did and adds no record kind.
+code_surface: openxFactory — AN EXTENSION OF THE TRANCHE-ONE CONTRACT FAMILY PLUS AN EXTENSION OF ITS RUNNING GATE, declared honestly because this tranche is not doctrine-only. `contracts/signed-execution-chain/` gains SIX record kinds and two field disciplines — the harness-controller SETUP ATTESTATION (link 4) carrying the COMMITTED EXPECTED ATTESTATION SET inside its signed bytes, the CONTROLLER-SIGNED COMMITMENT EXTENSION that serves a dynamic fan-out and is written before the attestation it covers, the RUNNER ATTESTATION (link 5) carried together with the SIGNING REQUEST recorded beside its signature, the signed PR-OPEN DECISION (link 6), the CLOSURE record of the governed post-merge test (link 10), and the REMEDIATION DECLARATION that names an unclosed chain as a repairing chain's signed subject — plus the CLOSED ENUMERATION of record kinds a per-task tier-2 identity may sign (link 5, link 6, link 10, and no authority record ever) — plus the per-fact EVIDENCE CLASS (`controller_corroborated` / `independently_observed` / `runner_claimed`, ORDERED and composed with the ratified `contracts/trust-anchor/trust-anchor-chain-custody.registry.yaml` rather than beside it) that keeps a runner's self-report from being read as controller-attested fact. `scripts/validate-signed-execution-chain.py` gains one named refusal per negative example, and the SHORT-CHAIN GATE tranche one wired as a required pull-request check EXTENDS from links 1–3 to links 1–6 — the same check, a longer walk, not a second gate. Packaged positive AND negative examples for every named refusal. Registration in `contracts/manifest.yaml` + `contracts/CHANGELOG.md` at the next additive bundle cut. NO CERTIFICATE AUTHORITY, NO issuance pipeline, NO key service, NO HSM procurement, NO anchor, NO chain, NO commitment format, NO consent plane — anchoring is the named tranche-three successor `add-chain-anchoring` and carries its own code surface. NO CHANGE TO `contracts/omnigent/omnigent-domain-overlay.schema.yaml` — no sixth archetype, no seventh permission boolean, and no widening of a closed matrix. NO SECOND identity, certificate, digest or proof vocabulary is defined: certificates are `add-trust-anchor`'s, signer identity is `add-identity-brokering`'s, and the digest construction is the ONE tranche one already put in force for every digest this capability computes. ONE `## MODIFIED Requirements` BLOCK, added in the 2026-08-30 council fix round, restates tranche one's gate requirement SCENARIO-COMPLETE AT ALL NINE SCENARIOS to re-scope the gate and extend its closed-list mapping table to all eighteen of this capability's requirements — it moves the SAME contract bytes the ADDED-only draft did and adds no record kind.
 target_release: THE NEXT ADDITIVE MINOR, DELIBERATELY NOT NUMBERED HERE — allocated AT REALIZATION by merge order per `docs/contract-versioning-policy.md`. The figure is deliberately withheld rather than forgotten: `contracts/manifest.yaml:3` declares `contract_bundle_version: contract-v2.2` at this branch's tip, and `add-signed-execution-chain` — this packet's own predecessor — already names the next additive cut for the family's first contract bytes. A number written here would be a number another packet is already spending, and the realization confirms it against the manifest at ITS tip rather than trusting this line. THE CLASS IS ADDITIVE and nothing narrows: new record kinds in a family whose first cut has not shipped, no existing schema changes, no consumer pinned at the current bundle is made non-conformant, and no domain is obliged to adopt a chain. The one obligation that reaches an existing artifact — the gate's longer walk — reaches a check this family itself owns and that no domain runs.
 Status: draft
 Proposed: 2026-08-29
@@ -196,7 +196,7 @@ capability tranche one created.
 
 ### Modified Capabilities
 
-- `signed-execution-chain`: **NINE ADDED requirements over 67 scenarios**, plus
+- `signed-execution-chain`: **NINE ADDED requirements over 76 scenarios**, plus
   **ONE `## MODIFIED Requirements` block — tranche one's gate requirement,
   SCENARIO-COMPLETE AT ALL NINE OF ITS SCENARIOS** — the harness-controller
   setup attestation under a `trust-anchor` certificate; runner attestations
@@ -372,6 +372,42 @@ and not just the fixes. Full reasoning in `design.md` D10.
 
 **None was repaired by inventing vocabulary**, which is the constraint the staged
 topic names as this family's first risk.
+
+## What the SECOND bot round corrected, after the council fix round
+
+Two P1 findings on the fix round's own head, both real, and **both of one shape:
+a rule that could not be CONSTRUCTED as written.** A different shape from the
+first round's, and recorded separately for that reason. Full reasoning in
+`design.md` D11.
+
+1. **The completeness rule could not detect the attack it was written for.** The
+   authoritative link-5 set was DERIVED FROM THE LOG, so a lane that never wrote
+   an unwanted attestation — rather than omitting it from the submission —
+   produced an enumeration EQUAL to the derived set and passed the gate. The
+   leaf-ordering obligation the council's LQ-A3 added could only refuse the leaf
+   once it appeared, which is after a merge that is not retroactively refused,
+   and a leaf never written never appears. **The authority moves to LINK 4's
+   COMMITTED EXPECTATION**: the controller commits the dispatched task set inside
+   the bytes it signs, extensible before each attestation it covers, and the gate
+   compares link 6's enumeration for EQUALITY against that. **`lead-security`'s
+   LS-F5 had already named the same missing instrument** — *"link 4 records the
+   provisioned environment but no count of expected runner tasks, so there is no
+   independent cardinality to check equality against"* — so the repair discharges
+   a seat finding as well as a bot one.
+2. **No conforming link 6 was constructible.** Requirement 2 bounded the per-task
+   tier-2 identity to *"exactly one thing — signing an attestation about that
+   task"*, while requirements 5 and 7 required that same identity to sign a
+   DECISION and a TEST OUTCOME. Two requirements of one capability demanded
+   opposite things and every realization would have had to breach one. **Repaired
+   by widening to a CLOSED, NAMED ENUMERATION** of the identity's authorized
+   record kinds — link 5, link 6, link 10 — with authority records excluded from
+   it permanently, so that widening what tier 2 may SAY never widens what tier 2
+   may PERMIT.
+
+**Neither was repaired by inventing vocabulary either.** The commitment is a
+field on the record link 4 already is, its extension is signed by the signer link
+4 already has, and the enumeration names three record kinds this delta already
+required.
 
 ## The two acts that must follow, in order
 
