@@ -151,6 +151,25 @@ now match the structure.
    outage from the record, and the outage is exactly the thing an auditor needs
    to see. The horizon-breach leaf is what makes the gap visible.
 
+**AMENDED IN THE FIFTH BOT ROUND — the two states were not disjoint, so neither
+was deterministic.** This decision named `anchor_pending` and `anchor_incomplete`
+and let the boundary between them be inferred from "fewer witnesses than
+configured" — which every freshly submitted item satisfies, putting it in both
+states at once for the whole ordinary aggregation window. `lead-security` filed
+it as LS-F11 with its charitable reading; Codex found it independently and rated
+it P1. **The states are now disjoint BY DEFINITION**: pending WHILE every unmet
+witness is within its declared horizon, incomplete only on an EXPLICIT
+transition — a horizon breach or a named terminal witness failure — each written
+as a leaf, which this decision's own evidence rule already required. A
+verification of a pending item returns `anchor_pending` naming what is in flight,
+so the state every healthy item passes through has an answer and the operator
+obligation fires at a transition rather than on everything.
+
+**The governance note travels with it**: LS-A9 is the seat amendment that asked
+for this, it was filed SHOULD-FIX, and the disposition did not dispose it.
+`tasks.md:2.4` records that this session escalated it first and executed it on
+direction, so the ratification read can bless or reverse it.
+
 **What this decision does NOT do.** It does not soften "both witnesses on every
 anchored item". The configuration is unchanged; what is named is the honest
 TRANSIT between submission and completion, and the honest DEGRADATION when the

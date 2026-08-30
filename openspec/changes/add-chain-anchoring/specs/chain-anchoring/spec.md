@@ -256,14 +256,41 @@ change rather than a rebuild.
 
 ### Requirement: A missing witness is a declared, fail-closed state and never silently fine
 
-openxFactory SHALL treat an item carrying fewer witnesses than the configuration
-demands as `anchor_incomplete` — a DECLARED state with its missing witnesses
-NAMED — and SHALL NOT report, present or verify it as anchored. Anchoring is a
-two-phase, deadline-bounded obligation rather than an instantaneous act: an item
-enters `anchor_pending` when validated material is submitted, and each witness
-carries its own declared COMPLETION HORIZON, because the durability witness's
-aggregation is deferred by hours even when everything is healthy and a rule that
-demanded both witnesses instantly would refuse every item in the healthy path.
+openxFactory SHALL treat an item whose configured witnesses are not all present
+AND WHOSE SHORTFALL IS NO LONGER MERELY IN FLIGHT as `anchor_incomplete` — a
+DECLARED state with its missing witnesses NAMED — and SHALL NOT report, present
+or verify it as anchored. Anchoring is a two-phase, deadline-bounded obligation
+rather than an instantaneous act: an item enters `anchor_pending` when validated
+material is submitted, and each witness carries its own declared COMPLETION
+HORIZON, because the durability witness's aggregation is deferred by hours even
+when everything is healthy and a rule that demanded both witnesses instantly
+would refuse every item in the healthy path.
+
+**THE TWO STATES ARE DISJOINT BY DEFINITION, AND THE TRANSITION BETWEEN THEM IS
+EXPLICIT RATHER THAN INFERRED.** Every freshly submitted item has NO witnesses
+yet, so a rule reading "fewer witnesses than configured" as sufficient for
+`anchor_incomplete` would put every healthy item into both states at once and
+leave a realization no deterministic answer during the ordinary aggregation
+window. **An item is `anchor_pending`, and REMAINS `anchor_pending`, while every
+unmet witness is still WITHIN its declared horizon.** It BECOMES
+`anchor_incomplete` only on an explicit transition, of which there are exactly
+two: **a witness's declared HORIZON IS BREACHED**, or **a witness fails
+TERMINALLY** in a way the realization can name — a refused anchor, an
+irrecoverable capture, a target withdrawn. **Each transition is written as a
+leaf**, which the horizon-breach obligation below already requires, so the move
+between the two states is itself evidence and not a derived opinion. An item
+that reaches its full configured witness set from `anchor_pending` goes straight
+to complete and never passes through `anchor_incomplete`, because nothing ever
+breached.
+
+**AND A PENDING ITEM IS NOT AN ANCHORED ONE, WHICH IS THE HALF A DISJOINT STATE
+MAKES EASY TO FORGET.** While an item is `anchor_pending`, any verification of it
+SHALL return `anchor_pending` naming the witnesses still in flight AND THE
+HORIZONS THEY ARE WITHIN — never a bare pass, never a bare fail, and never
+`anchor_incomplete`, which would fire the operator obligation on every healthy
+item and turn a real signal into noise. The item is NOT presented as anchored in
+either state; what differs is whether anything has gone wrong yet, and the two
+answers say which.
 
 **WHAT FAILS CLOSED IS THE CLAIM, NOT THE FACTORY.** The transparency log is the
 evidence plane and a leaf's standing has never depended on an anchor, so a
@@ -320,6 +347,30 @@ RECEIPT meeting the receipt requirement above. An outage is exactly the
 circumstance that would otherwise become selectivity by accident — "this one
 only got the one witness, and that was fine" — and naming the state is what
 stops it becoming a habit.
+
+#### Scenario: a freshly submitted item is in the ordinary aggregation window
+
+- WHEN validated material is submitted and neither configured witness has landed yet, both still within their declared horizons
+- THEN the item is `anchor_pending` and is NOT `anchor_incomplete`, deterministically, because nothing has breached and no witness has failed terminally
+- AND a verification of it returns `anchor_pending` naming the witnesses in flight and the horizons they are within, and no operator obligation is raised
+
+#### Scenario: a pending item's witness breaches its horizon
+
+- WHEN a configured witness has not landed by its declared horizon
+- THEN the item TRANSITIONS from `anchor_pending` to `anchor_incomplete`, naming that witness, and the transition is written as a leaf
+- AND the operator obligation is raised at that transition rather than on every healthy item
+
+#### Scenario: a witness fails terminally before its horizon elapses
+
+- WHEN a configured witness fails in a way the realization can name as terminal — a refused anchor, an irrecoverable capture, a target withdrawn — while its horizon is still open
+- THEN the item TRANSITIONS to `anchor_incomplete` immediately rather than waiting out a horizon that cannot now be met
+- AND the transition is written as a leaf naming the terminal failure, because waiting would report a healthy pending item over a known-dead witness
+
+#### Scenario: a late witness lands on a still-pending item
+
+- WHEN the last configured witness lands while the item is `anchor_pending` and within its horizon
+- THEN the item moves from `anchor_pending` to complete and never passes through `anchor_incomplete`, because nothing breached and nothing failed
+- AND no operator obligation was raised at any point in the healthy path
 
 #### Scenario: the operational witness is unreachable at anchor time
 
@@ -875,6 +926,25 @@ analysis whose correlation is refused still returns its per-plane results, and
 says which part it could not perform rather than failing whole or silently
 returning less.
 
+**AND "SAYS WHICH PART" IS A DECLARED OUTCOME ON THE RESULT, NOT A COURTESY IN A
+LOG LINE — SO IT IS GIVEN A SHAPE A VALIDATOR CAN CHECK.** An analysis result
+SHALL carry a STATUS DISCRIMINATOR drawn from a CLOSED ENUMERATION, a value
+outside that enumeration being REFUSED rather than passed through; where a
+correlation was refused, the result SHALL additionally carry the NAMED
+CORRELATION that was not performed and the GROUND it was refused on, **itself
+from a NAMED ENUMERATION rather than free text** — the revocation state
+unreadable, the consent revoked, the derivation refused; and the PER-PLANE
+RESULTS SHALL be carried DISTINCTLY from the correlated output, so what was
+produced without a join is never read as the join's answer. **A silently partial
+result — one missing its correlation with no declared outcome — is REFUSED**, on
+the same reasoning the anchoring requirements refuse an aggregate `anchored`
+boolean: a consumer reads the value it is given and not the circumstance behind
+it, so a result that merely omits what it could not do will be consumed as a
+result that had nothing to add. Free text cannot carry this, because a ground a
+validator cannot compare is a ground it cannot check. This requirement fixes
+that the outcome is DECLARED, ENUMERATED and distinguishable; the record's field
+names and its enumerated members are realization's, and named there.
+
 **AND THE NEUTRAL LAYER DEFINES THE SHAPE, NOT THE OCCASION.** This capability
 fixes what a lawful correlation path must BE; it does not say when a lane may be
 authorized, who may authorize it, or against what standard — those are domain
@@ -926,7 +996,14 @@ because the identity plane was not queried is REFUSED.
 
 - WHEN an analysis holding a pre-issued linkage derivation attempts to correlate the two planes and the current revocation state cannot be read
 - THEN the CORRELATION is REFUSED, because an unevaluable revocation never reads as permission and a pre-issued derivation is not self-authorizing offline
-- AND the analysis still returns its per-plane results and names the correlation as the part it could not perform, rather than failing whole or silently returning less
+- AND the analysis still returns its per-plane results carrying an explicit CORRELATION-REFUSED outcome that names the correlation and its ground, rather than failing whole or silently returning less
+
+#### Scenario: a refused correlation is returned as an undeclared partial result
+
+- WHEN a correlation is refused and the analysis returns only its per-plane results, with no status discriminator distinguishing that from a result which had no correlation to add
+- THEN it is REFUSED AS NON-CONFORMING, because a consumer reads the value it is given and not the circumstance behind it
+- AND the status discriminator, the named omitted correlation and its enumerated ground are what make the three result shapes decidable apart by the result itself
+- AND a result carrying a status value outside the closed enumeration, or a refusal ground written as free text, is REFUSED on the same rule
 
 #### Scenario: a derivation is revoked while its analysis is still running
 

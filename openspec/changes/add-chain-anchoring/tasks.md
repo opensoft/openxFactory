@@ -22,9 +22,9 @@ standing in for a ruleset state.
 
 ## 1. Spec deltas and the packet (THIS PULL REQUEST)
 
-- [x] 1.1 `chain-anchoring` — **NINE ADDED requirements over 69 SCENARIOS** (52
+- [x] 1.1 `chain-anchoring` — **NINE ADDED requirements over 74 SCENARIOS** (52
       SCENARIOS at the head the council judged, `cf5a24b8`; the 2026-08-30 fix
-      round of §2.4 and its THREE bot rounds added SEVENTEEN SCENARIOS and NO NEW
+      round of §2.4 and its FIVE bot rounds added TWENTY-TWO SCENARIOS and NO NEW
       REQUIREMENT — the requirement count is unchanged at nine), in
       the order the exit path requires: the multi-anchor receipt FIRST, then the
       ruled two-witness configuration, the missing-witness semantics, anchor-late,
@@ -216,13 +216,59 @@ standing in for a ruleset state.
       would have shipped without the derivation's fields or without anywhere to
       define its leaves. Both taken.
 
+      **A FOURTH BOT ROUND RETURNED ONE P1 AND ONE P2, AND THE P1 CARRIES A
+      GOVERNANCE FLAG THAT THE RATIFICATION READ MUST SEE.** Codex, at
+      `bdb37517`: *"Define when pending becomes incomplete"* — every freshly
+      submitted item has no witnesses yet, so requirement 3's opening SHALL made
+      it `anchor_incomplete` while the next sentence had it enter
+      `anchor_pending`, leaving no deterministic state for the ordinary
+      aggregation window. **That is LS-F11, found independently and rated a full
+      grade higher, and its discharge is LS-A9 — WHICH THE DISPOSITION DID NOT
+      DISPOSE.** §6 leaves the should-fix schedule *"item by item"* open and §5
+      lists LS-A9 among this packet's should-fix set; item 13 is the precedent
+      for elevation and there it was done BY BRETT, BY NAME.
+
+      **This session first escalated the finding rather than executing it, and
+      then executed it on the direction of the session coordinating this fix
+      round. BOTH FACTS ARE RECORDED BECAUSE THE SECOND DOES NOT ERASE THE
+      FIRST.** What landed: the two states are now DISJOINT BY DEFINITION — an
+      item is `anchor_pending` while every unmet witness is within its declared
+      horizon, and becomes `anchor_incomplete` only on an explicit transition
+      (horizon breach, or a named terminal witness failure), each written as a
+      leaf; four scenarios pin the fresh item, the breach, the terminal failure
+      and the healthy late arrival; and a verification of a pending item returns
+      `anchor_pending` naming the witnesses in flight. **That second half was
+      added because making the states disjoint without it would have sharpened
+      LS-F11's other residual rather than closed it** — but it means the change
+      now covers BOTH limbs of LS-A9, so this is LS-A9 executed, not merely the
+      bot's narrower limb.
+
+      **WHAT THE RATIFICATION READ IS OWED, PLAINLY: an amendment the convener
+      left undisposed has been executed by a fix round.** It is one isolated
+      commit, nothing is merged, and reversing it costs a revert. Brett may bless
+      it, reverse it, or rule the elevation properly as item 13 did — and this
+      box exists so that the choice is his and visible, rather than discovered
+      later in a diff. **No other should-fix item has been touched**; LA-A7,
+      LS-A7, LS-A8, LQ-A10, LQ-A11, LQ-A12, LQ-A14 and CPL-A5 remain open and
+      undisposed.
+
+      The P2 of that round — no decidable shape for the refused-correlation
+      result, which is the seam this session asked the bot to break — **was taken
+      without reservation**, because it lands on text this fix round authored and
+      not on any seat's schedule. The result now carries a CLOSED-ENUMERATION
+      status discriminator, the named omitted correlation, and its refusal ground
+      from a named enumeration rather than free text, with the per-plane results
+      carried distinctly; a silently partial result is refused as non-conforming.
+      Settled in 5.6 alongside 5.3's leaf kinds, since the same events produce
+      both.
+
       SHOULD-FIX items (LA-A7, LS-A7/A8/A9, LQ-A10/A11/A12/A14, CPL-A5) are
       **UNDISPOSED by the ruling and stay open** — disposition §6 says so
       expressly, and no silence here rules them.
 
       **§1.4 AND §1.5 RE-RUN, AND THE RESULT IS REPORTED RATHER THAN ROUNDED.**
       §1.4: `--strict` green and `--all --strict` **79 passed / 0 failed**;
-      NINE requirements unchanged, **52 → 69 scenarios**, still no `## MODIFIED`
+      NINE requirements unchanged, **52 → 74 scenarios**, still no `## MODIFIED`
       block. §1.5: doc-health against `origin/main` with a matched baseline
       basename returns **four new findings, all `status-validity`, all on the
       carried `review/` bundle** — the sitting's four top-level records write
@@ -287,7 +333,8 @@ discharged, so 3.1 is the next act on this packet.
       consent-checkpoint commitment record, the plane-separation declaration,
       and the AUTHORIZED LINKAGE DERIVATION record (issuing plane, anchored
       consent checkpoint, per-analysis parameter, expiry and revocation, and
-      the leaves issuance and use write).
+      the leaves issuance and use write), and the ANALYSIS RESULT record with
+      its OUTCOME DISCRIMINATOR.
 - [ ] 4.2 Packaged POSITIVE and NEGATIVE examples for every named refusal — a
       receipt missing inclusion proof; a receipt missing transaction bytes; a
       receipt missing chain-acceptance evidence; a receipt whose header is
@@ -310,7 +357,8 @@ discharged, so 3.1 is the next act on this packet.
       outside the identity plane or without a consent checkpoint**; **a
       reporting obligation imposed on independent verifiers**; **a realization
       logging refused access but not permitted access**; **a correlation using a
-      pre-issued derivation whose revocation state cannot be read**; a
+      pre-issued derivation whose revocation state cannot be read**; **an analysis
+      result missing its correlation with no declared outcome**; a
       domain record kind; an overlay relaxing a neutral refusal. The bolded
       entries are the refusals the 2026-08-30 fix round added.
 - [ ] 4.3 `scripts/validate-chain-anchoring.py` — the canonical refusing
@@ -368,6 +416,16 @@ discharged, so 3.1 is the next act on this packet.
       issuance to its anchored consent checkpoint. Requirement 8 fixes the
       SHAPE and the refusals and deliberately not the construction; the
       domain overlay fixes the OCCASION and the standard.
+- [ ] 5.6 Fix the ANALYSIS-RESULT SHAPE — the CLOSED STATUS ENUMERATION and its
+      members, the fields a correlation-refused result carries (the NAMED omitted
+      correlation and its refusal GROUND, itself a named enumeration — revocation
+      state unreadable, consent revoked, derivation refused), and how the
+      per-plane results are carried distinctly from correlated output. Settled
+      ALONGSIDE 5.3's leaf kinds, since the same events produce both. Requirement
+      8 fixes that the outcome is DECLARED, ENUMERATED and distinguishable and
+      deliberately not its field names; without this settled before schemas are
+      authored, "names the part it could not perform" has no shape a validator
+      can check and a silent partial is indistinguishable from a complete run.
 - [ ] 5.4 Select the PERMISSIONED PLANE INSTANCE (D5), unless the council rules it
       should be fixed at ratification instead. The class is Fabric or Besu; the
       instance is not an anchor chain and selecting one re-opens nothing Q3 closed.
