@@ -22,9 +22,9 @@ standing in for a ruleset state.
 
 ## 1. Spec deltas and the packet (THIS PULL REQUEST)
 
-- [x] 1.1 `chain-anchoring` — **NINE ADDED requirements over 77 SCENARIOS** (52
+- [x] 1.1 `chain-anchoring` — **NINE ADDED requirements over 80 SCENARIOS** (52
       SCENARIOS at the head the council judged, `cf5a24b8`; the 2026-08-30 fix
-      round of §2.4 and its SIX bot rounds added TWENTY-FIVE SCENARIOS and NO NEW
+      round of §2.4 and its SEVEN bot rounds added TWENTY-EIGHT SCENARIOS and NO NEW
       REQUIREMENT — the requirement count is unchanged at nine), in
       the order the exit path requires: the multi-anchor receipt FIRST, then the
       ruled two-witness configuration, the missing-witness semantics, anchor-late,
@@ -299,13 +299,47 @@ standing in for a ruleset state.
       settle items were appended rather than placed. Reordered monotonically, so
       the cross-references in this file resolve in reading order.
 
+      **A SEVENTH ROUND, TWO P1s AND TWO P2s, ALL FOUR INSIDE THE LAST TWO
+      ROUNDS' OWN TEXT.** (a) **The minter's clock was trusted.** Binding the
+      submission time into the anchored digest made it TAMPER-EVIDENT, not TRUE:
+      a future-dated mint kept a receipt-only verifier reporting a healthy window
+      long after the real horizon passed, suppressing the very transition the
+      fix-closed design exists to force. Material cannot be anchored before it is
+      submitted, so every landed entry's CHAIN-ACCEPTED TIME bounds the truth —
+      the receipt-only determination now runs from the EARLIEST CHAIN-ACCEPTED
+      TIME and never from the minter's claim, and a declared time later than it
+      is refused as provably false. Where NOTHING has landed there is no chain
+      evidence at all: the base is labelled MINTER-CLAIMED and the verifier makes
+      no pending-versus-breached determination, naming the record as what can.
+      **D10's rule applied to a clock instead of an event.** (b) **A surviving
+      scenario branch still told the receipt-only verifier to claim no lifecycle
+      state**, contradicting the paragraph that requires `anchor_pending` — so
+      the whole receipt-only scenario SET was re-read as a set rather than the
+      one branch patched, which surfaced two further inconsistencies the finding
+      had not named: a bare *"returns INCOMPLETE"* predating the state
+      vocabulary, and a horizon still measured from the submission time. (c)
+      **Callers could not tell a receipt-only `anchor_pending` from a stateful
+      one**, though a terminal failure inside an unexpired horizon makes them
+      genuinely different answers — every verification result now carries a
+      mandatory closed-enumeration VERIFICATION MODE, the same discriminator
+      discipline the analysis-result shape uses, because a caller branches on a
+      value and never on a paragraph. (d) The equality sweep's own omission,
+      recorded above where the method is described.
+
+      **SEVEN ROUNDS, AND THE SHAPE OF THE FINDINGS HAS CHANGED.** The first
+      rounds found defects in the council-judged text; the last four have found
+      defects in this fix round's own repairs, each one narrower than the last.
+      That is convergence rather than churn — but it is also the honest measure
+      of how much a fix round costs to get right, and it is recorded here rather
+      than smoothed into a clean summary.
+
       SHOULD-FIX items (LA-A7, LS-A7/A8/A9, LQ-A10/A11/A12/A14, CPL-A5) are
       **UNDISPOSED by the ruling and stay open** — disposition §6 says so
       expressly, and no silence here rules them.
 
       **§1.4 AND §1.5 RE-RUN, AND THE RESULT IS REPORTED RATHER THAN ROUNDED.**
       §1.4: `--strict` green and `--all --strict` **79 passed / 0 failed**;
-      NINE requirements unchanged, **52 → 77 scenarios**, still no `## MODIFIED`
+      NINE requirements unchanged, **52 → 80 scenarios**, still no `## MODIFIED`
       block. §1.5: doc-health against `origin/main` with a matched baseline
       basename returns **four new findings, all `status-validity`, all on the
       carried `review/` bundle** — the sitting's four top-level records write
@@ -364,6 +398,10 @@ discharged, so 3.1 is the next act on this packet.
       BLOCK — the configured witness set, each witness's declared horizon, and
       the submission time they run from — which the ANCHORED DIGEST commits to in
       every representation, the material digest staying nameable beside it), the
+      VERIFICATION RESULT record carrying its mandatory VERIFICATION MODE
+      (`receipt_only` / `stateful`, a closed enumeration) plus, for a
+      `receipt_only` result, whether its horizon base was chain-derived or
+      MINTER-CLAIMED, the
       log-checkpoint anchor record with its never-read-as-validation disclaimer,
       the anchor-bound commitment record (declared construction, SALT and KEY
       custody references, declared salt source and width), the anchor-state
@@ -460,6 +498,10 @@ discharged, so 3.1 is the next act on this packet.
       * `anchor-completion` (requirement 3)
       * **`item-anchor-refusal` — the material refused and the ground
         (requirement 4).** Its scenario mandates a leaf and no settlement named it
+      * **`correction-anchored-forward` — the superseded anchored material, the
+        correcting material, and the ground (requirement 4).** *"A RETRACTION IS
+        A NEW LEAF AND A NEW ANCHOR, NEVER AN ERASURE"*: the correction is
+        recorded and anchored forward, and nothing is withdrawn
       * `verification` and `verification-failure` (requirement 7)
       * `permitted-access` and `refused-access` (requirement 7)
       * `linkage-derivation-issuance` and `linkage-derivation-use` (requirement 8)
@@ -467,6 +509,15 @@ discharged, so 3.1 is the next act on this packet.
       requirement 4 is a GATE VERDICT, which tranche one's ratified leaf set
       already carries, so settling it here would mint the second grammar this
       task forbids.
+      **THE EQUALITY IS RE-RUN, NOT ASSUMED, AND ITS FIRST RE-RUN CAUGHT ITS OWN
+      OMISSION.** The sweep's first pass keyed on the phrase *"as a leaf"* and so
+      missed requirement 4's retraction, whose sentence reads *"recorded and
+      anchored forward"* — the leaf named in the heading and not in the clause.
+      **A method that finds its own first miss on re-application is the method
+      working**; a list that had merely been appended to would have carried the
+      gap silently. Re-run against every leaf-mandating clause rather than every
+      occurrence of one phrase, the table above is now complete at TWELVE
+      mandated kinds plus one deliberate exclusion.
 - [ ] 5.4 Select the PERMISSIONED PLANE INSTANCE (D5), unless the council rules it
       should be fixed at ratification instead. The class is Fabric or Besu; the
       instance is not an anchor chain and selecting one re-opens nothing Q3 closed.

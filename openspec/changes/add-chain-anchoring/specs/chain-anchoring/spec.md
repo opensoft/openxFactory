@@ -57,7 +57,42 @@ AT CAPTURE TIME on the same footing as a
 missing inclusion proof. The horizons and the submission time are carried for
 the same reason the witness set is, and by the same mechanism: they are
 CONFIGURATION FIXED AT MINT TIME rather than status, and without them a holder
-can see that a witness is missing but not whether its absence is yet a fault. The reason is that this receipt is handed to
+can see that a witness is missing but not whether its absence is yet a fault.
+
+**AND THE SUBMISSION TIME IS CAPPED BY THE CHAIN RATHER THAN TRUSTED FROM THE
+MINTER, BECAUSE COMMITTING AN ASSERTION MAKES IT TAMPER-EVIDENT AND NOT TRUE.**
+The anchored digest binds the submission time against LATER edits; it says
+nothing about whether the minter declared it honestly at mint time, and a
+FUTURE-DATED submission time would keep a receipt-only verifier reporting a
+healthy window long after the real horizon had passed — suppressing exactly the
+fail-closed transition this design exists to force. **Material cannot be
+anchored before it is submitted**, so every per-chain entry's CHAIN-ACCEPTED
+TIME is an independently checkable UPPER BOUND on the submission time. A receipt
+declaring a submission time LATER than the earliest chain-accepted time in its
+own per-chain list is therefore **PROVABLY FALSE and SHALL BE REFUSED**, and
+**where at least one witness has landed, the receipt-only
+horizon determination SHALL run from the EARLIEST CHAIN-ACCEPTED TIME in the
+receipt's own per-chain list and NEVER from the minter's claim** — so the
+fail-closed decision rests only on evidence the artifact can check against a
+public chain.
+
+**AND WHERE NOTHING HAS LANDED, THE LIMIT IS LABELLED RATHER THAN PAPERED OVER.**
+A receipt whose per-chain list is EMPTY carries no chain evidence at all, so the
+only timing it has is the minter's assertion. Such a receipt's horizon base
+SHALL be labelled **MINTER-CLAIMED**, and a receipt-only verifier SHALL make NO
+independent pending-versus-breached determination from it: it reports the
+witness shortfall, names the base as minter-claimed, and says that establishing
+which state the item is in requires the anchor-state record. That is D10's rule
+again — what the artifact can prove it proves, what it cannot it names — applied
+to a clock instead of to an event.
+
+**THE RESIDUAL, STATED WITH ITS WIDTH.** Using the first landed anchor as the
+base moves the window later than the true submission by at most ONE AGGREGATION
+INTERVAL, which is the tightest bound a receipt can offer and errs toward
+reporting pending slightly too long rather than declaring a breach that has not
+happened. What closes it entirely is the `anchor_pending` ENTRY LEAF, whose
+inclusion in an anchored checkpoint pins the true submission — and reaching that
+is a STATEFUL verification, which is where the requirements below put it. The reason is that this receipt is handed to
 independent parties: without the configured set, a receipt whose per-chain list
 holds ONE entry is byte-indistinguishable from a receipt minted under a
 one-witness configuration, and a holder who cannot reach the minter cannot tell
@@ -149,26 +184,45 @@ exit path names building the receipt first for exactly this reason.
 #### Scenario: a one-entry receipt reaches a holder who cannot reach the minter
 
 - WHEN a receipt carrying ONE per-chain entry and a configured witness set naming TWO witnesses is verified by an independent party
-- THEN the verification returns INCOMPLETE and names the missing witness as the difference between the configured set and the per-chain list
-- AND the answer is reached from the receipt alone, without consulting the minter's anchor-state record
+- THEN the verification returns a WITNESS SHORTFALL naming the missing witness as the difference between the configured set and the per-chain list, with verification mode `receipt_only`
+- AND the shortfall is established from the receipt alone, without consulting the minter's anchor-state record
+- AND which lifecycle state that shortfall amounts to is the separate horizon determination below, not something the shortfall by itself asserts
 
 #### Scenario: a receipt-only verification runs within the declared horizons
 
-- WHEN a receipt-only verification finds a witness shortfall and every missing witness is still within the declared horizon the receipt carries, measured from the submission time it carries
-- THEN it returns `anchor_pending` naming the missing witnesses and their horizons, computed LOCALLY from the receipt with no appeal to the minter
+- WHEN a receipt-only verification finds a witness shortfall and every missing witness is still within its declared horizon, measured from the EARLIEST CHAIN-ACCEPTED TIME in the receipt's own per-chain list
+- THEN it returns `anchor_pending` naming the missing witnesses and their horizons, with verification mode `receipt_only`, computed LOCALLY with no appeal to the minter
 - AND the answer carries the express limit that it cannot exclude a TERMINAL failure already recorded against the item, because a terminally failed item's receipt is byte-identical to a healthy one's
 
 #### Scenario: a receipt-only verification runs past a declared horizon
 
-- WHEN a receipt-only verification finds a witness shortfall and any missing witness is past the declared horizon the receipt carries
-- THEN it returns the receipt-only answer for `anchor_incomplete`, the fault established from the artifact alone with no appeal to the minter
+- WHEN a receipt-only verification finds a witness shortfall and any missing witness is past its declared horizon, measured from the earliest chain-accepted time in the receipt
+- THEN it returns `anchor_incomplete` with verification mode `receipt_only`, the fault established from the artifact alone with no appeal to the minter
 - AND it states that it CANNOT distinguish a horizon breach from a terminal witness failure, naming the anchor-state record as what holds that refinement
+
+#### Scenario: a minter future-dates the submission time on a receipt with a landed witness
+
+- WHEN a receipt declares a submission time later than the earliest chain-accepted time in its own per-chain list, so that a breached horizon would still read as in flight
+- THEN the receipt is REFUSED as provably false, because material cannot be anchored before it is submitted
+- AND every receipt-only horizon determination runs from the earliest chain-accepted time regardless, so the chain-time base exposes the breach the declared time was hiding
+
+#### Scenario: a receipt-only verification runs against a receipt with no landed witness
+
+- WHEN a receipt-only verification is asked about a receipt whose per-chain list is EMPTY, so the only timing available is the minter's assertion
+- THEN it reports the witness shortfall with its horizon base labelled MINTER-CLAIMED and makes NO independent pending-versus-breached determination
+- AND it names the anchor-state record as what establishes which state the item is in, because a claim the artifact cannot check is not a basis for a fail-closed answer
 
 #### Scenario: a stateful verification runs past a declared horizon
 
 - WHEN the same item is verified against the anchor-state record rather than from the receipt alone
-- THEN the answer DISTINGUISHES a horizon breach from a terminal witness failure, each already written as its own transition leaf
+- THEN the answer DISTINGUISHES a horizon breach from a terminal witness failure, each already written as its own transition leaf, with verification mode `stateful`
 - AND that refinement is the difference the record buys over the artifact, which is why both verifications exist rather than one standing in for the other
+
+#### Scenario: a caller consumes a receipt-only pending answer as a stateful one
+
+- WHEN a surface or caller branches on `anchor_pending` without reading the verification mode, while a terminal failure stands recorded against the item inside an unexpired horizon
+- THEN it is REFUSED, because `receipt_only` and `stateful` carry genuinely different knowledge behind the same status value
+- AND the mandatory verification mode is what makes the two answers distinguishable to a caller rather than only to a reader of this requirement
 
 #### Scenario: a receipt is offered with no configured witness set
 
@@ -337,7 +391,23 @@ horizon breach from a terminal failure**, and its answer SHALL say so, naming
 the anchor-state record as what holds that refinement. **Within the horizon,
 `anchor_pending` computed from the artifact SHALL carry the express limit that
 it cannot exclude a terminal failure already recorded against the item**, since
-a terminally failed item's receipt is byte-identical to a healthy one's. What
+a terminally failed item's receipt is byte-identical to a healthy one's.
+
+**AND THAT LIMIT IS A STRUCTURED FIELD ON THE RESULT, NOT A CAVEAT IN PROSE,
+BECAUSE A CALLER BRANCHES ON A VALUE AND NEVER ON A PARAGRAPH.** The two
+verifications can return the SAME `anchor_pending` value for genuinely different
+epistemic states: record-backed, it means nothing has gone wrong; artifact-only,
+it means nothing that a receipt can see has gone wrong, and a terminal failure
+may already stand recorded against the item. Every verification result SHALL
+therefore carry a mandatory VERIFICATION MODE drawn from a CLOSED ENUMERATION —
+**`stateful`** where the anchor-state record was consulted, **`receipt_only`**
+where the answer came from the receipt alone — on the same discriminator
+discipline the analysis-result shape uses below, and a result offered without it
+is REFUSED. **A caller SHALL NOT treat a `receipt_only` result as a `stateful`
+one**, and a surface that presents the two identically is
+REFUSED on the same ground the anchoring requirements refuse an aggregate
+`anchored` boolean: a value that reads healthy in a state nobody checked is the
+value a consumer will act on. What
 the artifact can prove, it proves; what it cannot, it names — the same honest
 scoping the served-audit requirement below applies to what this factory can
 observe.
@@ -444,7 +514,7 @@ stops it becoming a habit.
 - WHEN an external party verifies an item that is `anchor_incomplete`
 - THEN the verification returns `anchor_incomplete` naming the missing witnesses
 - AND it returns neither a bare pass nor a bare fail, because the record supports neither answer
-- AND a party holding only the receipt reaches the same conclusion whenever the shortfall is past a horizon the receipt carries, and otherwise reports the shortfall without claiming which lifecycle state the item is in
+- AND a party holding only the receipt reaches `anchor_incomplete` whenever the shortfall is past a horizon the receipt carries, and `anchor_pending` while within it, each carrying verification mode `receipt_only`
 
 #### Scenario: a witness outage is proposed as a reason to hold the gate
 
