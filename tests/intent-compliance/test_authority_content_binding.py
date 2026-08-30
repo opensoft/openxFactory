@@ -152,6 +152,7 @@ def authority_context(
         pytest.param("governance/autorité.yaml", id="unicode"),
         pytest.param("governance/authority source.yaml", id="space"),
         pytest.param("governance/authority\t.yaml", id="control-character"),
+        pytest.param("governance.yaml\n", id="terminal-line-feed-control"),
     ],
 )
 def test_authority_source_when_path_is_resolver_invalid_then_schema_rejects(
