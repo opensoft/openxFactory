@@ -1,0 +1,908 @@
+schema_version: 1
+kind: openxfactory-council-convening-provider-local-validation
+change_id: add-resolved-council-seats
+feature: 026-add-resolved-council-seats
+task: T038
+observed_on: 2026-08-29
+overall_status: pass
+claim_scope:
+  included: provider-feature-worktree-local-checks
+  excluded:
+    - release
+    - merged-commit
+    - downstream-runtime
+    - signing
+    - live-oidc
+    - deployment
+    - coordinated-cutover
+revision:
+  branch: 026-add-resolved-council-seats
+  provider_commit: pending-A2-uncommitted
+  binding: contract-v2.3-inventory-and-canonical-content-digests
+
+receipt_archives:
+  storage: operator-local-uncommitted
+  reference_format: receipt-archive:<archive-id>#<member-path>
+  meaning: >-
+    Receipt references are logical non-filesystem identifiers. Their backing
+    archives are operator-local and uncommitted; no referenced member is
+    represented as a repository file.
+
+gates:
+  - id: openspec-strict
+    command: OPENSPEC_TELEMETRY=0 openspec validate --all --strict
+    result: pass
+    detail: 78 passed, 0 failed
+  - id: council-convening-strict-validator
+    command: .venv/bin/python scripts/validate-council-convening.py --strict
+    result: pass
+    detail: 14 cases, 0 findings
+  - id: council-convening-focused-pytest
+    command: .venv/bin/python -m pytest tests/council_convening -q
+    result: pass
+    detail: 92 passed in 13.82 seconds; includes the under-30-second corpus assertion
+  - id: council-convening-yaml-metadata
+    command: >-
+      .venv/bin/python -m pytest
+      tests/council_convening/test_contract.py::test_all_indexed_yaml_records_have_required_metadata
+      -q
+    result: pass
+    detail: 1 passed in 0.31 seconds; 16 record documents checked
+  - id: council-convening-ruff
+    command: >-
+      uvx --offline ruff check scripts/council_convening_validation
+      scripts/validate-council-convening.py tests/council_convening
+    result: pass
+    detail: All checks passed
+  - id: council-convening-basedpyright
+    command: >-
+      uvx --offline basedpyright --pythonpath /usr/bin/python3
+      --pythonversion 3.12 scripts/council_convening_validation
+      scripts/validate-council-convening.py tests/council_convening
+    result: pass
+    detail: 0 errors, 0 warnings, 0 notes
+  - id: non-postgresql-repository-pytest
+    command: >-
+      .venv/bin/python -m pytest tests
+      --ignore=tests/hermes_runtime_contracts/postgres -q
+    result: pass
+    detail: >-
+      7774 passed, 18 skipped, 7 warnings, and 46 subtests passed in 1085.28
+      seconds. This is the exact directory-exclusion command result and has no
+      deselected count.
+  - id: non-postgresql-repository-marker-pytest
+    command: .venv/bin/python -m pytest tests -m 'not postgres' -q
+    result: pass
+    detail: >-
+      7784 passed, 18 skipped, 338 deselected, 7 warnings, and 46 subtests
+      passed in 1042.41 seconds.
+  - id: hermes-runtime-timeout-regression
+    command: >-
+      .venv/bin/python -m pytest tests/hermes_runtime_contracts/test_validator_cli.py::test_release_mode_field_is_preserved_on_the_real_repository
+      -q
+    result: pass
+    detail: 2 passed in 33.58 seconds
+  - id: provider-git-diff-check
+    command: GIT_MASTER=1 git diff --check
+    result: pass
+
+p0_restart_resume_validation:
+  observed_at_utc: "2026-08-29T07:51:05Z"
+  base_commit: 3ffd6a8fcac938fe765f53be2a069f0a8a1629b4
+  environment:
+    python: 3.12.3
+    lockfile: requirements/hermes-runtime-contracts.lock
+    preparation:
+      - command: uv venv --clear --python 3.12 .venv
+        result: pass
+      - command: uv pip sync --python .venv/bin/python requirements/hermes-runtime-contracts.lock
+        result: pass
+        detail: 14 locked packages installed
+  gates:
+    - id: openspec-strict
+      command: OPENSPEC_TELEMETRY=0 openspec validate --all --strict
+      result: pass
+      detail: 78 passed, 0 failed
+      receipt_prefix: restart-final-vp1-openspec-validate
+    - id: council-convening-strict-validator
+      command: .venv/bin/python scripts/validate-council-convening.py --strict
+      result: pass
+      detail: 14 cases, 0 findings
+      receipt_prefix: restart-final-vp1-strict-validator
+    - id: council-convening-focused-pytest
+      command: .venv/bin/python -m pytest tests/council_convening -q
+      result: pass
+      detail: 65 passed in 9.12 seconds
+      receipt_prefix: restart-final-vp1-focused-pytest
+    - id: standing-roster-probe
+      command: >-
+        .venv/bin/python scripts/validate-council-convening.py
+        --case standing-roster --json
+      result: pass
+      detail: accept with no finding codes
+      receipt_prefix: restart-final-vp1-standing-roster
+    - id: candidate-head-stale-probe
+      command: >-
+        .venv/bin/python scripts/validate-council-convening.py
+        --case candidate-head-stale --json
+      result: pass
+      detail: refuse with primary finding candidate_head_stale
+      receipt_prefix: restart-final-vp1-candidate-head-stale
+    - id: council-convening-ruff
+      command: >-
+        uvx --offline ruff check scripts/council_convening_validation
+        scripts/validate-council-convening.py tests/council_convening
+      result: pass
+      detail: All checks passed
+      receipt_prefix: restart-final-vp2-ruff
+    - id: council-convening-basedpyright
+      command: >-
+        uvx --offline basedpyright --pythonpath /usr/bin/python3
+        --pythonversion 3.12 scripts/council_convening_validation
+        scripts/validate-council-convening.py tests/council_convening
+      result: pass
+      detail: 0 errors, 0 warnings, 0 notes
+      receipt_prefix: restart-final-vp2-basedpyright
+    - id: council-convening-compileall
+      command: >-
+        python3 -m compileall -q scripts/council_convening_validation
+        scripts/validate-council-convening.py tests/council_convening
+      result: pass
+      detail: silent exit 0
+      receipt_prefix: restart-final-vp2-compileall
+    - id: provider-git-diff-check
+      command: GIT_MASTER=1 git diff --check
+      result: pass
+      detail: silent exit 0
+      receipt_prefix: restart-final-vp2-git-diff-check
+
+p0_remediation_validation:
+  observed_at_utc: "2026-08-29T14:09:10Z"
+  base_commit: 99a6ff8d8e9bd7a349ff3be3817d450dbc44906e
+  preservation:
+    archive_ref: receipt-archive:resolved-council-seats-p0-remediation-20260829T133702Z
+    stash_object: 9c35a56677aad1c76e0f99b4ba5877013347382d
+    restored_candidate: 53 of 53 paths matched modes, sizes, and sha256 values
+    openxwallet_commit: 6b248d4050e1f88b3ca75c1290ad2c81f465300c
+  remediation:
+    - condition: empty fixture index
+      refusal: CC-INDEX-EMPTY with status fail and exit 1
+    - condition: conflicting or undeclared producer conditional evaluation
+      refusal: condition_result_drift
+    - condition: recorded standing seats differ from the governed rule
+      refusal: standing_seat_drift
+  gates:
+    - id: derivation-pin-class
+      command: GIT_MASTER=1 PYTHONPATH=scripts .venv/bin/python -m doc_health.pin_class
+      result: pass
+      detail: >-
+        67 declared sites across 23 members; 51 reachable, 0 orphaned,
+        0 awaiting a superseding record, and 0 inconclusive
+      receipt_prefix: pin-scan
+    - id: openspec-strict
+      command: OPENSPEC_TELEMETRY=0 openspec validate --all --strict
+      result: pass
+      detail: 78 passed, 0 failed
+      receipt_prefix: vp1-openspec
+    - id: council-convening-strict-validator
+      command: .venv/bin/python scripts/validate-council-convening.py --strict
+      result: pass
+      detail: 14 cases, 0 findings
+      receipt_prefix: vp1-strict-validator
+    - id: council-convening-focused-pytest
+      command: .venv/bin/python -m pytest tests/council_convening -q
+      result: pass
+      detail: 68 passed in 8.32 seconds
+      receipt_prefix: vp1-focused-pytest
+    - id: council-convening-remediation-regressions
+      command: >-
+        .venv/bin/python -m pytest tests/council_convening/test_validator_cli.py
+        -q -k "empty_index or producer_conditional_evaluations or
+        recorded_standing_seats or unindexed_fixture or unknown_case or
+        complete_indexed_corpus"
+      result: pass
+      detail: 7 passed, 15 deselected in 3.04 seconds
+      receipt_prefix: remediation-regressions
+    - id: council-convening-ruff
+      command: >-
+        uvx --offline ruff check scripts/council_convening_validation
+        scripts/validate-council-convening.py tests/council_convening
+      result: pass
+      detail: All checks passed
+      receipt_prefix: vp2-ruff
+    - id: council-convening-basedpyright
+      command: >-
+        uvx --offline basedpyright --pythonpath /usr/bin/python3
+        --pythonversion 3.12 scripts/council_convening_validation
+        scripts/validate-council-convening.py tests/council_convening
+      result: pass
+      detail: 0 errors, 0 warnings, 0 notes
+      receipt_prefix: vp2-basedpyright
+    - id: council-convening-compileall
+      command: >-
+        python3 -m compileall -q scripts/council_convening_validation
+        scripts/validate-council-convening.py tests/council_convening
+      result: pass
+      detail: silent exit 0
+      receipt_prefix: vp2-compileall
+    - id: provider-git-diff-check
+      command: GIT_MASTER=1 git diff --check
+      result: pass
+      detail: silent exit 0
+      receipt_prefix: vp2-diff-check
+    - id: non-postgresql-repository-pytest
+      command: >-
+        .venv/bin/python -m pytest tests
+        --ignore=tests/hermes_runtime_contracts/postgres -q
+      result: pass
+      detail: >-
+        7698 passed, 18 skipped, 7 warnings, and 46 subtests passed in
+        1139.79 seconds
+      receipt_prefix: vp3-non-postgres
+    - id: hermes-runtime-timeout-regression
+      command: >-
+        .venv/bin/python -m pytest
+        tests/hermes_runtime_contracts/test_validator_cli.py::test_release_mode_field_is_preserved_on_the_real_repository
+        -q
+      result: pass
+      detail: 2 passed in 44.87 seconds
+      receipt_prefix: vp3-timeout-regression
+  observed_preexisting_gate:
+    id: doc-health
+    command: python3 scripts/doc-health.py --single-repo . --fail-on error
+    result: preexisting-fail
+    detail: >-
+      4 critical, 6 error, 28 warning, and 12 info findings with 0 new
+      regressions; no finding names this change's candidate paths
+    receipt_prefix: vp3-doc-health
+  manual_cli:
+    help: exit 0 and lists --strict, --case, and --json
+    standing_roster: accept with no finding codes
+    candidate_head_stale: refuse with candidate_head_stale
+    unknown_case: error with CC-CASE-UNKNOWN and exit 2
+
+p0_duplicate_remediation_validation:
+  observed_at_utc: "2026-08-29T15:37:15Z"
+  task_boundary: >-
+    T040 preservation, main/tag refresh, clean-branch rebase, and exact candidate
+    restoration only. Bundle allocation and every release or publication act
+    remain explicitly unperformed and open.
+  revision:
+    pre_rebase_head: 99a6ff8d8e9bd7a349ff3be3817d450dbc44906e
+    fetched_origin_main: 9c501df6ab98ec83ae128f3afb0eb7ee65bf35bd
+    post_rebase_head: 9c501df6ab98ec83ae128f3afb0eb7ee65bf35bd
+    post_rebase_ahead_behind: 0 ahead, 0 behind
+    unmerged_paths: 0
+  preservation:
+    archive_ref: receipt-archive:resolved-council-seats-p0-duplicate-remediation-20260829T150055Z
+    stash_object: 42f44ccf6327c74d10f1808d5e0a3a590f6bac51
+    preserved_candidate: 53 paths; 3 tracked and 50 untracked
+    restored_candidate: exact canonical three-way overlay across all 53 paths
+    main_only_merge: >-
+      contracts/README.md retained both the candidate council-convening row and
+      main's independent contract-v2.2 model-catalog row
+    openxwallet_commit: 6b248d4050e1f88b3ca75c1290ad2c81f465300c
+  remediation:
+    condition: >-
+      any repeated producer conditional evaluation key, including identical
+      true or false values at any list position
+    refusal: condition_result_drift
+    missing_or_undeclared_entries: condition_result_drift
+    exact_set_behavior: retained
+  failing_first_proof:
+    unchanged_production_result: >-
+      both identical-false and identical-true regressions returned CLI exit 0,
+      actual_outcome accept, no findings, and report status pass
+    pytest_result: 2 failed in 7.12 seconds before the production edit
+    archive_receipt: qa/red-regression.txt
+  gates:
+    - id: duplicate-regression
+      command: >-
+        .venv/bin/python -m pytest tests/council_convening/test_validator_cli.py::test_producer_conditional_evaluations_reject_identical_duplicates
+        -q
+      result: pass
+      detail: identical false and identical true both refused; 2 passed
+      receipt_prefix: green-regression
+    - id: duplicate-adversarial-matrix
+      command: >-
+        .venv/bin/python qa/duplicate-matrix.py
+      execution_archive_ref: >-
+        receipt-archive:resolved-council-seats-p0-duplicate-remediation-20260829T150055Z#qa/duplicate-matrix.py
+      result: pass
+      detail: >-
+        9 cases, each run twice with identical exit/stdout/stderr; identical
+        false and true at first/middle/last, conflicting, undeclared, and missing
+        all refused with condition_result_drift
+      receipt_prefix: final-duplicate-matrix
+    - id: council-convening-focused-pytest
+      command: .venv/bin/python -m pytest tests/council_convening -q
+      result: pass
+      detail: 70 passed in 19.81 seconds on the rebased head
+      receipt_prefix: final-focused-pytest
+    - id: council-convening-strict-validator
+      command: .venv/bin/python scripts/validate-council-convening.py --strict
+      result: pass
+      detail: 14 cases, 0 findings on the rebased head
+      receipt_prefix: final-strict-validator
+    - id: openspec-strict
+      command: OPENSPEC_TELEMETRY=0 openspec validate --all --strict
+      result: pass
+      detail: 78 passed, 0 failed on the rebased head
+      receipt_prefix: final-openspec
+    - id: council-convening-focused-coverage
+      command: >-
+        .venv/bin/python -m trace --count --summary --missing
+        --coverdir qa/coverage
+        scripts/validate-council-convening.py --strict
+      execution_archive_ref: >-
+        receipt-archive:resolved-council-seats-p0-duplicate-remediation-20260829T150055Z#qa/coverage
+      result: pass
+      detail: >-
+        locked offline environment has no pytest-cov/coverage package; stdlib
+        trace over all 14 strict cases reported provenance.py 90%, validation.py
+        94%, and models.py 93%
+      receipt_prefix: pre-rebase-coverage
+    - id: council-convening-ruff
+      command: >-
+        uvx --offline ruff check scripts/council_convening_validation
+        scripts/validate-council-convening.py tests/council_convening
+      result: pass
+      detail: All checks passed on the rebased head
+      receipt_prefix: final-ruff
+    - id: council-convening-basedpyright
+      command: >-
+        uvx --offline basedpyright --pythonpath /usr/bin/python3
+        --pythonversion 3.12 scripts/council_convening_validation
+        scripts/validate-council-convening.py tests/council_convening
+      result: pass
+      detail: 0 errors, 0 warnings, 0 notes on the rebased head
+      receipt_prefix: final-basedpyright
+    - id: council-convening-compileall
+      command: >-
+        .venv/bin/python -m compileall -q scripts/council_convening_validation
+        scripts/validate-council-convening.py tests/council_convening
+      result: pass
+      detail: silent exit 0 on the rebased head
+      receipt_prefix: final-compileall
+    - id: provider-git-diff-check
+      command: GIT_MASTER=1 git diff --check
+      result: pass
+      detail: silent exit 0 on the rebased head
+      receipt_prefix: final-diff-check
+    - id: derivation-pin-class
+      command: GIT_MASTER=1 PYTHONPATH=scripts .venv/bin/python -m doc_health.pin_class
+      result: pass
+      detail: >-
+        67 declared sites across 23 members; 51 reachable, 0 orphaned,
+        0 awaiting a superseding record, and 0 inconclusive
+      receipt_prefix: final-pin-class
+    - id: hermes-runtime-timeout-regression
+      command: >-
+        .venv/bin/python -m pytest tests/hermes_runtime_contracts/test_validator_cli.py::test_release_mode_field_is_preserved_on_the_real_repository
+        -q
+      result: pass
+      detail: >-
+        the YAML-parsed scalar was executed without retyping; 2 passed in 41.63
+        seconds and parsed_command_exit was 0 on the rebased head
+      receipt_prefix: final-parsed-timeout-command
+    - id: non-postgresql-repository-pytest
+      command: .venv/bin/python -m pytest tests -m 'not postgres' -q
+      result: pass
+      detail: >-
+        7710 passed, 18 skipped, 338 deselected, 7 warnings, and 46 subtests
+        passed in 1111.96 seconds before the final fetch/rebase; not rerun after
+        rebase by instruction
+      receipt_prefix: pre-rebase-non-postgres
+  manual_cli:
+    help: exit 0 and lists --strict, --case, and --json
+    standing_roster: exit 0, accept, status pass, and no finding codes
+    candidate_head_stale: exit 0, refuse with candidate_head_stale, status pass
+    unknown_case: exit 2, status error with CC-CASE-UNKNOWN
+
+p1_release_candidate_validation:
+  observed_at_utc: "2026-08-29T16:43:16Z"
+  authorization_boundary: >-
+    Release candidate assembly only. Authorization gate A2 has not been granted;
+    no provider candidate commit, push, pull request, merge, or tag exists.
+  pinned_start:
+    head: 9c501df6ab98ec83ae128f3afb0eb7ee65bf35bd
+    fetched_origin_main: 9cadc977102006d8c22c0dc04a4571ca488e5a2a
+    fetch_head: 9cadc977102006d8c22c0dc04a4571ca488e5a2a
+    divergence: 0 ahead, 5 behind
+    fetch_count: 1
+    rebase_required: false
+  allocation:
+    bundle_tag: contract-v2.3
+    prior_published_tip: contract-v2.2
+    reason: >-
+      contract-v2.3 was absent from the pinned fetched tag set and is the no-gap
+      additive minor after contract-v2.2; no upstream release surface changed
+      between HEAD and the pinned fetched origin/main.
+  release_inventory:
+    path: contracts/releases/contract-v2.3.digests.yaml
+    entries: 224
+    digest: sha256:d968eaf7b2a33d341f85834093369ebd1f4e32c5e748ac6ee7e1905af2d9e5f1
+    source: raw Git blob bytes through scripts/validate-contract-release.py build
+  artifact_digest_recheck:
+    checked: 38
+    mismatches: 0
+  integration_remediation:
+    initial_vp3_result: >-
+      7 Hermes validator CLI tests failed because cataloged council fixtures
+      used YAML aliases that the canonical Hermes catalog loader refuses.
+    correction: >-
+      Expanded the ten aliased fixture mappings into equivalent explicit values;
+      no expected outcome or parsed fixture value changed.
+    focused_recheck: 70 passed in 9.17 seconds
+    hermes_strict_recheck: >-
+      exit 0 with 83 catalog members, 110 fixture cases, 32 schema members,
+      17 OpenSpec requirements, and 85 OpenSpec scenarios
+    failed_test_recheck: 7 passed, 16 deselected in 40.55 seconds
+  gates:
+    - id: openspec-strict
+      command: OPENSPEC_TELEMETRY=0 openspec validate --all --strict
+      result: pass
+      detail: 78 passed, 0 failed
+      receipt: receipt-archive:resolved-council-seats-p1-20260829T164316Z-fb394e40#vp1-openspec.txt
+    - id: council-convening-strict-validator
+      command: .venv/bin/python scripts/validate-council-convening.py --strict
+      result: pass
+      detail: 14 cases, 0 findings
+      receipt: receipt-archive:resolved-council-seats-p1-20260829T164316Z-fb394e40#vp1-strict-validator.txt
+    - id: council-convening-focused-pytest
+      command: .venv/bin/python -m pytest tests/council_convening -q
+      result: pass
+      detail: 70 passed in 9.17 seconds
+      receipt: receipt-archive:resolved-council-seats-p1-20260829T164316Z-fb394e40#vp1-focused-pytest-final.txt
+    - id: standing-roster-probe
+      command: .venv/bin/python scripts/validate-council-convening.py --case standing-roster --json
+      result: pass
+      detail: accept with no finding codes
+      receipt: receipt-archive:resolved-council-seats-p1-20260829T164316Z-fb394e40#vp1-standing-roster.json
+    - id: candidate-head-stale-probe
+      command: .venv/bin/python scripts/validate-council-convening.py --case candidate-head-stale --json
+      result: pass
+      detail: refuse with primary finding candidate_head_stale
+      receipt: receipt-archive:resolved-council-seats-p1-20260829T164316Z-fb394e40#vp1-candidate-head-stale.json
+    - id: council-convening-ruff
+      command: >-
+        uvx --offline ruff check scripts/council_convening_validation
+        scripts/validate-council-convening.py tests/council_convening
+      result: pass
+      detail: All checks passed
+      receipt: receipt-archive:resolved-council-seats-p1-20260829T164316Z-fb394e40#vp2-ruff.txt
+    - id: council-convening-basedpyright
+      command: >-
+        uvx --offline basedpyright --pythonpath /usr/bin/python3
+        --pythonversion 3.12 scripts/council_convening_validation
+        scripts/validate-council-convening.py tests/council_convening
+      result: pass
+      detail: 0 errors, 0 warnings, 0 notes
+      receipt: receipt-archive:resolved-council-seats-p1-20260829T164316Z-fb394e40#vp2-basedpyright.txt
+    - id: council-convening-compileall
+      command: >-
+        python3 -m compileall -q scripts/council_convening_validation
+        scripts/validate-council-convening.py tests/council_convening
+      result: pass
+      detail: silent exit 0
+      receipt: receipt-archive:resolved-council-seats-p1-20260829T164316Z-fb394e40#vp2-compileall.txt
+    - id: provider-git-diff-check
+      command: GIT_MASTER=1 git diff --check
+      result: pass
+      detail: silent exit 0
+      receipt: receipt-archive:resolved-council-seats-p1-20260829T164316Z-fb394e40#vp2-diff-check.txt
+    - id: non-postgresql-repository-pytest
+      command: >-
+        .venv/bin/python -m pytest tests
+        --ignore=tests/hermes_runtime_contracts/postgres -q
+      result: pass
+      detail: >-
+        7752 passed, 18 skipped, 7 warnings, and 46 subtests passed in
+        1036.55 seconds
+      receipt: receipt-archive:resolved-council-seats-p1-20260829T164316Z-fb394e40#vp3-non-postgres-final.txt
+    - id: hermes-runtime-timeout-regression
+      command: >-
+        .venv/bin/python -m pytest
+        tests/hermes_runtime_contracts/test_validator_cli.py::test_release_mode_field_is_preserved_on_the_real_repository
+        -q
+      result: pass
+      detail: 2 passed in 32.48 seconds
+      receipt: receipt-archive:resolved-council-seats-p1-20260829T164316Z-fb394e40#vp3-timeout-regression-final.txt
+    - id: doc-health
+      command: python3 scripts/doc-health.py --single-repo . --fail-on error
+      result: preexisting-fail
+      detail: >-
+        4 critical, 6 error, 28 warning, and 12 info findings with 0 new
+        regressions; release-inventory-drift reports no findings and no finding
+        names a council-convening candidate path
+      receipt: receipt-archive:resolved-council-seats-p1-20260829T164316Z-fb394e40#vp3-doc-health-final.txt
+    - id: release-inventory-build
+      command: >-
+        .venv/bin/python scripts/validate-contract-release.py build
+        --tag contract-v2.3
+        --output contracts/releases/contract-v2.3.digests.yaml
+      result: pass
+      detail: >-
+        224 entries; independently rebuilt byte-identically from raw Git blob
+        bytes; manifest, changelog, README, and inventory agree on contract-v2.3
+      receipt: receipt-archive:resolved-council-seats-p1-20260829T164316Z-fb394e40#contract-v2.3.rebuild.yaml
+
+p1_adversarial_remediation_validation:
+  observed_at_utc: "2026-08-29T19:24:43Z"
+  authorization_boundary: >-
+    Unstaged and uncommitted release-candidate remediation only. A2 remains
+    ungranted; no commit, push, pull request, merge, tag, or release act occurred.
+  strict_tdd:
+    red:
+      command: .venv/bin/python -m pytest tests/council_convening/test_adversarial_boundaries.py -q
+      result: expected-fail
+      detail: >-
+        10 failed and 2 passed before production edits, reproducing non-portable
+        paths, invalid UTF-8, scalar/date roots, duplicate YAML keys, duplicate
+        authoritative standing seats, and duplicate authoritative condition keys.
+      receipt: receipt-archive:resolved-council-seats-p1-remediation-20260829T184554Z#baseline/adversarial-red.txt
+    green:
+      result: pass
+      detail: >-
+        The recovered merge-key matrix reported 5 passed, including nested and
+        sequence-merge variants plus positive controls; the final complete
+        focused suite reported 87 passed.
+      receipt: recovery checkpoint gates/merge-key-green-final.stdout.txt
+  remediation:
+    - condition: Windows drive, UNC/backslash, absolute, or parent-traversing governed-rule path
+      refusal: schema pattern violation
+    - condition: invalid UTF-8 input
+      refusal: CC-DOCUMENT-ENCODING
+    - condition: scalar, date, or duplicate-key YAML document
+      refusal: CC-YAML-SHAPE
+    - condition: duplicate authoritative standing seat
+      refusal: standing_seat_drift
+    - condition: duplicate authoritative condition key
+      refusal: condition_result_drift
+  release_inventory:
+    entries: 224
+    membership_equal_to_pre_remediation: true
+    changed_member_digests: 2
+    rebuilt_twice_byte_identically: true
+    digest: sha256:7f87805c5249b5aeb995ce005d38ef9bc62c4f5664ad1714e2f09a8553453c74
+    receipt: recovery checkpoint inventory/compare.stdout.txt
+  gates:
+    openspec_strict: 78 passed, 0 failed
+    council_convening_focused: 87 passed in 12.08 seconds
+    council_convening_ruff: All checks passed
+    council_convening_basedpyright: 0 errors, 0 warnings, 0 notes
+    council_convening_compileall: silent exit 0
+    non_postgresql_repository_pytest: >-
+      7769 passed, 18 skipped, 7 warnings, and 46 subtests passed in 1140.93
+      seconds under the exact directory-exclusion command
+    non_postgresql_repository_marker_pytest: >-
+      7779 passed, 18 skipped, 338 deselected, 7 warnings, and 46 subtests
+      passed in 1200.20 seconds under the exact marker command
+    hermes_runtime_timeout_regression: 2 passed in 38.35 seconds
+    doc_health: >-
+      pre-existing nonzero floor retained at 4 critical, 6 error, 28 warning,
+      and 12 info findings with 0 new regressions; release-inventory-drift has
+      no findings
+    fixture_py_sha256: ad0fafce0db4b0bc223ce855b59461d421f27757da22f2a6a19001dd9fb18b0b
+  ultraqa:
+    malformed_input: pass; adversarial UTF-8, scalar/date, and duplicate-key cases
+    dirty_worktree: pass; strict validation and deterministic inventory rebuild ran on the candidate
+    stale_state: pass; candidate-head-stale refused with candidate_head_stale
+    misleading_success_output: pass; unknown case emitted CC-CASE-UNKNOWN and exit 2
+    flaky_tests: pass; 8 strict JSON runs were byte-identical
+    hung_or_long_commands: pass; timeout regression completed with 2 passed
+    repeated_interruptions: pass; a valid strict run after the exit-2 probe matched prior output
+    prompt_injection: not-applicable; no untrusted text is interpreted as instructions
+    cancel_resume: not-applicable; the validator is a stateless one-shot process
+    receipt: receipt-archive:resolved-council-seats-p1-remediation-20260829T184554Z#final/ultraqa.txt
+
+p1_remediation_recovery:
+  observed_at_utc: "2026-08-29T23:01:17Z"
+  checkpoint: resolved-council-seats-p1-remediation-recovery-20260829T222924Z
+  candidate_start:
+    head: 9c501df6ab98ec83ae128f3afb0eb7ee65bf35bd
+    changed_paths: 58
+    staged_paths: 0
+    unmerged_paths: 0
+    verifier_snapshot_match: all 58 paths and sha256 values matched
+  merge_key_tdd:
+    red:
+      production_sha256: de04cd4f267a841dc94eb5f7b48b6799588f0b5a804d315895789d4dac8ea8be
+      result: 3 failed, 2 passed, 12 deselected in 0.29 seconds
+      receipt: recovery checkpoint red/merge-key-regression.stdout.txt
+    green:
+      result: 5 passed, 12 deselected in 0.33 seconds
+      matrix_twice: >-
+        root, nested, semantic, and alias/merge duplicates refused with
+        CC-YAML-SHAPE on both runs; positive mapping accepted on both runs
+      receipt: recovery checkpoint gates/duplicate-matrix-twice-final.stdout.txt
+  release_inventory_status:
+    status: final-local
+    entries: 224
+    unique_paths: 224
+    missing_members: 0
+    digest: sha256:7f87805c5249b5aeb995ce005d38ef9bc62c4f5664ad1714e2f09a8553453c74
+    builds_byte_identical: true
+    membership_equal_to_verifier_candidate: true
+    rebuilt_after_marker_result: true
+    reason: >-
+      The final local inventory was rebuilt twice after the marker-suite result
+      was written. Publication remains unauthorized and outside this evidence.
+
+p1_second_remediation_validation:
+  observed_at_utc: "2026-08-30T01:15:51Z"
+  authorization_boundary: >-
+    Unstaged and uncommitted provider-local remediation only. A2 remains
+    ungranted; no fetch, commit, push, pull request, merge, tag, release,
+    deployment, or archive act occurred.
+  strict_tdd:
+    red:
+      production_sha256: b38f76b8a92d77c5244a9b9ecaa33115e13c3e92f388fcf531fa9ff12fdde1e5
+      result: 3 failed in 1.02 seconds before the production edit
+      failures:
+        - repeated literal merge directives with disjoint inherited keys accepted
+        - self-referential alias escaped as RecursionError with traceback
+        - 1200-level mapping escaped as RecursionError with traceback
+      receipt: >-
+        receipt-archive:resolved-council-seats-p1-remediation-recovery-2-20260830T010110Z#red/yaml-boundaries.stdout.txt
+    green:
+      result: 3 passed in 0.74 seconds
+      receipt: >-
+        receipt-archive:resolved-council-seats-p1-remediation-recovery-2-20260830T010110Z#gates/yaml-boundaries-green.stdout.txt
+  remediation:
+    repeated_literal_merge_key: CC-YAML-SHAPE
+    recursive_alias: CC-YAML-SHAPE without traceback or hang
+    excessive_nesting: CC-YAML-SHAPE without traceback or hang
+    arbitrary_depth_limit_added: false
+    valid_controls: single merge, sequence merge, and ordinary alias accepted
+    boundary_matrix_twice: 31 passed on each run
+  metadata_gate:
+    command: >-
+      .venv/bin/python -m pytest
+      tests/council_convening/test_contract.py::test_all_indexed_yaml_records_have_required_metadata
+      -q
+    result: 1 passed in 0.31 seconds
+    documents: 16
+  evidence_portability:
+    initial_host_absolute_paths: 19
+    remaining_host_absolute_paths: 0
+    receipt_reference_format: receipt-archive:<archive-id>#<member-path>
+    backing_storage: operator-local-uncommitted
+    repository_membership_claimed: false
+  focused_gates:
+    openspec_strict: 78 passed, 0 failed
+    council_tests: 92 passed in 10.93 seconds
+    strict_validator: 14 cases, 0 findings
+    ruff: pass
+    basedpyright: 0 errors, 0 warnings, 0 notes
+    compileall: pass
+    git_diff_check: pass
+    timeout_regression: 2 passed in 33.76 seconds
+    release_inventory_tests: 57 passed in 53.79 seconds
+    catalog_schema_tests: 24 passed in 1.21 seconds
+    vp3_immutable_baseline: pass with 4 critical, 6 error, 28 warning, 12 info, 0 new regressions
+    manual_cli: pass
+    host_path_scan: 0 findings in provider-local evidence
+    artifact_profile: 38 checked, 0 mismatches
+    manifest_digests: 3 checked, 0 mismatches
+  test_module_size_reconciliation:
+    reason: test_contract.py exceeded 250 pure LOC after formatting
+    action: moved two existing acceptance-map parity tests to test_us3_contract.py
+    behavior_changed: false
+    final_pure_loc:
+      yaml_io: 213
+      test_adversarial_boundaries: 197
+      test_contract: 226
+      test_us3_contract: 133
+  full_suites:
+    directory_exclusion: >-
+      7774 passed, 18 skipped, 7 warnings, and 46 subtests passed in 1116.68
+      seconds under the exact directory-exclusion command
+    marker_exclusion: >-
+      7784 passed, 18 skipped, 338 deselected, 7 warnings, and 46 subtests
+      passed in 1191.58 seconds under the exact marker command
+  provisional_inventory:
+    status: final-local
+    entries: 224
+    unique_paths: 224
+    missing_members: 0
+    digest_mismatches: 0
+    changed_member_digests: 1
+    changed_members:
+      - scripts/council_convening_validation/yaml_io.py
+    builds_byte_identical: true
+    sha256: b90065d7bcc9fcba067edcd824ac9557db23a681827c60c0f24d67ada23b47ff
+    final_rebuild_complete_after_marker_result: true
+
+p1_module_size_remediation_validation:
+  observed_at_utc: "2026-08-30T04:09:25Z"
+  authorization_boundary: >-
+    Unstaged, uncommitted test-organization refactor only. Production files and
+    behavior are unchanged. A2 remains ungranted; no fetch, commit, push, pull
+    request, merge, tag, release, deployment, or archive act occurred.
+  candidate:
+    start_changed_paths: 58
+    current_changed_paths: 61
+    new_paths:
+      - tests/council_convening/validator_cli_support.py
+      - tests/hermes_runtime_contracts/validator_cli_support.py
+      - tests/hermes_runtime_contracts/test_validator_cli_snapshot.py
+  characterization:
+    council_nodes_before: 24
+    hermes_nodes_before: 23
+    council_module: 24 passed in 25.15 seconds
+    hermes_module: 23 passed in 113.51 seconds
+    council_strict: 14 cases, 0 findings
+    hermes_strict: pass
+    normative_timeout_node: 2 passed in 34.44 seconds
+  split:
+    council:
+      node_paths_changed: 0
+      support_module: tests/council_convening/validator_cli_support.py
+      extracted: constants, typed report shapes, CLI/result helpers, temporary repository helpers, and fixture
+    hermes:
+      support_module: tests/hermes_runtime_contracts/validator_cli_support.py
+      snapshot_module: tests/hermes_runtime_contracts/test_validator_cli_snapshot.py
+      normative_timeout_node: >-
+        tests/hermes_runtime_contracts/test_validator_cli.py::test_release_mode_field_is_preserved_on_the_real_repository
+      normative_timeout_node_unchanged: true
+      moved_node_references_found: 0
+      reference_updates_required: 0
+      moved_nodes:
+        - test_duplicate_archived_governed_change_fails_closed
+        - test_incomplete_archived_governed_change_directory_is_ignored
+        - test_malformed_canonical_catalog_fails_closed
+        - test_malformed_fixture_index_fails_for_index_reason
+        - test_dangling_evidence_test_node_fails_exact_parity
+        - test_pytest_node_collection_never_runs_test_bodies
+  node_parity:
+    council_nodes_after: 24
+    council_exact: true
+    hermes_nodes_after: 23
+    hermes_all_accounted: true
+    moved_node_map_receipt: >-
+      receipt-archive:resolved-council-seats-p1-size-remediation-20260830T033729Z#gates/node-parity.stdout.txt
+  module_sizes:
+    tests/council_convening/test_validator_cli.py: 219
+    tests/council_convening/validator_cli_support.py: 99
+    tests/hermes_runtime_contracts/test_validator_cli.py: 204
+    tests/hermes_runtime_contracts/test_validator_cli_snapshot.py: 122
+    tests/hermes_runtime_contracts/validator_cli_support.py: 180
+    over_250: 0
+    size_ok_exceptions: 0
+  focused_gates:
+    split_modules: 47 passed in 117.21 seconds
+    all_council: 92 passed in 13.82 seconds
+    hermes_validator_cli: 23 passed in 121.22 seconds
+    council_strict: 14 cases, 0 findings
+    hermes_strict: pass
+    openspec_strict: 78 passed, 0 failed
+    ruff: pass
+    basedpyright: 0 errors, 0 warnings, 0 notes
+    compileall: pass
+    git_diff_check: pass
+    release_inventory_tests: 94 passed in 62.88 seconds
+    catalog_schema_tests: 24 passed in 4.01 seconds
+    no_excuse_rules: no violations in 5 files
+    vp3_immutable_baseline: pass with 4 critical, 6 error, 28 warning, 12 info, 0 new regressions
+    manual_cli_smoke: pass for council and Hermes
+    artifact_profile: 39 checked, 0 mismatches
+    manifest_digests: 3 checked, 0 mismatches
+  full_suites:
+    directory_exclusion: >-
+      7774 passed, 18 skipped, 7 warnings, and 46 subtests passed in 1085.28
+      seconds under the exact directory-exclusion command
+    marker_exclusion: >-
+      7784 passed, 18 skipped, 338 deselected, 7 warnings, and 46 subtests
+      passed in 1042.41 seconds under the exact marker command
+  provisional_inventory:
+    status: final-local
+    entries: 224
+    unique_paths: 224
+    missing_members: 0
+    stale_digests: 0
+    new_test_support_members: 0
+    exclusion_reason: release inventory intentionally excludes test paths
+    builds_byte_identical: true
+    sha256: b90065d7bcc9fcba067edcd824ac9557db23a681827c60c0f24d67ada23b47ff
+    final_rebuild_complete_after_marker_result: true
+
+artifact_digest_profile:
+  algorithm: sha256
+  scope: >-
+    Stable council-convening contract, corpus, validator, acceptance documents,
+    and focused tests. Mutable task ledgers, release registries, this evidence
+    record, and downstream successor files are intentionally excluded.
+  artifacts:
+    - path: contracts/council-convening/README.md
+      digest: sha256:734144724a5805886896623ef45ea48657bd4fb456ef474eeb2b24a6b68cc43d
+    - path: contracts/council-convening/resolved-council-convening.schema.yaml
+      digest: sha256:4179b5db866e90c601ffb186da9b5f6622784b0865c8401eb7ca1fbb3d824d1b
+    - path: contracts/council-convening/fixtures/index.yaml
+      digest: sha256:1aa74d15070d0db3ec2371e1f5e31c15bcd1d6d36f5513d098ec0f42ca6900b7
+    - path: contracts/council-convening/fixtures/positive/conditional-seat-required.yaml
+      digest: sha256:ba6ccb99b2d63ab460d8f093d6a4ce03a3b1d74ac4333e20397b03d02019d3a7
+    - path: contracts/council-convening/fixtures/positive/standing-roster.yaml
+      digest: sha256:c022f46af98f8b08c92c7f4483c90000bbb6baf9b291808d3e184fb43d0df04e
+    - path: contracts/council-convening/fixtures/negative/candidate-head-stale.yaml
+      digest: sha256:b3ac9e5d60a49ad25a66519e2a3b2517658a13d7168fdc2dacfa5316c4af073e
+    - path: contracts/council-convening/fixtures/negative/condition-result-drift.yaml
+      digest: sha256:e0e499890a4c6a01e52993085e633ae6bb69c55e8a82806041daa7fbedd9ace4
+    - path: contracts/council-convening/fixtures/negative/fact-missing.yaml
+      digest: sha256:dc8e39c81300544a045e57d83e4c6d94f4bc939891f7f3c10ac73dd0b2cdf0dc
+    - path: contracts/council-convening/fixtures/negative/provenance-opaque.yaml
+      digest: sha256:856cedd57effef01f40e9cb0ef6b3bf30aa6a41d1cdee387a9b9d315229e3d07
+    - path: contracts/council-convening/fixtures/negative/roster-absent.yaml
+      digest: sha256:385aa21030f254b4b555a9a55021b6cc13d0da66934cf2691fb697c7f595f1f3
+    - path: contracts/council-convening/fixtures/negative/roster-duplicate.yaml
+      digest: sha256:c011cad55a8fb21b99ae832430c933fe8c586f2dc49ef5926018304a4f5418d1
+    - path: contracts/council-convening/fixtures/negative/roster-empty.yaml
+      digest: sha256:41114c4e38076d9ada5cfae96ccb963dce813b8f2eef218024e443426c69763e
+    - path: contracts/council-convening/fixtures/negative/roster-malformed.yaml
+      digest: sha256:7f9cabf73949d2e11c1031ae2c701d95dbe2298e9dcee67f4af787a05d9e61f6
+    - path: contracts/council-convening/fixtures/negative/roster-mismatch.yaml
+      digest: sha256:8ae277c52254eed053506310b9a455fc8ff9cdb66b9a031de5bc87808937e357
+    - path: contracts/council-convening/fixtures/negative/roster-standing-incomplete.yaml
+      digest: sha256:aebdd33a8bc9e9dc34509ae6ee769f529a6936bf6141a7a1e680b70b794b547c
+    - path: contracts/council-convening/fixtures/negative/roster-unknown-seat.yaml
+      digest: sha256:640e5f9901763ff3f7e4fd726c9e9a616ac09fc9d02eb6ed94acbfa24003cc34
+    - path: contracts/council-convening/fixtures/negative/rule-revision-unavailable.yaml
+      digest: sha256:9c8af1fd857b7fe1b928a63fdaa78e150504b2c5728ff208476dcfda948ae3b8
+    - path: scripts/validate-council-convening.py
+      digest: sha256:33592c8ea92fc452217ba068424ec4c515acfe24cd8ca967149509a4263c991f
+    - path: scripts/council_convening_validation/__init__.py
+      digest: sha256:37ecf06c44068db650dcc48e2c05dba10173dff5873825de4e39231868567ac5
+    - path: scripts/council_convening_validation/cli.py
+      digest: sha256:ca5eb444f066944dd3d9a4b6cbf59901c180a36052de446bfe98335c12dc117e
+    - path: scripts/council_convening_validation/fixture.py
+      digest: sha256:ad0fafce0db4b0bc223ce855b59461d421f27757da22f2a6a19001dd9fb18b0b
+    - path: scripts/council_convening_validation/index.py
+      digest: sha256:ccbd5d4bd03d4357c063054b2e2a1e63a46888a694a61c20447d378e61f93614
+    - path: scripts/council_convening_validation/models.py
+      digest: sha256:22cbc08a8d03c7be276828e7615fe3dd860b66852b55287cc38b54f4f373675a
+    - path: scripts/council_convening_validation/paths.py
+      digest: sha256:4efed5f35cf30a53c2efb5c569a1b13366f5a4469cf055a809935fc554fbb0fa
+    - path: scripts/council_convening_validation/provenance.py
+      digest: sha256:7da2675ad5605cf7c481a84d38c0b16cfb08def591ec788a2f0ff2dd3a79d0af
+    - path: scripts/council_convening_validation/runner.py
+      digest: sha256:1643c11b346f71556395c66039c403c973a330d4dac5f5b577e495d993008027
+    - path: scripts/council_convening_validation/validation.py
+      digest: sha256:3269aadab5f61190a4bbc57055f30b2e13453199634a8ca0f8385da85548fbba
+    - path: scripts/council_convening_validation/yaml_io.py
+      digest: sha256:9e28c5115445cb38039e190b1803c64d9d0c252d1bce3b83bed80d25872bbfe7
+    - path: specs/026-add-resolved-council-seats/contracts/conformance-corpus.md
+      digest: sha256:e4471268582fdb9bbb0282ac740f3ad0b30c45b3fdce0e17fce80bf7144dd6c9
+    - path: specs/026-add-resolved-council-seats/contracts/council-convening-envelope.md
+      digest: sha256:67ba04f6e5e9b5a7455b35629081d7f7844c61fb03a6362f82d046e815715eb2
+    - path: specs/026-add-resolved-council-seats/contracts/successor-handoff.md
+      digest: sha256:3d5dc00da4bd4117b408d13311c7ef8ed7d3836c0ea1c15e8941670d1491d3fe
+    - path: specs/026-add-resolved-council-seats/contracts/acceptance-map.yaml
+      digest: sha256:790c015c55d1218d3e2e9a5a02a2b57989d67ecd0fda2a68f2df49ee4327116a
+    - path: tests/council_convening/__init__.py
+      digest: sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+    - path: tests/council_convening/support.py
+      digest: sha256:e1fca2e92ac1278f1057b655eabd2ae31c617506ebdf83873a76aaf1ed3598d1
+    - path: tests/council_convening/test_contract.py
+      digest: sha256:07811e980b8fa9ffedcc1f418ca0d2dba6be1147e29b2716c93d1ec88a7af83e
+    - path: tests/council_convening/test_us3_contract.py
+      digest: sha256:b19a2f67c4160f78ce22c333f3c008228bbb87fe6c0d1431b0a97ad120ff32bb
+    - path: tests/council_convening/test_validator_cli.py
+      digest: sha256:0e8e3f16b4b4a606567fa9021c83738bce60a3e7079406ec376cdd76755c464f
+    - path: tests/council_convening/validator_cli_support.py
+      digest: sha256:cf4fcc06b8eafa108e18f2c14c34c29f2816122161243c45573d0fd2b5896e8d
+    - path: tests/council_convening/test_adversarial_boundaries.py
+      digest: sha256:88730b54fd24551a895bbfa89851123a475f4bd745291ca7c1f3ea38fa6fc06f
+
+postgresql_evidence:
+  status: not-run
+  reason: T037 requires the existing non-PostgreSQL repository suite only.
+
+pending_external_evidence:
+  provider_release: open
+  provider_main_commit: open
+  hermes_runtime: open
+  codexfactory_roster_and_signing: open
+  live_oidc: open
+  deployment: open
+  merged_successors: open
+  coordinated_cutover_and_rollback: open

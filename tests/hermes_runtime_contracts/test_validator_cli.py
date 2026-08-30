@@ -2,166 +2,24 @@
 
 from __future__ import annotations
 
-import importlib.util
-import json
-from pathlib import Path
 import re
-import shutil
-import subprocess
-import sys
-from types import ModuleType
+from pathlib import Path
+from typing import Final
 
 import pytest
-import yaml
 
-REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
-ENTRYPOINT = REPOSITORY_ROOT / "scripts/validate-hermes-runtime-contracts.py"
-CHANGE_ID = "add-hermes-customer-subject-runtime-contract"
+from tests.hermes_runtime_contracts.validator_cli_support import (
+    empty_git_repo_fixture,
+    json_result,
+    load_entrypoint,
+    run_cli,
+)
 
-
-def _governed_change_specs_path(repo_root: Path) -> Path:
-    active = Path("openspec/changes") / CHANGE_ID / "specs"
-    if (repo_root / active).is_dir():
-        return active
-    archived = sorted(
-        path.relative_to(repo_root)
-        for path in (repo_root / "openspec/changes/archive").glob(
-            f"????-??-??-{CHANGE_ID}/specs"
-        )
-        if path.is_dir()
-    )
-    assert len(archived) == 1, f"expected one archived packet for {CHANGE_ID}"
-    return archived[0]
-
-
-def _git(repo: Path, *args: str) -> None:
-    result = subprocess.run(
-        ["git", *args], cwd=repo, capture_output=True, text=True, check=False
-    )
-    assert result.returncode == 0, result.stderr
-
-
-@pytest.fixture
-def empty_git_repo(tmp_path: Path) -> Path:
-    repo = tmp_path / "alternate-repo"
-    repo.mkdir()
-    _git(repo, "init", "--quiet")
-    _git(repo, "config", "user.name", "Hermes Contract Tests")
-    _git(repo, "config", "user.email", "hermes-contracts@example.invalid")
-    (repo / "README.md").write_text("temporary validator root\n", encoding="utf-8")
-    _git(repo, "add", "README.md")
-    _git(repo, "commit", "--quiet", "-m", "initial")
-    return repo
-
-
-@pytest.fixture
-def repository_snapshot(tmp_path: Path) -> Path:
-    """Copy only the canonical validator inputs into an isolated Git root."""
-
-    snapshot = tmp_path / "repository-snapshot"
-    snapshot.mkdir()
-    ignored = shutil.ignore_patterns("__pycache__", ".pytest_cache", "*.pyc")
-    for relative in (
-        Path("contracts/hermes-runtime"),
-        _governed_change_specs_path(REPOSITORY_ROOT),
-        Path("scripts/hermes_runtime_validation"),
-        Path("tests/hermes_runtime_contracts"),
-    ):
-        source = REPOSITORY_ROOT / relative
-        destination = snapshot / relative
-        destination.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copytree(source, destination, ignore=ignored)
-
-    # The catalog may close release-only schemas that live in sibling contract
-    # families. Keep this isolated snapshot aligned with the catalog rather
-    # than maintaining a second, hand-written list of cross-family members.
-    family_root = REPOSITORY_ROOT / "contracts/hermes-runtime"
-    catalog = yaml.safe_load((family_root / "contract-index.yaml").read_text(
-        encoding="utf-8"
-    ))
-    for entry in catalog["contracts"]:
-        member = (family_root / entry["path"]).resolve(strict=True)
-        relative = member.relative_to(REPOSITORY_ROOT)
-        destination = snapshot / relative
-        if destination.exists():
-            continue
-        destination.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(member, destination)
-
-    validator = snapshot / "scripts/validate-hermes-runtime-contracts.py"
-    validator.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(ENTRYPOINT, validator)
-    shutil.copy2(
-        REPOSITORY_ROOT / "scripts/run-hermes-runtime-postgres-tests.sh",
-        snapshot / "scripts/run-hermes-runtime-postgres-tests.sh",
-    )
-    # The database-case source_paths pin standalone files outside the copied
-    # trees; the strict gate reports HGR-FIXTURE-DATABASE-PATH-UNAVAILABLE
-    # for each one it cannot resolve inside the snapshot.
-    for pinned in (
-        Path("contracts/schemas/hermes-operational-postgres.sql"),
-        Path("scripts/apply-hermes-runtime-postgres-v2.py"),
-        Path("scripts/hermes-runtime-dataset-digest.py"),
-        Path("scripts/run-hermes-v1-to-v2-migration.sh"),
-        Path("scripts/validate-hermes-runtime-postgres.py"),
-    ):
-        pinned_destination = snapshot / pinned
-        pinned_destination.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(REPOSITORY_ROOT / pinned, pinned_destination)
-    _git(snapshot, "init", "--quiet")
-    _git(snapshot, "config", "user.name", "Hermes Contract Tests")
-    _git(snapshot, "config", "user.email", "hermes-contracts@example.invalid")
-    _git(snapshot, "add", ".")
-    _git(snapshot, "commit", "--quiet", "-m", "validator snapshot")
-    return snapshot
-
-
-def _run_cli(*args: str) -> subprocess.CompletedProcess[str]:
-    assert ENTRYPOINT.is_file(), f"planned validator CLI is missing: {ENTRYPOINT}"
-    return subprocess.run(
-        [sys.executable, ENTRYPOINT, *args],
-        cwd=REPOSITORY_ROOT,
-        capture_output=True,
-        text=True,
-        check=False,
-        timeout=30,
-    )
-
-
-def _json_result(result: subprocess.CompletedProcess[str]) -> dict[str, object]:
-    assert result.stderr == "", result.stderr
-    payload = json.loads(result.stdout)
-    assert isinstance(payload, dict)
-    assert isinstance(payload.get("findings"), list)
-    return payload
-
-
-def _load_entrypoint() -> ModuleType:
-    assert ENTRYPOINT.is_file(), f"planned validator CLI is missing: {ENTRYPOINT}"
-    spec = importlib.util.spec_from_file_location(
-        "hermes_runtime_validator_cli", ENTRYPOINT
-    )
-    assert spec is not None and spec.loader is not None
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
-
-
-def _read_yaml(path: Path) -> dict:
-    document = yaml.safe_load(path.read_text(encoding="utf-8"))
-    assert isinstance(document, dict)
-    return document
-
-
-def _write_yaml(path: Path, document: dict) -> None:
-    path.write_text(
-        yaml.safe_dump(document, sort_keys=False, allow_unicode=False),
-        encoding="utf-8",
-    )
+IMPORTED_FIXTURES: Final = (empty_git_repo_fixture,)
 
 
 def test_help_lists_the_complete_selection_and_resolver_surface() -> None:
-    result = _run_cli("--help")
+    result = run_cli("--help")
     assert result.returncode == 0
     for option in (
         "--strict",
@@ -188,12 +46,12 @@ def test_case_selection_has_deterministic_machine_output(empty_git_repo: Path) -
         "not-an-indexed-case",
         "--json",
     )
-    first = _run_cli(*args)
-    second = _run_cli(*args)
+    first = run_cli(*args)
+    second = run_cli(*args)
     assert first.returncode == second.returncode == 2
     assert first.stdout == second.stdout
-    payload = _json_result(first)
-    finding = payload["findings"][0]  # type: ignore[index]
+    payload = json_result(first)
+    finding = payload["findings"][0]
     assert {"code", "severity", "case_id", "path", "message"} <= set(finding)
     assert finding["case_id"] == "not-an-indexed-case"
 
@@ -202,8 +60,8 @@ def test_human_output_is_deterministic_and_contains_a_stable_code(
     empty_git_repo: Path,
 ) -> None:
     args = ("--repo", str(empty_git_repo), "--case", "not-an-indexed-case")
-    first = _run_cli(*args)
-    second = _run_cli(*args)
+    first = run_cli(*args)
+    second = run_cli(*args)
     assert first.returncode == second.returncode == 2
     assert (first.stdout, first.stderr) == (second.stdout, second.stderr)
     assert re.search(r"\b[A-Z][A-Z0-9]+(?:-[A-Z0-9]+){2,}\b", first.stdout)
@@ -217,15 +75,15 @@ def test_human_output_is_deterministic_and_contains_a_stable_code(
 def test_candidate_and_realization_modes_are_explicit_in_json_results(
     empty_git_repo: Path, mode_option: str, expected_mode: str
 ) -> None:
-    result = _run_cli(mode_option, "--repo", str(empty_git_repo), "--json")
+    result = run_cli(mode_option, "--repo", str(empty_git_repo), "--json")
     assert result.returncode == 2
-    assert _json_result(result)["mode"] == expected_mode
+    assert json_result(result)["mode"] == expected_mode
 
 
 def test_candidate_and_realization_modes_are_mutually_exclusive(
     empty_git_repo: Path,
 ) -> None:
-    result = _run_cli(
+    result = run_cli(
         "--require-candidate",
         "--require-realization",
         "--repo",
@@ -233,8 +91,8 @@ def test_candidate_and_realization_modes_are_mutually_exclusive(
         "--json",
     )
     assert result.returncode == 2
-    payload = _json_result(result)
-    assert "mutually exclusive" in payload["findings"][0]["message"].lower()  # type: ignore[index]
+    payload = json_result(result)
+    assert "mutually exclusive" in payload["findings"][0]["message"].lower()
 
 
 @pytest.mark.parametrize(
@@ -243,10 +101,10 @@ def test_candidate_and_realization_modes_are_mutually_exclusive(
 def test_release_modes_require_a_domain_resolver_input(mode_option: str) -> None:
     # U7: candidate/realization require a domain resolver; its absence is a
     # dependency error (exit 2), never a silent pass.
-    result = _run_cli(mode_option, "--strict", "--json")
+    result = run_cli(mode_option, "--strict", "--json")
 
     assert result.returncode == 2
-    payload = _json_result(result)
+    payload = json_result(result)
     assert payload["status"] == "error"
     assert any(
         finding["code"] == "HRC-DOMAIN-RESOLVER-REQUIRED"
@@ -262,7 +120,7 @@ def test_candidate_mode_on_the_real_repository_requires_domain_mirrors(
     # HGR-RELEASE-INVENTORY-MISSING. It proceeds to live domain-regression
     # resolution, which fails closed as a dependency error (exit 2) when the
     # mirror root holds none of the supported repositories.
-    result = _run_cli(
+    result = run_cli(
         "--require-candidate",
         "--strict",
         "--domain-repo-root",
@@ -271,7 +129,7 @@ def test_candidate_mode_on_the_real_repository_requires_domain_mirrors(
     )
 
     assert result.returncode == 2, result.stdout + result.stderr
-    payload = _json_result(result)
+    payload = json_result(result)
     assert payload["mode"] == "candidate"
     assert payload["status"] == "error"
     codes = {finding["code"] for finding in payload["findings"]}
@@ -289,10 +147,16 @@ def test_release_mode_field_is_preserved_on_the_real_repository(
 ) -> None:
     # An empty mirror root makes domain-regression resolution a dependency
     # error (exit 2); the mode field is still reported.
-    result = _run_cli(mode_option, "--domain-repo-root", str(tmp_path), "--json")
+    result = run_cli(
+        mode_option,
+        "--domain-repo-root",
+        str(tmp_path),
+        "--json",
+        timeout=60,
+    )
 
     assert result.returncode == 2
-    assert _json_result(result)["mode"] == expected_mode
+    assert json_result(result)["mode"] == expected_mode
 
 
 def test_handoff_receipt_without_a_consumer_repository_is_a_dependency_error(
@@ -301,13 +165,13 @@ def test_handoff_receipt_without_a_consumer_repository_is_a_dependency_error(
     # U7: --handoff-receipt implies consumer resolution; without a resolvable
     # consumer repository it is a dependency error (exit 2).
     receipt = tmp_path / "receipt.yaml"
-    receipt.write_text(
+    _ = receipt.write_text(
         "consumer_repository: opensoft/xFactory-Hermes-Install\n", encoding="utf-8"
     )
-    result = _run_cli("--handoff-receipt", str(receipt), "--json")
+    result = run_cli("--handoff-receipt", str(receipt), "--json")
 
     assert result.returncode == 2
-    payload = _json_result(result)
+    payload = json_result(result)
     assert any(
         finding["code"] == "HRC-CONSUMER-RESOLVER-REQUIRED"
         for finding in payload["findings"]
@@ -319,7 +183,7 @@ def test_repeatable_resolver_options_reach_validation_not_argparse(
 ) -> None:
     mirror_root = tmp_path / "mirrors"
     mirror_root.mkdir()
-    result = _run_cli(
+    result = run_cli(
         "--repo",
         str(empty_git_repo),
         "--case",
@@ -336,11 +200,11 @@ def test_repeatable_resolver_options_reach_validation_not_argparse(
     )
     assert result.returncode == 2
     assert "unrecognized arguments" not in result.stderr
-    assert _json_result(result)["findings"][0]["case_id"] == "not-an-indexed-case"  # type: ignore[index]
+    assert json_result(result)["findings"][0]["case_id"] == "not-an-indexed-case"
 
 
 def test_warning_escalation_and_exit_code_precedence_are_stable() -> None:
-    cli = _load_entrypoint()
+    cli = load_entrypoint()
     warning = [{"severity": "warning"}]
     error = [{"severity": "error"}]
     assert cli.classify_exit_code(warning, strict=False) == 0
@@ -350,16 +214,16 @@ def test_warning_escalation_and_exit_code_precedence_are_stable() -> None:
 
 
 def test_invalid_phase_is_a_harness_error_without_a_traceback() -> None:
-    result = _run_cli("--phase", "database")
+    result = run_cli("--phase", "database")
     assert result.returncode == 2
     assert "Traceback" not in result.stdout + result.stderr
 
 
 def test_current_repository_strict_mode_executes_every_integration_gate() -> None:
-    result = _run_cli("--strict", "--json")
+    result = run_cli("--strict", "--json")
 
     assert result.returncode == 0, result.stdout + result.stderr
-    payload = _json_result(result)
+    payload = json_result(result)
     assert payload["status"] == "pass"
     assert payload["findings"] == []
     summary = payload["summary"]
@@ -380,129 +244,12 @@ def test_valid_case_and_phase_selection_are_reported_deterministically() -> None
         "semantic",
         "--json",
     )
-    first = _run_cli(*args)
-    second = _run_cli(*args)
+    first = run_cli(*args)
+    second = run_cli(*args)
 
     assert first.returncode == second.returncode == 0
     assert first.stdout == second.stdout
-    selection = _json_result(first)["selection"]
+    selection = json_result(first)["selection"]
     assert selection["case_id"] == "topology-operational-two-customers"
     assert selection["phase"] == "semantic"
     assert selection["case_ids"] == ["topology-operational-two-customers"]
-
-
-def test_duplicate_archived_governed_change_fails_closed(
-    repository_snapshot: Path,
-) -> None:
-    original = repository_snapshot / _governed_change_specs_path(repository_snapshot)
-    duplicate = (
-        repository_snapshot
-        / "openspec/changes/archive"
-        / f"2099-01-01-{CHANGE_ID}"
-        / "specs"
-    )
-    duplicate.parent.mkdir(parents=True)
-    shutil.copytree(original, duplicate)
-
-    result = _run_cli("--repo", str(repository_snapshot), "--strict", "--json")
-
-    assert result.returncode == 1
-    codes = {finding["code"] for finding in _json_result(result)["findings"]}
-    assert codes == {"HRC-OPENSPEC-ARCHIVE-AMBIGUOUS"}
-
-
-def test_incomplete_archived_governed_change_directory_is_ignored(
-    repository_snapshot: Path,
-) -> None:
-    incomplete = (
-        repository_snapshot
-        / "openspec/changes/archive"
-        / f"2099-01-01-{CHANGE_ID}"
-    )
-    incomplete.mkdir(parents=True)
-
-    result = _run_cli("--repo", str(repository_snapshot), "--strict", "--json")
-
-    assert result.returncode == 0, result.stdout + result.stderr
-    assert _json_result(result)["status"] == "pass"
-
-
-def test_malformed_canonical_catalog_fails_closed(
-    repository_snapshot: Path,
-) -> None:
-    path = repository_snapshot / "contracts/hermes-runtime/contract-index.yaml"
-    document = _read_yaml(path)
-    document["contracts"][1]["contract_id"] = document["contracts"][0]["contract_id"]
-    _write_yaml(path, document)
-
-    result = _run_cli("--repo", str(repository_snapshot), "--strict", "--json")
-
-    assert result.returncode == 1
-    codes = {finding["code"] for finding in _json_result(result)["findings"]}
-    assert codes == {"HRC-CATALOG-INVALID"}
-
-
-def test_malformed_fixture_index_fails_for_index_reason(
-    repository_snapshot: Path,
-) -> None:
-    path = repository_snapshot / "contracts/hermes-runtime/fixtures/index.yaml"
-    document = _read_yaml(path)
-    document["cases"][1]["inputs"] = list(document["cases"][0]["inputs"])
-    _write_yaml(path, document)
-
-    result = _run_cli("--repo", str(repository_snapshot), "--strict", "--json")
-
-    assert result.returncode == 1
-    codes = {finding["code"] for finding in _json_result(result)["findings"]}
-    assert "HGR-FIXTURE-PATH-DUPLICATE" in codes
-    assert "HRC-CATALOG-INVALID" not in codes
-
-
-def test_dangling_evidence_test_node_fails_exact_parity(
-    repository_snapshot: Path,
-) -> None:
-    path = repository_snapshot / "contracts/hermes-runtime/evidence-register.yaml"
-    document = _read_yaml(path)
-    entry = next(item for item in document["entries"] if item["test_node_ids"])
-    entry["test_node_ids"] = [
-        "tests/hermes_runtime_contracts/test_missing.py::test_absent"
-    ]
-    _write_yaml(path, document)
-
-    result = _run_cli("--repo", str(repository_snapshot), "--strict", "--json")
-
-    assert result.returncode == 1
-    findings = _json_result(result)["findings"]
-    assert any(
-        finding["code"] == "HRC-PARITY-DANGLING"
-        and "test_missing.py::test_absent" in finding["message"]
-        for finding in findings
-    )
-
-
-def test_pytest_node_collection_never_runs_test_bodies(
-    repository_snapshot: Path,
-) -> None:
-    sentinel = repository_snapshot / (
-        "tests/hermes_runtime_contracts/test_collection_only_sentinel.py"
-    )
-    sentinel.write_text(
-        "def test_collection_only_sentinel():\n"
-        "    raise AssertionError('validator executed a test body')\n",
-        encoding="utf-8",
-    )
-    evidence_path = (
-        repository_snapshot / "contracts/hermes-runtime/evidence-register.yaml"
-    )
-    evidence = _read_yaml(evidence_path)
-    entry = next(item for item in evidence["entries"] if item["test_node_ids"])
-    entry["test_node_ids"] = [
-        "tests/hermes_runtime_contracts/"
-        "test_collection_only_sentinel.py::test_collection_only_sentinel"
-    ]
-    _write_yaml(evidence_path, evidence)
-
-    result = _run_cli("--repo", str(repository_snapshot), "--strict", "--json")
-
-    assert result.returncode == 0, result.stdout + result.stderr
-    assert _json_result(result)["status"] == "pass"

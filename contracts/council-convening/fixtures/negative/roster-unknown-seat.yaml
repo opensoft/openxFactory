@@ -1,0 +1,33 @@
+schema_version: 1
+kind: council-convening-conformance-case
+input:
+  convening:
+    schema_version: 1
+    kind: resolved-council-convening
+    convening_id: roster-unknown-seat-council
+    required_seats: [domain-policy, client-interest, customer-protection, finance-policy]
+    required_seats_provenance:
+      candidate:
+        repository: example/candidates
+        pull_request: 205
+        head_revision: 2053456789abcdef0123456789abcdef01234567
+      governed_rule:
+        repository: example/governed-rules
+        path: candidate-classes/ordinary.yaml
+        revision: 89abcdef0123456789abcdef0123456789abcdef
+        matched_class: ordinary-change
+      normalized_facts: {touches_company_policy: false}
+      resolution:
+        standing_seats: [domain-policy, client-interest, customer-protection]
+        conditional_seats:
+          - {seat: company-policy, condition_ref: pull-in-company-policy, required: false}
+  resolver:
+    candidate_head: 2053456789abcdef0123456789abcdef01234567
+    governed_rule:
+      repository: example/governed-rules
+      path: candidate-classes/ordinary.yaml
+      revision: 89abcdef0123456789abcdef0123456789abcdef
+      matched_class: ordinary-change
+      standing_seats: [domain-policy, client-interest, customer-protection]
+      conditional_seats:
+        - {seat: company-policy, condition_ref: pull-in-company-policy, predicate: {kind: boolean_equals, fact: touches_company_policy, expected: true}}

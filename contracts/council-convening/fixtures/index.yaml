@@ -1,0 +1,116 @@
+schema_version: 1
+kind: council-convening-fixture-index
+contract_version: 1
+cases:
+  - case_id: candidate-head-stale
+    class: negative
+    path: contracts/council-convening/fixtures/negative/candidate-head-stale.yaml
+    requirement_ids: [FR-003, FR-004, FR-014]
+    scenario_ids: [RCS-002-S02, RCS-003-S01]
+    expected_outcome: refuse
+    expected_primary_finding: candidate_head_stale
+    evidence_id: RCS-US2-CANDIDATE-HEAD-STALE
+  - case_id: condition-result-drift
+    class: negative
+    path: contracts/council-convening/fixtures/negative/condition-result-drift.yaml
+    requirement_ids: [FR-003, FR-004, FR-014]
+    scenario_ids: [RCS-002-S01, RCS-003-S01]
+    expected_outcome: refuse
+    expected_primary_finding: condition_result_drift
+    evidence_id: RCS-US2-CONDITION-RESULT-DRIFT
+  - case_id: conditional-seat-required
+    class: positive
+    path: contracts/council-convening/fixtures/positive/conditional-seat-required.yaml
+    requirement_ids: [FR-001, FR-002, FR-004, FR-005]
+    scenario_ids: [RCS-001-S02, RCS-003-S01]
+    expected_outcome: accept
+    expected_primary_finding: null
+    evidence_id: RCS-US1-CONDITIONAL-SEAT-REQUIRED
+  - case_id: fact-missing
+    class: negative
+    path: contracts/council-convening/fixtures/negative/fact-missing.yaml
+    requirement_ids: [FR-003, FR-004, FR-014]
+    scenario_ids: [RCS-002-S03, RCS-003-S01]
+    expected_outcome: refuse
+    expected_primary_finding: fact_missing
+    evidence_id: RCS-US2-FACT-MISSING
+  - case_id: provenance-opaque
+    class: negative
+    path: contracts/council-convening/fixtures/negative/provenance-opaque.yaml
+    requirement_ids: [FR-003, FR-004, FR-014]
+    scenario_ids: [RCS-002-S03, RCS-003-S01]
+    expected_outcome: refuse
+    expected_primary_finding: provenance_opaque
+    evidence_id: RCS-US2-PROVENANCE-OPAQUE
+  - case_id: roster-absent
+    class: negative
+    path: contracts/council-convening/fixtures/negative/roster-absent.yaml
+    requirement_ids: [FR-005]
+    scenario_ids: [RCS-003-S02]
+    expected_outcome: refuse
+    expected_primary_finding: roster_absent
+    evidence_id: RCS-US1-ROSTER-ABSENT
+  - case_id: roster-duplicate
+    class: negative
+    path: contracts/council-convening/fixtures/negative/roster-duplicate.yaml
+    requirement_ids: [FR-004, FR-005]
+    scenario_ids: [RCS-003-S01]
+    expected_outcome: refuse
+    expected_primary_finding: roster_duplicate
+    evidence_id: RCS-US1-ROSTER-DUPLICATE
+  - case_id: roster-empty
+    class: negative
+    path: contracts/council-convening/fixtures/negative/roster-empty.yaml
+    requirement_ids: [FR-005]
+    scenario_ids: [RCS-003-S01]
+    expected_outcome: refuse
+    expected_primary_finding: roster_empty
+    evidence_id: RCS-US1-ROSTER-EMPTY
+  - case_id: roster-malformed
+    class: negative
+    path: contracts/council-convening/fixtures/negative/roster-malformed.yaml
+    requirement_ids: [FR-005]
+    scenario_ids: [RCS-003-S01]
+    expected_outcome: refuse
+    expected_primary_finding: roster_malformed
+    evidence_id: RCS-US1-ROSTER-MALFORMED
+  - case_id: roster-mismatch
+    class: negative
+    path: contracts/council-convening/fixtures/negative/roster-mismatch.yaml
+    requirement_ids: [FR-002, FR-004]
+    scenario_ids: [RCS-001-S01, RCS-003-S01]
+    expected_outcome: refuse
+    expected_primary_finding: roster_mismatch
+    evidence_id: RCS-US1-ROSTER-MISMATCH
+  - case_id: roster-standing-incomplete
+    class: negative
+    path: contracts/council-convening/fixtures/negative/roster-standing-incomplete.yaml
+    requirement_ids: [FR-002, FR-004, FR-005]
+    scenario_ids: [RCS-003-S01]
+    expected_outcome: refuse
+    expected_primary_finding: roster_standing_incomplete
+    evidence_id: RCS-US1-ROSTER-STANDING-INCOMPLETE
+  - case_id: roster-unknown-seat
+    class: negative
+    path: contracts/council-convening/fixtures/negative/roster-unknown-seat.yaml
+    requirement_ids: [FR-004, FR-005]
+    scenario_ids: [RCS-003-S01]
+    expected_outcome: refuse
+    expected_primary_finding: roster_unknown_seat
+    evidence_id: RCS-US1-ROSTER-UNKNOWN-SEAT
+  - case_id: rule-revision-unavailable
+    class: negative
+    path: contracts/council-convening/fixtures/negative/rule-revision-unavailable.yaml
+    requirement_ids: [FR-003, FR-004, FR-014]
+    scenario_ids: [RCS-002-S03, RCS-003-S01]
+    expected_outcome: refuse
+    expected_primary_finding: rule_revision_unavailable
+    evidence_id: RCS-US2-RULE-REVISION-UNAVAILABLE
+  - case_id: standing-roster
+    class: positive
+    path: contracts/council-convening/fixtures/positive/standing-roster.yaml
+    requirement_ids: [FR-001, FR-002, FR-004, FR-005]
+    scenario_ids: [RCS-001-S01, RCS-003-S01]
+    expected_outcome: accept
+    expected_primary_finding: null
+    evidence_id: RCS-US1-STANDING-ROSTER

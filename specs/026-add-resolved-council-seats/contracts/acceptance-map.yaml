@@ -1,0 +1,62 @@
+schema_version: 1
+kind: speckit-resolved-council-seats-acceptance-map
+feature: 026-add-resolved-council-seats
+governed_change: add-resolved-council-seats
+expected_openspec_requirement_count: 3
+expected_openspec_scenario_count: 11
+openspec_parity:
+  - id: RCS-001
+    capability: roles-authority-model
+    title: A convening carries one resolved required-seat roster
+    scenario_ids: [RCS-001-S01, RCS-001-S02, RCS-001-S03]
+  - id: RCS-002
+    capability: roles-authority-model
+    title: A resolved roster is provenance-bound and reproducible
+    scenario_ids: [RCS-002-S01, RCS-002-S02, RCS-002-S03]
+  - id: RCS-003
+    capability: roles-authority-model
+    title: The consumer validates and freezes the roster before seat work
+    scenario_ids: [RCS-003-S01, RCS-003-S02, RCS-003-S03, RCS-003-S04, RCS-003-S05]
+stories:
+  - story_id: US1
+    title: Admit the correct roster before work starts
+    requirements: [FR-001, FR-002, FR-004, FR-005, FR-006, FR-007]
+    outcomes: [SC-001, SC-002, SC-007]
+    contract_groups: [envelope, roster-resolution, admission-freeze, seat-jobs]
+  - story_id: US2
+    title: Reproduce why each seat was required
+    requirements: [FR-003, FR-004, FR-014]
+    outcomes: [SC-002]
+    contract_groups: [provenance, immutable-rules, normalized-facts, evidence]
+  - story_id: US3
+    title: Complete only from the frozen roster
+    requirements: [FR-008, FR-009, FR-010, FR-011, FR-012, FR-013]
+    outcomes: [SC-003, SC-004, SC-005, SC-006, SC-007]
+    contract_groups: [frozen-snapshot, returns, signing-isolation, cutover]
+gates:
+  - gate_id: RCS-PROVIDER
+    owner: openxFactory
+    requires: [US1, US2, US3]
+    evidence: [schema, validator, indexed-corpus, focused-tests, release-registration]
+    blocks_on_failure: true
+  - gate_id: RCS-CONSUMER
+    owner: xFactory-Hermes-Install
+    external: true
+    requires: [published-bundle, independent-rule-evaluation, freeze-before-jobs, shared-corpus-parity]
+    requirement_ids: [FR-008, FR-009, FR-010, FR-013, FR-014]
+    outcome_ids: [SC-003, SC-004, SC-006, SC-007]
+    blocks_on_failure: true
+  - gate_id: RCS-PRODUCER
+    owner: codexFactory
+    external: true
+    requires: [exact-candidate-facts, immutable-rule-resolution, shared-corpus-parity, job-local-signing]
+    requirement_ids: [FR-011, FR-014]
+    outcome_ids: [SC-005]
+    blocks_on_failure: true
+  - gate_id: RCS-CUTOVER
+    owner: coordinated-operations
+    external: true
+    requires: [provider-available, consumer-ready, producer-ready, rollback-pair]
+    requirement_ids: [FR-012, FR-014]
+    outcome_ids: [SC-007]
+    blocks_on_failure: true

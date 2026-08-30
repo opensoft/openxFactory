@@ -1,0 +1,120 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://openxfactory.dev/contracts/council-convening/resolved-council-convening.schema.yaml
+title: Resolved council convening
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - kind
+  - convening_id
+  - required_seats
+  - required_seats_provenance
+properties:
+  schema_version:
+    const: 1
+  kind:
+    const: resolved-council-convening
+  convening_id:
+    type: string
+    minLength: 1
+  required_seats:
+    type: array
+    minItems: 1
+    uniqueItems: true
+    items:
+      $ref: '#/$defs/seatIdentifier'
+  required_seats_provenance:
+    $ref: '#/$defs/rosterProvenance'
+$defs:
+  seatIdentifier:
+    type: string
+    minLength: 1
+    pattern: '^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$'
+  repositoryIdentifier:
+    type: string
+    pattern: '^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$'
+  revision:
+    type: string
+    pattern: '^[0-9a-f]{40}$'
+  candidateRevision:
+    type: object
+    additionalProperties: false
+    required: [repository, pull_request, head_revision]
+    properties:
+      repository:
+        $ref: '#/$defs/repositoryIdentifier'
+      pull_request:
+        type: integer
+        minimum: 1
+      head_revision:
+        $ref: '#/$defs/revision'
+  governedRuleReference:
+    type: object
+    additionalProperties: false
+    required: [repository, path, revision, matched_class]
+    properties:
+      repository:
+        $ref: '#/$defs/repositoryIdentifier'
+      path:
+        type: string
+        minLength: 1
+        pattern: '^(?!/)(?![A-Za-z]:)(?!.*\\)(?!.*(?:^|/)\.\.(?:/|$)).+$'
+      revision:
+        $ref: '#/$defs/revision'
+      matched_class:
+        type: string
+        minLength: 1
+  factScalar:
+    type: [string, number, integer, boolean, 'null']
+  factValue:
+    oneOf:
+      - $ref: '#/$defs/factScalar'
+      - type: array
+        items:
+          $ref: '#/$defs/factScalar'
+  normalizedFacts:
+    type: object
+    propertyNames:
+      pattern: '^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$'
+    additionalProperties:
+      $ref: '#/$defs/factValue'
+  conditionalSeatEvaluation:
+    type: object
+    additionalProperties: false
+    required: [seat, condition_ref, required]
+    properties:
+      seat:
+        $ref: '#/$defs/seatIdentifier'
+      condition_ref:
+        type: string
+        minLength: 1
+      required:
+        type: boolean
+  seatResolutionEvidence:
+    type: object
+    additionalProperties: false
+    required: [standing_seats, conditional_seats]
+    properties:
+      standing_seats:
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items:
+          $ref: '#/$defs/seatIdentifier'
+      conditional_seats:
+        type: array
+        items:
+          $ref: '#/$defs/conditionalSeatEvaluation'
+  rosterProvenance:
+    type: object
+    additionalProperties: false
+    required: [candidate, governed_rule, normalized_facts, resolution]
+    properties:
+      candidate:
+        $ref: '#/$defs/candidateRevision'
+      governed_rule:
+        $ref: '#/$defs/governedRuleReference'
+      normalized_facts:
+        $ref: '#/$defs/normalizedFacts'
+      resolution:
+        $ref: '#/$defs/seatResolutionEvidence'

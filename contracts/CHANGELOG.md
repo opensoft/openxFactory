@@ -9,6 +9,39 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
+## contract-v2.3 — 2026-08-29 (additive; resolved council seats become an independently reproducible provider contract)
+
+Realizes `add-resolved-council-seats` and Speckit feature
+`026-add-resolved-council-seats`. This additive minor introduces the neutral
+`council-convening` contract family: the closed
+`resolved-council-convening.schema.yaml`, complete indexed 14-case corpus,
+portable strict validator, acceptance map, ownership boundary, and successor
+handoff. No previously valid contract instance is narrowed or invalidated.
+
+The bundle number was allocated from the pinned P1-start snapshot: fetched
+`origin/main` and `FETCH_HEAD` both identify
+`9cadc977102006d8c22c0dc04a4571ca488e5a2a`, the published manifest/changelog/
+inventory tip is `contract-v2.2`, and fetched tags contain no `contract-v2.3`.
+Therefore `contract-v2.3` is the next no-gap additive minor; no Git tag is
+created by this candidate assembly.
+
+### Hard-cutover migration note
+
+This family has no compatibility parser or dual-protocol window. Publish and
+pin this provider bundle first, land and independently verify the codexFactory
+producer and xFactory-Hermes-Install consumer, quiesce and drain the council
+lane, then enable producer emission and consumer requirement in one coordinated
+window. An ordering failure parks convenings. Rollback restores the preceding
+producer and consumer pair together; it never reconstructs a roster, accepts an
+obsolete payload, or restores a root/shared signing-key path. Release, merged
+successor, live OIDC, deployment, and coordinated-cutover evidence remain open
+until their authorized operators perform those acts.
+
+The release inventory is
+`contracts/releases/contract-v2.3.digests.yaml`, generated after these release
+surfaces from the repository release builder. The candidate remains uncommitted
+until authorization gate A2.
+
 ## contract-v2.2 — 2026-08-29 (additive; a catalog entry may say WHAT KIND of input it accepts, and the type stops being weaker than its own wire)
 
 Realizes `add-model-capability-vocabulary`, ratified 2026-08-24 with TWO rulings

@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v2.2
+contract_bundle_version: contract-v2.3
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -2495,3 +2495,57 @@ contracts:
       recommended). Registered at contract-v1.37; consumed through the
       pinned openxFactory checkout with per-file sha256 verified before
       any copy is treated as current.
+  - id: council-convening
+    path: contracts/council-convening/
+    source_path: openxFactory/contracts/council-convening/
+    type: contract_family
+    schema_version: 1
+    intended_consumers:
+      - codexFactory council producer
+      - xFactory-Hermes-Install council consumer
+      - openxFactory release checks
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: domain producer and Hermes consumer repositories
+    consumption_rule: >-
+      Consumers pin contract-v2.3 and verify the release inventory before
+      accepting the family. The producer emits only the closed resolved roster
+      with complete immutable provenance; Hermes independently resolves the
+      cited rule and head, freezes the admitted roster before job issuance, and
+      accepts returns only for that frozen mapping. Activation and rollback are
+      coordinated hard cutovers. No legacy payload parser, inferred roster, or
+      root/shared signing-key path is compatible with this family.
+  - id: resolved-council-convening
+    path: contracts/council-convening/resolved-council-convening.schema.yaml
+    source_path: openxFactory/contracts/council-convening/resolved-council-convening.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 4179b5db866e90c601ffb186da9b5f6622784b0865c8401eb7ca1fbb3d824d1b
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: council-convening-fixture-index
+    path: contracts/council-convening/fixtures/index.yaml
+    source_path: openxFactory/contracts/council-convening/fixtures/index.yaml
+    type: fixture_index
+    schema_version: 1
+    sha256: 1aa74d15070d0db3ec2371e1f5e31c15bcd1d6d36f5513d098ec0f42ca6900b7
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: council-convening-acceptance-map
+    path: specs/026-add-resolved-council-seats/contracts/acceptance-map.yaml
+    source_path: openxFactory/specs/026-add-resolved-council-seats/contracts/acceptance-map.yaml
+    type: acceptance_map
+    schema_version: 1
+    sha256: 790c015c55d1218d3e2e9a5a02a2b57989d67ecd0fda2a68f2df49ee4327116a
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: council-convening-conformance-validator
+    path: scripts/validate-council-convening.py
+    source_path: openxFactory/scripts/validate-council-convening.py
+    type: tool
+    schema_version: 1
+    intended_consumers:
+      - openxFactory release checks
+      - codexFactory shared-corpus checks
+      - xFactory-Hermes-Install shared-corpus checks
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
