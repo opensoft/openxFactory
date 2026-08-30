@@ -131,6 +131,7 @@ IDENTIFIER_MAX = 200
 # cannot start the first segment, and the lookahead refuses any '..' segment).
 DOCUMENT_REF = re.compile(
     r"^(?!.*(?:^|/)\.\.(?:/|$))[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*\.(?:yaml|yml)$")
+DOCUMENT_REF_MAX = 300  # identity-brokering's own bound on this member
 
 # The CLOSED access-mode vocabulary — declared in the schema's description at
 # this minor, enforced by `enum` at the major. Initial members are the values
@@ -182,6 +183,16 @@ def _is_identifier(value: object) -> bool:
             and bool(IDENTIFIER.fullmatch(value)))
 
 
+def _is_document_ref(value: object) -> bool:
+    """The path grammar AND its length bound. The bound is checked HERE rather
+    than only at the major because every planned narrowing owes its warning
+    release: a 400-character reference that this minor accepted silently would
+    meet a `maxLength` at the major with no deprecation behind it (PR #516,
+    Codex P2)."""
+    return (isinstance(value, str) and 1 <= len(value) <= DOCUMENT_REF_MAX
+            and bool(DOCUMENT_REF.fullmatch(value)))
+
+
 def _consumer(binding: object) -> object:
     """The raw `consumer:` value, whatever shape it is. The block is UNCONSTRAINED
     at this minor, so this deliberately returns scalars and lists too."""
@@ -191,7 +202,28 @@ def _consumer(binding: object) -> object:
 
 
 def _declares_stub(consumer: object) -> bool:
-    return isinstance(consumer, dict) and consumer.get("instantiation_stub") is True
+    """A STUB IS A RECORD THAT DECLARES THE TOKEN AND NAMES NOBODY.
+
+    The token alone is not the test, and reading it as the test was a real hole
+    (PR #516, Codex P1): an instantiator that filled in `holder_ref` and left
+    the token behind kept the exemption, so the missing `fetch_identity` went
+    unwarned through the whole minor and the requiredness it should have been
+    served by arrived at the major unannounced. The ratified scenario is
+    explicit on both halves — *"a record that is an instantiation stub carries
+    the const-true stub token AND NO IDENTIFIERS"*, and *"a record carrying LIVE
+    values MUST NOT declare the token"* — so the exemption is withheld the
+    moment either identifier appears, and the ordinary warnings resume.
+
+    A block declaring the token beside BOTH identifiers is a different matter
+    and is deliberately left to the REQUIREMENT rather than claimed by this
+    check: nothing in such a record's shape distinguishes a mislabelled stub
+    from a complete declaration, it is accepted at both releases, and inventing
+    a refusal for it at the major that no deprecation code warns about now would
+    be the unphased narrowing this whole packet exists to prevent.
+    """
+    if not isinstance(consumer, dict) or consumer.get("instantiation_stub") is not True:
+        return False
+    return not any(member in consumer for member in CONSUMER_IDENTIFIERS)
 
 
 def _issuance_precondition_findings(rid: str, req: dict) -> list[str]:
@@ -251,13 +283,21 @@ def resolve_requirement(ref: object, index: dict[str, list[dict]]) -> tuple[str,
     carry no repository-wide uniqueness, two matches may differ in `access_mode`,
     and a rule whose outcome depends on traversal order is not a rule.
     """
-    if not isinstance(ref, dict):
+    if not isinstance(ref, dict) or sorted(ref) != sorted(REQUIREMENT_REF_MEMBERS):
+        # AN EXTRA MEMBER IS MALFORMED, not a decorated success (PR #516,
+        # Copilot). The docstring promised "the two-member object" while the
+        # code checked only that the two were present, so a reference carrying
+        # a third key could still resolve and satisfy the lift — accepting a
+        # shape the major's closed block refuses. Refusing to RESOLVE it is not
+        # a new refusal of any record: it withholds an exemption, and the
+        # default shared-secret refusal it leaves standing is the one that
+        # already stands today.
         return "malformed", None
     rid = ref.get("requirement_id")
     doc_ref = ref.get("requirements_document_ref")
-    if not isinstance(rid, str) or not isinstance(doc_ref, str):
+    if not isinstance(rid, str):
         return "malformed", None
-    if not DOCUMENT_REF.fullmatch(doc_ref):
+    if not _is_document_ref(doc_ref):
         return "ungrammatical", None
     matches = [r for r in index.get(doc_ref, []) if r.get("id") == rid]
     if not matches:
@@ -406,6 +446,17 @@ def _binding_findings(doc: dict, index: dict[str, list[dict]]) -> list[str]:
     # whatever their secret references, and scoping the finding to the proxy
     # would leave it unreported when two spellings name one secret. One holder
     # reusing its OWN fetch identity across its OWN bindings is not the fault.
+    #
+    # IT COMPARES ONLY VALUES THAT PASS THE IDENTIFIER GRAMMAR, and that guard
+    # is load-bearing rather than tidy (PR #516, Codex P1). This is the one arm
+    # of this change that can raise a NEW error on a record carrying no shared
+    # secret, so it is also the one place a malformed value could turn a
+    # deprecation into a refusal: two bindings whose consumers both carry
+    # `fetch_identity: ""` validate today, and reading them as "the same
+    # identity" would refuse in a minor a shape the current major accepts —
+    # exactly the narrowing the whole packet phases. A malformed identity is
+    # WARNED by `consumer-member-grammar` for the whole of this minor and
+    # refused at the major, at which point the record is gone anyway.
     authority_pairs: set[tuple[str, str]] = set()
     for (name_a, binding_a), (name_b, binding_b) in combinations(bindings, 2):
         con_a, con_b = _consumer(binding_a), _consumer(binding_b)
@@ -413,7 +464,7 @@ def _binding_findings(doc: dict, index: dict[str, list[dict]]) -> list[str]:
             continue
         holder_a, holder_b = con_a.get("holder_ref"), con_b.get("holder_ref")
         fetch_a, fetch_b = con_a.get("fetch_identity"), con_b.get("fetch_identity")
-        if not all(isinstance(v, str) for v in (holder_a, holder_b, fetch_a, fetch_b)):
+        if not all(_is_identifier(v) for v in (holder_a, holder_b, fetch_a, fetch_b)):
             continue
         if holder_a != holder_b and fetch_a == fetch_b:
             authority_pairs.add((name_a, name_b))
@@ -541,11 +592,12 @@ def _consumer_block_warnings(name: str, binding: dict) -> list[tuple[str, str]]:
                             f"{ref.get('requirement_id')!r}, outside the identifier grammar "
                             f"{IDENTIFIER.pattern}. ERROR at {MAJOR_RELEASE}"))
             doc_ref = ref.get("requirements_document_ref")
-            if not isinstance(doc_ref, str) or not DOCUMENT_REF.fullmatch(doc_ref):
+            if not _is_document_ref(doc_ref):
                 out.append(("consumer-requirement-ref-grammar",
                             f"binding {name!r}'s consumer.requirement_ref."
                             f"requirements_document_ref is {doc_ref!r}, which is not a "
-                            f"repository-relative YAML path: no leading '/', no '..' segment, no "
+                            f"repository-relative YAML path of at most {DOCUMENT_REF_MAX} "
+                            f"characters: no leading '/', no '..' segment, no "
                             f"foreign-repository prefix, and a .yaml/.yml suffix. It is inherited "
                             f"as an unconstrained string that nothing resolved; promoting it to a "
                             f"resolution input feeding a security precondition without a grammar "

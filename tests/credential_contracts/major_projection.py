@@ -41,6 +41,19 @@ WHAT IT DELIBERATELY DOES NOT DO — and each omission is a ruling, not a gap:
   * it does NOT close the BINDING OBJECT around the block. That is a further
     breaking act with a much wider blast radius and a named successor of its
     own.
+  * it does NOT make the stub token EXCLUSIVE of the identifiers, though a bot
+    round asked for it (PR #516, Codex P1). The substantive half of that finding
+    is real and is taken in the validator: a block declaring the token beside a
+    live identifier no longer receives the exemption, so the identifier it is
+    missing is warned now and refused at the major. The schema half is refused
+    on the record, because a block carrying the token AND BOTH identifiers is
+    accepted on the current major, so refusing it here would add a
+    refused-at-the-major shape that no deprecation code warns about — the exact
+    unphased narrowing four council seats convened over. §1.6 prescribes this
+    conditional verbatim, and "a record carrying live values MUST NOT declare
+    the token" stays the REQUIREMENT's obligation, on the same footing the
+    ratified text gives the persona scenario: a check offered against it must
+    state which shapes it actually detects.
 """
 from __future__ import annotations
 

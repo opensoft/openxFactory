@@ -312,6 +312,30 @@ def test_a_reference_that_escapes_the_tree_is_ungrammatical_and_withholds_the_li
     assert findings and "absolute, escaping, or foreign-repository" in findings[0]
 
 
+def test_a_reference_carrying_an_EXTRA_member_does_not_resolve():
+    """PR #516, Copilot. The resolver documented "the two-member object" while
+    checking only that the two were PRESENT, so a reference with a third key
+    could resolve and satisfy the lift — accepting a shape the major's closed
+    block refuses, and doing it on the exemption path where fail-closed matters
+    most. Refusing to RESOLVE it refuses no record: it withholds an exemption,
+    and the default refusal it leaves standing is the one that already stands."""
+    doc = _conforming_pair()
+    for binding in doc["credential_bindings"].values():
+        binding["consumer"]["requirement_ref"]["custody_declared_in"] = "somewhere.yaml"
+    findings = _findings(doc)
+    assert findings and "is not a qualified reference" in findings[0]
+    assert "consumer-member-grammar" in [c for c, _ in V._deprecation_warnings(doc)]
+
+
+def test_an_overlong_document_reference_does_not_resolve():
+    doc = _conforming_pair()
+    overlong = "credentials/" + ("a" * 400) + ".yaml"
+    for binding in doc["credential_bindings"].values():
+        binding["consumer"]["requirement_ref"]["requirements_document_ref"] = overlong
+    findings = _findings(doc)
+    assert findings and "absolute, escaping, or foreign-repository" in findings[0]
+
+
 def test_a_bare_requirement_id_does_not_satisfy_the_condition():
     doc = _conforming_pair()
     for binding in doc["credential_bindings"].values():
@@ -363,6 +387,35 @@ def test_one_holder_reusing_its_own_fetch_identity_reports_nothing():
     bindings["projection_editor_surface"]["consumer"]["fetch_identity"] = \
         bindings["projection_sync_lane"]["consumer"]["fetch_identity"]
     assert _findings(doc) == []
+
+
+def test_the_authority_finding_compares_only_GRAMMATICAL_identities():
+    """PR #516, Codex P1. This is the one arm of this change that can raise a NEW
+    error on a record carrying no shared secret, so it is the one place a
+    malformed value could turn a deprecation into a refusal: two bindings whose
+    consumers both carry `fetch_identity: ""` validate on the current major, and
+    reading them as "the same identity" would refuse in a MINOR a shape the
+    current major accepts. The malformed values are warned instead, and refused
+    at the major with everything else."""
+    doc = _conforming_pair()
+    bindings = doc["credential_bindings"]
+    bindings["projection_editor_surface"]["secret_ref"] = "a-different-secret"
+    for name in bindings:
+        bindings[name]["consumer"]["fetch_identity"] = ""
+    assert _findings(doc) == []
+    codes = [c for c, _ in V._deprecation_warnings(doc)]
+    assert codes.count("consumer-member-grammar") == 2
+
+
+def test_a_grammatical_shared_authority_is_still_refused():
+    """The negative control: the guard above must cost the finding nothing on the
+    values it exists to catch."""
+    doc = _conforming_pair()
+    bindings = doc["credential_bindings"]
+    bindings["projection_editor_surface"]["secret_ref"] = "a-different-secret"
+    bindings["projection_editor_surface"]["consumer"]["fetch_identity"] = \
+        bindings["projection_sync_lane"]["consumer"]["fetch_identity"]
+    assert _codes(doc) == ["shared-authority-identity"]
 
 
 def test_the_named_fault_REPLACES_the_default_finding_rather_than_accompanying_it():

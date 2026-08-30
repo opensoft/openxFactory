@@ -139,6 +139,50 @@ def test_the_major_refuses_an_incomplete_NON_stub_and_accepts_a_stub():
     assert _errors(MAJOR, _binding_doc({"instantiation_stub": True})) == []
 
 
+def test_a_PARTIALLY_INSTANTIATED_stub_loses_the_exemption():
+    """A STUB DECLARES THE TOKEN AND NAMES NOBODY (PR #516, Codex P1).
+
+    Reading the token alone as the test left a real hole: an instantiator that
+    filled in `holder_ref` and left the token behind kept the exemption, so the
+    missing `fetch_identity` crossed the whole minor UNWARNED and the
+    requiredness it should have been served by would have arrived at the major
+    with no deprecation behind it. The moment either identifier appears the
+    record stops being a stub and the ordinary warnings resume.
+    """
+    partial = _binding_doc({"instantiation_stub": True, "holder_ref": "example:holder"})
+    assert VALIDATOR._declares_stub(
+        partial["credential_bindings"]["example_system_read"]["consumer"]) is False
+    assert [c for c, _ in VALIDATOR._deprecation_warnings(partial)] == [
+        "consumer-block-incomplete"]
+    # and the two layers split exactly as they do for a missing block: the
+    # major's SCHEMA accepts it, its VALIDATOR refuses it.
+    assert _errors(MINOR, partial) == []
+    assert _errors(MAJOR, partial) == []
+
+
+def test_a_TOKEN_ONLY_block_keeps_the_exemption():
+    """The negative control for the test above: tightening the predicate must not
+    cost the generator its clean scaffold."""
+    stub = _binding_doc({"instantiation_stub": True})
+    assert VALIDATOR._declares_stub(
+        stub["credential_bindings"]["example_system_read"]["consumer"]) is True
+    assert VALIDATOR._deprecation_warnings(stub) == []
+
+
+def test_a_token_beside_BOTH_identifiers_is_the_requirements_obligation_not_this_checks():
+    """Stated rather than silently accepted. Such a record is accepted at BOTH
+    releases: nothing in its shape distinguishes a mislabelled stub from a
+    complete declaration, and inventing a refusal for it at the major that no
+    deprecation code warns about now would be the unphased narrowing this packet
+    exists to prevent. The ratified text keeps "a record carrying LIVE values
+    MUST NOT declare the token" as the REQUIREMENT's obligation."""
+    doc = _binding_doc({"instantiation_stub": True, "holder_ref": "example:holder",
+                        "fetch_identity": "example-identity"})
+    assert VALIDATOR._deprecation_warnings(doc) == []
+    assert _errors(MINOR, doc) == []
+    assert _errors(MAJOR, doc) == []
+
+
 def test_a_stub_named_FILE_exempts_nothing():
     """The exemption is the TOKEN. A record carrying live values in a file called
     `*.template.yaml` is a record: it warns now and is refused at the major,
@@ -231,6 +275,24 @@ def test_the_document_grammar_refuses_escaping_absolute_and_foreign_references(b
                                   "two-consumer-operated-identity.requirements.example.yaml"])
 def test_the_document_grammar_admits_repository_relative_yaml(good):
     assert VALIDATOR.DOCUMENT_REF.fullmatch(good), good
+
+
+def test_an_OVERLONG_document_reference_is_warned_at_the_minor_too():
+    """The length bound is one of the planned narrowings and therefore owes its
+    warning release like every other (PR #516, Codex P2). A 400-character
+    reference matches the path grammar, so before this it was accepted silently
+    here and would have met `maxLength: 300` at the major with no deprecation
+    behind it."""
+    overlong = "credentials/" + ("a" * 400) + ".yaml"
+    assert VALIDATOR.DOCUMENT_REF.fullmatch(overlong), "the pattern alone still admits it"
+    assert not VALIDATOR._is_document_ref(overlong)
+    doc = _binding_doc({"holder_ref": "example:holder", "fetch_identity": "example-identity",
+                        "requirement_ref": {"requirement_id": "example_system_read",
+                                            "requirements_document_ref": overlong}})
+    assert "consumer-requirement-ref-grammar" in [
+        c for c, _ in VALIDATOR._deprecation_warnings(doc)]
+    assert _errors(MINOR, doc) == []
+    assert _errors(MAJOR, doc) != []
 
 
 # --------------------------- the mirrors ---------------------------
