@@ -15,7 +15,8 @@ Captured: 2026-08-29
 ## Members and their joints
 
 Atomic members: [Anchor Kernel](usage-controlled-evidence-chain-anchor-kernel.md),
-[Dual-Witness Cadence](usage-controlled-evidence-chain-dual-witness-cadence.md).
+[Dual-Witness Cadence](usage-controlled-evidence-chain-dual-witness-cadence.md),
+[Kaspa Execution Surface Decision Study](usage-controlled-evidence-chain-execution-surface-decision.md).
 
 ```text
 owner event -> signed leaf -> local checkpoint -> Kaspa proof

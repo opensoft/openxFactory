@@ -89,7 +89,9 @@ are witnessed.
 ## Key decisions and open questions
 
 The intended ordering is Kaspa first and Bitcoin durability for every item.
-The exact UTC window, confirmation depths, empty-window behavior, adapter code
+The v1 execution-surface recommendation is provider-neutral off-chain policy
+enforcement with direct Kaspa L1 commitments; Toccata, Kasplex, and Igra remain
+behind explicit promotion gates. The exact confirmation depths, adapter code
 home, archival operation, and network-outage service levels remain proposal-
 stage decisions.
 
@@ -103,3 +105,4 @@ stage decisions.
 
 - [Anchor Kernel](usage-controlled-evidence-chain-anchor-kernel.md)
 - [Dual-Witness Cadence](usage-controlled-evidence-chain-dual-witness-cadence.md)
+- [Kaspa Execution Surface Decision Study](usage-controlled-evidence-chain-execution-surface-decision.md)
