@@ -494,9 +494,13 @@ unimplementable, and `projection.py`'s property 5 said so in as many words.
     R1–R5). Brett ruled the TARGET composition: Option D, all-Anthropic 2:2 —
     `lead-quality` → `claude-sonnet-5`, `lead-security` and `lead-integration`
     → `claude-opus-5`, and the tenant declaring `claude-sonnet-5` for
-    `company-policy-lead` in its parallel lane; the Operator plane is direct
-    Anthropic via Claude Code, with the opt-in server-side `fallbacks` beta
-    asserted UNSET. A ruled target is not a Council selection: the Gate-Rules
+    `company-policy-lead` in its parallel lane; the Operator plane is the
+    DIRECT ANTHROPIC API, reached through today's Claude Code transport and
+    EVIDENCED by read-back — partner-plane routing to Bedrock, Vertex or
+    Foundry shown unset, the base URL resolving to the direct API, the
+    opt-in server-side `fallbacks` beta asserted UNSET — never inferred from
+    the transport, and fail-closed if the read-back shows a partner plane.
+    A ruled target is not a Council selection: the Gate-Rules
     Council's soak-evidenced selection act and the roster-change Lead's
     `lead_accepted_recorded` acceptance are STILL OWED, and the Council must
     rule in the same act whether the alias-to-exact flip re-opens the soak. So
