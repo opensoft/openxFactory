@@ -265,7 +265,7 @@ validator does not perform and is named as owed to a successor.
 - **THEN** the rule does not compare them, and that document scope is a recorded limit of the check rather than a statement that the estate conforms
 
 ### Requirement: A shared secret reference is conforming only where the record shows one requirement and distinct authorities
-A shared QUALIFIED `secret_ref` — the same secret name under the same `provider` and the same `vault` — SHALL remain a `shared-secret-identity` refusal EXCEPT where every binding sharing it declares the SAME `requirement_id` AND pairwise-DISTINCT `consumer` AND pairwise-DISTINCT QUALIFIED `fetch_identity` values (distinct on `(provider, identity_namespace, fetch_identity)`, `vault` playing no part in that comparison); where any of those three conditions is unmet or undeclared, the refusal stands exactly as it stood before this requirement existed. This is what lets the record carry a deliberately shared operated identity — one account, two systems, two authorities — without weakening the check that keeps two different credentials from collapsing into one.
+A shared QUALIFIED `secret_ref` — the same secret name under the same `provider` and the same `vault` — SHALL remain a `shared-secret-identity` refusal EXCEPT where every binding sharing it declares the SAME `requirement_id` AND pairwise-DISTINCT `consumer` AND pairwise-DISTINCT QUALIFIED `fetch_identity` values — compared on `(provider, identity_namespace, fetch_identity)`, `vault` playing no part, EXCEPT that where ANY member of a compared pair omits `identity_namespace` the two SHALL be compared on `(provider, fetch_identity)` alone, and the exemption SHALL NOT open on an indeterminate qualification; where any of those three conditions is unmet or undeclared, the refusal stands exactly as it stood before this requirement existed. This is what lets the record carry a deliberately shared operated identity — one account, two systems, two authorities — without weakening the check that keeps two different credentials from collapsing into one.
 
 THE EXEMPTION SHALL NOT BE KEYED ON DISTINCT CONSUMERS ALONE, and the reason is
 executable rather than theoretical. The fault this check exists to catch — a
@@ -288,15 +288,28 @@ none of the exemption's three declared conditions is adjudicated exactly as befo
 condition of the exemption is a positive declaration that such a record does not
 make. The exemption is opened by saying more, never by saying nothing.
 
-THE EXEMPTION IS NEVER DECIDED ON AN INDETERMINATE QUALIFICATION, and this
-follows from the grouping rather than needing a rule of its own. Members of a
-group share the qualified secret key, so their `provider` is equal by
-construction; the identity comparison inside that group is keyed on
-`(provider, identity_namespace, fetch_identity)`; `provider` being equal, the
-comparison reduces to the namespace and the identity name, both of which the
-record either states or does not. A
-reader checking whether a record could claim the exemption while its authority
-distinctness is merely unestablished will find that it cannot.
+THE EXEMPTION IS NEVER DECIDED ON AN INDETERMINATE QUALIFICATION, AND THAT IS A
+STATED RULE RATHER THAN A CONSEQUENCE OF THE GROUPING. An earlier revision
+argued it followed from the grouping alone: members of a group share the
+qualified secret key, so `provider` is equal, so the comparison reduces to the
+namespace and the identity name, "both of which the record either states or does
+not." **That reasoning was wrong, and the record it lets through is the one this
+requirement exists to refuse.** Two bindings on one secret and one requirement,
+with distinct consumers and the SAME `fetch_identity`, with
+`identity_namespace` declared on ONE SIDE ONLY, have DIFFERENT triples — so a
+literal reading calls them "distinct", opens the exemption, and DROPS the
+shared-secret refusal entirely. A one-sided namespace does not make two
+identities distinct; it makes their distinctness UNKNOWN, and the earlier
+sentence mistook the second for the first.
+
+So the rule is written where the comparison is made, in the same either-side
+form the collision rule already uses: where any member of a compared pair omits
+`identity_namespace`, the identities are compared on `(provider, fetch_identity)`
+alone. Two bindings naming ONE identity are then not distinct, the exemption
+does not open, and the refusal stands. A reader checking whether a record could
+claim the exemption while its authority distinctness is merely unestablished
+will find that it cannot — now because a rule says so, not because a paragraph
+asserted it.
 
 THE SECRET COMPARISON IS QUALIFIED TOO, ON ITS OWN NAMESPACE RATHER THAN ON THE
 IDENTITY'S. `secret_ref` is a name in a VAULT, so two bindings carrying `api-key`
@@ -381,6 +394,11 @@ anyway.
 #### Scenario: Distinct consumers and identities but different requirements
 - **WHEN** two bindings share a secret reference and declare distinct consumers and distinct fetch identities, but name different requirements or name none
 - **THEN** the refusal stands, because distinct consumers alone is the discriminator this requirement refuses
+
+#### Scenario: The exemption is claimed on a one-sided namespace
+- **WHEN** two bindings share a secret reference and a requirement, name distinct consumers, declare the SAME `fetch_identity`, and only one of them declares an `identity_namespace`
+- **THEN** the exemption does NOT open and `shared-secret-identity` is REFUSED, because the pair is compared on `(provider, fetch_identity)` where either side omits the namespace and is therefore not distinct
+- **AND** a one-sided namespace makes distinctness UNKNOWN rather than established, so it may not buy the exemption that distinctness would
 
 #### Scenario: A record declaring none of the new fields
 - **WHEN** two bindings share a secret reference and declare no consumer, fetch identity or requirement

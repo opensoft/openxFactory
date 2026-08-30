@@ -412,13 +412,15 @@ pre-contract changes — report the absence, never infer the fact.
 
 ## Fixtures and the count string
 
-`examples/credential-contracts/` gains THREE POSITIVES and FIVE NEGATIVES — the
+`examples/credential-contracts/` gains THREE POSITIVES and SIX NEGATIVES — the
 two-consumer positive, the cross-provider positive and the two-namespaces
 positive; and negatives for `shared-fetch-identity`, the different-requirements
 case, the same identity across two vaults, the indeterminate secret scope with
 the exemption satisfied (warning, no refusal), and the shared reference with
 `vault` undeclared on one side (refusal AND warning — the fixture that pins the
-fallback). The proposal's `code_surface` enumerates the same eight BY NAME,
+grouping-side fallback), and the one-sided `identity_namespace` claiming the
+exemption (refusal — the fixture that pins the exemption-side scope). The
+proposal's `code_surface` enumerates the same nine BY NAME,
 because a code-surface declaration that undercounts is a realization instruction
 to skip the regression probes it omits — which is how an undercount was caught
 once already, the front matter still declaring three after a fix had added two.
@@ -454,15 +456,22 @@ stale-list defect this packet keeps finding in itself.
 - **Negative — indeterminate scope with the exemption satisfied.** Warning and
   NO refusal. Proves the warning stands alone where the record earns it.
 - **Negative — shared reference with `vault` undeclared on one side.** Refusal
-  AND warning. **Pins the D2 fallback**: green under the rejected unconditional
-  grouping, red under the ruled one.
+  AND warning. **Pins the D2 fallback on the GROUPING side**: green under the
+  rejected unconditional grouping, red under the ruled one.
+- **Negative — one-sided `identity_namespace` claiming the exemption.** One
+  secret, one requirement, distinct consumers, the SAME `fetch_identity`,
+  namespace on one side only: REFUSED. **Pins the same principle on the
+  EXEMPTION side** — green under a triple-only comparison, which reads the two
+  as "distinct" and drops the refusal, and red under the ruled either-side
+  scope. Its twin above is why the two rules can be said to point the same way
+  rather than merely asserted to.
 - The existing `dispatch-reuses-content-secret.yaml` is UNCHANGED and stays
   red — and, with the fallback, stays red under the one-optional-line mutation
   that broke it before, which is the whole point of the amendment.
 
 Fixture residency is unchanged and needs no ruling: `examples/` is packaged
 fixture territory, is not a release-inventory member, and is not registered in
-`contracts/manifest.yaml` — so adding these EIGHT moves no bundle member.
+`contracts/manifest.yaml` — so adding these NINE moves no bundle member.
 
 ## The release ritual, and the packet it must not collide with
 

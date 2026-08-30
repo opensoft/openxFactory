@@ -10,7 +10,7 @@ because it SCOPES what changes before ratification, so an enumeration that omits
 a record understates exactly the thing it exists to bound.
 
 **No task creates, moves, or reads a live secret.** The realization surface is
-a schema, a validator, eight fixtures and a test — and, beyond that code surface,
+a schema, a validator, nine fixtures and a test — and, beyond that code surface,
 the documentation of § 4, the contract-release ritual of § 5, and the validation
 of § 6. Naming only the code half would let a reader skim past the ritual, which
 is the largest obligation in this packet.
@@ -82,7 +82,14 @@ is the largest obligation in this packet.
   raises UNLESS every member declares an equal `requirement_id` and
   pairwise-distinct `consumer` and pairwise-distinct QUALIFIED `fetch_identity`
   on `(provider, identity_namespace, fetch_identity)` — the secret key carries
-  `vault`, the identity key carries the namespace instead.
+  `vault`, the identity key carries the namespace instead — **and where ANY
+  member of a compared pair omits `identity_namespace`, compare that pair on
+  `(provider, fetch_identity)` alone, exactly as 2.3 does for the collision
+  rule. THE EXEMPTION MUST NOT OPEN ON AN INDETERMINATE QUALIFICATION.** Without
+  this, two bindings on one secret and one requirement with distinct consumers,
+  the SAME `fetch_identity` and the namespace on ONE side only have differing
+  triples, read as "distinct", and the shared-secret refusal is LOST — the
+  either-side scope is what keeps the two rules pointing the same way.
   **THE FALLBACK IS NOT OPTIONAL AND ITS ABSENCE WAS A DEFECT, NOT A
   SIMPLIFICATION.** An earlier revision of this task claimed the regrouping
   "only ever narrows a refusal, and only where the two secrets are genuinely
@@ -143,18 +150,18 @@ is the largest obligation in this packet.
   **This fixture is the executable form of the 4.1 argument** — green under the
   rejected discriminator, red under the ruled one — so the decision cannot be
   reversed later without a test going red.
-- [ ] 3.4 Register EVERY new negative — all FIVE (3.2, 3.3, 3.10, 3.11, 3.12),
+- [ ] 3.4 Register EVERY new negative — all SIX (3.2, 3.3, 3.10, 3.11, 3.12, 3.13),
   not the two this task named before review added the others; an unregistered
   negative is already a self-test error by design. 3.11 registers a WARNING
   expectation and 3.12 registers BOTH an error and a warning, so both depend on
-  3.14's widening.
+  3.15's widening.
 - [ ] 3.5 Leave `negative/dispatch-reuses-content-secret.yaml` UNCHANGED and
   RED. It is the backward-compatibility proof, and a green result there means
   the exemption was written wrong.
 - [ ] 3.6 Update `tests/credential_contracts/test_dispatch_credential_contract.py`
   IN THE SAME COMMIT as any fixture change: it asserts the self-test count string
   LITERALLY ("3 positive + 5 negative" today) and lists the fixture filenames, so
-  both move with the fixtures. The final count is derived once, at 3.11, from
+  both move with the fixtures. The final count is derived once, at 3.16, from
   what was actually added — 3.1-3.3 alone would make it "4 positive + 7
   negative", and 3.9-3.10 move it again, so no number is written here. The
   custody packet's task 4.1 named this coupling in advance.
@@ -202,7 +209,7 @@ is the largest obligation in this packet.
   must be built deliberately, by satisfying the exemption. The two are NOT
   duplicates: 3.11 proves the warning stands alone where the record earns it,
   3.12 proves it never stands alone where the record does not.
-  Registered against a WARNING rather than an error, which is what forces 3.14's
+  Registered against a WARNING rather than an error, which is what forces 3.15's
   widening.
 - [ ] 3.12 NEGATIVE `negative/shared-secret-vault-undeclared.yaml` (S-2): ONE
   provider, ONE `secret_ref` shared by two bindings, `vault` declared on ONE side
@@ -213,13 +220,21 @@ is the largest obligation in this packet.
   only in a record. Assert BOTH findings, not just the error — asserting the
   error alone would pass for an implementation that dropped the warning, and
   asserting the warning alone is the very defect the fallback exists to prevent.
-- [ ] 3.13 POSITIVE `two-namespaces.binding-template.example.yaml` (D3): two
+- [ ] 3.13 NEGATIVE `negative/exemption-one-sided-namespace.yaml` (LS-R3): one
+  `secret_ref`, one `requirement_id`, DISTINCT consumers, the SAME
+  `fetch_identity`, `identity_namespace` declared on ONE binding only. Expect
+  `shared-secret-identity`. **This pins the exemption's either-side scope**: it
+  is GREEN under the triple-only comparison — the exemption opens because the
+  triples differ — and RED under the ruled one. It is the exemption-side twin of
+  3.12, which pins the same principle on the grouping side, and the pair is why
+  both rules can be said to point the same way rather than merely asserted to.
+- [ ] 3.14 POSITIVE `two-namespaces.binding-template.example.yaml` (D3): two
   bindings, one provider, the SAME `fetch_identity` string, DISTINCT
   `identity_namespace` values, distinct consumers. Must produce NO
   `shared-fetch-identity`. This is what makes the "records the distinction"
   escape real rather than rhetorical, and it goes red if the namespace ever
   drops out of the identity key.
-- [ ] 3.14 WIDEN THE SELF-TEST'S NEGATIVE ADJUDICATION, CONCRETELY (S-3). As it
+- [ ] 3.15 WIDEN THE SELF-TEST'S NEGATIVE ADJUDICATION, CONCRETELY (S-3). As it
   stands, `_self_test` reads `NEGATIVE_EXPECTATIONS.get(path.name)` → a single
   string, and checks `any(f.startswith(want) for f in _semantic_findings(doc))`.
   Task 2.1 requires warnings to be structurally separate from
@@ -234,7 +249,7 @@ is the largest obligation in this packet.
   the existing dict so that the error path's shape and its `startswith`
   comparison are untouched — the widening adds a channel rather than editing the
   one the published check already adjudicates on.
-- [ ] 3.15 Re-derive the self-test count string from the fixtures actually
+- [ ] 3.16 Re-derive the self-test count string from the fixtures actually
   added, and update `tests/credential_contracts/` to match. Do NOT carry any
   earlier revision's number forward — this packet's fixture set has been
   restated four times under review, and the string is asserted LITERALLY.
