@@ -729,7 +729,9 @@ only structural if the keys are.
 Meta-analysis across the record and demographic planes is a first-class use case
 of this capability, carried from the same in-flight MedxChain notes' appendix, which observes
 that the neutral family's tranche-three text does not yet name this consumer
-though the anchored, segregated design already supports it.
+though the anchored, segregated design already supports it. **What that support
+reaches, and where it stops, is the block below**: the structure enables the
+analysis to run without the identity plane; it does not de-identify the result.
 
 **AND WHAT PLANE SEPARATION BUYS THAT LANE IS STATED WITHOUT OVERSTATEMENT,
 BECAUSE NOT QUERYING THE IDENTITY PLANE IS NOT DE-IDENTIFICATION.** What the
