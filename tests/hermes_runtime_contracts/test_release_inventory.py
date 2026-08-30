@@ -133,6 +133,12 @@ def _bare_origin(tmp_path: Path, name: str = "origin.git") -> Path:
     return origin
 
 
+def _write_url_redirect_config(path: Path, source: Path, target: Path) -> None:
+    path.write_text(
+        f'[url "{target.as_uri()}"]\n\tinsteadOf = {source}\n', encoding="utf-8"
+    )
+
+
 # --- deterministic inventory mutations shared with the fixture generator ------
 
 
@@ -726,6 +732,40 @@ def test_verify_promotion_uses_repo_origin_despite_indexed_config_override(
     assert release.verify_promotion(repo, commit=commit, remote="origin", tag=tag) == []
 
 
+def test_verify_promotion_ignores_hostile_global_and_system_url_redirects(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    tag = "contract-v2.0"
+    repo, commit = _repo_with_committed_inventory(tmp_path, "repo", tag)
+    origin = _bare_origin(tmp_path, "origin.git")
+    hostile = _bare_origin(tmp_path, "hostile.git")
+    _git(repo, "remote", "add", "origin", str(origin))
+    _git(repo, "push", "--quiet", "origin", "main")
+    global_config = tmp_path / "hostile-global.gitconfig"
+    system_config = tmp_path / "hostile-system.gitconfig"
+    _write_url_redirect_config(global_config, origin, hostile)
+    _write_url_redirect_config(system_config, origin, hostile)
+    monkeypatch.setenv("GIT_CONFIG_GLOBAL", str(global_config))
+    monkeypatch.setenv("GIT_CONFIG_SYSTEM", str(system_config))
+    monkeypatch.setenv("GIT_CONFIG_NOSYSTEM", "0")
+
+    assert release.verify_promotion(repo, commit=commit, remote="origin", tag=tag) == []
+
+
+def test_verify_promotion_preserves_repository_local_url_rewrite(
+    tmp_path: Path,
+) -> None:
+    tag = "contract-v2.0"
+    repo, commit = _repo_with_committed_inventory(tmp_path, "repo", tag)
+    origin = _bare_origin(tmp_path, "origin.git")
+    local_alias = "local-release-origin:"
+    _git(repo, "config", f"url.{origin.as_uri()}.insteadOf", local_alias)
+    _git(repo, "remote", "add", "origin", local_alias)
+    _git(repo, "push", "--quiet", "origin", "main")
+
+    assert release.verify_promotion(repo, commit=commit, remote="origin", tag=tag) == []
+
+
 def test_verify_promotion_rejects_an_already_published_tag(tmp_path: Path) -> None:
     tag = "contract-v2.0"
     repo, commit = _repo_with_committed_inventory(tmp_path, "repo", tag)
@@ -801,6 +841,28 @@ def test_verify_tag_uses_repo_origin_despite_config_parameters_override(
         "GIT_CONFIG_PARAMETERS",
         f"'url.{hostile.as_uri()}.insteadOf={origin}'",
     )
+
+    assert release.verify_tag(repo, remote="origin", tag=tag) == []
+
+
+def test_verify_tag_ignores_hostile_global_and_system_url_redirects(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    tag = "contract-v2.0"
+    repo, commit = _repo_with_committed_inventory(tmp_path, "repo", tag)
+    origin = _bare_origin(tmp_path, "origin.git")
+    hostile = _bare_origin(tmp_path, "hostile.git")
+    _git(repo, "remote", "add", "origin", str(origin))
+    _git(repo, "push", "--quiet", "origin", "main")
+    _git(repo, "tag", "-a", tag, "-m", "release", commit)
+    _git(repo, "push", "--quiet", "origin", tag)
+    global_config = tmp_path / "hostile-global.gitconfig"
+    system_config = tmp_path / "hostile-system.gitconfig"
+    _write_url_redirect_config(global_config, origin, hostile)
+    _write_url_redirect_config(system_config, origin, hostile)
+    monkeypatch.setenv("GIT_CONFIG_GLOBAL", str(global_config))
+    monkeypatch.setenv("GIT_CONFIG_SYSTEM", str(system_config))
+    monkeypatch.setenv("GIT_CONFIG_NOSYSTEM", "0")
 
     assert release.verify_tag(repo, remote="origin", tag=tag) == []
 
@@ -1496,6 +1558,37 @@ def test_cli_verify_promotion_and_verify_tag(tmp_path: Path) -> None:
     )
     assert missing_tag.returncode == 1
     assert "HGR-RELEASE-TAG-MISSING" in missing_tag.stdout
+
+
+def test_cli_ignores_hostile_global_and_system_url_redirects(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    tag = "contract-v2.0"
+    repo, commit = _repo_with_committed_inventory(tmp_path, "repo", tag)
+    origin = _bare_origin(tmp_path, "origin.git")
+    hostile = _bare_origin(tmp_path, "hostile.git")
+    _git(repo, "remote", "add", "origin", str(origin))
+    _git(repo, "push", "--quiet", "origin", "main")
+    global_config = tmp_path / "hostile-global.gitconfig"
+    system_config = tmp_path / "hostile-system.gitconfig"
+    _write_url_redirect_config(global_config, origin, hostile)
+    _write_url_redirect_config(system_config, origin, hostile)
+    monkeypatch.setenv("GIT_CONFIG_GLOBAL", str(global_config))
+    monkeypatch.setenv("GIT_CONFIG_SYSTEM", str(system_config))
+    monkeypatch.setenv("GIT_CONFIG_NOSYSTEM", "0")
+
+    result = _run_cli(
+        "verify-promotion",
+        "--commit",
+        commit,
+        "--remote",
+        "origin",
+        "--tag",
+        tag,
+        repo=repo,
+    )
+
+    assert result.returncode == 0, result.stderr
 
 
 def test_cli_dependency_error_is_exit_two(tmp_path: Path) -> None:

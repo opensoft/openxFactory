@@ -93,6 +93,9 @@ def _sanitized_git_environment() -> dict[str, str]:
         if name not in _SCRUBBED_GIT_ENVIRONMENT
         and _INDEXED_GIT_CONFIG_ENVIRONMENT.fullmatch(name) is None
     }
+    environment["GIT_CONFIG_GLOBAL"] = os.devnull
+    environment["GIT_CONFIG_SYSTEM"] = os.devnull
+    environment["GIT_CONFIG_NOSYSTEM"] = "1"
     environment["GIT_NO_REPLACE_OBJECTS"] = "1"
     return environment
 

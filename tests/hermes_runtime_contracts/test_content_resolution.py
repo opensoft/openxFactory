@@ -138,11 +138,40 @@ def test_sanitized_git_environment_removes_redirects_and_command_scope_config(
     }
     for name, value in inherited_overrides.items():
         monkeypatch.setenv(name, value)
+    monkeypatch.setenv("GIT_CONFIG_GLOBAL", "hostile-global-config")
+    monkeypatch.setenv("GIT_CONFIG_SYSTEM", "hostile-system-config")
+    monkeypatch.setenv("GIT_CONFIG_NOSYSTEM", "0")
 
     environment = content._sanitized_git_environment()
 
     assert inherited_overrides.keys().isdisjoint(environment)
+    assert environment["GIT_CONFIG_GLOBAL"] == os.devnull
+    assert environment["GIT_CONFIG_SYSTEM"] == os.devnull
+    assert environment["GIT_CONFIG_NOSYSTEM"] == "1"
     assert environment["GIT_NO_REPLACE_OBJECTS"] == "1"
+
+
+def test_authority_git_subprocess_ignores_inherited_config_files(
+    git_repo: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    global_config = tmp_path / "hostile-global.gitconfig"
+    system_config = tmp_path / "hostile-system.gitconfig"
+    config = '[url "file:///hostile-authority.git"]\n\tinsteadOf = authority-origin\n'
+    global_config.write_text(config, encoding="utf-8")
+    system_config.write_text(config, encoding="utf-8")
+    monkeypatch.setenv("GIT_CONFIG_GLOBAL", str(global_config))
+    monkeypatch.setenv("GIT_CONFIG_SYSTEM", str(system_config))
+    monkeypatch.setenv("GIT_CONFIG_NOSYSTEM", "0")
+
+    authority_repository = importlib.import_module(
+        "scripts.intent_compliance.authority_repository"
+    )
+    completed = authority_repository._git(
+        git_repo, "config", "--get-regexp", r"^url\..*\.insteadof$"
+    )
+
+    assert completed.returncode == 1
+    assert completed.stdout == ""
 
 
 @pytest.mark.parametrize(
