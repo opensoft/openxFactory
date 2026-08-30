@@ -1,0 +1,44 @@
+# NEGATIVE (expect: shared-secret-identity). A qualified reference that resolves
+# to MORE THAN ONE requirement record — condition five fails, and the ambiguity
+# is reported exactly as a reference resolving to nothing is.
+#
+# The target is `support/ambiguous-requirement-ids.requirements.yaml`, which
+# declares the id `projection_sync_lane` TWICE with DIFFERENT access modes. This
+# schema requires only a string `id` on a requirement and imposes no
+# repository-wide uniqueness, so this record is perfectly valid and the
+# ambiguity is real.
+#
+# AN IMPLEMENTATION MUST NOT RESOLVE IT BY PICKING ONE. The two matches carry
+# different access modes, so a rule whose outcome depends on which was found
+# first is not a rule — it is a traversal order with an opinion.
+schema_version: 1
+kind: xfactory_credential_binding_template
+client:
+  id: example-client
+credential_bindings:
+  projection_sync_lane:
+    provider: azure_key_vault
+    vault: kv-example-projection
+    secret_ref: example-projection-operated-identity
+    owner: example-platform
+    rotation_policy: operator_managed
+    consumer:
+      holder_ref: example:service-subject:projection-sync-lane
+      fetch_identity: example-sync-lane-workload-identity
+      requirement_ref:
+        requirement_id: projection_sync_lane
+        requirements_document_ref: support/ambiguous-requirement-ids.requirements.yaml
+      shared_credential_acknowledged: true
+  projection_editor_surface:
+    provider: azure_key_vault
+    vault: kv-example-projection
+    secret_ref: example-projection-operated-identity
+    owner: example-platform
+    rotation_policy: operator_managed
+    consumer:
+      holder_ref: example:service-subject:projection-editor-surface
+      fetch_identity: example-editor-surface-workload-identity
+      requirement_ref:
+        requirement_id: projection_editor_surface
+        requirements_document_ref: support/ambiguous-requirement-ids.requirements.yaml
+      shared_credential_acknowledged: true

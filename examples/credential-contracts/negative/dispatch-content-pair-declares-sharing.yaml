@@ -1,0 +1,42 @@
+# NEGATIVE (expect: shared-secret-identity). A dispatch credential and a content
+# credential sharing one secret_ref, declaring themselves shared HONESTLY: each
+# reference names its OWN map key, so condition six holds. The pair is still
+# refused, by condition five — the resolved access modes DIFFER, and one of them
+# is dispatch_only.
+#
+# The serving tier would hold key material capable of minting a content-write
+# token, and no acknowledgment can make that intentional. Canon's dispatch
+# requirement carries this as an UNCONDITIONAL refusal with no lift and no
+# acknowledgment, and this fixture is what keeps that true beside a neighbouring
+# requirement that does grant a conditional exemption.
+schema_version: 1
+kind: xfactory_credential_binding_template
+client:
+  id: opensoft
+credential_bindings:
+  intent_dispatch:
+    provider: azure_key_vault
+    vault: kv-opensoft-xfactory-qa
+    secret_ref: xfactory-content-app
+    owner: opensoft-platform
+    rotation_policy: operator_managed
+    consumer:
+      holder_ref: example:service-subject:intent-serving-tier
+      fetch_identity: example-serving-tier-workload-identity
+      requirement_ref:
+        requirement_id: intent_dispatch
+        requirements_document_ref: openxdox-dispatch.requirements.example.yaml
+      shared_credential_acknowledged: true
+  corpus_content_write:
+    provider: azure_key_vault
+    vault: kv-opensoft-xfactory-qa
+    secret_ref: xfactory-content-app
+    owner: opensoft-platform
+    rotation_policy: operator_managed
+    consumer:
+      holder_ref: example:service-subject:corpus-apply-lane
+      fetch_identity: example-apply-lane-workload-identity
+      requirement_ref:
+        requirement_id: corpus_content_write
+        requirements_document_ref: openxdox-dispatch.requirements.example.yaml
+      shared_credential_acknowledged: true

@@ -1,0 +1,30 @@
+# WARNING (expect: consumer-token-not-true). The instantiation-stub token
+# declared FALSE.
+#
+# The delta originally made this an immediate ERROR. A bot round pointed out that
+# `consumer: {instantiation_stub: false}` VALIDATES on the current major —
+# verified — so refusing it in a minor is a new refusal like any other, and it
+# phases like any other. It warns now and errors at the major.
+#
+# TWO ACTS, NOT ONE, and the distinction is what let this code be a warning at
+# all. Refusing a RECORD is a narrowing and needs its deprecation release.
+# WITHHOLDING THE LIFT from a pair carrying a false-valued acknowledgment is
+# neither: the lift requires the token DECLARED TRUE, a false value is not a
+# declaration, and declining to grant an exemption is not refusing a record. So
+# the lift is unavailable to such a pair at BOTH releases while the record stays
+# valid at this one.
+schema_version: 1
+kind: xfactory_credential_binding_template
+client:
+  id: example-client
+credential_bindings:
+  projection_sync_lane:
+    provider: azure_key_vault
+    vault: kv-example-projection
+    secret_ref: example-projection-sync-secret
+    owner: example-platform
+    rotation_policy: operator_managed
+    consumer:
+      holder_ref: example:service-subject:projection-sync-lane
+      fetch_identity: example-sync-lane-workload-identity
+      instantiation_stub: false
