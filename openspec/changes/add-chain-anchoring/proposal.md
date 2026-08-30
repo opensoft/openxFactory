@@ -169,7 +169,9 @@ three as named requirements:
 3. **The domain-instantiation mapping** (requirement 9). MedxChain and HealthLinc
    are MedxFactory's instantiations; LedgerLinc is LedgerxFactory's; the neutral
    layer authors no domain content. The notes read as an early, domain-specific
-   sketch of the same shape, predating the neutral family by eighteen months.
+   sketch of the same shape, PREDATING the neutral family — with no interval
+   stated, on LQ-A5's ground: the figure this once read was wrong, nothing here
+   turns on how long, and the dates belong to the vendored document.
 
 **And one CORRECTION to the source, raised rather than inherited.** The notes
 segregate three databases but carry ONE shared record digest across all three,

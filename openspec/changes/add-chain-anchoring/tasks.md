@@ -129,10 +129,16 @@ standing in for a ruleset state.
         label on the strength of separation alone, and leaves the named
         determination to the domain overlay.
 
-      SHORTLY AFTER, one sweep commit retired the *"already supports it"*
-      wording the de-identification fix had answered but not replaced — the
-      `455bbdaa` lesson this packet already recorded, that a correction in a new
-      paragraph does not retire the old wording elsewhere.
+      TWO SWEEP COMMITS FOLLOWED, both of them the `455bbdaa` lesson this
+      packet already recorded — *a correction stated in a new paragraph does not
+      retire the old wording elsewhere in the packet, and a sweep is part of the
+      fix*. One retired the *"already supports it"* wording the
+      de-identification fix had answered but not replaced. The other struck
+      *"eighteen months"* from `proposal.md` as well: **LQ-A5 named only
+      `spec.md:658-659` and the disposition scoped it to the requirement text,
+      so the blocking amendment was discharged with the proposal's copy still
+      standing** — Copilot caught it on the fix round's own pull request, which
+      is the same propagation path LQ-F4 named.
 
       SHOULD-FIX items (LA-A7, LS-A7/A8/A9, LQ-A10/A11/A12/A14, CPL-A5) are
       **UNDISPOSED by the ruling and stay open** — disposition §6 says so
