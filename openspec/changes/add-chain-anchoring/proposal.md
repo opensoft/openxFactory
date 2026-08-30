@@ -263,7 +263,7 @@ packet's permission to withhold.
 ### New Capabilities
 
 - `chain-anchoring`: the neutral public anchoring layer and the permissioned
-  consent plane, **NINE ADDED requirements over 47 scenarios**, no `## MODIFIED
+  consent plane, **NINE ADDED requirements over 48 scenarios**, no `## MODIFIED
   Requirements` block anywhere — a chain-agnostic multi-anchor receipt defined
   FIRST and refused at capture time if it omits transaction bytes or an inclusion
   proof; the ruled two-witness configuration with no selectivity and no third

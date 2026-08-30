@@ -113,6 +113,19 @@ reconcile where one was owed — and on the operational witness, whose transacti
 are pruned within days, a second anchor is a second thing that must be captured
 before it disappears. The cheapest correct act is completion.
 
+**A PENDING WITNESS CONTRIBUTES NO RECEIPT ENTRY, AND THIS IS WHERE THE TWO
+REQUIREMENTS WOULD OTHERWISE COLLIDE.** Requirement 1 refuses a receipt entry
+missing its transaction bytes or inclusion proof AT CAPTURE TIME; requirement 3
+speaks of a "pending receipt" completed in place. Read carelessly those are in
+tension, and the tension is resolved by the receipt's own rule rather than by an
+exception to it: **the per-chain list gains an entry only when that chain's
+material is captured WHOLE**, so a witness in flight lives in the ANCHOR-STATE
+record and never as a half-filled entry. "Completing in place" is APPENDING an
+entry against the digest the receipt already commits to. The clarification is
+written into requirement 3 with its own scenario, because a reader who has to
+derive it will instead implement the half-filled entry — and a half-filled entry
+is precisely the receipt shape that proves nothing.
+
 **Rejected alternatives, and why each fails.**
 
 1. **Refuse the act until both witnesses land.** Refuses every item for hours in

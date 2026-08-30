@@ -21,7 +21,7 @@ standing in for a ruleset state.
 
 ## 1. Spec deltas and the packet (THIS PULL REQUEST)
 
-- [x] 1.1 `chain-anchoring` — **NINE ADDED requirements over 47 scenarios**, in
+- [x] 1.1 `chain-anchoring` — **NINE ADDED requirements over 48 scenarios**, in
       the order the exit path requires: the multi-anchor receipt FIRST, then the
       ruled two-witness configuration, the missing-witness semantics, anchor-late,
       the commitment boundary with its refusing validator, the permissioned

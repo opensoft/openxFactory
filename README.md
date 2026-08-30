@@ -452,7 +452,7 @@ Active changes:
   per-plane keys are derived under per-plane salts. **Q5 IS COMPLIED WITH
   POSITIVELY**: today's evidence-only posture is stated in the present tense, with
   **no "never"** and **NO TRIGGER CONDITION**, because the ruling refused both.
-  **NINE ADDED requirements over 47 scenarios, no MODIFIED block anywhere** — a
+  **NINE ADDED requirements over 48 scenarios, no MODIFIED block anywhere** — a
   NEW capability `chain-anchoring` rather than a second ADDED block on
   `signed-execution-chain`, which avoids the sibling-delta shape of issue #502
   outright. The change id and capability **diverge from the ratified working id**

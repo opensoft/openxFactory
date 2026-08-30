@@ -172,6 +172,17 @@ calendar returns and the item SHALL NOT be re-anchored — re-anchoring would mi
 a second transaction for the same digest and leave two proofs to keep where one
 was owed.
 
+**A PENDING WITNESS CONTRIBUTES NO RECEIPT ENTRY, WHICH IS WHY THIS DOES NOT
+CONTRADICT THE CAPTURE-TIME REFUSAL ABOVE.** The receipt's per-chain list SHALL
+gain an entry only when that chain's anchor transaction bytes, inclusion proof
+and block header have been captured WHOLE — so a witness still in flight is
+recorded in the ANCHOR-STATE record as pending, and never as a half-filled
+receipt entry. "Completing the pending receipt in place" therefore means
+APPENDING the entry once the material is captured whole, against the same
+digest the receipt already commits to; there is no state in which a receipt
+carries an entry missing its bytes or its proof, and the requirement above
+refuses that entry at capture time exactly as written.
+
 **THE INCOMPLETENESS IS ITSELF EVIDENCE, SO A SILENT GAP IS IMPOSSIBLE.** Entry
 into `anchor_pending`, every horizon breach, and the eventual completion SHALL
 each be written as a leaf in the evidence plane. Past its horizon an item stays
@@ -211,6 +222,12 @@ stops it becoming a habit.
 - WHEN a horizon elapses and a configured witness has not landed
 - THEN the breach is written as a leaf, the item stays `anchor_incomplete`, and an operator obligation is raised
 - AND no path other than a captured receipt is permitted to move the item to complete
+
+#### Scenario: a receipt entry is written for a witness still in flight
+
+- WHEN a realization writes a per-chain receipt entry for an anchor whose bytes and inclusion proof are not yet captured
+- THEN it is REFUSED at capture time, and the pending witness is recorded in the anchor-state record instead
+- AND completion later APPENDS the entry against the same digest, so no receipt ever carries an entry missing its proof
 
 #### Scenario: an aggregate anchored flag is proposed
 
