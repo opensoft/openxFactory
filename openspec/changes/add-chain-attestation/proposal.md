@@ -1,5 +1,5 @@
 ---
-code_surface: openxFactory — AN EXTENSION OF THE TRANCHE-ONE CONTRACT FAMILY PLUS AN EXTENSION OF ITS RUNNING GATE, declared honestly because this tranche is not doctrine-only. `contracts/signed-execution-chain/` gains FIVE record kinds and one field discipline — the harness-controller SETUP ATTESTATION (link 4), the RUNNER ATTESTATION (link 5) carried together with the SIGNING REQUEST recorded beside its signature, the signed PR-OPEN DECISION (link 6), the CLOSURE record of the governed post-merge test (link 10), and the REMEDIATION DECLARATION that names an unclosed chain as a repairing chain's signed subject — plus the per-fact EVIDENCE CLASS (`controller_corroborated` / `hardware_attested` / `runner_claimed`) that keeps a runner's self-report from being read as controller-attested fact. `scripts/validate-signed-execution-chain.py` gains one named refusal per negative example, and the SHORT-CHAIN GATE tranche one wired as a required pull-request check EXTENDS from links 1–3 to links 1–6 — the same check, a longer walk, not a second gate. Packaged positive AND negative examples for every named refusal. Registration in `contracts/manifest.yaml` + `contracts/CHANGELOG.md` at the next additive bundle cut. NO CERTIFICATE AUTHORITY, NO issuance pipeline, NO key service, NO HSM procurement, NO anchor, NO chain, NO commitment format, NO consent plane — anchoring is the named tranche-three successor `add-chain-anchoring` and carries its own code surface. NO CHANGE TO `contracts/omnigent/omnigent-domain-overlay.schema.yaml` — no sixth archetype, no seventh permission boolean, and no widening of a closed matrix. NO SECOND identity, certificate, digest or proof vocabulary is defined: certificates are `add-trust-anchor`'s, signer identity is `add-identity-brokering`'s, and the digest construction is the ONE tranche one already put in force for every digest this capability computes.
+code_surface: openxFactory — AN EXTENSION OF THE TRANCHE-ONE CONTRACT FAMILY PLUS AN EXTENSION OF ITS RUNNING GATE, declared honestly because this tranche is not doctrine-only. `contracts/signed-execution-chain/` gains FIVE record kinds and one field discipline — the harness-controller SETUP ATTESTATION (link 4), the RUNNER ATTESTATION (link 5) carried together with the SIGNING REQUEST recorded beside its signature, the signed PR-OPEN DECISION (link 6), the CLOSURE record of the governed post-merge test (link 10), and the REMEDIATION DECLARATION that names an unclosed chain as a repairing chain's signed subject — plus the per-fact EVIDENCE CLASS (`controller_corroborated` / `independently_observed` / `runner_claimed`, ORDERED and composed with the ratified `contracts/trust-anchor/trust-anchor-chain-custody.registry.yaml` rather than beside it) that keeps a runner's self-report from being read as controller-attested fact. `scripts/validate-signed-execution-chain.py` gains one named refusal per negative example, and the SHORT-CHAIN GATE tranche one wired as a required pull-request check EXTENDS from links 1–3 to links 1–6 — the same check, a longer walk, not a second gate. Packaged positive AND negative examples for every named refusal. Registration in `contracts/manifest.yaml` + `contracts/CHANGELOG.md` at the next additive bundle cut. NO CERTIFICATE AUTHORITY, NO issuance pipeline, NO key service, NO HSM procurement, NO anchor, NO chain, NO commitment format, NO consent plane — anchoring is the named tranche-three successor `add-chain-anchoring` and carries its own code surface. NO CHANGE TO `contracts/omnigent/omnigent-domain-overlay.schema.yaml` — no sixth archetype, no seventh permission boolean, and no widening of a closed matrix. NO SECOND identity, certificate, digest or proof vocabulary is defined: certificates are `add-trust-anchor`'s, signer identity is `add-identity-brokering`'s, and the digest construction is the ONE tranche one already put in force for every digest this capability computes. ONE `## MODIFIED Requirements` BLOCK, added in the 2026-08-30 council fix round, restates tranche one's gate requirement SCENARIO-COMPLETE AT ALL NINE SCENARIOS to re-scope the gate and extend its closed-list mapping table to all eighteen of this capability's requirements — it moves the SAME contract bytes the ADDED-only draft did and adds no record kind.
 target_release: THE NEXT ADDITIVE MINOR, DELIBERATELY NOT NUMBERED HERE — allocated AT REALIZATION by merge order per `docs/contract-versioning-policy.md`. The figure is deliberately withheld rather than forgotten: `contracts/manifest.yaml:3` declares `contract_bundle_version: contract-v2.2` at this branch's tip, and `add-signed-execution-chain` — this packet's own predecessor — already names the next additive cut for the family's first contract bytes. A number written here would be a number another packet is already spending, and the realization confirms it against the manifest at ITS tip rather than trusting this line. THE CLASS IS ADDITIVE and nothing narrows: new record kinds in a family whose first cut has not shipped, no existing schema changes, no consumer pinned at the current bundle is made non-conformant, and no domain is obliged to adopt a chain. The one obligation that reaches an existing artifact — the gate's longer walk — reaches a check this family itself owns and that no domain runs.
 Status: draft
 Proposed: 2026-08-29
@@ -196,8 +196,9 @@ capability tranche one created.
 
 ### Modified Capabilities
 
-- `signed-execution-chain`: **NINE ADDED requirements over 59 scenarios**, and
-  **no `## MODIFIED Requirements` block anywhere** — the harness-controller
+- `signed-execution-chain`: **NINE ADDED requirements over 67 scenarios**, plus
+  **ONE `## MODIFIED Requirements` block — tranche one's gate requirement,
+  SCENARIO-COMPLETE AT ALL NINE OF ITS SCENARIOS** — the harness-controller
   setup attestation under a `trust-anchor` certificate; runner attestations
   signed at the controller on a recorded request, with signer identity refused
   the persona population; the controller corroborating rather than notarizing,
@@ -211,37 +212,74 @@ capability tranche one created.
   non-inheritable; and the executing layer refusing a step whose inbound chain
   does not verify.
 
-## Why this delta is ADDED-ONLY, and the one composition that needed writing down
+## Why this delta now carries ONE MODIFIED block, and why the ADDED-only draft was wrong
 
-**There is no `## MODIFIED Requirements` block in this packet.** That is a
-deliberate choice with a cost, and both are recorded.
+**The council ruled it, and it was proved by construction rather than argued.**
+The §7.4 sitting of 2026-08-30 was **UNANIMOUS 4/4 that this packet as drafted
+was not ratifiable**, and its decisive finding was reached by BUILDING the canon
+these two changes actually promote: `lead-architect` archived tranche one and
+then this packet into a scratch tree and read the result. It composed
+mechanically — 18 requirements, 104 scenarios, `openspec` reporting `~ 0`
+modified — **and held two contradictory scenarios on one antecedent, both
+normative, both promoted:**
 
-Tranche one's gate requirement bounds itself: *"The gate's scope at this tranche
-is links 1–3 and it SHALL NOT report the absence of a later tranche's link as a
-break, because a gate cannot walk a link that does not exist yet"*, with a
-scenario headed **"a tranche-two link does not exist yet"**. Read as a standing
-rule, that sentence would let a chain carrying no attestation links pass the gate
-forever. Read as what it says — a scope note conditioned on a link that does not
-exist YET — it is spent the moment this tranche's links exist.
+```
+promoted canon :552   a chain carrying no attestation link
+                      -> "validates links 1–3 … the absent later link is not reported as a break"
+promoted canon :1141  the same chain, after this tranche
+                      -> REFUSES
+```
 
-**This packet takes the second reading and writes it into requirement text**
-rather than leaving it to a reader: requirement 6 states that links 4–6 STOP
-BEING "a later tranche's link" on this tranche's realization, and carries a
-scenario for exactly the chain that arrives with links 1–3 only. **The reading is
-reported as a reading, not applied silently** — it is in the delta, in
-`design.md` D3, and in this pull request's body, and it is the second thing the
-council is asked to rule on after Q4.
+**The earlier draft's reasoning about the SENTENCE was right, and its conclusion
+about the SCENARIO was wrong.** Tranche one's scope note does self-limit — *"at
+this tranche"*, *"a later tranche's link"*, *"a link that does not exist yet"* —
+but **prose in one requirement cannot repeal a scenario living in another**, and
+no validator in the estate notices, because each delta is independently valid.
 
-**Why not a MODIFIED delta instead.** Tranche one is an ACTIVE change: its
-requirement lives in a sibling's ADDED delta and not in `openspec/specs/`, so a
-MODIFIED block here would restate a requirement that canon does not yet hold, and
-its correctness would depend on which of the two changes archives first. That is
-the promotion-order hazard the repository is currently governing in its own right
-(openxFactory issue **#502** and the `govern-sibling-added-modified-deltas`
-change raised against it). **If the council rules the composition insufficient,
-the repair is a scenario-complete MODIFIED restatement of tranche one's gate
-requirement — all twelve scenarios, not the two that change** — and this packet
-names that as the remedy rather than leaving the alternative unstated.
+**The repair is in this packet:** a `## MODIFIED Requirements` block over tranche
+one's gate requirement, **SCENARIO-COMPLETE AT ALL NINE OF ITS SCENARIOS** (the
+figure is nine — an earlier draft said *twelve* at four sites, and three seats
+measured it independently at nine). It re-scopes the gate to the links the
+RATIFIED TRANCHES have put in force, re-conditions the scenario on a link no
+tranche has yet put in force, and **extends the closed-list mapping table from
+nine rows to all eighteen** of this capability's requirements — because tranche
+one's *"THE LIST IS CLOSED … every requirement of THIS CAPABILITY is either
+walked here or has its enforcement point named below"* is scoped to the
+CAPABILITY, so promoted canon would otherwise have asserted that this packet's
+own nine are requirements the capability does not enforce.
+
+**The cost the earlier draft named is real, is accepted, and is recorded.**
+Tranche one is an ACTIVE change: its requirement lives in a sibling's ADDED delta
+and not in `openspec/specs/`, so this MODIFIED block restates a requirement canon
+does not yet hold and its correctness depends on ARCHIVE ORDER — tranche one
+first, the only order in which this capability exists to be modified. That is the
+promotion-order hazard the repository is governing in its own right (openxFactory
+issue **#502** and `govern-sibling-added-modified-deltas`, PR #504). It is a
+known dependency of this packet, not a reason to leave prose where a delta
+belongs.
+
+## The naming divergence, stated rather than left to be noticed
+
+`add-signed-execution-chain`'s ratified text
+(`openspec/changes/add-signed-execution-chain/proposal.md:82-100`) names this
+tranche **`add-signed-execution-chain-attestation` (working id)** and its sibling
+**`add-signed-execution-chain-anchoring` (working id)**. Both are raised under
+shorter identifiers — **`add-chain-attestation`** here and
+**`add-chain-anchoring`** for tranche three — and **the word "working" in the
+ratified text is what admits the change**: no ratified identifier is broken,
+because tranche one marked both successor names as provisional on their face. It
+is recorded here rather than glossed, because a reader arriving from the ratified
+packet will look for the longer name and should find out in ONE PLACE why it is
+not there. **Nothing else moved**: the successor this packet raises is the
+successor that packet named, with the same content boundary — links 4–6 and 10.
+
+**This section is owed, and it is owed because the sibling already paid it.**
+`add-chain-anchoring` carries the same section; a grep for the long id in this
+packet returned zero before this round. The council's decision 12 ruled the short
+ids STAND and that **#510 owes the back-citation #513 already made**. A
+back-citation in the RATIFIED packet itself — so a reader grepping tranche one
+for its successors finds the ids as raised — is a separate, later act on that
+change and is not performed here.
 
 ## Impact
 
@@ -268,16 +306,23 @@ names that as the remedy rather than leaving the alternative unstated.
 Recorded rather than smoothed, on this family's contested-finding rule. **Neither
 is resolved by this packet's own authority; both are review material.**
 
-**1. Q4's re-derivation instruction versus drafting tranche two now.** Stated in
-full above, at the top, because it is an objection to the packet's existence
-rather than to a line in it. The packet's position — ratifies-not-realizes, a
-boundary drawn against ratified vocabulary rather than unbuilt shape, and the
-re-derivation carried as a realization obligation — is an argument, not a
-disposition.
+**1. Q4's re-derivation instruction versus drafting tranche two now. RULED
+2026-08-30: NOT PREMATURE, BUT NARROWED.** The §7.4 sitting ruled the threshold
+question in this packet's favour on all three seats whose charter reaches it, and
+narrowed it: the re-derivation tranche one's ratified `tasks.md:5.3` owes *"when
+each is raised"* is due AT THIS RAISING and not only at realization. **It is now
+PERFORMED, dated and measured, at `design.md` D7a**, and the boundary it derives
+confirms links 4–6 and 10 with no link moved. The packet's original position —
+ratifies-not-realizes, a boundary drawn against ratified vocabulary rather than
+unbuilt shape — survives the ruling and is no longer the packet's only answer.
 
-**2. Tranche one's gate scope note versus the extended walk.** Stated in full
-above. The packet takes the self-limiting reading and writes it down; the
-alternative repair is named.
+**2. Tranche one's gate scope note versus the extended walk. RESOLVED
+2026-08-30, AGAINST THE PACKET'S FIRST READING.** The earlier draft took the
+self-limiting reading and wrote it into requirement text. The council proved by
+construction that prose cannot repeal a scenario in another requirement, and the
+packet now carries the scenario-complete MODIFIED restatement it had named only
+as an alternative. **The contested pull is discharged rather than carried**, and
+what remains recorded is that this packet got it wrong first.
 
 **3. The topic's link table gives link 5 a plural signer, and the hash-link rule
 it states is singular.** *"Every link from enrollment onward signs over two

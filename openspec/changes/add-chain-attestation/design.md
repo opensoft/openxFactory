@@ -58,8 +58,8 @@ non-conformant if it stays silent.
 **Decision.** The controller corroborates a submitted payload against its own
 link-4 setup attestation before signing, refuses to sign a claim about something
 it provisioned that it cannot match, and every attested fact carries an EVIDENCE
-CLASS — `controller_corroborated`, `hardware_attested`, or `runner_claimed`. **An
-unclassed fact is refused.**
+CLASS — `controller_corroborated`, `independently_observed`, or `runner_claimed`.
+**An unclassed fact is refused.**
 
 **Why this is a separate requirement from D1's mechanism, and not a clause inside
 it.** Q7 settles WHERE THE KEY LIVES. It settles nothing about whether the claims
@@ -82,46 +82,134 @@ the fact.** The refusal of an UNCLASSED fact follows tranche one's untagged-dige
 rule: a marker that may be omitted will be, and an unclassed fact is read at the
 strength of the strongest fact beside it.
 
-## D3 — The gate's extension is ADDED, not MODIFIED, and the reading is written down
+**AND THE SET IS COMPOSED WITH THE RATIFIED CUSTODY LADDER RATHER THAN LEFT
+BESIDE IT — the council's LA-A3, discharged here.** The estate already owns a
+ratified, CLOSED assurance vocabulary on a neighbouring axis:
+`contracts/trust-anchor/trust-anchor-chain-custody.registry.yaml`, ratified by
+`add-trust-anchor` (Brett Heap, 2026-08-21, OQ2) and realized at
+`contract-v1.37`. It ranks `assurance_levels` 0/1/2, DERIVES `evidences` from two
+booleans, forbids independent assertion, and carries a `composes_with` block
+naming openxwallet's registry *"so the two sets cannot drift into two custody
+models."* The first draft of this packet minted a three-member class beside it
+and named the registry nowhere.
 
-**Decision.** This packet carries NO `## MODIFIED Requirements` block. The gate's
-extension from links 1–3 to links 1–6 is an ADDED requirement that states, in
-requirement text, that links 4–6 stop being "a later tranche's link" on this
-tranche's realization.
+**The axes are DISTINCT, and this packet says which is which rather than
+implying it.** The registry classes WHOSE ACT A SIGNATURE EVIDENCES — a property
+of the certificate's custody. This set classes WHERE A FACT INSIDE THE SIGNED
+PAYLOAD CAME FROM — a property of the claim, not of the key. They are therefore
+composed rather than merged, on the registry's own pattern: an explicit
+composition statement in requirement 3, a declared reading ORDER (the signing
+certificate's custody ceiling BOUNDS what any fact under it evidences, so no
+evidence class raises a fact above it), and a declared ORDERING WITHIN this set —
+**`runner_claimed` < `controller_corroborated` < `independently_observed`**, on
+one discriminator: how many parties independent of the claimant established the
+fact. The strength sentence above ("read at the strength of the strongest fact
+beside it") is a comparison, and a comparison over an undeclared order is not a
+rule.
 
-**The problem.** Tranche one's gate requirement says *"The gate's scope at this
-tranche is links 1–3 and it SHALL NOT report the absence of a later tranche's
-link as a break, because a gate cannot walk a link that does not exist yet"*, and
-carries a scenario headed **"a tranche-two link does not exist yet"** whose WHEN
-is *"the gate walks a chain that carries no attestation link"* and whose THEN is
-that the absence *"is not reported as a break"*. Left alone after tranche two
-lands, that is a permanent exemption for exactly the chain this tranche exists to
-refuse.
+**AND THE THIRD MEMBER IS RENAMED, BECAUSE THE REGISTRY EXCLUDES WHAT IT WAS
+CALLED.** The first draft named it `hardware_attested`. That registry's
+`excluded_models` refuses `asserted_hardware_backing` BY NAME and gives the
+reason: *"the family's own live canary runs certificates whose keys are
+hardware-resident and usable by the host without limit, and those evidence the
+HOST … where the key physically lives is a fact about blast radius that belongs
+in `notes`, never a tier."* A member called `hardware_attested` would have
+re-opened on this axis exactly the hole that ruling closed on the other. The
+property the class actually asserts is **INDEPENDENT OBSERVATION** — the
+requirement's own first sentence already said so — so the member is named
+`independently_observed`, hardware attestation is recorded as ONE MECHANISM that
+supplies it, and a hardware mechanism observing nothing independent of the
+claimant earns nothing. Of LA-A3's three options — justify, rename, or drop to
+two — **rename is taken**, because the property is real and worth a class; it is
+only the name that borrowed an excluded discriminator.
 
-**Why ADDED is the right instrument and not a dodge.** The sentence is
-SELF-LIMITING on its own face — "at this tranche", "a later tranche's link", "a
-link that does not exist yet", and a scenario heading that names its own
-expiry. Tranche one wrote it that way deliberately, in the same requirement that
-declares the hash-link rule takes effect at tranche two's first signed link. A
-MODIFIED block would be restating a requirement to say what it already says.
+## D3 — The gate's extension is a SCENARIO-COMPLETE MODIFIED restatement, and the earlier ADDED-only reading is recorded as WRONG
 
-**And the alternative carries a cost this packet is not entitled to impose
-silently.** Tranche one is an ACTIVE change: its gate requirement lives in a
-sibling's ADDED delta, NOT in `openspec/specs/`. A MODIFIED block here would
-restate a requirement canon does not yet hold, and its correctness would depend
-on archive order — the promotion-order hazard the repository is governing in its
-own right (issue **#502**, and the `govern-sibling-added-modified-deltas` change
-raised against it as PR #504). Restating it would also cost twelve scenarios of
-verbatim carry, and the #329/#330 loss class is what happens when a restatement
-carries fewer scenarios than the original.
+**Decision, as amended by the §7.4 council review of 2026-08-30.** This packet
+carries a `## MODIFIED Requirements` block over tranche one's gate requirement
+*"A gate validates the short chain as a hash-linked chain"*, **SCENARIO-COMPLETE
+AT ALL NINE OF ITS SCENARIOS**. The gate's re-scoping and the amendment of the
+`a tranche-two link does not exist yet` scenario happen WHERE THAT REQUIREMENT
+LIVES. The ADDED requirement 6 still carries the extended walk; what it no longer
+does is try to repeal a scenario in a different requirement by describing it.
 
-**The reading is REPORTED, not applied silently.** It is in the delta's
-requirement 6 body, it has its own scenario ("a chain carrying links 1–3 only
-reaches the gate after this tranche is in force"), it is in the proposal, it is
-in the pull request body, and **it is the second thing the council is asked to
-rule on.** If a seat rules the composition insufficient, the named repair is a
-SCENARIO-COMPLETE MODIFIED restatement of tranche one's gate requirement — all
-twelve scenarios, not the two that change.
+**THE EARLIER READING WAS WRONG, AND IT IS RECORDED AS WRONG RATHER THAN
+REPLACED QUIETLY.** This section previously decided that NO MODIFIED block was
+needed, on the ground that tranche one's scope note is SELF-LIMITING — *"at this
+tranche"*, *"a later tranche's link"*, *"a link that does not exist yet"*, and a
+scenario heading naming its own expiry — and therefore SPENT once tranche two's
+links exist. The reasoning about the SENTENCE was right. **The conclusion about
+the SCENARIO was not, and the difference is the whole finding.** A scope note
+that self-limits still leaves a normative SCENARIO standing in canon, and **prose
+in one requirement cannot repeal a scenario in another.**
+
+**IT WAS PROVED BY CONSTRUCTION, NOT ARGUED.** `lead-architect` copied the
+repository's `openspec/`, dropped both deltas beside each other and ran the
+estate's own promotion tool twice — tranche one, then this packet — and read the
+canon they actually produce. It composed MECHANICALLY (18 requirements, 104
+scenarios, `openspec` reporting `~ 0` modified, no collision, no error) and NOT
+SEMANTICALLY:
+
+```
+promoted canon :552   #### Scenario: a tranche-two link does not exist yet
+                      WHEN the gate walks a chain that carries no attestation link
+                      THEN it validates links 1–3 and returns a verdict scoped to them
+                      AND the absent later link is not reported as a break
+
+promoted canon :1141  #### Scenario: a chain carrying links 1–3 only reaches the
+                      gate after this tranche is in force
+                      WHEN a chain presents the ratification, the inception and the
+                      traveling contract and no attestation links at all
+                      THEN the gate REFUSES to permit the terminal act
+```
+
+**Same antecedent. Opposite consequent. Both normative. Both promoted.** The
+archive line `~ 0` is itself the proof that nothing was modified to reconcile
+them, and no validator in the estate notices, because each delta is independently
+valid. That is the sitting's decisive finding and this block is its repair.
+
+**AND THE CLOSED-LIST CLAUSE FELL OUT OF THE SAME CONSTRUCTION — LA-A2.**
+Tranche one's gate requirement carries *"**THE LIST IS CLOSED** … every
+requirement of **this capability** is either walked here or has its enforcement
+point named below"* — scoped to the CAPABILITY, not to the tranche — above a
+mapping table of NINE rows. After promotion "this capability" numbers EIGHTEEN
+requirements, so canon would have asserted, in its own words, that this packet's
+own nine are *"requirement[s] this capability does not enforce."* The MODIFIED
+block takes LA-A2's option (i), the better repair: **the table is extended to all
+eighteen**, each new row naming where that requirement is enforced — the extended
+walk's link-4/5/6 legs, the controller-time refusals a gate cannot observe, the
+closure and consumer horizons after the merge, the execution-time precondition
+before it, and the custody rule that is a design obligation and not a per-chain
+check. Option (ii) — re-scoping the clause to the links the requirement walks —
+was available and is not taken: the table is the reader's index to where each
+obligation is enforced, and losing that at eighteen requirements costs more than
+at nine.
+
+**WHAT THE MODIFIED BLOCK CHANGES, AND WHAT IT CARRIES VERBATIM.** Substantively
+it changes exactly two things — the gate's SCOPE SENTENCE, from "links 1–3 at
+this tranche" to the links the ratified tranches have put in force, with the
+scope note stated as unavailable for a link now in force; and the SCENARIO, whose
+antecedent is re-conditioned on a link NO ratified tranche has yet put in force —
+plus LA-A2's table extension. **Everything else is carried verbatim, and all NINE
+scenarios are restated**, on the promotion-fidelity lesson of PR #331: a MODIFIED
+delta that restates a subset silently drops the rest, invisibly to every count.
+
+**THE FIGURE WAS NINE AND THIS PACKET SAID TWELVE — LQ-A1.** Four sites in the
+earlier draft priced the restatement at *"all twelve scenarios"*. `lead-quality`
+counted; three seats counted independently; the answer is **NINE**. The figure is
+corrected everywhere it appeared, because a restatement briefed at twelve that
+lands nine is itself the promotion-fidelity defect it was quoting.
+
+**THE COST THE EARLIER READING NAMED IS REAL AND IS ACCEPTED RATHER THAN
+AVOIDED.** Tranche one is an ACTIVE change: its gate requirement lives in a
+sibling's ADDED delta, NOT in `openspec/specs/`, so this MODIFIED block restates
+a requirement canon does not yet hold and its correctness depends on ARCHIVE
+ORDER — tranche one first, which is the order the verifier above runs and the
+only order in which this capability exists to be modified. That is the
+promotion-order hazard the repository is governing in its own right (issue
+**#502**, and `govern-sibling-added-modified-deltas`, PR #504). The hazard is
+recorded here as a known dependency of this packet rather than as a reason to
+keep prose where a delta belongs.
 
 ## D4 — Plural predecessors: the topic's hash-link rule is singular and link 5 is not
 
@@ -245,6 +333,83 @@ an obligation OF THE REALIZATION, not a box this packet ticks.
 forbidding the drafting of tranche two until both planes are real. That reading
 is on the text, this packet cannot rule it out, and the council is where it goes.
 
+## D7a — THE RAISING-TIME RE-DERIVATION, PERFORMED — 2026-08-30
+
+**This section is an ACT OF AUTHORSHIP AND NOT A RE-RULING OF Q4.** Q4 stands
+exactly as Brett Heap ruled it. What is performed here is the obligation tranche
+one's own ratified task list places on the raising of a successor, which the
+§7.4 sitting of 2026-08-30 ruled BLOCKING (`lead-architect`'s LA-A5, adopted as
+decision 1's narrowing: *"NOT PREMATURE BUT NARROWED"*).
+
+**(i) THE TRIGGER, CITED BY PATH AND TEXT.**
+`openspec/changes/add-signed-execution-chain/tasks.md:187` — task **5.3**,
+ratified 2026-08-29:
+
+> *"Neither successor's content enters this packet. **Re-derive the tranche
+> two/three boundary against what actually exists when each is raised**, per the
+> topic's Q4 — a tranche that depends on an unbuilt layer is a plan, not a
+> tranche."*
+
+**"When each is raised" is NOW.** This packet is the raising of tranche two, so
+the re-derivation is due at this document and not only at its realization. The
+earlier draft carried the obligation forward to `tasks.md:5.1` alone, which is
+the REALIZATION-time re-derivation, and a forward carry is not a discharge of a
+trigger that has already fired.
+
+**(ii) WHAT ACTUALLY EXISTS, MEASURED AT THIS BRANCH ON 2026-08-30.**
+
+| Plane | State today | Measured how |
+| --- | --- | --- |
+| **The PKI plane** | `implement-openxpki-install-repo` is ACTIVE at **22/30 tasks**. **NO certificate authority is operated** by this family or by anyone on its behalf: the change creates the install repository, and openxFactory owns neither the CA nor its issuance pipeline | task-box count in that change's `tasks.md` |
+| **The omnigent layer** | Contracts and overlays only — `contracts/omnigent/omnigent-domain-overlay.schema.yaml` and `omnigent-install-manifest.schema.yaml`, with per-domain overlays. **NO runtime enforces a chain precondition**; nothing in `installs/` reaches the omnigent family at all | file inventory of `contracts/omnigent/`; `grep -rl omnigent installs/` returns nothing |
+| **The identity plane** | `add-identity-brokering` is ACTIVE at **20/30**. Its ratified *"workloads are not personas"* refusal — which is all this packet consumes from it — is TEXT and is available now | task-box count |
+| **The instruments this packet actually binds to** | `add-trust-anchor` RATIFIED and REALIZED at `contract-v1.37`, including the chain-custody registry; `add-wallet-carried-review-authority`'s S2 issuer anchor REALIZED and read inside the REQUIRED `wallet-validation` check; tranche one RATIFIED 2026-08-29; the omnigent permission matrix SHIPPED and closed since `contract-v1.16` | contract manifest and the changes' own evidence |
+
+**(iii) THE BOUNDARY DERIVED FROM THAT STATE — links 4–6 and 10 REMAIN tranche
+two's set, and NO LINK MOVES.** The derivation, link by link, against what exists
+rather than against what is planned:
+
+- **Link 4** stays. Its content is a RECORD SHAPE expressed entirely in
+  `add-trust-anchor`'s ratified vocabulary — anchor record, recorded issuance
+  authority, declared custody, revocation at use — all of which exist and are
+  realized. What does not exist is the CA that would issue the certificate, and
+  that is a REALIZATION dependency this packet already names as hard and does not
+  assume. A record shape drawn against a realized contract is not a guess wearing
+  a tranche number; a record shape drawn against an unbuilt CA's API would be,
+  and this packet names no such API.
+- **Links 5 and 6** stay, and are the least dependent of all: their mechanism is
+  Q7 AS RULED, their custody rule descends from a SHIPPED closed matrix, and
+  their signer-identity refusal is ratified text. Nothing in either waits on a
+  plane.
+- **Link 10** stays, and the raising-time evidence STRENGTHENS its case rather
+  than weakening it: closure binds to `add-wallet-carried-review-authority`,
+  whose issuer anchor is realized and read inside a required check TODAY. Link
+  10 is the tranche's most-realized dependency, not its least.
+- **Requirement 9, the omnigent precondition, is the ONE that a literal reading
+  of Q4 reaches** — it is a refusal a RUNNING LAYER performs and no such layer
+  exists. **It is not moved out of the tranche, and the reason is stated:** it
+  writes no interface the unbuilt runtime must expose, adds no archetype and no
+  permission boolean, and is declared UNMET rather than partially met until a
+  running layer refuses (`tasks.md:5.3`, and D9). Moving it would separate the
+  precondition from the links it is a precondition ON, and would buy nothing the
+  UNMET declaration does not already buy honestly.
+- **Nothing is moved IN from tranche three.** Anchoring, commitments, receipts
+  and the consent plane all depend on the PKI plane in a way these links do not,
+  and they stay in `add-chain-anchoring`.
+
+**The re-derivation therefore CONFIRMS the boundary rather than redrawing it, and
+the confirmation is worth more than the answer** — it is on the record as
+performed at the raising, with its inputs measured and dated, so a later reader
+can check the derivation rather than take the conclusion.
+
+**(iv) `tasks.md:5.1` IS THE SECOND RE-DERIVATION AND IS NOT DISCHARGED BY THIS
+ONE.** Task 5.3 fires at the RAISING (here, discharged above). Task 5.1 fires at
+the REALIZATION, when the planes are real, and asks a question this document
+cannot answer: whether the boundary still holds against layers that then exist in
+fact rather than in contract. Two triggers, two moments, two artifacts. **Neither
+substitutes for the other**, and 5.1 is made decidable in its own right — see the
+task, which now names the observable and the artifact.
+
 ## D8 — What stays out, and where each lands
 
 | Kept out | Why it cannot land here | Where it lands |
@@ -326,9 +491,14 @@ these reaches schema authoring open:
    The requirement fixes that it is RECORDED ALONGSIDE the signature and refuses
    its absence; it does not fix the shape.
 2. **The evidence-class vocabulary's closure.** Three classes are named
-   (`controller_corroborated`, `hardware_attested`, `runner_claimed`). Whether the
-   set is CLOSED at the schema, and what a fourth would have to establish to be
-   admitted, is a contract decision and belongs with the schema.
+   (`controller_corroborated`, `independently_observed`, `runner_claimed`), and
+   D2 now fixes their ORDER and their COMPOSITION with
+   `contracts/trust-anchor/trust-anchor-chain-custody.registry.yaml`. What stays
+   open is only CLOSURE: whether the set is CLOSED at the schema, and what a
+   fourth would have to establish to be admitted. **That registry is the named
+   INPUT to the closure decision** — its `excluded_models` reasoning is the
+   worked example of what admitting a member on the wrong discriminator costs,
+   and a fourth class is judged against it rather than against intuition.
 3. **What a setup attestation must enumerate.** The requirement fixes that link 4
    records what the controller PROVISIONED and refuses an attestation recording
    nothing; the enumeration itself — how a model surface, a harness version and a
