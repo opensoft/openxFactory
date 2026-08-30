@@ -10,7 +10,7 @@ entries:
   path: contracts/CHANGELOG.md
   type: changelog
   git_mode: '100644'
-  digest: sha256:3cd8a29b9312bc3754dd09d431ae4bf99ec474448d4b8873c8f523a87385ab82
+  digest: sha256:ddc522bfb4f4136ab5c809a58a4bf2a3461c2920205891bf95d03f30d9462010
 - artifact_id: contracts-readme.md
   path: contracts/README.md
   type: documentation
@@ -831,7 +831,7 @@ entries:
   git_mode: '100644'
   schema_id: intent-compliance-decision
   schema_version: 1
-  digest: sha256:f577334ef2b28aa5c188f1ba5bb520d3031d12cd86d9c42cc0db9f33eab77624
+  digest: sha256:4c5ad6a7fd33ab7d70490dd8c44e3a1732edcba1a38d83023ee7b674a3df5276
 - artifact_id: contracts-intent-compliance-compliance-decision.template.yaml
   path: contracts/intent-compliance/compliance-decision.template.yaml
   type: documentation
@@ -940,7 +940,7 @@ entries:
   git_mode: '100644'
   schema_id: intent-compliance-policy-allowance-revocation
   schema_version: 1
-  digest: sha256:b55e0a86f841c8d01f0a34ca326f14b02bbd07e24604265a4b6b802a63174743
+  digest: sha256:28f1eb43e511dccc0f5e456e34ff3077e15893d22caab298cf50e36d8ebb4d76
 - artifact_id: contracts-intent-compliance-policy-allowance-revocation.template.yaml
   path: contracts/intent-compliance/policy-allowance-revocation.template.yaml
   type: documentation
@@ -952,7 +952,7 @@ entries:
   git_mode: '100644'
   schema_id: intent-compliance-policy-allowance
   schema_version: 1
-  digest: sha256:696bfa046ea23640e12c3c0e99465b7435a4be22f510a894fed24bc99d620e5d
+  digest: sha256:1d4e5ae739c0cdecd0a0bd42598520729ea3d34a5fa714f941a1f688b8003d5d
 - artifact_id: contracts-intent-compliance-policy-allowance.template.yaml
   path: contracts/intent-compliance/policy-allowance.template.yaml
   type: documentation
@@ -964,7 +964,7 @@ entries:
   git_mode: '100644'
   schema_id: intent-compliance-veto-class-vocabulary
   schema_version: 1
-  digest: sha256:af679bfa614c73a1e1bb4582602f1ff5abce25721b246d1f9229a58bc3b68202
+  digest: sha256:6161d5e006e6cf6f6a3c6cc088cb1a63ea96991f9ac50424f5f77cf96fc55edb
 - artifact_id: contracts-intent-compliance-veto-class-vocabulary.template.yaml
   path: contracts/intent-compliance/veto-class-vocabulary.template.yaml
   type: documentation
@@ -974,7 +974,7 @@ entries:
   path: contracts/manifest.yaml
   type: manifest
   git_mode: '100644'
-  digest: sha256:6b6d8b6c649229c83685465132398d9b7f4678c0f220facca3b25a3a14f3a5cb
+  digest: sha256:fce43e87f876c5c3fb9480d20c9996ad4d6bdc551dcdd9e708c91f8a258d916d
 - artifact_id: contracts-releases-release-digest-inventory.schema.yaml
   path: contracts/releases/release-digest-inventory.schema.yaml
   type: schema
@@ -1123,7 +1123,7 @@ entries:
   path: scripts/hermes_runtime_validation/content.py
   type: validator
   git_mode: '100644'
-  digest: sha256:d6ad5ade549091e112d40227ac7510ca23defe0fea6f25226a56eb4eea9136b7
+  digest: sha256:7da1f0a9ee908748ac13be57601b0cd99ba57703615379bc3ddc32ea2032e66c
 - artifact_id: scripts-hermes_runtime_validation-domain_regression.py
   path: scripts/hermes_runtime_validation/domain_regression.py
   type: validator
@@ -1178,12 +1178,22 @@ entries:
   path: scripts/hermes_runtime_validation/pytest_inventory.py
   type: validator
   git_mode: '100644'
-  digest: sha256:1da8b6bcdf5579d08ba372b77852db8a901a0842182aae644ef5f90b0edbc85d
+  digest: sha256:24fbc8536a61ef6d2c977050df3b3393066dc1bfa5cf9c7ecb354c5bc83ebde3
+- artifact_id: scripts-hermes_runtime_validation-pytest_inventory_proof.py
+  path: scripts/hermes_runtime_validation/pytest_inventory_proof.py
+  type: validator
+  git_mode: '100644'
+  digest: sha256:2b35e2c8ea1b7815af0140e9b49a5202ed5e906cc8e44dfe74aade0ccfd74a62
 - artifact_id: scripts-hermes_runtime_validation-pytest_parameter_ids.py
   path: scripts/hermes_runtime_validation/pytest_parameter_ids.py
   type: validator
   git_mode: '100644'
-  digest: sha256:eff269681404bf9882514d8061dbbaf69701ddc6a7709269fd8df687d415d6bd
+  digest: sha256:2f1710ddad698e0ee0bba6068a535b73cadf818c44f8460c29e4647698666865
+- artifact_id: scripts-hermes_runtime_validation-pytest_parameter_variants.py
+  path: scripts/hermes_runtime_validation/pytest_parameter_variants.py
+  type: validator
+  git_mode: '100644'
+  digest: sha256:3975c75cc7f5f0f27aca723ab15da4609552a8909134990df18e59ebb5dfa696
 - artifact_id: scripts-hermes_runtime_validation-pytest_paths.py
   path: scripts/hermes_runtime_validation/pytest_paths.py
   type: validator
@@ -1268,7 +1278,7 @@ entries:
   path: scripts/intent_compliance/authority_repository.py
   type: validator
   git_mode: '100644'
-  digest: sha256:a3a62b59783b3cd1c46aa1ed0c5850ab251575a0c573c55fd8abeb3083904eec
+  digest: sha256:0b7d3f1f654c127f275ca5a72ff285a04fcd0e493a3bbcba404b235832df47cf
 - artifact_id: scripts-intent_compliance-authority_source.py
   path: scripts/intent_compliance/authority_source.py
   type: validator
@@ -1423,12 +1433,12 @@ entries:
   path: tests/intent-compliance/test_authoritative_resolution.py
   type: documentation
   git_mode: '100644'
-  digest: sha256:1bcbfbaa98c3b55c9d0f49eb0ed22e8db9e181b19bfb0dcc4c1dc2b745cb2824
+  digest: sha256:f98bc3ffab2cb5af6b4e4d0eea4a5a3bc58a9f624adc276084e94069a8e50eb5
 - artifact_id: tests-intent-compliance-test_authority_content_binding.py
   path: tests/intent-compliance/test_authority_content_binding.py
   type: documentation
   git_mode: '100644'
-  digest: sha256:74104f79fbfcd2f99a750534e8bb4af50038fd3f73c7c902c5ed998558f01ee5
+  digest: sha256:345bf81e4b6408c9f17f7bcdacf6fff520f8ca9f6c1283bf2bd280c83eeb6b91
 - artifact_id: tests-intent-compliance-test_classifier_coherence.py
   path: tests/intent-compliance/test_classifier_coherence.py
   type: documentation
