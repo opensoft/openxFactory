@@ -129,12 +129,17 @@ reasoning.
 - **"One-time access to create the hash, verify indefinitely"** (Record
   Fidelity) is MedxChain's own statement of the property
   `signed-execution-chain` calls **chain inception's fidelity property**:
-  a commitment, once anchored, lets any later holder of the record verify
-  it without further access to the original or to the party that hashed it.
-- **Access logging** (Blockchain Logging; Access Control Logging) is
-  MedxChain's version of what `signed-execution-chain` calls the
-  **transparency log** (claim 6): a signed, append-only record of who
-  touched what, when.
+  a commitment, once anchored, lets a later authorized verifier that holds the
+  record and can obtain the governed commitment secret verify it without
+  further access to the original source or to the party that committed it. The
+  privacy upgrade deliberately removes the public recomputation property of a
+  bare hash.
+- **Access logging** (Blockchain Logging; Access Control Logging) foreshadows
+  a Medx clinical-use event family that can use the same signed, append-only
+  and checkpointed evidence pattern. It is not already covered by the current
+  signed-execution-chain transparency log, whose ratified event family concerns
+  factory execution rather than patient-record views, edits, and failed access
+  attempts.
 
 ### The three 2026 upgrades MedxChain's design needs
 
@@ -147,7 +152,9 @@ what MedxChain's 2024 sketch assumed:
   commitments**, never bare hashes, because EDPB Guidelines 02/2025 (v2.0)
   hold that a hash of personal data is itself personal data — and the
   ruled boundary buys **erasure by salt destruction**, a property a plain
-  hash cannot offer.
+  hash cannot offer. Q6 separately confirms that this commitment reading is
+  the operative form for patient-anchored PHI portions; it is not permission
+  to publish PHI, ciphertext, or plain record hashes.
 - **PIIDB "entirely on the blockchain, encrypted" → a permissioned consent
   plane with anchored state roots.** MedxChain's Security Architecture
   puts the whole PII Database, encrypted, on a public chain. Q2's ruled
@@ -162,11 +169,12 @@ what MedxChain's 2024 sketch assumed:
   batched anchored checkpoints.** MedxChain's "per-access blockchain
   entries" (Security Architecture) and per-event logging (Blockchain
   Logging) put every view, edit, and failed attempt directly on a public
-  chain. The ruled architecture keeps this granular signed log in the
-  off-chain **transparency log** (the evidence plane, claim 6), and
-  anchors only **batched checkpoints** of it publicly — avoiding both the
-  metadata-leakage of publishing every access event to a public ledger and
-  the cost of anchoring at that granularity.
+  chain. A future Medx clinical-use event family should keep this granular
+  signed log off chain and anchor only **batched checkpoints** publicly. It
+  may compose with the neutral checkpoint and receipt pattern, but it remains
+  distinct from the current factory-execution transparency log. This avoids
+  both the metadata leakage of publishing every access event to a public
+  ledger and the cost of anchoring at that granularity.
 
 ### The ruled anchoring configuration it inherits
 
@@ -187,10 +195,13 @@ current text does not yet name, and one framing worth stating explicitly:
 
 - **The meta-analysis lane.** MedxChain's Database Architecture section
   makes RecordDB-plus-MetaDataDB, queried without PIIDB, a first-class use
-  case: clinical meta-analysis over de-identified data. `signed-execution-chain`'s
-  tranche 3 (the commitment and anchor layer plus the permissioned consent
-  plane) does not yet name this consumer; it should carry forward as a use
-  case the anchored, segregated design already supports.
+  case. Segregation from PIIDB does **not** by itself make age, gender,
+  clinical data, or linkable record hashes de-identified. Any meta-analysis
+  consumer must first pass the named Safe Harbor or Expert Determination gate
+  required by `docs/knowledge-lifecycle-model.md`; until then this is sensitive
+  governed data, not a reusable de-identified corpus. `signed-execution-chain`'s
+  tranche 3 does not yet name this possible consumer, and should carry it only
+  with that formal gate and the applicable consent and purpose controls.
 - **Verification-attempt auditing, not just writes.** MedxChain's
   Blockchain Logging section logs "failed attempts" alongside views,
   edits, and admin actions — auditing verification and access ATTEMPTS,
