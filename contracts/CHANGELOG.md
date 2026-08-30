@@ -76,7 +76,7 @@ neither inventory is rewritten to make the old release describe a later tree.
 
 ### Release obligation still open at this entry
 
-`contracts/releases/contract-v2.3.digests.yaml` is committed with 281 entries.
+`contracts/releases/contract-v2.3.digests.yaml` is committed with 283 entries.
 It must be regenerated after the current review-repair bytes stabilize, then
 verified against the exact final candidate commit. Merge, tagging, and
 publication remain pending. The downstream first conformer remains
