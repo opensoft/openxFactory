@@ -51,8 +51,10 @@ minted the receipt is REFUSED, because it proves only self-consistency.
 INCOMPLETENESS TRAVELS WITH THE ARTIFACT.** Every receipt SHALL carry the
 CONFIGURED WITNESS SET AT MINT TIME — the witnesses the anchoring configuration
 demanded of this item at the moment the receipt was minted, **each with the
-DECLARED COMPLETION HORIZON it was configured under, and the SUBMISSION TIME
-those horizons run from** — and a receipt offered without them SHALL BE REFUSED
+DECLARED COMPLETION HORIZON it was configured under, the SUBMISSION TIME the
+item entered `anchor_pending`, and the DECLARED MAXIMUM SUBMISSION-TO-FIRST-ANCHOR
+DELAY the realization operates under** — and a receipt offered without them
+SHALL BE REFUSED
 AT CAPTURE TIME on the same footing as a
 missing inclusion proof. The horizons and the submission time are carried for
 the same reason the witness set is, and by the same mechanism: they are
@@ -65,7 +67,53 @@ The anchored digest binds the submission time against LATER edits; it says
 nothing about whether the minter declared it honestly at mint time, and a
 FUTURE-DATED submission time would keep a receipt-only verifier reporting a
 healthy window long after the real horizon had passed — suppressing exactly the
-fail-closed transition this design exists to force. **Material cannot be
+fail-closed transition this design exists to force.
+
+**AND A CHAIN-ACCEPTED TIME IS DEFINED BEFORE IT IS USED AS A CLOCK, BECAUSE
+"WHEN THE CHAIN ACCEPTED IT" IS NOT ONE QUESTION ACROSS TWO CHAINS.** The
+chain-acceptance evidence above establishes THAT a block was accepted; it does
+not by itself name an INSTANT. A header timestamp, a local observation time and
+a confirmation time are three different values, and implementations picking
+differently would disagree about both whether a declared submission time is
+false and whether a horizon has expired — a fail-closed decision resting on an
+undefined quantity. **Each configured chain SHALL therefore carry a DECLARED
+CHAIN-ACCEPTED-TIME RULE**, derived from the chain-acceptance evidence the
+receipt already holds and DERIVED FROM THE RECEIPT'S OWN BYTES — the BLOCK
+HEADER each per-chain entry already carries, which the corrected receipt format
+put there for exactly this kind of need. For a LINEAR chain it is **the
+accepting block header's TIME FIELD**; for a DAG it is **the accepting block's
+header timestamp, that block being the one its acceptance proof names**. Either
+way the value is deterministic given the receipt's bytes and checkable against
+the cited consensus rule, so two verifiers reading the same receipt reach the
+same instant. **A minter's local clock, a capture-time field, an observation
+time, and any value the minter writes into the receipt are REFUSED as sources**,
+because the whole point is a time the artifact can be checked against rather
+than one it asserts.
+
+**AND A CHAIN WHOSE HEADER CARRIES NO USABLE TIME FIELD CONTRIBUTES ORDERING,
+NOT A CLOCK — WHICH IS SAID RATHER THAN PAPERED OVER WITH AN INVENTED VALUE.**
+Where a configured chain's header has no time field this rule can cite, that
+witness SHALL be declared as contributing ORDERING AND INCLUSION ONLY: its entry
+still proves the anchor and still counts toward the configured witness set, and
+it is simply not eligible to serve as a horizon base. A receipt whose ONLY
+entries are such witnesses falls to the no-determination branch below. Inventing
+a timestamp for such a chain would put a fail-closed decision on a number
+nothing can check, which is the defect this paragraph exists to close.
+
+**AND EACH RULE DECLARES ITS TOLERANCE, WHICH IS APPLIED IN ONE DIRECTION ON
+PURPOSE.** A header timestamp is miner-influenced within consensus bounds, so a
+chain-accepted time is an instant with a WIDTH rather than a point. Each
+declared rule SHALL name that TOLERANCE, and a receipt-only verifier SHALL apply
+it so that a BREACH is declared only where the horizon is exceeded BEYOND the
+tolerance — never the other way round. The reason is asymmetric harm: neither
+answer presents the item as anchored, but a false breach raises the operator
+obligation on a healthy item and turns the signal into the noise the disjoint
+states exist to prevent, while a slightly late breach is still a breach the
+stateful record catches on its own leaf. **A chain whose declared rule yields no
+reproducible instant SHALL NOT be used for a horizon determination**, and a
+receipt carrying only such entries falls to the no-determination branch below.
+
+**Material cannot be
 anchored before it is submitted**, so every per-chain entry's CHAIN-ACCEPTED
 TIME is an independently checkable UPPER BOUND on the submission time. A receipt
 declaring a submission time LATER than the earliest chain-accepted time in its
@@ -86,13 +134,55 @@ which state the item is in requires the anchor-state record. That is D10's rule
 again — what the artifact can prove it proves, what it cannot it names — applied
 to a clock instead of to an event.
 
-**THE RESIDUAL, STATED WITH ITS WIDTH.** Using the first landed anchor as the
-base moves the window later than the true submission by at most ONE AGGREGATION
-INTERVAL, which is the tightest bound a receipt can offer and errs toward
-reporting pending slightly too long rather than declaring a breach that has not
-happened. What closes it entirely is the `anchor_pending` ENTRY LEAF, whose
-inclusion in an anchored checkpoint pins the true submission — and reaching that
-is a STATEFUL verification, which is where the requirements below put it. The reason is that this receipt is handed to
+**AND THE PRE-ANCHOR DELAY IS BOUNDED, BECAUSE OTHERWISE THE BASE ITSELF IS THE
+ATTACK.** Starting the horizon at the first chain acceptance is only safe if
+that acceptance cannot be postponed at will: a minter that simply SITS ON
+validated material moves every horizon later by however long it waits, and a
+receipt-only verifier would go on returning `anchor_pending` long after the
+stateful item had breached — the suppressed transition of the paragraph above,
+reached by delay instead of by a false field. **Two instruments answer it, and both are already in this design's
+inventory rather than invented here.**
+
+**FIRST, THE LOG IS THE INDEPENDENT SUBMISSION WITNESS.** An item's entry into
+`anchor_pending` is written as a leaf, and log CHECKPOINTS are themselves
+anchored through this same configuration. **The earliest anchored checkpoint
+whose prefix contains that submission leaf therefore UPPER-BOUNDS the true
+submission time**, on evidence no minter controls — the same append-only
+mechanics that made the item/checkpoint split necessary now pay for themselves.
+A STATEFUL verification SHALL enforce the delay bound against that
+checkpoint-derived time rather than against the minter's declared one, so an
+item that was sat on is exposed by the log even where its receipt looks tidy.
+
+**SECOND, THE BOUND IS DECLARED AND RECEIPT-BORNE.** The realization SHALL
+declare a MAXIMUM SUBMISSION-TO-FIRST-ANCHOR DELAY, carried in the mint-time
+configuration block above and bound by the anchored digest with the rest of it,
+so a receipt-only verifier holds the number it needs to check the artifact
+against itself. Two consequences, and both are refusals rather than guidance.
+**EXCEEDING IT IS A HORIZON BREACH for that witness**, one of the two named
+transitions, so a delayed anchor cannot sit in pending on the stateful side
+either, and the breach raises its operator obligation on its own transition
+leaf; and **a receipt whose earliest chain-accepted time exceeds its declared
+submission time by more than the declared maximum delay plus the declared
+tolerance is SELF-INCONSISTENT** — it documents its own breach — **and SHALL BE
+REFUSED**, receipt-only and at capture time alike, because a minter must not be
+able to mint a clean receipt over its own delay.
+
+**THE RESIDUAL, RESTATED — AND THE EARLIER STATEMENT OF IT WAS WRONG.** This
+requirement previously claimed the receipt-only window could run late by at most
+ONE AGGREGATION INTERVAL. **That bound was asserted and not established**:
+nothing capped the delay before the first anchor, so the true bound was
+unlimited, and the claim was exactly the kind this packet refuses elsewhere — a
+property named without the machinery to hold it. With the deadline above
+declared and enforced, the honest bound is **the declared SUBMISSION-TO-WITNESS
+DEADLINE plus the declared chain TOLERANCE**, both of them named numbers a
+reader can check rather than an interval this text assumed. A minter that BOTH
+delays within the deadline AND declares a submission time late within the
+resulting band can still inflate the receipt-only window by that much, and no
+artifact can detect it. What closes it entirely is the `anchor_pending` ENTRY
+LEAF, whose inclusion in an anchored checkpoint pins the true submission — and
+reaching that is a STATEFUL verification, which is where the requirements below
+put it. A receipt-only `anchor_pending` is therefore never a warrant that an
+item is healthy, which is precisely what its verification mode records. The reason is that this receipt is handed to
 independent parties: without the configured set, a receipt whose per-chain list
 holds ONE entry is byte-indistinguishable from a receipt minted under a
 one-witness configuration, and a holder who cannot reach the minter cannot tell
@@ -116,7 +206,8 @@ strips nothing and edits the SET to name one witness — and every per-chain pro
 still validates, because those proofs are about the transaction and the digest
 and know nothing of a field sitting next to them. **The ANCHORED DIGEST SHALL
 therefore COMMIT to the whole MINT-TIME CONFIGURATION BLOCK — the configured
-witness set, its declared horizons, and the submission time**, that block being
+witness set, its declared horizons, the submission time, and the declared
+maximum submission-to-first-anchor delay**, that block being
 part of the material the digest is taken over, so a rewritten set OR AN EXTENDED
 HORIZON changes the digest and
 breaks the aggregation Merkle path and every inclusion proof in the receipt at
@@ -199,6 +290,36 @@ exit path names building the receipt first for exactly this reason.
 - WHEN a receipt-only verification finds a witness shortfall and any missing witness is past its declared horizon, measured from the earliest chain-accepted time in the receipt
 - THEN it returns `anchor_incomplete` with verification mode `receipt_only`, the fault established from the artifact alone with no appeal to the minter
 - AND it states that it CANNOT distinguish a horizon breach from a terminal witness failure, naming the anchor-state record as what holds that refinement
+
+#### Scenario: a chain's declared accepted-time rule yields no reproducible instant
+
+- WHEN a configured chain's chain-acceptance evidence carries no declared rule producing an instant a verifier can reproduce from that same evidence
+- THEN that entry SHALL NOT be used for a horizon determination, and a receipt carrying only such entries falls to the no-determination branch
+- AND a minter's local clock or a capture-time field is REFUSED as a substitute source, because the point of the value is that the artifact can be checked against it
+
+#### Scenario: a horizon is exceeded by less than the declared tolerance
+
+- WHEN a missing witness's horizon is exceeded by an interval smaller than the declared timestamp tolerance of the chain the base was derived from
+- THEN NO breach is declared by the receipt-only verifier, which continues to report `anchor_pending` with mode `receipt_only`
+- AND the tolerance is applied in that direction only, because a false breach raises the operator obligation on a healthy item while a late one is still caught on its own transition leaf
+
+#### Scenario: a minter sits on validated material and its receipt looks tidy
+
+- WHEN an item's submission leaf is covered by an anchored checkpoint and the material is not sent to a configured witness until long afterwards
+- THEN a STATEFUL verification enforces the declared maximum delay against the EARLIEST ANCHORED CHECKPOINT containing that submission leaf, not against the minter's declared submission time, and the breach is exposed
+- AND that upper bound rests on the log's own anchored checkpoints, which no minter controls, so a tidy-looking receipt does not conceal the delay
+
+#### Scenario: a receipt is self-inconsistent about its own delay
+
+- WHEN a receipt's earliest chain-accepted time exceeds its declared submission time by more than the declared maximum submission-to-first-anchor delay plus the declared tolerance
+- THEN it is REFUSED, receipt-only and at capture time alike, because it documents its own breach
+- AND a minter therefore cannot mint a clean receipt over a delay it already exceeded
+
+#### Scenario: a witness exceeds the declared submission-to-first-anchor delay
+
+- WHEN validated material sits unsubmitted past the declared maximum delay for a configured witness
+- THEN that is a HORIZON BREACH for that witness, transitioning the item to `anchor_incomplete` and writing its transition leaf with its operator obligation
+- AND delay therefore cannot hold an item in `anchor_pending`, which is the whole reason the bound is declared rather than assumed
 
 #### Scenario: a minter future-dates the submission time on a receipt with a landed witness
 

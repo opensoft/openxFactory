@@ -22,9 +22,9 @@ standing in for a ruleset state.
 
 ## 1. Spec deltas and the packet (THIS PULL REQUEST)
 
-- [x] 1.1 `chain-anchoring` — **NINE ADDED requirements over 80 SCENARIOS** (52
+- [x] 1.1 `chain-anchoring` — **NINE ADDED requirements over 85 SCENARIOS** (52
       SCENARIOS at the head the council judged, `cf5a24b8`; the 2026-08-30 fix
-      round of §2.4 and its SEVEN bot rounds added TWENTY-EIGHT SCENARIOS and NO NEW
+      round of §2.4 and its EIGHT bot rounds added THIRTY-THREE SCENARIOS and NO NEW
       REQUIREMENT — the requirement count is unchanged at nine), in
       the order the exit path requires: the multi-anchor receipt FIRST, then the
       ruled two-witness configuration, the missing-witness semantics, anchor-late,
@@ -326,6 +326,47 @@ standing in for a ruleset state.
       value and never on a paragraph. (d) The equality sweep's own omission,
       recorded above where the method is described.
 
+      **AN EIGHTH ROUND, THREE P1s, AND THE THIRD ONE FOUND THE ESCAPE ROUTE.**
+      (a) **CHAIN-ACCEPTED TIME was used as a clock without being one.** The
+      evidence proved THAT a block was accepted and named no INSTANT, so a header
+      timestamp, an observation time and a confirmation time were three
+      admissible readings of a fail-closed decision. It is now derived FROM THE
+      RECEIPT'S OWN BYTES — the block header each entry already carries, its time
+      field, against that chain's cited consensus rule — deterministic given the
+      bytes and identical for any two verifiers, with a DECLARED TOLERANCE
+      applied in one direction only (never a false breach). A chain whose header
+      has no usable time field is declared as contributing ORDERING AND INCLUSION
+      ONLY rather than having a timestamp invented for it.
+      (b) **The pre-anchor delay was unbounded, so the base itself was the
+      attack** — a minter sitting on material moves every horizon later and keeps
+      a receipt-only verifier saying `anchor_pending` forever. Two instruments,
+      both already in this design's inventory: **THE LOG IS THE INDEPENDENT
+      SUBMISSION WITNESS** (the submission leaf sits under anchored checkpoints,
+      so the earliest checkpoint containing it upper-bounds the true submission
+      on evidence no minter controls, and stateful verification enforces the
+      bound against THAT), and a **DECLARED MAXIMUM SUBMISSION-TO-FIRST-ANCHOR
+      DELAY carried in the mint-time configuration block** and bound by the
+      anchored digest, so a receipt exceeding its own declared maximum is
+      SELF-INCONSISTENT and refused. **AND THE EARLIER RESIDUAL CLAIM WAS WRONG
+      AND IS CORRECTED IN THE TEXT**: "at most one aggregation interval" was
+      asserted with nothing capping the delay, so the true bound was unlimited —
+      this packet's own claims-outrunning-machinery defect, committed by the
+      round that was fixing one.
+      (c) **The proposal's D-A summary still classified the healthy window as
+      `anchor_incomplete`**, five rounds after the disjoint-state fix. The spec
+      had been swept for the state vocabulary; **the companion documents never
+      had been** — the new-conjunct family's known escape route, the docs one
+      ring out. Both were swept and the hits fixed:
+
+      | Document | Site | Defect | State |
+      |---|---|---|---|
+      | `proposal.md` | D-A summary | healthy window called `anchor_incomplete` | FIXED |
+      | `proposal.md` | `code_surface` mint-time block | no delay maximum; horizons still described as running from the minter's submission time | FIXED |
+      | `design.md` | D2 bullet | "fewer witnesses than configured is `anchor_incomplete`" — the superseded predicate verbatim | FIXED |
+      | `design.md` | D2 outage table | both outage rows stated `anchor_incomplete` with no pending phase | FIXED |
+      | `design.md` | D2 LS-A5 note | "shorter than that set is incomplete on its face" — an artifact asserting a lifecycle state | FIXED |
+      | `design.md` | D2 "permanently incomplete", D8/D9 prose | post-breach or rhetorical uses | CORRECT AS WRITTEN |
+
       **SEVEN ROUNDS, AND THE SHAPE OF THE FINDINGS HAS CHANGED.** The first
       rounds found defects in the council-judged text; the last four have found
       defects in this fix round's own repairs, each one narrower than the last.
@@ -339,7 +380,7 @@ standing in for a ruleset state.
 
       **§1.4 AND §1.5 RE-RUN, AND THE RESULT IS REPORTED RATHER THAN ROUNDED.**
       §1.4: `--strict` green and `--all --strict` **79 passed / 0 failed**;
-      NINE requirements unchanged, **52 → 80 scenarios**, still no `## MODIFIED`
+      NINE requirements unchanged, **52 → 85 scenarios**, still no `## MODIFIED`
       block. §1.5: doc-health against `origin/main` with a matched baseline
       basename returns **four new findings, all `status-validity`, all on the
       carried `review/` bundle** — the sitting's four top-level records write
@@ -398,6 +439,11 @@ discharged, so 3.1 is the next act on this packet.
       BLOCK — the configured witness set, each witness's declared horizon, and
       the submission time they run from — which the ANCHORED DIGEST commits to in
       every representation, the material digest staying nameable beside it), the
+      DECLARED CHAIN-ACCEPTED-TIME RULE per configured chain (the entry's own
+      block-header time field, its cited consensus rule, and its declared
+      tolerance — or a declaration that the witness contributes ORDERING ONLY),
+      the DECLARED MAXIMUM SUBMISSION-TO-FIRST-ANCHOR DELAY carried in the
+      mint-time configuration block, the
       VERIFICATION RESULT record carrying its mandatory VERIFICATION MODE
       (`receipt_only` / `stateful`, a closed enumeration) plus, for a
       `receipt_only` result, whether its horizon base was chain-derived or
@@ -434,7 +480,10 @@ discharged, so 3.1 is the next act on this packet.
       outside the identity plane or without a consent checkpoint**; **a
       reporting obligation imposed on independent verifiers**; **a realization
       logging refused access but not permitted access**; **a correlation using a
-      pre-issued derivation whose revocation state cannot be read**; **an analysis
+      pre-issued derivation whose revocation state cannot be read**; **a receipt
+      self-inconsistent about its own declared maximum delay**; **a horizon base
+      taken from a minter's clock rather than a block header**; **a breach
+      declared inside the declared timestamp tolerance**; **an analysis
       result missing its correlation with no declared outcome**; a
       domain record kind; an overlay relaxing a neutral refusal. The bolded
       entries are the refusals the 2026-08-30 fix round added.
@@ -480,8 +529,12 @@ discharged, so 3.1 is the next act on this packet.
       checkpoint, a state root, or both, and at what granularity the aggregation
       batches. Requirement 1 fixes the receipt SHAPE and deliberately not the unit.
 - [ ] 5.2 Fix the COMPLETION HORIZONS — the declared values per witness, bounded
-      by the aggregation interval chosen in 5.1. Requirement 3 requires that they
-      be DECLARED; it names no numbers.
+      by the aggregation interval chosen in 5.1; the DECLARED MAXIMUM
+      SUBMISSION-TO-FIRST-ANCHOR DELAY; and, per configured chain, the
+      CHAIN-ACCEPTED-TIME RULE with its cited consensus rule and its declared
+      TOLERANCE (or the declaration that the witness contributes ordering only).
+      Requirement 3 requires that all of these be DECLARED; it names no numbers,
+      and the fail-closed determination is only as good as they are.
 - [ ] 5.3 Fix the NEW LEAF KINDS against tranche one's leaf grammar. This packet
       adds no second grammar and must not, so tranche one's grammar is where each
       event discriminator and its required fields are settled; requirements 3, 4,

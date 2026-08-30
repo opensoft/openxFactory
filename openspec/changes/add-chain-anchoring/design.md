@@ -75,9 +75,11 @@ instantaneous.
 - An item enters `anchor_pending` when validated material is submitted, and each
   witness carries a declared COMPLETION HORIZON (minutes for the operational
   witness, hours for the durability witness, matching its calendar's cycle).
-- An item carrying fewer witnesses than the configuration demands is
-  `anchor_incomplete`, **with its missing witnesses NAMED**, and is never
-  reported, presented or verified as anchored.
+- An item whose configured witnesses are not all present is `anchor_pending`
+  while every unmet witness is within its declared horizon, and becomes
+  `anchor_incomplete`, **with its missing witnesses NAMED**, only on a horizon
+  breach or a named terminal witness failure. Neither state is ever reported,
+  presented or verified as anchored.
 - **A witness outage never blocks ratification, execution, review or any gate.**
   The ground is claim 6 and tranche one's ruled sequencing: the transparency log
   is the evidence plane and IS the record; anchors are LATE ADDITIONS to its
@@ -102,8 +104,8 @@ instantaneous.
 
 | Outage | What completes | Item state | Ten-year claim | Repair |
 | --- | --- | --- | --- | --- |
-| **Operational witness unreachable** | the durability anchor, on its own horizon | `anchor_incomplete` — not the configured completeness, so not "anchored" | **AVAILABLE**, because that claim rests on the witness that landed | anchor the operational witness when it returns; the receipt gains its entry |
-| **Durability calendar unreachable** | the operational anchor, in seconds | `anchor_incomplete` | **REFUSED** until the durability anchor lands | **UPGRADE THE PENDING DURABILITY PROOF** and append its entry when the calendar returns — do NOT re-anchor |
+| **Operational witness unreachable** | the durability anchor, on its own horizon | `anchor_pending` while the operational witness is within its horizon, `anchor_incomplete` once it breaches — not the configured completeness either way, so never "anchored" | **AVAILABLE**, because that claim rests on the witness that landed | anchor the operational witness when it returns; the receipt gains its entry |
+| **Durability calendar unreachable** | the operational anchor, in seconds | `anchor_pending`, then `anchor_incomplete` on the durability horizon's breach | **REFUSED** until the durability anchor lands | **UPGRADE THE PENDING DURABILITY PROOF** and append its entry when the calendar returns — do NOT re-anchor |
 
 **The do-not-re-anchor rule is not a style note.** An aggregation proof completes
 by upgrade: the pending durability proof already commits to the right digest,
@@ -202,8 +204,10 @@ consulting the minter is the one thing an independent verifier cannot be asked t
 do. **The discharge is the seat's own and it does not disturb the split**: the
 receipt now carries the CONFIGURED WITNESS SET AT MINT TIME, which is
 CONFIGURATION rather than "what has not happened yet", so the receipt still holds
-no status — and a per-chain list shorter than that set is incomplete on its face,
-with the missing witnesses readable as the difference. The set is fixed at mint
+no status — and a per-chain list shorter than that set is a WITNESS SHORTFALL on
+its face, with the missing witnesses readable as the difference. Which lifecycle
+state that shortfall amounts to is the separate horizon determination the later
+rounds added, not something the shortfall asserts by itself. The set is fixed at mint
 time and rewriting it to match the entries present is refused, since that edit is
 exactly how a missing witness would be laundered into a one-witness
 configuration.
