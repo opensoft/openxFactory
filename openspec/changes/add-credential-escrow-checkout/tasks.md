@@ -282,3 +282,17 @@ change**, and the schema edit is the cut's cause.
       `contracts/CHANGELOG.md` / the digest inventory / a verified annotated tag
       agreeing on the new bundle, and the § 5.5 drill recorded WITH its refusal.
       This change stays ACTIVE until then.
+
+## 8. Coordination owed to `extend-credential-binding-authority`
+
+- [ ] 8.1 REBASE OBLIGATION, added 2026-08-29 by the merge-readiness convening on
+      openxFactory PR #493 (Brett Heap's ruling D5: **two sequential cuts, that
+      packet first**). This packet and `extend-credential-binding-authority` both
+      edit `scripts/validate-credential-contracts.py`'s `_self_test`, whose
+      `EXAMPLES_DIR` is hard-coded to `examples/credential-contracts` and whose
+      `NEGATIVE_EXPECTATIONS` is a single module-level dict — so both edit the
+      SAME self-test count string and the SAME registry regardless of which tree
+      their fixtures live in. That packet cuts first; **this packet re-derives the
+      count string and re-registers its negatives against the landed dict** when
+      it rebases. Recorded here so the obligation is visible from the side that
+      owes it, not only from the packet that is owed it.

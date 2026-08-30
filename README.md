@@ -406,18 +406,26 @@ Active changes:
   `fetch_identity` in a document-level block the schema neither declares nor
   forbids — the same defect, on the same schema, that its own
   `issuance_preconditions` vocabulary was added to retire. Adds THREE ADDITIVE
-  OPTIONAL fields (`consumer`, `fetch_identity`, `requirement_id`), one new
-  refusal (`shared-fetch-identity`), and the validator's FIRST WARNING CHANNEL.
-  Review added more: sameness is decided on a QUALIFIED name, never the bare
-  string, and the two keys DIFFER ON PURPOSE — `(provider, fetch_identity)` for
-  the authority and `(provider, vault, secret_ref)` for the secret. An identity
-  does not live in a vault: one principal granted on two vaults is ONE
-  authority, so a vault-qualified identity key would report nothing on exactly
-  the record the ratified per-system rule forbids, while two consumers
-  labelling principals `runtime_identity` against unrelated providers are not
-  one authority. The secret half corrects the SAME latent defect in the
-  published `shared-secret-identity`, which groups by bare `secret_ref` today,
-  so it is fixed once for both rather than left to appear twice. On the release class:
+  OPTIONAL fields (`consumer`, `fetch_identity`, `identity_namespace`,
+  `requirement_id`), one new refusal (`shared-fetch-identity`), and the
+  validator's FIRST WARNING CHANNEL. **A three-seat merge-readiness convening
+  amended it 2026-08-29 on Brett Heap's ruling.** Sameness is decided on
+  QUALIFIED names, never bare strings, and the two keys DIFFER ON PURPOSE —
+  `(provider, identity_namespace, fetch_identity)` for the authority and
+  `(provider, vault, secret_ref)` for the secret — with BOTH falling back toward
+  REPORTING where their qualifier is undeclared. An identity does not live in a
+  vault: one principal granted on two vaults is ONE authority. **The blocking
+  finding**: two seats independently executed the rule and found an
+  UNCONDITIONAL qualified secret key REMOVES a refusal in force today wherever
+  `vault` is declared on one side only — the packaged negative
+  `dispatch-reuses-content-secret.yaml` is ONE optional line from going green, so
+  the change's own backward-compatibility proof was a deletion away from
+  worthless. The grouping now FALLS BACK to the bare reference where the
+  qualification is unestablished, and `authority-scope-indeterminate`
+  ACCOMPANIES a refusal instead of replacing one. It also gains a
+  scenario-complete MODIFIED block on "Dispatch-only credential least privilege
+  and serving-tier separation" — the requirement that published the check whose
+  behaviour it changes. On the release class:
   optional fields plus new validator warnings is the ADDITIVE class, and
   `consumer`/`fetch_identity` becoming required is the BREAKING class, which
   owes a full minor of warnings first (`contract-v1.34`'s pattern). `requirement_id` is deliberately kept OFF

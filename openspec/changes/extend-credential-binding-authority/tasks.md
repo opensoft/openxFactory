@@ -10,17 +10,17 @@ because it SCOPES what changes before ratification, so an enumeration that omits
 a record understates exactly the thing it exists to bound.
 
 **No task creates, moves, or reads a live secret.** The realization surface is
-a schema, a validator, six fixtures and a test — and, beyond that code surface,
+a schema, a validator, eight fixtures and a test — and, beyond that code surface,
 the documentation of § 4, the contract-release ritual of § 5, and the validation
 of § 6. Naming only the code half would let a reader skim past the ritual, which
 is the largest obligation in this packet.
 
 ## 1. The schema carries the authority
 
-- [ ] 1.1 Add three ADDITIVE OPTIONAL string properties to each entry of
+- [ ] 1.1 Add FOUR ADDITIVE OPTIONAL string properties to each entry of
   `credential_bindings` in `xfactory_credential_binding_template`
   (`contracts/schemas/xfactory-credential-contracts.schema.yaml`): `consumer`,
-  `fetch_identity`, `requirement_id`. The `required` list is UNCHANGED —
+  `fetch_identity`, `identity_namespace`, `requirement_id`. The `required` list is UNCHANGED —
   adding a required field is the breaking class and is not this cut.
 - [ ] 1.2 Describe each property in the schema itself, in the style the
   `issuance_preconditions` block set: what the field means, and why the record
@@ -28,12 +28,19 @@ is the largest obligation in this packet.
   record spelling and "access identity" as its prose synonym, so a reader
   arriving from the custody requirement is not left wondering whether two
   fields are meant.
-- [ ] 1.3 Do NOT add `additionalProperties: false` to the binding object.
-  Closing it would invalidate records that are valid today — including the
-  shipped `resolution:` block in
-  `contracts/avatar-client/broker-server-key-binding.template.yaml` — and
-  narrowing is a major-version act. Decision 6; the limit is stated in the
-  requirement rather than left for a reader to find.
+- [ ] 1.3 Do NOT add `additionalProperties: false` to the binding object — but
+  NOT for the reason an earlier revision of this task gave. **That reason was
+  measurably wrong and is corrected rather than deleted.** It claimed closing the
+  object would invalidate the shipped `resolution:` block in
+  `contracts/avatar-client/broker-server-key-binding.template.yaml`; review
+  EXECUTED the closure against every shipped record and found that **nothing
+  shipped becomes invalid** — `resolution:` is a DOCUMENT-level key and the
+  closure applies to the per-binding object, which no shipped record extends.
+  The only thing refused was `access_identity`, the second spelling this packet
+  wants refused anyway. The real reason is the RULE, not a counterexample:
+  closing an open object narrows what is valid, and narrowing is a
+  major-version act regardless of whether anything in this tree happens to
+  occupy the space today — a repository is not the population. Decision 6.
 - [ ] 1.4 Leave `contract_schema_version` unchanged. Nothing previously valid
   becomes invalid, which is the test the versioning policy applies.
 
@@ -54,9 +61,12 @@ is the largest obligation in this packet.
   a missing `requirement_id` — warning on it would put it on the deprecation
   path this packet deliberately keeps it off.
 - [ ] 2.3 `shared-fetch-identity` (ERROR): within one document, two bindings
-  whose QUALIFIED identity key `(provider, fetch_identity)` is equal, while both
-  declare `consumer` and the consumers differ. NEVER the bare string, and NEVER
-  qualified by `vault`: `fetch_identity` is a name in the PROVIDER'S IDENTITY
+  whose QUALIFIED identity key `(provider, identity_namespace, fetch_identity)`
+  is equal, while both declare `consumer` and the consumers differ. Where
+  `identity_namespace` is undeclared on either side the key falls back to
+  `(provider, fetch_identity)` — which REPORTS rather than clears, because
+  silence is not distinctness. NEVER the bare string, and NEVER qualified by
+  `vault`: `fetch_identity` is a name in the PROVIDER'S IDENTITY
   namespace, so two bindings labelling a principal `runtime_identity` against
   different providers are not one authority — but ONE principal granted on TWO
   vaults IS one authority, and a vault-qualified key would report nothing on
@@ -66,19 +76,24 @@ is the largest obligation in this packet.
   earns distrust.
 - [ ] 2.4 Refine `shared-secret-identity` (ERROR): group bindings by the
   QUALIFIED secret key `(provider, vault, secret_ref)` — not by the bare
-  `secret_ref` it groups by today; a group of size > 1 raises UNLESS every
-  member declares an equal `requirement_id` and pairwise-distinct `consumer`
-  and pairwise-distinct QUALIFIED `fetch_identity` on
-  `(provider, fetch_identity)` — the secret key carries `vault`, the identity
-  key does not.
-  **THE REGROUPING IS A BEHAVIOUR CHANGE TO A PUBLISHED CHECK and is decision 8,
-  flagged for veto.** It only ever narrows a refusal, and only where the two
-  secrets are genuinely distinct — two bindings naming `api-key` in two vaults
-  are two secrets, and refusing them was a false collision the family has
-  carried since the check was written. Prove on the packaged negative that it
-  does not flip: `dispatch-reuses-content-secret.yaml` declares
-  `provider: azure_key_vault` and `vault: kv-opensoft-xfactory-qa` on BOTH
-  bindings, so its qualified keys are equal and it stays red.
+  `secret_ref` it groups by today — **WITH A MANDATORY FALLBACK: where ANY member
+  of a matching `(provider, secret_ref)` set omits `vault`, group that set by the
+  BARE `secret_ref` instead and adjudicate on those terms.** A group of size > 1
+  raises UNLESS every member declares an equal `requirement_id` and
+  pairwise-distinct `consumer` and pairwise-distinct QUALIFIED `fetch_identity`
+  on `(provider, identity_namespace, fetch_identity)` — the secret key carries
+  `vault`, the identity key carries the namespace instead.
+  **THE FALLBACK IS NOT OPTIONAL AND ITS ABSENCE WAS A DEFECT, NOT A
+  SIMPLIFICATION.** An earlier revision of this task claimed the regrouping
+  "only ever narrows a refusal, and only where the two secrets are genuinely
+  distinct", and proved it against `dispatch-reuses-content-secret.yaml` as
+  shipped. **The claim is false and the proof was one fixture wide**: delete the
+  optional `vault:` line from ONE of that fixture's two bindings and an
+  unconditional qualified key takes it from ERROR/exit 1 to clean/exit 0 — the
+  backward-compatibility proof one deletion from going green. With the fallback
+  the claim is true: no refusal in force today is removed, every genuine
+  narrowing is kept, and `authority-scope-indeterminate` accompanies a verdict
+  instead of replacing one. Decision 8.
   `requirement_id` is NOT qualified and must not be: it names a sibling record
   in the domain's own contract tree, not a name in a third party's namespace. The
   exemption is UNANIMOUS — one unaccounted member in a group of three is a
@@ -88,16 +103,26 @@ is the largest obligation in this packet.
   a record declaring none of the three fields is adjudicated exactly as it was
   before this change.
 
+- [ ] 2.5a SEPARABLE COLLISION-ADJACENT WARNING (S-10): where a binding omits
+  `consumer` AND its `fetch_identity` collides with another binding's — the exact
+  case in which 2.3 fails open BECAUSE of that absence — the warning SHALL carry
+  a distinct code or a distinct message clause from the estate-wide
+  `binding-authority-undeclared` baseline. For a full minor that baseline fires
+  on every legacy binding in the estate, so without a separable signal the one
+  warning meaning "a refusal was suppressed here" is indistinguishable from
+  thousands meaning "this record predates the field". It is the compensating
+  control the rule-1 fail-open rests on, and a compensating control nobody can
+  find is not one.
 - [ ] 2.6 `authority-scope-indeterminate` (WARNING), SECRET COMPARISON ONLY: two
   bindings whose bare `secret_ref` matches under the same `provider`, where one
   declares a `vault` and the other omits it, so the record does not say whether
-  they address one store. It CANNOT arise on the identity key, which is
-  `(provider, fetch_identity)` and always fully formed because `provider` is
-  required — do not add a symmetrical identity branch, which would be dead code
-  asserting a case the shape forbids. WARN, never refuse — the same
-  don't-invent-a-verdict posture as 2.3's fail-open — and name both bindings and
-  the missing `vault` so the remedy is obvious. Silence here would let a real
-  collision hide behind an omitted optional field.
+  they address one store. **IT ACCOMPANIES 2.4's FALLBACK VERDICT AND NEVER
+  REPLACES IT** — on a shared bare reference the operator sees the ERROR *and*
+  this warning, never this warning alone. Name both bindings and the missing
+  `vault` so the remedy is obvious. It CANNOT arise on the identity key, whose
+  own undeclared-qualifier case is handled by 2.3's fallback to
+  `(provider, fetch_identity)` rather than by a warning — do not add a
+  symmetrical identity branch here.
 
 ## 3. Fixtures and the count string, which move together
 
@@ -118,11 +143,11 @@ is the largest obligation in this packet.
   **This fixture is the executable form of the 4.1 argument** — green under the
   rejected discriminator, red under the ruled one — so the decision cannot be
   reversed later without a test going red.
-- [ ] 3.4 Register EVERY new negative in `NEGATIVE_EXPECTATIONS` — all four
-  (3.2, 3.3, 3.10, 3.11), not the two this task named before the qualification
-  fix added the others; an unregistered negative is already a self-test error,
-  by design, and 3.11 additionally needs the warning-expectation support that
-  task 3.11 itself calls for.
+- [ ] 3.4 Register EVERY new negative — all FIVE (3.2, 3.3, 3.10, 3.11, 3.12),
+  not the two this task named before review added the others; an unregistered
+  negative is already a self-test error by design. 3.11 registers a WARNING
+  expectation and 3.12 registers BOTH an error and a warning, so both depend on
+  3.14's widening.
 - [ ] 3.5 Leave `negative/dispatch-reuses-content-secret.yaml` UNCHANGED and
   RED. It is the backward-compatibility proof, and a green result there means
   the exemption was written wrong.
@@ -167,20 +192,57 @@ is the largest obligation in this packet.
   silently reversed. Pair it with 3.9: together they prove the key is neither
   too wide nor too narrow, which no single fixture can.
 - [ ] 3.11 NEGATIVE `negative/authority-scope-indeterminate.yaml`: same provider,
-  same bare `secret_ref`, `vault` declared on one binding only. Registered
-  for the WARNING rather than an error — which means the self-test's negative
-  adjudication must be able to register a warning expectation as well as an
-  error one, or this case has no home. Widen it deliberately rather than
-  dropping the fixture; a refusal class with no probe is the gap 2.1's own
-  comment warns about.
-- [ ] 3.12 Re-derive the self-test count string from the fixtures actually
-  added, and update `tests/credential_contracts/` to match. Do NOT carry
-  3.6's "4 positive + 7 negative" forward as if it were still true — 3.9-3.11 move it again, and the string is asserted literally.
+  same bare `secret_ref`, `vault` declared on one binding only, **AND the
+  exemption's conditions all satisfied** (same `requirement_id`, distinct
+  `consumer`s, distinct qualified `fetch_identity`s). Expect the WARNING and NO
+  error. **ITS PREMISE CHANGED WITH THE FALLBACK AND THE FIXTURE IS RE-SPECIFIED
+  RATHER THAN LEFT STALE**: before 2.4 gained the fallback, ANY undeclared-vault
+  record warned without refusing, so this fixture was simply "vault on one side".
+  Now that shape REFUSES too — that is 3.12 — so the warning-without-refusal case
+  must be built deliberately, by satisfying the exemption. The two are NOT
+  duplicates: 3.11 proves the warning stands alone where the record earns it,
+  3.12 proves it never stands alone where the record does not.
+  Registered against a WARNING rather than an error, which is what forces 3.14's
+  widening.
+- [ ] 3.12 NEGATIVE `negative/shared-secret-vault-undeclared.yaml` (S-2): ONE
+  provider, ONE `secret_ref` shared by two bindings, `vault` declared on ONE side
+  only. Expect `shared-secret-identity` (from 2.4's fallback grouping) AND
+  `authority-scope-indeterminate` (accompanying it). **THIS IS THE FIXTURE THAT
+  PINS THE FALLBACK**: it is GREEN under the rejected unconditional qualified
+  grouping and RED under the ruled one, so the ruling lives in the tree and not
+  only in a record. Assert BOTH findings, not just the error — asserting the
+  error alone would pass for an implementation that dropped the warning, and
+  asserting the warning alone is the very defect the fallback exists to prevent.
+- [ ] 3.13 POSITIVE `two-namespaces.binding-template.example.yaml` (D3): two
+  bindings, one provider, the SAME `fetch_identity` string, DISTINCT
+  `identity_namespace` values, distinct consumers. Must produce NO
+  `shared-fetch-identity`. This is what makes the "records the distinction"
+  escape real rather than rhetorical, and it goes red if the namespace ever
+  drops out of the identity key.
+- [ ] 3.14 WIDEN THE SELF-TEST'S NEGATIVE ADJUDICATION, CONCRETELY (S-3). As it
+  stands, `_self_test` reads `NEGATIVE_EXPECTATIONS.get(path.name)` → a single
+  string, and checks `any(f.startswith(want) for f in _semantic_findings(doc))`.
+  Task 2.1 requires warnings to be structurally separate from
+  `_semantic_findings`, so that dict can NEVER express a warning expectation and
+  3.11/3.12 have no home in it. **The mechanism: add a module-level
+  `WARNING_EXPECTATIONS: dict[str, str]` beside `NEGATIVE_EXPECTATIONS`, and
+  adjudicate each negative against BOTH** — every prefix registered in
+  `NEGATIVE_EXPECTATIONS` must appear in `_semantic_findings(doc)`, every prefix
+  registered in `WARNING_EXPECTATIONS` must appear in the warning channel, and a
+  fixture named in NEITHER dict stays a self-test error exactly as an
+  unregistered negative is today. A parallel dict is chosen over a tuple value on
+  the existing dict so that the error path's shape and its `startswith`
+  comparison are untouched — the widening adds a channel rather than editing the
+  one the published check already adjudicates on.
+- [ ] 3.15 Re-derive the self-test count string from the fixtures actually
+  added, and update `tests/credential_contracts/` to match. Do NOT carry any
+  earlier revision's number forward — this packet's fixture set has been
+  restated four times under review, and the string is asserted LITERALLY.
 
 ## 4. Documentation
 
 - [ ] 4.1 `docs/domain-factory-starter-pack.md` § 9: the
-  `credentials/bindings.template.yaml` example gains the three fields, so the
+  `credentials/bindings.template.yaml` example gains the four fields, so the
   scaffold a domain copies is the conforming one rather than the minimal one.
   **Sweep the guidance bullets beneath it in the same edit** — the list says
   bindings belong to deployments and to use references, and it must now also
@@ -189,7 +251,20 @@ is the largest obligation in this packet.
 - [ ] 4.2 `docs/credential-access-model.md`: record that per-system authority is
   now a property of the RECORD rather than of review, and that the declaration
   is an assertion by the binding's owner which nothing here verifies against the
-  store.
+  store. **Give this file the same treatment 4.1 gets** — the example AND the
+  guidance bullets beneath it — rather than a prose note alone; a definition
+  gaining a conjunct leaves every one-conjunct sentence beside it stale, and
+  that rule does not stop at the starter pack.
+- [ ] 4.2a EXTEND THE SWEEP TO THE TWO FILES REVIEW FOUND UNREACHED (S-9):
+  `docs/notebook-projection-migration-runbook.md:104-106` and
+  `docs/self-hosted-runtime-binding-plan.md:331-337`. Both carry one-conjunct
+  binding descriptions that this change's four fields falsify, and **no task in
+  any earlier revision reached either of them** — §7.2's five-occurrences-in-four-
+  files sweep is correct for ITS fact (the custody packet's enforceability claim)
+  and is not this sweep. Recorded as measured: promoted canon under
+  `openspec/specs/` is CLEAN — zero occurrences of `secret_ref`,
+  `rotation_policy`, `credential_bindings` or `shared-secret-identity` — so the
+  sweep's whole surface is `docs/`, and it is these three files.
 - [ ] 4.3 Do NOT edit `docs/lifecycle-notebook-projection.md` or any ratified
   custody text to change "access identity" to "fetch identity". The synonymy is
   declared in the requirement; a ratified record is not rewritten for a
@@ -201,10 +276,18 @@ is the largest obligation in this packet.
   the PROPOSAL commit series, so ratifying this packet drifts no release
   inventory. Re-verify at realization rather than trusting this line — the
   release surface moves.
-- [ ] 5.2 ALLOCATE THE MINOR AT REALIZATION, BY MERGE ORDER, not before.
-  `contract-v2.2` is expected; it is not reserved, because
-  `add-credential-escrow-checkout` edits the same schema and owes the same
-  minor. Bump `contract_bundle_version` in `contracts/manifest.yaml` and write
+- [ ] 5.2 ALLOCATE THE MINOR AT REALIZATION, BY MERGE ORDER, not before, and
+  **FRESH-COUNT IT AGAINST `origin/main` AT THAT MOMENT RATHER THAN TRUSTING ANY
+  NUMBER WRITTEN IN THIS PACKET.** This train moves faster than a proposal sits:
+  this packet has already had `contract-v1.45`, `contract-v2.1` and
+  `contract-v2.2` named as its expected allocation and outlived all three. As
+  measured 2026-08-30, main declares `contract-v2.2` (cut and TAGGED) and the
+  merged `add-signed-execution-chain` already names `contract-v2.3` as its own
+  target, so the earliest number this packet could take is `contract-v2.4` — and
+  that is a measurement, not a reservation. Read `contracts/manifest.yaml`,
+  the `contracts/CHANGELOG.md` head and `git tag -l 'contract-v*'` on main, then
+  take the next free minor. `add-credential-escrow-checkout` edits the same
+  schema and owes a minor too. Bump `contract_bundle_version` in `contracts/manifest.yaml` and write
   the `contracts/CHANGELOG.md` entry ATOMICALLY with the contract files, per the
   policy's "The manifest and changelog update SHALL be committed atomically".
 - [ ] 5.3 The CHANGELOG entry declares **change class ADDITIVE (minor)** and
@@ -222,16 +305,60 @@ is the largest obligation in this packet.
   `fetch_identity`. The policy requires a deprecation to state both;
   `contract-v1.34` is the worked precedent, and its removal target was named in
   the same list this cut appends to.
+  **AND NAME THE OBJECT-CLOSING'S REMOVAL VERSION IN THE SAME ENTRY (S-7).**
+  Task 1.3 leaves the binding object OPEN, which is why a second spelling like
+  `access_identity` validates silently at this minor. Left there, that is an
+  open-ended promise that review will catch it. Instead the entry SHALL state
+  that the binding object closes to unknown keys at the next major — the same
+  release that makes `consumer` and `fetch_identity` required — so the second
+  spelling carries a removal version rather than a standing intention.
+  Recorded with it (LS-F10), because it bounds the risk and this packet did not
+  previously claim it: the second spelling is not silent for long. From this cut
+  a binding declaring `access_identity` and neither of the two real fields draws
+  `binding-authority-undeclared` — the deprecation warning fires on exactly the
+  record that misspelled the field, so the channel this change introduces is
+  itself the compensating control for the gap task 1.3 leaves open.
 - [ ] 5.5 Assert what does NOT move: no required field is added, no shape is
   removed, no vocabulary is reinterpreted, `contract_schema_version` is
   unchanged, and a consumer pinned at the previous bundle stays conformant until
   it deliberately upgrades. State it as the four properties, not as the word
   "additive".
+- [ ] 5.6a REFRESH THE `credential-contracts` ROW'S `sha256` IN
+  `contracts/manifest.yaml`, ATOMICALLY WITH THE SCHEMA EDIT (S-4). The manifest
+  records a digest per registered contract, and this change edits the bytes that
+  digest covers — so the row goes stale the moment 1.1 lands. **No earlier
+  revision of § 5 named it**: the ritual listed the changelog, the bundle bump,
+  the inventory rebuild, `verify-commit`, `verify-promotion` and the tag, and
+  `verify-commit` does NOT read the manifest
+  (`grep "manifest" scripts/validate-contract-release.py` → zero hits), so nothing
+  would have caught it. Run `scripts/validate-manifest-digests.py` and READ ITS
+  COUNT LINE. The versioning policy's own sentence makes this non-optional:
+  consumers pin "the exact commit and required file digests".
+  NOTE, and do not conflate the two: that checker is RED at head and at base on
+  an unrelated row (`ideation-dashboard-snapshot.schema.yaml`, 1/145). That is a
+  pre-existing defect owned elsewhere, NOT this change's, and it is routed
+  separately — but it means a green run cannot be the acceptance signal here.
+  Compare the `credential-contracts` row specifically.
 - [ ] 5.6 Rebuild the inventory wholesale —
   `scripts/validate-contract-release.py build --tag <tag> --output contracts/releases/<tag>.digests.yaml` — then `verify-commit --commit <sha>`
   green, then `verify-promotion` before tagging, then the annotated tag, then
   `verify-tag` from an INDEPENDENT clone. The tag points at the realized
   commit; a bundle is not published until its tag exists.
+
+- [ ] 5.7 THE REBASE OBLIGATION, WRITTEN DOWN NOW RATHER THAN MET AT A MERGE
+  (D5). **Two sequential cuts, THIS PACKET FIRST**, with
+  `add-credential-escrow-checkout` rebasing onto it. The coupling is CERTAIN, not
+  conditional, and it is not where an earlier revision of this packet located it:
+  it is in `_self_test` itself. `EXAMPLES_DIR` is HARD-CODED to
+  `examples/credential-contracts` and `NEGATIVE_EXPECTATIONS` is a single
+  module-level dict, so BOTH packets edit the same self-test count string and the
+  same registry regardless of which tree their fixture files live in — the
+  different-fixture-trees reasoning was about residency and never bore on this.
+  Whichever lands second re-derives the count string and re-registers against the
+  landed dict. **The party that owes it is `add-credential-escrow-checkout`**,
+  because this packet cuts first. A dated one-line note is added to that packet's
+  own `tasks.md` in this commit so the obligation is visible from the side that
+  owes it; if that file is ever contended, the obligation still stands here.
 
 ## 6. Validate green
 
@@ -272,6 +399,22 @@ is the largest obligation in this packet.
   Whether the ratified delta's now-false scenario is corrected by amendment or
   left standing as history is a lifecycle question for that packet's owner, not
   a silent edit by this one.
+- [ ] 7.2a ARCHIVE ORDER IS A CONSTRAINT, NOT A PREFERENCE (S-14). This packet
+  SHALL NOT archive before `add-notebook-hosting-credential-custody`. Its three
+  ADDED requirements presume that packet's operated-identity framing, and that
+  framing is NOT in promoted canon yet — measured: `grep -c "operated identity"`
+  over `openspec/specs/` returns **0**. Archiving first would promote text
+  resting on an obligation canon does not hold, which is a stale-canon defect
+  created by ORDER alone and cured by order alone. Cheap to honour if written
+  down, invisible if discovered at the archive gate.
+- [ ] 7.2b STATE WHAT A VALIDATOR DOES WHEN THE MAP KEY AND `requirement_id`
+  DISAGREE (S-13). A binding keyed `intent_dispatch` that declares
+  `requirement_id: corpus_content_write` states the same fact twice and
+  contradicts itself. The rule: REPORT the disagreement; do NOT silently prefer
+  one. The requirement makes `requirement_id` authoritative for RESOLUTION, which
+  is what a consumer needs, and that is not a licence for the checker to swallow
+  a self-contradicting record — a record whose two statements of one fact
+  conflict is a defect wherever the resolution lands.
 - [ ] 7.3 Revisit task 4.1's declined fixture: its stated reason ("would TRIP
   the validator") no longer holds, and 3.1 packages the example it wanted.
 

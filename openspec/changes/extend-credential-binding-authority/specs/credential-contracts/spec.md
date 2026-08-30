@@ -1,9 +1,43 @@
 # credential-contracts (delta) — extend-credential-binding-authority
 
+## MODIFIED Requirements
+
+### Requirement: Dispatch-only credential least privilege and serving-tier separation
+A dispatch-only credential — one that exists to TRIGGER execution (a workflow dispatch or job kickoff) — SHALL be scoped to exactly the minimal permission required to trigger its one named target and nothing more (for a GitHub-hosted factory, `actions: write` on the single repository that owns the workflow), carrying no repository-contents authority. It SHALL be a DISTINCT binding from any content-write credential the same capability uses, and a zero-write-authority serving surface holding a dispatch-only credential MUST NOT hold — nor hold key material capable of minting — a content-write credential.
+
+THE CHECK THAT ENFORCES THE DISTINCT-BINDING HALF COMPARES QUALIFIED SECRET
+REFERENCES, AND THIS REQUIREMENT SAYS SO RATHER THAN LEAVING IT TO THE
+REQUIREMENT THAT CHANGED IT. `shared-secret-identity` groups bindings on
+`(provider, vault, secret_ref)`, so two bindings naming one label in two
+different vaults are two secrets and are not a collision. Where the
+qualification is NOT established — any member of a matching
+`(provider, secret_ref)` set omitting `vault` — the grouping SHALL fall back to
+the bare `secret_ref`, so a dispatch binding and a content-write binding sharing
+a reference remain REFUSED whether or not either declares its vault. The
+serving-tier separation this requirement exists for SHALL NOT be escapable by
+omitting an optional field.
+
+#### Scenario: A dispatch credential requests contents authority
+- **WHEN** a dispatch-only credential requirement or binding grants repository-contents write, or any scope beyond triggering its one named target
+- **THEN** the validator MUST report an error
+
+#### Scenario: A dispatch credential reuses the content credential's identity
+- **WHEN** a dispatch binding names the same App or key identity as a content-write binding
+- **THEN** it MUST be rejected, because the serving tier would then hold key material capable of minting a content-write token
+
+#### Scenario: A correctly separated dispatch credential
+- **WHEN** a dispatch-only credential is scoped to trigger exactly one named workflow on one repository, held as a binding distinct from the content-write credential
+- **THEN** it is valid
+
+#### Scenario: A dispatch and content binding share a reference with one vault undeclared
+- **WHEN** a dispatch binding and a content-write binding share a secret reference under one provider, and only one of them declares its vault
+- **THEN** it MUST still be rejected, because the grouping falls back to the bare reference where the qualification is unestablished
+- **AND** the accompanying `authority-scope-indeterminate` warning does not stand in place of that refusal
+
 ## ADDED Requirements
 
 ### Requirement: The credential binding record declares the authority that reaches the secret
-A credential binding SHALL be able to declare, IN THE RECORD rather than in review, the three facts that make its authority readable: the CONSUMING SYSTEM that reaches the credential through this binding, the IDENTITY that consumer authenticates to the secret store with, and the CREDENTIAL REQUIREMENT the binding resolves. Until it can, two bindings naming the same store principal are indistinguishable from two bindings naming different ones, and every rule about per-system authority is unenforceable by construction.
+A credential binding SHALL be able to declare, IN THE RECORD rather than in review, the four facts that make its authority readable: the CONSUMING SYSTEM that reaches the credential through this binding, the IDENTITY that consumer authenticates to the secret store with, the NAMESPACE that issues that identity, and the CREDENTIAL REQUIREMENT the binding resolves. Until it can, two bindings naming the same store principal are indistinguishable from two bindings naming different ones, and every rule about per-system authority is unenforceable by construction.
 
 THE SPELLINGS ARE THE ESTATE'S OWN, a record SHALL use them, and no second
 vocabulary is introduced.
@@ -53,11 +87,15 @@ are per-binding and unconstrained, so bare string equality SHALL NOT be treated
 as evidence of a shared authority or a shared secret. But the qualification
 differs by field and SHALL NOT be uniform:
 
-- `fetch_identity` is a name in the PROVIDER'S IDENTITY NAMESPACE and SHALL be
-  compared on `(provider, fetch_identity)`. It SHALL NOT be qualified by
+- `fetch_identity` is a name in an IDENTITY NAMESPACE and SHALL be compared on
+  `(provider, identity_namespace, fetch_identity)`. It SHALL NOT be qualified by
   `vault`. One principal granted on two vaults is ONE AUTHORITY, and folding
   the vault into the identity key would report two — which is precisely the
   shared authority the per-system obligation exists to forbid, made invisible.
+- `identity_namespace` names the DIRECTORY, ACCOUNT OR TENANT WITHIN THE PROVIDER
+  that issues the identity — the boundary inside which a principal name is
+  unique. `provider` alone is too coarse: two directories of one provider may
+  each hold a principal called `runtime_identity`, and they are two authorities.
 - `secret_ref` is a name in a VAULT and SHALL be compared on
   `(provider, vault, secret_ref)`. The same label in two vaults is two secrets.
 - `requirement_id` SHALL NOT be qualified at all: a requirement is a sibling
@@ -125,7 +163,7 @@ retiring.
 - **AND** reconciling it to the per-binding declaration is recorded as owed to the change that owns that record, not performed by this one
 
 ### Requirement: One operated identity may be shared, but one fetch identity may not
-Two credential bindings SHALL NOT declare the same QUALIFIED `fetch_identity` — the same identity name in the same provider's identity namespace, compared on `(provider, fetch_identity)` and NEVER qualified by `vault` — while naming DIFFERENT consumers; the validator SHALL report `shared-fetch-identity` when they do. This does not restate the obligation that each consuming system reaches a shared operated identity through its own binding — it makes that obligation CHECKABLE, by giving the record the field whose collision is the obligation's exact violation.
+Two credential bindings SHALL NOT declare the same QUALIFIED `fetch_identity` — the same identity name in the same issuing namespace, compared on `(provider, identity_namespace, fetch_identity)` and NEVER qualified by `vault` — while naming DIFFERENT consumers; the validator SHALL report `shared-fetch-identity` when they do. This does not restate the obligation that each consuming system reaches a shared operated identity through its own binding — it makes that obligation CHECKABLE, by giving the record the field whose collision is the obligation's exact violation.
 
 ONE SYSTEM REACHING TWO CREDENTIALS THROUGH ONE FETCH IDENTITY IS NOT THIS
 FAULT and SHALL NOT be reported as one. A consumer holds one identity against
@@ -150,15 +188,23 @@ requirement exists to refuse. The comparison is therefore always determinate:
 `provider` is required by the published shape, so the identity key is always
 fully formed and no case arises in which the record cannot say.
 
-THE COARSEST NAMESPACE THE PUBLISHED SHAPE OFFERS IS `provider`, AND THAT IS AN
-OVER-REPORT RATHER THAN AN UNDER-REPORT. The record carries no tenant or account
-field, so two identically-named principals in two different tenants of the same
-provider compare equal and are reported. That direction is chosen deliberately:
-a false refusal is VISIBLE and ESCAPABLE — the operator renames one identity, or
-records the distinction — while a false clearance is SILENT and defeats the
-obligation outright. A rule whose purpose is catching a shared authority SHALL
-err toward reporting. A declared identity-namespace field would remove the
-over-report and is named as owed to a successor rather than added here.
+WHERE `identity_namespace` IS ABSENT THE COMPARISON FALLS BACK TO `provider`
+ALONE, AND THAT FALLBACK ERRS TOWARD REPORTING. An undeclared namespace does not
+excuse the comparison: two identically-named principals under one provider with
+no namespace declared SHALL still be reported, because the record does not say
+they are different and a rule for catching a shared authority may not read
+silence as distinctness. Declaring DISTINCT namespaces is what makes them
+distinct, and it is a real escape rather than a rhetorical one precisely because
+the field now exists to carry it.
+
+THE TWO FALLBACKS POINT THE SAME WAY, WHICH IS THE PROPERTY TO CHECK. The secret
+comparison falls back to the BARE reference where `vault` is unestablished, so it
+refuses rather than clears; the identity comparison falls back to `provider`
+alone where `identity_namespace` is unestablished, so it reports rather than
+clears. Neither absence buys silence. An earlier draft of this packet had these
+two pointing OPPOSITE ways — the secret side clearing on an omitted field while
+the identity side reported — and that incoherence is corrected here rather than
+left for a reader to notice.
 
 WHAT QUALIFICATION DOES NOT BUY, said plainly. A binding that MISDECLARES its
 provider escapes the comparison, and no check here detects that, because nothing
@@ -185,10 +231,14 @@ validator does not perform and is named as owed to a successor.
 - **WHEN** two bindings name different consumers and declare the same fetch-identity string, but their providers differ
 - **THEN** no collision is reported, because the label names a principal in each provider's own namespace and the two are not the same authority
 
-#### Scenario: Two tenants of one provider reuse an identity name
-- **WHEN** two bindings under the same provider name identically-labelled principals that in fact belong to different tenants or accounts
-- **THEN** the validator reports a collision, because the published shape carries no tenant or account field to tell them apart
-- **AND** that over-report is accepted deliberately over a silent clearance, is escapable by naming the identities distinctly, and a declared identity-namespace field is recorded as owed to a successor
+#### Scenario: Two namespaces of one provider hold a same-named principal
+- **WHEN** two bindings under the same provider declare the same fetch identity but DISTINCT `identity_namespace` values
+- **THEN** no collision is reported, because the record now states that the two principals are issued by different directories and are two authorities
+
+#### Scenario: A same-named principal with no namespace declared
+- **WHEN** two bindings under the same provider declare the same fetch identity and neither declares an `identity_namespace`
+- **THEN** the validator REPORTS the collision, because the record does not say the two are distinct and silence is not read as distinctness
+- **AND** the remedy is to declare the namespaces, which the shape now carries — the escape is a field the operator can actually use rather than an instruction with nowhere to record it
 
 #### Scenario: Two consuming systems each hold their own
 - **WHEN** two bindings name different consumers and declare different fetch identities
@@ -208,7 +258,7 @@ validator does not perform and is named as owed to a successor.
 - **THEN** the rule does not compare them, and that document scope is a recorded limit of the check rather than a statement that the estate conforms
 
 ### Requirement: A shared secret reference is conforming only where the record shows one requirement and distinct authorities
-A shared QUALIFIED `secret_ref` — the same secret name under the same `provider` and the same `vault` — SHALL remain a `shared-secret-identity` refusal EXCEPT where every binding sharing it declares the SAME `requirement_id` AND pairwise-DISTINCT `consumer` AND pairwise-DISTINCT QUALIFIED `fetch_identity` values (distinct in the provider's identity namespace, `vault` playing no part in that comparison); where any of those three conditions is unmet or undeclared, the refusal stands exactly as it stood before this requirement existed. This is what lets the record carry a deliberately shared operated identity — one account, two systems, two authorities — without weakening the check that keeps two different credentials from collapsing into one.
+A shared QUALIFIED `secret_ref` — the same secret name under the same `provider` and the same `vault` — SHALL remain a `shared-secret-identity` refusal EXCEPT where every binding sharing it declares the SAME `requirement_id` AND pairwise-DISTINCT `consumer` AND pairwise-DISTINCT QUALIFIED `fetch_identity` values (distinct on `(provider, identity_namespace, fetch_identity)`, `vault` playing no part in that comparison); where any of those three conditions is unmet or undeclared, the refusal stands exactly as it stood before this requirement existed. This is what lets the record carry a deliberately shared operated identity — one account, two systems, two authorities — without weakening the check that keeps two different credentials from collapsing into one.
 
 THE EXEMPTION SHALL NOT BE KEYED ON DISTINCT CONSUMERS ALONE, and the reason is
 executable rather than theoretical. The fault this check exists to catch — a
@@ -235,7 +285,9 @@ THE EXEMPTION IS NEVER DECIDED ON AN INDETERMINATE QUALIFICATION, and this
 follows from the grouping rather than needing a rule of its own. Members of a
 group share the qualified secret key, so their `provider` is equal by
 construction; the identity comparison inside that group is keyed on
-`(provider, fetch_identity)` and therefore reduces to the identity name alone. A
+`(provider, identity_namespace, fetch_identity)`; `provider` being equal, the
+comparison reduces to the namespace and the identity name, both of which the
+record either states or does not. A
 reader checking whether a record could claim the exemption while its authority
 distinctness is merely unestablished will find that it cannot.
 
@@ -247,17 +299,38 @@ published check groups by the bare reference today. Fixing it in one place and
 not the other would leave the exemption resting on a qualified identity test and
 an unqualified secret test, which is the shape that lets one half of a rule
 contradict the other. The two keys are therefore both qualified and DELIBERATELY
-DIFFERENT: `(provider, fetch_identity)` for the authority, and
-`(provider, vault, secret_ref)` for the secret.
+DIFFERENT: `(provider, identity_namespace, fetch_identity)` for the authority,
+and `(provider, vault, secret_ref)` for the secret — the first falling back to
+`provider` alone where the namespace is undeclared, the second falling back to
+the BARE reference where the vault is undeclared, and BOTH fallbacks erring
+toward reporting.
 
 `vault` IS OPTIONAL, SO THE SECRET COMPARISON — AND ONLY THAT ONE — CAN BE
-INDETERMINATE. Where two bindings match on provider and bare `secret_ref` while
-one declares a `vault` and the other omits it, the record does not say whether
-they address one store: the validator SHALL raise
-`authority-scope-indeterminate` as a WARNING and SHALL NOT refuse. That is the
-same posture this capability already takes for an undeclared consumer — report
-what the record fails to answer, never a verdict it does not support. The
-identity comparison never reaches this state, because `provider` is required.
+INDETERMINATE, AND WHERE IT IS THE GROUPING SHALL FALL BACK RATHER THAN
+DISSOLVE. Where any member of a matching `(provider, secret_ref)` set omits
+`vault`, the qualification is not established for that set, and the validator
+SHALL group that set by the BARE `secret_ref` — the grouping in force before this
+requirement existed — and adjudicate it on those terms. `authority-scope-indeterminate`
+SHALL be raised as a WARNING that ACCOMPANIES whatever verdict the fallback
+reaches; it SHALL NOT REPLACE a refusal. The identity comparison never reaches
+this state, because `provider` is required.
+
+THE FALLBACK IS WHAT KEEPS THE REFINEMENT ADDITIVE, AND IT IS NOT A CAUTION —
+IT IS A CORRECTION. Qualifying unconditionally does not merely fail to catch a
+case: it TAKES AWAY a refusal that stands today. A record with two bindings on
+one provider and one `secret_ref`, with `vault` declared on one side only,
+is REFUSED by the published check now; under an unconditional qualified key its
+group would split, nothing would collide, and a warning would stand where an
+error stood. The packaged dispatch/content negative is ONE OPTIONAL LINE from
+being exactly that record. Falling back where the qualification is unestablished
+keeps every genuine narrowing this refinement exists for — two declared vaults,
+two declared providers — while refusing nothing that is refused today, which is
+the property the ADDITIVE classification depends on.
+
+SILENCE IS NEVER THE INDETERMINATE VERDICT. Because the fallback adjudicates
+rather than abstains, an unestablished qualification produces a refusal AND a
+warning, or a clean record AND a warning — never a warning alone standing in for
+a check that did not run.
 
 A RECORD THAT FAILS THIS RULE AND THE SHARED-FETCH-IDENTITY RULE TOGETHER SHALL
 HEAR BOTH, and the overlap is deliberate rather than an unnoticed duplication.
@@ -289,8 +362,14 @@ anyway.
 
 #### Scenario: The record cannot establish which vault a secret is in
 - **WHEN** two bindings match on provider and on the bare secret reference, and one declares a vault while the other omits it
-- **THEN** the validator raises `authority-scope-indeterminate` as a WARNING and does NOT refuse, because the record does not say whether the two address one store
+- **THEN** the set is grouped by the BARE secret reference — the grouping in force before this requirement — so the verdict is whatever that grouping reaches, and a shared reference is still REFUSED
+- **AND** `authority-scope-indeterminate` is raised as a WARNING that ACCOMPANIES that verdict rather than replacing it
 - **AND** the identity comparison never reaches this state, because `provider` is required by the published shape
+
+#### Scenario: The packaged dispatch negative loses one optional line
+- **WHEN** the packaged dispatch/content negative has `vault` deleted from one of its two bindings
+- **THEN** it is STILL REFUSED, because the fallback grouping adjudicates it on the bare reference exactly as the published check does today
+- **AND** a qualified key applied unconditionally would have turned it green, which is why the fallback is a condition of this requirement rather than a refinement of it
 
 #### Scenario: Distinct consumers and identities but different requirements
 - **WHEN** two bindings share a secret reference and declare distinct consumers and distinct fetch identities, but name different requirements or name none

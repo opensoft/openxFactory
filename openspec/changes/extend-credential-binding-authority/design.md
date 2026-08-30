@@ -250,15 +250,47 @@ a key that looked tidy. A vault is where a SECRET lives, so it belongs in the
 secret key and nowhere else. The asymmetry is the correct answer, not an
 inconsistency to be smoothed away.
 
-**THE COARSEST NAMESPACE THE SHAPE OFFERS IS `provider`, AND THE ERROR DIRECTION
-IS CHOSEN.** There is no tenant or account field, so two identically-named
-principals in two tenants of one provider compare equal and are reported. That
-over-report is preferred to its opposite on a stated principle: a false refusal
-is VISIBLE and ESCAPABLE — rename one identity — while a false clearance is
-SILENT and defeats the obligation. A rule for catching a shared authority errs
-toward reporting. A declared identity-namespace field would close it and is
-named as owed rather than added, because adding a fourth field to carry a
-second-order case is scope this packet has not been given (decision 9).
+## Ruling: the fourth field, and what it may be called
+
+The over-report `provider`-only qualification produced was accepted in an
+earlier revision as "escapable — the operator renames one identity, or records
+the distinction." Review established that **there was nowhere to record it**:
+the published shape carries no directory, account or tenant field, so half the
+escape clause named an act the record could not perform. The council ruled the
+field in at this minor rather than deferring it, and it is added as
+`identity_namespace` — the directory, account or tenant WITHIN the provider that
+issues the identity.
+
+**THE NAME WAS CHOSEN AGAINST THE ESTATE'S OWN VOCABULARY, AND TWO OBVIOUS
+CANDIDATES WERE REJECTED BECAUSE THEY ARE ALREADY TAKEN WITH OTHER MEANINGS.**
+
+- **`tenant` / `tenant_ref` — REJECTED, and this is the important one.**
+  `tenant` is a RESERVED LAYER TERM in this family: `adopt-subject-tenant-domain-vocabulary`
+  (ratified 2026-07-23) makes Subject / Tenant / Domain the canonical Hermes
+  layering, and `contracts/policies/layer-vocabulary.yaml` defines `tenant` as
+  "the tenant-operator organization running the installation". The `tenant_ref`
+  key already in `contracts/schemas/` carries exactly that meaning. Using either
+  for "the Azure AD directory that issued this principal" would give a ratified
+  word a second, unrelated sense inside the same contract family — the precise
+  failure the no-second-vocabulary rule exists to prevent, arrived at from the
+  opposite direction than usual.
+- **`realm` — REJECTED as provider-specific.** It appears 59 times in
+  `add-identity-brokering`, where it means a KEYCLOAK realm ("one realm per
+  environment"). Importing it into a provider-neutral field would name every
+  provider's directory after one provider's product.
+- **`identity_namespace` — TAKEN.** It collides with no reserved term
+  (zero occurrences anywhere in `contracts/`, `docs/` or `openspec/specs/`), it
+  follows the estate's existing qualified-compound idiom (`policy_namespace`),
+  and it is the phrase this packet's own requirement text and the whole review
+  already used for the concept before any field existed to carry it. Naming the
+  field after the words already in use is the cheapest possible consistency.
+
+**BOTH FALLBACKS NOW POINT THE SAME WAY, WHICH IS THE PROPERTY THE COUNCIL
+ASKED FOR.** Absent `identity_namespace`, the identity comparison falls back to
+`provider` alone and STILL REPORTS a same-named principal — silence is not
+distinctness. Absent `vault`, the secret comparison falls back to the bare
+reference and STILL REFUSES. An earlier revision had these pointing opposite
+ways, and that incoherence was the substance of one seat's objection.
 
 **AND THE DEFECT WAS NOT NEW, WHICH IS WHY THE FIX IS UNIFIED RATHER THAN
 LOCAL.** The published `shared-secret-identity` groups bindings by bare
@@ -270,12 +302,31 @@ comparison and not the other would also leave the shared-secret exemption
 resting on a qualified identity test beside an unqualified secret test — one
 half of a rule able to contradict the other.
 
-Regrouping a published check is a behaviour change and is flagged as decision 8.
-It only ever NARROWS a refusal, and only where the two secrets are genuinely
-distinct. Checked against the fixture that matters rather than assumed:
-`negative/dispatch-reuses-content-secret.yaml` declares
-`provider: azure_key_vault` and `vault: kv-opensoft-xfactory-qa` on both
-bindings, so its qualified keys are equal and it stays red.
+Regrouping a published check is a behaviour change and is decision 8.
+
+**THE UNCONDITIONAL FORM WAS WRONG, AND THE CORRECTION IS THE SUBSTANCE OF THIS
+REVISION.** An earlier revision asserted the regrouping "only ever NARROWS a
+refusal, and only where the two secrets are genuinely distinct", and supported it
+by observing that `negative/dispatch-reuses-content-secret.yaml` declares one
+provider and one vault on both bindings so its qualified keys are equal.
+**That check was true of the fixture and false of the claim.** Two seats
+independently executed the rule against a mutation of that very fixture — one
+optional `vault:` line deleted from one binding — and found it goes from REFUSED
+(exit 1) today to CLEAN (exit 0, warning only) under an unconditional qualified
+key. The backward-compatibility proof this packet leaned on was one deletion from
+going green, and the "narrowing-only" bound was disproven rather than doubted.
+
+**THE FIX IS A FALLBACK, NOT A RETREAT.** Where any member of a matching
+`(provider, secret_ref)` set omits `vault`, the qualification is unestablished
+and the grouping falls back to the BARE `secret_ref` — the grouping in force
+today — so `authority-scope-indeterminate` ACCOMPANIES whatever verdict that
+reaches instead of REPLACING a refusal. Executed by the seat that prescribed it:
+it closes both escape records, preserves every genuine narrowing the regrouping
+exists for (two declared vaults, two declared providers), preserves the
+two-consumer exemption, and refuses nothing valid today — so the ADDITIVE
+classification the whole release plan rests on is undisturbed. With the fallback
+the narrowing-only claim is finally true; without it, it was the sentence a veto
+would have been taken on.
 
 **WHERE THE QUALIFICATION CANNOT BE ESTABLISHED, WARN.** `vault` is optional, so
 two bindings may match on bare name and same provider while one declares a vault
@@ -301,14 +352,17 @@ Three changes to `scripts/validate-credential-contracts.py`, specified here so
 realization is mechanical.
 
 1. **`shared-fetch-identity` (ERROR).** Within one document, two bindings whose
-   QUALIFIED key `(provider, fetch_identity)` is equal and both declaring
-   `consumer`, where the consumers differ. Never on the bare string, and NEVER
-   qualified by `vault` — one principal granted on two vaults is one authority.
-   Not raised when either side omits `consumer` — see 3. This key is always
-   fully formed, because `provider` is required, so rule 4 cannot apply to it.
+   QUALIFIED key `(provider, identity_namespace, fetch_identity)` is equal and
+   both declaring `consumer`, where the consumers differ. Never on the bare
+   string, and NEVER qualified by `vault` — one principal granted on two vaults
+   is one authority. Where `identity_namespace` is undeclared the key falls back
+   to `(provider, fetch_identity)`, which REPORTS rather than clears. Not raised
+   when either side omits `consumer` — see 3.
 2. **`shared-secret-identity` (ERROR, refined).** Group bindings by the
    qualified key `(provider, vault, secret_ref)`, not by the bare `secret_ref`
-   they are grouped by today. A group of size > 1 raises unless EVERY member declares
+   they are grouped by today — EXCEPT that where any member of a matching
+   `(provider, secret_ref)` set omits `vault`, that set falls back to bare
+   `secret_ref` grouping and is adjudicated on those terms. A group of size > 1 raises unless EVERY member declares
    `requirement_id`, all equal; and every member declares `consumer` and
    `fetch_identity`, each pairwise distinct across the group. The existing
    message is kept for the unexempted case, because it is the same finding.
@@ -327,9 +381,20 @@ realization is mechanical.
 
 4. **`authority-scope-indeterminate` (WARNING).** SECRET COMPARISON ONLY: bare
    `secret_ref` matches under one provider, but one binding declares a `vault`
-   and the other omits it. Warn, naming both bindings and the missing `vault`;
-   never refuse. It cannot arise on the identity key, which needs only the
-   required `provider`.
+   and the other omits it. Warn, naming both bindings and the missing `vault`.
+   **It ACCOMPANIES the fallback verdict from rule 2 and never stands in place
+   of it** — so on a shared reference the operator sees an ERROR and this
+   warning, not this warning alone.
+
+5. **`binding-authority-undeclared` carries a SEPARABLE COLLISION-ADJACENT
+   FORM.** The estate-wide deprecation warning will fire on every legacy binding
+   for a full minor, which makes the one case that matters — an undeclared
+   `consumer` on a binding whose `fetch_identity` COLLIDES with another's, where
+   rule 1 is failing open precisely because of that absence — unfindable in the
+   noise. That case SHALL carry a distinct code or a distinct message clause, so
+   it is triageable rather than buried. It is the compensating control the whole
+   rule-1 fail-open rests on, and a compensating control nobody can find is not
+   one.
 
 **The fail-open is deliberate and bounded.** Rule 1 stays silent when a consumer
 is undeclared because the record genuinely cannot distinguish one consumer from
@@ -341,14 +406,16 @@ pre-contract changes — report the absence, never infer the fact.
 
 ## Fixtures and the count string
 
-`examples/credential-contracts/` gains TWO POSITIVES and FOUR NEGATIVES — the
-two-consumer positive and the cross-provider positive; and negatives for
-`shared-fetch-identity`, the different-requirements case, the same identity
-across two vaults, and the indeterminate secret scope. The proposal's
-`code_surface` enumerates the same six BY NAME, because a code-surface
-declaration that undercounts is a realization instruction to skip the regression
-probes it omits — which is how it was caught, having still declared three after
-the qualification fix added two; the self-test line moves from
+`examples/credential-contracts/` gains THREE POSITIVES and FIVE NEGATIVES — the
+two-consumer positive, the cross-provider positive and the two-namespaces
+positive; and negatives for `shared-fetch-identity`, the different-requirements
+case, the same identity across two vaults, the indeterminate secret scope with
+the exemption satisfied (warning, no refusal), and the shared reference with
+`vault` undeclared on one side (refusal AND warning — the fixture that pins the
+fallback). The proposal's `code_surface` enumerates the same eight BY NAME,
+because a code-surface declaration that undercounts is a realization instruction
+to skip the regression probes it omits — which is how an undercount was caught
+once already, the front matter still declaring three after a fix had added two; the self-test line moves from
 "3 positive + 5 negative" to whatever the fixtures actually added make it —
 derived once at realization rather than written here, because it was already
 restated twice while this packet was in review — and `tests/credential_contracts/test_dispatch_credential_contract.py`
@@ -377,8 +444,13 @@ fixture territory, is not a release-inventory member, and is not registered in
 
 The cut is owed by the versioning policy rather than by inventory drift, and the
 measurement is in the proposal's front-matter: the credential schema is not one
-of `contract-v2.1.digests.yaml`'s 192 entries. The number is allocated at
-realization by merge order; `contract-v2.2` is expected and is not reserved.
+of the declared bundle's digest inventory. The number is allocated at
+realization by merge order and FRESH-COUNTED THEN, never trusted from here:
+this packet has already outlived `contract-v1.45`, `contract-v2.1` and
+`contract-v2.2` as its "expected" allocation. As measured 2026-08-30, main
+declares `contract-v2.2` (cut and tagged) and the merged
+`add-signed-execution-chain` names `contract-v2.3`, so the earliest free number
+is `contract-v2.4` — a measurement, not a reservation (tasks § 5.2).
 
 **`add-credential-escrow-checkout` is the coupling, and it is stated here rather
 than met at a merge conflict.** It is active, ratified 2026-08-28, and its own
@@ -391,11 +463,17 @@ question, not a conflict of substance:
 - Whichever lands second rebases onto the first. Both touch
   `contracts/schemas/xfactory-credential-contracts.schema.yaml` and
   `scripts/validate-credential-contracts.py`.
-- Whether the two ship ONE combined additive cut or TWO sequential ones is put to
-  the review as decision 7. One cut is fewer rituals and one changelog entry
-  describing two unrelated additions; two cuts keep each packet's evidence with
-  its own bundle. This packet has no stake in the answer and will take the
-  ruling.
+- **RULED: TWO SEQUENTIAL CUTS, THIS PACKET FIRST**, with
+  `add-credential-escrow-checkout` rebasing onto it.
+- **AND THE COUPLING IS NOT WHERE THIS DESIGN FIRST PUT IT.** An earlier revision
+  reasoned that the two packets' fixtures live in different trees, so the count
+  string one moves is not one the other moves. That is true of RESIDENCY and
+  irrelevant to the coupling, because the coupling is in `_self_test` itself:
+  `EXAMPLES_DIR` is HARD-CODED to `examples/credential-contracts` and
+  `NEGATIVE_EXPECTATIONS` is a single module-level dict. Both packets therefore
+  edit the same count string and the same registry no matter where their fixture
+  files sit. **The rebase obligation is certain, not conditional**, and it is
+  written into tasks § 5.7 rather than left to be discovered at a merge.
 - Its self-test fixtures are DECLARED for `contracts/credentials/examples/`, a
   different tree from `examples/credential-contracts/`, so ON THE DECLARATIONS AS
   WRITTEN the count string this packet moves is not one that packet also moves.
