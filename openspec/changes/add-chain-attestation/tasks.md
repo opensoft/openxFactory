@@ -15,7 +15,7 @@ in for a ruleset state.
 
 ## 1. Spec deltas and the packet (THIS PULL REQUEST)
 
-- [x] 1.1 `signed-execution-chain` — **NINE ADDED requirements over 78
+- [x] 1.1 `signed-execution-chain` — **NINE ADDED requirements over 82
       scenarios**: the harness-controller setup attestation under a certificate
       expressed in `add-trust-anchor` vocabulary, with the issuing authority named
       as a realization dependency and never assumed; runner attestations signed AT
@@ -117,6 +117,29 @@ in for a ruleset state.
       cannot see a leaf that was never written — so the authoritative set is now
       LINK 4's COMMITTED EXPECTATION, with the log comparison secondary. This box
       records what round one did and is not a statement of the rule in force.
+- [x] 1.12 **THE FOURTH BOT ROUND'S P1 AND P2 ARE CLOSED, AND RECORDED AS
+      CORRECTIONS** (`design.md` D11b; `proposal.md` § "What the FOURTH bot round
+      corrected"). (i) **P1 — bind-before-sign's last uncovered limb.** Every other
+      link had moved its CLAIMS to the controller; link 10 had left its RESULT with
+      the lane, so a fabricated passing outcome on an otherwise valid chain drew a
+      controller signature and CLOSED THE CHAIN. Link 10 now binds, inside the
+      signed bytes, an AUTHENTICATED EXECUTION the controller dispatched or
+      observed, the EXACT TESTED REVISION equal to the merge commit closed over,
+      and the RESULT; a lane-claimed outcome is REFUSED as closure grounds. **NO
+      DECLARED-SHORTFALL PATH EXISTS FOR THE OUTCOME** — the first live application
+      of LS-A10's floor, stated in the requirement and cited to it. Recorded
+      outcomes go THREE → FOUR with UNESTABLISHED, added deliberately because it is
+      a different fact from FAILED. **Checked and clean**: it composes with the
+      two-horizon doctrine (nothing reaches back through the merge; the closure is
+      what is refused), and no seat return blesses a lane-claimed outcome —
+      `lead-security`'s B-4 endorsement is of the revocation horizon, a different
+      limb. (ii) **P2 — a stale FIXTURE**, one field over from the third round's
+      sweep: 5.5 still commissioned a per-task identity signing links 6 and 10,
+      which the closed enumeration makes impossible and explicitly refuses.
+      Withdrawn, named as withdrawn, replaced by the chain-scoped positive case.
+      **The earlier sweep covered PREDICATES and not FIXTURES** — a superseded rule
+      survives in the examples commissioned against it, not only in the sentences
+      asserting it.
 - [x] 1.11 **THE THIRD BOT ROUND'S TWO P1 FINDINGS ARE CLOSED, AND RECORDED AS
       CORRECTIONS** (`design.md` D11a; `proposal.md` § "What the THIRD bot round
       corrected"). (i) The record-kind enumeration fixed FORM and left SUBJECT
@@ -373,14 +396,26 @@ Each is contract content — cheap now, expensive after a bundle ships.
       after the attestation it covers, an attestation for a task no commitment
       covers, an extension signed away from the controller, a dispatched runner's
       leaf never written at all, an attestation produced outside the committed
-      expectation, a tier-2 identity offered for a record kind outside its closed
-      enumeration, and the positive case of that identity signing its task's
-      link-6 and link-10 records — **plus the four the third bot round added**: a
-      multi-task fan-out whose single link-6 decision is signed by the chain-scoped
-      identity (the positive case that proves producibility), a per-task identity
-      offered for the PR-open decision, the chain-scoped identity offered for a
-      runner attestation, and a tier-2 identity of EITHER scope offered for an
-      authority record.
+      expectation, and a tier-2 identity offered for a record kind outside its
+      closed enumeration — **plus the four the third bot round added**: a
+      multi-task fan-out whose single link-6 decision is signed by the CHAIN-SCOPED
+      identity (**the positive case that proves producibility**), a per-task
+      identity offered for the PR-open decision, the chain-scoped identity offered
+      for a runner attestation, and a tier-2 identity of EITHER scope offered for
+      an authority record — **plus the four the fourth bot round added**: a lane
+      supplying a fabricated passing outcome, a tested revision that is not the
+      merge commit the chain closed over, a declared shortfall offered as grounds
+      for closure, and **the positive closure case** (the controller dispatches the
+      test, the revision matches, and execution, revision and result all fall
+      inside the signed bytes).
+
+      **THE SECOND ROUND'S POSITIVE FIXTURE IS WITHDRAWN AND THE WITHDRAWAL IS
+      NAMED.** It required *"the positive case of that identity signing its task's
+      link-6 and link-10 records"* — a per-task identity signing links 6 and 10 —
+      which the third round's closed enumeration makes IMPOSSIBLE and explicitly
+      refuses. Building it would have forced the validator to accept a
+      now-forbidden signature or left this task uncompletable. The chain-scoped
+      positive case above replaces it.
 - [ ] 5.6 `scripts/validate-signed-execution-chain.py` extended — one named
       refusal per negative example above.
 - [ ] 5.7 The SAME required pull-request check walks links 1–6. **A merged

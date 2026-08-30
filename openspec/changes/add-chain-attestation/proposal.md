@@ -196,7 +196,7 @@ capability tranche one created.
 
 ### Modified Capabilities
 
-- `signed-execution-chain`: **NINE ADDED requirements over 78 scenarios**, plus
+- `signed-execution-chain`: **NINE ADDED requirements over 82 scenarios**, plus
   **ONE `## MODIFIED Requirements` block — tranche one's gate requirement,
   SCENARIO-COMPLETE AT ALL NINE OF ITS SCENARIOS** — the harness-controller
   setup attestation under a `trust-anchor` certificate; runner attestations
@@ -439,6 +439,43 @@ block still said *"log-derived authoritative set"*, contradicting the corrected
 rule. It now names link 4's committed expectation as THE AUTHORITY with the
 bidirectional log comparison SECONDARY, and a packet-wide sweep corrected four
 further sites still reading in the superseded present tense.
+
+## What the FOURTH bot round corrected — the result, and a stale fixture
+
+**BIND BEFORE SIGN'S LAST UNCOVERED LIMB.** Every other link had moved its CLAIMS
+to the controller; **link 10 had left its RESULT with the lane.** The
+corroboration rule binds an attestation's fields against link 4 and establishes
+nothing about whether the post-merge test RAN, PASSED, or ran against the merged
+work — so a lane supplying a fabricated passing outcome on an otherwise valid
+chain obtained a controller signature over it and **CLOSED THE CHAIN**,
+unblocking promotion and release.
+
+**Link 10 now binds, inside the controller-signed bytes**: an AUTHENTICATED TEST
+EXECUTION the controller itself dispatched or observed; the EXACT TESTED
+REVISION, which must EQUAL the merge commit the chain closed over; and the
+RESULT. A merely runner- or lane-claimed outcome is REFUSED as closure grounds,
+fail-closed, leaving the chain merged-but-unclosed exactly as the two enforcement
+horizons already provide — **nothing here reaches back through the merge**.
+
+**AND NO DECLARED-SHORTFALL PATH EXISTS FOR THE OUTCOME**, stated in terms rather
+than inferred. This is the first live application of the council's **LS-A10**
+floor: a realization that cannot establish its test's execution, revision or
+result cannot DECLARE its way to a closed chain, because the declaration would
+disqualify the chain from closure and closure is the only thing this link
+confers. The requirement's two genuine declared shortfalls do not extend to it.
+
+**MISSING, FAILED, UNSIGNED and now UNESTABLISHED are FOUR outcomes recorded as
+four** — an outcome the controller could not establish is a different fact from a
+test that ran and failed, and the enumeration exists to preserve exactly that
+distinction.
+
+**A stale FIXTURE, one field over from the last round's sweep.** `tasks.md` 5.5
+still commissioned a positive example in which a per-task identity signs links 6
+and 10 — impossible under the closed enumeration, and explicitly refused by it.
+The earlier sweep covered PREDICATES and not FIXTURES, which is the transferable
+part: a superseded rule survives in the examples commissioned against it, not
+only in the sentences asserting it. Withdrawn, named as withdrawn, replaced by
+the chain-scoped positive case. Full reasoning at `design.md` **D11b**.
 
 ## The two acts that must follow, in order
 

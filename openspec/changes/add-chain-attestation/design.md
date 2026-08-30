@@ -635,6 +635,62 @@ marked superseded. **This is the new-conjunct sweep this estate keeps paying
 for**: a correction stated in a new paragraph does not retire the wording that
 caused it elsewhere in the packet.
 
+### D11b — the FOURTH round: bind-before-sign's last uncovered limb
+
+**Every other link had moved its CLAIMS to the controller. Link 10 had left its
+RESULT with the lane.** The corroboration rule binds a submitted attestation's
+fields against link 4 and establishes nothing about whether the post-merge test
+RAN, PASSED, or ran against the merged work — so a lane supplying a fabricated
+passing outcome on an otherwise valid chain obtained a controller signature over
+it, with correct proposal and review bindings, and **CLOSED THE CHAIN**,
+unblocking promotion and release. The fabricated-but-valid-looking record this
+family exists to refuse, arriving at the one link with no gate behind it, for the
+FOURTH time in this packet's life and at the last place it had left to hide.
+
+**Decision.** Link 10 binds, inside the controller-signed bytes: an
+**AUTHENTICATED TEST EXECUTION** the controller itself dispatched or observed;
+the **EXACT TESTED REVISION**, which must EQUAL the merge commit the chain closed
+over; and the **RESULT**. An outcome that is merely runner- or lane-claimed is
+REFUSED as closure grounds.
+
+**This is the LS-A10 floor's first live application, and the requirement says so
+rather than leaving it to be inferred.** A realization that cannot establish its
+test's execution, revision or result **cannot declare its way to a closed chain**:
+the declaration would disqualify the chain from closure, and closure is the only
+thing this link confers, so the disqualified set would be everything and the
+permitted set empty. That is exactly the class the floor was written for — *a
+declaration never converts an unmeetable control into a met one* — and naming it
+here keeps the two shortfalls this requirement DOES declare (the per-seat
+residual; the revocation-at-exercise one) from reading as a pattern that extends
+to the outcome.
+
+**It composes with the two horizons rather than straining them, which was the
+thing to check.** Nothing here reaches back through the merge. What it refuses is
+the CLOSURE — which is the only thing link 10 ever controlled — so a chain whose
+outcome is unestablished is MERGED-BUT-UNCLOSED, its downstream refusing and link
+9's fraud signal firing, exactly as the horizons paragraph already provides.
+`lead-security` endorsed that paragraph as *"the packet at its best"* (B-4) and
+this addition uses it rather than qualifying it.
+
+**A FOURTH RECORDED OUTCOME, ADDED DELIBERATELY.** The requirement said *"MISSING,
+FAILED AND UNSIGNED ARE THREE OUTCOMES AND ARE RECORDED AS THREE"*; it now records
+**FOUR**, adding UNESTABLISHED. An outcome the controller could not establish is a
+different fact from a test that ran and failed, and a responder who conflates them
+hunts a defect in the work when what is missing is evidence about the test. The
+enumeration exists to preserve exactly that distinction, so extending it is using
+the paragraph rather than overriding it.
+
+**AND THE FIXTURE FIELD CARRIED A STALE CONJUNCT — the new-conjunct lesson one
+field over.** `tasks.md` 5.5 still commissioned *"the positive case of that
+identity signing its task's link-6 and link-10 records"*, a per-task identity
+signing links 6 and 10, which D11a's closed enumeration makes IMPOSSIBLE and
+explicitly refuses. Building it would have forced the validator to accept a
+forbidden signature or left the task uncompletable. **The earlier sweep covered
+PREDICATES and not FIXTURES**, which is the transferable part: a superseded rule
+survives in the examples commissioned against it, not only in the sentences
+asserting it. Withdrawn, named as withdrawn, and replaced by the chain-scoped
+positive case.
+
 **Why widening and not separate identities.** Separate identities would have
 multiplied the per-task credential population by three for no gain in what any
 signature proves: all three records are produced at the same signing boundary,
