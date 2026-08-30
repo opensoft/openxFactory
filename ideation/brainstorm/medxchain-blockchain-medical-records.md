@@ -202,22 +202,34 @@ current text does not yet name, and one framing worth stating explicitly:
 
 - **The meta-analysis lane.** MedxChain's Database Architecture section
   makes RecordDB-plus-MetaDataDB, queried without PIIDB, a first-class use
-  case. The neutral family already carries the structural half of this:
-  `add-chain-anchoring`'s requirement "The record and demographic planes
+  case. **The routing below rests on ratified design already on main, not
+  on anything this appendix invents**: `shared-contract-ownership`'s
+  "Canonical contract home" requirement
+  (`openspec/specs/shared-contract-ownership/spec.md`) names openxFactory
+  the canonical home for shared, cross-DomainxFactory contracts, and
+  assigns domain-specific artifacts — its own worked example is a
+  "clinical review package" — to the owning DomainxFactory. MedxChain's
+  own consumer — meta-analysis over age, gender, clinical data, and
+  linkable record hashes — is exactly that domain-specific case: it stays
+  sensitive governed data, not a reusable de-identified corpus, until the
+  HealthLinc/MedxFactory realization names and passes its own Safe Harbor
+  or Expert Determination gate (`docs/knowledge-lifecycle-model.md`)
+  against it. It routes to that domain realization, not into this
+  neutral family's contract text.
+
+  **A CODIFICATION OF THE STRUCTURAL HALF IS ARRIVING, AND IS NOT IN THE
+  TREE YET.** openxFactory pull request #513, **IN FLIGHT at this
+  revision**, proposes a requirement, "The record and demographic planes
   are analyzable without the identity plane"
-  (`openspec/changes/add-chain-anchoring/specs/chain-anchoring/spec.md:733`,
-  #513's requirement 8) separates the record and demographic planes from
-  the identity plane BY CONSTRUCTION, and forbids this neutral capability
-  from naming any de-identification standard — **plane separation is not
-  de-identification**, and the standard a result is measured against is
-  "domain law and domain judgement" that only the domain overlay may name.
-  MedxChain's own consumer — meta-analysis over age, gender, clinical
-  data, and linkable record hashes — is that domain-specific half: it
-  stays sensitive governed data, not a reusable de-identified corpus,
-  until the HealthLinc/MedxFactory realization names and passes its own
-  Safe Harbor or Expert Determination gate
-  (`docs/knowledge-lifecycle-model.md`) against it. It routes to that
-  domain realization, not into this neutral family's contract text.
+  (`openspec/changes/add-chain-anchoring/specs/chain-anchoring/spec.md`),
+  that would separate the record and demographic planes from the
+  identity plane BY CONSTRUCTION and would bar the neutral
+  chain-anchoring capability from naming any de-identification standard
+  — plane separation would not BE de-identification. That path resolves
+  once #513 lands and is a dead reference before then; named here as
+  PROVENANCE for where the codification is arriving from, not as an
+  existing contract. **The routing obligation above does not depend on
+  this citation** — it stands on the ratified boundary alone.
 - **Verification-attempt auditing, not just writes.** MedxChain's
   Blockchain Logging section logs "failed attempts" alongside views,
   edits, and admin actions — auditing verification and access ATTEMPTS,
