@@ -23,6 +23,9 @@ for exact wording; this vendoring reconstructs the notes' section structure
 and enumerated claims from that transcript rather than reproducing
 byte-identical prose.
 
+These notes are imported evidence and idea material. They do not decide
+policy, memory, release scope, or OpenSpec approval.
+
 ## Overview
 
 MedxChain was sketched under three candidate names/domains: myHIPPAA.com,
@@ -99,7 +102,7 @@ identity, clinical detail, and access control together.
 
 ## How MedxChain meets the signed-execution-chain architecture — 2026-08-29
 
-MedxChain is Brett Heap's own 2024 design sketch, arriving eighteen months
+MedxChain is Brett Heap's own 2024 design sketch, arriving twenty-one months
 before the `signed-execution-chain` topic's 2026-08-29 clarify sitting ruled
 that topic's Q2, Q3, and Q6. Read together, MedxChain is an early,
 domain-specific instance of the same shape that topic later worked out
@@ -112,10 +115,9 @@ reasoning.
 ### Convergences
 
 - **Hash-fidelity / digital notary** (Record Fidelity, above) is the same
-  pattern `signed-execution-chain` calls the **commitments + anchoring**
-  pattern (see its "The on-chain layer, as ruled" section and claim 6): a
-  chain does not hold the record, it holds proof the record existed
-  unchanged.
+  commitment-and-anchor design `signed-execution-chain` sets out in its
+  "The on-chain layer, as ruled" section and claim 6: a chain does not hold
+  the record, it holds proof the record existed unchanged.
 - **Bytes off-chain, handles on-chain** (Security Architecture: Medical
   Records DB and Metadata DB off-chain, hashes on chain) is exactly the
   boundary `signed-execution-chain` draws under Q2: "off chain: every
@@ -127,8 +129,11 @@ reasoning.
   permissioned layer, and an on-chain anchor layer, each holding a
   different kind of fact (see its "So the split is" table).
 - **"One-time access to create the hash, verify indefinitely"** (Record
-  Fidelity) is MedxChain's own statement of the property
-  `signed-execution-chain` calls **chain inception's fidelity property**:
+  Fidelity) echoes, at a much smaller scale, the one-time signed act that
+  `add-signed-execution-chain` — the ratifying CHANGE, not this staged
+  topic — names **chain inception** (its Requirement: Ratification and
+  chain inception are one signed act,
+  `openspec/changes/add-signed-execution-chain/specs/signed-execution-chain/spec.md:151`):
   a commitment, once anchored, lets a later authorized verifier that holds the
   record and can obtain the governed commitment secret verify it without
   further access to the original source or to the party that committed it. The
@@ -148,13 +153,14 @@ what MedxChain's 2024 sketch assumed:
 
 - **Plain hashes → salted keyed commitments.** MedxChain's Record Fidelity
   and PII Database sections describe anchoring plain hashes. Q2, ruled
-  2026-08-29 (CONFIRMED operative form), requires **salted keyed
-  commitments**, never bare hashes, because EDPB Guidelines 02/2025 (v2.0)
-  hold that a hash of personal data is itself personal data — and the
-  ruled boundary buys **erasure by salt destruction**, a property a plain
-  hash cannot offer. Q6 separately confirms that this commitment reading is
-  the operative form for patient-anchored PHI portions; it is not permission
-  to publish PHI, ciphertext, or plain record hashes.
+  2026-08-29 (AS RECOMMENDED), draws the boundary and requires **salted
+  keyed commitments**, never bare hashes, because EDPB Guidelines 02/2025
+  (v2.0) hold that a hash of personal data is itself personal data. Q6,
+  CONFIRMED 2026-08-29 as the ruling's **OPERATIVE FORM**, attaches
+  **erasure by salt destruction** as the erasure mechanism for that
+  commitment reading — a property a plain hash cannot offer — and confirms
+  it applies to patient-anchored PHI portions; it is not permission to
+  publish PHI, ciphertext, or plain record hashes.
 - **PIIDB "entirely on the blockchain, encrypted" → a permissioned consent
   plane with anchored state roots.** MedxChain's Security Architecture
   puts the whole PII Database, encrypted, on a public chain. Q2's ruled
@@ -213,7 +219,7 @@ current text does not yet name, and one framing worth stating explicitly:
   claim 2 names **HealthLinc** as the patient-facing app through which a
   ratified treatment plan is "merged" (pushed to the patient app, or
   printed as signed orders). MedxChain is best read as an early sketch of
-  that same HealthLinc surface, predating the neutral family by eighteen
+  that same HealthLinc surface, predating the neutral family by twenty-one
   months. Claim 3's **LedgerLinc** is the financial-records analogue over
   the same chain shape, per claim 4's "two mappings are the same shape"
   argument.
