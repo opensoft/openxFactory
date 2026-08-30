@@ -129,8 +129,19 @@ IDENTIFIER_MAX = 200
 # construction: `../x.yaml`, `/etc/x.yaml` and `OpsxFactory:credentials/r.yaml`
 # are all refused (the ':' is outside the segment character set, a leading '/'
 # cannot start the first segment, and the lookahead refuses any '..' segment).
+#
+# A LONE `.` SEGMENT IS REFUSED TOO, and that is what keeps the grammar and the
+# resolver from disagreeing (PR #516, Codex round 5). `./credentials/r.yaml`
+# named the indexed document while the index holds the canonical key, so the
+# exact-string lookup reported not-found and withheld the lift on a reference
+# that was, by the grammar's own lights, fine. The repair is to refuse the
+# spelling rather than to NORMALIZE it: normalization is path manipulation on a
+# string a record supplies, in a validator whose rule is that it never opens
+# such a path, and one canonical spelling per document is what makes the lookup
+# a lookup. The refusal phases like the rest — warned here, enforced at the
+# major.
 DOCUMENT_REF = re.compile(
-    r"^(?!.*(?:^|/)\.\.(?:/|$))[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*\.(?:yaml|yml)$")
+    r"^(?!.*(?:^|/)\.{1,2}(?:/|$))[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*\.(?:yaml|yml)$")
 DOCUMENT_REF_MAX = 300  # identity-brokering's own bound on this member
 
 # The CLOSED access-mode vocabulary — declared in the schema's description at
@@ -584,7 +595,14 @@ def _consumer_block_warnings(name: str, binding: dict) -> list[tuple[str, str]]:
     consumer = _consumer(binding)
     stub = _declares_stub(consumer)
 
-    if consumer is None:
+    # MEMBERSHIP, NOT TRUTHINESS — the same rule the reference already follows
+    # (PR #516, Codex round 5). `consumer: null` is a block that EXISTS carrying
+    # a non-object value, and `.get()` made it indistinguishable from an absent
+    # key, so it drew the no-block finding instead of the incomplete-block one.
+    # Both are warnings, so nothing about the phasing moved — but the packet
+    # separates those two shapes deliberately, and a reader told the block is
+    # missing when it is present and empty repairs the wrong thing.
+    if "consumer" not in binding:
         return [("consumer-identity-undeclared",
                  f"binding {name!r} declares no consumer block, so which system holds it and "
                  f"what it fetches with are asserted by the estate's wiring rather than read "

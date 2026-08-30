@@ -174,6 +174,56 @@ def test_an_EXPLICIT_NULL_requirement_ref_is_warned():
     assert "consumer-member-grammar" in [c for c, _ in V._deprecation_warnings(doc)]
 
 
+def test_an_EXPLICIT_NULL_consumer_block_is_INCOMPLETE_not_UNDECLARED():
+    """PR #516, Codex round 5. `consumer: null` is a block that EXISTS carrying
+    a non-object value, and `.get()` made it indistinguishable from an absent
+    key — so it drew the no-block finding instead of the incomplete-block one.
+    Both are warnings, so nothing about the phasing moved; but the packet
+    separates those two shapes deliberately, and a reader told the block is
+    MISSING when it is present and empty repairs the wrong thing."""
+    doc = _conforming_pair()
+    doc["credential_bindings"]["projection_sync_lane"]["consumer"] = None
+    codes = [c for c, _ in V._deprecation_warnings(doc)]
+    assert "consumer-block-incomplete" in codes
+    assert "consumer-identity-undeclared" not in codes
+
+
+def test_an_ABSENT_consumer_block_is_still_UNDECLARED():
+    """The negative control: the two shapes stay two."""
+    doc = _conforming_pair()
+    del doc["credential_bindings"]["projection_sync_lane"]["consumer"]
+    codes = [c for c, _ in V._deprecation_warnings(doc)]
+    assert "consumer-identity-undeclared" in codes
+    assert "consumer-block-incomplete" not in codes
+
+
+@pytest.mark.parametrize("spelling", ["./credentials/r.yaml", "credentials/./r.yaml",
+                                      "credentials/r.yaml/."])
+def test_a_DOT_SEGMENT_is_refused_so_the_grammar_and_the_lookup_agree(spelling):
+    """PR #516, Codex round 5. A `.` segment passed the grammar while never
+    matching the index's canonical key, so the resolver reported not-found on a
+    reference the grammar called fine — the two disagreed about the same path.
+
+    The repair is to refuse the SPELLING rather than normalize it: normalization
+    is path manipulation on a string a record supplies, inside a validator whose
+    rule is that it never opens such a path, and one canonical spelling per
+    document is what makes the lookup a lookup."""
+    assert not V.DOCUMENT_REF.fullmatch(spelling), spelling
+    assert not V._is_document_ref(spelling)
+    doc = _conforming_pair()
+    for binding in doc["credential_bindings"].values():
+        binding["consumer"]["requirement_ref"]["requirements_document_ref"] = spelling
+    assert "consumer-requirement-ref-grammar" in [c for c, _ in V._deprecation_warnings(doc)]
+    findings = _findings(doc)
+    assert findings and "absolute, escaping, or foreign-repository" in findings[0]
+
+
+def test_the_canonical_spelling_still_resolves():
+    """The negative control for the refusal above."""
+    assert V.DOCUMENT_REF.fullmatch(REQUIREMENTS_DOC)
+    assert _findings(_conforming_pair()) == []
+
+
 def test_an_ABSENT_requirement_ref_is_still_silent():
     """The negative control: the member is OPTIONAL, and a record that simply
     does not declare it owes no warning."""

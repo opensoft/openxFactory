@@ -265,7 +265,11 @@ def test_the_vocabularys_initial_members_are_the_values_already_in_the_wild():
 # --------------------------- the document reference (§1.5) ---------------------------
 
 @pytest.mark.parametrize("bad", ["../x.yaml", "/etc/x.yaml", "OpsxFactory:credentials/r.yaml",
-                                 "credentials/../../x.yaml", "credentials/r.json", "r"])
+                                 "credentials/../../x.yaml", "credentials/r.json", "r",
+                                 # a `.` segment names the indexed document under a
+                                 # second spelling, which the exact-string lookup can
+                                 # never match — refused so grammar and lookup agree
+                                 "./credentials/r.yaml", "credentials/./r.yaml"])
 def test_the_document_grammar_refuses_escaping_absolute_and_foreign_references(bad):
     assert not VALIDATOR.DOCUMENT_REF.fullmatch(bad), bad
     assert not re.compile(DOCUMENT_REF_PATTERN).fullmatch(bad), bad

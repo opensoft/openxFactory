@@ -69,7 +69,7 @@ SCHEMA_PATH = ROOT / "contracts/schemas/xfactory-credential-contracts.schema.yam
 # `test_consumer_block_phasing.py` asserts the mirror.
 IDENTIFIER_PATTERN = r"^[A-Za-z0-9][A-Za-z0-9._:/-]*$"
 DOCUMENT_REF_PATTERN = (
-    r"^(?!.*(?:^|/)\.\.(?:/|$))[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*\.(?:yaml|yml)$")
+    r"^(?!.*(?:^|/)\.{1,2}(?:/|$))[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*\.(?:yaml|yml)$")
 ACCESS_MODES = ["contents_write", "delegated_api", "dispatch_only", "workload_identity"]
 
 _IDENTIFIER = {"type": "string", "minLength": 1, "maxLength": 200,
