@@ -129,16 +129,29 @@ reasoning.
   permissioned layer, and an on-chain anchor layer, each holding a
   different kind of fact (see its "So the split is" table).
 - **"One-time access to create the hash, verify indefinitely"** (Record
-  Fidelity) echoes, at a much smaller scale, the one-time signed act that
-  `add-signed-execution-chain` — the ratifying CHANGE, not this staged
-  topic — names **chain inception** (its Requirement: Ratification and
-  chain inception are one signed act,
-  `openspec/changes/add-signed-execution-chain/specs/signed-execution-chain/spec.md:151`):
-  a commitment, once anchored, lets a later authorized verifier that holds the
-  record and can obtain the governed commitment secret verify it without
-  further access to the original source or to the party that committed it. The
-  privacy upgrade deliberately removes the public recomputation property of a
-  bare hash.
+  Fidelity) echoes a fidelity PROPERTY — established once, in a signed
+  act, verifiable forever after — that the ruled architecture protects
+  through TWO DIFFERENT INSTRUMENTS FOR TWO DIFFERENT OBJECTS, not one. A
+  GOVERNANCE RATIFICATION is registered once, in the same signed act
+  that mints its chain identity: that act is **chain inception**, tranche
+  one, already ratified (`add-signed-execution-chain`'s Requirement:
+  Ratification and chain inception are one signed act,
+  `openspec/changes/add-signed-execution-chain/specs/signed-execution-chain/spec.md:151-159`).
+  A MEDICAL-RECORD commitment is a different object, and its anchoring is
+  explicitly deferred past tranche one — *"the on-chain boundary, the
+  salted keyed commitment, the multi-anchor receipt … Tranche three"*
+  (`add-signed-execution-chain/design.md:513`). It is anchored once
+  through the **record-anchoring capability** openxFactory pull request
+  **#513, IN FLIGHT at this revision**, is building (`chain-anchoring`)
+  — never through chain inception. **A Medx realization MUST NOT mint
+  execution-chain identities for medical records**; a record's one-time
+  anchoring event belongs to the tranche-three capability, not tranche
+  one's. What the two objects share is only the property: a commitment,
+  once anchored, lets a later authorized verifier that holds the record
+  and can obtain the governed commitment secret verify it without
+  further access to the original source or to the party that committed
+  it. The privacy upgrade deliberately removes the public recomputation
+  property of a bare hash.
 - **Access logging** (Blockchain Logging; Access Control Logging) foreshadows
   a Medx clinical-use event family that can use the same signed, append-only
   and checkpointed evidence pattern. It is not already covered by the current
@@ -183,17 +196,37 @@ what MedxChain's 2024 sketch assumed:
   both the metadata leakage of publishing every access event to a public
   ledger and the cost of anchoring at that granularity.
 
-### The ruled anchoring configuration it inherits
+### The anchoring configuration a Medx build consumes
 
-Any future MedxChain build inherits Q3's ruled configuration (ruled
-2026-08-29, two rounds) rather than re-deriving chain selection: **Kaspa
-first**, as the primary, operational witness, adopted under the
-chain-selection study's three conditions (archival node; inclusion proofs
-captured and retained at anchor time; corroborating evidence, never sole);
-**Bitcoin via OpenTimestamps aggregation on every anchored item**, as the
-durability witness — ten-year claims cite Bitcoin; **no selectivity**
-(no per-item judgement about which items get a Bitcoin anchor); and **no
-third chain**.
+A future MedxChain build does not inherit a permanent chain selection
+frozen into this brainstorm. It **consumes the anchoring configuration
+of its pinned neutral contract release** — the digest-pin shape this
+estate already requires for consuming any neutral bundle
+(`shared-contract-ownership`'s "Contract version pinning" requirement,
+`openspec/specs/shared-contract-ownership/spec.md`: a governed bundle
+pin names the canonical repository, published tag, exact commit, and
+per-file digests before a consumer treats it as compatible) — the same
+shape every DomainxFactory's install repo already consumes its Omnigent
+domain overlay by (`omnigent-domain-overlay`'s "Domain overlay home and
+pinned consumption" requirement,
+`openspec/specs/omnigent-domain-overlay/spec.md:6-12`). **Q3 names the
+configuration in force at this writing, not domain law frozen for all
+future releases**: as ruled
+2026-08-29 (two rounds), it is **Kaspa first**, as the primary,
+operational witness, adopted under the chain-selection study's three
+conditions (archival node; inclusion proofs captured and retained at
+anchor time; corroborating evidence, never sole); **Bitcoin via
+OpenTimestamps aggregation on every anchored item**, as the durability
+witness — ten-year claims cite Bitcoin; **no selectivity** (no per-item
+judgement about which items get a Bitcoin anchor); and **no third
+chain** — as of the pinned release a Medx build consumes today. The
+ruled topic itself names this a **starting** configuration, not a
+permanent one: anchor targets are addable or droppable by receipt
+design without touching the evidence plane (claim 7, *"is a starting
+configuration rather than a permanent one"*,
+`ideation/staging/signed-execution-chain/signed-execution-chain.md:441-449`),
+and a later pinned release may carry a different configuration that a
+Medx build then consumes in its place.
 
 ### What MedxChain adds to carry into tranche 3
 
