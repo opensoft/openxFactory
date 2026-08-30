@@ -406,6 +406,21 @@ the neutral family says what a lawful correlation path must BE; the domain
 overlay says when a lane may be authorized and against what standard, because
 those are domain law.
 
+**AMENDED IN THE THIRD BOT ROUND — issuance authorizes, it does not immunize.**
+Making the derivation revocable and consent-gated collided with requirement 8's
+standing promise that the result is *"unaffected by whether the identity plane
+was reachable"*: requirement 6 refuses a consent-dependent act outright in
+exactly that state, so an implementation had to either bypass a fresh revocation
+or break the availability promise. **Reconciled by separating the two things the
+promise had been conflating.** The UNCORRELATED analysis needs no derivation, no
+consent evaluation and no identity plane, so it is genuinely unaffected — and
+that is all the headline ever claimed. The JOIN is consent-gated end to end:
+every USE answers to the CURRENT revocation state, and where that state cannot
+be read the CORRELATION is refused, on the consent requirement's own doctrine
+that an unevaluable answer never reads as permission. The refusal is scoped to
+the correlation rather than to the run, so an analysis returns its per-plane
+results and names the part it could not perform.
+
 **AMENDED 2026-08-30 BY A BOT FINDING THE DISPOSITION FOLDED INTO THIS FIX ROUND
 (disposition §4, item 14) — and it crosses because requirement 8 carries this
 lane.** Codex, reviewing the vendored notes on pull request #509, found that

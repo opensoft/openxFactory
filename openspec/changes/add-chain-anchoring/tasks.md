@@ -22,9 +22,9 @@ standing in for a ruleset state.
 
 ## 1. Spec deltas and the packet (THIS PULL REQUEST)
 
-- [x] 1.1 `chain-anchoring` — **NINE ADDED requirements over 66 SCENARIOS** (52
+- [x] 1.1 `chain-anchoring` — **NINE ADDED requirements over 69 SCENARIOS** (52
       SCENARIOS at the head the council judged, `cf5a24b8`; the 2026-08-30 fix
-      round of §2.4 and its two bot rounds added FOURTEEN SCENARIOS and NO NEW
+      round of §2.4 and its THREE bot rounds added SEVENTEEN SCENARIOS and NO NEW
       REQUIREMENT — the requirement count is unchanged at nine), in
       the order the exit path requires: the multi-anchor receipt FIRST, then the
       ruled two-witness configuration, the missing-witness semantics, anchor-late,
@@ -185,13 +185,44 @@ standing in for a ruleset state.
       found a control that could not run**, which is the argument for the bot
       round being part of the work rather than a formality.
 
+      **A THIRD BOT ROUND FOUND TWO MORE P1s, AND BOTH WERE HOLES THE SECOND
+      ROUND'S OWN FIXES OPENED.** (a) Scoping requirement 7 to the SERVED
+      surface carried the source's refusals and dropped its successes: a
+      PERMITTED authenticated read is neither a verification nor a refused
+      attempt, so an observable class inside the newly-drawn surface was
+      unlogged — while the requirement's own provenance block quotes the source
+      logging *"views"*. Permitted decisions are now required on the same
+      footing as refusals, and the requirement is renamed to say so
+      (**"Served verification and access decisions are logged leaves"** — the
+      council record quotes its former title, and this line is where a reader
+      follows the rename). (b) The linkage derivation was made revocable and
+      consent-gated while requirement 8's scenario still promised the result was
+      *"unaffected by whether the identity plane was reachable"* — which
+      requirement 6 refuses outright, since an unevaluable consent never reads
+      as permission. **Both could not hold**: an implementation would either
+      bypass a fresh revocation or break the availability promise. Reconciled by
+      scoping the promise to the UNCORRELATED analysis (which needs no
+      derivation and no consent evaluation, and is all the headline ever
+      claimed) and making every USE answer to the current revocation state, the
+      correlation refusing when that state cannot be read.
+
+      **THE PATTERN IS NOW THE FINDING.** Three consecutive bot rounds, and in
+      each of the last two the P1 was in the previous round's fix rather than in
+      the council-judged text. That is not a bot being pedantic — it is the
+      measured cost of amending contract prose under time pressure, and it is
+      why the rounds keep earning their place. Both P2s of this round are the
+      same shape one layer down: the `code_surface` and the leaf-grammar task
+      had not moved with the new record, so an implementer following either
+      would have shipped without the derivation's fields or without anywhere to
+      define its leaves. Both taken.
+
       SHOULD-FIX items (LA-A7, LS-A7/A8/A9, LQ-A10/A11/A12/A14, CPL-A5) are
       **UNDISPOSED by the ruling and stay open** — disposition §6 says so
       expressly, and no silence here rules them.
 
       **§1.4 AND §1.5 RE-RUN, AND THE RESULT IS REPORTED RATHER THAN ROUNDED.**
       §1.4: `--strict` green and `--all --strict` **79 passed / 0 failed**;
-      NINE requirements unchanged, **52 → 66 scenarios**, still no `## MODIFIED`
+      NINE requirements unchanged, **52 → 69 scenarios**, still no `## MODIFIED`
       block. §1.5: doc-health against `origin/main` with a matched baseline
       basename returns **four new findings, all `status-validity`, all on the
       carried `review/` bundle** — the sitting's four top-level records write
@@ -277,7 +308,9 @@ discharged, so 3.1 is the next act on this packet.
       **a plane-separated analysis result labelled de-identified**; **a linkage
       derivation re-used across analyses**; **a correlation path derived
       outside the identity plane or without a consent checkpoint**; **a
-      reporting obligation imposed on independent verifiers**; a
+      reporting obligation imposed on independent verifiers**; **a realization
+      logging refused access but not permitted access**; **a correlation using a
+      pre-issued derivation whose revocation state cannot be read**; a
       domain record kind; an overlay relaxing a neutral refusal. The bolded
       entries are the refusals the 2026-08-30 fix round added.
 - [ ] 4.3 `scripts/validate-chain-anchoring.py` — the canonical refusing
@@ -325,8 +358,11 @@ discharged, so 3.1 is the next act on this packet.
       by the aggregation interval chosen in 5.1. Requirement 3 requires that they
       be DECLARED; it names no numbers.
 - [ ] 5.3 Fix the NEW LEAF KINDS against tranche one's leaf grammar — verification,
-      verification failure, refused access, anchor-pending, horizon breach, anchor
-      completion. This packet adds no second grammar and must not.
+      verification failure, **permitted access**, refused access, **linkage-derivation
+      ISSUANCE**, **linkage-derivation USE**, anchor-pending, horizon breach, anchor
+      completion. This packet adds no second grammar and must not, so tranche one's
+      grammar is where each event discriminator and its required fields are settled;
+      requirements 7 and 8 mandate these leaves and neither defines a field.
 - [ ] 5.5 Fix the LINKAGE-DERIVATION CONSTRUCTION — the per-analysis parameter,
       the expiry and revocation surface, and how the identity plane binds an
       issuance to its anchored consent checkpoint. Requirement 8 fixes the

@@ -669,13 +669,17 @@ the same honesty the credential-custody work applied to bearer secrets.
 - THEN it is REFUSED under this configuration, which places consent logic in the permissioned plane
 - AND the refusal states no permanent bar and names no trigger condition, because a later change adopting a different posture answers to its own evidence
 
-### Requirement: Verification attempts and refused access are logged leaves
+### Requirement: Served verification and access decisions are logged leaves
 
-openxFactory SHALL write the VERIFY events, FAILED verifications and REFUSED
-ACCESS ATTEMPTS THAT THE FACTORY SERVES as signed leaves in the evidence plane,
+openxFactory SHALL write the VERIFY events, FAILED verifications, and BOTH
+PERMITTED AND REFUSED ACCESS DECISIONS THAT THE FACTORY SERVES as signed leaves
+in the evidence plane,
 on the same footing as the events that produce material. The SERVED surface is
 this capability's own verification surfaces, the permissioned plane's access
-decisions, and any attempt against material the factory holds. An evidence plane
+decisions, and any attempt against material the factory holds. **A PERMITTED
+access is logged on the same footing as a refused one**, because a record of
+refusals alone answers who was turned away and not who actually read, and the
+question an audit asks first is the second one. An evidence plane
 that records only what was written answers what happened and cannot answer who
 tried — and for a capability whose whole purpose is external verifiability, an
 unrecorded attempt against a surface this factory operates is a hole in exactly
@@ -722,9 +726,13 @@ records only what was written answers what happened and cannot answer who tried
 design sketch first stated it.
 
 **AND THE SERVED SCOPING IS WHAT THE SOURCE ACTUALLY SAID, WHICH IS WORTH
-STATING BECAUSE THIS PACKET GOT IT WRONG FIRST.** The notes log *"every access
-attempt to the … data"* and *"views, edits, failed access attempts, and
-administrative actions"* — mediated access, against a system that serves it —
+STATING BECAUSE THIS PACKET GOT IT WRONG FIRST — AND THEN GOT THE OTHER HALF
+WRONG TOO.** The notes log *"every access attempt to the … data"* and *"views,
+edits, failed access attempts, and administrative actions"* — mediated access,
+against a system that serves it, **VIEWS INCLUDED**, which is why the permitted
+half is required above: the first scoping pass carried the source's refusals and
+dropped its successes, leaving an observable class inside the served surface
+unlogged —
 and their appendix asks the neutral family for *"a generic verification-ATTEMPT
 scenario alongside the successful-access case"*. **The over-reach was this
 packet's own**, in first carrying that as an obligation over any verification by
@@ -769,6 +777,13 @@ the payload rules keep off it.
 - WHEN an access request is refused by the permissioned plane
 - THEN the refused attempt is written as a leaf
 - AND the leaf records the refusal without recording the material that was not disclosed
+
+#### Scenario: an access request is permitted
+
+- WHEN the permissioned plane PERMITS an authenticated read or view of material the factory holds
+- THEN the permitted decision is written as a leaf on the same footing as a refusal, naming who was served and what was reached
+- AND the leaf records neither the material nor an unsalted commitment to it, so the boundary above is unchanged
+- AND a realization that logs only refusals is non-conformant, because refusals alone answer who was turned away and never who actually read
 
 #### Scenario: a realization logs only successful writes
 
@@ -837,6 +852,29 @@ and under consent, the analysis runs over the record and demographic planes
 alone, and no person-resolving identifier enters it — which is exactly what this
 requirement's opening sentence claims and all it has ever claimed.
 
+**AND CORRELATION IS A CONSENT-DEPENDENT ACT, SO THE FAIL-CLOSED DOCTRINE
+REACHES IT — WHICH NARROWS WHAT THIS REQUIREMENT PROMISES ABOUT AVAILABILITY.**
+Issuance authorizes; it does not immunize. A derivation is REVOCABLE, and a
+revocation *"supersedes forward from the moment it is recorded and anchored"* on
+the consent requirement's own terms, so every USE answers to the CURRENT
+revocation state and not merely to the fact of issuance. Where that state cannot
+be read — the identity plane unreachable, the permissioned plane unreachable —
+**the CORRELATION is REFUSED**, on the same doctrine the consent requirement
+states: an unevaluable answer never reads as permission, and a derivation
+presented while its revocation state is unknown is exactly the unevaluable case.
+A realization SHALL NOT treat a pre-issued derivation as self-authorizing
+offline, because that is how a revoked authorization keeps working.
+
+**WHAT IS UNAFFECTED BY REACHABILITY IS THE UNCORRELATED ANALYSIS, AND THAT IS
+ALL THIS REQUIREMENT EVER CLAIMED.** Inspecting the record plane and the
+demographic plane independently needs no derivation, no consent evaluation and
+no identity plane, so it runs regardless — which is the headline above,
+unchanged. What needs a derivation is the JOIN, and the join is consent-gated
+end to end. **The refusal is scoped to the correlation and not to the run**: an
+analysis whose correlation is refused still returns its per-plane results, and
+says which part it could not perform rather than failing whole or silently
+returning less.
+
 **AND THE NEUTRAL LAYER DEFINES THE SHAPE, NOT THE OCCASION.** This capability
 fixes what a lawful correlation path must BE; it does not say when a lane may be
 authorized, who may authorize it, or against what standard — those are domain
@@ -879,10 +917,22 @@ because the identity plane was not queried is REFUSED.
 
 #### Scenario: an analysis runs across the record and demographic planes
 
-- WHEN an analysis queries the record and demographic planes without the identity plane
+- WHEN an analysis inspects the record and demographic planes independently, without correlating them and without the identity plane
 - THEN it runs, and no DIRECT identifier is exposed because neither plane carries one
-- AND the result is unaffected by whether the identity plane was reachable
+- AND that uncorrelated result is unaffected by whether the identity plane was reachable, because it needs no derivation and no consent evaluation
 - AND the result is NOT thereby de-identified, and remains governed personal data until a named de-identification determination is made against it
+
+#### Scenario: a correlation is attempted while the identity plane is unreachable
+
+- WHEN an analysis holding a pre-issued linkage derivation attempts to correlate the two planes and the current revocation state cannot be read
+- THEN the CORRELATION is REFUSED, because an unevaluable revocation never reads as permission and a pre-issued derivation is not self-authorizing offline
+- AND the analysis still returns its per-plane results and names the correlation as the part it could not perform, rather than failing whole or silently returning less
+
+#### Scenario: a derivation is revoked while its analysis is still running
+
+- WHEN a revocation for an authorized derivation is recorded and anchored partway through the analysis that holds it
+- THEN further USE of that derivation is refused from that moment, because a revocation supersedes forward on the consent requirement's own terms
+- AND what was already correlated is not recalled, and no claim of recall is made, because nothing already disclosed can be withdrawn
 
 #### Scenario: an authorized analysis correlates the two planes
 
