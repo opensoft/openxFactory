@@ -154,8 +154,9 @@ what MedxChain's 2024 sketch assumed:
 - **Plain hashes → salted keyed commitments.** MedxChain's Record Fidelity
   and PII Database sections describe anchoring plain hashes. Q2, ruled
   2026-08-29 (AS RECOMMENDED), draws the boundary and requires **salted
-  keyed commitments**, never bare hashes, because EDPB Guidelines 02/2025
-  (v2.0) hold that a hash of personal data is itself personal data. Q6,
+  keyed commitments**, never bare hashes, because
+  [EDPB Guidelines 02/2025 (v2.0)](https://www.edpb.europa.eu/system/files/2026-07/edpb_guidelines_202502_blockchain_v2_en.pdf)
+  hold that a hash of personal data is itself personal data. Q6,
   CONFIRMED 2026-08-29 as the ruling's **OPERATIVE FORM**, attaches
   **erasure by salt destruction** as the erasure mechanism for that
   commitment reading — a property a plain hash cannot offer — and confirms
