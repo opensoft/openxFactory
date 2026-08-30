@@ -9,6 +9,79 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
+## contract-v2.3 — 2026-08-29 (additive; standing-policy intent compliance with review-closed trust and outcome semantics)
+
+Realizes `add-standing-policy-compliance-contract` through Speckit feature
+`015-intent-compliance-contract`. The release was reallocated from the collided
+v2.2 candidate only after the published `contract-v2.2` tag and inventory were
+preserved from `main` and the `contract-v2.3` name was verified free.
+
+**Change class: ADDITIVE (minor)** under
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md).
+The five new record kinds and their canonical validator are additive; no
+existing contract shape is narrowed, and consumers may remain pinned until
+they adopt standing-policy compliance gates.
+
+### What this release adds
+
+* The five-record `contracts/intent-compliance/` family: an authority-bound veto
+  vocabulary, immutable allowance approval, separate authenticated revocation,
+  append-only allowance registry, and closed, bounded, redacted compliance
+  decision.
+* Canonical digest closure, trusted-snapshot authority resolution,
+  lifetime-unique allowance identifiers, deterministic outcome precedence,
+  neutral scope verdicts, bounded fail-closed classifier evidence, identical
+  cross-gate bindings, and registry-head-conditioned dispatch authorization.
+* `scripts/validate-intent-compliance.py`, positive scenarios, indexed
+  single-fault negatives, focused pytest coverage, and fail-closed release
+  membership for both partial and absent family registration.
+* Hardened static pytest/PostgreSQL realization evidence, including exact test
+  identity and cardinality, stable collection semantics, cumulative budgets,
+  and deterministic local-origin release tests rather than live-remote timing.
+
+### Review repairs carried by the cut
+
+Authority trust is content-bound, not inferred from Git object existence. Each
+issuer, revoker, and policy-approval principal cites one bounded authority
+document from the caller-supplied trusted snapshot; the validator verifies the
+blob bytes, digest, repository and ancestor revision, then requires the exact
+principal/role tuple and, for an approval, the exact approval id. Inherited Git
+repository-redirection variables, including `GIT_COMMON_DIR`, cannot redirect
+that lookup.
+
+Registry state is a tagged outcome. `resolved` carries the uniquely derived
+registry revision id and digest; `unresolved` carries exactly
+`registry_not_found` or `registry_head_ambiguous`. The declared decision state,
+every unresolved resolution reason, and deterministic evidence must agree with
+the derived tag. A terminal decision binds the current unique head; an
+intermediate decision binds the applicable historical head at evaluation time.
+
+A deterministic veto is pure: it is sufficient for `block` with no fabricated
+allowance reference or resolution. Allowance evidence may satisfy a
+deterministic finding, but it cannot erase or downgrade a deterministic block;
+classifier and Hermes layers may only preserve the block or escalate another
+outcome to review. Composition remains
+`block > needs_human_review > allow`.
+
+### Superseding digest correction and immutable history
+
+Both published `contract-v2.1` and published `contract-v2.2` carried the stale
+ideation-dashboard snapshot digest
+`6a3b496c59cea9cfb232e35d21b4864a928287c7b98b5436aac0c83d9c14e9b3`
+in their manifest bytes. The schema bytes themselves were unchanged and hash to
+`9c44da235e8b4771b721b3ea0f88e0f6adcdaf4854cac045924abd9981c9ea9c`.
+This release supersedes the stale manifest claim. Both published inventories
+and annotated tags remain immutable, including their historical manifest bytes;
+neither inventory is rewritten to make the old release describe a later tree.
+
+### Release obligation still open at this entry
+
+`contracts/releases/contract-v2.3.digests.yaml` is committed with 283 entries.
+It must be regenerated after the current review-repair bytes stabilize, then
+verified against the exact final candidate commit. Merge, tagging, and
+publication remain pending. The downstream first conformer remains
+codexFactory's `add-intent-compliance-gate` realization.
+
 ## contract-v2.2 — 2026-08-29 (additive; a catalog entry may say WHAT KIND of input it accepts, and the type stops being weaker than its own wire)
 
 Realizes `add-model-capability-vocabulary`, ratified 2026-08-24 with TWO rulings

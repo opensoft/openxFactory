@@ -1,0 +1,304 @@
+schema_version: 1
+kind: openxfactory-intent-compliance-contract-schema
+name: compliance_decision
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/intent-compliance/v1/compliance-decision.schema.yaml"
+contract_id: intent-compliance
+contract_schema_version: 1
+title: Bounded and redacted intent-compliance decision
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - kind
+  - decision_id
+  - governed_binding_id
+  - enforcement_point
+  - outcome
+  - evaluated_content_digest
+  - policy_source
+  - vocabulary
+  - registry
+  - allowance_references
+  - resolutions
+  - findings
+  - rationale_codes
+  - redacted_detail_codes
+  - correlation_refs
+  - evaluator
+  - deterministic_evidence
+  - evaluated_at
+properties:
+  schema_version: {const: 1}
+  kind: {const: compliance_decision}
+  decision_id: {$ref: "#/$defs/identifier"}
+  governed_binding_id: {$ref: "#/$defs/identifier"}
+  enforcement_point: {enum: [approval, dispatch, admission]}
+  outcome: {enum: [allow, block, needs_human_review]}
+  evaluated_content_digest: {$ref: "#/$defs/digest"}
+  policy_source: {$ref: "#/$defs/policy_source"}
+  vocabulary:
+    type: object
+    additionalProperties: false
+    required: [vocabulary_id, vocabulary_digest]
+    properties:
+      vocabulary_id: {$ref: "#/$defs/identifier"}
+      vocabulary_digest: {$ref: "#/$defs/digest"}
+  registry: {$ref: "#/$defs/registry_state"}
+  allowance_references:
+    type: array
+    maxItems: 64
+    uniqueItems: true
+    items: {$ref: "#/$defs/allowance_reference"}
+  resolutions:
+    type: array
+    maxItems: 64
+    items: {$ref: "#/$defs/resolution"}
+  findings:
+    type: array
+    maxItems: 64
+    items:
+      type: object
+      additionalProperties: false
+      required: [layer, class_id, disposition, evidence_digest]
+      properties:
+        layer: {enum: [deterministic, classifier, hermes]}
+        class_id: {$ref: "#/$defs/identifier"}
+        disposition: {enum: [satisfied, block, needs_human_review]}
+        evidence_digest: {$ref: "#/$defs/digest"}
+  rationale_codes:
+    type: array
+    minItems: 1
+    maxItems: 32
+    uniqueItems: true
+    items: {$ref: "#/$defs/identifier"}
+  redacted_detail_codes:
+    type: array
+    maxItems: 32
+    uniqueItems: true
+    items: {$ref: "#/$defs/identifier"}
+  correlation_refs:
+    type: array
+    maxItems: 16
+    uniqueItems: true
+    items: {$ref: "#/$defs/identifier"}
+  evaluator:
+    type: object
+    additionalProperties: false
+    required: [evaluator_id, version]
+    properties:
+      evaluator_id: {$ref: "#/$defs/identifier"}
+      version: {type: string, pattern: '^[0-9]+\.[0-9]+\.[0-9]+$'}
+  classifier: {$ref: "#/$defs/classifier_evidence"}
+  deterministic_evidence: {$ref: "#/$defs/deterministic_evidence"}
+  dispatch_authorization_evidence:
+    type: object
+    additionalProperties: false
+    required: [decision_id, decision_digest, evaluated_content_digest, registry_id, conditioned_revision_digest, evaluator_id, evaluator_version, expires_at, evidence_digest]
+    properties:
+      decision_id: {$ref: "#/$defs/identifier"}
+      decision_digest: {$ref: "#/$defs/digest"}
+      evaluated_content_digest: {$ref: "#/$defs/digest"}
+      registry_id: {$ref: "#/$defs/identifier"}
+      conditioned_revision_digest: {$ref: "#/$defs/digest"}
+      evaluator_id: {$ref: "#/$defs/identifier"}
+      evaluator_version: {type: string, pattern: '^[0-9]+\.[0-9]+\.[0-9]+$'}
+      expires_at: {type: string, format: date-time}
+      evidence_digest: {$ref: "#/$defs/digest"}
+  evaluated_at: {type: string, format: date-time}
+allOf:
+  - if:
+      properties:
+        enforcement_point: {const: dispatch}
+        outcome: {const: allow}
+      required: [enforcement_point, outcome]
+    then:
+      required: [dispatch_authorization_evidence]
+  - if:
+      properties:
+        enforcement_point: {enum: [approval, admission]}
+      required: [enforcement_point]
+    then:
+      not: {required: [dispatch_authorization_evidence]}
+$defs:
+  identifier: {type: string, pattern: "^[a-z][a-z0-9_.:-]{2,127}$"}
+  digest: {type: string, pattern: "^sha256:[0-9a-f]{64}$"}
+  repository_path:
+    type: string
+    minLength: 1
+    maxLength: 512
+    pattern: '^(?!\.{1,2}(?:/|$))[A-Za-z0-9._-]+(?:/(?!\.{1,2}(?:/|$))[A-Za-z0-9._-]+)*(?![\s\S])'
+  policy_source:
+    type: object
+    additionalProperties: false
+    required: [repository, path, revision, content_digest, ratification_record]
+    properties:
+      repository: {type: string, pattern: "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"}
+      path: {$ref: "#/$defs/repository_path"}
+      revision: {type: string, pattern: "^[0-9a-f]{40}$"}
+      content_digest: {$ref: "#/$defs/digest"}
+      ratification_record:
+        type: object
+        additionalProperties: false
+        required: [path, content_digest]
+        properties:
+          path: {$ref: "#/$defs/repository_path"}
+          content_digest: {$ref: "#/$defs/digest"}
+  allowance_reference:
+    type: object
+    additionalProperties: false
+    required: [registry_id, allowance_id]
+    properties:
+      registry_id: {$ref: "#/$defs/identifier"}
+      allowance_id: {$ref: "#/$defs/identifier"}
+  registry_state:
+    oneOf:
+      - {$ref: "#/$defs/resolved_registry_state"}
+      - {$ref: "#/$defs/unresolved_registry_state"}
+  resolved_registry_state:
+    type: object
+    additionalProperties: false
+    required: [status, registry_id, revision_id, revision_digest]
+    properties:
+      status: {const: resolved}
+      registry_id: {$ref: "#/$defs/identifier"}
+      revision_id: {$ref: "#/$defs/identifier"}
+      revision_digest: {$ref: "#/$defs/digest"}
+  unresolved_registry_state:
+    type: object
+    additionalProperties: false
+    required: [status, registry_id, reason_code]
+    properties:
+      status: {const: unresolved}
+      registry_id: {$ref: "#/$defs/identifier"}
+      reason_code: {enum: [registry_not_found, registry_head_ambiguous]}
+  resolution:
+    oneOf:
+      - {$ref: "#/$defs/resolved_resolution"}
+      - {$ref: "#/$defs/unresolved_resolution"}
+  resolved_resolution:
+    type: object
+    additionalProperties: false
+    required: [status, class_id, allowance_reference, approval_digest, revocation_digests, scope, scope_verdict]
+    properties:
+      status: {const: resolved}
+      class_id: {$ref: "#/$defs/identifier"}
+      allowance_reference: {$ref: "#/$defs/allowance_reference"}
+      approval_digest: {$ref: "#/$defs/digest"}
+      revocation_digests:
+        type: array
+        maxItems: 64
+        uniqueItems: true
+        items: {$ref: "#/$defs/digest"}
+      scope:
+        type: object
+        additionalProperties: false
+        required: [scope_kind, scope_ref, operations, scope_digest]
+        properties:
+          scope_kind: {$ref: "#/$defs/identifier"}
+          scope_ref: {$ref: "#/$defs/identifier"}
+          operations:
+            type: array
+            minItems: 1
+            maxItems: 32
+            uniqueItems: true
+            items: {$ref: "#/$defs/identifier"}
+          scope_digest: {$ref: "#/$defs/digest"}
+      scope_verdict:
+        type: object
+        additionalProperties: false
+        required: [resolver_id, resolver_version, evaluated_content_digest, scope_digest, verdict, verdict_digest]
+        properties:
+          resolver_id: {$ref: "#/$defs/identifier"}
+          resolver_version: {type: string, pattern: '^[0-9]+\.[0-9]+\.[0-9]+$'}
+          evaluated_content_digest: {$ref: "#/$defs/digest"}
+          scope_digest: {$ref: "#/$defs/digest"}
+          verdict: {enum: [covers, does_not_cover, indeterminate]}
+          verdict_digest: {$ref: "#/$defs/digest"}
+  unresolved_resolution:
+    type: object
+    additionalProperties: false
+    required: [status, class_id, allowance_reference, reason_code]
+    properties:
+      status: {const: unresolved}
+      class_id: {$ref: "#/$defs/identifier"}
+      allowance_reference: {$ref: "#/$defs/allowance_reference"}
+      reason_code:
+        enum:
+          - allowance_not_found
+          - approval_not_found
+          - registry_not_found
+          - registry_head_ambiguous
+          - scope_indeterminate
+  classifier_evidence:
+    type: object
+    additionalProperties: false
+    required: [trigger, model, limits, actual, result, result_digest]
+    properties:
+      trigger:
+        type: object
+        additionalProperties: false
+        required: [kind, reference, digest]
+        properties:
+          kind: {enum: [deterministic_ambiguity, policy_sensitive_surface]}
+          reference: {$ref: "#/$defs/identifier"}
+          digest: {$ref: "#/$defs/digest"}
+      model:
+        type: object
+        additionalProperties: false
+        required: [model_id, version]
+        properties:
+          model_id: {$ref: "#/$defs/identifier"}
+          version: {type: string, minLength: 1, maxLength: 64}
+      limits:
+        type: object
+        additionalProperties: false
+        required: [invocations, turns, input_bytes, output_bytes, output_tokens, seconds]
+        properties:
+          invocations: {const: 1}
+          turns: {const: 1}
+          input_bytes: {type: integer, minimum: 1, maximum: 65536}
+          output_bytes: {type: integer, minimum: 1, maximum: 8192}
+          output_tokens: {type: integer, minimum: 1, maximum: 4096}
+          seconds: {type: integer, minimum: 1, maximum: 60}
+      actual:
+        type: object
+        additionalProperties: false
+        required: [invocations, turns, input_bytes, output_bytes, output_tokens, seconds]
+        properties:
+          invocations: {type: integer, minimum: 0, maximum: 1}
+          turns: {type: integer, minimum: 0, maximum: 1}
+          input_bytes: {type: integer, minimum: 0, maximum: 65536}
+          output_bytes: {type: integer, minimum: 0, maximum: 8192}
+          output_tokens: {type: integer, minimum: 0, maximum: 4096}
+          seconds: {type: integer, minimum: 0, maximum: 60}
+      result: {enum: [no_veto_signal, veto_signal, indeterminate, error]}
+      result_digest: {$ref: "#/$defs/digest"}
+  deterministic_evidence:
+    type: object
+    additionalProperties: false
+    required: [evaluated_content_digest, vocabulary_id, vocabulary_digest, registry, evaluator_id, evaluator_version, finding_digests, evidence_codes, ambiguity_refs, evidence_digest]
+    properties:
+      evaluated_content_digest: {$ref: "#/$defs/digest"}
+      vocabulary_id: {$ref: "#/$defs/identifier"}
+      vocabulary_digest: {$ref: "#/$defs/digest"}
+      registry: {$ref: "#/$defs/registry_state"}
+      evaluator_id: {$ref: "#/$defs/identifier"}
+      evaluator_version: {type: string, pattern: '^[0-9]+\.[0-9]+\.[0-9]+$'}
+      finding_digests:
+        type: array
+        maxItems: 64
+        uniqueItems: true
+        items: {$ref: "#/$defs/digest"}
+      evidence_codes:
+        type: array
+        minItems: 1
+        maxItems: 64
+        uniqueItems: true
+        items: {$ref: "#/$defs/identifier"}
+      ambiguity_refs:
+        type: array
+        maxItems: 64
+        uniqueItems: true
+        items: {$ref: "#/$defs/identifier"}
+      evidence_digest: {$ref: "#/$defs/digest"}

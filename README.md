@@ -816,7 +816,8 @@ Active changes:
   `avatar-pilot-hardening` deferrals are explicitly out of scope.
 
 - [add-standing-policy-compliance-contract](openspec/changes/add-standing-policy-compliance-contract/proposal.md)
-  — authored 2026-08-24, **NOT YET RATIFIED** (`Status: draft`). Neutral-first
+  — authored 2026-08-24 and **ratified 2026-08-26** (`Status: ratified`; record:
+  `review/ratification-2026-08-26.md`). Neutral-first
   front-end half of codexFactory issue #3, ruled by Brett Heap the same day:
   machine-readable standing-policy veto vocabulary, loud compliance-decision
   evidence and a central revocable policy-allowance registry whose IDs — never

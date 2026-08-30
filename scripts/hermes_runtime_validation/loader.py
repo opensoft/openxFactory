@@ -8,14 +8,19 @@ that meaning across implementations before returning a document.
 from __future__ import annotations
 
 import math
+from collections.abc import Hashable
 from pathlib import Path
-from typing import Any
+from typing import Any, Final
 
 import yaml
 from yaml.composer import ComposerError
 from yaml.constructor import ConstructorError
 from yaml.events import AliasEvent
 from yaml.nodes import MappingNode
+
+MAX_YAML_BYTES: Final = 4 * 1024 * 1024
+MAX_YAML_DEPTH: Final = 128
+MAX_YAML_NODES: Final = 100_000
 
 
 class YamlLoadError(ValueError):
@@ -47,7 +52,9 @@ class _StrictJsonLoader(yaml.SafeLoader):
             )
         return super().compose_node(parent, index)
 
-    def construct_mapping(self, node: MappingNode, deep: bool = False) -> dict[str, Any]:
+    def construct_mapping(
+        self, node: MappingNode, deep: bool = False
+    ) -> dict[Hashable, Any]:
         if not isinstance(node, MappingNode):
             raise ConstructorError(
                 None,
@@ -56,7 +63,7 @@ class _StrictJsonLoader(yaml.SafeLoader):
                 node.start_mark,
             )
 
-        result: dict[str, Any] = {}
+        result: dict[Hashable, Any] = {}
         for key_node, value_node in node.value:
             if key_node.tag == "tag:yaml.org,2002:merge":
                 raise ConstructorError(
@@ -118,6 +125,43 @@ def _check_json_value(value: Any, path: str = "$") -> None:
     raise ValueError(f"{path}: value of type {type(value).__name__} is not JSON-compatible")
 
 
+def _check_yaml_complexity(text: str, path: Path) -> None:
+    depth = 0
+    nodes = 0
+    try:
+        for event in yaml.parse(text, Loader=_StrictJsonLoader):
+            event_type = type(event)
+            if event_type in {yaml.MappingStartEvent, yaml.SequenceStartEvent}:
+                depth += 1
+                nodes += 1
+            if event_type is yaml.ScalarEvent:
+                nodes += 1
+            if depth > MAX_YAML_DEPTH:
+                raise YamlLoadError(path, f"YAML depth exceeds {MAX_YAML_DEPTH}")
+            if nodes > MAX_YAML_NODES:
+                raise YamlLoadError(path, f"YAML node count exceeds {MAX_YAML_NODES}")
+            if event_type in {yaml.MappingEndEvent, yaml.SequenceEndEvent}:
+                depth -= 1
+    except yaml.YAMLError as exc:
+        raise YamlLoadError(path, str(exc)) from exc
+
+
+def load_yaml_bytes(data: bytes, path: str | Path) -> Any:
+    source_path = Path(path)
+    if len(data) > MAX_YAML_BYTES:
+        raise YamlLoadError(source_path, f"document exceeds {MAX_YAML_BYTES} bytes")
+    try:
+        text = data.decode("utf-8")
+        _check_yaml_complexity(text, source_path)
+        value = yaml.load(text, Loader=_StrictJsonLoader)
+        _check_json_value(value)
+        return value
+    except YamlLoadError:
+        raise
+    except (UnicodeError, yaml.YAMLError, ValueError) as exc:
+        raise YamlLoadError(source_path, str(exc)) from exc
+
+
 def load_yaml_document(path: str | Path) -> Any:
     """Load one YAML document or raise :class:`YamlLoadError`.
 
@@ -128,10 +172,9 @@ def load_yaml_document(path: str | Path) -> Any:
 
     source_path = Path(path)
     try:
-        text = source_path.read_text(encoding="utf-8")
-        value = yaml.load(text, Loader=_StrictJsonLoader)
-        _check_json_value(value)
-        return value
+        with source_path.open("rb") as stream:
+            data = stream.read(MAX_YAML_BYTES + 1)
+        return load_yaml_bytes(data, source_path)
     except YamlLoadError:
         raise
     except (OSError, UnicodeError, yaml.YAMLError, ValueError) as exc:

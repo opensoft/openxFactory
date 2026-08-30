@@ -1,7 +1,9 @@
 ---
 code_surface: openxFactory (a NEW `contracts/intent-compliance/` family — machine-readable veto-class vocabulary, compliance-decision record, immutable policy-allowance approval record, append-only allowance-revocation event and versioned registry manifest, plus templates and packaged positive/negative examples — with a canonical `scripts/validate-intent-compliance.py`; registration in `contracts/manifest.yaml` + `contracts/CHANGELOG.md` at the next additive bundle cut). No domain-specific detector, classifier prompt, workflow implementation, binding schema, or runtime registry service is added here. codexFactory is the first conformer through the named successor `add-intent-compliance-gate`.
 target_release: next additive contract bundle (allocated at realization per `docs/contract-versioning-policy.md`)
-Status: draft
+Status: ratified
+Ratified: 2026-08-26 — record: `review/ratification-2026-08-26.md` (Brett
+  Heap, repository owner, in-session: "the 1 is approved as ratified by Brett").
 Proposed: 2026-08-24
 Origin: `opensoft/codexFactory:ideation/staging/front-end-compliance-gates/front-end-compliance-gates.md@2fae181` + codexFactory issue #3; decisions D1-D5 ruled by Brett Heap 2026-08-24
 ---

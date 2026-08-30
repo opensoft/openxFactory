@@ -10,8 +10,8 @@ import subprocess
 import pytest
 
 from scripts.hermes_runtime_validation.fixtures import (
-    collect_database_test_count,
     database_matrix_identity,
+    database_test_suite,
     dependency_order,
     evaluate_expected_findings,
     repository_source_identity,
@@ -295,10 +295,7 @@ def _database_index_fixture(tmp_path: Path) -> tuple[dict, Path, Path, dict]:
         "outcome": "pass",
         "image": image,
         "source_identity": repository_source_identity(tmp_path, case),
-        "suite": {
-            "id": "hermes-runtime-postgres",
-            "test_count": collect_database_test_count(tmp_path, case["database"], 15),
-        },
+        "suite": database_test_suite(tmp_path, case["database"], 15),
         "matrix": database_matrix_identity(case),
     }
     result_path.parent.mkdir(parents=True, exist_ok=True)
