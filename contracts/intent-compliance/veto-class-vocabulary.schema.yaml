@@ -37,7 +37,7 @@ $defs:
     type: string
     minLength: 1
     maxLength: 512
-    pattern: '^(?!\.{1,2}(?:/|$))[A-Za-z0-9._-]+(?:/(?!\.{1,2}(?:/|$))[A-Za-z0-9._-]+)*$(?![\s\S])'
+    pattern: '^(?!\.{1,2}(?:/|$))[A-Za-z0-9._-]+(?:/(?!\.{1,2}(?:/|$))[A-Za-z0-9._-]+)*(?![\s\S])'
   policy_source:
     type: object
     additionalProperties: false

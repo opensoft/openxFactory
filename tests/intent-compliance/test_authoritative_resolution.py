@@ -36,6 +36,7 @@ INVALID_REPOSITORY_PATHS = (
     pytest.param("policies:standing-policy.md", id="colon"),
     pytest.param(r"policies\standing-policy.md", id="backslash"),
     pytest.param("policies/standing\npolicy.md", id="line-feed-control"),
+    pytest.param("policies/standing-policy.md\n", id="terminal-line-feed-control"),
     pytest.param("policies/standing\x7fpolicy.md", id="delete-control"),
     pytest.param("policies/standing-policy\u00ff.md", id="unicode"),
 )
@@ -202,9 +203,16 @@ def test_policy_source_when_path_is_resolver_valid_then_schema_accepts(
     assert findings == []
 
 
+@pytest.mark.parametrize(
+    "invalid_path",
+    [
+        pytest.param("policies:standing-policy.md", id="colon"),
+        pytest.param("policies/standing-policy.md\n", id="terminal-line-feed"),
+    ],
+)
 @pytest.mark.parametrize("ratification", [False, True], ids=["policy", "ratification"])
 def test_public_cli_when_source_path_is_schema_invalid_then_exits_one(
-    tmp_path: Path, ratification: bool
+    tmp_path: Path, ratification: bool, invalid_path: str
 ) -> None:
     # Given
     repository = tmp_path / "trusted"
@@ -227,7 +235,7 @@ def test_public_cli_when_source_path_is_schema_invalid_then_exits_one(
         (family / source.name).write_bytes(source.read_bytes())
     vocabulary = _record_with_source_path(
         "veto_class_vocabulary",
-        "policies:standing-policy.md",
+        invalid_path,
         ratification=ratification,
     )
     policy_source = vocabulary.data["policy_source"]
