@@ -170,6 +170,20 @@ for this, it was filed SHOULD-FIX, and the disposition did not dispose it.
 `tasks.md:2.4` records that this session escalated it first and executed it on
 direction, so the ratification read can bless or reverse it.
 
+**AND MAKING THE STATES DISJOINT IMMEDIATELY OWED THE RECEIPT SOMETHING, WHICH
+THE NEXT ROUND COLLECTED.** Two disjoint states have two verification answers,
+and the receipt carried no timing at all — so a receipt-only verifier, the
+holder D9 and LS-A5 exist to serve, could not tell them apart: the artifact is
+byte-identical before and after a breach. **The mint-time configuration block
+therefore grew to carry each witness's DECLARED HORIZON and the SUBMISSION TIME
+they run from**, bound by the anchored digest exactly as the witness set already
+was — the same mechanism extended, not a second one minted — so the answer is
+computed locally from the artifact. **The TERMINAL-failure distinction is scoped
+to stateful verification**, because a terminal failure arises after the receipt
+was minted and no artifact can carry it; the text names that limit in both
+directions rather than leaving it. This is D10's shape reapplied inside D2: what
+the artifact can prove, it proves; what it cannot, it names.
+
 **What this decision does NOT do.** It does not soften "both witnesses on every
 anchored item". The configuration is unchanged; what is named is the honest
 TRANSIT between submission and completion, and the honest DEGRADATION when the

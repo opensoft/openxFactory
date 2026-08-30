@@ -22,9 +22,9 @@ standing in for a ruleset state.
 
 ## 1. Spec deltas and the packet (THIS PULL REQUEST)
 
-- [x] 1.1 `chain-anchoring` — **NINE ADDED requirements over 74 SCENARIOS** (52
+- [x] 1.1 `chain-anchoring` — **NINE ADDED requirements over 77 SCENARIOS** (52
       SCENARIOS at the head the council judged, `cf5a24b8`; the 2026-08-30 fix
-      round of §2.4 and its FIVE bot rounds added TWENTY-TWO SCENARIOS and NO NEW
+      round of §2.4 and its SIX bot rounds added TWENTY-FIVE SCENARIOS and NO NEW
       REQUIREMENT — the requirement count is unchanged at nine), in
       the order the exit path requires: the multi-anchor receipt FIRST, then the
       ruled two-witness configuration, the missing-witness semantics, anchor-late,
@@ -262,13 +262,50 @@ standing in for a ruleset state.
       Settled in 5.6 alongside 5.3's leaf kinds, since the same events produce
       both.
 
+      **A SIXTH BOT ROUND CLOSED THE SEAM THE FIFTH ONE OPENED, WHICH THIS
+      SESSION HAD INVITED BY NAME.** Making the two states disjoint gave them
+      different verification answers, and the receipt carried no timing at all —
+      so a receipt-only verifier could not tell pending from incomplete, the
+      artifact being byte-identical before and after a breach. **Both halves of
+      the fix were taken, split by what each verifier can know**: the mint-time
+      configuration block now carries each witness's DECLARED HORIZON and the
+      SUBMISSION TIME they run from, bound by the anchored digest exactly as
+      LS-A5's witness set already was — **one mechanism extended, not a second
+      minted** — so a receipt-only verifier computes `anchor_pending` or the
+      receipt-only `anchor_incomplete` LOCALLY; and the TERMINAL-failure
+      distinction is scoped to STATEFUL verification, because a terminal failure
+      arises after the receipt was minted and no artifact can carry it. Both
+      limits are stated in the text rather than left to a reader: past the
+      horizon a receipt-only answer cannot separate a breach from a terminal
+      failure, and within it `anchor_pending` cannot exclude one. **That is D10's
+      shape reapplied — what the artifact can prove it proves, what it cannot it
+      names.** An extended horizon now breaks the proofs, closing the tamper this
+      opened before anyone had to find it.
+
+      **THE SETTLEMENT LIST WAS RE-DERIVED BY EQUALITY RATHER THAN PATCHED, AND
+      THE SWEEP FOUND ONE MORE THAN THE BOT DID.** Codex named the missing
+      TERMINAL-WITNESS-FAILURE leaf in 5.3. Re-running the check as an equality
+      between every leaf the spec mandates and 5.3's list surfaced a second
+      omission the bot had not reached — requirement 4's ITEM-ANCHOR-REFUSAL
+      leaf, mandated in its scenario and settled nowhere. Both are added with
+      their required fields, and requirement 4's VALIDATION-FAILURE leaf is
+      recorded as deliberately absent with its ground: it is a GATE VERDICT,
+      already in tranche one's ratified leaf set, and settling it here would mint
+      the second grammar 5.3 forbids. **This is the two-field sweep lesson
+      applied to a list instead of a pair** — a bot finds the instance, the
+      equality check finds the class.
+
+      Copilot, same round: §5's numbering ran 5.5, 5.6, 5.4 because the two new
+      settle items were appended rather than placed. Reordered monotonically, so
+      the cross-references in this file resolve in reading order.
+
       SHOULD-FIX items (LA-A7, LS-A7/A8/A9, LQ-A10/A11/A12/A14, CPL-A5) are
       **UNDISPOSED by the ruling and stay open** — disposition §6 says so
       expressly, and no silence here rules them.
 
       **§1.4 AND §1.5 RE-RUN, AND THE RESULT IS REPORTED RATHER THAN ROUNDED.**
       §1.4: `--strict` green and `--all --strict` **79 passed / 0 failed**;
-      NINE requirements unchanged, **52 → 74 scenarios**, still no `## MODIFIED`
+      NINE requirements unchanged, **52 → 77 scenarios**, still no `## MODIFIED`
       block. §1.5: doc-health against `origin/main` with a matched baseline
       basename returns **four new findings, all `status-validity`, all on the
       carried `review/` bundle** — the sitting's four top-level records write
@@ -323,9 +360,10 @@ discharged, so 3.1 is the next act on this packet.
 ## 4. Realization — the contract family and its validator
 
 - [ ] 4.1 `contracts/chain-anchoring/` — the multi-anchor receipt record (four
-      per-chain elements, the declared header source, and the CONFIGURED WITNESS
-      SET AT MINT TIME, which the ANCHORED DIGEST commits to in every
-      representation, the material digest staying nameable beside it), the
+      per-chain elements, the declared header source, and the MINT-TIME CONFIGURATION
+      BLOCK — the configured witness set, each witness's declared horizon, and
+      the submission time they run from — which the ANCHORED DIGEST commits to in
+      every representation, the material digest staying nameable beside it), the
       log-checkpoint anchor record with its never-read-as-validation disclaimer,
       the anchor-bound commitment record (declared construction, SALT and KEY
       custody references, declared salt source and width), the anchor-state
@@ -340,7 +378,8 @@ discharged, so 3.1 is the next act on this packet.
       receipt missing chain-acceptance evidence; a receipt whose header is
       non-canonical; a verification run against a minter-supplied header source;
       **a receipt carrying no configured witness set**; **a captured receipt
-      whose configured witness set a holder has rewritten**; **a representation
+      whose configured witness set a holder has rewritten OR whose declared horizon
+      a holder has extended**; **a representation
       carrying the configured set with no commitment binding it to the proof**;
       a checkpoint inclusion presented as validation; a
       single-witness item presented as anchored; a per-item selectivity rule; a
@@ -405,12 +444,32 @@ discharged, so 3.1 is the next act on this packet.
 - [ ] 5.2 Fix the COMPLETION HORIZONS — the declared values per witness, bounded
       by the aggregation interval chosen in 5.1. Requirement 3 requires that they
       be DECLARED; it names no numbers.
-- [ ] 5.3 Fix the NEW LEAF KINDS against tranche one's leaf grammar — verification,
-      verification failure, **permitted access**, refused access, **linkage-derivation
-      ISSUANCE**, **linkage-derivation USE**, anchor-pending, horizon breach, anchor
-      completion. This packet adds no second grammar and must not, so tranche one's
-      grammar is where each event discriminator and its required fields are settled;
-      requirements 7 and 8 mandate these leaves and neither defines a field.
+- [ ] 5.3 Fix the NEW LEAF KINDS against tranche one's leaf grammar. This packet
+      adds no second grammar and must not, so tranche one's grammar is where each
+      event discriminator and its required fields are settled; requirements 3, 4,
+      7 and 8 mandate these leaves and none of them defines a field. **THE LIST IS
+      SETTLED BY A ONE-PASS EQUALITY CHECK against every leaf the spec mandates,
+      not by accumulation** — the check is recorded in §2.4 and is to be re-run
+      whenever a requirement gains or loses a leaf:
+      * `anchor-pending` entry (requirement 3)
+      * `horizon-breach` transition — witness named (requirement 3)
+      * **`terminal-witness-failure` transition — WITNESS NAMED and FAILURE GROUND
+        named (requirement 3).** One of the two permitted transitions out of
+        pending; without a settled shape a realization can omit the evidence for
+        half the state machine
+      * `anchor-completion` (requirement 3)
+      * **`item-anchor-refusal` — the material refused and the ground
+        (requirement 4).** Its scenario mandates a leaf and no settlement named it
+      * `verification` and `verification-failure` (requirement 7)
+      * `permitted-access` and `refused-access` (requirement 7)
+      * `linkage-derivation-issuance` and `linkage-derivation-use` (requirement 8)
+      NOT here, and each for a stated reason: the VALIDATION-FAILURE leaf of
+      requirement 4 is a GATE VERDICT, which tranche one's ratified leaf set
+      already carries, so settling it here would mint the second grammar this
+      task forbids.
+- [ ] 5.4 Select the PERMISSIONED PLANE INSTANCE (D5), unless the council rules it
+      should be fixed at ratification instead. The class is Fabric or Besu; the
+      instance is not an anchor chain and selecting one re-opens nothing Q3 closed.
 - [ ] 5.5 Fix the LINKAGE-DERIVATION CONSTRUCTION — the per-analysis parameter,
       the expiry and revocation surface, and how the identity plane binds an
       issuance to its anchored consent checkpoint. Requirement 8 fixes the
@@ -426,9 +485,6 @@ discharged, so 3.1 is the next act on this packet.
       deliberately not its field names; without this settled before schemas are
       authored, "names the part it could not perform" has no shape a validator
       can check and a silent partial is indistinguishable from a complete run.
-- [ ] 5.4 Select the PERMISSIONED PLANE INSTANCE (D5), unless the council rules it
-      should be fixed at ratification instead. The class is Fabric or Besu; the
-      instance is not an anchor chain and selecting one re-opens nothing Q3 closed.
 
 ## 6. Successors and dependencies — NAMED, NOT DRAFTED
 
