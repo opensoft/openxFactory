@@ -12,6 +12,53 @@ CONTROLLER CERTIFICATE and is the CORROBORATION SOURCE for link 5. It is the
 first link in this family with a signer of its own, and the hash-linking rule
 below takes effect at it.
 
+**AND IT COMMITS TO THE EXPECTED ATTESTATION SET — THE TASKS IT DISPATCHED —
+BECAUSE A COMPLETENESS RULE WITH NO INDEPENDENT EXPECTATION CANNOT DETECT AN
+ATTESTATION THAT WAS NEVER WRITTEN.** The setup attestation SHALL therefore
+record, besides the environment, the EXPECTED ATTESTATION SET: the tasks the
+controller DISPATCHED under this chain identity, each named by a stable
+per-task reference the corresponding link-5 attestation carries back. **This
+falls inside the bytes the controller's signature covers**, on the same ground
+every other binding in this capability does — an expectation attachable
+afterwards is an expectation anyone can attach, and one a lane could edit is one
+a lane will edit down.
+
+**THE COMMITMENT ORIGINATES WHERE THE FACT DOES, WHICH IS WHAT MAKES IT WORTH
+ANYTHING.** The controller is the party that PROVISIONS and DISPATCHES; the
+runner is the party whose record is at stake. A completeness rule derived only
+from what the runners' side later wrote can be satisfied by writing less, so the
+expectation has to come from the side that cannot benefit from shrinking it.
+**This is BIND BEFORE SIGN's sibling one link earlier:** there the controller
+refuses to sign a claim it cannot corroborate; here it states, before any runner
+executes, what claims are owed.
+
+**A DYNAMIC FAN-OUT IS SERVED BY EXTENSION AND NEVER BY SILENCE, WHICH IS THE
+OBJECTION THIS RULE HAD TO ANSWER TO BE BUILDABLE.** Where the full task set is
+not knowable when link 4 is signed — the ordinary case for work that fans out as
+it runs — the controller SHALL EXTEND the commitment by a further
+CONTROLLER-SIGNED EXTENSION RECORD under the same chain identity, hash-linked
+like every link from link 4 onward, **WRITTEN AS A LEAF BEFORE THE ATTESTATION
+IT COVERS IS PRODUCED**. The expected set is then link 4 AS EXTENDED. Three
+refusals keep the extension from becoming the hole it exists to close:
+
+1. **AN EXTENSION WRITTEN AFTER THE ATTESTATION IT COVERS IS REFUSED**, because
+   an expectation recorded after the fact is a description and not an
+   expectation.
+2. **A LINK-5 ATTESTATION FOR A TASK NO COMMITMENT COVERS IS REFUSED**, so
+   extension cannot be skipped by simply attesting anyway.
+3. **AN EXTENSION SIGNED ANYWHERE OTHER THAN AT THE CONTROLLER IS REFUSED**,
+   under the tier-2 custody requirement, so a runner cannot enlarge or shrink
+   the expectation it is measured against.
+
+**WHAT THIS DOES NOT REACH IS DECLARED RATHER THAN IMPLIED.** A controller that
+is itself the attacker can under-commit — dispatch a task and never name it — and
+no comparison against its own commitment will show that. This requirement claims
+detection against A LANE, A RUNNER OR A STORE and not against a compromised
+controller, whose own signature is the root of every fact link 5 carries in any
+case. **THE RESIDUAL IS THEREFORE NOT A GAP THIS RULE OPENS BUT THE TRUST BOUNDARY
+THE TIER SPLIT ALREADY DRAWS**, and it is the same boundary requirement 4 exists
+to keep the runner outside of.
+
 **THE CERTIFICATE IS EXPRESSED IN `add-trust-anchor`'s VOCABULARY AND THIS
 CAPABILITY DEFINES NO SECOND ONE.** That change's ratified text governs, and
 four of its obligations bind here by composition rather than by restatement:
@@ -94,6 +141,36 @@ refuses the remainder.
 - THEN it is REFUSED, because link 5's corroboration would have nothing to read
 - AND an empty attestation is never accepted as a link that merely says little
 
+#### Scenario: a setup attestation commits to no expected attestation set
+
+- WHEN a setup attestation records the environment and names no expected attestation set for the chain identity
+- THEN it is REFUSED, because the completeness rule the gate applies at link 6 would then have nothing independent to compare an enumeration against
+- AND a chain whose expectation is inferred from the attestations that happen to arrive is never accepted, since that is the rule being satisfied by writing less
+
+#### Scenario: the expectation is carried outside the bytes the controller signed
+
+- WHEN the expected attestation set is present on the link-4 record but outside the bytes the controller's signature covers
+- THEN it is REFUSED, because an expectation attachable afterwards is an expectation anyone can attach
+- AND its presence on the record is not accepted, on the same footing as an attribution outside the signed bytes
+
+#### Scenario: a commitment extension is written after the attestation it covers
+
+- WHEN a controller-signed extension naming a dispatched task is written to the log after that task's link-5 attestation leaf
+- THEN it is REFUSED, because an expectation recorded after the fact is a description and not an expectation
+- AND the extension's correct content and valid signature are not accepted in place of its being written first
+
+#### Scenario: a runner attestation arrives for a task no commitment covers
+
+- WHEN a link-5 attestation is presented for a task named neither in link 4 nor in any extension written before it
+- THEN it is REFUSED, so that extension cannot be skipped by attesting anyway
+- AND the attestation's corroborating cleanly against link 4's environment is not accepted in place of the task having been committed
+
+#### Scenario: an extension is signed somewhere other than at the controller
+
+- WHEN a commitment extension carries a signature not produced at the controller
+- THEN it is REFUSED under the tier-2 custody requirement
+- AND a runner is never permitted to enlarge or shrink the expectation its own completeness is measured against
+
 #### Scenario: the controller certificate was already revoked when the attestation was signed
 
 - WHEN a setup attestation is presented whose controller certificate records a revoked standing AT SIGNING
@@ -127,9 +204,33 @@ requires no change to this requirement.
 **THE REQUEST IS RECORDED BECAUSE A BARE SIGNATURE ANSWERS HALF THE QUESTION.**
 A signature shows WHAT was attested; the recorded request shows WHO ASKED for
 the attestation. An attestation carrying no recorded request is REFUSED rather
-than accepted as an attestation with a detail missing. The identity is valid for
-ONE TASK and capable of exactly one thing — signing an attestation about that
-task.
+than accepted as an attestation with a detail missing.
+
+**THE IDENTITY IS VALID FOR ONE TASK, AND ITS AUTHORIZED RECORD KINDS ARE A
+CLOSED, NAMED ENUMERATION SCOPED TO THAT TASK.** A per-task tier-2 identity MAY
+sign EXACTLY THREE record kinds, each still produced at the controller's signing
+boundary and each still a record ABOUT the task it was minted for:
+
+1. the **TASK ATTESTATION** — link 5, what ran;
+2. the **PR-OPEN DECISION RECORD** — link 6, the decision to propose the work
+   that task produced;
+3. the **POST-MERGE TEST RECORD** — link 10, the closure outcome for that work.
+
+**THE ENUMERATION IS CLOSED, AND A RECORD OF ANY OTHER KIND SIGNED UNDER A
+TIER-2 IDENTITY IS REFUSED.** It is stated as an enumeration rather than as
+"an attestation" because links 6 and 10 are a DECISION and a TEST OUTCOME, not
+attestations — and a rule permitting only "an attestation about that task" would
+have made **no conforming link 6 producible at all**, refusing the chain this
+capability exists to build. What unites the three is not their form but their
+SUBJECT: each says something about the task, and none of them PERMITS anything.
+
+**AUTHORITY RECORDS STAY OUTSIDE THE ENUMERATION FOREVER, AND THAT IS THE POINT
+OF CLOSING IT.** A ratification, an approval, a review grant or any other record
+that CONFERS PERMISSION is never signable under a tier-2 identity — not by
+widening, not by realization convenience, and not by a later tranche adding a
+fourth kind. Tier 2 answers *what ran*; tier 1 answers *who permitted*; the
+enumeration is closed precisely so that widening it cannot quietly move an act
+from the second question into the first.
 
 **RECORDING THE REQUEST IS NECESSARY AND NOT SUFFICIENT, AND THIS REQUIREMENT
 SAYS SO RATHER THAN LETTING THE RECORD IMPLY MORE THAN IT SHOWS.** A recorded
@@ -259,6 +360,18 @@ stands in for the other.
 - WHEN a realization proposes issuing a broker persona to a runner so its attestations can name an actor
 - THEN it is REFUSED, and the runner's authority stays a `credential-contracts` / `openxwallet` grant
 - AND no persona is created for a workload
+
+#### Scenario: the per-task identity signs its task's PR-open decision and closure record
+
+- WHEN the identity minted for a task signs that task's link-6 PR-open decision record and its link-10 post-merge test record, at the controller
+- THEN both are CONFORMING, because the PR-open decision record and the post-merge test record are two of the three record kinds the enumeration names
+- AND the identity is not refused for signing a record that is not an attestation, since what the enumeration fixes is the record's SUBJECT and not its form
+
+#### Scenario: a tier-2 identity is offered for a record kind outside the enumeration
+
+- WHEN a per-task tier-2 identity is used to sign a ratification, an approval, a review grant, or any other record that confers permission
+- THEN it is REFUSED, because the enumeration of authorized record kinds is CLOSED and an authority record is never one of them
+- AND the record's being about the same task is not accepted as admitting it, because tier 2 answers what ran and never who permitted
 
 #### Scenario: one attestation identity is reused across two tasks
 
@@ -445,10 +558,22 @@ boundary in name.
 
 openxFactory SHALL treat the OPENING of a pull request — link 6 — as a DECISION
 and SHALL require it to be SIGNED AS ONE: under the same per-task tier-2 identity
-at the controller, over the carried traveling contract, corroborated and
-hash-linked like every link from link 4 onward. The signed decision records which
-chain it descends from, which link-5 attestations produced the work it proposes,
-and what it proposes.
+at the controller, **as the PR-OPEN DECISION RECORD, which is the second of the
+three record kinds that identity's closed enumeration authorizes**, over the
+carried traveling contract, corroborated and hash-linked like every link from
+link 4 onward. The signed decision records which chain it descends from, which
+link-5 attestations produced the work it proposes, and what it proposes.
+
+**A DECISION IS NOT AN ATTESTATION, AND THE IDENTITY REQUIREMENT IS WRITTEN SO
+THAT THIS ONE IS PRODUCIBLE.** An earlier draft of this capability let the
+per-task identity sign only *"an attestation about that task"*, which would have
+made **no conforming link 6 constructible** — the requirement demanding the
+signature and the requirement bounding the signer contradicting each other, with
+every realization forced to breach one of them. The enumeration names this
+record kind explicitly for that reason. **Signing it still confers nothing**: the
+next paragraph but one says so, and the enumeration excludes every authority
+record precisely so that widening it here cannot be read as widening what tier 2
+may permit.
 
 **ABSENT, THE PULL REQUEST IS AN ORPHAN ACT — AND THIS IS WHERE THE ABSENCE OF
 THE ATTESTATION LINKS BECOMES DETECTABLE RATHER THAN MERELY UNRECORDED.** A pull
@@ -526,33 +651,50 @@ therefore commit to an ORDERED, DEDUPLICATED ENUMERATION of every predecessor
 record under the one construction. **A dropped attestation is a BREAK, never a
 shorter chain.**
 
-**AND THE COMPLETE SET IS DERIVED FROM THE LOG, NOT FROM WHAT THE SUBMISSION
-HAPPENS TO CONTAIN — WITHOUT WHICH "A PROPER SUBSET" NAMES NOTHING.** An
+**AND THE AUTHORITATIVE SET IS LINK 4'S COMMITTED EXPECTATION, NOT THE LEAVES
+THAT HAPPEN TO BE PRESENT — WITHOUT WHICH "A PROPER SUBSET" NAMES NOTHING.** An
 enumeration can only be judged incomplete against an AUTHORITATIVE SET, and a
 gate reading only the artifacts it was handed has none: a lane that omits an
 unwanted link-5 record before presenting link 6 leaves behind an enumeration
-that is ordered, deduplicated and complete over everything the gate can see. The
-authoritative set SHALL therefore be DERIVED BY THE GATE from the append-only
-signed transparency log tranche one makes THE RECORD, by a DEFINED QUERY —
-**every leaf of the link-5 record kind committing to this chain identity, at or
-before the successor's own leaf** — and the gate SHALL REFUSE a successor whose
-enumeration is not EQUAL to that set. Not a subset and not a superset: a record
-enumerated but never written as a leaf is UNPROVEN under tranche one's own rule
-that an act writing no leaf is refused by every consumer requiring the chain.
+that is ordered, deduplicated and complete over everything the gate can see.
+**THE AUTHORITATIVE SET SHALL THEREFORE BE THE EXPECTED ATTESTATION SET LINK 4
+COMMITTED TO, AS EXTENDED BEFORE EACH ATTESTATION IT COVERS**, and the gate SHALL
+REFUSE a successor whose enumeration is not EQUAL to it. Not a subset and not a
+superset.
 
-**AND THE WRITING ORDER IS ITSELF AN OBLIGATION, WITHOUT WHICH THE DERIVATION
-CAN BE OUTRUN RATHER THAN DEFEATED.** A query bounded at the successor's own leaf
-is complete only over leaves that EXIST when the successor's leaf is written, so
-a lane that wants to shed an unwanted attestation need not omit it from the
-submission — it can DEFER WRITING ITS LEAF until after link 6's, and the derived
-set, the enumeration and the gate all agree. **EVERY LINK-5 LEAF FOR A CHAIN
-IDENTITY SHALL THEREFORE BE WRITTEN BEFORE THAT CHAIN'S LINK-6 LEAF**, and **A
-LINK-5 LEAF SEQUENCED AFTER ITS SUCCESSOR'S LEAF IS REFUSED** — refused as a
-DROPPED LINK on the rule above, and never accepted as a late-arriving record on
-an otherwise complete chain. A rule that is satisfiable by waiting is not a rule,
-and this one closes at the GATE horizon rather than only at closure's wider
-window, because by this capability's own two-horizon doctrine a merge that has
-already happened is not retroactively refused.
+**A SET DERIVED FROM THE LOG ALONE CANNOT DETECT THE ATTACK IT WAS WRITTEN FOR,
+AND THAT IS WHY THE AUTHORITY MOVED.** An earlier form of this rule derived the
+complete set by querying *"every leaf of the link-5 record kind committing to
+this chain identity, at or before the successor's own leaf"*. **A leaf that is
+NEVER WRITTEN is not in that query's answer**, so a lane that simply never writes
+an unwanted attestation — or defers it until after the gate has passed — produces
+an enumeration EQUAL to the derived set, and the terminal act is PERMITTED. The
+ordering obligation below cannot repair it either: refusing the late leaf when it
+finally appears comes after a merge that this capability's own two-horizon
+doctrine says is not retroactively refused. **A completeness rule whose
+expectation is inferred from the side that benefits from shrinking it is
+satisfiable by writing less**, which is the same defect one link over that
+"a proper subset" had with nothing to be a subset OF.
+
+**THE LOG COMPARISON SURVIVES AS A SECOND CHECK AND NOT AS THE AUTHORITY.**
+Against the committed expectation the gate SHALL ALSO require that **every
+committed task has a link-5 leaf** in the append-only signed transparency log
+tranche one makes THE RECORD, and that **every link-5 leaf for this chain
+identity is covered by the commitment** — the first catching an owed attestation
+that was never produced, the second catching one produced outside the
+expectation. A record enumerated but never written as a leaf remains UNPROVEN
+under tranche one's own rule that an act writing no leaf is refused by every
+consumer requiring the chain.
+
+**AND THE WRITING ORDER REMAINS AN OBLIGATION, NOW AS DEFENCE IN DEPTH RATHER
+THAN AS THE LOAD-BEARING RULE.** **EVERY LINK-5 LEAF FOR A CHAIN IDENTITY SHALL
+BE WRITTEN BEFORE THAT CHAIN'S LINK-6 LEAF**, and **A LINK-5 LEAF SEQUENCED AFTER
+ITS SUCCESSOR'S LEAF IS REFUSED** — refused as a DROPPED LINK, and never accepted
+as a late-arriving record on an otherwise complete chain. A rule that is
+satisfiable by waiting is not a rule. What this obligation no longer has to carry
+alone is COMPLETENESS: the committed expectation detects the deferred leaf and
+the never-written one at the GATE horizon, where the ordering rule by itself
+detected only the deferred one and only once it arrived.
 
 **THE RESIDUAL HERE IS TRANCHE ONE'S DECLARED ONE AND IS NOT RE-DECLARED AS
 NEW.** A store that truncates its newest unobserved leaves could hide a link-5
@@ -603,21 +745,33 @@ permission is exactly how an absence becomes a hole.
 
 #### Scenario: a successor commits to three of four runner attestations
 
-- WHEN a link-6 or link-10 record's enumeration is not EQUAL to the set the gate derives from the log for this chain identity
+- WHEN a link-6 or link-10 record's enumeration is not EQUAL to the expected attestation set link 4 committed to for this chain identity, as extended
 - THEN the gate REFUSES
 - AND the omission is reported as a dropped link rather than accepted as a shorter chain
 
 #### Scenario: a lane omits an attestation before presenting its successor
 
 - WHEN a lane withholds a link-5 record so that the successor's enumeration is complete over everything submitted
-- THEN the gate REFUSES, because it derives the complete set from the log rather than from the submission
+- THEN the gate REFUSES, because it compares the enumeration against link 4's committed expectation rather than against the submission
 - AND an enumeration complete over what was handed in is never accepted as complete
+
+#### Scenario: a lane never writes a dispatched runner's leaf at all
+
+- WHEN a task named in link 4's committed expectation produces no link-5 attestation and no leaf, and link 6's enumeration omits it so that it EQUALS the set a log query would return
+- THEN the gate REFUSES, because the enumeration is compared against the COMMITTED EXPECTATION and an owed attestation that was never written is missing from it
+- AND the leaf's never having existed is not accepted as the task's never having been dispatched, because the controller committed to it before any runner executed
+
+#### Scenario: an attestation is produced for a task outside the committed expectation
+
+- WHEN a link-5 leaf exists for this chain identity whose task is covered by no commitment, and the successor enumerates it
+- THEN the gate REFUSES, because the enumeration must EQUAL the committed expectation and this is a superset of it
+- AND the attestation's own validity is not accepted, because work the controller never committed to dispatching is work the chain cannot account for
 
 #### Scenario: a lane defers an unwanted link-5 leaf until after link 6
 
-- WHEN a link-5 leaf for a chain identity is written to the log AFTER that chain's link-6 leaf, so that the gate's derived set excluded it and the enumeration was EQUAL
+- WHEN a link-5 leaf for a chain identity is written to the log AFTER that chain's link-6 leaf, so that a query bounded at the successor's leaf would have excluded it
 - THEN it is REFUSED as a DROPPED LINK, because every link-5 leaf for a chain identity is owed before its successor's leaf
-- AND the enumeration's having been equal at the successor's leaf is never accepted, since a rule satisfiable by waiting is not a rule
+- AND the deferral is caught at the GATE in any case by the committed expectation, which named the task before any runner executed and does not shrink when a leaf is withheld
 
 #### Scenario: an enumerated record was never written as a leaf
 
@@ -654,7 +808,11 @@ openxFactory SHALL treat a chain as COMPLETE ONLY AT CLOSURE — link 10, the
 GOVERNED POST-MERGE TEST — and SHALL require that test to consume BOTH the
 ratified proposal AND the review notes, so that what was promised is what is
 tested. Link 10 is signed under the same per-task identity at the controller,
-corroborated and hash-linked exactly as links 5 and 6 are.
+**as the POST-MERGE TEST RECORD, the third and last of the record kinds that
+identity's closed enumeration authorizes**, corroborated and hash-linked exactly
+as links 5 and 6 are. A test outcome is no more an attestation than a decision
+is, and the enumeration names it for the same reason it names link 6: a signer
+bound to attestations alone could produce no conforming closure record either.
 
 **IT CONSUMES TWO ARTIFACTS AND NOT ONE.** The proposal is referenced by the
 RATIFICATION'S CONTENT DIGEST that tranche one already fixes — the digest taken
