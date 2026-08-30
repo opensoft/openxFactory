@@ -391,6 +391,134 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-binding-consumer-identity](openspec/changes/add-binding-consumer-identity/proposal.md)
+  — authored 2026-08-29, **RATIFIED 2026-08-29** (`Status: ratified`; record
+  `review/ratification-2026-08-29.md`). **THE FIRST PACKET THROUGH THE §7.4 PATH
+  END TO END**: a council sitting returned SPLIT 2–2 on the verdict word and
+  UNANIMOUS 4/4 that the text as drafted was not ratifiable, with fifteen
+  blocking amendments across four seats; Brett ruled the same day — accept all
+  blocking, one fix round, ratification read after — and ratified the amended
+  text with the Codex-two-heads-back verification gap in view rather than waiting
+  on a bot at its usage limit. **Ratification authorizes REALIZATION and does not
+  perform it**: the change stays ACTIVE until merged code, green evidence and the
+  contract cut exist. **Three further rulings the bench routed
+  to him came back the same day**: Decision 2 takes ROUTE (i) (phase the
+  requiredness, keep the promise); the parked P-2 is DISCHARGED — packaged
+  fixtures use SYNTHETIC identifiers and the live sync-lane/openXdox fetch
+  identities stay in the consuming installs; and P-3's estate-level delta-pair
+  gap is FILED as issue #502, which this change neither closes nor waits on. The
+  ratification act followed the same day.
+  THE NAMED SUCCESSOR OF A RATIFIED ADMISSION: `add-notebook-hosting-credential-custody`
+  ratified one-identity / per-system-authority on 2026-08-23 and admitted in the
+  same read that the invariant is **held by review rather than by the record** —
+  the published `xfactory_credential_binding_template` requires only
+  `[provider, secret_ref, owner, rotation_policy]`, carries no consumer or
+  access-identity field, and the validator compares no authorities, so two
+  bindings on one vault principal validate cleanly. That gap is registered FIVE
+  times in the predecessor — its requirement's own scenario, its Impact section,
+  its design, its tasks §4.5 and its ratification record — and this change is
+  what discharges it. **The sharpest statement of it is canon's own**: promoted
+  `credential-contracts` says a consuming lane receives "only bindings: an opaque
+  secret reference and a fetch-identity identifier" — the shape carries the first
+  and not the second. **MEASURED, not assumed**: a `consumer:` key carrying
+  arbitrary contents validates against the pinned schema TODAY, because the
+  binding object is not closed, which makes this a field-shaped hole rather than
+  a missing field. The change adds ONE additive optional `consumer:` block
+  (`holder_ref`, `fetch_identity`, a QUALIFIED `requirement_ref`, and const-true
+  `shared_credential_acknowledged` and `instantiation_stub` tokens) in vocabulary
+  the estate already ratified: `holder_ref` is `identity-brokering`'s shipped
+  spelling and a consuming system is emphatically NOT a persona, `fetch_identity`
+  is `credential-contracts`'s own words. **THE BLOCK IS DECLARED AT THIS MINOR
+  AND CONSTRAINED AT THE MAJOR — all three narrowing acts together.** Requiring
+  members, closing the member set and imposing the identifier grammar each refuse
+  a shape the current major accepts, so each is breaking and all three wait for
+  one deprecation window. An earlier draft phased only the closure; four seats
+  proved by construction that the other two refused a locally shaped object, a
+  scalar, a list and the generator's own placeholder style, falsifying a scenario
+  that would have promoted into canon. **NOTHING NARROWS AT THIS CUT, and that is
+  now a measurement**: six shapes a domain could already hold were built and
+  driven, and all six validate. **IT TIGHTENS BEFORE IT LIFTS** —
+  `shared-secret-identity` keeps its refusal as the default, a new
+  `shared-authority-identity` names the real fault (two systems, one authority),
+  and the two-consumers-of-one-identity shape the predecessor had to DECLINE
+  becomes expressible only through SIX independent fail-closed conditions over
+  EVERY PAIR, the sixth of which binds each reference to its own binding's map key
+  because a security seat drove the five-condition draft into granting the lift
+  on this capability's only red proof of serving-tier separation. **EIGHT warning
+  codes carry the deprecation, one per shape the major refuses**, five of them
+  added when bot rounds on the fix round itself found that an empty
+  `consumer: {}` matched no code, that the map-key grammar had been prescribed
+  with no phasing, that the false-token refusal was written as an immediate error
+  though such a record validates today, and that `access_mode` and the document
+  reference declared their phasing in prose with no code to serve it — five more
+  instances of the very defect the council convened over, arriving inside its own
+  repair, and the reason the warning set is now derived from the refusal list
+  rather than counted. **CARRIES A
+  CONTRACT CUT AT REALIZATION** — its realization moves schema bytes, though THIS
+  PACKET MOVES NONE and leaves `contracts/` untouched; the minor is allocated at
+  realization by merge order, because `add-credential-escrow-checkout` is already
+  spending one on the same file and main is a third writer of that manifest.
+  1 MODIFIED requirement (carriage re-measured after the amendment round: six
+  scenarios in, six out, five byte-identical, zero units lost) and 3 ADDED. Six
+  authoring decisions and five open questions are recorded with their rejected
+  alternatives; the open questions are now RULED, one of them against the
+  author's own recommendation.
+- [add-signed-execution-chain](openspec/changes/add-signed-execution-chain/proposal.md)
+  — **RATIFIED 2026-08-29 by Brett Heap** (`review/ratification-2026-08-29.md`); realization is a later commission. Exit 1 of
+  three of the staged topic `signed-execution-chain`, and its boundary is
+  **RULED**: Brett Heap ruled all seven of the topic's questions on 2026-08-29
+  (#499, squash `9c501df6`), **Q4** fixing tranche one at **links 1–3 only**
+  with the **signed transparency log a TRANCHE-1 artifact** and the
+  **chain-validating gate existing FROM TRANCHE ONE** validating a short chain.
+  So: a ratification admitted only on wallet-carried authority PROVEN BY
+  POSSESSION and BOUND to the exact ratification, ratification and chain
+  inception as ONE signed act, the signed ratification carried as a TRAVELING
+  CONTRACT, the append-only signed transparency log as THE RECORD, and the gate.
+  **The inversion is the point: a validated chain is not an audit trail, it is a
+  PERMISSION** — an audit trail is written after the fact and can be forged after
+  the fact, while a chain the gate walks before it permits the terminal act
+  cannot be, because the act does not happen without it. **A broken or missing
+  link is a FRAUD SIGNAL and a refusal, never a warning**, and an unevaluable
+  chain refuses on the family's fail-closed doctrine. The gate validates
+  HASH-LINKED CONTINUITY, never a bag of signatures: individually valid
+  artifacts from DIFFERENT executions must not assemble into a chain. **TWO
+  CONSTRAINTS COME FROM THE 2026-08-28 `gate_rules_council` CONVENING**
+  (codexFactory
+  `hermes/domain/review-councils/records/2026-08-28-gate-rules-openxfactory-substantive-classes.md`,
+  unanimous 5/5): the chain-inception act is **OUT-OF-PIPELINE BY PROVEN
+  NECESSITY** — a class over `openspec/changes/**` can never commission a
+  council, measured 984 admitted / 984 floored / 0 remaining and reproduced
+  code-level, so routing inception through the envelope would describe a control
+  that cannot run; and link 7 composes with the **§7.4
+  council-reviewed-but-human-approved path**, which "needs no class and no
+  flip", NOT with the clearance envelope — `025`'s FR-008 is left gated exactly
+  where the convening left it. **An out-of-pipeline INCEPTION and a
+  required-check GATE are different objects, and only the first is what those
+  seats refused.** **THE VOCABULARY ACT**: link 2's act is named **`chain
+  inception`**, NOT enrollment, because FR-008 already owns that word here for
+  candidate-class entry into a `merge-approval-envelope` and
+  `add-worker-enrollment-broker` carries a third sense; the non-collision is
+  stated in requirement text, not only in the proposal. **Composes with the
+  REALIZED wallet artifacts and invents no second vocabulary**: link 1's
+  instrument is the shipped `xfactory_wallet_grant` /
+  `xfactory_wallet_grant_exercise` pair at the `contracts/openxwallet-pin.yaml`
+  digest pin, whose closed refusal enumeration already separates
+  `missing_proof_of_possession` from `missing_grant`. **NINE ADDED requirements
+  over 45 scenarios, no MODIFIED block anywhere.** **NARROWING A IS RULED** —
+  Brett Heap, 2026-08-29, in session, the clarify sitting having taken the seven
+  questions and nothing else: **tier 1 is RATIFYING authority**, agent-held
+  REVIEW wallets stay lawful, and the realized `wal-agent-mrc-0001` is untouched.
+  Narrowing B is settled by Q1's own disposition. **THE PACKET IS THE SURVIVOR OF
+  A COLLAPSE HE RULED**: two sessions raised this tranche into the same change
+  directory three minutes apart, and **#494 is closed with four of its
+  hardenings HARVESTED here** — the actor↔wallet attestation binding, enforced
+  per-ratification uniqueness, ONE digest construction for every digest, and the
+  named-reader required-check rule. Tranches two (attestation, links 4–6 and 10)
+  and three (on-chain anchoring) are NAMED successors, **not drafted, and not
+  pre-encoded**: every question-gate they held is now OPEN, and what remains for
+  them is machinery — the omnigent layer and the PKI plane — rather than a
+  ruling. `target_release` **`contract-v2.3`**, fresh-counted (v2.2 is declared
+  and cut), allocated at realization by merge order.
 - [settle-aging-staging-topics](openspec/changes/settle-aging-staging-topics/proposal.md)
   — authored 2026-08-28 on Brett's four bulk rulings over a read-only triage
   survey of the fourteen staging topics `doc-health`'s

@@ -24,9 +24,14 @@ rulings diverge from what was recommended — Q3 seats KASPA as the primary,
 operational witness and BITCOIN-VIA-OPENTIMESTAMPS ON EVERY ANCHORED ITEM as the
 durability witness, inverting the study's ordering and dropping its optionality;
 Q5 keeps the door open for on-chain contract code in a future change instead of
-refusing it forever. The topic is fully ruled; tranche one is draftable on
-Brett's word — the sitting answered the questions and did NOT green-light the
-drafting, so "draftable" is a readiness state and not an authorization.
+refusing it forever. The topic is fully ruled, and tranche one is DRAFTED,
+RATIFIED and RAISED: the sitting answered the questions and did NOT green-light
+the drafting — "draftable" was a readiness state and not an authorization — and
+THAT WORD CAME 2026-08-29 in a separate in-session act, which also collapsed the
+two parallel tranche-one packets onto pull request #495 and adopted Narrowing A
+(tier 1 is RATIFYING authority; agent-held REVIEW wallets stay lawful). Brett
+Heap RATIFIED that packet the same day.
+Staging ID: openxFactory:staging:signed-execution-chain
 
 ## Pre-document idea notes
 
@@ -76,7 +81,7 @@ Ten links. Each names what is signed, by whom, and what refuses when it is absen
 | --- | --- | --- | --- |
 | 1 | **Ratify with the wallet presented** — the ratifying human presents a wallet-carried authority; the ratification records the presentation | human authority credential | no ratification; nothing downstream can begin |
 | 2 | **Ratified ⇒ enrolled, atomically, inside the signed handshake** — enrollment is not a second act that could diverge | same signature as link 1 | a ratified-but-unenrolled state, which is the divergence this link exists to make impossible |
-| 3 | **The traveling contract** — the signed ratification becomes an artifact that accompanies the work rather than a row in a table it must be looked up in | — (carried) | the chain cannot be checked at the point of use |
+| 3 | **The traveling contract** — the signed ratification becomes an artifact that accompanies the work rather than a row in a table it must be looked up in | link 1's signature, carried | the chain cannot be checked at the point of use |
 | 4 | **Harness-controller setup attestation** — the controller attests the environment it prepared | controller certificate | runner attestations have no issuer to chain to |
 | 5 | **Runner attestations** — each runner attests its model, its version, and its local harness | per-task identity (key held at the controller; signature produced there) | the work cannot say what produced it |
 | 6 | **Signed PR-open decision** — opening a pull request is itself a decision and is signed as one | per-task identity (controller-signed) + carried contract | the PR is an orphan act |
@@ -864,3 +869,33 @@ and every disposition above carries its date and its ruling authority.
 that sitting, and this fragment does not read "ruled" as "authorized to draft" —
 the questions being answered is what makes the drafting possible, not what
 authorizes it. The next act is his.
+
+**The word came, 2026-08-29, in a separate act — DRAFTING IS GREEN-LIT.** Brett
+Heap authorized the tranche-one drafting in session, after the sitting, and the
+two acts are kept apart here rather than merged into one because the sitting's
+own record says it did not authorize drafting. Rewriting that sentence to agree
+with the later word would delete the distinction the sitting was careful to
+draw; recording the authorization beneath it keeps both true. The same ruling
+did two further things, and both are recorded where they bind rather than only
+here: it COLLAPSED the two parallel tranche-one packets — pull requests #494 and
+#495, raised into the same change directory three minutes apart by two sessions
+that could not see each other — onto **#495** as the surviving base, with #494's
+four hardenings carried across by harvest rather than discarded; and it ADOPTED
+**Narrowing A**, which the sitting did not reach.
+
+**Narrowing A, RULED BY BRETT HEAP 2026-08-29 in session: tier 1 is RATIFYING
+authority.** The tier model above says tier-1 authority credentials are
+"never held by an agent, a runner, or a lane". Read literally that refuses
+`wal-agent-mrc-0001` — a REALIZED agent-held wallet backing an active `review`
+grant, which this repository runs today — so the literal reading would have made
+a shipped artifact nonconformant on the capability's first day. The ruling
+narrows the TIER, not the artifact: the human-held constraint binds the
+**ratifying** act, agent-held **review** wallets stay lawful, and what a chain
+refuses is an agent-held wallet performing a **ratification**. The tier-model
+paragraph above is left as written, because it states the constitutional ground
+(`access_secrets: false`) correctly and it is the scope of the word "authority"
+that was ruled, not the ground. **Narrowing B** — Q1's "rather than a new
+artifact" read as *invent no new artifact* — needed no separate ruling: Q1 as
+ruled already says no new artifact is created for the presentation.
+Dispositioned-by: Claude Opus 5 (session, encoding Brett Heap's in-session
+ruling) · 2026-08-29
