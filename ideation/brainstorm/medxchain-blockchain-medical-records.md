@@ -124,10 +124,20 @@ reasoning.
   payload without exception... on chain: salted keyed commitments... and
   the chain anchors."
 - **Three-database segregation** (Database Architecture: RecordDB /
-  MetaDataDB / PIIDB) is the same move as `signed-execution-chain`'s
-  **plane separation** — off-chain encrypted custody, a governed
-  permissioned layer, and an on-chain anchor layer, each holding a
-  different kind of fact (see its "So the split is" table).
+  MetaDataDB / PIIDB) is a SEPARATION-OF-CONCERNS PRECEDENT that
+  `signed-execution-chain`'s **plane separation** generalizes — not a
+  one-to-one instantiation of the three planes (see its "So the split
+  is" table). RecordDB and MetaDataDB are both OFF-CHAIN data stores:
+  they map to the **off-chain, encrypted custody** layer, whose
+  contents are committed, never published, on chain. PIIDB is an
+  identity/access store, not an on-chain one: it maps to the
+  **governed permissioned layer** that holds consent state and the
+  salts — never to a public chain, which is exactly the correction the
+  next section makes to MedxChain's original "PIIDB entirely on the
+  blockchain" design. **The public anchor layer has no MedxChain
+  counterpart at all**: none of the three databases is itself published
+  on chain; only their commitments and checkpoints are, and that anchor
+  layer is what the 2026 architecture adds.
 - **"One-time access to create the hash, verify indefinitely"** (Record
   Fidelity) echoes a fidelity PROPERTY — established once, in a signed
   act, verifiable forever after — that the ruled architecture protects
