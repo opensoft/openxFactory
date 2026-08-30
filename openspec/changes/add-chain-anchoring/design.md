@@ -345,8 +345,8 @@ nobody is assigned.
 ## What this design does NOT decide
 
 - **The digest algorithm and byte encoding.** `add-signed-execution-chain`'s ONE
-  digest construction requirement already governs every digest the family
-  computes *"and any a later tranche adds"*. This packet declares no second
+  digest construction requirement already reaches forward to *"any digest a
+  later tranche adds"*. This packet declares no second
   digest rule and inherits that one; the algorithm is settled in tranche one's
   own §3 settling tasks.
 - **The leaf grammar** for the new leaf kinds (verification attempt, refused

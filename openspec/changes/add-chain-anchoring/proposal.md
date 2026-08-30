@@ -311,7 +311,8 @@ table admits a tranche at all.
     log.
   - `add-signed-execution-chain`'s **ONE digest construction** requirement, which
     already declares that one construction governs every digest the family
-    computes *"and any a later tranche adds"*. Every digest in this packet — the
+    computes and reaches forward to *"any digest a later tranche adds"*. Every
+    digest in this packet — the
     anchored digest, the aggregation root, the checkpoint commitment — is that
     construction, and this packet declares no second digest rule.
   - `add-trust-anchor`'s ratified **declared-shortfall** pattern, which is what
