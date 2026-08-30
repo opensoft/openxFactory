@@ -402,6 +402,36 @@ standing in for a ruleset state.
       with no scenario is precisely the described-control defect this packet has
       now paid for three times.
 
+      **THE TIMING-MODEL TRIPWIRE: ARMED, AND UNFIRED FOR A REASON THAT IS NOT
+      "CLEAN".** After three consecutive rounds found DIRECTION ERRORS in the
+      same clock machinery, a pre-commitment was set: a further clock-area
+      defect would stop the incremental patching and trigger a deliberate
+      CONSOLIDATION — the timing model restated as ONE coherent section (the
+      clocks, every bound with its direction as an inequality, every width with
+      its citation, the closure rule, and what each verifier mode can and cannot
+      conclude), derived fresh and then CHECKED AGAINST EVERY EXISTING SCENARIO,
+      since the scenario set is nine rounds of accumulated adversarial knowledge
+      and the consolidation must satisfy all of it or name which scenario was
+      wrong. **It did not fire, and the honest reason is that ROUND TEN NEVER
+      RAN**: the reviewing bot reached its usage limit and returned a quota
+      refusal rather than a verdict. **That is not the same as a clean round and
+      is not recorded as one.**
+
+      **WHAT THAT LEAVES, STATED PLAINLY.** The head carrying round nine's three
+      discharges is **UNREVIEWED BY ANY BOT**. The tripwire stays armed for
+      whoever runs the next review. And the case for the consolidation does not
+      depend on a tenth finding: the timing model is currently spread across
+      **EIGHTEEN normative paragraphs in two requirements**, accreted over four
+      rounds, holding three separately-established bounds, two declared widths, a
+      cadence, a closure rule and two verifier modes — measured, not estimated.
+      **Nobody can hold that as one model while reading it, which is the most
+      likely reason three consecutive rounds found direction errors in it.** The
+      consolidation is therefore available on a convener's or coordinator's word
+      as a restructure-with-proof; **this session did not perform it, because an
+      untriggered tripwire is not a mandate** and a fix round rewriting a
+      requirement's structure on its own initiative is the shape of overreach
+      this record has been careful about elsewhere.
+
       **SEVEN ROUNDS, AND THE SHAPE OF THE FINDINGS HAS CHANGED.** The first
       rounds found defects in the council-judged text; the last four have found
       defects in this fix round's own repairs, each one narrower than the last.
