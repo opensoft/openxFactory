@@ -13,7 +13,7 @@ in for a ruleset state.
 
 ## 1. Spec deltas and the packet (THIS PULL REQUEST)
 
-- [x] 1.1 `signed-execution-chain` — **NINE ADDED requirements over 50
+- [x] 1.1 `signed-execution-chain` — **NINE ADDED requirements over 59
       scenarios**: the harness-controller setup attestation under a certificate
       expressed in `add-trust-anchor` vocabulary, with the issuing authority named
       as a realization dependency and never assumed; runner attestations signed AT
@@ -64,6 +64,19 @@ in for a ruleset state.
       (read as self-limiting, the reading written into requirement text and
       reported); and the topic's SINGULAR hash-link rule versus its PLURAL link 5
       (resolved here by addition, and flagged as this packet's own resolution).
+- [x] 1.9 **THE FIRST BOT ROUND'S THREE P1 FINDINGS ARE CLOSED, AND RECORDED AS
+      CORRECTIONS** (`design.md` D10; `proposal.md` § "What the first bot round
+      corrected"). All three were one shape — a record that NAMED something
+      standing where a record that ESTABLISHES it belonged: the signing request
+      recorded but not ATTRIBUTED to the provisioned task (with `design.md` D1
+      having claimed otherwise); "a proper subset" with no authoritative set to be
+      a subset OF, so a lane could omit a link-5 record before presenting link 6;
+      and closure bound to the review record's BYTES rather than its AUTHORITY, so
+      a fabricated review record could close a chain. Each repair uses an existing
+      instrument — attribution stated as what must be ESTABLISHED, the complete
+      set derived from tranche one's log by a defined query, and review authority
+      in `add-wallet-carried-review-authority`'s shipped vocabulary — and each
+      carries its residual DECLARED rather than closed.
 
 ## 2. §7.4 COUNCIL REVIEW — the first gate, NOT YET HELD
 

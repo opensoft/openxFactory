@@ -184,7 +184,8 @@ one."* Every point of contact is cited to the artifact that owns it.
 | `implement-openxpki-install-repo` (ACTIVE, 22/30) | The runtime CA that would issue the controller certificate, at `opensoft/OpenXPKI-Install`. Its ratified boundary keeps openxFactory the canonical owner of the neutral `trust-anchor` contract while *"the install repository realizes both and owns neither"* | Requirement 1, as a REALIZATION DEPENDENCY explicitly not assumed. This packet creates no CA |
 | `add-identity-brokering` (ACTIVE, 20/30) | Signer identity. Its ratified **"Workloads are not personas"** requirement is what the delta consumes, and it contributes a REFUSAL: a workload, agent, job or service is not a persona, its authority comes from `credential-contracts` grants and `openxwallet` holders, and it **never appears as the actor of a governed act**. A per-task attestation identity is a workload by that definition | Requirement 2, two scenarios. The human actor stays link 1's stable opaque subject, per tranche one's actor-binding requirement |
 | `contracts/omnigent/` (the neutral overlay family, registered since `contract-v1.16`) | The closed six-boolean permission matrix — `additionalProperties: false`, `execute_final_action` and `access_secrets` both `const: false` — over five archetypes `frame` / `generate` / `verify` / `challenge` / `assemble_for_admission` | Requirement 4 (custody's constitutional ground) and requirement 9 (the precondition composes with the matrix and widens nothing). **No schema change** |
-| `add-signed-execution-chain` (ACTIVE, RATIFIED 2026-08-29) | The chain identity, the ONE digest construction governing every digest including those a later tranche adds, the traveling contract, the transparency log, the short-chain gate, and the DECLARATION that the hash-link rule takes effect at link 4 | Requirement 6 realizes that declaration; requirements 1–9 write leaves into the same log and compute no digest under a second construction |
+| `add-wallet-carried-review-authority` (ACTIVE; S2 issuer anchor REALIZED, read inside the REQUIRED `wallet-validation` check) | Review authority as a wallet-carried grant with an anchored root issuer, exercised with proof of possession. It is what makes a review record's AUTHORITY establishable rather than merely its bytes | Requirement 7 — closure establishes the review record was produced under proven review authority, in this shipped vocabulary and no second one |
+| `add-signed-execution-chain` (ACTIVE, RATIFIED 2026-08-29) | The chain identity, the ONE digest construction governing every digest including those a later tranche adds, the traveling contract, the transparency log AS THE RECORD, the short-chain gate, and the DECLARATION that the hash-link rule takes effect at link 4 | Requirement 6 realizes that declaration AND derives the authoritative predecessor set from the log by a defined query; requirements 1–9 write leaves into the same log and compute no digest under a second construction |
 
 ## Capabilities
 
@@ -195,7 +196,7 @@ capability tranche one created.
 
 ### Modified Capabilities
 
-- `signed-execution-chain`: **NINE ADDED requirements over 50 scenarios**, and
+- `signed-execution-chain`: **NINE ADDED requirements over 59 scenarios**, and
   **no `## MODIFIED Requirements` block anywhere** — the harness-controller
   setup attestation under a `trust-anchor` certificate; runner attestations
   signed at the controller on a recorded request, with signer identity refused
@@ -290,6 +291,42 @@ ATTESTATION IT DISLIKES and still present a continuous chain — which is the
 mix-and-match attack the topic's own review round raised, arriving through a
 different door. **This one IS resolved here**, because it is a gap in the topic
 rather than a conflict with a ruling; it is flagged so a reviewer can disagree.
+
+## What the first bot round corrected, before any review
+
+Three P1 findings on this packet's own pull request, all real, and **all of one
+shape: a record that NAMED something was standing where a record that ESTABLISHES
+it belonged.** That is tranche one's *"a reference is not a binding"* defect
+arriving three times at three different links, which is why the shape is recorded
+and not just the fixes. Full reasoning in `design.md` D10.
+
+1. **The signing request was recorded and not ATTRIBUTED.** An opportunistic
+   caller that can reach the signing service could submit a payload corroborating
+   against link 4 and receive a signature indistinguishable from the provisioned
+   task's — satisfying every stated refusal. Worse, `design.md` D1 had explicitly
+   claimed the record closed that case. Requirement 2 now requires the controller
+   to ATTRIBUTE the request to the task it provisioned, refuse what it cannot
+   attribute, and cover requester, chain identity and payload digest INSIDE the
+   signed bytes — **with the residual DECLARED**, because `access_secrets: false`
+   forbids the obvious mechanism of a request credential held by the runner.
+2. **"A proper subset" named nothing.** The gate had no authoritative set to take
+   a subset OF, so a lane omitting an unwanted link-5 record BEFORE presenting
+   link 6 produced an enumeration complete over everything visible — the rule
+   passed the exact chain it existed to refuse. Requirement 6 now has the gate
+   DERIVE the complete set from the transparency log by a DEFINED QUERY and
+   requires EQUALITY, inheriting tranche one's declared suffix-truncation residual
+   rather than re-declaring it.
+3. **Closure bound to the review record's BYTES and not its AUTHORITY.** A digest
+   proves only that bytes did not change after signing, so a supplied or
+   fabricated review record could be consumed by a passing test and CLOSE THE
+   CHAIN — at the one link with no gate behind it. Requirement 7 now requires the
+   review record to be established under review authority PROVEN BY POSSESSION in
+   `add-wallet-carried-review-authority`'s shipped vocabulary, **and declares what
+   that does not establish** — that every seat signed — naming a walked link-7
+   check as what would close it.
+
+**None was repaired by inventing vocabulary**, which is the constraint the staged
+topic names as this family's first risk.
 
 ## The two acts that must follow, in order
 

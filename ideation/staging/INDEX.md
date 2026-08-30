@@ -1904,7 +1904,7 @@ repo scope.
   required-check rule.
 - **EXIT 2 IS RAISED, 2026-08-29 — the change `add-chain-attestation`**
   (`openspec/changes/add-chain-attestation/proposal.md`), carrying **links 4–6 and
-  10** with **nine ADDED requirements over 50 scenarios** and no `## MODIFIED
+  10** with **nine ADDED requirements over 59 scenarios** and no `## MODIFIED
   Requirements` block. **IT IS A DRAFT, NOT RATIFIED** — filed for a §7.4 council
   review and then Brett Heap's ratification, in that order, on
   `add-binding-consumer-identity`'s pattern. **NOT recorded as `Exit taken:`**, on

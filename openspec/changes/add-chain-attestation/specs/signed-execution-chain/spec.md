@@ -97,10 +97,40 @@ requires no change to this requirement.
 **THE REQUEST IS RECORDED BECAUSE A BARE SIGNATURE ANSWERS HALF THE QUESTION.**
 A signature shows WHAT was attested; the recorded request shows WHO ASKED for
 the attestation. An attestation carrying no recorded request is REFUSED rather
-than accepted as an attestation with a detail missing, because the asker is then
-unrecorded and a chain that cannot say who asked cannot tell a provisioned task
-from an opportunistic one. The identity is valid for ONE TASK and capable of
-exactly one thing — signing an attestation about that task.
+than accepted as an attestation with a detail missing. The identity is valid for
+ONE TASK and capable of exactly one thing — signing an attestation about that
+task.
+
+**RECORDING THE REQUEST IS NECESSARY AND NOT SUFFICIENT, AND THIS REQUIREMENT
+SAYS SO RATHER THAN LETTING THE RECORD IMPLY MORE THAN IT SHOWS.** A recorded
+request establishes that SOMETHING asked; it does not establish WHAT. An
+opportunistic caller that can reach the signing service can submit a payload
+that corroborates against link 4 and satisfy every refusal above, and the
+signature it receives is then indistinguishable from the provisioned task's. So
+the controller SHALL **ATTRIBUTE** every signing request TO THE TASK IT
+PROVISIONED IN LINK 4, SHALL REFUSE a request it cannot so attribute, and SHALL
+cover the attribution — requester, chain identity, and the digest of the payload
+— INSIDE THE BYTES IT SIGNS, because an attribution attachable afterwards is an
+attribution anyone can attach.
+
+**THE ATTRIBUTION COMES FROM THE CONTROLLER'S OWN PROVISIONING AND NEVER FROM
+WHAT THE RUNNER SAYS ABOUT ITSELF** — a requester identity the runner supplies
+is self-report, and self-report is precisely what the corroboration requirement
+below refuses. What must be ESTABLISHED is stated here; the mechanism that
+establishes it is not, on the same footing `add-trust-anchor` uses for issuance
+evidence it cannot mandate a mechanism for.
+
+**AND THE RESIDUAL IS RAISED AS AN EXPLICIT GAP RATHER THAN CLAIMED AS CLOSED.**
+The obvious mechanism — a per-task request credential held by the runner — is
+UNAVAILABLE HERE: `access_secrets: false` forbids placing one in a worker, which
+is the same constraint that forces remote signing in the first place. A
+realization SHALL therefore DECLARE, under `add-trust-anchor`'s
+conformance-declaration rule, exactly what its platform lets the controller
+establish about a requester, and SHALL NOT assert an attribution stronger than
+that. Where a platform cannot distinguish two tasks the same controller
+provisioned, the realization DECLARES it and the affected attestations are
+refused for uses requiring per-task attribution — an undeclared shortfall is
+non-conformance, and the identical shortfall declared is conformant.
 
 **SIGNER IDENTITY IS EXPRESSED IN `add-identity-brokering`'s VOCABULARY, AND
 WHAT THAT VOCABULARY CONTRIBUTES HERE IS A REFUSAL.** Its ratified text keeps
@@ -126,6 +156,30 @@ stands in for the other.
 - THEN it is REFUSED
 - AND the missing request is never treated as an omitted detail on an otherwise complete record
 
+#### Scenario: an opportunistic caller submits a payload that corroborates
+
+- WHEN a caller the controller cannot attribute to a task it provisioned in link 4 submits a payload that matches the setup attestation
+- THEN the request is REFUSED and no signature is produced
+- AND the payload's corroborating cleanly is never accepted in place of attributing the asker
+
+#### Scenario: the attribution falls outside the signed bytes
+
+- WHEN the requester attribution is present on the record but outside the bytes the controller's signature covers
+- THEN it is REFUSED, because an attribution attachable afterwards is an attribution anyone can attach
+- AND its mere presence on the record is not accepted
+
+#### Scenario: the runner supplies its own requester identity
+
+- WHEN a signing request carries a requester identity the runner asserts about itself
+- THEN it is not accepted as the attribution, which comes from the controller's own provisioning
+- AND a self-reported asker is refused on the same ground as a self-reported measurement
+
+#### Scenario: the platform cannot distinguish two tasks the same controller provisioned
+
+- WHEN a realization's platform cannot attribute a request to one provisioned task rather than another
+- THEN it DECLARES that shortfall under the conformance-declaration rule and does not assert the attribution
+- AND the affected attestations are refused for uses requiring per-task attribution, the declaration leaving the realization conformant
+
 #### Scenario: the attestation identity is offered as the actor of a governed act
 
 - WHEN a governed record names a per-task attestation identity as the actor of the act
@@ -147,7 +201,7 @@ stands in for the other.
 #### Scenario: a hardware-backed signer is adopted
 
 - WHEN the controller moves its signing key into an HSM
-- THEN the records the chain carries are unchanged and this requirement is satisfied as written
+- THEN every record the chain carries is unchanged and this requirement is satisfied as written
 - AND the adoption is recorded as a hardening of the same shape rather than a different mechanism
 
 ### Requirement: The controller corroborates what it signs and never notarizes self-report
@@ -210,12 +264,12 @@ beside it.
 
 ### Requirement: A tier-2 attestation key never enters a worker, in every configuration
 
-openxFactory SHALL require that TIER-2 ATTESTATION KEY MATERIAL NEVER CROSS into
-a worker, a runner, or a lane — in EVERY configuration and for EVERY lifetime —
+openxFactory SHALL KEEP TIER-2 ATTESTATION KEY MATERIAL OUT of every worker,
+every runner and every lane — in EVERY configuration and for EVERY lifetime —
 and SHALL realize tier 2 as a SIGNING ORACLE AT THE CONTROLLER: the runner
-submits a payload and receives a signature over it, and no key bytes, no handle
-that dereferences to key bytes, and no delegation that would let it sign again
-without asking ever cross the boundary.
+submits a payload and receives a signature over it, and nothing else crosses the
+boundary. Key bytes do not cross it; neither does a handle that dereferences to
+key bytes, nor a delegation that would let the runner sign again without asking.
 
 **THE GROUND IS CONSTITUTIONAL AND ALREADY SHIPPED.** The neutral omnigent
 overlay contract at `contracts/omnigent/omnigent-domain-overlay.schema.yaml`
@@ -340,9 +394,30 @@ Link 5 is PLURAL — each runner attests — so "the digest of the predecessor" 
 not one value, and a rule that leaves it singular lets a lane DROP THE
 ATTESTATION IT DISLIKES and still present a continuous chain. A successor SHALL
 therefore commit to an ORDERED, DEDUPLICATED ENUMERATION of every predecessor
-record under the one construction, and the gate SHALL REFUSE a successor
-committing to a proper subset. **A dropped attestation is a BREAK, never a
+record under the one construction. **A dropped attestation is a BREAK, never a
 shorter chain.**
+
+**AND THE COMPLETE SET IS DERIVED FROM THE LOG, NOT FROM WHAT THE SUBMISSION
+HAPPENS TO CONTAIN — WITHOUT WHICH "A PROPER SUBSET" NAMES NOTHING.** An
+enumeration can only be judged incomplete against an AUTHORITATIVE SET, and a
+gate reading only the artifacts it was handed has none: a lane that omits an
+unwanted link-5 record before presenting link 6 leaves behind an enumeration
+that is ordered, deduplicated and complete over everything the gate can see. The
+authoritative set SHALL therefore be DERIVED BY THE GATE from the append-only
+signed transparency log tranche one makes THE RECORD, by a DEFINED QUERY —
+**every leaf of the link-5 record kind committing to this chain identity, at or
+before the successor's own leaf** — and the gate SHALL REFUSE a successor whose
+enumeration is not EQUAL to that set. Not a subset and not a superset: a record
+enumerated but never written as a leaf is UNPROVEN under tranche one's own rule
+that an act writing no leaf is refused by every consumer requiring the chain.
+
+**THE RESIDUAL HERE IS TRANCHE ONE'S DECLARED ONE AND IS NOT RE-DECLARED AS
+NEW.** A store that truncates its newest unobserved leaves could hide a link-5
+leaf and make an incomplete enumeration look equal. That is exactly the suffix
+truncation tranche one's transparency-log requirement DECLARES it cannot detect
+and names tranche-three anchoring as closing. This requirement inherits that gap
+rather than papering over it, and claims detection only within a prefix some
+party has observed.
 
 **THE GATE'S SCOPE GROWS WITH THE TRANCHE, AND IT STILL VALIDATES A CHAIN RATHER
 THAN A BAG OF SIGNATURES.** From this tranche the gate walks LINKS 1–6 and
@@ -380,9 +455,21 @@ how an absence becomes a hole.
 
 #### Scenario: a successor commits to three of four runner attestations
 
-- WHEN a link-6 or link-10 record commits to a proper subset of its predecessor records
+- WHEN a link-6 or link-10 record's enumeration is not EQUAL to the set the gate derives from the log for this chain identity
 - THEN the gate REFUSES
 - AND the omission is reported as a dropped link rather than accepted as a shorter chain
+
+#### Scenario: a lane omits an attestation before presenting its successor
+
+- WHEN a lane withholds a link-5 record so that the successor's enumeration is complete over everything submitted
+- THEN the gate REFUSES, because it derives the complete set from the log rather than from the submission
+- AND an enumeration complete over what was handed in is never accepted as complete
+
+#### Scenario: an enumerated record was never written as a leaf
+
+- WHEN a successor enumerates a predecessor record for which the log holds no leaf
+- THEN it is REFUSED as UNPROVEN
+- AND the record's own well-formedness is not accepted, because an act that writes no leaf is refused by every consumer requiring the chain
 
 #### Scenario: a realization declares a second digest construction for the predecessor digest
 
@@ -421,9 +508,32 @@ over the subject ratified, never the chain identity taken over the signed
 ratification. The review notes are the record of the council review link 7
 carries on the §7.4 path. A test consuming only the proposal tests what was
 promised and not what was reviewed; one consuming only the review notes tests the
-amendments and not the commitment. Both, or the record is not this link. Link 7's
-own signatures are outside this tranche's gate scope; what is required here is
-that link 10 BIND to the review record that path produces.
+amendments and not the commitment. Both, or the record is not this link.
+
+**BINDING TO THE REVIEW RECORD'S BYTES IS NOT ENOUGH, AND CLOSURE SHALL
+ESTABLISH THE REVIEW'S AUTHORITY.** A digest over a review record proves only
+that the bytes did not change after the controller signed them; it establishes
+nothing about whether a council produced them, so a SUPPLIED OR FABRICATED
+review record would otherwise be consumed by a passing test and CLOSE THE CHAIN
+— the fabricated-but-valid-looking record arriving at the one link that has no
+gate behind it. Link 10 SHALL therefore establish that the review record it
+consumes was produced under REVIEW AUTHORITY PROVEN BY POSSESSION, expressed in
+the ALREADY SHIPPED vocabulary of `add-wallet-carried-review-authority` — a
+wallet-carried review grant, exercised, with the exercise's proof of possession
+supplied and VERIFIED, its standing current at exercise, and its `object_ref`
+bound to that review record — and SHALL REFUSE a review record it cannot so
+establish. No second review-authority, proof or grant vocabulary is defined
+here; the instrument is the one this repository already reads inside a required
+check.
+
+**WHAT THAT ESTABLISHES, AND WHAT IT DOES NOT — DECLARED RATHER THAN IMPLIED.**
+It establishes that the review record was produced under PROVEN review
+authority. It does NOT establish that every seat signed, because link 7's seat
+signatures are outside this tranche's gate scope and this requirement does not
+pretend to walk them. That residual SHALL be DECLARED under the
+realization-conformance obligation, with a walked link-7 check named as what
+closes it — an undeclared shortfall is non-conformance, and the identical
+shortfall declared is conformant.
 
 **THE TWO ENFORCEMENT HORIZONS ARE DIFFERENT AND THE DIFFERENCE IS THE POINT.**
 Links 1–6 enforce AT THE GATE, before the merge. Links 9 and 10 enforce AT
@@ -446,6 +556,24 @@ Collapsing them loses the distinction a responder needs first.
 - WHEN a post-merge test binds to the ratified proposal and to no review record
 - THEN it is not link 10 and the chain does not close on it
 - AND its own passing is not evidence that what was reviewed was tested
+
+#### Scenario: a fabricated review record is supplied to the post-merge test
+
+- WHEN a review record is consumed that is well-formed and bound by digest, and no verified review-authority exercise establishes it
+- THEN the chain does NOT close and the record is REFUSED
+- AND the test's own passing is never accepted as evidence that a council produced what it read
+
+#### Scenario: the review authority was revoked before its exercise
+
+- WHEN the review grant behind a consumed review record records a revoked grant, ancestor or holder at exercise
+- THEN closure is REFUSED, because a valid signature is not current authority
+- AND the review record's integrity is not accepted in place of standing at exercise
+
+#### Scenario: a reader asks whether closure proves every seat signed
+
+- WHEN a reader takes closure as evidence that each council seat signed the review
+- THEN it is corrected: closure establishes PROVEN REVIEW AUTHORITY and not per-seat signatures
+- AND the residual is DECLARED, naming a walked link-7 check as what would close it
 
 #### Scenario: the test runs, passes, and is unsigned
 

@@ -26,13 +26,32 @@ says they *"differ in exactly what an attacker who owns a runner for one task ca
 obtain."* A contract that admitted all three would be a contract that could not
 say what an attestation proves. The ruling picked one, so the contract states one.
 
-**What the recorded request buys, stated because it looks like bookkeeping and is
-not.** A signature shows WHAT was attested. It does not show WHO ASKED. Without
-the request, a controller that signs a well-formed corroborated payload cannot
-distinguish a provisioned task asking for its own attestation from any other
-caller asking for one that happens to corroborate. The request is therefore
-REQUIRED rather than recommended, and its absence REFUSES rather than degrading
-the record — the same shape as tranche one's missing-proof refusal.
+**What the recorded request buys — and what it does NOT, corrected by the first
+bot round.** A signature shows WHAT was attested; it does not show WHO ASKED, so
+the request is REQUIRED rather than recommended and its absence REFUSES rather
+than degrading the record — the same shape as tranche one's missing-proof
+refusal. **But this section first claimed that recording the request lets the
+controller tell a provisioned task from an opportunistic caller, and that was
+false.** Recording establishes that SOMETHING asked; it establishes nothing about
+WHAT. A caller that can reach the signing service can submit a payload that
+corroborates against link 4 and receive a signature indistinguishable from the
+provisioned task's — every stated refusal satisfied. The repair is in requirement
+2: the controller **ATTRIBUTES** the request to the task it provisioned, refuses
+what it cannot attribute, and covers requester, chain identity and payload digest
+INSIDE the bytes it signs. **The claim is corrected here rather than quietly
+deleted**, because it is the family's own "a reference is not a binding" defect
+arriving one link later: a record that NAMES the asker is not a record that
+ESTABLISHES the asker.
+
+**And the repair's own residual is declared rather than assumed away.** The
+obvious mechanism — a per-task request credential the runner holds — is
+unavailable, because `access_secrets: false` forbids putting one in a worker, and
+that is the same constraint that forced remote signing in the first place. So the
+requirement states WHAT MUST BE ESTABLISHED and not the mechanism, and obliges a
+realization to DECLARE what its platform actually lets the controller establish.
+A platform that cannot tell two tasks of the same controller apart is conformant
+if it says so and refuses the uses that need the distinction; it is
+non-conformant if it stays silent.
 
 ## D2 — The controller corroborates; it does not notarize — and the evidence class is PER FACT
 
@@ -128,6 +147,29 @@ executions; this is subtraction WITHIN one execution — the disfavoured runner'
 attestation quietly absent — and the continuity check as tranche one states it
 would not catch it, because what remains is genuinely continuous.
 
+**AND THE FIRST FORM OF THIS RULE WAS UNENFORCEABLE, WHICH THE FIRST BOT ROUND
+CAUGHT.** It said the gate refuses "a proper subset" and gave the gate nothing to
+take the subset OF. A gate reading only the artifacts handed to it has no
+authoritative set: a lane that omits an unwanted link-5 record BEFORE presenting
+link 6 leaves an enumeration that is ordered, deduplicated and complete over
+everything visible — so the rule as written passed exactly the chain it was
+written to refuse. **The set is now DERIVED BY THE GATE FROM THE LOG** by a
+defined query (every link-5 leaf committing to this chain identity, at or before
+the successor's own leaf), and the enumeration must be EQUAL to it — not a subset
+and not a superset, since a record enumerated but never written as a leaf is
+UNPROVEN under tranche one's own rule.
+
+**Why the log and not link 4.** Declaring the expected task set in the setup
+attestation was the other candidate and is worse: link 4 is signed BEFORE the
+runners execute, so a dynamically fanned-out task set is not knowable at that
+point, and a rule requiring it would be unbuildable for the ordinary case. The
+log is written as the acts happen, which is the property the derivation needs.
+**The residual is tranche one's declared one and is inherited, not re-declared:**
+a store truncating its newest unobserved leaves could hide a link-5 leaf and make
+an incomplete enumeration look equal — the suffix truncation tranche one's
+transparency-log requirement already declares it cannot detect, with tranche-three
+anchoring named as what closes it.
+
 ## D5 — An HSM is deferred hardening, and the contract is written so that adopting one changes nothing
 
 **Decision.** No hardware security module is specified, procured or required. The
@@ -209,7 +251,7 @@ is on the text, this packet cannot rule it out, and the council is where it goes
 | --- | --- | --- |
 | **The on-chain anchoring and consent layer** — the salted keyed commitment, the chain-agnostic multi-anchor receipt, the permissioned consent plane | Tranche three's whole subject, ruled by Q2/Q3/Q6 and gated on the PKI plane being real. This delta names no chain, no witness, no anchor, no commitment and no receipt format | The sibling change **`add-chain-anchoring`**, in parallel drafting |
 | **The certificate authority itself** | `implement-openxpki-install-repo` owns the runtime CA and its ratified boundary keeps openxFactory the owner of the neutral contract and the realizer of neither | That change, and the install repository it creates |
-| **Link 7's council-seat signatures as a WALKED link** | Tranche one placed link 7 on the §7.4 path in short-chain form and left its seat signatures outside the gate's scope; extending the walk to them is a separate act with its own convening consequences | A later tranche or a successor change; link 10 BINDS to the review record without the gate walking link 7's signatures |
+| **Link 7's council-seat signatures as a WALKED link** | Tranche one placed link 7 on the §7.4 path in short-chain form and left its seat signatures outside the gate's scope; extending the walk to them is a separate act with its own convening consequences | A later tranche or a successor change. **Closure does NOT merely bind to the review record's bytes** — that would let a fabricated record close a chain, which the first bot round caught: a digest proves the bytes did not change after signing and says nothing about who produced them. Link 10 now establishes that the review record was produced under REVIEW AUTHORITY PROVEN BY POSSESSION, in `add-wallet-carried-review-authority`'s shipped vocabulary. What that does NOT establish — that every seat signed — is DECLARED, with a walked link-7 check named as what closes it |
 | **An HSM** | Deferred hardening behind the boundary the contract describes — see D5 | A realization decision, requiring no contract change |
 | **Domain realizations (HealthLinc, LedgerLinc)** | They belong to MedxFactory and LedgerxFactory; openxFactory owns the neutral family | Domain repositories, consuming the released bundle |
 | **A second digest construction** | Tranche one puts ONE in force for every digest this capability computes, including those a later tranche adds, and says so in its own scenario | Nowhere — it is refused, and requirement 6 carries the refusal |
@@ -236,6 +278,43 @@ code, green evidence and the contract cut exist:
 
 **Neither dependency is softened by this packet's ratification**, and neither is
 assumed by its requirement text.
+
+## D10 — What the first bot round corrected, recorded as corrections
+
+Three P1 findings on this packet's own pull request, all real, and **all of one
+shape: a record that NAMES something was standing where a record that ESTABLISHES
+it belonged.** Recorded here rather than silently patched, because the shape is
+the transferable part — it is the same defect tranche one met as *"a reference is
+not a binding"*, arriving three separate times at three different links.
+
+1. **The signing request was recorded and not attributed** (requirement 2). An
+   opportunistic caller reaching the signing service could submit a payload that
+   corroborates against link 4 and receive a signature indistinguishable from the
+   provisioned task's, satisfying every stated refusal — and D1 had explicitly
+   CLAIMED the record closed that case. Repaired by requiring ATTRIBUTION to the
+   provisioned task, refusal where it cannot be established, and coverage inside
+   the signed bytes; with the residual declared, because `access_secrets: false`
+   forbids the obvious mechanism.
+2. **"A proper subset" named nothing** (requirement 6). The gate had no
+   authoritative set to take the subset OF, so a lane omitting an unwanted link-5
+   record before presenting link 6 produced an enumeration that was complete over
+   everything visible — the rule passed the exact chain it was written to refuse.
+   Repaired by DERIVING the complete set from the transparency log by a defined
+   query and requiring EQUALITY, with tranche one's suffix-truncation residual
+   inherited rather than re-declared.
+3. **Closure bound to review-record BYTES and not to review AUTHORITY**
+   (requirement 7). A digest establishes only that the bytes did not change after
+   the controller signed them, so a supplied or fabricated review record could be
+   consumed by a passing test and CLOSE THE CHAIN — at the one link with no gate
+   behind it. Repaired by requiring the review record to be established under
+   review authority PROVEN BY POSSESSION in the shipped
+   `add-wallet-carried-review-authority` vocabulary, with the per-seat residual
+   declared and a walked link-7 check named as what closes it.
+
+**None of the three was repaired by inventing vocabulary.** The attribution is
+stated as what must be ESTABLISHED, the complete set comes from the log tranche
+one already makes the record, and the review authority is the instrument this
+repository already reads inside a required check.
 
 ## What this design does NOT decide
 
