@@ -1913,7 +1913,8 @@ repo scope.
 - **EXIT 3 IS RAISED, 2026-08-29 — the DRAFT change `add-chain-anchoring`**
   (`openspec/changes/add-chain-anchoring/proposal.md`), the public anchoring layer
   plus the permissioned consent plane, as a NEW neutral `chain-anchoring`
-  capability of **nine ADDED requirements over 52 scenarios**. It builds to the
+  capability of **nine ADDED requirements over 60 scenarios** (52 at the head its
+  council judged; its 2026-08-30 fix round added eight). It builds to the
   RULED configuration — Kaspa first as the operational witness under its three
   unchanged conditions, Bitcoin via OpenTimestamps on every anchored item as the
   durability witness, no selectivity, no third chain — with the **multi-anchor
@@ -1932,8 +1933,18 @@ repo scope.
   (`ideation/brainstorm/medxchain-blockchain-medical-records.md`, vendored by
   PR #509, IN FLIGHT) — verification-attempt auditing, the meta-analysis lane, and
   the domain-instantiation boundary — plus one CORRECTION to them, the cross-plane
-  join key. **The topic is still not `Exit taken:`**: tranche two is in flight and
-  no tranche is archived.
+  join key. **ITS §7.4 COUNCIL SAT 2026-08-30** (combined over PRs #510, #513 and
+  #509 — an instrument the disposition rules WRONG at item 9, future sittings
+  split): four seats, one ACCEPT and three ACCEPT AS AMENDED, **three blocking
+  amendments plus one folded bot finding, all discharged in the fix round**, the
+  sitting carried in `openspec/changes/add-chain-anchoring/review/`. **RATIFICATION
+  IS THE NEXT ACT** — the ruling authorized a fix round and ratified nothing.
+  **A ruling of that sitting reaches THIS TOPIC**: its anchor-late constraint sits
+  in `## Conflicts` with no disposition stamp and is reached by none of the seven
+  Q-dispositions, so it was **NOT ruled by the topic being ruled** — the packet
+  narrowing it had to ROUTE the narrowing to its council, and the resulting rule
+  binds future packets (disposition §3.1). **The topic is still not `Exit
+  taken:`**: tranche two is in flight and no tranche is archived.
 
 ## notebook-access-wallet-governance
 

@@ -465,7 +465,9 @@ Active changes:
   per-plane keys are derived under per-plane salts. **Q5 IS COMPLIED WITH
   POSITIVELY**: today's evidence-only posture is stated in the present tense, with
   **no "never"** and **NO TRIGGER CONDITION**, because the ruling refused both.
-  **NINE ADDED requirements over 52 scenarios, no MODIFIED block anywhere** — a
+  **NINE ADDED requirements over 60 scenarios, no MODIFIED block anywhere** (52
+  at the head the council judged; the 2026-08-30 fix round added eight and no
+  requirement) — a
   NEW capability `chain-anchoring` rather than a second ADDED block on
   `signed-execution-chain`, which avoids the sibling-delta shape of issue #502
   outright. The change id and capability **diverge from the ratified working id**
@@ -473,7 +475,12 @@ Active changes:
   than glossed. `target_release` **deliberately NOT numbered** — the era is
   `contract-v2.2` and the next additive minor is allocated at realization by merge
   order, since tranche one already names `contract-v2.3` and tranche two reaches
-  the same cut.
+  the same cut. **ITS §7.4 COUNCIL SAT 2026-08-30** — four seats, one ACCEPT and
+  three ACCEPT AS AMENDED, the sitting carried in `review/` with
+  `disposition-2026-08-30.md` as the sole disposition of record. Brett Heap ruled
+  *"accept all fifteen as recommended"*; this packet's **three blocking
+  amendments and one folded bot finding are discharged** and **RATIFICATION IS
+  THE NEXT ACT** — the ruling authorized a fix round and ratified nothing.
 - [add-binding-consumer-identity](openspec/changes/add-binding-consumer-identity/proposal.md)
   — authored 2026-08-29, **RATIFIED 2026-08-29** (`Status: ratified`; record
   `review/ratification-2026-08-29.md`). **THE FIRST PACKET THROUGH THE §7.4 PATH
