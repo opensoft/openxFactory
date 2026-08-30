@@ -206,31 +206,62 @@ A signature shows WHAT was attested; the recorded request shows WHO ASKED for
 the attestation. An attestation carrying no recorded request is REFUSED rather
 than accepted as an attestation with a detail missing.
 
-**THE IDENTITY IS VALID FOR ONE TASK, AND ITS AUTHORIZED RECORD KINDS ARE A
-CLOSED, NAMED ENUMERATION SCOPED TO THAT TASK.** A per-task tier-2 identity MAY
-sign EXACTLY THREE record kinds, each still produced at the controller's signing
-boundary and each still a record ABOUT the task it was minted for:
+**TIER 2 HAS TWO SUBJECT SCOPES, AND EACH CARRIES ITS OWN CLOSED ENUMERATION OF
+AUTHORIZED RECORD KINDS.** The controller SHALL issue, alongside the per-task
+identities, exactly ONE **CHAIN-SCOPED TIER-2 IDENTITY** per chain identity. Both
+scopes are tier 2 and both are bound by every custody rule below without
+exception — the key lives at the controller's signing boundary, the identity is
+EPHEMERAL, and `access_secrets: false` is untouched, because adding a SUBJECT
+SCOPE moves no key and widens no permission:
 
-1. the **TASK ATTESTATION** — link 5, what ran;
-2. the **PR-OPEN DECISION RECORD** — link 6, the decision to propose the work
-   that task produced;
-3. the **POST-MERGE TEST RECORD** — link 10, the closure outcome for that work.
+| Scope | Valid for | Authorized record kinds — CLOSED |
+| --- | --- | --- |
+| **PER-TASK** | ONE task | the **TASK ATTESTATION** — link 5, what ran |
+| **CHAIN-SCOPED** | ONE chain identity | the **PR-OPEN DECISION RECORD** — link 6; and the **POST-MERGE TEST RECORD** — link 10 |
 
-**THE ENUMERATION IS CLOSED, AND A RECORD OF ANY OTHER KIND SIGNED UNDER A
-TIER-2 IDENTITY IS REFUSED.** It is stated as an enumeration rather than as
-"an attestation" because links 6 and 10 are a DECISION and a TEST OUTCOME, not
-attestations — and a rule permitting only "an attestation about that task" would
-have made **no conforming link 6 producible at all**, refusing the chain this
-capability exists to build. What unites the three is not their form but their
-SUBJECT: each says something about the task, and none of them PERMITS anything.
+**THE SPLIT IS BY SUBJECT, BECAUSE THAT IS WHAT THE RECORDS ACTUALLY DIFFER IN.**
+A link-5 attestation is a record about ONE TASK. **Link 6 is ONE DECISION that
+commits to EVERY link-5 attestation for the work it proposes, and link 10 is ONE
+TEST OUTCOME over that same whole** — they are records about the CHAIN. A signer
+valid for one task and authorized only for records about THAT task therefore
+cannot produce either of them the moment a chain fans out to more than one task:
+whichever task's identity signed, the record would necessarily cover work from
+the others. **AN EARLIER DRAFT MADE EXACTLY THAT MISTAKE**, enumerating links 5,
+6 and 10 under the per-task identity — which fixed the records' FORM and left
+their SUBJECT unfixed, so the ordinary multi-task fan-out still had no conforming
+link 6. The enumeration is split rather than widened, because widening the
+per-task identity to cover work it was not minted for would have destroyed the
+one property that identity exists to carry.
 
-**AUTHORITY RECORDS STAY OUTSIDE THE ENUMERATION FOREVER, AND THAT IS THE POINT
-OF CLOSING IT.** A ratification, an approval, a review grant or any other record
-that CONFERS PERMISSION is never signable under a tier-2 identity — not by
-widening, not by realization convenience, and not by a later tranche adding a
-fourth kind. Tier 2 answers *what ran*; tier 1 answers *who permitted*; the
-enumeration is closed precisely so that widening it cannot quietly move an act
-from the second question into the first.
+**EACH ENUMERATION IS CLOSED, AND A RECORD SIGNED UNDER THE WRONG SCOPE IS
+REFUSED AS FIRMLY AS ONE SIGNED UNDER NO TIER-2 IDENTITY AT ALL.** A per-task
+identity presented for a link-6 or link-10 record is REFUSED; the chain-scoped
+identity presented for a link-5 attestation is REFUSED. Neither is a lesser
+defect than the other, and a realization that collapses the two scopes into one
+identity has re-created the conflict this split exists to resolve.
+
+**AUTHORITY RECORDS STAY OUTSIDE BOTH ENUMERATIONS FOREVER, AND THAT IS THE
+POINT OF CLOSING THEM.** A ratification, an approval, a review grant or any
+other record that CONFERS PERMISSION is never signable under a tier-2 identity of
+EITHER scope — not by widening, not by realization convenience, and not by a
+later tranche adding a further kind. **The chain-scoped identity is broader in
+SUBJECT and not in AUTHORITY**: it says things about a whole chain and it permits
+nothing, exactly as the per-task identity says things about one task and permits
+nothing. Tier 2 answers *what ran*; tier 1 answers *who permitted*; the
+enumerations are closed precisely so that widening either cannot quietly move an
+act from the second question into the first.
+
+**THIS FILLS A GAP IN THE STAGED TOPIC RATHER THAN OVERTURNING A RULING, AND IT
+IS FLAGGED SO A REVIEWER CAN DISAGREE.** The topic's link table gives links 6 and
+10 a *"per-task identity (controller-signed)"* while its own row 6 calls the
+PR-open a single decision — the same shape as its SINGULAR hash-link rule beside
+its PLURAL link 5, which this delta already resolves by addition. Tranche one's
+ratified text characterizes tier 2 as *"ephemeral per-task attestation
+identities"* and in the same sentence says tier 2 *"is the named tranche-two
+boundary and is NOT defined here"*, creating no attestation identity of any kind.
+**Defining it is this tranche's act**, and the two operative constraints that
+ratified sentence does impose — EPHEMERAL, and keys that never enter a worker —
+bind the chain-scoped identity exactly as they bind the per-task ones.
 
 **RECORDING THE REQUEST IS NECESSARY AND NOT SUFFICIENT, AND THIS REQUIREMENT
 SAYS SO RATHER THAN LETTING THE RECORD IMPLY MORE THAN IT SHOWS.** A recorded
@@ -295,7 +326,9 @@ non-human identity out of the persona population: a workload, agent, job or
 service SHALL NOT be represented as a persona, its authority comes from
 `credential-contracts` grants and `openxwallet` holders rather than from
 anything the broker holds, and such an identity NEVER APPEARS AS THE ACTOR of a
-governed act. A per-task attestation identity is a workload by that definition.
+governed act. A tier-2 attestation identity is a workload by that definition — a
+per-task one and the chain-scoped one alike, since widening a SUBJECT does not
+make a workload a persona.
 The HUMAN actor a chain records remains link 1's stable opaque subject, bound to
 the wallet that signed, exactly as tranche one's actor-binding requirement
 fixes it. Tier 2 answers *what ran*; tier 1 answers *who permitted*; neither
@@ -351,7 +384,7 @@ stands in for the other.
 
 #### Scenario: the attestation identity is offered as the actor of a governed act
 
-- WHEN a governed record names a per-task attestation identity as the actor of the act
+- WHEN a governed record names a tier-2 attestation identity of either scope as the actor of the act
 - THEN validation FAILS, because a workload is not a persona and never appears as an actor
 - AND the act's actor remains link 1's stable opaque subject bound to the wallet that signed
 
@@ -361,23 +394,36 @@ stands in for the other.
 - THEN it is REFUSED, and the runner's authority stays a `credential-contracts` / `openxwallet` grant
 - AND no persona is created for a workload
 
-#### Scenario: the per-task identity signs its task's PR-open decision and closure record
+#### Scenario: a chain fans out to several tasks and one link-6 decision is signed
 
-- WHEN the identity minted for a task signs that task's link-6 PR-open decision record and its link-10 post-merge test record, at the controller
-- THEN both are CONFORMING, because the PR-open decision record and the post-merge test record are two of the three record kinds the enumeration names
-- AND the identity is not refused for signing a record that is not an attestation, since what the enumeration fixes is the record's SUBJECT and not its form
+- WHEN a chain dispatches several tasks and the chain-scoped tier-2 identity signs the single link-6 PR-open decision record committing to every one of their link-5 attestations, at the controller
+- THEN it is CONFORMING, because the decision is a record about the CHAIN and the chain-scoped identity's closed enumeration names that record kind
+- AND no per-task identity is asked to sign for work it was not minted for, which is the case the ordinary multi-task fan-out makes unavoidable
 
-#### Scenario: a tier-2 identity is offered for a record kind outside the enumeration
+#### Scenario: a per-task identity is offered for the PR-open decision
 
-- WHEN a per-task tier-2 identity is used to sign a ratification, an approval, a review grant, or any other record that confers permission
-- THEN it is REFUSED, because the enumeration of authorized record kinds is CLOSED and an authority record is never one of them
-- AND the record's being about the same task is not accepted as admitting it, because tier 2 answers what ran and never who permitted
+- WHEN a link-6 or link-10 record is signed under an identity valid for one task
+- THEN it is REFUSED, because that identity's closed enumeration names the task attestation and nothing else
+- AND a single-task chain is not accepted as making the scope immaterial, since a rule that holds only where the fan-out happens to be one is not the rule
 
-#### Scenario: one attestation identity is reused across two tasks
+#### Scenario: the chain-scoped identity is offered for a runner attestation
 
-- WHEN an attestation identity signs for a second task
-- THEN the second attestation is REFUSED, because the identity is valid for one task
+- WHEN a link-5 attestation is signed under the chain-scoped tier-2 identity rather than under the identity minted for that task
+- THEN it is REFUSED, because a record about ONE TASK is outside the chain-scoped identity's closed enumeration
+- AND the refusal has the same force as one for a record signed under no tier-2 identity at all, so the two scopes cannot be collapsed into one
+
+#### Scenario: a tier-2 identity of either scope is offered for an authority record
+
+- WHEN a per-task or chain-scoped tier-2 identity is used to sign a ratification, an approval, a review grant, or any other record that confers permission
+- THEN it is REFUSED, because both enumerations are CLOSED and an authority record is never in either
+- AND the chain-scoped identity's wider SUBJECT is not accepted as wider AUTHORITY, because tier 2 answers what ran and never who permitted
+
+#### Scenario: one per-task attestation identity is reused across two tasks
+
+- WHEN a PER-TASK attestation identity signs a link-5 attestation for a second task
+- THEN the second attestation is REFUSED, because a per-task identity is valid for one task
 - AND reuse is never accepted on the strength of the identity still being unexpired
+- AND this refusal does not reach the CHAIN-SCOPED identity, whose one chain spans every task the chain dispatched and whose records are about that whole
 
 #### Scenario: a hardware-backed signer is adopted
 
@@ -557,23 +603,31 @@ boundary in name.
 ### Requirement: Opening a pull request is a signed decision, bound to the chain
 
 openxFactory SHALL treat the OPENING of a pull request — link 6 — as a DECISION
-and SHALL require it to be SIGNED AS ONE: under the same per-task tier-2 identity
-at the controller, **as the PR-OPEN DECISION RECORD, which is the second of the
-three record kinds that identity's closed enumeration authorizes**, over the
-carried traveling contract, corroborated and hash-linked like every link from
-link 4 onward. The signed decision records which chain it descends from, which
-link-5 attestations produced the work it proposes, and what it proposes.
+and SHALL require it to be SIGNED AS ONE: **under the CHAIN-SCOPED tier-2
+identity** at the controller, **as the PR-OPEN DECISION RECORD, which that
+identity's closed enumeration authorizes**, over the carried traveling contract,
+corroborated and hash-linked like every link from link 4 onward. The signed
+decision records which chain it descends from, which link-5 attestations produced
+the work it proposes, and what it proposes.
 
-**A DECISION IS NOT AN ATTESTATION, AND THE IDENTITY REQUIREMENT IS WRITTEN SO
-THAT THIS ONE IS PRODUCIBLE.** An earlier draft of this capability let the
-per-task identity sign only *"an attestation about that task"*, which would have
-made **no conforming link 6 constructible** — the requirement demanding the
-signature and the requirement bounding the signer contradicting each other, with
-every realization forced to breach one of them. The enumeration names this
-record kind explicitly for that reason. **Signing it still confers nothing**: the
-next paragraph but one says so, and the enumeration excludes every authority
-record precisely so that widening it here cannot be read as widening what tier 2
-may permit.
+**ONE PULL REQUEST IS ONE DECISION, AND ITS SIGNER IS SCOPED TO WHAT IT DECIDES
+OVER.** Link 6 commits to EVERY link-5 attestation for the work it proposes, so
+its subject is the CHAIN and not any one task. Two earlier drafts of this
+capability got this wrong in sequence, and both are recorded rather than
+smoothed: the first let the per-task identity sign only *"an attestation about
+that task"*, so **no conforming link 6 was constructible at all**; the second
+enumerated this record kind under the per-task identity, which fixed the record's
+FORM and left its SUBJECT unfixed — so **the ordinary multi-task fan-out still
+had none**, since whichever task's identity signed would be covering work from
+the others. **The decision is NOT composed from N per-task decisions**: the
+authoritative link table gives link 6 one signed decision, and a rule assembling
+one link from several signatures would be inventing a link the family does not
+have.
+
+**Signing it still confers nothing**, and the scope split does not change that.
+The chain-scoped identity is broader in SUBJECT and not in AUTHORITY: its
+enumeration excludes every authority record exactly as the per-task one does, so
+nothing here may be read as widening what tier 2 may permit.
 
 **ABSENT, THE PULL REQUEST IS AN ORPHAN ACT — AND THIS IS WHERE THE ABSENCE OF
 THE ATTESTATION LINKS BECOMES DETECTABLE RATHER THAN MERELY UNRECORDED.** A pull
@@ -807,12 +861,14 @@ permission is exactly how an absence becomes a hole.
 openxFactory SHALL treat a chain as COMPLETE ONLY AT CLOSURE — link 10, the
 GOVERNED POST-MERGE TEST — and SHALL require that test to consume BOTH the
 ratified proposal AND the review notes, so that what was promised is what is
-tested. Link 10 is signed under the same per-task identity at the controller,
-**as the POST-MERGE TEST RECORD, the third and last of the record kinds that
-identity's closed enumeration authorizes**, corroborated and hash-linked exactly
-as links 5 and 6 are. A test outcome is no more an attestation than a decision
-is, and the enumeration names it for the same reason it names link 6: a signer
-bound to attestations alone could produce no conforming closure record either.
+tested. Link 10 is signed **under the same CHAIN-SCOPED tier-2 identity that
+signed link 6**, at the controller, **as the POST-MERGE TEST RECORD — the second
+and last of the record kinds that identity's closed enumeration authorizes** —
+corroborated and hash-linked exactly as links 5 and 6 are. A test outcome is no
+more an attestation than a decision is, and its SUBJECT is the same whole: the
+governed post-merge test runs over the work the chain produced, not over one
+task's share of it, so a task-scoped signer could no more produce a conforming
+link 10 than a conforming link 6.
 
 **IT CONSUMES TWO ARTIFACTS AND NOT ONE.** The proposal is referenced by the
 RATIFICATION'S CONTENT DIGEST that tranche one already fixes — the digest taken
@@ -1157,7 +1213,7 @@ than left to a reader to reconstruct:
 | The controller corroborates what it signs and never notarizes self-report | CONTROLLER-TIME refusal BEFORE signing — the gate cannot re-run a corroboration whose inputs it does not hold — plus the gate's own per-fact EVIDENCE-CLASS check on the presented attestations, which refuses an unclassed fact and a class read above its order |
 | A tier-2 attestation key never enters a worker, in every configuration | NOT a per-chain check and named as such: a DESIGN and REALIZATION-CONFORMANCE obligation, refused at review and at realization, because a gate sees signatures and never where a key lived or what could read it |
 | Opening a pull request is a signed decision, bound to the chain | The extended walk's link-6 leg, including the orphan-act refusal for a pull request reaching the gate with no signed open decision |
-| The signed hash-link rule takes effect at link 4, and the gate walks the extended chain | THIS GATE, extended: it IS the enforcement point the link-4, link-5 and link-6 rows name, and it carries the plural-predecessor enumeration, the log-derived authoritative set, and the leaf-ordering refusal |
+| The signed hash-link rule takes effect at link 4, and the gate walks the extended chain | THIS GATE, extended: it IS the enforcement point the link-4, link-5 and link-6 rows name, and it carries the plural-predecessor enumeration, the EQUALITY COMPARISON AGAINST LINK 4'S COMMITTED EXPECTED ATTESTATION SET — which is THE AUTHORITY, the bidirectional transparency-log comparison being a SECONDARY check and never the source of the set — and the leaf-ordering refusal |
 | The chain completes at CLOSURE, and the governed post-merge test is what closes it | THE SECOND HORIZON — enforced AFTER the merge, by every consumer of it, and never at this gate. Named here rather than omitted, because the omission is the point: this gate cannot refuse a merge that already happened |
 | A remediation chain is the one admitted consumer of an unclosed chain | CONSUMER-TIME, at that same closure horizon. Its own links 1–6 are walked HERE like any chain's — it is an exempt CONSUMER and never an exempt CHAIN |
 | The executing layer refuses a step whose inbound chain does not verify | EXECUTION-TIME, in the omnigent layer, BEFORE this gate is ever reached. Until a running layer refuses, the requirement is UNMET rather than partially met, on this capability's named-reader rule |
