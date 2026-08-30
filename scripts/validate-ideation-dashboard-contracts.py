@@ -973,6 +973,21 @@ def _scan_public_strings(f: Findings, label: str, node: Any) -> None:
 
 
 def check_model_catalog(f: Findings, label: str, doc: dict) -> None:
+    """Catalog rules beyond the shape. `model_id` uniqueness and the routing
+    declaration's seven cross-entry rules; the credential/endpoint scan over
+    every public string.
+
+    THE contract-v2.2 MODALITY RULES ARE NOT HERE, AND THAT IS THE POINT. All
+    three refusals the requirement states — a member outside the closed
+    vocabulary, an empty declared set, a declared set omitting `text` — are
+    EXPRESSIBLE IN THE SHAPE (`items.enum`, `minItems: 1`,
+    `contains: {const: text}`), so the released schema this validator already
+    applies to every instance refuses them, and delegating a fourth spelling
+    here would be a second gate to keep in step with no rule to enforce. The
+    three packaged negatives under `negative/` prove the refusal happens rather
+    than asserting that it would; nothing about a modality declaration needs a
+    SECOND entry or a comparison the shape has no operator for, which is the
+    test everything in this function meets."""
     entries = [e for e in doc.get("models") or [] if isinstance(e, dict)]
     seen = set()
     for entry in doc.get("models") or []:

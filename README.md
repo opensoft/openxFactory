@@ -391,6 +391,134 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-binding-consumer-identity](openspec/changes/add-binding-consumer-identity/proposal.md)
+  — authored 2026-08-29, **RATIFIED 2026-08-29** (`Status: ratified`; record
+  `review/ratification-2026-08-29.md`). **THE FIRST PACKET THROUGH THE §7.4 PATH
+  END TO END**: a council sitting returned SPLIT 2–2 on the verdict word and
+  UNANIMOUS 4/4 that the text as drafted was not ratifiable, with fifteen
+  blocking amendments across four seats; Brett ruled the same day — accept all
+  blocking, one fix round, ratification read after — and ratified the amended
+  text with the Codex-two-heads-back verification gap in view rather than waiting
+  on a bot at its usage limit. **Ratification authorizes REALIZATION and does not
+  perform it**: the change stays ACTIVE until merged code, green evidence and the
+  contract cut exist. **Three further rulings the bench routed
+  to him came back the same day**: Decision 2 takes ROUTE (i) (phase the
+  requiredness, keep the promise); the parked P-2 is DISCHARGED — packaged
+  fixtures use SYNTHETIC identifiers and the live sync-lane/openXdox fetch
+  identities stay in the consuming installs; and P-3's estate-level delta-pair
+  gap is FILED as issue #502, which this change neither closes nor waits on. The
+  ratification act followed the same day.
+  THE NAMED SUCCESSOR OF A RATIFIED ADMISSION: `add-notebook-hosting-credential-custody`
+  ratified one-identity / per-system-authority on 2026-08-23 and admitted in the
+  same read that the invariant is **held by review rather than by the record** —
+  the published `xfactory_credential_binding_template` requires only
+  `[provider, secret_ref, owner, rotation_policy]`, carries no consumer or
+  access-identity field, and the validator compares no authorities, so two
+  bindings on one vault principal validate cleanly. That gap is registered FIVE
+  times in the predecessor — its requirement's own scenario, its Impact section,
+  its design, its tasks §4.5 and its ratification record — and this change is
+  what discharges it. **The sharpest statement of it is canon's own**: promoted
+  `credential-contracts` says a consuming lane receives "only bindings: an opaque
+  secret reference and a fetch-identity identifier" — the shape carries the first
+  and not the second. **MEASURED, not assumed**: a `consumer:` key carrying
+  arbitrary contents validates against the pinned schema TODAY, because the
+  binding object is not closed, which makes this a field-shaped hole rather than
+  a missing field. The change adds ONE additive optional `consumer:` block
+  (`holder_ref`, `fetch_identity`, a QUALIFIED `requirement_ref`, and const-true
+  `shared_credential_acknowledged` and `instantiation_stub` tokens) in vocabulary
+  the estate already ratified: `holder_ref` is `identity-brokering`'s shipped
+  spelling and a consuming system is emphatically NOT a persona, `fetch_identity`
+  is `credential-contracts`'s own words. **THE BLOCK IS DECLARED AT THIS MINOR
+  AND CONSTRAINED AT THE MAJOR — all three narrowing acts together.** Requiring
+  members, closing the member set and imposing the identifier grammar each refuse
+  a shape the current major accepts, so each is breaking and all three wait for
+  one deprecation window. An earlier draft phased only the closure; four seats
+  proved by construction that the other two refused a locally shaped object, a
+  scalar, a list and the generator's own placeholder style, falsifying a scenario
+  that would have promoted into canon. **NOTHING NARROWS AT THIS CUT, and that is
+  now a measurement**: six shapes a domain could already hold were built and
+  driven, and all six validate. **IT TIGHTENS BEFORE IT LIFTS** —
+  `shared-secret-identity` keeps its refusal as the default, a new
+  `shared-authority-identity` names the real fault (two systems, one authority),
+  and the two-consumers-of-one-identity shape the predecessor had to DECLINE
+  becomes expressible only through SIX independent fail-closed conditions over
+  EVERY PAIR, the sixth of which binds each reference to its own binding's map key
+  because a security seat drove the five-condition draft into granting the lift
+  on this capability's only red proof of serving-tier separation. **EIGHT warning
+  codes carry the deprecation, one per shape the major refuses**, five of them
+  added when bot rounds on the fix round itself found that an empty
+  `consumer: {}` matched no code, that the map-key grammar had been prescribed
+  with no phasing, that the false-token refusal was written as an immediate error
+  though such a record validates today, and that `access_mode` and the document
+  reference declared their phasing in prose with no code to serve it — five more
+  instances of the very defect the council convened over, arriving inside its own
+  repair, and the reason the warning set is now derived from the refusal list
+  rather than counted. **CARRIES A
+  CONTRACT CUT AT REALIZATION** — its realization moves schema bytes, though THIS
+  PACKET MOVES NONE and leaves `contracts/` untouched; the minor is allocated at
+  realization by merge order, because `add-credential-escrow-checkout` is already
+  spending one on the same file and main is a third writer of that manifest.
+  1 MODIFIED requirement (carriage re-measured after the amendment round: six
+  scenarios in, six out, five byte-identical, zero units lost) and 3 ADDED. Six
+  authoring decisions and five open questions are recorded with their rejected
+  alternatives; the open questions are now RULED, one of them against the
+  author's own recommendation.
+- [add-signed-execution-chain](openspec/changes/add-signed-execution-chain/proposal.md)
+  — **RATIFIED 2026-08-29 by Brett Heap** (`review/ratification-2026-08-29.md`); realization is a later commission. Exit 1 of
+  three of the staged topic `signed-execution-chain`, and its boundary is
+  **RULED**: Brett Heap ruled all seven of the topic's questions on 2026-08-29
+  (#499, squash `9c501df6`), **Q4** fixing tranche one at **links 1–3 only**
+  with the **signed transparency log a TRANCHE-1 artifact** and the
+  **chain-validating gate existing FROM TRANCHE ONE** validating a short chain.
+  So: a ratification admitted only on wallet-carried authority PROVEN BY
+  POSSESSION and BOUND to the exact ratification, ratification and chain
+  inception as ONE signed act, the signed ratification carried as a TRAVELING
+  CONTRACT, the append-only signed transparency log as THE RECORD, and the gate.
+  **The inversion is the point: a validated chain is not an audit trail, it is a
+  PERMISSION** — an audit trail is written after the fact and can be forged after
+  the fact, while a chain the gate walks before it permits the terminal act
+  cannot be, because the act does not happen without it. **A broken or missing
+  link is a FRAUD SIGNAL and a refusal, never a warning**, and an unevaluable
+  chain refuses on the family's fail-closed doctrine. The gate validates
+  HASH-LINKED CONTINUITY, never a bag of signatures: individually valid
+  artifacts from DIFFERENT executions must not assemble into a chain. **TWO
+  CONSTRAINTS COME FROM THE 2026-08-28 `gate_rules_council` CONVENING**
+  (codexFactory
+  `hermes/domain/review-councils/records/2026-08-28-gate-rules-openxfactory-substantive-classes.md`,
+  unanimous 5/5): the chain-inception act is **OUT-OF-PIPELINE BY PROVEN
+  NECESSITY** — a class over `openspec/changes/**` can never commission a
+  council, measured 984 admitted / 984 floored / 0 remaining and reproduced
+  code-level, so routing inception through the envelope would describe a control
+  that cannot run; and link 7 composes with the **§7.4
+  council-reviewed-but-human-approved path**, which "needs no class and no
+  flip", NOT with the clearance envelope — `025`'s FR-008 is left gated exactly
+  where the convening left it. **An out-of-pipeline INCEPTION and a
+  required-check GATE are different objects, and only the first is what those
+  seats refused.** **THE VOCABULARY ACT**: link 2's act is named **`chain
+  inception`**, NOT enrollment, because FR-008 already owns that word here for
+  candidate-class entry into a `merge-approval-envelope` and
+  `add-worker-enrollment-broker` carries a third sense; the non-collision is
+  stated in requirement text, not only in the proposal. **Composes with the
+  REALIZED wallet artifacts and invents no second vocabulary**: link 1's
+  instrument is the shipped `xfactory_wallet_grant` /
+  `xfactory_wallet_grant_exercise` pair at the `contracts/openxwallet-pin.yaml`
+  digest pin, whose closed refusal enumeration already separates
+  `missing_proof_of_possession` from `missing_grant`. **NINE ADDED requirements
+  over 45 scenarios, no MODIFIED block anywhere.** **NARROWING A IS RULED** —
+  Brett Heap, 2026-08-29, in session, the clarify sitting having taken the seven
+  questions and nothing else: **tier 1 is RATIFYING authority**, agent-held
+  REVIEW wallets stay lawful, and the realized `wal-agent-mrc-0001` is untouched.
+  Narrowing B is settled by Q1's own disposition. **THE PACKET IS THE SURVIVOR OF
+  A COLLAPSE HE RULED**: two sessions raised this tranche into the same change
+  directory three minutes apart, and **#494 is closed with four of its
+  hardenings HARVESTED here** — the actor↔wallet attestation binding, enforced
+  per-ratification uniqueness, ONE digest construction for every digest, and the
+  named-reader required-check rule. Tranches two (attestation, links 4–6 and 10)
+  and three (on-chain anchoring) are NAMED successors, **not drafted, and not
+  pre-encoded**: every question-gate they held is now OPEN, and what remains for
+  them is machinery — the omnigent layer and the PKI plane — rather than a
+  ruling. `target_release` **`contract-v2.3`**, fresh-counted (v2.2 is declared
+  and cut), allocated at realization by merge order.
 - [extend-credential-binding-authority](openspec/changes/extend-credential-binding-authority/proposal.md)
   — the NAMED SUCCESSOR owed by task 4.5 of
   `add-notebook-hosting-credential-custody`, which Brett ratified 2026-08-23
@@ -756,38 +884,6 @@ Active changes:
   allowance passes explicitly, and revocation blocks the next dispatch and
   admission. Realization cuts the next additive contract bundle; no domain
   detector, runtime registry service or allowance instance lives here.
-- [add-model-capability-vocabulary](openspec/changes/add-model-capability-vocabulary/proposal.md)
-  — authored 2026-08-24, **NOT YET RATIFIED** (`Status: draft`). Exit (a) of the
-  staged topic `doxchat-auto-fit-routing`, whose six questions were
-  dispositioned the same day. `contract-v1.38` gave the catalog a routing rule
-  whose resolution is STATIC; Brett's direction at that release's rule-5 ruling
-  was that the destination be chosen PER TURN by whether the model can
-  accommodate the turn — and he named a dimension the catalog cannot express
-  ("if we need multi modal then we have to select from that"). The entry says
-  how MUCH a model accepts (`input_limit_bytes`) and nothing about WHAT KIND, so
-  a router asked to keep an image turn away from a text-only model has nothing
-  to read. Adds ONE optional, closed `modalities` declaration — exactly `text`
-  and `image` — extended only by the change that governs a new member, the rule
-  the client-identity roster already applies to admission surfaces. Optional and
-  absence-tolerant because requiring it would break every catalog released
-  before it: absence means "a producer older than the field" and is read as
-  text-only for routing, reusing the chat-turn family's own idiom. Per Q3's
-  batching obligation it also DECIDES the two recorded catalog follow-ups rather
-  than passing them by, and TAKES both after reproducing each: the released
-  64-entry cap is unenforced type-side (a 65-entry catalog constructs), and
-  `model_id` is not held to its released length and pattern (a 200-character id,
-  and one containing a space, both construct) — the same type-weaker-than-wire
-  divergence this capability already closed once for `routes_to`, and N7's
-  recorded reason for deferring ("a behaviour change belonging to no release")
-  is dissolved because this IS that release. Requirements are ADDED, not
-  MODIFIED: the requirement governing the catalog already carries a live
-  MODIFIED delta from the ratified-but-unbuilt intake lane. **Realization is a
-  CONTRACT RELEASE** — schema bytes move — but the bundle number is deliberately
-  NOT allocated in the proposal: `contract-v1.41` only if the pending Unreleased
-  block has not folded first, fresh-counted at allocation. Exits (b) fit-aware
-  routing and (c) compress-to-fit disclosure are named successors; (a) touches
-  only the schema, the type and the validator, which is why it is safe to raise
-  while (b) must be sequenced against the intake build.
 - [add-notebook-hosting-credential-custody](openspec/changes/add-notebook-hosting-credential-custody/proposal.md)
   — authored 2026-08-23, **NOT YET RATIFIED** (`Status: draft`). The follow-up
   to `add-notebook-projection-identity`, on Brett Heap's direction the same day:
@@ -1330,6 +1426,42 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [add-model-capability-vocabulary](openspec/changes/archive/2026-08-29-add-model-capability-vocabulary/proposal.md)
+  — **ARCHIVED on merged-plus-green PLUS THE CUT.** Ratified 2026-08-24 with TWO
+  rulings in one read (ratify; **the parity scope is ALL FIVE**, overriding the
+  proposal's own two-plus-a-follow-up recommendation), then realized directly as
+  `contract-v2.2`: pull request #498, squash `8ccfb67b`, annotated tag object
+  `f86f2212` peeling FROM THE REMOTE to that commit, `verify-commit` and
+  `verify-tag` both green, and the `unpublished:contract-v2.2` REF sentinel
+  resolved to the published commit in `0b9e31c8`. Adds ONE optional, closed
+  `modalities` declaration on `$defs/model_entry` — exactly `text` and `image`,
+  extended only by the change that governs a new member — whose ABSENCE CARRIES
+  NO CLAIM in either direction: an undeclared entry is a producer that predates
+  the field, read as text-only for routing while recorded as having declared
+  nothing, reusing the chat-turn family's own idiom. `contains: {const: text}`
+  is in the SHAPE and not only the type, because `minItems` plus an item enum
+  would have accepted `modalities: [image]` and left the wire gate the weakest
+  one. The declaration is PROJECTED deliberately — `as_public_dict` emits an
+  explicit key list, so it would otherwise have been validated in process and
+  silently dropped by `GET /workbench/model-catalog` — and that is proved at the
+  ROUTE. The parity half closed SIX reproduced gaps with no residue: the
+  released 64-entry catalog cap, `model_id`'s length and pattern (N7's deferral,
+  whose recorded reason was "a behaviour change belonging to no release",
+  dissolved because this WAS that release), and `label`/`provider_class`/
+  `data_handling`'s lengths, which Brett's ruling added; `resolved_model_id` was
+  already enforced and its helper was REUSED rather than respelled. No-residue
+  is proved FROM THE SCHEMA — the test walks `$defs/model_entry` and holds the
+  bounded-string set to a hard equality — rather than from a list of four names.
+  Requirements were ADDED, never MODIFIED, so the ratified-but-unbuilt intake
+  lane's live MODIFIED delta on the governing requirement was never contended;
+  that lane's "closed seven-field shape" prose is RECONCILED in the CHANGELOG
+  and its packet deliberately unedited, on the `contract-v1.38` precedent.
+  Promotion verified byte-for-byte at archive: 2 ADDED requirements and 9
+  scenarios in, `ideation-dashboard` 100 → 102 requirements and 457 → 466
+  scenarios, no sibling scenario lost, no capability directory added.
+  Exits (b) fit-aware routing and (c) compress-to-fit disclosure remain named
+  successors; the staged topic `doxchat-auto-fit-routing` keeps its row.
 
 - [fix-content-resolution-conflation](openspec/changes/archive/2026-08-29-fix-content-resolution-conflation/proposal.md)
   — **ARCHIVED on merged-plus-green PLUS THE CUT**, which is the gate its own

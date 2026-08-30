@@ -263,6 +263,96 @@ def test_staged_citation_prefers_the_active_proposal_over_an_archived_one(
         "move selected material into the proposal supporting-docs folder")
 
 
+def test_staged_exit_heading_matches_the_majority_spelling(tmp_path):
+    """`#453` defect (a) REGRESSION. `## Exit path` is the MAJORITY heading
+    across `ideation/staging/` (20 occurrences vs 12 of `## Exit`, counted
+    2026-08-27) but the old exact `"## exit"` string match never scanned it
+    — only the `Exit:`/`Exits via:` line-prefix fallback could catch a
+    majority-spelling topic, and most exit sections do not use that prefix
+    at all (they state the exit in a full sentence instead, per the real
+    corpus). This topic uses the majority spelling AND states its exit in
+    the corpus's actual "exits via" sentence shape, with no line-start
+    prefix anywhere — the exact old behaviour would have stayed silent.
+    """
+    repo = tmp_path / "alpha"
+    staged = repo / "ideation/staging/topic-a"
+    staged.mkdir(parents=True)
+    (staged / "source.md").write_text(
+        "# Source\n\nStatus: staged\nKind: architecture\n\n"
+        "## Exit path\n\n"
+        "The precondition is met, so the topic exits via "
+        "`change-a` rather than waiting on anything further.\n")
+    (repo / "openspec/changes/change-a").mkdir(parents=True)
+
+    ctx = make_ctx("location-conformance")
+    ctx.repo_paths = {"alpha": repo}
+    ctx.docs = corpus.load_docs("alpha", repo)
+    ctx.change_ids = {"alpha": {"change-a"}}
+    got = FAMILIES["location-conformance"](ctx)
+    assert [(f.severity, f.path, f.rule) for f in got] == [(
+        ERROR, "ideation/staging/topic-a/source.md",
+        "staged material already cites proposal change-a")]
+
+
+def test_staged_exit_heading_spelling_variants_all_fire():
+    """`#453` defect (a). Every `##`-heading spelling actually observed in
+    `ideation/staging/**` (`## Exit`, `## Exit path`) is a member of the
+    heading family, and a plausible unobserved variant in the same shape
+    (`## Exit criteria`) is too — `_is_exit_heading` keys on the first word,
+    not an enumerated string list.
+    """
+    for heading in ("## Exit", "## Exit path", "## EXIT PATH",
+                    "## Exit criteria", "## exit:"):
+        text = f"{heading}\n\nExits via `change-a`.\n"
+        assert families._staged_exit_changes(text, {"change-a"}) == \
+            ["change-a"], heading
+    # A heading that merely starts with the same letters is NOT a member.
+    text = "## Existing work\n\nExits via `change-a`.\n"
+    assert families._staged_exit_changes(text, {"change-a"}) == []
+
+
+def test_staged_exit_excludes_dependency_citations(tmp_path):
+    """`#453` defect (b) REGRESSION — the real `signed-execution-chain`
+    shape. Its `## Conflicts` section (not an Exit-family heading, so
+    already out of scope) sequences behind four ACTIVE changes as
+    dependencies; two of those same change ids recur inside its own
+    `## Exit path` section, in the identical dependency voice (`Consumes
+    <change>'s realized issuer anchor`, `and <change> to issue the
+    controller certificate`) rather than as an exit statement. Before
+    defect (b) is fixed, ANY known change id inside the Exit-heading
+    section fires, regardless of what the surrounding sentence says — the
+    docstring's promised "not evidence citations" carve-out did not exist.
+    Neither dependency mention may fire once it does.
+    """
+    repo = tmp_path / "alpha"
+    staged = repo / "ideation/staging/signed-execution-chain"
+    staged.mkdir(parents=True)
+    (staged / "signed-execution-chain.md").write_text(
+        "# Staged: signed execution chain\n\n"
+        "Status: staged\nKind: capability-proposal\n\n"
+        "## Conflicts\n\n"
+        "Sequences BEHIND four ACTIVE changes: `add-wallet-carried-review-"
+        "authority` (the direct predecessor), `implement-openxpki-install-"
+        "repo` (the runtime CA this topic depends on for tranche two).\n\n"
+        "## Exit path\n\n"
+        "Tranche one is composable today. Consumes `add-wallet-carried-"
+        "review-authority`'s realized issuer anchor and the shipped grant "
+        "vocabulary. Tranche two needs the omnigent layer to enforce the "
+        "precondition, and `implement-openxpki-install-repo` to issue the "
+        "controller certificate.\n")
+    (repo / "openspec/changes/add-wallet-carried-review-authority").mkdir(
+        parents=True)
+    (repo / "openspec/changes/implement-openxpki-install-repo").mkdir(
+        parents=True)
+
+    ctx = make_ctx("location-conformance")
+    ctx.repo_paths = {"alpha": repo}
+    ctx.docs = corpus.load_docs("alpha", repo)
+    ctx.change_ids = {"alpha": {"add-wallet-carried-review-authority",
+                                 "implement-openxpki-install-repo"}}
+    assert FAMILIES["location-conformance"](ctx) == []
+
+
 def test_source_snapshots_keep_their_staged_status(tmp_path):
     """REGRESSION, 2026-08-15. `source-snapshots/` holds BYTE-EXACT copies of
     the staged files as they were at the move, and the manifest proves that

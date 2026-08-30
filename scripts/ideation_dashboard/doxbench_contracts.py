@@ -198,8 +198,51 @@ from referencing.jsonschema import DRAFT202012
 # comparing against it REFUSES rather than matching by accident. Task 4.2
 # replaces it with the commit `contract-v1.45` dereferences to, at the moment the
 # tag is published — never before.
-CONTRACT_REF = "unpublished:contract-v1.45"
-CONTRACT_TAG = "contract-v1.45"
+# RE-CUT TO contract-v2.2 (add-model-capability-vocabulary, tasks 4.2/4.4).
+# The CATALOG schema's bytes moved this time — `$defs/model_entry` gained the
+# optional closed `modalities` declaration — so this consumer pin has to name
+# the release those bytes belong to. Leaving it at v1.45 would not have been
+# conservatism: `_verified_bytes` hashes the file and refuses a mismatch, so
+# every doxBench model route would have failed CLOSED on a checkout carrying the
+# very schema this repository ships. The MIRROR of the v1.45 repin, which moved
+# the chat-turn digest and left this one; the chat-turn bytes are unchanged here
+# and are re-declared at this bundle because a pin names ONE release for both
+# files.
+#
+# THE REF IS RESOLVED: `contract-v2.2` is published (annotated tag object
+# f86f2212645d6fe71d36b20db04e107060033f05) and this names the commit it
+# DEREFERENCES to -- 8ccfb67b, the squash-merge of PR #498 -- exactly as the
+# v1.40, v1.38, v1.34 and v1.31 pins named their own, and never the tag object.
+# It carried the `unpublished:contract-v2.2` sentinel across the realization
+# branch, because the versioning policy allocates the version and builds the
+# digest inventory AT REALIZATION (steps 1-2) and publishes the annotated tag
+# against the commit that actually LANDS (step 5) -- so until that commit
+# existed there was nothing honest to name, and the sentinel was spelled as a
+# value no `stack.yaml` can declare so a consumer comparing against it REFUSED
+# rather than matching by accident.
+#
+# Verified from the REMOTE rather than from the local ref that created it:
+# `git ls-remote origin 'refs/tags/contract-v2.2^{}'` peels to this commit, and
+# both `verify-commit --commit contract-v2.2` and
+# `verify-tag --remote origin --tag contract-v2.2` pass.
+#
+# RECORDED, because it is visible in this file's history and a reader will ask:
+# the v1.45 repin left `unpublished:contract-v1.45` standing after
+# `contract-v1.45` was published, so its own task 4.2 went undischarged for
+# three days. That residue was SUPERSEDED by the v2.2 repin rather than repaired
+# in place -- there is no honest way to resolve a sentinel for a bundle these
+# bytes no longer belong to -- and it is discharged in substance here, because
+# the value it should have been replaced by is gone and the one standing in its
+# place is now a real published commit.
+#
+# Swept at this commit: NO `unpublished:` VALUE IS ASSIGNED ANYWHERE in the
+# repository -- not here, not in the companion test, not in any config. The
+# string still appears in prose, and correctly: the paragraphs above, the v1.38
+# and v1.40 CHANGELOG entries, and the archived Phase B packet all NARRATE
+# sentinels that were real at the time. Those are records of what was true then
+# and are not edited, exactly as the v1.40 resolution did not edit its own.
+CONTRACT_REF = "8ccfb67bc0fabfa728d709a2efa0cd87b14656fb"
+CONTRACT_TAG = "contract-v2.2"
 
 CATALOG_SCHEMA_FILE = "xfactory-workbench-model-catalog.schema.yaml"
 CHAT_TURN_SCHEMA_FILE = "xfactory-workbench-chat-turn.schema.yaml"
@@ -207,7 +250,7 @@ CHAT_TURN_SCHEMA_FILE = "xfactory-workbench-chat-turn.schema.yaml"
 # sha256 over each schema file's exact bytes at the release.
 SCHEMA_DIGESTS = {
     CATALOG_SCHEMA_FILE:
-        "dff513fa6b607c417a39e5529964f9df2c8f56841ae3b0a894c85b6d1dea0675",
+        "e563cc9fc6ede03dfd62537935d0ae0842617d7de46702aee6ad9026aa021635",
     CHAT_TURN_SCHEMA_FILE:
         "2ff5f222af5cdccd545417203898a919be0365cdd0d2d5138e87e23f7ebfe1cf",
 }

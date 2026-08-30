@@ -263,15 +263,66 @@ def _scan_lines(text: str):
         yield i, line, fenced
 
 
+def _is_exit_heading(line: str) -> bool:
+    """Match the `## Exit` heading as a FAMILY, not one exact string.
+
+    `## Exit` is the MINORITY spelling in `ideation/staging/` (12 occurrences,
+    2026-08-29 count) against `## Exit path`'s 20 — an exact `"## exit"`
+    string match (`#453` defect a) never scans the majority of topics' exit
+    sections at all. A `##` heading whose text, lowercased, is `exit` or
+    starts with `exit ` / `exit:` catches both observed spellings and any
+    future variant in the same shape (`## Exit criteria`, `## Exit:`, ...).
+    """
+    if not line.startswith("## "):
+        return False
+    heading = line[3:].strip().lower()
+    return heading == "exit" or heading.startswith(("exit ", "exit:"))
+
+
+# A line inside an Exit-heading section STATES the exit only when it uses
+# one of these phrasings — derived from actual usage across
+# `ideation/staging/**` (2026-08-29): "the topic exits via `<change>`",
+# "This topic exits via its OWN changes", "Exit TAKEN 2026-08-28. Proposed
+# the same day as `<change>`" / the sibling `_EXIT_TAKEN_PREFIX` convention,
+# and INDEX.md's "EXIT 1 IS RAISED as the active change `<change>`".
+_EXIT_STATEMENT_RE = re.compile(
+    r"exits?\s+via|exits?\s+to|exit\s+taken|promoted\s+by|"
+    r"raised\s+as(?:\s+the)?(?:\s+active)?\s+change|→",
+    re.IGNORECASE)
+
+
 def _staged_exit_changes(text: str, change_ids: set[str]) -> list[str]:
-    """Return change ids used as lifecycle exits, not evidence citations."""
+    """Return change ids cited on a line that STATES a lifecycle exit.
+
+    `#453` defect (b): the docstring here promised "change ids used as
+    lifecycle exits, not evidence citations", but every line inside an
+    Exit-heading section counted, regardless of what it said — so a
+    dependency, predecessor, or downstream-descendant mention (`Consumes
+    add-x's realized issuer anchor`, `and add-y to issue the controller
+    certificate`, `The first domain descendant is Z, via add-w`) fired the
+    same as an actual exit statement. `signed-execution-chain` cites four
+    ACTIVE changes purely as sequencing dependencies in its `## Conflicts`
+    section, two of which recur inside its own `## Exit path` section in
+    that same dependency voice — and must not fire either place.
+
+    Rather than blocklist every dependency phrasing (the corpus already
+    uses at least five distinct ones, with more inevitable), this requires
+    the POSITIVE signal instead: a line only qualifies if it is one of the
+    explicit lifecycle-header prefixes (`Proposed by:`, `Proposal:`,
+    `Exit:`, `Exits via:`) or it falls inside a recognized Exit-heading
+    section (`_is_exit_heading`) AND itself states the exit in words (see
+    `_EXIT_STATEMENT_RE`). A citation that names a change for any other
+    reason is evidence/context, not an exit, and is excluded by default —
+    silence rather than a blocklist miss.
+    """
     lifecycle_lines = []
     in_exit = False
     for line in text.splitlines():
         if line.startswith("## "):
-            in_exit = line.strip().lower() == "## exit"
-        if in_exit or line.startswith((
-                "Proposed by:", "Proposal:", "Exit:", "Exits via:")):
+            in_exit = _is_exit_heading(line)
+        prefixed = line.startswith((
+            "Proposed by:", "Proposal:", "Exit:", "Exits via:"))
+        if prefixed or (in_exit and _EXIT_STATEMENT_RE.search(line)):
             lifecycle_lines.append(line)
     lifecycle_text = "\n".join(lifecycle_lines)
     return sorted(change for change in change_ids if change in lifecycle_text)
