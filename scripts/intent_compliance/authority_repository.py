@@ -1,29 +1,19 @@
 from __future__ import annotations
 
-import os
 import re
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Final, override
+from typing import override
 
 from scripts.hermes_runtime_validation.content import (
     ContentResolutionError,
     ResolvedGitContent,
+    _sanitized_git_environment,
     resolve_git_object,
 )
 
 from .model import MAX_DISCOVERY_FILES, MAX_INPUT_BYTES, Finding
-
-UNTRUSTED_GIT_ENVIRONMENT: Final = (
-    "GIT_DIR",
-    "GIT_WORK_TREE",
-    "GIT_INDEX_FILE",
-    "GIT_OBJECT_DIRECTORY",
-    "GIT_ALTERNATE_OBJECT_DIRECTORIES",
-    "GIT_COMMON_DIR",
-    "GIT_REPLACE_REF_BASE",
-)
 
 
 @dataclass(frozen=True, slots=True)
@@ -198,10 +188,6 @@ def _resolve_bounded_git_object(
 def _git(
     repository_root: Path, *arguments: str, binary: bool = False
 ) -> subprocess.CompletedProcess[str] | subprocess.CompletedProcess[bytes]:
-    environment = os.environ.copy()
-    for name in UNTRUSTED_GIT_ENVIRONMENT:
-        environment.pop(name, None)
-    environment["GIT_NO_REPLACE_OBJECTS"] = "1"
     try:
         completed = subprocess.run(
             ["git", "--no-replace-objects", *arguments],
@@ -210,7 +196,7 @@ def _git(
             capture_output=True,
             text=not binary,
             timeout=5,
-            env=environment,
+            env=_sanitized_git_environment(),
         )
     except (OSError, subprocess.TimeoutExpired) as error:
         raise TrustedSnapshotError(
