@@ -1913,9 +1913,9 @@ repo scope.
 - **EXIT 3 IS RAISED, 2026-08-29 — the DRAFT change `add-chain-anchoring`**
   (`openspec/changes/add-chain-anchoring/proposal.md`), the public anchoring layer
   plus the permissioned consent plane, as a NEW neutral `chain-anchoring`
-  capability of **nine ADDED requirements over 85 SCENARIOS** (52 scenarios at
-  the head its council judged; its 2026-08-30 fix round and eight bot rounds
-  added thirty-three scenarios and no new requirement). It builds to the
+  capability of **nine ADDED requirements over 89 SCENARIOS** (52 scenarios at
+  the head its council judged; its 2026-08-30 fix round and nine bot rounds
+  added thirty-seven scenarios and no new requirement). It builds to the
   RULED configuration — Kaspa first as the operational witness under its three
   unchanged conditions, Bitcoin via OpenTimestamps on every anchored item as the
   durability witness, no selectivity, no third chain — with the **multi-anchor

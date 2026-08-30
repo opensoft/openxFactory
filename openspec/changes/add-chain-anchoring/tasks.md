@@ -22,9 +22,9 @@ standing in for a ruleset state.
 
 ## 1. Spec deltas and the packet (THIS PULL REQUEST)
 
-- [x] 1.1 `chain-anchoring` — **NINE ADDED requirements over 85 SCENARIOS** (52
+- [x] 1.1 `chain-anchoring` — **NINE ADDED requirements over 89 SCENARIOS** (52
       SCENARIOS at the head the council judged, `cf5a24b8`; the 2026-08-30 fix
-      round of §2.4 and its EIGHT bot rounds added THIRTY-THREE SCENARIOS and NO NEW
+      round of §2.4 and its NINE bot rounds added THIRTY-SEVEN SCENARIOS and NO NEW
       REQUIREMENT — the requirement count is unchanged at nine), in
       the order the exit path requires: the multi-anchor receipt FIRST, then the
       ruled two-witness configuration, the missing-witness semantics, anchor-late,
@@ -367,6 +367,41 @@ standing in for a ruleset state.
       | `design.md` | D2 LS-A5 note | "shorter than that set is incomplete on its face" — an artifact asserting a lifecycle state | FIXED |
       | `design.md` | D2 "permanently incomplete", D8/D9 prose | post-breach or rhetorical uses | CORRECT AS WRITTEN |
 
+      **A NINTH ROUND, THREE P1s, ALL THREE INEQUALITY-DIRECTION ERRORS IN THE
+      EIGHTH ROUND'S CLOCK — the sharpest class yet, because each one READ AS
+      RIGOUR while pointing the wrong way.** (a) *"Material cannot be anchored
+      before it is submitted"* is true of the anchoring ACT and false of the
+      header TIMESTAMP, which consensus validates against a median of preceding
+      blocks rather than against any submission's wall clock. A valid accepting
+      block can therefore carry a time EARLIER than the submission it covers, so
+      the round-eight refusal **would have rejected honest receipts** and the
+      same backward skew would have manufactured breaches that never happened.
+      Each chain's declared band is now stated as its consensus rule's WORST
+      LEGAL CASE, cited, and **one declared value serves BOTH uses** — the
+      pending computation and the self-consistency refusal — so two margins
+      cannot drift apart. (b) The containing checkpoint is anchored AFTER the
+      submission it witnesses, so the interval from it to the first anchor is a
+      **LOWER bound** on the delay: it PROVES a breach when it exceeds the
+      maximum and **NEVER PROVES COMPLIANCE**, which the text now says outright —
+      *not-provably-breached is not compliant*. A **DECLARED CHECKPOINT CADENCE**
+      makes the bound tight to one interval, and violating the cadence is a
+      SECOND, INDEPENDENT breach with its own leaf, so withholding checkpoints to
+      widen the bracket is visible rather than being the way out. (c) The time
+      rule and its tolerance were not digest-committed, so a holder could swap
+      the rule or enlarge the tolerance while every inclusion proof still
+      validated.
+
+      **AND (c) WAS THE THIRD OCCURRENCE, SO THE FIX IS A RULE AND NOT A FIELD.**
+      The configured witness set, then the horizons and submission time, then the
+      time rule and tolerance each arrived outside the committed block and each
+      had to be swept in after a bot found it. The mint-time configuration block
+      is now **CLOSED BY RULE — every value the receipt-only computation reads is
+      committed by the anchored digest** — so a future input joins by that rule
+      rather than by an enumeration chase. **The closure rule carries its own
+      scenario** (an uncommitted receipt-only input is refused), because a rule
+      with no scenario is precisely the described-control defect this packet has
+      now paid for three times.
+
       **SEVEN ROUNDS, AND THE SHAPE OF THE FINDINGS HAS CHANGED.** The first
       rounds found defects in the council-judged text; the last four have found
       defects in this fix round's own repairs, each one narrower than the last.
@@ -380,7 +415,7 @@ standing in for a ruleset state.
 
       **§1.4 AND §1.5 RE-RUN, AND THE RESULT IS REPORTED RATHER THAN ROUNDED.**
       §1.4: `--strict` green and `--all --strict` **79 passed / 0 failed**;
-      NINE requirements unchanged, **52 → 85 scenarios**, still no `## MODIFIED`
+      NINE requirements unchanged, **52 → 89 scenarios**, still no `## MODIFIED`
       block. §1.5: doc-health against `origin/main` with a matched baseline
       basename returns **four new findings, all `status-validity`, all on the
       carried `review/` bundle** — the sitting's four top-level records write
@@ -442,8 +477,11 @@ discharged, so 3.1 is the next act on this packet.
       DECLARED CHAIN-ACCEPTED-TIME RULE per configured chain (the entry's own
       block-header time field, its cited consensus rule, and its declared
       tolerance — or a declaration that the witness contributes ORDERING ONLY),
-      the DECLARED MAXIMUM SUBMISSION-TO-FIRST-ANCHOR DELAY carried in the
-      mint-time configuration block, the
+      the DECLARED MAXIMUM SUBMISSION-TO-FIRST-ANCHOR DELAY and the DECLARED
+      CHECKPOINT CADENCE, all of them carried in the mint-time configuration
+      block, which is CLOSED BY RULE — every value the receipt-only computation
+      reads is committed by the anchored digest, so a later input joins the set
+      by that rule and not by an enumeration chase. The
       VERIFICATION RESULT record carrying its mandatory VERIFICATION MODE
       (`receipt_only` / `stateful`, a closed enumeration) plus, for a
       `receipt_only` result, whether its horizon base was chain-derived or
@@ -483,7 +521,12 @@ discharged, so 3.1 is the next act on this packet.
       pre-issued derivation whose revocation state cannot be read**; **a receipt
       self-inconsistent about its own declared maximum delay**; **a horizon base
       taken from a minter's clock rather than a block header**; **a breach
-      declared inside the declared timestamp tolerance**; **an analysis
+      declared inside the declared timestamp tolerance**; **an honest receipt
+      refused because its declared submission fell after the header time within
+      the legal skew**; **a delay check read as proof of compliance**; **a
+      realization anchoring checkpoints less often than its declared cadence**;
+      **a receipt-only input carried outside the committed configuration
+      block**; **an analysis
       result missing its correlation with no declared outcome**; a
       domain record kind; an overlay relaxing a neutral refusal. The bolded
       entries are the refusals the 2026-08-30 fix round added.
@@ -532,7 +575,9 @@ discharged, so 3.1 is the next act on this packet.
       by the aggregation interval chosen in 5.1; the DECLARED MAXIMUM
       SUBMISSION-TO-FIRST-ANCHOR DELAY; and, per configured chain, the
       CHAIN-ACCEPTED-TIME RULE with its cited consensus rule and its declared
-      TOLERANCE (or the declaration that the witness contributes ordering only).
+      TOLERANCE AND SKEW BAND stated as that rule's WORST LEGAL CASE (or the
+      declaration that the witness contributes ordering only); and the CHECKPOINT
+      CADENCE, which is what makes the delay bound tight.
       Requirement 3 requires that all of these be DECLARED; it names no numbers,
       and the fail-closed determination is only as good as they are.
 - [ ] 5.3 Fix the NEW LEAF KINDS against tranche one's leaf grammar. This packet
