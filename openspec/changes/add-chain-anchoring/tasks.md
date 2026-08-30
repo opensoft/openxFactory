@@ -128,13 +128,16 @@ standing in for a ruleset state.
         separation delivers from what it does not, refuses the de-identified
         label on the strength of separation alone, and leaves the named
         determination to the domain overlay.
+
       SHORTLY AFTER, one sweep commit retired the *"already supports it"*
       wording the de-identification fix had answered but not replaced — the
       `455bbdaa` lesson this packet already recorded, that a correction in a new
       paragraph does not retire the old wording elsewhere.
+
       SHOULD-FIX items (LA-A7, LS-A7/A8/A9, LQ-A10/A11/A12/A14, CPL-A5) are
       **UNDISPOSED by the ruling and stay open** — disposition §6 says so
       expressly, and no silence here rules them.
+
       **§1.4 AND §1.5 RE-RUN, AND THE RESULT IS REPORTED RATHER THAN ROUNDED.**
       §1.4: `--strict` green and `--all --strict` **79 passed / 0 failed**;
       NINE requirements unchanged, **52 → 60 scenarios**, still no `## MODIFIED`
