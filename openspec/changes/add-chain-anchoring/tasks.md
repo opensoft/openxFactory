@@ -128,9 +128,32 @@ standing in for a ruleset state.
         separation delivers from what it does not, refuses the de-identified
         label on the strength of separation alone, and leaves the named
         determination to the domain overlay.
+      SHORTLY AFTER, one sweep commit retired the *"already supports it"*
+      wording the de-identification fix had answered but not replaced — the
+      `455bbdaa` lesson this packet already recorded, that a correction in a new
+      paragraph does not retire the old wording elsewhere.
       SHOULD-FIX items (LA-A7, LS-A7/A8/A9, LQ-A10/A11/A12/A14, CPL-A5) are
       **UNDISPOSED by the ruling and stay open** — disposition §6 says so
       expressly, and no silence here rules them.
+      **§1.4 AND §1.5 RE-RUN, AND THE RESULT IS REPORTED RATHER THAN ROUNDED.**
+      §1.4: `--strict` green and `--all --strict` **79 passed / 0 failed**;
+      NINE requirements unchanged, **52 → 60 scenarios**, still no `## MODIFIED`
+      block. §1.5: doc-health against `origin/main` with a matched baseline
+      basename returns **four new findings, all `status-validity`, all on the
+      carried `review/` bundle** — the sitting's four top-level records write
+      `Status: record — <qualifier>` on one line and the family reads the
+      remainder as a free-form status. **The amendment round itself is
+      ZERO-NEW.** The four are NOT fixed here: the disposition rules the packet
+      and the ballot unedited and requires itself carried byte-identically in
+      #510's bundle, so normalizing this copy alone would manufacture the drift
+      that rule exists to prevent. Two lawful remedies, both above a fix round —
+      the record's owner normalizes all four headers in BOTH bundles (the
+      qualifier moves verbatim to the next line, nothing lost), or a governed
+      change widens the lifecycle scan set's byte-exact-evidence exclusion to
+      reach carried sitting bundles, which the doc-health capability requires be
+      a promoted change recording the measured effect. **Left visible rather
+      than tidied**, because the nightly runs this family and an unreported
+      regression surfaces later as somebody else's.
 - [x] 2.5 **THE ANCHOR-LATE NARROWING IS ROUTED, NOT ONLY RECORDED.** The staged
       topic's constraint — *"anchoring LATE (commit only what has been
       validated)"*,
