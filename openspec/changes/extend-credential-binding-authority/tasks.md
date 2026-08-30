@@ -100,7 +100,7 @@ is the largest obligation in this packet.
   refusal. Keep the existing message for the unexempted case; it is the same
   finding.
 - [ ] 2.5 Assert the backward-compatibility property as a test, not as a claim:
-  a record declaring none of the three fields is adjudicated exactly as it was
+  a record declaring none of the four fields is adjudicated exactly as it was
   before this change.
 
 - [ ] 2.5a SEPARABLE COLLISION-ADJACENT WARNING (S-10): where a binding omits

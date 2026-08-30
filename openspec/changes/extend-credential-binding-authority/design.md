@@ -102,7 +102,7 @@ system". `consumer` is that noun; nothing else in the binding object claims the
 word, and the manifest's `intended_consumers` is a different object describing
 who consumes a CONTRACT, not who consumes a credential.
 
-## Ruling: why three fields and not the two task 4.5 names
+## Ruling: why four fields and not the two task 4.5 names
 
 Task 4.5 names two — "no consumer or access-identity field". Two are enough to
 make the authority WRITABLE. They are not enough to make the shared-secret
@@ -213,7 +213,13 @@ so `requirement_id` stays optional across the major boundary too, and is obligat
 CONDITION OF CLAIMING the shared-secret exemption, where the record is asserting
 something extra and must pay for it. An earlier draft of this packet said "the
 three fields become required at the next major"; that sentence was true of two
-of the three and was corrected here and in every other place it appeared.
+of the three and was corrected here and in every other place it appeared. **The
+same correction was owed a second time and is recorded rather than smoothed
+over**: when the council added `identity_namespace` as a fourth field, six
+"three fields" sentences went stale in the same way — two of them inside the
+spec delta that promotes to canon — and review caught them. The rule stands
+where it did: exactly `consumer` and `fetch_identity` are on the required path,
+and a field whose absence never warns can never join it.
 
 **Modifying a promoted requirement to hang this on.** DECLINED after checking
 which requirements are already spoken for. `add-credential-escrow-checkout`
@@ -415,30 +421,48 @@ the exemption satisfied (warning, no refusal), and the shared reference with
 fallback). The proposal's `code_surface` enumerates the same eight BY NAME,
 because a code-surface declaration that undercounts is a realization instruction
 to skip the regression probes it omits — which is how an undercount was caught
-once already, the front matter still declaring three after a fix had added two; the self-test line moves from
-"3 positive + 5 negative" to whatever the fixtures actually added make it —
-derived once at realization rather than written here, because it was already
-restated twice while this packet was in review — and `tests/credential_contracts/test_dispatch_credential_contract.py`
+once already, the front matter still declaring three after a fix had added two.
+The self-test line moves from "3 positive + 5 negative" to whatever the fixtures
+actually added make it — derived once at realization rather than written here,
+because it has been restated four times while this packet was in review — and `tests/credential_contracts/test_dispatch_credential_contract.py`
 asserts that string and lists the fixture filenames, so it moves in the same
 commit. The custody packet's task 4.1 warned about exactly this coupling.
 
+**THE EIGHT, EACH WITH THE DECISION IT PINS.** This list enumerated only the
+pre-amendment three until review caught it; the count sentence above had already
+moved to eight while the bullets still described the old set, which is the same
+stale-list defect this packet keeps finding in itself.
+
 - **Positive — the two-consumer shape task 4.1 could not package.** Two
   bindings, one `secret_ref`, one shared `requirement_id`, distinct `consumer`
-  and distinct `fetch_identity`. This is the ratified custody shape becoming
-  packageable, which is the clearest single proof the change did its job.
+  and distinct `fetch_identity`. The ratified custody shape becoming packageable.
+- **Positive — cross-provider.** One `fetch_identity` string under two DIFFERENT
+  providers: no collision. Pins the identity key against collapsing to the bare
+  string.
+- **Positive — two namespaces.** One provider, one `fetch_identity` string, two
+  DISTINCT `identity_namespace` values: no collision. Pins decision 9 and makes
+  the "records the distinction" escape executable rather than rhetorical.
 - **Negative — `shared-fetch-identity`.** Two consumers, one fetch identity.
 - **Negative — the naive exemption's counterexample.** Two bindings sharing a
   `secret_ref` with distinct consumers and distinct fetch identities but
-  DIFFERENT requirements, expecting `shared-secret-identity`. This fixture is
-  the executable form of the 4.1 argument: it is green under the rejected
-  discriminator and red under the recommended one, so the decision cannot be
-  silently reversed later without a test going red.
+  DIFFERENT requirements, expecting `shared-secret-identity`. The executable
+  form of the 4.1 argument: green under the rejected discriminator, red under
+  the ruled one.
+- **Negative — one identity across two vaults.** One provider, one
+  `fetch_identity`, two consumers, two DIFFERENT vaults: still refused. Pins the
+  identity key against re-acquiring `vault`.
+- **Negative — indeterminate scope with the exemption satisfied.** Warning and
+  NO refusal. Proves the warning stands alone where the record earns it.
+- **Negative — shared reference with `vault` undeclared on one side.** Refusal
+  AND warning. **Pins the D2 fallback**: green under the rejected unconditional
+  grouping, red under the ruled one.
 - The existing `dispatch-reuses-content-secret.yaml` is UNCHANGED and stays
-  red, which is the backward-compatibility proof.
+  red — and, with the fallback, stays red under the one-optional-line mutation
+  that broke it before, which is the whole point of the amendment.
 
 Fixture residency is unchanged and needs no ruling: `examples/` is packaged
 fixture territory, is not a release-inventory member, and is not registered in
-`contracts/manifest.yaml` — so adding these three moves no bundle member.
+`contracts/manifest.yaml` — so adding these EIGHT moves no bundle member.
 
 ## The release ritual, and the packet it must not collide with
 

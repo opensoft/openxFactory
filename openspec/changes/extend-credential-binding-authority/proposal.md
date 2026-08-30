@@ -71,11 +71,16 @@ short a field.
 
 ## What Changes
 
-**Three optional fields, on the binding, in the estate's own words.** Each entry
+**Four optional fields, on the binding, in the estate's own words.** Each entry
 of `credential_bindings` may declare `consumer` (the consuming system),
 `fetch_identity` (the identity that consumer authenticates to the secret store
-with), and `requirement_id` (the credential requirement the binding resolves).
-No new record kind, no new envelope, no required field.
+with), `identity_namespace` (the directory, account or tenant within the
+provider that ISSUES that identity), and `requirement_id` (the credential
+requirement the binding resolves). No new record kind, no new envelope, no
+required field. Two of the four — `consumer` and `fetch_identity` — become
+required at the next major; `identity_namespace` and `requirement_id` do not,
+because neither one's absence ever warns and a major may not break a shape no
+minor deprecated.
 
 **`fetch_identity`, not a second spelling.** The promoted requirements already
 say the lane receives "an opaque secret reference and a fetch-identity
@@ -180,7 +185,7 @@ in § Decisions put to the review.
   reports NO finding against this block — it carries every promoted unit — so no
   `_LEDGER_SUBJECTS` registration is owed, and registering one would fail that
   gate's own fresh/gone check.
-- **Affected code, at realization**: the schema's three optional fields, the
+- **Affected code, at realization**: the schema's four optional fields, the
   validator's new refusal, refined refusal and warning channel, eight fixtures,
   and the test file that asserts the self-test counts.
 - **The promoted dispatch-only separation requirement is untouched**, in text
@@ -210,9 +215,12 @@ each is flagged for veto. None is covered by the origin citation.
    surviving as a prose synonym and the ratified custody text left unedited.
 3. **`requirement_id` rather than a new `requirement_ref`**, matching the grant
    template's existing field name.
-4. **Three fields rather than two.** Task 4.5 names two (consumer and access
-   identity); `requirement_id` is this packet's addition, and it is what carries
-   the position in decision 1. Cutting it forces the alternative.
+4. **Four fields rather than the two task 4.5 names** (consumer and access
+   identity). `requirement_id` is this packet's addition and carries the position
+   in decision 1 — cutting it forces the alternative. `identity_namespace` is the
+   council's addition under decision 9, and cutting it returns the cross-tenant
+   over-report along with an escape clause naming an act the record cannot
+   perform.
 5. **Warning now, and `consumer`/`fetch_identity` required at the next major**,
    rather than required immediately — which the versioning policy forbids
    without a minor of warnings first. `requirement_id` is excluded from that

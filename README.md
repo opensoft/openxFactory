@@ -533,7 +533,7 @@ Active changes:
   is `kind: xfactory_credential_binding_template` and already carries
   `fetch_identity` in a document-level block the schema neither declares nor
   forbids — the same defect, on the same schema, that its own
-  `issuance_preconditions` vocabulary was added to retire. Adds THREE ADDITIVE
+  `issuance_preconditions` vocabulary was added to retire. Adds FOUR ADDITIVE
   OPTIONAL fields (`consumer`, `fetch_identity`, `identity_namespace`,
   `requirement_id`), one new refusal (`shared-fetch-identity`), and the
   validator's FIRST WARNING CHANNEL. **A three-seat merge-readiness convening
@@ -568,9 +568,14 @@ Active changes:
   fixture green. The alternative — leave the check unconditional — is recorded
   with its honest cost: the ratified two-consumer shape then has no conforming
   single-document representation, and the per-document comparison means the
-  estate can split it across two files and trip nothing. THREE ADDED
-  requirements and NO MODIFIED block, deliberately: two of the seven promoted
-  requirements already carry live deltas. `contracts/` is untouched by the
+  estate can split it across two files and trip nothing. **THREE ADDED
+  requirements PLUS ONE MODIFIED** — on "Dispatch-only credential least
+  privilege and serving-tier separation", the requirement that published the
+  check whose behaviour this packet changes, restated scenario-complete. An
+  earlier revision said "no MODIFIED block, deliberately", which was true until
+  the convening ruled one in; the double-delta hazard that reasoning guarded
+  against was re-checked and does not reach this requirement, because the two
+  live MODIFIED deltas in active changes are on other requirements. `contracts/` is untouched by the
   proposal; the additive cut is scheduled for realization with its minor
   allocated by merge order, coupled to `add-credential-escrow-checkout`, which
   edits the same schema and owes the same minor.

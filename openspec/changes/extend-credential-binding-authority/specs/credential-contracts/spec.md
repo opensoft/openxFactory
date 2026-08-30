@@ -53,8 +53,15 @@ existing field of that name rather than coining a `_ref` variant beside it.
 and in the projection documentation, NAMES THE SAME THING as `fetch_identity`;
 the prose synonym stands and the RECORD has exactly one spelling.
 
-ALL THREE FIELDS ARE OPTIONAL AT THE MINOR THAT INTRODUCES THEM, AND EXACTLY TWO
-OF THEM BECOME REQUIRED AT THE NEXT MAJOR VERSION. A binding that does not
+ALL FOUR FIELDS ARE OPTIONAL AT THE MINOR THAT INTRODUCES THEM, AND EXACTLY TWO
+OF THEM — `consumer` AND `fetch_identity` — BECOME REQUIRED AT THE NEXT MAJOR
+VERSION. `identity_namespace` AND `requirement_id` REMAIN OPTIONAL ACROSS THAT
+BOUNDARY, and for the same reason in both cases: neither one's ABSENCE EVER
+WARNS, so no major may require it without breaking a shape no minor ever
+deprecated. `identity_namespace`'s absence is not a defect to be migrated away —
+it is a record declining to make a distinction, which the identity comparison
+already handles by falling back to `provider` alone and REPORTING. A field whose
+omission is a conforming answer cannot be made mandatory by a later release. A binding that does not
 declare BOTH a `consumer` AND a `fetch_identity` SHALL raise a validator
 WARNING naming whichever is missing, SHALL remain valid throughout the CURRENT
 MAJOR LINE (every `contract-v2.x` bundle), and SHALL be refused at the next
@@ -277,7 +284,7 @@ condition is never satisfied for them, and the promoted dispatch-only separation
 requirement keeps its full force with none of its text modified.
 
 NOTHING PREVIOUSLY REFUSED BECOMES CONFORMING BY DEFAULT. A record declaring
-none of the three fields is adjudicated exactly as before, because every
+none of the exemption's three declared conditions is adjudicated exactly as before, because every
 condition of the exemption is a positive declaration that such a record does not
 make. The exemption is opened by saying more, never by saying nothing.
 
