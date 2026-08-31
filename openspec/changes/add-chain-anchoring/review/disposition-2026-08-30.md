@@ -1,6 +1,7 @@
 # CONVENER DISPOSITION — Brett Heap, 2026-08-30
 
-Status: record — **THIS FILE IS THE SOLE DISPOSITION OF RECORD** for the combined
+Status: record
+Record scope: **THIS FILE IS THE SOLE DISPOSITION OF RECORD** for the combined
 §7.4 sitting of 2026-08-30 over openxFactory pull requests **#510**, **#513** and
 **#509**.
 

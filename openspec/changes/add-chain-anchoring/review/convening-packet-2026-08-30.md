@@ -1,6 +1,7 @@
 # Council Convening Packet (§7.4 sitting), 2026-08-30: openxFactory PRs #510, #513 and #509
 
-Status: record — convening packet
+Status: record
+Record scope: convening packet
 Council: `gate_rules_council` (codexFactory
   `hermes/domain/review-councils/gate-rules.yaml`), sitting in the **§7.4
   no-class shape**, exactly as the 2026-08-29 sitting on PR #497 did. That
