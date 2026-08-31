@@ -122,11 +122,34 @@ same tool.
 
 ## Account
 
-Run under the `nlm` **`personal`** profile — the account that owns the
-xFactory books. Identify that account by the **books it shows** (its notebook
-list contains "xFactory — Canon" etc.), not by name: its stored `email` is
-null. Do NOT assume a named account (e.g. `farheap`); a profile pointed at a
-different Google account will not see the books.
+Run under the `nlm` **`company`** profile — `xFactor001@opensoft.one`, the
+account that has owned the xFactory books since the 2026-08-24 migration and
+the one `examples/notebook-projection-hosting.yaml` declares
+(`hosting.nlm_profile: company`, `migration.state: complete`). This is not a
+preference: the sync reads that declaration and REFUSES a run whose active
+profile is anything else (`enforce_hosting_profile()`,
+`scripts/sync-notebooklm-books.py:2228`; refusal at :2271-2278).
+
+Identify the account by the **books it shows** (a notebook list containing
+"xFactory — Canon" etc.), and note that the sync also checks the ADDRESS, not
+only the profile name: `profiles/company/metadata.json` records
+`email: xFactor001@opensoft.one` — set from the vault-held username during the
+migration, since the harness writes that field null — and a name pointed at
+some other account is refused too (`profile_account()`, :2035-2051; refusal at
+:2285-2292). Do NOT assume a named account (e.g. `farheap`); a profile pointed
+at a different Google account will not see the books.
+
+**The `personal` profile is now the LEGACY account** (`brettheap@gmail.com`).
+It is kept to READ what stayed behind — the seven archive-renamed legacy
+notebooks, and the two live session notebooks that step 5 of the migration HELD
+on that account ([migration
+evidence](notebook-projection-migration-evidence-2026-08-24.md); the
+[step-8 retirement runbook](notebook-projection-retirement-runbook-step8.md)
+switches to `personal` for exactly that reason). Reading the legacy account
+under `personal` is legitimate; running the CURRENT projection under it is not,
+and the sync refuses it. Statements further down that describe past
+`personal`-profile runs are records of what happened then, not instructions for
+now.
 
 ## Strategic direction (retires the blocker)
 
@@ -202,19 +225,40 @@ liveness cannot be proven cross-checkout. Wants its own change; noted in the
 1. See `~/xf-nlm-sync/AFTER-REBOOT.md`; rebuild the venv if `/tmp` was wiped.
 2. WSLg GUI rendering is resolved (see above); if a headed window fails to
    appear, `wsl --update` from PowerShell and reboot.
-3. Get a live session via full CDP extraction, using the harness — either
-   `python .../nlm_auth.py bootstrap --profile personal --channel chrome`
-   (sign into the books account once; either NotebookLM URL is fine, the old
-   one redirects), or connect to an already-signed-in Chrome with
-   `... refresh --profile personal --cdp-url http://127.0.0.1:9444`, which is
-   how the 2026-08-24 migration authenticated. **Do NOT use `nlm login
+3. Get a live session via full CDP extraction, using the harness, INTO THE
+   `company` PROFILE — either
+   `python .../nlm_auth.py bootstrap --profile company --channel chrome`
+   (sign in as `xFactor001@opensoft.one` once; either NotebookLM URL is fine,
+   the old one redirects), or connect to an already-signed-in Chrome with
+   `... refresh --profile company --cdp-url http://127.0.0.1:9444`, which is
+   how the 2026-08-24 migration authenticated. Pass `--profile` explicitly: it
+   names the profile STORE the harness writes, and its default is still the
+   legacy `personal` (`scripts/nlm_auth.py:207`). **Do NOT use `nlm login
    --cdp-url` — the rebrand broke it** (F1 / #537, see above); it only burns its
-   300 s timeout against a browser that is genuinely signed in.
-4. Verify with a real `nlm notebook list` (not `login --check`).
-5. Dry-run `sync-notebooklm-books.py .` → review the ADD plan and the
+   300 s timeout against a browser that is genuinely signed in. The same defect
+   is why `nlm login --profile company` — the first-time route the sync's own
+   refusal text suggests at :2278 — is not the way in; the harness is.
+4. Verify with a real `nlm notebook list` (not `login --check`), and confirm the
+   list it returns is the xFactory books.
+5. **Bind the CLI to `company` before syncing** — `nlm login switch company`,
+   then read it back with `nlm config get auth.default_profile` (expect
+   `company`). This is a SEPARATE act from step 3: the harness writes the
+   profile store and never touches `auth.default_profile`, and the sync will not
+   switch it either, because the CLI selects a profile PROCESS-GLOBALLY and that
+   is shared user state — of the verbs the sync issues (`notebook`, `source`,
+   `alias`, `tag`, `chat`) none takes a per-invocation `--profile`, so the
+   binding is verified rather than passed (`active_nlm_profile()`,
+   `scripts/sync-notebooklm-books.py:2125-2137`). Skip this and step 6 dies
+   before writing anything, on `hosting: expected the 'company' profile but the
+   CLI's active profile is 'personal'. Refusing: …` (:2271-2278). The check is
+   re-asserted before EVERY invocation, so another terminal running
+   `nlm login switch` mid-run aborts the rest of the job
+   (`assert_still_bound()`, :2054-2079) — re-bind and re-run, the sync is
+   idempotent over what finished.
+6. Dry-run `sync-notebooklm-books.py .` → review the ADD plan and the
    `[workbench]` orphan-sweep plan (skip `xf-wb-*` orphans — see the bug
    below) → `--apply`.
-6. Copy the updated manifest back to the aggregation root
+7. Copy the updated manifest back to the aggregation root
    `.claude/nlm-sync-manifest.json`.
 
 ## Verification discipline
