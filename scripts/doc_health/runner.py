@@ -647,10 +647,84 @@ def main(argv=None) -> int:
             unavailable_reason=args.neutrality_unavailable_reason,
             baseline_repo=args.neutrality_baseline or None)
 
+    # ISSUE #342: this run's own repo-slug identity, computed once, used both
+    # to REFUSE a foreign-identity `--previous-report` below and to STAMP the
+    # report this run writes (the `report.render` call further down).
+    current_repo_slugs = frozenset(ctx.repo_paths)
+
     previous_keys = previous_contested = None
+    unavailable_repos: set[str] = set()
     if args.previous_report and Path(args.previous_report).is_file():
+        previous_text = Path(args.previous_report).read_text(
+            encoding="utf-8")
+        previous_repo_slugs = report.parse_repo_identity(previous_text)
+        if previous_repo_slugs is None:
+            # BACKWARD COMPATIBILITY (issue #342 fix-shape item 3). Every
+            # report written before this change — including every dated
+            # report committed to health/reports/ as of 2026-08-31 — carries
+            # no stamp, and the nightly's own baseline is one of those for at
+            # least one more night. Refusing here would break the nightly
+            # outright, so an UNSTAMPED baseline degrades to exactly today's
+            # behaviour: accepted, unchecked, with one loud stderr line
+            # naming the gap so an operator can tell "identity matched" from
+            # "identity could not be checked" in the run's own output.
+            print("[repo-identity] WARNING: --previous-report "
+                  f"{args.previous_report} carries no "
+                  f"{report.REPO_IDENTITY_PREFIX.strip()} stamp (a report "
+                  "predating issue #342) — accepted without an identity "
+                  "check. A foreign-identity baseline (e.g. a worktree "
+                  "basename mismatch) cannot be detected until both sides "
+                  "of the comparison are stamped.", file=sys.stderr)
+        elif not current_repo_slugs <= previous_repo_slugs:
+            # ISSUE #342, THE FIX. Every repo this run covers must already be
+            # a member of the baseline's stamped identity — the single-repo
+            # case ("the slug must be IN the baseline's set") generalized to
+            # an aggregation run ("equality or subset"), reasoned from how
+            # the two comparison rules key: a repo THIS run has that the
+            # BASELINE never scanned makes every one of that repo's
+            # critical/error findings miss `previous_keys` by construction
+            # (`regressions()`, keyed by `(family, repo, path)`), which is
+            # the exact phantom-regression mechanism the issue reports — a
+            # foreign-basename baseline is simply the disjoint-sets instance
+            # of this same rule. The mirror case (the baseline knows a repo
+            # THIS run does not) is accepted, not refused here — see
+            # `unavailable_repos` below, `uncited_resolutions`'s own defense
+            # for exactly that gap.
+            missing = ", ".join(sorted(current_repo_slugs -
+                                       previous_repo_slugs))
+            baseline_stamp = (", ".join(sorted(previous_repo_slugs))
+                              or report.REPO_IDENTITY_NONE)
+            current_stamp = (", ".join(sorted(current_repo_slugs))
+                             or report.REPO_IDENTITY_NONE)
+            sys.exit(
+                "REFUSE previous-report-identity-mismatch: "
+                f"--previous-report {args.previous_report} was stamped "
+                f"{report.REPO_IDENTITY_PREFIX}{baseline_stamp}; this run's "
+                f"scope is {report.REPO_IDENTITY_PREFIX}{current_stamp}. "
+                f"Repo(s) not covered by the baseline: {missing}. Every "
+                "finding key for an uncovered repo misses by construction: "
+                "its current critical/error findings would read as new "
+                "regressions and its baseline contested findings would read "
+                "as resolved without citation (issue #342) — an operator "
+                "path/scope slip reported as a corpus catastrophe. Point "
+                "--previous-report at a report whose stamped identity "
+                "covers this run's full scope, or omit --previous-report to "
+                "run this as a fresh baseline.")
+        else:
+            # A baseline whose stamped identity is a proper SUPERSET of this
+            # run's (e.g. a --single-repo self-gate diffed against last
+            # night's full aggregation report) is accepted — but its
+            # contested findings for the repo(s) THIS run does not cover
+            # must still not be read as resolved (fix-shape item 3: this run
+            # never looked at them, so their absence from `result.findings`
+            # proves nothing). `unavailable_repos` carries exactly that
+            # residual set into `uncited_resolutions` below; it is empty
+            # whenever the identities match exactly, so the common case is
+            # unaffected.
+            unavailable_repos = set(
+                previous_repo_slugs - current_repo_slugs)
         previous_keys, previous_contested = report.parse_previous(
-            Path(args.previous_report).read_text(encoding="utf-8"))
+            previous_text)
     dispositions = set()
     dispo_path = (ctx.agg_root / "health" / "dispositions.yaml"
                   if ctx.agg_root else None)
@@ -701,7 +775,8 @@ def main(argv=None) -> int:
     unavailable_families.add(_neutrality.LANE_ID)
     result.findings += report.uncited_resolutions(
         result.findings, previous_contested, dispositions,
-        unavailable_families=unavailable_families)
+        unavailable_families=unavailable_families,
+        unavailable_repos=unavailable_repos)
     new = report.regressions(result.findings, previous_keys)
 
     spec_words = 0
@@ -714,7 +789,8 @@ def main(argv=None) -> int:
                          ctx.deviations, new, semantic_meta=semantic_meta,
                          catalog_meta=catalog_meta,
                          organizer_meta=organizer_meta,
-                         family_notes=result.notes)
+                         family_notes=result.notes,
+                         repo_slugs=current_repo_slugs)
     if neutrality_meta is not None:
         # Folded in post-render like the readiness/derive lanes: its own
         # section plus contested WARNING plan items, never a finding the
