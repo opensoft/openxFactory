@@ -405,8 +405,16 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [govern-sibling-added-modified-deltas](openspec/changes/govern-sibling-added-modified-deltas/proposal.md)
-  — authored 2026-08-29, **`Status: draft` — A PROPOSAL, NOT A RATIFICATION**,
-  filed on Brett's in-session ruling "file the successor now" out of the §7.4
+  — authored 2026-08-29, **RATIFIED 2026-08-31 BY DIRECT RULING**
+  (`Status: ratified`; record `review/ratification-2026-08-31.md`) — Brett Heap
+  in session via an explicit multi-choice put, verbatim *"Direct — accept D1–D5
+  (Recommended)"*. **THE §7.4 SITTING THE PACKET PRESCRIBED FOR ITSELF WAS
+  DECLINED BY THAT SAME CHOICE** — no seat sat, nothing here is a council
+  disposition — after NINE adversarial Codex rounds converged the text (twelve
+  findings, every one fixed, none repeated; round 9 clean on `3d776c67`).
+  **Ratification authorizes REALIZATION and performs none of it**, and the five
+  open questions REMAIN OPEN, having been routed to the sitting that did not sit.
+  Filed on Brett's in-session ruling "file the successor now" out of the §7.4
   sitting on PR #497. **THE SUCCESSOR ISSUE #502 NAMES**: a
   `## MODIFIED Requirements` block whose requirement exists only as an active
   sibling's `ADDED` is governed by no promoted requirement, evaluated by no
@@ -555,9 +563,12 @@ Active changes:
   `add-binding-consumer-identity` owing the marker, and
   conversion-without-pairing refused. **It does not close #502 and says so**: the
   packet states that it MAY say `Closes #502` on archive and states it as intent
-  rather than performing it. Five decisions are FLAGGED FOR VETO (D5, the
-  collision class, is the one the proposal names as most worth vetoing) and five
-  open questions are routed to the sitting.
+  rather than performing it. The five decisions flagged for veto (D5, the
+  collision class, the one the proposal names as most worth vetoing; D1's
+  capability split the one a seat was most likely to re-argue) were **ACCEPTED AS
+  DRAFTED** on 2026-08-31, as they stand at tip `3d776c67`. The five open
+  questions had been routed to the sitting; **that sitting was declined, so they
+  stay OPEN** — OQ-4 most visibly, § 6.1 being explicitly subject to its routing.
 - [add-chain-anchoring](openspec/changes/add-chain-anchoring/proposal.md)
   — authored 2026-08-29, **`Status: draft` — RATIFICATION IS NOT SOUGHT BY THIS
   PACKET'S LANDING.** Exit 3 of three of the staged topic

@@ -1,8 +1,9 @@
 ---
 code_surface: openxFactory (`scripts/doc_health/modified_block_currency.py` — the marker parser gains a THIRD reserved form, `Modified over`, recognized by a complete prefix like the other two, naming no units and therefore excluded from unit suppression and from the marker-defect check while still being excluded from unit derivation in both canon and block; `sibling_titles` is widened to return the BASIS CHANGE ID, ITS DECLARED STANDING and WHICH BLOCK PUT THE TITLE THERE — an `## ADDED Requirements` block or a `## RENAMED Requirements` block's `TO:` half — beside each `(capability, title)` so the pairing can be named, self-ADDITION detected (the self-referential state being the carrier's own addition alone, an own rename to the title resolving earlier under `resolve`'s unchanged own-rename precedence) and an undisclosed unratified basis reported, rather than the bare title set it returns today — the standing through `_standing`, the module's existing `corpus.parse_status` -> `promotion_fidelity.declared_standing` path, which `active_blocks` never reaches for a pure adder or a pure renamer because it skips a change carrying no MODIFIED block; `fam_modified_block_currency`'s `if status == "pending": continue` is replaced by an emit for the new pairing class — an ORDERED classification emitting EXACTLY ONE of four states per block, classified from the block's WHOLE marker set with the COUNT of `Modified over` markers read before any single marker's fields — `derive_units` preserving every recognized marker in `block.markers`, so MORE THAN ONE pairing marker is the misdeclared state's FIRST ground and the silent state and UNDISCLOSED are reached only at exactly one, iteration order deciding nothing — the self-addition condition — the carrier's OWN `## ADDED Requirements` block for the title, never its own rename to it — examined FIRST so that it excludes the block from the undeclared and misdeclared branches instead of overlapping them, with `resolve`'s own-rename precedence untouched ahead of the whole classification so a rename-and-amend block still compares against canon under the OLD name and never reaches it, and the marker's `by` identifier COMPARED to the block's own change id so that a right basis under a wrong author is reported misdeclared rather than passing as a declared pair, and its ` — <reason>` tail HARVESTED ALWAYS AND VALIDATED NONEMPTY as the misdeclared state's FOURTH ground — read after the `by` and BEFORE the disclosure, so a prefix-only marker is reported for the tail it lacks rather than for a word it has no clause to carry; recognition of the form keeps its resolvability test AND ENDS AT THE CLOSING COLON, the equality and the tail alike being reported states and not parse conditions — the three comparison arms still NOT running against a pending block; a reader for active `## ADDED Requirements` blocks AND for the `TO:` titles of active `## RENAMED Requirements` blocks against the promoted index the family already builds, for the collision class — the `FROM:` half never read, a rename's source being a title canon is expected to carry; two new severity constants and two new action constants, named apart from `_LAUNCH_SEVERITY` on the module's own stated reason for `_RESOLUTION_SEVERITY`, `_LEDGER_SEVERITY` and `_DRIFT_SEVERITY` — a reason that has since been demonstrated rather than merely reserved, § 7.2's flip having landed at `7f656980` (PR #529, 2026-08-31) and moved `_LAUNCH_SEVERITY` alone; two new `_ArmTemplate` registrations appended to `_ARM_TEMPLATES`; two new `FindingClass` entries in `CLASSES`, inserted before the `unplaced` class so that "the gate-bearing arm reads FIRST" and "the drift class reads LAST" both stay true; two anchored `_CLASS_PATTERNS` entries; and the module's stale numerals — the docstring's class enumeration, "FIVE ENTRIES FOR SIX RULE SHAPES", and the arms-versus-classes counts. `tests/doc-health/test_modified_block_currency_reporting.py` — the class-registry pin, the rule-shapes pin, the verbatim class-row list, the last-row assertions and the `len(block)` pin all move by name. `tests/doc-health/test_modified_block_currency_self_gate.py` — `test_the_resolution_ordering_and_marker_classes_read_zero_over_the_real_tree` no longer covers the new classes; a NAMED EXACT SET for the pairing class's four standing subjects joins `_LEDGER_SUBJECTS` under the same movement discipline, and the collision class gets a zero assertion with a positive control. New fixture trees under `tests/doc-health/fixtures/` for each reported state and for both silent ones, the disclosed-unratified pair carrying its own adding-change fixture with a non-ratified `Status:`. `specs/022-modified-block-currency-reporting/contracts/report-section.md` — a byte-level contract enumerating the classes four times over, AMENDED by the realization rather than left false. `docs/doc-health.md` — the family paragraph names three arms plus a marker-defect class plus a fifth `unplaced` class and is amended. NO change to any other family, to `Finding`, to `report.render`, to the ranked-plan or finding grammars, to `families.FAMILY_SUMMARIES`, to `FAMILY_RESOLUTION` (the row `7f656980` added stays exactly where #529 put it — what moves is PROMOTED TEXT, in this packet's `doc-health` MODIFIED block, not this table), to the governed corpus, to the lifecycle scan set, or to any threshold. NO new deterministic check family, so the "Deterministic check families" enumeration and its numerals are untouched and unrestated.)
 target_release: implemented — the openxFactory main line. This surface cuts no contract bundle: no schema under `contracts/schemas/` changes, no digest set moves, and no release tag is owed. The archive gate is therefore merge-plus-green on main, following `add-modified-block-currency-check`, `add-family-enumeration-check` and `add-unclassified-finding-class` exactly: `python3 -m pytest tests/doc-health` green, `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green, and a doc-health single-repo run whose severity counts move by exactly the amount § Impact predicts and in no other line. The change therefore ships ACTIVE and archives only after the merge — and, because its own MODIFIED blocks are written over `release-realization` and `doc-health` CANON rather than over any sibling's addition, its archive is not itself subject to the ordering obligation it adds.
-Status: draft
+Status: ratified
 Proposed: 2026-08-29
+Ratified: 2026-08-31 by Brett Heap (repository owner) — in-session via an explicit multi-choice put, session `openxfactory-f5`, verbatim "Direct — accept D1–D5 (Recommended)"; record at `openspec/changes/govern-sibling-added-modified-deltas/review/ratification-2026-08-31.md`. The record-citing spelling is the one this citation's condition of use selects: there is no approving OpenSpec change to name. **THE §7.4 SITTING THIS PACKET ASKED FOR WAS DECLINED BY THAT SAME CHOICE**, and the record says so on its face rather than leaving a prescribed sitting to look as though it happened.
 Origin: openxFactory issue #502, filed 2026-08-29 on Brett's in-session ruling "file the successor now" out of the §7.4 council sitting on PR #497 (`add-binding-consumer-identity`). The gap was raised by `lead-architect` under `cross_cutting_design` (LA-C2) and concurred by `lead-quality` (LQ-C5); both seats attached the condition that PR #497 must neither close it nor be delayed for it, recorded in the council record's §8.5 and §10 and honoured — #497 merged carrying only its own local stopgap. Related and already closed, for the defect family: #329 (sibling changes carrying latent scenario loss) and #330 (`promotion-fidelity`'s blind spot). Related and open: #318 (an origin taxonomy with no kind meaning "proposed, not approved" — the state this packet is in), #342.
 ---
 
@@ -10,22 +11,47 @@ Origin: openxFactory issue #502, filed 2026-08-29 on Brett's in-session ruling "
 
 ## Standing
 
-**THIS PACKET IS A PROPOSAL AND CLAIMS NO RATIFICATION.** `Status: draft`, no
-`Ratified:` line. What Brett authorized on 2026-08-29 was the DECISION TO FILE
-THE SUCCESSOR, verbatim "file the successor now"; `.openspec.yaml` records that
-and says plainly that it does not reach this packet's content. Every design
-decision the authoring session took is named in § Orchestrator Decisions for a
-§7.4 council sitting and Brett's ratification to accept or reverse.
+**THIS PACKET IS RATIFIED — 2026-08-31, BY DIRECT RULING.** `Status: ratified`,
+with the record-citing `Ratified:` line above; the record is
+`review/ratification-2026-08-31.md`. Brett Heap ruled in session via an explicit
+multi-choice put, verbatim *"Direct — accept D1–D5 (Recommended)"*, and all five
+decisions in § Orchestrator Decisions are ACCEPTED AS DRAFTED — as they stand at
+tip `3d776c67`, which is what nine adversarial rounds left them at rather than
+what was first authored.
 
-**IT DOES NOT CLOSE #502, and it does not close it here.** Issue #502's own
-scope section carries both seats' condition that the change which SURFACED the
-gap must not close it; that condition binds `add-binding-consumer-identity` and
-it has been honoured. The successor is a different question: this change is the
-one that fills the three holes, so **when it archives on merged-and-green
-realization evidence it may say `Closes #502`, and this proposal states that
-intent explicitly rather than leaving it to be inferred.** It is stated as
-intent and not as an act: an unratified proposal closing a governance issue
-would be exactly the shape #502 exists to complain about.
+**THE §7.4 SITTING THIS PACKET PRESCRIBED FOR ITSELF DID NOT SIT, AND WAS NOT
+SKIPPED.** `tasks.md` § 1.1 asked for one; the choice between convening it and
+ratifying the converged packet directly was put to him, and he took the direct
+path. That is the ratifying authority's own explicit choice and it is recorded as
+such in the record, in `tasks.md` § 1, and here — a prescribed sitting that
+quietly evaporates is worse than one openly declined.
+
+**WHAT THE TWO AUTHORIZATIONS EACH COVER, KEPT APART.** What Brett authorized on
+2026-08-29 was the DECISION TO FILE THE SUCCESSOR, verbatim "file the successor
+now"; `.openspec.yaml` records that and says plainly that it did not reach this
+packet's content. The 2026-08-31 ruling is the separate, later act that does.
+
+**THE FIVE OPEN QUESTIONS ARE UNTOUCHED BY IT.** OQ-1..OQ-5 below remain OPEN and
+routed exactly as this proposal routes them; `tasks.md` § 1.2 had routed them to
+the sitting, and a direct ruling that quietly disposed of questions routed to a
+sitting that never sat would be the worse record.
+
+**IT DOES NOT CLOSE #502, and ratification does not close it either.** Issue
+#502's own scope section carries both seats' condition that the change which
+SURFACED the gap must not close it; that condition binds
+`add-binding-consumer-identity` and it has been honoured. The successor is a
+different question: this change is the one that fills the three holes, so **when
+it archives on merged-and-green realization evidence it may say `Closes #502`,
+and this proposal states that intent explicitly rather than leaving it to be
+inferred.** It is stated as intent and not as an act — a ratified-but-unarchived
+proposal closing a governance issue is the same shape #502 exists to complain
+about, one step later.
+
+**RATIFICATION AUTHORIZES REALIZATION AND PERFORMS NONE OF IT.** `tasks.md` § 2
+and § 3 are the two Speckit features and are not built by the ratifying act;
+§ 6's marker sweep, which D4 sequences BEFORE § 2, is a post-ratification act on
+four ratified packets and is likewise not performed by it. The change stays
+ACTIVE until § 8's merged-and-green evidence exists.
 
 ## Why
 
@@ -472,11 +498,23 @@ them without performing them.
   would arrive `contested` on its first emit, and D4's second limb is what
   answers for it.
 
-## Orchestrator Decisions — FLAGGED FOR VETO
+## Orchestrator Decisions — FLAGGED FOR VETO, ACCEPTED AS DRAFTED 2026-08-31
 
 Brett authorized the FILING. The five decisions below were taken by the
 authoring session under standing patterns and are named so they can be reversed
 on a word.
+
+**ALL FIVE WERE ACCEPTED AS DRAFTED ON 2026-08-31**, in the same ruling that
+ratified the packet — verbatim *"Direct — accept D1–D5 (Recommended)"*, record
+`review/ratification-2026-08-31.md`. **They are AFFIRMATIVELY RULED, and that is
+a stronger disposition than the one `add-modified-block-currency-check` recorded
+against the same section shape**, where a "Ratify as-is" left five flags
+NOT VETOED and expressly not thereby affirmatively ruled. Here the acceptance was
+the wording of the choice put and taken, so the flags are SPENT rather than
+standing. **What was accepted is the text as it stands at tip `3d776c67`** — what
+nine adversarial rounds left, not what was first authored — and the arguments
+below are kept unedited so a later reader can see what was accepted and on what
+grounds, including the veto costs that were named and not incurred.
 
 **D1 — `release-realization` owns the rule, by EXTENDED ANTECEDENT, and
 `document-lifecycle` owns the declaration.** #502's first question offers two
@@ -716,6 +754,16 @@ ordering resting on the normative rule alone — which is where it rests today,
 minus the rule.
 
 ## Open questions this proposal does not settle
+
+**AND WHICH THE 2026-08-31 RATIFICATION DID NOT SETTLE EITHER.** All five stay
+OPEN. `tasks.md` § 1.2 had routed them to a §7.4 sitting; that sitting was
+declined by the ratifying authority's own choice, so there was nothing to route
+them to, and the direct ruling took the five DECISIONS without reaching the five
+QUESTIONS. They therefore stand exactly as written below and travel with
+`tasks.md` § 7. OQ-4 is the one this leaves most visibly live: § 6.1 is
+explicitly *"Subject to OQ-4's routing"*, and the one-line routing a council
+could have settled — one sweep with per-packet consent, or one task per owning
+packet — is unruled, so § 6 stands as staged.
 
 - **OQ-1 — the post-archive detector for the MODIFIED writer's own delta.** Once
   the modifying change archives, its delta is under `archive/` and this family

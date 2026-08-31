@@ -1,5 +1,12 @@
 # Tasks — govern-sibling-added-modified-deltas
 
+**This change is RATIFIED** (2026-08-31, Brett Heap, by direct ruling —
+`review/ratification-2026-08-31.md`). §1 carries the ratification and its two
+non-ticking boxes, disposed there rather than closed. **Nothing else has moved**:
+§2 and §3 are the two unbuilt Speckit features, §6 is a post-ratification sweep
+across four ratified packets that this act does not perform, §7 records five open
+questions the ruling did not reach, and §8's archive gate is untouched.
+
 House rule: **OpenSpec ratifies, Speckit builds.** Each `## Speckit F<n>` group
 below maps to exactly ONE Speckit feature and is the handoff unit; nothing in
 this file is an executable task list for a session to work directly. Groups 1,
@@ -7,19 +14,46 @@ this file is an executable task list for a session to work directly. Groups 1,
 
 ## 1. Ratification
 
-- [ ] 1.1 Put the packet to a §7.4 council sitting. The five decisions in
-      § Orchestrator Decisions are flagged for veto; D5 (the collision check) is
-      the one the proposal itself names as most worth vetoing, and D1's
-      capability split is the one a seat is most likely to want re-argued.
-- [ ] 1.2 Route the five open questions OQ-1..OQ-5. OQ-4 in particular is a
-      routing question the council can settle in one line: one sweep with
-      per-packet consent, or one task per owning packet.
-- [ ] 1.3 Brett ratifies or reverses. On ratification, amend `proposal.md`'s
-      `Status:` to `ratified` and add the `Ratified:` line in the sanctioned
-      record-citing spelling, there being no approving OpenSpec change to name.
-- [ ] 1.4 Record the sitting under `review/` with `Status: record` (or
-      `Status: ratified` plus a citation where the record IS the ratification),
-      per `document-lifecycle`'s "Proposal packets carry the lifecycle header".
+**RATIFIED 2026-08-31 BY DIRECT RULING** — Brett Heap, in session via an explicit
+multi-choice put, verbatim *"Direct — accept D1–D5 (Recommended)"*; record
+`review/ratification-2026-08-31.md`. **The §7.4 sitting this section prescribed
+DID NOT SIT.** Each box below therefore carries its MEASURED disposition, and two
+of the four do not tick: a box that says "put it to a sitting" cannot be ticked by
+a ratification that declined one, and ticking it would put a sitting in the record
+that never happened.
+
+- [ ] 1.1 **DECLINED BY THE RATIFYING AUTHORITY, NOT SKIPPED — and therefore
+      NOT TICKED as written.** The choice between convening a §7.4 sitting and
+      ratifying the converged packet directly was put to Brett Heap in session as
+      an explicit multi-choice, and he took the direct path; the sitting was never
+      convened and no seat sat. **What this box asked for was nonetheless
+      ANSWERED**: all five decisions in § Orchestrator Decisions were accepted AS
+      DRAFTED at tip `3d776c67`, D5 and D1 included — the two the box named as
+      most likely to be re-argued. See `review/ratification-2026-08-31.md`
+      § "The path taken, and the path declined".
+- [ ] 1.2 **NOTHING TO ROUTE, AND THEREFORE NOT TICKED.** OQ-1..OQ-5 REMAIN OPEN.
+      They were routed to the sitting of 1.1, which did not sit, and the direct
+      ruling reached the five DECISIONS without reaching the five QUESTIONS — so
+      they stand exactly as `proposal.md` § Open questions leaves them and travel
+      with § 7 below. OQ-4's one-line routing of the § 6 sweep is unruled, so § 6
+      stands as staged (per-packet consent) rather than re-routed per owner.
+- [x] 1.3 **DONE in the ratification commit.** `proposal.md` front matter carries
+      `Status: ratified` plus the `Ratified:` line in the sanctioned
+      record-citing spelling — approver, date and a resolvable record path, all
+      three of `sanction-ratified-record-spelling`'s floor rather than the one it
+      needs — there being no approving OpenSpec change to name. § Standing,
+      § Orchestrator Decisions' preamble, § Open questions' preamble,
+      `.openspec.yaml`'s `approved_by` and the README active-changes row were
+      swept in the same act, on the rule that any edit changing what the packet
+      asserts about itself owes a sweep of every site asserting the same thing.
+- [x] 1.4 **DONE — `review/ratification-2026-08-31.md`**, carrying
+      `Status: ratified` plus a citation, which is the branch of this box that
+      applies: the record IS the ratification, so `Status: record` would understate
+      the claim it makes, and `document-lifecycle`'s "A review record records a
+      ratification" scenario requires the ratified spelling with a citation. It
+      records the ruling and its channel, the declining of the sitting, the D1–D5
+      acceptance, the OQ dispositions, the nine-round convergence evidence, the
+      pre-given merge word, and what the ratification does NOT do.
 
 ## 2. Speckit F1 — the `Modified over` marker and the pairing class
 
