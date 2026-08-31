@@ -18,10 +18,17 @@ Commissioned by: task 7.6 — *"Write the governed re-issuance RUNBOOK for a
 
 ## 0. THE HEADLINE, BEFORE THE DETAIL
 
-**This walk exercised steps 0–4 and step 6's watch. It did NOT exercise step 5,
-step 5a or step 5b, because NOTHING WAS REVOKED, RE-ISSUED OR RE-PROJECTED in
-this walk.** §5 below says exactly which acts were not performed and what a real
-provider roll would additionally exercise.
+**This walk exercised the runbook's steps 0–4 and its §6.1 watch. It did NOT
+exercise the runbook's step 5, its §5.1 acts, or step 5b (its §5.2), because
+NOTHING WAS REVOKED, RE-ISSUED OR RE-PROJECTED in this walk.** §5 below says
+exactly which acts were not performed and what a real provider roll would
+additionally exercise.
+
+> **A NOTE ON LABELS, because this document names sections in two files.**
+> Every reference to a runbook section is written **"the runbook's §N"** or
+> **"step 5b"**, which are that document's own labels as merged at
+> `65c3a803`. Bare `§N` always means a section of THIS document. The runbook
+> has **no "step 5a"** — an earlier draft of this record invented one.
 
 **The reason is not an omission — it is what this bump was.** The flip was an
 **alias-to-exact precision pin** whose C13 question (*does this re-open the
@@ -29,7 +36,7 @@ soak?*) was **ruled and discharged in the same act** by the Gate-Rules Council
 on the 25/25 and 8/8 identity measurement (2026-08-29 §8.2). Nothing about the
 served artifact changed; what changed is that the declaration now names it. A
 **provider roll** — the case the runbook is titled for — is the other shape, and
-it is the one that drives steps 5/5a/5b.
+it is the one that drives the runbook's step 5, §5.1 and step 5b.
 
 **So this walk demonstrates the runbook against a real declared composition
 change. It does not demonstrate a recovery from a revocation, and it must not be
@@ -39,7 +46,7 @@ cited as though it did.**
 
 ## 1. Step-by-step: what each runbook step produced
 
-| Runbook step | Exercised? | What it produced, and where the evidence lives |
+| Runbook step (labels are the runbook's own) | Exercised? | What it produced, and where the evidence lives — bare `§N` is THIS document |
 |---|---|---|
 | **Before you start** | yes | Ownership confirmed (the declaration is codexFactory's, not this repository's); the ratifying human available; the superseded grant's own file open at §2 below |
 | **§0.1 trigger** | yes | `model_version` identified as the single declared component the bump touches — **measured, not assumed** (§2.2) |
@@ -47,11 +54,11 @@ cited as though it did.**
 | **§0.3 who holds which act** | yes | Six roles kept separate; **three capacities, one human, disclosed** — record §10 |
 | **§1 superseded state** | yes | §2 below: the declaration quoted, the active grant and row quoted, the composition identity recorded with its honest substitute label |
 | **§2 the bump as ONE change** | yes | §3 below: one commit set, green whole and **red partial, proved** |
-| **§3 in-flight (R9)** | **NO — vacuously** | **No convening was in flight and none parked.** §5.1 |
+| **§3 in-flight (R9)** | **NO — vacuously** | **No convening was in flight and none parked.** §5.1 below |
 | **§4 re-issuance record (R8)** | yes, **with PENDINGs** | §4 below: all five fields written, two of them PENDING with what they wait on |
-| **§5 the register act** | **NOT PERFORMED** | §5 below — it is a pointer in the runbook and it stays owed |
-| **§5.1 revoke / mint / repoint** | **NOT PERFORMED** | §5 below |
-| **§5.2 step 5b projection** | **NOT PERFORMED** | §5 below |
+| **§5 the register act** | **NOT PERFORMED** | §5.2 below — it is a pointer in the runbook and it stays owed |
+| **§5.1 revoke / mint / repoint** | **NOT PERFORMED** | §5.2 below |
+| **§5.2 (step 5b) projection** | **NOT PERFORMED** | §5.3 below |
 | **§6.1 lifecycle watch** | yes | Record §11 — three pinned identifiers plus the runtime/reseed row, each with a named human owner, under LQ-C5's own caveat |
 | **§6.2 roll recovery** | **NO** | Not a roll. §5.4 states what a roll would additionally exercise |
 | **§7 record the act** | yes | This document |
@@ -207,7 +214,7 @@ adding is the ruling working as intended):
 * **the roster change**: `records/2026-08-31-enrolled-roster-model-pin-flip.md`;
 * **the acceptance**: that record's §10, spoken by Brett Heap in session on 2026-08-31, with the Lead-Quality conflict disclosed on the face of the act;
 * **the identity assertion** linking the alias the 2026-08-26 ratified record ruled to the exact identifier now pinned — `opus → claude-opus-5` 25/25, `sonnet → claude-sonnet-5` 8/8 — cited to the selection record's §2.2 and made load-bearing by a live test;
-* **the supersession, IN PROSE**, because §5.1 of the runbook records that no grant field carries it: the pinned grant schema is `additionalProperties: false` with no `supersedes` key, and `parent_grant_ref` means *derived from*;
+* **the supersession, IN PROSE**, because the runbook's §5.1 records that no grant field carries it: the pinned grant schema is `additionalProperties: false` with no `supersedes` key, and `parent_grant_ref` means *derived from*;
 * **every condition still outstanding**, as the record's §8 table.
 
 ---
@@ -226,7 +233,7 @@ convening is still ahead**, which is also why **CSC-C1′ part 2** (the lane
 carrying the read-back into a *retained* artifact) is **still not evidenced by a
 lane run**; the record says so in its own §4.
 
-### 5.2 Steps 5 and 5.1 (the register act; revoke / mint / repoint) — NOT PERFORMED
+### 5.2 The runbook's step 5 and §5.1 (the register act; revoke / mint / repoint) — NOT PERFORMED
 
 **Nothing was revoked, nothing was minted, no row was repointed.**
 `grant-mrc-0001` is still `state: active` and `row-mrc-0001` still points at it
@@ -268,16 +275,16 @@ a register act, and there was no register act.
 Recorded so the residue of this walk is legible, and so 7.6's remaining half is
 a named thing rather than a feeling:
 
-1. **A detection path** — §6.2's mismatch, surfaced by the R-I served-model
+1. **A detection path** — the runbook's §6.2 mismatch, surfaced by the R-I served-model
    read-back: an exact declaration absent from the served map refuses. Here
    nothing mismatched; the read-back **agreed** at all four seats.
 2. **A real park under R9** — an in-flight convening refusing with a named
    refusal, no grandfathering, no admission stamp honoured.
-3. **The three atomic writes of §5.1** — revoke with a `revocation` block of
+3. **The three atomic writes of the runbook's §5.1** — revoke with a `revocation` block of
    class DRIFT naming the composition event; mint a new grant; repoint
    `grant_ref`/`expires_at` with the row's own `state` staying `active` — and
    the property that **no order of them is green halfway**.
-4. **Step 5b** — the projection re-derived, `revocation_staleness_bound` carried
+4. **Step 5b** (the runbook's §5.2) — the projection re-derived, `revocation_staleness_bound` carried
    verbatim, and **one convening watched admitting**.
 5. **The budget interaction** (LQ-C2) — refusals recommission and the budget
    binds at commission (`max_convenings_per_rolling_24h: 12`), so a roll can
