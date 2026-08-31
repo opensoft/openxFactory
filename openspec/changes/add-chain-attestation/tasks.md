@@ -15,7 +15,7 @@ in for a ruleset state.
 
 ## 1. Spec deltas and the packet (THIS PULL REQUEST)
 
-- [x] 1.1 `signed-execution-chain` — **NINE ADDED requirements over 89
+- [x] 1.1 `signed-execution-chain` — **NINE ADDED requirements over 94
       scenarios**: the harness-controller setup attestation under a certificate
       expressed in `add-trust-anchor` vocabulary, with the issuing authority named
       as a realization dependency and never assumed; runner attestations signed AT
@@ -245,7 +245,7 @@ in for a ruleset state.
       authentication path**, and the positive closure fixture could have omitted
       the attributed link-10 request. All three added, plus the note that the
       positive closure fixture carries its attributed request. **THE
-      FIXTURE-EQUALITY CHECK then ran the one-pass method over all 85 ADDED
+      FIXTURE-EQUALITY CHECK then ran the one-pass method over the ADDED
       scenarios** — every scenario naming a validator-observable behaviour against
       the 5.5 commission — and **found five more that had been named in the delta
       since the first draft and never commissioned**: a persona proposed for a
@@ -292,6 +292,61 @@ in for a ruleset state.
       **77/79**, and the checker over-reported because keyword overlap against a
       long commission block is a weak test. Corrected on the record where the
       claim was made rather than silently.
+- [x] 1.16 **THE EIGHTH BOT ROUND'S FOUR P1s AND ITS BOOKKEEPING SET ARE
+      CLOSED**, and the round was reached by the POSITIVE-VERDICT RULE working:
+      Codex reviewed `a9db0fe8` and the review was NOT CLEAN, which is why no
+      ratification was written against it. (i) **THE ARC'S DEEPEST FINDING — a
+      lane could FORGE A TIER-2 IDENTITY.** Nothing defined controller-signed
+      ISSUANCE EVIDENCE, so a lane could mint a keypair, label it with the
+      expected scope, and forge BOTH the record and its request attribution under
+      that untrusted key — every attribution rule in this capability satisfied by
+      the forgery, because they check the record against the key and never the key
+      against an issuer. **The staged topic already required the fix**
+      (`:137-139`, `:461` — tier 2 issued under the controller's certificate, in
+      `trust-anchor` SHAPES and no parallel vocabulary), so this was a gap against
+      the ruled source. Every tier-2 identity of BOTH scopes now carries
+      controller-signed issuance evidence binding {public key, subject scope,
+      closed record-kind enumeration, chain identity, validity bounds}; **every
+      verification verifies issuance FIRST**; a signature with no issuance is a
+      FORGED IDENTITY refused with fraud-signal force; and the gate's continuity
+      walk includes issuance per link. Rounds five and seven's attribution
+      scenarios were re-walked and now rest on established issuance. (ii)
+      **REVIEW-RECORD REPLAY**: a genuine, authority-proven review record from
+      ANOTHER PROPOSAL closed this chain, because link 10 referenced proposal and
+      review independently and the authority exercise bound only to the review
+      record. The consumed record now SHALL NAME THIS CHAIN'S IDENTITY. (iii) and
+      (iv) **TWO COLLISIONS BETWEEN ROUND SEVEN'S OWN FIXES**: the dispatch-
+      deadline fix made commitment extensions load-bearing while the
+      predecessor-order fix enumerated an order that OMITTED them — extensions now
+      sit in the order by its own general rule (4 → x₁ → … → xₙ → 5 → 6 → 10); and
+      the guard walk's own tightening of the closure positive added ATTRIBUTED
+      while omitting RECORDED and INSIDE-THE-SIGNED-BYTES. **THE GUARD RE-WALK
+      THEN RAN OVER ALL SEVEN PERMITTING CONJUNCT SETS INCLUDING THE ONES THE LAST
+      WALK TOUCHED, AND FOUND TWO MORE** — an identity whose validity bounds were
+      merely PRESENT rather than MET, and the link-6 positive still missing
+      inside-the-signed-bytes and issuance. **The walk's own lesson, now proven on
+      itself: the fix's conjunct set is also a conjunct set.** (v) **BOOKKEEPING**:
+      the 85 → 94 total is synced at README, `INDEX.md`, `proposal.md` and here;
+      `proposal.md`'s Impact said five record kinds where `code_surface` enumerates
+      them — both now read SEVEN, issuance evidence being the seventh. **COPILOT'S
+      COUNT ADVICE WAS TAKEN IN REVERSE AND THE REASON IS RECORDED**: it asked that
+      `tasks.md` be changed 89 → 85 to match the other sites; the count was
+      MEASURED at 89 then and the other sites were the stale ones, which is what
+      Codex's P2 independently found. **A majority of stale sites is not a
+      measurement.**
+- [x] 1.17 **ONE FINDING IS DECLINED, AND THE GROUND IS THE DISPOSITION'S OWN.**
+      Copilot reports that `review/seat-returns-2026-08-30/README.md:63` says
+      *"Sixteen blocking amendments"* where its own breakdown sums to SEVENTEEN
+      (11 + 3 + 3). **The arithmetic error is real. It is NOT THIS PACKET'S TO
+      CORRECT.** That file is a FROZEN SITTING ARTIFACT (`Status: record (evidence
+      appendix)`), and the disposition rules at §3.7 that the sitting's records are
+      not edited: *"It is the evidence of what the seats actually read, and
+      correcting it now would falsify that record"* — the same discipline that
+      preserved the ballot's two convening errors rather than tidying them. It is
+      recorded here as a PRESERVED ERROR, on the footing those two already have.
+      **Only the record's owner can normalize it**, as Brett did for the header
+      grammar under ruling 4a, and it is surfaced for that decision rather than
+      taken silently.
 
 ## 2. §7.4 COUNCIL REVIEW — **HELD 2026-08-30. THE FIRST GATE IS DISCHARGED.**
 
@@ -538,6 +593,19 @@ Each is contract content — cheap now, expensive after a bundle ships.
       consumed by a passing test, and **REVIEW AUTHORITY REVOKED BEFORE ITS
       EXERCISE** — both refusing closure. **The positive closure fixture binds a
       PASSING result**, since an established failing one is now a refusal.
+
+      **AND THE EIGHTH ROUND'S SET**: a **lane-minted keypair labelled with the
+      expected scope**, refused AT ISSUANCE with fraud-signal force; a tier-2
+      signature over **a record kind outside its own issuance evidence**, refused;
+      an identity whose **validity bounds had expired** or whose issuance names
+      another chain, refused; **a genuine review record from ANOTHER PROPOSAL**
+      replayed, refused because it does not name this chain's identity; an
+      **extension left outside the hash-linked order**, or a link-5 record
+      chaining from link 4 where an extension intervened, refused as a break; and
+      two POSITIVES — **a genuine tier-2 identity's records verifying end to end**
+      (issuance first, then signature, then the link's own checks) and **a chain
+      with commitment extensions walked for continuity** over
+      4 → x₁ → … → xₙ → 5 → 6 → 10.
 
       **AND FIVE THE FIXTURE-EQUALITY CHECK FOUND, NAMED IN THE DELTA SINCE THE
       FIRST DRAFT AND NEVER COMMISSIONED HERE**: a **persona proposed for a
