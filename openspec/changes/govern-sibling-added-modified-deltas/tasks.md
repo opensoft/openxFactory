@@ -7,6 +7,16 @@ non-ticking boxes, disposed there rather than closed. **Nothing else has moved**
 across four ratified packets that this act does not perform, §7 records five open
 questions the ruling did not reach, and §8's archive gate is untouched.
 
+**UPDATED 2026-08-31 — §6 HAS SINCE BEEN PERFORMED, by a separate
+post-ratification act and not by the ratification described above, whose account
+of itself is left exactly as written.** Brett Heap routed the proposal's OQ-4 as
+(a), ONE SWEEP, in session on 2026-08-31 and consented to all five ratified-packet
+edits
+that sweep makes; it wrote the four `Modified over` markers, fixed the §6.3
+mis-citation, struck the falsified scenario §6.6 names, and re-measured the
+carriage claim that strike made stale. §6 is now ticked box by box with its
+evidence. §2, §3, §7 and §8 are unmoved.
+
 House rule: **OpenSpec ratifies, Speckit builds.** Each `## Speckit F<n>` group
 below maps to exactly ONE Speckit feature and is the handoff unit; nothing in
 this file is an executable task list for a session to work directly. Groups 1,
@@ -37,6 +47,14 @@ that never happened.
       they stand exactly as `proposal.md` § Open questions leaves them and travel
       with § 7 below. OQ-4's one-line routing of the § 6 sweep is unruled, so § 6
       stands as staged (per-packet consent) rather than re-routed per owner.
+      **UPDATED 2026-08-31, AND STILL NOT TICKED.** OQ-4 HAS SINCE BEEN RULED,
+      separately from the ratification this box describes: Brett Heap routed it in
+      session on 2026-08-31 as **(a), ONE SWEEP**, and the sweep has run. OQ-1,
+      OQ-2, OQ-3 and OQ-5 remain open and travel with §7 and §5 exactly as this
+      box leaves them. THE BOX STILL DOES NOT TICK, because what it says did not
+      happen — the sitting that would have routed all five — still did not
+      happen; one question later answered by a different act does not make the
+      sentence about the sitting true.
 - [x] 1.3 **DONE in the ratification commit.** `proposal.md` front matter carries
       `Status: ratified` plus the `Ratified:` line in the sanctioned
       record-citing spelling — approver, date and a resolvable record path, all
@@ -459,7 +477,7 @@ a veto would strike.
 
 ## 6. Discharging the standing population
 
-- [ ] 6.1 Subject to OQ-4's routing: add ONE `Modified over` marker — one, and
+- [x] 6.1 Subject to OQ-4's routing: add ONE `Modified over` marker — one, and
       never a second — to each of
       the four live pairs — `add-binding-consumer-identity`,
       `add-wallet-carried-review-authority`, `implement-keycloak-install-repo`,
@@ -469,18 +487,84 @@ a veto would strike.
       line — a base whose standing has moved owes the word AND puts that pair's
       modifying change under the archive hold until the base ratifies and
       archives, and the sweep is the cheapest place to notice.
-- [ ] 6.2 Each is a RATIFIED packet, so each marker is an amendment to a
+      **DONE 2026-08-31 — OQ-4 ROUTED AS (a), ONE SWEEP, BY THE OWNER'S RULING.**
+      Brett Heap ruled the routing in session on 2026-08-31 and his consent covers
+      all five ratified-packet edits this sweep makes; the routing and the consent
+      are recorded in the carrying commit, in the pull request body, and in each
+      tick of this section. FOUR MARKERS WRITTEN, one per pair, each one paragraph
+      inside its MODIFIED block after the body and before the first
+      `#### Scenario:`, each naming its basis as a code span and its own carrying
+      change bare after `by`, each carrying a nonempty ` — ` tail free of code
+      spans:
+      `openspec/changes/add-binding-consumer-identity/specs/credential-contracts/spec.md`
+      (basis `add-notebook-hosting-credential-custody`),
+      `openspec/changes/add-wallet-carried-review-authority/specs/roles-authority-model/spec.md`
+      (basis `add-substantive-review-lane`),
+      `openspec/changes/implement-keycloak-install-repo/specs/repo-boundary-governance/spec.md`
+      (basis `add-identity-brokering`),
+      `openspec/changes/implement-openxpki-install-repo/specs/repo-boundary-governance/spec.md`
+      (basis `add-trust-anchor`).
+      **THE FOUR STANDINGS WERE RE-READ AT THE TIP THE SWEEP WAS WRITTEN AGAINST**,
+      as this box orders, rather than trusted from § 4.1 — `main` at `8f986c39`:
+      `add-notebook-hosting-credential-custody` `Status: ratified`
+      (`proposal.md:8`), `add-substantive-review-lane` `Status: ratified`
+      (`proposal.md:8`), `add-identity-brokering` `Status: ratified`
+      (`proposal.md:4`), `add-trust-anchor` `Status: ratified`
+      (`proposal.md:4`). ALL FOUR STILL `ratified`, NONE MOVED, so no marker owes
+      the unratified disclosure, none carries the word, and no pair enters the
+      widened archive hold. Writing the word into any of the four would have been
+      a defect rather than caution.
+- [x] 6.2 Each is a RATIFIED packet, so each marker is an amendment to a
       ratified proposal and takes that route, with the packet's owner consenting
       to the edit. A marker is not a carriage unit, so adding one changes what no
       later block must restate. `add-binding-consumer-identity`'s own § 7.4
       obliges its carriage diff to be RE-RUN whenever its MODIFIED block is
       touched; a marker does not move that diff's answer, and the re-run is its
       packet's discipline rather than this one's exemption.
-- [ ] 6.3 `add-wallet-carried-review-authority` additionally carries a
+      **ROUTE TAKEN 2026-08-31: THE IN-PLACE DATED AMENDMENT WITH THE OWNER
+      CONSENTING**, the route this corpus already uses for a ratified document
+      (precedent `openspec/specs/ideation-dashboard/spec.md:1870`, "(AMENDED
+      2026-08-15, Brett: …)"). Brett Heap, the ratifying owner of all five edited
+      packets, consented in session on 2026-08-31 in the same ruling that routed
+      OQ-4 as one sweep. NO SECOND NOTE IS WRITTEN BESIDE ANY OF THE FOUR MARKERS:
+      a marker of this form IS a dated declaring paragraph, so a companion
+      amendment note would be a second paragraph declaring what the first already
+      declares. The three NON-MARKER edits (§ 6.3, § 6.6, and the re-measurement
+      the § 6.6 strike forces on `add-binding-consumer-identity`'s preamble) each
+      carry their own dated note naming the consenting owner.
+      `add-binding-consumer-identity`'s § 7.4 carriage re-run IS OWED AT ITS OWN
+      ARCHIVE GATE and is NOT discharged here — this act records the
+      re-measurement its edit occasioned (five basis scenarios, all five restated
+      byte-identical, the sixth now an addition), which is evidence for that
+      re-run and not a substitute for it.
+- [x] 6.3 `add-wallet-carried-review-authority` additionally carries a
       MIS-CITATION in its delta preamble — it quotes the already-modified
       antecedent and calls the scenario a MUST. Correct it to cite the extended
       antecedent this change adds, once ratified.
-- [ ] 6.4 Do NOT disposition any of the four IN PLACE OF a marker. The remedy is
+      **FIXED 2026-08-31, in place and dated, with the owner consenting.**
+      BEFORE, at `openspec/changes/add-wallet-carried-review-authority/specs/roles-authority-model/spec.md:3-12`:
+      the preamble declared its deltas relative to `add-substantive-review-lane`
+      "per `openspec/specs/release-realization/spec.md:64-74`" — quoting the
+      ALREADY-MODIFIED antecedent verbatim — "with the scenario 'Two changes touch
+      one requirement' making it a MUST". BOTH halves mis-cited: that antecedent
+      names a requirement canon CARRIES, its scenario is written for a proposal
+      modifying a requirement an active ratified change ALREADY MODIFIES, and
+      `add-substantive-review-lane` ADDS this requirement to a title the promoted
+      specification does not carry at all. AFTER: the same paragraph with that
+      citation removed, followed by a dated `**CORRECTED 2026-08-31**` note that
+      names the mis-citation in both halves and cites the EXTENDED antecedent —
+      the paragraph "THE ANTECEDENT REACHES A REQUIREMENT AN ACTIVE RATIFIED
+      CHANGE ADDS OR RENAMES TO, AND NOT ONLY ONE IT MODIFIES" and its scenario
+      "A proposal modifies a requirement an active ratified change adds or renames
+      to" — at
+      `openspec/changes/govern-sibling-added-modified-deltas/specs/release-realization/spec.md`,
+      **stated in the note as RATIFIED (2026-08-31, direct ruling) AND NOT YET
+      CANON** and cited at that change-directory path precisely because these
+      deltas promote only at this packet's own archive. `openspec/specs/` is not
+      cited for it and MUST NOT be until this packet archives.
+      `add-binding-consumer-identity`'s preamble is NOT touched on this ground: it
+      already carries the corrected reading at its LA-A3 sentence.
+- [x] 6.4 Do NOT disposition any of the four IN PLACE OF a marker. The remedy is
       one paragraph, and a disposition standing in for it is the shape D4 exists
       to avoid. **NARROWED, NOT LIFTED, by the `FAMILY_RESOLUTION` row that
       landed on 2026-08-31**: because this family is now `contested`, a finding
@@ -509,7 +593,18 @@ a veto would strike.
       block. The population of the availability bound is ZERO on this tree: no
       capability-and-requirement title carries more than one active MODIFIED block
       at all. See D4.
-- [ ] 6.5 SEQUENCE THIS SECTION BEFORE § 2. § 6 is a PRECONDITION of the F1
+      **OBSERVED 2026-08-31, AND THIS BOX IS A PROHIBITION THE ACT COMPLIED WITH
+      rather than a unit of work it performed.** NO DISPOSITION WAS RECORDED FOR
+      ANY OF THE FOUR — not in `health/dispositions.yaml`, not anywhere else — and
+      the remedy taken for each of the four was the one paragraph this section
+      names. THE CITATION LIMB IS MOOT ON THIS TREE AND NOT WAIVED: § 6 ran BEFORE
+      § 2, F1 is unbuilt, so no finding of the new class has ever been emitted for
+      these four and no uncited-resolution citation is owed for any of them. The
+      availability bound is untested for the same reason and its measured
+      population stays ZERO: no capability-and-requirement title on this tree
+      carries more than one active MODIFIED block, so no entry could have been
+      recorded even had the exception been taken.
+- [x] 6.5 SEQUENCE THIS SECTION BEFORE § 2. § 6 is a PRECONDITION of the F1
       feature, not a follow-up to it: the class must launch at a population of
       zero, on the discipline every predecessor family in this group observed
       before joining `FAMILY_RESOLUTION`. **THIS IS THE ROUTE AND THE CITATION IS
@@ -522,7 +617,17 @@ a veto would strike.
       mechanically safe — an unrecognized `Modified over` paragraph reads as one
       dated bold note, an extra body unit, and the carriage arms report only
       units canon carries that a block LACKS.
-- [ ] 6.6 `add-notebook-hosting-credential-custody` owes an amendment its
+      **THE ROUTE WAS TAKEN, NOT THE EXCEPTION — 2026-08-31.** § 6 is discharged
+      by this act and § 2 IS UNBUILT: F1 does not exist, no parser recognizes the
+      `Modified over` form yet, and the class therefore launches, whenever it
+      launches, at a population of ZERO standing undeclared pairs. The four
+      markers were written under the rule rather than measured against it, exactly
+      as § 4.1 anticipates. **§ 8.1's FIGURE NOTE, recorded here because this run
+      is an input that box reads**: the order actually taken is § 6 FIRST, which is
+      the `0 warning` figure — and this run moves NEITHER figure, because F1 is
+      unbuilt and no check of either new class exists to emit anything. The
+      `+4 warning` figure is now unreachable for these four pairs by construction.
+- [x] 6.6 `add-notebook-hosting-credential-custody` owes an amendment its
       MARKER SWEEP PARTNER cannot make for it: its fifth ADDED scenario, "The
       published binding shape cannot yet express the access identity", was
       FALSIFIED by `contract-v2.4` — the published schema now carries
@@ -534,6 +639,29 @@ a veto would strike.
       order would promote a scenario the repository's own published schema
       contradicts. THIS PACKET OBLIGES THE AMENDMENT AND DOES NOT PERFORM IT;
       it is a post-ratification act on a ratified packet.
+      **PERFORMED 2026-08-31 BY THE POST-RATIFICATION SWEEP THIS SECTION
+      DESCRIBES, AS A STRIKE AND NOT A RE-SCOPE.** The scenario was REMOVED from
+      `openspec/changes/add-notebook-hosting-credential-custody/specs/credential-contracts/spec.md`
+      and a dated in-place amendment note stands in its place, carrying its
+      AUTHORITY (Brett Heap, ratifying owner, consenting per § 6.2, ruled
+      2026-08-31), its GROUND (the falsified-scenario clause of this packet's
+      `release-realization` delta, cited at the change-directory path and stated
+      to be ratified-but-unpromoted), its EVIDENCE
+      (`contracts/schemas/xfactory-credential-contracts.schema.yaml:185-229`;
+      `contracts/CHANGELOG.md` § `contract-v2.4 — 2026-08-31`), the SUCCESSOR that
+      discharged the gap (`add-binding-consumer-identity`, PR #516 squash
+      `5e8a33cf`, cut `contract-v2.4` PR #526 `afdf0e88`, tag published), and the
+      statement that THE ARCHIVE ORDER IS UNCHANGED. Re-scoping was refused
+      deliberately: every clause of the scenario is falsified by the release, so a
+      narrowing would leave a smaller false statement, and the surviving truth is
+      already carried by the successor's replacement scenario. NOTHING ELSE IN THE
+      BLOCK WAS TOUCHED — verified by measurement rather than asserted: the block's
+      four body paragraphs are byte-unchanged, and its five surviving scenarios
+      are byte-identical to the five `add-binding-consumer-identity` restates, so
+      that packet's byte-identity claim survives the strike with its COUNT
+      corrected from six to five. The amendment note begins `**AMENDED 2026-08-31`
+      and carries NO reserved prefix — not `Modified over`, not `Removed from
+      canon by`, not `Merged into` — so it cannot be read as a carriage marker.
 
 ## 7. Open — recorded, not fixed
 

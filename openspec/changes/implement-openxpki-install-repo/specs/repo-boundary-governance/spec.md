@@ -25,6 +25,8 @@ reference, secrets, credentials, or certificate-authority key material.
 SHALL remain the owner of the governed administration procedure; the
 install repository realizes both and owns neither.
 
+**Modified over `add-trust-anchor`'s addition by implement-openxpki-install-repo (2026-08-31):** — the basis adds this boundary requirement and names this change by id as the act that creates the repository, so this block restates the boundary as the repository now created actually stands, with image custody left in the tenant repository where the parent's own ruling put it.
+
 #### Scenario: Install repository is created
 - **WHEN** the successor change creates `OpenXPKI-Install`
 - **THEN** it MUST be private and independently releasable, identify `openxFactory` as neutral contract owner and `opensoft/Opensoft-Tenant` as image-custody owner, and contain no image build sources, secrets, credentials, or key material

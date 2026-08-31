@@ -36,6 +36,8 @@ separate-reviewed-act discipline this capability already applies to
 deferred aggregation integration. Repository creation SHALL NOT be treated
 as aggregation admission.
 
+**Modified over `add-identity-brokering`'s addition by implement-keycloak-install-repo (2026-08-31):** — the basis adds this boundary requirement and names this change by id as the act that creates the repository, so this block restates the boundary as the repository now created actually stands rather than as the parent projected it.
+
 #### Scenario: Broker install repository is created
 
 - **WHEN** the `implement-keycloak-install-repo` successor change creates `Keycloak-Install`
