@@ -420,7 +420,13 @@ Active changes:
   TO** and not only one it MODIFIES — the
   two antecedents are disjoint by construction — and it gains the archive-ordering
   obligation the four live packets have each been hand-writing as a pre-archive
-  `grep`, the BASIS change (adding or renaming) archiving first. **A RENAME IS A
+  `grep`, the BASIS change (adding or renaming) archiving first. **THAT HOLD
+  KEYS ON THE UNPROMOTED TITLE AND NOT ON THE BASIS'S STANDING**, the two halves
+  of the requirement being keyed apart on purpose: the reference-and-declare half
+  names a RATIFIED change because deltas are declared against an OUTCOME, while
+  the archive half reaches a basis of ANY standing — an unratified basis has to
+  RATIFY AND ARCHIVE before the modifying change's gate opens, promoting text no
+  authority accepted being worse than promoting text one did. **A RENAME IS A
   BASIS EVERYWHERE OR NOWHERE**: `doc-health`'s promoted resolution rule and the
   marker requirement below both read "ADDS or RENAMES to that title", so an
   ordering rule reaching additions alone would govern the identical hazard in one
@@ -437,8 +443,10 @@ Active changes:
   unrelated author is reported instead of promoting as false provenance — and
   where the basis is NOT RATIFIED the reason clause discloses
   it by carrying the word `unratified`, a form rather than a wish, so that the
-  disclosure has a reader. `doc-health` gains the arm that evaluates the
-  `pending` shape instead of dropping it at `modified_block_currency.py`'s
+  disclosure has a reader — a disclosure that DISCHARGES THAT REQUIREMENT AND
+  NOTHING ELSE, warning the reader without lifting the archive hold, so a pairing
+  may be perfectly declared and still be unarchivable. `doc-health` gains the arm
+  that evaluates the `pending` shape instead of dropping it at `modified_block_currency.py`'s
   `if status == "pending": continue` — four reported states, MUTUALLY EXCLUSIVE
   and examined in order so that every block gets EXACTLY ONE (self-referential
   first — the carrier's OWN `## ADDED Requirements` block for the title, an own
@@ -458,7 +466,12 @@ Active changes:
   `derive_units` preserves entire, so the silent state and undisclosed are reached
   only where EXACTLY ONE pairing marker stands and passes every check above it and
   every other block is placed by the FIRST check it fails, iteration order
-  deciding nothing — plus, as the archive ordering's only possible mechanical
+  deciding nothing, and that fifth state's silence being silence about a
+  DECLARATION and never clearance for an archive: the hold stands over every
+  pending pairing the check passes and is enforced at the modifying change's
+  archive gate, which reads the block's own `pending` resolution — a fact the
+  family already computes — rather than by a standing advisory over a block in
+  good order — plus, as the archive ordering's only possible mechanical
   backstop, a class that reports an active `## ADDED Requirements` block, or an
   active `## RENAMED Requirements` block's `TO:` title, for a
   title canon already carries — the `FROM:` half never read, a rename's source

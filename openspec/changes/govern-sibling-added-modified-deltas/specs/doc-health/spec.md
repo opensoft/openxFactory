@@ -215,6 +215,29 @@ ratifies afterwards ends the question rather than turning the marker into a
 defect. Nothing obliges the modifying change to go back and strike the word, and
 a stale disclosure SHALL NOT be read as a wrong one.
 
+**AND THE SILENCE THAT FOLLOWS A DISCLOSURE IS SILENCE ABOUT A DECLARATION,
+NEVER CLEARANCE FOR AN ARCHIVE.** `release-realization` holds the modifying
+change's archive while the title is unpromoted, and that hold keys on the
+UNPROMOTED TITLE rather than on the basis's standing — so it stands over EVERY
+pending pairing this check passes in silence, the ratified-basis ones included.
+The hold is therefore NOT a defect of this class, and keeping the
+disclosed-unratified case alone actionable would mis-locate it twice: it would
+leave the identical hold unreported over a ratified basis, so that one run's
+silence meant two different things at two titles; and it would stand a permanent
+advisory over a block that is in good order, whose only remedy — the basis's own
+archive — belongs to another packet and another owner, which is the state the
+silent state exists to refuse. **THE HOLD IS ENFORCED WHERE THE ACT IT FORBIDS IS
+TAKEN**, at the modifying change's archive gate, and what that gate reads is THIS
+FAMILY'S OWN RESOLUTION OF THE BLOCK: while the block resolves `pending` the
+title is unpromoted and the gate is shut; when the basis archives the block
+resolves against canon, the three comparison arms run, and the gate opens with
+them. That is a mechanical fact this family already computes for every block, so
+the obligation is falsifiable without a finding standing over a correctly
+declared pairing — the class's action line carries the same half of the remedy,
+hold the archive until the declared change promotes, and the collision class
+below is the evidence a breach leaves behind. No arm, no class and no read is
+added by this paragraph; it records which instrument enforces what.
+
 **THE FINDINGS SHALL FORM ONE NEW FINDING CLASS of this family**, reported
 against the active delta's own path like every other finding this family emits,
 carrying the `warning` band and one action line stating every half of the
@@ -359,9 +382,11 @@ keeps the ORDERING reading above empty; the other two are here:
 
 **THE CHECK READS EVERY ACTIVE CHANGE REGARDLESS OF LIFECYCLE STANDING**, as
 this family's reading rule already provides, and this is deliberately wider than
-the ordering obligation `release-realization` scopes to an active ratified
-change. A finding SHALL name the declared or resolved basis change and, where
-that change is not ratified, SHALL say so, so that a reader can see at a glance
+the REFERENCE-AND-DECLARE half `release-realization` scopes to an active ratified
+change — though not wider than that capability's ARCHIVE HOLD, which keys on the
+unpromoted title and reaches a basis of any standing. A finding SHALL name the
+declared or resolved basis change and, where that change is not ratified, SHALL
+say so, so that a reader can see at a glance
 whether an obligation or only an observation stands behind the row. **THE
 BASIS'S OWN STANDING IS READ THE WAY THIS FAMILY ALREADY READS STANDING** —
 through the one lifecycle-header reader its two-writers arm uses for
@@ -418,13 +443,22 @@ standing nobody can read being no such showing.
 
 #### Scenario: The unratified basis is disclosed
 - **WHEN** such a marker's reason clause carries that disclosure, or the change it names is `ratified`
-- **THEN** no finding MUST be emitted for that block, the disclosure being the whole of what this state asks of a declared pairing
+- **THEN** no finding MUST be emitted for that block, the disclosure being the whole of what THIS CHECK asks of a declared pairing
+- **AND** that silence MUST NOT be read as archive clearance, `release-realization`'s hold standing over the block for as long as the title is unpromoted and keying on that title rather than on the basis's standing
 - **AND** a disclosure MUST NOT be reported once the basis it discloses ratifies, the marker being a dated statement about the moment it was written
+
+#### Scenario: A disclosed unratified pairing reaches the modifying change's archive gate
+- **WHEN** a block this check passes in silence names a basis that is not ratified and whose marker discloses it, and the change carrying that block reaches its archive gate while the title is still unpromoted
+- **THEN** this check MUST emit nothing for that block, its pairing being in good order, and that silence MUST NOT be read at the gate as clearance
+- **AND** the fact the gate reads MUST be the block's own `pending` resolution — this family's, computed for every block — the title being unpromoted for exactly as long as the block resolves `pending`, and the hold that fact serves being `release-realization`'s obligation rather than this requirement's
+- **AND** no finding of THIS class MUST be emitted for the held block, its remedy being the basis's ratification and archive rather than any edit to the block
+- **AND** where that change archives regardless, the still-active basis's `## ADDED Requirements` block — or its `## RENAMED Requirements` block's `TO:` title — MUST be reported by the collision class on the next run, that being the mechanical evidence the breach leaves
 
 #### Scenario: A declared basis archives
 - **WHEN** the change a block is declared over archives and its addition reaches the promoted specification
 - **THEN** the block MUST resolve against canon on the next run and the three comparison arms MUST run against it
 - **AND** this check MUST emit nothing further for that block, its question having been answered by the promotion
+- **AND** the modifying change's archive gate MUST open at that promotion and not before, whatever the basis's standing was while the block was pending
 
 #### Scenario: The `Modified over` marker is not a carriage declaration
 - **WHEN** a block carries a `Modified over` marker
@@ -494,8 +528,9 @@ renames a promoted requirement to this title"
 requirement is owed where "an active change ADDS or RENAMES to that title", the
 pairing check's misdeclared state accepts a basis that RENAMES to the title, and
 `release-realization`'s ordering obligation reaches a requirement an active
-ratified change ADDS OR RENAMES TO. A backstop that read additions alone would
-leave a rename-based pair with the declaration and the ordering rule both
+change ADDS OR RENAMES TO — its reference-and-declare half at a ratified basis,
+its archive hold at a basis of any standing. A backstop that read additions
+alone would leave a rename-based pair with the declaration and the ordering rule both
 reaching it and no mechanical evidence of a breach at all — the one hole this
 requirement exists to close, left open for the one basis form that arrives less
 often.

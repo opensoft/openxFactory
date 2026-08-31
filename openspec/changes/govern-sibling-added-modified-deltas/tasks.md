@@ -247,8 +247,14 @@ a veto would strike.
       unrelated active change ids in each. **THE UNDISCLOSED STATE'S LAUNCH
       POPULATION IS ZERO BY THAT SAME READ**: all four bases are `ratified`, so
       no marker the § 6 sweep writes owes the disclosure and the fourth state
-      moves neither figure § 8.1 reads. The PENDING SET IS UNCHANGED from the
-      19/15/4 read at `91cf0a46` — the twentieth block is
+      moves neither figure § 8.1 reads. **AND THE ARCHIVE HOLD'S WIDENING TO
+      UNRATIFIED BASES HOLDS NOTHING TODAY, BY THAT SAME READ**: the four bases
+      resolve `ratified` through the family's own `_standing`, so ZERO live
+      pending pair is held by the widening and the case it reaches is
+      prospective. Re-measure the four standings at every catch-up merge — a base
+      whose standing MOVES puts its pair inside the widened hold, which is the
+      one input this measurement exists to catch. The PENDING SET IS UNCHANGED
+      from the 19/15/4 read at `91cf0a46` — the twentieth block is
       `add-structured-scope-substrate`'s over `release-realization`'s
       "Realization axis declaration", a different requirement of the same spec,
       resolving `canon`. Recorded in `proposal.md` § Why.
@@ -290,6 +296,16 @@ a veto would strike.
       suppressed, 0 defective; `doc-health` 35 canon units, 56 block units, 1
       marker, the SAME 2 suppressed, 0 defective; 0 title, 0 ledger and 0
       marker-defect findings against either path.
+      **RE-DERIVED AFTER THE ROUND-7 WIDENING OF THE ARCHIVE HOLD**, which again
+      moved the `release-realization` block's text and no other's: canon still 8
+      units (2 body sentences, 2 scenario titles, 4 scenario bullets); the
+      block's own units 52 -> 64 (body 23 -> 30, scenario titles 7 -> 8, scenario
+      bullets 22 -> 26); ZERO uncarried canon units, ZERO suppressed, ZERO
+      markers, ZERO defective — all three arms still read zero, the widening
+      having touched only text canon does not carry. The `doc-health` block was
+      NOT touched by that round either (its edits are inside the two ADDED
+      requirements), and it re-reads at exactly 56 block units, 1 marker, the
+      SAME 2 suppressed and 0 defective.
       RE-RUN AT BOTH 2026-08-31 CATCH-UP MERGES, the second against `9af98c4d`:
       that merge moved nothing under either block — `openspec/specs/` is
       byte-identical between `7f656980` and `9af98c4d` — and canon still carries the
@@ -367,8 +383,9 @@ a veto would strike.
       `implement-openxpki-install-repo`. NONE of the four owes the unratified
       disclosure: every one of the four bases is `ratified` (§ 4.1). Re-read the
       four standings at the moment the sweep is written rather than trusting this
-      line — a base whose standing has moved owes the word, and the sweep is the
-      cheapest place to notice.
+      line — a base whose standing has moved owes the word AND puts that pair's
+      modifying change under the archive hold until the base ratifies and
+      archives, and the sweep is the cheapest place to notice.
 - [ ] 6.2 Each is a RATIFIED packet, so each marker is an amendment to a
       ratified proposal and takes that route, with the packet's owner consenting
       to the edit. A marker is not a carriage unit, so adding one changes what no
@@ -478,8 +495,10 @@ a veto would strike.
       are declared before the class runs, `+4 warning` where the class landed
       against the population undischarged. Both figures already account for the
       UNDISCLOSED state, which contributes zero either way, all four bases being
-      `ratified`. Record which order was taken; a run whose movement matches
-      NEITHER figure is the finding, not the gate.
+      `ratified` — and for the archive hold's widening to unratified bases, which
+      adds no class and no check and so contributes to no band. Record which
+      order was taken; a run whose movement matches NEITHER figure is the
+      finding, not the gate.
 - [ ] 8.2 On archive, the change MAY state `Closes #502`. It does not close it
       before then, and the proposal says so in § Standing.
 - [ ] 8.3 Confirm at the archive gate that BOTH of this packet's own MODIFIED

@@ -16,11 +16,12 @@ question between them, and the currency family's ordering arm groups by
 
 THE CARRIAGE, STATED AS MEASURED RATHER THAN AS SUMMARISED. Both promoted body
 sentences are restated BYTE-IDENTICAL and both promoted scenarios are restated
-BYTE-IDENTICAL. Everything this change adds is NEW text: SIX body paragraphs
-and FIVE scenarios (the antecedent, the archive order, the conversion clause and
+BYTE-IDENTICAL. Everything this change adds is NEW text: SEVEN body paragraphs
+and SIX scenarios (the antecedent, the archive order, the conversion clause and
 the falsified-scenario clause, each with its own scenario, plus the two
 paragraphs and the one scenario that carry a RENAMING basis on the same terms as
-an adding one). NOTHING IS DROPPED,
+an adding one, plus the paragraph and the scenario that key the archive hold to
+the UNPROMOTED TITLE rather than to the basis's standing). NOTHING IS DROPPED,
 no `Removed from canon by` or `Merged into` marker is owed, and the
 modified-block-currency family therefore reports zero findings against this
 delta — asserted, not assumed, in `tasks.md` § 4.2.
@@ -60,8 +61,10 @@ rename is where the requirement's TEXT comes from, not who may archive first, an
 the ordering obligation is about the archives.
 
 **THE ORDER OF THE TWO ARCHIVE ACTS IS PART OF THE OBLIGATION, because in this
-shape one order is safe and the other destroys review.** A change carrying such
-a block SHALL NOT archive while the requirement it modifies is unpromoted. The
+shape one order is safe and the other destroys review.** A change carrying a
+`## MODIFIED Requirements` block for a requirement the promoted specification
+does not carry SHALL NOT archive while that requirement is unpromoted, wherever
+an ACTIVE change ADDS it or RENAMES a promoted requirement TO its title. The
 BASIS change — the one that ADDS the requirement, or that RENAMES a promoted
 requirement to its title — archives first, the requirement enters canon under
 that title, and the modifying
@@ -75,11 +78,36 @@ half naming the requirement the rename moves away from and which canon may still
 carry. This obligation is the RULE the per-packet pre-archive
 assertions in individual proposals have been standing in for — BOTH the `grep`
 that reads canon for the title AND the CONVERSION CLAUSE some of those packets
-carry beside it, which the next paragraph states generally rather than leaving to
-be re-derived one packet at a time. Those assertions remain useful as local
-evidence and SHALL NOT be read as the source of the obligation, and a general
-rule that reached less than the per-packet text it replaces would be a narrowing
-wearing a generalization's label.
+carry beside it, which the conversion paragraph below states generally rather
+than leaving to be re-derived one packet at a time. Those assertions remain
+useful as local evidence and SHALL NOT be read as the source of the obligation,
+and a general rule that reached less than the per-packet text it replaces would
+be a narrowing wearing a generalization's label.
+
+**THE HOLD KEYS ON THE UNPROMOTED TITLE AND NOT ON THE BASIS'S STANDING, and the
+two halves of this obligation are keyed apart on purpose.** The
+REFERENCE-AND-DECLARE half above names an active RATIFIED change because what it
+asks for is deltas declared relative to an OUTCOME, and a packet no authority has
+accepted has no outcome to declare against. The ARCHIVE half asks something else
+entirely: that no requirement enter canon through a block written over text canon
+does not carry. That loss does not soften when the basis is a draft — it is
+WORSE, the text promoted being one no authority accepted at all, arriving by an
+order that reviewed it as neither an addition nor a rename. So the hold reaches a
+basis of ANY STANDING: while an active change ADDS the title or RENAMES a
+promoted requirement TO it, the modifying change SHALL NOT archive, and where
+that basis is unratified it SHALL RATIFY AND ARCHIVE before the modifying
+change's archive gate opens. The hold ends in exactly three ways and no fourth —
+the basis ratifies and archives and the requirement enters canon; the pairing is
+converted by the PAIRED act the clause below defines, on that clause's own terms
+— its ruling being the ratifying authority's, which for a basis not yet ratified
+is the authority that WOULD rule it, one ruling still amending both packets; or
+the modifying block is withdrawn. **AND `document-lifecycle`'s DISCLOSURE IS
+THE READER'S WARNING, NOT THIS GATE'S CONSENT.** That capability requires a
+marker naming an unratified basis to say so in its reason clause; a marker that
+does is a marker in good order, and a block in good order is not thereby
+archivable. Writing the word `unratified` SHALL NOT be read as lifting this hold,
+a pairing being lawfully declared and unarchivable at the same time — two
+questions about one pairing, answered in two capabilities.
 
 **CONVERTING THE BLOCK TO `## ADDED` DOES NOT DISSOLVE THE OBLIGATION, because
 the antecedent attaches to the PAIRING and not to the block's form.** Re-shaping
@@ -140,6 +168,12 @@ scenarios to falsify nor left ambiguous about which basis form it reaches.
 - **WHEN** a change carrying such a block reaches its archive gate while the requirement it modifies is still unpromoted
 - **THEN** it MUST NOT archive, the basis change — adding or renaming — archiving first
 - **AND** a local pre-archive assertion in that change's own task list MUST NOT be treated as the source of the obligation, being evidence that this rule was met rather than the rule
+
+#### Scenario: The basis is not ratified and the modifying change reaches its archive gate
+- **WHEN** a change carrying such a block reaches its archive gate while the requirement it modifies is unpromoted, and the active change that ADDS that requirement — or RENAMES a promoted requirement TO its title — is not ratified
+- **THEN** it MUST NOT archive, this hold keying on the unpromoted title rather than on the basis's standing, and that basis MUST ratify AND archive before the gate opens
+- **AND** a `Modified over` marker disclosing that the basis is unratified MUST NOT be read as lifting the hold, the disclosure being the reader's warning that no authority has accepted the text rather than a consent to promote it
+- **AND** the only other ways out MUST be the paired conversion this requirement defines — one ruling of the authority that would rule both packets, amending both — and the withdrawal of the modifying block, an unratified basis admitting no route a ratified one does not
 
 #### Scenario: The modifying change converts its block rather than waiting
 - **WHEN** a change carrying such a block re-shapes it into an `## ADDED Requirements` block instead of waiting for the basis change — adding or renaming — to archive

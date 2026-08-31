@@ -161,12 +161,21 @@ respectively, so the ambiguity is not hypothetical.
   canon carries or one it does not. The block adds the archive-ordering
   obligation in the same requirement: such a change SHALL NOT archive while the
   requirement it modifies is unpromoted, the BASIS change — adding or renaming —
-  archiving first. **A RENAME IS A BASIS EVERYWHERE OR NOWHERE**: `doc-health`'s
-  promoted resolution rule and `document-lifecycle`'s marker requirement both read
-  "ADDS or RENAMES to that title", so an ordering rule reaching additions alone
-  would govern the identical hazard in one capability and leave it ungoverned in
-  the next. **Two clauses keep that obligation from
-  being escaped rather than met.** CONVERSION: re-shaping the block to
+  archiving first. **AND THAT HOLD KEYS ON THE UNPROMOTED TITLE RATHER THAN ON
+  THE BASIS'S STANDING**, the two halves of the requirement being keyed apart on
+  purpose: the reference-and-declare half names an active RATIFIED change because
+  what it asks for is deltas declared against an OUTCOME, while the archive half
+  asks that no requirement enter canon through a block written over text canon
+  does not carry — a loss that is WORSE, not lesser, where the basis is a draft.
+  So the hold reaches a basis of ANY standing, an unratified one having to RATIFY
+  AND ARCHIVE before the modifying change's gate opens, and it ends in exactly
+  three ways: that ratification and archive, the paired conversion, or the
+  withdrawal of the modifying block. **A RENAME IS A BASIS EVERYWHERE OR
+  NOWHERE**: `doc-health`'s promoted resolution rule and `document-lifecycle`'s
+  marker requirement both read "ADDS or RENAMES to that title", so an ordering
+  rule reaching additions alone would govern the identical hazard in one
+  capability and leave it ungoverned in the next. **Two clauses keep that
+  obligation from being escaped rather than met.** CONVERSION: re-shaping the block to
   `## ADDED` does not dissolve the obligation, the antecedent attaching to the
   pairing and not to the block's form, so conversion is lawful only as a PAIRED
   act ruled by the ratifying authority and amending both packets at once. This
@@ -197,6 +206,10 @@ respectively, so the ambiguity is not hypothetical.
   is disclosed in the reason clause, and the disclosure HAS A FORM** — the word
   `unratified` — because an obligation stated only as prose is one no checker
   can read and, as the earlier draft of this packet proved, one nothing enforces.
+  **AND THE DISCLOSURE DISCHARGES THAT REQUIREMENT AND NOTHING ELSE**: it is the
+  reader's warning that no authority has accepted the text, never a lifting of
+  the archive hold above, so a pairing may be perfectly declared and still be
+  unarchivable — two questions about one pairing, answered in two capabilities.
 - **`doc-health` gains TWO ADDED requirements**: the pairing check that
   evaluates the `pending` shape in four reported states (self-referential — the
   carrier's OWN `## ADDED Requirements` block for the title, an own RENAME to it
@@ -208,7 +221,15 @@ respectively, so the ambiguity is not hypothetical.
   is not the change carrying the block — and UNDISCLOSED, a marker naming a basis
   that is active and not ratified whose reason clause omits the disclosure
   `document-lifecycle` requires) and is SILENT on the fifth (declared and
-  resolving, the basis either ratified or disclosed). **THE FIVE ARE MUTUALLY
+  resolving, the basis either ratified or disclosed). **THAT SILENCE IS SILENCE
+  ABOUT A DECLARATION AND NEVER CLEARANCE FOR AN ARCHIVE**: the hold stands over
+  every pending pairing the check passes, ratified bases included, so making the
+  disclosed-unratified case alone actionable would leave the identical hold
+  unreported next door and stand a permanent advisory over a block in good order
+  whose only remedy belongs to another packet. It is enforced where the act it
+  forbids is taken — the modifying change's archive gate, reading the block's own
+  `pending` resolution, a fact this family already computes — with the collision
+  class below as the evidence a breach leaves. **THE FIVE ARE MUTUALLY
   EXCLUSIVE AND EVERY BLOCK GETS EXACTLY ONE**: they are examined in that order,
   the self-addition condition first, so no block is reported twice under two
   remedies — and misdeclared's basis ground is the EXACT NEGATION of the silent
@@ -333,7 +354,10 @@ them without performing them.
   capability and requirement title the promoted specification already carries, and
   this repository carries NO active `## RENAMED Requirements` pair at all, so the
   `TO:` half contributes zero by an empty population rather than by a passing
-  test. A run configured
+  test. **THE HOLD'S WIDENING TO UNRATIFIED BASES MOVES NO FIGURE EITHER**: it
+  adds no class, no arm and no read, and its live population is zero by the same
+  resolver — all four bases are `ratified`, so no live pairing is held by the
+  widening today and the case it reaches is prospective. A run configured
   `--fail-on error` or `--fail-on critical` is unaffected by construction, and
   the canon-share headline, the per-stage census, the inventory and the catalog
   are untouched because the family reads neither the governed corpus nor the
@@ -721,7 +745,11 @@ packet adds, worked in § The one live pair this rule already disposes.
 
 It does not claim to make the archive ordering enforceable by tooling. It makes
 the obligation normative and the pair findable; the act itself stays where
-archive acts are, in a human gate reading a report.
+archive acts are, in a human gate reading a report. What it does add is that the
+gate's fact is one the family ALREADY COMPUTES — the block's `pending` resolution
+— so the hold is falsifiable at the gate without a finding standing over a
+correctly declared pairing, and a breach leaves the collision class's evidence
+behind it.
 
 It does not claim to reopen the 2026-08-27 ruling against synthesising a basis
 from a sibling's ADDED text. Nothing here compares requirement text.
