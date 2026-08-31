@@ -432,6 +432,39 @@ standing in for a ruleset state.
       requirement's structure on its own initiative is the shape of overreach
       this record has been careful about elsewhere.
 
+      **BRETT HEAP'S CLOSING RULING, 2026-08-30 — SIX ITEMS, VERBATIM:** *"1 yes,
+      2 yes with note, 3 merge, 4a, 5 bless, 6a."* Three of the six land in this
+      box.
+
+      **RULING 6a — THE TIMING-MODEL CONSOLIDATION IS PERFORMED, ON HIS WORD AND
+      NOT ON THE TRIPWIRE.** The tripwire above was defined to fire on a further
+      clock-area defect from a tenth bot round; **the tenth round never ran**, so
+      it never fired and is superseded rather than triggered. **The distinction
+      is recorded because a ruling and an automatic trigger are different
+      authorities**, and a later reader must not conclude that the machinery
+      decided this. Executed as pre-committed: THE TIMING MODEL is now one
+      delimited section of the receipt requirement — three clocks, every bound as
+      an inequality with its direction, every width with its citation, the three
+      decisions and their shared one-directional margin, a closed table of what
+      each verifier mode may conclude, and the closure rule — and the eleven
+      scattered paragraphs plus four in requirement 3 are now REFERENCES to it.
+      **SEMANTICS CHANGED NOWHERE**: round ten never ran, so nothing was learned
+      that could justify one. The proof is the scenario set, checked in full —
+      **every clock-relevant scenario satisfied, NONE overturned**, no scenario
+      rewritten. Recorded as `design.md` **D11**, with the realization mirror at
+      §5.2. Nine requirements and 89 scenarios, both unchanged.
+
+      **RULING 5 — LS-A9's EXECUTION IS BLESSED.** Brett Heap, 2026-08-30,
+      verbatim *"5 bless"*. This box recorded above that a fix round had executed
+      an amendment the convener left undisposed, and that the ratification read
+      was owed the plain version with a revert one commit away. **His blessing
+      converts that execution into HIS ACT**, so the amendment stands as ruled
+      rather than as tolerated, and **the revert path closes**. What is NOT
+      rewritten is the history: this session escalated the finding first,
+      executed it on the coordinating session's direction second, and is blessed
+      third. All three remain on the record, because a blessing settles the
+      authority and does not edit the sequence.
+
       **SEVEN ROUNDS, AND THE SHAPE OF THE FINDINGS HAS CHANGED.** The first
       rounds found defects in the council-judged text; the last four have found
       defects in this fix round's own repairs, each one narrower than the last.
@@ -478,22 +511,29 @@ standing in for a ruleset state.
       **recorded is not ruled**, and a `## Conflicts` section carries unruled
       material by design.
 
-## 3. Ratification gate — Brett Heap's act, AFTER the review — THIS IS NEXT
+## 3. Ratification gate — Brett Heap's act, AFTER the review — DONE 2026-08-30
 
-**The review is behind this line and the ratification is in front of it.** The
-2026-08-30 disposition authorized fix rounds and **ratifies nothing**: *"It
-ratifies nothing, merges nothing, and moves no contract byte"* (§6). §2 is now
-discharged, so 3.1 is the next act on this packet.
+**RATIFIED 2026-08-30 BY BRETT HEAP**, in session, ruling item 2 of six:
+*"2 yes with note"*. Record: **`review/ratification-2026-08-30.md`**.
+**Ratification authorizes REALIZATION and performs none of it**, and it moves no
+contract byte.
 
-- [ ] 3.1 Brett Heap ratifies or declines, having read the council record
+- [x] 3.1 Brett Heap ratifies or declines, having read the council record
       (`review/council-review-2026-08-30.md`), the disposition
       (`review/disposition-2026-08-30.md`) and this fix round.
-      Ratification would authorize REALIZATION and would perform none of it.
+      **RATIFIED, WITH A NOTE THAT IS PART OF THE ACT**: the heads from
+      `fd7c1ca7` onward — round nine's three discharges, the tripwire
+      bookkeeping, and the ruling-6a consolidation — are **UNREVIEWED BY ANY
+      BOT**, the reviewing bot having returned a quota refusal rather than a
+      verdict. Disclosed head-by-head on the pull request BEFORE the ruling, so
+      the ratification is made with that tail in view and under the recorded
+      prescribed-fix principle. A refusal to review is not a clean review and
+      this box does not let the two read alike.
 - [ ] 3.2 On ratification: `target_release` is CONFIRMED against
       `contracts/manifest.yaml` at that tip rather than at this one, and remains
       allocated by merge order — `add-signed-execution-chain` and
       `add-chain-attestation` reach the same additive cut.
-- [ ] 3.3 On ratification: front-matter gains `Status: ratified` plus the
+- [x] 3.3 On ratification: front-matter gains `Status: ratified` plus the
       `Ratified:` line naming the record path, and the README record line is
       updated to match.
 
@@ -610,6 +650,15 @@ discharged, so 3.1 is the next act on this packet.
       CADENCE, which is what makes the delay bound tight.
       Requirement 3 requires that all of these be DECLARED; it names no numbers,
       and the fail-closed determination is only as good as they are.
+      **THE REALIZATION MIRROR OF THE CONSOLIDATION (D11):** these values are the
+      inputs THE TIMING MODEL names, and they are settled AS ONE SET rather than
+      per-schema — the three clocks, `skew` and `tolerance` per chain with their
+      cited consensus rules, `C` the checkpoint cadence, `D_max`, and each
+      witness's horizon. **The model's closure rule binds this task**: any value
+      the receipt-only computation reads joins the mint-time configuration block
+      and is committed by the anchored digest, so a realization that introduces a
+      new timing input settles it here and carries it there, rather than adding
+      it beside the block as four rounds of this packet did.
 - [ ] 5.3 Fix the NEW LEAF KINDS against tranche one's leaf grammar. This packet
       adds no second grammar and must not, so tranche one's grammar is where each
       event discriminator and its required fields are settled; requirements 3, 4,

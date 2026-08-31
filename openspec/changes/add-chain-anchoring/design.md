@@ -170,7 +170,10 @@ obligation fires at a transition rather than on everything.
 **The governance note travels with it**: LS-A9 is the seat amendment that asked
 for this, it was filed SHOULD-FIX, and the disposition did not dispose it.
 `tasks.md:2.4` records that this session escalated it first and executed it on
-direction, so the ratification read can bless or reverse it.
+direction, so the ratification read could bless or reverse it. **BLESSED BY
+BRETT HEAP, 2026-08-30** — closing ruling item 5, verbatim *"5 bless"* — which
+converts the execution into his act and closes the revert path. The sequence is
+not rewritten: escalated, then executed on direction, then blessed.
 
 **AND MAKING THE STATES DISJOINT IMMEDIATELY OWED THE RECEIPT SOMETHING, WHICH
 THE NEXT ROUND COLLECTED.** Two disjoint states have two verification answers,
@@ -605,6 +608,51 @@ and ask the neutral family for *"a generic verification-ATTEMPT scenario
 alongside the successful-access case"*. **The over-reach was this packet's own
 generalization**, so this is a correction to requirement 7's carrying of its
 source and NOT a fifth correction to the source itself.
+
+## D11 — The timing model is ONE model, and that is unify-don't-patch at design scale
+
+**Ruled by Brett Heap, 2026-08-30, item 6a of the closing queue.** Not by the
+tripwire this session had armed — that tripwire was defined to fire on a further
+clock-area defect from a tenth bot round, **and the tenth round never ran**
+because the reviewing bot reached its usage limit. The consolidation is
+therefore performed on his word, and the distinction is recorded because a
+ruling and an automatic trigger are different authorities.
+
+**THE DEFECT WAS THE SHAPE, NOT ANY OF THE RULES.** Rounds six through nine each
+found a timing defect and each added its repair where the defect surfaced: the
+receipt's mint-time block, the state requirement, a scenario set, then the
+clock. By round nine the model lived in **eighteen normative paragraphs across
+two requirements**, carrying three separately-established bounds, two declared
+widths, a cadence, a closure rule and two verifier modes. **Three consecutive
+rounds then found DIRECTION ERRORS** — a header time asserted as an upper bound
+it never was, a checkpoint bound read the wrong way, a margin applied to the
+wrong side. A model nobody can hold whole is exactly the object in which an
+inequality points the wrong way and no reader notices.
+
+**So the family's own rule applies at design scale.** *Unify, don't patch, on a
+defect's second appearance* was learned on code; this is its third appearance in
+prose, and the answer is the same — **the family's home is rebuilt rather than
+extended again.** The receipt requirement now carries THE TIMING MODEL as one
+delimited section: the three clocks and only three, every bound as an explicit
+inequality with its direction stated, every width with the reason it exists and
+the authority it cites, the three decisions and the one-directional margin they
+share, a closed table of what each verifier mode may and may not conclude, and
+the closure rule. Every other timing paragraph in the packet is now a REFERENCE
+to it.
+
+**SEMANTICS CHANGED NOWHERE, AND THE PROOF IS THE SCENARIO SET.** Round ten never
+ran, so nothing new was learned that could justify a semantic change; this is
+**restructure-with-proof**. The scenario set is the accumulated adversarial
+knowledge of nine rounds, so the consolidation was checked against ALL of it:
+**every clock-relevant scenario is satisfied by the consolidated statement, and
+NONE was overturned** — no scenario needed rewriting, which is the strongest
+available evidence that the restatement is faithful rather than merely tidier.
+The eleven paragraphs it replaced are recoverable from this branch's history.
+
+**WHAT IT DOES NOT DO.** It fixes no defect, because none was outstanding. It
+adds no requirement and no scenario. It does not touch the ruled configuration,
+the boundary, or anything Q2/Q3/Q5/Q6 decided. **A reader who preferred the
+scattered form loses nothing but the scattering.**
 
 ## Realization dependencies — what this tranche actually waits on
 
