@@ -452,7 +452,20 @@ Active changes:
   § 6's marker sweep is sequenced BEFORE the class lands so it launches at
   population zero, and where sequencing is unavailable the discharge carries the
   citation the contested-finding rule already requires. The band flip follows the
-  discharge of the four standing pairs and is not proposed here. **It does not close #502 and says so**: the
+  discharge of the four standing pairs and is not proposed here. **THE RULE IS
+  TESTED AGAINST A LIVE PAIR RATHER THAN AN ABSTRACTION.** Two clauses keep the
+  archive order from being escaped instead of met — CONVERSION (re-shaping the
+  block to `## ADDED` does not dissolve the obligation, the antecedent attaching
+  to the pairing and not to the block's form, so conversion is lawful only as a
+  PAIRED act ruled by the ratifying authority) and FALSIFICATION (where landed
+  state contradicts a scenario of the unpromoted addition, the ADDING change
+  amends it before its archive promotes it, and the order still holds) — and the
+  packet then works the `add-notebook-hosting-credential-custody` /
+  `add-binding-consumer-identity` pair through them: DISPOSED as chain order
+  (projection-identity → custody → binding-consumer-identity), custody owing the
+  fifth-scenario amendment `contract-v2.4` falsified,
+  `add-binding-consumer-identity` owing the marker, and
+  conversion-without-pairing refused. **It does not close #502 and says so**: the
   packet states that it MAY say `Closes #502` on archive and states it as intent
   rather than performing it. Five decisions are FLAGGED FOR VETO (D5, the
   collision class, is the one the proposal names as most worth vetoing) and five

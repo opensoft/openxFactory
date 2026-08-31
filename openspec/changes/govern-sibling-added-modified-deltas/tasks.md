@@ -150,7 +150,10 @@ a veto would strike.
 - [ ] 6.2 Each is a RATIFIED packet, so each marker is an amendment to a
       ratified proposal and takes that route, with the packet's owner consenting
       to the edit. A marker is not a carriage unit, so adding one changes what no
-      later block must restate.
+      later block must restate. `add-binding-consumer-identity`'s own § 7.4
+      obliges its carriage diff to be RE-RUN whenever its MODIFIED block is
+      touched; a marker does not move that diff's answer, and the re-run is its
+      packet's discipline rather than this one's exemption.
 - [ ] 6.3 `add-wallet-carried-review-authority` additionally carries a
       MIS-CITATION in its delta preamble — it quotes the already-modified
       antecedent and calls the scenario a MUST. Correct it to cite the extended
@@ -172,6 +175,18 @@ a veto would strike.
       recognizes the form is mechanically safe — an unrecognized `Modified over`
       paragraph reads as one dated bold note, an extra body unit, and the
       carriage arms report only units canon carries that a block LACKS.
+- [ ] 6.6 `add-notebook-hosting-credential-custody` owes an amendment its
+      MARKER SWEEP PARTNER cannot make for it: its fifth ADDED scenario, "The
+      published binding shape cannot yet express the access identity", was
+      FALSIFIED by `contract-v2.4` — the published schema now carries
+      `consumer:` with `holder_ref` and `fetch_identity`
+      (`contracts/schemas/xfactory-credential-contracts.schema.yaml:185-229`;
+      `contracts/CHANGELOG.md` § `contract-v2.4 — 2026-08-31`). Under the
+      falsified-scenario clause the ADDING change amends it BEFORE it archives,
+      with its owner consenting per 6.2. Archiving it unamended in the chain
+      order would promote a scenario the repository's own published schema
+      contradicts. THIS PACKET OBLIGES THE AMENDMENT AND DOES NOT PERFORM IT;
+      it is a post-ratification act on a ratified packet.
 
 ## 7. Open — recorded, not fixed
 

@@ -125,7 +125,12 @@ case is prospective rather than populated. **The seats' figure reconciles as
 eight, the family docstring's historical seven plus #497's own block; LA-C2's
 own return says "**Four** blocks, zero markers". Four is the live number and
 eight the cumulative one, and the difference is itself evidence that this class
-turns over with nothing tracking it.
+turns over with nothing tracking it. **ONE OF THE FOUR HAS STOPPED BEING MERELY
+STANDING**: `add-binding-consumer-identity` is fully realized and its archive is
+blocked by exactly this rule's shape, while `contract-v2.4` has falsified a
+scenario of the addition it waits on. That pair is worked below, under § The one
+live pair this rule already disposes, because a rule tested against a live case
+is a better thing to rule on than one tested against none.
 
 **The proposal cross-reference already exists in 4 of 4 — and it is not enough.**
 Every one of the four modifying proposals names its adding sibling as a whole
@@ -148,7 +153,16 @@ respectively, so the ambiguity is not hypothetical.
   two antecedents are disjoint by construction, a requirement being either one
   canon carries or one it does not. The block adds the archive-ordering
   obligation in the same requirement: such a change SHALL NOT archive while the
-  requirement it modifies is unpromoted.
+  requirement it modifies is unpromoted. **Two clauses keep that obligation from
+  being escaped rather than met.** CONVERSION: re-shaping the block to
+  `## ADDED` does not dissolve the obligation, the antecedent attaching to the
+  pairing and not to the block's form, so conversion is lawful only as a PAIRED
+  act ruled by the ratifying authority and amending both packets at once. This
+  is what makes the general rule reach as far as the per-packet conversion text
+  it replaces, rather than one sentence short of it. FALSIFICATION: where the
+  repository's landed state contradicts a scenario of the unpromoted `## ADDED`
+  block, the ADDING change amends that scenario before its archive promotes it,
+  and the order still holds.
 - **`document-lifecycle` gains ONE ADDED requirement**: the pairing is declared
   by a THIRD reserved marker form,
   ``**Modified over `<basis change-id>`'s addition by <change-id>
@@ -171,6 +185,61 @@ respectively, so the ambiguity is not hypothetical.
   and the set of active additions.
 - **The implementation lands in this change**, as Speckit features sequenced by
   `tasks.md`, on the precedent its sibling families set.
+
+## The one live pair this rule already disposes
+
+**THE RULE IS NOT PROSPECTIVE FOR ONE OF THE FOUR, so the disposition is worked
+here rather than left for the first archive gate to discover.**
+`add-notebook-hosting-credential-custody` ADDS "Each consuming system reaches a
+shared operated identity through its own binding";
+`add-binding-consumer-identity` MODIFIES it; and custody's own task 6.2 holds it
+open on `add-notebook-projection-identity` ("the generalization these
+requirements presume promotes then"), which its own § Impact repeats — "the
+generalization this builds on is unpromoted until `add-notebook-projection-identity`
+archives". `add-binding-consumer-identity`'s task 7.3 records the same
+dependency from the far end. **`add-binding-consumer-identity` is FULLY
+REALIZED** — PR #516, squash `5e8a33cf`, the cut `contract-v2.4` at `afdf0e88`,
+tags published and verified — and its archive is blocked by exactly this rule's
+shape: its task 7.2's mechanical assertion greps
+`openspec/specs/credential-contracts/spec.md` for the requirement title and
+FAILS BY DESIGN, canon not carrying the title while custody is unarchived.
+
+**DISPOSED AS (a), CHAIN ORDER**: `add-notebook-projection-identity` →
+`add-notebook-hosting-credential-custody` → `add-binding-consumer-identity`.
+Three obligations follow and all three are this packet's to STATE, none of them
+this packet's to PERFORM:
+
+- **Custody owes the fifth-scenario amendment, under the falsification clause.**
+  Its ADDED block carries "The published binding shape cannot yet express the
+  access identity", whose THEN reads "the shape carries no consumer or
+  access-identity field, so the per-system authority is asserted by the
+  binding's owner and its estate wiring rather than proven by the record".
+  **`contract-v2.4` falsified it.** The published schema now declares
+  `consumer:` with `holder_ref` and `fetch_identity`
+  (`contracts/schemas/xfactory-credential-contracts.schema.yaml:185-229`), cut
+  and recorded at `contracts/CHANGELOG.md` § `contract-v2.4 — 2026-08-31`.
+  Archiving custody unamended in the chain order would promote into canon a
+  scenario the repository's own published schema contradicts — the safe order
+  delivering the loss the unsafe order was supposed to have a monopoly on, which
+  is why the clause exists. `tasks.md` § 6.6 carries it, with custody's owner
+  consenting as § 6.2 requires of every edit to a ratified packet.
+- **`add-binding-consumer-identity` owes the `Modified over` marker**, already
+  § 6.1, and its § 7.4 obliges the carriage diff to be re-run because the marker
+  touches the block. A marker is not a carriage unit, so the diff's ANSWER does
+  not move; the re-run is the packet's own discipline and is cheap.
+- **Conversion without pairing was considered and is FORBIDDEN.** It is the one
+  route that would unblock `add-binding-consumer-identity` today without waiting
+  on custody, and the conversion clause refuses it: converting that block to
+  `## ADDED` without a ruling that also amends custody would leave two active
+  additions of one title, and after the archive an active addition for a title
+  canon carries — which is the D5 collision class reporting its first instance
+  ever, on a breach this packet's own rule forbade.
+
+**WHAT THIS DISPOSITION IS AND IS NOT.** It is the rule applied to a pair that
+already exists, written down so the council rules on a worked case rather than on
+an abstraction. It is not an amendment to either packet: both are ratified, both
+edits are post-ratification acts their owners consent to, and this packet OBLIGES
+them without performing them.
 
 ## Impact
 
@@ -403,7 +472,13 @@ minus the rule.
 - **OQ-3 — two or more active changes adding one title.** The rule as written
   lets the marker name one of them and reports nothing further. Whether two
   active additions of one requirement is itself a defect — it looks like one —
-  is left open; the population is zero today.
+  is left open; the population is zero today. **STILL OPEN, and the population
+  stays zero by this packet's own disposition rather than by luck**: chain order
+  leaves exactly ONE `## ADDED` block for the title throughout, so disposition
+  (a) creates no second addition, and the conversion clause forecloses the one
+  route — an unpaired conversion of a MODIFIED block to `## ADDED` — that would
+  have manufactured a second one without a ruling. The question stays open for
+  the shape that arrives some other way.
 - **OQ-4 — whether the four standing pairs should be repaired by their own
   authors or by one sweep.** Four ratified packets would each gain one marker
   paragraph. `tasks.md` § 6 stages it as a sweep with per-packet consent; a
@@ -417,7 +492,14 @@ minus the rule.
 
 It does not claim the four live pairs are defects. All four are deliberate,
 three of the four state their basis somewhere, and what the check adds is that
-the pairing becomes declared, per-requirement, and machine-readable.
+the pairing becomes declared, per-requirement, and machine-readable. **IT NO
+LONGER CLAIMS ALL FOUR ARE BENIGN, and the one that stopped being so is named
+rather than averaged back into the four**: the custody /
+`add-binding-consumer-identity` pair now carries a scenario that `contract-v2.4`
+has FALSIFIED, so its safe-order archive would promote text the repository's own
+published schema contradicts unless custody amends it first. The pairing is
+still deliberate; what it carries is an amendment owed under the obligation this
+packet adds, worked in § The one live pair this rule already disposes.
 
 It does not claim to make the archive ordering enforceable by tooling. It makes
 the obligation normative and the pair findable; the act itself stays where
