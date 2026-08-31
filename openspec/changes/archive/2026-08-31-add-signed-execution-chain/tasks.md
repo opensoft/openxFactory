@@ -546,8 +546,15 @@ are carried forward at openxFactory issue #534.
       directory. It also reported `Task status: 22/27` and warned on **five
       incomplete tasks, which is CORRECT AND IS WORTH SPELLING OUT**: the five are
       § 4.5, § 4.6 and the three § 5 successors, each carrying its own restated
-      disposition above. § 6.1 is the twenty-third tick, so the archived file ends
-      at **23/28**.
+      disposition above.
+      **TWO COUNTS, AND THEY ARE NOT THE SAME COUNT — the CLI's output versus this
+      file's end state.** `22/27` is **the CLI's reading at the moment it ran**,
+      before this section existed. This restatement then ADDS § 6.1 as the
+      twenty-third tick and the twenty-eighth box, so **the archived file's own end
+      state is `23/28`** — and the five open boxes are the same five in both
+      readings. Neither number is a correction of the other; recording only the
+      second would hide what the tool actually said, and recording only the first
+      would misdescribe the file a later reader opens.
 
       **THE MECHANISM WAS `openspec archive`, NOT `proposal-support archive`, AND
       THE CHOICE IS DELIBERATE.** `proposal_support.archive_change` refuses any
