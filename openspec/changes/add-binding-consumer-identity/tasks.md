@@ -624,10 +624,13 @@ the section's authority comes from being exhaustive.
   both of its MODIFIED deltas are PROMOTED, so the operated-identity
   generalization "all three changes presume" is canon as of that date. What
   that falsifies elsewhere in this packet, named rather than silently left:
-  this packet's `.openspec.yaml` still describes that dependency as "RATIFIED
+  this packet's `.openspec.yaml` described that dependency as "RATIFIED
   2026-08-23, ACTIVE ... unpromoted until it archives". It is archived; it is
-  promoted. **Note what this does NOT change:** § 7.2's ordering obligation and
-  its mechanical `grep` backstop are about
+  promoted — and that row is now CORRECTED IN PLACE (2026-08-31, this same
+  sweep) rather than left to mislead anyone taking their release-ordering base
+  from it; the correction moves the dependency's STATUS only and points the
+  full reconciliation back to this task. **Note what this does NOT change:**
+  § 7.2's ordering obligation and its mechanical `grep` backstop are about
   `add-notebook-hosting-credential-custody`, which is still ACTIVE — that half
   is untouched here because it is still true, and it changes at CUSTODY's
   archive, not at this one.

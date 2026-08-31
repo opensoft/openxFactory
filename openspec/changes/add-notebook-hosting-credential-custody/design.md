@@ -73,12 +73,47 @@ obligations are genuinely additive — custody and per-system authority are not
 refinements of "who operates the vault", they are what happens after that
 question is answered.
 
+**CORRECTED 2026-08-31 — THE PREMISE OF THE FIRST REASON HAS EXPIRED; THE
+RULING IT SUPPORTED HAS NOT.** `add-notebook-projection-identity` ARCHIVED
+2026-08-31 at
+`openspec/changes/archive/2026-08-31-add-notebook-projection-identity`, and
+both of its MODIFIED deltas are PROMOTED. So "is ACTIVE and carries its own
+MODIFIED delta on that exact requirement, ratified but unpromoted until it
+archives on its migration evidence" no longer describes today: it is archived,
+and the generalization is canon. **The ruling text above is UNCHANGED,
+deliberately** — it is the record of what was ruled and why, and the
+two-live-deltas-on-one-requirement hazard it avoided was real at the moment it
+was avoided. What the archive moves is the STANDING of the dependency the
+reason cites, not the outcome it reached: both requirements here are still
+ADDED, nothing is re-opened, and no reconciliation is performed by this note.
+Recorded under Brett Heap's standing one-sweep consent of 2026-08-31 to amend
+these ratified packets.
+
 **A sequencing fact the ratification read should see:** these requirements
 presume the generalization, which is ratified but not yet promoted. Until
 `add-notebook-projection-identity` archives, the promoted `credential-contracts`
 text still speaks only of the credential vault. Nothing breaks — the new
 requirements stand on their own terms — but a reader of the promoted spec alone
 will not see the operated-identity framing until that archive lands.
+
+**CORRECTED 2026-08-31 — A READER OF THE PROMOTED SPEC NOW DOES SEE THE
+OPERATED-IDENTITY FRAMING.** "Until `add-notebook-projection-identity`
+archives" names a date that has passed: it archived 2026-08-31 and its two
+MODIFIED deltas promoted, so the promoted `credential-contracts` text no longer
+speaks only of the credential vault, and "will not see the operated-identity
+framing until that archive lands" is false — it landed. The sequencing fact
+stands above UNCHANGED as what the 2026-08-23 ratification read was shown.
+**What this note does NOT do:** the read-together of this change's and
+projection-identity's `credential-contracts` text is the FULL reconciliation,
+and Brett's ruled chain sequences it at THIS packet's own archive — step C,
+after projection-identity's archive (step B) and before
+`add-binding-consumer-identity`'s (step D). tasks §6.2's box stays unticked.
+**Deliberately left uncorrected, named rather than silently left:**
+`review/ratification-2026-08-23.md` § "The three flagged items" says the same
+thing about that dependency, but as a dated record of what was before the
+ratifier at that read — a record of an act is not amended because the world
+moved after it. Recorded under Brett Heap's standing one-sweep consent of
+2026-08-31 to amend these ratified packets.
 
 ## Ruling 3 — The live bindings do not live here, and the repository says so in its own manifest
 

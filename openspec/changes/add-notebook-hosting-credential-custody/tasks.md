@@ -117,12 +117,16 @@ that operator act rather than as work this change performs.
   both of its MODIFIED deltas are PROMOTED. "At ITS archive" is therefore a
   date that has passed, not a future condition, and the generalization this
   task says "promotes then" is canon now. What that falsifies elsewhere in
-  this packet, named rather than silently left: `design.md`'s Ruling 2 still
-  reads "`add-notebook-projection-identity` is ACTIVE and carries its own
-  MODIFIED delta ... ratified but unpromoted until it archives", and its
-  sequencing note still tells a reader of the promoted spec that they "will
-  not see the operated-identity framing until that archive lands" — they will;
-  it landed.
+  this packet, named rather than silently left: `design.md`'s Ruling 2 read
+  "`add-notebook-projection-identity` is ACTIVE and carries its own MODIFIED
+  delta ... ratified but unpromoted until it archives", and its sequencing note
+  told a reader of the promoted spec that they "will not see the
+  operated-identity framing until that archive lands" — they will; it landed.
+  BOTH SPOTS NOW CARRY DATED CORRECTIONS (2026-08-31, this same sweep), as do
+  `proposal.md`'s Impact bullet and its honest-gaps bullet on the same
+  dependency; the ruling and sequencing text itself is left unchanged beneath
+  them, and `review/ratification-2026-08-23.md` is deliberately untouched as a
+  dated record of that read.
 
   **The box stays UNTICKED and the obligation text above is UNCHANGED,
   deliberately.** The reconciliation this task names is the FULL read-together

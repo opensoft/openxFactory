@@ -129,6 +129,15 @@ related:
   - openxFactory:change:add-credential-escrow-checkout           # RATIFIED 2026-08-28, ACTIVE. The OTHER active writer on this schema file: an additive optional `escrow:` block on the same binding kind plus a sixth record kind. Two additive blocks on one shape, two cuts owed on one file — the coordination is stated in proposal.md § The other writer on this file
   - openxFactory:change:add-identity-brokering                   # RATIFIED 2026-08-21, ACTIVE, contracts SHIPPED at contract-v1.37. Source of the `holder_ref` spelling this change reuses, and of the "Workloads are not personas" rule that forbids spelling a consuming system as a persona
   - openxFactory:change:add-wallet-carried-review-authority      # RATIFIED 2026-08-23, ACTIVE. Checked for overlap: its instrument is a wallet grant whose `audience.wallet_ref` names a holder's WALLET. This change creates no rival — see design.md § The wallet question
-  - openxFactory:change:add-notebook-projection-identity         # RATIFIED 2026-08-23, ACTIVE. The operated-identity generalization both this change and the custody change presume, unpromoted until it archives
+  - openxFactory:change:add-notebook-projection-identity         # RATIFIED 2026-08-23; ARCHIVED 2026-08-31 at `openspec/changes/archive/2026-08-31-add-notebook-projection-identity`, both of its MODIFIED deltas PROMOTED. The operated-identity generalization both this change and the custody change presume is therefore CANON as of that date, not pending
+    # CORRECTED 2026-08-31. This row read "RATIFIED 2026-08-23, ACTIVE. ...
+    # unpromoted until it archives", which the archive falsified: a reader
+    # taking the release-ordering base from here would still be waiting for an
+    # event that has happened. Only the DEPENDENCY'S STATUS is corrected. The
+    # full three-packet read-together is NOT performed here — Brett's ruled
+    # chain sequences it at THIS packet's own archive (step D, after
+    # projection-identity's step B and custody's step C), and tasks §7.3's box
+    # stays unticked. Recorded under Brett Heap's standing one-sweep consent of
+    # 2026-08-31 to amend these ratified packets.
   - openxFactory:change:promote-credential-contracts             # archived; promoted the binding-template shape this change extends
   - openxFactory:change:add-client-identity-roster               # archived; the `issuance_preconditions` precedent this change's closed-shape and const-true reasoning follows

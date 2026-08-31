@@ -124,6 +124,17 @@ instances here, and the repository's rule says they go there.
   which is ratified but NOT YET PROMOTED — it promotes when that change
   archives on its migration evidence. Modifying the same requirement from a
   second active change would put two live deltas on one requirement text.
+
+  **CORRECTED 2026-08-31.** `add-notebook-projection-identity` ARCHIVED
+  2026-08-31 at
+  `openspec/changes/archive/2026-08-31-add-notebook-projection-identity` and
+  both its MODIFIED deltas PROMOTED, so "ratified but NOT YET PROMOTED — it
+  promotes when that change archives" is spent as a description of today. The
+  decision it explains is UNCHANGED: no requirement is MODIFIED by this change.
+  Recorded under Brett Heap's standing one-sweep consent of 2026-08-31 to amend
+  these ratified packets; see design.md Ruling 2's corrections and tasks §6.2,
+  whose box stays unticked because the full read-together is sequenced at this
+  packet's own archive.
 - **Affected code, at realization**: the hosting record's `custody:` block —
   the binding's IDENTIFIER, not its `secret_ref`, which is binding detail and
   would invite the rest of the binding to follow — the validator rule enforcing
@@ -165,3 +176,9 @@ instances here, and the repository's rule says they go there.
   than implying an isolation the credential class cannot deliver.
 - **The generalization this builds on is unpromoted** until
   `add-notebook-projection-identity` archives, which waits on the migration.
+
+  **CORRECTED 2026-08-31.** That archive happened — 2026-08-31, on the
+  migration evidence — and the generalization is PROMOTED. This gap is
+  DISCHARGED rather than open; it is left standing above as what the packet
+  honestly recorded when it was authored. Recorded under Brett Heap's standing
+  one-sweep consent of 2026-08-31 to amend these ratified packets.
