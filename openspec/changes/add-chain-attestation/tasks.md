@@ -571,10 +571,23 @@ Each is contract content — cheap now, expensive after a bundle ships.
       **carrying its committed expected attestation set**, the
       **controller-signed commitment-extension record**, the runner-attestation
       record together with the signing-request record, the PR-open decision
-      record, the closure record, the remediation declaration, the per-fact
-      evidence class, and **tier 2's TWO SUBJECT SCOPES with their two closed
-      enumerations of authorized record kinds** — per-task (link 5) and
-      chain-scoped (links 6 and 10), with authority records outside both.
+      record, the closure record, the remediation declaration, **the SIGNED CHAIN
+      BINDING record** — this capability's seventh record kind, carrying a tier-2
+      identity's SUBJECT SCOPE, its CLOSED RECORD-KIND ENUMERATION and THE CHAIN
+      IDENTITY IT SERVES, and referencing by identifier the two CANONICAL
+      `add-trust-anchor` records it composes with (`certificate-record` for the
+      key and validity bounds, `issuance-evidence` for the issuance act), **both
+      CONSUMED AND NEITHER REDEFINED HERE** — the per-fact evidence class, and
+      **tier 2's TWO SUBJECT SCOPES with their two closed enumerations of
+      authorized record kinds** — per-task (link 5) and chain-scoped (links 6 and
+      10), with authority records outside both.
+
+      **WITHOUT THE BINDING'S SCHEMA THIS CHECKLIST COULD COMPLETE WHILE THE
+      COMPOSITION STAYED UNREPRESENTABLE** — 5.5 and 5.6 commission fixtures and a
+      named refusal against a record `contracts/` would not hold. The two
+      canonical shapes are NOT commissioned here because they are not this
+      capability's to define; they are consumed from `add-trust-anchor` at
+      `contract-v1.37`.
 - [ ] 5.5 Packaged POSITIVE and NEGATIVE examples for every named refusal: no
       anchor held, host-held custody offered for hardware-bound assurance, absent
       link 4, empty setup attestation, runner-produced signature, missing signing
@@ -635,15 +648,18 @@ Each is contract content — cheap now, expensive after a bundle ships.
       with the expected scope**, refused AT ISSUANCE because it has no certificate
       record, no issuance evidence and no signed chain binding; **an identity
       MISSING ANY ONE of the three composed records**, refused; a signed chain
-      binding **naming another chain**, refused; a tier-2
-      signature over **a record kind outside its own issuance evidence**, refused;
-      an identity whose **validity bounds had expired** or whose issuance names
-      another chain, refused; **a genuine review record from ANOTHER PROPOSAL**
+      binding **naming another chain**, refused; a tier-2 signature over **a record
+      kind outside the closed enumeration ITS OWN SIGNED CHAIN BINDING carries**,
+      refused; an identity whose **`validity.not_after` in its CERTIFICATE RECORD
+      had passed at signing**, refused; **a genuine review record from ANOTHER
+      PROPOSAL**
       replayed, refused because it does not name this chain's identity; an
       **extension left outside the hash-linked order**, or a link-5 record
       chaining from link 4 where an extension intervened, refused as a break; and
-      two POSITIVES — **a genuine tier-2 identity's records verifying end to end**
-      (issuance first, then signature, then the link's own checks) and **a chain
+      two POSITIVES — **a genuine tier-2 identity's THREE records verifying end to
+      end** (certificate valid and current, issuance evidenced, chain binding
+      naming this chain and this scope — then the signature, then the link's own
+      checks) and **a chain
       with commitment extensions walked for continuity** over
       4 → x₁ → … → xₙ → 5 → 6 → 10.
 
