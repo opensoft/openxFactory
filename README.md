@@ -423,12 +423,18 @@ Active changes:
   ``**Modified over `<basis change-id>`'s addition by <change-id>
   (<YYYY-MM-DD>):**``,
   read by form and never by prose, naming no units and therefore never a carriage
-  declaration — and where the basis is NOT RATIFIED the reason clause discloses
+  declaration, its `by` identifier VALIDATED as the change carrying the block
+  rather than merely resolved, so a marker naming the right basis under an
+  unrelated author is reported instead of promoting as false provenance — and
+  where the basis is NOT RATIFIED the reason clause discloses
   it by carrying the word `unratified`, a form rather than a wish, so that the
   disclosure has a reader. `doc-health` gains the arm that evaluates the
   `pending` shape instead of dropping it at `modified_block_currency.py`'s
-  `if status == "pending": continue` — four reported states (undeclared,
-  misdeclared, self-referential, and undisclosed, the marker that names an
+  `if status == "pending": continue` — four reported states, MUTUALLY EXCLUSIVE
+  and examined in order so that every block gets EXACTLY ONE (self-referential
+  first, then undeclared, then misdeclared — a basis that adds nothing OR a `by`
+  identifier that is not the change carrying the block — then undisclosed, the
+  marker that names an
   unratified basis without saying so), silent on the fifth (declared and
   resolving) — plus, as the archive ordering's only possible mechanical
   backstop, a class that reports an active `## ADDED Requirements` block for a
@@ -445,8 +451,9 @@ Active changes:
   REOPENED**: nothing compares requirement text, and no fourth comparison arm is
   added; what changes is that the block is no longer dropped before anything
   looks at it, so the arms' silence stops
-  reading as clearance. **Measured at `7f656980`**, the `main`-side parent of this
-  branch's 2026-08-31 catch-up merge: 20 active MODIFIED blocks, 16 `canon`, 4
+  reading as clearance. **Measured at `7f656980`**, the `main`-side parent of the
+  FIRST of this branch's two 2026-08-31 catch-up merges and RE-READ UNCHANGED at
+  `9af98c4d`, the second's: 20 active MODIFIED blocks, 16 `canon`, 4
   `pending`, zero markers, all four adding siblings `ratified` — the SAME four
   pairs #502 measured, the twentieth block being
   `add-structured-scope-substrate`'s over a different `release-realization`

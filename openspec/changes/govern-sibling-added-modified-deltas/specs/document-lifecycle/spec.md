@@ -33,6 +33,28 @@ begins with the prefix COMPLETE. The form is
 followed by ` — <reason>`. The basis change-id is written as a code span, as
 every change-id this capability's markers name already is.
 
+**THE `by` IDENTIFIER SHALL BE THE CHANGE THAT CARRIES THE BLOCK, and it is
+VALIDATED rather than merely resolved.** The identifier written after `by` SHALL
+EQUAL the id of the change whose delta carries the marker's block, on the reading
+this capability's other two reserved forms already have: `Removed from canon by`
+and ``Merged into `<title>` by`` name the change that PERFORMED the declared act,
+and the change performing this declaration is the one writing the block. A marker
+whose basis is right and whose `by` names an unrelated change is NOT a lesser
+defect than a wrong basis — it is a FALSE PROVENANCE, sending every later reader
+who follows the identifier to a packet that declared nothing, while the block
+promotes looking declared. BOTH halves are therefore checked and a marker failing
+either SHALL be reported: the obligation is stated HERE, where the form is
+defined, and `doc-health` is where the reading of it is enforced, neither being a
+substitute for the other.
+
+**A PAIRED CONVERSION DOES NOT MOVE THE IDENTIFIER, and needs no exception to
+this rule.** `release-realization` provides that a conversion of the block to
+`## ADDED Requirements`, lawful only as a paired act, RETAINS this marker as
+provenance. The block's FORM changes and its CARRIER does not — the converting
+change is the same change that wrote the block — so the retained marker's `by`
+identifier is still the carrying change's own id, and the retention stands
+without narrowing or widening what this paragraph requires.
+
 **THIS FORM NAMES NO UNITS, and that is the difference that matters.** The two
 existing forms name units they declare removed; this one names a DOCUMENT PAIR
 and declares nothing about carriage, because in this shape there is nothing to
@@ -73,12 +95,18 @@ enforced, and neither is a substitute for the other.
 
 #### Scenario: A block is written over a sibling's addition
 - **WHEN** an active change's `## MODIFIED Requirements` block names a requirement the promoted specification does not carry, and an active change ADDS or RENAMES to that title
-- **THEN** the block MUST carry a marker of the reserved `Modified over` form naming that change as a code span
+- **THEN** the block MUST carry a marker of the reserved `Modified over` form naming that change as a code span, and naming as its `by` identifier the change whose delta carries the block
 - **AND** the change's own `proposal.md` MUST still reference that change as `release-realization` requires, the two declarations being about different things
 
 #### Scenario: The marker names a change that does not add the requirement
 - **WHEN** a `Modified over` marker names a change that neither ADDS nor RENAMES to the block's capability and requirement title
 - **THEN** the declaration MUST be reported, a basis that does not exist being worse than an undeclared one because it stops the next reader looking
+
+#### Scenario: The marker's `by` identifier names a change other than the carrier
+- **WHEN** a `Modified over` marker names as basis a change that does ADD or RENAME to the block's capability and requirement title, and its `by` identifier is an id other than that of the change whose delta carries the block
+- **THEN** the declaration MUST be reported, a marker naming the right basis under the wrong author being a false provenance rather than an incomplete declaration
+- **AND** a marker whose `by` identifier IS the carrying change's own id MUST NOT be reported on that ground, the identifier being validated against the carrier rather than merely resolved
+- **AND** a marker RETAINED as provenance through a paired conversion MUST NOT be reported on that ground either, the converting change being the change that carried the block
 
 #### Scenario: The marker is read as declaring a deletion
 - **WHEN** a block carries a `Modified over` marker and omits a unit

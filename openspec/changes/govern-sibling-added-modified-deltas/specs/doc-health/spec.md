@@ -57,7 +57,8 @@ Requirements` block whose title resolves to an active change's ADDED or RENAMED
 requirement — the shape its resolver returns as `pending` — and SHALL report the
 pairing where it is undeclared, misdeclared, self-referential, or declared over
 a basis that is not ratified without the disclosure `document-lifecycle`
-requires of the marker, instead of dropping the block before its checks run.
+requires of the marker, placing every such block in EXACTLY ONE of those states,
+instead of dropping the block before its checks run.
 
 **NOTHING IS COMPARED, AND THAT RULING STANDS.** Synthesising a basis from the
 sibling's ADDED text was ruled against on 2026-08-27 for a reason that has not
@@ -70,31 +71,67 @@ What was wrong was never that the arms declined; it was that the block was
 dropped before anything at all looked at it, so the arms' silence read as
 clearance when it was uncomparability.
 
-**THE CHECK SHALL REPORT EXACTLY FOUR STATES, and be silent on the fifth.**
+**THE CHECK SHALL REPORT EXACTLY FOUR STATES, be silent on the fifth, and PLACE
+EVERY BLOCK IN EXACTLY ONE OF THEM.** The five are MUTUALLY EXCLUSIVE BY
+DEFINITION rather than by convention: they are examined IN THE ORDER WRITTEN
+BELOW, a block placed in one state is NOT examined for any state below it, and
+each state's antecedent below carries the exclusion that order performs. One
+block therefore yields at most one finding of this class, and the words a reader
+is given are never a choice between two true descriptions of one defect.
 
-- **UNDECLARED** — the block carries no marker of the reserved `Modified over`
-  form. Reported.
-- **MISDECLARED** — the block carries such a marker and the change it names
-  neither ADDS nor RENAMES to the block's capability and requirement title.
-  Reported, and reported apart from UNDECLARED in the finding's own words,
-  because a wrong basis and an absent one have different remedies.
-- **SELF-REFERENTIAL** — the change that carries the block is itself the change
-  that adds the requirement. Reported, and a marker naming the change itself
-  MUST NOT clear it.
-- **UNDISCLOSED** — a marker names an active change, other than this one, that
-  does add or rename to the title, that change is NOT `ratified`, and the
-  marker's reason clause does not carry the disclosure `document-lifecycle`
-  requires of it. Reported, and reported apart from the other three: here the
-  pairing is declared and the basis is real, and what is missing is the reader's
-  warning that the text the block rests on has been accepted by no authority.
-- **DECLARED AND RESOLVING** — a marker names an active change that does add or
-  rename to the title, that change is not this one, and either that change is
+- **SELF-REFERENTIAL** — the change that carries the block is itself a change
+  that ADDS or RENAMES to the block's capability and requirement title. Reported,
+  and a marker naming the change itself MUST NOT clear it. **THIS STATE IS
+  EXAMINED FIRST AND EXCLUDES THE OTHER FOUR**, because it is a fact about the
+  DELTA and not about the marker: a self-referential block carrying no marker is
+  reported here and NOT as UNDECLARED, and one carrying any marker at all is
+  reported here and NOT as MISDECLARED. Its remedy is to withdraw one of the two
+  blocks, which no marker supplies, so a second finding over the same block would
+  offer a remedy that does not reach the defect.
+- **UNDECLARED** — the block is NOT self-referential and carries no marker of the
+  reserved `Modified over` form. Reported.
+- **MISDECLARED** — the block is NOT self-referential, carries such a marker, and
+  that marker's declaration is wrong in one of the TWO ways a declaration of this
+  form can be wrong: EITHER the change it names AS BASIS neither ADDS nor RENAMES
+  to the block's capability and requirement title, OR its `by` identifier is not
+  the change that carries the block. Reported, and reported apart from UNDECLARED
+  in the finding's own words, because a wrong basis and an absent one have
+  different remedies. **THE REMEDY IS SINGULAR PER HALF AND THE FINDING SHALL SAY
+  WHICH HALF IT NAMES**: a wrong basis is repaired by naming the change that
+  actually adds the requirement, a wrong `by` by writing the carrying change's own
+  identifier, and one finding naming both without saying which would leave its
+  reader to guess which word of one paragraph to change.
+- **UNDISCLOSED** — the block is NOT self-referential and carries a marker that is
+  not misdeclared — naming as basis an active change, other than this one, that
+  does add or rename to the title, and carrying as its `by` identifier the change
+  that carries the block — that basis change is NOT `ratified`, and the marker's
+  reason clause does not carry the disclosure `document-lifecycle` requires of it.
+  Reported, and reported apart from the other three: here the pairing is declared
+  and the basis is real, and what is missing is the reader's warning that the text
+  the block rests on has been accepted by no authority.
+- **DECLARED AND RESOLVING** — the block is NOT self-referential and carries a
+  marker that is neither misdeclared nor undisclosed: it names as basis an active
+  change other than this one that does add or rename to the title, its `by`
+  identifier is the change that carries the block, and either that basis is
   `ratified` or the marker discloses that it is not. NO FINDING IS EMITTED.
   A correctly declared pair is the state this check exists to produce, and a
   standing row for it would be a permanent advisory nobody should act on.
 
-**THE FOURTH STATE EXISTS BECAUSE THE OBLIGATION WOULD OTHERWISE BE DECLARED IN
-ONE CAPABILITY AND ENFORCED IN NONE.** `document-lifecycle` requires the reason
+**THE `by` IDENTIFIER IS COMPARED TO THE CARRIER, AND THE OBLIGATION THAT
+COMPARISON ENFORCES IS NOT THIS CAPABILITY'S TO STATE.** `document-lifecycle`
+defines the form and requires its `by` identifier to BE the change whose delta
+carries the block; this family reads that identifier and compares it, exactly as
+it reads the basis and resolves it. Checking the basis ALONE would leave a marker
+naming the right predecessor under an unrelated author in DECLARED AND RESOLVING,
+so a block would promote carrying FALSE PROVENANCE — a declaration that sends its
+next reader to a packet which declared nothing, which is worse than the
+undeclared state it wears the appearance of curing. The comparison belongs INSIDE
+MISDECLARED rather than in a state of its own: the defect is one wrong marker
+with one paragraph to repair, on the same terms as a wrong basis, and the number
+of states this check reports stays FOUR.
+
+**THE FOURTH STATE, UNDISCLOSED, EXISTS BECAUSE THE OBLIGATION WOULD OTHERWISE
+BE DECLARED IN ONE CAPABILITY AND ENFORCED IN NONE.** `document-lifecycle` requires the reason
 clause of a marker naming an unratified basis to disclose that standing; without
 this state a marker that names its basis and says nothing about its standing
 falls into DECLARED AND RESOLVING and passes in silence, and the disclosure
@@ -120,8 +157,9 @@ a stale disclosure SHALL NOT be read as a wrong one.
 **THE FINDINGS SHALL FORM ONE NEW FINDING CLASS of this family**, reported
 against the active delta's own path like every other finding this family emits,
 carrying the `warning` band and one action line stating every half of the
-remedy: declare the basis by marker, disclose it in the reason clause where that
-basis is not ratified, and hold the archive until the declared change promotes.
+remedy: declare the basis by marker, name the carrying change itself as that
+marker's `by` identifier, disclose in the reason clause where that basis is not
+ratified, and hold the archive until the declared change promotes.
 The class SHALL be registered in the family's own class registry with its own
 identifier and label, and SHALL be placed by the family's class map; a finding
 this new class emits that the map does not place is an unplaced finding like any
@@ -131,9 +169,10 @@ other and is reported by the class that reports those.
 derives its unplaced-finding mask from its own arm templates, so a rule text
 built any other way would have no shape the mask can compute and would be
 reported as drift on every run that emitted one. One template SHALL carry all
-four reported states, distinguished by an interpolated clause, because one
-template is one shape is one map entry — the four states share a band and an
-action and differ only in why.
+four reported states — MISDECLARED's two halves included, they being one state
+with one action that differ only in the same interpolated clause — distinguished
+by that clause, because one template is one shape is one map entry: the four
+states share a band and an action and differ only in why.
 
 **THE BAND IS `warning`, AND THE CLASS IS `contested` BY A ROW THIS REQUIREMENT
 DOES NOT ADD AND CANNOT DECLINE.** The band is the measure-then-flip posture
@@ -211,27 +250,34 @@ being to warn a reader about text no authority has been shown to accept, and a
 standing nobody can read being no such showing.
 
 #### Scenario: A block over a sibling's addition carries no marker
-- **WHEN** an active change's MODIFIED block names a requirement the promoted specification does not carry, an active change ADDS or RENAMES to that title, and the block carries no `Modified over` marker
+- **WHEN** an active change's MODIFIED block names a requirement the promoted specification does not carry, an active change ADDS or RENAMES to that title, the change carrying the block is not itself such a change, and the block carries no `Modified over` marker
 - **THEN** the run MUST emit one `warning` finding against the active delta's own path, naming the requirement, the change whose addition it resolves to, and that no marker declares the pairing
 - **AND** the three comparison arms MUST NOT run against that block, there being no promoted requirement to compare it to
 - **AND** the finding MUST NOT cause a run configured `--fail-on error` or `--fail-on critical` to fail
 
 #### Scenario: A block over a sibling's addition is correctly declared
-- **WHEN** such a block carries a `Modified over` marker naming an active change other than its own that ADDS or RENAMES to the block's capability and requirement title, and that change is `ratified`
+- **WHEN** such a block carries a `Modified over` marker naming as basis an active change other than its own that ADDS or RENAMES to the block's capability and requirement title, that marker's `by` identifier is the change whose delta carries the block, and the basis change is `ratified`
 - **THEN** no finding MUST be emitted for that block, a declared pairing being the state this check exists to produce
 
 #### Scenario: The marker names a change that does not add the requirement
-- **WHEN** such a block carries a `Modified over` marker naming a change that neither ADDS nor RENAMES to its capability and requirement title
+- **WHEN** such a block carries a `Modified over` marker naming as basis a change that neither ADDS nor RENAMES to its capability and requirement title, and the change carrying the block is not itself a change that does
 - **THEN** the run MUST emit a `warning` finding naming the change the marker names and stating that it adds no such requirement
 - **AND** that finding MUST be worded apart from the undeclared case, a wrong basis and an absent one having different remedies
+
+#### Scenario: The marker's `by` identifier is not the change carrying the block
+- **WHEN** such a block carries a `Modified over` marker whose basis DOES add or rename to the block's capability and requirement title, and whose `by` identifier is a change other than the one whose delta carries the block
+- **THEN** the run MUST emit one `warning` finding in the misdeclared state, naming the identifier the marker carries and the change that carries the block, a right basis under a wrong author being a FALSE provenance rather than an incomplete one
+- **AND** an otherwise identical marker whose `by` identifier IS the carrying change MUST NOT be reported on that ground, the identifier being validated against the carrier rather than merely resolved
+- **AND** no undeclared finding MUST be emitted for that block alongside it, the marker being present and the states being exclusive
 
 #### Scenario: A change modifies its own unpromoted addition
 - **WHEN** one change carries both an ADDED and a MODIFIED block for one capability and requirement title
 - **THEN** the run MUST emit a `warning` finding against that delta
 - **AND** a `Modified over` marker naming that same change MUST NOT suppress it
+- **AND** exactly ONE finding of this class MUST be emitted for that block, in the self-referential state, whether the block carries a marker or none — that state being examined first and excluding the undeclared and misdeclared readings the same block would otherwise also satisfy
 
 #### Scenario: A block is declared over a basis no authority has accepted
-- **WHEN** such a block carries a `Modified over` marker naming an active change other than its own that ADDS or RENAMES to the title, that change carries a status other than `ratified`, and the marker's reason clause does not carry the disclosure `document-lifecycle` requires
+- **WHEN** such a block carries a `Modified over` marker naming as basis an active change other than its own that ADDS or RENAMES to the title, whose `by` identifier is the change whose delta carries the block, that basis change carries a status other than `ratified`, and the marker's reason clause does not carry the disclosure `document-lifecycle` requires
 - **THEN** the run MUST emit one `warning` finding against the active delta's own path, naming the basis change and its declared standing and stating that the marker does not disclose it
 - **AND** that finding MUST be worded apart from the undeclared and the misdeclared cases, a pairing declared over text no authority has accepted being a different defect from an absent basis or a wrong one
 

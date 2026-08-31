@@ -34,6 +34,14 @@ pairing class that cannot read a marker reports every declared pair.
       parentheses, and the closing colon. The anchor is load-bearing for the
       same reason it is on the other two forms: this packet's own delta text and
       `document-lifecycle`'s both set the template out in prose and both promote.
+      **THE `by` IDENTIFIER IS RECOGNIZED AS RESOLVABLE AND VALIDATED AS EQUAL TO
+      THE CARRIER, and the two steps stay apart on purpose.** `document-lifecycle`
+      requires that identifier to BE the change whose delta carries the block, so
+      RECOGNITION keeps the resolvability test above — a marker whose `by` names
+      another change is still a marker of this form — and 2.5 REPORTS the
+      inequality as the misdeclared state. Folding the equality into recognition
+      would drop such a paragraph back to a body unit and report the block as
+      UNDECLARED, naming the absent-marker remedy for a block that carries one.
 - [ ] 2.2 Make the form name NO units. It suppresses nothing, is never a
       candidate for the marker-defect check, and — like the other two forms — is
       excluded from unit derivation in canon and in the block, so it is not a
@@ -58,19 +66,38 @@ pairing class that cannot read a marker reports every declared pair.
       emit. THE THREE COMPARISON ARMS STILL DO NOT RUN against a pending block;
       the 2026-08-27 ruling is untouched and the change is that the block is no
       longer dropped before anything looks at it.
-- [ ] 2.5 Report exactly four states — undeclared, misdeclared,
-      self-referential, undisclosed — and emit NOTHING for a declared, resolving
-      pair whose basis is `ratified` OR whose marker discloses that it is not.
+- [ ] 2.5 Report exactly four states — self-referential, undeclared,
+      misdeclared, undisclosed — and emit NOTHING for a declared, resolving
+      pair whose `by` identifier is the carrying change and whose basis is
+      `ratified` OR whose marker discloses that it is not.
+      **CLASSIFY IN THAT ORDER AND EMIT EXACTLY ONE STATE PER BLOCK.** The
+      self-addition condition is examined FIRST and EXCLUDES the block from every
+      state below it, because it is a fact about the delta rather than about the
+      marker: without the order a self-referential block carrying no marker
+      satisfies UNDECLARED as well, and the run emits two findings with two
+      remedies for one defect. Each state's own antecedent carries the exclusion
+      the order performs, so the branch and the delta text say the same thing.
+      MISDECLARED CARRIES TWO HALVES AND ONE ACTION: the named basis neither ADDS
+      nor RENAMES to the title, OR the `by` identifier is not the change carrying
+      the block — the second read by comparing the identifier the parser already
+      recognized (2.1) against the block's own change id, which is why a right
+      basis under a wrong author cannot pass as DECLARED AND RESOLVING. The
+      finding SHALL say which half it names.
       UNDISCLOSED NARROWS THE SILENT STATE — its antecedent is that state's plus
-      two conditions, so it reaches only a block otherwise in good order and
-      restates no defect the other three name. It reads the reason clause for
-      the word `document-lifecycle` reserves, and it is why that capability's
-      disclosure obligation has an enforcer at all.
-- [ ] 2.6 Register ONE `_ArmTemplate` for the class, carrying all four states
-      in one interpolated `why` clause on the `TEMPLATE_UNRESOLVED` precedent,
-      and append it to `_ARM_TEMPLATES`. One template is one shape is one map
+      two conditions, so it reaches only a block otherwise in good order (basis
+      real, `by` equal to the carrier) and restates no defect the other three
+      name. It reads the reason clause for the word `document-lifecycle`
+      reserves, and it is why that capability's disclosure obligation has an
+      enforcer at all.
+- [ ] 2.6 Register ONE `_ArmTemplate` for the class, carrying all four states —
+      and MISDECLARED's two halves inside its own — in one interpolated `why`
+      clause on the `TEMPLATE_UNRESOLVED` precedent, and append it to
+      `_ARM_TEMPLATES`. One template is one shape is one map
       entry; a rule text not rendered from a registered template has no shape the
-      unplaced-drift mask can compute and is reported as drift on every run.
+      unplaced-drift mask can compute and is reported as drift on every run. The
+      two halves differ only in that interpolated clause, so they stay ONE shape
+      and add no entry — the `by`-mismatch wording goes in the `why`, never in
+      the fixed prose the mask reads.
 - [ ] 2.7 Register the `FindingClass` in `CLASSES`, with its own severity and
       action constants named apart from `_LAUNCH_SEVERITY`, and insert it BEFORE
       the `unplaced` class so both standing ordering claims stay true: the
@@ -81,7 +108,14 @@ pairing class that cannot read a marker reports every declared pair.
       test worth keeping rather than a step to skip.
 - [ ] 2.9 Fixtures, one per reported state plus BOTH silent ones — a `ratified`
       basis, and an unratified basis whose marker discloses it — and the
-      regression fixture reconstructing the corpus's own four-pair shape. The
+      regression fixture reconstructing the corpus's own four-pair shape.
+      MISDECLARED NEEDS BOTH ITS HALVES: a marker naming a basis that adds
+      nothing, and a marker whose basis is right and whose `by` names another
+      change — the second being the false-provenance case, which without the
+      comparison passes as DECLARED AND RESOLVING and is the one fixture that
+      fails on the pre-fix classifier. EXCLUSIVITY NEEDS ITS OWN: a
+      self-referential block carrying NO marker, asserted to emit ONE finding in
+      that state and no undeclared one beside it. The
       unratified pair needs its own adding-change fixture carrying a non-ratified
       `Status:`, the standing being read from the adder's proposal header.
 - [ ] 2.10 Move the standing pins by name, one at a time: the class-registry
@@ -126,7 +160,10 @@ a veto would strike.
 ## 4. Evidence recorded at proposal time
 
 - [ ] 4.1 The population, RE-STATED AT THE CATCH-UP MERGE of 2026-08-31 whose
-      `main`-side parent is `7f656980`: 20 active MODIFIED blocks, 16 `canon`,
+      `main`-side parent is `7f656980` and RE-READ UNCHANGED at the SECOND
+      catch-up merge of the same day, whose `main`-side parent is `9af98c4d`
+      (the `main` tip after #530, #509, #513 and #524): 20 active MODIFIED
+      blocks, 16 `canon`,
       4 `pending`; all four adding siblings `ratified`; zero markers; the
       proposal cross-reference present in 4 of 4 and over-broad by two to three
       unrelated active change ids in each. **THE UNDISCLOSED STATE'S LAUNCH
@@ -152,13 +189,16 @@ a veto would strike.
       ledger findings. Re-run BOTH at every catch-up merge; canon moving under
       either block is exactly the defect the family exists to catch and this
       packet is not exempt from it.
-      RE-RUN AT THE 2026-08-31 CATCH-UP MERGE: canon still carries the
+      RE-RUN AT BOTH 2026-08-31 CATCH-UP MERGES, the second against `9af98c4d`:
+      that merge moved nothing under either block — `openspec/specs/` is
+      byte-identical between `7f656980` and `9af98c4d` — and canon still carries the
       `release-realization` requirement at
       `openspec/specs/release-realization/spec.md:64-78` and the `doc-health`
       one at `openspec/specs/doc-health/spec.md:2055-2126`, both unmoved, both
       blocks still resolve `canon`, and a `--single-repo --family
       modified-block-currency` run over the branch tree emits 8 findings, none of
-      them against either of this packet's delta paths.
+      them against either of this packet's delta paths — the same 8, re-measured
+      after the second merge.
 - [ ] 4.3 The collision class's population is zero on this tree: no active ADDED
       block names a title the promoted specification carries.
 - [ ] 4.4 The `family-enumeration` gate stays green: no family is registered, so
