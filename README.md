@@ -480,8 +480,18 @@ Active changes:
   three ACCEPT AS AMENDED, the sitting carried in `review/` with
   `disposition-2026-08-30.md` as the sole disposition of record. Brett Heap ruled
   *"accept all fifteen as recommended"*; this packet's **three blocking
-  amendments and one folded bot finding are discharged** and **RATIFICATION IS
-  THE NEXT ACT** — the ruling authorized a fix round and ratified nothing.
+  amendments and one folded bot finding were discharged**, then NINE bot rounds
+  followed. **RATIFIED 2026-08-30** (`Status: ratified`; record
+  `review/ratification-2026-08-30.md`), ruling *"2 yes with note"* — **the note
+  being that the heads from `fd7c1ca7` onward are unreviewed by any bot on a
+  quota refusal rather than a clean pass**, disclosed before the ruling and
+  ratified under the prescribed-fix principle. The same act **normalized the
+  frozen sitting headers (4a)**, **blessed LS-A9's out-of-disposition execution
+  (5)**, and **ordered the TIMING-MODEL CONSOLIDATION (6a)** — eighteen scattered
+  paragraphs, in which three consecutive rounds had found direction errors,
+  restated as ONE section with semantics unchanged and every clock-relevant
+  scenario satisfied. **Ratification authorizes REALIZATION and performs none of
+  it.**
 - [add-binding-consumer-identity](openspec/changes/add-binding-consumer-identity/proposal.md)
   — authored 2026-08-29, **RATIFIED 2026-08-29** (`Status: ratified`; record
   `review/ratification-2026-08-29.md`). **THE FIRST PACKET THROUGH THE §7.4 PATH

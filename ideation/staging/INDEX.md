@@ -1938,8 +1938,13 @@ repo scope.
   #509 — an instrument the disposition rules WRONG at item 9, future sittings
   split): four seats, one ACCEPT and three ACCEPT AS AMENDED, **three blocking
   amendments plus one folded bot finding, all discharged in the fix round**, the
-  sitting carried in `openspec/changes/add-chain-anchoring/review/`. **RATIFICATION
-  IS THE NEXT ACT** — the ruling authorized a fix round and ratified nothing.
+  sitting carried in `openspec/changes/add-chain-anchoring/review/`. **RATIFIED
+  2026-08-30** (record `openspec/changes/add-chain-anchoring/review/ratification-2026-08-30.md`,
+  ruling *"2 yes with note"* — the note being an unreviewed tail from `fd7c1ca7`
+  on a bot quota refusal), together with the frozen-header normalization, the
+  blessing of LS-A9, and the timing-model consolidation. **EXIT 3 IS THEREFORE
+  RATIFIED AND NOT REALIZED**; the contract family and its validator are a later
+  commission.
   **A ruling of that sitting reaches THIS TOPIC**: its anchor-late constraint sits
   in `## Conflicts` with no disposition stamp and is reached by none of the seven
   Q-dispositions, so it was **NOT ruled by the topic being ruled** — the packet

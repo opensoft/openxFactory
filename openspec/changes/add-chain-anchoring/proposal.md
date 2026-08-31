@@ -5,7 +5,9 @@ target_release: THE NEXT ADDITIVE MINOR, DELIBERATELY NOT NUMBERED HERE — allo
 
 # Proposal: add-chain-anchoring
 
-Status: draft
+Status: ratified
+Ratified: 2026-08-30 by Brett Heap (repository owner) — record
+`review/ratification-2026-08-30.md`, ruling item 2 of six, *"2 yes with note"*.
 Proposed: 2026-08-29, as EXIT 3 OF THREE of the staged topic
 `signed-execution-chain`. **RATIFICATION HAS NOT HAPPENED AND IS NOT SOUGHT BY
 THIS PACKET'S LANDING.** This packet is authored to be read adversarially by a
