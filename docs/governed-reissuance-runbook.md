@@ -64,6 +64,8 @@ You need:
   `governance/review-authority/register.yaml` is a *"PERMANENTLY HUMAN-ONLY
   SURFACE (ratified requirement, explicit here by name): no council verdict may
   ever produce an autonomous approval of a change to THIS file"*;
+* the ability to **re-derive the Hermes register projection** (step 5b), because
+  the register act does not reach the runtime without it;
 * the superseded grant's own file open, so you are quoting it rather than
   remembering it.
 
@@ -86,14 +88,18 @@ the merge-readiness council the declared set is **six components**, enumerated
 in codexFactory `hermes/domain/review-councils/merge-readiness.yaml` under
 `council.composition_source_map.components`:
 
+**Every path in this table is a `codexFactory` path**, spelled with its
+repository because this runbook lives in `openxFactory` and an unqualified
+`agent-mixes.yaml` resolves to nothing here:
+
 | Component | Binding | Declared source |
 |---|---|---|
-| `model_version` | content | `agent-mixes.yaml#…model_assignments` |
-| `prompt_contract` | content | `agent-mixes.yaml#…prompt_contract` |
-| `tool_manifest` | content | `agent-mixes.yaml#…tool_manifest` |
-| `policy_version` | content | `merge-readiness.yaml#council.policy_version` |
-| `parameters` | content | `agent-mixes.yaml#…parameters` |
-| `retrieval_corpus` | reference | `agent-mixes.yaml#…retrieval_corpus` |
+| `model_version` | content | `codexFactory:hermes/domain/agent-mixes.yaml#…model_assignments` |
+| `prompt_contract` | content | `codexFactory:hermes/domain/agent-mixes.yaml#…prompt_contract` |
+| `tool_manifest` | content | `codexFactory:hermes/domain/agent-mixes.yaml#…tool_manifest` |
+| `policy_version` | content | `codexFactory:hermes/domain/review-councils/merge-readiness.yaml#council.policy_version` |
+| `parameters` | content | `codexFactory:hermes/domain/agent-mixes.yaml#…parameters` |
+| `retrieval_corpus` | reference | `codexFactory:hermes/domain/agent-mixes.yaml#…retrieval_corpus` |
 
 A **provider alias roll** touches `model_version` and nothing else. An
 alias-to-exact flip touches `model_version` and nothing else. Both are in
@@ -111,8 +117,8 @@ Two things execute inside a seat and are declared nowhere:
 
 * **The runtime.** The composition enumerates six components and the runtime is
   not one of them, although the soak's own semantics treat a runtime change as
-  invalidating (`codexfactory-routine-code-clearance.yaml`, `soak_gate`'s
-  preamble: *"a mid-soak runtime reseed or image change invalidates the rows
+  invalidating (`codexFactory:scripts/merge_master/codexfactory-routine-code-clearance.yaml`,
+  `soak_gate`'s preamble: *"a mid-soak runtime reseed or image change invalidates the rows
   taken before it"*). A reseed is therefore a **soak-invalidating** event that
   is **not** a composition bump — recover it through §6, not through this
   runbook's steps 1–5.
@@ -121,7 +127,8 @@ Two things execute inside a seat and are declared nowhere:
   composition file, is pinned by no flip, and carries the earliest published
   retirement floor in the surveyed register (**2026-10-15**). Whether it becomes
   a seventh component or lives under `Parameters` belongs to the R6–R12 change
-  (Gate-Rules Council 2026-08-29 §6.1 P-1), **not to a walk of this runbook**.
+  (`codexFactory:hermes/domain/review-councils/records/2026-08-29-gate-rules-s5-seat-model-selection.md`
+  §6.1 P-1), **not to a walk of this runbook**.
 
 **Consequence, and state it on every record this runbook produces:** completing
 this runbook does NOT make a composition fully pinned. Repair R-IV of the
@@ -141,12 +148,26 @@ activate → revoke`):
 | apply it to the enrolled roster | the roster-change **Lead**, via `roster_change: lead_accepted_recorded` | a codexFactory **roster-change** record |
 | evidence exact provider identity and the plane | the **Operator** | the Packet 2 identity record |
 | **register** — issue or re-issue | a named **human ratifier** | `governance/review-authority/` in THIS repository |
-| revoke | nobody — the cascade is fail-closed and *"a fail-closed cascade must not wait on a human"* (R11) | automatic |
+| revoke | **no RATIFIER** — the cascade is fail-closed and *"a fail-closed cascade must not wait on a human"* (R11) — but see the note below: today an operator still performs the WRITE | `governance/review-authority/grants/` in THIS repository |
 
 **REGISTER is the only human-ratified act in that list, and RE-ISSUE always
 requires one** (R11). If you find yourself about to perform two of these roles
 in one motion, stop and disclose it on the record instead — the 2026-08-22
 precedent did exactly that when one human held two capacities.
+
+> **REVOCATION NEEDS NO RATIFIER, BUT IT IS NOT AUTOMATIC HERE, AND THE
+> DIFFERENCE MATTERS.** R11's point is that revocation must not *wait on* a
+> human decision. It is not a claim that something in this estate performs it.
+> **Nothing today writes `state: revoked` into a grant file.** The register is a
+> file on a permanently human-only surface; there is no daemon, no reconciler
+> and no hook that walks a composition change into
+> `governance/review-authority/grants/`. Until the drift-cascade change's
+> declared realization surface exists, **the write is an operator act**, and the
+> only thing that is genuinely automatic is the REFUSAL: the reader fails the
+> required gate when a row's grant does not back it, and the runtime refuses at
+> exercise. Treat step 5 as a hand-performed act with a machine-enforced
+> refusal behind it, and never as a cascade that ran while you were not
+> looking.
 
 ---
 
@@ -233,7 +254,8 @@ Operationally, between step 2 and step 5:
   *unannounced*, and the reason step 5 is scheduled with step 2 rather than
   discovered after it.
 * **Do not clear a park by re-running it.** A park is the control working. The
-  only exit is step 5.
+  only exit is step 5 **and step 5b together** — the register act alone leaves
+  the runtime refusing on a stale projection (§5.2).
 * **Do not honor an earlier admission stamp.** An exercise that detects a
   composition mismatch refuses regardless of when the candidate was admitted.
 * **Name the refusal.** A park whose reason does not name the composition event
@@ -292,15 +314,105 @@ resulting composition"* — and it is:
 * **explicit, never standing.** *"No automatic reissue, and no standing reissue
   policy that acts on its own, may restore authority: the act is performed
   afresh each time, by a named human, against the composition then declared";*
-* **shape-constrained.** `row-mrc-0001` carries nine fields and the reader
-  enforces exact set-equality over them, plus an enumerated top level. There is
-  no model field on a row and adding one would be refused. A re-issuance
-  therefore moves `grant_ref` / `expires_at` / `state` and their grant file —
-  it does not smuggle the composition onto the row.
+* **shape-constrained.** `row-mrc-0001` carries nine fields
+  (`row_id`, `holder_ref`, `wallet_ref`, `target_repo`, `act`,
+  `authority_tier`, `grant_ref`, `expires_at`, `state`) and the reader enforces
+  **exact set-equality** over them, plus an enumerated top level. There is no
+  model field on a row and adding one would be refused. A re-issuance does not
+  smuggle the composition onto the row.
 
-When step 5 is performed, return to step 4 and fill the superseding grant
-reference and the effective time. **The re-issuance record is not complete until
-that return trip has happened.**
+### 5.1 The atomic acts, in order — and a grant is REPLACED, never revived
+
+**Do not "un-revoke" the superseded grant, and do not edit it back to
+`active`.** The ratified core rule is terminal:
+
+> *"A revoked grant SHALL NEVER return to the active state. Authority resumes
+> only as a NEW grant, which records the grant it supersedes and the holder
+> composition or standing it was issued against. A revocation is therefore a
+> terminal fact about that grant rather than a suspension of it."*
+> — `openxwallet` core, `add-composition-drift-cascade` (ratified 2026-08-28,
+> ancestor of the pinned commit)
+
+So step 5 is **three writes and one non-write**, and they land in ONE change:
+
+1. **REVOKE the superseded grant, in place.** In its own file, set
+   `state: revoked` and add the `revocation` block the schema requires —
+   `revoked_at` (the instant) and `reason` (naming the **composition event**,
+   because a revocation whose reason does not name what caused it is
+   indistinguishable from an outage). Reason class is **DRIFT**, and DRIFT
+   propagates exactly as CAUSE — *"no derived authority survives on the strength
+   of its parent's reason."*
+2. **MINT a NEW grant file** — a new `grant_id`, `state: active`, `issued_at`
+   the effective instant, `issued_by` the named ratifying human, `expires_at`
+   chosen afresh, and the scope carried forward deliberately rather than copied
+   without looking.
+3. **REPOINT the row.** `grant_ref` → the new `grant_id`; `expires_at` → the new
+   grant's, **character-for-character**. **The row's own `state` stays
+   `active`** — the row is the authority's continuing existence, not the
+   grant's.
+4. **DO NOT add a row.** The single-row cap is retained and bounds AUTHORITY
+   ROWS; a second row for the same holder and target is refused.
+
+**Why all of it is one change, mechanically.** The reader checks that a row's
+`grant_ref` names a grant whose `state` is `active` and whose `expires_at`
+equals the row's. Revoke the old grant and stop, and the required gate fails
+`register-grant-mismatch: grant state 'revoked'`. Mint the new grant and forget
+the repoint, and the row still backs a revoked grant. **There is no order of
+these writes that is green halfway**, which is the point: the window in which a
+revoked holder looks authorized cannot be entered from this runbook.
+
+**HONEST LIMIT — the "records the grant it supersedes" half has NO FIELD YET.**
+The pinned grant schema is `additionalProperties: false` and carries no
+`supersedes` key; `parent_grant_ref` means *derived from*, which is a different
+relation and must not be borrowed for this one. The drift-cascade change that
+ruled the requirement declares its realization surface and does not perform it.
+**Until that surface lands, the supersession is recorded in the re-issuance
+record of step 4 and nowhere else** — say so there, rather than inventing a
+field the validator would refuse.
+
+When steps 1–3 are done, return to step 4 and fill the **superseding grant
+reference** and the **effective time**. **The re-issuance record is not complete
+until that return trip has happened.**
+
+### 5.2 Step 5b — the projection, or the park does not open
+
+**Landing the register act does not un-park anything by itself, and stopping
+here is the commonest way to think this runbook is finished when it is not.**
+The runtime does not read `register.yaml`; it reads an operator-established
+**projection** of it:
+
+> *"The operator's Hermes register projection
+> (`hermes_review_authority_register_projection`, schema_version 2) takes each
+> seat row from here plus the authorizing row, the wallet's custody model and
+> the grant's constraints — nothing invented — and `revocation_staleness_bound`
+> above travels into it verbatim as `projected_from.staleness_bound`. **Until
+> the projection is re-derived, the runtime still refuses with
+> `review_authority.root_key_mismatch`**; that step is an operator act and it
+> must not carry a fact this file does not."*
+> — [`governance/review-authority/register.yaml`](../governance/review-authority/register.yaml)
+
+So:
+
+1. **Re-derive the projection** from the amended register. Nothing is invented
+   in it: every field comes from the register rows, the authorizing row, the
+   wallet's custody model and the grant's constraints.
+2. **Carry `revocation_staleness_bound` VERBATIM** into
+   `projected_from.staleness_bound`. It is declared on the human-only surface
+   **beside the rows it bounds** precisely so a deploy setting cannot loosen it,
+   and the runtime holds a ceiling of its own and honours whichever is tighter —
+   *"an artifact must never be able to widen its own trust window."* Today the
+   bound is **`P7D`**, and it is loose on purpose because nothing refreshes the
+   projection automatically; do not tighten it here as a tidy-up.
+3. **VERIFY ONE CONVENING ADMITS.** The park is not lifted by a green validator
+   — it is lifted when a real convening is admitted against the new grant. Until
+   you have seen that, you have evidence that the *files* are consistent and no
+   evidence that the *lane* recovered. Record which convening you watched.
+
+**A projection older than the bound REFUSES, never proceeds on the stale copy.**
+A re-issuance that lands the register act and skips 5b leaves every convening
+parked with a refusal that names a key mismatch rather than the composition
+change — the correct outcome reached by a confusing route, and the operator
+reading it will look in the wrong place.
 
 ---
 
@@ -371,7 +483,13 @@ change already uses for its dated rulings, and the archived
 * the step-1 superseded state, quoted;
 * the step-2 bump's identity — the merge commit of the change that performed it,
   and the tests that prove the commit set is green whole and red partial;
-* the step-4 five-field record, with each PENDING naming what it waits on;
+* the step-4 five-field record, with each PENDING naming what it waits on, and
+  the supersession recorded **in prose** because no grant field carries it yet
+  (§5.1);
+* the step-5 acts — the revoked grant's id and revocation reason, the new
+  grant's id, and the row's repointed `grant_ref`/`expires_at` — and the
+  **step-5b** evidence: that the projection was re-derived, that the staleness
+  bound travelled verbatim, and **which convening was watched admitting**;
 * the honest limits restated, in terms: **R8 and R9 are not enforced until the
   change carrying R6–R12 is ratified**, so the walk demonstrates the runbook
   against a real bump and does not exercise an enforced control; **this walk
@@ -386,8 +504,10 @@ argued act in the change's own `tasks.md`.
 
 ## What this runbook deliberately does not do
 
-* **It does not perform the register act.** Step 5 is a pointer. The act is a
-  named human's, on a permanently human-only surface.
+* **It does not perform the register act, or the projection re-derivation.**
+  Steps 5 and 5b are pointers. The act is a named human's, on a permanently
+  human-only surface, and the projection that makes it reach the runtime is the
+  operator's.
 * **It does not evidence the provider plane.** That is R5 and the Operator's
   Packet 2 identity record. Nothing here may be cited as plane evidence.
 * **It does not define the canonical composition hash.** R6 and R7 are
