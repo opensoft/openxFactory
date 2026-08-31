@@ -1067,38 +1067,6 @@ Active changes:
   allowance passes explicitly, and revocation blocks the next dispatch and
   admission. Realization cuts the next additive contract bundle; no domain
   detector, runtime registry service or allowance instance lives here.
-- [add-notebook-hosting-credential-custody](openspec/changes/add-notebook-hosting-credential-custody/proposal.md)
-  — authored 2026-08-23, **NOT YET RATIFIED** (`Status: draft`). The follow-up
-  to `add-notebook-projection-identity`, on Brett Heap's direction the same day:
-  *"this is a xFactor001 login. and we want to store the password in a kv and
-  have xFactory and openXdox login with its own authority."* The declared
-  hosting identity change named the account and said nothing about its
-  CREDENTIAL, leaving the password wherever its creator put it — the
-  personal-account failure moved one level down rather than removed. Adds the
-  POSITIVE custody obligation the ratified generalization lacks (that
-  generalization forbids hard-coding a credential; it does not require custody
-  to exist, so an account whose password lives only in its creator's head
-  satisfies it), extends custody to the whole credential set including a
-  second factor's seed, and rules ONE IDENTITY / PER-SYSTEM AUTHORITY: each
-  consuming system reaches the shared account through its own binding, access
-  identity, grant, rotation visibility and audit trail — one identity may be
-  shared, one authority may not. The hosting record gains a BY-REFERENCE
-  custody pointer, never secret material. Two findings shaped it: the promoted
-  by-reference requirement already refuses distributing refreshable session
-  state, and the `nlm` profile is exactly that class — so Brett's
-  no-shared-session ruling is independently required on credential-class
-  grounds, not just accountability; and the live binding INSTANCES do not
-  belong here at all, because `contracts/manifest.yaml` records that
-  *"openxFactory ships no instance records (they live in client installs,
-  credential-contracts residency model)"* — so the neutral obligations land
-  here and the concrete bindings land in the install lane and openXdox's own,
-  a redirection of the ruling's route that is FLAGGED for the ratification
-  read rather than decided quietly. Honest gaps recorded, not assumed away:
-  **custody is not automation** (the sign-in is a browser flow with ~20-minute
-  sessions and possible 2FA; automated login stays future work), a TOTP seed
-  may itself need custody, and **no live secret is created, moved or read by
-  this change**. `target_release: none` — the binding-template shape is already
-  published, `contracts/` is untouched, no bundle is cut.
 - [declare-client-standing-policy-contract](openspec/changes/declare-client-standing-policy-contract/proposal.md)
   — authored and ratified 2026-08-23 (Brett Heap, in-session). Closes
   `opensoft/openxFactory#254`: `hermes_client_overlay` is a contract THIS repo
@@ -1609,6 +1577,55 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [add-notebook-hosting-credential-custody](openspec/changes/archive/2026-08-31-add-notebook-hosting-credential-custody/proposal.md)
+  — **ARCHIVED 2026-08-31 on merged-plus-green, FIRST BY RULING so that a
+  dependent packet could archive at all, and rebuilt once against the § 6 sweep.**
+  Ratified 2026-08-23 (Brett Heap, in-session) with two rulings in one read —
+  ratify the requirement set, and the **residency redirect ACCEPTED**: neutral
+  obligations here, live binding instances in the consuming installs. **REALIZED
+  2026-08-26** by PR **#395** (merge `1dd822ea`, re-verified an ancestor of `main`
+  at the archive act); **`target_release: none` and it held** — `git diff
+  origin/main -- contracts/` empty, bundle still `contract-v2.5`, no CHANGELOG
+  entry, no manifest row, no inventory, no tag. Every §1–§3 box was checked
+  against the tree rather than trusted: the `custody:` block naming the BINDING
+  and never the secret (`session_state_in_custody: false`, `self_hosted` exempt),
+  `_check_custody` plus the secret-shaped refusal running over the whole hosting
+  block, the both-directions tests, and the three documentation surfaces including
+  the rule that **the `nlm` profile is refreshable session state and is NOT a
+  custody subject**. **THE § 6 SWEEP CHANGED THIS PACKET BEFORE IT ARCHIVED**: PR
+  **#538** (squash `3a6a16e9`) struck this block's fifth scenario, *"The published
+  binding shape cannot yet express the access identity"* — **struck, not
+  re-scoped**, falsified in every clause by `contract-v2.4`, a dated amendment note
+  standing in its place under Brett Heap's consent. An earlier archive attempt at
+  `bd2ccbc3` had copied the pre-sweep bytes and was rebuilt from `3a6a16e9` rather
+  than reconciled textually. **THE ORDER IS THE POINT.**
+  `add-binding-consumer-identity` carries a MODIFIED block over `Each consuming
+  system reaches a shared operated identity through its own binding` — a
+  requirement THIS packet ADDS — so `openspec archive` aborted on that packet with
+  *"MODIFIED failed for header … - not found"* while this one stayed active; its
+  §7.2 pre-archive `grep` read **0** before this act and **1** after. Brett ruled
+  **Route 1** on 2026-08-31: the basis archives first, rather than converting that
+  block to ADDED, which `govern-sibling-added-modified-deltas` (ratified and merged
+  the same day, `8f986c39`) calls **a breach** unless taken as a paired act; #538
+  says the same in its own words. **PROMOTION VERIFIED BYTE-FOR-BYTE with no
+  scenario-completeness exposure to measure**: the packet is **pure ADDED** across
+  both deltas — no MODIFIED, REMOVED or RENAMED block anywhere. Measured anyway:
+  **3 requirements in, 3 out, all three bodies byte-identical (3/3), 13 scenarios
+  in, 13 out** (thirteen post-sweep; fourteen before it); `credential-contracts`
+  **7 → 9 requirements, 24 → 33 scenarios**; `lifecycle-notebook-projection` **+1
+  requirement**; neither ADDED title existed in canon beforehand. `doc-health
+  --family promotion-fidelity` → **No findings**. `.openspec.yaml` moved rather
+  than being lost, blob `36d76fdc` identical across the move. **FIVE BOXES SURVIVE
+  UNTICKED BY DECISION**, each with a restated disposition: §4.1 the declined
+  fixture, §4.2/§4.3 the residency statements, **§4.4 an OPERATOR ACT** — placing
+  the password into `kv-opensoft-xfactory-qa`, which nothing here performs or
+  witnesses — and §6.2, which attaches to `add-notebook-projection-identity`'s
+  archive. **§4.5 DID close**: the successor it owed is
+  `add-binding-consumer-identity`, whose `consumer:` block is published and cut as
+  `contract-v2.4`, so the box is ticked on the shipped shape rather than on the
+  successor's existence — and that same release is what falsified the struck
+  scenario.
 
 - [add-signed-execution-chain](openspec/changes/archive/2026-08-31-add-signed-execution-chain/proposal.md)
   — **ARCHIVED 2026-08-31 on merged-plus-green PLUS THE CUT, WITH TWO BOXES
