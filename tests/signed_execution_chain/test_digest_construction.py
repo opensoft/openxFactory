@@ -137,14 +137,19 @@ def test_an_integer_outside_the_exactly_representable_range_is_refused():
             canonical.digest([outside])
 
 
-def test_the_integer_bound_is_declared_in_the_contract_too():
+def test_every_bound_the_code_enforces_is_declared_in_the_contract():
     """One fact, two places it has to be true. A bound the code enforces and the
-    contract does not declare is a refusal a consumer cannot anticipate."""
+    contract does not declare is a refusal a consumer cannot anticipate — so each
+    time a refusal is added to `serialize`, this test is the site that has to
+    grow with it."""
     text = CONTRACT.read_text(encoding="utf-8")
     assert "2**53 - 1" in text
     assert "9007199254740993" in text, (
         "the contract states the disagreement concretely, because 'large integers "
         "may differ' does not tell a reader where the line is")
+    assert "U+D800-U+DFFF" in text, (
+        "the unpaired-surrogate refusal is enforced by `serialize` and must be "
+        "declared here too")
 
 
 def test_every_integer_the_family_declares_is_inside_the_bound():
@@ -181,6 +186,27 @@ def test_an_unadmitted_value_class_is_refused_as_a_construction_error():
         canonical.serialize({"x": {1, 2}})
     with pytest.raises(canonical.ConstructionError):
         canonical.serialize({1: "a non-string member name"})
+
+
+def test_an_unpaired_surrogate_is_a_construction_error_not_a_crash():
+    """Copilot's finding on `eb1241fc`, and the point is WHICH exception.
+
+    Python strings can hold unpaired surrogates — a YAML reader using
+    `surrogatepass`, or crafted input. `_escape` passed them through and
+    `digest`'s `.encode("utf-8")` then raised `UnicodeEncodeError`, which is NOT
+    `ConstructionError`: it escaped the refusal path every caller handles and
+    surfaced as a harness failure rather than as a finding. A construction that
+    crashes on an input it should refuse has two answers.
+
+    The valid-pair control matters as much as the refusals: a real astral
+    character must still serialize, or the fix would be refusing legitimate
+    records."""
+    for value in ({"x": "\ud800"}, {"\udfff": "x"}, {"x": ["ok", "\ud83d"]},
+                  ["\udc00"], "\ud800\ud800"):
+        with pytest.raises(canonical.ConstructionError):
+            canonical.digest(value)
+    # And an astral character, which Python holds as one code point, is fine.
+    assert canonical.digest({"x": "\U0001f600"}).startswith("sha256:")
 
 
 def test_the_digest_is_sha256_over_the_serialized_utf8_bytes():

@@ -10,7 +10,11 @@ contract does not.
      by the UTF-16 code-unit order of their names, no insignificant whitespace,
      JSON string escaping restricted to the shortest legal form, output UTF-8.
   2. ADMITTED VALUE CLASSES — object, array, string, INTEGER, boolean, null. A
-     non-integer number RAISES rather than being serialized.
+     non-integer number RAISES rather than being serialized, as does an integer
+     outside the exactly-representable range and a string or member name holding
+     an UNPAIRED SURROGATE. Every refusal is a `ConstructionError`: a value this
+     construction cannot serialize must reach the caller as the same kind of
+     answer, never as a `UnicodeEncodeError` from an encode step further down.
   3. ALGORITHM AND ENCODING — SHA-256, rendered `sha256:` + 64 lowercase hex.
 
 WHY THE NUMBER CLASS IS BOUNDED RATHER THAN IMPLEMENTED. RFC 8785 serializes
@@ -94,6 +98,20 @@ def _escape(text: str) -> str:
     out = ['"']
     for char in text:
         code = ord(char)
+        if 0xD800 <= code <= 0xDFFF:
+            # A LONE SURROGATE IS REFUSED HERE, not left to fail on encode.
+            # Found by Copilot on `eb1241fc`: Python strings can hold unpaired
+            # surrogates (a YAML reader using `surrogatepass`, or crafted input),
+            # `_escape` passed them through, and `digest`'s `.encode("utf-8")`
+            # then raised `UnicodeEncodeError` — which is not
+            # `ConstructionError`, so it escaped the refusal path every caller
+            # handles and surfaced as a HARNESS FAILURE instead of a finding. A
+            # construction that crashes on an input it should refuse is a
+            # construction with two answers.
+            raise ConstructionError(
+                f"{CONSTRUCTION} admits no unpaired surrogate code point "
+                f"(U+{code:04X}): it is not encodable as UTF-8, so it has no "
+                f"serialization for any reader to agree with")
         escape = _ESCAPES.get(code)
         if escape is not None:
             out.append(escape)

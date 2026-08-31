@@ -257,7 +257,22 @@ JUST ADDED** — which is the honest measure of how far a self-run sweep gets:
 | --- | --- | --- |
 | 3 | **P1 (Codex)** — a `traveling_contract_issued` leaf could name chain A in `chain_ref` while carrying the `payload_ref` and digest of chain B's traveling contract. BOTH checks that should have caught it looked SCOPE-WIDE: the payload-digest recomputation resolved the contract by IDENTIFIER across the whole store, so it matched and recomputed cleanly, and the missing-leaf rule collected recorded ids GLOBALLY, so chain A's leaf discharged chain B's obligation. **Chain B passed with its primary custody record silent about an act the contract requires to be recorded — the exact hole the missing-leaf rule had just been added to close.** Pre-fix, measured: the fixture validated CLEANLY | The lookup is chain-scoped and requires exactly one match; the recorded set is keyed on the **(chain, contract)** PAIR. An issuance is discharged only by a leaf on the ISSUING chain. Probed by `issuance-leaf-filed-under-another-chain`, and the remaining three leaf types were checked for the same defect — all were already chain-scoped |
 
-**THE FIXTURE FOR IT WAS WRONG ON ITS FIRST DRAFT, AND THAT IS WORTH RECORDING**
+**AND COPILOT FOUND A REFUSAL THAT WAS A CRASH INSTEAD** in the same round, which
+is a class of its own: not a missing check, but a check whose ANSWER came out in
+the wrong currency.
+
+| Round | Finding | Where it landed |
+| --- | --- | --- |
+| 3 | **Copilot** — a string or member name holding an UNPAIRED SURROGATE passed the escaper and then raised `UnicodeEncodeError` at the encode step. That is not a `ConstructionError`, so it escaped the refusal path every caller handles and surfaced as a HARNESS FAILURE rather than as a finding. Pre-fix, measured: `UnicodeEncodeError` for both a value and a member name | `_escape` refuses U+D800–U+DFFF as a `ConstructionError`; the bound is DECLARED in the contract beside the integer one; and a test asserts the refusal for five shapes plus a VALID astral-character control, so the fix cannot have been achieved by refusing legitimate records |
+
+**A CONSTRUCTION THAT CRASHES ON AN INPUT IT SHOULD REFUSE HAS TWO ANSWERS**, and
+the whole point of one construction is that there is one. The general form is
+worth carrying: *every refusal must reach the caller as the same kind of answer*.
+The test that pins the integer bound's presence in the contract was widened into
+the site that has to grow with each new refusal, rather than a second test being
+added beside it.
+
+**THE FIXTURE FOR THE CROSS-CHAIN FINDING WAS WRONG ON ITS FIRST DRAFT, AND THAT IS WORTH RECORDING**
 because it nearly hid the finding. It reported as refused-for-the-intended-reason,
 and the reason was an INCIDENTAL defect the draft had introduced — its
 `inception_leaf_ref` named the wrong leaf — not the cross-chain filing under test.
