@@ -1,0 +1,364 @@
+schema_version: 1
+kind: openxfactory-signed-execution-chain-contract-schema
+name: xfactory_signed_execution_chain_inception
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/chain-inception.schema.yaml"
+contract_id: signed-execution-chain-inception
+contract_schema_version: 1
+title: Signed-execution-chain inception record (links 1 and 2)
+description: >-
+  The registration of a ratification into the signed-execution-chain registry,
+  performed in the SAME signed act as the ratification it registers
+  (add-signed-execution-chain, capability `signed-execution-chain`, requirements
+  "Ratification presents wallet-carried authority, proven by possession", "The
+  actor a chain records is bound to the wallet that signed" and "Ratification and
+  chain inception are one signed act").
+
+  ONE SIGNED BLOCK, AND EVERYTHING THAT MUST NOT BE ATTACHABLE AFTERWARDS IS
+  INSIDE IT. `signed_ratification` is the exact block the ratifying signature
+  covers — `ratification_signature.signed_over` is the constant
+  `signed_ratification` and admits no other value — and the CHAIN IDENTITY is the
+  digest of that block. The actor-to-wallet binding, the presentation reference,
+  the per-act value and the out-of-pipeline ground all sit inside it, because a
+  fact attachable after the signature is a fact anyone can attach.
+
+  THE PER-ACT VALUE IS NAMED, NOT MINTED. Re-ratifying an unchanged subject would
+  otherwise reproduce identical bytes, an identical digest and — under a
+  deterministic signature scheme — an identical signature, so the "new" chain
+  would silently BE the old one. The value that makes each ratifying act unique
+  is `signed_ratification.presentation.exercise_ref`: one exercise is one act, and
+  the pinned exercise record already carries it. This capability adds no field for
+  it, because a second spelling of one fact is a channel for the two to disagree.
+  Naming it is NECESSARY AND NOT SUFFICIENT — the pinned schema constrains no
+  reuse — so `scripts/validate-signed-execution-chain.py` REFUSES an inception
+  whose exercise reference is already consumed by another chain
+  (`per_act_value_reused`).
+
+  THE SHIPPED VOCABULARY IS CARRIED, NEVER RESTATED AND NEVER REPLACED. The
+  presentation is an `xfactory_wallet_grant_exercise` and the signing wallet is an
+  `xfactory_wallet_record`, both consumed at the `wallet-v1.3` digest pin
+  (`contracts/openxwallet-pin.yaml`); the actor is an `actor_subject_reference`
+  (`contracts/identity-brokering/`) carrying an
+  `xfactory_wallet_subject_attestation`. This schema declares ONLY the members
+  this capability RESTRICTS — the S2 precedent, which made `issued_by` required
+  for review-class grants without editing the shared grant schema — and leaves
+  every other member of those records open, so the carried record stays the
+  shipped record rather than a copy that has started to drift from it. The
+  canonical validator additionally validates each carried block against the PINNED
+  schema itself whenever the `openXwallet/` gitlink is present, and the gate
+  passes `--require-pinned-wallet-vocabulary` so a run that cannot reach the pin
+  REFUSES rather than degrading silently.
+
+  WHY THE RECORDS ARE CARRIED AND NOT ONLY REFERENCED. The reference requirement
+  demands is `presentation.exercise_ref`, and it is present and normative — the
+  carried block's own `exercise_id` must equal it. The block travels beside it
+  because the gate's presentation, actor, holder-class and signature checks READ
+  the exercise and the wallet, the traveling contract must be "a self-contained
+  artifact checkable at the point of use", and the actor binding is required to
+  fall inside the signed bytes. A reference nothing can resolve at the point of
+  use makes four of the gate's eight checks unrunnable, and a check that cannot
+  run confers nothing.
+
+  WHAT THIS RECORD IS NOT. It is not 025 FR-008's candidate-class enrollment: it
+  creates no `merge-approval-envelope`, names no candidate class, touches no
+  ruleset and produces no verdict. It carries no anchor, no external witness, no
+  commitment and no receipt — those are the named tranche-three successor — and
+  no attestation identity of any kind, which is tranche two.
+type: object
+required:
+  - schema_version
+  - kind
+  - inception_id
+  - chain_identity
+  - signed_ratification
+  - ratification_signature
+  - incepted_at
+  - inception_leaf_ref
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [xfactory_signed_execution_chain_inception]
+  inception_id: {$ref: '#/$defs/identifier'}
+  chain_identity:
+    # THE CHAIN IDENTITY, and its subject is named rather than left to context:
+    # it is taken over `signed_ratification` — the SIGNED BYTES — and never over
+    # the ratified subject. The ratified subject's own digest lives at
+    # `signed_ratification.ratified_subject.subject_digest` and is a DIFFERENT
+    # value over a DIFFERENT subject; equating the two rejects every conforming
+    # chain, because the signed bytes are a strict superset of the subject.
+    allOf:
+      - {$ref: '#/$defs/digest'}
+      - properties: {subject: {const: signed_ratification}}
+        required: [subject]
+  signed_ratification: {$ref: '#/$defs/signed_ratification'}
+  ratification_signature: {$ref: '#/$defs/ratification_signature'}
+  incepted_at: {type: string, format: date-time}
+  inception_leaf_ref:
+    # The transparency-log leaf that recorded this inception. Ratification and
+    # inception are one act; the leaf is how the act becomes PROVEN, and an
+    # inception whose leaf does not exist is an unproven act rather than a
+    # completed one.
+    $ref: '#/$defs/identifier'
+  record_version: {type: integer, minimum: 1}
+  notes: {type: string, maxLength: 1400}
+$defs:
+  # THE SHARED VOCABULARY IS TAKEN BY REFERENCE, NEVER RESTATED. `digest-construction.schema.yaml`
+  # declares the one construction in force and the shape every digest in this
+  # family carries; restating either here would be the second construction rule
+  # the requirement forbids.
+  identifier:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/identifier"
+  digest:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/digest"
+  chain_ref:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/chain_ref"
+  signed_ratification:
+    # THE EXACT BLOCK THE RATIFYING SIGNATURE COVERS. The chain identity is this
+    # block's digest under the one construction in force. Nothing outside this
+    # block is signed, so nothing outside it may carry a fact the capability
+    # requires to be unforgeable after the fact.
+    type: object
+    required:
+      - ratification_id
+      - ratified_at
+      - digest_construction
+      - ratified_subject
+      - presentation
+      - actor
+      - out_of_pipeline
+    additionalProperties: false
+    properties:
+      ratification_id: {$ref: '#/$defs/identifier'}
+      ratified_at: {type: string, format: date-time}
+      digest_construction:
+        # Declared IN the signed bytes: a construction attachable afterwards is a
+        # construction anyone can change.
+        type: string
+        const: xfc-jcs-sha256-1
+      ratified_subject:
+        type: object
+        required: [subject_type, subject_ref, subject_digest]
+        additionalProperties: false
+        properties:
+          subject_type: {$ref: '#/$defs/identifier'}
+          subject_ref: {type: string, minLength: 1, maxLength: 300}
+          subject_digest:
+            # THE CONTENT DIGEST — taken over the SUBJECT RATIFIED, and the value
+            # an exercise's `object_ref` carries. It is computable BEFORE the
+            # signature exists, which is why the replay binding is buildable at
+            # all and why it must never be equated with the chain identity.
+            allOf:
+              - {$ref: '#/$defs/digest'}
+              - properties: {subject: {const: ratified_subject}}
+                required: [subject]
+      presentation:
+        type: object
+        required: [exercise_ref, grant_ref, presenting_key_ref, exercise, wallet]
+        additionalProperties: false
+        properties:
+          exercise_ref: {$ref: '#/$defs/identifier'}
+          grant_ref: {$ref: '#/$defs/identifier'}
+          presenting_key_ref: {$ref: '#/$defs/identifier'}
+          exercise: {$ref: '#/$defs/carried_grant_exercise'}
+          wallet: {$ref: '#/$defs/carried_wallet_record'}
+      actor:
+        # WHOM THE ACT IS RECORDED AS, bound to the wallet whose key made the
+        # exercise. The exercise proves who SIGNED and nothing else; without this
+        # block a link could reference one holder's valid exercise and record a
+        # different, well-formed opaque subject with every other check passing.
+        type: object
+        required: [subject_reference, wallet_attestation]
+        additionalProperties: false
+        properties:
+          subject_reference: {$ref: '#/$defs/carried_actor_subject_reference'}
+          wallet_attestation: {$ref: '#/$defs/carried_subject_attestation'}
+      out_of_pipeline:
+        # THE GROUND IS CITED, NOT ASSERTED. A class over `openspec/changes/**`
+        # can never commission a council: that surface lies wholly inside the
+        # canonical GATE_INTEGRITY_FLOOR, which is evaluated before any clearable
+        # classification. Routing inception through the clearance-envelope
+        # pipeline would describe a control that provably cannot run — and the
+        # rule is not surface-dependent, because a pipeline that CLEARS candidates
+        # cannot also be what CONFERS the authority those candidates are cleared
+        # against.
+        type: object
+        required: [performed_out_of_pipeline, ground_ref, ground_statement]
+        additionalProperties: false
+        properties:
+          performed_out_of_pipeline:
+            # NOT a `const: true`. A record declaring `false` is a record saying
+            # inception was routed through the clearance-envelope pipeline, and
+            # that earns the NAMED refusal `inception_not_out_of_pipeline` — which
+            # says what was actually wrong — rather than a schema error saying a
+            # boolean did not match a constant.
+            type: boolean
+          ground_ref: {type: string, minLength: 1, maxLength: 300}
+          ground_statement: {type: string, minLength: 1, maxLength: 900}
+  ratification_signature:
+    type: object
+    required: [algorithm, presenting_key_ref, signed_over, signature]
+    additionalProperties: false
+    properties:
+      algorithm:
+        # Bounded by the shipped exercise vocabulary's enumeration. This
+        # realization VERIFIES `ed25519` and declares the other two unevaluable
+        # rather than accepting them unverified — an unevaluable chain is a
+        # refusal, never a pass.
+        type: string
+        enum: [ed25519, ecdsa-p256, ecdsa-secp256k1]
+      presenting_key_ref: {$ref: '#/$defs/identifier'}
+      signed_over:
+        type: string
+        const: signed_ratification
+      signature:
+        # Ed25519 signature, 64 raw bytes as canonical unpadded base64url — the
+        # spelling `governance/review-authority/register.yaml` already uses for
+        # the seat public halves.
+        type: string
+        pattern: '^[A-Za-z0-9_-]{86}$'
+  carried_grant_exercise:
+    # The SHIPPED `xfactory_wallet_grant_exercise`, carried verbatim. Only the
+    # members this capability READS are declared; every other member of the pinned
+    # record rides along untouched, and `additionalProperties` is deliberately
+    # open so that carrying the record is carrying the record.
+    #
+    # WHERE THE RESTRICTIONS LIVE, and why not here. This capability restricts two
+    # members the pinned schema leaves loose — `object_ref` must be PRESENT and
+    # must hold the ratification's CONTENT digest, and
+    # `proof_of_possession.signed_over` must be `request_digest`. Both are
+    # enforced by `scripts/validate-signed-execution-chain.py` under their own
+    # NAMED refusal codes rather than by a `const` here, because requirement 1's
+    # own doctrine is that a refusal must name what was actually lacking: a schema
+    # error saying "does not match const" is exactly the refusal that reports a
+    # missing proof as a missing grant. Shapes this capability OWNS are made
+    # unrepresentable; restrictions it imposes on a SHIPPED vocabulary are refused
+    # by name.
+    #
+    # THE RESIDUAL ON `signed_over` IS RAISED RATHER THAN CLAIMED CLOSED. It is an
+    # ENUM SELECTOR: it names WHAT the signature covered and holds no digest
+    # value, and the pinned schema carries no field that does. So the record alone
+    # cannot prove the signed request included `object_ref`. The durable repair is
+    # an additive optional signed-subject-digest field belonging to
+    # `opensoft/openXwallet` as a NAMED SUCCESSOR; see the SEC-R1 entry of the
+    # realization conformance declaration.
+    type: object
+    required:
+      - schema_version
+      - kind
+      - exercise_id
+      - grant_ref
+      - act
+      - event_class
+      - proof_of_possession
+      - attribution
+      - custody_model_in_force
+      - revocation_check
+      - outcome
+    properties:
+      kind:
+        type: string
+        const: xfactory_wallet_grant_exercise
+      exercise_id: {$ref: '#/$defs/identifier'}
+      object_ref: {$ref: '#/$defs/identifier'}
+      event_class:
+        type: string
+        enum: [authenticated, verification_failure, unauthenticated_request]
+      proof_of_possession:
+        type: object
+        required: [presented, verified, signed_over, presenting_key_ref]
+        properties:
+          presented: {type: boolean}
+          verified: {type: boolean}
+          signed_over: {type: string}
+          presenting_key_ref: {$ref: '#/$defs/identifier'}
+      revocation_check:
+        type: object
+        required: [performed_at_exercise, result]
+        properties:
+          performed_at_exercise: {type: boolean}
+          result:
+            type: string
+            enum: [active, revoked]
+      outcome:
+        type: string
+        enum: [permitted, refused]
+  carried_wallet_record:
+    # The SHIPPED `xfactory_wallet_record` of the wallet whose key signed, carried
+    # verbatim. The gate reads the public half from it (offline signature
+    # verification), the holder class from it (ratifying authority is human-held),
+    # and the wallet's standing from it.
+    type: object
+    required: [schema_version, kind, wallet_id, holder, key_reference, custody, state]
+    properties:
+      kind:
+        type: string
+        const: xfactory_wallet_record
+      wallet_id: {$ref: '#/$defs/identifier'}
+      holder:
+        type: object
+        required: [holder_id, holder_class]
+        properties:
+          holder_id: {$ref: '#/$defs/identifier'}
+          holder_class:
+            type: string
+            enum: [person, practitioner, organisation, agent]
+      key_reference:
+        type: object
+        required: [did, key_id]
+        properties:
+          did: {type: string, pattern: '^did:[a-z0-9]+:[A-Za-z0-9._:%-]+$'}
+          key_id: {$ref: '#/$defs/identifier'}
+      state:
+        type: string
+        enum: [active, suspended, revoked]
+  carried_actor_subject_reference:
+    # The SHIPPED `actor_subject_reference` (`contracts/identity-brokering/`),
+    # carried verbatim. This capability restricts provenance to
+    # `broker_asserted`: a ratification's actor is a first-party broker assertion,
+    # never a pre-broker username and never a mapped historical actor.
+    type: object
+    required: [schema_version, kind, reference_id, provenance, subject, issuer,
+               display_name_at_record, recorded_at]
+    properties:
+      kind:
+        type: string
+        const: actor_subject_reference
+      provenance:
+        type: string
+        const: broker_asserted
+      subject:
+        type: string
+        minLength: 16
+        maxLength: 200
+        pattern: '^[A-Za-z0-9][A-Za-z0-9._:-]*$'
+  carried_subject_attestation:
+    # The SHIPPED `xfactory_wallet_subject_attestation`, carried verbatim. THE
+    # DIRECTION IS FIXED BY THE PINNED CONTRACT AND THIS CAPABILITY DOES NOT
+    # REVERSE IT: `resolution.resolved_by` is closed to `subject_ref`, so a subject
+    # is resolved by its own identifier and NEVER through a wallet. The wallet
+    # reference is checked as an ATTESTATION only.
+    type: object
+    required: [schema_version, kind, subject_ref, wallet_ref, reference_role, resolution]
+    properties:
+      kind:
+        type: string
+        const: xfactory_wallet_subject_attestation
+      subject_ref: {$ref: '#/$defs/identifier'}
+      wallet_ref: {$ref: '#/$defs/identifier'}
+      reference_role:
+        # MIRRORED FROM THE PINNED CONTRACT, DELIBERATELY AND ONLY HERE. This is
+        # the one member whose wrong value silently converts an attestation into
+        # an identifier, which is the reading two ratified MedxFactory constraints
+        # exist to refuse; a run that cannot reach the pinned vocabulary must
+        # still refuse it. `resolution.resolved_by` is NOT mirrored, because the
+        # direction it fixes earns a NAMED refusal
+        # (`actor_resolved_through_wallet`) rather than a schema error.
+        type: string
+        const: attestation
+      resolution:
+        type: object
+        required: [resolved_by]
+        properties:
+          resolved_by: {type: string}

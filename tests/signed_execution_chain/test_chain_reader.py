@@ -1,0 +1,548 @@
+"""`scripts/validate-signed-execution-chain.py` — the NAMED READER, adjudicated.
+
+The reader's own self-test already proves the packaged corpus valid and every
+negative fixture invalid for its intended reason. What this module adds is the
+part a self-test cannot check about itself:
+
+  * that the corpus is not vacuous — the positives really are a whole chain, and
+    the negatives really are single-fault variants of it;
+  * that EVERY closed refusal code has a packaged probe, checked here as well as
+    inside the reader, so a code added without a fixture fails a REQUIRED check
+    rather than only the tool that declares it;
+  * that the carried-vocabulary path REFUSES a carried block the shipped shape
+    would reject, which is the check the gate's
+    `--require-pinned-wallet-vocabulary` flag exists to keep from degrading; and
+  * that the exit codes and the notes the gate greps for are what the gate greps
+    for.
+"""
+
+from __future__ import annotations
+
+import importlib.util
+import sys
+from pathlib import Path
+
+import pytest
+import yaml
+
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+VALIDATOR_PATH = REPO_ROOT / "scripts" / "validate-signed-execution-chain.py"
+EXAMPLES = REPO_ROOT / "contracts" / "signed-execution-chain" / "examples"
+NEGATIVES = EXAMPLES / "negative"
+
+
+def _load_reader():
+    """The reader's filename carries a dash, so it is loaded by path. It is
+    registered in `sys.modules` BEFORE execution because `@dataclass` resolves
+    annotations through `sys.modules[cls.__module__]`, and a module that is not
+    there yet fails at class-definition time rather than at first use."""
+    spec = importlib.util.spec_from_file_location(
+        "validate_signed_execution_chain", VALIDATOR_PATH)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+reader = _load_reader()
+
+
+@pytest.fixture(scope="module")
+def registry_and_docs():
+    return reader.build_registry()
+
+
+@pytest.fixture(scope="module")
+def carried():
+    findings = reader.Findings()
+    return reader.load_carried_schemas(findings, required=False)
+
+
+def _validate(records, registry_and_docs, carried):
+    findings = reader.Findings()
+    registry, docs = registry_and_docs
+    reader.validate_scope(findings, records, registry, docs, carried)
+    return findings
+
+
+def test_the_packaged_corpus_is_one_whole_chain(registry_and_docs, carried):
+    """Not merely "each file is well formed": the positives must compose into a
+    chain that passes all EIGHT checks, or every negative below is measured
+    against a baseline that was already broken."""
+    findings = _validate(reader.positive_records(), registry_and_docs, carried)
+    assert findings.errors == []
+
+
+def test_the_corpus_covers_all_four_kinds_and_every_leaf_type(registry_and_docs,
+                                                              carried):
+    records = reader.positive_records()
+    kinds = {doc["kind"] for _, doc in records}
+    assert kinds == set(reader.KIND_TO_SCHEMA)
+    leaf_types = {doc["leaf_type"] for _, doc in records
+                  if doc["kind"] == "xfactory_signed_execution_chain_log_leaf"}
+    assert leaf_types == set(reader.LEAF_TYPES), (
+        "every act this capability governs writes a leaf, so every leaf type has "
+        "a packaged example or one of them is a shape nobody has ever produced")
+
+
+def test_every_closed_refusal_code_has_a_packaged_probe():
+    """The reader enforces this too. It is repeated here because THIS module runs
+    inside the required `pytest-suite` job: a refusal code added without a
+    fixture must fail a required check, not only the tool that declares it."""
+    probed = {reader.expected_failure(path)[0]
+              for path in sorted(NEGATIVES.glob("*.yaml"))}
+    assert reader.REFUSAL_CODES <= probed, sorted(reader.REFUSAL_CODES - probed)
+
+
+def test_the_leaf_schema_enumerates_exactly_the_readers_refusal_codes():
+    """One enumeration, two places it has to be true: the shape a verdict records
+    and the set the reader can emit. A code in one and not the other is a refusal
+    that cannot be written down, or a record that can claim a refusal nothing
+    produces."""
+    schema = yaml.safe_load(
+        (REPO_ROOT / "contracts" / "signed-execution-chain" /
+         "transparency-log-leaf.schema.yaml").read_text(encoding="utf-8"))
+    declared = schema["properties"]["verdict"]["properties"]["refusal"][
+        "properties"]["code"]["enum"]
+    assert set(declared) == set(reader.REFUSAL_CODES)
+    assert len(declared) == len(set(declared))
+
+
+def test_every_negative_fixture_is_a_single_named_fault(registry_and_docs, carried):
+    """Each fixture must fail for the code it declares, and the base corpus is
+    the scope it is measured in. A fixture that passes cleanly, or that fails
+    only for some other reason, is a fixture testing nothing."""
+    base = reader.positive_records()
+    for path in sorted(NEGATIVES.glob("*.yaml")):
+        code, detail = reader.expected_failure(path)
+        findings = _validate(base + reader.labelled("negative", path),
+                             registry_and_docs, carried)
+        codes = reader.codes_of(findings.errors)
+        assert findings.errors, f"{path.name}: validated cleanly"
+        assert code in codes, f"{path.name}: expected {code!r}, got {sorted(codes)}"
+        if detail:
+            assert any(detail in line
+                       for line in reader.lines_for(findings.errors, code)), \
+                f"{path.name}: {code!r} fired but not for {detail!r}"
+
+
+def test_a_key_id_two_wallets_claim_differently_is_ambiguous_not_last_seen(
+        registry_and_docs, carried):
+    """Codex's P1 on `aedfd8ce`, and the property is about ITERATION ORDER.
+
+    The scope-wide key map was built with `dict.update`, so whichever carried
+    wallet was read last silently won an identifier both claimed. This test
+    presents the SAME two wallets in BOTH orders: an ambiguous identifier must be
+    refused either way, because a verification result that depends on which
+    record was read first is not a verification result.
+
+    The `AMBIGUOUS_KEY` marker is what makes it order-independent — dropping the
+    ambiguity would let a second wallet resolve an identifier the first had
+    already made unanswerable."""
+    reference = {"key_id": "key-shared-0001", "did": "did:key:zAAA"}
+    other = {"key_id": "key-shared-0001", "did": "did:key:zBBB"}
+    restated = {"key_id": "key-shared-0001", "did": "did:key:zAAA"}
+
+    for first, second in ((reference, other), (other, reference)):
+        merged: dict = {}
+        reader.merge_declared_keys(merged, {"key_reference": first})
+        reader.merge_declared_keys(merged, {"key_reference": second})
+        assert merged["key-shared-0001"] is reader.AMBIGUOUS_KEY
+
+    # A restatement of the SAME public half is not an ambiguity: the rejection
+    # must not reject a wallet that declares one key twice identically.
+    merged = {}
+    reader.merge_declared_keys(merged, {"key_reference": reference,
+                                        "keys": [restated]})
+    assert merged["key-shared-0001"] is not reader.AMBIGUOUS_KEY
+
+    # And an ambiguity INSIDE one wallet survives a second wallet's declaration.
+    merged = {}
+    reader.merge_declared_keys(merged, {"key_reference": reference,
+                                        "keys": [other]})
+    reader.merge_declared_keys(merged, {"key_reference": restated})
+    assert merged["key-shared-0001"] is reader.AMBIGUOUS_KEY
+
+
+def test_the_presentation_reference_must_name_the_record_it_carries(
+        registry_and_docs, carried):
+    """Codex's sharpest P1 on `aedfd8ce`: the per-act uniqueness rule keyed on
+    `presentation.exercise_ref`, which is replaceable WITHOUT touching the
+    exercise it names.
+
+    Carrying the already-consumed exercise verbatim and changing only that outer
+    reference produced different signed bytes, a different chain identity, and a
+    uniqueness key the map had never seen — so the consumed exercise was
+    replayable past the rule written to prevent it.
+
+    BOTH halves of the repair are asserted, because either alone leaves a hole:
+    the reference must AGREE with the carried record, and uniqueness must be keyed
+    on the CARRIED identifier so it does not depend on that agreement check having
+    run."""
+    import copy
+
+    records = copy.deepcopy(reader.positive_records())
+    for _, doc in records:
+        if doc["kind"] == "xfactory_signed_execution_chain_inception":
+            doc["signed_ratification"]["presentation"]["exercise_ref"] = \
+                "exr-a-fresh-label"
+    codes = reader.codes_of(_validate(records, registry_and_docs, carried).errors)
+    assert "continuity_broken" in codes
+
+    # The uniqueness key itself: two inceptions carrying ONE exercise record,
+    # under two different outer labels, are one act presented twice.
+    doubled = copy.deepcopy(reader.positive_records())
+    clone = None
+    for _, doc in doubled:
+        if doc["kind"] == "xfactory_signed_execution_chain_inception":
+            clone = copy.deepcopy(doc)
+    clone["inception_id"] = "inc-replayed"
+    clone["chain_identity"]["value"] = "sha256:" + "cd" * 32
+    clone["signed_ratification"]["presentation"]["exercise_ref"] = "exr-other-label"
+    codes = reader.codes_of(
+        _validate(doubled + [("replay", clone)], registry_and_docs,
+                  carried).errors)
+    assert "per_act_value_reused" in codes, (
+        "uniqueness must key on the carried exercise identifier, which both "
+        "inceptions share, and not on the outer label they differ in")
+
+
+def test_every_reference_that_could_move_independently_is_compared(
+        registry_and_docs, carried):
+    """ROUND TWO'S SHAPE, SWEPT FOR RATHER THAN WAITED FOR.
+
+    Both of round two's P1s were a REFERENCE and its REFERENT able to move
+    independently — two facts that look like one fact. A capability whose whole
+    subject is binding one record to another should expect that everywhere, so
+    every remaining pair of the shape is compared, and this test pins that each
+    comparison RUNS rather than merely existing.
+
+    The custody pair is the load-bearing one. `add-trust-anchor`'s ratified rule
+    is that declared custody BOUNDS WHAT A SIGNATURE EVIDENCES: a key readable by
+    the host that uses it evidences that the HOST acted, which is exactly what a
+    ratification may not stand on. An exercise free to record a stronger custody
+    model than its wallet declares would let a `holder_readable` key evidence a
+    human act, and requirement 8's narrowing rests on that being impossible."""
+    import copy
+
+    mutations = {
+        "grant": ("presentation", "grant_ref", "grant-somebody-elses"),
+        "attributed wallet": ("attribution", "wallet_ref", "wal-somebody-elses"),
+        "attributed holder": ("attribution", "holder_ref", "person:somebody.else"),
+        "custody model in force":
+            ("exercise", "custody_model_in_force", "holder_readable"),
+    }
+    for what, (where, member, value) in mutations.items():
+        records = copy.deepcopy(reader.positive_records())
+        for _, doc in records:
+            if doc["kind"] != "xfactory_signed_execution_chain_inception":
+                continue
+            presentation = doc["signed_ratification"]["presentation"]
+            if where == "presentation":
+                presentation["exercise"][member] = value
+            elif where == "attribution":
+                presentation["exercise"]["attribution"][member] = value
+            else:
+                presentation["exercise"][member] = value
+        lines = reader.lines_for(
+            _validate(records, registry_and_docs, carried).errors,
+            "continuity_broken")
+        assert any(what in line for line in lines), (what, lines)
+
+
+def test_a_chain_whose_own_verdict_is_absent_from_the_log_is_refused(
+        registry_and_docs, carried):
+    """The FOURTH governed leaf type (Codex, P1 on `eb1241fc`), and the omission
+    was fresh evidence of the same class one round after the missing-act fix: that
+    fix required the ratification and traveling-contract leaves and still never
+    required this one.
+
+    Pinned here rather than by a packaged fixture for the same reason the
+    deleted-genesis case is: a fixture is ADDED to the corpus and cannot take a
+    leaf away.
+
+    IT IS NOT A CHICKEN-AND-EGG, and the packaged corpus is the proof — a producer
+    writes the verdict leaf it expects and this reader holds it to the reader's own
+    walk, so requiring the leaf demands no trust in the producer and deadlocks no
+    first landing. The second assertion is that half: the corpus's own
+    producer-written verdict is accepted."""
+    without = [(label, doc) for label, doc in reader.positive_records()
+               if not (doc["kind"] == "xfactory_signed_execution_chain_log_leaf"
+                       and doc.get("leaf_type") == "gate_verdict")]
+    lines = reader.lines_for(
+        _validate(without, registry_and_docs, carried).errors, "act_unproven")
+    assert any("gate-verdict leaf" in line for line in lines), lines
+    assert _validate(reader.positive_records(), registry_and_docs,
+                     carried).errors == []
+
+
+def test_a_signature_has_exactly_one_canonical_spelling(registry_and_docs,
+                                                        carried):
+    """Codex's P2 on `eb1241fc`. For 64 bytes the final base64url character carries
+    two data bits and a decoder ignores the other four, so fifteen other spellings
+    of one signature decode to the same bytes, verify identically, and match the
+    schema's 86-character pattern.
+
+    A record admitting sixteen textual forms of one signature admits sixteen
+    distinct signed ratifications BY DIGEST — and the chain identity is a digest
+    over those bytes."""
+    import base64
+
+    canonical_text = None
+    for _, doc in reader.positive_records():
+        if doc["kind"] == "xfactory_signed_execution_chain_inception":
+            canonical_text = doc["ratification_signature"]["signature"]
+    assert canonical_text is not None
+    raw = base64.urlsafe_b64decode(canonical_text + "==")
+    assert reader.decode_signature(canonical_text) == raw
+
+    variants = 0
+    for char in ("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+                 "0123456789-_"):
+        candidate = canonical_text[:-1] + char
+        if candidate == canonical_text:
+            continue
+        try:
+            same = base64.urlsafe_b64decode(candidate + "==") == raw
+        except Exception:  # noqa: BLE001
+            continue
+        if same:
+            variants += 1
+            assert reader.decode_signature(candidate) is None, candidate
+    assert variants >= 1, (
+        "the test proves nothing unless a non-canonical spelling of these exact "
+        "bytes actually exists")
+
+
+def test_a_log_whose_genesis_prefix_was_deleted_is_refused(registry_and_docs,
+                                                           carried):
+    """LEAVES ARE APPENDED AND NEVER REMOVED, and a check that cannot see a
+    removal is not checking it.
+
+    Found by Codex as a P1 on `0d0f277d`. The first reader walked consecutive
+    PAIRS: the lowest retained leaf had no predecessor in scope, so its carried
+    digest went unchecked, and a store that deleted a prefix presented a set in
+    which every surviving pair linked correctly and every `tree_size` still
+    agreed with its own index. THIS CASE CANNOT BE PROBED BY A PACKAGED FIXTURE —
+    a fixture is ADDED to the corpus and cannot take leaf 0 away — so it is
+    pinned here, where the scope is built rather than composed."""
+    records = [(label, doc) for label, doc in reader.positive_records()
+               if doc["kind"] != "xfactory_signed_execution_chain_log_leaf"
+               or doc["leaf_index"] != 0]
+    leaves = [doc for _, doc in records
+              if doc["kind"] == "xfactory_signed_execution_chain_log_leaf"]
+    assert [doc["leaf_index"] for doc in leaves] == [1, 2, 3], (
+        "the fixture is leaves 1-3 with the genesis leaf deleted")
+    lines = reader.lines_for(
+        _validate(records, registry_and_docs, carried).errors,
+        "leaf_hash_link_broken")
+    assert any("begins at leaf 1" in line and "genesis" in line for line in lines), \
+        lines
+    assert any("compared against nothing" in line for line in lines), (
+        "the surviving lowest leaf's carried predecessor digest must be reported "
+        "as unverifiable rather than silently skipped — an unverifiable link is "
+        "not a verified one")
+
+
+def test_the_eight_check_list_is_closed_by_shape(registry_and_docs, carried):
+    """Copilot's finding on `0d0f277d`, and the repair is the SHAPE rather than
+    the reader.
+
+    `uniqueItems` compares whole ITEMS, so two entries naming the same check with
+    different outcomes were distinct objects and both validated: a verdict could
+    record one check twice, omit another, carry eight items and be schema-valid
+    beside prose calling the list closed and ordered. Each position now carries
+    its own `const`, so a duplicate, an omission AND a reordering are all
+    unrepresentable — which a reader-side rule would not have achieved."""
+    import copy
+
+    for mutate in ("duplicate", "reorder"):
+        records = copy.deepcopy(reader.positive_records())
+        for _, doc in records:
+            if doc["kind"] != "xfactory_signed_execution_chain_log_leaf" \
+                    or doc.get("leaf_type") != "gate_verdict":
+                continue
+            checks = doc["verdict"]["checks"]
+            if mutate == "duplicate":
+                checks[7] = dict(checks[5])
+            else:
+                checks[0], checks[1] = checks[1], checks[0]
+        codes = reader.codes_of(_validate(records, registry_and_docs,
+                                         carried).errors)
+        assert "schema" in codes, mutate
+
+
+def test_a_traveling_contract_is_checkable_from_the_artifact_alone(
+        registry_and_docs, carried):
+    """Requirement 5's claim, executed: ONE traveling contract, no registry, no
+    log, no other record in scope.
+
+    Two things must both hold. Its INTERNAL consistency is established — the
+    carried signature verifies against the wallet the artifact itself carries,
+    and the carried chain identity recomputes from the carried signed
+    ratification — so neither `ratification_signature_invalid` nor
+    `digest_construction_mismatch` fires. And that establishes consistency ONLY:
+    the questions that need the store still REFUSE, because an unresolvable
+    external lookup never converts into permission."""
+    alone = [(label, doc) for label, doc in reader.positive_records()
+             if doc["kind"] == "xfactory_signed_execution_chain_traveling_contract"]
+    assert len(alone) == 1
+    codes = reader.codes_of(_validate(alone, registry_and_docs, carried).errors)
+    assert "ratification_signature_invalid" not in codes
+    assert "digest_construction_mismatch" not in codes
+    assert "orphan_chain_identity" in codes, (
+        "with no inception in reach the chain resolves to no signed ratification, "
+        "and the reader refuses rather than reading self-consistency as permission")
+
+
+def test_a_traveling_contract_carrying_a_bad_signature_is_refused_on_its_own(
+        registry_and_docs, carried):
+    """The point-of-use check is not the inception check reached by another
+    route. A traveling contract whose CARRIED signature is over other bytes must
+    be refused when it is the only artifact in reach — otherwise the reader would
+    be establishing the signature through a record a point-of-use checker does
+    not have."""
+    import copy
+
+    alone = [(label, copy.deepcopy(doc)) for label, doc in reader.positive_records()
+             if doc["kind"] == "xfactory_signed_execution_chain_traveling_contract"]
+    signature = alone[0][1]["ratification_signature"]["signature"]
+    mutated = ("B" if signature[0] != "B" else "C") + signature[1:]
+    alone[0][1]["ratification_signature"]["signature"] = mutated
+    codes = reader.codes_of(_validate(alone, registry_and_docs, carried).errors)
+    assert "ratification_signature_invalid" in codes
+
+
+def test_a_carried_block_the_shipped_shape_rejects_is_refused(registry_and_docs,
+                                                              carried):
+    """THE CARRIED RECORD IS THE SHIPPED RECORD, and this is the check that makes
+    that more than a claim.
+
+    The mutation adds a member the shipped exercise schema does not admit — it
+    closes `additionalProperties` — so a reader holding carried blocks to the
+    PINNED shape refuses it and a reader checking only the members this
+    capability restricts does not. The assertion is conditional on the pinned
+    vocabulary being reachable rather than skipped: in the required `pytest-suite`
+    job the `openXwallet` gitlink is initialized, so the first branch is the one
+    that runs in CI, and the second branch asserts the honest fallback a
+    developer checkout gets."""
+    import copy
+
+    records = copy.deepcopy(reader.positive_records())
+    for _, doc in records:
+        if doc["kind"] == "xfactory_signed_execution_chain_inception":
+            doc["signed_ratification"]["presentation"]["exercise"][
+                "smuggled_member"] = "not a member of the shipped record"
+    findings = _validate(records, registry_and_docs, carried)
+    if "exercise" in carried:
+        assert "carried-vocabulary" in reader.codes_of(findings.errors)
+    else:
+        assert findings.errors == [], (
+            "with no pinned vocabulary reachable the reader falls back to the "
+            "members this capability restricts, and says so in a note")
+
+
+def test_requiring_an_unreachable_pinned_vocabulary_is_a_refusal(monkeypatch):
+    """The gate passes `--require-pinned-wallet-vocabulary` precisely so a run
+    that cannot reach the pin REFUSES instead of validating less than it claims.
+    A check that silently checks less is the vacuous pass this repository has
+    already had to close once, for the wallet intake register."""
+    monkeypatch.setattr(reader, "PINNED_WALLET_DIR",
+                        REPO_ROOT / "no" / "such" / "directory")
+    strict = reader.Findings()
+    reader.load_carried_schemas(strict, required=True)
+    assert "pinned-wallet-vocabulary-unavailable" in reader.codes_of(strict.errors)
+
+    lenient = reader.Findings()
+    reader.load_carried_schemas(lenient, required=False)
+    assert lenient.errors == []
+    assert any("openXwallet" in line for line in lenient.notes)
+
+
+def test_the_reader_exits_zero_on_the_corpus_and_the_tree(capsys):
+    """The two invocations the gate makes, and the notes the gate greps for. A
+    note the gate reads and the reader stopped emitting is a green check that
+    proves nothing."""
+    assert reader.main.__module__ == "validate_signed_execution_chain"
+    argv = sys.argv
+    try:
+        sys.argv = ["validate-signed-execution-chain.py", str(REPO_ROOT),
+                    "--require-pinned-wallet-vocabulary"] \
+            if (REPO_ROOT / "openXwallet" / "contracts" / "openxwallet").is_dir() \
+            else ["validate-signed-execution-chain.py", str(REPO_ROOT)]
+        assert reader.main() == 0
+    finally:
+        sys.argv = argv
+    out = capsys.readouterr().out
+    assert "self-test:" in out
+    assert "closed refusal codes red-proven" in out
+    assert "repo scan (" in out and "artifact(s) checked" in out
+
+
+def test_the_reader_says_the_capability_confers_nothing_yet(registry_and_docs,
+                                                            carried):
+    """Requirement 9 is about this capability's own standing, and the reader
+    states it where it runs rather than only in the declaration. When the gate
+    becomes a required check the packaged declaration flips to
+    `is_required_in_ruleset: true` and this warning goes away — which is the
+    point at which the records begin to confer anything at all."""
+    findings = _validate(reader.positive_records(), registry_and_docs, carried)
+    assert any("reader-not-required" in line for line in findings.warnings)
+
+
+def test_a_declaration_recording_sec_r9_satisfied_while_unrequired_is_refused(
+        registry_and_docs, carried):
+    """The pairing above is not decoration: a declaration may record the reader as
+    unrequired, and it may NOT then record the obligation as satisfied. Where no
+    such check exists the requirement is UNMET, not partially met."""
+    import copy
+
+    records = copy.deepcopy(reader.positive_records())
+    for _, doc in records:
+        if doc["kind"] == \
+                "xfactory_signed_execution_chain_conformance_declaration":
+            for entry in doc["obligations"]:
+                if entry["obligation"] == "SEC-R9":
+                    entry["satisfaction"] = "satisfied"
+                    entry.pop("declared_residual", None)
+    findings = _validate(records, registry_and_docs, carried)
+    assert any("SEC-R9" in line for line in
+               reader.lines_for(findings.errors, "residual_not_declared"))
+
+
+def test_the_declaration_is_closed_over_the_nine_obligations_in_both_directions(
+        registry_and_docs, carried):
+    """An obligation with no entry is refused, and so is an entry naming an
+    obligation this capability does not have. A declaration that can quietly omit
+    one is how a silent gap gets recorded as conformance."""
+    import copy
+
+    records = copy.deepcopy(reader.positive_records())
+    for _, doc in records:
+        if doc["kind"] == \
+                "xfactory_signed_execution_chain_conformance_declaration":
+            for entry in doc["obligations"]:
+                if entry["obligation"] == "SEC-R5":
+                    entry["obligation"] = "SEC-R2"
+    findings = _validate(records, registry_and_docs, carried)
+    lines = reader.lines_for(findings.errors, "residual_not_declared")
+    assert any("SEC-R5 is declared 0 times" in line for line in lines)
+    assert any("SEC-R2 is declared 2 times" in line for line in lines)
+
+
+def test_the_obligation_set_is_the_nine_requirements_of_the_delta():
+    """Nine ADDED requirements, nine obligations. The delta is the authority for
+    the count, and the ratification record states it: NINE ADDED requirements
+    over 45 scenarios."""
+    schema = yaml.safe_load(
+        (REPO_ROOT / "contracts" / "signed-execution-chain" /
+         "conformance-declaration.schema.yaml").read_text(encoding="utf-8"))
+    declared = schema["properties"]["obligations"]["items"]["properties"][
+        "obligation"]["enum"]
+    assert declared == reader.OBLIGATIONS
+    assert len(declared) == 9
+    assert schema["properties"]["obligations"]["minItems"] == 9
+    assert schema["properties"]["obligations"]["maxItems"] == 9

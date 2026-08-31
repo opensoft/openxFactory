@@ -1,11 +1,21 @@
 # Tasks: add-signed-execution-chain (tranche one)
 
 Governance-level and dependency-ordered. **This change is RATIFIED (2026-08-29,
-Brett Heap — `review/ratification-2026-08-29.md`) and is NOT being implemented
-now.** §1 was authored in the pull request; **§2 is Brett's ratification act and
-is DISCHARGED**; §3 onward are for the implementer and belong to a single
-Speckit contract feature. Do not duplicate the executable contract list
-here — §5 hands it off.
+Brett Heap — `review/ratification-2026-08-29.md`) and its code surface is now
+REALIZED.** §1 was authored in the pull request; **§2 is Brett's ratification act
+and is DISCHARGED**; **§3 and §4 are realized in the pull request that carries
+this edit**, except the three boxes that are not this author's to close —
+4.5 is an OPERATOR act, 4.6 depends on it, and 4.7 rides a bundle cut whose
+number is allocated by merge order. §5 names the successors and is not drafted.
+
+**WHAT "RATIFICATION PERFORMS NO REALIZATION" MEANT, AND STILL MEANS.** That
+sentence is about the RATIFYING ACT and it is untouched: `proposal.md`,
+`.openspec.yaml` and the ratification record all say it, they were true when
+written, and they are true now. What changed is that the later commission they
+named has been carried out — in a separate pull request, by a separate act,
+against the packet as ratified. The distinction is worth keeping because
+collapsing it would make the ratification look like the thing that built the
+family.
 
 **THE CLARIFY ROUND THIS FILE USED TO CARRY AS §2 IS DISCHARGED, NOT DROPPED.**
 Brett Heap ruled all seven of the staged topic's questions on 2026-08-29 (#499,
@@ -132,45 +142,266 @@ Both are contract content, cheap now and expensive after a bundle ships. The
 `openxwallet` custody enumeration is the standing precedent for how quietly a
 wrong set re-opens the hole the rule was written to close.
 
-- [ ] 3.1 Fix the **chain-identity digest** — algorithm, and the exact byte
-      range of the signed ratification it covers. A chain identity whose
-      derivation is ambiguous cannot be validated for continuity, which is the
-      whole of the gate's job.
-- [ ] 3.2 Fix the **leaf grammar** — what a transparency-log leaf carries, how
-      leaves hash-link, and what a verifier reads to detect an edit. Chosen
-      against RFC-6962 / Rekor rather than invented, per the vendored study.
-- [ ] 3.3 Decide the **log's home** — the register precedent (a
-      repository-tracked file whose READER is the shape) or a governed store
-      outside the tree. `design.md` deliberately leaves this open; it must not
-      reach schema authoring open.
+- [x] 3.1 **FIXED as `xfc-jcs-sha256-1`**, declared once in
+      `contracts/signed-execution-chain/digest-construction.schema.yaml` and
+      taken by `$ref` everywhere else, so the family cannot grow a second
+      construction rule beside the first. RFC 8785 JSON Canonicalization Scheme
+      over the digest subject, SHA-256, rendered `sha256:` + 64 lowercase hex,
+      and BOUNDED rather than half-implemented: object, array, string, INTEGER,
+      boolean and null are admitted and a non-integer number is REFUSED, because
+      ECMAScript number serialization is the one part of JCS a second
+      implementation reliably gets wrong and a digest two readers compute
+      differently is worse than a digest one of them refuses. **THE EXACT BYTE
+      RANGE is the `signed_ratification` block** — the block the ratifying
+      signature covers, and nothing outside it; the signature sits beside that
+      block, not inside it. Pinned by the RFC's own worked example in
+      `tests/signed_execution_chain/test_digest_construction.py`, including the
+      UTF-16 code-unit ordering that disagrees with code-point ordering above
+      the BMP.
+- [x] 3.2 **FIXED against RFC 6962 / Rekor as a HASH-LINKED SIGNED LEAF
+      SEQUENCE**, and the realization says which form it took rather than
+      leaving a reader to assume a Merkle tree. A leaf carries its `leaf_index`,
+      the `tree_size` it completes, its predecessor's digest, its own digest
+      (over the leaf content — the record with `leaf_digest` and
+      `leaf_signature` removed) and its own signature. **THE HEAD IS THE NEWEST
+      LEAF**, so no separate tree-head record exists or is needed, and a
+      consistency proof against an observed head is the re-derivation of the
+      link chain from that leaf forward. What a verifier reads to detect an edit
+      is the link chain; what it CANNOT detect — suffix truncation nobody has
+      observed — is DECLARED in the conformance declaration's SEC-R6 entry with
+      tranche-three anchoring named as what closes it.
+- [x] 3.3 **DECIDED: the register precedent, in this repository** — a tracked
+      file whose READER is the shape, on
+      `governance/review-authority/register.yaml`'s footing. The decision is
+      FORCED rather than preferred: requirement 9 requires the named validator to
+      run as a required check ON THE REPOSITORY THAT HOLDS THE RECORDS, and
+      requirement 5 requires a point-of-use checker to establish a traveling
+      contract's consistency with NO LIVE SERVICE in reach. A governed store
+      outside the tree satisfies neither. **No live log instance exists yet and
+      the realization says so** — inception is a human act with a wallet-held
+      key, this realization mints no chain, and the reader's repo-scan note
+      reports the empty sweep rather than passing over it in silence.
 
 ## 4. Realization — ONE Speckit contract feature
 
-- [ ] 4.1 `contracts/signed-execution-chain/` — the chain-inception record, the
-      traveling-contract artifact, the transparency-log leaf, and the
-      realization conformance declaration on `trust-anchor`'s declared-shortfall
-      pattern.
-- [ ] 4.2 Packaged POSITIVE and NEGATIVE examples for every named refusal:
-      missing proof, failed verification, revoked-at-exercise, orphan chain
-      identity, digest mismatch on the traveling contract, mix-and-match
-      continuity, missing link, unevaluable chain, machine holder as ratifying
-      authority.
-- [ ] 4.3 `scripts/validate-signed-execution-chain.py` — the canonical
-      validator, refusing each negative example by name.
-- [ ] 4.4 The short-chain GATE as a running pull-request check, not a described
-      one.
-- [ ] 4.5 **[OPERATOR]** Make the check REQUIRED in the branch ruleset. A merged
-      workflow file is NOT evidence; the evidence is the live ruleset state, as
-      `add-wallet-carried-review-authority` task 2.5 established (org ruleset
-      **21538893** for `wallet-validation`).
-- [ ] 4.6 **Gate:** a deliberately broken chain FAILS a real pull request, and
-      the evidence records the run id, the check id, the validator's single
-      named refusal, and the live ruleset read showing the check required —
-      the shape task 2.6 of that change proved on canary PR #387.
-- [ ] 4.7 Registration in `contracts/manifest.yaml` and
-      `contracts/CHANGELOG.md`, and the additive bundle cut, with
-      `release-surface-integrity`'s verify-commit green from an independent
-      clone.
+**WHAT THE REALIZATION'S OWN BOT BENCH CORRECTED, recorded rather than silently
+patched**, on the same footing `design.md` D7 records the packet's rounds. Round
+one on the realization pull request produced FOUR findings, all real, all taken,
+and **the first was a live forgery rather than a hardening**:
+
+| Round | Finding | Where it landed |
+| --- | --- | --- |
+| 1 | **P1 (Codex AND Copilot, independently)** — the Ed25519 verifier accepted SMALL-ORDER public keys. With an identity key the `[h]A` term vanishes, the equation stops depending on the message, and `R = identity, S = 0` verifies for ANY message — **a forgery needing no private key**, and every public half in this family arrives inside a record chosen by whoever assembled the chain. **Reproduced against the pre-fix code before repair**: the identity key accepted the forgery over every message tried, and two of the order-4 points over some | `ed25519._is_small_order`, refusing the whole class by `[8]P == identity` rather than a list of encodings; six negative-control tests, including one that confirms the published small-order list really is small-order by arithmetic — which caught a transcription slip in that list on its first run |
+| 1 | **P1 (Codex)** — the log's append-only property was checked over consecutive PAIRS, so the lowest retained leaf's carried predecessor digest was compared against nothing. A store that DELETED a prefix presented a set in which every surviving pair linked correctly and every `tree_size` still agreed with its own index. Pre-fix: **zero findings** over a log whose genesis leaf was deleted | `check_log` now requires the retained set to begin at leaf 0 and run consecutively BEFORE any digest comparison, and reports an unverifiable link as unverifiable. Probed by the `log-skipping-a-leaf-position` fixture; the deleted-genesis case is pinned in pytest, because a fixture is ADDED to the corpus and cannot take leaf 0 away |
+| 1 | **P2 (Codex)** — integers outside ±(2**53 − 1) are not serialized identically by an RFC 8785 reader, so two conforming readers could derive different chain identities in silence. Pre-fix: `9007199254740993` was emitted unchanged where an ECMAScript reader emits `9007199254740992` | The SAME bound one value class wider — not a second rule — in `canonical.serialize`, declared in the contract beside the non-integer refusal, with a sweep test asserting every integer the packaged corpus actually declares is inside it |
+| 1 | **Copilot** — `uniqueItems` on the verdict's eight-check list closed nothing: two entries naming the same check with different outcomes are distinct objects, so a verdict could record one check twice, omit another, carry eight items and be schema-valid beside prose calling the list closed and ordered. Pre-fix: **zero schema errors** for exactly that verdict | `prefixItems` pins each position to its own `const`, making a duplicate, an omission AND a reordering unrepresentable. Repairing the reader alone would have left the shape admitting it |
+
+**THE TRANSFERABLE PART IS THE SECOND COLUMN OF THAT TABLE.** Every one of the
+four was a check that LOOKED like it was doing its job: pairs that linked, a list
+that was eight long, a digest that serialized, an equation that balanced. None
+would have been caught by a test written from the rule's own wording, and all
+four were confirmed by RUNNING THE MUTATION AGAINST THE PRE-FIX CODE rather than
+by reasoning about it — which is the only way to know a repair is anchored to
+something.
+
+**SO THE OWED PASS WAS RUN, RATHER THAN WAITING FOR THE CLASS TO APPEAR A FIFTH
+TIME.** D7.8's lesson is that a rule written about a defect class is tested by
+whether the NEXT instance is found by the author or by the bench. Three more
+instances were found by the author, in the same sweep, and each was measured
+against the round-one tip the same way:
+
+- a **ratification leaf** whose payload digest named the right SUBJECT and whose
+  VALUE was never compared, though this chain's content digest is in scope — so a
+  leaf could record the presentation of a different subject's ratification while
+  reading as verified;
+- a **chain incepted with no ratification leaf at all**, which passed because the
+  atomicity rule checked only the other direction; and
+- a **traveling contract whose issuance no leaf recorded**, which passed because
+  nothing required it.
+
+**ROUND TWO CONFIRMED THE SWEEP AND FOUND TWO MORE, AND THE OVERLAP IS THE
+INTERESTING PART.** Codex independently raised the ratification-leaf payload and
+the missing-leaf pair — the same two the author had just caught — which is
+evidence the class was correctly identified rather than a lucky guess. It also
+raised two the sweep had missed, both P1, and both about a REFERENCE that could
+move independently of the thing it referenced:
+
+| Round | Finding | Where it landed |
+| --- | --- | --- |
+| 2 | **P1 (Codex)** — per-act uniqueness keyed on `presentation.exercise_ref`, which is replaceable WITHOUT touching the exercise it names. Carrying the already-consumed exercise VERBATIM and changing only that outer label produced different signed bytes, a different chain identity, and a uniqueness key the map had never seen: **the consumed exercise was replayable past the rule written to prevent exactly that** | The reference must AGREE with the carried record (`continuity_broken`), AND uniqueness is keyed on the CARRIED identifier — both, because a rule that relies on another rule to be sound has a second failure mode. Probed by `inception-replacing-only-the-outer-exercise-reference` |
+| 2 | **P1 (Codex)** — the scope-wide key map was built with `dict.update`, so when two carried wallets declared one `key_id` for DIFFERENT public halves, whichever was read last silently won. Valid leaves of the other chain would fail, and leaves signed by the colliding wallet's key would be ACCEPTED for a chain that never authorized it — **a verification result decided by iteration order** | An `AMBIGUOUS_KEY` marker carried forward rather than overwritten or dropped, at all three sites that resolve a key. An ambiguous identifier makes every signature naming it UNEVALUABLE, which is a refusal: verifying against a guess is worse than declining to verify. Probed by `two-wallets-declaring-one-key-id`, and pinned by a test that presents the two wallets in BOTH orders |
+
+**BOTH ROUND-TWO FINDINGS ARE ONE SHAPE, and it is worth naming because it is not
+the round-one shape:** a reference and its referent that can be moved
+independently. The round-one class was a check that looked like it was working;
+this one is two facts that looked like one fact. A capability whose whole subject
+is binding one record to another should expect it.
+
+**SO THAT SHAPE WAS SWEPT FOR TOO, in the same session it was named.** Every
+remaining pair of the shape in the signed bytes is now compared: the outer
+`grant_ref` against the carried exercise's, the carried wallet's id and holder
+against the exercise's `attribution`, and — the load-bearing one — the wallet's
+DECLARED CUSTODY against the exercise's `custody_model_in_force`. Custody is not
+tidiness: `add-trust-anchor`'s ratified rule is that declared custody BOUNDS WHAT
+A SIGNATURE EVIDENCES, so an exercise free to record a stronger model than its
+wallet declares would let a `holder_readable` key evidence a human act — and
+requirement 8's narrowing rests on that being impossible. Those four paths are
+pinned by a test rather than by four more fixtures, deliberately: the refusal code
+they report is already red-proven, and what needed pinning was that each
+COMPARISON runs.
+
+**ROUND THREE FOUND THE SAME SHAPE ONE LEVEL UP, AND IN THE RULE THE SWEEP HAD
+JUST ADDED** — which is the honest measure of how far a self-run sweep gets:
+
+| Round | Finding | Where it landed |
+| --- | --- | --- |
+| 3 | **P1 (Codex)** — a `traveling_contract_issued` leaf could name chain A in `chain_ref` while carrying the `payload_ref` and digest of chain B's traveling contract. BOTH checks that should have caught it looked SCOPE-WIDE: the payload-digest recomputation resolved the contract by IDENTIFIER across the whole store, so it matched and recomputed cleanly, and the missing-leaf rule collected recorded ids GLOBALLY, so chain A's leaf discharged chain B's obligation. **Chain B passed with its primary custody record silent about an act the contract requires to be recorded — the exact hole the missing-leaf rule had just been added to close.** Pre-fix, measured: the fixture validated CLEANLY | The lookup is chain-scoped and requires exactly one match; the recorded set is keyed on the **(chain, contract)** PAIR. An issuance is discharged only by a leaf on the ISSUING chain. Probed by `issuance-leaf-filed-under-another-chain`, and the remaining three leaf types were checked for the same defect — all were already chain-scoped |
+
+**AND COPILOT FOUND A REFUSAL THAT WAS A CRASH INSTEAD** in the same round, which
+is a class of its own: not a missing check, but a check whose ANSWER came out in
+the wrong currency.
+
+| Round | Finding | Where it landed |
+| --- | --- | --- |
+| 3 | **Copilot** — a string or member name holding an UNPAIRED SURROGATE passed the escaper and then raised `UnicodeEncodeError` at the encode step. That is not a `ConstructionError`, so it escaped the refusal path every caller handles and surfaced as a HARNESS FAILURE rather than as a finding. Pre-fix, measured: `UnicodeEncodeError` for both a value and a member name | `_escape` refuses U+D800–U+DFFF as a `ConstructionError`; the bound is DECLARED in the contract beside the integer one; and a test asserts the refusal for five shapes plus a VALID astral-character control, so the fix cannot have been achieved by refusing legitimate records |
+
+**AND THREE MORE IN THE SAME ROUND, one of them the missing-act class a THIRD
+time:**
+
+| Round | Finding | Where it landed |
+| --- | --- | --- |
+| 3 | **P1 (Codex)** — the FOURTH governed leaf type was still not required. The missing-act fix had just added the ratification and traveling-contract leaves and never required `gate_verdict`, so a chain could pass with its own adjudication absent from the primary custody record. Pre-fix, measured: **accepted** | `check_atomicity` requires it. **It is not a chicken-and-egg**, and the packaged corpus is the proof: a producer WRITES the verdict leaf it expects and this reader holds it to the reader's own walk, so requiring it demands no trust in the producer and deadlocks no first landing. Pinned by a test, since a fixture is ADDED to the corpus and cannot take a leaf away |
+| 3 | **P2 (Codex)** — a verdict could record ANY enum-valid refusal code while the walk failed for another reason; the rule checked only that a `refusal` object EXISTED. Pre-fix, measured: the wrong-code fixture drew only the real reason and said nothing about the false one | The walk now collects the codes it emitted and the recorded code must be among them. **The enumeration is closed so a refusal names what was actually lacking** — the same rule that keeps a missing proof from being reported as a missing grant — and a false reason is what an operator would act on |
+| 3 | **P2 (Codex)** — a 64-byte signature's final base64url character carries two data bits and a decoder ignores the other four, so **fifteen other spellings** of one signature decoded to the same bytes, verified identically, and matched the schema pattern. Pre-fix, measured: a re-spelled packaged signature verified cleanly | `decode_signature` re-encodes and requires an exact match. A record admitting sixteen textual forms of one signature admits sixteen distinct signed ratifications BY DIGEST, and the chain identity is a digest over those bytes |
+
+**A CONSTRUCTION THAT CRASHES ON AN INPUT IT SHOULD REFUSE HAS TWO ANSWERS**, and
+the whole point of one construction is that there is one. The general form is
+worth carrying: *every refusal must reach the caller as the same kind of answer*.
+The test that pins the integer bound's presence in the contract was widened into
+the site that has to grow with each new refusal, rather than a second test being
+added beside it.
+
+**THE FIXTURE FOR THE CROSS-CHAIN FINDING WAS WRONG ON ITS FIRST DRAFT, AND THAT IS WORTH RECORDING**
+because it nearly hid the finding. It reported as refused-for-the-intended-reason,
+and the reason was an INCIDENTAL defect the draft had introduced — its
+`inception_leaf_ref` named the wrong leaf — not the cross-chain filing under test.
+A negative fixture that fails for a second reason is not a probe, it is a fixture
+that agrees with you; the anchor only became real once the fixture was corrected
+to a single fault and the pre-fix reader accepted it. **The instrument gets the
+same scrutiny as the thing it measures**, which is the second time this
+realization has had to apply that to its own harness.
+
+**AND THE SWEEP MEASURED ITS OWN VALUE RATHER THAN ASSERTING IT.** Every packaged
+negative was run through both readers and diffed: the second and third
+strengthenings changed the verdict on FOUR committed fixtures, so they were
+anchored already; the first changed the verdict on NONE, which made it dead code
+until `ratification-leaf-committing-to-another-subject.yaml` was written for it.
+A refusal no fixture provokes is a refusal nobody has seen work — the same rule
+the self-test applies to the closed enumeration, applied to a check that sits
+outside it. The diff harness also reported one row this round could not have
+caused, and that row was the harness's own defect: the anchor worktree had no
+`openXwallet` gitlink, so the two readers were validating carried blocks against
+different vocabularies. **A measurement instrument gets the same scrutiny as the
+thing it measures.**
+
+- [x] 4.1 **BUILT** — `contracts/signed-execution-chain/` carries the FOUR
+      record kinds `code_surface` names (`chain-inception.schema.yaml`,
+      `traveling-contract.schema.yaml`, `transparency-log-leaf.schema.yaml`,
+      `conformance-declaration.schema.yaml`) plus the definitions-only
+      `digest-construction.schema.yaml`, which declares NO record kind and
+      exists so 3.1's construction lives in one place. The declaration is
+      `trust-anchor`'s declared-shortfall pattern with this family's nine
+      obligations (SEC-R1..SEC-R9), closed in both directions, and the two
+      residuals that are STRUCTURAL at this tranche — SEC-R1's missing signed
+      digest value and SEC-R6's unobserved suffix truncation — are refused the
+      word `satisfied` by the reader rather than left to an author's care.
+      **NO SECOND VOCABULARY**: the presentation is the shipped
+      `xfactory_wallet_grant_exercise` and the signing wallet the shipped
+      `xfactory_wallet_record`, carried verbatim inside the signed bytes and
+      validated against the PINNED schemas through the `openXwallet/` gitlink;
+      the actor is `identity-brokering`'s `actor_subject_reference` carrying an
+      `xfactory_wallet_subject_attestation`.
+- [x] 4.2 **PACKAGED — 7 positives composing ONE whole chain, and 34 negatives.**
+      All nine named refusals have a probe, and so does every other refusal this
+      reader can emit: the enumeration is 24 codes and the self-test REFUSES A
+      CODE WITH NO PROBE, so a refusal nobody has seen work cannot ship. Two
+      further obligations are refused BY SHAPE instead, because unrepresentable
+      is stronger than refused — an actor carrying no wallet attestation, and an
+      actor binding outside the signed bytes. A negative is evaluated IN THE
+      POSITIVE CORPUS'S SCOPE, because a refusal of a CHAIN is a property of a
+      SET of records and a fixture adjudicated alone could not express one.
+- [x] 4.3 **BUILT** — `scripts/validate-signed-execution-chain.py`, the NAMED
+      READER, walking all EIGHT ordered checks over links 1-3 plus the four
+      scope rules the gate cannot see (atomicity, per-act uniqueness, the log's
+      append-only property, the declaration). It verifies the ratifying
+      signature rather than reading a claim about it — `ed25519` per RFC 8032,
+      pinned by that RFC's published vectors and their mutations — and refuses
+      `ecdsa-p256` and `ecdsa-secp256k1` as UNEVALUABLE rather than accepting a
+      signature it did not check.
+- [x] 4.4 **RUNNING** — `.github/workflows/signed-execution-chain-gate.yml`, job
+      id `signed-execution-chain-gate` (no display name, so the check surfaces
+      as the token a ruleset would pin). It verifies the openXwallet pin BEFORE
+      trusting it, walks the whole tree with
+      `--require-pinned-wallet-vocabulary` so an unreachable pin REFUSES instead
+      of silently checking less, and asserts POSITIVELY that the walk happened —
+      a green check that proves nothing was walked is the vacuous pass this
+      repository has already had to close once. The invocation is pinned by
+      `tests/signed_execution_chain/test_gate_wiring.py` inside the required
+      `pytest-suite` job, because a comment in a workflow protects nothing.
+- [ ] 4.5 **[OPERATOR] — DELIBERATELY OPEN, and it is the one box that decides
+      whether any of the rest confers anything.** Make the check REQUIRED in the
+      branch ruleset. A merged workflow file is NOT evidence; the evidence is
+      the live ruleset state, as `add-wallet-carried-review-authority` task 2.5
+      established (org ruleset **21538893** for `wallet-validation`). Until it
+      is done, requirement 9 is UNMET rather than partially met, and the
+      packaged conformance declaration records
+      `is_required_in_ruleset: false` while the reader emits a standing
+      `reader-not-required` warning on every run. Neither is decoration: a test
+      refuses a declaration that records SEC-R9 `satisfied` while the reader is
+      unrequired.
+- [ ] 4.6 **Gate — BLOCKED ON 4.5 BY CONSTRUCTION, not by effort.** A
+      deliberately broken chain FAILS a real pull request, and the evidence
+      records the run id, the check id, the validator's single named refusal,
+      and the live ruleset read showing the check required — the shape task 2.6
+      of that change proved on canary PR #387. The first three halves are
+      producible today; the fourth cannot be read until 4.5 is performed, and a
+      box closed on three of four conjuncts would be the closure-on-intention
+      this family refuses.
+- [ ] 4.7 **CUT-DEPENDENT, and left to the cutting session on purpose.**
+      Registration in `contracts/manifest.yaml` and `contracts/CHANGELOG.md`,
+      and the additive bundle cut, with `release-surface-integrity`'s
+      verify-commit green from an independent clone. **THE NUMBER IS
+      RE-COUNTED TWICE, AND THE SECOND COUNT IS THE ONE THAT HOLDS.** The
+      first count read `contract-v2.4` as next, because at that tip the manifest
+      declared `contract-v2.3` and only v2.3's inventory was in the tree. It also
+      said, in terms, *"if #516 cuts alone first, this one re-counts again rather
+      than reserving a number."* **THAT IS WHAT HAPPENED.**
+      `add-binding-consumer-identity` cut and TAGGED `contract-v2.4` alone
+      (#526, `afdf0e88`, now on `main`), and its inventory carries **ZERO**
+      `signed-execution-chain` members — verified by grep, not assumed — so v2.4
+      is SPENT and covers none of this family. **AT THIS TIP THE NEXT ADDITIVE
+      NUMBER IS `contract-v2.5`**: `contracts/manifest.yaml:3` declares
+      `contract-v2.4` and `contracts/releases/contract-v2.4.digests.yaml` is a
+      cut inventory in the tree. **A PROPOSED CHANGE MUST NOT RESERVE A MINOR
+      NUMBER BEFORE MERGE ORDER IS KNOWN**, which is exactly why this realization
+      registers nothing and bumps nothing — a reserved v2.4 would now be wrong,
+      and the rule is what kept it from being written anywhere that mattered. The
+      manifest and changelog update is committed atomically WITH the cut, and the
+      tag points at that commit.
+      **WHAT THE CUTTING SESSION WILL FIND, MEASURED HERE SO IT IS NOT A
+      SURPRISE**: at this tip `scripts/validate-contract-release.py verify-commit
+      --commit HEAD` reports EXACTLY ONE mismatch —
+      `HGR-RELEASE-DIGEST-MISMATCH` on `contracts/README.md` — and
+      `origin/main` PASSES the same check. That is the expected uncut state, not a
+      defect: this realization adds two rows to the contracts index, and
+      `contracts/README.md` is one of the three EDITORIAL members that
+      legitimately move between cuts (with `manifest.yaml` and `CHANGELOG.md`),
+      which is why `doc-health`'s `release-inventory-drift` family classifies it
+      INFO and reports zero new findings while the strict release tool reports an
+      error. The cut resolves it by construction, because the new inventory
+      records the new digests. **A realization that edits the contracts index and
+      does not cut will always show this one line**; a mismatch on any
+      NON-editorial member would be a real finding, and there is none.
 
 ## 5. Successors — NAMED, NOT DRAFTED
 

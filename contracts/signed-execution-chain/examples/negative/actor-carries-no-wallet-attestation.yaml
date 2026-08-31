@@ -1,0 +1,106 @@
+# expected_failure: schema
+# expected_failure_detail: wallet_attestation
+# VIOLATES requirement 2's second scenario, and it is refused BY SHAPE rather
+# than by a rule. "The absence is never read as an attestation that happens to be
+# omitted" is strongest when the absence cannot be written down: `actor` requires
+# both `subject_reference` and `wallet_attestation`, so an actor bound to no
+# wallet is unrepresentable.
+#
+# The link is refused rather than accepted on the strength of the exercise alone.
+schema_version: 1
+kind: xfactory_signed_execution_chain_inception
+inception_id: inc-rat-n09
+chain_identity:
+  construction: xfc-jcs-sha256-1
+  subject: signed_ratification
+  value: sha256:9b9683565de3359706b621fae6c3cd92cf99fa00633e5d5f6622ddd82aa8c5c6
+signed_ratification:
+  ratification_id: rat-n09
+  ratified_at: '2026-08-30T10:00:00Z'
+  digest_construction: xfc-jcs-sha256-1
+  ratified_subject:
+    subject_type: openspec_change
+    subject_ref: openspec/changes/add-signed-execution-chain
+    subject_digest:
+      construction: xfc-jcs-sha256-1
+      subject: ratified_subject
+      value: sha256:dfedf73b9f4b91683dfa36ef6ae363c23a7e65315d507d3f094f0ad45bdbdb84
+  presentation:
+    exercise_ref: exr-n09
+    grant_ref: grant-ratify-0001
+    presenting_key_ref: key-ratifier-0001
+    exercise:
+      schema_version: 1
+      kind: xfactory_wallet_grant_exercise
+      exercise_id: exr-n09
+      grant_ref: grant-ratify-0001
+      act: ratify
+      occurred_at: '2026-08-30T10:00:00Z'
+      event_class: authenticated
+      proof_of_possession:
+        presented: true
+        verified: true
+        signature_algorithm: ed25519
+        presenting_key_ref: key-ratifier-0001
+        signed_over: request_digest
+      attribution:
+        mode: key_attributed
+        presenting_key_ref: key-ratifier-0001
+        wallet_ref: wal-human-ratifier-0001
+        holder_ref: person:example.ratifier
+      custody_model_in_force: isolated_per_use_authorized
+      revocation_check:
+        performed_at_exercise: true
+        result: active
+      outcome: permitted
+      object_ref: sha256:dfedf73b9f4b91683dfa36ef6ae363c23a7e65315d507d3f094f0ad45bdbdb84
+    wallet:
+      schema_version: 1
+      kind: xfactory_wallet_record
+      wallet_id: wal-human-ratifier-0001
+      holder:
+        holder_id: person:example.ratifier
+        holder_class: person
+        display_label: Packaged fixture ratifier — not a live holder
+      key_reference:
+        did: did:key:z6MkpbemmWNSrDVeNzsVYzhR74wmTf8jTdTqsq9M6CmWqhbG
+        key_id: key-ratifier-0001
+        public_key_multibase: z6MkpbemmWNSrDVeNzsVYzhR74wmTf8jTdTqsq9M6CmWqhbG
+        signature_algorithm: ed25519
+      custody:
+        model: isolated_per_use_authorized
+        registry_version: 1
+        declared_at: '2026-08-30T09:00:00Z'
+        declared_by: Brett.Heap
+      state: active
+      created_at: '2026-08-30T09:00:00Z'
+      policy_version: 1
+  actor:
+    subject_reference:
+      schema_version: 1
+      kind: actor_subject_reference
+      reference_id: asr-ratify-0001
+      governed_record_ref:
+        record_type: signed_execution_chain_inception
+        record_ref: inc-ratify-0001
+      provenance: broker_asserted
+      issuer:
+        broker_instance_id: broker-opensoft-qa
+      subject: sub-7f2c1b9ae40d5836
+      display_name_at_record: Packaged fixture ratifier
+      recorded_at: '2026-08-30T10:00:00Z'
+  out_of_pipeline:
+    performed_out_of_pipeline: true
+    ground_ref: opensoft/codexFactory hermes/domain/review-councils/records/2026-08-28-gate-rules-openxfactory-substantive-classes.md
+    ground_statement: 'A class over `openspec/changes/**` can never commission a council:
+      the surface lies wholly inside the canonical GATE_INTEGRITY_FLOOR, which is evaluated
+      before any clearable classification (984 admitted, 984 floored, 0 remaining; unanimous
+      5/5, convener disposition Brett Heap 2026-08-28). And a pipeline that CLEARS candidates
+      cannot also be what CONFERS the authority those candidates are cleared against.'
+ratification_signature:
+  algorithm: ed25519
+  presenting_key_ref: key-ratifier-0001
+  signed_over: signed_ratification
+  signature: gZm33707wTo0sI2I0hfCrlvYUsKvjV3y93Br6QZqTi18sbjg_IEJmzRG-XI4n_G0db9WIykjkHxAwV4E5iVYDw
+incepted_at: '2026-08-30T10:00:00Z'
+inception_leaf_ref: leaf-rat-n09
