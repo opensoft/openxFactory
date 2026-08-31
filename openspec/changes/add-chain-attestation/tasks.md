@@ -135,6 +135,72 @@ in for a ruleset state.
       cannot see a leaf that was never written — so the authoritative set is now
       LINK 4's COMMITTED EXPECTATION, with the log comparison secondary. This box
       records what round one did and is not a statement of the rule in force.
+- [x] 1.10 **THE SECOND BOT ROUND'S TWO P1 FINDINGS ARE CLOSED, AND RECORDED AS
+      CORRECTIONS** (`design.md` D11; `proposal.md` § "What the SECOND bot round
+      corrected"). Both were one shape, and a DIFFERENT shape from the first
+      round's: **a rule that could not be CONSTRUCTED as written.** (i) The
+      completeness rule derived its authoritative set FROM THE LOG, which cannot
+      see a leaf that was never written — so a lane that never wrote an unwanted
+      attestation passed the gate, and the council's own LQ-A3 leaf-ordering
+      obligation could only refuse the leaf once it appeared, after a merge that
+      is not retroactively refused. **The authority moves to link 4's COMMITTED
+      EXPECTATION**, extensible before each attestation it covers, with the log
+      comparison kept as a second check in both directions — which also
+      discharges `lead-security`'s **LS-F5**, that named the identical missing
+      instrument in the sitting. (ii) Requirement 2 bounded the per-task tier-2
+      identity to *"exactly one thing — signing an attestation about that task"*
+      while requirements 5 and 7 required it to sign a DECISION and a TEST
+      OUTCOME, so **no conforming link 6 was constructible**. Repaired by a
+      CLOSED, NAMED ENUMERATION of authorized record kinds (links 5, 6, 10), with
+      authority records excluded permanently. Neither repair invents vocabulary.
+- [x] 1.11 **THE THIRD BOT ROUND'S TWO P1 FINDINGS ARE CLOSED, AND RECORDED AS
+      CORRECTIONS** (`design.md` D11a; `proposal.md` § "What the THIRD bot round
+      corrected"). (i) The record-kind enumeration fixed FORM and left SUBJECT
+      unfixed: link 6 is ONE decision committing to EVERY link-5 attestation and
+      link 10 ONE test outcome over the same whole, so a task-scoped signer still
+      could not produce either **once a chain fans out past one task** — the
+      ordinary case had no conforming link 6 through two successive repairs.
+      **TIER 2 NOW SPLITS BY SUBJECT SCOPE**: one chain-scoped identity per chain
+      for the aggregate records, per-task identities shrunk to link 5, both under
+      one custody rule, authority records outside both enumerations forever.
+      Composing N task-scoped decisions was REFUSED on the topic's authoritative
+      link table, which gives link 6 one signed decision. **This DEPARTS from the
+      topic's signer column for links 6 and 10 and is flagged as such**, on D4's
+      footing; tranche one's ratified text defers tier 2's definition to this
+      tranche and imposes only EPHEMERAL and keys-never-in-a-worker, both of which
+      bind the new scope. **No seat return is touched** — every custody passage in
+      the four returns is key-material, and none makes an identity-cardinality
+      claim. (ii) The MODIFIED block's enforcement mapping still said
+      *"log-derived authoritative set"*, contradicting the corrected rule; it now
+      names link 4's committed expectation as THE AUTHORITY with the bidirectional
+      log comparison SECONDARY. **A packet-wide NEW-CONJUNCT SWEEP** over every
+      authority-of-the-set phrase and every predicate-shaped sentence about what
+      the gate compares found four further sites in the superseded present tense,
+      all corrected, with round-one narratives kept as history and marked
+      superseded.
+- [x] 1.12 **THE FOURTH BOT ROUND'S P1 AND P2 ARE CLOSED, AND RECORDED AS
+      CORRECTIONS** (`design.md` D11b; `proposal.md` § "What the FOURTH bot round
+      corrected"). (i) **P1 — bind-before-sign's last uncovered limb.** Every other
+      link had moved its CLAIMS to the controller; link 10 had left its RESULT with
+      the lane, so a fabricated passing outcome on an otherwise valid chain drew a
+      controller signature and CLOSED THE CHAIN. Link 10 now binds, inside the
+      signed bytes, an AUTHENTICATED EXECUTION the controller dispatched or
+      observed, the EXACT TESTED REVISION equal to the merge commit closed over,
+      and the RESULT; a lane-claimed outcome is REFUSED as closure grounds. **NO
+      DECLARED-SHORTFALL PATH EXISTS FOR THE OUTCOME** — the first live application
+      of LS-A10's floor, stated in the requirement and cited to it. Recorded
+      outcomes go THREE → FOUR with UNESTABLISHED, added deliberately because it is
+      a different fact from FAILED. **Checked and clean**: it composes with the
+      two-horizon doctrine (nothing reaches back through the merge; the closure is
+      what is refused), and no seat return blesses a lane-claimed outcome —
+      `lead-security`'s B-4 endorsement is of the revocation horizon, a different
+      limb. (ii) **P2 — a stale FIXTURE**, one field over from the third round's
+      sweep: 5.5 still commissioned a per-task identity signing links 6 and 10,
+      which the closed enumeration makes impossible and explicitly refuses.
+      Withdrawn, named as withdrawn, replaced by the chain-scoped positive case.
+      **The earlier sweep covered PREDICATES and not FIXTURES** — a superseded rule
+      survives in the examples commissioned against it, not only in the sentences
+      asserting it.
 - [x] 1.13 **THE FIFTH BOT ROUND'S P1 AND P2 ARE CLOSED, AND RECORDED AS
       CORRECTIONS** (`design.md` D11c). **BOTH ARE RESIDUE OF THE THIRD ROUND'S
       OWN REPAIR.** (i) **P1 — the subject split created a signer the attribution
@@ -161,72 +227,6 @@ in for a ruleset state.
       "neither has happened") and now state it accurately — **council review HELD
       2026-08-30, ratification PENDING**; §4's ordering is corrected (4.6 before
       4.7) and 4.1 now covers both subject scopes.
-- [x] 1.12 **THE FOURTH BOT ROUND'S P1 AND P2 ARE CLOSED, AND RECORDED AS
-      CORRECTIONS** (`design.md` D11b; `proposal.md` § "What the FOURTH bot round
-      corrected"). (i) **P1 — bind-before-sign's last uncovered limb.** Every other
-      link had moved its CLAIMS to the controller; link 10 had left its RESULT with
-      the lane, so a fabricated passing outcome on an otherwise valid chain drew a
-      controller signature and CLOSED THE CHAIN. Link 10 now binds, inside the
-      signed bytes, an AUTHENTICATED EXECUTION the controller dispatched or
-      observed, the EXACT TESTED REVISION equal to the merge commit closed over,
-      and the RESULT; a lane-claimed outcome is REFUSED as closure grounds. **NO
-      DECLARED-SHORTFALL PATH EXISTS FOR THE OUTCOME** — the first live application
-      of LS-A10's floor, stated in the requirement and cited to it. Recorded
-      outcomes go THREE → FOUR with UNESTABLISHED, added deliberately because it is
-      a different fact from FAILED. **Checked and clean**: it composes with the
-      two-horizon doctrine (nothing reaches back through the merge; the closure is
-      what is refused), and no seat return blesses a lane-claimed outcome —
-      `lead-security`'s B-4 endorsement is of the revocation horizon, a different
-      limb. (ii) **P2 — a stale FIXTURE**, one field over from the third round's
-      sweep: 5.5 still commissioned a per-task identity signing links 6 and 10,
-      which the closed enumeration makes impossible and explicitly refuses.
-      Withdrawn, named as withdrawn, replaced by the chain-scoped positive case.
-      **The earlier sweep covered PREDICATES and not FIXTURES** — a superseded rule
-      survives in the examples commissioned against it, not only in the sentences
-      asserting it.
-- [x] 1.11 **THE THIRD BOT ROUND'S TWO P1 FINDINGS ARE CLOSED, AND RECORDED AS
-      CORRECTIONS** (`design.md` D11a; `proposal.md` § "What the THIRD bot round
-      corrected"). (i) The record-kind enumeration fixed FORM and left SUBJECT
-      unfixed: link 6 is ONE decision committing to EVERY link-5 attestation and
-      link 10 ONE test outcome over the same whole, so a task-scoped signer still
-      could not produce either **once a chain fans out past one task** — the
-      ordinary case had no conforming link 6 through two successive repairs.
-      **TIER 2 NOW SPLITS BY SUBJECT SCOPE**: one chain-scoped identity per chain
-      for the aggregate records, per-task identities shrunk to link 5, both under
-      one custody rule, authority records outside both enumerations forever.
-      Composing N task-scoped decisions was REFUSED on the topic's authoritative
-      link table, which gives link 6 one signed decision. **This DEPARTS from the
-      topic's signer column for links 6 and 10 and is flagged as such**, on D4's
-      footing; tranche one's ratified text defers tier 2's definition to this
-      tranche and imposes only EPHEMERAL and keys-never-in-a-worker, both of which
-      bind the new scope. **No seat return is touched** — every custody passage in
-      the four returns is key-material, and none makes an identity-cardinality
-      claim. (ii) The MODIFIED block's enforcement mapping still said
-      *"log-derived authoritative set"*, contradicting the corrected rule; it now
-      names link 4's committed expectation as THE AUTHORITY with the bidirectional
-      log comparison SECONDARY. **A packet-wide NEW-CONJUNCT SWEEP** over every
-      authority-of-the-set phrase and every predicate-shaped sentence about what
-      the gate compares found four further sites in the superseded present tense,
-      all corrected, with round-one narratives kept as history and marked
-      superseded.
-- [x] 1.10 **THE SECOND BOT ROUND'S TWO P1 FINDINGS ARE CLOSED, AND RECORDED AS
-      CORRECTIONS** (`design.md` D11; `proposal.md` § "What the SECOND bot round
-      corrected"). Both were one shape, and a DIFFERENT shape from the first
-      round's: **a rule that could not be CONSTRUCTED as written.** (i) The
-      completeness rule derived its authoritative set FROM THE LOG, which cannot
-      see a leaf that was never written — so a lane that never wrote an unwanted
-      attestation passed the gate, and the council's own LQ-A3 leaf-ordering
-      obligation could only refuse the leaf once it appeared, after a merge that
-      is not retroactively refused. **The authority moves to link 4's COMMITTED
-      EXPECTATION**, extensible before each attestation it covers, with the log
-      comparison kept as a second check in both directions — which also
-      discharges `lead-security`'s **LS-F5**, that named the identical missing
-      instrument in the sitting. (ii) Requirement 2 bounded the per-task tier-2
-      identity to *"exactly one thing — signing an attestation about that task"*
-      while requirements 5 and 7 required it to sign a DECISION and a TEST
-      OUTCOME, so **no conforming link 6 was constructible**. Repaired by a
-      CLOSED, NAMED ENUMERATION of authorized record kinds (links 5, 6, 10), with
-      authority records excluded permanently. Neither repair invents vocabulary.
 
 ## 2. §7.4 COUNCIL REVIEW — **HELD 2026-08-30. THE FIRST GATE IS DISCHARGED.**
 
