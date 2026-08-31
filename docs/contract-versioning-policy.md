@@ -302,9 +302,9 @@ retroactively invalidate an old pin.
   with (`fetch_identity`), optionally a qualified `requirement_ref`
   (`requirement_id` + `requirements_document_ref`), and the const-true
   `shared_credential_acknowledged` and `instantiation_stub` tokens. **The block
-  is DECLARED at the release that introduces it and CONSTRAINED at
-  contract-v3.0**; at the introducing release the schema imposes no type, no
-  member grammar, no requiredness and no closure on it, and
+  is DECLARED at contract-v2.4 and CONSTRAINED at contract-v3.0**; at
+  contract-v2.4 the schema imposes no type, no member grammar, no
+  requiredness and no closure on it, and
   `scripts/validate-credential-contracts.py` emits WARNINGS instead.
 
   **THIS ENTRY NAMES EVERY ACT THAT LANDS AT THAT MAJOR, because a reader
@@ -348,12 +348,14 @@ retroactively invalidate an old pin.
   degraded mode is declarable in this family, the OTHER seven acts may land and
   the requiredness may not.
 
-  Nothing narrows at the introducing release, and that is a measurement rather
+  Nothing narrows at contract-v2.4, and that is a measurement rather
   than a claim: six shapes a domain could already hold — an object with neither
   declared member, a scalar, a list, placeholder-styled values, an undeclared
   extra member, and no block at all — were built and driven against the shipped
   schema, and all six validate. Every consumer pinned at the prior bundle stays
   conformant until it upgrades.
+
+  Warned since contract-v2.4; removal target contract-v3.0.
 
 ## Deprecations Executed
 

@@ -451,7 +451,7 @@ unimplementable, and `projection.py`'s property 5 said so in as many words.
     ceiling)` — an artifact must never widen its own trust window. The version
     bump is safe because S3 is NOT deployed and no projection exists in
     production; that fact is recorded in #51 as the reason rather than assumed.
-- [ ] 7.5 **[codexFactory]** Pin model version and prompt corpus as declared
+- [x] 7.5 **[codexFactory]** Pin model version and prompt corpus as declared
       components; forbid the candidate repository at HEAD as retrieval corpus.
   - This task is THREE halves, not one, and they are in three different states.
   - **Retrieval corpus — ALREADY DISCHARGED** by the 4.4 work (codexFactory
@@ -541,6 +541,61 @@ unimplementable, and `projection.py`'s property 5 said so in as many words.
       unconditionally, applies nothing to the enrolled roster (the roster-change
       Lead's `lead_accepted_recorded` act is still OWED), ticks no task here, and
       discharges no S5 gate or activation-gate entry. **7.5 stays UNTICKED.**
+  - **TICKED 2026-08-31, AND THE THREE `7.5 stays UNTICKED` SENTENCES ABOVE ARE
+    SUPERSEDED — APPENDED, NOT REWRITTEN**, so the ruling as given and the act
+    that discharges it are both legible (the same form R1's §8.11 addendum
+    takes). **Every one of those sentences gave a reason. Each is discharged by
+    name below; none lapsed.**
+    - **THE TASK'S OWN TEXT, QUOTED, IS WHAT IS SATISFIED:** *"Pin model version
+      and prompt corpus as declared components; forbid the candidate repository
+      at HEAD as retrieval corpus."* All three halves are now declared, pinned
+      and test-enforced inside the REQUIRED gate's pytest path:
+      **model version** — `model_assignments` declares the four exact provider
+      identifiers at `selector_kind: exact_provider_version`,
+      `pin_status: pinned` (codexFactory `6edecaf1`, PR #146);
+      **prompt corpus** — `rendered_set_digest:
+      sha256:9e66f1ad83be6dd1e4920a199567b3dc76923077a6c5ed9cd1ba67a3fb1d0140`
+      at `pin_status: content_pinned`, independently recomputed from the
+      canonical builder during the CSC-C1′ inventory and reproduced exactly;
+      **retrieval corpus** — `candidate_repository_head: excluded`, unchanged.
+    - **Blocker 1 — *"WHICH model represents a seat is a Gate-Rules Council
+      matter"*: DISCHARGED.** `gate_rules_council` sat 2026-08-29 and returned
+      **UNANIMOUS ACCEPT AS AMENDED, 5/5**; the convener accepted on record
+      (§8.16, slot 3).
+    - **Blocker 2 — *"WHICH provider version to stand behind is an operator
+      choice"*: DISCHARGED.** Ruled by the operator as R2/R3/R4,
+      [`rulings-2026-08-29.md`](rulings-2026-08-29.md).
+    - **Blocker 3 — *"Whether a family pin … is admissible at all is the
+      question carried to the convener under 8.1"*: RULED 2026-08-28**, by
+      ratification of openXwallet PR #3 as authored — the exact-version rule
+      stands and a family pin is a validation failure. Recorded at 8.1's own
+      RESOLVED addendum.
+    - **Blocker 4 — *"the flip is folded into 7.6's runbook walk rather than
+      performed ahead of it"*: SATISFIED AS WRITTEN.** The flip WAS performed as
+      the walk of `docs/governed-reissuance-runbook.md`; the evidence is
+      [`walk-2026-08-31-composition-bump.md`](walk-2026-08-31-composition-bump.md).
+    - **Blocker 5 — *"applies nothing to the enrolled roster (the roster-change
+      Lead's `lead_accepted_recorded` act is still OWED)"*: PERFORMED
+      2026-08-31.** Brett Heap spoke the acceptance in session; it is recorded
+      verbatim at codexFactory
+      `records/2026-08-31-enrolled-roster-model-pin-flip.md` §10 and duplicated
+      into the worker's `ACCEPTED BY (CURRENT)` comment, with the Lead-Quality
+      conflict disclosed on the face of the act.
+    - **WHAT THE TICK DOES NOT CLAIM, and every one of these stays open.**
+      **The selection remains CONDITIONAL** — no seat returned an unqualified
+      SELECT and B9 was unanimous 5/5 NO; the three domain slots stand on the
+      union of the bench's conditions. **`lead-integration`'s ACTIVATION IS
+      HELD on LA-C3**, the four-class integration soak, which has not run.
+      **THE REGISTER ACT IS OWED** — sequencing step 5; the declared composition
+      moved and no governed re-issuance has been performed, so `grant-mrc-0001`
+      still stands against the prior composition. **NOT ONE COMMISSIONED SOAK
+      HAS RUN; no row exists.** **No activation-gate entry is discharged**, in
+      part or in whole. **No fully-pinned-composition claim is made**: the
+      undeclared CLI helper `claude-haiku-4-5-20251001` executed in 4 of 4
+      inventory invocations and the runtime is not one of the six components.
+      **This tick is about the PIN, which is what 7.5's text asks for — never
+      about selection finality, issuance, or activation**, which are 7.7, 8.x
+      and the register lane.
 - [ ] 7.6 **[OPERATOR]** Write the governed re-issuance RUNBOOK for a provider
       alias roll, and walk it once against a deliberate composition bump. Without
       it, one provider release revokes every seat grant at once, every convening
@@ -569,9 +624,62 @@ unimplementable, and `projection.py`'s property 5 said so in as many words.
     new human-ratified issuance. Write the runbook against those; neither
     ruling is enforced until the change carrying R6–R12 is ratified, so this
     task stays OPEN.
+  - **THE RUNBOOK IS WRITTEN, AND ITS PATH WAS AN UNOPPOSED CHOICE —
+    [`docs/governed-reissuance-runbook.md`](../../../docs/governed-reissuance-runbook.md)
+    (`Status: draft`).** Recorded because **nothing named a path**: not this
+    task, not [`rulings-2026-08-29.md`](rulings-2026-08-29.md), not
+    [`proposal.md`](proposal.md), [`design.md`](design.md) or either delta spec.
+    The choice follows this repository's own convention — every operator runbook
+    is flat in `docs/` under a `<subject>-runbook.md` name
+    (`domain-instantiation-setup-runbook.md`, `intake-subtype-install-runbook.md`,
+    `notebook-projection-migration-runbook.md`,
+    `notebook-projection-retirement-runbook-step8.md`) — and it is registered in
+    `README.md`'s `## Documentation` index like the rest of them. **Written down
+    rather than left implicit, so a later reader knows the location was decided
+    and by what, and does not go looking for an authority that named it.**
+    **THIS BULLET TICKS NOTHING.** 7.6 stays OPEN by the sentence directly above
+    it; the walk record and any ledger movement are a separate, argued act.
+  - **THE WALK IS DONE, AND 7.6 STILL STAYS UNTICKED — on TWO independent
+    grounds.** The walk record is
+    [`walk-2026-08-31-composition-bump.md`](walk-2026-08-31-composition-bump.md);
+    the bump it walks is codexFactory `6edecaf1` (PR #146), the
+    alias-to-exact enrolled-roster pin flip, performed BY following the runbook,
+    which is this task's own *"the runbook and that flip are one act, not two."*
+    - **GROUND 1 — THE TASK'S OWN SENTENCE, and it has nothing to do with the
+      walk:** *"neither ruling is enforced until the change carrying R6–R12 is
+      ratified, so this task stays OPEN."* **R6–R12 is not authored, let alone
+      ratified.** No walk can discharge a condition about a different change's
+      ratification, and a tick here would assert an enforced control that does
+      not exist — nothing in this estate would refuse a bump that ignored the
+      runbook entirely.
+    - **GROUND 2 — THE WALK IS PRECISION-CLASS, NOT REVOCATION-CLASS.** The
+      flip's C13 question was **ruled and discharged in the same act** on the
+      25/25 and 8/8 identity measurement (codexFactory 2026-08-29 §8.2), so
+      nothing was revoked, no convening parked, no grant was minted, no row was
+      repointed and no projection was re-derived. **Runbook steps 5, 5.1 and 5.2
+      were NOT EXERCISED**, and the walk record's §5 says so in terms rather
+      than leaving it to be noticed. §5.4 enumerates the five things a real
+      provider roll would additionally exercise.
+    - **RECOMMENDATION, MARKED HONESTLY: 7.6 IS HALF-OPEN, AND THE HALVES ARE
+      NAMED.** The *"write the runbook"* limb is **DONE** (openxFactory
+      `65c3a803`, PR #527). The *"walk it once against a deliberate composition
+      bump"* limb is **DONE FOR A PRECISION FLIP and NOT for a revocation
+      class**. Ground 1 keeps the task shut regardless, so nothing turns on
+      resolving Ground 2 today; when R6–R12 ratifies, **the open question will be
+      whether a precision-flip walk suffices or a revocation-class walk is
+      owed**, and this note is where that reader should start.
 - [ ] 7.7 **Gate:** a revoked holder parks a convening with a named refusal in a
       rehearsed test; an unreadable register refuses; the runbook has been
       walked once.
+  - **LIMB THREE MOVED 2026-08-31, AND THE GATE IS STILL NOT MET.** *"the
+    runbook has been walked once"* — it has:
+    [`walk-2026-08-31-composition-bump.md`](walk-2026-08-31-composition-bump.md),
+    against codexFactory `6edecaf1`. **Recorded here so a later reader finds it,
+    and TICKING NOTHING**, because limb one is unmet on its own terms: **no
+    revoked holder parked anything**, in a rehearsed test or otherwise — nothing
+    was revoked (walk record §5.1, §5.2). And the walked limb is itself
+    precision-class, not revocation-class. **A gate is met when all its limbs
+    are, and one of three moving is not two-thirds of a discharge.**
   - **RUNTIME HALF DONE, gate NOT met.** Limbs one and two — "a revoked holder
     parks a convening with a named refusal in a rehearsed test" and "an
     unreadable register refuses" — are both asserted in hermes-install #51, on

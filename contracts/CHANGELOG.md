@@ -9,6 +9,135 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
+## contract-v2.4 — 2026-08-31 (additive; a credential binding declares who holds it and what it fetches with)
+
+Realizes `add-binding-consumer-identity`, ratified 2026-08-29 by the repository
+owner after a §7.4-shaped council round read the packet adversarially, split 2–2
+on the verdict word, agreed 4/4 that the drafted text was not ratifiable, and
+returned fifteen blocking amendments — his ruling was ACCEPT ALL BLOCKING, one
+fix round, the ratification read after
+(`openspec/changes/add-binding-consumer-identity/review/ratification-2026-08-29.md`).
+The schema, the validator's warning channel, the packaged corpus and the
+generator sweep landed as PR #516, squash `5e8a33cf`. THIS ENTRY IS THE OTHER
+HALF: §5.2's changelog half and §5.3, the cut that allocates the number the
+packet deliberately declined to write in advance, because allocation is by merge
+order and a number written before the merge is a number the next packet to land
+would have to renumber.
+
+**Change class: ADDITIVE (minor)** under
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md).
+NOTHING NARROWS AT THIS RELEASE, AND THAT IS A MEASUREMENT RATHER THAN A CLAIM.
+The binding object has never been closed, so a `consumer:` key of ANY shape
+already validated at `contract-v2.3`; the growth therefore cannot refuse an
+instance the prior bundle accepted. Six shapes a domain could already hold — an
+object with neither declared member, a scalar, a list, placeholder-styled values,
+an undeclared extra member, and no block at all — were built and driven against
+the shipped schema in
+`tests/credential_contracts/test_consumer_block_phasing.py`
+(`test_all_six_shapes_validate_at_the_introducing_minor`), and all six validate.
+Five of the six are refused at `contract-v3.0`, which is exactly why the
+narrowing is deferred to the major behind a served minor of warnings. A consumer
+pinned at `contract-v2.3` stays conformant until it deliberately upgrades, and
+`contract_schema_version` is unchanged.
+
+### What this release adds
+
+* `contracts/schemas/xfactory-credential-contracts.schema.yaml` — each entry of
+  `credential_bindings` in `xfactory_credential_binding_template` MAY declare an
+  OPTIONAL `consumer:` block: the consuming system that holds the binding
+  (`holder_ref`), the identity that system authenticates to the secret store with
+  (`fetch_identity`), an optional QUALIFIED `requirement_ref` (`requirement_id` +
+  `requirements_document_ref`), and the const-true `shared_credential_acknowledged`
+  and `instantiation_stub` tokens. THE BLOCK IS DECLARED HERE AND CONSTRAINED AT
+  `contract-v3.0`: at this release the schema imposes no type, no member grammar,
+  no requiredness and no closure on it.
+* EIGHT deprecation codes, emitted as WARNINGS by
+  `scripts/validate-credential-contracts.py` and enumerated with their migration
+  path in `docs/contract-versioning-policy.md` § Deprecations Currently In Force:
+  `consumer-identity-undeclared`, `consumer-block-incomplete`,
+  `consumer-block-unknown-member`, `consumer-member-grammar`,
+  `consumer-token-not-true`, `consumer-binding-key-grammar`,
+  `consumer-access-mode-vocabulary` and `consumer-requirement-ref-grammar`. They
+  serve SEVEN acts that land together at `contract-v3.0` behind ONE window — the
+  member requiredness, the block's closure, the member grammar, the const-true
+  token enforcement, and the three narrowings that sit OUTSIDE the block and are
+  not exempt for it (the `credential_bindings` MAP KEY grammar, the closed
+  `access_mode` vocabulary, and the repository-relative
+  `requirements_document_ref` grammar). The requiredness is additionally GATED on
+  a declarable degraded fetch-identity mode and shall not land without it.
+* A packaged probe per code under `examples/credential-contracts/warning/` — ten
+  fixture files across the eight codes, two codes carrying a second probe — and a
+  self-test that REFUSES a code with no probe, so the next code added cannot
+  silently ship unprobed.
+* `consumer: {instantiation_stub: true}` is what a record written before any
+  install exists declares, and THAT TOKEN IS THE ONLY EXEMPTION. A
+  `*.template.yaml` FILENAME exempts nothing, being author-chosen, invisible in
+  the bytes a pinned consumer validates, and unreachable by a pinned schema; a
+  stub-named file carrying live values is a packaged NEGATIVE.
+* `scripts/validate-credential-contracts.py` — the shared-secret refusal's
+  first-against-rest arity is REPLACED by an EVERY-PAIR comparison, with a
+  six-condition fail-closed lift for two consuming systems reaching one
+  deliberately shared operated identity, and a new `shared-authority-identity`
+  error. Both are enforced here and never re-implemented by consumers.
+* `contracts/manifest.yaml`, `contracts/README.md`, `contracts/CHANGELOG.md`,
+  `docs/contract-versioning-policy.md` — the editorial and ERROR-band members,
+  re-baselined, with the deictic "the release that introduces it" / "at THIS
+  release" phrasing resolved to the literal `contract-v2.4` at every occurrence —
+  once in the manifest row's `consumption_rule` and three times in the policy
+  entry — and the terminal audit line the section's other entries carry
+  (`Warned since contract-v2.4; removal target contract-v3.0.`) added to the one
+  that lacked it.
+* `tests/intent-compliance/test_release_boundary.py` — the intent-compliance
+  family's release boundary is pinned by an ENUM OF NAMED BUNDLE VALUES, and a
+  bundle it has not been told how to classify fails loudly rather than being
+  classified by inference. That tripwire fired on this bump and is what it is
+  for: the library floor (`INTENT_RELEASE_FLOOR`) is an at-or-after comparison
+  that would never have noticed, and the file exists to hold the family's
+  membership and its manifest registration together. `contract-v2.4` is
+  classified BY HAND and on the record with the introducing release — past the
+  floor, family registered, family present — and asserts the same membership.
+  No test is added, removed or weakened; the pin is advanced. A future bundle
+  will trip it again, which is the design.
+* `contracts/releases/contract-v2.4.digests.yaml` — this cut's inventory, built
+  AFTER the `contract_bundle_version` bump and after every other member above,
+  and never hand-edited.
+
+**THE BUNDLE NUMBER WAS FRESH-COUNTED AT THE CUT**, as §5.3 requires and as this
+repository's own renumbering history earns. Counted at the branch tip:
+`contracts/CHANGELOG.md`'s top entry was `contract-v2.3` (2026-08-29);
+`contracts/releases/` holds inventory files through `contract-v2.3`; `git tag`
+publishes `contract-v2.0`, `contract-v2.1` and `contract-v2.2` and NOT
+`contract-v2.3`; and no Unreleased block is pending (`grep -i unreleased` over
+the changelog returns only historical prose in older entries). `contract-v2.3` is
+therefore SPENT — declared and consumed as a number — but untagged, so the next
+available additive number is **`contract-v2.4`**, and this cut takes it.
+
+### `contract-v2.3` disposition — measured, and PENDING an owner act
+
+`contract-v2.3` is DECLARED by three artifacts on `main` — the manifest's
+`contract_bundle_version` (until this cut moved it), its changelog entry above,
+and `contracts/releases/contract-v2.3.digests.yaml` — and its annotated tag was
+NEVER PUBLISHED. Under this policy's own § Untagged Bundles After Enforcement
+Began — DISCHARGED 2026-08-25, the remedy class for exactly this shape is
+RETRO-PUBLICATION, NOT RE-DATING: publish the tag at *"the EARLIEST FIRST-PARENT
+COMMIT on published `main` that DECLARES the bundle and at which `verify-commit`
+PASSES."* Both halves were measured at this cut rather than asserted. The
+earliest first-parent commit on `main` declaring `contract-v2.3` is
+`ec8be5aa62179713f37ee12dab53a948d791e147` (the PR #514 merge); the three
+first-parent commits above it — `698073f7`, `5e8a33cf`, `1d7e9bd2` — all declare
+it too and none precedes it. `python3 scripts/validate-contract-release.py
+verify-commit --commit ec8be5aa62179713f37ee12dab53a948d791e147` returns
+`release verify-commit: pass` against
+`contracts/releases/contract-v2.3.digests.yaml`, exit 0, no findings. So the
+candidate satisfies the rule as written.
+
+TAG PUBLICATION IS THE REPOSITORY OWNER'S ACT AND IS RECORDED HERE AS PENDING.
+This entry measures; it does not publish, and it does not treat the measurement
+as the act. Nothing in this release consumes `contract-v2.3` as a published
+bundle, and this subsection may not be cited to treat an untagged bundle as
+released — the same clause the discharged subsection binds every later reader
+with. `contracts/releases/contract-v2.3.digests.yaml` is untouched by this cut.
+
 ## contract-v2.3 — 2026-08-29 (additive; standing-policy intent compliance with review-closed trust and outcome semantics)
 
 Realizes `add-standing-policy-compliance-contract` through Speckit feature

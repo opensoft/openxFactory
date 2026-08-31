@@ -78,18 +78,33 @@ from .lines import split_keepends
 # class, and it moved in the same commit as its severity for the same reason.
 # See `duplicate_packet._LAUNCH_SEVERITY`.
 #
-# "modified-block-currency" is ABSENT at its own launch
+# "modified-block-currency" was ABSENT at its own launch
 # (add-modified-block-currency-check), for the reason its four predecessors were
-# absent at theirs and for one sharper reason of its own: every finding it raises
-# names a block somebody is expected to CORRECT, so a `contested` class would
-# route the first correction into `report.uncited_resolutions` as an ERROR and
-# red the nightly on the run that proved the advisory launch worked. Its arms are
-# `warning` for scenario-title completeness and title resolution and `info` for
-# the carriage ledger and a defective marker. Raising the scenario-completeness
-# arm to `error` and adding the contested class are ONE later decision taken
-# together by ruling; NO flip is proposed for the ledger, whose population is
-# standing by construction because every legitimate MODIFIED block edits
-# something. See `modified_block_currency._LAUNCH_SEVERITY`.
+# absent at theirs and for one sharper reason of its own: every finding it
+# raises names a block somebody is expected to CORRECT, so a `contested` class
+# would have routed the first correction into `report.uncited_resolutions` as
+# an ERROR and red the nightly on the run that proved the advisory launch
+# worked. Its arms are `warning` for scenario-title completeness and title
+# resolution and `info` for the carriage ledger and a defective marker.
+#
+# PRESENT NOW — flipped 2026-08-31 by ruling (issue #357), together with
+# `modified_block_currency._LAUNCH_SEVERITY`'s move to `error`, on the
+# discharge of the measured population (the 2026-08-30 and 2026-08-31 nightly
+# aggregation reports read the scenario-title arm at ZERO across every
+# governed repository). This table has NO PER-CLASS GRAIN — `runner.main`
+# applies it by `Finding.family` alone, one string every arm of that module
+# shares — so the row below reaches every class the family emits (the ledger
+# and the title-resolution/marker/drift classes included), not the
+# scenario-title arm alone. That is the mechanism's own answer, not a
+# widening this change chose: O8 (`specs/019-modified-block-currency-family/
+# plan.md`) reserves the SEVERITY split three ways for exactly this reason —
+# "so § 7.2's flip moves the scenario-title arm alone" — and says nothing
+# about this table, which the family's own severities remain the guard for.
+# The ledger's population stays standing by construction (every legitimate
+# MODIFIED block edits something), so it is `info` as before; what changes for
+# it is only that a divergence which stops being reported now owes a citation
+# under `report.uncited_resolutions` the same way the scenario-title arm's
+# does. See `modified_block_currency._LAUNCH_SEVERITY`.
 FAMILY_RESOLUTION = {
     "location-conformance": CONTESTED,
     "standard-backing": CONTESTED,
@@ -99,6 +114,7 @@ FAMILY_RESOLUTION = {
     "uncited-resolution": CONTESTED,
     "promotion-fidelity": CONTESTED,
     "duplicate-packet": CONTESTED,
+    "modified-block-currency": CONTESTED,
 }
 
 # ---------------------------------------------------------------- helpers

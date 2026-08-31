@@ -16,6 +16,15 @@ AUTHORIZED and none of them has been performed.** They carry the contract-releas
 ritual, and the change stays ACTIVE until merged code, green evidence and the cut
 exist.
 
+**REALIZED IN TWO ACTS, AND THE PARAGRAPH ABOVE IS NOW HISTORY RATHER THAN
+STATE.** Act one landed the code surface: PR #516, squash `5e8a33cf` — the
+schema, the validator's warning channel, the packaged corpus and the generator
+sweep. Act two is the CUT, `contract-v2.4`, recorded in
+`contracts/CHANGELOG.md` and in this packet's `realization-evidence.md`; it
+allocates the number §5.3 deliberately refused to write in advance, because
+allocation is by merge order. §7.1 stays open by design — a code-surface change
+archives after the merge and a green run, never with the cut.
+
 **No task here creates, moves, or reads a live secret.** The block this change
 adds holds identifiers; it holds no credential material, and its realization
 touches no vault.
@@ -411,7 +420,7 @@ the section's authority comes from being exhaustive.
   checks whether they are overdue-and-forgotten, because that is the same
   mechanism this new entry will rely on to retire itself. Not a condition on this
   packet; a condition on trusting what it is about to lean on.
-- [ ] 5.2 `contracts/CHANGELOG.md` and the `credential-contracts` row in
+- [x] 5.2 `contracts/CHANGELOG.md` and the `credential-contracts` row in
   `contracts/manifest.yaml` — new `sha256`, `consumption_rule` extended with the
   block and its phasing.
   **HALF DONE IN THE REALIZATION COMMIT, HALF OWED TO THE CUT, and the split is
@@ -423,7 +432,22 @@ the section's authority comes from being exhaustive.
   The `contracts/CHANGELOG.md` entry is NOT written, because it is written
   UNDER the bundle heading the cut allocates and writing it earlier would spend
   a number this packet deliberately does not number. It lands with §5.3.
-- [ ] 5.3 THE CUT. Additive minor, allocated AT REALIZATION by merge order, not
+  **THE OWED HALF IS NOW WRITTEN.** `contracts/CHANGELOG.md` carries
+  `## contract-v2.4 — 2026-08-31 (additive; a credential binding declares who
+  holds it and what it fetches with)`: the ADDITIVE-minor class argument with
+  the nothing-narrows measurement cited to
+  `tests/credential_contracts/test_consumer_block_phasing.py`, the block, the
+  eight deprecation codes and the seven acts they serve, the ten packaged
+  warning probes, the `instantiation_stub` sole exemption, the fresh count, and
+  the `contract-v2.3` disposition. The manifest half was re-verified rather
+  than trusted: the row's `sha256`
+  `d0e936fc7377dc5346d9863a5cec74b4edb5b73300c17b66843798bf96a47028` was
+  recomputed from `contracts/schemas/xfactory-credential-contracts.schema.yaml`
+  on disk at the cut and matches, which is §5.4's built invariant firing
+  green (`tests/credential_contracts/test_manifest_row_digest.py`); the row's
+  only edit here is the deictic "DECLARED AT THIS RELEASE" resolved to the
+  literal `contract-v2.4`, the `contract-v2.2` precedent.
+- [x] 5.3 THE CUT. Additive minor, allocated AT REALIZATION by merge order, not
   numbered in this packet. Bundle bumped in-cut, inventory built last, tag
   verified from an independent clone.
   **NOT PERFORMED BY THE REALIZATION COMMIT, DELIBERATELY.** Allocation is by
@@ -432,6 +456,30 @@ the section's authority comes from being exhaustive.
   `release-inventory-drift` family reports the moved members of the standing
   bundle — the schema, the manifest, the policy — which is the family working as
   designed rather than a defect, and is what the cut discharges.
+  **DONE, AS `contract-v2.4`.** The number was FRESH-COUNTED at the branch tip
+  rather than inherited: the changelog's top entry was `contract-v2.3`
+  (2026-08-29), `contracts/releases/` held inventories through `contract-v2.3`,
+  `git tag` published `contract-v2.0`/`v2.1`/`v2.2` and NOT `contract-v2.3`, and
+  no Unreleased block was pending — so `contract-v2.3` is spent-but-untagged and
+  `contract-v2.4` is the next additive number. `contract_bundle_version` was
+  bumped FIRST and the inventory built LAST, by
+  `python3 scripts/validate-contract-release.py build --tag contract-v2.4
+  --output contracts/releases/contract-v2.4.digests.yaml` → `release build: pass,
+  entries=283`, never hand-edited. Membership is IDENTICAL to `contract-v2.3`
+  (283 in, 283 out, zero added, zero removed) — an additive release shows in what
+  the members ASSERT, not in which members exist — and exactly five digests move:
+  `contracts/CHANGELOG.md`, `contracts/README.md`, `contracts/manifest.yaml`,
+  `docs/contract-versioning-policy.md` and
+  `tests/intent-compliance/test_release_boundary.py` (see §6.2).
+  `contracts/releases/contract-v2.3.digests.yaml` is untouched.
+  **ONE CLAUSE OF THIS TASK IS DELIBERATELY NOT DISCHARGED HERE, AND IS NAMED
+  RATHER THAN GLOSSED**: "tag verified from an independent clone". No tag is
+  published by this packet. The policy publishes the annotated tag against the
+  commit that actually LANDS, so before the merge there is nothing honest to
+  name; publication is the repository owner's act, and the independent-clone
+  verification (`verify-tag --remote origin --tag contract-v2.4`) is taken
+  against the published tag, after it exists. `verify-promotion` was run in its
+  place at the cut and its findings are recorded at §6.5.
 - [x] 5.4 **COORDINATE WITH THE OTHER WRITERS — MACHINE-CHECKED, BECAUSE A
   ONE-SIDED OBLIGATION IS NOT COORDINATION.** `add-credential-escrow-checkout`
   owes an additive minor on this same file, is RATIFIED and therefore frozen,
@@ -463,7 +511,27 @@ the section's authority comes from being exhaustive.
   the major (a missing block is an error there). The two-release form of this
   assertion is what makes the difference visible, and the test is RUN, not
   asserted.
-- [ ] 6.3 doc-health zero-new against a same-clock `origin/main` baseline.
+  **RE-RUN AT THE CUT, AND ONE PIN HAD TO BE ADVANCED — MEASURED, NOT
+  PREDICTED.** `python3 -m pytest tests/ -q -m "not postgres"` at the cut:
+  **8230 passed, 21 skipped, 338 deselected, 9 warnings, 46 subtests passed, 0 failed, 0 errors, exit 0**. The first run at the cut reported **2 failed**, and both
+  were the SAME guard firing correctly:
+  `tests/intent-compliance/test_release_boundary.py::_release_state` pins the
+  intent-compliance family's release boundary to an ENUM OF NAMED BUNDLE VALUES
+  (`contract-v2.1` before the family existed, `contract-v2.3` at its introducing
+  release) and fails LOUDLY — `Failed: unsupported release state: contract-v2.4`
+  — on a bundle it has not been told how to classify. That is the tripwire
+  working: the library floor (`INTENT_RELEASE_FLOOR = (2, 3)`) is an at-or-after
+  comparison that would never have noticed the bump, and this file exists to hold
+  the family's release membership and its manifest registration together, so
+  every cut past the floor states BY HAND which side its bundle falls on.
+  `contract-v2.4` is past the floor, the family is registered and present, so it
+  is classified WITH the introducing release and asserts the same membership. NO
+  TEST IS ADDED, REMOVED, RENAMED OR WEAKENED, and the enumerate-don't-infer
+  design is kept rather than broadened to mirror the library's comparison — a
+  future bundle trips it again, which is the point. The file is itself a
+  release-inventory member, so the inventory was rebuilt AFTER the pin moved and
+  "inventory built last" stays true.
+- [x] 6.3 doc-health zero-new against a same-clock `origin/main` baseline.
   **MEASURED AND NOT ZERO, AND THE TWO IT IS NOT ARE BOTH THE CUT'S.** Run
   same-clock against `origin/main` from an identically-named checkout (the
   identity is `(family, repo, path)` and the repo is the basename, so a
@@ -479,12 +547,30 @@ the section's authority comes from being exhaustive.
   it green now is the one thing the family forbids. Every other family is
   unmoved. (`contracts/schemas/xfactory-credential-contracts.schema.yaml` is
   not an inventory member, so the schema edit drifts nothing.)
+  **DISCHARGED BY §5.3, AND RE-MEASURED AT THE CUT RATHER THAN INFERRED.** The
+  comparison above was taken before #516 merged; it was re-run same-clock at the
+  cut, both sides from checkouts named exactly `openxFactory` and both at
+  `--as-of 2026-08-30`, with `python3 scripts/doc-health.py --single-repo <path>`.
+  BASELINE (`origin/main`, `1d7e9bd2`, which now CARRIES the two drift findings
+  because #516 landed there): **4 critical / 5 error / 38 warning / 12 info**,
+  59 findings, `release-inventory-drift` = 2. BRANCH (this cut): **4 critical /
+  4 error / 38 warning / 11 info**, 57 findings, `release-inventory-drift` = 0.
+  The set difference was taken in BOTH directions, line by line over the machine
+  block: the branch introduces NO finding of ANY family, and the two the baseline
+  holds and the branch does not are precisely `docs/contract-versioning-policy.md`
+  (error) and `contracts/manifest.yaml` (info, editorial band), both
+  `release-inventory-drift` against the standing `contract-v2.3` inventory. Every
+  other family is unmoved and identical on both sides: staged-topic-template 26,
+  register-lifecycle-consistency 10, modified-block-currency 8, tag-hygiene 4,
+  record-immutability 4, staged-candidate-aging 3, ideation-routing 1,
+  document-catalog 1. The family's own remedy line was followed; nothing was
+  hand-edited to make the comparison pass.
 - [x] 6.4 `python3 scripts/validate-credential-contracts.py .` clean, self-test
   included. Note it reports `0 contract(s) checked` against openxFactory's own
   root, because the repository ships no `credentials/` tree — so this gate is
   satisfied almost entirely by the SELF-TEST, which is what puts the whole weight
   on §3's packaged corpus.
-- [ ] 6.5 `python3 scripts/verify-openxwallet-pin.py` and the release
+- [x] 6.5 `python3 scripts/verify-openxwallet-pin.py` and the release
   `verify-commit` green at the cut.
   **FIRST HALF DONE, SECOND HALF IS THE CUT'S BY ITS OWN WORDING.**
   `verify-openxwallet-pin.py` passes on this branch —
@@ -492,6 +578,24 @@ the section's authority comes from being exhaustive.
   8 digests recomputed. `verify-commit` is GREEN on `origin/main` and reports
   the same two members §6.3 names on this branch; "green AT THE CUT" is
   satisfied when §5.3 rebuilds the inventory, not before.
+  **THE SECOND HALF IS NOW SATISFIED, AT THE CUT.**
+  `python3 scripts/validate-contract-release.py verify-commit --commit
+  $(git rev-parse HEAD)` returns `release verify-commit: pass,
+  inventory=contracts/releases/contract-v2.4.digests.yaml`, exit 0, zero
+  findings — the two members it named on this branch before the cut are gone
+  because the inventory now describes the tree that exists.
+  `verify-openxwallet-pin.py` re-run at the cut:
+  `OK openxwallet-pin verified:
+  openXwallet@6b248d4050e1f88b3ca75c1290ad2c81f465300c (tag label wallet-v1.3),
+  gitlink read from HEAD, 8 digest(s) recomputed`.
+  `verify-promotion --remote origin --tag contract-v2.4` was ALSO run, and is
+  REPORTED rather than chased: it returns `HGR-RELEASE-CANDIDATE-UNREACHABLE`
+  plus five `HGR-RELEASE-SURFACE-DRIFT` findings, every one of them the
+  reachability-from-`main` class — the candidate is not an ancestor of published
+  `main` because it is not merged yet, and the five surface blobs differ for the
+  same reason. It reports NO `HGR-RELEASE-TAG-EXISTS` (the name is free) and no
+  finding from the inventory-and-version-agreement check at the commit. That
+  class clears itself on merge; it is not a defect in the cut.
 
 ## 7. Bookkeeping and the ordering obligation
 

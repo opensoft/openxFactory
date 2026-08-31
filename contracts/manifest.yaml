@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v2.3
+contract_bundle_version: contract-v2.4
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -2176,7 +2176,7 @@ contracts:
       optional QUALIFIED requirement_ref (requirement_id +
       requirements_document_ref), and the const-true
       shared_credential_acknowledged and instantiation_stub tokens. THE
-      BLOCK IS DECLARED AT THIS RELEASE AND CONSTRAINED AT
+      BLOCK IS DECLARED AT contract-v2.4 AND CONSTRAINED AT
       contract-v3.0: here the schema imposes no type, no member grammar,
       no requiredness and no closure on it, because the binding object
       has never been closed and a consumer: key of ANY shape already
