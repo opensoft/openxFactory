@@ -1586,7 +1586,7 @@ entries:
   test_node_ids:
   - tests/hermes_runtime_contracts/test_release_inventory.py::test_verify_passes_and_ignores_working_tree_edits
   - tests/hermes_runtime_contracts/test_release_inventory.py::test_verify_reads_exact_commit_not_a_short_or_symbolic_revision
-  - tests/hermes_runtime_contracts/test_release_inventory.py::test_validate_candidate_passes_on_the_realized_repository
+  - tests/hermes_runtime_contracts/test_release_inventory.py::test_validate_candidate_and_realization_pass_for_a_local_annotated_release
   - tests/hermes_runtime_contracts/test_release_inventory.py::test_verify_promotion_fails_closed_naming_the_fetch_it_could_not_perform
   - tests/hermes_runtime_contracts/test_release_inventory.py::test_verify_tag_refuses_a_negative_verdict_a_shallow_clone_cannot_earn
   - tests/hermes_runtime_contracts/test_release_inventory.py::test_verify_promotion_refuses_a_negative_verdict_in_a_shallow_clone

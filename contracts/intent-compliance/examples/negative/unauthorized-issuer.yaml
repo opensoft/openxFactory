@@ -1,0 +1,5 @@
+# expected-failure: authority-attribution
+# requirement: immutable-allowance-and-revocation
+schema_version: 1
+kind: intent_compliance_negative_fixture
+mutation: unauthorized_issuer

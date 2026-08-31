@@ -490,6 +490,57 @@ unimplementable, and `projection.py`'s property 5 said so in as many words.
     decision/evidence packets but selects no Council model or Operator version
     and does not discharge 7.5; it authorizes no implementation, reopens no
     Q8, amends no design, and satisfies no S5 gate.
+  - **RULINGS RECORDED 2026-08-29** ([`rulings-2026-08-29.md`](rulings-2026-08-29.md),
+    R1–R5). Brett ruled the TARGET composition: Option D, all-Anthropic 2:2 —
+    `lead-quality` → `claude-sonnet-5`, `lead-security` and `lead-integration`
+    → `claude-opus-5`, and the tenant declaring `claude-sonnet-5` for
+    `company-policy-lead` in its parallel lane; the Operator plane is the
+    DIRECT ANTHROPIC API, reached through today's Claude Code transport and
+    EVIDENCED by read-back — partner-plane routing to Bedrock, Vertex or
+    Foundry shown unset, the base URL resolving to the direct API, the
+    opt-in server-side `fallbacks` beta asserted UNSET — never inferred from
+    the transport, and fail-closed if the read-back shows a partner plane.
+    A ruled target is not a Council selection: the Gate-Rules
+    Council's soak-evidenced selection act and the roster-change Lead's
+    `lead_accepted_recorded` acceptance are STILL OWED, and the Council must
+    rule in the same act whether the alias-to-exact flip re-opens the soak. So
+    **7.5 stays UNTICKED** and the flip stays folded into 7.6's runbook walk.
+  - **THE COUNCIL SAT 2026-08-29.** `gate_rules_council` convened on the S5
+    seat-to-model selection and returned **UNANIMOUS ACCEPT AS AMENDED, 5/5**,
+    and **UNANIMOUS 5/5 that no slot can carry an unqualified SELECT on the
+    evidence before the bench on 2026-08-29**. The record of authority is
+    codexFactory
+    `hermes/domain/review-councils/records/2026-08-29-gate-rules-s5-seat-model-selection.md`
+    — **its §8 is the sole disposition** — with the verbatim seat returns beside
+    it at `hermes/domain/review-councils/records/2026-08-29-seat-returns-s5/`,
+    the ballot at
+    `hermes/domain/review-councils/records/2026-08-29-ballot-s5-seat-model-selection.md`
+    and the convening packet at
+    `hermes/domain/review-councils/convening-packets/2026-08-29-s5-seat-model-selection.md`
+    (codexFactory **PR #139**).
+    - **The THREE DOMAIN pins are CONDITIONAL SELECT**, on the union of the
+      bench's conditions (record §8.3): `lead-quality` → `claude-sonnet-5`,
+      `lead-security` → `claude-opus-5`, and `lead-integration` →
+      `claude-opus-5` **additionally conditional on LA-C3**, the four-class
+      integration soak, being run and recorded first (§8.4). **The TENANT slot
+      is not on that union** — see the next bullet. **No unqualified SELECT was
+      returned by any seat or recorded by the convener.**
+    - **R4 is an OWED TENANT ACT**, not a completed declaration. Four seats
+      measured that the tenant's authority file still reads `model: sonnet` with
+      no `claude-` string in it; `company-policy-lead` CONFIRMED the family and
+      WITHHELD confirmation of the exact-version act. The tenant edit lands in
+      the same change as the domain roster edit — red in either order alone.
+      **It is expressly NOT gated on CPL-C2**: ballot option (b), commissioning
+      CPL's policy case before the tenant act, was declined (record §8.5).
+    - **Seven blocking repairs accepted** (R-I…R-VII), chief among them carrying
+      the SERVED model read-back into a durable artifact and refusing on
+      mismatch; twenty should-fix items accepted as should-fix, not as gates.
+    - **The soak union is commissioned**, with a ruled order: served-model
+      read-back landed → the flip → the first soak row → activation.
+    - **This does NOT discharge 7.5.** The record selects nothing
+      unconditionally, applies nothing to the enrolled roster (the roster-change
+      Lead's `lead_accepted_recorded` act is still OWED), ticks no task here, and
+      discharges no S5 gate or activation-gate entry. **7.5 stays UNTICKED.**
 - [ ] 7.6 **[OPERATOR]** Write the governed re-issuance RUNBOOK for a provider
       alias roll, and walk it once against a deliberate composition bump. Without
       it, one provider release revokes every seat grant at once, every convening
@@ -508,6 +559,31 @@ unimplementable, and `projection.py`'s property 5 said so in as many words.
     re-issuance act, or completion evidence; it selects no Council model or
     Operator version, authorizes no implementation, discharges no task,
     reopens no Q8, amends no design, and satisfies no S5 gate.
+  - **THE RUNBOOK'S TARGET SHAPE IS NOW RULED, 2026-08-29**
+    ([`rulings-2026-08-29.md`](rulings-2026-08-29.md)). R8 fixes the
+    re-issuance record the runbook must produce — superseding grant ref,
+    superseded grant ref, composition hash, ratifying human, effective time,
+    as a MINIMUM and not a ceiling. R9 fixes the in-flight behavior it must
+    describe — a revoked holder PARKS with a named refusal, no
+    grandfathering, no earlier admission stamp honored, resume only under a
+    new human-ratified issuance. Write the runbook against those; neither
+    ruling is enforced until the change carrying R6–R12 is ratified, so this
+    task stays OPEN.
+  - **THE RUNBOOK IS WRITTEN, AND ITS PATH WAS AN UNOPPOSED CHOICE —
+    [`docs/governed-reissuance-runbook.md`](../../../docs/governed-reissuance-runbook.md)
+    (`Status: draft`).** Recorded because **nothing named a path**: not this
+    task, not [`rulings-2026-08-29.md`](rulings-2026-08-29.md), not
+    [`proposal.md`](proposal.md), [`design.md`](design.md) or either delta spec.
+    The choice follows this repository's own convention — every operator runbook
+    is flat in `docs/` under a `<subject>-runbook.md` name
+    (`domain-instantiation-setup-runbook.md`, `intake-subtype-install-runbook.md`,
+    `notebook-projection-migration-runbook.md`,
+    `notebook-projection-retirement-runbook-step8.md`) — and it is registered in
+    `README.md`'s `## Documentation` index like the rest of them. **Written down
+    rather than left implicit, so a later reader knows the location was decided
+    and by what, and does not go looking for an authority that named it.**
+    **THIS BULLET TICKS NOTHING.** 7.6 stays OPEN by the sentence directly above
+    it; the walk record and any ledger movement are a separate, argued act.
 - [ ] 7.7 **Gate:** a revoked holder parks a convening with a named refusal in a
       rehearsed test; an unreadable register refuses; the runbook has been
       walked once.
@@ -617,6 +693,10 @@ unimplementable, and `projection.py`'s property 5 said so in as many words.
     here; the research report's section 4 "Ruling Of Record"
     (`research/s5-model-version-governance-research-report.md`) mirrors
     this entry.
+    The remaining Packet 4 rulings this ratification did NOT settle —
+    canonical serialization, digest, re-issuance grammar, corpus drift,
+    lifecycle roles, and the signer deferral — are recorded as R6–R12 in
+    [`rulings-2026-08-29.md`](rulings-2026-08-29.md), dated 2026-08-29.
 - [x] 8.2 **[GOVERNANCE]** Rule **Q9** — the floor's source-of-truth inversion.
       Either move the floor's source of truth into a seedable, schema-validated
       `.yaml` carrier and demote the record to evidence, or amend

@@ -748,3 +748,83 @@ def test_full_run_still_fires_uncited_resolution_when_genuinely_resolved(
     assert rc == 0
     text = out.read_text(encoding="utf-8")
     assert "family=uncited-resolution" in text
+
+
+# --------------------------------------------------------------------------
+# Issue #515: an `uncited-resolution` finding must not echo itself forever.
+#
+# `uncited_resolutions` stamps `resolution="contested"` on every finding it
+# emits (the two-value taxonomy has no third option, and an uncited-resolution
+# finding is plainly not a mechanical `auto-fixable` defect). `parse_previous`
+# used to fold EVERY `class="contested"` line into `previous_contested`
+# regardless of family, including a `family=uncited-resolution` line — so once
+# the ORIGINAL finding it cited was truly gone, the uncited-resolution finding
+# about it had no citation of its own and was re-emitted, forever, as an
+# uncited-resolution finding about an uncited-resolution finding. The 2026-08-30
+# xFactory nightly carried 25 such rows, exactly the 25 uncited-resolution
+# findings of the 2026-08-26 baseline, with no document behind any of them.
+#
+# `uncited-resolution` is not one of the twenty-two check families
+# (doc-health.md "Check Families"; `FAMILY_IDS`) — it is the ENFORCEMENT of
+# the contested-finding rule for those families, so its own vanishing is not a
+# fact about corpus state a citation can discharge a second time. The fix
+# excludes `family=uncited-resolution` from `previous_contested`, never from
+# `keys` (regression tracking is unaffected) and never from the family's own
+# `resolution="contested"` stamp (unaffected — still tested by
+# `test_uncited_contested_resolution_becomes_finding` above).
+
+def _previous_report_with_uncited_resolution_echo():
+    """A previous report carrying only the ECHO finding — the original
+    `location-conformance` line it cites is already gone, exactly the state
+    the corpus is in the run after `uncited_resolutions` first fired."""
+    finding = Finding(
+        ERROR, "uncited-resolution", "alpha", "docs/reg.md",
+        "contested location-conformance finding resolved without citation",
+        "record a disposition (health/dispositions.yaml) citing the "
+        "OpenSpec change or human decision, or restore the prior state",
+        resolution="contested")
+    return report.render(date(2026, 8, 26), [finding], [], [], [], 0, [], [])
+
+
+def test_a_vanished_uncited_resolution_finding_does_not_re_echo_itself():
+    """(1) A previous report's `uncited-resolution` line, absent from current
+    and undispositioned, must yield ZERO new findings — not a second
+    uncited-resolution finding about the first."""
+    prev = _previous_report_with_uncited_resolution_echo()
+    keys, contested = report.parse_previous(prev)
+    got = report.uncited_resolutions([], contested, dispositions=set())
+    assert got == []
+
+
+def test_a_genuinely_contested_finding_of_another_family_still_fires():
+    """(2) Regression guard: a family OTHER than `uncited-resolution` that
+    was genuinely contested and vanished without a disposition must still
+    raise exactly one `uncited-resolution` finding. The fix must narrow the
+    rule to the `uncited-resolution` family alone, never disable it."""
+    prev = report.render(
+        date(2026, 7, 8),
+        [Finding(ERROR, "record-immutability", "alpha", "docs/frozen.md",
+                 "record document changed after capture", "revert the edit",
+                 resolution="contested")],
+        [], [], [], 0, [], [])
+    keys, contested = report.parse_previous(prev)
+    got = report.uncited_resolutions([], contested, dispositions=set())
+    assert [(f.family, f.repo, f.path) for f in got] == [
+        ("uncited-resolution", "alpha", "docs/frozen.md")]
+
+
+def test_an_emitted_uncited_resolution_finding_does_not_parse_as_contested():
+    """(3) The finding `uncited_resolutions` itself emits, rendered and fed
+    back through `parse_previous` exactly as the next nightly run would read
+    it, must not land in `previous_contested` — the round trip that closes
+    the loop in production."""
+    contested_upstream = {("record-immutability", "alpha", "docs/frozen.md")}
+    emitted = report.uncited_resolutions(
+        [], contested_upstream, dispositions=set())
+    assert len(emitted) == 1
+    text = report.render(date(2026, 8, 26), emitted, [], [], [], 0, [], [])
+    keys, contested = report.parse_previous(text)
+    assert emitted[0].match_key() in keys  # still tracked, just not CONTESTED
+    assert emitted[0].match_key() not in contested
+    # ... and so a second run finding nothing new raises no further echo.
+    assert report.uncited_resolutions([], contested, dispositions=set()) == []

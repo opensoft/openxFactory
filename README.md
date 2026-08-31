@@ -109,8 +109,21 @@ Core domain-neutral docs:
 - [Intake Subtype Second-Pass Gap Report](docs/intake-subtype-second-pass-gap-report.md)
 - [Domain Pre-Run Simulation Report](docs/domain-pre-run-simulation-report.md)
 - [Domain Repo Review Improvements](docs/domain-repo-review-improvements.md)
+- [Governed Re-Issuance Runbook](docs/governed-reissuance-runbook.md)
+  (a provider alias roll or composition bump as one governed act: the six
+  declared components, the one-commit-set bump, R9's park-with-a-named-refusal
+  in-flight behavior, R8's five-field re-issuance record as a MINIMUM, the
+  human-only register act as a pointer, and provider-roll recovery. Written
+  for `add-wallet-carried-review-authority` task 7.6 against
+  [`rulings-2026-08-29.md`](openspec/changes/add-wallet-carried-review-authority/rulings-2026-08-29.md)
+  R8/R9; `Status: draft`, because neither ruling is enforced until the change
+  carrying R6–R12 is ratified and task 7.6 stays OPEN by its own text)
 - [Document Lifecycle](docs/document-lifecycle.md)
 - [Release Realization Flow](docs/release-realization-flow.md)
+- [The `scope_globs` Scope Surface Is a Never-Clearable Trust-Root Floor](docs/scope-globs-trust-root-floor.md)
+  (the machine-readable path-scope substrate from `add-structured-scope-substrate`:
+  `scripts/scope_globs.py` + `scripts/validate-scope-globs.py`; the trust-root
+  floor doctrine consumed by the provenance-tie verifier)
 - [Doc-Health Contract](docs/doc-health.md)
   (implementation in-repo since `adopt-neutral-tooling-home`:
   `scripts/doc_health/` + `scripts/doc-health.py`, the reusable nightly
@@ -561,6 +574,20 @@ Active changes:
   them is machinery — the omnigent layer and the PKI plane — rather than a
   ruling. `target_release` **`contract-v2.3`**, fresh-counted (v2.2 is declared
   and cut), allocated at realization by merge order.
+- [add-structured-scope-substrate](openspec/changes/add-structured-scope-substrate/proposal.md)
+  — **RATIFIED 2026-08-28** (Brett Heap, convener). MODIFIES `release-realization`
+  to add the OPTIONAL front-matter sibling `scope_globs:` — a per-repository map
+  of repository-relative globs in the merge-gate envelope dialect — the
+  machine-readable path-scope substrate CRITICAL #1 of
+  `add-provenance-gated-autonomous-merge` requires. Absence is fail-closed (never
+  "all paths"). One MODIFIED requirement + four ADDED (structured declaration,
+  dialect validation, trust-root integrity, scope retention at archive, floor
+  primacy at check time). Built post-ratification via Speckit
+  (`scripts/scope_globs.py`, `scripts/validate-scope-globs.py`,
+  `docs/scope-globs-trust-root-floor.md`, `tests/scope_globs/`); the glob dialect
+  mirrors the single codexFactory envelope authority byte-for-behaviour, pinned by
+  lockstep test. The codexFactory provenance-tie verifier that CONSUMES
+  `scope_globs` is downstream (B's realization), NOT this change's surface.
 - [settle-aging-staging-topics](openspec/changes/settle-aging-staging-topics/proposal.md)
   — authored 2026-08-28 on Brett's four bulk rulings over a read-only triage
   survey of the fourteen staging topics `doc-health`'s
@@ -858,7 +885,8 @@ Active changes:
   `avatar-pilot-hardening` deferrals are explicitly out of scope.
 
 - [add-standing-policy-compliance-contract](openspec/changes/add-standing-policy-compliance-contract/proposal.md)
-  — authored 2026-08-24, **NOT YET RATIFIED** (`Status: draft`). Neutral-first
+  — authored 2026-08-24 and **ratified 2026-08-26** (`Status: ratified`; record:
+  `review/ratification-2026-08-26.md`). Neutral-first
   front-end half of codexFactory issue #3, ruled by Brett Heap the same day:
   machine-readable standing-policy veto vocabulary, loud compliance-decision
   evidence and a central revocable policy-allowance registry whose IDs — never

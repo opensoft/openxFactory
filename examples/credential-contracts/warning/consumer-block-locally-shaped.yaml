@@ -1,0 +1,30 @@
+# WARNING (expect: consumer-block-incomplete). A `consumer:` value that is not an
+# object at all — a SCALAR, written locally while the binding object was open.
+#
+# THIS IS THE FIXTURE FOUR COUNCIL SEATS REACHED INDEPENDENTLY, and every one of
+# them reached it by BUILDING the prescribed schema and driving a record through
+# it rather than by reading the prescription. The `consumer:` key was writable
+# before it was declared — the binding object carries no
+# `additionalProperties: false` — so a domain may ALREADY hold a value of any
+# shape: an object with neither declared member, a scalar, a list,
+# placeholder-styled values. `required:`, `additionalProperties: false` and the
+# member `pattern` each refuse some of those, so each is a NARROWING and each
+# waits for the major.
+#
+# The scenario this record keeps honest is the ratified one: it "stays VALID at
+# the introducing minor and is warned rather than refused, in EVERY one of those
+# shapes, because the schema constrains nothing about the block at that
+# release". A ratifiable promise contradicted by its own build instruction is
+# the silent-loss shape this estate has paid for before.
+schema_version: 1
+kind: xfactory_credential_binding_template
+client:
+  id: example-client
+credential_bindings:
+  projection_sync_lane:
+    provider: azure_key_vault
+    vault: kv-example-projection
+    secret_ref: example-projection-sync-secret
+    owner: example-platform
+    rotation_policy: operator_managed
+    consumer: locally-shaped-string-written-before-the-block-was-declared

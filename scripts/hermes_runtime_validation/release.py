@@ -14,17 +14,18 @@ unavailable or unsafe dependency raises :class:`ReleaseDependencyError`
 from __future__ import annotations
 
 import hashlib
-import os
-from pathlib import Path
-import subprocess
-from typing import Iterable, Mapping
-
 import posixpath
+import re
+import subprocess
+from collections.abc import Iterable, Mapping
+from pathlib import Path
+
 import yaml
 
 from scripts.hermes_runtime_validation.content import (
     CONTENT_PATH_ABSENT,
     ContentResolutionError,
+    _sanitized_git_environment,
     resolve_git_object,
 )
 
@@ -42,6 +43,43 @@ INVENTORY_SCHEMA_PATH = "contracts/releases/release-digest-inventory.schema.yaml
 MANIFEST_PATH = "contracts/manifest.yaml"
 RELEASES_DIRECTORY = "contracts/releases"
 VALIDATOR_PACKAGE = "scripts/hermes_runtime_validation"
+INTENT_CONTRACT_PREFIX = "contracts/intent-compliance"
+INTENT_IMPLEMENTATION_PACKAGE = "scripts/intent_compliance"
+INTENT_TEST_PACKAGE = "tests/intent-compliance"
+INTENT_VALIDATOR_PATH = "scripts/validate-intent-compliance.py"
+INTENT_RELEASE_FLOOR = (2, 3)
+INTENT_REQUIRED_REGISTRATIONS = (
+    (
+        "intent-compliance-veto-class-vocabulary",
+        "contracts/intent-compliance/veto-class-vocabulary.schema.yaml",
+        "schema",
+    ),
+    (
+        "intent-compliance-policy-allowance",
+        "contracts/intent-compliance/policy-allowance.schema.yaml",
+        "schema",
+    ),
+    (
+        "intent-compliance-policy-allowance-revocation",
+        "contracts/intent-compliance/policy-allowance-revocation.schema.yaml",
+        "schema",
+    ),
+    (
+        "intent-compliance-policy-allowance-registry",
+        "contracts/intent-compliance/policy-allowance-registry.schema.yaml",
+        "schema",
+    ),
+    (
+        "intent-compliance-decision",
+        "contracts/intent-compliance/compliance-decision.schema.yaml",
+        "schema",
+    ),
+    (
+        "intent-compliance-conformance-validator",
+        INTENT_VALIDATOR_PATH,
+        "tool",
+    ),
+)
 
 NAMED_VALIDATORS = (
     "scripts/validate-hermes-runtime-contracts.py",
@@ -69,14 +107,6 @@ RELEASE_SURFACE_PATHS = (
     "contracts/README.md",
     "contracts/hermes-runtime/README.md",
     "docs/contract-versioning-policy.md",
-)
-
-_SCRUBBED_GIT_ENVIRONMENT = (
-    "GIT_DIR",
-    "GIT_WORK_TREE",
-    "GIT_INDEX_FILE",
-    "GIT_OBJECT_DIRECTORY",
-    "GIT_REPLACE_REF_BASE",
 )
 
 
@@ -136,10 +166,6 @@ def _is_release_inventory_path(path: object) -> bool:
 def _run_git(
     repo: Path, *arguments: str, binary: bool = False, allow_failure: bool = False
 ) -> subprocess.CompletedProcess:
-    environment = os.environ.copy()
-    for name in _SCRUBBED_GIT_ENVIRONMENT:
-        environment.pop(name, None)
-    environment["GIT_NO_REPLACE_OBJECTS"] = "1"
     try:
         result = subprocess.run(
             ["git", "--no-replace-objects", "-C", str(repo), *arguments],
@@ -147,7 +173,7 @@ def _run_git(
             text=not binary,
             check=False,
             timeout=30,
-            env=environment,
+            env=_sanitized_git_environment(),
         )
     except (OSError, subprocess.TimeoutExpired) as exc:
         raise ReleaseDependencyError("Git command is unavailable") from exc
@@ -299,14 +325,11 @@ def _refuse_unreachable_in_a_shallow_clone(
     measurement and independently on openxFactory pull request #390's review).
     """
 
-    result = _run_git(
-        repo, "rev-parse", "--is-shallow-repository", allow_failure=True
-    )
+    result = _run_git(repo, "rev-parse", "--is-shallow-repository", allow_failure=True)
     if result.returncode != 0 or str(result.stdout).strip() != "true":
         return
     raise ReleaseDependencyError(
-        "ancestry cannot be judged in a shallow clone: "
-        f"{ancestor} against {descendant}"
+        f"ancestry cannot be judged in a shallow clone: {ancestor} against {descendant}"
     )
 
 
@@ -380,11 +403,14 @@ class _WorkingTreeSource:
         return target.is_file() and not target.is_symlink()
 
     def list_python(self, package: str) -> list[str]:
-        base = self.root / package
+        return [member for member in self.list_files(package) if member.endswith(".py")]
+
+    def list_files(self, directory: str) -> list[str]:
+        base = self.root / directory
         if not base.is_dir():
             return []
         members: list[str] = []
-        for candidate in base.rglob("*.py"):
+        for candidate in base.rglob("*"):
             if candidate.is_file() and not candidate.is_symlink():
                 members.append(candidate.relative_to(self.root).as_posix())
         return members
@@ -459,11 +485,10 @@ class _CommitSource:
         return True
 
     def list_python(self, package: str) -> list[str]:
-        return [
-            entry
-            for entry in _list_tree(self.root, self.commit, package)
-            if entry.endswith(".py")
-        ]
+        return [entry for entry in self.list_files(package) if entry.endswith(".py")]
+
+    def list_files(self, directory: str) -> list[str]:
+        return _list_tree(self.root, self.commit, directory)
 
     def list_release_inventories(self) -> list[str]:
         return _bytewise(
@@ -505,9 +530,9 @@ def _artifact_id(path: str) -> str:
 
 
 def _collect_members(
-    source: object,
+    source: _WorkingTreeSource | _CommitSource,
 ) -> tuple[list[str], dict[str, Mapping[str, object]]]:
-    catalog = source.load_yaml(CATALOG_PATH)  # type: ignore[attr-defined]
+    catalog = source.load_yaml(CATALOG_PATH)
     if not isinstance(catalog, Mapping):
         raise ReleaseDependencyError("contract catalog is not a mapping")
     catalog_map: dict[str, Mapping[str, object]] = {}
@@ -541,8 +566,7 @@ def _collect_members(
         # (PR #45 review finding 1).
         if repo_path == ".." or repo_path.startswith("../"):
             raise ReleaseDependencyError(
-                "catalog path escapes the repository after normalization: "
-                f"{relative}",
+                f"catalog path escapes the repository after normalization: {relative}",
                 code="HGR-RELEASE-MEMBER-ESCAPES",
             )
         # Two DISTINCT entries normalizing to one repository file would let a
@@ -557,7 +581,108 @@ def _collect_members(
         catalog_map[repo_path] = entry
         members.add(repo_path)
 
-    fixture_index = source.load_yaml(FIXTURE_INDEX_PATH)  # type: ignore[attr-defined]
+    manifest = source.load_yaml(MANIFEST_PATH)
+    if not isinstance(manifest, Mapping):
+        raise ReleaseDependencyError("contract manifest is not a mapping")
+    raw_bundle_tag = manifest.get("contract_bundle_version")
+    bundle_match = (
+        re.fullmatch(r"contract-v(\d+)\.(\d+)", raw_bundle_tag)
+        if isinstance(raw_bundle_tag, str)
+        else None
+    )
+    release_version = (
+        (int(bundle_match.group(1)), int(bundle_match.group(2)))
+        if bundle_match is not None
+        else None
+    )
+    intent_floor_active = (
+        release_version is not None and release_version >= INTENT_RELEASE_FLOOR
+    )
+    intent_registrations = []
+    for entry in manifest.get("contracts", []) or []:
+        if not isinstance(entry, Mapping):
+            continue
+        identifier = entry.get("id")
+        path = entry.get("path")
+        if (
+            isinstance(identifier, str) and identifier.startswith("intent-compliance-")
+        ) or (
+            isinstance(path, str)
+            and (
+                path.startswith(INTENT_CONTRACT_PREFIX + "/")
+                or path == INTENT_VALIDATOR_PATH
+            )
+        ):
+            intent_registrations.append(entry)
+
+    intent_contract_members = source.list_files(INTENT_CONTRACT_PREFIX)
+    intent_implementation_members = source.list_python(INTENT_IMPLEMENTATION_PACKAGE)
+    intent_test_members = source.list_python(INTENT_TEST_PACKAGE)
+    intent_surface_present = bool(
+        intent_contract_members
+        or intent_implementation_members
+        or intent_test_members
+        or source.exists(INTENT_VALIDATOR_PATH)
+    )
+
+    if intent_floor_active or intent_registrations or intent_surface_present:
+        registration_identities = [
+            (entry.get("id"), entry.get("path"), entry.get("type"))
+            for entry in intent_registrations
+        ]
+        registrations_by_identity = {
+            identity: entry
+            for identity, entry in zip(
+                registration_identities, intent_registrations, strict=True
+            )
+        }
+        missing = set(INTENT_REQUIRED_REGISTRATIONS) - registrations_by_identity.keys()
+        unexpected = registrations_by_identity.keys() - set(
+            INTENT_REQUIRED_REGISTRATIONS
+        )
+        registrations_are_exact = (
+            len(registration_identities) == len(INTENT_REQUIRED_REGISTRATIONS)
+            and not missing
+            and not unexpected
+        )
+        if missing or (intent_floor_active and not registrations_are_exact):
+            missing_ids = ", ".join(sorted(identifier for identifier, _, _ in missing))
+            unexpected_ids = ", ".join(
+                sorted(str(identifier) for identifier, _, _ in unexpected)
+            )
+            raise ReleaseDependencyError(
+                "intent-compliance release registration must contain exactly six "
+                "canonical tuples; missing: "
+                f"{missing_ids or '<none>'}; unexpected: "
+                f"{unexpected_ids or '<none>'}",
+                code="HGR-RELEASE-INTENT-REGISTRATION-INCOMPLETE",
+            )
+        for identity in INTENT_REQUIRED_REGISTRATIONS:
+            identifier, path, artifact_type = identity
+            if not source.exists(path):
+                raise ReleaseDependencyError(
+                    f"intent-compliance required release member is unavailable: {path}",
+                    code="HGR-RELEASE-INTENT-MEMBER-MISSING",
+                )
+            members.add(path)
+            if artifact_type != "schema":
+                continue
+            registration = registrations_by_identity[identity]
+            catalog_map[path] = {
+                "contract_id": identifier,
+                "contract_schema_version": registration.get("schema_version"),
+                "type": artifact_type,
+            }
+        for member in intent_contract_members:
+            members.add(member)
+        for member in intent_implementation_members:
+            members.add(member)
+        for member in intent_test_members:
+            members.add(member)
+        members.add(INTENT_VALIDATOR_PATH)
+        members.add("scripts/__init__.py")
+
+    fixture_index = source.load_yaml(FIXTURE_INDEX_PATH)
     if not isinstance(fixture_index, Mapping):
         raise ReleaseDependencyError("fixture index is not a mapping")
     for case in fixture_index.get("cases", []) or []:
@@ -567,10 +692,10 @@ def _collect_members(
             if isinstance(raw_input, str):
                 members.add(FIXTURE_PREFIX + raw_input)
 
-    for member in source.list_python(VALIDATOR_PACKAGE):  # type: ignore[attr-defined]
+    for member in source.list_python(VALIDATOR_PACKAGE):
         members.add(member)
     for validator in NAMED_VALIDATORS:
-        if source.exists(validator):  # type: ignore[attr-defined]
+        if source.exists(validator):
             members.add(validator)
     # Decision-10 mandatory auxiliaries are unconditional release members: each
     # is added with no exists() guard, mirroring how the catalog release_member
@@ -583,7 +708,7 @@ def _collect_members(
     # Normative docs are genuinely conditional ("modified normative docs") and
     # join the bundle only when present at the source.
     for extra in NORMATIVE_DOCS:
-        if source.exists(extra):  # type: ignore[attr-defined]
+        if source.exists(extra):
             members.add(extra)
 
     members = {member for member in members if not _is_release_inventory_path(member)}
@@ -619,11 +744,13 @@ def _entry_for(
     }
 
 
-def _build_inventory(source: object, *, bundle_tag: str) -> dict[str, object]:
+def _build_inventory(
+    source: _WorkingTreeSource | _CommitSource, *, bundle_tag: str
+) -> dict[str, object]:
     members, catalog_map = _collect_members(source)
     entries: list[dict[str, object]] = []
     for path in members:
-        _, git_mode, digest = source.read_member(path)  # type: ignore[attr-defined]
+        _, git_mode, digest = source.read_member(path)
         entries.append(_entry_for(path, catalog_map, git_mode, digest))
     entries.sort(key=lambda entry: str(entry["path"]).encode("utf-8"))
     return {

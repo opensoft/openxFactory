@@ -1,0 +1,41 @@
+# Example (add-binding-consumer-identity): AN INSTANTIATION STUB THAT DECLARES
+# ITSELF — the exact bytes `scripts/apply-domain-starter.py` emits into every
+# newly scaffolded domain repository at `credentials/bindings.template.yaml`.
+#
+# A stub declares no consuming system because none exists yet: the file is
+# written before any install, vault or fetch identity does. The exemption is the
+# const-true `instantiation_stub` TOKEN and never the `*.template.yaml`
+# FILENAME, for two independent reasons:
+#
+#   (i)  a filename is author-chosen and invisible in the bytes a pinned
+#        consumer validates, so a real binding record named `prod.template.yaml`
+#        would escape a required field by what it is called;
+#   (ii) a filename is UNREACHABLE by a pinned schema, so a filename-keyed
+#        exemption could never reach the layer where the major's refusal lands.
+#
+# A token can be conditioned on at both layers, so this record is clean at the
+# introducing minor AND at the major, where the schema reads
+# `if not required(instantiation_stub) then required(holder_ref,
+# fetch_identity)`.
+#
+# THE TOKEN IS NOT A THIRD SENTINEL. A placeholder `holder_ref` asserts an
+# identity that does not exist; `instantiation_stub: true` asserts only that
+# this record is a stub, which is exactly true of a file written before any
+# install exists. Scaffolding that manufactures conformance is worse than
+# scaffolding that omits it — and scaffolding that DECLARES ITS OWN STATUS is
+# better than either. An instantiator replaces the token with a real
+# `holder_ref` and `fetch_identity` when the consuming system exists.
+schema_version: 1
+kind: xfactory_credential_binding_template
+client:
+  id: example-client
+  display_name: Example Client (fixture)
+credential_bindings:
+  example_system_read:
+    provider: azure_key_vault
+    vault: example-client-vault
+    secret_ref: example-secret-reference
+    owner: example-client
+    rotation_policy: client_managed
+    consumer:
+      instantiation_stub: true

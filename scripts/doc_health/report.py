@@ -267,6 +267,33 @@ def _announce_unparsed_plan_rows(rows: list[tuple[int, str]]) -> None:
           file=sys.stderr)
 
 
+# The family `uncited_resolutions` itself emits. Not a member of `FAMILY_IDS`
+# / `families.FAMILIES` — doc-health.md's "Check Families" table runs exactly
+# twenty-two named families over the corpus, and this is not one of them. It
+# is the ENFORCEMENT of the contested-finding rule (doc-health spec
+# "Requirement: Finding severity and regression handling", scenario "A
+# contested finding is resolved") for THOSE families, stamped
+# `resolution="contested"` below because the two-value taxonomy has no third
+# option and an uncited-resolution finding plainly is not a mechanical
+# `auto-fixable` defect.
+#
+# ISSUE #515: that `contested` stamp must NOT make `parse_previous` fold a
+# vanished uncited-resolution LINE into `previous_contested`, or the finding
+# audits its own disappearance forever. The ORIGINAL finding's key (e.g.
+# `(location-conformance, alpha, docs/reg.md)`) already carries the citation
+# obligation under its own family's line — that is what this rule exists to
+# police. The DERIVED echo's key
+# (`(uncited-resolution, alpha, docs/reg.md)`) names no corpus state a human
+# ever deliberately set; it exists only to demand a citation for the
+# original's disappearance, and once emitted it has done its job — there is
+# no second citation to give for an accountability marker resolving itself.
+# Treating it as its own contested subject produced exactly the loop the
+# nightly of 2026-08-30 observed: 25 of 41 `uncited-resolution` errors were
+# the 25 `uncited-resolution` findings of the 2026-08-26 baseline, echoing
+# themselves, with no document behind any of them.
+UNCITED_RESOLUTION_FAMILY = "uncited-resolution"
+
+
 def parse_previous(text: str, *, announce=_announce_unparsed_plan_rows):
     """(error_keys, contested_keys) from a prior report's ranked plan.
     Reports predating resolution classes yield an empty contested set.
@@ -279,6 +306,15 @@ def parse_previous(text: str, *, announce=_announce_unparsed_plan_rows):
     DO parse are unaffected — the returned key sets are byte-for-byte what they
     always were — and `announce=None` silences the diagnostic for a caller that
     wants the sets alone.
+
+    A `uncited-resolution` LINE NEVER JOINS `contested` (issue #515), even
+    though it is written with `class="contested"`. See `UNCITED_RESOLUTION_
+    FAMILY` above for why: it is the enforcement of the rule for OTHER
+    families, not a subject of the rule itself, and folding it in here is
+    the entire mechanism of the infinite echo. It still joins `keys` like any
+    other `error`/`critical` row, so a genuinely persisting uncited-resolution
+    finding is recognized as persisting rather than misread as a fresh
+    regression.
     """
     keys, contested = set(), set()
     for line in text.splitlines():
@@ -288,7 +324,7 @@ def parse_previous(text: str, *, announce=_announce_unparsed_plan_rows):
         key = (m.group(2), m.group(3), m.group(4))
         if m.group(1) in (CRITICAL, ERROR):
             keys.add(key)
-        if m.group(7) == "contested":
+        if m.group(7) == "contested" and m.group(2) != UNCITED_RESOLUTION_FAMILY:
             contested.add(key)
     # ONE SOURCE FOR "WHICH ROWS ARE UNREADABLE": `unparsed_plan_rows`, not a
     # second copy of its predicate inlined in the loop above. The inlined copy
@@ -306,7 +342,13 @@ def uncited_resolutions(findings: list[Finding], previous_contested,
                         ) -> list[Finding]:
     """Contested findings from the previous report that vanished without a
     recorded disposition become new error findings (doc-health contract:
-    contested resolutions require a cited change or human disposition)."""
+    contested resolutions require a cited change or human disposition).
+
+    `previous_contested` never carries a `uncited-resolution` key — see
+    `UNCITED_RESOLUTION_FAMILY` and `parse_previous` — so this can iterate it
+    with no self-exclusion of its own and still never re-audit its own prior
+    output (issue #515).
+    """
     current = {f.match_key() for f in findings}
     out = []
     for family, repo, path in sorted(previous_contested or ()):
@@ -317,7 +359,7 @@ def uncited_resolutions(findings: list[Finding], previous_contested,
         if (family, repo, path) in dispositions:
             continue
         out.append(Finding(
-            ERROR, "uncited-resolution", repo, path,
+            ERROR, UNCITED_RESOLUTION_FAMILY, repo, path,
             f"contested {family} finding resolved without citation",
             "record a disposition (health/dispositions.yaml) citing the "
             "OpenSpec change or human decision, or restore the prior state",

@@ -1,0 +1,46 @@
+# NEGATIVE (expect: shared-secret-identity). One reference traverses upward out
+# of the tree under validation and the other names a FOREIGN REPOSITORY —
+# neither is grammatical, so neither resolves and condition five fails.
+#
+# THE VALIDATOR NEVER OPENS A PATH TAKEN FROM A RECORD. Resolution is a lookup
+# against requirement records the validator itself discovered and schema-checked
+# in the tree it was pointed at; a reference is matched by string and never
+# followed. That is why an escaping or foreign reference is a REPORTED
+# non-resolution rather than a file read that happens to fail.
+#
+# The document reference is inherited from identity-brokering as an unconstrained
+# string that no script and no test in this repository resolves. Promoting it to
+# a resolution input feeding a security precondition without a grammar would rest
+# that precondition on a second unenforced convention — the very objection this
+# capability raises against the map key.
+schema_version: 1
+kind: xfactory_credential_binding_template
+client:
+  id: example-client
+credential_bindings:
+  projection_sync_lane:
+    provider: azure_key_vault
+    vault: kv-example-projection
+    secret_ref: example-projection-operated-identity
+    owner: example-platform
+    rotation_policy: operator_managed
+    consumer:
+      holder_ref: example:service-subject:projection-sync-lane
+      fetch_identity: example-sync-lane-workload-identity
+      requirement_ref:
+        requirement_id: projection_sync_lane
+        requirements_document_ref: ../elsewhere/requirements.yaml
+      shared_credential_acknowledged: true
+  projection_editor_surface:
+    provider: azure_key_vault
+    vault: kv-example-projection
+    secret_ref: example-projection-operated-identity
+    owner: example-platform
+    rotation_policy: operator_managed
+    consumer:
+      holder_ref: example:service-subject:projection-editor-surface
+      fetch_identity: example-editor-surface-workload-identity
+      requirement_ref:
+        requirement_id: projection_editor_surface
+        requirements_document_ref: OpsxFactory:credentials/requirements.yaml
+      shared_credential_acknowledged: true

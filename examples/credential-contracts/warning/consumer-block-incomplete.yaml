@@ -1,0 +1,26 @@
+# WARNING (expect: consumer-block-incomplete). A `consumer:` block that EXISTS
+# and omits `fetch_identity`.
+#
+# THIS CODE EXISTS BECAUSE A BOT ROUND ENUMERATED WHAT `consumer: {}` MATCHES,
+# and the answer was nothing: not the no-block finding (the block is present),
+# not the unknown-member finding (no unknown member), not the member-grammar
+# finding (no malformed value). An empty or half-filled block would have crossed
+# the whole minor UNWARNED and then been refused at the major — the requiredness
+# change landing without the warning release the versioning policy mandates.
+#
+# A WARNING SET THAT LEAVES ANY REFUSED-AT-THE-MAJOR SHAPE UNWARNED DOES NOT
+# SERVE THE DEPRECATION THE MAJOR DEPENDS ON, and the shapes that go missing are
+# exactly the ones no single arm happens to look at.
+schema_version: 1
+kind: xfactory_credential_binding_template
+client:
+  id: example-client
+credential_bindings:
+  projection_sync_lane:
+    provider: azure_key_vault
+    vault: kv-example-projection
+    secret_ref: example-projection-sync-secret
+    owner: example-platform
+    rotation_policy: operator_managed
+    consumer:
+      holder_ref: example:service-subject:projection-sync-lane
