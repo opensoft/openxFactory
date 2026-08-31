@@ -42,6 +42,15 @@ pairing class that cannot read a marker reports every declared pair.
       inequality as the misdeclared state. Folding the equality into recognition
       would drop such a paragraph back to a body unit and report the block as
       UNDECLARED, naming the absent-marker remedy for a block that carries one.
+      **AND RECOGNITION ENDS AT THE CLOSING COLON — THE ` — <reason>` TAIL IS NO
+      PART OF IT**, on that same split and for that same consequence.
+      `document-lifecycle` REQUIRES the tail and 2.5's FOURTH misdeclared ground
+      VALIDATES it; recognition tests it nowhere. A paragraph carrying the
+      complete prefix and nothing after it is a MARKER OF THIS FORM whose
+      declaration is defective, and reading it as a non-marker would return it to
+      the body units and report the block UNDECLARED — again the absent-marker
+      remedy for a block that carries one, and again the wrong paragraph named
+      for repair.
 - [ ] 2.2 Make the form name NO units. It suppresses nothing, is never a
       candidate for the marker-defect check, and — like the other two forms — is
       excluded from unit derivation in canon and in the block, so it is not a
@@ -53,6 +62,15 @@ pairing class that cannot read a marker reports every declared pair.
       disclosure 2.5's fourth state reads lives in that reason, so the two are
       one mechanism and this note is a precondition of that state working at
       all.
+      **HARVEST ALWAYS AND VALIDATE — NEVER HARVEST OPTIONALLY.** The tail is
+      read off EVERY recognized marker of this form, and where there is no ` — `
+      separator, or one with nothing but whitespace after it, the harvest yields
+      NO REASON rather than declining: an absent reason is a VALUE 2.5 reports on
+      its fourth misdeclared ground, not a parse outcome and not a silence. The
+      other two forms may carry a reason or not, their declarations being
+      complete in the UNITS THEY NAME; this one names none, so a marker without a
+      reason declares a bare pairing — and, the disclosure living in that same
+      tail, discloses nothing and can disclose nothing.
 - [ ] 2.3 Widen `sibling_titles` to carry the BASIS CHANGE ID, ITS DECLARED
       STANDING, and WHICH BLOCK PUT THE TITLE THERE — an `## ADDED Requirements`
       block or a `## RENAMED Requirements` block's `TO:` half — beside each
@@ -100,7 +118,8 @@ pairing class that cannot read a marker reports every declared pair.
       nothing satisfies MISDECLARED and the silent state at once, and which one a
       run reported would be decided by iteration order. `document-lifecycle`
       bounds the set at AT MOST ONE marker of this form per block, so the checks
-      run self-addition, then COUNT, then the single marker's basis, its `by` and
+      run self-addition, then COUNT, then the single marker's basis, its `by`,
+      ITS REASON and
       its disclosure — the silent state and UNDISCLOSED reached only where
       EXACTLY ONE pairing marker stands and passes every check above, every other
       block placed by the FIRST check it fails.
@@ -111,16 +130,28 @@ pairing class that cannot read a marker reports every declared pair.
       step before `pending` (2.4), so reading it here would either report the
       supported shape or, where `resolve()` had already claimed it, sit as a
       branch no input can reach.
-      MISDECLARED CARRIES THREE GROUNDS AND ONE ACTION: the block carries MORE
+      MISDECLARED CARRIES FOUR GROUNDS AND ONE ACTION: the block carries MORE
       THAN ONE pairing marker — read FIRST, so a block carrying a good marker and
       a bad one is placed by a fact about the block rather than by which marker
       the loop reached; OR the named basis is not an
       active change OTHER THAN THE CARRIER that ADDS or RENAMES to the title —
       it names a change that does neither, or it names the carrier itself — OR the
       `by` identifier is not the change carrying
-      the block — the last read by comparing the identifier the parser already
+      the block — read by comparing the identifier the parser already
       recognized (2.1) against the block's own change id, which is why a right
-      basis under a wrong author cannot pass as DECLARED AND RESOLVING. **THE
+      basis under a wrong author cannot pass as DECLARED AND RESOLVING — OR the
+      marker CARRIES NO REASON, the required ` — <reason>` tail absent or empty,
+      which without this ground reaches DECLARED AND RESOLVING and promotes a
+      declaration `document-lifecycle` calls incomplete as a complete one.
+      **THE THREE SINGLE-MARKER GROUNDS ARE READ basis, then `by`, THEN REASON,
+      AND THE REASON MUST PRECEDE THE DISCLOSURE.** The disclosure is a WORD
+      LOOKED FOR IN THE REASON CLAUSE, so a marker with no clause offers it
+      nothing to look in: read the other way an unratified basis under a
+      prefix-only marker would be reported UNDISCLOSED and told to add a word to
+      a sentence that does not exist, while the identical marker over a RATIFIED
+      basis passed in silence — the same defect named two ways at two titles and
+      unnamed at one of them. Reading both would emit two findings for one
+      missing tail, which the exactly-one-state rule forbids. **THE
       BASIS GROUND IS WRITTEN AS THE EXACT NEGATION of the silent state's basis
       clause**, so that narrowing self-reference to the carrier's own addition
       leaves no block outside all five states and the exhaustiveness claim stays
@@ -133,16 +164,17 @@ pairing class that cannot read a marker reports every declared pair.
       reserves, and it is why that capability's disclosure obligation has an
       enforcer at all.
 - [ ] 2.6 Register ONE `_ArmTemplate` for the class, carrying all four states —
-      and MISDECLARED's three grounds inside its own — in one interpolated `why`
+      and MISDECLARED's four grounds inside its own — in one interpolated `why`
       clause on the `TEMPLATE_UNRESOLVED` precedent, and append it to
       `_ARM_TEMPLATES`. One template is one shape is one map
       entry; a rule text not rendered from a registered template has no shape the
       unplaced-drift mask can compute and is reported as drift on every run. The
-      three grounds differ only in that interpolated clause, so they stay ONE shape
+      four grounds differ only in that interpolated clause, so they stay ONE shape
       and add no entry — the `by`-mismatch wording goes in the `why`, never in
-      the fixed prose the mask reads, and so do the marker COUNT and the basis
+      the fixed prose the mask reads, and so do the marker COUNT, the basis
       ground's THIRD reading,
-      a marker naming the carrier itself, each being the same state under the same
+      a marker naming the carrier itself, and the ABSENT REASON, each being the
+      same state under the same
       action and none to be given fixed prose of its own. The count belongs in an
       INTERPOLATED field for the same reason every other number this family
       reports does: fixed prose carrying a numeral is a shape the mask cannot
@@ -168,7 +200,18 @@ pairing class that cannot read a marker reports every declared pair.
       to emit exactly ONE finding on the count ground — the fixture that fails a
       classifier reasoning about a singular marker, which would report it or clear
       it according to which marker it reached, and whose PAIR is an otherwise
-      identical block carrying the valid marker alone, asserted silent.
+      identical block carrying the valid marker alone, asserted silent; and, on
+      the FOURTH ground, a marker whose basis and `by` are both right over a
+      RATIFIED basis and which carries the complete prefix and NO ` — ` separator
+      at all, asserted MISDECLARED on the reason ground and NOT silent — the
+      fixture that fails a classifier recognizing the prefix and validating no
+      tail — with an EMPTY-REASON TWIN carrying the separator and nothing but
+      whitespace after it, asserted identically, an empty reason declaring what an
+      absent one does. **AND THE ORDER NEEDS ITS OWN**: the same prefix-only
+      marker over an UNRATIFIED basis, asserted to emit exactly ONE finding, in
+      the misdeclared state on the reason ground and NOT undisclosed — the fixture
+      that fails a classifier reading the disclosure before the reason, which
+      would name a missing word where the tail is what is missing.
       EXCLUSIVITY NEEDS ITS OWN: a
       self-referential block carrying NO marker, asserted to emit ONE finding in
       that state and no undeclared one beside it. **THE OWN-RENAME CARVE NEEDS
@@ -244,7 +287,13 @@ a veto would strike.
       blocks, 16 `canon`,
       4 `pending`; all four adding siblings `ratified`; zero markers; the
       proposal cross-reference present in 4 of 4 and over-broad by two to three
-      unrelated active change ids in each. **THE UNDISCLOSED STATE'S LAUNCH
+      unrelated active change ids in each. **AND THE REASON GROUND'S LAUNCH
+      POPULATION IS ZERO BY AN EMPTY SET**: the
+      same read finds ZERO markers of this form anywhere on the tree, § 6's sweep
+      not having run, so no marker can be missing its tail and the ground reaches
+      nothing at launch. It moves neither figure § 8.1 reads, and the four markers
+      § 6.1 writes are authored under the rule rather than measured against it.
+      **THE UNDISCLOSED STATE'S LAUNCH
       POPULATION IS ZERO BY THAT SAME READ**: all four bases are `ratified`, so
       no marker the § 6 sweep writes owes the disclosure and the fourth state
       moves neither figure § 8.1 reads. **AND THE ARCHIVE HOLD'S WIDENING TO
@@ -495,7 +544,10 @@ a veto would strike.
       are declared before the class runs, `+4 warning` where the class landed
       against the population undischarged. Both figures already account for the
       UNDISCLOSED state, which contributes zero either way, all four bases being
-      `ratified` — and for the archive hold's widening to unratified bases, which
+      `ratified` — for the REASON GROUND, which adds a ground to an existing
+      state rather than a class and whose launch population is zero by an empty
+      marker set (§ 4.1) — and for the archive hold's widening to unratified
+      bases, which
       adds no class and no check and so contributes to no band. Record which
       order was taken; a run whose movement matches NEITHER figure is the
       finding, not the gate.

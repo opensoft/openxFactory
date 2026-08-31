@@ -440,8 +440,11 @@ Active changes:
   resting on two bases rests on neither — its `by` identifier VALIDATED as the
   change carrying the block rather than merely resolved, so a marker naming the
   right basis under an
-  unrelated author is reported instead of promoting as false provenance — and
-  where the basis is NOT RATIFIED the reason clause discloses
+  unrelated author is reported instead of promoting as false provenance — its
+  ` — <reason>` tail REQUIRED AND NONEMPTY, a paragraph carrying the prefix alone
+  being a marker whose declaration is DEFECTIVE rather than a non-marker, so it is
+  reported for the tail it lacks instead of promoting as a complete declaration
+  — and where the basis is NOT RATIFIED the reason clause discloses
   it by carrying the word `unratified`, a form rather than a wish, so that the
   disclosure has a reader — a disclosure that DISCHARGES THAT REQUIREMENT AND
   NOTHING ELSE, warning the reader without lifting the archive hold, so a pairing
@@ -454,9 +457,12 @@ Active changes:
   against the OLD name one step earlier (`openspec/specs/doc-health/spec.md:1568-1574`,
   `:1783-1786`) and this packet leaves that precedence exactly where it found it —
   then undeclared, then misdeclared — MORE THAN ONE pairing marker on the block,
-  read first of the three grounds; or a basis that neither adds nor renames to the
+  read first of the FOUR grounds; or a basis that neither adds nor renames to the
   title, or that IS the carrier itself; OR a `by`
-  identifier that is not the change carrying the block, the basis ground written
+  identifier that is not the change carrying the block; OR NO REASON AT ALL, the
+  required tail absent or empty, read after the `by` and BEFORE the disclosure so
+  that a prefix-only marker is reported for the tail it lacks rather than for a
+  word it has no clause to carry, the basis ground written
   as the EXACT
   NEGATION of the silent state so the narrowing leaves no block unplaced — then
   undisclosed, the

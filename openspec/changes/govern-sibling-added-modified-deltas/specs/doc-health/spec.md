@@ -87,8 +87,9 @@ that set — AT MOST ONE marker of the `Modified over` form per block, one pairi
 and one declaration — and the states below are predicates over the WHOLE set
 rather than over a chosen member of it. The checks therefore run in this order:
 the carrier's own addition; then the COUNT of pairing markers; then, for the
-single marker a lawful block carries, its basis, then its `by` identifier, then
-its disclosure. **A BLOCK IS DECLARED AND RESOLVING, OR UNDISCLOSED, ONLY WHERE
+single marker a lawful block carries, its basis, then its `by` identifier, THEN
+ITS REASON, then its disclosure.
+**A BLOCK IS DECLARED AND RESOLVING, OR UNDISCLOSED, ONLY WHERE
 EXACTLY ONE PAIRING MARKER STANDS AND IT PASSES EVERY CHECK ABOVE IT; OTHERWISE
 THE BLOCK IS PLACED BY THE FIRST CHECK IT FAILS, IN THAT ORDER.** Without the
 count the promise this requirement makes is not kept by the states themselves: a
@@ -111,18 +112,24 @@ order.
 - **UNDECLARED** — the block is NOT self-referential and carries no marker of the
   reserved `Modified over` form. Reported.
 - **MISDECLARED** — the block is NOT self-referential, carries at least one
-  marker of the reserved form, and the declaration is wrong in one of the THREE
+  marker of the reserved form, and the declaration is wrong in one of the FOUR
   ways a declaration of this form can be wrong. **FIRST, THE COUNT**: the block
   carries MORE THAN ONE such marker, `document-lifecycle` admitting one pairing
-  and one declaration, and this ground is read BEFORE the other two so that a
+  and one declaration, and this ground is read BEFORE the other three so that a
   block carrying a good marker and a bad one is placed by a fact about the BLOCK
   rather than by which marker was examined. Otherwise the block carries EXACTLY
-  ONE, and that one is wrong in one of the remaining two ways: EITHER the change
+  ONE, and that one is wrong in one of the remaining THREE ways: EITHER the change
   it names AS BASIS is not an active change
   OTHER THAN THE CARRIER that ADDS or RENAMES to the block's capability and
   requirement title — it names a change that neither adds nor renames to that
   title, or it names the carrying change itself — OR its `by` identifier is not
-  the change that carries the block. Reported, and reported apart from UNDECLARED
+  the change that carries the block — OR it CARRIES NO REASON, the ` — <reason>`
+  tail `document-lifecycle` requires being absent, or present and empty, so that
+  the declaration the marker makes is one that capability calls incomplete.
+  **AND THOSE THREE ARE READ IN THAT ORDER — basis, then `by`, then reason** —
+  the single marker's own fields taken in the order its form writes them, so
+  that one finding names the field a repair actually touches and a marker wrong
+  in two of them is repaired from the front. Reported, and reported apart from UNDECLARED
   in the finding's own words, because a wrong basis and an absent one have
   different remedies. **THE BASIS GROUND IS THE EXACT NEGATION of the silent state's
   basis clause**, so that narrowing SELF-REFERENTIAL to the carrier's own addition
@@ -133,23 +140,30 @@ order.
   declaration but the true one, a wrong basis by naming the change that
   actually adds the requirement or renames to its title, a wrong `by` by writing
   the carrying change's own
-  identifier, and one finding naming two of them without saying which would leave
+  identifier, an absent reason by writing the one the form requires,
+  and one finding naming two of them without saying which would leave
   its reader to guess which paragraph, or which word of one paragraph, to
   change.
 - **UNDISCLOSED** — the block is NOT self-referential and carries EXACTLY ONE
   marker of the reserved form, and that marker is not misdeclared — naming as
   basis an active change, other than this one, that
-  does add or rename to the title, and carrying as its `by` identifier the change
-  that carries the block — that basis change is NOT `ratified`, and the marker's
+  does add or rename to the title, carrying as its `by` identifier the change
+  that carries the block, AND CARRYING A REASON — that basis change is NOT
+  `ratified`, and the marker's
   reason clause does not carry the disclosure `document-lifecycle` requires of it.
   Reported, and reported apart from the other three: here the pairing is declared
   and the basis is real, and what is missing is the reader's warning that the text
-  the block rests on has been accepted by no authority.
+  the block rests on has been accepted by no authority. **THE REASON'S PRESENCE
+  IS THIS STATE'S PRECONDITION AND NOT ONE OF ITS TESTS**: a marker with no
+  reason clause is placed MISDECLARED one check earlier, so this state never
+  reads an absent clause and never hands a reader "write the word `unratified`"
+  as the remedy for a marker with no sentence to write it into.
 - **DECLARED AND RESOLVING** — the block is NOT self-referential and carries
   EXACTLY ONE marker of the reserved form, and that marker is neither misdeclared
   nor undisclosed: it names as basis an active
   change other than this one that does add or rename to the title, its `by`
-  identifier is the change that carries the block, and either that basis is
+  identifier is the change that carries the block, it carries the nonempty
+  reason `document-lifecycle`'s form requires, and either that basis is
   `ratified` or the marker discloses that it is not. NO FINDING IS EMITTED.
   A correctly declared pair is the state this check exists to produce, and a
   standing row for it would be a permanent advisory nobody should act on.
@@ -190,6 +204,38 @@ undeclared state it wears the appearance of curing. The comparison belongs INSID
 MISDECLARED rather than in a state of its own: the defect is one wrong marker
 with one paragraph to repair, on the same terms as a wrong basis, and the number
 of states this check reports stays FOUR.
+
+**THE REASON IS HARVESTED IN RECOGNITION AND JUDGED IN CLASSIFICATION, AND THE
+TWO STAY APART FOR THE REASON THE `by` IDENTIFIER'S DO.** `document-lifecycle`
+recognizes this form by its COMPLETE PREFIX and requires a nonempty ` — <reason>`
+tail after it; this family reads that tail off every recognized marker and
+reports its absence, exactly as it reads the `by` identifier and compares it.
+Making the tail a condition of RECOGNITION instead would drop a prefix-only
+paragraph to an ordinary body unit, so the block would be reported UNDECLARED
+and its author told to add a marker the block already carries — the absent-marker
+remedy for a defective declaration. Reading the absence NOWHERE is the hole this
+ground closes: a paragraph carrying that complete prefix and its closing colon
+and nothing after it names a basis, carries the carrier's own `by`, and would
+otherwise satisfy every remaining check and reach DECLARED AND RESOLVING, so a
+declaration the form itself calls incomplete would promote as a complete one and
+the block would look declared to every later reader while declaring nothing. The
+check belongs INSIDE MISDECLARED on the same terms as the `by` comparison — one
+wrong marker with one paragraph to repair, one band and one action — so it adds
+a GROUND and not a state, and the number of states this check reports stays
+FOUR.
+
+**AND IT IS READ BEFORE THE DISCLOSURE, which is not an ordering preference but
+the condition of the disclosure being readable at all.** The disclosure is A
+WORD LOOKED FOR IN THE REASON CLAUSE, so a marker with no reason clause offers
+it nothing to look in. Taken the other way round, an unratified basis under a
+prefix-only marker would be reported UNDISCLOSED and its author told to write
+`unratified` into a sentence that does not exist, while the identical marker
+over a RATIFIED basis would pass in silence — one defect named two ways at two
+titles, and at one of the two not named at all. Reading BOTH would be worse
+again: two findings and two remedies for one missing tail, which the
+exactly-one-state rule forbids. So the reason is read FOURTH and the disclosure
+FIFTH, and a prefix-only marker is MISDECLARED on the reason ground whatever its
+basis's standing is.
 
 **THE FOURTH STATE, UNDISCLOSED, EXISTS BECAUSE THE OBLIGATION WOULD OTHERWISE
 BE DECLARED IN ONE CAPABILITY AND ENFORCED IN NONE.** `document-lifecycle` requires the reason
@@ -242,7 +288,8 @@ added by this paragraph; it records which instrument enforces what.
 against the active delta's own path like every other finding this family emits,
 carrying the `warning` band and one action line stating every half of the
 remedy: declare the basis by ONE marker and no more than one, name the carrying
-change itself as that marker's `by` identifier, disclose in the reason clause
+change itself as that marker's `by` identifier, give that marker the reason its
+form requires, disclose in that reason clause
 where that basis is not ratified, and hold the archive until the declared change
 promotes.
 The class SHALL be registered in the family's own class registry with its own
@@ -254,7 +301,7 @@ other and is reported by the class that reports those.
 derives its unplaced-finding mask from its own arm templates, so a rule text
 built any other way would have no shape the mask can compute and would be
 reported as drift on every run that emitted one. One template SHALL carry all
-four reported states — MISDECLARED's three grounds included, they being one state
+four reported states — MISDECLARED's four grounds included, they being one state
 with one action that differ only in the same interpolated clause — distinguished
 by that clause, because one template is one shape is one map entry: the four
 states share a band and an action and differ only in why.
@@ -404,8 +451,9 @@ standing nobody can read being no such showing.
 - **AND** the finding MUST NOT cause a run configured `--fail-on error` or `--fail-on critical` to fail
 
 #### Scenario: A block over a sibling's addition is correctly declared
-- **WHEN** such a block carries EXACTLY ONE `Modified over` marker, naming as basis an active change other than its own that ADDS or RENAMES to the block's capability and requirement title, that marker's `by` identifier is the change whose delta carries the block, and the basis change is `ratified`
+- **WHEN** such a block carries EXACTLY ONE `Modified over` marker, naming as basis an active change other than its own that ADDS or RENAMES to the block's capability and requirement title, that marker's `by` identifier is the change whose delta carries the block, that marker carries the nonempty reason its form requires, and the basis change is `ratified`
 - **THEN** no finding MUST be emitted for that block, a declared pairing being the state this check exists to produce
+- **AND** the reason's presence MUST be one of the conditions of that silence, an otherwise identical marker carrying the prefix alone being reported rather than passed
 
 #### Scenario: The marker names a change that does not add the requirement
 - **WHEN** such a block carries EXACTLY ONE `Modified over` marker, naming as basis a change that neither ADDS nor RENAMES to its capability and requirement title, and the change carrying the block does not itself ADD that title
@@ -425,6 +473,18 @@ standing nobody can read being no such showing.
 - **AND** the finding MUST NOT depend on which of the markers is examined, the count being read before any marker's basis or `by` identifier is
 - **AND** an otherwise identical block carrying EXACTLY ONE valid marker MUST NOT be reported, this ground reaching a plurality of declarations and never a lawful single one
 
+#### Scenario: The marker carries its prefix and no reason
+- **WHEN** such a block carries EXACTLY ONE `Modified over` marker, naming as basis an active change other than its own that ADDS or RENAMES to the title and carrying as its `by` identifier the change whose delta carries the block, the basis change is `ratified`, and that marker carries no ` — ` separator or carries one with nothing but whitespace after it
+- **THEN** the run MUST emit one `warning` finding for that block in the misdeclared state, on the reason ground, stating that the marker carries no reason
+- **AND** the block MUST NOT be placed in DECLARED AND RESOLVING, a declaration `document-lifecycle` calls incomplete not being one this check passes in silence
+- **AND** the block MUST NOT be reported UNDECLARED, the paragraph being a recognized marker of this form whose declaration is defective rather than an absent one, and the remedy being to write the reason rather than to add a marker
+
+#### Scenario: A prefix-only marker names an unratified basis
+- **WHEN** such a block carries EXACTLY ONE `Modified over` marker with a right basis and a right `by` identifier and no reason at all, and the basis change carries a status other than `ratified`
+- **THEN** the run MUST emit exactly ONE finding for that block, in the misdeclared state and on the reason ground, the reason being read before the disclosure
+- **AND** the block MUST NOT be reported UNDISCLOSED, that state reading a word in a reason clause and there being no clause to read it in, so that its remedy would name a word rather than the missing tail
+- **AND** the finding MUST NOT depend on the basis's standing, the identical marker over a `ratified` basis being reported on the same ground
+
 #### Scenario: A change modifies its own unpromoted addition
 - **WHEN** one change carries both an ADDED and a MODIFIED block for one capability and requirement title
 - **THEN** the run MUST emit a `warning` finding against that delta
@@ -437,13 +497,15 @@ standing nobody can read being no such showing.
 - **AND** the three comparison arms MUST run against it under that old name, this requirement preserving that precedence rather than displacing it
 
 #### Scenario: A block is declared over a basis no authority has accepted
-- **WHEN** such a block carries EXACTLY ONE `Modified over` marker, naming as basis an active change other than its own that ADDS or RENAMES to the title, whose `by` identifier is the change whose delta carries the block, that basis change carries a status other than `ratified`, and the marker's reason clause does not carry the disclosure `document-lifecycle` requires
+- **WHEN** such a block carries EXACTLY ONE `Modified over` marker, naming as basis an active change other than its own that ADDS or RENAMES to the title, whose `by` identifier is the change whose delta carries the block, that marker CARRIES A REASON, that basis change carries a status other than `ratified`, and that reason clause does not carry the disclosure `document-lifecycle` requires
 - **THEN** the run MUST emit one `warning` finding against the active delta's own path, naming the basis change and its declared standing and stating that the marker does not disclose it
 - **AND** that finding MUST be worded apart from the undeclared and the misdeclared cases, a pairing declared over text no authority has accepted being a different defect from an absent basis or a wrong one
+- **AND** a marker carrying no reason at all MUST be reported in the misdeclared state instead and never here, the reason being read before the disclosure and an absent clause being nothing for the disclosure to be read in
 
 #### Scenario: The unratified basis is disclosed
-- **WHEN** such a marker's reason clause carries that disclosure, or the change it names is `ratified`
-- **THEN** no finding MUST be emitted for that block, the disclosure being the whole of what THIS CHECK asks of a declared pairing
+- **WHEN** such a marker carries a reason, and that reason clause carries that disclosure or the change it names is `ratified`
+- **THEN** no finding MUST be emitted for that block, the disclosure being the whole of what THIS CHECK asks of a declared pairing beyond the form's own reason
+- **AND** a `ratified` basis MUST NOT be read as excusing the reason, a marker carrying the prefix alone being reported on the reason ground whatever its basis's standing
 - **AND** that silence MUST NOT be read as archive clearance, `release-realization`'s hold standing over the block for as long as the title is unpromoted and keying on that title rather than on the basis's standing
 - **AND** a disclosure MUST NOT be reported once the basis it discloses ratifies, the marker being a dated statement about the moment it was written
 

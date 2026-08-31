@@ -35,6 +35,36 @@ begins with the prefix COMPLETE. The form is
 followed by ` — <reason>`. The basis change-id is written as a code span, as
 every change-id this capability's markers name already is.
 
+**THE ` — <reason>` TAIL IS REQUIRED FOR THE DECLARATION TO BE COMPLETE, AND A
+MARKER WITHOUT IT IS DEFECTIVE RATHER THAN ABSENT.** The separator SHALL be
+present and the reason after it SHALL be NONEMPTY, the reason being THE WHOLE
+TAIL AFTER ` — ` and not merely what follows some code span inside it — this
+form naming no units, there is nothing in the tail to measure it from behind.
+A paragraph carrying the COMPLETE PREFIX with no
+separator, or with a separator and nothing but whitespace after it, SHALL be
+read as a marker OF THIS FORM whose declaration is DEFECTIVE, and SHALL be
+reported as such. It is NOT a non-marker: recognition is the prefix and STOPS
+THERE, deliberately and on the same reading the `by` identifier below already
+has — a paragraph that fails a requirement of the form is a MARKER THAT FAILS
+IT, and treating the missing tail as a failure to RECOGNIZE would drop the
+paragraph to an ordinary body unit and leave the block described as carrying no
+declaration at all, which is the absent-marker remedy handed to a block that
+plainly carries one. And it is not silently complete either: a declaration this
+requirement calls incomplete SHALL NOT promote as a complete one.
+
+**THE TAIL IS REQUIRED OF THIS FORM ALONE, and the difference is the structural
+one this requirement keeps returning to.** The two existing forms carry their
+whole declaration in the UNITS THEY NAME — what was removed, or where it went —
+so a reason there is prose added to a declaration already complete, and neither
+form requires one. THIS FORM NAMES NO UNITS. Its prefix states a bare relation
+between two documents and nothing more, so the reason is the only place the
+declaration says WHY this text was written over that addition, and it is also
+the ONLY CLAUSE the unratified disclosure stated below can be carried in. A
+marker with no reason therefore discloses nothing and CAN disclose nothing: the
+disclosure obligation is not vacuously satisfied by an absent clause and is not
+waived by it — it is unreadable, and what such a marker's author must be told is
+that the reason is missing rather than that a word is.
+
 **THE WORD `addition` IN THAT PREFIX IS FIXED PROSE, NOT A CLAIM ABOUT THE
 BASIS'S BLOCK KIND.** The form is recognized by a COMPLETE prefix, so its literal
 text is a token a parser matches rather than a description a reader must verify;
@@ -111,7 +141,11 @@ modifying change SHALL NOT describe the requirement it modifies as settled.
 obligation nothing checks.** The reason clause discloses by CARRYING THE WORD
 `unratified` — in prose or as a code span, this form naming no units either way
 — read case-insensitively after the same whitespace normalization the marker
-itself is read under. The sentence it sits in stays the author's to write. This
+itself is read under. The sentence it sits in stays the author's to write, and
+THAT A SENTENCE EXISTS AT ALL IS THE TAIL RULE'S OBLIGATION AND NOT THIS ONE'S:
+a marker carrying no reason has already failed the form, and its defect is the
+missing tail rather than a missing word — this disclosure is a reading OF a
+reason clause and an absent clause is nothing to read. This
 is the bargain every reserved form in this capability already strikes: the FORM
 is what a checker reads and the PROSE is what a reader reads, and asking a
 checker to decide whether a sentence discloses would be the prose rule this
@@ -153,6 +187,14 @@ this capability has ever done.
 - **THEN** the block MUST be reported, one pairing admitting one declaration and a second marker stating a second basis for one text rather than adding to the first
 - **AND** the remedy MUST be to withdraw every such marker but the one that is true, no reading of two bases making the block rest on either
 - **AND** the two unit-naming forms MUST NOT be read as bounded by this rule, their declarations accumulating because each names its own units
+
+#### Scenario: The marker carries the prefix and no reason
+- **WHEN** a paragraph inside a `## MODIFIED Requirements` block carries the complete `Modified over` prefix and is not followed by ` — ` and a nonempty reason
+- **THEN** the paragraph MUST still be read as a marker of this form, recognition ending at the prefix, and its declaration MUST be reported as defective rather than accepted
+- **AND** it MUST NOT be read as a non-marker or as an ordinary body unit, a block whose declaration is defective being differently placed, and differently repaired, from one carrying no declaration at all
+- **AND** a separator followed by nothing but whitespace MUST be treated as carrying no reason, an empty reason declaring exactly what an absent one does
+- **AND** the disclosure this requirement asks of an unratified basis MUST NOT be read as satisfied by that absence, nor as waived by it, there being no clause to read it in
+- **AND** the two unit-naming forms MUST NOT be read as acquiring this obligation, their declarations being complete in the units they name
 
 #### Scenario: The marker is read as declaring a deletion
 - **WHEN** a block carries a `Modified over` marker and omits a unit
