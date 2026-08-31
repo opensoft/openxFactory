@@ -1918,9 +1918,12 @@ repo scope.
   anything**: the check is not yet REQUIRED in the branch ruleset — an operator
   act — so the capability confers and refuses nothing today and its own
   conformance declaration records that in the present tense. `target_release` was
-  re-counted at the realization tip and **`contract-v2.3` is SPENT**; the next
-  additive number is `contract-v2.4`, and registration rides that cut rather
-  than reserving it.
+  re-counted at the realization tip — and **re-counted AGAIN when
+  `add-binding-consumer-identity` cut and tagged `contract-v2.4` alone (#526,
+  `afdf0e88`), whose inventory carries none of this family's members**. Both
+  v2.3 and v2.4 are SPENT; the next additive number is `contract-v2.5`.
+  Registration rides that cut rather than reserving it, which is why a number
+  that has now moved twice was written into no contract byte.
 
 ## notebook-access-wallet-governance
 

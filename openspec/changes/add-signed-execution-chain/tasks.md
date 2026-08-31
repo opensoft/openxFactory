@@ -371,19 +371,37 @@ thing it measures.**
       Registration in `contracts/manifest.yaml` and `contracts/CHANGELOG.md`,
       and the additive bundle cut, with `release-surface-integrity`'s
       verify-commit green from an independent clone. **THE NUMBER IS
-      RE-COUNTED, AS 2.2 REQUIRED, AND `contract-v2.3` IS SPENT**: at this
-      branch's tip `contracts/manifest.yaml:3` declares `contract-v2.3` and
-      `contracts/releases/contract-v2.3.digests.yaml` is a cut inventory in the
-      tree, so the next additive number is **`contract-v2.4`** — which
-      `add-binding-consumer-identity`'s realization (#516, `5e8a33cf`) also owes
-      and has not yet performed. Per `docs/contract-versioning-policy.md`
-      several changes may ride ONE additive cut, so this family and #516's
-      schema move can land in the same `contract-v2.4`; if #516 cuts alone
-      first, this one re-counts again rather than reserving a number. **A
-      PROPOSED CHANGE MUST NOT RESERVE A MINOR NUMBER BEFORE MERGE ORDER IS
-      KNOWN**, which is why this realization registers nothing and bumps
-      nothing: the manifest and changelog update is committed atomically WITH
-      the cut, and the tag points at that commit.
+      RE-COUNTED TWICE, AND THE SECOND COUNT IS THE ONE THAT HOLDS.** The
+      first count read `contract-v2.4` as next, because at that tip the manifest
+      declared `contract-v2.3` and only v2.3's inventory was in the tree. It also
+      said, in terms, *"if #516 cuts alone first, this one re-counts again rather
+      than reserving a number."* **THAT IS WHAT HAPPENED.**
+      `add-binding-consumer-identity` cut and TAGGED `contract-v2.4` alone
+      (#526, `afdf0e88`, now on `main`), and its inventory carries **ZERO**
+      `signed-execution-chain` members — verified by grep, not assumed — so v2.4
+      is SPENT and covers none of this family. **AT THIS TIP THE NEXT ADDITIVE
+      NUMBER IS `contract-v2.5`**: `contracts/manifest.yaml:3` declares
+      `contract-v2.4` and `contracts/releases/contract-v2.4.digests.yaml` is a
+      cut inventory in the tree. **A PROPOSED CHANGE MUST NOT RESERVE A MINOR
+      NUMBER BEFORE MERGE ORDER IS KNOWN**, which is exactly why this realization
+      registers nothing and bumps nothing — a reserved v2.4 would now be wrong,
+      and the rule is what kept it from being written anywhere that mattered. The
+      manifest and changelog update is committed atomically WITH the cut, and the
+      tag points at that commit.
+      **WHAT THE CUTTING SESSION WILL FIND, MEASURED HERE SO IT IS NOT A
+      SURPRISE**: at this tip `scripts/validate-contract-release.py verify-commit
+      --commit HEAD` reports EXACTLY ONE mismatch —
+      `HGR-RELEASE-DIGEST-MISMATCH` on `contracts/README.md` — and
+      `origin/main` PASSES the same check. That is the expected uncut state, not a
+      defect: this realization adds two rows to the contracts index, and
+      `contracts/README.md` is one of the three EDITORIAL members that
+      legitimately move between cuts (with `manifest.yaml` and `CHANGELOG.md`),
+      which is why `doc-health`'s `release-inventory-drift` family classifies it
+      INFO and reports zero new findings while the strict release tool reports an
+      error. The cut resolves it by construction, because the new inventory
+      records the new digests. **A realization that edits the contracts index and
+      does not cut will always show this one line**; a mismatch on any
+      NON-editorial member would be a real finding, and there is none.
 
 ## 5. Successors — NAMED, NOT DRAFTED
 
