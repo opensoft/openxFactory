@@ -1,6 +1,7 @@
 # Council Review Record (§7.4 sitting), 2026-08-30: openxFactory PR #510 `add-chain-attestation`
 
-Status: record — **VALID.** All three operator slots are FILLED, by Brett Heap's
+Status: record
+Record scope: **VALID.** All three operator slots are FILLED, by Brett Heap's
   ruling of **2026-08-30**. Slot 1 acknowledged in the ruling; slot 2 filled as
   liaison — **`lead-security`'s park (LS-C4) is DISPOSED**; slot 3 filled by the
   disposition. **This record carries NO disposition of its own: the SOLE

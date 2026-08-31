@@ -1,6 +1,7 @@
 # PR #509 — council review summary, for the PULL REQUEST BODY
 
-Status: record — **NOT A REVIEW RECORD, AND DELIBERATELY SO.**
+Status: record
+Record scope: **NOT A REVIEW RECORD, AND DELIBERATELY SO.**
 
 **#509 gets no `review/` directory.** Brett Heap ruled ballot decision **10** on
 2026-08-30: #509 lands by **ordinary pull request** with its appendix corrected.
