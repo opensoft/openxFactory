@@ -670,78 +670,6 @@ Active changes:
   restated as ONE section with semantics unchanged and every clock-relevant
   scenario satisfied. **Ratification authorizes REALIZATION and performs none of
   it.**
-- [add-binding-consumer-identity](openspec/changes/add-binding-consumer-identity/proposal.md)
-  — authored 2026-08-29, **RATIFIED 2026-08-29** (`Status: ratified`; record
-  `review/ratification-2026-08-29.md`). **THE FIRST PACKET THROUGH THE §7.4 PATH
-  END TO END**: a council sitting returned SPLIT 2–2 on the verdict word and
-  UNANIMOUS 4/4 that the text as drafted was not ratifiable, with fifteen
-  blocking amendments across four seats; Brett ruled the same day — accept all
-  blocking, one fix round, ratification read after — and ratified the amended
-  text with the Codex-two-heads-back verification gap in view rather than waiting
-  on a bot at its usage limit. **Ratification authorizes REALIZATION and does not
-  perform it**: the change stays ACTIVE until merged code, green evidence and the
-  contract cut exist. **Three further rulings the bench routed
-  to him came back the same day**: Decision 2 takes ROUTE (i) (phase the
-  requiredness, keep the promise); the parked P-2 is DISCHARGED — packaged
-  fixtures use SYNTHETIC identifiers and the live sync-lane/openXdox fetch
-  identities stay in the consuming installs; and P-3's estate-level delta-pair
-  gap is FILED as issue #502, which this change neither closes nor waits on. The
-  ratification act followed the same day.
-  THE NAMED SUCCESSOR OF A RATIFIED ADMISSION: `add-notebook-hosting-credential-custody`
-  ratified one-identity / per-system-authority on 2026-08-23 and admitted in the
-  same read that the invariant is **held by review rather than by the record** —
-  the published `xfactory_credential_binding_template` requires only
-  `[provider, secret_ref, owner, rotation_policy]`, carries no consumer or
-  access-identity field, and the validator compares no authorities, so two
-  bindings on one vault principal validate cleanly. That gap is registered FIVE
-  times in the predecessor — its requirement's own scenario, its Impact section,
-  its design, its tasks §4.5 and its ratification record — and this change is
-  what discharges it. **The sharpest statement of it is canon's own**: promoted
-  `credential-contracts` says a consuming lane receives "only bindings: an opaque
-  secret reference and a fetch-identity identifier" — the shape carries the first
-  and not the second. **MEASURED, not assumed**: a `consumer:` key carrying
-  arbitrary contents validates against the pinned schema TODAY, because the
-  binding object is not closed, which makes this a field-shaped hole rather than
-  a missing field. The change adds ONE additive optional `consumer:` block
-  (`holder_ref`, `fetch_identity`, a QUALIFIED `requirement_ref`, and const-true
-  `shared_credential_acknowledged` and `instantiation_stub` tokens) in vocabulary
-  the estate already ratified: `holder_ref` is `identity-brokering`'s shipped
-  spelling and a consuming system is emphatically NOT a persona, `fetch_identity`
-  is `credential-contracts`'s own words. **THE BLOCK IS DECLARED AT THIS MINOR
-  AND CONSTRAINED AT THE MAJOR — all three narrowing acts together.** Requiring
-  members, closing the member set and imposing the identifier grammar each refuse
-  a shape the current major accepts, so each is breaking and all three wait for
-  one deprecation window. An earlier draft phased only the closure; four seats
-  proved by construction that the other two refused a locally shaped object, a
-  scalar, a list and the generator's own placeholder style, falsifying a scenario
-  that would have promoted into canon. **NOTHING NARROWS AT THIS CUT, and that is
-  now a measurement**: six shapes a domain could already hold were built and
-  driven, and all six validate. **IT TIGHTENS BEFORE IT LIFTS** —
-  `shared-secret-identity` keeps its refusal as the default, a new
-  `shared-authority-identity` names the real fault (two systems, one authority),
-  and the two-consumers-of-one-identity shape the predecessor had to DECLINE
-  becomes expressible only through SIX independent fail-closed conditions over
-  EVERY PAIR, the sixth of which binds each reference to its own binding's map key
-  because a security seat drove the five-condition draft into granting the lift
-  on this capability's only red proof of serving-tier separation. **EIGHT warning
-  codes carry the deprecation, one per shape the major refuses**, five of them
-  added when bot rounds on the fix round itself found that an empty
-  `consumer: {}` matched no code, that the map-key grammar had been prescribed
-  with no phasing, that the false-token refusal was written as an immediate error
-  though such a record validates today, and that `access_mode` and the document
-  reference declared their phasing in prose with no code to serve it — five more
-  instances of the very defect the council convened over, arriving inside its own
-  repair, and the reason the warning set is now derived from the refusal list
-  rather than counted. **CARRIES A
-  CONTRACT CUT AT REALIZATION** — its realization moves schema bytes, though THIS
-  PACKET MOVES NONE and leaves `contracts/` untouched; the minor is allocated at
-  realization by merge order, because `add-credential-escrow-checkout` is already
-  spending one on the same file and main is a third writer of that manifest.
-  1 MODIFIED requirement (carriage re-measured after the amendment round: six
-  scenarios in, six out, five byte-identical, zero units lost) and 3 ADDED. Six
-  authoring decisions and five open questions are recorded with their rejected
-  alternatives; the open questions are now RULED, one of them against the
-  author's own recommendation.
 - [add-structured-scope-substrate](openspec/changes/add-structured-scope-substrate/proposal.md)
   — **RATIFIED 2026-08-28** (Brett Heap, convener). MODIFIES `release-realization`
   to add the OPTIONAL front-matter sibling `scope_globs:` — a per-repository map
@@ -1067,38 +995,6 @@ Active changes:
   allowance passes explicitly, and revocation blocks the next dispatch and
   admission. Realization cuts the next additive contract bundle; no domain
   detector, runtime registry service or allowance instance lives here.
-- [add-notebook-hosting-credential-custody](openspec/changes/add-notebook-hosting-credential-custody/proposal.md)
-  — authored 2026-08-23, **NOT YET RATIFIED** (`Status: draft`). The follow-up
-  to `add-notebook-projection-identity`, on Brett Heap's direction the same day:
-  *"this is a xFactor001 login. and we want to store the password in a kv and
-  have xFactory and openXdox login with its own authority."* The declared
-  hosting identity change named the account and said nothing about its
-  CREDENTIAL, leaving the password wherever its creator put it — the
-  personal-account failure moved one level down rather than removed. Adds the
-  POSITIVE custody obligation the ratified generalization lacks (that
-  generalization forbids hard-coding a credential; it does not require custody
-  to exist, so an account whose password lives only in its creator's head
-  satisfies it), extends custody to the whole credential set including a
-  second factor's seed, and rules ONE IDENTITY / PER-SYSTEM AUTHORITY: each
-  consuming system reaches the shared account through its own binding, access
-  identity, grant, rotation visibility and audit trail — one identity may be
-  shared, one authority may not. The hosting record gains a BY-REFERENCE
-  custody pointer, never secret material. Two findings shaped it: the promoted
-  by-reference requirement already refuses distributing refreshable session
-  state, and the `nlm` profile is exactly that class — so Brett's
-  no-shared-session ruling is independently required on credential-class
-  grounds, not just accountability; and the live binding INSTANCES do not
-  belong here at all, because `contracts/manifest.yaml` records that
-  *"openxFactory ships no instance records (they live in client installs,
-  credential-contracts residency model)"* — so the neutral obligations land
-  here and the concrete bindings land in the install lane and openXdox's own,
-  a redirection of the ruling's route that is FLAGGED for the ratification
-  read rather than decided quietly. Honest gaps recorded, not assumed away:
-  **custody is not automation** (the sign-in is a browser flow with ~20-minute
-  sessions and possible 2FA; automated login stays future work), a TOTP seed
-  may itself need custody, and **no live secret is created, moved or read by
-  this change**. `target_release: none` — the binding-template shape is already
-  published, `contracts/` is untouched, no bundle is cut.
 - [declare-client-standing-policy-contract](openspec/changes/declare-client-standing-policy-contract/proposal.md)
   — authored and ratified 2026-08-23 (Brett Heap, in-session). Closes
   `opensoft/openxFactory#254`: `hermes_client_overlay` is a contract THIS repo
@@ -1576,6 +1472,100 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [add-binding-consumer-identity](openspec/changes/archive/2026-08-31-add-binding-consumer-identity/proposal.md)
+  — **ARCHIVED 2026-08-31 on merged-plus-green PLUS THE CUT, SECOND BY RULING** —
+  in the same pull request as the basis it waited on, and in the commit after it.
+  Ratified 2026-08-29, **THE FIRST PACKET THROUGH THE §7.4 PATH END TO END**: a
+  council returned SPLIT 2–2 on the verdict word and UNANIMOUS 4/4 that the drafted
+  text was not ratifiable, fifteen blocking amendments across four seats; Brett
+  ruled accept-all-blocking, one fix round, ratification read after. **REALIZED IN
+  TWO ACTS** — the surface at PR **#516** (squash `5e8a33cf`): the `consumer:`
+  block on `xfactory_credential_binding_template`, the validator's warning channel
+  and eight deprecation codes, the packaged corpus and the generator sweep; and the
+  cut **`contract-v2.4`** at PR **#526** (squash `afdf0e88`, tag published),
+  closing §5.2, §5.3, §6.3 and §6.5. **IT COULD NOT ARCHIVE UNTIL ITS BASIS DID,
+  AND THE TOOL SAID SO RATHER THAN GUESSING**: its MODIFIED block is written over a
+  requirement `add-notebook-hosting-credential-custody` ADDS, so while that packet
+  was active `openspec archive` ABORTED — *"MODIFIED failed for header … - not
+  found"* — and §7.2's pre-archive `grep` read **0**. Brett ruled **Route 1** on
+  2026-08-31 rather than exercising §7.2's conversion clause, which
+  `govern-sibling-added-modified-deltas` (`8f986c39`) calls **a breach** unless
+  taken as a paired act. **PR #538** (squash `3a6a16e9`) then touched this packet
+  twice under Brett's consent: it placed the `Modified over` marker declaring the
+  basis, and it re-measured this preamble after striking the basis's falsified
+  scenario — so an earlier archive attempt at `bd2ccbc3` was **rebuilt from
+  `3a6a16e9`** rather than reconciled textually. **SCENARIO-COMPLETENESS MEASURED
+  PER SCENARIO AGAINST CANON**: canon stated **FIVE** scenarios and the block
+  states **SIX** — **nothing dropped**, all five carried **byte-identical**, the
+  sixth an **ADDITION**. That is a change of KIND from the pre-sweep reading, where
+  the sixth replaced a scenario `contract-v2.4` had falsified and the carriage read
+  six-in/six-out with one retitle; the strike turned a substitution into a pure
+  addition. **PROMOTION VERIFIED BYTE-FOR-BYTE — 4 of 4 delta requirements** (1
+  MODIFIED + 3 ADDED, 36 scenarios) identical in canon; `credential-contracts`
+  **9 → 12 requirements and 33 → 64 scenarios**; `.openspec.yaml` blob `b9263449`
+  identical across the move. **WHY BOTH ARCHIVES RIDE ONE PULL REQUEST — AND WHY
+  THE REASON CHANGED.** `doc-health --family modified-block-currency` across three
+  states: pristine `main` **0 error / 8 info**, basis archived alone **0 error / 9
+  info**, both archived **0 error / 8 info**. Before #538 the middle state carried
+  **1 error** and that transient finding was the original justification for one
+  pull request; the strike removed it. The pair still rides one PR for the
+  **ordering dependency alone** — the dependent packet cannot be archived, or even
+  prepared green, until the basis is on `main`. **ONE BOX SURVIVES UNTICKED**:
+  §7.3, the reconciliation owed at `add-notebook-projection-identity`'s archive,
+  which is still active — the mirror of the basis packet's §6.2. Three further
+  rulings came back the same day: Decision 2 takes ROUTE (i), the parked P-2 is
+  DISCHARGED with SYNTHETIC identifiers, and P-3's estate-level gap was FILED as
+  issue #502 — the gap `govern-sibling-added-modified-deltas` was raised to close.
+
+- [add-notebook-hosting-credential-custody](openspec/changes/archive/2026-08-31-add-notebook-hosting-credential-custody/proposal.md)
+  — **ARCHIVED 2026-08-31 on merged-plus-green, FIRST BY RULING so that a
+  dependent packet could archive at all, and rebuilt once against the § 6 sweep.**
+  Ratified 2026-08-23 (Brett Heap, in-session) with two rulings in one read —
+  ratify the requirement set, and the **residency redirect ACCEPTED**: neutral
+  obligations here, live binding instances in the consuming installs. **REALIZED
+  2026-08-26** by PR **#395** (merge `1dd822ea`, re-verified an ancestor of `main`
+  at the archive act); **`target_release: none` and it held** — `git diff
+  origin/main -- contracts/` empty, bundle still `contract-v2.5`, no CHANGELOG
+  entry, no manifest row, no inventory, no tag. Every §1–§3 box was checked
+  against the tree rather than trusted: the `custody:` block naming the BINDING
+  and never the secret (`session_state_in_custody: false`, `self_hosted` exempt),
+  `_check_custody` plus the secret-shaped refusal running over the whole hosting
+  block, the both-directions tests, and the three documentation surfaces including
+  the rule that **the `nlm` profile is refreshable session state and is NOT a
+  custody subject**. **THE § 6 SWEEP CHANGED THIS PACKET BEFORE IT ARCHIVED**: PR
+  **#538** (squash `3a6a16e9`) struck this block's fifth scenario, *"The published
+  binding shape cannot yet express the access identity"* — **struck, not
+  re-scoped**, falsified in every clause by `contract-v2.4`, a dated amendment note
+  standing in its place under Brett Heap's consent. An earlier archive attempt at
+  `bd2ccbc3` had copied the pre-sweep bytes and was rebuilt from `3a6a16e9` rather
+  than reconciled textually. **THE ORDER IS THE POINT.**
+  `add-binding-consumer-identity` carries a MODIFIED block over `Each consuming
+  system reaches a shared operated identity through its own binding` — a
+  requirement THIS packet ADDS — so `openspec archive` aborted on that packet with
+  *"MODIFIED failed for header … - not found"* while this one stayed active; its
+  §7.2 pre-archive `grep` read **0** before this act and **1** after. Brett ruled
+  **Route 1** on 2026-08-31: the basis archives first, rather than converting that
+  block to ADDED, which `govern-sibling-added-modified-deltas` (ratified and merged
+  the same day, `8f986c39`) calls **a breach** unless taken as a paired act; #538
+  says the same in its own words. **PROMOTION VERIFIED BYTE-FOR-BYTE with no
+  scenario-completeness exposure to measure**: the packet is **pure ADDED** across
+  both deltas — no MODIFIED, REMOVED or RENAMED block anywhere. Measured anyway:
+  **3 requirements in, 3 out, all three bodies byte-identical (3/3), 13 scenarios
+  in, 13 out** (thirteen post-sweep; fourteen before it); `credential-contracts`
+  **7 → 9 requirements, 24 → 33 scenarios**; `lifecycle-notebook-projection` **+1
+  requirement**; neither ADDED title existed in canon beforehand. `doc-health
+  --family promotion-fidelity` → **No findings**. `.openspec.yaml` moved rather
+  than being lost, blob `36d76fdc` identical across the move. **FIVE BOXES SURVIVE
+  UNTICKED BY DECISION**, each with a restated disposition: §4.1 the declined
+  fixture, §4.2/§4.3 the residency statements, **§4.4 an OPERATOR ACT** — placing
+  the password into `kv-opensoft-xfactory-qa`, which nothing here performs or
+  witnesses — and §6.2, which attaches to `add-notebook-projection-identity`'s
+  archive. **§4.5 DID close**: the successor it owed is
+  `add-binding-consumer-identity`, whose `consumer:` block is published and cut as
+  `contract-v2.4`, so the box is ticked on the shipped shape rather than on the
+  successor's existence — and that same release is what falsified the struck
+  scenario.
 
 - [add-signed-execution-chain](openspec/changes/archive/2026-08-31-add-signed-execution-chain/proposal.md)
   — **ARCHIVED 2026-08-31 on merged-plus-green PLUS THE CUT, WITH TWO BOXES

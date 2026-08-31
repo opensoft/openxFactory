@@ -599,9 +599,30 @@ the section's authority comes from being exhaustive.
 
 ## 7. Bookkeeping and the ordering obligation
 
-- [ ] 7.1 README OpenSpec Records: this change moves from active to archived when
-  it archives.
-- [ ] 7.2 **THE ORDERING OBLIGATION, AND THE BACKSTOP THAT RUNS.** This change's
+- [x] 7.1 **DONE IN THIS ACT.** The README's OpenSpec Records block carries this
+  change as an archived row pointing at
+  `openspec/changes/archive/2026-08-31-add-binding-consumer-identity/proposal.md`,
+  and the active row is gone rather than duplicated.
+- [x] 7.2 **DISCHARGED IN THE SAFE ORDER, AND THE ASSERTION THIS BOX PRESCRIBES
+  WAS RUN AND PASSED.** The `grep` for the requirement title in
+  `openspec/specs/credential-contracts/spec.md` returned **0** while
+  `add-notebook-hosting-credential-custody` was active — and it did not merely
+  warn: `openspec archive` REFUSED this packet outright with *"credential-contracts
+  MODIFIED failed for header … - not found. Aborted. No files were changed."*, so
+  the unsafe order was never available to be taken by accident. **The basis
+  archived first**, in the commit immediately before this one, and the same `grep`
+  now returns **1**. **THE CONVERSION CLAUSE IN THIS BOX WAS NOT EXERCISED, AND
+  BRETT RULED THAT IT SHOULD NOT BE.** On 2026-08-31 he ruled **Route 1** over
+  converting this block to `ADDED`. `govern-sibling-added-modified-deltas`
+  (ratified and merged the same day, `8f986c39`) settles why: an UNPAIRED
+  conversion *"SHALL NOT be taken … Where one is taken it is a breach"*, and
+  per-packet assertions like this one *"SHALL NOT be read as the source of the
+  obligation"*. **PR #538** (squash `3a6a16e9`) then said the same from the other
+  side — *"custody archives first, and `add-binding-consumer-identity` stays held
+  while the title is unpromoted"* — and placed this block's `Modified over` marker
+  so the pairing is declared rather than merely true. This box's local `grep` did
+  the job it was written for; the general rule now carries the obligation.
+  **THE BOX'S ORIGINAL TEXT, PRESERVED UNEDITED BELOW.** This change's
   MODIFIED block is declared relative to `add-notebook-hosting-credential-custody`'s
   outcome, and that change is ACTIVE. This change SHALL NOT archive before it
   does; if the order ever inverts, the block CONVERTS TO `ADDED` first, because a
@@ -614,36 +635,34 @@ the section's authority comes from being exhaustive.
   a mechanical assertion** that `openspec/specs/credential-contracts/spec.md`
   contains the requirement title before this change archives — one `grep`, which
   fails loudly in exactly the inverted order.
-- [ ] 7.3 Reconcile with `add-notebook-projection-identity` at ITS archive: the
+- [ ] 7.3 **SURVIVES THE ARCHIVE UNTICKED, AND IT IS NOT THIS ACT'S TO CLOSE —
+  restated 2026-08-31.** `add-notebook-projection-identity` is STILL ACTIVE and
+  still `Status: ratified`, so the operated-identity generalization has not
+  promoted. The obligation attaches to THAT change's archive. It is the mirror of
+  `add-notebook-hosting-credential-custody` § 6.2, now archived carrying the same
+  reminder from the other side; whoever archives
+  `add-notebook-projection-identity` discharges both.
+  Reconcile with `add-notebook-projection-identity` at ITS archive: the
   operated-identity generalization all three changes presume promotes then.
-
-  **CORRECTED 2026-08-31 — THE TRIGGERING EVENT HAS HAPPENED, SO THIS
-  OBLIGATION IS NOW DUE RATHER THAN CONTINGENT.**
-  `add-notebook-projection-identity` ARCHIVED 2026-08-31 at
-  `openspec/changes/archive/2026-08-31-add-notebook-projection-identity`, and
-  both of its MODIFIED deltas are PROMOTED, so the operated-identity
-  generalization "all three changes presume" is canon as of that date. What
-  that falsifies elsewhere in this packet, named rather than silently left:
-  this packet's `.openspec.yaml` described that dependency as "RATIFIED
-  2026-08-23, ACTIVE ... unpromoted until it archives". It is archived; it is
-  promoted — and that row is now CORRECTED IN PLACE (2026-08-31, this same
-  sweep) rather than left to mislead anyone taking their release-ordering base
-  from it; the correction moves the dependency's STATUS only and points the
-  full reconciliation back to this task. **Note what this does NOT change:**
-  § 7.2's ordering obligation and its mechanical `grep` backstop are about
-  `add-notebook-hosting-credential-custody`, which is still ACTIVE — that half
-  is untouched here because it is still true, and it changes at CUSTODY's
-  archive, not at this one.
-
-  **The box stays UNTICKED and the obligation text above is UNCHANGED,
-  deliberately.** The reconciliation this task names is the FULL read-together
-  across all three packets, and Brett's ruled chain sequences it at THIS
-  packet's own archive — step D, last, after projection-identity (step B) and
-  custody (step C). Doing it here would be doing step D at step B. Recorded
-  under Brett's standing one-sweep consent of 2026-08-31 to amend these
-  ratified packets; this note corrects only what the archive falsified and
-  touches nothing else.
-- [ ] 7.4 **RE-RUN THE CARRIAGE DIFF IF THE MODIFIED BLOCK IS TOUCHED AGAIN.** A
+- [x] 7.4 **RE-RUN AT THIS ACT, AND THE BLOCK *WAS* TOUCHED AGAIN — SO THIS BOX
+  FELL DUE EXACTLY AS WRITTEN.** PR **#538** (squash `3a6a16e9`) edited this block
+  on 2026-08-31: it added the `Modified over` marker AND re-measured this packet's
+  own preamble after striking the basis packet's falsified fifth scenario. #538
+  states in terms that this packet's *"§7.4 carriage re-run stays owed at its
+  archive gate and is not discharged here"*. **It is discharged here, measured
+  against CANON rather than against the sibling's delta**, because canon is what
+  the block promotes over: **canon states FIVE scenarios for this requirement, the
+  block states SIX, NOTHING IS DROPPED, all five are carried BYTE-IDENTICAL, and
+  the sixth — `The binding shape expresses the consuming system and its fetch
+  identity` — is an ADDITION rather than a replacement.** That is a change of KIND
+  from the pre-sweep measurement this box recorded: before #538 the sixth scenario
+  REPLACED a falsified one, and the carriage read six-in/six-out with one retitle;
+  after the strike the block is scenario-complete over its basis with a pure
+  addition on top. **Zero units lost, and now zero units substituted either.**
+  Promotion then verified byte-for-byte after the act: **4 of 4 delta requirements
+  byte-identical in canon**, `credential-contracts` 9 → 12 requirements and
+  33 → 64 scenarios. The original text follows.
+  RE-RUN THE CARRIAGE DIFF IF THE MODIFIED BLOCK IS TOUCHED AGAIN. A
   losslessness measurement does not survive an edit; verify-then-regress is a
   shape this estate has already paid for. It was re-run after this amendment
   round — six scenarios in, six out, five byte-identical, one changed body
@@ -685,3 +704,70 @@ the section's authority comes from being exhaustive.
   No longer parked; see §3.5.**
 - **Any change to `shared-secret-identity`'s behaviour on records that declare
   no consumer.** They are refused today and are refused after this change.
+
+## 9. The archive act — 2026-08-31
+
+- [x] 9.1 **ARCHIVED SECOND IN THE PAIR, IN THE SAME PULL REQUEST AS ITS BASIS AND
+      IN THE COMMIT AFTER IT.**
+
+      **THE ARCHIVE GATE, RE-READ RATHER THAN INHERITED.** The surface landed in PR
+      **#516** (squash `5e8a33cf`) and the cut is **`contract-v2.4`**, PR **#526**
+      (squash `afdf0e88`), whose annotated tag peels FROM THE REMOTE to that commit.
+      The cut-dependent boxes § 5.2, § 5.3, § 6.3 and § 6.5 were already ticked by
+      the cutting session with v2.4 evidence; this act neither re-ticked nor
+      re-derived them.
+
+      **WHY IT COULD NOT ARCHIVE UNTIL NOW.** Its MODIFIED block is written over a
+      requirement `add-notebook-hosting-credential-custody` ADDS. While that packet
+      was active `openspec archive` **ABORTED** — *"credential-contracts MODIFIED
+      failed for header … - not found. Aborted. No files were changed."* Brett ruled
+      **Route 1** on 2026-08-31 over § 7.2's conversion clause, which
+      `govern-sibling-added-modified-deltas` (`8f986c39`) forbids taking unpaired,
+      calling it **a breach**. The basis archived in the previous commit; § 7.2's
+      `grep` went **0 → 1**; the CLI then applied the block cleanly.
+
+      **THIS ACT WAS PERFORMED TWICE, AND THE SECOND TIME IS THE ONE THAT LANDED.**
+      A first attempt archived the pair at `bd2ccbc3`. **PR #538** (squash
+      `3a6a16e9`) then amended five ratified packets under one consent — this one
+      and its basis included — one minute before that attempt could merge, so the
+      work was rebuilt from `3a6a16e9` against the AMENDED packets rather than
+      reconciled textually. #538 touched THIS packet twice: it placed the
+      `Modified over` marker declaring the basis, and it re-measured this packet's
+      preamble after striking the basis's falsified scenario.
+
+      **THE ACT.** `OPENSPEC_TELEMETRY=0 openspec archive add-binding-consumer-identity
+      --yes` (openspec **1.2.0**) → `credential-contracts: update`, **`+ 3 added`,
+      `~ 1 modified`**, `Totals: + 3, ~ 1, - 0, → 0`. Four incomplete tasks at the
+      moment it ran (§ 7.1–§ 7.4); this act closed § 7.1, § 7.2 and § 7.4 and added
+      this box, so the archived file ends at **56/57**, the one open box being
+      § 7.3 with its restated disposition.
+
+      **SCENARIO-COMPLETENESS, MEASURED PER SCENARIO AGAINST CANON.** Canon stated
+      **FIVE** scenarios for the modified requirement; the block states **SIX**.
+      **NOTHING IS DROPPED**: all five are carried BYTE-IDENTICAL and the sixth is
+      an ADDITION. **This is a change of KIND from the pre-sweep reading** — before
+      #538 the sixth REPLACED a scenario `contract-v2.4` had falsified, and the
+      measurement was six-in/six-out with one retitle; after the strike the block is
+      scenario-complete over its basis with a pure addition on top. The earlier
+      reading was correct for the tree it was taken on and is superseded, not
+      withdrawn as an error.
+
+      **PROMOTION VERIFIED BYTE-FOR-BYTE: 4 of 4 delta requirements** (1 MODIFIED +
+      3 ADDED, 36 scenarios) identical in canon; `credential-contracts` **9 → 12
+      requirements and 33 → 64 scenarios**. The basis's dated `AMENDED 2026-08-31`
+      note, promoted into canon by the previous commit, is superseded out of canon
+      by this block — correctly, the note being a packet-level amendment record and
+      not requirement text.
+
+      **THE PAIR'S EFFECT ON THE ESTATE, MEASURED IN THREE STATES AND CHANGED BY THE
+      SWEEP.** `doc-health --family modified-block-currency`: pristine `main`
+      **0 error / 8 info**; basis archived alone **0 error / 9 info**; both archived
+      **0 error / 8 info**. **Before #538 the middle state carried 1 error** — the
+      family correctly reporting this block as omitting one of canon's six
+      scenarios — and that transient error was the original reason the two archives
+      were packaged into one pull request. **The strike removed it.** The pair still
+      rides one pull request, but now for the ORDERING dependency alone: this packet
+      cannot be archived, or even prepared green, until the basis is on `main`.
+
+      **THE KNOWN CLI HAZARD DID NOT FIRE.** `.openspec.yaml` blob
+      `b92634493cc714558ad5e95229aef7d10994026e`, identical either side of the move.
