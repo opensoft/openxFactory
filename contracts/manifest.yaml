@@ -2153,7 +2153,7 @@ contracts:
     source_path: openxFactory/contracts/schemas/xfactory-credential-contracts.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 08e180683d8a3cfae2656a2aee508f1d17e9d696f4f57814ecf960c9d71a6180
+    sha256: d0e936fc7377dc5346d9863a5cec74b4edb5b73300c17b66843798bf96a47028
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -2168,7 +2168,41 @@ contracts:
       roster_drift_clear_required) in which every value is const true,
       because a precondition is DECLARED or NOT DECLARED — false would
       read as governance while asserting nothing. Declaring nothing at
-      all leaves a requirement record valid. Consumed through the pinned
+      all leaves a requirement record valid.
+      GREW ADDITIVELY AGAIN with the OPTIONAL consumer: block on each
+      entry of credential_bindings (add-binding-consumer-identity): the
+      consuming system that holds a binding (holder_ref), the identity
+      it authenticates to the secret store with (fetch_identity), an
+      optional QUALIFIED requirement_ref (requirement_id +
+      requirements_document_ref), and the const-true
+      shared_credential_acknowledged and instantiation_stub tokens. THE
+      BLOCK IS DECLARED AT THIS RELEASE AND CONSTRAINED AT
+      contract-v3.0: here the schema imposes no type, no member grammar,
+      no requiredness and no closure on it, because the binding object
+      has never been closed and a consumer: key of ANY shape already
+      validated — so requiring members, closing the block and imposing
+      the member grammar each refuse a shape the current major accepts
+      and are the BREAKING class however additive the vocabulary looks.
+      The same phasing governs three narrowings that sit OUTSIDE the
+      block and are not exempt for it: the credential_bindings MAP KEY
+      grammar, the closed access_mode vocabulary (dispatch_only,
+      contents_write, workload_identity, delegated_api) and the
+      repository-relative requirements_document_ref grammar. All seven
+      acts land together at contract-v3.0 behind ONE deprecation window
+      and EIGHT warning codes emitted by
+      scripts/validate-credential-contracts.py, enumerated with their
+      migration path in docs/contract-versioning-policy.md
+      § Deprecations Currently In Force. A record written before any
+      install exists declares consumer: {instantiation_stub: true}, and
+      that TOKEN is the only exemption — a *.template.yaml FILENAME
+      exempts nothing, being author-chosen, invisible in the bytes a
+      pinned consumer validates, and unreachable by a pinned schema. The
+      same change replaces the shared-secret refusal's
+      first-against-rest arity with an EVERY-PAIR comparison and adds a
+      six-condition, fail-closed lift for two consuming systems reaching
+      one deliberately shared operated identity; both are enforced by
+      scripts/validate-credential-contracts.py, never re-implemented by
+      consumers. Consumed through the pinned
       openxFactory checkout with per-file sha256 verified before any
       copy is treated as current.
   # ---- identity-brokering contract family — contract-v1.37 registration (add-identity-brokering, feature 008-identity-brokering-contracts) ----

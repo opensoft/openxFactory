@@ -1,0 +1,55 @@
+# Example (add-binding-consumer-identity): the REQUIREMENTS half of the
+# two-consumer fixture — two systems that each need to authenticate as the SAME
+# operated identity. Both requirements carry `access_mode: workload_identity`:
+# equal, in the declared vocabulary, and not `dispatch_only`, which is what the
+# shared-secret lift's fifth condition asks of the pair. The dispatch class is
+# excluded on BOTH sides deliberately, because that is where serving-tier
+# separation lives.
+#
+# The requirement ids are the map keys of the binding template beside this file,
+# and that is not decoration: the lift's SIXTH condition requires each
+# reference's `requirement_id` to EQUAL its own binding's key, so a pair cannot
+# point both references at whichever requirement lets them through.
+schema_version: 1
+kind: xfactory_credential_requirements
+domain:
+  id: example-projection
+  product_name: Example Projection Lane
+requirements:
+  - id: projection_sync_lane
+    purpose: >-
+      Read and write the derived projection as the shared operated identity,
+      from the scheduled sync lane.
+    access_mode: workload_identity
+    minimum_scopes:
+      - projection:write
+    requires_domain_approval: true
+    requires_human_approval: false
+    max_grant_minutes: 60
+    audit_required: true
+  - id: projection_editor_surface
+    purpose: >-
+      Read and write the same derived projection as the same operated identity,
+      from the interactive editor surface — a SECOND consuming system, with its
+      own binding, its own grant, its own rotation visibility and its own audit
+      trail.
+    access_mode: workload_identity
+    minimum_scopes:
+      - projection:write
+    requires_domain_approval: true
+    requires_human_approval: false
+    max_grant_minutes: 60
+    audit_required: true
+  - id: projection_report_builder
+    purpose: >-
+      A THIRD consuming system, present so `negative/three-bindings-two-share-
+      authority.yaml` can drive the every-pair arity with all three references
+      resolving cleanly — the arity fixture must fail on the ARITY and on
+      nothing else.
+    access_mode: workload_identity
+    minimum_scopes:
+      - projection:write
+    requires_domain_approval: true
+    requires_human_approval: false
+    max_grant_minutes: 60
+    audit_required: true

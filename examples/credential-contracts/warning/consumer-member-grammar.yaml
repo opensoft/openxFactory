@@ -1,0 +1,30 @@
+# WARNING (expect: consumer-member-grammar). Members carrying the template
+# generator's own `<placeholder>` style, which fails the identifier grammar.
+#
+# THIS IS THE SHAPE THAT DEFEATED TWO DRAFTS OF THE GENERATOR INSTRUCTION. The
+# first emitted the block in exactly this style and would have made every freshly
+# scaffolded repository non-conformant at the major; the second emitted no block
+# at all, which cannot stay clean at the major either, because a missing block is
+# an ERROR there and the stub token is the only exemption. The third — and the
+# one that ships — emits `consumer: {instantiation_stub: true}`.
+#
+# A GRAMMAR-PASSING SENTINEL WOULD BE WORSE THAN THIS RECORD, not better: it
+# would suppress the warning while reading as the record fact the change exists
+# to establish, naming nothing. A placeholder at least declares its own
+# emptiness. Scaffolding that manufactures conformance is worse than scaffolding
+# that omits it — and scaffolding that DECLARES ITS OWN STATUS is better than
+# either.
+schema_version: 1
+kind: xfactory_credential_binding_template
+client:
+  id: example-client
+credential_bindings:
+  projection_sync_lane:
+    provider: azure_key_vault
+    vault: kv-example-projection
+    secret_ref: example-projection-sync-secret
+    owner: example-platform
+    rotation_policy: operator_managed
+    consumer:
+      holder_ref: <consuming-system-holder-ref>
+      fetch_identity: <fetch-identity>
