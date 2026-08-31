@@ -227,6 +227,36 @@ in for a ruleset state.
       "neither has happened") and now state it accurately — **council review HELD
       2026-08-30, ratification PENDING**; §4's ordering is corrected (4.6 before
       4.7) and 4.1 now covers both subject scopes.
+- [x] 1.14 **THE SIXTH BOT ROUND'S TWO P2s ARE CLOSED — both bookkeeping lag,
+      and each closed its family by running the check one level up.** (i) The
+      `proposal.md` front-matter ORIGIN block still said *"`tasks.md` §2 and §3 are
+      the two gates that stand between it and realization"* — the SECOND missed
+      announcement site after the PR body. It now records §2 discharged by the
+      2026-08-30 sitting and names **§3 as the SOLE REMAINING GATE**. **THE
+      ANNOUNCEMENT-FAMILY SWEEP then ran over EVERY file in the change directory**
+      for gate-count and process-state phrasing (*"two gates"*, *"two acts"*,
+      *"must follow"*, *"remaining gate"*, *"neither has"*, *"both gates"*,
+      *"stand(s) between"*): six sites, and the origin block was **the family's
+      last member** — the other five already state the acts as a pair and then
+      mark their state, and one is a historical quotation inside 1.13's own sweep
+      record. **THE FAMILY IS CLOSED.** (ii) Task 5.5 never commissioned the fifth
+      round's chain-scoped request scenarios, so 5.6 — one named refusal per
+      example here — could have shipped a validator with **no test for the
+      authentication path**, and the positive closure fixture could have omitted
+      the attributed link-10 request. All three added, plus the note that the
+      positive closure fixture carries its attributed request. **THE
+      FIXTURE-EQUALITY CHECK then ran the one-pass method over all 85 ADDED
+      scenarios** — every scenario naming a validator-observable behaviour against
+      the 5.5 commission — and **found five more that had been named in the delta
+      since the first draft and never commissioned**: a persona proposed for a
+      runner; a payload the controller provisioned nothing for; a one-task
+      lifetime offered as making a key non-secret; **valid artifacts from
+      DIFFERENT EXECUTIONS submitted together** — the mix-and-match refusal this
+      family exists for, and the most conspicuous omission; and the remediation
+      POSITIVE admission. All five commissioned. Three scenarios are
+      DELIBERATELY uncommissioned and say so: two are the reader-correction shape
+      **LQ-A8** (undisposed SHOULD-FIX) asks be rewritten, whose THEN no check can
+      run, and one asserts conformance INVARIANCE rather than a named refusal.
 
 ## 2. §7.4 COUNCIL REVIEW — **HELD 2026-08-30. THE FIRST GATE IS DISCHARGED.**
 
@@ -454,7 +484,42 @@ Each is contract content — cheap now, expensive after a bundle ships.
       merge commit the chain closed over, a declared shortfall offered as grounds
       for closure, and **the positive closure case** (the controller dispatches the
       test, the revision matches, and execution, revision and result all fall
-      inside the signed bytes).
+      inside the signed bytes) — **plus the three the fifth bot round added**: a
+      chain-scoped signing request from **a caller the chain's inception record
+      does not bind**, REFUSED; a chain-scoped link-6 or link-10 record carrying
+      **no recorded signing request**, REFUSED; and **the positive attribution
+      case** — the party the chain's inception record binds asks, the request is
+      ATTRIBUTED to it, RECORDED beside the signature it receives, and the
+      attribution falls INSIDE the signed bytes.
+
+      **AND FIVE THE FIXTURE-EQUALITY CHECK FOUND, NAMED IN THE DELTA SINCE THE
+      FIRST DRAFT AND NEVER COMMISSIONED HERE**: a **persona proposed for a
+      runner**, refused; a signing request naming **a subject the controller
+      provisioned nothing for**, refused; **a one-task lifetime offered as making
+      a key non-secret**, refused; **valid artifacts from DIFFERENT EXECUTIONS
+      submitted together**, refused on broken continuity — the mix-and-match
+      attack this family exists to refuse, and the most conspicuous of the five;
+      and the remediation **POSITIVE case**, a corrective change declaring the
+      failed closure as its signed subject and being ADMITTED as the one
+      permitted consumer of an unclosed chain.
+
+      **THREE SCENARIOS ARE DELIBERATELY NOT COMMISSIONED, AND THE OMISSION IS
+      RECORDED RATHER THAN LEFT TO LOOK LIKE A GAP.** *"a reader treats an
+      unclosed chain as pending"* and *"an unpermitted step is recorded as a
+      failed execution"* are the reader-correction shape `lead-quality`'s **LQ-A8**
+      (SHOULD-FIX, undisposed) asks be rewritten: their THEN is *"it is
+      corrected"*, with no actor and no system consequent, so **no check can run
+      them as written**. They get fixtures when LQ-A8 is taken, not before. And
+      *"an HSM is adopted"* asserts CONFORMANCE INVARIANCE — that no record the
+      chain carries changes — which is a property of the whole corpus rather than
+      a named refusal, and 5.5 commissions examples per refusal.
+      **AND THE POSITIVE CLOSURE FIXTURE CARRIES ITS ATTRIBUTED REQUEST.** Link 10
+      is signed under the chain-scoped identity, so its request is attributed and
+      recorded exactly as link 6's is; a closure fixture built without one would
+      exercise the outcome rule and silently skip the authentication rule that
+      landed beside it. The positive closure case above is therefore built with
+      the attributed, recorded chain-scoped request present, and a **link-10
+      record with no recorded request** is one of the negative examples.
 
       **THE SECOND ROUND'S POSITIVE FIXTURE IS WITHDRAWN AND THE WITHDRAWAL IS
       NAMED.** It required *"the positive case of that identity signing its task's
