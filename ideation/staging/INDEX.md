@@ -1921,9 +1921,12 @@ repo scope.
   re-counted at the realization tip — and **re-counted AGAIN when
   `add-binding-consumer-identity` cut and tagged `contract-v2.4` alone (#526,
   `afdf0e88`), whose inventory carries none of this family's members**. Both
-  v2.3 and v2.4 are SPENT; the next additive number is `contract-v2.5`.
-  Registration rides that cut rather than reserving it, which is why a number
-  that has now moved twice was written into no contract byte.
+  v2.3 and v2.4 are SPENT; the next additive number was `contract-v2.5`.
+  Registration rode that cut rather than reserving it, which is why a number
+  that had moved twice was written into no contract byte. **THE CUT IS TAKEN**:
+  `contract-v2.5` registers all five schemas with per-file `sha256` in
+  `contracts/manifest.yaml`, and 4.7 is closed. 4.5 and 4.6 remain open, and
+  they are the ones that decide whether the family confers anything.
 - **EXIT 3 IS RAISED, 2026-08-29 — the DRAFT change `add-chain-anchoring`**
   (`openspec/changes/add-chain-anchoring/proposal.md`), the public anchoring layer
   plus the permissioned consent plane, as a NEW neutral `chain-anchoring`

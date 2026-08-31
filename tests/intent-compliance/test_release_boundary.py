@@ -29,11 +29,17 @@ class ReleaseState(StrEnum):
     ``contract-v2.4`` cut (add-binding-consumer-identity's §5 release ritual):
     v2.4 is past the floor, the family is registered and present, so it is
     classified with the introducing release and asserts the same membership.
+    Advanced again at the ``contract-v2.5`` cut (add-signed-execution-chain task
+    4.7) on the same reading, and for the same reason it is a hand act: that cut
+    registers a DIFFERENT family, so nothing about it touches intent-compliance's
+    membership — which is exactly the fact a human has to state, because the
+    library cannot tell "unchanged" from "unnoticed".
     """
 
     CURRENT = "contract-v2.1"
     FEATURE = "contract-v2.3"
     FEATURE_SUCCESSOR = "contract-v2.4"
+    FEATURE_SUCCESSOR_2 = "contract-v2.5"
 
 
 def _release_state() -> ReleaseState:
@@ -116,7 +122,11 @@ def test_release_membership_when_registration_changes_then_transition_is_atomic(
     match _release_state():
         case ReleaseState.CURRENT:
             assert feature_members.isdisjoint(members)
-        case ReleaseState.FEATURE | ReleaseState.FEATURE_SUCCESSOR:
+        case (
+            ReleaseState.FEATURE
+            | ReleaseState.FEATURE_SUCCESSOR
+            | ReleaseState.FEATURE_SUCCESSOR_2
+        ):
             assert feature_members | {"scripts/__init__.py"} <= members
         case unreachable:
             assert_never(unreachable)
@@ -143,7 +153,11 @@ def test_release_inventory_when_registration_changes_then_schema_pins_are_atomic
     match state:
         case ReleaseState.CURRENT:
             assert set(schema_paths).isdisjoint(entries)
-        case ReleaseState.FEATURE | ReleaseState.FEATURE_SUCCESSOR:
+        case (
+            ReleaseState.FEATURE
+            | ReleaseState.FEATURE_SUCCESSOR
+            | ReleaseState.FEATURE_SUCCESSOR_2
+        ):
             for path in schema_paths:
                 assert entries[path]["schema_id"].startswith("intent-compliance-")
                 assert entries[path]["schema_version"] == 1
