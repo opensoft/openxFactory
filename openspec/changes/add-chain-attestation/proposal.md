@@ -13,17 +13,26 @@ harness-controller setup attestation, the per-task runner attestations, the
 signed pull-request-open decision, and the governed post-merge test that CLOSES
 a chain.
 
-**THIS PACKET IS A DRAFT AND IS FILED FOR REVIEW.** Two acts stand between it
-and realization and neither has happened: a **§7.4 council review** — the
+**THIS PACKET IS A DRAFT. ITS COUNCIL REVIEW IS HELD AND ITS RATIFICATION IS
+PENDING.** Two acts stand between it and realization; **the first has happened
+and the second has not.** The **§7.4 council review** — the
 council-reviewed-but-human-approved path that needs no candidate class and no
-flip, and that reaches this repository without an envelope — and, after it,
-**Brett Heap's ratification**. The house pattern is
-`add-binding-consumer-identity`, ratified 2026-08-29 after a sitting that
-returned SPLIT 2–2 on the verdict word and UNANIMOUS 4/4 that the drafted text
-was not ratifiable, with fifteen blocking amendments; the ruling was accept all
-blocking, one fix round, ratification read after. This packet expects the same
-treatment and asks for it: **the questions this document raises against itself
-are the review's material, not decorations on a finished text.**
+flip, and that reaches this repository without an envelope — **was held on
+2026-08-30**: four seats, **UNANIMOUS 4/4 that the drafted text was not
+ratifiable**, THIRTEEN blocking amendments after two were elevated, all
+discharged in the fix round, with the packet, ballot, four verbatim seat returns,
+record and disposition filed at `review/`. **Brett Heap's ratification has NOT
+been taken**, and until it is this packet is `Status: draft`, its requirements
+confer and refuse nothing, and no realization may begin.
+
+The house pattern is `add-binding-consumer-identity`, ratified 2026-08-29 after a
+sitting that returned SPLIT 2–2 on the verdict word and UNANIMOUS 4/4 that the
+drafted text was not ratifiable, with fifteen blocking amendments; the ruling was
+accept all blocking, one fix round, ratification read after. **This packet asked
+for the same treatment and got it** — the questions it raised against itself were
+the review's material rather than decorations on a finished text, and the
+sitting's decisive finding was reached by BUILDING the canon this delta would
+promote rather than by reading its prose.
 
 ## Why
 
@@ -196,7 +205,7 @@ capability tranche one created.
 
 ### Modified Capabilities
 
-- `signed-execution-chain`: **NINE ADDED requirements over 82 scenarios**, plus
+- `signed-execution-chain`: **NINE ADDED requirements over 85 scenarios**, plus
   **ONE `## MODIFIED Requirements` block — tranche one's gate requirement,
   SCENARIO-COMPLETE AT ALL NINE OF ITS SCENARIOS** — the harness-controller
   setup attestation under a `trust-anchor` certificate; runner attestations

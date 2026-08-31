@@ -15,7 +15,7 @@ in for a ruleset state.
 
 ## 1. Spec deltas and the packet (THIS PULL REQUEST)
 
-- [x] 1.1 `signed-execution-chain` — **NINE ADDED requirements over 82
+- [x] 1.1 `signed-execution-chain` — **NINE ADDED requirements over 85
       scenarios**: the harness-controller setup attestation under a certificate
       expressed in `add-trust-anchor` vocabulary, with the issuing authority named
       as a realization dependency and never assumed; runner attestations signed AT
@@ -135,6 +135,32 @@ in for a ruleset state.
       cannot see a leaf that was never written — so the authoritative set is now
       LINK 4's COMMITTED EXPECTATION, with the log comparison secondary. This box
       records what round one did and is not a statement of the rule in force.
+- [x] 1.13 **THE FIFTH BOT ROUND'S P1 AND P2 ARE CLOSED, AND RECORDED AS
+      CORRECTIONS** (`design.md` D11c). **BOTH ARE RESIDUE OF THE THIRD ROUND'S
+      OWN REPAIR.** (i) **P1 — the subject split created a signer the attribution
+      mechanism did not reach.** The round-one attribution is TASK-SCOPED by
+      construction, so it reached none of the chain-scoped identity's requests: an
+      opportunistic caller could obtain a chain-scoped link-6 signature nobody was
+      established as entitled to ask for. Discharged by EXTENDING the same
+      mechanism — the chain-scoped request is RECORDED, ATTRIBUTED to the party
+      the chain's own INCEPTION RECORD BINDS, refused from any other, and covered
+      inside the signed bytes. **No authority is minted**: the requester set is
+      DERIVED from tranche one's actor-binding requirement, which the gate already
+      walks. (ii) **P2 — the MODIFIED block's leading operative SHALL still said
+      "validates links 1–3"**, with the generic missing-link scenario likewise, so
+      canon would have carried two conformance readings and an implementation
+      could have kept the short-chain gate while satisfying the leading clause —
+      **the defect class LA-A1 exists to close, surviving inside LA-A1's own
+      repair.** Fixed, and the ENTIRE MODIFIED BLOCK was then re-read AS A SET,
+      which found three further residues (the closed-list clause's "EXACTLY these
+      checks"; "at this tranche" as a link-range fact; the completeness sentence's
+      unstated bound). **THE STALENESS SWEEP** ran the two fields across the
+      packet and its consumers: README.md, `ideation/staging/INDEX.md`,
+      `.openspec.yaml`'s `approved_by` and `proposal.md`'s header all asserted
+      PRE-COUNCIL state (59 scenarios, "no MODIFIED block", `hardware_attested`,
+      "neither has happened") and now state it accurately — **council review HELD
+      2026-08-30, ratification PENDING**; §4's ordering is corrected (4.6 before
+      4.7) and 4.1 now covers both subject scopes.
 - [x] 1.12 **THE FOURTH BOT ROUND'S P1 AND P2 ARE CLOSED, AND RECORDED AS
       CORRECTIONS** (`design.md` D11b; `proposal.md` § "What the FOURTH bot round
       corrected"). (i) **P1 — bind-before-sign's last uncovered limb.** Every other
@@ -294,9 +320,12 @@ that paperwork, the disposition included.
 The five open design points `design.md` names, plus the one this tranche inherits.
 Each is contract content — cheap now, expensive after a bundle ships.
 
-- [ ] 4.1 Fix the **signing-request record shape** — a field on the link-5
-      attestation or a sibling record it references. The requirement fixes that it
-      is recorded alongside the signature and refuses its absence, not its shape.
+- [ ] 4.1 Fix the **signing-request record shape**, for BOTH SUBJECT SCOPES — a
+      field on the record or a sibling record it references, for the task-scoped
+      link-5 request AND for the chain-scoped link-6/link-10 request. The
+      requirement fixes for each that it is recorded alongside the signature, that
+      the request is ATTRIBUTED (to the provisioned task; to the party the chain's
+      inception record binds), and that absence is refused — not its shape.
 - [ ] 4.2 Fix the **evidence-class vocabulary's closure** — whether
       `controller_corroborated` / `independently_observed` / `runner_claimed` is a
       CLOSED set at the schema, and what a fourth class would have to establish.
@@ -318,14 +347,6 @@ Each is contract content — cheap now, expensive after a bundle ships.
       WITH tranche one's single digest construction and never beside it.
 - [ ] 4.5 Confirm the extended gate stays **ONE required check walking further**,
       never a second gate.
-- [ ] 4.7 Fix the **chain-scoped identity's issuance and lifetime** — when the
-      controller mints the one chain-scoped tier-2 identity per chain, and when it
-      is destroyed. The requirement fixes that there is EXACTLY ONE per chain
-      identity, that it is ephemeral, that its key stays at the controller's
-      signing boundary, and that its authorized record kinds are links 6 and 10
-      and nothing else; it does not fix the mint point. Settled WITH the per-task
-      identities' lifetime and never beside it, since both are tier 2 under one
-      custody rule.
 - [ ] 4.6 Fix the **per-task reference** the expected attestation set is written
       in — the value link 4 commits to and the link-5 attestation carries back,
       settled WITH tranche one's single digest construction and never beside it.
@@ -334,6 +355,14 @@ Each is contract content — cheap now, expensive after a bundle ships.
       is refused; it does not fix the reference's shape. **The extension record's
       own shape rides with it**, since an extension is the same commitment written
       later, and both are refused if the reference cannot be matched.
+- [ ] 4.7 Fix the **chain-scoped identity's issuance and lifetime** — when the
+      controller mints the one chain-scoped tier-2 identity per chain, and when it
+      is destroyed. The requirement fixes that there is EXACTLY ONE per chain
+      identity, that it is ephemeral, that its key stays at the controller's
+      signing boundary, and that its authorized record kinds are links 6 and 10
+      and nothing else; it does not fix the mint point. Settled WITH the per-task
+      identities' lifetime and never beside it, since both are tier 2 under one
+      custody rule.
 
 ## 5. Realization — ONE Speckit contract feature, GATED ON MACHINERY
 

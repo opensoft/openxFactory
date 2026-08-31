@@ -691,6 +691,67 @@ survives in the examples commissioned against it, not only in the sentences
 asserting it. Withdrawn, named as withdrawn, and replaced by the chain-scoped
 positive case.
 
+### D11c — the FIFTH round: the split's own residue, in the mechanism and in the clause
+
+**Two findings, and BOTH ARE RESIDUE OF D11a's OWN REPAIR** — which is the thing
+worth recording, because it is the third distinct way this packet has learned
+that a repair leaves work behind it.
+
+**1. THE SPLIT CREATED A SIGNER THE ATTRIBUTION MECHANISM DID NOT REACH.** The
+round-one repair attributes a signing request TO THE TASK THE CONTROLLER
+PROVISIONED IN LINK 4 — **task-scoped by construction**. D11a then created a
+CHAIN-scoped signer for links 6 and 10, which signs no record about a task, so
+that attribution reached NONE of its requests. An opportunistic caller able to
+reach the controller could submit a link-6 payload naming a valid chain, the
+complete link-5 set and plausible work, satisfy every refusal in requirement 5,
+and receive a chain-scoped signature nobody was established as entitled to ask
+for. **The repair that made link 6 constructible is what opened it.**
+
+**Discharged by EXTENDING the same mechanism, not by inventing a second one.**
+The chain-scoped request is RECORDED beside its signature; the controller
+ATTRIBUTES it to **the party the chain's own inception record binds** — the actor
+bound to the wallet that signed the ratification, carried with the work by the
+traveling contract — and REFUSES a chain-scoped request from any party that
+binding does not name; and the attribution falls inside the signed bytes.
+
+**No authority is minted, and that is the point of DERIVING the requester set.**
+It is read off what the chain already carries: tranche one's actor-binding
+requirement already fixes that the actor's subject carries a wallet attestation
+naming the wallet whose key made the exercise, and the gate already walks exactly
+that. This adds no vocabulary and no second source of truth — it obliges the
+controller to ASK the question the chain already answers before signing on that
+chain's behalf. A chain whose inception record binds nobody obtains no
+chain-scoped signature, which is the correct fail-closed outcome rather than a
+gap. Codex offered two other routes — a controller-dispatched act, and a one-time
+binding to the actual PR; the authenticated-request route was taken because it is
+the mechanism this capability already has, one link over.
+
+**2. THE MODIFIED BLOCK'S OPERATIVE CLAUSE STILL SAID LINKS 1–3.** LA-A1's
+discharge re-scoped the SCOPE-NOTE paragraph, re-conditioned the SCENARIO and
+extended the MAPPING TABLE — and left the requirement's **leading normative
+SHALL** reading *"a gate that validates links 1–3 before permitting the terminal
+act"*, with the generic missing-link scenario still conditioned on *"any of links
+1–3"*. Promoted canon would have carried **two conformance readings**, and an
+implementation could have kept the short-chain gate while satisfying the leading
+clause. **That is the exact defect class LA-A1 was raised to close, surviving
+inside LA-A1's own repair.**
+
+**Discharged, and then the whole block was re-read AS A SET** rather than at the
+two reported sites — which found three more pieces of the same residue: the
+closed-list clause's *"validates EXACTLY these checks"* (the eight checks are the
+links 1–3 half, so it now names the links 4–6 legs as part of the same one walk);
+*"At this tranche continuity is established by derivation and comparison"* (a
+LINK-RANGE fact, not a tranche fact, now stated as "across links 1–3"); and the
+completeness sentence, which now says in terms that it is complete over links 1–3
+**and over nothing further**.
+
+**THE LESSON, AND IT IS THE THIRD TURN OF THE SAME SCREW.** Round three swept
+PREDICATES. Round four swept FIXTURES. This round shows that a repair's own
+residue hides in the **MECHANISM the repair did not extend** and in the
+**OPERATIVE CLAUSE the repair did not re-read** — and that the reliable instrument
+is reading the amended requirement AS A SET, not at the sites a reviewer named.
+A scenario-complete restatement is not thereby a coherent one.
+
 **Why widening and not separate identities.** Separate identities would have
 multiplied the per-task credential population by three for no gain in what any
 signature proves: all three records are produced at the same signing boundary,

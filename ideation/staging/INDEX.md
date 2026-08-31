@@ -1904,10 +1904,12 @@ repo scope.
   required-check rule.
 - **EXIT 2 IS RAISED, 2026-08-29 — the change `add-chain-attestation`**
   (`openspec/changes/add-chain-attestation/proposal.md`), carrying **links 4–6 and
-  10** with **nine ADDED requirements over 59 scenarios** and no `## MODIFIED
-  Requirements` block. **IT IS A DRAFT, NOT RATIFIED** — filed for a §7.4 council
-  review and then Brett Heap's ratification, in that order, on
-  `add-binding-consumer-identity`'s pattern. **NOT recorded as `Exit taken:`**, on
+  10** with **nine ADDED requirements over 85 scenarios**, plus ONE `## MODIFIED
+  Requirements` block restating tranche one's gate requirement scenario-complete
+  at all NINE of its scenarios. **THE §7.4 COUNCIL REVIEW IS HELD — 2026-08-30,
+  THIRTEEN blocking amendments, all discharged — AND RATIFICATION IS PENDING**, in
+  that order, on `add-binding-consumer-identity`'s pattern. **IT IS STILL A DRAFT
+  AND NOT RATIFIED.** **NOT recorded as `Exit taken:`**, on
   the same ground tranche one recorded: that record silences
   `staged-candidate-aging` only when it names an ARCHIVED change, and this topic
   must keep ageing while tranche three is unraised. The packet realizes tranche
@@ -1919,17 +1921,20 @@ repo scope.
   against its own link-4 setup attestation — with the half a mechanism cannot
   discharge carried as a per-FACT evidence class, because Q7 settles where the
   key lives and never whether the claims are checked.
-- **THREE PULLS THE TRANCHE-TWO PACKET RECORDS RATHER THAN SMOOTHS**, two of them
-  routed to the council unresolved: **(1) Q4's re-derivation instruction** — later
-  boundaries are re-derived "when the omnigent layer and the PKI plane are real",
-  and NEITHER IS — versus raising tranche two now; the packet's answer is that it
-  ratifies-not-realizes, names no interface either plane must expose, and carries
-  the re-derivation as an obligation of the REALIZATION, but the literal reading
-  is available and is not ruled out. **(2) Tranche one's gate scope note** —
-  "SHALL NOT report the absence of a later tranche's link as a break" — read as
-  SELF-LIMITING and spent when links 4–6 stop being "a later tranche's link"; the
-  reading is written into requirement text and reported, with a scenario-complete
-  MODIFIED restatement named as the repair if a seat disagrees. **(3) The topic's
+- **THREE PULLS THE TRANCHE-TWO PACKET RECORDS RATHER THAN SMOOTHS, AND THE
+  2026-08-30 SITTING DISCHARGED THE FIRST TWO**: **(1) Q4's re-derivation
+  instruction** — later boundaries are re-derived "when the omnigent layer and the
+  PKI plane are real", and NEITHER IS — versus raising tranche two now. **RULED
+  NOT PREMATURE BUT NARROWED**: the round did not end, and the re-derivation
+  tranche one's ratified `tasks.md:5.3` owes *"when each is raised"* is now
+  PERFORMED, dated and measured, confirming links 4–6 and 10 with no link moved.
+  **(2) Tranche one's gate scope note** — "SHALL NOT report the absence of a later
+  tranche's link as a break" — read by the packet as SELF-LIMITING and spent.
+  **RESOLVED AGAINST THAT READING**: `lead-architect` built the promoted canon and
+  found the scope note's SCENARIO still standing beside this tranche's refusal —
+  same antecedent, opposite consequent, both normative — so prose in one
+  requirement cannot repeal a scenario in another, and the packet now carries the
+  scenario-complete MODIFIED restatement it had named only as an alternative. **(3) The topic's
   hash-link rule is SINGULAR and its link 5 is PLURAL** — "each runner attests" —
   so "the link that precedes it" has no referent for link 6; the packet resolves
   this one by ADDITION (an ordered, deduplicated enumeration of every predecessor,

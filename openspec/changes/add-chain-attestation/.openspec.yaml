@@ -40,13 +40,16 @@ origin:
   approved_by: >-
     NOBODY YET, AND THE FIELD SAYS SO RATHER THAN IMPLYING OTHERWISE. This packet
     is a DRAFT filed FOR REVIEW. Two acts stand between it and realization and
-    neither has happened: a §7.4 COUNCIL REVIEW — the council-reviewed-but-
-    human-approved path that needs no candidate class and no flip and reaches
-    this repository without an envelope — and, after it, BRETT HEAP'S
-    RATIFICATION. The house pattern is `add-binding-consumer-identity`, the first
-    packet through that path end to end on 2026-08-29, whose `review/` directory
-    this packet's own `review/` will mirror. Nothing here is ratified, and no
-    requirement in this delta confers or refuses anything.
+    THE FIRST HAS HAPPENED AND THE SECOND HAS NOT: the §7.4 COUNCIL REVIEW —
+    the council-reviewed-but-human-approved path that needs no candidate class
+    and no flip and reaches this repository without an envelope — was HELD ON
+    2026-08-30, four seats, UNANIMOUS 4/4 that the drafted text was not
+    ratifiable, THIRTEEN blocking amendments, all discharged, with the bundle
+    filed at `review/`. BRETT HEAP'S RATIFICATION IS PENDING. The house pattern
+    is `add-binding-consumer-identity`, the first packet through that path end to
+    end on 2026-08-29, whose `review/` directory this packet's own `review/`
+    mirrors. NOTHING HERE IS RATIFIED, and no requirement in this delta confers
+    or refuses anything.
   approved_on: null
 related:
   - openxFactory:change:add-signed-execution-chain         # ACTIVE, RATIFIED 2026-08-29 (PR #495). Tranche one — links 1–3, the transparency log and the short-chain gate. Its declaration that the hash-link rule takes effect at the first link with a signer of its own is what this change realizes; its ONE digest construction governs every digest here and no second one is declared
