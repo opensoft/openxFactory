@@ -962,12 +962,15 @@ table alone, link 10's predecessor is LINK 9 — which is a REFUSING STATE and n
 a record: the table gives it no signer at all, and this capability defines no
 record kind for it. A realization could not know whether to hash a nonexistent
 link-9 artifact, skip to link 6, or use the review record, and the three choices
-produce mutually unverifiable chains. **THE PREDECESSOR OF A SIGNED LINK IS
-THEREFORE THE NEAREST PRIOR LINK POSSESSING A RECORD KIND IN FORCE AT THE
-TRANCHE THAT ACTS**, and its digest is taken over that record. **At this tranche
-the signed order is 4 → 5 → 6 → 10**, link 5 being plural and governed by the
-enumeration rule below, **so LINK 10'S PREDECESSOR IS LINK 6'S PR-OPEN DECISION
-RECORD.**
+produce mutually unverifiable chains. **THE PREDECESSOR OF ANY SIGNED RECORD THIS
+CAPABILITY DEFINES IS THEREFORE THE ACTUAL NEAREST PRIOR IN-FORCE SIGNED RECORD
+OF THIS CHAIN**, and its digest is taken over that record. **WHERE A CHAIN
+CARRIES ONLY THE NUMBERED LINKS — no commitment extension, no chain binding
+minted mid-run — that resolves to 4 → 5 → 6 → 10, and LINK 10'S PREDECESSOR IS
+LINK 6'S PR-OPEN DECISION RECORD. THAT IS AN ILLUSTRATION OF THE RULE ON THE
+SIMPLEST CHAIN AND IS NOT ITSELF A RULE**: it binds nothing, and on any chain
+carrying other signed kinds the predecessor is whatever record actually sits
+nearest before. Link 5 is plural and governed by the enumeration rule below.
 
 **THE RULE GOVERNS EVERY SIGNED RECORD KIND THIS CAPABILITY DEFINES, FULL STOP —
 NOT THE NUMBERED LINKS, AND NOT A LIST OF KINDS.** Any record this capability
@@ -1216,7 +1219,7 @@ permission is exactly how an absence becomes a hole.
 
 - WHEN a realization computes link 10's predecessor digest over a link-9 artifact, link 9 being the fraud signal for which this capability defines no record kind
 - THEN it is REFUSED, because the predecessor of a signed link is the nearest prior link possessing a RECORD KIND IN FORCE, and link 9 is a refusing STATE rather than a record
-- AND at this tranche that predecessor is LINK 6's PR-OPEN DECISION RECORD, the signed order being 4 → 5 → 6 → 10
+- AND on a chain carrying only the numbered links that predecessor resolves to LINK 6's PR-OPEN DECISION RECORD — an illustration of the rule and not a fixed order, since a commitment extension or a signed chain binding written later would sit nearer
 
 #### Scenario: two realizations pick different predecessors for link 10
 
@@ -1337,28 +1340,63 @@ could ever have satisfied the positive closure path.** A binding that requires a
 artifact to name a value minted after it was written is not a strict binding but
 an unsatisfiable one.
 
-**SO THE BINDING IS TO WHAT EXISTS AT REVIEW TIME, AND THE CHAIN IS REACHED
-THROUGH THE RATIFICATION'S OWN BYTES.** The consumed review record SHALL NAME
-**THE CONTENT DIGEST OF THE PROPOSAL IT REVIEWED** — a value available when the
-review is written, taken under the ONE digest construction already in force — and
-**CLOSURE SHALL VERIFY THE EQUALITY CHAIN**:
+**AND EQUALITY OF THE TWO DIGESTS IS ALSO WRONG, BECAUSE A REVIEW THAT DEMANDS
+AMENDMENTS IS THE ORDINARY CASE AND NOT THE EXCEPTION.** *Accepted as amended* is
+a verdict this council returns constantly, and it means THE REVIEWED BYTES AND
+THE RATIFIED BYTES LEGITIMATELY DIFFER. **This packet is its own proof**: its
+council record pins the reviewed head, its blocking amendments and the bot rounds
+that followed changed the packet many times over, and the sitting artifacts are
+FROZEN and may not be rewritten. A rule requiring the reviewed proposal digest to
+EQUAL the ratified subject digest would refuse the very ratification this flow is
+designed to produce — the second unsatisfiable binding at this link in two
+rounds, reached by tightening rather than by loosening.
 
-1. the review record's named proposal digest **EQUALS** the RATIFICATION'S
-   CONTENT DIGEST, which tranche one fixes as the digest taken over THE SUBJECT
-   RATIFIED — the same proposal, digested the same way; and
-2. that ratification's SIGNED BYTES, which cover that subject, recompute under
-   the same construction to **THE CHAIN IDENTITY** the traveling contract
-   carries — which is tranche one's own chain-identity check, already walked.
+**SO THE RATIFICATION CARRIES THE AMENDMENT LINEAGE, AND CLOSURE VERIFIES THE
+LINEAGE RATHER THAN AN EQUALITY.** The RATIFICATION'S SIGNED BYTES SHALL COMMIT
+TO ALL THREE OF:
 
-**The chain is therefore bound to the review TRANSITIVELY, through the
+* **THE REVIEWED DIGEST** — the content digest of the proposal AS THE COUNCIL
+  REVIEWED IT, the value the council record pins;
+* **THE RATIFIED SUBJECT DIGEST** — the content digest of the proposal AS
+  RATIFIED, which is tranche one's own content digest over the subject ratified;
+  and
+* **THE AMENDMENT RECORD** connecting them — the `review/` directory this flow
+  already mandates landing with the packet: the council record, the disposition
+  of record, and the discharge trail from the reviewed head to the ratified one.
+
+**CLOSURE SHALL THEN VERIFY, IN ORDER:**
+
+1. **THE REVIEW NAMES THE REVIEWED DIGEST** — the record says which bytes it
+   reviewed, a value available when it was written;
+2. **THE RATIFICATION COMMITS TO THAT REVIEW AND TO THAT LINEAGE** — the review
+   record and the amendment record both fall inside the bytes the ratifying
+   signature covers, so neither is attachable afterwards; and
+3. **THE RATIFIED SUBJECT IS THE LINEAGE'S ENDPOINT** — the ratified subject
+   digest is the terminus of the amendment record's trail from the reviewed
+   digest, and not merely some later state of the work.
+
+Only then does tranche one's own chain-identity check tie the whole to the chain:
+the ratification's SIGNED BYTES recompute to **THE CHAIN IDENTITY** the traveling
+contract carries. **The chain is bound to the review TRANSITIVELY, through the
 ratification that sits between them**, and nothing is asked to name the future.
-**REPLAY IS STILL REFUSED**: a review of another proposal names another proposal
-digest, which cannot equal this ratification's content digest, so the first limb
-fails and closure is refused. The two digests are the two tranche one already
-distinguishes — the CONTENT digest over the ratified subject and the CHAIN
-IDENTITY over the signed ratification — and this rule uses each for the comparison
-it was defined for rather than collapsing them, which is the error the gate's own
-checks 2 and 3 exist to prevent.
+
+**AN UNAMENDED REVIEW IS THE DEGENERATE CASE OF THIS RULE AND NOT A SECOND
+PATH.** Where the council required no amendment, the reviewed digest and the
+ratified subject digest are the same value and the amendment record is the
+disposition recording that nothing was owed — a lineage of length zero, verified
+by the identical three limbs. **ONE RULE, NOT TWO**, because a second path is a
+second thing to get wrong and the amended case is the common one.
+
+**REPLAY IS STILL REFUSED, AND NOW FOR A BETTER REASON.** A genuine,
+authority-proven review of ANOTHER PROPOSAL names a reviewed digest that appears
+in NO LINEAGE THIS RATIFICATION COMMITS TO — limb 2 fails, and limb 3 has no
+trail to terminate. **And a ratification cannot simply assert a lineage**: the
+amendment record it commits to must actually connect the reviewed digest to the
+ratified subject, so a claimed lineage its own committed record does not support
+is REFUSED. The two digests tranche one distinguishes — CONTENT over the ratified
+subject, CHAIN IDENTITY over the signed ratification — are each still used for the
+comparison they were defined for rather than collapsed, which is the error the
+gate's own checks 2 and 3 exist to prevent.
 
 **BINDING TO THE REVIEW RECORD'S BYTES IS NOT ENOUGH, AND CLOSURE SHALL
 ESTABLISH THE REVIEW'S AUTHORITY.** A digest over a review record proves only
@@ -1451,7 +1489,7 @@ reason this paragraph enumerates rather than summarizes.
 
 #### Scenario: the controller dispatches the post-merge test and binds a PASSING result
 
-- WHEN the controller dispatches the governed post-merge test on a request it ATTRIBUTED to the party the chain's inception record binds, RECORDED beside the signature, with that attribution INSIDE THE CONTROLLER-SIGNED BYTES and the signing identity's CERTIFICATE, ISSUANCE EVIDENCE and SIGNED CHAIN BINDING all verifying; the consumed review record NAMES THIS CHAIN'S IDENTITY; the tested revision EQUALS the merge commit the chain closed over; the result is a PASS; and the execution, the revision and the result all fall inside the bytes the controller signs
+- WHEN the controller dispatches the governed post-merge test on a request it ATTRIBUTED to the party the chain's inception record binds, RECORDED beside the signature, with that attribution INSIDE THE CONTROLLER-SIGNED BYTES and the signing identity's CERTIFICATE, ISSUANCE EVIDENCE and SIGNED CHAIN BINDING all verifying; the consumed review record NAMES THE REVIEWED DIGEST, the ratification commits to that review and to the amendment lineage, and the ratified subject is that lineage's endpoint; the tested revision EQUALS the merge commit the chain closed over; the result is a PASS; and the execution, the revision and the result all fall inside the bytes the controller signs
 - THEN the outcome is established AS A PASS and the chain CLOSES on it, the proposal and review-record bindings being satisfied and the review authority's standing established within the register's declared bound
 - AND nothing about the result is taken from the lane, which is what makes this record closure grounds rather than a report
 
@@ -1474,11 +1512,25 @@ reason this paragraph enumerates rather than summarizes.
 - THEN closure is REFUSED, because the proposal digest that review names does not EQUAL this ratification's content digest, so the first limb of the equality chain fails
 - AND the record's genuine authority and verified proof of possession are not accepted, since they establish that a council reviewed something and never that it reviewed THIS work
 
-#### Scenario: a review written before ratification closes its own chain
+#### Scenario: an AMENDED packet closes on its own lineage
 
-- WHEN a council review record written BEFORE ratification names the content digest of the proposal it reviewed, that digest EQUALS the ratification's content digest taken over the subject ratified, and the signed ratification recomputes to the chain identity the traveling contract carries
-- THEN the equality chain holds, the review is established as a review OF THIS WORK, and closure proceeds on it
-- AND the review record is never asked to name the chain identity, which is minted in the ratification act that comes after it — the chain is reached THROUGH the ratification's own bytes
+- WHEN a council returns ACCEPTED AS AMENDED, the review record names the reviewed digest of the proposal as it stood at the sitting, the packet is then amended through the discharge of those amendments so the ratified subject digest DIFFERS from the reviewed one, and the ratification's signed bytes commit to the reviewed digest, the ratified subject digest and the amendment record connecting them
+- THEN closure verifies the three limbs and PROCEEDS: the review names the reviewed digest, the ratification commits to that review and that lineage, and the ratified subject is the lineage's endpoint
+- AND differing bytes are not a defect but the ORDINARY OUTCOME of a review that required amendments, which a rule demanding equality would have refused
+- AND the sitting artifacts are never rewritten to agree with the ratified text, the lineage being what connects them instead
+
+#### Scenario: an unamended review closes by the same rule
+
+- WHEN a council requires no amendment, so the reviewed digest and the ratified subject digest are the same value and the amendment record is the disposition recording that nothing was owed
+- THEN the SAME THREE LIMBS are verified over a lineage of length zero and the REVIEW-BINDING limb is satisfied — closure then proceeds only if every other condition this requirement states is also met
+- AND no second path exists for the unamended case, because a second path is a second thing to get wrong
+- AND satisfying the lineage is never by itself grounds to close, the review binding being one condition among the authenticated execution, the passing result, the matching revision and the proven review authority
+
+#### Scenario: a ratification claims a lineage its amendment record does not support
+
+- WHEN a ratification commits to a reviewed digest, a ratified subject digest and an amendment record, but that record's trail does not actually connect the two
+- THEN closure is REFUSED, because the third limb requires the ratified subject to BE the lineage's endpoint and not merely to be asserted as it
+- AND the ratification's own signature over the claim is not accepted as evidence for it, a lineage being something the committed record either supports or does not
 
 #### Scenario: a fabricated review record is supplied to the post-merge test
 

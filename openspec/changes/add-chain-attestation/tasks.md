@@ -15,7 +15,7 @@ in for a ruleset state.
 
 ## 1. Spec deltas and the packet (THIS PULL REQUEST)
 
-- [x] 1.1 `signed-execution-chain` — **NINE ADDED requirements over 102
+- [x] 1.1 `signed-execution-chain` — **NINE ADDED requirements over 104
       scenarios**: the harness-controller setup attestation under a certificate
       expressed in `add-trust-anchor` vocabulary, with the issuing authority named
       as a realization dependency and never assumed; runner attestations signed AT
@@ -471,6 +471,14 @@ in for a ruleset state.
         AND its Modified-Capabilities bullet AND its Impact bullet, `tasks.md` 1.1,
         and the pull-request body. **A majority of stale sites is not a
         measurement**, and the figure is COUNTED rather than carried forward.
+      - **A FIX THAT MOVES A PREDICATE RETIRES THE PREDICATE'S OLD STATEMENT AT
+        EVERY OPERATIVE SITE, IN THE SAME COMMIT.** Adding the new rule is half
+        the work; the superseded sentence left standing elsewhere is still
+        normative, and a realization may conform to it. **This family has now
+        cost five rounds** — the log-derived authority, the per-tier key clause,
+        the kind-only signed order, the chain-identity review binding, and the
+        equality bridge. Sweep BOTH the new predicate and the OLD one, and mark
+        every surviving mention either as the new rule or explicitly as history.
       - **THE TWO-FIELD SWEEP**: what the packet ASSERTS and what it COMMISSIONS
         — a superseded rule survives in the examples built against it.
       - **THE GUARD WALK** over every permitting conjunct set, asking *what input
@@ -518,6 +526,37 @@ in for a ruleset state.
       swept for other conflation: the four remaining "key" mentions are each
       correct. **1.22's announcement sweep fired in this commit**, the scenario
       total moving 100 → 102 at all four sites.
+- [x] 1.24 **THE FIFTEENTH BOT ROUND'S P1 AND ITS THREE PROPAGATION SITES ARE
+      CLOSED.** (i) **ROUND FOURTEEN'S EQUALITY BRIDGE WOULD HAVE REFUSED THIS
+      PACKET'S OWN RATIFICATION.** *Accepted as amended* is what this council
+      returns constantly, and it means the REVIEWED bytes and the RATIFIED bytes
+      LEGITIMATELY DIFFER — **this packet is the proof**: the council record pins
+      the reviewed head, the thirteen blocking amendments and the bot rounds that
+      followed changed the packet many times over, and task 2.6 FORBIDS rewriting
+      the sitting artifacts. Requiring digest EQUALITY was the second
+      unsatisfiable binding at this link in two rounds, reached by TIGHTENING.
+      **The ratification now carries the AMENDMENT LINEAGE** — its signed bytes
+      commit to the REVIEWED DIGEST, the RATIFIED SUBJECT DIGEST, and the
+      AMENDMENT RECORD connecting them (the `review/` directory this flow already
+      mandates: council record, disposition, discharge trail) — and closure
+      verifies three limbs: the review names the reviewed digest; the ratification
+      commits to that review and that lineage; the ratified subject IS the
+      lineage's endpoint. **Replay is refused for a better reason** — another
+      proposal's review appears in NO lineage this ratification commits to — and a
+      ratification cannot merely ASSERT a lineage its committed record does not
+      support. **The unamended case is the DEGENERATE form of the same rule**, a
+      lineage of length zero: one rule, not two paths. (ii) **THREE SITES WHERE
+      ROUND FOURTEEN'S FIX DID NOT RETIRE THE OLD WORDING** — the positive closure
+      scenario still required the review to name the chain identity; the operative
+      predecessor sentence and the link-9 scenario still declared the fixed order
+      **is** 4 → 5 → 6 → 10; and the replay fixture still refused on
+      chain-identity-not-named. All retired to the new rules, with the numbered-
+      link order now stated as an ILLUSTRATION ON THE SIMPLEST CHAIN that binds
+      nothing. **THE RETIRE-SWEEP RAN OVER BOTH SUPERSEDED PREDICATES** across the
+      whole packet; every surviving mention is now the new rule or marked history.
+      **AND THE STANDING RULE IS ADDED TO 1.22**: a fix that moves a predicate
+      retires the predicate's old statement at every operative site IN THE SAME
+      COMMIT — this family has now cost five rounds.
 
 ## 2. §7.4 COUNCIL REVIEW — **HELD 2026-08-30. THE FIRST GATE IS DISCHARGED.**
 
@@ -791,7 +830,9 @@ Each is contract content — cheap now, expensive after a bundle ships.
       refused; an identity whose **`validity.not_after` in its CERTIFICATE RECORD
       had passed at signing**, refused; **a genuine review record from ANOTHER
       PROPOSAL**
-      replayed, refused because it does not name this chain's identity; an
+      replayed, refused because its REVIEWED DIGEST appears in no amendment
+      lineage this ratification commits to; **a ratification claiming a lineage
+      its own committed amendment record does not support**, refused; an
       **record chaining from anything other than its actual nearest prior in-force
       record**, refused as a break; a **tier-2 certificate record with no
       `subject.public_key_fingerprint`**, refused; a **signing key whose computed
@@ -806,8 +847,11 @@ Each is contract content — cheap now, expensive after a bundle ships.
       end** (certificate valid and current, issuance evidenced, chain binding
       naming this chain and this scope — then the signature, then the link's own
       checks) and **a chain
-      with commitment extensions walked for continuity** over
-      4 → x₁ → … → xₙ → 5 → 6 → 10.
+      with commitment extensions walked for continuity** over the illustrative
+      4 → x₁ → … → xₙ → 5 → 6 → 10; and **AN AMENDED PACKET CLOSING ON ITS OWN
+      LINEAGE** (reviewed digest ≠ ratified subject digest, connected by the
+      committed amendment record) beside **an UNAMENDED review closing by the
+      same three limbs** over a zero-length lineage.
 
       **AND FIVE THE FIXTURE-EQUALITY CHECK FOUND, NAMED IN THE DELTA SINCE THE
       FIRST DRAFT AND NEVER COMMISSIONED HERE**: a **persona proposed for a
