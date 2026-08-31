@@ -29,13 +29,37 @@ WORKFLOW = REPO_ROOT / ".github" / "workflows" / "signed-execution-chain-gate.ym
 #: The token a branch ruleset would pin. It is the JOB ID, never the filename.
 REQUIRED_JOB_ID = "signed-execution-chain-gate"
 
-#: The reader, its target, and the flag that stops it degrading in silence.
-INVOCATION = ("python3 scripts/validate-signed-execution-chain.py . \\\n"
-              "  --require-pinned-wallet-vocabulary")
+# THE INVOCATION IS PINNED BY THE ASSERTIONS BELOW AND BY NOTHING ELSE. An
+# earlier draft also held it as a literal constant here, which Copilot flagged as
+# dead code: it was never compared against anything, so it was a SECOND statement
+# of the invocation that could drift from the first silently — which is precisely
+# the defect this whole module exists to prevent, one level up. The assertions
+# name the three parts that carry meaning (the script, the `.` target, the
+# vocabulary flag) rather than a whole line whose shell continuation formatting is
+# not itself a governed fact.
 
 
 def _workflow():
     return yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))
+
+
+def _steps():
+    return _workflow()["jobs"][REQUIRED_JOB_ID]["steps"]
+
+
+def _step_index(needle: str) -> int:
+    """The index of the one step whose `run` contains `needle`.
+
+    NOT `next(...)` WITHOUT A DEFAULT, which Copilot flagged: a bare `next` raises
+    `StopIteration` when the workflow changes, and a test that dies with
+    `StopIteration` says nothing about WHICH step went missing. This says it."""
+    runs = [step.get("run", "") for step in _steps()]
+    matches = [index for index, run in enumerate(runs) if needle in run]
+    assert len(matches) == 1, (
+        f"expected exactly one step whose `run` contains {needle!r}, found "
+        f"{len(matches)}; the gate's ordering assertions cannot be evaluated "
+        f"until that step exists exactly once")
+    return matches[0]
 
 
 def test_the_workflow_exists_and_declares_exactly_one_job():
@@ -65,7 +89,7 @@ def test_the_gate_runs_on_pull_requests_to_main_and_on_main():
 
 
 def test_the_reader_is_invoked_over_the_tree_with_the_pinned_vocabulary_required():
-    steps = _workflow()["jobs"][REQUIRED_JOB_ID]["steps"]
+    steps = _steps()
     runs = [step.get("run", "") for step in steps]
     walk = [run for run in runs if "validate-signed-execution-chain.py" in run]
     assert len(walk) == 1, "exactly one step walks the chain"
@@ -86,7 +110,7 @@ def test_the_gate_does_not_pass_strict():
     warning for as long as it is not itself a required check. Passing `--strict`
     would convert the capability's own honest self-report into a gate that can
     never go green."""
-    for step in _workflow()["jobs"][REQUIRED_JOB_ID]["steps"]:
+    for step in _steps():
         assert "--strict" not in step.get("run", "")
 
 
@@ -94,22 +118,22 @@ def test_the_pin_is_verified_before_the_pinned_vocabulary_is_trusted():
     """Order, not merely presence: a carried block validated against an
     UNVERIFIED pin is a check against bytes nobody vouched for. The same ordering
     `openxwallet-consumer-gate.yml` uses."""
-    runs = [step.get("run", "")
-            for step in _workflow()["jobs"][REQUIRED_JOB_ID]["steps"]]
-    verify = next(index for index, run in enumerate(runs)
-                  if "verify-openxwallet-pin.py" in run)
-    init = next(index for index, run in enumerate(runs)
-                if "submodule update --init openXwallet" in run)
-    walk = next(index for index, run in enumerate(runs)
-                if "validate-signed-execution-chain.py" in run)
-    assert init < verify < walk
+    init = _step_index("submodule update --init openXwallet")
+    verify = _step_index("verify-openxwallet-pin.py")
+    walk = _step_index("validate-signed-execution-chain.py")
+    assert init < verify, (
+        "the pin verifier recomputes digests against the NESTED checkout, so "
+        "running it before the init refuses for its environment rather than for a "
+        "finding — the failure mode that trains people to skip a gate")
+    assert verify < walk, (
+        "the reader must not hold carried blocks to a pin nothing has verified")
 
 
 def test_the_submodule_init_is_scoped_to_openxwallet():
     """A blanket init would also fetch `installs/omnigent-install`, which nothing
     in this gate reads."""
     runs = " ".join(step.get("run", "")
-                    for step in _workflow()["jobs"][REQUIRED_JOB_ID]["steps"])
+                    for step in _steps())
     assert "git submodule update --init openXwallet" in runs
     assert "--recursive" not in runs
     assert "submodules: true" not in WORKFLOW.read_text(encoding="utf-8")
@@ -121,7 +145,7 @@ def test_the_anti_vacuity_step_asserts_the_gate_actually_walked_something():
     corresponds to a note `test_chain_reader.py` proves the reader still emits;
     together they are what stops a green check from proving nothing."""
     runs = " ".join(step.get("run", "")
-                    for step in _workflow()["jobs"][REQUIRED_JOB_ID]["steps"])
+                    for step in _steps())
     for probe in ("pinned openXwallet vocabulary read from",
                   "self-test:",
                   "closed refusal codes red-proven",
