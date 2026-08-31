@@ -68,10 +68,14 @@ pairing class that cannot read a marker reports every declared pair.
       last-row assertions, the `len(block)` pin, and the FR-023 severity
       snapshot. Nothing else.
 - [ ] 2.11 Self-gate. `test_the_resolution_ordering_and_marker_classes_read_zero_over_the_real_tree`
-      no longer covers the new class; add a NAMED EXACT SET for its four
-      standing subjects under `_LEDGER_SUBJECTS`'s movement discipline, each row
-      carrying its own retirement condition — the row retires when its declaring
-      block carries a marker or its adding sibling archives.
+      no longer covers the new class; add a NAMED EXACT SET for its standing
+      subjects under `_LEDGER_SUBJECTS`'s movement discipline, each row carrying
+      its own retirement condition — the row retires when its declaring block
+      carries a marker or its adding sibling archives. **UNDER D4's SEQUENCING
+      THE SET LAUNCHES EMPTY**, § 6 having discharged all four before this
+      feature lands, and an empty exact set with a positive control is the same
+      shape § 3.3 asks of the collision class. Where the order taken was the
+      other one, the set launches with the four.
 - [ ] 2.12 Amend `specs/022-modified-block-currency-reporting/contracts/report-section.md`.
       It is byte-level and enumerates the classes four times over; a class that
       landed without touching it would leave a false contract in the corpus.
@@ -97,16 +101,26 @@ a veto would strike.
 
 ## 4. Evidence recorded at proposal time
 
-- [ ] 4.1 The population, at `91cf0a46`: 19 active MODIFIED blocks, 15 `canon`,
+- [ ] 4.1 The population, RE-STATED AT THE CATCH-UP MERGE of 2026-08-31 whose
+      `main`-side parent is `7f656980`: 20 active MODIFIED blocks, 16 `canon`,
       4 `pending`; all four adding siblings `ratified`; zero markers; the
       proposal cross-reference present in 4 of 4 and over-broad by two to three
-      unrelated active change ids in each. Recorded in `proposal.md` § Why.
+      unrelated active change ids in each. The PENDING SET IS UNCHANGED from the
+      19/15/4 read at `91cf0a46` — the twentieth block is
+      `add-structured-scope-substrate`'s over `release-realization`'s
+      "Realization axis declaration", a different requirement of the same spec,
+      resolving `canon`. Recorded in `proposal.md` § Why.
 - [ ] 4.2 This packet's own delta reads ZERO. Its `release-realization` block
       resolves `canon`, and the title arm and the carriage ledger report nothing
       against it — both promoted body sentences and both promoted scenarios
       restated byte-identical, everything added new. Re-run this at every
       catch-up merge; canon moving under this block is exactly the defect the
       family exists to catch and this packet is not exempt from it.
+      RE-RUN AT THE 2026-08-31 CATCH-UP MERGE: canon still carries the requirement
+      at `openspec/specs/release-realization/spec.md:64-78` unmoved, the block
+      still resolves `canon`, and a `--single-repo --family
+      modified-block-currency` run over the branch tree emits 8 findings, none of
+      them against this packet's delta path.
 - [ ] 4.3 The collision class's population is zero on this tree: no active ADDED
       block names a title the promoted specification carries.
 - [ ] 4.4 The `family-enumeration` gate stays green: no family is registered, so
@@ -141,9 +155,23 @@ a veto would strike.
       MIS-CITATION in its delta preamble — it quotes the already-modified
       antecedent and calls the scenario a MUST. Correct it to cite the extended
       antecedent this change adds, once ratified.
-- [ ] 6.4 Do NOT disposition any of the four in `health/dispositions.yaml`. The
-      remedy is one paragraph; a disposition here would be the shape D4 exists to
-      avoid.
+- [ ] 6.4 Do NOT disposition any of the four IN PLACE OF a marker. The remedy is
+      one paragraph, and a disposition standing in for it is the shape D4 exists
+      to avoid. **NARROWED, NOT LIFTED, by the `FAMILY_RESOLUTION` row that
+      landed on 2026-08-31**: because this family is now `contested`, a finding
+      of the new class that VANISHES owes a citation under the
+      uncited-resolution rule. Sequencing § 6 ahead of § 2 means no finding is
+      ever emitted for these four and no citation is owed for them; where that
+      sequencing is unavailable elsewhere, the act that adds the marker records
+      the citation in the same act, and that is the rule's requirement rather
+      than a way around it. See D4.
+- [ ] 6.5 SEQUENCE THIS SECTION BEFORE § 2. § 6 is a PRECONDITION of the F1
+      feature, not a follow-up to it: the class must launch at a population of
+      zero, on the discipline every predecessor family in this group observed
+      before joining `FAMILY_RESOLUTION`. Adding a marker before the parser
+      recognizes the form is mechanically safe — an unrecognized `Modified over`
+      paragraph reads as one dated bold note, an extra body unit, and the
+      carriage arms report only units canon carries that a block LACKS.
 
 ## 7. Open — recorded, not fixed
 
@@ -154,10 +182,17 @@ a veto would strike.
 - [ ] 7.2 OQ-2, whether a `Modified over` marker survives promotion.
 - [ ] 7.3 OQ-3, two or more active changes adding one title. Population zero.
 - [ ] 7.4 The band flip for both new classes is RESERVED and not proposed here;
-      it follows the discharge of § 6 and is one ruling, taken together with
-      whether the family joins `FAMILY_RESOLUTION`.
+      it follows the discharge of § 6 and is one ruling. It is NO LONGER paired
+      with "whether the family joins `FAMILY_RESOLUTION`" — the family joined on
+      2026-08-31 (§ 7.5), the table has no per-class grain, and both new classes
+      are `contested` from their first emit whatever band they carry. What the
+      flip still decides is the band alone.
 - [ ] 7.5 `add-modified-block-currency-check` § 7.2 — the scenario-title arm's
-      own reserved flip — is untouched by this packet and stays owed.
+      own reserved flip — is SPENT, not owed: it landed at `7f656980` (PR #529,
+      2026-08-31) on a measured population of zero everywhere, moving
+      `_LAUNCH_SEVERITY` to `error` AND adding the family's `FAMILY_RESOLUTION`
+      row. It is untouched by this packet, and its second half is what § 7.4 and
+      D4 now have to reckon with rather than reserve.
 - [ ] 7.6 #318 stays open. This packet is once again the shape it describes:
       an `ad_hoc` origin whose approval covers the decision to file and not the
       content, recorded as such in `.openspec.yaml`.
@@ -167,8 +202,12 @@ a veto would strike.
 - [ ] 8.1 Archive only on merged-and-green realization evidence:
       `python3 -m pytest tests/doc-health` green,
       `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green, and a
-      doc-health single-repo run whose severity counts move by exactly
-      `+4 warning` and in no other line.
+      doc-health single-repo run whose severity counts move in the `warning`
+      line ALONE and by the amount THE ORDER ACTUALLY TAKEN predicts:
+      `0 warning` where § 6 was sequenced first as D4 asks and the standing pairs
+      are declared before the class runs, `+4 warning` where the class landed
+      against the population undischarged. Record which order was taken; a run
+      whose movement matches NEITHER figure is the finding, not the gate.
 - [ ] 8.2 On archive, the change MAY state `Closes #502`. It does not close it
       before then, and the proposal says so in § Standing.
 - [ ] 8.3 Confirm at the archive gate that this packet's own MODIFIED block

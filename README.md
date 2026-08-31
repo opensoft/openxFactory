@@ -420,7 +420,8 @@ Active changes:
   two antecedents are disjoint by construction — and it gains the archive-ordering
   obligation the four live packets have each been hand-writing as a pre-archive
   `grep`. `document-lifecycle` gains a THIRD reserved marker form,
-  ``**Modified over `<basis change-id>`'s addition by <change-id> (<date>):**``,
+  ``**Modified over `<basis change-id>`'s addition by <change-id>
+  (<YYYY-MM-DD>):**``,
   read by form and never by prose, naming no units and therefore never a carriage
   declaration. `doc-health` gains the arm that evaluates the `pending` shape
   instead of dropping it at `modified_block_currency.py`'s
@@ -431,17 +432,27 @@ Active changes:
   carries. **THE 2026-08-27 RULING IS NOT REOPENED**: nothing compares requirement
   text, and no fourth comparison arm is added; what changes is that the block is
   no longer dropped before anything looks at it, so the arms' silence stops
-  reading as clearance. **Measured at `91cf0a46`**: 19 active MODIFIED blocks, 15
-  `canon`, 4 `pending`, zero markers, all four adding siblings `ratified`;
-  predicted movement **+4 `warning`**, zero in every other band, and zero from
-  this packet's own delta — its `release-realization` block resolves `canon` and
-  restates both promoted body sentences and both promoted scenarios
-  byte-identical, so `_LEDGER_SUBJECTS` gains no row. **Four is the live number;
-  eight is the cumulative one** — LQ-C5's figure counted the docstring's
+  reading as clearance. **Measured at `7f656980`**, the `main`-side parent of this
+  branch's 2026-08-31 catch-up merge: 20 active MODIFIED blocks, 16 `canon`, 4
+  `pending`, zero markers, all four adding siblings `ratified` — the SAME four
+  pairs #502 measured, the twentieth block being
+  `add-structured-scope-substrate`'s over a different `release-realization`
+  requirement; predicted movement **+4 `warning`** against the population
+  undischarged and **0** under D4's sequencing (§ 6's markers first), zero in
+  every other band either way, and zero from this packet's own delta — its `release-realization` block
+  resolves `canon` and restates both promoted body sentences and both promoted
+  scenarios byte-identical, so `_LEDGER_SUBJECTS` gains no row. **Four is the
+  live number; eight is the cumulative one** — LQ-C5's figure counted the docstring's
   historical seven plus #497's block, while LA-C2's own return says four.
-  **ADVISORY at launch in both halves**, the family staying absent from
-  `FAMILY_RESOLUTION`; the band flip follows the discharge of the four standing
-  pairs and is not proposed here. **It does not close #502 and says so**: the
+  **ADVISORY IN THE HALF THE PACKET STILL OWNS** — both classes carry `warning`
+  — and NOT in the other: `FAMILY_RESOLUTION` already carries
+  `"modified-block-currency": CONTESTED`, landed at `7f656980` (PR #529,
+  2026-08-31) as § 7.2's reserved flip, and that table has no per-class grain.
+  D4 is re-argued from that ground and carries the discharge path it forces:
+  § 6's marker sweep is sequenced BEFORE the class lands so it launches at
+  population zero, and where sequencing is unavailable the discharge carries the
+  citation the contested-finding rule already requires. The band flip follows the
+  discharge of the four standing pairs and is not proposed here. **It does not close #502 and says so**: the
   packet states that it MAY say `Closes #502` on archive and states it as intent
   rather than performing it. Five decisions are FLAGGED FOR VETO (D5, the
   collision class, is the one the proposal names as most worth vetoing) and five

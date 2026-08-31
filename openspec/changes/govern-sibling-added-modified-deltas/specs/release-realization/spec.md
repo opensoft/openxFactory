@@ -2,8 +2,17 @@
 
 THE BLOCK BELOW IS DECLARED AGAINST CANON, not against any sibling's outcome.
 `openspec/specs/release-realization/spec.md:64-78` carries this requirement
-today and no other active change writes it — measured with the currency
-family's own resolver, which returns `canon` for this block.
+today and NO OTHER ACTIVE CHANGE WRITES THIS REQUIREMENT — measured with the
+currency family's own resolver, which returns `canon` for this block.
+
+THE NEIGHBOUR IS NAMED RATHER THAN LEFT TO SILENCE, a preamble that is true only
+because it says nothing being the shape this packet exists to report.
+`add-structured-scope-substrate` holds an active `## MODIFIED Requirements` block
+on THIS SAME SPECIFICATION, over "Realization axis declaration" — a different
+requirement, which the block below neither restates nor touches. Two active
+changes writing two different requirements of one spec raises no ordering
+question between them, and the currency family's ordering arm groups by
+`(capability, requirement)` rather than by capability for exactly that reason.
 
 THE CARRIAGE, STATED AS MEASURED RATHER THAN AS SUMMARISED. Both promoted body
 sentences are restated BYTE-IDENTICAL and both promoted scenarios are restated

@@ -58,15 +58,31 @@ three reported states, distinguished by an interpolated clause, because one
 template is one shape is one map entry — the three states share a band and an
 action and differ only in why.
 
-**THE BAND IS `warning` AND THE FAMILY STAYS ABSENT FROM `FAMILY_RESOLUTION`.**
-This is the measure-then-flip posture every family of this group launched under,
-and here it is also the only honest one: the population this check reports is
-the corpus's existing four pairs, none of which was authored under a rule that
-existed. Raising the band, or classifying the family `contested`, is one later
-decision taken by ruling AFTER that standing population is discharged, never
-before; and the family's continued absence from `FAMILY_RESOLUTION` is already
-required by "A modified-block-currency finding its own class map cannot place is
-itself a finding", which this requirement does not disturb.
+**THE BAND IS `warning`, AND THE CLASS IS `contested` BY A ROW THIS REQUIREMENT
+DOES NOT ADD AND CANNOT DECLINE.** The band is the measure-then-flip posture
+every family of this group launched under, and here it is also the only honest
+one: the population this check reports is the corpus's existing four pairs, none
+of which was authored under a rule that existed, and raising the band is one
+later decision taken by ruling AFTER that standing population is discharged. The
+RESOLUTION CLASS is not a second half of that choice. `FAMILY_RESOLUTION` already
+carries this family, its table has no per-class grain, and this requirement adds
+no row and can remove none — so a finding of this class is `contested` from its
+first emit.
+
+**THE CLASS'S REMEDY IS THE MARKER, AND A STANDING POPULATION SHALL BE
+DISCHARGED BEFORE THE CHECK IS INTRODUCED RATHER THAN AFTER.** A `contested`
+finding that stops being emitted owes a citation under this capability's own
+uncited-resolution rule, so a class whose whole design is that its findings are
+discharged SHALL NOT be introduced against a population it could have declared
+first: where a repository carries undeclared pairings at the moment this check is
+introduced, they SHALL be declared by marker before the check runs there, so that
+it launches at a population of zero. Where that sequencing is not available — a
+pairing arising after the check is running, or a population in a repository the
+introducing measurement did not reach — the act that ADDS the marker SHALL record
+the citation that resolution requires, on the same terms as every other
+`contested` finding of this family. A disposition SHALL NOT be recorded IN PLACE
+OF a marker; a citation recorded on the act that lands the marker suppresses
+nothing, the finding having already been answered.
 
 **THE CHECK READS EVERY ACTIVE CHANGE REGARDLESS OF LIFECYCLE STANDING**, as
 this family's reading rule already provides, and this is deliberately wider than
@@ -105,6 +121,11 @@ whether an obligation or only an observation stands behind the row.
 - **THEN** that marker MUST NOT suppress any unit of any comparison, and MUST NOT be reported as a marker naming a unit the block still carries
 - **AND** the marker paragraph MUST NOT be counted as a body unit of the block or of the requirement it promotes into
 
+#### Scenario: A pairing finding is discharged by its marker
+- **WHEN** a block this check reports gains a `Modified over` marker naming the change that adds its requirement, and the finding stops being emitted on the next run
+- **THEN** the resolution MUST carry the citation this capability's uncited-resolution rule requires of a `contested` finding, recorded on the act that added the marker
+- **AND** the citation MUST NOT be recorded IN PLACE OF the marker, a disposition standing in for the remedy being the state this class's band posture exists to avoid
+
 #### Scenario: A finding of this class is dispositioned
 - **WHEN** `health/dispositions.yaml` carries an entry naming this family, a repository, an active delta path, and a `cite`
 - **THEN** findings of this class on that path MUST be suppressed on the same terms as this family's other findings
@@ -136,8 +157,12 @@ report the same defect for a worse reason.
 terms as every other class this family carries, and SHALL carry an action line
 naming the two remedies: promote nothing further until the collision is
 resolved, and convert the addition to a modification declared against canon
-where the requirement genuinely already exists. The band is `warning` and the
-family stays absent from `FAMILY_RESOLUTION`.
+where the requirement genuinely already exists. The band is `warning`; the
+class is `contested` by the family's standing `FAMILY_RESOLUTION` row, which this
+requirement neither adds nor can decline. Its exposure to the
+uncited-resolution rule is smaller than the pairing class's and not absent: its
+population is zero, so nothing is owed at launch, and a collision that stops
+being reported has been resolved by a governance act with a change to cite.
 
 **THE POPULATION IS ZERO ON THE AUTHORING TREE, and that is the argument for
 building it now.** A check whose standing population is empty costs nothing to
