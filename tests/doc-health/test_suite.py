@@ -828,3 +828,203 @@ def test_an_emitted_uncited_resolution_finding_does_not_parse_as_contested():
     assert emitted[0].match_key() not in contested
     # ... and so a second run finding nothing new raises no further echo.
     assert report.uncited_resolutions([], contested, dispositions=set()) == []
+
+
+# --------------------------------------------------------------------------
+# Issue #342: `doc-health.py` silently accepted a `--previous-report`
+# produced under a DIFFERENT repo identity. Finding identity is
+# `(family, repo, path)` and `repo` for `--single-repo <path>` is the
+# directory BASENAME, so a baseline built in a worktree named `base-wt` and
+# diffed against a run named `openxFactory` matched NOTHING: every current
+# critical/error finding read as a new regression and every baseline
+# contested finding read as resolved without citation — 36 phantom
+# regressions and 23 phantom uncited-resolution errors in the issue's own
+# reproduction, exit code 0 throughout.
+#
+# THE FIX. Every report is now stamped with the repo(s) its run covered
+# (`Repo-Identity:` header line, `report.render`'s `repo_slugs`,
+# `report.parse_repo_identity` on read-back). `runner.main` REFUSES a STAMPED
+# `--previous-report` unless this run's repo set is a SUBSET of the
+# baseline's (the single-repo case — "the slug must be IN the baseline's
+# set" — generalized: equality or subset). An UNSTAMPED baseline (every
+# report written before this change) degrades to exactly today's behaviour,
+# with one warning line, so the nightly does not break the night this lands.
+# A baseline whose identity is a proper superset (accepted, since subset
+# holds) still must not read its EXTRA repo's contested findings as
+# resolved — `uncited_resolutions`'s new `unavailable_repos` parameter.
+
+def test_render_stamps_repo_identity_and_it_round_trips_through_parse():
+    """(d) The stamp round-trips through render -> parse. Sorted, so the
+    line is deterministic regardless of the caller's set iteration order,
+    and positioned in the header beside `Status:`/`Kind:`, before
+    `## Headline`."""
+    text = report.render(
+        date(2026, 8, 31), [], [], [], [], 0, [], [],
+        repo_slugs=frozenset({"openxFactory", "MedxFactory"}))
+    assert "Repo-Identity: MedxFactory, openxFactory" in text
+    assert report.parse_repo_identity(text) == frozenset(
+        {"openxFactory", "MedxFactory"})
+    assert text.index("Repo-Identity:") < text.index("## Headline")
+
+
+def test_render_omits_the_stamp_line_when_repo_slugs_is_not_passed():
+    """BACKWARD COMPATIBILITY, at the render layer: every existing caller of
+    `report.render` in this test module (and every report committed before
+    this change) never passes `repo_slugs` — output must stay byte-identical
+    for them, and the absence must read back as `None` ("unstamped"), never
+    as an empty identity."""
+    text = report.render(date(2026, 8, 31), [], [], [], [], 0, [], [])
+    assert "Repo-Identity:" not in text
+    assert report.parse_repo_identity(text) is None
+
+
+def test_render_stamps_an_explicit_empty_repo_set_as_none_not_absent():
+    """A run somehow covering zero repos is still a STAMPED report — the
+    `(none)` spelling — and must read back as `frozenset()`, distinguishable
+    from `None` (unstamped) by identity (`is None`), never by truthiness."""
+    text = report.render(date(2026, 8, 31), [], [], [], [], 0, [], [],
+                         repo_slugs=frozenset())
+    assert "Repo-Identity: (none)" in text
+    identity = report.parse_repo_identity(text)
+    assert identity is not None and identity == frozenset()
+
+
+def test_unavailable_repo_does_not_fake_a_resolution():
+    """Fix-shape item 3, at the `report.uncited_resolutions` unit level:
+    a contested finding from a repo this run's scope does not cover must not
+    read as resolved just because it is absent from `findings` — mirrors
+    `test_unavailable_semantic_family_does_not_fake_a_resolution` one axis
+    over (repo instead of family)."""
+    contested = {
+        ("location-conformance", "other-repo", "docs/a.md"),
+        ("location-conformance", "alpha", "docs/reg.md"),
+    }
+    got = report.uncited_resolutions(
+        [], contested, dispositions=set(), unavailable_repos={"other-repo"})
+    assert [(f.family, f.repo, f.path) for f in got] == [
+        ("uncited-resolution", "alpha", "docs/reg.md")]
+
+
+def test_runner_refuses_a_previous_report_stamped_under_a_foreign_identity(
+        tmp_path):
+    """(a) AND the issue's own reproduction, verbatim in shape: a baseline
+    built under directory basename `base-wt`, diffed by a run over a
+    checkout basenamed `openxFactory`. Every finding key would miss by
+    construction; the fix REFUSES rather than reporting the mismatch as mass
+    regressions, and nothing is written — no phantom findings survive to be
+    read."""
+    baseline_repo = tmp_path / "base-wt"
+    shutil.copytree(FIXTURES / "location-conformance" / "alpha",
+                    baseline_repo)
+    prev = tmp_path / "previous.md"
+    assert runner.main([
+        "--single-repo", str(baseline_repo), "--as-of", AS_OF.isoformat(),
+        "--report-out", str(prev)]) == 0
+    assert "Repo-Identity: base-wt" in prev.read_text(encoding="utf-8")
+
+    current_repo = tmp_path / "openxFactory"
+    shutil.copytree(FIXTURES / "location-conformance" / "alpha",
+                    current_repo)
+    out = tmp_path / "report.md"
+    with pytest.raises(
+            SystemExit,
+            match="REFUSE previous-report-identity-mismatch") as excinfo:
+        runner.main([
+            "--single-repo", str(current_repo), "--as-of", AS_OF.isoformat(),
+            "--previous-report", str(prev), "--report-out", str(out)])
+    message = str(excinfo.value)
+    assert "base-wt" in message and "openxFactory" in message
+    assert not out.exists()  # no report, no phantom findings, nothing to act on
+
+
+def test_runner_accepts_a_previous_report_with_matching_identity(tmp_path):
+    """(b) The common case: identity matches exactly, the comparison
+    proceeds normally (zero regressions against an unchanged corpus), and
+    the new report is itself stamped for the NEXT run to check against."""
+    repo = tmp_path / "alpha"
+    shutil.copytree(FIXTURES / "location-conformance" / "alpha", repo)
+    prev = tmp_path / "previous.md"
+    assert runner.main([
+        "--single-repo", str(repo), "--as-of", AS_OF.isoformat(),
+        "--report-out", str(prev)]) == 0
+
+    out = tmp_path / "report.md"
+    rc = runner.main([
+        "--single-repo", str(repo), "--as-of", AS_OF.isoformat(),
+        "--previous-report", str(prev), "--report-out", str(out)])
+    assert rc == 0
+    text = out.read_text(encoding="utf-8")
+    assert "Repo-Identity: alpha" in text
+    assert "New regressions vs previous report: 0." in text
+
+
+def test_runner_accepts_an_unstamped_legacy_previous_report_with_a_warning(
+        tmp_path, capsys):
+    """(c) BACKWARD COMPATIBILITY end to end: a baseline written before this
+    change carries no stamp at all — `health/reports/*.md` as of 2026-08-31,
+    reproduced here via `_previous_report_with_contested_finding` (built
+    through `report.render` with no `repo_slugs`, i.e. genuinely unstamped).
+    Accepted, not refused, with one warning line naming the gap — and the
+    OUTCOME is identical to `test_full_run_still_fires_uncited_resolution_
+    when_genuinely_resolved` (same fixture, same edit, same assertion),
+    which is the "behaviour unchanged" half of the requirement."""
+    repo = tmp_path / "alpha"
+    shutil.copytree(FIXTURES / "location-conformance" / "alpha", repo)
+    (repo / "docs" / "stray.md").unlink()  # the violation is genuinely gone
+    prev = tmp_path / "previous.md"
+    prev.write_text(_previous_report_with_contested_finding(),
+                    encoding="utf-8")
+    assert report.parse_repo_identity(
+        prev.read_text(encoding="utf-8")) is None  # the premise: unstamped
+
+    out = tmp_path / "report.md"
+    rc = runner.main([
+        "--single-repo", str(repo), "--as-of", AS_OF.isoformat(),
+        "--previous-report", str(prev), "--report-out", str(out)])
+    assert rc == 0  # accepted, not refused
+    err = capsys.readouterr().err
+    assert "[repo-identity] WARNING" in err
+    assert str(prev) in err
+    text = out.read_text(encoding="utf-8")
+    assert "family=uncited-resolution" in text  # unchanged from today
+
+
+def test_runner_superset_baseline_suppresses_resolution_for_uncovered_repo(
+        tmp_path):
+    """Fix-shape item 3, end to end: a baseline whose stamped identity is a
+    proper SUPERSET of this run's (e.g. last night's full aggregation report
+    diffed by a `--single-repo` self-gate) is accepted — subset holds — but
+    a contested finding for the repo THIS run does not cover must not read
+    as resolved merely because this run never looked at it. The mechanism
+    this must NOT break: a repo the run DOES cover still owes its citation."""
+    repo = tmp_path / "alpha"
+    shutil.copytree(FIXTURES / "location-conformance" / "alpha", repo)
+    (repo / "docs" / "stray.md").unlink()  # alpha's own violation is gone
+
+    def _contested(repo_name):
+        return Finding(
+            ERROR, "location-conformance", repo_name, "docs/stray.md",
+            "brainstorm document outside ideation/brainstorm/",
+            "move it under ideation/brainstorm/ or change its status",
+            resolution="contested")
+
+    prev = tmp_path / "previous.md"
+    prev.write_text(
+        report.render(date(2026, 7, 8),
+                     [_contested("alpha"), _contested("other")],
+                     [], [], [], 0, [], [],
+                     repo_slugs=frozenset({"alpha", "other"})),
+        encoding="utf-8")
+
+    out = tmp_path / "report.md"
+    rc = runner.main([
+        "--single-repo", str(repo), "--as-of", AS_OF.isoformat(),
+        "--previous-report", str(prev), "--report-out", str(out)])
+    assert rc == 0  # {"alpha"} <= {"alpha", "other"}: accepted, not refused
+    text = out.read_text(encoding="utf-8")
+    # "alpha" genuinely resolved and this run DID cover it -> still owes
+    # its citation.
+    assert "repo=alpha path=docs/stray.md" in text
+    # "other" is outside this run's scope entirely -> MUST NOT read as
+    # resolved.
+    assert "repo=other" not in text
