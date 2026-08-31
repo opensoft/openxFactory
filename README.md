@@ -416,12 +416,14 @@ Active changes:
   secret references — one naming a requirement id no record carries, one naming
   an id two records carry with DIFFERENT access modes — validates
   `0 warning(s), 0 error(s) -> PASS` under the validator as shipped; changing ONE
-  BYTE so the two secret references match refuses the same record, and adding the
-  acknowledgment so the pair reaches the fifth lift condition makes the refusal
-  say *"resolves to no requirement in the repository under validation"* — the
-  exact sentence the silent tree never produced, about the exact same bytes of
-  `requirement_ref`. **WHY #516 COULD NOT CARRY THE FIX**: an ERROR
-  would have been an unphased narrowing, and a WARNING needed a ninth code
+  BYTE so the two secret references match (`example-secret-b` ->
+  `example-secret-a`, the two templates the same length and differing at one
+  offset) refuses the same record, and adding the acknowledgment so the pair
+  reaches the fifth lift condition makes the refusal say *"resolves to no
+  requirement in the repository under validation"* — the exact sentence the
+  silent tree never produced, about the exact same bytes of `requirement_ref`.
+  **WHY #516 COULD NOT CARRY THE FIX**: an ERROR would have been an unphased
+  narrowing, and a WARNING needed a ninth code
   against the ratified rule that the warning set is *"ENUMERATED against the
   refusals"* — an unresolvable reference not being a shape the coming major
   refuses. **THE RULING'S ANSWER, ENCODED AS RECORDED**: a code of its OWN
@@ -443,7 +445,11 @@ Active changes:
   lift by the pair asking for the exemption. **NO VALIDATOR LINE MOVES IN THIS
   PULL REQUEST** — proposal-only on the #497 -> #516 pattern; the realization is
   a separate change owing two codes, three fixtures, a reconciled
-  `Deprecations Currently In Force` entry and a bundle cut.
+  `Deprecations Currently In Force` entry and a bundle cut. **THE ONE-CODE
+  BRANCH IS RULABLE IN ONE SENTENCE**: AD-1 enumerates the complete twelve-item
+  amendment set a one-code ruling executes — delta paragraph, two scenarios,
+  `code_surface` sentences, task rows and this entry's own clause — so the
+  ratified text can never permit and forbid a single-code implementation at once.
 - [govern-sibling-added-modified-deltas](openspec/changes/govern-sibling-added-modified-deltas/proposal.md)
   — authored 2026-08-29, **RATIFIED 2026-08-31 BY DIRECT RULING**
   (`Status: ratified`; record `review/ratification-2026-08-31.md`) — Brett Heap

@@ -76,9 +76,9 @@ once, in a drift check that treated what it could not read as satisfied.
 - **AND** an implementation MUST NOT resolve the ambiguity by picking one, the matches being free to differ in `access_mode`
 
 #### Scenario: The shipped check is silent on both of them today
-- **WHEN** the conformance validator as shipped at the release that introduces the consumer block is run over a binding template whose only defects are one reference resolving to nothing and one resolving to two records with different access modes, and whose bindings declare distinct `secret_ref`s
+- **WHEN** the conformance validator as shipped at the release that introduces the consumer block is run over a binding template whose only defects are one reference resolving to nothing and one resolving to two records with different access modes, and whose bindings declare `secret_ref`s that differ from each other by a SINGLE BYTE
 - **THEN** it reports NEITHER, which is the gap this requirement closes
-- **AND** making the two `secret_ref`s equal — one byte — MUST be enough to make the same tree report, which is what identifies the scope as the defect rather than the depth of the check
+- **AND** making the two `secret_ref`s equal — that one byte, and no other edit to any file — MUST be enough to make the same tree report, which is what identifies the scope as the defect rather than the depth of the check
 
 #### Scenario: A reference that resolves draws nothing
 - **WHEN** a declared reference matches exactly one requirement record in the repository under validation

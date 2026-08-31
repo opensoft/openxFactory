@@ -60,20 +60,35 @@ wider.
 
 ## What was measured
 
-Measured on a fresh clone of `origin/main` at `3a6a16e9`, 2026-08-31, against the
-validator exactly as it ships — not read out of the source and not remembered.
+Measured 2026-08-31 against the validator exactly as it ships at this branch's
+merge-base `3a6a16e9` — not read out of the source and not remembered — and
+RE-MEASURED the same day, after review, once the control was rebuilt on secret
+references that genuinely differ by one byte. The branch's own diff moves no
+validator line, no fixture and no test, so the tree run against here and the
+merge-base tree are the same validator.
 
 ### 1. The defect reproduces, and it reproduces silently
 
 A repository holding two files. `credentials/example.requirements.yaml` declares
 three requirements: `alpha_lane`, and `dup_lane` TWICE — once
-`workload_identity`, once `dispatch_only`, so the two matches differ in exactly
-the field the lift turns on. `credentials/example.binding-template.yaml` declares
-two bindings with DISTINCT secret references, each with a full consumer block:
+`workload_identity`, once `dispatch_only` carrying TRIGGER-ONLY scopes so the
+`dispatch-scope-ceiling` arm has nothing to say — leaving the two matches
+differing in exactly the field the lift turns on and in nothing else.
+`credentials/example.binding-template.yaml` declares two bindings whose secret
+references DIFFER BY ONE BYTE (`example-secret-a` and `example-secret-b`), each
+with a consumer block carrying `holder_ref`, `fetch_identity` and
+`requirement_ref` and NO acknowledgment:
 
-- `zero_resolving_lane` -> `requirement_id: no_such_requirement` (resolves to ZERO)
-- `multi_resolving_lane` -> `requirement_id: dup_lane` (resolves to TWO, with
-  different access modes)
+- `zero_resolving_lane` (`secret_ref: example-secret-a`) ->
+  `requirement_id: no_such_requirement` (resolves to ZERO)
+- `multi_resolving_lane` (`secret_ref: example-secret-b`) ->
+  `requirement_id: dup_lane` (resolves to TWO, with different access modes)
+
+THE ONE-BYTE SPACING IS DELIBERATE AND IS WHAT MAKES THE CONTROL BELOW RERUNNABLE
+AS STATED. An earlier draft of this section spaced them `example-secret-one` /
+`example-secret-two` and called the control a one-byte edit; that edit is THREE
+bytes, and a reader rerunning it would have been measuring something the text did
+not describe.
 
 Both document references are grammatical and both name a document the validator
 indexed. The run:
@@ -90,30 +105,38 @@ repro: 2 contract(s) checked, 0 skipped, 0 warning(s), 0 error(s) -> PASS
 
 TWO CONTROLS, KEPT APART, because they say different things.
 
-**Control A — one byte.** The same tree with `example-secret-two` changed to
-`example-secret-one`, and NOTHING else touched:
+**Control A — one byte, COUNTED rather than claimed.** The same tree with
+`example-secret-b` changed to `example-secret-a`, and NOTHING else touched. The
+two binding templates are the SAME LENGTH (1318 bytes) and differ at EXACTLY ONE
+OFFSET (byte 980); the requirements document is byte-identical between the two
+trees. Output below, reflowed to this column and otherwise verbatim:
 
 ```text
-ERROR credentials/example.binding-template.yaml: shared-secret-identity: bindings
-'zero_resolving_lane' and 'multi_resolving_lane' share secret_ref
-'example-secret-one'; … The two-consumer lift is UNAVAILABLE here: binding
-'zero_resolving_lane' does not declare shared_credential_acknowledged: true
+ERROR credentials/example.binding-template.yaml: shared-secret-identity:
+bindings 'zero_resolving_lane' and 'multi_resolving_lane' share secret_ref
+'example-secret-a'; dispatch and content credentials must be distinct bindings
+so the serving tier holds no content-write key material. The two-consumer lift
+is UNAVAILABLE here: binding 'zero_resolving_lane' does not declare
+shared_credential_acknowledged: true — a one-sided declaration exempts a pair
+on one party's word
 
 control: 2 contract(s) checked, 0 skipped, 0 warning(s), 1 error(s) -> FAIL
 ```
 
-A record that was silent is now refused, and one byte of `secret_ref` is the
+A record that was silent is now refused, and ONE BYTE of `secret_ref` is the
 whole difference. But the refusal names the FOURTH lift condition, not the
 reference — the pair is refused before resolution is ever consulted.
 
-**Control B — plus the acknowledgment**, so the pair reaches the fifth
-condition and resolution is actually asked:
+**Control B — that same byte PLUS the acknowledgment** on both bindings, so the
+pair reaches the fifth condition and resolution is actually asked:
 
 ```text
-ERROR …: shared-secret-identity: bindings 'zero_resolving_lane' and
-'multi_resolving_lane' share secret_ref 'example-secret-one'; … The two-consumer
-lift is UNAVAILABLE here: binding 'zero_resolving_lane''s requirement_ref
-resolves to no requirement in the repository under validation
+ERROR credentials/example.binding-template.yaml: shared-secret-identity:
+bindings 'zero_resolving_lane' and 'multi_resolving_lane' share secret_ref
+'example-secret-a'; dispatch and content credentials must be distinct bindings
+so the serving tier holds no content-write key material. The two-consumer lift
+is UNAVAILABLE here: binding 'zero_resolving_lane''s requirement_ref resolves to
+no requirement in the repository under validation
 
 control: 2 contract(s) checked, 0 skipped, 0 warning(s), 1 error(s) -> FAIL
 ```
@@ -163,6 +186,97 @@ Two new WARNING codes. A record that draws them stays VALID and the verdict does
 not redden, exactly as the eight `consumer-*` codes behave today. The refusal
 lands at contract-v3.0, the same major the block's seven acts land at, so a
 consumer serves one deprecation window rather than two.
+
+### 6. The reproduction tree, in full
+
+Written out rather than described, so § 1 and § 2 are RE-RUNNABLE by anyone
+holding this file and a checkout — the two files below under a `credentials/`
+directory, then `python3 scripts/validate-credential-contracts.py <that repo>`.
+
+`credentials/example.requirements.yaml`:
+
+```yaml
+# Reproduction support for add-requirement-ref-resolution-integrity.
+# Three requirement records: one unambiguous, and one id declared TWICE with
+# DIFFERENT access modes so a reference to it resolves to MORE THAN ONE.
+schema_version: 1
+kind: xfactory_credential_requirements
+domain:
+  id: example-projection
+  product_name: Example Projection Lane
+requirements:
+  - id: alpha_lane
+    purpose: the unambiguous sibling, present so the document is a real requirements record
+    access_mode: workload_identity
+    minimum_scopes:
+      - projection:write
+    requires_domain_approval: true
+    requires_human_approval: false
+    max_grant_minutes: 60
+    audit_required: true
+  - id: dup_lane
+    purpose: the first record carrying this id
+    access_mode: workload_identity
+    minimum_scopes:
+      - projection:write
+    requires_domain_approval: true
+    requires_human_approval: false
+    max_grant_minutes: 60
+    audit_required: true
+  - id: dup_lane
+    purpose: the SECOND record carrying the same id, with a different access mode
+    access_mode: dispatch_only
+    minimum_scopes:
+      - actions:read
+    requires_domain_approval: true
+    requires_human_approval: false
+    max_grant_minutes: 60
+    audit_required: true
+```
+
+`credentials/example.binding-template.yaml`:
+
+```yaml
+# Reproduction for add-requirement-ref-resolution-integrity: TWO defective
+# references on bindings whose secret references DIFFER BY ONE BYTE
+# (`example-secret-a` / `example-secret-b`), so the shipped validator never
+# reaches resolution.
+schema_version: 1
+kind: xfactory_credential_binding_template
+client:
+  id: example-client
+  display_name: Example Client (reproduction)
+credential_bindings:
+  zero_resolving_lane:
+    provider: azure_key_vault
+    vault: kv-example-projection
+    secret_ref: example-secret-a
+    owner: example-platform
+    rotation_policy: operator_managed
+    consumer:
+      holder_ref: example:service-subject:zero-resolving-lane
+      fetch_identity: example-zero-resolving-workload-identity
+      requirement_ref:
+        requirement_id: no_such_requirement
+        requirements_document_ref: credentials/example.requirements.yaml
+  multi_resolving_lane:
+    provider: azure_key_vault
+    vault: kv-example-projection
+    secret_ref: example-secret-b
+    owner: example-platform
+    rotation_policy: operator_managed
+    consumer:
+      holder_ref: example:service-subject:multi-resolving-lane
+      fetch_identity: example-multi-resolving-workload-identity
+      requirement_ref:
+        requirement_id: dup_lane
+        requirements_document_ref: credentials/example.requirements.yaml
+```
+
+Control A is that second file with `example-secret-b` -> `example-secret-a` and
+nothing else. Control B is Control A with
+`      shared_credential_acknowledged: true` added to BOTH consumer blocks,
+immediately after each `requirement_ref` mapping.
 
 ## What this changes
 
@@ -240,12 +354,103 @@ performed by the new requirement's own text rather than by editing the old one.
 Every item here is the AUTHORING SESSION'S, taken to make the packet coherent,
 and none is Brett's ruling. The ruling is the one sentence in issue #523.
 
-- **AD-1 — Two codes rather than one.** Issue #523 says "a resolution-integrity
-  code", singular. This packet asks for TWO — zero and more-than-one named apart
-  — on the family's own "a refusal shall name the fault it found" rule and on the
-  measured fact that their remedies live in different files. If the ruling meant
-  one code carrying both statuses in its message, say so and the requirement's
-  second scenario is struck.
+- **AD-1 — Two codes rather than one, with the ONE-CODE BRANCH WRITTEN OUT so it
+  can be RULED rather than merely gestured at.** Issue #523 says "a
+  resolution-integrity code", singular. This packet asks for TWO — zero and
+  more-than-one named apart — on the family's own "a refusal shall name the fault
+  it found" rule and on the measured fact that their remedies live in different
+  files: a reference resolving to NOTHING is repaired at the reference, a
+  reference resolving to SEVERAL is repaired in the requirements document.
+
+  **THE PACKET AS DRAFTED CARRIES THE TWO-CODE SHAPE AS NORMATIVE.** The delta
+  obliges the two faults to be NAMED APART, the task list buys two codes and
+  three fixtures, and `code_surface` says `DEPRECATION_CODES` grows from EIGHT to
+  TEN. A one-code ruling is therefore NOT the strike of a single scenario — an
+  earlier draft of this item said it was, which would have ratified a packet that
+  simultaneously permitted and forbade a single-code implementation. It is the
+  amendment set below, EXECUTED IN THE RATIFYING COMMIT if ruled, enumerated here
+  so a one-line ruling can be carried out mechanically and so no reader has to
+  reconstruct it.
+
+  **AD-1/ONE-CODE AMENDMENT SET — applied ENTIRE or not at all:**
+
+  1. `specs/credential-contracts/spec.md`, FIRST requirement, the paragraph
+     opening *"ZERO AND MORE-THAN-ONE ARE NAMED APART, because their remedies are
+     different"*: REPLACED by a paragraph that keeps the remedy analysis and
+     drops the naming-apart obligation — *"ZERO AND MORE-THAN-ONE HAVE DIFFERENT
+     REMEDIES, AND THE REPORT SHALL SAY WHICH IT FOUND"*, retaining the two
+     remedy sentences and the "more dangerous of the two" reasoning verbatim, and
+     closing: *"Under a single code the distinction MOVES INTO THE MESSAGE: the
+     finding SHALL state whether ZERO or MORE THAN ONE requirement answered, and
+     SHALL NOT report the one as the other."*
+  2. `specs/credential-contracts/spec.md`, SECOND requirement, scenario
+     *"Zero and more-than-one are named apart"*: RETITLED *"Zero and
+     more-than-one are told apart"* and its THEN bullet REPLACED — "the two MUST
+     be reported under DISTINCT codes, their remedies being at the reference and
+     in the requirements document respectively" becomes "the finding MUST STATE
+     WHICH OF THE TWO it found, their remedies being at the reference and in the
+     requirements document respectively". The AND bullet ("neither MUST be
+     reported as the other") STANDS UNCHANGED — it is the half that does the
+     work under either shape. **The scenario is REWRITTEN, NOT STRUCK**, so the
+     promoted scenario set keeps its arity and tasks § 1.1's TWELVE stands.
+  3. `specs/credential-contracts/spec.md`, SECOND requirement, scenario *"Both
+     directions are packaged"*: TEXT UNCHANGED — it is written per DECLARED CODE
+     and is count-neutral — but its consequence becomes ONE registered probe
+     rather than two. No edit; listed so the ratifier can see it was checked.
+  4. `proposal.md` front-matter `code_surface`, four sentences: "A VALIDATOR ARM,
+     TWO CODES AND THREE FIXTURES" -> "A VALIDATOR ARM, ONE CODE AND TWO
+     FIXTURES"; "`DEPRECATION_CODES` (`:157-166`) grows from EIGHT to TEN with
+     two codes of a new family (proposed `requirement-ref-unresolved` and
+     `requirement-ref-ambiguous`; …)" -> "grows from EIGHT to NINE with ONE code
+     of a new family (proposed `requirement-ref-unresolved`, its MESSAGE carrying
+     the zero-versus-many status; the SPELLING is realization's, the FAMILY is
+     the requirement's)"; "`examples/credential-contracts/warning/` gains two
+     probes and `examples/credential-contracts/` one positive" -> "gains ONE
+     probe and `examples/credential-contracts/` one positive"; and the clause
+     re-using `support/ambiguous-requirement-ids.requirements.yaml` becomes
+     PERMISSIVE rather than owed, the single probe being free to probe either
+     status.
+  5. `proposal.md` § What was measured § 5 ("Two new WARNING codes") and
+     § Impact ("Two new warnings") -> "ONE new WARNING code" / "One new warning".
+     Nothing else in either passage moves; the phasing argument is code-count
+     independent.
+  6. `proposal.md` § What this changes, item 2: "zero and more-than-one named
+     apart because their remedies differ" -> "zero and more-than-one
+     DISTINGUISHED IN THE MESSAGE, their remedies differing".
+  7. `tasks.md` § 1.1: UNCHANGED. "TWO ADDED requirements over TWELVE SCENARIOS"
+     survives because item 2 rewrites rather than strikes.
+  8. `tasks.md` § 3.3: "Two codes, one per status: `not-found` and `ambiguous`
+     reported apart. Proposed spellings … both join `DEPRECATION_CODES` (8 ->
+     10) and `WARNING_EXPECTATIONS`" -> "ONE code carrying both statuses in its
+     message, `not-found` and `ambiguous` told apart in the text of the finding.
+     Proposed spelling `requirement-ref-unresolved`; it joins `DEPRECATION_CODES`
+     (8 -> 9) and `WARNING_EXPECTATIONS`." The trailing "**Subject to AD-1**"
+     sentence is DELETED, the ruling having discharged it.
+  9. `tasks.md` § 3.7: the mutant "merge the two codes" -> "report the WRONG
+     STATUS in the message (zero reported as many)", so the mutation round still
+     kills the fault the second code was buying.
+  10. `tasks.md` § 4.1 and § 4.2: the two `warning/` fixtures collapse to ONE
+      REGISTERED probe. § 4.2's ambiguity fixture either ships UNREGISTERED (kept
+      as an assertion target of a named test, since `WARNING_EXPECTATIONS` holds
+      one entry per file and the self-test refuses a stray) or is dropped and its
+      case folded into § 4.1's file as a second binding. § 4.4's "All three join
+      the by-name inventory tuples" reads "BOTH join" or "All three join",
+      matching whichever of the two is taken — and the count string stays
+      DERIVED, so it moves either way.
+  11. `tasks.md` § 5.1: "the act, its two codes, its migration and its removal
+      target" -> "the act, its code, its migration and its removal target".
+  12. `README.md`'s active entry for this change: "a separate change owing two
+      codes, three fixtures, a reconciled `Deprecations Currently In Force` entry
+      and a bundle cut" -> "one code, two fixtures, a reconciled … entry and a
+      bundle cut". The entry's "a code of its OWN FAMILY (not a widening of any
+      of the eight `consumer-*` codes)" is already singular and does not move.
+
+  **THE RECOMMENDATION IS UNCHANGED BY THE ENUMERATION: TWO CODES.** Writing the
+  branch out did not weaken the case — it showed that the one-code shape survives
+  only by moving the fault's name from the CODE into the MESSAGE, which is
+  exactly what this family's "a refusal shall name the fault it found" rule was
+  written against, and it costs a machine-readable distinction a consumer's
+  tooling can act on. But the branch is now a branch, and one sentence takes it.
 - **AD-2 — The removal target is contract-v3.0**, shared with the consumer
   block's seven acts, rather than a major of its own. Cheaper for consumers; it
   also means this act must be written INTO the sibling's completeness claim,

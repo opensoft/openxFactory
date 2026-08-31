@@ -53,6 +53,23 @@ file path, a command and its output — never on an intention.
 - [x] 1.8 § Authoring decisions AD-1 … AD-6 and § Open questions OQ-1 … OQ-4
       are stated as the AUTHORING SESSION'S and are flagged for veto. None is
       presented as ruled.
+- [x] 1.9 **The Codex round on PR #542, both findings repaired in the packet.**
+      (a) The reproduction's Control A claimed a ONE-BYTE edit over
+      `example-secret-one` -> `example-secret-two`, which is THREE bytes. The
+      reproduction was REBUILT on `example-secret-a` / `example-secret-b` and
+      RE-RUN against `scripts/validate-credential-contracts.py` at this branch's
+      merge-base; the templates are now the same length and differ at one offset,
+      the recorded outputs are that run's, and the delta scenario *"The shipped
+      check is silent on both of them today"* states the single-byte spacing in
+      its WHEN so the claim is checkable rather than asserted; § What was
+      measured § 6 now carries BOTH REPRODUCTION FILES IN FULL, so the run is
+      re-executable from this packet alone rather than from a description of a
+      tree nobody kept. (b) AD-1 offered a one-code branch that struck ONE
+      scenario while the delta still obliged "NAMED APART" and the tasks and
+      `code_surface` still bought two codes — a packet that would have ratified a
+      permission and a prohibition together. AD-1 now carries the COMPLETE
+      twelve-item AD-1/ONE-CODE AMENDMENT SET, and § 2.2 and § 3.3 point at it.
+      The recommendation stands UNCHANGED at TWO codes.
 
 ## 2. Ratification — THE NEXT ACT, OPEN
 
@@ -61,7 +78,13 @@ file path, a command and its output — never on an intention.
       `Status: draft` and nothing in § 3 onward may start.
 - [ ] 2.2 Each of AD-1 … AD-6 carries a disposition (accept / veto / amend) and
       each of OQ-1 … OQ-4 a ruling or an explicit defer. **AD-1 is the one that
-      changes the spec text**: one code or two.
+      changes the spec text**: one code or two. It is RULABLE IN ONE SENTENCE
+      because the one-code branch is enumerated as a twelve-item AMENDMENT SET in
+      AD-1 itself — which delta paragraph, which two scenarios, which
+      `code_surface` sentences, which task rows and which README clause — so
+      "one code" is executed mechanically in the ratifying commit rather than
+      leaving a delta that requires two codes standing beside a ruling that
+      permits one.
 - [ ] 2.3 Whether a §7.4-shaped council sitting is convened for this packet at
       all is BRETT'S CALL and is not assumed here. The packet is small, its
       subject is a ruled successor rather than a new doctrine, and the
@@ -89,9 +112,12 @@ file path, a command and its output — never on an intention.
 - [ ] 3.3 Two codes, one per status: `not-found` and `ambiguous` reported apart.
       Proposed spellings `requirement-ref-unresolved` and
       `requirement-ref-ambiguous`; both join `DEPRECATION_CODES` (8 -> 10) and
-      `WARNING_EXPECTATIONS`. **Subject to AD-1** — if the ratifier rules one
-      code, the second scenario of the phasing requirement is struck in the same
-      commit rather than left standing unimplemented.
+      `WARNING_EXPECTATIONS`. **Subject to AD-1**, and if the ratifier rules ONE
+      code this row is not the only thing that moves: the whole edit is the
+      AD-1/ONE-CODE AMENDMENT SET enumerated in proposal.md § Authoring
+      decisions, applied ENTIRE in the ratifying commit — this row is its item 8.
+      Reaching realization with a one-code ruling and a two-code delta still
+      standing is the failure this cross-reference exists to prevent.
 - [ ] 3.4 `resolve_requirement` is CALLED, not edited: same statuses, same
       index, same grammar, same never-open-a-path rule. A diff touching that
       function's body is out of scope and should be justified or reverted.
@@ -175,8 +201,12 @@ file path, a command and its output — never on an intention.
 - [ ] 7.5 Same-clock doc-health against an `origin/main` baseline: zero new
       findings.
 - [ ] 7.6 The reproduction re-run on the realized tree now REPORTS, and the
-      control (one byte, the shared secret) still reports its own error — both
-      pasted into the realization evidence.
+      control (the ONE BYTE that makes the two `secret_ref`s equal —
+      `example-secret-b` -> `example-secret-a`) still reports its own
+      `shared-secret-identity` error — both pasted into the realization evidence.
+      The reproduction's `dispatch_only` record carries TRIGGER-ONLY scopes; give
+      it a content scope and `dispatch-scope-ceiling` fires and the tree stops
+      being a silent one.
 
 ## 8. Archive gate
 
