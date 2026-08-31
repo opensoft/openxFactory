@@ -33,7 +33,14 @@ in for a ruleset state.
       admitted consumer, its exemption non-inheritable and its own closure owed; and
       the executing layer REFUSING to execute a step whose inbound chain does not
       verify.
-- [x] 1.2 **ONE `## MODIFIED Requirements` block**, carrying tranche one's gate
+- [x] 1.2 **TWO `## MODIFIED Requirements` — 2 requirements over 17 scenarios,
+      each SCENARIO-COMPLETE.** The second, added in the eighteenth bot round,
+      carries tranche one's RATIFICATION/CHAIN-INCEPTION requirement (all SIX of
+      its scenarios verbatim, plus two for the lineage) and adds the three
+      AMENDMENT-LINEAGE FIELDS closure's limbs read; `design.md` **D12** records
+      why extending tranche one is lawful — it is ratified-NOT-realized, so no
+      contract byte exists to break — and why an eighth record kind of our own was
+      ruled against. The first carries tranche one's gate
       requirement *"A gate validates the short chain as a hash-linked chain"*
       **SCENARIO-COMPLETE AT ALL NINE OF ITS SCENARIOS** — added in the 2026-08-30
       council fix round, replacing this packet's ADDED-only draft. Substantively it
@@ -608,6 +615,35 @@ in for a ruleset state.
       **32**, plus the non-spec operative surfaces (`code_surface`, Impact, tasks
       §4–§5). **After this round's four retirements, ZERO stale sites remain on any
       of the three subjects.**
+- [x] 1.26 **THE EIGHTEENTH BOT ROUND'S P1 IS CLOSED — THE LINEAGE FIELDS HAD NO
+      SCHEMA HOME.** Closure's limbs require the reviewed digest, the ratified
+      subject digest and the amendment-record reference to sit INSIDE THE BYTES
+      THE RATIFYING SIGNATURE COVERS — and that act is TRANCHE ONE's. 5.4
+      commissioned only this packet's seven kinds and `proposal.md`'s
+      `target_release` classified the release as changing no existing schema, so
+      **both lineage positives were unconstructible as commissioned.** **ROUTE A
+      TAKEN — a SECOND scenario-complete `## MODIFIED` on tranche one's
+      ratification/chain-inception requirement**, verified lawful against the
+      ratified texts rather than assumed: (1) **tranche one is
+      RATIFIED-NOT-REALIZED** — `contracts/signed-execution-chain/` does not exist
+      and the capability is absent from `contracts/manifest.yaml`, so NO CONTRACT
+      BYTE EXISTS TO BREAK; (2) **this packet already holds exactly this
+      instrument by the council's own prescription** (LA-A1's scenario-complete
+      MODIFIED on the gate requirement), so it is a precedent APPLIED, not set;
+      (3) **no sibling delta collides** — only tranche one and this packet write
+      to `signed-execution-chain`; (4) the archive-order dependency is the one
+      already carried and is not widened. All SIX of that requirement's scenarios
+      are restated verbatim (PR #331's rule) plus two for the lineage. **ROUTE B —
+      an eighth record kind of our own — is recorded as considered and RULED
+      AGAINST at `design.md` D12**: it would put the lineage in a record the
+      ratifying signature does not cover, which this capability's own rule calls
+      attachable-afterwards, and it would mint a kind to carry three fields
+      belonging to an act we do not own. The three closure limbs are re-expressed
+      to read the fields that now exist; 5.4 commissions them CROSS-TRANCHE and
+      says why; `target_release` now states exactly what is true — no existing
+      schema changes BECAUSE NO SCHEMA OF THIS FAMILY EXISTS YET. **1.22's
+      announcement sweep fired**: the MODIFIED block moves 1 requirement / 9
+      scenarios → **2 requirements / 17 scenarios** at every site.
 
 ## 2. §7.4 COUNCIL REVIEW — **HELD 2026-08-30. THE FIRST GATE IS DISCHARGED.**
 
@@ -805,7 +841,17 @@ Each is contract content — cheap now, expensive after a bundle ships.
       `issuance-evidence` for the issuance act), **both
       CONSUMED AND NEITHER REDEFINED HERE** — the per-fact evidence class, **THE
       SIGNER'S PUBLIC KEY CARRIED BESIDE EVERY SIGNATURE** on every record this
-      capability defines (the field verification resolves against the consumed
+      capability defines, **AND — CROSS-TRANCHE, STATED HONESTLY — THE THREE
+      AMENDMENT-LINEAGE FIELDS ON TRANCHE ONE'S RATIFICATION/CHAIN-INCEPTION
+      RECORD** (the reviewed digest, the ratified subject digest, and the
+      amendment-record reference), which this packet's second `## MODIFIED`
+      requirement adds to that record's definition. **They are commissioned here
+      because tranche one's contract surface HAS NOT BEEN CUT** — no
+      `contracts/signed-execution-chain/` exists and the capability is absent from
+      `contracts/manifest.yaml` — so this realization authors that surface for the
+      first time and must author it whole. Whichever tranche's realization lands
+      first carries them; this task names them so neither can assume the other
+      did (the field verification resolves against the consumed
       certificate's `subject.public_key_fingerprint`, and without which the
       key-resolution rule has no input), and
       **tier 2's TWO SUBJECT SCOPES with their two closed enumerations of
@@ -904,7 +950,10 @@ Each is contract content — cheap now, expensive after a bundle ships.
       4 → x₁ → … → xₙ → 5 → 6 → 10; and **AN AMENDED PACKET CLOSING ON ITS OWN
       LINEAGE** (reviewed digest ≠ ratified subject digest, connected by the
       committed amendment record) beside **an UNAMENDED review closing by the
-      same three limbs** over a zero-length lineage.
+      same three limbs** over a zero-length lineage; and, on tranche one's
+      now-extended ratification record, **an inception whose signed bytes OMIT any
+      of the three lineage fields**, refused, beside **an unchanged subject
+      ratified with a ZERO-LENGTH lineage carried by the same three fields**.
 
       **AND FIVE THE FIXTURE-EQUALITY CHECK FOUND, NAMED IN THE DELTA SINCE THE
       FIRST DRAFT AND NEVER COMMISSIONED HERE**: a **persona proposed for a

@@ -574,7 +574,57 @@ detect nothing or forbid the very artifact the capability requires.
    (link 6), post-merge test record (link 10) — rather than by minting SEPARATE
    task-scoped identities, which was the other option offered.
 
-### D11a — the THIRD round: the same conflict one level up, in SUBJECT rather than FORM
+### D12 — the lineage fields' home: a second MODIFIED on tranche one, and why that is lawful
+
+**Decision.** The three amendment-lineage fields live on **tranche one's
+ratification/chain-inception record**, added by a **second scenario-complete
+`## MODIFIED` requirement** in this packet's delta — not in a new record kind of
+our own.
+
+**The problem, which is a placement problem and not a design one.** Closure's
+lineage limbs require the reviewed digest, the ratified subject digest and the
+amendment-record reference to sit INSIDE THE BYTES THE RATIFYING SIGNATURE
+COVERS. That signature belongs to an act tranche one owns. So the fields had
+nowhere to live: `tasks.md` 5.4 commissioned only this packet's own record kinds,
+and `proposal.md`'s `target_release` classified the release as changing no
+existing schema. **Both lineage positives were unconstructible as commissioned.**
+
+**Why ROUTE A — extend tranche one's record — is lawful, checked against the
+ratified texts rather than assumed:**
+
+1. **TRANCHE ONE IS RATIFIED-NOT-REALIZED. No contract byte exists to break.**
+   `contracts/signed-execution-chain/` does not exist and the capability is
+   absent from `contracts/manifest.yaml`. The extension therefore changes NO
+   SHIPPED SCHEMA; it authors an uncut surface, which is what
+   `target_release` now says in terms.
+2. **THIS PACKET ALREADY HOLDS EXACTLY THIS INSTRUMENT, BY THE COUNCIL'S OWN
+   PRESCRIPTION.** LA-A1 required a scenario-complete MODIFIED restatement of
+   tranche one's GATE requirement. The second one follows the identical
+   discipline — every scenario restated, none dropped (PR #331's lesson) — so
+   this is a precedent applied, not a precedent set.
+3. **NO SIBLING DELTA COLLIDES.** Only tranche one and this packet write to
+   `signed-execution-chain`; tranche three took a distinct capability precisely
+   to avoid the sibling-delta shape (openxFactory issue #502).
+4. **THE ARCHIVE-ORDER DEPENDENCY IS THE ONE THIS PACKET ALREADY CARRIES** —
+   tranche one archives first — and is not widened by a second MODIFIED block.
+
+**Why not ROUTE B — an eighth record kind of our own.** A RATIFICATION LINEAGE
+RECORD signed by the same tier-1 authority in the same act was the alternative,
+with duplicates excluded by the log-position rule. It is coherent, and it is
+WEAKER for one reason worth recording: **it would put the lineage in a record the
+ratifying signature does not cover**, and this capability's own standing rule is
+that an assertion attachable afterwards is an assertion anyone can attach. It
+would also have minted an eighth record kind to carry three fields belonging to
+an act we do not own — and the packet has now twice learned that adding a kind is
+how an enumeration gets outrun. **Route B is recorded as considered and ruled
+against**, not omitted.
+
+**What the extension does NOT do.** It moves no contract byte, mints no record
+kind, changes no shipped schema, and touches nothing about tranche one that this
+capability was not already extending. Its scenario set is tranche one's six,
+carried verbatim, plus two for the lineage itself.
+
+## D11a — the THIRD round: the same conflict one level up, in SUBJECT rather than FORM
 
 **The widening above fixed FORM and left SUBJECT unfixed, and a third bot round
 caught it.** Link 6 is ONE decision committing to EVERY link-5 attestation for

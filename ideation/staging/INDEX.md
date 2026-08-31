@@ -1904,9 +1904,10 @@ repo scope.
   required-check rule.
 - **EXIT 2 IS RAISED, 2026-08-29 — the change `add-chain-attestation`**
   (`openspec/changes/add-chain-attestation/proposal.md`), carrying **links 4–6 and
-  10** with **nine ADDED requirements over 104 scenarios**, plus ONE `## MODIFIED
-  Requirements` block restating tranche one's gate requirement scenario-complete
-  at all NINE of its scenarios. **THE §7.4 COUNCIL REVIEW IS HELD — 2026-08-30,
+  10** with **nine ADDED requirements over 104 scenarios**, plus TWO `## MODIFIED
+  Requirements` — 2 requirements over 17 scenarios, each scenario-complete: tranche
+  one's gate requirement, and its ratification/chain-inception record extended
+  with the three amendment-lineage fields closure reads. **THE §7.4 COUNCIL REVIEW IS HELD — 2026-08-30,
   THIRTEEN blocking amendments, all discharged — AND RATIFICATION IS PENDING**, in
   that order, on `add-binding-consumer-identity`'s pattern. **IT IS STILL A DRAFT
   AND NOT RATIFIED.** **NOT recorded as `Exit taken:`**, on

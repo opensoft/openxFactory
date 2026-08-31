@@ -1359,8 +1359,11 @@ designed to produce — the second unsatisfiable binding at this link in two
 rounds, reached by tightening rather than by loosening.
 
 **SO THE RATIFICATION CARRIES THE AMENDMENT LINEAGE, AND CLOSURE VERIFIES THE
-LINEAGE RATHER THAN AN EQUALITY.** The RATIFICATION'S SIGNED BYTES SHALL COMMIT
-TO ALL THREE OF:
+LINEAGE RATHER THAN AN EQUALITY. THE FIELDS' HOME IS TRANCHE ONE'S
+RATIFICATION/CHAIN-INCEPTION RECORD, WHICH THE `## MODIFIED Requirements` BLOCK
+BELOW EXTENDS** — the only act whose signature spans both the review that
+precedes it and the closure that follows. The RATIFICATION'S SIGNED BYTES SHALL
+COMMIT TO ALL THREE OF:
 
 * **THE REVIEWED DIGEST** — the content digest of the proposal AS THE COUNCIL
   REVIEWED IT, the value the council record pins;
@@ -1373,14 +1376,22 @@ TO ALL THREE OF:
 
 **CLOSURE SHALL THEN VERIFY, IN ORDER:**
 
-1. **THE REVIEW NAMES THE REVIEWED DIGEST** — the record says which bytes it
-   reviewed, a value available when it was written;
+1. **THE REVIEW NAMES THE REVIEWED DIGEST** — the consumed review record says
+   which bytes it reviewed, and that value EQUALS the REVIEWED DIGEST FIELD the
+   ratification's signed bytes carry;
 2. **THE RATIFICATION COMMITS TO THAT REVIEW AND TO THAT LINEAGE** — the review
-   record and the amendment record both fall inside the bytes the ratifying
-   signature covers, so neither is attachable afterwards; and
-3. **THE RATIFIED SUBJECT IS THE LINEAGE'S ENDPOINT** — the ratified subject
-   digest is the terminus of the amendment record's trail from the reviewed
-   digest, and not merely some later state of the work.
+   record and the AMENDMENT RECORD REFERENCE both fall inside the bytes the
+   ratifying signature covers, so neither is attachable afterwards; and
+3. **THE RATIFIED SUBJECT IS THE LINEAGE'S ENDPOINT** — the RATIFIED SUBJECT
+   DIGEST FIELD is the terminus of the referenced amendment record's trail from
+   the reviewed digest, and not merely some later state of the work.
+
+**EACH LIMB READS A FIELD THAT EXISTS**, which is what the extension below
+provides: limbs 1 and 3 compare against the reviewed-digest and
+ratified-subject-digest fields the ratifying signature covers, and limb 2 is
+satisfied by those fields and the amendment-record reference being inside those
+same bytes. A closure record carrying the lineage instead would not satisfy limb
+2 at all, because the ratifying signature does not reach it.
 
 Only then does tranche one's own chain-identity check tie the whole to the chain:
 the ratification's SIGNED BYTES recompute to **THE CHAIN IDENTITY** the traveling
@@ -1925,3 +1936,132 @@ a refusal on ONE antecedent in one promoted capability.
 - WHEN the gate walks a chain that carries no link from a tranche later than the tranches whose requirements are in force
 - THEN it validates the links in force and returns a verdict scoped to them
 - AND the absent not-yet-in-force link is not reported as a break, while the absence of a link a ratified tranche HAS put in force is a break and a refusal
+
+### Requirement: Ratification and chain inception are one signed act
+
+openxFactory SHALL perform CHAIN INCEPTION — the registration of a ratification
+into the signed-execution-chain registry, minting the CHAIN IDENTITY as the
+digest of the signed ratification — in the SAME signed act as the ratification
+it registers, so that a ratified-but-uninscribed state is constructively
+impossible rather than merely discouraged. Either both stand or neither does: an
+inception that fails leaves no standing ratification, and a chain identity that
+exists with no ratification behind it is a fraud signal under this capability's
+refusal requirement. The act SHALL be performed OUT-OF-PIPELINE — outside the
+codexFactory clearance-envelope pipeline — and the record SHALL cite the ground:
+the `gate_rules_council` convening of 2026-08-28 established, code-level and
+unanimously, that a class over `openspec/changes/**` can never commission a
+council, because that surface lies wholly inside the canonical
+`GATE_INTEGRITY_FLOOR`, which is evaluated before any clearable classification
+(984 admitted paths, 984 floored, 0 remaining; `gate_integrity` declared, absent,
+and no rule document at all all park identically). Routing inception through the
+pipeline would describe a control that provably cannot run. **That measurement
+is the ground for the surface this repository's ratifications actually land on;
+the rule itself is not surface-dependent**, because a pipeline that CLEARS
+candidates cannot also be what CONFERS the authority those candidates are
+cleared against — a chain whose first link is minted by the mechanism it exists
+to permit is circular, and would be circular on any surface, floored or not.
+
+**RE-RATIFYING AN UNCHANGED SUBJECT SHALL PRODUCE A DIFFERENT CHAIN, AND THE
+SIGNED BYTES ARE WHAT MAKE THAT TRUE.** The chain identity is the digest of the
+signed ratification, so re-ratifying an unchanged subject would otherwise produce
+identical bytes, an identical digest and — under a deterministic signature
+scheme — an identical signature: the "new" chain would silently BE the old one,
+and no refusal in this capability would catch it, because nothing would look
+wrong. The bytes covered by the ratifying signature SHALL therefore carry a value
+UNIQUE TO THE RATIFYING ACT, and this capability NAMES that value rather than
+minting one: the identifier of the grant exercise that proved link 1, since one
+exercise is one act and the pinned exercise record already carries it.
+
+**NAMING THE VALUE IS NECESSARY AND NOT SUFFICIENT — UNIQUENESS IS ENFORCED
+HERE.** The pinned schema validates the exercise identifier as a generic
+identifier and constrains nothing about its reuse, so a producer that reuses one
+while re-ratifying an unchanged subject reproduces the identical bytes and the
+collision returns by the back door. This capability SHALL therefore REFUSE an
+inception whose named per-act value has already been consumed by an existing
+chain. The rule is stated rather than assumed because an obligation a consumed
+contract does not carry is this capability's to enforce or to declare as a
+dependency, never to take on trust.
+
+**CHAIN INCEPTION IS NOT ENROLLMENT.** `specs/025-openxfactory-review-lane-caller/spec.md`
+FR-008 owns the word "enrollment" in this repository for a different act — the
+entry of a candidate class into a `merge-approval-envelope` for the codexFactory
+decision core to classify. Chain inception creates no envelope, names no
+candidate class, touches no ruleset and produces no verdict; candidate-class
+enrollment mints no chain identity and is not a link in any chain. FR-008 stays
+gated exactly as the convening left it, and nothing in this capability
+discharges, amends or relies on it.
+
+**AND THE RATIFYING SIGNATURE COVERS THE AMENDMENT LINEAGE, BECAUSE THE ONE ACT
+THAT CAN BIND IT IS THIS ONE.** A council review happens BEFORE this act and a
+chain closes AFTER it, so the only signature spanning both is the ratifying one.
+The bytes covered by that signature SHALL therefore ALSO carry:
+
+1. **THE REVIEWED DIGEST** — the content digest of the subject AS THE COUNCIL
+   REVIEWED IT, the value the council record pins;
+2. **THE RATIFIED SUBJECT DIGEST** — the content digest of the subject ACTUALLY
+   RATIFIED, which is this capability's content digest over the subject ratified;
+   and
+3. **THE AMENDMENT RECORD REFERENCE** — the record connecting the two, which on
+   the §7.4 path is the review directory landing with the packet: the council
+   record, the disposition of record, and the discharge trail.
+
+**WHERE THE COUNCIL REQUIRED NO AMENDMENT the reviewed digest and the ratified
+subject digest are THE SAME VALUE and the amendment record is the disposition
+recording that nothing was owed — a lineage of length zero, carried by the same
+three fields.** There is no second shape for the unamended case.
+
+**THE FIELDS SIT HERE AND NOT IN A LATER RECORD, WHICH IS THE WHOLE POINT.** A
+lineage carried anywhere the ratifying signature does not cover is a lineage
+attachable afterwards, and this capability's standing rule is that an assertion
+attachable afterwards is an assertion anyone can attach. **AN INCEPTION WHOSE
+SIGNED BYTES OMIT ANY OF THE THREE IS REFUSED**, on the same footing as one
+omitting the per-act value.
+
+#### Scenario: inception fails after a ratification is signed
+
+- WHEN the inception half of the act cannot complete
+- THEN the ratification does not stand and is not recorded as ratified
+- AND no partial state is retained that a later reader could mistake for a ratification
+
+#### Scenario: a chain identity is found with no ratification behind it
+
+- WHEN a chain identity resolves to no signed ratification
+- THEN it is refused as a fraud signal
+- AND it is never treated as an incomplete record awaiting completion
+
+#### Scenario: inception is attempted through the clearance pipeline
+
+- WHEN chain inception is routed through the codexFactory clearance-envelope pipeline
+- THEN it parks never-clearable before classification and produces no verdict
+- AND the conforming path is the out-of-pipeline act, whose record cites the 2026-08-28 convening
+
+#### Scenario: a reader asks whether inception is 025's enrollment
+
+- WHEN a reader or an implementer treats chain inception as an enrolled candidate class
+- THEN the two acts are distinguished by name and neither substitutes for the other
+- AND no `merge-approval-envelope` instance is created by this capability
+
+#### Scenario: an identical subject is ratified twice
+
+- WHEN the same unchanged subject is ratified on two separate occasions
+- THEN the two ratifications mint TWO DISTINCT chain identities, because each signs a different per-act value
+- AND neither is accepted as a continuation or a re-issue of the other
+
+#### Scenario: a per-act value is reused across inceptions
+
+- WHEN an inception names a per-act value already consumed by an existing chain
+- THEN it is REFUSED
+- AND the refusal does not depend on the pinned schema having constrained reuse, which it does not
+
+#### Scenario: a ratification omits the amendment lineage from its signed bytes
+
+- WHEN an inception is attempted whose ratifying signature covers no reviewed digest, no ratified subject digest, or no amendment record reference
+- THEN it is REFUSED, on the same footing as an inception omitting the per-act value
+- AND carrying the lineage in a later record is not accepted, because a lineage the ratifying signature does not cover is attachable afterwards
+
+#### Scenario: an unchanged subject is ratified with a zero-length lineage
+
+- WHEN a council required no amendment, so the reviewed digest equals the ratified subject digest and the amendment record is the disposition recording that nothing was owed, and the inception carries a per-act value NOT already consumed by an existing chain
+- THEN the three fields are carried by the same shape and the inception stands
+- AND no second record shape exists for the unamended case, the zero-length lineage being the degenerate value of the same fields
+- AND this says NOTHING about the per-act uniqueness refusal above: an unchanged subject re-ratified under an ALREADY-CONSUMED per-act value is REFUSED whatever its lineage, the two rules being independent
