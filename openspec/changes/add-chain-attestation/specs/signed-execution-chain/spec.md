@@ -259,23 +259,56 @@ per-task issuance (link 5) are `trust-anchor` SHAPES — this topic must express
 them in that vocabulary, not a parallel one."*
 
 **THE CONTROLLER SHALL THEREFORE ISSUE EVERY TIER-2 IDENTITY — PER-TASK AND
-CHAIN-SCOPED ALIKE — WITH CONTROLLER-SIGNED ISSUANCE EVIDENCE**, expressed in
-`add-trust-anchor`'s ratified vocabulary and **defining no second certificate
-shape**, binding inside the bytes the controller's certificate signs:
+CHAIN-SCOPED ALIKE — UNDER THREE RECORDS THAT COMPOSE**, two of them
+`add-trust-anchor`'s own CANONICAL shapes consumed UNMODIFIED, and one this
+capability's own:
 
-1. **THE IDENTITY'S PUBLIC KEY**;
-2. **ITS SUBJECT SCOPE** — the one task, or the one chain;
-3. **ITS CLOSED RECORD-KIND ENUMERATION**, so the enumeration travels with the
-   identity rather than living only in this document;
-4. **THE CHAIN IDENTITY IT SERVES**; and
-5. **ITS VALIDITY BOUNDS**, an ephemeral identity being one whose bounds say so.
+1. **THE CERTIFICATE RECORD** — `add-trust-anchor`'s canonical
+   `certificate-record`, carrying the identity's **PUBLIC KEY** (`subject.
+   public_key_fingerprint`) and its **VALIDITY BOUNDS** (`validity.not_before` /
+   `not_after`), an ephemeral identity being one whose bounds say so. **Canonical
+   and unmodified.**
+2. **THE ISSUANCE EVIDENCE** — `add-trust-anchor`'s canonical
+   `issuance-evidence`, carrying the CONTROLLER'S ISSUANCE ACT: which authority
+   issued, under what establishment level, on whose request, and when.
+   **Canonical and unmodified.**
+3. **THE SIGNED CHAIN BINDING — A RECORD KIND THIS CAPABILITY DEFINES**,
+   controller-signed, carrying exactly what neither canonical shape admits —
+   **the identity's SUBJECT SCOPE** (the one task, or the one chain), **its
+   CLOSED RECORD-KIND ENUMERATION**, and **THE CHAIN IDENTITY IT SERVES** — and
+   REFERENCING (1) and (2) by their `certificate_id` and `issuance_evidence_id`.
 
-**EVERY VERIFICATION OF A TIER-2 SIGNATURE VERIFIES THE ISSUANCE EVIDENCE
-FIRST.** A signature under an identity with NO controller-signed issuance
-evidence is a **FORGED IDENTITY** — refused with the FRAUD-SIGNAL force a broken
-link carries, never as an unrecognised key or a record with a detail missing. A
-signature whose record kind falls outside the enumeration ITS OWN ISSUANCE
-EVIDENCE carries is refused on the same footing, so the closed enumerations above
+**THE COMPOSITION IS FORCED BY THE CANONICAL SHAPES AND IS NOT A PREFERENCE.**
+Both trust-anchor schemas are `additionalProperties: false` at every level:
+`certificate-record` holds the key and the bounds and no scope, enumeration or
+chain identity; `issuance-evidence` describes the ISSUANCE ACT — authority,
+request provenance, issuing authority — and admits none of the three either. An
+earlier form of this requirement asked for all five bindings in "issuance
+evidence expressed in `add-trust-anchor` vocabulary", **which no realization
+could build**: it would have had to invent the parallel certificate-like record
+this requirement forbids, or drop the bindings and re-open the forged-identity
+gap. **Composition is what lets the canonical shapes stay canonical.**
+
+**AND THE CHAIN BINDING IS NOT A CERTIFICATE SHAPE, WHICH IS WHY THE
+NO-SECOND-VOCABULARY RULE SURVIVES INTACT.** It asserts no key, no validity, no
+issuing authority and no trust; it establishes nothing about WHO A SIGNER IS —
+that is entirely (1) and (2)'s work, in `add-trust-anchor`'s vocabulary and no
+other. What it carries is what THIS capability means by a tier-2 identity: which
+chain it serves, which subject scope it holds, and which record kinds it may
+sign. Those are `signed-execution-chain` facts about a `signed-execution-chain`
+identity, so the record belongs to **this capability's own code surface** and is
+counted there.
+
+**VERIFICATION COMPOSES ALL THREE, AND THE FORGED-IDENTITY REFUSAL FIRES ON ANY
+ONE MISSING**: the certificate valid and current; the issuance evidenced; and the
+chain binding naming THIS chain and the scope the record's kind requires.
+
+**EVERY VERIFICATION OF A TIER-2 SIGNATURE VERIFIES THE COMPOSED ISSUANCE
+FIRST.** A signature under an identity missing ANY OF THE THREE records is a
+**FORGED IDENTITY** — refused with the FRAUD-SIGNAL force a broken link carries,
+never as an unrecognised key or a record with a detail missing. A signature whose
+record kind falls outside the enumeration ITS OWN CHAIN BINDING carries is
+refused on the same footing, so the closed enumerations above
 are enforced against the issuer's statement rather than against a reader's
 memory. **The gate's continuity walk includes issuance verification at every link
 it walks**, which is what makes links 4–6 a chain of ESTABLISHED signers rather
@@ -500,21 +533,21 @@ stands in for the other.
 #### Scenario: a lane mints its own keypair and labels it with the expected scope
 
 - WHEN a lane generates a keypair, labels it with the scope a verifier expects, and signs a link-5, link-6 or link-10 record and its request attribution under that same key
-- THEN verification REFUSES AT ISSUANCE, because no controller-signed issuance evidence binds that public key to a scope, an enumeration, a chain identity and validity bounds
+- THEN verification REFUSES AT ISSUANCE, because that key has no canonical certificate record, no canonical issuance evidence, and no controller-signed chain binding naming a scope, an enumeration and this chain
 - AND the refusal carries the FRAUD-SIGNAL force of a broken link, never the weaker reading of an unrecognised key
 - AND the record's internally consistent attribution is not accepted, because an attribution verified against the forger's own key establishes nothing
 
 #### Scenario: a genuine tier-2 identity's records verify end to end
 
-- WHEN a record is signed under an identity whose controller-signed issuance evidence binds its public key, its subject scope, its closed record-kind enumeration, the chain identity it serves and its validity bounds, the record's kind falls inside that enumeration, the chain identity it names is THIS chain, and the signing moment falls WITHIN those bounds
-- THEN the issuance verifies FIRST, the signature verifies under the issued key, and the record is admitted for the checks its link requires
-- AND an identity whose bounds had EXPIRED at signing, or whose issuance names a different chain, is REFUSED, because bounds that are merely PRESENT are not bounds that are MET
+- WHEN a record is signed under an identity whose CERTIFICATE RECORD carries its public key with the signing moment inside its validity bounds, whose ISSUANCE EVIDENCE records the controller's issuance act and references that certificate, and whose SIGNED CHAIN BINDING names THIS chain, the identity's subject scope and a closed record-kind enumeration the record's kind falls inside — the binding referencing both by identifier
+- THEN all three verify, the signature verifies under the certified key, and the record is admitted for the checks its link requires
+- AND an identity whose bounds had EXPIRED at signing, whose binding names a different chain, or which is MISSING ANY OF THE THREE RECORDS, is REFUSED, because bounds that are merely PRESENT are not bounds that are MET and a composition is not composed until every part is there
 - AND the attribution rules that follow now establish something, because the key that signed is known to be the controller's own issue
 
 #### Scenario: a tier-2 signature covers a record kind outside its own issuance evidence
 
-- WHEN an identity signs a record whose kind is not in the closed enumeration the identity's ISSUANCE EVIDENCE carries
-- THEN it is REFUSED, because the enumeration is enforced against the issuer's signed statement rather than against a reader's memory
+- WHEN an identity signs a record whose kind is not in the closed enumeration the identity's SIGNED CHAIN BINDING carries
+- THEN it is REFUSED, because the enumeration is enforced against the controller's signed statement rather than against a reader's memory
 - AND the identity's being genuinely controller-issued is not accepted, since issuance bounds what an identity may sign and not merely that it exists
 
 #### Scenario: an opportunistic caller asks for a chain-scoped signature
@@ -525,7 +558,7 @@ stands in for the other.
 
 #### Scenario: the bound requester asks for a chain-scoped signature
 
-- WHEN the party the chain's inception record binds — the actor bound to the wallet that signed the ratification, carried by the traveling contract — requests the link-6 signature from an identity whose controller-signed ISSUANCE EVIDENCE verifies
+- WHEN the party the chain's inception record binds — the actor bound to the wallet that signed the ratification, carried by the traveling contract — requests the link-6 signature from an identity whose CERTIFICATE, ISSUANCE EVIDENCE and SIGNED CHAIN BINDING all verify
 - THEN the request is ATTRIBUTED to that party, RECORDED beside the signature it receives, and the attribution falls inside the bytes the controller signs
 - AND no authority is minted for it, the authorized requester being read off what the chain already carries rather than granted here
 
@@ -537,7 +570,7 @@ stands in for the other.
 
 #### Scenario: a chain fans out to several tasks and one link-6 decision is signed
 
-- WHEN a chain dispatches several tasks and the chain-scoped tier-2 identity — whose controller-signed ISSUANCE EVIDENCE verifies for this chain and this record kind — signs the single link-6 PR-open decision record committing to every one of their link-5 attestations, at the controller, ON A REQUEST THE CONTROLLER ATTRIBUTED TO THE PARTY THE CHAIN'S INCEPTION RECORD BINDS, RECORDED BESIDE THE SIGNATURE, WITH THAT ATTRIBUTION INSIDE THE CONTROLLER-SIGNED BYTES
+- WHEN a chain dispatches several tasks and the chain-scoped tier-2 identity — whose CERTIFICATE, ISSUANCE EVIDENCE and SIGNED CHAIN BINDING verify for this chain and this record kind — signs the single link-6 PR-open decision record committing to every one of their link-5 attestations, at the controller, ON A REQUEST THE CONTROLLER ATTRIBUTED TO THE PARTY THE CHAIN'S INCEPTION RECORD BINDS, RECORDED BESIDE THE SIGNATURE, WITH THAT ATTRIBUTION INSIDE THE CONTROLLER-SIGNED BYTES
 - THEN it is CONFORMING, because the decision is a record about the CHAIN, the chain-scoped identity's closed enumeration names that record kind, and the asker was established rather than merely reachable
 - AND no per-task identity is asked to sign for work it was not minted for, which is the case the ordinary multi-task fan-out makes unavoidable
 
@@ -1250,7 +1283,7 @@ reason this paragraph enumerates rather than summarizes.
 
 #### Scenario: the controller dispatches the post-merge test and binds a PASSING result
 
-- WHEN the controller dispatches the governed post-merge test on a request it ATTRIBUTED to the party the chain's inception record binds, RECORDED beside the signature, with that attribution INSIDE THE CONTROLLER-SIGNED BYTES and the signing identity's ISSUANCE EVIDENCE verifying; the consumed review record NAMES THIS CHAIN'S IDENTITY; the tested revision EQUALS the merge commit the chain closed over; the result is a PASS; and the execution, the revision and the result all fall inside the bytes the controller signs
+- WHEN the controller dispatches the governed post-merge test on a request it ATTRIBUTED to the party the chain's inception record binds, RECORDED beside the signature, with that attribution INSIDE THE CONTROLLER-SIGNED BYTES and the signing identity's CERTIFICATE, ISSUANCE EVIDENCE and SIGNED CHAIN BINDING all verifying; the consumed review record NAMES THIS CHAIN'S IDENTITY; the tested revision EQUALS the merge commit the chain closed over; the result is a PASS; and the execution, the revision and the result all fall inside the bytes the controller signs
 - THEN the outcome is established AS A PASS and the chain CLOSES on it, the proposal and review-record bindings being satisfied and the review authority's standing established within the register's declared bound
 - AND nothing about the result is taken from the lane, which is what makes this record closure grounds rather than a report
 

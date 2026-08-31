@@ -328,7 +328,13 @@ in for a ruleset state.
       itself: the fix's conjunct set is also a conjunct set.** (v) **BOOKKEEPING**:
       the 85 → 94 total is synced at README, `INDEX.md`, `proposal.md` and here;
       `proposal.md`'s Impact said five record kinds where `code_surface` enumerates
-      them — both now read SEVEN, issuance evidence being the seventh. **COPILOT'S
+      them. **THIS ENTRY ORIGINALLY CLAIMED "both now read SEVEN" AND THAT CLAIM
+      WAS FALSE** — the Impact bullet was corrected and `code_surface`'s leading
+      number was left at SIX while its own sentence enumerated seven, which the
+      ninth round caught (`3893609589`). **A CLAIMED SYNC IS NOT A SYNC**, the
+      same honesty the 77/79 correction owed: the fix was applied to one site and
+      asserted of two. Both now read SEVEN — verified by ENUMERATING the record
+      kinds rather than by restating the number. **COPILOT'S
       COUNT ADVICE WAS TAKEN IN REVERSE AND THE REASON IS RECORDED**: it asked that
       `tasks.md` be changed 89 → 85 to match the other sites; the count was
       MEASURED at 89 then and the other sites were the stale ones, which is what
@@ -347,6 +353,37 @@ in for a ruleset state.
       **Only the record's owner can normalize it**, as Brett did for the header
       grammar under ruling 4a, and it is surfaced for that decision rather than
       taken silently.
+- [x] 1.18 **THE NINTH BOT ROUND'S P1 AND P2 ARE CLOSED.** (i) **THE
+      ISSUANCE-EVIDENCE REQUIREMENT WAS UNIMPLEMENTABLE AS WRITTEN.** Round eight
+      asked for five bindings in *"issuance evidence expressed in
+      `add-trust-anchor` vocabulary"*; **verified against the schemas, that record
+      cannot exist**. `contracts/trust-anchor/issuance-evidence.schema.yaml` is
+      `additionalProperties: false` at the root and at all four sub-objects and
+      carries the ISSUANCE ACT (authority, establishment level, request
+      provenance, issuing authority) — **zero** fields for subject scope, record-
+      kind enumeration or chain identity. `certificate-record.schema.yaml` is
+      likewise closed and holds the PUBLIC KEY (`subject.public_key_fingerprint`)
+      and VALIDITY BOUNDS (`validity.not_before` / `not_after`) and none of the
+      other three. An implementer could only have invented the parallel
+      certificate-like record the requirement itself FORBIDS, or dropped the
+      bindings and re-opened the forged-identity gap. **Repaired by COMPOSITION**:
+      the canonical `certificate-record` (key + bounds) and canonical
+      `issuance-evidence` (the issuance act), both CONSUMED UNMODIFIED, plus a
+      record kind THIS CAPABILITY DEFINES — the **SIGNED CHAIN BINDING**, carrying
+      subject scope, the closed record-kind enumeration and the chain identity,
+      referencing the other two by `certificate_id` and `issuance_evidence_id`.
+      Verification composes all three and the FORGED-IDENTITY refusal fires on ANY
+      ONE MISSING. **The chain binding is not a certificate shape** — it asserts
+      no key, no validity, no issuing authority and no trust, so the
+      no-second-vocabulary rule survives intact — and it belongs to this
+      capability's own code surface. All issuance scenarios re-walked onto the
+      composition. (ii) **THE RECORD-KIND COUNT, ENUMERATED RATHER THAN CLAIMED**:
+      `code_surface` read SIX while its own sentence enumerated seven. **The count
+      is SEVEN and stays SEVEN after the composition** — the two trust-anchor
+      shapes are CONSUMED, not defined here, so they add nothing to this
+      capability's surface; the signed chain binding replaces the record round
+      eight wrongly counted. Every site synced in this one commit, and 1.16's
+      false "both now read SEVEN" is corrected above.
 
 ## 2. §7.4 COUNCIL REVIEW — **HELD 2026-08-30. THE FIRST GATE IS DISCHARGED.**
 
@@ -594,8 +631,11 @@ Each is contract content — cheap now, expensive after a bundle ships.
       EXERCISE** — both refusing closure. **The positive closure fixture binds a
       PASSING result**, since an established failing one is now a refusal.
 
-      **AND THE EIGHTH ROUND'S SET**: a **lane-minted keypair labelled with the
-      expected scope**, refused AT ISSUANCE with fraud-signal force; a tier-2
+      **AND THE EIGHTH AND NINTH ROUNDS' SET**: a **lane-minted keypair labelled
+      with the expected scope**, refused AT ISSUANCE because it has no certificate
+      record, no issuance evidence and no signed chain binding; **an identity
+      MISSING ANY ONE of the three composed records**, refused; a signed chain
+      binding **naming another chain**, refused; a tier-2
       signature over **a record kind outside its own issuance evidence**, refused;
       an identity whose **validity bounds had expired** or whose issuance names
       another chain, refused; **a genuine review record from ANOTHER PROPOSAL**
