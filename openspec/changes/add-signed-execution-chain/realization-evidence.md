@@ -197,6 +197,27 @@ before, 13 after**; none added, removed, renamed, weakened or skipped.
 The file is a release-inventory member (`tests/intent-compliance/` is inside the
 family's membership), which is why it is item 5 above and the inventory is item 8.
 
+## The cut's own bot round — ONE finding, real, and taken
+
+Codex: **no major issues** at `3587ea8456`. Copilot: **one finding on the new
+test, and it was right.**
+
+| Round | Finding | Where it landed |
+| --- | --- | --- |
+| 1 | **Copilot** — the closure test derived the on-disk schema set with `Path.glob("*.schema.yaml")`, which reads the family ROOT ONLY. A schema placed in a SUBDIRECTORY would bypass the closure and ship UNREGISTERED while the test stayed green, and the layout is reachable rather than hypothetical: this repository already carries `contracts/hermes-runtime/migrations/v1-to-v2-mapping.schema.yaml`, the only nested schema under `contracts/` today. **Pre-fix, measured**: with an unregistered nested sixth schema on disk, `glob` returned exactly the five expected paths and the test PASSED | `rglob`, with the reason in the docstring. `glob` and `rglob` return the identical five paths at this cut, so the fix changes nothing today and closes the hole for whoever adds the sixth file |
+
+**THIS IS THE SAME DEFECT CLASS THE REALIZATION SPENT THREE ROUNDS ON**, arriving
+one level up in the cut's own instrument: a check that LOOKED like it was doing
+its job. The docstring said *"derived from the DIRECTORY"* while the code read one
+level of it, and the assertion passed for a reason unrelated to the property —
+which is exactly the shape `tasks.md` §4 records as untestable from the rule's own
+wording. It was confirmed by RUNNING the mutation against the pre-fix predicate,
+not by reasoning about it. **The instrument gets the same scrutiny as the thing it
+measures** — the third time this capability has had to apply that to its own
+harness, and the second time in this file.
+
+Sourcery is an upsell stub on this repository and returned no review.
+
 ## The rebase onto the final integration point
 
 Policy step 1 is *"fetch and rebase onto the final integration point, then

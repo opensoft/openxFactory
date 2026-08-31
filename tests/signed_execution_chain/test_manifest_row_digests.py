@@ -92,10 +92,23 @@ def test_the_family_registers_exactly_the_five_schemas() -> None:
 def test_every_schema_file_on_disk_carries_a_row() -> None:
     """The set is derived from the DIRECTORY, not from the expectation above, so
     a sixth schema added without a manifest row reds here rather than shipping
-    unregistered."""
+    unregistered.
+
+    ``rglob``, NOT ``glob`` — PR #533 round one, Copilot. A top-level ``glob``
+    reads the family root only, so a schema in a SUBDIRECTORY would bypass the
+    closure this test exists to enforce and ship unregistered while the test
+    stayed green. That is not hypothetical: this repository already places a
+    schema at ``contracts/hermes-runtime/migrations/v1-to-v2-mapping.schema.yaml``,
+    the only nested one under ``contracts/`` today and proof the layout is
+    reachable. The docstring said "derived from the DIRECTORY" while the code
+    read one level of it — a check that looked like it was doing its job, which
+    is this capability's own round-one defect class. Measured: ``glob`` and
+    ``rglob`` return the identical five paths at this cut, so the fix changes
+    nothing today and closes the hole for whoever adds the sixth file.
+    """
     on_disk = {
         path.relative_to(ROOT).as_posix()
-        for path in (ROOT / "contracts" / "signed-execution-chain").glob(
+        for path in (ROOT / "contracts" / "signed-execution-chain").rglob(
             "*.schema.yaml"
         )
     }
