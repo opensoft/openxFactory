@@ -416,8 +416,11 @@ Active changes:
   secret references — one naming a requirement id no record carries, one naming
   an id two records carry with DIFFERENT access modes — validates
   `0 warning(s), 0 error(s) -> PASS` under the validator as shipped; changing ONE
-  BYTE so the two secret references match produces the error naming the very
-  same unresolvable reference. **WHY #516 COULD NOT CARRY THE FIX**: an ERROR
+  BYTE so the two secret references match refuses the same record, and adding the
+  acknowledgment so the pair reaches the fifth lift condition makes the refusal
+  say *"resolves to no requirement in the repository under validation"* — the
+  exact sentence the silent tree never produced, about the exact same bytes of
+  `requirement_ref`. **WHY #516 COULD NOT CARRY THE FIX**: an ERROR
   would have been an unphased narrowing, and a WARNING needed a ninth code
   against the ratified rule that the warning set is *"ENUMERATED against the
   refusals"* — an unresolvable reference not being a shape the coming major

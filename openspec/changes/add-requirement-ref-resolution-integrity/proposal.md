@@ -1,6 +1,6 @@
 ---
 code_surface: openxFactory — A VALIDATOR ARM, TWO CODES AND THREE FIXTURES; NO SCHEMA EDIT AT THIS MINOR. `scripts/validate-credential-contracts.py` gains a resolution-integrity pass over EVERY binding that declares a `consumer.requirement_ref`, reached from `_deprecation_warnings` (`:694-730`) beside the eight `consumer-*` arms rather than from `_lift_refusal_detail` (`:371-473`), which is the ONE caller of `resolve_requirement` (`:311-349`) in the file — at `:438`, inside a loop reached only for a pair sharing a `secret_ref` (`:540-546`, the bindings grouped into `by_secret` and every group of fewer than two skipped). The arm RE-USES `resolve_requirement` unchanged — the same four statuses, the same index built by `requirements_index` (`:294-309`), the same rule that the validator never opens a path taken from a record — and reports the `not-found` and `ambiguous` statuses that function already returns to a caller which consumes them only as a lift condition. `DEPRECATION_CODES` (`:157-166`) grows from EIGHT to TEN with two codes of a new family (proposed `requirement-ref-unresolved` and `requirement-ref-ambiguous`; the SPELLING is realization's, the FAMILY and the ZERO-versus-MANY split are the requirement's), and `WARNING_EXPECTATIONS` (`:169-180`) gains one entry per code — the self-test refusing a declared code that carries no packaged probe (`:826-838`). `examples/credential-contracts/warning/` gains two probes and `examples/credential-contracts/` one positive proving the SILENT direction (a resolving reference on bindings sharing no secret); the ambiguity probe resolves against the `support/ambiguous-requirement-ids.requirements.yaml` document that already ships, so the corpus needs no second support record. Every new fixture joins the by-name inventory at `tests/credential_contracts/test_dispatch_credential_contract.py:34-80`, which `test_the_inventory_is_the_whole_corpus_and_not_a_sample` (`:120-128`) holds EXHAUSTIVE against the glob; the self-test count string at `:103-104` is DERIVED from those tuples rather than written out, so it moves with them. `docs/contract-versioning-policy.md` § Deprecations Currently In Force — the `add-binding-consumer-identity` entry states "SEVEN acts that land together" and "EIGHT warning codes", and its own text claims to name EVERY act landing at contract-v3.0, so it is reconciled rather than left to contradict a ninth act; `contracts/manifest.yaml`'s `credential-contracts` row (`:2151-2210`) repeats the same "All seven acts … EIGHT warning codes" sentence and moves with it, which is what makes this realization owe a bundle cut even though the schema file itself does not move. NOT THIS CHANGE'S SURFACE, each for a stated reason: `contracts/schemas/xfactory-credential-contracts.schema.yaml` (the block is UNCONSTRAINED at this minor by ratified design, and resolution is not a shape a JSON Schema can check — it is a cross-document lookup); the six lift conditions and their every-pair arity (untouched, and the packaged dispatch-versus-content negative stays refused); `resolve_requirement`'s statuses, its index, its grammar and its never-open-a-path rule (re-used, not edited); and any cross-repository resolution (the residency model keeps consumers' bindings in their own trees, and this validator reads one repository).
-target_release: THE NEXT ADDITIVE MINOR, DELIBERATELY NOT NUMBERED HERE — allocated AT REALIZATION by merge order per `docs/contract-versioning-policy.md`. Read at this branch's merge-base rather than remembered: `contracts/manifest.yaml:3` declares `contract_bundle_version: contract-v2.5` and `contracts/releases/contract-v2.5.digests.yaml` is a cut inventory in the tree, so the era is v2 and the next additive minor is whatever merge order allocates. A number written here would be a number another packet is already spending — `add-credential-escrow-checkout` is ratified and owes an additive minor on the SAME schema file, and `contracts/manifest.yaml` has had three writers before. THE CLASS AT THIS CUT IS ADDITIVE (MINOR): the policy's own definition (`docs/contract-versioning-policy.md:242-255`) reads "Additive (minor) — new optional fields, new contracts, NEW VALIDATOR WARNINGS", and two new validator warnings is exactly that. THE CLASS AT THE MAJOR IS BREAKING, and that is MEASURED rather than assumed — the reproduction below shows a record carrying both defects validating clean today, so refusing it later is "a shape is removed" and costs the policy's full ritual: a CHANGELOG migration note, at least one full minor of deprecation warnings, and a validator that refuses the old shape only at the new major. The removal target is contract-v3.0, the SAME major the consumer block's seven acts land at, so consumers serve ONE window rather than two.
+target_release: THE NEXT ADDITIVE MINOR, DELIBERATELY NOT NUMBERED HERE — allocated AT REALIZATION by merge order per `docs/contract-versioning-policy.md`. Read at this branch's merge-base rather than remembered: `contracts/manifest.yaml:3` declares `contract_bundle_version: contract-v2.5` and `contracts/releases/contract-v2.5.digests.yaml` is a cut inventory in the tree, so the era is v2 and the next additive minor is whatever merge order allocates. A number written here would be a number another packet is already spending — `add-credential-escrow-checkout` is ratified and owes an additive minor on the SAME schema file, and `contracts/manifest.yaml` has had three writers before. THE CLASS AT THIS CUT IS MINOR ON EITHER OF THE POLICY'S TWO READINGS, and both are quoted rather than picked. `docs/contract-versioning-policy.md` § Change Classes (`:293-306`) reads "Additive (minor) — new optional fields, new contracts, NEW VALIDATOR WARNINGS" and, one bullet down, "Deprecating (minor) — a field or shape is marked deprecated; the conformance validator emits warnings but still accepts it. Deprecations must state the removal version and a migration path in the CHANGELOG." Two new validator warnings answering a refusal declared for the major is the SECOND of those exactly, which is the stricter reading and the one this packet takes: the removal version and the migration path are OWED IN THE CHANGELOG at the cut (tasks § 5, § 6) rather than optional. THE CLASS AT THE MAJOR IS BREAKING, and that is MEASURED rather than assumed — the reproduction below shows a record carrying both defects validating clean today, so refusing it later is "a shape is removed" and costs the policy's full ritual: a CHANGELOG migration note, at least one full minor of deprecation warnings, and a validator that refuses the old shape only at the new major. The removal target is contract-v3.0, the SAME major the consumer block's seven acts land at, so consumers serve ONE window rather than two.
 ---
 
 # Proposal: add-requirement-ref-resolution-integrity
@@ -86,24 +86,43 @@ repro: 2 contract(s) checked, 0 skipped, 0 warning(s), 0 error(s) -> PASS
 
 **Zero warnings. Zero errors. PASS.**
 
-### 2. One byte turns it into a finding
+### 2. One byte turns it into a finding, and a second edit names the fault
 
-The same tree with `example-secret-two` changed to `example-secret-one` — the
-two bindings now share a secret reference, and nothing else moves — plus the
-acknowledgment both bindings need to reach the fifth lift condition:
+TWO CONTROLS, KEPT APART, because they say different things.
+
+**Control A — one byte.** The same tree with `example-secret-two` changed to
+`example-secret-one`, and NOTHING else touched:
 
 ```text
 ERROR credentials/example.binding-template.yaml: shared-secret-identity: bindings
 'zero_resolving_lane' and 'multi_resolving_lane' share secret_ref
 'example-secret-one'; … The two-consumer lift is UNAVAILABLE here: binding
-'zero_resolving_lane''s requirement_ref resolves to no requirement in the
-repository under validation
+'zero_resolving_lane' does not declare shared_credential_acknowledged: true
 
 control: 2 contract(s) checked, 0 skipped, 0 warning(s), 1 error(s) -> FAIL
 ```
 
-The validator can see the dangling reference perfectly well. It looks only where
-an exemption was being requested.
+A record that was silent is now refused, and one byte of `secret_ref` is the
+whole difference. But the refusal names the FOURTH lift condition, not the
+reference — the pair is refused before resolution is ever consulted.
+
+**Control B — plus the acknowledgment**, so the pair reaches the fifth
+condition and resolution is actually asked:
+
+```text
+ERROR …: shared-secret-identity: bindings 'zero_resolving_lane' and
+'multi_resolving_lane' share secret_ref 'example-secret-one'; … The two-consumer
+lift is UNAVAILABLE here: binding 'zero_resolving_lane''s requirement_ref
+resolves to no requirement in the repository under validation
+
+control: 2 contract(s) checked, 0 skipped, 0 warning(s), 1 error(s) -> FAIL
+```
+
+*"resolves to no requirement in the repository under validation"* — the exact
+sentence the silent tree never produced, about the exact same bytes of
+`requirement_ref`. The validator can see the dangling reference perfectly well.
+It looks only where an exemption was being requested, and only after four other
+conditions have passed.
 
 ### 3. The call graph says the same thing
 

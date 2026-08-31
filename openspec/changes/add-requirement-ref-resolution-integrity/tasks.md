@@ -151,9 +151,13 @@ file path, a command and its output — never on an intention.
       `contracts/manifest.yaml:3` at that moment; `contract-v2.5` is the bundle
       at this packet's merge-base and other packets are queued on the same file.
 - [ ] 6.2 `contracts/manifest.yaml` — advance `contract_bundle_version`.
-- [ ] 6.3 `contracts/CHANGELOG.md` — an additive entry stating the class
-      (ADDITIVE: new validator warnings, per the policy's own definition) and
-      naming the act that lands at the major.
+- [ ] 6.3 `contracts/CHANGELOG.md` — an entry stating the class and naming the
+      act that lands at the major. **The class is DEPRECATING (MINOR)** on the
+      policy's own bullet — "a field or shape is marked deprecated; the
+      conformance validator emits warnings but still accepts it" — which is
+      stricter than the Additive reading the same section would also allow, and
+      which OWES the removal version and the migration path in the CHANGELOG
+      rather than leaving them optional.
 - [ ] 6.4 The release build / digest inventory / tag steps the family's cut
       ritual requires, and `verify-commit --commit HEAD` after committing.
 
