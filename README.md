@@ -1142,39 +1142,6 @@ Active changes:
 - [create-medxpractice-overlay-boundary](openspec/changes/create-medxpractice-overlay-boundary/proposal.md)
   — MedxPractice owns the private practice-operations composition boundary and
   pins the independent public openPractice application at an immutable commit.
-- [add-notebook-projection-identity](openspec/changes/add-notebook-projection-identity/proposal.md)
-  — authored and ratified 2026-08-23 (Brett Heap, in-session). The single exit
-  of the staged topic `notebook-projection-identity`, raised the day its last
-  precondition was met. The whole governed NotebookLM projection — every
-  per-repo Ideation book, `xf-drafts`, `xf-canon`, every live `xf-session-*` —
-  is created under one person's personal consumer Gmail, because the `nlm` CLI's
-  default profile is whoever ran `nlm login` first; proven live 2026-08-15 when
-  Brett hit a "request access" wall on a dashboard notebook link and the request
-  landed in that personal inbox. This makes the hosting identity a DECLARED
-  TWO-CASE INTAKE FACT: operator-hosted (a company-owned Google Workspace USER
-  account in the operating party's own domain) or self-hosted/personal, both
-  legitimate. A Google USER account is a platform constraint, not a preference —
-  NotebookLM has no API and a service account cannot drive its consumer web UI.
-  Opensoft declares Case A on `xFactor001@opensoft.one` (confirmed by Brett
-  2026-08-23, who also authorized raising this change). The sync runs under the
-  declared account's profile; access is shared out FROM that account and never
-  by handing out its credentials; a governed manual approval act WRITES the
-  share-out roster, which IS the record rather than an audit trail beside one,
-  keyed `(hosting_account, user, book_or_alias, role, granted_at, granted_by)`.
-  The custody rule GENERALIZES `credential-contracts`' promoted vault-operator
-  execution-binding requirement rather than adding beside it — no new record
-  kind. Encodes the five dispositions merged as PR #272, of which Q3 is the
-  evidence centerpiece: the mapping onto `client-identity-roster` was RUN, not
-  assumed, and refused the shape structurally (11 honest errors; the force-fit
-  passes with one grantee and fails with two on `duplicate-identity-key`,
-  because the grantee is not in the uniqueness tuple — that roster is one
-  principal / many scopes, a share-out list is one scope / many principals).
-  Migration follows the 2026-08-10 retirement runbook with parity proven against
-  THE CORPUS SCAN, carrying two review-verified gaps as scope: a plain `--apply`
-  never creates live session notebooks, and `ensure_workspace_record()` refuses
-  to re-register a same-key book under a new provider id.
-  `target_release: implementation_pending` — it archives only on Opensoft's own
-  cutover, proven parity, and the personal-hosted books retired by recorded act.
 - [create-medxchart-overlay-boundary](openspec/changes/create-medxchart-overlay-boundary/proposal.md)
   — local topology realization completed 2026-08-23: MedxChart now owns the
   Medx composition boundary, pins openChart at an immutable commit, and the
@@ -1677,6 +1644,76 @@ Archived changes:
   **#494 closed with four of its hardenings HARVESTED here** — the actor↔wallet
   attestation binding, enforced per-ratification uniqueness, ONE digest
   construction for every digest, and the named-reader required-check rule.
+
+- [add-notebook-projection-identity](openspec/changes/archive/2026-08-31-add-notebook-projection-identity/proposal.md)
+  — **ARCHIVED 2026-08-31 ON MERGED CODE PLUS GREEN REALIZATION EVIDENCE, WITH
+  ONE BOX STANDING AS A DISPOSITION AND TWO SUCCESSORS FILED IN THE OPEN.**
+  Realized at squash `40b33845` (PR **#277**); § 5.2's gates green there (3983
+  passed / 15 skipped on `tests/ideation-dashboard`; 839 + 13 subtests across
+  `tests/notebooklm`, `tests/doc-health`, `tests/ideation_dashboard`; `openspec
+  --all --strict` 72/72; dashboard validator 0 error / 4 warning; hosting
+  validator 0 error; doc-health zero-new against `7431f033`). The migration ran
+  (PR **#289**: 7 books, 626 managed sources), parity was PROVEN against the
+  CORPUS SCAN under the amended `add-projection-title-uniqueness` rule
+  (`parity: PROVEN`, exit 0, union 675/675, 0 unprojected, 0 unaccounted, and a
+  convergence dry run planning ZERO operations), and the seven legacy books were
+  retired BY RENAME 2026-08-26 with nothing deleted. **§ 5.3 cut no bundle and
+  said so**: § 2.1 landed a lighter governed record, `contracts/` byte-untouched,
+  the published bundle stayed `contract-v1.40`. **THE ARCHIVE DOES NOT CLAIM A
+  CLEAN FINISH.** § 4.7 was RE-SCOPED TO 7 OF 7 by Brett Heap's ruling of
+  2026-08-31 — the Gmail grantee is DROPPED and the second reader is not wanted,
+  consistent with his 2026-08-27 wind-down (the legacy books wound down by owner
+  deletion) and his 2026-08-24 sole-grantor posture; the provider's account-level
+  refusal of `brett.heap@gmail.com` (both spellings, `API error (code 7)`)
+  survives as a FINDING rather than a debt, and the seven verified
+  `brett.heap@farheap.com` editor grants are the satisfying set. **§ 5.1 archives
+  STANDING AS A DISPOSITION and is deliberately NOT ticked** — unattended
+  re-authentication does not exist (interactive Google sign-in; `nlm login` broken
+  upstream by the notebook.google.com rebrand, whose `_is_notebooklm_url()`
+  allow-list excludes the new host; and custody's ratified text says custody does
+  not deliver automation) — carried forward at **#537**, with
+  `docs/notebooklm-sync-open-item.md` left OPEN and pointing there. § 4.3's code
+  gap (`ensure_workspace_record()` returns without registering a replacement) is
+  filed at **#536**. Promotion measured rather than assumed: 6 delta requirements
+  in, 6 out, **all six bodies BYTE-IDENTICAL**, 32 delta scenarios carried across
+  `lifecycle-notebook-projection` (+3 added, ~2 modified) and
+  `credential-contracts` (~1 modified). The original record follows unchanged.
+  — authored and ratified 2026-08-23 (Brett Heap, in-session). The single exit
+  of the staged topic `notebook-projection-identity`, raised the day its last
+  precondition was met. The whole governed NotebookLM projection — every
+  per-repo Ideation book, `xf-drafts`, `xf-canon`, every live `xf-session-*` —
+  is created under one person's personal consumer Gmail, because the `nlm` CLI's
+  default profile is whoever ran `nlm login` first; proven live 2026-08-15 when
+  Brett hit a "request access" wall on a dashboard notebook link and the request
+  landed in that personal inbox. This makes the hosting identity a DECLARED
+  TWO-CASE INTAKE FACT: operator-hosted (a company-owned Google Workspace USER
+  account in the operating party's own domain) or self-hosted/personal, both
+  legitimate. A Google USER account is a platform constraint, not a preference —
+  NotebookLM has no API and a service account cannot drive its consumer web UI.
+  Opensoft declares Case A on `xFactor001@opensoft.one` (confirmed by Brett
+  2026-08-23, who also authorized raising this change). The sync runs under the
+  declared account's profile; access is shared out FROM that account and never
+  by handing out its credentials; a governed manual approval act WRITES the
+  share-out roster, which IS the record rather than an audit trail beside one,
+  keyed `(hosting_account, user, book_or_alias, role, granted_at, granted_by)`.
+  The custody rule GENERALIZES `credential-contracts`' promoted vault-operator
+  execution-binding requirement rather than adding beside it — no new record
+  kind. Encodes the five dispositions merged as PR #272, of which Q3 is the
+  evidence centerpiece: the mapping onto `client-identity-roster` was RUN, not
+  assumed, and refused the shape structurally (11 honest errors; the force-fit
+  passes with one grantee and fails with two on `duplicate-identity-key`,
+  because the grantee is not in the uniqueness tuple — that roster is one
+  principal / many scopes, a share-out list is one scope / many principals).
+  Migration follows the 2026-08-10 retirement runbook with parity proven against
+  THE CORPUS SCAN, carrying two review-verified gaps as scope: a plain `--apply`
+  never creates live session notebooks, and `ensure_workspace_record()` refuses
+  to re-register a same-key book under a new provider id.
+  `target_release: implementation_pending` — it archives only on Opensoft's own
+  cutover, proven parity, and the personal-hosted books retired by recorded act.
+  **THAT GATE IS DISCHARGED**: the cutover ran (PR #289), parity was proven
+  against the corpus scan under the amended rule 2026-08-25, and step 8 retired
+  the seven legacy books by recorded act 2026-08-26 — all three conditions read
+  rather than assumed at the archive act.
 
 - [add-model-capability-vocabulary](openspec/changes/archive/2026-08-29-add-model-capability-vocabulary/proposal.md)
   — **ARCHIVED on merged-plus-green PLUS THE CUT.** Ratified 2026-08-24 with TWO
