@@ -184,6 +184,26 @@ wrong set re-opens the hole the rule was written to close.
 
 ## 4. Realization — ONE Speckit contract feature
 
+**WHAT THE REALIZATION'S OWN BOT BENCH CORRECTED, recorded rather than silently
+patched**, on the same footing `design.md` D7 records the packet's rounds. Round
+one on the realization pull request produced FOUR findings, all real, all taken,
+and **the first was a live forgery rather than a hardening**:
+
+| Round | Finding | Where it landed |
+| --- | --- | --- |
+| 1 | **P1 (Codex AND Copilot, independently)** — the Ed25519 verifier accepted SMALL-ORDER public keys. With an identity key the `[h]A` term vanishes, the equation stops depending on the message, and `R = identity, S = 0` verifies for ANY message — **a forgery needing no private key**, and every public half in this family arrives inside a record chosen by whoever assembled the chain. **Reproduced against the pre-fix code before repair**: the identity key accepted the forgery over every message tried, and two of the order-4 points over some | `ed25519._is_small_order`, refusing the whole class by `[8]P == identity` rather than a list of encodings; six negative-control tests, including one that confirms the published small-order list really is small-order by arithmetic — which caught a transcription slip in that list on its first run |
+| 1 | **P1 (Codex)** — the log's append-only property was checked over consecutive PAIRS, so the lowest retained leaf's carried predecessor digest was compared against nothing. A store that DELETED a prefix presented a set in which every surviving pair linked correctly and every `tree_size` still agreed with its own index. Pre-fix: **zero findings** over a log whose genesis leaf was deleted | `check_log` now requires the retained set to begin at leaf 0 and run consecutively BEFORE any digest comparison, and reports an unverifiable link as unverifiable. Probed by the `log-skipping-a-leaf-position` fixture; the deleted-genesis case is pinned in pytest, because a fixture is ADDED to the corpus and cannot take leaf 0 away |
+| 1 | **P2 (Codex)** — integers outside ±(2**53 − 1) are not serialized identically by an RFC 8785 reader, so two conforming readers could derive different chain identities in silence. Pre-fix: `9007199254740993` was emitted unchanged where an ECMAScript reader emits `9007199254740992` | The SAME bound one value class wider — not a second rule — in `canonical.serialize`, declared in the contract beside the non-integer refusal, with a sweep test asserting every integer the packaged corpus actually declares is inside it |
+| 1 | **Copilot** — `uniqueItems` on the verdict's eight-check list closed nothing: two entries naming the same check with different outcomes are distinct objects, so a verdict could record one check twice, omit another, carry eight items and be schema-valid beside prose calling the list closed and ordered. Pre-fix: **zero schema errors** for exactly that verdict | `prefixItems` pins each position to its own `const`, making a duplicate, an omission AND a reordering unrepresentable. Repairing the reader alone would have left the shape admitting it |
+
+**THE TRANSFERABLE PART IS THE SECOND COLUMN OF THAT TABLE.** Every one of the
+four was a check that LOOKED like it was doing its job: pairs that linked, a list
+that was eight long, a digest that serialized, an equation that balanced. None
+would have been caught by a test written from the rule's own wording, and three
+of the four were confirmed by RUNNING THE MUTATION AGAINST THE PRE-FIX CODE
+rather than by reasoning about it — which is the only way to know a repair is
+anchored to something.
+
 - [x] 4.1 **BUILT** — `contracts/signed-execution-chain/` carries the FOUR
       record kinds `code_surface` names (`chain-inception.schema.yaml`,
       `traveling-contract.schema.yaml`, `transparency-log-leaf.schema.yaml`,
@@ -201,7 +221,7 @@ wrong set re-opens the hole the rule was written to close.
       validated against the PINNED schemas through the `openXwallet/` gitlink;
       the actor is `identity-brokering`'s `actor_subject_reference` carrying an
       `xfactory_wallet_subject_attestation`.
-- [x] 4.2 **PACKAGED — 7 positives composing ONE whole chain, and 26 negatives.**
+- [x] 4.2 **PACKAGED — 7 positives composing ONE whole chain, and 28 negatives.**
       All nine named refusals have a probe, and so does every other refusal this
       reader can emit: the enumeration is 24 codes and the self-test REFUSES A
       CODE WITH NO PROBE, so a refusal nobody has seen work cannot ship. Two

@@ -26,11 +26,19 @@ WHAT MAKES THE EXCEPTION SAFE, precisely:
     verification, with the group equation checked in extended coordinates, `S`
     range-checked against the group order (a non-canonical `S` is a malleable
     signature and is refused), and both points rejected when they do not decompress.
+  * PLUS THE ONE CHECK THE RFC's PSEUDOCODE OMITS: SMALL-ORDER POINTS ARE
+    REFUSED. With an identity public key the `[h]A` term vanishes and the
+    equation stops depending on the message, so `R = identity, S = 0` verifies
+    for anything — a forgery needing no private key, and every public half here
+    arrives inside a record chosen by whoever assembled the chain. Found by Codex
+    and Copilot in the same round, both P1, and reproduced against this module's
+    own pre-fix code before the repair. See `_is_small_order`.
   * IT IS PINNED BY PUBLISHED KNOWN-ANSWER VECTORS. `tests/signed_execution_chain/
     test_ed25519_known_answers.py` runs RFC 8032 section 7.1's vectors and their
     mutations — flipped message byte, flipped signature byte, wrong public key,
-    truncated inputs, out-of-range `S` — so a regression that accepted anything is
-    a red test rather than a silently permissive gate.
+    truncated inputs, out-of-range `S`, and every small-order point — so a
+    regression that accepted anything is a red test rather than a silently
+    permissive gate.
 
 WHAT IT DOES NOT DO. `ecdsa-p256` and `ecdsa-secp256k1` appear in the shipped
 signature-algorithm enumeration and are NOT implemented here. A chain presenting
@@ -126,18 +134,59 @@ def _decompress(encoded: bytes) -> _Point | None:
     return (x, y, 1, x * y % _P)
 
 
+_IDENTITY: _Point = (0, 1, 1, 0)
+
+
+def _is_small_order(point: _Point) -> bool:
+    """True when the point's order divides 8 — the identity and the fourteen
+    other small-order points on this curve.
+
+    WHY THIS CHECK EXISTS, and it is the one thing RFC 8032's verification
+    pseudocode does not tell you to do. The group equation is
+    `[S]B == R + [h]A`. If `A` is the IDENTITY the `[h]A` term vanishes, the
+    equation stops depending on `h` — and therefore on the message — and
+    `R = identity, S = 0` satisfies it for EVERY message. An attacker who can
+    choose the public half needs no private key at all, and every public half in
+    this family arrives inside a record: a `did:key` in a CARRIED wallet, chosen
+    by whoever assembled the chain.
+
+    MEASURED AGAINST THIS MODULE'S OWN PRE-FIX CODE, which is why the wording is
+    not hedged: the identity key accepted `R = identity, S = 0` over every
+    message tried, and two of the order-4 points accepted it over some. Found by
+    Codex and Copilot in the same round, both rated P1, and both right.
+
+    `[8]A == identity` is exactly "the order divides 8", so one multiplication by
+    8 — three doublings — rejects the whole class rather than a hard-coded list
+    of encodings that a non-canonical spelling could slip past.
+    """
+    return _equal(_mul(8, point), _IDENTITY)
+
+
 def verify(public_key: bytes, message: bytes, signature: bytes) -> bool:
-    """RFC 8032 section 5.1.7 verification. False on every failure, never an
-    exception: a signature that does not verify is an ANSWER, and the caller
-    distinguishes it from an unresolvable key by asking for the key separately."""
+    """RFC 8032 section 5.1.7 verification, plus the small-order rejection its
+    pseudocode omits. False on every failure, never an exception: a signature
+    that does not verify is an ANSWER, and the caller distinguishes it from an
+    unresolvable key by asking for the key separately."""
     if len(public_key) != PUBLIC_KEY_BYTES or len(signature) != SIGNATURE_BYTES:
         return False
     point_a = _decompress(public_key)
     if point_a is None:
         return False
+    if _is_small_order(point_a):
+        # The forgery vector above. Refused before the equation is evaluated, so
+        # there is no path on which a small-order key reaches a comparison.
+        return False
     encoded_r = signature[:32]
     point_r = _decompress(encoded_r)
     if point_r is None:
+        return False
+    if _is_small_order(point_r):
+        # NOT the forgery vector — with `A` in the prime-order subgroup a
+        # small-order `R` confers no advantage — but an honest signer produces one
+        # only when the hash-derived nonce is `0 mod L`, at probability about
+        # 2**-252. Refusing it costs no legitimate signature and removes the
+        # remaining case in which a signature's acceptance depends on a
+        # cofactored reading of the equation.
         return False
     scalar_s = int.from_bytes(signature[32:], "little")
     if scalar_s >= _L:

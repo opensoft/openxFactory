@@ -596,6 +596,34 @@ def check_log(f: Findings, scope: Scope) -> None:
                     f"The head is the newest leaf, and a head that misstates its "
                     f"own size is how a truncation presents itself as a complete "
                     f"log")
+    # THE RETAINED SET MUST BEGIN AT ITS GENESIS LEAF AND RUN CONSECUTIVELY, and
+    # this is checked BEFORE any predecessor digest, because a link chain walked
+    # over a set with a hole in it verifies the links that remain and says
+    # nothing about the ones that do not.
+    #
+    # Found by Codex as a P1 on `0d0f277d`. The first version walked consecutive
+    # PAIRS: the lowest retained leaf had no predecessor in scope, so its carried
+    # digest went unchecked, and a store that deleted a prefix presented a set in
+    # which every surviving pair linked correctly and every `tree_size` still
+    # agreed with its own index. LEAVES ARE APPENDED AND NEVER REMOVED is the
+    # contract's sentence; a check that cannot see a removal is not checking it.
+    present = sorted(index for index in seen)
+    if present and present[0] != 0:
+        f.error("leaf_hash_link_broken",
+                f"the retained log begins at leaf {present[0]} ({seen[present[0]]}) "
+                f"and not at its genesis leaf, so leaves 0-{present[0] - 1} have "
+                f"been removed from an append-only log. The surviving leaves link "
+                f"to one another correctly, which is exactly what a deleted prefix "
+                f"looks like")
+    expected_indices = list(range(present[0], present[-1] + 1)) if present else []
+    missing = [index for index in expected_indices if index not in seen]
+    if missing:
+        f.error("leaf_hash_link_broken",
+                f"the retained log skips leaf position(s) {missing} between "
+                f"{present[0]} and {present[-1]}; an append-only log has no holes, "
+                f"and a hole is a removal that the links either side of it cannot "
+                f"detect")
+
     previous: tuple[str, dict] | None = None
     for label, doc in ordered:
         index = doc.get("leaf_index")
@@ -610,7 +638,16 @@ def check_log(f: Findings, scope: Scope) -> None:
                     f"{label}: leaf {index} carries no predecessor digest, so the "
                     f"link chain stops here and every alteration before it becomes "
                     f"undetectable")
-        elif previous is not None:
+        elif previous is None or previous[1].get("leaf_index") != index - 1:
+            # No predecessor IN SCOPE to compare against. The prefix and gap
+            # rules above have already named why, and reporting the comparison as
+            # a pass here is what let a truncated prefix through.
+            f.error("leaf_hash_link_broken",
+                    f"{label}: leaf {index} carries predecessor digest {carried} "
+                    f"and leaf {index - 1} is not in scope, so the carried digest "
+                    f"is compared against nothing. An unverifiable link is not a "
+                    f"verified one")
+        else:
             expected = digest_value(previous[1].get("leaf_digest"))
             if expected is not None and carried != expected:
                 f.error("leaf_hash_link_broken",
@@ -1294,8 +1331,9 @@ def self_test(f: Findings, registry: Registry, docs: dict[str, dict],
            f"corpus, {neg_ok} negative fixture(s) confirmed invalid for their "
            f"intended reason, {len(probed & REFUSAL_CODES)}/{len(REFUSAL_CODES)} "
            f"closed refusal codes red-proven "
-           f"({len(probed - REFUSAL_CODES)} further fixture(s) refused by SHAPE, "
-           f"where unrepresentable is stronger than refused)")
+           f"({len(probed - REFUSAL_CODES)} further finding code(s) probed, for the "
+           f"obligations refused BY SHAPE, where unrepresentable is stronger "
+           f"than refused)")
 
 
 # --------------------------- layer 2: real artifacts ---------------------------

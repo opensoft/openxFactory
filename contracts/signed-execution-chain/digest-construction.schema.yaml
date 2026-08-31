@@ -23,10 +23,16 @@ description: >-
      no insignificant whitespace, JSON string escaping restricted to the shortest
      legal form, output as UTF-8.
   2. ADMITTED VALUE CLASSES — object, array, string, INTEGER, boolean, null. A
-     non-integer number is REFUSED rather than serialized. This family declares
-     none, and ES6 number serialization is the one part of JCS a second
-     implementation reliably gets wrong; refusing what the family does not use is
-     the honest bound, and a silent second answer on a value nobody writes is not.
+     non-integer number is REFUSED rather than serialized, and so is an integer
+     outside ±(2**53 - 1). ES6 number serialization is the one part of JCS a
+     second implementation reliably gets wrong: an ECMAScript reader holds every
+     number as a double, so it renders 9007199254740993 as 9007199254740992
+     while an exact implementation renders it unchanged, and above about 1e21 the
+     two disagree on exponent form as well. This family declares no non-integer
+     number and no large one — every integer it uses (schema_version, leaf_index,
+     tree_size, registry_version, record_version) is small by orders of
+     magnitude — so refusing what the family does not use is the honest bound,
+     and a silent second answer on a value nobody writes is not.
   3. ALGORITHM AND ENCODING. SHA-256 over those bytes, rendered as `sha256:`
      followed by 64 lowercase hexadecimal characters. Every digest is
      ALGORITHM-TAGGED, so a later migration is a readable change rather than a

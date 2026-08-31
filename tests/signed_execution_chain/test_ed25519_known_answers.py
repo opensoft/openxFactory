@@ -10,9 +10,15 @@ accept.
 
 A verifier that accepts everything passes every positive test ever written. So
 the negatives are the real content here: a flipped message byte, a flipped
-signature byte, the wrong public key, a non-canonical scalar, and inputs of the
-wrong length must each be REFUSED, and each of those is a way a real
-implementation has historically gone wrong.
+signature byte, the wrong public key, a non-canonical scalar, inputs of the wrong
+length, and EVERY SMALL-ORDER POINT must each be REFUSED, and each of those is a
+way a real implementation has historically gone wrong.
+
+THE SMALL-ORDER CASE IS NOT HYPOTHETICAL HERE, and it is why this file grew. It
+was a live forgery in this module's first version — measured, not argued: an
+identity public key made the verification equation stop depending on the message,
+so `R = identity, S = 0` verified over everything, with no private key involved.
+Codex and Copilot both raised it as P1 in the same review round.
 """
 
 from __future__ import annotations
@@ -103,6 +109,95 @@ def test_wrong_length_inputs_are_refused_rather_than_raising():
     assert not ed25519.verify(public + b"\x00", message, signature)
     assert not ed25519.verify(public, message, signature[:63])
     assert not ed25519.verify(public, message, signature + b"\x00")
+
+
+#: The canonical encodings of the small-order points on this curve: the
+#: identity, the order-2 point, the two order-4 points and the four order-8
+#: points. Published values, and each one is independently confirmed below to be
+#: small-order by the group arithmetic rather than trusted from a list.
+SMALL_ORDER_ENCODINGS = [
+    bytes([1] + [0] * 31),
+    bytes.fromhex(
+        "ecffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f"),
+    bytes(32),
+    bytes(31) + bytes([0x80]),
+    bytes.fromhex(
+        "26e8958fc2b227b045c3f489f2ef98f0d5dfac05d3c63339b13802886d53fc05"),
+    bytes.fromhex(
+        "c7176a703d4dd84fba3c0b760d10670f2a2053fa2c39ccc64ec7fd7792ac03fa"),
+    bytes.fromhex(
+        "26e8958fc2b227b045c3f489f2ef98f0d5dfac05d3c63339b13802886d53fc85"),
+    bytes.fromhex(
+        "c7176a703d4dd84fba3c0b760d10670f2a2053fa2c39ccc64ec7fd7792ac037a"),
+]
+
+#: The forgery: R = identity, S = 0. It needs no private key.
+IDENTITY_FORGERY = SMALL_ORDER_ENCODINGS[0] + bytes(32)
+
+
+def test_the_identity_public_key_cannot_forge_a_signature():
+    """THE NEGATIVE CONTROL FOR A REAL FORGERY, and it is measured rather than
+    argued.
+
+    With an identity public key the `[h]A` term of `[S]B == R + [h]A` vanishes,
+    the equation stops depending on `h` — and so on the message — and
+    `R = identity, S = 0` satisfies it for ANY message. Against this module's
+    PRE-FIX code that construction verified over every message tried; two of the
+    order-4 points verified over some. Codex and Copilot both raised it as P1 in
+    the same round.
+
+    An attacker needs no private key for this: every public half in this family
+    arrives inside a record — a `did:key` in a CARRIED wallet — chosen by
+    whoever assembled the chain."""
+    for message in (b"", b"anything", b"a completely different message",
+                    bytes(range(256))):
+        assert not ed25519.verify(
+            SMALL_ORDER_ENCODINGS[0], message, IDENTITY_FORGERY), message
+
+
+def test_no_small_order_public_key_verifies_anything():
+    """The whole CLASS, not the one encoding the finding named. A fix that
+    rejected the identity alone would leave the order-4 points, which the pre-fix
+    measurement showed accepting the same forgery over some messages."""
+    for index, encoded in enumerate(SMALL_ORDER_ENCODINGS):
+        for signature in (IDENTITY_FORGERY, encoded + bytes(32)):
+            assert not ed25519.verify(encoded, b"", signature), index
+            assert not ed25519.verify(encoded, b"a message", signature), index
+
+
+def test_every_listed_encoding_really_is_small_order():
+    """The list above is published values, and a published value transcribed
+    wrongly is a test that guards nothing. `[8]P == identity` is exactly "the
+    order divides 8", so the arithmetic confirms the list rather than the list
+    being taken on trust."""
+    # pylint: disable=protected-access
+    for index, encoded in enumerate(SMALL_ORDER_ENCODINGS):
+        point = ed25519._decompress(encoded)
+        assert point is not None, f"{index}: does not decompress"
+        assert ed25519._is_small_order(point), index
+
+
+def test_a_legitimate_public_key_is_not_small_order():
+    """The other half of the control: the rejection must not be rejecting
+    everything. Each RFC vector's key passes the same predicate the forgeries
+    fail, and each vector still verifies."""
+    # pylint: disable=protected-access
+    for index in range(len(RFC_8032_VECTORS)):
+        public, message, signature = _vector(index)
+        point = ed25519._decompress(public)
+        assert not ed25519._is_small_order(point), index
+        assert ed25519.verify(public, message, signature), index
+
+
+def test_a_small_order_r_is_refused():
+    """Not the forgery vector — with `A` in the prime-order subgroup a
+    small-order `R` confers no advantage — but an honest signer produces one only
+    at probability about 2**-252, so refusing it costs no legitimate signature
+    and removes the last case whose acceptance would depend on a cofactored
+    reading of the equation."""
+    public, message, _ = _vector(2)
+    for encoded in SMALL_ORDER_ENCODINGS:
+        assert not ed25519.verify(public, message, encoded + bytes(32))
 
 
 def test_a_public_key_that_does_not_decompress_is_refused():

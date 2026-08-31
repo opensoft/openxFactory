@@ -124,32 +124,36 @@ properties:
         type: string
         const: links_1_3
       checks:
-        # The eight ordered checks, each with its own outcome, so a verdict says
+        # THE EIGHT ORDERED CHECKS, EACH AT ITS OWN POSITION, so a verdict says
         # WHICH check decided it rather than only that something failed.
+        #
+        # WHY `prefixItems` AND NOT `enum` PLUS `uniqueItems`. Found by Copilot on
+        # `0d0f277d`, and it is right: `uniqueItems` compares whole ITEMS, so two
+        # entries naming the same check with different outcomes are distinct
+        # objects and both validated. A verdict could then record
+        # `actor_bound_to_signing_wallet` twice — once `pass`, once `fail` — omit
+        # `standing_and_holder_class_at_exercise` entirely, still carry eight
+        # items, and be schema-valid while the prose above called the list closed
+        # and ordered.
+        #
+        # Fixing the reader alone would have left the SHAPE admitting it. Pinning
+        # each position to its own `const` makes a duplicate, an omission and a
+        # reordering all UNREPRESENTABLE — the same move requirement 2's actor
+        # block makes for a missing wallet attestation, and this family's standing
+        # preference: where a shape can refuse a thing, the shape refuses it.
         type: array
         minItems: 8
         maxItems: 8
-        uniqueItems: true
-        items:
-          type: object
-          required: [check, outcome]
-          additionalProperties: false
-          properties:
-            check:
-              type: string
-              enum:
-                - ratification_signature_verifies
-                - chain_identity_recomputes
-                - exercise_object_ref_is_content_digest
-                - inception_leaf_commits_to_chain_identity
-                - traveling_contract_carries_established_values
-                - actor_bound_to_signing_wallet
-                - proof_of_possession_supplied_and_verified
-                - standing_and_holder_class_at_exercise
-            outcome:
-              type: string
-              enum: [pass, fail, not_evaluable]
-            statement: {type: string, maxLength: 600}
+        prefixItems:
+          - {$ref: '#/$defs/check_entry', properties: {check: {const: ratification_signature_verifies}}}
+          - {$ref: '#/$defs/check_entry', properties: {check: {const: chain_identity_recomputes}}}
+          - {$ref: '#/$defs/check_entry', properties: {check: {const: exercise_object_ref_is_content_digest}}}
+          - {$ref: '#/$defs/check_entry', properties: {check: {const: inception_leaf_commits_to_chain_identity}}}
+          - {$ref: '#/$defs/check_entry', properties: {check: {const: traveling_contract_carries_established_values}}}
+          - {$ref: '#/$defs/check_entry', properties: {check: {const: actor_bound_to_signing_wallet}}}
+          - {$ref: '#/$defs/check_entry', properties: {check: {const: proof_of_possession_supplied_and_verified}}}
+          - {$ref: '#/$defs/check_entry', properties: {check: {const: standing_and_holder_class_at_exercise}}}
+        items: false
       refusal:
         # Required when the outcome is `refused` or `unevaluable`, forbidden when
         # it is `permitted`. The code is CLOSED so a refusal names what was
@@ -218,6 +222,20 @@ properties:
   record_version: {type: integer, minimum: 1}
   notes: {type: string, maxLength: 1400}
 $defs:
+  check_entry:
+    # The shape of ONE recorded check. Its `check` member is left unconstrained
+    # HERE and pinned to a `const` at each position above, so the position is
+    # what fixes the name — `additionalProperties: false` and the required pair
+    # are declared once rather than eight times.
+    type: object
+    required: [check, outcome]
+    additionalProperties: false
+    properties:
+      check: {type: string}
+      outcome:
+        type: string
+        enum: [pass, fail, not_evaluable]
+      statement: {type: string, maxLength: 600}
   identifier:
     $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/identifier"
   digest:

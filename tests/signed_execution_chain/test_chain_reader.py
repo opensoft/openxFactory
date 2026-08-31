@@ -129,6 +129,64 @@ def test_every_negative_fixture_is_a_single_named_fault(registry_and_docs, carri
                 f"{path.name}: {code!r} fired but not for {detail!r}"
 
 
+def test_a_log_whose_genesis_prefix_was_deleted_is_refused(registry_and_docs,
+                                                           carried):
+    """LEAVES ARE APPENDED AND NEVER REMOVED, and a check that cannot see a
+    removal is not checking it.
+
+    Found by Codex as a P1 on `0d0f277d`. The first reader walked consecutive
+    PAIRS: the lowest retained leaf had no predecessor in scope, so its carried
+    digest went unchecked, and a store that deleted a prefix presented a set in
+    which every surviving pair linked correctly and every `tree_size` still
+    agreed with its own index. THIS CASE CANNOT BE PROBED BY A PACKAGED FIXTURE —
+    a fixture is ADDED to the corpus and cannot take leaf 0 away — so it is
+    pinned here, where the scope is built rather than composed."""
+    records = [(label, doc) for label, doc in reader.positive_records()
+               if doc["kind"] != "xfactory_signed_execution_chain_log_leaf"
+               or doc["leaf_index"] != 0]
+    leaves = [doc for _, doc in records
+              if doc["kind"] == "xfactory_signed_execution_chain_log_leaf"]
+    assert [doc["leaf_index"] for doc in leaves] == [1, 2, 3], (
+        "the fixture is leaves 1-3 with the genesis leaf deleted")
+    lines = reader.lines_for(
+        _validate(records, registry_and_docs, carried).errors,
+        "leaf_hash_link_broken")
+    assert any("begins at leaf 1" in line and "genesis" in line for line in lines), \
+        lines
+    assert any("compared against nothing" in line for line in lines), (
+        "the surviving lowest leaf's carried predecessor digest must be reported "
+        "as unverifiable rather than silently skipped — an unverifiable link is "
+        "not a verified one")
+
+
+def test_the_eight_check_list_is_closed_by_shape(registry_and_docs, carried):
+    """Copilot's finding on `0d0f277d`, and the repair is the SHAPE rather than
+    the reader.
+
+    `uniqueItems` compares whole ITEMS, so two entries naming the same check with
+    different outcomes were distinct objects and both validated: a verdict could
+    record one check twice, omit another, carry eight items and be schema-valid
+    beside prose calling the list closed and ordered. Each position now carries
+    its own `const`, so a duplicate, an omission AND a reordering are all
+    unrepresentable — which a reader-side rule would not have achieved."""
+    import copy
+
+    for mutate in ("duplicate", "reorder"):
+        records = copy.deepcopy(reader.positive_records())
+        for _, doc in records:
+            if doc["kind"] != "xfactory_signed_execution_chain_log_leaf" \
+                    or doc.get("leaf_type") != "gate_verdict":
+                continue
+            checks = doc["verdict"]["checks"]
+            if mutate == "duplicate":
+                checks[7] = dict(checks[5])
+            else:
+                checks[0], checks[1] = checks[1], checks[0]
+        codes = reader.codes_of(_validate(records, registry_and_docs,
+                                         carried).errors)
+        assert "schema" in codes, mutate
+
+
 def test_a_traveling_contract_is_checkable_from_the_artifact_alone(
         registry_and_docs, carried):
     """Requirement 5's claim, executed: ONE traveling contract, no registry, no

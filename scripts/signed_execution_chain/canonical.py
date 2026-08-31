@@ -21,6 +21,20 @@ non-integer number, so refusing what the family does not use costs nothing and
 closes the disagreement. `bool` is checked BEFORE `int` because `True` is an
 `int` in Python and would otherwise serialize as `1`.
 
+AND THE BOUND APPLIES TO INTEGERS TOO, which the first version of this module
+missed. `str(value)` is NOT ECMAScript number serialization once a value leaves
+the exactly-representable range: an ECMAScript reader holds every number as a
+double, so `9007199254740993` becomes `9007199254740992` there and stays itself
+here, and above about 1e21 the two disagree on exponent form as well. Python's
+integers are unbounded and the schemas set no ceiling, so two conforming readers
+could derive different chain identities from the same record — silently, since
+neither would report anything. Integers outside ±(2**53 - 1) are therefore
+REFUSED, on exactly the reasoning that refuses non-integer numbers. Found by
+Codex as a P2; the fix is the same bound one class wider, not a second rule.
+Every integer this family actually declares — `schema_version`, `leaf_index`,
+`tree_size`, `registry_version`, `record_version` — is small by orders of
+magnitude.
+
 WHY UTF-16 CODE UNITS AND NOT CODE POINTS. RFC 8785 sorts by UTF-16 code units,
 which differs from code-point order for names carrying characters above the BMP
 (a surrogate pair's leading unit sorts below U+E000-U+FFFF). Encoding each name
@@ -38,6 +52,12 @@ from typing import Any
 CONSTRUCTION = "xfc-jcs-sha256-1"
 ALGORITHM = "sha256"
 TAG = f"{ALGORITHM}:"
+
+#: 2**53 - 1 — the largest integer an IEEE-754 double holds exactly, and
+#: therefore the largest one an RFC 8785 reader and this one are guaranteed to
+#: serialize identically. Beyond it the two disagree silently, which is the only
+#: kind of disagreement a digest construction cannot survive.
+MAX_EXACT_INTEGER = 2 ** 53 - 1
 
 # The subjects this capability computes digests over. The enumeration is the
 # contract's; it is repeated here as a frozen set the validator checks against so
@@ -96,6 +116,12 @@ def serialize(value: Any) -> str:
     if isinstance(value, bool):
         return "true" if value else "false"
     if isinstance(value, int):
+        if abs(value) > MAX_EXACT_INTEGER:
+            raise ConstructionError(
+                f"{CONSTRUCTION} admits integers within "
+                f"±{MAX_EXACT_INTEGER} only; {value} is outside the range every "
+                f"reader serializes identically, and RFC 8785 would render it "
+                f"through an ECMAScript double where this one renders it exactly")
         return str(value)
     if isinstance(value, str):
         return _escape(value)

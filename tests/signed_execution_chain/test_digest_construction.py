@@ -117,6 +117,62 @@ def test_a_non_integer_number_is_refused_rather_than_serialized():
         canonical.serialize([1.0])
 
 
+def test_an_integer_outside_the_exactly_representable_range_is_refused():
+    """`str(value)` is NOT ECMAScript number serialization once a value leaves
+    the range a double holds exactly. RFC 8785's reader would render
+    9007199254740993 as 9007199254740992; this one renders it unchanged, so two
+    conforming readers would derive different chain identities from the same
+    record and neither would report anything.
+
+    Found by Codex as a P2. The repair is the SAME bound one class wider, not a
+    second rule — which is what this capability's own digest requirement demands
+    of a fix."""
+    assert canonical.MAX_EXACT_INTEGER == 2 ** 53 - 1
+    canonical.serialize({"x": canonical.MAX_EXACT_INTEGER})
+    canonical.serialize({"x": -canonical.MAX_EXACT_INTEGER})
+    for outside in (2 ** 53, -(2 ** 53), 9007199254740993, 10 ** 21, -(10 ** 30)):
+        with pytest.raises(canonical.ConstructionError):
+            canonical.serialize({"x": outside})
+        with pytest.raises(canonical.ConstructionError):
+            canonical.digest([outside])
+
+
+def test_the_integer_bound_is_declared_in_the_contract_too():
+    """One fact, two places it has to be true. A bound the code enforces and the
+    contract does not declare is a refusal a consumer cannot anticipate."""
+    text = CONTRACT.read_text(encoding="utf-8")
+    assert "2**53 - 1" in text
+    assert "9007199254740993" in text, (
+        "the contract states the disagreement concretely, because 'large integers "
+        "may differ' does not tell a reader where the line is")
+
+
+def test_every_integer_the_family_declares_is_inside_the_bound():
+    """The bound is only honest if it does not refuse the family's own records.
+    Every integer in the packaged corpus is serialized here, so a shape that
+    grew a large integer would fail this test rather than fail a digest
+    comparison in a gate."""
+    import yaml as _yaml
+
+    examples = (REPO_ROOT / "contracts" / "signed-execution-chain" / "examples")
+    seen = 0
+    for path in sorted(examples.rglob("*.yaml")):
+        for document in _yaml.safe_load_all(path.read_text(encoding="utf-8")):
+            if document is None:
+                continue
+            stack = [document]
+            while stack:
+                node = stack.pop()
+                if isinstance(node, dict):
+                    stack.extend(node.values())
+                elif isinstance(node, list):
+                    stack.extend(node)
+                elif isinstance(node, int) and not isinstance(node, bool):
+                    assert abs(node) <= canonical.MAX_EXACT_INTEGER, (path, node)
+                    seen += 1
+    assert seen > 0, "no integers found — the sweep is not reading the corpus"
+
+
 def test_an_unadmitted_value_class_is_refused_as_a_construction_error():
     """Including a non-string member name, which must surface as the
     construction's own refusal rather than as an AttributeError leaking out of
