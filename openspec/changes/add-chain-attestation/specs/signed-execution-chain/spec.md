@@ -311,10 +311,13 @@ CHAIN-SCOPED ALIKE — UNDER THREE RECORDS THAT COMPOSE**, two of them
 capability's own:
 
 1. **THE CERTIFICATE RECORD** — `add-trust-anchor`'s canonical
-   `certificate-record`, carrying the identity's **PUBLIC KEY** (`subject.
-   public_key_fingerprint`) and its **VALIDITY BOUNDS** (`validity.not_before` /
-   `not_after`), an ephemeral identity being one whose bounds say so. **Canonical
-   and unmodified.**
+   `certificate-record`, carrying the identity's **PUBLIC-KEY FINGERPRINT**
+   (`subject.public_key_fingerprint`) and its **VALIDITY BOUNDS**
+   (`validity.not_before` / `not_after`), an ephemeral identity being one whose
+   bounds say so. **It carries a FINGERPRINT AND NOT A KEY** — the canonical shape
+   holds no public key at all, which is why the verification key is SUPPLIED by
+   the signed record and matched against this fingerprint rather than read from
+   here. **Canonical and unmodified.**
 2. **THE ISSUANCE EVIDENCE** — `add-trust-anchor`'s canonical
    `issuance-evidence`, carrying the CONTROLLER'S ISSUANCE ACT: which authority
    issued, under what establishment level, on whose request, and when.
@@ -626,8 +629,8 @@ stands in for the other.
 
 #### Scenario: a genuine tier-2 identity's records verify end to end
 
-- WHEN a record is signed under an identity whose CERTIFICATE RECORD carries its public key with the signing moment inside its validity bounds, whose ISSUANCE EVIDENCE records the controller's issuance act and references that certificate, and whose SIGNED CHAIN BINDING names THIS chain, the identity's subject scope and a closed record-kind enumeration the record's kind falls inside — the binding referencing both by identifier
-- THEN all three verify, the signature verifies under the certified key, and the record is admitted for the checks its link requires
+- WHEN a record is signed under an identity whose CERTIFICATE RECORD carries its PUBLIC-KEY FINGERPRINT with the signing moment inside its validity bounds, the record SUPPLYING the public key beside its signature and that key's computed fingerprint EQUALLING the certificate's, whose ISSUANCE EVIDENCE records the controller's issuance act and references that certificate, and whose SIGNED CHAIN BINDING names THIS chain, the identity's subject scope and a closed record-kind enumeration the record's kind falls inside — the binding referencing both by identifier
+- THEN all three verify, the supplied key RESOLVES against the certificate's fingerprint, the signature verifies under that resolved key, and the record is admitted for the checks its link requires
 - AND an identity whose bounds had EXPIRED at signing, whose binding names a different chain, or which is MISSING ANY OF THE THREE RECORDS, is REFUSED, because bounds that are merely PRESENT are not bounds that are MET and a composition is not composed until every part is there
 - AND the attribution rules that follow now establish something, because the key that signed is known to be the controller's own issue
 
@@ -966,20 +969,32 @@ the signed order is 4 → 5 → 6 → 10**, link 5 being plural and governed by 
 enumeration rule below, **so LINK 10'S PREDECESSOR IS LINK 6'S PR-OPEN DECISION
 RECORD.**
 
-**COMMITMENT EXTENSIONS SIT IN THIS ORDER TOO, AND THE GENERAL RULE GOVERNS THEM
-WITH NO SPECIAL PLACEMENT.** An extension is a controller-signed record under the
-chain identity, so it is an in-force record kind and "nearest prior" reaches it
-exactly as it reaches every other: **an extension's predecessor is THE ACTUAL
-NEAREST PRIOR IN-FORCE SIGNED RECORD OF THIS CHAIN**, whatever kind that record
-happens to be — the setup attestation, a prior extension, or **a link-5
-attestation already written**. A rule that enumerated only numbered links would
-have left every dynamic fan-out unverifiable, which is the defect naming an order
-over RECORDS rather than over NUMBERS exists to avoid; a rule that then gave
-extensions their OWN fixed slot would have re-created it one kind over.
+**THE RULE GOVERNS EVERY SIGNED RECORD KIND THIS CAPABILITY DEFINES, FULL STOP —
+NOT THE NUMBERED LINKS, AND NOT A LIST OF KINDS.** Any record this capability
+defines that is SIGNED and written under the chain identity is an in-force record,
+and "nearest prior" reaches it: **its predecessor is THE ACTUAL NEAREST PRIOR
+IN-FORCE SIGNED RECORD OF THIS CHAIN**, whatever kind that record happens to be —
+the setup attestation, a commitment extension, **a SIGNED CHAIN BINDING minted
+when a late-dispatched task's identity is issued**, or a link-5 attestation
+already written. **A record's KIND never determines its place; its POSITION IN
+THE LOG does.**
 
-**WHERE FAN-OUT COMPLETES BEFORE ANY RUNNER ATTESTS, THAT ORDER READS
-4 → x₁ → … → xₙ → 5 → 6 → 10. THAT IS THE NO-INTERLEAVING CASE AND NOT THE
-RULE.** Fan-out is discovered as work runs, so a chain may lawfully dispatch a
+**THIS IS STATED OVER THE SET BECAUSE ENUMERATING KINDS HAS NOW BEEN OUTRUN
+TWICE.** A rule naming only numbered links left every dynamic fan-out
+unverifiable, so extensions were folded in — and folding in a NAMED KIND rather
+than stating the rule over the SET left the SIGNED CHAIN BINDING outside the walk
+the moment the ninth round created it, since a late dispatch mints one after the
+hash-link rule is in force. **The packet had already recorded this lesson at
+`tasks.md` 1.22 — "ONE RULE, NOT SLOTS: a rule that enumerates the slots it
+covers will be outrun by the next slot" — and THIS SECTION DID NOT FOLLOW IT.**
+It is stated over the set now, so a signed record kind a later tranche adds takes
+its place by the rule on the day it is defined, with no amendment here.
+
+**WHERE FAN-OUT COMPLETES BEFORE ANY RUNNER ATTESTS AND EVERY IDENTITY IS ISSUED
+UP FRONT, THAT ORDER READS 4 → x₁ → … → xₙ → 5 → 6 → 10. THAT ENUMERATION IS
+PURELY ILLUSTRATIVE OF THE NO-INTERLEAVING CASE — IT IS NOT THE RULE, IT BINDS
+NOTHING, AND IT OMITS EVERY KIND THAT HAPPENS NOT TO OCCUR IN THAT CASE (a chain
+binding minted up front sits in it too).** Fan-out is discovered as work runs, so a chain may lawfully dispatch a
 further task AFTER an earlier task has already emitted its link-5 attestation.
 The extension that commits that later task is then owed at THAT dispatch, and the
 nearest prior in-force record at that moment is the link-5 record already
@@ -1175,6 +1190,13 @@ permission is exactly how an absence becomes a hole.
 - THEN it is REFUSED, because one construction governs every digest this capability computes including those a later tranche adds
 - AND the second rule is removed rather than reconciled
 
+#### Scenario: a late-dispatched task's identity is issued after an earlier attestation
+
+- WHEN fan-out dispatches a task after an earlier task's link-5 attestation is written, and issuing that task's tier-2 identity mints a SIGNED CHAIN BINDING at that moment
+- THEN the chain binding descends from THE ACTUAL NEAREST PRIOR IN-FORCE SIGNED RECORD — that earlier link-5 record, or the commitment extension if that was written later — and the records written after it descend from the binding in turn
+- AND the gate walks it, because a signed record this capability defines takes its place by the rule and never by its kind
+- AND no realization-specific choice arises, since the predecessor is the log's own latest signed record and not a preference
+
 #### Scenario: a later task is dispatched after an earlier task has attested
 
 - WHEN fan-out discovers a further task after an earlier task's link-5 attestation is already written, and the extension committing the later task is written at that dispatch
@@ -1297,17 +1319,46 @@ is named here so that the two shortfalls this requirement DOES declare — the
 per-seat residual below, and the revocation-at-exercise one after it — are not
 read as a pattern extending to the outcome.
 
-**AND THE REVIEW RECORD SHALL NAME THIS CHAIN, OR A GENUINE REVIEW OF OTHER WORK
-CLOSES IT.** Link 10 references the ratified proposal and the review record
-INDEPENDENTLY, and the review-authority exercise below binds only to the review
-record — so a caller supplying a REAL, authority-proven review record **produced
-for a different proposal** satisfies every other condition here and closes this
-chain. Nothing in a valid old review says which work it reviewed. **THE CONSUMED
-REVIEW RECORD SHALL THEREFORE NAME THIS CHAIN'S IDENTITY — the digest of the
-signed ratification the traveling contract carries — AND CLOSURE SHALL VERIFY
-THAT BINDING**, refusing a review record that names another chain or names none.
-This is the chain binding every other link in this family already carries, owed
-at the one link that had been consuming an artifact without it.
+**AND THE REVIEW RECORD SHALL NAME THE PROPOSAL IT REVIEWED, OR A GENUINE REVIEW
+OF OTHER WORK CLOSES THIS CHAIN.** Link 10 references the ratified proposal and
+the review record INDEPENDENTLY, and the review-authority exercise below binds
+only to the review record — so a caller supplying a REAL, authority-proven review
+record **produced for a different proposal** would satisfy every other condition
+here and close this chain. Nothing in a valid old review says which work it
+reviewed.
+
+**THE BINDING CANNOT BE TO THE CHAIN IDENTITY, AND AN EARLIER FORM OF THIS
+PARAGRAPH ASKED FOR EXACTLY THAT.** The §7.4 flow this capability requires puts
+the COUNCIL REVIEW BEFORE THE RATIFICATION, and tranche one mints the CHAIN
+IDENTITY as *"the digest of the signed ratification"* IN the ratification act
+itself. The review record therefore exists BEFORE the value exists, cannot be
+amended afterwards without falsifying the record it is, and **no genuine review
+could ever have satisfied the positive closure path.** A binding that requires an
+artifact to name a value minted after it was written is not a strict binding but
+an unsatisfiable one.
+
+**SO THE BINDING IS TO WHAT EXISTS AT REVIEW TIME, AND THE CHAIN IS REACHED
+THROUGH THE RATIFICATION'S OWN BYTES.** The consumed review record SHALL NAME
+**THE CONTENT DIGEST OF THE PROPOSAL IT REVIEWED** — a value available when the
+review is written, taken under the ONE digest construction already in force — and
+**CLOSURE SHALL VERIFY THE EQUALITY CHAIN**:
+
+1. the review record's named proposal digest **EQUALS** the RATIFICATION'S
+   CONTENT DIGEST, which tranche one fixes as the digest taken over THE SUBJECT
+   RATIFIED — the same proposal, digested the same way; and
+2. that ratification's SIGNED BYTES, which cover that subject, recompute under
+   the same construction to **THE CHAIN IDENTITY** the traveling contract
+   carries — which is tranche one's own chain-identity check, already walked.
+
+**The chain is therefore bound to the review TRANSITIVELY, through the
+ratification that sits between them**, and nothing is asked to name the future.
+**REPLAY IS STILL REFUSED**: a review of another proposal names another proposal
+digest, which cannot equal this ratification's content digest, so the first limb
+fails and closure is refused. The two digests are the two tranche one already
+distinguishes — the CONTENT digest over the ratified subject and the CHAIN
+IDENTITY over the signed ratification — and this rule uses each for the comparison
+it was defined for rather than collapsing them, which is the error the gate's own
+checks 2 and 3 exist to prevent.
 
 **BINDING TO THE REVIEW RECORD'S BYTES IS NOT ENOUGH, AND CLOSURE SHALL
 ESTABLISH THE REVIEW'S AUTHORITY.** A digest over a review record proves only
@@ -1420,8 +1471,14 @@ reason this paragraph enumerates rather than summarizes.
 #### Scenario: a genuine review record from another proposal is replayed
 
 - WHEN a caller supplies a REAL, authority-proven review record produced for a DIFFERENT proposal, and every other closure condition is satisfied
-- THEN closure is REFUSED, because the consumed review record does not name THIS chain's identity
+- THEN closure is REFUSED, because the proposal digest that review names does not EQUAL this ratification's content digest, so the first limb of the equality chain fails
 - AND the record's genuine authority and verified proof of possession are not accepted, since they establish that a council reviewed something and never that it reviewed THIS work
+
+#### Scenario: a review written before ratification closes its own chain
+
+- WHEN a council review record written BEFORE ratification names the content digest of the proposal it reviewed, that digest EQUALS the ratification's content digest taken over the subject ratified, and the signed ratification recomputes to the chain identity the traveling contract carries
+- THEN the equality chain holds, the review is established as a review OF THIS WORK, and closure proceeds on it
+- AND the review record is never asked to name the chain identity, which is minted in the ratification act that comes after it — the chain is reached THROUGH the ratification's own bytes
 
 #### Scenario: a fabricated review record is supplied to the post-merge test
 

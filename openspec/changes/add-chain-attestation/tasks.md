@@ -15,7 +15,7 @@ in for a ruleset state.
 
 ## 1. Spec deltas and the packet (THIS PULL REQUEST)
 
-- [x] 1.1 `signed-execution-chain` — **NINE ADDED requirements over 100
+- [x] 1.1 `signed-execution-chain` — **NINE ADDED requirements over 102
       scenarios**: the harness-controller setup attestation under a certificate
       expressed in `add-trust-anchor` vocabulary, with the issuing authority named
       as a realization dependency and never assumed; runner attestations signed AT
@@ -483,6 +483,41 @@ in for a ruleset state.
         be outrun by the next slot. State it over the set.
       - **EQUALITY CHECKS COVER EVERY DECLARED AXIS**, not the first one — 5.4
         against `code_surface` over record kinds AND field disciplines.
+- [x] 1.23 **THE FOURTEENTH BOT ROUND'S TWO P1s AND ONE P2 ARE CLOSED.**
+      (i) **THE REPLAY FIX DEMANDED A VALUE THAT CANNOT EXIST YET.** The §7.4 flow
+      puts the COUNCIL REVIEW BEFORE THE RATIFICATION, and tranche one mints the
+      chain identity as the digest of the signed ratification IN that later act
+      (`add-signed-execution-chain/spec.md:151-159`). Round eight's binding asked
+      the review record to name a value minted after it was written — **so no
+      genuine review could ever have satisfied the positive closure path**, and
+      the record cannot be amended afterwards without falsifying what it is.
+      **Repaired by binding to what exists at review time and bridging through the
+      ratification's own bytes**: the review names THE CONTENT DIGEST OF THE
+      PROPOSAL IT REVIEWED, and closure verifies the EQUALITY CHAIN — that digest
+      EQUALS the ratification's CONTENT DIGEST (taken over the subject ratified),
+      whose SIGNED BYTES recompute to THE CHAIN IDENTITY the traveling contract
+      carries. Replay stays refused: a review of another proposal names another
+      digest and fails the first limb. **The two digests are the ones tranche one
+      already distinguishes**, each used for the comparison it was defined for
+      rather than collapsed — the error the gate's checks 2 and 3 exist to
+      prevent. (ii) **THE SIGNED ORDER WAS OUTRUN AGAIN, BY A KIND THIS PACKET
+      ITSELF CREATED.** Round eleven generalized the order and then folded in a
+      NAMED KIND — commitment extensions — rather than stating the rule over the
+      SET; the ninth round's SIGNED CHAIN BINDING then fell outside the walk,
+      because a late dispatch mints one after the hash-link rule is in force.
+      **THE PACKET HAD ALREADY RECORDED THIS LESSON AT 1.22 AND THIS SECTION DID
+      NOT FOLLOW IT** — recorded plainly rather than smoothed. The rule now governs
+      EVERY signed record kind this capability defines, full stop; **a record's
+      KIND never determines its place, its POSITION IN THE LOG does**; and
+      `4 → x₁ → … → xₙ → 5 → 6 → 10` is marked PURELY ILLUSTRATIVE of the
+      no-interleaving case, binding nothing. (iii) **P2 — the composition called a
+      FINGERPRINT a KEY.** `subject.public_key_fingerprint` is a fingerprint and
+      the canonical shape holds no key at all; the verification key is SUPPLIED by
+      the signed record. Both sites corrected to the real mechanics — supply the
+      key, compute its fingerprint, compare, then verify — and the requirement was
+      swept for other conflation: the four remaining "key" mentions are each
+      correct. **1.22's announcement sweep fired in this commit**, the scenario
+      total moving 100 → 102 at all four sites.
 
 ## 2. §7.4 COUNCIL REVIEW — **HELD 2026-08-30. THE FIRST GATE IS DISCHARGED.**
 
@@ -764,7 +799,7 @@ Each is contract content — cheap now, expensive after a bundle ships.
       identity; a **controller-signed link-4 or extension record supplying its own
       key against a controller certificate with NO fingerprint**, refused; and
       POSITIVES for **the verification key resolving against the certificate**,
-      for **records under a compliant CONTROLLER certificate verifying**, and for **a later task dispatched after an earlier task has
+      for **records under a compliant CONTROLLER certificate verifying**, for **a review written BEFORE ratification closing its own chain through the equality chain**, for **a late-dispatched task's SIGNED CHAIN BINDING descending from the actual latest signed record**, and for **a later task dispatched after an earlier task has
       attested** — the extension chaining from that link-5 record and the gate
       walking the interleaved order; and
       two POSITIVES — **a genuine tier-2 identity's THREE records verifying end to

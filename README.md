@@ -396,7 +396,7 @@ Active changes:
   **TRANCHE TWO of the signed-execution-chain family: links 4–6 and 10** — the
   harness-controller setup attestation, the per-task runner attestations, the
   signed pull-request-open decision, and the governed post-merge test that CLOSES
-  a chain. **NINE ADDED requirements over 100 scenarios, plus ONE `## MODIFIED
+  a chain. **NINE ADDED requirements over 102 scenarios, plus ONE `## MODIFIED
   Requirements` block restating tranche one's gate requirement scenario-complete
   at all NINE of its scenarios.** It realizes the declaration tranche one could
   only make: the SIGNED HASH-LINK RULE takes effect at link 4, the first link in

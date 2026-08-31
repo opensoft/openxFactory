@@ -205,7 +205,7 @@ capability tranche one created.
 
 ### Modified Capabilities
 
-- `signed-execution-chain`: **NINE ADDED requirements over 100 scenarios**, plus
+- `signed-execution-chain`: **NINE ADDED requirements over 102 scenarios**, plus
   **ONE `## MODIFIED Requirements` block — tranche one's gate requirement,
   SCENARIO-COMPLETE AT ALL NINE OF ITS SCENARIOS** — the harness-controller
   setup attestation under a `trust-anchor` certificate; runner attestations
