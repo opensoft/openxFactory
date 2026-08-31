@@ -55,9 +55,21 @@ different declarations.
 `release-realization` scopes its ordering obligation to an active RATIFIED
 change and this requirement does not widen it. Where the declared basis is a
 change that is not ratified, the declaring block rests on text no authority has
-accepted; the marker is still owed, the reason clause SHALL say that the basis
-is unratified, and the modifying change SHALL NOT describe the requirement it
-modifies as settled.
+accepted; the marker is still owed, the reason clause SHALL DISCLOSE that the
+basis is unratified, and the modifying change SHALL NOT describe the requirement
+it modifies as settled.
+
+**THE DISCLOSURE HAS A FORM, because an obligation only a reader can check is an
+obligation nothing checks.** The reason clause discloses by CARRYING THE WORD
+`unratified` — in prose or as a code span, this form naming no units either way
+— read case-insensitively after the same whitespace normalization the marker
+itself is read under. The sentence it sits in stays the author's to write. This
+is the bargain every reserved form in this capability already strikes: the FORM
+is what a checker reads and the PROSE is what a reader reads, and asking a
+checker to decide whether a sentence discloses would be the prose rule this
+whole marker design refuses. The obligation is stated HERE, where every reserved
+marker in the corpus is defined; `doc-health` is where the reading of it is
+enforced, and neither is a substitute for the other.
 
 #### Scenario: A block is written over a sibling's addition
 - **WHEN** an active change's `## MODIFIED Requirements` block names a requirement the promoted specification does not carry, and an active change ADDS or RENAMES to that title
@@ -75,7 +87,8 @@ modifies as settled.
 
 #### Scenario: The declared basis is not ratified
 - **WHEN** the change whose addition a block is written over carries a status other than `ratified`
-- **THEN** the marker MUST still be carried and its reason clause MUST state that the basis is unratified
+- **THEN** the marker MUST still be carried and its reason clause MUST state that the basis is unratified, by carrying the word `unratified`
+- **AND** a reason clause omitting that word MUST NOT be read as disclosing it however the rest of the sentence is worded, this disclosure being read by form like every other part of this marker
 - **AND** `release-realization`'s ordering obligation MUST NOT be read as reaching that change, its antecedent naming an active ratified change and this requirement widening it in no way
 
 #### Scenario: One change both adds and modifies one requirement

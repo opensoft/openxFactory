@@ -55,8 +55,9 @@ scenario-title arm report nothing against this delta, asserted in `tasks.md`
 The modified-block-currency family SHALL evaluate every `## MODIFIED
 Requirements` block whose title resolves to an active change's ADDED or RENAMED
 requirement — the shape its resolver returns as `pending` — and SHALL report the
-pairing where it is undeclared, misdeclared, or self-referential, instead of
-dropping the block before its checks run.
+pairing where it is undeclared, misdeclared, self-referential, or declared over
+a basis that is not ratified without the disclosure `document-lifecycle`
+requires of the marker, instead of dropping the block before its checks run.
 
 **NOTHING IS COMPARED, AND THAT RULING STANDS.** Synthesising a basis from the
 sibling's ADDED text was ruled against on 2026-08-27 for a reason that has not
@@ -69,7 +70,7 @@ What was wrong was never that the arms declined; it was that the block was
 dropped before anything at all looked at it, so the arms' silence read as
 clearance when it was uncomparability.
 
-**THE CHECK SHALL REPORT EXACTLY THREE STATES, and be silent on the fourth.**
+**THE CHECK SHALL REPORT EXACTLY FOUR STATES, and be silent on the fifth.**
 
 - **UNDECLARED** — the block carries no marker of the reserved `Modified over`
   form. Reported.
@@ -80,26 +81,58 @@ clearance when it was uncomparability.
 - **SELF-REFERENTIAL** — the change that carries the block is itself the change
   that adds the requirement. Reported, and a marker naming the change itself
   MUST NOT clear it.
+- **UNDISCLOSED** — a marker names an active change, other than this one, that
+  does add or rename to the title, that change is NOT `ratified`, and the
+  marker's reason clause does not carry the disclosure `document-lifecycle`
+  requires of it. Reported, and reported apart from the other three: here the
+  pairing is declared and the basis is real, and what is missing is the reader's
+  warning that the text the block rests on has been accepted by no authority.
 - **DECLARED AND RESOLVING** — a marker names an active change that does add or
-  rename to the title, and that change is not this one. NO FINDING IS EMITTED.
+  rename to the title, that change is not this one, and either that change is
+  `ratified` or the marker discloses that it is not. NO FINDING IS EMITTED.
   A correctly declared pair is the state this check exists to produce, and a
   standing row for it would be a permanent advisory nobody should act on.
 
+**THE FOURTH STATE EXISTS BECAUSE THE OBLIGATION WOULD OTHERWISE BE DECLARED IN
+ONE CAPABILITY AND ENFORCED IN NONE.** `document-lifecycle` requires the reason
+clause of a marker naming an unratified basis to disclose that standing; without
+this state a marker that names its basis and says nothing about its standing
+falls into DECLARED AND RESOLVING and passes in silence, and the disclosure
+becomes a rule with no reader. The state is a NARROWING of the silent one and
+not a fifth thing to look for: its antecedent is the silent state's antecedent
+plus two conditions, so it reaches ONLY a block whose pairing is otherwise in
+good order, and it restates no defect the other three already name.
+
+**THE DISCLOSURE IS READ AS A WORD AND NOT AS A SENTENCE.** The form belongs to
+`document-lifecycle`, which defines the marker and reserves the word; this
+family only looks in the reason clause for it. A reason that carries the word
+and denies it in the same breath is past what any deterministic family can read,
+and it is a defect of authorship its reviewers catch — the alternative, a
+checker arbitrating whether a sentence discloses, is the prose rule this marker
+design refuses everywhere else.
+
+**A DISCLOSURE THAT OUTLIVES THE STATUS IT DISCLOSED IS NOT REPORTED.** The
+marker is a dated statement about the moment it was written, so a basis that
+ratifies afterwards ends the question rather than turning the marker into a
+defect. Nothing obliges the modifying change to go back and strike the word, and
+a stale disclosure SHALL NOT be read as a wrong one.
+
 **THE FINDINGS SHALL FORM ONE NEW FINDING CLASS of this family**, reported
 against the active delta's own path like every other finding this family emits,
-carrying the `warning` band and one action line stating both halves of the
-remedy: declare the basis by marker, and hold the archive until the declared
-change promotes. The class SHALL be registered in the family's own class
-registry with its own identifier and label, and SHALL be placed by the family's
-class map; a finding this new class emits that the map does not place is an
-unplaced finding like any other and is reported by the class that reports those.
+carrying the `warning` band and one action line stating every half of the
+remedy: declare the basis by marker, disclose it in the reason clause where that
+basis is not ratified, and hold the archive until the declared change promotes.
+The class SHALL be registered in the family's own class registry with its own
+identifier and label, and SHALL be placed by the family's class map; a finding
+this new class emits that the map does not place is an unplaced finding like any
+other and is reported by the class that reports those.
 
 **ITS RULE TEXT SHALL BE RENDERED FROM A REGISTERED ARM TEMPLATE.** The family
 derives its unplaced-finding mask from its own arm templates, so a rule text
 built any other way would have no shape the mask can compute and would be
 reported as drift on every run that emitted one. One template SHALL carry all
-three reported states, distinguished by an interpolated clause, because one
-template is one shape is one map entry — the three states share a band and an
+four reported states, distinguished by an interpolated clause, because one
+template is one shape is one map entry — the four states share a band and an
 action and differ only in why.
 
 **THE BAND IS `warning`, AND THE CLASS IS `contested` BY A ROW THIS REQUIREMENT
@@ -167,7 +200,15 @@ this family's reading rule already provides, and this is deliberately wider than
 the ordering obligation `release-realization` scopes to an active ratified
 change. A finding SHALL name the declared or resolved basis change and, where
 that change is not ratified, SHALL say so, so that a reader can see at a glance
-whether an obligation or only an observation stands behind the row.
+whether an obligation or only an observation stands behind the row. **THE
+BASIS'S OWN STANDING IS READ THE WAY THIS FAMILY ALREADY READS STANDING** —
+through the one lifecycle-header reader its two-writers arm uses for
+`release-realization`'s `ratified` scoping, never a private regex — so the fact
+that qualifies a finding's wording and the fact the UNDISCLOSED state turns on
+are one fact read once. A basis whose header declares no standing this reader
+can resolve SHALL be treated as not ratified, the whole point of the disclosure
+being to warn a reader about text no authority has been shown to accept, and a
+standing nobody can read being no such showing.
 
 #### Scenario: A block over a sibling's addition carries no marker
 - **WHEN** an active change's MODIFIED block names a requirement the promoted specification does not carry, an active change ADDS or RENAMES to that title, and the block carries no `Modified over` marker
@@ -176,7 +217,7 @@ whether an obligation or only an observation stands behind the row.
 - **AND** the finding MUST NOT cause a run configured `--fail-on error` or `--fail-on critical` to fail
 
 #### Scenario: A block over a sibling's addition is correctly declared
-- **WHEN** such a block carries a `Modified over` marker naming an active change other than its own that ADDS or RENAMES to the block's capability and requirement title
+- **WHEN** such a block carries a `Modified over` marker naming an active change other than its own that ADDS or RENAMES to the block's capability and requirement title, and that change is `ratified`
 - **THEN** no finding MUST be emitted for that block, a declared pairing being the state this check exists to produce
 
 #### Scenario: The marker names a change that does not add the requirement
@@ -188,6 +229,16 @@ whether an obligation or only an observation stands behind the row.
 - **WHEN** one change carries both an ADDED and a MODIFIED block for one capability and requirement title
 - **THEN** the run MUST emit a `warning` finding against that delta
 - **AND** a `Modified over` marker naming that same change MUST NOT suppress it
+
+#### Scenario: A block is declared over a basis no authority has accepted
+- **WHEN** such a block carries a `Modified over` marker naming an active change other than its own that ADDS or RENAMES to the title, that change carries a status other than `ratified`, and the marker's reason clause does not carry the disclosure `document-lifecycle` requires
+- **THEN** the run MUST emit one `warning` finding against the active delta's own path, naming the basis change and its declared standing and stating that the marker does not disclose it
+- **AND** that finding MUST be worded apart from the undeclared and the misdeclared cases, a pairing declared over text no authority has accepted being a different defect from an absent basis or a wrong one
+
+#### Scenario: The unratified basis is disclosed
+- **WHEN** such a marker's reason clause carries that disclosure, or the change it names is `ratified`
+- **THEN** no finding MUST be emitted for that block, the disclosure being the whole of what this state asks of a declared pairing
+- **AND** a disclosure MUST NOT be reported once the basis it discloses ratifies, the marker being a dated statement about the moment it was written
 
 #### Scenario: A declared basis archives
 - **WHEN** the change a block is declared over archives and its addition reaches the promoted specification

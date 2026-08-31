@@ -423,13 +423,16 @@ Active changes:
   ``**Modified over `<basis change-id>`'s addition by <change-id>
   (<YYYY-MM-DD>):**``,
   read by form and never by prose, naming no units and therefore never a carriage
-  declaration. `doc-health` gains the arm that evaluates the `pending` shape
-  instead of dropping it at `modified_block_currency.py`'s
-  `if status == "pending": continue` — three reported states (undeclared,
-  misdeclared, self-referential), silent on the fourth (declared and resolving) —
-  plus, as the archive ordering's only possible mechanical backstop, a class that
-  reports an active `## ADDED Requirements` block for a title canon already
-  carries. `doc-health` ALSO GAINS ONE `## MODIFIED Requirements` BLOCK, on a
+  declaration — and where the basis is NOT RATIFIED the reason clause discloses
+  it by carrying the word `unratified`, a form rather than a wish, so that the
+  disclosure has a reader. `doc-health` gains the arm that evaluates the
+  `pending` shape instead of dropping it at `modified_block_currency.py`'s
+  `if status == "pending": continue` — four reported states (undeclared,
+  misdeclared, self-referential, and undisclosed, the marker that names an
+  unratified basis without saying so), silent on the fifth (declared and
+  resolving) — plus, as the archive ordering's only possible mechanical
+  backstop, a class that reports an active `## ADDED Requirements` block for a
+  title canon already carries. `doc-health` ALSO GAINS ONE `## MODIFIED Requirements` BLOCK, on a
   requirement neither new class touches: "A modified-block-currency finding its
   own class map cannot place is itself a finding" says the family "SHALL remain
   absent from `FAMILY_RESOLUTION`" (`:2088`) and rests a MUST on that absence

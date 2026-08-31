@@ -37,18 +37,36 @@ pairing class that cannot read a marker reports every declared pair.
 - [ ] 2.2 Make the form name NO units. It suppresses nothing, is never a
       candidate for the marker-defect check, and — like the other two forms — is
       excluded from unit derivation in canon and in the block, so it is not a
-      carriage unit in either direction.
-- [ ] 2.3 Widen `sibling_titles` to carry the ADDING CHANGE ID beside each
-      `(capability, title)`. The bare title set it returns today cannot name a
-      pairing in a finding and cannot see the self-referential state, because it
-      does not exclude the reading change from its own sources.
+      carriage unit in either direction. **AND ITS REASON IS THE WHOLE TAIL
+      AFTER ` — `**, harvested without extracting code spans as names: the
+      `Removed from canon`/`Merged into` path takes the reason from after the
+      LAST code span, and reusing it here would read a code span an author wrote
+      INSIDE the reason as a named unit and shorten the reason to nothing. The
+      disclosure 2.5's fourth state reads lives in that reason, so the two are
+      one mechanism and this note is a precondition of that state working at
+      all.
+- [ ] 2.3 Widen `sibling_titles` to carry the ADDING CHANGE ID and ITS DECLARED
+      STANDING beside each `(capability, title)`. The bare title set it returns
+      today cannot name a pairing in a finding and cannot see the
+      self-referential state, because it does not exclude the reading change from
+      its own sources; and it cannot see the UNDISCLOSED state, because the
+      adding change's standing is never read at all — `active_blocks` skips a
+      change that carries no MODIFIED block, which every pure adder is. Read it
+      through `_standing`, the module's existing `corpus.parse_status` ->
+      `promotion_fidelity.declared_standing` path, never a private regex.
 - [ ] 2.4 Replace the `if status == "pending": continue` drop with the pairing
       emit. THE THREE COMPARISON ARMS STILL DO NOT RUN against a pending block;
       the 2026-08-27 ruling is untouched and the change is that the block is no
       longer dropped before anything looks at it.
-- [ ] 2.5 Report exactly three states — undeclared, misdeclared,
-      self-referential — and emit NOTHING for a declared, resolving pair.
-- [ ] 2.6 Register ONE `_ArmTemplate` for the class, carrying all three states
+- [ ] 2.5 Report exactly four states — undeclared, misdeclared,
+      self-referential, undisclosed — and emit NOTHING for a declared, resolving
+      pair whose basis is `ratified` OR whose marker discloses that it is not.
+      UNDISCLOSED NARROWS THE SILENT STATE — its antecedent is that state's plus
+      two conditions, so it reaches only a block otherwise in good order and
+      restates no defect the other three name. It reads the reason clause for
+      the word `document-lifecycle` reserves, and it is why that capability's
+      disclosure obligation has an enforcer at all.
+- [ ] 2.6 Register ONE `_ArmTemplate` for the class, carrying all four states
       in one interpolated `why` clause on the `TEMPLATE_UNRESOLVED` precedent,
       and append it to `_ARM_TEMPLATES`. One template is one shape is one map
       entry; a rule text not rendered from a registered template has no shape the
@@ -61,8 +79,11 @@ pairing class that cannot read a marker reports every declared pair.
       with the template registered and the pattern absent, the fifth class fires
       and names the new rule text — that is the fifth class working, and it is a
       test worth keeping rather than a step to skip.
-- [ ] 2.9 Fixtures, one per reported state plus the silent one, and the
-      regression fixture reconstructing the corpus's own four-pair shape.
+- [ ] 2.9 Fixtures, one per reported state plus BOTH silent ones — a `ratified`
+      basis, and an unratified basis whose marker discloses it — and the
+      regression fixture reconstructing the corpus's own four-pair shape. The
+      unratified pair needs its own adding-change fixture carrying a non-ratified
+      `Status:`, the standing being read from the adder's proposal header.
 - [ ] 2.10 Move the standing pins by name, one at a time: the class-registry
       pin, the rule-shapes pin, the verbatim class-row list, the
       last-row assertions, the `len(block)` pin, and the FR-023 severity
@@ -108,7 +129,10 @@ a veto would strike.
       `main`-side parent is `7f656980`: 20 active MODIFIED blocks, 16 `canon`,
       4 `pending`; all four adding siblings `ratified`; zero markers; the
       proposal cross-reference present in 4 of 4 and over-broad by two to three
-      unrelated active change ids in each. The PENDING SET IS UNCHANGED from the
+      unrelated active change ids in each. **THE UNDISCLOSED STATE'S LAUNCH
+      POPULATION IS ZERO BY THAT SAME READ**: all four bases are `ratified`, so
+      no marker the § 6 sweep writes owes the disclosure and the fourth state
+      moves neither figure § 8.1 reads. The PENDING SET IS UNCHANGED from the
       19/15/4 read at `91cf0a46` — the twentieth block is
       `add-structured-scope-substrate`'s over `release-realization`'s
       "Realization axis declaration", a different requirement of the same spec,
@@ -181,7 +205,11 @@ a veto would strike.
 - [ ] 6.1 Subject to OQ-4's routing: add one `Modified over` marker to each of
       the four live pairs — `add-binding-consumer-identity`,
       `add-wallet-carried-review-authority`, `implement-keycloak-install-repo`,
-      `implement-openxpki-install-repo`.
+      `implement-openxpki-install-repo`. NONE of the four owes the unratified
+      disclosure: every one of the four bases is `ratified` (§ 4.1). Re-read the
+      four standings at the moment the sweep is written rather than trusting this
+      line — a base whose standing has moved owes the word, and the sweep is the
+      cheapest place to notice.
 - [ ] 6.2 Each is a RATIFIED packet, so each marker is an amendment to a
       ratified proposal and takes that route, with the packet's owner consenting
       to the edit. A marker is not a carriage unit, so adding one changes what no
@@ -276,8 +304,10 @@ a veto would strike.
       line ALONE and by the amount THE ORDER ACTUALLY TAKEN predicts:
       `0 warning` where § 6 was sequenced first as D4 asks and the standing pairs
       are declared before the class runs, `+4 warning` where the class landed
-      against the population undischarged. Record which order was taken; a run
-      whose movement matches NEITHER figure is the finding, not the gate.
+      against the population undischarged. Both figures already account for the
+      UNDISCLOSED state, which contributes zero either way, all four bases being
+      `ratified`. Record which order was taken; a run whose movement matches
+      NEITHER figure is the finding, not the gate.
 - [ ] 8.2 On archive, the change MAY state `Closes #502`. It does not close it
       before then, and the proposal says so in § Standing.
 - [ ] 8.3 Confirm at the archive gate that BOTH of this packet's own MODIFIED
