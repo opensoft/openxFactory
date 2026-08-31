@@ -48,7 +48,7 @@ whole file wait for another change to land.
 
 from __future__ import annotations
 
-from doc_health import INFO, WARNING
+from doc_health import ERROR, INFO, WARNING
 from doc_health import modified_block_currency as mbc
 from doc_health.promotion_fidelity import norm as norm_title
 
@@ -62,10 +62,12 @@ def test_the_three_launch_severities_are_named_apart():
     `_LAUNCH_SEVERITY` is the identifier `promotion_fidelity`,
     `duplicate_packet` and `family_enumeration` all use, and it is the grep that
     ties every reader of a launch decision together. It carries the
-    SCENARIO-TITLE arm here, because that is the arm § 7.2's flip moves. The
-    other two arms have their own constants so the flip cannot drag them.
+    SCENARIO-TITLE arm here, because that is the arm § 7.2's flip moves — and
+    which it MOVED, on 2026-08-31 (issue #357), once the measured population
+    read zero. The other two arms have their own constants precisely so the
+    flip could not drag them, and O8 is why they still read as launched.
     """
-    assert mbc._LAUNCH_SEVERITY == WARNING
+    assert mbc._LAUNCH_SEVERITY == ERROR
     assert mbc._RESOLUTION_SEVERITY == WARNING
     assert mbc._LEDGER_SEVERITY == INFO
     # ...and they are three SEPARATELY ASSIGNABLE module attributes, which is
@@ -85,56 +87,47 @@ def test_the_three_launch_severities_are_named_apart():
             setattr(mbc, name, before[name])
 
 
-def test_the_reserved_flip_of_the_launch_severity_does_not_drag_the_drift_class():
+def test_the_realized_flip_of_the_launch_severity_did_not_drag_the_drift_class():
     """THE FOURTH CONSTANT, AND THE ONLY PIN THAT CAN SEE WHY IT EXISTS.
 
-    `_DRIFT_SEVERITY = WARNING` and `_DRIFT_SEVERITY = _LAUNCH_SEVERITY` are
-    VALUE-IDENTICAL today, so every assertion about the constants' values passes
-    under both — and so does the separately-assignable check above, because
-    rebinding one module attribute never moves another even when both were bound
-    from the same expression. The difference appears only AFTER
-    `add-modified-block-currency-check` § 7.2 flips `_LAUNCH_SEVERITY` to
-    `error`, at which point a shared constant would move the fifth class's
-    rendered caption AND its findings together, and no pin in this suite would
-    notice. The module's own § 2.1 note calls that drag "INVISIBLE"; the remedy
-    for an invisible drag is a test, not a comment.
+    `_DRIFT_SEVERITY = WARNING` and `_LAUNCH_SEVERITY = WARNING` were
+    VALUE-IDENTICAL before the flip, so every assertion about the constants'
+    values passed under either — and so did the separately-assignable check
+    above, because rebinding one module attribute never moves another even
+    when both were bound from the same expression. The module's own § 2.1
+    note called an accidental merge of the two "INVISIBLE" for exactly that
+    reason: a shared constant would move the fifth class's rendered caption
+    AND its findings together, and no VALUE-based pin taken before the flip
+    could tell the difference.
 
-    SO THE FLIP IS SIMULATED, over the module's REAL SOURCE. One line is
-    substituted, the source is executed as a module in this package's namespace,
-    and the two bands are read off the resulting class registry: the
-    scenario-title arm moved and the drift class did not. Added by the mutation
-    round of `026-unplaced-finding-drift`, which is where
-    `add-unclassified-finding-class` tasks.md § 2.14(e) says this pin is owed if
-    it is missing. It was missing.
-
-    § 7.2 itself is neither advanced nor blocked by this test: it asserts only
-    that the two constants are independent, which is the whole reason the fourth
-    one has its own name.
+    UNTIL THE FLIP LANDED FOR REAL. `add-modified-block-currency-check` § 7.2
+    flipped `_LAUNCH_SEVERITY` to `error` on 2026-08-31 (issue #357), which is
+    when `_LAUNCH_SEVERITY` and `_DRIFT_SEVERITY` stopped being
+    value-identical — so the guard this test now needs is a DIRECT read of the
+    module's real, POST-FLIP state, not a simulation of a flip that already
+    happened. (Before the flip this test simulated it over `inspect.getsource`,
+    substituting one line and executing the result as a module in this
+    package's namespace — a mechanism the flip itself retires: there is no
+    more "before" state in the real source to substitute out of.) Added by
+    the mutation round of `026-unplaced-finding-drift`, which is where
+    `add-unclassified-finding-class` tasks.md § 2.14(e) says this pin is owed
+    if it is missing. It was missing.
     """
-    import inspect
+    # the arm the flip reserved moved
+    assert mbc._LAUNCH_SEVERITY == ERROR
+    # ...and the fifth class did NOT ride it — the property this test exists
+    # to hold, now falsifiable by a plain value comparison because the two are
+    # no longer value-identical
+    assert mbc._DRIFT_SEVERITY == WARNING
+    assert mbc._DRIFT_SEVERITY != mbc._LAUNCH_SEVERITY
 
-    from doc_health import ERROR
-
-    source = inspect.getsource(mbc)
-    assert source.count("_LAUNCH_SEVERITY = WARNING") == 1, (
-        "the constant is not assigned where this test thinks it is, so the "
-        "substitution below would silently do nothing")
-    flipped = source.replace("_LAUNCH_SEVERITY = WARNING",
-                             f"_LAUNCH_SEVERITY = {ERROR!r}", 1)
-
-    namespace = {"__name__": "doc_health._flip_simulation",
-                 "__package__": "doc_health", "__file__": mbc.__file__}
-    exec(compile(flipped, mbc.__file__, "exec"), namespace)
-
-    bands = {klass.id: klass.band for klass in namespace["CLASSES"]}
-    # the arm the flip reserves moved, so the simulation really flipped something
+    bands = {klass.id: klass.band for klass in mbc.CLASSES}
     assert bands[mbc.CLASS_TITLES] == ERROR, bands
-    # ...and the fifth class did NOT ride it
     assert bands[mbc.CLASS_DRIFT] == WARNING, bands
-    assert namespace["_DRIFT_SEVERITY"] == WARNING
     # the other two arms are untouched too, which is what the split has always
     # been for
     assert bands[mbc.CLASS_RESOLUTION] == WARNING, bands
+    assert bands[mbc.CLASS_LEDGER] == INFO, bands
     assert bands[mbc.CLASS_LEDGER] == INFO, bands
 
 
@@ -752,8 +745,10 @@ def test_the_finding_lands_on_the_active_delta_s_own_path():
     assert {f.repo for f in _run()} == {FIXTURE_REPO}
 
 
-def test_the_scenario_arm_is_a_warning():
-    assert {f.severity for f in _titles(_run())} == {WARNING}
+def test_the_scenario_arm_is_an_error():
+    """FLIPPED 2026-08-31 (issue #357); launched `warning`. See
+    `_LAUNCH_SEVERITY`."""
+    assert {f.severity for f in _titles(_run())} == {ERROR}
 
 
 def test_a_scenario_complete_block_that_rewraps_every_paragraph_is_quiet():
@@ -778,15 +773,26 @@ def test_a_scenario_complete_block_that_rewraps_every_paragraph_is_quiet():
     assert mbc.carried(canon.units, units) == []
 
 
-def test_a_run_configured_fail_on_error_is_unaffected():
-    """N4: assert the finding list is NON-EMPTY FIRST. On an empty list the
-    severity assertion is vacuous — and an empty list is exactly what a broken
-    discovery returns, so the vacuous version would pass over the one build that
-    matters."""
+def test_a_run_configured_fail_on_error_now_catches_the_scenario_arm():
+    """N4, RE-AIMED BY THE FLIP (2026-08-31, issue #357). Through the advisory
+    launch this test was named `..._is_unaffected` and asserted the opposite of
+    what it asserts now: that NOTHING here reached `error`, so `--fail-on
+    error` never reddened on this family. That was the whole point of an
+    advisory launch and is no longer true BY DESIGN — the scenario-title arm
+    is gate-bearing now, and this fixture's lossy block is exactly the shape
+    it exists to catch.
+
+    What SC-009 still guarantees, and what O8 reserves, is that the OTHER
+    classes did not ride the flip: assert the finding list is NON-EMPTY FIRST,
+    then split by arm rather than asserting one band over the whole list.
+    """
     findings = _run()
     assert findings, "a vacuous pass is not a pass"
-    assert {f.severity for f in findings} <= {WARNING, INFO}
-    assert not [f for f in findings if f.severity in ("critical", "error")]
+    titles = _titles(findings)
+    others = [f for f in findings if f not in titles]
+    assert {f.severity for f in titles} == {ERROR}
+    assert {f.severity for f in others} <= {WARNING, INFO}
+    assert not [f for f in others if f.severity in ("critical", "error")]
 
 
 def test_the_file_level_scenario_count_is_not_what_the_family_reads():
@@ -1353,10 +1359,13 @@ def test_the_family_returns_its_findings_sorted_severity_first():
                 for f in findings]
         assert keys == sorted(keys)
 
-    # ...and on the real shape — one warning among many info rows — the warning
-    # is FIRST, which is the property the ruling actually bought.
+    # ...and on the real shape — one gate-bearing finding among many info rows
+    # — that finding is FIRST, which is the property the ruling actually
+    # bought. WARNING through the advisory launch; ERROR since the flip
+    # (2026-08-31, issue #357) — SEVERITY_RANK still ranks it ahead of INFO
+    # either way, so this is the flip's own severity, not a re-derivation.
     findings = _run()
-    assert findings[0].severity == WARNING
+    assert findings[0].severity == mbc._LAUNCH_SEVERITY == ERROR
     assert [f.severity for f in findings].count(INFO) > 1
 
 
@@ -1376,29 +1385,34 @@ def test_the_family_is_registered_and_reachable_through_the_registry():
     assert FAMILIES[mbc.FAMILY](make_ctx("modified-block-currency"))
 
 
-def test_the_family_is_absent_from_family_resolution_at_launch():
-    """THE SECOND HALF OF THE ADVISORY LAUNCH, and the half that is easy to lose.
+def test_the_family_joined_family_resolution_on_the_flip():
+    """THE SECOND HALF, PINNED AT BOTH ENDS OF THE FLIP.
 
-    `report.uncited_resolutions` turns a `contested` finding that VANISHES
-    between reports into an `error`. Every finding this family raises names a
-    block somebody is expected to CORRECT — so a `contested` class would red the
-    nightly on the first correction, which is enforcement arriving through the
-    back door on the very run that proves the advisory launch worked.
+    Through the advisory launch this test was named `..._is_absent_from_
+    family_resolution_at_launch` and pinned the opposite: `report.
+    uncited_resolutions` turns a `contested` finding that VANISHES between
+    reports into an `error`, so a `contested` class at launch would have red
+    the nightly on the first correction — enforcement arriving through the
+    back door on the run that proves the advisory launch worked.
 
-    ADDED BY THE MUTATION ROUND: inserting this family into `FAMILY_RESOLUTION`
-    SURVIVED every other test in this file. The absence was documented in three
-    places and asserted in none.
+    FLIPPED 2026-08-31 by ruling, together with `_LAUNCH_SEVERITY` (issue
+    #357). `families.FAMILY_RESOLUTION` has no per-class grain — `runner.main`
+    applies it by `Finding.family` alone — so the one row the flip adds
+    reaches every class this family emits, the ledger included: a finding that
+    vanishes now owes a citation the same way `promotion-fidelity`'s and
+    `duplicate-packet`'s do. See the `FAMILY_RESOLUTION` entry in `families.py`
+    for the reading in full.
 
     NON-VACUOUS BY CONSTRUCTION: membership in `FAMILIES` is asserted in the
-    same test, so this cannot pass against an empty or misspelled registry —
-    which is exactly how an "absent from" assertion lies.
+    same test, so this cannot pass against an empty or misspelled registry.
     """
+    from doc_health import CONTESTED
     from doc_health.families import FAMILIES, FAMILY_RESOLUTION
 
-    assert mbc.FAMILY in FAMILIES, "the absence below means nothing otherwise"
-    assert mbc.FAMILY not in FAMILY_RESOLUTION
-    # and the severities that make up the other half
-    assert mbc._LAUNCH_SEVERITY == WARNING
+    assert mbc.FAMILY in FAMILIES, "the membership below means nothing otherwise"
+    assert FAMILY_RESOLUTION.get(mbc.FAMILY) == CONTESTED
+    # and the severities that make up the other half — one moved, two did not
+    assert mbc._LAUNCH_SEVERITY == ERROR
     assert mbc._LEDGER_SEVERITY == INFO
 
 

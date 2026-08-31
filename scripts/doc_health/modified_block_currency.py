@@ -39,11 +39,12 @@ is why this is a separate family rather than a wider reading of that one.
 
 THREE ARMS, FIVE FINDING CLASSES, AND THE NUMBERS DIFFER ON PURPOSE:
 
-1. **Scenario-title completeness** (`_LAUNCH_SEVERITY`, `warning`). Every
-   `#### Scenario:` title canon carries must appear as a scenario title in the
-   block. Short titled strings rather than prose, reporting deletion at the
-   granularity the defect occurs at. THIS is the arm that carries the family's
-   gate, and the only arm the flip in `tasks.md` § 7.2 moves.
+1. **Scenario-title completeness** (`_LAUNCH_SEVERITY`, `error` — flipped
+   2026-08-31, issue #357; launched `warning`). Every `#### Scenario:` title
+   canon carries must appear as a scenario title in the block. Short titled
+   strings rather than prose, reporting deletion at the granularity the defect
+   occurs at. THIS is the arm that carries the family's gate, and the only arm
+   the flip in `tasks.md` § 7.2 moves.
 2. **The carriage ledger** (`_LEDGER_SEVERITY`, `info`). Every body unit and
    every scenario bullet the block does not carry, as AT MOST ONE finding per
    requirement. It CANNOT distinguish a deliberate rewording from stale text and
@@ -76,14 +77,20 @@ reword also passes a clause whose meaning has been REVERSED, and #351's ninth
 item was exactly that. And normalization stops at whitespace — see `normalize`,
 which is deliberately NOT `promotion_fidelity.norm`.
 
-CLASSIFICATION AT LAUNCH IS ADVISORY IN BOTH HALVES: `warning`/`info`
-severities, AND deliberate absence from `families.FAMILY_RESOLUTION`. The second
-half is the one that is easy to lose — `report.uncited_resolutions` turns a
-`contested` finding that VANISHES between reports into an `error`, so a
-`contested` advisory family reds the nightly the first time anyone corrects a
+CLASSIFICATION LAUNCHED ADVISORY IN BOTH HALVES: `warning`/`info` severities,
+AND deliberate absence from `families.FAMILY_RESOLUTION`. The second half was
+the one that is easy to lose — `report.uncited_resolutions` turns a `contested`
+finding that VANISHES between reports into an `error`, so a `contested`
+advisory family would have red the nightly the first time anyone corrected a
 block, which is enforcement through the back door on the run that proves the
-launch worked. Both halves flip together, by ruling, on the discharge of a
-measured population.
+launch worked. Both halves were flipped together, by ruling, on the discharge
+of the measured population: the 2026-08-30 and 2026-08-31 nightly aggregation
+reports read the scenario-title arm's population at ZERO across every governed
+repository, and Brett ordered the flip on 2026-08-31 (issue #357). See
+`_LAUNCH_SEVERITY`'s own comment for the severities, and the `FAMILY_RESOLUTION`
+entry in `families.py` for the one row that carries the second half — which,
+because that table has no per-class grain, reaches every class this family
+emits rather than the scenario-title arm alone.
 
 THREE READINGS THE DELTA DOES NOT SPELL OUT, RULED 2026-08-27 AND RECORDED HERE
 SO A LATER READER FINDS THEM WITHOUT RE-DERIVING THEM:
@@ -129,7 +136,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from . import INFO, SEVERITY_RANK, WARNING, Finding, Skip
+from . import ERROR, INFO, SEVERITY_RANK, WARNING, Finding, Skip
 from . import corpus
 from . import duplicate_packet
 from . import promotion_fidelity
@@ -149,17 +156,17 @@ FAMILY = "modified-block-currency"
 # and `family_enumeration` all carry, and it is the grep that ties every reader
 # of a launch decision together. Here it belongs to the SCENARIO-TITLE arm,
 # because that is the one arm the flip reserved in
-# `add-modified-block-currency-check` tasks.md § 7.2 moves — raising it to
-# `error` AND adding the `contested` classification, together, in one commit,
-# after the standing population is discharged.
+# `add-modified-block-currency-check` tasks.md § 7.2 moves — raised to `error`
+# AND the family added to `families.FAMILY_RESOLUTION`, together, in one
+# commit, after the standing population was discharged (issue #357).
 #
 # The other two are separate constants precisely so that flip cannot drag them.
 # A single shared constant would take the title-resolution arm to `error` at the
-# same time, which no ruling asked for; and the carriage ledger has NO flip
-# proposed at all, its population being standing by construction — every
+# same time, which no ruling asked for; and the carriage ledger has NO SEVERITY
+# flip proposed at all, its population being standing by construction — every
 # legitimate MODIFIED block edits something, so an editorial band is the honest
-# launch state and a permanent yellow row for a condition nobody should act on
-# is how a report stops being read.
+# state and a permanent yellow row for a condition nobody should act on is how a
+# report stops being read.
 #
 # `_DRIFT_SEVERITY` is the FOURTH, added by `add-unclassified-finding-class` for
 # the fifth finding class, and the same argument applies to it word for word:
@@ -167,13 +174,26 @@ FAMILY = "modified-block-currency"
 # the drag would also be INVISIBLE — `FindingClass.band` reads the constant and
 # the registry pin reads the band off the class, so a shared constant would move
 # the rendered caption and the emitted finding together and no pin would notice.
-# `test_the_reserved_flip_of_the_launch_severity_does_not_drag_the_drift_class`
-# simulates the flip over this module's own source and is what makes that
-# falsifiable rather than merely written down. The class is also DESIGNED to
-# stop being emitted as soon as somebody extends the map, and § 7.2 raises the
-# `contested` classification with the severity — which would turn that
-# disappearance into an `error` under the uncited-resolution rule.
-_LAUNCH_SEVERITY = WARNING
+# `test_the_realized_flip_of_the_launch_severity_did_not_drag_the_drift_class`
+# reads the module's real post-flip state directly and is what makes that
+# falsifiable rather than merely written down.
+#
+# FLIPPED 2026-08-31 by ruling — Brett, "MEASURE FIRST, THEN FLIP" (2026-08-27),
+# discharged by the 2026-08-30 and 2026-08-31 nightly aggregation reports
+# reading the scenario-title arm's population at ZERO across every governed
+# repository, and the flip ordered on 2026-08-31 (issue #357). O8 (research
+# R11, `specs/019-modified-block-currency-family/plan.md`) is why the OTHER
+# three severity constants below are UNCHANGED by this flip — they are
+# separately assignable module attributes for exactly this reason, and O8 says
+# so by name: "so § 7.2's flip moves the scenario-title arm alone. A veto (one
+# constant) drags the title-resolution arm to `error` on a flip nobody asked
+# for." O8 is silent on `families.FAMILY_RESOLUTION`, which has no per-class
+# grain — `runner.main` applies it by `Finding.family` alone, a string every
+# arm of this module shares — so the ONE row the flip adds there necessarily
+# reaches every class this family emits, not the scenario-title arm alone. See
+# that row, in `families.py`, for why that is the mechanism's own answer rather
+# than a widening this change chose.
+_LAUNCH_SEVERITY = ERROR
 _RESOLUTION_SEVERITY = WARNING
 _LEDGER_SEVERITY = INFO
 _DRIFT_SEVERITY = WARNING

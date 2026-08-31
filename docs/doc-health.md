@@ -101,10 +101,12 @@ registry rather than trusting either on prose alone, per the canon
 The archived
 [`2026-08-27-add-modified-block-currency-check`](../openspec/changes/archive/2026-08-27-add-modified-block-currency-check/specs/doc-health/spec.md)
 change added a twenty-second deterministic family, `modified-block-currency`
-(ADVISORY at launch), comparing an active change's `MODIFIED Requirements`
-blocks against the promoted requirements they replace across three arms plus
-a marker-defect class, per the canon `Requirement: Currency of an active
-change's MODIFIED requirement blocks` in
+(launched ADVISORY; the gate-bearing scenario-title arm flipped to `error`
+and the family joined `FAMILY_RESOLUTION` on 2026-08-31, issue #357, once the
+measured population read zero), comparing an active change's `MODIFIED
+Requirements` blocks against the promoted requirements they replace across
+three arms plus a marker-defect class, per the canon `Requirement: Currency
+of an active change's MODIFIED requirement blocks` in
 [`openspec/specs/doc-health/spec.md`](../openspec/specs/doc-health/spec.md);
 the archived
 [`2026-08-28-add-unclassified-finding-class`](../openspec/changes/archive/2026-08-28-add-unclassified-finding-class/specs/doc-health/spec.md)
