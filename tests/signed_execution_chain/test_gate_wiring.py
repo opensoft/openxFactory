@@ -105,6 +105,38 @@ def test_the_reader_is_invoked_over_the_tree_with_the_pinned_vocabulary_required
         "the anti-vacuity step greps this log; without the tee it reads nothing")
 
 
+def test_the_walk_step_runs_under_pipefail():
+    """WITHOUT PIPEFAIL, `tee` RETURNS 0 OVER A FAILING READER.
+
+    The default shell for a `run` step does not set `-o pipefail`; declaring
+    `shell: bash` does. This gate pipes the reader's verdict into `tee` so the
+    next step can grep it, so without pipefail the job is green whatever the
+    reader decided — the vacuous pass this whole module exists to prevent, by the
+    one route the command-string assertions cannot see.
+
+    Copilot raised it as a suppressed finding, and it was right that nothing
+    pinned it: the workflow already declared `shell: bash`, and removing that line
+    left all eight assertions here passing. The in-repo precedent is
+    `tests/openxwallet_consumer_gate/test_gate_invocation.py`'s
+    `test_the_validator_step_runs_under_pipefail`, which asserts exactly this for
+    the wallet gate — so the omission was also a divergence from a rule this
+    repository had already written down once."""
+    walk = _steps()[_step_index("validate-signed-execution-chain.py")]
+    assert walk.get("shell") == "bash", (
+        "the walk step must declare `shell: bash` so it runs under `-o pipefail`; "
+        "otherwise `| tee chain-gate.log` masks a non-zero reader exit and the "
+        "gate passes having refused nothing")
+    # `chain-gate.log` is NOT a usable needle here: it appears in the walk step's
+    # `tee` and in the grep step's reads, so `_step_index` correctly refuses it as
+    # ambiguous — which is the helper doing the job Copilot's other finding asked
+    # for. `set -euo pipefail` belongs to the asserting step alone.
+    grep = _steps()[_step_index("set -euo pipefail")]
+    assert grep.get("shell") == "bash", (
+        "the anti-vacuity step's own `set -euo pipefail` needs bash; under the "
+        "default shell its greps would run but its `fail()` exits would not be "
+        "reached the same way")
+
+
 def test_the_gate_does_not_pass_strict():
     """`--strict` turns warnings into errors, and this reader emits a STANDING
     warning for as long as it is not itself a required check. Passing `--strict`
