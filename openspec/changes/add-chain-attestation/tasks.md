@@ -15,7 +15,7 @@ in for a ruleset state.
 
 ## 1. Spec deltas and the packet (THIS PULL REQUEST)
 
-- [x] 1.1 `signed-execution-chain` — **NINE ADDED requirements over 85
+- [x] 1.1 `signed-execution-chain` — **NINE ADDED requirements over 89
       scenarios**: the harness-controller setup attestation under a certificate
       expressed in `add-trust-anchor` vocabulary, with the issuing authority named
       as a realization dependency and never assumed; runner attestations signed AT
@@ -257,6 +257,41 @@ in for a ruleset state.
       DELIBERATELY uncommissioned and say so: two are the reader-correction shape
       **LQ-A8** (undisposed SHOULD-FIX) asks be rewritten, whose THEN no check can
       run, and one asserts conformance INVARIANCE rather than a named refusal.
+- [x] 1.15 **THE SEVENTH BOT ROUND'S THREE P1s AND ONE P2 ARE CLOSED** — and
+      **TWO OF THE THREE P1s WERE DEFECTS THIS PACKET'S OWN EARLIER ROUNDS
+      INTRODUCED**, which is the argument for the round rather than against the
+      packet. (i) **A FAILING POST-MERGE TEST CLOSED THE CHAIN.** Round four's
+      closure conjuncts required the result be ESTABLISHED and never PASSING, so a
+      genuine, honestly-reported, correctly signed FAILURE satisfied every
+      conjunct and the normative THEN closed the chain — contradicting this same
+      requirement's rule that a FAILED link 10 is a refusing state, and permitting
+      promotion and release over work its own governed test called broken.
+      Closure now requires an established **PASSING** result; an established
+      FAILING one refuses and routes to remediation. **A GUARD WALK then asked of
+      EVERY permitting conjunct set "what input makes this pass wrongly?" and
+      found FOUR MORE**: the link-6 positive admitted an unbound caller's
+      signature; both HSM positives admitted hardware custody REACHABLE from the
+      runner's scope; and the remediation positive admitted a chain with no links
+      1–6. All five tightened. (ii) **THE EXTENSION DEADLINE REOPENED THE
+      DROPPED-ATTESTATION ATTACK.** "Before the attestation it covers is produced"
+      let the controller commit AFTER observing execution, and let a realization
+      minting extensions on signing-request arrival never commit a task whose
+      attestation the runner SUPPRESSED. The deadline is now **DISPATCH** — at or
+      before, never later — which is the last moment before the runner can
+      influence anything. (iii) **LINK 10 HAD NO CONSTRUCTIBLE PREDECESSOR**: the
+      table makes it link 9, a refusing STATE with no record kind, with links 7–9
+      outside this code surface. The predecessor of a signed link is now **the
+      nearest prior link possessing a RECORD KIND IN FORCE** — at this tranche
+      4 → 5 → 6 → 10 — written so a later tranche adding record kinds EXTENDS the
+      order without contradicting it, with 7, 8 and 9's roles named explicitly.
+      (iv) **P2 — the review-authority fixtures**: the fabricated review record and
+      the revoked-before-exercise authority were named refusals that 5.5 never
+      commissioned, so 5.6 could have shipped without testing the check that stops
+      a fabricated or revoked review record closing a chain. Both added.
+      **AND THE 79/79 EQUALITY FIGURE THIS PACKET REPORTED WAS WRONG** — it was
+      **77/79**, and the checker over-reported because keyword overlap against a
+      long commission block is a weak test. Corrected on the record where the
+      claim was made rather than silently.
 
 ## 2. §7.4 COUNCIL REVIEW — **HELD 2026-08-30. THE FIRST GATE IS DISCHARGED.**
 
@@ -491,6 +526,18 @@ Each is contract content — cheap now, expensive after a bundle ships.
       case** — the party the chain's inception record binds asks, the request is
       ATTRIBUTED to it, RECORDED beside the signature it receives, and the
       attribution falls INSIDE the signed bytes.
+
+      **AND THE SEVENTH ROUND'S SET**: an established post-merge result that is a
+      **FAILURE**, refusing closure and routing to remediation; a **commitment
+      extension written after the dispatch** of the task it adds, refused; a
+      realization that **mints extensions on signing-request arrival** while a
+      runner suppresses its attestation, refused; **link 10's signature hashing a
+      link-9 artifact**, refused; **two realizations picking different
+      predecessors for link 10**, the second refused; and the two the review-
+      authority repair named and this list omitted — **a FABRICATED REVIEW RECORD**
+      consumed by a passing test, and **REVIEW AUTHORITY REVOKED BEFORE ITS
+      EXERCISE** — both refusing closure. **The positive closure fixture binds a
+      PASSING result**, since an established failing one is now a refusal.
 
       **AND FIVE THE FIXTURE-EQUALITY CHECK FOUND, NAMED IN THE DELTA SINCE THE
       FIRST DRAFT AND NEVER COMMISSIONED HERE**: a **persona proposed for a
