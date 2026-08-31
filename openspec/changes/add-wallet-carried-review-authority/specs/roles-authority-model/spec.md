@@ -1,15 +1,34 @@
 # roles-authority-model Specification
 
 Deltas here are declared RELATIVE TO the OUTCOME of the active ratified change
-`add-substantive-review-lane`, per
-`openspec/specs/release-realization/spec.md:64-74` ("a proposal modifying a
-requirement already modified by an active ratified change references that change
-and declares its deltas relative to that change's outcome", with the scenario
-"Two changes touch one requirement" making it a MUST). The MODIFIED requirement
-below is NOT in the promoted spec today; it is ADDED by
-`add-substantive-review-lane`, and the text restated here is that change's
-outcome text plus this change's modification. Archive ordering is a consequence
-of that mechanism, not a substitute for it.
+`add-substantive-review-lane`. The MODIFIED requirement below is NOT in the
+promoted spec today; it is ADDED by `add-substantive-review-lane`, and the text
+restated here is that change's outcome text plus this change's modification.
+Archive ordering is a consequence of that mechanism, not a substitute for it.
+
+**CORRECTED 2026-08-31 — THE AUTHORITY CITED FOR THIS DELTA WAS THE WRONG ONE,
+IN BOTH HALVES.** Brett Heap, this packet's ratifying owner, consented to this
+in-place amendment on 2026-08-31, in the same in-session ruling that routed the
+marker sweep's OQ-4 as ONE SWEEP. As written, this paragraph cited
+`openspec/specs/release-realization/spec.md:64-74` — the ALREADY-MODIFIED
+antecedent — and called its scenario "Two changes touch one requirement" a MUST
+for this shape. Neither citation reaches it: that antecedent names a requirement
+canon CARRIES and its scenario is written for a proposal modifying a requirement
+an active ratified change ALREADY MODIFIES, whereas `add-substantive-review-lane`
+ADDS this requirement and the promoted specification does not carry it at all.
+The governing text is the EXTENDED antecedent — the paragraph "THE ANTECEDENT
+REACHES A REQUIREMENT AN ACTIVE RATIFIED CHANGE ADDS OR RENAMES TO, AND NOT ONLY
+ONE IT MODIFIES", with its scenario "A proposal modifies a requirement an active
+ratified change adds or renames to", both carried by
+`govern-sibling-added-modified-deltas` at
+`openspec/changes/govern-sibling-added-modified-deltas/specs/release-realization/spec.md`.
+**THAT TEXT IS RATIFIED AND IT IS NOT CANON.**
+`govern-sibling-added-modified-deltas` was ratified on 2026-08-31 by Brett Heap's
+direct ruling, and its deltas promote only at its own archive, so it is cited
+here as a RATIFIED-BUT-UNPROMOTED DELTA at its change-directory path and never as
+a promoted specification. The obligation this delta is under is unchanged by the
+correction — reference the basis change, declare relative to its outcome, and do
+not archive while the title is unpromoted; what changes is which text says so.
 
 ## ADDED Requirements
 
@@ -82,6 +101,8 @@ nothing else, so extending the lane to a further repository SHALL be an INTAKE
 act — issuing grants naming that repository's objects — and SHALL NOT require
 the target repository to be restructured, relocated, or split, and no repository
 layout SHALL be a precondition of review.
+
+**Modified over `add-substantive-review-lane`'s addition by add-wallet-carried-review-authority (2026-08-31):** — the lane change adds this requirement and this change was authored the day that change ratified, to carry the convening's finding that the non-self-review property cannot rest on an in-tree path rule alone, so what each holder within the single reviewing home may do is carried by an explicit grant and extending the lane becomes an intake act rather than a precondition on the target repository's layout.
 
 #### Scenario: Pilot is codexFactory-reviewed
 - **WHEN** a substantive pull request against `opensoft/openxFactory` is

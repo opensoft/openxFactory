@@ -57,10 +57,36 @@ A shared ambient session SHALL NOT be used as a substitute for a second binding.
 - **WHEN** the secret store's access log is examined after a fetch
 - **THEN** it names which consuming system's identity performed it, because each has its own
 
-#### Scenario: The published binding shape cannot yet express the access identity
-- **WHEN** two bindings for one operated identity are recorded in the promoted binding-template shape
-- **THEN** the shape carries no consumer or access-identity field, so the per-system authority is asserted by the binding's owner and its estate wiring rather than proven by the record
-- **AND** the gap is recorded as owed to a successor that extends the shape, not left implied as enforced
+**AMENDED 2026-08-31 — THIS BLOCK'S FIFTH SCENARIO IS STRUCK, NOT RE-SCOPED.**
+The scenario "The published binding shape cannot yet express the access identity"
+stood here and stands here no longer. AUTHORITY: Brett Heap, this packet's
+ratifying owner, consenting to this in-place amendment on 2026-08-31 per
+`govern-sibling-added-modified-deltas` `tasks.md` § 6.2, in the same in-session
+ruling that routed that packet's OQ-4 as ONE SWEEP. GROUND: the falsified-scenario
+clause — "LANDED REALITY CAN FALSIFY THE ADDING CHANGE'S SCENARIO BEFORE ITS
+ARCHIVE, and the archive order is not the escape from that" — carried by that
+change's `release-realization` delta at
+`openspec/changes/govern-sibling-added-modified-deltas/specs/release-realization/spec.md`,
+which is RATIFIED (2026-08-31, direct ruling) AND NOT YET CANON, cited at its
+change-directory path because its deltas promote only at its own archive.
+EVIDENCE: the struck scenario asserted that the promoted binding-template shape
+"carries no consumer or access-identity field". It now carries one —
+`contracts/schemas/xfactory-credential-contracts.schema.yaml:185-229` declares an
+additive optional `consumer:` block with `holder_ref` and `fetch_identity` — cut
+and published in `contracts/CHANGELOG.md` § `contract-v2.4 — 2026-08-31`. EVERY
+clause of the scenario is falsified by that release: the shape's absence, the
+authority being asserted rather than read, and the gap being owed to a successor
+that had not arrived. Re-scoping it would leave a narrower false statement rather
+than a true one, and the surviving truth — that what the record proves stays
+bounded, reconciling a declaration against the store's actual grants remaining a
+live-estate act — is already stated by the replacement scenario the successor
+carries in its own block. THE SUCCESSOR THAT DISCHARGED THE GAP:
+`add-binding-consumer-identity`, merged as PR #516 squash `5e8a33cf` and realized
+by the `contract-v2.4` cut in PR #526 `afdf0e88`, whose annotated tag is
+published. **THE ARCHIVE ORDER IS UNCHANGED BY THE FALSIFICATION.** This packet
+still archives FIRST and the successor's modified block over this requirement
+stays held while the title is unpromoted; this amendment is neither licence to invert that order nor licence to
+convert that block, which is exactly what the clause authorising it says.
 
 #### Scenario: A shared session is proposed instead of a second binding
 - **WHEN** a second system proposes to consume the identity through a session the first system established

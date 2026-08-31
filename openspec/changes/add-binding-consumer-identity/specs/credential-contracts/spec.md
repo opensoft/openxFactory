@@ -20,6 +20,33 @@ successor. Nothing is dropped. The earlier wording of this note said "the body
 because in the lossy-delta class the phrase "carried verbatim" is the sentence
 that stops the next auditor looking.
 
+**RE-MEASURED AND CORRECTED 2026-08-31 — THE BASIS BLOCK MOVED, NOT THIS ONE.**
+Brett Heap, this packet's ratifying owner, consented to this in-place amendment
+on 2026-08-31, in the same in-session ruling that routed
+`govern-sibling-added-modified-deltas`' OQ-4 as ONE SWEEP. The count above was
+true when written and is stale now: `add-notebook-hosting-credential-custody`
+STRUCK its own fifth scenario, "The published binding shape cannot yet express
+the access identity", on 2026-08-31 under the falsified-scenario clause of that
+packet's `release-realization` delta — ratified 2026-08-31 by direct ruling and
+NOT YET CANON, cited at its change-directory path
+`openspec/changes/govern-sibling-added-modified-deltas/specs/release-realization/spec.md`.
+THE RE-MEASUREMENT, against the basis block as it now stands: the basis carries
+FIVE scenarios, and all five are restated here BYTE-IDENTICAL (verified by diff,
+not asserted). The sixth scenario this block carries — "The binding shape
+expresses the consuming system and its fetch identity" — is therefore an
+ADDITION rather than a replacement, the text it replaced no longer standing.
+Nothing is dropped, and what moved is the basis: NO RESTATED TEXT IN THIS BLOCK
+CHANGED in the same act — the one edit made to it is the `Modified over` marker
+added above, which is not a carriage unit in either direction and which no
+measurement here reads. The body statement above is unaffected on its own terms,
+the strike having reached the basis block's fifth scenario and no body paragraph
+of it, with one fact recorded rather than left for an auditor to find: the strike
+left a dated AMENDMENT NOTE in the struck scenario's place, and that note is a
+record of an amendment rather than requirement text, so this block does not
+restate it and its absence here declares nothing. § 7.4's carriage re-run is this packet's own
+discipline and is owed AT ITS ARCHIVE GATE against the basis as it then stands;
+this note is the re-measurement occasioned by today's edit, not that discharge.
+
 ## MODIFIED Requirements
 
 ### Requirement: Each consuming system reaches a shared operated identity through its own binding
@@ -32,6 +59,8 @@ THE AUTHORITY IS A RECORD FACT, NOT AN ASSERTION ABOUT THE ESTATE. Each such bin
 WHAT REVOCATION REACHES, STATED HONESTLY, because a shared bearer secret bounds it. Revoking a binding stops that system's FUTURE fetches and nothing more: it cannot un-disclose a password already fetched, and it cannot terminate a session already established with it. Evicting a consumer that has already read the secret requires ROTATING it, and rotation necessarily reaches EVERY consumer of that identity — the one act per-system bindings cannot make independent. A change adopting this requirement SHALL record that cost rather than let per-system bindings read as per-system containment, and SHALL NOT claim an isolation the credential class cannot deliver. Declaring the consuming system and its fetch identity SHALL NOT be read as narrowing that limit: it makes the revocable thing nameable, not the disclosed thing recallable.
 
 A shared ambient session SHALL NOT be used as a substitute for a second binding. This restates, for operated identities, what this capability already refuses for worker credentials: a refreshable session-state credential is the wrong class to distribute, because an ephemeral copy's refresh silently stales the master. Two systems sharing one live session is that same defect with the copy left implicit.
+
+**Modified over `add-notebook-hosting-credential-custody`'s addition by add-binding-consumer-identity (2026-08-31):** — this change is the successor that packet named three times and could not perform itself, so the requirement it adds is restated here with the per-system authority declared in the binding's own record rather than asserted by the binding's owner and its estate wiring.
 
 #### Scenario: A second system needs the same identity
 - **WHEN** a second system must authenticate as an operated identity a first system already uses
