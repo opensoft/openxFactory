@@ -282,6 +282,41 @@ below refuses. What must be ESTABLISHED is stated here; the mechanism that
 establishes it is not, on the same footing `add-trust-anchor` uses for issuance
 evidence it cannot mandate a mechanism for.
 
+**AND THE SAME OBLIGATION REACHES THE CHAIN-SCOPED IDENTITY, BECAUSE THE
+ATTRIBUTION ABOVE IS TASK-SCOPED AND WOULD OTHERWISE COVER NOTHING IT SIGNS.**
+The rule above attributes a request to THE TASK THE CONTROLLER PROVISIONED IN
+LINK 4. The chain-scoped identity signs no record about a task, so that rule
+reaches none of its requests — and an opportunistic caller able to reach the
+controller could submit a link-6 payload naming a valid chain, the complete
+link-5 set and plausible proposed work, satisfy every refusal in requirement 5,
+and receive a chain-scoped signature the controller never established anyone was
+authorized to ask for. **THE SPLIT THAT MADE LINK 6 CONSTRUCTIBLE IS WHAT OPENED
+THIS**, and it is closed by extending the mechanism rather than by inventing a
+second one:
+
+1. **THE REQUEST IS RECORDED**, beside the signature it received, exactly as a
+   task-scoped request is. A chain-scoped record carrying no recorded request is
+   REFUSED.
+2. **THE CONTROLLER SHALL ATTRIBUTE every chain-scoped signing request TO THE
+   PARTY THE CHAIN'S OWN INCEPTION RECORD BINDS** — the ACTOR bound to the wallet
+   that signed the ratification, carried with the work by the traveling contract
+   — **and SHALL REFUSE a chain-scoped signing request from any party that
+   binding does not name.**
+3. **THE ATTRIBUTION FALLS INSIDE THE BYTES IT SIGNS** — requester, chain
+   identity, and the digest of the payload — because an attribution attachable
+   afterwards is an attribution anyone can attach.
+
+**NO AUTHORITY IS MINTED HERE, AND THAT IS THE POINT OF DERIVING IT.** The
+authorized-requester set is not a new grant, a new role or a new credential: it
+is READ OFF WHAT THE CHAIN ALREADY CARRIES. Tranche one's actor-binding
+requirement already fixes that the actor's subject carries a wallet attestation
+naming the wallet whose key made the exercise, and that the binding falls inside
+the signed bytes; the gate already walks exactly that. **This requirement adds no
+vocabulary and no second source of truth — it obliges the controller to ASK the
+question the chain already answers**, before it signs on that chain's behalf. A
+chain whose inception record binds nobody can obtain no chain-scoped signature,
+which is the correct fail-closed outcome rather than a gap.
+
 **THE REQUEST BRANCH AND THE PLATFORM BRANCH ARE DIFFERENT OBLIGATIONS AT
 DIFFERENT MOMENTS, AND THE DISTINGUISHER IS STATED HERE RATHER THAN LEFT TO BE
 INFERRED.** A **REQUEST** the controller cannot attribute — one request, on a
@@ -393,6 +428,24 @@ stands in for the other.
 - WHEN a realization proposes issuing a broker persona to a runner so its attestations can name an actor
 - THEN it is REFUSED, and the runner's authority stays a `credential-contracts` / `openxwallet` grant
 - AND no persona is created for a workload
+
+#### Scenario: an opportunistic caller asks for a chain-scoped signature
+
+- WHEN a caller the chain's inception record does not bind submits a link-6 payload naming a valid chain identity, the complete link-5 set and plausible proposed work
+- THEN the controller REFUSES the request and no chain-scoped signature is produced
+- AND the payload's satisfying every other refusal is never accepted in place of attributing the asker, because the task-scoped attribution reaches no record about a chain
+
+#### Scenario: the bound requester asks for a chain-scoped signature
+
+- WHEN the party the chain's inception record binds — the actor bound to the wallet that signed the ratification, carried by the traveling contract — requests the link-6 signature
+- THEN the request is ATTRIBUTED to that party, RECORDED beside the signature it receives, and the attribution falls inside the bytes the controller signs
+- AND no authority is minted for it, the authorized requester being read off what the chain already carries rather than granted here
+
+#### Scenario: a chain-scoped record arrives with no recorded signing request
+
+- WHEN a link-6 or link-10 record is presented with a chain-scoped signature and no record of the request that asked for it
+- THEN it is REFUSED, on the same footing as a task attestation carrying no recorded request
+- AND the missing request is never treated as an omitted detail on an otherwise complete record
 
 #### Scenario: a chain fans out to several tasks and one link-6 decision is signed
 
@@ -623,6 +676,15 @@ the others. **The decision is NOT composed from N per-task decisions**: the
 authoritative link table gives link 6 one signed decision, and a rule assembling
 one link from several signatures would be inventing a link the family does not
 have.
+
+**AND THE SIGNING REQUEST FOR THIS RECORD IS ITSELF ATTRIBUTED, NOT MERELY
+CORROBORATED.** A controller that checked only the payload would sign for
+whoever reached it: the link-5 attribution is TASK-SCOPED and reaches no record
+about a chain, so this record's request is attributed to **the party the chain's
+own inception record binds**, refused from any other, and recorded beside the
+signature — the same mechanism one link over, extended rather than duplicated.
+Corroborating what a record SAYS is not establishing who was entitled to ASK for
+it, and this link's whole subject is a decision somebody made.
 
 **Signing it still confers nothing**, and the scope split does not change that.
 The chain-scoped identity is broader in SUBJECT and not in AUTHORITY: its
@@ -1209,13 +1271,15 @@ failure attributes a defect to the work instead of to its missing permission.
 
 ### Requirement: A gate validates the short chain as a hash-linked chain
 
-openxFactory SHALL operate, FROM THIS TRANCHE, a gate that validates links 1–3
-before permitting the terminal act, and SHALL validate them as A CHAIN rather
-than as a bag of signatures — CONTINUITY, never merely the presence of the
-required signatures. Continuity means one chain identity carried unbroken from
-the ratification that minted it through every link the gate walks; how each link
-binds to it depends on whether that link has a signer, which the two paragraphs
-below settle for tranche one and for tranche two respectively.
+openxFactory SHALL operate a gate that validates EVERY LINK THE RATIFIED
+TRANCHES OF THIS CAPABILITY HAVE PUT IN FORCE — **links 1–3 at tranche one, and
+LINKS 1–6 from tranche two** — before permitting the terminal act, and SHALL
+validate them as A CHAIN rather than as a bag of signatures — CONTINUITY, never
+merely the presence of the required signatures. Continuity means one chain
+identity carried unbroken from the ratification that minted it through every link
+the gate walks; how each link binds to it depends on whether that link has a
+signer, which the two paragraphs below settle for tranche one and for tranche two
+respectively.
 
 **INCEPTION ITSELF DOES NOT SIGN OVER THE CHAIN IDENTITY, AND CANNOT.** The
 chain identity is the digest of the signed ratification, and inception is that
@@ -1229,10 +1293,12 @@ by signing over it.
 authoritative link table gives link 3 no signature of its own — it is CARRIED —
 so requiring it to sign over inception's digest would invent a signing act and a
 signer that nothing in this capability defines, and the ratification's own
-signature cannot cover an inception record created from it. **At this tranche
+signature cannot cover an inception record created from it. **ACROSS LINKS 1–3
 continuity is therefore established BY DERIVATION AND COMPARISON, not by a third
-signature**, and the gate SHALL validate exactly that, over the digest subjects
-this capability's digest requirement fixes:
+signature** — the eight checks below are that half of the walk, and from link 4
+onward the signatures exist, so the hash-link rule is performed instead. The gate
+SHALL validate exactly that, over the digest subjects this capability's digest
+requirement fixes:
 
 1. the ratification's signature VERIFIES;
 2. the digest of the SIGNED RATIFICATION, RECOMPUTED by the gate under the one
@@ -1260,7 +1326,9 @@ this capability's digest requirement fixes:
    never an agent, runner, lane or workflow identity.
 
 **THE LIST IS CLOSED, AND CLOSING IT IS ITSELF AN OBLIGATION.** Because the gate
-validates EXACTLY these checks before the terminal act, **every requirement of
+validates EXACTLY these checks over links 1–3 — **together with the links 4–6
+legs the extended-walk requirement fixes, which are part of the same one walk and
+not a second gate** — before the terminal act, **every requirement of
 this capability is either walked here or has its enforcement point named
 below** — a requirement absent from both is a requirement this capability does
 not enforce, however firmly its own text is written. **THE CLAUSE IS SCOPED TO
@@ -1312,7 +1380,10 @@ in the other direction, since an exercise's `object_ref` would then have to
 commit to a signature not yet made. That is a complete continuity check over
 links 1–3 using only artifacts that exist, and it defeats assembly just as a
 signature chain would, because artifacts from different executions carry
-different chain identities.
+different chain identities. **It is complete over links 1–3 and over nothing
+further**: links 4–6 carry signatures of their own and are walked by the
+extended-walk requirement, which is why the scope sentence below states the
+gate's reach and this paragraph does not.
 
 **THE HASH-LINKED SIGNING RULE TAKES EFFECT AT THE FIRST LINK THAT HAS A SIGNER
 OF ITS OWN**, which is the harness-controller setup attestation — tranche two.
@@ -1353,7 +1424,7 @@ a refusal on ONE antecedent in one promoted capability.
 
 #### Scenario: a link is missing
 
-- WHEN any of links 1–3 is absent
+- WHEN any link a ratified tranche has put in force is absent — links 1–3 at tranche one, and any of links 1–6 from tranche two
 - THEN the gate REFUSES and reports a fraud signal
 - AND the outcome is never downgraded to a warning, an advisory, or a finding to be triaged
 
