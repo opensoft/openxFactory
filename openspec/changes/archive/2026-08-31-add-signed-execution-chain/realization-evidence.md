@@ -398,6 +398,23 @@ somebody else was already writing it up. The check that would have caught it is
 * **The archive.** The change stays ACTIVE in the README OpenSpec Records. It
   carries a code surface, so the archive wants the merge and a green run — and it
   carries two open boxes besides.
+
+  **SUPERSEDED BY EVENT, 2026-08-31 — and the sentence above is left standing
+  because it was true when it was written.** The change ARCHIVED on Brett Heap's
+  order of that day, once #533 had merged and the tag was published: the archive
+  gate's two demands — merged code on the implemented target and a green run —
+  were both met and both re-read at the archive act rather than inherited from
+  this file. **The two open boxes did NOT close and were not treated as closing
+  conditions**: § 4.5 (the operator act making the check REQUIRED) and § 4.6 (its
+  canary evidence, blocked on 4.5 by construction) survive the archive UNTICKED by
+  decision, restated as dispositions in `tasks.md` § 4.5, § 4.6 and § 6.1, and
+  carried forward at **openxFactory issue #534** so the obligation is not recorded
+  only inside an archived packet. Requirement 9 therefore reaches canon meeting its
+  own degraded case, which is the honest reading and not a workaround: the reader
+  exists, is unrequired, warns on every run, and the shipped declaration says
+  `is_required_in_ruleset: false`. The full act — mechanism, counts, byte-for-byte
+  promotion check and the blob-id hazard verification — is recorded at `tasks.md`
+  § 6.1.
 * **Any edit to `proposal.md`.** Its `target_release: contract-v2.3` front-matter
   is LEFT STANDING. The packet is RATIFIED; the line itself says the number
   *"remains ALLOCATED AT REALIZATION BY MERGE ORDER … and the realization confirms
@@ -410,6 +427,30 @@ somebody else was already writing it up. The check that would have caught it is
   was superseded rather than missed: v2.3 is another change's published bundle
   (`add-standing-policy-compliance-contract`, PR #514), and this family has no
   members in it.
+
+  **A DERIVED-VIEW CONSEQUENCE THIS BULLET DID NOT NAME, RAISED BY THE ARCHIVE
+  PR'S BOT ROUND (Codex, P2, 2026-08-31) AND RECORDED RATHER THAN FIXED BY
+  REWRITING.** The reasoning above is about prose honesty and it stands, but the
+  field is also read by a MACHINE: `scripts/ideation_dashboard/generator.py`
+  `_release_frontmatter` (`:378-387`) lifts `target_release` into the dashboard
+  snapshot (`:542-547`), and archived folders are in scope
+  (`_archived_change`, `:202-214`) — so the dashboard's tile for this ARCHIVED
+  change reports this line, not `contract-v2.5`. **THE PRESCRIBED FIX WAS
+  REFUSED, on this repository's own doctrine**: rewriting a RATIFIED proposal's
+  front-matter to agree with today's state is the move refused everywhere else,
+  and doing it inside an ARCHIVE commit would additionally make the archived
+  packet differ from the text that was ratified — a worse defect than a
+  superseded number. **THE LINE IS ALSO NOT FALSE**: `_header_value` returns the
+  WHOLE physical line, so what the dashboard renders carries the caveat inline —
+  the same sentence says the number *"remains ALLOCATED AT REALIZATION BY MERGE
+  ORDER … and the realization confirms the number against the manifest at ITS
+  tip"*. Every authoritative surface says **`contract-v2.5`**:
+  `contracts/manifest.yaml`, `contracts/CHANGELOG.md`, `tasks.md` § 4.7, the
+  published tag, and the README's archived row. What a reader of the dashboard
+  tile alone would miss is the confirmed number, and **that gap is now written
+  down here rather than left to be rediscovered** — the honest home for it is a
+  derived-view concern (should the dashboard prefer a realization-confirmed
+  number over a proposal-time one?), not an edit to a ratified line.
 * **Tranches two and three.** Named successors, not drafted, and their absence at
   this tranche is not a defect.
 * **Anything belonging to another lane.** This cut touches no other active

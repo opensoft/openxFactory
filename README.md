@@ -577,62 +577,6 @@ Active changes:
   authoring decisions and five open questions are recorded with their rejected
   alternatives; the open questions are now RULED, one of them against the
   author's own recommendation.
-- [add-signed-execution-chain](openspec/changes/add-signed-execution-chain/proposal.md)
-  — **RATIFIED 2026-08-29 by Brett Heap** (`review/ratification-2026-08-29.md`), and its **code surface is now REALIZED**: `contracts/signed-execution-chain/` (four record kinds plus the one digest construction), the packaged corpus, `scripts/validate-signed-execution-chain.py` as the NAMED READER, and the running `signed-execution-chain-gate` check. **REGISTERED at `contract-v2.5`** (4.7, the cut-dependent box, performed by the cutting session on a number fresh-counted at the cut after it had already moved twice). TWO boxes stay deliberately open and are not the author's to close — making the check REQUIRED in the ruleset (4.5, an operator act, without which the capability confers and refuses nothing and says so about itself) and its evidence (4.6, blocked on 4.5 by construction). Exit 1 of
-  three of the staged topic `signed-execution-chain`, and its boundary is
-  **RULED**: Brett Heap ruled all seven of the topic's questions on 2026-08-29
-  (#499, squash `9c501df6`), **Q4** fixing tranche one at **links 1–3 only**
-  with the **signed transparency log a TRANCHE-1 artifact** and the
-  **chain-validating gate existing FROM TRANCHE ONE** validating a short chain.
-  So: a ratification admitted only on wallet-carried authority PROVEN BY
-  POSSESSION and BOUND to the exact ratification, ratification and chain
-  inception as ONE signed act, the signed ratification carried as a TRAVELING
-  CONTRACT, the append-only signed transparency log as THE RECORD, and the gate.
-  **The inversion is the point: a validated chain is not an audit trail, it is a
-  PERMISSION** — an audit trail is written after the fact and can be forged after
-  the fact, while a chain the gate walks before it permits the terminal act
-  cannot be, because the act does not happen without it. **A broken or missing
-  link is a FRAUD SIGNAL and a refusal, never a warning**, and an unevaluable
-  chain refuses on the family's fail-closed doctrine. The gate validates
-  HASH-LINKED CONTINUITY, never a bag of signatures: individually valid
-  artifacts from DIFFERENT executions must not assemble into a chain. **TWO
-  CONSTRAINTS COME FROM THE 2026-08-28 `gate_rules_council` CONVENING**
-  (codexFactory
-  `hermes/domain/review-councils/records/2026-08-28-gate-rules-openxfactory-substantive-classes.md`,
-  unanimous 5/5): the chain-inception act is **OUT-OF-PIPELINE BY PROVEN
-  NECESSITY** — a class over `openspec/changes/**` can never commission a
-  council, measured 984 admitted / 984 floored / 0 remaining and reproduced
-  code-level, so routing inception through the envelope would describe a control
-  that cannot run; and link 7 composes with the **§7.4
-  council-reviewed-but-human-approved path**, which "needs no class and no
-  flip", NOT with the clearance envelope — `025`'s FR-008 is left gated exactly
-  where the convening left it. **An out-of-pipeline INCEPTION and a
-  required-check GATE are different objects, and only the first is what those
-  seats refused.** **THE VOCABULARY ACT**: link 2's act is named **`chain
-  inception`**, NOT enrollment, because FR-008 already owns that word here for
-  candidate-class entry into a `merge-approval-envelope` and
-  `add-worker-enrollment-broker` carries a third sense; the non-collision is
-  stated in requirement text, not only in the proposal. **Composes with the
-  REALIZED wallet artifacts and invents no second vocabulary**: link 1's
-  instrument is the shipped `xfactory_wallet_grant` /
-  `xfactory_wallet_grant_exercise` pair at the `contracts/openxwallet-pin.yaml`
-  digest pin, whose closed refusal enumeration already separates
-  `missing_proof_of_possession` from `missing_grant`. **NINE ADDED requirements
-  over 45 scenarios, no MODIFIED block anywhere.** **NARROWING A IS RULED** —
-  Brett Heap, 2026-08-29, in session, the clarify sitting having taken the seven
-  questions and nothing else: **tier 1 is RATIFYING authority**, agent-held
-  REVIEW wallets stay lawful, and the realized `wal-agent-mrc-0001` is untouched.
-  Narrowing B is settled by Q1's own disposition. **THE PACKET IS THE SURVIVOR OF
-  A COLLAPSE HE RULED**: two sessions raised this tranche into the same change
-  directory three minutes apart, and **#494 is closed with four of its
-  hardenings HARVESTED here** — the actor↔wallet attestation binding, enforced
-  per-ratification uniqueness, ONE digest construction for every digest, and the
-  named-reader required-check rule. Tranches two (attestation, links 4–6 and 10)
-  and three (on-chain anchoring) are NAMED successors, **not drafted, and not
-  pre-encoded**: every question-gate they held is now OPEN, and what remains for
-  them is machinery — the omnigent layer and the PKI plane — rather than a
-  ruling. `target_release` **`contract-v2.3`**, fresh-counted (v2.2 is declared
-  and cut), allocated at realization by merge order.
 - [add-structured-scope-substrate](openspec/changes/add-structured-scope-substrate/proposal.md)
   — **RATIFIED 2026-08-28** (Brett Heap, convener). MODIFIES `release-realization`
   to add the OPTIONAL front-matter sibling `scope_globs:` — a per-repository map
@@ -1500,6 +1444,74 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [add-signed-execution-chain](openspec/changes/archive/2026-08-31-add-signed-execution-chain/proposal.md)
+  — **ARCHIVED 2026-08-31 on merged-plus-green PLUS THE CUT, WITH TWO BOXES
+  DELIBERATELY LEFT OPEN AND CARRIED FORWARD.** Ratified 2026-08-29 by Brett Heap
+  (`review/ratification-2026-08-29.md`); archived on his order of 2026-08-31.
+  **REALIZED IN TWO ACTS**: act one is PR **#524**, squash `9af98c4d` — the five
+  schemas, the packaged corpus, `scripts/validate-signed-execution-chain.py` as
+  the NAMED READER, and the running `signed-execution-chain-gate` check; act two
+  is the cut, PR **#533**, squash `58fd7a4f`, **REGISTERED at `contract-v2.5`**
+  whose annotated tag object `f0ed3f3b` peels FROM THE REMOTE to `58fd7a4f`. The
+  number was fresh-counted at the cut after it had **already moved twice** — v2.3
+  spent by #514, v2.4 spent and tagged by `add-binding-consumer-identity` (#526)
+  carrying ZERO members of this family, proved by `grep -c` rather than assumed —
+  and the re-count was free because act one wrote no number into any contract
+  byte. Green read from the **check-runs API at the archive act**, not from a
+  merge notification: on both final heads (`69509939`, `e7a37064`) all five checks
+  report `success` — `pytest-suite`, `wallet-validation`,
+  `signed-execution-chain-gate`, `merge-master-approval`,
+  `copilot-pull-request-reviewer`. **TWO BOXES DID NOT CLOSE AND WERE NOT TREATED
+  AS CLOSING CONDITIONS**: 4.5, the OPERATOR act making the check REQUIRED in the
+  branch ruleset — for which a merged workflow file is NOT evidence, only the live
+  ruleset state is — and 4.6, its canary evidence, BLOCKED ON 4.5 BY CONSTRUCTION
+  because three of its four conjuncts are producible today and the fourth cannot
+  be READ until the ruleset changes. **Until 4.5 is performed requirement 9 is
+  UNMET rather than partially met**, the shipped declaration records
+  `is_required_in_ruleset: false`, and the reader emits a standing
+  `reader-not-required` warning on every run — so the capability reaches canon
+  **meeting its own degraded case rather than evading it**, which is what made the
+  archive lawful. Both are restated as dispositions in the archived `tasks.md`
+  § 4.5, § 4.6 and § 6.1 and carried forward at **issue #534**, so an open
+  operator act is not written down only inside an archived packet; 4.5 remains
+  Brett's act. The three § 5 successors survive unticked as a separate class —
+  tranche two and tranche three, gated on Q7 and on Q3/Q6 and on layers that do
+  not exist yet. **PROMOTION VERIFIED BYTE-FOR-BYTE**, and the delta had **no
+  scenario-completeness exposure at all**: it is PURE ADDED into a capability that
+  did not previously exist, so there was no canon scenario set to restate and
+  nothing could be silently dropped. Measured anyway — **9 requirements in, 9 out,
+  all nine titles an identical set, all nine bodies byte-identical (9/9), 45
+  scenarios in, 45 out**, one new capability directory
+  `openspec/specs/signed-execution-chain/`, no sibling capability touched.
+  `openspec validate --all --strict` **80 passed, 0 failed** before and after;
+  `proposal-support verify` ok on both sides of the move; `.openspec.yaml` moved
+  rather than being lost, proved by blob id
+  `57f45fe1cf17b8eacfdf941d2bb0d184de813a8c` identical across the move. The
+  mechanism was `openspec archive --yes`, not `proposal-support archive`, and the
+  choice is the recorded convention for a packet with ruled-open boxes — that
+  wrapper refuses any `^- [ ]` line and cannot tell a ruled-open follow-up from
+  unfinished work — with the two things it adds run anyway on both sides; the
+  precedents are `2026-08-28-declare-sentinel-pin-vocabulary` and the three
+  sibling archives of 2026-08-27. Exit 1 of three of the staged topic
+  `signed-execution-chain`, its boundary **RULED** by Brett Heap's disposition of
+  all seven of the topic's questions (#499, squash `9c501df6`), **Q4** fixing
+  tranche one at **links 1–3 only** with the signed transparency log a tranche-one
+  artifact and the chain-validating gate existing FROM TRANCHE ONE. **The
+  inversion is the point: a validated chain is not an audit trail, it is a
+  PERMISSION** — an audit trail is written after the fact and can be forged after
+  the fact, while a chain the gate walks before it permits the terminal act cannot
+  be, because the act does not happen without it. A broken or missing link is a
+  FRAUD SIGNAL and a refusal, never a warning; an unevaluable chain refuses on the
+  family's fail-closed doctrine; and the gate validates HASH-LINKED CONTINUITY,
+  never a bag of signatures — individually valid artifacts from DIFFERENT
+  executions must not assemble into a chain. Ratifying authority is HUMAN-HELD
+  under Narrowing A, which leaves agent-held REVIEW wallets lawful and the
+  realized `wal-agent-mrc-0001` untouched. The packet is the survivor of a
+  collapse Brett ruled: two sessions raised this tranche three minutes apart, and
+  **#494 closed with four of its hardenings HARVESTED here** — the actor↔wallet
+  attestation binding, enforced per-ratification uniqueness, ONE digest
+  construction for every digest, and the named-reader required-check rule.
 
 - [add-model-capability-vocabulary](openspec/changes/archive/2026-08-29-add-model-capability-vocabulary/proposal.md)
   — **ARCHIVED on merged-plus-green PLUS THE CUT.** Ratified 2026-08-24 with TWO

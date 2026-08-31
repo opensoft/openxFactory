@@ -367,6 +367,18 @@ thing it measures.**
       `reader-not-required` warning on every run. Neither is decoration: a test
       refuses a declaration that records SEC-R9 `satisfied` while the reader is
       unrequired.
+      **RESTATED AT THE ARCHIVE ACT, 2026-08-31: THIS BOX SURVIVES THE ARCHIVE
+      UNTICKED AND IT IS NOT DONE.** It is Brett's act, not any author's, and the
+      archive did not perform it, absorb it, or discharge it. The obligation now
+      ALSO lives at **openxFactory issue #534**, filed by the archive act for
+      exactly this reason: an archived packet must not be the only place an open
+      operator act is written down. **Requirement 9 promoted to canon MEETING ITS
+      OWN DEGRADED CASE, not evading it** — `openspec/specs/signed-execution-chain/spec.md`
+      says the capability confers and refuses nothing until a named reader runs as
+      a required check, the shipped declaration says `is_required_in_ruleset:
+      false`, and the reader warns on every run. That agreement between the
+      requirement and the estate is what made archiving lawful; the act being done
+      is not, and nothing here claims it.
 - [ ] 4.6 **Gate — BLOCKED ON 4.5 BY CONSTRUCTION, not by effort.** A
       deliberately broken chain FAILS a real pull request, and the evidence
       records the run id, the check id, the validator's single named refusal,
@@ -375,6 +387,11 @@ thing it measures.**
       producible today; the fourth cannot be read until 4.5 is performed, and a
       box closed on three of four conjuncts would be the closure-on-intention
       this family refuses.
+      **RESTATED AT THE ARCHIVE ACT, 2026-08-31: ALSO UNTICKED, ALSO NOT DONE,
+      AND STILL BLOCKED BY CONSTRUCTION.** The archive changed nothing about the
+      fourth conjunct's readability — only 4.5 can — so this box is carried
+      forward beside it at **openxFactory issue #534** rather than quietly closed
+      on the three conjuncts that are producible.
 - [x] 4.7 **DONE, AS `contract-v2.5`** — the cut performed by the cutting
       session, in its own pull request, from an independent clone.
       **THE THIRD COUNT IS THE ONE THAT HELD, and it agreed with the second.**
@@ -475,6 +492,18 @@ thing it measures.**
 
 ## 5. Successors — NAMED, NOT DRAFTED
 
+**ALL THREE SURVIVE THE ARCHIVE UNTICKED, AND EACH IS A DECISION RATHER THAN A
+LOOSE END** — restated at the archive act 2026-08-31 so a later reader meets a
+disposition and not a blank box, on the shape
+`2026-08-28-declare-sentinel-pin-vocabulary` § 5 established. **NOT ONE OF THE
+THREE IS BLOCKED ON ANYTHING THIS PACKET LEFT BROKEN**: 5.1 and 5.2 are the named
+tranche-two and tranche-three successors, each gated on rulings or on layers that
+do not exist yet (Q7; Q3 and Q6), and their absence at tranche one is declared in
+`proposal.md` as not-a-defect; 5.3 is a standing instruction to whoever raises
+them, which cannot be discharged before they are raised. **These three are a
+different class from § 4.5 and § 4.6**, which are open work on THIS tranche and
+are carried forward at openxFactory issue #534.
+
 - [ ] 5.1 **Tranche two** — links 4–6 and 10: harness-controller setup
       attestation, per-task attestation identities whose keys never enter a
       worker, the signed PR-open decision, the governed post-merge test, the
@@ -489,3 +518,114 @@ thing it measures.**
       two/three boundary against what actually exists when each is raised, per
       the topic's Q4 — a tranche that depends on an unbuilt layer is a plan, not
       a tranche.
+
+## 6. The archive act — 2026-08-31
+
+- [x] 6.1 **ARCHIVED ON BRETT HEAP'S ORDER OF 2026-08-31** (*"archive both
+      realized changes after the pin-sync"*, the pin-sync having landed), to
+      `openspec/changes/archive/2026-08-31-add-signed-execution-chain/`.
+
+      **THE ARCHIVE GATE, READ RATHER THAN QUOTED.** `docs/release-realization-flow.md`
+      § The Archive Gate wants a code-surface change's code merged on the
+      implemented target plus a green run. Act one is **PR #524, squash
+      `9af98c4d`**; act two — the cut — is **PR #533, squash `58fd7a4f`**, and
+      the annotated tag `contract-v2.5` (tag object `f0ed3f3b`) peels FROM THE
+      REMOTE to `58fd7a4f`. Green was taken from the **check-runs API at this
+      act**, not from a merge notification: on both final heads
+      (`69509939` for #533, `e7a37064` for #524) all five checks report
+      `success` — `pytest-suite`, `wallet-validation`,
+      `signed-execution-chain-gate`, `merge-master-approval` and
+      `copilot-pull-request-reviewer`. The gate is satisfied in the verb as well
+      as in substance. **What the gate does NOT require is that every box be
+      ticked**, and § 4.5 and § 4.6 are not.
+
+      **THE ACT.** `OPENSPEC_TELEMETRY=0 openspec archive add-signed-execution-chain
+      --yes` (openspec **1.2.0**), which reported `signed-execution-chain: create`,
+      `+ 9 added`, `Totals: + 9, ~ 0, - 0, → 0` and `Specs updated successfully.`,
+      creating `openspec/specs/signed-execution-chain/spec.md` as a NEW capability
+      directory. It also reported `Task status: 22/27` and warned on **five
+      incomplete tasks, which is CORRECT AND IS WORTH SPELLING OUT**: the five are
+      § 4.5, § 4.6 and the three § 5 successors, each carrying its own restated
+      disposition above.
+      **TWO COUNTS, AND THEY ARE NOT THE SAME COUNT — the CLI's output versus this
+      file's end state.** `22/27` is **the CLI's reading at the moment it ran**,
+      before this section existed. This restatement then ADDS § 6.1 as the
+      twenty-third tick and the twenty-eighth box, so **the archived file's own end
+      state is `23/28`** — and the five open boxes are the same five in both
+      readings. Neither number is a correction of the other; recording only the
+      second would hide what the tool actually said, and recording only the first
+      would misdescribe the file a later reader opens.
+
+      **THE MECHANISM WAS `openspec archive`, NOT `proposal-support archive`, AND
+      THE CHOICE IS DELIBERATE.** `proposal_support.archive_change` refuses any
+      change whose `tasks.md` still carries a `^- \[ \]` line — a blanket gate that
+      cannot tell a ruled-open follow-up or a deliberately-open operator act from
+      unfinished work. **The two things that wrapper adds were run anyway, on both
+      sides of the move**: the origin gate, `python3 scripts/proposal-support.py .
+      verify add-signed-execution-chain` → `proposal support verification ok`
+      BEFORE and AFTER, and the whole-corpus sweep `verify` (no argument) → ok
+      BEFORE and AFTER; and packaging, **a lawful no-op** because a staged origin
+      with no `supporting-docs/` folder has nothing to bundle — the wrapper's own
+      comment names sixteen archived staged-origin changes of exactly this shape.
+      The precedent is `2026-08-28-declare-sentinel-pin-vocabulary`,
+      `2026-08-27-harden-ideation-readiness-check`,
+      `2026-08-27-supersede-lost-pin-baseline` and
+      `2026-08-27-govern-derived-pin-reachability`, each of which carried unticked
+      follow-ups through the archive by this same route and said so.
+
+      **PROMOTION VERIFIED BYTE-FOR-BYTE, not by net counts.** The delta is **PURE
+      ADDED into a capability that did not exist** — `openspec/specs/` held no
+      `signed-execution-chain/` before this act — so there is no MODIFIED block and
+      **no scenario-completeness exposure at all**: nothing could be silently
+      dropped because there was no canon scenario set to restate. Measured anyway,
+      delta preimage against promoted spec: **9 requirements in, 9 out, all nine
+      titles an identical set and all nine bodies BYTE-IDENTICAL (9/9), 45
+      scenarios in, 45 out.** No sibling capability was touched.
+
+      **THE KNOWN CLI HAZARD DID NOT FIRE, VERIFIED BY BLOB ID RATHER THAN
+      ASSUMED.** Under openspec 1.2.0 `.openspec.yaml` MOVED with the packet
+      rather than being deleted: `git hash-object` gives
+      `57f45fe1cf17b8eacfdf941d2bb0d184de813a8c` at the archive path — IDENTICAL to
+      the blob at the active path read immediately before the act — so no
+      restoration was needed and no origin field moved. ORIGIN RETENTION holds
+      through the archive.
+
+      **GATES, both sides.** `OPENSPEC_TELEMETRY=0 openspec validate --all
+      --strict` → **80 passed, 0 failed** BEFORE and AFTER (the change leaves the
+      active set as its capability joins the promoted set, so the total is
+      unchanged rather than coincidental). `python3 -m pytest tests/ -q -m "not
+      postgres"` → **8363 passed, 21 skipped, 0 failed** on the tree at this act.
+
+      **THE PATHS THAT NOW POINT AT THE OLD HOME, MEASURED AND DELIBERATELY LEFT
+      STANDING.** Fifty-six references name `openspec/changes/add-signed-execution-chain`,
+      and the move makes those spellings stale. **NOTHING BREAKS, AND THAT WAS
+      CHECKED RATHER THAN HOPED**: in the packaged corpus the string is a
+      `subject_ref` — an opaque subject IDENTIFIER that the named reader compares
+      field-to-field against the actor reference
+      (`scripts/validate-signed-execution-chain.py:1254`) and **never resolves on
+      disk**, so no fixture and no gate depends on the directory existing. The two
+      genuine prose citations are `contracts/CHANGELOG.md:16` and
+      `contracts/signed-execution-chain/README.md:6`. **`contracts/CHANGELOG.md` IS
+      A MEMBER OF THE PUBLISHED `contract-v2.5` DIGEST INVENTORY**, so editing it
+      without rebuilding that inventory raises `HGR-RELEASE-DIGEST-MISMATCH` — the
+      exact way `main` went red at `8924838d` once before — and rebuilding a
+      bundle's inventory AFTER its tag is published is a strictly larger defect
+      than a stale path in a sentence. The family README is unpinned and could be
+      edited alone, but rewriting one of two identical citations would leave the
+      pair disagreeing. **THIS IS AN ESTABLISHED CLASS AND NOT A NEW ONE**:
+      thirteen already-archived changes carry the same stale active-path spelling
+      in `contracts/` or `docs/`, `add-model-capability-vocabulary` and
+      `add-release-inventory-drift-check` among them, so this archive joins a
+      standing class rather than introducing one. The repository's own answer for
+      references that must survive an archive is a resolver that falls back to the
+      archive path (`tests/avatar_client_validator/test_f0_archive_fallback.py`) or
+      a live-and-archived glob pair (`supersede-lost-pin-baseline`), not a
+      rewriting sweep at archive time.
+
+      **WHAT THIS ACT DID NOT DO.** It did not tick § 4.5 or § 4.6, did not absorb
+      them, and does not claim the capability is enforcing. Requirement 9 reaches
+      canon MEETING ITS OWN DEGRADED CASE — the reader exists, is unrequired, says
+      so about itself, and the shipped declaration records
+      `is_required_in_ruleset: false`. **openxFactory issue #534** was filed by
+      this act to carry § 4.5 and § 4.6 forward, so the obligation is not written
+      down only inside an archived packet. 4.5 remains Brett's act.
