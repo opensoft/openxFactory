@@ -37,16 +37,36 @@ OBJECTION THIS RULE HAD TO ANSWER TO BE BUILDABLE.** Where the full task set is
 not knowable when link 4 is signed — the ordinary case for work that fans out as
 it runs — the controller SHALL EXTEND the commitment by a further
 CONTROLLER-SIGNED EXTENSION RECORD under the same chain identity, hash-linked
-like every link from link 4 onward, **WRITTEN AS A LEAF BEFORE THE ATTESTATION
-IT COVERS IS PRODUCED**. The expected set is then link 4 AS EXTENDED. Three
-refusals keep the extension from becoming the hole it exists to close:
+like every link from link 4 onward, **WRITTEN AS A LEAF BEFORE, OR AT, THE
+DISPATCH OF THE TASK IT ADDS — NEVER LATER.** The expected set is then link 4 AS
+EXTENDED.
 
-1. **AN EXTENSION WRITTEN AFTER THE ATTESTATION IT COVERS IS REFUSED**, because
-   an expectation recorded after the fact is a description and not an
-   expectation.
-2. **A LINK-5 ATTESTATION FOR A TASK NO COMMITMENT COVERS IS REFUSED**, so
+**THE DEADLINE IS DISPATCH AND NOT FIRST-ATTESTATION, AND THE DIFFERENCE IS THE
+WHOLE CONTROL.** An earlier form of this rule set the deadline at *"before the
+attestation it covers is produced"*, which fails twice. It lets the controller
+commit **AFTER OBSERVING THE EXECUTION**, so the record stops being an
+INDEPENDENT EXPECTATION and becomes a description of what happened. And worse: a
+realization that mints extensions when SIGNING REQUESTS ARRIVE never commits a
+task whose attestation the runner SUPPRESSES ENTIRELY — no request, no extension,
+no expectation — so link 6's enumeration equals the reduced committed set and
+**the dropped-attestation attack passes again**, through the very instrument
+raised to close it. Dispatch is the moment the controller acts and the only
+moment before the runner can influence anything, which is what makes the
+expectation independent. It is also what the paragraph below can then truthfully
+say: that the commitment named the task BEFORE ANY RUNNER EXECUTED.
+
+Four refusals keep the extension from becoming the hole it exists to close:
+
+1. **AN EXTENSION WRITTEN AFTER THE DISPATCH OF THE TASK IT ADDS IS REFUSED**,
+   because an expectation recorded after the controller has acted is a
+   description and not an expectation — and one recorded after the task has RUN
+   is not even that.
+2. **A TASK DISPATCHED UNDER NO COMMITMENT IS A BREACH AT DISPATCH**, not merely
+   at attestation: the obligation binds the controller's own act, so a
+   realization cannot defer it to a request that may never arrive.
+3. **A LINK-5 ATTESTATION FOR A TASK NO COMMITMENT COVERS IS REFUSED**, so
    extension cannot be skipped by simply attesting anyway.
-3. **AN EXTENSION SIGNED ANYWHERE OTHER THAN AT THE CONTROLLER IS REFUSED**,
+4. **AN EXTENSION SIGNED ANYWHERE OTHER THAN AT THE CONTROLLER IS REFUSED**,
    under the tier-2 custody requirement, so a runner cannot enlarge or shrink
    the expectation it is measured against.
 
@@ -153,11 +173,17 @@ refuses the remainder.
 - THEN it is REFUSED, because an expectation attachable afterwards is an expectation anyone can attach
 - AND its presence on the record is not accepted, on the same footing as an attribution outside the signed bytes
 
-#### Scenario: a commitment extension is written after the attestation it covers
+#### Scenario: a commitment extension is written after the task it adds was dispatched
 
-- WHEN a controller-signed extension naming a dispatched task is written to the log after that task's link-5 attestation leaf
-- THEN it is REFUSED, because an expectation recorded after the fact is a description and not an expectation
-- AND the extension's correct content and valid signature are not accepted in place of its being written first
+- WHEN a controller-signed extension naming a task is written to the log AFTER that task was dispatched — whether before its attestation, after it, or never followed by one
+- THEN it is REFUSED, because an expectation recorded after the controller has acted is a description and not an expectation
+- AND the extension's correct content and valid signature are not accepted in place of its being written at or before dispatch
+
+#### Scenario: a realization mints extensions when signing requests arrive
+
+- WHEN a realization creates commitment extensions on the arrival of a signing request, and a runner suppresses its attestation entirely so no request is ever made
+- THEN the design is REFUSED, because that task was dispatched under no commitment and the expectation the gate compares against would silently shrink to exclude it
+- AND link 6's enumeration equalling that reduced set is exactly the dropped-attestation attack this commitment exists to refuse, so a deadline the runner can influence is no deadline
 
 #### Scenario: a runner attestation arrives for a task no commitment covers
 
@@ -449,8 +475,8 @@ stands in for the other.
 
 #### Scenario: a chain fans out to several tasks and one link-6 decision is signed
 
-- WHEN a chain dispatches several tasks and the chain-scoped tier-2 identity signs the single link-6 PR-open decision record committing to every one of their link-5 attestations, at the controller
-- THEN it is CONFORMING, because the decision is a record about the CHAIN and the chain-scoped identity's closed enumeration names that record kind
+- WHEN a chain dispatches several tasks and the chain-scoped tier-2 identity signs the single link-6 PR-open decision record committing to every one of their link-5 attestations, at the controller, ON A REQUEST THE CONTROLLER ATTRIBUTED TO THE PARTY THE CHAIN'S INCEPTION RECORD BINDS AND RECORDED BESIDE THE SIGNATURE
+- THEN it is CONFORMING, because the decision is a record about the CHAIN, the chain-scoped identity's closed enumeration names that record kind, and the asker was established rather than merely reachable
 - AND no per-task identity is asked to sign for work it was not minted for, which is the case the ordinary multi-task fan-out makes unavoidable
 
 #### Scenario: a per-task identity is offered for the PR-open decision
@@ -480,7 +506,7 @@ stands in for the other.
 
 #### Scenario: a hardware-backed signer is adopted
 
-- WHEN the controller moves its signing key into an HSM
+- WHEN the controller moves its signing key into an HSM that remains outside every host, process and credential scope a worker, runner or lane executes within
 - THEN every record the chain carries is unchanged and this requirement is satisfied as written
 - AND the adoption is recorded as a hardening of the same shape rather than a different mechanism
 
@@ -649,8 +675,9 @@ boundary in name.
 
 #### Scenario: an HSM is adopted
 
-- WHEN the controller's key moves into hardware-backed custody
+- WHEN the controller's key moves into hardware-backed custody that is not readable from, and not co-located inside, any scope a worker, runner or lane executes within
 - THEN the design remains conforming, because the key has moved further from the worker and never closer
+- AND hardware custody REACHABLE from the runner's scope is NOT this scenario and does not conform, because where a key lives is not the discriminator
 - AND no record the chain carries changes
 
 ### Requirement: Opening a pull request is a signed decision, bound to the chain
@@ -744,6 +771,37 @@ IDENTITY minted at inception and (b) THE DIGEST OF ITS PREDECESSOR, each compute
 under the ONE digest construction already in force and each NAMING THE SUBJECT it
 was taken over.
 
+**"ITS PREDECESSOR" IS DEFINED OVER RECORDS THAT EXIST, BECAUSE THE LINK TABLE'S
+NUMBERING IS NOT A CHAIN OF RECORDS.** Read against the authoritative ten-link
+table alone, link 10's predecessor is LINK 9 — which is a REFUSING STATE and not
+a record: the table gives it no signer at all, and this capability defines no
+record kind for it. A realization could not know whether to hash a nonexistent
+link-9 artifact, skip to link 6, or use the review record, and the three choices
+produce mutually unverifiable chains. **THE PREDECESSOR OF A SIGNED LINK IS
+THEREFORE THE NEAREST PRIOR LINK POSSESSING A RECORD KIND IN FORCE AT THE
+TRANCHE THAT ACTS**, and its digest is taken over that record. **At this tranche
+the signed order is 4 → 5 → 6 → 10**, link 5 being plural and governed by the
+enumeration rule below, **so LINK 10'S PREDECESSOR IS LINK 6'S PR-OPEN DECISION
+RECORD.**
+
+**THE RULE IS WRITTEN TO BE EXTENDED, NOT REPLACED.** It names no fixed number,
+so a later tranche that puts a record kind in force at links 7, 8 or 9 changes
+what "nearest prior" resolves to WITHOUT contradicting this text or invalidating
+chains built under it — the successor states the new order for chains from ITS
+realization, exactly as this tranche does. A rule naming "link 6" literally would
+have had to be amended by every such tranche.
+
+**AND THE OMITTED LINKS ARE NAMED RATHER THAN LEFT AS A HOLE, since the whole
+defect was a reader having to guess:** **LINK 7** — the council review — carries
+seat signatures that tranche one placed on the §7.4 path and left outside the
+gate's scope, and it is OUTSIDE THIS CAPABILITY'S CODE SURFACE; its record is
+reached by link 10's separate REVIEW-AUTHORITY binding rather than by the
+hash-link, which is why closure consumes it without hashing it as a predecessor.
+**LINK 8** is the GATE ITSELF, a verifier and not a record, so it can have no
+digest. **LINK 9** is the FRAUD SIGNAL — a refusing STATE the chain enters, not
+an act that writes an artifact. None of the three is a signed record at this
+tranche, and that is why the order steps over them.
+
 **THIS REALIZES TRANCHE ONE'S DECLARATION RATHER THAN AMENDING IT.**
 `add-signed-execution-chain`'s gate requirement states that the hash-linked
 signing rule "takes effect at the first link that has a signer of its own, which
@@ -823,7 +881,9 @@ party has observed.
 **THE GATE'S SCOPE GROWS WITH THE TRANCHE, AND IT STILL VALIDATES A CHAIN RATHER
 THAN A BAG OF SIGNATURES.** From this tranche the gate walks LINKS 1–6 and
 validates CONTINUITY: one chain identity carried unbroken, each signed link
-committing to its predecessor. Individually valid setup, runner and PR-open
+committing to its predecessor AS THIS REQUIREMENT DEFINES ONE — the nearest prior
+link possessing a record kind in force, which inside the gate's scope is 4 → 5 →
+6. Individually valid setup, runner and PR-open
 artifacts drawn from DIFFERENT EXECUTIONS MUST NOT ASSEMBLE, because with
 concurrent or repeated work a signature bag is exactly what a badly-behaved lane
 would submit. A broken or missing link is a FRAUD SIGNAL AND A REFUSAL, never a
@@ -901,6 +961,18 @@ permission is exactly how an absence becomes a hole.
 - THEN it is REFUSED, because one construction governs every digest this capability computes including those a later tranche adds
 - AND the second rule is removed rather than reconciled
 
+#### Scenario: link 10's signature hashes a link-9 artifact
+
+- WHEN a realization computes link 10's predecessor digest over a link-9 artifact, link 9 being the fraud signal for which this capability defines no record kind
+- THEN it is REFUSED, because the predecessor of a signed link is the nearest prior link possessing a RECORD KIND IN FORCE, and link 9 is a refusing STATE rather than a record
+- AND at this tranche that predecessor is LINK 6's PR-OPEN DECISION RECORD, the signed order being 4 → 5 → 6 → 10
+
+#### Scenario: two realizations pick different predecessors for link 10
+
+- WHEN one realization hashes link 6's record as link 10's predecessor and another skips to the review record or to a link-9 placeholder
+- THEN the second is REFUSED, because the order is fixed by this requirement rather than chosen per realization
+- AND chains that disagree about what a signature covers cannot be verified against one another, which is the outcome the rule exists to prevent
+
 #### Scenario: a predecessor digest names no subject
 
 - WHEN a link carries a correctly constructed, algorithm-tagged predecessor digest that does not name what it was taken over
@@ -962,6 +1034,19 @@ therefore BIND, INSIDE THE CONTROLLER-SIGNED BYTES, all three of:
 3. **THE RESULT** — the outcome that execution produced, covered by the same
    signature, so a result attachable afterwards is not a result anyone can
    attach.
+
+**AND ESTABLISHING THE RESULT IS NOT THE SAME AS THE RESULT BEING A PASS. A CHAIN
+CLOSES ONLY ON AN ESTABLISHED *PASSING* RESULT.** The three bindings above make
+the outcome TRUSTWORTHY; they do not make it FAVOURABLE, and a rule that stopped
+at "established" would close a chain on a genuine, honestly-reported, correctly
+signed TEST FAILURE — permitting promotion and release over work whose own
+governed test says it is broken. **AN ESTABLISHED FAILING RESULT SHALL REFUSE
+CLOSURE**, and the chain is then in the LINK-10-FAILED refusing state this
+requirement already defines below: merged-but-unclosed, refusing everything
+downstream, firing link 9's fraud signal, with a REMEDIATION CHAIN as its one
+admitted consumer. **A failure honestly established is the control WORKING**, and
+it is recorded as FAILED — never as UNESTABLISHED, which is a different fact, and
+never as a pass.
 
 **AN OUTCOME THAT IS MERELY RUNNER-CLAIMED OR LANE-CLAIMED IS REFUSED AS CLOSURE
 GROUNDS**, fail-closed, on this capability's standing doctrine: the chain stays
@@ -1072,11 +1157,18 @@ reason this paragraph enumerates rather than summarizes.
 - THEN closure is REFUSED
 - AND the execution's being genuine and its result passing are not accepted, because a test that passed against other bytes is evidence about other bytes
 
-#### Scenario: the controller dispatches the post-merge test and binds its result
+#### Scenario: the controller dispatches the post-merge test and binds a PASSING result
 
-- WHEN the controller dispatches the governed post-merge test, the tested revision EQUALS the merge commit the chain closed over, and the execution, the revision and the result all fall inside the bytes the controller signs
-- THEN the outcome is established and the chain CLOSES on it, the proposal and review-record bindings being satisfied
+- WHEN the controller dispatches the governed post-merge test on a request it attributed to the party the chain's inception record binds, the tested revision EQUALS the merge commit the chain closed over, the result is a PASS, and the execution, the revision and the result all fall inside the bytes the controller signs
+- THEN the outcome is established AS A PASS and the chain CLOSES on it, the proposal and review-record bindings being satisfied and the review authority's standing established within the register's declared bound
 - AND nothing about the result is taken from the lane, which is what makes this record closure grounds rather than a report
+
+#### Scenario: the established post-merge result is a FAILURE
+
+- WHEN the controller dispatches the governed post-merge test against the merge commit the chain closed over, and the established, correctly signed result is a FAILURE
+- THEN closure is REFUSED, and the chain is in the LINK-10-FAILED refusing state — merged-but-unclosed, refusing everything downstream, firing link 9's fraud signal
+- AND the outcome is recorded as FAILED rather than as UNESTABLISHED or as a pass, because a failure honestly established is this control WORKING
+- AND a REMEDIATION CHAIN declaring that failed closure as its signed subject is the one admitted consumer, which is the route out
 
 #### Scenario: a realization declares it cannot establish the test outcome
 
@@ -1166,7 +1258,7 @@ ENFORCED RATHER THAN ASSUMED:**
 
 #### Scenario: link 10 fails on an ordinary defect and a corrective change is raised
 
-- WHEN a corrective or revert change declares the failed closure as its signed subject
+- WHEN a corrective or revert change that is ITSELF A FULL CHAIN, its own links 1–6 walked at the gate, declares the failed closure BY CHAIN IDENTITY as a subject falling inside the bytes its ratifying signature covers
 - THEN it is ADMITTED as a consumer of the unclosed chain
 - AND the repository can repair what it cannot retroactively unmerge
 
