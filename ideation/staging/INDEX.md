@@ -1924,6 +1924,47 @@ repo scope.
   v2.3 and v2.4 are SPENT; the next additive number is `contract-v2.5`.
   Registration rides that cut rather than reserving it, which is why a number
   that has now moved twice was written into no contract byte.
+- **EXIT 3 IS RAISED, 2026-08-29 — the DRAFT change `add-chain-anchoring`**
+  (`openspec/changes/add-chain-anchoring/proposal.md`), the public anchoring layer
+  plus the permissioned consent plane, as a NEW neutral `chain-anchoring`
+  capability of **nine ADDED requirements over 89 SCENARIOS** (52 scenarios at
+  the head its council judged; its 2026-08-30 fix round and nine bot rounds
+  added thirty-seven scenarios and no new requirement). It builds to the
+  RULED configuration — Kaspa first as the operational witness under its three
+  unchanged conditions, Bitcoin via OpenTimestamps on every anchored item as the
+  durability witness, no selectivity, no third chain — with the **multi-anchor
+  receipt built FIRST** in its corrected form (transaction bytes and inclusion
+  proof captured whole, refused at capture time if missing), Q2's boundary as
+  contract text with a refusing validator, Q6's commitment reading as its
+  operative form, and anchor-late. **`Status: draft` — ratification is NOT sought
+  by its landing**: a §7.4-shaped council reviews it OUTSIDE the clearance
+  pipeline and Brett's ratification follows, on
+  `add-binding-consumer-identity`'s pattern. The packet's own largest decision —
+  the semantics of a missing witness, which nothing ruled answers — is **put to
+  the council** rather than presented as settled: what fails closed is the CLAIM,
+  not the factory. The change id and capability **diverge from the ratified
+  working id** `add-signed-execution-chain-anchoring`, recorded in the packet.
+  Three obligations are carried from Brett Heap's own 2024 MedxChain notes
+  (`ideation/brainstorm/medxchain-blockchain-medical-records.md`, vendored by
+  PR #509, IN FLIGHT) — verification-attempt auditing, the meta-analysis lane, and
+  the domain-instantiation boundary — plus one CORRECTION to them, the cross-plane
+  join key. **ITS §7.4 COUNCIL SAT 2026-08-30** (combined over PRs #510, #513 and
+  #509 — an instrument the disposition rules WRONG at item 9, future sittings
+  split): four seats, one ACCEPT and three ACCEPT AS AMENDED, **three blocking
+  amendments plus one folded bot finding, all discharged in the fix round**, the
+  sitting carried in `openspec/changes/add-chain-anchoring/review/`. **RATIFIED
+  2026-08-30** (record `openspec/changes/add-chain-anchoring/review/ratification-2026-08-30.md`,
+  ruling *"2 yes with note"* — the note being an unreviewed tail from `fd7c1ca7`
+  on a bot quota refusal), together with the frozen-header normalization, the
+  blessing of LS-A9, and the timing-model consolidation. **EXIT 3 IS THEREFORE
+  RATIFIED AND NOT REALIZED**; the contract family and its validator are a later
+  commission.
+  **A ruling of that sitting reaches THIS TOPIC**: its anchor-late constraint sits
+  in `## Conflicts` with no disposition stamp and is reached by none of the seven
+  Q-dispositions, so it was **NOT ruled by the topic being ruled** — the packet
+  narrowing it had to ROUTE the narrowing to its council, and the resulting rule
+  binds future packets (disposition §3.1). **The topic is still not `Exit
+  taken:`**: tranche two is in flight and no tranche is archived.
 
 ## notebook-access-wallet-governance
 
