@@ -443,6 +443,46 @@ in for a ruleset state.
       certificate, the custody registry's assurance axis, or the omnigent
       public-material statement — none of which verifies a signature against a
       key.
+- [x] 1.21 **THE THIRTEENTH BOT ROUND'S TWO P2s ARE CLOSED, AND EACH LEAVES A
+      STANDING RULE BEHIND IT.** (i) **THE SIGNER-PUBLIC-KEY DISCIPLINE WAS NEVER
+      COMMISSIONED.** Round eleven required every signed record to carry the
+      signer's public key beside its signature — and neither `code_surface` nor
+      5.4 asked for the field, so **the schema checklist could have completed
+      without the input the verifier resolves against**, leaving the positive
+      key-resolution fixtures unconstructible. Added at BOTH sites as the THIRD
+      field discipline; the phrase moves *two field disciplines* → **three**
+      everywhere it appears. **THE EQUALITY CHECK IS WIDENED, BECAUSE THIS
+      FINDING WAS ITS BLIND HALF**: it compared 5.4 against `code_surface` over
+      RECORD KINDS ONLY, so a missing DISCIPLINE passed it every time. It now runs
+      over both halves — 7/7 kinds and 3/3 disciplines, declared, enumerated and
+      commissioned. (ii) **THE ANNOUNCEMENT SITES LAGGED 94 → 100.** README:399,
+      `INDEX.md`:1907 and `proposal.md`:208 still advertised the pre-round total
+      while the delta and this ledger carried the new one. Synced to the
+      **MEASURED** figure — counted fresh at **100**, not taken from the report.
+      **THE STANDING RULE THIS LEAVES**, recorded at 1.22 so the next count move
+      carries its own sync.
+- [x] 1.22 **STANDING SWEEP RULES FOR THIS PACKET — the methods the rounds paid
+      for, written down so they fire without being asked.** Each exists because
+      its absence cost a round.
+      - **THE ANNOUNCEMENT-FAMILY SWEEP FIRES ON ANY COUNT-MOVING COMMIT.** A
+        commit that changes a scenario total, a record-kind count or a field-
+        discipline count SHALL, IN THE SAME COMMIT, sync every announcement site:
+        `README.md`, `ideation/staging/INDEX.md`, `proposal.md`'s `code_surface`
+        AND its Modified-Capabilities bullet AND its Impact bullet, `tasks.md` 1.1,
+        and the pull-request body. **A majority of stale sites is not a
+        measurement**, and the figure is COUNTED rather than carried forward.
+      - **THE TWO-FIELD SWEEP**: what the packet ASSERTS and what it COMMISSIONS
+        — a superseded rule survives in the examples built against it.
+      - **THE GUARD WALK** over every permitting conjunct set, asking *what input
+        makes this pass wrongly?* — **including the sets a previous walk touched**,
+        because the fix's conjunct set is also a conjunct set.
+      - **THE SET-READ**: after amending a requirement, read it AS A SET, not at
+        the sites a reviewer named. A scenario-complete restatement is not thereby
+        a coherent one.
+      - **ONE RULE, NOT SLOTS**: a rule that enumerates the slots it covers will
+        be outrun by the next slot. State it over the set.
+      - **EQUALITY CHECKS COVER EVERY DECLARED AXIS**, not the first one — 5.4
+        against `code_surface` over record kinds AND field disciplines.
 
 ## 2. §7.4 COUNCIL REVIEW — **HELD 2026-08-30. THE FIRST GATE IS DISCHARGED.**
 
@@ -636,7 +676,11 @@ Each is contract content — cheap now, expensive after a bundle ships.
       IDENTITY IT SERVES, and referencing by identifier the two CANONICAL
       `add-trust-anchor` records it composes with (`certificate-record` for the
       key and validity bounds, `issuance-evidence` for the issuance act), **both
-      CONSUMED AND NEITHER REDEFINED HERE** — the per-fact evidence class, and
+      CONSUMED AND NEITHER REDEFINED HERE** — the per-fact evidence class, **THE
+      SIGNER'S PUBLIC KEY CARRIED BESIDE EVERY SIGNATURE** on every record this
+      capability defines (the field verification resolves against the consumed
+      certificate's `subject.public_key_fingerprint`, and without which the
+      key-resolution rule has no input), and
       **tier 2's TWO SUBJECT SCOPES with their two closed enumerations of
       authorized record kinds** — per-task (link 5) and chain-scoped (links 6 and
       10), with authority records outside both.
