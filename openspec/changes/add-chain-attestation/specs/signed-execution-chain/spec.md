@@ -93,6 +93,53 @@ custody; and REVOCATION IS CHECKED AT USE rather than trusted from issuance,
 propagating transitively from a revoked anchor to the authority its
 subordinates supported.
 
+**AND EVERY CERTIFICATE THIS CAPABILITY CONSUMES SHALL BIND TO A KEY, BY ONE RULE
+OVER THE WHOLE SET RATHER THAN A CLAUSE PER TIER.** The canonical
+`certificate-record` carries an OPTIONAL `subject.public_key_fingerprint` and NO
+PUBLIC KEY AT ALL, and `issuance-evidence` carries neither — so *"the signature
+verifies under the certified key"* is unrunnable from those records as they
+stand, and where the fingerprint is absent even an out-of-band key cannot be
+bound. **THE CONSUMED-CERTIFICATE SET OF THIS CAPABILITY IS: THE CONTROLLER
+CERTIFICATE OF THIS REQUIREMENT, AND THE TIER-2 CERTIFICATES OF REQUIREMENT 2 AT
+BOTH SUBJECT SCOPES.** Two obligations bind across ALL of them, and **neither
+moves a canonical byte**:
+
+1. **EVERY CERTIFICATE THIS CAPABILITY CONSUMES SHALL CARRY
+   `subject.public_key_fingerprint`.** This is THIS CAPABILITY'S CONSUMPTION
+   REQUIREMENT and not a schema change — the field is already in the canonical
+   shape and already constrained there; a consumer may REQUIRE what the canonical
+   shape leaves OPTIONAL, on the estate's own precedent
+   (`add-wallet-carried-review-authority`'s S2, where `issued_by` is optional in
+   the canonical wallet shape and the register's reader refuses a record without
+   it). A consumed certificate lacking the fingerprint is REFUSED with the
+   FORGED-IDENTITY force, because it is a certificate that cannot be tied to any
+   key.
+2. **EVERY SIGNED RECORD THIS CAPABILITY DEFINES SHALL CARRY THE SIGNER'S PUBLIC
+   KEY ALONGSIDE ITS SIGNATURE** — link 4 and the commitment extensions under the
+   controller certificate exactly as links 5, 6 and 10 under tier-2 ones. This is
+   a discipline on THIS capability's own record surface, which is ours to set;
+   the canonical shapes are untouched.
+
+**RESOLVE, COMPARE, THEN VERIFY — IN THAT ORDER, FOR EVERY CERTIFICATE IN THE
+SET.** The verification input supplies the purported key from the signed record
+itself; verification COMPUTES ITS FINGERPRINT under the ONE digest construction
+already in force and REQUIRES EQUALITY with the consumed certificate's
+`subject.public_key_fingerprint`; only then is the signature verified under that
+key. **A MISMATCH IS THE FORGED-IDENTITY REFUSAL** — it is precisely a key that is
+not the certified one — and so is an ABSENT FINGERPRINT, the same condition
+reached by omission rather than by substitution.
+
+**THE RULE IS WRITTEN OVER THE SET BECAUSE A PER-TIER CLAUSE WAS THE DEFECT.** An
+earlier form required the fingerprint of TIER-2 certificates only. Link 4 and the
+commitment extensions are signed under the CONTROLLER certificate, so a canonical
+controller certificate omitting its optional fingerprint left both forgeable by
+exactly the supplied-key trick the tier-2 clause had closed: the record supplies a
+key, the signature verifies under it, and no required equality check binds it to
+certified material. **A rule that enumerates the slots it covers will be outrun by
+the next slot** — the same lesson the predecessor order learned when extensions
+were given a placement of their own — so this one is stated over the SET, and any
+certificate a later tranche adds to that set is covered on the day it is added.
+
 **THE ISSUING AUTHORITY IS A REALIZATION DEPENDENCY AND IS NOT ASSUMED HERE.**
 The runtime certificate authority is the one `implement-openxpki-install-repo`
 creates at `opensoft/OpenXPKI-Install`, which openxFactory does not operate:
@@ -303,35 +350,15 @@ counted there.
 ONE MISSING**: the certificate valid and current; the issuance evidenced; and the
 chain binding naming THIS chain and the scope the record's kind requires.
 
-**AND THE VERIFICATION KEY IS RESOLVED RATHER THAN ASSUMED, BECAUSE THE CANONICAL
-SHAPES CARRY NO KEY.** `certificate-record` holds an OPTIONAL
-`subject.public_key_fingerprint` and no public key at all; `issuance-evidence`
-holds neither. A check phrased as *"the signature verifies under the certified
-key"* is therefore unrunnable from these records as they stand, and where the
-fingerprint is absent even an out-of-band key cannot be bound to the certificate.
-Two obligations close it, and **neither moves a canonical byte**:
-
-1. **A TIER-2 CERTIFICATE RECORD SHALL CARRY `subject.public_key_fingerprint`.**
-   This is THIS CAPABILITY'S CONSUMPTION REQUIREMENT and not a schema change —
-   the field is already in the canonical shape and already constrained there; a
-   consumer may REQUIRE what the canonical shape leaves OPTIONAL, on the estate's
-   own precedent (`add-wallet-carried-review-authority`'s S2, where `issued_by`
-   is optional in the canonical wallet shape and the register's reader refuses a
-   record without it). A tier-2 certificate lacking the fingerprint is REFUSED
-   with the forged-identity force, because it is a certificate that cannot be
-   tied to any key.
-2. **EVERY SIGNED RECORD THIS CAPABILITY DEFINES SHALL CARRY THE SIGNER'S PUBLIC
-   KEY ALONGSIDE ITS SIGNATURE.** This is a discipline on THIS capability's own
-   record surface, which is ours to set — the canonical shapes are untouched.
-
-**RESOLUTION AND COMPARISON, STATED SO A VERIFIER CAN RUN THEM.** The verification
-input supplies the purported key from the signed record itself; verification
-COMPUTES ITS FINGERPRINT under the ONE digest construction already in force and
-REQUIRES EQUALITY with the certificate record's `public_key_fingerprint`; only
-then is the signature verified under that key. **A MISMATCH IS THE
-FORGED-IDENTITY REFUSAL** — it is precisely a key that is not the certified one —
-and so is an absent fingerprint, which is the same condition reached by omission
-rather than by substitution.
+**AND THE VERIFICATION KEY IS RESOLVED BY REQUIREMENT 1'S RULE, WHICH GOVERNS
+EVERY CERTIFICATE THIS CAPABILITY CONSUMES AND IS NOT RESTATED HERE.** A tier-2
+certificate carries `subject.public_key_fingerprint` because it is IN THAT SET,
+not because tier 2 is special; the signed record carries the signer's public key
+beside its signature; and verification RESOLVES, COMPARES, THEN VERIFIES — the
+supplied key's fingerprint computed under the one digest construction and
+required EQUAL to the certificate's, before any signature is checked. **A
+mismatch or an absent fingerprint is the FORGED-IDENTITY refusal**, at the same
+force for a tier-2 certificate as for the controller's.
 
 **EVERY VERIFICATION OF A TIER-2 SIGNATURE VERIFIES THE COMPOSED ISSUANCE
 FIRST.** A signature under an identity missing ANY OF THE THREE records is a
@@ -559,6 +586,18 @@ stands in for the other.
 - WHEN a realization proposes issuing a broker persona to a runner so its attestations can name an actor
 - THEN it is REFUSED, and the runner's authority stays a `credential-contracts` / `openxwallet` grant
 - AND no persona is created for a workload
+
+#### Scenario: a controller-signed record supplies its own key against a fingerprintless certificate
+
+- WHEN a lane supplies an arbitrary public key and a matching signature for a link-4 setup attestation or a commitment extension, and the controller certificate those records name omits `subject.public_key_fingerprint`
+- THEN it is REFUSED with the FORGED-IDENTITY force, because a consumed certificate carrying no fingerprint is one no supplied key can be bound to
+- AND the signature's verifying under the supplied key is not accepted, since that is the trick the rule exists to refuse and it does not become sound at the controller tier
+
+#### Scenario: records under a compliant controller certificate verify
+
+- WHEN a link-4 attestation and its commitment extensions each carry the signer's public key beside the signature, the controller certificate carries `subject.public_key_fingerprint`, and each supplied key's computed fingerprint EQUALS it
+- THEN the keys RESOLVE, the signatures verify under them, and the records are admitted for the checks their links require
+- AND the same rule ran here as at tier 2, because it is written over the consumed-certificate set and not per tier
 
 #### Scenario: a tier-2 certificate record carries no public key fingerprint
 

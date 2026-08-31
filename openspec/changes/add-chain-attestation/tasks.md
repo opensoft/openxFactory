@@ -15,7 +15,7 @@ in for a ruleset state.
 
 ## 1. Spec deltas and the packet (THIS PULL REQUEST)
 
-- [x] 1.1 `signed-execution-chain` — **NINE ADDED requirements over 98
+- [x] 1.1 `signed-execution-chain` — **NINE ADDED requirements over 100
       scenarios**: the harness-controller setup attestation under a certificate
       expressed in `add-trust-anchor` vocabulary, with the issuing authority named
       as a realization dependency and never assumed; runner attestations signed AT
@@ -418,6 +418,31 @@ in for a ruleset state.
       rescoped scenario's antecedent read loosely enough to look like a chain
       presented with links missing, pushing the permitting count 3 → 4; tightened,
       and back to 3.
+- [x] 1.20 **THE TWELFTH BOT ROUND'S P1 IS CLOSED — the round-eleven key rule was
+      SCOPED PER TIER, and the scope was the defect.** It required
+      `subject.public_key_fingerprint` of TIER-2 certificates only. Link 4 and the
+      commitment extensions are signed under the **CONTROLLER** certificate, so a
+      canonical controller certificate omitting its optional fingerprint left both
+      **forgeable by exactly the supplied-key trick the tier-2 clause had
+      closed**: the record supplies a key, the signature verifies under it, and no
+      required equality check binds it to certified material. **THE RULE IS NOW
+      WRITTEN ONCE OVER THE CAPABILITY'S CONSUMED-CERTIFICATE SET** — the
+      controller certificate and the tier-2 certificates at both subject scopes —
+      and placed in requirement 1, where certificates ENTER this capability, with
+      requirement 2 CITING it rather than restating it, on the same
+      place-it-once footing as the declared-shortfall floor. Both obligations and
+      the RESOLVE-COMPARE-THEN-VERIFY order now bind every member, and **any
+      certificate a later tranche adds to the set is covered on the day it is
+      added**. **THIS IS THE ONE-RULE-NOT-SLOTS LESSON FOR THE SECOND TIME** — the
+      predecessor order learned it when extensions were given a placement of their
+      own, and the packet now says so in terms: *a rule that enumerates the slots
+      it covers will be outrun by the next slot.* **THE CERTIFICATE-SITE SWEEP
+      PROVES THERE IS NO THIRD SCOPE**: every `certificate` mention in the delta
+      resolves to one of the three set members, or to a non-consumption mention —
+      the CA as a realization dependency, revocation STANDING of the controller
+      certificate, the custody registry's assurance axis, or the omnigent
+      public-material statement — none of which verifies a signature against a
+      key.
 
 ## 2. §7.4 COUNCIL REVIEW — **HELD 2026-08-30. THE FIRST GATE IS DISCHARGED.**
 
@@ -692,8 +717,10 @@ Each is contract content — cheap now, expensive after a bundle ships.
       record**, refused as a break; a **tier-2 certificate record with no
       `subject.public_key_fingerprint`**, refused; a **signing key whose computed
       fingerprint does not EQUAL the certificate's**, refused as a forged
-      identity; and POSITIVES for **the verification key resolving against the
-      certificate** and for **a later task dispatched after an earlier task has
+      identity; a **controller-signed link-4 or extension record supplying its own
+      key against a controller certificate with NO fingerprint**, refused; and
+      POSITIVES for **the verification key resolving against the certificate**,
+      for **records under a compliant CONTROLLER certificate verifying**, and for **a later task dispatched after an earlier task has
       attested** — the extension chaining from that link-5 record and the gate
       walking the interleaved order; and
       two POSITIVES — **a genuine tier-2 identity's THREE records verifying end to
