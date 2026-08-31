@@ -110,6 +110,30 @@ that operator act rather than as work this change performs.
   generalization these requirements presume promotes then, and the two changes'
   `credential-contracts` text should be read together once both are promoted.
 
+  **CORRECTED 2026-08-31 — THE TRIGGERING EVENT HAS HAPPENED, SO THIS
+  OBLIGATION IS NOW DUE RATHER THAN CONTINGENT.**
+  `add-notebook-projection-identity` ARCHIVED 2026-08-31 at
+  `openspec/changes/archive/2026-08-31-add-notebook-projection-identity`, and
+  both of its MODIFIED deltas are PROMOTED. "At ITS archive" is therefore a
+  date that has passed, not a future condition, and the generalization this
+  task says "promotes then" is canon now. What that falsifies elsewhere in
+  this packet, named rather than silently left: `design.md`'s Ruling 2 still
+  reads "`add-notebook-projection-identity` is ACTIVE and carries its own
+  MODIFIED delta ... ratified but unpromoted until it archives", and its
+  sequencing note still tells a reader of the promoted spec that they "will
+  not see the operated-identity framing until that archive lands" — they will;
+  it landed.
+
+  **The box stays UNTICKED and the obligation text above is UNCHANGED,
+  deliberately.** The reconciliation this task names is the FULL read-together
+  of the two changes' `credential-contracts` text, and Brett's ruled chain
+  sequences that at THIS packet's own archive — step C, after
+  projection-identity's archive (step B) and before
+  `add-binding-consumer-identity`'s (step D). Doing it here would be doing step
+  C at step B. Recorded under Brett's standing one-sweep consent of 2026-08-31
+  to amend these ratified packets; this note corrects only what the archive
+  falsified and touches nothing else.
+
 ## 7. NOT part of this change
 
 - Automated Google login. It is future work gated on proving the browser flow

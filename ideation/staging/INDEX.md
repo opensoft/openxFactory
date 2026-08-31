@@ -1333,8 +1333,10 @@ repo scope.
   one-off.
 - Files:
   - [notebook-projection-identity.md](notebook-projection-identity/notebook-projection-identity.md)
-    — primary: 6 claims, live `xspec:candidate` Why/What changes/Impact
-    sections (first fresh conformer of `staged-topic-outline-template`),
+    — primary: 6 claims, Why/What changes/Impact sections (first fresh
+    conformer of `staged-topic-outline-template`) whose `xspec:candidate`
+    markers were LIVE until the archive and are now CONVERTED, 2026-08-31,
+    to `xspec:supersedes ... change=add-notebook-projection-identity`,
     4 idea notes, 3 conflicts, 5 questions each with
     Context/Recommended answer/Explanation/Disposition status — all five
     DISPOSITIONED 2026-08-23, each carrying a dated disposition paragraph
@@ -1479,7 +1481,14 @@ repo scope.
   tracked proposal's origin was `ad_hoc`. This topic's origin IS `staged` and
   the fragment remains readable in place; deleting staged source is a separate
   disposition nobody has ruled. This row and section are KEPT as the topic's
-  index entry and its exit record.
+  index entry and its exit record. **The fragment itself was brought into line
+  2026-08-31**, which "retired from staging" above had asserted but the file had
+  not yet said: it now reads `Status: superseded` with `Superseded by:` and
+  `Exit taken:` naming the archived change, and its four `xspec:candidate`
+  fences are CONVERTED to `xspec:supersedes` markers carrying
+  `change=add-notebook-projection-identity` — nothing deleted, so the blocks
+  leave the conversion queue by having been converted rather than by being
+  dropped out of it.
 
 ## doxbench-editing-model
 

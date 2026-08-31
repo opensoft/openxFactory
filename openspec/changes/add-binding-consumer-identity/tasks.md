@@ -616,6 +616,30 @@ the section's authority comes from being exhaustive.
   fails loudly in exactly the inverted order.
 - [ ] 7.3 Reconcile with `add-notebook-projection-identity` at ITS archive: the
   operated-identity generalization all three changes presume promotes then.
+
+  **CORRECTED 2026-08-31 — THE TRIGGERING EVENT HAS HAPPENED, SO THIS
+  OBLIGATION IS NOW DUE RATHER THAN CONTINGENT.**
+  `add-notebook-projection-identity` ARCHIVED 2026-08-31 at
+  `openspec/changes/archive/2026-08-31-add-notebook-projection-identity`, and
+  both of its MODIFIED deltas are PROMOTED, so the operated-identity
+  generalization "all three changes presume" is canon as of that date. What
+  that falsifies elsewhere in this packet, named rather than silently left:
+  this packet's `.openspec.yaml` still describes that dependency as "RATIFIED
+  2026-08-23, ACTIVE ... unpromoted until it archives". It is archived; it is
+  promoted. **Note what this does NOT change:** § 7.2's ordering obligation and
+  its mechanical `grep` backstop are about
+  `add-notebook-hosting-credential-custody`, which is still ACTIVE — that half
+  is untouched here because it is still true, and it changes at CUSTODY's
+  archive, not at this one.
+
+  **The box stays UNTICKED and the obligation text above is UNCHANGED,
+  deliberately.** The reconciliation this task names is the FULL read-together
+  across all three packets, and Brett's ruled chain sequences it at THIS
+  packet's own archive — step D, last, after projection-identity (step B) and
+  custody (step C). Doing it here would be doing step D at step B. Recorded
+  under Brett's standing one-sweep consent of 2026-08-31 to amend these
+  ratified packets; this note corrects only what the archive falsified and
+  touches nothing else.
 - [ ] 7.4 **RE-RUN THE CARRIAGE DIFF IF THE MODIFIED BLOCK IS TOUCHED AGAIN.** A
   losslessness measurement does not survive an edit; verify-then-regress is a
   shape this estate has already paid for. It was re-run after this amendment
