@@ -808,6 +808,8 @@ credential_bindings:
     secret_ref: <secret-reference-name>
     owner: <client-or-opensoft>
     rotation_policy: client_managed
+    consumer:
+      instantiation_stub: true
 ```
 
 Guidance:
@@ -815,6 +817,16 @@ Guidance:
 - Bindings belong to client or tenant deployments, not the domain repo.
 - Domain repos provide templates only.
 - Use secret references, never raw values.
+- `consumer:` declares WHO holds a binding and WHAT IDENTITY that system
+  authenticates to the secret store with (`holder_ref` + `fetch_identity`). The
+  scaffolded file is a stub written before any install exists, so it declares
+  the const-true `instantiation_stub` token and nothing else; an instantiator
+  REPLACES the token with the two identifiers when the consuming system exists,
+  rather than keeping it beside live values. The exemption is the TOKEN and
+  never the `*.template.yaml` filename — a filename is author-chosen and
+  invisible in the bytes a pinned consumer validates — and a placeholder is not
+  an alternative: it fails the identifier grammar, and a grammar-passing
+  sentinel would read as an authority declaration while naming nothing.
 - Prefer customer-owned vaults when customers require credential custody.
 - Use Opensoft-hosted vaults when Opensoft operates the managed service.
 

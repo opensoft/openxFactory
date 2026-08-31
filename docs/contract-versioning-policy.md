@@ -294,6 +294,66 @@ retroactively invalidate an old pin.
   observed hashes, a buffer-key proposal target, and the selected-model
   metadata. Deprecated at contract-v1.34; removal target contract-v2.0. The v1
   bytes are unchanged and keep validating until then.
+- **The undeclared `consumer:` block on a credential binding — and SEVEN acts
+  that land together with it (`add-binding-consumer-identity`).** Each entry of
+  `credential_bindings` in `xfactory_credential_binding_template` MAY declare a
+  `consumer:` block naming the consuming system that holds the binding
+  (`holder_ref`) and the identity that system authenticates to the secret store
+  with (`fetch_identity`), optionally a qualified `requirement_ref`
+  (`requirement_id` + `requirements_document_ref`), and the const-true
+  `shared_credential_acknowledged` and `instantiation_stub` tokens. **The block
+  is DECLARED at the release that introduces it and CONSTRAINED at
+  contract-v3.0**; at the introducing release the schema imposes no type, no
+  member grammar, no requiredness and no closure on it, and
+  `scripts/validate-credential-contracts.py` emits WARNINGS instead.
+
+  **THIS ENTRY NAMES EVERY ACT THAT LANDS AT THAT MAJOR, because a reader
+  learns from this entry alone that they are ONE act served by ONE deprecation
+  window.** The entry is written from the REFUSAL LIST rather than from memory:
+  every shape the current major accepts and the next one refuses owes its minor
+  of warnings, and without that a reader at the major cannot demonstrate this
+  section's own `:250-254` precondition was met and the requiredness becomes
+  unauditable.
+
+  | act, at contract-v3.0 | the code that warns until then |
+  | --- | --- |
+  | a binding declares no `consumer:` block (requiredness) | `consumer-identity-undeclared` |
+  | a block exists and omits `holder_ref` or `fetch_identity`, or is not an object | `consumer-block-incomplete` |
+  | the block is CLOSED — an undeclared member is refused | `consumer-block-unknown-member` |
+  | the member grammar — `holder_ref`, `fetch_identity` and `requirement_ref.requirement_id` carry identity-brokering's identifier pattern, and `requirement_ref` must be the qualified two-member object | `consumer-member-grammar` |
+  | a const-true token declared `false` is refused | `consumer-token-not-true` |
+  | the `credential_bindings` MAP KEY carries the identifier grammar | `consumer-binding-key-grammar` |
+  | `access_mode` on `xfactory_credential_requirements` is closed to `{dispatch_only, contents_write, workload_identity, delegated_api}` | `consumer-access-mode-vocabulary` |
+  | `requirements_document_ref` is repository-relative, non-escaping, non-foreign and YAML-suffixed | `consumer-requirement-ref-grammar` |
+
+  Migration: declare `consumer: {holder_ref: …, fetch_identity: …}` on each
+  binding; a record written before any install exists declares
+  `consumer: {instantiation_stub: true}` instead, and **that TOKEN is the only
+  exemption — a `*.template.yaml` filename exempts nothing**, because a filename
+  is author-chosen, invisible in the bytes a pinned consumer validates, and
+  unreachable by a pinned schema. Do NOT satisfy the field with a placeholder: a
+  grammar-passing sentinel reads as an authority declaration while naming
+  nothing. Every warning above carries a packaged probe under
+  `examples/credential-contracts/warning/`, and the self-test refuses a code
+  with no probe.
+
+  **THE REQUIREDNESS IS GATED ON THE DEGRADED FETCH-IDENTITY MODE, AND SHALL
+  NOT LAND WITHOUT IT.** At the major an install with no per-install fetch
+  identity must write SOMETHING into a required field, and what it will write is
+  the shared service identity, silently — precisely the grammar-passing
+  placeholder this deprecation calls worse than omission, arriving through the
+  front door of the field it adds. `contracts/avatar-client/broker-server-key-
+  binding.template.yaml` already ships `degraded_mode_permitted: true` on this
+  record kind, so the shape the successor is measured against exists. Until a
+  degraded mode is declarable in this family, the OTHER seven acts may land and
+  the requiredness may not.
+
+  Nothing narrows at the introducing release, and that is a measurement rather
+  than a claim: six shapes a domain could already hold — an object with neither
+  declared member, a scalar, a list, placeholder-styled values, an undeclared
+  extra member, and no block at all — were built and driven against the shipped
+  schema, and all six validate. Every consumer pinned at the prior bundle stays
+  conformant until it upgrades.
 
 ## Deprecations Executed
 

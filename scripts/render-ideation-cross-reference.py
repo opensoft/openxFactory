@@ -80,7 +80,12 @@ def render_markdown(index: dict) -> str:
     lines: list[str] = []
     lines.append("# Ideation Cross-Reference Readiness Index")
     lines.append("")
-    lines.append("Status: record")
+    # NOT `record`: this file is rewritten in place from the YAML on every
+    # run, so it has no captured state to be immutable against, and canon
+    # already says so — `ideation-cross-reference` names "the cross-reference
+    # index and its rendered twin" as generated artifacts that are NOT records
+    # (declare-generated-projection-status, 2026-08-28).
+    lines.append("Status: projection")
     lines.append("Kind: report")
     lines.append("Repository context: openxFactory")
     lines.append("")

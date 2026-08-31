@@ -263,15 +263,66 @@ def _scan_lines(text: str):
         yield i, line, fenced
 
 
+def _is_exit_heading(line: str) -> bool:
+    """Match the `## Exit` heading as a FAMILY, not one exact string.
+
+    `## Exit` is the MINORITY spelling in `ideation/staging/` (12 occurrences,
+    2026-08-29 count) against `## Exit path`'s 20 — an exact `"## exit"`
+    string match (`#453` defect a) never scans the majority of topics' exit
+    sections at all. A `##` heading whose text, lowercased, is `exit` or
+    starts with `exit ` / `exit:` catches both observed spellings and any
+    future variant in the same shape (`## Exit criteria`, `## Exit:`, ...).
+    """
+    if not line.startswith("## "):
+        return False
+    heading = line[3:].strip().lower()
+    return heading == "exit" or heading.startswith(("exit ", "exit:"))
+
+
+# A line inside an Exit-heading section STATES the exit only when it uses
+# one of these phrasings — derived from actual usage across
+# `ideation/staging/**` (2026-08-29): "the topic exits via `<change>`",
+# "This topic exits via its OWN changes", "Exit TAKEN 2026-08-28. Proposed
+# the same day as `<change>`" / the sibling `_EXIT_TAKEN_PREFIX` convention,
+# and INDEX.md's "EXIT 1 IS RAISED as the active change `<change>`".
+_EXIT_STATEMENT_RE = re.compile(
+    r"exits?\s+via|exits?\s+to|exit\s+taken|promoted\s+by|"
+    r"raised\s+as(?:\s+the)?(?:\s+active)?\s+change|→",
+    re.IGNORECASE)
+
+
 def _staged_exit_changes(text: str, change_ids: set[str]) -> list[str]:
-    """Return change ids used as lifecycle exits, not evidence citations."""
+    """Return change ids cited on a line that STATES a lifecycle exit.
+
+    `#453` defect (b): the docstring here promised "change ids used as
+    lifecycle exits, not evidence citations", but every line inside an
+    Exit-heading section counted, regardless of what it said — so a
+    dependency, predecessor, or downstream-descendant mention (`Consumes
+    add-x's realized issuer anchor`, `and add-y to issue the controller
+    certificate`, `The first domain descendant is Z, via add-w`) fired the
+    same as an actual exit statement. `signed-execution-chain` cites four
+    ACTIVE changes purely as sequencing dependencies in its `## Conflicts`
+    section, two of which recur inside its own `## Exit path` section in
+    that same dependency voice — and must not fire either place.
+
+    Rather than blocklist every dependency phrasing (the corpus already
+    uses at least five distinct ones, with more inevitable), this requires
+    the POSITIVE signal instead: a line only qualifies if it is one of the
+    explicit lifecycle-header prefixes (`Proposed by:`, `Proposal:`,
+    `Exit:`, `Exits via:`) or it falls inside a recognized Exit-heading
+    section (`_is_exit_heading`) AND itself states the exit in words (see
+    `_EXIT_STATEMENT_RE`). A citation that names a change for any other
+    reason is evidence/context, not an exit, and is excluded by default —
+    silence rather than a blocklist miss.
+    """
     lifecycle_lines = []
     in_exit = False
     for line in text.splitlines():
         if line.startswith("## "):
-            in_exit = line.strip().lower() == "## exit"
-        if in_exit or line.startswith((
-                "Proposed by:", "Proposal:", "Exit:", "Exits via:")):
+            in_exit = _is_exit_heading(line)
+        prefixed = line.startswith((
+            "Proposed by:", "Proposal:", "Exit:", "Exits via:"))
+        if prefixed or (in_exit and _EXIT_STATEMENT_RE.search(line)):
             lifecycle_lines.append(line)
     lifecycle_text = "\n".join(lifecycle_lines)
     return sorted(change for change in change_ids if change in lifecycle_text)
@@ -544,6 +595,15 @@ def fam_succession_integrity(ctx):
 
 def fam_location_conformance(ctx):
     findings = []
+    # The staged-exit arm below asks whether material can still be MOVED into
+    # a cited proposal's supporting-docs folder, so it reads the active ids
+    # rather than `ctx.change_ids`, whose union includes the archive. An
+    # archived packet is closed and immutable; demanding a move into one
+    # states a remedy nobody can perform. Derived from `ctx.repo_paths`
+    # rather than threaded through `Context` so the set cannot drift from the
+    # tree the other two arms of this same family already walk.
+    active_ids = {repo: corpus.active_change_ids(path)
+                  for repo, path in ctx.repo_paths.items()}
     for doc in ctx.docs:
         if doc.status == "brainstorm" and not doc.path.startswith(
                 "ideation/brainstorm/"):
@@ -560,7 +620,7 @@ def fam_location_conformance(ctx):
                 "staged fragment outside ideation/",
                 "move it under ideation/staging/ or change its status"))
         if doc.status == "staged" and doc.path.startswith("ideation/staging/"):
-            ids = ctx.change_ids.get(doc.repo, set())
+            ids = active_ids.get(doc.repo, set())
             cited = _staged_exit_changes(doc.text, ids)
             if cited:
                 findings.append(Finding(
@@ -605,6 +665,122 @@ def fam_record_immutability(ctx):
     return findings
 
 
+# --- staged-topic outcomes (`settle-aging-staging-topics`) ---------------
+#
+# A staged topic ages as UNPROGRESSED WORK, and until this rule the family
+# read exactly one fact about it — the topic folder's last commit date. It
+# read no `Status:`, no register row, and no exit record, so a topic whose
+# work was FINISHED aged exactly like one nobody had touched. Six of the
+# fourteen topics warning on 2026-08-28 were complete: every exit change
+# ratified, realized and ARCHIVED, the folder deliberately retained as
+# provenance, and the warning telling a reader to "progress the topic to a
+# proposal" that had already been raised, landed and closed.
+#
+# TWO states say the topic is not unprogressed work, and both are READ from
+# a record an author wrote rather than inferred:
+#
+#   (a) the primary fragment carries `Status: superseded` or `retired`.
+#       `fam_succession_integrity` already requires the first to name a
+#       resolvable successor and the second a reason, so neither state can
+#       be claimed emptily to buy silence.
+#   (b) the topic's entry in the repository's staging INDEX — or the
+#       primary fragment itself, for a repository that keeps no index —
+#       carries an `Exit taken:` line naming a change that has ARCHIVED.
+#
+# (b) IS `fam_location_conformance`'s ARCHIVED-PACKET RULE APPLIED TO THE
+# OTHER SIDE OF THE SAME LIFECYCLE (`clean-doc-health-floor`): a finding
+# whose remedy names an act nobody can perform is a finding with no
+# conforming resolution. There the impossible act was moving material into
+# a closed packet; here it is raising a proposal that has already archived.
+# A citation of an ACTIVE change does NOT silence — that topic's proposal is
+# in flight, its staged material is the move `location-conformance` is
+# reporting, and hiding the age would hide half of one live obligation.
+#
+# `Exit taken:` IS NOT A STATUS AND CREATES NO LIFECYCLE STATE. The family's
+# old action line told a reader to "mark it deferred", which no staged topic
+# could do, because the `document-lifecycle` taxonomy has no deferred value
+# and this change deliberately does not add one: a deferral is a schedule,
+# not a standing, and a topic parked behind a named gate is still open work
+# that SHOULD keep ageing. The action line is corrected to the two records
+# the family now honours.
+_EXIT_TAKEN_PREFIX = "Exit taken:"
+_STAGING_INDEX = "ideation/staging/INDEX.md"
+
+
+def _archived_change_ids(ctx) -> set[str]:
+    """Every change id in scope that has ARCHIVED.
+
+    `ctx.change_ids` is `corpus.change_ids` — the union of active names,
+    archived names, and archived names stripped of their date prefix — and
+    `corpus.active_change_ids` is its live half, so the difference is the
+    archived half. Derived from `ctx.repo_paths` for the reason
+    `fam_location_conformance` gives for deriving its own active set there:
+    a second copy threaded through `Context` could drift from the tree the
+    families walk.
+
+    UNIONED ACROSS REPOSITORIES, and subtracted across them too, so an id
+    that is active anywhere is archived nowhere. A staged topic's exit is
+    routinely a change in ANOTHER factory — four of the six topics this
+    rule was written for exit through codexFactory, MedxFactory,
+    OpsxFactory or hermes-install — and a single-repo run cannot see those
+    trees at all. It then resolves nothing, the topic keeps ageing, and
+    that is the honest answer for a run that cannot read the evidence:
+    silence bought by an unreadable citation would be worse than the noise.
+    """
+    union: set[str] = set()
+    active: set[str] = set()
+    for repo, path in ctx.repo_paths.items():
+        union |= ctx.change_ids.get(repo, set())
+        active |= corpus.active_change_ids(path)
+    return union - active
+
+
+def _exit_taken_lines(text: str) -> list[str]:
+    """`Exit taken:` lines outside code fences, as WRITTEN.
+
+    Not run through `_strip_inline_code`: the change id on such a line is
+    conventionally in backticks, and stripping inline code would delete the
+    very token the caller matches. Fence tracking is what this needs — a
+    fenced line is an EXAMPLE of the record, never the record.
+    """
+    return [line for _, line, fenced in _scan_lines(text)
+            if not fenced
+            and line.lstrip("-*+ \t").startswith(_EXIT_TAKEN_PREFIX)]
+
+
+def _index_section(index_text: str, topic: str) -> str:
+    """The `## <topic>` detail section of a staging INDEX, or ""."""
+    out, collecting = [], False
+    for _, line, fenced in _scan_lines(index_text):
+        if not fenced and line.startswith("## "):
+            collecting = line[3:].strip() == topic
+            continue
+        if collecting:
+            out.append(line)
+    return "\n".join(out)
+
+
+def _topic_outcome(ctx, docs_by_path, archived, repo, repo_path, topic):
+    """Why this staged topic is not unprogressed work, or None if it is."""
+    primary = _primary_fragment(topic)
+    if primary is None:
+        return None  # an empty topic folder is another family's business
+    rel = primary.relative_to(repo_path).as_posix()
+    doc = docs_by_path.get((repo, rel))
+    if doc is not None and doc.status in ("superseded", "retired"):
+        return f"primary fragment is {doc.status}"
+    index = docs_by_path.get((repo, _STAGING_INDEX))
+    sources = [doc.text] if doc is not None else []
+    if index is not None:
+        sources.append(_index_section(index.text, topic.name))
+    for text in sources:
+        for line in _exit_taken_lines(text):
+            named = sorted(cid for cid in archived if cid in line)
+            if named:
+                return f"exit taken: {named[0]} (archived)"
+    return None
+
+
 def fam_staged_candidate_aging(ctx):
     findings = []
     th = ctx.thresholds
@@ -618,13 +794,20 @@ def fam_staged_candidate_aging(ctx):
             return WARNING
         return None
 
-    # Staged topics: ideation/staging/<topic>/ untouched.
+    # Staged topics: ideation/staging/<topic>/ untouched AND carrying no
+    # recorded outcome — see the block above `fam_staged_candidate_aging`
+    # for why the second half is read at all.
+    docs_by_path = {(d.repo, d.path): d for d in ctx.docs}
+    archived = _archived_change_ids(ctx)
     for repo, repo_path in ctx.repo_paths.items():
         staging = repo_path / "ideation" / "staging"
         if not staging.is_dir():
             continue
         for topic in sorted(p for p in staging.iterdir() if p.is_dir()):
             rel = topic.relative_to(repo_path).as_posix()
+            if _topic_outcome(ctx, docs_by_path, archived,
+                              repo, repo_path, topic):
+                continue
             days = _age_days(ctx.as_of,
                              ctx.git.last_commit_date(repo_path, rel))
             sev = aged("staged", days, th["staged_warning_days"],
@@ -633,7 +816,10 @@ def fam_staged_candidate_aging(ctx):
                 findings.append(Finding(
                     sev, "staged-candidate-aging", repo, rel,
                     f"staged topic untouched {days} days",
-                    "progress the topic to a proposal or mark it deferred"))
+                    "progress the topic to a proposal, or record the "
+                    "outcome it already reached — the primary fragment "
+                    "superseded/retired, or an Exit taken: line naming "
+                    "the archived change"))
 
     # Candidate blocks and supersedes markers age by their line's commit.
     for doc in ctx.docs:
@@ -901,6 +1087,34 @@ def fam_contract_copy_drift(ctx):
 
 _SYNC_OP = re.compile(r"^\[[^\]]+\]\s+(ADD|DEL|UPD)\s")
 
+# The artifact this family's finding is ABOUT: the standard that owns lifecycle
+# notebook projection (`Status: standard`, backed by the promoted
+# `lifecycle-notebook-projection` spec), spelled relative to the AGGREGATION
+# root because this finding's repo is `xFactory` — the same spelling
+# `runner.SYNC_SCRIPT` already uses for `openxFactory/scripts/
+# sync-notebooklm-books.py`, and the same shape as every other `repo=xFactory`
+# path in the reports (`openxFactory`, `installs/agenttower`, ...).
+#
+# IT USED TO BE THE PROSE LABEL `(lifecycle notebooks)` (issue #474), and the
+# space in it made `report.PLAN_RE`'s `path=(\S+)` unable to read the row back
+# out of the report this family had just written it into —
+# `health/reports/2026-07-09.md:188` is the live instance. So the finding was
+# invisible to `regressions()` and to `uncited_resolutions()`. A REAL PATH is
+# the fix rather than a whitespace-free slug (`lifecycle-notebooks`) because
+# the slot already means "the artifact to open", every other family fills it
+# that way, and here there IS such an artifact — the runbook a reader needs is
+# in that document. `report.plan_line` now refuses a whitespace-bearing path,
+# so this cannot come back silently.
+#
+# NO DISPOSITION MOVES WITH IT: a disposition matches (family, repo, path), and
+# `xFactory/health/dispositions.yaml` carries no `notebook-projection-drift`
+# entry (checked 2026-08-28 — its eleven entries are location-conformance,
+# record-immutability, semantic-contradiction, semantic-normative-prose and
+# uncited-resolution). The old key was never dispositioned, so nothing keys on
+# it. The family is also CONTESTED-free (WARNING only), so no
+# uncited-resolution can be manufactured by the key change.
+NOTEBOOK_PROJECTION_PATH = "openxFactory/docs/lifecycle-notebook-projection.md"
+
 
 def fam_notebook_projection_drift(ctx):
     output = ctx.notebook_dryrun()
@@ -913,7 +1127,7 @@ def fam_notebook_projection_drift(ctx):
         return []
     return [Finding(
         WARNING, "notebook-projection-drift", "xFactory",
-        "(lifecycle notebooks)",
+        NOTEBOOK_PROJECTION_PATH,
         f"projection dry-run reports {len(ops)} pending operations",
         "run the lifecycle notebook sync with --apply")]
 

@@ -31,9 +31,12 @@ it.
 
 from __future__ import annotations
 
+import ast
 import importlib.util
+import re
 import subprocess
 import sys
+from pathlib import Path
 
 import pytest
 import yaml
@@ -200,31 +203,323 @@ def test_two_spellings_naming_two_conditions_are_both_members(monkeypatch):
 
 
 def test_unknown_is_not_folded_into_the_unreadable_repository_condition():
-    """THE POINT THE PACKET LEFT TO REALIZATION, decided on measurement under
-    the same-condition rule the delta states rather than on the resemblance.
+    """THE POINT `declare-sentinel-pin-vocabulary` LEFT TO REALIZATION, decided
+    on measurement under the same-condition rule the delta states rather than on
+    the resemblance.
 
-    Three call sites emit `"unknown"` and they do not name one condition:
+    Three call sites emitted `"unknown"` and they did not name one condition:
     `snapshot_registry.index_entry` projects an index entry whose recorded
     revision is absent while the repository is perfectly readable;
     `avatar_f0.cli._git_head` means `rev-parse HEAD` answered nothing, which IS
     the unreadable-repository condition; and `avatar_f0.cli._git_file_commit`
-    returns it when `git log -1 -- <path>` succeeds and finds no commit, which
+    returned it when `git log -1 -- <path>` succeeds and finds no commit, which
     means the repository is readable, HEAD resolves, and the named content has
     simply never been committed. Two spellings fold into one condition only if
-    measurement shows ONE condition, and this measurement shows three — so
-    `"unknown"` is declared as its own weakest member instead."""
+    measurement shows ONE condition, and that measurement showed three — so
+    `"unknown"` is declared as its own weakest member instead.
+
+    THE MEMBERSHIP IS WHAT THIS TEST PINS, AND IT DID NOT MOVE WHEN THE SPLIT
+    LANDED. `fix-pin-value-boundary-and-sentinel-split` sent the two avatar
+    conditions to their stronger members; what that changes is which sites
+    EMIT this one, which the split's own tests below measure. The reason the
+    member exists — three conditions, not one — is the finding, and deleting it
+    because the code moved would delete the evidence for the member."""
     unknown = ps.declared(ps.UNKNOWN)
     assert unknown is not None
     assert unknown.condition == ps.UNESTABLISHED_REVISION
     assert unknown.condition != ps.UNREADABLE_REPOSITORY
     assert unknown.standing == ps.CANONICAL
-    # the three measured call sites, still spelled as the decision read them
+    # the projector's site, now reaching for the DECLARED constant rather than
+    # retyping the spelling (Q3, ruled 2026-08-28)
     registry = (REPO_ROOT / "scripts/ideation_dashboard/snapshot_registry.py"
                 ).read_text(encoding="utf-8")
-    assert 'self.source_revision or "unknown"' in registry
-    lane = (REPO_ROOT / "experiments/avatar-brokered-call/src/avatar_f0/cli.py"
-            ).read_text(encoding="utf-8")
-    assert 'out.stdout.strip() or "unknown"' in lane
+    assert "self.source_revision or pin_sentinels.UNKNOWN" in registry
+    assert 'self.source_revision or "unknown"' not in registry, (
+        "the projector retypes the spelling again; a generator writing a "
+        "declared member imports the name")
+
+
+# =========================================================================
+# the `"unknown"` split (`fix-pin-value-boundary-and-sentinel-split`, defect 3)
+#
+# THE DEFECT, re-measured 2026-08-28 against `origin/main` at `5314fac5`. The
+# inherited record names THREE emission sites; there are FIVE, and one of them
+# fired on TWO conditions by itself. `avatar_f0/cli.py:49` ran `subprocess.run`
+# with no `check` and never read `out.returncode`, so a single `"unknown"` was
+# reached by a SUCCESSFUL `git log` that found no commit for the path and by a
+# FAILED one that produced nothing because it failed. Those are different facts
+# and the vocabulary declares a different member for each, so the branch had to
+# exist before either could be written honestly.
+#
+# EVERY CONDITION BELOW IS CONSTRUCTED, NEVER MOCKED. A test that patched the
+# `CompletedProcess` would assert what this session believes git does; these
+# build the repository state that produces the condition and let git answer.
+# =========================================================================
+
+def _executable_strings(path) -> set[str]:
+    """Every string LITERAL a module evaluates, docstrings excluded.
+
+    Read with `ast` rather than by counting substrings, because the difference
+    that matters is between a spelling the code WRITES and a spelling the
+    module EXPLAINS — and a source scan that cannot tell them apart makes
+    writing the reasoning down a test failure, which is how a module ends up
+    with an undocumented rule."""
+    tree = ast.parse(Path(path).read_text(encoding="utf-8"))
+    docstrings = set()
+    for node in ast.walk(tree):
+        body = getattr(node, "body", None)
+        if (isinstance(node, (ast.Module, ast.ClassDef, ast.FunctionDef,
+                              ast.AsyncFunctionDef))
+                and body and isinstance(body[0], ast.Expr)
+                and isinstance(body[0].value, ast.Constant)
+                and isinstance(body[0].value.value, str)):
+            docstrings.add(id(body[0].value))
+    return {node.value for node in ast.walk(tree)
+            if isinstance(node, ast.Constant) and isinstance(node.value, str)
+            and id(node) not in docstrings}
+
+
+def _avatar_cli():
+    """The F0 harness CLI, loaded from its own tree.
+
+    Loaded by path rather than imported, because `experiments/` is not on the
+    test run's import path and putting it there would change what every other
+    test in this suite can see."""
+    root = REPO_ROOT / "experiments/avatar-brokered-call/src"
+    if not (root / "avatar_f0" / "cli.py").is_file():
+        pytest.skip(f"{root} carries no avatar_f0 harness")
+    if str(root) not in sys.path:
+        sys.path.insert(0, str(root))
+    from avatar_f0 import cli
+    return cli
+
+
+def test_a_successful_git_log_finding_no_commit_writes_the_dirty_tree_member(
+        tmp_path):
+    """CONDITION: the repository is readable, `HEAD` resolves, and the named
+    content is held by NO COMMIT. That is `dirty-worktree` — the content is real
+    and no commit name describes it — and its canonical spelling is
+    `uncommitted-worktree`.
+
+    Constructed by writing a file and NOT committing it, so `git log -1 --
+    <path>` exits zero with empty output. Before the split this returned
+    `"unknown"`, which asserts only that nobody wrote down which condition
+    applied."""
+    cli = _avatar_cli()
+    repo = _init(tmp_path / "readable")
+    _write(repo, "a.txt", "committed\n")
+    _commit(repo, "one")
+    (repo / "never-committed.txt").write_text("live content\n",
+                                              encoding="utf-8")
+    got = cli._git_file_commit(repo, "never-committed.txt")
+    assert got == ps.UNCOMMITTED_WORKTREE
+    member = ps.declared(got)
+    assert member is not None and member.condition == ps.DIRTY_WORKTREE
+    # and the honest half: a file that IS committed still gets its commit name
+    assert re.fullmatch(r"[0-9a-f]{40}", cli._git_file_commit(repo, "a.txt"))
+
+
+def test_a_failed_git_log_writes_the_unreadable_repository_member(tmp_path):
+    """CONDITION: the path is not a repository at all, so `git log` exits
+    non-zero and establishes nothing. Q2, ruled 2026-08-28: that is
+    `unreadable-repository`, spelled `uncommitted`.
+
+    THE RETURN CODE IS THE WHOLE POINT. Both this and the test above produce
+    EMPTY STDOUT; without reading `out.returncode` they are indistinguishable,
+    which is why one `"unknown"` covered both."""
+    cli = _avatar_cli()
+    not_a_repo = tmp_path / "plain"
+    not_a_repo.mkdir()
+    (not_a_repo / "a.txt").write_text("x\n", encoding="utf-8")
+    probe = subprocess.run(
+        ["git", "-C", str(not_a_repo), "log", "-1", "--format=%H", "--",
+         "a.txt"], capture_output=True, text=True)
+    assert probe.returncode != 0 and not probe.stdout.strip(), (
+        "the fixture must produce a NON-ZERO exit with empty output, or it is "
+        "not measuring the branch this test is about")
+    got = cli._git_file_commit(not_a_repo, "a.txt")
+    assert got == ps.UNCOMMITTED
+    member = ps.declared(got)
+    assert member is not None
+    assert member.condition == ps.UNREADABLE_REPOSITORY
+    assert got != ps.UNCOMMITTED_WORKTREE, (
+        "an unreadable repository is a weaker statement than a dirty tree: "
+        "nothing about the content was established, as against the content "
+        "being real and held by no commit")
+
+
+def test_a_raising_git_call_writes_the_unreadable_repository_member(
+        tmp_path, monkeypatch):
+    """The `except` return of BOTH helpers. The call did not complete at all —
+    git absent, or the process could not be started — so nothing was
+    established, which is the same condition a non-zero exit names.
+
+    CONSTRUCTED BY MAKING GIT UNREACHABLE, not by raising into the harness and
+    not by pointing at a missing directory. THE MISSING-DIRECTORY ROUTE WAS
+    TRIED FIRST AND MEASURED WRONG: `git -C /does-not-exist log` does not raise,
+    it exits 128, so that fixture exercised the return-code branch under this
+    test's name and left the `except` return unproven. Emptying `PATH` makes
+    `subprocess.run` raise `FileNotFoundError` for real, which is the condition
+    a machine without git is actually in."""
+    cli = _avatar_cli()
+    repo = _init(tmp_path / "real")
+    _write(repo, "a.txt", "x\n")
+    _commit(repo, "one")
+    # the fixture answers honestly BEFORE the environment is broken
+    assert re.fullmatch(r"[0-9a-f]{40}", cli._git_file_commit(repo, "a.txt"))
+
+    monkeypatch.setenv("PATH", "")
+    with pytest.raises(FileNotFoundError):
+        subprocess.run(["git", "--version"], capture_output=True)
+
+    for got in (cli._git_file_commit(repo, "a.txt"), cli._git_head(repo)):
+        assert got == ps.UNCOMMITTED
+        assert ps.declared(got).condition == ps.UNREADABLE_REPOSITORY
+
+
+def test_a_non_zero_exit_on_a_path_that_is_not_a_repository_is_the_same_member(
+        tmp_path):
+    """The neighbouring route, kept separate because it reaches a DIFFERENT
+    branch: `git -C <missing>` exits 128 rather than raising, so this is the
+    return-code branch and not the `except` one. Both name the same condition,
+    which is why the split writes one member for the pair."""
+    cli = _avatar_cli()
+    missing = tmp_path / "does-not-exist"
+    assert not missing.exists()
+    probe = subprocess.run(
+        ["git", "-C", str(missing), "log", "-1", "--format=%H", "--", "a.txt"],
+        capture_output=True, text=True)
+    assert probe.returncode != 0, "the fixture must exit non-zero"
+    assert cli._git_file_commit(missing, "a.txt") == ps.UNCOMMITTED
+    assert cli._git_head(missing) == ps.UNCOMMITTED
+
+
+def test_both_head_returns_write_the_unreadable_repository_member(tmp_path):
+    """`_git_head`'s two returns are ONE CONDITION WEARING TWO SPELLINGS: there
+    is no success of `rev-parse HEAD` that answers empty, so an empty answer and
+    an exception both mean the repository's revision could not be read.
+
+    AND A THIRD SPELLING MEASURED AT REALIZATION. The packet reasoned that a
+    failed `rev-parse HEAD` always produces nothing; measured against git, an
+    UNBORN `HEAD` prints the literal string `HEAD` on stdout and exits non-zero,
+    so the unguarded form returned `"HEAD"` — neither a commit name nor a
+    declared sentinel, written where the repository's revision goes. The
+    vocabulary already assigns the unborn case to this member by name, so
+    reading the return code changed no ruled member; it stopped a third failure
+    being spelled as a pin."""
+    cli = _avatar_cli()
+
+    unborn = tmp_path / "unborn"
+    unborn.mkdir()
+    _git(unborn, "init", "-q", "-b", "main")
+    probe = subprocess.run(["git", "-C", str(unborn), "rev-parse", "HEAD"],
+                           capture_output=True, text=True)
+    assert probe.returncode != 0, "the fixture's HEAD must be unborn"
+    assert probe.stdout.strip() == "HEAD", (
+        "this git spells an unborn HEAD differently; the branch still has to "
+        "refuse whatever it does print, so re-measure rather than delete")
+    assert cli._git_head(unborn) == ps.UNCOMMITTED
+
+    missing = tmp_path / "gone"
+    assert not missing.exists()
+    assert cli._git_head(missing) == ps.UNCOMMITTED
+
+    plain = tmp_path / "plain"
+    plain.mkdir()
+    assert cli._git_head(plain) == ps.UNCOMMITTED
+
+    for value in {cli._git_head(unborn), cli._git_head(missing),
+                  cli._git_head(plain)}:
+        assert ps.declared(value).condition == ps.UNREADABLE_REPOSITORY
+
+    # and a readable repository still gets its own revision
+    real = _init(tmp_path / "real")
+    _write(real, "a.txt", "x\n")
+    head = _commit(real, "one")
+    assert cli._git_head(real) == head
+
+
+def test_no_avatar_emission_site_writes_the_weakest_member_any_more(tmp_path):
+    """THE SPLIT, ASSERTED AS A PROPERTY RATHER THAN SITE BY SITE. The
+    declaration's own instruction is that a generator able to distinguish MUST
+    NOT reach for `unknown`; the avatar harness can distinguish, so no condition
+    it can reach may produce that member.
+
+    THE SOURCE ASSERTION IS DELIBERATE AND IS THE MUTATION PIN. Collapsing any
+    one branch back to the literal is invisible to a value assertion over the
+    other branches, so the refusal is pinned at the declaration too — the same
+    reasoning as the boundary's structural test."""
+    cli = _avatar_cli()
+    lane_path = (REPO_ROOT
+                 / "experiments/avatar-brokered-call/src/avatar_f0/cli.py")
+    lane = lane_path.read_text(encoding="utf-8")
+    assert ps.UNKNOWN not in _executable_strings(lane_path), (
+        "an avatar emission site still writes the weakest member; it can tell "
+        "a dirty tree from an unreadable repository, so it must write the "
+        "member the condition names")
+    assert "out.returncode" in lane, (
+        "the return-code branch is the prerequisite for the whole split: "
+        "without it `git log` succeeding-with-nothing and failing-with-nothing "
+        "are the same return")
+    assert "pin_sentinels.UNCOMMITTED_WORKTREE" in lane
+    assert "pin_sentinels.UNCOMMITTED" in lane
+
+    # driven, not merely read: every condition the harness can produce
+    repo = _init(tmp_path / "r")
+    _write(repo, "a.txt", "x\n")
+    _commit(repo, "one")
+    (repo / "loose.txt").write_text("y\n", encoding="utf-8")
+    produced = {
+        cli._git_file_commit(repo, "loose.txt"),
+        cli._git_file_commit(tmp_path / "nope", "a.txt"),
+        cli._git_head(tmp_path / "nope"),
+    }
+    assert ps.UNKNOWN not in produced, produced
+    assert produced == {ps.UNCOMMITTED_WORKTREE, ps.UNCOMMITTED}
+
+
+def test_the_split_leaves_every_declared_member_with_an_emitter():
+    """§ 3.6. A split that stranded a member would fail the declaration's own
+    declaration-against-corpus direction, and the failure would surface as an
+    unrelated regression somewhere else. `unused_sentinels()` must still report
+    zero over the real corpus, and the emitter tuples must follow the split
+    rather than describe the code before it."""
+    unknown = ps.declared(ps.UNKNOWN)
+    assert unknown.emitters == (
+        "scripts/ideation_dashboard/snapshot_registry.py (index_entry)",), (
+        "the weakest member keeps exactly the one site that genuinely cannot "
+        "say more")
+    avatar = ("experiments/avatar-brokered-call/src/avatar_f0/cli.py")
+    dirty = ps.declared(ps.UNCOMMITTED_WORKTREE)
+    unreadable = ps.declared(ps.UNCOMMITTED)
+    assert any(e.startswith(avatar) for e in dirty.emitters), dirty.emitters
+    assert any(e.startswith(avatar) for e in unreadable.emitters), \
+        unreadable.emitters
+
+    # the vocabulary is still internally consistent after the move
+    assert ps.declaration_defects() == ()
+
+    # and nothing was stranded, measured over the real corpus
+    sites, _uncovered, _absent = pc.non_pin_sites(REPO_ROOT)
+    unused = pc.unused_sentinels(sites)
+    assert unused == (), (
+        "a declared member is now neither carried by committed state nor "
+        f"emitted by any declared emitter: {unused}")
+
+
+def test_the_split_moves_no_committed_bytes():
+    """§ 3.7. The split changes FUTURE output only: no committed artifact
+    carries `"unknown"` under a swept key, so there is nothing to migrate and
+    the class's legal-non-pin population does not move."""
+    report = pc.verify(REPO_ROOT, allow_remote=False)
+    legal = [r for r in report.non_pins if r.legal]
+    values = sorted(r.site.value for r in legal)
+    assert ps.UNKNOWN not in values, (
+        "a committed artifact carries the weakest member under a pin key; the "
+        "split would then owe a migration, and captured material is never "
+        "edited after capture — declare the finding instead")
+    assert set(values) <= {ps.UNCOMMITTED_WORKTREE, ps.NOT_APPLICABLE_AD_HOC,
+                           ps.UNCOMMITTED, ps.COMPOSED}, values
 
 
 def test_absence_is_recognized_and_is_not_a_member():
@@ -611,7 +906,17 @@ def test_the_pin_counts_did_not_move_and_no_site_is_classified_twice():
     network. What it does assert is the separation the design turns on — the
     commit path and the classification path never see the same site."""
     report = pc.verify(REPO_ROOT, allow_remote=False)
-    assert len(report.results) == 66
+    # 67, not the 66 this census landed with. A `proposal-support.py transition`
+    # writes a `supporting-docs/manifest.yaml` carrying a `source_revision`, and
+    # that key is a declared `proposal-support-manifest` pin site — so EVERY full
+    # promotion moves this number by one, by design. The 67th is
+    # `add-worker-enrollment-broker`'s, written when the `worker-enrollment-broker`
+    # topic was promoted in full. Only the SITE count moves: the member count is
+    # unchanged because the class already had 24 other manifests in it, and
+    # `lost`/`uncovered`/`vanished`/`arrived` are untouched. Note this test cannot
+    # see an uncommitted manifest — `pc.verify` reads the committed tree — so a
+    # promotion's own pre-commit run passes and CI is where the count lands.
+    assert len(report.results) == 67
     assert len({r.site.member_id for r in report.results}) == 23
     assert len(report.lost) == 1
     assert len(report.lost_awaiting_record) == 0

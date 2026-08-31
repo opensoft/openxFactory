@@ -2100,6 +2100,27 @@ credential_bindings:
     secret_ref: <secret-reference-name>
     owner: <client-or-opensoft>
     rotation_policy: client_managed
+    # THIS FILE IS A STUB, AND IT SAYS SO. `consumer:` declares who holds a
+    # binding and what identity that system authenticates to the secret store
+    # with; a template written before any install, vault or fetch identity
+    # exists can declare neither, so it declares the const-true
+    # `instantiation_stub` token instead. That is the ONLY exemption from the
+    # omission warning now and from the requirement at the next major — a
+    # `*.template.yaml` FILENAME exempts nothing, because a filename is
+    # author-chosen and invisible in the bytes a pinned consumer validates.
+    #
+    # AN INSTANTIATOR REPLACES THE TOKEN, never keeps it beside live values:
+    #   consumer:
+    #     holder_ref: <the consuming system, e.g. opsx:service-subject:...>
+    #     fetch_identity: <the identity it authenticates to the store with>
+    #
+    # A placeholder here would be worse than this token, not better: it fails
+    # the identifier grammar, and a grammar-passing sentinel would read as an
+    # authority declaration while naming nothing. Scaffolding that manufactures
+    # conformance is worse than scaffolding that omits it — and scaffolding that
+    # declares its own status is better than either.
+    consumer:
+      instantiation_stub: true
 """,
         "credentials/grants.template.yaml": yaml_header(ctx) + f"""schema_version: 1
 kind: xfactory_runtime_capability_grant_template

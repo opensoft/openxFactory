@@ -1,0 +1,35 @@
+# WARNING (expect: consumer-binding-key-grammar). A `credential_bindings` MAP KEY
+# outside the identifier grammar.
+#
+# THE FOURTH INSTANCE OF THE DEFECT THE COUNCIL CONVENED OVER, ARRIVING INSIDE
+# THE FIX ROUND FOR IT. This constraint was prescribed with no phasing at all
+# while its two immediate neighbours in the same task list — the `access_mode`
+# vocabulary and the `requirements_document_ref` grammar — both had it. Measured:
+# of five plausible existing keys, `corpus content write`, `m365-admin (legacy)`,
+# `_leading_underscore` and `sync.lane#1` are all VALID today and all REFUSED by
+# the grammar. Imposing it at the minor would have refused four shapes the
+# current major accepts.
+#
+# The generalisation, written where it cannot be missed: EVERY act that refuses a
+# value the current major accepts phases, whether it sits on the block, on the
+# map that holds the block, or on a neighbouring record. Not where the refusal is
+# written — whether the current major accepts the value.
+#
+# THE LIFT'S SIXTH CONDITION IS UNAFFECTED AT THIS MINOR. It compares the
+# reference's `requirement_id` to the key as a STRING, which needs no grammar to
+# be equal; the grammar's job is to stop a key being a shape the comparison
+# cannot express, and that job is a major-release job.
+schema_version: 1
+kind: xfactory_credential_binding_template
+client:
+  id: example-client
+credential_bindings:
+  corpus content write:
+    provider: azure_key_vault
+    vault: kv-example-projection
+    secret_ref: example-projection-content-secret
+    owner: example-platform
+    rotation_policy: operator_managed
+    consumer:
+      holder_ref: example:service-subject:corpus-apply-lane
+      fetch_identity: example-apply-lane-workload-identity

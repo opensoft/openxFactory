@@ -13,6 +13,15 @@ kind: xfactory_credential_binding_template
 client:
   id: opensoft
   display_name: Opensoft (QA)
+#
+# Each binding now DECLARES ITS CONSUMER (add-binding-consumer-identity): who
+# holds it and what identity that system authenticates to the store with. The
+# identifiers are SYNTHETIC — a packaged fixture owes the SHAPE, and the corpus
+# is digest-pinned and distributed to every consumer that pins the contract, so
+# naming a live install's fetch identity would buy illustrative realism with a
+# permanent widening of who knows which principal reaches which secret. The live
+# ones stay in the consuming installs' own `credentials/` trees, where the
+# residency model already puts an estate fact.
 credential_bindings:
   intent_dispatch:
     provider: azure_key_vault
@@ -20,9 +29,21 @@ credential_bindings:
     secret_ref: openxdox-intent-dispatch-app
     owner: opensoft-platform
     rotation_policy: operator_managed
+    consumer:
+      holder_ref: example:service-subject:intent-serving-tier
+      fetch_identity: example-serving-tier-workload-identity
+      requirement_ref:
+        requirement_id: intent_dispatch
+        requirements_document_ref: openxdox-dispatch.requirements.example.yaml
   corpus_content_write:
     provider: azure_key_vault
     vault: kv-opensoft-xfactory-qa
     secret_ref: xfactory-content-app
     owner: opensoft-platform
     rotation_policy: operator_managed
+    consumer:
+      holder_ref: example:service-subject:corpus-apply-lane
+      fetch_identity: example-apply-lane-workload-identity
+      requirement_ref:
+        requirement_id: corpus_content_write
+        requirements_document_ref: openxdox-dispatch.requirements.example.yaml

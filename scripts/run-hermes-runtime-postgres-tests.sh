@@ -166,6 +166,9 @@ run_one() {
   export POSTGRES_IMAGE POSTGRES_PASSWORD COMPOSE_PROJECT_NAME
   raw_log=$(mktemp "${TMPDIR:-/tmp}/hcs-postgres.XXXXXX")
   junit_file=$(mktemp "${TMPDIR:-/tmp}/hcs-postgres-junit.XXXXXX")
+  execution_report=$(mktemp "${TMPDIR:-/tmp}/hcs-postgres-report.XXXXXX")
+  expected_nodes=$(mktemp "${TMPDIR:-/tmp}/hcs-postgres-nodes.XXXXXX")
+  module_file=$(mktemp "${TMPDIR:-/tmp}/hcs-postgres-modules.XXXXXX")
   evidence_temporary=""
 
   cleanup() {
@@ -173,13 +176,17 @@ run_one() {
       docker compose --file "$compose_file" --project-name "$COMPOSE_PROJECT_NAME" \
         down --volumes --remove-orphans >"$raw_log" 2>&1 || true
     fi
-    rm -f -- "$raw_log" "$junit_file"
+    rm -f -- "$raw_log" "$junit_file" "$execution_report" "$expected_nodes" "$module_file"
     if [ -n "${evidence_temporary:-}" ]; then
       rm -f -- "$evidence_temporary"
     fi
-    unset POSTGRES_PASSWORD POSTGRES_IMAGE COMPOSE_PROJECT_NAME
+    unset POSTGRES_PASSWORD POSTGRES_IMAGE COMPOSE_PROJECT_NAME \
+      HERMES_RUNTIME_PYTEST_REPORT HERMES_RUNTIME_EXPECTED_NODES
   }
-  trap cleanup EXIT HUP INT TERM
+  trap cleanup EXIT
+  trap 'exit 129' HUP
+  trap 'exit 130' INT
+  trap 'exit 143' TERM
 
   if ! docker image inspect "$POSTGRES_IMAGE" >"$raw_log" 2>&1; then
     redact_log "$raw_log" >&2
@@ -190,12 +197,6 @@ run_one() {
     redact_log "$raw_log" >&2
     return 1
   fi
-  if ! docker compose --file "$compose_file" --project-name "$COMPOSE_PROJECT_NAME" \
-    run --rm psql-client >"$raw_log" 2>&1; then
-    redact_log "$raw_log" >&2
-    return 1
-  fi
-
   if [ -x "$repo_root/.venv/bin/pytest" ]; then
     pytest_bin=$repo_root/.venv/bin/pytest
   elif command -v pytest >/dev/null 2>&1; then
@@ -204,33 +205,53 @@ run_one() {
     printf '%s\n' 'pytest is required for PostgreSQL conformance' >&2
     return 2
   fi
+  if ! PYTHONPATH="$repo_root${PYTHONPATH:+:$PYTHONPATH}" \
+    "$python_bin" -c 'import json, pathlib, sys
+from scripts.hermes_runtime_validation.fixtures import collect_database_test_nodes
+from scripts.hermes_runtime_validation.loader import load_yaml_document
+repo = pathlib.Path(sys.argv[1])
+index = load_yaml_document(sys.argv[2])
+major = int(sys.argv[3])
+cases = [case for case in index["cases"] if case.get("phase") == "database" and major in case.get("database", {}).get("supported_majors", [])]
+if len(cases) != 1:
+    raise SystemExit(1)
+database = cases[0]["database"]
+nodes = collect_database_test_nodes(repo, database, major)
+pathlib.Path(sys.argv[4]).write_text(json.dumps(nodes, separators=(",", ":")) + "\n", encoding="utf-8")
+pathlib.Path(sys.argv[5]).write_text("".join(f"{module}\n" for module in database["test_modules"]), encoding="utf-8")' \
+      "$repo_root" "$fixture_index" "$run_major" "$expected_nodes" "$module_file"; then
+    printf '%s\n' 'failed to derive exact static PostgreSQL node inventory' >&2
+    return 1
+  fi
+  HERMES_RUNTIME_PYTEST_REPORT=$execution_report
+  HERMES_RUNTIME_EXPECTED_NODES=$expected_nodes
+  export HERMES_RUNTIME_PYTEST_REPORT HERMES_RUNTIME_EXPECTED_NODES
+  set --
+  while IFS= read -r test_module; do
+    [ -n "$test_module" ] || continue
+    set -- "$@" "$repo_root/$test_module"
+  done < "$module_file"
   if ! HERMES_RUNTIME_POSTGRES_MAJOR=$run_major \
     PYTEST_ADDOPTS='' \
     PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONHASHSEED=0 \
     PYTHONPATH="$repo_root${PYTHONPATH:+:$PYTHONPATH}" \
-    "$pytest_bin" -p no:cacheprovider --color=no -q \
-      "$repo_root/tests/hermes_runtime_contracts/postgres" \
-      -m postgres --junitxml="$junit_file" >"$raw_log" 2>&1; then
+    "$pytest_bin" -c "$repo_root/pytest.ini" -p no:cacheprovider \
+      -p scripts.hermes_runtime_validation.pytest_execution_report --color=no -q \
+      "$@" \
+      -m "postgres and (postgres_$run_major or not (postgres_15 or postgres_16))" \
+      --junitxml="$junit_file" >"$raw_log" 2>&1; then
     redact_log "$raw_log" >&2
     return 1
   fi
 
   if ! test_count=$(
-    "$python_bin" -c 'import pathlib, sys, xml.etree.ElementTree as ET
-path = pathlib.Path(sys.argv[1])
-root = ET.parse(path).getroot()
-suites = [root] if root.tag == "testsuite" else list(root.findall("testsuite"))
-tests = int(root.attrib.get("tests", sum(int(item.attrib.get("tests", 0)) for item in suites)))
-failures = int(root.attrib.get("failures", sum(int(item.attrib.get("failures", 0)) for item in suites)))
-errors = int(root.attrib.get("errors", sum(int(item.attrib.get("errors", 0)) for item in suites)))
-skipped = int(root.attrib.get("skipped", sum(int(item.attrib.get("skipped", 0)) for item in suites)))
-if tests < 1 or failures or errors or skipped:
-    raise SystemExit(1)
-print(tests)' "$junit_file"
+    PYTHONPATH="$repo_root${PYTHONPATH:+:$PYTHONPATH}" \
+      "$python_bin" -m scripts.hermes_runtime_validation.pytest_execution_validation \
+      "$expected_nodes" "$execution_report" "$junit_file"
   ); then
-    printf '%s\n' 'pytest JUnit evidence is missing, empty, failed, or skipped' >&2
+    printf '%s\n' 'pytest execution evidence does not exactly match static nodes' >&2
     return 1
   fi
 
@@ -239,7 +260,7 @@ print(tests)' "$junit_file"
   if ! evidence_json=$(
     PYTHONPATH="$repo_root${PYTHONPATH:+:$PYTHONPATH}" \
     "$python_bin" -c 'import json, pathlib, sys
-from scripts.hermes_runtime_validation.fixtures import database_matrix_identity, repository_source_identity
+from scripts.hermes_runtime_validation.fixtures import database_matrix_identity, database_test_suite, repository_source_identity
 from scripts.hermes_runtime_validation.loader import load_yaml_document
 repo = pathlib.Path(sys.argv[1])
 index = load_yaml_document(sys.argv[2])
@@ -250,6 +271,9 @@ cases = [case for case in index["cases"] if case.get("phase") == "database" and 
 if len(cases) != 1:
     raise SystemExit(1)
 case = cases[0]
+suite = database_test_suite(repo, case["database"], major)
+if test_count != suite["test_count"]:
+    raise SystemExit(1)
 record = {
     "schema_version": 1,
     "kind": "HermesRuntimePostgresEvidence",
@@ -257,7 +281,7 @@ record = {
     "outcome": "pass",
     "image": image,
     "source_identity": repository_source_identity(repo, case),
-    "suite": {"id": "hermes-runtime-postgres", "test_count": test_count},
+    "suite": suite,
     "matrix": database_matrix_identity(case),
 }
 print(json.dumps(record, ensure_ascii=False, sort_keys=True, separators=(",", ":")))' \

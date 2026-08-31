@@ -106,7 +106,9 @@ $defs:
   lifecycle_status:
     type: string
     # The controlled `Status:` header vocabulary (docs/document-lifecycle.md).
-    enum: [brainstorm, staged, draft, ratified, standard, superseded, retired, record]
+    # Tracks `doc_health.TAXONOMY`; a value outside this enum fails snapshot
+    # validation, so the two move in the same change.
+    enum: [brainstorm, staged, draft, ratified, standard, superseded, retired, record, projection]
   evidence_pin:
     type: object
     # A pinned passage with cataloging-contract provenance (section ref +

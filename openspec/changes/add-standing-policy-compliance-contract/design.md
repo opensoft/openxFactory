@@ -1,6 +1,7 @@
 # Design: add-standing-policy-compliance-contract
 
-Status: draft
+Status: ratified
+Ratified: 2026-08-26 — `review/ratification-2026-08-26.md`
 Kind: design
 
 ## Context
@@ -154,16 +155,16 @@ An allowance approval is an immutable content-addressed record. Revocation is
 a separate content-addressed event targeting the approval digest and linking
 its predecessor event/revision. Registry revisions link predecessor revision
 digests, so canonical validation compares the chain rather than trusting one
-mutable object. Evaluation reads the current registry revision atomically;
+mutable object. Evaluation reads one coherent caller-trusted registry snapshot;
 bindings carry `(registry_id, allowance_id)` while decisions record the current
 revision digest and resolved approval/revocation digests.
 
-The pre-dispatch decision and worker invocation serialize against the same
-registry head. The evaluator issues a dispatch-authorization token conditioned
-on the current revision digest; worker invocation atomically compares that
-condition with the registry head. A changed head invalidates the token and
-forces current-state re-evaluation, so a revocation committed before the
-invocation linearization point controls that invocation.
+The neutral decision records static dispatch-authorization evidence conditioned
+on the evaluated registry revision. This evidence is not a credential and does
+not claim issuance, replay prevention, atomic consumption, or invocation. A
+consuming domain runtime owns those operational guarantees and must prove them
+through its own realization contract; this family validates only the static
+binding and digest.
 
 Closed outcome precedence across deterministic evaluation, classifier and
 Hermes is `block > needs_human_review > allow`; every layer's findings are
@@ -180,8 +181,9 @@ codexFactory first conformer will instantiate its ratified five classes.
   digest the ratified source; mismatched digest is a finding and blocks release.
 - **[Registry unavailable]** → missing/unreadable resolution fails closed to
   `needs_human_review`; cached allowance payloads never substitute.
-- **[Revocation race]** → every dispatch and admission re-resolves allowance
-  IDs; earlier `allow` evidence does not authorize later execution.
+- **[Revocation race]** → static evidence names its conditioned registry head
+  and fails validation against a newer trusted snapshot. Domain runtimes own
+  re-resolution, dispatch serialization, and prevention of later execution.
 - **[Classifier becomes authority]** → contract requires deterministic floor
   and records classifier contribution separately under closed hard limits.
 - **[Evidence volume]** → consumers may tier retention, but may not omit the
@@ -196,8 +198,9 @@ codexFactory first conformer will instantiate its ratified five classes.
 3. Propose/realize codexFactory `add-intent-compliance-gate` against that
    release: instantiate the five classes, grow the binding by allowance refs
    and evidence, gate approval, and recheck before dispatch.
-4. Re-run FEAT-003: no allowance blocks before worker dispatch; a valid
-   allowance passes; revoking it blocks the next dispatch and admission.
+4. Re-run FEAT-003 in codexFactory: the domain runtime proves no-allowance,
+   valid-allowance, and revoked-allowance dispatch/admission behavior. The
+   neutral family supplies static evidence only.
 5. Additional domains adopt only after declaring their own vocabulary source,
    class owners and allowance issuers.
 

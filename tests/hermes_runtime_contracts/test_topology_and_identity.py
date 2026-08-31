@@ -33,6 +33,26 @@ TOPOLOGY_CASES = tuple(
     for case in FIXTURE_INDEX["cases"]
     if any(str(path).startswith("topology/") for path in case.get("inputs", []))
 )
+TOPOLOGY_CASE_IDS = (
+    "topology-installing-no-customers",
+    "topology-configured-no-customers",
+    "topology-operational-two-customers",
+    "topology-suspended-preserves-registrations",
+    "topology-failed-recovered-layer",
+    "topology-retired-all-layers",
+    "topology-provision-retry-same-key",
+    "topology-codex-project-hermes",
+    "topology-medx-patient-hermes",
+    "topology-ledgerx-client-company-hermes",
+    "topology-operational-zero-customers",
+    "topology-duplicate-singleton",
+    "topology-extension-customer-evasion",
+    "topology-retired-identity-reuse",
+    "topology-lifecycle-fork",
+    "topology-current-state-mutation",
+    "topology-retired-transition",
+    "topology-provision-key-subject-conflict",
+)
 
 
 @pytest.fixture
@@ -842,12 +862,15 @@ def test_new_job_admission_allows_operational_topology(api) -> None:
 
 
 @pytest.mark.parametrize(
-    "case",
-    TOPOLOGY_CASES,
-    ids=[str(case["case_id"]) for case in TOPOLOGY_CASES],
+    "case_id",
+    TOPOLOGY_CASE_IDS,
+    ids=TOPOLOGY_CASE_IDS,
 )
-def test_indexed_topology_fixture_matches_exact_expected_reason(api, case: dict) -> None:
+def test_indexed_topology_fixture_matches_exact_expected_reason(
+    api, case_id: str
+) -> None:
     topology, _ = api
+    case = next(case for case in TOPOLOGY_CASES if case["case_id"] == case_id)
     assert len(case["inputs"]) == 1
     document = load_yaml_document(FIXTURE_ROOT / case["inputs"][0])
 
@@ -857,6 +880,10 @@ def test_indexed_topology_fixture_matches_exact_expected_reason(api, case: dict)
     )
 
     assert result["passed"] is True, result
+
+
+def test_topology_parameter_ids_match_the_yaml_case_order() -> None:
+    assert TOPOLOGY_CASE_IDS == tuple(str(case["case_id"]) for case in TOPOLOGY_CASES)
 
 
 def test_all_indexed_topology_fixtures_close_against_offline_schema_family() -> None:

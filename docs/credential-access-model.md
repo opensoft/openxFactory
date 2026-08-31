@@ -223,10 +223,41 @@ credential_bindings:
     secret_ref: m365-admin-app-registration
     owner: client_a
     rotation_policy: tenant_managed
+    consumer:
+      holder_ref: opsx:service-subject:tenant-admin-lane
+      fetch_identity: tenant-admin-lane-workload-identity
 ```
 
 The binding says where the credential can be resolved after approval. It must
-not include the raw secret value.
+not include the raw secret value, and it must not include one in
+`consumer.holder_ref` or `consumer.fetch_identity` either — those two members
+are free strings on the record kind whose invariant is "never bake a secret",
+so the same discipline governs all three.
+
+`consumer:` declares WHO holds this binding and WHAT IDENTITY that system uses
+to authenticate to the secret store. It is optional at the release that
+introduces it and required at the next major, where the block is also closed and
+its members carry a grammar; until then a binding that declares neither
+identifier is warned rather than refused. An instantiation stub — a template
+written before any install exists — declares `consumer: {instantiation_stub:
+true}` instead, and that TOKEN is the only exemption: a `*.template.yaml`
+filename exempts nothing.
+
+Where more than one system authenticates as the same operated identity, each
+gets its OWN binding with its own `fetch_identity`, and the pair declares
+`shared_credential_acknowledged: true` on both sides plus a qualified
+`requirement_ref` naming its own binding. One identity MAY be shared; one
+AUTHORITY SHALL NOT.
+
+What the declaration buys is bounded and worth stating in all three directions.
+It makes revocation of ACCESS readable — which grant to revoke, and whose future
+fetches stop, is a lookup rather than an inference. It does NOT un-share a
+bearer secret already fetched: evicting a consumer that holds the credential
+still requires ROTATION, which reaches every consumer of that identity. And it
+PUBLISHES, in one object beside the vault and the secret reference, which
+principal reaches which secret — which is why a packaged fixture carries
+synthetic identifiers while live ones stay in the consuming install's own
+credential tree.
 
 ## 7. Runtime Capability Grant
 

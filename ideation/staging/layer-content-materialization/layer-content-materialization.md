@@ -1,6 +1,7 @@
 # Staged: Layer Content Materialization (seeding increment 2 + the neutral overlay contract)
 
-Status: staged
+Status: superseded
+Superseded by: openspec/changes/archive/2026-07-23-add-hermes-domain-overlay-contract (openxFactory) and [hermes-install 2026-07-23-add-layer-content-materialization](https://github.com/opensoft/xFactory-Hermes-Install/tree/main/openspec/changes/archive/2026-07-23-add-layer-content-materialization)
 Kind: architecture
 Summary: Take the proven read-only load path (seeding increment 1, realized
 and archived 2026-07-22) to enforcement: a neutral `hermes_domain_overlay`
@@ -17,6 +18,23 @@ Staging ID: openxFactory:staging:layer-content-materialization
 Source: ideation/brainstorm/ — hermes-layer-content-seeding.md (umbrella),
 hermes-layer-seeding-mechanism.md; decisions recorded 2026-07-22; increment 1
 evidence at hermes-install `openspec/specs/layer-content-seeding/spec.md`.
+
+## Outcome (recorded 2026-08-28)
+
+COMPLETE. Both exit changes were ratified, realized and ARCHIVED on
+2026-07-23, and both archives were verified at their own trees on
+2026-08-28:
+
+| Exit | Repository | Archived packet |
+| --- | --- | --- |
+| Neutral `hermes_domain_overlay` contract + `overlay_path` | openxFactory | `openspec/changes/archive/2026-07-23-add-hermes-domain-overlay-contract` (`contract-v1.15`) |
+| Seeding increment 2 (materialization) | xFactory-Hermes-Install | `openspec/changes/archive/2026-07-23-add-layer-content-materialization` (PR #6, `696ec48`) |
+
+The hermes-install capability spec carries increments 1 + 2; increments
+3–6 and the gate wiring are recorded THERE as the live roadmap, which is
+why closing this topic parks no work. The topic folder is retained as
+PROVENANCE — the reason this document is `superseded` rather than
+deleted.
 
 ## Claims (decided 2026-07-22)
 

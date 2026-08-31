@@ -742,8 +742,8 @@ class TestConcurrentV1Writes:
         _stage_and_begin(database, staging_text, mid)
 
         cutover_session = f"""
-SET lock_timeout = '30s';
-SET statement_timeout = '40s';
+SET lock_timeout = 0;
+SET statement_timeout = 0;
 SELECT pg_advisory_lock({_lock_expression(mid)});
 BEGIN ISOLATION LEVEL SERIALIZABLE;
 {V1_LOCK_STATEMENT}
@@ -754,8 +754,8 @@ COMMIT;
 SELECT pg_advisory_unlock_all();
 """
         racing_write = """
-SET lock_timeout = '30s';
-SET statement_timeout = '40s';
+SET lock_timeout = 0;
+SET statement_timeout = 0;
 SELECT pg_sleep(1.2);
 INSERT INTO public.hermes_jobs (
   id, schema_version, issued_by, job_type, project, feature_id, epic_id,
@@ -870,12 +870,19 @@ COMMIT;
         )
         _stage_and_begin(database, staging_text, mid)
 
-        # The writer holds an uncommitted insert when the cutover statement
-        # begins, so the cutover blocks on LOCK TABLE; the writer then commits
-        # while the cutover is still waiting for the lock.
-        racing_write = """
-SET lock_timeout = '30s';
-SET statement_timeout = '40s';
+        barrier_key = "hashtextextended('xfactory-lockwait-barrier', 0)"
+        barrier_app = "lockwait-barrier"
+        writer_app = "lockwait-writer"
+        cutover_app = "lockwait-cutover"
+        barrier_session = f"""
+SET application_name = '{barrier_app}';
+SELECT pg_advisory_lock({barrier_key});
+SELECT pg_sleep(120);
+"""
+        racing_write = f"""
+SET application_name = '{writer_app}';
+SET lock_timeout = 0;
+SET statement_timeout = 0;
 BEGIN;
 INSERT INTO public.hermes_jobs (
   id, schema_version, issued_by, job_type, project, feature_id, epic_id,
@@ -886,15 +893,16 @@ INSERT INTO public.hermes_jobs (
   'job-racer', 1, 'Hermes', 'build', 'project-alfa', NULL, NULL,
   'opensoft', 'repo-alfa', 'main', 'orchestrators/build.yaml',
   'policies/routing.yaml', 'auth-profile-01', 'subscription', 'queued',
-  '{}', '2026-07-01T00:00:03.000000Z', '2026-07-01T00:00:03.000000Z'
+  '{{}}', '2026-07-01T00:00:03.000000Z', '2026-07-01T00:00:03.000000Z'
 );
-SELECT pg_sleep(3);
+SELECT pg_advisory_lock({barrier_key});
+SELECT pg_advisory_unlock({barrier_key});
 COMMIT;
 """
         cutover_session = f"""
-SET lock_timeout = '30s';
-SET statement_timeout = '40s';
-SELECT pg_sleep(1.2);
+SET application_name = '{cutover_app}';
+SET lock_timeout = 0;
+SET statement_timeout = 0;
 SELECT pg_advisory_lock({_lock_expression(mid)});
 BEGIN ISOLATION LEVEL SERIALIZABLE;
 {V1_LOCK_STATEMENT}
@@ -903,12 +911,87 @@ SELECT xfactory_runtime_api_v2.execute_v1_cutover(
 COMMIT;
 SELECT pg_advisory_unlock_all();
 """
-        write_result, cutover_result = database.race(
-            [("hermes_runtime", racing_write), ("hcs_migrator", cutover_session)],
-            timeout=60,
+
+        def wait_for_lock(predicate_sql: str, message: str) -> None:
+            for _ in range(120):
+                if database.scalar(predicate_sql) == "1":
+                    return
+                time.sleep(0.25)
+            raise AssertionError(message)
+
+        terminate_sessions = (
+            "SELECT pg_terminate_backend(pid) FROM pg_stat_activity "
+            f"WHERE application_name IN ('{barrier_app}', '{writer_app}', '{cutover_app}') "
+            "AND datname = current_database() "
+            "AND pid <> pg_backend_pid();"
         )
+        with ThreadPoolExecutor(max_workers=3) as executor:
+            barrier_future = executor.submit(
+                database.sql,
+                barrier_session,
+                user="hcs_migrator",
+                timeout=180,
+            )
+            try:
+                wait_for_lock(
+                    "SELECT count(*) FROM pg_locks lock_row "
+                    "JOIN pg_stat_activity activity ON activity.pid = lock_row.pid "
+                    f"WHERE activity.application_name = '{barrier_app}' "
+                    "AND activity.datname = current_database() "
+                    "AND lock_row.locktype = 'advisory' AND lock_row.granted;",
+                    "barrier session never acquired its advisory lock",
+                )
+                writer_future = executor.submit(
+                    database.sql,
+                    racing_write,
+                    user="hermes_runtime",
+                    timeout=90,
+                )
+                wait_for_lock(
+                    "SELECT EXISTS (SELECT 1 FROM pg_stat_activity writer "
+                    "JOIN pg_stat_activity barrier ON barrier.datname = writer.datname "
+                    "WHERE writer.datname = current_database() "
+                    f"AND writer.application_name = '{writer_app}' "
+                    f"AND barrier.application_name = '{barrier_app}' "
+                    "AND writer.backend_xid IS NOT NULL "
+                    "AND barrier.pid = ANY(pg_blocking_pids(writer.pid)))::int;",
+                    "writer never parked behind the barrier with an open write transaction",
+                )
+                cutover_future = executor.submit(
+                    database.sql,
+                    cutover_session,
+                    user="hcs_migrator",
+                    timeout=90,
+                )
+                wait_for_lock(
+                    "SELECT EXISTS (SELECT 1 FROM pg_stat_activity cutover "
+                    "JOIN pg_stat_activity writer ON writer.datname = cutover.datname "
+                    "WHERE cutover.datname = current_database() "
+                    f"AND cutover.application_name = '{cutover_app}' "
+                    f"AND writer.application_name = '{writer_app}' "
+                    "AND writer.backend_xid IS NOT NULL "
+                    "AND writer.pid = ANY(pg_blocking_pids(cutover.pid)))::int;",
+                    "cutover never became directly blocked by the writer transaction",
+                )
+                released = database.scalar(
+                    "SELECT count(*) FROM (SELECT pg_terminate_backend(pid, 5000) "
+                    "AS terminated FROM pg_stat_activity "
+                    f"WHERE application_name = '{barrier_app}' "
+                    "AND datname = current_database() "
+                    "AND pid <> pg_backend_pid()) terminated_rows "
+                    "WHERE terminated;"
+                )
+                assert released == "1", released
+                write_result = writer_future.result(timeout=90)
+                cutover_result = cutover_future.result(timeout=90)
+                _ = barrier_future.result(timeout=30)
+            finally:
+                _ = database.sql(terminate_sessions)
         assert_sql_succeeds(write_result)
         assert_sql_fails(cutover_result, "HGR-MIGRATION-BOUNDARY-MISMATCH")
+        assert "lock timeout" not in (
+            cutover_result.stdout + cutover_result.stderr
+        ).lower()
 
         fail_session = f"""
 SELECT pg_advisory_lock({_lock_expression(mid)});

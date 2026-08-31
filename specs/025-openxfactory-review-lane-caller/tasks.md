@@ -132,24 +132,127 @@
 
 ## 6. Named follow-ups, not performed here
 
+> **"Not performed HERE" means not by this feature — it does not mean not done.**
+> As of 2026-08-28: **6.2 is COMPLETE** (in codexFactory, PR #125, merge
+> `99fa3ffe`). **6.1, 6.4 and 6.5 remain OPEN.** **6.3 remains OPEN** and its
+> gate is unchanged — the `gate_rules_council` convened 2026-08-28 and REFUSED
+> the class proposed to it, so `add-substantive-review-lane` task 3.2 stays open
+> and FR-008 stays gated. Each box below states its own current status.
+
 - [ ] 6.1 Grant `opensoft/openxFactory` read access to the private decision
       core — either by adding it to the `selected` list for
       `XFACTORY_APP_ID` / `XFACTORY_APP_PRIVATE_KEY`, or by installing the
       repository's own content App on `opensoft/codexFactory`. Operator act;
       no secret is created by this feature.
-- [ ] 6.2 codexFactory side: add `contracts/review-lane-pin.yaml` to
+- [x] 6.2 codexFactory side: add `contracts/review-lane-pin.yaml` to
       `scripts/merge_master/openxfactory-review-authority-floor.yaml`'s
       `never_clearable_paths`. It determines which core judges this repository,
       which is the same argument the wallet pin's entry already makes
       (NR-006).
+      **DONE UPSTREAM 2026-08-28 — CONSUMED BY THIS PULL REQUEST, PENDING
+      MERGE.** The state is three-part and the tick covers only the first
+      part; read all three before relying on this protection.
+
+      **(i) The codexFactory-side act this task names is COMPLETE.**
+      codexFactory PR **#125** *"Add the openxFactory review-lane pin to the
+      never-clearable floor"*, merged `99fa3ffe` and reachable from
+      `origin/main`. Verified rather than taken on report:
+      `contracts/review-lane-pin.yaml` is present in that file's
+      `never_clearable_paths` at `origin/main`, declared as a fourth entry
+      grounded separately from the wallet-register trio — *"the review-lane pin
+      selects which codexFactory commit's decision core judges this repository.
+      Clearable, it would let a pull request choose its own judge."* The merge
+      carries per-path behavioural tests in
+      `tests/merge-master/test_repository_gate_floor.py` (+45), so the entry is
+      pinned by executing code rather than by declaration alone.
+
+      **(ii) CONSUMED BY THIS PULL REQUEST — live once it lands on `main`.**
+      This ceremony (follow-up 6.5) advances `core_commit` in BOTH this
+      caller and `contracts/review-lane-pin.yaml` from `58bd3cf7…` to
+      `f4702f647c285012c15717043332f68f1edefc29` — codexFactory `origin/main`
+      HEAD as observed 2026-08-28, and PR #127's own merge commit. Verified:
+      `99fa3ffe` (PR #125, the floor entry) **is** an ancestor (16 commits
+      behind), and the floor file at the new pinned commit names
+      `contracts/review-lane-pin.yaml` as its fourth `never_clearable_paths`
+      entry. **Still gated on the MERGE, not the open**: `pull_request_target`
+      evaluates this workflow from the BASE branch (D4/5.6), so any pull
+      request touching the pin — including this one — is judged by whatever
+      `core_commit` is on `main` at run time, not by the commit this diff
+      proposes. The protection goes live for the first pull request opened
+      AFTER this one merges. Read the diff as "protected once Brett Heap's
+      CODEOWNERS approval lands it" (FR-013), not as "protected as of this
+      commit."
+
+      **(iii) That ceremony IS this pull request — and it converges less than
+      D2 asks for.** codexFactory **#126** (the 2026-08-28 convening record,
+      merge `d4ea222d`) and **#127** (the S-1/S-2/S-6 validator guards, merge
+      `f4702f647c285012c15717043332f68f1edefc29`, also `origin/main` HEAD)
+      have both landed, so the hold this task stated is discharged: one
+      ceremony converges the floor entry, the convening record and the new
+      guards in a SINGLE `core_commit` advance, exactly as promised. **What
+      this ceremony does NOT do: converge with `opensoft/xFactory`'s two
+      merge-master surfaces named in this pin's `lockstep` block.** Verified
+      against `opensoft/xFactory` HEAD on 2026-08-28:
+      `.github/workflows/merge-master-approval.yml` and
+      `.github/workflows/council-convening-lane.yml` are BOTH still pinned at
+      `3c35ca8ba45cbf350a9d4c1d5ecceb7f11d35738` — the same commit D2 recorded
+      as too old to run this caller's own floor evaluation. `lockstep.status:
+      diverged` in `contracts/review-lane-pin.yaml` is therefore left
+      UNCHANGED by this ceremony and remains accurate. A full three-surface
+      convergence needs its own re-point ceremony in `opensoft/xFactory` and
+      is not this pull request's to perform — see 6.5.
 - [ ] 6.3 `add-substantive-review-lane` task 3.2 — the `gate_rules_council`
       record defining openxFactory's candidate classes — remains the gate on
       any envelope instance here (FR-008).
+      **UPDATED 2026-08-28 — STAYS UNTICKED, and the reason has changed.** The
+      council CONVENED on 2026-08-28 and **REFUSED** the class proposed to it,
+      unanimously 5/5: `openxfactory-proposal-review-advisory` over
+      `openspec/changes/**` can never CONVENE, because its admitted surface lies
+      wholly inside the canonical `GATE_INTEGRITY_FLOOR` (984 admitted paths,
+      984 floored, 0 remaining; proven code-level). Record:
+      `opensoft/codexFactory` →
+      `hermes/domain/review-councils/records/2026-08-28-gate-rules-openxfactory-substantive-classes.md`
+      (disposition §8).
+      Brett Heap ruled the same day — *"1a, 2 leave open, 3 adopt, 4 adopt all
+      three"* — so **task 3.2 remains OPEN and FR-008 remains GATED**: no
+      envelope instance may exist here until **BOTH** of FR-008's discharge
+      conjuncts hold — an **OPERABLE** class **AND** its clearance control
+      carried by a **landed, ACTIVE rule at the pinned `core_commit`**. A record
+      that refuses is still a record, and it does not discharge this gate; **nor
+      would a record that defines one, on its own** — the record authorizes the
+      control, the rule is the control. FR-008 governs; see its definition.
+      The ruled continuation is the council-reviewed-but-human-approved path,
+      which needs no class and no flip, so it requires nothing of this feature.
+      This entry is the REQUIRED pointer to that record (the council's Decision
+      3, adopted): the gate lives in another repository, so the artifact
+      carrying the dependency carries the reference.
 - [ ] 6.4 Task 5.1's RULESET half stays owed, behind S3 and S5 of
       `add-wallet-carried-review-authority` and its own ratified ruleset change
       (NR-001, NR-002, NR-003, NR-007).
 - [ ] 6.5 A future re-point ceremony should converge this pin with xFactory's
       two surfaces (D2).
+      **PERFORMED IN PART BY THIS PULL REQUEST — completes on merge, stays
+      unticked here.** `core_commit` is advanced to
+      `f4702f647c285012c15717043332f68f1edefc29` (codexFactory PR #127's own
+      merge commit, `origin/main` HEAD 2026-08-28), which contains #125, #126
+      and #127 — so 6.2's floor entry, the convening record and the S-1/S-2/S-6
+      guards converge in ONE diff, as promised. **This box stays unticked for
+      two reasons.** (1) The tick would claim a LIVE state that only exists
+      once this file lands on `main`: `pull_request_target` reads the base
+      branch (D4/5.6), and CODEOWNERS routes this path to Brett Heap
+      (FR-013) — his approval is the act that lands it. (2) **The D2
+      three-surface convergence this task NAMES is NOT achieved by this pull
+      request.** Verified against `opensoft/xFactory` HEAD, 2026-08-28:
+      `.github/workflows/merge-master-approval.yml` and
+      `.github/workflows/council-convening-lane.yml` remain pinned at
+      `3c35ca8ba45cbf350a9d4c1d5ecceb7f11d35738`, unchanged — this pull
+      request advances only THIS repository's pin, not xFactory's two. The
+      `lockstep` block in `contracts/review-lane-pin.yaml` correctly stays
+      `status: diverged`. A full D2 convergence is a separate, future
+      re-point ceremony in `opensoft/xFactory`, outside this pull request's
+      scope. This box ticks when BOTH halves are true at once: the
+      6.2-consumption half lands with this pull request's merge; the D2 half
+      needs its own ceremony.
 
 
 ## Evidence (recorded 2026-08-27)

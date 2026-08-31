@@ -2,6 +2,7 @@
 
 Status: staged
 Kind: architecture
+Exit taken: openspec/changes/archive/2026-08-01-add-dashboard-repo-selector — exit 1 (dev plane), ratified 2026-07-29 and archived 2026-08-01. Exit 2 (the runtime plane) is NOT taken and is recorded below.
 Summary: Give the ideation dashboard a repository selector over the
 workspace's registered repos (per-repo snapshots + a thin index; selecting
 `xFactory` composes the all-submodules dev view), as the dev-plane step
@@ -163,23 +164,29 @@ domain-neutralization candidate at its own gate
    browser is (loopback in a container is unreachable from the host
    browser; non-loopback binds correctly drop write actions). The backend
    seam should name the forwarded-port topology explicitly.
-7. **Data-source ratification** (claim 6): aggregation-repo raw files
-   (recommended — nightly already writes there, commit SHA = provenance),
-   a blob container (no repo-read token in the pod), or a ConfigMap the
-   pipeline updates (no egress). Brett ratifies one and the reason is
-   recorded.
-8. **Index polling cadence**: fetch the index on load and on an explicit
-   refresh only, or poll it on an interval so the page can advertise that
-   newer data exists. A poll makes freshness proactive and makes the pod
-   chatty against the data source; the explicit-refresh-only reading is
-   the conservative default.
-9. **Whether the local regenerate action is gated or ungated.** The
-   snapshot is derived data and regeneration mutates nothing governed, so
-   the `open-workbench` precedent (ungated tile action) fits better than
-   the gate-verb precedent. Recommendation: ungated, loopback-only, and
-   recorded in nothing — with the caveat that it is the first POST route
-   that is not a gate verb, so the posture must be stated rather than
-   assumed.
+7. **Data-source ratification** (claim 6) — **CLOSED 2026-07-26, recorded
+   here 2026-08-28.** Brett ruled aggregation-repo raw files, read with a
+   deploy-time read-only token; the recommendation was taken. The ruling
+   is cited in the archived exit-1 packet's `Ratified:` line
+   (`openspec/changes/archive/2026-08-01-add-dashboard-repo-selector`).
+8. **Index polling cadence** — **CLOSED 2026-07-26, recorded here
+   2026-08-28.** Brett ruled passive polling on roughly a five-minute
+   interval with a newer-data badge and NEVER an auto-reload, which is
+   neither of the two readings offered above: it takes the proactive
+   freshness without taking the reload. Cited in the same `Ratified:`
+   line.
+9. **Whether the local regenerate action is gated or ungated** — **CLOSED
+   2026-07-26, recorded here 2026-08-28.** Brett ruled it ungated,
+   loopback-only and derived-artifact-only; the recommendation was taken,
+   and its caveat — the first POST route that is not a gate verb — was
+   stated rather than assumed. Cited in the same `Ratified:` line.
+
+Questions 1–6 were also resolved into the exit-1 packet's twelve locked
+decisions; they are left as written above because the packet, not this
+fragment, is their record. Recording 7–9 here is the correction of a
+narrower defect: these three were carried as OPEN in this document for a
+month after the ruling that closed them, so a reader of the topic saw
+three live forks where none remained.
 
 ## Exit path
 
@@ -195,10 +202,18 @@ serving, selector UI, the two refresh affordances, and the `serve.py`
 relative-import fix the POST routes need) and an aggregation-repo delta
 (the project-register instance, the published data source, and
 `workflow_dispatch` on the nightly job), sequenced against open question
-5. Exit 2 (separate, later): the runtime-plane neutralization change —
-the ADDED install-shipped capability with the governed-content adapter
-seam — registered as a domain-neutralization candidate when scoped; open
-question 3 is its gating design decision.
+5. Exit 2 (separate, later) — **NOT TAKEN; deferred with its gate named,
+2026-08-28**: the runtime-plane neutralization change — the ADDED
+install-shipped capability with the governed-content adapter seam —
+registered as a domain-neutralization candidate when scoped. **GATE:
+open question 3, what an "idea" IS as governed install content** (a
+document-lifecycle doc kind, or a new content family alongside
+`review_council`/`deliberation_mix`) and how the six funnel stations map
+to the lifecycle in a running stack. Nothing schedules that decision
+today and no consumer is blocked on it, which is what makes this a
+deferral rather than a queue position. The deferral records the gate; it
+does NOT stop this topic being counted as work — there is no `deferred`
+status for a staged topic and this record deliberately invents none.
 
 Related staged work: the sibling topic
 [workbench-branch-sessions](../workbench-branch-sessions/workbench-branch-sessions.md)

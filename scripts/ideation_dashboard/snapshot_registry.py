@@ -73,6 +73,17 @@ _SCRIPTS_DIR = Path(__file__).resolve().parent.parent
 if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
 
+# THE DECLARED SENTINEL VOCABULARY, IMPORTED RATHER THAN RETYPED
+# (`fix-pin-value-boundary-and-sentinel-split`, Q3 ruled 2026-08-28). The
+# CONDITION this projector reports was already the right one — an index entry
+# whose recorded revision is absent, with the repository perfectly readable, is
+# the unestablished-revision condition and `unknown` is its canonical spelling.
+# What moves here is only the LITERAL: `doc_health` is a sibling package under
+# `scripts/` and the path insertion above already reaches it, so the spelling
+# comes from the declaration that a verification guarding on the exact string
+# reads.
+from doc_health import pin_sentinels  # noqa: E402
+
 DEFAULT_REF = "main"
 INDEX_KIND = "ideation-dashboard-snapshot-index"
 INDEX_SCHEMA_VERSION = 1
@@ -274,13 +285,20 @@ class SnapshotEntry:
     def index_entry(self) -> dict:
         """This entry as a snapshot-INDEX entry (the openxFactory
         `ideation-dashboard-snapshot-index` locator shape) plus the additive
-        serving-side freshness fields consumers may ignore."""
+        serving-side freshness fields consumers may ignore.
+
+        THE SENTINEL IS THE WEAKEST MEMBER AND THAT IS THE MEASURED CONDITION.
+        Where the entry carries no `source_revision`, this projector can say
+        only that the revision was not established: the repository is readable,
+        and whether the snapshot's own generation lacked a revision, could not
+        fetch one, or never recorded one is not knowable from here. Writing a
+        stronger member would assert a condition nobody established."""
         out: dict[str, Any] = {
             "repository": self.repository,
             "ref": self.ref,
             "snapshot": self.location or (
                 self.snapshot_path.name if self.snapshot_path else f"{self.repository}-snapshot.json"),
-            "source_revision": self.source_revision or "unknown",
+            "source_revision": self.source_revision or pin_sentinels.UNKNOWN,
         }
         if self.generated_at:
             out["generated_at"] = self.generated_at

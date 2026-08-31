@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v2.0
+contract_bundle_version: contract-v2.3
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -1585,7 +1585,7 @@ contracts:
     source_path: openxFactory/contracts/schemas/ideation-dashboard-snapshot.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 6a3b496c59cea9cfb232e35d21b4864a928287c7b98b5436aac0c83d9c14e9b3
+    sha256: 9c44da235e8b4771b721b3ea0f88e0f6adcdaf4854cac045924abd9981c9ea9c
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -1602,7 +1602,7 @@ contracts:
     source_path: openxFactory/contracts/schemas/xfactory-workbench-model-catalog.schema.yaml
     type: schema
     schema_version: 1
-    sha256: dff513fa6b607c417a39e5529964f9df2c8f56841ae3b0a894c85b6d1dea0675
+    sha256: e563cc9fc6ede03dfd62537935d0ae0842617d7de46702aee6ad9026aa021635
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -1611,21 +1611,37 @@ contracts:
       /workbench/model-catalog success body, public allowlist only,
       structurally closed against credentials/endpoints/secret names. An
       empty models array is the successful editor-only posture. The allowlist
-      is the SEVEN REQUIRED base fields plus, since contract-v1.38, the THREE
-      OPTIONAL routing-declaration fields — routing_rule, routes_to,
-      resolved_model_id — which travel together and are ABSENT from a plain
+      is the SEVEN REQUIRED base fields plus TWO OPTIONAL GROUPS, each absent
+      from a producer that predates it: the routing declaration since
+      contract-v1.38, and `modalities` since contract-v2.2 (below).
+      THE ROUTING DECLARATION is the THREE fields routing_rule, routes_to and
+      resolved_model_id, which travel together and are ABSENT from a plain
       entry, so a consumer that reads only the seven stays correct against
       every catalog it could already read. A consumer that offers an `auto`
       entry MUST read all three: routing_rule says the entry is a rule rather
       than a model, resolved_model_id is the model that ANSWERS (and is what
       a turn record's model_id carries), and the entry's own data_handling
-      states the posture of every model in routes_to. Consumed through the
-      pinned openxFactory checkout at the contract-v1.38 tag; per-file sha256
-      verified before any copy is treated as current. Catalog rules the shape
-      cannot express — routing resolution, the badge covering, the
-      availability and headroom rules — are enforced by
+      states the posture of every model in routes_to.
+      SINCE contract-v2.2 an entry MAY additionally declare `modalities` — the
+      input modalities it accepts, from the CLOSED vocabulary whose members are
+      exactly `text` and `image`. It is optional and ABSENT from a producer that
+      predates it, and its ABSENCE IS NOT A CLAIM IN EITHER DIRECTION: a
+      consumer reads an undeclared entry as text-only FOR ROUTING while
+      recording that no declaration was made, never as a statement that the
+      model rejects images. Where present the set is non-empty, carries no
+      repeat, and MUST contain `text`, because a chat turn always carries text.
+      THE VOCABULARY IS CLOSED AND EXTENDS ONLY BY THE CHANGE THAT GOVERNS A NEW
+      MEMBER — the rule the client-identity roster's admission_surface states —
+      so a consumer may treat any other value as a refused catalog rather than
+      as a value it must tolerate. Consumed through the pinned openxFactory
+      checkout at the contract-v2.2 tag; per-file sha256 verified before any
+      copy is treated as current. Catalog rules the shape cannot express —
+      routing resolution, the badge covering, the availability and headroom
+      rules — are enforced by
       scripts/validate-ideation-dashboard-contracts.py (the family's
-      delegated owner), never re-implemented by consumers.
+      delegated owner), never re-implemented by consumers; the three modality
+      refusals are NOT among them, being expressible in the shape and therefore
+      enforced by these bytes.
   # WHY THIS ROW'S `consumption_rule` GAINED THE NON-BLANK RULE WITHOUT A
   # RELEASE CUT (issue #263). Read this before editing it again.
   #
@@ -2039,6 +2055,62 @@ contracts:
   # the pinned `openXwallet/scripts/validate-openxwallet.py` is this family's
   # conformance validator from this major forward. Migration path: contracts/CHANGELOG.md
   # § contract-v2.0 and openXwallet/docs/pin-resync-runbook.md.
+  # ---- standing-policy intent compliance — contract-v2.3 registration ----
+  - id: intent-compliance-veto-class-vocabulary
+    path: contracts/intent-compliance/veto-class-vocabulary.schema.yaml
+    source_path: openxFactory/contracts/intent-compliance/veto-class-vocabulary.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 6161d5e006e6cf6f6a3c6cc088cb1a63ea96991f9ac50424f5f77cf96fc55edb
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: intent-compliance-policy-allowance
+    path: contracts/intent-compliance/policy-allowance.schema.yaml
+    source_path: openxFactory/contracts/intent-compliance/policy-allowance.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 1d4e5ae739c0cdecd0a0bd42598520729ea3d34a5fa714f941a1f688b8003d5d
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: intent-compliance-policy-allowance-revocation
+    path: contracts/intent-compliance/policy-allowance-revocation.schema.yaml
+    source_path: openxFactory/contracts/intent-compliance/policy-allowance-revocation.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 28f1eb43e511dccc0f5e456e34ff3077e15893d22caab298cf50e36d8ebb4d76
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: intent-compliance-policy-allowance-registry
+    path: contracts/intent-compliance/policy-allowance-registry.schema.yaml
+    source_path: openxFactory/contracts/intent-compliance/policy-allowance-registry.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 7b7433b5bd93397596f6be190b345162e98476d1a43fc8b2836db47ba19521ad
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: intent-compliance-decision
+    path: contracts/intent-compliance/compliance-decision.schema.yaml
+    source_path: openxFactory/contracts/intent-compliance/compliance-decision.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 4c5ad6a7fd33ab7d70490dd8c44e3a1732edcba1a38d83023ee7b674a3df5276
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: intent-compliance-conformance-validator
+    path: scripts/validate-intent-compliance.py
+    source_path: openxFactory/scripts/validate-intent-compliance.py
+    type: tool
+    schema_version: 1
+    intended_consumers:
+      - openxFactory release checks
+      - DomainxFactory approval and dispatch gates
+      - post-build admission gates
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Consumers invoke this validator from their pinned openxFactory checkout;
+      concrete veto classes, policy instances, detectors, scope resolvers and
+      runtime records remain domain-owned and are validated against this family.
   # ---- client-identity-roster + the credential-contracts first registration —
   # contract-v1.33 registration (add-client-identity-roster, feature
   # 007-client-identity-roster) ----
@@ -2081,7 +2153,7 @@ contracts:
     source_path: openxFactory/contracts/schemas/xfactory-credential-contracts.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 08e180683d8a3cfae2656a2aee508f1d17e9d696f4f57814ecf960c9d71a6180
+    sha256: d0e936fc7377dc5346d9863a5cec74b4edb5b73300c17b66843798bf96a47028
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -2096,7 +2168,41 @@ contracts:
       roster_drift_clear_required) in which every value is const true,
       because a precondition is DECLARED or NOT DECLARED — false would
       read as governance while asserting nothing. Declaring nothing at
-      all leaves a requirement record valid. Consumed through the pinned
+      all leaves a requirement record valid.
+      GREW ADDITIVELY AGAIN with the OPTIONAL consumer: block on each
+      entry of credential_bindings (add-binding-consumer-identity): the
+      consuming system that holds a binding (holder_ref), the identity
+      it authenticates to the secret store with (fetch_identity), an
+      optional QUALIFIED requirement_ref (requirement_id +
+      requirements_document_ref), and the const-true
+      shared_credential_acknowledged and instantiation_stub tokens. THE
+      BLOCK IS DECLARED AT THIS RELEASE AND CONSTRAINED AT
+      contract-v3.0: here the schema imposes no type, no member grammar,
+      no requiredness and no closure on it, because the binding object
+      has never been closed and a consumer: key of ANY shape already
+      validated — so requiring members, closing the block and imposing
+      the member grammar each refuse a shape the current major accepts
+      and are the BREAKING class however additive the vocabulary looks.
+      The same phasing governs three narrowings that sit OUTSIDE the
+      block and are not exempt for it: the credential_bindings MAP KEY
+      grammar, the closed access_mode vocabulary (dispatch_only,
+      contents_write, workload_identity, delegated_api) and the
+      repository-relative requirements_document_ref grammar. All seven
+      acts land together at contract-v3.0 behind ONE deprecation window
+      and EIGHT warning codes emitted by
+      scripts/validate-credential-contracts.py, enumerated with their
+      migration path in docs/contract-versioning-policy.md
+      § Deprecations Currently In Force. A record written before any
+      install exists declares consumer: {instantiation_stub: true}, and
+      that TOKEN is the only exemption — a *.template.yaml FILENAME
+      exempts nothing, being author-chosen, invisible in the bytes a
+      pinned consumer validates, and unreachable by a pinned schema. The
+      same change replaces the shared-secret refusal's
+      first-against-rest arity with an EVERY-PAIR comparison and adds a
+      six-condition, fail-closed lift for two consuming systems reaching
+      one deliberately shared operated identity; both are enforced by
+      scripts/validate-credential-contracts.py, never re-implemented by
+      consumers. Consumed through the pinned
       openxFactory checkout with per-file sha256 verified before any
       copy is treated as current.
   # ---- identity-brokering contract family — contract-v1.37 registration (add-identity-brokering, feature 008-identity-brokering-contracts) ----

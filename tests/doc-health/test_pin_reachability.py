@@ -28,6 +28,7 @@ hazard is real and that isolated clones are the only honest venue for (C).
 
 from __future__ import annotations
 
+import ast
 import re
 import subprocess
 
@@ -1178,3 +1179,294 @@ def test_the_resolver_this_probe_shares_with_the_readiness_proof_agrees():
     _, _, report = ir.verify_pin_reachability(REPO_ROOT)
     assert report.rev == _git(Path(REPO_ROOT), "rev-parse", "HEAD"
                               ).stdout.strip()
+
+
+# =========================================================================
+# doc-health — "A pin site is built only from a value that is a whole object
+# name" (`fix-pin-value-boundary-and-sentinel-split`, defect 1)
+#
+# THE DEFECT THESE ARE PINNED TO, measured 2026-08-28 against `origin/main` at
+# `5314fac5`. FOUR expressions in `pin_class` build pin sites and NONE of them
+# carried a trailing hexadecimal boundary: `_field_re`, `_VOCAB_RE`, and the two
+# prose members' own `pattern` strings. A sixty-four-character digest under a
+# declared pin key therefore yielded a FABRICATED forty-character prefix — a
+# value nobody wrote — and the verification judged that for reachability. Run
+# end-to-end against a fixture whose digest's first forty characters name a REAL
+# reachable commit, the pre-fix module reported `pass`: it certified a
+# provenance claim the artifact never made.
+#
+# Every test below is a REFUSAL, and a refusal that stops refusing is invisible
+# in an assertion about a value — which is why the last one reads the
+# declaration structurally rather than checking one input.
+# =========================================================================
+
+def _sha256_shaped(prefix40: str) -> str:
+    """A sixty-four-character hexadecimal value whose first forty characters are
+    `prefix40`. The shape of a sha256 digest, which is what lands under a pin
+    key when a generator stamps a blob or an image digest by mistake."""
+    assert re.fullmatch(r"[0-9a-f]{40}", prefix40), prefix40
+    return prefix40 + "0123456789abcdef01234567"
+
+
+def digest_under_a_pin_key_repo(tmp_path, *, name="repo"):
+    """A readiness record whose `source_revision` is a 64-hex DIGEST whose first
+    forty characters name a real commit this repository's `main` reaches.
+
+    THE COLLIDING CASE ON PURPOSE. A random prefix would resolve to nothing and
+    the fix would look like it merely changed an ORPHAN into a defect; here the
+    fabricated prefix RESOLVES, so the pre-fix behaviour is the worse of the two
+    the delta names — a verification certifying a claim it never read."""
+    repo = _init(tmp_path / name)
+    _write(repo, "ideation/brainstorm/one.md", "# one\n\nStatus: brainstorm\n")
+    real = _commit(repo, "corpus")
+    digest = _sha256_shaped(real)
+    _write(repo, READINESS_REL, _readiness_record(digest))
+    _commit(repo, "a readiness record carrying a digest, not a commit name")
+    return repo, real, digest
+
+
+def test_a_digest_longer_than_an_object_name_builds_no_pin_site(tmp_path):
+    """Delta scenario "A digest longer than an object name stands under a
+    declared pin key". BOTH HALVES ARE ASSERTED SEPARATELY, because a test that
+    only checked the absence of the pin would pass on a value silently dropped:
+    no site is built, AND the whole value reaches the classification unshortened
+    as a defect naming the artifact, the key and the value as written."""
+    repo, real, digest = digest_under_a_pin_key_repo(tmp_path)
+    report = _verify(repo)
+
+    # half one: NOTHING commit-shaped was manufactured out of it
+    assert report.results == (), (
+        "a pin site was built from a value that is not a whole object name: "
+        f"{[(r.site.pin, r.verdict) for r in report.results]}")
+    assert report.orphans == [] and report.lost == []
+    assert all(real not in s.pin for s in pc.member_sites(repo, "HEAD"))
+    assert pc.swept_sites(repo, "HEAD") == []
+
+    # half two: the value is HANDED ON WHOLE, not dropped
+    assert len(report.undeclared_values) == 1, report.non_pins
+    defect = report.undeclared_values[0]
+    assert defect.site.value == digest            # unshortened, as written
+    assert len(defect.site.value) == 64
+    assert defect.site.path == READINESS_REL
+    assert defect.site.key == "source_revision"
+    assert defect.sentinel is None and not defect.legal
+    assert "UNDECLARED" in defect.how
+    # Q1, ruled 2026-08-28: it rides the EXISTING undeclared-non-commit finding
+    # rather than earning a class of its own.
+    assert report.uncovered == () and report.uncovered_non_pins == ()
+    assert not report.clean
+
+
+def test_the_fabricated_prefix_would_have_resolved_and_is_still_refused(
+        tmp_path):
+    """Delta scenario "The fabricated prefix would have resolved". THE WORSE OF
+    THE TWO FAILURES: the first forty characters of this fixture's digest name a
+    commit `main` reaches, so the pre-fix module answered PASS and certified a
+    provenance claim the artifact never made. A coincidental resolution is not a
+    reading of the artifact's claim."""
+    repo, real, digest = digest_under_a_pin_key_repo(tmp_path)
+    # the collision is REAL in this fixture rather than assumed
+    assert digest.startswith(real)
+    main_ref, _ = pc.resolve_main(repo)
+    assert pc.reachable_from_main(repo, real, main_ref), (
+        "the fixture's prefix must name a REACHABLE commit or this test is "
+        "measuring the harmless failure instead of the dangerous one")
+
+    report = _verify(repo)
+    assert [r.verdict for r in report.results] == []
+    assert not any(r.verdict == pc.PASS for r in report.results)
+    assert not report.fully_verified
+    rendered = pc.render(report)
+    assert digest in rendered, (
+        "the reader must be sent to the value the artifact actually holds")
+    # and the prefix is never named ON ITS OWN — every occurrence of it in the
+    # report is inside the whole value, which is the difference between telling
+    # a reader what the file says and telling them what the parser composed.
+    assert real not in rendered.replace(digest, ""), (
+        "the report names a commit the artifact does not claim; a reader "
+        "cannot find the subject of that finding by opening the file")
+
+
+def test_a_whole_object_name_is_unaffected_in_every_serialization(tmp_path):
+    """Delta scenario "A whole object name is unaffected". THE TASK THAT CATCHES
+    AN OVER-TIGHT BOUNDARY, which is the fix's real failure mode: all six shapes
+    measured at filing must still build the same site — bare, quoted, JSON,
+    sequence item, comment-trailed, and each of the two prose forms."""
+    pin = "a" * 8 + "1234567890abcdef1234567890abcdef"
+    assert len(pin) == 40
+    field = pc._field_re("source_revision")
+    shapes = {
+        "bare": f"source_revision: {pin}",
+        "quoted": f'source_revision: "{pin}"',
+        "json": f'  "source_revision": "{pin}",',
+        "sequence item": f"  - source_revision: {pin}",
+        "comment-trailed": f"source_revision: {pin}  # the pin",
+    }
+    for label, line in shapes.items():
+        for name, rx in (("_field_re", field), ("_VOCAB_RE", pc._VOCAB_RE)):
+            m = rx.search(line)
+            assert m is not None, f"{name} no longer matches {label}: {line!r}"
+            assert m.group(m.lastindex) == pin, f"{name} / {label}"
+
+    prose = {m.id: m for m in pc.PIN_CLASS if m.pattern}
+    assert set(prose) == {"cross-reference-rendered", "gate-action-record"}, (
+        "a prose member was added or renamed; give it a line here and confirm "
+        "its pattern carries the boundary")
+    prose_lines = {
+        "cross-reference-rendered": f"- Source revision: `{pin}`",
+        "gate-action-record":
+            f"  recipe: checked none · pinned none · at source_revision {pin}",
+    }
+    for member_id, line in prose_lines.items():
+        m = prose[member_id].line_re().search(line)
+        assert m is not None, f"{member_id} no longer matches {line!r}"
+        assert m.group(1) == pin, member_id
+
+    # and end-to-end: a conforming record still verifies exactly as before
+    repo, old = reachable_pin_repo(tmp_path)
+    report = _verify(repo)
+    assert [r.site.pin for r in report.results] == [old]
+    assert report.results[0].verdict == pc.PASS
+    assert report.clean and report.fully_verified
+    assert report.undeclared_values == []
+
+
+def test_the_boundary_is_carried_by_every_site_building_expression():
+    """Delta scenario "The boundary is stated once and applied everywhere a site
+    is built" — Q4, ruled 2026-08-28: a STRUCTURAL assertion over the
+    declaration rather than a value assertion over one input.
+
+    WHY THIS TEST EXISTS AND WHY IT LOOKS LIKE THIS. Both fixes in this packet
+    are REFUSALS, and this repository has measured that a value assertion can
+    survive the mutation that removes one (the platform-inert-mutation lesson).
+    So the property asserted here is over the SET of expressions that build
+    sites: every one of them refuses an over-long hexadecimal run. A prose
+    member added later with an unguarded `pattern` fails this test on the day it
+    lands, which is what a boundary "stated once and applied everywhere" has to
+    mean if it is coverage rather than a comment.
+
+    IT PINS BEHAVIOUR, NOT THE SPELLING OF A REGEX: each expression is compiled
+    and RUN against both widths, so a rewrite that keeps the property passes."""
+    pin = "b" * 8 + "1234567890abcdef1234567890abcdef"
+    digest = _sha256_shaped(pin)
+
+    # every expression that builds a pin site, enumerated from the declaration
+    # rather than listed by hand
+    builders: dict[str, tuple] = {
+        "_VOCAB_RE": (pc._VOCAB_RE, "source_revision: {v}"),
+    }
+    for key in sorted({m.key for m in pc.PIN_CLASS if m.key_form == "field"}):
+        builders[f"_field_re({key!r})"] = (pc._field_re(key), key + ": {v}")
+    for member in pc.PIN_CLASS:
+        if not member.pattern:
+            continue
+        # the line each prose member's own pattern is written to read
+        marker = ("- Source revision: `{v}`"
+                  if member.id == "cross-reference-rendered"
+                  else "  recipe: … at source_revision {v}")
+        builders[f"PinMember({member.id}).line_re()"] = (
+            member.line_re(), marker)
+
+    assert len(builders) >= 4, builders
+
+    unguarded = []
+    for name, (rx, template) in builders.items():
+        # the whole object name still builds
+        conforming = rx.search(template.format(v=pin))
+        assert conforming is not None, f"{name} refuses a whole object name"
+        assert conforming.group(conforming.lastindex) == pin, name
+        # the over-long run must not yield ANY value, let alone a prefix
+        over_long = rx.search(template.format(v=digest))
+        if over_long is not None:
+            unguarded.append(
+                f"{name} matched a 64-hex value and produced "
+                f"{over_long.group(over_long.lastindex)!r}")
+        # a 41-hex run is refused by the same rule, not by a length list
+        assert rx.search(template.format(v=pin + "c")) is None, (
+            f"{name} matched a 41-hex run; the rule is that the WHOLE value is "
+            "an object name, not an enumeration of the widths somebody "
+            "thought of")
+    assert not unguarded, (
+        "expression(s) that build a pin site carry no whole-object-name "
+        "boundary — append `pin_class.HEX_BOUNDARY` to the value group:\n  "
+        + "\n  ".join(unguarded))
+
+
+def test_the_boundary_rule_has_one_home_in_the_module():
+    """The guard is a NAMED CONSTANT rather than four retyped copies, so the
+    module states the rule once and the structural test above has something to
+    point a future author at. `LOOSE_SHA_RE`, whose comment stated the rule
+    before any site builder carried it, is built from the same constant."""
+    assert pc.HEX_BOUNDARY == r"(?![0-9a-fA-F])"
+    assert pc.LOOSE_SHA_RE.pattern.endswith(pc.HEX_BOUNDARY)
+
+    # No EXECUTABLE spelling of the guard other than the constant's own
+    # declaration. Read with `ast` rather than by counting substrings, because
+    # the two prose occurrences of it in this module are a comment and a
+    # docstring — writing the rule down is exactly what those are for, and a
+    # substring count cannot tell an explanation from a retyped copy.
+    source = (Path(REPO_ROOT) / "scripts/doc_health/pin_class.py").read_text(
+        encoding="utf-8")
+    tree = ast.parse(source)
+    docstrings = set()
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.Module, ast.ClassDef, ast.FunctionDef,
+                             ast.AsyncFunctionDef)):
+            body = getattr(node, "body", None)
+            if (body and isinstance(body[0], ast.Expr)
+                    and isinstance(body[0].value, ast.Constant)
+                    and isinstance(body[0].value.value, str)):
+                docstrings.add(id(body[0].value))
+    retyped = [
+        node.lineno for node in ast.walk(tree)
+        if isinstance(node, ast.Constant) and isinstance(node.value, str)
+        and pc.HEX_BOUNDARY in node.value and id(node) not in docstrings
+        and node.lineno != _hex_boundary_lineno(tree)]
+    assert not retyped, (
+        "the boundary is retyped as a string literal at line(s) "
+        f"{retyped}; it has ONE home, `HEX_BOUNDARY`, and every site builder "
+        "names it rather than copying it")
+
+
+def _hex_boundary_lineno(tree) -> int:
+    """The line the constant is declared on — the one legal literal."""
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Assign) and any(
+                isinstance(t, ast.Name) and t.id == "HEX_BOUNDARY"
+                for t in node.targets):
+            return node.value.lineno
+    raise AssertionError("pin_class declares no HEX_BOUNDARY constant")
+
+
+def test_the_real_corpus_carries_nothing_the_boundary_reclassifies():
+    """§ 2.5's claim, re-measured rather than carried: the fix moves no number
+    in this repository's own report because no committed artifact carries an
+    over-long hexadecimal value under a vocabulary key. A number that moves
+    would be a finding, and this is where the next reader learns it did not."""
+    repo, report = _real_report()
+    long_hex = re.compile(
+        r'(?<![A-Za-z0-9_])"?(' + "|".join(
+            re.escape(k) for k in sorted(pc.PIN_KEY_VOCABULARY,
+                                         key=len, reverse=True))
+        + r')"?\s*:\s*"?([0-9a-fA-F]{41,})')
+    offenders = []
+    for path in pc.committed_paths(repo, report.rev):
+        if not path.endswith(pc.SCAN_SUFFIXES):
+            continue
+        if not pc.path_matches(path, pc.SCAN_ROOTS):
+            continue
+        if pc.non_member_reason(path) is not None:
+            continue
+        text = pc.committed_text(repo, report.rev, path)
+        if text is None:
+            continue
+        for n, line in enumerate(text.splitlines(), start=1):
+            m = long_hex.search(line)
+            if m:
+                offenders.append(f"{path}:{n} ({m.group(1)}) -> {m.group(2)}")
+    assert not offenders, (
+        "committed artifact(s) now carry an over-long hexadecimal value under "
+        "a pin key. Before this change each produced a FABRICATED forty-"
+        "character pin; now each is an undeclared non-commit value, which is "
+        "the honest reading and a real finding to resolve:\n  "
+        + "\n  ".join(offenders))

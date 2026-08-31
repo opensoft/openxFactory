@@ -15,13 +15,20 @@ one internally-staffed domain sandbox), so this job meters TWO tenants. The
 count is derived from the records it is given, never asserted, for the same
 reason the policy's own `tenant_count` is recomputed from `cohort.members`.
 
-THE FIGURES (§7.2, ruled 2026-08-27):
+THE FIGURES (§7.2, ruled 2026-08-27; the two amounts RE-RULED 2026-08-28):
 
-* $150 per calendar month per tenant — METERED AND ALERTED ONLY. There is no
+* $40 per calendar month per tenant — METERED AND ALERTED ONLY. There is no
   per-tenant hard stop at this ring; Fork 1 Option C defers the durable
-  synchronous counter (task 6.1.5), and recording $150 as hard would be false.
-* $750 per calendar month for the provider project — HARD at the provider,
-  with the provider's own native notifications at 50% ($375) and 80% ($600).
+  synchronous counter (task 6.1.5), and recording $40 as hard would be false.
+* $100 per calendar month for the provider project — HARD at the provider,
+  with the provider's own native notifications at 50% ($50) and 80% ($80).
+
+The 2026-08-28 re-ruling moved the project cap from $750 to $100 — the $750
+was a ceiling sized with headroom, and $100 is actual expected monthly spend —
+and the per-tenant budget followed it from $150 to $40, because a metered
+budget sitting above the hard cap is meaningless. Two tenants x $40 = $80,
+under the cap. Nothing else in §7.2 moved: the per-session ceilings are still
+900 s / 300 units / $3.00.
 
 THE MARKS AND WHERE EACH ONE GOES. Both figures are evaluated at the ruled 50%
 and 80% marks and at the full budget; what differs is which channel each
@@ -40,7 +47,7 @@ cost-triggered kill  n/a      `gh issue create` on the doc-health pattern
 
 The two tenant sub-budget marks are RECORDED AND NOT PAGED deliberately. §7.4
 rules the gh-issue channel to fire "on a per-tenant metered crossing of
-$150/month or any cost-triggered session kill", and firing at 50% as well
+$40/month or any cost-triggered session kill", and firing at 50% as well
 would be a trigger nobody ratified. They are still computed, because they are
 the telemetry ROLLBACK-C's `cost_concern` judgment is read off, and a number
 with no reader is the `budget_envelopes: {}` artifact this org has already been
@@ -77,12 +84,15 @@ from .spend import SessionSpendRecord
 # --------------------------------------------------------------------------- #
 # The ruled budgets (§7.2) and marks
 # --------------------------------------------------------------------------- #
-#: $150 per calendar month, per tenant. Metered and alerted only.
-TENANT_MONTHLY_BUDGET_USD_CENTS = 15_000
+#: $40 per calendar month, per tenant. Metered and alerted only.
+#: RE-RULED 2026-08-28 (was $150), following the project cap down.
+TENANT_MONTHLY_BUDGET_USD_CENTS = 4_000
 
-#: $750 per calendar month for the dedicated provider project. Hard at the
+#: $100 per calendar month for the dedicated provider project. Hard at the
 #: provider — this module observes it, the provider enforces it.
-PROJECT_MONTHLY_CAP_USD_CENTS = 75_000
+#: RE-RULED 2026-08-28 (was $750): re-sized from a headroom ceiling to the
+#: ring's actual expected monthly spend.
+PROJECT_MONTHLY_CAP_USD_CENTS = 10_000
 
 #: The ruled notification marks, plus the budget itself.
 THRESHOLD_MARKS_PCT = (50, 80, 100)

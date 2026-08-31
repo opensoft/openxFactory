@@ -10,28 +10,312 @@ its own.
 from __future__ import annotations
 
 import re
+import sys
 from datetime import date
 
 from . import CRITICAL, ERROR, FAMILY_IDS, Finding, SEVERITY_RANK
 
+# A free-text ranked-plan field: everything up to the closing `"`, with `\"`
+# and `\\` admitted inside it. The naive `[^"]*` this replaces closed the field
+# on the FIRST `"` and so could not read back a row it had itself emitted —
+# any finding whose rule or action text contains a double quote. Such a row was
+# emitted by `plan_line`, never matched by `PLAN_RE`, and silently dropped from
+# every `--previous-report` comparison, which makes a persistent finding read as
+# a new regression on the next run and hides a contested finding's disappearance
+# from `uncited_resolutions`.
+#
+# THIS ALREADY FIRED IN PRODUCTION, and the family it fired for is NOT the one a
+# reader would guess. The generator is `semantic.py`'s contradiction arm, which
+# wraps a corpus excerpt in curly quotes —
+# `rule = f"[id={pid}] confidence={confidence} “{excerpt}”"` — so a raw `"`
+# inside the excerpt lands inside the field. `health/reports/2026-07-14.md:267`
+# carries one: a `contested` `semantic-contradiction` finding on
+# `openxFactory:docs/xfactory-domain-factory-model.md` whose excerpt quotes
+# `"In this domain, customer Hermes is Managed System or Tenant Hermes."`. On
+# 2026-07-15 that finding VANISHED — and the 18 uncited-resolution errors that
+# run raised did not include it, because the 07-14 row had never parsed into the
+# contested set. The citation requirement simply did not apply to it.
+#
+# The modified-block-currency arms are the OTHER exposure — `{title!r}` switches
+# to DOUBLE quotes when a requirement title contains an apostrophe — but that is
+# a latent one: that family has emitted no row at all in the 27 dated reports
+# written to date. Named here so a reader does not go looking for the fired case
+# there.
+#
+# THE REPAIR IS FORWARD-ONLY, and deliberately so. The 07-14 row carries a RAW
+# `"` inside the field, and no parser can accept a raw `"` as field CONTENT
+# while `"` is also the delimiter — the grammar would be ambiguous. So that row
+# does not parse after this change either; what changes is that a row emitted
+# from HERE ON carries `\"` and does parse. Both parsers, old and new, accept
+# exactly the same 20,997 of the 20,999 historical rows and agree on the key of
+# every one of them (measured across `health/reports/*.md`).
+#
+# THE OTHER HISTORICAL UNPARSED ROW IS A DIFFERENT DEFECT and is NOT fixed here:
+# `health/reports/2026-07-09.md:188` writes `path=(lifecycle notebooks)`, and
+# `path=(\S+)` cannot match a path containing a space. Same regex, unrelated
+# cause, own repair — recorded so the next reader does not read this change as
+# having cleared the whole class.
+#
+# Emit and parse are now symmetric (`escape_field` / `unescape_field`).
+_FIELD = r'((?:[^"\\]|\\.)*)'
+
+# THE RANKED-PLAN PATH FIELD, and the whole of its grammar. Unlike `rule=` and
+# `action=` above, `path=` carries no delimiters: it starts after `path=` and
+# ends at the space before `rule=`, so it is exactly "one or more
+# non-whitespace characters" and can be nothing else.
+#
+# ISSUE #474, THE SIBLING OF THE QUOTING DEFECT ABOVE, AND IT ALSO FIRED. The
+# notebook-projection-drift family wrote a SYNTHETIC LABEL into the path slot —
+# `health/reports/2026-07-09.md:188` reads `path=(lifecycle notebooks)` — and
+# that space makes the row match no parser, old or new. Emitted into the
+# report, read back by nothing: absent from `regressions()` (so the finding
+# reads as NEW on the next run) and absent from the contested set (so
+# `uncited_resolutions` cannot notice it vanish). Harmless in that instance
+# (a warning, not contested) and not harmless as a mechanism.
+#
+# THE REPAIR IS AT THE EMIT SIDE, NOT IN THE GRAMMAR. Quoting `path=` the way
+# #472 quoted `rule=` would reshape all 20,999 ranked-plan rows written to date
+# and buy nothing: no legitimate value for this field contains whitespace. A
+# path is a repository-relative file path — every tracked file in every one of
+# the twelve checkouts in the workspace is whitespace-free, measured — and a
+# finding about something that is not one file names it with a slug. So
+# `plan_line` REFUSES a path this pattern cannot read, and the one label that
+# violated it became a real path (`families.fam_notebook_projection_drift`).
+#
+# ONE PATTERN, TWO USES, so the guard and the grammar cannot drift apart: the
+# regex below interpolates it, and `plan_line`'s guard fullmatches it.
+_PATH = r"\S+"
+_PATH_RE = re.compile(_PATH)
+
 PLAN_RE = re.compile(
-    r"^- severity=(\w+) family=([\w-]+) repo=(\S+) path=(\S+) "
-    r'rule="([^"]*)" action="([^"]*)"(?: class="([\w-]+)")?'
-    r'(?: disposer="([^"]*)")?$')
+    r"^- severity=(\w+) family=([\w-]+) repo=(\S+) path=(" + _PATH + r") "
+    r'rule="' + _FIELD + r'" action="' + _FIELD + r'"'
+    r'(?: class="([\w-]+)")?'
+    r'(?: disposer="' + _FIELD + r'")?$')
+
+# A line that CLAIMS to be a ranked-plan row. `parse_previous` judges a line by
+# this prefix before it reports the line as unreadable, so the report's prose,
+# its per-family bullets, and its tables are never mistaken for broken grammar.
+PLAN_ROW_PREFIX = "- severity="
+
+# Fixed, greppable, on stderr — the convention `ideation_readiness`'s
+# ROOT_FALLBACK_MARKER already sets for a diagnostic a run must be searchable
+# for after the fact.
+#
+# THE SUMMARY MARKER IS NOT A SUPERSTRING OF THE ROW MARKER, deliberately. The
+# first spelling of it was `[ranked-plan] unparsed rows: N`, which contains
+# `[ranked-plan] unparsed row` — so `grep -c` for the row marker counted N+1
+# and the diagnostic lied about its own subject. `test_the_two_unparsed_markers
+# _are_countable_apart` pins the disjointness.
+UNPARSED_PLAN_ROW_MARKER = "[ranked-plan] unparsed row"
+UNPARSED_PLAN_ROW_TOTAL_MARKER = "[ranked-plan] unparsed-row total"
+
+# A path `plan_line` had to repair to keep the row readable (see `plan_line`).
+SANITIZED_PATH_MARKER = "[ranked-plan] sanitized path"
+
+# What a whitespace run in a path becomes, and what an empty path becomes.
+_WHITESPACE_RUN = re.compile(r"\s+")
+EMPTY_PATH_PLACEHOLDER = "(empty-path)"
 
 
-def plan_line(f: Finding) -> str:
+def sanitize_path(path: object) -> str:
+    """A ranked-plan path that `PLAN_RE` can read, from one that it cannot.
+
+    DETERMINISTIC, so the repaired key is STABLE across runs: the same bad
+    path sanitizes to the same string every night, which is what lets the
+    finding participate in the regression comparison at all instead of
+    flickering. Each whitespace RUN collapses to a single `_` (so
+    `docs/Meeting  Notes.md` and `docs/Meeting\tNotes.md` agree), and only a
+    genuinely EMPTY path — which has no run to collapse — becomes
+    `EMPTY_PATH_PLACEHOLDER`, rather than an empty field the parser would also
+    reject. One rule and one exception; an all-whitespace path is one run and
+    collapses to `_` like any other.
+    """
+    text = path if isinstance(path, str) else str(path)
+    return _WHITESPACE_RUN.sub("_", text) or EMPTY_PATH_PLACEHOLDER
+
+
+def escape_field(value: str) -> str:
+    """Make `value` safe between the `"` delimiters of a ranked-plan field.
+
+    BYTE-IDENTICAL for any value containing neither `"` nor `\\`, so the escape
+    is invisible in the nightly report diff.
+
+    THE ONE ACCEPTED REGRESSION IN READING OLD REPORTS, stated because it is
+    unavoidable rather than overlooked: a row written by the PRE-ESCAPE emitter
+    whose rule, action, or disposer text ENDS with a literal `\\` now parses as
+    an escaped closing quote and the row is silently dropped. `PLAN_RE` cannot
+    tell that row from a new-emitter row, and no reading of the old grammar
+    distinguishes them, so no parser can be compatible with both. Measured
+    before accepting it: ZERO such rows exist across the 20,999 ranked-plan rows
+    in `health/reports/`, and none of those rows contains a backslash at all.
+    """
+    return value.replace("\\", "\\\\").replace('"', '\\"')
+
+
+def unescape_field(value: str) -> str:
+    """Inverse of `escape_field` over a `_FIELD` capture.
+
+    NEW-EMITTER OUTPUT ONLY. It strips EVERY backslash it does not find doubled,
+    so over a field captured from a pre-escape report it corrupts rather than
+    round-trips: a legacy `C:\\temp\\x` reads back as `C:tempx`. That is
+    inconsequential today — no production caller unescapes a field at all
+    (`parse_previous` reads only severity, family, repo, path, and class) — and
+    it is the reason this is a separate function instead of something
+    `parse_previous` applies on everyone's behalf. A future caller that must
+    read field TEXT out of an archived report needs a version-aware reader, not
+    this one.
+    """
+    return re.sub(r"\\(.)", r"\1", value)
+
+
+def plan_line(f: Finding, *, strict: bool = False) -> str:
+    r"""Render one ranked-plan row, REPAIRING a path the grammar cannot read.
+
+    ISSUE #474. A path carrying whitespace produces a row `PLAN_RE` cannot read
+    back, and the old behaviour was to write it anyway: the report looked
+    complete, and the row quietly took no part in any `--previous-report`
+    comparison from then on. It took a year and an adversarial review to notice
+    the one instance.
+
+    NORMALIZE AND CONTINUE, WHICH IS WHAT THE PRECEDENT ACTUALLY DOES. An
+    earlier draft of this raised unconditionally and cited `recorded_rel` for
+    it; that citation was wrong, and the review of PR #477 caught it —
+    `recorded_rel` REPAIRS the spelling of a recorded path and carries on
+    precisely so a reader is never stopped by an alphabet. The stakes here make
+    that the right shape rather than merely the consistent one: the path slot
+    is fed from `corpus.iter_doc_paths`, which rglobs every `.md` in the
+    checkout, so a governance file named `docs/Meeting Notes 2026.md` is enough
+    to reach this code. Raising would abort `render()` BEFORE `--report-out` is
+    written — the nightly's `Run doc-health suite` step has no
+    `continue-on-error`, so there would be no report and no artifact at all
+    until somebody renamed the file, and the run after that would baseline
+    against a stale report. A repaired row that participates beats a whole
+    report that does not exist.
+
+    SO THE DEFAULT SANITIZES AND SAYS SO: each whitespace run becomes `_`, the
+    row is written, and ONE line goes to stderr behind `SANITIZED_PATH_MARKER`
+    naming the family, the repo, and both spellings. The repair is
+    deterministic, so the key is stable run to run and the finding is
+    comparable rather than dropped.
+
+    `strict=True` RAISES INSTEAD, and is how the tests assert the rule. Nothing
+    in production passes it: the authoring-time net is
+    `test_no_family_writes_a_whitespace_bearing_path_literal` (static, in the
+    pull request that would introduce the defect) plus the runtime value pin in
+    `test_notebook_projection_drift`. Those catch a FAMILY that spells a bad
+    path; the sanitizer catches DATA that carries one, which no test can
+    forbid because the corpus is not ours to name.
+
+    NOT GUARDED HERE: `repo=`, which shares the `\S+` shape. It is a checkout
+    directory name and has never been anything but `[A-Za-z]+`, and the
+    general net for a defect in ANY field is the other half of this change —
+    `parse_previous` now REPORTS the rows it cannot read, so the next one
+    surfaces on the first run rather than the hundredth.
+    """
+    path = f.path
+    if not isinstance(path, str) or not _PATH_RE.fullmatch(path):
+        if strict:
+            raise ValueError(
+                f"doc-health family {f.family!r} (repo {f.repo!r}) built a "
+                f"finding whose ranked-plan path the report grammar cannot "
+                f"read back: {f.path!r}. The `path=` field is unquoted and "
+                f"ends at the space before `rule=`, so it must be one or more "
+                f"NON-WHITESPACE characters. Name a real repository-relative "
+                f"path, or — if the finding is not about one file — a "
+                f"whitespace-free slug. A prose label in the path slot is "
+                f"emitted into the report and read back by nothing (issue "
+                f"#474; the live case was `path=(lifecycle notebooks)`).")
+        path = sanitize_path(path)
+        print(f"{SANITIZED_PATH_MARKER}: {f.family} {f.repo} {f.path!r} -> "
+              f"{path!r}", file=sys.stderr)
     line = (f"- severity={f.severity} family={f.family} repo={f.repo} "
-            f"path={f.path} rule=\"{f.rule}\" action=\"{f.action}\" "
+            f"path={path} rule=\"{escape_field(f.rule)}\" "
+            f"action=\"{escape_field(f.action)}\" "
             f"class=\"{f.resolution}\"")
     if f.disposer:
-        line += f" disposer=\"{f.disposer}\""
+        line += f" disposer=\"{escape_field(f.disposer)}\""
     return line
 
 
-def parse_previous(text: str):
+def unparsed_plan_rows(text: str) -> list[tuple[int, str]]:
+    """`(line number, line)` for every ranked-plan row the grammar rejects.
+
+    A line counts as a ranked-plan row when it starts with `PLAN_ROW_PREFIX`,
+    so nothing else in the report can be reported as broken grammar. Over
+    `health/reports/` today this returns exactly two rows across 27 reports:
+    the raw-`"` row #472 recorded as unfixable, and the `(lifecycle notebooks)`
+    row #474 fixes at its source.
+    """
+    return [(n, line) for n, line in enumerate(text.splitlines(), 1)
+            if line.startswith(PLAN_ROW_PREFIX) and not PLAN_RE.match(line)]
+
+
+def _announce_unparsed_plan_rows(rows: list[tuple[int, str]]) -> None:
+    """Say which rows of the previous report took no part in the comparison.
+
+    stderr, not the rendered report: this is a fact about READING a prior
+    artifact, not a finding about the corpus, and the run that discovers it is
+    not the run that can fix it.
+    """
+    for lineno, line in rows:
+        print(f"{UNPARSED_PLAN_ROW_MARKER}: line {lineno}: {line}",
+              file=sys.stderr)
+    print(f"{UNPARSED_PLAN_ROW_TOTAL_MARKER}: {len(rows)} ranked-plan row(s) "
+          f"in the previous report matched no parser and therefore took no "
+          f"part in the regression or uncited-resolution comparison",
+          file=sys.stderr)
+
+
+# The family `uncited_resolutions` itself emits. Not a member of `FAMILY_IDS`
+# / `families.FAMILIES` — doc-health.md's "Check Families" table runs exactly
+# twenty-two named families over the corpus, and this is not one of them. It
+# is the ENFORCEMENT of the contested-finding rule (doc-health spec
+# "Requirement: Finding severity and regression handling", scenario "A
+# contested finding is resolved") for THOSE families, stamped
+# `resolution="contested"` below because the two-value taxonomy has no third
+# option and an uncited-resolution finding plainly is not a mechanical
+# `auto-fixable` defect.
+#
+# ISSUE #515: that `contested` stamp must NOT make `parse_previous` fold a
+# vanished uncited-resolution LINE into `previous_contested`, or the finding
+# audits its own disappearance forever. The ORIGINAL finding's key (e.g.
+# `(location-conformance, alpha, docs/reg.md)`) already carries the citation
+# obligation under its own family's line — that is what this rule exists to
+# police. The DERIVED echo's key
+# (`(uncited-resolution, alpha, docs/reg.md)`) names no corpus state a human
+# ever deliberately set; it exists only to demand a citation for the
+# original's disappearance, and once emitted it has done its job — there is
+# no second citation to give for an accountability marker resolving itself.
+# Treating it as its own contested subject produced exactly the loop the
+# nightly of 2026-08-30 observed: 25 of 41 `uncited-resolution` errors were
+# the 25 `uncited-resolution` findings of the 2026-08-26 baseline, echoing
+# themselves, with no document behind any of them.
+UNCITED_RESOLUTION_FAMILY = "uncited-resolution"
+
+
+def parse_previous(text: str, *, announce=_announce_unparsed_plan_rows):
     """(error_keys, contested_keys) from a prior report's ranked plan.
-    Reports predating resolution classes yield an empty contested set."""
+    Reports predating resolution classes yield an empty contested set.
+
+    UNREADABLE ROWS ARE REPORTED, NOT DROPPED (issue #474). This used to
+    `continue` past any line `PLAN_RE` rejected, which is right for the 200-odd
+    prose lines of a report and catastrophic for a ranked-plan row: a grammar
+    defect cost the comparison a finding and said nothing, so both instances
+    found so far were found by reading the regex, not by running it. Rows that
+    DO parse are unaffected — the returned key sets are byte-for-byte what they
+    always were — and `announce=None` silences the diagnostic for a caller that
+    wants the sets alone.
+
+    A `uncited-resolution` LINE NEVER JOINS `contested` (issue #515), even
+    though it is written with `class="contested"`. See `UNCITED_RESOLUTION_
+    FAMILY` above for why: it is the enforcement of the rule for OTHER
+    families, not a subject of the rule itself, and folding it in here is
+    the entire mechanism of the infinite echo. It still joins `keys` like any
+    other `error`/`critical` row, so a genuinely persisting uncited-resolution
+    finding is recognized as persisting rather than misread as a fresh
+    regression.
+    """
     keys, contested = set(), set()
     for line in text.splitlines():
         m = PLAN_RE.match(line)
@@ -40,8 +324,15 @@ def parse_previous(text: str):
         key = (m.group(2), m.group(3), m.group(4))
         if m.group(1) in (CRITICAL, ERROR):
             keys.add(key)
-        if m.group(7) == "contested":
+        if m.group(7) == "contested" and m.group(2) != UNCITED_RESOLUTION_FAMILY:
             contested.add(key)
+    # ONE SOURCE FOR "WHICH ROWS ARE UNREADABLE": `unparsed_plan_rows`, not a
+    # second copy of its predicate inlined in the loop above. The inlined copy
+    # was the first draft and is exactly the drift this whole change is about —
+    # two readers of one grammar that can disagree.
+    unparsed = unparsed_plan_rows(text)
+    if unparsed and announce is not None:
+        announce(unparsed)
     return keys, contested
 
 
@@ -51,7 +342,13 @@ def uncited_resolutions(findings: list[Finding], previous_contested,
                         ) -> list[Finding]:
     """Contested findings from the previous report that vanished without a
     recorded disposition become new error findings (doc-health contract:
-    contested resolutions require a cited change or human disposition)."""
+    contested resolutions require a cited change or human disposition).
+
+    `previous_contested` never carries a `uncited-resolution` key — see
+    `UNCITED_RESOLUTION_FAMILY` and `parse_previous` — so this can iterate it
+    with no self-exclusion of its own and still never re-audit its own prior
+    output (issue #515).
+    """
     current = {f.match_key() for f in findings}
     out = []
     for family, repo, path in sorted(previous_contested or ()):
@@ -62,7 +359,7 @@ def uncited_resolutions(findings: list[Finding], previous_contested,
         if (family, repo, path) in dispositions:
             continue
         out.append(Finding(
-            ERROR, "uncited-resolution", repo, path,
+            ERROR, UNCITED_RESOLUTION_FAMILY, repo, path,
             f"contested {family} finding resolved without citation",
             "record a disposition (health/dispositions.yaml) citing the "
             "OpenSpec change or human decision, or restore the prior state",

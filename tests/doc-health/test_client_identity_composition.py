@@ -180,6 +180,15 @@ def test_undeclared_cross_domain_reach_fires_and_names_both_sides():
     assert "exchange" in finding.rule
     assert finding.repo == "alphaxFactory", "the reaching domain owns the finding"
     assert "betaxfactory" in finding.rule, "the domain that DOES publish the entry"
+    # PIN (issue #485). This finding's action was unpinned entirely — the
+    # shared-identity-material class above was pinned 2026-08-27, but the
+    # second finding class this family raises had no assertion on
+    # `.action` anywhere in this suite, so the string at
+    # `client_identity_composition.py:256` could be mutated with zero test
+    # failures. A fresh literal, typed independently of the source.
+    assert finding.action == (
+        "publish an entry for the reached surface, or narrow the reach "
+        "to the surfaces this domain holds")
 
 
 def test_reach_requires_another_domain_to_declare_the_surface():

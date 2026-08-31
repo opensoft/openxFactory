@@ -1,0 +1,35 @@
+# WARNING (expect: consumer-access-mode-vocabulary). A requirement declaring an
+# `access_mode` outside the declared vocabulary — here a SPELLING VARIANT of one
+# of its members.
+#
+# THIS IS THE FIELD THE LIFT TURNS ON, AND IT WAS UNREADABLE BY CONSTRUCTION. The
+# schema types it as an unconstrained string and one line of code compared it to
+# one exact spelling, so a security seat drove two lifts through it on the
+# capability's only red proof of serving-tier separation: two ABSENT modes
+# compared equal (`None == None`) and a variant spelling compared equal to
+# itself. Both "equal, and not dispatch-only"; both granted.
+#
+# UNREADABLE NOW MEANS UNAVAILABLE, never satisfied. That is the rule this estate
+# already learned from a fail-open drift check whose byte comparison skipped
+# whenever the digest field was absent: an entry that cannot answer the question
+# is not a matching entry.
+#
+# The `enum` itself is a narrowing of an existing field, so it phases like the
+# rest — a value outside the vocabulary warns here and is refused at the major.
+schema_version: 1
+kind: xfactory_credential_requirements
+domain:
+  id: example-projection
+  product_name: Example Projection Lane
+requirements:
+  - id: projection_variant_spelling
+    purpose: >-
+      A requirement whose access mode is a spelling variant — close enough to
+      read past, and exactly equal to itself.
+    access_mode: Workload_Identity
+    minimum_scopes:
+      - projection:write
+    requires_domain_approval: true
+    requires_human_approval: false
+    max_grant_minutes: 60
+    audit_required: true

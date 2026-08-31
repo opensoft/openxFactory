@@ -38,7 +38,9 @@ def content() -> ModuleType:
         pytest.fail(f"planned exact-object resolver is missing: {exc}")
 
 
-def _commit_file(repo: Path, path: str, body: bytes, *, executable: bool = False) -> str:
+def _commit_file(
+    repo: Path, path: str, body: bytes, *, executable: bool = False
+) -> str:
     target = repo / path
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_bytes(body)
@@ -71,6 +73,107 @@ def test_resolves_exact_commit_tree_and_blob_not_worktree(
     )
 
 
+def test_rejects_object_available_only_through_inherited_alternate_directory(
+    content: ModuleType,
+    git_repo: Path,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    alternate = tmp_path / "alternate"
+    alternate.mkdir()
+    _git(alternate, "init", "--quiet")
+    _git(alternate, "config", "user.name", "Hermes Contract Tests")
+    _git(alternate, "config", "user.email", "hermes-contracts@example.invalid")
+    alternate_commit = _commit_file(
+        alternate, "alternate-only.txt", b"alternate object\n"
+    )
+    monkeypatch.setenv(
+        "GIT_ALTERNATE_OBJECT_DIRECTORIES", str(alternate / ".git" / "objects")
+    )
+
+    with pytest.raises(content.ContentResolutionError) as caught:
+        content.resolve_git_object(git_repo, alternate_commit, "alternate-only.txt")
+
+    assert caught.value.code == content.CONTENT_DEPENDENCY
+
+
+def test_resolves_objects_from_a_legitimate_linked_worktree(
+    content: ModuleType, git_repo: Path, tmp_path: Path
+) -> None:
+    commit = _commit_file(git_repo, "linked-only.txt", b"linked worktree object\n")
+    linked_worktree = tmp_path / "linked-worktree"
+    _git(
+        git_repo,
+        "worktree",
+        "add",
+        "--quiet",
+        "--detach",
+        str(linked_worktree),
+        commit,
+    )
+
+    resolved = content.resolve_git_object(linked_worktree, commit, "linked-only.txt")
+
+    assert resolved.data == b"linked worktree object\n"
+    assert resolved.commit_oid == commit
+
+
+def test_sanitized_git_environment_removes_redirects_and_command_scope_config(
+    content: ModuleType, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    inherited_overrides = {
+        "GIT_COMMON_DIR": "hostile-common-dir",
+        "GIT_DIR": "hostile-git-dir",
+        "GIT_WORK_TREE": "hostile-work-tree",
+        "GIT_INDEX_FILE": "hostile-index",
+        "GIT_OBJECT_DIRECTORY": "hostile-objects",
+        "GIT_ALTERNATE_OBJECT_DIRECTORIES": "hostile-alternates",
+        "GIT_REPLACE_REF_BASE": "refs/hostile/replace/",
+        "GIT_CONFIG_PARAMETERS": "'core.bare=true'",
+        "GIT_CONFIG_COUNT": "2",
+        "GIT_CONFIG_KEY_0": "core.bare",
+        "GIT_CONFIG_VALUE_0": "true",
+        "GIT_CONFIG_KEY_37": "core.worktree",
+        "GIT_CONFIG_VALUE_37": "hostile-work-tree",
+    }
+    for name, value in inherited_overrides.items():
+        monkeypatch.setenv(name, value)
+    monkeypatch.setenv("GIT_CONFIG_GLOBAL", "hostile-global-config")
+    monkeypatch.setenv("GIT_CONFIG_SYSTEM", "hostile-system-config")
+    monkeypatch.setenv("GIT_CONFIG_NOSYSTEM", "0")
+
+    environment = content._sanitized_git_environment()
+
+    assert inherited_overrides.keys().isdisjoint(environment)
+    assert environment["GIT_CONFIG_GLOBAL"] == os.devnull
+    assert environment["GIT_CONFIG_SYSTEM"] == os.devnull
+    assert environment["GIT_CONFIG_NOSYSTEM"] == "1"
+    assert environment["GIT_NO_REPLACE_OBJECTS"] == "1"
+
+
+def test_authority_git_subprocess_ignores_inherited_config_files(
+    git_repo: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    global_config = tmp_path / "hostile-global.gitconfig"
+    system_config = tmp_path / "hostile-system.gitconfig"
+    config = '[url "file:///hostile-authority.git"]\n\tinsteadOf = authority-origin\n'
+    global_config.write_text(config, encoding="utf-8")
+    system_config.write_text(config, encoding="utf-8")
+    monkeypatch.setenv("GIT_CONFIG_GLOBAL", str(global_config))
+    monkeypatch.setenv("GIT_CONFIG_SYSTEM", str(system_config))
+    monkeypatch.setenv("GIT_CONFIG_NOSYSTEM", "0")
+
+    authority_repository = importlib.import_module(
+        "scripts.intent_compliance.authority_repository"
+    )
+    completed = authority_repository._git(
+        git_repo, "config", "--get-regexp", r"^url\..*\.insteadof$"
+    )
+
+    assert completed.returncode == 1
+    assert completed.stdout == ""
+
+
 @pytest.mark.parametrize(
     "path",
     ["", "/absolute", "../outside", "a/../b", "./a", "a/./b", "a//b", "a\\b"],
@@ -79,7 +182,9 @@ def test_rejects_noncanonical_repository_paths(content: ModuleType, path: str) -
     _assert_dependency_error(content, lambda: content.normalize_repository_path(path))
 
 
-@pytest.mark.parametrize("executable, expected_mode", [(False, "100644"), (True, "100755")])
+@pytest.mark.parametrize(
+    "executable, expected_mode", [(False, "100644"), (True, "100755")]
+)
 def test_preserves_supported_regular_file_modes(
     content: ModuleType, git_repo: Path, executable: bool, expected_mode: str
 ) -> None:
@@ -113,7 +218,8 @@ def test_rejects_tree_symlink_and_submodule_objects(
     _git(git_repo, "commit", "--quiet", "-m", "add symlink")
     symlink_commit = _git(git_repo, "rev-parse", "HEAD")
     _assert_dependency_error(
-        content, lambda: content.resolve_git_object(git_repo, symlink_commit, "link.txt")
+        content,
+        lambda: content.resolve_git_object(git_repo, symlink_commit, "link.txt"),
     )
 
     child = tmp_path / "child"
@@ -137,8 +243,82 @@ def test_rejects_tree_symlink_and_submodule_objects(
     )
 
 
-def test_digest_is_sha256_of_exact_raw_blob(content: ModuleType, git_repo: Path) -> None:
+def test_digest_is_sha256_of_exact_raw_blob(
+    content: ModuleType, git_repo: Path
+) -> None:
     body = b"raw bytes: \x00\xff\r\n"
     commit = _commit_file(git_repo, "raw.bin", body)
     resolved = content.resolve_git_object(git_repo, commit, "raw.bin")
     assert resolved.digest == f"sha256:{hashlib.sha256(body).hexdigest()}"
+
+
+# --- the declared condition vocabulary (fix-content-resolution-conflation) ----
+#
+# Fifteen refusals reach `resolve_git_object` and exactly ONE of them is a fact
+# about the tree that was read: `ls-tree` resolved the commit and its tree, and
+# the path was not in it.  A caller that reduces a resolution to presence or to
+# a blob identity may act on that one and must refuse the other fourteen, so
+# the resolver declares which it observed.
+#
+# The distinction is carried by the declared `code` and NEVER by the message:
+# a message is prose, prose is edited for clarity, and a near-miss match would
+# silently reclassify a safety refusal as release data (OD-4).
+
+
+def test_the_default_code_is_unchanged_and_the_absence_code_is_distinct(
+    content: ModuleType,
+) -> None:
+    assert content.CONTENT_DEPENDENCY == "HRC-CONTENT-DEPENDENCY"
+    assert content.CONTENT_PATH_ABSENT != content.CONTENT_DEPENDENCY
+    # Additive: the default every existing raise site takes is untouched, so no
+    # caller that never read a code observes any change.
+    assert content.ContentResolutionError("x").code == content.CONTENT_DEPENDENCY
+
+
+def test_only_the_absent_path_refusal_declares_the_absence_code(
+    content: ModuleType, git_repo: Path, tmp_path: Path
+) -> None:
+    """One data answer, fourteen non-answers, told apart by a declared code.
+
+    Every failing condition here is driven by ARGUMENT or by committed data
+    rather than by a real timeout (Q4): a genuine 30-second store timeout is
+    slow and flaky, and the requirement is about the DISTINCTION rather than
+    about any one way of failing.
+    """
+
+    commit = _commit_file(git_repo, "nested/file.txt", b"nested\n")
+    os.symlink("nested/file.txt", git_repo / "link.txt")
+    _git(git_repo, "add", "link.txt")
+    _git(git_repo, "commit", "--quiet", "-m", "add symlink")
+    symlink_commit = _git(git_repo, "rev-parse", "HEAD")
+
+    with pytest.raises(content.ContentResolutionError) as absent:
+        content.resolve_git_object(git_repo, commit, "missing.txt")
+    assert absent.value.code == content.CONTENT_PATH_ABSENT
+
+    others = {
+        "the commit is not in the store": lambda: content.resolve_git_object(
+            git_repo, "0" * 40, "nested/file.txt"
+        ),
+        "the repository cannot be opened": lambda: content.resolve_git_object(
+            tmp_path / "not-a-repository", commit, "nested/file.txt"
+        ),
+        "the revision is not an object id": lambda: content.resolve_git_object(
+            git_repo, "HEAD", "nested/file.txt"
+        ),
+        "the path is not canonical": lambda: content.resolve_git_object(
+            git_repo, commit, "nested/../nested/file.txt"
+        ),
+        "the path is a directory": lambda: content.resolve_git_object(
+            git_repo, commit, "nested"
+        ),
+        "the path is a symbolic link": lambda: content.resolve_git_object(
+            git_repo, symlink_commit, "link.txt"
+        ),
+    }
+    for condition, operation in others.items():
+        with pytest.raises(content.ContentResolutionError) as caught:
+            operation()
+        assert caught.value.exit_code == 2, condition
+        assert caught.value.code == content.CONTENT_DEPENDENCY, condition
+        assert caught.value.code != content.CONTENT_PATH_ABSENT, condition

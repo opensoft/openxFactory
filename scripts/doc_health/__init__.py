@@ -20,9 +20,16 @@ WARNING = "warning"
 INFO = "info"
 SEVERITY_RANK = {CRITICAL: 0, ERROR: 1, WARNING: 2, INFO: 3}
 
+# `projection` is the NINTH standing (declare-generated-projection-status,
+# 2026-08-28). It is not a synonym for "generated": a `record` is generated
+# too, and stays a record. The distinguishing property is RE-DERIVATION over
+# the same path — a projection is rewritten in place from a declared source of
+# truth, so it has no captured state to be immutable against, while a dated
+# one-shot capture does and keeps `record`.
 TAXONOMY = {
     "brainstorm", "staged", "draft", "ratified",
     "standard", "superseded", "retired", "record",
+    "projection",
 }
 
 # Contract defaults (openxFactory doc-health "Aging Threshold Defaults").

@@ -25,19 +25,22 @@ aggregation repo; this document and the `doc-health` spec own the contract.
 
 ## Check Families
 
-Every run executes nineteen families over every family repo the aggregation
+Every run executes twenty-two families over every family repo the aggregation
 repo pins, after running each repo's own validators as a preflight. A
 family that cannot run is reported as skipped, never silently omitted.
 
 **The table below is knowingly incomplete.** It carries the original twelve
 plus the eighteenth, `promotion-fidelity`, whose spec delta is one of the
 deltas that raised the count above. Families 13 through 17, and the
-nineteenth (`release-inventory-drift`), each reached the `doc-health` spec by
-delta and never reached this table — which is also why the two paragraphs
-after it still describe families 13 and 14 by the archived changes that added
-them rather than by a table row. Repairing that backlog belongs to a change
-that owns those families; it is a named standing gap, recorded in the
-archived `add-promotion-fidelity-check` §5.2, not an oversight here.
+nineteenth through twenty-second (`release-inventory-drift`,
+`duplicate-packet`, `family-enumeration`, `modified-block-currency`), each
+reached the `doc-health` spec by delta and never reached this table — which
+is also why the two paragraphs after it still describe families 13 and 14,
+and the notes further below describe families 20 through 22, by the archived
+changes that added them rather than by a table row. Repairing that backlog
+belongs to a change that owns those families; it is a named standing gap,
+recorded in the archived `add-promotion-fidelity-check` §5.2, not an
+oversight here.
 
 | # | Family | What it verifies |
 | --- | --- | --- |
@@ -78,6 +81,37 @@ for the owned check scope. Its table registration never landed either, and
 routing metadata stays descriptive coordination — never lifecycle,
 ownership, or approval authority (see
 [Document Lifecycle](document-lifecycle.md#cross-factory-ideation-routing)).
+
+The archived
+[`2026-08-25-add-duplicate-packet-check`](../openspec/changes/archive/2026-08-25-add-duplicate-packet-check/specs/doc-health/spec.md)
+change added a twentieth deterministic family, `duplicate-packet`, comparing
+every repository's archived spec deltas against each other for the same
+ruling recorded twice, per the canon `Requirement: One ruling, one discharge,
+across archived packets` in
+[`openspec/specs/doc-health/spec.md`](../openspec/specs/doc-health/spec.md).
+
+The archived
+[`2026-08-27-add-family-enumeration-check`](../openspec/changes/archive/2026-08-27-add-family-enumeration-check/specs/doc-health/spec.md)
+change added a twenty-first deterministic family, `family-enumeration`,
+verifying this very section's family count and roster against the code
+registry rather than trusting either on prose alone, per the canon
+`Requirement: The family enumeration is derived, not restated on trust` in
+[`openspec/specs/doc-health/spec.md`](../openspec/specs/doc-health/spec.md).
+
+The archived
+[`2026-08-27-add-modified-block-currency-check`](../openspec/changes/archive/2026-08-27-add-modified-block-currency-check/specs/doc-health/spec.md)
+change added a twenty-second deterministic family, `modified-block-currency`
+(ADVISORY at launch), comparing an active change's `MODIFIED Requirements`
+blocks against the promoted requirements they replace across three arms plus
+a marker-defect class, per the canon `Requirement: Currency of an active
+change's MODIFIED requirement blocks` in
+[`openspec/specs/doc-health/spec.md`](../openspec/specs/doc-health/spec.md);
+the archived
+[`2026-08-28-add-unclassified-finding-class`](../openspec/changes/archive/2026-08-28-add-unclassified-finding-class/specs/doc-health/spec.md)
+change then added a fifth `unplaced` class for findings its own arms/
+marker-defect map cannot place, per the canon `Requirement: A
+modified-block-currency finding its own class map cannot place is itself a
+finding`.
 
 ## Finding Severities
 

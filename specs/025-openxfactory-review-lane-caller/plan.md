@@ -140,12 +140,23 @@ with so the convergence is a lookup rather than an archaeology exercise.
 
 codexFactory's envelope schema requires `candidates` with `minItems: 1`, and
 `envelope.py` mirrors that at runtime (`config.candidates must be a non-empty
-list`). openxFactory has no ratified candidate class:
+list`). openxFactory has **no council-defined OPERABLE candidate class**:
 `add-substantive-review-lane` task 3.2 owes a `gate_rules_council` record
-defining them, and it does not exist. There is therefore no legal empty
+defining one, and none has been defined. There is therefore no legal empty
 envelope, and a placeholder candidate would be inventing the enrollment that
 task 3.2 exists to grant. The caller ships no envelope instance and evaluates
 no tier-1 decision.
+
+**Updated 2026-08-28, and the premise is narrower than it first read.** A
+`gate_rules_council` record for this repository now exists — it convened on
+2026-08-28 and **refused** the one class proposed to it, unanimously 5/5, because
+a class over `openspec/changes/**` can never convene (its admitted surface lies
+wholly inside the canonical `GATE_INTEGRITY_FLOOR`). A class that can never
+convene is not an operable class, so the record defines none and D3 stands
+unchanged. What this decision rests on is the absence of an operable class, never
+the absence of a record. Record: `opensoft/codexFactory` →
+`hermes/domain/review-councils/records/2026-08-28-gate-rules-openxfactory-substantive-classes.md`.
+Task 3.2 remains OPEN.
 
 What is left is not nothing, which is the point: the floor is real, it is
 openxFactory-specific, it is already committed in codexFactory, and no code in

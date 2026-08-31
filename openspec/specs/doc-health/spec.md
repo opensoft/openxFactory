@@ -288,14 +288,33 @@ and stages, it never approves or merges another factory's content.
 ### Requirement: Proposal supporting-document integrity checks
 The deterministic doc-health pass SHALL validate proposal supporting-document
 lifecycle integrity. It SHALL report staged material that already cites an
-active or archived proposal, active supporting-document folders with missing or
+ACTIVE proposal, active supporting-document folders with missing or
 invalid manifests, `Status: staged` documents under active proposal support,
 archive manifests whose bundle or file hashes do not verify, and supporting
 bundles stored under canonical `openspec/specs/`.
 
+A citation of an ARCHIVED change SHALL NOT raise the staged-material finding.
+That finding's remedy is to move the material into the cited proposal's
+supporting-docs folder, and an archived packet is closed: the move names an act
+nobody can perform, so the finding would report a defect with no conforming
+resolution. Archived-ness SHALL be read from the change tree rather than
+presumed, and the union of active and archived ids that other families require
+— a ratification citation may name an archived change, and must — SHALL remain
+available to them unchanged.
+
 #### Scenario: Proposed material remains in staging
-- **WHEN** a staged document names an active or archived OpenSpec change as its exit or proposal
+- **WHEN** a staged document names an ACTIVE OpenSpec change as its exit or proposal
 - **THEN** doc-health MUST report that document as stale staged state
+
+#### Scenario: Staged material cites a change that has archived
+- **WHEN** a staged document's only cited exit or proposal names a change that has archived
+- **THEN** doc-health MUST NOT report that document as stale staged state
+- **AND** the id MUST remain resolvable to the families that read the union of active and archived changes
+
+#### Scenario: Staged material cites both an archived and an active change
+- **WHEN** a staged document names both an archived change and an active one as its exits
+- **THEN** doc-health MUST report the document against the ACTIVE change
+- **AND** the finding MUST NOT name the archived change, whose supporting-docs folder cannot receive the material
 
 #### Scenario: An active proposal lacks its manifest
 - **WHEN** an active change contains `supporting-docs/` without a valid `manifest.yaml`
@@ -2032,4 +2051,158 @@ untouched and unrestated.
 - **WHEN** a non-commit value stands under a pin-shaped key in a file the declared pin class excludes as a non-member
 - **THEN** no sentinel finding is emitted for it, because the vocabulary check runs over the pin class's own inventory and inherits its declared exclusions with their stated reasons
 - **AND** the exclusion MUST remain a declaration with a reason rather than becoming an unstated boundary of this check
+
+### Requirement: A modified-block-currency finding its own class map cannot place is itself a finding
+The modified-block-currency family SHALL emit ONE ADDITIONAL `warning` finding
+per run for each DISTINCT SHAPE of rule text its own class map does not place,
+naming how many of that run's findings carry that shape and, verbatim, the rule
+text of the first of them in the family's own report order, and carrying that
+first finding's repository and delta path. Where the map places every finding
+the family emits, no such finding SHALL be emitted.
+
+Two unplaced findings SHALL be treated as ONE SHAPE where their rule texts are
+equal after EVERY FIELD THE ARM'S TEMPLATE INTERPOLATES has been replaced by a
+fixed placeholder — quoted spans, runs of digits, repository-relative paths,
+change identifiers, unit-kind lists, and any other value the arm substitutes
+into its fixed prose — so that one shape is one template and one remedy.
+
+The family SHALL derive that mask from its own arm templates: an arm's FIXED
+PROSE is the shape and every value the arm interpolates into it is not, so the
+rule cannot drift from the arms it describes.
+
+The finding's action line SHALL name both remedies and where the first is
+applied: "extend the class map in `scripts/doc_health/modified_block_currency.py`,
+or fix the drifted rule text the finding names".
+
+The finding SHALL itself be placed by the class map, in a FIFTH class of the
+family's own registry carrying the `warning` band and that action line, so that
+it is never counted by the residual it reports.
+
+The pattern that places that class SHALL be anchored at the start of the rule
+text, this finding carrying a quoted rule text that may itself begin in the shape
+of an arm's.
+
+The family's residual row SHALL continue to render whenever its count is
+nonzero.
+
+The family SHALL remain absent from `FAMILY_RESOLUTION`, so that a finding
+designed to stop being emitted as soon as the map is extended is never classified
+`contested` and its disappearance is never reported as an uncited resolution.
+
+This requirement adds no deterministic check family: the finding is emitted by
+the modified-block-currency family under its own id, and the enumeration and its
+numerals in the "Deterministic check families" requirement are untouched and
+unrestated.
+
+#### Scenario: Every finding the family emits is placed by its map
+- **WHEN** a run of the modified-block-currency family emits findings and the class map places every one of them
+- **THEN** no additional finding MUST be emitted, the map and the arms agreeing being the state this requirement exists to leave alone
+- **AND** the family's rendered class counts MUST still sum to the rows the report prints for it
+
+#### Scenario: A rule text the class map does not place
+- **WHEN** a run of the modified-block-currency family emits one or more findings whose rule text no pattern of its class map matches
+- **THEN** the run MUST emit exactly one additional `warning` finding for each distinct shape among them, naming the number of that run's findings carrying that shape and, verbatim, the rule text of the first of them in the family's own report order
+- **AND** each such finding MUST carry the repository and delta path of that first finding, and the action line this requirement states
+- **AND** each such finding MUST itself be placed by the map into the fifth class, so that it is never counted by the residual it reports and the rendered counts still sum to the rows
+
+#### Scenario: Two unplaced findings from one arm template
+- **WHEN** two unplaced findings come from the SAME arm template and differ only in the values that template interpolates — a different quoted title, a different promoted-spec path, a different unit-kind list, different change identifiers
+- **THEN** ONE additional finding MUST be emitted for both, naming the count two, one drifted arm template being one remedy
+- **AND** two unplaced findings from DIFFERENT arm templates — differing in the fixed prose the mask leaves standing — MUST yield two additional findings, being two remedies
+
+#### Scenario: The quoted rule text begins in the shape of an arm
+- **WHEN** an unplaced rule text itself begins with the phrase an arm's rule texts begin with, and this finding quotes it
+- **THEN** this finding MUST be placed in the fifth class and MUST NOT be placed under the class its quotation resembles
+- **AND** the unplaced finding it names MUST still be counted by the residual row, the two being counted apart
+
+#### Scenario: The warning is worked from the ranked plan
+- **WHEN** a report is rendered for a run that emitted the additional finding
+- **THEN** the finding MUST appear in the ranked plan as a ready-to-stage work item stating its severity, repository, path and action, on the same terms as every other finding
+- **AND** the family's residual row MUST still render in the family's own report block, the row and the finding being two readings of one fact rather than alternatives
+
+#### Scenario: The class map grows the pattern the drift named
+- **WHEN** the class map is extended with a pattern that places the rule text the finding named, and the family is run again over the same tree
+- **THEN** the additional finding MUST NOT be emitted, and the residual row MUST NOT render
+- **AND** the disappearance MUST NOT be reported as an uncited resolution, the family being deliberately absent from `FAMILY_RESOLUTION` and its findings therefore never classified `contested`
+
+### Requirement: A pin site is built only from a value that is a whole object name
+The pin verification SHALL create a derivation-pin site only where the matched
+value is a WHOLE object name, and MUST NOT manufacture a pin from a prefix of a
+longer hexadecimal run.
+
+A PIN THE ARTIFACT DOES NOT CARRY IS THE ONE VALUE THIS VERIFICATION MUST NEVER
+PRODUCE. Everything else the class reports is a reading of committed bytes: a
+pin is reachable, orphaned, lost, uncovered, a legal non-pin or an undeclared
+one, and in every case the value under judgment is the value the artifact
+holds. A truncated prefix is not. It is a string the verification composed out
+of the first forty characters of something longer, and every downstream verdict
+about it is a verdict about a value nobody wrote — which is a worse failure than
+any of the outcomes the class already names, because the reader cannot find the
+subject of the finding by opening the file.
+
+BOTH WAYS IT GOES WRONG ARE WORTH FAILING ON, and they fail in opposite
+directions. The fabricated prefix is overwhelmingly likely to name no object at
+all, so the run reports an ORPHANED PIN on an artifact whose recorded value is
+intact — sending a reader to retention, to a superseding record, or to a
+re-derivation, for a defect that does not exist. And it may instead COLLIDE: a
+forty-character prefix that happens to name a real commit in this repository
+reports as REACHABLE, and the verification then certifies a provenance claim it
+never read. A check that can certify a claim it did not read is worse than a
+check that abstains.
+
+THE GUARD ALREADY EXISTS IN THE SAME MODULE AND WAS NOT CARRIED TO THE REGEXES
+THAT BUILD SITES. The standalone-object-name scanner carries an explicit
+hexadecimal boundary on both sides and a comment stating that a longer digest
+would otherwise yield spurious pins. The obligation here is that EVERY
+expression that builds a pin site carries the same boundary — the field forms,
+the vocabulary sweep, and the prose members' own patterns alike. A guard stated
+in one place and absent from the four that matter is not coverage; it is a
+comment.
+
+THE OBLIGATION IS ON THE VALUE, NOT ON A LIST OF LENGTHS. The rule is not "reject
+sixty-four characters": it is that a value is a pin only if the WHOLE value is
+an object name, so a forty-one-character run, a sixty-four-character digest and
+a forty-hex token abutting further hexadecimal text are all refused by the same
+rule rather than by an enumeration of the widths somebody thought of. And a
+repository whose object names are a different width is accommodated by widening
+what counts as an object name, never by loosening the boundary — the boundary is
+what makes "whole" mean anything.
+
+THE VALUE IS NOT DISCARDED, IT IS HANDED ON WHOLE. A value refused as a pin is
+still a value standing under a declared pin key, and it therefore reaches the
+non-commit classification exactly as any other non-commit value does, where the
+promoted classification requirement already decides it — a legal non-pin where
+the vocabulary declares it, a defect naming the artifact, the key and THE WHOLE
+VALUE where it does not. Refusing to build the site is what makes that
+classification the only reading of the value, rather than a second reading
+racing a fabricated first one.
+
+NOTHING ABOUT A CONFORMING PIN MOVES. A value that IS a whole object name builds
+the same site it builds today, against the same declared class, the same key
+set, the same serializations, the same ref set and the same verdicts. This
+requirement changes what is REFUSED, and refuses nothing that was ever a pin.
+
+THIS ADDS NO DETERMINISTIC CHECK FAMILY, for the reasons the verification that
+carries it already states in its own promoted requirements, and the family
+enumeration and its numerals are untouched and unrestated.
+
+#### Scenario: A digest longer than an object name stands under a declared pin key
+- **WHEN** a swept artifact carries, under a declared pin key, a hexadecimal value longer than a whole object name — a sixty-four-character digest, or any run of hexadecimal characters that does not end where an object name would
+- **THEN** the verification MUST NOT build a pin site from any prefix of it, and MUST NOT report that prefix as reachable, orphaned, lost or retained
+- **AND** the whole value MUST reach the non-commit classification unshortened, where an undeclared value is reported as a defect naming the artifact, the key and the value as written
+
+#### Scenario: The fabricated prefix would have resolved
+- **WHEN** the first forty characters of such a value happen to name an object this repository holds and a ref reaches
+- **THEN** the verification MUST still refuse to build a site, because a coincidental resolution is not a reading of the artifact's claim
+- **AND** it MUST NOT report the artifact's provenance claim as verified on the strength of an object the artifact does not name
+
+#### Scenario: A whole object name is unaffected
+- **WHEN** the value under a declared pin key is a whole object name — quoted or bare, in a mapping field, in compact serialization, or inside the sentence a prose class member declares its own pattern for
+- **THEN** the site is built exactly as before, and the ref set consulted, the verdicts reached and the reported outcomes are unchanged
+- **AND** no finding is introduced by this requirement for any value that was a pin before it
+
+#### Scenario: The boundary is stated once and applied everywhere a site is built
+- **WHEN** the module carries an expression that builds a pin site — a field form, a vocabulary sweep, or a class member's declared prose pattern
+- **THEN** every such expression MUST carry the whole-object-name boundary, and a new one added later MUST carry it too
+- **AND** a boundary present on the module's standalone scanner MUST NOT be read as covering the expressions that build sites, because the site builders are where a fabricated pin is produced
 

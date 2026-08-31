@@ -389,6 +389,35 @@ Active proposals promoted from staging:
   and 3 (the `OpenXPKI-Install` creation, moving the QA deployment
   topology in per R2 while image custody stays in `opensoft/Opensoft-Tenant`)
   remain, tracked as named successors on the change.
+- [add-worker-enrollment-broker](../openspec/changes/add-worker-enrollment-broker/proposal.md)
+  — raised, RATIFIED and phase-1 REALIZED 2026-07-26 (the contract family
+  registered at `contract-v1.29`) as the FULL promotion of the
+  `worker-enrollment-broker` staged topic, whose row and detail section leave
+  [staging/INDEX.md](staging/INDEX.md) with this pointer. It ADDS the neutral
+  `worker-enrollment` capability — one enrollment point serving two estates
+  (Intune fleet hosts authenticating per-host, volunteer workstations as the
+  engineer under device code), renewable LEASES in place of permanent
+  registrations, minting authority held by the broker alone (registration and
+  remove tokens both, so no administration-tier App key ever reaches a host),
+  a minimum-app-version floor enforced fail-closed at renewal, estate-split
+  runner packaging (fleet hard-pinned by manifest rollout, temp self-updating),
+  temp segregation behind a first-class trust tier, revocation as refusal, and
+  audit records whose token values are unrepresentable by shape. Seven schemas
+  shipped with 11 valid and 27 intended-invalid examples and the canonical
+  `scripts/validate-worker-enrollment.py`. The topic's ten open questions were
+  carried into `design.md` as decisions D1–D10 and ALL TEN ADOPTED AS DECIDED
+  by Brett's approval on 2026-07-26 — D1 settled the broker's home (a new
+  Opsx-owned repo, container app on the existing platform subscription,
+  deliberately NOT the QA AKS cluster), so none of the ten is a live gate. Owns
+  the former `worker-enrollment-broker.md` fragment under `supporting-docs/`.
+  The heartbeat/readiness lease-state projection is deliberately excluded and
+  left to a coordinated three-places change. The three realizations are named
+  successors rather than this change's surface, and that is where the remaining
+  work sits: the broker service itself is MERGED (its PRs #1 2026-07-27 and #2
+  2026-07-28), while Omnigent-Install **PR #40** (the enrollment-broker client,
+  leases, fail-closed floor) and OpsxFactory
+  `add-worker-enrollment-broker-service` **tasks 8.1/8.2** (Brett's
+  hosting-target and deployment-credential gates) are open.
 - [add-consent-instrument](../openspec/changes/archive/2026-08-06-add-consent-instrument/proposal.md)
   — raised 2026-08-03 (ratified same day; archived 2026-08-06 at contract-v1.30) as the full promotion of the
   `consent-instrument-contract` staged topic (both docs moved to

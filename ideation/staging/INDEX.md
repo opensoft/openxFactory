@@ -46,25 +46,24 @@ document-lifecycle spec is a candidate for the next lifecycle change.
 | [hermes-stack-topology-per-client](#hermes-stack-topology-per-client) | ADDED neutral `request-intake-and-admission` + MODIFIED topology contract (per-client stack-vs-layer rule made explicit) | 1 | Ready to iterate — cardinality verified against the runtime spec and the live stack; RESOLVED 2026-08-08: each client gets its own stack (client = Tenant), so onboarding is a stack install; the ledgerx fixture + its bound HCS-002-S03 scenario are stale and owe an OpenSpec correction. BLOCKED on the (a) realize-intake-at-Tenant-Hermes vs (b) stand-up-an-Opsx-stack fork; cross-repo input 2026-08-09: OpsxFactory staged its governance trilogy (tenant-request-intake → hermes-approval-envelopes → tenant-operating-postures) designing the fork's intake/approval side; update 2026-08-10: trilogy exit 1 promoted and RATIFIED as OpsxFactory `add-request-intake-boundary` (intake realized at the Tenant layer — fork branch (a) side), Speckit implementation in flight |
 | [mobile-dashboard-surface](#mobile-dashboard-surface) | `avatar-first-ui` realization (possibly a small ADDED requirement) | 1 | Ready to iterate — the layer defaults are already ratified; main forks: shell platform vs the frozen AVC ports, sequencing vs `avatar-pilot-hardening` |
 | [workstation-app-shell](#workstation-app-shell) | `avatar-first-ui` realization (possibly a small ADDED requirement for the workstation shell) + MODIFIED `ideation-dashboard` (the local serve becomes app-managed) | 1 | Ready to iterate — layer defaults already ratified and the motivating defect verified; load-bearing content is the Worker Host App boundary (two OS principals, one shell) and codexFactory's missing subject surface; 5 open questions, the shell-platform fork blocks implementation |
-| [signed-execution-chain](#signed-execution-chain) | ADDED a NEUTRAL signed-execution-chain family in openxFactory (the chain from a wallet-presented ratification through atomic enrollment, the traveling contract, harness + runner attestations, the signed PR-open decision, council review of the signed brief, and a CHAIN-VALIDATING MERGE GATE) — composing with `openxwallet`, `trust-anchor`, `identity-brokering` and `roles-authority-model`; plus the ON-CHAIN anchoring/consent layer Brett ruled 2026-08-27 | 2 | Registered 2026-08-27 from Brett's expansion ruling. **A broken chain is a FRAUD SIGNAL and there is no merge** — the chain is a PRECONDITION the omnigent layer enforces (it refuses to build an unverified chain), not an audit trail written afterwards. TIER MODEL forced by a ratified constraint: authority credentials stay HUMAN-HELD because omnigent workers carry `access_secrets: false`, so runners sign only EPHEMERAL PER-TASK attestations issued by the harness controller under its own cert — and the KEY NEVER ENTERS THE WORKER (the controller signs on the runner's request; `access_secrets: false` holds in every configuration and a short lifetime does not make a key non-secret, so "issued to the runner" would breach the same constraint the split honours — Q7 asks which signing mechanism). Tier 1 answers *who permitted this*, tier 2 *what actually ran*, and neither may stand in for the other. ON CHAIN: **salted keyed commitments** (never plain hashes — EDPB Guidelines 02/2025 v2.0 hold that a hash of personal data IS personal data, so erasure is by SALT DESTRUCTION), commitments to consent-log **checkpoints** (consent STATE stays in the governed permissioned layer, which is publicly unlinkable), and anchors — **raw PHI never**, on HIPAA grounds a public chain is append-only, world-readable and permanent; records stay in encrypted off-chain custody with patient-held keys, and hospitals/insurers verify through presentations. **The evidence plane is OFF chain and IS the record** — a signed RFC-6962-style transparency log; anchoring only makes it externally undeniable. DOMAIN MAPPING is the neutral-layer proof — MedxFactory→**HealthLinc** (treatment plan ratified→simulated→reviewed→"merge" = pushed to the patient app or printed as signed orders) and LedgerxFactory→**LedgerLinc** (analysis/review plans, "merge" = published to the ledger app) run the SAME chain, differing in payload and regulator, not in shape. Sequences BEHIND four ACTIVE changes (not staged topics): `add-wallet-carried-review-authority` (S2 issuer anchor REALIZED — the direct predecessor and link 1's instrument), `add-trust-anchor` (certificates + chain custody, realized at contract-v1.37), `add-identity-brokering` (who a signer is), `implement-openxpki-install-repo` (the CA that issues the controller cert). 7 open questions, none blocks tranche one (Q3/Q6 gate tranche 3, Q7 gates tranche 2). Q3 chain selection is **ANSWERED BY A VENDORED STUDY** (`chain-selection-study.md`, 2026-08-27, sourced + date-checked): transparency log as the evidence plane, **Bitcoin (OpenTimestamps aggregation) primary anchor**, **Kaspa optional secondary** under three conditions (archival node, inclusion proofs retained AT ANCHOR TIME, corroborating-only — Kaspa L1 **prunes tx data after ~3 days**), consent logic in the permissioned layer with anchored state roots, **NOT smart contracts on the anchoring chain and NOT Kasplex/Igra in 2026**; a chain-agnostic MULTI-ANCHOR RECEIPT is the 10-year exit path. Brett's three priors came back **QUALIFIED** (Kaspa "non-captured"), **REFUTED for anchoring** ("Bitcoin too expensive" — aggregation makes it ~$0 marginal), **CONFIRMED** (KAS sub-penny fees). **Q6 is the one needing a ruling**: the ruling's "patients put PHI portions on chain" is read as COMMITMENTS, a narrowing the topic raises rather than assumes. Q7 (added from the review round) asks where an attestation signature physically happens. EXIT: tranche 1 (signed ratification + atomic enrollment + the transparency log) is composable TODAY; tranche 2 attestation needs the omnigent layer + the PKI plane; tranche 3 on-chain anchoring needs rulings on Q3 and Q6, not more analysis |
+| [signed-execution-chain](#signed-execution-chain) | ADDED a NEUTRAL signed-execution-chain family in openxFactory (the chain from a wallet-presented ratification through atomic enrollment, the traveling contract, harness + runner attestations, the signed PR-open decision, council review of the signed brief, and a CHAIN-VALIDATING MERGE GATE) — composing with `openxwallet`, `trust-anchor`, `identity-brokering` and `roles-authority-model`; plus the ON-CHAIN anchoring/consent layer Brett ruled 2026-08-27 | 2 | Registered 2026-08-27 from Brett's expansion ruling. **A broken chain is a FRAUD SIGNAL and there is no merge** — the chain is a PRECONDITION the omnigent layer enforces (it refuses to build an unverified chain), not an audit trail written afterwards. TIER MODEL forced by a ratified constraint: authority credentials stay HUMAN-HELD because omnigent workers carry `access_secrets: false`, so runners sign only EPHEMERAL PER-TASK attestations issued by the harness controller under its own cert — and the KEY NEVER ENTERS THE WORKER (the controller signs on the runner's request; `access_secrets: false` holds in every configuration and a short lifetime does not make a key non-secret, so "issued to the runner" would breach the same constraint the split honours — Q7 asked which signing mechanism and was RULED 2026-08-29: remote signing served by the harness controller). Tier 1 answers *who permitted this*, tier 2 *what actually ran*, and neither may stand in for the other. ON CHAIN: **salted keyed commitments** (never plain hashes — EDPB Guidelines 02/2025 v2.0 hold that a hash of personal data IS personal data, so erasure is by SALT DESTRUCTION), commitments to consent-log **checkpoints** (consent STATE stays in the governed permissioned layer, which is publicly unlinkable), and anchors — **raw PHI never**, on HIPAA grounds a public chain is append-only, world-readable and permanent; records stay in encrypted off-chain custody with patient-held keys, and hospitals/insurers verify through presentations. **The evidence plane is OFF chain and IS the record** — a signed RFC-6962-style transparency log; anchoring only makes it externally undeniable. DOMAIN MAPPING is the neutral-layer proof — MedxFactory→**HealthLinc** (treatment plan ratified→simulated→reviewed→"merge" = pushed to the patient app or printed as signed orders) and LedgerxFactory→**LedgerLinc** (analysis/review plans, "merge" = published to the ledger app) run the SAME chain, differing in payload and regulator, not in shape. Sequences BEHIND four ACTIVE changes (not staged topics): `add-wallet-carried-review-authority` (S2 issuer anchor REALIZED — the direct predecessor and link 1's instrument), `add-trust-anchor` (certificates + chain custody, realized at contract-v1.37), `add-identity-brokering` (who a signer is), `implement-openxpki-install-repo` (the CA that issues the controller cert). **ALL SEVEN QUESTIONS RULED 2026-08-29 by Brett Heap in a clarify sitting** — Q1/Q2/Q4/Q7 as recommended, Q6 CONFIRMED as recommended, and **TWO DIVERGENCES (Q3, Q5)**. Every gate they held is OPEN: Q3/Q6 gated tranche 3, Q7 gated tranche 2's contract text, tranche 1 was never gated. Q3's research input was a **VENDORED STUDY** (`chain-selection-study.md`, 2026-08-27, sourced + date-checked) recommending transparency log as the evidence plane, **Bitcoin (OpenTimestamps aggregation) primary anchor**, **Kaspa optional secondary** under three conditions (archival node, inclusion proofs retained AT ANCHOR TIME, corroborating-only — Kaspa L1 **prunes tx data after ~3 days**), consent logic in the permissioned layer with anchored state roots, **NOT smart contracts on the anchoring chain and NOT Kasplex/Igra in 2026**; a chain-agnostic MULTI-ANCHOR RECEIPT is the 10-year exit path. **Q3's RULING DIVERGES from that ordering, in TWO ROUNDS**: round 1, verbatim — "lets [sic] use Kaspa as primary and bitcoin as secondary" — then, after the cost facts (Kaspa ~$0.000001/tx; Bitcoin-via-OTS $0 marginal per item on public calendars, ~$2.1k/yr self-run hourly; raw BTC tx $0.12–0.36 with spike history; a cheaper sidechain adds federation trust and saves nothing), round 2: **"Bitcoin-via-OTS on everything"** — BOTH witnesses on EVERY anchored item, **Kaspa FIRST** as the primary/OPERATIONAL witness under the three unchanged conditions and **Bitcoin batched via OTS as the DURABILITY witness — TEN-YEAR CLAIMS CITE BITCOIN** — with no selectivity and no third chain; receipts stay chain-agnostic multi-anchor carrying BOTH proofs. "Primary" is order of arrival, never evidentiary weight. The vendored study is **NOT edited** — a research record rewritten to agree with a later ruling stops being evidence. Brett's three priors came back **QUALIFIED** (Kaspa "non-captured"), **REFUTED for anchoring** ("Bitcoin too expensive" — aggregation makes it ~$0 marginal), **CONFIRMED** (KAS sub-penny fees). **Q6 CONFIRMED 2026-08-29 and it is the ruling's OPERATIVE FORM**: "patients put PHI portions on chain" means SALTED KEYED COMMITMENTS — a verifiable public handle, the portion itself disclosed off-chain under an anchored consent checkpoint, salt destruction as the erasure mechanism; literal raw/encrypted/plain-hashed PHI on chain stays REFUSED and **no later change re-litigates it**. **Q7 RULED as recommended**: REMOTE SIGNING SERVED BY THE HARNESS CONTROLLER, the runner's signing REQUEST recorded beside the signature it received, the controller corroborating the payload against its own link-4 setup attestation; an HSM is a later hardening of the same shape. **Q5 is the second divergence — RULED AGAINST THE RECOMMENDATION**: "allow contract code later" — evidence-only remains today's posture and no tranche now planned puts contract code on any chain, but the change MUST NOT constitutionalize "no contract code ever" nor gate a future adoption on the recommendation's stated trigger; the study's EDPB/HIPAA posture, unaudited-stack risk and irrevocable-deployment class are RECORDED AS ADVISORY CONTEXT for that future change, not as a gate on it. EXIT: tranche 1 (signed ratification + atomic enrollment + the transparency log) is composable TODAY and UNGATED; tranche 2's question-gate is open and what remains is machinery (the omnigent layer + the PKI plane); tranche 3's two question-gates are open and it builds to the RULED configuration, waiting on the PKI plane rather than on a ruling. **The topic is FULLY RULED and EXIT 1 IS RAISED** as the active change `add-signed-execution-chain` (links 1–3 + the transparency log + the short-chain gate, nine ADDED requirements), amended to all seven rulings. Drafting was NOT green-lit in the sitting and was GREEN-LIT SEPARATELY by Brett Heap on 2026-08-29 in session, in the same ruling that collapsed the two parallel packets onto `#495` and ADOPTED NARROWING A — tier 1 is RATIFYING authority, agent-held REVIEW wallets stay lawful. The packet was RATIFIED by him the same day (`review/ratification-2026-08-29.md`); ratification authorizes tranche one ONLY and performs no realization |
 | [avatar-pilot-hardening](#avatar-pilot-hardening) | ADDED `avatar-pilot-hardening` | 1 | Blocked — last successor; gated on `qualify-avatar-live-voice` + the client lab landing, plus its own open forks |
-| [ideation-action-plane](#ideation-action-plane) | ADDED `ideation-intent-plane`; MODIFIED `document-lifecycle` (gates happen on main); fragment 2: MODIFIED `lifecycle-notebook-projection` (Drive membrane) | 2 | Exit 1 raised at this gate (`add-ideation-intent-plane`); fragment 2 blocked on the Drive↔NLM markdown-ingestion spike |
-| [client-credential-escrow-registry](#client-credential-escrow-registry) | MODIFIED `credential-contracts` (escrow registry + break-glass custody; possibly a sixth record kind); touches `client-infrastructure-liaison` | 1 | Ready to iterate — design inputs settled with Brett 2026-07-19; 6 open questions (delta shape + break-glass topology hardest); first consumer live (opensoft self-client QA install) |
-| [client-layer-tuning](#client-layer-tuning) | MODIFIED client scaffold (`roles/` + FAO + `cost_reporting_steward`); ADDED client content schemas + `validate-client-content`; wizard verb in hermes-install | 1 | **COMPLETE 2026-07-24** — all three exits ratified, realized, archived (2a contract-v1.17 + canonical spec `client-layer-tuning`; 2b codexFactory defaults; 2c wizard + unified client seeding). The opensoft tenant is tuned and seeded live (phase-2 evidence note). Primary doc + drafts retained as provenance |
-| [context-compression-runtime](#context-compression-runtime) | ADDED `context-compression-runtime` (worker-lane compression stage + RAM-only local-store rule + upstream-exclusion obligation + three-tier audit model + per-domain egress-capture knob) | 1 | Ready to iterate — design + headroom v0.32.0 source audit locked with Brett 2026-07-25/26 (RAM-only CCR, audit moved to envelope/transcript/egress tiers); exit gated on the codexFactory-lane pilot in Omnigent-Install producing measured savings |
-| [dashboard-repo-selector](#dashboard-repo-selector) | MODIFIED `ideation-dashboard` (repo selector, (repository, ref) snapshot source, runtime fetch + baked fallback, refresh affordances, dispatchable publication) + ADDED snapshot-index contract; later ADDED runtime capability (neutral install-shipped ideation surface, DTN path) | 1 | **Proposed 2026-07-26** as `add-dashboard-repo-selector` (exit 1) — twelve decisions locked with Brett 2026-07-25/26 (runtime plane is the goal, planes separate, per-repo snapshots + index, sparse wheels, bake the app not the snapshot, baked snapshot demoted to fallback, two refresh bindings, off-cycle publication is CI-only, (repository, ref) keying, displayed freshness, branch snapshots never published); neutral-vs-override fork + data-source ratification deliberately open; exit 2 (runtime plane) still staged |
+| [ideation-action-plane](#ideation-action-plane) | ADDED `ideation-intent-plane`; MODIFIED `document-lifecycle` (gates happen on main); fragment 2: MODIFIED `lifecycle-notebook-projection` (Drive membrane) | 2 | Exit 1 raised at this gate (`add-ideation-intent-plane`); fragment 2 blocked on the Drive↔NLM markdown-ingestion spike; **RECONCILED 2026-08-28** (`settle-aging-staging-topics`): fragment 1's exit `add-ideation-intent-plane` is ACTIVE — ratified 2026-07-23, 13 of 17 tasks ticked — not merely "raised"; fragment 2 (`drive-membrane.md`) is DEFERRED WITH ITS GATE NAMED, the unowned Drive↔NLM markdown-ingestion spike. A deferral is a schedule, not a standing — the folder keeps ageing on fragment 1's account too |
+| [client-credential-escrow-registry](#client-credential-escrow-registry) | ADDED to `credential-contracts` — SPLIT INTO TWO PACKETS by Brett 2026-08-28: exit 1 = the break-glass CHECKOUT path (`add-credential-escrow-checkout`, proposed 2026-08-28), exit 2 = the REGISTRY itself (`add-credential-escrow-registry`, the ruled successor: ruling C's home and grandfathered exception, inventory completeness, the readiness binding and the decryption-free lint — NO LONGER the schema, which the OD-2 veto moved into exit 1); touches `client-infrastructure-liaison` | 1 | **EXIT 1 RAISED 2026-08-28** as `add-credential-escrow-checkout`, and **RULED THE SAME DAY over PR #479**: OD-2 VETOED (ruling A's `escrow:` block and the sixth record kind `xfactory_credential_escrow_entry` come into exit 1, so its realization now owes the additive contract cut at the next additive minor, numbered at realization by merge order and not spent in the packet), OD-4 approved as authored, the rest cleared, and all five of exit 1's own open questions ruled — four on its recommendations, one against (the drill must also prove a live refusal). Delta went 7 ADDED / 28 scenarios to **9 ADDED + 1 MODIFIED / 46 scenarios**. All 6 of the topic's ORIGINAL open questions are now closed or carried as obligations: 4 ruled at the split, the master-key rotation runbook and the registry validator remaining as the successor's work rather than as questions. The topic doc stays staged for exit 2. Forcing fact re-verified at the gate: the QA install has read `execution_binding.mode: opsxfactory_executed` at `status: completed` since 2026-07-20 and `config/clients/opensoft/credentials/` does not exist |
+| [client-layer-tuning](#client-layer-tuning) | MODIFIED client scaffold (`roles/` + FAO + `cost_reporting_steward`); ADDED client content schemas + `validate-client-content`; wizard verb in hermes-install | 1 | **COMPLETE 2026-07-24** — all three exits ratified, realized, archived (2a contract-v1.17 + canonical spec `client-layer-tuning`; 2b codexFactory defaults; 2c wizard + unified client seeding). The opensoft tenant is tuned and seeded live (phase-2 evidence note). Primary doc + drafts retained as provenance; **CLOSED 2026-08-28 by `settle-aging-staging-topics`: primary doc marked `superseded`**, naming all three archived exits (openxFactory `2026-07-24-add-client-layer-tuning-contracts`, codexFactory `2026-07-24-add-client-layer-defaults`, hermes-install `2026-07-24-add-client-tuning-and-seeding` — each verified at its own tree). Folder retained as provenance |
+| [context-compression-runtime](#context-compression-runtime) | ADDED `context-compression-runtime` (worker-lane compression stage + RAM-only local-store rule + upstream-exclusion obligation + three-tier audit model + per-domain egress-capture knob) | 1 | Ready to iterate — design + headroom v0.32.0 source audit locked with Brett 2026-07-25/26 (RAM-only CCR, audit moved to envelope/transcript/egress tiers); exit gated on the codexFactory-lane pilot in Omnigent-Install producing measured savings; **DEFERRED WITH GATE NAMED 2026-08-28** (`settle-aging-staging-topics`): the proximate gate is the codexFactory-lane pilot in Omnigent-Install producing MEASURED savings, and that pilot sits behind the same worker chain as `worker-host-app` (Omnigent-Install PR #40 open since 2026-07-28 → OpsxFactory broker-service tasks 8.1/8.2, both unticked). A deferral is a schedule, not a standing — the topic keeps ageing |
+| [dashboard-repo-selector](#dashboard-repo-selector) | MODIFIED `ideation-dashboard` (repo selector, (repository, ref) snapshot source, runtime fetch + baked fallback, refresh affordances, dispatchable publication) + ADDED snapshot-index contract; later ADDED runtime capability (neutral install-shipped ideation surface, DTN path) | 1 | **Proposed 2026-07-26** as `add-dashboard-repo-selector` (exit 1) — twelve decisions locked with Brett 2026-07-25/26 (runtime plane is the goal, planes separate, per-repo snapshots + index, sparse wheels, bake the app not the snapshot, baked snapshot demoted to fallback, two refresh bindings, off-cycle publication is CI-only, (repository, ref) keying, displayed freshness, branch snapshots never published); neutral-vs-override fork + data-source ratification deliberately open; exit 2 (runtime plane) still staged; **EXIT 1 IS TAKEN — recorded 2026-08-28 by `settle-aging-staging-topics`**: `add-dashboard-repo-selector` was ratified 2026-07-29 and ARCHIVED 2026-08-01 (`openspec/changes/archive/2026-08-01-add-dashboard-repo-selector`), and the topic now carries the `Exit taken:` record that stops it ageing as unraised work. Open questions 7–9 (data-source ratification, index polling cadence, local-regenerate gating) were CLOSED by Brett's rulings of 2026-07-26 and cited in that packet's `Ratified:` line, but stood as OPEN in the fragment for a month; they are now marked closed there. **Exit 2 (runtime plane) is NOT taken and is deferred with its gate named: open question 3, what an "idea" IS as governed install content** |
 | [dashboard-project-scoping](#dashboard-project-scoping) | MODIFIED `ideation-dashboard` (create-project commission, project-scoped selection, merged cross-repo projection, per-tile repository binding); additive gate-intent / gate-action-record growth | 1 | **Decision round complete 2026-08-06** — D1–D8 locked with Brett, ZERO open questions: true MERGED all-repos view (D1), register writes via COMMISSION (D2), L3 per-tile binding PROCEEDS as its own change (D3), projects only (D4), local register dev-authoritative then derived cache under the tenant-catalog twin (D5), THREE sequenced exits (D6: `add-project-scoped-selection` → `add-project-merged-projection` → `add-project-tile-repository-binding`), register split by role (D7 — core/domains/medx-clinical/installs), repository membership MULTI-PARENT (D8, ruled during exit-1 realization — a repo may live in many projects; snapshot keeps a first-declaring PRIMARY + additive `projects` list; MedxFactory joins medx-clinical); merged-view rules D9–D11 (view-side cluster union by topic tail; composed views read-only + "open in <repo>" jump; project aggregates derived from the register). header redesign D12–D15 ("Opensoft openDox"; project dropdown with New Project first, last-used default; repo filter popover; `edit-project` membership commissions). **Exit 1 proposed, RATIFIED, and REALIZED 2026-08-06 as `add-project-scoped-selection`; exit 2 proposed 2026-08-06 as `add-project-merged-projection` (awaiting ratification); header redesign proposed 2026-08-06 as `add-opendox-project-header` (awaiting ratification)** |
 | [workbench-branch-sessions](#workbench-branch-sessions) | MODIFIED `ideation-dashboard` (branch-per-tile working state, commit-per-gate-action, session-local snapshots, PR-as-save `open-pr` verb); MODIFIED `lifecycle-notebook-projection` (per-session notebooks sync from the branch worktree; canon notebooks stay main-only) | 1 | **RATIFIED 2026-07-26** as `add-workbench-branch-sessions` (proposed and ratified the same day, after a 5-lens adversarial review and a rename-completeness audit) — TWENTY-TWO decisions (design D1-D22; D22 is the post-ratification `open-pr` push-identity ruling, 2026-07-26) and **ZERO open questions** — the change carries no parked decision; SEQUENCED strictly after `add-dashboard-repo-selector`, whose (repository, ref) seam it consumes; local plane only until intent-plane §4 |
-| [codexfactory-domain-hermes-content](#codexfactory-domain-hermes-content) | codexFactory `hermes/domain/` content (changes A + B) + Omnigent overlay extension in lockstep | 1 | **COMPLETE 2026-07-23** — both changes ratified, realized, archived: change A 2026-07-22 (roles + policies + closure + Omnigent lockstep) and change B 2026-07-23 (mixes, councils, escalation, memory, catalog); canonical spec `domain-hermes-content` carries all nine requirements. The Omnigent extension rode the `add-omnigent-domain-overlay` realization. Primary doc + openspec/ drafts retained as provenance. Change B COMPLETE — ratified + archived 2026-07-23 (`archive/2026-07-23-add-domain-hermes-councils-and-memory`) |
+| [codexfactory-domain-hermes-content](#codexfactory-domain-hermes-content) | codexFactory `hermes/domain/` content (changes A + B) + Omnigent overlay extension in lockstep | 1 | **COMPLETE 2026-07-23** — both changes ratified, realized, archived: change A 2026-07-22 (roles + policies + closure + Omnigent lockstep) and change B 2026-07-23 (mixes, councils, escalation, memory, catalog); canonical spec `domain-hermes-content` carries all nine requirements. The Omnigent extension rode the `add-omnigent-domain-overlay` realization. Primary doc + openspec/ drafts retained as provenance. Change B COMPLETE — ratified + archived 2026-07-23 (`archive/2026-07-23-add-domain-hermes-councils-and-memory`); **CLOSED 2026-08-28 by `settle-aging-staging-topics`: primary doc marked `superseded`**, naming both archived codexFactory exits (`2026-07-22-add-domain-hermes-roles-and-policies`, `2026-07-23-add-domain-hermes-councils-and-memory` — both verified at the codexFactory tree). Folder + drafts retained as provenance |
 | [github-administration-plane](#github-administration-plane) | MODIFIED `roles-authority-model` (neutral App-identity tiers); new OpsxFactory-owned `github-administration` capability | 1 | COMPLETE 2026-07-15 — both exit changes ratified, realized, archived (2026-07-14-add-github-app-identity-tiers, openxFactory; 2026-07-15-add-github-administration-workflow, OpsxFactory); live rollout done, 2026-07-10 incident closed; primary doc retained as `superseded` provenance |
-| [layer-content-materialization](#layer-content-materialization) | ADDED neutral `hermes_domain_overlay` contract + `overlay_path` (openxFactory); hermes-install seeding increment 2 (`layer_content` kernel + materialization) | 1 | **COMPLETE 2026-07-23** — both exits ratified, realized, archived: `add-hermes-domain-overlay-contract` (openxFactory, `contract-v1.15` tag verified) and `add-layer-content-materialization` (hermes-install PR #6 merged 696ec48, archived 2026-07-23; capability spec carries increments 1+2). Deferred increments 3–6 + gate wiring recorded in the capability spec; primary doc retained as provenance |
+| [layer-content-materialization](#layer-content-materialization) | ADDED neutral `hermes_domain_overlay` contract + `overlay_path` (openxFactory); hermes-install seeding increment 2 (`layer_content` kernel + materialization) | 1 | **COMPLETE 2026-07-23** — both exits ratified, realized, archived: `add-hermes-domain-overlay-contract` (openxFactory, `contract-v1.15` tag verified) and `add-layer-content-materialization` (hermes-install PR #6 merged 696ec48, archived 2026-07-23; capability spec carries increments 1+2). Deferred increments 3–6 + gate wiring recorded in the capability spec; primary doc retained as provenance; **CLOSED 2026-08-28 by `settle-aging-staging-topics`: primary doc marked `superseded`**, naming both archived exits (openxFactory `2026-07-23-add-hermes-domain-overlay-contract`, hermes-install `2026-07-23-add-layer-content-materialization` — both verified at their own trees). Folder retained as provenance |
 | [layer-vocabulary-machine-migration](#layer-vocabulary-machine-migration) | MODIFIED `layer-vocabulary` + hermes-runtime v2→next-major identifier migration + domain-stack schema major | 1 | Dormant by design — deferral artifact for `adopt-subject-tenant-domain-vocabulary` tasks 3.1–3.3 (filed 2026-07-23); rides the next major contract bundle, never causes it; Ops/Adx prose sweeps runnable earlier |
-| [medxfactory-domain-hermes-content](#medxfactory-domain-hermes-content) | MedxFactory `hermes/domain/` content (changes A + B) + Omnigent `directed_by` lockstep + overlay-manifest digest re-pin | 1 | **Change A COMPLETE 2026-07-29** — authored, ratified, realized, and archived the same day (`archive/2026-07-29-add-domain-hermes-roles-and-policies`; canonical Medx spec `domain-hermes-content`, 6 requirements): eight personas incl. the dedicated ontology-steward, eight medical policy files, the v1.15 overlay with a proven 43-item two-way `medx_owns` closure, `directed_by` on all 11 workers with the manifest re-pinned (omnigent-install fixture digest flagged stale to its own change), and the v13 ontology scaffold landed DRAFT (ruled stewardship policy, explicit content manifest incl. `domain_ontology`, canonical validators in `make validate`, readiness `domain_scaffold_required` pending Domain Hermes publication). **TOPIC COMPLETE — change B realized 2026-07-29, archived 2026-07-30** (`archive/2026-07-30-add-domain-hermes-councils-and-memory`; the canonical Medx `domain-hermes-content` spec carries all TWELVE requirements; MedxFactory is the second domain complete on BOTH layers — one params file from a deployable medical stack pending the flagged omnigent-install fixture digest refresh and the governed ontology publication: review-ensemble mixes with the stated convergence-flow boundary, MxD-MRR formalized with the ontology seats and the three-gate cross-layer flow, escalation elevation preserving the stub items, gateway-vocabulary memory boundaries, `medx_practice_catalog` with the four ruled seeds). (roster DECIDED the same day — decision round with Brett): the derived seven personas PLUS a dedicated ontology-steward (eight total; accountable ontology steward per ratified `add-domain-ontology-layer`); MxD-MRR domain-owned only; convergence flow + review mixes; content manifest declared explicitly incl. `domain_ontology`. No external gates (omnigent overlay realization archived at contract-v1.16) |
+| [medxfactory-domain-hermes-content](#medxfactory-domain-hermes-content) | MedxFactory `hermes/domain/` content (changes A + B) + Omnigent `directed_by` lockstep + overlay-manifest digest re-pin | 1 | **Change A COMPLETE 2026-07-29** — authored, ratified, realized, and archived the same day (`archive/2026-07-29-add-domain-hermes-roles-and-policies`; canonical Medx spec `domain-hermes-content`, 6 requirements): eight personas incl. the dedicated ontology-steward, eight medical policy files, the v1.15 overlay with a proven 43-item two-way `medx_owns` closure, `directed_by` on all 11 workers with the manifest re-pinned (omnigent-install fixture digest flagged stale to its own change), and the v13 ontology scaffold landed DRAFT (ruled stewardship policy, explicit content manifest incl. `domain_ontology`, canonical validators in `make validate`, readiness `domain_scaffold_required` pending Domain Hermes publication). **TOPIC COMPLETE — change B realized 2026-07-29, archived 2026-07-30** (`archive/2026-07-30-add-domain-hermes-councils-and-memory`; the canonical Medx `domain-hermes-content` spec carries all TWELVE requirements; MedxFactory is the second domain complete on BOTH layers — one params file from a deployable medical stack pending the flagged omnigent-install fixture digest refresh and the governed ontology publication: review-ensemble mixes with the stated convergence-flow boundary, MxD-MRR formalized with the ontology seats and the three-gate cross-layer flow, escalation elevation preserving the stub items, gateway-vocabulary memory boundaries, `medx_practice_catalog` with the four ruled seeds). (roster DECIDED the same day — decision round with Brett): the derived seven personas PLUS a dedicated ontology-steward (eight total; accountable ontology steward per ratified `add-domain-ontology-layer`); MxD-MRR domain-owned only; convergence flow + review mixes; content manifest declared explicitly incl. `domain_ontology`. No external gates (omnigent overlay realization archived at contract-v1.16); **CHANGE B IS ALSO COMPLETE — this row said otherwise until 2026-08-28**: `archive/2026-07-30-add-domain-hermes-councils-and-memory` was verified at the MedxFactory tree. **CLOSED 2026-08-28 by `settle-aging-staging-topics`: primary doc marked `superseded`** naming both archived exits; folder retained as provenance |
 | [proposal-origin-contract](#proposal-origin-contract) | none yet — retained rationale for a future regulated-traceability profile | 1 | Held as read-only evidence; the origin contract itself was promoted from this topic 2026-07-12 (pointer in `ideation/README.md`'s promoted list) |
-| [worker-host-app](#worker-host-app) | ADDED `worker-host-manifest` + `bench-manifest` (first-consumer drafts in Omnigent-Install, DTN path); realization app in Omnigent-Install + Intune packaging in OpsxFactory | 2 | Ready to iterate — build decision by Brett 2026-07-23; realization under way (substrate steps 1–2 merged); 7 open questions (Omni-001 admin path + SYSTEM-context WSL distro registration, runner-under-virtual-account, bench-manifest home hardest) |
-| [worker-enrollment-broker](#worker-enrollment-broker) | ADDED `worker-enrollment-broker` (neutral enrollment/lease contract); realization = standalone broker service (home DECIDED: a new Opsx-owned repo, container app on the platform subscription, NOT the QA AKS cluster) + Omnigent-Install (registration-via-broker, lease renewal) + OpsxFactory (App key, policy, temp runner group) | 1 | **Proposed 2026-07-26** as `add-worker-enrollment-broker` (exit 1) — 7 rulings locked with Brett 2026-07-26 (broker-first standalone, two auth modes, lease + fail-closed version floor, fleet hard-pin vs temp self-update, segregated temp group + trust tier) carried as decided context; all 10 open questions carried as design decisions D1–D10, and **all ten ADOPTED AS DECIDED with Brett's approval of the change on 2026-07-26** — D1 (broker home + hosting) no longer blocks the first realization; the contract (phase-1 tasks 1.1–1.10 + 1.12) is REALIZED, shipping six schemas + a canonical validator, the broker service / Omnigent-Install / OpsxFactory realizations are named successor changes, and the heartbeat/readiness projection is left to a coordinated three-places change |
+| [worker-host-app](#worker-host-app) | ADDED `worker-host-manifest` + `bench-manifest` (first-consumer drafts in Omnigent-Install, DTN path); realization app in Omnigent-Install + Intune packaging in OpsxFactory | 2 | Ready to iterate — build decision by Brett 2026-07-23; realization under way (substrate steps 1–2 merged); 7 open questions (Omni-001 admin path + SYSTEM-context WSL distro registration, runner-under-virtual-account, bench-manifest home hardest); **DEFERRED WITH GATE NAMED 2026-08-28** (`settle-aging-staging-topics`): Omnigent-Install **PR #40** (phase 3 — enrollment-broker client, leases, fail-closed floor; raised 2026-07-28, STILL OPEN) → OpsxFactory `add-worker-enrollment-broker-service` **tasks 8.1/8.2**, Brett's hosting-target and deployment-credential gates, both unticked. Upstream of all three the broker service itself is MERGED (broker PRs #1 2026-07-27, #2 2026-07-28). A deferral is a schedule, not a standing — the topic keeps ageing |
 | [session-notebook-reconciliation](#session-notebook-reconciliation) | MODIFIED `lifecycle-notebook-projection` (a fourth sync mode: reconcile the `xf-session-` namespace against live sessions, fail-closed, report-only by default) + MODIFIED `ideation-dashboard` (a third retirement route for a session that ended without one) | 1 | Ready to iterate — organized 2026-08-10 from the `session-teardown-notebook-coupling` brainstorm on the day two live orphans had to be deleted BY HAND; the five claims are settled (forward-derived detection, fail closed on incomplete knowledge, scoped to this workspace's session repositories, report-only default, `retire` never `delete`); 3 open questions, none blocking (is an orphan evidence worth an import pass; whether hand teardown should be narrowed; cadence) |
-| [subject-establishment](#subject-establishment) | ADDED neutral `subject-establishment` (two artifact kinds: neutral subject design + platform realization; provenance-graded fact set; reference-archetype lifecycle; conformance tiering; apply-and-verify-by-read-back; audit-lift mirror); DTN-017 | 1 | Ready to iterate — named by Brett 2026-07-28 from LedgerxFactory's company-provisioning work (first instantiation, in flight); **Second consumer DECIDED 2026-07-28: codexFactory new-project** (`project` is already a first-class codex subject kind; `check_profile`/`reviewer_group` are neutral-design elements wearing domain names). It surfaced the finding Ledgerx could not: for codex the DESIGNING domain and the APPLYING administrator are different factories (GitHub administration is Opsx's), so the realization artifact must be handoff-shaped — likely the same seam as `deployment-handoff-boundary`. 6 open questions; exit gated on Ledgerx reaching proposal |
+| [subject-establishment](#subject-establishment) | ADDED neutral `subject-establishment` (two artifact kinds: neutral subject design + platform realization; provenance-graded fact set; reference-archetype lifecycle; conformance tiering; apply-and-verify-by-read-back; audit-lift mirror); DTN-017 | 1 | Ready to iterate — named by Brett 2026-07-28 from LedgerxFactory's company-provisioning work (first instantiation, in flight); **Second consumer DECIDED 2026-07-28: codexFactory new-project** (`project` is already a first-class codex subject kind; `check_profile`/`reviewer_group` are neutral-design elements wearing domain names). It surfaced the finding Ledgerx could not: for codex the DESIGNING domain and the APPLYING administrator are different factories (GitHub administration is Opsx's), so the realization artifact must be handoff-shaped — likely the same seam as `deployment-handoff-boundary`. 6 open questions; exit gated on Ledgerx reaching proposal; **READINESS CORRECTED 2026-08-28** (`settle-aging-staging-topics`, one line only — the topic is being FILED by another agent and is otherwise untouched here): the Ledgerx first instantiation is NO LONGER "in flight" and the exit is NO LONGER "gated on Ledgerx reaching proposal" — LedgerxFactory `openspec/changes/archive/2026-08-04-add-ledgerx-company-provisioning-and-setup-audit` archived 2026-08-04 (with `2026-08-04-add-ledgerx-msbc-company-realization` and `2026-08-04-modify-ledgerx-ap-intake-for-onboarding-readiness`), so that gate CLEARED on 2026-08-04. FLAGGED, NOT FIXED: DTN-017 still reads `staged` in `docs/domain-neutralization-candidate-register.md`; the filing agent owns that row |
 | [tier2-council-clearance-pattern](#tier2-council-clearance-pattern) | ADDED neutral `council-clearance-gate-rule` pattern contract (tier-2 council-clearance template: clearable set, never-clearable floor, anti-normalization, activation gate) | 6 | **Demoted back 2026-08-05** — proposed and demoted the same day (Brett's propose commission, then Brett's reasoned demote: "rule-of-three trigger not fired — no second consumer has named itself"); the full draft packet (proposal, design, tasks, spec delta) sits in the topic's `openspec/` workspace per the draft-proposal convention, ready to re-cross the gate the day a second consumer appears. Organized 2026-08-05 from accepted possible `pos-derived-reusable-tier-2-council-clearance-pattern-beyond`; the first full possible→staged→proposed→demoted traversal of the wheel verbs |
 | [recurrence-crystallization](#recurrence-crystallization) | ADDED `pattern-ledger`, `crystallization-decision`, `crystallization-build`, `crystallization-consent`, `crystallized-capability-registry`, `crystallization-dispatch`, `capability-health`; MODIFIED `omnigent-domain-overlay` (crystallized-executor class + rung ceilings) | 2 | Ready to iterate — organized 2026-07-29 from the 19-doc brainstorm packet (2026-07-28) with D1–D11 + V1–V2 locked (authority conservation; artifacts digest-pinned while authority status is live-read (D10); v1 dispatch admits only pure/idempotent effect classes (D11); neutral schemas first (D6)); MVP family DECIDED: packet-capture mechanics at L3, evidenced by two same-shape runs on 2026-07-28; cross-tenant deliberately out of wave (stays brainstorm); exit = add-pattern-ledger (realized contract-v1.19, ARCHIVED 2026-07-29; fragment under the archived change's supporting-docs/) → add-crystallizer-contracts (realized contract-v1.20, ARCHIVED 2026-07-29; fragments under the archived change's supporting-docs/) → add-capability-steward (realized contract-v1.21, ARCHIVED 2026-07-30; fragment under the archived change's supporting-docs/). ALL THREE EXITS ARCHIVED — the staged remainder is the dials register |
 | [agent-wallet-identity](#agent-wallet-identity) | ADDED neutral `openxwallet` (holder-agnostic core: key reference + declared custody, attenuated grants as the authority primitive, proof of possession, custody capping authority, key-attributed audit, revocation propagation, distinct-holder constraints, non-substrate rule) + ADDED `openxwallet-agent-profile` (composition + declared-change revocation + authority as grant scope); composes with `roles-authority-model` + `credential-contracts`; `openxVault` consumes the grants | 1 | **PROPOSED 2026-08-06 as `add-openxwallet`** (topic folder keeps the `agent-wallet-identity` name; the change was renamed on restructure). Restructured the same day after Brett asked whether the Medx/Ledgerx intersection lives in openxFactory — it did not, so the change now adds a HOLDER-AGNOSTIC core with GRANTS AS THE PRIMITIVE plus an agent profile, rather than a wallet shaped like an agent binding authority to a second vocabulary. **RATIFIED 2026-08-07** with all three decisions: grants as the primitive, the core holder-class agnostic, and key custody DECLARED and CAPPING authority. **REALIZED 2026-08-07** by Speckit feature `006-openxwallet-contracts`: two neutral contract families (`contracts/openxwallet/` core + `contracts/openxwallet-agent-profile/` as a sibling, so the profile seam is structural), `scripts/validate-openxwallet.py`, and a corpus of 16 positives and 33 negative confirmations covering 11/11 requirements, registered at `contract-v1.31`, and **ARCHIVED 2026-08-08** as `2026-08-08-add-openxwallet` with both capabilities promoted (`openxwallet` 8 requirements, `openxwallet-agent-profile` 3). The topic row stays because the staged fragment remains on disk as provenance carrying the deferred material — batteries, measured drift, qualification tiers and delegation chains, each a named successor gated on a consumer of its own. The feature settled the two decisions the ratification left it: the closed custody set is three members with `evidences` DERIVED from two declared booleans and enforced — so a readable key cannot claim an isolated key's authority, and the collapse is structurally impossible rather than discouraged — and the composition component set covers a retrieval corpus BY REFERENCE (identity plus governing configuration) rather than by contents, which dissolves the include-or-exclude binary. The closed custody enumeration and what each member evidences are now contract content rather than an implementation detail. Organized 2026-08-06 from the 2026-07-15/16 `agent-certification-wallets` brainstorm at the moment a consumer named itself (LedgerxFactory posting segregation of duties, `ledgerx:staging:posting-segregation-of-duties`). Scoped BELOW the brainstorm on purpose: identity + proof + declared-change decert first; batteries, measured drift, qualification levels and delegation chains are named successors, each gated on a consumer. Two ratified Medx specs constrain the design (a wallet address MUST NOT be identity proof; custody stays wallet-neutral), which makes verification rather than registration the load-bearing requirement. 6 open questions — key custody is hardest, since it decides whether a signature proves the AGENT acted or only that the HOST did |
@@ -277,6 +276,9 @@ factory comparing references by raw string has it.
 ## dashboard-repo-selector
 
 - Staging ID: `openxFactory:staging:dashboard-repo-selector`
+- Exit taken: `2026-08-01-add-dashboard-repo-selector` — exit 1 (dev
+  plane), ratified 2026-07-29, ARCHIVED 2026-08-01. Exit 2 (runtime
+  plane) is NOT taken; its gate is open question 3.
 - Repository context: openxFactory (the `ideation-dashboard` capability delta
   + the snapshot-index contract); codexFactory (lane iteration, the
   (repository, ref) snapshot registry, multi-snapshot/multi-root serving,
@@ -413,15 +415,55 @@ factory comparing references by raw string has it.
   has a registry entry) checkable without decryption.
 - Files:
   - [client-credential-escrow-registry.md](client-credential-escrow-registry/client-credential-escrow-registry.md) — primary: custody model, 7 claims, 6 open questions, exit.
-- Open questions (blocking): delta shape (MODIFIED `credential-contracts`
-  vs new capability); master-key rotation/blast-radius runbook;
-  break-glass authorization topology + post-use rotation; dedicated
-  registry-repo escalation criteria; MUST-escrow scope boundary
-  (non-vault plumbing credentials like deploy keys); validator for
-  registry structure + SOPS-metadata lint.
-- Exit: one openxFactory OpenSpec change; archives only on the first
-  escrowed install (opensoft self-client QA) with drift audit green and a
-  REHEARSED break-glass restore drill recorded.
+- Rulings, Brett 2026-08-28 (four multi-choice selections over a
+  READ-ONLY decision round, each taking the prep's recommendation):
+  **A — delta shape**: additive optional `escrow:` relationship block on
+  the existing `xfactory_credential_binding_template` PLUS one new record
+  kind for the escrow entry, on the trust-anchor precedent that "operator
+  escrow is a relationship on the credential record, not a custody tier".
+  **B — key topology**: per-client recipient PLUS one operator root on
+  every file, drills restricted to the per-client key, and the escrow
+  recipient set DISJOINT from every runtime decryption-controller
+  recipient (the live QA Flux age recipient may never be an escrow
+  recipient); the root's worst-case radius is every client, recorded.
+  **C — registry home**: Client Hermes
+  `config/clients/<client_ref>/credentials/` canonical, the openxpki
+  install-repo escrow grandfathered as a named dispositioned exception
+  until migrated, and three structural escalation tests any one of which
+  forces a dedicated registry repo. **D — scope: SPLIT**, checkout first
+  so the standing-admin exception can close; plus two sub-confirmations —
+  the retroactive-request POLICY WINDOW is set by the checkout packet, and
+  the QA Flux deploy key is SHOULD-escrow under the re-mint test (it is
+  regenerable while the operator holds GitHub org ownership).
+- Open questions: ZERO REMAIN OPEN. 4 of the original 6 were ruled at the
+  split above (delta shape; break-glass authorization topology +
+  after-use rotation; registry-repo escalation criteria; MUST-escrow
+  scope boundary). The other two — the master-key rotation /
+  blast-radius runbook and the validator for registry structure +
+  SOPS-metadata lint — are carried as the successor's WORK rather than
+  as questions. The five NEW questions raised at the exit-1 gate were
+  all RULED on 2026-08-28 over PR #479: one drill per client; the
+  recommended cadence (every escrow-identity rotation plus at least
+  annually); an explicit scope amendment to `thin-independent-approval`
+  rather than a silent reuse; the operator root's private half held
+  OFFLINE rather than beside the per-client keys in the password
+  manager; and — the one ruling that went AGAINST the packet's own
+  recommendation — the drill MUST also prove a live refusal.
+- Exit: TWO openxFactory OpenSpec changes, not one. **Exit 1 RAISED
+  2026-08-28** as `add-credential-escrow-checkout` — the break-glass
+  authorization, the evidence a checkout leaves, the policy window,
+  after-use rotation, the recipient rules, the re-mint test, and the
+  rehearsed drill as its archive gate (one drill also discharges
+  `deployment-handoff-boundary`'s phased-never-gapped milestone).
+  **Exit 2 open** as the ruled successor `add-credential-escrow-registry`
+  — ruling C's home and grandfathered exception, inventory completeness
+  bound to managed-install readiness (including the per-client drill
+  obligation), the operator-root custody runbook, the drill cadence, and
+  the decryption-free lint; it archives on the first escrowed install
+  with the drift audit green. **Ruling A's schema surface is NO LONGER
+  exit 2's** — the OD-2 veto of 2026-08-28 moved the `escrow:` block and
+  the `xfactory_credential_escrow_entry` record kind into exit 1, whose
+  realization now owes the additive contract cut in consequence.
 
 ## avatar-pilot-hardening
 
@@ -674,80 +716,13 @@ factory comparing references by raw string has it.
   2026-07-26 by `add-worker-enrollment-broker` — enrollment grants a renewable
   lease and a short-lived single-use registration token from a standalone
   broker that holds the opsxfactory administration-tier App key alone, so no
-  minting authority ever reaches a host. See the `worker-enrollment-broker`
-  topic below and `contracts/worker-enrollment/`.
+  minting authority ever reaches a host. See that topic's promoted fragment
+  under [`add-worker-enrollment-broker` supporting-docs](../../openspec/changes/add-worker-enrollment-broker/supporting-docs/worker-enrollment-broker.md)
+  and `contracts/worker-enrollment/`.
 - Exit: openxFactory OpenSpec change (manifests), Omnigent-Install change
   (the app), OpsxFactory change (packaging); archives on Omni-001 green
   readiness via the app + a governed lane run on an Omni-001 worker +
   operator-CPC rider retirement.
-
-## worker-enrollment-broker
-
-- Staging ID: `openxFactory:staging:worker-enrollment-broker`
-- Repository context: openxFactory (neutral enrollment/lease contract);
-  standalone broker service (home DECIDED by D1: a new Opsx-owned repo,
-  container app on the existing platform subscription, deliberately NOT the
-  QA AKS cluster);
-  Omnigent-Install (registration-via-broker in `runner_services`, lease
-  renewal in the supervisor); OpsxFactory (opsxfactory App key custody,
-  minimum-version policy, temp runner group, engineer eligibility).
-- Source: clarifying session with Brett 2026-07-26 at the worker-host-app
-  runner_services gate, resolving its registration-credential parked
-  decision; driving scenario = staff workstations self-installing the
-  Worker Host App as long-lived (months) temp workers.
-- Claim: one standalone broker owns enrollment for both estates — fleet
-  hosts authenticate per-host (Opsx KV standard), volunteers as the
-  engineer (device-code, no standing secret) — holding the opsxfactory
-  App key centrally (minting authority never on hosts), granting
-  renewable LEASES whose renewal enforces a minimum-app-version floor
-  fail-closed (below-floor workers stop working until the engineer
-  updates); fleet runners hard-pinned via manifest rollouts
-  (v2.336.0 + sha256 ruled), temp runners self-update; temp workers ride
-  a segregated runner group with a trust tier.
-- Files:
-  - [worker-enrollment-broker.md](worker-enrollment-broker/worker-enrollment-broker.md)
-    — primary: 7 binding rulings, 4 claims, 10 open questions, exit with
-    the volunteer-workstation acceptance test (first volunteer = Brett's
-    machine, doubling as the NT SERVICE fact-check).
-- Open questions (all carried into the proposal's `design.md` as
-  decisions D1–D10 with recommendations, and **all ten adopted as DECIDED
-  by Brett's approval of the change on 2026-07-26** — none of them is a
-  live gate; do not re-escalate): broker home/hosting + credential
-  custody (D1 — a dedicated Opsx-owned repo, container app on the
-  existing platform subscription and NOT the QA AKS cluster, whose blast
-  radius and lifecycle a production control-plane dependency must not
-  inherit); lease cadence + grace (D2 — 24h TTL,
-  hourly renewal, 12h grace); version-floor policy home (D3 —
-  OpsxFactory-owned policy the broker consumes, floor raises through the
-  governed lane); enrollment approval (D4 — Entra-group auto-approve in
-  v1, trust tier carries the difference, Hermes approval arrives through
-  the same door without a contract delta); temp-worker manifest content +
-  serving (D5 — broker-served at enrollment, one worker, no benches in
-  v1); engineer eligibility (D6 — existing engineering group, one machine
-  per engineer); teardown semantics (D7 — full cleanup on volunteer
-  uninstall, stop-only on expiry, immediate stop on revocation);
-  trust-tier mechanics (D8 — first-class lease field projected into
-  runner group/labels and the readiness attestation; labels alone
-  rejected as host-assertable); fleet per-host secret provisioning (D9 —
-  issued at Intune enrollment, escrow-at-birth, rotatable without
-  re-enrollment); heartbeat/readiness lease-state integration (D10 —
-  three-places rule, rides the bench-inventory heartbeat delta if it
-  lands first).
-- Readiness: **exit 1 proposed AND phase-1 realized 2026-07-26** as
-  `add-worker-enrollment-broker` — the neutral contract (one enrollment
-  point / two auth modes, lease + short-lived token, minting authority
-  broker-only incl. remove tokens, renewal carrying the floor,
-  fail-closed below-floor and revoked workers, revocation as refusal,
-  estate package split, temp segregation + trust tier, audited decisions
-  with token values unrepresentable), shipping six schemas, packaged
-  positive/negative examples, and `scripts/validate-worker-enrollment.py`
-  at the next additive bundle. The heartbeat delta is deliberately
-  excluded.
-- Exit: `add-worker-enrollment-broker` OpenSpec change (contract,
-  PROPOSED 2026-07-26) + realization changes (broker service,
-  Omnigent-Install, OpsxFactory); acceptance = the end-to-end volunteer
-  workstation scenario on Brett's machine, which doubles as the
-  NT SERVICE fact-check.
 
 ## session-notebook-reconciliation
 
@@ -1748,7 +1723,49 @@ repo scope.
   and the expansion includes patients putting PHI portions on chain and working
   with hospitals and insurers through it — which this topic architects honestly
   as salted keyed commitments and anchored consent CHECKPOINTS on chain, records
-  never, raising the narrowing as Q6 rather than assuming it.
+  never, raising the narrowing as Q6 rather than assuming it. **Brett CONFIRMED
+  that reading on 2026-08-29**, so the architected form IS the ruling's operative
+  form rather than a topic's interpretation of one.
+- **DISPOSITIONED 2026-08-29 — all seven open questions ruled by Brett Heap in a
+  clarify sitting.** Q1 (wallet presentation in the shipped grant vocabulary plus
+  proof-of-possession, recorded in the ratification record, no new artifact), Q2
+  (the on-chain boundary as contract text with a validator refusing
+  payload-shaped records AND unsalted commitments), Q4 (tranche one = links 1–3
+  only; the transparency log is a tranche-1 artifact; the gate exists from
+  tranche one) and Q7 (remote signing served by the harness controller, the
+  runner's REQUEST recorded beside the signature, the controller corroborating
+  against its own link-4 setup attestation; HSM a later hardening) were ruled AS
+  RECOMMENDED. Q6 was CONFIRMED as recommended. **Q3 and Q5 DIVERGE**, and the
+  divergences are labelled where they land in the fragment. Every gate is open:
+  Q3/Q6 gated tranche 3, Q7 gated tranche 2's contract text, tranche 1 was never
+  gated.
+- **Q3's divergence, in two rounds and recorded as such.** Round 1, verbatim:
+  "lets [sic] use Kaspa as primary and bitcoin as secondary" — inverting the
+  study's ordering. It is kept in the record because a two-round ruling is only
+  honest if the first round survives inside it. Cost facts were then put to him
+  (Kaspa ~$0.000001/tx; Bitcoin-via-OTS $0 marginal per item on public calendars
+  and ~$2.1k/yr for a self-run hourly calendar; a raw BTC transaction
+  $0.12–0.36 with a spike history; a cheaper sidechain adds federation trust and
+  saves nothing), and round 2 is the operative configuration:
+  **"Bitcoin-via-OTS on
+  everything"** — BOTH witnesses on EVERY anchored item, **Kaspa FIRST** as the
+  primary/OPERATIONAL witness under the study's three unchanged conditions,
+  **Bitcoin batched via OpenTimestamps as the DURABILITY witness with ten-year
+  claims citing Bitcoin**, no selectivity and no third chain, receipts
+  chain-agnostic and multi-anchor carrying BOTH proofs. "Primary" is order of
+  arrival, never evidentiary weight — the ~3-day pruning finding is carried
+  forward untouched. The vendored study is NOT edited: it is a dated research
+  record, and one rewritten to agree with a later ruling stops being evidence.
+- **Q5's divergence: RULED AGAINST THE RECOMMENDATION.** "Allow contract code
+  later." Today's posture is preserved exactly as recommended — the anchoring
+  chains are evidence-only and no tranche now planned puts contract code on any
+  of them — but the change MUST NOT constitutionalize "no contract code ever" and
+  MUST NOT gate a future adoption on the recommendation's stated trigger. A
+  future change MAY adopt on-chain contract code on its own merits. The study's
+  regulatory caution (EDPB/HIPAA posture, unaudited-stack risk, the
+  irrevocable-deployment class) is RECORDED AS ADVISORY CONTEXT for that future
+  change, not as a gate on it. Encoding a "not now" as a "never" would be the
+  quiet-narrowing defect this topic already refused at Q6, run in reverse.
 - Files: `signed-execution-chain.md` (primary fragment, template-conformant);
   `chain-selection-study.md` (vendored research input, 2026-08-27 — the
   chain-selection study answering Q3, carried verbatim below a relabelled header;
@@ -1770,8 +1787,9 @@ repo scope.
   The constraint reaches the attestation key as well, which the first draft
   missed and the review round caught: the runner never holds it either, so the
   controller SIGNS on the runner's request and no key bytes cross into a worker
-  — "ephemeral" is a lifetime, not a relaxation of custody (Q7 names the
-  mechanism).
+  — "ephemeral" is a lifetime, not a relaxation of custody. **Q7 RULED the
+  mechanism 2026-08-29**: remote signing served by the harness controller, with
+  the runner's signing REQUEST recorded alongside the signature it received.
 - The PHI architecture is the part that must not be hand-waved: **raw PHI never
   goes on a public chain**, because append-only + world-readable + permanent are
   each individually incompatible with HIPAA, and "encrypted on chain" only makes
@@ -1801,20 +1819,25 @@ repo scope.
   attestation that reaches the chain is permanent. That argues for anchoring LATE
   — committing only what has been validated — and is a design constraint on
   tranche three.
-- 7 open questions, none blocking tranche one — Q3 and Q6 are tranche-three
-  blockers, Q7 gates tranche two's contract text: wallet-presentation mechanics; the exact
+- 7 questions, ALL RULED 2026-08-29 — they were the topic's open set and are
+  kept here as the record each disposition is read against. None ever blocked
+  tranche one; Q3 and Q6 were the tranche-three blockers and Q7 gated tranche
+  two's contract text, and all three gates are now open. The set:
+  wallet-presentation mechanics; the exact
   on-chain boundary (recommended as a REFUSING validator rather than prose,
   mirroring how the hosting record refuses secret-shaped fields by name — and now
-  refusing UNSALTED commitments too); chain selection — **the research fan-out is
-  COMPLETE and vendored as `chain-selection-study.md`**, so Q3 cites its
+  refusing UNSALTED commitments too); chain selection — **the research fan-out
+  COMPLETED and is vendored as `chain-selection-study.md`**, so Q3 carried its
   recommendation (Bitcoin primary anchor via OpenTimestamps aggregation, Kaspa
   optional secondary under three conditions, consent logic in the permissioned
-  layer, no contracts on the anchoring chain) and awaits a RULING rather than more
-  analysis; tranche boundaries; whether smart contracts or an L2 are in scope
-  (evidence-only confirmed, with Ethereum L2 + EAS as the answer IF public
-  programmability is ever forced); and **Q6 — whether the ruling's "patients put
-  PHI portions on chain" means COMMITMENTS**, the one place the topic interprets a
-  ruling rather than applying it, raised for Brett rather than assumed; and
+  layer, no contracts on the anchoring chain) into a ruling that **inverted its
+  ordering and dropped its optionality**; tranche boundaries; whether smart
+  contracts or an L2 are in scope (evidence-only for today, but the "never" was
+  **overruled** — Ethereum L2 + EAS remains the study's answer IF public
+  programmability is ever forced, as advice rather than as the only door); and
+  **Q6 — whether the ruling's "patients put PHI portions on chain" means
+  COMMITMENTS**, the one place the topic interpreted a ruling rather than
+  applying it, raised for Brett rather than assumed and **CONFIRMED by him**; and
   **Q7 — where an attestation signature physically happens**, added by the
   review round on this topic's own PR, which correctly read the draft's per-task
   key as runner-held custody.
@@ -1823,22 +1846,70 @@ repo scope.
   fairness holds; operational capture — pool concentration, a miner targeting ~16%
   of hashrate, VC-funded L2s absorbing core devs — does not support the absolute);
   "Bitcoin is just too expensive" **REFUTED for anchoring** (Merkle aggregation
-  makes it ~$0 marginal, ~$2.1k/yr even self-anchoring hourly) — this refutation is
-  what moved Bitcoin into the primary-anchor seat; "KAS is fractions of a penny"
+  makes it ~$0 marginal, ~$2.1k/yr even self-anchoring hourly) — this refutation
+  is what moved Bitcoin into an anchor seat at all, the study's primary one and,
+  after the ruling, the durability witness on every anchored item; it is also
+  what turned Q3's round one into round two; "KAS is fractions of a penny"
   **CONFIRMED and understated** (~$0.000001–0.000003), with the honest caveat that
   it partly reflects low demand and an unfunded security budget.
-- Exit path: OpenSpec change(s) in three tranches. **Tranche 1 — signed
+- Exit path: OpenSpec change(s) in three tranches, and **no tranche is held by a
+  question any more** after the 2026-08-29 sitting. **Tranche 1 — signed
   ratification + atomic enrollment, plus the off-chain signed transparency log
-  that IS the record — is composable TODAY** and needs no omnigent layer and no
-  chain. Tranche 2 (harness + runner attestation) needs the omnigent
-  layer and the PKI plane. Tranche 3 (on-chain anchoring) needs rulings on Q3 and
-  Q6, and builds the chain-agnostic MULTI-ANCHOR RECEIPT first — the receipt is
-  what keeps the anchor choice reversible over a 10-year horizon, and it carries
-  the anchor transaction and its inclusion proof rather than a block header and
-  a transaction reference, which prove nothing once the transaction is pruned.
-  The chain-validating gate should exist FROM TRANCHE ONE validating a short
-  chain, so the refusal path is exercised from the start rather than first tested
-  when it matters most.
+  that IS the record — is composable TODAY and was never gated**; it needs no
+  omnigent layer and no chain, and Q4 fixed its boundary at links 1–3. Tranche 2
+  (harness + runner attestation) had its question-gate opened by Q7 and may now
+  name the signing mechanism in contract text; what remains for it is machinery,
+  the omnigent layer and the PKI plane. Tranche 3 (on-chain anchoring) had both
+  its question-gates opened by Q3 and Q6; it builds to the RULED configuration
+  (Kaspa first, Bitcoin-via-OTS on everything), builds the chain-agnostic
+  MULTI-ANCHOR RECEIPT first — the receipt is what keeps the anchor choice
+  reversible over a 10-year horizon, and it carries the anchor transaction and
+  its inclusion proof rather than a block header and a transaction reference,
+  which prove nothing once the transaction is pruned — and waits on the PKI plane
+  rather than on a ruling. The chain-validating gate should exist FROM TRANCHE
+  ONE validating a short chain, so the refusal path is exercised from the start
+  rather than first tested when it matters most; Q4 ruled that sequencing.
+- **EXIT 1 IS RAISED, 2026-08-29 — the active change `add-signed-execution-chain`**
+  (`openspec/changes/add-signed-execution-chain/proposal.md`), carrying links 1–3
+  plus the transparency log plus the short-chain gate, with a NEW neutral
+  `signed-execution-chain` capability of nine ADDED requirements. **NOT recorded
+  as `Exit taken:`, deliberately**: that record silences `staged-candidate-aging`
+  only when it names an ARCHIVED change, and this topic must keep ageing while
+  tranches two and three are unraised. The packet renames link 2's act **`chain
+  inception`** — `specs/025-openxfactory-review-lane-caller/spec.md` FR-008
+  already owns "enrollment" here for the entry of a candidate class into a
+  `merge-approval-envelope`, and a second adjacent sense on the same pull
+  requests is the collision the 2026-08-28 seats named as the live risk.
+- **The packet is AMENDED TO THE SEVEN RULINGS** (`#499`, squash `9c501df6`) and
+  no longer carries a clarify round of its own: Q1's answer is encoded as ruled
+  rather than flagged, Q4's two sequencing facts are met by the transparency-log
+  and short-chain-gate requirements, and Q5 is restated so that **no trigger
+  condition is written here in advance**. Q2, Q3, Q6 and Q7 govern the later
+  tranches and are recorded, never pre-encoded — the packet names no chain, no
+  anchor and no contract-code posture.
+- **NARROWING A IS ADOPTED — ruled by Brett Heap, 2026-08-29, in session.** Tier 1
+  is **RATIFYING** authority. Agent-held **REVIEW** wallets stay lawful, so the
+  realized `wal-agent-mrc-0001` is untouched; what the gate refuses is an
+  agent-held wallet performing the **ratifying** act. The literal tier-model
+  sentence would have refused an artifact this repository already runs, and the
+  ruling narrows the tier rather than the artifact. Narrowing B — Q1's "rather
+  than a new artifact" read as *invent no new artifact* — is carried by Q1's own
+  ruling, which says no new artifact is created for the presentation.
+- **THE COLLAPSE, ruled by Brett Heap 2026-08-29 in session.** Two parallel
+  sessions raised this same tranche into the same change directory within three
+  minutes (`#494` and `#495`). He ruled `#495` the surviving base and closed
+  `#494`, whose four hardenings are carried into this packet by harvest rather
+  than discarded: the actor-to-wallet attestation binding, per-ratification
+  uniqueness, one digest construction for every digest, and the named-reader
+  required-check rule.
+- **State: FULLY RULED, DRAFTING GREEN-LIT, and the packet is RATIFIED.** Brett
+  Heap gave the drafting green-light on **2026-08-29, in session** — the
+  authorization the clarify sitting deliberately did not give — and **RATIFIED
+  the packet the same day** (record:
+  `openspec/changes/add-signed-execution-chain/review/ratification-2026-08-29.md`).
+  Ratification authorizes tranche one only and **performs no realization**: the
+  contract family, its validator and the required-check wiring are a later
+  commission, and `target_release` (`contract-v2.3`) is re-counted at that tip.
 
 ## notebook-access-wallet-governance
 

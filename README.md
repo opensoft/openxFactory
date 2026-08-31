@@ -395,6 +395,134 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-binding-consumer-identity](openspec/changes/add-binding-consumer-identity/proposal.md)
+  — authored 2026-08-29, **RATIFIED 2026-08-29** (`Status: ratified`; record
+  `review/ratification-2026-08-29.md`). **THE FIRST PACKET THROUGH THE §7.4 PATH
+  END TO END**: a council sitting returned SPLIT 2–2 on the verdict word and
+  UNANIMOUS 4/4 that the text as drafted was not ratifiable, with fifteen
+  blocking amendments across four seats; Brett ruled the same day — accept all
+  blocking, one fix round, ratification read after — and ratified the amended
+  text with the Codex-two-heads-back verification gap in view rather than waiting
+  on a bot at its usage limit. **Ratification authorizes REALIZATION and does not
+  perform it**: the change stays ACTIVE until merged code, green evidence and the
+  contract cut exist. **Three further rulings the bench routed
+  to him came back the same day**: Decision 2 takes ROUTE (i) (phase the
+  requiredness, keep the promise); the parked P-2 is DISCHARGED — packaged
+  fixtures use SYNTHETIC identifiers and the live sync-lane/openXdox fetch
+  identities stay in the consuming installs; and P-3's estate-level delta-pair
+  gap is FILED as issue #502, which this change neither closes nor waits on. The
+  ratification act followed the same day.
+  THE NAMED SUCCESSOR OF A RATIFIED ADMISSION: `add-notebook-hosting-credential-custody`
+  ratified one-identity / per-system-authority on 2026-08-23 and admitted in the
+  same read that the invariant is **held by review rather than by the record** —
+  the published `xfactory_credential_binding_template` requires only
+  `[provider, secret_ref, owner, rotation_policy]`, carries no consumer or
+  access-identity field, and the validator compares no authorities, so two
+  bindings on one vault principal validate cleanly. That gap is registered FIVE
+  times in the predecessor — its requirement's own scenario, its Impact section,
+  its design, its tasks §4.5 and its ratification record — and this change is
+  what discharges it. **The sharpest statement of it is canon's own**: promoted
+  `credential-contracts` says a consuming lane receives "only bindings: an opaque
+  secret reference and a fetch-identity identifier" — the shape carries the first
+  and not the second. **MEASURED, not assumed**: a `consumer:` key carrying
+  arbitrary contents validates against the pinned schema TODAY, because the
+  binding object is not closed, which makes this a field-shaped hole rather than
+  a missing field. The change adds ONE additive optional `consumer:` block
+  (`holder_ref`, `fetch_identity`, a QUALIFIED `requirement_ref`, and const-true
+  `shared_credential_acknowledged` and `instantiation_stub` tokens) in vocabulary
+  the estate already ratified: `holder_ref` is `identity-brokering`'s shipped
+  spelling and a consuming system is emphatically NOT a persona, `fetch_identity`
+  is `credential-contracts`'s own words. **THE BLOCK IS DECLARED AT THIS MINOR
+  AND CONSTRAINED AT THE MAJOR — all three narrowing acts together.** Requiring
+  members, closing the member set and imposing the identifier grammar each refuse
+  a shape the current major accepts, so each is breaking and all three wait for
+  one deprecation window. An earlier draft phased only the closure; four seats
+  proved by construction that the other two refused a locally shaped object, a
+  scalar, a list and the generator's own placeholder style, falsifying a scenario
+  that would have promoted into canon. **NOTHING NARROWS AT THIS CUT, and that is
+  now a measurement**: six shapes a domain could already hold were built and
+  driven, and all six validate. **IT TIGHTENS BEFORE IT LIFTS** —
+  `shared-secret-identity` keeps its refusal as the default, a new
+  `shared-authority-identity` names the real fault (two systems, one authority),
+  and the two-consumers-of-one-identity shape the predecessor had to DECLINE
+  becomes expressible only through SIX independent fail-closed conditions over
+  EVERY PAIR, the sixth of which binds each reference to its own binding's map key
+  because a security seat drove the five-condition draft into granting the lift
+  on this capability's only red proof of serving-tier separation. **EIGHT warning
+  codes carry the deprecation, one per shape the major refuses**, five of them
+  added when bot rounds on the fix round itself found that an empty
+  `consumer: {}` matched no code, that the map-key grammar had been prescribed
+  with no phasing, that the false-token refusal was written as an immediate error
+  though such a record validates today, and that `access_mode` and the document
+  reference declared their phasing in prose with no code to serve it — five more
+  instances of the very defect the council convened over, arriving inside its own
+  repair, and the reason the warning set is now derived from the refusal list
+  rather than counted. **CARRIES A
+  CONTRACT CUT AT REALIZATION** — its realization moves schema bytes, though THIS
+  PACKET MOVES NONE and leaves `contracts/` untouched; the minor is allocated at
+  realization by merge order, because `add-credential-escrow-checkout` is already
+  spending one on the same file and main is a third writer of that manifest.
+  1 MODIFIED requirement (carriage re-measured after the amendment round: six
+  scenarios in, six out, five byte-identical, zero units lost) and 3 ADDED. Six
+  authoring decisions and five open questions are recorded with their rejected
+  alternatives; the open questions are now RULED, one of them against the
+  author's own recommendation.
+- [add-signed-execution-chain](openspec/changes/add-signed-execution-chain/proposal.md)
+  — **RATIFIED 2026-08-29 by Brett Heap** (`review/ratification-2026-08-29.md`); realization is a later commission. Exit 1 of
+  three of the staged topic `signed-execution-chain`, and its boundary is
+  **RULED**: Brett Heap ruled all seven of the topic's questions on 2026-08-29
+  (#499, squash `9c501df6`), **Q4** fixing tranche one at **links 1–3 only**
+  with the **signed transparency log a TRANCHE-1 artifact** and the
+  **chain-validating gate existing FROM TRANCHE ONE** validating a short chain.
+  So: a ratification admitted only on wallet-carried authority PROVEN BY
+  POSSESSION and BOUND to the exact ratification, ratification and chain
+  inception as ONE signed act, the signed ratification carried as a TRAVELING
+  CONTRACT, the append-only signed transparency log as THE RECORD, and the gate.
+  **The inversion is the point: a validated chain is not an audit trail, it is a
+  PERMISSION** — an audit trail is written after the fact and can be forged after
+  the fact, while a chain the gate walks before it permits the terminal act
+  cannot be, because the act does not happen without it. **A broken or missing
+  link is a FRAUD SIGNAL and a refusal, never a warning**, and an unevaluable
+  chain refuses on the family's fail-closed doctrine. The gate validates
+  HASH-LINKED CONTINUITY, never a bag of signatures: individually valid
+  artifacts from DIFFERENT executions must not assemble into a chain. **TWO
+  CONSTRAINTS COME FROM THE 2026-08-28 `gate_rules_council` CONVENING**
+  (codexFactory
+  `hermes/domain/review-councils/records/2026-08-28-gate-rules-openxfactory-substantive-classes.md`,
+  unanimous 5/5): the chain-inception act is **OUT-OF-PIPELINE BY PROVEN
+  NECESSITY** — a class over `openspec/changes/**` can never commission a
+  council, measured 984 admitted / 984 floored / 0 remaining and reproduced
+  code-level, so routing inception through the envelope would describe a control
+  that cannot run; and link 7 composes with the **§7.4
+  council-reviewed-but-human-approved path**, which "needs no class and no
+  flip", NOT with the clearance envelope — `025`'s FR-008 is left gated exactly
+  where the convening left it. **An out-of-pipeline INCEPTION and a
+  required-check GATE are different objects, and only the first is what those
+  seats refused.** **THE VOCABULARY ACT**: link 2's act is named **`chain
+  inception`**, NOT enrollment, because FR-008 already owns that word here for
+  candidate-class entry into a `merge-approval-envelope` and
+  `add-worker-enrollment-broker` carries a third sense; the non-collision is
+  stated in requirement text, not only in the proposal. **Composes with the
+  REALIZED wallet artifacts and invents no second vocabulary**: link 1's
+  instrument is the shipped `xfactory_wallet_grant` /
+  `xfactory_wallet_grant_exercise` pair at the `contracts/openxwallet-pin.yaml`
+  digest pin, whose closed refusal enumeration already separates
+  `missing_proof_of_possession` from `missing_grant`. **NINE ADDED requirements
+  over 45 scenarios, no MODIFIED block anywhere.** **NARROWING A IS RULED** —
+  Brett Heap, 2026-08-29, in session, the clarify sitting having taken the seven
+  questions and nothing else: **tier 1 is RATIFYING authority**, agent-held
+  REVIEW wallets stay lawful, and the realized `wal-agent-mrc-0001` is untouched.
+  Narrowing B is settled by Q1's own disposition. **THE PACKET IS THE SURVIVOR OF
+  A COLLAPSE HE RULED**: two sessions raised this tranche into the same change
+  directory three minutes apart, and **#494 is closed with four of its
+  hardenings HARVESTED here** — the actor↔wallet attestation binding, enforced
+  per-ratification uniqueness, ONE digest construction for every digest, and the
+  named-reader required-check rule. Tranches two (attestation, links 4–6 and 10)
+  and three (on-chain anchoring) are NAMED successors, **not drafted, and not
+  pre-encoded**: every question-gate they held is now OPEN, and what remains for
+  them is machinery — the omnigent layer and the PKI plane — rather than a
+  ruling. `target_release` **`contract-v2.3`**, fresh-counted (v2.2 is declared
+  and cut), allocated at realization by merge order.
 - [add-structured-scope-substrate](openspec/changes/add-structured-scope-substrate/proposal.md)
   — **RATIFIED 2026-08-28** (Brett Heap, convener). MODIFIES `release-realization`
   to add the OPTIONAL front-matter sibling `scope_globs:` — a per-repository map
@@ -409,6 +537,121 @@ Active changes:
   mirrors the single codexFactory envelope authority byte-for-behaviour, pinned by
   lockstep test. The codexFactory provenance-tie verifier that CONSUMES
   `scope_globs` is downstream (B's realization), NOT this change's surface.
+- [settle-aging-staging-topics](openspec/changes/settle-aging-staging-topics/proposal.md)
+  — authored 2026-08-28 on Brett's four bulk rulings over a read-only triage
+  survey of the fourteen staging topics `doc-health`'s
+  `staged-candidate-aging` family was warning on. **The family read one fact
+  about a staged topic — the folder's last commit date — and no `Status:`, no
+  register row, no exit record**, so SIX of the fourteen were finished work:
+  every exit change ratified, realized and ARCHIVED, the folder retained as
+  provenance, and the finding telling a reader to raise a proposal that had
+  already landed and closed. One of the six, `github-administration-plane`,
+  had carried `Status: superseded` for forty-two days and warned anyway —
+  which is the proof the defect was in the READING, not in the corpus's
+  record-keeping. The family now honours two records and no others: a primary
+  fragment that is `superseded`/`retired`, or an `Exit taken:` line naming a
+  change that has ARCHIVED. **A citation of an ACTIVE change does not
+  silence** — that is `clean-doc-health-floor`'s archived-packet rule arriving
+  from the other side of the same lifecycle, and hiding the age would hide
+  half of one live obligation. The unperformable action line ("mark it
+  deferred") is corrected: **no `deferred` state exists for a staged topic and
+  this change deliberately adds none**, so the five topics it records as
+  deferred-with-gate-named — `worker-host-app` and
+  `context-compression-runtime` behind Omnigent-Install PR #40 then
+  OpsxFactory tasks 8.1/8.2, `proposal-origin-contract`,
+  `layer-vocabulary-machine-migration`, `ideation-action-plane` fragment 2 —
+  KEEP AGEING, and each says so in its own text. **The number worth reading**:
+  measured at a common `--as-of 2026-12-31` so that a folder this change
+  touched cannot be mistaken for a folder it silenced, staged-topic findings
+  go **33 → 27**, exactly the six — re-measured on the merged head and
+  unmoved, which is why that as-of and not today's is the load-bearing
+  number. Today's run goes 14 → 3, because the five deferred topics fell
+  silent by MTIME RESET rather than by rule the moment their folders were
+  committed; they return 2026-09-27 still deferred. MODIFIES one `doc-health`
+  requirement (`Aging threshold defaults`), whose promoted text pins the
+  mtime-only reading and already carries the exact analogue of the new
+  exclusion one clause later, for routing records. Five orchestrator
+  decisions flagged for veto, OD-1 first: `dashboard-repo-selector` takes the
+  exit record rather than `superseded`, because its exit 2 is unproposed and
+  closing it would declare a topic finished that still holds live design.
+- [add-credential-escrow-checkout](openspec/changes/add-credential-escrow-checkout/proposal.md)
+  — **EXIT 1 OF A TWO-PACKET SPLIT** ruled by Brett on 2026-08-28, over a
+  read-only decision round on the staged topic
+  `client-credential-escrow-registry`: four multi-choice questions, four
+  selections, each taking the prep's recommendation. **A SECOND ACT THE SAME DAY,
+  over PR #479, closed the veto window and changed the packet's shape**: OD-2
+  VETOED (the schema comes in here after all), OD-4 APPROVED as authored, the
+  other five CLEARED, and all five open questions ruled — four on the packet's
+  own recommendations and ONE against it (the drill must also prove a live
+  refusal). The BREAK-GLASS CHECKOUT
+  PATH ships first so that `deployment-handoff-boundary`'s standing-admin
+  exception can close — its promoted text holds the operator's existing standing
+  administrative access open as a named, dispositioned exception "until the
+  break-glass checkout path is realized and tested", and its
+  no-standing-credentials requirement already says human direct access is
+  "a time-boxed credential checkout with evidence, followed by a retroactive
+  request within the governing policy window" while leaving all three of WHO,
+  WHAT EVIDENCE and HOW LONG undefined. That change's own design says so:
+  "Who can break glass, how credentials are custodied, and the window's length
+  belong to `client-credential-escrow-registry`." **Seven ADDED requirements on
+  `credential-contracts`, 28 scenarios, no MODIFIED block anywhere**: the
+  checkout as an administration-tier custody act (the escrow decryption identity
+  is ITSELF a credential, so the ratified `roles-authority-model` custody shape
+  applies unchanged, and a client-layer steward holding references may not
+  authorize release of values); the three correlated records a break-glass
+  leaves, with the audit ENUMERATING EVERY object decrypted; the policy window;
+  after-use rotation scoped to what was DECRYPTED rather than what was
+  reachable, with the escrow identity itself rotating only where its private half
+  left custody onto a non-ephemeral host; escrow recipients DISJOINT from every
+  runtime decryption controller, two per object, drills on the per-client key;
+  the rehearsed drill as the realization gate; and the re-mint test that decides
+  MUST-escrow from SHOULD-escrow. **THE WINDOW THIS SETS**, which
+  `add-deployment-handoff-boundary` deferred here in one line and which has no
+  numeric precedent anywhere in the family: **opened within 24 hours, disposed
+  within 5 business days, both bounds running from the checkout's expiry or
+  revocation, neither tolling.** The opening bound is derived from the DETECTOR,
+  not from taste — a window longer than the evidence-correlation audit's period
+  makes every legitimate break-glass manufacture a finding, and an audit
+  destroyed by its own true positives stops being read. Waits are `conditions` on
+  the request, which is how that contract already models holds; a late filing
+  still correlates and its lateness is its own separate finding, because "late
+  means void" makes silence strictly better than filing. **THE FORCING FACT**,
+  verified rather than asserted: the opensoft QA install has read
+  `execution_binding.mode: opsxfactory_executed` at `status: completed` since
+  2026-07-20 and `config/clients/opensoft/credentials/` does not exist — the
+  managed-install escrow duty has been live and unmet for five weeks. **NO SCHEMA
+  SURFACE** (OD-2): Brett's ruling A — an additive `escrow:` block on the binding
+  template plus an escrow-entry record kind — is deferred WHOLE to the successor
+  `add-credential-escrow-registry`, because the checkout is expressible in the
+  five already-promoted record kinds and the one field it needs beyond them rides
+  the promoted audit policy's open `minimum_fields` array. The code surface is
+  packaged conformance fixtures at the next additive bundle (`contract-v2.0` is
+  declared; the minor is allocated at realization by merge order and is not spent
+  here), and the ARCHIVE GATE IS
+  MERGE PLUS GREEN PLUS ONE REHEARSED DRILL — the same drill that discharges the
+  boundary's phased-never-gapped milestone and closes its exception. **AND THEN
+  THE SCHEMA CAME BACK.** The OD-2 veto moved ruling A's `escrow:` relationship
+  block on `xfactory_credential_binding_template` and the sixth record kind
+  `xfactory_credential_escrow_entry` into this packet on A's literal shape,
+  taking the delta from 7 ADDED / 28 scenarios / no MODIFIED block to **9 ADDED +
+  1 MODIFIED / 46 scenarios**. The MODIFIED block is surgical and its size is the
+  point: a promoted requirement enumerating FIVE record kinds becomes false the
+  moment a sixth exists, so five becomes six, two promoted scenarios carrying
+  "five" are amended (the only promoted words that move), and two scenarios are
+  added pinning the property the whole cut depends on — a binding predating the
+  block still validates. The entry shape is the RUNNING PRIOR ART made neutral
+  rather than a fresh design, and its one load-bearing property is that every
+  field is non-secret metadata, which is what makes the successor's
+  decryption-free lint possible at all. **The cut is owed, but not for the usual
+  reason, and this was measured rather than assumed**: the credential schema is
+  NOT among the 192 entries of `contracts/releases/contract-v2.0.digests.yaml`
+  (the closure is `contracts/hermes-runtime/contract-index.yaml` `release_member`
+  entries, which hold no credential entry), so release-inventory-drift does not
+  force it — the VERSIONING POLICY does, a registered bundle contract gaining a
+  record kind and an optional field being the additive minor class verbatim.
+  Ruling C's home, grandfathered exception and escalation tests STAY with the
+  successor; only the schema half moved.
+
 - [adopt-medxsoft-repository-identity](openspec/changes/adopt-medxsoft-repository-identity/proposal.md)
   — authored 2026-08-27 for the 2026-08-26 transfer of `opensoft/MedxFactory`
   and `opensoft/MedxEHR` to the `MedxSoft` organization, whose operational half
@@ -514,50 +757,6 @@ Active changes:
   live window's operator that the template's path moved (task 5.7), which is not
   a file edit and which the runsheet's own P0.5 does not substitute for.
 
-- [add-unclassified-finding-class](openspec/changes/add-unclassified-finding-class/proposal.md)
-  — **RATIFIED 2026-08-27** (in-session commissioning, verbatim "Amend now";
-  realization via Speckit) — the modified-block-currency family's report block
-  already detects that its own class map has drifted from its arms, and then
-  says so in PROSE: the `unclassified` residual row carries no severity, is not
-  a finding, and is therefore reached by neither `--fail-on` nor the ranked plan
-  that "Health report contract" requires every finding to appear in. One ADDED
-  requirement on `doc-health` makes an unplaced rule text emit one `warning`
-  **per distinct rule SHAPE per run** — rule texts equal after every quoted span
-  and every digit run is masked, which is the grammar the class map's own
-  patterns are written in — naming that shape's count and the first instance's
-  rule text verbatim, carrying its repo and delta path, with the action line
-  "extend the class map in `scripts/doc_health/modified_block_currency.py`, or
-  fix the drifted rule text the finding names". Per shape rather than per run
-  because two drifted shapes are two map entries to write, and per shape rather
-  than per repository because the map is one module constant with one remedy.
-  The finding is itself placed by the map into a FIFTH `FindingClass` (id
-  `unplaced`, label `unplaced-finding drift` — neither may contain the substring
-  `unclassified`, which a standing pin asserts absent from a clean summary) under
-  a FOURTH severity constant `_DRIFT_SEVERITY`, so § 7.2's flip of
-  `_LAUNCH_SEVERITY` cannot drag it; and its pattern is ANCHORED at the start of
-  the rule text, because the finding quotes a rule text that may itself begin in
-  the shape of an arm. The residual row stays; it is what makes the tally sum.
-  **NO `## MODIFIED Requirements` block**, and that is a measurement rather than
-  a preference: canon enumerates the three comparison ARMS and never the classes,
-  the class map, or the residual, so restating 14 scenarios of "Currency of an
-  active change's MODIFIED requirement blocks" would risk the defect the family
-  exists to catch in order to say something canon does not say. The requirement
-  BODY is deliberately lean — 36 lines, down from 70 — because every body line is
-  carriage-ledger surface a future MODIFIED block must restate. Adds NO check
-  family; the enumeration and its numerals are untouched. Band `warning` and the
-  family stays absent from `FAMILY_RESOLUTION`, so the finding retiring when
-  somebody extends the map cannot become an uncited-resolution `error`; § 7.2's
-  flip is untouched and still owed. Predicted movement **zero in every band** —
-  the tree reads `unclassified: 0` today. Realization moves seven standing pins
-  by name, adds a behavioural fixture tree
-  (`modified-block-currency-unplaced` — measured: no corpus title can produce an
-  unplaced rule text, 20,065 fuzzed rule texts, 0 unplaceable), and AMENDS the
-  byte-level report contract
-  `specs/022-modified-block-currency-reporting/contracts/report-section.md`,
-  which enumerates the four classes four times over. Three orchestrator decisions
-  are flagged for veto (ADDED-only; a fifth class rather than a severity on the
-  report block; one finding per distinct shape). `target_release: implemented`,
-  so it archives only on merged plus green.
 - [qualify-avatar-live-voice](openspec/changes/qualify-avatar-live-voice/proposal.md)
   — **RATIFIED 2026-08-27** (in-session, "ratify avatar"; §2/§3 build lands in
   the same round) — authored 2026-08-26 as the staged topic's Exit, executed on Brett Heap's
@@ -635,7 +834,8 @@ Active changes:
   `avatar-pilot-hardening` deferrals are explicitly out of scope.
 
 - [add-standing-policy-compliance-contract](openspec/changes/add-standing-policy-compliance-contract/proposal.md)
-  — authored 2026-08-24, **NOT YET RATIFIED** (`Status: draft`). Neutral-first
+  — authored 2026-08-24 and **ratified 2026-08-26** (`Status: ratified`; record:
+  `review/ratification-2026-08-26.md`). Neutral-first
   front-end half of codexFactory issue #3, ruled by Brett Heap the same day:
   machine-readable standing-policy veto vocabulary, loud compliance-decision
   evidence and a central revocable policy-allowance registry whose IDs — never
@@ -648,38 +848,6 @@ Active changes:
   allowance passes explicitly, and revocation blocks the next dispatch and
   admission. Realization cuts the next additive contract bundle; no domain
   detector, runtime registry service or allowance instance lives here.
-- [add-model-capability-vocabulary](openspec/changes/add-model-capability-vocabulary/proposal.md)
-  — authored 2026-08-24, **NOT YET RATIFIED** (`Status: draft`). Exit (a) of the
-  staged topic `doxchat-auto-fit-routing`, whose six questions were
-  dispositioned the same day. `contract-v1.38` gave the catalog a routing rule
-  whose resolution is STATIC; Brett's direction at that release's rule-5 ruling
-  was that the destination be chosen PER TURN by whether the model can
-  accommodate the turn — and he named a dimension the catalog cannot express
-  ("if we need multi modal then we have to select from that"). The entry says
-  how MUCH a model accepts (`input_limit_bytes`) and nothing about WHAT KIND, so
-  a router asked to keep an image turn away from a text-only model has nothing
-  to read. Adds ONE optional, closed `modalities` declaration — exactly `text`
-  and `image` — extended only by the change that governs a new member, the rule
-  the client-identity roster already applies to admission surfaces. Optional and
-  absence-tolerant because requiring it would break every catalog released
-  before it: absence means "a producer older than the field" and is read as
-  text-only for routing, reusing the chat-turn family's own idiom. Per Q3's
-  batching obligation it also DECIDES the two recorded catalog follow-ups rather
-  than passing them by, and TAKES both after reproducing each: the released
-  64-entry cap is unenforced type-side (a 65-entry catalog constructs), and
-  `model_id` is not held to its released length and pattern (a 200-character id,
-  and one containing a space, both construct) — the same type-weaker-than-wire
-  divergence this capability already closed once for `routes_to`, and N7's
-  recorded reason for deferring ("a behaviour change belonging to no release")
-  is dissolved because this IS that release. Requirements are ADDED, not
-  MODIFIED: the requirement governing the catalog already carries a live
-  MODIFIED delta from the ratified-but-unbuilt intake lane. **Realization is a
-  CONTRACT RELEASE** — schema bytes move — but the bundle number is deliberately
-  NOT allocated in the proposal: `contract-v1.41` only if the pending Unreleased
-  block has not folded first, fresh-counted at allocation. Exits (b) fit-aware
-  routing and (c) compress-to-fit disclosure are named successors; (a) touches
-  only the schema, the type and the validator, which is why it is safe to raise
-  while (b) must be sequenced against the intake build.
 - [add-notebook-hosting-credential-custody](openspec/changes/add-notebook-hosting-credential-custody/proposal.md)
   — authored 2026-08-23, **NOT YET RATIFIED** (`Status: draft`). The follow-up
   to `add-notebook-projection-identity`, on Brett Heap's direction the same day:
@@ -1222,6 +1390,325 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [add-model-capability-vocabulary](openspec/changes/archive/2026-08-29-add-model-capability-vocabulary/proposal.md)
+  — **ARCHIVED on merged-plus-green PLUS THE CUT.** Ratified 2026-08-24 with TWO
+  rulings in one read (ratify; **the parity scope is ALL FIVE**, overriding the
+  proposal's own two-plus-a-follow-up recommendation), then realized directly as
+  `contract-v2.2`: pull request #498, squash `8ccfb67b`, annotated tag object
+  `f86f2212` peeling FROM THE REMOTE to that commit, `verify-commit` and
+  `verify-tag` both green, and the `unpublished:contract-v2.2` REF sentinel
+  resolved to the published commit in `0b9e31c8`. Adds ONE optional, closed
+  `modalities` declaration on `$defs/model_entry` — exactly `text` and `image`,
+  extended only by the change that governs a new member — whose ABSENCE CARRIES
+  NO CLAIM in either direction: an undeclared entry is a producer that predates
+  the field, read as text-only for routing while recorded as having declared
+  nothing, reusing the chat-turn family's own idiom. `contains: {const: text}`
+  is in the SHAPE and not only the type, because `minItems` plus an item enum
+  would have accepted `modalities: [image]` and left the wire gate the weakest
+  one. The declaration is PROJECTED deliberately — `as_public_dict` emits an
+  explicit key list, so it would otherwise have been validated in process and
+  silently dropped by `GET /workbench/model-catalog` — and that is proved at the
+  ROUTE. The parity half closed SIX reproduced gaps with no residue: the
+  released 64-entry catalog cap, `model_id`'s length and pattern (N7's deferral,
+  whose recorded reason was "a behaviour change belonging to no release",
+  dissolved because this WAS that release), and `label`/`provider_class`/
+  `data_handling`'s lengths, which Brett's ruling added; `resolved_model_id` was
+  already enforced and its helper was REUSED rather than respelled. No-residue
+  is proved FROM THE SCHEMA — the test walks `$defs/model_entry` and holds the
+  bounded-string set to a hard equality — rather than from a list of four names.
+  Requirements were ADDED, never MODIFIED, so the ratified-but-unbuilt intake
+  lane's live MODIFIED delta on the governing requirement was never contended;
+  that lane's "closed seven-field shape" prose is RECONCILED in the CHANGELOG
+  and its packet deliberately unedited, on the `contract-v1.38` precedent.
+  Promotion verified byte-for-byte at archive: 2 ADDED requirements and 9
+  scenarios in, `ideation-dashboard` 100 → 102 requirements and 457 → 466
+  scenarios, no sibling scenario lost, no capability directory added.
+  Exits (b) fit-aware routing and (c) compress-to-fit disclosure remain named
+  successors; the staged topic `doxchat-auto-fit-routing` keeps its row.
+
+- [fix-content-resolution-conflation](openspec/changes/archive/2026-08-29-fix-content-resolution-conflation/proposal.md)
+  — **ARCHIVED on merged-plus-green PLUS THE CUT**, which is the gate its own
+  `target_release` field named at filing and the reason it was split from its
+  sibling. Pull request #490 merged 2026-08-29T02:26:14Z as merge commit
+  `571e64d5540cbe6240cfb068ef137778e53611f8`, re-verified at this act an
+  ancestor of `origin/main` (`git merge-base --is-ancestor`, exit 0) and a real
+  two-parent merge (`3cebf83e` + `b57874f3`) read out of `git cat-file -p`
+  rather than off the pull request page; the sibling's merge `8690ec29` is an
+  ancestor of it, so the order Brett directed is legible in the graph. Green on
+  the final head `b57874f3`, all four checks from the check-runs API:
+  `pytest-suite` **selected 7704, passed 7683, skipped 21, 0 failures, 0
+  errors** (run 33228174754, counts read out of the job log), plus
+  `wallet-validation`, `merge-master-approval` and
+  `copilot-pull-request-reviewer`. **THE CUT IS `contract-v2.1` AND ALL FOUR
+  SURFACES AGREE**, re-read at the archive rather than quoted from the
+  realization: `contracts/manifest.yaml:3` reads `contract-v2.1`, the changelog
+  opens with the `contract-v2.1 — 2026-08-28 (additive)` section, the digest
+  inventory `contracts/releases/contract-v2.1.digests.yaml` carries **192**
+  entries — the same count as `contract-v2.0`, the additive class showing in
+  the membership rather than being asserted — and both moved members carry new
+  digests equal to the tree's own `sha256sum`: `release.py` `660e55ca…` →
+  `bb845d70…`, `content.py` `bad04c65…` → `509ad91b…`. The tag is ANNOTATED and
+  on the merge (`tag e2a1fcc4` over commit `571e64d5`), `verify-tag --remote
+  origin --tag contract-v2.1` re-run here reports `pass`, **exit 0**, and
+  doc-health's `release-inventory-drift` family reports **no findings**. The one
+  command that no longer passes is reported rather than omitted:
+  `verify-promotion` now exits 1 with `HGR-RELEASE-TAG-EXISTS`, which is the
+  PRE-tag gate refusing a tag that exists — it passed in the window before the
+  tag was cut, and `verify-tag` is the post-tag proof. **PROMOTION PROVED BY
+  DIGEST, PER REQUIREMENT**: `shared-contract-ownership` goes **10 → 12
+  requirements**, **39 → 46 scenarios**, 373 → 506 lines, `git diff --stat`
+  **+133 / −0**. Every `### Requirement:` block was hashed either side of the
+  act and the two sets compared: **0 removed, 2 added, 0 changed bytes, 10 of
+  10 pre-existing byte-identical**. The two promoted blocks are the delta's own
+  bodies byte-for-byte — `sha256:3f20ecb4…` (5782 bytes, 4 scenarios, the
+  distinction) and `sha256:7c7f4d3f…` (3278 bytes, 3 scenarios, the executable
+  proofs) — the same digests computed from `specs/shared-contract-ownership/
+  spec.md` in the archived folder, so zero deletions is a measured fact about
+  all ten untouched requirements rather than an inference from a diff stat.
+  `.openspec.yaml` MOVED with the packet under openspec 1.2.0, checked by blob
+  id rather than by presence: `aa517729`, unchanged. No header move was owed —
+  the packet already read `Status: ratified` with a citation clearing the record
+  spelling's three-way floor, all six orchestrator decisions cleared and all
+  four questions ruled 2026-08-28. All four § 7 follow-ups stay OPEN with an
+  archive-time disposition each, none ticked, because the archive performed
+  none of them.
+- [fix-pin-value-boundary-and-sentinel-split](openspec/changes/archive/2026-08-29-fix-pin-value-boundary-and-sentinel-split/proposal.md)
+  — **ARCHIVED on merged-plus-green ALONE**, and that it could is the whole
+  argument of OD-1: this packet touches no contract inventory member, so it
+  never had to wait on its sibling's human-gated tag. Pull request #478 merged
+  2026-08-28T11:33:42Z as merge commit
+  `8690ec297e9bbe276e77cc61262b71913f443087`, re-verified at this act an
+  ancestor of `origin/main` (exit 0) and a real two-parent merge (`31344941` +
+  `0529fb4a`) read out of `git cat-file -p`. Green on the final head
+  `0529fb4a`: `pytest-suite` **selected 7650, passed 7629, skipped 21, 0
+  failures, 0 errors** (run 33165708443, counts read out of the job log), plus
+  `wallet-validation`, `merge-master-approval` and
+  `copilot-pull-request-reviewer`. **THE PIN CLASS REPORTS `clean` AND ONE
+  NUMBER MOVED, FOR A CAUSE THAT IS NAMED RATHER THAN ROUNDED AWAY**:
+  `scripts/doc_health/pin_class.py` exits 0 and reads **67 declared pin sites
+  across 23 class members — 51 reachable, 0 orphaned, 1 lost (declared
+  unrecoverable, 0 awaiting a superseding record), 0 inconclusive; 0 uncovered,
+  0 vanished, 0 arrived; 7 legal non-pins, 0 undeclared non-commit values, 3
+  recognized legacy absences, 0 unused vocabulary members**. Against the
+  realization's **66 sites / 50 reachable**, two counts moved and thirteen did
+  not, and the move is not this packet's: the sixty-seventh site is
+  `openspec/changes/add-worker-enrollment-broker/supporting-docs/manifest.yaml:21`,
+  added by `21bc40ac` in pull request #489, pinning `93f883f4` and reachable —
+  proven by `git ls-tree` at both commits and `git log --diff-filter=A`, not
+  asserted. Every full promotion writes a supporting-docs manifest and a
+  manifest is a pin site. The corpus sweep behind the packet's zero was re-run
+  too: **1124 scan-suffix files, 184 read after non-member exclusion, and 0
+  values of 41 or more hexadecimal characters under any vocabulary key** — the
+  one number that must not move, and it did not. **NO CONTRACT TAG OWED,
+  re-affirmed at the archive by PARSE against the bundle as it stands today**
+  rather than as it stood at filing, which matters because the bundle MOVED to
+  `contract-v2.1` under this packet's own sibling: the inventory's 192 entries
+  were walked and not one path under `scripts/doc_health/`,
+  `scripts/ideation_dashboard/` or `experiments/` appears in it.
+  **PROMOTION PROVED BY DIGEST**: `doc-health` goes **39 → 40 requirements**,
+  **181 → 185 scenarios**, 2127 → 2208 lines, `git diff --stat` **+81 / −0**,
+  with **0 requirements removed, 1 added, 0 changed bytes and 39 of 39
+  pre-existing byte-identical** under a per-block sha256 set comparison taken
+  either side of the act. The promoted block is the delta's own 5953-byte /
+  4-scenario body under `sha256:5d364da4…`, byte-for-byte. `.openspec.yaml`
+  MOVED with the packet, checked by blob id: `cef67a9b`, unchanged. No header
+  move was owed — `Status: ratified` with a citation was already in place, all
+  five orchestrator decisions cleared and all four questions ruled 2026-08-28.
+  All five § 6 follow-ups stay OPEN with an archive-time disposition each, and
+  § 6.5's stale "66 sites" is corrected to 67 in place rather than left to age.
+- [declare-generated-projection-status](openspec/changes/archive/2026-08-29-declare-generated-projection-status/proposal.md)
+  — **ARCHIVED on merged-plus-green**, where merged and green are ONE event: the
+  realization RODE IN the proposing pull request, so the argument for the value
+  and the value itself were reviewed together. Pull request #468 merged
+  2026-08-28T11:25:39Z as merge commit
+  `4d3f540d7a8c762e1077751b040a4839ae14e35f`, re-verified at this act an
+  ancestor of `origin/main` (`git merge-base --is-ancestor`, exit 0) and a real
+  two-parent merge (`c79d6e54` — the sibling packet's own merge, so the order
+  Brett directed is legible in the graph — and `cb67a02d`), read out of
+  `git cat-file -p` rather than off the pull request page. Green on the final
+  head `cb67a02d`, all four checks from the check-runs API: `pytest-suite`
+  **selected 7637, passed 7616, skipped 21, 0 failures, 0 errors** (run
+  33165034882, counts read out of the job log), `wallet-validation`,
+  `merge-master-approval` and `copilot-pull-request-reviewer` all pass. **THE
+  PREDICTION HELD EXACTLY AND WAS RE-MEASURED RATHER THAN ASSUMED**:
+  `record-immutability` reads **4 criticals** on the merged tree, and
+  `ideation/cross-reference.md` is absent from them — not allowlisted, not
+  suppressed, not skipped, but no longer a record, its line 3 now reading
+  `Status: projection` because the generator emits it. The four that remain are
+  the genuine hand-maintained records the packet named, all untouched, all still
+  firing. **PROMOTION PROVED BY DIGEST**: `document-lifecycle` holds at **17
+  requirements**, scenarios **77 → 79**, +18 / −3 lines, and of the 17
+  requirement blocks **exactly ONE changed bytes** — `Controlled document status
+  taxonomy`, the one the MODIFIED block names — the other 16 byte-identical
+  under a per-block sha256 set comparison taken either side of the act. The
+  promoted block is the delta's 7882-byte / 72-line body under
+  `sha256:04537b7fdb210a74a35038e35cba85e02bccc21bdac68e19efb80d1a926c4e53`,
+  byte-for-byte; canon's replaced text was 5912 bytes / 57 lines under
+  `sha256:65dc437f12c73b48b4add97df28297313ebdbff2eba74cd2f9de8aace19b81de`.
+  `.openspec.yaml` MOVED with the packet under openspec 1.2.0, checked by blob
+  id rather than by eye (`6e750e85`, unchanged). **THE HEADER MOVED AT THE
+  ARCHIVE**: `Status: draft` → `ratified` with a `Ratified:` line citing Brett's
+  2026-08-28 merge-and-archive ruling, written before `openspec archive` ran so
+  it lands in the archived copy — necessary because
+  `promotion_fidelity.PRE_RATIFICATION` is `{brainstorm, staged, draft}`, so an
+  archived proposal reading `draft` would have had this packet's own
+  `document-lifecycle` delta discounted as design evidence. **THE ACT OWED IN
+  ANOTHER REPOSITORY LANDED FIRST, AND THE ARCHIVE WAITED ON IT**: § 5.1's
+  disposition entry at the AGGREGATION root, keyed `(record-immutability,
+  openxFactory, ideation/cross-reference.md)` and citing this change, is present
+  at aggregation commit `20aafc4b` of 2026-08-28,
+  `health/dispositions.yaml:239-249` — the cited-resolution case that instrument
+  exists to record, not a silencer. Verified against that repository's
+  `origin/main` rather than its shared working tree, a distinction this packet's
+  own § 5.1 records because the first reading got it wrong. Three further
+  follow-ups archive CARRIED with
+  written dispositions rather than blank boxes: the prose-only generator
+  declaration (a class of one — the census reads `projection | 1`), the
+  mirror-image re-class hole whose honest remedy is `--check`-mode regeneration
+  in CI, and the four remaining record-immutability criticals, which are the
+  append-discipline collision `govern-openspec-corpus-membership` already owns.
+
+- [clean-doc-health-floor](openspec/changes/archive/2026-08-29-clean-doc-health-floor/proposal.md)
+  — **ARCHIVED on merged-plus-green**, on the same terms and in the same act as
+  its sibling above: the realization rode in the proposing pull request. Pull
+  request #465 merged 2026-08-28T10:47:25Z as merge commit
+  `c79d6e54cf5093d18565f06afa1c2ea6216418de`, re-verified at this act an
+  ancestor of `origin/main` (`git merge-base --is-ancestor`, exit 0) and a real
+  two-parent merge (`0c0075df` + `a1067f08`) read out of `git cat-file -p`.
+  Green on the final head `a1067f08`, all four checks from the check-runs API:
+  `pytest-suite` **selected 7629, passed 7608, skipped 21, 0 failures, 0 errors**
+  (run 33159846355, counts read out of the job log), `wallet-validation`,
+  `merge-master-approval` and `copilot-pull-request-reviewer` all pass. **THE
+  NUMBER WORTH READING IS THE ONE THAT DID NOT MOVE.** `status-validity` went
+  **4 errors → 0** on the four backfills, as the packet predicted; but
+  `location-conformance` stayed at **3**, and that is the fix working rather
+  than failing. The forcing document cites TWO changes — the archived
+  `implement-avatar-client-lab` and the active `qualify-avatar-live-voice` — and
+  the arm reported `cited[0]` off a sorted list, so the ARCHIVED id won on
+  alphabetical order and HID a performable remedy behind an impossible one. The
+  row is now re-pointed at the active proposal and stays an error, correctly,
+  because that move CAN be performed. That corrects the commission's own stated
+  expectation and is recorded as such rather than smoothed over. **PROMOTION
+  PROVED BY DIGEST**: `doc-health` holds at **39 requirements**, scenarios
+  **179 → 181**, +21 / −2 lines, and of the 39 requirement blocks **exactly ONE
+  changed bytes** — `Proposal supporting-document integrity checks`, the one the
+  MODIFIED block names — the other 38 byte-identical under a per-block sha256
+  set comparison taken either side of the act. The promoted block is the delta's
+  2628-byte / 42-line body under
+  `sha256:81267524a00f7ae9582347067687959a445997cc11bab3f07947067b7e2591b2`,
+  byte-for-byte; canon's replaced text was the 1390-byte / 23-line block under
+  `sha256:b0e1bc81916bd8ed865565544021670aeb0089fffa7e1955dd153edf0416081c`, the
+  one that pinned "active or archived" twice. `.openspec.yaml` MOVED with the
+  packet under openspec 1.2.0, checked by blob id (`fa04b8a7`, unchanged since
+  the PR #465 amendment that corrected its `approved_by` narrative). **THE
+  HEADER MOVED AT THE ARCHIVE**, as § 6.3 said whoever performed it would owe:
+  `Status: draft` → `ratified` with a `Ratified:` line citing Brett's 2026-08-28
+  merge-and-archive ruling, for the defect § 6.3 measured from the other end —
+  an archived `draft` has its deltas discounted, which would have silently
+  dropped this packet's own MODIFIED block, the very failure § 1.4 measured
+  against somebody ELSE's archived record. The `modified-block-currency`
+  SELF-GATE row this packet added on filing was REMOVED by the same act, on the
+  retirement condition the row itself stated, and its sibling's row with it —
+  the carriage-ledger population 9 → 7 with no other subject moving. Two
+  follow-ups archive CARRIED with written dispositions: the staged-exit arm
+  still reports only `cited[0]` where two ACTIVE changes are cited (Q1 — a count
+  change owing its own cross-repository before/after), and a staged fragment
+  whose every cited exit has archived is now reported by nothing (Q2 — a real
+  lifecycle gap, now a property of canon, whose plausible owner is
+  `staged-candidate-aging`).
+
+- [add-unclassified-finding-class](openspec/changes/archive/2026-08-28-add-unclassified-finding-class/proposal.md)
+  — **ARCHIVED 2026-08-28** on the merge-plus-green rule the packet declared, and
+  on TWO merges rather than one, this packet having been amended mid-flight.
+  Realization pull request #466 merged as squash `db2442ce` (Speckit
+  `026-unplaced-finding-drift`), preceded by the DELTA AMENDMENT pull request
+  #461, squash `6d100e51` — both re-verified at this act as ancestors of
+  `origin/main` (`git merge-base --is-ancestor`, exit 0 on each) rather than read
+  off a pull-request page. The amendment had to land FIRST, the realization's
+  spec citing the amended text. **RATIFIED 2026-08-27** (in-session
+  commissioning, verbatim "Amend now"), **AMENDED 2026-08-28 by Brett**
+  (in-session, verbatim "Amend: shape = arm template, all interpolations masked"
+  — D3's shape-identity rule widened from quoted-spans-plus-digits to every
+  interpolated field, after Speckit 026 measured SIX `warning` rows for ONE
+  remedy on the real tree; `specs/026-unplaced-finding-drift/plan.md` § OPEN-1).
+  **THE GATE NUMBERS**, base `db2442ce`, before → after the act:
+  `pytest tests/doc-health` **1270 → 1270 passed, 0 failed**, no test falling due
+  and none re-aimed; `openspec validate --all --strict` **76 → 75 passed, 0
+  failed** (24 active + 52 specs → 23 + 52, **−1** exactly as promotion of one
+  change predicts); `doc-health --single-repo .` **byte-identical at 5 critical,
+  11 error, 41 warning, 11 info, 0 new regressions**, moving **+0 `warning` / +7
+  `info`** against `--skip-family modified-block-currency` in both readings,
+  equal to the family's own counts. Promotion is a **PURE APPEND**: canon 38 → 39
+  requirements and 173 → 179 scenarios, `git diff --stat` **73 insertions(+), 0
+  deletions(-)**, the remainder byte-identical at **139505 == 139505** raw and
+  canon before a strict byte PREFIX of canon after — the strongest reading a
+  promotion admits, and one a `MODIFIED` block could never offer. The whole
+  report diff across the act is THREE lines and none is a finding — canon words
+  218169 → 219088 (+919), the SAME +919 in governance words as those words move
+  from active-change prose into promoted prose, canon share 31.6% → 31.7%, and
+  the promoted-specs row — an ADDED-only packet having drawn no self-finding to
+  depart, which is where this act differs from its sibling
+  `add-modified-block-currency-check`, whose archive re-aimed five tests and
+  retired one. **THE FIFTH CLASS READ ZERO ON THE DAY IT SHIPPED, AND THAT IS THE
+  WHOLE OF ITS EVIDENCE**: the family's block renders `unplaced-finding drift: 0`
+  and the residual row does not render at all. Substantively —
+  the modified-block-currency family's report block
+  already detects that its own class map has drifted from its arms, and then
+  says so in PROSE: the `unclassified` residual row carries no severity, is not
+  a finding, and is therefore reached by neither `--fail-on` nor the ranked plan
+  that "Health report contract" requires every finding to appear in. One ADDED
+  requirement on `doc-health` makes an unplaced rule text emit one `warning`
+  **per distinct rule SHAPE per run** — a shape being the ARM'S TEMPLATE with
+  every field it interpolates masked (quoted spans, digit runs, the promoted
+  spec's path, change identifiers, unit-kind lists), the mask derived from the
+  arm templates themselves so it cannot drift from them — naming that shape's
+  count and the first instance's
+  rule text verbatim, carrying its repo and delta path, with the action line
+  "extend the class map in `scripts/doc_health/modified_block_currency.py`, or
+  fix the drifted rule text the finding names". Per shape rather than per run
+  because two drifted shapes are two map entries to write, and per shape rather
+  than per repository because the map is one module constant with one remedy.
+  The finding is itself placed by the map into a FIFTH `FindingClass` (id
+  `unplaced`, label `unplaced-finding drift` — neither may contain the substring
+  `unclassified`, which a standing pin asserts absent from a clean summary) under
+  a FOURTH severity constant `_DRIFT_SEVERITY`, so § 7.2's flip of
+  `_LAUNCH_SEVERITY` cannot drag it; and its pattern is ANCHORED at the start of
+  the rule text, because the finding quotes a rule text that may itself begin in
+  the shape of an arm. The residual row stays; it is what makes the tally sum.
+  **NO `## MODIFIED Requirements` block**, and that is a measurement rather than
+  a preference: canon enumerates the three comparison ARMS and never the classes,
+  the class map, or the residual, so restating 14 scenarios of "Currency of an
+  active change's MODIFIED requirement blocks" would risk the defect the family
+  exists to catch in order to say something canon does not say. The requirement
+  BODY is deliberately lean — 36 lines, down from 70 — because every body line is
+  carriage-ledger surface a future MODIFIED block must restate. Adds NO check
+  family; the enumeration and its numerals are untouched. Band `warning` and the
+  family stays absent from `FAMILY_RESOLUTION`, so the finding retiring when
+  somebody extends the map cannot become an uncited-resolution `error`; § 7.2's
+  flip is untouched and still owed. Predicted movement **zero in every band**,
+  and the act measured exactly that. Realization moved the standing pins by name
+  — of the EIGHT sites § 3.6 predicted would red, five actually did — added a
+  behavioural fixture tree (`modified-block-currency-unplaced`; no corpus title
+  can produce an unplaced rule text, measured at 20,065 fuzzed rule texts and 0
+  unplaceable, so the honest trigger is a REMOVED map pattern rather than a
+  crafted title), and AMENDED the byte-level report contract
+  `specs/022-modified-block-currency-reporting/contracts/report-section.md`,
+  which enumerated the four classes four times over.
+  Group 2 is ticked against #466, EIGHT of its fifteen boxes carrying a
+  `RECONCILED` clause rather than a silent tick: § 2.4, § 2.6 and § 2.14 moved by
+  the amendment, and § 2.3, § 2.7, § 2.8, § 2.10 and § 2.15 by defects in the
+  packet that realization found and recorded as plan decisions O3–O8 — the
+  three-versus-four test files, the eight predicted reds that were five, the
+  function rename the pin roster did not ask for, F2's provenance checker that
+  would not have covered the new tree, the mutant no value comparison can kill,
+  and an unforeseen allowlist pin. § 4 stays OPEN as authored — § 4.2's first
+  nightly with this emit present is the measurement no archive act can supply,
+  the population being empty on this tree and unmeasured everywhere else — and
+  § 1.2's veto flag on the three orchestrator decisions stays open with it,
+  not-vetoed being neither vetoed nor ruled. `add-modified-block-currency-check`
+  § 7.2's flip of the scenario-title arm to `error` is untouched and still owed;
+  `_DRIFT_SEVERITY` exists so that flip cannot drag this class with it.
 
 - [declare-sentinel-pin-vocabulary](openspec/changes/archive/2026-08-28-declare-sentinel-pin-vocabulary/proposal.md)
   — **ARCHIVED 2026-08-28** on merged-plus-green. Pull request #457 merged

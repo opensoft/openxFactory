@@ -66,6 +66,13 @@ The second must print **nothing**: this feature touches tests and specs only
 
 ## WHEN THE GATE FAILS — read this before editing anything
 
+> **2026-08-27 (#444):** the rename was declared with a `Merged into` marker
+> (the correct form for a retitle — canon reserves `Removed from canon by`
+> for genuine removals); the scenario-arm test was re-aimed to
+> `test_the_scenario_arm_reads_zero_since_the_rename_was_declared`;
+> references below to the old test name and the removal form are pre-#444
+> history.
+
 The gate asserts **named subjects in a live corpus**. It is designed to fail when
 the corpus legitimately moves, and the failure message says which of these it is.
 

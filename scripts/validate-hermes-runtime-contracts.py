@@ -6,7 +6,6 @@ from __future__ import annotations
 import argparse
 from collections.abc import Mapping, Sequence
 import json
-import os
 from pathlib import Path, PurePosixPath
 import re
 import subprocess
@@ -45,6 +44,9 @@ from scripts.hermes_runtime_validation import (  # noqa: E402
 from scripts.hermes_runtime_validation.loader import (  # noqa: E402
     YamlLoadError,
     load_yaml_document,
+)
+from scripts.hermes_runtime_validation.pytest_inventory import (  # noqa: E402
+    collect_evidence_test_nodes,
 )
 
 FAMILY_PATH = PurePosixPath("contracts/hermes-runtime")
@@ -336,61 +338,6 @@ def _fixture_coverage_findings(
             )
         )
     return findings
-
-
-def collect_pytest_node_ids(repo_root: Path) -> tuple[str, ...]:
-    """Collect real pytest node IDs without executing a test body."""
-
-    test_root = repo_root / TEST_ROOT_PATH
-    if not test_root.is_dir():
-        raise FileNotFoundError(TEST_ROOT_PATH)
-    environment = os.environ.copy()
-    environment.update(
-        {
-            "LANG": "C.UTF-8",
-            "LC_ALL": "C.UTF-8",
-            "PYTEST_ADDOPTS": "",
-            "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
-            "PYTHONDONTWRITEBYTECODE": "1",
-            "PYTHONHASHSEED": "0",
-            "TZ": "UTC",
-        }
-    )
-    try:
-        completed = subprocess.run(
-            [
-                sys.executable,
-                "-m",
-                "pytest",
-                "-p",
-                "no:cacheprovider",
-                "--collect-only",
-                "-q",
-                TEST_ROOT_PATH,
-            ],
-            cwd=repo_root,
-            env=environment,
-            capture_output=True,
-            text=True,
-            check=False,
-            timeout=60,
-        )
-    except (OSError, subprocess.TimeoutExpired) as error:
-        raise RuntimeError("pytest collection dependency is unavailable") from error
-    if completed.returncode != 0:
-        raise RuntimeError(f"pytest collection failed with exit {completed.returncode}")
-    nodes = tuple(
-        sorted(
-            {
-                line.strip()
-                for line in completed.stdout.splitlines()
-                if line.startswith("tests/") and "::" in line
-            }
-        )
-    )
-    if not nodes:
-        raise RuntimeError("pytest collection returned no Hermes runtime nodes")
-    return nodes
 
 
 def _validate_ratified_inventory(
@@ -852,24 +799,14 @@ def _validate_repository(
     summary["openspec_scenarios"] = sum(
         len(list(item.get("scenario_titles", []) or [])) for item in requirements
     )
-    try:
-        collected_nodes = collect_pytest_node_ids(repo_root)
-    except (FileNotFoundError, RuntimeError) as error:
-        findings.append(
-            _finding(
-                "HRC-PYTEST-COLLECTION",
-                str(error),
-                path=TEST_ROOT_PATH,
-            )
-        )
-        return _normalize_findings(findings), True, selection, summary
-    summary["collected_test_nodes"] = len(collected_nodes)
+    test_nodes = collect_evidence_test_nodes(repo_root, evidence_register)
+    summary["collected_test_nodes"] = len(test_nodes.collected)
     parity = check_parity(
         inventory,
         acceptance_map,
         evidence_register,
-        collected_node_ids=collected_nodes,
-        skipped_node_ids=(),
+        collected_node_ids=test_nodes.collected,
+        skipped_node_ids=test_nodes.skipped,
     )
     for category, items in parity.items():
         code = PARITY_CODES.get(category, "HRC-PARITY-INVALID")

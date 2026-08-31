@@ -414,6 +414,22 @@ unimplementable, and `projection.py`'s property 5 said so in as many words.
     validate the bound is recorded as a named successor on openXwallet PR #3,
     because the reader left this repository at the `split-openxwallet-repo`
     carve.
+  - **THE FINDING'S BLIND SPOT IS CLOSED (2026-08-28), and STILL NOT TICKED.**
+    openXwallet's `add-per-seat-register-entries` — ratified by Brett Heap
+    2026-08-28 (openXwallet PR #4, `10cbdca`) and realized at `wallet-v1.2`
+    (PR #5, `93b0a47`) — closes the reader's top level as an ENUMERATED set
+    (`register_version`, `revocation_staleness_bound`, `rows`, `seat_keys`;
+    anything else refused as `register-top-level-unknown`) and brings
+    `revocation_staleness_bound` into the ENFORCED read set. So the vacuous-pass
+    class this task uncovered is now structurally closed rather than fixed once:
+    the NEXT governed declaration added to this file is refused as unknown
+    instead of passing unread. That reader arrives here with THIS pull request
+    (pin + gitlink → `wallet-v1.2`), which is what makes the bound actually
+    adjudicated by the required `wallet-validation` check.
+  - It stays UNTICKED because this task's OWN enforcement half is 7.4's
+    (hermes-install: older-than-the-bound ⇒ REFUSE), and 7.4 is BUILT but not
+    ticked. Closing a reader's blind spot is not the same as the runtime
+    refusing a stale projection. Tick 7.3 when 7.4 ticks.
 - [ ] 7.4 **[hermes-install]** Unreadable register ⇒ REFUSE. Unreachable,
       unparseable, or older than the bound all refuse; never proceed.
   - **BUILT** (hermes-install #51). Half of it existed — absent, unreadable,
@@ -469,6 +485,62 @@ unimplementable, and `projection.py`'s property 5 said so in as many words.
     at all is the question carried to the convener under 8.1. So 7.5 stays
     UNTICKED, and the flip is folded into 7.6's runbook walk rather than
     performed ahead of it.
+  - **Supporting guidance only:** the [S5 model-version governance research
+    report](research/s5-model-version-governance-research-report.md) prepares
+    decision/evidence packets but selects no Council model or Operator version
+    and does not discharge 7.5; it authorizes no implementation, reopens no
+    Q8, amends no design, and satisfies no S5 gate.
+  - **RULINGS RECORDED 2026-08-29** ([`rulings-2026-08-29.md`](rulings-2026-08-29.md),
+    R1–R5). Brett ruled the TARGET composition: Option D, all-Anthropic 2:2 —
+    `lead-quality` → `claude-sonnet-5`, `lead-security` and `lead-integration`
+    → `claude-opus-5`, and the tenant declaring `claude-sonnet-5` for
+    `company-policy-lead` in its parallel lane; the Operator plane is the
+    DIRECT ANTHROPIC API, reached through today's Claude Code transport and
+    EVIDENCED by read-back — partner-plane routing to Bedrock, Vertex or
+    Foundry shown unset, the base URL resolving to the direct API, the
+    opt-in server-side `fallbacks` beta asserted UNSET — never inferred from
+    the transport, and fail-closed if the read-back shows a partner plane.
+    A ruled target is not a Council selection: the Gate-Rules
+    Council's soak-evidenced selection act and the roster-change Lead's
+    `lead_accepted_recorded` acceptance are STILL OWED, and the Council must
+    rule in the same act whether the alias-to-exact flip re-opens the soak. So
+    **7.5 stays UNTICKED** and the flip stays folded into 7.6's runbook walk.
+  - **THE COUNCIL SAT 2026-08-29.** `gate_rules_council` convened on the S5
+    seat-to-model selection and returned **UNANIMOUS ACCEPT AS AMENDED, 5/5**,
+    and **UNANIMOUS 5/5 that no slot can carry an unqualified SELECT on the
+    evidence before the bench on 2026-08-29**. The record of authority is
+    codexFactory
+    `hermes/domain/review-councils/records/2026-08-29-gate-rules-s5-seat-model-selection.md`
+    — **its §8 is the sole disposition** — with the verbatim seat returns beside
+    it at `hermes/domain/review-councils/records/2026-08-29-seat-returns-s5/`,
+    the ballot at
+    `hermes/domain/review-councils/records/2026-08-29-ballot-s5-seat-model-selection.md`
+    and the convening packet at
+    `hermes/domain/review-councils/convening-packets/2026-08-29-s5-seat-model-selection.md`
+    (codexFactory **PR #139**).
+    - **The THREE DOMAIN pins are CONDITIONAL SELECT**, on the union of the
+      bench's conditions (record §8.3): `lead-quality` → `claude-sonnet-5`,
+      `lead-security` → `claude-opus-5`, and `lead-integration` →
+      `claude-opus-5` **additionally conditional on LA-C3**, the four-class
+      integration soak, being run and recorded first (§8.4). **The TENANT slot
+      is not on that union** — see the next bullet. **No unqualified SELECT was
+      returned by any seat or recorded by the convener.**
+    - **R4 is an OWED TENANT ACT**, not a completed declaration. Four seats
+      measured that the tenant's authority file still reads `model: sonnet` with
+      no `claude-` string in it; `company-policy-lead` CONFIRMED the family and
+      WITHHELD confirmation of the exact-version act. The tenant edit lands in
+      the same change as the domain roster edit — red in either order alone.
+      **It is expressly NOT gated on CPL-C2**: ballot option (b), commissioning
+      CPL's policy case before the tenant act, was declined (record §8.5).
+    - **Seven blocking repairs accepted** (R-I…R-VII), chief among them carrying
+      the SERVED model read-back into a durable artifact and refusing on
+      mismatch; twenty should-fix items accepted as should-fix, not as gates.
+    - **The soak union is commissioned**, with a ruled order: served-model
+      read-back landed → the flip → the first soak row → activation.
+    - **This does NOT discharge 7.5.** The record selects nothing
+      unconditionally, applies nothing to the enrolled roster (the roster-change
+      Lead's `lead_accepted_recorded` act is still OWED), ticks no task here, and
+      discharges no S5 gate or activation-gate entry. **7.5 stays UNTICKED.**
 - [ ] 7.6 **[OPERATOR]** Write the governed re-issuance RUNBOOK for a provider
       alias roll, and walk it once against a deliberate composition bump. Without
       it, one provider release revokes every seat grant at once, every convening
@@ -481,6 +553,22 @@ unimplementable, and `projection.py`'s property 5 said so in as many words.
     will not choose one"), so the alias-to-exact-version flip IS the deliberate
     composition bump this runbook is supposed to be walked against. The runbook
     and that flip are one act, not two.
+  - **Supporting guidance only:** the [S5 model-version governance research
+    report](research/s5-model-version-governance-research-report.md)'s
+    unresolved-decision matrix informs the runbook but is not a runbook walk,
+    re-issuance act, or completion evidence; it selects no Council model or
+    Operator version, authorizes no implementation, discharges no task,
+    reopens no Q8, amends no design, and satisfies no S5 gate.
+  - **THE RUNBOOK'S TARGET SHAPE IS NOW RULED, 2026-08-29**
+    ([`rulings-2026-08-29.md`](rulings-2026-08-29.md)). R8 fixes the
+    re-issuance record the runbook must produce — superseding grant ref,
+    superseded grant ref, composition hash, ratifying human, effective time,
+    as a MINIMUM and not a ceiling. R9 fixes the in-flight behavior it must
+    describe — a revoked holder PARKS with a named refusal, no
+    grandfathering, no earlier admission stamp honored, resume only under a
+    new human-ratified issuance. Write the runbook against those; neither
+    ruling is enforced until the change carrying R6–R12 is ratified, so this
+    task stays OPEN.
 - [ ] 7.7 **Gate:** a revoked holder parks a convening with a named refusal in a
       rehearsed test; an unreadable register refuses; the runbook has been
       walked once.
@@ -501,6 +589,11 @@ unimplementable, and `projection.py`'s property 5 said so in as many words.
     parks under `review_authority.grant_expired` with no code change and no
     deploy to blame. Re-issuance is an operator act with a lead time, and this
     is where the date is stated as a SCHEDULED EVENT.
+  - **Supporting guidance only:** research completion in the [S5 model-version
+    governance research report](research/s5-model-version-governance-research-report.md)
+    is not gate completion; it selects no Council model or Operator version,
+    authorizes no implementation, discharges no task, reopens no Q8, amends no
+    design, and satisfies no S5 gate.
 
 ## 8. Bench and governance items carried, not performed
 
@@ -518,6 +611,12 @@ unimplementable, and `projection.py`'s property 5 said so in as many words.
     empty-register notification rides the HEC decision-ready packet; exact
     model versions only, no family pinning. Cascade enforcement rides the
     named core deltas at S5.
+  - **Supporting guidance only:** the [S5 model-version governance research
+    report](research/s5-model-version-governance-research-report.md) is
+    post-ruling research under the exact-version Q8 baseline; it neither
+    reopens Q8 nor changes 8.1's checked state, selects no Council model or
+    Operator version, authorizes no implementation, discharges no task, amends
+    no design, and satisfies no S5 gate.
   - CORE DELTAS AUTHORED at S5, in openXwallet as the Addendum requires:
     **openXwallet PR #3** (`change/add-composition-drift-cascade`, `fc68f13`,
     `Status: draft`, checks green, NOT merged — held for the convener's
@@ -564,6 +663,25 @@ unimplementable, and `projection.py`'s property 5 said so in as many words.
     one. The authored deltas are consistent with the standing ruling, so this
     question sits AHEAD of PR #3's ratification gate: admitting the family pin
     would amend a paragraph of the delta before it is ratified, not after.
+  - **RESOLVED — recorded 2026-08-29; the ruling is dated 2026-08-28.**
+    The question above was answered by ratification: Brett ratified
+    openXwallet PR #3 (`add-composition-drift-cascade`) AS AUTHORED on
+    2026-08-28 (`f3f72c6`), and the ratified change's own text records the
+    outcome — `proposal.md:115-117` and `design.md:227-229`, verbatim and
+    identical in both: *"Resolved 2026-08-28 by ratification as proposed:
+    the delta's exact-version rule stands — a declared model component
+    names an exact version, and a family pin is a validation failure.
+    Admitting a family pin would now be a new change."* Brett confirmed on
+    2026-08-29 that this ratification settled the question:
+    exact-versions-only stands un-revisited, and a family pin is a
+    NEW-CHANGE act, not a pending convener decision. No checkbox changes
+    here; the research report's section 4 "Ruling Of Record"
+    (`research/s5-model-version-governance-research-report.md`) mirrors
+    this entry.
+    The remaining Packet 4 rulings this ratification did NOT settle —
+    canonical serialization, digest, re-issuance grammar, corpus drift,
+    lifecycle roles, and the signer deferral — are recorded as R6–R12 in
+    [`rulings-2026-08-29.md`](rulings-2026-08-29.md), dated 2026-08-29.
 - [x] 8.2 **[GOVERNANCE]** Rule **Q9** — the floor's source-of-truth inversion.
       Either move the floor's source of truth into a seedable, schema-validated
       `.yaml` carrier and demote the record to evidence, or amend
