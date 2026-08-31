@@ -3,7 +3,7 @@
 Status: draft
 Kind: runbook
 Repository context: openxFactory
-Backed by: `openspec/changes/add-notebook-projection-identity/review/retirement-gate-clearance-2026-08-26.md`
+Backed by: `openspec/changes/archive/2026-08-31-add-notebook-projection-identity/review/retirement-gate-clearance-2026-08-26.md`
 
 One sitting, roughly fifteen minutes. Seven archive-renames and three
 verifications. **Only the operator can run this** — it acts on notebooks in

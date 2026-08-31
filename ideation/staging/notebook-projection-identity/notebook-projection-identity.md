@@ -1,6 +1,11 @@
 # Staged: who hosts the NotebookLM projection — company account, declared at install
 
-Status: staged
+Status: superseded
+Superseded by: openspec/changes/archive/2026-08-31-add-notebook-projection-identity — the one combined change this topic exited
+through, ratified 2026-08-23 and ARCHIVED 2026-08-31. Both MODIFIED deltas
+are PROMOTED into canon: `lifecycle-notebook-projection` and
+`credential-contracts`.
+Exit taken: `openspec/changes/archive/2026-08-31-add-notebook-projection-identity` — the topic's single exit, taken in full.
 Kind: capability-proposal
 Summary: The governed NotebookLM projection (per-repo Ideation books,
 `xf-drafts`, `xf-canon`, session books) is created today under one person's
@@ -35,6 +40,43 @@ hosting-account field for the projection; sync runs under the declared
 account; share-out roster from that account) and MODIFIED
 `credential-contracts` (the two-case account-custody rule: company service
 account as the normal case, personal hosting as the other legitimate case)
+
+**RETIRED FROM THE STAGING QUEUE 2026-08-31 — status flipped and the candidate
+markers converted.** This fragment is kept exactly where it was written, as
+provenance; nothing is deleted. Two mechanical facts changed with the archive,
+and only these:
+
+1. **`Status:` is now `superseded`, not `staged`.** `docs/document-lifecycle.md`
+   defines `superseded` as material "kept for provenance; header names the
+   successor" and `retired` as material "withdrawn; header names the reason or
+   decision record". This topic was not withdrawn — it was PROMOTED, its
+   successor is a change that archived, and the folder is deliberately retained.
+   That is the `superseded` definition, so `superseded` is the value, with
+   `Superseded by:` naming the successor. (`ideation/staging/INDEX.md` calls
+   this "RETIRED FROM STAGING": that is the topic leaving the WORK QUEUE, which
+   is what `Exit taken:` above records — it is not a `Status:` value, and the
+   two statements do not disagree.)
+
+2. **The four `xspec:candidate` fences below are converted to `xspec:supersedes`
+   markers, not deleted.** The prose they select is no longer a candidate for
+   conversion; it HAS been converted, and it now restates promoted policy. The
+   `staged-topic-outline-template` requirement names the pair
+   "`xspec:candidate` / `xspec:supersedes`" as one grammar for exactly this
+   reason, so the marker is upgraded in place, each block keeping the capability
+   it always targeted and gaining `change=add-notebook-projection-identity`.
+   Deleting them was rejected on the `split-openxwallet-repo` precedent, which
+   ruled that dropping markers "would silently drop four blocks out of the
+   conversion queue". Each block's closing fence becomes a plain end-of-block
+   comment. Every marker names the requirement that block PRINCIPALLY became,
+   not the whole promotion: the change promoted six requirements in all — three
+   added to `lifecycle-notebook-projection` (hosting identity declared at
+   install; share-out from the hosting account with each share act recorded; a
+   hosting-account migration that re-derives, proves parity, then retires the
+   originals by recorded act), two modified there, and one modified in
+   `credential-contracts`.
+
+Recorded under Brett Heap's standing one-sweep consent of 2026-08-31. No claim,
+question, disposition, idea note or conflict below is edited.
 
 ## Last proposal attempt (round-trip provenance)
 
@@ -80,7 +122,7 @@ questions iterate against:
 
 ## Why
 
-<!-- xspec:candidate target=lifecycle-notebook-projection -->
+<!-- xspec:supersedes spec=lifecycle-notebook-projection/the-projections-hosting-identity-is-declared-at-install change=add-notebook-projection-identity -->
 The entire governed NotebookLM projection — every per-repo `xFactory
 Ideation — <RepoName>` book, `xf-drafts`, `xf-canon`, and every live session
 book — is created by `scripts/sync-notebooklm-books.py` under the `nlm`
@@ -99,11 +141,11 @@ dies with one person's account, misattributes every book's real owner,
 gates access through one person's inbox instead of a policy, and
 concentrates the platform's source-count quota on one individual rather
 than the tenant that actually owns the corpus.
-<!-- /xspec:candidate -->
+<!-- end of the converted block above -->
 
 ## What changes
 
-<!-- xspec:candidate target=lifecycle-notebook-projection -->
+<!-- xspec:supersedes spec=lifecycle-notebook-projection/the-projections-hosting-identity-is-declared-at-install change=add-notebook-projection-identity -->
 An xFactory install's intake gains a declared field: which Google identity
 hosts that install's NotebookLM projection — a company xFactory service/user
 account (the normal case) or a personal account (the legitimate
@@ -116,9 +158,9 @@ books, their aliases, and every session notebook are created under it, and
 other users reach them only through an explicit share-out FROM that
 account — never by each independently authenticating against one person's
 login.
-<!-- /xspec:candidate -->
+<!-- end of the converted block above -->
 
-<!-- xspec:candidate target=credential-contracts -->
+<!-- xspec:supersedes spec=credential-contracts/the-credential-vault-operator-is-an-execution-binding-never-contract-content change=add-notebook-projection-identity -->
 The choice of hosting identity is governed by the same two-case model
 already ratified for the openXdox dispatch credential (Claim 6): Case A,
 operator-hosted — the operating party owns a company Google/Workspace
@@ -130,11 +172,11 @@ tenant layer) gains a governance job: monitor the hosting account's pending
 share requests and approve the legitimate ones, turning the manual
 "request access" dialog Brett hit into a recorded, governed policy act
 rather than an unmanaged inbox item.
-<!-- /xspec:candidate -->
+<!-- end of the converted block above -->
 
 ## Impact
 
-<!-- xspec:candidate target=lifecycle-notebook-projection -->
+<!-- xspec:supersedes spec=lifecycle-notebook-projection/the-projections-hosting-identity-is-declared-at-install change=add-notebook-projection-identity -->
 - Affected specs: `lifecycle-notebook-projection` (MODIFIED — a declared
   hosting-account field, `nlm` profile selection at sync time, and a
   share-out-from-the-account rule); `credential-contracts` (MODIFIED — the
@@ -168,7 +210,7 @@ rather than an unmanaged inbox item.
 - No client-tenant act, credential, or account is created or granted by
   staging this topic. No existing book, alias, or sync behavior changes
   until a company account actually exists and is declared somewhere.
-<!-- /xspec:candidate -->
+<!-- end of the converted block above -->
 
 ## Idea notes (pre-document, non-documented)
 
@@ -244,6 +286,11 @@ rather than an unmanaged inbox item.
   lifecycle doc's own prose once said none were needed) is recorded here
   for the template's own ratification to settle. — Added-by: Claude Opus
   4.8 (session, Brett's direction) · 2026-08-15
+  **CORRECTED 2026-08-31 — the markers this note calls LIVE are no longer
+  live.** They were converted to `xspec:supersedes` when the topic archived
+  (see the retirement note in the header). The TENSION recorded above is
+  unchanged and was never settled here; only the claim that this fragment
+  presently carries live candidate markers is.
 
 ## Open questions
 
