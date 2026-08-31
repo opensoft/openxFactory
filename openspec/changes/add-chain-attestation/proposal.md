@@ -486,17 +486,29 @@ part: a superseded rule survives in the examples commissioned against it, not
 only in the sentences asserting it. Withdrawn, named as withdrawn, replaced by
 the chain-scoped positive case. Full reasoning at `design.md` **D11b**.
 
-## The two acts that must follow, in order
+## The two acts, in order — ONE IS DONE, ONE IS OUTSTANDING
 
-**1. §7.4 council review.** The council-reviewed-but-human-approved path that
-per the 2026-08-26 record *"needs no class and no flip"* and *"reaches this
-repository without an envelope and without amending FR-008"*. This packet creates
-no `merge-approval-envelope`, declares no candidate class, and leaves
+**1. §7.4 COUNCIL REVIEW — ✅ HELD 2026-08-30. THIS STEP IS COMPLETE AND IS NOT
+TO BE REPEATED.** The council-reviewed-but-human-approved path that per the
+2026-08-26 record *"needs no class and no flip"* and *"reaches this repository
+without an envelope and without amending FR-008"*. It ran as designed: four seats
+returned, **UNANIMOUS 4/4 that the drafted text was not ratifiable**, thirteen
+blocking amendments after Brett Heap elevated two, and the fix round discharged
+all thirteen. The record, the sole disposition, the ballot as put, the packet as
+read and the four verbatim seat returns are filed in `review/`, mirroring
+`add-binding-consumer-identity`'s directory. **This packet still creates no
+`merge-approval-envelope`, declares no candidate class, and leaves
 `specs/025-openxfactory-review-lane-caller/spec.md` FR-008 exactly where the
-2026-08-28 convening left it: gated and undischarged. The review's record lands
-in `review/`, mirroring `add-binding-consumer-identity`'s directory.
+2026-08-28 convening left it: gated and undischarged** — the sitting changed
+none of that.
 
-**2. Brett Heap's ratification.** After the review and any fix round it forces.
-Until it happens this packet is `Status: draft`, its requirements confer and
-refuse nothing, and no realization may begin — and even ratification would
-authorize the contract feature rather than perform it.
+**2. BRETT HEAP'S RATIFICATION — ⬜ NOT TAKEN. THIS IS THE SOLE REMAINING GATE.**
+It follows the review and the fix rounds it forced. **Until it happens this
+packet is `Status: draft`**, its requirements confer and refuse nothing, and no
+realization may begin — and even ratification would authorize the contract
+feature rather than perform it.
+
+**A reader arriving at this section should advance the packet to step 2 and to
+nothing else.** Five bot rounds have also run, four of them after the council;
+their findings are recorded as corrections in `design.md` D10, D11, D11a, D11b
+and D11c. None of them is a gate — only the two acts above are.
