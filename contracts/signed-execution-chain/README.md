@@ -6,11 +6,16 @@ repository owner, in session; record
 `openspec/changes/add-signed-execution-chain/review/ratification-2026-08-29.md`)
 Kind: reference
 Repository context: openxFactory owns this neutral contract. It is REALIZED and
-**not yet registered** in `contracts/manifest.yaml` + `contracts/CHANGELOG.md`:
-registration rides the next additive bundle cut, which is `tasks.md` 4.7 and is
-deliberately not performed here, per
-[Contract Versioning Policy](../../docs/contract-versioning-policy.md) — a
-proposed change MUST NOT reserve a minor number before merge order is known.
+**registered at `contract-v2.5`** in `contracts/manifest.yaml` +
+`contracts/CHANGELOG.md` — `tasks.md` 4.7, performed by the cutting session
+rather than by the realization, per
+[Contract Versioning Policy](../../docs/contract-versioning-policy.md), because a
+proposed change MUST NOT reserve a minor number before merge order is known. The
+number was fresh-counted at the cut and had already moved twice. All five schemas
+below carry a per-file `sha256` in the manifest; the corpus, this README, the
+reader and its pytest wiring are content-addressed by commit.
+**REGISTRATION IS NOT ENFORCEMENT** — see § What this family does NOT do, which
+is still true in the present tense.
 
 ## What this family is for
 

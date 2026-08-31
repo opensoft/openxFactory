@@ -3,10 +3,18 @@
 Governance-level and dependency-ordered. **This change is RATIFIED (2026-08-29,
 Brett Heap — `review/ratification-2026-08-29.md`) and its code surface is now
 REALIZED.** §1 was authored in the pull request; **§2 is Brett's ratification act
-and is DISCHARGED**; **§3 and §4 are realized in the pull request that carries
-this edit**, except the three boxes that are not this author's to close —
-4.5 is an OPERATOR act, 4.6 depends on it, and 4.7 rides a bundle cut whose
-number is allocated by merge order. §5 names the successors and is not drafted.
+and is DISCHARGED**; **§3 and §4 are realized**, except the two boxes that are
+not any author's to close — **4.5 is an OPERATOR act and 4.6 depends on it**.
+**4.7 rode the bundle cut whose number is allocated by merge order, and that cut
+is TAKEN: `contract-v2.5`**, performed by a separate cutting session in its own
+pull request from an independent clone, on a number fresh-counted at the cut
+(working record: `realization-evidence.md`). §5 names the successors and is not
+drafted.
+
+**THE TWO OPEN BOXES ARE THE ONES THAT DECIDE WHETHER ANY OF IT CONFERS
+ANYTHING**, and registration did not move them. A manifest row is a consumption
+contract for BYTES; requirement 9 is about a check being REQUIRED, whose evidence
+is the live ruleset state and never a merged workflow file or a published bundle.
 
 **WHAT "RATIFICATION PERFORMS NO REALIZATION" MEANT, AND STILL MEANS.** That
 sentence is about the RATIFYING ACT and it is untouched: `proposal.md`,
@@ -367,7 +375,69 @@ thing it measures.**
       producible today; the fourth cannot be read until 4.5 is performed, and a
       box closed on three of four conjuncts would be the closure-on-intention
       this family refuses.
-- [ ] 4.7 **CUT-DEPENDENT, and left to the cutting session on purpose.**
+- [x] 4.7 **DONE, AS `contract-v2.5`** — the cut performed by the cutting
+      session, in its own pull request, from an independent clone.
+      **THE THIRD COUNT IS THE ONE THAT HELD, and it agreed with the second.**
+      Fresh-counted at the branch tip off `main` at `9af98c4d`, per the
+      versioning policy's realization order: `contracts/manifest.yaml:3`
+      declared `contract-v2.4`; `contracts/releases/` held inventories through
+      `contract-v2.4`; `git ls-remote --tags origin 'refs/tags/contract-v2*'`
+      published v2.0, v2.1, v2.2, v2.3 AND v2.4; no Unreleased block pending.
+      `grep -c signed-execution-chain contracts/releases/contract-v2.4.digests.yaml`
+      → **0**, so v2.4 is spent and covers none of this family. Next additive
+      number: **`contract-v2.5`**, taken here.
+      **WHAT LANDED IN THE CUT COMMIT, atomically with the bump:**
+      `contracts/manifest.yaml` — `contract_bundle_version` `contract-v2.4` →
+      `contract-v2.5`, plus the family block registering all FIVE schemas with
+      per-file `sha256` (167 rows → 172; `validate-manifest-digests.py` 150 →
+      **155 verify**). The corpus, the family README, the reader and its pytest
+      wiring are content-addressed by commit with no per-file digest, on the
+      openxWallet / client-identity-roster / identity-brokering / trust-anchor
+      precedent. `contracts/CHANGELOG.md` — the `contract-v2.5` entry, ADDITIVE
+      (minor), with the nothing-narrows MEASUREMENT rather than a claim:
+      `git diff --name-status contract-v2.4 9af98c4d -- contracts/` reports 47
+      additions and exactly ONE modification, `contracts/README.md`, the
+      editorial index. No schema, template, example or registry this repository
+      already published moved a byte, so there is no shared file in which a
+      prior-bundle instance could be refused. `contracts/README.md`,
+      `contracts/signed-execution-chain/README.md` — the three
+      **REALIZED and NOT YET REGISTERED** sentences resolved to the literal
+      `contract-v2.5`, each keeping the registration-is-not-enforcement line.
+      `tests/intent-compliance/test_release_boundary.py` — the boundary pin
+      ADVANCED, not broadened: one named enum member, the same match arm, 13
+      tests before and 13 after.
+      **REGISTRATION IS NOT ENFORCEMENT, and the cut says so in every artifact
+      it touches.** 4.5 and 4.6 are OPEN and are not the cutting session's to
+      close; the packaged conformance declaration still records
+      `is_required_in_ruleset: false` and the reader still emits its standing
+      `reader-not-required` warning. No box here is closed on the strength of a
+      manifest row.
+      **THE UNCUT MISMATCH THIS BOX PREDICTED WAS FOUND EXACTLY AS PREDICTED**
+      — `verify-commit --commit HEAD` at `9af98c4d` reported ONE
+      `HGR-RELEASE-DIGEST-MISMATCH`, on `contracts/README.md`, and nothing else
+      — and the cut resolves it by construction. At the cut commit
+      `verify-commit` is GREEN against
+      `contracts/releases/contract-v2.5.digests.yaml`, built LAST. The
+      independent-clone half of the box is satisfied by the cut being performed
+      in a fresh clone rather than in any working checkout.
+      **`proposal.md`'s `target_release: contract-v2.3` IS LEFT STANDING, and
+      that is a decision rather than an oversight.** The packet is RATIFIED, its
+      front-matter says in terms that the number *"remains ALLOCATED AT
+      REALIZATION BY MERGE ORDER … and the realization confirms the number
+      against the manifest at ITS tip"*, and rewriting a ratified line to agree
+      with today's state is the move this repository refuses everywhere else
+      (§1.11 left the sitting's superseded sentence standing for the same
+      reason). The confirmed number lives HERE, in `contracts/manifest.yaml` and
+      in `contracts/CHANGELOG.md` — the surfaces a consumer actually reads.
+      Recorded so a later reader who lands on `contract-v2.3` in the
+      front-matter knows it was superseded rather than missed: v2.3 is another
+      change's published bundle (`add-standing-policy-compliance-contract`, PR
+      #514), and this family has no members in it.
+      **NOT HERE, and deliberately: the `contract-v2.5` TAG.** Policy step 5
+      publishes the annotated tag against the commit that actually LANDS, so
+      until this branch merges there is nothing honest to name. Full working
+      record: `realization-evidence.md`.
+      Original text, kept because the re-count history is the substance:
       Registration in `contracts/manifest.yaml` and `contracts/CHANGELOG.md`,
       and the additive bundle cut, with `release-surface-integrity`'s
       verify-commit green from an independent clone. **THE NUMBER IS
