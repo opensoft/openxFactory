@@ -330,8 +330,9 @@ capability's own:
 
 **THE COMPOSITION IS FORCED BY THE CANONICAL SHAPES AND IS NOT A PREFERENCE.**
 Both trust-anchor schemas are `additionalProperties: false` at every level:
-`certificate-record` holds the key and the bounds and no scope, enumeration or
-chain identity; `issuance-evidence` describes the ISSUANCE ACT — authority,
+`certificate-record` holds the PUBLIC-KEY FINGERPRINT and the validity bounds —
+**a fingerprint and no key at all** — and no scope, enumeration or chain
+identity; `issuance-evidence` describes the ISSUANCE ACT — authority,
 request provenance, issuing authority — and admits none of the three either. An
 earlier form of this requirement asked for all five bindings in "issuance
 evidence expressed in `add-trust-anchor` vocabulary", **which no realization
@@ -1113,9 +1114,15 @@ party has observed.
 **THE GATE'S SCOPE GROWS WITH THE TRANCHE, AND IT STILL VALIDATES A CHAIN RATHER
 THAN A BAG OF SIGNATURES.** From this tranche the gate walks LINKS 1–6 and
 validates CONTINUITY: one chain identity carried unbroken, each signed link
-committing to its predecessor AS THIS REQUIREMENT DEFINES ONE — the nearest prior
-link possessing a record kind in force, which inside the gate's scope is 4 → 5 →
-6. Individually valid setup, runner and PR-open
+committing to its predecessor AS THIS REQUIREMENT DEFINES ONE — **THE ACTUAL
+NEAREST PRIOR IN-FORCE SIGNED RECORD OF THIS CHAIN, WHATEVER ITS KIND.** The
+walk is over the RECORDS THE LOG HOLDS IN THE ORDER IT HOLDS THEM, so a
+commitment extension or a signed chain binding interleaved between the numbered
+links **IS WALKED** and its successor chains from it; on a chain carrying only the
+numbered links the same rule resolves to 4 → 5 → 6, which is an illustration and
+not the scope. **A signed record omitted from the walk because its kind is
+unnumbered is an unlinked record**, and the gate refuses the chain rather than
+skipping it. Individually valid setup, runner and PR-open
 artifacts drawn from DIFFERENT EXECUTIONS MUST NOT ASSEMBLE, because with
 concurrent or repeated work a signature bag is exactly what a badly-behaved lane
 would submit. A broken or missing link is a FRAUD SIGNAL AND A REFUSAL, never a
@@ -1509,7 +1516,8 @@ reason this paragraph enumerates rather than summarizes.
 #### Scenario: a genuine review record from another proposal is replayed
 
 - WHEN a caller supplies a REAL, authority-proven review record produced for a DIFFERENT proposal, and every other closure condition is satisfied
-- THEN closure is REFUSED, because the proposal digest that review names does not EQUAL this ratification's content digest, so the first limb of the equality chain fails
+- THEN closure is REFUSED, because that FOREIGN REVIEWED DIGEST appears in NO LINEAGE this ratification commits to — limb 2 fails and limb 3 has no trail to terminate
+- AND its differing from this ratification's content digest is NOT the ground of refusal, since under the lineage rule a reviewed digest that differs from the ratified subject is the ORDINARY case for an accepted-as-amended packet
 - AND the record's genuine authority and verified proof of possession are not accepted, since they establish that a council reviewed something and never that it reviewed THIS work
 
 #### Scenario: an AMENDED packet closes on its own lineage

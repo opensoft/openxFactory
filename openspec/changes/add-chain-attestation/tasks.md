@@ -472,13 +472,25 @@ in for a ruleset state.
         and the pull-request body. **A majority of stale sites is not a
         measurement**, and the figure is COUNTED rather than carried forward.
       - **A FIX THAT MOVES A PREDICATE RETIRES THE PREDICATE'S OLD STATEMENT AT
-        EVERY OPERATIVE SITE, IN THE SAME COMMIT.** Adding the new rule is half
-        the work; the superseded sentence left standing elsewhere is still
-        normative, and a realization may conform to it. **This family has now
-        cost five rounds** — the log-derived authority, the per-tier key clause,
-        the kind-only signed order, the chain-identity review binding, and the
-        equality bridge. Sweep BOTH the new predicate and the OLD one, and mark
-        every surviving mention either as the new rule or explicitly as history.
+        EVERY OPERATIVE SITE, IN THE SAME COMMIT — AND THE SWEEP IS SUBJECT-KEYED,
+        NEVER PHRASE-KEYED.** Adding the new rule is half the work; the superseded
+        sentence left standing elsewhere is still normative, and a realization may
+        conform to it. **THE SWEEP ENUMERATES EVERY OPERATIVE SITE THAT TOUCHES
+        THE PREDICATE'S SUBJECT** — every requirement clause, scenario and design
+        sentence about that subject — **BY READING THE PACKET SECTION BY SECTION
+        FOR THE SUBJECT**, and verifies each against the current rule. It does NOT
+        grep for the old wording. **GREPPING FOR THE OLD PHRASE IS THE
+        FOURTH-APPEARANCE DEFECT ITSELF**: a predicate survives in prose that
+        never used the phrase — *"inside the gate's scope is 4 → 5 → 6"*,
+        *"certificate-record holds the key"*, *"does not EQUAL this ratification's
+        content digest"* all restated a retired rule in words the phrase-keyed
+        sweep could not see. This is `#513`'s settlement lesson — **clause-keyed
+        beats phrase-keyed** — applied to retirement. Table every site with its
+        verdict: CURRENT, RETIRED-THIS-ROUND, or MARKED-HISTORY. **This family has
+        now cost six rounds** — the log-derived authority, the per-tier key
+        clause, the kind-only signed order, the chain-identity review binding, the
+        equality bridge, and the three predicates that survived a phrase-keyed
+        sweep.
       - **THE TWO-FIELD SWEEP**: what the packet ASSERTS and what it COMMISSIONS
         — a superseded rule survives in the examples built against it.
       - **THE GUARD WALK** over every permitting conjunct set, asking *what input
@@ -557,6 +569,30 @@ in for a ruleset state.
       **AND THE STANDING RULE IS ADDED TO 1.22**: a fix that moves a predicate
       retires the predicate's old statement at every operative site IN THE SAME
       COMMIT — this family has now cost five rounds.
+- [x] 1.25 **THE SIXTEENTH BOT ROUND'S THREE FINDINGS ARE CLOSED, AND ALL THREE
+      ARE THE RETIRE-FAMILY'S FOURTH APPEARANCE — because round fifteen's sweep
+      was PHRASE-KEYED and each predicate survived in prose that never used the
+      phrase.** (i) The replay scenario still refused on *review digest ≠
+      ratification's content digest* — **which the lineage rule makes the ORDINARY
+      case for an accepted-as-amended packet**, so implementing it literally
+      would have rejected legitimate closure while the positive scenario admitted
+      it. Retired to the lineage limbs, with an explicit AND stating that the
+      difference is NOT the ground of refusal. (ii) The operative gate-walk
+      paragraph still defined the in-scope sequence as `4 → 5 → 6`, letting a gate
+      omit interleaved extensions and chain bindings from continuity. Retired to
+      the universal rule: **the walk is over THE RECORDS THE LOG HOLDS IN THE
+      ORDER IT HOLDS THEM**, and a signed record omitted because its kind is
+      unnumbered is an UNLINKED RECORD. (iii) The composition still claimed
+      `certificate-record` **holds the key**; it holds a FINGERPRINT and no key.
+      Retired there, in `code_surface`, and in 5.4 — all three realization sites.
+      **THE METHOD IS FIXED AT 1.22: THE SWEEP IS NOW SUBJECT-KEYED.** Every
+      operative site touching a moved predicate's SUBJECT is enumerated by reading
+      the packet section by section — not by grepping the old wording, which is the
+      defect itself. **THE THREE SUBJECT SWEEPS RAN**: closure/review-binding **51
+      operative spec sites**, predecessor/order **30**, certificate/key/fingerprint
+      **32**, plus the non-spec operative surfaces (`code_surface`, Impact, tasks
+      §4–§5). **After this round's four retirements, ZERO stale sites remain on any
+      of the three subjects.**
 
 ## 2. §7.4 COUNCIL REVIEW — **HELD 2026-08-30. THE FIRST GATE IS DISCHARGED.**
 
@@ -749,7 +785,9 @@ Each is contract content — cheap now, expensive after a bundle ships.
       identity's SUBJECT SCOPE, its CLOSED RECORD-KIND ENUMERATION and THE CHAIN
       IDENTITY IT SERVES, and referencing by identifier the two CANONICAL
       `add-trust-anchor` records it composes with (`certificate-record` for the
-      key and validity bounds, `issuance-evidence` for the issuance act), **both
+      PUBLIC-KEY FINGERPRINT and validity bounds — a fingerprint and NO key, the
+      key being supplied by this capability's signed record — and
+      `issuance-evidence` for the issuance act), **both
       CONSUMED AND NEITHER REDEFINED HERE** — the per-fact evidence class, **THE
       SIGNER'S PUBLIC KEY CARRIED BESIDE EVERY SIGNATURE** on every record this
       capability defines (the field verification resolves against the consumed
