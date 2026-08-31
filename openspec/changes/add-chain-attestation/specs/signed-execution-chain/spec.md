@@ -245,6 +245,48 @@ SCOPE moves no key and widens no permission:
 | **PER-TASK** | ONE task | the **TASK ATTESTATION** — link 5, what ran |
 | **CHAIN-SCOPED** | ONE chain identity | the **PR-OPEN DECISION RECORD** — link 6; and the **POST-MERGE TEST RECORD** — link 10 |
 
+**AND EVERY TIER-2 IDENTITY IS ISSUED UNDER CONTROLLER-SIGNED ISSUANCE EVIDENCE,
+WITHOUT WHICH THE WORD "ISSUES" ABOVE ESTABLISHES NOTHING A VERIFIER CAN CHECK.**
+Saying the controller ISSUES these identities does not let anyone TELL that it
+did. A lane can generate its own keypair, label it with the scope a verifier
+expects, and then forge BOTH the record and the request attribution under that
+same untrusted key — and every attribution rule in this capability is satisfied
+by the forgery, because they all check the record against the key rather than the
+key against an issuer. **The staged topic already requires the fix and this
+delta owes it**: tier 2 is *"issued by the harness controller UNDER ITS OWN
+CERTIFICATE"*, and *"the harness controller's certificate (link 4) and the
+per-task issuance (link 5) are `trust-anchor` SHAPES — this topic must express
+them in that vocabulary, not a parallel one."*
+
+**THE CONTROLLER SHALL THEREFORE ISSUE EVERY TIER-2 IDENTITY — PER-TASK AND
+CHAIN-SCOPED ALIKE — WITH CONTROLLER-SIGNED ISSUANCE EVIDENCE**, expressed in
+`add-trust-anchor`'s ratified vocabulary and **defining no second certificate
+shape**, binding inside the bytes the controller's certificate signs:
+
+1. **THE IDENTITY'S PUBLIC KEY**;
+2. **ITS SUBJECT SCOPE** — the one task, or the one chain;
+3. **ITS CLOSED RECORD-KIND ENUMERATION**, so the enumeration travels with the
+   identity rather than living only in this document;
+4. **THE CHAIN IDENTITY IT SERVES**; and
+5. **ITS VALIDITY BOUNDS**, an ephemeral identity being one whose bounds say so.
+
+**EVERY VERIFICATION OF A TIER-2 SIGNATURE VERIFIES THE ISSUANCE EVIDENCE
+FIRST.** A signature under an identity with NO controller-signed issuance
+evidence is a **FORGED IDENTITY** — refused with the FRAUD-SIGNAL force a broken
+link carries, never as an unrecognised key or a record with a detail missing. A
+signature whose record kind falls outside the enumeration ITS OWN ISSUANCE
+EVIDENCE carries is refused on the same footing, so the closed enumerations above
+are enforced against the issuer's statement rather than against a reader's
+memory. **The gate's continuity walk includes issuance verification at every link
+it walks**, which is what makes links 4–6 a chain of ESTABLISHED signers rather
+than of plausible ones.
+
+**THIS IS THE GROUND EVERY ATTRIBUTION RULE IN THIS CAPABILITY STANDS ON**, and
+it is stated here rather than assumed: attributing a request to a provisioned
+task, or to the party a chain's inception record binds, establishes something
+only once the KEY THAT SIGNED is known to be the controller's own issue. Without
+issuance evidence those rules bind a forger to its own forgery.
+
 **THE SPLIT IS BY SUBJECT, BECAUSE THAT IS WHAT THE RECORDS ACTUALLY DIFFER IN.**
 A link-5 attestation is a record about ONE TASK. **Link 6 is ONE DECISION that
 commits to EVERY link-5 attestation for the work it proposes, and link 10 is ONE
@@ -455,6 +497,26 @@ stands in for the other.
 - THEN it is REFUSED, and the runner's authority stays a `credential-contracts` / `openxwallet` grant
 - AND no persona is created for a workload
 
+#### Scenario: a lane mints its own keypair and labels it with the expected scope
+
+- WHEN a lane generates a keypair, labels it with the scope a verifier expects, and signs a link-5, link-6 or link-10 record and its request attribution under that same key
+- THEN verification REFUSES AT ISSUANCE, because no controller-signed issuance evidence binds that public key to a scope, an enumeration, a chain identity and validity bounds
+- AND the refusal carries the FRAUD-SIGNAL force of a broken link, never the weaker reading of an unrecognised key
+- AND the record's internally consistent attribution is not accepted, because an attribution verified against the forger's own key establishes nothing
+
+#### Scenario: a genuine tier-2 identity's records verify end to end
+
+- WHEN a record is signed under an identity whose controller-signed issuance evidence binds its public key, its subject scope, its closed record-kind enumeration, the chain identity it serves and its validity bounds, the record's kind falls inside that enumeration, the chain identity it names is THIS chain, and the signing moment falls WITHIN those bounds
+- THEN the issuance verifies FIRST, the signature verifies under the issued key, and the record is admitted for the checks its link requires
+- AND an identity whose bounds had EXPIRED at signing, or whose issuance names a different chain, is REFUSED, because bounds that are merely PRESENT are not bounds that are MET
+- AND the attribution rules that follow now establish something, because the key that signed is known to be the controller's own issue
+
+#### Scenario: a tier-2 signature covers a record kind outside its own issuance evidence
+
+- WHEN an identity signs a record whose kind is not in the closed enumeration the identity's ISSUANCE EVIDENCE carries
+- THEN it is REFUSED, because the enumeration is enforced against the issuer's signed statement rather than against a reader's memory
+- AND the identity's being genuinely controller-issued is not accepted, since issuance bounds what an identity may sign and not merely that it exists
+
 #### Scenario: an opportunistic caller asks for a chain-scoped signature
 
 - WHEN a caller the chain's inception record does not bind submits a link-6 payload naming a valid chain identity, the complete link-5 set and plausible proposed work
@@ -463,7 +525,7 @@ stands in for the other.
 
 #### Scenario: the bound requester asks for a chain-scoped signature
 
-- WHEN the party the chain's inception record binds — the actor bound to the wallet that signed the ratification, carried by the traveling contract — requests the link-6 signature
+- WHEN the party the chain's inception record binds — the actor bound to the wallet that signed the ratification, carried by the traveling contract — requests the link-6 signature from an identity whose controller-signed ISSUANCE EVIDENCE verifies
 - THEN the request is ATTRIBUTED to that party, RECORDED beside the signature it receives, and the attribution falls inside the bytes the controller signs
 - AND no authority is minted for it, the authorized requester being read off what the chain already carries rather than granted here
 
@@ -475,7 +537,7 @@ stands in for the other.
 
 #### Scenario: a chain fans out to several tasks and one link-6 decision is signed
 
-- WHEN a chain dispatches several tasks and the chain-scoped tier-2 identity signs the single link-6 PR-open decision record committing to every one of their link-5 attestations, at the controller, ON A REQUEST THE CONTROLLER ATTRIBUTED TO THE PARTY THE CHAIN'S INCEPTION RECORD BINDS AND RECORDED BESIDE THE SIGNATURE
+- WHEN a chain dispatches several tasks and the chain-scoped tier-2 identity — whose controller-signed ISSUANCE EVIDENCE verifies for this chain and this record kind — signs the single link-6 PR-open decision record committing to every one of their link-5 attestations, at the controller, ON A REQUEST THE CONTROLLER ATTRIBUTED TO THE PARTY THE CHAIN'S INCEPTION RECORD BINDS, RECORDED BESIDE THE SIGNATURE, WITH THAT ATTRIBUTION INSIDE THE CONTROLLER-SIGNED BYTES
 - THEN it is CONFORMING, because the decision is a record about the CHAIN, the chain-scoped identity's closed enumeration names that record kind, and the asker was established rather than merely reachable
 - AND no per-task identity is asked to sign for work it was not minted for, which is the case the ordinary multi-task fan-out makes unavoidable
 
@@ -784,6 +846,17 @@ the signed order is 4 → 5 → 6 → 10**, link 5 being plural and governed by 
 enumeration rule below, **so LINK 10'S PREDECESSOR IS LINK 6'S PR-OPEN DECISION
 RECORD.**
 
+**COMMITMENT EXTENSIONS SIT IN THIS ORDER TOO, BY THE SAME GENERAL RULE.** An
+extension is a controller-signed record under the chain identity, so it is an
+in-force record kind and "nearest prior" reaches it: **an extension's predecessor
+is the SETUP ATTESTATION, or the PRIOR EXTENSION where one exists**, and the
+first signed link written after an extension chains from **the LATEST extension**
+rather than from link 4. So a chain with extensions runs
+4 → x₁ → … → xₙ → 5 → 6 → 10, with each further extension chaining from the last.
+The gate walks that order. A rule that enumerated only numbered links would have
+left every dynamic fan-out unverifiable, which is the defect naming an order over
+RECORDS rather than over NUMBERS exists to avoid.
+
 **THE RULE IS WRITTEN TO BE EXTENDED, NOT REPLACED.** It names no fixed number,
 so a later tranche that puts a record kind in force at links 7, 8 or 9 changes
 what "nearest prior" resolves to WITHOUT contradicting this text or invalidating
@@ -961,6 +1034,12 @@ permission is exactly how an absence becomes a hole.
 - THEN it is REFUSED, because one construction governs every digest this capability computes including those a later tranche adds
 - AND the second rule is removed rather than reconciled
 
+#### Scenario: a chain with commitment extensions is walked for continuity
+
+- WHEN a chain carries extensions written at dispatch, and each extension chains from the setup attestation or the prior extension while the first signed link after them chains from the LATEST extension
+- THEN the gate walks the order 4 → x₁ → … → xₙ → 5 → 6 → 10 and CONTINUITY holds — which establishes ORDER and never COMPLETENESS, the committed expectation being what decides whether every dispatched task is accounted for
+- AND an extension left outside the hash-linked order, or a link-5 record chaining from link 4 where an extension intervened, is REFUSED as a break
+
 #### Scenario: link 10's signature hashes a link-9 artifact
 
 - WHEN a realization computes link 10's predecessor digest over a link-9 artifact, link 9 being the fraud signal for which this capability defines no record kind
@@ -1068,6 +1147,18 @@ is named here so that the two shortfalls this requirement DOES declare — the
 per-seat residual below, and the revocation-at-exercise one after it — are not
 read as a pattern extending to the outcome.
 
+**AND THE REVIEW RECORD SHALL NAME THIS CHAIN, OR A GENUINE REVIEW OF OTHER WORK
+CLOSES IT.** Link 10 references the ratified proposal and the review record
+INDEPENDENTLY, and the review-authority exercise below binds only to the review
+record — so a caller supplying a REAL, authority-proven review record **produced
+for a different proposal** satisfies every other condition here and closes this
+chain. Nothing in a valid old review says which work it reviewed. **THE CONSUMED
+REVIEW RECORD SHALL THEREFORE NAME THIS CHAIN'S IDENTITY — the digest of the
+signed ratification the traveling contract carries — AND CLOSURE SHALL VERIFY
+THAT BINDING**, refusing a review record that names another chain or names none.
+This is the chain binding every other link in this family already carries, owed
+at the one link that had been consuming an artifact without it.
+
 **BINDING TO THE REVIEW RECORD'S BYTES IS NOT ENOUGH, AND CLOSURE SHALL
 ESTABLISH THE REVIEW'S AUTHORITY.** A digest over a review record proves only
 that the bytes did not change after the controller signed them; it establishes
@@ -1159,7 +1250,7 @@ reason this paragraph enumerates rather than summarizes.
 
 #### Scenario: the controller dispatches the post-merge test and binds a PASSING result
 
-- WHEN the controller dispatches the governed post-merge test on a request it attributed to the party the chain's inception record binds, the tested revision EQUALS the merge commit the chain closed over, the result is a PASS, and the execution, the revision and the result all fall inside the bytes the controller signs
+- WHEN the controller dispatches the governed post-merge test on a request it ATTRIBUTED to the party the chain's inception record binds, RECORDED beside the signature, with that attribution INSIDE THE CONTROLLER-SIGNED BYTES and the signing identity's ISSUANCE EVIDENCE verifying; the consumed review record NAMES THIS CHAIN'S IDENTITY; the tested revision EQUALS the merge commit the chain closed over; the result is a PASS; and the execution, the revision and the result all fall inside the bytes the controller signs
 - THEN the outcome is established AS A PASS and the chain CLOSES on it, the proposal and review-record bindings being satisfied and the review authority's standing established within the register's declared bound
 - AND nothing about the result is taken from the lane, which is what makes this record closure grounds rather than a report
 
@@ -1175,6 +1266,12 @@ reason this paragraph enumerates rather than summarizes.
 - WHEN a realization declares, under the conformance-declaration rule, that its platform cannot establish the post-merge test's execution, revision or result
 - THEN the declaration does NOT admit closure, because a declared shortfall never converts an unmeetable control into a met one and closure is the only thing this link confers
 - AND the chain stays MERGED-BUT-UNCLOSED, its downstream refusing, because a declaration that disqualified nothing here would be an exemption and this capability admits none
+
+#### Scenario: a genuine review record from another proposal is replayed
+
+- WHEN a caller supplies a REAL, authority-proven review record produced for a DIFFERENT proposal, and every other closure condition is satisfied
+- THEN closure is REFUSED, because the consumed review record does not name THIS chain's identity
+- AND the record's genuine authority and verified proof of possession are not accepted, since they establish that a council reviewed something and never that it reviewed THIS work
 
 #### Scenario: a fabricated review record is supplied to the post-merge test
 
