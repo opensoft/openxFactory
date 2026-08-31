@@ -17,8 +17,23 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 class ReleaseState(StrEnum):
+    """The bundle values this boundary test has been told how to classify.
+
+    A bundle this enum does not name fails LOUDLY at ``_release_state`` rather
+    than being classified by inference, and that tripwire is deliberate: the
+    library floor (``INTENT_RELEASE_FLOOR``) is an at-or-after comparison, so
+    nothing here would notice a bump on its own, and the whole point of this
+    file is that the family's release membership and its manifest registration
+    move TOGETHER. Every cut past the floor therefore states, by hand and on
+    the record, which side of the boundary its bundle falls on. Advanced at the
+    ``contract-v2.4`` cut (add-binding-consumer-identity's §5 release ritual):
+    v2.4 is past the floor, the family is registered and present, so it is
+    classified with the introducing release and asserts the same membership.
+    """
+
     CURRENT = "contract-v2.1"
     FEATURE = "contract-v2.3"
+    FEATURE_SUCCESSOR = "contract-v2.4"
 
 
 def _release_state() -> ReleaseState:
@@ -101,7 +116,7 @@ def test_release_membership_when_registration_changes_then_transition_is_atomic(
     match _release_state():
         case ReleaseState.CURRENT:
             assert feature_members.isdisjoint(members)
-        case ReleaseState.FEATURE:
+        case ReleaseState.FEATURE | ReleaseState.FEATURE_SUCCESSOR:
             assert feature_members | {"scripts/__init__.py"} <= members
         case unreachable:
             assert_never(unreachable)
@@ -128,7 +143,7 @@ def test_release_inventory_when_registration_changes_then_schema_pins_are_atomic
     match state:
         case ReleaseState.CURRENT:
             assert set(schema_paths).isdisjoint(entries)
-        case ReleaseState.FEATURE:
+        case ReleaseState.FEATURE | ReleaseState.FEATURE_SUCCESSOR:
             for path in schema_paths:
                 assert entries[path]["schema_id"].startswith("intent-compliance-")
                 assert entries[path]["schema_version"] == 1
