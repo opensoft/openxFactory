@@ -61,9 +61,10 @@ in for a ruleset state.
       request body.
 - [x] 1.5 doc-health zero-new against `origin/main`, baseline worktree basename
       matching the working clone's (issue #342 — a mismatched-identity
-      `--previous-report` manufactures phantom regressions). **ZERO-NEW HOLDS FOR
-      EVERY AUTHORED BYTE OF THIS PACKET. IT DOES NOT HOLD FOR THE FILED SITTING
-      BUNDLE, AND THAT IS RECORDED RATHER THAN TICKED THROUGH.** Filing
+      `--previous-report` manufactures phantom regressions). **ZERO-NEW OVERALL,
+      AS OF BRETT HEAP'S RULING 4a OF 2026-08-30 — not zero-new-for-authored-bytes
+      with a known exception, but zero-new full stop.** The history is kept,
+      because the collision and its resolution are both worth reading. Filing
       `review/` produced **FIVE new `status-validity` errors**, one per direct
       child of `review/` — ballot, packet, record, disposition and the #509
       summary — because each carries `Status: record — <elaboration>` where the
@@ -79,9 +80,26 @@ in for a ruleset state.
       (`supporting-docs` / `source-snapshots` / `evidence`), none of which these
       paths carry. **Editing the artifacts would falsify the record; widening or
       narrowing the scan set is expressly A GOVERNED CHANGE** (`openspec/specs/
-      doc-health/spec.md`, same requirement). The five findings are therefore
-      reported as a KNOWN, EXPLAINED DELTA for the convener, and the resolution is
-      owed as its own change rather than improvised here.
+      doc-health/spec.md`, same requirement). The five findings were therefore
+      reported as a KNOWN, EXPLAINED DELTA for the convener rather than improvised
+      away.
+
+      **HE RULED IT, AND THE THIRD DOOR WAS HIS TO OPEN — RULING 4a, 2026-08-30.**
+      Neither of the two doors this packet could reach was lawful: editing the
+      artifacts would have falsified the record the disposition freezes at §3.7,
+      and widening the scan set is expressly a governed change. **The record's
+      OWNER normalizing his own header is neither**, and it is an act only he can
+      take. The transformation is deterministic, so that both bundles' twin
+      disposition files stay BYTE-IDENTICAL as the disposition itself asserts: in
+      each file whose header line matches `Status: record — <elaboration>`, that
+      single line becomes `Status: record` followed by
+      `Record scope: <elaboration verbatim>`. **Nothing else in any file changed** —
+      five files, one line each, every elaboration preserved verbatim, both
+      preserved convening errors and every mis-measured figure untouched. The four
+      seat returns needed no change (`LIFECYCLE_SCAN` is `review/*.md`; they sit one
+      level deeper). **doc-health now reports ZERO NEW FINDINGS against
+      `origin/main` with the matched baseline basename**, and the five
+      `status-validity` errors are gone.
 - [x] 1.6 README "OpenSpec Records" active block updated, newest first.
 - [x] 1.7 `ideation/staging/INDEX.md` — the topic's detail section records that
       EXIT 2 has been raised as an active change. The row is NOT marked
