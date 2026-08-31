@@ -79,7 +79,10 @@ The harness modes:
   `--cdp-url`); no human. This is xFactory's "log in whenever it wants".
 
 It writes the FULL native profile — `cookies.json` as the cookie **list** plus
-`metadata.json` with `csrf_token`/`session_id` (email/build_label left null).
+`metadata.json` with `csrf_token`/`session_id`. It writes `email`/`build_label`
+**null unconditionally**, overwriting a populated address rather than preserving
+it, which erases the identity the sync's own account check reads — see step 5 of
+[How to resume](#how-to-resume) and opensoft/openxFactory#543.
 Verify with a REAL call (`nlm notebook list`), never `login --check`.
 
 ### Why the old cookies-only path is INSUFFICIENT (the lesson)
@@ -138,6 +141,14 @@ migration, since the harness writes that field null — and a name pointed at
 some other account is refused too (`profile_account()`, :2035-2051; refusal at
 :2285-2292). Do NOT assume a named account (e.g. `farheap`); a profile pointed
 at a different Google account will not see the books.
+
+**That address check is armed only while the field is populated, and the auth
+harness empties it.** `nlm_auth.py` rewrites `metadata.json` with `email: null`
+on every successful extraction, so a run of step 3 below leaves the sync
+verifying the profile NAME alone — which cannot tell one Google account from
+another. Restoring the address is therefore a MANDATORY step of the resume flow
+(step 5), not housekeeping; the underlying code defect is
+opensoft/openxFactory#543.
 
 **The `personal` profile is now the LEGACY account** (`brettheap@gmail.com`).
 It is kept to READ what stayed behind — the seven archive-renamed legacy
@@ -240,7 +251,58 @@ liveness cannot be proven cross-checkout. Wants its own change; noted in the
    refusal text suggests at :2278 — is not the way in; the harness is.
 4. Verify with a real `nlm notebook list` (not `login --check`), and confirm the
    list it returns is the xFactory books.
-5. **Bind the CLI to `company` before syncing** — `nlm login switch company`,
+5. **Restore the account address in the profile store — step 3 erased it, and
+   without it the sync cannot tell which ACCOUNT it is writing to.** The
+   harness writes `metadata.json` with `"email": None` unconditionally, in
+   `refresh` as well as `bootstrap`, and never reads the file it replaces, so a
+   populated address is overwritten rather than preserved
+   (`write_native_profile()`, `scripts/nlm_auth.py:139-149`; it is the sole
+   writer on both paths, reached from `extract_and_save()` at :184). The sync
+   reads exactly that field, and a null means UNKNOWN there, not "no such
+   thing" (`profile_account()`, `scripts/sync-notebooklm-books.py:2035-2050`).
+   So the address refusal at :2285-2292 is guarded by `if signed_in and …` and
+   is SKIPPED: the run prints "records no account address … verified by profile
+   NAME only" (:2293-2297) and proceeds to bind. The only hard check left is
+   the profile-NAME check at :2271-2278, which a harness re-auth into `company`
+   passes no matter which Google account signed in. **The failure this prevents:**
+   authenticate the `company` store as the wrong account — most plausibly the
+   legacy `brettheap@gmail.com`, which still holds the seven archive-renamed
+   xFactory-titled notebooks — and step 7's `--apply` sends its additions AND
+   its deletions into that estate, with none of the promised refusal.
+
+   Re-assert the address, then read it back:
+
+   ```bash
+   python3 - <<'PY'
+   import json, pathlib
+   p = pathlib.Path.home() / ".notebooklm-mcp-cli/profiles/company/metadata.json"
+   m = json.loads(p.read_text())
+   m["email"] = "xFactor001@opensoft.one"
+   p.write_text(json.dumps(m, indent=2) + "\n")
+   p.chmod(0o600)
+   PY
+   nlm login profile list     # expect: company: xFactor001@opensoft.one
+   ```
+
+   Merge the field rather than rewriting the file, or you drop the
+   `csrf_token`/`session_id` step 3 just captured. `nlm login profile list`
+   prints each profile's RECORDED address, and prints `Unknown` when it is null
+   (`docs/notebook-projection-migration-runbook.md:63`), so it proves the check
+   is armed — and only that. It cannot prove the cookies belong to that account,
+   so the proof of estate stays step 4's read — run explicitly as
+   `nlm notebook list --profile company`, the account-proof the migration used
+   and the call the harness itself makes (`scripts/nlm_auth.py:190-201`),
+   because the CLI's default profile is not bound to `company` until step 6 and
+   a bare `nlm notebook list` before that reads whichever profile is default.
+   This step records the address that read established. Setting the field by hand is what the 2026-08-24 migration did,
+   for this reason ([migration
+   evidence](notebook-projection-migration-evidence-2026-08-24.md): "the harness
+   writes that field null, so it was set from the vault-held username; the
+   sync's binding check reads it"). It is a hand-repair, not a fix — the next
+   harness run erases the field again. The code defect, with both candidate
+   fixes stated and neither chosen, is opensoft/openxFactory#543.
+
+6. **Bind the CLI to `company` before syncing** — `nlm login switch company`,
    then read it back with `nlm config get auth.default_profile` (expect
    `company`). This is a SEPARATE act from step 3: the harness writes the
    profile store and never touches `auth.default_profile`, and the sync will not
@@ -248,17 +310,17 @@ liveness cannot be proven cross-checkout. Wants its own change; noted in the
    is shared user state — of the verbs the sync issues (`notebook`, `source`,
    `alias`, `tag`, `chat`) none takes a per-invocation `--profile`, so the
    binding is verified rather than passed (`active_nlm_profile()`,
-   `scripts/sync-notebooklm-books.py:2125-2137`). Skip this and step 6 dies
+   `scripts/sync-notebooklm-books.py:2125-2137`). Skip this and step 7 dies
    before writing anything, on `hosting: expected the 'company' profile but the
    CLI's active profile is 'personal'. Refusing: …` (:2271-2278). The check is
    re-asserted before EVERY invocation, so another terminal running
    `nlm login switch` mid-run aborts the rest of the job
    (`assert_still_bound()`, :2054-2079) — re-bind and re-run, the sync is
    idempotent over what finished.
-6. Dry-run `sync-notebooklm-books.py .` → review the ADD plan and the
+7. Dry-run `sync-notebooklm-books.py .` → review the ADD plan and the
    `[workbench]` orphan-sweep plan (skip `xf-wb-*` orphans — see the bug
    below) → `--apply`.
-7. Copy the updated manifest back to the aggregation root
+8. Copy the updated manifest back to the aggregation root
    `.claude/nlm-sync-manifest.json`.
 
 ## Verification discipline
