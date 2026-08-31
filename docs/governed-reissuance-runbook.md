@@ -186,7 +186,7 @@ Capture, verbatim:
 ## 2. Step 2 — the bump, as ONE change
 
 **The edit and every assertion bound to it move in one commit set.** This is not
-tidiness; it is a measured property of this estate. In the 2026-08-30
+tidiness; it is a measured property of this estate. In the 2026-08-31
 alias-to-exact flip the domain roster edit and the tenant declaration were *"red
 in either order alone … One change, both edits"* (2026-08-29 sitting record
 §8.5), and a complete four-seat flip was still red where the test literals had
