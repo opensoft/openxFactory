@@ -455,6 +455,22 @@ first thing to run under a declared account.
       left exactly as it stands**, because it is still true and it changes at
       CUSTODY's archive, not at this one. Touching it here would be this step
       asserting a state it did not produce.
+    * **AMENDED 2026-08-31, BEFORE THIS PACKET MERGED — CUSTODY'S ARCHIVE
+      HAPPENED IN A PEER LANE WHILE THIS BRANCH WAS IN REVIEW, so the paragraph
+      above is spent as a description of today.** **PR #541** archived
+      `add-notebook-hosting-credential-custody` and, second, its dependent
+      `add-binding-consumer-identity` on Brett Heap's ROUTE-1 ruling of the same
+      date. "It changes at CUSTODY's archive, not at this one" names an event
+      that has now occurred, so the sibling row's custody half is corrected in
+      the SAME landing as this note rather than left to mislead a reader taking
+      their sequencing base from it; the correction cites #541 as its author.
+      **The reasoning above stands unchanged and is still sound** — this step
+      did not produce that state, and it still does not; another lane did, and
+      the correction says so. Recorded here rather than in the peer packets
+      because THIS packet is not yet merged and its text is still this pull
+      request's to correct, while the two archived peer packets are RECORDS and
+      are not — this branch's earlier correction notes inside them were DROPPED
+      at the catch-up merge of `2f1cd139` for exactly that reason.
     The topic FOLDER `ideation/staging/notebook-projection-identity/` is
     **retained as provenance and deliberately not deleted** — this act promotes
     the deltas and archives the change; deleting staged source is a separate
@@ -568,6 +584,36 @@ pairs — which this backticked path is not. **Repointing it would trade a stale
 path for a broken immutability guarantee**, and the record's own value is that
 it says what was true when it was captured. The path is a citation a reader can
 follow to the archive in one step; nothing resolves it mechanically.
+
+**ADDENDUM 2026-08-31, AFTER THE CATCH-UP MERGE OF `origin/main` AT
+`2f1cd139` — A THIRD THING THIS ARCHIVE DOES NOT CLOSE, ARRIVING FROM ANOTHER
+LANE.** PR **#541** archived `add-notebook-hosting-credential-custody` and its
+dependent `add-binding-consumer-identity` on Brett Heap's ROUTE-1 ruling of this
+same day, while this branch was in review. Both archived copies leave exactly
+one box unticked, and **both point HERE**: custody § 6.2 and the dependent
+§ 7.3 — one reconciliation seen from two sides — each restated 2026-08-31 as
+*"the obligation attaches to THAT change's archive … whoever archives
+`add-notebook-projection-identity` discharges both."*
+
+**THIS ACT DOES NOT DISCHARGE THEM, AND SAYS SO RATHER THAN LETTING SILENCE READ
+AS DONE.** What is owed is the FULL read-together of the three packets'
+`credential-contracts` text now that all three are promoted — a reading act with
+findings of its own, not a side effect of moving a directory. What this act DOES
+supply is the precondition it was always the holder of: the operated-identity
+generalization is CANON as of this landing (`lifecycle-notebook-projection` +3
+added / ~2 modified, `credential-contracts` ~1 modified, all six bodies
+byte-identical), so the reconciliation is now performable by anyone and blocked
+on nothing. It needs a successor act of its own, and it is written down here so
+it does not live only in a commit message.
+
+**THEIR BOXES ARE NOT TICKED FROM HERE EITHER, AND COULD NOT BE.** They sit
+inside archived records, which this estate's doctrine forbids amending — the
+same doctrine that made this branch DROP its own earlier correction notes inside
+those two packets at the catch-up merge. And their *"is STILL ACTIVE and still
+`Status: ratified`"* clauses, true when #541 landed and spent the moment this
+packet merges, are **dated restatements inside a record** and are left exactly
+as that lane wrote them: the very sentence that goes stale is the one directing
+a reader to this act, so it points at the truth rather than away from it.
 
 **WHAT IS NOT CLAIMED ANYWHERE IN THIS PACKET:** that `brett.heap@gmail.com` can
 reach the company books (§ 4.7 — it cannot, and by ruling it is no longer meant

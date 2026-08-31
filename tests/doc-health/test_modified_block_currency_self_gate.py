@@ -471,8 +471,32 @@ _LEDGER_SUBJECTS = {
     # byte-identical, 6 in / 6 out, so nothing else in this ledger moved with
     # it. The family reads no archived path by construction, so no finding
     # names either path this packet ever had — measured, not assumed: a
-    # same-clock doc-health run against an `origin/main` baseline reported
-    # ZERO new findings and exactly this one INFO gone.
+    # same-clock doc-health run against the `origin/main` baseline reports
+    # exactly this one INFO gone, and exactly ONE new finding — which is the
+    # archive act's OWN MECHANICAL SHADOW and not a corpus defect. The carriage
+    # finding is `contested`, so its DISAPPEARANCE re-emits through
+    # `report.uncited_resolutions` as an `uncited-resolution` ERROR naming the
+    # ACTIVE path this packet no longer has. That receipt is an AGGREGATION
+    # artifact by construction: `health/dispositions.yaml` resolves as
+    # `ctx.agg_root / "health" / "dispositions.yaml"`, and `agg_root` is `None`
+    # on the `--single-repo` self-gate a pull request runs, so no file in THIS
+    # repository could suppress it and none is offered — the same shape
+    # `docs/archive-record-discrepancies.md` § "What a disposition actually
+    # buys" records for the 2026-08-22 register ruling, disposition entry and
+    # all. AN EARLIER DRAFT OF THIS COMMENT CLAIMED "ZERO NEW FINDINGS" AND WAS
+    # WRONG ON ITS FACE; the sentence above is what the run actually prints, and
+    # the claim is corrected here rather than quietly dropped. Re-taken after
+    # the catch-up merge of `origin/main` at `2f1cd139`: BYTE-IDENTICAL to the
+    # pre-merge measurement, and a run baselined on the pre-merge branch tip
+    # `8d0853c2` reports `[]` — the merge itself adds nothing.
+    #
+    # AND PR #541 MOVED NO ROW OF THIS LEDGER, MEASURED RATHER THAN ASSUMED.
+    # That peer lane archived two packets on 2026-08-31 —
+    # `add-notebook-hosting-credential-custody`, whose deltas are pure ADDED so
+    # this arm has no MODIFIED block to read at all, and
+    # `add-binding-consumer-identity`, whose MODIFIED block drops nothing and
+    # therefore never carried a finding. The family reads SEVEN over the merged
+    # tree: exactly the seven named below, unchanged by that merge.
     ("declare-client-standing-policy-contract", "client-layer-tuning",
      "Client content shapes are contract-validated"),
     ("qualify-avatar-live-voice", "avatar-client-lab",
