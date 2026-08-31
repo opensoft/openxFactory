@@ -357,7 +357,7 @@ first thing to run under a declared account.
   `openxfactory-f5`, by explicit multi-choice: the condition is **unmeetable
   today**, so this box archives **standing as a disposition** rather than closed,
   and the work moves to a **named successor** outside the packet. That is the
-  #535 route, and it is what makes the archive lawful — an archive may carry a
+  #537 route, and it is what makes the archive lawful — an archive may carry a
   ruled-open box through provided the record says so in terms, which this does.
   Ticking it would assert a capability nobody has, which is the exact defect
   class this change exists to remove.
