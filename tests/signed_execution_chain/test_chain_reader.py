@@ -129,6 +129,130 @@ def test_every_negative_fixture_is_a_single_named_fault(registry_and_docs, carri
                 f"{path.name}: {code!r} fired but not for {detail!r}"
 
 
+def test_a_key_id_two_wallets_claim_differently_is_ambiguous_not_last_seen(
+        registry_and_docs, carried):
+    """Codex's P1 on `aedfd8ce`, and the property is about ITERATION ORDER.
+
+    The scope-wide key map was built with `dict.update`, so whichever carried
+    wallet was read last silently won an identifier both claimed. This test
+    presents the SAME two wallets in BOTH orders: an ambiguous identifier must be
+    refused either way, because a verification result that depends on which
+    record was read first is not a verification result.
+
+    The `AMBIGUOUS_KEY` marker is what makes it order-independent — dropping the
+    ambiguity would let a second wallet resolve an identifier the first had
+    already made unanswerable."""
+    reference = {"key_id": "key-shared-0001", "did": "did:key:zAAA"}
+    other = {"key_id": "key-shared-0001", "did": "did:key:zBBB"}
+    restated = {"key_id": "key-shared-0001", "did": "did:key:zAAA"}
+
+    for first, second in ((reference, other), (other, reference)):
+        merged: dict = {}
+        reader.merge_declared_keys(merged, {"key_reference": first})
+        reader.merge_declared_keys(merged, {"key_reference": second})
+        assert merged["key-shared-0001"] is reader.AMBIGUOUS_KEY
+
+    # A restatement of the SAME public half is not an ambiguity: the rejection
+    # must not reject a wallet that declares one key twice identically.
+    merged = {}
+    reader.merge_declared_keys(merged, {"key_reference": reference,
+                                        "keys": [restated]})
+    assert merged["key-shared-0001"] is not reader.AMBIGUOUS_KEY
+
+    # And an ambiguity INSIDE one wallet survives a second wallet's declaration.
+    merged = {}
+    reader.merge_declared_keys(merged, {"key_reference": reference,
+                                        "keys": [other]})
+    reader.merge_declared_keys(merged, {"key_reference": restated})
+    assert merged["key-shared-0001"] is reader.AMBIGUOUS_KEY
+
+
+def test_the_presentation_reference_must_name_the_record_it_carries(
+        registry_and_docs, carried):
+    """Codex's sharpest P1 on `aedfd8ce`: the per-act uniqueness rule keyed on
+    `presentation.exercise_ref`, which is replaceable WITHOUT touching the
+    exercise it names.
+
+    Carrying the already-consumed exercise verbatim and changing only that outer
+    reference produced different signed bytes, a different chain identity, and a
+    uniqueness key the map had never seen — so the consumed exercise was
+    replayable past the rule written to prevent it.
+
+    BOTH halves of the repair are asserted, because either alone leaves a hole:
+    the reference must AGREE with the carried record, and uniqueness must be keyed
+    on the CARRIED identifier so it does not depend on that agreement check having
+    run."""
+    import copy
+
+    records = copy.deepcopy(reader.positive_records())
+    for _, doc in records:
+        if doc["kind"] == "xfactory_signed_execution_chain_inception":
+            doc["signed_ratification"]["presentation"]["exercise_ref"] = \
+                "exr-a-fresh-label"
+    codes = reader.codes_of(_validate(records, registry_and_docs, carried).errors)
+    assert "continuity_broken" in codes
+
+    # The uniqueness key itself: two inceptions carrying ONE exercise record,
+    # under two different outer labels, are one act presented twice.
+    doubled = copy.deepcopy(reader.positive_records())
+    clone = None
+    for _, doc in doubled:
+        if doc["kind"] == "xfactory_signed_execution_chain_inception":
+            clone = copy.deepcopy(doc)
+    clone["inception_id"] = "inc-replayed"
+    clone["chain_identity"]["value"] = "sha256:" + "cd" * 32
+    clone["signed_ratification"]["presentation"]["exercise_ref"] = "exr-other-label"
+    codes = reader.codes_of(
+        _validate(doubled + [("replay", clone)], registry_and_docs,
+                  carried).errors)
+    assert "per_act_value_reused" in codes, (
+        "uniqueness must key on the carried exercise identifier, which both "
+        "inceptions share, and not on the outer label they differ in")
+
+
+def test_every_reference_that_could_move_independently_is_compared(
+        registry_and_docs, carried):
+    """ROUND TWO'S SHAPE, SWEPT FOR RATHER THAN WAITED FOR.
+
+    Both of round two's P1s were a REFERENCE and its REFERENT able to move
+    independently — two facts that look like one fact. A capability whose whole
+    subject is binding one record to another should expect that everywhere, so
+    every remaining pair of the shape is compared, and this test pins that each
+    comparison RUNS rather than merely existing.
+
+    The custody pair is the load-bearing one. `add-trust-anchor`'s ratified rule
+    is that declared custody BOUNDS WHAT A SIGNATURE EVIDENCES: a key readable by
+    the host that uses it evidences that the HOST acted, which is exactly what a
+    ratification may not stand on. An exercise free to record a stronger custody
+    model than its wallet declares would let a `holder_readable` key evidence a
+    human act, and requirement 8's narrowing rests on that being impossible."""
+    import copy
+
+    mutations = {
+        "grant": ("presentation", "grant_ref", "grant-somebody-elses"),
+        "attributed wallet": ("attribution", "wallet_ref", "wal-somebody-elses"),
+        "attributed holder": ("attribution", "holder_ref", "person:somebody.else"),
+        "custody model in force":
+            ("exercise", "custody_model_in_force", "holder_readable"),
+    }
+    for what, (where, member, value) in mutations.items():
+        records = copy.deepcopy(reader.positive_records())
+        for _, doc in records:
+            if doc["kind"] != "xfactory_signed_execution_chain_inception":
+                continue
+            presentation = doc["signed_ratification"]["presentation"]
+            if where == "presentation":
+                presentation["exercise"][member] = value
+            elif where == "attribution":
+                presentation["exercise"]["attribution"][member] = value
+            else:
+                presentation["exercise"][member] = value
+        lines = reader.lines_for(
+            _validate(records, registry_and_docs, carried).errors,
+            "continuity_broken")
+        assert any(what in line for line in lines), (what, lines)
+
+
 def test_a_log_whose_genesis_prefix_was_deleted_is_refused(registry_and_docs,
                                                            carried):
     """LEAVES ARE APPENDED AND NEVER REMOVED, and a check that cannot see a

@@ -567,6 +567,38 @@ def check_leaf_payload_digest(f: Findings, label: str, doc: dict,
                           digest_value(payload),
                           f"payload_digest (over {other_label})")
                 return
+        return
+    if leaf_type == "wallet_presented_ratification":
+        # THE CONTENT DIGEST IS IN SCOPE, SO IT IS COMPARED. Checking only that
+        # the SUBJECT is named `ratified_subject` and never comparing the value
+        # would be a check of exactly the shape round one's four findings had:
+        # it reads as though the leaf's commitment were verified while nothing is
+        # compared. The subject ratified is external and cannot be recomputed
+        # here, but the digest the ratification DECLARES over it can be, and a
+        # ratification leaf committing to some other subject's digest records the
+        # presentation of a ratification that is not this one.
+        chain = scope.chains.get(doc.get("chain_ref"))
+        if chain is None or chain.inception is None:
+            return
+        declared = digest_value(get(chain.inception[1], "signed_ratification",
+                                    "ratified_subject", "subject_digest"))
+        if declared is not None and digest_value(payload) != declared:
+            f.error("digest_construction_mismatch",
+                    f"{label}: the ratification leaf commits to "
+                    f"{digest_value(payload)} and this chain's ratification "
+                    f"declares the content digest {declared}. The leaf records a "
+                    f"presentation for a different subject than the one this "
+                    f"chain ratified")
+        # AND THE `payload_ref` NAMES THE PRESENTATION, not merely something. A
+        # leaf whose digest is right and whose reference points elsewhere records
+        # the right commitment against the wrong act.
+        presentation = get(chain.inception[1], "signed_ratification",
+                           "presentation", "exercise_ref")
+        if presentation is not None and doc.get("payload_ref") != presentation:
+            f.error("continuity_broken",
+                    f"{label}: the ratification leaf records payload "
+                    f"{doc.get('payload_ref')!r} and this chain's ratification was "
+                    f"proved by exercise {presentation!r}")
 
 
 # --------------------------- rule: the log ---------------------------
@@ -685,6 +717,8 @@ def check_traveling_contracts_alone(f: Findings, scope: Scope) -> None:
         key_ref = signature.get("presenting_key_ref")
         entry = declared_keys(get(signed, "presentation", "wallet")).get(key_ref)
         raw = decode_signature(signature.get("signature"))
+        if entry is AMBIGUOUS_KEY:
+            entry = None
         if signature.get("algorithm") != VERIFIABLE_ALGORITHM or entry is None:
             f.error("chain_unevaluable",
                     f"{label}: the carried signature declares "
@@ -722,14 +756,22 @@ def check_leaf_signatures(f: Findings, scope: Scope) -> None:
     applies. Detection at this tranche rests on the HASH LINK and on the traveling
     contract's carried leaf digest, which is exactly the strength the requirement
     claims."""
-    keys: dict[str, dict] = {}
+    keys: dict[str, Any] = {}
     for _, doc in scope.inceptions + scope.travelings:
-        keys.update(declared_keys(get(doc, "signed_ratification", "presentation",
-                                      "wallet")))
+        merge_declared_keys(keys, get(doc, "signed_ratification", "presentation",
+                                      "wallet"))
     for label, doc in scope.leaves:
         signature = doc.get("leaf_signature") or {}
         key_ref = signature.get("key_ref")
         entry = keys.get(key_ref)
+        if entry is AMBIGUOUS_KEY:
+            f.error("chain_unevaluable",
+                    f"{label}: the leaf signature names key {key_ref!r}, which "
+                    f"more than one carried wallet declares for DIFFERENT public "
+                    f"halves. An ambiguous key is not a resolved one, and "
+                    f"verifying against whichever declaration was read last is a "
+                    f"result decided by iteration order")
+            continue
         if entry is None:
             f.warn("leaf-signature-unverified",
                    f"{label}: the leaf signature names key {key_ref!r}, which no "
@@ -761,7 +803,15 @@ def check_atomicity(f: Findings, scope: Scope) -> None:
     """RULE (i) — ratification and inception are ONE signed act. Either both stand
     or neither does, so a ratification leaf whose act was never inscribed is a
     half-state, and it is refused rather than read as a record awaiting
-    completion."""
+    completion.
+
+    AND EVERY ACT THIS CAPABILITY GOVERNS WRITES A LEAF, checked in BOTH
+    directions. The first version checked only that a ratification leaf had an
+    inception leaf beside it; a chain whose inception existed with NO ratification
+    leaf, and a traveling contract whose ISSUANCE no leaf recorded, both passed.
+    That is round one's defect class — a check that reads as though it covered an
+    obligation while covering one half of it — caught here by the pass D7.8 says
+    is owed after a finding rather than by a fifth finding."""
     for chain_id, chain in sorted(scope.chains.items()):
         types = {doc.get("leaf_type") for _, doc in chain.leaves}
         if "wallet_presented_ratification" in types and "chain_inception" not in types:
@@ -772,6 +822,22 @@ def check_atomicity(f: Findings, scope: Scope) -> None:
                     f"that fails leaves no standing ratification, and no partial "
                     f"state may be retained that a later reader could mistake for "
                     f"one")
+        if chain.inception is not None and \
+                "wallet_presented_ratification" not in types:
+            f.error("act_unproven",
+                    f"chain {chain_id}: the ratification this chain was incepted "
+                    f"from is recorded in no leaf ({chain.inception[0]}). The "
+                    f"wallet-presented ratification is one of the four acts this "
+                    f"capability governs, and an act with no signed leaf is "
+                    f"UNPROVEN however completely the rest of the chain verifies")
+    recorded = {doc.get("payload_ref") for _, doc in scope.leaves
+                if doc.get("leaf_type") == "traveling_contract_issued"}
+    for label, doc in scope.travelings:
+        if doc.get("traveling_contract_id") not in recorded:
+            f.error("act_unproven",
+                    f"{label}: the issuance of this traveling contract is recorded "
+                    f"in no leaf. Issuing one is an act this capability governs, "
+                    f"and work travels on an artifact whose issuance nothing proves")
 
 
 def check_per_act_uniqueness(f: Findings, scope: Scope) -> None:
@@ -782,7 +848,16 @@ def check_per_act_uniqueness(f: Findings, scope: Scope) -> None:
     returns by the back door."""
     seen: dict[str, tuple[str, str]] = {}
     for label, doc in scope.inceptions:
-        value = get(doc, "signed_ratification", "presentation", "exercise_ref")
+        # KEYED ON THE CARRIED IDENTIFIER, falling back to the outer reference
+        # only when no record is carried. The outer reference is replaceable
+        # without touching the exercise it names, so keying on it alone let a
+        # consumed exercise through under a fresh label (Codex, P1). The gate's
+        # own binding requires the two to agree; this key does not DEPEND on that
+        # check having run, because a rule that relies on another rule to be sound
+        # is a rule with a second failure mode.
+        value = get(doc, "signed_ratification", "presentation", "exercise",
+                    "exercise_id") or \
+            get(doc, "signed_ratification", "presentation", "exercise_ref")
         chain_id = digest_value(doc.get("chain_identity"))
         if not isinstance(value, str) or not isinstance(chain_id, str):
             continue
@@ -809,20 +884,64 @@ def decode_signature(value: Any) -> bytes | None:
     return raw if len(raw) == ed25519.SIGNATURE_BYTES else None
 
 
-def declared_keys(wallet: Any) -> dict[str, dict]:
+#: An identifier claimed by two key declarations with DIFFERENT public halves.
+#: Held as a value in the key map rather than dropped, because "ambiguous" and
+#: "absent" are different answers and only one of them is a reader's own fault.
+AMBIGUOUS_KEY = object()
+
+
+def _merge_key(keys: dict[str, Any], entry: dict) -> None:
+    key_id = entry.get("key_id")
+    if not isinstance(key_id, str):
+        return
+    held = keys.get(key_id)
+    if held is None:
+        keys[key_id] = entry
+    elif held is AMBIGUOUS_KEY:
+        return
+    elif held.get("did") != entry.get("did"):
+        keys[key_id] = AMBIGUOUS_KEY
+
+
+def declared_keys(wallet: Any) -> dict[str, Any]:
     """Every key the carried wallet DECLARES, by `key_id`. A presenting key no
     wallet declares is unresolvable, which is an unevaluable chain and never a
-    failed signature — the two are different events."""
-    keys: dict[str, dict] = {}
+    failed signature — the two are different events.
+
+    AND AN IDENTIFIER TWO DECLARATIONS CLAIM FOR DIFFERENT PUBLIC HALVES IS
+    `AMBIGUOUS_KEY`, NOT THE LAST ONE SEEN. Found by Codex as a P1 on `aedfd8ce`:
+    the first version merged declarations with `dict.update`, so whichever wallet
+    was encountered last silently won. Valid leaves of the other chain would then
+    fail, and leaves signed by the colliding wallet's key would be ACCEPTED for a
+    chain that never authorized it — a verification result decided by iteration
+    order. Verifying against a guess is worse than declining to verify, so an
+    ambiguous identifier makes every signature naming it unevaluable, which is a
+    refusal. Two declarations of the same id with the SAME `did` are a harmless
+    restatement and stay resolved."""
+    keys: dict[str, Any] = {}
     if not isinstance(wallet, dict):
         return keys
     reference = wallet.get("key_reference")
-    if isinstance(reference, dict) and isinstance(reference.get("key_id"), str):
-        keys[reference["key_id"]] = reference
+    if isinstance(reference, dict):
+        _merge_key(keys, reference)
     for entry in wallet.get("keys") or []:
-        if isinstance(entry, dict) and isinstance(entry.get("key_id"), str):
-            keys[entry["key_id"]] = entry
+        if isinstance(entry, dict):
+            _merge_key(keys, entry)
     return keys
+
+
+def merge_declared_keys(target: dict[str, Any], wallet: Any) -> None:
+    """Fold one carried wallet's declarations into a scope-wide map, carrying the
+    ambiguity FORWARD rather than overwriting or dropping it.
+
+    An id already ambiguous inside one wallet stays ambiguous in the scope: a
+    reader that discarded it here would resolve, from a second wallet, an
+    identifier the first wallet had already made unanswerable."""
+    for key_id, entry in declared_keys(wallet).items():
+        if entry is AMBIGUOUS_KEY:
+            target[key_id] = AMBIGUOUS_KEY
+        else:
+            _merge_key(target, entry)
 
 
 def check_one(f: Findings, label: str, doc: dict, scope: Scope) -> dict[str, str]:
@@ -856,6 +975,11 @@ def check_one(f: Findings, label: str, doc: dict, scope: Scope) -> dict[str, str
                     f"realization verifies {VERIFIABLE_ALGORITHM!r} and refuses the "
                     f"rest as unevaluable rather than accepting a signature it did "
                     f"not check")
+    elif keys.get(key_ref) is AMBIGUOUS_KEY:
+        unevaluable(CHECK_NAMES[0],
+                    f"wallet {wallet.get('wallet_id')!r} declares the presenting "
+                    f"key {key_ref!r} more than once for DIFFERENT public halves, "
+                    f"so which half signed cannot be established")
     elif key_ref not in keys:
         unevaluable(CHECK_NAMES[0],
                     f"the presenting key {key_ref!r} is declared by no key of "
@@ -912,6 +1036,55 @@ def check_one(f: Findings, label: str, doc: dict, scope: Scope) -> dict[str, str
         derived = None
     if derived is None or derived != chain_id:
         outcomes[CHECK_NAMES[1]] = "fail"
+
+    # ---- the presentation reference NAMES the record it carries ------------
+    # Found by Codex as a P1 on `aedfd8ce`, and it was the sharpest finding of
+    # this bench. Without this, a producer carries the ALREADY-CONSUMED exercise
+    # VERBATIM and replaces only the OUTER `exercise_ref` with a fresh value: the
+    # signed bytes change, the chain identity changes, and the per-act uniqueness
+    # map — keyed on that outer reference — sees a value it has never seen. The
+    # consumed exercise was replayable despite a rule written to prevent exactly
+    # that. ONE EXERCISE IS ONE ACT, so the reference and the record it names must
+    # agree, and uniqueness is keyed on the CARRIED identifier as well.
+    carried_id = exercise.get("exercise_id")
+    if carried_id is not None and presentation.get("exercise_ref") != carried_id:
+        fail(CHECK_NAMES[2], "continuity_broken",
+             f"the presentation names exercise "
+             f"{presentation.get('exercise_ref')!r} and the carried exercise "
+             f"record is {carried_id!r}. A reference that does not name the record "
+             f"beside it names nothing, and moving the two independently is how a "
+             f"consumed exercise is replayed past the uniqueness rule")
+
+    # THE REST OF THE SAME SHAPE, swept for rather than waited for. Round two's
+    # two findings were both a REFERENCE and its REFERENT able to move
+    # independently — two facts that look like one fact. A capability whose whole
+    # subject is binding one record to another should expect it everywhere, so
+    # every remaining pair of that shape is compared here. These paths are covered
+    # by `tests/signed_execution_chain/test_chain_reader.py` rather than by three
+    # more packaged fixtures: the closed refusal code they report is already
+    # red-proven, and what needs pinning is that each COMPARISON runs.
+    for outer, inner, what in (
+        (presentation.get("grant_ref"), exercise.get("grant_ref"), "grant"),
+        (wallet.get("wallet_id"), get(exercise, "attribution", "wallet_ref"),
+         "attributed wallet"),
+        (get(wallet, "holder", "holder_id"),
+         get(exercise, "attribution", "holder_ref"), "attributed holder"),
+        (get(wallet, "custody", "model"), exercise.get("custody_model_in_force"),
+         "custody model in force"),
+    ):
+        if outer is not None and inner is not None and outer != inner:
+            fail(CHECK_NAMES[2], "continuity_broken",
+                 f"the chain's {what} is {outer!r} and the carried exercise "
+                 f"records {inner!r}. The two are one fact, and a disagreement "
+                 f"means the exercise beside this ratification is not the exercise "
+                 f"this ratification was proved by")
+    # CUSTODY IS THE ONE OF THOSE FOUR THAT IS LOAD-BEARING RATHER THAN TIDY.
+    # `add-trust-anchor`'s ratified rule is that DECLARED CUSTODY BOUNDS WHAT A
+    # SIGNATURE EVIDENCES — a key readable by the host that uses it evidences that
+    # the HOST acted, which is precisely what a ratification may not stand on. So
+    # an exercise recording a stronger custody model than the wallet it was made
+    # with declares would let a `holder_readable` key evidence a human act, and
+    # requirement 8's whole narrowing rests on that not being possible.
 
     # ---- check 3: object_ref is the CONTENT digest (the replay check) ------
     object_ref = exercise.get("object_ref")

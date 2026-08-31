@@ -199,10 +199,69 @@ and **the first was a live forgery rather than a hardening**:
 **THE TRANSFERABLE PART IS THE SECOND COLUMN OF THAT TABLE.** Every one of the
 four was a check that LOOKED like it was doing its job: pairs that linked, a list
 that was eight long, a digest that serialized, an equation that balanced. None
-would have been caught by a test written from the rule's own wording, and three
-of the four were confirmed by RUNNING THE MUTATION AGAINST THE PRE-FIX CODE
-rather than by reasoning about it — which is the only way to know a repair is
-anchored to something.
+would have been caught by a test written from the rule's own wording, and all
+four were confirmed by RUNNING THE MUTATION AGAINST THE PRE-FIX CODE rather than
+by reasoning about it — which is the only way to know a repair is anchored to
+something.
+
+**SO THE OWED PASS WAS RUN, RATHER THAN WAITING FOR THE CLASS TO APPEAR A FIFTH
+TIME.** D7.8's lesson is that a rule written about a defect class is tested by
+whether the NEXT instance is found by the author or by the bench. Three more
+instances were found by the author, in the same sweep, and each was measured
+against the round-one tip the same way:
+
+- a **ratification leaf** whose payload digest named the right SUBJECT and whose
+  VALUE was never compared, though this chain's content digest is in scope — so a
+  leaf could record the presentation of a different subject's ratification while
+  reading as verified;
+- a **chain incepted with no ratification leaf at all**, which passed because the
+  atomicity rule checked only the other direction; and
+- a **traveling contract whose issuance no leaf recorded**, which passed because
+  nothing required it.
+
+**ROUND TWO CONFIRMED THE SWEEP AND FOUND TWO MORE, AND THE OVERLAP IS THE
+INTERESTING PART.** Codex independently raised the ratification-leaf payload and
+the missing-leaf pair — the same two the author had just caught — which is
+evidence the class was correctly identified rather than a lucky guess. It also
+raised two the sweep had missed, both P1, and both about a REFERENCE that could
+move independently of the thing it referenced:
+
+| Round | Finding | Where it landed |
+| --- | --- | --- |
+| 2 | **P1 (Codex)** — per-act uniqueness keyed on `presentation.exercise_ref`, which is replaceable WITHOUT touching the exercise it names. Carrying the already-consumed exercise VERBATIM and changing only that outer label produced different signed bytes, a different chain identity, and a uniqueness key the map had never seen: **the consumed exercise was replayable past the rule written to prevent exactly that** | The reference must AGREE with the carried record (`continuity_broken`), AND uniqueness is keyed on the CARRIED identifier — both, because a rule that relies on another rule to be sound has a second failure mode. Probed by `inception-replacing-only-the-outer-exercise-reference` |
+| 2 | **P1 (Codex)** — the scope-wide key map was built with `dict.update`, so when two carried wallets declared one `key_id` for DIFFERENT public halves, whichever was read last silently won. Valid leaves of the other chain would fail, and leaves signed by the colliding wallet's key would be ACCEPTED for a chain that never authorized it — **a verification result decided by iteration order** | An `AMBIGUOUS_KEY` marker carried forward rather than overwritten or dropped, at all three sites that resolve a key. An ambiguous identifier makes every signature naming it UNEVALUABLE, which is a refusal: verifying against a guess is worse than declining to verify. Probed by `two-wallets-declaring-one-key-id`, and pinned by a test that presents the two wallets in BOTH orders |
+
+**BOTH ROUND-TWO FINDINGS ARE ONE SHAPE, and it is worth naming because it is not
+the round-one shape:** a reference and its referent that can be moved
+independently. The round-one class was a check that looked like it was working;
+this one is two facts that looked like one fact. A capability whose whole subject
+is binding one record to another should expect it.
+
+**SO THAT SHAPE WAS SWEPT FOR TOO, in the same session it was named.** Every
+remaining pair of the shape in the signed bytes is now compared: the outer
+`grant_ref` against the carried exercise's, the carried wallet's id and holder
+against the exercise's `attribution`, and — the load-bearing one — the wallet's
+DECLARED CUSTODY against the exercise's `custody_model_in_force`. Custody is not
+tidiness: `add-trust-anchor`'s ratified rule is that declared custody BOUNDS WHAT
+A SIGNATURE EVIDENCES, so an exercise free to record a stronger model than its
+wallet declares would let a `holder_readable` key evidence a human act — and
+requirement 8's narrowing rests on that being impossible. Those four paths are
+pinned by a test rather than by four more fixtures, deliberately: the refusal code
+they report is already red-proven, and what needed pinning was that each
+COMPARISON runs.
+
+**AND THE SWEEP MEASURED ITS OWN VALUE RATHER THAN ASSERTING IT.** Every packaged
+negative was run through both readers and diffed: the second and third
+strengthenings changed the verdict on FOUR committed fixtures, so they were
+anchored already; the first changed the verdict on NONE, which made it dead code
+until `ratification-leaf-committing-to-another-subject.yaml` was written for it.
+A refusal no fixture provokes is a refusal nobody has seen work — the same rule
+the self-test applies to the closed enumeration, applied to a check that sits
+outside it. The diff harness also reported one row this round could not have
+caused, and that row was the harness's own defect: the anchor worktree had no
+`openXwallet` gitlink, so the two readers were validating carried blocks against
+different vocabularies. **A measurement instrument gets the same scrutiny as the
+thing it measures.**
 
 - [x] 4.1 **BUILT** — `contracts/signed-execution-chain/` carries the FOUR
       record kinds `code_surface` names (`chain-inception.schema.yaml`,
@@ -221,7 +280,7 @@ anchored to something.
       validated against the PINNED schemas through the `openXwallet/` gitlink;
       the actor is `identity-brokering`'s `actor_subject_reference` carrying an
       `xfactory_wallet_subject_attestation`.
-- [x] 4.2 **PACKAGED — 7 positives composing ONE whole chain, and 28 negatives.**
+- [x] 4.2 **PACKAGED — 7 positives composing ONE whole chain, and 31 negatives.**
       All nine named refusals have a probe, and so does every other refusal this
       reader can emit: the enumeration is 24 codes and the self-test REFUSES A
       CODE WITH NO PROBE, so a refusal nobody has seen work cannot ship. Two
