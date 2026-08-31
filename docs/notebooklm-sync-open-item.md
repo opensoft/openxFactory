@@ -44,17 +44,33 @@ port on **127.0.0.1 inside WSL**, so no Windows firewall is involved:
    `google-chrome --user-data-dir=<profile> --remote-debugging-port=9444
    https://accounts.google.com/`, or let the harness launch a persistent
    profile.
-2. A human signs into the **books account** and opens
-   `https://notebooklm.google.com/` — note **notebooklm** (with the L-M); a
-   wrong host such as `notebook.google.com` makes extraction time out.
-3. Extract fully, one of two ways (both produce the same native profile):
-   - `nlm login --cdp-url http://127.0.0.1:9444 --profile <profile>` — the
-     CLI's native extraction. The port **must differ from the default 18800**
-     to trigger the external-CDP path, and the browser must be **on
-     notebooklm.google.com** when the CLI polls.
-   - the harness `scripts/nlm_auth.py` — connect to the already-signed-in
-     browser over `--cdp-url` (no re-login) or launch a persistent profile,
-     then it writes the native profile directly.
+2. A human signs into the **books account** and opens NotebookLM. Since the
+   provider's rebrand the live host is **`notebook.google.com`** ("Gemini
+   Notebook") and `https://notebooklm.google.com/` redirects there, so either
+   URL lands on the signed-in app. The old L-M spelling now matters only to the
+   TOOLING, which still matches on it — see the broken CLI bullet in step 3.
+3. Extract fully with the harness `scripts/nlm_auth.py` — connect to the
+   already-signed-in browser over `--cdp-url` (no re-login) or launch a
+   persistent profile; it writes the native profile directly. This is the route
+   that actually authenticated the 2026-08-24 hosting migration.
+
+   The CLI's own extraction — `nlm login --cdp-url http://127.0.0.1:9444
+   --profile <profile>` — was the documented alternative and is **BROKEN since
+   the provider's rebrand; do not run it.** It polls for a tab on
+   `notebooklm.google.com` while the signed-in tab is now on
+   `notebook.google.com`, so `is_logged_in()` reports false for a browser that
+   IS signed in and the command dies on "Login timeout" after its 300 s wait;
+   `NOTEBOOKLM_BASE_URL` cannot be repointed, because it is validated against
+   the same allow-list. Recorded as F1 in
+   [the migration evidence](notebook-projection-migration-evidence-2026-08-24.md);
+   the fix is carried by opensoft/openxFactory#537.
+
+   The harness is **not** host-clean either: `NB_URL` and its `--cdp-url`
+   page-selection predicate both hard-code `notebooklm.google.com`, and its
+   operator messages still name that host. It works today only because the
+   predicate's miss falls through to navigating a tab to `NB_URL`, which
+   redirects to the live host. That correction belongs to #537 as well; until it
+   lands, the harness is the working route, not a repaired one.
 
 The harness modes:
 
@@ -158,9 +174,12 @@ Three grounds, all still true:
    browser that IS signed in, `nlm login --cdp-url` dies on "Login timeout", and
    `NOTEBOOKLM_BASE_URL` cannot be repointed because it is validated against the
    same allow-list. Only the login path is affected; the API calls still work.
-   The "method that works" section above still describes the way in, and its
-   step 2 warning about the wrong host is now the *reason* the CLI's own login
-   fails rather than an operator footgun.
+   The "method that works" section above has been corrected accordingly: its
+   `nlm login --cdp-url` bullet is marked BROKEN, and the way in is the harness
+   `scripts/nlm_auth.py` — the route that actually authenticated the 2026-08-24
+   migration. The harness hard-codes the same old host in `NB_URL` and its page
+   predicate and works only because the redirect covers for it, so #537 carries
+   that correction too.
 3. `add-notebook-hosting-credential-custody` states in **ratified text** that
    custody governs who may obtain the credential and **does not deliver
    automation**. No custody work discharges this item.
@@ -183,13 +202,14 @@ liveness cannot be proven cross-checkout. Wants its own change; noted in the
 1. See `~/xf-nlm-sync/AFTER-REBOOT.md`; rebuild the venv if `/tmp` was wiped.
 2. WSLg GUI rendering is resolved (see above); if a headed window fails to
    appear, `wsl --update` from PowerShell and reboot.
-3. Get a live session via full CDP extraction — either
+3. Get a live session via full CDP extraction, using the harness — either
    `python .../nlm_auth.py bootstrap --profile personal --channel chrome`
-   (sign into the books account once, on notebooklm.google.com), or connect to
-   an already-signed-in Chrome with `... refresh --profile personal
-   --cdp-url http://127.0.0.1:9444`, or `nlm login --cdp-url
-   http://127.0.0.1:9444 --profile personal` (non-default port, browser on
-   notebooklm.google.com).
+   (sign into the books account once; either NotebookLM URL is fine, the old
+   one redirects), or connect to an already-signed-in Chrome with
+   `... refresh --profile personal --cdp-url http://127.0.0.1:9444`, which is
+   how the 2026-08-24 migration authenticated. **Do NOT use `nlm login
+   --cdp-url` — the rebrand broke it** (F1 / #537, see above); it only burns its
+   300 s timeout against a browser that is genuinely signed in.
 4. Verify with a real `nlm notebook list` (not `login --check`).
 5. Dry-run `sync-notebooklm-books.py .` → review the ADD plan and the
    `[workbench]` orphan-sweep plan (skip `xf-wb-*` orphans — see the bug
