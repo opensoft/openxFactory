@@ -184,40 +184,34 @@ alone (#526, `afdf0e88`). The realization had written the re-count instruction
 into `tasks.md` rather than a number into a contract byte, which is the only
 reason nothing had to be renumbered.
 
-### `contract-v2.3` — the pending owner act is DISCHARGED
+### The predecessor tags, as the fresh count found them — RECORDED BY #532, NOT RE-DERIVED HERE
 
-The `contract-v2.4` entry above recorded `contract-v2.3` as declared by three
-artifacts on `main` and NEVER TAGGED, measured its retro-publication candidate
-green, and left tag publication recorded as PENDING because it is the repository
-owner's act. **IT HAS SINCE BEEN PERFORMED**, and this entry closes the loop
-where the reader of that one looks next:
+The fresh count above reads `contract-v2.3` AND `contract-v2.4` as published, and
+that is a change from what the `contract-v2.4` entry below could say: it recorded
+v2.3's tag as PENDING an owner act and said nothing about its own. Both were
+published by the repository owner on 2026-08-31, and **the measurement of record
+is that entry's own § `contract-v2.4` tag disposition — PUBLISHED 2026-08-31**
+(PR #532, `96b8a616`), which peels both tags, runs `verify-commit` at both
+targets, and re-validates the targeting rule against a live control. **THIS ENTRY
+DOES NOT RE-DERIVE IT.** Two records of one measurement is how they drift apart;
+the count here needed only the tag list, and it reads `contract-v2.5` as the next
+available number because of it.
 
-```text
-git ls-remote --tags origin 'refs/tags/contract-v2.3*'
-9fe9a742217ff830d84bb77d1a696589aca311c0  refs/tags/contract-v2.3
-ec8be5aa62179713f37ee12dab53a948d791e147  refs/tags/contract-v2.3^{}
+WHAT THIS CUT ADDS INSTEAD IS THE HALF #532 ARGUED FOR AND DID NOT TAKE. That
+entry names the structural cause — filed as **#528**, that no gate anywhere
+asserts a declared bundle has a published tag — and observes that the policy's
+sentence *"every bundle from `contract-v1.7` … is now tagged"* **has now been
+false twice while nothing noticed**. It then, correctly, declines to correct the
+prose again. So `docs/contract-versioning-policy.md` § Untagged Bundles After
+Enforcement Began now carries both instances beside the three the 2026-08-25
+ruling discharged, in the section a reader of `verify-tag` actually lands on,
+where the changelog entry that records them archives out of nobody's path but is
+also nobody's first stop. **A record is not a check**, and this cut does not
+pretend otherwise: #528 stays open, and until it lands the sentence can go false a
+third time.
 
-python3 scripts/validate-contract-release.py verify-tag --remote origin \
-    --tag contract-v2.3
-release verify-tag: pass
-```
-
-The annotated tag exists on the remote and dereferences to
-`ec8be5aa62179713f37ee12dab53a948d791e147` — **exactly** the commit the
-`contract-v2.4` entry measured as *"the EARLIEST FIRST-PARENT COMMIT on published
-`main` that DECLARES the bundle and at which `verify-commit` PASSES"*, the PR
-#514 merge. RETRO-PUBLISHED, NOT RE-DATED: no release was reconstructed, re-cut
-or altered, and no version number was reused.
-`contracts/releases/contract-v2.3.digests.yaml` is untouched by this cut, as is
-`contract-v2.4`'s.
-
-RECORDED, NOT SOFTENED. `contract-v2.3` was a FOURTH bundle allocated after
-mandatory tag publication began that went untagged while being consumed —
-`docs/contract-versioning-policy.md` § Untagged Bundles After Enforcement Began
-names the other three — and the weeks it sat that way were a breach of *"a bundle
-is not published until its tag exists"*, never an exception to it. The discharge
-does not retroactively make the gap acceptable, and neither this entry nor that
-section may be cited to treat an untagged bundle as released.
+`contracts/releases/contract-v2.3.digests.yaml` and
+`contracts/releases/contract-v2.4.digests.yaml` are untouched by this cut.
 
 ## contract-v2.4 — 2026-08-31 (additive; a credential binding declares who holds it and what it fetches with)
 
@@ -347,6 +341,51 @@ as the act. Nothing in this release consumes `contract-v2.3` as a published
 bundle, and this subsection may not be cited to treat an untagged bundle as
 released — the same clause the discharged subsection binds every later reader
 with. `contracts/releases/contract-v2.3.digests.yaml` is untouched by this cut.
+
+### `contract-v2.4` tag disposition — PUBLISHED 2026-08-31
+
+This entry did not originally say anything about its own tag, and the obligation
+binds it the moment the bundle is declared: *"a bundle is not published until its
+tag exists"*, and the manifest version, changelog heading and annotated tag *"MUST
+match"*. The subsection immediately above measured the PREVIOUS bundle's missing
+tag with care and left this one's unmentioned — recorded here plainly, because a
+cut that documents its predecessor's gap and not its own is evidence that nothing
+in the process is positioned to notice. That structural gap is filed as **#528**:
+no gate anywhere asserts that a declared bundle has a published tag, which is why
+the same shape reached `contract-v1.33`/`v1.35`/`v1.39` in August and needed a
+ruling to discharge.
+
+**Both tags are now published, by the repository owner, on 2026-08-31.** Annotated
+tag objects, each peeling to the commit the ratified rule names:
+
+| bundle | annotated tag | peels to | rule satisfied |
+|---|---|---|---|
+| `contract-v2.3` | `9fe9a742` | `ec8be5aa62179713f37ee12dab53a948d791e147` (the PR #514 merge) | `verify-commit` passes against `contracts/releases/contract-v2.3.digests.yaml`, exit 0 |
+| `contract-v2.4` | `3374ad2f` | `afdf0e88f329740150654d5ad67a1984a104e83b` (the PR #526 squash) | `verify-commit` passes against `contracts/releases/contract-v2.4.digests.yaml`, exit 0 |
+
+Each target is *"the EARLIEST FIRST-PARENT COMMIT on published `main` that DECLARES
+the bundle and at which `verify-commit` PASSES"* — the rule this policy established
+for the 2026-08-25 discharge, applied here rather than asserted. The rule was
+re-validated against a live control before being trusted for these two: it returns
+`8ccfb67b` for `contract-v2.2`, and that bundle's already-published tag peels to
+exactly that commit. RETRO-PUBLISHED, NOT RE-DATED, on the same terms as the
+August discharge: no release was reconstructed, re-cut or altered, and no version
+number was reused.
+
+**The subsection above is left exactly as written.** Its heading still says PENDING
+an owner act, and that was true when it was written; the act has since been
+performed and is recorded here rather than by editing the earlier text. This
+follows the handling this policy already requires of `docs/archive-record-discrepancies.md`,
+which states that `contract-v1.33` and `contract-v1.35` are not git tags and is
+deliberately not corrected — rewriting a statement to match today's state destroys
+the evidence of what was true then. A reader who arrives at the PENDING heading
+should read on to here; a reader who cites it as evidence that `contract-v2.3` is
+untagged today has misread it.
+
+With these two published, every bundle from `contract-v1.7` — where mandatory
+publication begins — carries an annotated tag again. That sentence has now been
+false twice while nothing noticed, which is the argument #528 makes for a check
+rather than for another correction of the prose.
 
 ## contract-v2.3 — 2026-08-29 (additive; standing-policy intent compliance with review-closed trust and outcome semantics)
 

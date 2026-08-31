@@ -82,11 +82,13 @@ commit. In authoring order, with the inventory LAST:
    entry and the staged topic's detail section record the cut and that TWO boxes
    remain open.
 8. `contracts/releases/contract-v2.5.digests.yaml` — built LAST, by
-   `scripts/validate-contract-release.py build`, never hand-edited. Built TWICE
-   for that reason: once after items 1–7, then DISCARDED AND REBUILT when review
-   of the entry text moved two members (`contracts/CHANGELOG.md` and
-   `docs/contract-versioning-policy.md`). "Inventory built last" means last, not
-   first-drafted.
+   `scripts/validate-contract-release.py build`, never hand-edited. Built THREE
+   TIMES for that reason: once after items 1–7; DISCARDED AND REBUILT when review
+   of the entry text moved two members; and DISCARDED AND REBUILT AGAIN when the
+   second rebase brought PR #532's edit to `contracts/CHANGELOG.md`, which is an
+   inventory member. "Inventory built last" means last, not first-drafted — and
+   "last" is measured against the LANDED base, not against the moment the author
+   stopped typing.
 
 ## The inventory, built LAST
 
@@ -246,7 +248,7 @@ candidate, including the full suite and both doc-health sides.
 | --- | --- |
 | `validate-contract-release.py verify-commit --commit HEAD` at the cut commit | GREEN — `release verify-commit: pass`, `inventory=contracts/releases/contract-v2.5.digests.yaml`, exit 0, zero findings |
 | `validate-contract-release.py verify-promotion --commit HEAD --remote origin --tag contract-v2.5` | 6 findings, ALL reachability-class: `HGR-RELEASE-CANDIDATE-UNREACHABLE` + 5 × `HGR-RELEASE-SURFACE-DRIFT`. EXPECTED pre-merge; reported, not chased (below) |
-| `validate-contract-release.py verify-tag --remote origin --tag contract-v2.3` | `release verify-tag: pass` (the discharge measured below) |
+| `validate-contract-release.py verify-tag --remote origin --tag contract-v2.3` | `release verify-tag: pass` (see the predecessor-tags section below) |
 | `validate-contract-release.py verify-tag --remote origin --tag contract-v2.4` | `release verify-tag: pass` |
 | `validate-manifest-digests.py` | `OK contracts/manifest.yaml: 155 per-file digest(s) verify` |
 | `verify-openxwallet-pin.py` | `OK openxwallet-pin verified: openXwallet@6b248d4050e1f88b3ca75c1290ad2c81f465300c (tag label wallet-v1.3), gitlink read from HEAD, 8 digest(s) recomputed` |
@@ -254,7 +256,7 @@ candidate, including the full suite and both doc-health sides.
 | `openspec validate add-signed-execution-chain --strict` | `Change 'add-signed-execution-chain' is valid` |
 | `openspec validate --all --strict` | `Totals: 80 passed, 0 failed (80 items)` |
 | every other `scripts/validate-*.py` | green; the one non-zero is PRE-EXISTING and identical on both sides (below) |
-| `pytest tests/ -q -m "not postgres"` | **8363 passed, 21 skipped, 338 deselected, 46 subtests passed, 0 failed / 0 errors**, exit 0, 1440s, at the REBASED tip. 8363 + 21 + 338 = 8722, so the run covers everything collection sees, and exactly 21 skipped — no pin moved a count. Twelve of the passes are this cut's new file (2 closure + 5 digest + 5 consumption-rule); the run at the pre-rebase candidate reported 8355, and the 8 additional are PR #531's own new doc-health tests, which the rebase brought in |
+| `pytest tests/ -q -m "not postgres"` | **8363 passed, 21 skipped, 338 deselected, 46 subtests passed, 0 failed / 0 errors**, exit 0, ~24m, RE-RUN at each rebased candidate with the identical result (1440s at the first, 1421s at the final). 8363 + 21 + 338 = 8722, so the run covers everything collection sees, and exactly 21 skipped — no pin moved a count. Twelve of the passes are this cut's new file (2 closure + 5 digest + 5 consumption-rule); the run at the pre-rebase candidate reported 8355, and the 8 additional are PR #531's own new doc-health tests, which the rebase brought in |
 
 ### The one non-zero validator, measured on both sides
 
@@ -280,19 +282,22 @@ The class clears on merge.
 Two checkouts, **both named exactly `openxFactory`** — the finding identity is
 `(family, repo, path)` and the repo is the basename, so a differently-named
 baseline manufactures phantom findings (issue #342) — one at `origin/main`
-`95a22a42` and one at this branch, run in the same session at
+`96b8a616` and one at this branch, run in the same session at
 `--as-of 2026-08-31` with `python3 scripts/doc-health.py --single-repo <path>`:
 
 | | critical | error | warning | info | findings | `release-inventory-drift` |
 | --- | --- | --- | --- | --- | --- | --- |
-| baseline `origin/main` `95a22a42` | 5 | 4 | 38 | 12 | 59 | 1 |
+| baseline `origin/main` `96b8a616` | 5 | 4 | 38 | 13 | 60 | 2 |
 | branch, at the cut commit | 5 | 4 | 38 | 11 | **58** | **0** |
 
 The set difference was taken in BOTH DIRECTIONS over the machine block, not
 inferred from the headline. Findings present on the branch and absent from the
 baseline: **NONE, of any family.** Findings present on the baseline and absent
-from the branch: **exactly one** — the drift finding quoted below, which is the
-one this cut discharges. Every other family is identical on both sides:
+from the branch: **exactly two**, and both are `release-inventory-drift` against
+the standing `contract-v2.4` inventory — `contracts/README.md` (the realization's
+two index rows) and `contracts/CHANGELOG.md` (PR #532's subsection). Both are the
+findings this cut discharges; the second only exists at the FINAL base, which is
+why the baseline moved from one drift finding to two. Every other family is identical on both sides:
 staged-topic-template 26, register-lifecycle-consistency 10,
 modified-block-currency 8, tag-hygiene 4, record-immutability 4,
 staged-candidate-aging 3, ratified-provenance 1, ideation-routing 1,
@@ -302,12 +307,17 @@ The finding the cut discharges, quoted from the baseline:
 
 ```text
 - severity=info family=release-inventory-drift repo=openxFactory
-  path=contracts/README.md
+  path=contracts/CHANGELOG.md
   rule="bytes differ from the digest 'contract-v2.4' records (editorial member —
   expected between cuts)"
   action="cut a release through the bundle realization order; never hand-edit an
   inventory or contract_bundle_version to make this comparison pass"
   class="auto-fixable"
+- severity=info family=release-inventory-drift repo=openxFactory
+  path=contracts/README.md
+  rule="bytes differ from the digest 'contract-v2.4' records (editorial member —
+  expected between cuts)"
+  ... (same action and class)
 ```
 
 **THE REMEDY LINE IS THE INSTRUCTION THIS CUT FOLLOWED**, and the one thing it
@@ -320,45 +330,51 @@ design — so a run against a DIRTY working tree still reports the old bundle's
 drift, and the branch showed the v2.4 finding until the cut was committed. The
 zero above is measured at the cut commit, not before it.
 
-## `contract-v2.3` — the pending owner act is DISCHARGED
+## The predecessor tags, and the SECOND rebase they caused
 
-The `contract-v2.4` cut measured `contract-v2.3` as declared on `main` by three
-artifacts and NEVER TAGGED, measured its retro-publication candidate green under
-this policy's own rule, and recorded publication as PENDING because it is the
-repository owner's act. **IT HAS SINCE BEEN PERFORMED**, and the fresh count for
-this cut is what surfaced it:
+**THIS IS THE PART OF THE CUT THAT MOVED UNDER IT TWICE, and the sibling-PR lesson
+is the transferable bit.** The fresh count surfaced that `contract-v2.3` — recorded
+by the `contract-v2.4` entry as declared and NEVER TAGGED, with publication PENDING
+an owner act — had since been tagged. So the first draft of this cut MEASURED and
+RECORDED that discharge itself, in both the `contract-v2.5` changelog entry and the
+versioning policy.
 
-```text
-git ls-remote --tags origin 'refs/tags/contract-v2.3*'
-9fe9a742217ff830d84bb77d1a696589aca311c0  refs/tags/contract-v2.3
-ec8be5aa62179713f37ee12dab53a948d791e147  refs/tags/contract-v2.3^{}
+**AND THEN `origin/main` ADVANCED TO `96b8a616` — PR #532, whose entire subject is
+that same publication**, landed by another lane while this branch sat green. It
+records BOTH tags (not just v2.3), peels each tag object, runs `verify-commit` at
+both targets, and re-validates the targeting rule against a live control
+(`contract-v2.2` → `8ccfb67b`, matching its already-published tag). It is the
+better record, and it is now the record.
 
-python3 scripts/validate-contract-release.py verify-tag --remote origin \
-    --tag contract-v2.3
-release verify-tag: pass
-```
+WHAT THAT COST AND WHAT IT CHANGED:
 
-The tag dereferences to `ec8be5aa62179713f37ee12dab53a948d791e147` — **exactly**
-the commit the `contract-v2.4` entry measured as the earliest first-parent commit
-on published `main` declaring the bundle at which `verify-commit` passes (the PR
-#514 merge). The tag object is dated **2026-08-31 03:14 -0400**, the same
-timestamp as `contract-v2.4`'s: the owner published both together. So the untagged
-window ran from the PR #514 merge (2026-08-30 08:25 -0400) to that moment —
-**about nineteen hours**, during which the `contract-v2.4` cut `afdf0e88`
-consumed v2.3 as a spent number.
+* `contracts/CHANGELOG.md` is a RELEASE-INVENTORY MEMBER, and #532 moved its
+  bytes. `verify-commit` went red at the rebased tip with exactly one finding —
+  `HGR-RELEASE-DIGEST-MISMATCH` on `contracts/CHANGELOG.md` — which is the check
+  doing its job on a real drift, not the editorial uncut state. The inventory was
+  REBUILT (third build) and `verify-commit` is green again.
+* This cut's changelog subsection was rewritten from a MEASUREMENT into a
+  CITATION. Two records of one measurement is how they drift apart, and the v2.4
+  entry is where a reader of that bundle looks.
+* The POLICY record was KEPT AND WIDENED, because #532 explicitly declines that
+  half: it names the structural cause — issue **#528**, that no gate anywhere
+  asserts a declared bundle has a published tag — observes that the policy's
+  *"every bundle from `contract-v1.7` … is now tagged"* **has been false twice
+  while nothing noticed**, and correctly refuses to correct the prose a third
+  time. So the policy section now carries `contract-v2.3` AND `contract-v2.4` as
+  instances FOUR and FIVE beside the three the 2026-08-25 ruling discharged, with
+  the untagged windows, the consumption of v2.3-as-spent inside its window, why it
+  recurred, and the plain statement that **a record is not a check** and #528 is
+  open.
 
-RECORDED, NOT SOFTENED, in `docs/contract-versioning-policy.md` § Untagged
-Bundles After Enforcement Began, beside the three the 2026-08-25 ruling
-discharged. The section's sentence *"Every bundle from `contract-v1.7` … is now
-tagged"* was true when written, became false, and is true again; a reader who
-takes it as evidence the practice never lapsed again would be reading a claim it
-does not make, which is why the fourth instance is written down rather than left
-to be inferred. The discharge does not make the gap acceptable, and neither the
-record nor the period it narrates may be cited to treat an untagged bundle as
-released.
+**THE LESSON, AND IT IS ONE THIS ESTATE HAS ALREADY WRITTEN DOWN ONCE**: check for
+a sibling branch or PR on your subject the minute before you author a record about
+it, not only at the start. This cut counted the tags at its tip, was correct, and
+was still overtaken — because the count surfaced a fact interesting enough that
+somebody else was already writing it up. The check that would have caught it is
+`gh pr list` on the subject, not on the change.
 
-**NOTHING IN THIS CUT TAGS OR RE-TAGS ANYTHING.** The tag was already published
-when this session began; this file measures it.
+**NOTHING IN THIS CUT TAGS OR RE-TAGS ANYTHING**, in either draft.
 
 ## What is NOT here
 

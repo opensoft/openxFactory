@@ -10,7 +10,7 @@ entries:
   path: contracts/CHANGELOG.md
   type: changelog
   git_mode: '100644'
-  digest: sha256:efaedf22cd0e44956d185b91dbbf9ef8e5eeb3569b9619f3dfb34ee52ddcf4e1
+  digest: sha256:01fb5aa3dce79df914f09d698ddf48599121c9dde35f7184087187ead745811c
 - artifact_id: contracts-readme.md
   path: contracts/README.md
   type: documentation
@@ -1068,7 +1068,7 @@ entries:
   path: docs/contract-versioning-policy.md
   type: documentation
   git_mode: '100644'
-  digest: sha256:3bc447f2461e57351ebd57a878815ee194c2fac15498bd1c61d490081a0b8bd2
+  digest: sha256:6712a213e0bc1e0158217a541222d328bfa2e0dfbf4c624b97aea77513d9398e
 - artifact_id: docs-terminology-and-repo-topology.md
   path: docs/terminology-and-repo-topology.md
   type: documentation

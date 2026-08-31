@@ -34,10 +34,12 @@ tag while pinning the exact commit and required file digests.
 
 ### Untagged Bundles After Enforcement Began — DISCHARGED 2026-08-25, AND AGAIN 2026-08-31
 
-FOUR instances, in two discharges. The first three and the 2026-08-25 ruling are
-recorded immediately below; the fourth, `contract-v2.3`, is recorded further down
-under its own dates. The header carries both because a single date here would
-read as though the section closed once.
+FIVE instances, in two discharges. The first three and the 2026-08-25 ruling are
+recorded immediately below; `contract-v2.3` and `contract-v2.4` are recorded
+further down under their own dates. The header carries both dates because a single
+one would read as though the section closed once — and **it has not closed, in the
+sense that matters**: the recurrence is caused by the absence of a CHECK, filed as
+issue **#528**, and a record is not a check.
 
 Three bundles allocated AFTER mandatory tag publication began once carried a
 changelog entry and a manifest version but NO published annotated tag:
@@ -79,32 +81,48 @@ tagged. The legacy `contract-v1.0`–`contract-v1.6` sequence remains untagged b
 design, per the recovery recorded below.
 
 **THE SENTENCE ABOVE WAS TRUE WHEN WRITTEN, BECAME FALSE, AND IS TRUE AGAIN —
-`contract-v2.3` WAS A FOURTH INSTANCE.** Recorded here rather than left to be
-inferred from the sentence's present tense, because a reader who takes that
-sentence as evidence the practice never lapsed again would be reading a claim it
-does not make. `contract-v2.3` was declared on `main` by the PR #514 merge
-`ec8be5aa` (2026-08-30; its changelog entry is dated 2026-08-29, the day it was
-authored) — a manifest version, a changelog entry and
-`contracts/releases/contract-v2.3.digests.yaml` — and was CONSUMED as a spent
-number by the `contract-v2.4` cut `afdf0e88` (2026-08-30 23:49 -0400) while its
-annotated tag still did not exist. That cut measured its retro-publication
-candidate under the rule above and recorded publication as PENDING, an owner act
-(`contracts/CHANGELOG.md` § `contract-v2.4`).
+`contract-v2.3` AND `contract-v2.4` WERE INSTANCES FOUR AND FIVE.** Recorded here
+rather than left to be inferred from the sentence's present tense, because a
+reader who takes that sentence as evidence the practice never lapsed again would
+be reading a claim it does not make.
 
-| bundle | realized commit | landed as | discharged |
-|---|---|---|---|
-| `contract-v2.3` | `ec8be5aa62179713f37ee12dab53a948d791e147` | PR #514, 2026-08-30 | tag published 2026-08-31 03:14 -0400, alongside `contract-v2.4`'s; `verify-tag --remote origin --tag contract-v2.3` passes and dereferences to that commit, re-confirmed at the `contract-v2.5` cut |
+| bundle | realized commit | landed as | declared-and-untagged for | discharged |
+|---|---|---|---|---|
+| `contract-v2.3` | `ec8be5aa62179713f37ee12dab53a948d791e147` | PR #514 merge, 2026-08-30 08:25 -0400 | about 19 hours — and it was CONSUMED as a spent number inside that window, by the `contract-v2.4` cut `afdf0e88` | tag `9fe9a742` published 2026-08-31 03:14 -0400 |
+| `contract-v2.4` | `afdf0e88f329740150654d5ad67a1984a104e83b` | PR #526 squash, 2026-08-30 23:49 -0400 | about 3.5 hours | tag `3374ad2f` published 2026-08-31 03:14 -0400, in the same act |
 
-RETRO-PUBLISHED, NOT RE-DATED, exactly as the three above: the tag names the
-commit the bundle was really realized at — the EARLIEST FIRST-PARENT COMMIT on
-published `main` that declares it and at which `verify-commit` passes — and no
-release was reconstructed, re-cut or altered. **THE DISCHARGE DOES NOT MAKE THE
-GAP ACCEPTABLE.** For the nineteen hours `contract-v2.3` stood declared on `main`
-and untagged, *"a bundle is not published until its tag exists"* was in force and
-unmet; that a later cut consumed it as a spent number anyway is evidence of the
-cost, never a precedent. The closing clause immediately below binds this instance
-too: no reader may cite it, or the period it narrates, to treat an untagged
-bundle as released.
+`verify-tag --remote origin` passes for both and each peels to the commit named
+above, which is *"the EARLIEST FIRST-PARENT COMMIT on published `main` that
+DECLARES the bundle and at which `verify-commit` PASSES"*. RETRO-PUBLISHED, NOT
+RE-DATED, on the same terms as the August discharge: no release was
+reconstructed, re-cut or altered, and no version number was reused. **The
+measurement of record is `contracts/CHANGELOG.md` § `contract-v2.4` tag
+disposition — PUBLISHED 2026-08-31** (PR #532), which peels both tags, runs
+`verify-commit` at both targets, and re-validates the targeting rule against a
+live control (`contract-v2.2` → `8ccfb67b`, matching its already-published tag).
+This table cites that measurement; it does not re-derive it, because two records
+of one measurement is how they drift apart.
+
+**THE DISCHARGE DOES NOT MAKE THE GAP ACCEPTABLE**, and the v2.3 case is the one
+that shows why. For those nineteen hours *"a bundle is not published until its tag
+exists"* was in force and unmet, and a later cut consumed the bundle as a spent
+number anyway. That is evidence of the cost, never a precedent.
+
+**WHY IT RECURRED, WHICH IS THE ONLY PART A FUTURE READER CAN ACT ON.** Nothing
+in the estate checks this. `verify_tag` exists and is called only by unit tests
+over synthetic repositories; no workflow calls the release validator at all;
+`release-surface-integrity` deliberately does not anchor on tags; and
+`tag-hygiene` is a different family entirely, over document prose markers. So the
+gap is invisible until a human counts, which is exactly how it reached
+`contract-v1.33`/`v1.35`/`v1.39` in August and then reached `contract-v2.3` and
+`contract-v2.4` in the same week the August ruling was still being cited. **It is
+filed as issue #528 and is OPEN.** Until a check lands, the sentence above can go
+false a fourth time, and this section records rather than prevents that. A reader
+finding it false again should add the gate, not another paragraph.
+
+Every instance above is a breach of the rule, never an exception to it, and the
+closing clause immediately below binds all five: no reader may cite this
+subsection, or the periods it narrates, to treat an untagged bundle as released.
 
 THE RULE WAS NEVER ADVISORY, INCLUDING WHILE IT WAS BEING BROKEN. For the weeks
 these three went untagged, "a bundle is not published until its tag exists" was
