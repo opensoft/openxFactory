@@ -11,10 +11,12 @@ prefers that shape.
 A `## MODIFIED Requirements` block SHALL declare its basis by a reserved marker
 inside that block where the requirement it names is one the promoted
 specification does not carry and an active change ADDS or RENAMES to that
-title, naming the change whose addition the block is written over.
+title, naming the change whose addition or rename the block is written over.
 
 **THE SHAPE IS LAWFUL, AND IT IS THE DECLARATION THAT MAKES IT SO.** Modifying
-a requirement a sibling is still adding is a legitimate and frequent act in a
+a requirement a sibling is still adding — or still renaming a promoted
+requirement into, the two basis forms being one basis on the same terms wherever
+this corpus reads them — is a legitimate and frequent act in a
 corpus where changes are long-lived: the successor arrives before the
 predecessor archives, and asking it to wait would be asking governance to run at
 the speed of the slowest packet. What is not lawful is doing it silently. The
@@ -32,6 +34,16 @@ begins with the prefix COMPLETE. The form is
 ``**Modified over `<basis change-id>`'s addition by <change-id> (<YYYY-MM-DD>):**``
 followed by ` — <reason>`. The basis change-id is written as a code span, as
 every change-id this capability's markers name already is.
+
+**THE WORD `addition` IN THAT PREFIX IS FIXED PROSE, NOT A CLAIM ABOUT THE
+BASIS'S BLOCK KIND.** The form is recognized by a COMPLETE prefix, so its literal
+text is a token a parser matches rather than a description a reader must verify;
+it names the RELATION the marker declares — this block rests on what that change
+writes into canon — and a basis that RENAMES a promoted requirement to the title
+is declared by the same unchanged form. Spelling a second prefix for the rename
+case would make one relation two shapes, two parse branches and two class-map
+entries for one remedy, which is what this capability's reserved forms exist to
+avoid.
 
 **THE `by` IDENTIFIER SHALL BE THE CHANGE THAT CARRIES THE BLOCK, and it is
 VALIDATED rather than merely resolved.** The identifier written after `by` SHALL
@@ -123,3 +135,4 @@ enforced, and neither is a substitute for the other.
 - **WHEN** a single change carries both an `## ADDED Requirements` block and a `## MODIFIED Requirements` block for one capability and requirement title
 - **THEN** the delta MUST be reported, a change modifying its own unpromoted addition having written two texts for one requirement where the second is simply the first
 - **AND** a `Modified over` marker naming the change itself MUST NOT be read as curing it
+- **AND** a change that RENAMES a promoted requirement to that title and modifies it in one delta MUST NOT be reported on this ground, that shape being the rename-and-amend one `doc-health`'s promoted resolution order resolves against canon under the OLD name (`openspec/specs/doc-health/spec.md:1568-1574`, with the scenario at `:1783-1786`), a `## RENAMED Requirements` block carrying a pair of titles rather than a second text

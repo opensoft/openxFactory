@@ -79,26 +79,34 @@ each state's antecedent below carries the exclusion that order performs. One
 block therefore yields at most one finding of this class, and the words a reader
 is given are never a choice between two true descriptions of one defect.
 
-- **SELF-REFERENTIAL** — the change that carries the block is itself a change
-  that ADDS or RENAMES to the block's capability and requirement title. Reported,
-  and a marker naming the change itself MUST NOT clear it. **THIS STATE IS
-  EXAMINED FIRST AND EXCLUDES THE OTHER FOUR**, because it is a fact about the
+- **SELF-REFERENTIAL** — the change that carries the block ADDS the block's
+  capability and requirement title in its OWN `## ADDED Requirements` block.
+  Reported, and a marker naming the change itself MUST NOT clear it. **THIS STATE
+  IS EXAMINED FIRST AND EXCLUDES THE OTHER FOUR**, because it is a fact about the
   DELTA and not about the marker: a self-referential block carrying no marker is
   reported here and NOT as UNDECLARED, and one carrying any marker at all is
   reported here and NOT as MISDECLARED. Its remedy is to withdraw one of the two
   blocks, which no marker supplies, so a second finding over the same block would
-  offer a remedy that does not reach the defect.
+  offer a remedy that does not reach the defect. **THE CARRIER'S OWN RENAME TO
+  THE TITLE IS NOT THIS STATE**, for the reason the paragraph below states.
 - **UNDECLARED** — the block is NOT self-referential and carries no marker of the
   reserved `Modified over` form. Reported.
 - **MISDECLARED** — the block is NOT self-referential, carries such a marker, and
   that marker's declaration is wrong in one of the TWO ways a declaration of this
-  form can be wrong: EITHER the change it names AS BASIS neither ADDS nor RENAMES
-  to the block's capability and requirement title, OR its `by` identifier is not
+  form can be wrong: EITHER the change it names AS BASIS is not an active change
+  OTHER THAN THE CARRIER that ADDS or RENAMES to the block's capability and
+  requirement title — it names a change that neither adds nor renames to that
+  title, or it names the carrying change itself — OR its `by` identifier is not
   the change that carries the block. Reported, and reported apart from UNDECLARED
   in the finding's own words, because a wrong basis and an absent one have
-  different remedies. **THE REMEDY IS SINGULAR PER HALF AND THE FINDING SHALL SAY
+  different remedies. **THE FIRST HALF IS THE EXACT NEGATION of the silent state's
+  basis clause**, so that narrowing SELF-REFERENTIAL to the carrier's own addition
+  leaves no block outside all five states: a marker naming the carrier as its own
+  basis is reported here wherever the carrier is not reported self-referential.
+  **THE REMEDY IS SINGULAR PER HALF AND THE FINDING SHALL SAY
   WHICH HALF IT NAMES**: a wrong basis is repaired by naming the change that
-  actually adds the requirement, a wrong `by` by writing the carrying change's own
+  actually adds the requirement or renames to its title, a wrong `by` by writing
+  the carrying change's own
   identifier, and one finding naming both without saying which would leave its
   reader to guess which word of one paragraph to change.
 - **UNDISCLOSED** — the block is NOT self-referential and carries a marker that is
@@ -116,6 +124,30 @@ is given are never a choice between two true descriptions of one defect.
   `ratified` or the marker discloses that it is not. NO FINDING IS EMITTED.
   A correctly declared pair is the state this check exists to produce, and a
   standing row for it would be a permanent advisory nobody should act on.
+
+**A CHANGE'S OWN RENAME TO THE TITLE IS THE RENAME-AND-AMEND SHAPE, NOT A
+DEFECT, AND PROMOTED CANON ALREADY DECIDES IT.** The resolution order this family
+runs under examines the CARRYING change's own `## RENAMED Requirements` block
+BEFORE the set of titles active changes add or rename to, and where that block
+renames a promoted requirement TO this title the three comparison arms SHALL run
+against canon under the OLD name, "a rename being a change of title rather than
+of the content a block must carry"
+(`openspec/specs/doc-health/spec.md:1568-1574`), with the promoted scenario "A
+change renames a requirement and modifies it in one delta" resting a MUST on that
+reading (`:1783-1786`). That PRECEDENCE IS PRESERVED AHEAD OF THE EXAMINATION
+ABOVE and is widened, narrowed and reordered in no way: a rename-and-amend block
+resolves against canon under the old name and never reaches this check at all.
+Defining self-reference to reach a carrier's own RENAME would therefore do one of
+two wrong things and never a right one — report the supported shape as a defect
+where it reached, and stand as unreachable words where the precedence held. The
+state is defined by the carrier's own ADDITION because the defect is TWO TEXTS
+FOR ONE REQUIREMENT: an `## ADDED Requirements` block carries the requirement's
+text and a `## RENAMED Requirements` block carries a pair of titles, so only the
+first can be the same text written twice. Where a carrier's own rename names a
+`FROM:` title the promoted specification does NOT carry, that precedence does not
+resolve and the block reaches this check like any other, to be placed by its
+marker or by the absence of one; there is no self-reference in it, a title pair
+being no second text.
 
 **THE `by` IDENTIFIER IS COMPARED TO THE CARRIER, AND THE OBLIGATION THAT
 COMPARISON ENFORCES IS NOT THIS CAPABILITY'S TO STATE.** `document-lifecycle`
@@ -250,7 +282,7 @@ being to warn a reader about text no authority has been shown to accept, and a
 standing nobody can read being no such showing.
 
 #### Scenario: A block over a sibling's addition carries no marker
-- **WHEN** an active change's MODIFIED block names a requirement the promoted specification does not carry, an active change ADDS or RENAMES to that title, the change carrying the block is not itself such a change, and the block carries no `Modified over` marker
+- **WHEN** an active change's MODIFIED block names a requirement the promoted specification does not carry, an active change ADDS or RENAMES to that title, the change carrying the block does not itself ADD that title, and the block carries no `Modified over` marker
 - **THEN** the run MUST emit one `warning` finding against the active delta's own path, naming the requirement, the change whose addition it resolves to, and that no marker declares the pairing
 - **AND** the three comparison arms MUST NOT run against that block, there being no promoted requirement to compare it to
 - **AND** the finding MUST NOT cause a run configured `--fail-on error` or `--fail-on critical` to fail
@@ -260,9 +292,10 @@ standing nobody can read being no such showing.
 - **THEN** no finding MUST be emitted for that block, a declared pairing being the state this check exists to produce
 
 #### Scenario: The marker names a change that does not add the requirement
-- **WHEN** such a block carries a `Modified over` marker naming as basis a change that neither ADDS nor RENAMES to its capability and requirement title, and the change carrying the block is not itself a change that does
+- **WHEN** such a block carries a `Modified over` marker naming as basis a change that neither ADDS nor RENAMES to its capability and requirement title, and the change carrying the block does not itself ADD that title
 - **THEN** the run MUST emit a `warning` finding naming the change the marker names and stating that it adds no such requirement
 - **AND** that finding MUST be worded apart from the undeclared case, a wrong basis and an absent one having different remedies
+- **AND** a marker naming the CARRYING change itself as basis MUST be reported in this state wherever that change is not reported self-referential, a block's basis being a change other than the one that writes it
 
 #### Scenario: The marker's `by` identifier is not the change carrying the block
 - **WHEN** such a block carries a `Modified over` marker whose basis DOES add or rename to the block's capability and requirement title, and whose `by` identifier is a change other than the one whose delta carries the block
@@ -275,6 +308,11 @@ standing nobody can read being no such showing.
 - **THEN** the run MUST emit a `warning` finding against that delta
 - **AND** a `Modified over` marker naming that same change MUST NOT suppress it
 - **AND** exactly ONE finding of this class MUST be emitted for that block, in the self-referential state, whether the block carries a marker or none — that state being examined first and excluding the undeclared and misdeclared readings the same block would otherwise also satisfy
+
+#### Scenario: The carrier renames the requirement and modifies it in one delta
+- **WHEN** one change carries a `## RENAMED Requirements` block renaming a promoted requirement TO a title and a MODIFIED block for that same title
+- **THEN** the block MUST NOT be reported in the self-referential state, nor in any other state of this class, the promoted resolution order resolving it against canon under the OLD name before this check is reached
+- **AND** the three comparison arms MUST run against it under that old name, this requirement preserving that precedence rather than displacing it
 
 #### Scenario: A block is declared over a basis no authority has accepted
 - **WHEN** such a block carries a `Modified over` marker naming as basis an active change other than its own that ADDS or RENAMES to the title, whose `by` identifier is the change whose delta carries the block, that basis change carries a status other than `ratified`, and the marker's reason clause does not carry the disclosure `document-lifecycle` requires
@@ -313,41 +351,77 @@ standing nobody can read being no such showing.
 - **AND** the run's silence on that block MUST NOT be read as those arms clearing it, the disposition being read before the block resolves so that the silence is suppression rather than comparison
 - **AND** the modifying change MUST NOT meet its own archive gate while the entry stands, a stale MODIFIED block deleting newly promoted clauses unreported being the defect those arms exist to report
 
-### Requirement: An active ADDED block for a requirement the promoted specification already carries is reported
+### Requirement: An active block writing a title the promoted specification already carries is reported
 The modified-block-currency family SHALL report every active change's `## ADDED
 Requirements` block naming a capability and requirement title the promoted
-specification already carries, at `warning`, against that delta's own path.
+specification already carries, AND every active change's `## RENAMED
+Requirements` block whose `TO:` title the promoted specification already carries
+for that capability, at `warning`, against that delta's own path.
 
 **THIS IS THE ARCHIVE-ORDERING BACKSTOP, and it is the only direction in which
-one can exist.** Where a MODIFIED-over-an-addition pair archives in the safe
-order the requirement enters canon first and every existing check resumes. Where
-it archives in the unsafe order the modifying block promotes text nobody
-reviewed as an addition, and the surviving evidence is precisely this: an active
-change still holding an ADDED block for a title canon now carries. Nothing in
+one can exist.** Where a MODIFIED-over-a-sibling's-basis pair archives in the
+safe order the requirement enters canon first and every existing check resumes.
+Where it archives in the unsafe order the modifying block promotes text nobody
+reviewed as an addition or as a rename, and the surviving evidence is precisely
+this: an active change still writing that title into canon — an ADDED block for
+a title canon now carries, or a RENAMED block whose `TO:` title canon now
+carries. Nothing in
 the estate reads that shape. The family that compares an archived delta to canon
 cannot, canon being the delta after the archive act; the family reading active
-MODIFIED blocks does not read ADDED blocks at all. Reading it here costs one
-lookup against a promoted-requirement index this family already builds.
+MODIFIED blocks reads ADDED and RENAMED blocks ONLY to build the pending set,
+never against canon. Reading it here
+costs one lookup against a promoted-requirement index this family already builds,
+and one more pass over the rename pairs `resolve` already parses.
 
-**THE CHECK IS NOT LIMITED TO THE PAIR THAT MOTIVATES IT.** An ADDED block over
-a requirement canon already carries is a defect however it arose — a stale
-packet, a duplicated title, an addition that should have been a modification —
-and narrowing the check to blocks that had a MODIFIED partner would decline to
-report the same defect for a worse reason.
+**THE RENAME'S COLLISION IS IN THE `TO:` HALF, AND THE DIRECTION IS THE WHOLE OF
+WHAT MAKES THE CHECK READABLE.** A `## RENAMED Requirements` block names a
+`FROM:` title and a `TO:` title. The `FROM:` half is expected to name a title
+canon carries — that is what a rename renames — so reading THAT half would
+report every lawful rename in the corpus. The collision shape is the `TO:` half:
+a title canon ALREADY carries while an active change is still proposing to
+rename something INTO it, which is the same surviving evidence an unpromoted
+addition leaves, reached through the other basis form. Canon's own resolution
+rule reads a rename BY ITS TARGET for exactly this reason — "where that block
+renames a promoted requirement to this title"
+(`openspec/specs/doc-health/spec.md:1568-1574`), with the scenario at
+`:1783-1786` — so the half this class reads is the half canon already reads.
+
+**A BASIS IS A BASIS EVERYWHERE OR NOWHERE.** `document-lifecycle`'s marker
+requirement is owed where "an active change ADDS or RENAMES to that title", the
+pairing check's misdeclared state accepts a basis that RENAMES to the title, and
+`release-realization`'s ordering obligation reaches a requirement an active
+ratified change ADDS OR RENAMES TO. A backstop that read additions alone would
+leave a rename-based pair with the declaration and the ordering rule both
+reaching it and no mechanical evidence of a breach at all — the one hole this
+requirement exists to close, left open for the one basis form that arrives less
+often.
+
+**THE CHECK IS NOT LIMITED TO THE PAIR THAT MOTIVATES IT.** An ADDED block, or a
+rename's target, over a requirement canon already carries is a defect however it
+arose — a stale packet, a duplicated title, an addition that should have been a
+modification, a rename into a title that has since been added — and narrowing
+the check to blocks that had a MODIFIED partner would decline to report the same
+defect for a worse reason.
 
 **THE FINDING SHALL BE ITS OWN CLASS**, registered and templated on the same
 terms as every other class this family carries, and SHALL carry an action line
 naming the two remedies: promote nothing further until the collision is
-resolved, and convert the addition to a modification declared against canon
-where the requirement genuinely already exists. The band is `warning`; the
+resolved, and — where the requirement genuinely already exists — convert the
+addition to a modification declared against canon, or withdraw or re-target the
+rename whose `TO:` title canon already carries. The band is `warning`; the
 class is `contested` by the family's standing `FAMILY_RESOLUTION` row, which this
 requirement neither adds nor can decline. Its exposure to the
 uncited-resolution rule is smaller than the pairing class's and not absent: its
 population is zero, so nothing is owed at launch, and a collision that stops
 being reported has been resolved by a governance act with a change to cite.
 
-**THE POPULATION IS ZERO ON THE AUTHORING TREE, and that is the argument for
-building it now.** A check whose standing population is empty costs nothing to
+**THE POPULATION IS ZERO ON THE AUTHORING TREE ACROSS BOTH BASIS FORMS, and that
+is the argument for
+building it now.** Measured: of the tree's active `## ADDED Requirements` blocks
+none names a title the promoted specification already carries, and the tree
+carries no active `## RENAMED Requirements` pair at all, so the widening to
+renames costs a population of zero rather than a discharge. A check whose
+standing population is empty costs nothing to
 land, pins a state every reader already assumes, and is in place before the
 first instance rather than after it — which for this shape matters more than
 usual, because the first instance is an archive act that cannot be taken back.
@@ -357,13 +431,18 @@ usual, because the first instance is an archive act that cannot be taken back.
 - **THEN** the run MUST emit one `warning` finding against that delta's own path, naming the requirement and the promoted specification that carries it
 - **AND** the finding MUST NOT cause a run configured `--fail-on error` or `--fail-on critical` to fail
 
+#### Scenario: An active RENAMED block targets a title canon carries
+- **WHEN** an active change's `## RENAMED Requirements` block names a `TO:` title the promoted specification already carries for that capability
+- **THEN** the run MUST emit one `warning` finding against that delta's own path, on the same terms and in the same class as an ADDED block naming that title, a rename being a basis wherever an addition is
+- **AND** the block's `FROM:` title MUST NOT be read for this class however it resolves, a rename's source being a title canon is expected to carry and reading it reporting every lawful rename
+
 #### Scenario: The unsafe archive order is taken
-- **WHEN** a change carrying a MODIFIED block over an active sibling's addition archives before that sibling, so the requirement enters canon from the modifying block
-- **THEN** the sibling's still-active ADDED block MUST be reported by this check on the next run, the collision being the surviving evidence of the ordering breach
+- **WHEN** a change carrying a MODIFIED block over an active sibling's addition, or over an active sibling's rename to the title, archives before that sibling, so the requirement enters canon from the modifying block
+- **THEN** the sibling's still-active block MUST be reported by this check on the next run — its `## ADDED Requirements` block, or its `## RENAMED Requirements` block's `TO:` title — the collision being the surviving evidence of the ordering breach
 - **AND** the report MUST NOT be read as curing the breach, an archive act being outside what any health run can undo
 
-#### Scenario: No active change adds a requirement canon carries
-- **WHEN** every active `## ADDED Requirements` block names a title the promoted specification does not carry
+#### Scenario: No active change writes a title canon carries
+- **WHEN** every active `## ADDED Requirements` block names a title the promoted specification does not carry, and every active `## RENAMED Requirements` block names a `TO:` title it does not carry
 - **THEN** this check MUST emit nothing, and its class MUST still render in the family's class block at a count of zero
 
 ## MODIFIED Requirements

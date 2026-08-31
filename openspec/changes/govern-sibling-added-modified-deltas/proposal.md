@@ -1,5 +1,5 @@
 ---
-code_surface: openxFactory (`scripts/doc_health/modified_block_currency.py` — the marker parser gains a THIRD reserved form, `Modified over`, recognized by a complete prefix like the other two, naming no units and therefore excluded from unit suppression and from the marker-defect check while still being excluded from unit derivation in both canon and block; `sibling_titles` is widened to return the ADDING CHANGE ID and ITS DECLARED STANDING beside each `(capability, title)` so the pairing can be named, self-pairing detected and an undisclosed unratified basis reported, rather than the bare title set it returns today — the standing through `_standing`, the module's existing `corpus.parse_status` -> `promotion_fidelity.declared_standing` path, which `active_blocks` never reaches for a pure adder because it skips a change carrying no MODIFIED block; `fam_modified_block_currency`'s `if status == "pending": continue` is replaced by an emit for the new pairing class — an ORDERED classification emitting EXACTLY ONE of four states per block, the self-addition condition examined FIRST so that it excludes the block from the undeclared and misdeclared branches instead of overlapping them, and the marker's `by` identifier COMPARED to the block's own change id so that a right basis under a wrong author is reported misdeclared rather than passing as a declared pair; recognition of the form keeps its resolvability test, the equality being a reported state and not a parse condition — the three comparison arms still NOT running against a pending block; a reader for active `## ADDED Requirements` blocks against the promoted index the family already builds, for the collision class; two new severity constants and two new action constants, named apart from `_LAUNCH_SEVERITY` on the module's own stated reason for `_RESOLUTION_SEVERITY`, `_LEDGER_SEVERITY` and `_DRIFT_SEVERITY` — a reason that has since been demonstrated rather than merely reserved, § 7.2's flip having landed at `7f656980` (PR #529, 2026-08-31) and moved `_LAUNCH_SEVERITY` alone; two new `_ArmTemplate` registrations appended to `_ARM_TEMPLATES`; two new `FindingClass` entries in `CLASSES`, inserted before the `unplaced` class so that "the gate-bearing arm reads FIRST" and "the drift class reads LAST" both stay true; two anchored `_CLASS_PATTERNS` entries; and the module's stale numerals — the docstring's class enumeration, "FIVE ENTRIES FOR SIX RULE SHAPES", and the arms-versus-classes counts. `tests/doc-health/test_modified_block_currency_reporting.py` — the class-registry pin, the rule-shapes pin, the verbatim class-row list, the last-row assertions and the `len(block)` pin all move by name. `tests/doc-health/test_modified_block_currency_self_gate.py` — `test_the_resolution_ordering_and_marker_classes_read_zero_over_the_real_tree` no longer covers the new classes; a NAMED EXACT SET for the pairing class's four standing subjects joins `_LEDGER_SUBJECTS` under the same movement discipline, and the collision class gets a zero assertion with a positive control. New fixture trees under `tests/doc-health/fixtures/` for each reported state and for both silent ones, the disclosed-unratified pair carrying its own adding-change fixture with a non-ratified `Status:`. `specs/022-modified-block-currency-reporting/contracts/report-section.md` — a byte-level contract enumerating the classes four times over, AMENDED by the realization rather than left false. `docs/doc-health.md` — the family paragraph names three arms plus a marker-defect class plus a fifth `unplaced` class and is amended. NO change to any other family, to `Finding`, to `report.render`, to the ranked-plan or finding grammars, to `families.FAMILY_SUMMARIES`, to `FAMILY_RESOLUTION` (the row `7f656980` added stays exactly where #529 put it — what moves is PROMOTED TEXT, in this packet's `doc-health` MODIFIED block, not this table), to the governed corpus, to the lifecycle scan set, or to any threshold. NO new deterministic check family, so the "Deterministic check families" enumeration and its numerals are untouched and unrestated.)
+code_surface: openxFactory (`scripts/doc_health/modified_block_currency.py` — the marker parser gains a THIRD reserved form, `Modified over`, recognized by a complete prefix like the other two, naming no units and therefore excluded from unit suppression and from the marker-defect check while still being excluded from unit derivation in both canon and block; `sibling_titles` is widened to return the BASIS CHANGE ID, ITS DECLARED STANDING and WHICH BLOCK PUT THE TITLE THERE — an `## ADDED Requirements` block or a `## RENAMED Requirements` block's `TO:` half — beside each `(capability, title)` so the pairing can be named, self-ADDITION detected (the self-referential state being the carrier's own addition alone, an own rename to the title resolving earlier under `resolve`'s unchanged own-rename precedence) and an undisclosed unratified basis reported, rather than the bare title set it returns today — the standing through `_standing`, the module's existing `corpus.parse_status` -> `promotion_fidelity.declared_standing` path, which `active_blocks` never reaches for a pure adder or a pure renamer because it skips a change carrying no MODIFIED block; `fam_modified_block_currency`'s `if status == "pending": continue` is replaced by an emit for the new pairing class — an ORDERED classification emitting EXACTLY ONE of four states per block, the self-addition condition — the carrier's OWN `## ADDED Requirements` block for the title, never its own rename to it — examined FIRST so that it excludes the block from the undeclared and misdeclared branches instead of overlapping them, with `resolve`'s own-rename precedence untouched ahead of the whole classification so a rename-and-amend block still compares against canon under the OLD name and never reaches it, and the marker's `by` identifier COMPARED to the block's own change id so that a right basis under a wrong author is reported misdeclared rather than passing as a declared pair; recognition of the form keeps its resolvability test, the equality being a reported state and not a parse condition — the three comparison arms still NOT running against a pending block; a reader for active `## ADDED Requirements` blocks AND for the `TO:` titles of active `## RENAMED Requirements` blocks against the promoted index the family already builds, for the collision class — the `FROM:` half never read, a rename's source being a title canon is expected to carry; two new severity constants and two new action constants, named apart from `_LAUNCH_SEVERITY` on the module's own stated reason for `_RESOLUTION_SEVERITY`, `_LEDGER_SEVERITY` and `_DRIFT_SEVERITY` — a reason that has since been demonstrated rather than merely reserved, § 7.2's flip having landed at `7f656980` (PR #529, 2026-08-31) and moved `_LAUNCH_SEVERITY` alone; two new `_ArmTemplate` registrations appended to `_ARM_TEMPLATES`; two new `FindingClass` entries in `CLASSES`, inserted before the `unplaced` class so that "the gate-bearing arm reads FIRST" and "the drift class reads LAST" both stay true; two anchored `_CLASS_PATTERNS` entries; and the module's stale numerals — the docstring's class enumeration, "FIVE ENTRIES FOR SIX RULE SHAPES", and the arms-versus-classes counts. `tests/doc-health/test_modified_block_currency_reporting.py` — the class-registry pin, the rule-shapes pin, the verbatim class-row list, the last-row assertions and the `len(block)` pin all move by name. `tests/doc-health/test_modified_block_currency_self_gate.py` — `test_the_resolution_ordering_and_marker_classes_read_zero_over_the_real_tree` no longer covers the new classes; a NAMED EXACT SET for the pairing class's four standing subjects joins `_LEDGER_SUBJECTS` under the same movement discipline, and the collision class gets a zero assertion with a positive control. New fixture trees under `tests/doc-health/fixtures/` for each reported state and for both silent ones, the disclosed-unratified pair carrying its own adding-change fixture with a non-ratified `Status:`. `specs/022-modified-block-currency-reporting/contracts/report-section.md` — a byte-level contract enumerating the classes four times over, AMENDED by the realization rather than left false. `docs/doc-health.md` — the family paragraph names three arms plus a marker-defect class plus a fifth `unplaced` class and is amended. NO change to any other family, to `Finding`, to `report.render`, to the ranked-plan or finding grammars, to `families.FAMILY_SUMMARIES`, to `FAMILY_RESOLUTION` (the row `7f656980` added stays exactly where #529 put it — what moves is PROMOTED TEXT, in this packet's `doc-health` MODIFIED block, not this table), to the governed corpus, to the lifecycle scan set, or to any threshold. NO new deterministic check family, so the "Deterministic check families" enumeration and its numerals are untouched and unrestated.)
 target_release: implemented — the openxFactory main line. This surface cuts no contract bundle: no schema under `contracts/schemas/` changes, no digest set moves, and no release tag is owed. The archive gate is therefore merge-plus-green on main, following `add-modified-block-currency-check`, `add-family-enumeration-check` and `add-unclassified-finding-class` exactly: `python3 -m pytest tests/doc-health` green, `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green, and a doc-health single-repo run whose severity counts move by exactly the amount § Impact predicts and in no other line. The change therefore ships ACTIVE and archives only after the merge — and, because its own MODIFIED blocks are written over `release-realization` and `doc-health` CANON rather than over any sibling's addition, its archive is not itself subject to the ordering obligation it adds.
 Status: draft
 Proposed: 2026-08-29
@@ -80,12 +80,13 @@ PR #497's LQ-A4 amendment corrected from "doc-health reports nothing" to
 
 **Hole 3 — the ordering obligation has no backstop in the only direction that
 needs one.** `_arm_ordering` requires TWO RATIFIED `MODIFIED` blocks in a group.
-A sibling's block is `ADDED`, so it is never collected into the group at all —
+A sibling's block is `ADDED`, or a `RENAMED` naming that title as its `TO:` half,
+so it is never collected into the group at all —
 the group is size one FOREVER, not merely today.
 
 | order | what happens |
 | --- | --- |
-| the adding sibling archives first (safe) | the requirement enters canon, `resolve` returns `canon`, the carriage arms run — a real backstop |
+| the basis sibling — adding, or renaming to the title — archives first (safe) | the requirement enters canon, `resolve` returns `canon`, the carriage arms run — a real backstop |
 | the MODIFIED writer archives first (unsafe) | `resolve` returns `pending`, the ordering arm cannot fire, nothing checks anything |
 
 **The one case a per-packet ordering obligation exists to guard is the one case
@@ -153,12 +154,18 @@ respectively, so the ambiguity is not hypothetical.
 
 - **`release-realization` gains the rule, by MODIFIED block, and its antecedent
   is EXTENDED rather than reinterpreted.** A proposal modifying a requirement an
-  active ratified change ADDS references that change and declares its deltas
+  active ratified change ADDS — or RENAMES a promoted requirement TO — references
+  that change and declares its deltas
   relative to its outcome, on the same terms as the already-modified case; the
   two antecedents are disjoint by construction, a requirement being either one
   canon carries or one it does not. The block adds the archive-ordering
   obligation in the same requirement: such a change SHALL NOT archive while the
-  requirement it modifies is unpromoted. **Two clauses keep that obligation from
+  requirement it modifies is unpromoted, the BASIS change — adding or renaming —
+  archiving first. **A RENAME IS A BASIS EVERYWHERE OR NOWHERE**: `doc-health`'s
+  promoted resolution rule and `document-lifecycle`'s marker requirement both read
+  "ADDS or RENAMES to that title", so an ordering rule reaching additions alone
+  would govern the identical hazard in one capability and leave it ungoverned in
+  the next. **Two clauses keep that obligation from
   being escaped rather than met.** CONVERSION: re-shaping the block to
   `## ADDED` does not dissolve the obligation, the antecedent attaching to the
   pairing and not to the block's form, so conversion is lawful only as a PAIRED
@@ -167,7 +174,9 @@ respectively, so the ambiguity is not hypothetical.
   it replaces, rather than one sentence short of it. FALSIFICATION: where the
   repository's landed state contradicts a scenario of the unpromoted `## ADDED`
   block, the ADDING change amends that scenario before its archive promotes it,
-  and the order still holds.
+  and the order still holds — a RENAMING basis reaching this clause only through
+  what it modifies beside the rename, a `## RENAMED Requirements` block carrying a
+  pair of titles and no scenarios of its own.
 - **`document-lifecycle` gains ONE ADDED requirement**: the pairing is declared
   by a THIRD reserved marker form,
   ``**Modified over `<basis change-id>`'s addition by <change-id>
@@ -184,17 +193,26 @@ respectively, so the ambiguity is not hypothetical.
   `unratified` — because an obligation stated only as prose is one no checker
   can read and, as the earlier draft of this packet proved, one nothing enforces.
 - **`doc-health` gains TWO ADDED requirements**: the pairing check that
-  evaluates the `pending` shape in four reported states (self-referential,
-  undeclared, misdeclared — a basis that adds nothing OR a `by` identifier that
+  evaluates the `pending` shape in four reported states (self-referential — the
+  carrier's OWN `## ADDED Requirements` block for the title, an own RENAME to it
+  being the supported rename-and-amend shape canon resolves against the OLD name
+  before this check is reached —
+  undeclared, misdeclared — a basis that neither adds nor renames to the title, or
+  that IS the carrier itself, OR a `by` identifier that
   is not the change carrying the block — and UNDISCLOSED, a marker naming a basis
   that is active and not ratified whose reason clause omits the disclosure
   `document-lifecycle` requires) and is SILENT on the fifth (declared and
   resolving, the basis either ratified or disclosed). **THE FIVE ARE MUTUALLY
   EXCLUSIVE AND EVERY BLOCK GETS EXACTLY ONE**: they are examined in that order,
   the self-addition condition first, so no block is reported twice under two
-  remedies; and the collision check
-  that reports an active `## ADDED Requirements` block for a title canon already
-  carries, which is the archive ordering's only possible mechanical backstop.
+  remedies — and misdeclared's basis half is the EXACT NEGATION of the silent
+  state's, so the narrowing of self-reference to the carrier's own addition leaves
+  no block outside all five; and the collision check
+  that reports an active `## ADDED Requirements` block, or an active
+  `## RENAMED Requirements` block's `TO:` title, for a title canon already
+  carries, which is the archive ordering's only possible mechanical backstop. **THE
+  DIRECTION IS STATED**: the collision is the rename's TARGET, the `FROM:` half
+  being a title canon is expected to carry.
 - **`doc-health` also gains ONE `## MODIFIED Requirements` block, and it is on
   NEITHER of the requirements D2 measures.** It is on "A modified-block-currency
   finding its own class map cannot place is itself a finding", whose promoted
@@ -271,7 +289,9 @@ this packet's to PERFORM:
   `## ADDED` without a ruling that also amends custody would leave two active
   additions of one title, and after the archive an active addition for a title
   canon carries — which is the D5 collision class reporting its first instance
-  ever, on a breach this packet's own rule forbade.
+  ever, on a breach this packet's own rule forbade. (This pair's basis is an
+  ADDITION; the class reads a rename's `TO:` title on the same terms, and no such
+  pair exists in this repository today.)
 
 **WHAT THIS DISPOSITION IS AND IS NOT.** It is the rule applied to a pair that
 already exists, written down so the council rules on a worked case rather than on
@@ -296,8 +316,12 @@ them without performing them.
   AND MEASURED**: all four adding siblings are `ratified` (§ Why), so no marker
   the § 6 sweep writes owes the disclosure at all, and the state launches empty
   on this tree in either order. The collision class reports **ZERO — measured,
-  not assumed**: no active `## ADDED Requirements` block in this repository names
-  a capability and requirement title the promoted specification already carries. A run configured
+  not assumed, and RE-MEASURED ACROSS BOTH BASIS FORMS after the class was widened
+  to renames**: of 159 active `## ADDED Requirements` blocks none names a
+  capability and requirement title the promoted specification already carries, and
+  this repository carries NO active `## RENAMED Requirements` pair at all, so the
+  `TO:` half contributes zero by an empty population rather than by a passing
+  test. A run configured
   `--fail-on error` or `--fail-on critical` is unaffected by construction, and
   the canon-share headline, the per-stage census, the inventory and the catalog
   are untouched because the family reads neither the governed corpus nor the
@@ -602,7 +626,8 @@ beside a promoted sentence its own design contradicts.
 vetoing.** #502's fourth question asks what enforces the archive ordering
 generically, and the honest answer is that no checker can gate an archive act
 from inside a health run. What it can do is read the surviving evidence of the
-unsafe order — an active ADDED block for a title canon now carries — which
+unsafe order — an active ADDED block, or an active RENAMED block's `TO:` title,
+for a title canon now carries — which
 nothing in the estate reads today. It costs one lookup against an index the
 family already builds, its population is ZERO on this tree, and it is in place
 before the first instance rather than after, which for this shape matters more
@@ -625,7 +650,8 @@ minus the rule.
   the other way is that a removal marker records a governance act worth keeping
   and a pairing marker records a transient relation that is FALSE the moment the
   basis promotes.
-- **OQ-3 — two or more active changes adding one title.** The rule as written
+- **OQ-3 — two or more active changes writing one title, by addition or by
+  rename.** The rule as written
   lets the marker name one of them and reports nothing further. Whether two
   active additions of one requirement is itself a defect — it looks like one —
   is left open; the population is zero today. **STILL OPEN, and the population

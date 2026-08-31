@@ -416,10 +416,15 @@ Active changes:
   delayed for it — honoured, and this packet is the separate home both seats
   asked for. **Three holes, three answers.** `release-realization`'s "Ordered
   deltas and branch vocabulary" is MODIFIED so its antecedent reaches a
-  requirement an active ratified change ADDS and not only one it MODIFIES — the
+  requirement an active ratified change ADDS **or RENAMES a promoted requirement
+  TO** and not only one it MODIFIES — the
   two antecedents are disjoint by construction — and it gains the archive-ordering
   obligation the four live packets have each been hand-writing as a pre-archive
-  `grep`. `document-lifecycle` gains a THIRD reserved marker form,
+  `grep`, the BASIS change (adding or renaming) archiving first. **A RENAME IS A
+  BASIS EVERYWHERE OR NOWHERE**: `doc-health`'s promoted resolution rule and the
+  marker requirement below both read "ADDS or RENAMES to that title", so an
+  ordering rule reaching additions alone would govern the identical hazard in one
+  capability and leave it ungoverned in the next. `document-lifecycle` gains a THIRD reserved marker form,
   ``**Modified over `<basis change-id>`'s addition by <change-id>
   (<YYYY-MM-DD>):**``,
   read by form and never by prose, naming no units and therefore never a carriage
@@ -432,13 +437,22 @@ Active changes:
   `pending` shape instead of dropping it at `modified_block_currency.py`'s
   `if status == "pending": continue` — four reported states, MUTUALLY EXCLUSIVE
   and examined in order so that every block gets EXACTLY ONE (self-referential
-  first, then undeclared, then misdeclared — a basis that adds nothing OR a `by`
-  identifier that is not the change carrying the block — then undisclosed, the
+  first — the carrier's OWN `## ADDED Requirements` block for the title, an own
+  RENAME to it being the supported rename-and-amend shape promoted canon resolves
+  against the OLD name one step earlier (`openspec/specs/doc-health/spec.md:1568-1574`,
+  `:1783-1786`) and this packet leaves that precedence exactly where it found it —
+  then undeclared, then misdeclared — a basis that neither adds nor renames to the
+  title, or that IS the carrier itself, OR a `by`
+  identifier that is not the change carrying the block, written as the EXACT
+  NEGATION of the silent state so the narrowing leaves no block unplaced — then
+  undisclosed, the
   marker that names an
   unratified basis without saying so), silent on the fifth (declared and
   resolving) — plus, as the archive ordering's only possible mechanical
-  backstop, a class that reports an active `## ADDED Requirements` block for a
-  title canon already carries. `doc-health` ALSO GAINS ONE `## MODIFIED Requirements` BLOCK, on a
+  backstop, a class that reports an active `## ADDED Requirements` block, or an
+  active `## RENAMED Requirements` block's `TO:` title, for a
+  title canon already carries — the `FROM:` half never read, a rename's source
+  being a title canon is expected to carry. `doc-health` ALSO GAINS ONE `## MODIFIED Requirements` BLOCK, on a
   requirement neither new class touches: "A modified-block-currency finding its
   own class map cannot place is itself a finding" says the family "SHALL remain
   absent from `FAMILY_RESOLUTION`" (`:2088`) and rests a MUST on that absence
@@ -468,7 +482,9 @@ Active changes:
   undischarged and **0** under D4's sequencing (§ 6's markers first), zero in
   every other band either way, and zero from BOTH of this packet's own MODIFIED
   blocks — the `release-realization` one resolves `canon` and restates both promoted body
-  sentences and both promoted scenarios byte-identical; the `doc-health` one
+  sentences and both promoted scenarios byte-identical, everything it adds being
+  new text; the collision class's population is zero across BOTH basis forms (159
+  active ADDED blocks, no collision; zero active RENAMED pairs at all); the `doc-health` one
   resolves `canon` and restates 33 of 35 promoted units byte-identical, the
   other two declared by marker — so `_LEDGER_SUBJECTS` gains no row. **Four is the
   live number; eight is the cumulative one** — LQ-C5's figure counted the docstring's
@@ -492,7 +508,10 @@ Active changes:
   to the pairing and not to the block's form, so conversion is lawful only as a
   PAIRED act ruled by the ratifying authority) and FALSIFICATION (where landed
   state contradicts a scenario of the unpromoted addition, the ADDING change
-  amends it before its archive promotes it, and the order still holds) — and the
+  amends it before its archive promotes it, and the order still holds — a
+  RENAMING basis reaching that clause only through what it modifies beside the
+  rename, a `## RENAMED Requirements` block carrying a pair of titles and no
+  scenarios of its own) — and the
   packet then works the `add-notebook-hosting-credential-custody` /
   `add-binding-consumer-identity` pair through them: DISPOSED as chain order
   (projection-identity → custody → binding-consumer-identity), custody owing the

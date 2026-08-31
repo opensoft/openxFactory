@@ -53,19 +53,35 @@ pairing class that cannot read a marker reports every declared pair.
       disclosure 2.5's fourth state reads lives in that reason, so the two are
       one mechanism and this note is a precondition of that state working at
       all.
-- [ ] 2.3 Widen `sibling_titles` to carry the ADDING CHANGE ID and ITS DECLARED
-      STANDING beside each `(capability, title)`. The bare title set it returns
+- [ ] 2.3 Widen `sibling_titles` to carry the BASIS CHANGE ID, ITS DECLARED
+      STANDING, and WHICH BLOCK PUT THE TITLE THERE — an `## ADDED Requirements`
+      block or a `## RENAMED Requirements` block's `TO:` half — beside each
+      `(capability, title)`. The bare title set it returns
       today cannot name a pairing in a finding and cannot see the
       self-referential state, because it does not exclude the reading change from
       its own sources; and it cannot see the UNDISCLOSED state, because the
-      adding change's standing is never read at all — `active_blocks` skips a
-      change that carries no MODIFIED block, which every pure adder is. Read it
+      basis change's standing is never read at all — `active_blocks` skips a
+      change that carries no MODIFIED block, which a pure adder or a pure renamer
+      is. Read it
       through `_standing`, the module's existing `corpus.parse_status` ->
       `promotion_fidelity.declared_standing` path, never a private regex.
+      **THE ADDED/RENAMED DISCRIMINATOR IS NOT DECORATION**: 2.5's
+      self-referential state is the carrier's own ADDITION alone, so the set has
+      to be able to say whether the carrier's own entry came from an addition or
+      from a rename's `TO:` half. The set's TITLE CONTENT is unchanged — both
+      forms still make a title `pending`, exactly as the promoted rule reads "a
+      requirement an active sibling change ADDS or RENAMES".
 - [ ] 2.4 Replace the `if status == "pending": continue` drop with the pairing
       emit. THE THREE COMPARISON ARMS STILL DO NOT RUN against a pending block;
       the 2026-08-27 ruling is untouched and the change is that the block is no
-      longer dropped before anything looks at it.
+      longer dropped before anything looks at it. **`resolve()` IS NOT TOUCHED,
+      AND ITS SECOND STEP IS WHY.** Its order is canon's
+      (`openspec/specs/doc-health/spec.md:1568-1574`): canon, then the carrying
+      change's OWN `## RENAMED Requirements` block — which returns `own-rename`
+      with a real basis so the three arms RUN against canon under the OLD name
+      (`:1783-1786`) — and only THEN `pending`. The emit replaces the `pending`
+      branch alone, so the rename-and-amend shape never reaches the new class and
+      the precedence survives without being restated in the classifier.
 - [ ] 2.5 Report exactly four states — self-referential, undeclared,
       misdeclared, undisclosed — and emit NOTHING for a declared, resolving
       pair whose `by` identifier is the carrying change and whose basis is
@@ -77,11 +93,24 @@ pairing class that cannot read a marker reports every declared pair.
       satisfies UNDECLARED as well, and the run emits two findings with two
       remedies for one defect. Each state's own antecedent carries the exclusion
       the order performs, so the branch and the delta text say the same thing.
-      MISDECLARED CARRIES TWO HALVES AND ONE ACTION: the named basis neither ADDS
-      nor RENAMES to the title, OR the `by` identifier is not the change carrying
+      **READ THE CONDITION FROM THE CARRIER'S OWN `## ADDED Requirements` BLOCK
+      AND FROM NOTHING ELSE** — this is what 2.3's discriminator is for. A
+      carrier's own RENAME to the title is NOT this state: it is the
+      rename-and-amend shape promoted canon resolves against the OLD name one
+      step before `pending` (2.4), so reading it here would either report the
+      supported shape or, where `resolve()` had already claimed it, sit as a
+      branch no input can reach.
+      MISDECLARED CARRIES TWO HALVES AND ONE ACTION: the named basis is not an
+      active change OTHER THAN THE CARRIER that ADDS or RENAMES to the title —
+      it names a change that does neither, or it names the carrier itself — OR the
+      `by` identifier is not the change carrying
       the block — the second read by comparing the identifier the parser already
       recognized (2.1) against the block's own change id, which is why a right
-      basis under a wrong author cannot pass as DECLARED AND RESOLVING. The
+      basis under a wrong author cannot pass as DECLARED AND RESOLVING. **THE
+      FIRST HALF IS WRITTEN AS THE EXACT NEGATION of the silent state's basis
+      clause**, so that narrowing self-reference to the carrier's own addition
+      leaves no block outside all five states and the exhaustiveness claim stays
+      true by construction rather than by inspection. The
       finding SHALL say which half it names.
       UNDISCLOSED NARROWS THE SILENT STATE — its antecedent is that state's plus
       two conditions, so it reaches only a block otherwise in good order (basis
@@ -97,7 +126,9 @@ pairing class that cannot read a marker reports every declared pair.
       unplaced-drift mask can compute and is reported as drift on every run. The
       two halves differ only in that interpolated clause, so they stay ONE shape
       and add no entry — the `by`-mismatch wording goes in the `why`, never in
-      the fixed prose the mask reads.
+      the fixed prose the mask reads, and so does the basis half's THIRD reading,
+      a marker naming the carrier itself, which is the same half under the same
+      action and must not be given fixed prose of its own.
 - [ ] 2.7 Register the `FindingClass` in `CLASSES`, with its own severity and
       action constants named apart from `_LAUNCH_SEVERITY`, and insert it BEFORE
       the `unplaced` class so both standing ordering claims stay true: the
@@ -115,7 +146,15 @@ pairing class that cannot read a marker reports every declared pair.
       comparison passes as DECLARED AND RESOLVING and is the one fixture that
       fails on the pre-fix classifier. EXCLUSIVITY NEEDS ITS OWN: a
       self-referential block carrying NO marker, asserted to emit ONE finding in
-      that state and no undeclared one beside it. The
+      that state and no undeclared one beside it. **THE OWN-RENAME CARVE NEEDS
+      TWO**: a rename-and-amend fixture — a change whose `## RENAMED
+      Requirements` block renames a PROMOTED requirement to the title it also
+      MODIFIES — asserted to emit NOTHING of this class and to have the three
+      arms compare it against canon under the OLD name, which is the promoted
+      behaviour this round refuses to displace; and a marker naming the CARRIER
+      ITSELF as basis over a block that is not self-referential, asserted
+      MISDECLARED rather than silent, which is the exhaustiveness hole the
+      narrowing would otherwise open. The
       unratified pair needs its own adding-change fixture carrying a non-ratified
       `Status:`, the standing being read from the adder's proposal header.
 - [ ] 2.10 Move the standing pins by name, one at a time: the class-registry
@@ -145,8 +184,16 @@ pairing class that cannot read a marker reports every declared pair.
 Separate feature because D5 is separately vetoable and this is the whole of what
 a veto would strike.
 
-- [ ] 3.1 Read active `## ADDED Requirements` blocks against the promoted index
-      the family already builds, and report a title canon already carries.
+- [ ] 3.1 Read active `## ADDED Requirements` blocks AND the `TO:` titles of
+      active `## RENAMED Requirements` blocks against the promoted index
+      the family already builds, and report a title canon already carries. **READ
+      THE `TO:` HALF AND NEVER THE `FROM:` HALF**: a rename's source is a title
+      canon is expected to carry, so reading it would report every lawful rename
+      in the corpus, while its target is the collision shape — the same surviving
+      evidence an unpromoted addition leaves, reached through the other basis
+      form. `promotion_fidelity.parse_delta` already returns the `(FROM, TO)`
+      pairs the family reads for `resolve()`, so this is a second use of one
+      parse rather than a second parser.
 - [ ] 3.2 Its own template, its own `FindingClass`, its own anchored pattern,
       its own action line naming both remedies. Same registration discipline as
       2.6-2.8.
@@ -154,8 +201,12 @@ a veto would strike.
       whose population is zero and whose only test asserts zero is a class no
       test proves exists.
 - [ ] 3.4 Fixture: the unsafe archive order, reconstructed — the modifying
-      change archived, the requirement in canon, the adding change still active
-      and still holding its ADDED block.
+      change archived, the requirement in canon, the basis change still active
+      and still holding its ADDED block. **AND ITS RENAME TWIN**: the same
+      reconstruction with the basis change holding a `## RENAMED Requirements`
+      block whose `TO:` title canon now carries, asserted to report in the same
+      class, plus a NEGATIVE control — a lawful rename whose `FROM:` title canon
+      carries and whose `TO:` title it does not — asserted silent.
 
 ## 4. Evidence recorded at proposal time
 
@@ -178,6 +229,16 @@ a veto would strike.
       `release-realization` block resolves `canon`, and the title arm and the
       carriage ledger report nothing against it — both promoted body sentences
       and both promoted scenarios restated byte-identical, everything added new.
+      **RE-DERIVED AFTER THE ROUND-5 WIDENING TO RENAMES**, which moved this
+      block's text and no other's: canon still 8 units (2 body sentences, 2
+      scenario titles, 4 scenario bullets); the block's own units 40 -> 52 (body
+      17 -> 23, scenario titles 6 -> 7, scenario bullets 17 -> 22); ZERO
+      uncarried canon units, ZERO suppressed, ZERO markers, ZERO defective — all
+      three arms still read zero, the widening having touched only text canon
+      does not carry. The `doc-health` MODIFIED block was NOT touched by that
+      round (the round's `doc-health` edits are all inside the two ADDED
+      requirements), and its measurement below is re-confirmed unchanged at 56
+      block units and the same two suppressed.
       The `doc-health` block over "A modified-block-currency finding its own
       class map cannot place is itself a finding" also resolves `canon`: of that
       requirement's 35 promoted units (10 body sentences, 6 scenario titles, 19
@@ -205,8 +266,16 @@ a veto would strike.
       modified-block-currency` run over the branch tree emits 8 findings, none of
       them against either of this packet's delta paths — the same 8, re-measured
       after the second merge.
-- [ ] 4.3 The collision class's population is zero on this tree: no active ADDED
-      block names a title the promoted specification carries.
+- [ ] 4.3 The collision class's population is zero on this tree ACROSS BOTH
+      BASIS FORMS, re-measured after the class was widened to renames: of 159
+      active `## ADDED Requirements` blocks, NONE names a capability and
+      requirement title the promoted specification already carries; and this
+      repository carries ZERO active `## RENAMED Requirements` pairs, so the
+      `TO:` half's population is zero by an empty set rather than by a passing
+      comparison. Measured with `promotion_fidelity.parse_delta` and the family's
+      own `promoted()` index over the branch tree. Re-run at every catch-up
+      merge: a rename landing in some other active packet is exactly the input
+      this widening exists for.
 - [ ] 4.4 The `family-enumeration` gate stays green: no family is registered, so
       the "Deterministic check families" enumeration and its numerals are
       untouched and unrestated.
@@ -326,7 +395,8 @@ a veto would strike.
       ruling. On this corpus's precedent it is a different document pair and
       therefore a different family.
 - [ ] 7.2 OQ-2, whether a `Modified over` marker survives promotion.
-- [ ] 7.3 OQ-3, two or more active changes adding one title. Population zero.
+- [ ] 7.3 OQ-3, two or more active changes writing one title, by addition or
+      by rename. Population zero in both forms (§ 4.3).
 - [ ] 7.4 The band flip for both new classes is RESERVED and not proposed here;
       it follows the discharge of § 6 and is one ruling. It is NO LONGER paired
       with "whether the family joins `FAMILY_RESOLUTION`" — the family joined on
