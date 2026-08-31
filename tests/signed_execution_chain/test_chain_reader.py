@@ -253,6 +253,70 @@ def test_every_reference_that_could_move_independently_is_compared(
         assert any(what in line for line in lines), (what, lines)
 
 
+def test_a_chain_whose_own_verdict_is_absent_from_the_log_is_refused(
+        registry_and_docs, carried):
+    """The FOURTH governed leaf type (Codex, P1 on `eb1241fc`), and the omission
+    was fresh evidence of the same class one round after the missing-act fix: that
+    fix required the ratification and traveling-contract leaves and still never
+    required this one.
+
+    Pinned here rather than by a packaged fixture for the same reason the
+    deleted-genesis case is: a fixture is ADDED to the corpus and cannot take a
+    leaf away.
+
+    IT IS NOT A CHICKEN-AND-EGG, and the packaged corpus is the proof — a producer
+    writes the verdict leaf it expects and this reader holds it to the reader's own
+    walk, so requiring the leaf demands no trust in the producer and deadlocks no
+    first landing. The second assertion is that half: the corpus's own
+    producer-written verdict is accepted."""
+    without = [(label, doc) for label, doc in reader.positive_records()
+               if not (doc["kind"] == "xfactory_signed_execution_chain_log_leaf"
+                       and doc.get("leaf_type") == "gate_verdict")]
+    lines = reader.lines_for(
+        _validate(without, registry_and_docs, carried).errors, "act_unproven")
+    assert any("gate-verdict leaf" in line for line in lines), lines
+    assert _validate(reader.positive_records(), registry_and_docs,
+                     carried).errors == []
+
+
+def test_a_signature_has_exactly_one_canonical_spelling(registry_and_docs,
+                                                        carried):
+    """Codex's P2 on `eb1241fc`. For 64 bytes the final base64url character carries
+    two data bits and a decoder ignores the other four, so fifteen other spellings
+    of one signature decode to the same bytes, verify identically, and match the
+    schema's 86-character pattern.
+
+    A record admitting sixteen textual forms of one signature admits sixteen
+    distinct signed ratifications BY DIGEST — and the chain identity is a digest
+    over those bytes."""
+    import base64
+
+    canonical_text = None
+    for _, doc in reader.positive_records():
+        if doc["kind"] == "xfactory_signed_execution_chain_inception":
+            canonical_text = doc["ratification_signature"]["signature"]
+    assert canonical_text is not None
+    raw = base64.urlsafe_b64decode(canonical_text + "==")
+    assert reader.decode_signature(canonical_text) == raw
+
+    variants = 0
+    for char in ("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+                 "0123456789-_"):
+        candidate = canonical_text[:-1] + char
+        if candidate == canonical_text:
+            continue
+        try:
+            same = base64.urlsafe_b64decode(candidate + "==") == raw
+        except Exception:  # noqa: BLE001
+            continue
+        if same:
+            variants += 1
+            assert reader.decode_signature(candidate) is None, candidate
+    assert variants >= 1, (
+        "the test proves nothing unless a non-canonical spelling of these exact "
+        "bytes actually exists")
+
+
 def test_a_log_whose_genesis_prefix_was_deleted_is_refused(registry_and_docs,
                                                            carried):
     """LEAVES ARE APPENDED AND NEVER REMOVED, and a check that cannot see a

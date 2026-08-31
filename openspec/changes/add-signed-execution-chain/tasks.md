@@ -265,6 +265,15 @@ the wrong currency.
 | --- | --- | --- |
 | 3 | **Copilot** — a string or member name holding an UNPAIRED SURROGATE passed the escaper and then raised `UnicodeEncodeError` at the encode step. That is not a `ConstructionError`, so it escaped the refusal path every caller handles and surfaced as a HARNESS FAILURE rather than as a finding. Pre-fix, measured: `UnicodeEncodeError` for both a value and a member name | `_escape` refuses U+D800–U+DFFF as a `ConstructionError`; the bound is DECLARED in the contract beside the integer one; and a test asserts the refusal for five shapes plus a VALID astral-character control, so the fix cannot have been achieved by refusing legitimate records |
 
+**AND THREE MORE IN THE SAME ROUND, one of them the missing-act class a THIRD
+time:**
+
+| Round | Finding | Where it landed |
+| --- | --- | --- |
+| 3 | **P1 (Codex)** — the FOURTH governed leaf type was still not required. The missing-act fix had just added the ratification and traveling-contract leaves and never required `gate_verdict`, so a chain could pass with its own adjudication absent from the primary custody record. Pre-fix, measured: **accepted** | `check_atomicity` requires it. **It is not a chicken-and-egg**, and the packaged corpus is the proof: a producer WRITES the verdict leaf it expects and this reader holds it to the reader's own walk, so requiring it demands no trust in the producer and deadlocks no first landing. Pinned by a test, since a fixture is ADDED to the corpus and cannot take a leaf away |
+| 3 | **P2 (Codex)** — a verdict could record ANY enum-valid refusal code while the walk failed for another reason; the rule checked only that a `refusal` object EXISTED. Pre-fix, measured: the wrong-code fixture drew only the real reason and said nothing about the false one | The walk now collects the codes it emitted and the recorded code must be among them. **The enumeration is closed so a refusal names what was actually lacking** — the same rule that keeps a missing proof from being reported as a missing grant — and a false reason is what an operator would act on |
+| 3 | **P2 (Codex)** — a 64-byte signature's final base64url character carries two data bits and a decoder ignores the other four, so **fifteen other spellings** of one signature decoded to the same bytes, verified identically, and matched the schema pattern. Pre-fix, measured: a re-spelled packaged signature verified cleanly | `decode_signature` re-encodes and requires an exact match. A record admitting sixteen textual forms of one signature admits sixteen distinct signed ratifications BY DIGEST, and the chain identity is a digest over those bytes |
+
 **A CONSTRUCTION THAT CRASHES ON AN INPUT IT SHOULD REFUSE HAS TWO ANSWERS**, and
 the whole point of one construction is that there is one. The general form is
 worth carrying: *every refusal must reach the caller as the same kind of answer*.
@@ -312,7 +321,7 @@ thing it measures.**
       validated against the PINNED schemas through the `openXwallet/` gitlink;
       the actor is `identity-brokering`'s `actor_subject_reference` carrying an
       `xfactory_wallet_subject_attestation`.
-- [x] 4.2 **PACKAGED — 7 positives composing ONE whole chain, and 32 negatives.**
+- [x] 4.2 **PACKAGED — 7 positives composing ONE whole chain, and 34 negatives.**
       All nine named refusals have a probe, and so does every other refusal this
       reader can emit: the enumeration is 24 codes and the self-test REFUSES A
       CODE WITH NO PROBE, so a refusal nobody has seen work cannot ship. Two

@@ -855,6 +855,24 @@ def check_atomicity(f: Findings, scope: Scope) -> None:
                     f"wallet-presented ratification is one of the four acts this "
                     f"capability governs, and an act with no signed leaf is "
                     f"UNPROVEN however completely the rest of the chain verifies")
+        if chain.inception is not None and "gate_verdict" not in types:
+            # THE FOURTH GOVERNED LEAF TYPE, and the omission was fresh evidence
+            # of the same class one round after the missing-act fix (Codex, P1 on
+            # `eb1241fc`): that fix required the ratification and traveling-contract
+            # leaves and still never required this one, so a chain could pass with
+            # its own adjudication absent from the primary custody record.
+            #
+            # IT IS NOT A CHICKEN-AND-EGG, and the packaged corpus is the proof: a
+            # producer WRITES the verdict leaf it expects, and this reader holds it
+            # to the reader's own walk — a leaf claiming `permitted` over a chain
+            # the walk refuses is itself a refusal. So requiring the leaf demands
+            # no trust in the producer and deadlocks no first landing.
+            f.error("act_unproven",
+                    f"chain {chain_id}: no gate-verdict leaf records this chain's "
+                    f"adjudication ({chain.inception[0]}). Every verdict the gate "
+                    f"returns is one of the four acts this capability governs, and "
+                    f"a chain whose own verdict is absent from the log has a "
+                    f"custody record silent about whether it was ever permitted")
     # KEYED ON THE PAIR, not on the identifier alone (Codex, P1 on `eb1241fc`).
     # A global set of recorded identifiers let a leaf filed under ANOTHER chain
     # discharge this chain's obligation, so the chain a leaf names is part of what
@@ -907,6 +925,16 @@ def check_per_act_uniqueness(f: Findings, scope: Scope) -> None:
 # --------------------------- rule: the eight checks ---------------------------
 
 def decode_signature(value: Any) -> bytes | None:
+    """A signature's TEXT is canonical unpadded base64url, or it is refused.
+
+    Found by Codex as a P2 on `eb1241fc`. For 64 bytes the final base64url
+    character carries only two data bits, and `urlsafe_b64decode` IGNORES the
+    remaining four: sixteen different textual signatures decode to the same bytes,
+    verify identically, and all match the schema pattern. The contract says
+    canonical unpadded base64url, so the reader re-encodes the decoded bytes and
+    requires an exact match — one signature, one spelling. Measured before the
+    repair: an altered final character on a packaged example verified cleanly.
+    """
     if not isinstance(value, str) or not BASE64URL_RX.match(value):
         return None
     padding = "=" * (-len(value) % 4)
@@ -914,7 +942,11 @@ def decode_signature(value: Any) -> bytes | None:
         raw = base64.urlsafe_b64decode(value + padding)
     except (ValueError, TypeError):
         return None
-    return raw if len(raw) == ed25519.SIGNATURE_BYTES else None
+    if len(raw) != ed25519.SIGNATURE_BYTES:
+        return None
+    if base64.urlsafe_b64encode(raw).decode().rstrip("=") != value:
+        return None
+    return raw
 
 
 #: An identifier claimed by two key declarations with DIFFERENT public halves.
@@ -981,13 +1013,18 @@ def check_one(f: Findings, label: str, doc: dict, scope: Scope) -> dict[str, str
     """The eight ordered checks over one chain, returning each check's outcome so a
     recorded gate verdict can be held to the same walk."""
     outcomes = {name: "pass" for name in CHECK_NAMES}
+    # THE CODES THIS WALK ACTUALLY EMITTED, collected so a recorded verdict can be
+    # held to the REASON as well as to the outcome (Codex, P2 on `eb1241fc`).
+    emitted: set[str] = set()
 
     def fail(name: str, code: str, message: str) -> None:
         outcomes[name] = "fail"
+        emitted.add(code)
         f.error(code, f"{label}: {message}")
 
     def unevaluable(name: str, message: str) -> None:
         outcomes[name] = "not_evaluable"
+        emitted.add("chain_unevaluable")
         f.error("chain_unevaluable", f"{label}: {message}")
 
     signed = doc.get("signed_ratification") or {}
@@ -1290,16 +1327,17 @@ def check_one(f: Findings, label: str, doc: dict, scope: Scope) -> dict[str, str
                 f"envelope describes a control that provably cannot run, and a "
                 f"pipeline that CLEARS candidates cannot also be what CONFERS the "
                 f"authority those candidates are cleared against")
-    return outcomes
+        emitted.add("inception_not_out_of_pipeline")
+    return outcomes, emitted
 
 
 def check_chains(f: Findings, scope: Scope) -> None:
-    verdicts: dict[str, dict[str, str]] = {}
+    verdicts: dict[str, tuple[dict[str, str], set[str]]] = {}
     for label, doc in scope.inceptions:
         chain_id = digest_value(doc.get("chain_identity"))
-        outcomes = check_one(f, label, doc, scope)
+        outcomes, emitted = check_one(f, label, doc, scope)
         if isinstance(chain_id, str):
-            verdicts[chain_id] = outcomes
+            verdicts[chain_id] = (outcomes, emitted)
     for chain_id, chain in sorted(scope.chains.items()):
         if chain.inception is None:
             holders = ", ".join(label for label, _ in chain.traveling + chain.leaves)
@@ -1310,8 +1348,9 @@ def check_chains(f: Findings, scope: Scope) -> None:
     check_recorded_verdicts(f, scope, verdicts)
 
 
-def check_recorded_verdicts(f: Findings, scope: Scope,
-                            verdicts: dict[str, dict[str, str]]) -> None:
+def check_recorded_verdicts(
+        f: Findings, scope: Scope,
+        verdicts: dict[str, tuple[dict[str, str], set[str]]]) -> None:
     """A gate that records a verdict is held to the walk this validator performs.
     A recorded PERMIT over a chain the walk refuses is the described-control defect
     written into the record itself; a recorded refusal this walk did not reach is
@@ -1325,9 +1364,10 @@ def check_recorded_verdicts(f: Findings, scope: Scope,
                     f"{label}: a gate-verdict leaf carries no verdict, so the "
                     f"verdict it exists to record is nowhere")
             continue
-        computed = verdicts.get(doc.get("chain_ref"))
-        if computed is None:
+        resolved = verdicts.get(doc.get("chain_ref"))
+        if resolved is None:
             continue
+        computed, emitted = resolved
         walked_refusal = any(value != "pass" for value in computed.values())
         outcome = verdict.get("outcome")
         if outcome == "permitted" and walked_refusal:
@@ -1358,6 +1398,19 @@ def check_recorded_verdicts(f: Findings, scope: Scope,
             f.error("continuity_broken",
                     f"{label}: a {outcome!r} verdict names no refusal, so it does "
                     f"not say what was lacking")
+        # AND THE CODE MUST NAME THE REASON THE WALK ACTUALLY FOUND (Codex, P2 on
+        # `eb1241fc`). The closed enumeration exists so a refusal names WHAT WAS
+        # LACKING; a verdict free to record any enum-valid code while the walk
+        # failed for another reason turns that enumeration into decoration, and
+        # the false reason is what an operator would act on. Checking that a
+        # `refusal` object merely EXISTS was the whole of the previous rule.
+        recorded_code = get(verdict, "refusal", "code")
+        if recorded_code is not None and emitted and recorded_code not in emitted:
+            f.error("continuity_broken",
+                    f"{label}: the leaf records the refusal "
+                    f"{recorded_code!r} and this reader's walk refused for "
+                    f"{sorted(emitted)}. A refusal that names the wrong reason is "
+                    f"a record an operator would act on wrongly")
 
 
 # --------------------------- rule: the declaration ---------------------------
