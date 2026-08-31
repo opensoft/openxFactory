@@ -111,6 +111,10 @@ Core domain-neutral docs:
 - [Domain Repo Review Improvements](docs/domain-repo-review-improvements.md)
 - [Document Lifecycle](docs/document-lifecycle.md)
 - [Release Realization Flow](docs/release-realization-flow.md)
+- [The `scope_globs` Scope Surface Is a Never-Clearable Trust-Root Floor](docs/scope-globs-trust-root-floor.md)
+  (the machine-readable path-scope substrate from `add-structured-scope-substrate`:
+  `scripts/scope_globs.py` + `scripts/validate-scope-globs.py`; the trust-root
+  floor doctrine consumed by the provenance-tie verifier)
 - [Doc-Health Contract](docs/doc-health.md)
   (implementation in-repo since `adopt-neutral-tooling-home`:
   `scripts/doc_health/` + `scripts/doc-health.py`, the reusable nightly
@@ -519,6 +523,20 @@ Active changes:
   them is machinery — the omnigent layer and the PKI plane — rather than a
   ruling. `target_release` **`contract-v2.3`**, fresh-counted (v2.2 is declared
   and cut), allocated at realization by merge order.
+- [add-structured-scope-substrate](openspec/changes/add-structured-scope-substrate/proposal.md)
+  — **RATIFIED 2026-08-28** (Brett Heap, convener). MODIFIES `release-realization`
+  to add the OPTIONAL front-matter sibling `scope_globs:` — a per-repository map
+  of repository-relative globs in the merge-gate envelope dialect — the
+  machine-readable path-scope substrate CRITICAL #1 of
+  `add-provenance-gated-autonomous-merge` requires. Absence is fail-closed (never
+  "all paths"). One MODIFIED requirement + four ADDED (structured declaration,
+  dialect validation, trust-root integrity, scope retention at archive, floor
+  primacy at check time). Built post-ratification via Speckit
+  (`scripts/scope_globs.py`, `scripts/validate-scope-globs.py`,
+  `docs/scope-globs-trust-root-floor.md`, `tests/scope_globs/`); the glob dialect
+  mirrors the single codexFactory envelope authority byte-for-behaviour, pinned by
+  lockstep test. The codexFactory provenance-tie verifier that CONSUMES
+  `scope_globs` is downstream (B's realization), NOT this change's surface.
 - [settle-aging-staging-topics](openspec/changes/settle-aging-staging-topics/proposal.md)
   — authored 2026-08-28 on Brett's four bulk rulings over a read-only triage
   survey of the fourteen staging topics `doc-health`'s
