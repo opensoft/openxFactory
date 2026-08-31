@@ -1,0 +1,57 @@
+schema: spec-driven
+created: 2026-08-31
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-31-add-requirement-ref-resolution-integrity
+  reason: >-
+    THE NAMED SUCCESSOR OF A DEFECT FOUND, CONFIRMED AND DELIBERATELY NOT FIXED
+    IN A MERGED REALIZATION, raised on Brett Heap's recorded ruling of
+    2026-08-30 and anchored at openxFactory issue #523, which is both the origin
+    act's record and the scope statement this packet is written to.
+    THE DEFECT, quoted from that issue: "a `requirement_ref` that resolves to
+    ZERO or MULTIPLE requirements is reported ONLY when bindings share a
+    `secret_ref`. A dangling or ambiguous ref on a non-sharing binding passes
+    silently." It was found by Codex on openxFactory PR #516 — the realization
+    of `add-binding-consumer-identity`, merged `5e8a33cf` — where the split is
+    recorded in the review thread, and it was left unfixed there for a reason
+    the issue states in three parts: an ERROR would have been an UNPHASED
+    NARROWING; a WARNING needed a NINTH code against a ratified rule that the
+    warning set is "ENUMERATED against the refusals", which an unresolvable
+    reference is not; and the ratified packet is itself SPLIT — its block
+    requirement's general "SHALL be reported", its lift requirement's scenario
+    scoped to a sharing pair, and its task list § 2.5's "report AND withhold the
+    lift".
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, checked rather than assumed. No
+    topic under `ideation/staging/` carries this subject; `INDEX.md` was read
+    and holds nothing on the credential validator's reference resolution. The
+    organized source is a GitHub issue carrying a recorded ruling, which is the
+    shape `fix-content-resolution-conflation`,
+    `fix-pin-value-boundary-and-sentinel-split` and
+    `add-modified-block-currency-check` all filed under, so `ad_hoc` is correct
+    here and is not a substitute for staging.
+    AND THIS FILING IS A FRESH INSTANCE OF ISSUE #318, cited rather than
+    re-derived: an `ad_hoc` origin's vocabulary pairs "approved" naturally with
+    ratification, so a packet that is AUTHORIZED but NOT RATIFIED must do by
+    PROSE what the taxonomy has no kind to declare — which is the disclaiming
+    work `approved_by` below performs.
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — ruling recorded 2026-08-30 on
+    PR #516's discussion and in issue #523: the fix is a SMALL SUCCESSOR CHANGE
+    CARRYING ITS OWN RESOLUTION-INTEGRITY CODE, resolution integrity becoming
+    its own check rather than a by-product of the shared-secret lift.
+    THIS RECORDS AUTHORIZATION TO AUTHOR, NOT RATIFICATION OF CONTENT. The
+    citation covers THE DECISION TO FILE and the SHAPE OF THE FIX (its own code,
+    not an unphased narrowing) and nothing else. This packet stands at
+    `Status: draft`; every decision beyond that sentence is the authoring
+    session's, is listed in proposal.md § Authoring decisions as AD-1 … AD-6,
+    and stays FLAGGED FOR VETO — as do the four items in § Open questions, each
+    of which carries a recommendation and no decision. Ratification is a
+    separate act that has NOT happened, and whether a §7.4-shaped council sitting
+    is convened for a packet this size is itself Brett's call (tasks § 2.3).
+  approved_on: 2026-08-30
+related:
+  - openxFactory:change:add-binding-consumer-identity          # RATIFIED 2026-08-29, ACTIVE, realized at contract-v2.4 (PR #516). The packet whose three split clauses this change reconciles and whose eight deprecation codes it deliberately does not widen. This change MODIFIES none of its requirements, so no `Modified over` marker and no archive-order hold arise
+  - openxFactory:change:govern-sibling-added-modified-deltas   # RATIFIED 2026-08-31, ACTIVE. The rule this packet was measured against before choosing an all-ADDED delta; the measurement is recorded in proposal.md § The sibling rule, measured
+  - openxFactory:change:add-notebook-hosting-credential-custody # RATIFIED 2026-08-23, ACTIVE. The one-identity / per-system-authority requirement the whole reference exists to serve
+  - openxFactory:change:add-credential-escrow-checkout         # RATIFIED 2026-08-28, ACTIVE. The other writer queued on this family's schema file; this change does not touch the schema, so the two do not collide
+  - openxFactory:change:promote-credential-contracts           # archived; promoted the binding-template shape and the validator this change extends

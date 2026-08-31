@@ -404,6 +404,43 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-requirement-ref-resolution-integrity](openspec/changes/add-requirement-ref-resolution-integrity/proposal.md)
+  — authored 2026-08-31, **DRAFT — ratification NOT sought by this packet's
+  landing**. Filed on Brett Heap's ruling of 2026-08-30, recorded on PR #516 and
+  anchored at issue #523: *a successor change carrying its own
+  resolution-integrity code*. **THE DEFECT, REPRODUCED RATHER THAN QUOTED**: a
+  `consumer.requirement_ref` that resolves to ZERO requirements or to MORE THAN
+  ONE is reported ONLY where two bindings share a `secret_ref`, because
+  `resolve_requirement` has exactly one caller and that caller is the
+  six-condition lift. A binding template declaring two bindings with DISTINCT
+  secret references — one naming a requirement id no record carries, one naming
+  an id two records carry with DIFFERENT access modes — validates
+  `0 warning(s), 0 error(s) -> PASS` under the validator as shipped; changing ONE
+  BYTE so the two secret references match produces the error naming the very
+  same unresolvable reference. **WHY #516 COULD NOT CARRY THE FIX**: an ERROR
+  would have been an unphased narrowing, and a WARNING needed a ninth code
+  against the ratified rule that the warning set is *"ENUMERATED against the
+  refusals"* — an unresolvable reference not being a shape the coming major
+  refuses. **THE RULING'S ANSWER, ENCODED AS RECORDED**: a code of its OWN
+  FAMILY (not a widening of any of the eight `consumer-*` codes), WARNING for a
+  full minor and ERROR at contract-v3.0 — the same major the block's seven acts
+  land at, so consumers serve ONE window — with the major's refusal DECLARED, so
+  the enumeration rule is satisfied by making the major refuse the shape rather
+  than by exempting it. **TWO ADDED REQUIREMENTS, TWELVE SCENARIOS, NO MODIFIED
+  BLOCK**, and the all-ADDED shape is MEASURED rather than preferred: the two
+  requirements a reconciling MODIFIED block would have named are carried by no
+  promoted specification and are ADDED by the ACTIVE
+  `add-binding-consumer-identity`, so a MODIFIED delta would be exactly
+  `govern-sibling-added-modified-deltas`' governed shape — a `Modified over`
+  marker plus an archive-order hold behind the sibling — while a pure ADDED
+  requirement serves. The three split clauses of the introducing packet (its
+  block requirement's general SHALL, its lift scenario scoped to a sharing pair,
+  its tasks § 2.5 conjunction) are reconciled by SPLITTING the conjunction:
+  reporting is owed by every binding that declares a reference, withholding the
+  lift by the pair asking for the exemption. **NO VALIDATOR LINE MOVES IN THIS
+  PULL REQUEST** — proposal-only on the #497 -> #516 pattern; the realization is
+  a separate change owing two codes, three fixtures, a reconciled
+  `Deprecations Currently In Force` entry and a bundle cut.
 - [govern-sibling-added-modified-deltas](openspec/changes/govern-sibling-added-modified-deltas/proposal.md)
   — authored 2026-08-29, **RATIFIED 2026-08-31 BY DIRECT RULING**
   (`Status: ratified`; record `review/ratification-2026-08-31.md`) — Brett Heap
