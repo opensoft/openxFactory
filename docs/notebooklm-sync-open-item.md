@@ -139,6 +139,38 @@ the workspace records, prove parity against the corpus scan, retire the legacy
 books by recorded act — is
 [the hosting migration runbook](notebook-projection-migration-runbook.md).
 
+**2026-08-31 — THE CHANGE IS ARCHIVED AND THIS ITEM IS STILL OPEN.**
+`add-notebook-projection-identity` archived that day at
+`openspec/changes/archive/2026-08-31-add-notebook-projection-identity`, with the
+migration, the parity proof and the legacy-book retirement all done. Its § 5.1 —
+the box whose whole job was to close THIS item — was **deliberately not ticked**
+and archives standing as a disposition, ruled by Brett Heap that day. The reason
+is the "Strategic direction" above, read literally: the account moved, but the
+**unattended** property it names did not arrive with it.
+
+Three grounds, all still true:
+
+1. Google's sign-in for `xFactor001@opensoft.one` is an **interactive browser
+   flow**. There is no unattended path today.
+2. **`nlm login` is broken upstream** by the notebook.google.com rebrand — the
+   CLI's `_is_notebooklm_url()` allow-list accepts only `notebooklm.google.com`
+   / `notebooklm.cloud.google.com`, so `is_logged_in()` reports false for a
+   browser that IS signed in, `nlm login --cdp-url` dies on "Login timeout", and
+   `NOTEBOOKLM_BASE_URL` cannot be repointed because it is validated against the
+   same allow-list. Only the login path is affected; the API calls still work.
+   The "method that works" section above still describes the way in, and its
+   step 2 warning about the wrong host is now the *reason* the CLI's own login
+   fails rather than an operator footgun.
+3. `add-notebook-hosting-credential-custody` states in **ratified text** that
+   custody governs who may obtain the credential and **does not deliver
+   automation**. No custody work discharges this item.
+
+**The named successor is opensoft/openxFactory#537** — the deferred
+automated-Google-login item, carrying the upstream CLI allow-list defect and the
+machine-account "log in whenever it wants" property as two distinct halves (only
+the second one closes this). **This item closes when unattended
+re-authentication actually works**, and not before.
+
 ## Related known bug (own change, not this item)
 
 A routine `sync-notebooklm-books.py --apply` in one checkout can delete another

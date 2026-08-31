@@ -453,8 +453,26 @@ _LEDGER_SUBJECTS = {
     # to the delta body under
     # `sha256:04537b7fdb210a74a35038e35cba85e02bccc21bdac68e19efb80d1a926c4e53`,
     # carrying the ninth value and both halves of the split scenario.
-    ("add-notebook-projection-identity", "lifecycle-notebook-projection",
-     "The session namespace is reconciled against live sessions"),
+    # REMOVED 2026-08-31 BY THE ARCHIVE ACT — ('add-notebook-projection-
+    # identity', 'lifecycle-notebook-projection', 'The session namespace is
+    # reconciled against live sessions'). A ROW RETIRED BY PROMOTION, on the
+    # same condition as the three above it: the packet archives and its block
+    # is promoted. BOTH HALVES VERIFIED BEFORE THE ROW WAS DELETED, not after.
+    # The packet archived to `openspec/changes/archive/2026-08-31-add-notebook-
+    # projection-identity/`, and the block WAS promoted — canon's "The session
+    # namespace is reconciled against live sessions" is now BYTE-IDENTICAL to
+    # the delta body under
+    # `sha256:0f60e48c5fb977c5265d3fa10ed794cc08e82c476b82d0df75d2c2e7fff2220a`,
+    # so the two units this finding named as uncarried (the "holding quota and
+    # misstating…" body sentence and the shared-account "a session notebook
+    # whose repository segment names a repository this workspace does not
+    # carry…" sentence) are carried by construction rather than by argument.
+    # All six of that packet's MODIFIED/ADDED requirement bodies promoted
+    # byte-identical, 6 in / 6 out, so nothing else in this ledger moved with
+    # it. The family reads no archived path by construction, so no finding
+    # names either path this packet ever had — measured, not assumed: a
+    # same-clock doc-health run against an `origin/main` baseline reported
+    # ZERO new findings and exactly this one INFO gone.
     ("declare-client-standing-policy-contract", "client-layer-tuning",
      "Client content shapes are contract-validated"),
     ("qualify-avatar-live-voice", "avatar-client-lab",
@@ -794,7 +812,7 @@ def test_the_scenario_arm_reads_zero_since_the_rename_was_declared():
 
 
 def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
-    """PACKET § 4.1's editorial arm, as an EXACT SET of eight named subjects.
+    """PACKET § 4.1's editorial arm, as an EXACT SET of seven named subjects.
 
     COMPARED WITH `==`, NOT `<=`, and the reason is the family's own subject: a
     subset comparison would let a newly lossy MODIFIED block land unreported,
@@ -817,7 +835,8 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
         "while the two doc-health-floor packets of 2026-08-28 stood active; 10 "
         "since the OD-2 veto of 2026-08-28 gave add-credential-escrow-checkout "
         "a MODIFIED block; 8 since the two doc-health-floor packets archived "
-        "together)",
+        "together; 7 since add-notebook-projection-identity archived on "
+        "2026-08-31 and its block promoted byte-identical)",
         f"{len(gone)} named subject(s) NO LONGER reported "
         f"{sorted(gone)}; {len(fresh)} unnamed subject(s) NEWLY reported "
         f"{sorted(fresh)}")

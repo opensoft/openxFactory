@@ -526,3 +526,53 @@ first thing to run under a declared account.
   platform ever exposes a surface; the approval stays a human act regardless.
 - Renaming the `credential-contracts` requirement whose body this change
   generalizes. Flagged for the ratification read in design.md, Ruling 2.
+
+## 8. WHAT THIS ARCHIVE DID NOT CLOSE — the honest record (2026-08-31)
+
+Written in the same landing as the archive, so nothing here depends on a reader
+finding it in a commit message.
+
+**ONE BOX STANDS OPEN BY RULING, not by neglect.** § 5.1 archives as a
+DISPOSITION. `proposal_support.archive_change` refuses any change whose
+`tasks.md` still carries a `^- [ ]` line — a blanket gate that cannot tell a
+ruled-open item from unfinished work — so this took the same route
+`add-signed-execution-chain` took on 2026-08-31 (PR #535), with earlier
+precedents at `2026-08-28-declare-sentinel-pin-vocabulary` § 4 and the three
+sibling archives of 2026-08-27. **The two things that wrapper adds were run
+anyway, on both sides of the move**: `proposal-support.py verify` per-change and
+whole-corpus (ok before, ok after), and packaging — a lawful no-op here, because
+this change has no `supporting-docs/` at all.
+
+**TWO SUCCESSORS ARE FILED IN THE OPEN, so neither lives only inside an archived
+packet:**
+
+| successor | what it carries | from |
+| --- | --- | --- |
+| **opensoft/openxFactory#536** | `ensure_workspace_record()` returns without registering a replacement when the key-derived `record_id` is found bound to a different `provider_notebook_id` | § 4.3's code half — its procedure half ran and is ticked |
+| **opensoft/openxFactory#537** | automated Google login: the upstream `_is_notebooklm_url()` allow-list defect AND the machine-account unattended-re-auth property, kept as two distinct halves because only the second closes anything | § 5.1, in full |
+
+`docs/notebooklm-sync-open-item.md` **stays OPEN** and gained a dated pointer to
+#537 in this same landing. It closes when unattended re-authentication actually
+works.
+
+**ONE CITATION IS DELIBERATELY LEFT STALE, and the reason is recorded rather
+than hoped.** The move makes `openspec/changes/add-notebook-projection-identity`
+a stale spelling in exactly three places. Two were fixed here — the `Backed by:`
+header of `docs/notebook-projection-retirement-runbook-step8.md` and the comment
+citation in `examples/lifecycle-notebook-workspaces.yaml`. The third,
+`docs/notebook-projection-migration-evidence-2026-08-24.md` § "Step 8 —
+EXECUTED 2026-08-26", is **NOT** fixed: that document carries `Status: record`,
+and doc-health's `record-immutability` family raises a **CRITICAL** on any
+substantive line change to a captured record, excepting only markdown-link
+pairs — which this backticked path is not. **Repointing it would trade a stale
+path for a broken immutability guarantee**, and the record's own value is that
+it says what was true when it was captured. The path is a citation a reader can
+follow to the archive in one step; nothing resolves it mechanically.
+
+**WHAT IS NOT CLAIMED ANYWHERE IN THIS PACKET:** that `brett.heap@gmail.com` can
+reach the company books (§ 4.7 — it cannot, and by ruling it is no longer meant
+to); that a live `--session-sweep` under the personal profile has been run
+(§ 4.2 — it needs the auth § 5.1 lacks, and rides #537); that a bulk
+session-migration mode exists (§ 4.2 deferred it and nothing since added it);
+and that unattended re-authentication is possible (§ 5.1, the whole point).
+
