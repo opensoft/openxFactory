@@ -1,0 +1,61 @@
+# expected_failure: schema
+# expected_failure_detail: standing_and_holder_class_at_exercise
+# VIOLATES the closed, ORDERED eight-check list — and it is refused BY SHAPE,
+# which is the point of the repair.
+#
+# Found by Copilot on the realization's first pull-request round. The list was
+# `enum` plus `uniqueItems`, and `uniqueItems` compares whole ITEMS: this verdict
+# records `actor_bound_to_signing_wallet` TWICE — once `pass`, once `fail` — and
+# omits `standing_and_holder_class_at_exercise` entirely, while carrying eight
+# distinct items. It was schema-valid, beside prose calling the list closed and
+# ordered.
+#
+# Repairing only the reader would have left the SHAPE admitting it. Each position
+# now carries its own `const`, so a duplicate, an omission and a reordering are
+# all unrepresentable.
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-n28
+leaf_index: 4
+tree_size: 5
+chain_ref: sha256:6bc75a08cec5fe85a4993bc912cfeeb76161e9d318dedaec51314bb228ab7229
+leaf_type: gate_verdict
+recorded_at: '2026-08-30T10:04:00Z'
+payload_ref: vdt-n28
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: gate_verdict
+  value: sha256:374898491171678b607c7400d09abab7fc2feb998f0bc197a283df865042c641
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:59ddc48363d52263e1a96586876ce5ab36e446e1ac0b7adf38b16cbbe8dc6127
+verdict:
+  outcome: permitted
+  scope: links_1_3
+  checks:
+  - check: ratification_signature_verifies
+    outcome: pass
+  - check: chain_identity_recomputes
+    outcome: pass
+  - check: exercise_object_ref_is_content_digest
+    outcome: pass
+  - check: inception_leaf_commits_to_chain_identity
+    outcome: pass
+  - check: traveling_contract_carries_established_values
+    outcome: pass
+  - check: actor_bound_to_signing_wallet
+    outcome: pass
+  - check: proof_of_possession_supplied_and_verified
+    outcome: pass
+  - check: actor_bound_to_signing_wallet
+    outcome: fail
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:413e3517df633964b40c080ac2bf7aa2c0cce9600dd3dd684b4889660f8f05d9
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-0001
+  signed_over: leaf_content
+  signature: NY9pwJY1VDQcY3TypcGANjgZxs6fixlU3NB72GFRZg7vIEDO-oUOfRFFXRQhHUb0rpt9JLnHvYrYqewwlStEAQ

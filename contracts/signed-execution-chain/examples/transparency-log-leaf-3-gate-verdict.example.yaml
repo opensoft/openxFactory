@@ -1,0 +1,56 @@
+# THE VERDICT LEAF — every verdict the short-chain gate returns is a leaf, so the
+# gate's refusals are a record rather than a convention.
+#
+# All EIGHT checks are recorded individually, and the canonical validator holds
+# this leaf to its own walk: a leaf recording `permitted` over a chain the reader
+# refuses is itself a refusal, because a verdict is not evidence of the walk that
+# produced it.
+#
+# THE SCOPE IS `links_1_3`. The absence of a tranche-two attestation link is not
+# reported as a break: a gate cannot walk a link that does not exist yet.
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-0003
+leaf_index: 3
+tree_size: 4
+chain_ref: sha256:6bc75a08cec5fe85a4993bc912cfeeb76161e9d318dedaec51314bb228ab7229
+leaf_type: gate_verdict
+recorded_at: '2026-08-30T10:03:00Z'
+payload_ref: vdt-ratify-0001
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: gate_verdict
+  value: sha256:383c4e64c593eb5ec44137eaddedaa3bf5b1eb64264a55a8c9196f895c23d7e4
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:fe994e1f07a456e90f77040375e488085ccf01b88bf8c815811a671ca9d5e551
+verdict:
+  outcome: permitted
+  scope: links_1_3
+  checks:
+  - check: ratification_signature_verifies
+    outcome: pass
+  - check: chain_identity_recomputes
+    outcome: pass
+  - check: exercise_object_ref_is_content_digest
+    outcome: pass
+  - check: inception_leaf_commits_to_chain_identity
+    outcome: pass
+  - check: traveling_contract_carries_established_values
+    outcome: pass
+  - check: actor_bound_to_signing_wallet
+    outcome: pass
+  - check: proof_of_possession_supplied_and_verified
+    outcome: pass
+  - check: standing_and_holder_class_at_exercise
+    outcome: pass
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:59ddc48363d52263e1a96586876ce5ab36e446e1ac0b7adf38b16cbbe8dc6127
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-0001
+  signed_over: leaf_content
+  signature: eXEuSQyKisd7u1ANujmQdr1XTSFr6cA3D6xpa-Tv5rNTCi3-J8XdurjXmokhJY8KiWK1mE2D3MhAkZd0sy9HAA

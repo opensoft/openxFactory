@@ -1,0 +1,90 @@
+schema_version: 1
+kind: openxfactory-signed-execution-chain-contract-schema
+name: xfactory_signed_execution_chain_traveling_contract
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/traveling-contract.schema.yaml"
+contract_id: signed-execution-chain-traveling-contract
+contract_schema_version: 1
+title: Signed-execution-chain traveling contract (link 3)
+description: >-
+  The signed ratification carried WITH the work — a self-contained artifact
+  checkable at the point of use, rather than a row in a table the checker must go
+  and look up (add-signed-execution-chain, capability `signed-execution-chain`,
+  requirement "The signed ratification travels with the work").
+
+  IT CARRIES THREE THINGS BY REQUIREMENT — the chain identity, the reference to
+  the presentation that proved link 1, and the digest of the transparency-log leaf
+  that recorded inception — and it carries the signed ratification itself so that
+  the first of those is RECOMPUTABLE rather than merely asserted. A checker that
+  can resolve no registry and no live service can still establish the artifact's
+  internal consistency: recompute the digest of the carried `signed_ratification`
+  under the one construction in force and compare it with the carried
+  `chain_identity`.
+
+  THAT ESTABLISHES CONSISTENCY ONLY. A check whose question requires the log —
+  does this leaf exist, does it commit to this chain, is the log's prefix intact —
+  still REFUSES while the log is unreachable, and an unresolvable external lookup
+  never converts into permission.
+
+  LINK 3 HAS NO SIGNER, and this shape says so by carrying none of its own. The
+  authoritative link table records it as carried; requiring it to sign over
+  inception's digest would invent a signing act and a signer nothing in this
+  capability defines, and the ratification's own signature cannot cover a record
+  created from it. At this tranche continuity is established BY DERIVATION AND
+  COMPARISON, and the hash-linked SIGNING rule takes effect at tranche two's first
+  link with a signer of its own.
+
+  WORK THAT ARRIVES WITH NO TRAVELING CONTRACT IS UNPERMITTED at the point of
+  use, not merely unattributed; and a traveling contract whose chain identity does
+  not match the record it claims is a FRAUD SIGNAL rather than a stale copy.
+type: object
+required:
+  - schema_version
+  - kind
+  - traveling_contract_id
+  - chain_identity
+  - presentation_ref
+  - inception_leaf_digest
+  - signed_ratification
+  - ratification_signature
+  - issued_at
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [xfactory_signed_execution_chain_traveling_contract]
+  traveling_contract_id: {$ref: '#/$defs/identifier'}
+  chain_identity:
+    allOf:
+      - {$ref: '#/$defs/digest'}
+      - properties: {subject: {const: signed_ratification}}
+        required: [subject]
+  presentation_ref:
+    # The exercise that proved link 1. The reference is by identifier; the record
+    # itself travels inside `signed_ratification.presentation.exercise`, which is
+    # what lets the point-of-use checker read it with no service in reach.
+    $ref: '#/$defs/identifier'
+  inception_leaf_digest:
+    # The digest of the transparency-log leaf that recorded inception. Every
+    # traveling contract carrying it is what catches a truncation that drops an
+    # observed leaf AT THE POINT OF USE.
+    allOf:
+      - {$ref: '#/$defs/digest'}
+      - properties: {subject: {const: transparency_log_leaf}}
+        required: [subject]
+  signed_ratification:
+    # The SAME block the inception record carries, byte-for-byte: this schema
+    # takes it by cross-file `$ref` rather than restating it, so one fact lives in
+    # one place and the two records cannot drift into two shapes.
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/chain-inception.schema.yaml#/$defs/signed_ratification"
+  ratification_signature:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/chain-inception.schema.yaml#/$defs/ratification_signature"
+  issued_at: {type: string, format: date-time}
+  record_version: {type: integer, minimum: 1}
+  notes: {type: string, maxLength: 1400}
+$defs:
+  identifier:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/identifier"
+  digest:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/digest"

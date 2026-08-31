@@ -1,0 +1,58 @@
+# expected_failure: leaf_hash_link_broken
+# expected_failure_detail: skips leaf position
+# VIOLATES requirement 6's "leaves are appended and never edited or removed",
+# and it is the shape a REMOVAL presents itself in. This leaf sits at position 9
+# while the log's newest is 3, so positions 4-8 are absent — and the leaves
+# either side of a hole link correctly to their own neighbours, which is why a
+# walk over consecutive PAIRS alone cannot see it.
+#
+# Found by Codex as a P1 on the realization's first pull-request round: the
+# reader checked pairs and therefore verified the links that REMAINED while
+# saying nothing about the ones that did not. The retained set must begin at its
+# genesis leaf and run consecutively, checked BEFORE any predecessor digest.
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-n27
+leaf_index: 9
+tree_size: 10
+chain_ref: sha256:6bc75a08cec5fe85a4993bc912cfeeb76161e9d318dedaec51314bb228ab7229
+leaf_type: gate_verdict
+recorded_at: '2026-08-30T10:09:00Z'
+payload_ref: vdt-n27
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: gate_verdict
+  value: sha256:383c4e64c593eb5ec44137eaddedaa3bf5b1eb64264a55a8c9196f895c23d7e4
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:59ddc48363d52263e1a96586876ce5ab36e446e1ac0b7adf38b16cbbe8dc6127
+verdict:
+  outcome: permitted
+  scope: links_1_3
+  checks:
+  - check: ratification_signature_verifies
+    outcome: pass
+  - check: chain_identity_recomputes
+    outcome: pass
+  - check: exercise_object_ref_is_content_digest
+    outcome: pass
+  - check: inception_leaf_commits_to_chain_identity
+    outcome: pass
+  - check: traveling_contract_carries_established_values
+    outcome: pass
+  - check: actor_bound_to_signing_wallet
+    outcome: pass
+  - check: proof_of_possession_supplied_and_verified
+    outcome: pass
+  - check: standing_and_holder_class_at_exercise
+    outcome: pass
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:4b25ee426e99fff67e1af2c41b74aebe3967a542a72613986d84d1b8847f493a
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-0001
+  signed_over: leaf_content
+  signature: coM_iwP2M94zQanb1nCxy5HoBNHf6fwYrsQK829z-DSAjQimrxS1mS-nD2_nxiOERT07871HRTFilBjsQycvDA

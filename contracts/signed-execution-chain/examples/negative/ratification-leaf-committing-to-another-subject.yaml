@@ -1,0 +1,44 @@
+# expected_failure: digest_construction_mismatch
+# expected_failure_detail: records a presentation for a different subject
+# VIOLATES requirement 4's "each record SHALL name which subject its digest is
+# taken over" at the point where naming it is not enough.
+#
+# This leaf is INTERNALLY IMPECCABLE: its own digest recomputes over its content,
+# its signature verifies, its hash link is correct, and its payload digest names
+# the right SUBJECT — `ratified_subject`. And the VALUE it commits to is a
+# different subject's content digest, so the leaf records the presentation of a
+# ratification that is not this chain's.
+#
+# SELF-CAUGHT, and the fixture exists because of what the catch revealed. The
+# reader's ratification-leaf branch checked the subject NAME and never compared
+# the value, which is round one's defect class exactly: a check that reads as
+# though the commitment were verified while nothing is compared. Adding the
+# comparison changed the verdict on NO packaged fixture — measured, by running
+# every fixture through both readers — so the check was dead code until this file
+# existed. A refusal no fixture provokes is a refusal nobody has seen work.
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-n29
+leaf_index: 4
+tree_size: 5
+chain_ref: sha256:6bc75a08cec5fe85a4993bc912cfeeb76161e9d318dedaec51314bb228ab7229
+leaf_type: wallet_presented_ratification
+recorded_at: '2026-08-30T10:04:00Z'
+payload_ref: exr-n29
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: ratified_subject
+  value: sha256:01f1dbcc618b116a6d3ebb9076bc9891f545d33dbf92322db5a998cc62f9268b
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:59ddc48363d52263e1a96586876ce5ab36e446e1ac0b7adf38b16cbbe8dc6127
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:28fee9f4bad1875e081ec43a5b5d915b17e73cedea171b8208bff613e5191abb
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-0001
+  signed_over: leaf_content
+  signature: Bsjs35m-_ygx8sY5ewbDXpTC3xUWQSV5f-rFRdQvV3NTk4lYVSHM9Wz3XhKvMAeTsJyn5Kdme76k5ffH7WglBQ

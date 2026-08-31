@@ -1,0 +1,244 @@
+schema_version: 1
+kind: openxfactory-signed-execution-chain-contract-schema
+name: xfactory_signed_execution_chain_log_leaf
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/transparency-log-leaf.schema.yaml"
+contract_id: signed-execution-chain-transparency-log-leaf
+contract_schema_version: 1
+title: Signed-execution-chain transparency-log leaf
+description: >-
+  One SIGNED LEAF of the append-only transparency log that is this capability's
+  primary chain of custody (add-signed-execution-chain, capability
+  `signed-execution-chain`, requirement "The signed transparency log is the
+  record"). Every act this capability governs writes one: the wallet-presented
+  ratification, the chain inception, the issuance of a traveling contract, and
+  EVERY verdict the short-chain gate returns. Leaves are appended and never
+  edited or removed.
+
+  THE PATTERN IS RFC-6962 / CERTIFICATE-TRANSPARENCY AND SIGSTORE-REKOR, TAKEN AS
+  A HASH-LINKED SIGNED LEAF SEQUENCE, and the realization says which form it took
+  rather than leaving a reader to assume the other. Each leaf carries its own
+  `leaf_index`, the `tree_size` it completes, the digest of its predecessor, its
+  own digest and its own signature. THE HEAD IS THE NEWEST LEAF: because every
+  leaf commits to its predecessor and is signed, any leaf is a signed head of the
+  prefix ending at it, and no separate tree-head record exists or is needed. A
+  consistency proof against a previously observed head is the re-derivation of the
+  link chain from that observed leaf forward.
+
+  WHAT THIS DETECTS, AT THE STRENGTH IT ACTUALLY HAS. Altering or dropping a leaf
+  inside a prefix some party has already OBSERVED breaks the link chain and fails
+  the consistency proof against that observed head; and every traveling contract
+  carries the digest of the leaf that recorded its inception, so a truncation
+  dropping an observed leaf is caught AT THE POINT OF USE.
+
+  WHAT IT DOES NOT DETECT, DECLARED RATHER THAN COVERED BY A PROMISE THIS TRANCHE
+  CANNOT KEEP. Suffix truncation NO PARTY HAS YET OBSERVED: a store that deletes
+  its newest leaves and presents an earlier valid head shows a shorter log that
+  verifies perfectly to a fresh reader. That residual is DECLARED in the
+  realization conformance declaration's SEC-R6 entry, and tranche-three anchoring
+  — an externally witnessed head — is what closes it. An undeclared shortfall is
+  non-conformance; the identical shortfall, declared, is conformant.
+
+  THE LOG IS THE RECORD. Public anchoring is a LATER ADDITION that makes the
+  record externally undeniable and belongs to the named tranche-three successor.
+  The absence of an anchor at this tranche is NOT a defect, this shape carries no
+  anchor, witness, commitment or inclusion-receipt member, and no reading of it
+  claims external undeniability the log alone does not provide.
+type: object
+required:
+  - schema_version
+  - kind
+  - leaf_id
+  - leaf_index
+  - tree_size
+  - chain_ref
+  - leaf_type
+  - recorded_at
+  - payload_ref
+  - payload_digest
+  - leaf_digest
+  - leaf_signature
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [xfactory_signed_execution_chain_log_leaf]
+  leaf_id: {$ref: '#/$defs/identifier'}
+  leaf_index:
+    # Zero-based position in the append-only sequence. Leaf 0 is the genesis leaf
+    # of the log and carries no predecessor; every other leaf carries one.
+    type: integer
+    minimum: 0
+  tree_size:
+    # The size of the log this leaf completes — `leaf_index` + 1, checked
+    # arithmetically by the canonical validator rather than asserted. A head is
+    # the newest leaf, and a head that misstates its own size is how a truncation
+    # presents itself as a complete log.
+    type: integer
+    minimum: 1
+  chain_ref: {$ref: '#/$defs/chain_ref'}
+  leaf_type:
+    # The four acts this capability governs. There is no fifth, and an act with no
+    # leaf is UNPROVEN: its own success is not evidence that it was permitted.
+    type: string
+    enum:
+      - wallet_presented_ratification
+      - chain_inception
+      - traveling_contract_issued
+      - gate_verdict
+  recorded_at: {type: string, format: date-time}
+  payload_ref:
+    # The record this leaf records, by identifier.
+    $ref: '#/$defs/identifier'
+  payload_digest: {$ref: '#/$defs/digest'}
+  previous_leaf_digest:
+    # THE HASH LINK. Present on every leaf except the genesis leaf, and absent on
+    # that one — both directions are enforced by the canonical validator, because
+    # a genesis leaf that carries a predecessor and a successor that carries none
+    # are the same defect pointing opposite ways.
+    allOf:
+      - {$ref: '#/$defs/digest'}
+      - properties: {subject: {const: transparency_log_leaf}}
+        required: [subject]
+  verdict:
+    # Required on a `gate_verdict` leaf and forbidden on every other leaf type —
+    # both enforced by the canonical validator. A verdict recorded nowhere is a
+    # gate whose refusals are a convention rather than a record.
+    type: object
+    required: [outcome, scope, checks]
+    additionalProperties: false
+    properties:
+      outcome:
+        # A BROKEN OR MISSING LINK IS A REFUSAL, never a warning and never a
+        # finding downgraded for convenience; a chain the gate cannot EVALUATE is
+        # `unevaluable`, which is also a refusal — an unevaluable answer never
+        # reads as permission. This enumeration carries no advisory value on
+        # purpose.
+        type: string
+        enum: [permitted, refused, unevaluable]
+      scope:
+        # The gate's scope at this tranche is links 1-3, and it does not report
+        # the absence of a later tranche's link as a break: a gate cannot walk a
+        # link that does not exist yet.
+        type: string
+        const: links_1_3
+      checks:
+        # THE EIGHT ORDERED CHECKS, EACH AT ITS OWN POSITION, so a verdict says
+        # WHICH check decided it rather than only that something failed.
+        #
+        # WHY `prefixItems` AND NOT `enum` PLUS `uniqueItems`. Found by Copilot on
+        # `0d0f277d`, and it is right: `uniqueItems` compares whole ITEMS, so two
+        # entries naming the same check with different outcomes are distinct
+        # objects and both validated. A verdict could then record
+        # `actor_bound_to_signing_wallet` twice — once `pass`, once `fail` — omit
+        # `standing_and_holder_class_at_exercise` entirely, still carry eight
+        # items, and be schema-valid while the prose above called the list closed
+        # and ordered.
+        #
+        # Fixing the reader alone would have left the SHAPE admitting it. Pinning
+        # each position to its own `const` makes a duplicate, an omission and a
+        # reordering all UNREPRESENTABLE — the same move requirement 2's actor
+        # block makes for a missing wallet attestation, and this family's standing
+        # preference: where a shape can refuse a thing, the shape refuses it.
+        type: array
+        minItems: 8
+        maxItems: 8
+        prefixItems:
+          - {$ref: '#/$defs/check_entry', properties: {check: {const: ratification_signature_verifies}}}
+          - {$ref: '#/$defs/check_entry', properties: {check: {const: chain_identity_recomputes}}}
+          - {$ref: '#/$defs/check_entry', properties: {check: {const: exercise_object_ref_is_content_digest}}}
+          - {$ref: '#/$defs/check_entry', properties: {check: {const: inception_leaf_commits_to_chain_identity}}}
+          - {$ref: '#/$defs/check_entry', properties: {check: {const: traveling_contract_carries_established_values}}}
+          - {$ref: '#/$defs/check_entry', properties: {check: {const: actor_bound_to_signing_wallet}}}
+          - {$ref: '#/$defs/check_entry', properties: {check: {const: proof_of_possession_supplied_and_verified}}}
+          - {$ref: '#/$defs/check_entry', properties: {check: {const: standing_and_holder_class_at_exercise}}}
+        items: false
+      refusal:
+        # Required when the outcome is `refused` or `unevaluable`, forbidden when
+        # it is `permitted`. The code is CLOSED so a refusal names what was
+        # actually lacking: a missing proof is never reported as a missing grant,
+        # a revoked authority is never reported as a broken chain, and an honest
+        # attribution by a machine holder is refused on HOLDER CLASS rather than
+        # on the signature.
+        type: object
+        required: [code, statement]
+        additionalProperties: false
+        properties:
+          code:
+            type: string
+            enum:
+              - missing_proof_of_possession
+              - proof_verification_failed
+              - exercise_object_ref_absent
+              - presentation_signed_over_not_request_digest
+              - exercise_replayed
+              - authority_revoked_at_exercise
+              - actor_wallet_mismatch
+              - actor_resolved_through_wallet
+              - ratified_but_uninscribed
+              - orphan_chain_identity
+              - per_act_value_reused
+              - inception_not_out_of_pipeline
+              - digest_construction_mismatch
+              - content_digest_equated_with_chain_identity
+              - traveling_contract_digest_mismatch
+              - continuity_broken
+              - missing_link
+              - act_unproven
+              - leaf_hash_link_broken
+              - leaf_signature_invalid
+              - residual_not_declared
+              - chain_unevaluable
+              - machine_holder_as_ratifying_authority
+              - ratification_signature_invalid
+          statement: {type: string, minLength: 1, maxLength: 600}
+          names: {$ref: '#/$defs/identifier'}
+  leaf_digest:
+    # THE LEAF'S OWN DIGEST, taken over the LEAF CONTENT — this record with
+    # `leaf_digest` and `leaf_signature` removed — under the one construction in
+    # force. A digest cannot cover itself, and a signature cannot cover the
+    # digest of the bytes it is part of, so the subject is stated exactly rather
+    # than left to a reader to reconstruct.
+    allOf:
+      - {$ref: '#/$defs/digest'}
+      - properties: {subject: {const: transparency_log_leaf}}
+        required: [subject]
+  leaf_signature:
+    type: object
+    required: [algorithm, key_ref, signed_over, signature]
+    additionalProperties: false
+    properties:
+      algorithm:
+        type: string
+        enum: [ed25519, ecdsa-p256, ecdsa-secp256k1]
+      key_ref: {$ref: '#/$defs/identifier'}
+      signed_over:
+        type: string
+        const: leaf_content
+      signature:
+        type: string
+        pattern: '^[A-Za-z0-9_-]{86}$'
+  record_version: {type: integer, minimum: 1}
+  notes: {type: string, maxLength: 1400}
+$defs:
+  check_entry:
+    # The shape of ONE recorded check. Its `check` member is left unconstrained
+    # HERE and pinned to a `const` at each position above, so the position is
+    # what fixes the name — `additionalProperties: false` and the required pair
+    # are declared once rather than eight times.
+    type: object
+    required: [check, outcome]
+    additionalProperties: false
+    properties:
+      check: {type: string}
+      outcome:
+        type: string
+        enum: [pass, fail, not_evaluable]
+      statement: {type: string, maxLength: 600}
+  identifier:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/identifier"
+  digest:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/digest"
+  chain_ref:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/chain_ref"
