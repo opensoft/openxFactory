@@ -1,6 +1,6 @@
 ---
-code_surface: openxFactory (`scripts/doc_health/modified_block_currency.py` — the marker parser gains a THIRD reserved form, `Modified over`, recognized by a complete prefix like the other two, naming no units and therefore excluded from unit suppression and from the marker-defect check while still being excluded from unit derivation in both canon and block; `sibling_titles` is widened to return the ADDING CHANGE ID beside each `(capability, title)` so the pairing can be named and self-pairing detected, rather than the bare title set it returns today; `fam_modified_block_currency`'s `if status == "pending": continue` is replaced by an emit for the new pairing class, the three comparison arms still NOT running against a pending block; a reader for active `## ADDED Requirements` blocks against the promoted index the family already builds, for the collision class; two new severity constants and two new action constants, named apart from `_LAUNCH_SEVERITY` on the module's own stated reason for `_RESOLUTION_SEVERITY`, `_LEDGER_SEVERITY` and `_DRIFT_SEVERITY` — a reason that has since been demonstrated rather than merely reserved, § 7.2's flip having landed at `7f656980` (PR #529, 2026-08-31) and moved `_LAUNCH_SEVERITY` alone; two new `_ArmTemplate` registrations appended to `_ARM_TEMPLATES`; two new `FindingClass` entries in `CLASSES`, inserted before the `unplaced` class so that "the gate-bearing arm reads FIRST" and "the drift class reads LAST" both stay true; two anchored `_CLASS_PATTERNS` entries; and the module's stale numerals — the docstring's class enumeration, "FIVE ENTRIES FOR SIX RULE SHAPES", and the arms-versus-classes counts. `tests/doc-health/test_modified_block_currency_reporting.py` — the class-registry pin, the rule-shapes pin, the verbatim class-row list, the last-row assertions and the `len(block)` pin all move by name. `tests/doc-health/test_modified_block_currency_self_gate.py` — `test_the_resolution_ordering_and_marker_classes_read_zero_over_the_real_tree` no longer covers the new classes; a NAMED EXACT SET for the pairing class's four standing subjects joins `_LEDGER_SUBJECTS` under the same movement discipline, and the collision class gets a zero assertion with a positive control. New fixture trees under `tests/doc-health/fixtures/` for each reported state. `specs/022-modified-block-currency-reporting/contracts/report-section.md` — a byte-level contract enumerating the classes four times over, AMENDED by the realization rather than left false. `docs/doc-health.md` — the family paragraph names three arms plus a marker-defect class plus a fifth `unplaced` class and is amended. NO change to any other family, to `Finding`, to `report.render`, to the ranked-plan or finding grammars, to `families.FAMILY_SUMMARIES`, to `FAMILY_RESOLUTION`, to the governed corpus, to the lifecycle scan set, or to any threshold. NO new deterministic check family, so the "Deterministic check families" enumeration and its numerals are untouched and unrestated.)
-target_release: implemented — the openxFactory main line. This surface cuts no contract bundle: no schema under `contracts/schemas/` changes, no digest set moves, and no release tag is owed. The archive gate is therefore merge-plus-green on main, following `add-modified-block-currency-check`, `add-family-enumeration-check` and `add-unclassified-finding-class` exactly: `python3 -m pytest tests/doc-health` green, `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green, and a doc-health single-repo run whose severity counts move by exactly the amount § Impact predicts and in no other line. The change therefore ships ACTIVE and archives only after the merge — and, because its own MODIFIED block is written over `release-realization` canon rather than over any sibling's addition, its archive is not itself subject to the ordering obligation it adds.
+code_surface: openxFactory (`scripts/doc_health/modified_block_currency.py` — the marker parser gains a THIRD reserved form, `Modified over`, recognized by a complete prefix like the other two, naming no units and therefore excluded from unit suppression and from the marker-defect check while still being excluded from unit derivation in both canon and block; `sibling_titles` is widened to return the ADDING CHANGE ID beside each `(capability, title)` so the pairing can be named and self-pairing detected, rather than the bare title set it returns today; `fam_modified_block_currency`'s `if status == "pending": continue` is replaced by an emit for the new pairing class, the three comparison arms still NOT running against a pending block; a reader for active `## ADDED Requirements` blocks against the promoted index the family already builds, for the collision class; two new severity constants and two new action constants, named apart from `_LAUNCH_SEVERITY` on the module's own stated reason for `_RESOLUTION_SEVERITY`, `_LEDGER_SEVERITY` and `_DRIFT_SEVERITY` — a reason that has since been demonstrated rather than merely reserved, § 7.2's flip having landed at `7f656980` (PR #529, 2026-08-31) and moved `_LAUNCH_SEVERITY` alone; two new `_ArmTemplate` registrations appended to `_ARM_TEMPLATES`; two new `FindingClass` entries in `CLASSES`, inserted before the `unplaced` class so that "the gate-bearing arm reads FIRST" and "the drift class reads LAST" both stay true; two anchored `_CLASS_PATTERNS` entries; and the module's stale numerals — the docstring's class enumeration, "FIVE ENTRIES FOR SIX RULE SHAPES", and the arms-versus-classes counts. `tests/doc-health/test_modified_block_currency_reporting.py` — the class-registry pin, the rule-shapes pin, the verbatim class-row list, the last-row assertions and the `len(block)` pin all move by name. `tests/doc-health/test_modified_block_currency_self_gate.py` — `test_the_resolution_ordering_and_marker_classes_read_zero_over_the_real_tree` no longer covers the new classes; a NAMED EXACT SET for the pairing class's four standing subjects joins `_LEDGER_SUBJECTS` under the same movement discipline, and the collision class gets a zero assertion with a positive control. New fixture trees under `tests/doc-health/fixtures/` for each reported state. `specs/022-modified-block-currency-reporting/contracts/report-section.md` — a byte-level contract enumerating the classes four times over, AMENDED by the realization rather than left false. `docs/doc-health.md` — the family paragraph names three arms plus a marker-defect class plus a fifth `unplaced` class and is amended. NO change to any other family, to `Finding`, to `report.render`, to the ranked-plan or finding grammars, to `families.FAMILY_SUMMARIES`, to `FAMILY_RESOLUTION` (the row `7f656980` added stays exactly where #529 put it — what moves is PROMOTED TEXT, in this packet's `doc-health` MODIFIED block, not this table), to the governed corpus, to the lifecycle scan set, or to any threshold. NO new deterministic check family, so the "Deterministic check families" enumeration and its numerals are untouched and unrestated.)
+target_release: implemented — the openxFactory main line. This surface cuts no contract bundle: no schema under `contracts/schemas/` changes, no digest set moves, and no release tag is owed. The archive gate is therefore merge-plus-green on main, following `add-modified-block-currency-check`, `add-family-enumeration-check` and `add-unclassified-finding-class` exactly: `python3 -m pytest tests/doc-health` green, `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green, and a doc-health single-repo run whose severity counts move by exactly the amount § Impact predicts and in no other line. The change therefore ships ACTIVE and archives only after the merge — and, because its own MODIFIED blocks are written over `release-realization` and `doc-health` CANON rather than over any sibling's addition, its archive is not itself subject to the ordering obligation it adds.
 Status: draft
 Proposed: 2026-08-29
 Origin: openxFactory issue #502, filed 2026-08-29 on Brett's in-session ruling "file the successor now" out of the §7.4 council sitting on PR #497 (`add-binding-consumer-identity`). The gap was raised by `lead-architect` under `cross_cutting_design` (LA-C2) and concurred by `lead-quality` (LQ-C5); both seats attached the condition that PR #497 must neither close it nor be delayed for it, recorded in the council record's §8.5 and §10 and honoured — #497 merged carrying only its own local stopgap. Related and already closed, for the defect family: #329 (sibling changes carrying latent scenario loss) and #330 (`promotion-fidelity`'s blind spot). Related and open: #318 (an origin taxonomy with no kind meaning "proposed, not approved" — the state this packet is in), #342.
@@ -113,9 +113,10 @@ recording.** At `91cf0a46` the same run read 19/15/4. The twentieth block is
 specification this packet writes, resolving `canon` and outside this class
 entirely. Nothing entered or left the pending set in the two days between the
 two readings, so the four pairs above are the four #502 measured. Run over this
-branch's own tree, with this packet present, the same resolver reads 21/17/4:
-the twenty-first block is this packet's own, and it resolves `canon`, which is
-§ 4.2's assertion measured rather than restated.
+branch's own tree, with this packet present, the same resolver reads 22/18/4:
+the twenty-first and twenty-second blocks are this packet's own — one over
+`release-realization` canon and one over `doc-health` canon — and BOTH resolve
+`canon`, which is § 4.2's assertion measured rather than restated.
 
 **Four live pairs, zero markers, and every one of the four adding siblings is
 `ratified`** — so the whole live population sits squarely inside the antecedent
@@ -177,9 +178,23 @@ respectively, so the ambiguity is not hypothetical.
   resolving); and the collision check that reports an active `## ADDED
   Requirements` block for a title canon already carries, which is the archive
   ordering's only possible mechanical backstop.
+- **`doc-health` also gains ONE `## MODIFIED Requirements` block, and it is on
+  NEITHER of the requirements D2 measures.** It is on "A modified-block-currency
+  finding its own class map cannot place is itself a finding", whose promoted
+  text says the family "SHALL remain absent from `FAMILY_RESOLUTION`"
+  (`openspec/specs/doc-health/spec.md:2088`) with a scenario at `:2126` resting
+  a MUST on that absence — an assertion `7f656980` (PR #529, 2026-08-31)
+  falsified WITHOUT amending any specification. The block supersedes the absence
+  rule, PRESERVES the protection it bought by re-seating it on the act that
+  extends the class map, and thereby REGULARIZES #529: canon catches up with a
+  row the code already carries, rather than the contradiction being named and
+  left for a reader to arbitrate. Two units are dropped and both are declared by
+  a `Removed from canon by` marker; the other thirty-three are restated
+  byte-identical.
 - **No `## MODIFIED Requirements` block on "Currency of an active change's
   MODIFIED requirement blocks" or on "Deterministic check families".** D2 below
-  is the measurement that decided it, re-taken against today's canon.
+  is the measurement that decided it, re-taken against today's canon, and the
+  block above touches neither of them.
 - **No fourth comparison arm, and the 2026-08-27 ruling is not reopened.** The
   new check compares no requirement text; its inputs are the delta's own marker
   and the set of active additions.
@@ -244,7 +259,9 @@ them without performing them.
 ## Impact
 
 - **Affected specs**: `release-realization` (MODIFIED), `document-lifecycle`
-  (ADDED), `doc-health` (ADDED).
+  (ADDED), `doc-health` (ADDED **and MODIFIED** — two new requirements, plus one
+  MODIFIED block over the promoted unplaced-class requirement whose
+  `FAMILY_RESOLUTION`-absence rule #529 spent).
 - **Affected code**: `scripts/doc_health/modified_block_currency.py`, its three
   test modules, new fixture trees, the byte-level report-section contract, and
   `docs/doc-health.md`.
@@ -265,25 +282,34 @@ them without performing them.
   the movement is **0 `warning`**. Both numbers are stated because the archive
   gate has to know which one it is reading; § 8.1 reads the order actually
   taken.
-- **Predicted movement from this PACKET's own delta: ZERO, and verified rather
-  than argued.** Its one MODIFIED block is over `release-realization` canon, so
-  it resolves `canon` and not `pending` and the pairing class cannot reach it.
-  Both promoted body sentences and both promoted scenarios are restated
-  byte-identical and everything added is new text, so the carriage ledger and
-  the scenario-title arm report nothing: run over this tree with the packet
-  present, **0 title findings and 0 ledger findings** against
-  `openspec/changes/govern-sibling-added-modified-deltas/specs/release-realization/spec.md`.
+- **Predicted movement from this PACKET's own delta: ZERO ACROSS BOTH ITS
+  MODIFIED BLOCKS, and verified rather than argued.** Both are over CANON — one
+  over `release-realization`, one over `doc-health` — so both resolve `canon`
+  rather than `pending` and the pairing class can reach neither. The
+  `release-realization` block restates both promoted body sentences and both
+  promoted scenarios byte-identical and everything it adds is new text. The
+  `doc-health` block restates 33 of that requirement's 35 promoted units
+  byte-identical and DECLARES the other two by a `Removed from canon by` marker
+  naming each as a code span, which is what this family's own discipline
+  requires of a deletion; the marker is not a carriage unit and names no unit
+  the block still carries, so it is not a marker defect either. Measured with
+  the family's own arms over this tree with the packet present: **0 title
+  findings, 0 ledger findings and 0 marker-defect findings** against
+  `openspec/changes/govern-sibling-added-modified-deltas/specs/release-realization/spec.md`
+  and against
+  `openspec/changes/govern-sibling-added-modified-deltas/specs/doc-health/spec.md`.
   **RE-MEASURED AT THE CATCH-UP MERGE**, as § 4.2 obliges rather than permits:
-  canon still carries the requirement at
-  `openspec/specs/release-realization/spec.md:64-78` unmoved, and the family's
-  run over the branch tree emits 8 findings, none of them at that path.
+  canon still carries the `release-realization` requirement at
+  `openspec/specs/release-realization/spec.md:64-78` and the `doc-health` one at
+  `openspec/specs/doc-health/spec.md:2055-2126`, both unmoved, and the family's
+  run over the branch tree emits 8 findings, none of them at either path.
 - **`_LEDGER_SUBJECTS` — the F3 exact set — GAINS NO ROW FROM THIS CHANGE.**
   That set has fallen due three times already (the archive of
   `add-modified-block-currency-check`, then `clean-doc-health-floor` and
   `declare-generated-projection-status` on consecutive days), so the honest
   thing to say is what this packet adds to it, which is nothing: zero ledger
-  findings against its own delta means zero rows. What the REALIZATION adds is a
-  different constant — a named exact set for the pairing class's four standing
+  findings against either of its own two MODIFIED blocks means zero rows. What
+  the REALIZATION adds is a different constant — a named exact set for the pairing class's four standing
   subjects, under the same movement discipline and with the same retirement
   condition written into it: each row retires when its declaring block carries a
   marker or its adding sibling archives.
@@ -298,7 +324,10 @@ them without performing them.
   alone, one string every arm of the module shares — so the row reaches both
   classes this change adds, and no choice available to this packet can launch
   them `auto-fixable`. Measured on the branch tree: all 8 findings the family
-  emits today carry `class="contested"`.
+  emits today carry `class="contested"`. **AND CANON NOW SAYS SO**: the
+  `doc-health` MODIFIED block above supersedes the promoted absence rule, so
+  this packet no longer rests on a corpus that says one thing in
+  `families.py` and the opposite at `openspec/specs/doc-health/spec.md:2088`.
 - **THE CONSEQUENCE OF THAT ROW FOR THE PAIRING CLASS, stated rather than left
   to be discovered.** A pairing finding discharged by its marker is a
   `contested` finding that vanishes between reports, and
@@ -310,7 +339,15 @@ them without performing them.
   changes holds exactly ONE MODIFIED block, and a pending block is dropped
   before the arms run, so all four keys would vanish outright. This is the back
   door D4 named when the family was absent, arriving from a direction D4 did not
-  have to consider. D4 below answers it.
+  have to consider. D4 below answers it — and answers it in an ORDER, because a
+  disposition is not a free instrument here: `promotion_fidelity.disposed` is
+  consulted BEFORE a block is resolved and its entries have family/repo/path
+  grain with an optional REQUIREMENT narrowing and NO finding-class grain, so an
+  entry recorded to answer a pairing finding also silences the three comparison
+  arms over that block — including after the basis archives, which is the one
+  moment those arms have ever been able to read it. The delta therefore makes
+  sequencing THE route, and where the citation is unavoidable it carries a grain
+  and a retirement so it cannot outlive the pairing it answers.
 - **The "Deterministic check families" enumeration and its numerals are
   untouched and unrestated**, no new family being registered — the same shape
   `add-unclassified-finding-class` and "A declared unrecoverable pin loss is
@@ -346,7 +383,8 @@ is instead placed wholly in `document-lifecycle`, `release-realization` keeps an
 antecedent that reaches half its own subject and the next author reads it the
 way `add-wallet-carried-review-authority` did.
 
-**D2 — ADDED-only in `doc-health`, and this was measured rather than preferred.**
+**D2 — NO MODIFIED BLOCK ON EITHER CURRENCY REQUIREMENT, and this was measured
+rather than preferred.**
 The obvious shape for "a new finding class" is a MODIFIED block on "Currency of
 an active change's MODIFIED requirement blocks", restating its ~290 lines and 14
 scenarios byte-for-byte. It is not owed. Canon's own scenario for this shape says
@@ -364,6 +402,42 @@ canon rather than cited from memory. **The cost of the veto is named**: if D2 is
 vetoed this packet grows a MODIFIED block over the corpus's largest requirement,
 the carriage ledger reports this packet's own delta for whatever it rewords, the
 predicted movement stops being zero, and `_LEDGER_SUBJECTS` gains a row.
+
+**D2 IS ABOUT THOSE TWO REQUIREMENTS AND NOT ABOUT THE CAPABILITIES, and one
+MODIFIED block IS opened — on a third requirement and for a different reason.** "A
+modified-block-currency finding its own class map cannot place is itself a
+finding" says the family "SHALL remain absent from `FAMILY_RESOLUTION`"
+(`:2088`) and rests a MUST on that absence at `:2126`; `7f656980` (PR #529,
+2026-08-31) added the row and amended no specification. That is a canon/code
+contradiction on `main`, and the earlier draft of this packet NAMED it and left
+it — a posture that was defensible only while this packet had no stake in it.
+It has one: both classes it adds are `contested` BY that row, and its whole
+discharge design is built on the row being real. A packet cannot build on a fact
+its own capability's promoted text denies and then archive beside it. So the
+absence rule is superseded HERE, the protection it bought is preserved as an
+obligation on the act that extends the class map, and #529 is regularized by the
+successor rather than reverted. **The cost of THIS half of D2 is named
+separately**: the packet takes on a carriage obligation it did not have —
+thirty-five promoted units, two of them dropped under a marker — and it is met
+and measured (§ Impact), not asserted.
+
+**AND THE THIRD `FAMILY_RESOLUTION` MENTION IS ANSWERED RATHER THAN STEPPED
+OVER, because the rule just stated would otherwise reach it.** Canon names the
+table in three places; the block above supersedes two. The third is `:1726`,
+inside the very requirement D2 declines to open — "the family is deliberately
+absent from `FAMILY_RESOLUTION`, so its findings are not classified
+`contested`". It is not in the same position, and the difference is in the
+promoted text rather than in this packet's convenience: `:1726` sits under "This
+family SHALL be advisory AT LAUNCH" and the same paragraph RESERVES its own
+reversal — "Raising the scenario-completeness arm to `error` and adding the
+contested classification are ONE later decision taken together by ruling, and
+SHALL follow the discharge of the standing population rather than precede it".
+`7f656980` is that decision, taken together and on a measured population of
+zero. A launch state whose own requirement provides for leaving it is SPENT when
+the reserved act is taken; `:2088` provides for nothing, being an unconditional
+SHALL with a MUST resting on it, and that is why it alone is superseded.
+**Recorded as a decision, not as an oversight**: a seat that reads it the other
+way is asking for the ~290-line restatement D2 measured, and should say so.
 
 **D3 — A THIRD MARKER FORM, not a proposal cross-reference and not a delta
 header key.** #502's second question lists three instruments. The proposal
@@ -391,7 +465,9 @@ HAS changed is the second half — "the family stays absent from
 `FAMILY_RESOLUTION`" is a posture this packet can no longer adopt, § 7.2's
 reserved flip having landed at `7f656980` and taken the family's row with it
 (§ Impact). Both new classes are therefore `contested` from their first emit,
-and `add-modified-block-currency-check` § 7.2 is SPENT rather than owed.
+and `add-modified-block-currency-check` § 7.2 is SPENT rather than owed. The
+packet now says that IN CANON and not only in its own prose: the `doc-health`
+MODIFIED block supersedes the promoted sentence that denies the row.
 
 **THE DISCHARGE PATH, WORKED FROM HOW THIS FAMILY'S EXISTING CLASSES DISCHARGE
 TODAY, because the marker is this class's whole remedy and a remedy that raises
@@ -414,33 +490,57 @@ things follow from it, in this order:
    arm's own flip two days ago. **`tasks.md` § 6 is
    therefore a PRECONDITION of § 2 rather than a follow-up to it**, and § 2.11's
    named exact set launches empty.
-2. **Where sequencing is not available, the citation is.** A pair arising after
-   the class lands, and a nonzero population in one of the repositories § 5
-   measures, cannot be discharged before the first emit. There the act that ADDS
-   the marker records the citation in the same act — an entry in
-   `health/dispositions.yaml` naming `modified-block-currency`, the repository
-   and that delta path, citing the change under which the marker was added.
+2. **Where sequencing is not available, the citation is — AS AN EXCEPTION THAT
+   CARRIES ITS OWN RETIREMENT, not as a second equal route.** A pair arising
+   after the class lands, and a nonzero population in one of the repositories
+   § 5 measures, cannot be discharged before the first emit. There the act that
+   ADDS the marker records the citation in the same act — an entry in
+   `health/dispositions.yaml` naming `modified-block-currency`, the repository,
+   that delta path AND, narrowing it, the requirement, citing the change under
+   which the marker was added.
    **`tasks.md` § 6.4's prohibition is NARROWED, not lifted, and the narrowing is
    what it always guarded**: no disposition may stand IN PLACE OF a marker. A
    citation recorded on the act that lands the marker suppresses nothing — there
    is nothing left to suppress — and is the contested-finding rule's own
    requirement rather than a way around it.
+   **AND IT IS BOUNDED IN TIME, because the machinery gives it no boundary of
+   its own.** `promotion_fidelity.disposed` is consulted BEFORE the block is
+   resolved and matches on family/repo/path with an optional REQUIREMENT
+   narrowing — never on a finding class — so an entry recorded for a pairing
+   finding suppresses the three comparison arms over that block too, and would
+   go on suppressing them AFTER the declared basis archives and the block became
+   comparable for the first time. That is the defect family the arms exist for:
+   a stale MODIFIED block silently deleting clauses and scenarios that reached
+   canon while it sat. The delta therefore requires the entry to be recorded at
+   REQUIREMENT grain and RETIRED when the basis archives, makes the retirement
+   the archiving change's own act evidenced at its archive gate, and makes the
+   modifying change's archive gate confirm that no such entry stands over its
+   block. A scenario states the falsification directly: the basis archives, the
+   entry remains, and the run's silence is suppression rather than clearance.
 
-**AND ONE FINDING THIS PACKET WILL NOT QUIETLY INHERIT.** PR #529 landed the row
-and amended no specification, so promoted `doc-health` canon still reads "The
-family SHALL remain absent from `FAMILY_RESOLUTION`"
+**AND THE CONTRADICTION THIS PACKET WILL NOT LEAVE STANDING UNDER ITSELF.** PR
+#529 landed the row and amended no specification, so promoted `doc-health` canon
+still reads "The family SHALL remain absent from `FAMILY_RESOLUTION`"
 (`openspec/specs/doc-health/spec.md:2088`), with its own scenario at `:2126`
 requiring that a disappearance "MUST NOT be reported as an uncited resolution,
 the family being deliberately absent". **Canon and code contradict each other on
-`main` today.** That is NOT this packet's to resolve — it belongs to the change
-that landed the row or to a successor — and it is named here so that no reader
-takes this packet's silence for agreement. The design above is deliberately
-sound under EITHER limb: if the code governs, the sequencing and the citation are
-what the `contested` classification requires; if canon governs and the row is
-reverted, the class still launches at population zero and the citation is simply
-never needed. **The cost of the veto is named**: vetoing D4 means proposing a
-band flip onto four packets authored before the rule existed and, under the row
-as it stands, an `error` on the night each of them is corrected.
+`main` today, and an earlier draft of this section named that and stepped
+around it.** Stepping around it is no longer honest, because this packet's whole
+discharge design rests on the row being real: both new classes are `contested`
+BY it, and a packet that builds on a fact its own capability's promoted text
+denies would archive two requirements into one specification that contradict
+each other. So the absence rule is SUPERSEDED by this packet's `doc-health`
+MODIFIED block (§ What Changes), which cites `7f656980` as the landing, keeps
+the protection the absence bought — a finding designed to stop being emitted
+must never become an uncited-resolution error for having worked — and re-seats
+it on the ACT that extends the class map, on the same grain-and-retirement terms
+the pairing class's citation carries. **That is #529 regularized rather than
+reverted**, and it is the successor doing what #529's own landing left owed.
+**The cost of the veto is named**: vetoing D4 means proposing a band flip onto
+four packets authored before the rule existed and, under the row as it stands,
+an `error` on the night each of them is corrected; vetoing the supersession
+specifically means either reverting the row in code or archiving this packet
+beside a promoted sentence its own design contradicts.
 
 **D5 — The COLLISION CHECK is in scope, and it is the decision most worth
 vetoing.** #502's fourth question asks what enforces the archive ordering
@@ -507,6 +607,12 @@ archive acts are, in a human gate reading a report.
 
 It does not claim to reopen the 2026-08-27 ruling against synthesising a basis
 from a sibling's ADDED text. Nothing here compares requirement text.
+
+It does not claim to reverse #529 or to re-open the flip that landed with it.
+The `doc-health` MODIFIED block RECORDS that landing in canon and supersedes the
+one sentence and the one bullet it falsified, keeping the protection they bought
+by re-seating it on the act that extends the class map. The row stays exactly
+where #529 put it, and the severity `_LAUNCH_SEVERITY` moved to is untouched.
 
 It does not claim to close #330's post-archive half, which stays open, or #318,
 whose gap this packet is once again sitting in.

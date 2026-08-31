@@ -429,9 +429,19 @@ Active changes:
   misdeclared, self-referential), silent on the fourth (declared and resolving) —
   plus, as the archive ordering's only possible mechanical backstop, a class that
   reports an active `## ADDED Requirements` block for a title canon already
-  carries. **THE 2026-08-27 RULING IS NOT REOPENED**: nothing compares requirement
-  text, and no fourth comparison arm is added; what changes is that the block is
-  no longer dropped before anything looks at it, so the arms' silence stops
+  carries. `doc-health` ALSO GAINS ONE `## MODIFIED Requirements` BLOCK, on a
+  requirement neither new class touches: "A modified-block-currency finding its
+  own class map cannot place is itself a finding" says the family "SHALL remain
+  absent from `FAMILY_RESOLUTION`" (`:2088`) and rests a MUST on that absence
+  (`:2126`), which `7f656980` (PR #529, 2026-08-31) falsified without amending
+  any specification. The block supersedes both units under a `Removed from
+  canon by` marker, PRESERVES the protection they bought by re-seating it on the
+  act that extends the class map, and so regularizes #529 — canon catching up
+  with a row the code already carries, rather than a packet archiving beside a
+  promoted sentence its own design contradicts. **THE 2026-08-27 RULING IS NOT
+  REOPENED**: nothing compares requirement text, and no fourth comparison arm is
+  added; what changes is that the block is no longer dropped before anything
+  looks at it, so the arms' silence stops
   reading as clearance. **Measured at `7f656980`**, the `main`-side parent of this
   branch's 2026-08-31 catch-up merge: 20 active MODIFIED blocks, 16 `canon`, 4
   `pending`, zero markers, all four adding siblings `ratified` — the SAME four
@@ -439,20 +449,26 @@ Active changes:
   `add-structured-scope-substrate`'s over a different `release-realization`
   requirement; predicted movement **+4 `warning`** against the population
   undischarged and **0** under D4's sequencing (§ 6's markers first), zero in
-  every other band either way, and zero from this packet's own delta — its `release-realization` block
-  resolves `canon` and restates both promoted body sentences and both promoted
-  scenarios byte-identical, so `_LEDGER_SUBJECTS` gains no row. **Four is the
+  every other band either way, and zero from BOTH of this packet's own MODIFIED
+  blocks — the `release-realization` one resolves `canon` and restates both promoted body
+  sentences and both promoted scenarios byte-identical; the `doc-health` one
+  resolves `canon` and restates 33 of 35 promoted units byte-identical, the
+  other two declared by marker — so `_LEDGER_SUBJECTS` gains no row. **Four is the
   live number; eight is the cumulative one** — LQ-C5's figure counted the docstring's
   historical seven plus #497's block, while LA-C2's own return says four.
   **ADVISORY IN THE HALF THE PACKET STILL OWNS** — both classes carry `warning`
   — and NOT in the other: `FAMILY_RESOLUTION` already carries
   `"modified-block-currency": CONTESTED`, landed at `7f656980` (PR #529,
   2026-08-31) as § 7.2's reserved flip, and that table has no per-class grain.
-  D4 is re-argued from that ground and carries the discharge path it forces:
-  § 6's marker sweep is sequenced BEFORE the class lands so it launches at
-  population zero, and where sequencing is unavailable the discharge carries the
-  citation the contested-finding rule already requires. The band flip follows the
-  discharge of the four standing pairs and is not proposed here. **THE RULE IS
+  D4 is re-argued from that ground and carries the discharge path it forces, IN
+  ORDER: § 6's marker sweep is sequenced BEFORE the class lands so it launches at
+  population zero, and only where sequencing is unavailable does the discharge
+  carry the citation the contested-finding rule already requires — bounded in
+  grain (the entry names the REQUIREMENT) and in time (it is RETIRED when the
+  basis archives), because `disposed()` runs before a block resolves and has no
+  finding-class grain, so an unbounded entry would silence the three comparison
+  arms over the very block they exist to read once the basis promotes. The band
+  flip follows the discharge of the four standing pairs and is not proposed here. **THE RULE IS
   TESTED AGAINST A LIVE PAIR RATHER THAN AN ABSTRACTION.** Two clauses keep the
   archive order from being escaped instead of met — CONVERSION (re-shaping the
   block to `## ADDED` does not dissolve the obligation, the antecedent attaching

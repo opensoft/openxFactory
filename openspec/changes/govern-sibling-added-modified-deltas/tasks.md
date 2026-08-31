@@ -71,8 +71,11 @@ pairing class that cannot read a marker reports every declared pair.
       no longer covers the new class; add a NAMED EXACT SET for its standing
       subjects under `_LEDGER_SUBJECTS`'s movement discipline, each row carrying
       its own retirement condition — the row retires when its declaring block
-      carries a marker or its adding sibling archives. **UNDER D4's SEQUENCING
-      THE SET LAUNCHES EMPTY**, § 6 having discharged all four before this
+      carries a marker or its adding sibling archives. A row discharged by a
+      DISPOSITION rather than by a marker is not a retirement: the entry is the
+      exception § 6.4 bounds, and it carries its own retirement (requirement
+      grain, retired when the basis archives) rather than resolving the row.
+      **UNDER D4's SEQUENCING THE SET LAUNCHES EMPTY**, § 6 having discharged all four before this
       feature lands, and an empty exact set with a positive control is the same
       shape § 3.3 asks of the collision class. Where the order taken was the
       other one, the set launches with the four.
@@ -110,22 +113,54 @@ a veto would strike.
       `add-structured-scope-substrate`'s over `release-realization`'s
       "Realization axis declaration", a different requirement of the same spec,
       resolving `canon`. Recorded in `proposal.md` § Why.
-- [ ] 4.2 This packet's own delta reads ZERO. Its `release-realization` block
-      resolves `canon`, and the title arm and the carriage ledger report nothing
-      against it — both promoted body sentences and both promoted scenarios
-      restated byte-identical, everything added new. Re-run this at every
-      catch-up merge; canon moving under this block is exactly the defect the
-      family exists to catch and this packet is not exempt from it.
-      RE-RUN AT THE 2026-08-31 CATCH-UP MERGE: canon still carries the requirement
-      at `openspec/specs/release-realization/spec.md:64-78` unmoved, the block
-      still resolves `canon`, and a `--single-repo --family
+- [ ] 4.2 BOTH of this packet's own MODIFIED blocks read ZERO. The
+      `release-realization` block resolves `canon`, and the title arm and the
+      carriage ledger report nothing against it — both promoted body sentences
+      and both promoted scenarios restated byte-identical, everything added new.
+      The `doc-health` block over "A modified-block-currency finding its own
+      class map cannot place is itself a finding" also resolves `canon`: of that
+      requirement's 35 promoted units (10 body sentences, 6 scenario titles, 19
+      scenario bullets) THIRTY-THREE are restated byte-identical and TWO are
+      declared by one `Removed from canon by` marker naming each as a code span
+      — the `FAMILY_RESOLUTION`-absence sentence and the last bullet of "The
+      class map grows the pattern the drift named". Measured with the family's
+      own `suppression`: 2 units suppressed, 0 defective markers, 0 title and 0
+      ledger findings. Re-run BOTH at every catch-up merge; canon moving under
+      either block is exactly the defect the family exists to catch and this
+      packet is not exempt from it.
+      RE-RUN AT THE 2026-08-31 CATCH-UP MERGE: canon still carries the
+      `release-realization` requirement at
+      `openspec/specs/release-realization/spec.md:64-78` and the `doc-health`
+      one at `openspec/specs/doc-health/spec.md:2055-2126`, both unmoved, both
+      blocks still resolve `canon`, and a `--single-repo --family
       modified-block-currency` run over the branch tree emits 8 findings, none of
-      them against this packet's delta path.
+      them against either of this packet's delta paths.
 - [ ] 4.3 The collision class's population is zero on this tree: no active ADDED
       block names a title the promoted specification carries.
 - [ ] 4.4 The `family-enumeration` gate stays green: no family is registered, so
       the "Deterministic check families" enumeration and its numerals are
       untouched and unrestated.
+- [ ] 4.5 THE CANON/CODE CONTRADICTION IS CLOSED BY THIS PACKET RATHER THAN
+      NAMED BY IT. `scripts/doc_health/families.py:117` carries
+      `"modified-block-currency": CONTESTED` since `7f656980` (PR #529,
+      2026-08-31); that landing amended no specification, so promoted canon read
+      "The family SHALL remain absent from `FAMILY_RESOLUTION`"
+      (`openspec/specs/doc-health/spec.md:2088`) with a MUST resting on the
+      absence at `:2126`. The `doc-health` MODIFIED block supersedes both units,
+      cites the landing, and PRESERVES their protective intent by re-seating it
+      on the act that extends the class map — grain and retirement on the
+      same terms § 6.4 states for a pairing citation. No code moves: the row and
+      `_LAUNCH_SEVERITY` stay where #529 put them.
+- [ ] 4.6 THE THIRD `FAMILY_RESOLUTION` MENTION IS LEFT STANDING ON PURPOSE.
+      Canon names the table three times. `:2088` and `:2126` are superseded
+      (4.5); `:1726` is not, and the reason is in the promoted text: it sits
+      under "This family SHALL be advisory AT LAUNCH" in a paragraph that
+      RESERVES its own reversal as "ONE later decision taken together by ruling",
+      which is exactly what `7f656980` took, together and on a measured
+      population of zero. A launch state a requirement provides for leaving is
+      SPENT rather than contradicted. Superseding it anyway would mean restating
+      a ~290-line requirement with 14 scenarios — the cost D2 measured and
+      declined. A seat may reverse this and ask for that block.
 
 ## 5. Population measurement — the aggregation read
 
@@ -167,14 +202,27 @@ a veto would strike.
       ever emitted for these four and no citation is owed for them; where that
       sequencing is unavailable elsewhere, the act that adds the marker records
       the citation in the same act, and that is the rule's requirement rather
-      than a way around it. See D4.
+      than a way around it. **AND THE ENTRY IS BOUNDED, in grain and in time.**
+      `promotion_fidelity.disposed` runs BEFORE the block is resolved and matches
+      family/repo/path with an optional REQUIREMENT narrowing and no finding-class
+      grain, so an entry recorded for a pairing finding also silences the three
+      comparison arms over that block — after the basis archives included, which
+      is the first moment those arms can read it at all. So: record the entry at
+      REQUIREMENT grain, and RETIRE it when the basis archives. The retirement is
+      the ARCHIVING change's act, evidenced at its own archive gate, and the
+      MODIFYING change's archive gate confirms that no such entry stands over its
+      block. See D4.
 - [ ] 6.5 SEQUENCE THIS SECTION BEFORE § 2. § 6 is a PRECONDITION of the F1
       feature, not a follow-up to it: the class must launch at a population of
       zero, on the discipline every predecessor family in this group observed
-      before joining `FAMILY_RESOLUTION`. Adding a marker before the parser
-      recognizes the form is mechanically safe — an unrecognized `Modified over`
-      paragraph reads as one dated bold note, an extra body unit, and the
-      carriage arms report only units canon carries that a block LACKS.
+      before joining `FAMILY_RESOLUTION`. **THIS IS THE ROUTE AND THE CITATION IS
+      THE EXCEPTION**, in that order and not as two equal options — the delta
+      states them ordered, because the exception costs a disposition that
+      suppresses more than the finding it answers (6.4) and this route costs
+      nothing at all. Adding a marker before the parser recognizes the form is
+      mechanically safe — an unrecognized `Modified over` paragraph reads as one
+      dated bold note, an extra body unit, and the carriage arms report only
+      units canon carries that a block LACKS.
 - [ ] 6.6 `add-notebook-hosting-credential-custody` owes an amendment its
       MARKER SWEEP PARTNER cannot make for it: its fifth ADDED scenario, "The
       published binding shape cannot yet express the access identity", was
@@ -206,8 +254,15 @@ a veto would strike.
       own reserved flip — is SPENT, not owed: it landed at `7f656980` (PR #529,
       2026-08-31) on a measured population of zero everywhere, moving
       `_LAUNCH_SEVERITY` to `error` AND adding the family's `FAMILY_RESOLUTION`
-      row. It is untouched by this packet, and its second half is what § 7.4 and
-      D4 now have to reckon with rather than reserve.
+      row. Its second half is what § 7.4 and D4 have to reckon with rather than
+      reserve. **THE CODE IS UNTOUCHED BY THIS PACKET AND THE CANON IS NOT**:
+      #529 amended no specification, so promoted `doc-health` still asserted the
+      family's ABSENCE from that table at
+      `openspec/specs/doc-health/spec.md:2088` with a scenario resting a MUST on
+      it at `:2126`. This packet's `doc-health` MODIFIED block supersedes both
+      and cites `7f656980` as the landing — canon catching up with a row the code
+      already carries (§ 4.5). Nothing further is owed to #529 by this packet:
+      its row, its severity move and its tests stay exactly as it landed them.
 - [ ] 7.6 #318 stays open. This packet is once again the shape it describes:
       an `ad_hoc` origin whose approval covers the decision to file and not the
       content, recorded as such in `.openspec.yaml`.
@@ -225,6 +280,9 @@ a veto would strike.
       whose movement matches NEITHER figure is the finding, not the gate.
 - [ ] 8.2 On archive, the change MAY state `Closes #502`. It does not close it
       before then, and the proposal says so in § Standing.
-- [ ] 8.3 Confirm at the archive gate that this packet's own MODIFIED block
-      still reads zero against canon (§ 4.2), the block having been live for as
-      long as the packet was.
+- [ ] 8.3 Confirm at the archive gate that BOTH of this packet's own MODIFIED
+      blocks still read zero against canon (§ 4.2), each having been live for as
+      long as the packet was. The `doc-health` block is the one to read twice:
+      its subject requirement is in the same specification this change also ADDS
+      to, so a hand-edit anywhere in that file is the likeliest way its carriage
+      goes stale.

@@ -1,9 +1,53 @@
 # doc-health Specification Delta
 
-ADDED ONLY. No `## MODIFIED Requirements` block is opened on "Currency of an
-active change's MODIFIED requirement blocks" — the same measurement
-`add-unclassified-finding-class` recorded as its D1 holds here and is re-taken
-against today's canon in the proposal's § Orchestrator Decisions D2.
+TWO ADDED REQUIREMENTS AND ONE MODIFIED, AND THE MODIFIED ONE IS NOT THE
+REQUIREMENT D2 MEASURES. No `## MODIFIED Requirements` block is opened on
+"Currency of an active change's MODIFIED requirement blocks" — the same
+measurement `add-unclassified-finding-class` recorded as its D1 holds for that
+requirement and is re-taken against today's canon in the proposal's
+§ Orchestrator Decisions D2.
+
+THE BLOCK BELOW IS OPENED ON A DIFFERENT REQUIREMENT, "A modified-block-currency
+finding its own class map cannot place is itself a finding", and it is opened
+for a reason that has nothing to do with the two new classes. That requirement
+says the family "SHALL remain absent from `FAMILY_RESOLUTION`"
+(`openspec/specs/doc-health/spec.md:2088`), with a scenario at `:2126` resting a
+MUST on that absence — and on 2026-08-31 the family JOINED the table, at
+`7f656980` (PR #529), which amended no specification. Canon and code contradict
+each other on `main` today. A packet adding two classes to that same family
+cannot archive alongside a promoted requirement its own design contradicts, so
+the contradiction is SUPERSEDED here rather than named and left standing: canon
+catches up with a row the code already carries, and #529 is regularized by the
+successor rather than by a reversion.
+
+AND THE THIRD MENTION IS NAMED RATHER THAN MISSED. Promoted `doc-health` says
+`FAMILY_RESOLUTION` in three places, and only two are superseded here. The third
+is at `:1726`, inside "Currency of an active change's MODIFIED requirement
+blocks" — "the family is deliberately absent from `FAMILY_RESOLUTION`, so its
+findings are not classified `contested`". That sentence is NOT in the same
+position as `:2088`, and the difference is in the promoted text itself: it sits
+under "This family SHALL be advisory AT LAUNCH", and the same paragraph RESERVES
+its own reversal — "Raising the scenario-completeness arm to `error` and adding
+the contested classification are ONE later decision taken together by ruling,
+and SHALL follow the discharge of the standing population rather than precede
+it". `7f656980` is that decision, taken together, on a measured population of
+zero everywhere. A launch state a requirement provides for leaving is SPENT when
+the reserved act is taken; it is not contradicted by it. `:2088` reserves
+nothing — it is an unconditional SHALL with a MUST resting on it — which is why
+it, and it alone, needs superseding. Restating a ~290-line requirement with 14
+scenarios to freshen a description its own text already retired is the cost D2
+measured and declined.
+
+THE CARRIAGE OF THAT BLOCK, STATED AS MEASURED RATHER THAN AS SUMMARISED. Canon
+carries THIRTY-FIVE units for that requirement — 10 body sentences, 6 scenario
+titles, 19 scenario bullets. THIRTY-THREE are restated BYTE-IDENTICAL. TWO are
+dropped, and both are declared by one `Removed from canon by` marker naming each
+as a code span: the body sentence asserting the absence, and the last bullet of
+"The class map grows the pattern the drift named", whose reason clause rests on
+it. Everything else the block adds is NEW text — three body paragraphs, one
+replacement bullet and one scenario — so the carriage ledger and the
+scenario-title arm report nothing against this delta, asserted in `tasks.md`
+§ 4.2 rather than assumed.
 
 ## ADDED Requirements
 
@@ -67,22 +111,56 @@ later decision taken by ruling AFTER that standing population is discharged. The
 RESOLUTION CLASS is not a second half of that choice. `FAMILY_RESOLUTION` already
 carries this family, its table has no per-class grain, and this requirement adds
 no row and can remove none — so a finding of this class is `contested` from its
-first emit.
+first emit. The promoted sentence that once denied that row is superseded by
+this change's `## MODIFIED Requirements` block below, so the classification is
+one thing canon and code now say together rather than two things they say
+apart.
 
-**THE CLASS'S REMEDY IS THE MARKER, AND A STANDING POPULATION SHALL BE
-DISCHARGED BEFORE THE CHECK IS INTRODUCED RATHER THAN AFTER.** A `contested`
-finding that stops being emitted owes a citation under this capability's own
-uncited-resolution rule, so a class whose whole design is that its findings are
-discharged SHALL NOT be introduced against a population it could have declared
-first: where a repository carries undeclared pairings at the moment this check is
-introduced, they SHALL be declared by marker before the check runs there, so that
-it launches at a population of zero. Where that sequencing is not available — a
-pairing arising after the check is running, or a population in a repository the
-introducing measurement did not reach — the act that ADDS the marker SHALL record
-the citation that resolution requires, on the same terms as every other
-`contested` finding of this family. A disposition SHALL NOT be recorded IN PLACE
-OF a marker; a citation recorded on the act that lands the marker suppresses
-nothing, the finding having already been answered.
+**THE CLASS'S REMEDY IS THE MARKER, AND THE TWO ROUTES TO IT ARE ORDERED RATHER
+THAN OFFERED.** A `contested` finding that stops being emitted owes a citation
+under this capability's own uncited-resolution rule, so a class whose whole
+design is that its findings are discharged SHALL NOT be introduced against a
+population it could have declared first.
+
+1. **SEQUENCING IS THE ROUTE.** Where a repository carries undeclared pairings at
+   the moment this check is introduced, they SHALL be declared by marker BEFORE
+   the check runs there, so that it launches at a population of zero. A finding
+   never emitted never vanishes and owes no citation, so this route ends the
+   question rather than answering it.
+2. **THE CITATION IS THE EXCEPTION, AND IT CARRIES ITS OWN RETIREMENT.** Where
+   that sequencing is not available — a pairing arising after the check is
+   running, or a population in a repository the introducing measurement did not
+   reach — the act that ADDS the marker SHALL record the citation that resolution
+   requires, on the same terms as every other `contested` finding of this family.
+   A disposition SHALL NOT be recorded IN PLACE OF a marker; a citation recorded
+   on the act that lands the marker suppresses nothing, the finding having
+   already been answered.
+
+**A DISPOSITION RECORDED FOR A PAIRING SHALL BE SCOPED SO THAT IT CANNOT OUTLIVE
+THE PAIRING IT ANSWERS, and the scope is dictated by the mechanism rather than
+chosen.** This family reads its dispositions at FAMILY, REPOSITORY and PATH grain
+with an optional REQUIREMENT narrowing, NEVER at finding-class grain, and it
+reads them BEFORE a block is resolved against canon. An entry recorded to answer
+a finding of this class therefore suppresses the three comparison arms over that
+block as well — and goes on suppressing them after the declared basis archives
+and the block becomes comparable, which is the one moment those arms exist for. A
+remedy that ends by disabling the checks its own subject is finally eligible for
+is not a remedy, so two obligations attach to the entry and both are part of it:
+
+- **GRAIN.** The entry SHALL name the REQUIREMENT and not the delta path alone,
+  so that it reaches the one block it answers rather than every finding this
+  family raises against a delta file that may carry several blocks.
+- **RETIREMENT.** The entry SHALL be retired when the declared basis archives,
+  that being the act after which it silences a comparison instead of answering a
+  disappearance. The retirement is an obligation of THE ARCHIVING CHANGE — the
+  act that promotes the requirement is the act that makes the arms able to read
+  the block — and it is evidenced at that change's own archive gate. The
+  MODIFYING change's archive gate SHALL confirm that no such entry stands over
+  its block, a block whose carriage no arm has been allowed to read being exactly
+  what that gate exists to refuse. The ORDER of the two archive acts stays
+  `release-realization`'s obligation and is neither restated nor widened here;
+  what this requirement adds is only the bound on an instrument this capability
+  owns.
 
 **THE CHECK READS EVERY ACTIVE CHANGE REGARDLESS OF LIFECYCLE STANDING**, as
 this family's reading rule already provides, and this is deliberately wider than
@@ -128,8 +206,15 @@ whether an obligation or only an observation stands behind the row.
 
 #### Scenario: A finding of this class is dispositioned
 - **WHEN** `health/dispositions.yaml` carries an entry naming this family, a repository, an active delta path, and a `cite`
-- **THEN** findings of this class on that path MUST be suppressed on the same terms as this family's other findings
+- **THEN** findings of this class on that path MUST be suppressed on the same terms as this family's other findings, and the entry MUST be read as reaching the whole block rather than this class — the disposition is read before the block resolves and there is no finding-class grain for it to read
+- **AND** the entry MUST name the requirement, an entry without that narrowing disposing every finding this family raises against a delta file that may carry several blocks
 - **AND** an entry without a `cite`, or an entry naming another family, MUST suppress nothing
+
+#### Scenario: The declared basis archives while a pairing disposition still stands
+- **WHEN** the change a pairing disposition was recorded against archives, its addition reaches the promoted specification, and the entry still stands in `health/dispositions.yaml`
+- **THEN** the entry MUST be retired by that archiving act, the block resolving against canon from that moment and the three comparison arms being the only reading of it there is
+- **AND** the run's silence on that block MUST NOT be read as those arms clearing it, the disposition being read before the block resolves so that the silence is suppression rather than comparison
+- **AND** the modifying change MUST NOT meet its own archive gate while the entry stands, a stale MODIFIED block deleting newly promoted clauses unreported being the defect those arms exist to report
 
 ### Requirement: An active ADDED block for a requirement the promoted specification already carries is reported
 The modified-block-currency family SHALL report every active change's `## ADDED
@@ -183,3 +268,114 @@ usual, because the first instance is an archive act that cannot be taken back.
 #### Scenario: No active change adds a requirement canon carries
 - **WHEN** every active `## ADDED Requirements` block names a title the promoted specification does not carry
 - **THEN** this check MUST emit nothing, and its class MUST still render in the family's class block at a count of zero
+
+## MODIFIED Requirements
+
+### Requirement: A modified-block-currency finding its own class map cannot place is itself a finding
+The modified-block-currency family SHALL emit ONE ADDITIONAL `warning` finding
+per run for each DISTINCT SHAPE of rule text its own class map does not place,
+naming how many of that run's findings carry that shape and, verbatim, the rule
+text of the first of them in the family's own report order, and carrying that
+first finding's repository and delta path. Where the map places every finding
+the family emits, no such finding SHALL be emitted.
+
+Two unplaced findings SHALL be treated as ONE SHAPE where their rule texts are
+equal after EVERY FIELD THE ARM'S TEMPLATE INTERPOLATES has been replaced by a
+fixed placeholder — quoted spans, runs of digits, repository-relative paths,
+change identifiers, unit-kind lists, and any other value the arm substitutes
+into its fixed prose — so that one shape is one template and one remedy.
+
+The family SHALL derive that mask from its own arm templates: an arm's FIXED
+PROSE is the shape and every value the arm interpolates into it is not, so the
+rule cannot drift from the arms it describes.
+
+The finding's action line SHALL name both remedies and where the first is
+applied: "extend the class map in `scripts/doc_health/modified_block_currency.py`,
+or fix the drifted rule text the finding names".
+
+The finding SHALL itself be placed by the class map, in a FIFTH class of the
+family's own registry carrying the `warning` band and that action line, so that
+it is never counted by the residual it reports.
+
+The pattern that places that class SHALL be anchored at the start of the rule
+text, this finding carrying a quoted rule text that may itself begin in the shape
+of an arm's.
+
+The family's residual row SHALL continue to render whenever its count is
+nonzero.
+
+**THE FAMILY IS PRESENT IN `FAMILY_RESOLUTION`, AND THIS REQUIREMENT RECORDS
+THAT ROW RATHER THAN CONTRADICTING IT.** `scripts/doc_health/families.py` reads
+`"modified-block-currency": CONTESTED` as of `7f656980` (PR #529, 2026-08-31),
+landed as the second half of `add-modified-block-currency-check` § 7.2's
+reserved flip together with `_LAUNCH_SEVERITY`'s move to `error`. The absence
+this requirement asserted was SPENT on that day, and it is superseded here so
+that promoted canon states what the code does rather than the reverse — the
+landing amended no specification, and this block is that catch-up rather than a
+new decision. That table has NO PER-CLASS GRAIN: it is applied by finding FAMILY
+alone, one string every arm and every class of this module shares, so neither
+this requirement nor any other can hold one class of the family out of it, and
+the finding this requirement defines is `contested` from that landing.
+
+**THE PROTECTION THE ABSENCE BOUGHT IS OWED STILL, AND IT IS NOW OWED BY THE ACT
+RATHER THAN BY THE TABLE.** A finding designed to stop being emitted as soon as
+the class map is extended SHALL NOT become an uncited-resolution error for
+having worked: the act that EXTENDS THE MAP — the first of the two remedies this
+requirement's own action line names — SHALL record, in the same act, the
+citation the uncited-resolution rule requires of a `contested` finding that
+stops being emitted. A citation recorded on the act that lands the remedy
+suppresses nothing, the finding having already been answered, and it SHALL NOT
+be recorded IN PLACE OF the map extension.
+
+**AND THAT CITATION SHALL BE SCOPED SO THAT IT CANNOT OUTLIVE THE DISAPPEARANCE
+IT ANSWERS**, on the same terms this capability states for a disposition
+answering a pairing finding, and for the same mechanical reason: a disposition
+of this family is read BEFORE a block is resolved against canon and has no
+finding-class grain, so an entry left standing suppresses the three comparison
+arms over the path it names instead of answering a vanished drift finding. The
+entry SHALL name the requirement rather than the delta path alone, and SHALL be
+retired once the report that first omits the finding has been rendered, that
+report being the last one the entry can be read on.
+
+This requirement adds no deterministic check family: the finding is emitted by
+the modified-block-currency family under its own id, and the enumeration and its
+numerals in the "Deterministic check families" requirement are untouched and
+unrestated.
+
+**Removed from canon by govern-sibling-added-modified-deltas (2026-08-31):** `` The family SHALL remain absent from `FAMILY_RESOLUTION`, so that a finding designed to stop being emitted as soon as the map is extended is never classified `contested` and its disappearance is never reported as an uncited resolution. ``; `` **AND** the disappearance MUST NOT be reported as an uncited resolution, the family being deliberately absent from `FAMILY_RESOLUTION` and its findings therefore never classified `contested` `` — the family joined the resolution table on 2026-08-31, at the landing PR #529 named above, so both units assert an absence that no longer holds; each is superseded in this same block, the sentence by the three paragraphs above and the bullet by the one that replaces it, and neither is dropped without replacement
+
+#### Scenario: Every finding the family emits is placed by its map
+- **WHEN** a run of the modified-block-currency family emits findings and the class map places every one of them
+- **THEN** no additional finding MUST be emitted, the map and the arms agreeing being the state this requirement exists to leave alone
+- **AND** the family's rendered class counts MUST still sum to the rows the report prints for it
+
+#### Scenario: A rule text the class map does not place
+- **WHEN** a run of the modified-block-currency family emits one or more findings whose rule text no pattern of its class map matches
+- **THEN** the run MUST emit exactly one additional `warning` finding for each distinct shape among them, naming the number of that run's findings carrying that shape and, verbatim, the rule text of the first of them in the family's own report order
+- **AND** each such finding MUST carry the repository and delta path of that first finding, and the action line this requirement states
+- **AND** each such finding MUST itself be placed by the map into the fifth class, so that it is never counted by the residual it reports and the rendered counts still sum to the rows
+
+#### Scenario: Two unplaced findings from one arm template
+- **WHEN** two unplaced findings come from the SAME arm template and differ only in the values that template interpolates — a different quoted title, a different promoted-spec path, a different unit-kind list, different change identifiers
+- **THEN** ONE additional finding MUST be emitted for both, naming the count two, one drifted arm template being one remedy
+- **AND** two unplaced findings from DIFFERENT arm templates — differing in the fixed prose the mask leaves standing — MUST yield two additional findings, being two remedies
+
+#### Scenario: The quoted rule text begins in the shape of an arm
+- **WHEN** an unplaced rule text itself begins with the phrase an arm's rule texts begin with, and this finding quotes it
+- **THEN** this finding MUST be placed in the fifth class and MUST NOT be placed under the class its quotation resembles
+- **AND** the unplaced finding it names MUST still be counted by the residual row, the two being counted apart
+
+#### Scenario: The warning is worked from the ranked plan
+- **WHEN** a report is rendered for a run that emitted the additional finding
+- **THEN** the finding MUST appear in the ranked plan as a ready-to-stage work item stating its severity, repository, path and action, on the same terms as every other finding
+- **AND** the family's residual row MUST still render in the family's own report block, the row and the finding being two readings of one fact rather than alternatives
+
+#### Scenario: The class map grows the pattern the drift named
+- **WHEN** the class map is extended with a pattern that places the rule text the finding named, and the family is run again over the same tree
+- **THEN** the additional finding MUST NOT be emitted, and the residual row MUST NOT render
+- **AND** the disappearance MUST NOT be reported as an uncited resolution, and the act that extended the map MUST carry the citation that makes it so, the family being PRESENT in `FAMILY_RESOLUTION` and its findings therefore classified `contested`
+
+#### Scenario: The family's resolution class is read from the table and not from this requirement
+- **WHEN** a reader asks whether a finding of this class is classified `contested`
+- **THEN** the answer MUST be read from `FAMILY_RESOLUTION`, which carries this family and has no per-class grain, and this requirement MUST NOT be read as holding this class out of it
+- **AND** the row MUST be read as standing since `7f656980` (PR #529, 2026-08-31), the landing that added it without amending this specification, so that a reader of the code and a reader of canon are not told two different things
