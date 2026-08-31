@@ -404,6 +404,22 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-release-tag-publication-check](openspec/changes/add-release-tag-publication-check/proposal.md)
+  — authored 2026-08-31, `Status: draft`, AWAITING RULING. Closes issue **#528**:
+  `docs/contract-versioning-policy.md` holds that "a bundle is not published
+  until its tag exists" and **nothing checks it** — no workflow calls the release
+  validator, `verify_tag` runs only over synthetic repositories in unit tests,
+  `release-surface-integrity` deliberately does not anchor on tags, and
+  `tag-hygiene` is `document-lifecycle`'s prose-tag grammar. The gap reached
+  `contract-v1.33`/`v1.35`/`v1.39` in August, needed a ruling to discharge, and
+  recurred on `contract-v2.3` and `contract-v2.4`; a human found it both times.
+  Proposes a twenty-third deterministic family, distance-graded so the legitimate
+  declare-then-tag window stays green, and carries the `## MODIFIED` block on
+  "Deterministic check families" that a new family owes. **Five design decisions
+  are flagged for veto and D3's threshold is a number the authoring session
+  declined to pick.** Predicts ZERO findings on landing, and says why a nonzero
+  answer would be a finding about the estate rather than about the check.
+
 - [govern-sibling-added-modified-deltas](openspec/changes/govern-sibling-added-modified-deltas/proposal.md)
   — authored 2026-08-29, **RATIFIED 2026-08-31 BY DIRECT RULING**
   (`Status: ratified`; record `review/ratification-2026-08-31.md`) — Brett Heap
