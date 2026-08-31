@@ -250,6 +250,23 @@ pinned by a test rather than by four more fixtures, deliberately: the refusal co
 they report is already red-proven, and what needed pinning was that each
 COMPARISON runs.
 
+**ROUND THREE FOUND THE SAME SHAPE ONE LEVEL UP, AND IN THE RULE THE SWEEP HAD
+JUST ADDED** — which is the honest measure of how far a self-run sweep gets:
+
+| Round | Finding | Where it landed |
+| --- | --- | --- |
+| 3 | **P1 (Codex)** — a `traveling_contract_issued` leaf could name chain A in `chain_ref` while carrying the `payload_ref` and digest of chain B's traveling contract. BOTH checks that should have caught it looked SCOPE-WIDE: the payload-digest recomputation resolved the contract by IDENTIFIER across the whole store, so it matched and recomputed cleanly, and the missing-leaf rule collected recorded ids GLOBALLY, so chain A's leaf discharged chain B's obligation. **Chain B passed with its primary custody record silent about an act the contract requires to be recorded — the exact hole the missing-leaf rule had just been added to close.** Pre-fix, measured: the fixture validated CLEANLY | The lookup is chain-scoped and requires exactly one match; the recorded set is keyed on the **(chain, contract)** PAIR. An issuance is discharged only by a leaf on the ISSUING chain. Probed by `issuance-leaf-filed-under-another-chain`, and the remaining three leaf types were checked for the same defect — all were already chain-scoped |
+
+**THE FIXTURE FOR IT WAS WRONG ON ITS FIRST DRAFT, AND THAT IS WORTH RECORDING**
+because it nearly hid the finding. It reported as refused-for-the-intended-reason,
+and the reason was an INCIDENTAL defect the draft had introduced — its
+`inception_leaf_ref` named the wrong leaf — not the cross-chain filing under test.
+A negative fixture that fails for a second reason is not a probe, it is a fixture
+that agrees with you; the anchor only became real once the fixture was corrected
+to a single fault and the pre-fix reader accepted it. **The instrument gets the
+same scrutiny as the thing it measures**, which is the second time this
+realization has had to apply that to its own harness.
+
 **AND THE SWEEP MEASURED ITS OWN VALUE RATHER THAN ASSERTING IT.** Every packaged
 negative was run through both readers and diffed: the second and third
 strengthenings changed the verdict on FOUR committed fixtures, so they were
@@ -280,7 +297,7 @@ thing it measures.**
       validated against the PINNED schemas through the `openXwallet/` gitlink;
       the actor is `identity-brokering`'s `actor_subject_reference` carrying an
       `xfactory_wallet_subject_attestation`.
-- [x] 4.2 **PACKAGED — 7 positives composing ONE whole chain, and 31 negatives.**
+- [x] 4.2 **PACKAGED — 7 positives composing ONE whole chain, and 32 negatives.**
       All nine named refusals have a probe, and so does every other refusal this
       reader can emit: the enumeration is 24 codes and the self-test REFUSES A
       CODE WITH NO PROBE, so a refusal nobody has seen work cannot ship. Two

@@ -132,7 +132,7 @@ the validator's own docstring, where the reader that runs them is.
 
 ## What this family refuses, by name
 
-Twenty-four closed refusal codes over 31 packaged negatives, **each code with a negative that provokes
+Twenty-four closed refusal codes over 32 packaged negatives, **each code with a negative that provokes
 it** — the self-test refuses a code with no probe. The nine `tasks.md` 4.2 names
 are among them: missing proof, failed verification, revoked-at-exercise, orphan
 chain identity, digest mismatch on the traveling contract, mix-and-match

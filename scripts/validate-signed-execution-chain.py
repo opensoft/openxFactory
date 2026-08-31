@@ -561,12 +561,37 @@ def check_leaf_payload_digest(f: Findings, label: str, doc: dict,
                       "payload_digest")
         return
     if leaf_type == "traveling_contract_issued":
-        for other_label, other in scope.travelings:
-            if other.get("traveling_contract_id") == doc.get("payload_ref"):
-                recompute(f, label, "traveling contract", other,
-                          digest_value(payload),
-                          f"payload_digest (over {other_label})")
-                return
+        # A LEAF BELONGS TO THE CHAIN IT NAMES, so the lookup is CHAIN-SCOPED.
+        # Found by Codex as a P1 on `eb1241fc`, and it is round two's shape one
+        # level up: the leaf's `chain_ref` and the payload it names could
+        # disagree. A scope-wide lookup by identifier matched chain B's traveling
+        # contract from a leaf filed under chain A, the digest recomputed cleanly,
+        # and the missing-leaf rule — which collected recorded ids GLOBALLY — then
+        # treated chain A's leaf as discharging chain B's obligation. Chain B
+        # passed with its primary custody record silent about an act the contract
+        # requires to be recorded, which is exactly the hole that rule had just
+        # been added to close.
+        chain = scope.chains.get(doc.get("chain_ref"))
+        matches = [(other_label, other) for other_label, other
+                   in (chain.traveling if chain else [])
+                   if other.get("traveling_contract_id") == doc.get("payload_ref")]
+        if not matches:
+            f.error("continuity_broken",
+                    f"{label}: this leaf records the issuance of traveling "
+                    f"contract {doc.get('payload_ref')!r} and no traveling "
+                    f"contract of chain {doc.get('chain_ref')} carries that "
+                    f"identifier. An issuance is discharged only by a leaf on the "
+                    f"ISSUING chain")
+            return
+        if len(matches) > 1:
+            f.error("continuity_broken",
+                    f"{label}: {len(matches)} traveling contracts of this chain "
+                    f"carry the identifier {doc.get('payload_ref')!r}, so which "
+                    f"issuance this leaf records cannot be established")
+            return
+        other_label, other = matches[0]
+        recompute(f, label, "traveling contract", other, digest_value(payload),
+                  f"payload_digest (over {other_label})")
         return
     if leaf_type == "wallet_presented_ratification":
         # THE CONTENT DIGEST IS IN SCOPE, SO IT IS COMPARED. Checking only that
@@ -830,14 +855,22 @@ def check_atomicity(f: Findings, scope: Scope) -> None:
                     f"wallet-presented ratification is one of the four acts this "
                     f"capability governs, and an act with no signed leaf is "
                     f"UNPROVEN however completely the rest of the chain verifies")
-    recorded = {doc.get("payload_ref") for _, doc in scope.leaves
+    # KEYED ON THE PAIR, not on the identifier alone (Codex, P1 on `eb1241fc`).
+    # A global set of recorded identifiers let a leaf filed under ANOTHER chain
+    # discharge this chain's obligation, so the chain a leaf names is part of what
+    # it records.
+    recorded = {(doc.get("chain_ref"), doc.get("payload_ref"))
+                for _, doc in scope.leaves
                 if doc.get("leaf_type") == "traveling_contract_issued"}
     for label, doc in scope.travelings:
-        if doc.get("traveling_contract_id") not in recorded:
+        pair = (digest_value(doc.get("chain_identity")),
+                doc.get("traveling_contract_id"))
+        if pair not in recorded:
             f.error("act_unproven",
                     f"{label}: the issuance of this traveling contract is recorded "
-                    f"in no leaf. Issuing one is an act this capability governs, "
-                    f"and work travels on an artifact whose issuance nothing proves")
+                    f"in no leaf OF ITS OWN CHAIN. Issuing one is an act this "
+                    f"capability governs, and work travels on an artifact whose "
+                    f"issuance nothing proves")
 
 
 def check_per_act_uniqueness(f: Findings, scope: Scope) -> None:
