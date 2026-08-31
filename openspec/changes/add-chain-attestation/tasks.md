@@ -314,7 +314,11 @@ in for a ruleset state.
       **REVIEW-RECORD REPLAY**: a genuine, authority-proven review record from
       ANOTHER PROPOSAL closed this chain, because link 10 referenced proposal and
       review independently and the authority exercise bound only to the review
-      record. The consumed record now SHALL NAME THIS CHAIN'S IDENTITY. (iii) and
+      record. The consumed record was made to NAME THIS CHAIN'S IDENTITY — **a
+      rule SUPERSEDED TWICE SINCE and recorded here as what round eight did, not
+      as the rule in force**: round fourteen (1.23) found it unsatisfiable, since
+      the review predates the chain identity, and round fifteen (1.24) replaced
+      its equality bridge with the AMENDMENT LINEAGE. (iii) and
       (iv) **TWO COLLISIONS BETWEEN ROUND SEVEN'S OWN FIXES**: the dispatch-
       deadline fix made commitment extensions load-bearing while the
       predecessor-order fix enumerated an order that OMITTED them — extensions now
@@ -486,7 +490,13 @@ in for a ruleset state.
         content digest"* all restated a retired rule in words the phrase-keyed
         sweep could not see. This is `#513`'s settlement lesson — **clause-keyed
         beats phrase-keyed** — applied to retirement. Table every site with its
-        verdict: CURRENT, RETIRED-THIS-ROUND, or MARKED-HISTORY. **This family has
+        verdict: CURRENT, RETIRED-THIS-ROUND, or MARKED-HISTORY. **AND THE SWEEP
+        SPANS BOTH FIELDS BY DEFINITION — WHAT THE PACKET ASSERTS AND WHAT IT
+        COMMISSIONS — PLUS THE DEFINITIONS THE ROUND RECORDS CARRY.** A retired
+        predicate hides one layer down: a fixture commissioned through it, or a
+        round record stating it in the PRESENT TENSE, is still a live instruction
+        to a realization. The subject sweep is not complete until §4–§5's
+        commissions and the `1.x` definitions have been read for the subject too. **This family has
         now cost six rounds** — the log-derived authority, the per-tier key
         clause, the kind-only signed order, the chain-identity review binding, the
         equality bridge, and the three predicates that survived a phrase-keyed
@@ -520,7 +530,12 @@ in for a ruleset state.
       digest and fails the first limb. **The two digests are the ones tranche one
       already distinguishes**, each used for the comparison it was defined for
       rather than collapsed — the error the gate's checks 2 and 3 exist to
-      prevent. (ii) **THE SIGNED ORDER WAS OUTRUN AGAIN, BY A KIND THIS PACKET
+      prevent. **THIS LIMB IS SUPERSEDED AND THE ENTRY IS THE RECORD OF WHAT
+      ROUND FOURTEEN DID, NOT A STATEMENT OF THE RULE IN FORCE** — round fifteen
+      (1.24) replaced the EQUALITY of the two digests with the AMENDMENT LINEAGE,
+      because an accepted-as-amended packet's reviewed and ratified digests
+      legitimately differ. The temporal diagnosis above stands; the repair it
+      describes does not. (ii) **THE SIGNED ORDER WAS OUTRUN AGAIN, BY A KIND THIS PACKET
       ITSELF CREATED.** Round eleven generalized the order and then folded in a
       NAMED KIND — commitment extensions — rather than stating the rule over the
       SET; the ninth round's SIGNED CHAIN BINDING then fell outside the walk,
@@ -878,7 +893,7 @@ Each is contract content — cheap now, expensive after a bundle ships.
       identity; a **controller-signed link-4 or extension record supplying its own
       key against a controller certificate with NO fingerprint**, refused; and
       POSITIVES for **the verification key resolving against the certificate**,
-      for **records under a compliant CONTROLLER certificate verifying**, for **a review written BEFORE ratification closing its own chain through the equality chain**, for **a late-dispatched task's SIGNED CHAIN BINDING descending from the actual latest signed record**, and for **a later task dispatched after an earlier task has
+      for **records under a compliant CONTROLLER certificate verifying**, for **a review written BEFORE ratification closing its own chain through THE THREE LINEAGE LIMBS** — the review naming the reviewed digest, the ratification committing to that review and that lineage, and the ratified subject being the lineage's endpoint — for **a late-dispatched task's SIGNED CHAIN BINDING descending from the actual latest signed record**, and for **a later task dispatched after an earlier task has
       attested** — the extension chaining from that link-5 record and the gate
       walking the interleaved order; and
       two POSITIVES — **a genuine tier-2 identity's THREE records verifying end to
