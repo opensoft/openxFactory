@@ -569,6 +569,21 @@ unimplementable, and `projection.py`'s property 5 said so in as many words.
     new human-ratified issuance. Write the runbook against those; neither
     ruling is enforced until the change carrying R6–R12 is ratified, so this
     task stays OPEN.
+  - **THE RUNBOOK IS WRITTEN, AND ITS PATH WAS AN UNOPPOSED CHOICE —
+    [`docs/governed-reissuance-runbook.md`](../../../docs/governed-reissuance-runbook.md)
+    (`Status: draft`).** Recorded because **nothing named a path**: not this
+    task, not [`rulings-2026-08-29.md`](rulings-2026-08-29.md), not
+    [`proposal.md`](proposal.md), [`design.md`](design.md) or either delta spec.
+    The choice follows this repository's own convention — every operator runbook
+    is flat in `docs/` under a `<subject>-runbook.md` name
+    (`domain-instantiation-setup-runbook.md`, `intake-subtype-install-runbook.md`,
+    `notebook-projection-migration-runbook.md`,
+    `notebook-projection-retirement-runbook-step8.md`) — and it is registered in
+    `README.md`'s `## Documentation` index like the rest of them. **Written down
+    rather than left implicit, so a later reader knows the location was decided
+    and by what, and does not go looking for an authority that named it.**
+    **THIS BULLET TICKS NOTHING.** 7.6 stays OPEN by the sentence directly above
+    it; the walk record and any ledger movement are a separate, argued act.
 - [ ] 7.7 **Gate:** a revoked holder parks a convening with a named refusal in a
       rehearsed test; an unreadable register refuses; the runbook has been
       walked once.
