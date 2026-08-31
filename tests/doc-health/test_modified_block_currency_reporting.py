@@ -66,7 +66,7 @@ from pathlib import Path
 import pytest
 import yaml
 
-from doc_health import INFO, WARNING, Finding, Skip
+from doc_health import ERROR, INFO, WARNING, Finding, Skip
 from doc_health import modified_block_currency as mbc
 from doc_health import report, runner
 
@@ -151,10 +151,11 @@ def test_the_class_registry_is_closed_ordered_and_states_a_band_per_class():
         "carriage-ledger": mbc._LEDGER_SEVERITY,
         "title-resolution": mbc._RESOLUTION_SEVERITY,
         "marker-defects": mbc._LEDGER_SEVERITY,
-        # ITS OWN CONSTANT, not `_LAUNCH_SEVERITY`. They are value-identical
-        # today, so this line cannot tell them apart — that is what
+        # ITS OWN CONSTANT, not `_LAUNCH_SEVERITY`. They were value-identical
+        # before the § 7.2 flip (2026-08-31, issue #357), so this line alone
+        # could not tell them apart pre-flip — that is what
         # `test_modified_block_currency.py::
-        # test_the_reserved_flip_of_the_launch_severity_does_not_drag_the_drift_class`
+        # test_the_realized_flip_of_the_launch_severity_did_not_drag_the_drift_class`
         # is for. This line's job is that the band is read from the MODULE and
         # never re-spelled as a literal.
         "unplaced": mbc._DRIFT_SEVERITY,
@@ -335,12 +336,17 @@ _LEAD = ("Finding classes, counted apart so the gate-bearing arm is never read "
 
 def test_the_summary_states_every_class_with_its_count_and_band():
     """The contract of `contracts/report-section.md` § 1, over a real fixture
-    tree so the counts are measured rather than asserted about themselves."""
+    tree so the counts are measured rather than asserted about themselves.
+
+    The scenario-title band FLIPPED to `error` 2026-08-31 (issue #357);
+    `FindingClass.band` reads `_LAUNCH_SEVERITY` directly, so the rendered
+    caption moved with it, per `_LAUNCH_SEVERITY`'s own comment. Every other
+    band is unmoved (O8)."""
     findings = _fixture_findings(TREE_MARKERS)
     lines = mbc.class_summary(findings)
     assert lines[0] == _LEAD
     assert lines[1:] == [
-        "- scenario-title completeness: 0 (`warning` — the arm carrying this "
+        "- scenario-title completeness: 0 (`error` — the arm carrying this "
         "family's gate)",
         "- carriage ledger: 3 (`info` — editorial, and the arm says so in "
         "every finding)",
@@ -492,7 +498,8 @@ def test_the_block_renders_on_a_run_that_found_nothing():
     assert result.findings == [] and result.skips == []
     section = _section(_render(result))
     assert _LEAD in section
-    assert "- scenario-title completeness: 0 (`warning`" in section
+    # `error` since the 2026-08-31 flip (issue #357); `warning` at launch.
+    assert "- scenario-title completeness: 0 (`error`" in section
     assert "No findings." in section
     assert section.index(_LEAD) < section.index("No findings.")
 
@@ -1455,11 +1462,14 @@ def test_extending_the_map_removes_both_the_finding_and_the_residual_row(
 
     This finding is DESIGNED to stop being emitted the moment somebody extends
     the map. `report.uncited_resolutions` turns a `contested` finding that
-    VANISHES between reports into an `error`, so a `contested` classification
-    here would red the nightly on the very run that proves the remedy landed.
-    The family's deliberate absence from `FAMILY_RESOLUTION` is what prevents
-    that, and it is asserted here rather than assumed.
+    VANISHES between reports into an `error` — through the advisory launch
+    the family's deliberate absence from `FAMILY_RESOLUTION` is what prevented
+    that. FLIPPED 2026-08-31 (issue #357): the family is CONTESTED now, this
+    fixture's remedy included, so the drift finding vanishing here would owe a
+    citation the same way every other class's does — the discipline the
+    flip's second half exists to buy, asserted rather than assumed.
     """
+    from doc_health import CONTESTED
     from doc_health.families import FAMILIES, FAMILY_RESOLUTION
 
     drifted, unplaced = _drifted(monkeypatch, mbc.CLASS_LEDGER)
@@ -1473,11 +1483,11 @@ def test_extending_the_map_removes_both_the_finding_and_the_residual_row(
     assert not any("unclassified" in line
                    for line in mbc.class_summary(restored))
 
-    assert mbc.FAMILY in FAMILIES, "the absence below means nothing otherwise"
-    assert mbc.FAMILY not in FAMILY_RESOLUTION
+    assert mbc.FAMILY in FAMILIES, "the membership below means nothing otherwise"
+    assert FAMILY_RESOLUTION.get(mbc.FAMILY) == CONTESTED
 
 
-def test_the_new_fixture_tree_declares_its_provenance_and_stays_advisory():
+def test_the_new_fixture_tree_declares_its_provenance_and_the_other_classes_stay_advisory():
     """F2's convention, checked for a tree F2's own checker cannot reach.
 
     `test_every_fixture_tree_this_feature_adds_carries_a_provenance_note`
@@ -1489,8 +1499,15 @@ def test_the_new_fixture_tree_declares_its_provenance_and_stays_advisory():
     catch. The convention is kept and pinned HERE instead (plan § O5).
 
     The band sweep rides along for the same reason: F2's
-    `test_no_new_tree_reports_an_error_or_critical_finding` also iterates
-    `NEW_TREES`, so nothing else asserts that this tree stays advisory.
+    `test_no_new_tree_reports_an_unexpected_error_or_a_critical_finding` also
+    iterates `NEW_TREES`, so nothing else asserts about this tree's bands.
+
+    THIS TREE CARRIES 1 titles + 3 ledger, so it is exactly where the flip
+    (2026-08-31, issue #357) changes what "stays advisory" means: the ONE
+    scenario-title finding is `error` now, by design — that arm is
+    gate-bearing. What still "stays advisory" is everything else, checked
+    apart from it the same way `test_no_new_tree_reports_an_unexpected_error_
+    or_a_critical_finding` splits `NEW_TREES`.
     """
     note = FIXTURES / TREE_UNPLACED / "README.md"
     assert note.is_file()
@@ -1502,7 +1519,10 @@ def test_the_new_fixture_tree_declares_its_provenance_and_stays_advisory():
 
     findings = _fixture_findings(TREE_UNPLACED)
     assert findings, "a vacuous pass is not a pass"
-    assert {f.severity for f in findings} <= {WARNING, INFO}
+    titles = [f for f in findings if mbc.classify(f) == mbc.CLASS_TITLES]
+    others = [f for f in findings if f not in titles]
+    assert {f.severity for f in titles} == {ERROR}
+    assert {f.severity for f in others} <= {WARNING, INFO}
 
 
 # ============================================================================

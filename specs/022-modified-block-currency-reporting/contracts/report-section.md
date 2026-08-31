@@ -12,6 +12,13 @@ which is the class of defect the family this contract describes exists to catch.
 All four enumerations below carry the fifth class; the residual bullet is
 unchanged.
 
+**AMENDED 2026-08-31 by ruling (issue #357), on the discharge of the measured
+population.** The scenario-title-completeness bullet rendered `` `warning` ``
+through the arm's advisory launch; `_LAUNCH_SEVERITY` flipped to `error` and
+`FindingClass.band` — which the bullet renders verbatim — moved with it. The
+three worked-example lines and the bullet template below are corrected to
+`` `error` ``; every other class's band is unchanged.
+
 ## 1. The rendered subtotal block
 
 Rendered under `### modified-block-currency`, after any `FAMILY_NOTES` lines,
@@ -27,7 +34,7 @@ Finding classes, counted apart so the gate-bearing arm is never read as one of t
 **One bullet per class, in this order, verbatim except the counts:**
 
 ```text
-- scenario-title completeness: {n} (`warning` — the arm carrying this family's gate)
+- scenario-title completeness: {n} (`error` — the arm carrying this family's gate)
 - carriage ledger: {n} (`info` — editorial, and the arm says so in every finding)
 - title resolution and ordering: {n} (`warning`)
 - marker defects: {n} (`info`)
@@ -54,7 +61,7 @@ Measured with
 ### modified-block-currency
 
 Finding classes, counted apart so the gate-bearing arm is never read as one of the editorial rows:
-- scenario-title completeness: 0 (`warning` — the arm carrying this family's gate)
+- scenario-title completeness: 0 (`error` — the arm carrying this family's gate)
 - carriage ledger: 7 (`info` — editorial, and the arm says so in every finding)
 - title resolution and ordering: 0 (`warning`)
 - marker defects: 0 (`info`)
@@ -81,7 +88,7 @@ condition it reports. Over
 
 ```text
 Finding classes, counted apart so the gate-bearing arm is never read as one of the editorial rows:
-- scenario-title completeness: 1 (`warning` — the arm carrying this family's gate)
+- scenario-title completeness: 1 (`error` — the arm carrying this family's gate)
 - carriage ledger: 0 (`info` — editorial, and the arm says so in every finding)
 - title resolution and ordering: 0 (`warning`)
 - marker defects: 0 (`info`)
