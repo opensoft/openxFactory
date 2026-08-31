@@ -44,8 +44,8 @@ titles, 19 scenario bullets. THIRTY-THREE are restated BYTE-IDENTICAL. TWO are
 dropped, and both are declared by one `Removed from canon by` marker naming each
 as a code span: the body sentence asserting the absence, and the last bullet of
 "The class map grows the pattern the drift named", whose reason clause rests on
-it. Everything else the block adds is NEW text — three body paragraphs, one
-replacement bullet and one scenario — so the carriage ledger and the
+it. Everything else the block adds is NEW text — four body paragraphs, one
+replacement bullet and two scenarios — so the carriage ledger and the
 scenario-title arm report nothing against this delta, asserted in `tasks.md`
 § 4.2 rather than assumed.
 
@@ -414,32 +414,50 @@ alone, one string every arm and every class of this module shares, so neither
 this requirement nor any other can hold one class of the family out of it, and
 the finding this requirement defines is `contested` from that landing.
 
-**THE PROTECTION THE ABSENCE BOUGHT IS OWED STILL, AND IT IS NOW OWED BY THE ACT
-RATHER THAN BY THE TABLE.** A finding designed to stop being emitted as soon as
-the class map is extended SHALL NOT become an uncited-resolution error for
-having worked: the act that EXTENDS THE MAP — the first of the two remedies this
-requirement's own action line names — SHALL record, in the same act, the
-citation the uncited-resolution rule requires of a `contested` finding that
-stops being emitted. A citation recorded on the act that lands the remedy
-suppresses nothing, the finding having already been answered, and it SHALL NOT
-be recorded IN PLACE OF the map extension.
+**THE PROTECTION THE ABSENCE BOUGHT IS NOT ENDANGERED BY A MAP EXTENSION, AND
+NOTHING IS OWED FOR ONE.** What the absence was held for is that a finding
+designed to stop being emitted must never become an uncited-resolution `error`
+for having worked. Measured against the machinery rather than reasoned from the
+shape of the rule, a map extension cannot raise that error at all:
+`report.uncited_resolutions` keys a resolution on `(family, repository, path)` —
+`Finding.match_key()`, which reads neither rule text nor severity — and this
+finding is emitted with the FAMILY, REPOSITORY and PATH of the very finding it
+names, `_drift_findings` in `scripts/doc_health/modified_block_currency.py`
+constructing it from that finding's own `repo` and `path`. Extending the map
+changes what `classify` PLACES and nothing that an arm EMITS, so the finding
+this one named is still emitted, under that same key, on the next run. The key
+therefore never leaves the current report, the rule's own `in current` test
+skips it, and no error is raised. A protective clause that fires on no reachable
+state protects nothing, and stating it would misdescribe the mechanism it claims
+to guard.
 
-**AND THAT CITATION SHALL BE SCOPED SO THAT IT CANNOT OUTLIVE THE DISAPPEARANCE
-IT ANSWERS**, on the same terms this capability states for a disposition
-answering a pairing finding, and for the same mechanical reason: a disposition
-of this family is read BEFORE a block is resolved against canon and has no
-finding-class grain, so an entry left standing suppresses the three comparison
-arms over the path it names instead of answering a vanished drift finding. The
-entry SHALL name the requirement rather than the delta path alone, and SHALL be
-retired once the report that first omits the finding has been rendered, that
-report being the last one the entry can be read on.
+**AND AN ACT THAT EXTENDS THE CLASS MAP SHALL NOT RECORD A DISPOSITION FOR THE
+FINDING IT RECLASSIFIES.** Such an entry answers no disappearance; it causes
+one. This family's dispositions are read BEFORE a block is resolved against
+canon, at family, repository and path grain with an optional requirement
+narrowing and NEVER at finding-class grain, so an entry recorded over the delta
+path this finding carries suppresses the three comparison arms over that block —
+including the finding that SURVIVED the extension, the one the map has merely
+learned to name. **A MAP EXTENSION CLASSIFIES A DEFECT; IT DOES NOT FIX ONE.**
+Recording a disposition for it would hide a live finding on every report until
+the entry was retired — the exact failure the citation was imagined to prevent,
+reached by the instrument imagined to prevent it.
+
+**WHAT THE UNCITED-RESOLUTION RULE STILL REACHES IS UNCHANGED, AND IT IS NOT
+RESTATED HERE.** Where some OTHER act makes this family emit nothing at all at a
+`(repository, path)` the previous report carried — the block repaired, the delta
+withdrawn — that IS a disappearance under the key the rule reads, and this
+capability's promoted contested-finding rule applies to it on its own terms,
+this family being present in `FAMILY_RESOLUTION`. This requirement adds nothing
+to that rule and takes nothing from it. It records only that extending the class
+map is not such an act, and that treating it as one is itself the defect.
 
 This requirement adds no deterministic check family: the finding is emitted by
 the modified-block-currency family under its own id, and the enumeration and its
 numerals in the "Deterministic check families" requirement are untouched and
 unrestated.
 
-**Removed from canon by govern-sibling-added-modified-deltas (2026-08-31):** `` The family SHALL remain absent from `FAMILY_RESOLUTION`, so that a finding designed to stop being emitted as soon as the map is extended is never classified `contested` and its disappearance is never reported as an uncited resolution. ``; `` **AND** the disappearance MUST NOT be reported as an uncited resolution, the family being deliberately absent from `FAMILY_RESOLUTION` and its findings therefore never classified `contested` `` — the family joined the resolution table on 2026-08-31, at the landing PR #529 named above, so both units assert an absence that no longer holds; each is superseded in this same block, the sentence by the three paragraphs above and the bullet by the one that replaces it, and neither is dropped without replacement
+**Removed from canon by govern-sibling-added-modified-deltas (2026-08-31):** `` The family SHALL remain absent from `FAMILY_RESOLUTION`, so that a finding designed to stop being emitted as soon as the map is extended is never classified `contested` and its disappearance is never reported as an uncited resolution. ``; `` **AND** the disappearance MUST NOT be reported as an uncited resolution, the family being deliberately absent from `FAMILY_RESOLUTION` and its findings therefore never classified `contested` `` — the family joined the resolution table on 2026-08-31, at the landing PR #529 named above, so both units assert an absence that no longer holds; each is superseded in this same block, the sentence by the four paragraphs above and the bullet by the one that replaces it, and neither is dropped without replacement
 
 #### Scenario: Every finding the family emits is placed by its map
 - **WHEN** a run of the modified-block-currency family emits findings and the class map places every one of them
@@ -470,7 +488,12 @@ unrestated.
 #### Scenario: The class map grows the pattern the drift named
 - **WHEN** the class map is extended with a pattern that places the rule text the finding named, and the family is run again over the same tree
 - **THEN** the additional finding MUST NOT be emitted, and the residual row MUST NOT render
-- **AND** the disappearance MUST NOT be reported as an uncited resolution, and the act that extended the map MUST carry the citation that makes it so, the family being PRESENT in `FAMILY_RESOLUTION` and its findings therefore classified `contested`
+- **AND** the disappearance MUST NOT be reported as an uncited resolution, and no citation and no disposition MUST be recorded for it — the finding this one named being still emitted at the same `(family, repository, path)` the uncited-resolution rule keys on, so the key never leaves the current report and the rule never fires
+
+#### Scenario: The act that extends the class map records a disposition for the finding it reclassifies
+- **WHEN** an act extends the class map so that a drifted rule text is placed, and that same act records an entry in `health/dispositions.yaml` naming this family, the repository and the delta path the additional finding carried
+- **THEN** the entry MUST be refused, this requirement forbidding it: it answers no disappearance, the finding the additional one named still being emitted under the key the uncited-resolution rule reads
+- **AND** the entry MUST be read as suppressing rather than resolving — dispositions of this family being read before a block resolves and carrying no finding-class grain, it silences the three comparison arms over that block, and with them the surviving finding the extension only classified, on every run until it is retired
 
 #### Scenario: The family's resolution class is read from the table and not from this requirement
 - **WHEN** a reader asks whether a finding of this class is classified `contested`

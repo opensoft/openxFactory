@@ -444,8 +444,15 @@ Active changes:
   absent from `FAMILY_RESOLUTION`" (`:2088`) and rests a MUST on that absence
   (`:2126`), which `7f656980` (PR #529, 2026-08-31) falsified without amending
   any specification. The block supersedes both units under a `Removed from
-  canon by` marker, PRESERVES the protection they bought by re-seating it on the
-  act that extends the class map, and so regularizes #529 — canon catching up
+  canon by` marker and answers the protection they bought BY MEASUREMENT — a
+  map extension endangers it not at all, `report.uncited_resolutions` keying on
+  `(family, repository, path)` and the unplaced-class finding carrying the key
+  of the finding it NAMES, which survives the extension — so no citation is
+  owed for one and the extending act is instead FORBIDDEN to record a
+  disposition, which would suppress that survivor before the block resolves.
+  The pairing class's citation is untouched and load-bearing for the opposite
+  reason: its finding sits on a `pending` block whose arms never run, so its key
+  vanishes outright. So #529 is regularized — canon catching up
   with a row the code already carries, rather than a packet archiving beside a
   promoted sentence its own design contradicts. **THE 2026-08-27 RULING IS NOT
   REOPENED**: nothing compares requirement text, and no fourth comparison arm is

@@ -186,9 +186,15 @@ a veto would strike.
       — the `FAMILY_RESOLUTION`-absence sentence and the last bullet of "The
       class map grows the pattern the drift named". Measured with the family's
       own `suppression`: 2 units suppressed, 0 defective markers, 0 title and 0
-      ledger findings. Re-run BOTH at every catch-up merge; canon moving under
-      either block is exactly the defect the family exists to catch and this
-      packet is not exempt from it.
+      ledger findings — RE-DERIVED after the round-4 rewrite of the block's
+      operative text (the map-extension citation removed, the prohibition and
+      its scenario added): canon still 35 units, the block's own units 45 -> 56
+      (body 16 -> 23, scenario titles 7 -> 8, scenario bullets 22 -> 25), the
+      SAME two units missing and the SAME two suppressed by the SAME single
+      marker, 0 defective. All three arms still read zero, the rewrite having
+      touched only text canon does not carry. Re-run BOTH at every catch-up
+      merge; canon moving under either block is exactly the defect the family
+      exists to catch and this packet is not exempt from it.
       RE-RUN AT BOTH 2026-08-31 CATCH-UP MERGES, the second against `9af98c4d`:
       that merge moved nothing under either block — `openspec/specs/` is
       byte-identical between `7f656980` and `9af98c4d` — and canon still carries the
@@ -211,10 +217,19 @@ a veto would strike.
       "The family SHALL remain absent from `FAMILY_RESOLUTION`"
       (`openspec/specs/doc-health/spec.md:2088`) with a MUST resting on the
       absence at `:2126`. The `doc-health` MODIFIED block supersedes both units,
-      cites the landing, and PRESERVES their protective intent by re-seating it
-      on the act that extends the class map — grain and retirement on the
-      same terms § 6.4 states for a pairing citation. No code moves: the row and
-      `_LAUNCH_SEVERITY` stay where #529 put them.
+      cites the landing, and answers their protective intent BY MEASUREMENT
+      rather than by re-seating it: `report.uncited_resolutions` keys on
+      `(family, repository, path)` and `_drift_findings` builds the
+      unplaced-class finding from the repo and path of the finding it NAMES,
+      which survives a map extension under that same key — so the map extension
+      endangers the protection not at all and owes no citation. The block
+      instead FORBIDS the extending act to record a disposition, which
+      `promotion_fidelity.disposed` would apply before the block resolves and
+      which would hide the surviving finding. **NOT the pairing case**: a
+      pairing finding sits on a `pending` block whose arms do not run, so its
+      key vanishes outright when the marker lands (§ 6.4's grain and retirement
+      stand unchanged). No code moves: the row and `_LAUNCH_SEVERITY` stay where
+      #529 put them.
 - [ ] 4.6 THE THIRD `FAMILY_RESOLUTION` MENTION IS LEFT STANDING ON PURPOSE.
       Canon names the table three times. `:2088` and `:2126` are superseded
       (4.5); `:1726` is not, and the reason is in the promoted text: it sits

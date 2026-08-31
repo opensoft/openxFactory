@@ -202,10 +202,16 @@ respectively, so the ambiguity is not hypothetical.
   (`openspec/specs/doc-health/spec.md:2088`) with a scenario at `:2126` resting
   a MUST on that absence — an assertion `7f656980` (PR #529, 2026-08-31)
   falsified WITHOUT amending any specification. The block supersedes the absence
-  rule, PRESERVES the protection it bought by re-seating it on the act that
-  extends the class map, and thereby REGULARIZES #529: canon catches up with a
-  row the code already carries, rather than the contradiction being named and
-  left for a reader to arbitrate. Two units are dropped and both are declared by
+  rule and records, MEASURED, why the protection it bought is not endangered by
+  a map extension at all — `report.uncited_resolutions` keys a resolution on
+  `(family, repository, path)` and `_drift_findings` builds this finding from
+  the repository and path of the very finding it names, which SURVIVES the
+  extension under that same key — so no citation is owed for one. In its place
+  the block PROHIBITS the extending act from recording a disposition, an entry
+  that would answer no disappearance and would instead suppress the survivor.
+  It thereby REGULARIZES #529: canon catches up with a row the code already
+  carries, rather than the contradiction being named and left for a reader to
+  arbitrate. Two units are dropped and both are declared by
   a `Removed from canon by` marker; the other thirty-three are restated
   byte-identical.
 - **No `## MODIFIED Requirements` block on "Currency of an active change's
@@ -434,9 +440,10 @@ it — a posture that was defensible only while this packet had no stake in it.
 It has one: both classes it adds are `contested` BY that row, and its whole
 discharge design is built on the row being real. A packet cannot build on a fact
 its own capability's promoted text denies and then archive beside it. So the
-absence rule is superseded HERE, the protection it bought is preserved as an
-obligation on the act that extends the class map, and #529 is regularized by the
-successor rather than reverted. **The cost of THIS half of D2 is named
+absence rule is superseded HERE, the protection it bought is shown by
+measurement to survive a map extension with no obligation attaching to one — the
+extending act is instead FORBIDDEN to record a disposition — and #529 is
+regularized by the successor rather than reverted. **The cost of THIS half of D2 is named
 separately**: the packet takes on a carriage obligation it did not have —
 thirty-five promoted units, two of them dropped under a marker — and it is met
 and measured (§ Impact), not asserted.
@@ -550,12 +557,41 @@ discharge design rests on the row being real: both new classes are `contested`
 BY it, and a packet that builds on a fact its own capability's promoted text
 denies would archive two requirements into one specification that contradict
 each other. So the absence rule is SUPERSEDED by this packet's `doc-health`
-MODIFIED block (§ What Changes), which cites `7f656980` as the landing, keeps
-the protection the absence bought — a finding designed to stop being emitted
-must never become an uncited-resolution error for having worked — and re-seats
-it on the ACT that extends the class map, on the same grain-and-retirement terms
-the pairing class's citation carries. **That is #529 regularized rather than
-reverted**, and it is the successor doing what #529's own landing left owed.
+MODIFIED block (§ What Changes), which cites `7f656980` as the landing and then
+states what the protection the absence bought actually needs, measured rather
+than assumed.
+
+**AND THE TWO CASES ARE NOT ONE CASE — THAT IS THE CORRECTION AN EARLIER DRAFT
+OF THIS SECTION OWED.** That draft re-seated the absence's protection as a
+citation the map-extending act must record, on the pairing class's
+grain-and-retirement terms. It does not transfer, and the mechanism says why.
+`report.uncited_resolutions` keys a resolution on `(family, repository, path)`
+(`Finding.match_key()`), and `_drift_findings` constructs the unplaced-class
+finding from the `repo` and `path` of the finding it names. Extending the class
+map changes what `classify` places and nothing an arm emits, so that named
+finding is STILL EMITTED at the same key on the next run: the key never leaves
+the current report, the rule skips it, and the error the citation was meant to
+avert cannot arise. The requirement would have fired on no reachable state.
+Worse, obeying it would have been the defect — `promotion_fidelity.disposed` is
+consulted BEFORE a block resolves, at family/repository/path grain with no
+finding-class grain, so the entry would suppress the three comparison arms over
+that block and hide the SURVIVING finding on every report until retirement. A
+map extension CLASSIFIES a defect; it does not fix one. The block therefore
+records the measurement and PROHIBITS the disposition, with a scenario stating
+the prohibition so it can be falsified.
+
+**THE PAIRING CLASS'S CITATION IS UNAFFECTED, and it is load-bearing for the
+opposite mechanical reason.** A pairing finding is emitted over a block whose
+status is `pending`, and a pending block's three comparison arms do not run — so
+when the marker discharges the finding, NOTHING replaces it at that key. It is
+MEASURED above that none of the four pending delta paths carries another finding
+of this family, so all four keys would vanish outright. There the disappearance
+is real, the citation is genuinely owed, and its grain and retirement bound an
+entry that would otherwise silence the arms after the basis archives. One
+mechanism ends a key; the other never touches it. **That is #529 regularized
+rather than reverted**, and it is the successor doing what #529's own landing
+left owed.
+
 **The cost of the veto is named**: vetoing D4 means proposing a band flip onto
 four packets authored before the rule existed and, under the row as it stands,
 an `error` on the night each of them is corrected; vetoing the supersession
@@ -630,9 +666,10 @@ from a sibling's ADDED text. Nothing here compares requirement text.
 
 It does not claim to reverse #529 or to re-open the flip that landed with it.
 The `doc-health` MODIFIED block RECORDS that landing in canon and supersedes the
-one sentence and the one bullet it falsified, keeping the protection they bought
-by re-seating it on the act that extends the class map. The row stays exactly
-where #529 put it, and the severity `_LAUNCH_SEVERITY` moved to is untouched.
+one sentence and the one bullet it falsified, showing by measurement that the
+protection they bought is not endangered by a map extension and forbidding the
+extending act to record a disposition instead. The row stays exactly where #529
+put it, and the severity `_LAUNCH_SEVERITY` moved to is untouched.
 
 It does not claim to close #330's post-archive half, which stays open, or #318,
 whose gap this packet is once again sitting in.
