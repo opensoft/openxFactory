@@ -1,0 +1,136 @@
+schema_version: 1
+kind: openxfactory-signed-execution-chain-contract-schema
+name: xfactory_signed_execution_chain_conformance_declaration
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/conformance-declaration.schema.yaml"
+contract_id: signed-execution-chain-conformance-declaration
+contract_schema_version: 1
+title: Signed-execution-chain realization conformance declaration
+description: >-
+  Obligation by obligation, what a realization of this capability satisfies
+  fully, satisfies partially, and cannot satisfy — with the reason in each case
+  (add-signed-execution-chain, capability `signed-execution-chain`). The shape is
+  `add-trust-anchor`'s ratified DECLARED-SHORTFALL pattern, consumed rather than
+  re-invented: this family's obligations differ, the discipline does not.
+
+  AN UNDECLARED SHORTFALL IS NON-CONFORMANCE EVEN WHERE THE IDENTICAL SHORTFALL,
+  DECLARED, WOULD BE CONFORMANT. The declaration is therefore CLOSED over this
+  capability's NINE obligations: exactly nine entries, drawn from a closed
+  enumeration, each with a reason and its own `declared_at`. The canonical
+  validator checks coverage in BOTH directions — an obligation with no entry is
+  refused, and so is an entry naming an obligation this capability does not have —
+  because a declaration that can quietly omit an obligation is how a silent gap
+  gets recorded as conformance.
+
+  TWO RESIDUALS ARE STRUCTURAL AT THIS TRANCHE AND MAY NOT BE RECORDED AS
+  SATISFIED. SEC-R1's is that the pinned exercise record carries no field holding
+  the SIGNED digest value, so the record alone cannot prove the signed request
+  included `object_ref`; its durable repair is an additive optional field
+  belonging to `opensoft/openXwallet` as a named successor. SEC-R6's is suffix
+  truncation no party has yet observed, which tranche-three anchoring closes by
+  making a head externally witnessed. An entry for either that claims `satisfied`,
+  or that claims less and declares no residual, is REFUSED — this is the
+  requirement "the realization DECLARES that residual rather than claiming
+  coverage" made checkable rather than left in prose.
+
+  SEC-R9 IS THE OBLIGATION THIS CAPABILITY STATES ABOUT ITSELF. Until a named
+  validator that reads these records runs as a REQUIRED check on the repository
+  that holds them, every record this family defines confers and refuses NOTHING,
+  and the declaration says so in the present tense rather than asserting the
+  chain's properties. A merged workflow file is not that evidence; the live
+  ruleset state is.
+type: object
+required:
+  - schema_version
+  - kind
+  - declaration_id
+  - capability
+  - realization
+  - declared_at
+  - obligations
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [xfactory_signed_execution_chain_conformance_declaration]
+  declaration_id: {$ref: '#/$defs/identifier'}
+  capability:
+    const: signed-execution-chain
+  realization:
+    type: object
+    required: [realization_id, statement, reader_required_check]
+    additionalProperties: false
+    properties:
+      realization_id: {$ref: '#/$defs/identifier'}
+      statement: {type: string, minLength: 1, maxLength: 900}
+      reader_required_check:
+        # THE NAMED READER, AND WHETHER IT IS ACTUALLY REQUIRED. `check_name` is
+        # the literal status-check token; `is_required_in_ruleset` is the live
+        # ruleset fact, and `false` is a fact to record rather than a defect to
+        # hide. `ruleset_evidence_ref` is what a reader follows to the ruleset
+        # read itself — a merged workflow file is not evidence that a check is
+        # required.
+        type: object
+        required: [check_name, is_required_in_ruleset]
+        additionalProperties: false
+        properties:
+          check_name: {$ref: '#/$defs/identifier'}
+          validator_path: {type: string, minLength: 1, maxLength: 300}
+          is_required_in_ruleset: {type: boolean}
+          ruleset_ref: {type: string, maxLength: 300}
+          ruleset_evidence_ref: {type: string, maxLength: 300}
+  declared_at: {type: string, format: date-time}
+  obligations:
+    # Exactly the capability's nine obligations. minItems/maxItems are the first
+    # line of defence; the validator closes coverage in both directions, because
+    # uniqueItems cannot see that two entries name the same obligation with
+    # different reasons.
+    type: array
+    minItems: 9
+    maxItems: 9
+    uniqueItems: true
+    items:
+      type: object
+      required: [entry_id, obligation, satisfaction, reason, declared_at]
+      additionalProperties: false
+      properties:
+        entry_id: {$ref: '#/$defs/identifier'}
+        obligation:
+          type: string
+          enum: [SEC-R1, SEC-R2, SEC-R3, SEC-R4, SEC-R5, SEC-R6, SEC-R7, SEC-R8, SEC-R9]
+        obligation_statement: {type: string, maxLength: 600}
+        satisfaction:
+          type: string
+          enum: [satisfied, partial, cannot]
+        reason:
+          # Required for every satisfaction value, `satisfied` included: a reason
+          # on a satisfied obligation is what a consumer reads to see WHAT was
+          # satisfied and how.
+          type: string
+          minLength: 1
+          maxLength: 1600
+        declared_at:
+          # Per-entry, so a late declaration is visible as one.
+          type: string
+          format: date-time
+        declared_residual:
+          # The shortfall stated at its real strength, with the successor that
+          # closes it NAMED so the gap is visible rather than implied. Forbidden
+          # on a `satisfied` entry — a residual on a satisfied obligation is a
+          # contradiction, and the validator refuses it rather than reading past
+          # it.
+          type: object
+          required: [statement, closed_by]
+          additionalProperties: false
+          properties:
+            statement: {type: string, minLength: 1, maxLength: 1200}
+            closed_by: {type: string, minLength: 1, maxLength: 300}
+        evidence_ref: {type: string, maxLength: 300}
+        compensating_control: {type: string, maxLength: 900}
+  supersedes_declaration_ref: {$ref: '#/$defs/identifier'}
+  record_version: {type: integer, minimum: 1}
+  notes: {type: string, maxLength: 1400}
+$defs:
+  identifier:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/identifier"

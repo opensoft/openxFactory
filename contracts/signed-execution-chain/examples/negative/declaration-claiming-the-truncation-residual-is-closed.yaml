@@ -1,0 +1,157 @@
+# expected_failure: residual_not_declared
+# expected_failure_detail: SEC-R6
+# VIOLATES requirement 6's third scenario, applied to the realization itself.
+# The declaration records SEC-R6 as SATISFIED, which claims the log detects
+# deletion unconditionally.
+#
+# It does not. A store that deletes its newest leaves and presents an earlier
+# valid head shows a shorter log that verifies perfectly to a fresh reader, and
+# with anchors deferred to tranche three there is nothing at this tranche that
+# closes it. AN UNDECLARED SHORTFALL IS NON-CONFORMANCE EVEN WHERE THE IDENTICAL
+# SHORTFALL, DECLARED, WOULD BE CONFORMANT — which is `add-trust-anchor`'s
+# ratified rule applied to ourselves.
+schema_version: 1
+kind: xfactory_signed_execution_chain_conformance_declaration
+declaration_id: secd-openxfactory-0002
+capability: signed-execution-chain
+realization:
+  realization_id: sec-realization-openxfactory-tranche-one
+  statement: 'openxFactory''s own realization of tranche one: the four record kinds, the packaged
+    corpus, and scripts/validate-signed-execution-chain.py walking links 1-3 as the named
+    reader. It mints no chain, holds no key, defines no attestation identity (tranche two)
+    and places nothing on any chain (tranche three).'
+  reader_required_check:
+    check_name: signed-execution-chain-gate
+    validator_path: scripts/validate-signed-execution-chain.py
+    is_required_in_ruleset: false
+    ruleset_evidence_ref: openspec/changes/add-signed-execution-chain/tasks.md 4.5 - the outstanding
+      operator act; a merged workflow file is not evidence
+declared_at: '2026-08-30T11:00:00Z'
+obligations:
+- entry_id: sec-ob-r1
+  obligation: SEC-R1
+  obligation_statement: Ratification presents wallet-carried authority, proven by possession
+    and BOUND to the exact ratification.
+  satisfaction: partial
+  reason: The presentation is expressed entirely in the shipped `openxwallet` vocabulary and
+    referenced by identifier; the reader refuses a missing proof, a failed verification and
+    a revoked authority under their own names, and it enforces both scope restrictions this
+    capability imposes - `object_ref` PRESENT and equal to the ratification's CONTENT digest,
+    and `proof_of_possession.signed_over` equal to `request_digest`. What it cannot establish
+    is the step from `the record names this ratification` to `the signature covers this ratification`.
+  declared_at: '2026-08-30T11:00:00Z'
+  declared_residual:
+    statement: '`signed_over` is an ENUM SELECTOR: it names WHAT the signature covered and
+      the pinned schema carries no field holding the signed digest VALUE. So the record alone
+      cannot prove the signed request included `object_ref`. The digest comparison is enforceable
+      today and is enforced; the binding beyond it is NOT asserted.'
+    closed_by: an additive OPTIONAL signed-subject-digest field on `xfactory_wallet_grant_exercise`,
+      belonging to opensoft/openXwallet as a NAMED SUCCESSOR. Defining it here would mint
+      the second proof vocabulary this capability exists not to invent.
+- entry_id: sec-ob-r2
+  obligation: SEC-R2
+  obligation_statement: The actor a chain records is bound to the wallet that signed.
+  satisfaction: satisfied
+  reason: Check 6 of the gate walk. The actor block sits INSIDE `signed_ratification`, so
+    the binding cannot be attached after the signature; an actor carrying no wallet attestation
+    is unrepresentable by shape rather than refused by a rule; the attestation's wallet must
+    be the wallet whose declared key made the exercise; and resolving the actor THROUGH the
+    wallet is refused by name, in the direction the pinned `openxwallet-subject-attestation`
+    fixes by closing `resolution.resolved_by` to `subject_ref`.
+  declared_at: '2026-08-30T11:00:00Z'
+- entry_id: sec-ob-r3
+  obligation: SEC-R3
+  obligation_statement: Ratification and chain inception are one signed act.
+  satisfaction: satisfied
+  reason: 'The chain identity is the digest of the signed ratification, so inception IS the
+    ratification rather than a second act performed after it. A ratification leaf whose act
+    was never inscribed is refused as a half-state; a chain identity resolving to no signed
+    ratification is refused as a fraud signal; the per-act value is named rather than minted
+    and its REUSE is refused, which the pinned schema does not constrain; and the out-of-pipeline
+    ground is cited in the record rather than asserted. Chain inception is not 025 FR-008''s
+    candidate-class enrollment: no envelope, no candidate class, no ruleset, no verdict.'
+  declared_at: '2026-08-30T11:00:00Z'
+- entry_id: sec-ob-r4
+  obligation: SEC-R4
+  obligation_statement: One digest construction governs every digest this capability computes.
+  satisfaction: satisfied
+  reason: '`xfc-jcs-sha256-1` is declared ONCE, in `digest-construction.schema.yaml`, and
+    every record shape takes the digest shape from it by `$ref` rather than restating it.
+    Every digest is algorithm-tagged and NAMES its subject; an untagged digest and a digest
+    naming no subject are both refused; and a record equating the content digest with the
+    chain identity is refused by name, because the signed bytes are a strict superset of the
+    ratified subject and the equation would reject every conforming chain.'
+  declared_at: '2026-08-30T11:00:00Z'
+- entry_id: sec-ob-r5
+  obligation: SEC-R5
+  obligation_statement: The signed ratification travels with the work.
+  satisfaction: satisfied
+  reason: 'The traveling contract carries the chain identity, the reference to the presentation
+    that proved link 1, the digest of the leaf that recorded inception, AND the signed ratification
+    itself, so a checker that can resolve no registry recomputes the chain identity from the
+    artifact alone. That establishes internal consistency ONLY: the reader still refuses a
+    chain whose leaf it cannot reach, and an unresolvable external lookup never converts into
+    permission.'
+  declared_at: '2026-08-30T11:00:00Z'
+- entry_id: sec-ob-r6-overclaimed
+  obligation: SEC-R6
+  obligation_statement: The signed transparency log is the record.
+  satisfaction: satisfied
+  reason: 'The log is realized as a HASH-LINKED SIGNED LEAF SEQUENCE on the RFC-6962 / Rekor
+    pattern, and the realization says which form it took rather than leaving a reader to assume
+    a Merkle tree: every leaf carries its index, the tree size it completes, its predecessor''s
+    digest, its own digest and its own signature, and the newest leaf IS the head. An act
+    with no leaf is refused as UNPROVEN, and a broken link is refused as a fraud signal rather
+    than a corrupted file. TWO BOUNDS ARE RECORDED RATHER THAN GLOSSED. First, the reader
+    VERIFIES a leaf signature only where the leaf''s key resolves to a key a carried wallet
+    declares; a store signing identity, which this tranche defines no custody for and no record
+    of, is reported UNVERIFIED rather than treated as a pass, and detection at this tranche
+    rests on the hash link and on the traveling contract''s carried leaf digest - which is
+    exactly the strength the requirement claims. Second, the residual below. No anchor, witness,
+    commitment or inclusion receipt is claimed or represented: their absence at this tranche
+    is NOT a defect.'
+  declared_at: '2026-08-30T11:00:00Z'
+- entry_id: sec-ob-r7
+  obligation: SEC-R7
+  obligation_statement: A gate validates the short chain as a hash-linked chain.
+  satisfaction: satisfied
+  reason: 'The reader walks all EIGHT ordered checks over links 1-3 and validates CONTINUITY
+    rather than the presence of signatures: artifacts drawn from different executions do not
+    assemble, a missing link is a refusal and never a warning, and a chain that cannot be
+    EVALUATED - an unverifiable algorithm, an unresolvable key - is refused rather than passed.
+    Checks 2 and 3 are kept apart, over their two different subjects, and a gate implementing
+    the identity check with the content digest is refused. The scope is links 1-3 and the
+    absence of a later tranche''s link is not reported as a break. A recorded verdict is held
+    to this same walk, so a leaf claiming `permitted` over a chain the walk refuses is itself
+    a refusal.'
+  declared_at: '2026-08-30T11:00:00Z'
+- entry_id: sec-ob-r8
+  obligation: SEC-R8
+  obligation_statement: Ratifying authority is human-held.
+  satisfaction: satisfied
+  reason: 'The reader refuses a ratifying wallet whose holder class is not a named human,
+    and the refusal NAMES the holder class rather than the missing signature - so an agent-held
+    wallet that signs and attests itself honestly is refused on eligibility, not on attribution.
+    The scope is Brett Heap''s Narrowing A ruling of 2026-08-29: tier 1 is RATIFYING authority,
+    so agent-held REVIEW wallets stay lawful and the realized wal-agent-mrc-0001 is untouched.
+    No attestation identity of any kind is created here.'
+  declared_at: '2026-08-30T11:00:00Z'
+- entry_id: sec-ob-r9
+  obligation: SEC-R9
+  obligation_statement: The capability confers and refuses nothing until a named reader runs
+    as a required check.
+  satisfaction: partial
+  reason: 'The named reader EXISTS and RUNS: scripts/validate-signed-execution-chain.py, wired
+    as the `signed-execution-chain-gate` job on every pull request to main. It is NOT yet
+    required in the branch ruleset, so this capability confers and refuses NOTHING today and
+    its records are documentation that governs nothing. That is stated in the present tense
+    rather than asserted away, and no statement of this realization describes a rule inside
+    the validator as though the description were the enforcement.'
+  declared_at: '2026-08-30T11:00:00Z'
+  declared_residual:
+    statement: A MERGED WORKFLOW FILE IS NOT EVIDENCE THAT A CHECK IS REQUIRED. Until a live
+      ruleset read names `signed-execution-chain-gate` as required, a refusal this reader
+      returns can be merged past, and the requirement is UNMET rather than partially met.
+    closed_by: tasks.md 4.5 and 4.6 - the operator act that makes the check required, evidenced
+      by a live ruleset read and a deliberately broken chain failing a real pull request,
+      on the shape add-wallet-carried-review-authority tasks 2.5/2.6 proved for `wallet-validation`.

@@ -1,0 +1,94 @@
+schema_version: 1
+kind: openxfactory-signed-execution-chain-contract-schema
+name: xfactory_signed_execution_chain_digest_construction
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml"
+contract_id: signed-execution-chain-digest-construction
+contract_schema_version: 1
+title: The one digest construction in force for signed-execution-chain
+description: >-
+  THE CONSTRUCTION IS DECLARED HERE, ONCE, AND NOWHERE ELSE
+  (add-signed-execution-chain, capability `signed-execution-chain`, requirement
+  "One digest construction governs every digest this capability computes"). This
+  file declares NO RECORD KIND: it is the shared definition every record shape in
+  the family takes by `$ref`, so that the family cannot grow a second construction
+  rule beside the first — which is exactly how the defect this requirement exists
+  to close appeared twice in the packet's ancestry, once for the chain identity
+  and once for the predecessor digest.
+
+  THE CONSTRUCTION — `xfc-jcs-sha256-1`, three parts, none of them optional:
+
+  1. SERIALIZATION. RFC 8785 JSON Canonicalization Scheme (JCS) over the digest
+     SUBJECT: object members sorted by the UTF-16 code-unit order of their names,
+     no insignificant whitespace, JSON string escaping restricted to the shortest
+     legal form, output as UTF-8.
+  2. ADMITTED VALUE CLASSES — object, array, string, INTEGER, boolean, null. A
+     non-integer number is REFUSED rather than serialized. This family declares
+     none, and ES6 number serialization is the one part of JCS a second
+     implementation reliably gets wrong; refusing what the family does not use is
+     the honest bound, and a silent second answer on a value nobody writes is not.
+  3. ALGORITHM AND ENCODING. SHA-256 over those bytes, rendered as `sha256:`
+     followed by 64 lowercase hexadecimal characters. Every digest is
+     ALGORITHM-TAGGED, so a later migration is a readable change rather than a
+     silent reinterpretation, and an untagged digest is refused.
+
+  ONE CONSTRUCTION, DISTINCT SUBJECTS, AND THE DISTINCTION IS LOAD-BEARING. What
+  each digest is taken OVER is not shared, so every digest NAMES its subject:
+
+  * `ratified_subject` — the subject being ratified. This is the CONTENT DIGEST,
+    and it is what an exercise's `object_ref` carries. It is computable before any
+    signature exists.
+  * `signed_ratification` — the exact block the ratifying signature covers. This
+    is the CHAIN IDENTITY, and it is a strict SUPERSET of the ratified subject,
+    since the signed bytes also carry the presentation reference, the per-act
+    value and the actor binding.
+  * `transparency_log_leaf` — a leaf's content, which is the leaf record with its
+    own `leaf_digest` and `leaf_signature` removed.
+  * `traveling_contract` — a traveling-contract record, for the log leaf that
+    records its issuance.
+  * `gate_verdict` — the verdict block a gate leaf carries.
+
+  THE CONTENT DIGEST AND THE CHAIN IDENTITY MUST NOT BE EQUATED. Doing so rejects
+  every conforming chain, and it is unbuildable in the other direction as well:
+  an exercise's `object_ref` would then have to commit to a signature not yet
+  made, and no implementation could construct the record.
+
+  A LATER TRANCHE ADDS NO SECOND RULE. Any digest a later tranche introduces is
+  computed under this construction, with its subject added to the enumeration
+  below; a second construction declared beside this one is a defect whatever it
+  is called.
+type: object
+$defs:
+  identifier:
+    type: string
+    minLength: 1
+    maxLength: 200
+    pattern: '^[A-Za-z0-9][A-Za-z0-9._:/-]*$'
+  construction_name:
+    type: string
+    const: xfc-jcs-sha256-1
+  digest_subject:
+    type: string
+    enum:
+      - ratified_subject
+      - signed_ratification
+      - transparency_log_leaf
+      - traveling_contract
+      - gate_verdict
+  digest:
+    type: object
+    required: [construction, subject, value]
+    additionalProperties: false
+    properties:
+      construction: {$ref: '#/$defs/construction_name'}
+      subject: {$ref: '#/$defs/digest_subject'}
+      value:
+        type: string
+        pattern: '^sha256:[0-9a-f]{64}$'
+  chain_ref:
+    # A REFERENCE to a chain, not a digest declaration: the chain identity's
+    # subject is named where the digest is COMPUTED, and a record that merely
+    # points at a chain carries the tagged value in the shipped identifier grammar
+    # so the pointer is recomputable and comparable rather than nominal.
+    type: string
+    pattern: '^sha256:[0-9a-f]{64}$'

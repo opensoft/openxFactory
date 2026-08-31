@@ -1,0 +1,128 @@
+# THE SHORT-CHAIN GATE — a RUNNING check, not a described one.
+#
+# `add-signed-execution-chain` (ratified 2026-08-29) requires that the
+# chain-validating gate exists FROM TRANCHE ONE, validating a SHORT chain, "so
+# the refusal path is exercised from the start rather than first tested when it
+# matters most" (Brett Heap's Q4 ruling). This workflow is that gate: it runs
+# `scripts/validate-signed-execution-chain.py`, which walks links 1-3 over every
+# chain record in the tree and self-tests the packaged corpus first.
+#
+# THIS WORKFLOW IS NOT EVIDENCE THAT THE CHECK IS REQUIRED, and the capability's
+# own ninth requirement says so: until `signed-execution-chain-gate` is REQUIRED
+# in the branch ruleset, every record this family defines confers and refuses
+# NOTHING. Making it required is `tasks.md` 4.5 — an OPERATOR act whose evidence
+# is a live ruleset read, on exactly the shape
+# `add-wallet-carried-review-authority` tasks 2.5/2.6 proved for
+# `wallet-validation` (org ruleset 21538893). Merging this file changes nothing
+# about that.
+#
+# THE JOB CARRIES NO DISPLAY NAME ON PURPOSE: the status check must surface as
+# exactly `signed-execution-chain-gate`, the literal token a branch ruleset would
+# pin. A distinct job display name silently de-advises the gate — the same rule
+# `openxwallet-consumer-gate.yml` and `pytest-suite.yml` each document for
+# themselves.
+#
+# WHY THE openXwallet GITLINK IS INITIALIZED HERE. Link 1's instrument is the
+# SHIPPED `xfactory_wallet_grant_exercise`, carried inside the signed
+# ratification, and the reader validates every carried block against the PINNED
+# schema rather than against a local restatement of it. Without the gitlink the
+# reader falls back to the members this capability restricts and says so — which
+# would be a check quietly validating less than it claims. `--require-pinned-wallet-vocabulary`
+# turns that fallback into a REFUSAL, so this gate cannot pass vacuously.
+#
+# WHY NO `--strict`. The reader emits a standing WARNING for as long as it is not
+# itself a required check, and a second one for any leaf signed by a key no
+# carried wallet declares. Both are FACTS this realization declares rather than
+# defects, and `--strict` would convert the capability's own honest self-report
+# into a red gate that could never go green. Errors fail the step; warnings are
+# printed and read.
+name: signed-execution-chain-gate
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  signed-execution-chain-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      # The house guard (`doc-health-reusable.yml`, `openxwallet-consumer-gate.yml`).
+      # If the App key is absent the mint is SKIPPED rather than erroring on an
+      # empty app-id, the token expression falls back, and the scoped init then
+      # fails on the PRIVATE nested repository — a red gate with a legible cause.
+      # Falling back is not a pass: without the pinned vocabulary the carried
+      # blocks cannot be held to the shapes that own them, and this gate refuses
+      # rather than proceeding on a reader that checks less than it says.
+      HAS_APP_KEY: ${{ secrets.OPENXFACTORY_APP_PRIVATE_KEY != '' }}
+    steps:
+      - name: Mint openxFactory app token
+        id: app-token
+        if: env.HAS_APP_KEY == 'true'
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.OPENXFACTORY_APP_ID }}
+          private-key: ${{ secrets.OPENXFACTORY_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
+      - name: Rewrite ssh submodule URLs for token auth
+        run: |
+          git config --global url."https://x-access-token:${TOKEN}@github.com/".insteadOf "git@github.com:"
+        env:
+          TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+
+      - uses: actions/checkout@v4
+
+      # SCOPED, not `--recursive`: a blanket init would also fetch
+      # `installs/omnigent-install`, which nothing in this gate reads.
+      - name: Init the openXwallet gitlink only
+        run: git submodule update --init openXwallet
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install pyyaml jsonschema rfc3339-validator
+
+      # FIRST, before anything pinned is trusted — the same ordering
+      # `openxwallet-consumer-gate.yml` uses. A carved-out copy validated against
+      # an unverified pin is a check against bytes nobody vouched for.
+      - name: Verify the openXwallet pin
+        run: python3 scripts/verify-openxwallet-pin.py
+
+      - name: Walk the short chain over this tree
+        shell: bash
+        run: |
+          python3 scripts/validate-signed-execution-chain.py . \
+            --require-pinned-wallet-vocabulary | tee chain-gate.log
+
+      # THE ASSERTION IS POSITIVE, and it needs no edit to the reader. On the
+      # happy path the reader emits no finding, so the proof that it actually
+      # WALKED anything is the conjunction of the notes it DOES produce: the
+      # pinned vocabulary was read (so carried blocks were held to the shipped
+      # shapes), the packaged corpus was adjudicated as one coherent scope with
+      # every closed refusal code red-proven, and the whole-tree sweep ran. A
+      # green check that proves nothing was walked is a vacuous pass, which is
+      # the class of defect this step exists to close.
+      - name: Assert the gate actually walked something
+        shell: bash
+        run: |
+          set -euo pipefail
+          fail() { echo "::error::$1"; exit 1; }
+          grep -qE '^note  pinned openXwallet vocabulary read from ' chain-gate.log \
+            || fail "the gate log carries no 'pinned openXwallet vocabulary read' note — the carried exercise, wallet and attestation blocks were not held to the shipped shapes"
+          grep -qE '^note  self-test: [0-9]+ packaged record\(s\) validated' chain-gate.log \
+            || fail "the gate log carries no self-test note — the packaged corpus was not adjudicated, so no refusal was exercised"
+          grep -qE '[0-9]+/[0-9]+ closed refusal codes red-proven' chain-gate.log \
+            || fail "the gate log does not report the red-proven refusal count — a reader whose refusals are never provoked is a reader nobody has seen refuse"
+          grep -qE '^note  repo scan \(.*\): [0-9]+ artifact\(s\) checked' chain-gate.log \
+            || fail "the gate log carries no 'repo scan:' note — the whole-tree sweep did not run, so no real chain record was adjudicated"
+          ! grep -qE '^ERROR \[' chain-gate.log \
+            || fail "the gate log carries a refusal; see the reader output above"

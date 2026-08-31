@@ -1,11 +1,21 @@
 # Tasks: add-signed-execution-chain (tranche one)
 
 Governance-level and dependency-ordered. **This change is RATIFIED (2026-08-29,
-Brett Heap — `review/ratification-2026-08-29.md`) and is NOT being implemented
-now.** §1 was authored in the pull request; **§2 is Brett's ratification act and
-is DISCHARGED**; §3 onward are for the implementer and belong to a single
-Speckit contract feature. Do not duplicate the executable contract list
-here — §5 hands it off.
+Brett Heap — `review/ratification-2026-08-29.md`) and its code surface is now
+REALIZED.** §1 was authored in the pull request; **§2 is Brett's ratification act
+and is DISCHARGED**; **§3 and §4 are realized in the pull request that carries
+this edit**, except the three boxes that are not this author's to close —
+4.5 is an OPERATOR act, 4.6 depends on it, and 4.7 rides a bundle cut whose
+number is allocated by merge order. §5 names the successors and is not drafted.
+
+**WHAT "RATIFICATION PERFORMS NO REALIZATION" MEANT, AND STILL MEANS.** That
+sentence is about the RATIFYING ACT and it is untouched: `proposal.md`,
+`.openspec.yaml` and the ratification record all say it, they were true when
+written, and they are true now. What changed is that the later commission they
+named has been carried out — in a separate pull request, by a separate act,
+against the packet as ratified. The distinction is worth keeping because
+collapsing it would make the ratification look like the thing that built the
+family.
 
 **THE CLARIFY ROUND THIS FILE USED TO CARRY AS §2 IS DISCHARGED, NOT DROPPED.**
 Brett Heap ruled all seven of the staged topic's questions on 2026-08-29 (#499,
@@ -132,45 +142,128 @@ Both are contract content, cheap now and expensive after a bundle ships. The
 `openxwallet` custody enumeration is the standing precedent for how quietly a
 wrong set re-opens the hole the rule was written to close.
 
-- [ ] 3.1 Fix the **chain-identity digest** — algorithm, and the exact byte
-      range of the signed ratification it covers. A chain identity whose
-      derivation is ambiguous cannot be validated for continuity, which is the
-      whole of the gate's job.
-- [ ] 3.2 Fix the **leaf grammar** — what a transparency-log leaf carries, how
-      leaves hash-link, and what a verifier reads to detect an edit. Chosen
-      against RFC-6962 / Rekor rather than invented, per the vendored study.
-- [ ] 3.3 Decide the **log's home** — the register precedent (a
-      repository-tracked file whose READER is the shape) or a governed store
-      outside the tree. `design.md` deliberately leaves this open; it must not
-      reach schema authoring open.
+- [x] 3.1 **FIXED as `xfc-jcs-sha256-1`**, declared once in
+      `contracts/signed-execution-chain/digest-construction.schema.yaml` and
+      taken by `$ref` everywhere else, so the family cannot grow a second
+      construction rule beside the first. RFC 8785 JSON Canonicalization Scheme
+      over the digest subject, SHA-256, rendered `sha256:` + 64 lowercase hex,
+      and BOUNDED rather than half-implemented: object, array, string, INTEGER,
+      boolean and null are admitted and a non-integer number is REFUSED, because
+      ECMAScript number serialization is the one part of JCS a second
+      implementation reliably gets wrong and a digest two readers compute
+      differently is worse than a digest one of them refuses. **THE EXACT BYTE
+      RANGE is the `signed_ratification` block** — the block the ratifying
+      signature covers, and nothing outside it; the signature sits beside that
+      block, not inside it. Pinned by the RFC's own worked example in
+      `tests/signed_execution_chain/test_digest_construction.py`, including the
+      UTF-16 code-unit ordering that disagrees with code-point ordering above
+      the BMP.
+- [x] 3.2 **FIXED against RFC 6962 / Rekor as a HASH-LINKED SIGNED LEAF
+      SEQUENCE**, and the realization says which form it took rather than
+      leaving a reader to assume a Merkle tree. A leaf carries its `leaf_index`,
+      the `tree_size` it completes, its predecessor's digest, its own digest
+      (over the leaf content — the record with `leaf_digest` and
+      `leaf_signature` removed) and its own signature. **THE HEAD IS THE NEWEST
+      LEAF**, so no separate tree-head record exists or is needed, and a
+      consistency proof against an observed head is the re-derivation of the
+      link chain from that leaf forward. What a verifier reads to detect an edit
+      is the link chain; what it CANNOT detect — suffix truncation nobody has
+      observed — is DECLARED in the conformance declaration's SEC-R6 entry with
+      tranche-three anchoring named as what closes it.
+- [x] 3.3 **DECIDED: the register precedent, in this repository** — a tracked
+      file whose READER is the shape, on
+      `governance/review-authority/register.yaml`'s footing. The decision is
+      FORCED rather than preferred: requirement 9 requires the named validator to
+      run as a required check ON THE REPOSITORY THAT HOLDS THE RECORDS, and
+      requirement 5 requires a point-of-use checker to establish a traveling
+      contract's consistency with NO LIVE SERVICE in reach. A governed store
+      outside the tree satisfies neither. **No live log instance exists yet and
+      the realization says so** — inception is a human act with a wallet-held
+      key, this realization mints no chain, and the reader's repo-scan note
+      reports the empty sweep rather than passing over it in silence.
 
 ## 4. Realization — ONE Speckit contract feature
 
-- [ ] 4.1 `contracts/signed-execution-chain/` — the chain-inception record, the
-      traveling-contract artifact, the transparency-log leaf, and the
-      realization conformance declaration on `trust-anchor`'s declared-shortfall
-      pattern.
-- [ ] 4.2 Packaged POSITIVE and NEGATIVE examples for every named refusal:
-      missing proof, failed verification, revoked-at-exercise, orphan chain
-      identity, digest mismatch on the traveling contract, mix-and-match
-      continuity, missing link, unevaluable chain, machine holder as ratifying
-      authority.
-- [ ] 4.3 `scripts/validate-signed-execution-chain.py` — the canonical
-      validator, refusing each negative example by name.
-- [ ] 4.4 The short-chain GATE as a running pull-request check, not a described
-      one.
-- [ ] 4.5 **[OPERATOR]** Make the check REQUIRED in the branch ruleset. A merged
-      workflow file is NOT evidence; the evidence is the live ruleset state, as
-      `add-wallet-carried-review-authority` task 2.5 established (org ruleset
-      **21538893** for `wallet-validation`).
-- [ ] 4.6 **Gate:** a deliberately broken chain FAILS a real pull request, and
-      the evidence records the run id, the check id, the validator's single
-      named refusal, and the live ruleset read showing the check required —
-      the shape task 2.6 of that change proved on canary PR #387.
-- [ ] 4.7 Registration in `contracts/manifest.yaml` and
-      `contracts/CHANGELOG.md`, and the additive bundle cut, with
-      `release-surface-integrity`'s verify-commit green from an independent
-      clone.
+- [x] 4.1 **BUILT** — `contracts/signed-execution-chain/` carries the FOUR
+      record kinds `code_surface` names (`chain-inception.schema.yaml`,
+      `traveling-contract.schema.yaml`, `transparency-log-leaf.schema.yaml`,
+      `conformance-declaration.schema.yaml`) plus the definitions-only
+      `digest-construction.schema.yaml`, which declares NO record kind and
+      exists so 3.1's construction lives in one place. The declaration is
+      `trust-anchor`'s declared-shortfall pattern with this family's nine
+      obligations (SEC-R1..SEC-R9), closed in both directions, and the two
+      residuals that are STRUCTURAL at this tranche — SEC-R1's missing signed
+      digest value and SEC-R6's unobserved suffix truncation — are refused the
+      word `satisfied` by the reader rather than left to an author's care.
+      **NO SECOND VOCABULARY**: the presentation is the shipped
+      `xfactory_wallet_grant_exercise` and the signing wallet the shipped
+      `xfactory_wallet_record`, carried verbatim inside the signed bytes and
+      validated against the PINNED schemas through the `openXwallet/` gitlink;
+      the actor is `identity-brokering`'s `actor_subject_reference` carrying an
+      `xfactory_wallet_subject_attestation`.
+- [x] 4.2 **PACKAGED — 7 positives composing ONE whole chain, and 26 negatives.**
+      All nine named refusals have a probe, and so does every other refusal this
+      reader can emit: the enumeration is 24 codes and the self-test REFUSES A
+      CODE WITH NO PROBE, so a refusal nobody has seen work cannot ship. Two
+      further obligations are refused BY SHAPE instead, because unrepresentable
+      is stronger than refused — an actor carrying no wallet attestation, and an
+      actor binding outside the signed bytes. A negative is evaluated IN THE
+      POSITIVE CORPUS'S SCOPE, because a refusal of a CHAIN is a property of a
+      SET of records and a fixture adjudicated alone could not express one.
+- [x] 4.3 **BUILT** — `scripts/validate-signed-execution-chain.py`, the NAMED
+      READER, walking all EIGHT ordered checks over links 1-3 plus the four
+      scope rules the gate cannot see (atomicity, per-act uniqueness, the log's
+      append-only property, the declaration). It verifies the ratifying
+      signature rather than reading a claim about it — `ed25519` per RFC 8032,
+      pinned by that RFC's published vectors and their mutations — and refuses
+      `ecdsa-p256` and `ecdsa-secp256k1` as UNEVALUABLE rather than accepting a
+      signature it did not check.
+- [x] 4.4 **RUNNING** — `.github/workflows/signed-execution-chain-gate.yml`, job
+      id `signed-execution-chain-gate` (no display name, so the check surfaces
+      as the token a ruleset would pin). It verifies the openXwallet pin BEFORE
+      trusting it, walks the whole tree with
+      `--require-pinned-wallet-vocabulary` so an unreachable pin REFUSES instead
+      of silently checking less, and asserts POSITIVELY that the walk happened —
+      a green check that proves nothing was walked is the vacuous pass this
+      repository has already had to close once. The invocation is pinned by
+      `tests/signed_execution_chain/test_gate_wiring.py` inside the required
+      `pytest-suite` job, because a comment in a workflow protects nothing.
+- [ ] 4.5 **[OPERATOR] — DELIBERATELY OPEN, and it is the one box that decides
+      whether any of the rest confers anything.** Make the check REQUIRED in the
+      branch ruleset. A merged workflow file is NOT evidence; the evidence is
+      the live ruleset state, as `add-wallet-carried-review-authority` task 2.5
+      established (org ruleset **21538893** for `wallet-validation`). Until it
+      is done, requirement 9 is UNMET rather than partially met, and the
+      packaged conformance declaration records
+      `is_required_in_ruleset: false` while the reader emits a standing
+      `reader-not-required` warning on every run. Neither is decoration: a test
+      refuses a declaration that records SEC-R9 `satisfied` while the reader is
+      unrequired.
+- [ ] 4.6 **Gate — BLOCKED ON 4.5 BY CONSTRUCTION, not by effort.** A
+      deliberately broken chain FAILS a real pull request, and the evidence
+      records the run id, the check id, the validator's single named refusal,
+      and the live ruleset read showing the check required — the shape task 2.6
+      of that change proved on canary PR #387. The first three halves are
+      producible today; the fourth cannot be read until 4.5 is performed, and a
+      box closed on three of four conjuncts would be the closure-on-intention
+      this family refuses.
+- [ ] 4.7 **CUT-DEPENDENT, and left to the cutting session on purpose.**
+      Registration in `contracts/manifest.yaml` and `contracts/CHANGELOG.md`,
+      and the additive bundle cut, with `release-surface-integrity`'s
+      verify-commit green from an independent clone. **THE NUMBER IS
+      RE-COUNTED, AS 2.2 REQUIRED, AND `contract-v2.3` IS SPENT**: at this
+      branch's tip `contracts/manifest.yaml:3` declares `contract-v2.3` and
+      `contracts/releases/contract-v2.3.digests.yaml` is a cut inventory in the
+      tree, so the next additive number is **`contract-v2.4`** — which
+      `add-binding-consumer-identity`'s realization (#516, `5e8a33cf`) also owes
+      and has not yet performed. Per `docs/contract-versioning-policy.md`
+      several changes may ride ONE additive cut, so this family and #516's
+      schema move can land in the same `contract-v2.4`; if #516 cuts alone
+      first, this one re-counts again rather than reserving a number. **A
+      PROPOSED CHANGE MUST NOT RESERVE A MINOR NUMBER BEFORE MERGE ORDER IS
+      KNOWN**, which is why this realization registers nothing and bumps
+      nothing: the manifest and changelog update is committed atomically WITH
+      the cut, and the tag points at that commit.
 
 ## 5. Successors — NAMED, NOT DRAFTED
 
