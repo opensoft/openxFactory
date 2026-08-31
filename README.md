@@ -109,6 +109,15 @@ Core domain-neutral docs:
 - [Intake Subtype Second-Pass Gap Report](docs/intake-subtype-second-pass-gap-report.md)
 - [Domain Pre-Run Simulation Report](docs/domain-pre-run-simulation-report.md)
 - [Domain Repo Review Improvements](docs/domain-repo-review-improvements.md)
+- [Governed Re-Issuance Runbook](docs/governed-reissuance-runbook.md)
+  (a provider alias roll or composition bump as one governed act: the six
+  declared components, the one-commit-set bump, R9's park-with-a-named-refusal
+  in-flight behavior, R8's five-field re-issuance record as a MINIMUM, the
+  human-only register act as a pointer, and provider-roll recovery. Written
+  for `add-wallet-carried-review-authority` task 7.6 against
+  [`rulings-2026-08-29.md`](openspec/changes/add-wallet-carried-review-authority/rulings-2026-08-29.md)
+  R8/R9; `Status: draft`, because neither ruling is enforced until the change
+  carrying R6–R12 is ratified and task 7.6 stays OPEN by its own text)
 - [Document Lifecycle](docs/document-lifecycle.md)
 - [Release Realization Flow](docs/release-realization-flow.md)
 - [Doc-Health Contract](docs/doc-health.md)
