@@ -1,9 +1,9 @@
 ---
 code_surface: openxFactory (`scripts/doc_health/release_tag_publication.py` — a new module owning the family, in the pattern `promotion_fidelity.py`, `release_inventory.py` and `family_enumeration.py` already set: its own severity and action constants, a pure function that answers the question from a declared bundle plus the repository's tag refs, and one `fam_release_tag_publication(ctx)` emit. `scripts/doc_health/__init__.py` — the family id joins the registered list. `scripts/doc_health/families.py` — the dispatch entry, and `FAMILY_SUMMARIES`/`FAMILY_RESOLUTION` if the family is to carry a summary line and a resolution class. THE FAMILY COUNT RIPPLE IS PART OF THIS SURFACE AND IS ENUMERATED IN TASKS: `docs/doc-health.md` says twenty-two families, `family_enumeration.py` measures the registered set against the documented one, and the `add-family-enumeration-check` capability exists precisely to redden when those disagree — so every place stating the count moves in the same commit as the registration, or the check this repository built for that purpose fires on its own release. `tests/doc-health/test_release_tag_publication.py` — the scenarios of this delta arrive as new tests with fixture repositories carrying real annotated tags, plus a self-gate probe over this repository. `docs/doc-health.md` — the family's row and its action line. NO change to `Finding`, to `report.render`, to the ranked-plan or finding grammars, to any threshold outside this family's own, to `release-inventory-drift`'s behaviour, or to `scripts/hermes_runtime_validation/release.py` — see D5, which is why `verify_tag` is not touched.)
 target_release: implemented — the openxFactory main line. This surface cuts no contract bundle: no schema under `contracts/schemas/` changes, no digest set moves, and no release tag is owed BY this change (which would be a pleasing irony to get wrong). The archive gate is therefore merge-plus-green on main, following `add-family-enumeration-check` and `add-unclassified-finding-class`: `python3 -m pytest tests/doc-health` green, `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green, and a doc-health single-repo run whose severity counts move by exactly what this proposal predicts — see § What this will report on the day it lands, which predicts ZERO, and says why a nonzero answer there would be a finding about the estate rather than about the check.
-Status: draft — the flagged decisions are RULED; ratification itself is not yet cited, see § The ruling of 2026-08-31
+Status: ratified
 Proposed: 2026-08-31
-Ruled: 2026-08-31 by Brett Heap — in session, verbatim: "accept D1, D2, D5; threshold N=5". This disposes FOUR of the five decisions flagged for veto and settles the one number the authoring session declined to pick. **D4 WAS NOT NAMED AND IS NOT TREATED AS RULED** — see § The ruling of 2026-08-31, which carries it forward rather than reading acceptance into silence.
+Ratified: 2026-08-31 by Brett Heap (repository owner) — in session, in TWO ACTS. First, verbatim: "accept D1, D2, D5; threshold N=5", disposing four decisions and settling the one number the authoring session declined to pick; D4 was not named by that act and was carried as OWED rather than read as accepted. Then, on D4 being put to him as outstanding, verbatim: "accept D4, and yes that's the ratification". ALL FIVE orchestrator decisions are ACCEPTED AS DRAFTED. Record: `review/ratification-2026-08-31.md`.
 Origin: issue #528, filed 2026-08-31 after `contract-v2.3` and `contract-v2.4` were both found declared-and-untagged by hand while completing the v2.4 cut's own record. Commissioned in session by Brett, verbatim: "take 528". The two bundles have since been tagged; the gap that produced them twice has not been closed, and closing it is what this proposes.
 ---
 
@@ -148,7 +148,8 @@ first-parent landings before a human noticed; the August three sat for weeks.
 **Brett ruled N = 5 on 2026-08-31**, which is the number the packet had proposed;
 the scenarios now state it as the ruled default rather than as a placeholder.
 
-**D4 — NOT RULED. WHAT THE CHECK ASSERTS ABOUT THE TARGET.** Existence alone is too weak: a
+**D4 — ACCEPTED 2026-08-31, in the second act. WHAT THE CHECK ASSERTS ABOUT
+THE TARGET.** Existence alone is too weak: a
 tag pointing at the wrong commit satisfies "a tag exists" and violates *"the tag
 SHALL point to that realized commit."* Full derivation of the policy's target —
 *"the EARLIEST FIRST-PARENT COMMIT on published `main` that DECLARES the bundle
@@ -182,23 +183,73 @@ Brett Heap, in session, verbatim: **"accept D1, D2, D5; threshold N=5"**.
 | **D1** new requirement, not a MODIFIED of `Release-inventory drift` | **ACCEPTED** |
 | **D2** a new family, not a finding class inside that one | **ACCEPTED** — the shape veto was available and not exercised |
 | **D3** the window and its threshold | **RULED: N = 5** first-parent landings |
-| **D4** what the check asserts about the target | **NOT NAMED IN THE RULING. NOT TREATED AS RULED.** |
+| **D4** what the check asserts about the target | **ACCEPTED** in the second act, after being put to him as unruled |
 | **D5** not built on `verify_tag` while #338 stands | **ACCEPTED** |
 
-**D4 is carried forward deliberately.** The ruling named four decisions and D4
-was not among them. It is the one that decides what this family PROVES: the
+**D4 was carried rather than assumed, and then ruled.** The first act named four
+decisions and D4 was not among them. It is the one that decides what this family PROVES: the
 packet proposes asserting the cheap conjunct — the tag must peel to a commit that
 DECLARES the bundle — and disclosing that it does not prove the target is the
 EARLIEST such declaring commit, so a tag on a later declaring commit passes and
 remains a defect under the policy. A packet that read silence as acceptance would
 be narrowing a ruling by omission, which is the failure this estate records
-against itself most often. **D4 is owed before group 2.1 writes the assertion**,
-and until it is ruled the residue stands disclosed rather than accepted.
+against itself most often. It was put to him as
+outstanding rather than folded in, and the second act accepted it — so the
+residue is ACCEPTED WITH ITS DISCLOSURE INTACT rather than accepted by silence,
+which is the whole difference this paragraph exists to preserve.
 
-**What the ruling did NOT do.** It disposed the flagged decisions; it did not
-cite a ratification of the packet, and `Status:` therefore stays `draft`. Whether
-this ruling is also the ratification that authorizes realization is a separate
-act, and task 1.1 stays open until it is cited.
+**The second act is the ratification.** Verbatim: *"accept D4, and yes that's the
+ratification"*. `Status:` is `ratified`, task 1.1 is discharged, and the record is
+`review/ratification-2026-08-31.md`. **Ratification authorizes realization and
+performs none of it** — group 2 is a Spec Kit feature and is not built by this act.
+
+## What this will report on the day it lands
+
+**ZERO findings.** Every bundle from `contract-v1.7` carries an annotated tag as
+of 2026-08-31: 46 published tags against 53 changelog entries, with the seven
+absences all in the `contract-v1.0`–`contract-v1.6` legacy sequence the policy
+leaves untagged by design. `contract-v2.5`, cut by #533 and the current declared
+bundle, is tagged.
+
+That prediction is load-bearing. **A nonzero count on the first run is a finding
+about the estate, not about the check** — and it is exactly the kind of finding
+this family exists to produce, so it should be read that way rather than treated
+as a false positive to tune away.
+
+## What this packet moves in doc-health, MEASURED WITH REALIZATION LANDING WITH IT
+
+**The unratified-packet prediction this section first carried is superseded, and
+the reason is recorded rather than quietly overwritten.** It predicted +3
+`warning` and +1 `info` for a packet whose delta declared twenty-three while the
+registry still held twenty-two, and called that state acceptable. It was not:
+`family-enumeration`'s self-gate asserts the real corpus reads ZERO on both
+halves, so those three warnings did not merely move a count, they RED A GREEN
+GATE — and `add-family-enumeration-check`, the packet that wrote that gate,
+landed its own delta, module and tests in ONE commit (`bc779dcc`) for exactly
+this reason. A family addition is one landing in this estate. Brett ruled the
+packet land that way on 2026-08-31.
+
+**Measured with the realization in place**, `--single-repo` against the
+merge-base, same clock:
+
+| | critical | error | warning | info |
+|---|---|---|---|---|
+| base | 5 | 4 | 28 | 12 |
+| head | 5 | 4 | 28 | **13** |
+
+**+1 `info`, and nothing else.** The three `family-enumeration` warnings are
+gone because canon-pending-behind-a-complete-delta is quiet by that family's own
+design — the case its `test_canon_pending_behind_a_complete_delta_is_quiet`
+exists for. The one remaining `info` is `modified-block-currency` naming the two
+body units this packet's MODIFIED block deliberately rewrites; three other active
+packets carry the same shape, the arm says of itself that it *"CANNOT distinguish
+[this] from a deliberate rewording, and does not claim to"*, and it clears when
+the block promotes at archive.
+
+**The family itself reports ZERO over this tree**, run directly:
+`doc-health --single-repo . --family release-tag-publication` renders "No
+findings" — not a skip, a genuine answer, because every bundle from
+`contract-v1.7` is tagged and `contract-v2.5` is the current declared bundle.
 
 ## What this will report on the day it lands
 

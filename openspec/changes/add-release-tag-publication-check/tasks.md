@@ -1,6 +1,7 @@
 # Tasks: add-release-tag-publication-check
 
-Status: draft
+Status: ratified
+Ratified by: add-release-tag-publication-check
 
 Nothing below group 3 has been done. Group 2 is the realization plan and every
 box in it is open; group 3 records what the authoring session measured before
@@ -17,9 +18,10 @@ exists.
 
 ## 1. Ratification
 
-- [ ] 1.1 Brett rules the packet. **PARTLY DONE 2026-08-31**: D1, D2 and D5
-      ACCEPTED and D3 ruled at N=5. **D4 WAS NOT NAMED AND IS NOT RULED**, and
-      no ratification is cited yet, so this box stays open. The commissioning ("take 528") authorized
+- [x] 1.1 RATIFIED 2026-08-31 by Brett Heap in two acts — "accept D1, D2, D5;
+      threshold N=5", then "accept D4, and yes that's the ratification". All
+      five orchestrator decisions ACCEPTED AS DRAFTED. Record:
+      `review/ratification-2026-08-31.md`. The commissioning ("take 528") authorized
       BUILDING A CHECK and nothing else; five design decisions are flagged for
       veto in the proposal's § Orchestrator Decisions and are NOT covered.
 - [x] 1.2 **RULED 2026-08-31: N = 5.** Brett Heap, in session, verbatim:
@@ -37,25 +39,46 @@ exists.
       couples two different resolution acts in one family — the proposal argues
       against it and does not pretend the argument is free.
 
-- [ ] 1.4 **D4 IS OWED.** The ruling of 2026-08-31 named four decisions and D4
-      was not among them. It decides what the family PROVES about a tag's
-      target — the packet asserts the cheap conjunct (the tag peels to a commit
-      DECLARING the bundle) and discloses that it does not prove the target is
-      the EARLIEST such commit. Owed before 2.1 writes the assertion; reading
-      silence as acceptance would narrow a ruling by omission.
+- [x] 1.4 **D4 ACCEPTED 2026-08-31 in the second act**, after being put to him
+      as outstanding. Recorded because the sequence matters: The ruling of 2026-08-31 named four decisions and D4
+      the first act named four decisions and D4 was not among them, so it was
+      carried as owed rather than folded in. It decides what the family PROVES
+      about a tag's target — the packet asserts the cheap conjunct (the tag
+      peels to a commit DECLARING the bundle) and discloses that it does not
+      prove the target is the EARLIEST such commit. The residue is accepted
+      WITH its disclosure, not by silence.
 
 ## 2. Realization — ONE Spec Kit feature
 
-- [ ] 2.1 `scripts/doc_health/release_tag_publication.py` — the module: its own
+- [x] 2.1 `scripts/doc_health/release_tag_publication.py` — the module: its own
       severity and action constants, a pure function answering the question from
       a declared bundle plus the repository's tag refs, and
       `fam_release_tag_publication(ctx)`. Follows `release_inventory.py` and
       `family_enumeration.py` in owning its own module rather than growing
       `families.py`.
-- [ ] 2.2 The distance grading and its threshold at the ruled **N = 5**. Distance is
+- [x] 2.2 The distance grading at the ruled **N = 5**. THE WINDOW IS
+      `threshold + 2`, NOT `threshold + 1`, and the reason is a defect the
+      first implementation had: a landing does not touch the manifest, so
+      every commit above the cut still DECLARES the bundle and the walk looks
+      for where the declaration STOPS. At `threshold + 1` the window saturated
+      and the error band was unreachable — caught by the tests, fixed in the
+      module, and recorded in its docstring. Distance is
       FIRST-PARENT COMMITS ON PUBLISHED `main` since the earliest declaring
       commit — never wall time, which punishes a quiet week.
-- [ ] 2.3 **Registration and the count ripple, IN THE SAME COMMIT.**
+- [x] 2.3 **Registration and the count ripple, IN THE SAME COMMIT.**
+      **CORRECTION TO THIS TASK AS WRITTEN: it listed seven count sites and
+      only FOUR are live counts.** `docs/doc-health.md:28`,
+      `modified_block_currency.py:1634`, `report.py:300` and
+      `test_suite.py:767` state how many families exist and moved to
+      twenty-three. The other three do NOT: `test_modified_block_currency_
+      reporting.py:777` records a past mutation round ("perturbed all
+      twenty-two of them"), and `test_modified_block_currency_self_gate.py:26`
+      and `:93` are marked "EVERY NUMERAL ABOVE IS HISTORY AND IS KEPT AS
+      WRITTEN" — `:93` additionally describes what CANON says, which is still
+      twenty-two until this block promotes. Sweeping them would have falsified
+      a record and a true statement. Also moved with the registry, which the
+      task did not anticipate: the seven `family-enumeration` fixtures and four
+      assertion pins in `test_family_enumeration.py`.
       `scripts/doc_health/__init__.py` (the registered set),
       `scripts/doc_health/families.py` (dispatch, and `FAMILY_SUMMARIES` /
       `FAMILY_RESOLUTION` if the family carries a summary line and a resolution
@@ -65,21 +88,29 @@ exists.
       `tests/doc-health/test_modified_block_currency_reporting.py:777`,
       `tests/doc-health/test_modified_block_currency_self_gate.py:26` and `:93`.
       Split across two commits and `family-enumeration` reddens on the first.
-- [ ] 2.4 The promoted requirement's numerals are moved by the MODIFIED block in
+- [x] 2.4 The promoted requirement's numerals are moved by the MODIFIED block in
       this packet's delta, so 2.3's code registry and canon agree at the landing
       rather than one lagging.
-- [ ] 2.5 `tests/doc-health/test_release_tag_publication.py` — the ten scenarios
+- [x] 2.5 `tests/doc-health/test_release_tag_publication.py` — 17 tests,
+      every fixture a REAL git repository with real annotated tags, real
+      lightweight refs, a real misplaced tag and a real origin, because the
+      published-versus-local and annotated-versus-lightweight distinctions
+      exist in git and nowhere else. — the ten scenarios
       of the delta as behavioural tests over fixture repositories carrying REAL
       annotated tags, real lightweight refs and a real misplaced tag. A fixture
       that fakes a tag as a string in a manifest tests nothing this family does.
-- [ ] 2.6 A self-gate probe over this repository, in the pattern the other
+- [x] 2.6 A self-gate probe over this repository, WITH its positive control:
+      the same call fires `ERROR` over a constructed untagged tree, so reading
+      zero over the real one proves the corpus rather than a silent reader., in the pattern the other
       self-gating families use, with its positive control: the probe must be
       shown to FIRE on a constructed absence, not merely to read zero.
-- [ ] 2.7 `docs/doc-health.md` — the family's row and its action line, pinned
+- [x] 2.7 `docs/doc-health.md` — the family's row and its action line, pinned
       verbatim in this family's own suite per the action-line pin convention
       landed by #448.
-- [ ] 2.8 `python3 -m pytest tests/doc-health` green;
-      `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green.
+- [x] 2.8 `python3 -m pytest tests/doc-health`: **1364 passed, 0 failed**.
+      `OPENSPEC_TELEMETRY=0 openspec validate --all --strict`: **82 passed, 0
+      failed**. doc-health against the merge-base: **+1 `info` and nothing
+      else** — see the proposal's measured table.
 
 ## 3. Evidence measured before the packet went up
 
