@@ -1667,7 +1667,29 @@ Archived changes:
   filed at **#536**. Promotion measured rather than assumed: 6 delta requirements
   in, 6 out, **all six bodies BYTE-IDENTICAL**, 32 delta scenarios carried across
   `lifecycle-notebook-projection` (+3 added, ~2 modified) and
-  `credential-contracts` (~1 modified). The original record follows unchanged.
+  `credential-contracts` (~1 modified). **THE THREE-PACKET READ-TOGETHER IS
+  PERFORMED IN A SUCCESSOR ACT, RECORDED AT**
+  [`review/read-together-2026-08-31.md`](openspec/changes/archive/2026-08-31-add-notebook-projection-identity/review/read-together-2026-08-31.md).
+  Issue **#545** filed it after the inverted archive order orphaned it: this
+  packet's § 8 declined to perform it, and the two credential-contracts packets
+  #541 archived first restate it as owed HERE — custody § 6.2 and
+  `add-binding-consumer-identity` § 7.3, one reconciliation seen from two sides.
+  Twelve promoted requirement blocks read against their archived deltas:
+  **eleven byte-identical, the twelfth being the one title two packets write and
+  carrying the later of the two whole.** Custody's **13 scenarios all stand with
+  the struck fifth absent** (0 occurrences under `openspec/specs/`); the
+  dependent's block is **five carried scenarios byte-identical plus one
+  addition**, zero lost and zero substituted; and this packet's generalization
+  CLOSED A REFERENCE THAT WAS DANGLING IN CANON — custody's *"the existing
+  prohibition on hard-coding an operated identity's credential"* pointed at
+  nothing between `b09e59da` and `4290cad2`. **ONE DEFECT FOUND, REPORTED AND NOT
+  REPAIRED**: the promoted `Modified over` marker (`credential-contracts:248`)
+  says the successor was named *"three times"* where the same packet's proposal,
+  its ratification record and the shipped `contract-v2.4` schema each say
+  **five**, and the post-strike count is **four**. **#545 THEREFORE STAYS OPEN**
+  on that finding, citing the record; the two archived boxes stay UNTICKED and
+  could not be otherwise, the record being their discharge rather than their
+  edit. The original record follows unchanged.
   — authored and ratified 2026-08-23 (Brett Heap, in-session). The single exit
   of the staged topic `notebook-projection-identity`, raised the day its last
   precondition was met. The whole governed NotebookLM projection — every
