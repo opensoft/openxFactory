@@ -404,6 +404,171 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [govern-sibling-added-modified-deltas](openspec/changes/govern-sibling-added-modified-deltas/proposal.md)
+  — authored 2026-08-29, **RATIFIED 2026-08-31 BY DIRECT RULING**
+  (`Status: ratified`; record `review/ratification-2026-08-31.md`) — Brett Heap
+  in session via an explicit multi-choice put, verbatim *"Direct — accept D1–D5
+  (Recommended)"*. **THE §7.4 SITTING THE PACKET PRESCRIBED FOR ITSELF WAS
+  DECLINED BY THAT SAME CHOICE** — no seat sat, nothing here is a council
+  disposition — after NINE adversarial Codex rounds converged the text (twelve
+  findings, every one fixed, none repeated; round 9 clean on `3d776c67`).
+  **Ratification authorizes REALIZATION and performs none of it**, and the five
+  open questions REMAIN OPEN, having been routed to the sitting that did not sit.
+  Filed on Brett's in-session ruling "file the successor now" out of the §7.4
+  sitting on PR #497. **THE SUCCESSOR ISSUE #502 NAMES**: a
+  `## MODIFIED Requirements` block whose requirement exists only as an active
+  sibling's `ADDED` is governed by no promoted requirement, evaluated by no
+  doc-health arm, and declared by no marker. Raised by `lead-architect` (LA-C2,
+  `cross_cutting_design`) and concurred by `lead-quality` (LQ-C5), both attaching
+  the condition that `add-binding-consumer-identity` must neither close it nor be
+  delayed for it — honoured, and this packet is the separate home both seats
+  asked for. **Three holes, three answers.** `release-realization`'s "Ordered
+  deltas and branch vocabulary" is MODIFIED so its antecedent reaches a
+  requirement an active ratified change ADDS **or RENAMES a promoted requirement
+  TO** and not only one it MODIFIES — the
+  two antecedents are disjoint by construction — and it gains the archive-ordering
+  obligation the four live packets have each been hand-writing as a pre-archive
+  `grep`, the BASIS change (adding or renaming) archiving first. **THAT HOLD
+  KEYS ON THE UNPROMOTED TITLE AND NOT ON THE BASIS'S STANDING**, the two halves
+  of the requirement being keyed apart on purpose: the reference-and-declare half
+  names a RATIFIED change because deltas are declared against an OUTCOME, while
+  the archive half reaches a basis of ANY standing — an unratified basis has to
+  RATIFY AND ARCHIVE before the modifying change's gate opens, promoting text no
+  authority accepted being worse than promoting text one did. **A RENAME IS A
+  BASIS EVERYWHERE OR NOWHERE**: `doc-health`'s promoted resolution rule and the
+  marker requirement below both read "ADDS or RENAMES to that title", so an
+  ordering rule reaching additions alone would govern the identical hazard in one
+  capability and leave it ungoverned in the next. `document-lifecycle` gains a THIRD reserved marker form,
+  ``**Modified over `<basis change-id>`'s addition by <change-id>
+  (<YYYY-MM-DD>):**``,
+  read by form and never by prose, naming no units and therefore never a carriage
+  declaration, AT MOST ONE of them to a block — one pairing, one declaration; the
+  two existing forms keep no such bound because they NAME UNITS and accumulate,
+  while a second marker of this one states a second basis for one text and a block
+  resting on two bases rests on neither — its `by` identifier VALIDATED as the
+  change carrying the block rather than merely resolved, so a marker naming the
+  right basis under an
+  unrelated author is reported instead of promoting as false provenance — its
+  ` — <reason>` tail REQUIRED AND NONEMPTY, a paragraph carrying the prefix alone
+  being a marker whose declaration is DEFECTIVE rather than a non-marker, so it is
+  reported for the tail it lacks instead of promoting as a complete declaration
+  — and where the basis is NOT RATIFIED the reason clause discloses
+  it by carrying the word `unratified`, a form rather than a wish, so that the
+  disclosure has a reader — a disclosure that DISCHARGES THAT REQUIREMENT AND
+  NOTHING ELSE, warning the reader without lifting the archive hold, so a pairing
+  may be perfectly declared and still be unarchivable. `doc-health` gains the arm
+  that evaluates the `pending` shape instead of dropping it at `modified_block_currency.py`'s
+  `if status == "pending": continue` — four reported states, MUTUALLY EXCLUSIVE
+  and examined in order so that every block gets EXACTLY ONE (self-referential
+  first — the carrier's OWN `## ADDED Requirements` block for the title, an own
+  RENAME to it being the supported rename-and-amend shape promoted canon resolves
+  against the OLD name one step earlier (`openspec/specs/doc-health/spec.md:1568-1574`,
+  `:1783-1786`) and this packet leaves that precedence exactly where it found it —
+  then undeclared, then misdeclared — MORE THAN ONE pairing marker on the block,
+  read first of the FOUR grounds; or a basis that neither adds nor renames to the
+  title, or that IS the carrier itself; OR a `by`
+  identifier that is not the change carrying the block; OR NO REASON AT ALL, the
+  required tail absent or empty, read after the `by` and BEFORE the disclosure so
+  that a prefix-only marker is reported for the tail it lacks rather than for a
+  word it has no clause to carry, the basis ground written
+  as the EXACT
+  NEGATION of the silent state so the narrowing leaves no block unplaced — then
+  undisclosed, the
+  marker that names an
+  unratified basis without saying so), silent on the fifth (declared and
+  resolving) — every state a predicate over the block's WHOLE marker set, which
+  `derive_units` preserves entire, so the silent state and undisclosed are reached
+  only where EXACTLY ONE pairing marker stands and passes every check above it and
+  every other block is placed by the FIRST check it fails, iteration order
+  deciding nothing, and that fifth state's silence being silence about a
+  DECLARATION and never clearance for an archive: the hold stands over every
+  pending pairing the check passes and is enforced at the modifying change's
+  archive gate, which reads the block's own `pending` resolution — a fact the
+  family already computes — rather than by a standing advisory over a block in
+  good order — plus, as the archive ordering's only possible mechanical
+  backstop, a class that reports an active `## ADDED Requirements` block, or an
+  active `## RENAMED Requirements` block's `TO:` title, for a
+  title canon already carries — the `FROM:` half never read, a rename's source
+  being a title canon is expected to carry. `doc-health` ALSO GAINS ONE `## MODIFIED Requirements` BLOCK, on a
+  requirement neither new class touches: "A modified-block-currency finding its
+  own class map cannot place is itself a finding" says the family "SHALL remain
+  absent from `FAMILY_RESOLUTION`" (`:2088`) and rests a MUST on that absence
+  (`:2126`), which `7f656980` (PR #529, 2026-08-31) falsified without amending
+  any specification. The block supersedes both units under a `Removed from
+  canon by` marker and answers the protection they bought BY MEASUREMENT — a
+  map extension endangers it not at all, `report.uncited_resolutions` keying on
+  `(family, repository, path)` and the unplaced-class finding carrying the key
+  of the finding it NAMES, which survives the extension — so no citation is
+  owed for one and the extending act is instead FORBIDDEN to record a
+  disposition, which would suppress that survivor before the block resolves.
+  The pairing class's citation is untouched and load-bearing for the opposite
+  reason: its finding sits on a `pending` block whose arms never run, so its key
+  vanishes outright. So #529 is regularized — canon catching up
+  with a row the code already carries, rather than a packet archiving beside a
+  promoted sentence its own design contradicts. **THE 2026-08-27 RULING IS NOT
+  REOPENED**: nothing compares requirement text, and no fourth comparison arm is
+  added; what changes is that the block is no longer dropped before anything
+  looks at it, so the arms' silence stops
+  reading as clearance. **Measured at `7f656980`**, the `main`-side parent of the
+  FIRST of this branch's two 2026-08-31 catch-up merges and RE-READ UNCHANGED at
+  `9af98c4d`, the second's: 20 active MODIFIED blocks, 16 `canon`, 4
+  `pending`, zero markers, all four adding siblings `ratified` — the SAME four
+  pairs #502 measured, the twentieth block being
+  `add-structured-scope-substrate`'s over a different `release-realization`
+  requirement; predicted movement **+4 `warning`** against the population
+  undischarged and **0** under D4's sequencing (§ 6's markers first), zero in
+  every other band either way, and zero from BOTH of this packet's own MODIFIED
+  blocks — the `release-realization` one resolves `canon` and restates both promoted body
+  sentences and both promoted scenarios byte-identical, everything it adds being
+  new text; the collision class's population is zero across BOTH basis forms (159
+  active ADDED blocks, no collision; zero active RENAMED pairs at all); the `doc-health` one
+  resolves `canon` and restates 33 of 35 promoted units byte-identical, the
+  other two declared by marker — so `_LEDGER_SUBJECTS` gains no row. **Four is the
+  live number; eight is the cumulative one** — LQ-C5's figure counted the docstring's
+  historical seven plus #497's block, while LA-C2's own return says four.
+  **ADVISORY IN THE HALF THE PACKET STILL OWNS** — both classes carry `warning`
+  — and NOT in the other: `FAMILY_RESOLUTION` already carries
+  `"modified-block-currency": CONTESTED`, landed at `7f656980` (PR #529,
+  2026-08-31) as § 7.2's reserved flip, and that table has no per-class grain.
+  D4 is re-argued from that ground and carries the discharge path it forces, IN
+  ORDER: § 6's marker sweep is sequenced BEFORE the class lands so it launches at
+  population zero, and only where sequencing is unavailable does the discharge
+  carry the citation the contested-finding rule already requires — bounded in
+  AVAILABILITY (the route is refused outright while any OTHER `ratified` change
+  writes a MODIFIED block for the same title, the two-writers ordering arm being
+  armed by a COUNT of ratified writers and running BEFORE resolution through the
+  same disposition read, so an entry may exist only where that arm has nothing it
+  could emit and "suppresses nothing" is true by construction rather than
+  asserted — population ZERO here, no title carrying more than one active MODIFIED
+  block), in
+  grain (the entry names the REQUIREMENT) and in time (it is RETIRED when the
+  basis archives), because `disposed()` runs before a block resolves and has no
+  finding-class grain, so an unbounded entry would silence the three comparison
+  arms over the very block they exist to read once the basis promotes. The band
+  flip follows the discharge of the four standing pairs and is not proposed here. **THE RULE IS
+  TESTED AGAINST A LIVE PAIR RATHER THAN AN ABSTRACTION.** Two clauses keep the
+  archive order from being escaped instead of met — CONVERSION (re-shaping the
+  block to `## ADDED` does not dissolve the obligation, the antecedent attaching
+  to the pairing and not to the block's form, so conversion is lawful only as a
+  PAIRED act ruled by the ratifying authority) and FALSIFICATION (where landed
+  state contradicts a scenario of the unpromoted addition, the ADDING change
+  amends it before its archive promotes it, and the order still holds — a
+  RENAMING basis reaching that clause only through what it modifies beside the
+  rename, a `## RENAMED Requirements` block carrying a pair of titles and no
+  scenarios of its own) — and the
+  packet then works the `add-notebook-hosting-credential-custody` /
+  `add-binding-consumer-identity` pair through them: DISPOSED as chain order
+  (projection-identity → custody → binding-consumer-identity), custody owing the
+  fifth-scenario amendment `contract-v2.4` falsified,
+  `add-binding-consumer-identity` owing the marker, and
+  conversion-without-pairing refused. **It does not close #502 and says so**: the
+  packet states that it MAY say `Closes #502` on archive and states it as intent
+  rather than performing it. The five decisions flagged for veto (D5, the
+  collision class, the one the proposal names as most worth vetoing; D1's
+  capability split the one a seat was most likely to re-argue) were **ACCEPTED AS
+  DRAFTED** on 2026-08-31, as they stand at tip `3d776c67`. The five open
+  questions had been routed to the sitting; **that sitting was declined, so they
+  stay OPEN** — OQ-4 most visibly, § 6.1 being explicitly subject to its routing.
 - [add-chain-anchoring](openspec/changes/add-chain-anchoring/proposal.md)
   — authored 2026-08-29, **`Status: draft` — RATIFICATION IS NOT SOUGHT BY THIS
   PACKET'S LANDING.** Exit 3 of three of the staged topic
