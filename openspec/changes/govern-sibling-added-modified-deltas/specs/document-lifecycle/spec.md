@@ -45,6 +45,21 @@ case would make one relation two shapes, two parse branches and two class-map
 entries for one remedy, which is what this capability's reserved forms exist to
 avoid.
 
+**AT MOST ONE MARKER OF THIS FORM SHALL STAND IN ONE BLOCK — ONE PAIRING, ONE
+DECLARATION.** This capability's other two reserved forms carry no such bound
+and SHALL keep none, and the difference is the structural one this requirement
+states below: they NAME UNITS, so their declarations ACCUMULATE — two `Removed from
+canon by` markers declare two sets of removed units, both are read, and the
+corpus's reading voids a marker per NAME rather than wholly — so a bound on
+their count would be a bound on how many units one change may lawfully remove,
+which no capability has ever asked for. This form names no units. It declares
+ONE RELATION between two documents, so a second marker in one block does not add
+to the first: it states a SECOND BASIS for one text, and a block resting on two
+bases rests on neither, no reader being told which addition the text was written
+over. A block carrying more than one marker of this form SHALL be reported, with
+the same remedy a wrong basis has — withdraw every declaration but the one that
+is true.
+
 **THE `by` IDENTIFIER SHALL BE THE CHANGE THAT CARRIES THE BLOCK, and it is
 VALIDATED rather than merely resolved.** The identifier written after `by` SHALL
 EQUAL the id of the change whose delta carries the marker's block, on the reading
@@ -119,6 +134,12 @@ enforced, and neither is a substitute for the other.
 - **THEN** the declaration MUST be reported, a marker naming the right basis under the wrong author being a false provenance rather than an incomplete declaration
 - **AND** a marker whose `by` identifier IS the carrying change's own id MUST NOT be reported on that ground, the identifier being validated against the carrier rather than merely resolved
 - **AND** a marker RETAINED as provenance through a paired conversion MUST NOT be reported on that ground either, the converting change being the change that carried the block
+
+#### Scenario: A block carries two markers of this form
+- **WHEN** one `## MODIFIED Requirements` block carries more than one paragraph of the reserved `Modified over` form
+- **THEN** the block MUST be reported, one pairing admitting one declaration and a second marker stating a second basis for one text rather than adding to the first
+- **AND** the remedy MUST be to withdraw every such marker but the one that is true, no reading of two bases making the block rest on either
+- **AND** the two unit-naming forms MUST NOT be read as bounded by this rule, their declarations accumulating because each names its own units
 
 #### Scenario: The marker is read as declaring a deletion
 - **WHEN** a block carries a `Modified over` marker and omits a unit

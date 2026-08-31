@@ -79,6 +79,25 @@ each state's antecedent below carries the exclusion that order performs. One
 block therefore yields at most one finding of this class, and the words a reader
 is given are never a choice between two true descriptions of one defect.
 
+**THE CLASSIFICATION READS THE BLOCK'S WHOLE MARKER SET, AND THE COUNT IS THE
+FIRST THING IT READS OF IT.** The family's derivation preserves EVERY paragraph
+of marker form a block carries, in document order, so "the marker" is a SET and
+not a singular the check may pick a member from. `document-lifecycle` bounds
+that set — AT MOST ONE marker of the `Modified over` form per block, one pairing
+and one declaration — and the states below are predicates over the WHOLE set
+rather than over a chosen member of it. The checks therefore run in this order:
+the carrier's own addition; then the COUNT of pairing markers; then, for the
+single marker a lawful block carries, its basis, then its `by` identifier, then
+its disclosure. **A BLOCK IS DECLARED AND RESOLVING, OR UNDISCLOSED, ONLY WHERE
+EXACTLY ONE PAIRING MARKER STANDS AND IT PASSES EVERY CHECK ABOVE IT; OTHERWISE
+THE BLOCK IS PLACED BY THE FIRST CHECK IT FAILS, IN THAT ORDER.** Without the
+count the promise this requirement makes is not kept by the states themselves: a
+block carrying one valid marker and one naming a change that adds nothing
+satisfies MISDECLARED and DECLARED AND RESOLVING at once, and which of the two a
+run reported would be settled by which marker an implementation happened to look
+at — the same false provenance accepted or refused by an accident of iteration
+order.
+
 - **SELF-REFERENTIAL** — the change that carries the block ADDS the block's
   capability and requirement title in its OWN `## ADDED Requirements` block.
   Reported, and a marker naming the change itself MUST NOT clear it. **THIS STATE
@@ -91,34 +110,44 @@ is given are never a choice between two true descriptions of one defect.
   THE TITLE IS NOT THIS STATE**, for the reason the paragraph below states.
 - **UNDECLARED** — the block is NOT self-referential and carries no marker of the
   reserved `Modified over` form. Reported.
-- **MISDECLARED** — the block is NOT self-referential, carries such a marker, and
-  that marker's declaration is wrong in one of the TWO ways a declaration of this
-  form can be wrong: EITHER the change it names AS BASIS is not an active change
+- **MISDECLARED** — the block is NOT self-referential, carries at least one
+  marker of the reserved form, and the declaration is wrong in one of the THREE
+  ways a declaration of this form can be wrong. **FIRST, THE COUNT**: the block
+  carries MORE THAN ONE such marker, `document-lifecycle` admitting one pairing
+  and one declaration, and this ground is read BEFORE the other two so that a
+  block carrying a good marker and a bad one is placed by a fact about the BLOCK
+  rather than by which marker was examined. Otherwise the block carries EXACTLY
+  ONE, and that one is wrong in one of the remaining two ways: EITHER the change
+  it names AS BASIS is not an active change
   OTHER THAN THE CARRIER that ADDS or RENAMES to the block's capability and
   requirement title — it names a change that neither adds nor renames to that
   title, or it names the carrying change itself — OR its `by` identifier is not
   the change that carries the block. Reported, and reported apart from UNDECLARED
   in the finding's own words, because a wrong basis and an absent one have
-  different remedies. **THE FIRST HALF IS THE EXACT NEGATION of the silent state's
+  different remedies. **THE BASIS GROUND IS THE EXACT NEGATION of the silent state's
   basis clause**, so that narrowing SELF-REFERENTIAL to the carrier's own addition
   leaves no block outside all five states: a marker naming the carrier as its own
   basis is reported here wherever the carrier is not reported self-referential.
-  **THE REMEDY IS SINGULAR PER HALF AND THE FINDING SHALL SAY
-  WHICH HALF IT NAMES**: a wrong basis is repaired by naming the change that
+  **THE REMEDY IS SINGULAR PER GROUND AND THE FINDING SHALL SAY
+  WHICH GROUND IT NAMES**: more than one marker is repaired by withdrawing every
+  declaration but the true one, a wrong basis by naming the change that
   actually adds the requirement or renames to its title, a wrong `by` by writing
   the carrying change's own
-  identifier, and one finding naming both without saying which would leave its
-  reader to guess which word of one paragraph to change.
-- **UNDISCLOSED** — the block is NOT self-referential and carries a marker that is
-  not misdeclared — naming as basis an active change, other than this one, that
+  identifier, and one finding naming two of them without saying which would leave
+  its reader to guess which paragraph, or which word of one paragraph, to
+  change.
+- **UNDISCLOSED** — the block is NOT self-referential and carries EXACTLY ONE
+  marker of the reserved form, and that marker is not misdeclared — naming as
+  basis an active change, other than this one, that
   does add or rename to the title, and carrying as its `by` identifier the change
   that carries the block — that basis change is NOT `ratified`, and the marker's
   reason clause does not carry the disclosure `document-lifecycle` requires of it.
   Reported, and reported apart from the other three: here the pairing is declared
   and the basis is real, and what is missing is the reader's warning that the text
   the block rests on has been accepted by no authority.
-- **DECLARED AND RESOLVING** — the block is NOT self-referential and carries a
-  marker that is neither misdeclared nor undisclosed: it names as basis an active
+- **DECLARED AND RESOLVING** — the block is NOT self-referential and carries
+  EXACTLY ONE marker of the reserved form, and that marker is neither misdeclared
+  nor undisclosed: it names as basis an active
   change other than this one that does add or rename to the title, its `by`
   identifier is the change that carries the block, and either that basis is
   `ratified` or the marker discloses that it is not. NO FINDING IS EMITTED.
@@ -189,9 +218,10 @@ a stale disclosure SHALL NOT be read as a wrong one.
 **THE FINDINGS SHALL FORM ONE NEW FINDING CLASS of this family**, reported
 against the active delta's own path like every other finding this family emits,
 carrying the `warning` band and one action line stating every half of the
-remedy: declare the basis by marker, name the carrying change itself as that
-marker's `by` identifier, disclose in the reason clause where that basis is not
-ratified, and hold the archive until the declared change promotes.
+remedy: declare the basis by ONE marker and no more than one, name the carrying
+change itself as that marker's `by` identifier, disclose in the reason clause
+where that basis is not ratified, and hold the archive until the declared change
+promotes.
 The class SHALL be registered in the family's own class registry with its own
 identifier and label, and SHALL be placed by the family's class map; a finding
 this new class emits that the map does not place is an unplaced finding like any
@@ -201,7 +231,7 @@ other and is reported by the class that reports those.
 derives its unplaced-finding mask from its own arm templates, so a rule text
 built any other way would have no shape the mask can compute and would be
 reported as drift on every run that emitted one. One template SHALL carry all
-four reported states — MISDECLARED's two halves included, they being one state
+four reported states — MISDECLARED's three grounds included, they being one state
 with one action that differ only in the same interpolated clause — distinguished
 by that clause, because one template is one shape is one map entry: the four
 states share a band and an action and differ only in why.
@@ -231,32 +261,93 @@ population it could have declared first.
    the check runs there, so that it launches at a population of zero. A finding
    never emitted never vanishes and owes no citation, so this route ends the
    question rather than answering it.
-2. **THE CITATION IS THE EXCEPTION, AND IT CARRIES ITS OWN RETIREMENT.** Where
+2. **THE CITATION IS THE EXCEPTION, IT CARRIES ITS OWN RETIREMENT, AND IT IS
+   AVAILABLE ONLY WHERE THE ORDERING ARM HAS NOTHING IT COULD EMIT.** Where
    that sequencing is not available — a pairing arising after the check is
    running, or a population in a repository the introducing measurement did not
    reach — the act that ADDS the marker SHALL record the citation that resolution
    requires, on the same terms as every other `contested` finding of this family.
-   A disposition SHALL NOT be recorded IN PLACE OF a marker; a citation recorded
-   on the act that lands the marker suppresses nothing, the finding having
-   already been answered.
+   A disposition SHALL NOT be recorded IN PLACE OF a marker. **AND THIS ROUTE
+   SHALL NOT BE TAKEN AT ALL while any active change OTHER THAN the one whose
+   delta carries the block, and whose declared standing is `ratified`, carries a
+   `## MODIFIED Requirements` block for the same capability and requirement
+   title.** In that state SEQUENCING IS THE ONLY ROUTE: the marker is written and
+   no entry is recorded, and where the marker cannot yet be written the finding
+   stands until it can.
+
+   **THE BOUND IS READ OFF THE MECHANISM RATHER THAN CHOSEN.** This family's
+   two-writers ordering arm is armed BY COUNT — it takes the active MODIFIED
+   blocks over one capability and requirement title, keeps those whose carrying
+   change is `ratified`, and returns nothing whatever below TWO of them. It runs
+   BEFORE any block of that group is resolved against canon, it emits one finding
+   PER RATIFIED BLOCK against that block's own delta path, and its findings are
+   then filtered through THE SAME family/repository/path disposition read,
+   narrowed by THE SAME requirement title. An entry recorded to answer a pairing
+   finding on a block therefore reaches the ordering finding over that same block
+   wherever one is emitted — and the ordering defect is a SEPARATE defect with a
+   SEPARATE remedy, which would stay hidden for as long as the entry stood.
+
+   **SO THE SENTENCE THIS ROUTE ONCE RESTED ON IS MADE TRUE BY CONSTRUCTION
+   RATHER THAN ASSERTED.** That a citation "suppresses nothing" is not a property
+   of the citation — the entry carries no finding-class grain and silences
+   whatever shares its key — it is a property of the STATE it is recorded in. The
+   bound admits the entry only where the ordering arm has NO SUBJECT at that
+   title, so there is nothing of that class for it to hide; the pairing finding it
+   answers is already answered by the marker landed in the same act; and the three
+   comparison arms do not run over a pending block. The route suppresses nothing
+   because it exists only where there is nothing to suppress.
+
+   **THE BOUND IS ONE CASE WIDER THAN THE ARM'S ARMING CONDITION, DELIBERATELY.**
+   The arm needs TWO ratified writers and this refuses the route at ONE OTHER, so
+   it also refuses where the carrier's own change is not ratified and exactly one
+   other ratified writer stands — a state in which the arm emits nothing today.
+   The width is the point: standing is one header edit on the carrier's own
+   proposal, and an entry recorded under the reading "my own change is not
+   ratified, so the arm is silent" would begin suppressing the ordering class the
+   moment that change was ratified, with no act anywhere to notice. A bound a
+   later edit can invalidate while the entry stands is not a bound. For the same
+   reason the bound reads the arm's SUBJECT and not its current emit: two ratified
+   writers with exactly one declaration between them are the ordered pair the arm
+   passes in silence, and one proposal edit withdrawing that declaration turns the
+   silence into a finding the standing entry would then hide.
+
+   **AND THE BOUND'S POPULATION IS ZERO ON THE AUTHORING TREE.** Measured with
+   the family's own reader over this branch, this packet's own two MODIFIED
+   blocks included: no capability-and-requirement title carries more than ONE
+   active MODIFIED block at all, so none carries two ratified writers and the
+   route is refused nowhere. Like the collision class, the bound costs nothing to
+   land and is in place before its first instance rather than after it.
 
 **A DISPOSITION RECORDED FOR A PAIRING SHALL BE SCOPED SO THAT IT CANNOT OUTLIVE
 THE PAIRING IT ANSWERS, and the scope is dictated by the mechanism rather than
 chosen.** This family reads its dispositions at FAMILY, REPOSITORY and PATH grain
 with an optional REQUIREMENT narrowing, NEVER at finding-class grain, and it
-reads them BEFORE a block is resolved against canon. An entry recorded to answer
+reads them BEFORE a block is resolved against canon AND before the two-writers
+ordering arm's findings are collected. An entry recorded to answer
 a finding of this class therefore suppresses the three comparison arms over that
 block as well — and goes on suppressing them after the declared basis archives
-and the block becomes comparable, which is the one moment those arms exist for. A
+and the block becomes comparable, which is the one moment those arms exist for —
+and, where the ordering arm has a subject at that title, the ordering finding
+over that same block with them. A
 remedy that ends by disabling the checks its own subject is finally eligible for
-is not a remedy, so two obligations attach to the entry and both are part of it:
+is not a remedy, and one that hides a live defect of another class the whole time
+it stands is worse, so THREE obligations attach to the entry and all three are
+part of it. The first is the AVAILABILITY bound route 2 states, which is what
+keeps the ORDERING reading above empty; the other two are here:
 
 - **GRAIN.** The entry SHALL name the REQUIREMENT and not the delta path alone,
   so that it reaches the one block it answers rather than every finding this
   family raises against a delta file that may carry several blocks.
 - **RETIREMENT.** The entry SHALL be retired when the declared basis archives,
   that being the act after which it silences a comparison instead of answering a
-  disappearance. The retirement is an obligation of THE ARCHIVING CHANGE — the
+  disappearance. **AND THE INTERVAL BEFORE THAT ACT IS EMPTY BY THE AVAILABILITY
+  BOUND AND NOT BY THE PENDING STATE ALONE.** A pending block's three comparison
+  arms do not run, so while the basis is unpromoted the entry silences nothing of
+  theirs; the ordering arm is the exception, running before resolution and read
+  through the same key, and route 2's bound is what makes that reading empty for
+  as long as the entry stands. Without it this interval would carry one class of
+  live finding the entry hid. The retirement is an obligation of THE ARCHIVING
+  CHANGE — the
   act that promotes the requirement is the act that makes the arms able to read
   the block — and it is evidenced at that change's own archive gate. The
   MODIFYING change's archive gate SHALL confirm that no such entry stands over
@@ -288,26 +379,32 @@ standing nobody can read being no such showing.
 - **AND** the finding MUST NOT cause a run configured `--fail-on error` or `--fail-on critical` to fail
 
 #### Scenario: A block over a sibling's addition is correctly declared
-- **WHEN** such a block carries a `Modified over` marker naming as basis an active change other than its own that ADDS or RENAMES to the block's capability and requirement title, that marker's `by` identifier is the change whose delta carries the block, and the basis change is `ratified`
+- **WHEN** such a block carries EXACTLY ONE `Modified over` marker, naming as basis an active change other than its own that ADDS or RENAMES to the block's capability and requirement title, that marker's `by` identifier is the change whose delta carries the block, and the basis change is `ratified`
 - **THEN** no finding MUST be emitted for that block, a declared pairing being the state this check exists to produce
 
 #### Scenario: The marker names a change that does not add the requirement
-- **WHEN** such a block carries a `Modified over` marker naming as basis a change that neither ADDS nor RENAMES to its capability and requirement title, and the change carrying the block does not itself ADD that title
+- **WHEN** such a block carries EXACTLY ONE `Modified over` marker, naming as basis a change that neither ADDS nor RENAMES to its capability and requirement title, and the change carrying the block does not itself ADD that title
 - **THEN** the run MUST emit a `warning` finding naming the change the marker names and stating that it adds no such requirement
 - **AND** that finding MUST be worded apart from the undeclared case, a wrong basis and an absent one having different remedies
 - **AND** a marker naming the CARRYING change itself as basis MUST be reported in this state wherever that change is not reported self-referential, a block's basis being a change other than the one that writes it
 
 #### Scenario: The marker's `by` identifier is not the change carrying the block
-- **WHEN** such a block carries a `Modified over` marker whose basis DOES add or rename to the block's capability and requirement title, and whose `by` identifier is a change other than the one whose delta carries the block
+- **WHEN** such a block carries EXACTLY ONE `Modified over` marker, whose basis DOES add or rename to the block's capability and requirement title, and whose `by` identifier is a change other than the one whose delta carries the block
 - **THEN** the run MUST emit one `warning` finding in the misdeclared state, naming the identifier the marker carries and the change that carries the block, a right basis under a wrong author being a FALSE provenance rather than an incomplete one
 - **AND** an otherwise identical marker whose `by` identifier IS the carrying change MUST NOT be reported on that ground, the identifier being validated against the carrier rather than merely resolved
 - **AND** no undeclared finding MUST be emitted for that block alongside it, the marker being present and the states being exclusive
+
+#### Scenario: A block carries two pairing markers
+- **WHEN** such a block carries MORE THAN ONE paragraph of the reserved `Modified over` form — one of them naming a basis that does add the requirement and carrying as its `by` identifier the change that carries the block, the other naming a change that adds nothing
+- **THEN** the run MUST emit exactly ONE `warning` finding for that block, in the misdeclared state and on the count ground, naming how many such markers the block carries
+- **AND** the finding MUST NOT depend on which of the markers is examined, the count being read before any marker's basis or `by` identifier is
+- **AND** an otherwise identical block carrying EXACTLY ONE valid marker MUST NOT be reported, this ground reaching a plurality of declarations and never a lawful single one
 
 #### Scenario: A change modifies its own unpromoted addition
 - **WHEN** one change carries both an ADDED and a MODIFIED block for one capability and requirement title
 - **THEN** the run MUST emit a `warning` finding against that delta
 - **AND** a `Modified over` marker naming that same change MUST NOT suppress it
-- **AND** exactly ONE finding of this class MUST be emitted for that block, in the self-referential state, whether the block carries a marker or none — that state being examined first and excluding the undeclared and misdeclared readings the same block would otherwise also satisfy
+- **AND** exactly ONE finding of this class MUST be emitted for that block, in the self-referential state, whether the block carries no marker, one, or several — that state being examined first and excluding the undeclared and misdeclared readings the same block would otherwise also satisfy
 
 #### Scenario: The carrier renames the requirement and modifies it in one delta
 - **WHEN** one change carries a `## RENAMED Requirements` block renaming a promoted requirement TO a title and a MODIFIED block for that same title
@@ -315,7 +412,7 @@ standing nobody can read being no such showing.
 - **AND** the three comparison arms MUST run against it under that old name, this requirement preserving that precedence rather than displacing it
 
 #### Scenario: A block is declared over a basis no authority has accepted
-- **WHEN** such a block carries a `Modified over` marker naming as basis an active change other than its own that ADDS or RENAMES to the title, whose `by` identifier is the change whose delta carries the block, that basis change carries a status other than `ratified`, and the marker's reason clause does not carry the disclosure `document-lifecycle` requires
+- **WHEN** such a block carries EXACTLY ONE `Modified over` marker, naming as basis an active change other than its own that ADDS or RENAMES to the title, whose `by` identifier is the change whose delta carries the block, that basis change carries a status other than `ratified`, and the marker's reason clause does not carry the disclosure `document-lifecycle` requires
 - **THEN** the run MUST emit one `warning` finding against the active delta's own path, naming the basis change and its declared standing and stating that the marker does not disclose it
 - **AND** that finding MUST be worded apart from the undeclared and the misdeclared cases, a pairing declared over text no authority has accepted being a different defect from an absent basis or a wrong one
 
@@ -344,6 +441,13 @@ standing nobody can read being no such showing.
 - **THEN** findings of this class on that path MUST be suppressed on the same terms as this family's other findings, and the entry MUST be read as reaching the whole block rather than this class — the disposition is read before the block resolves and there is no finding-class grain for it to read
 - **AND** the entry MUST name the requirement, an entry without that narrowing disposing every finding this family raises against a delta file that may carry several blocks
 - **AND** an entry without a `cite`, or an entry naming another family, MUST suppress nothing
+
+#### Scenario: A citation is recorded while a second ratified writer stands
+- **WHEN** a pairing finding stands over a block, and an active change other than the one whose delta carries that block, whose declared standing is `ratified`, carries a `## MODIFIED Requirements` block for the same capability and requirement title
+- **THEN** the citation route MUST be refused for that block and the pairing MUST be declared by marker with no entry recorded, an entry at this family's grain reaching the ordering finding over that title as well as the pairing one it answers
+- **AND** the refusal MUST rest on the ordering arm having a SUBJECT at that title rather than on its having emitted, the declarations between two ratified writers being one proposal edit away from turning that arm's silence into a finding the standing entry would hide
+- **AND** where no active change other than the carrier, whose declared standing is `ratified`, writes a MODIFIED block for that title any longer — that change having archived, or its standing having ceased to be `ratified` — the route MUST open, the arm having no subject there and nothing it could emit
+- **AND** this bound MUST NOT be read as adding a finding class or a check to this family: it is an obligation on the act that records the entry, read from a state the family's own reader already computes
 
 #### Scenario: The declared basis archives while a pairing disposition still stands
 - **WHEN** the change a pairing disposition was recorded against archives, its addition reaches the promoted specification, and the entry still stands in `health/dispositions.yaml`

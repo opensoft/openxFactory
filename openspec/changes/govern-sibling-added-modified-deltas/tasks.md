@@ -93,6 +93,17 @@ pairing class that cannot read a marker reports every declared pair.
       satisfies UNDECLARED as well, and the run emits two findings with two
       remedies for one defect. Each state's own antecedent carries the exclusion
       the order performs, so the branch and the delta text say the same thing.
+      **CLASSIFY FROM THE BLOCK'S WHOLE MARKER SET AND READ ITS COUNT FIRST.**
+      `derive_units` preserves every recognized marker in `block.markers`, so the
+      classifier is handed a LIST and must never reason about "the marker": a
+      block carrying one valid pairing marker and one naming a change that adds
+      nothing satisfies MISDECLARED and the silent state at once, and which one a
+      run reported would be decided by iteration order. `document-lifecycle`
+      bounds the set at AT MOST ONE marker of this form per block, so the checks
+      run self-addition, then COUNT, then the single marker's basis, its `by` and
+      its disclosure — the silent state and UNDISCLOSED reached only where
+      EXACTLY ONE pairing marker stands and passes every check above, every other
+      block placed by the FIRST check it fails.
       **READ THE CONDITION FROM THE CARRIER'S OWN `## ADDED Requirements` BLOCK
       AND FROM NOTHING ELSE** — this is what 2.3's discriminator is for. A
       carrier's own RENAME to the title is NOT this state: it is the
@@ -100,18 +111,21 @@ pairing class that cannot read a marker reports every declared pair.
       step before `pending` (2.4), so reading it here would either report the
       supported shape or, where `resolve()` had already claimed it, sit as a
       branch no input can reach.
-      MISDECLARED CARRIES TWO HALVES AND ONE ACTION: the named basis is not an
+      MISDECLARED CARRIES THREE GROUNDS AND ONE ACTION: the block carries MORE
+      THAN ONE pairing marker — read FIRST, so a block carrying a good marker and
+      a bad one is placed by a fact about the block rather than by which marker
+      the loop reached; OR the named basis is not an
       active change OTHER THAN THE CARRIER that ADDS or RENAMES to the title —
       it names a change that does neither, or it names the carrier itself — OR the
       `by` identifier is not the change carrying
-      the block — the second read by comparing the identifier the parser already
+      the block — the last read by comparing the identifier the parser already
       recognized (2.1) against the block's own change id, which is why a right
       basis under a wrong author cannot pass as DECLARED AND RESOLVING. **THE
-      FIRST HALF IS WRITTEN AS THE EXACT NEGATION of the silent state's basis
+      BASIS GROUND IS WRITTEN AS THE EXACT NEGATION of the silent state's basis
       clause**, so that narrowing self-reference to the carrier's own addition
       leaves no block outside all five states and the exhaustiveness claim stays
       true by construction rather than by inspection. The
-      finding SHALL say which half it names.
+      finding SHALL say which ground it names.
       UNDISCLOSED NARROWS THE SILENT STATE — its antecedent is that state's plus
       two conditions, so it reaches only a block otherwise in good order (basis
       real, `by` equal to the carrier) and restates no defect the other three
@@ -119,16 +133,21 @@ pairing class that cannot read a marker reports every declared pair.
       reserves, and it is why that capability's disclosure obligation has an
       enforcer at all.
 - [ ] 2.6 Register ONE `_ArmTemplate` for the class, carrying all four states —
-      and MISDECLARED's two halves inside its own — in one interpolated `why`
+      and MISDECLARED's three grounds inside its own — in one interpolated `why`
       clause on the `TEMPLATE_UNRESOLVED` precedent, and append it to
       `_ARM_TEMPLATES`. One template is one shape is one map
       entry; a rule text not rendered from a registered template has no shape the
       unplaced-drift mask can compute and is reported as drift on every run. The
-      two halves differ only in that interpolated clause, so they stay ONE shape
+      three grounds differ only in that interpolated clause, so they stay ONE shape
       and add no entry — the `by`-mismatch wording goes in the `why`, never in
-      the fixed prose the mask reads, and so does the basis half's THIRD reading,
-      a marker naming the carrier itself, which is the same half under the same
-      action and must not be given fixed prose of its own.
+      the fixed prose the mask reads, and so do the marker COUNT and the basis
+      ground's THIRD reading,
+      a marker naming the carrier itself, each being the same state under the same
+      action and none to be given fixed prose of its own. The count belongs in an
+      INTERPOLATED field for the same reason every other number this family
+      reports does: fixed prose carrying a numeral is a shape the mask cannot
+      strip, and a two-marker block and a three-marker one would then read as two
+      remedies.
 - [ ] 2.7 Register the `FindingClass` in `CLASSES`, with its own severity and
       action constants named apart from `_LAUNCH_SEVERITY`, and insert it BEFORE
       the `unplaced` class so both standing ordering claims stay true: the
@@ -140,11 +159,17 @@ pairing class that cannot read a marker reports every declared pair.
 - [ ] 2.9 Fixtures, one per reported state plus BOTH silent ones — a `ratified`
       basis, and an unratified basis whose marker discloses it — and the
       regression fixture reconstructing the corpus's own four-pair shape.
-      MISDECLARED NEEDS BOTH ITS HALVES: a marker naming a basis that adds
-      nothing, and a marker whose basis is right and whose `by` names another
-      change — the second being the false-provenance case, which without the
+      MISDECLARED NEEDS ALL THREE OF ITS GROUNDS: a marker naming a basis that adds
+      nothing; a marker whose basis is right and whose `by` names another
+      change — the false-provenance case, which without the
       comparison passes as DECLARED AND RESOLVING and is the one fixture that
-      fails on the pre-fix classifier. EXCLUSIVITY NEEDS ITS OWN: a
+      fails on the pre-fix classifier; and a block carrying TWO pairing markers,
+      ONE OF THEM VALID and the other naming a change that adds nothing, asserted
+      to emit exactly ONE finding on the count ground — the fixture that fails a
+      classifier reasoning about a singular marker, which would report it or clear
+      it according to which marker it reached, and whose PAIR is an otherwise
+      identical block carrying the valid marker alone, asserted silent.
+      EXCLUSIVITY NEEDS ITS OWN: a
       self-referential block carrying NO marker, asserted to emit ONE finding in
       that state and no undeclared one beside it. **THE OWN-RENAME CARVE NEEDS
       TWO**: a rename-and-amend fixture — a change whose `## RENAMED
@@ -167,8 +192,10 @@ pairing class that cannot read a marker reports every declared pair.
       its own retirement condition — the row retires when its declaring block
       carries a marker or its adding sibling archives. A row discharged by a
       DISPOSITION rather than by a marker is not a retirement: the entry is the
-      exception § 6.4 bounds, and it carries its own retirement (requirement
-      grain, retired when the basis archives) rather than resolving the row.
+      exception § 6.4 bounds, and it carries its own availability bound and its own
+      retirement (recordable only where no second ratified change writes the
+      title, requirement grain, retired when the basis archives) rather than
+      resolving the row.
       **UNDER D4's SEQUENCING THE SET LAUNCHES EMPTY**, § 6 having discharged all four before this
       feature lands, and an empty exact set with a positive control is the same
       shape § 3.3 asks of the collision class. Where the order taken was the
@@ -256,6 +283,13 @@ a veto would strike.
       touched only text canon does not carry. Re-run BOTH at every catch-up
       merge; canon moving under either block is exactly the defect the family
       exists to catch and this packet is not exempt from it.
+      RE-CONFIRMED AFTER THE ROUND-6 EDITS, which are again ALL inside the two
+      `doc-health` ADDED requirements and `document-lifecycle`'s ADDED one —
+      neither MODIFIED block was touched, and both re-read at exactly the figures
+      above: `release-realization` 8 canon units, 52 block units, 0 markers, 0
+      suppressed, 0 defective; `doc-health` 35 canon units, 56 block units, 1
+      marker, the SAME 2 suppressed, 0 defective; 0 title, 0 ledger and 0
+      marker-defect findings against either path.
       RE-RUN AT BOTH 2026-08-31 CATCH-UP MERGES, the second against `9af98c4d`:
       that merge moved nothing under either block — `openspec/specs/` is
       byte-identical between `7f656980` and `9af98c4d` — and canon still carries the
@@ -326,7 +360,8 @@ a veto would strike.
 
 ## 6. Discharging the standing population
 
-- [ ] 6.1 Subject to OQ-4's routing: add one `Modified over` marker to each of
+- [ ] 6.1 Subject to OQ-4's routing: add ONE `Modified over` marker — one, and
+      never a second — to each of
       the four live pairs — `add-binding-consumer-identity`,
       `add-wallet-carried-review-authority`, `implement-keycloak-install-repo`,
       `implement-openxpki-install-repo`. NONE of the four owes the unratified
@@ -359,19 +394,31 @@ a veto would strike.
       family/repo/path with an optional REQUIREMENT narrowing and no finding-class
       grain, so an entry recorded for a pairing finding also silences the three
       comparison arms over that block — after the basis archives included, which
-      is the first moment those arms can read it at all. So: record the entry at
-      REQUIREMENT grain, and RETIRE it when the basis archives. The retirement is
+      is the first moment those arms can read it at all — AND, where the
+      two-writers ordering arm has a subject at that title, the ordering finding
+      over that same block, that arm running BEFORE resolution and filtered
+      through the same read. So: record the entry ONLY where no active change
+      other than the block's own carrier, whose standing is `ratified`, writes a
+      MODIFIED block for that same capability and requirement title — the arm
+      being armed by a COUNT of ratified writers and returning nothing below two
+      of them, so that an admissible state is one in which it has nothing it
+      could emit; at REQUIREMENT grain; and RETIRE it when the basis archives. The
+      retirement is
       the ARCHIVING change's act, evidenced at its own archive gate, and the
       MODIFYING change's archive gate confirms that no such entry stands over its
-      block. See D4.
+      block. The population of the availability bound is ZERO on this tree: no
+      capability-and-requirement title carries more than one active MODIFIED block
+      at all. See D4.
 - [ ] 6.5 SEQUENCE THIS SECTION BEFORE § 2. § 6 is a PRECONDITION of the F1
       feature, not a follow-up to it: the class must launch at a population of
       zero, on the discipline every predecessor family in this group observed
       before joining `FAMILY_RESOLUTION`. **THIS IS THE ROUTE AND THE CITATION IS
       THE EXCEPTION**, in that order and not as two equal options — the delta
       states them ordered, because the exception costs a disposition that
-      suppresses more than the finding it answers (6.4) and this route costs
-      nothing at all. Adding a marker before the parser recognizes the form is
+      suppresses more than the finding it answers (6.4), is UNAVAILABLE OUTRIGHT
+      wherever a second ratified change writes the same title, and this route
+      costs nothing at all and is available everywhere.
+      Adding a marker before the parser recognizes the form is
       mechanically safe — an unrecognized `Modified over` paragraph reads as one
       dated bold note, an extra body unit, and the carriage arms report only
       units canon carries that a block LACKS.

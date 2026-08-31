@@ -428,8 +428,12 @@ Active changes:
   ``**Modified over `<basis change-id>`'s addition by <change-id>
   (<YYYY-MM-DD>):**``,
   read by form and never by prose, naming no units and therefore never a carriage
-  declaration, its `by` identifier VALIDATED as the change carrying the block
-  rather than merely resolved, so a marker naming the right basis under an
+  declaration, AT MOST ONE of them to a block — one pairing, one declaration; the
+  two existing forms keep no such bound because they NAME UNITS and accumulate,
+  while a second marker of this one states a second basis for one text and a block
+  resting on two bases rests on neither — its `by` identifier VALIDATED as the
+  change carrying the block rather than merely resolved, so a marker naming the
+  right basis under an
   unrelated author is reported instead of promoting as false provenance — and
   where the basis is NOT RATIFIED the reason clause discloses
   it by carrying the word `unratified`, a form rather than a wish, so that the
@@ -441,14 +445,20 @@ Active changes:
   RENAME to it being the supported rename-and-amend shape promoted canon resolves
   against the OLD name one step earlier (`openspec/specs/doc-health/spec.md:1568-1574`,
   `:1783-1786`) and this packet leaves that precedence exactly where it found it —
-  then undeclared, then misdeclared — a basis that neither adds nor renames to the
-  title, or that IS the carrier itself, OR a `by`
-  identifier that is not the change carrying the block, written as the EXACT
+  then undeclared, then misdeclared — MORE THAN ONE pairing marker on the block,
+  read first of the three grounds; or a basis that neither adds nor renames to the
+  title, or that IS the carrier itself; OR a `by`
+  identifier that is not the change carrying the block, the basis ground written
+  as the EXACT
   NEGATION of the silent state so the narrowing leaves no block unplaced — then
   undisclosed, the
   marker that names an
   unratified basis without saying so), silent on the fifth (declared and
-  resolving) — plus, as the archive ordering's only possible mechanical
+  resolving) — every state a predicate over the block's WHOLE marker set, which
+  `derive_units` preserves entire, so the silent state and undisclosed are reached
+  only where EXACTLY ONE pairing marker stands and passes every check above it and
+  every other block is placed by the FIRST check it fails, iteration order
+  deciding nothing — plus, as the archive ordering's only possible mechanical
   backstop, a class that reports an active `## ADDED Requirements` block, or an
   active `## RENAMED Requirements` block's `TO:` title, for a
   title canon already carries — the `FROM:` half never read, a rename's source
@@ -497,6 +507,13 @@ Active changes:
   ORDER: § 6's marker sweep is sequenced BEFORE the class lands so it launches at
   population zero, and only where sequencing is unavailable does the discharge
   carry the citation the contested-finding rule already requires — bounded in
+  AVAILABILITY (the route is refused outright while any OTHER `ratified` change
+  writes a MODIFIED block for the same title, the two-writers ordering arm being
+  armed by a COUNT of ratified writers and running BEFORE resolution through the
+  same disposition read, so an entry may exist only where that arm has nothing it
+  could emit and "suppresses nothing" is true by construction rather than
+  asserted — population ZERO here, no title carrying more than one active MODIFIED
+  block), in
   grain (the entry names the REQUIREMENT) and in time (it is RETIRED when the
   basis archives), because `disposed()` runs before a block resolves and has no
   finding-class grain, so an unbounded entry would silence the three comparison
