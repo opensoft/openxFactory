@@ -404,6 +404,20 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [amend-chain-anchoring-readiness-and-durability](openspec/changes/amend-chain-anchoring-readiness-and-durability/proposal.md)
+  — authored 2026-08-31 from the owner-approved reconciliation that preserves
+  ratified `add-chain-anchoring` and retires the stale competing
+  `add-signed-execution-chain-anchoring` draft. **Three semantic gaps survive the
+  collapse and no identity alias does**: the operational PKI plane becomes a
+  normative realization gate; trusted log acceptance time plus atomic sequence
+  define one immutable fixed-UTC daily batch with deterministic dedupe, lateness
+  and empty-day continuity; and Kaspa/OpenTimestamps submission remains distinct
+  from independently verified Kaspa/Bitcoin confirmation while preserving the
+  existing receipt/state split. The superseded draft's provider-neutral gateway
+  text is not imported — protected-operation enforcement remains a consumer and
+  runtime-owner boundary. `Status: draft`; one future Speckit handoff only after
+  ratification and dependency evidence; additive contract minor allocated at
+  realization by merge order.
 - [govern-sibling-added-modified-deltas](openspec/changes/govern-sibling-added-modified-deltas/proposal.md)
   — authored 2026-08-29, **RATIFIED 2026-08-31 BY DIRECT RULING**
   (`Status: ratified`; record `review/ratification-2026-08-31.md`) — Brett Heap
