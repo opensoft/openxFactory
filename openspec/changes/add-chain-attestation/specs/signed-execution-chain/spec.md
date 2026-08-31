@@ -303,6 +303,36 @@ counted there.
 ONE MISSING**: the certificate valid and current; the issuance evidenced; and the
 chain binding naming THIS chain and the scope the record's kind requires.
 
+**AND THE VERIFICATION KEY IS RESOLVED RATHER THAN ASSUMED, BECAUSE THE CANONICAL
+SHAPES CARRY NO KEY.** `certificate-record` holds an OPTIONAL
+`subject.public_key_fingerprint` and no public key at all; `issuance-evidence`
+holds neither. A check phrased as *"the signature verifies under the certified
+key"* is therefore unrunnable from these records as they stand, and where the
+fingerprint is absent even an out-of-band key cannot be bound to the certificate.
+Two obligations close it, and **neither moves a canonical byte**:
+
+1. **A TIER-2 CERTIFICATE RECORD SHALL CARRY `subject.public_key_fingerprint`.**
+   This is THIS CAPABILITY'S CONSUMPTION REQUIREMENT and not a schema change —
+   the field is already in the canonical shape and already constrained there; a
+   consumer may REQUIRE what the canonical shape leaves OPTIONAL, on the estate's
+   own precedent (`add-wallet-carried-review-authority`'s S2, where `issued_by`
+   is optional in the canonical wallet shape and the register's reader refuses a
+   record without it). A tier-2 certificate lacking the fingerprint is REFUSED
+   with the forged-identity force, because it is a certificate that cannot be
+   tied to any key.
+2. **EVERY SIGNED RECORD THIS CAPABILITY DEFINES SHALL CARRY THE SIGNER'S PUBLIC
+   KEY ALONGSIDE ITS SIGNATURE.** This is a discipline on THIS capability's own
+   record surface, which is ours to set — the canonical shapes are untouched.
+
+**RESOLUTION AND COMPARISON, STATED SO A VERIFIER CAN RUN THEM.** The verification
+input supplies the purported key from the signed record itself; verification
+COMPUTES ITS FINGERPRINT under the ONE digest construction already in force and
+REQUIRES EQUALITY with the certificate record's `public_key_fingerprint`; only
+then is the signature verified under that key. **A MISMATCH IS THE
+FORGED-IDENTITY REFUSAL** — it is precisely a key that is not the certified one —
+and so is an absent fingerprint, which is the same condition reached by omission
+rather than by substitution.
+
 **EVERY VERIFICATION OF A TIER-2 SIGNATURE VERIFIES THE COMPOSED ISSUANCE
 FIRST.** A signature under an identity missing ANY OF THE THREE records is a
 **FORGED IDENTITY** — refused with the FRAUD-SIGNAL force a broken link carries,
@@ -529,6 +559,24 @@ stands in for the other.
 - WHEN a realization proposes issuing a broker persona to a runner so its attestations can name an actor
 - THEN it is REFUSED, and the runner's authority stays a `credential-contracts` / `openxwallet` grant
 - AND no persona is created for a workload
+
+#### Scenario: a tier-2 certificate record carries no public key fingerprint
+
+- WHEN a tier-2 identity's certificate record omits `subject.public_key_fingerprint`, the canonical schema leaving it optional
+- THEN it is REFUSED with the forged-identity force, because a certificate that cannot be tied to any key certifies nothing this capability can verify a signature against
+- AND the field's being optional in the canonical shape is not accepted as making it optional HERE, a consumer being free to require what the canonical shape leaves open
+
+#### Scenario: the signing key's fingerprint does not match the certificate's
+
+- WHEN the public key a signed record carries alongside its signature has a fingerprint, computed under the one digest construction in force, that does not EQUAL the certificate record's `subject.public_key_fingerprint`
+- THEN it is REFUSED as a FORGED IDENTITY, because a key that is not the certified key is exactly what that refusal names
+- AND the signature's verifying under the supplied key is never accepted, since it is the binding to the certificate that was in question and not the arithmetic
+
+#### Scenario: the verification key resolves against the certificate
+
+- WHEN a signed record carries the signer's public key beside its signature, that key's computed fingerprint EQUALS the certificate record's `subject.public_key_fingerprint`, and the signature verifies under it
+- THEN the key is RESOLVED and the signature is admitted for the composition's remaining checks
+- AND resolution happens before verification, because verifying under an unbound key establishes only that someone signed
 
 #### Scenario: a lane mints its own keypair and labels it with the expected scope
 
@@ -879,16 +927,37 @@ the signed order is 4 → 5 → 6 → 10**, link 5 being plural and governed by 
 enumeration rule below, **so LINK 10'S PREDECESSOR IS LINK 6'S PR-OPEN DECISION
 RECORD.**
 
-**COMMITMENT EXTENSIONS SIT IN THIS ORDER TOO, BY THE SAME GENERAL RULE.** An
-extension is a controller-signed record under the chain identity, so it is an
-in-force record kind and "nearest prior" reaches it: **an extension's predecessor
-is the SETUP ATTESTATION, or the PRIOR EXTENSION where one exists**, and the
-first signed link written after an extension chains from **the LATEST extension**
-rather than from link 4. So a chain with extensions runs
-4 → x₁ → … → xₙ → 5 → 6 → 10, with each further extension chaining from the last.
-The gate walks that order. A rule that enumerated only numbered links would have
-left every dynamic fan-out unverifiable, which is the defect naming an order over
-RECORDS rather than over NUMBERS exists to avoid.
+**COMMITMENT EXTENSIONS SIT IN THIS ORDER TOO, AND THE GENERAL RULE GOVERNS THEM
+WITH NO SPECIAL PLACEMENT.** An extension is a controller-signed record under the
+chain identity, so it is an in-force record kind and "nearest prior" reaches it
+exactly as it reaches every other: **an extension's predecessor is THE ACTUAL
+NEAREST PRIOR IN-FORCE SIGNED RECORD OF THIS CHAIN**, whatever kind that record
+happens to be — the setup attestation, a prior extension, or **a link-5
+attestation already written**. A rule that enumerated only numbered links would
+have left every dynamic fan-out unverifiable, which is the defect naming an order
+over RECORDS rather than over NUMBERS exists to avoid; a rule that then gave
+extensions their OWN fixed slot would have re-created it one kind over.
+
+**WHERE FAN-OUT COMPLETES BEFORE ANY RUNNER ATTESTS, THAT ORDER READS
+4 → x₁ → … → xₙ → 5 → 6 → 10. THAT IS THE NO-INTERLEAVING CASE AND NOT THE
+RULE.** Fan-out is discovered as work runs, so a chain may lawfully dispatch a
+further task AFTER an earlier task has already emitted its link-5 attestation.
+The extension that commits that later task is then owed at THAT dispatch, and the
+nearest prior in-force record at that moment is the link-5 record already
+written — so the extension descends from it, and the later task's own attestation
+descends from the extension. **The gate walks the interleaved order as it stands,
+because the order is a property of the records that exist rather than of their
+kinds.** An extension forced to descend only from link 4 or another extension
+could satisfy neither its own placement rule nor the general one, and the
+ordinary dynamic fan-out would have been unbuildable.
+
+**WHAT THE DISPATCH DEADLINE ACTUALLY CONSTRAINS, RESTATED PRECISELY BECAUSE THE
+LOOSE READING IS WHAT COLLIDED.** An extension SHALL precede — and therefore be
+written before — **THE DISPATCH OF THE TASKS IT COMMITS**. It is NOT required to
+precede every link-5 attestation of the chain, and never was: an expectation must
+be independent of the runners it measures, which is a fact about **the tasks that
+extension names** and says nothing about tasks committed earlier and already
+attested. The deadline binds per-task, and so does the order.
 
 **THE RULE IS WRITTEN TO BE EXTENDED, NOT REPLACED.** It names no fixed number,
 so a later tranche that puts a record kind in force at links 7, 8 or 9 changes
@@ -1067,11 +1136,20 @@ permission is exactly how an absence becomes a hole.
 - THEN it is REFUSED, because one construction governs every digest this capability computes including those a later tranche adds
 - AND the second rule is removed rather than reconciled
 
-#### Scenario: a chain with commitment extensions is walked for continuity
+#### Scenario: a later task is dispatched after an earlier task has attested
 
-- WHEN a chain carries extensions written at dispatch, and each extension chains from the setup attestation or the prior extension while the first signed link after them chains from the LATEST extension
-- THEN the gate walks the order 4 → x₁ → … → xₙ → 5 → 6 → 10 and CONTINUITY holds — which establishes ORDER and never COMPLETENESS, the committed expectation being what decides whether every dispatched task is accounted for
-- AND an extension left outside the hash-linked order, or a link-5 record chaining from link 4 where an extension intervened, is REFUSED as a break
+- WHEN fan-out discovers a further task after an earlier task's link-5 attestation is already written, and the extension committing the later task is written at that dispatch
+- THEN the extension descends from THAT LINK-5 RECORD, being the actual nearest prior in-force signed record, and the later task's own attestation descends from the extension
+- AND the gate walks the interleaved order as it stands, because the order is a property of the records that exist rather than of their kinds
+- AND the dispatch deadline is satisfied, because it binds an extension to precede the dispatch of THE TASKS IT COMMITS and never every attestation of the chain
+
+#### Scenario: fan-out completes before any runner attests
+
+- WHEN a COMPLETE chain is walked whose every extension was written at dispatch while fan-out ran ahead of the runners, so that each extension's actual nearest prior in-force record is the setup attestation or the prior extension
+- THEN the gate walks 4 → x₁ → … → xₙ → 5 → 6 → 10 and CONTINUITY holds over that order — this being the NO-INTERLEAVING case of the general rule and not a placement rule of its own
+- AND this says nothing about a chain PRESENTED with links missing, which the completeness and scope rules refuse; what holds here is the hash-link ORDER of a chain whose links are all present
+- AND continuity establishes ORDER and never COMPLETENESS, the committed expectation being what decides whether every dispatched task is accounted for
+- AND a record chaining from anything other than its actual nearest prior in-force record is REFUSED as a break, in this order and in any interleaved one
 
 #### Scenario: link 10's signature hashes a link-9 artifact
 

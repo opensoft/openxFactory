@@ -15,7 +15,7 @@ in for a ruleset state.
 
 ## 1. Spec deltas and the packet (THIS PULL REQUEST)
 
-- [x] 1.1 `signed-execution-chain` — **NINE ADDED requirements over 94
+- [x] 1.1 `signed-execution-chain` — **NINE ADDED requirements over 98
       scenarios**: the harness-controller setup attestation under a certificate
       expressed in `add-trust-anchor` vocabulary, with the issuing authority named
       as a realization dependency and never assumed; runner attestations signed AT
@@ -384,6 +384,40 @@ in for a ruleset state.
       capability's surface; the signed chain binding replaces the record round
       eight wrongly counted. Every site synced in this one commit, and 1.16's
       false "both now read SEVEN" is corrected above.
+- [x] 1.19 **THE ELEVENTH BOT ROUND'S TWO P1s ARE CLOSED.** (i) **THE
+      COMPOSITION CARRIED NO VERIFICATION KEY.** Verified against the schema:
+      `certificate-record.schema.yaml`'s `subject` is
+      `required: [identifier, subject_class]` with `additionalProperties: false`,
+      and `public_key_fingerprint` is OPTIONAL — a FINGERPRINT, not a key — while
+      `issuance-evidence` carries neither. So *"the signature verifies under the
+      certified key"* was UNRUNNABLE from the three records, and with the
+      fingerprint absent even an out-of-band key could not be bound. Closed
+      WITHOUT MOVING A CANONICAL BYTE, on the estate's scope-restriction grain:
+      (a) a tier-2 certificate record **SHALL** carry
+      `subject.public_key_fingerprint` — this capability's CONSUMPTION
+      requirement, on `add-wallet-carried-review-authority`'s S2 precedent where
+      `issued_by` is optional in the canonical wallet shape and the register's
+      reader refuses a record without it; and (b) every signed record THIS
+      capability defines carries **the signer's public key beside its signature**,
+      a discipline on our own record surface. **Resolution then runs**: compute
+      the supplied key's fingerprint under the one digest construction, require
+      EQUALITY with the certificate's, and only then verify the signature —
+      mismatch or absent fingerprint being the FORGED-IDENTITY refusal.
+      (ii) **A LAWFUL LATER DISPATCH COULD SATISFY NEITHER ORDERING RULE.** Fan-out
+      may discover a task after an earlier task has attested; the extension owed
+      at that dispatch had a nearest-prior of that link-5 record, which the
+      special placement clause (*"the setup attestation, or the prior
+      extension"*) forbade. **THE UNIVERSAL RULE NOW GOVERNS ALONE** — an
+      extension descends from THE ACTUAL NEAREST PRIOR IN-FORCE SIGNED RECORD,
+      whatever its kind — and `4 → x₁ → … → xₙ → 5 → 6 → 10` is demoted to **the
+      NO-INTERLEAVING CASE**, not a rule. **The constraint that actually mattered
+      is restated precisely**: an extension precedes the dispatch of THE TASKS IT
+      COMMITS, never every attestation of the chain. The dispatch-deadline rule
+      was already per-task and composes unchanged; the continuity scenario was
+      rescoped. **The verifier caught a side effect of my own fix** — the
+      rescoped scenario's antecedent read loosely enough to look like a chain
+      presented with links missing, pushing the permitting count 3 → 4; tightened,
+      and back to 3.
 
 ## 2. §7.4 COUNCIL REVIEW — **HELD 2026-08-30. THE FIRST GATE IS DISCHARGED.**
 
@@ -654,8 +688,14 @@ Each is contract content — cheap now, expensive after a bundle ships.
       had passed at signing**, refused; **a genuine review record from ANOTHER
       PROPOSAL**
       replayed, refused because it does not name this chain's identity; an
-      **extension left outside the hash-linked order**, or a link-5 record
-      chaining from link 4 where an extension intervened, refused as a break; and
+      **record chaining from anything other than its actual nearest prior in-force
+      record**, refused as a break; a **tier-2 certificate record with no
+      `subject.public_key_fingerprint`**, refused; a **signing key whose computed
+      fingerprint does not EQUAL the certificate's**, refused as a forged
+      identity; and POSITIVES for **the verification key resolving against the
+      certificate** and for **a later task dispatched after an earlier task has
+      attested** — the extension chaining from that link-5 record and the gate
+      walking the interleaved order; and
       two POSITIVES — **a genuine tier-2 identity's THREE records verifying end to
       end** (certificate valid and current, issuance evidenced, chain binding
       naming this chain and this scope — then the signature, then the link's own
