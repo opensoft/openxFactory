@@ -1,8 +1,9 @@
 ---
 code_surface: openxFactory (`scripts/doc_health/release_tag_publication.py` — a new module owning the family, in the pattern `promotion_fidelity.py`, `release_inventory.py` and `family_enumeration.py` already set: its own severity and action constants, a pure function that answers the question from a declared bundle plus the repository's tag refs, and one `fam_release_tag_publication(ctx)` emit. `scripts/doc_health/__init__.py` — the family id joins the registered list. `scripts/doc_health/families.py` — the dispatch entry, and `FAMILY_SUMMARIES`/`FAMILY_RESOLUTION` if the family is to carry a summary line and a resolution class. THE FAMILY COUNT RIPPLE IS PART OF THIS SURFACE AND IS ENUMERATED IN TASKS: `docs/doc-health.md` says twenty-two families, `family_enumeration.py` measures the registered set against the documented one, and the `add-family-enumeration-check` capability exists precisely to redden when those disagree — so every place stating the count moves in the same commit as the registration, or the check this repository built for that purpose fires on its own release. `tests/doc-health/test_release_tag_publication.py` — the scenarios of this delta arrive as new tests with fixture repositories carrying real annotated tags, plus a self-gate probe over this repository. `docs/doc-health.md` — the family's row and its action line. NO change to `Finding`, to `report.render`, to the ranked-plan or finding grammars, to any threshold outside this family's own, to `release-inventory-drift`'s behaviour, or to `scripts/hermes_runtime_validation/release.py` — see D5, which is why `verify_tag` is not touched.)
 target_release: implemented — the openxFactory main line. This surface cuts no contract bundle: no schema under `contracts/schemas/` changes, no digest set moves, and no release tag is owed BY this change (which would be a pleasing irony to get wrong). The archive gate is therefore merge-plus-green on main, following `add-family-enumeration-check` and `add-unclassified-finding-class`: `python3 -m pytest tests/doc-health` green, `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green, and a doc-health single-repo run whose severity counts move by exactly what this proposal predicts — see § What this will report on the day it lands, which predicts ZERO, and says why a nonzero answer there would be a finding about the estate rather than about the check.
-Status: draft
+Status: draft — the flagged decisions are RULED; ratification itself is not yet cited, see § The ruling of 2026-08-31
 Proposed: 2026-08-31
+Ruled: 2026-08-31 by Brett Heap — in session, verbatim: "accept D1, D2, D5; threshold N=5". This disposes FOUR of the five decisions flagged for veto and settles the one number the authoring session declined to pick. **D4 WAS NOT NAMED AND IS NOT TREATED AS RULED** — see § The ruling of 2026-08-31, which carries it forward rather than reading acceptance into silence.
 Origin: issue #528, filed 2026-08-31 after `contract-v2.3` and `contract-v2.4` were both found declared-and-untagged by hand while completing the v2.4 cut's own record. Commissioned in session by Brett, verbatim: "take 528". The two bundles have since been tagged; the gap that produced them twice has not been closed, and closing it is what this proposes.
 ---
 
@@ -113,8 +114,8 @@ defines only how doc-health checks it — the same by-reference relationship
 These were taken by the authoring session under standing patterns. Brett's
 commissioning covers the decision to build a check and nothing below.
 
-**D1 — A NEW REQUIREMENT, NOT A `## MODIFIED` BLOCK ON `Release-inventory
-drift`.** Measured, not preferred. That requirement's non-`contested`
+**D1 — ACCEPTED 2026-08-31. A NEW REQUIREMENT, NOT A `## MODIFIED` BLOCK ON
+`Release-inventory drift`.** Measured, not preferred. That requirement's non-`contested`
 classification rests on a stated structural fact: its findings are *"RESOLVED BY
 A RELEASE CUT, which is exactly the act that makes them vanish between
 reports."* **A tag finding is not resolved by a cut.** It is resolved by a tag
@@ -124,7 +125,8 @@ class. The archive rule that a MODIFIED delta wholesale-replaces its named
 requirement is the second reason: it would put eight scenarios at risk to add
 one.
 
-**D2 — A NEW FAMILY, NOT A FINDING CLASS INSIDE `release-inventory-drift`.**
+**D2 — ACCEPTED 2026-08-31; the shape veto was not exercised. A NEW FAMILY,
+NOT A FINDING CLASS INSIDE `release-inventory-drift`.**
 Follows from D1: two different resolution acts should not share a family whose
 resolution semantics are declared. The cost is real and is not hidden — the
 family count ripples through `docs/doc-health.md`, the registered set, and
@@ -133,7 +135,8 @@ enumerate every site. **If Brett prefers the cheaper shape, the veto is here**,
 and the requirement would move into `Release-inventory drift` as a MODIFIED
 block with all eight scenarios restated and its resolution sentence amended.
 
-**D3 — THE WINDOW, AND A THRESHOLD THE AUTHORING SESSION SHOULD NOT PICK.** A
+**D3 — RULED 2026-08-31: N = 5. THE WINDOW, AND A THRESHOLD THE AUTHORING
+SESSION SHOULD NOT PICK.** A
 check that fires the moment the manifest moves is noise on every correctly
 performed cut, because the tag legitimately follows the declaration. The shape
 proposed is distance-based: silent while the declaring commit is the published
@@ -142,9 +145,10 @@ published `main`. **N is a governance number, not an implementation detail**, an
 the packet proposes **five** only so the scenarios have something concrete to
 say. The evidence for calibration: `contract-v2.3` sat untagged across six
 first-parent landings before a human noticed; the August three sat for weeks.
-Brett rules N.
+**Brett ruled N = 5 on 2026-08-31**, which is the number the packet had proposed;
+the scenarios now state it as the ruled default rather than as a placeholder.
 
-**D4 — WHAT THE CHECK ASSERTS ABOUT THE TARGET.** Existence alone is too weak: a
+**D4 — NOT RULED. WHAT THE CHECK ASSERTS ABOUT THE TARGET.** Existence alone is too weak: a
 tag pointing at the wrong commit satisfies "a tag exists" and violates *"the tag
 SHALL point to that realized commit."* Full derivation of the policy's target —
 *"the EARLIEST FIRST-PARENT COMMIT on published `main` that DECLARES the bundle
@@ -157,7 +161,7 @@ branch commit) without re-running the verifier. **The residue is disclosed rathe
 than hidden**: this family does not prove the target is the EARLIEST such commit,
 and a tag on a later declaring commit passes it.
 
-**D5 — NOT BUILT ON `verify_tag`, WHILE #338 STANDS.** `verify_tag` cannot
+**D5 — ACCEPTED 2026-08-31. NOT BUILT ON `verify_tag`, WHILE #338 STANDS.** `verify_tag` cannot
 distinguish *"I have not fetched"* from *"this tag is unreachable from `main`"* —
 `git merge-base --is-ancestor` exits 128 when an argument is not a commit in the
 local object store, and that is folded in with the genuine negative (#338).
@@ -168,6 +172,33 @@ the failure mode doc-health exists to prevent. The family therefore reads tag
 refs directly and does its own peel-and-compare. **If #338 lands first, this
 decision is worth revisiting** — reusing the canonical verifier is otherwise the
 better shape.
+
+## The ruling of 2026-08-31
+
+Brett Heap, in session, verbatim: **"accept D1, D2, D5; threshold N=5"**.
+
+| Decision | Disposition |
+|---|---|
+| **D1** new requirement, not a MODIFIED of `Release-inventory drift` | **ACCEPTED** |
+| **D2** a new family, not a finding class inside that one | **ACCEPTED** — the shape veto was available and not exercised |
+| **D3** the window and its threshold | **RULED: N = 5** first-parent landings |
+| **D4** what the check asserts about the target | **NOT NAMED IN THE RULING. NOT TREATED AS RULED.** |
+| **D5** not built on `verify_tag` while #338 stands | **ACCEPTED** |
+
+**D4 is carried forward deliberately.** The ruling named four decisions and D4
+was not among them. It is the one that decides what this family PROVES: the
+packet proposes asserting the cheap conjunct — the tag must peel to a commit that
+DECLARES the bundle — and disclosing that it does not prove the target is the
+EARLIEST such declaring commit, so a tag on a later declaring commit passes and
+remains a defect under the policy. A packet that read silence as acceptance would
+be narrowing a ruling by omission, which is the failure this estate records
+against itself most often. **D4 is owed before group 2.1 writes the assertion**,
+and until it is ruled the residue stands disclosed rather than accepted.
+
+**What the ruling did NOT do.** It disposed the flagged decisions; it did not
+cite a ratification of the packet, and `Status:` therefore stays `draft`. Whether
+this ruling is also the ratification that authorizes realization is a separate
+act, and task 1.1 stays open until it is cited.
 
 ## What this will report on the day it lands
 

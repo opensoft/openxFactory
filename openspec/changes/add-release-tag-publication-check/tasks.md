@@ -17,22 +17,32 @@ exists.
 
 ## 1. Ratification
 
-- [ ] 1.1 Brett rules the packet. The commissioning ("take 528") authorized
+- [ ] 1.1 Brett rules the packet. **PARTLY DONE 2026-08-31**: D1, D2 and D5
+      ACCEPTED and D3 ruled at N=5. **D4 WAS NOT NAMED AND IS NOT RULED**, and
+      no ratification is cited yet, so this box stays open. The commissioning ("take 528") authorized
       BUILDING A CHECK and nothing else; five design decisions are flagged for
       veto in the proposal's § Orchestrator Decisions and are NOT covered.
-- [ ] 1.2 **D3's threshold N is a governance number and needs a ruling.** The
-      packet proposes FIVE first-parent landings only so the scenarios have
-      something concrete to say. Calibration evidence: `contract-v2.3` sat
-      untagged across six first-parent landings before a human noticed; the
-      August three sat for weeks. A number is owed before group 2.2 can write
-      the threshold.
-- [ ] 1.3 **D2 is the shape veto.** If Brett prefers a finding class inside
+- [x] 1.2 **RULED 2026-08-31: N = 5.** Brett Heap, in session, verbatim:
+      "accept D1, D2, D5; threshold N=5". The delta now states five as the ruled
+      default rather than a placeholder. Calibration it answers to:
+      `contract-v2.3` sat untagged across six first-parent landings before a
+      human noticed, so any threshold above five would have stayed silent
+      through the recurrence this family exists to catch.
+- [x] 1.3 **D2 ACCEPTED 2026-08-31 — the shape veto was available and not
+      exercised.** Recorded for a later reader: the alternative was real. If Brett prefers a finding class inside
       `Release-inventory drift` to a twenty-third family, the delta changes
       shape: the ADDED requirement folds into that requirement as a MODIFIED
       block with all eight of ITS scenarios restated and its resolution
       sentence amended, and groups 2.3 and 2.4 disappear. Cheaper, and it
       couples two different resolution acts in one family — the proposal argues
       against it and does not pretend the argument is free.
+
+- [ ] 1.4 **D4 IS OWED.** The ruling of 2026-08-31 named four decisions and D4
+      was not among them. It decides what the family PROVES about a tag's
+      target — the packet asserts the cheap conjunct (the tag peels to a commit
+      DECLARING the bundle) and discloses that it does not prove the target is
+      the EARLIEST such commit. Owed before 2.1 writes the assertion; reading
+      silence as acceptance would narrow a ruling by omission.
 
 ## 2. Realization — ONE Spec Kit feature
 
@@ -42,7 +52,7 @@ exists.
       `fam_release_tag_publication(ctx)`. Follows `release_inventory.py` and
       `family_enumeration.py` in owning its own module rather than growing
       `families.py`.
-- [ ] 2.2 The distance grading and its threshold, once 1.2 rules N. Distance is
+- [ ] 2.2 The distance grading and its threshold at the ruled **N = 5**. Distance is
       FIRST-PARENT COMMITS ON PUBLISHED `main` since the earliest declaring
       commit — never wall time, which punishes a quiet week.
 - [ ] 2.3 **Registration and the count ripple, IN THE SAME COMMIT.**

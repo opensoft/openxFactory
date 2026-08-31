@@ -22,6 +22,14 @@ PUBLISHED `main` since the earliest commit declaring the bundle, never in wall
 time, because landings are what the policy's own retro-publication rule counts
 and wall time punishes a quiet week.
 
+THE THRESHOLD SHALL DEFAULT TO FIVE FIRST-PARENT LANDINGS, ruled by Brett Heap on
+2026-08-31. It is a threshold default in the sense this capability already gives
+that term, configurable in the same place the aging defaults are, and the ruled
+number is what an unconfigured run uses. The calibration it answers to:
+`contract-v2.3` sat untagged across six first-parent landings before a human
+noticed it, so a threshold above five would have stayed silent through the
+recurrence this family exists to catch.
+
 THE TWO FAILURE STATES SHALL BE REPORTED IN DIFFERENT WORDS AND AT DIFFERENT
 SEVERITIES. An ABSENT tag is an incomplete release — the common case, and the
 one the window above exists to tolerate for a while. A tag that exists and peels
