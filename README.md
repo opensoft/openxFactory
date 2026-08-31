@@ -404,6 +404,107 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-chain-anchoring](openspec/changes/add-chain-anchoring/proposal.md)
+  — authored 2026-08-29, **`Status: draft` — RATIFICATION IS NOT SOUGHT BY THIS
+  PACKET'S LANDING.** Exit 3 of three of the staged topic
+  `signed-execution-chain`: the PUBLIC ANCHORING LAYER and the PERMISSIONED
+  CONSENT PLANE. It is read adversarially by a **§7.4-shaped council convened
+  OUTSIDE the clearance pipeline** — a class over `openspec/changes/**` can never
+  commission one, measured 984 admitted / 984 floored / 0 remaining and
+  reproduced code-level (2026-08-28 `gate_rules_council`, unanimous 5/5) — and
+  **Brett Heap's ratification follows that review**, on
+  `add-binding-consumer-identity`'s pattern. **Almost nothing here is proposed —
+  most of it is RULED**, and the packet distinguishes the two everywhere. **Q3,
+  ROUND 2 (2026-08-29, and it DIVERGES from the vendored study)**: BOTH witnesses
+  on EVERY anchored item — **Kaspa FIRST as the OPERATIONAL witness** under the
+  study's three conditions unchanged (archival node; inclusion proofs captured
+  AND retained at anchor time; corroborating, never sole) and **Bitcoin batched
+  via OpenTimestamps as the DURABILITY witness**, with **ten-year claims citing
+  Bitcoin**, **no selectivity** and **no third chain**. *"Primary" is order of
+  arrival, never evidentiary weight* — the pruning finding is not softened by the
+  promotion. The study is **NOT edited**: a research record rewritten to agree
+  with a later ruling stops being evidence, so the ruling governs and the study
+  stands, cited for GROUNDS only. **THE MULTI-ANCHOR RECEIPT IS BUILT FIRST**,
+  per the exit path, and in the CORRECTED form: digest → aggregation Merkle path
+  → per-chain {**anchor transaction bytes**, **transaction-to-block or DAG
+  inclusion proof**, block header, **chain-acceptance evidence**}, captured whole
+  at anchor time, **REFUSED AT CAPTURE TIME** if any is missing — a header beside a bare transaction reference
+  proves nothing once the transaction is pruned, and a bespoke single-chain
+  receipt is the one-way door the design exists to avoid. **Q2 AND Q6 BECOME
+  CONTRACT TEXT WITH A REFUSING VALIDATOR**: on chain, salted keyed commitments,
+  consent-log CHECKPOINT commitments and the anchors; off chain, every payload
+  without exception plus consent STATE and the SALTS. **The payload refusal is
+  STRUCTURAL, not semantic** — a neutral validator that refused PHI by name would
+  need domain semantics, one that refuses EVERY payload needs none and is
+  stricter — and **the unsalted-commitment refusal is by DECLARED CONSTRUCTION**,
+  because a salted keyed commitment and a plain digest are indistinguishable by
+  inspection; that residual is **DECLARED as a gap** on `add-trust-anchor`'s
+  pattern rather than claimed closed. **ERASURE IS BY SALT DESTRUCTION and its
+  cost is stated**: the handle becomes permanently unverifiable, and that IS the
+  erasure. **ANCHOR LATE** — a false attestation reaching a chain is permanent,
+  and the cost of lateness is one aggregation interval. **THE PACKET'S LARGEST
+  DECISION, put to the council rather than presented as settled: WHAT FAILS
+  CLOSED IS THE CLAIM, NOT THE FACTORY.** A witness outage never blocks
+  ratification, execution or any gate — the log is the record and anchors are late
+  additions to it — but an item with fewer witnesses than the configuration
+  demands is `anchor_incomplete` with its missing witnesses NAMED, verification
+  returns `anchor_incomplete` and never a bare pass or a bare fail, ten-year
+  claims are refused while the durability witness is missing, every horizon breach
+  is a leaf, and **there is no aggregate `anchored` boolean anywhere**. The two
+  outages are ASYMMETRIC and the requirement says so; a returning aggregation
+  calendar **UPGRADES THE PENDING DURABILITY PROOF and appends its entry** and
+  never re-anchors — the receipt holds proof material, the ANCHOR-STATE record
+  holds state, and keeping them apart is what stops the two rules colliding.
+  **THE REVIEW ROUND CORRECTED TWO CONTROLS THAT COULD NOT RUN**, both real,
+  both recorded rather than patched: an append-only log's checkpoints commit to
+  every prefix, so "no unvalidated material reaches a chain" was unachievable —
+  resolved by telling an **ITEM ANCHOR** (gate-passed material only) apart from a
+  **LOG CHECKPOINT ANCHOR** (witnesses what the log SAID, **never a validity
+  claim**, inclusion never read as validation), which **NARROWS the staged
+  topic's anchor-late constraint, recorded rather than applied silently**; and a
+  block header is not canonicality, so the receipt gained its **fourth element**
+  and a **named independently obtainable header source**, with the limit stated —
+  a receipt is checkable against a header set the verifier fetches for itself,
+  never self-sufficient against a forged history. Also
+  carried, from Brett Heap's own 2024 MedxChain notes vendored by **PR #509 (IN
+  FLIGHT)**: **verification-attempt auditing** (verify events and refused access
+  are leaves — an evidence plane that records only writes cannot answer who
+  tried), **the meta-analysis lane** (record + demographic planes analyzable
+  without the identity plane BY CONSTRUCTION), and the **domain-instantiation
+  boundary** (MedxChain/HealthLinc are MedxFactory's, LedgerLinc LedgerxFactory's;
+  the neutral layer authors no domain content, and an overlay may TIGHTEN a
+  refusal and never relax one) — plus **one CORRECTION to that source**: its one
+  shared record digest across three databases is a cross-plane JOIN KEY, so
+  per-plane keys are derived under per-plane salts. **Q5 IS COMPLIED WITH
+  POSITIVELY**: today's evidence-only posture is stated in the present tense, with
+  **no "never"** and **NO TRIGGER CONDITION**, because the ruling refused both.
+  **NINE ADDED requirements over 89 SCENARIOS, no MODIFIED block anywhere**
+  (52 scenarios at the head the council judged; the 2026-08-30 fix round and its
+  NINE bot rounds added THIRTY-SEVEN SCENARIOS and NO NEW REQUIREMENT — the
+  requirement count is unchanged at nine) — a
+  NEW capability `chain-anchoring` rather than a second ADDED block on
+  `signed-execution-chain`, which avoids the sibling-delta shape of issue #502
+  outright. The change id and capability **diverge from the ratified working id**
+  `add-signed-execution-chain-anchoring`, and the divergence is recorded rather
+  than glossed. `target_release` **deliberately NOT numbered** — the era is
+  `contract-v2.2` and the next additive minor is allocated at realization by merge
+  order, since tranche one already names `contract-v2.3` and tranche two reaches
+  the same cut. **ITS §7.4 COUNCIL SAT 2026-08-30** — four seats, one ACCEPT and
+  three ACCEPT AS AMENDED, the sitting carried in `review/` with
+  `disposition-2026-08-30.md` as the sole disposition of record. Brett Heap ruled
+  *"accept all fifteen as recommended"*; this packet's **three blocking
+  amendments and one folded bot finding were discharged**, then NINE bot rounds
+  followed. **RATIFIED 2026-08-30** (`Status: ratified`; record
+  `review/ratification-2026-08-30.md`), ruling *"2 yes with note"* — **the note
+  being that the heads from `fd7c1ca7` onward are unreviewed by any bot on a
+  quota refusal rather than a clean pass**, disclosed before the ruling and
+  ratified under the prescribed-fix principle. The same act **normalized the
+  frozen sitting headers (4a)**, **blessed LS-A9's out-of-disposition execution
+  (5)**, and **ordered the TIMING-MODEL CONSOLIDATION (6a)** — eighteen scattered
+  paragraphs, in which three consecutive rounds had found direction errors,
+  restated as ONE section with semantics unchanged and every clock-relevant
+  scenario satisfied. **Ratification authorizes REALIZATION and performs none of
+  it.**
 - [add-binding-consumer-identity](openspec/changes/add-binding-consumer-identity/proposal.md)
   — authored 2026-08-29, **RATIFIED 2026-08-29** (`Status: ratified`; record
   `review/ratification-2026-08-29.md`). **THE FIRST PACKET THROUGH THE §7.4 PATH
