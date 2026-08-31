@@ -398,6 +398,23 @@ somebody else was already writing it up. The check that would have caught it is
 * **The archive.** The change stays ACTIVE in the README OpenSpec Records. It
   carries a code surface, so the archive wants the merge and a green run — and it
   carries two open boxes besides.
+
+  **SUPERSEDED BY EVENT, 2026-08-31 — and the sentence above is left standing
+  because it was true when it was written.** The change ARCHIVED on Brett Heap's
+  order of that day, once #533 had merged and the tag was published: the archive
+  gate's two demands — merged code on the implemented target and a green run —
+  were both met and both re-read at the archive act rather than inherited from
+  this file. **The two open boxes did NOT close and were not treated as closing
+  conditions**: § 4.5 (the operator act making the check REQUIRED) and § 4.6 (its
+  canary evidence, blocked on 4.5 by construction) survive the archive UNTICKED by
+  decision, restated as dispositions in `tasks.md` § 4.5, § 4.6 and § 6.1, and
+  carried forward at **openxFactory issue #534** so the obligation is not recorded
+  only inside an archived packet. Requirement 9 therefore reaches canon meeting its
+  own degraded case, which is the honest reading and not a workaround: the reader
+  exists, is unrequired, warns on every run, and the shipped declaration says
+  `is_required_in_ruleset: false`. The full act — mechanism, counts, byte-for-byte
+  promotion check and the blob-id hazard verification — is recorded at `tasks.md`
+  § 6.1.
 * **Any edit to `proposal.md`.** Its `target_release: contract-v2.3` front-matter
   is LEFT STANDING. The packet is RATIFIED; the line itself says the number
   *"remains ALLOCATED AT REALIZATION BY MERGE ORDER … and the realization confirms
