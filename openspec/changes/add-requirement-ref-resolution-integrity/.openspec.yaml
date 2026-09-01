@@ -39,19 +39,31 @@ origin:
     PR #516's discussion and in issue #523: the fix is a SMALL SUCCESSOR CHANGE
     CARRYING ITS OWN RESOLUTION-INTEGRITY CODE, resolution integrity becoming
     its own check rather than a by-product of the shared-secret lift.
-    THIS RECORDS AUTHORIZATION TO AUTHOR, NOT RATIFICATION OF CONTENT. The
-    citation covers THE DECISION TO FILE and the SHAPE OF THE FIX (its own code,
-    not an unphased narrowing) and nothing else. This packet stands at
-    `Status: draft`; every decision beyond that sentence is the authoring
-    session's, is listed in proposal.md § Authoring decisions as AD-1 … AD-6,
-    and stays FLAGGED FOR VETO — as do the four items in § Open questions, each
-    of which carries a recommendation and no decision. Ratification is a
-    separate act that has NOT happened, and whether a §7.4-shaped council sitting
-    is convened for a packet this size is itself Brett's call (tasks § 2.3).
+    THIS FIELD RECORDS AUTHORIZATION TO AUTHOR, NOT RATIFICATION OF CONTENT,
+    AND MUST NOT BE READ AS ONE. The citation covers THE DECISION TO FILE and
+    the SHAPE OF THE FIX (its own code, not an unphased narrowing) and nothing
+    else. Every decision beyond that sentence was the authoring session's, is
+    listed in proposal.md § Authoring decisions as AD-1 … AD-6, and was FLAGGED
+    FOR VETO when written — as were the four items in § Open questions, each of
+    which carries a recommendation and no decision.
+    THE PACKET IS NOW RATIFIED, BY A SEPARATE AND LATER ACT — 2026-09-01, Brett
+    Heap (repository owner), in session via an explicit multi-choice put, session
+    `openxfactory-f5`; record at `review/ratification-2026-09-01.md`, and
+    proposal.md carries `Status: ratified` with the record-citing `Ratified:`
+    line. **AD-1 IS RULED TWO CODES, AS DRAFTED**, and the twelve-item
+    AD-1/ONE-CODE AMENDMENT SET is DECLINED — none of its items executed, and it
+    is left standing in the proposal as the record of the rulable alternative
+    rather than struck. AD-2 … AD-6 stand as drafted; OQ-1 … OQ-4 REMAIN OPEN,
+    the ruling having reached the decisions without reaching the questions.
+    NO §7.4 COUNCIL SITTING WAS CONVENED AND NONE WAS PRESCRIBED — tasks § 2.3
+    left the question to Brett and he took the DIRECT path, so no seat sat, no
+    ballot was cast, and nothing in this packet may be cited as a council
+    disposition. Ratification authorizes realization and performs none of it:
+    the change stays ACTIVE until tasks § 8's merged-and-green evidence exists.
   approved_on: 2026-08-30
 related:
-  - openxFactory:change:add-binding-consumer-identity          # RATIFIED 2026-08-29, ACTIVE, realized at contract-v2.4 (PR #516). The packet whose three split clauses this change reconciles and whose eight deprecation codes it deliberately does not widen. This change MODIFIES none of its requirements, so no `Modified over` marker and no archive-order hold arise
-  - openxFactory:change:govern-sibling-added-modified-deltas   # RATIFIED 2026-08-31, ACTIVE. The rule this packet was measured against before choosing an all-ADDED delta; the measurement is recorded in proposal.md § The sibling rule, measured
-  - openxFactory:change:add-notebook-hosting-credential-custody # RATIFIED 2026-08-23, ACTIVE. The one-identity / per-system-authority requirement the whole reference exists to serve
+  - openxFactory:change:add-binding-consumer-identity          # RATIFIED 2026-08-29, realized at contract-v2.4 (PR #516), and ARCHIVED 2026-08-31 by PR #541 — now at openspec/changes/archive/2026-08-31-add-binding-consumer-identity/, its requirements PROMOTED into openspec/specs/credential-contracts/spec.md. The packet whose three split clauses this change reconciles and whose eight deprecation codes it deliberately does not widen. This change MODIFIES none of its requirements, so no `Modified over` marker and no archive-order hold arise — before the archive because an ADDED delta avoided both, and now because the basis has archived and neither would be owed
+  - openxFactory:change:govern-sibling-added-modified-deltas   # RATIFIED 2026-08-31 by direct ruling, ACTIVE (verified 2026-09-01). The rule this packet was measured against before choosing an all-ADDED delta, and the ratification-by-direct-ruling precedent this packet's own ratification follows; both measurements are recorded in proposal.md § The sibling rule, measured
+  - openxFactory:change:add-notebook-hosting-credential-custody # RATIFIED 2026-08-23, ARCHIVED 2026-08-31 by PR #541 as the BASIS of the pair. The one-identity / per-system-authority requirement the whole reference exists to serve
   - openxFactory:change:add-credential-escrow-checkout         # RATIFIED 2026-08-28, ACTIVE. The other writer queued on this family's schema file; this change does not touch the schema, so the two do not collide
   - openxFactory:change:promote-credential-contracts           # archived; promoted the binding-template shape and the validator this change extends

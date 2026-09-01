@@ -1,11 +1,17 @@
 # Tasks: add-requirement-ref-resolution-integrity
 
-Governance-level and dependency-ordered. **This change is a DRAFT and is NOT
-being implemented now.** § 1 is authored in this pull request; **§ 2 — Brett
-Heap's ratification act — IS THE NEXT ACT AND IS OPEN**; § 3 onward are for the
-implementer and belong to a separate realization pull request, on the pattern
-this packet's own subject set established (proposal PR #497, realization PR
-#516).
+Governance-level and dependency-ordered. **This change is RATIFIED** (2026-09-01,
+Brett Heap, by direct ruling — `review/ratification-2026-09-01.md`). § 1 was
+authored in this pull request; **§ 2 CARRIES THE RATIFICATION and its dispositions,
+two of its four boxes disposed rather than closed**; § 3 onward are for the
+implementer and belong to a separate realization pull request, on the pattern this
+packet's own subject set established (proposal PR #497, realization PR #516).
+
+**NOTHING ELSE HAS MOVED.** § 3 – § 6 are the unbuilt realization slice, § 7's
+verification gates are untouched, § 8's archive gate is untouched, and § 9 records
+what this change deliberately does not close — **now including § 9.4, the one
+review finding that is OPEN at the ratified tip and routed rather than repaired.**
+Ratification authorizes realization and performs none of it.
 
 Evidence convention, unchanged from the family's standard: a box closes on a
 FACT that survives the session — a merged commit, a green run named by id, a
@@ -24,13 +30,26 @@ file path, a command and its output — never on an intention.
       with"* and *"Two bindings on one secret are refused unless every pair
       declares distinct consumers…"* — are carried by NO promoted specification
       (`openspec/specs/credential-contracts/spec.md` holds seven titles, neither
-      of them these) and are ADDED by the ACTIVE, ratified, unarchived
-      `add-binding-consumer-identity`. A MODIFIED block over either is exactly
-      the shape `govern-sibling-added-modified-deltas` governs: a
-      ``**Modified over `<basis>`'s addition by <change-id> (<date>):**`` marker
-      plus an ARCHIVE-ORDER HOLD behind the sibling. A pure ADDED requirement
-      serves, so this packet takes it, carries no marker and imposes no hold.
-      Recorded in proposal.md § The sibling rule, measured.
+      of them these) and are ADDED by the then-ACTIVE, ratified, unarchived
+      `add-binding-consumer-identity`. A MODIFIED block over either would then
+      have been exactly the shape `govern-sibling-added-modified-deltas` governs:
+      a ``**Modified over `<basis>`'s addition by <change-id> (<date>):**``
+      marker plus an ARCHIVE-ORDER HOLD behind the sibling. A pure ADDED
+      requirement serves, so this packet takes it, carries no marker and imposes
+      no hold.
+      **RE-MEASURED 2026-09-01, AFTER THE CATCH-UP MERGE OF `origin/main`
+      `1c1dcbbe`, AND THE BOX STILL TICKS.** PR #541 ARCHIVED
+      `add-binding-consumer-identity` on 2026-08-31 (basis-first, with
+      `add-notebook-hosting-credential-custody`), so the promoted spec now carries
+      TWELVE titles and BOTH of the two named above ARE among them (`:278` and
+      `:440`). A MODIFIED block over either would now be an ORDINARY block over
+      promoted canon — no marker, no hold, the basis having archived. **The
+      CHOICE is unchanged and only its REASON moved**: an all-ADDED delta served
+      before because it avoided a marker and a hold, and serves now because the
+      reporting duty is still a duty this capability states nowhere. Neither
+      ADDED title collides with the twelve promoted ones — checked, not assumed.
+      Both measurements are recorded in proposal.md § The sibling rule, measured
+      and in `review/ratification-2026-09-01.md` § The catch-up merge.
 - [x] 1.3 The reproduction is IN the packet as a falsifiable scenario
       (*"The shipped check is silent on both of them today"*), not only as
       prose in § What was measured — so a later reader can re-run it against
@@ -71,31 +90,61 @@ file path, a command and its output — never on an intention.
       twelve-item AD-1/ONE-CODE AMENDMENT SET, and § 2.2 and § 3.3 point at it.
       The recommendation stands UNCHANGED at TWO codes.
 
-## 2. Ratification — THE NEXT ACT, OPEN
+## 2. Ratification — DONE 2026-09-01, BY DIRECT RULING
 
-- [ ] 2.1 **Brett Heap reads the packet and rules.** Ratification authorizes
-      REALIZATION and performs none of it. Until it happens this packet stays
-      `Status: draft` and nothing in § 3 onward may start.
-- [ ] 2.2 Each of AD-1 … AD-6 carries a disposition (accept / veto / amend) and
-      each of OQ-1 … OQ-4 a ruling or an explicit defer. **AD-1 is the one that
-      changes the spec text**: one code or two. It is RULABLE IN ONE SENTENCE
-      because the one-code branch is enumerated as a twelve-item AMENDMENT SET in
-      AD-1 itself — which delta paragraph, which two scenarios, which
-      `code_surface` sentences, which task rows and which README clause — so
-      "one code" is executed mechanically in the ratifying commit rather than
-      leaving a delta that requires two codes standing beside a ruling that
-      permits one.
-- [ ] 2.3 Whether a §7.4-shaped council sitting is convened for this packet at
-      all is BRETT'S CALL and is not assumed here. The packet is small, its
-      subject is a ruled successor rather than a new doctrine, and the
-      `govern-sibling-added-modified-deltas` precedent — ratified by direct
-      ruling with the sitting it prescribed for itself DECLINED — is the nearer
-      one. If a sitting is convened, its record lands in `review/`; a `review/`
-      directory is NOT created before then, an empty one asserting a sitting
-      that did not happen.
-- [ ] 2.4 On ratification: `Status: ratified` + `Ratified by:` on proposal.md,
-      the README entry updated in the same commit, and the ratification record
-      written to `review/ratification-<date>.md`.
+**RATIFIED 2026-09-01 BY DIRECT RULING** — Brett Heap (repository owner), in
+session via an explicit multi-choice put, session `openxfactory-f5`; record
+`review/ratification-2026-09-01.md`. **AD-1 IS RULED TWO CODES, AS DRAFTED**, and
+the twelve-item AD-1/ONE-CODE AMENDMENT SET is DECLINED — none of its items
+executed, and it is left standing in the proposal rather than struck. **NO §7.4
+SITTING WAS CONVENED**, § 2.3 having left that question to Brett rather than
+prescribing one. Each box below therefore carries its MEASURED disposition, and
+TWO OF THE FOUR DO NOT TICK: a box that routes every open question to a ruling
+cannot be ticked by a ruling that reached the decisions and not the questions, and
+a box that puts a live question cannot be ticked by the act that answered it.
+
+- [x] 2.1 **DONE.** Brett Heap read the packet and ruled: RATIFY, by direct
+      ruling of the repository owner, over tip `deb72c8e`. Ratification authorizes
+      REALIZATION and performs none of it; `proposal.md` now carries
+      `Status: ratified` with the record-citing `Ratified:` line, and § 3 onward
+      may start in a SEPARATE pull request.
+- [ ] 2.2 **PARTLY ANSWERED, AND THEREFORE NOT TICKED.** This box asks for TWO
+      things and got one. **THE AD SIDE IS DISCHARGED IN FULL**: AD-1 is RULED
+      TWO CODES — the decision the box names as "the one that changes the spec
+      text" — and AD-2 … AD-6 stand ACCEPTED AS DRAFTED. The box's own prediction
+      held exactly: the ruling took ONE SENTENCE and executed as ZERO EDITS,
+      because the one-code branch was enumerated as a mechanical amendment set,
+      so no delta requiring two codes was ever left standing beside a ruling
+      permitting one. **THE OQ SIDE IS NOT**: OQ-1 … OQ-4 received neither a
+      ruling nor an explicit defer. They REMAIN OPEN exactly as
+      `proposal.md` § Open questions leaves them, each with its recommendation
+      and no decision, and they travel with § 4, § 9.1 and § 9.2. Ticking this
+      box would assert four dispositions that were never taken.
+- [ ] 2.3 **ANSWERED, NOT PERFORMED — AND THEREFORE NOT TICKED.** This box put a
+      QUESTION rather than an obligation: whether to convene a §7.4-shaped sitting
+      was Brett's call and was not assumed. **HE TOOK THE DIRECT PATH.** No
+      sitting was convened, no seat sat, no ballot was cast, and nothing in this
+      packet may be cited as a council disposition. The box named the
+      `govern-sibling-added-modified-deltas` precedent as the nearer one and it
+      was: that packet was ratified 2026-08-31 by direct ruling with the sitting
+      it had PRESCRIBED for itself declined, and this one never prescribed a
+      sitting at all. The box's `review/` condition is honoured in its own terms —
+      the directory was created only when there was a record to put in it, and
+      what it holds is a RATIFICATION record, not a sitting record. A box asking
+      "shall we convene?" cannot be ticked by the answer "no".
+- [x] 2.4 **DONE in the ratification commit.** `proposal.md` carries
+      `Status: ratified` plus the RECORD-CITING `Ratified:` spelling — the branch
+      of this box that applies, there being no approving OpenSpec change to name,
+      so `Ratified by:` would mean naming a change that does not exist; the
+      citation names an approver, a date AND a resolvable record path, all three
+      of the three-way floor rather than the one it needs. The record is
+      `review/ratification-2026-09-01.md`. Swept in the SAME commit, on the rule
+      that any edit changing what a packet asserts about itself owes a sweep of
+      every site asserting the same thing: `proposal.md`'s new § Standing, its
+      § Authoring decisions preamble, AD-1's heading and its amendment-set
+      heading, § The sibling rule measured, § Impact's sibling states,
+      `.openspec.yaml`'s `approved_by` and three `related:` rows, this file's
+      header and § 1.2, and the README active-changes entry.
 
 ## 3. Realization — the validator arm (SEPARATE PULL REQUEST)
 
@@ -121,6 +170,15 @@ file path, a command and its output — never on an intention.
 - [ ] 3.4 `resolve_requirement` is CALLED, not edited: same statuses, same
       index, same grammar, same never-open-a-path rule. A diff touching that
       function's body is out of scope and should be justified or reverted.
+      **BUT SEE § 9.4 BEFORE TREATING THIS ROW AS COMPLETE.** The third Codex
+      round (2026-08-31, on the ratified tip `deb72c8e`) found that this freeze,
+      as written, would carry an INHERITED gap forward silently: the resolver
+      matches `index.get(requirements_document_ref)`, so one requirement id
+      sitting in TWO schema-valid documents resolves `ok` from either, leaving the
+      CROSS-DOCUMENT arm of the promoted ambiguity scenario unmet. That finding is
+      OPEN and routed to § 9.4. The implementer must BROADEN the lookup or
+      EXPLICITLY AMEND that promoted scenario, and must not do neither — this row
+      is the freeze, not a licence to leave the gap unnamed.
 - [ ] 3.5 The lift path is untouched. A sharing pair whose reference does not
       resolve still gets the `shared-secret-identity` ERROR naming the condition
       that stood, AND now also the per-binding warning. A test asserts BOTH are
@@ -234,3 +292,34 @@ file path, a command and its output — never on an intention.
       — i.e. whether the reference becomes required alongside the two
       identifiers. Out of scope: that is a requiredness act on the block, which
       is the sibling's territory and its degraded-mode gate.
+- [ ] 9.4 **CROSS-DOCUMENT AMBIGUITY IS NOT RESOLVED BY THE FROZEN RESOLVER.**
+      **OPEN AT THE RATIFIED TIP, ROUTED RATHER THAN REPAIRED — the one review
+      finding this packet ratifies over.** Raised by Codex on 2026-08-31 23:54
+      UTC against `deb72c8e`, the tip that was ratified: *"Resolve ambiguity
+      across all indexed requirement documents."* `resolve_requirement` matches
+      `[r for r in index.get(doc_ref, []) if r.get("id") == rid]` — scoped to the
+      ONE document the reference names — so where the same requirement id sits in
+      TWO schema-valid documents, a binding pointing at either resolves `ok`, and
+      the per-binding arm § 3.2 buys would stay SILENT on that case.
+      **WHAT IT MEASURES AGAINST IS PROMOTED CANON**, not this packet:
+      `openspec/specs/credential-contracts/spec.md`'s scenario *"The requirement
+      reference resolves to more than one record"* reads *"a named requirement
+      reference matches requirement records in MORE THAN ONE DOCUMENT, or more
+      than one record in a document"* — promoted when PR #541 archived
+      `add-binding-consumer-identity` on 2026-08-31. The shipped resolver already
+      fails its first arm.
+      **WHY IT IS ROUTED AND NOT REPAIRED HERE.** It falsifies nothing this packet
+      ratifies — this delta's ambiguity scenario says *"matching more than one
+      requirement record"* and says nothing about document count, so it stays true
+      whether or not the lookup is later broadened. It lands on a REALIZATION row
+      (§ 3.4), and ratification realizes nothing. And the gap is INHERITED, not
+      introduced: this packet neither created it nor closes it.
+      **WHAT IS OWED, AND BY WHOM.** Before § 3 may be called complete the
+      implementer MUST either BROADEN the resolution lookup across indexed
+      documents or EXPLICITLY AMEND that promoted scenario — and MUST NOT do
+      neither. Whether the broadening belongs to this change or to a successor is
+      itself undecided and is part of what this box carries.
+      **THE BENCH HAS NOT SEEN THIS ANSWER.** No review round has read the packet
+      since the finding was routed; the four hourly retries after it were all
+      provider-refused. Recorded in `review/ratification-2026-09-01.md`
+      § "The review evidence" and § "The provider refusal, recorded honestly".

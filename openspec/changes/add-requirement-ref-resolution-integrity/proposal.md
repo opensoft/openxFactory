@@ -5,18 +5,70 @@ target_release: THE NEXT ADDITIVE MINOR, DELIBERATELY NOT NUMBERED HERE — allo
 
 # Proposal: add-requirement-ref-resolution-integrity
 
-Status: draft
+Status: ratified
 Proposed: 2026-08-31, on Brett Heap's recorded ruling of 2026-08-30 — *"successor
 change with its own resolution-integrity code"* — taken over the Codex finding on
 PR #516 and anchored at openxFactory issue #523, which is this packet's origin
 and its scope statement both.
-**RATIFICATION HAS NOT HAPPENED AND IS NOT SOUGHT BY THIS PACKET'S LANDING.**
-This is a PROPOSAL-ONLY pull request on the house pattern its own subject set:
-`add-binding-consumer-identity` landed as a proposal (PR #497) and its
-realization came separately (PR #516). No validator line, no fixture and no
-policy row moves in this pull request. Every decision the authoring session took
-is listed in § Authoring decisions, flagged for veto, rather than presented as
-settled.
+Ratified: 2026-09-01 by Brett Heap (repository owner) — in-session via an explicit
+multi-choice put, session `openxfactory-f5`; record at
+`openspec/changes/add-requirement-ref-resolution-integrity/review/ratification-2026-09-01.md`.
+The record-citing spelling is the one this citation's condition of use selects:
+there is no approving OpenSpec change to name. **AD-1 IS RULED TWO CODES, AS
+DRAFTED**, and the twelve-item one-code amendment set is DECLINED — left standing
+in § Authoring decisions as the record of the alternative that was rulable, not
+struck.
+
+## Standing
+
+**THIS PACKET IS RATIFIED — 2026-09-01, BY DIRECT RULING.** `Status: ratified`,
+with the record-citing `Ratified:` line above; the record is
+`review/ratification-2026-09-01.md`. Brett Heap ruled in session via an explicit
+multi-choice put. **AD-1 IS RULED: TWO CODES**, exactly as this packet
+recommends — zero-resolving and ambiguous reported apart, under distinct codes,
+because their remedies live in different files. AD-2 … AD-6 stand as drafted.
+
+**THE AD-1/ONE-CODE AMENDMENT SET IS DECLINED AND IS DELIBERATELY NOT DELETED.**
+None of its twelve items is executed: the delta's *"ZERO AND MORE-THAN-ONE ARE
+NAMED APART"* paragraph is unedited, the *"named apart"* scenario keeps its
+DISTINCT-codes obligation, and `code_surface` still buys TWO CODES AND THREE
+FIXTURES. The enumeration stays in AD-1 below as the record of what was rulable —
+a ratifier offered a real alternative and taking the other one leaves a better
+record by keeping the alternative legible than by deleting the evidence a choice
+existed.
+
+**NO §7.4 SITTING WAS CONVENED, AND NONE WAS PRESCRIBED.** `tasks.md` § 2.3 put
+the question rather than the answer — whether to convene one was Brett's call —
+and he took the DIRECT path, the #504/#497-family precedent's direct branch that
+`add-notebook-projection-identity`, `add-standing-policy-compliance-contract` and
+`govern-sibling-added-modified-deltas` each took. No seat sat, no ballot was cast,
+and nothing in this packet may be cited as a council disposition.
+
+**WHAT THE TWO AUTHORIZATIONS EACH COVER, KEPT APART.** What Brett authorized on
+2026-08-30 was the DECISION TO FILE and the SHAPE OF THE FIX, the one sentence in
+issue #523; `.openspec.yaml` records that and says plainly that it did not reach
+this packet's content. The 2026-09-01 ruling is the separate, later act that does.
+
+**THE FOUR OPEN QUESTIONS ARE UNTOUCHED BY IT.** OQ-1 … OQ-4 below remain OPEN,
+each with its recommendation and no decision. The ruling reached AD-1 and did not
+reach the questions.
+
+**RATIFICATION AUTHORIZES REALIZATION AND PERFORMS NONE OF IT.** This is still a
+PROPOSAL-ONLY pull request on the house pattern its own subject set established:
+`add-binding-consumer-identity` landed as a proposal (PR #497) and its realization
+came separately (PR #516). No validator line, no fixture, no bundle number and no
+policy row moves here. `tasks.md` § 3 – § 6 are the realization slice and belong
+to a separate pull request; the change stays ACTIVE until § 8's
+merged-and-green evidence exists.
+
+**ONE REVIEW FINDING IS OPEN AT THE RATIFIED TIP AND IS ROUTED, NOT REPAIRED.**
+The third Codex round read `deb72c8e` and found that `resolve_requirement`'s
+lookup is scoped to the ONE document a reference names, so the cross-document arm
+of the promoted ambiguity scenario stays unmet while `tasks.md` § 3.4 freezes that
+resolver. It falsifies nothing ratified here — this delta's ambiguity scenario
+says *"more than one requirement record"* and nothing about document count — and
+it is carried in the open at `tasks.md` § 9.4 with a pointer at § 3.4. See
+`review/ratification-2026-09-01.md` § "The review evidence".
 
 ## Why
 
@@ -311,24 +363,53 @@ specification carries, where an ACTIVE change ADDS it, must carry a
 falls under an ARCHIVE-ORDER HOLD — the basis change ratifying and archiving
 first.
 
-Measured on this branch's base:
+**MEASURED TWICE, AND THE SECOND MEASUREMENT IS THE ONE THAT NOW HOLDS.** The
+first was taken at this branch's merge-base `3a6a16e9`; a catch-up merge of
+`origin/main` (`1c1dcbbe`) then falsified it, and it is re-measured here rather
+than ratified as written.
 
-- `openspec/specs/credential-contracts/spec.md` carries SEVEN requirement titles.
+**AS MEASURED AT MERGE-BASE `3a6a16e9` (TRUE WHEN WRITTEN, NO LONGER TRUE):**
+
+- `openspec/specs/credential-contracts/spec.md` carried SEVEN requirement titles.
   Neither *"A credential binding declares the consuming system that holds it and
   the identity it fetches with"* nor *"Two bindings on one secret are refused
-  unless every pair declares distinct consumers…"* is among them.
-- Both are ADDED by `add-binding-consumer-identity`, which is ACTIVE
-  (`openspec/changes/add-binding-consumer-identity/`), ratified 2026-08-29, and
-  unarchived.
+  unless every pair declares distinct consumers…"* was among them.
+- Both were ADDED by `add-binding-consumer-identity`, then ACTIVE, ratified
+  2026-08-29, and unarchived.
 
-So a MODIFIED block over either of them would be exactly the governed shape: a
-marker, and an archive-order hold putting this packet behind its sibling's
-archive. **A pure ADDED requirement serves instead**, because the reporting duty
-is a duty this capability does not yet state anywhere — the sibling states the
-duty for the reference and this states where it is owed — and neither sibling
-requirement's text has to change for both to be true. **CHOSEN: two ADDED
-requirements, no MODIFIED block, no marker, no hold.** The reconciliation is
+So a MODIFIED block over either of them would then have been exactly the governed
+shape: a marker, and an archive-order hold putting this packet behind its
+sibling's archive.
+
+**AS RE-MEASURED AFTER THE CATCH-UP MERGE, AT `origin/main` `1c1dcbbe`:**
+
+- **PR #541 ARCHIVED `add-binding-consumer-identity`** on 2026-08-31 (basis-first,
+  together with `add-notebook-hosting-credential-custody`), promoting its
+  requirements. The packet now lives at
+  `openspec/changes/archive/2026-08-31-add-binding-consumer-identity/`.
+- `openspec/specs/credential-contracts/spec.md` now carries TWELVE requirement
+  titles, and **BOTH of the two named above ARE among them** — at `:278` and
+  `:440` respectively.
+- So a MODIFIED block over either would now be an ORDINARY MODIFIED block over
+  PROMOTED CANON: no `Modified over` marker, and no archive-order hold, the basis
+  having already archived.
+
+**THE CHOICE IS UNCHANGED BY THE RE-MEASUREMENT, AND THAT IS WHY IT IS RE-MEASURED
+RATHER THAN DELETED.** Under BOTH measurements **a pure ADDED requirement
+serves**, because the reporting duty is a duty this capability states nowhere —
+the sibling states the duty for the reference and this states where it is owed —
+and neither sibling requirement's text has to change for both to be true. What
+moved is only the REASON the marker rule does not apply: first because a marker
+plus a hold would have been owed and an ADDED delta avoided both, now because the
+basis has archived and neither would be owed at all. **CHOSEN, AND RATIFIED: two
+ADDED requirements, no MODIFIED block, no marker, no hold.** The reconciliation is
 performed by the new requirement's own text rather than by editing the old one.
+
+**CHECKED WITH IT, AND NOT ASSUMED:** neither ADDED title — *"A declared
+requirement reference is resolved on its own binding, whatever that binding
+shares"* nor *"Resolution integrity carries its own code and phases like every
+other narrowing"* — appears among the twelve promoted titles, so the all-ADDED
+delta raises no ADDED-over-canon collision against the newly promoted text.
 
 ## What this deliberately does not change
 
@@ -351,11 +432,22 @@ performed by the new requirement's own text rather than by editing the old one.
 
 ## Authoring decisions, flagged for veto
 
-Every item here is the AUTHORING SESSION'S, taken to make the packet coherent,
-and none is Brett's ruling. The ruling is the one sentence in issue #523.
+**RULED 2026-09-01 — see § Standing and `review/ratification-2026-09-01.md`.**
+Every item here was the AUTHORING SESSION'S when written, taken to make the packet
+coherent, and none was Brett's 2026-08-30 ruling — that ruling is the one sentence
+in issue #523 and covers the decision to file and the shape of the fix. **AD-1 …
+AD-6 ARE NOW DISPOSED BY THE SEPARATE 2026-09-01 RATIFICATION: AD-1 is RULED TWO
+CODES, as drafted, and AD-2 … AD-6 stand as drafted.** The veto flags are kept
+below as authored, because what each decision cost to veto is why the ruling that
+declined to veto it means something.
 
-- **AD-1 — Two codes rather than one, with the ONE-CODE BRANCH WRITTEN OUT so it
-  can be RULED rather than merely gestured at.** Issue #523 says "a
+- **AD-1 — RULED: TWO CODES, 2026-09-01.** *Two codes rather than one, with the
+  ONE-CODE BRANCH WRITTEN OUT so it can be RULED rather than merely gestured at.*
+  **THE RULING TOOK THE RECOMMENDATION AS DRAFTED**, so the amendment set below is
+  DECLINED AND NOT EXECUTED — not one of its twelve items is applied — and it is
+  left standing as the record of the alternative that was rulable rather than
+  struck from the packet. `tasks.md` § 3.3's *"Subject to AD-1"* cross-reference is
+  DISCHARGED by this ruling, not deleted. Issue #523 says "a
   resolution-integrity code", singular. This packet asks for TWO — zero and
   more-than-one named apart — on the family's own "a refusal shall name the fault
   it found" rule and on the measured fact that their remedies live in different
@@ -372,7 +464,9 @@ and none is Brett's ruling. The ruling is the one sentence in issue #523.
   so a one-line ruling can be carried out mechanically and so no reader has to
   reconstruct it.
 
-  **AD-1/ONE-CODE AMENDMENT SET — applied ENTIRE or not at all:**
+  **AD-1/ONE-CODE AMENDMENT SET — applied ENTIRE or not at all. DECLINED BY THE
+  2026-09-01 RULING; NONE OF THE TWELVE ITEMS IS EXECUTED. It is retained verbatim
+  as the record of the branch that was on offer:**
 
   1. `specs/credential-contracts/spec.md`, FIRST requirement, the paragraph
      opening *"ZERO AND MORE-THAN-ONE ARE NAMED APART, because their remedies are
@@ -445,7 +539,8 @@ and none is Brett's ruling. The ruling is the one sentence in issue #523.
       bundle cut". The entry's "a code of its OWN FAMILY (not a widening of any
       of the eight `consumer-*` codes)" is already singular and does not move.
 
-  **THE RECOMMENDATION IS UNCHANGED BY THE ENUMERATION: TWO CODES.** Writing the
+  **THE RECOMMENDATION IS UNCHANGED BY THE ENUMERATION: TWO CODES — AND IT IS
+  WHAT WAS RULED.** Writing the
   branch out did not weaken the case — it showed that the one-code shape survives
   only by moving the fault's name from the CODE into the MESSAGE, which is
   exactly what this family's "a refusal shall name the fault it found" rule was
@@ -505,10 +600,11 @@ and none is Brett's ruling. The ruling is the one sentence in issue #523.
 - **Affected consumers:** none at this cut. Two new warnings; every record valid
   today stays valid, and a domain repo pinned at the prior bundle is untouched
   until it upgrades.
-- **Affected siblings:** `add-binding-consumer-identity` (ACTIVE, ratified) — this
-  packet MODIFIES none of its requirements and imposes no archive-order hold on
-  it; `add-credential-escrow-checkout` (ACTIVE, ratified) — the other writer on
-  this family's schema, which this packet does not touch.
+- **Affected siblings:** `add-binding-consumer-identity` — **ARCHIVED 2026-08-31
+  by PR #541**, its requirements now promoted canon; this packet MODIFIES none of
+  them and imposes no archive-order hold on anything.
+  `add-credential-escrow-checkout` (ACTIVE, ratified) — the other writer on this
+  family's schema, which this packet does not touch.
 - **Risk if not done:** the ratified general SHALL stays unenforced, and a
   binding pointing at a requirement that does not exist keeps passing — the
   fail-open shape this family has already repaired twice, once in a drift check
