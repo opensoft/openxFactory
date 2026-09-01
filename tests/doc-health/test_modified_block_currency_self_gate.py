@@ -377,6 +377,33 @@ _DISCHARGED_SCENARIO_SUBJECT = (
 _RENAME_DESTINATION = "Tile-bound gate verbs hide on a composed view"
 
 _LEDGER_SUBJECTS = {
+    # ADDED 2026-09-01 BY `add-chain-attestation`, TRANCHE TWO of the
+    # signed-execution-chain arc, whose proposal merged to `main` via PR #510
+    # without this ledger moving with it — which is why every openxFactory pull
+    # request read one unnamed subject until this row landed. A DELIBERATE
+    # GENERALIZATION, and the only one the corpus admits: canon states this
+    # requirement in TRANCHE-ONE terms — the gate validates "links 1–3" — and a
+    # packet that puts links 4–6 in force cannot restate that sentence without
+    # falsifying its own delta. The nine units this arm reports as uncarried
+    # are exactly the nine the generalization rewrites, each with a successor
+    # in the block that says MORE and never less. Five body units: the gate's
+    # operating sentence, now "EVERY LINK THE RATIFIED TRANCHES OF THIS
+    # CAPABILITY HAVE PUT IN FORCE — links 1–3 at tranche one, and LINKS 1–6
+    # from tranche two"; the DERIVATION AND COMPARISON sentence; the
+    # THE LIST IS CLOSED sentence; the enforcement table; and the
+    # out-of-scope sentence, whose "scope at this tranche is links 1–3" becomes
+    # "NO RATIFIED TRANCHE HAS YET PUT IN FORCE". Four scenario bullets: the
+    # `WHEN any of links 1–3 is absent` bullet of `a link is missing`, restated
+    # as "any link a ratified tranche has put in force"; and all three bullets
+    # of canon's `a tranche-two link does not exist yet`, which the block
+    # re-titles `a link no ratified tranche has yet put in force is absent` and
+    # re-states over the in-force set. Every other promoted unit of the 58,
+    # including the other eight scenarios, is carried verbatim. This arm cannot
+    # distinguish a deliberate generalization from drift and does not claim to;
+    # the finding is INFO and it is the audit trail for the restatement.
+    # Retires when the packet archives and its block is promoted.
+    ("add-chain-attestation", "signed-execution-chain",
+     "A gate validates the short chain as a hash-linked chain"),
     ("add-composed-view-authoring", "ideation-dashboard",
      "Composed views are read-only with a repository jump"),
     ("add-doxchat-model-intake", "ideation-dashboard",
@@ -517,6 +544,16 @@ _LEDGER_SUBJECTS = {
     # `mbc.carried` returns the UNCARRIED units, and it returns none here.
     # This is the designed behaviour end to end — real movement, detected by
     # name, remedied by re-measuring. `_moved()`'s message is what said so.
+    # ADDED 2026-09-01 BY `add-chain-attestation`, tranche two of the
+    # signed-execution-chain family, ratified 2026-09-01 (review/
+    # ratification-2026-09-01.md, re-ratified same day). Its active MODIFIED
+    # block for this requirement does not yet carry 9 of the 58 body units
+    # and scenario bullets canon states for it — links 4–6/10's gate-scope
+    # extension is ratified but not yet realized. Expected editorial drift,
+    # not a regression; retires when the packet's realization lands and the
+    # block is promoted.
+    ("add-chain-attestation", "signed-execution-chain",
+     "A gate validates the short chain as a hash-linked chain"),
 }
 
 _OWN_CHANGE = "add-modified-block-currency-check"
@@ -846,7 +883,7 @@ def test_the_scenario_arm_reads_zero_since_the_rename_was_declared():
 
 
 def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
-    """PACKET § 4.1's editorial arm, as an EXACT SET of seven named subjects.
+    """PACKET § 4.1's editorial arm, as an EXACT SET of eight named subjects.
 
     COMPARED WITH `==`, NOT `<=`, and the reason is the family's own subject: a
     subset comparison would let a newly lossy MODIFIED block land unreported,
@@ -870,7 +907,9 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
         "since the OD-2 veto of 2026-08-28 gave add-credential-escrow-checkout "
         "a MODIFIED block; 8 since the two doc-health-floor packets archived "
         "together; 7 since add-notebook-projection-identity archived on "
-        "2026-08-31 and its block promoted byte-identical)",
+        "2026-08-31 and its block promoted byte-identical; 8 since "
+        "add-chain-attestation's proposal merged 2026-09-01 via #510's "
+        "landing, its MODIFIED block resolving canon)",
         f"{len(gone)} named subject(s) NO LONGER reported "
         f"{sorted(gone)}; {len(fresh)} unnamed subject(s) NEWLY reported "
         f"{sorted(fresh)}")
