@@ -404,6 +404,52 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-chain-attestation](openspec/changes/add-chain-attestation/proposal.md)
+  — authored 2026-08-29, **`Status: ratified` — RATIFIED 2026-09-01 by Brett
+  Heap at `f54cb5bc` and RE-RATIFIED at `6d7ef17b` after the amendments** (record:
+  `openspec/changes/add-chain-attestation/review/ratification-2026-09-01.md`);
+  ratification authorizes realization and does not perform it, so the change
+  stays ACTIVE until merged code, green evidence and the contract cut exist.
+  **TRANCHE TWO of the signed-execution-chain family: links 4–6 and 10** — the
+  harness-controller setup attestation, the per-task runner attestations, the
+  signed pull-request-open decision, and the governed post-merge test that CLOSES
+  a chain. **NINE ADDED requirements over 108 scenarios, plus TWO `## MODIFIED
+  Requirements` — 2 requirements over 17 scenarios, each scenario-complete:
+  tranche one's gate requirement, and its ratification/chain-inception record
+  extended with the three amendment-lineage fields closure reads.** It realizes the declaration tranche one could
+  only make: the SIGNED HASH-LINK RULE takes effect at link 4, the first link in
+  the family with a signer of its own, and the short-chain gate's walk extends
+  from links 1–3 to links 1–6 — the same required check walking further, never a
+  second gate. **Q7 as ruled** (Brett Heap, 2026-08-29, as recommended) is the
+  mechanism in contract text — remote signing served by the harness controller,
+  the runner's signing REQUEST recorded beside the signature it received, the
+  controller CORROBORATING the payload against its own link-4 setup attestation —
+  and requirement 3 carries the half a mechanism does not discharge, because Q7
+  settles WHERE THE KEY LIVES and never whether the claims are checked: an
+  evidence class PER FACT (`controller_corroborated` / `independently_observed` /
+  `runner_claimed`, ORDERED and composed with the ratified trust-anchor
+  chain-custody registry), with an unclassed fact refused. **CLOSURE is where a chain
+  completes**: a merged-but-unclosed chain refuses everything downstream and fires
+  the fraud signal, a merge that already happened is not retroactively refused,
+  and the ONE admitted consumer is a remediation chain whose declared, signed
+  subject is that failure — an exemption that is **not inheritable** and that owes
+  its own closure. **THE §7.4 COUNCIL REVIEW IS HELD** — 2026-08-30, four seats, UNANIMOUS 4/4 that
+  the drafted text was not ratifiable, THIRTEEN blocking amendments, all
+  discharged, with the bundle filed at `review/`; **AND BRETT HEAP RATIFIED IT ON
+  2026-09-01** after eighteen bot rounds, on the pattern `add-binding-consumer-identity` set the day before.
+  **THREE PULLS WERE RECORDED RATHER THAN SMOOTHED, AND THE SITTING DISCHARGED
+  TWO OF THEM**: **Q4's re-derivation instruction** — later boundaries re-derived
+  "when the omnigent layer and the PKI plane are real", and neither is — versus
+  drafting this tranche now, RULED NOT PREMATURE BUT NARROWED, with the
+  raising-time re-derivation now performed; **tranche one's gate scope note**
+  versus the extended walk, where the packet's SELF-LIMITING reading was shown BY
+  CONSTRUCTION to leave a contradicting scenario standing in promoted canon and
+  was replaced by the scenario-complete MODIFIED restatement; and the topic's
+  SINGULAR hash-link rule versus its PLURAL link 5, which this packet resolves by
+  addition
+  — a successor commits to an ORDERED, DEDUPLICATED enumeration of every
+  predecessor and a subset commitment is refused, because otherwise a lane drops
+  the attestation it dislikes and still presents a continuous chain.
 - [govern-sibling-added-modified-deltas](openspec/changes/govern-sibling-added-modified-deltas/proposal.md)
   — authored 2026-08-29, **RATIFIED 2026-08-31 BY DIRECT RULING**
   (`Status: ratified`; record `review/ratification-2026-08-31.md`) — Brett Heap
