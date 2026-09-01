@@ -404,6 +404,52 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-chain-attestation](openspec/changes/add-chain-attestation/proposal.md)
+  — authored 2026-08-29, **`Status: ratified` — RATIFIED 2026-09-01 by Brett
+  Heap at `f54cb5bc` and RE-RATIFIED at `6d7ef17b` after the amendments** (record:
+  `openspec/changes/add-chain-attestation/review/ratification-2026-09-01.md`);
+  ratification authorizes realization and does not perform it, so the change
+  stays ACTIVE until merged code, green evidence and the contract cut exist.
+  **TRANCHE TWO of the signed-execution-chain family: links 4–6 and 10** — the
+  harness-controller setup attestation, the per-task runner attestations, the
+  signed pull-request-open decision, and the governed post-merge test that CLOSES
+  a chain. **NINE ADDED requirements over 108 scenarios, plus TWO `## MODIFIED
+  Requirements` — 2 requirements over 17 scenarios, each scenario-complete:
+  tranche one's gate requirement, and its ratification/chain-inception record
+  extended with the three amendment-lineage fields closure reads.** It realizes the declaration tranche one could
+  only make: the SIGNED HASH-LINK RULE takes effect at link 4, the first link in
+  the family with a signer of its own, and the short-chain gate's walk extends
+  from links 1–3 to links 1–6 — the same required check walking further, never a
+  second gate. **Q7 as ruled** (Brett Heap, 2026-08-29, as recommended) is the
+  mechanism in contract text — remote signing served by the harness controller,
+  the runner's signing REQUEST recorded beside the signature it received, the
+  controller CORROBORATING the payload against its own link-4 setup attestation —
+  and requirement 3 carries the half a mechanism does not discharge, because Q7
+  settles WHERE THE KEY LIVES and never whether the claims are checked: an
+  evidence class PER FACT (`controller_corroborated` / `independently_observed` /
+  `runner_claimed`, ORDERED and composed with the ratified trust-anchor
+  chain-custody registry), with an unclassed fact refused. **CLOSURE is where a chain
+  completes**: a merged-but-unclosed chain refuses everything downstream and fires
+  the fraud signal, a merge that already happened is not retroactively refused,
+  and the ONE admitted consumer is a remediation chain whose declared, signed
+  subject is that failure — an exemption that is **not inheritable** and that owes
+  its own closure. **THE §7.4 COUNCIL REVIEW IS HELD** — 2026-08-30, four seats, UNANIMOUS 4/4 that
+  the drafted text was not ratifiable, THIRTEEN blocking amendments, all
+  discharged, with the bundle filed at `review/`; **AND BRETT HEAP RATIFIED IT ON
+  2026-09-01** after eighteen bot rounds, on the pattern `add-binding-consumer-identity` set the day before.
+  **THREE PULLS WERE RECORDED RATHER THAN SMOOTHED, AND THE SITTING DISCHARGED
+  TWO OF THEM**: **Q4's re-derivation instruction** — later boundaries re-derived
+  "when the omnigent layer and the PKI plane are real", and neither is — versus
+  drafting this tranche now, RULED NOT PREMATURE BUT NARROWED, with the
+  raising-time re-derivation now performed; **tranche one's gate scope note**
+  versus the extended walk, where the packet's SELF-LIMITING reading was shown BY
+  CONSTRUCTION to leave a contradicting scenario standing in promoted canon and
+  was replaced by the scenario-complete MODIFIED restatement; and the topic's
+  SINGULAR hash-link rule versus its PLURAL link 5, which this packet resolves by
+  addition
+  — a successor commits to an ORDERED, DEDUPLICATED enumeration of every
+  predecessor and a subset commitment is refused, because otherwise a lane drops
+  the attestation it dislikes and still presents a continuous chain.
 - [amend-chain-anchoring-readiness-and-durability](openspec/changes/amend-chain-anchoring-readiness-and-durability/proposal.md)
   — authored 2026-08-31 from the owner-approved reconciliation that preserves
   ratified `add-chain-anchoring` and retires the stale competing
@@ -1614,8 +1660,23 @@ Archived changes:
   **meeting its own degraded case rather than evading it**, which is what made the
   archive lawful. Both are restated as dispositions in the archived `tasks.md`
   § 4.5, § 4.6 and § 6.1 and carried forward at **issue #534**, so an open
-  operator act is not written down only inside an archived packet; 4.5 remains
-  Brett's act. The three § 5 successors survive unticked as a separate class —
+  operator act is not written down only inside an archived packet; 4.5 remained
+  Brett's act. **BOTH WERE PERFORMED ON 2026-08-31, AFTER THE ARCHIVE AND
+  SEPARATELY FROM IT.** 4.5: `signed-execution-chain-gate` is a REQUIRED check on
+  `main` through opensoft org ruleset **21957695** — a dedicated ruleset mirroring
+  the wallet-gate precedent 21538893, `~DEFAULT_BRANCH` of openxFactory,
+  enforcement active — evidenced by a live read of BOTH the org and the repo
+  ruleset endpoints, never by the merged workflow file. 4.6: canary PR **#549**
+  carried a chain with a deliberately broken log link, the required check went red
+  in run **33455808456** / check-run **99695407307** with exactly one named
+  refusal (`leaf_hash_link_broken`), GitHub reported the pull request **BLOCKED**,
+  and it was closed unmerged with its branch deleted. Requirement 9 is therefore
+  **MET**, not partially met; the packaged declaration records
+  `is_required_in_ruleset: true` and the standing `reader-not-required` warning no
+  longer fires. The archived packet's dispositions are left standing as the record
+  of what was true AT THE ARCHIVE — the boxes are ticked in place with the
+  evidence beneath them, rather than the surrounding prose being rewritten to
+  pretend the wait never happened. The three § 5 successors survive unticked as a separate class —
   tranche two and tranche three, gated on Q7 and on Q3/Q6 and on layers that do
   not exist yet. **PROMOTION VERIFIED BYTE-FOR-BYTE**, and the delta had **no
   scenario-completeness exposure at all**: it is PURE ADDED into a capability that
@@ -1685,7 +1746,29 @@ Archived changes:
   filed at **#536**. Promotion measured rather than assumed: 6 delta requirements
   in, 6 out, **all six bodies BYTE-IDENTICAL**, 32 delta scenarios carried across
   `lifecycle-notebook-projection` (+3 added, ~2 modified) and
-  `credential-contracts` (~1 modified). The original record follows unchanged.
+  `credential-contracts` (~1 modified). **THE THREE-PACKET READ-TOGETHER IS
+  PERFORMED IN A SUCCESSOR ACT, RECORDED AT**
+  [`review/read-together-2026-08-31.md`](openspec/changes/archive/2026-08-31-add-notebook-projection-identity/review/read-together-2026-08-31.md).
+  Issue **#545** filed it after the inverted archive order orphaned it: this
+  packet's § 8 declined to perform it, and the two credential-contracts packets
+  #541 archived first restate it as owed HERE — custody § 6.2 and
+  `add-binding-consumer-identity` § 7.3, one reconciliation seen from two sides.
+  Twelve promoted requirement blocks read against their archived deltas:
+  **eleven byte-identical, the twelfth being the one title two packets write and
+  carrying the later of the two whole.** Custody's **13 scenarios all stand with
+  the struck fifth absent** (0 occurrences under `openspec/specs/`); the
+  dependent's block is **five carried scenarios byte-identical plus one
+  addition**, zero lost and zero substituted; and this packet's generalization
+  CLOSED A REFERENCE THAT WAS DANGLING IN CANON — custody's *"the existing
+  prohibition on hard-coding an operated identity's credential"* pointed at
+  nothing between `b09e59da` and `4290cad2`. **ONE DEFECT FOUND, REPORTED AND NOT
+  REPAIRED**: the promoted `Modified over` marker (`credential-contracts:248`)
+  says the successor was named *"three times"* where the same packet's proposal,
+  its ratification record and the shipped `contract-v2.4` schema each say
+  **five**, and the post-strike count is **four**. **#545 THEREFORE STAYS OPEN**
+  on that finding, citing the record; the two archived boxes stay UNTICKED and
+  could not be otherwise, the record being their discharge rather than their
+  edit. The original record follows unchanged.
   — authored and ratified 2026-08-23 (Brett Heap, in-session). The single exit
   of the staged topic `notebook-projection-identity`, raised the day its last
   precondition was met. The whole governed NotebookLM projection — every

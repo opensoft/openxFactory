@@ -10,11 +10,14 @@ which is the vacuous-pass class, and a comment in the workflow protects nothing
 against it. This module is collected by the REQUIRED `pytest-suite` job, so a
 change to the invocation cannot land without a required check going red.
 
-WHAT IS NOT PINNED HERE, deliberately: whether the check is REQUIRED. It is not,
-and no test in this repository can make it so. That is `tasks.md` 4.5, an
-OPERATOR act whose evidence is a live ruleset read — and until it happens this
-capability confers and refuses nothing, which its own conformance declaration
-states in the present tense.
+WHAT IS NOT PINNED HERE, deliberately: whether the check is REQUIRED. It IS, as
+of 2026-08-31 (opensoft org ruleset 21957695, `tasks.md` 4.5), and that is still
+not a fact any test in this repository can assert or protect — it lives in a
+ruleset, not in the tree, and a green test suite would survive its deletion
+without a word. The evidence is the live ruleset read plus canary PR #549, where
+a deliberately broken chain turned this check red and the pull request was
+reported BLOCKED (`tasks.md` 4.6). What this module pins is the INVOCATION, so
+that the required check keeps checking what its name claims.
 """
 
 from __future__ import annotations

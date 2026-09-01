@@ -8,10 +8,21 @@
 # SEC-R6 (suffix truncation no party has yet observed) — and the canonical
 # validator refuses either recorded `satisfied`.
 #
-# SEC-R9 IS THE HONEST ONE. The named reader exists and runs, and it is NOT yet
-# required in the branch ruleset, so this capability confers and refuses NOTHING
-# today. That is stated in the present tense rather than asserted away, and the
-# residual names the operator act that closes it.
+# SEC-R9 WAS THE HONEST ONE, AND IT IS NOW THE PERFORMED ONE. This entry read
+# `partial` for as long as the named reader was not a required check, and it read
+# that way in the present tense rather than asserting the standing away. The
+# operator act happened on 2026-08-31: `signed-execution-chain-gate` is REQUIRED
+# on `main` through org ruleset 21957695 (`add-signed-execution-chain` task
+# 4.5), and a deliberately broken chain was then seen failing a real pull request
+# — canary PR #549, one named refusal, PR reported BLOCKED (task 4.6). So the
+# entry flips to `satisfied` and the reader's standing `reader-not-required`
+# warning stops firing, which is the point at which these records begin to confer
+# anything at all.
+#
+# WHAT DID NOT CHANGE. Nothing about the OTHER eight entries moved: SEC-R1 and
+# SEC-R6 keep their structural residuals and the validator still refuses either
+# one recorded `satisfied`. Requirement 9 being met does not make the tranche
+# complete; it makes the tranche ENFORCED.
 schema_version: 1
 kind: xfactory_signed_execution_chain_conformance_declaration
 declaration_id: secd-openxfactory-0001
@@ -25,10 +36,14 @@ realization:
   reader_required_check:
     check_name: signed-execution-chain-gate
     validator_path: scripts/validate-signed-execution-chain.py
-    is_required_in_ruleset: false
-    ruleset_evidence_ref: openspec/changes/add-signed-execution-chain/tasks.md 4.5 - the outstanding
-      operator act; a merged workflow file is not evidence
-declared_at: '2026-08-30T11:00:00Z'
+    is_required_in_ruleset: true
+    ruleset_ref: 'opensoft org ruleset 21957695 "openxFactory chain-gate (require signed-execution-chain-gate)":
+      target branch, ~DEFAULT_BRANCH of openxFactory, enforcement active, required_status_checks
+      [signed-execution-chain-gate]'
+    ruleset_evidence_ref: 'live ruleset read 2026-08-31 (orgs/opensoft/rulesets/21957695 AND
+      repos/opensoft/openxFactory/rulesets/21957695), plus canary PR #549 red at run 33455808456;
+      recorded on openxFactory issue #534'
+declared_at: '2026-09-01T01:00:00Z'
 obligations:
 - entry_id: sec-ob-r1
   obligation: SEC-R1
@@ -151,18 +166,21 @@ obligations:
   obligation: SEC-R9
   obligation_statement: The capability confers and refuses nothing until a named reader runs
     as a required check.
-  satisfaction: partial
-  reason: 'The named reader EXISTS and RUNS: scripts/validate-signed-execution-chain.py, wired
-    as the `signed-execution-chain-gate` job on every pull request to main. It is NOT yet
-    required in the branch ruleset, so this capability confers and refuses NOTHING today and
-    its records are documentation that governs nothing. That is stated in the present tense
-    rather than asserted away, and no statement of this realization describes a rule inside
-    the validator as though the description were the enforcement.'
-  declared_at: '2026-08-30T11:00:00Z'
-  declared_residual:
-    statement: A MERGED WORKFLOW FILE IS NOT EVIDENCE THAT A CHECK IS REQUIRED. Until a live
-      ruleset read names `signed-execution-chain-gate` as required, a refusal this reader
-      returns can be merged past, and the requirement is UNMET rather than partially met.
-    closed_by: tasks.md 4.5 and 4.6 - the operator act that makes the check required, evidenced
-      by a live ruleset read and a deliberately broken chain failing a real pull request,
-      on the shape add-wallet-carried-review-authority tasks 2.5/2.6 proved for `wallet-validation`.
+  satisfaction: satisfied
+  reason: 'The named reader RUNS AND IS REQUIRED: scripts/validate-signed-execution-chain.py,
+    wired as the `signed-execution-chain-gate` job on every pull request to main, and REQUIRED
+    on main by opensoft org ruleset 21957695 since 2026-08-31 (tasks.md 4.5). The evidence
+    is the LIVE RULESET STATE, read back from both orgs/opensoft/rulesets/21957695 and
+    repos/opensoft/openxFactory/rulesets/21957695, and never the merged workflow file. It
+    was then SEEN REFUSING rather than assumed to refuse: canary PR #549 carried a chain
+    whose log link was broken on purpose, run 33455808456 / check-run 99695407307 went red
+    with exactly one named refusal (`leaf_hash_link_broken`), GitHub reported that pull
+    request BLOCKED, and it was closed unmerged with its branch deleted (tasks.md 4.6, on
+    the shape add-wallet-carried-review-authority tasks 2.5/2.6 proved on canary PR #387).
+    A refusal this reader returns can no longer be merged past. What this does NOT claim:
+    the OrganizationAdmin bypass remains, as it does on every ruleset in this org, so the
+    requirement is met at the same strength the estate''s other required checks are met at
+    - not at a strength this capability invented for itself.'
+  declared_at: '2026-09-01T01:00:00Z'
+  evidence_ref: 'org ruleset 21957695 read live 2026-08-31; canary PR #549, run 33455808456,
+    check-run 99695407307, refusal leaf_hash_link_broken; openxFactory issue #534'

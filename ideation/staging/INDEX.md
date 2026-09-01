@@ -1954,6 +1954,47 @@ repo scope.
   than discarded: the actor-to-wallet attestation binding, per-ratification
   uniqueness, one digest construction for every digest, and the named-reader
   required-check rule.
+- **EXIT 2 IS RAISED, 2026-08-29 — the change `add-chain-attestation`**
+  (`openspec/changes/add-chain-attestation/proposal.md`), carrying **links 4–6 and
+  10** with **nine ADDED requirements over 108 scenarios**, plus TWO `## MODIFIED
+  Requirements` — 2 requirements over 17 scenarios, each scenario-complete: tranche
+  one's gate requirement, and its ratification/chain-inception record extended
+  with the three amendment-lineage fields closure reads. **THE §7.4 COUNCIL REVIEW IS HELD — 2026-08-30,
+  THIRTEEN blocking amendments, all discharged — AND BRETT HEAP RATIFIED IT ON
+  2026-09-01 at `f54cb5bc`, RE-RATIFYING the amended head `6d7ef17b` the same day**, in that order, on `add-binding-consumer-identity`'s pattern.
+  **RATIFICATION AUTHORIZES REALIZATION AND DOES NOT PERFORM IT**; the change stays
+  ACTIVE until merged code, green evidence and the contract cut exist. **NOT recorded as `Exit taken:`**, on
+  the same ground tranche one recorded: that record silences
+  `staged-candidate-aging` only when it names an ARCHIVED change, and this topic
+  must keep ageing while tranche three is unraised. The packet realizes tranche
+  one's declaration that the **signed hash-link rule takes effect at link 4** —
+  the first link with a signer of its own — and extends the short-chain gate's
+  walk from links 1–3 to links 1–6, the same required check walking further.
+  **Q7 is encoded as ruled**: remote signing served by the harness controller,
+  the signing REQUEST recorded beside the signature, the controller CORROBORATING
+  against its own link-4 setup attestation — with the half a mechanism cannot
+  discharge carried as a per-FACT evidence class, because Q7 settles where the
+  key lives and never whether the claims are checked.
+- **THREE PULLS THE TRANCHE-TWO PACKET RECORDS RATHER THAN SMOOTHS, AND THE
+  2026-08-30 SITTING DISCHARGED THE FIRST TWO**: **(1) Q4's re-derivation
+  instruction** — later boundaries are re-derived "when the omnigent layer and the
+  PKI plane are real", and NEITHER IS — versus raising tranche two now. **RULED
+  NOT PREMATURE BUT NARROWED**: the round did not end, and the re-derivation
+  tranche one's ratified `tasks.md:5.3` owes *"when each is raised"* is now
+  PERFORMED, dated and measured, confirming links 4–6 and 10 with no link moved.
+  **(2) Tranche one's gate scope note** — "SHALL NOT report the absence of a later
+  tranche's link as a break" — read by the packet as SELF-LIMITING and spent.
+  **RESOLVED AGAINST THAT READING**: `lead-architect` built the promoted canon and
+  found the scope note's SCENARIO still standing beside this tranche's refusal —
+  same antecedent, opposite consequent, both normative — so prose in one
+  requirement cannot repeal a scenario in another, and the packet now carries the
+  scenario-complete MODIFIED restatement it had named only as an alternative. **(3) The topic's
+  hash-link rule is SINGULAR and its link 5 is PLURAL** — "each runner attests" —
+  so "the link that precedes it" has no referent for link 6; the packet resolves
+  this one by ADDITION (an ordered, deduplicated enumeration of every predecessor,
+  a subset commitment refused), because otherwise a lane drops the attestation it
+  dislikes and still presents a continuous chain — the mix-and-match attack
+  arriving as subtraction WITHIN one execution rather than assembly across two.
 - **State: FULLY RULED, DRAFTING GREEN-LIT, and the packet is RATIFIED.** Brett
   Heap gave the drafting green-light on **2026-08-29, in session** — the
   authorization the clarify sitting deliberately did not give — and **RATIFIED
@@ -1966,10 +2007,15 @@ repo scope.
   digest construction, `xfc-jcs-sha256-1`), the packaged corpus (7 positives, 26
   negatives, every closed refusal code red-proven), the NAMED READER
   `scripts/validate-signed-execution-chain.py`, and the running
-  `signed-execution-chain-gate` check. **What is NOT done is what confers
-  anything**: the check is not yet REQUIRED in the branch ruleset — an operator
-  act — so the capability confers and refuses nothing today and its own
-  conformance declaration records that in the present tense. `target_release` was
+  `signed-execution-chain-gate` check. **AND THE PART THAT CONFERS ANYTHING IS
+  NOW DONE TOO, 2026-08-31**: the check is REQUIRED in the branch ruleset
+  (opensoft org ruleset **21957695** — the operator act, task 4.5), and a
+  deliberately broken chain was seen failing a real pull request before the
+  packet was allowed to say so (canary **#549**, run `33455808456`, one named
+  refusal, PR BLOCKED, closed unmerged — task 4.6). The conformance declaration
+  records `is_required_in_ruleset: true`, requirement 9 is MET rather than
+  partially met, and the standing `reader-not-required` warning no longer fires.
+  `target_release` was
   re-counted at the realization tip — and **re-counted AGAIN when
   `add-binding-consumer-identity` cut and tagged `contract-v2.4` alone (#526,
   `afdf0e88`), whose inventory carries none of this family's members**. Both
@@ -1977,8 +2023,12 @@ repo scope.
   Registration rode that cut rather than reserving it, which is why a number
   that had moved twice was written into no contract byte. **THE CUT IS TAKEN**:
   `contract-v2.5` registers all five schemas with per-file `sha256` in
-  `contracts/manifest.yaml`, and 4.7 is closed. 4.5 and 4.6 remain open, and
-  they are the ones that decide whether the family confers anything.
+  `contracts/manifest.yaml`, and 4.7 is closed. **4.5 and 4.6 are closed too, as
+  of 2026-08-31** — they were the ones that decided whether the family confers
+  anything, and they were performed by separate acts after the archive, carried
+  at **issue #534**, where both the live ruleset read and the canary's four
+  conjuncts are quoted verbatim — as they are again under §§ 4.5/4.6 of the
+  archived `tasks.md` and in PR #549's closing comment.
 - **EXIT 3 IS RAISED, 2026-08-29 — the DRAFT change `add-chain-anchoring`**
   (`openspec/changes/add-chain-anchoring/proposal.md`), the public anchoring layer
   plus the permissioned consent plane, as a NEW neutral `chain-anchoring`
