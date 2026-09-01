@@ -1497,7 +1497,19 @@ Active changes:
   fallbacks painted a white popover behind light text. (code surface:
   openxFactory; target release: none)
 - [retire-doxbench-chat-turn-v1](openspec/changes/retire-doxbench-chat-turn-v1/proposal.md)
-  — authored 2026-09-01, `Status: draft`. **Entry 3 of openxFactory issue
+  — authored 2026-09-01, **`Status: ratified` — RATIFIED 2026-09-01 by Brett
+  Heap, in session, at PR #552 tip `c5169476`** (record:
+  `openspec/changes/retire-doxbench-chat-turn-v1/review/ratification-2026-09-01.md`);
+  ratification authorizes the requirement text and performs no realization,
+  moves no schema byte and cuts no bundle, so the change stays ACTIVE until
+  merged code, green evidence and the `contract-v3.0` cut exist. It ratifies
+  the fallback posture AS ENCODED — the #522 ruling set only its direction. The
+  record discloses what the act stood on: **NO CODEX REVIEW HAPPENED** — three
+  requests, three provider usage-limit refusals, zero verdicts, a pass still
+  owed and blocked by nothing in the packet — four low-severity Copilot
+  comments standing uncorrected on the ratified head, and `main`'s inherited
+  `pytest-suite` red from PR #510's carriage-ledger subject, which this packet
+  neither causes nor fixes. **Entry 3 of openxFactory issue
   #522**, on Brett Heap's 2026-09-01 ruling comment there and the measurement
   memo `deprecations-522-memo-2026-08-31.md` (operator-local, NOT committed
   here and NAMED rather than located, Principle IV forbidding a host-absolute

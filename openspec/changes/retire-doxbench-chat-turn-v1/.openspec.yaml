@@ -36,13 +36,37 @@ origin:
     default run of `scripts/validate-ideation-dashboard-contracts.py` over a
     clean checkout reports four warnings, every one naming a removal target the
     bundle passed one major and five minors ago.
+
+    THIS PACKET IS RATIFIED — 2026-09-01, Brett Heap, repository owner, in
+    session ("ratify #551 and #552"), at pull request #552 tip `c5169476`;
+    record at `review/ratification-2026-09-01.md`. THE RATIFICATION IS A THIRD
+    ACT and is deliberately not merged with the two below it: the FILING of
+    issue #522 on his word of 2026-08-30, then the RULING of 2026-09-01
+    adopting the memo's recommendations (recorded as a comment on #522, and
+    named in `approved_by`), then this. Ratification authorizes the requirement
+    text alone — it performs no realization, moves no schema byte, changes no
+    manifest digest, cuts no bundle and moves no CHANGELOG row, so `tasks.md`
+    §§ 2-7 stay open and § 8's archive gate is undischarged. IT RATIFIES THE
+    FALLBACK POSTURE AS ENCODED, the ruling having set only its DIRECTION
+    ("redesigned, not deleted"). THREE THINGS THE ACT STOOD ON ARE DISCLOSED IN
+    THE RECORD RATHER THAN GLOSSED: no Codex review of this packet has
+    happened — three requests, three provider usage-limit refusals, zero
+    verdicts, and a pass still owed and unblocked; four low-severity Copilot
+    comments stand uncorrected on the ratified head, because correcting them
+    would have produced a head other than the one he ruled on; and `main`
+    carries an inherited `pytest-suite` red from PR #510's carriage-ledger
+    subject, which this packet neither causes nor fixes.
   approved_by: >-
     BRETT HEAP, repository owner, 2026-09-01 in session, ruling on openxFactory
     issue #522 and recorded as a comment there: "execute all three retirements
     at contract-v3.0, as the memo recommends", entry 3 being "EXECUTE, its own
     slice", with the `serve.py` v1-fallback posture "redesigned, not deleted".
-    The ruling authorizes the PROPOSAL; it does not ratify this text, and the
-    packet is `Status: draft` accordingly.
+    The ruling authorizes the PROPOSAL; IT DOES NOT RATIFY THIS TEXT, and this
+    field is kept unchanged in that respect because it was accurate when
+    written and is accurate now. RATIFICATION IS THE SEPARATE THIRD ACT of the
+    same day, recorded in `origin.reason` above and at
+    `review/ratification-2026-09-01.md`; the packet stands at
+    `Status: ratified` on THAT act, not on this one.
   approved_on: 2026-09-01
 related:
   - openxFactory:change:retire-hermes-flat-keys-and-openworkflow-tokens  # SIBLING, authored the same day from the same ruling. Entries 1 and 2. Lands at the SAME contract-v3.0 major and is deliberately a separate packet; neither is a precondition of the other, and this packet's delta touches only `ideation-dashboard` so it does not depend on the capability that one adds

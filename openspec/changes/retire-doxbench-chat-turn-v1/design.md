@@ -1,7 +1,15 @@
 # Design: retire-doxbench-chat-turn-v1
 
-Status: draft
+Status: ratified
 Proposed: 2026-09-01
+Ratified: 2026-09-01 by Brett Heap (repository owner) — in-session, on the
+orchestrator's report of the two packets read together. Record:
+`review/ratification-2026-09-01.md`. **§ 1's fallback posture is RATIFIED AS
+ENCODED**, and that matters here more than in most packets: the #522 ruling set
+only its DIRECTION ("redesigned, not deleted"), and the shape below is this
+packet's own decision, put to Brett as such. The decisions are ratified as
+reasoning, not performed — no schema byte, catalog entry or fixture moves by
+that act.
 
 The removal itself is mechanical. Two things are not, and this note is about
 them: **what answers an unrecognized `kind` after the deprecated family is

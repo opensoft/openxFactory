@@ -1,9 +1,13 @@
 # Tasks: retire-doxbench-chat-turn-v1
 
-**NOTHING BELOW SECTION 1 IS PERFORMED BY THIS PROPOSAL.** The packet is
-`Status: draft` and this is the OpenSpec-before-implementation stage: no schema
+**NOTHING BELOW SECTION 1 IS PERFORMED BY THIS PROPOSAL, AND RATIFICATION DOES
+NOT CHANGE THAT.** The packet is `Status: ratified` — Brett Heap, 2026-09-01, in
+session, at pull request #552 tip `c5169476`; record
+`review/ratification-2026-09-01.md` — and this is still the
+OpenSpec-before-implementation stage: no schema
 byte moves, no fixture is deleted, no manifest digest changes and no CHANGELOG
-row moves in the pull request that carries it. Sections 2-6 are the realization,
+row moves in the pull request that carries it. **Ratification authorizes the
+requirement text and performs none of the work below.** Sections 2-6 are the realization,
 and § 8 is the archive gate the realization must clear before this change may
 archive at all.
 
@@ -33,8 +37,25 @@ archive at all.
 - [x] 1.5 Validate: `OPENSPEC_TELEMETRY=0 openspec validate
       retire-doxbench-chat-turn-v1 --strict` and `--all --strict`, both green.
 - [x] 1.6 List the change in README § OpenSpec Records.
-- [ ] 1.7 Adversarial review to convergence, then ratification by the repository
-      owner. Ratification authorizes realization and performs none of it.
+- [x] 1.7 **RATIFIED by the repository owner** — Brett Heap, 2026-09-01, in
+      session ("ratify #551 and #552"), at pull request #552 tip `c5169476`, on
+      an orchestrator's report of the two packets read together. Record:
+      `review/ratification-2026-09-01.md`. Ratification authorizes the
+      requirement text and performs none of the realization below. It ratifies
+      the fallback posture AS ENCODED at 1.2; the #522 ruling set only its
+      direction.
+- [ ] 1.8 **Adversarial review to convergence — STILL OPEN, and the order this
+      box originally stated was INVERTED by events rather than met.** It was
+      written as "review to convergence, THEN ratification"; what happened is
+      that three Copilot rounds ran and every finding through round two was
+      taken, while **every one of three `@codex review` requests returned a
+      PROVIDER USAGE-LIMIT REFUSAL and no verdict**. The absence was disclosed
+      to Brett and he ratified against it. **FOUR low-severity round-three
+      comments stand UNCORRECTED on the ratified head** — enumerated in the
+      ratification record § 3 — because correcting them would have produced a
+      head other than the one he ruled on. **A CODEX PASS REMAINS OWED and is
+      blocked by nothing in this packet**; it and those four route to the
+      amendment lane, not to doubt about the ratification.
 
 ## 2. Speckit F1 — the schema
 
