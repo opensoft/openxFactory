@@ -139,3 +139,35 @@ report-carrier design (`tasks.md` §5, preamble). `clearing.operation.result
   `review-lane-worker.yml`, and the nine grandfather retirements generally)
   — this dispatch neither closes nor changes that item; it is named here
   only so a reader does not mistake this record's silence on it for closure.
+
+## Correction (2026-09-01, admin read-back)
+
+Gap 3 above (§2, filed as "STILL OPEN") is corrected. Per Brett Heap's
+infrastructure admin's read-back, verified in the xFactory tree, the
+`artifact-only` flag was a MISDIAGNOSIS: `artifact-only` on
+`xfactory-coding-cpc-brett01` is CONTRACT-REQUIRED vocabulary describing the
+coding lane's security posture (sealed bundle in, no repository credentials,
+patch artifact out), required by the coding-patch-worker profile's
+`runner_labels` — not a stray or leftover label. It stays on both runners
+permanently.
+
+`rider` is a distinct mechanism and is not part of the misdiagnosis: it is
+the host-class label for `service_rider`, mapped by xFactory
+`scripts/worker_readiness.py`'s `HOST_CLASS_LABELS = {"service_rider":
+"rider", "dedicated_omni": "omni-artifact"}`, and readiness FAILS CLOSED
+(`host_class_label_missing`) when the GitHub label set disagrees with the
+heartbeat's published `host_class`. Deleting it live would desync
+runner/profile/heartbeat and leave jobs queued indefinitely. It is stale only
+because §4.7 ruled the CPC a dedicated governed node for QA, and is replaced
+ONLY via a coordinated host-class migration (`service_rider` →
+`governed_node`, label `governed-node`) — never by deleting the live label
+first.
+
+**New status:** Gap 3 is **RESOLVED as a misdiagnosis for `artifact-only`**
+(no action — the label is correct and required); **`rider` is carried
+forward, not resolved here, to the migration tracked at
+`opensoft/xFactory#195`** (https://github.com/opensoft/xFactory/issues/195,
+admin's 8-step plan, requires an OpenSpec change before implementation).
+`tasks.md` §4.6 carries a superseding annotation reflecting this correction
+and stays open only for that migration's label-swap and readiness
+re-verification steps (its steps 6-7).

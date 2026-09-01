@@ -272,6 +272,36 @@ suggestion: the workflow path is what the operator admits to the allowlist in
       `xfactory-coding-cpc-brett01` now. The console act is being performed
       in-session; verification (a readiness re-run) follows. Left open, not
       DONE, until that verification is filed.
+      **SUPERSEDING RULING 2026-09-01 by Brett Heap, in-session, on his
+      infrastructure admin's read-back (verified in the xFactory tree):** the
+      ruling immediately above — "remove `artifact-only` and `rider` now" —
+      is SUPERSEDED. `artifact-only` on `xfactory-coding-cpc-brett01` is
+      CONTRACT-REQUIRED vocabulary: it describes the coding lane's security
+      posture (sealed bundle in, no repository credentials, patch artifact
+      out) and is required by the coding-patch-worker profile's
+      `runner_labels`; the "suspicious `artifact-only` label" flag carried
+      since `opensoft/xFactory#188`'s thread was a MISDIAGNOSIS. The label
+      STAYS, permanently, on both runners. `rider` is the host-class label
+      for `service_rider`: xFactory `scripts/worker_readiness.py` maps
+      `HOST_CLASS_LABELS = {"service_rider": "rider", "dedicated_omni":
+      "omni-artifact"}` and FAILS CLOSED (`host_class_label_missing`) when the
+      GitHub label set disagrees with the heartbeat's published `host_class`
+      — deleting the live label desyncs runner/profile/heartbeat and leaves
+      jobs queued. `rider` is stale only because §4.7 ruled the CPC a
+      dedicated governed node for QA; it is replaced ONLY through a
+      coordinated host-class migration `service_rider` → `governed_node`
+      (label `governed-node`), never delete-first. **Disposition:** keep
+      `artifact-only` on both runners, permanently; `rider` is NOT removed
+      here — it migrates only via the coordinated migration tracked at
+      `opensoft/xFactory#195`
+      (https://github.com/opensoft/xFactory/issues/195), which carries the
+      admin's 8-step plan and requires an OpenSpec change (touches
+      worker-enrollment host-class vocabulary) before implementation.
+      **§4.6 stays open ONLY for that migration's steps 6-7** (label swap plus
+      readiness re-verification); it is not open for, and must not be read as
+      authorizing, any further label removal outside that migration. The
+      earlier ruling's text above stands as the record of what was ruled and
+      superseded; this annotation does not delete it — records file forward.
 - [ ] 4.7 **DECIDE THE SAME-HOST TOPOLOGY.** The 2026-09-01 clearing dispatch
       found both lane runners reporting the same `hostname` /
       `COMPUTERNAME` / `compute.node` (`CPC-brett-TUBV0`,
