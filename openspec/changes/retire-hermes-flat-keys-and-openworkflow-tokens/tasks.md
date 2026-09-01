@@ -83,8 +83,19 @@ a file path — never on an intention.
       no longer `list(hermes) == ["layers"]`, an order-dependent test that would
       have failed the day the starter grew a new NON-deprecated hermes key
       — it asserts what the box is actually about, `layers` present and every
-      deprecated key absent. Sourcery returned an access-tier upsell, not a
-      review, exactly as it did on #551.
+      deprecated key absent. **Copilot's SECOND round, against the fixed head
+      `f259ca03`, generated NO NEW COMMENTS** — converged, on the same shape
+      #551's sixth round ended in. Sourcery returned an access-tier upsell,
+      not a review, exactly as it did on #551.
+      **AND THE INHERITED `main` RED THE RATIFICATION RECORD DISCLOSED IS
+      GONE.** § 4 of that record names
+      `tests/doc-health/test_modified_block_currency_self_gate.py::test_every_carriage_ledger_finding_over_the_real_tree_is_named`,
+      PR #510's carriage-ledger subject, red on `main` at `1a69b7cb` and still
+      at `1c1dcbbe`. It was fixed on `main` by **#557** (*"The ledger names its
+      eighth subject"*, merged 2026-09-01T06:59Z) — AFTER that record was
+      written. The full local suite on this branch passes it and does not list
+      it, so this realization inherits no red and attributes none. Recorded
+      here because the record's § 4 would otherwise read as current.
 
 ## 2. Speckit F1 — the validator retirements
 
