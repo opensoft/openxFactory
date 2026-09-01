@@ -412,10 +412,12 @@ Active changes:
   and the future `contracts/clearing/` family) is realized POST-RATIFICATION,
   because ratification authorizes realization and does not perform it.
   **Origin: Brett Heap's operator ruling of 2026-09-01** — the record
-  `cpc-clearing-boundary-ruling-2026-09-01.md`, being committed at the ROOT of
+  `cpc-clearing-boundary-ruling-2026-09-01.md`, TO BE committed at the ROOT of
   `opensoft/xFactory` via a pull request on branch
-  `record/cpc-clearing-boundary-ruling` whose merge is PENDING BRETT'S WORD,
-  and on which ratification is GATED (`tasks.md` §2.3) — xFactory is THE
+  `record/cpc-clearing-boundary-ruling` merging on Brett's word, A FORWARD
+  REFERENCE NOT YET OPENABLE (measured: neither branch nor pull request
+  present on the remote, file not on `main`), and on which ratification is
+  GATED (`tasks.md` §2.3) — xFactory is THE
   clearing and dispatch boundary for the governed Cloud PC, runner-group
   allowlists stay xFactory-only, and no factory is ever broadly authorized to
   originate jobs directly to the host — **plus his OPTION-1 SUPERSESSION the
