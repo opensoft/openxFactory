@@ -404,6 +404,52 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-clearing-dispatch-boundary](openspec/changes/add-clearing-dispatch-boundary/proposal.md)
+  — authored 2026-09-01, **`Status: draft`** — the NEUTRAL SEALED-BUNDLE
+  CLEARING CONTRACT for a governed execution estate, and a TEXT-ONLY packet:
+  its declared code surface (the xFactory `clearing-dispatch.yml` lane, the
+  retirement of `runner-readiness-diagnostic.yml`, the authoring-time guard,
+  and the future `contracts/clearing/` family) is realized POST-RATIFICATION,
+  because ratification authorizes realization and does not perform it.
+  **Origin: Brett Heap's operator ruling of 2026-09-01**
+  (`xFactory/cpc-clearing-boundary-ruling-2026-09-01.md`) — xFactory is THE
+  clearing and dispatch boundary for the governed Cloud PC, runner-group
+  allowlists stay xFactory-only, and no factory is ever broadly authorized to
+  originate jobs directly to the host — **plus his OPTION-1 SUPERSESSION the
+  same day**: no per-path allowlist addition for readiness, the readiness test
+  becomes THE CLEARING LANE'S FIRST OPERATION, and the allowlist converges to
+  ONE PERMANENT ENTRY PER GROUP added once. **TEN ADDED requirements over 41
+  scenarios**, organized as the five enforcement layers ruled in the same
+  session: **the SINGLE DOOR** (fail-closed, and every host job living
+  physically inside the clearing workflow file because the provider evaluates
+  the allowlist against the file that CONTAINS the job — so no
+  reusable-workflow indirection, ever), **the SEALED BOUNDED REQUEST** and its
+  ten declared fields on a short-lived job object rather than a committed
+  folder of copied data, **API-SIDE VERIFICATION** that never trusts a field
+  from inside the bundle (with the verifiable / merely-policy-checked field
+  split stated, so "verified" is never applied to a field nothing could
+  verify), **ONE SANCTIONED PRODUCER EXIT** with the boundary RE-SEALING so
+  the host never holds a credential scoped to the originating repository,
+  **hosted validation of returned output before any repository effect**, **the
+  CLOSED permitted-operations register** with `readiness-diagnostic` as entry
+  #1 (strictly read-only, name-allowlist-only environment echo, structured
+  operation report, and PR #188's standalone workflow RETIRED into it),
+  **ROUTE RETIREMENT** (no dormant second doors; the grandfather enumeration
+  of nine existing worker workflows is append-never and shrink-only), **the
+  AUTHORING-TIME GUARD** that is structural rather than a text search — the
+  estate already contains the case that proves it, two `concurrency: group:
+  xfactory-artifact-worker` declarations one character off a runner group's
+  name — and **the DISPATCH LEDGER plus a periodic SINGLE-DOOR ATTESTATION**,
+  because the ledger's completeness claim is true only while the door is
+  single. **The evidence is the eighteen-hour queue**: run `33381257642`, a
+  codexFactory-path job on a group that admits the codexFactory repository but
+  not that workflow path, was never claimable and never ran — the right
+  outcome from an unwritten configuration, which is why fail-closed is the
+  floor and the guard and the attestation surround it. The residual
+  dependence on console-side group settings the estate cannot version is
+  DECLARED rather than assumed away. Sibling realization: the parallel
+  `opensoft/xFactory` clearing-workflow pull request, which merges only after
+  this packet ratifies.
 - [add-chain-attestation](openspec/changes/add-chain-attestation/proposal.md)
   — authored 2026-08-29, **`Status: ratified` — RATIFIED 2026-09-01 by Brett
   Heap at `f54cb5bc` and RE-RATIFIED at `6d7ef17b` after the amendments** (record:

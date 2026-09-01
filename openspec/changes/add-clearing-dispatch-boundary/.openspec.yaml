@@ -1,0 +1,63 @@
+schema: spec-driven
+created: 2026-09-01
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-01-add-clearing-dispatch-boundary
+  reason: >-
+    THE ORIGIN IS AN OPERATOR RULING, NOT A STAGED TOPIC, and the kind says so
+    rather than borrowing a topic that would fit. No `ideation/staging/` folder
+    declares this capability as an exit — checked in both directions against
+    `ideation/staging/INDEX.md`, because a topic that merely mentions runner
+    groups is not this packet's origin. The origin act is Brett Heap's
+    in-session ruling of 2026-09-01, captured verbatim-in-substance the same day
+    as the record `xFactory/cpc-clearing-boundary-ruling-2026-09-01.md` in the
+    aggregation repository: xFactory is THE clearing and dispatch boundary for
+    the governed Cloud PC, runner-group allowlists stay xFactory-only, no
+    factory is ever broadly authorized to originate jobs directly to the host,
+    and cross-factory work reaches it only as a SEALED BOUNDED REQUEST carrying
+    ten declared fields that the clearing workflow VERIFIES against the
+    provider's API rather than trusting from inside the bundle.
+
+    THE RULING WAS SUPERSEDED IN PART BY ITS OWN AUTHOR THE SAME DAY, and the
+    packet is built to the superseding form. Brett's option 1 of 2026-09-01:
+    NO per-path allowlist addition for the readiness test, which instead becomes
+    THE CLEARING LANE'S FIRST OPERATION; the workflow allowlist converges to ONE
+    PERMANENT ENTRY PER GROUP, added by him once, ever; and xFactory pull request
+    #188's standalone `runner-readiness-diagnostic.yml` retires into that
+    operation. The FIVE ENFORCEMENT LAYERS the requirements carry — the single
+    door, the one sanctioned producer exit, route retirement, the authoring-time
+    conformance guard, and the dispatch ledger with its single-door attestation
+    — were ruled in the same session on his instruction to fold them in.
+
+    THE FORCING FACT IS ON THE RECORD AND IS NOT THIS PACKET'S CLAIM: run
+    `33381257642`, a codexFactory-path council smoke test, sat queued about
+    eighteen hours and was never claimable, because the runner group admits the
+    codexFactory repository but lists only xFactory workflow paths. It was
+    cancelled 2026-09-01 and recorded on codexFactory issue #156. The right
+    outcome, produced by a configuration nobody had written down — which is the
+    whole reason a contract exists here.
+
+    THE PACKET IS TEXT-ONLY BY CONSTRUCTION AND SEEKS RATIFICATION, NOT
+    REALIZATION. It creates no contract byte, no workflow, no console change and
+    no runner: the declared code surface — the xFactory `clearing-dispatch.yml`
+    lane, the retirement of `runner-readiness-diagnostic.yml`, the guard, and the
+    future neutral `contracts/clearing/` family — is realized POST-RATIFICATION
+    at its own additive cut, because ratification authorizes realization and does
+    not perform it.
+  approved_by: >-
+    Brett Heap, 2026-09-01, in session. The ruling record he authorized commissions
+    this exact packet in its own closing section, quoted verbatim: "Next lane
+    (fresh session): the clearing contract as governed design — An OpenSpec change
+    (openxFactory neutral contract for the sealed-bundle clearing boundary +
+    xFactory clearing-workflow realization + codexFactory packaging realization),
+    honoring this ruling as its origin." That is the authorization to DRAFT and
+    nothing more: no ratification is claimed here, the packet lands `Status:
+    draft`, and the two acts only he can perform — ratification, and the one
+    console act per runner group — are carried as open tasks rather than as
+    approvals already given.
+  approved_on: 2026-09-01
+related:
+  - openxFactory:change:add-worker-enrollment-broker  # ACTIVE, realized at contract-v1.29. It OWNS runner group, labels, lease and trust tier, and the enrollment audit record whose subject is which hosts may BE runners. This packet consumes that vocabulary by name and defines none of it; its dispatch ledger's subject is what was CLEARED to a runner, which is the other half
+  - openxFactory:change:add-chain-attestation         # ACTIVE, RATIFIED 2026-09-01, realization IN FLIGHT. Named here for CUT ORDER only: its realization takes the next additive minor, so this packet's contract bytes allocate later and spend no number now
+  - openxFactory:change:add-chain-anchoring           # ACTIVE, realization IN FLIGHT. Allocates the cut after add-chain-attestation's, for the same reason
+  - openxFactory:change:add-trust-anchor              # ACTIVE, realized at contract-v1.37. Its certificate record is where a required bundle signature would be expressed if open question OQ1 is ruled that way; no bundle-signing vocabulary is minted here
