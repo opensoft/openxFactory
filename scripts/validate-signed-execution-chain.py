@@ -1782,6 +1782,13 @@ def repo_scan(f: Findings, target: Path, registry: Registry, docs: dict[str, dic
         # record.
         if "examples" in path.parts and "signed-execution-chain" in path.parts:
             continue
+        # And the same for the CONSUMED family's packaged corpus: trust-anchor's
+        # examples/ carries deliberately-invalid negatives that ITS reader
+        # adjudicates. Sweeping them here as live consumed records would
+        # re-adjudicate another family's fixtures — the same mistake the
+        # exclusion above prevents, one family over.
+        if "examples" in path.parts and "trust-anchor" in path.parts:
+            continue
         try:
             documents = load_records(path)
         except yaml.YAMLError as exc:
@@ -1795,7 +1802,18 @@ def repo_scan(f: Findings, target: Path, registry: Registry, docs: dict[str, dic
             continue
         name = str(path.relative_to(target) if sweep else path)
         for index, doc in enumerate(documents):
-            if not isinstance(doc, dict) or doc.get("kind") not in KIND_TO_SCHEMA:
+            # THE CONSUMED trust-anchor KINDS ARE COLLECTED TOO — found by the
+            # 5.8 canary build, which is what a canary is for. A tier-2
+            # identity's issuance COMPOSES the certificate record and the
+            # issuance evidence, and a scan that dropped every kind outside the
+            # family's own would refuse EVERY real chain as a forged identity:
+            # the records that discharge the composition could never reach the
+            # scope that resolves them. They are collected into scope exactly as
+            # the packaged corpora already load them, and validated against the
+            # same carried canonical schemas.
+            if not isinstance(doc, dict) or (
+                    doc.get("kind") not in KIND_TO_SCHEMA
+                    and doc.get("kind") not in CONSUMED_KIND_TO_SCHEMA):
                 skipped += 1
                 continue
             checked += 1
