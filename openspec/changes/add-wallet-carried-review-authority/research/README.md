@@ -23,7 +23,11 @@ Authoritative change artifacts are [`../proposal.md`](../proposal.md),
 [`../design.md`](../design.md), [`../tasks.md`](../tasks.md), the delta specs
 [`../specs/review-authority-intake/spec.md`](../specs/review-authority-intake/spec.md)
 and [`../specs/roles-authority-model/spec.md`](../specs/roles-authority-model/spec.md),
-and [`../rulings-2026-08-26.md`](../rulings-2026-08-26.md).
+[`../rulings-2026-08-26.md`](../rulings-2026-08-26.md), and
+[`../rulings-2026-08-29.md`](../rulings-2026-08-29.md) (Brett's S5 rulings
+R1–R12 taken against this report: Packet 1 composition, Packet 2 plane, and
+the Packet 4 ratification targets; the report supplied the evidence, the
+rulings file supplies the decisions).
 
 `.omo/` transcripts and sibling-repository snapshots are point-in-time evidence,
 not current authority. Revalidate current facts before decisions.

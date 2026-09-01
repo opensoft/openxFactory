@@ -133,6 +133,12 @@ def _bare_origin(tmp_path: Path, name: str = "origin.git") -> Path:
     return origin
 
 
+def _write_url_redirect_config(path: Path, source: Path, target: Path) -> None:
+    path.write_text(
+        f'[url "{target.as_uri()}"]\n\tinsteadOf = {source}\n', encoding="utf-8"
+    )
+
+
 # --- deterministic inventory mutations shared with the fixture generator ------
 
 
@@ -652,6 +658,20 @@ def test_verify_reads_exact_commit_not_a_short_or_symbolic_revision(
     assert release.verify_inventory_against_commit(repo, commit, inventory) == []
 
 
+def test_verify_uses_the_requested_repository_under_a_hostile_common_dir(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    primary, commit = _synthetic_repo(tmp_path, "primary")
+    repo = tmp_path / "requested"
+    _git(primary, "worktree", "add", "--quiet", "-b", "requested", str(repo), commit)
+    inventory = _canonical_inventory(repo)
+    hostile = support.init_git_repo(tmp_path / "hostile")
+    support.commit_files(hostile, {"hostile.txt": "unrelated repository\n"})
+    monkeypatch.setenv("GIT_COMMON_DIR", str(hostile / ".git"))
+
+    assert release.verify_inventory_against_commit(repo, commit, inventory) == []
+
+
 # --- promotion ----------------------------------------------------------------
 
 
@@ -693,6 +713,56 @@ def test_verify_promotion_accepts_a_reviewed_reachable_candidate(
     origin = _bare_origin(tmp_path)
     _git(repo, "remote", "add", "origin", str(origin))
     _git(repo, "push", "--quiet", "origin", "main")
+    assert release.verify_promotion(repo, commit=commit, remote="origin", tag=tag) == []
+
+
+def test_verify_promotion_uses_repo_origin_despite_indexed_config_override(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    tag = "contract-v2.0"
+    repo, commit = _repo_with_committed_inventory(tmp_path, "repo", tag)
+    origin = _bare_origin(tmp_path, "origin.git")
+    hostile = _bare_origin(tmp_path, "hostile.git")
+    _git(repo, "remote", "add", "origin", str(origin))
+    _git(repo, "push", "--quiet", "origin", "main")
+    monkeypatch.setenv("GIT_CONFIG_COUNT", "1")
+    monkeypatch.setenv("GIT_CONFIG_KEY_0", f"url.{hostile.as_uri()}.insteadOf")
+    monkeypatch.setenv("GIT_CONFIG_VALUE_0", str(origin))
+
+    assert release.verify_promotion(repo, commit=commit, remote="origin", tag=tag) == []
+
+
+def test_verify_promotion_ignores_hostile_global_and_system_url_redirects(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    tag = "contract-v2.0"
+    repo, commit = _repo_with_committed_inventory(tmp_path, "repo", tag)
+    origin = _bare_origin(tmp_path, "origin.git")
+    hostile = _bare_origin(tmp_path, "hostile.git")
+    _git(repo, "remote", "add", "origin", str(origin))
+    _git(repo, "push", "--quiet", "origin", "main")
+    global_config = tmp_path / "hostile-global.gitconfig"
+    system_config = tmp_path / "hostile-system.gitconfig"
+    _write_url_redirect_config(global_config, origin, hostile)
+    _write_url_redirect_config(system_config, origin, hostile)
+    monkeypatch.setenv("GIT_CONFIG_GLOBAL", str(global_config))
+    monkeypatch.setenv("GIT_CONFIG_SYSTEM", str(system_config))
+    monkeypatch.setenv("GIT_CONFIG_NOSYSTEM", "0")
+
+    assert release.verify_promotion(repo, commit=commit, remote="origin", tag=tag) == []
+
+
+def test_verify_promotion_preserves_repository_local_url_rewrite(
+    tmp_path: Path,
+) -> None:
+    tag = "contract-v2.0"
+    repo, commit = _repo_with_committed_inventory(tmp_path, "repo", tag)
+    origin = _bare_origin(tmp_path, "origin.git")
+    local_alias = "local-release-origin:"
+    _git(repo, "config", f"url.{origin.as_uri()}.insteadOf", local_alias)
+    _git(repo, "remote", "add", "origin", local_alias)
+    _git(repo, "push", "--quiet", "origin", "main")
+
     assert release.verify_promotion(repo, commit=commit, remote="origin", tag=tag) == []
 
 
@@ -753,6 +823,47 @@ def test_verify_tag_accepts_an_annotated_reachable_tag(tmp_path: Path) -> None:
     _git(repo, "push", "--quiet", "origin", "main")
     _git(repo, "tag", "-a", tag, "-m", "release", commit)
     _git(repo, "push", "--quiet", "origin", tag)
+    assert release.verify_tag(repo, remote="origin", tag=tag) == []
+
+
+def test_verify_tag_uses_repo_origin_despite_config_parameters_override(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    tag = "contract-v2.0"
+    repo, commit = _repo_with_committed_inventory(tmp_path, "repo", tag)
+    origin = _bare_origin(tmp_path, "origin.git")
+    hostile = _bare_origin(tmp_path, "hostile.git")
+    _git(repo, "remote", "add", "origin", str(origin))
+    _git(repo, "push", "--quiet", "origin", "main")
+    _git(repo, "tag", "-a", tag, "-m", "release", commit)
+    _git(repo, "push", "--quiet", "origin", tag)
+    monkeypatch.setenv(
+        "GIT_CONFIG_PARAMETERS",
+        f"'url.{hostile.as_uri()}.insteadOf={origin}'",
+    )
+
+    assert release.verify_tag(repo, remote="origin", tag=tag) == []
+
+
+def test_verify_tag_ignores_hostile_global_and_system_url_redirects(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    tag = "contract-v2.0"
+    repo, commit = _repo_with_committed_inventory(tmp_path, "repo", tag)
+    origin = _bare_origin(tmp_path, "origin.git")
+    hostile = _bare_origin(tmp_path, "hostile.git")
+    _git(repo, "remote", "add", "origin", str(origin))
+    _git(repo, "push", "--quiet", "origin", "main")
+    _git(repo, "tag", "-a", tag, "-m", "release", commit)
+    _git(repo, "push", "--quiet", "origin", tag)
+    global_config = tmp_path / "hostile-global.gitconfig"
+    system_config = tmp_path / "hostile-system.gitconfig"
+    _write_url_redirect_config(global_config, origin, hostile)
+    _write_url_redirect_config(system_config, origin, hostile)
+    monkeypatch.setenv("GIT_CONFIG_GLOBAL", str(global_config))
+    monkeypatch.setenv("GIT_CONFIG_SYSTEM", str(system_config))
+    monkeypatch.setenv("GIT_CONFIG_NOSYSTEM", "0")
+
     assert release.verify_tag(repo, remote="origin", tag=tag) == []
 
 
@@ -823,6 +934,29 @@ def _object_is_absent(repo: Path, object_id: str) -> bool:
         ["git", "cat-file", "-e", f"{object_id}^{{object}}"], cwd=repo
     )
     return probe.returncode != 0
+
+
+def test_remote_object_probe_rejects_an_alternate_only_object(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    repo, _ = _synthetic_repo(tmp_path, "repo")
+    origin = _bare_origin(tmp_path, "origin.git")
+    _git(repo, "remote", "add", "origin", str(origin))
+    _git(repo, "push", "--quiet", "origin", "main")
+    alternate, _ = _synthetic_repo(tmp_path, "alternate")
+    (alternate / "alternate-only.txt").write_text(
+        "alternate object\n", encoding="utf-8"
+    )
+    alternate_commit = _commit_all(alternate, "alternate-only object")
+    assert _object_is_absent(repo, alternate_commit)
+    monkeypatch.setenv(
+        "GIT_ALTERNATE_OBJECT_DIRECTORIES", str(alternate / ".git" / "objects")
+    )
+
+    with pytest.raises(release.ReleaseDependencyError) as excinfo:
+        release._resolve_remote_object(repo, "origin", alternate_commit)
+
+    assert "fetch" in str(excinfo.value)
 
 
 def _advance_remote_main_from_a_peer_clone(
@@ -1182,30 +1316,21 @@ def test_a_shallow_clone_still_answers_when_merge_base_can_say_yes(
 # --- candidate / realization modes --------------------------------------------
 
 
-def test_validate_candidate_passes_on_the_realized_repository() -> None:
-    # Post-realization (contract-v1.9): the realized release digest inventory is
-    # committed at contracts/releases/contract-v1.9.digests.yaml, which is the
-    # thing this test actually needs to prove -- the pre-realization
-    # missing-inventory state (HGR-RELEASE-INVENTORY-MISSING) is gone for both
-    # candidate and realization validation.
-    #
-    # It does NOT assert `== []`: main keeps moving after a release is cut, and
-    # release members (e.g. contracts/README.md) legitimately drift from the
-    # frozen contract-v1.9 digest inventory in between releases -- that is
-    # correct product behavior (you re-realize for the next version), not a
-    # bug. So drift findings like HGR-RELEASE-DIGEST-MISMATCH are expected and
-    # acceptable here; only the missing-inventory failure mode is disallowed.
-    inventory_path = ROOT / "contracts/releases/contract-v1.9.digests.yaml"
-    assert inventory_path.is_file(), inventory_path
-    catalog = load_yaml_document(ROOT / "contracts/hermes-runtime/contract-index.yaml")
-    candidate = release.validate_candidate(ROOT, catalog=catalog)
-    assert "HGR-RELEASE-INVENTORY-MISSING" not in [
-        finding["code"] for finding in candidate
-    ]
-    realization = release.validate_realization(ROOT, catalog=catalog)
-    assert "HGR-RELEASE-INVENTORY-MISSING" not in [
-        finding["code"] for finding in realization
-    ]
+def test_validate_candidate_and_realization_pass_for_a_local_annotated_release(
+    tmp_path: Path,
+) -> None:
+    tag = "contract-v2.0"
+    repo, commit = _repo_with_committed_inventory(tmp_path, "repo", tag)
+    origin = _bare_origin(tmp_path)
+    _git(repo, "remote", "add", "origin", str(origin))
+    _git(repo, "push", "--quiet", "origin", "main")
+    _git(repo, "tag", "-a", tag, "-m", "release", commit)
+    _git(repo, "push", "--quiet", "origin", tag)
+    assert Path(_git(repo, "remote", "get-url", "origin")) == origin
+    catalog = load_yaml_document(repo / "contracts/hermes-runtime/contract-index.yaml")
+
+    assert release.validate_candidate(repo, catalog=catalog) == []
+    assert release.validate_realization(repo, catalog=catalog) == []
 
 
 def test_validate_candidate_passes_for_a_committed_synthetic_candidate(
@@ -1332,6 +1457,65 @@ def test_cli_verify_commit_pass_and_missing_inventory(tmp_path: Path) -> None:
     assert payload["findings"][0]["code"] == "HGR-RELEASE-INVENTORY-MISSING"
 
 
+def test_cli_verify_commit_uses_requested_repo_under_hostile_common_dir(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    tag = "contract-v2.0"
+    primary, commit = _repo_with_committed_inventory(tmp_path, "primary", tag)
+    repo = tmp_path / "requested"
+    _git(primary, "worktree", "add", "--quiet", "-b", "requested", str(repo), commit)
+    hostile_common_dir = tmp_path / "hostile-common"
+    hostile_common_dir.mkdir()
+    monkeypatch.setenv("GIT_COMMON_DIR", str(hostile_common_dir))
+
+    result = _run_cli(
+        "verify-commit",
+        "--commit",
+        commit,
+        "--json",
+        repo=repo,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert json.loads(result.stdout)["findings"] == []
+
+
+@pytest.mark.parametrize(
+    "inherited_config",
+    [
+        {"GIT_CONFIG_PARAMETERS": "'core.bare=true'"},
+        {
+            "GIT_CONFIG_COUNT": "1",
+            "GIT_CONFIG_KEY_0": "core.bare",
+            "GIT_CONFIG_VALUE_0": "true",
+        },
+    ],
+    ids=["parameters", "indexed"],
+)
+def test_cli_root_discovery_ignores_inherited_command_scope_config(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    inherited_config: dict[str, str],
+) -> None:
+    tag = "contract-v2.0"
+    primary, commit = _repo_with_committed_inventory(tmp_path, "primary", tag)
+    repo = tmp_path / "requested"
+    _git(primary, "worktree", "add", "--quiet", "-b", "requested", str(repo), commit)
+    for name, value in inherited_config.items():
+        monkeypatch.setenv(name, value)
+
+    result = _run_cli(
+        "verify-commit",
+        "--commit",
+        commit,
+        "--json",
+        repo=repo,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert json.loads(result.stdout)["findings"] == []
+
+
 def test_cli_verify_commit_reports_findings_with_exit_one(tmp_path: Path) -> None:
     tag = "contract-v2.0"
     repo, candidate = _repo_with_committed_inventory(tmp_path, "repo", tag)
@@ -1374,6 +1558,37 @@ def test_cli_verify_promotion_and_verify_tag(tmp_path: Path) -> None:
     )
     assert missing_tag.returncode == 1
     assert "HGR-RELEASE-TAG-MISSING" in missing_tag.stdout
+
+
+def test_cli_ignores_hostile_global_and_system_url_redirects(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    tag = "contract-v2.0"
+    repo, commit = _repo_with_committed_inventory(tmp_path, "repo", tag)
+    origin = _bare_origin(tmp_path, "origin.git")
+    hostile = _bare_origin(tmp_path, "hostile.git")
+    _git(repo, "remote", "add", "origin", str(origin))
+    _git(repo, "push", "--quiet", "origin", "main")
+    global_config = tmp_path / "hostile-global.gitconfig"
+    system_config = tmp_path / "hostile-system.gitconfig"
+    _write_url_redirect_config(global_config, origin, hostile)
+    _write_url_redirect_config(system_config, origin, hostile)
+    monkeypatch.setenv("GIT_CONFIG_GLOBAL", str(global_config))
+    monkeypatch.setenv("GIT_CONFIG_SYSTEM", str(system_config))
+    monkeypatch.setenv("GIT_CONFIG_NOSYSTEM", "0")
+
+    result = _run_cli(
+        "verify-promotion",
+        "--commit",
+        commit,
+        "--remote",
+        "origin",
+        "--tag",
+        tag,
+        repo=repo,
+    )
+
+    assert result.returncode == 0, result.stderr
 
 
 def test_cli_dependency_error_is_exit_two(tmp_path: Path) -> None:

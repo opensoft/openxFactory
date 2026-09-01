@@ -1,0 +1,325 @@
+# expected_failure: continuity_broken
+# expected_failure_detail: chain
+# VIOLATES requirement 6's "every act writes a leaf" THROUGH THE LOOKUP THAT
+# CHECKS IT (Codex, P1, round three) — and it is round two's shape one level up:
+# the leaf's `chain_ref` and the payload it names could disagree.
+#
+# Chain B here is complete and internally honest: signed inception, ratification
+# leaf, inception leaf, traveling contract, every digest recomputing. The only
+# defect is that the leaf recording its ISSUANCE is filed under chain A.
+#
+# BOTH CHECKS THAT SHOULD HAVE CAUGHT IT LOOKED SCOPE-WIDE. The payload-digest
+# recomputation resolved the traveling contract by IDENTIFIER across the whole
+# store, so it matched and recomputed cleanly; and the missing-leaf rule collected
+# recorded ids GLOBALLY, so chain A's leaf discharged chain B's obligation. Chain B
+# passed with its primary custody record silent about an act the contract requires
+# to be recorded — which is precisely the hole the missing-leaf rule had just been
+# added to close.
+#
+# A LEAF BELONGS TO THE CHAIN IT NAMES. The lookup is now chain-scoped and the
+# recorded set is keyed on the PAIR, so an issuance can only be discharged by a
+# leaf on the issuing chain.
+schema_version: 1
+kind: xfactory_signed_execution_chain_inception
+inception_id: inc-rat-n32
+chain_identity:
+  construction: xfc-jcs-sha256-1
+  subject: signed_ratification
+  value: sha256:bb938933b9e7304ab08c67b4e78b1b5a31588ba0e75cb76b8c877d4b9a79887a
+signed_ratification:
+  ratification_id: rat-n32
+  ratified_at: '2026-08-30T10:00:00Z'
+  digest_construction: xfc-jcs-sha256-1
+  ratified_subject:
+    subject_type: openspec_change
+    subject_ref: openspec/changes/add-signed-execution-chain
+    subject_digest:
+      construction: xfc-jcs-sha256-1
+      subject: ratified_subject
+      value: sha256:dfedf73b9f4b91683dfa36ef6ae363c23a7e65315d507d3f094f0ad45bdbdb84
+  presentation:
+    exercise_ref: exr-n32
+    grant_ref: grant-ratify-0001
+    presenting_key_ref: key-ratifier-0001
+    exercise:
+      schema_version: 1
+      kind: xfactory_wallet_grant_exercise
+      exercise_id: exr-n32
+      grant_ref: grant-ratify-0001
+      act: ratify
+      occurred_at: '2026-08-30T10:00:00Z'
+      event_class: authenticated
+      proof_of_possession:
+        presented: true
+        verified: true
+        signature_algorithm: ed25519
+        presenting_key_ref: key-ratifier-0001
+        signed_over: request_digest
+      attribution:
+        mode: key_attributed
+        presenting_key_ref: key-ratifier-0001
+        wallet_ref: wal-human-ratifier-0001
+        holder_ref: person:example.ratifier
+      custody_model_in_force: isolated_per_use_authorized
+      revocation_check:
+        performed_at_exercise: true
+        result: active
+      outcome: permitted
+      object_ref: sha256:dfedf73b9f4b91683dfa36ef6ae363c23a7e65315d507d3f094f0ad45bdbdb84
+    wallet:
+      schema_version: 1
+      kind: xfactory_wallet_record
+      wallet_id: wal-human-ratifier-0001
+      holder:
+        holder_id: person:example.ratifier
+        holder_class: person
+        display_label: Packaged fixture ratifier — not a live holder
+      key_reference:
+        did: did:key:z6MkpbemmWNSrDVeNzsVYzhR74wmTf8jTdTqsq9M6CmWqhbG
+        key_id: key-ratifier-0001
+        public_key_multibase: z6MkpbemmWNSrDVeNzsVYzhR74wmTf8jTdTqsq9M6CmWqhbG
+        signature_algorithm: ed25519
+      custody:
+        model: isolated_per_use_authorized
+        registry_version: 1
+        declared_at: '2026-08-30T09:00:00Z'
+        declared_by: Brett.Heap
+      state: active
+      created_at: '2026-08-30T09:00:00Z'
+      policy_version: 1
+  actor:
+    subject_reference:
+      schema_version: 1
+      kind: actor_subject_reference
+      reference_id: asr-ratify-0001
+      governed_record_ref:
+        record_type: signed_execution_chain_inception
+        record_ref: inc-ratify-0001
+      provenance: broker_asserted
+      issuer:
+        broker_instance_id: broker-opensoft-qa
+      subject: sub-7f2c1b9ae40d5836
+      display_name_at_record: Packaged fixture ratifier
+      recorded_at: '2026-08-30T10:00:00Z'
+    wallet_attestation:
+      schema_version: 1
+      kind: xfactory_wallet_subject_attestation
+      subject_ref: sub-7f2c1b9ae40d5836
+      wallet_ref: wal-human-ratifier-0001
+      reference_role: attestation
+      resolution:
+        resolved_by: subject_ref
+        reconstructable_without_wallet: true
+      attested_at: '2026-08-30T10:00:00Z'
+  out_of_pipeline:
+    performed_out_of_pipeline: true
+    ground_ref: opensoft/codexFactory hermes/domain/review-councils/records/2026-08-28-gate-rules-openxfactory-substantive-classes.md
+    ground_statement: 'A class over `openspec/changes/**` can never commission a council:
+      the surface lies wholly inside the canonical GATE_INTEGRITY_FLOOR, which is evaluated
+      before any clearable classification (984 admitted, 984 floored, 0 remaining; unanimous
+      5/5, convener disposition Brett Heap 2026-08-28). And a pipeline that CLEARS candidates
+      cannot also be what CONFERS the authority those candidates are cleared against.'
+ratification_signature:
+  algorithm: ed25519
+  presenting_key_ref: key-ratifier-0001
+  signed_over: signed_ratification
+  signature: -OvqLmg0Ec1IxOngc5GWSAIfK0N8o437cIYYRGsb9SwePOITLV53jc8QoXnMbjD4lFntIi9fSpcNaLqdB-BICw
+incepted_at: '2026-08-30T10:00:00Z'
+inception_leaf_ref: leaf-n32-inc
+
+---
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-n32-rat
+leaf_index: 4
+tree_size: 5
+chain_ref: sha256:bb938933b9e7304ab08c67b4e78b1b5a31588ba0e75cb76b8c877d4b9a79887a
+leaf_type: wallet_presented_ratification
+recorded_at: '2026-08-30T10:04:00Z'
+payload_ref: exr-n32
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: ratified_subject
+  value: sha256:dfedf73b9f4b91683dfa36ef6ae363c23a7e65315d507d3f094f0ad45bdbdb84
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:59ddc48363d52263e1a96586876ce5ab36e446e1ac0b7adf38b16cbbe8dc6127
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:7834ff73a042677e6e053c179b2fbea625d2841d6504d24888f7994028acc981
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-0001
+  signed_over: leaf_content
+  signature: AmVgP7NOoq2QyZZq437PvFgRvJCNFRWh0-2PQNsg6dr6fxmyehv4oLcFpf4u3M_dbkw-dORPNa5CBO61mwMsAg
+
+---
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-n32-inc
+leaf_index: 5
+tree_size: 6
+chain_ref: sha256:bb938933b9e7304ab08c67b4e78b1b5a31588ba0e75cb76b8c877d4b9a79887a
+leaf_type: chain_inception
+recorded_at: '2026-08-30T10:05:00Z'
+payload_ref: inc-rat-n32
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: signed_ratification
+  value: sha256:bb938933b9e7304ab08c67b4e78b1b5a31588ba0e75cb76b8c877d4b9a79887a
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:7834ff73a042677e6e053c179b2fbea625d2841d6504d24888f7994028acc981
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:f9361a2a2c4bbce07b5a114245253679610403ef168c040f3757c8c1b834993c
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-0001
+  signed_over: leaf_content
+  signature: Q-_HGGG8Ocg61QFyVD6E3bv_pUh4454ddhb296vN3voFP-_siKlFIs15jub2cjdoi1EK-l7PhT7U6TOqJv5xAQ
+
+---
+schema_version: 1
+kind: xfactory_signed_execution_chain_traveling_contract
+traveling_contract_id: tvc-n32
+chain_identity:
+  construction: xfc-jcs-sha256-1
+  subject: signed_ratification
+  value: sha256:bb938933b9e7304ab08c67b4e78b1b5a31588ba0e75cb76b8c877d4b9a79887a
+presentation_ref: exr-n32
+inception_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:f9361a2a2c4bbce07b5a114245253679610403ef168c040f3757c8c1b834993c
+signed_ratification:
+  ratification_id: rat-n32
+  ratified_at: '2026-08-30T10:00:00Z'
+  digest_construction: xfc-jcs-sha256-1
+  ratified_subject:
+    subject_type: openspec_change
+    subject_ref: openspec/changes/add-signed-execution-chain
+    subject_digest:
+      construction: xfc-jcs-sha256-1
+      subject: ratified_subject
+      value: sha256:dfedf73b9f4b91683dfa36ef6ae363c23a7e65315d507d3f094f0ad45bdbdb84
+  presentation:
+    exercise_ref: exr-n32
+    grant_ref: grant-ratify-0001
+    presenting_key_ref: key-ratifier-0001
+    exercise:
+      schema_version: 1
+      kind: xfactory_wallet_grant_exercise
+      exercise_id: exr-n32
+      grant_ref: grant-ratify-0001
+      act: ratify
+      occurred_at: '2026-08-30T10:00:00Z'
+      event_class: authenticated
+      proof_of_possession:
+        presented: true
+        verified: true
+        signature_algorithm: ed25519
+        presenting_key_ref: key-ratifier-0001
+        signed_over: request_digest
+      attribution:
+        mode: key_attributed
+        presenting_key_ref: key-ratifier-0001
+        wallet_ref: wal-human-ratifier-0001
+        holder_ref: person:example.ratifier
+      custody_model_in_force: isolated_per_use_authorized
+      revocation_check:
+        performed_at_exercise: true
+        result: active
+      outcome: permitted
+      object_ref: sha256:dfedf73b9f4b91683dfa36ef6ae363c23a7e65315d507d3f094f0ad45bdbdb84
+    wallet:
+      schema_version: 1
+      kind: xfactory_wallet_record
+      wallet_id: wal-human-ratifier-0001
+      holder:
+        holder_id: person:example.ratifier
+        holder_class: person
+        display_label: Packaged fixture ratifier — not a live holder
+      key_reference:
+        did: did:key:z6MkpbemmWNSrDVeNzsVYzhR74wmTf8jTdTqsq9M6CmWqhbG
+        key_id: key-ratifier-0001
+        public_key_multibase: z6MkpbemmWNSrDVeNzsVYzhR74wmTf8jTdTqsq9M6CmWqhbG
+        signature_algorithm: ed25519
+      custody:
+        model: isolated_per_use_authorized
+        registry_version: 1
+        declared_at: '2026-08-30T09:00:00Z'
+        declared_by: Brett.Heap
+      state: active
+      created_at: '2026-08-30T09:00:00Z'
+      policy_version: 1
+  actor:
+    subject_reference:
+      schema_version: 1
+      kind: actor_subject_reference
+      reference_id: asr-ratify-0001
+      governed_record_ref:
+        record_type: signed_execution_chain_inception
+        record_ref: inc-ratify-0001
+      provenance: broker_asserted
+      issuer:
+        broker_instance_id: broker-opensoft-qa
+      subject: sub-7f2c1b9ae40d5836
+      display_name_at_record: Packaged fixture ratifier
+      recorded_at: '2026-08-30T10:00:00Z'
+    wallet_attestation:
+      schema_version: 1
+      kind: xfactory_wallet_subject_attestation
+      subject_ref: sub-7f2c1b9ae40d5836
+      wallet_ref: wal-human-ratifier-0001
+      reference_role: attestation
+      resolution:
+        resolved_by: subject_ref
+        reconstructable_without_wallet: true
+      attested_at: '2026-08-30T10:00:00Z'
+  out_of_pipeline:
+    performed_out_of_pipeline: true
+    ground_ref: opensoft/codexFactory hermes/domain/review-councils/records/2026-08-28-gate-rules-openxfactory-substantive-classes.md
+    ground_statement: 'A class over `openspec/changes/**` can never commission a council:
+      the surface lies wholly inside the canonical GATE_INTEGRITY_FLOOR, which is evaluated
+      before any clearable classification (984 admitted, 984 floored, 0 remaining; unanimous
+      5/5, convener disposition Brett Heap 2026-08-28). And a pipeline that CLEARS candidates
+      cannot also be what CONFERS the authority those candidates are cleared against.'
+ratification_signature:
+  algorithm: ed25519
+  presenting_key_ref: key-ratifier-0001
+  signed_over: signed_ratification
+  signature: -OvqLmg0Ec1IxOngc5GWSAIfK0N8o437cIYYRGsb9SwePOITLV53jc8QoXnMbjD4lFntIi9fSpcNaLqdB-BICw
+issued_at: '2026-08-30T10:05:00Z'
+
+---
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-n32-issue
+leaf_index: 6
+tree_size: 7
+chain_ref: sha256:6bc75a08cec5fe85a4993bc912cfeeb76161e9d318dedaec51314bb228ab7229
+leaf_type: traveling_contract_issued
+recorded_at: '2026-08-30T10:06:00Z'
+payload_ref: tvc-n32
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: traveling_contract
+  value: sha256:116f06901d9ab3e24c0eb61348d480d70935115245cf0154c691ad23cd791ac5
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:f9361a2a2c4bbce07b5a114245253679610403ef168c040f3757c8c1b834993c
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:6d0025f339a95d8d03e5d8785d3c77030386d702031d62cfc1ee749145a2b922
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-0001
+  signed_over: leaf_content
+  signature: cu83-ovS6-7HpgK9J4dVpV3WEo50uvK_V39mBs3CFzaU9UyvrDsQ1AaYmZ4sgeCIA8YXRt7LiDEeQ1Wv8TrrDA

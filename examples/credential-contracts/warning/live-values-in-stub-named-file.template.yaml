@@ -1,0 +1,27 @@
+# WARNING (expect: consumer-identity-undeclared). A RECORD WEARING A STUB NAME.
+#
+# This file is called `*.template.yaml` and its binding carries LIVE values — a
+# real vault, a real secret reference, a real owner — while declaring no
+# `instantiation_stub` token. It is treated as a record: it warns now and is
+# refused at the major, exactly as if it were named anything else.
+#
+# THIS FIXTURE IS WHAT PROVES THE EXEMPTION MOVED OFF THE FILENAME. Keying it on
+# the path would have been an exemption the author writes by naming: invisible
+# in the bytes a pinned consumer validates, and available to any real binding
+# record that happens to be called `prod.template.yaml`. The generator emits
+# `credentials/bindings.template.yaml` into every scaffolded repository, so an
+# install that fills it in and does not rename it would have been permanently
+# exempt from the omission warning and, at the major, from the requirement
+# itself.
+schema_version: 1
+kind: xfactory_credential_binding_template
+client:
+  id: example-client
+  display_name: Example Client (fixture)
+credential_bindings:
+  projection_sync_lane:
+    provider: azure_key_vault
+    vault: kv-example-projection
+    secret_ref: example-projection-sync-secret
+    owner: example-platform
+    rotation_policy: operator_managed

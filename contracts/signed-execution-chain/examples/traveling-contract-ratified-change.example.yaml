@@ -1,0 +1,123 @@
+# LINK 3 — the signed ratification carried WITH the work, checkable at the point
+# of use with no registry and no live service in reach.
+#
+# It carries the three things the requirement names — the chain identity, the
+# reference to the presentation that proved link 1, and the digest of the leaf
+# that recorded inception — plus the signed ratification itself, which is what
+# makes the first of those RECOMPUTABLE rather than merely asserted.
+#
+# LINK 3 HAS NO SIGNER, and this file carries none of its own: it carries the
+# RATIFICATION's signature, verbatim. At tranche one continuity is established by
+# DERIVATION AND COMPARISON; the hash-linked SIGNING rule takes effect at tranche
+# two's first link with a signer of its own.
+schema_version: 1
+kind: xfactory_signed_execution_chain_traveling_contract
+traveling_contract_id: tvc-ratify-0001
+chain_identity:
+  construction: xfc-jcs-sha256-1
+  subject: signed_ratification
+  value: sha256:6bc75a08cec5fe85a4993bc912cfeeb76161e9d318dedaec51314bb228ab7229
+presentation_ref: exr-ratify-0001
+inception_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:c1766415c0a57ffeaeedddf27e5dfd9850d3991e016a348b236dc52690c7bd9a
+signed_ratification:
+  ratification_id: rat-0001
+  ratified_at: '2026-08-30T10:00:00Z'
+  digest_construction: xfc-jcs-sha256-1
+  ratified_subject:
+    subject_type: openspec_change
+    subject_ref: openspec/changes/add-signed-execution-chain
+    subject_digest:
+      construction: xfc-jcs-sha256-1
+      subject: ratified_subject
+      value: sha256:dfedf73b9f4b91683dfa36ef6ae363c23a7e65315d507d3f094f0ad45bdbdb84
+  presentation:
+    exercise_ref: exr-ratify-0001
+    grant_ref: grant-ratify-0001
+    presenting_key_ref: key-ratifier-0001
+    exercise:
+      schema_version: 1
+      kind: xfactory_wallet_grant_exercise
+      exercise_id: exr-ratify-0001
+      grant_ref: grant-ratify-0001
+      act: ratify
+      occurred_at: '2026-08-30T10:00:00Z'
+      event_class: authenticated
+      proof_of_possession:
+        presented: true
+        verified: true
+        signature_algorithm: ed25519
+        presenting_key_ref: key-ratifier-0001
+        signed_over: request_digest
+      attribution:
+        mode: key_attributed
+        presenting_key_ref: key-ratifier-0001
+        wallet_ref: wal-human-ratifier-0001
+        holder_ref: person:example.ratifier
+      custody_model_in_force: isolated_per_use_authorized
+      revocation_check:
+        performed_at_exercise: true
+        result: active
+      outcome: permitted
+      object_ref: sha256:dfedf73b9f4b91683dfa36ef6ae363c23a7e65315d507d3f094f0ad45bdbdb84
+    wallet:
+      schema_version: 1
+      kind: xfactory_wallet_record
+      wallet_id: wal-human-ratifier-0001
+      holder:
+        holder_id: person:example.ratifier
+        holder_class: person
+        display_label: Packaged fixture ratifier — not a live holder
+      key_reference:
+        did: did:key:z6MkpbemmWNSrDVeNzsVYzhR74wmTf8jTdTqsq9M6CmWqhbG
+        key_id: key-ratifier-0001
+        public_key_multibase: z6MkpbemmWNSrDVeNzsVYzhR74wmTf8jTdTqsq9M6CmWqhbG
+        signature_algorithm: ed25519
+      custody:
+        model: isolated_per_use_authorized
+        registry_version: 1
+        declared_at: '2026-08-30T09:00:00Z'
+        declared_by: Brett.Heap
+      state: active
+      created_at: '2026-08-30T09:00:00Z'
+      policy_version: 1
+  actor:
+    subject_reference:
+      schema_version: 1
+      kind: actor_subject_reference
+      reference_id: asr-ratify-0001
+      governed_record_ref:
+        record_type: signed_execution_chain_inception
+        record_ref: inc-ratify-0001
+      provenance: broker_asserted
+      issuer:
+        broker_instance_id: broker-opensoft-qa
+      subject: sub-7f2c1b9ae40d5836
+      display_name_at_record: Packaged fixture ratifier
+      recorded_at: '2026-08-30T10:00:00Z'
+    wallet_attestation:
+      schema_version: 1
+      kind: xfactory_wallet_subject_attestation
+      subject_ref: sub-7f2c1b9ae40d5836
+      wallet_ref: wal-human-ratifier-0001
+      reference_role: attestation
+      resolution:
+        resolved_by: subject_ref
+        reconstructable_without_wallet: true
+      attested_at: '2026-08-30T10:00:00Z'
+  out_of_pipeline:
+    performed_out_of_pipeline: true
+    ground_ref: opensoft/codexFactory hermes/domain/review-councils/records/2026-08-28-gate-rules-openxfactory-substantive-classes.md
+    ground_statement: 'A class over `openspec/changes/**` can never commission a council:
+      the surface lies wholly inside the canonical GATE_INTEGRITY_FLOOR, which is evaluated
+      before any clearable classification (984 admitted, 984 floored, 0 remaining; unanimous
+      5/5, convener disposition Brett Heap 2026-08-28). And a pipeline that CLEARS candidates
+      cannot also be what CONFERS the authority those candidates are cleared against.'
+ratification_signature:
+  algorithm: ed25519
+  presenting_key_ref: key-ratifier-0001
+  signed_over: signed_ratification
+  signature: lnSOvITNX0tmKbknJ7OyRW5WUuuGxC0Y2ZZriOffWUvwCiRAKR_DvR9u3e0fnTAJ4CNqgLjybiC65TrhQr1dAw
+issued_at: '2026-08-30T10:05:00Z'

@@ -1,0 +1,19 @@
+schema_version: 1
+kind: policy_allowance_revocation
+revocation_id: example.revocation
+registry_id: example.registry
+allowance_id: example.allowance
+approval_digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+predecessor_event_digest: null
+predecessor_revision_digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+revoker:
+  principal_id: example.revoker
+  authority_role: example.allowance_revoker
+  authority_source:
+    repository: example/domain-factory
+    path: governance/intent-compliance-authority.yaml
+    revision: "0000000000000000000000000000000000000000"
+    content_digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+revoked_at: "2026-06-01T00:00:00Z"
+reason_code: example.policy_changed
+revocation_digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"

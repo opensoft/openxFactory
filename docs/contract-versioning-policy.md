@@ -32,7 +32,14 @@ reserve a minor number before merge order is known, and a bundle is not
 published until its tag exists. Consumers record the human-readable bundle
 tag while pinning the exact commit and required file digests.
 
-### Untagged Bundles After Enforcement Began — DISCHARGED 2026-08-25
+### Untagged Bundles After Enforcement Began — DISCHARGED 2026-08-25, AND AGAIN 2026-08-31
+
+FIVE instances, in two discharges. The first three and the 2026-08-25 ruling are
+recorded immediately below; `contract-v2.3` and `contract-v2.4` are recorded
+further down under their own dates. The header carries both dates because a single
+one would read as though the section closed once — and **it has not closed, in the
+sense that matters**: the recurrence is caused by the absence of a CHECK, filed as
+issue **#528**, and a record is not a check.
 
 Three bundles allocated AFTER mandatory tag publication began once carried a
 changelog entry and a manifest version but NO published annotated tag:
@@ -72,6 +79,50 @@ matches.
 Every bundle from `contract-v1.7` — where mandatory publication begins — is now
 tagged. The legacy `contract-v1.0`–`contract-v1.6` sequence remains untagged by
 design, per the recovery recorded below.
+
+**THE SENTENCE ABOVE WAS TRUE WHEN WRITTEN, BECAME FALSE, AND IS TRUE AGAIN —
+`contract-v2.3` AND `contract-v2.4` WERE INSTANCES FOUR AND FIVE.** Recorded here
+rather than left to be inferred from the sentence's present tense, because a
+reader who takes that sentence as evidence the practice never lapsed again would
+be reading a claim it does not make.
+
+| bundle | realized commit | landed as | declared-and-untagged for | discharged |
+|---|---|---|---|---|
+| `contract-v2.3` | `ec8be5aa62179713f37ee12dab53a948d791e147` | PR #514 merge, 2026-08-30 08:25 -0400 | about 19 hours — and it was CONSUMED as a spent number inside that window, by the `contract-v2.4` cut `afdf0e88` | tag `9fe9a742` published 2026-08-31 03:14 -0400 |
+| `contract-v2.4` | `afdf0e88f329740150654d5ad67a1984a104e83b` | PR #526 squash, 2026-08-30 23:49 -0400 | about 3.5 hours | tag `3374ad2f` published 2026-08-31 03:14 -0400, in the same act |
+
+`verify-tag --remote origin` passes for both and each peels to the commit named
+above, which is *"the EARLIEST FIRST-PARENT COMMIT on published `main` that
+DECLARES the bundle and at which `verify-commit` PASSES"*. RETRO-PUBLISHED, NOT
+RE-DATED, on the same terms as the August discharge: no release was
+reconstructed, re-cut or altered, and no version number was reused. **The
+measurement of record is `contracts/CHANGELOG.md` § `contract-v2.4` tag
+disposition — PUBLISHED 2026-08-31** (PR #532), which peels both tags, runs
+`verify-commit` at both targets, and re-validates the targeting rule against a
+live control (`contract-v2.2` → `8ccfb67b`, matching its already-published tag).
+This table cites that measurement; it does not re-derive it, because two records
+of one measurement is how they drift apart.
+
+**THE DISCHARGE DOES NOT MAKE THE GAP ACCEPTABLE**, and the v2.3 case is the one
+that shows why. For those nineteen hours *"a bundle is not published until its tag
+exists"* was in force and unmet, and a later cut consumed the bundle as a spent
+number anyway. That is evidence of the cost, never a precedent.
+
+**WHY IT RECURRED, WHICH IS THE ONLY PART A FUTURE READER CAN ACT ON.** Nothing
+in the estate checks this. `verify_tag` exists and is called only by unit tests
+over synthetic repositories; no workflow calls the release validator at all;
+`release-surface-integrity` deliberately does not anchor on tags; and
+`tag-hygiene` is a different family entirely, over document prose markers. So the
+gap is invisible until a human counts, which is exactly how it reached
+`contract-v1.33`/`v1.35`/`v1.39` in August and then reached `contract-v2.3` and
+`contract-v2.4` in the same week the August ruling was still being cited. **It is
+filed as issue #528 and is OPEN.** Until a check lands, the sentence above can go
+false a fourth time, and this section records rather than prevents that. A reader
+finding it false again should add the gate, not another paragraph.
+
+Every instance above is a breach of the rule, never an exception to it, and the
+closing clause immediately below binds all five: no reader may cite this
+subsection, or the periods it narrates, to treat an untagged bundle as released.
 
 THE RULE WAS NEVER ADVISORY, INCLUDING WHILE IT WAS BEING BROKEN. For the weeks
 these three went untagged, "a bundle is not published until its tag exists" was
@@ -294,6 +345,68 @@ retroactively invalidate an old pin.
   observed hashes, a buffer-key proposal target, and the selected-model
   metadata. Deprecated at contract-v1.34; removal target contract-v2.0. The v1
   bytes are unchanged and keep validating until then.
+- **The undeclared `consumer:` block on a credential binding — and SEVEN acts
+  that land together with it (`add-binding-consumer-identity`).** Each entry of
+  `credential_bindings` in `xfactory_credential_binding_template` MAY declare a
+  `consumer:` block naming the consuming system that holds the binding
+  (`holder_ref`) and the identity that system authenticates to the secret store
+  with (`fetch_identity`), optionally a qualified `requirement_ref`
+  (`requirement_id` + `requirements_document_ref`), and the const-true
+  `shared_credential_acknowledged` and `instantiation_stub` tokens. **The block
+  is DECLARED at contract-v2.4 and CONSTRAINED at contract-v3.0**; at
+  contract-v2.4 the schema imposes no type, no member grammar, no
+  requiredness and no closure on it, and
+  `scripts/validate-credential-contracts.py` emits WARNINGS instead.
+
+  **THIS ENTRY NAMES EVERY ACT THAT LANDS AT THAT MAJOR, because a reader
+  learns from this entry alone that they are ONE act served by ONE deprecation
+  window.** The entry is written from the REFUSAL LIST rather than from memory:
+  every shape the current major accepts and the next one refuses owes its minor
+  of warnings, and without that a reader at the major cannot demonstrate this
+  section's own `:250-254` precondition was met and the requiredness becomes
+  unauditable.
+
+  | act, at contract-v3.0 | the code that warns until then |
+  | --- | --- |
+  | a binding declares no `consumer:` block (requiredness) | `consumer-identity-undeclared` |
+  | a block exists and omits `holder_ref` or `fetch_identity`, or is not an object | `consumer-block-incomplete` |
+  | the block is CLOSED — an undeclared member is refused | `consumer-block-unknown-member` |
+  | the member grammar — `holder_ref`, `fetch_identity` and `requirement_ref.requirement_id` carry identity-brokering's identifier pattern, and `requirement_ref` must be the qualified two-member object | `consumer-member-grammar` |
+  | a const-true token declared `false` is refused | `consumer-token-not-true` |
+  | the `credential_bindings` MAP KEY carries the identifier grammar | `consumer-binding-key-grammar` |
+  | `access_mode` on `xfactory_credential_requirements` is closed to `{dispatch_only, contents_write, workload_identity, delegated_api}` | `consumer-access-mode-vocabulary` |
+  | `requirements_document_ref` is repository-relative, non-escaping, non-foreign and YAML-suffixed | `consumer-requirement-ref-grammar` |
+
+  Migration: declare `consumer: {holder_ref: …, fetch_identity: …}` on each
+  binding; a record written before any install exists declares
+  `consumer: {instantiation_stub: true}` instead, and **that TOKEN is the only
+  exemption — a `*.template.yaml` filename exempts nothing**, because a filename
+  is author-chosen, invisible in the bytes a pinned consumer validates, and
+  unreachable by a pinned schema. Do NOT satisfy the field with a placeholder: a
+  grammar-passing sentinel reads as an authority declaration while naming
+  nothing. Every warning above carries a packaged probe under
+  `examples/credential-contracts/warning/`, and the self-test refuses a code
+  with no probe.
+
+  **THE REQUIREDNESS IS GATED ON THE DEGRADED FETCH-IDENTITY MODE, AND SHALL
+  NOT LAND WITHOUT IT.** At the major an install with no per-install fetch
+  identity must write SOMETHING into a required field, and what it will write is
+  the shared service identity, silently — precisely the grammar-passing
+  placeholder this deprecation calls worse than omission, arriving through the
+  front door of the field it adds. `contracts/avatar-client/broker-server-key-
+  binding.template.yaml` already ships `degraded_mode_permitted: true` on this
+  record kind, so the shape the successor is measured against exists. Until a
+  degraded mode is declarable in this family, the OTHER seven acts may land and
+  the requiredness may not.
+
+  Nothing narrows at contract-v2.4, and that is a measurement rather
+  than a claim: six shapes a domain could already hold — an object with neither
+  declared member, a scalar, a list, placeholder-styled values, an undeclared
+  extra member, and no block at all — were built and driven against the shipped
+  schema, and all six validate. Every consumer pinned at the prior bundle stays
+  conformant until it upgrades.
+
+  Warned since contract-v2.4; removal target contract-v3.0.
 
 ## Deprecations Executed
 

@@ -109,8 +109,21 @@ Core domain-neutral docs:
 - [Intake Subtype Second-Pass Gap Report](docs/intake-subtype-second-pass-gap-report.md)
 - [Domain Pre-Run Simulation Report](docs/domain-pre-run-simulation-report.md)
 - [Domain Repo Review Improvements](docs/domain-repo-review-improvements.md)
+- [Governed Re-Issuance Runbook](docs/governed-reissuance-runbook.md)
+  (a provider alias roll or composition bump as one governed act: the six
+  declared components, the one-commit-set bump, R9's park-with-a-named-refusal
+  in-flight behavior, R8's five-field re-issuance record as a MINIMUM, the
+  human-only register act as a pointer, and provider-roll recovery. Written
+  for `add-wallet-carried-review-authority` task 7.6 against
+  [`rulings-2026-08-29.md`](openspec/changes/add-wallet-carried-review-authority/rulings-2026-08-29.md)
+  R8/R9; `Status: draft`, because neither ruling is enforced until the change
+  carrying R6–R12 is ratified and task 7.6 stays OPEN by its own text)
 - [Document Lifecycle](docs/document-lifecycle.md)
 - [Release Realization Flow](docs/release-realization-flow.md)
+- [The `scope_globs` Scope Surface Is a Never-Clearable Trust-Root Floor](docs/scope-globs-trust-root-floor.md)
+  (the machine-readable path-scope substrate from `add-structured-scope-substrate`:
+  `scripts/scope_globs.py` + `scripts/validate-scope-globs.py`; the trust-root
+  floor doctrine consumed by the provenance-tie verifier)
 - [Doc-Health Contract](docs/doc-health.md)
   (implementation in-repo since `adopt-neutral-tooling-home`:
   `scripts/doc_health/` + `scripts/doc-health.py`, the reusable nightly
@@ -437,134 +450,286 @@ Active changes:
   — a successor commits to an ORDERED, DEDUPLICATED enumeration of every
   predecessor and a subset commitment is refused, because otherwise a lane drops
   the attestation it dislikes and still presents a continuous chain.
-- [add-binding-consumer-identity](openspec/changes/add-binding-consumer-identity/proposal.md)
-  — authored 2026-08-29, **RATIFIED 2026-08-29** (`Status: ratified`; record
-  `review/ratification-2026-08-29.md`). **THE FIRST PACKET THROUGH THE §7.4 PATH
-  END TO END**: a council sitting returned SPLIT 2–2 on the verdict word and
-  UNANIMOUS 4/4 that the text as drafted was not ratifiable, with fifteen
-  blocking amendments across four seats; Brett ruled the same day — accept all
-  blocking, one fix round, ratification read after — and ratified the amended
-  text with the Codex-two-heads-back verification gap in view rather than waiting
-  on a bot at its usage limit. **Ratification authorizes REALIZATION and does not
-  perform it**: the change stays ACTIVE until merged code, green evidence and the
-  contract cut exist. **Three further rulings the bench routed
-  to him came back the same day**: Decision 2 takes ROUTE (i) (phase the
-  requiredness, keep the promise); the parked P-2 is DISCHARGED — packaged
-  fixtures use SYNTHETIC identifiers and the live sync-lane/openXdox fetch
-  identities stay in the consuming installs; and P-3's estate-level delta-pair
-  gap is FILED as issue #502, which this change neither closes nor waits on. The
-  ratification act followed the same day.
-  THE NAMED SUCCESSOR OF A RATIFIED ADMISSION: `add-notebook-hosting-credential-custody`
-  ratified one-identity / per-system-authority on 2026-08-23 and admitted in the
-  same read that the invariant is **held by review rather than by the record** —
-  the published `xfactory_credential_binding_template` requires only
-  `[provider, secret_ref, owner, rotation_policy]`, carries no consumer or
-  access-identity field, and the validator compares no authorities, so two
-  bindings on one vault principal validate cleanly. That gap is registered FIVE
-  times in the predecessor — its requirement's own scenario, its Impact section,
-  its design, its tasks §4.5 and its ratification record — and this change is
-  what discharges it. **The sharpest statement of it is canon's own**: promoted
-  `credential-contracts` says a consuming lane receives "only bindings: an opaque
-  secret reference and a fetch-identity identifier" — the shape carries the first
-  and not the second. **MEASURED, not assumed**: a `consumer:` key carrying
-  arbitrary contents validates against the pinned schema TODAY, because the
-  binding object is not closed, which makes this a field-shaped hole rather than
-  a missing field. The change adds ONE additive optional `consumer:` block
-  (`holder_ref`, `fetch_identity`, a QUALIFIED `requirement_ref`, and const-true
-  `shared_credential_acknowledged` and `instantiation_stub` tokens) in vocabulary
-  the estate already ratified: `holder_ref` is `identity-brokering`'s shipped
-  spelling and a consuming system is emphatically NOT a persona, `fetch_identity`
-  is `credential-contracts`'s own words. **THE BLOCK IS DECLARED AT THIS MINOR
-  AND CONSTRAINED AT THE MAJOR — all three narrowing acts together.** Requiring
-  members, closing the member set and imposing the identifier grammar each refuse
-  a shape the current major accepts, so each is breaking and all three wait for
-  one deprecation window. An earlier draft phased only the closure; four seats
-  proved by construction that the other two refused a locally shaped object, a
-  scalar, a list and the generator's own placeholder style, falsifying a scenario
-  that would have promoted into canon. **NOTHING NARROWS AT THIS CUT, and that is
-  now a measurement**: six shapes a domain could already hold were built and
-  driven, and all six validate. **IT TIGHTENS BEFORE IT LIFTS** —
-  `shared-secret-identity` keeps its refusal as the default, a new
-  `shared-authority-identity` names the real fault (two systems, one authority),
-  and the two-consumers-of-one-identity shape the predecessor had to DECLINE
-  becomes expressible only through SIX independent fail-closed conditions over
-  EVERY PAIR, the sixth of which binds each reference to its own binding's map key
-  because a security seat drove the five-condition draft into granting the lift
-  on this capability's only red proof of serving-tier separation. **EIGHT warning
-  codes carry the deprecation, one per shape the major refuses**, five of them
-  added when bot rounds on the fix round itself found that an empty
-  `consumer: {}` matched no code, that the map-key grammar had been prescribed
-  with no phasing, that the false-token refusal was written as an immediate error
-  though such a record validates today, and that `access_mode` and the document
-  reference declared their phasing in prose with no code to serve it — five more
-  instances of the very defect the council convened over, arriving inside its own
-  repair, and the reason the warning set is now derived from the refusal list
-  rather than counted. **CARRIES A
-  CONTRACT CUT AT REALIZATION** — its realization moves schema bytes, though THIS
-  PACKET MOVES NONE and leaves `contracts/` untouched; the minor is allocated at
-  realization by merge order, because `add-credential-escrow-checkout` is already
-  spending one on the same file and main is a third writer of that manifest.
-  1 MODIFIED requirement (carriage re-measured after the amendment round: six
-  scenarios in, six out, five byte-identical, zero units lost) and 3 ADDED. Six
-  authoring decisions and five open questions are recorded with their rejected
-  alternatives; the open questions are now RULED, one of them against the
-  author's own recommendation.
-- [add-signed-execution-chain](openspec/changes/add-signed-execution-chain/proposal.md)
-  — **RATIFIED 2026-08-29 by Brett Heap** (`review/ratification-2026-08-29.md`); realization is a later commission. Exit 1 of
-  three of the staged topic `signed-execution-chain`, and its boundary is
-  **RULED**: Brett Heap ruled all seven of the topic's questions on 2026-08-29
-  (#499, squash `9c501df6`), **Q4** fixing tranche one at **links 1–3 only**
-  with the **signed transparency log a TRANCHE-1 artifact** and the
-  **chain-validating gate existing FROM TRANCHE ONE** validating a short chain.
-  So: a ratification admitted only on wallet-carried authority PROVEN BY
-  POSSESSION and BOUND to the exact ratification, ratification and chain
-  inception as ONE signed act, the signed ratification carried as a TRAVELING
-  CONTRACT, the append-only signed transparency log as THE RECORD, and the gate.
-  **The inversion is the point: a validated chain is not an audit trail, it is a
-  PERMISSION** — an audit trail is written after the fact and can be forged after
-  the fact, while a chain the gate walks before it permits the terminal act
-  cannot be, because the act does not happen without it. **A broken or missing
-  link is a FRAUD SIGNAL and a refusal, never a warning**, and an unevaluable
-  chain refuses on the family's fail-closed doctrine. The gate validates
-  HASH-LINKED CONTINUITY, never a bag of signatures: individually valid
-  artifacts from DIFFERENT executions must not assemble into a chain. **TWO
-  CONSTRAINTS COME FROM THE 2026-08-28 `gate_rules_council` CONVENING**
-  (codexFactory
-  `hermes/domain/review-councils/records/2026-08-28-gate-rules-openxfactory-substantive-classes.md`,
-  unanimous 5/5): the chain-inception act is **OUT-OF-PIPELINE BY PROVEN
-  NECESSITY** — a class over `openspec/changes/**` can never commission a
-  council, measured 984 admitted / 984 floored / 0 remaining and reproduced
-  code-level, so routing inception through the envelope would describe a control
-  that cannot run; and link 7 composes with the **§7.4
-  council-reviewed-but-human-approved path**, which "needs no class and no
-  flip", NOT with the clearance envelope — `025`'s FR-008 is left gated exactly
-  where the convening left it. **An out-of-pipeline INCEPTION and a
-  required-check GATE are different objects, and only the first is what those
-  seats refused.** **THE VOCABULARY ACT**: link 2's act is named **`chain
-  inception`**, NOT enrollment, because FR-008 already owns that word here for
-  candidate-class entry into a `merge-approval-envelope` and
-  `add-worker-enrollment-broker` carries a third sense; the non-collision is
-  stated in requirement text, not only in the proposal. **Composes with the
-  REALIZED wallet artifacts and invents no second vocabulary**: link 1's
-  instrument is the shipped `xfactory_wallet_grant` /
-  `xfactory_wallet_grant_exercise` pair at the `contracts/openxwallet-pin.yaml`
-  digest pin, whose closed refusal enumeration already separates
-  `missing_proof_of_possession` from `missing_grant`. **NINE ADDED requirements
-  over 45 scenarios, no MODIFIED block anywhere.** **NARROWING A IS RULED** —
-  Brett Heap, 2026-08-29, in session, the clarify sitting having taken the seven
-  questions and nothing else: **tier 1 is RATIFYING authority**, agent-held
-  REVIEW wallets stay lawful, and the realized `wal-agent-mrc-0001` is untouched.
-  Narrowing B is settled by Q1's own disposition. **THE PACKET IS THE SURVIVOR OF
-  A COLLAPSE HE RULED**: two sessions raised this tranche into the same change
-  directory three minutes apart, and **#494 is closed with four of its
-  hardenings HARVESTED here** — the actor↔wallet attestation binding, enforced
-  per-ratification uniqueness, ONE digest construction for every digest, and the
-  named-reader required-check rule. Tranches two (attestation, links 4–6 and 10)
-  and three (on-chain anchoring) are NAMED successors, **not drafted, and not
-  pre-encoded**: every question-gate they held is now OPEN, and what remains for
-  them is machinery — the omnigent layer and the PKI plane — rather than a
-  ruling. `target_release` **`contract-v2.3`**, fresh-counted (v2.2 is declared
-  and cut), allocated at realization by merge order.
+- [govern-sibling-added-modified-deltas](openspec/changes/govern-sibling-added-modified-deltas/proposal.md)
+  — authored 2026-08-29, **RATIFIED 2026-08-31 BY DIRECT RULING**
+  (`Status: ratified`; record `review/ratification-2026-08-31.md`) — Brett Heap
+  in session via an explicit multi-choice put, verbatim *"Direct — accept D1–D5
+  (Recommended)"*. **THE §7.4 SITTING THE PACKET PRESCRIBED FOR ITSELF WAS
+  DECLINED BY THAT SAME CHOICE** — no seat sat, nothing here is a council
+  disposition — after NINE adversarial Codex rounds converged the text (twelve
+  findings, every one fixed, none repeated; round 9 clean on `3d776c67`).
+  **Ratification authorizes REALIZATION and performs none of it**, and the five
+  open questions REMAIN OPEN, having been routed to the sitting that did not sit.
+  Filed on Brett's in-session ruling "file the successor now" out of the §7.4
+  sitting on PR #497. **THE SUCCESSOR ISSUE #502 NAMES**: a
+  `## MODIFIED Requirements` block whose requirement exists only as an active
+  sibling's `ADDED` is governed by no promoted requirement, evaluated by no
+  doc-health arm, and declared by no marker. Raised by `lead-architect` (LA-C2,
+  `cross_cutting_design`) and concurred by `lead-quality` (LQ-C5), both attaching
+  the condition that `add-binding-consumer-identity` must neither close it nor be
+  delayed for it — honoured, and this packet is the separate home both seats
+  asked for. **Three holes, three answers.** `release-realization`'s "Ordered
+  deltas and branch vocabulary" is MODIFIED so its antecedent reaches a
+  requirement an active ratified change ADDS **or RENAMES a promoted requirement
+  TO** and not only one it MODIFIES — the
+  two antecedents are disjoint by construction — and it gains the archive-ordering
+  obligation the four live packets have each been hand-writing as a pre-archive
+  `grep`, the BASIS change (adding or renaming) archiving first. **THAT HOLD
+  KEYS ON THE UNPROMOTED TITLE AND NOT ON THE BASIS'S STANDING**, the two halves
+  of the requirement being keyed apart on purpose: the reference-and-declare half
+  names a RATIFIED change because deltas are declared against an OUTCOME, while
+  the archive half reaches a basis of ANY standing — an unratified basis has to
+  RATIFY AND ARCHIVE before the modifying change's gate opens, promoting text no
+  authority accepted being worse than promoting text one did. **A RENAME IS A
+  BASIS EVERYWHERE OR NOWHERE**: `doc-health`'s promoted resolution rule and the
+  marker requirement below both read "ADDS or RENAMES to that title", so an
+  ordering rule reaching additions alone would govern the identical hazard in one
+  capability and leave it ungoverned in the next. `document-lifecycle` gains a THIRD reserved marker form,
+  ``**Modified over `<basis change-id>`'s addition by <change-id>
+  (<YYYY-MM-DD>):**``,
+  read by form and never by prose, naming no units and therefore never a carriage
+  declaration, AT MOST ONE of them to a block — one pairing, one declaration; the
+  two existing forms keep no such bound because they NAME UNITS and accumulate,
+  while a second marker of this one states a second basis for one text and a block
+  resting on two bases rests on neither — its `by` identifier VALIDATED as the
+  change carrying the block rather than merely resolved, so a marker naming the
+  right basis under an
+  unrelated author is reported instead of promoting as false provenance — its
+  ` — <reason>` tail REQUIRED AND NONEMPTY, a paragraph carrying the prefix alone
+  being a marker whose declaration is DEFECTIVE rather than a non-marker, so it is
+  reported for the tail it lacks instead of promoting as a complete declaration
+  — and where the basis is NOT RATIFIED the reason clause discloses
+  it by carrying the word `unratified`, a form rather than a wish, so that the
+  disclosure has a reader — a disclosure that DISCHARGES THAT REQUIREMENT AND
+  NOTHING ELSE, warning the reader without lifting the archive hold, so a pairing
+  may be perfectly declared and still be unarchivable. `doc-health` gains the arm
+  that evaluates the `pending` shape instead of dropping it at `modified_block_currency.py`'s
+  `if status == "pending": continue` — four reported states, MUTUALLY EXCLUSIVE
+  and examined in order so that every block gets EXACTLY ONE (self-referential
+  first — the carrier's OWN `## ADDED Requirements` block for the title, an own
+  RENAME to it being the supported rename-and-amend shape promoted canon resolves
+  against the OLD name one step earlier (`openspec/specs/doc-health/spec.md:1568-1574`,
+  `:1783-1786`) and this packet leaves that precedence exactly where it found it —
+  then undeclared, then misdeclared — MORE THAN ONE pairing marker on the block,
+  read first of the FOUR grounds; or a basis that neither adds nor renames to the
+  title, or that IS the carrier itself; OR a `by`
+  identifier that is not the change carrying the block; OR NO REASON AT ALL, the
+  required tail absent or empty, read after the `by` and BEFORE the disclosure so
+  that a prefix-only marker is reported for the tail it lacks rather than for a
+  word it has no clause to carry, the basis ground written
+  as the EXACT
+  NEGATION of the silent state so the narrowing leaves no block unplaced — then
+  undisclosed, the
+  marker that names an
+  unratified basis without saying so), silent on the fifth (declared and
+  resolving) — every state a predicate over the block's WHOLE marker set, which
+  `derive_units` preserves entire, so the silent state and undisclosed are reached
+  only where EXACTLY ONE pairing marker stands and passes every check above it and
+  every other block is placed by the FIRST check it fails, iteration order
+  deciding nothing, and that fifth state's silence being silence about a
+  DECLARATION and never clearance for an archive: the hold stands over every
+  pending pairing the check passes and is enforced at the modifying change's
+  archive gate, which reads the block's own `pending` resolution — a fact the
+  family already computes — rather than by a standing advisory over a block in
+  good order — plus, as the archive ordering's only possible mechanical
+  backstop, a class that reports an active `## ADDED Requirements` block, or an
+  active `## RENAMED Requirements` block's `TO:` title, for a
+  title canon already carries — the `FROM:` half never read, a rename's source
+  being a title canon is expected to carry. `doc-health` ALSO GAINS ONE `## MODIFIED Requirements` BLOCK, on a
+  requirement neither new class touches: "A modified-block-currency finding its
+  own class map cannot place is itself a finding" says the family "SHALL remain
+  absent from `FAMILY_RESOLUTION`" (`:2088`) and rests a MUST on that absence
+  (`:2126`), which `7f656980` (PR #529, 2026-08-31) falsified without amending
+  any specification. The block supersedes both units under a `Removed from
+  canon by` marker and answers the protection they bought BY MEASUREMENT — a
+  map extension endangers it not at all, `report.uncited_resolutions` keying on
+  `(family, repository, path)` and the unplaced-class finding carrying the key
+  of the finding it NAMES, which survives the extension — so no citation is
+  owed for one and the extending act is instead FORBIDDEN to record a
+  disposition, which would suppress that survivor before the block resolves.
+  The pairing class's citation is untouched and load-bearing for the opposite
+  reason: its finding sits on a `pending` block whose arms never run, so its key
+  vanishes outright. So #529 is regularized — canon catching up
+  with a row the code already carries, rather than a packet archiving beside a
+  promoted sentence its own design contradicts. **THE 2026-08-27 RULING IS NOT
+  REOPENED**: nothing compares requirement text, and no fourth comparison arm is
+  added; what changes is that the block is no longer dropped before anything
+  looks at it, so the arms' silence stops
+  reading as clearance. **Measured at `7f656980`**, the `main`-side parent of the
+  FIRST of this branch's two 2026-08-31 catch-up merges and RE-READ UNCHANGED at
+  `9af98c4d`, the second's: 20 active MODIFIED blocks, 16 `canon`, 4
+  `pending`, zero markers, all four adding siblings `ratified` — the SAME four
+  pairs #502 measured, the twentieth block being
+  `add-structured-scope-substrate`'s over a different `release-realization`
+  requirement; predicted movement **+4 `warning`** against the population
+  undischarged and **0** under D4's sequencing (§ 6's markers first), zero in
+  every other band either way, and zero from BOTH of this packet's own MODIFIED
+  blocks — the `release-realization` one resolves `canon` and restates both promoted body
+  sentences and both promoted scenarios byte-identical, everything it adds being
+  new text; the collision class's population is zero across BOTH basis forms (159
+  active ADDED blocks, no collision; zero active RENAMED pairs at all); the `doc-health` one
+  resolves `canon` and restates 33 of 35 promoted units byte-identical, the
+  other two declared by marker — so `_LEDGER_SUBJECTS` gains no row. **Four is the
+  live number; eight is the cumulative one** — LQ-C5's figure counted the docstring's
+  historical seven plus #497's block, while LA-C2's own return says four.
+  **ADVISORY IN THE HALF THE PACKET STILL OWNS** — both classes carry `warning`
+  — and NOT in the other: `FAMILY_RESOLUTION` already carries
+  `"modified-block-currency": CONTESTED`, landed at `7f656980` (PR #529,
+  2026-08-31) as § 7.2's reserved flip, and that table has no per-class grain.
+  D4 is re-argued from that ground and carries the discharge path it forces, IN
+  ORDER: § 6's marker sweep is sequenced BEFORE the class lands so it launches at
+  population zero, and only where sequencing is unavailable does the discharge
+  carry the citation the contested-finding rule already requires — bounded in
+  AVAILABILITY (the route is refused outright while any OTHER `ratified` change
+  writes a MODIFIED block for the same title, the two-writers ordering arm being
+  armed by a COUNT of ratified writers and running BEFORE resolution through the
+  same disposition read, so an entry may exist only where that arm has nothing it
+  could emit and "suppresses nothing" is true by construction rather than
+  asserted — population ZERO here, no title carrying more than one active MODIFIED
+  block), in
+  grain (the entry names the REQUIREMENT) and in time (it is RETIRED when the
+  basis archives), because `disposed()` runs before a block resolves and has no
+  finding-class grain, so an unbounded entry would silence the three comparison
+  arms over the very block they exist to read once the basis promotes. The band
+  flip follows the discharge of the four standing pairs and is not proposed here. **THE RULE IS
+  TESTED AGAINST A LIVE PAIR RATHER THAN AN ABSTRACTION.** Two clauses keep the
+  archive order from being escaped instead of met — CONVERSION (re-shaping the
+  block to `## ADDED` does not dissolve the obligation, the antecedent attaching
+  to the pairing and not to the block's form, so conversion is lawful only as a
+  PAIRED act ruled by the ratifying authority) and FALSIFICATION (where landed
+  state contradicts a scenario of the unpromoted addition, the ADDING change
+  amends it before its archive promotes it, and the order still holds — a
+  RENAMING basis reaching that clause only through what it modifies beside the
+  rename, a `## RENAMED Requirements` block carrying a pair of titles and no
+  scenarios of its own) — and the
+  packet then works the `add-notebook-hosting-credential-custody` /
+  `add-binding-consumer-identity` pair through them: DISPOSED as chain order
+  (projection-identity → custody → binding-consumer-identity), custody owing the
+  fifth-scenario amendment `contract-v2.4` falsified,
+  `add-binding-consumer-identity` owing the marker, and
+  conversion-without-pairing refused. **It does not close #502 and says so**: the
+  packet states that it MAY say `Closes #502` on archive and states it as intent
+  rather than performing it. The five decisions flagged for veto (D5, the
+  collision class, the one the proposal names as most worth vetoing; D1's
+  capability split the one a seat was most likely to re-argue) were **ACCEPTED AS
+  DRAFTED** on 2026-08-31, as they stand at tip `3d776c67`. The five open
+  questions had been routed to the sitting; **that sitting was declined, so they
+  stay OPEN** — OQ-4 most visibly, § 6.1 being explicitly subject to its routing.
+- [add-chain-anchoring](openspec/changes/add-chain-anchoring/proposal.md)
+  — authored 2026-08-29, **`Status: draft` — RATIFICATION IS NOT SOUGHT BY THIS
+  PACKET'S LANDING.** Exit 3 of three of the staged topic
+  `signed-execution-chain`: the PUBLIC ANCHORING LAYER and the PERMISSIONED
+  CONSENT PLANE. It is read adversarially by a **§7.4-shaped council convened
+  OUTSIDE the clearance pipeline** — a class over `openspec/changes/**` can never
+  commission one, measured 984 admitted / 984 floored / 0 remaining and
+  reproduced code-level (2026-08-28 `gate_rules_council`, unanimous 5/5) — and
+  **Brett Heap's ratification follows that review**, on
+  `add-binding-consumer-identity`'s pattern. **Almost nothing here is proposed —
+  most of it is RULED**, and the packet distinguishes the two everywhere. **Q3,
+  ROUND 2 (2026-08-29, and it DIVERGES from the vendored study)**: BOTH witnesses
+  on EVERY anchored item — **Kaspa FIRST as the OPERATIONAL witness** under the
+  study's three conditions unchanged (archival node; inclusion proofs captured
+  AND retained at anchor time; corroborating, never sole) and **Bitcoin batched
+  via OpenTimestamps as the DURABILITY witness**, with **ten-year claims citing
+  Bitcoin**, **no selectivity** and **no third chain**. *"Primary" is order of
+  arrival, never evidentiary weight* — the pruning finding is not softened by the
+  promotion. The study is **NOT edited**: a research record rewritten to agree
+  with a later ruling stops being evidence, so the ruling governs and the study
+  stands, cited for GROUNDS only. **THE MULTI-ANCHOR RECEIPT IS BUILT FIRST**,
+  per the exit path, and in the CORRECTED form: digest → aggregation Merkle path
+  → per-chain {**anchor transaction bytes**, **transaction-to-block or DAG
+  inclusion proof**, block header, **chain-acceptance evidence**}, captured whole
+  at anchor time, **REFUSED AT CAPTURE TIME** if any is missing — a header beside a bare transaction reference
+  proves nothing once the transaction is pruned, and a bespoke single-chain
+  receipt is the one-way door the design exists to avoid. **Q2 AND Q6 BECOME
+  CONTRACT TEXT WITH A REFUSING VALIDATOR**: on chain, salted keyed commitments,
+  consent-log CHECKPOINT commitments and the anchors; off chain, every payload
+  without exception plus consent STATE and the SALTS. **The payload refusal is
+  STRUCTURAL, not semantic** — a neutral validator that refused PHI by name would
+  need domain semantics, one that refuses EVERY payload needs none and is
+  stricter — and **the unsalted-commitment refusal is by DECLARED CONSTRUCTION**,
+  because a salted keyed commitment and a plain digest are indistinguishable by
+  inspection; that residual is **DECLARED as a gap** on `add-trust-anchor`'s
+  pattern rather than claimed closed. **ERASURE IS BY SALT DESTRUCTION and its
+  cost is stated**: the handle becomes permanently unverifiable, and that IS the
+  erasure. **ANCHOR LATE** — a false attestation reaching a chain is permanent,
+  and the cost of lateness is one aggregation interval. **THE PACKET'S LARGEST
+  DECISION, put to the council rather than presented as settled: WHAT FAILS
+  CLOSED IS THE CLAIM, NOT THE FACTORY.** A witness outage never blocks
+  ratification, execution or any gate — the log is the record and anchors are late
+  additions to it — but an item with fewer witnesses than the configuration
+  demands is `anchor_incomplete` with its missing witnesses NAMED, verification
+  returns `anchor_incomplete` and never a bare pass or a bare fail, ten-year
+  claims are refused while the durability witness is missing, every horizon breach
+  is a leaf, and **there is no aggregate `anchored` boolean anywhere**. The two
+  outages are ASYMMETRIC and the requirement says so; a returning aggregation
+  calendar **UPGRADES THE PENDING DURABILITY PROOF and appends its entry** and
+  never re-anchors — the receipt holds proof material, the ANCHOR-STATE record
+  holds state, and keeping them apart is what stops the two rules colliding.
+  **THE REVIEW ROUND CORRECTED TWO CONTROLS THAT COULD NOT RUN**, both real,
+  both recorded rather than patched: an append-only log's checkpoints commit to
+  every prefix, so "no unvalidated material reaches a chain" was unachievable —
+  resolved by telling an **ITEM ANCHOR** (gate-passed material only) apart from a
+  **LOG CHECKPOINT ANCHOR** (witnesses what the log SAID, **never a validity
+  claim**, inclusion never read as validation), which **NARROWS the staged
+  topic's anchor-late constraint, recorded rather than applied silently**; and a
+  block header is not canonicality, so the receipt gained its **fourth element**
+  and a **named independently obtainable header source**, with the limit stated —
+  a receipt is checkable against a header set the verifier fetches for itself,
+  never self-sufficient against a forged history. Also
+  carried, from Brett Heap's own 2024 MedxChain notes vendored by **PR #509 (IN
+  FLIGHT)**: **verification-attempt auditing** (verify events and refused access
+  are leaves — an evidence plane that records only writes cannot answer who
+  tried), **the meta-analysis lane** (record + demographic planes analyzable
+  without the identity plane BY CONSTRUCTION), and the **domain-instantiation
+  boundary** (MedxChain/HealthLinc are MedxFactory's, LedgerLinc LedgerxFactory's;
+  the neutral layer authors no domain content, and an overlay may TIGHTEN a
+  refusal and never relax one) — plus **one CORRECTION to that source**: its one
+  shared record digest across three databases is a cross-plane JOIN KEY, so
+  per-plane keys are derived under per-plane salts. **Q5 IS COMPLIED WITH
+  POSITIVELY**: today's evidence-only posture is stated in the present tense, with
+  **no "never"** and **NO TRIGGER CONDITION**, because the ruling refused both.
+  **NINE ADDED requirements over 89 SCENARIOS, no MODIFIED block anywhere**
+  (52 scenarios at the head the council judged; the 2026-08-30 fix round and its
+  NINE bot rounds added THIRTY-SEVEN SCENARIOS and NO NEW REQUIREMENT — the
+  requirement count is unchanged at nine) — a
+  NEW capability `chain-anchoring` rather than a second ADDED block on
+  `signed-execution-chain`, which avoids the sibling-delta shape of issue #502
+  outright. The change id and capability **diverge from the ratified working id**
+  `add-signed-execution-chain-anchoring`, and the divergence is recorded rather
+  than glossed. `target_release` **deliberately NOT numbered** — the era is
+  `contract-v2.2` and the next additive minor is allocated at realization by merge
+  order, since tranche one already names `contract-v2.3` and tranche two reaches
+  the same cut. **ITS §7.4 COUNCIL SAT 2026-08-30** — four seats, one ACCEPT and
+  three ACCEPT AS AMENDED, the sitting carried in `review/` with
+  `disposition-2026-08-30.md` as the sole disposition of record. Brett Heap ruled
+  *"accept all fifteen as recommended"*; this packet's **three blocking
+  amendments and one folded bot finding were discharged**, then NINE bot rounds
+  followed. **RATIFIED 2026-08-30** (`Status: ratified`; record
+  `review/ratification-2026-08-30.md`), ruling *"2 yes with note"* — **the note
+  being that the heads from `fd7c1ca7` onward are unreviewed by any bot on a
+  quota refusal rather than a clean pass**, disclosed before the ruling and
+  ratified under the prescribed-fix principle. The same act **normalized the
+  frozen sitting headers (4a)**, **blessed LS-A9's out-of-disposition execution
+  (5)**, and **ordered the TIMING-MODEL CONSOLIDATION (6a)** — eighteen scattered
+  paragraphs, in which three consecutive rounds had found direction errors,
+  restated as ONE section with semantics unchanged and every clock-relevant
+  scenario satisfied. **Ratification authorizes REALIZATION and performs none of
+  it.**
+- [add-structured-scope-substrate](openspec/changes/add-structured-scope-substrate/proposal.md)
+  — **RATIFIED 2026-08-28** (Brett Heap, convener). MODIFIES `release-realization`
+  to add the OPTIONAL front-matter sibling `scope_globs:` — a per-repository map
+  of repository-relative globs in the merge-gate envelope dialect — the
+  machine-readable path-scope substrate CRITICAL #1 of
+  `add-provenance-gated-autonomous-merge` requires. Absence is fail-closed (never
+  "all paths"). One MODIFIED requirement + four ADDED (structured declaration,
+  dialect validation, trust-root integrity, scope retention at archive, floor
+  primacy at check time). Built post-ratification via Speckit
+  (`scripts/scope_globs.py`, `scripts/validate-scope-globs.py`,
+  `docs/scope-globs-trust-root-floor.md`, `tests/scope_globs/`); the glob dialect
+  mirrors the single codexFactory envelope authority byte-for-behaviour, pinned by
+  lockstep test. The codexFactory provenance-tie verifier that CONSUMES
+  `scope_globs` is downstream (B's realization), NOT this change's surface.
 - [settle-aging-staging-topics](openspec/changes/settle-aging-staging-topics/proposal.md)
   — authored 2026-08-28 on Brett's four bulk rulings over a read-only triage
   survey of the fourteen staging topics `doc-health`'s
@@ -862,7 +1027,8 @@ Active changes:
   `avatar-pilot-hardening` deferrals are explicitly out of scope.
 
 - [add-standing-policy-compliance-contract](openspec/changes/add-standing-policy-compliance-contract/proposal.md)
-  — authored 2026-08-24, **NOT YET RATIFIED** (`Status: draft`). Neutral-first
+  — authored 2026-08-24 and **ratified 2026-08-26** (`Status: ratified`; record:
+  `review/ratification-2026-08-26.md`). Neutral-first
   front-end half of codexFactory issue #3, ruled by Brett Heap the same day:
   machine-readable standing-policy veto vocabulary, loud compliance-decision
   evidence and a central revocable policy-allowance registry whose IDs — never
@@ -875,38 +1041,6 @@ Active changes:
   allowance passes explicitly, and revocation blocks the next dispatch and
   admission. Realization cuts the next additive contract bundle; no domain
   detector, runtime registry service or allowance instance lives here.
-- [add-notebook-hosting-credential-custody](openspec/changes/add-notebook-hosting-credential-custody/proposal.md)
-  — authored 2026-08-23, **NOT YET RATIFIED** (`Status: draft`). The follow-up
-  to `add-notebook-projection-identity`, on Brett Heap's direction the same day:
-  *"this is a xFactor001 login. and we want to store the password in a kv and
-  have xFactory and openXdox login with its own authority."* The declared
-  hosting identity change named the account and said nothing about its
-  CREDENTIAL, leaving the password wherever its creator put it — the
-  personal-account failure moved one level down rather than removed. Adds the
-  POSITIVE custody obligation the ratified generalization lacks (that
-  generalization forbids hard-coding a credential; it does not require custody
-  to exist, so an account whose password lives only in its creator's head
-  satisfies it), extends custody to the whole credential set including a
-  second factor's seed, and rules ONE IDENTITY / PER-SYSTEM AUTHORITY: each
-  consuming system reaches the shared account through its own binding, access
-  identity, grant, rotation visibility and audit trail — one identity may be
-  shared, one authority may not. The hosting record gains a BY-REFERENCE
-  custody pointer, never secret material. Two findings shaped it: the promoted
-  by-reference requirement already refuses distributing refreshable session
-  state, and the `nlm` profile is exactly that class — so Brett's
-  no-shared-session ruling is independently required on credential-class
-  grounds, not just accountability; and the live binding INSTANCES do not
-  belong here at all, because `contracts/manifest.yaml` records that
-  *"openxFactory ships no instance records (they live in client installs,
-  credential-contracts residency model)"* — so the neutral obligations land
-  here and the concrete bindings land in the install lane and openXdox's own,
-  a redirection of the ruling's route that is FLAGGED for the ratification
-  read rather than decided quietly. Honest gaps recorded, not assumed away:
-  **custody is not automation** (the sign-in is a browser flow with ~20-minute
-  sessions and possible 2FA; automated login stays future work), a TOTP seed
-  may itself need custody, and **no live secret is created, moved or read by
-  this change**. `target_release: none` — the binding-template shape is already
-  published, `contracts/` is untouched, no bundle is cut.
 - [declare-client-standing-policy-contract](openspec/changes/declare-client-standing-policy-contract/proposal.md)
   — authored and ratified 2026-08-23 (Brett Heap, in-session). Closes
   `opensoft/openxFactory#254`: `hermes_client_overlay` is a contract THIS repo
@@ -950,39 +1084,6 @@ Active changes:
 - [create-medxpractice-overlay-boundary](openspec/changes/create-medxpractice-overlay-boundary/proposal.md)
   — MedxPractice owns the private practice-operations composition boundary and
   pins the independent public openPractice application at an immutable commit.
-- [add-notebook-projection-identity](openspec/changes/add-notebook-projection-identity/proposal.md)
-  — authored and ratified 2026-08-23 (Brett Heap, in-session). The single exit
-  of the staged topic `notebook-projection-identity`, raised the day its last
-  precondition was met. The whole governed NotebookLM projection — every
-  per-repo Ideation book, `xf-drafts`, `xf-canon`, every live `xf-session-*` —
-  is created under one person's personal consumer Gmail, because the `nlm` CLI's
-  default profile is whoever ran `nlm login` first; proven live 2026-08-15 when
-  Brett hit a "request access" wall on a dashboard notebook link and the request
-  landed in that personal inbox. This makes the hosting identity a DECLARED
-  TWO-CASE INTAKE FACT: operator-hosted (a company-owned Google Workspace USER
-  account in the operating party's own domain) or self-hosted/personal, both
-  legitimate. A Google USER account is a platform constraint, not a preference —
-  NotebookLM has no API and a service account cannot drive its consumer web UI.
-  Opensoft declares Case A on `xFactor001@opensoft.one` (confirmed by Brett
-  2026-08-23, who also authorized raising this change). The sync runs under the
-  declared account's profile; access is shared out FROM that account and never
-  by handing out its credentials; a governed manual approval act WRITES the
-  share-out roster, which IS the record rather than an audit trail beside one,
-  keyed `(hosting_account, user, book_or_alias, role, granted_at, granted_by)`.
-  The custody rule GENERALIZES `credential-contracts`' promoted vault-operator
-  execution-binding requirement rather than adding beside it — no new record
-  kind. Encodes the five dispositions merged as PR #272, of which Q3 is the
-  evidence centerpiece: the mapping onto `client-identity-roster` was RUN, not
-  assumed, and refused the shape structurally (11 honest errors; the force-fit
-  passes with one grantee and fails with two on `duplicate-identity-key`,
-  because the grantee is not in the uniqueness tuple — that roster is one
-  principal / many scopes, a share-out list is one scope / many principals).
-  Migration follows the 2026-08-10 retirement runbook with parity proven against
-  THE CORPUS SCAN, carrying two review-verified gaps as scope: a plain `--apply`
-  never creates live session notebooks, and `ensure_workspace_record()` refuses
-  to re-register a same-key book under a new provider id.
-  `target_release: implementation_pending` — it archives only on Opensoft's own
-  cutover, proven parity, and the personal-hosted books retired by recorded act.
 - [create-medxchart-overlay-boundary](openspec/changes/create-medxchart-overlay-boundary/proposal.md)
   — local topology realization completed 2026-08-23: MedxChart now owns the
   Medx composition boundary, pins openChart at an immutable commit, and the
@@ -1417,6 +1518,238 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [add-binding-consumer-identity](openspec/changes/archive/2026-08-31-add-binding-consumer-identity/proposal.md)
+  — **ARCHIVED 2026-08-31 on merged-plus-green PLUS THE CUT, SECOND BY RULING** —
+  in the same pull request as the basis it waited on, and in the commit after it.
+  Ratified 2026-08-29, **THE FIRST PACKET THROUGH THE §7.4 PATH END TO END**: a
+  council returned SPLIT 2–2 on the verdict word and UNANIMOUS 4/4 that the drafted
+  text was not ratifiable, fifteen blocking amendments across four seats; Brett
+  ruled accept-all-blocking, one fix round, ratification read after. **REALIZED IN
+  TWO ACTS** — the surface at PR **#516** (squash `5e8a33cf`): the `consumer:`
+  block on `xfactory_credential_binding_template`, the validator's warning channel
+  and eight deprecation codes, the packaged corpus and the generator sweep; and the
+  cut **`contract-v2.4`** at PR **#526** (squash `afdf0e88`, tag published),
+  closing §5.2, §5.3, §6.3 and §6.5. **IT COULD NOT ARCHIVE UNTIL ITS BASIS DID,
+  AND THE TOOL SAID SO RATHER THAN GUESSING**: its MODIFIED block is written over a
+  requirement `add-notebook-hosting-credential-custody` ADDS, so while that packet
+  was active `openspec archive` ABORTED — *"MODIFIED failed for header … - not
+  found"* — and §7.2's pre-archive `grep` read **0**. Brett ruled **Route 1** on
+  2026-08-31 rather than exercising §7.2's conversion clause, which
+  `govern-sibling-added-modified-deltas` (`8f986c39`) calls **a breach** unless
+  taken as a paired act. **PR #538** (squash `3a6a16e9`) then touched this packet
+  twice under Brett's consent: it placed the `Modified over` marker declaring the
+  basis, and it re-measured this preamble after striking the basis's falsified
+  scenario — so an earlier archive attempt at `bd2ccbc3` was **rebuilt from
+  `3a6a16e9`** rather than reconciled textually. **SCENARIO-COMPLETENESS MEASURED
+  PER SCENARIO AGAINST CANON**: canon stated **FIVE** scenarios and the block
+  states **SIX** — **nothing dropped**, all five carried **byte-identical**, the
+  sixth an **ADDITION**. That is a change of KIND from the pre-sweep reading, where
+  the sixth replaced a scenario `contract-v2.4` had falsified and the carriage read
+  six-in/six-out with one retitle; the strike turned a substitution into a pure
+  addition. **PROMOTION VERIFIED BYTE-FOR-BYTE — 4 of 4 delta requirements** (1
+  MODIFIED + 3 ADDED, 36 scenarios) identical in canon; `credential-contracts`
+  **9 → 12 requirements and 33 → 64 scenarios**; `.openspec.yaml` blob `b9263449`
+  identical across the move. **WHY BOTH ARCHIVES RIDE ONE PULL REQUEST — AND WHY
+  THE REASON CHANGED.** `doc-health --family modified-block-currency` across three
+  states: pristine `main` **0 error / 8 info**, basis archived alone **0 error / 9
+  info**, both archived **0 error / 8 info**. Before #538 the middle state carried
+  **1 error** and that transient finding was the original justification for one
+  pull request; the strike removed it. The pair still rides one PR for the
+  **ordering dependency alone** — the dependent packet cannot be archived, or even
+  prepared green, until the basis is on `main`. **ONE BOX SURVIVES UNTICKED**:
+  §7.3, the reconciliation owed at `add-notebook-projection-identity`'s archive,
+  which is still active — the mirror of the basis packet's §6.2. Three further
+  rulings came back the same day: Decision 2 takes ROUTE (i), the parked P-2 is
+  DISCHARGED with SYNTHETIC identifiers, and P-3's estate-level gap was FILED as
+  issue #502 — the gap `govern-sibling-added-modified-deltas` was raised to close.
+
+- [add-notebook-hosting-credential-custody](openspec/changes/archive/2026-08-31-add-notebook-hosting-credential-custody/proposal.md)
+  — **ARCHIVED 2026-08-31 on merged-plus-green, FIRST BY RULING so that a
+  dependent packet could archive at all, and rebuilt once against the § 6 sweep.**
+  Ratified 2026-08-23 (Brett Heap, in-session) with two rulings in one read —
+  ratify the requirement set, and the **residency redirect ACCEPTED**: neutral
+  obligations here, live binding instances in the consuming installs. **REALIZED
+  2026-08-26** by PR **#395** (merge `1dd822ea`, re-verified an ancestor of `main`
+  at the archive act); **`target_release: none` and it held** — `git diff
+  origin/main -- contracts/` empty, bundle still `contract-v2.5`, no CHANGELOG
+  entry, no manifest row, no inventory, no tag. Every §1–§3 box was checked
+  against the tree rather than trusted: the `custody:` block naming the BINDING
+  and never the secret (`session_state_in_custody: false`, `self_hosted` exempt),
+  `_check_custody` plus the secret-shaped refusal running over the whole hosting
+  block, the both-directions tests, and the three documentation surfaces including
+  the rule that **the `nlm` profile is refreshable session state and is NOT a
+  custody subject**. **THE § 6 SWEEP CHANGED THIS PACKET BEFORE IT ARCHIVED**: PR
+  **#538** (squash `3a6a16e9`) struck this block's fifth scenario, *"The published
+  binding shape cannot yet express the access identity"* — **struck, not
+  re-scoped**, falsified in every clause by `contract-v2.4`, a dated amendment note
+  standing in its place under Brett Heap's consent. An earlier archive attempt at
+  `bd2ccbc3` had copied the pre-sweep bytes and was rebuilt from `3a6a16e9` rather
+  than reconciled textually. **THE ORDER IS THE POINT.**
+  `add-binding-consumer-identity` carries a MODIFIED block over `Each consuming
+  system reaches a shared operated identity through its own binding` — a
+  requirement THIS packet ADDS — so `openspec archive` aborted on that packet with
+  *"MODIFIED failed for header … - not found"* while this one stayed active; its
+  §7.2 pre-archive `grep` read **0** before this act and **1** after. Brett ruled
+  **Route 1** on 2026-08-31: the basis archives first, rather than converting that
+  block to ADDED, which `govern-sibling-added-modified-deltas` (ratified and merged
+  the same day, `8f986c39`) calls **a breach** unless taken as a paired act; #538
+  says the same in its own words. **PROMOTION VERIFIED BYTE-FOR-BYTE with no
+  scenario-completeness exposure to measure**: the packet is **pure ADDED** across
+  both deltas — no MODIFIED, REMOVED or RENAMED block anywhere. Measured anyway:
+  **3 requirements in, 3 out, all three bodies byte-identical (3/3), 13 scenarios
+  in, 13 out** (thirteen post-sweep; fourteen before it); `credential-contracts`
+  **7 → 9 requirements, 24 → 33 scenarios**; `lifecycle-notebook-projection` **+1
+  requirement**; neither ADDED title existed in canon beforehand. `doc-health
+  --family promotion-fidelity` → **No findings**. `.openspec.yaml` moved rather
+  than being lost, blob `36d76fdc` identical across the move. **FIVE BOXES SURVIVE
+  UNTICKED BY DECISION**, each with a restated disposition: §4.1 the declined
+  fixture, §4.2/§4.3 the residency statements, **§4.4 an OPERATOR ACT** — placing
+  the password into `kv-opensoft-xfactory-qa`, which nothing here performs or
+  witnesses — and §6.2, which attaches to `add-notebook-projection-identity`'s
+  archive. **§4.5 DID close**: the successor it owed is
+  `add-binding-consumer-identity`, whose `consumer:` block is published and cut as
+  `contract-v2.4`, so the box is ticked on the shipped shape rather than on the
+  successor's existence — and that same release is what falsified the struck
+  scenario.
+
+- [add-signed-execution-chain](openspec/changes/archive/2026-08-31-add-signed-execution-chain/proposal.md)
+  — **ARCHIVED 2026-08-31 on merged-plus-green PLUS THE CUT, WITH TWO BOXES
+  DELIBERATELY LEFT OPEN AND CARRIED FORWARD.** Ratified 2026-08-29 by Brett Heap
+  (`review/ratification-2026-08-29.md`); archived on his order of 2026-08-31.
+  **REALIZED IN TWO ACTS**: act one is PR **#524**, squash `9af98c4d` — the five
+  schemas, the packaged corpus, `scripts/validate-signed-execution-chain.py` as
+  the NAMED READER, and the running `signed-execution-chain-gate` check; act two
+  is the cut, PR **#533**, squash `58fd7a4f`, **REGISTERED at `contract-v2.5`**
+  whose annotated tag object `f0ed3f3b` peels FROM THE REMOTE to `58fd7a4f`. The
+  number was fresh-counted at the cut after it had **already moved twice** — v2.3
+  spent by #514, v2.4 spent and tagged by `add-binding-consumer-identity` (#526)
+  carrying ZERO members of this family, proved by `grep -c` rather than assumed —
+  and the re-count was free because act one wrote no number into any contract
+  byte. Green read from the **check-runs API at the archive act**, not from a
+  merge notification: on both final heads (`69509939`, `e7a37064`) all five checks
+  report `success` — `pytest-suite`, `wallet-validation`,
+  `signed-execution-chain-gate`, `merge-master-approval`,
+  `copilot-pull-request-reviewer`. **TWO BOXES DID NOT CLOSE AND WERE NOT TREATED
+  AS CLOSING CONDITIONS**: 4.5, the OPERATOR act making the check REQUIRED in the
+  branch ruleset — for which a merged workflow file is NOT evidence, only the live
+  ruleset state is — and 4.6, its canary evidence, BLOCKED ON 4.5 BY CONSTRUCTION
+  because three of its four conjuncts are producible today and the fourth cannot
+  be READ until the ruleset changes. **Until 4.5 is performed requirement 9 is
+  UNMET rather than partially met**, the shipped declaration records
+  `is_required_in_ruleset: false`, and the reader emits a standing
+  `reader-not-required` warning on every run — so the capability reaches canon
+  **meeting its own degraded case rather than evading it**, which is what made the
+  archive lawful. Both are restated as dispositions in the archived `tasks.md`
+  § 4.5, § 4.6 and § 6.1 and carried forward at **issue #534**, so an open
+  operator act is not written down only inside an archived packet; 4.5 remains
+  Brett's act. The three § 5 successors survive unticked as a separate class —
+  tranche two and tranche three, gated on Q7 and on Q3/Q6 and on layers that do
+  not exist yet. **PROMOTION VERIFIED BYTE-FOR-BYTE**, and the delta had **no
+  scenario-completeness exposure at all**: it is PURE ADDED into a capability that
+  did not previously exist, so there was no canon scenario set to restate and
+  nothing could be silently dropped. Measured anyway — **9 requirements in, 9 out,
+  all nine titles an identical set, all nine bodies byte-identical (9/9), 45
+  scenarios in, 45 out**, one new capability directory
+  `openspec/specs/signed-execution-chain/`, no sibling capability touched.
+  `openspec validate --all --strict` **80 passed, 0 failed** before and after;
+  `proposal-support verify` ok on both sides of the move; `.openspec.yaml` moved
+  rather than being lost, proved by blob id
+  `57f45fe1cf17b8eacfdf941d2bb0d184de813a8c` identical across the move. The
+  mechanism was `openspec archive --yes`, not `proposal-support archive`, and the
+  choice is the recorded convention for a packet with ruled-open boxes — that
+  wrapper refuses any `^- [ ]` line and cannot tell a ruled-open follow-up from
+  unfinished work — with the two things it adds run anyway on both sides; the
+  precedents are `2026-08-28-declare-sentinel-pin-vocabulary` and the three
+  sibling archives of 2026-08-27. Exit 1 of three of the staged topic
+  `signed-execution-chain`, its boundary **RULED** by Brett Heap's disposition of
+  all seven of the topic's questions (#499, squash `9c501df6`), **Q4** fixing
+  tranche one at **links 1–3 only** with the signed transparency log a tranche-one
+  artifact and the chain-validating gate existing FROM TRANCHE ONE. **The
+  inversion is the point: a validated chain is not an audit trail, it is a
+  PERMISSION** — an audit trail is written after the fact and can be forged after
+  the fact, while a chain the gate walks before it permits the terminal act cannot
+  be, because the act does not happen without it. A broken or missing link is a
+  FRAUD SIGNAL and a refusal, never a warning; an unevaluable chain refuses on the
+  family's fail-closed doctrine; and the gate validates HASH-LINKED CONTINUITY,
+  never a bag of signatures — individually valid artifacts from DIFFERENT
+  executions must not assemble into a chain. Ratifying authority is HUMAN-HELD
+  under Narrowing A, which leaves agent-held REVIEW wallets lawful and the
+  realized `wal-agent-mrc-0001` untouched. The packet is the survivor of a
+  collapse Brett ruled: two sessions raised this tranche three minutes apart, and
+  **#494 closed with four of its hardenings HARVESTED here** — the actor↔wallet
+  attestation binding, enforced per-ratification uniqueness, ONE digest
+  construction for every digest, and the named-reader required-check rule.
+
+- [add-notebook-projection-identity](openspec/changes/archive/2026-08-31-add-notebook-projection-identity/proposal.md)
+  — **ARCHIVED 2026-08-31 ON MERGED CODE PLUS GREEN REALIZATION EVIDENCE, WITH
+  ONE BOX STANDING AS A DISPOSITION AND TWO SUCCESSORS FILED IN THE OPEN.**
+  Realized at squash `40b33845` (PR **#277**); § 5.2's gates green there (3983
+  passed / 15 skipped on `tests/ideation-dashboard`; 839 + 13 subtests across
+  `tests/notebooklm`, `tests/doc-health`, `tests/ideation_dashboard`; `openspec
+  --all --strict` 72/72; dashboard validator 0 error / 4 warning; hosting
+  validator 0 error; doc-health zero-new against `7431f033`). The migration ran
+  (PR **#289**: 7 books, 626 managed sources), parity was PROVEN against the
+  CORPUS SCAN under the amended `add-projection-title-uniqueness` rule
+  (`parity: PROVEN`, exit 0, union 675/675, 0 unprojected, 0 unaccounted, and a
+  convergence dry run planning ZERO operations), and the seven legacy books were
+  retired BY RENAME 2026-08-26 with nothing deleted. **§ 5.3 cut no bundle and
+  said so**: § 2.1 landed a lighter governed record, `contracts/` byte-untouched,
+  the published bundle stayed `contract-v1.40`. **THE ARCHIVE DOES NOT CLAIM A
+  CLEAN FINISH.** § 4.7 was RE-SCOPED TO 7 OF 7 by Brett Heap's ruling of
+  2026-08-31 — the Gmail grantee is DROPPED and the second reader is not wanted,
+  consistent with his 2026-08-27 wind-down (the legacy books wound down by owner
+  deletion) and his 2026-08-24 sole-grantor posture; the provider's account-level
+  refusal of `brett.heap@gmail.com` (both spellings, `API error (code 7)`)
+  survives as a FINDING rather than a debt, and the seven verified
+  `brett.heap@farheap.com` editor grants are the satisfying set. **§ 5.1 archives
+  STANDING AS A DISPOSITION and is deliberately NOT ticked** — unattended
+  re-authentication does not exist (interactive Google sign-in; `nlm login` broken
+  upstream by the notebook.google.com rebrand, whose `_is_notebooklm_url()`
+  allow-list excludes the new host; and custody's ratified text says custody does
+  not deliver automation) — carried forward at **#537**, with
+  `docs/notebooklm-sync-open-item.md` left OPEN and pointing there. § 4.3's code
+  gap (`ensure_workspace_record()` returns without registering a replacement) is
+  filed at **#536**. Promotion measured rather than assumed: 6 delta requirements
+  in, 6 out, **all six bodies BYTE-IDENTICAL**, 32 delta scenarios carried across
+  `lifecycle-notebook-projection` (+3 added, ~2 modified) and
+  `credential-contracts` (~1 modified). The original record follows unchanged.
+  — authored and ratified 2026-08-23 (Brett Heap, in-session). The single exit
+  of the staged topic `notebook-projection-identity`, raised the day its last
+  precondition was met. The whole governed NotebookLM projection — every
+  per-repo Ideation book, `xf-drafts`, `xf-canon`, every live `xf-session-*` —
+  is created under one person's personal consumer Gmail, because the `nlm` CLI's
+  default profile is whoever ran `nlm login` first; proven live 2026-08-15 when
+  Brett hit a "request access" wall on a dashboard notebook link and the request
+  landed in that personal inbox. This makes the hosting identity a DECLARED
+  TWO-CASE INTAKE FACT: operator-hosted (a company-owned Google Workspace USER
+  account in the operating party's own domain) or self-hosted/personal, both
+  legitimate. A Google USER account is a platform constraint, not a preference —
+  NotebookLM has no API and a service account cannot drive its consumer web UI.
+  Opensoft declares Case A on `xFactor001@opensoft.one` (confirmed by Brett
+  2026-08-23, who also authorized raising this change). The sync runs under the
+  declared account's profile; access is shared out FROM that account and never
+  by handing out its credentials; a governed manual approval act WRITES the
+  share-out roster, which IS the record rather than an audit trail beside one,
+  keyed `(hosting_account, user, book_or_alias, role, granted_at, granted_by)`.
+  The custody rule GENERALIZES `credential-contracts`' promoted vault-operator
+  execution-binding requirement rather than adding beside it — no new record
+  kind. Encodes the five dispositions merged as PR #272, of which Q3 is the
+  evidence centerpiece: the mapping onto `client-identity-roster` was RUN, not
+  assumed, and refused the shape structurally (11 honest errors; the force-fit
+  passes with one grantee and fails with two on `duplicate-identity-key`,
+  because the grantee is not in the uniqueness tuple — that roster is one
+  principal / many scopes, a share-out list is one scope / many principals).
+  Migration follows the 2026-08-10 retirement runbook with parity proven against
+  THE CORPUS SCAN, carrying two review-verified gaps as scope: a plain `--apply`
+  never creates live session notebooks, and `ensure_workspace_record()` refuses
+  to re-register a same-key book under a new provider id.
+  `target_release: implementation_pending` — it archives only on Opensoft's own
+  cutover, proven parity, and the personal-hosted books retired by recorded act.
+  **THAT GATE IS DISCHARGED**: the cutover ran (PR #289), parity was proven
+  against the corpus scan under the amended rule 2026-08-25, and step 8 retired
+  the seven legacy books by recorded act 2026-08-26 — all three conditions read
+  rather than assumed at the archive act.
 
 - [add-model-capability-vocabulary](openspec/changes/archive/2026-08-29-add-model-capability-vocabulary/proposal.md)
   — **ARCHIVED on merged-plus-green PLUS THE CUT.** Ratified 2026-08-24 with TWO

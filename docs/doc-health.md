@@ -101,10 +101,12 @@ registry rather than trusting either on prose alone, per the canon
 The archived
 [`2026-08-27-add-modified-block-currency-check`](../openspec/changes/archive/2026-08-27-add-modified-block-currency-check/specs/doc-health/spec.md)
 change added a twenty-second deterministic family, `modified-block-currency`
-(ADVISORY at launch), comparing an active change's `MODIFIED Requirements`
-blocks against the promoted requirements they replace across three arms plus
-a marker-defect class, per the canon `Requirement: Currency of an active
-change's MODIFIED requirement blocks` in
+(launched ADVISORY; the gate-bearing scenario-title arm flipped to `error`
+and the family joined `FAMILY_RESOLUTION` on 2026-08-31, issue #357, once the
+measured population read zero), comparing an active change's `MODIFIED
+Requirements` blocks against the promoted requirements they replace across
+three arms plus a marker-defect class, per the canon `Requirement: Currency
+of an active change's MODIFIED requirement blocks` in
 [`openspec/specs/doc-health/spec.md`](../openspec/specs/doc-health/spec.md);
 the archived
 [`2026-08-28-add-unclassified-finding-class`](../openspec/changes/archive/2026-08-28-add-unclassified-finding-class/specs/doc-health/spec.md)
@@ -127,6 +129,15 @@ previous report (matched by family + path) opens one issue per run in the
 aggregation repo listing all new findings. Persistent findings do not
 re-open issues. A headline-metric decline is trend data, not a regression.
 
+**Identity check (issue #342):** a report is stamped with the repo(s) the
+run covered (`Repo-Identity:` header line); `--previous-report` REFUSES a
+stamped baseline whose identity does not cover this run's scope, with a
+nonzero exit — otherwise every finding key misses by construction and a
+benign path/scope slip reports as mass regressions and uncited-resolution
+errors. A baseline written before this stamp existed is still accepted
+(with a warning), so the check phases in without breaking an in-flight
+nightly.
+
 ## Aging Threshold Defaults
 
 | What ages | Warning | Error |
@@ -143,7 +154,9 @@ non-default thresholds or scope must say so in its report.
 
 Each run commits a dated Markdown report at `health/reports/YYYY-MM-DD.md`
 in the xFactory aggregation repo, carrying `Status: record` +
-`Kind: report` (generated evidence, per the lifecycle taxonomy). Contents:
+`Kind: report`, plus a `Repo-Identity:` line naming the repo(s) the run
+covered (generated evidence, per the lifecycle taxonomy; see "Identity
+check" above). Contents:
 
 - **Headline metric** — canon share by words: ratified + standard +
   promoted spec words over total governance words.

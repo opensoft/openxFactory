@@ -1,0 +1,42 @@
+# WARNING (expect: consumer-requirement-ref-grammar). A
+# `requirements_document_ref` outside the repository-relative path grammar — an
+# ABSOLUTE path.
+#
+# The reference is inherited from identity-brokering as an unconstrained string
+# that no script and no test in this repository resolves. Promoting it to a
+# resolution input feeding a security precondition without a grammar would rest
+# that precondition on an unenforced convention — which is the very objection
+# this capability raises against the map key, and the answer is the same one:
+# enforce the convention rather than trusting it or discarding it.
+#
+# Refused by the pattern, verified by construction: `../x.yaml`, `/etc/x.yaml`
+# and `OpsxFactory:credentials/r.yaml`. The grammar is repository-relative, with
+# no leading `/`, no `..` segment, no foreign-repository prefix and a
+# `.yaml`/`.yml` suffix — and the validator NEVER OPENS A PATH TAKEN FROM A
+# RECORD, so the grammar bounds what a reference can NAME rather than what the
+# validator will read.
+#
+# THIS CODE EXISTS BECAUSE A BOT ROUND FOUND THE GRAMMAR DECLARING ITS PHASING IN
+# PROSE WITH NO CODE TO SERVE IT. A constraint that phases in prose but warns
+# through nothing crosses the minor silently and fails at the major with its
+# deprecation unserved.
+#
+# This binding does not share a secret with anything, so no lift is at stake and
+# nothing is refused: the record is VALID and warned, which is the whole point.
+schema_version: 1
+kind: xfactory_credential_binding_template
+client:
+  id: example-client
+credential_bindings:
+  projection_sync_lane:
+    provider: azure_key_vault
+    vault: kv-example-projection
+    secret_ref: example-projection-sync-secret
+    owner: example-platform
+    rotation_policy: operator_managed
+    consumer:
+      holder_ref: example:service-subject:projection-sync-lane
+      fetch_identity: example-sync-lane-workload-identity
+      requirement_ref:
+        requirement_id: projection_sync_lane
+        requirements_document_ref: /etc/credentials/requirements.yaml

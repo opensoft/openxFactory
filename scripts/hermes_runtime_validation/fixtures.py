@@ -4,21 +4,20 @@ from __future__ import annotations
 
 import hashlib
 import json
-import os
 import re
-import subprocess
-import sys
 from datetime import datetime
 from pathlib import Path, PurePosixPath
 from typing import Iterable, Mapping, Sequence
 
 from .loader import YamlLoadError, load_yaml_document
+from .pytest_inventory import collect_static_pytest_nodes
 
 _CODE = re.compile(r"^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+$")
 _POSTGRES_IMAGE = re.compile(r"^postgres@sha256:[0-9a-f]{64}$")
 _POSTGRES_EVIDENCE_KIND = "HermesRuntimePostgresEvidence"
 _POSTGRES_IMAGE_LOCK = Path("tests/hermes_runtime_contracts/postgres/images.lock.yaml")
 _POSTGRES_MATRIX_PROFILE = "xfactory-postgres-matrix-v1"
+_POSTGRES_NODE_PROFILE = "xfactory-pytest-nodeids-v1"
 _POSTGRES_SOURCE_PROFILE = "xfactory-postgres-source-inputs-v1"
 _POSTGRES_SUITE_ID = "hermes-runtime-postgres"
 
@@ -159,60 +158,58 @@ def collect_database_test_count(
 ) -> int:
     """Collect the exact indexed PostgreSQL suite count without running it."""
 
+    return len(collect_database_test_nodes(repository_root, database, major))
+
+
+def collect_database_test_nodes(
+    repository_root: Path,
+    database: Mapping[str, object],
+    major: int,
+) -> tuple[str, ...]:
+    """Return the exact statically proved node IDs selected for one major."""
+
     modules = database.get("test_modules")
     if not isinstance(modules, list) or not modules:
         raise ValueError("indexed PostgreSQL test modules are required")
-    environment = os.environ.copy()
-    environment.update(
-        {
-            "HERMES_RUNTIME_POSTGRES_MAJOR": str(major),
-            "LANG": "C.UTF-8",
-            "LC_ALL": "C.UTF-8",
-            "PYTEST_ADDOPTS": "",
-            "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
-            "PYTHONDONTWRITEBYTECODE": "1",
-            "PYTHONHASHSEED": "0",
-            "TZ": "UTC",
-        }
+    prefix = str(major)
+    expected = tuple(
+        node_id
+        for node_id in collect_static_pytest_nodes(
+            repository_root, tuple(str(module) for module in modules)
+        )
+        if (
+            (parameter := node_id.rpartition("[")[2].removesuffix("]")) == prefix
+            or parameter.startswith(prefix + "-")
+            or not any(
+                parameter == candidate or parameter.startswith(candidate + "-")
+                for candidate in ("15", "16")
+            )
+        )
     )
-    try:
-        completed = subprocess.run(
-            [
-                sys.executable,
-                "-m",
-                "pytest",
-                "-p",
-                "no:cacheprovider",
-                "--collect-only",
-                "--color=no",
-                "-q",
-                *[str(module) for module in modules],
-                "-m",
-                "postgres",
-            ],
-            cwd=repository_root,
-            env=environment,
-            capture_output=True,
-            text=True,
-            check=False,
-            timeout=60,
-        )
-    except (OSError, subprocess.TimeoutExpired) as error:
-        raise ValueError(
-            "PostgreSQL suite collection dependency is unavailable"
-        ) from error
-    if completed.returncode != 0:
-        raise ValueError(
-            f"PostgreSQL suite collection failed with exit {completed.returncode}"
-        )
-    nodes = {
-        line.strip()
-        for line in completed.stdout.splitlines()
-        if line.startswith("tests/") and "::" in line
+    if not expected:
+        raise ValueError("indexed PostgreSQL node inventory is empty")
+    return expected
+
+
+def database_test_suite(
+    repository_root: Path,
+    database: Mapping[str, object],
+    major: int,
+) -> dict[str, object]:
+    """Return the canonical exact-node suite identity for one major."""
+
+    node_ids = collect_database_test_nodes(repository_root, database, major)
+    payload = {
+        "profile": _POSTGRES_NODE_PROFILE,
+        "major": major,
+        "node_ids": list(node_ids),
     }
-    if not nodes:
-        raise ValueError("PostgreSQL suite collection returned zero tests")
-    return len(nodes)
+    return {
+        "id": _POSTGRES_SUITE_ID,
+        "test_count": len(node_ids),
+        "node_profile": _POSTGRES_NODE_PROFILE,
+        "node_digest": _canonical_digest(payload),
+    }
 
 
 def _database_result_findings(
@@ -225,7 +222,7 @@ def _database_result_findings(
     expected_image: str,
     expected_source: Mapping[str, object],
     expected_matrix: Mapping[str, str],
-    expected_test_count: int,
+    expected_suite: Mapping[str, object],
 ) -> list[dict]:
     findings: list[dict] = []
     if not isinstance(result, Mapping):
@@ -304,7 +301,6 @@ def _database_result_findings(
                 path=path,
             )
         )
-    expected_suite = {"id": _POSTGRES_SUITE_ID, "test_count": expected_test_count}
     if result.get("suite") != expected_suite:
         findings.append(
             _finding(
@@ -571,7 +567,7 @@ def _database_case_findings(
 
     refs = database.get("result_refs")
     seen_ref_majors: set[int] = set()
-    collected_counts: dict[int, int] = {}
+    collected_suites: dict[int, Mapping[str, object]] = {}
     if not isinstance(refs, list) or not refs:
         findings.append(
             _finding(
@@ -641,9 +637,9 @@ def _database_case_findings(
                     )
                 )
                 continue
-            if major not in collected_counts:
+            if major not in collected_suites:
                 try:
-                    collected_counts[major] = collect_database_test_count(
+                    collected_suites[major] = database_test_suite(
                         repository_root, database, major
                     )
                 except ValueError as error:
@@ -673,7 +669,7 @@ def _database_case_findings(
                     expected_image=expected_image,
                     expected_source=expected_source,
                     expected_matrix=expected_matrix,
-                    expected_test_count=collected_counts[major],
+                    expected_suite=collected_suites[major],
                 )
             )
         if seen_ref_majors != set(majors):

@@ -1,0 +1,33 @@
+# THE INCEPTION LEAF — and gate check 4 is the comparison this file makes
+# possible: its payload digest IS the chain identity, taken over the signed
+# ratification.
+#
+# `previous_leaf_digest` is the hash link. Alter or drop leaf 0 and this value
+# stops matching, which is how an alteration inside an observed prefix becomes
+# detectable without an access control and without a convention.
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-0001
+leaf_index: 1
+tree_size: 2
+chain_ref: sha256:6bc75a08cec5fe85a4993bc912cfeeb76161e9d318dedaec51314bb228ab7229
+leaf_type: chain_inception
+recorded_at: '2026-08-30T10:01:00Z'
+payload_ref: inc-ratify-0001
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: signed_ratification
+  value: sha256:6bc75a08cec5fe85a4993bc912cfeeb76161e9d318dedaec51314bb228ab7229
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:39b9bc5b50b565b41e6ffc35a94f51a9f354b80cbd56c3fc95315f23cbd50bdf
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:c1766415c0a57ffeaeedddf27e5dfd9850d3991e016a348b236dc52690c7bd9a
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-0001
+  signed_over: leaf_content
+  signature: a2y7Ca1T-jWKlqB6G1cN7xZJJ7qVSSj5xFpQWeBUAazMqFs2RLMskwkOQHMPMM8ykOGlYXayqlDTu6JHVXzkAg

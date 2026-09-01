@@ -1,0 +1,43 @@
+# NEGATIVE (expect: shared-authority-identity). Two consuming systems — DIFFERENT
+# holder references — declaring ONE fetch identity.
+#
+# THE SECRET REFERENCES DIFFER, DELIBERATELY. A shared `secret_ref` is a PROXY
+# for the rule and not the rule; scoping this finding to the proxy would leave
+# the same collapse unreported whenever two spellings name one secret, which is
+# precisely the case an operator is least likely to notice by reading. So the
+# finding is raised on the holder/fetch-identity pair within one document,
+# independently of the secret reference.
+#
+# A REFUSAL NAMES THE FAULT IT FOUND. This is not "two credentials collapsed
+# into one" — it is the exact violation of "one identity MAY be shared; one
+# AUTHORITY SHALL NOT", and a reader told about secret reuse would repair the
+# wrong thing: they would split the secret and keep the shared authority.
+schema_version: 1
+kind: xfactory_credential_binding_template
+client:
+  id: example-client
+credential_bindings:
+  projection_sync_lane:
+    provider: azure_key_vault
+    vault: kv-example-projection
+    secret_ref: example-projection-sync-secret
+    owner: example-platform
+    rotation_policy: operator_managed
+    consumer:
+      holder_ref: example:service-subject:projection-sync-lane
+      fetch_identity: example-shared-service-identity
+      requirement_ref:
+        requirement_id: projection_sync_lane
+        requirements_document_ref: two-consumer-operated-identity.requirements.example.yaml
+  projection_editor_surface:
+    provider: azure_key_vault
+    vault: kv-example-projection
+    secret_ref: example-projection-editor-secret
+    owner: example-platform
+    rotation_policy: operator_managed
+    consumer:
+      holder_ref: example:service-subject:projection-editor-surface
+      fetch_identity: example-shared-service-identity
+      requirement_ref:
+        requirement_id: projection_editor_surface
+        requirements_document_ref: two-consumer-operated-identity.requirements.example.yaml

@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v2.2
+contract_bundle_version: contract-v2.5
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -1585,7 +1585,7 @@ contracts:
     source_path: openxFactory/contracts/schemas/ideation-dashboard-snapshot.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 6a3b496c59cea9cfb232e35d21b4864a928287c7b98b5436aac0c83d9c14e9b3
+    sha256: 9c44da235e8b4771b721b3ea0f88e0f6adcdaf4854cac045924abd9981c9ea9c
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -2055,6 +2055,62 @@ contracts:
   # the pinned `openXwallet/scripts/validate-openxwallet.py` is this family's
   # conformance validator from this major forward. Migration path: contracts/CHANGELOG.md
   # § contract-v2.0 and openXwallet/docs/pin-resync-runbook.md.
+  # ---- standing-policy intent compliance — contract-v2.3 registration ----
+  - id: intent-compliance-veto-class-vocabulary
+    path: contracts/intent-compliance/veto-class-vocabulary.schema.yaml
+    source_path: openxFactory/contracts/intent-compliance/veto-class-vocabulary.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 6161d5e006e6cf6f6a3c6cc088cb1a63ea96991f9ac50424f5f77cf96fc55edb
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: intent-compliance-policy-allowance
+    path: contracts/intent-compliance/policy-allowance.schema.yaml
+    source_path: openxFactory/contracts/intent-compliance/policy-allowance.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 1d4e5ae739c0cdecd0a0bd42598520729ea3d34a5fa714f941a1f688b8003d5d
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: intent-compliance-policy-allowance-revocation
+    path: contracts/intent-compliance/policy-allowance-revocation.schema.yaml
+    source_path: openxFactory/contracts/intent-compliance/policy-allowance-revocation.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 28f1eb43e511dccc0f5e456e34ff3077e15893d22caab298cf50e36d8ebb4d76
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: intent-compliance-policy-allowance-registry
+    path: contracts/intent-compliance/policy-allowance-registry.schema.yaml
+    source_path: openxFactory/contracts/intent-compliance/policy-allowance-registry.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 7b7433b5bd93397596f6be190b345162e98476d1a43fc8b2836db47ba19521ad
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: intent-compliance-decision
+    path: contracts/intent-compliance/compliance-decision.schema.yaml
+    source_path: openxFactory/contracts/intent-compliance/compliance-decision.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 4c5ad6a7fd33ab7d70490dd8c44e3a1732edcba1a38d83023ee7b674a3df5276
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+  - id: intent-compliance-conformance-validator
+    path: scripts/validate-intent-compliance.py
+    source_path: openxFactory/scripts/validate-intent-compliance.py
+    type: tool
+    schema_version: 1
+    intended_consumers:
+      - openxFactory release checks
+      - DomainxFactory approval and dispatch gates
+      - post-build admission gates
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Consumers invoke this validator from their pinned openxFactory checkout;
+      concrete veto classes, policy instances, detectors, scope resolvers and
+      runtime records remain domain-owned and are validated against this family.
   # ---- client-identity-roster + the credential-contracts first registration —
   # contract-v1.33 registration (add-client-identity-roster, feature
   # 007-client-identity-roster) ----
@@ -2097,7 +2153,7 @@ contracts:
     source_path: openxFactory/contracts/schemas/xfactory-credential-contracts.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 08e180683d8a3cfae2656a2aee508f1d17e9d696f4f57814ecf960c9d71a6180
+    sha256: d0e936fc7377dc5346d9863a5cec74b4edb5b73300c17b66843798bf96a47028
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -2112,7 +2168,41 @@ contracts:
       roster_drift_clear_required) in which every value is const true,
       because a precondition is DECLARED or NOT DECLARED — false would
       read as governance while asserting nothing. Declaring nothing at
-      all leaves a requirement record valid. Consumed through the pinned
+      all leaves a requirement record valid.
+      GREW ADDITIVELY AGAIN with the OPTIONAL consumer: block on each
+      entry of credential_bindings (add-binding-consumer-identity): the
+      consuming system that holds a binding (holder_ref), the identity
+      it authenticates to the secret store with (fetch_identity), an
+      optional QUALIFIED requirement_ref (requirement_id +
+      requirements_document_ref), and the const-true
+      shared_credential_acknowledged and instantiation_stub tokens. THE
+      BLOCK IS DECLARED AT contract-v2.4 AND CONSTRAINED AT
+      contract-v3.0: here the schema imposes no type, no member grammar,
+      no requiredness and no closure on it, because the binding object
+      has never been closed and a consumer: key of ANY shape already
+      validated — so requiring members, closing the block and imposing
+      the member grammar each refuse a shape the current major accepts
+      and are the BREAKING class however additive the vocabulary looks.
+      The same phasing governs three narrowings that sit OUTSIDE the
+      block and are not exempt for it: the credential_bindings MAP KEY
+      grammar, the closed access_mode vocabulary (dispatch_only,
+      contents_write, workload_identity, delegated_api) and the
+      repository-relative requirements_document_ref grammar. All seven
+      acts land together at contract-v3.0 behind ONE deprecation window
+      and EIGHT warning codes emitted by
+      scripts/validate-credential-contracts.py, enumerated with their
+      migration path in docs/contract-versioning-policy.md
+      § Deprecations Currently In Force. A record written before any
+      install exists declares consumer: {instantiation_stub: true}, and
+      that TOKEN is the only exemption — a *.template.yaml FILENAME
+      exempts nothing, being author-chosen, invisible in the bytes a
+      pinned consumer validates, and unreachable by a pinned schema. The
+      same change replaces the shared-secret refusal's
+      first-against-rest arity with an EVERY-PAIR comparison and adds a
+      six-condition, fail-closed lift for two consuming systems reaching
+      one deliberately shared operated identity; both are enforced by
+      scripts/validate-credential-contracts.py, never re-implemented by
+      consumers. Consumed through the pinned
       openxFactory checkout with per-file sha256 verified before any
       copy is treated as current.
   # ---- identity-brokering contract family — contract-v1.37 registration (add-identity-brokering, feature 008-identity-brokering-contracts) ----
@@ -2495,3 +2585,169 @@ contracts:
       recommended). Registered at contract-v1.37; consumed through the
       pinned openxFactory checkout with per-file sha256 verified before
       any copy is treated as current.
+  # ---- signed-execution-chain contract family (tranche one) — contract-v2.5 registration (add-signed-execution-chain task 4.7) ----
+  # The packaged corpus (contracts/signed-execution-chain/examples/, 7 positive
+  # examples composing ONE whole chain + 34 intended-invalid negatives, all 24
+  # closed refusal codes red-proven and the self-test refusing a code with no
+  # probe), the family README, the NAMED READER
+  # (scripts/validate-signed-execution-chain.py) with its
+  # scripts/signed_execution_chain/ package, and its pytest wiring
+  # (tests/signed_execution_chain/) are content-addressed by commit; no per-file
+  # digest (the openxWallet, client-identity-roster, identity-brokering and
+  # trust-anchor precedent). The five schemas below carry per-file sha256 over
+  # their bytes.
+  #
+  # THE FAMILY DEFINES NO SECOND IDENTITY, GRANT OR PROOF-OF-POSSESSION
+  # VOCABULARY. The presentation is the shipped `xfactory_wallet_grant_exercise`
+  # and the signing wallet the shipped `xfactory_wallet_record`, consumed at the
+  # openxWallet digest pin (contracts/openxwallet-pin.yaml, tag label
+  # wallet-v1.3) and carried VERBATIM inside the signed bytes; the actor is
+  # identity-brokering's `actor_subject_reference` carrying an
+  # `xfactory_wallet_subject_attestation`. Nothing here is registered as an
+  # openxFactory-owned copy of a pinned wallet shape.
+  #
+  # WHAT REGISTRATION DOES NOT CONFER. Requirement 9 of this capability is that
+  # nothing it defines confers or refuses anything until the named reader runs as
+  # a REQUIRED check, and it does NOT yet (add-signed-execution-chain tasks 4.5
+  # and 4.6, an operator act and its evidence, both OPEN at this cut). The
+  # packaged conformance declaration records `is_required_in_ruleset: false` and
+  # the reader emits a standing `reader-not-required` warning on every run. A
+  # manifest row is a consumption contract for BYTES; it is not evidence that a
+  # check is required, and this bundle publishes none.
+  - id: signed-execution-chain-digest-construction
+    path: contracts/signed-execution-chain/digest-construction.schema.yaml
+    source_path: openxFactory/contracts/signed-execution-chain/digest-construction.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 51e5e6cfda33004aba526f888d9299b44fcd3c6d19b7178de020859bedcce65e
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      THE ONE DIGEST CONSTRUCTION IN FORCE, `xfc-jcs-sha256-1`, and the digest shape every record in this family takes by `$ref`. This file declares NO RECORD KIND, deliberately: it exists so the family cannot grow a second construction rule beside the first.
+      RFC 8785 JSON CANONICALIZATION SCHEME, THEN SHA-256, ALGORITHM-TAGGED —
+      chosen against a published standard rather than invented, and BOUNDED
+      rather than half-implemented. The admitted value classes are object,
+      array, string, INTEGER, boolean and null; a non-integer number is
+      REFUSED rather than serialized, as is an integer outside
+      ±(2**53 - 1), and an unpaired surrogate in a string or a member name
+      is refused as a construction error rather than crashing the caller.
+      ECMAScript number serialization is the one part of JCS a second
+      implementation reliably gets wrong, and a digest two readers compute
+      differently is worse than a digest one of them refuses. EVERY DIGEST
+      NAMES ITS OWN SUBJECT: the ratification's CONTENT digest, the CHAIN
+      IDENTITY over the signed ratification, and a LEAF digest over a
+      leaf's content are three digests over three subjects, and the
+      content digest MUST NOT be equated with the chain identity.
+      Registered at contract-v2.5; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any copy
+      is treated as current.
+  - id: signed-execution-chain-inception
+    path: contracts/signed-execution-chain/chain-inception.schema.yaml
+    source_path: openxFactory/contracts/signed-execution-chain/chain-inception.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 96a1d31185a0e87aa95b3ff9f8950756e8c7b0092698dca530604b0cfd60b69b
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Links 1 and 2 as ONE signed act: the registration of a ratification into the chain, performed in the same signed act as the ratification it registers, with the chain identity as the digest of the block the signature covers.
+      EVERYTHING THAT MUST NOT BE ATTACHABLE AFTERWARDS IS INSIDE THE
+      SIGNED BLOCK. `signed_ratification` is the exact byte range the
+      ratifying signature covers — `ratification_signature.signed_over` is
+      the constant `signed_ratification` and admits no other value — and
+      the actor-to-wallet binding, the presentation reference, the per-act
+      value and the out-of-pipeline ground all sit inside it, because a
+      fact attachable after the signature is a fact anyone can attach.
+      THE PER-ACT VALUE IS NAMED, NOT MINTED: it is
+      `signed_ratification.presentation.exercise_ref`, one exercise being
+      one act, and the reference must AGREE with the carried exercise
+      record while uniqueness is keyed on the CARRIED identifier — both,
+      because a reference that can move independently of its referent
+      makes a consumed exercise replayable. AUTHORITY IS PROVEN BY
+      POSSESSION, NOT ASSERTED: the presentation is the pinned
+      `xfactory_wallet_grant_exercise` carried verbatim, its `object_ref`
+      holds the ratification's CONTENT digest, and the one step the record
+      cannot prove is RAISED AS A DECLARED GAP rather than asserted.
+      Registered at contract-v2.5; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any copy
+      is treated as current.
+  - id: signed-execution-chain-traveling-contract
+    path: contracts/signed-execution-chain/traveling-contract.schema.yaml
+    source_path: openxFactory/contracts/signed-execution-chain/traveling-contract.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 00d03c14e09ab58998ad028b3aa42284bb38ed38ebfe01421a31874062aa94d1
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Link 3 — the signed ratification carried WITH the work, a self-contained artifact checkable at the point of use rather than a row in a table the checker must go and look up.
+      IT CARRIES THREE THINGS BY REQUIREMENT — the chain identity, the
+      reference to the presentation that proved link 1, and the digest of
+      the transparency-log leaf that recorded inception — and it carries
+      the signed ratification itself so the first is RECOMPUTABLE rather
+      than merely asserted. THAT ESTABLISHES INTERNAL CONSISTENCY ONLY: a
+      check whose question requires the log still REFUSES while the log is
+      unreachable, and an unresolvable external lookup never converts into
+      permission. LINK 3 HAS NO SIGNER and this shape carries none of its
+      own. A REFERENCE AND ITS REFERENT ARE COMPARED, NEVER TRUSTED
+      SEPARATELY: the carried leaf digest, the carried chain identity and
+      the outer `grant_ref` are each held against the records they name.
+      Registered at contract-v2.5; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any copy
+      is treated as current.
+  - id: signed-execution-chain-transparency-log-leaf
+    path: contracts/signed-execution-chain/transparency-log-leaf.schema.yaml
+    source_path: openxFactory/contracts/signed-execution-chain/transparency-log-leaf.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: d01274144fb6f058cbbee96366520fab4402143e9d66bddafc8d69107190d114
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      One SIGNED LEAF of the append-only hash-linked log that is this capability's PRIMARY CHAIN OF CUSTODY — not an audit trail written afterwards, but the record a gate walks before it permits the terminal act.
+      THE PATTERN IS RFC 6962 / CERTIFICATE TRANSPARENCY AND SIGSTORE
+      REKOR, TAKEN AS A HASH-LINKED SIGNED LEAF SEQUENCE, and the family
+      says which form it took rather than leaving a reader to assume a
+      Merkle tree. Each leaf carries its `leaf_index`, the `tree_size` it
+      completes, its predecessor's digest, its own digest and its own
+      signature. THE HEAD IS THE NEWEST LEAF: every leaf commits to its
+      predecessor and is signed, so any leaf is a signed head of the
+      prefix ending at it, and no separate tree-head record exists or is
+      needed. THE RETAINED SET MUST BEGIN AT LEAF 0 AND RUN
+      CONSECUTIVELY, checked BEFORE any digest comparison, because a store
+      that deleted a prefix presents a set in which every surviving pair
+      links correctly. WHAT THIS DOES NOT DETECT IS DECLARED, NOT PAPERED
+      OVER: suffix truncation no party has yet observed is the conformance
+      declaration's SEC-R6 residual, closed by tranche-three anchoring.
+      The log lives IN THE REPOSITORY THAT HOLDS THE RECORDS, on the
+      `governance/review-authority/register.yaml` precedent. Registered at
+      contract-v2.5; consumed through the pinned openxFactory checkout
+      with per-file sha256 verified before any copy is treated as current.
+  - id: signed-execution-chain-conformance-declaration
+    path: contracts/signed-execution-chain/conformance-declaration.schema.yaml
+    source_path: openxFactory/contracts/signed-execution-chain/conformance-declaration.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 2ebac909371ea0acd22d7edcd79aae9141d452ffdb6f0163636dff425698f6e2
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Obligation by obligation, what a realization of this capability satisfies fully, satisfies partially and cannot satisfy — with the reason in each case. The shape is `add-trust-anchor`'s ratified DECLARED-SHORTFALL pattern, consumed rather than re-invented.
+      AN UNDECLARED SHORTFALL IS NON-CONFORMANCE EVEN WHERE THE IDENTICAL
+      SHORTFALL, DECLARED, WOULD BE CONFORMANT. The declaration is CLOSED
+      over this capability's NINE obligations (SEC-R1..SEC-R9): exactly
+      nine entries from a closed enumeration, each with a reason and its
+      own `declared_at`, and the canonical validator checks coverage in
+      BOTH directions — an obligation with no entry is refused, and so is
+      an entry naming an obligation this capability does not have.
+      TWO RESIDUALS ARE STRUCTURAL AT THIS TRANCHE AND ARE REFUSED THE
+      WORD `satisfied` BY THE READER rather than left to an author's
+      care: SEC-R1's missing signed digest value, whose durable repair is
+      an additive optional field belonging to `opensoft/openXwallet`, and
+      SEC-R6's unobserved suffix truncation, which tranche-three anchoring
+      closes. SEC-R9 IS THE ONE THAT DECIDES WHETHER THE REST CONFERS
+      ANYTHING: a declaration recording it `satisfied` while the named
+      reader is not required in the branch ruleset is refused by test.
+      Registered at contract-v2.5; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any copy
+      is treated as current.

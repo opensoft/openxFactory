@@ -33,7 +33,7 @@ workspaces:
 # reached title-set equality, and the 2026-08-25 document-parity run reported
 # 675/675 with zero unprojected. Full reasoning — including why the 2026-08-24
 # parity figure was measured by an instrument that could not see the gap:
-# openspec/changes/add-notebook-projection-identity/review/
+# openspec/changes/archive/2026-08-31-add-notebook-projection-identity/review/
 #   retirement-gate-clearance-2026-08-26.md
 #
 # The act that followed is docs/notebook-projection-retirement-runbook-step8.md,

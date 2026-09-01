@@ -1,0 +1,35 @@
+schema: spec-driven
+created: 2026-08-28
+origin:
+  kind: staged
+  id: openxFactory:staging:structured-scope-substrate
+  path: ideation/staging/structured-scope-substrate
+  reason: >-
+    First and only exit of the staged topic
+    `structured-scope-substrate` (organized 2026-08-28 from
+    `add-provenance-gated-autonomous-merge`'s design D6 + Open Question 2
+    and its "Structured-path-scope precondition" impact line). The forcing
+    fact is that the ratified provenance-tie verifier contract
+    (`roles-authority-model`, "Provenance-tie verifier contract", step iii)
+    must confirm a PR's changed paths fall within its tied change's
+    MACHINE-READABLE path scope, but today the only realization-surface
+    declaration is `code_surface:` — repository-granularity PROSE
+    (`release-realization`, "Realization axis declaration") that 164 refs
+    across `openspec/changes/` all render as free text, with no validator
+    enforcing any form — so the containment check has nothing to evaluate
+    against and "is not buildable-as-described against prose code_surface."
+    The topic resolves Open Question 2 (amend `code_surface` vs a new
+    sibling) in favour of a new, additive, non-breaking sibling field
+    `scope_globs:`, and the ratified B doctrine's folded CRITICAL #1 makes
+    that substrate a trust-root floor surface (`roles-authority-model`,
+    "Floor primacy and per-repository floor instantiation", trust-root
+    source (iv)). This change is B's Migration Plan step 2 precondition; it
+    is independent of B's `roles-authority-model` delta (it touches
+    `release-realization`) and may proceed in parallel — only the
+    codexFactory verifier realization depends on BOTH landing.
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — staged topic fragment
+    2026-08-28. This records authorization that the topic is a governed
+    work-queue item cleared to exit as a change; it is NOT ratification of
+    content, which remains the convener read at task 1.5.
+  approved_on: 2026-08-28

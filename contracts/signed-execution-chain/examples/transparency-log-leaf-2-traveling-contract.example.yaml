@@ -1,0 +1,30 @@
+# THE ISSUANCE LEAF — the traveling contract's own digest, recorded so that
+# issuing one is a proven act rather than a claimed one. An act this capability
+# governs that writes no leaf is UNPROVEN, and its own success is not evidence
+# that it was permitted.
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-0002
+leaf_index: 2
+tree_size: 3
+chain_ref: sha256:6bc75a08cec5fe85a4993bc912cfeeb76161e9d318dedaec51314bb228ab7229
+leaf_type: traveling_contract_issued
+recorded_at: '2026-08-30T10:02:00Z'
+payload_ref: tvc-ratify-0001
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: traveling_contract
+  value: sha256:e8fc3d43f6b266bebbef5f528ca825dc0eb812956cb65baf2a0b60c4db8cbb1f
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:c1766415c0a57ffeaeedddf27e5dfd9850d3991e016a348b236dc52690c7bd9a
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:fe994e1f07a456e90f77040375e488085ccf01b88bf8c815811a671ca9d5e551
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-0001
+  signed_over: leaf_content
+  signature: QkXEBuTImyW858KAe_17w5mFuolvY5Pzlah_VkNgMdd6arQXWK51VBamrBAvLLefjT-4IIXjW8TcjlTb_K_4DA

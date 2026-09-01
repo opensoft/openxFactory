@@ -1,0 +1,5 @@
+# expected-failure: duplicate-class-id
+# requirement: authority-bound-vocabulary
+schema_version: 1
+kind: intent_compliance_negative_fixture
+mutation: duplicate_class_id
