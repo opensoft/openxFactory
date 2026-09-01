@@ -308,6 +308,69 @@ jobs:
       - name: Init the openXwallet gitlink only
         run: git submodule update --init openXwallet
 
+      # THE PINNED DECISION CORE, FETCHED SO A REQUIRED CHECK CAN VERIFY A
+      # VENDORED COPY — CSC-C6's required-check home, ruled BOTH-LAYERED at the
+      # (b′) record §6.1 and proved feasible on 2026-09-01.
+      #
+      # WHAT DEPENDS ON IT, AND WHAT DOES NOT. The load-bearing assertion —
+      # every tracked `openspec/specs` path is on the floor — reads
+      # `contracts/review-lane-floor-snapshot.yaml`, a byte copy vendored in
+      # THIS repository, and needs nothing from here. What this checkout adds is
+      # `tests/review_lane_pin/test_floor_snapshot.py`'s FRESHNESS verifier: the
+      # copy compared byte for byte against the authoritative document. Coverage
+      # is asserted with or without the network; only the copy's fidelity needs
+      # it.
+      #
+      # `continue-on-error` FOR THE REASON THIS FILE ALREADY GIVES ITSELF at
+      # :67-69 — "a required check that fails for reasons the candidate cannot
+      # fix blocks everything". A codexFactory outage, a revoked App grant or a
+      # rewritten history must not wedge every openxFactory pull request.
+      #
+      # AND YET IT CANNOT DEGRADE SILENTLY, WHICH IS THE WHOLE TRICK. When this
+      # step fails the freshness verifier SKIPS, the run's skipped count becomes
+      # 22, and `EXPECT_SKIPPED: "21"` below — pinned EXACTLY, and failing the
+      # job on any drift — turns this REQUIRED check red with a named cause. On
+      # the normal path the checkout succeeds, the verifier RUNS, and the pin is
+      # untouched. The mechanism that catches "a directory that silently turned
+      # into skips" catches "the cross-repository fetch silently stopped
+      # working" for free.
+      #
+      # THE CREDENTIAL IS THE ONE ALREADY MINTED ABOVE, and it is proven: on PR
+      # #550, `merge-master-approval` checked out this same repository at this
+      # same commit with these same App secrets, in one second, while
+      # `pytest-suite` minted the same token one job over.
+      #
+      # `path:` IS BESIDE THIS REPOSITORY'S TREE, never inside it. A foreign
+      # checkout under `openxFactory/` would be visible to every test that scans
+      # the real tree — the trust-anchor gate, the release inventory, the
+      # workbench guard — and this file's own header explains why that tree's
+      # layout is explicit rather than lucky.
+      - name: Check out the pinned decision core (freshness verifier only)
+        id: core
+        continue-on-error: true
+        uses: actions/checkout@v4
+        with:
+          repository: opensoft/codexFactory
+          ref: "db157dbbcf19a69c1b189ed433b5062807d61043"
+          path: .merge-master-core
+          persist-credentials: false
+          token: ${{ steps.app-token.outputs.token || github.token }}
+
+      # No `if: always()`. The checkout above is `continue-on-error`, so this
+      # step is reached on both of its outcomes already; `always()` would ALSO
+      # run it after an unrelated hard failure earlier in the job, where its
+      # warning would be noise attached to somebody else's cause.
+      - name: Say whether the freshness verifier will run
+        run: |
+          set -euo pipefail
+          if [ "${CORE_OUTCOME}" = "success" ]; then
+            echo "pinned decision core on disk: the snapshot freshness verifier will RUN."
+          else
+            echo "::warning title=pytest-suite::the pinned decision core could not be checked out (${CORE_OUTCOME}). The floor snapshot's freshness cannot be verified on this run; the coverage assertion still holds from the vendored copy. The skipped-count pin below will fail this job and name this as the cause."
+          fi
+        env:
+          CORE_OUTCOME: ${{ steps.core.outcome }}
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -324,7 +387,15 @@ jobs:
       # ratified option-free design is untouched. `|| true` is deliberately
       # ABSENT — a failing suite must fail this step, and the pin below is a
       # SECOND gate on top of that, never a substitute for it.
+      # `PINNED_CORE_CHECKOUT` is how `tests/review_lane_pin/
+      # test_floor_snapshot.py` finds the tree the step above fetched. It is an
+      # absolute path because this step's working directory is `openxFactory/`
+      # while `actions/checkout`'s `path:` is relative to the workspace. When
+      # the checkout failed the directory is absent, the locator returns None,
+      # and the freshness verifier skips — which is the alarm, not a hole.
       - run: python3 -m pytest tests/ -q -m "not postgres" --junitxml=pytest-report.xml
+        env:
+          PINNED_CORE_CHECKOUT: ${{ github.workspace }}/.merge-master-core
 
       # THE PINNED TRIPLE, read from the JUnit XML attributes. See the header.
       - name: Pin the selected / passed / skipped triple
@@ -377,6 +448,22 @@ jobs:
           # which is here. It is a THIRTEENTH assertion that costs a skip, not a
           # directory that turned into skips, which is the shape this pin exists
           # to catch.
+          #
+          # UNCHANGED AT 21 ON 2026-09-01, AND THAT IS THE DESIGN. The (b′)
+          # activation added `tests/review_lane_pin/test_floor_snapshot.py`,
+          # whose freshness verifier skips when the pinned decision core is not
+          # on disk. It is NOT expected to skip here: the `Check out the pinned
+          # decision core` step above supplies the tree on every normal run, so
+          # the verifier RUNS and this number does not move. When that
+          # cross-repository fetch fails, the verifier skips, this count becomes
+          # 22, and the comparison below fails the job — which is precisely how
+          # a silently degraded fetch is turned into a red REQUIRED check with a
+          # named cause instead of a quiet loss of a guard. The pin now protects
+          # two things: a directory that turned into skips, and a boundary
+          # crossing that stopped working.
+          #
+          # (MIN_SELECTED and MIN_PASSED are FLOORS and need no edit: the new
+          # module only raises the actuals, which widens the printed margin.)
           EXPECT_SKIPPED: "21"
         run: |
           set -euo pipefail
