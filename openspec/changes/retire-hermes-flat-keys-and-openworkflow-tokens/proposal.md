@@ -90,14 +90,15 @@ carry — one of them raised in review of this pull request.**
   entry wrongly.
 * **A precision the memo did not state, and which the refusal list must carry.**
   `domain_overlay` is ALSO a live, non-deprecated key under the `omnigent:`
-  block — every one of the five declares `omnigent.domain_overlay`, and
-  `check_omnigent` reads it. The deprecated key is `hermes.domain_overlay` and
+  block — every one of the five declares `omnigent.domain_overlay`, and the
+  validator reads it at `scripts/validate-domain-factory.py:539-541`, erroring
+  when the directory it names is missing. The deprecated key is `hermes.domain_overlay` and
   nothing else. A refusal list written by key NAME rather than by key PATH would
   refuse a shape every supported consumer legitimately carries, at a major, with
   no warning ever served for it. Named here so no realization discovers it.
 
-**Entry 2 — `openworkflow_` tokens. Confirmed, with one property the memo did
-not name.**
+**Entry 2 — `openworkflow`-prefixed tokens. Confirmed, with TWO properties the
+memo did not name.**
 
 * The surface is `scripts/validate-domain-factory.py:309-311` plus the docstring
   line at `:26`. It is an `if` that PRECEDES the general `elif token not in
