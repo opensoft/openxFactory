@@ -1,5 +1,5 @@
 ---
-code_surface: openxFactory — A VALIDATOR ARM, TWO CODES AND THREE FIXTURES; NO SCHEMA EDIT AT THIS MINOR. `scripts/validate-credential-contracts.py` gains a resolution-integrity pass over EVERY binding that declares a `consumer.requirement_ref`, reached from `_deprecation_warnings` (`:694-730`) beside the eight `consumer-*` arms rather than from `_lift_refusal_detail` (`:371-473`), which is the ONE caller of `resolve_requirement` (`:311-349`) in the file — at `:438`, inside a loop reached only for a pair sharing a `secret_ref` (`:540-546`, the bindings grouped into `by_secret` and every group of fewer than two skipped). The arm RE-USES `resolve_requirement` unchanged — the same four statuses, the same index built by `requirements_index` (`:294-309`), the same rule that the validator never opens a path taken from a record — and reports the `not-found` and `ambiguous` statuses that function already returns to a caller which consumes them only as a lift condition. `DEPRECATION_CODES` (`:157-166`) grows from EIGHT to TEN with two codes of a new family (proposed `requirement-ref-unresolved` and `requirement-ref-ambiguous`; the SPELLING is realization's, the FAMILY and the ZERO-versus-MANY split are the requirement's), and `WARNING_EXPECTATIONS` (`:169-180`) gains one entry per code — the self-test refusing a declared code that carries no packaged probe (`:826-838`). `examples/credential-contracts/warning/` gains two probes and `examples/credential-contracts/` one positive proving the SILENT direction (a resolving reference on bindings sharing no secret); the ambiguity probe resolves against the `support/ambiguous-requirement-ids.requirements.yaml` document that already ships, so the corpus needs no second support record. Every new fixture joins the by-name inventory at `tests/credential_contracts/test_dispatch_credential_contract.py:34-80`, which `test_the_inventory_is_the_whole_corpus_and_not_a_sample` (`:120-128`) holds EXHAUSTIVE against the glob; the self-test count string at `:103-104` is DERIVED from those tuples rather than written out, so it moves with them. `docs/contract-versioning-policy.md` § Deprecations Currently In Force — the `add-binding-consumer-identity` entry states "SEVEN acts that land together" and "EIGHT warning codes", and its own text claims to name EVERY act landing at contract-v3.0, so it is reconciled rather than left to contradict a ninth act; `contracts/manifest.yaml`'s `credential-contracts` row (`:2151-2210`) repeats the same "All seven acts … EIGHT warning codes" sentence and moves with it, which is what makes this realization owe a bundle cut even though the schema file itself does not move. NOT THIS CHANGE'S SURFACE, each for a stated reason: `contracts/schemas/xfactory-credential-contracts.schema.yaml` (the block is UNCONSTRAINED at this minor by ratified design, and resolution is not a shape a JSON Schema can check — it is a cross-document lookup); the six lift conditions and their every-pair arity (untouched, and the packaged dispatch-versus-content negative stays refused); `resolve_requirement`'s statuses, its index, its grammar and its never-open-a-path rule (re-used, not edited); and any cross-repository resolution (the residency model keeps consumers' bindings in their own trees, and this validator reads one repository).
+code_surface: openxFactory — A VALIDATOR ARM, TWO CODES AND THREE FIXTURES; NO SCHEMA EDIT AT THIS MINOR. `scripts/validate-credential-contracts.py` gains a resolution-integrity pass over EVERY binding that declares a `consumer.requirement_ref`, reached from `_deprecation_warnings` (`:694-730`) beside the eight `consumer-*` arms rather than from `_lift_refusal_detail` (`:371-473`), which is the ONE caller of `resolve_requirement` (`:311-349`) in the file — at `:438`, inside a loop reached only for a pair sharing a `secret_ref` (`:540-546`, the bindings grouped into `by_secret` and every group of fewer than two skipped). The arm RE-USES `resolve_requirement` unchanged — the same four statuses, the same index built by `requirements_index` (`:294-309`), the same rule that the validator never opens a path taken from a record — and reports the `not-found` and `ambiguous` statuses that function already returns to a caller which consumes them only as a lift condition. THE `ambiguous` STATUS IS PER-DOCUMENT BY CONSTRUCTION — `resolve_requirement` matches inside `index.get(requirements_document_ref)` (`:344`), over an index that `requirements_index` (`:294-309`) keys BY DOCUMENT PATH — and the delta was AMENDED 2026-09-01 on Brett Heap's ruling to STATE that scope rather than leave a reader to infer it from this paragraph; the CROSS-DOCUMENT arm is deliberately out of scope at this minor and is filed as openxFactory issue #553. `DEPRECATION_CODES` (`:157-166`) grows from EIGHT to TEN with two codes of a new family (proposed `requirement-ref-unresolved` and `requirement-ref-ambiguous`; the SPELLING is realization's, the FAMILY and the ZERO-versus-MANY split are the requirement's), and `WARNING_EXPECTATIONS` (`:169-180`) gains one entry per code — the self-test refusing a declared code that carries no packaged probe (`:826-838`). `examples/credential-contracts/warning/` gains two probes and `examples/credential-contracts/` one positive proving the SILENT direction (a resolving reference on bindings sharing no secret); the ambiguity probe resolves against the `support/ambiguous-requirement-ids.requirements.yaml` document that already ships, so the corpus needs no second support record. Every new fixture joins the by-name inventory at `tests/credential_contracts/test_dispatch_credential_contract.py:34-80`, which `test_the_inventory_is_the_whole_corpus_and_not_a_sample` (`:120-128`) holds EXHAUSTIVE against the glob; the self-test count string at `:103-104` is DERIVED from those tuples rather than written out, so it moves with them. `docs/contract-versioning-policy.md` § Deprecations Currently In Force — the `add-binding-consumer-identity` entry states "SEVEN acts that land together" and "EIGHT warning codes", and its own text claims to name EVERY act landing at contract-v3.0, so it is reconciled rather than left to contradict a ninth act; `contracts/manifest.yaml`'s `credential-contracts` row (`:2151-2210`) repeats the same "All seven acts … EIGHT warning codes" sentence and moves with it, which is what makes this realization owe a bundle cut even though the schema file itself does not move. NOT THIS CHANGE'S SURFACE, each for a stated reason: `contracts/schemas/xfactory-credential-contracts.schema.yaml` (the block is UNCONSTRAINED at this minor by ratified design, and resolution is not a shape a JSON Schema can check — it is a lookup INTO ANOTHER DOCUMENT, the requirements record the reference names); the six lift conditions and their every-pair arity (untouched, and the packaged dispatch-versus-content negative stays refused); `resolve_requirement`'s statuses, its index, its grammar and its never-open-a-path rule (re-used, not edited); and any cross-repository resolution (the residency model keeps consumers' bindings in their own trees, and this validator reads one repository).
 target_release: THE NEXT ADDITIVE MINOR, DELIBERATELY NOT NUMBERED HERE — allocated AT REALIZATION by merge order per `docs/contract-versioning-policy.md`. Read at this branch's merge-base rather than remembered: `contracts/manifest.yaml:3` declares `contract_bundle_version: contract-v2.5` and `contracts/releases/contract-v2.5.digests.yaml` is a cut inventory in the tree, so the era is v2 and the next additive minor is whatever merge order allocates. A number written here would be a number another packet is already spending — `add-credential-escrow-checkout` is ratified and owes an additive minor on the SAME schema file, and `contracts/manifest.yaml` has had three writers before. THE CLASS AT THIS CUT IS MINOR ON EITHER OF THE POLICY'S TWO READINGS, and both are quoted rather than picked. `docs/contract-versioning-policy.md` § Change Classes (`:293-306`) reads "Additive (minor) — new optional fields, new contracts, NEW VALIDATOR WARNINGS" and, one bullet down, "Deprecating (minor) — a field or shape is marked deprecated; the conformance validator emits warnings but still accepts it. Deprecations must state the removal version and a migration path in the CHANGELOG." Two new validator warnings answering a refusal declared for the major is the SECOND of those exactly, which is the stricter reading and the one this packet takes: the removal version and the migration path are OWED IN THE CHANGELOG at the cut (tasks § 5, § 6) rather than optional. THE CLASS AT THE MAJOR IS BREAKING, and that is MEASURED rather than assumed — the reproduction below shows a record carrying both defects validating clean today, so refusing it later is "a shape is removed" and costs the policy's full ritual: a CHANGELOG migration note, at least one full minor of deprecation warnings, and a validator that refuses the old shape only at the new major. The removal target is contract-v3.0, the SAME major the consumer block's seven acts land at, so consumers serve ONE window rather than two.
 ---
 
@@ -18,6 +18,11 @@ there is no approving OpenSpec change to name. **AD-1 IS RULED TWO CODES, AS
 DRAFTED**, and the twelve-item one-code amendment set is DECLINED — left standing
 in § Authoring decisions as the record of the alternative that was rulable, not
 struck.
+Amended: 2026-09-01, by the same ratifier, in a SEPARATE and LATER act of the same
+session — the ambiguity requirement and scenario SCOPED TO PER-DOCUMENT, the
+cross-document arm filed as openxFactory issue #553. A POST-RATIFICATION CONSENTED
+AMENDMENT; see § Standing, `tasks.md` § 2.5 and
+`review/ratification-2026-09-01.md` § "Addendum, 2026-09-01".
 
 ## Standing
 
@@ -61,14 +66,33 @@ policy row moves here. `tasks.md` § 3 – § 6 are the realization slice and be
 to a separate pull request; the change stays ACTIVE until § 8's
 merged-and-green evidence exists.
 
-**ONE REVIEW FINDING IS OPEN AT THE RATIFIED TIP AND IS ROUTED, NOT REPAIRED.**
-The third Codex round read `deb72c8e` and found that `resolve_requirement`'s
-lookup is scoped to the ONE document a reference names, so the cross-document arm
-of the promoted ambiguity scenario stays unmet while `tasks.md` § 3.4 freezes that
-resolver. It falsifies nothing ratified here — this delta's ambiguity scenario
-says *"more than one requirement record"* and nothing about document count — and
-it is carried in the open at `tasks.md` § 9.4 with a pointer at § 3.4. See
-`review/ratification-2026-09-01.md` § "The review evidence".
+**THE ONE REVIEW FINDING THAT WAS OPEN AT THE RATIFIED TIP IS NOW RESOLVED BY
+RULING, AND THE RULING IS A POST-RATIFICATION CONSENTED AMENDMENT.** The third
+Codex round read `deb72c8e` and found that `resolve_requirement`'s lookup is
+scoped to the ONE document a reference names, so the CROSS-DOCUMENT arm stayed
+unmet while `tasks.md` § 3.4 freezes that resolver — and this delta's ambiguity
+scenario, as ratified, said *"matching more than one requirement record"* with no
+document named, so it read as reaching across documents that the realization could
+never reach. The ratification ROUTED that finding open at `tasks.md` § 9.4. **On
+2026-09-01, in the same session `openxfactory-f5` and by a second explicit
+multi-choice put with the whole contradiction before him, Brett Heap RULED IT —
+SCOPE TO PER-DOCUMENT.**
+
+**WHAT THAT MOVED, AND WHAT IT DID NOT.** The delta's first requirement now states
+the resolution scope plainly (WITHIN THE ONE REQUIREMENTS DOCUMENT THE REFERENCE
+NAMES), its ambiguity scenario's WHEN is narrowed to that scope and retitled, and
+both requirements carry dated `**AMENDED 2026-09-01**` notes. **THE CROSS-DOCUMENT
+ARM IS FILED AS THE NAMED SUCCESSOR, openxFactory issue #553**, which carries the
+finding, the resolver mechanics by file and line, the ruling, and the choice that
+arm owes. Nothing else moved: AD-1's TWO-CODE ruling stands, AD-2 … AD-6 stand,
+OQ-1 … OQ-4 stay open, the scenario count is still TWELVE (the scenario was
+narrowed, never struck), and no code, severity, phasing, removal target or corpus
+row moved with it. **BECAUSE THIS PACKET WAS ALREADY `Status: ratified`, the
+narrowing is an amendment made WITH THE RATIFYING OWNER'S OWN CONSENT — not an
+edit to ratified text by anybody else** — and the consent is recorded at every
+touched site. See `tasks.md` § 2.5 and § 9.4, and
+`review/ratification-2026-09-01.md` § "The review evidence" and
+§ "Addendum, 2026-09-01".
 
 ## Why
 
@@ -232,6 +256,17 @@ Note the third row: the AMBIGUITY scenario in the ratified text already carries
 NO sharing predicate, while the implementation scopes it to one — so the split is
 not merely between prose and code, it is inside the promoted scenario set.
 
+**AND THAT ROW CARRIES A SECOND SPLIT THIS CHANGE DELIBERATELY DOES NOT CLOSE**,
+found by Codex's third round and RULED 2026-09-01. Its WHEN also reaches ACROSS
+DOCUMENTS — *"matches requirement records in more than one document"* — which the
+shipped `resolve_requirement` cannot see, matching only inside the one document a
+reference names. This packet's own ambiguity requirement is AMENDED to the
+PER-DOCUMENT scope its frozen resolver can serve, and the cross-document arm of
+the promoted scenario is left to the named successor, **openxFactory issue
+#553**. The measurement above is unchanged by that ruling — the split it records
+is the SHARING-PREDICATE split, and the reproduction below duplicates one id
+TWICE IN ONE DOCUMENT, so it probes the per-document arm and always did.
+
 ### 5. Nothing narrows at this cut, and the major's window is shared
 
 Two new WARNING codes. A record that draws them stays VALID and the verdict does
@@ -342,7 +377,10 @@ immediately after each `requirement_ref` mapping.
    reporting is owed by every binding that declares a reference; withholding the
    lift is owed by the pair asking for the exemption. Six scenarios, including
    the falsifiable one that the shipped check reports NEITHER defect today and
-   that one byte is enough to make it report.
+   that one byte is enough to make it report. **SCOPED TO PER-DOCUMENT
+   AMBIGUITY BY THE 2026-09-01 AMENDMENT** — resolution happens within the one
+   requirements document a reference names, which is what the frozen resolver
+   does, and the CROSS-DOCUMENT arm is openxFactory issue #553's.
 2. **Resolution integrity carries its own code and phases like every other
    narrowing.** Its own family, not a widening; zero and more-than-one named
    apart because their remedies differ; WARNING for a full minor and ERROR at
@@ -429,6 +467,16 @@ delta raises no ADDED-over-canon collision against the newly promoted text.
 - **Cross-repository resolution.** The residency model keeps consumers' bindings
   in their own trees; this validator reads one repository and this change does
   not make it read two.
+- **CROSS-DOCUMENT AMBIGUITY — ruled out of scope 2026-09-01 and FILED, not
+  merely deferred.** The same requirement id declared in TWO schema-valid
+  requirements documents resolves `ok` from a reference naming either, because
+  `resolve_requirement` matches inside `index.get(requirements_document_ref)`
+  and `tasks.md` § 3.4 freezes that function. The ambiguity this change detects
+  is PER-DOCUMENT, which is the ambiguity its resolver can see; the wider arm —
+  and the promoted scenario at
+  `openspec/specs/credential-contracts/spec.md:565` that already reaches it — is
+  **openxFactory issue #553**. The gap is INHERITED from the shipped validator,
+  not introduced here, and this change now says so instead of implying otherwise.
 
 ## Authoring decisions, flagged for veto
 
@@ -466,7 +514,15 @@ declined to veto it means something.
 
   **AD-1/ONE-CODE AMENDMENT SET — applied ENTIRE or not at all. DECLINED BY THE
   2026-09-01 RULING; NONE OF THE TWELVE ITEMS IS EXECUTED. It is retained verbatim
-  as the record of the branch that was on offer:**
+  as the record of the branch that was on offer.** ONE READING NOTE, so a later
+  reader is not misled by a quotation that has moved underneath it: this set was
+  enumerated against the delta AS RATIFIED at `deb72c8e`, and the SEPARATE
+  per-document amendment of 2026-09-01 (see § Standing) has since reworded two of
+  the passages items 1 and 2 quote — the remedy sentences and the *"named apart"*
+  scenario's WHEN. The set is left as enumerated rather than re-pointed, because
+  it is a record of an offer that was declined and not an instruction anybody will
+  execute; its SUBSTANCE — move the fault's name from the CODE into the MESSAGE —
+  is untouched by a scoping amendment:
 
   1. `specs/credential-contracts/spec.md`, FIRST requirement, the paragraph
      opening *"ZERO AND MORE-THAN-ONE ARE NAMED APART, because their remedies are
@@ -605,7 +661,17 @@ declined to veto it means something.
   them and imposes no archive-order hold on anything.
   `add-credential-escrow-checkout` (ACTIVE, ratified) — the other writer on this
   family's schema, which this packet does not touch.
+- **Deliberately out of scope, and FILED:** CROSS-DOCUMENT ambiguity — one
+  requirement id declared in two schema-valid requirements documents — which the
+  frozen `resolve_requirement` cannot see. Ruled out of scope at this minor by
+  Brett Heap on 2026-09-01 and filed as **openxFactory issue #553**, which also
+  carries the promoted scenario
+  (`openspec/specs/credential-contracts/spec.md:565`) that already reaches
+  across documents and is already unmet by the shipped validator.
 - **Risk if not done:** the ratified general SHALL stays unenforced, and a
   binding pointing at a requirement that does not exist keeps passing — the
   fail-open shape this family has already repaired twice, once in a drift check
-  and once in the access-mode arm.
+  and once in the access-mode arm. The per-document narrowing does not widen that
+  risk: every defect the packet was written to catch — a dangling reference, and
+  an id declared twice in the document it names — is still caught, and the arm
+  that is deferred was never one the frozen resolver could have served.

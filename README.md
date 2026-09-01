@@ -419,10 +419,18 @@ Active changes:
   reaching the questions. **THREE Codex rounds ran, not one**: two P2s on
   `1d6d58f7` both REPAIRED at `deb72c8e`, and a third round ON that fix tip whose
   P2 — the frozen resolver's per-document lookup leaving the promoted ambiguity
-  scenario's CROSS-DOCUMENT arm unmet — is **OPEN, routed to tasks § 9.4 rather
-  than repaired**, the gap being inherited from the shipped validator rather than
-  introduced here; eight of eleven review requests were PROVIDER-REFUSED on org
-  usage limits, so no bench has read the routing. Filed on Brett Heap's ruling of
+  scenario's CROSS-DOCUMENT arm unmet — was routed open by the ratification and
+  is now **RULED, 2026-09-01, BY A SECOND ACT OF THE SAME RATIFIER**:
+  **SCOPE TO PER-DOCUMENT**, the ambiguity requirement and scenario NARROWED to
+  the ambiguity the frozen resolver can see, and the CROSS-DOCUMENT arm FILED AS
+  A NAMED SUCCESSOR, **issue #553**. Because the packet was already ratified,
+  that narrowing is a POST-RATIFICATION CONSENTED AMENDMENT by the ratifying
+  owner himself, carried by dated `**AMENDED 2026-09-01**` notes in the delta, a
+  dated addendum in `review/ratification-2026-09-01.md`, and tasks § 2.5 / § 3.4
+  / § 9.4; the scenario count is UNCHANGED at TWELVE and AD-1's two-code ruling
+  is untouched. The gap it defers is INHERITED from the shipped validator rather
+  than introduced here. Eight of eleven review requests were PROVIDER-REFUSED on
+  org usage limits, so no bench has read either the routing or the ruling. Filed on Brett Heap's ruling of
   2026-08-30, recorded on PR #516 and
   anchored at issue #523: *a successor change carrying its own
   resolution-integrity code*. **THE DEFECT, REPRODUCED RATHER THAN QUOTED**: a

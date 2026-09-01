@@ -9,9 +9,22 @@ packet's own subject set established (proposal PR #497, realization PR #516).
 
 **NOTHING ELSE HAS MOVED.** § 3 – § 6 are the unbuilt realization slice, § 7's
 verification gates are untouched, § 8's archive gate is untouched, and § 9 records
-what this change deliberately does not close — **now including § 9.4, the one
-review finding that is OPEN at the ratified tip and routed rather than repaired.**
-Ratification authorizes realization and performs none of it.
+what this change deliberately does not close. Ratification authorizes realization
+and performs none of it.
+
+**ONE POST-RATIFICATION AMENDMENT HAS SINCE LANDED, BY THE RATIFYING OWNER'S OWN
+CONSENT — 2026-09-01, and it is the ONLY movement of normative text after
+ratification.** Brett Heap ruled the third Codex round's P2 in session
+`openxfactory-f5`, by an explicit multi-choice put with the contradiction before
+him: **SCOPE TO PER-DOCUMENT.** The delta's ambiguity requirement and scenario
+NARROW to the ambiguity the frozen resolver can actually see — more than one
+record carrying the id INSIDE THE ONE REQUIREMENTS DOCUMENT the reference names —
+and the CROSS-DOCUMENT arm is FILED AS THE NAMED SUCCESSOR, **openxFactory issue
+#553**. So § 9.4 is RULED rather than routed-open, § 3.4's freeze now AGREES with
+the scenario instead of contradicting it, and § 2.5 records the act. **The
+scenario count is UNCHANGED at TWELVE** — the ambiguity scenario was NARROWED and
+retitled, never struck — **and AD-1's two-code ruling is untouched.** What moved
+is SCOPE and nothing else.
 
 Evidence convention, unchanged from the family's standard: a box closes on a
 FACT that survives the session — a merged commit, a green run named by id, a
@@ -22,7 +35,9 @@ file path, a command and its output — never on an intention.
 - [x] 1.1 `credential-contracts` — **TWO ADDED requirements over TWELVE
       SCENARIOS**: the per-binding reporting duty (six scenarios, one of them the
       falsifiable reproduction), and the own-code-family phasing rule (six
-      scenarios).
+      scenarios). **THE COUNT SURVIVES THE 2026-09-01 AMENDMENT** (§ 2.5): the
+      ambiguity scenario was NARROWED to per-document and RETITLED, not struck,
+      so TWELVE still holds and no site asserting it has to move.
 - [x] 1.2 **NO `## MODIFIED Requirements` block anywhere in this packet**, and
       the choice is MEASURED rather than preferred. The two requirements a
       reconciling MODIFIED block would have named — *"A credential binding
@@ -145,6 +160,30 @@ a box that puts a live question cannot be ticked by the act that answered it.
       heading, § The sibling rule measured, § Impact's sibling states,
       `.openspec.yaml`'s `approved_by` and three `related:` rows, this file's
       header and § 1.2, and the README active-changes entry.
+- [x] 2.5 **THE POST-RATIFICATION CONSENTED AMENDMENT — DONE 2026-09-01. Same
+      day, same ratifier, SEPARATE ACT.** The third Codex round's P2 was ROUTED
+      OPEN by the ratification (§ 9.4 as first written). Brett Heap then ruled it
+      in session `openxfactory-f5` by an explicit multi-choice put, with the
+      contradiction stated in full rather than summarised: the packet was already
+      `Status: ratified`, and its ambiguity scenario AS RATIFIED reached ACROSS
+      requirements documents while `resolve_requirement` — frozen by § 3.4 —
+      matches only inside the ONE document a reference names, so that arm was
+      UNMEETABLE by this packet's own realization. **RULED: SCOPE TO
+      PER-DOCUMENT; the cross-document arm FILED AS A NAMED SUCCESSOR,
+      openxFactory issue #553.** Because the packet was ratified, this is a
+      **CONSENTED AMENDMENT BY THE RATIFYING OWNER HIMSELF**, not an edit to
+      ratified text by anybody else, and the consent is recorded AT EVERY TOUCHED
+      SITE: two dated `**AMENDED 2026-09-01**` notes in
+      `specs/credential-contracts/spec.md`, a dated addendum in
+      `review/ratification-2026-09-01.md`, this file's header and § 1.1, § 3.4,
+      § 9.4, `proposal.md`'s `code_surface`, § Standing, § What was measured § 4,
+      § What this changes, § The sibling rule measured's neighbour § What this
+      deliberately does not change, AD-1 and § Impact, and the README active
+      entry. **WHAT DID NOT MOVE, stated so a reader need not diff for it**:
+      AD-1's TWO-CODE ruling, AD-2 … AD-6, OQ-1 … OQ-4 (all four still OPEN), the
+      TWELVE-scenario count, the two codes and their split, the phasing, the
+      removal target contract-v3.0, the packaged corpus, and every realization row
+      but § 3.4's pointer.
 
 ## 3. Realization — the validator arm (SEPARATE PULL REQUEST)
 
@@ -170,15 +209,22 @@ a box that puts a live question cannot be ticked by the act that answered it.
 - [ ] 3.4 `resolve_requirement` is CALLED, not edited: same statuses, same
       index, same grammar, same never-open-a-path rule. A diff touching that
       function's body is out of scope and should be justified or reverted.
-      **BUT SEE § 9.4 BEFORE TREATING THIS ROW AS COMPLETE.** The third Codex
-      round (2026-08-31, on the ratified tip `deb72c8e`) found that this freeze,
-      as written, would carry an INHERITED gap forward silently: the resolver
-      matches `index.get(requirements_document_ref)`, so one requirement id
-      sitting in TWO schema-valid documents resolves `ok` from either, leaving the
-      CROSS-DOCUMENT arm of the promoted ambiguity scenario unmet. That finding is
-      OPEN and routed to § 9.4. The implementer must BROADEN the lookup or
-      EXPLICITLY AMEND that promoted scenario, and must not do neither — this row
-      is the freeze, not a licence to leave the gap unnamed.
+      **THE FREEZE AND THE DELTA NOW AGREE, AND THAT IS THE 2026-09-01 RULING'S
+      DOING** (§ 9.4, § 2.5). As ratified they did NOT: the delta's ambiguity
+      scenario reached across requirements documents while this row froze a
+      resolver matching `index.get(requirements_document_ref)` — ONE document, the
+      one the reference names — so the cross-document arm was unmeetable under the
+      freeze, which is exactly what the third Codex round found. Brett Heap ruled
+      the DELTA down to PER-DOCUMENT rather than ruling the freeze open, so the
+      implementer now builds precisely the arm this freeze can serve and **NOTHING
+      IN THIS PACKET OBLIGES A BROADENING.**
+      **WHAT THIS ROW STILL OWES IS A NAMING, NOT A BROADENING.** The promoted
+      scenario at `openspec/specs/credential-contracts/spec.md:565` — *"matches
+      requirement records in more than one document, or more than one record in a
+      document"* — still reaches further than the shipped resolver, an INHERITED
+      gap this packet neither created nor closes. The realization MUST NOT read as
+      having satisfied that first arm: cite openxFactory issue #553 wherever the
+      new arm is described, and leave the promoted scenario to that successor.
 - [ ] 3.5 The lift path is untouched. A sharing pair whose reference does not
       resolve still gets the `shared-secret-identity` ERROR naming the condition
       that stood, AND now also the per-binding warning. A test asserts BOTH are
@@ -292,34 +338,51 @@ a box that puts a live question cannot be ticked by the act that answered it.
       — i.e. whether the reference becomes required alongside the two
       identifiers. Out of scope: that is a requiredness act on the block, which
       is the sibling's territory and its degraded-mode gate.
-- [ ] 9.4 **CROSS-DOCUMENT AMBIGUITY IS NOT RESOLVED BY THE FROZEN RESOLVER.**
-      **OPEN AT THE RATIFIED TIP, ROUTED RATHER THAN REPAIRED — the one review
-      finding this packet ratifies over.** Raised by Codex on 2026-08-31 23:54
-      UTC against `deb72c8e`, the tip that was ratified: *"Resolve ambiguity
-      across all indexed requirement documents."* `resolve_requirement` matches
-      `[r for r in index.get(doc_ref, []) if r.get("id") == rid]` — scoped to the
-      ONE document the reference names — so where the same requirement id sits in
-      TWO schema-valid documents, a binding pointing at either resolves `ok`, and
-      the per-binding arm § 3.2 buys would stay SILENT on that case.
-      **WHAT IT MEASURES AGAINST IS PROMOTED CANON**, not this packet:
-      `openspec/specs/credential-contracts/spec.md`'s scenario *"The requirement
-      reference resolves to more than one record"* reads *"a named requirement
-      reference matches requirement records in MORE THAN ONE DOCUMENT, or more
-      than one record in a document"* — promoted when PR #541 archived
-      `add-binding-consumer-identity` on 2026-08-31. The shipped resolver already
-      fails its first arm.
-      **WHY IT IS ROUTED AND NOT REPAIRED HERE.** It falsifies nothing this packet
-      ratifies — this delta's ambiguity scenario says *"matching more than one
-      requirement record"* and says nothing about document count, so it stays true
-      whether or not the lookup is later broadened. It lands on a REALIZATION row
-      (§ 3.4), and ratification realizes nothing. And the gap is INHERITED, not
-      introduced: this packet neither created it nor closes it.
-      **WHAT IS OWED, AND BY WHOM.** Before § 3 may be called complete the
-      implementer MUST either BROADEN the resolution lookup across indexed
-      documents or EXPLICITLY AMEND that promoted scenario — and MUST NOT do
-      neither. Whether the broadening belongs to this change or to a successor is
-      itself undecided and is part of what this box carries.
+- [ ] 9.4 **CROSS-DOCUMENT AMBIGUITY — RULED OUT OF SCOPE AT THIS MINOR
+      2026-09-01, AND FILED AS openxFactory ISSUE #553.** No longer routed-open:
+      this box carries a RULING. **IT STAYS UNTICKED ON PURPOSE, and on § 9's own
+      terms** — this section records what the change DELIBERATELY DOES NOT CLOSE,
+      and a ruling that DEFERS a subject to a named successor is not a closing of
+      it. The box's disposition, which is what § 8.4 asks of it, is below and is
+      complete; § 9.1 sits in exactly this shape for exactly this reason.
+      **THE FINDING, as the bench raised it.** Codex, round 3 on PR #542,
+      2026-08-31 23:54 UTC, against `deb72c8e` — the tip that was ratified:
+      *"Resolve ambiguity across all indexed requirement documents."*
+      `resolve_requirement` matches
+      `[r for r in index.get(doc_ref, []) if r.get("id") == rid]`
+      (`scripts/validate-credential-contracts.py:344`) over an index keyed BY
+      DOCUMENT PATH (`requirements_index`, `:294-309`) — scoped to the ONE
+      document the reference names — so where the same requirement id sits in TWO
+      schema-valid documents a binding pointing at either resolves `ok`, and the
+      per-binding arm § 3.2 buys would stay SILENT on that case.
+      **WHAT WAS PUT TO BRETT, AND WHAT HE RULED.** The packet was already
+      `Status: ratified`, so the contradiction went to him in full rather than in
+      summary: this delta's ambiguity scenario AS RATIFIED said *"matching more
+      than one requirement record"* — naming no document, so reading as reaching
+      ACROSS documents — while § 3.4 freezes a resolver that cannot look past one,
+      which made that arm UNMEETABLE by this packet's own realization. **HE RULED
+      2026-09-01, in session `openxfactory-f5`, by an explicit multi-choice put:
+      SCOPE TO PER-DOCUMENT.** The requirement now states the resolution scope
+      plainly, the ambiguity scenario's WHEN is narrowed to the document the
+      reference names, and the cross-document arm is DEFERRED. Because the packet
+      was ratified, that narrowing is a POST-RATIFICATION CONSENTED AMENDMENT BY
+      THE RATIFYING OWNER HIMSELF and is recorded as one at every touched site —
+      § 2.5.
+      **THE SUCCESSOR IS FILED, NOT PROMISED: openxFactory issue #553**, carrying
+      the finding, the resolver mechanics by file and line, the ruling, and the
+      choice that arm owes — BROADEN the lookup across indexed documents, or AMEND
+      the promoted scenario at
+      `openspec/specs/credential-contracts/spec.md:565`. Deciding which is #553's
+      work and is deliberately NOT decided here.
+      **THE INHERITED GAP IS NAMED, NOT CLOSED.** That promoted scenario — *"a
+      named requirement reference matches requirement records in MORE THAN ONE
+      DOCUMENT, or more than one record in a document"*, canon since PR #541
+      archived `add-binding-consumer-identity` on 2026-08-31 — is ALREADY unmet by
+      the SHIPPED resolver. This packet neither created that gap nor closes it.
+      What the ruling changes is that the packet no longer CLAIMS to close it, and
+      #553 now carries it where the next reader looks.
       **THE BENCH HAS NOT SEEN THIS ANSWER.** No review round has read the packet
-      since the finding was routed; the four hourly retries after it were all
-      provider-refused. Recorded in `review/ratification-2026-09-01.md`
-      § "The review evidence" and § "The provider refusal, recorded honestly".
+      since the finding was raised; the four hourly retries after it were all
+      provider-refused on org usage limits. Recorded in
+      `review/ratification-2026-09-01.md` § "The review evidence", § "The provider
+      refusal, recorded honestly" and § "Addendum, 2026-09-01".

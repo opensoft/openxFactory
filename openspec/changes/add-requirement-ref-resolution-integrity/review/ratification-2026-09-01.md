@@ -14,6 +14,13 @@ review round read; the ratification commit moves only the sites that assert the
 packet's own standing, plus ONE measurement the catch-up merge falsified
 (§ The catch-up merge, and the one measurement it made stale). No requirement
 text, no scenario and no normative sentence moves in the ratifying commit.
+**AMENDED SINCE — ONCE, BY THE SAME RATIFIER, ON THE SAME DAY. See
+§ "Addendum, 2026-09-01" at the foot of this record.** The baseline stated above
+is the baseline AS RATIFIED and is left exactly as measured; it is no longer a
+description of the branch tip. ONE post-ratification act has moved normative text
+since — the ambiguity requirement and scenario SCOPED TO PER-DOCUMENT, ruled by
+Brett Heap on 2026-09-01 with the contradiction before him and consented to as
+the amendment of a ratified packet BY ITS OWN RATIFIER.
 Gates at the ratification commit, which are the COMMIT'S gates and not
 `tasks.md` § 7's realization gates or § 8's archive gate:
 `openspec validate add-requirement-ref-resolution-integrity --strict` VALID, and
@@ -118,7 +125,7 @@ recorded below was given on a count of ONE.
 | --- | --- | --- | --- | --- |
 | 1 | `1d6d58f7` | 2026-08-31 19:39 | **P2 — "Correct the claimed one-byte control."** *"Changing `example-secret-two` to `example-secret-one` changes three bytes (`two` → `one`), not one, so the documented control does not substantiate the normative scenario that says a one-byte edit must trigger the finding."* | **REPAIRED at `deb72c8e`** |
 | 2 | `1d6d58f7` | 2026-08-31 20:34 | **P2 — "Reconcile all two-code requirements after a one-code ruling."** Striking one scenario would leave the delta requiring *"NAMED APART"* while tasks and `code_surface` still bought two codes — *"the resulting ratified packet would simultaneously permit and forbid a single-code implementation."* | **REPAIRED at `deb72c8e`** |
-| 3 | `deb72c8e` | 2026-08-31 23:54 | **P2 — "Resolve ambiguity across all indexed requirement documents."** `resolve_requirement` matches `index.get(requirements_document_ref)`, so where one requirement id sits in TWO schema-valid documents a binding pointing at either gets `ok`; `tasks.md` § 3.4 freezes that resolver, so the proposed per-binding arm would stay silent on the cross-document case. | **OPEN — ROUTED, NOT REPAIRED** |
+| 3 | `deb72c8e` | 2026-08-31 23:54 | **P2 — "Resolve ambiguity across all indexed requirement documents."** `resolve_requirement` matches `index.get(requirements_document_ref)`, so where one requirement id sits in TWO schema-valid documents a binding pointing at either gets `ok`; `tasks.md` § 3.4 freezes that resolver, so the proposed per-binding arm would stay silent on the cross-document case. | **OPEN AT RATIFICATION — ROUTED, NOT REPAIRED. RESOLVED BY RULING THE SAME DAY** — scoped to per-document, cross-document filed as issue #553; see § Addendum, 2026-09-01 |
 
 **Rounds 1 and 2 were repaired in the packet, and the repairs are recorded in
 `tasks.md` § 1.9 with their evidence.** Round 1's repair rebuilt the reproduction
@@ -129,6 +136,13 @@ the packet alone; the delta scenario now states the single-byte spacing in its
 WHEN, so the claim is checkable rather than asserted. Round 2's repair replaced a
 one-scenario strike with the complete twelve-item AD-1/ONE-CODE AMENDMENT SET —
 the thing that made this ratification's AD-1 ruling a one-sentence act.
+
+**SUPERSEDED THE SAME DAY BY § "Addendum, 2026-09-01" — READ THAT WITH THIS.**
+The three paragraphs below record what the RATIFYING ACT did with round 3's
+finding, and they are left as written because that is what a record is for. What
+they describe was overtaken hours later by a SECOND act of the same ratifier,
+which RULED the finding rather than leaving it routed. Where the two differ, the
+addendum governs.
 
 **ROUND 3'S FINDING IS OPEN AT THE RATIFIED TIP, AND THIS RECORD DOES NOT CLOSE
 IT.** It is recorded here rather than absorbed, and it is ROUTED to `tasks.md`
@@ -201,10 +215,15 @@ this record does not perform it, and nothing here is conditioned on it.
 
 **One qualification belongs with it, and is stated rather than resolved.** That
 word was given on the count of ONE substantive round with both findings fixed.
-The count is THREE, and the third round's P2 is open and routed rather than
-repaired. Whether a routed finding satisfies *"clear"* is the merge authority's
-call and not this record's; the record's duty is to make sure that call is taken
-against the true count, which it now can be.
+The count is THREE. At ratification the third round's P2 was open and routed
+rather than repaired, and whether a ROUTED finding satisfied *"clear"* was left
+to the merge authority. **THE SAME DAY THAT QUALIFICATION NARROWED**: the P2 is
+now RESOLVED BY RULING — scoped to per-document, cross-document filed as issue
+#553 — so what stands before the merge authority is a RULED finding and not a
+routed one, and the one thing still true of it is that NO BENCH HAS READ THE
+ANSWER. That remains the merge authority's call and not this record's; the
+record's duty is to make sure the call is taken against the true count and the
+true disposition, which it now can be.
 
 ## What this ratification does NOT do
 
@@ -332,3 +351,99 @@ validator line, no fixture and no test, and the catch-up merge moves none either
 so the tree it was measured against and the validator this packet describes are
 the same. A pinned measurement that names its pin is evidence; re-running it to a
 different number without moving the pin would be worse.
+
+## Addendum, 2026-09-01 — THE POST-RATIFICATION CONSENTED AMENDMENT
+
+**A SECOND ACT OF THE SAME RATIFIER, HOURS AFTER THE FIRST, ON THE ONE FINDING
+THE FIRST LEFT OPEN.** It is recorded as an addendum rather than folded into the
+body above, because a record that quietly rewrites itself to match a later ruling
+destroys the evidence that the ruling was needed.
+
+**WHAT WAS PUT, AND WITH WHAT IN FRONT OF HIM.** Round 3's P2 was routed open by
+the ratification (`tasks.md` § 9.4 as first written, with a pointer at § 3.4).
+The contradiction was then put to Brett Heap in full, as an explicit
+multi-choice, in the same session `openxfactory-f5`:
+
+- This delta's ambiguity scenario, AS RATIFIED, read *"matching more than one
+  requirement record"* — naming no document, and therefore reading as reaching
+  ACROSS requirements documents.
+- `tasks.md` § 3.4 FREEZES `resolve_requirement`, which matches
+  `[r for r in index.get(doc_ref, []) if r.get("id") == rid]`
+  (`scripts/validate-credential-contracts.py:344`) over an index that
+  `requirements_index` (`:294-309`) keys BY DOCUMENT PATH.
+- So ONE id in TWO schema-valid documents resolves `ok` from either, and the
+  cross-document arm of the ratified scenario was **UNMEETABLE** by this
+  packet's own realization — not merely unbuilt.
+- The packet was already `Status: ratified`, so any narrowing would be an
+  amendment to ratified text, and only the ratifying owner could consent to one.
+
+**THE RULING — SCOPE TO PER-DOCUMENT.** The ambiguity this minor detects is the
+ambiguity its resolver can see: MORE THAN ONE record carrying the reference's id
+WITHIN THE ONE REQUIREMENTS DOCUMENT THE REFERENCE NAMES. The CROSS-DOCUMENT arm
+is deliberately out of scope at this minor and is **FILED AS A NAMED SUCCESSOR,
+openxFactory issue #553**, which carries the finding, the resolver mechanics by
+file and line, this ruling, and the choice that arm owes — BROADEN the lookup
+across indexed documents, or AMEND the promoted scenario at
+`openspec/specs/credential-contracts/spec.md:565`.
+
+**THIS IS A CONSENTED AMENDMENT, AND THE CONSENT IS THE WHOLE OF ITS
+AUTHORITY.** Brett Heap is the ratifying owner; he ruled with the contradiction
+before him rather than being asked to approve a repair he had not seen; and the
+consent is recorded at every site the amendment touches — two dated
+`**AMENDED 2026-09-01**` notes in `specs/credential-contracts/spec.md`, this
+addendum, `tasks.md`'s header, § 1.1, § 2.5, § 3.4 and § 9.4, `proposal.md`'s
+`code_surface`, its `Amended:` header line, § Standing, § What was measured § 4,
+§ What this changes, § What this deliberately does not change, AD-1 and § Impact,
+and the README active entry.
+
+**WHAT MOVED.** Scope, and only scope:
+
+- The first requirement's opening SHALL now reads *"SHALL be RESOLVED WITHIN THE
+  ONE REQUIREMENTS DOCUMENT IT NAMES, and a resolution returning ZERO
+  requirements or MORE THAN ONE FROM THAT DOCUMENT SHALL be REPORTED…"*.
+- Its ambiguity scenario is retitled *"A reference that resolves to several
+  inside the document it names, on a binding that shares nothing"*; its WHEN
+  gains *"WITHIN THE ONE REQUIREMENTS DOCUMENT THAT REFERENCE NAMES"*; and it
+  gains a fourth bullet stating that the same id in a DIFFERENT document draws
+  nothing from this requirement at this minor, naming issue #553.
+- Three supporting passages are made to agree with that scope — the
+  *"ZERO AND MORE-THAN-ONE ARE NAMED APART"* remedy paragraph, the reproduction
+  scenario's *"two records OF THE ONE DOCUMENT IT NAMES"*, and the second
+  requirement's measured-phasing paragraph — plus the *"named apart"* scenario's
+  WHEN.
+- Both requirements carry dated `**AMENDED 2026-09-01**` notes.
+
+**WHAT DID NOT MOVE, stated so no reader has to diff for it.** AD-1's TWO-CODE
+ruling and every one of the twelve declined amendment-set items (still declined,
+still unexecuted, still retained). AD-2 … AD-6. OQ-1 … OQ-4, all four still OPEN.
+**The scenario count, still TWELVE** — the ambiguity scenario was NARROWED and
+RETITLED, never struck, so every site asserting twelve stands unswept. The two
+codes and their zero-versus-many split. The phasing, the WARNING-then-ERROR
+shape and the contract-v3.0 removal target. The packaged corpus and its
+both-directions rule. The all-ADDED delta shape, its no-marker/no-hold
+measurement, and `contract_bundle_version`. Every realization row except § 3.4's
+pointer. And the ratification's own dispositions in § 2.1 – § 2.4, which this
+addendum does not reopen.
+
+**THE FINDING'S STANDING IS NOW `RESOLVED BY RULING`, NOT `ROUTED-OPEN`** — and
+the two are different things, which is why the table above is annotated rather
+than rewritten. A ROUTED finding leaves an implementer holding an undecided
+question. A RULED one leaves a decided scope, a named successor with an issue
+number, and an inherited gap that is CARRIED IN THE OPEN rather than implied
+closed. `tasks.md` § 9.4 stays UNTICKED for the reason § 9 exists: the subject is
+still not closed by this change — it is closed to this change, and open at #553.
+
+**THE BENCH STILL HAS NOT READ THIS.** No review round has read the packet since
+round 3 raised the finding; the four hourly retries that followed it were all
+provider-refused on org usage limits, and none has been answered since. The
+ruling is the RATIFIER'S, not the bench's, and nothing in this addendum should be
+read as the bench accepting it.
+
+**GATES AT THE AMENDING COMMIT**, which are that commit's gates and not
+`tasks.md` § 7's or § 8's, and which are recorded in the commit itself rather
+than pre-asserted here: `openspec validate` strict on this change and `--all
+--strict`; `pytest tests/doc-health` carrying the SAME single inherited failure
+measured above and no other; and a same-clock doc-health comparison against an
+`origin/main` baseline showing ZERO NEW FINDINGS. **The full suite is left to
+CI, this commit being documentation-only** — no `.py`, no fixture and no workflow
+file moves in it.

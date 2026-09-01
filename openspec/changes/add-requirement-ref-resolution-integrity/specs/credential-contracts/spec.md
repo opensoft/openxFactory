@@ -3,7 +3,34 @@
 ## ADDED Requirements
 
 ### Requirement: A declared requirement reference is resolved on its own binding, whatever that binding shares
-A `requirement_ref` declared on a credential binding SHALL be RESOLVED, and a resolution returning ZERO requirements or MORE THAN ONE SHALL be REPORTED on the binding that declares it — on EVERY such binding, and NOT ONLY on a binding whose `secret_ref` is shared with another.
+A `requirement_ref` declared on a credential binding SHALL be RESOLVED WITHIN THE ONE REQUIREMENTS DOCUMENT IT NAMES, and a resolution returning ZERO requirements or MORE THAN ONE FROM THAT DOCUMENT SHALL be REPORTED on the binding that declares it — on EVERY such binding, and NOT ONLY on a binding whose `secret_ref` is shared with another.
+
+**AMENDED 2026-09-01 ON BRETT HEAP'S RULING — A POST-RATIFICATION AMENDMENT MADE
+WITH THE CONSENT OF THE RATIFYING OWNER HIMSELF, NOT A QUIET EDIT TO RATIFIED
+TEXT.** As ratified at tip `deb72c8e` this requirement said only *"a resolution
+returning ZERO requirements or MORE THAN ONE"*, and its ambiguity scenario said
+*"matching more than one requirement record"*. Neither named a document, so both
+read as reaching ACROSS requirements documents — and THE RESOLVER THIS CHANGE
+FREEZES CANNOT SEE THAT FAR. `resolve_requirement`
+(`scripts/validate-credential-contracts.py:311-349`) matches
+`[r for r in index.get(doc_ref, []) if r.get("id") == rid]` at `:344`, against
+the ONE document the reference names, over an index `requirements_index`
+(`:294-309`) keys BY DOCUMENT PATH; so one id sitting in TWO schema-valid
+documents resolves `ok` from either. Codex raised exactly that on PR #542 —
+round 3, 2026-08-31 23:54 UTC, reading the ratified tip — and the packet first
+routed it OPEN. **Brett Heap ruled it 2026-09-01, in session `openxfactory-f5`,
+by an explicit multi-choice put with the contradiction before him: SCOPE TO
+PER-DOCUMENT.** The scope is now STATED where it is owed rather than left to a
+reader to infer from an implementation, so this minor detects the ambiguity its
+resolver can see and claims nothing wider. **THE CROSS-DOCUMENT ARM IS
+DELIBERATELY OUT OF SCOPE AT THIS MINOR AND IS FILED AS THE NAMED SUCCESSOR,
+openxFactory issue #553**, which carries the finding, the resolver mechanics by
+line, and the choice that arm owes — BROADEN the lookup across indexed
+documents, or AMEND the promoted scenario at
+`openspec/specs/credential-contracts/spec.md:565` that reaches across them.
+WHAT MOVED IS SCOPE AND NOTHING ELSE: no code, no severity, no phasing, no
+removal target and no count. The scenario set is still TWELVE and AD-1's
+two-code ruling is untouched.
 
 THE SHARED SECRET REFERENCE IS A PROXY HERE TOO, AND THIS FAMILY HAS ALREADY
 RULED ON THAT PROXY ONCE. Of the authority collapse the same capability says, in
@@ -45,11 +72,14 @@ two faults in one record.
 ZERO AND MORE-THAN-ONE ARE NAMED APART, because their remedies are different.
 A reference resolving to NOTHING is repaired at the reference — the id is
 misspelled, the document moved, or the requirement was never written. A
-reference resolving to SEVERAL is repaired in the REQUIREMENTS DOCUMENT, by
-making the ids it declares unique, and it is the more dangerous of the two:
-requirement ids carry no repository-wide uniqueness, the matches may differ in
-`access_mode`, and a reader told only that "the reference did not resolve" has
-no way to know that two records answered.
+reference resolving to SEVERAL is repaired in the REQUIREMENTS DOCUMENT THE
+REFERENCE NAMES, by making the ids THAT DOCUMENT declares unique, and it is the
+more dangerous of the two: nothing stops one document declaring one id twice,
+the matches may differ in `access_mode`, and a reader told only that "the
+reference did not resolve" has no way to know that two records answered. THAT
+DOCUMENT IS ALSO THE WHOLE SEARCH, per the amendment above — an id repeated in a
+DIFFERENT requirements document is the successor's subject (#553) and this
+requirement claims nothing about it.
 
 THE RESOLVER'S EXISTING SAFETY RULES ARE PRESERVED AND ARE NOT RE-EARNED HERE.
 Resolution SHALL continue to run ONLY against `xfactory_credential_requirements`
@@ -70,13 +100,14 @@ once, in a drift check that treated what it could not read as satisfied.
 - **THEN** the unresolvable reference MUST be reported on that binding
 - **AND** the report MUST NOT depend on any other binding in the document, on the vault, the owner, the provider or the consumer any other binding declares
 
-#### Scenario: A reference that resolves to several on a binding that shares nothing
-- **WHEN** a binding declares a qualified, grammatical `requirement_ref` matching more than one requirement record, and no other binding shares its `secret_ref`
+#### Scenario: A reference that resolves to several inside the document it names, on a binding that shares nothing
+- **WHEN** a binding declares a qualified, grammatical `requirement_ref` matching more than one requirement record WITHIN THE ONE REQUIREMENTS DOCUMENT THAT REFERENCE NAMES, and no other binding shares its `secret_ref`
 - **THEN** the ambiguity MUST be reported on that binding
 - **AND** an implementation MUST NOT resolve the ambiguity by picking one, the matches being free to differ in `access_mode`
+- **AND** the same id declared in a DIFFERENT requirements document draws NOTHING from this requirement at this minor — the deferred cross-document arm, ruled out of scope 2026-09-01 and filed as openxFactory issue #553
 
 #### Scenario: The shipped check is silent on both of them today
-- **WHEN** the conformance validator as shipped at the release that introduces the consumer block is run over a binding template whose only defects are one reference resolving to nothing and one resolving to two records with different access modes, and whose bindings declare `secret_ref`s that differ from each other by a SINGLE BYTE
+- **WHEN** the conformance validator as shipped at the release that introduces the consumer block is run over a binding template whose only defects are one reference resolving to nothing and one resolving to two records OF THE ONE DOCUMENT IT NAMES with different access modes, and whose bindings declare `secret_ref`s that differ from each other by a SINGLE BYTE
 - **THEN** it reports NEITHER, which is the gap this requirement closes
 - **AND** making the two `secret_ref`s equal — that one byte, and no other edit to any file — MUST be enough to make the same tree report, which is what identifies the scope as the defect rather than the depth of the check
 
@@ -117,11 +148,21 @@ requirement is REFUSED there — and the warning is that act's deprecation windo
 The sibling's enumeration stays exhaustive of the acts IT names; this act
 carries its own code, its own packaged probe and its own row.
 
+**AMENDED 2026-09-01 ON THE SAME RULING — see the first requirement's note.**
+Only the SCOPE of the ambiguity this family names moved: PER-DOCUMENT, matching
+the resolver `tasks.md` § 3.4 freezes. Nothing about the codes, their split, the
+phasing, the removal target or the corpus moved with it, and AD-1's two-code
+ruling is untouched. The cross-document arm belongs to openxFactory issue #553,
+and if it is ever broadened it lands as ITS OWN condition under this
+requirement's own-family rule — never as a silent widening of the ambiguity
+code, which would be the exact fault this requirement was written against.
+
 THE PHASING IS MEASURED RATHER THAN ASSERTED, because the versioning policy's
 test is whether the CURRENT major accepts the value the next one would refuse. A
 binding template declaring two bindings with DISTINCT secret references, one
-naming a requirement id no record carries and one naming an id two records carry
-with DIFFERENT access modes, validates with zero errors and zero warnings under
+naming a requirement id no record carries and one naming an id TWO RECORDS OF
+THE ONE DOCUMENT IT NAMES carry with DIFFERENT access modes, validates with zero
+errors and zero warnings under
 the shipped validator. It is therefore a shape the current major accepts, and
 refusing it is the BREAKING class however obviously wrong the record looks —
 which the policy answers with at least one full minor of deprecation warnings, a
@@ -147,7 +188,7 @@ a corpus holding only the failing direction cannot tell the two apart.
 - **AND** a reader MUST be able to tell a resolution failure from a grammar failure by the code alone, without reading the message
 
 #### Scenario: Zero and more-than-one are named apart
-- **WHEN** one record carries a reference resolving to nothing and another carries a reference resolving to several
+- **WHEN** one record carries a reference resolving to nothing and another carries a reference resolving to several inside the document it names
 - **THEN** the two MUST be reported under DISTINCT codes, their remedies being at the reference and in the requirements document respectively
 - **AND** neither MUST be reported as the other
 
