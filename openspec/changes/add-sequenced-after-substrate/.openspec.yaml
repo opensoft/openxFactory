@@ -1,0 +1,70 @@
+schema: spec-driven
+created: 2026-09-01
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-01-add-sequenced-after-substrate
+  reason: >-
+    A HARD, NAMED DEPENDENCY OF A RATIFIED CONSUMER MECHANISM THAT CANNOT BE
+    BUILT WITHOUT IT. codexFactory's `realize-provenance-gated-autonomous-merge`
+    carries convener ruling R1 (Brett Heap, 2026-08-28), which requires the
+    provenance-tie verifier to COMPOSE THE ORDERED-DELTA CHAIN MECHANICALLY
+    rather than to read a single change. That packet's own task list records the
+    consequence as dependency `0.5` and labels it MISSING and BLOCKING:
+    "There is TODAY no machine-readable parent link to walk."
+    THE THREE CANDIDATE LINKS WERE MEASURED AND ALL THREE FAIL, quoted from the
+    consumer's design D14 and task 0.5 rather than summarised: openxFactory
+    `release-realization`'s "Ordered deltas and branch vocabulary" is
+    MECHANISM-AGNOSTIC PROSE; the only mechanical reader — the doc-health
+    `add-modified-block-currency-check` family — resolves ordering by a
+    WHOLE-TOKEN OCCURRENCE of the sibling change id anywhere in the declaring
+    `proposal.md`, which cannot distinguish a parent from a mention, cannot
+    detect a fork, and is author-mutable in the same document the author writes;
+    and the `Sequenced-after:` header seen in some openxFactory proposals is
+    FREE TEXT NO SCHEMA VALIDATES (measured 2026-09-01: THREE occurrences, all
+    three in ARCHIVED proposals).
+    THE FILING IS THEREFORE SYMMETRIC WITH `add-structured-scope-substrate`,
+    which the same program's CRITICAL #1 forced into openxFactory as the other
+    half of the same front-matter block. That change is the model this one
+    mirrors — artifact shape, sibling-field resolution, validator pattern
+    (`scripts/validate-scope-globs.py`), and its trust-root-floor doc — and it is
+    also this change's PARENT, declared machine-readably in `proposal.md` front
+    matter as the substrate's own first instance.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, CHECKED RATHER THAN ASSUMED.
+    `ideation/staging/` was enumerated and `INDEX.md` read on 2026-09-01: NO
+    topic carries ordered-delta sequencing, parent declaration, or chain
+    resolution. `kind: staged` would claim a staging source that does not
+    resolve. The organized source is a ratified sibling packet's recorded
+    convener ruling plus its dependency register — the same shape
+    `fix-content-resolution-conflation` and `add-modified-block-currency-check`
+    filed under.
+  approved_by: >-
+    DERIVED FROM, AND CITED TO, Brett Heap's convener ruling R1 of 2026-08-28 on
+    codexFactory `realize-provenance-gated-autonomous-merge` (the ruling that the
+    verifier SHALL compose the ordered-delta chain mechanically), together with
+    that packet's dependency 0.5 which names this substrate as the missing,
+    blocking precondition and prescribes it be "specified and built in
+    openxFactory SYMMETRICALLY with how `scope_globs` was added".
+    THIS FIELD IS A DERIVED AUTHORIZATION TO AUTHOR AND IS NOTHING ELSE. NO
+    SEPARATE ACT OF BRETT'S APPROVED THIS PARTICULAR FILING, AND THIS FIELD MUST
+    NOT BE READ AS RATIFICATION OF ANY CONTENT. Ruling R1 authorized a MECHANISM
+    in the consuming repository; the inference that the mechanism needs a neutral
+    field, and every design decision about that field's shape, syntax, loader,
+    resolution and integrity, was the authoring session's. Those decisions are
+    listed in `design.md` § 0 (the convener brief) and § Decisions as S1 … S9 and
+    were FLAGGED FOR VETO when written, as were the open questions OQ-1 … OQ-5,
+    each of which carries a recommendation and no decision.
+    THE PACKET IS AUTHORED AND NOT RATIFIED. Under the house rule "OpenSpec
+    ratifies, Speckit builds" no code is written and no build is started until
+    the convener ratifies; `tasks.md` Group 0 is that gate and it is the only
+    task in this packet a human must perform.
+    AND THIS FILING IS A FRESH INSTANCE OF ISSUE #318, cited rather than
+    re-derived: an `ad_hoc` origin's vocabulary pairs "approved" naturally with
+    ratification, so a packet that is AUTHORIZED-TO-AUTHOR but NOT RATIFIED must
+    do by PROSE what the taxonomy has no kind to declare — which is the
+    disclaiming work this field has just performed.
+  approved_on: 2026-08-28
+related:
+  - openxFactory:change:add-structured-scope-substrate          # RATIFIED 2026-08-28, ACTIVE. THIS CHANGE'S DECLARED PARENT (`sequenced_after: [add-structured-scope-substrate]`). The other half of the same realization-axis front-matter block; its `scripts/scope_globs.py` reader is the surface this change's strict-loader requirement retrofits, and its `docs/scope-globs-trust-root-floor.md` is the model for this change's trust-root doc
+  - openxFactory:change:govern-sibling-added-modified-deltas    # RATIFIED 2026-08-31, ACTIVE. HOLDS AN ACTIVE `## MODIFIED Requirements` BLOCK ON `release-realization`'s "Ordered deltas and branch vocabulary" — the requirement a MODIFIED delta here would have collided with. Measured, and the reason this change's delta is ALL-ADDED; see proposal.md § The sibling rule, measured
+  - codexFactory:change:realize-provenance-gated-autonomous-merge # The CONSUMER. Ruling R1 requires the mechanical chain walk; design D14/D21/D22 and tasks 2.7/2.10/2.11/2.12 are the enforcement this substrate feeds. Dependency 0.5 is this change
+  - openxFactory:change:add-provenance-gated-autonomous-merge   # The doctrine change ("B") whose CRITICAL #1 made the front-matter block a trust-root floor surface; the property set this change restates for the parent declaration
