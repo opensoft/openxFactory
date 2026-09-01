@@ -410,12 +410,14 @@ Active changes:
   `add-signed-execution-chain-anchoring` draft. **Three semantic gaps survive the
   collapse and no identity alias does**: the live REQUIRED signed-chain gate,
   broken-chain canary and operational PKI plane become normative realization
-  gates; one atomic admission transaction and a non-recursive eligibility
-  registry define immutable fixed-UTC daily membership with dedupe, lateness and
-  empty-day continuity, the CLOSED DAILY ROOT being the one item both witnesses
-  anchor; and Kaspa/OpenTimestamps submission remains distinct from independently
-  verified Kaspa/Bitcoin confirmation under immutable operator-approved profile
-  versions while preserving the receipt/state split. The superseded draft's
+  gates, with live signed-log instance evidence kept as a separate runtime gate;
+  one atomic admission transaction and a non-recursive eligibility registry
+  define fixed-UTC membership, then event root → canonical manifest/material
+  digest → configuration-bound anchored digest → aggregation root binds the one
+  item both witnesses prove; and Kaspa/OpenTimestamps submission remains distinct
+  from independently verified Kaspa/Bitcoin confirmation under an append-only
+  profile registry with activation, digest, standing and anti-rollback semantics
+  while preserving the receipt/state split. The superseded draft's
   provider-neutral gateway text is not imported — protected-operation enforcement
   remains a consumer/runtime-owner boundary. `Status: draft`; one SHARED Speckit
   realization with `add-chain-anchoring`, basis archive first and amendment
