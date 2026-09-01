@@ -1,0 +1,23 @@
+# WHAT A CHAIN SEES OF CONSENT — A CHECKPOINT, AND NOTHING ELSE: rows, linkage,
+# access lists and salts stay in the governed permissioned plane; the anchored
+# value stands over a log head and discloses that the consent log said
+# something at a time. Enforcement is declared at the permissioned plane —
+# never as contract code on an anchoring chain — an unreachable plane REFUSES
+# the consent-dependent act, and revocation supersedes forward only: recall is
+# what nothing on a chain can deliver, and no surface here claims it.
+schema_version: 1
+kind: xfactory_chain_anchoring_consent_checkpoint_commitment
+commitment_id: ccc-example-0001
+checkpoint_commitment:
+  construction: xfc-jcs-sha256-1
+  subject: consent_checkpoint
+  value: sha256:c4789f1cddded753622d427eadcde2d19444240d15fdbaea5b443e1516379ee7
+plane_root_ref: plane-root-example-permissioned-0001
+receipt_ref: rcp-example-0002
+enforcement_site: permissioned_plane
+revocation_semantics: supersedes_forward_only
+recall_claimed: false
+plane_unreachable_refuses: true
+consent_log_tree_size: 128
+anchored_at_leaf_ref: leaf-example-consent-checkpoint-anchored-0512
+record_version: 1

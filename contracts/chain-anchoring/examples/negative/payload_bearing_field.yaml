@@ -1,0 +1,37 @@
+# expected_failure: payload_bearing_field
+# expected_failure_detail: 'record_content'
+# A content-bearing member on the record whose value reaches a chain, refused
+# BY THE SHAPE OF THE MEMBER: a validator that refused one domain's protected
+# content by name would need that domain's semantics; one that refuses EVERY
+# payload needs none and is stricter. Raw, encrypted and plain-hashed content
+# are all outside the boundary — and ciphertext is refused on its own ground,
+# because a public chain is permanent and key management would become the only
+# thing standing between a subject and irreversible disclosure.
+schema_version: 1
+kind: xfactory_chain_anchoring_anchor_bound_commitment
+commitment_id: cac-negative-0036
+commitment_value: sha256:afbe55555270609848a7ce737fc4fb056ee8d35e8ff36bea65c4831f65287745
+declared_construction:
+  algorithm: hmac-sha256
+  keyed: true
+  salted: true
+  salt_custody:
+    reference_id: salt-example-record-0001
+    resolves_into: governed_layer
+    plane: record
+  key_custody:
+    reference_id: key-example-record-plane
+    resolves_into: governed_layer
+    plane: record
+  salt_source: csprng
+  salt_width_bits: 256
+  salt_scope: per_record
+plane: record
+receipt_ref: rcp-example-0003
+named_gate_ref: gate-example-merge-0001
+record_version: 1
+record_content: lwG4v2D3H8LusF6LYTNgLU4mYCo80waLuDpyOFWcoVsBfZTgvpWmaDNF9rNLY3oE
+commitment_digest:
+  construction: xfc-jcs-sha256-1
+  subject: anchor_bound_commitment
+  value: sha256:3a74e9ad9602da8b1eb4d6abc97d3cf968633d6423e0ca16cd55dc2a00b06bd3

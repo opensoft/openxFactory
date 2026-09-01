@@ -1,0 +1,53 @@
+# COMPLETION BY THE ONLY PATH THERE IS: a captured receipt with every
+# configured witness landed. Entry into pending and the completion are each
+# written as leaves; there is no aggregate anchored boolean anywhere in this
+# record and none anywhere in this capability — per-witness status is what
+# every surface reads, which is what keeps an outage from becoming selectivity
+# by accident.
+schema_version: 1
+kind: xfactory_chain_anchoring_anchor_state
+state_id: as-example-0001
+item_ref: item-example-0001-log-checkpoint-640
+state: anchor_complete
+per_witness:
+- witness_id: w-example-op-0001
+  role: operational
+  chain_id: chain-example-operational
+  status: landed
+  completion_horizon_seconds: 14400
+  horizon_base:
+    kind: chain_derived
+    chain_id: chain-example-operational
+    value: '2026-08-30T10:05:00Z'
+  inclusion_proof_captured_at_anchor_time: true
+  landed_receipt_entry_chain_id: chain-example-operational
+  transition_leaf_ref: leaf-example-anchor-completion-0642
+- witness_id: w-example-dur-0001
+  role: durability
+  chain_id: chain-example-durability
+  status: landed
+  completion_horizon_seconds: 86400
+  horizon_base:
+    kind: chain_derived
+    chain_id: chain-example-operational
+    value: '2026-08-30T10:05:00Z'
+  landed_receipt_entry_chain_id: chain-example-durability
+  transition_leaf_ref: leaf-example-anchor-completion-0642
+transitions:
+- transition: pending_entry
+  leaf_ref: leaf-example-anchor-pending-entry-0641
+  occurred_at: '2026-08-30T10:01:00Z'
+  statement: entered anchor_pending at mint; nothing has gone wrong yet, which is
+    a different answer from complete
+- transition: completion
+  leaf_ref: leaf-example-anchor-completion-0642
+  occurred_at: '2026-08-30T10:22:00Z'
+  statement: full configured set reached from anchor_pending; the item never passed
+    through anchor_incomplete, because nothing ever breached
+receipt_ref: rcp-example-0001
+configured_witness_count: 2
+recorded_at: '2026-08-30T10:22:00Z'
+record_version: 1
+notes: 'the completion path: both ruled witnesses landed inside their horizons and
+  the captured receipt holds all four elements for each; completion is the captured
+  receipt and nothing else'

@@ -1,0 +1,86 @@
+# THE HONEST TWIN OF THE FUTURE-DATING FIXTURE: the declared submission falls
+# AFTER the landed witness's header time, by less than that chain's declared
+# backward skew — and the receipt is ACCEPTED. No inequality holds between a
+# chain's accepted time and the true submission instant: a header time is a
+# reference with a width, never an upper bound on submission. Refusing this
+# receipt is itself refused (honest_receipt_refused_within_skew); the negative
+# corpus proves both directions.
+schema_version: 1
+kind: xfactory_chain_anchoring_receipt
+receipt_id: rcp-example-0003
+material_digest:
+  construction: xfc-jcs-sha256-1
+  subject: anchor_material
+  value: sha256:24cf394eef862d564ab700b7a50dd09fad67d7d76ac71a03fd9fd15863f51838
+anchored_digest:
+  construction: xfc-jcs-sha256-1
+  subject: anchored_commitment
+  value: sha256:87c6e801e4a2e47ac9e1c954617be38d04fc7fc51443dff14b6a7f561b42c72d
+mint_time_configuration:
+  configured_witnesses:
+  - witness_id: w-example-op-0003
+    role: operational
+    chain_id: chain-example-operational
+    completion_horizon_seconds: 14400
+    chain_accepted_time_rule:
+      rule_id: rule-example-linear-mpt
+      basis: linear_block_header_time_field
+      consensus_rule_citation: 'consensus rule: a block timestamp exceeds the median
+        of the previous eleven and sits within the declared band of network-adjusted
+        time; the worst legal case is declared here in both directions'
+      skew_seconds: 7200
+      tolerance_seconds: 600
+      ordering_only: false
+  - witness_id: w-example-dur-0003
+    role: durability
+    chain_id: chain-example-durability
+    completion_horizon_seconds: 86400
+    chain_accepted_time_rule:
+      rule_id: rule-example-dag-accepting
+      basis: dag_accepting_block_header_timestamp
+      consensus_rule_citation: 'consensus rule: an accepting block''s header timestamp
+        is bounded by its parents'' past cone and the declared future band; the
+        worst legal case is declared here in both directions'
+      skew_seconds: 3600
+      tolerance_seconds: 600
+      ordering_only: false
+  submission_time: '2026-08-30T12:05:00Z'
+  max_submission_to_first_anchor_delay_seconds: 3600
+  checkpoint_cadence_seconds: 900
+aggregation_merkle_path:
+- position: right
+  sibling_digest:
+    construction: xfc-jcs-sha256-1
+    subject: anchored_commitment
+    value: sha256:e0b3076ccd99a1fdeb744cf7e71db4294f44b81d92a27f0963259d268b477a68
+per_chain_anchors:
+- chain_id: chain-example-operational
+  witness_id: w-example-op-0003
+  anchor_transaction_bytes: QuOCRW58JgwElUCB0wFLzl_t5lVLTAvNHKQ4B5a7JGdroKLTAuvF-WyN8iQNpOnrPz1xONbARVigo8DPZo646nJqT4wwQ3foHTw6xI44knKpx4SBMURmJUwz9XRqIqtQ
+  inclusion_proof:
+    proof_kind: merkle_transaction_root
+    path:
+    - position: left
+      sibling_value: txmerkle:142271335181863e8537bea769c30afd706e9dd0557aaf662f70af0a79441d5d
+    - position: right
+      sibling_value: txmerkle:30ce138a50b59cf6d8c0569ab7201f324be2b3503a564cc47a138a9b60f02059
+  block_header:
+    header_bytes: U8g0qJTgVmzZS4ozsfJIsw9Bfz2WKh8ClD8g8_sbsLiEk9ELY8kSSXuOq01iE1Aklf5hWXrlxUP1p8C42-vi_6FdMggEP6tedOdf-kTXwN0
+    header_digest: blockhash:6b9a3ba9163b08c84154d580c186f7d0038af8bd61bb7b17fc433a0edcfdfa00
+    time_field: '2026-08-30T12:00:00Z'
+  chain_acceptance_evidence:
+    evidence_kind: linear_chain
+    header_source_ref: hs-example-public-headers
+    linear:
+      block_height: 4102989
+      header_chain_linkage:
+      - blockhash:c73bffcdaa195f70b4a9a549a5bc8810e3c5e3b7d6dcb25fe67ae7b744062669
+      - blockhash:6b9a3ba9163b08c84154d580c186f7d0038af8bd61bb7b17fc433a0edcfdfa00
+      - blockhash:ebe653a8f7395149e22e2dba358a9c186a66b3fcd412d23973b6aee247590520
+declared_header_source:
+  source_id: hs-example-public-headers
+  obtainable_independently: true
+  supplied_by_minter: false
+  source_statement: a public header set any verifier can obtain for itself; the
+    trust root is the chain, never this realization
+record_version: 1

@@ -1,0 +1,31 @@
+# expected_failure: witness_shortfall_miscomputed
+# expected_failure_detail: do not reconcile
+# missing must be exactly configured minus present; three lists that do not
+# reconcile are refused rather than read as a partial answer, because the
+# shortfall is arithmetic and a set of lists that hides a witness inside the
+# arithmetic is the silent gap wearing numbers.
+schema_version: 1
+kind: xfactory_chain_anchoring_verification_result
+result_id: vr-negative-0024
+subject_ref: item-example-0001-log-checkpoint-640
+verification_mode: receipt_only
+status: anchor_pending
+horizon_base:
+  kind: chain_derived
+  chain_id: chain-example-operational
+  chain_accepted_time: '2026-08-30T10:05:00Z'
+witness_shortfall:
+  configured:
+  - w-example-op-0001
+  - w-example-dur-0001
+  present:
+  - w-example-op-0001
+  missing: []
+terminal_failure_distinguished: false
+receipt_ref: rcp-example-0001
+header_source_ref: hs-example-verifier-own-0001
+evaluated_at: '2026-08-31T09:00:00Z'
+record_version: 1
+notes: 'a receipt-only verification a holder ran on its own machine against a header
+  set it obtained for itself: no verification_leaf_ref, and that absence is the
+  receipt''s self-sufficiency working as designed, not non-conformance'

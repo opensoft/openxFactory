@@ -57,8 +57,59 @@ shapes, the refusals, and the declaration a realization makes about itself.
 | [`analysis-result.schema.yaml`](analysis-result.schema.yaml) | THE OUTCOME DISCRIMINATOR, the named omitted correlation with its enumerated ground, and the per-plane results carried distinctly. Refuses a status outside the enumeration, a free-text ground, a silently partial result, and a de-identified label with no named determination behind it |
 | [`conformance-declaration.schema.yaml`](conformance-declaration.schema.yaml) | A realization's obligation-by-obligation declaration over `CA-R1 … CA-R9` on `add-trust-anchor`'s ratified declared-shortfall pattern, plus the POSTURE members a validator adjudicates. Refuses an undeclared obligation and a structural residual recorded as satisfied |
 
-The canonical reader is `scripts/validate-chain-anchoring.py`, self-testing over
-the packaged corpus in `examples/` and `examples/negative/`.
+## The canonical reader and its packaged corpus
+
+The reader is [`scripts/validate-chain-anchoring.py`](../../scripts/validate-chain-anchoring.py),
+run from the openxFactory checkout:
+
+```bash
+python3 scripts/validate-chain-anchoring.py          # self-test only
+python3 scripts/validate-chain-anchoring.py .        # plus whole-tree scan
+```
+
+**It is the named reader of requirement 5 — the refusing validator the on-chain
+boundary consists of — and it is not yet a required check**, which is why the
+packaged conformance declaration records `is_required_in_ruleset: false` in the
+present tense and why every run carries the standing `reader-not-required`
+warning (with a second honest warning, `archival-node-undeclared`, for the 4.5
+operator gate). Beyond shape conformance it RECOMPUTES the receipt's anchored
+digest over `{material_digest, mint_time_configuration}`, checks the four
+per-chain elements and the structural half of canonicality, enforces the closure
+rule and the state vocabulary as RULES (name sweeps at any depth), applies the
+timing model in its declared direction — the future-dated mint refused beyond
+the skew, its honest twin accepted within it, the breach margin one-directional,
+the delay check never read as compliance — reconciles the witness shortfall
+arithmetic against the committed set, walks the plane/linkage/consent refusals
+across the WHOLE scope (a reused derivation parameter, one key under two planes
+and a receipt entry for an in-flight witness are properties of a SET, not of a
+record), and closes the conformance declaration over `CA-R1 … CA-R9` in both
+directions. Its docstring carries the full ordered check list and — at equal
+length — WHAT IT DOES NOT DO: it reaches no chain, fetches no header set,
+cannot tell a declared salted keyed commitment from a plain digest by
+inspection (`CA-R5-COMMITMENT-PATH`, the declared structural residual), and
+adjudicates records rather than a running anchoring subsystem.
+
+The packaged corpus under [`examples/`](examples/) is 21 positive records
+validated as ONE coherent scope — the healthy dual-witness receipt, the
+ordering-only chain with its `no_determination` verification, the honest twin
+accepted within the skew, the sat-on minter exposed by the checkpoint bracket
+(`breach_proven`), the served/local verification pair over one item, the
+three-state anchor lifecycle, the correction anchored forward, and the
+declared-shortfall conformance declaration — plus, under
+[`examples/negative/`](examples/negative/), **one single-fault fixture per
+refusal code, its FILENAME the code it provokes**: 70/70 closed codes
+red-proven, plus five finding codes outside the closed enumeration
+(`ordering-only-correspondence`, `delay-check-arithmetic`,
+`checkpoint-anchor-mismatch`, `record-digest-mismatch`,
+`residual-not-declared`) for the semantic rules whose codes the enumeration
+does not carry, because inventing a member there would be a contract change
+made by a reader. Negatives are adjudicated INSIDE the positive scope, with an
+`# expected_failure:` code and an `# expected_failure_detail:` substring each,
+and the self-test refuses a code with no probe, a misnamed fixture, and a
+fixture that fails for the wrong reason. `tests/chain_anchoring/` holds the
+pytest suite that pins what the self-test cannot check about itself — the
+direction pairs, the depth-blindness of the payload sweep, the corpus's digests
+actually recomputing, and the exit codes a future gate would grep for.
 
 ## The timing model lives in one place, and so does its direction
 

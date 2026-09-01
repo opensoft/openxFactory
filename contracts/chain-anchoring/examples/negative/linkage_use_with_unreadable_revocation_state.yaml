@@ -1,0 +1,21 @@
+# expected_failure: linkage_use_with_unreadable_revocation_state
+# expected_failure_detail: 'unreadable'
+# The correlation performed while the revocation state could not be read: an
+# unevaluable answer never reads as permission, and a pre-issued derivation is
+# never self-authorizing offline — that is how a revoked authorization keeps
+# working. The join is refused; the per-plane analyses run regardless, needing
+# no derivation at all.
+schema_version: 1
+kind: xfactory_chain_anchoring_linkage_derivation_use
+use_id: lu-negative-0062
+derivation_ref: ld-example-0001
+analysis_ref: ana-example-0001
+revocation_state_read: unreadable
+correlation_performed: true
+use_leaf_ref: leaf-negative-derivation-used-0062
+used_at: '2026-08-30T14:30:00Z'
+revocation_surface_ref: rvs-example-identity-plane-0001
+record_version: 1
+notes: 'issuance authorizes; it does not immunize: this use consulted the CURRENT
+  revocation state at the surface the issuance named, read current_not_revoked,
+  and performed the join under it'

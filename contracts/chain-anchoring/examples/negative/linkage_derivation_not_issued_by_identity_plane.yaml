@@ -1,0 +1,28 @@
+# expected_failure: linkage_derivation_not_issued_by_identity_plane
+# expected_failure_detail: issued by the 'record' plane
+# A correlation path minted outside the identity plane: linkage lives only
+# there, and an unauthorized derivation is a join key minted by whoever wanted
+# one.
+schema_version: 1
+kind: xfactory_chain_anchoring_linkage_derivation_issuance
+derivation_id: ld-negative-0059
+issuing_plane: record
+consent_checkpoint_ref: ccc-example-0001
+consent_checkpoint_anchored: true
+per_analysis_parameter: scope-5305faf7cd0161e2c74a5835fa2e7cdc324442b9
+analysis_ref: ana-negative-0059
+expires_at: '2026-09-30T00:00:00Z'
+revocation_surface_ref: rvs-example-identity-plane-0001
+issuance_leaf_ref: leaf-example-derivation-issued-0700
+issued_at: '2026-08-30T13:00:00Z'
+correlating_planes:
+- record
+- demographic
+record_version: 1
+notes: 'every adjective is load-bearing: issued by the identity plane, under an
+  anchored consent checkpoint, per-analysis and never stable, expiring and revocable,
+  usable only within the one analysis it names, written as a leaf at issuance'
+derivation_digest:
+  construction: xfc-jcs-sha256-1
+  subject: linkage_derivation
+  value: sha256:7e503b1874f91c649d1554abc5fda7c88507a0a974c72efb7b7dca9765a3c8ef

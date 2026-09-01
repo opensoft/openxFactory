@@ -1,0 +1,32 @@
+# expected_failure: salt_custody_reference_reachable_from_anchor
+# expected_failure_detail: 'anchoring_chain'
+# A salt reachable from the anchor destroys the erasure property the salting
+# exists to provide: destroying such a salt destroys nothing, because the chain
+# still holds it.
+schema_version: 1
+kind: xfactory_chain_anchoring_anchor_bound_commitment
+commitment_id: cac-negative-0039
+commitment_value: sha256:afbe55555270609848a7ce737fc4fb056ee8d35e8ff36bea65c4831f65287745
+declared_construction:
+  algorithm: hmac-sha256
+  keyed: true
+  salted: true
+  salt_custody:
+    reference_id: salt-example-record-0001
+    resolves_into: anchoring_chain
+    plane: record
+  key_custody:
+    reference_id: key-example-record-plane
+    resolves_into: governed_layer
+    plane: record
+  salt_source: csprng
+  salt_width_bits: 256
+  salt_scope: per_record
+plane: record
+receipt_ref: rcp-example-0003
+named_gate_ref: gate-example-merge-0001
+record_version: 1
+commitment_digest:
+  construction: xfc-jcs-sha256-1
+  subject: anchor_bound_commitment
+  value: sha256:ffa640c0428bfbd175070c195a76f57e56961ae8fa6b22247fc1deff90c60dfc
