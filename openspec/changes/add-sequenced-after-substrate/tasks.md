@@ -155,7 +155,7 @@ syntax" requirements. Depends on Group 2.
   `<repository>` matching `[A-Za-z0-9_.-]+` (the same token grammar
   `scripts/doc_health/proposal_origin.py`'s origin-id regexes use); a
   self-qualified entry NORMALIZED to the bare form.
-- [ ] 3.4 Unit fixtures: absent field; `[]`; one bare entry; one self-qualified
+- [x] 3.4 Unit fixtures: absent field; `[]`; one bare entry; one self-qualified
   entry; one foreign-qualified entry (WELL-FORMED, disposition left to a
   consumer); two entries (VALIDATES — see 4.4); non-sequence value; null member;
   empty-string member; nested list member; duplicate member; entry with `/`;
@@ -192,10 +192,10 @@ requirements. Depends on Group 3.
   validators take, because `openspec validate` is the EXTERNAL OpenSpec CLI and
   cannot be extended in-tree. Fail with a message naming the offending change,
   the offending entry, and the rule it breaks.
-- [ ] 4.6 A pytest gate running the validator over the LIVE corpus on every pull
+- [x] 4.6 A pytest gate running the validator over the LIVE corpus on every pull
   request, mirroring `test_corpus_scope_globs_all_validate`, so a malformed or
   dangling declaration anywhere reds the required suite check.
-- [ ] 4.7 Archive-resolution fixtures: a parent that has ARCHIVED still resolves;
+- [x] 4.7 Archive-resolution fixtures: a parent that has ARCHIVED still resolves;
   an id matching BOTH an active and an archived directory is ambiguous; two
   archive dates for one id are ambiguous; an archived directory whose post-date
   remainder merely STARTS WITH the id does NOT resolve; a nested
@@ -208,13 +208,13 @@ integrity of the parent declaration", "Parent-declaration retention at archive",
 and "Chain-walk policy belongs to the consumer, and its bound SHALL be measured".
 Depends on Group 3.
 
-- [ ] 5.1 Add the retention (freeze) gate mirroring the shipped
+- [x] 5.1 Add the retention (freeze) gate mirroring the shipped
   `scope_globs.scope_retention_at_archive` and the "Origin retention at archive"
   implementation: reject any mutation of `sequenced_after:` between ratification
   and archive by comparing the ratified git snapshot against the working tree. A
   mutated declaration is a CONTESTED-class failure requiring an explicit
   disposition.
-- [ ] 5.2 Assert the archive gate DOES NOT REWRITE declarations on archival — no
+- [x] 5.2 Assert the archive gate DOES NOT REWRITE declarations on archival — no
   date-prefixing, no re-pointing, no normalization of entries. A fixture archives
   a change carrying a declaration and asserts the entries are byte-unchanged.
 - [ ] 5.3 Author `docs/sequenced-after-trust-root-floor.md`, modelled on
@@ -223,7 +223,7 @@ Depends on Group 3.
   policy-free validator) versus what only an enrolled repository's envelope and
   verifier can enforce, and the explicit statement that no autonomous merge writes
   the declaration surface. Link it into the README doc index.
-- [ ] 5.4 **CORPUS SWEEP as a shipped, re-runnable report**, not a one-off
+- [x] 5.4 **CORPUS SWEEP as a shipped, re-runnable report**, not a one-off
   measurement. A mode of the validator (or a sibling script) that reports, over
   active + archive: the change-id population; the count that are co-modified at
   requirement granularity (candidates that would each owe a declaration); the

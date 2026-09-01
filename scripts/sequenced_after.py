@@ -500,6 +500,13 @@ def chain_depth(
     memo: dict[str, int] = {}
     on_path: set[str] = set()
 
+    def resolves(candidate: str) -> bool:
+        try:
+            resolve(repo_root, candidate)
+        except SequencedAfterError:
+            return False
+        return True
+
     def depth(current: str) -> int:
         if current in memo:
             return memo[current]
@@ -508,8 +515,7 @@ def chain_depth(
         on_path.add(current)
         best = 0
         try:
-            change_dir = resolve(repo_root, current)
-            raw = declaration_of(change_dir)
+            raw = declaration_of(resolve(repo_root, current))
         except SequencedAfterError:
             raw = ABSENT
         if raw is not ABSENT:
@@ -520,11 +526,17 @@ def chain_depth(
                 declaration = None
             if declaration is not None:
                 for parent in declaration.local_ids():
-                    best = max(best, 1 + depth(parent))
+                    # AN UNRESOLVED HOP IS NOT A RESOLVED HOP. The measure is the
+                    # deepest chain the sweep RESOLVES, so a dangling parent — a
+                    # validation failure elsewhere — must not inflate it.
+                    if resolves(parent):
+                        best = max(best, 1 + depth(parent))
         on_path.discard(current)
         memo[current] = best
         return best
 
+    if not resolves(change_id):
+        return 0
     return depth(change_id)
 
 
@@ -616,3 +628,190 @@ def retention_at_archive(change_dir: str | Path, ratified_ref: str) -> str | Non
     ratified = declaration_at_ref(repo_root, ratified_ref, proposal_rel)
     current = read_declaration(proposal) if proposal.is_file() else ABSENT
     return retention_problem(ratified, current)
+
+
+# --- the CORPUS SWEEP: a shipped, RE-RUNNABLE report -------------------------
+#
+# Task 5.4, and the "Chain-walk policy belongs to the consumer, and its bound
+# SHALL be measured" requirement. A one-off measurement recorded in prose ages
+# into a stale sentence; a re-runnable report is what makes the
+# MEASURED-NOT-ASSUMED obligation discharge over time. A ZERO reading of the
+# deepest chain is ZERO EVIDENCE about any gate's ceiling — never evidence that
+# the ceiling is sufficient.
+
+#: A requirement heading in a spec delta or a promoted spec.
+REQUIREMENT_HEADING = re.compile(r"^###\s+Requirement:\s*(?P<title>.+?)\s*$")
+
+#: The PROSE `Sequenced-after:` header some proposals carry — free text no schema
+#: validates, counted so the substitution of a validated field for it is visible.
+PROSE_HEADER = re.compile(r"^Sequenced-after:", re.IGNORECASE)
+
+
+def normalize_requirement_title(title: str) -> str:
+    """NFC + whitespace-collapsed + case-folded.
+
+    The same normalization the authoring measurement used, and the reason it is
+    needed: two changes that write the same requirement under a re-wrapped or
+    re-cased title are co-modifiers, and a raw string comparison would report
+    them as two sole modifiers — the exact under-count that would make the chain
+    shape look like an edge case.
+    """
+    return unicodedata.normalize("NFC", " ".join(title.split())).casefold()
+
+
+def requirement_keys(change_dir: Path) -> set[tuple[str, str]]:
+    """The (capability-id, normalized-requirement-title) pairs a change writes.
+
+    REQUIREMENT-GRANULAR on purpose: two changes touching the same CAPABILITY
+    but no shared requirement are not ordered deltas on each other, and a
+    capability-granular count would inflate the co-modified population.
+    """
+    keys: set[tuple[str, str]] = set()
+    specs = Path(change_dir) / "specs"
+    if not specs.is_dir():
+        return keys
+    for spec in sorted(specs.rglob("spec.md")):
+        capability = spec.parent.name
+        try:
+            text = spec.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):  # pragma: no cover - defensive
+            continue
+        for line in text.splitlines():
+            match = REQUIREMENT_HEADING.match(line)
+            if match:
+                keys.add((capability,
+                          normalize_requirement_title(match.group("title"))))
+    return keys
+
+
+def corpus_change_dirs(repo_root: str | Path) -> dict[str, Path]:
+    """Change id -> its directory, over the ACTIVE and ARCHIVED corpora both.
+
+    Where an id is AMBIGUOUS the FIRST candidate is used for the population
+    count only; ambiguity is a validation failure reported by `resolve`, and the
+    sweep is a measurement rather than a gate.
+    """
+    found = dict(active_change_dirs(repo_root))
+    for change_id, dirs in archived_change_dirs(repo_root).items():
+        found.setdefault(change_id, dirs[0])
+    return found
+
+
+@dataclass(frozen=True)
+class Sweep:
+    """One reading of the corpus. Every field is a COUNT of something measured,
+    never an assumption."""
+
+    change_ids: int
+    active: int
+    archived: int
+    co_modified: int
+    sole_modifiers: int
+    active_co_modified: int
+    active_sole: int
+    declaring: int
+    root_claims: int
+    prose_headers: int
+    prose_headers_archived: int
+    deepest_chain: int
+    deepest_chain_change: str | None
+    declaring_ids: tuple[str, ...]
+
+    def render(self) -> str:
+        deepest = (f"{self.deepest_chain} hop(s)"
+                   + (f", from {self.deepest_chain_change}"
+                      if self.deepest_chain_change else ""))
+        lines = [
+            "sequenced_after corpus sweep",
+            "----------------------------",
+            f"change ids ({self.active} active + {self.archived} archived): "
+            f"{self.change_ids}",
+            f"co-modified at requirement granularity (each would owe a "
+            f"declaration): {self.co_modified}",
+            f"sole modifiers (each would declare `sequenced_after: []`): "
+            f"{self.sole_modifiers}",
+            f"ACTIVE changes: co-modified / sole: {self.active_co_modified} / "
+            f"{self.active_sole}",
+            f"declaring `sequenced_after:`: {self.declaring}"
+            + (f" ({', '.join(self.declaring_ids)})" if self.declaring_ids else ""),
+            f"declaring an explicit `[]` root claim: {self.root_claims}",
+            f"prose `Sequenced-after:` headers: {self.prose_headers} "
+            f"({self.prose_headers_archived} archived)",
+            f"DEEPEST DECLARED CHAIN RESOLVED: {deepest}",
+        ]
+        if self.deepest_chain == 0:
+            lines.append(
+                "  NOTE: a deepest-chain reading of ZERO is ZERO EVIDENCE about "
+                "any consuming gate's depth ceiling. It is not evidence that a "
+                "ceiling is sufficient; it means no honest chain has ever bound "
+                "one.")
+        return "\n".join(lines)
+
+
+def corpus_sweep(
+    repo_root: str | Path,
+    declaring_repository: str = DECLARING_REPOSITORY,
+) -> Sweep:
+    """Measure the corpus: population, the co-modified/sole split at requirement
+    granularity, adoption of the field, and THE DEEPEST DECLARED CHAIN."""
+    repo_root = Path(repo_root)
+    corpus = corpus_change_dirs(repo_root)
+    active = set(active_change_dirs(repo_root))
+
+    keys = {cid: requirement_keys(path) for cid, path in corpus.items()}
+    owners: dict[tuple[str, str], set[str]] = {}
+    for cid, cid_keys in keys.items():
+        for key in cid_keys:
+            owners.setdefault(key, set()).add(cid)
+
+    co_modified = {cid for cid, cid_keys in keys.items()
+                   if any(len(owners[key]) > 1 for key in cid_keys)}
+    sole = set(corpus) - co_modified
+
+    declaring: list[str] = []
+    root_claims = 0
+    prose = 0
+    prose_archived = 0
+    deepest = 0
+    deepest_change: str | None = None
+    for cid, path in sorted(corpus.items()):
+        proposal = path / "proposal.md"
+        if not proposal.is_file():
+            continue
+        try:
+            raw = read_declaration(proposal)
+        except SequencedAfterError:
+            raw = ABSENT  # a refused document declares nothing measurable
+        if raw is not ABSENT:
+            declaring.append(cid)
+            if raw == []:
+                root_claims += 1
+            depth = chain_depth(repo_root, cid,
+                               declaring_repository=declaring_repository)
+            if depth > deepest:
+                deepest, deepest_change = depth, cid
+        try:
+            text = proposal.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):  # pragma: no cover - defensive
+            continue
+        if any(PROSE_HEADER.match(line) for line in text.splitlines()):
+            prose += 1
+            if cid not in active:
+                prose_archived += 1
+
+    return Sweep(
+        change_ids=len(corpus),
+        active=len(active),
+        archived=len(corpus) - len(active),
+        co_modified=len(co_modified),
+        sole_modifiers=len(sole),
+        active_co_modified=len(co_modified & active),
+        active_sole=len(sole & active),
+        declaring=len(declaring),
+        root_claims=root_claims,
+        prose_headers=prose,
+        prose_headers_archived=prose_archived,
+        deepest_chain=deepest,
+        deepest_chain_change=deepest_change,
+        declaring_ids=tuple(declaring),
+    )

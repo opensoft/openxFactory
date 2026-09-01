@@ -32,6 +32,15 @@ Usage:
     --archive-gate CHANGE_DIR --ratified-ref REF
         Parent-declaration retention (freeze) gate.
 
+    --sweep
+        THE CORPUS SWEEP, re-runnable: the change-id population, the
+        co-modified / sole-modifier split at REQUIREMENT granularity, how many
+        changes declare the field, how many declare an explicit `[]` root claim,
+        the surviving prose `Sequenced-after:` headers, and THE DEEPEST DECLARED
+        CHAIN it resolves. Re-running it is what makes the
+        "measured, not assumed" obligation discharge over time instead of ageing
+        into a stale sentence. Exit 0 — a measurement is not a gate.
+
     --repository NAME
         The declaring repository token, which decides which qualified entries
         normalize to the bare form (default: openxFactory).
@@ -113,6 +122,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--ratified-ref", metavar="REF",
                         help="git ref carrying the ratified proposal (with "
                              "--archive-gate)")
+    parser.add_argument("--sweep", action="store_true",
+                        help="print the re-runnable corpus sweep (a measurement, "
+                             "not a gate) and exit 0")
     parser.add_argument("--repository", default=sa.DECLARING_REPOSITORY,
                         help="declaring repository token (default: "
                              f"{sa.DECLARING_REPOSITORY})")
@@ -122,6 +134,11 @@ def main(argv: list[str] | None = None) -> int:
         if not args.ratified_ref:
             parser.error("--archive-gate requires --ratified-ref")
         return _archive_gate(Path(args.archive_gate), args.ratified_ref)
+
+    if args.sweep:
+        print(sa.corpus_sweep(Path(args.repo_root),
+                              declaring_repository=args.repository).render())
+        return 0
 
     return validate_corpus(Path(args.repo_root), args.repository)
 
