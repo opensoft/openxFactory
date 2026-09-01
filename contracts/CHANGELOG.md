@@ -828,8 +828,8 @@ specify, through Speckit feature `023-openxwallet-consume-shed`.
 
 **Change class: BREAKING (major)** under
 [`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md)
-lines 250-254: a shape is REMOVED. All three of that clause's requirements are
-discharged, and each is checkable:
+§ Change Classes, *Breaking (major)*: a shape is REMOVED. All three of that
+clause's requirements are discharged, and each is checkable:
 
 1. **A CHANGELOG migration note** — below.
 2. **At least one full minor release where the old shape produced deprecation
