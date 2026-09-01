@@ -74,9 +74,14 @@ That is precisely what the head does, by **ROUTE A** — a second scenario-compl
 adding the three amendment-lineage fields — **and the route was justified against
 four preconditions verified in the artifacts rather than assumed:**
 
-1. **Tranche one is RATIFIED-NOT-REALIZED.** `contracts/signed-execution-chain/`
-   does not exist and the capability is absent from `contracts/manifest.yaml`, so
-   **no contract byte exists to break**; the extension authors an UNCUT surface.
+1. **~~Tranche one is RATIFIED-NOT-REALIZED~~ — THIS GROUND WAS TRUE AT
+   `dd847e44` AND IS SUPERSEDED. SEE §7.** It was verified in the artifacts at
+   the head this ruling named; PR #524 (`9af98c4d`) had by then realized tranche
+   one at `contract-v2.5`, which the merge-up surfaced. **Brett re-grounded Route
+   A on 2026-09-01 ("route A"):** the MODIFIED on tranche one's REQUIREMENT TEXT is
+   lawful canon amendment, and its schema consequence is an **ADDITIVE EXTENSION
+   of the shipped `chain-inception.schema.yaml` at this packet's own cut**, on the
+   #497 precedent.
 2. **This packet already held the instrument by the council's own prescription** —
    LA-A1's scenario-complete MODIFIED on tranche one's gate requirement. Precedent
    applied, not set. All SIX scenarios of the ratification requirement restated
@@ -240,6 +245,54 @@ attestation identity, deploys nothing, and moves no contract byte.
   a standing condition on the convening pattern.
 
 ---
+
+## 7. WHAT ARRIVED AFTER THIS RATIFICATION, AND WHAT IT CHANGED
+
+**THIS RECORD TRUTHFULLY RATIFIED `f54cb5bc`. IT IS KEPT AS WRITTEN AND EXTENDED
+HERE, BECAUSE TWO THINGS ARRIVED AFTER THE ACT AND A RECORD THAT ABSORBED THEM
+SILENTLY WOULD BE THE DEFECT THIS CAPABILITY EXISTS TO REFUSE.**
+
+### 7.1 The verdict on the ratified head — Codex review 22
+
+**A Codex review naming `f54cb5bc` arrived after the ratification**, the sixth
+time in this arc a verdict landed in a gap. It carried **THREE P1s and a P2**:
+
+| id | finding | discharged |
+|---|---|---|
+| `3899739417` | **A rival authority-proven review of the same bytes could close the chain** — limb 1 compared SUBJECTS, not review IDENTITY; and the committed fields named no review record, so **limb 2 was not constructible as written** | the ratifying bytes now commit to **THE CONSUMED REVIEW RECORD'S OWN DIGEST** (a fourth lineage field), and limb 1 compares identity twice — against that digest AND against the review the amendment record names |
+| `3899739435` | **Link 6 bound to no pull request** — a decision reused after a branch move, a retarget, or attached to another PR on the same chain permitted a merge of work the controller never signed as proposed | the signed decision now carries the **PR identifier and head revision**, and the gate refuses unless both EQUAL the merge |
+| `3899739441` | **A no-op test could close the chain** — rounds four and seven hardened the OUTCOME and never checked the test was the RIGHT test; *"governed"* constrained nothing checkable | the **ratified subject names the governed test**, the controller dispatches THAT test, and the closure record's test identity must EQUAL it |
+| `3899739426` | `proposal.md`'s section heading still said ONE MODIFIED block | corrected to TWO |
+
+Plus a Copilot finding that the **pull-request description** still described the
+packet as a draft — the announcement family's outermost member — now corrected.
+
+### 7.2 The ground correction
+
+The merge-up against `main` surfaced that **PR #524 (`9af98c4d`) had realized
+tranche one at `contract-v2.5`**, falsifying Route A's first precondition as
+stated at §2.1. The merge was **aborted rather than pushed**, because pushing it
+would have landed a ratification record the same tree disproves. Brett was given
+the correction in full and ruled:
+
+> **"route A"** — Brett Heap, 2026-09-01
+
+**The route stands; its ground moves.** The lineage fields land as an **additive
+extension of the realized tranche-one schema at this packet's own release cut**,
+per the #497 precedent — `add-binding-consumer-identity`, ratified extending a
+SHIPPED schema with an additive optional block. `design.md` D12 carries the
+superseded ground **marked and dated** rather than rewritten, and records that
+**Route B's refusal ground is unaffected**, having never depended on tranche one
+being uncut.
+
+### 7.3 The standing of this record
+
+**THE RATIFICATION OF `f54cb5bc` STANDS AS THE ACT IT WAS** — given at a head
+whose disclosed state Brett ruled against, and truthfully recorded here.
+**RE-RATIFICATION IS PENDING FOR THE AMENDED HEAD.** The packet's status is
+therefore **RATIFIED-THEN-AMENDED**: not a draft, and not currently-ratified
+text. `approved_on` stands as the history of the act it records, not as a claim
+about the amended text.
 
 ## 6. NEXT
 

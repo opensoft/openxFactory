@@ -393,14 +393,14 @@ Active changes:
 
 - [add-chain-attestation](openspec/changes/add-chain-attestation/proposal.md)
   — authored 2026-08-29, **`Status: ratified` — RATIFIED 2026-09-01 by Brett
-  Heap** (record:
+  Heap at `f54cb5bc`, AMENDED SINCE, RE-RATIFICATION PENDING** (record:
   `openspec/changes/add-chain-attestation/review/ratification-2026-09-01.md`);
   ratification authorizes realization and does not perform it, so the change
   stays ACTIVE until merged code, green evidence and the contract cut exist.
   **TRANCHE TWO of the signed-execution-chain family: links 4–6 and 10** — the
   harness-controller setup attestation, the per-task runner attestations, the
   signed pull-request-open decision, and the governed post-merge test that CLOSES
-  a chain. **NINE ADDED requirements over 104 scenarios, plus TWO `## MODIFIED
+  a chain. **NINE ADDED requirements over 108 scenarios, plus TWO `## MODIFIED
   Requirements` — 2 requirements over 17 scenarios, each scenario-complete:
   tranche one's gate requirement, and its ratification/chain-inception record
   extended with the three amendment-lineage fields closure reads.** It realizes the declaration tranche one could

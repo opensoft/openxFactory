@@ -5,7 +5,8 @@ pull request. **§2 (the §7.4 council review) and §3 (Brett Heap's ratificatio
 are the two gates that stand between it and any realization, in that order.**
 **§2 IS HELD AND DISCHARGED — the sitting of 2026-08-30, its thirteen blocking
 amendments, and the eighteen bot rounds that followed. §3 IS TAKEN — RATIFIED BY
-BRETT HEAP ON 2026-09-01.** Both gates are now behind this packet; what remains is
+BRETT HEAP ON 2026-09-01 at `f54cb5bc`, with the text AMENDED SINCE and
+RE-RATIFICATION PENDING.** Both gates are now behind this packet; what remains is
 §5's realization, gated on machinery that does not yet exist. §4 settles what must not reach schema authoring open; §5 is
 the realization commission and is gated on machinery that does not yet exist.
 
@@ -16,7 +17,7 @@ in for a ruleset state.
 
 ## 1. Spec deltas and the packet (THIS PULL REQUEST)
 
-- [x] 1.1 `signed-execution-chain` — **NINE ADDED requirements over 104
+- [x] 1.1 `signed-execution-chain` — **NINE ADDED requirements over 108
       scenarios**: the harness-controller setup attestation under a certificate
       expressed in `add-trust-anchor` vocabulary, with the issuing authority named
       as a realization dependency and never assumed; runner attestations signed AT
@@ -625,10 +626,13 @@ in for a ruleset state.
       **both lineage positives were unconstructible as commissioned.** **ROUTE A
       TAKEN — a SECOND scenario-complete `## MODIFIED` on tranche one's
       ratification/chain-inception requirement**, verified lawful against the
-      ratified texts rather than assumed: (1) **tranche one is
-      RATIFIED-NOT-REALIZED** — `contracts/signed-execution-chain/` does not exist
-      and the capability is absent from `contracts/manifest.yaml`, so NO CONTRACT
-      BYTE EXISTS TO BREAK; (2) **this packet already holds exactly this
+      ratified texts rather than assumed: (1) **~~tranche one is
+      RATIFIED-NOT-REALIZED~~ — SUPERSEDED 2026-09-01, SEE 1.27**: that was true when
+      the round was written and died with PR #524 (`9af98c4d`), which realized
+      tranche one at `contract-v2.5`. Re-grounded on the #497 precedent — the
+      MODIFIED on the REQUIREMENT TEXT is lawful canon amendment, and its schema
+      consequence is an ADDITIVE EXTENSION of the shipped schema at this packet's
+      own cut; (2) **this packet already holds exactly this
       instrument by the council's own prescription** (LA-A1's scenario-complete
       MODIFIED on the gate requirement), so it is a precedent APPLIED, not set;
       (3) **no sibling delta collides** — only tranche one and this packet write
@@ -641,10 +645,56 @@ in for a ruleset state.
       attachable-afterwards, and it would mint a kind to carry three fields
       belonging to an act we do not own. The three closure limbs are re-expressed
       to read the fields that now exist; 5.4 commissions them CROSS-TRANCHE and
-      says why; `target_release` now states exactly what is true — no existing
-      schema changes BECAUSE NO SCHEMA OF THIS FAMILY EXISTS YET. **1.22's
+      says why; `target_release` states what is true — **as re-grounded 2026-09-01, an
+      ADDITIVE EXTENSION of the shipped `chain-inception.schema.yaml` at this
+      packet's own cut.** **1.22's
       announcement sweep fired**: the MODIFIED block moves 1 requirement / 9
       scenarios → **2 requirements / 17 scenarios** at every site.
+- [x] 1.27 **THE NINETEENTH BOT ROUND — THE RATIFIED HEAD'S OWN VERDICT — AND
+      BRETT'S ROUTE-A GROUND CORRECTION, DISCHARGED AS ONE ACT.** A Codex review
+      naming `f54cb5bc` arrived AFTER the ratification, the sixth time a verdict
+      landed in a gap. **THREE P1s, none bookkeeping.** (i) **A RIVAL
+      AUTHORITY-PROVEN REVIEW OF THE SAME BYTES COULD CLOSE THE CHAIN** — limb 1
+      compared SUBJECTS and not review IDENTITY, and the committed fields named no
+      review record at all, so **limb 2 was not constructible as written**, a
+      defect introduced in round eighteen. The ratifying bytes now commit to a
+      FOURTH lineage field, **THE CONSUMED REVIEW RECORD'S OWN DIGEST**, and limb 1
+      compares identity TWICE — against that digest and against the review the
+      amendment record names. (ii) **LINK 6 BOUND TO NO PULL REQUEST**: a decision
+      reused after a branch move, retargeted, or attached to another PR carrying
+      the same chain identity permitted **a merge of work the controller never
+      signed as the proposed work**. The signed decision now carries the PR
+      IDENTIFIER and HEAD REVISION and the gate refuses unless both EQUAL the
+      merge. (iii) **A NO-OP TEST COULD CLOSE THE CHAIN**: rounds four and seven
+      hardened the OUTCOME and never checked the test was the RIGHT test, so
+      *"governed"* constrained nothing a verifier could check. **The ratified
+      subject now NAMES the governed test**, the controller dispatches THAT test,
+      and the closure record's test identity must EQUAL it. Plus the two
+      announcement P2s — `proposal.md`'s heading said ONE MODIFIED block where
+      there are TWO, and the PULL-REQUEST DESCRIPTION still called the packet a
+      draft. **THE GUARD WALK RAN over all nine permitting conjunct sets**: the new
+      PR-binding positive is scoped to *"proceeds to the rest of the walk"* by
+      construction, and the closure positive gained the test-identity conjunct.
+      **AND THE ROUTE-A GROUND IS CORRECTED IN THE SAME ACT** — see 1.28.
+- [x] 1.28 **THE ROUTE-A GROUND MOVED, AND BRETT RE-RULED IT.** The merge-up
+      against `main` surfaced that **PR #524 (`9af98c4d`) realized tranche one at
+      `contract-v2.5`**, falsifying Route A's first precondition — *"tranche one is
+      ratified-not-realized, so no contract byte exists to break"* — which was TRUE
+      at `dd847e44` and verified there. **The merge was ABORTED rather than
+      pushed**, because pushing it would have landed a ratification record the
+      same tree disproves. Brett was given the correction in full and ruled
+      **"route A"** (2026-09-01). **THE ROUTE STANDS; ITS GROUND MOVES**: the MODIFIED on
+      tranche one's REQUIREMENT TEXT is lawful OpenSpec canon amendment, and its
+      SCHEMA consequence is an **ADDITIVE EXTENSION OF THE SHIPPED
+      `chain-inception.schema.yaml` AT THIS PACKET'S OWN RELEASE CUT** — the
+      precedent being `add-binding-consumer-identity` (#497), ratified extending a
+      SHIPPED template with an additive optional block. **THE SUBJECT-KEYED
+      RE-GROUND SWEEP** ran over both fields and corrected every site: the
+      ratification record's basis §2.1, `design.md` D12, `tasks.md` 1.26 and 5.4,
+      and `proposal.md`'s `target_release`. **Superseded grounds are MARKED AND
+      DATED, not rewritten** — they were the reasoning of their round — and **Route
+      B's refusal ground is recorded as UNAFFECTED**, having never depended on
+      tranche one being uncut.
 
 ## 2. §7.4 COUNCIL REVIEW — **HELD 2026-08-30. THE FIRST GATE IS DISCHARGED.**
 
@@ -717,7 +767,7 @@ that paperwork, the disposition included.
 
 ## 3. RATIFICATION GATE — **TAKEN 2026-09-01.** Brett Heap's act
 
-- [x] 3.1 **RATIFIED BY BRETT HEAP, 2026-09-01** — record:
+- [x] 3.1 **RATIFIED BY BRETT HEAP, 2026-09-01, at `f54cb5bc`; RE-RATIFICATION PENDING for the amended head (record §7)** — record:
       `openspec/changes/add-chain-attestation/review/ratification-2026-09-01.md`. The review was HELD and the
       fix rounds it forced were LANDED (§2), and the ratification read followed
       them — the
@@ -848,12 +898,13 @@ Each is contract content — cheap now, expensive after a bundle ships.
       AMENDMENT-LINEAGE FIELDS ON TRANCHE ONE'S RATIFICATION/CHAIN-INCEPTION
       RECORD** (the reviewed digest, the ratified subject digest, and the
       amendment-record reference), which this packet's second `## MODIFIED`
-      requirement adds to that record's definition. **They are commissioned here
-      because tranche one's contract surface HAS NOT BEEN CUT** — no
-      `contracts/signed-execution-chain/` exists and the capability is absent from
-      `contracts/manifest.yaml` — so this realization authors that surface for the
-      first time and must author it whole. Whichever tranche's realization lands
-      first carries them; this task names them so neither can assume the other
+      requirement adds to that record's definition. **They are commissioned here as an ADDITIVE
+      EXTENSION OF THE SHIPPED SCHEMA** — tranche one's contract surface WAS CUT
+      by PR #524 (`9af98c4d`) at `contract-v2.5`, and
+      `contracts/signed-execution-chain/chain-inception.schema.yaml` is
+      `additionalProperties: false` carrying NO lineage fields — so this
+      realization EXTENDS a released schema at this packet's own cut, on the #497
+      precedent. This task names them so neither tranche can assume the other
       did (the field verification resolves against the consumed
       certificate's `subject.public_key_fingerprint`, and without which the
       key-resolution rule has no input), and
@@ -939,7 +990,12 @@ Each is contract content — cheap now, expensive after a bundle ships.
       record**, refused as a break; a **tier-2 certificate record with no
       `subject.public_key_fingerprint`**, refused; a **signing key whose computed
       fingerprint does not EQUAL the certificate's**, refused as a forged
-      identity; a **controller-signed link-4 or extension record supplying its own
+      identity; an **earlier REJECTED review of the same reviewed bytes** replayed,
+      refused on the REVIEW-IDENTITY comparison; a **link-6 decision reused after a
+      branch move, a retarget, or attached to another PR on the same chain**,
+      refused; **an arbitrary passing test on the right revision**, refused on the
+      governed-test identity; POSITIVES for **the open decision matching the merge
+      it permits**; a **controller-signed link-4 or extension record supplying its own
       key against a controller certificate with NO fingerprint**, refused; and
       POSITIVES for **the verification key resolving against the certificate**,
       for **records under a compliant CONTROLLER certificate verifying**, for **a review written BEFORE ratification closing its own chain through THE THREE LINEAGE LIMBS** — the review naming the reviewed digest, the ratification committing to that review and that lineage, and the ratified subject being the lineage's endpoint — for **a late-dispatched task's SIGNED CHAIN BINDING descending from the actual latest signed record**, and for **a later task dispatched after an earlier task has

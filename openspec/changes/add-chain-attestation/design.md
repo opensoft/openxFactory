@@ -592,11 +592,21 @@ existing schema. **Both lineage positives were unconstructible as commissioned.*
 **Why ROUTE A — extend tranche one's record — is lawful, checked against the
 ratified texts rather than assumed:**
 
-1. **TRANCHE ONE IS RATIFIED-NOT-REALIZED. No contract byte exists to break.**
-   `contracts/signed-execution-chain/` does not exist and the capability is
-   absent from `contracts/manifest.yaml`. The extension therefore changes NO
-   SHIPPED SCHEMA; it authors an uncut surface, which is what
-   `target_release` now says in terms.
+1. **~~TRANCHE ONE IS RATIFIED-NOT-REALIZED~~ — SUPERSEDED 2026-09-01. TRANCHE ONE IS
+   REALIZED, AND ROUTE A IS RE-GROUNDED ON THE #497 PRECEDENT INSTEAD.** When
+   this decision was first written, `contracts/signed-execution-chain/` did not
+   exist and the capability was absent from `contracts/manifest.yaml`, so the
+   extension authored an UNCUT surface. **That ground died with PR #524
+   (`9af98c4d`), which realized tranche one and registered the family at
+   `contract-v2.5`.** The reasoning is kept rather than rewritten, because it was
+   this decision's actual reasoning on the day. **THE NEW GROUND, RULED BY BRETT
+   HEAP ON 2026-09-01 ("route A"):** the MODIFIED on tranche one's REQUIREMENT TEXT is
+   lawful OpenSpec canon amendment in its own right, and its SCHEMA consequence
+   is an **ADDITIVE EXTENSION OF THE SHIPPED `chain-inception.schema.yaml`
+   CARRIED AT THIS PACKET'S OWN RELEASE CUT** — exactly the precedent of
+   `add-binding-consumer-identity` (#497), which was ratified extending the SHIPPED `xfactory_credential_binding_template` with an additive optional block. The schema is `additionalProperties: false` and carries no lineage
+   fields today; **the extension is therefore OWED AT THE CUT and is declared,
+   not assumed.**
 2. **THIS PACKET ALREADY HOLDS EXACTLY THIS INSTRUMENT, BY THE COUNCIL'S OWN
    PRESCRIPTION.** LA-A1 required a scenario-complete MODIFIED restatement of
    tranche one's GATE requirement. The second one follows the identical
@@ -611,17 +621,20 @@ ratified texts rather than assumed:**
 **Why not ROUTE B — an eighth record kind of our own.** A RATIFICATION LINEAGE
 RECORD signed by the same tier-1 authority in the same act was the alternative,
 with duplicates excluded by the log-position rule. It is coherent, and it is
-WEAKER for one reason worth recording: **it would put the lineage in a record the
-ratifying signature does not cover**, and this capability's own standing rule is
+WEAKER for one reason worth recording — **a ground UNAFFECTED by the 2026-09-01
+re-grounding, since it never depended on tranche one being uncut**: **it would put
+the lineage in a record the ratifying signature does not cover**, and this capability's own standing rule is
 that an assertion attachable afterwards is an assertion anyone can attach. It
 would also have minted an eighth record kind to carry three fields belonging to
 an act we do not own — and the packet has now twice learned that adding a kind is
 how an enumeration gets outrun. **Route B is recorded as considered and ruled
 against**, not omitted.
 
-**What the extension does NOT do.** It moves no contract byte, mints no record
-kind, changes no shipped schema, and touches nothing about tranche one that this
-capability was not already extending. Its scenario set is tranche one's six,
+**What the extension does NOT do — RESTATED FOR THE REALIZED STATE, 2026-09-01.** It
+mints no record kind and touches nothing about tranche one that this capability
+was not already extending. **It DOES now imply an additive extension of a SHIPPED
+schema**, carried at this packet's own release cut and declared in
+`target_release`; the ratification itself still moves no contract byte. Its scenario set is tranche one's six,
 carried verbatim, plus two for the lineage itself.
 
 ## D11a — the THIRD round: the same conflict one level up, in SUBJECT rather than FORM

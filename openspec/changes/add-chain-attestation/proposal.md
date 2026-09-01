@@ -1,10 +1,11 @@
 ---
 code_surface: openxFactory — AN EXTENSION OF THE TRANCHE-ONE CONTRACT FAMILY PLUS AN EXTENSION OF ITS RUNNING GATE, declared honestly because this tranche is not doctrine-only. `contracts/signed-execution-chain/` gains SEVEN record kinds and three field disciplines — the harness-controller SETUP ATTESTATION (link 4) carrying the COMMITTED EXPECTED ATTESTATION SET inside its signed bytes, the CONTROLLER-SIGNED COMMITMENT EXTENSION that serves a dynamic fan-out and is written at or before the DISPATCH of the task it adds, the CONTROLLER-SIGNED TIER-2 SIGNED CHAIN BINDING carrying an identity's SUBJECT SCOPE, its CLOSED RECORD-KIND ENUMERATION and THE CHAIN IDENTITY IT SERVES, and referencing by identifier the two CANONICAL `add-trust-anchor` records it composes with — the `certificate-record` for the PUBLIC-KEY FINGERPRINT and validity bounds (it holds a fingerprint and NO key; the key is supplied by this capability's signed record) and the `issuance-evidence` for the issuance act, both CONSUMED UNMODIFIED AND NEITHER DEFINED HERE, which is what keeps the no-second-certificate-vocabulary rule intact, the RUNNER ATTESTATION (link 5) carried together with the SIGNING REQUEST recorded beside its signature, the signed PR-OPEN DECISION (link 6), the CLOSURE record of the governed post-merge test (link 10), and the REMEDIATION DECLARATION that names an unclosed chain as a repairing chain's signed subject — plus TIER 2's TWO SUBJECT SCOPES, each with its own CLOSED ENUMERATION of authorized record kinds — the PER-TASK identity signs the task attestation (link 5) and nothing else, the ONE CHAIN-SCOPED identity per chain signs the aggregate records (link 6, link 10), and no authority record is signable under either, ever — plus the per-fact EVIDENCE CLASS (`controller_corroborated` / `independently_observed` / `runner_claimed`, ORDERED and composed with the ratified `contracts/trust-anchor/trust-anchor-chain-custody.registry.yaml` rather than beside it) that keeps a runner's self-report from being read as controller-attested fact — plus THE SIGNER'S PUBLIC KEY CARRIED BESIDE EVERY SIGNATURE on every record this capability defines, which is the field verification RESOLVES against the consumed certificate's `subject.public_key_fingerprint` before any signature is checked, and without which the key-resolution rule has no input. `scripts/validate-signed-execution-chain.py` gains one named refusal per negative example, and the SHORT-CHAIN GATE tranche one wired as a required pull-request check EXTENDS from links 1–3 to links 1–6 — the same check, a longer walk, not a second gate. Packaged positive AND negative examples for every named refusal. Registration in `contracts/manifest.yaml` + `contracts/CHANGELOG.md` at the next additive bundle cut. NO CERTIFICATE AUTHORITY, NO issuance pipeline, NO key service, NO HSM procurement, NO anchor, NO chain, NO commitment format, NO consent plane — anchoring is the named tranche-three successor `add-chain-anchoring` and carries its own code surface. NO CHANGE TO `contracts/omnigent/omnigent-domain-overlay.schema.yaml` — no sixth archetype, no seventh permission boolean, and no widening of a closed matrix. NO SECOND identity, certificate, digest or proof vocabulary is defined: certificates are `add-trust-anchor`'s, signer identity is `add-identity-brokering`'s, and the digest construction is the ONE tranche one already put in force for every digest this capability computes. TWO `## MODIFIED Requirements`, EACH SCENARIO-COMPLETE — 2 requirements over 17 scenarios. Tranche one's GATE requirement (all NINE scenarios) re-scopes the gate and extends its closed-list mapping table to all eighteen of this capability's requirements; tranche one's RATIFICATION/CHAIN-INCEPTION requirement (all SIX of its scenarios, plus two for the lineage) gains the three AMENDMENT-LINEAGE FIELDS closure's limbs read — the reviewed digest, the ratified subject digest, and the amendment-record reference — because only the ratifying signature spans the review before it and the closure after it. NEITHER MOVES A CONTRACT BYTE OR MINTS A RECORD KIND: tranche one is ratified-not-realized, so both author an UNCUT surface.
-target_release: THE NEXT ADDITIVE MINOR, DELIBERATELY NOT NUMBERED HERE — allocated AT REALIZATION by merge order per `docs/contract-versioning-policy.md`. The figure is deliberately withheld rather than forgotten: `contracts/manifest.yaml:3` declares `contract_bundle_version: contract-v2.2` at this branch's tip, and `add-signed-execution-chain` — this packet's own predecessor — already names the next additive cut for the family's first contract bytes. A number written here would be a number another packet is already spending, and the realization confirms it against the manifest at ITS tip rather than trusting this line. THE CLASS IS ADDITIVE and nothing narrows: new record kinds in a family whose first cut has not shipped, and NO EXISTING SCHEMA CHANGES BECAUSE NO SCHEMA OF THIS FAMILY EXISTS YET — `contracts/signed-execution-chain/` is absent and the capability is unregistered in `contracts/manifest.yaml`, so the three AMENDMENT-LINEAGE FIELDS this packet adds to tranche one's ratification/chain-inception record are authored into an UNCUT surface rather than changing a shipped one, no consumer pinned at the current bundle is made non-conformant, and no domain is obliged to adopt a chain. The one obligation that reaches an existing artifact — the gate's longer walk — reaches a check this family itself owns and that no domain runs.
+target_release: THE NEXT ADDITIVE MINOR, DELIBERATELY NOT NUMBERED HERE — allocated AT REALIZATION by merge order per `docs/contract-versioning-policy.md`. The figure is deliberately withheld rather than forgotten: `contracts/manifest.yaml:3` declares `contract_bundle_version: contract-v2.2` at this branch's tip, and `add-signed-execution-chain` — this packet's own predecessor — already names the next additive cut for the family's first contract bytes. A number written here would be a number another packet is already spending, and the realization confirms it against the manifest at ITS tip rather than trusting this line. THE CLASS IS ADDITIVE and nothing narrows: new record kinds in a family whose first cut has not shipped, and ONE ADDITIVE EXTENSION OF A SHIPPED SCHEMA, DECLARED RATHER THAN ASSUMED: tranche one was REALIZED by PR #524 (`9af98c4d`) at `contract-v2.5`, so the FOUR AMENDMENT-LINEAGE FIELDS this packet adds to its ratification/chain-inception record EXTEND the released `chain-inception.schema.yaml` (`additionalProperties: false`, no lineage fields today) AT THIS PACKET'S OWN CUT — the precedent being `add-binding-consumer-identity` (#497), which was ratified extending the SHIPPED `xfactory_credential_binding_template` with an additive optional block. Nothing narrows: the fields are additive, no consumer pinned at the current bundle is made non-conformant, no consumer pinned at the current bundle is made non-conformant, and no domain is obliged to adopt a chain. The one obligation that reaches an existing artifact — the gate's longer walk — reaches a check this family itself owns and that no domain runs.
 Status: ratified
 Proposed: 2026-08-29
 Ratified: 2026-09-01 by Brett Heap (repository owner) — in-session, on the recorded word; record at `openspec/changes/add-chain-attestation/review/ratification-2026-09-01.md`
-Origin: `openxFactory:staging:signed-execution-chain`, EXIT 2 OF THREE — the tranche the staged topic's `## Exit path` calls "harness and runner attestation", whose question-gate Q7 Brett Heap opened on 2026-08-29. Links 4–6 and 10. Tranche one (`add-signed-execution-chain`, ratified 2026-08-29, PR #495) is the direct predecessor and its ratified text governs every point of contact; tranche three (`add-chain-anchoring`, merged 2026-08-31 at `f8f4cb5f`) is a named sibling and none of its content appears here. THIS PACKET WAS FILED FOR COUNCIL REVIEW ON THE §7.4 PATH AND FOR BRETT HEAP'S RATIFICATION, in that order, on the pattern `add-binding-consumer-identity` established on 2026-08-29 — the first packet through that path end to end, whose `review/` directory this packet's own `review/` mirrors. THE COUNCIL REVIEW IS HELD: `tasks.md` §2 was discharged by the sitting of 2026-08-30 — four seats, unanimous 4/4 that the drafted text was not ratifiable, thirteen blocking amendments, all discharged in the fix round. **`tasks.md` §3, BRETT HEAP'S RATIFICATION, WAS TAKEN ON 2026-09-01** — both gates are now behind this packet, and what remains is §5's realization, gated on machinery that does not yet exist. RATIFICATION AUTHORIZES REALIZATION AND DOES NOT PERFORM IT: no contract byte moves with it.
+Amended since ratification: 2026-09-01 — the ratified head's own Codex verdict (three P1s) and Brett's "route A" ground correction are discharged in the text; **RE-RATIFICATION IS PENDING for the amended head**, and the `Ratified:` line above records the act at `f54cb5bc`, not a claim about the current text (record §7)
+Origin: `openxFactory:staging:signed-execution-chain`, EXIT 2 OF THREE — the tranche the staged topic's `## Exit path` calls "harness and runner attestation", whose question-gate Q7 Brett Heap opened on 2026-08-29. Links 4–6 and 10. Tranche one (`add-signed-execution-chain`, ratified 2026-08-29, PR #495) is the direct predecessor and its ratified text governs every point of contact; tranche three (`add-chain-anchoring`, merged 2026-08-31 at `f8f4cb5f`) is a named sibling and none of its content appears here. THIS PACKET WAS FILED FOR COUNCIL REVIEW ON THE §7.4 PATH AND FOR BRETT HEAP'S RATIFICATION, in that order, on the pattern `add-binding-consumer-identity` established on 2026-08-29 — the first packet through that path end to end, whose `review/` directory this packet's own `review/` mirrors. THE COUNCIL REVIEW IS HELD: `tasks.md` §2 was discharged by the sitting of 2026-08-30 — four seats, unanimous 4/4 that the drafted text was not ratifiable, thirteen blocking amendments, all discharged in the fix round. **`tasks.md` §3, BRETT HEAP'S RATIFICATION, WAS TAKEN ON 2026-09-01** at `f54cb5bc` — and the text has been AMENDED SINCE, discharging that head's own verdict and Brett's "route A" ground correction, so **RE-RATIFICATION IS PENDING** (record §7). What then remains is §5's realization, gated on machinery that does not yet exist. RATIFICATION AUTHORIZES REALIZATION AND DOES NOT PERFORM IT: no contract byte moves with it.
 ---
 
 # Proposal: add-chain-attestation
@@ -14,8 +15,10 @@ harness-controller setup attestation, the per-task runner attestations, the
 signed pull-request-open decision, and the governed post-merge test that CLOSES
 a chain.
 
-**THIS PACKET IS RATIFIED. BOTH GATES ARE BEHIND IT.** Two acts stood between it
-and realization and **both have now happened.** The **§7.4 council review** — the
+**THIS PACKET IS RATIFIED-THEN-AMENDED. BOTH GATES ARE BEHIND IT, AND THE TEXT
+HAS MOVED SINCE THE ACT.** Two acts stood between it and realization and **both
+have happened** — and the ratified head's own verdict then arrived, so the text
+was amended after ratification and **RE-RATIFICATION IS PENDING**. The **§7.4 council review** — the
 council-reviewed-but-human-approved path that needs no candidate class and no
 flip, and that reaches this repository without an envelope — **was held on
 2026-08-30**: four seats, **UNANIMOUS 4/4 that the drafted text was not
@@ -206,7 +209,7 @@ capability tranche one created.
 
 ### Modified Capabilities
 
-- `signed-execution-chain`: **NINE ADDED requirements over 104 scenarios**, plus
+- `signed-execution-chain`: **NINE ADDED requirements over 108 scenarios**, plus
   **TWO `## MODIFIED Requirements` — tranche one's gate requirement
   (scenario-complete at all NINE) and its ratification/chain-inception
   requirement (all SIX, plus two for the amendment lineage), 2 requirements over
@@ -224,7 +227,7 @@ capability tranche one created.
   non-inheritable; and the executing layer refusing a step whose inbound chain
   does not verify.
 
-## Why this delta now carries ONE MODIFIED block, and why the ADDED-only draft was wrong
+## Why this delta now carries TWO MODIFIED blocks, and why the ADDED-only draft was wrong
 
 **The council ruled it, and it was proved by construction rather than argued.**
 The §7.4 sitting of 2026-08-30 was **UNANIMOUS 4/4 that this packet as drafted
@@ -259,6 +262,18 @@ one's *"THE LIST IS CLOSED … every requirement of THIS CAPABILITY is either
 walked here or has its enforcement point named below"* is scoped to the
 CAPABILITY, so promoted canon would otherwise have asserted that this packet's
 own nine are requirements the capability does not enforce.
+
+**AND A SECOND MODIFIED BLOCK FOLLOWED, ON TRANCHE ONE'S RATIFICATION/CHAIN-
+INCEPTION REQUIREMENT.** The amendment-lineage fields closure reads must sit
+inside the bytes the RATIFYING signature covers, and that act is tranche one's —
+so the fields are added to its record definition by a second scenario-complete
+MODIFIED (all SIX of its scenarios verbatim, plus two for the lineage).
+**Tranche one was REALIZED by PR #524 at `contract-v2.5`**, so the schema
+consequence is an **ADDITIVE EXTENSION OF A SHIPPED SCHEMA carried at this
+packet's own cut**, on `add-binding-consumer-identity`'s precedent, and
+`design.md` D12 records the route, its re-grounding of 2026-09-01, and the
+alternative ruled against. **BOTH BLOCKS CARRY THE SAME ARCHIVE-ORDER DEPENDENCY**
+— tranche one archives first — which is stated once and not doubled.
 
 **The cost the earlier draft named is real, is accepted, and is recorded.**
 Tranche one is an ACTIVE change: its requirement lives in a sibling's ADDED delta
@@ -506,7 +521,7 @@ read and the four verbatim seat returns are filed in `review/`, mirroring
 2026-08-28 convening left it: gated and undischarged** — the sitting changed
 none of that.
 
-**2. BRETT HEAP'S RATIFICATION — ✅ TAKEN 2026-09-01. BOTH GATES ARE BEHIND THIS PACKET.**
+**2. BRETT HEAP'S RATIFICATION — ✅ TAKEN 2026-09-01 at `f54cb5bc`; ⬜ RE-RATIFICATION PENDING for the amended head.**
 It followed the review and the fix rounds it forced. **The record is
 `openspec/changes/add-chain-attestation/review/ratification-2026-09-01.md`.** Ratification authorizes the
 contract feature rather than performing it: `tasks.md` §5 remains gated on the
