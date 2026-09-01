@@ -20,6 +20,18 @@ published bytes; the ruleset act made them bite. Since **2026-08-31**
 ruleset **21957695** (`tasks.md` 4.5), seen refusing a real pull request on canary
 **#549** (`tasks.md` 4.6) — so this family now confers and refuses what it says it
 does. See § What this family does NOT do for what is still outstanding.
+**TWO OF THE FIVE SCHEMAS HAVE MOVED SINCE THAT CUT, ADDITIVELY, AND THE NEXT CUT
+IS OWED RATHER THAN TAKEN HERE.** `add-chain-anchoring` widens the `leaf_type`
+enumeration by twelve, adds ONE optional member (`anchor_event`) and widens
+`digest_subject` by eleven: no required field is added, no shape is removed, and
+no existing member's meaning changes, so every instance valid at `contract-v2.5`
+stays valid — measured by re-validating the whole packaged corpus at the new head
+rather than claimed. The manifest's per-file `sha256` for
+`transparency-log-leaf` and `digest-construction` moved with those bytes so the
+rows stay true; the version number and its CHANGELOG entry are the cutting
+session's, per the same rule that kept `tasks.md` 4.7 out of the realization —
+**a proposed change must not reserve a minor number before merge order is
+known**.
 
 ## What this family is for
 
@@ -41,6 +53,22 @@ gate**, which is what Brett Heap's Q4 ruling of 2026-08-29 fixed. Tranche two
 successors: nothing here mints an attestation identity, holds a certificate, or
 places anything on any chain.
 
+**AND TRANCHE THREE NOW HAS ITS LEAF KINDS IN THIS GRAMMAR, WHICH IS A DIFFERENT
+THING FROM HAVING AN ANCHOR.** `add-chain-anchoring` tasks.md 5.3 settles the
+twelve leaf kinds its requirements 3, 4, 7 and 8 mandate **inside
+`transparency-log-leaf.schema.yaml`**, on its own stated ground — *"This packet
+adds no second grammar and must not, so tranche one's grammar is where each event
+discriminator and its required fields are settled"* — and adds its eleven digest
+subjects to the single `digest_subject` enumeration on
+`digest-construction.schema.yaml`'s own written invitation. See
+[`../chain-anchoring/`](../chain-anchoring/) for the family that produces those
+leaves. **The sentence above is unchanged by that**: still nothing here mints an
+anchor, configures a witness, captures a receipt or places anything on any chain,
+and `add-chain-anchoring`'s operator conditions are ungated and unticked. What
+changed is that when an anchoring realization writes its evidence, it writes it
+as leaves of THIS log under THIS grammar — and a shape exists to refuse a
+malformed one.
+
 ## The five files
 
 | File | What it declares |
@@ -48,7 +76,7 @@ places anything on any chain.
 | [`digest-construction.schema.yaml`](digest-construction.schema.yaml) | **THE ONE CONSTRUCTION IN FORCE**, `xfc-jcs-sha256-1`, and the digest shape every record takes by `$ref`. It declares NO record kind: it exists so the family cannot grow a second construction rule beside the first |
 | [`chain-inception.schema.yaml`](chain-inception.schema.yaml) | Links 1 and 2 as ONE signed act — the `signed_ratification` block the signature covers, and the chain identity that is its digest |
 | [`traveling-contract.schema.yaml`](traveling-contract.schema.yaml) | Link 3 — the signed ratification carried WITH the work, checkable at the point of use with no live service in reach |
-| [`transparency-log-leaf.schema.yaml`](transparency-log-leaf.schema.yaml) | One signed, hash-linked leaf of the append-only log that is this capability's primary chain of custody |
+| [`transparency-log-leaf.schema.yaml`](transparency-log-leaf.schema.yaml) | One signed, hash-linked leaf of the append-only log that is this capability's primary chain of custody. **The leaf grammar for the whole estate**: its `leaf_type` enumeration carries this capability's four acts AND the twelve `add-chain-anchoring` settles here rather than in a second family |
 | [`conformance-declaration.schema.yaml`](conformance-declaration.schema.yaml) | A realization's obligation-by-obligation declaration, on `add-trust-anchor`'s ratified declared-shortfall pattern |
 
 The canonical reader is
@@ -109,7 +137,25 @@ stops matching; and every traveling contract carries the digest of the leaf that
 recorded its inception, so a truncation dropping an observed leaf is caught at
 the point of use. **What it does not detect** is suffix truncation nobody has yet
 observed — DECLARED in the conformance declaration's SEC-R6 entry, closed by
-tranche-three anchoring, and never papered over.
+tranche-three anchoring, and never papered over. **The leaf kinds for that
+anchoring are settled in this grammar as of `add-chain-anchoring`, and settling a
+leaf kind witnesses nothing**: SEC-R6 stays declared and open until an anchor
+actually lands.
+
+**HOW THE TWELVE ARE PAIRED TO THEIR FIELDS, AND WHY IT IS STRONGER THAN THE
+VERDICT PAIRING BESIDE IT.** One new OPTIONAL member, `anchor_event`, carries the
+per-kind fields, and thirteen `if/then` conditionals close the shape over all
+sixteen leaf types: each anchoring type REQUIRES its own `anchor_event` shape and
+FORBIDS `verdict`; the four tranche-one types FORBID `anchor_event`. Each shape
+pins `event` to a `const` equal to its leaf type, so an event block from another
+kind is UNREPRESENTABLE rather than merely refused by a reader. Tranche one left
+the equivalent verdict pairing to the canonical validator; this is the family's
+own stated preference applied — *"where a shape can refuse a thing, the shape
+refuses it"* — and the older, weaker handling is named as such in the schema
+rather than presented as equivalent. **One kind is DELIBERATELY EXCLUDED**:
+`add-chain-anchoring` requirement 4 also mandates a validation-failure leaf, and
+that is a GATE VERDICT which `gate_verdict` already carries — settling it a
+second time would mint exactly the second grammar 5.3 forbids.
 
 ### 3. The log's home — the register precedent, in this repository
 
@@ -182,6 +228,17 @@ actor binding sits outside the signed bytes.
   `merge-approval-envelope`, names no candidate class, touches no ruleset and
   produces no verdict; FR-008 stays gated exactly where the 2026-08-28 convening
   left it.
-- **It holds no anchor, witness, commitment or receipt**, and no attestation
+- **It holds no anchor, witness, commitment or receipt VALUE**, and no attestation
   identity of any kind. Those are the named tranche-three and tranche-two
-  successors, and their absence at this tranche is NOT a defect.
+  successors, and their absence at this tranche is NOT a defect. This entry read
+  *"It holds no anchor, witness, commitment or receipt"* until
+  `add-chain-anchoring` settled its twelve leaf kinds in this family's leaf
+  grammar, and the correction is to the NOUN and not to the claim: what the
+  family now holds is the EVENT-RECORDING GRAMMAR for those acts — the twelve
+  `leaf_type` members, the `anchor_event` shapes and the eleven digest subjects —
+  which is a different object from a value. No anchor is minted here, no witness
+  is configured, no receipt is captured, nothing reaches any network, and this
+  repository operates no anchoring subsystem: `add-chain-anchoring`'s operator
+  conditions are ungated and unticked. **Settling a leaf kind is not running
+  one**, and no reading of a leaf claims external undeniability the log alone
+  does not provide.

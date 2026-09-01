@@ -2623,7 +2623,13 @@ contracts:
     source_path: openxFactory/contracts/signed-execution-chain/digest-construction.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 51e5e6cfda33004aba526f888d9299b44fcd3c6d19b7178de020859bedcce65e
+    # MOVED BY `add-chain-anchoring`'s ADDITIVE widening of `digest_subject` by
+    # eleven subjects, on this file's own written invitation that a later tranche
+    # add its subjects here rather than declare a second construction. A row
+    # whose digest no longer matches the schema on disk publishes a promise about
+    # bytes nobody shipped, so it moves with the bytes; the VERSION NUMBER and its
+    # CHANGELOG entry are the cutting session's act and are not taken here.
+    sha256: 07021d6a48aacc077493dd82192b225ba3d4be21dae3ac85866709f25fd78012
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -2704,7 +2710,14 @@ contracts:
     source_path: openxFactory/contracts/signed-execution-chain/transparency-log-leaf.schema.yaml
     type: schema
     schema_version: 1
-    sha256: d01274144fb6f058cbbee96366520fab4402143e9d66bddafc8d69107190d114
+    # MOVED BY `add-chain-anchoring` tasks.md 5.3, which settles its twelve leaf
+    # kinds INSIDE this ratified grammar rather than minting a second one: the
+    # `leaf_type` enumeration widens by twelve and ONE optional member
+    # (`anchor_event`) is added, with no required field added, no shape removed
+    # and no existing member's meaning changed. ADDITIVE, measured by
+    # re-validating the whole packaged corpus at the new head. The row moves with
+    # the bytes; the version cut is the cutting session's act.
+    sha256: e49cd136f1ab251b7990e0c4dc70313fd9c279e6499d475a05c9f3342cfcd745
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-

@@ -1,0 +1,268 @@
+schema_version: 1
+kind: openxfactory-chain-anchoring-contract-schema
+name: xfactory_chain_anchoring_verification_result
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/verification-result.schema.yaml"
+contract_id: chain-anchoring-verification-result
+contract_schema_version: 1
+title: Anchor verification result, carrying its verification mode
+description: >-
+  ONE VERIFICATION'S ANSWER, AND THE MODE THAT SAYS WHAT KNOWLEDGE IS BEHIND IT
+  (add-chain-anchoring, capability `chain-anchoring`, requirement "The
+  multi-anchor receipt format is defined FIRST and is chain-agnostic" — THE
+  TIMING MODEL — and requirement "A missing witness is a declared, fail-closed
+  state and never silently fine", whose limit is *"a structured field on the
+  result, not a caveat in prose, because a caller branches on a value and never
+  on a paragraph"*).
+
+  THE VERIFICATION MODE IS MANDATORY AND A RESULT OFFERED WITHOUT ONE IS REFUSED
+  (`verification_mode_absent`). `receipt_only` and `stateful` carry genuinely
+  different knowledge behind THE SAME STATUS VALUE, and a caller that branches on
+  `anchor_pending` without reading the mode — while a terminal failure stands
+  recorded against the item inside an unexpired horizon — is consuming the weaker
+  answer as the stronger. The mode is what makes the two distinguishable to a
+  CALLER rather than only to a reader of the requirement.
+
+  WHAT EACH MODE MAY CONCLUDE, AS A CLOSED STATEMENT. Both modes establish a
+  WITNESS SHORTFALL from the configured set and the per-chain list, both reach a
+  HORIZON STANDING where an eligible chain-derived base exists and neither does
+  where the base is minter-claimed, and both perform the SELF-CONSISTENCY
+  REFUSAL. Only `stateful` distinguishes a TERMINAL WITNESS FAILURE from a
+  horizon breach — a `receipt_only` result cannot, STRUCTURALLY, because the
+  failure arises after the receipt was minted and leaves no mark on it, and a
+  terminally failed item's receipt is byte-identical to a sound one's — and
+  only `stateful` can PROVE a delay breach. NEITHER MODE CAN CONCLUDE DELAY
+  COMPLIANCE.
+
+  THE DELAY CHECK PROVES A BREACH AND NEVER PROVES COMPLIANCE, AND THE DIRECTION
+  IS THE WHOLE OF IT. The log BRACKETS the submission — `cp_out` is the latest
+  anchored checkpoint whose prefix does NOT contain the submission leaf and is a
+  LOWER bound; `cp_in` is the earliest whose prefix DOES and is an UPPER bound —
+  on evidence no minter controls. Because the true submission is at or before
+  `cp_in`, the interval from `cp_in` to the first anchor is a LOWER BOUND on the
+  true delay: exceeding the declared maximum PROVES a breach, and falling under
+  it leaves the true delay unknown. *Not-provably-breached is not compliant*, the
+  residual is exactly one cadence interval, and a result that reads the check as
+  compliance is refused (`delay_check_read_as_compliance`).
+
+  A REFUSAL IS AN OUTCOME OF THIS RECORD AND NOT AN ABSENCE OF ONE. Where the
+  answer is `refused`, the code is drawn from this capability's closed
+  enumeration so the result names what was actually lacking — a minter-supplied
+  header source is never reported as a missing witness, and a self-inconsistent
+  receipt is never reported as an incomplete one.
+type: object
+required:
+  - schema_version
+  - kind
+  - result_id
+  - subject_ref
+  - verification_mode
+  - status
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [xfactory_chain_anchoring_verification_result]
+  result_id: {$ref: '#/$defs/identifier'}
+  subject_ref:
+    # WHAT WAS VERIFIED — the anchored item, by identifier. The receipt and the
+    # anchor-state record this answer was reached from are named separately
+    # below, because WHAT was verified and WHAT WAS READ to verify it are two
+    # facts and a result that conflates them cannot be audited.
+    $ref: '#/$defs/identifier'
+  verification_mode:
+    # THE CLOSED ENUMERATION. It is in `required` above so the shape refuses an
+    # omission, AND the canonical validator names `verification_mode_absent` on
+    # a record built by hand — because the requirement's own doctrine is that a
+    # refusal must say what was actually lacking, and "property missing" does
+    # not.
+    type: string
+    enum: [receipt_only, stateful]
+  status:
+    # CLOSED, AND `no_determination` IS A FIRST-CLASS ANSWER RATHER THAN A GAP.
+    # Where no landed witness is eligible as a horizon base, the honest result
+    # is that no pending-versus-breached determination was made at all; forcing
+    # that case into `anchor_pending` would present a claim the artifact cannot
+    # check as a fail-closed answer.
+    type: string
+    enum: [anchor_pending, anchor_incomplete, anchor_complete, no_determination, refused]
+  horizon_base:
+    # REQUIRED IN SUBSTANCE FOR A `receipt_only` RESULT, and the validator says
+    # so by name rather than the shape saying it by `if/then`: a result that
+    # reached a determination with a `minter_claimed` or `none` base has made a
+    # fail-closed decision on a number nothing can check, and the refusal
+    # `determination_made_with_minter_claimed_base` must be able to fire on a
+    # record that WRITES that combination.
+    #
+    # `kind: minter_claimed` OR `none` THEREFORE REQUIRES `status:
+    # no_determination`. Both values stay writable beside any status precisely
+    # so the negative examples exist.
+    type: object
+    required: [kind]
+    additionalProperties: false
+    properties:
+      kind:
+        type: string
+        enum: [chain_derived, minter_claimed, none]
+      chain_id: {$ref: '#/$defs/chain_id'}
+      chain_accepted_time:
+        # `A_min` — the EARLIEST chain-accepted time in the receipt's own
+        # per-chain list, derived from that entry's block header under that
+        # chain's declared rule. Every horizon determination runs from here and
+        # NEVER from the declared submission time, which is why a future-dated
+        # submission is exposed rather than obeyed.
+        type: string
+        format: date-time
+      ordering_only_witnesses_excluded:
+        # An ordering-only witness proves the anchor and counts toward the
+        # configured set, and is NOT ELIGIBLE as a base. Recording that some
+        # were excluded is how a reader tells "no eligible base" from "no
+        # witnesses at all".
+        type: boolean
+  witness_shortfall:
+    # THE SHORTFALL IS ARITHMETIC AND THE ARITHMETIC IS CHECKED. `missing` must
+    # be exactly `configured` minus `present`; a record whose three lists do not
+    # reconcile is refused (`witness_shortfall_miscomputed`) rather than read as
+    # a partial answer. It is established FROM THE RECEIPT ALONE in either mode,
+    # with no consultation of the minter's anchor-state record and no service
+    # only the minter can run.
+    #
+    # AND A SHORTFALL IS NOT A LIFECYCLE STATE. Which state it amounts to is the
+    # separate horizon determination above; the shortfall by itself asserts
+    # nothing about it.
+    type: object
+    required: [configured, present, missing]
+    additionalProperties: false
+    properties:
+      configured:
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items: {$ref: '#/$defs/identifier'}
+      present:
+        type: array
+        minItems: 0
+        uniqueItems: true
+        items: {$ref: '#/$defs/identifier'}
+      missing:
+        type: array
+        minItems: 0
+        uniqueItems: true
+        items: {$ref: '#/$defs/identifier'}
+  terminal_failure_distinguished:
+    # MUST BE `false` ON A `receipt_only` RESULT — not by convention but
+    # structurally, since the receipt carries no mark a terminal failure could
+    # leave. A `receipt_only` result declaring `true` claims knowledge its own
+    # mode cannot hold and is refused
+    # (`verification_result_claims_stateful_knowledge`). Writable in both modes,
+    # because a refusal with no representable negative is a refusal nobody has
+    # tested.
+    type: boolean
+  incomplete_cause:
+    # WHICH OF BREACH OR TERMINAL FAILURE CAUSED AN INCOMPLETE. A `stateful`
+    # result answers it, each cause already written as its own transition leaf;
+    # a `receipt_only` result SAYS SO rather than omitting the field silently,
+    # which is what `undistinguished_receipt_only` is for. That refinement is
+    # the difference the record buys over the artifact, and it is why both
+    # verifications exist rather than one standing in for the other.
+    type: string
+    enum: [horizon_breach, terminal_witness_failure, undistinguished_receipt_only]
+  delay_check:
+    # STATEFUL ONLY, AND IT PROVES A BREACH OR IT PROVES NOTHING.
+    #
+    # `cp_out` IS REQUIRED BESIDE `cp_in` SO THE BRACKET'S WIDTH IS VISIBLE. A
+    # bare pass would hide exactly the residual that makes the check honest: the
+    # cadence bounds the bracket, so the unknown is one cadence interval wide,
+    # and reporting the width is what stops "not proven" being read as "fine".
+    #
+    # THERE IS NO `compliant` MEMBER AND THERE WILL NOT BE ONE.
+    # `additionalProperties: false` keeps it out of a conforming record, and a
+    # record that carries one anyway is refused BY NAME
+    # (`delay_check_read_as_compliance`) rather than reported as an unexpected
+    # property — the refusal has to say that a lower bound was read as an upper
+    # one.
+    type: object
+    required: [cp_in, cp_out, a_first, bound_seconds, outcome]
+    additionalProperties: false
+    properties:
+      cp_in:
+        # The EARLIEST anchored checkpoint whose prefix DOES contain the
+        # submission leaf — an UPPER bound on the true submission.
+        type: string
+        format: date-time
+      cp_out:
+        # The LATEST anchored checkpoint whose prefix does NOT contain it — a
+        # LOWER bound. Required, so the bracket is a bracket.
+        type: string
+        format: date-time
+      a_first:
+        # The earliest chain-accepted time among the landed anchors.
+        type: string
+        format: date-time
+      bound_seconds:
+        # `A_first - CP_in`, the LOWER BOUND on the true delay, compared against
+        # the declared maximum the receipt's committed block carries.
+        $ref: '#/$defs/duration_seconds'
+      outcome:
+        # TWO OUTCOMES AND NEITHER OF THEM IS COMPLIANCE.
+        type: string
+        enum: [breach_proven, not_proven]
+      cp_in_ref: {$ref: '#/$defs/identifier'}
+      cp_out_ref: {$ref: '#/$defs/identifier'}
+  refusal:
+    # REQUIRED WHERE `status` IS `refused`. The code is this capability's own
+    # closed enumeration, taken by `$ref` from one place, so a refusal names
+    # what was actually lacking.
+    type: object
+    required: [code, statement]
+    additionalProperties: false
+    properties:
+      code: {$ref: '#/$defs/refusal_code'}
+      statement: {type: string, minLength: 1, maxLength: 600}
+      names: {$ref: '#/$defs/identifier'}
+  receipt_ref:
+    # THE RECEIPT THIS ANSWER WAS REACHED FROM. Present in either mode: a
+    # `receipt_only` result reads nothing else, and a `stateful` one still reads
+    # the receipt for its committed configuration block.
+    $ref: '#/$defs/identifier'
+  anchor_state_ref:
+    # THE ANCHOR-STATE RECORD, READ ONLY IN `stateful` MODE. A `receipt_only`
+    # result naming one has read something its own mode says it did not, and
+    # the validator refuses it on the same footing as a stateful claim
+    # (`verification_result_claims_stateful_knowledge`).
+    $ref: '#/$defs/identifier'
+  header_source_ref:
+    # THE INDEPENDENTLY OBTAINED HEADER SET THIS VERIFICATION RAN AGAINST. A
+    # verification performed against a header source supplied by the party that
+    # minted the receipt establishes SELF-CONSISTENCY and not CANONICALITY, and
+    # is refused (`verification_header_source_is_minter_supplied`).
+    $ref: '#/$defs/identifier'
+  evaluated_at:
+    # THE INSTANT `now` TOOK IN THE HORIZON COMPARISON, so a breach declaration
+    # can be re-derived rather than believed. It is the verifier's own clock and
+    # is scoped to THIS RESULT: it is never an input a receipt carries, which is
+    # what keeps it outside the closure rule's reach.
+    type: string
+    format: date-time
+  verification_leaf_ref:
+    # THE LEAF WRITTEN WHERE THIS FACTORY SERVED THE VERIFICATION. It is ABSENT
+    # on a verification a holder ran on its own machine against a header set it
+    # obtained for itself — and that absence is NOT non-conformance, it is the
+    # receipt's self-sufficiency working as designed. There is no honest way to
+    # write a leaf for an event this factory has no knowledge of, and closing
+    # that gap by imposing a reporting obligation on independent verifiers is
+    # refused (`reporting_obligation_on_independent_verifiers`) for what it
+    # would cost.
+    $ref: '#/$defs/identifier'
+  record_version: {type: integer, minimum: 1}
+  notes: {type: string, maxLength: 1400}
+$defs:
+  identifier:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/identifier"
+  chain_id:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/chain_id"
+  duration_seconds:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/duration_seconds"
+  refusal_code:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/refusal_code"

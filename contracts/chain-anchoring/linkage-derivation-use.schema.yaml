@@ -1,0 +1,112 @@
+schema_version: 1
+kind: openxfactory-chain-anchoring-contract-schema
+name: xfactory_chain_anchoring_linkage_derivation_use
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/linkage-derivation-use.schema.yaml"
+contract_id: chain-anchoring-linkage-derivation-use
+contract_schema_version: 1
+title: Authorized scoped linkage derivation — use
+description: >-
+  ONE USE OF AN ISSUED DERIVATION, AND THE REVOCATION STATE IT ANSWERED TO
+  (add-chain-anchoring, capability `chain-anchoring`, requirement "The record and
+  demographic planes are analyzable without the identity plane"). Issuance
+  authorizes; it does not immunize. A revocation SUPERSEDES FORWARD from the
+  moment it is recorded and anchored, so every use answers to the CURRENT
+  revocation state and not merely to the fact of issuance, and a realization does
+  NOT treat a pre-issued derivation as self-authorizing offline — because that is
+  how a revoked authorization keeps working.
+
+  AN UNREADABLE REVOCATION STATE REFUSES THE CORRELATION, ON THE FAMILY'S OWN
+  FAIL-CLOSED DOCTRINE. Where the identity plane or the permissioned plane cannot
+  be reached, the state is UNKNOWN and an unevaluable answer never reads as
+  permission (`linkage_use_with_unreadable_revocation_state`). A revoked state
+  refuses on its own terms.
+
+  THE REFUSAL IS SCOPED TO THE CORRELATION AND NOT TO THE RUN. Inspecting the
+  record plane and the demographic plane independently needs no derivation, no
+  consent evaluation and no identity plane, so it runs regardless. What needs a
+  derivation is the JOIN, and the join is consent-gated end to end — an analysis
+  whose correlation is refused still returns its per-plane results and SAYS WHICH
+  PART it could not perform, which is the analysis result's declared outcome and
+  not a courtesy in a log line.
+
+  AND WHAT WAS ALREADY CORRELATED IS NOT RECALLED. A revocation recorded partway
+  through an analysis refuses FURTHER use from that moment; no claim of recall is
+  made anywhere, because nothing already disclosed can be withdrawn.
+
+  THIS RECORD RESOLVES NO PERSON AND NAMES NO SUBJECT. It records that an
+  authorized correspondence was exercised, under which analysis, against which
+  revocation state; `additionalProperties: false` is what keeps a subject member
+  out of the one record that would be tempted to carry one.
+type: object
+required:
+  - schema_version
+  - kind
+  - use_id
+  - derivation_ref
+  - analysis_ref
+  - revocation_state_read
+  - correlation_performed
+  - use_leaf_ref
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [xfactory_chain_anchoring_linkage_derivation_use]
+  use_id: {$ref: '#/$defs/identifier'}
+  derivation_ref:
+    # THE ISSUANCE THIS USE EXERCISES, by identifier.
+    $ref: '#/$defs/identifier'
+  analysis_ref:
+    # MUST EQUAL THE ISSUANCE'S OWN `analysis_ref`. A use naming a different
+    # analysis is a derivation carried into a second one, refused under
+    # `linkage_derivation_reused_across_analyses` — the cross-record comparison
+    # is the canonical validator's, because no shape can see two records at
+    # once.
+    $ref: '#/$defs/identifier'
+  revocation_state_read:
+    # WHAT THE REVOCATION SURFACE ACTUALLY RETURNED. `unreadable` is a MEMBER of
+    # this enumeration rather than an omission: an unreadable state is a real
+    # outcome that must be recordable, and recording it is what lets the refusal
+    # be checked. A use declaring `revoked` or `unreadable` while
+    # `correlation_performed` is `true` is refused
+    # (`linkage_use_with_unreadable_revocation_state`), and both combinations
+    # stay writable so the negative examples exist.
+    type: string
+    enum: [current_not_revoked, revoked, unreadable]
+  correlation_performed:
+    # WHETHER THE JOIN WAS ACTUALLY PERFORMED. Required, because this is the
+    # member the refusal above reads: a use that declines to say leaves the
+    # question the record exists to answer unanswered.
+    type: boolean
+  use_leaf_ref:
+    # THE LEAF WRITTEN AT USE, on the served surface. Issuance and use are each
+    # written as leaves; a use with no leaf is an exercise of an authorization
+    # that left no trace, which is the arrangement the served-audit requirement
+    # refuses.
+    $ref: '#/$defs/identifier'
+  used_at: {type: string, format: date-time}
+  revocation_surface_ref:
+    # THE SURFACE ACTUALLY CONSULTED. Naming it here lets a reader check that
+    # the surface the issuance NAMED is the surface the use READ, rather than
+    # taking the state value on trust.
+    $ref: '#/$defs/identifier'
+  refusal:
+    # WHERE THE CORRELATION WAS REFUSED, THE CODE IS THIS CAPABILITY'S OWN. The
+    # analysis result then carries the NAMED omitted correlation and its
+    # enumerated ground; this record carries why the USE stopped, and the two
+    # are compared rather than one being inferred from the other.
+    type: object
+    required: [code, statement]
+    additionalProperties: false
+    properties:
+      code: {$ref: '#/$defs/refusal_code'}
+      statement: {type: string, minLength: 1, maxLength: 600}
+  record_version: {type: integer, minimum: 1}
+  notes: {type: string, maxLength: 1400}
+$defs:
+  identifier:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/identifier"
+  refusal_code:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/refusal_code"

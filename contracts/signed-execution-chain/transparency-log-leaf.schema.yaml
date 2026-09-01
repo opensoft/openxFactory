@@ -15,6 +15,11 @@ description: >-
   EVERY verdict the short-chain gate returns. Leaves are appended and never
   edited or removed.
 
+  AND THE GRAMMAR IS NOT THIS CAPABILITY'S ALONE. `add-chain-anchoring` settles
+  its own TWELVE leaf kinds in this same shape rather than authoring a second
+  one; the last block of this description states that extension in full, and says
+  what settling a leaf kind does and does not bring into existence.
+
   THE PATTERN IS RFC-6962 / CERTIFICATE-TRANSPARENCY AND SIGSTORE-REKOR, TAKEN AS
   A HASH-LINKED SIGNED LEAF SEQUENCE, and the realization says which form it took
   rather than leaving a reader to assume the other. Each leaf carries its own
@@ -36,14 +41,45 @@ description: >-
   its newest leaves and presents an earlier valid head shows a shorter log that
   verifies perfectly to a fresh reader. That residual is DECLARED in the
   realization conformance declaration's SEC-R6 entry, and tranche-three anchoring
-  — an externally witnessed head — is what closes it. An undeclared shortfall is
-  non-conformance; the identical shortfall, declared, is conformant.
+  — an externally witnessed head — is what closes it. THE LEAF KINDS FOR THAT
+  ANCHORING ARE SETTLED BELOW AS OF THIS REVISION, AND SETTLING A LEAF KIND
+  WITNESSES NOTHING: SEC-R6 stays declared and open until an anchor actually
+  lands. An undeclared shortfall is non-conformance; the identical shortfall,
+  declared, is conformant.
 
-  THE LOG IS THE RECORD. Public anchoring is a LATER ADDITION that makes the
-  record externally undeniable and belongs to the named tranche-three successor.
-  The absence of an anchor at this tranche is NOT a defect, this shape carries no
-  anchor, witness, commitment or inclusion-receipt member, and no reading of it
-  claims external undeniability the log alone does not provide.
+  THE LOG IS THE RECORD, AND PUBLIC ANCHORING IS AN ADDITION TO IT THAT IS NOW
+  SETTLED IN THIS GRAMMAR RATHER THAN BESIDE IT. `add-chain-anchoring` tasks.md
+  5.3 fixes the leaf kinds its requirements 3, 4, 7 and 8 mandate, and fixes them
+  HERE, on its own stated ground: *"This packet adds no second grammar and must
+  not, so tranche one's grammar is where each event discriminator and its
+  required fields are settled; requirements 3, 4, 7 and 8 mandate these leaves
+  and none of them defines a field."* So `leaf_type` gains TWELVE members below,
+  and this shape gains ONE optional member — `anchor_event` — carrying the
+  settled fields per kind. THE LIST WAS SETTLED BY A ONE-PASS EQUALITY CHECK
+  against every leaf-mandating clause of that spec rather than by accumulation,
+  and 5.3 requires the check re-run whenever a requirement gains or loses a leaf.
+
+  WHAT THE EXTENSION DOES NOT DO, SAID HERE BECAUSE A GRAMMAR IS EASY TO MISTAKE
+  FOR A RUNTIME. Settling a leaf kind mints no anchor. No witness is configured,
+  no receipt is captured, nothing is placed on any chain, and this repository
+  operates no anchoring subsystem — `add-chain-anchoring`'s operator conditions
+  are UNGATED AND UNTICKED at this revision. This shape still holds no anchor,
+  witness, commitment or inclusion-receipt VALUE: what it now holds is the
+  EVENT-RECORDING grammar for those acts, which is a different object, and no
+  reading of a leaf claims external undeniability the log alone does not provide.
+  What has changed is that when an anchoring realization writes its evidence, it
+  writes it as leaves OF THIS LOG under THIS grammar, and a shape exists to
+  refuse a malformed one — rather than a second leaf family growing beside the
+  first, which is the defect 5.3 exists to prevent.
+
+  ONE DELIBERATE EXCLUSION, WITH ITS GROUND, BECAUSE AN OMISSION A READER CANNOT
+  TELL FROM AN OVERSIGHT IS ONE THEY WILL CLOSE BY ADDING THE MEMBER BACK.
+  Requirement 4 of that spec also mandates a leaf for a VALIDATION FAILURE, and
+  no thirteenth member is added for it. A validation failure IS A GATE VERDICT,
+  which `gate_verdict` below already carries and which tranche one's ratified
+  leaf set already governs; settling it a second time here would mint exactly the
+  second grammar 5.3 forbids. The exclusion is recorded rather than left as an
+  absence.
 type: object
 required:
   - schema_version
@@ -79,14 +115,52 @@ properties:
     minimum: 1
   chain_ref: {$ref: '#/$defs/chain_ref'}
   leaf_type:
-    # The four acts this capability governs. There is no fifth, and an act with no
-    # leaf is UNPROVEN: its own success is not evidence that it was permitted.
+    # THE ACTS THIS LOG RECORDS, AND AN ACT WITH NO LEAF IS UNPROVEN: its own
+    # success is not evidence that it was permitted.
+    #
+    # The first four are the acts THIS capability governs. This comment read
+    # *"The four acts this capability governs. There is no fifth"* until
+    # `add-chain-anchoring` tasks.md 5.3 settled TWELVE more of another
+    # capability's acts in this same grammar. The sentence is CORRECTED rather
+    # than deleted, because what it was protecting is unchanged: the enumeration
+    # is CLOSED, a member is added only by a ratified change naming the
+    # requirement that mandates it, and nothing writes a leaf under a name this
+    # list does not carry. What was wrong was the number, not the rule.
+    #
+    # The twelve that follow are chain-anchoring's, IN 5.3's OWN ORDER, each with
+    # the requirement that mandates it. They are settled here and not in a family
+    # of their own because 5.3 forbids a second grammar; their per-kind fields
+    # are the `anchor_event` shapes below, and the pairing between a member here
+    # and its shape there is enforced by this file's `allOf`, not by prose.
     type: string
     enum:
+      # --- the four acts of `signed-execution-chain` (tranche one) ---
       - wallet_presented_ratification
       - chain_inception
       - traveling_contract_issued
       - gate_verdict
+      # --- `add-chain-anchoring` requirement 3: anchoring is a two-phase,
+      #     deadline-bounded obligation, and every move between its disjoint
+      #     states is itself evidence rather than a derived opinion ---
+      - anchor_pending_entry
+      - horizon_breach
+      - terminal_witness_failure
+      - anchor_completion
+      # --- requirement 4: only gate-passed material is anchored AS AN ITEM, and
+      #     a retraction is a new leaf and a new anchor, never an erasure ---
+      - item_anchor_refusal
+      - correction_anchored_forward
+      # --- requirement 7: served verification and access decisions are logged
+      #     leaves, the PERMITTED decision on the same footing as the refused ---
+      - verification
+      - verification_failure
+      - permitted_access
+      - refused_access
+      # --- requirement 8: cross-plane correlation runs only through an
+      #     authorized, scoped linkage derivation, WRITTEN AS LEAVES at issuance
+      #     and at use ---
+      - linkage_derivation_issuance
+      - linkage_derivation_use
   recorded_at: {type: string, format: date-time}
   payload_ref:
     # The record this leaf records, by identifier.
@@ -102,9 +176,23 @@ properties:
       - properties: {subject: {const: transparency_log_leaf}}
         required: [subject]
   verdict:
-    # Required on a `gate_verdict` leaf and forbidden on every other leaf type —
-    # both enforced by the canonical validator. A verdict recorded nowhere is a
-    # gate whose refusals are a convention rather than a record.
+    # Required on a `gate_verdict` leaf and forbidden on every other leaf type. A
+    # verdict recorded nowhere is a gate whose refusals are a convention rather
+    # than a record.
+    #
+    # HOW THAT PAIRING IS ENFORCED IS NOW TWO DIFFERENT ANSWERS, AND THE
+    # DIFFERENCE IS RECORDED RATHER THAN SMOOTHED OVER. Across the four
+    # tranche-one types it is the CANONICAL VALIDATOR that requires the verdict
+    # on a gate leaf and refuses it elsewhere; the shape leaves it optional.
+    # Across the twelve anchoring types the SHAPE refuses it, in the `allOf`
+    # below. The second is the stronger form and it is this family's stated
+    # preference — *"where a shape can refuse a thing, the shape refuses it"* —
+    # so the older, weaker handling is named here as what it is rather than
+    # presented as equivalent. It is left standing because tightening it is a
+    # change to how an already-published shape treats an already-published
+    # member, which is not this packet's to make: `add-chain-anchoring` is
+    # ADDITIVE, and an additive change that quietly narrows an existing member is
+    # not additive.
     type: object
     required: [outcome, scope, checks]
     additionalProperties: false
@@ -194,6 +282,44 @@ properties:
               - ratification_signature_invalid
           statement: {type: string, minLength: 1, maxLength: 600}
           names: {$ref: '#/$defs/identifier'}
+  anchor_event:
+    # THE SETTLED FIELDS OF A CHAIN-ANCHORING LEAF (`add-chain-anchoring`
+    # tasks.md 5.3). Required on each of the twelve anchoring leaf types,
+    # FORBIDDEN on all four tranche-one types, and matched to the shape of its
+    # OWN kind — all three by the `allOf` below, so a reader never has to know
+    # which pairing is legal in order to refuse an illegal one.
+    #
+    # WHY THE CLOSURE LIVES ON EACH SHAPE AND NOT HERE. Every `$defs` shape below
+    # declares `additionalProperties: false`, so the closure is real and it is
+    # twelve times over. Declaring it HERE instead, beside a `properties` block
+    # carrying only `event`, would refuse every field those shapes require — the
+    # member would be closed and useless. The discriminator is declared here so a
+    # record naming no event at all is refused before any routing is attempted.
+    #
+    # AND `event` EQUALS `leaf_type`, BY SHAPE. Each per-kind shape pins `event`
+    # to a `const`, and the `allOf` routes by `leaf_type` to exactly that shape,
+    # so a leaf whose event disagrees with its type is UNREPRESENTABLE rather
+    # than merely refused by a reader. 5.3's settlement asked only that a
+    # validator assert the equality; a shape that will not admit the disagreement
+    # is the stronger discharge of the same obligation.
+    type: object
+    required: [event]
+    properties:
+      event:
+        type: string
+        enum:
+          - anchor_pending_entry
+          - horizon_breach
+          - terminal_witness_failure
+          - anchor_completion
+          - item_anchor_refusal
+          - correction_anchored_forward
+          - verification
+          - verification_failure
+          - permitted_access
+          - refused_access
+          - linkage_derivation_issuance
+          - linkage_derivation_use
   leaf_digest:
     # THE LEAF'S OWN DIGEST, taken over the LEAF CONTENT — this record with
     # `leaf_digest` and `leaf_signature` removed — under the one construction in
@@ -221,6 +347,114 @@ properties:
         pattern: '^[A-Za-z0-9_-]{86}$'
   record_version: {type: integer, minimum: 1}
   notes: {type: string, maxLength: 1400}
+allOf:
+  # THE LEAF TYPE AND ITS EVENT BLOCK ARE PAIRED BY THE SHAPE, NOT BY PROSE AND
+  # NOT BY A READER. Thirteen conditionals, closed over all sixteen leaf types:
+  # one refusing `anchor_event` on the four tranche-one types, and one per
+  # anchoring type requiring THAT TYPE'S OWN shape and refusing `verdict`.
+  #
+  # THIS IS DELIBERATELY STRONGER THAN TRANCHE ONE'S VERDICT HANDLING, WHICH LEFT
+  # THE PAIRING TO THE VALIDATOR. The precedent is this file's own, taken from the
+  # `checks` array a position at a time: *"where a shape can refuse a thing, the
+  # shape refuses it"*. A pairing enforced only by a reader is a pairing that
+  # holds wherever that reader runs and nowhere else — and these leaves are
+  # written by an anchoring subsystem that does not exist yet, so the shape is the
+  # only thing that will certainly be in the room when the first one is minted.
+  - if:
+      required: [leaf_type]
+      properties:
+        leaf_type:
+          enum: [wallet_presented_ratification, chain_inception,
+                 traveling_contract_issued, gate_verdict]
+    then:
+      # An act of THIS capability carries no anchor event. The four tranche-one
+      # acts are complete as they were ratified, and a leaf that grew an anchoring
+      # block would be a tranche-one record making a tranche-three claim.
+      not: {required: [anchor_event]}
+  - if:
+      required: [leaf_type]
+      properties: {leaf_type: {const: anchor_pending_entry}}
+    then:
+      required: [anchor_event]
+      properties: {anchor_event: {$ref: '#/$defs/anchor_event_anchor_pending_entry'}}
+      not: {required: [verdict]}
+  - if:
+      required: [leaf_type]
+      properties: {leaf_type: {const: horizon_breach}}
+    then:
+      required: [anchor_event]
+      properties: {anchor_event: {$ref: '#/$defs/anchor_event_horizon_breach'}}
+      not: {required: [verdict]}
+  - if:
+      required: [leaf_type]
+      properties: {leaf_type: {const: terminal_witness_failure}}
+    then:
+      required: [anchor_event]
+      properties: {anchor_event: {$ref: '#/$defs/anchor_event_terminal_witness_failure'}}
+      not: {required: [verdict]}
+  - if:
+      required: [leaf_type]
+      properties: {leaf_type: {const: anchor_completion}}
+    then:
+      required: [anchor_event]
+      properties: {anchor_event: {$ref: '#/$defs/anchor_event_anchor_completion'}}
+      not: {required: [verdict]}
+  - if:
+      required: [leaf_type]
+      properties: {leaf_type: {const: item_anchor_refusal}}
+    then:
+      required: [anchor_event]
+      properties: {anchor_event: {$ref: '#/$defs/anchor_event_item_anchor_refusal'}}
+      not: {required: [verdict]}
+  - if:
+      required: [leaf_type]
+      properties: {leaf_type: {const: correction_anchored_forward}}
+    then:
+      required: [anchor_event]
+      properties: {anchor_event: {$ref: '#/$defs/anchor_event_correction_anchored_forward'}}
+      not: {required: [verdict]}
+  - if:
+      required: [leaf_type]
+      properties: {leaf_type: {const: verification}}
+    then:
+      required: [anchor_event]
+      properties: {anchor_event: {$ref: '#/$defs/anchor_event_verification'}}
+      not: {required: [verdict]}
+  - if:
+      required: [leaf_type]
+      properties: {leaf_type: {const: verification_failure}}
+    then:
+      required: [anchor_event]
+      properties: {anchor_event: {$ref: '#/$defs/anchor_event_verification_failure'}}
+      not: {required: [verdict]}
+  - if:
+      required: [leaf_type]
+      properties: {leaf_type: {const: permitted_access}}
+    then:
+      required: [anchor_event]
+      properties: {anchor_event: {$ref: '#/$defs/anchor_event_permitted_access'}}
+      not: {required: [verdict]}
+  - if:
+      required: [leaf_type]
+      properties: {leaf_type: {const: refused_access}}
+    then:
+      required: [anchor_event]
+      properties: {anchor_event: {$ref: '#/$defs/anchor_event_refused_access'}}
+      not: {required: [verdict]}
+  - if:
+      required: [leaf_type]
+      properties: {leaf_type: {const: linkage_derivation_issuance}}
+    then:
+      required: [anchor_event]
+      properties: {anchor_event: {$ref: '#/$defs/anchor_event_linkage_derivation_issuance'}}
+      not: {required: [verdict]}
+  - if:
+      required: [leaf_type]
+      properties: {leaf_type: {const: linkage_derivation_use}}
+    then:
+      required: [anchor_event]
+      properties: {anchor_event: {$ref: '#/$defs/anchor_event_linkage_derivation_use'}}
+      not: {required: [verdict]}
 $defs:
   check_entry:
     # The shape of ONE recorded check. Its `check` member is left unconstrained
@@ -236,6 +470,302 @@ $defs:
         type: string
         enum: [pass, fail, not_evaluable]
       statement: {type: string, maxLength: 600}
+
+  # ---------------------------------------------------------------------------
+  # THE TWELVE `anchor_event` SHAPES (`add-chain-anchoring` tasks.md 5.3), in
+  # that task's own order. Each names the requirement that mandates it and the
+  # sentence from which each required field is taken, so a field can be traced to
+  # an obligation rather than to a preference. Every shape closes itself with
+  # `additionalProperties: false`, and pins `event` to the `leaf_type` it belongs
+  # to, so no leaf can carry an event block from another kind.
+  #
+  # THEY DEPEND ON NOTHING OUTSIDE THIS FILE AND THE ONE DIGEST CONSTRUCTION, AND
+  # THAT IS A CONSTRAINT AND NOT A COINCIDENCE. A ratified tranche-one shape that
+  # `$ref`ed a tranche-three definitions file would make the published grammar
+  # depend on an unratified successor, and a consumer resolving this bundle would
+  # need a file that may never ship. Where a value's LAWFUL SET is the anchoring
+  # family's to close — a refusal code, a witness role — this shape requires the
+  # value to be PRESENT and bounded, and that family's reader adjudicates it.
+  # ---------------------------------------------------------------------------
+
+  anchor_verification_mode:
+    # Requirement 3's timing model, as a CLOSED pair. A `receipt_only` verifier
+    # computes from the receipt's mint-time configuration block alone; a
+    # `stateful` one also holds the anchor-state record. What each may and may not
+    # conclude is that model's to fix — and a result offered with NO mode is
+    # REFUSED, *"because a caller branches on a value and never on a paragraph"*.
+    type: string
+    enum: [receipt_only, stateful]
+  anchor_verification_outcome:
+    # The CLOSED outcome enumeration of a SERVED verification. The first three are
+    # requirement 3's disjoint states; `no_determination` is the honest answer
+    # where the horizon base will not carry one; `refused` is the answer where the
+    # verification itself is refused. There is NO BARE PASS AND NO BARE FAIL in
+    # this list, because requirement 3 holds that the record supports neither.
+    type: string
+    enum: [anchor_pending, anchor_incomplete, anchor_complete, no_determination,
+           refused]
+
+  anchor_event_anchor_pending_entry:
+    # REQUIREMENT 3. *"An item enters `anchor_pending` when validated material is
+    # submitted"*, and *"Entry into `anchor_pending` … SHALL … be written as a
+    # leaf in the evidence plane"*. The witnesses are NAMED because the answer
+    # this state gives is `anchor_pending` naming the witnesses still in flight,
+    # and a leaf naming none of them cannot support it.
+    #
+    # `submission_time` IS `t_declared` — AN ASSERTION, NOT A CLOCK. It is the
+    # minter's declared submission moment; nothing derives a chain-accepted time
+    # from it, and a determination taken against a minter-claimed base is refused
+    # by the anchoring family's reader rather than by this shape.
+    type: object
+    required: [event, item_ref, configured_witnesses, submission_time]
+    additionalProperties: false
+    properties:
+      event: {type: string, const: anchor_pending_entry}
+      item_ref: {$ref: '#/$defs/identifier'}
+      configured_witnesses:
+        # The witnesses configured for this item, BY IDENTIFIER. Their roles and
+        # declared horizons live in the anchor-state record, which is STATE; this
+        # leaf is EVIDENCE that the item entered the state. Requirement 3 keeps
+        # the two apart on its own terms, and so does this shape.
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items: {$ref: '#/$defs/identifier'}
+      submission_time: {type: string, format: date-time}
+
+  anchor_event_horizon_breach:
+    # REQUIREMENT 3 — one of exactly TWO transitions out of `anchor_pending`:
+    # *"a witness's declared HORIZON IS BREACHED"*, and *"the transition is
+    # written as a leaf"* naming that witness.
+    #
+    # `horizon_base` CAN SAY `minter_claimed`, ON PURPOSE. A base a record cannot
+    # state is a base no negative example can probe, and this family's standing
+    # rule is that a restriction on a value a record DECLARES is refused BY NAME
+    # rather than made unrepresentable.
+    type: object
+    required: [event, item_ref, witness_id, horizon_seconds, horizon_base]
+    additionalProperties: false
+    properties:
+      event: {type: string, const: horizon_breach}
+      item_ref: {$ref: '#/$defs/identifier'}
+      witness_id: {$ref: '#/$defs/identifier'}
+      horizon_seconds:
+        # AN INTEGER SECOND COUNT, so two readers compare the same value rather
+        # than two spellings of a duration.
+        type: integer
+        minimum: 0
+      horizon_base:
+        type: object
+        required: [kind]
+        additionalProperties: false
+        properties:
+          kind: {type: string, enum: [chain_derived, minter_claimed]}
+          value: {type: string, format: date-time}
+
+  anchor_event_terminal_witness_failure:
+    # REQUIREMENT 3 — the OTHER permitted transition: *"a witness fails TERMINALLY
+    # in a way the realization can name — a refused anchor, an irrecoverable
+    # capture, a target withdrawn"*, and the transition *"is written as a leaf
+    # naming the terminal failure"*.
+    #
+    # THE GROUND IS A CLOSED ENUMERATION OF EXACTLY THOSE THREE, because 5.3
+    # records that without a settled shape *"a realization can omit the evidence
+    # for half the state machine"* — and a free-text ground is that omission
+    # wearing a sentence. The three are the SPEC's own words, not a code list
+    # borrowed from the anchoring family.
+    type: object
+    required: [event, item_ref, witness_id, failure_ground]
+    additionalProperties: false
+    properties:
+      event: {type: string, const: terminal_witness_failure}
+      item_ref: {$ref: '#/$defs/identifier'}
+      witness_id: {$ref: '#/$defs/identifier'}
+      failure_ground:
+        type: string
+        enum: [anchor_refused, capture_irrecoverable, target_withdrawn]
+
+  anchor_event_anchor_completion:
+    # REQUIREMENT 3. *"The eventual completion SHALL … be written as a leaf"*, and
+    # *"the anchoring subsystem SHALL NOT mark an item complete by any path other
+    # than a CAPTURED RECEIPT"*. `receipt_ref` is therefore REQUIRED: a completion
+    # leaf naming no receipt IS that other path, and there is no other path.
+    type: object
+    required: [event, item_ref, receipt_ref, witnesses_landed]
+    additionalProperties: false
+    properties:
+      event: {type: string, const: anchor_completion}
+      item_ref: {$ref: '#/$defs/identifier'}
+      receipt_ref: {$ref: '#/$defs/identifier'}
+      witnesses_landed:
+        # NAMED, never counted and never summarized. Requirement 3 refuses an
+        # aggregate `anchored` boolean because *"such a field can read true while
+        # a configured witness is missing"*; a completion leaf carrying a COUNT
+        # instead of the names is that boolean with more digits.
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items: {$ref: '#/$defs/identifier'}
+
+  anchor_event_item_anchor_refusal:
+    # REQUIREMENT 4. *"Unvalidated material is submitted to the ITEM-ANCHOR path …
+    # THEN it is REFUSED, and the refusal is recorded as a leaf."* 5.3 names this
+    # kind as one whose *"scenario mandates a leaf and no settlement named it"*.
+    #
+    # `ground` IS A BOUNDED STRING HERE AND AN ENUMERATED CODE THERE, AND THE
+    # SPLIT IS DELIBERATE. The closed refusal enumeration is the chain-anchoring
+    # family's; `$ref`ing it from this ratified file would invert the dependency.
+    # This shape requires that the refusal SAY something and bounds how much; the
+    # anchoring reader adjudicates the value against its own closed set.
+    type: object
+    required: [event, material_ref, ground]
+    additionalProperties: false
+    properties:
+      event: {type: string, const: item_anchor_refusal}
+      material_ref: {$ref: '#/$defs/identifier'}
+      ground: {type: string, minLength: 1, maxLength: 600}
+
+  anchor_event_correction_anchored_forward:
+    # REQUIREMENT 4. *"A RETRACTION IS A NEW LEAF AND A NEW ANCHOR, NEVER AN
+    # ERASURE"*: the correction *"SHALL be recorded and anchored forward"*, and
+    # *"no claim is made that the original anchor is withdrawn, because nothing on
+    # a chain can be un-published"*.
+    #
+    # 5.3'S EQUALITY CHECK CAUGHT ITS OWN OMISSION HERE, and the fact is carried
+    # rather than tidied away: the first pass keyed on the phrase *"as a leaf"*
+    # and missed this one, whose clause reads *"recorded and anchored forward"* —
+    # the leaf named in the heading and not in the clause. Re-running against
+    # every leaf-mandating clause is what found it.
+    #
+    # NOTHING WITHDRAWS ANYTHING, AND THE SHAPE IS WHY. `additionalProperties:
+    # false` leaves no member in which a `withdrawn`, `retracted` or `void` claim
+    # could be written, so the requirement's promise is kept by what the record
+    # cannot say rather than by what a reader remembers to check.
+    type: object
+    required: [event, superseded_material_ref, correcting_material_ref, ground]
+    additionalProperties: false
+    properties:
+      event: {type: string, const: correction_anchored_forward}
+      superseded_material_ref: {$ref: '#/$defs/identifier'}
+      correcting_material_ref: {$ref: '#/$defs/identifier'}
+      ground: {type: string, minLength: 1, maxLength: 600}
+
+  anchor_event_verification:
+    # REQUIREMENT 7. *"The verification is written as a leaf naming what was
+    # verified and the outcome."* The claim is over the SERVED surface and is
+    # never a census: a holder verifying a receipt on its own machine is INVISIBLE
+    # BY CONSTRUCTION, and that invisibility is the receipt's self-sufficiency
+    # working rather than a gap this shape should try to close.
+    #
+    # `verification_mode` IS REQUIRED. Requirement 3: *"Every verification result
+    # SHALL carry its VERIFICATION MODE, and a result offered without one is
+    # REFUSED"* — carried here so the refusal is structural on the leaf too.
+    type: object
+    required: [event, subject_ref, outcome, verification_mode]
+    additionalProperties: false
+    properties:
+      event: {type: string, const: verification}
+      subject_ref: {$ref: '#/$defs/identifier'}
+      outcome: {$ref: '#/$defs/anchor_verification_outcome'}
+      verification_mode: {$ref: '#/$defs/anchor_verification_mode'}
+
+  anchor_event_verification_failure:
+    # REQUIREMENT 7. *"The failure is written as a leaf recorded as a failure,
+    # never as an absent event"*, and *"a log that shows no leaf for that served
+    # attempt is non-conformant with this requirement"*.
+    #
+    # THE OUTCOME IS A `const`, AND `failed` IS DELIBERATELY OUTSIDE THE OUTCOME
+    # ENUMERATION THE SUCCEEDING SHAPE USES. A failure therefore cannot be filed
+    # as a `verification` leaf wearing a softer outcome, and a `verification` leaf
+    # cannot report `failed`: the two are decidable apart BY THE RECORD ITSELF,
+    # which is what stops a failure being recorded as a weaker kind of pass.
+    type: object
+    required: [event, subject_ref, outcome, verification_mode]
+    additionalProperties: false
+    properties:
+      event: {type: string, const: verification_failure}
+      subject_ref: {$ref: '#/$defs/identifier'}
+      outcome: {type: string, const: failed}
+      verification_mode: {$ref: '#/$defs/anchor_verification_mode'}
+
+  anchor_event_permitted_access:
+    # REQUIREMENT 7. *"The permitted decision is written as a leaf on the same
+    # footing as a refusal, naming who was served and what was reached"*, and
+    # *"a realization that logs only refusals is non-conformant, because refusals
+    # alone answer who was turned away and never who actually read"*.
+    #
+    # WHAT WAS REACHED IS NAMED BY REFERENCE AND NEVER CARRIED. Requirement 7
+    # binds these leaves by the same boundary as everything else: *"the leaf
+    # records neither the material nor an unsalted commitment to it"*. Both
+    # members are identifiers and the shape admits nothing else, so there is no
+    # member into which content could be placed.
+    type: object
+    required: [event, served_party_ref, reached_ref]
+    additionalProperties: false
+    properties:
+      event: {type: string, const: permitted_access}
+      served_party_ref: {$ref: '#/$defs/identifier'}
+      reached_ref: {$ref: '#/$defs/identifier'}
+
+  anchor_event_refused_access:
+    # REQUIREMENT 7. *"The refused attempt is written as a leaf"*, and *"the leaf
+    # records the refusal without recording the material that was not
+    # disclosed"* — which is why this shape has a requesting party and a ground,
+    # and NO member naming the thing withheld.
+    type: object
+    required: [event, requesting_party_ref, ground]
+    additionalProperties: false
+    properties:
+      event: {type: string, const: refused_access}
+      requesting_party_ref: {$ref: '#/$defs/identifier'}
+      ground: {type: string, minLength: 1, maxLength: 600}
+
+  anchor_event_linkage_derivation_issuance:
+    # REQUIREMENT 8. Cross-plane correlation runs only through a derivation
+    # *"ISSUED BY THE IDENTITY PLANE … and UNDER AN ANCHORED CONSENT CHECKPOINT …
+    # PER-ANALYSIS AND NEVER STABLE … EXPIRING AND REVOCABLE … and WRITTEN AS
+    # LEAVES at issuance and at use"*. The four members are the adjectives a
+    # reader can check FROM THE LEAF ALONE: who issued it, under which checkpoint,
+    # and for which analysis. Expiry and the revocation surface are the issuance
+    # RECORD's, not this leaf's, and are settled in the anchoring family.
+    #
+    # `issuing_plane` CAN NAME A PLANE THAT IS NOT `identity`, ON PURPOSE — the
+    # same rule as `horizon_base` above. Requirement 8 refuses *"a derivation
+    # minted anywhere but the identity plane"* BY NAME, and a value a record
+    # cannot state is a refusal no negative example can prove.
+    type: object
+    required: [event, derivation_ref, issuing_plane, consent_checkpoint_ref,
+               analysis_ref]
+    additionalProperties: false
+    properties:
+      event: {type: string, const: linkage_derivation_issuance}
+      derivation_ref: {$ref: '#/$defs/identifier'}
+      issuing_plane: {type: string, enum: [record, demographic, identity]}
+      consent_checkpoint_ref: {$ref: '#/$defs/identifier'}
+      analysis_ref: {$ref: '#/$defs/identifier'}
+
+  anchor_event_linkage_derivation_use:
+    # REQUIREMENT 8. *"Every USE answers to the CURRENT revocation state and not
+    # merely to the fact of issuance"*, and where that state cannot be read *"the
+    # CORRELATION is REFUSED"*. So the state READ AT USE is a required member: a
+    # use recorded without it is the *"pre-issued derivation … self-authorizing
+    # offline"* the requirement refuses, *"because that is how a revoked
+    # authorization keeps working"*.
+    #
+    # `analysis_ref` IS CARRIED AT BOTH ISSUANCE AND USE, so the per-analysis
+    # binding is checkable from the leaves alone; a derivation appearing under two
+    # analyses is *"the shared cross-plane key under another name"*.
+    type: object
+    required: [event, derivation_ref, analysis_ref, revocation_state_read]
+    additionalProperties: false
+    properties:
+      event: {type: string, const: linkage_derivation_use}
+      derivation_ref: {$ref: '#/$defs/identifier'}
+      analysis_ref: {$ref: '#/$defs/identifier'}
+      revocation_state_read:
+        type: string
+        enum: [current_not_revoked, revoked, unreadable]
+
   identifier:
     $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/identifier"
   digest:

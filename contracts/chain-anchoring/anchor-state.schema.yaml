@@ -1,0 +1,251 @@
+schema_version: 1
+kind: openxfactory-chain-anchoring-contract-schema
+name: xfactory_chain_anchoring_anchor_state
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchor-state.schema.yaml"
+contract_id: chain-anchoring-anchor-state
+contract_schema_version: 1
+title: Anchor state record for one anchored item
+description: >-
+  THE STATE OF ONE ANCHORED ITEM, PER WITNESS, AND THE RECORD IS WHERE EVERY
+  SURFACE READS IT (add-chain-anchoring, capability `chain-anchoring`,
+  requirement "A missing witness is a declared, fail-closed state and never
+  silently fine", with the no-selectivity rule of "Both ruled witnesses anchor
+  every anchored item, with no selectivity" enforced against its per-witness
+  rows). THE RECEIPT IS PROOF MATERIAL AND THIS RECORD IS STATE, and keeping them
+  apart is what stops the two requirements colliding: a witness still in flight is
+  recorded HERE as a pending proof, never as a half-filled receipt entry and
+  never as a status field inside a receipt.
+
+  THE TWO STATES ARE DISJOINT BY DEFINITION AND THE TRANSITION BETWEEN THEM IS
+  EXPLICIT RATHER THAN INFERRED. Every freshly submitted item has NO witnesses
+  yet, so a rule reading "fewer witnesses than configured" as sufficient for
+  `anchor_incomplete` would put every sound item in both states at once and
+  leave a realization no deterministic answer during the ordinary aggregation
+  window. An item is `anchor_pending`, and REMAINS `anchor_pending`, while every
+  unmet witness is still WITHIN its declared horizon. It BECOMES
+  `anchor_incomplete` only on an explicit transition, of which there are exactly
+  two — a declared HORIZON IS BREACHED, or a witness fails TERMINALLY in a way
+  the realization can name. An item that reaches its full configured set from
+  `anchor_pending` goes STRAIGHT to `anchor_complete` and never passes through
+  `anchor_incomplete`, because nothing ever breached.
+
+  EACH TRANSITION IS WRITTEN AS A LEAF, WHICH IS WHY `leaf_ref` IS REQUIRED ON
+  EVERY ONE OF THEM. The move between states is itself EVIDENCE and not a derived
+  opinion, so a transition offered with no leaf is refused
+  (`anchor_state_transition_without_leaf`) — the incompleteness is evidence, and
+  a silent gap is what that makes impossible. The leaf's own shape belongs to
+  tranche one's leaf grammar; this record REFERENCES leaves and defines none,
+  because a second grammar is exactly what this tranche must not mint.
+
+  THERE IS NO AGGREGATE `anchored` BOOLEAN ANYWHERE IN THIS CAPABILITY, AND THIS
+  IS THE RECORD THAT WOULD OTHERWISE CARRY ONE. Such a field can read TRUE while
+  a configured witness is missing, which is how an outage becomes selectivity by
+  accident — "this one only got the one witness, and that was fine". Per-witness
+  status is what every surface reads instead; a member of that vocabulary found
+  here is refused by name (`anchor_state_aggregate_boolean`).
+
+  WHAT FAILS CLOSED IS THE CLAIM AND NOT THE FACTORY. A witness outage blocks no
+  ratification, execution, review or gate — the transparency log is the evidence
+  plane and a leaf's standing has never depended on an anchor. What it blocks is
+  the CLAIM: while an item is `anchor_incomplete`, a verification of it returns
+  `anchor_incomplete` naming the missing witnesses, never a bare pass and never a
+  bare fail, because the record supports neither answer.
+
+  THE CLOCKS, THE BOUNDS AND THEIR DIRECTIONS, THE WIDTHS AND THE ONE-DIRECTIONAL
+  MARGIN ARE STATED ONCE IN THE TIMING MODEL of the receipt requirement, and are
+  not restated here. The horizons this record carries are the horizons the
+  receipt's committed configuration block declares; where the two disagree, the
+  committed block governs, because it is the one a holder cannot edit.
+type: object
+required:
+  - schema_version
+  - kind
+  - state_id
+  - item_ref
+  - state
+  - per_witness
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [xfactory_chain_anchoring_anchor_state]
+  state_id: {$ref: '#/$defs/identifier'}
+  item_ref:
+    # THE ANCHORED ITEM THIS RECORD IS ABOUT, by identifier. What an item IS —
+    # a log checkpoint, a state root, or both, and at what granularity the
+    # aggregation batches — is the anchored-item unit the realization settles;
+    # this contract fixes the state machine over it and deliberately not the
+    # unit.
+    $ref: '#/$defs/identifier'
+  state:
+    # THE THREE STATES, DISJOINT. `anchor_pending` is not an anchored one — it
+    # says nothing has gone wrong YET, which is a different answer from
+    # `anchor_complete` and a different answer from `anchor_incomplete`. Neither
+    # of the first two presents the item as anchored.
+    type: string
+    enum: [anchor_pending, anchor_incomplete, anchor_complete]
+  per_witness:
+    # ONE ROW PER CONFIGURED WITNESS, INCLUDING THE ONES THAT HAVE NOT LANDED.
+    # A row for a witness that is missing is the whole point: the missing
+    # witness is NAMED, and an item presented as anchored with a row still
+    # unmet is refused (`item_presented_as_anchored_with_missing_witness`).
+    type: array
+    minItems: 1
+    items: {$ref: '#/$defs/witness_status_row'}
+  transitions:
+    # THE MOVES BETWEEN STATES, EACH WITH ITS LEAF. Absent on an item that has
+    # not moved since entry; present, every entry carries the leaf that recorded
+    # it. A realization that records a transition and writes no leaf has a state
+    # machine whose evidence exists for half its edges, which is the failure
+    # this member exists to make visible.
+    type: array
+    minItems: 0
+    items: {$ref: '#/$defs/transition_entry'}
+  receipt_ref:
+    # THE CAPTURED RECEIPT. THE ANCHORING SUBSYSTEM MARKS AN ITEM COMPLETE BY NO
+    # PATH OTHER THAN ONE, which is why `state: anchor_complete` without this
+    # reference — or with a configured witness not `landed` — is refused
+    # (`anchor_state_complete_without_captured_receipt`). It is NOT made
+    # unrepresentable by an `if/then`: the refusal must NAME what was lacking,
+    # and a schema error saying a property was missing does not distinguish a
+    # completeness claim over an uncaptured receipt from a completeness claim
+    # over a missing witness.
+    $ref: '#/$defs/identifier'
+  configured_witness_count:
+    # WHAT THE CONFIGURATION DEMANDED, so a shortfall is arithmetic rather than
+    # inference. The authoritative set is the receipt's COMMITTED mint-time
+    # configuration block; this count is a convenience for a record whose
+    # receipt has not been captured yet, and the validator refuses a
+    # disagreement with the committed block rather than preferring either.
+    type: integer
+    minimum: 1
+  recorded_at: {type: string, format: date-time}
+  record_version: {type: integer, minimum: 1}
+  notes: {type: string, maxLength: 1400}
+$defs:
+  identifier:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/identifier"
+  digest:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/digest"
+  witness_role:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/witness_role"
+  chain_id:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/chain_id"
+  duration_seconds:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/duration_seconds"
+  terminal_failure_ground:
+    $ref: "https://xforge.us/schemas/openxfactory/chain-anchoring/v1/anchoring-definitions.schema.yaml#/$defs/terminal_failure_ground"
+  witness_status_row:
+    type: object
+    required: [witness_id, role, status, completion_horizon_seconds, horizon_base]
+    additionalProperties: false
+    properties:
+      witness_id: {$ref: '#/$defs/identifier'}
+      role: {$ref: '#/$defs/witness_role'}
+      chain_id: {$ref: '#/$defs/chain_id'}
+      status:
+        # IN FLIGHT, LANDED, OR TERMINALLY FAILED — and the third is the one a
+        # receipt can never carry, because it arises AFTER the receipt was
+        # minted and leaves no mark on it. A terminally failed item's receipt is
+        # byte-identical to a sound one's, which is the whole reason a
+        # receipt-only verification may not claim to have excluded one.
+        type: string
+        enum: [in_flight, landed, terminally_failed]
+      completion_horizon_seconds: {$ref: '#/$defs/duration_seconds'}
+      horizon_base:
+        # WHERE THE HORIZON IS MEASURED FROM, DECLARED RATHER THAN ASSUMED.
+        # `chain_derived` is the earliest chain-accepted time in the receipt's
+        # own per-chain list, read from a block header. `minter_claimed` is what
+        # remains where no landed witness is eligible as a base — an empty
+        # per-chain list, or only ordering-only witnesses — and where the base
+        # is minter-claimed NO pending-versus-breached determination is made at
+        # all, because a claim the artifact cannot check is not a basis for a
+        # fail-closed answer.
+        type: object
+        required: [kind]
+        additionalProperties: false
+        properties:
+          kind:
+            type: string
+            enum: [chain_derived, minter_claimed]
+          chain_id: {$ref: '#/$defs/chain_id'}
+          value:
+            # The instant the base resolves to, where one exists. Present on a
+            # `chain_derived` base and recomputable by any reader from the
+            # receipt's own bytes; on a `minter_claimed` base it is the
+            # assertion itself, and carrying it does not make it checkable.
+            type: string
+            format: date-time
+      pending_durability_proof:
+        # AN AGGREGATION PROOF COMPLETES BY UPGRADE, NOT BY A SECOND ANCHOR.
+        # Where the durability witness's aggregation calendar is unreachable,
+        # the pending proof is held HERE — not in the receipt — and is UPGRADED
+        # and APPENDED to the receipt when the calendar returns. Re-anchoring
+        # would mint a second transaction for the same digest and leave two
+        # proofs to keep where one was owed, and it is refused by name
+        # (`durability_proof_reanchored_rather_than_upgraded`). `reanchored` is
+        # WRITABLE so that refusal has a negative example to fire on.
+        type: object
+        required: [proof_ref, awaiting_upgrade]
+        additionalProperties: false
+        properties:
+          proof_ref: {$ref: '#/$defs/identifier'}
+          awaiting_upgrade: {type: boolean}
+          aggregation_calendar_ref: {$ref: '#/$defs/identifier'}
+          upgraded_into_receipt_entry: {type: boolean}
+          reanchored: {type: boolean}
+      inclusion_proof_captured_at_anchor_time:
+        # THE OPERATIONAL WITNESS'S SECOND ADOPTION CONDITION, PER ITEM. An
+        # anchor written without capturing its inclusion proof at anchor time is
+        # refused and the item is NOT credited with that witness
+        # (`operational_anchor_without_retained_proof`); a plan to re-derive the
+        # proof later is not accepted, because the chain will have pruned the
+        # material the derivation needs.
+        type: boolean
+      terminal_failure_ground:
+        # Present only where `status` is `terminally_failed`, and drawn from the
+        # closed set rather than written as prose: a ground a validator cannot
+        # compare is a ground it cannot check.
+        $ref: '#/$defs/terminal_failure_ground'
+      transition_leaf_ref:
+        # The leaf that recorded this row's most recent transition, where it has
+        # had one. The transition list below is the full record; this is the
+        # pointer a surface reading one row follows.
+        $ref: '#/$defs/identifier'
+      landed_receipt_entry_chain_id:
+        # Which per-chain entry of the captured receipt discharges this row, so
+        # the row and the receipt can be COMPARED rather than assumed to agree.
+        $ref: '#/$defs/chain_id'
+  transition_entry:
+    # `leaf_ref` IS REQUIRED, AND THAT IS THE POINT OF THE SHAPE. Entry into
+    # `anchor_pending`, every horizon breach, every terminal failure and the
+    # eventual completion are each written as a leaf in the evidence plane; a
+    # transition claimed without one is an opinion about a state machine rather
+    # than a record of it.
+    type: object
+    required: [transition, leaf_ref]
+    additionalProperties: false
+    properties:
+      transition:
+        type: string
+        enum: [pending_entry, horizon_breach, terminal_witness_failure, completion]
+      witness_id:
+        # Named on a per-witness transition — a horizon breach and a terminal
+        # failure are always ABOUT a witness — and absent on `pending_entry` and
+        # `completion`, which are about the item.
+        $ref: '#/$defs/identifier'
+      ground:
+        # The named ground of a terminal failure. A horizon breach needs none:
+        # its ground is the horizon, which the row already carries.
+        $ref: '#/$defs/terminal_failure_ground'
+      leaf_ref: {$ref: '#/$defs/identifier'}
+      occurred_at: {type: string, format: date-time}
+      operator_obligation_raised:
+        # RAISED AT THE TRANSITION RATHER THAN ON EVERY SOUND ITEM. That is
+        # the whole reason the two states are disjoint: firing the obligation
+        # during the ordinary aggregation window would turn a real signal into
+        # noise.
+        type: boolean
+      statement: {type: string, maxLength: 600}

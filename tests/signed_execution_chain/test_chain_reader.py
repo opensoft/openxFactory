@@ -83,9 +83,38 @@ def test_the_corpus_covers_all_four_kinds_and_every_leaf_type(registry_and_docs,
     assert kinds == set(reader.KIND_TO_SCHEMA)
     leaf_types = {doc["leaf_type"] for _, doc in records
                   if doc["kind"] == "xfactory_signed_execution_chain_log_leaf"}
-    assert leaf_types == set(reader.LEAF_TYPES), (
+    assert leaf_types == set(reader.TRANCHE_ONE_LEAF_TYPES), (
         "every act this capability governs writes a leaf, so every leaf type has "
         "a packaged example or one of them is a shape nobody has ever produced")
+
+
+def test_the_reader_and_the_shipped_leaf_enumeration_are_the_same_set():
+    """THE SCHEMA AND THE READER MOVE TOGETHER OR NOT AT ALL.
+
+    The obligation above is over the FOUR acts this capability governs, and it is
+    unweakened: those four still each have a packaged example. What it never
+    checked was the other direction — that the reader's leaf-type set is the set
+    the SHIPPED SHAPE declares. `add-chain-anchoring` tasks.md 5.3 settles twelve
+    further kinds in this grammar, and a reader that does not carry them reads a
+    lawful leaf as a stranger and skips its payload commitment in silence, which
+    reads as a checked leaf and is not one.
+
+    The twelve deliberately have no packaged example HERE: they are not acts of
+    this capability, nothing in this realization mints an anchor, and the family
+    that produces them owns their corpus. That is exactly why this pin is needed —
+    the corpus can no longer catch a drifted enumeration on its own.
+    """
+    schema = yaml.safe_load(
+        (REPO_ROOT / "contracts" / "signed-execution-chain" /
+         "transparency-log-leaf.schema.yaml").read_text(encoding="utf-8"))
+    declared = schema["properties"]["leaf_type"]["enum"]
+    assert declared == list(reader.LEAF_TYPES), (
+        "the shipped leaf_type enumeration and the reader's LEAF_TYPES are one "
+        "closed set, in one order")
+    assert list(reader.LEAF_TYPES) == (list(reader.TRANCHE_ONE_LEAF_TYPES) +
+                                       list(reader.ANCHORING_LEAF_TYPES))
+    assert len(reader.TRANCHE_ONE_LEAF_TYPES) == 4
+    assert len(reader.ANCHORING_LEAF_TYPES) == 12
 
 
 def test_every_closed_refusal_code_has_a_packaged_probe():
