@@ -380,6 +380,20 @@ is recorded rather than absorbed. See that box.
       and why `invalid_turn_request` is not reused. **Ticking 3.2 without this
       would have left the estate's closed-catalog invariant red**, so the two
       boxes are one act.
+      **AND AN ELEVENTH, found the same way — by running the suite rather than
+      by grepping.** With one family served, `test_doxbench_routes.py`'s
+      `_assert_v2_refusal` and `_assert_refusal` twins — which differed in
+      exactly one clause, the `kind` — collapse into the unqualified name. That
+      is right, and it broke a CROSS-FILE consumer:
+      `tests/ideation-dashboard/test_doxbench_blank_reason.py` imports the
+      helper by name and failed with `ImportError: cannot import name
+      '_assert_v2_refusal'`. Followed to its call site.
+      **THE LESSON IS RECORDED BECAUSE IT GENERALIZES:** a v1 RETIREMENT's
+      blast radius is not only the v1 spellings. It reaches (a) the closed error
+      catalog, via the code the redesign needs, and (b) cross-file test helper
+      NAMES, via the twins that only existed because two families did. Neither is
+      findable by grepping for `workbench-chat-turn`, and both were caught only
+      by running the suites the packet named as this family's gates.
       The discipline applied: a test exercising behaviour the surviving family
       ALSO has is RE-EXPRESSED against `-v2`; a test whose only subject was the
       v1 family's SURVIVAL or its DEPRECATION RECORD is deleted and replaced by
