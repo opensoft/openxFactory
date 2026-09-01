@@ -197,7 +197,9 @@ suggestion: the workflow path is what the operator admits to the allowlist in
 
 ## 4. The operator's acts — ONE console act per group, and one closure
 
-- [ ] 4.1 Add `opensoft/xFactory/.github/workflows/clearing-dispatch.yml@refs/heads/main`
+- [x] 4.1 **DONE 2026-09-01** — verified against the provider API: `record
+      review/readiness-evidence-2026-09-01.md` §1. Add
+      `opensoft/xFactory/.github/workflows/clearing-dispatch.yml@refs/heads/main`
       to `selected_workflows` of group `xfactory-artifact-workers` (id 5) and
       group `xfactory-execution-lane-workers` (id 7). **ONE entry per group,
       once, ever** — this is the permanent entry the allowlist converges to.
@@ -213,7 +215,10 @@ suggestion: the workflow path is what the operator admits to the allowlist in
       is Brett's option-1 ruling of 2026-09-01 and the reason the readiness
       test became an operation. Recorded as a task so a future operator does
       not "fix" a queued readiness run by adding the entry.
-- [ ] 4.3 **CLOSE THE RESIDUAL THE RULING NAMES.** Group
+- [x] 4.3 **DONE 2026-09-01** — `opensoft/codexFactory` removed from group
+      `xfactory-artifact-workers`'s repository admissions, verified against
+      the provider API: `record review/readiness-evidence-2026-09-01.md` §1.
+      **CLOSE THE RESIDUAL THE RULING NAMES.** Group
       `xfactory-artifact-workers` (id 5) currently admits TWO repositories —
       `opensoft/xFactory` AND `opensoft/codexFactory` (measured against the
       provider API 2026-09-01). The ruling holds runner-group access to
@@ -222,9 +227,18 @@ suggestion: the workflow path is what the operator admits to the allowlist in
       workflow paths to xFactory files, no codexFactory job can be claimed
       through it today — so the removal takes nothing away that works. Group
       7 already admits xFactory alone; nothing to do there.
-- [ ] 4.4 Re-read both groups from the provider API after 4.1 and 4.3 and
+- [x] 4.4 **DONE 2026-09-01** — re-read and filed: both groups now admit
+      `opensoft/xFactory` alone — zero widenings, the first green
+      single-door reading. Filed as the §7 attestation baseline in `record
+      review/readiness-evidence-2026-09-01.md` §1. Re-read both groups from
+      the provider API after 4.1 and 4.3 and
       file the reading as the baseline the §7 attestation compares against.
-- [ ] 4.5 **CREATE THE REQUIRED STATUS CHECK THE L4 GUARD NEEDS TO BE A
+- [x] 4.5 **DONE 2026-09-01** — new `opensoft/xFactory` ruleset `22015321`
+      `"required-checks-main"` (active, default branch, required check
+      `validate` pinned to the GitHub Actions integration `15368`), verified
+      against the provider API: `record
+      review/readiness-evidence-2026-09-01.md` §1. **CREATE THE REQUIRED
+      STATUS CHECK THE L4 GUARD NEEDS TO BE A
       GATE.** Requirement 9 obliges a REQUIRED check, and the clearing
       repository has none: measured 2026-09-01, NONE of `opensoft/xFactory`'s
       five active rulesets declares `required_status_checks` — Tier-1 main
@@ -242,6 +256,28 @@ suggestion: the workflow path is what the operator admits to the allowlist in
       same residual class as the unversioned console — L4 buys authoring-time
       visibility, not an unbypassable gate — and the packet says so rather
       than presenting a required check as one.
+- [ ] 4.6 **CLEAN UP THE MISLEADING RUNNER LABELS.** Both
+      `xfactory-coding-cpc-brett01` (group 7) and
+      `xfactory-artifact-cpc-brett01` (group 5) carry `artifact-only` and
+      `rider` — neither label discriminates the lanes in either direction
+      (measured 2026-09-01; `record review/readiness-evidence-2026-09-01.md`
+      §2 Gap 3). The 2026-09-01 clearing dispatch confirmed group/label
+      routing landed correctly on both lanes despite the stray labels, so
+      this is not a live routing breach — but the labels remain a hazard on
+      any future dispatch that requests `artifact-only` by name. An operator
+      label-cleanup item: remove or correct `artifact-only`/`rider` on both
+      runners, investigating both rather than "fixing" the coding host alone.
+- [ ] 4.7 **DECIDE THE SAME-HOST TOPOLOGY.** The 2026-09-01 clearing dispatch
+      found both lane runners reporting the same `hostname` /
+      `COMPUTERNAME` / `compute.node` (`CPC-brett-TUBV0`,
+      `NUMBER_OF_PROCESSORS=8`) — the coding and artifact lanes are two
+      services (separate installs, separate service accounts
+      `svc-omnicoder` / `svc-omniworker`) on ONE Cloud PC, not two machines
+      (`record review/readiness-evidence-2026-09-01.md` §3). Lane isolation
+      as provisioned today is service-account isolation, not machine
+      isolation, and plausibly explains 4.6's copy-pasted labels. Operator
+      decision owed: single-host-by-design, or an interim state pending a
+      second host — and if interim, when the second host lands.
 
 ## 5. Dispatch readiness on both lanes, and file the evidence
 
@@ -254,14 +290,28 @@ harvest the COMPOSED report — read it from the `operation-report` job's run
 summary and log, not from the individual lane jobs — and §6.3's
 `operation-report.schema.yaml` describes THAT composed artifact.
 
-- [ ] 5.1 Dispatch `readiness-diagnostic` through the clearing lane on the
+- [x] 5.1 **DONE 2026-09-01** — opensoft/xFactory run `33512287539`
+      (https://github.com/opensoft/xFactory/actions/runs/33512287539),
+      `lane=both`, dispatch ledger id `cd-33512287539-1`; composed report
+      filed in `record review/readiness-evidence-2026-09-01.md`. Dispatch
+      `readiness-diagnostic` through the clearing lane on the
       CODING lane (`xfactory-execution-lane-workers` /
       `host-coding-cpc-brett01`). File the COMPOSED structured operation
       report as emitted by the `operation-report` job.
-- [ ] 5.2 Dispatch it on the ARTIFACT lane (`xfactory-artifact-workers` /
+- [x] 5.2 **DONE 2026-09-01** — same dispatch as 5.1 (run `33512287539`,
+      `lane=both` covers both lanes in one run); composed report filed in
+      `record review/readiness-evidence-2026-09-01.md`. Dispatch it on the
+      ARTIFACT lane (`xfactory-artifact-workers` /
       `host-rider-cpc-brett01`). File the COMPOSED structured operation
       report from the same `operation-report` job.
-- [ ] 5.3 **The three gaps these two runs are expected to close or expose**,
+- [x] 5.3 **DONE 2026-09-01** — read against run `33512287539`'s composed
+      report and dispositioned in `record
+      review/readiness-evidence-2026-09-01.md` §2: Gap 1 (coding lane round
+      trip) CLOSED, Gap 2 (artifact lane service account) CLOSED, Gap 3
+      (`artifact-only` label) STILL OPEN — carried forward as `tasks.md`
+      §4.6. That same record also surfaces a fourth, unanticipated finding
+      (both lanes share one Cloud PC host) not among the three named below —
+      carried forward as `tasks.md` §4.7. **The three gaps these two runs are expected to close or expose**,
       recorded now so the reports are read against a question rather than
       skimmed:
       - **The coding lane has never completed a live round trip.** Every
@@ -295,7 +345,10 @@ summary and log, not from the individual lane jobs — and §6.3's
         `derive-possibles`, `dashboard-image`). Investigate BOTH runners, and
         do not "fix" the coding host alone as though the artifact host were
         clean; either way record the disposition.
-- [ ] 5.4 File both reports plus the dispositions as the realization evidence
+- [x] 5.4 **DONE 2026-09-01** — filed as `record
+      review/readiness-evidence-2026-09-01.md`. Note that this discharges
+      §5.4's filing obligation only; §9.3's release-realization archiving
+      still awaits §6.8's cut. File both reports plus the dispositions as the realization evidence
       this change's `code_surface` declaration owes (release-realization).
 
 ## 6. Neutral contract realization — POST-RATIFICATION, at its own cut
