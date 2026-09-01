@@ -1,3 +1,5 @@
+# Tasks: amend-chain-anchoring-readiness-and-durability
+
 ## 1. Governance and Single-Feature Handoff
 
 - [ ] 1.1 Ratify this amendment and its three additive `chain-anchoring`
