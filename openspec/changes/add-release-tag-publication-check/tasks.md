@@ -76,9 +76,21 @@ exists.
       and `:93` are marked "EVERY NUMERAL ABOVE IS HISTORY AND IS KEPT AS
       WRITTEN" — `:93` additionally describes what CANON says, which is still
       twenty-two until this block promotes. Sweeping them would have falsified
-      a record and a true statement. Also moved with the registry, which the
-      task did not anticipate: the seven `family-enumeration` fixtures and four
-      assertion pins in `test_family_enumeration.py`.
+      a record and a true statement.
+      **AND THE COMPLETE SET OF REGISTRY-COUPLED SITES THAT MOVED, which this
+      task did not anticipate and Codex's P2 was right to call out** — every one
+      of them reds the suite if left behind, which is why they belong in the
+      same commit as the registration:
+      `tests/doc-health/test_modified_block_currency.py:1428` (`len(FAMILIES)
+      == 22`); `tests/doc-health/test_family_enumeration.py` (four assertion
+      pins: the omitted-name count, the stale-numeral total, the subset
+      sentence, and the thin-delta count); the seven `family-enumeration-*`
+      fixture specs, one of which — `family-enumeration-missing-name` — had to
+      GAIN the new family so it keeps omitting exactly one; and
+      `tests/doc-health/test_lifecycle_scan_set.py` (the `NON_READERS` set, plus
+      its `len(FAMILIES) - 4 == 18` pin, now nineteen). The lesson is the one
+      this estate keeps relearning: a count is not one sentence, and the only
+      safe enumeration is the one the suite produces when you run it.
       `scripts/doc_health/__init__.py` (the registered set),
       `scripts/doc_health/families.py` (dispatch, and `FAMILY_SUMMARIES` /
       `FAMILY_RESOLUTION` if the family carries a summary line and a resolution
