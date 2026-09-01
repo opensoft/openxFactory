@@ -180,12 +180,12 @@ validator WARNING; the shipped validator has reported it as an ERROR since
 resolve that divergence, because resolving it would move every unresolvable token
 and not merely the retired prefix, and that is a different change's subject.
 
-#### Scenario: A gate names an `openworkflow_` token that resolves to nothing
+#### Scenario: A gate names an `openworkflow`-prefixed token that resolves to nothing
 - **WHEN** a workflow gate's `owner_layer` begins `openworkflow` and matches no canonical role and no declared layer id, and is validated at `contract-v3.0`
 - **THEN** it MUST no longer receive the deprecated-naming warning, and MUST be reported by the general undeclared-layer rule at whatever severity that rule carries
 - **AND** the shape refused is exactly the shape warned since `contract-v1.1`, so no new deprecation window is owed
 
-#### Scenario: A gate names an `openworkflow_` token that IS a declared layer
+#### Scenario: A gate names an `openworkflow`-prefixed token that IS a declared layer
 - **WHEN** a workflow gate's `owner_layer` begins `openworkflow` and its normalized form equals a declared Hermes layer's normalized display name
 - **THEN** it MUST validate silently at `contract-v3.0`, where the shadowing branch previously warned it
 - **AND** this widening MUST be stated in the Executed row rather than left to be discovered, because a removal that quietly accepts something it used to flag is still a change of behaviour
