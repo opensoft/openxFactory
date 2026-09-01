@@ -2606,14 +2606,18 @@ contracts:
   # `xfactory_wallet_subject_attestation`. Nothing here is registered as an
   # openxFactory-owned copy of a pinned wallet shape.
   #
-  # WHAT REGISTRATION DOES NOT CONFER. Requirement 9 of this capability is that
-  # nothing it defines confers or refuses anything until the named reader runs as
-  # a REQUIRED check, and it does NOT yet (add-signed-execution-chain tasks 4.5
-  # and 4.6, an operator act and its evidence, both OPEN at this cut). The
-  # packaged conformance declaration records `is_required_in_ruleset: false` and
-  # the reader emits a standing `reader-not-required` warning on every run. A
-  # manifest row is a consumption contract for BYTES; it is not evidence that a
-  # check is required, and this bundle publishes none.
+  # WHAT REGISTRATION DOES NOT CONFER, AND WHAT LATER DID. Requirement 9 of this
+  # capability is that nothing it defines confers or refuses anything until the
+  # named reader runs as a REQUIRED check. It did NOT at this cut
+  # (add-signed-execution-chain tasks 4.5 and 4.6 were both OPEN then, and the
+  # packaged declaration recorded `is_required_in_ruleset: false`); it DOES since
+  # 2026-08-31, through opensoft org ruleset 21957695, proved refusing on canary
+  # PR #549, and the declaration now records `is_required_in_ruleset: true`. NONE
+  # OF THAT IS A PROPERTY OF THIS BUNDLE. A manifest row is a consumption contract
+  # for BYTES; it is not evidence that a check is required, this bundle publishes
+  # none, and a consumer pinning these rows in ITS repository gets the shapes and
+  # not the enforcement — which it must arrange for itself, in its own ruleset,
+  # and declare in its own conformance declaration.
   - id: signed-execution-chain-digest-construction
     path: contracts/signed-execution-chain/digest-construction.schema.yaml
     source_path: openxFactory/contracts/signed-execution-chain/digest-construction.schema.yaml

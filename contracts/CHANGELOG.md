@@ -142,6 +142,19 @@ declaration that records SEC-R9 `satisfied` while the reader is unrequired. A
 manifest row is a consumption contract for BYTES. Nothing here may be cited as
 evidence that a chain is being walked before a terminal act.
 
+> **ADDENDUM, 2026-08-31 (after this cut, and not part of it): 4.5 and 4.6 are
+> PERFORMED.** `signed-execution-chain-gate` is REQUIRED on `main` through
+> opensoft org ruleset **21957695**, and canary PR **#549** put a deliberately
+> broken chain in front of it — run `33455808456`, one named refusal, the pull
+> request reported BLOCKED, closed unmerged. The packaged conformance declaration
+> now records `is_required_in_ruleset: true` and the standing warning no longer
+> fires. **The paragraph above is left standing rather than rewritten**, because
+> it is the record of what `contract-v2.5` shipped and every sentence of it was
+> true at the cut — and because its point survives the flip intact: a registered
+> contract family is still not an enforced one, this bundle is still the wrong
+> artifact to read as evidence, and a consumer pinning these rows in ITS
+> repository gets the shapes and not the enforcement.
+
 **Two residuals are STRUCTURAL at this tranche and are refused the word
 `satisfied` by the reader** rather than left to an author's care: SEC-R1's — the
 pinned exercise record carries no field holding the SIGNED digest value, so the

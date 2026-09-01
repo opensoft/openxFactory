@@ -116,20 +116,66 @@ first thing to run under a declared account.
   parity to be PROVEN, and proving it by hand a second time is how the first
   gap got missed.
   - REALIZED 2026-08-23: `--parity`: per-book title-set equality plus a union reconciliation against THE CORPUS SCAN, reporting only. A test asserts it issues no mutating verb — a parity proof that changes what it measures is not a proof.
-- [ ] 4.2 Add a bulk session-migration mode, or an explicit per-session
+- [x] 4.2 Add a bulk session-migration mode, or an explicit per-session
   procedure. VERIFIED GAP: a plain `--apply` never creates live `xf-session-*`
   notebooks — `--session-ref` handles one named session and returns before the
   lifecycle loop, `--session-sweep` only retires. Without this, live sessions
   stay on the account being abandoned.
   - N1 (review 2026-08-23): `scripts/ideation_dashboard/workbench.py` creates session notebooks through its OWN `subprocess.run(["nlm", ...])`, outside this sync's profile binding — a second unbound path to the same account. Scope-adjacent and explicitly covered by this deferral: binding it rides whichever change gives sessions a bulk migration mode. The runbook says meanwhile to migrate sessions through the sync, not the workbench.
   - PROCEDURE LANDED, code deferred to the migration itself: runbook step 5 gives the explicit per-session procedure the task allows as the alternative to a bulk mode (`--session-ref <branch> --apply`, once per live session, enumerated across every worktree). A bulk mode stays worth adding; nothing is migrated until Brett authenticates, so it is not on this landing's critical path.
-- [ ] 4.3 Add the explicit workspace-record REPLACEMENT step. VERIFIED GAP:
+  - **TICKED 2026-08-31, ON THE PROCEDURE BRANCH OF ITS OWN DISJUNCTION.** The
+    box asks for *"a bulk session-migration mode, **or** an explicit per-session
+    procedure"*, and the procedure landed (runbook step 5). It is ticked on the
+    branch its own text offers, not on the one it deferred. Three facts settle
+    the remainder rather than leaving it implied:
+    1. **The two sessions the hold was about are GONE.** Step 5 of
+       `docs/notebook-projection-migration-evidence-2026-08-24.md` names them by
+       branch — `draft/subject-document-estate` and
+       `draft/company-provisioning-ledger-estate-subject-onboarding-intake`.
+       Verified at this act: `git ls-remote --heads origin
+       refs/heads/draft/subject-document-estate
+       refs/heads/draft/company-provisioning-ledger-estate-subject-onboarding-intake`
+       returns nothing, and `refs/heads/draft/*` returns nothing at all — origin
+       carries no `draft/` head. There is no longer a live session sitting on the
+       abandoned account for a bulk mode to move.
+    2. **F3 — the refusal that actually blocked the per-session run — was FIXED
+       THE SAME DAY.** `live_session_targets` now enumerates every worktree git
+       lists for each repository rather than asking only the canonical checkout,
+       covered by `test_session_ref_sees_a_session_opened_from_a_feature_worktree`
+       (evidence document § Findings, F3). The landed procedure is executable,
+       not merely written.
+    3. **What is left is a live READ, not a code gap**: a `--session-sweep` under
+       the personal profile to confirm zero live sessions remain there. That
+       needs the interactive authentication § 5.1 records as unavailable, so it
+       is **carried with the § 5.1 successor (#537)** rather than held against a
+       box its own terms already satisfy. A bulk mode stays worth adding and is
+       not owed here; N1's workbench binding rides whichever change adds it,
+       exactly as this box's own deferral says.
+- [x] 4.3 Add the explicit workspace-record REPLACEMENT step. VERIFIED GAP:
   `ensure_workspace_record()` derives `record_id` from `spec.key`, unchanged in
   the new account; finding that id with a different `provider_notebook_id` it
   returns WITHOUT registering the replacement. Retiring the old record on top of
   that leaves the company-hosted book unregistered. Leave exactly one active
   record per live book.
   - PROCEDURE LANDED, code gap OPEN and stated: runbook step 5 makes the record replacement an explicit numbered step with the reason `ensure_workspace_record()` will not do it. The function still returns `reconcile by hand`; teaching it to replace is a code change that belongs with the migration run, not before it.
+  - **TICKED 2026-08-31 ON THE LANDED PROCEDURE. THE CODE GAP IS FILED, NOT
+    FORGIVEN.** The note above deferred the code to "the migration run"; **that
+    migration HAS RUN.** § Step 6 of
+    `docs/notebook-projection-migration-evidence-2026-08-24.md` records that each
+    of the seven records in `examples/lifecycle-notebook-workspaces.yaml` had its
+    `provider_notebook_id` updated to the new notebook, that record ids are
+    key-derived and unchanged so each record IS still the live book's
+    registration, and that **none was retired**, per the runbook's step 8.3 —
+    which is precisely this box's demand of *"exactly one active record per live
+    book"*, met, by the numbered manual step the procedure branch prescribes.
+    **The code half is carried as a successor rather than closed by silence:**
+    teaching `ensure_workspace_record()` to register the replacement is filed as
+    **opensoft/openxFactory#536**, which quotes this box's gap text verbatim —
+    *"finding that id with a different `provider_notebook_id` it returns WITHOUT
+    registering the replacement"* — and cites this box at its archived path
+    `openspec/changes/archive/2026-08-31-add-notebook-projection-identity/tasks.md`.
+    Nothing is currently unregistered; what #536 buys is that the NEXT hosting
+    move does not depend on an operator remembering a manual step.
 - [x] 4.4 Re-derive the three lifecycle books under `xFactor001@opensoft.one`
   in one `--apply` (precedent: 314 sources, roughly 40 minutes), then migrate
   every live session notebook per §4.2.
@@ -195,8 +241,10 @@ first thing to run under a declared account.
   the act in the record's history. (This is where the 2026-08-10 runbook does
   not transfer: its successors carried new record ids, so there was a separate
   legacy record to retire.) Record the act.
-- [ ] 4.7 **EXECUTED 2026-08-27, PARTIALLY — 7 of 14 grants landed, and the
-  remainder is provider-blocked, so this stays OPEN.**
+- [x] 4.7 **EXECUTED 2026-08-27 — 7 of 14 grants landed, the remainder
+  provider-blocked. RE-SCOPED TO 7 OF 7 AND TICKED 2026-08-31 BY BRETT HEAP'S
+  RULING (in session, `openxfactory-f5`).** The measured history is restated
+  first and unretracted; the ruling follows it.
   Brett named two readers and ruled full edit access on all seven company books.
   Executed through the § 2.4 lane on his recorded instruction:
     * **`brett.heap@farheap.com` — GRANTED as `editor` on all seven books.**
@@ -211,6 +259,50 @@ first thing to run under a declared account.
       the string. The farheap.com address — a Workspace domain — succeeded on
       every book in the same session, which isolates the difference to an
       external CONSUMER account.
+  **THE RULING, 2026-08-31 (Brett Heap, in session `openxfactory-f5`, by explicit
+  multi-choice): THE GMAIL GRANTEE IS DROPPED. THE SECOND READER IS NOT WANTED.**
+  The task's satisfying set is therefore the SEVEN grants to
+  `brett.heap@farheap.com` — cast through the § 2.4 lane, verified after the
+  fact, and recorded as the seven `share_out` entries. **Ticked at 7 of 7.**
+  There is no eighth-through-fourteenth grant owed, because the grantee those
+  seven were owed to is **withdrawn**, not deferred: the denominator changed by
+  ruling, and the numerator did not move.
+  **Why this is consistent rather than convenient.** Two prior rulings point the
+  same way, and are cited rather than invoked:
+    * **2026-08-27 — the wind-down.** Brett ruled the legacy books wound down
+      **by deletion, performed by the owner himself in his own Gmail account, on
+      his own timing** (`docs/lifecycle-notebook-projection.md` § "The legacy
+      books: WIND-DOWN BY OWNER DELETION"). A ruling that ends the Gmail
+      account's access to the OLD books cannot sit beside a task that grants it
+      edit on the NEW ones. Dropping the grantee is that ruling carried forward,
+      not a new direction.
+    * **2026-08-24 — the sole-grantor posture.** The Google-side posture is
+      **RESTRICTED with the app as the sole grantor**, org-visible REJECTED.
+      Fewer standing external principals is the posture's own direction of
+      travel.
+  **The provider refusal becomes a FINDING, not a debt.** Nothing measured above
+  is retracted: `brett.heap@gmail.com` was refused on all seven with `API error
+  (code 7)` (PERMISSION_DENIED), the undotted `brettheap@gmail.com` was refused
+  identically — so it was the ACCOUNT that was refused and not the string — and
+  `brett.heap@farheap.com` succeeded on every book in the same session, which
+  isolates the difference to an external CONSUMER account. That measurement is
+  the record of a real platform boundary. What the ruling changes is that
+  **nobody is owed the act it blocked.**
+  **The box's two embedded questions were ALREADY RULED, and neither survives
+  into the archive as open:**
+    * "**A QUESTION FOR THE SITTING**" — whether the legacy owner's continued
+      access is an accepted fact or gets wound down: **RULED 2026-08-27 —
+      WOUND DOWN**, by owner deletion, in the section named above. The record
+      says which was chosen, which is what the question asked for.
+    * "**The one known outstanding decision is task 2.5's 2026-08-15 request**":
+      **DISCHARGED 2026-08-27 AS DENIED** by Brett as the designated actor —
+      ruled stale ("old request and not valid") and written into `denied` in the
+      hosting record with date, actor and reason. See § 2.5, which is ticked.
+  **What this tick does NOT claim:** that `brett.heap@gmail.com` can reach the
+  company books. It cannot; it is no longer meant to; and the record above says
+  so in terms. The current human reader of the seven company books is
+  `brett.heap@farheap.com` beside the owner `xFactor001@opensoft.one`.
+  **SUPERSEDED BY THE RULING ABOVE — kept verbatim for the record:**
   **This box stays unticked deliberately.** Brett asked to "test that they both
   have access", and that test cannot pass today. Ticking would assert a state he
   would disprove the moment he signed in with the Gmail account.
@@ -260,7 +352,42 @@ first thing to run under a declared account.
 
 ## 5. Close the operational item and validate green
 
-- [ ] 5.1 **EVALUATED 2026-08-26 AND DELIBERATELY NOT TICKED — the condition is
+- [ ] 5.1 **DISPOSITIONED 2026-08-31 — CARRIED FORWARD OUTSIDE THIS PACKET, AND
+  DELIBERATELY STILL NOT TICKED.** Ruled by Brett Heap in session
+  `openxfactory-f5`, by explicit multi-choice: the condition is **unmeetable
+  today**, so this box archives **standing as a disposition** rather than closed,
+  and the work moves to a **named successor** outside the packet. That is the
+  #537 route, and it is what makes the archive lawful — an archive may carry a
+  ruled-open box through provided the record says so in terms, which this does.
+  Ticking it would assert a capability nobody has, which is the exact defect
+  class this change exists to remove.
+  **THE THREE GROUNDS, re-read at this act and all still true:**
+    1. **Google's sign-in for `xFactor001@opensoft.one` is an interactive browser
+       flow.** There is no unattended path today.
+    2. **`nlm login` is additionally broken UPSTREAM** by the notebook.google.com
+       rebrand: the CLI's `_is_notebooklm_url()` allow-list accepts only
+       `notebooklm.google.com` / `notebooklm.cloud.google.com`, so
+       `is_logged_in()` returns false for a browser that IS signed in and
+       `nlm login --cdp-url` dies on "Login timeout" after its 300 s wait;
+       `NOTEBOOKLM_BASE_URL` cannot be repointed at the new host because it is
+       validated against the same allow-list. The CLI's API calls still work —
+       only the login path is affected (evidence document § Findings, F1).
+    3. **Custody's ratified text forbids the claim.**
+       `add-notebook-hosting-credential-custody` states that custody governs who
+       may OBTAIN the credential and **does not deliver automation**. No amount
+       of custody work discharges this box.
+  **THE NAMED SUCCESSOR: opensoft/openxFactory#537** — the deferred
+  automated-Google-login item, carrying both halves kept distinct: the upstream
+  CLI allow-list defect (F1, tractable now, and it only restores the ATTENDED
+  route) and the machine-account "log in whenever it wants" property (the half
+  this box is actually about, and the only one that closes it). It cites this box
+  at its archived path
+  `openspec/changes/archive/2026-08-31-add-notebook-projection-identity/tasks.md`.
+  **`docs/notebooklm-sync-open-item.md` STAYS OPEN** and gains a pointer to #537
+  in this same landing, so the blocker is not written down only inside an
+  archived packet.
+  **The 2026-08-26 evaluation this disposition rests on, kept unchanged:**
+  **EVALUATED 2026-08-26 AND DELIBERATELY NOT TICKED — the condition is
   not met.** Step 8 executing does not close this item, and the difference is
   the point of the item.
   This open item records the **AUTHENTICATION BLOCKER**, and its "Strategic
@@ -311,10 +438,55 @@ first thing to run under a declared account.
 
 ## 6. Bookkeeping
 
-- [ ] 6.1 Retire the staged topic from `ideation/staging/INDEX.md` once its
+- [x] 6.1 Retire the staged topic from `ideation/staging/INDEX.md` once its
   material has moved, per the index's own maintenance rule.
-- [ ] 6.2 README OpenSpec Records: move this change from active to archived when
+  - **DONE 2026-08-31, in this archive's own commit.** Two edits, in the index's
+    own retirement style (precedents: `substantive-review-lane-questions`,
+    "CLOSED AND RETIRED FROM STAGING 2026-08-22", and
+    `staged-topic-outline-template`, "CHANGE ARCHIVED 2026-08-21"):
+    * the `notebook-projection-identity` ROW and its DETAIL SECTION now record
+      the archive, both boxes that did not close, and the two successor issues;
+    * the sibling row `notebook-access-wallet-governance` said both
+      `add-notebook-projection-identity` and
+      `add-notebook-hosting-credential-custody` "are ACTIVE with
+      ratified-but-unpromoted deltas this topic would amend" — a sentence this
+      act makes half false. **Only the projection-identity half is corrected**:
+      its deltas are now PROMOTED and the change archived. **The custody half is
+      left exactly as it stands**, because it is still true and it changes at
+      CUSTODY's archive, not at this one. Touching it here would be this step
+      asserting a state it did not produce.
+    * **AMENDED 2026-08-31, BEFORE THIS PACKET MERGED — CUSTODY'S ARCHIVE
+      HAPPENED IN A PEER LANE WHILE THIS BRANCH WAS IN REVIEW, so the paragraph
+      above is spent as a description of today.** **PR #541** archived
+      `add-notebook-hosting-credential-custody` and, second, its dependent
+      `add-binding-consumer-identity` on Brett Heap's ROUTE-1 ruling of the same
+      date. "It changes at CUSTODY's archive, not at this one" names an event
+      that has now occurred, so the sibling row's custody half is corrected in
+      the SAME landing as this note rather than left to mislead a reader taking
+      their sequencing base from it; the correction cites #541 as its author.
+      **The reasoning above stands unchanged and is still sound** — this step
+      did not produce that state, and it still does not; another lane did, and
+      the correction says so. Recorded here rather than in the peer packets
+      because THIS packet is not yet merged and its text is still this pull
+      request's to correct, while the two archived peer packets are RECORDS and
+      are not — this branch's earlier correction notes inside them were DROPPED
+      at the catch-up merge of `2f1cd139` for exactly that reason.
+    The topic FOLDER `ideation/staging/notebook-projection-identity/` is
+    **retained as provenance and deliberately not deleted** — this act promotes
+    the deltas and archives the change; deleting staged source is a separate
+    disposition nobody has ruled.
+- [x] 6.2 README OpenSpec Records: move this change from active to archived when
   it archives, on merged code with green realization evidence.
+  - **DONE 2026-08-31, in this archive's own commit.** The row moved from
+    "Active changes:" to "Archived changes:" in the house row style, pointing at
+    `openspec/changes/archive/2026-08-31-add-notebook-projection-identity/proposal.md`.
+    Both preconditions were read rather than assumed: the code surface merged at
+    the realization squash `40b33845` (PR #277), and § 5.2's green realization
+    evidence is recorded at that squash (3983 passed / 15 skipped
+    ideation-dashboard; 839 + 13 subtests at the squash; `openspec --all
+    --strict` 72/72; dashboard validator 0 error / 4 warning; hosting validator
+    0 error; doc-health zero-new against `7431f033`). The row states the two
+    boxes that did not close, so the README does not read as a clean finish.
 
 - [x] 6.3 Adversarial review round (2026-08-23, PR #277): 1 blocking + 5
   should-fix, all reproduced before fixing, all fixed on the branch.
@@ -370,3 +542,83 @@ first thing to run under a declared account.
   platform ever exposes a surface; the approval stays a human act regardless.
 - Renaming the `credential-contracts` requirement whose body this change
   generalizes. Flagged for the ratification read in design.md, Ruling 2.
+
+## 8. WHAT THIS ARCHIVE DID NOT CLOSE — the honest record (2026-08-31)
+
+Written in the same landing as the archive, so nothing here depends on a reader
+finding it in a commit message.
+
+**ONE BOX STANDS OPEN BY RULING, not by neglect.** § 5.1 archives as a
+DISPOSITION. `proposal_support.archive_change` refuses any change whose
+`tasks.md` still carries a `^- [ ]` line — a blanket gate that cannot tell a
+ruled-open item from unfinished work — so this took the same route
+`add-signed-execution-chain` took on 2026-08-31 (PR #535), with earlier
+precedents at `2026-08-28-declare-sentinel-pin-vocabulary` § 4 and the three
+sibling archives of 2026-08-27. **The two things that wrapper adds were run
+anyway, on both sides of the move**: `proposal-support.py verify` per-change and
+whole-corpus (ok before, ok after), and packaging — a lawful no-op here, because
+this change has no `supporting-docs/` at all.
+
+**TWO SUCCESSORS ARE FILED IN THE OPEN, so neither lives only inside an archived
+packet:**
+
+| successor | what it carries | from |
+| --- | --- | --- |
+| **opensoft/openxFactory#536** | `ensure_workspace_record()` returns without registering a replacement when the key-derived `record_id` is found bound to a different `provider_notebook_id` | § 4.3's code half — its procedure half ran and is ticked |
+| **opensoft/openxFactory#537** | automated Google login: the upstream `_is_notebooklm_url()` allow-list defect AND the machine-account unattended-re-auth property, kept as two distinct halves because only the second closes anything | § 5.1, in full |
+
+`docs/notebooklm-sync-open-item.md` **stays OPEN** and gained a dated pointer to
+#537 in this same landing. It closes when unattended re-authentication actually
+works.
+
+**ONE CITATION IS DELIBERATELY LEFT STALE, and the reason is recorded rather
+than hoped.** The move makes `openspec/changes/add-notebook-projection-identity`
+a stale spelling in exactly three places. Two were fixed here — the `Backed by:`
+header of `docs/notebook-projection-retirement-runbook-step8.md` and the comment
+citation in `examples/lifecycle-notebook-workspaces.yaml`. The third,
+`docs/notebook-projection-migration-evidence-2026-08-24.md` § "Step 8 —
+EXECUTED 2026-08-26", is **NOT** fixed: that document carries `Status: record`,
+and doc-health's `record-immutability` family raises a **CRITICAL** on any
+substantive line change to a captured record, excepting only markdown-link
+pairs — which this backticked path is not. **Repointing it would trade a stale
+path for a broken immutability guarantee**, and the record's own value is that
+it says what was true when it was captured. The path is a citation a reader can
+follow to the archive in one step; nothing resolves it mechanically.
+
+**ADDENDUM 2026-08-31, AFTER THE CATCH-UP MERGE OF `origin/main` AT
+`2f1cd139` — A THIRD THING THIS ARCHIVE DOES NOT CLOSE, ARRIVING FROM ANOTHER
+LANE.** PR **#541** archived `add-notebook-hosting-credential-custody` and its
+dependent `add-binding-consumer-identity` on Brett Heap's ROUTE-1 ruling of this
+same day, while this branch was in review. Both archived copies leave exactly
+one box unticked, and **both point HERE**: custody § 6.2 and the dependent
+§ 7.3 — one reconciliation seen from two sides — each restated 2026-08-31 as
+*"the obligation attaches to THAT change's archive … whoever archives
+`add-notebook-projection-identity` discharges both."*
+
+**THIS ACT DOES NOT DISCHARGE THEM, AND SAYS SO RATHER THAN LETTING SILENCE READ
+AS DONE.** What is owed is the FULL read-together of the three packets'
+`credential-contracts` text now that all three are promoted — a reading act with
+findings of its own, not a side effect of moving a directory. What this act DOES
+supply is the precondition it was always the holder of: the operated-identity
+generalization is CANON as of this landing (`lifecycle-notebook-projection` +3
+added / ~2 modified, `credential-contracts` ~1 modified, all six bodies
+byte-identical), so the reconciliation is now performable by anyone and blocked
+on nothing. It needs a successor act of its own, and it is written down here so
+it does not live only in a commit message.
+
+**THEIR BOXES ARE NOT TICKED FROM HERE EITHER, AND COULD NOT BE.** They sit
+inside archived records, which this estate's doctrine forbids amending — the
+same doctrine that made this branch DROP its own earlier correction notes inside
+those two packets at the catch-up merge. And their *"is STILL ACTIVE and still
+`Status: ratified`"* clauses, true when #541 landed and spent the moment this
+packet merges, are **dated restatements inside a record** and are left exactly
+as that lane wrote them: the very sentence that goes stale is the one directing
+a reader to this act, so it points at the truth rather than away from it.
+
+**WHAT IS NOT CLAIMED ANYWHERE IN THIS PACKET:** that `brett.heap@gmail.com` can
+reach the company books (§ 4.7 — it cannot, and by ruling it is no longer meant
+to); that a live `--session-sweep` under the personal profile has been run
+(§ 4.2 — it needs the auth § 5.1 lacks, and rides #537); that a bulk
+session-migration mode exists (§ 4.2 deferred it and nothing since added it);
+and that unattended re-authentication is possible (§ 5.1, the whole point).
+
