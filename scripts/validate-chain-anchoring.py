@@ -130,15 +130,19 @@ noted, and each traceable to a scenario of the ratified delta:
      (`structural_residual_declared_satisfied`), and every realization POSTURE
      member adjudicated against its named refusal.
 
-FOUR FINDINGS CARRY KEBAB-CASE CODES because the closed enumeration has no member
+FIVE FINDINGS CARRY KEBAB-CASE CODES because the closed enumeration has no member
 for them and inventing one would be a contract change made by a reader:
 `ordering-only-correspondence` (a null header time under a time-bearing rule, or a
 time under an ordering-only rule — the same defect pointing opposite ways),
 `delay-check-arithmetic` (a bracket that is not a bracket, or a bound that is not
 the difference it claims), `checkpoint-anchor-mismatch` (a checkpoint anchor
-committing to a digest its own receipt does not carry) and `record-digest-mismatch`
-(a record digest that does not recompute). Each has a packaged negative, on the
-same rule as the closed codes.
+committing to a digest its own receipt does not carry), `record-digest-mismatch`
+(a record digest that does not recompute) and `residual-not-declared` (the
+declared-shortfall pattern's own arithmetic: a partial or cannot entry with no
+residual, or a satisfied entry carrying one). Each has a packaged negative, on
+the same rule as the closed codes — and each negative fixture's FILENAME IS THE
+CODE IT PROVOKES, one file per code, so the tree listing is the index of the
+refusal enumeration and the self-test refuses a misnamed fixture.
 
 WHAT THIS VALIDATOR DOES NOT DO, stated at its real strength:
 
