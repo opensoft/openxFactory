@@ -408,16 +408,18 @@ Active changes:
   — authored 2026-08-31 from the owner-approved reconciliation that preserves
   ratified `add-chain-anchoring` and retires the stale competing
   `add-signed-execution-chain-anchoring` draft. **Three semantic gaps survive the
-  collapse and no identity alias does**: the operational PKI plane becomes a
-  normative realization gate; trusted log acceptance time plus atomic sequence
-  define one immutable fixed-UTC daily batch with deterministic dedupe, lateness
-  and empty-day continuity; and Kaspa/OpenTimestamps submission remains distinct
-  from independently verified Kaspa/Bitcoin confirmation while preserving the
-  existing receipt/state split. The superseded draft's provider-neutral gateway
-  text is not imported — protected-operation enforcement remains a consumer and
-  runtime-owner boundary. `Status: draft`; one future Speckit handoff only after
-  ratification and dependency evidence; additive contract minor allocated at
-  realization by merge order.
+  collapse and no identity alias does**: the live REQUIRED signed-chain gate,
+  broken-chain canary and operational PKI plane become normative realization
+  gates; one atomic admission transaction and a non-recursive eligibility
+  registry define immutable fixed-UTC daily membership with dedupe, lateness and
+  empty-day continuity, the CLOSED DAILY ROOT being the one item both witnesses
+  anchor; and Kaspa/OpenTimestamps submission remains distinct from independently
+  verified Kaspa/Bitcoin confirmation under immutable operator-approved profile
+  versions while preserving the receipt/state split. The superseded draft's
+  provider-neutral gateway text is not imported — protected-operation enforcement
+  remains a consumer/runtime-owner boundary. `Status: draft`; one SHARED Speckit
+  realization with `add-chain-anchoring`, basis archive first and amendment
+  second, then one additive new-family release.
 - [govern-sibling-added-modified-deltas](openspec/changes/govern-sibling-added-modified-deltas/proposal.md)
   — authored 2026-08-29, **RATIFIED 2026-08-31 BY DIRECT RULING**
   (`Status: ratified`; record `review/ratification-2026-08-31.md`) — Brett Heap
