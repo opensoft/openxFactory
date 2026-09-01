@@ -1,0 +1,69 @@
+schema: spec-driven
+created: 2026-09-01
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-01-retire-hermes-flat-keys-and-openworkflow-tokens
+  reason: >-
+    openxFactory issue #522 — "three contract-v2.0-targeted deprecations
+    outlived their target" — was measured on 2026-08-31 against main tip
+    `4290cad2` and every reachable consumer, and the measurement memo is
+    durable on the operator host at
+    `deprecations-522-memo-2026-08-31.md`, held on the operator's own
+    machine and DELIBERATELY NOT COMMITTED anywhere in this repository. It is
+    NAMED and not located: Principle IV forbids a host-absolute path in a
+    committed file. The durable in-repo referents are issue #522 and its
+    2026-09-01 ruling comment. There is no
+    staged topic: the subject arrived as a filed issue and was dispositioned
+    by ruling on the memo's recommendations, so `kind: staged` here would
+    claim a staging source that does not exist.
+
+    THIS PACKET CARRIES ENTRIES 1 AND 2 OF THE THREE. Entry 3 — the doxBench
+    chat-turn v1 envelope family — is the named sibling
+    `retire-doxbench-chat-turn-v1`, separated on the memo's own
+    recommendation ("execute at contract-v3.0, but as its own Speckit slice,
+    not folded into a combined cut") and on the different shape of its
+    surface: entry 3 moves a digest-pinned schema, an inventory member's
+    bytes, four packaged fixtures and a server fallback posture, where these
+    two move only validator code and the policy rows that describe it.
+
+    ENTRY 1 IS SPLIT BY THE RULING AND THIS PACKET CARRIES BOTH HALVES. The
+    phased half — the fallback read in `check_hermes`, and the starter
+    script's emission of the deprecated keys — is EXECUTED. The refusing
+    half — a refusal of the co-resident flat keys themselves — is NOT, and
+    the reason it is not is recorded on the entry rather than left to drift:
+    its warning has been dead code for the whole supported population, so
+    the Breaking clause's "one full minor of warnings" precondition is unmet
+    for the shape a refusal would refuse.
+
+    THIS PACKET IS RATIFIED — 2026-09-01, Brett Heap, repository owner, in
+    session ("ratify #551 and #552"), at pull request #551 tip `64907604`;
+    record at `review/ratification-2026-09-01.md`. THE RATIFICATION IS A THIRD
+    ACT and is deliberately not merged with the two below it: the FILING of
+    issue #522 on his word of 2026-08-30, then the RULING of 2026-09-01
+    adopting the memo's recommendations (recorded as a comment on #522, and
+    named in `approved_by`), then this. Ratification authorizes the requirement
+    text alone — it performs no realization, cuts no bundle, spends no number
+    and moves no CHANGELOG row, so `tasks.md` §§ 2-5 stay open and § 7's
+    archive gate is undischarged. TWO THINGS THE ACT STOOD ON ARE DISCLOSED IN
+    THE RECORD RATHER THAN GLOSSED: no Codex review of this packet has
+    happened — four requests, four provider usage-limit refusals, zero verdicts,
+    and a pass still owed and unblocked — and `main` carries an inherited
+    `pytest-suite` red from PR #510's carriage-ledger subject, which this
+    packet neither causes nor fixes.
+  approved_by: >-
+    BRETT HEAP, repository owner, 2026-09-01 in session, ruling on openxFactory
+    issue #522 and recorded as a comment on that issue: "execute all three
+    retirements at contract-v3.0, as the memo recommends", with entry 1 SPLIT
+    (phased half executed, refusing half recorded-why), entry 2 EXECUTED, and
+    entry 3 EXECUTED AS ITS OWN SLICE. The ruling authorizes the PROPOSALS;
+    IT IS NOT ITSELF A RATIFICATION of this packet's text, and this field is
+    kept unchanged in that respect because it was accurate when written and is
+    accurate now. RATIFICATION IS THE SEPARATE THIRD ACT of the same day,
+    recorded in `origin.reason` above and at
+    `review/ratification-2026-09-01.md`; the packet stands at
+    `Status: ratified` on THAT act, not on this one.
+  approved_on: 2026-09-01
+related:
+  - openxFactory:change:retire-doxbench-chat-turn-v1   # SIBLING, authored the same day from the same ruling. Entry 3 of issue #522. Lands at the SAME contract-v3.0 major and is deliberately a separate packet; neither is a precondition of the other, and the cut that carries them may carry one, the other, or both
+  - openxFactory:change:add-binding-consumer-identity  # ARCHIVED 2026-08-31. The fourth entry in the In Force list, target contract-v3.0 and not yet due. Its entry is the model this packet follows for writing a deprecation entry FROM THE REFUSAL LIST, and its acts share the major these two retirements land at
+  - openxFactory:change:add-release-tag-publication-check  # ACTIVE (PR #544). The sibling guard family. The memo's proposed `deprecation-target-currency` family — which would have caught all three of these entries — is sequenced BEHIND both #544 and these retirements and is NOT proposed here
