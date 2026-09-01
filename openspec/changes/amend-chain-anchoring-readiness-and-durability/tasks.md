@@ -11,12 +11,17 @@
       operational `trust-anchor`-conformant PKI evidence for issuance,
       verification, revocation handling, and chain custody; refuse the handoff
       while any realization gate is unproven.
-- [ ] 1.3 Create exactly one SHARED Speckit feature from the intended
+- [ ] 1.3 Before schema or validator authoring, approve and publish append-only
+      Kaspa and Bitcoin confirmation-profile registry entries with canonical
+      content digests, approval records, activation log checkpoints, effective
+      intervals, standing, predecessor links, and positive/refusal transition
+      vectors; refuse feature handoff while either active profile is unresolved.
+- [ ] 1.4 Create exactly one SHARED Speckit feature from the intended
       openxFactory base and record immutable two-way links from that feature to
       both `add-chain-anchoring` and this amendment; neither packet may create a
       competing implementation feature, and executable implementation tasks stay
       in the shared feature's `tasks.md`.
-- [ ] 1.4 Verify the linked feature specification maps every requirement and
+- [ ] 1.5 Verify the linked feature specification maps every requirement and
       scenario in this amendment without reopening the ratified witness
       configuration or importing provider/runtime enforcement.
 
@@ -29,16 +34,23 @@
 - [ ] 2.2 Accept deterministic feature evidence for non-empty, empty,
       midnight-boundary, concurrent close/admission, late-source-time,
       identical-replay, conflicting-dedupe, recursive-control-leaf,
-      split-witness-root, and selectively omitted daily-window cases.
+      split-witness-root, substituted manifest/configuration/profile,
+      missing witness-commitment path, and selectively omitted daily-window cases.
 - [ ] 2.3 Accept feature evidence distinguishing Kaspa submitted from confirmed
       and OpenTimestamps submitted from Bitcoin confirmed under immutable
-      versioned approved profiles, including reorganization/replacement and
-      profile-revision vectors, while preserving the receipt/state split and
-      same-digest proof upgrade.
+      versioned approved profiles, including activation, rollback, retirement,
+      compromise, content-substitution, reorganization/replacement, and profile-
+      revision vectors, while preserving the receipt/state split and same-digest
+      proof upgrade.
 - [ ] 2.4 Verify immediately before implementation that `chain-anchoring` has not
       released independently. If it has, stop and govern the compatibility and
       version class before changing any schema; otherwise prove the shared first
       release reinterprets no prior artifact because no prior artifact exists.
+- [ ] 2.5 Record contract realization separately from runtime commissioning. If a
+      participating runtime is claimed, require its signed-log instance identity,
+      signer chain, custody owner, reachable interface, current checkpoint, and
+      successful canonical-validator result; otherwise state that no runtime was
+      commissioned.
 
 ## 3. Validation, Release, and Closure
 
