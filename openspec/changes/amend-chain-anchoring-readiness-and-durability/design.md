@@ -54,8 +54,12 @@ consumer enforcement to a witness contract.
 ### D2 — The PKI dependency becomes a normative realization gate
 
 Tranche-one signed-execution-chain contracts are now realized at
-`contract-v2.5`, so the old "ratified but unrealized" branch is historical. The
-surviving live gate is the operational PKI plane: governed issuance,
+`contract-v2.5`, but its own archive record leaves the live branch-ruleset act
+and broken-chain canary open at issue #534. A workflow file or a reader
+declaration with `is_required_in_ruleset: false` confers no permission. The gate
+therefore requires the live `signed-execution-chain-gate` token to be REQUIRED
+and its broken-chain canary to fail before anchoring realization begins. The
+other surviving live gate is the operational PKI plane: governed issuance,
 verification, revocation handling, and chain custody under released
 `trust-anchor` contracts. Repository seeds, topology plans, workflow files, or
 contract pins alone do not establish that plane.
@@ -64,32 +68,61 @@ The gate blocks commissioning/realization, not authorship or ratification of
 this amendment. This preserves the repository's distinction between governing a
 contract and falsely claiming its dependencies already operate.
 
-### D3 — Trusted log acceptance owns daily membership
+### D3 — Trusted log acceptance owns one non-recursive daily durability item
 
-Daily windows are consecutive half-open UTC intervals. The signed log's trusted
-acceptance timestamp and atomically assigned monotonic sequence determine
-membership; source time is descriptive only. This prevents a late event from
-reopening history and prevents a caller-controlled timestamp from selecting a
-batch.
+Daily windows are consecutive half-open UTC intervals. One atomic log-admission
+transaction validates a declared durability-eligible owner-evidence event,
+deduplicates it, records trusted acceptance time, selects the window from that
+time, and assigns the next monotonic sequence. Acceptance time selects the
+window; sequence orders events inside it. Source time is descriptive only. A
+window close serializes after every admission assigned before its exclusive
+boundary and before the first admission assigned to the next window, so midnight
+cannot place one accepted event on both sides.
 
 The owner-local dedupe key is stable and never public. Same key and same digest
 returns the original leaf/receipt without a new sequence; same key and different
-digest is refused. Every accepted sequence in the window appears exactly once.
-An empty window emits a linked count-zero checkpoint so silence is distinguishable
-from a missed scheduler run.
+digest is refused before sequence assignment. A versioned eligibility registry
+defines the neutral owner-evidence event kinds counted by this profile; a domain
+overlay maps its events into those kinds and cannot make a per-event inclusion
+choice after acceptance. Anchor-state transitions, witness submissions,
+confirmations, batch manifests, and continuity checkpoints are CONTROL leaves,
+not inputs to the same batch they produce. They remain in the signed log and its
+checkpoint anchors, which prevents recursive self-inclusion and allows genuine
+consecutive empty days. Every eligible accepted sequence in the window appears
+exactly once. An empty window emits a linked count-zero checkpoint so silence is
+distinguishable from a missed scheduler run.
 
-This does not weaken Q3's "Bitcoin-via-OTS on everything" ruling. Every event
-has a Merkle path into the one daily root, and that root enters the durability
-witness. Aggregation is how every event is covered without per-event Bitcoin
-transactions.
+**The anchored-item unit is the closed daily manifest and its root, not each
+constituent event.** Each event has a membership path into that item. The SAME
+daily root enters BOTH configured witnesses after window closure: direct Kaspa
+first, then Bitcoin-via-OpenTimestamps. The existing receipt's one aggregation
+path/root and both-witness per-chain entries therefore still describe one item;
+no witness-specific SOURCE root, cadence, or bespoke receipt is introduced. The
+shared top-level aggregation path is the identity path for the daily root; each
+per-chain entry's chain-acceptance evidence carries its witness-specific
+commitment path from that SAME root to the commitment inside its transaction
+bytes (direct for Kaspa, the detached OpenTimestamps operations path for
+Bitcoin). Different proof paths are required; different daily roots are refused.
+Kaspa's
+operational value is the seconds-scale answer after a daily item closes; the
+open window remains covered by the signed owner-local log, not by a false claim
+that every constituent event already has a public witness. This explicitly
+settles `add-chain-anchoring` task 5.1 for the daily profile.
 
 ### D4 — Submission lives in anchor state; confirmation earns a whole receipt entry
 
 Network/interface acceptance is submitted evidence, not confirmation. A Kaspa
-submission remains pending until the configured acceptance rule is satisfied and
-all four receipt elements are captured. An OpenTimestamps detached proof remains
+submission remains submitted while the overall item is pending until the
+referenced approved confirmation profile is satisfied and all four receipt
+elements are captured. An OpenTimestamps detached proof remains
 submitted/pending until it is upgraded with independently verified Bitcoin
 transaction, inclusion, header, and chain-acceptance evidence.
+
+The confirmation rules are operator-approved, immutable versioned profiles
+bound into the receipt configuration, not numbers selected during schema
+implementation. Each profile owns objective transition evidence, retained proof
+requirements, reorganization/replacement handling, and positive/refusal vectors;
+a later profile version never reinterprets an earlier receipt.
 
 The existing receipt/state split remains intact: submitted and in-flight facts
 live in the anchor-state record; the receipt gains a per-chain entry only when
@@ -105,12 +138,16 @@ proof material with an independently verifiable receipt.
 ## Risks / Trade-offs
 
 - **[A fixed daily window adds latency to durability completion]** → retain the
-  operational witness and explicit pending state; never promote pending to a
-  long-horizon claim.
+  signed owner-local log during the open window, then send the same closed daily
+  item to the operational witness first; never promote pending to a long-horizon
+  claim.
 - **[Clock ambiguity changes membership]** → use trusted log acceptance time and
   atomic sequence, never source time.
 - **[Replay consumes sequence space or duplicates a batch leaf]** → enforce the
   stable owner-local dedupe rule before sequence assignment.
+- **[Control leaves recursively make an empty batch non-empty]** → count only
+  versioned durability-eligible owner-evidence events; keep anchoring-control
+  leaves in the signed log/checkpoint path outside the batch they produce.
 - **[An empty day is mistaken for scheduler failure]** → require a linked,
   signed count-zero checkpoint through the same durability path.
 - **[A submitted proof is consumed as confirmation]** → use separate states and
@@ -122,14 +159,19 @@ proof material with an independently verifiable receipt.
 ## Migration Plan
 
 1. Ratify this amendment without commissioning implementation.
-2. Verify the released signed-execution-chain baseline and operational PKI gate.
-3. Extend the existing chain-anchoring schemas, examples, refusal corpus, and
-   validator through the surviving packet's one Speckit realization path.
+2. Verify the released signed-execution-chain baseline, the live REQUIRED
+   `signed-execution-chain-gate`, its broken-chain canary, and operational PKI.
+3. Link this amendment and `add-chain-anchoring` to ONE shared Speckit feature,
+   so no unreleased "existing" schema is assumed and both packets map to one
+   realization rather than competing implementations.
 4. Add deterministic fixtures for non-empty, empty, midnight-boundary, replay,
    conflicting-dedupe, late-source-time, submitted-only, and confirmed-upgrade
    cases.
-5. Run strict OpenSpec and repository validation, then cut the additive contract
-   minor allocated by merge order.
+5. Merge and archive `add-chain-anchoring` first, then archive this dependent
+   amendment, and cut their one additive new-family contract release only after
+   both delta sets are present. If the basis releases without this amendment,
+   stop and re-evaluate compatibility/versioning rather than claiming this path
+   remains an additive first release.
 
 Rollback removes the unreleased additive amendment. Once released, corrective
 changes supersede the release; they do not rewrite prior receipts or inventories.

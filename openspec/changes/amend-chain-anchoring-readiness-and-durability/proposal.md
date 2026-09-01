@@ -21,15 +21,21 @@ and independently verified confirmation.
 ## What Changes
 
 - Add a fail-closed realization prerequisite requiring the already-realized
-  signed-execution-chain contracts and an operational, `trust-anchor`-conformant
-  PKI plane before `chain-anchoring` implementation is commissioned.
+  signed-execution-chain contracts, the live REQUIRED
+  `signed-execution-chain-gate` plus broken-chain canary, and an operational,
+  `trust-anchor`-conformant PKI plane before `chain-anchoring` implementation is
+  commissioned.
 - Add a fixed-UTC durability profile whose trusted log acceptance time and
-  monotonic sequence determine one immutable daily batch, including deterministic
-  dedupe, late-arrival treatment, complete event inclusion, and empty-day
-  continuity checkpoints.
+  atomic admission transaction determine one immutable daily batch, including
+  deterministic dedupe, late-arrival treatment, a closed non-recursive event
+  denominator, complete event inclusion, and empty-day continuity checkpoints.
+  The closed daily root is the anchored item sent to both witnesses, preserving
+  the existing one-root multi-anchor receipt.
 - Require witness state to distinguish submission from confirmation. Kaspa
   interface acceptance is not Kaspa confirmation; OpenTimestamps submission is
-  not Bitcoin confirmation; long-horizon claims require the latter.
+  not Bitcoin confirmation; long-horizon claims require the latter. Confirmation
+  transitions are governed by immutable versioned operator-approved profiles,
+  not implementation-selected thresholds.
 - Preserve the surviving packet's existing receipt/state split, timing model,
   configured-witness binding, privacy boundary, and claim-not-factory failure
   semantics unchanged.
@@ -37,6 +43,8 @@ and independently verified confirmation.
   enforcement text belongs to consumer/runtime governance and is not imported
   into the neutral anchoring capability; its remaining requirements are already
   covered or strengthened by `add-chain-anchoring`.
+- Link this amendment and its unrealized ratified basis to one shared Speckit
+  feature and release; archive the basis first and this amendment second.
 
 ## Capabilities
 
@@ -53,8 +61,8 @@ None.
 ## Impact
 
 - **openxFactory contracts:** realization will add only additive schema,
-  example, refusal-fixture, and validator rules under the existing
-  `chain-anchoring` family.
+  example, refusal-fixture, and validator rules under the not-yet-released
+  `chain-anchoring` family through the basis packet's same realization.
 - **Runtime owners:** must provide operational PKI evidence and the declared
   scheduling, persistence, retry, and network adapters; those runtime surfaces
   remain outside this repository.
@@ -64,5 +72,7 @@ None.
 - **MedxFactory:** its draft usage-control packet can reference the surviving
   capability while keeping executable conformance blocked until the amended
   contracts are released and consumer conformance passes.
-- **Compatibility:** additive only; no current contract shape is narrowed and no
-  released receipt is reinterpreted.
+- **Compatibility:** additive first-release path only while this amendment and
+  `add-chain-anchoring` realize and release together. If the basis releases
+  first, compatibility and version class must be re-evaluated before this packet
+  proceeds; no released receipt is silently reinterpreted.
