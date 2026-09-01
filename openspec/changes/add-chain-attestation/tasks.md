@@ -1165,9 +1165,23 @@ Each is contract content — cheap now, expensive after a bundle ships.
       with no signed open decision, each FAIL a real pull request, with the run id,
       the check id, the validator's single named refusal, and the live ruleset read
       recorded.
-- [ ] 5.9 Registration in `contracts/manifest.yaml` and `contracts/CHANGELOG.md`,
+- [x] 5.9 Registration in `contracts/manifest.yaml` and `contracts/CHANGELOG.md`,
       and the additive bundle cut, with `release-surface-integrity`'s verify-commit
       green from an independent clone.
+      **DONE IN TWO HALVES, EACH WHERE IT HAD TO BE.** The REGISTRATION rode in
+      the realization itself (PR #556, squash `518c670b`): thirteen manifest
+      rows — eight new, four refreshed with the extension named inside each
+      rule — because the family's own required manifest-row digest test refuses
+      a moved schema whose row did not move in the SAME commit. The CUT is this
+      commit: `contract_bundle_version: contract-v2.6`, the CHANGELOG v2.6
+      entry with the number FRESH-COUNTED at the cut (manifest read v2.5,
+      inventories through v2.5, tags through v2.5, zero tranche-two rows in the
+      v2.5 inventory; the #551/#552 `contract-v3.0` ratifications are
+      proposal-only and reserve nothing), the built
+      `contracts/releases/contract-v2.6.digests.yaml`, the release-boundary
+      hand-advance, and the annotated tag `contract-v2.6` pushed on the cut's
+      squash commit with verify-commit AND verify-tag run green from an
+      INDEPENDENT clone — evidence recorded in the cut pull request.
 
 ## 6. Successor — NAMED, NOT DRAFTED
 

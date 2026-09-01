@@ -9,6 +9,108 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
+## contract-v2.6 — 2026-09-01 (additive; what actually ran, said by the chain itself)
+
+Realizes `add-chain-attestation` **tranche two**, ratified 2026-09-01 by the
+repository owner at `f54cb5bc` and RE-RATIFIED at `6d7ef17b` after the amendments
+that head's own verdict forced
+(`openspec/changes/add-chain-attestation/review/`). The code surface — the eight
+new schemas, the additive extension of four shipped ones, the tranche-two
+packaged corpus and the extended reader — landed as PR #556, squash `518c670b`.
+THIS ENTRY IS `tasks.md` 5.9's cut half. The registration half (the thirteen
+manifest rows) rode in #556 itself, because the family's own required
+manifest-row digest test refuses a moved schema whose row did not move in the
+SAME commit; the NUMBER stayed out of every contract byte until this cut, per
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md).
+THE NUMBER, FRESH-COUNTED AT THE CUT: at this tip `contracts/manifest.yaml:3`
+declared `contract-v2.5`, `contracts/releases/` held inventories through v2.5,
+`git ls-remote` published tags through contract-v2.5, the CHANGELOG headed at
+v2.5, and the v2.5 inventory carries ZERO tranche-two rows — the two
+`contract-v3.0` ratifications of #551/#552 are PROPOSAL-ONLY retirement packets
+whose major waits behind its own deprecation window and reserves nothing here.
+Next additive number: **contract-v2.6**.
+
+**Change class: ADDITIVE (minor)** under
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md).
+`git diff --name-status contract-v2.5 518c670b -- contracts/` reports
+**eighty-eight additions and nine modifications**, and the nine are measured
+rather than waved at: FOUR are the editorial registration surfaces (this
+changelog, `contracts/README.md`, `contracts/manifest.yaml`, the family README);
+ONE is the packaged tranche-one conformance-declaration example, moved by the
+already-landed #550 (`is_required_in_ruleset: true` — the declaration stopped
+saying the reader is unrequired because it is required, a truth update and not a
+shape change); and FOUR are the additive schema extensions this release is for.
+NO MEMBER ANY OF THE FOUR PUBLISHED WAS REMOVED, RENAMED OR NARROWED, and the
+non-refusal of prior instances is PROVED rather than argued: the shipped
+tranche-one corpus — every positive of it byte-identical since v2.5 except the
+#550 example — validates green under the extended schemas in the same required
+check that walks the new corpus, and the shipped nine-entry conformance
+declaration stays valid because the obligations enumeration widened as
+`minItems: 9, maxItems: 18` with the eighteen-entry closure enforced by the
+READER only for a declaration naming a tranche-two obligation. Every consumer
+pinned at `contract-v2.5` stays conformant until it deliberately upgrades, and
+`contract_schema_version` is unchanged.
+
+### What this release adds
+
+* **Four shipped schemas extended, additively** —
+  `digest-construction.schema.yaml` gains ELEVEN digest subjects and NO second
+  construction (the one way that file is meant to move, said in the file);
+  `chain-inception.schema.yaml` gains the OPTIONAL `amendment_lineage` block
+  (reviewed digest, ratified subject digest, review-record digest, amendment
+  record reference) inside the signed bytes, REQUIRED BY THE READER for any
+  chain carrying tranche-two records — optional in the shape because `required`
+  would have refused every inception the v2.5 bundle accepts, which this
+  policy classes BREAKING; the residual is DECLARED at the packaged
+  declaration's SEC-R16 entry; `transparency-log-leaf.schema.yaml` gains seven
+  leaf types and the extended closed refusal enumeration (a second digest
+  construction has no code because it has no representation);
+  `conformance-declaration.schema.yaml` gains SEC-R10..SEC-R18 and the
+  `attestation_design` block carrying the three obligations a gate cannot see.
+* `contracts/signed-execution-chain/` — **eight NEW schemas, links 4–6 and 10**,
+  each with a per-file `sha256` row: `attestation-common.schema.yaml` (shared
+  definitions by `$ref` — the signature block with THE SIGNER'S PUBLIC KEY
+  CARRIED BESIDE IT, the predecessor hash link, the CLOSED three-member
+  evidence class composing with the ratified trust-anchor chain-custody
+  registry in D2's declared ORDER, and the signing request as a REQUIRED
+  member, so an unattributable signature is unrepresentable);
+  `setup-attestation.schema.yaml` (link 4 — the controller attests the
+  environment IT PREPARED and COMMITS to the expected attestation set inside
+  the same signed bytes); `commitment-extension.schema.yaml` (the same
+  commitment written later, deadline at DISPATCH);
+  `signed-chain-binding.schema.yaml` (the seventh record kind and the third leg
+  of a tier-2 identity's COMPOSED issuance — subject scope, closed record-kind
+  enumeration, the chain identity served — consuming the canonical
+  `certificate-record` and `issuance-evidence` at `contract-v1.37` and
+  redefining NEITHER); `runner-attestation.schema.yaml` (link 5 — signed AT the
+  controller on a recorded, attributed request; corroborated against link 4 and
+  never notarized); `pr-open-decision.schema.yaml` (link 6 — the enumeration
+  EQUALS the committed expectation in both directions, the pull request and
+  head revision inside the signed bytes; PROPOSING IS NOT PERMITTING);
+  `closure-record.schema.yaml` (link 10 — the governed post-merge test the
+  RATIFIED SUBJECT names, controller-dispatched on exactly the merge commit,
+  authenticated and PASSING, the three lineage limbs verified; a
+  merged-but-unclosed chain is a REFUSING state);
+  `remediation-declaration.schema.yaml` (the ONE admitted consumer of an
+  unclosed chain — itself a full chain, its exemption non-inheritable, its own
+  closure owed).
+* `scripts/signed_execution_chain/attestation.py` — the tranche-two walk of THE
+  SAME NAMED READER, content-addressed by commit like the rest of the reader:
+  links 1–6 as ELEVEN ordered checks in the ONE walk (org ruleset **21957695**
+  unchanged — the same required check reading further, never a second gate),
+  the horizon rules, the composed tier-2 issuance verified FINGERPRINT-FIRST,
+  the custody ceiling read from the ratified registry's own file, and the
+  remediation exemption's four refusals. **Ninety-five closed refusal codes,
+  every one red-proven** by the self-test over TWO packaged corpora
+  (`examples/` and `examples/tranche-two/` — the split forced by the log's
+  append-only rule), 74 tranche-two negatives, four positive chains including
+  the interleaved fan-out and the unamended zero-length lineage.
+* **What this release does NOT operate**: no certificate authority, no minted
+  tier-2 identity, no held private key, no running omnigent layer. SEC-R18 is
+  declared UNMET (`execution_layer_ordering: not_enforced`) until a running
+  layer REFUSES, and the packet's §5.1–5.3 machinery gates stay open — the
+  packaged fixture keys exist as public halves, digests and signatures only.
+
 ## contract-v2.5 — 2026-08-31 (additive; a validated chain is not an audit trail, it is a permission)
 
 Realizes `add-signed-execution-chain` **tranche one**, ratified 2026-08-29 by the
