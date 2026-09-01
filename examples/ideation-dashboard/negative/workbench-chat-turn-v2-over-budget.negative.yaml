@@ -1,7 +1,11 @@
 # INVALID (budget): document bytes exceed the selected model's input limit (2048).
+# Re-expressed against the surviving family at contract-v3.0
+# (retire-doxbench-chat-turn-v1 task 4.4). The budget rule is applied per
+# buffer over the loaded SET rather than over the v1 pair, which is a wider
+# subject for the same rule, not a different one.
 {
   "schema_version": 1,
-  "kind": "workbench-chat-turn",
+  "kind": "workbench-chat-turn-v2",
   "client_turn_id": "turn-0006",
   "scope": {
     "repository": "openxFactory",
@@ -9,7 +13,7 @@
     "tile_kind": "staged",
     "tile_id": "demo-topic"
   },
-  "active_document_path": "ideation/staging/demo-topic/note.md",
+  "bound_buffer": "ideation/staging/demo-topic/note.md",
   "working_subject": "Clarify the acceptance boundary",
   "message": "Which open question should we close next?",
   "model_id": "hosted-zr-1",

@@ -141,13 +141,14 @@ KIND_TO_SCHEMA = {
     # instance kinds use the retained `workbench-*` identifier family; the
     # chat-turn file holds three envelopes discriminated by a oneOf.
     "workbench-model-catalog": "xfactory-workbench-model-catalog.schema.yaml",
-    "workbench-chat-turn": "xfactory-workbench-chat-turn.schema.yaml",
-    "workbench-chat-turn-success": "xfactory-workbench-chat-turn.schema.yaml",
-    "workbench-chat-turn-failure": "xfactory-workbench-chat-turn.schema.yaml",
-    # The co-resident WIDENED family (contract-v1.34,
-    # add-doxbench-editing-phase-b design D15). Same file, same oneOf; the v1
-    # kinds above are DEPRECATED but still validated, because a deprecation that
-    # stopped validating would break the clients it exists to keep working.
+    # THE ONE SERVED TURN FAMILY (contract-v3.0,
+    # retire-doxbench-chat-turn-v1). Three v1 rows stood above these —
+    # `workbench-chat-turn`, `-success`, `-failure` — DEPRECATED at
+    # contract-v1.34 and still validated for thirteen minors and one major,
+    # because a deprecation that stopped validating would have broken the very
+    # clients it existed to keep working. The recorded removal target has been
+    # reached, so an instance declaring one of those kinds is now an UNKNOWN
+    # kind to this validator, exactly like any other kind it does not serve.
     "workbench-chat-turn-v2": "xfactory-workbench-chat-turn.schema.yaml",
     "workbench-chat-turn-v2-success": "xfactory-workbench-chat-turn.schema.yaml",
     "workbench-chat-turn-v2-failure": "xfactory-workbench-chat-turn.schema.yaml",
@@ -312,7 +313,17 @@ def deprecated_kinds(docs: dict[str, dict]) -> dict[str, dict]:
     Read from the schemas' own top-level `deprecated_envelopes` blocks. This
     validator never carries its own list of what is deprecated: the release owns
     that statement, and a second copy here would be a second authority that could
-    disagree with the bytes consumers actually pin."""
+    disagree with the bytes consumers actually pin.
+
+    KEPT AT contract-v3.0 WITH NOTHING TO REPORT (retire-doxbench-chat-turn-v1
+    task 4.2). The chat-turn v1 family was this mechanism's only subject in the
+    estate, and its `deprecated_envelopes` block left with the envelopes it
+    named — so this function now returns `{}` over the packaged schemas. It is
+    GENERAL machinery, not v1 machinery: it reads whatever ANY loaded schema
+    declares. Removing it because its only current subject went would delete the
+    estate's only machine-readable deprecation reader and leave the next
+    deprecation inert, which is the precise failure this whole retirement
+    exists to correct."""
     declared: dict[str, dict] = {}
     for doc in docs.values():
         if not isinstance(doc, dict):
@@ -389,20 +400,18 @@ def validate_instance(
         check_demotion_receipt(f, label, doc)
     elif tag == "workbench-model-catalog":
         check_model_catalog(f, label, doc)
-    elif tag == "workbench-chat-turn":
-        check_turn_request(f, label, doc, model_ctx)
-    elif tag == "workbench-chat-turn-success":
-        check_turn_success(f, label, doc)
-    elif tag == "workbench-chat-turn-failure":
-        check_turn_failure(f, label, doc)
     elif tag == "workbench-chat-turn-v2":
         check_turn_request_v2(f, label, doc, model_ctx)
     elif tag == "workbench-chat-turn-v2-success":
         check_turn_success_v2(f, label, doc)
     elif tag == "workbench-chat-turn-v2-failure":
-        # The redaction and limit-pairing rules are the family's, not a
-        # per-envelope invention: a v2 failure discloses exactly what a v1
-        # failure does, so it is judged by exactly the same function.
+        # `check_turn_failure` keeps its family-neutral name. It was written to
+        # judge BOTH released failure envelopes, on the released reason that "a
+        # v2 failure discloses exactly what a v1 failure does, so it is judged
+        # by exactly the same function"; one family survives contract-v3.0 and
+        # the rules it applies — the `limit`/`request_limit_exceeded` pairing
+        # and the public-string leak scan — are the FAMILY's, not this
+        # envelope's.
         check_turn_failure(f, label, doc)
     return tag
 
@@ -1558,8 +1567,12 @@ def check_turn_id_uniqueness(f: Findings, paths) -> None:
     seen: dict[str, tuple[str, str]] = {}
     for path in paths:
         doc = load_yaml(path)
+        # One request kind since contract-v3.0; the v1 spelling left the tuple
+        # with its envelope (retire-doxbench-chat-turn-v1). A tuple rather than
+        # a bare comparison because the rule is about REQUEST kinds as a class,
+        # and the next co-resident family would join it here.
         if not (isinstance(doc, dict) and doc.get("kind") in (
-                "workbench-chat-turn", "workbench-chat-turn-v2")):
+                "workbench-chat-turn-v2",)):
             continue
         tid = str(doc.get("client_turn_id"))
         # Canonicalize buffer order before hashing: a retransmission that merely
