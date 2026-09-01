@@ -6,7 +6,9 @@ sequenced_after: [add-structured-scope-substrate]
 
 # Proposal: add-sequenced-after-substrate
 
-Status: draft
+Status: ratified
+Ratified by: convener ruling of 2026-09-01 (Brett Heap) — see
+§ Ratification record.
 Authored: 2026-09-01, as dependency 0.5 of codexFactory
 `realize-provenance-gated-autonomous-merge`.
 Directed by: Brett Heap's convener ruling **R1** of 2026-08-28 on that packet —
@@ -25,14 +27,53 @@ session; the design decisions it would surface are carried forward as
 the authoring decisions it would challenge are enumerated as S1 … S9 in
 `design.md` § Decisions and were flagged for veto when written.
 
-**NOTHING IS BUILT AND NOTHING IS PUSHED.** Per the house rule — OpenSpec
-ratifies, Speckit builds — this packet contains proposal artifacts only. Group 0
-of `tasks.md` is the ratification gate and is the only task in it a human must
-perform. **This change is NOT ratified.**
+**RATIFIED, AND THE BUILD IS AUTHORIZED.** Per the house rule — OpenSpec
+ratifies, Speckit builds — the packet was authored first and carries proposal
+artifacts plus the post-ratification realization named in its `code_surface`.
+Group 0 of `tasks.md` was the ratification gate and is closed; Groups 2–5 are the
+authorized build. **Nothing is pushed and nothing is merged by this change.**
 
-> **CONVENER BRIEF:** a ten-line read of what is being ratified, the one open
-> question that needs a ruling, and the measured blast radius, is `design.md`
-> § 0. Read that first.
+> **CONVENER BRIEF:** a ten-line read of what was ratified, the one open
+> question that needed a ruling, and the measured blast radius, is `design.md`
+> § 0.
+
+## Ratification record
+
+Ratified: 2026-09-01 by Brett Heap (convener, openxFactory operator authority) —
+**accepting the proposal AS AUTHORED**, nine ADDED requirements and thirty
+scenarios over `release-realization`, with no amendment to the spec delta.
+
+Open-question disposition, all five ruled at the same sitting:
+
+- **OQ-1 — the strict-loader retrofit: FIX IT INSIDE THIS CHANGE** (the
+  recommendation). The strict-loader requirement's reach into `scope_globs:`
+  lands here: `scripts/scope_globs.py`'s `yaml.safe_load` duplicate-key hole is
+  repaired by this change's own build, which therefore repairs a ratified
+  sibling's shipped reader. ONE loader over the whole realization-axis block, for
+  BOTH structured fields; a strict loader with a documented hole in one field of a
+  trust-root surface is not a strict loader. **This ruling sets Group 2's scope
+  and Group 4's test set**, and it carries a downstream consumer consequence
+  recorded as a note at the head of Group 2 in `tasks.md`.
+- **OQ-2 — fan-out: MULTI-PARENT DECLARATIONS ARE ALLOWED** (as recommended). A
+  fork must be DECLARABLE at the substrate for a consuming gate's fork refusal to
+  be reachable and testable; forbidding it would force under-declaration on a
+  trust-root surface. The validator therefore imposes no fan-out limit.
+- **OQ-3 — doc-health's whole-token ordering reader: UNTOUCHED** (as
+  recommended). The `modified-block-currency` family keeps its own advisory
+  whole-token resolution; its migration to `sequenced_after:` is a NAMED FOLLOW-ON
+  and is not built here.
+- **OQ-4 — the cycle/depth split: AS AUTHORED** (as recommended). The substrate
+  refuses a CYCLE (a well-formedness fact) and declares NO depth cap, NO fan-out
+  cap and NO composition operator — those being the consuming gate's authorization
+  policy. No cap and no operator enter the substrate.
+- **OQ-5 — ratification authority: NO COUNCIL CO-SIGN REQUIRED** (as
+  recommended). Convener ratification suffices, the same disposition
+  `add-structured-scope-substrate` received on 2026-08-28: the doctrine that makes
+  this block a trust-root floor surface was already council-ratified in the "B"
+  change, and this packet adds a field to it rather than new authority.
+
+Authoring decisions S1 … S9 (`design.md` § Decisions) were confirmed as written;
+none was vetoed.
 
 ## Why
 
@@ -183,9 +224,11 @@ obligates the reader that change shipped. And its own ADDED requirement titles a
 NOVEL, so a requirement-granular co-modifier cross-check would find ZERO
 co-modifiers and would let this change claim ROOT at depth 1. **It declares the
 parent anyway**, which is the substrate's own doctrine applied to its author:
-declaring must never be worth less than omitting. The field is not yet validated
-by anything — Group 3 builds that — which is exactly what "additive and
-non-breaking" means in practice.
+declaring must never be worth less than omitting. **The validator this change
+builds validates this change's own declaration** — the bare entry
+`add-structured-scope-substrate` resolves to exactly one active change directory,
+breaks no grammar rule and closes no cycle — so the first instance is not an
+unexercised example but the corpus gate's first live subject.
 
 ## The sibling rule, measured
 
@@ -277,9 +320,10 @@ that reports the population and records the deepest declared chain.
 
 ## Open questions
 
-Five, with recommendations and no decisions, in `design.md` § Open questions.
-**OQ-1 is the one that needs a ruling** — whether the strict-loader retrofit of
-`scope_globs` lands inside this change (recommended) or as a separate successor.
-OQ-2 … OQ-5 (fan-out declarability, the doc-health reader, the cycle/depth split,
-and whether `gate_rules_council` co-sign is required) each carry a recommendation
-that stands unless the convener disagrees.
+**ALL FIVE ARE RULED** — see § Ratification record for the dispositions. They are
+kept in `design.md` § Open questions as authored, with their recommendations, so
+the record shows what was asked as well as what was answered: OQ-1 the
+strict-loader retrofit (ruled FIX INSIDE THIS CHANGE), OQ-2 fan-out (ALLOWED),
+OQ-3 the doc-health whole-token reader (UNTOUCHED, named follow-on), OQ-4 the
+cycle-refused / depth-unbounded split (AS AUTHORED — no cap and no operator in
+the substrate), OQ-5 council co-sign (NOT REQUIRED).

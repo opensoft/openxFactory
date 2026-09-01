@@ -11,27 +11,30 @@ dependency is explicit. **No push and no merge is performed by this change.**
 
 ## Group 0 — RATIFICATION GATE (human; blocks Groups 2–5 absolutely)
 
-Nothing below Group 1 may be built until this group closes. Group 1 is complete
-and Group 0 is open.
+**CLOSED 2026-09-01 — RATIFIED AS AUTHORED by Brett Heap (convener).** OQ-1 ruled
+FIX INSIDE THIS CHANGE; OQ-2 … OQ-5 confirmed as recommended; S1 … S9 confirmed,
+none vetoed. Dispositions recorded in `proposal.md` § Ratification record. Groups
+2–5 are authorized.
 
-- [ ] 0.1 **Convener read of `design.md` § 0** (the ten-line brief) — what is
+- [x] 0.1 **Convener read of `design.md` § 0** (the ten-line brief) — what is
   being ratified, the measured blast radius, and the one open question.
-- [ ] 0.2 **Rule OQ-1 — the strict-loader retrofit.** Does the strict-loader
-  requirement's reach into `scope_globs:` land INSIDE this change (repairing the
-  `yaml.safe_load` duplicate-key hole in `scripts/scope_globs.py`, RECOMMENDED),
-  or is the requirement narrowed to `sequenced_after:` with the `scope_globs`
-  repair filed as a separate successor? **The ruling changes Group 2's scope and
-  Group 4's test set**, so it must precede the build.
-- [ ] 0.3 **Confirm or veto OQ-2 … OQ-5** (fan-out declarability; leaving
-  doc-health's whole-token reader in place; the cycle-refused / depth-unbounded
-  split; whether `gate_rules_council` co-sign is required in addition to convener
-  ratification). Each carries a recommendation that stands unless vetoed.
-- [ ] 0.4 **Confirm or veto authoring decisions S1 … S9** (`design.md`
-  § Decisions), each flagged for veto when written.
-- [ ] 0.5 On ratification: set `Status: ratified` + a `Ratified:` line citing the
-  ratification record in `proposal.md`, add a `## Ratification record` section
-  recording the OQ dispositions, and update this packet's README "OpenSpec
-  Records" entry from AUTHORED to RATIFIED.
+- [x] 0.2 **Rule OQ-1 — the strict-loader retrofit.** RULED: the retrofit lands
+  INSIDE this change. The strict-loader requirement's reach into `scope_globs:`
+  is realized here, repairing the `yaml.safe_load` duplicate-key hole in
+  `scripts/scope_globs.py` — ONE loader over the whole realization-axis block for
+  BOTH structured fields. Group 2 carries its full scope and Group 4 its full test
+  set.
+- [x] 0.3 **Confirm or veto OQ-2 … OQ-5.** All four CONFIRMED as recommended:
+  multi-parent declarations ALLOWED; doc-health's whole-token reader LEFT IN
+  PLACE with its migration a named follow-on; the cycle-refused /
+  depth-unbounded split AS AUTHORED (no cap and no operator in the substrate);
+  NO `gate_rules_council` co-sign required beyond convener ratification.
+- [x] 0.4 **Confirm or veto authoring decisions S1 … S9** (`design.md`
+  § Decisions) — all nine confirmed as written, none vetoed.
+- [x] 0.5 On ratification: `Status: ratified` + the `Ratified by:` line and the
+  `## Ratification record` section recording the five OQ dispositions are in
+  `proposal.md`, and the README "OpenSpec Records" entry is moved from AUTHORED to
+  RATIFIED.
 
 ## Group 1 — openxFactory doctrine authoring (THIS change; no code)
 

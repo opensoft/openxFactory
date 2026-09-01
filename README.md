@@ -887,9 +887,10 @@ Active changes:
   lockstep test. The codexFactory provenance-tie verifier that CONSUMES
   `scope_globs` is downstream (B's realization), NOT this change's surface.
 - [add-sequenced-after-substrate](openspec/changes/add-sequenced-after-substrate/proposal.md)
-  — authored 2026-09-01, **AUTHORED AND NOT RATIFIED** (`Status: draft`; Group 0
-  of its `tasks.md` is the convener gate and is the only human task in it).
-  ALL-ADDED delta on `release-realization`: the OPTIONAL front-matter sibling
+  — authored 2026-09-01, **RATIFIED 2026-09-01 AS AUTHORED** (Brett Heap,
+  convener; `Status: ratified`, dispositions in the proposal's
+  § Ratification record). ALL-ADDED delta on `release-realization`: the OPTIONAL
+  front-matter sibling
   `sequenced_after:` — a SEQUENCE of parent change references, with
   `sequenced_after: []` a POSITIVE ratification-covered ROOT CLAIM — which makes
   the ordered-delta sequencing this capability already obliges in PROSE walkable
@@ -932,11 +933,20 @@ Active changes:
   obligation and its archive-order hold. **The change is its own first instance**
   — it declares `sequenced_after: [add-structured-scope-substrate]` even though a
   requirement-granular cross-check would let its novel titles claim ROOT at depth
-  1, because declaring must never be worth less than omitting. ONE open question
-  needs a ruling (OQ-1: does the `scope_globs` strict-loader retrofit land inside
-  this change, or as a separate successor?); OQ-2 … OQ-5 carry recommendations.
-  Built post-ratification via Speckit; the codexFactory verifier that CONSUMES
-  the field is downstream and NOT this change's surface.
+  1, because declaring must never be worth less than omitting — and the validator
+  built here validates that declaration, so the first instance is the corpus
+  gate's first live subject. **All five open questions are RULED**: OQ-1 the
+  `scope_globs` strict-loader retrofit lands INSIDE this change (one loader over
+  the whole block, for both structured fields, repairing the ratified sibling's
+  shipped `yaml.safe_load` reader); OQ-2 multi-parent declarations ALLOWED; OQ-3
+  doc-health's whole-token ordering reader UNTOUCHED (migration a named
+  follow-on); OQ-4 cycle refused / depth and fan-out unbounded, AS AUTHORED; OQ-5
+  NO council co-sign required. Built post-ratification via Speckit
+  (`scripts/frontmatter_strict.py`, `scripts/sequenced_after.py`,
+  `scripts/validate-sequenced-after.py`,
+  `docs/sequenced-after-trust-root-floor.md`, `tests/sequenced_after/`); the
+  codexFactory verifier that CONSUMES the field is downstream and NOT this
+  change's surface.
 - [settle-aging-staging-topics](openspec/changes/settle-aging-staging-topics/proposal.md)
   — authored 2026-08-28 on Brett's four bulk rulings over a read-only triage
   survey of the fourteen staging topics `doc-health`'s
