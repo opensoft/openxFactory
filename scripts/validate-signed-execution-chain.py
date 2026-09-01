@@ -261,7 +261,14 @@ HUMAN_HOLDER_CLASSES = frozenset({"person", "practitioner"})
 VERIFIABLE_ALGORITHM = "ed25519"
 
 LEAF_TYPES = ("wallet_presented_ratification", "chain_inception",
-              "traveling_contract_issued", "gate_verdict")
+              "traveling_contract_issued", "gate_verdict",
+              # Tranche two: one leaf type per record kind it defines, written
+              # into the SAME log — the walk is over the records the log holds
+              # in the order it holds them.
+              "setup_attestation", "commitment_extension",
+              "signed_chain_binding", "runner_attestation",
+              "pr_open_decision", "closure_record",
+              "remediation_declaration")
 
 CHECK_NAMES = (
     "ratification_signature_verifies",
@@ -1660,7 +1667,11 @@ def labelled(prefix: str, path: Path) -> list[tuple[str, dict]]:
             for index, doc in enumerate(records)]
 
 
-def positive_records(directory: Path, prefix: str) -> list[tuple[str, dict]]:
+def positive_records(directory: Path = None, prefix: str = "examples") -> list[tuple[str, dict]]:
+    """Defaults to the tranche-one reference corpus, which is the signature the
+    family's pytest wiring consumes; the self-test passes each corpus explicitly."""
+    if directory is None:
+        directory = EXAMPLES_DIR
     out: list[tuple[str, dict]] = []
     for path in sorted(directory.glob("*.example.yaml")):
         out.extend(labelled(prefix, path))

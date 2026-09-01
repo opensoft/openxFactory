@@ -22,7 +22,7 @@ payload_digest:
 previous_leaf_digest:
   construction: xfc-jcs-sha256-1
   subject: transparency_log_leaf
-  value: sha256:922cf4dd48767e25480c9dcd08b0297f3a37d4a08faf63785e1f1acc391348b5
+  value: sha256:f698c2fb50ae9d3564d458e61f5becb46178064197d05cca91b02afb5bdcb7c2
 verdict:
   outcome: permitted
   scope: links_1_6
@@ -46,9 +46,9 @@ verdict:
 leaf_digest:
   construction: xfc-jcs-sha256-1
   subject: transparency_log_leaf
-  value: sha256:92896e193fb1cc9c297dac054b4e2854d8838e8cf74945da237c6e4932428f5a
+  value: sha256:7a8a3eda4001b3c06a5e260bb6746dfd9fc711c249d2b50577b2e4c70854b095
 leaf_signature:
   algorithm: ed25519
   key_ref: key-ratifier-t5
   signed_over: leaf_content
-  signature: g-NX7luUxYWf7nokIDXRmz8ngFciEYQLCO3e7h0CBhKJEebMxn29KxaB0FyJI_IKnV0qcqasXtLYqZtYlX6wBQ
+  signature: lqoxtvHbjL68YwdlTxzrXd0ANCnekcmaKoUAa9yUFeS3Iaoi_sq7sLqj4Y-zPi9eewQbDoxBiKkf6zXJ5vZMBw

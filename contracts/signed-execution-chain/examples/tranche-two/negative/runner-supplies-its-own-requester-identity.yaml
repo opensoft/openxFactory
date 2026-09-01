@@ -19,7 +19,7 @@ signed_attestation:
     digest:
       construction: xfc-jcs-sha256-1
       subject: closure_record
-      value: sha256:00a0d4301e5af834f7825485188682caac11df5d67fb10d97a2f0e7037b9a5a1
+      value: sha256:588e6a5f47d5d644c21b94139b5dfa8520e96e9b85604795ac9d5f6843f5e48e
   task_ref: task:t5-a
   identity:
     binding_ref: bind-t5-a
@@ -49,13 +49,13 @@ signed_attestation:
     payload_digest:
       construction: xfc-jcs-sha256-1
       subject: runner_attestation
-      value: sha256:16904ad87bf466e560334d44d868adf412f7eae19bb297d4264d31fd932be7d4
+      value: sha256:d91c162662c701e73ef49e4acbdde8165c5866245a915a619a3b637b0ffcd8f3
 attestation_signature:
   algorithm: ed25519
   key_ref: key-tier2-a
   certificate_ref: cert:tier2-task-a
   signed_over: signed_attestation
-  signature: CiP8xSZvCtSozBj_ijnfHXMrwSnjq5Flb5MT54lbI3RUFiRrLFhJE1XqsLQ96FS8lIcnIlxd6nRuK3LEwLy6Aw
+  signature: HjW-6cb20EsHACeOyiXasmLm5B1fmgJtESzz56wduaTS5w7hL4Dy2WQ6hsWrZAnIODxGo9OyMIj5J7MJmsXnDw
   public_key: z6Mkph4jBMboXmzytn7Qt3ZzovEnKCT7GRQPbrpKByxr7H24
 attested_at: '2026-09-01T16:10:00Z'
 leaf_ref: leaf-0046
@@ -72,17 +72,17 @@ payload_ref: att-neg-self-reported
 payload_digest:
   construction: xfc-jcs-sha256-1
   subject: runner_attestation
-  value: sha256:660a080d7954c54d1569dd69f35663eba4e3acfb687a8bd559595cfbbc254aa6
+  value: sha256:fdb848f89741b8a988f932cc2349443025d8544a4f3c82486a6a783b2e5be84a
 previous_leaf_digest:
   construction: xfc-jcs-sha256-1
   subject: transparency_log_leaf
-  value: sha256:922cf4dd48767e25480c9dcd08b0297f3a37d4a08faf63785e1f1acc391348b5
+  value: sha256:f698c2fb50ae9d3564d458e61f5becb46178064197d05cca91b02afb5bdcb7c2
 leaf_digest:
   construction: xfc-jcs-sha256-1
   subject: transparency_log_leaf
-  value: sha256:3f3ac1c80ad32d71ce9e62dff19f7fb3d8382599cc263773a642ef2cbbd9c898
+  value: sha256:006e9ba5ad0fbbe485f572e3fd568ee8e84dce0040c8619b2c2d2a3b9d2134b1
 leaf_signature:
   algorithm: ed25519
   key_ref: key-ratifier-t5
   signed_over: leaf_content
-  signature: DVky8KAoi_LWPq-ACYDl_HaEa8AwGT5HjnkmxByDn5A9wjn8UPJpW7jh-kIMGgn-yJ5ZwxYMLcsegumiP5xNCA
+  signature: gelqGG-YVYmQa5l64zaRErOykqROOr1rgS4A-1E-1LHbGeSl3OuTtK_NPjtAUCtmdsNA2VYySkZtOIPTDWvGBQ

@@ -63,7 +63,7 @@ obligations:
   obligation_statement: One digest construction governs every digest this capability computes.
   satisfaction: satisfied
   reason: '`xfc-jcs-sha256-1` is declared once and taken by `$ref` everywhere. Tranche two
-    adds EIGHT DIGEST SUBJECTS to the enumeration and NO second construction, which is the
+    adds ELEVEN DIGEST SUBJECTS to the enumeration and NO second construction, which is the
     one way that file is meant to move.'
   declared_at: '2026-09-01T18:00:00Z'
 - entry_id: sec-ob-r5

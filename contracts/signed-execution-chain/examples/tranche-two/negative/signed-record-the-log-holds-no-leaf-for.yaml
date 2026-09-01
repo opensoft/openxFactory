@@ -18,7 +18,7 @@ signed_attestation:
     digest:
       construction: xfc-jcs-sha256-1
       subject: closure_record
-      value: sha256:00a0d4301e5af834f7825485188682caac11df5d67fb10d97a2f0e7037b9a5a1
+      value: sha256:588e6a5f47d5d644c21b94139b5dfa8520e96e9b85604795ac9d5f6843f5e48e
   task_ref: task:t5-a
   identity:
     binding_ref: bind-t5-a
@@ -48,12 +48,12 @@ signed_attestation:
     payload_digest:
       construction: xfc-jcs-sha256-1
       subject: runner_attestation
-      value: sha256:16904ad87bf466e560334d44d868adf412f7eae19bb297d4264d31fd932be7d4
+      value: sha256:d91c162662c701e73ef49e4acbdde8165c5866245a915a619a3b637b0ffcd8f3
 attestation_signature:
   algorithm: ed25519
   key_ref: key-tier2-a
   certificate_ref: cert:tier2-task-a
   signed_over: signed_attestation
-  signature: QV6UNA6CNX9GmBq0R_5u62grMnsnQkVobGdZILegSzxgbsBovXP4rsPP6RB5TWAaaJD_txjLueqFTzu_EZcEDw
+  signature: iYXTCMC0KNwVKIDlVuDE1Q9uZ5o0ONS-vlYcwiLMQy_wgLwKE4pQy70SrqBhwHDR2PraksBOr68MjQ_0b67GDA
   public_key: z6Mkph4jBMboXmzytn7Qt3ZzovEnKCT7GRQPbrpKByxr7H24
 attested_at: '2026-09-01T16:10:00Z'

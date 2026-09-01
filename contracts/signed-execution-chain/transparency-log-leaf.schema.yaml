@@ -274,7 +274,15 @@ properties:
               - open_decision_offered_as_permission
               - predecessor_digest_break
               - digest_subject_unnamed
-              - second_digest_construction_declared
+              # A SECOND DIGEST CONSTRUCTION HAS NO CODE HERE BECAUSE IT HAS NO
+              # REPRESENTATION: every digest member is `$ref` to the one
+              # construction and its name is `const`, so the defect is refused BY
+              # SHAPE before any reader walks — unrepresentable is stronger than
+              # refused, and a code nothing can emit would fail the family's own
+              # probe rule.
+              - revocation_standing_unchecked
+              - record_signature_invalid
+              - closure_proposal_binding_mismatch
               - attestation_leaf_deferred_past_successor
               - enumerated_record_unproven
               - attestation_outside_committed_expectation

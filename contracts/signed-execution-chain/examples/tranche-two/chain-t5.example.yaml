@@ -163,7 +163,7 @@ presentation_ref: exr-t5
 inception_leaf_digest:
   construction: xfc-jcs-sha256-1
   subject: transparency_log_leaf
-  value: sha256:a1fb0ee6c577a18a6980b2b02f77912dc02b75d67a776ab490ad62d94a7c3968
+  value: sha256:2ab960386ae6a152783027d4aa9af85f32c25caeb0fbf159d864d230d2011765
 signed_ratification:
   ratification_id: rat-t5
   ratified_at: '2026-09-01T10:00:00Z'
@@ -488,7 +488,7 @@ signed_decision:
     binding_ref: bind-t5-chain
     subject_scope: chain_scoped
   pull_request:
-    pull_request_ref: opensoft/openxFactory#554
+    pull_request_ref: opensoft/openxFactory#90005
     head_revision: 84104bee44556677
     base_ref: main
   committed_attestations:
@@ -510,13 +510,13 @@ signed_decision:
     payload_digest:
       construction: xfc-jcs-sha256-1
       subject: pr_open_decision
-      value: sha256:951501661ab2b0405dadef3a5050c54053c838f4242ce105630fec725ec1599c
+      value: sha256:e2aeeffa40b8c7546f5a883a791864885726c799068e77dad136aee8fbd6953c
 decision_signature:
   algorithm: ed25519
   key_ref: key-tier2-chain-d
   certificate_ref: cert:tier2-chain-staging
   signed_over: signed_decision
-  signature: XV8Np_02onVWfWae3Z_2PQMImZ_p5rHVs1YvKn9fjtdU1k7ZXM6ZEZY3FCHIPCN4QRmMN0cpD1MV22oBWqVFDw
+  signature: UR0iYaDRtjtCFGK6qepGfEy7zoFLZizgiboKPG6auYL5laLf0YpuQvc2MCL4890tE04q1HsLwZ6hv0-Y6KUcBQ
   public_key: z6MkfJ8DJkNPpSNq2hx8DU3Fk36ifvBufGF5dv3SQSw84WA5
 decided_at: '2026-09-01T16:20:00Z'
 leaf_ref: leaf-0043
@@ -534,7 +534,7 @@ signed_closure:
     digest:
       construction: xfc-jcs-sha256-1
       subject: pr_open_decision
-      value: sha256:7c33b7585568fcda3a580712ef9cbf125d5723e61665595470c0b017fad8e9ea
+      value: sha256:2682a3fa6e6b306043f50a8ec138c1791b7787b4c7d94226f59d42fc5d3ed679
   identity:
     binding_ref: bind-t5-chain
     subject_scope: chain_scoped
@@ -574,7 +574,7 @@ signed_closure:
     execution_ref: run-clo-t5
     tested_revision: 84104bee44556677
     merge_commit: 84104bee44556677
-    merged_pull_request_ref: opensoft/openxFactory#554
+    merged_pull_request_ref: opensoft/openxFactory#90005
     result: passed
     statement: The governed post-merge test the ratified subject names, dispatched by the
       controller against the merge commit.
@@ -589,13 +589,13 @@ signed_closure:
     payload_digest:
       construction: xfc-jcs-sha256-1
       subject: closure_record
-      value: sha256:730d3cac5ea3c0a0ef540d4aa14d3a8c51e9db7640143f607d7e0cb866546a82
+      value: sha256:5126872f9ff1d0422c8085048a25ad5605d2b4015e864e99ea26bb773a052e48
 closure_signature:
   algorithm: ed25519
   key_ref: key-tier2-chain-d
   certificate_ref: cert:tier2-chain-staging
   signed_over: signed_closure
-  signature: TqUQif9s3lFO005j6hr1YH3khe1iaUd066aT2CYHcaDJ7RRfRyNGwgTVRjGmaVDuCJwdduavThKFMgdXBaybBA
+  signature: dD5QgOk9NbB0liXiLsBjjscBgAA2XquEaY6g8zXlbN69PoNEDxt6x-QryFD8dPLIIo4IykAsRAxzggYeBMz8Aw
   public_key: z6MkfJ8DJkNPpSNq2hx8DU3Fk36ifvBufGF5dv3SQSw84WA5
 closed_at: '2026-09-01T17:00:00Z'
 leaf_ref: leaf-0044
@@ -616,16 +616,16 @@ payload_digest:
 previous_leaf_digest:
   construction: xfc-jcs-sha256-1
   subject: transparency_log_leaf
-  value: sha256:5127deb4a0a29b1707adca20d3781addb262d7e445b6477a86fb9c43548746aa
+  value: sha256:af7b9906533a06c20b7600bbf310090c898efab3ac1e9a75097e04210f0ff102
 leaf_digest:
   construction: xfc-jcs-sha256-1
   subject: transparency_log_leaf
-  value: sha256:1f6de66645778637879daca0fb5772f51c98e6c4c6c740d685acf1e973434d22
+  value: sha256:ba9b4aade47e1b36b5817e2dc35869c998f1381072040facc405b54b2ad287d4
 leaf_signature:
   algorithm: ed25519
   key_ref: key-ratifier-t5
   signed_over: leaf_content
-  signature: Lc4pOHnAcLq29qUew-ferkLTZ5_ACbFXmCXdPbxK6n-cg-wZvXAnzXA-0BHPMnIKpa-fo7F4joeY-kWpHQ7QDg
+  signature: 04xIA7NyNXYsCmQe_odT3H6PErZ2SjfSZ6ketUTy9L2s9DukzEeU3kXh54kLuD77E3TT5rLbnVsvDFC70PrWAQ
 ---
 schema_version: 1
 kind: xfactory_signed_execution_chain_log_leaf
@@ -643,16 +643,16 @@ payload_digest:
 previous_leaf_digest:
   construction: xfc-jcs-sha256-1
   subject: transparency_log_leaf
-  value: sha256:1f6de66645778637879daca0fb5772f51c98e6c4c6c740d685acf1e973434d22
+  value: sha256:ba9b4aade47e1b36b5817e2dc35869c998f1381072040facc405b54b2ad287d4
 leaf_digest:
   construction: xfc-jcs-sha256-1
   subject: transparency_log_leaf
-  value: sha256:a1fb0ee6c577a18a6980b2b02f77912dc02b75d67a776ab490ad62d94a7c3968
+  value: sha256:2ab960386ae6a152783027d4aa9af85f32c25caeb0fbf159d864d230d2011765
 leaf_signature:
   algorithm: ed25519
   key_ref: key-ratifier-t5
   signed_over: leaf_content
-  signature: JOhaD8qSdYwUGKw0qdXCA3sQuppkBpKelFh5Tl_YuFB8LQj8jQq68qZOis42_YLeWP_uNlPh7h9_aJli6BTACQ
+  signature: FZBwTAnEnrpFSLWoAmzqda6QbGygOqsQ7-WpiSgdwkOkXkvGe6S3b20QgXO936CnfJncM6B1d8XDLAyCQl4QDA
 ---
 schema_version: 1
 kind: xfactory_signed_execution_chain_log_leaf
@@ -666,20 +666,20 @@ payload_ref: tvc-t5
 payload_digest:
   construction: xfc-jcs-sha256-1
   subject: traveling_contract
-  value: sha256:6ffe57f3ddd502ebd898ffff8bd4ac660b1218376ea79b0078f988de4829644d
+  value: sha256:5600c5cd7a2f5200e45f36a9f7464c71b001563ad745b2f32b68242e369ef8b2
 previous_leaf_digest:
   construction: xfc-jcs-sha256-1
   subject: transparency_log_leaf
-  value: sha256:a1fb0ee6c577a18a6980b2b02f77912dc02b75d67a776ab490ad62d94a7c3968
+  value: sha256:2ab960386ae6a152783027d4aa9af85f32c25caeb0fbf159d864d230d2011765
 leaf_digest:
   construction: xfc-jcs-sha256-1
   subject: transparency_log_leaf
-  value: sha256:43b978ba869c9caed21943cadff7d2d08f9db336dbd8220ea03a981769249a76
+  value: sha256:8c8869c6707c316c97f8fe2d95adf5262c83de90bef1b8a8aef1a8b324eec2e8
 leaf_signature:
   algorithm: ed25519
   key_ref: key-ratifier-t5
   signed_over: leaf_content
-  signature: hBZNeUoXY2a_eDc5kcT3pzWhQkOif4f_DF-it9AB53bb2pagZJmdFkrpy6Ri13ROFeNfoDnZIYQb5qMfUMzCDQ
+  signature: EhUE7Ah1Asj2NDfKA-7rJXZG7PWrJDdw4Syu134ORiQdtGM8yIATC-h6PUwNyvanE3My4C1rG4Z0k8vIH6ziCQ
 ---
 schema_version: 1
 kind: xfactory_signed_execution_chain_log_leaf
@@ -697,16 +697,16 @@ payload_digest:
 previous_leaf_digest:
   construction: xfc-jcs-sha256-1
   subject: transparency_log_leaf
-  value: sha256:43b978ba869c9caed21943cadff7d2d08f9db336dbd8220ea03a981769249a76
+  value: sha256:8c8869c6707c316c97f8fe2d95adf5262c83de90bef1b8a8aef1a8b324eec2e8
 leaf_digest:
   construction: xfc-jcs-sha256-1
   subject: transparency_log_leaf
-  value: sha256:ba677f6c56e2d483faa478066168ccc0fad3cce62767f2d061910626a6f07442
+  value: sha256:c9fa3f5d8c374e2a6a2359984bd4cc6056c912ad515d16f45f734d34557fef8f
 leaf_signature:
   algorithm: ed25519
   key_ref: key-ratifier-t5
   signed_over: leaf_content
-  signature: mPE_RjTgi78_5ShngBvwVIUR4t-FaYtD8TzcaLpBqPJzZa4Un2vIbuqKm2prozTc1jaalkXbkk8XApqpS-mMBw
+  signature: CUzQDH2nU653_QmwTq1LPsyvHiV8wOIrrM1zZF481-vF0WoAsHJ0_khJ_x9QrUgF3jiL9q368AxgNPFQrPgSAQ
 ---
 schema_version: 1
 kind: xfactory_signed_execution_chain_log_leaf
@@ -724,16 +724,16 @@ payload_digest:
 previous_leaf_digest:
   construction: xfc-jcs-sha256-1
   subject: transparency_log_leaf
-  value: sha256:ba677f6c56e2d483faa478066168ccc0fad3cce62767f2d061910626a6f07442
+  value: sha256:c9fa3f5d8c374e2a6a2359984bd4cc6056c912ad515d16f45f734d34557fef8f
 leaf_digest:
   construction: xfc-jcs-sha256-1
   subject: transparency_log_leaf
-  value: sha256:445ac31e5cd10e82bdf5806c080b4f82f797475d10db16e31b5c7781a8efa77e
+  value: sha256:b41550520e45d2952ce8940a8ff28f32e4c9299a9ed60c811e013c6f5b050a7b
 leaf_signature:
   algorithm: ed25519
   key_ref: key-ratifier-t5
   signed_over: leaf_content
-  signature: yWyZVLgU_sgrB7IeBPf5LS1AmAL9YeEanM-wyU8OnB-5ihH47z2Z2sug-Stlw5hlqVnJTUZGT-BIoodQvQkfBA
+  signature: cy-d0kSRqlt7ASH6As1bghO8xx7D6aiLea9fVKGyC4wLUFlF0Ypp3S4K3WpKbZS6El29vGsBZTkrz85q5FI7Aw
 ---
 schema_version: 1
 kind: xfactory_signed_execution_chain_log_leaf
@@ -751,16 +751,16 @@ payload_digest:
 previous_leaf_digest:
   construction: xfc-jcs-sha256-1
   subject: transparency_log_leaf
-  value: sha256:445ac31e5cd10e82bdf5806c080b4f82f797475d10db16e31b5c7781a8efa77e
+  value: sha256:b41550520e45d2952ce8940a8ff28f32e4c9299a9ed60c811e013c6f5b050a7b
 leaf_digest:
   construction: xfc-jcs-sha256-1
   subject: transparency_log_leaf
-  value: sha256:34e072ca3a29f736dfa0087257f5465a42807d58bef7b31e0405c65b4e8a9865
+  value: sha256:cd6f23b22b14969b254d606563b45b4960455035c383eaeca9968e6397337408
 leaf_signature:
   algorithm: ed25519
   key_ref: key-ratifier-t5
   signed_over: leaf_content
-  signature: 8CcO4yuKE4iwzydzcOAw8QdksZlyxswopOmbo5oFELv3dZIMPapLewY12yEFpFV5-COOFhqYGrbDR2xh9Du5Bg
+  signature: IAs3iD3v6CZrbWWG_obZNV8iyGDGEVQbyl3kgoTO2stsTI4mgy--kSobjJvI6LwLB6E4jRedKi04FvfohKFAAg
 ---
 schema_version: 1
 kind: xfactory_signed_execution_chain_log_leaf
@@ -778,16 +778,16 @@ payload_digest:
 previous_leaf_digest:
   construction: xfc-jcs-sha256-1
   subject: transparency_log_leaf
-  value: sha256:34e072ca3a29f736dfa0087257f5465a42807d58bef7b31e0405c65b4e8a9865
+  value: sha256:cd6f23b22b14969b254d606563b45b4960455035c383eaeca9968e6397337408
 leaf_digest:
   construction: xfc-jcs-sha256-1
   subject: transparency_log_leaf
-  value: sha256:d8fb0b68fd3619036643c05b8da32136bf56d1b08619ab5814961d235113d4c5
+  value: sha256:d8353a30f67aad7a2ed8248d43c6731fb4e3973e0c40162e9952d30f23b1745f
 leaf_signature:
   algorithm: ed25519
   key_ref: key-ratifier-t5
   signed_over: leaf_content
-  signature: chbUodeLlibm36MxnYdCiblbwDLp6ftGAredCZm6A26vhH7spBTYml2jpZFP0AgVh7_-PDAtVkZA0LjsiSGCDA
+  signature: nyM-c4nXPTSiUcy3P0dwBetejc0mNb3pn8mNKkwjPlHCtI0AAjLARgUoDKoW7hJWApSxekTWireIsUDdTLTIBQ
 ---
 schema_version: 1
 kind: xfactory_signed_execution_chain_log_leaf
@@ -801,20 +801,20 @@ payload_ref: dec-t5
 payload_digest:
   construction: xfc-jcs-sha256-1
   subject: pr_open_decision
-  value: sha256:7c33b7585568fcda3a580712ef9cbf125d5723e61665595470c0b017fad8e9ea
+  value: sha256:2682a3fa6e6b306043f50a8ec138c1791b7787b4c7d94226f59d42fc5d3ed679
 previous_leaf_digest:
   construction: xfc-jcs-sha256-1
   subject: transparency_log_leaf
-  value: sha256:d8fb0b68fd3619036643c05b8da32136bf56d1b08619ab5814961d235113d4c5
+  value: sha256:d8353a30f67aad7a2ed8248d43c6731fb4e3973e0c40162e9952d30f23b1745f
 leaf_digest:
   construction: xfc-jcs-sha256-1
   subject: transparency_log_leaf
-  value: sha256:089a9a4253226242e917e63eba30d70f2401f432f76813bb644a12050ab63067
+  value: sha256:95f4bf7c767ee77ed8061b361f42d80b7ee7867c88988d55c681e2ad6ee19166
 leaf_signature:
   algorithm: ed25519
   key_ref: key-ratifier-t5
   signed_over: leaf_content
-  signature: p9BSH_6iOqnDN0uCPobgHLY6flVLcN9rBqZrnhe-dttkoZM3BXQYXKukg8ZdFjoe8gZUaVsIzk039Mpm1UhMCA
+  signature: dLM7jOBJlOEkqo7qPfEVWnZBitBiHPl1tgO4xdoaM6wdkN1n0HSDMxXv3M2i_FKy5pd96N1rJNFqtoDL6jchCQ
 ---
 schema_version: 1
 kind: xfactory_signed_execution_chain_log_leaf
@@ -828,20 +828,20 @@ payload_ref: clo-t5
 payload_digest:
   construction: xfc-jcs-sha256-1
   subject: closure_record
-  value: sha256:00a0d4301e5af834f7825485188682caac11df5d67fb10d97a2f0e7037b9a5a1
+  value: sha256:588e6a5f47d5d644c21b94139b5dfa8520e96e9b85604795ac9d5f6843f5e48e
 previous_leaf_digest:
   construction: xfc-jcs-sha256-1
   subject: transparency_log_leaf
-  value: sha256:089a9a4253226242e917e63eba30d70f2401f432f76813bb644a12050ab63067
+  value: sha256:95f4bf7c767ee77ed8061b361f42d80b7ee7867c88988d55c681e2ad6ee19166
 leaf_digest:
   construction: xfc-jcs-sha256-1
   subject: transparency_log_leaf
-  value: sha256:4744741eaca4591ecbb1a3970f6c1a36afe7791015d1ec8bde995768224efc9a
+  value: sha256:64f617719c35750e03d567ec6a92cc3bcb6cc04207409e20ec8c50a6ef4283f0
 leaf_signature:
   algorithm: ed25519
   key_ref: key-ratifier-t5
   signed_over: leaf_content
-  signature: egyYRT83iwiFTtfVisowVyU1Rw8Ml9gk72IpxC8_oVDuTc6egm6bxbgBl-hvAXi8xIPz8GWPrFd5Z0mrepWGAA
+  signature: czniZQ5a2B2VYqwltztuKTicSsZql3Ry8Sf9cD1rVU1YNGGdPHMplaoOoLCrur-gT1lTEEpZKAPRcOL3R_jcDg
 ---
 schema_version: 1
 kind: xfactory_signed_execution_chain_log_leaf
@@ -859,7 +859,7 @@ payload_digest:
 previous_leaf_digest:
   construction: xfc-jcs-sha256-1
   subject: transparency_log_leaf
-  value: sha256:4744741eaca4591ecbb1a3970f6c1a36afe7791015d1ec8bde995768224efc9a
+  value: sha256:64f617719c35750e03d567ec6a92cc3bcb6cc04207409e20ec8c50a6ef4283f0
 verdict:
   outcome: permitted
   scope: links_1_6
@@ -889,9 +889,9 @@ verdict:
 leaf_digest:
   construction: xfc-jcs-sha256-1
   subject: transparency_log_leaf
-  value: sha256:922cf4dd48767e25480c9dcd08b0297f3a37d4a08faf63785e1f1acc391348b5
+  value: sha256:f698c2fb50ae9d3564d458e61f5becb46178064197d05cca91b02afb5bdcb7c2
 leaf_signature:
   algorithm: ed25519
   key_ref: key-ratifier-t5
   signed_over: leaf_content
-  signature: tPshuKsfQ32pji5GoHTUxdbQITIH5enuqWe45eNaR4GY_7IV2CHkxBiclhxOKiasq4Km1PDTsK1xF_JFNra1Dw
+  signature: On6PiJ_9y6NNxGcIuLeUqxg97PDgsW95SpMFVMQNZFACAcgVjfENxJ4UPj7Fd2LFCYw2mF2Kuhx9ZcvzaDtLCQ

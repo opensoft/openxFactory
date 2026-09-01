@@ -20,7 +20,7 @@ signed_attestation:
     digest:
       construction: xfc-jcs-sha256-1
       subject: closure_record
-      value: sha256:00a0d4301e5af834f7825485188682caac11df5d67fb10d97a2f0e7037b9a5a1
+      value: sha256:588e6a5f47d5d644c21b94139b5dfa8520e96e9b85604795ac9d5f6843f5e48e
   task_ref: task:never-committed
   identity:
     binding_ref: bind-t5-a
@@ -50,13 +50,13 @@ signed_attestation:
     payload_digest:
       construction: xfc-jcs-sha256-1
       subject: runner_attestation
-      value: sha256:6f00b414fd52e950ae283e0e93f7115659d62f73d54d13e308d8f28f117f4e59
+      value: sha256:699b90e877cfac6518cb164552c379fe67bc9577fdc68679f47bb0b35abc2199
 attestation_signature:
   algorithm: ed25519
   key_ref: key-tier2-a
   certificate_ref: cert:tier2-task-a
   signed_over: signed_attestation
-  signature: TDCQXgRuINID7PxBxVTuq2Ac-6tweLVSdMXJEJKvRUsRer78SLgkCCKzHnHJYHEkUBcgJEv5fWBmGs0_n5L_BQ
+  signature: OKJz1gbnI6vpBMFsgzG-PZ5-IYlfpeA0wH_gK1Sjgi6lLvALXWrVdAi2Dsbwl9FqDiZuK2Ykkv1EOpehnP4cAQ
   public_key: z6Mkph4jBMboXmzytn7Qt3ZzovEnKCT7GRQPbrpKByxr7H24
 attested_at: '2026-09-01T16:10:00Z'
 leaf_ref: leaf-0046
@@ -73,17 +73,17 @@ payload_ref: att-neg-uncommitted
 payload_digest:
   construction: xfc-jcs-sha256-1
   subject: runner_attestation
-  value: sha256:4cfc9f6b003903116d2c26f1cd384e89b095257db7db892240518f3bb922aae6
+  value: sha256:bf2b62046d2770fbc319824f4a438340ddcfa403b95e3c3fc74797658b57b1b1
 previous_leaf_digest:
   construction: xfc-jcs-sha256-1
   subject: transparency_log_leaf
-  value: sha256:922cf4dd48767e25480c9dcd08b0297f3a37d4a08faf63785e1f1acc391348b5
+  value: sha256:f698c2fb50ae9d3564d458e61f5becb46178064197d05cca91b02afb5bdcb7c2
 leaf_digest:
   construction: xfc-jcs-sha256-1
   subject: transparency_log_leaf
-  value: sha256:6cf8ee506dd152fe0ae1533d49603e5040150ca8f8d10fd328ac0cfc7a42865b
+  value: sha256:87c112468e85e7625a805832cac26a500fe996b835814bbdffbbb5bb30ed217a
 leaf_signature:
   algorithm: ed25519
   key_ref: key-ratifier-t5
   signed_over: leaf_content
-  signature: CjFZAqHC_t27faQ02xeKV2Phth6zR4aoQwEX8TzuwtMZKCzLuAosekWMFeENuw9epAiX9wQOubsc6J46NCACBg
+  signature: BYqfXqL94T9NZYiPNZSlGEsR_Htmi-PlBb4Gi1wIVCo6INyJU6FcTXj0EABFZdqeeiTTWxR09Pse19i3nDiyAQ

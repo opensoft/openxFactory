@@ -24,12 +24,12 @@ signed_decision:
     digest:
       construction: xfc-jcs-sha256-1
       subject: closure_record
-      value: sha256:00a0d4301e5af834f7825485188682caac11df5d67fb10d97a2f0e7037b9a5a1
+      value: sha256:588e6a5f47d5d644c21b94139b5dfa8520e96e9b85604795ac9d5f6843f5e48e
   identity:
     binding_ref: bind-t5-chain
     subject_scope: chain_scoped
   pull_request:
-    pull_request_ref: opensoft/openxFactory#554
+    pull_request_ref: opensoft/openxFactory#90005
     head_revision: 84104bee44556677
     base_ref: main
   committed_attestations:
@@ -51,13 +51,13 @@ signed_decision:
     payload_digest:
       construction: xfc-jcs-sha256-1
       subject: pr_open_decision
-      value: sha256:2121eea445694da8fdfdb36a60d5a49b23adbaac489637b8a9ef7cc1caf69137
+      value: sha256:21a8c65bea91c0e43cf36989644774defc351b9907e5c0650bc57ad8abb1fdb3
 decision_signature:
   algorithm: ed25519
   key_ref: key-tier2-chain-d
   certificate_ref: cert:tier2-chain-staging
   signed_over: signed_decision
-  signature: biPXYxB2mZDS9W5XLgpi_A4-oCdTr-pp6w76LEmIxnYJ2imqkG3Ci5H5gHZJZ2NWKjfDj-nznlR-rbdVeJ55Cg
+  signature: YQPucCprtqiIgAQt-KfnQdSdKeOWUBXM45ukCD-RbRLk5DXC76zHXgbbltk_w0bS73IQPPKnsyKcNHhK3E-oBQ
   public_key: z6MkfJ8DJkNPpSNq2hx8DU3Fk36ifvBufGF5dv3SQSw84WA5
 decided_at: '2026-09-01T16:20:00Z'
 leaf_ref: leaf-0046
@@ -74,17 +74,17 @@ payload_ref: dec-neg-unbound
 payload_digest:
   construction: xfc-jcs-sha256-1
   subject: pr_open_decision
-  value: sha256:feae807269a8893967eb8c596afae901008f1678fdd39275f4ec4b4d1a99dabf
+  value: sha256:01b6c5a043695457687f264c2ed094aee04d3f58b87167282fde9271cb3e732c
 previous_leaf_digest:
   construction: xfc-jcs-sha256-1
   subject: transparency_log_leaf
-  value: sha256:922cf4dd48767e25480c9dcd08b0297f3a37d4a08faf63785e1f1acc391348b5
+  value: sha256:f698c2fb50ae9d3564d458e61f5becb46178064197d05cca91b02afb5bdcb7c2
 leaf_digest:
   construction: xfc-jcs-sha256-1
   subject: transparency_log_leaf
-  value: sha256:2e6df60241643847d270112757943b9cacd136ca69ec63448f376c69cbac5f36
+  value: sha256:2aebe96faaf57c020cbd857b6a344e18a29e50537195ef1c4e8e4c26c9ef4ab6
 leaf_signature:
   algorithm: ed25519
   key_ref: key-ratifier-t5
   signed_over: leaf_content
-  signature: ttmMDzdCAs4CJUyjB9BzpEP4-I7KgkH4z_2Zp1PJHfutN5-jjmtAMH_51YEF_bA9es3PY8SUUjca3zgNx0lWDA
+  signature: w2KEzEqamKYXiwUfYrI-xpbTQ4X7pQzVbGdxD-gpXyPsWl0iV4TW6p2d8g_eNxGFOz9bX6wdm_VJz03_ann5BA

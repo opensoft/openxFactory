@@ -80,13 +80,13 @@ payload_digest:
 previous_leaf_digest:
   construction: xfc-jcs-sha256-1
   subject: transparency_log_leaf
-  value: sha256:922cf4dd48767e25480c9dcd08b0297f3a37d4a08faf63785e1f1acc391348b5
+  value: sha256:f698c2fb50ae9d3564d458e61f5becb46178064197d05cca91b02afb5bdcb7c2
 leaf_digest:
   construction: xfc-jcs-sha256-1
   subject: transparency_log_leaf
-  value: sha256:d9a5bbd541e92967351f19af13e4291b24ac1e8562253c619897e3862db4f53c
+  value: sha256:30a25f3f4e4315932329d1337012801a130739d6c5d7453459b7fe16500273e6
 leaf_signature:
   algorithm: ed25519
   key_ref: key-ratifier-t5
   signed_over: leaf_content
-  signature: 4sChU7ZhYOvYN3okfv4V3ZJzHqK_dh-6m85wKnIXwTaWlEaPue8R2g0rKg2Qw4kxHlYEWz7wc9Xg-7PjzUq8Cg
+  signature: M-kwV_qaD-7UtMsQc20TSRSbxSrVmSpjwD88mE6o02VGIUC0NjOxGej6QjkNeu2ioUs01AuLsm_1CgAzIk5NBQ

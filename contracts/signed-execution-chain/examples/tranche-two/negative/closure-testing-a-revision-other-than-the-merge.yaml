@@ -18,7 +18,7 @@ signed_closure:
     digest:
       construction: xfc-jcs-sha256-1
       subject: closure_record
-      value: sha256:00a0d4301e5af834f7825485188682caac11df5d67fb10d97a2f0e7037b9a5a1
+      value: sha256:588e6a5f47d5d644c21b94139b5dfa8520e96e9b85604795ac9d5f6843f5e48e
   identity:
     binding_ref: bind-t5-chain
     subject_scope: chain_scoped
@@ -58,7 +58,7 @@ signed_closure:
     execution_ref: run-clo-t5
     tested_revision: 0000aaaa11112222
     merge_commit: 84104bee44556677
-    merged_pull_request_ref: opensoft/openxFactory#554
+    merged_pull_request_ref: opensoft/openxFactory#90005
     result: passed
     statement: The governed post-merge test the ratified subject names, dispatched by the
       controller against the merge commit.
@@ -73,13 +73,13 @@ signed_closure:
     payload_digest:
       construction: xfc-jcs-sha256-1
       subject: closure_record
-      value: sha256:31765824f8a9f7e0d631c02e17ba25871fbd18ce7cbfc4a9e913bb8974edb41d
+      value: sha256:f79d14cf204622f8a66de4d8e2536ec0ec2c971a1cddb326449e436b4ea84cc0
 closure_signature:
   algorithm: ed25519
   key_ref: key-tier2-chain-d
   certificate_ref: cert:tier2-chain-staging
   signed_over: signed_closure
-  signature: eC-gm0bGQLUV9a4fxnD6_V47bDhwV-H4sJ0AgRn-_x-kAopg1t7Ag1kQ6K8H7U8SVX1lF65tUZcIsN5yPmzpDg
+  signature: a_FeiIl4nWLq4u6khCVWzhMi2KsVica2y8gEFEK5a4uC0TvBnFq1Udj8ZzUqMZbKBOy6D4OGaEqpU4ERZFbWAw
   public_key: z6MkfJ8DJkNPpSNq2hx8DU3Fk36ifvBufGF5dv3SQSw84WA5
 closed_at: '2026-09-01T17:00:00Z'
 leaf_ref: leaf-0046
@@ -96,17 +96,17 @@ payload_ref: clo-neg-revision
 payload_digest:
   construction: xfc-jcs-sha256-1
   subject: closure_record
-  value: sha256:8d47b464eab1ff89a77ff0777c83b0773630a7fd0f3a60018f31d45ddc6c2f24
+  value: sha256:cc4e1b6b7ddb0dab3a49adba478960f6bda06a8c94f83c728998a5cd70996635
 previous_leaf_digest:
   construction: xfc-jcs-sha256-1
   subject: transparency_log_leaf
-  value: sha256:922cf4dd48767e25480c9dcd08b0297f3a37d4a08faf63785e1f1acc391348b5
+  value: sha256:f698c2fb50ae9d3564d458e61f5becb46178064197d05cca91b02afb5bdcb7c2
 leaf_digest:
   construction: xfc-jcs-sha256-1
   subject: transparency_log_leaf
-  value: sha256:477eda96d97c0a08444f0d948fe1be1aed2d087a1931f3eaea05e36d20acfe56
+  value: sha256:1ac1c4f7a22f18dad094197725b456118fba38514ab549fbfe6b9ad33fe5dc12
 leaf_signature:
   algorithm: ed25519
   key_ref: key-ratifier-t5
   signed_over: leaf_content
-  signature: PZL0YcbSP4qwfYHpZAhO_TVU9uW0-miKhZyUnXUnQ363NVedpC1ibML3ZIo5yBlNWGsrOUgfybbzHIWjNHwyBg
+  signature: 6jjcOroUoqACYUXo_VExNVqlQrSTTMlSJ5NV23kac10oEXGWo7HOZqd4Ur_yyGR77SF9FT3UoUVBCPgxA3cFDg

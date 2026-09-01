@@ -20,7 +20,7 @@ signed_attestation:
     digest:
       construction: xfc-jcs-sha256-1
       subject: setup_attestation
-      value: sha256:00a0d4301e5af834f7825485188682caac11df5d67fb10d97a2f0e7037b9a5a1
+      value: sha256:588e6a5f47d5d644c21b94139b5dfa8520e96e9b85604795ac9d5f6843f5e48e
   task_ref: task:t5-a
   identity:
     binding_ref: bind-t5-a
@@ -50,13 +50,13 @@ signed_attestation:
     payload_digest:
       construction: xfc-jcs-sha256-1
       subject: runner_attestation
-      value: sha256:27375c85d7d6ace7d97e93fc4135ab24373163f7f16303b3a123cb15846d14e4
+      value: sha256:2b8dcd9542305e7bb5eb154a8e007f6e8f0c84894ba6a7b7ea3a98ea028956a8
 attestation_signature:
   algorithm: ed25519
   key_ref: key-tier2-a
   certificate_ref: cert:tier2-task-a
   signed_over: signed_attestation
-  signature: BYpMyfTox6Cp1xFHdDqej3VVnRXhBqViJP1lsRyDmLLDFtjQc_SswiW5zck8snQE_MFpON3GOVD0yUH7B_3DAQ
+  signature: cNKzdfYoq8CgQc_lOmcSijDKTrBWqoSFHQtnfviBcskXPaSLr-4JHpRsbSzurPotv7fg8tyR6Nmhl6m2WkxkDQ
   public_key: z6Mkph4jBMboXmzytn7Qt3ZzovEnKCT7GRQPbrpKByxr7H24
 attested_at: '2026-09-01T16:10:00Z'
 leaf_ref: leaf-0046
@@ -73,17 +73,17 @@ payload_ref: att-neg-subject
 payload_digest:
   construction: xfc-jcs-sha256-1
   subject: runner_attestation
-  value: sha256:053500a4c1e64bece7f35056596f1bf3221744f23ec1aa86a1b4f813f764ccbf
+  value: sha256:1bbfe1bd14380070500dcd6aedd86b28aa7181e4bced05e29e8fd1032ac3b738
 previous_leaf_digest:
   construction: xfc-jcs-sha256-1
   subject: transparency_log_leaf
-  value: sha256:922cf4dd48767e25480c9dcd08b0297f3a37d4a08faf63785e1f1acc391348b5
+  value: sha256:f698c2fb50ae9d3564d458e61f5becb46178064197d05cca91b02afb5bdcb7c2
 leaf_digest:
   construction: xfc-jcs-sha256-1
   subject: transparency_log_leaf
-  value: sha256:b9436934863941412b1bb9e95a53e7fdd31e858aeb9868b7442f625a7696de49
+  value: sha256:6203efefd471dbe159190d73724e77af197dd29375bd005a494ad11212469748
 leaf_signature:
   algorithm: ed25519
   key_ref: key-ratifier-t5
   signed_over: leaf_content
-  signature: WuW_CVb-svm2AvwnbyLzn6cA-G0KqxxdWCwyLbMBeYXa7Me5J7s8UwkdJBvC_5LF1WurrwHT5h-S1_P6XyOfAg
+  signature: ZO2bdyNdR3SXC0WjTPZ8Q-2VgjCREXO1ymPmndJcNhrQy9FdNJ_1sW8Bsy13z59XhEAbzX5N3zRsEouOy1v2CQ

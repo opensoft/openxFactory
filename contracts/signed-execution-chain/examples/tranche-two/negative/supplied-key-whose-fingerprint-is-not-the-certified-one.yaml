@@ -20,7 +20,7 @@ signed_attestation:
     digest:
       construction: xfc-jcs-sha256-1
       subject: closure_record
-      value: sha256:00a0d4301e5af834f7825485188682caac11df5d67fb10d97a2f0e7037b9a5a1
+      value: sha256:588e6a5f47d5d644c21b94139b5dfa8520e96e9b85604795ac9d5f6843f5e48e
   task_ref: task:t5-a
   identity:
     binding_ref: bind-t5-a
@@ -50,13 +50,13 @@ signed_attestation:
     payload_digest:
       construction: xfc-jcs-sha256-1
       subject: runner_attestation
-      value: sha256:16904ad87bf466e560334d44d868adf412f7eae19bb297d4264d31fd932be7d4
+      value: sha256:d91c162662c701e73ef49e4acbdde8165c5866245a915a619a3b637b0ffcd8f3
 attestation_signature:
   algorithm: ed25519
   key_ref: key-forged
   certificate_ref: cert:tier2-task-a
   signed_over: signed_attestation
-  signature: V4ubxuaWawgt2nN1zHiNInRlDcZVBb2i8VryBMcPmAOq4SpZ_SuAwwSYw3xwg1CUbg89W5qKDoczfzQGnNl9Aw
+  signature: 0tIXR7jII4zNhim6LxbsoQaVSPrZOZMT2Rf5rIMtwpstl_TwkEWGdbIVgsWJ0mgvQ49uSoHMpWE5Mbz5o9UCBw
   public_key: z6MksmSYYWAnHMB8sAddfvJ3uYG96qJSfma9FJcpBADjbvdq
 attested_at: '2026-09-01T16:10:00Z'
 leaf_ref: leaf-0046
@@ -73,17 +73,17 @@ payload_ref: att-neg-key-mismatch
 payload_digest:
   construction: xfc-jcs-sha256-1
   subject: runner_attestation
-  value: sha256:7e84444f837c8c5722037c13a632fee6d819598ec88e36adae19596116d52e53
+  value: sha256:782c9514caedd734d5c1c9f51705e38e2e96f06ee1e0f250d3dec6ef3f4c5192
 previous_leaf_digest:
   construction: xfc-jcs-sha256-1
   subject: transparency_log_leaf
-  value: sha256:922cf4dd48767e25480c9dcd08b0297f3a37d4a08faf63785e1f1acc391348b5
+  value: sha256:f698c2fb50ae9d3564d458e61f5becb46178064197d05cca91b02afb5bdcb7c2
 leaf_digest:
   construction: xfc-jcs-sha256-1
   subject: transparency_log_leaf
-  value: sha256:2ca8c80509aa5b1d5a4efa041fa3637e176b3b10394f921daf57142476b4f608
+  value: sha256:5093dfe91a9c96d589ce78d71dc9aba59694fb0811669df2ce64898198bd71d4
 leaf_signature:
   algorithm: ed25519
   key_ref: key-ratifier-t5
   signed_over: leaf_content
-  signature: BmRAuMI_MjvBr7pd0rVMbHdaxAmP_VhiMY0t6tlrJ223A0BENw7xeq7VBy3TITzUfkdQrqZrs-Q3czIQfJEQCw
+  signature: Xi7A88HuqzO7LpO_EUvHlp4j6MqPR3omiYcgBG2-mzBtDxBd_tjlH-RvFG057mE2xJDqhzv8xKLJKB2AuPAjAg

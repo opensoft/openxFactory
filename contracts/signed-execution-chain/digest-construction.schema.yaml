@@ -116,7 +116,7 @@ $defs:
   digest_subject:
     # WIDENED AT TRANCHE TWO, WHICH IS THE ONE WAY THIS FILE IS MEANT TO MOVE. A
     # later tranche adds SUBJECTS to this enumeration and never a second
-    # CONSTRUCTION; the members below the rule are tranche two's eight, and
+    # CONSTRUCTION; the members below the rule are tranche two's eleven, and
     # `construction_name` is untouched.
     type: string
     enum:

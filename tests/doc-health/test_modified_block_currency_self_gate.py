@@ -398,6 +398,24 @@ _LEDGER_SUBJECTS = {
     # promoted.
     ("add-credential-escrow-checkout", "credential-contracts",
      "Canonical credential record shapes"),
+    # ADDED 2026-09-01 BY `add-chain-attestation` (PR #510), whose packet
+    # carries tranche one's promoted gate requirement as a `## MODIFIED` block —
+    # SCENARIO-COMPLETE at all nine scenarios, per the 2026-08-30 council fix
+    # round that replaced the ADDED-only draft. The amended units this arm
+    # reports as uncarried are exactly the deliberate ones: the gate's SCOPE
+    # SENTENCE (links 1-3 -> links 1-6), the re-conditioned "a tranche-two link
+    # does not exist yet" scenario, and the closed-list mapping table extended
+    # from nine rows to eighteen. Every other promoted unit is carried verbatim
+    # (`design.md` D3 records why the MODIFIED restatement is the lawful form).
+    # This arm cannot distinguish a ratified amendment from drift and does not
+    # claim to; the finding is INFO and is the audit trail for the amendment.
+    # Retires when the packet archives and its block is promoted. The packet's
+    # SECOND MODIFIED block (tranche one's ratification/chain-inception
+    # requirement gaining the amendment-lineage fields) is not a separate
+    # subject here because the ledger keys on the requirement the family
+    # reports, and the family reports the gate requirement's units.
+    ("add-chain-attestation", "signed-execution-chain",
+     "A gate validates the short chain as a hash-linked chain"),
     # REMOVED 2026-08-27 BY THE ARCHIVE ACT — ('add-modified-block-currency-
     # check', 'doc-health', 'Deterministic check families'). THE SELF-FINDING,
     # and the second time this gate fell due. It was expected evidence that the
@@ -860,7 +878,10 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
         "since the OD-2 veto of 2026-08-28 gave add-credential-escrow-checkout "
         "a MODIFIED block; 8 since the two doc-health-floor packets archived "
         "together; 7 since add-notebook-projection-identity archived on "
-        "2026-08-31 and its block promoted byte-identical)",
+        "2026-08-31 and its block promoted byte-identical; 8 since "
+        "add-chain-attestation (PR #510, ratified 2026-09-01) carried tranche "
+        "one's gate requirement as a scenario-complete MODIFIED block, named "
+        "in the same commit that realized the packet's tranche-two surface)",
         f"{len(gone)} named subject(s) NO LONGER reported "
         f"{sorted(gone)}; {len(fresh)} unnamed subject(s) NEWLY reported "
         f"{sorted(fresh)}")
