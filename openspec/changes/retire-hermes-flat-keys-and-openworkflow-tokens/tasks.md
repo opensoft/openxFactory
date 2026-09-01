@@ -61,6 +61,30 @@ a file path — never on an intention.
       against it. **A CODEX PASS REMAINS OWED and is blocked by nothing in this
       packet**; whatever it returns routes to the amendment lane, not to doubt
       about the ratification.
+      **THE REALIZATION TRIED AGAIN AND WAS REFUSED AGAIN — THREE MORE TIMES,
+      SEVEN IN ALL, STILL ZERO VERDICTS.** On the realization pull request
+      **#562** (head `8731fea6`), the automatic request on open plus two
+      explicit `@codex review` comments each returned the same provider
+      response and no review:
+
+      | time (UTC), 2026-09-01 | response |
+      |---|---|
+      | 12:36:39 | *"You have reached your Codex usage limits for code reviews."* |
+      | 12:36:46 | same |
+      | 12:39:54 | same |
+
+      **The refusal is the provider's usage ceiling, and it is neither a
+      finding nor a silence basis.** No Codex review names any head of either
+      branch. The pass stays OWED and stays unblocked; this box stays OPEN.
+      **What DID run on #562: Copilot, one round, TWO findings, BOTH TAKEN** —
+      the domain-starter subprocess now runs under `deterministic_environment()`
+      with an explicit timeout, matching the rest of this package rather than
+      inheriting the ambient environment; and the scaffolded-stack assertion is
+      no longer `list(hermes) == ["layers"]`, an order-dependent test that would
+      have failed the day the starter grew a new NON-deprecated hermes key
+      — it asserts what the box is actually about, `layers` present and every
+      deprecated key absent. Sourcery returned an access-tier upsell, not a
+      review, exactly as it did on #551.
 
 ## 2. Speckit F1 — the validator retirements
 

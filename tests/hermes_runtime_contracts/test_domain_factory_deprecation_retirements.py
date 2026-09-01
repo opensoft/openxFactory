@@ -352,11 +352,14 @@ def scaffolded_stack(tmp_path_factory):
     """
     import subprocess
 
+    from tests.hermes_runtime_contracts.support import deterministic_environment
+
     target = tmp_path_factory.mktemp("retirement-scaffold") / "probex"
     result = subprocess.run(
         [sys.executable, str(ROOT / "scripts/apply-domain-starter.py"),
          str(target), "--domain-id", "probex", "--product-name", "ProbexFactory"],
-        capture_output=True, text=True, check=False)
+        capture_output=True, text=True, check=False,
+        env=deterministic_environment(), timeout=300)
     assert result.returncode == 0, result.stdout + result.stderr
     return target
 
@@ -367,7 +370,12 @@ def test_a_newly_scaffolded_stack_carries_no_deprecated_flat_key(
     text = (scaffolded_stack / "stack.yaml").read_text(encoding="utf-8")
     hermes = yaml.safe_load(text)["hermes"]
 
-    assert list(hermes) == ["layers"]
+    # The assertion is about the DEPRECATED keys being absent and `layers`
+    # being present — deliberately NOT `list(hermes) == ["layers"]`, which
+    # would also fail the day the starter grows a new, non-deprecated hermes
+    # key, and would be a test about key order rather than about the
+    # retirement (Copilot, PR #562).
+    assert "layers" in hermes
     for key in DEPRECATED_HERMES_FLAT_KEYS:
         assert key not in hermes
     # the live key under `omnigent:` is untouched
