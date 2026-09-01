@@ -64,9 +64,13 @@ verification, revocation handling, and chain custody under released
 `trust-anchor` contracts. Repository seeds, topology plans, workflow files, or
 contract pins alone do not establish that plane.
 
-The gate blocks commissioning/realization, not authorship or ratification of
-this amendment. This preserves the repository's distinction between governing a
-contract and falsely claiming its dependencies already operate.
+The contract gate blocks realization, not authorship or ratification of this
+amendment, and requires released signed-log contract/validator artifacts rather
+than pretending a service exists. Runtime commissioning has a second gate: a
+named operational log instance with signer chain, custody owner, reachable
+interface, current checkpoint, and successful validator result. This preserves
+the distinction between governing a contract and falsely claiming its runtime
+dependencies already operate.
 
 ### D3 — Trusted log acceptance owns one non-recursive daily durability item
 
@@ -80,8 +84,9 @@ boundary and before the first admission assigned to the next window, so midnight
 cannot place one accepted event on both sides.
 
 The owner-local dedupe key is stable and never public. Same key and same digest
-returns the original leaf/receipt without a new sequence; same key and different
-digest is refused before sequence assignment. A versioned eligibility registry
+returns the original admission acknowledgement (leaf sequence plus material
+digest) without a new sequence or a pre-closure anchor receipt; same key and
+different digest is refused before sequence assignment. A versioned eligibility registry
 defines the neutral owner-evidence event kinds counted by this profile; a domain
 overlay maps its events into those kinds and cannot make a per-event inclusion
 choice after acceptance. Anchor-state transitions, witness submissions,
@@ -92,17 +97,24 @@ consecutive empty days. Every eligible accepted sequence in the window appears
 exactly once. An empty window emits a linked count-zero checkpoint so silence is
 distinguishable from a missed scheduler run.
 
-**The anchored-item unit is the closed daily manifest and its root, not each
-constituent event.** Each event has a membership path into that item. The SAME
-daily root enters BOTH configured witnesses after window closure: direct Kaspa
-first, then Bitcoin-via-OpenTimestamps. The existing receipt's one aggregation
-path/root and both-witness per-chain entries therefore still describe one item;
-no witness-specific SOURCE root, cadence, or bespoke receipt is introduced. The
-shared top-level aggregation path is the identity path for the daily root; each
-per-chain entry's chain-acceptance evidence carries its witness-specific
-commitment path from that SAME root to the commitment inside its transaction
-bytes (direct for Kaspa, the detached OpenTimestamps operations path for
-Bitcoin). Different proof paths are required; different daily roots are refused.
+**The anchored-item unit is the closed canonical daily manifest, not each
+constituent event or its raw Merkle root.** The proof chain is explicit: event
+membership produces `daily_batch_root`; canonical manifest bytes bind that root
+and all window/accounting fields; the ratified construction hashes those bytes
+to `material_digest`; the ratified configuration binding produces
+`anchored_digest`; and the identity shared aggregation path yields
+`aggregation_root == anchored_digest`. Both witness-specific commitment paths
+begin at that SAME aggregation root (direct Kaspa payload binding and detached
+OpenTimestamps operations path). Thus witness configuration, horizons, timing,
+profile versions/digests/activation checkpoints, and standing evidence remain
+inside the public proof. Different raw roots, uncommitted configuration, or
+broken manifest/digest links are refused.
+
+After window closure, the same configuration-bound aggregation root enters
+direct Kaspa first, then Bitcoin-via-OpenTimestamps. The existing receipt's one
+aggregation root and both-witness entries describe one item; no witness-specific
+source item, cadence, or bespoke receipt is introduced. Different proof paths
+are required; different aggregation roots are refused.
 Kaspa's
 operational value is the seconds-scale answer after a daily item closes; the
 open window remains covered by the signed owner-local log, not by a false claim
@@ -118,11 +130,14 @@ elements are captured. An OpenTimestamps detached proof remains
 submitted/pending until it is upgraded with independently verified Bitcoin
 transaction, inclusion, header, and chain-acceptance evidence.
 
-The confirmation rules are operator-approved, immutable versioned profiles
-bound into the receipt configuration, not numbers selected during schema
-implementation. Each profile owns objective transition evidence, retained proof
-requirements, reorganization/replacement handling, and positive/refusal vectors;
-a later profile version never reinterprets an earlier receipt.
+The confirmation rules are operator-approved profiles in an append-only signed
+registry, not numbers selected during schema implementation. Registry entries
+bind immutable version/content digest, approval, predecessor, activation log
+checkpoint, effective interval, and active/retired/compromised standing. Trusted
+acceptance selects the active version; rollback, future, retired, compromised, or
+digest-substituted profiles are refused. Historical receipts retain as-of
+evidence while current verification reports current standing and refuses new
+long-horizon claims from non-active profiles.
 
 The existing receipt/state split remains intact: submitted and in-flight facts
 live in the anchor-state record; the receipt gains a per-chain entry only when
@@ -153,6 +168,12 @@ proof material with an independently verifiable receipt.
 - **[A submitted proof is consumed as confirmation]** → use separate states and
   refuse long-horizon claims until complete independently verifiable evidence is
   captured.
+- **[A weaker once-approved profile is selected after a stronger activation]** →
+  bind registry activation checkpoint, content digest, and standing into the
+  anchored configuration and refuse rollback/non-active versions.
+- **[The event root is anchored without receipt configuration]** → recompute the
+  full manifest → material digest → anchored digest → aggregation root chain and
+  refuse any substituted node or uncommitted configuration.
 - **[PKI paperwork is mistaken for an operational plane]** → require evidence of
   issuance, verification, revocation, and custody, not repository artifacts.
 
@@ -161,17 +182,21 @@ proof material with an independently verifiable receipt.
 1. Ratify this amendment without commissioning implementation.
 2. Verify the released signed-execution-chain baseline, the live REQUIRED
    `signed-execution-chain-gate`, its broken-chain canary, and operational PKI.
-3. Link this amendment and `add-chain-anchoring` to ONE shared Speckit feature,
+3. Approve and publish append-only Kaspa and Bitcoin confirmation-profile
+   registry entries and transition/refusal vectors before schema authoring.
+4. Link this amendment and `add-chain-anchoring` to ONE shared Speckit feature,
    so no unreleased "existing" schema is assumed and both packets map to one
    realization rather than competing implementations.
-4. Add deterministic fixtures for non-empty, empty, midnight-boundary, replay,
+5. Add deterministic fixtures for non-empty, empty, midnight-boundary, replay,
    conflicting-dedupe, late-source-time, submitted-only, and confirmed-upgrade
    cases.
-5. Merge and archive `add-chain-anchoring` first, then archive this dependent
+6. Merge and archive `add-chain-anchoring` first, then archive this dependent
    amendment, and cut their one additive new-family contract release only after
    both delta sets are present. If the basis releases without this amendment,
    stop and re-evaluate compatibility/versioning rather than claiming this path
    remains an additive first release.
+7. Commission no participating runtime until its operational signed-log instance
+   evidence resolves separately from the released contract artifacts.
 
 Rollback removes the unreleased additive amendment. Once released, corrective
 changes supersede the release; they do not rewrite prior receipts or inventories.

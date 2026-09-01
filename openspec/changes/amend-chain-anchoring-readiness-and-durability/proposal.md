@@ -24,18 +24,24 @@ and independently verified confirmation.
   signed-execution-chain contracts, the live REQUIRED
   `signed-execution-chain-gate` plus broken-chain canary, and an operational,
   `trust-anchor`-conformant PKI plane before `chain-anchoring` implementation is
-  commissioned.
+  commissioned. Contract realization consumes released signed-log artifacts;
+  runtime commissioning separately requires a named operational signed-log
+  instance and current checkpoint evidence.
 - Add a fixed-UTC durability profile whose trusted log acceptance time and
   atomic admission transaction determine one immutable daily batch, including
   deterministic dedupe, late-arrival treatment, a closed non-recursive event
   denominator, complete event inclusion, and empty-day continuity checkpoints.
-  The closed daily root is the anchored item sent to both witnesses, preserving
-  the existing one-root multi-anchor receipt.
+  Event membership produces a daily batch root, canonical manifest bytes produce
+  the material digest, and the complete mint-time configuration produces the
+  anchored digest whose identity aggregation root enters both witnesses. This
+  preserves the ratified configuration-bound multi-anchor receipt.
 - Require witness state to distinguish submission from confirmation. Kaspa
   interface acceptance is not Kaspa confirmation; OpenTimestamps submission is
   not Bitcoin confirmation; long-horizon claims require the latter. Confirmation
-  transitions are governed by immutable versioned operator-approved profiles,
-  not implementation-selected thresholds.
+  transitions are governed by an append-only registry of immutable versioned
+  operator-approved profiles with activation checkpoints, content digests,
+  current standing, and anti-rollback refusals, not implementation-selected
+  thresholds.
 - Preserve the surviving packet's existing receipt/state split, timing model,
   configured-witness binding, privacy boundary, and claim-not-factory failure
   semantics unchanged.
