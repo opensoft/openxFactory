@@ -27,7 +27,9 @@ perform it.
 
 ## 2. Ratification gate
 
-- [ ] 2.1 Brett ratifies proposal, design, and the spec delta, ruling or
+- [x] 2.1 **DONE 2026-09-01** — Brett ratified, in-session, on the recorded
+      word *"merge #192 and ratify #555"* (ratified head `15b14bb3`; record
+      `review/ratification-2026-09-01.md`). Brett ratifies proposal, design, and the spec delta, ruling or
       carrying the four open questions: **OQ1** when a signature becomes
       required for field 10 (recommendation: at the first cross-organization
       producer, expressed against `trust-anchor`'s certificate record);
@@ -52,10 +54,10 @@ perform it.
       repository root as `cpc-clearing-boundary-ruling-2026-09-01.md`, as
       `opensoft/xFactory#192` (https://github.com/opensoft/xFactory/pull/192),
       via a pull request on branch `record/cpc-clearing-boundary-ruling`
-      (head `5b6a9fdf`) — **MERGE PENDING BRETT'S WORD.** So this is now a
-      "confirm the merge landed" item, not a "the record still has to be
-      written, pushed, and merged" one. Confirm the merge and name the merge
-      commit here before ratifying. THE REASON IS NOT
+      (head `5b6a9fdf`) — **MERGED 2026-09-01T11:47:21Z at
+      `faee7a96ae6e06c15b6c2122947c62356e96f71d`.** Confirmed: the merge
+      landed the same day as, and on the same recorded word as, this
+      packet's own ratification (§2.1). THE REASON IS NOT
       BOOKKEEPING: requirements 1–7 trace to that record's text, while
       requirements 8–10 EXTEND it and trace to its APPEND-ONLY ADDENDUM
       capturing Brett's same-session instruction "fold 1-5 in and fan out".

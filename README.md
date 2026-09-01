@@ -405,7 +405,10 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [add-clearing-dispatch-boundary](openspec/changes/add-clearing-dispatch-boundary/proposal.md)
-  — authored 2026-09-01, **`Status: draft`** — the NEUTRAL SEALED-BUNDLE
+  — authored 2026-09-01, **`Status: ratified`** (2026-09-01, Brett Heap,
+  in-session, on the recorded word *"merge #192 and ratify #555"*; record
+  `openspec/changes/add-clearing-dispatch-boundary/review/ratification-2026-09-01.md`)
+  — the NEUTRAL SEALED-BUNDLE
   CLEARING CONTRACT for a governed execution estate, and a TEXT-ONLY packet:
   its declared code surface (the xFactory `clearing-dispatch.yml` lane, the
   retirement of `runner-readiness-diagnostic.yml`, the authoring-time guard,

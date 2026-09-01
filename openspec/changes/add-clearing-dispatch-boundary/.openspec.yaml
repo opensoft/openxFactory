@@ -13,8 +13,9 @@ origin:
     as the record `cpc-clearing-boundary-ruling-2026-09-01.md`, WRITTEN AND
     PUSHED to the ROOT of `opensoft/xFactory` as `opensoft/xFactory#192`
     (https://github.com/opensoft/xFactory/pull/192, branch
-    `record/cpc-clearing-boundary-ruling`, head `5b6a9fdf`) — MERGE PENDING
-    BRETT'S WORD — and on which ratification is gated (`tasks.md` 2.3): xFactory is THE clearing and dispatch boundary for
+    `record/cpc-clearing-boundary-ruling`, head `5b6a9fdf`) — MERGED
+    2026-09-01T11:47:21Z at `faee7a96ae6e06c15b6c2122947c62356e96f71d`,
+    discharging the gate ratification was held on (`tasks.md` 2.3): xFactory is THE clearing and dispatch boundary for
     the governed Cloud PC, runner-group allowlists stay xFactory-only, no
     factory is ever broadly authorized to originate jobs directly to the host,
     and cross-factory work reaches it only as a SEALED BOUNDED REQUEST carrying
