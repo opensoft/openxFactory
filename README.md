@@ -1596,8 +1596,23 @@ Archived changes:
   **meeting its own degraded case rather than evading it**, which is what made the
   archive lawful. Both are restated as dispositions in the archived `tasks.md`
   § 4.5, § 4.6 and § 6.1 and carried forward at **issue #534**, so an open
-  operator act is not written down only inside an archived packet; 4.5 remains
-  Brett's act. The three § 5 successors survive unticked as a separate class —
+  operator act is not written down only inside an archived packet; 4.5 remained
+  Brett's act. **BOTH WERE PERFORMED ON 2026-08-31, AFTER THE ARCHIVE AND
+  SEPARATELY FROM IT.** 4.5: `signed-execution-chain-gate` is a REQUIRED check on
+  `main` through opensoft org ruleset **21957695** — a dedicated ruleset mirroring
+  the wallet-gate precedent 21538893, `~DEFAULT_BRANCH` of openxFactory,
+  enforcement active — evidenced by a live read of BOTH the org and the repo
+  ruleset endpoints, never by the merged workflow file. 4.6: canary PR **#549**
+  carried a chain with a deliberately broken log link, the required check went red
+  in run **33455808456** / check-run **99695407307** with exactly one named
+  refusal (`leaf_hash_link_broken`), GitHub reported the pull request **BLOCKED**,
+  and it was closed unmerged with its branch deleted. Requirement 9 is therefore
+  **MET**, not partially met; the packaged declaration records
+  `is_required_in_ruleset: true` and the standing `reader-not-required` warning no
+  longer fires. The archived packet's dispositions are left standing as the record
+  of what was true AT THE ARCHIVE — the boxes are ticked in place with the
+  evidence beneath them, rather than the surrounding prose being rewritten to
+  pretend the wait never happened. The three § 5 successors survive unticked as a separate class —
   tranche two and tranche three, gated on Q7 and on Q3/Q6 and on layers that do
   not exist yet. **PROMOTION VERIFIED BYTE-FOR-BYTE**, and the delta had **no
   scenario-completeness exposure at all**: it is PURE ADDED into a capability that

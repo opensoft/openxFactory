@@ -1,5 +1,19 @@
 # Tasks: add-signed-execution-chain (tranche one)
 
+**AMENDED 2026-08-31, AFTER THE ARCHIVE: § 4.5 AND § 4.6 ARE PERFORMED AND ARE
+NOW TICKED.** `signed-execution-chain-gate` is a REQUIRED check on `main` (org
+ruleset **21957695**) and a deliberately broken chain was seen failing a real
+pull request (canary **#549**, run `33455808456`, one named refusal, PR BLOCKED,
+closed unmerged). The evidence sits under each box. **Nothing else in this file
+was rewritten** — every "OPEN", "NOT DONE" and "BLOCKED BY CONSTRUCTION"
+statement below is left exactly as the archive act wrote it, because each was
+true when written and the point of the restatements was that they were true then.
+Read them as the record of the wait; read the ticks and the evidence bullets as
+the record of its end. The packaged conformance declaration now records
+`is_required_in_ruleset: true` and requirement 9 is MET rather than partially
+met. Carried at **openxFactory issue #534**, which is where the acts were
+commissioned and where they are answered.
+
 Governance-level and dependency-ordered. **This change is RATIFIED (2026-08-29,
 Brett Heap — `review/ratification-2026-08-29.md`) and its code surface is now
 REALIZED.** §1 was authored in the pull request; **§2 is Brett's ratification act
@@ -356,7 +370,9 @@ thing it measures.**
       repository has already had to close once. The invocation is pinned by
       `tests/signed_execution_chain/test_gate_wiring.py` inside the required
       `pytest-suite` job, because a comment in a workflow protects nothing.
-- [ ] 4.5 **[OPERATOR] — DELIBERATELY OPEN, and it is the one box that decides
+- [x] 4.5 **[OPERATOR] — PERFORMED 2026-08-31; the evidence is beneath the
+      restatement, which is left standing because it was true until that day.
+      It was DELIBERATELY OPEN, and it is the one box that decides
       whether any of the rest confers anything.** Make the check REQUIRED in the
       branch ruleset. A merged workflow file is NOT evidence; the evidence is
       the live ruleset state, as `add-wallet-carried-review-authority` task 2.5
@@ -379,7 +395,38 @@ thing it measures.**
       false`, and the reader warns on every run. That agreement between the
       requirement and the estate is what made archiving lawful; the act being done
       is not, and nothing here claims it.
-- [ ] 4.6 **Gate — BLOCKED ON 4.5 BY CONSTRUCTION, not by effort.** A
+  - **DONE 2026-08-31**, on Brett's instruction to work issue #534, with his
+    credentials. Org ruleset **21957695**, `openxFactory chain-gate (require
+    signed-execution-chain-gate)`: `target: branch`, `enforcement: active`,
+    conditions `ref_name: [~DEFAULT_BRANCH]` + `repository_name: [openxFactory]`,
+    rule `required_status_checks: [{context: signed-execution-chain-gate}]` with
+    `strict_required_status_checks_policy: false` and
+    `do_not_enforce_on_create: false`, `bypass_actors: [OrganizationAdmin:
+    always]`. A DEDICATED ruleset mirroring org ruleset **21538893**
+    (`openxFactory wallet-gate`) — the task-2.5 precedent this box names — rather
+    than an edit to it, so a change to one gate's requirement cannot silently move
+    the other's.
+  - **THE EVIDENCE IS THE LIVE RULESET STATE, NOT THE ACT.** Read back after the
+    create from BOTH `orgs/opensoft/rulesets/21957695` and
+    `repos/opensoft/openxFactory/rulesets/21957695` (the second is what proves it
+    applies to this repository), and independently from
+    `repos/opensoft/openxFactory/rules/branches/main`, which returns
+    `required_status_checks: [signed-execution-chain-gate]` with
+    `ruleset_source_type: Organization`, `ruleset_id: 21957695` — the same shape
+    task 2.5 recorded for `wallet-validation`. Durable at
+    `~/projects/xFactory/chain-gate-ruleset-2026-08-31/live-ruleset-read.md` and
+    quoted on **issue #534**.
+  - Preconditions verified BEFORE the act, so that requiring the check stranded no
+    pull request: the workflow on `main` surfaces the check as exactly
+    `signed-execution-chain-gate` (the job carries no display name, deliberately),
+    it triggers on every `pull_request` to `main` with no path filter, and its
+    three latest runs on `main` were green, including at the then-tip `2f1cd139`.
+  - **WHAT IT DOES NOT CONFER.** The `OrganizationAdmin: always` bypass stands, as
+    it does on every ruleset in this org. Requirement 9 is met at the strength the
+    estate's other required checks are met at, and not at one this capability
+    invented for itself.
+- [x] 4.6 **Gate — PERFORMED 2026-08-31, hours after 4.5 unblocked it. It WAS
+      BLOCKED ON 4.5 BY CONSTRUCTION, not by effort.** A
       deliberately broken chain FAILS a real pull request, and the evidence
       records the run id, the check id, the validator's single named refusal,
       and the live ruleset read showing the check required — the shape task 2.6
@@ -392,6 +439,51 @@ thing it measures.**
       fourth conjunct's readability — only 4.5 can — so this box is carried
       forward beside it at **openxFactory issue #534** rather than quietly closed
       on the three conjuncts that are producible.
+  - **PROVED on draft canary PR #549** — 2026-08-31 in the operating session's
+    local time, `2026-09-01T00:42Z` in the timestamps below, which is the same
+    evening and is stated both ways so the two never look like two days — head
+    `516f996b75d2c0d02cc1701b4db4748079516bbc`. All four conjuncts, together:
+    - **run `33455808456`**, **check-run / job `99695407307`**, started
+      2026-09-01T00:42:02Z, completed 00:42:30Z, conclusion `failure`;
+    - the validator's **single named refusal**, from the run log verbatim:
+      `ERROR [leaf_hash_link_broken]
+      governance/signed-execution-chain/canary-do-not-merge-broken-chain.yaml#7:
+      the predecessor digest sha256:01f1dbcc… does not match …#5's own digest
+      sha256:59ddc483…`, ending `validate-signed-execution-chain: 1 error(s), 2
+      warning(s)` and `Process completed with exit code 1`. ONE error, and the
+      positive notes the gate greps for all present in the same log — the pinned
+      openXwallet vocabulary read, the self-test at 24/24 closed refusal codes
+      red-proven, and `repo scan: 8 artifact(s) checked` — so the red is a WALK
+      that refused, not a walk that never happened;
+    - GitHub reported the pull request **`mergeStateStatus: BLOCKED`**;
+    - the **live ruleset read**, taken fresh against this pull request rather than
+      cited from 4.5's act: `orgs/opensoft/rulesets/21957695` and
+      `repos/opensoft/openxFactory/rulesets/21957695` both `enforcement: active`
+      requiring `signed-execution-chain-gate`, and
+      `repos/opensoft/openxFactory/rules/branches/main` returning that context
+      from `ruleset_id: 21957695`.
+  - **THE CANARY ITSELF, and one structural difference from PR #387.** That
+    precedent MUTATED a live record — one field deleted from
+    `governance/review-authority/grants/grant-mrc-0001.yaml`, which was already in
+    the tree and already scanned. This family has NO live record to mutate:
+    `repo scan: 0 artifact(s) checked` is this repository's DECLARED expected state
+    until a first ratification is incepted, and the realization mints no chain. So
+    the canary had to ADD the record it breaks. It was one YAML stream at
+    `governance/signed-execution-chain/canary-do-not-merge-broken-chain.yaml` — the
+    seven packaged positives verbatim (one complete chain) plus the packaged
+    negative `leaf-whose-predecessor-digest-is-wrong.yaml` verbatim, a fifth leaf
+    whose own digest and signature verify and whose `previous_leaf_digest` names
+    the wrong predecessor. The break is SINGULAR by construction: editing a hex
+    character inside an existing leaf would also break that leaf's own digest and
+    signature, and three refusals is not the one conjunct this box asks for.
+  - `pytest-suite` went red beside the gate, which is one fact seen twice —
+    `test_the_reader_exits_zero_on_the_corpus_and_the_tree` runs the very sweep the
+    gate runs. A canary reddening the gate and leaving that test green would have
+    meant the two had drifted apart.
+  - **PR #549 was CLOSED WITHOUT MERGE and its branch deleted**; no broken record
+    ever reached `main`. Full evidence record, all four conjuncts verbatim:
+    `~/projects/xFactory/chain-gate-canary-2026-08-31/canary-evidence.md`, and the
+    closing comment on #549 itself.
 - [x] 4.7 **DONE, AS `contract-v2.5`** — the cut performed by the cutting
       session, in its own pull request, from an independent clone.
       **THE THIRD COUNT IS THE ONE THAT HELD, and it agreed with the second.**
@@ -629,3 +721,8 @@ are carried forward at openxFactory issue #534.
       `is_required_in_ruleset: false`. **openxFactory issue #534** was filed by
       this act to carry § 4.5 and § 4.6 forward, so the obligation is not written
       down only inside an archived packet. 4.5 remains Brett's act.
+      **AND THAT IS EXACTLY WHAT HAPPENED, LATER THE SAME DAY.** Both boxes were
+      performed on 2026-08-31 by separate acts, off this packet, and are ticked
+      above with their evidence beneath them. The paragraph is left as written
+      because it is the true record of what the ARCHIVE ACT did and did not do —
+      the carrying-forward worked, which is the only claim it ever made.

@@ -14,8 +14,12 @@ proposed change MUST NOT reserve a minor number before merge order is known. The
 number was fresh-counted at the cut and had already moved twice. All five schemas
 below carry a per-file `sha256` in the manifest; the corpus, this README, the
 reader and its pytest wiring are content-addressed by commit.
-**REGISTRATION IS NOT ENFORCEMENT** — see § What this family does NOT do, which
-is still true in the present tense.
+**REGISTRATION IS NOT ENFORCEMENT, AND ENFORCEMENT ARRIVED SEPARATELY.** The cut
+published bytes; the ruleset act made them bite. Since **2026-08-31**
+`signed-execution-chain-gate` is a REQUIRED check on `main` — opensoft org
+ruleset **21957695** (`tasks.md` 4.5), seen refusing a real pull request on canary
+**#549** (`tasks.md` 4.6) — so this family now confers and refuses what it says it
+does. See § What this family does NOT do for what is still outstanding.
 
 ## What this family is for
 
@@ -150,13 +154,21 @@ actor binding sits outside the signed bytes.
 
 ## What this family does NOT do
 
-- **It confers and refuses nothing yet.** `signed-execution-chain-gate` runs on
-  every pull request and is **not required** in the branch ruleset, so these
-  records are documentation that governs nothing. A merged workflow file is not
-  evidence that a check is required; the live ruleset state is
-  (`add-wallet-carried-review-authority` tasks 2.5/2.6 drew that distinction for
-  `wallet-validation`, org ruleset **21538893**). The conformance declaration
-  says this in the present tense.
+- **It confers and refuses only what a required check can.** This entry read *"it
+  confers and refuses nothing yet"* until 2026-08-31, and that was the true
+  reading: `signed-execution-chain-gate` ran on every pull request and was **not
+  required**, so these records were documentation that governed nothing. It is
+  required now — opensoft org ruleset **21957695**, `~DEFAULT_BRANCH` of
+  openxFactory, enforcement active — and the distinction that made the wait
+  meaningful is unchanged: a merged workflow file is not evidence that a check is
+  required; the live ruleset state is (`add-wallet-carried-review-authority` tasks
+  2.5/2.6 drew it for `wallet-validation`, org ruleset **21538893**). The reader
+  was then SEEN refusing rather than assumed to refuse, on canary PR **#549**. The
+  conformance declaration records `is_required_in_ruleset: true` and the standing
+  `reader-not-required` warning no longer fires. **What that does NOT mean**: the
+  ruleset carries an `OrganizationAdmin: always` bypass, as every ruleset in this
+  org does, so the gate is as strong as the estate's other required checks and no
+  stronger.
 - **It defines no second identity, grant, proof-of-possession or certificate
   vocabulary.** The presentation is the shipped `xfactory_wallet_grant_exercise`
   and the signing wallet the shipped `xfactory_wallet_record`, consumed at the

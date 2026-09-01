@@ -7,14 +7,20 @@
 # `scripts/validate-signed-execution-chain.py`, which walks links 1-3 over every
 # chain record in the tree and self-tests the packaged corpus first.
 #
-# THIS WORKFLOW IS NOT EVIDENCE THAT THE CHECK IS REQUIRED, and the capability's
-# own ninth requirement says so: until `signed-execution-chain-gate` is REQUIRED
-# in the branch ruleset, every record this family defines confers and refuses
-# NOTHING. Making it required is `tasks.md` 4.5 — an OPERATOR act whose evidence
-# is a live ruleset read, on exactly the shape
-# `add-wallet-carried-review-authority` tasks 2.5/2.6 proved for
-# `wallet-validation` (org ruleset 21538893). Merging this file changes nothing
-# about that.
+# THIS WORKFLOW IS STILL NOT EVIDENCE THAT THE CHECK IS REQUIRED, and that is
+# worth keeping written down now that it IS required. The capability's ninth
+# requirement is that until `signed-execution-chain-gate` is REQUIRED in the
+# branch ruleset, every record this family defines confers and refuses NOTHING.
+# `tasks.md` 4.5 — the OPERATOR act — was performed on 2026-08-31: opensoft org
+# ruleset 21957695, `~DEFAULT_BRANCH` of openxFactory, enforcement active,
+# `required_status_checks: [signed-execution-chain-gate]`, a dedicated ruleset
+# mirroring the wallet-gate precedent (org ruleset 21538893) that
+# `add-wallet-carried-review-authority` tasks 2.5/2.6 established. `tasks.md` 4.6
+# then SAW it refuse: canary PR #549, run 33455808456, one named refusal,
+# pull request BLOCKED, closed unmerged. The evidence is the live ruleset read
+# and that canary — never this file. Editing or merging this file changes nothing
+# about the ruleset, and deleting the ruleset would leave this file untouched and
+# the capability back to conferring nothing.
 #
 # THE JOB CARRIES NO DISPLAY NAME ON PURPOSE: the status check must surface as
 # exactly `signed-execution-chain-gate`, the literal token a branch ruleset would
@@ -30,12 +36,14 @@
 # would be a check quietly validating less than it claims. `--require-pinned-wallet-vocabulary`
 # turns that fallback into a REFUSAL, so this gate cannot pass vacuously.
 #
-# WHY NO `--strict`. The reader emits a standing WARNING for as long as it is not
-# itself a required check, and a second one for any leaf signed by a key no
-# carried wallet declares. Both are FACTS this realization declares rather than
-# defects, and `--strict` would convert the capability's own honest self-report
-# into a red gate that could never go green. Errors fail the step; warnings are
-# printed and read.
+# WHY NO `--strict`. The reader emits a WARNING for any leaf signed by a key no
+# carried wallet declares — a store signing identity this tranche defines no
+# custody for — which is a FACT this realization declares rather than a defect,
+# and `--strict` would convert the capability's own honest self-report into a red
+# gate that could never go green. (It emitted a SECOND standing warning, for as
+# long as it was not itself a required check; 4.5 retired that one on 2026-08-31,
+# and the reader still emits it for any realization whose declaration records the
+# reader unrequired.) Errors fail the step; warnings are printed and read.
 name: signed-execution-chain-gate
 
 on:
