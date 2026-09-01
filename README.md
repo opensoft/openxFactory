@@ -404,6 +404,35 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [retire-hermes-flat-keys-and-openworkflow-tokens](openspec/changes/retire-hermes-flat-keys-and-openworkflow-tokens/proposal.md)
+  — authored 2026-09-01, `Status: draft`. **Entries 1 and 2 of openxFactory
+  issue #522**, on Brett Heap's 2026-09-01 ruling comment there ("execute all
+  three retirements at contract-v3.0, as the memo recommends") and the
+  measurement memo `~/projects/xFactory/deprecations-522-memo-2026-08-31.md`.
+  `contract-v2.0` shipped on 2026-08-27, executed a DIFFERENT deprecation
+  through itself, and did not look at the three entries that named it as their
+  removal target; five minors later they still name it. **ENTRY 1 IS SPLIT AS
+  RULED.** The phased half EXECUTES at `contract-v3.0` — the `hermes` flat-key
+  FALLBACK READ leaves `check_hermes`, `LEGACY_HERMES_KEYS` goes with it, and
+  `apply-domain-starter.py` stops emitting the deprecated keys — and it refuses
+  nobody, because all five supported consumers declare `hermes.layers`. The
+  refusing half is RECORDED-WHY and stays In Force: the warning fires only in
+  the `else` arm taken when `layers` is ABSENT, so it has been dead code for the
+  entire supported population, and refusing the co-resident keys would be an
+  unphased narrowing owing its own deprecating minor first. **ENTRY 2 EXECUTES**
+  — the three-line `openworkflow` branch, zero live usage across ten
+  repositories, phased since `contract-v1.1`. Adds ONE capability,
+  `contract-deprecation-execution`, and NO `## MODIFIED` block, because no
+  promoted requirement names either shape. Three facts the memo did not carry
+  are recorded here: the `openworkflow` branch SHADOWS the general rule and so
+  WIDENS one case as well as narrowing another; promoted canon says an
+  unresolvable `owner_layer` is a WARNING while the shipped validator has
+  ERRORED since six days before that requirement was promoted (recorded, not
+  fixed — D4); and `domain_overlay` is ALSO a live key under `omnigent:`, so the
+  refusal list must be written by PATH and not by name. Sibling:
+  `retire-doxbench-chat-turn-v1`. (code surface: openxFactory; target release:
+  `contract-v3.0` — archives only on merged plus green realization evidence and
+  the published tag)
 - [add-chain-attestation](openspec/changes/add-chain-attestation/proposal.md)
   — authored 2026-08-29, **`Status: ratified` — RATIFIED 2026-09-01 by Brett
   Heap at `f54cb5bc` and RE-RATIFIED at `6d7ef17b` after the amendments** (record:
