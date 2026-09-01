@@ -1,9 +1,12 @@
-# Signed Execution Chain Contract Family (tranche one)
+# Signed Execution Chain Contract Family (tranches one and two)
 
 Status: ratified
-Ratified by: add-signed-execution-chain (ratified 2026-08-29 by Brett Heap,
-repository owner, in session; record
+Ratified by: add-signed-execution-chain (tranche one, ratified 2026-08-29 by
+Brett Heap, repository owner, in session; record
 `openspec/changes/add-signed-execution-chain/review/ratification-2026-08-29.md`)
+and add-chain-attestation (tranche two, ratified 2026-09-01 by Brett Heap at
+`f54cb5bc`, re-ratified at `6d7ef17b` after the amendments that head's own
+verdict forced)
 Kind: reference
 Repository context: openxFactory owns this neutral contract. It is REALIZED and
 **registered at `contract-v2.5`** in `contracts/manifest.yaml` +
@@ -11,9 +14,13 @@ Repository context: openxFactory owns this neutral contract. It is REALIZED and
 rather than by the realization, per
 [Contract Versioning Policy](../../docs/contract-versioning-policy.md), because a
 proposed change MUST NOT reserve a minor number before merge order is known. The
-number was fresh-counted at the cut and had already moved twice. All five schemas
-below carry a per-file `sha256` in the manifest; the corpus, this README, the
-reader and its pytest wiring are content-addressed by commit.
+number was fresh-counted at the cut and had already moved twice. **Tranche two
+registers at `contract-v2.6`** (`add-chain-attestation` task 5.9): its eight new
+schemas carry per-file `sha256` rows, and the four tranche-one schemas its
+additive extension moved carry refreshed digests with the extension noted inside
+each row's rule. All thirteen schemas below carry a per-file `sha256` in the
+manifest; the corpora, this README, the reader and its pytest wiring are
+content-addressed by commit.
 **REGISTRATION IS NOT ENFORCEMENT, AND ENFORCEMENT ARRIVED SEPARATELY.** The cut
 published bytes; the ruleset act made them bite. Since **2026-08-31**
 `signed-execution-chain-gate` is a REQUIRED check on `main` — opensoft org
@@ -36,12 +43,23 @@ before it permits the terminal act cannot be, because the act does not happen
 without it.
 
 Tranche one is **links 1–3 plus the signed transparency log plus the short-chain
-gate**, which is what Brett Heap's Q4 ruling of 2026-08-29 fixed. Tranche two
-(the attestation links) and tranche three (on-chain anchoring) are NAMED
-successors: nothing here mints an attestation identity, holds a certificate, or
-places anything on any chain.
+gate**, which is what Brett Heap's Q4 ruling of 2026-08-29 fixed. **Tranche two
+is links 4–6 and 10 — what actually ran, said by the chain itself**: the harness
+controller attesting the environment it prepared and COMMITTING to the expected
+attestation set; per-task runner attestations signed AT the controller on
+RECORDED, ATTRIBUTED requests under composed tier-2 identities; the pull-request
+open as a signed, chain-bound decision; and CLOSURE, where the governed
+post-merge test the ratified subject names is what completes the chain and a
+merged-but-unclosed chain is a REFUSING state. Tranche three (on-chain
+anchoring, `add-chain-anchoring`) is the remaining NAMED successor: nothing here
+operates a certificate authority, holds a private key, or places anything on any
+chain.
 
-## The five files
+## The thirteen files
+
+Tranche one's five, then tranche two's eight (`add-chain-attestation`, an
+ADDITIVE extension — four of the five earlier files moved additively with it and
+not one published member was removed, renamed or narrowed).
 
 | File | What it declares |
 | --- | --- |
@@ -49,12 +67,25 @@ places anything on any chain.
 | [`chain-inception.schema.yaml`](chain-inception.schema.yaml) | Links 1 and 2 as ONE signed act — the `signed_ratification` block the signature covers, and the chain identity that is its digest |
 | [`traveling-contract.schema.yaml`](traveling-contract.schema.yaml) | Link 3 — the signed ratification carried WITH the work, checkable at the point of use with no live service in reach |
 | [`transparency-log-leaf.schema.yaml`](transparency-log-leaf.schema.yaml) | One signed, hash-linked leaf of the append-only log that is this capability's primary chain of custody |
-| [`conformance-declaration.schema.yaml`](conformance-declaration.schema.yaml) | A realization's obligation-by-obligation declaration, on `add-trust-anchor`'s ratified declared-shortfall pattern |
+| [`conformance-declaration.schema.yaml`](conformance-declaration.schema.yaml) | A realization's obligation-by-obligation declaration, on `add-trust-anchor`'s ratified declared-shortfall pattern — closed over NINE obligations at tranche one and over all EIGHTEEN for a declaration naming any tranche-two obligation, with the `attestation_design` block carrying the three obligations a gate cannot see |
+| [`attestation-common.schema.yaml`](attestation-common.schema.yaml) | Tranche two's shared definitions, taken by `$ref`: the signature block with THE SIGNER'S PUBLIC KEY CARRIED BESIDE IT, the predecessor hash link, the per-fact EVIDENCE CLASS (closed at three members, composing with the ratified trust-anchor chain-custody registry in a declared ORDER), and the recorded signing request |
+| [`setup-attestation.schema.yaml`](setup-attestation.schema.yaml) | Link 4 — the controller attests the environment IT PREPARED and COMMITS to the expected attestation set inside the same signed bytes, under a certificate whose anchor, issuance evidence and standing-at-signing are named |
+| [`commitment-extension.schema.yaml`](commitment-extension.schema.yaml) | The same commitment written later, for fan-outs discovered as the work runs, with the deadline at DISPATCH — an extension written after dispatch is a description, not a commitment |
+| [`signed-chain-binding.schema.yaml`](signed-chain-binding.schema.yaml) | The third leg of a tier-2 identity's composed issuance: subject scope, the CLOSED enumeration of authorized record kinds, and THE CHAIN IDENTITY SERVED — consuming `add-trust-anchor`'s `certificate-record` and `issuance-evidence` and redefining neither |
+| [`runner-attestation.schema.yaml`](runner-attestation.schema.yaml) | Link 5 — what actually ran, per task, signed AT the controller on a RECORDED request attributed from the controller's own provisioning, corroborated against link 4 and never notarized |
+| [`pr-open-decision.schema.yaml`](pr-open-decision.schema.yaml) | Link 6 — opening the pull request as a signed decision under the chain-scoped identity, enumerating EVERY committed attestation and binding the PR identifier and head revision inside the signed bytes. PROPOSING IS NOT PERMITTING |
+| [`closure-record.schema.yaml`](closure-record.schema.yaml) | Link 10 — the point a chain COMPLETES: the governed post-merge test the ratified subject names, controller-dispatched, on exactly the merge commit, authenticated and PASSING, with the three amendment-lineage limbs verified against the inception's signed lineage |
+| [`remediation-declaration.schema.yaml`](remediation-declaration.schema.yaml) | The ONE admitted consumer of an unclosed chain — itself a full chain, its exemption non-inheritable, its own closure owed |
 
 The canonical reader is
 [`scripts/validate-signed-execution-chain.py`](../../scripts/validate-signed-execution-chain.py),
-self-testing over the packaged corpus in [`examples/`](examples/) and
-[`examples/negative/`](examples/negative/).
+self-testing over TWO packaged corpora, each adjudicated alone: tranche one's in
+[`examples/`](examples/) and [`examples/negative/`](examples/negative/), and
+tranche two's in [`examples/tranche-two/`](examples/tranche-two/) and
+[`examples/tranche-two/negative/`](examples/tranche-two/negative/). The split is
+forced by the log rather than chosen — the append-only rule is a store-wide
+obligation, and a tranche-two chain sharing tranche one's store would have
+collided with the leaf positions its shipped negatives probe.
 
 ## The three things settled at realization
 
@@ -126,31 +157,48 @@ human act with a wallet-held key; this realization mints no chain, so there is
 nothing to append. `scripts/validate-signed-execution-chain.py` says so in its
 repo-scan note rather than reporting an empty sweep as a pass.
 
-## The eight ordered checks, and the four rules that are not among them
+## The eleven ordered checks, and the rules that are not among them
 
 The gate walks eight checks over links 1–3 — signature, chain-identity
 recomputation, the `object_ref` replay comparison, the inception leaf's
 commitment, the traveling contract's carried values, the actor binding, the proof
-of possession, and standing plus holder class. **The list is closed, and closing
-it is itself an obligation**: every requirement of this capability is either
-walked there or has its enforcement point named. Four rules are enforced over the
-SCOPE rather than at the gate, because a gate sees only chains that were incepted
-and only the chain in front of it — atomicity, per-ratification uniqueness, the
-log's append-only property, and the conformance declaration. Both lists are in
-the validator's own docstring, where the reader that runs them is.
+of possession, and standing plus holder class — and, SINCE TRANCHE TWO, three
+further legs at their own positions in THE SAME ONE WALK: the setup attestation
+established and committed, the runner attestations equal to the committed
+expectation, and the open decision bound to its chain and its pull request. **It
+is the same required check reading further, never a second gate** (`tasks.md`
+4.5 of the tranche-two packet), and a new `links_1_3` verdict over a chain
+carrying tranche-two records is refused as understated. **The list is closed,
+and closing it is itself an obligation**: every requirement of this capability
+is either walked there or has its enforcement point named — including the three
+tranche-two obligations a gate CANNOT see, which are declared in the
+conformance declaration's `attestation_design` block and refused there by name.
+The rules enforced over the SCOPE rather than at the gate — atomicity,
+per-ratification uniqueness, the log's append-only property, the conformance
+declaration, and tranche two's chain-completeness horizon rules — are in the
+validator's own docstring, where the reader that runs them is.
 
 ## What this family refuses, by name
 
-Twenty-four closed refusal codes over 34 packaged negatives, **each code with a negative that provokes
-it** — the self-test refuses a code with no probe. The nine `tasks.md` 4.2 names
-are among them: missing proof, failed verification, revoked-at-exercise, orphan
-chain identity, digest mismatch on the traveling contract, mix-and-match
-continuity, missing link, unevaluable chain, and a machine holder as ratifying
-authority.
+**Ninety-five closed refusal codes over 108 packaged negatives** — tranche one's
+twenty-four over 34, tranche two's seventy-one over 74 — **each code with a
+negative that provokes it**; the self-test refuses a code with no probe. The
+nine tranche-one `tasks.md` 4.2 names are among them, and so is tranche two's
+full roster: the forged lane-minted identity refused at issuance, the dropped
+attestation caught by the committed expectation, the notarized self-report, the
+custody-ceiling promotion, the orphan pull request, the reused link-6 decision,
+the lane-claimed pass, the replayed review, the unsupported lineage, the
+merged-but-never-closed chain, the inherited exemption, and the design breaches
+declared in `attestation_design` — key-in-worker, co-located controller,
+reachable hardware custody, reusable delegation, execute-then-verify and the
+rest.
 
-Two obligations are refused BY SHAPE instead, because unrepresentable is stronger
-than refused: an actor carrying no wallet attestation, and a ratification whose
-actor binding sits outside the signed bytes.
+Obligations refused BY SHAPE instead, because unrepresentable is stronger than
+refused: an actor carrying no wallet attestation, a ratification whose actor
+binding sits outside the signed bytes, a record with no recorded signing
+request (the member is REQUIRED), an unclassed attested fact, and a second
+digest construction (every digest member is `$ref` to the one construction and
+its name is `const`).
 
 ## What this family does NOT do
 
@@ -182,6 +230,13 @@ actor binding sits outside the signed bytes.
   `merge-approval-envelope`, names no candidate class, touches no ruleset and
   produces no verdict; FR-008 stays gated exactly where the 2026-08-28 convening
   left it.
-- **It holds no anchor, witness, commitment or receipt**, and no attestation
-  identity of any kind. Those are the named tranche-three and tranche-two
-  successors, and their absence at this tranche is NOT a defect.
+- **It defines the attestation vocabulary and operates none of it.** This
+  realization creates no certificate authority, mints no tier-2 identity, holds
+  no private key and dispatches no controller — the fixture keys in the packaged
+  corpus exist as public halves, digests and signatures only. The two §5 gates
+  the tranche-two packet names stay open until the PKI plane
+  (`implement-openxpki-install-repo`) has ISSUED and the omnigent layer has
+  REFUSED, and SEC-R18 is declared UNMET rather than partially met until then.
+- **It holds no anchor, witness, commitment or receipt.** Those are tranche
+  three (`add-chain-anchoring`), and their absence at this tranche is NOT a
+  defect.

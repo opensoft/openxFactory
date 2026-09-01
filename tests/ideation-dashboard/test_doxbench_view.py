@@ -4215,7 +4215,7 @@ const doxbench = {
   chatTurn: async (request) => {
     chatRequests.push(request);
     return { ok: false, status: 502, payload: {
-      schema_version: 1, kind: 'workbench-chat-turn-failure',
+      schema_version: 1, kind: 'workbench-chat-turn-v2-failure',
       client_turn_id: request.client_turn_id, error: 'model_failed',
       message: 'the model request failed' } };
   },

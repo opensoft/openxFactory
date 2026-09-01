@@ -1,0 +1,148 @@
+# expected_failure: per_task_identity_reused
+# expected_failure_detail: valid for ONE task
+# VIOLATES requirement 2's per-task scope. A PER-TASK IDENTITY IS VALID FOR ONE
+# TASK, and reuse is never accepted on the strength of the identity still being
+# unexpired.
+#
+# The chain commits a second task by extension, and the SAME per-task binding signs
+# both attestations. This refusal DOES NOT REACH THE CHAIN-SCOPED IDENTITY, whose
+# one chain spans every task the chain dispatched and whose records are about that
+# whole — which is why the two scopes exist and why collapsing them re-creates the
+# conflict the split was raised to resolve.
+schema_version: 1
+kind: xfactory_signed_execution_chain_commitment_extension
+extension_id: ext-neg-reused
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+signed_extension:
+  chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+  digest_construction: xfc-jcs-sha256-1
+  extends: setup-t5
+  predecessor:
+    record_ref: clo-t5
+    record_kind: xfactory_signed_execution_chain_closure_record
+    digest:
+      construction: xfc-jcs-sha256-1
+      subject: closure_record
+      value: sha256:588e6a5f47d5d644c21b94139b5dfa8520e96e9b85604795ac9d5f6843f5e48e
+  added_tasks:
+  - task_ref: task:t5-reuse
+    dispatched_at: '2026-09-01T20:30:00Z'
+    statement: Discovered as the work fanned out.
+  signed_where: harness_controller
+extension_signature:
+  algorithm: ed25519
+  key_ref: key-controller-t2
+  certificate_ref: cert:controller-t2
+  signed_over: signed_extension
+  signature: S82YlzogK6TJ6n-g-VVB0uJG0nxrOlBOXQlY83TGdSPovmmCqABeqKEkOEnmLOfhCQUKGo5cB4r-ca1JeQolAg
+  public_key: z6MknKGe1CcdgEPaiTrzjYRFH9v82uWag54QefYsrKCye9Tn
+written_at: '2026-09-01T20:29:00Z'
+leaf_ref: leaf-0046
+---
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-0046
+leaf_index: 46
+tree_size: 47
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+leaf_type: commitment_extension
+recorded_at: '2026-09-01T20:29:30Z'
+payload_ref: ext-neg-reused
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: commitment_extension
+  value: sha256:ceaae6609af7dee7970120ac0f994aa0116b7c4d6c14f888df90fd075c8f68f6
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:f698c2fb50ae9d3564d458e61f5becb46178064197d05cca91b02afb5bdcb7c2
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:d3541489c0465a34a1b3a5fd867ad115709328ea363bdbd0e53466b0d4877101
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-t5
+  signed_over: leaf_content
+  signature: iYsi2ZjSEMc2oxEb_1Uyccg7fechX50BYcxeBTidpFKJaTMzrRbEyJUdMVlzZ4ok8o1G93DHWV6lLdQ8KWpeDw
+---
+schema_version: 1
+kind: xfactory_signed_execution_chain_runner_attestation
+attestation_id: att-neg-reused
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+signed_attestation:
+  chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+  digest_construction: xfc-jcs-sha256-1
+  predecessor:
+    record_ref: ext-neg-reused
+    record_kind: xfactory_signed_execution_chain_commitment_extension
+    digest:
+      construction: xfc-jcs-sha256-1
+      subject: commitment_extension
+      value: sha256:ceaae6609af7dee7970120ac0f994aa0116b7c4d6c14f888df90fd075c8f68f6
+  task_ref: task:t5-reuse
+  identity:
+    binding_ref: bind-t5-a
+    subject_scope: per_task
+  attested_facts:
+  - fact: model
+    value: claude-opus-5
+    evidence_class: controller_corroborated
+  - fact: harness
+    value: codex-council-worker
+    evidence_class: controller_corroborated
+  - fact: node
+    value: 22.6.0
+    evidence_class: runner_claimed
+  - fact: sandbox_seal
+    value: verified
+    evidence_class: independently_observed
+    observed_by: opensoft-platform-attestation-service
+  signed_where: harness_controller
+  signing_request:
+    request_id: req-att-neg-reused
+    requested_at: '2026-09-01T16:10:00Z'
+    attribution:
+      attributed_by: controller_provisioning
+      requester_ref: task:t5-reuse
+      statement: Attributed from the controller's own provisioning.
+    payload_digest:
+      construction: xfc-jcs-sha256-1
+      subject: runner_attestation
+      value: sha256:af9e2a7f458dfaa03cf0cdaf15291db822934b1c10920c8b8de45e149294ac73
+attestation_signature:
+  algorithm: ed25519
+  key_ref: key-tier2-a
+  certificate_ref: cert:tier2-task-a
+  signed_over: signed_attestation
+  signature: N2kQlLPWFlkC-FqM38zeGwsaXp8chr2yWylQIzjajqepxR0PHYt2tMPPQg5c_n6V_n7w25pEhpv54DIxbUBICA
+  public_key: z6Mkph4jBMboXmzytn7Qt3ZzovEnKCT7GRQPbrpKByxr7H24
+attested_at: '2026-09-01T16:10:00Z'
+leaf_ref: leaf-0047
+---
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-0047
+leaf_index: 47
+tree_size: 48
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+leaf_type: runner_attestation
+recorded_at: '2026-09-01T20:31:00Z'
+payload_ref: att-neg-reused
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: runner_attestation
+  value: sha256:b33a5dee7cef64123d058d81422108ed000b7af6f5a70b2097b6a7d110137121
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:d3541489c0465a34a1b3a5fd867ad115709328ea363bdbd0e53466b0d4877101
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:dc85d8c8147c0b182ce7206d44308189e3b1a41fc58f03725f4209ab2d19c73b
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-t5
+  signed_over: leaf_content
+  signature: zKRE8Lp9KluN2JayF-iy3SD1h5-ZctrzQnwIGFOoScgXj5-8tcJTK-l3aXbSt3uR1fkTFZTldwOGtM-CDGdFCw

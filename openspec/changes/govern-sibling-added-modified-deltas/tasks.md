@@ -79,7 +79,7 @@ One feature: the parser change and the emit are one mechanism and cannot land
 apart, because a marker form the parser does not recognize is a body unit and a
 pairing class that cannot read a marker reports every declared pair.
 
-- [ ] 2.1 Extend the marker parser with the third reserved form. Recognized only
+- [x] 2.1 Extend the marker parser with the third reserved form. Recognized only
       where, after the family's normalization, the paragraph BEGINS with the
       prefix COMPLETE: the bold run, a code-spanned resolvable change id, the
       fixed `'s addition by`, a resolvable change id, an ISO date in
@@ -103,7 +103,7 @@ pairing class that cannot read a marker reports every declared pair.
       the body units and report the block UNDECLARED — again the absent-marker
       remedy for a block that carries one, and again the wrong paragraph named
       for repair.
-- [ ] 2.2 Make the form name NO units. It suppresses nothing, is never a
+- [x] 2.2 Make the form name NO units. It suppresses nothing, is never a
       candidate for the marker-defect check, and — like the other two forms — is
       excluded from unit derivation in canon and in the block, so it is not a
       carriage unit in either direction. **AND ITS REASON IS THE WHOLE TAIL
@@ -123,7 +123,7 @@ pairing class that cannot read a marker reports every declared pair.
       complete in the UNITS THEY NAME; this one names none, so a marker without a
       reason declares a bare pairing — and, the disclosure living in that same
       tail, discloses nothing and can disclose nothing.
-- [ ] 2.3 Widen `sibling_titles` to carry the BASIS CHANGE ID, ITS DECLARED
+- [x] 2.3 Widen `sibling_titles` to carry the BASIS CHANGE ID, ITS DECLARED
       STANDING, and WHICH BLOCK PUT THE TITLE THERE — an `## ADDED Requirements`
       block or a `## RENAMED Requirements` block's `TO:` half — beside each
       `(capability, title)`. The bare title set it returns
@@ -141,7 +141,7 @@ pairing class that cannot read a marker reports every declared pair.
       from a rename's `TO:` half. The set's TITLE CONTENT is unchanged — both
       forms still make a title `pending`, exactly as the promoted rule reads "a
       requirement an active sibling change ADDS or RENAMES".
-- [ ] 2.4 Replace the `if status == "pending": continue` drop with the pairing
+- [x] 2.4 Replace the `if status == "pending": continue` drop with the pairing
       emit. THE THREE COMPARISON ARMS STILL DO NOT RUN against a pending block;
       the 2026-08-27 ruling is untouched and the change is that the block is no
       longer dropped before anything looks at it. **`resolve()` IS NOT TOUCHED,
@@ -152,7 +152,7 @@ pairing class that cannot read a marker reports every declared pair.
       (`:1783-1786`) — and only THEN `pending`. The emit replaces the `pending`
       branch alone, so the rename-and-amend shape never reaches the new class and
       the precedence survives without being restated in the classifier.
-- [ ] 2.5 Report exactly four states — self-referential, undeclared,
+- [x] 2.5 Report exactly four states — self-referential, undeclared,
       misdeclared, undisclosed — and emit NOTHING for a declared, resolving
       pair whose `by` identifier is the carrying change and whose basis is
       `ratified` OR whose marker discloses that it is not.
@@ -215,7 +215,7 @@ pairing class that cannot read a marker reports every declared pair.
       name. It reads the reason clause for the word `document-lifecycle`
       reserves, and it is why that capability's disclosure obligation has an
       enforcer at all.
-- [ ] 2.6 Register ONE `_ArmTemplate` for the class, carrying all four states —
+- [x] 2.6 Register ONE `_ArmTemplate` for the class, carrying all four states —
       and MISDECLARED's four grounds inside its own — in one interpolated `why`
       clause on the `TEMPLATE_UNRESOLVED` precedent, and append it to
       `_ARM_TEMPLATES`. One template is one shape is one map
@@ -232,15 +232,15 @@ pairing class that cannot read a marker reports every declared pair.
       reports does: fixed prose carrying a numeral is a shape the mask cannot
       strip, and a two-marker block and a three-marker one would then read as two
       remedies.
-- [ ] 2.7 Register the `FindingClass` in `CLASSES`, with its own severity and
+- [x] 2.7 Register the `FindingClass` in `CLASSES`, with its own severity and
       action constants named apart from `_LAUNCH_SEVERITY`, and insert it BEFORE
       the `unplaced` class so both standing ordering claims stay true: the
       gate-bearing arm reads first, the drift class reads last.
-- [ ] 2.8 Add the anchored `_CLASS_PATTERNS` entry. Verify the negative first:
+- [x] 2.8 Add the anchored `_CLASS_PATTERNS` entry. Verify the negative first:
       with the template registered and the pattern absent, the fifth class fires
       and names the new rule text — that is the fifth class working, and it is a
       test worth keeping rather than a step to skip.
-- [ ] 2.9 Fixtures, one per reported state plus BOTH silent ones — a `ratified`
+- [x] 2.9 Fixtures, one per reported state plus BOTH silent ones — a `ratified`
       basis, and an unratified basis whose marker discloses it — and the
       regression fixture reconstructing the corpus's own four-pair shape.
       MISDECLARED NEEDS ALL THREE OF ITS GROUNDS: a marker naming a basis that adds
@@ -277,11 +277,11 @@ pairing class that cannot read a marker reports every declared pair.
       narrowing would otherwise open. The
       unratified pair needs its own adding-change fixture carrying a non-ratified
       `Status:`, the standing being read from the adder's proposal header.
-- [ ] 2.10 Move the standing pins by name, one at a time: the class-registry
+- [x] 2.10 Move the standing pins by name, one at a time: the class-registry
       pin, the rule-shapes pin, the verbatim class-row list, the
       last-row assertions, the `len(block)` pin, and the FR-023 severity
       snapshot. Nothing else.
-- [ ] 2.11 Self-gate. `test_the_resolution_ordering_and_marker_classes_read_zero_over_the_real_tree`
+- [x] 2.11 Self-gate. `test_the_resolution_ordering_and_marker_classes_read_zero_over_the_real_tree`
       no longer covers the new class; add a NAMED EXACT SET for its standing
       subjects under `_LEDGER_SUBJECTS`'s movement discipline, each row carrying
       its own retirement condition — the row retires when its declaring block
@@ -295,10 +295,10 @@ pairing class that cannot read a marker reports every declared pair.
       feature lands, and an empty exact set with a positive control is the same
       shape § 3.3 asks of the collision class. Where the order taken was the
       other one, the set launches with the four.
-- [ ] 2.12 Amend `specs/022-modified-block-currency-reporting/contracts/report-section.md`.
+- [x] 2.12 Amend `specs/022-modified-block-currency-reporting/contracts/report-section.md`.
       It is byte-level and enumerates the classes four times over; a class that
       landed without touching it would leave a false contract in the corpus.
-- [ ] 2.13 Amend `docs/doc-health.md`'s family paragraph, which today names
+- [x] 2.13 Amend `docs/doc-health.md`'s family paragraph, which today names
       three arms, a marker-defect class and a fifth `unplaced` class.
 
 ## 3. Speckit F2 — the ADDED-over-canon collision class
@@ -306,7 +306,7 @@ pairing class that cannot read a marker reports every declared pair.
 Separate feature because D5 is separately vetoable and this is the whole of what
 a veto would strike.
 
-- [ ] 3.1 Read active `## ADDED Requirements` blocks AND the `TO:` titles of
+- [x] 3.1 Read active `## ADDED Requirements` blocks AND the `TO:` titles of
       active `## RENAMED Requirements` blocks against the promoted index
       the family already builds, and report a title canon already carries. **READ
       THE `TO:` HALF AND NEVER THE `FROM:` HALF**: a rename's source is a title
@@ -316,13 +316,13 @@ a veto would strike.
       form. `promotion_fidelity.parse_delta` already returns the `(FROM, TO)`
       pairs the family reads for `resolve()`, so this is a second use of one
       parse rather than a second parser.
-- [ ] 3.2 Its own template, its own `FindingClass`, its own anchored pattern,
+- [x] 3.2 Its own template, its own `FindingClass`, its own anchored pattern,
       its own action line naming both remedies. Same registration discipline as
       2.6-2.8.
-- [ ] 3.3 A zero assertion on the real tree WITH A POSITIVE CONTROL. A class
+- [x] 3.3 A zero assertion on the real tree WITH A POSITIVE CONTROL. A class
       whose population is zero and whose only test asserts zero is a class no
       test proves exists.
-- [ ] 3.4 Fixture: the unsafe archive order, reconstructed — the modifying
+- [x] 3.4 Fixture: the unsafe archive order, reconstructed — the modifying
       change archived, the requirement in canon, the basis change still active
       and still holding its ADDED block. **AND ITS RENAME TWIN**: the same
       reconstruction with the basis change holding a `## RENAMED Requirements`
@@ -332,7 +332,7 @@ a veto would strike.
 
 ## 4. Evidence recorded at proposal time
 
-- [ ] 4.1 The population, RE-STATED AT THE CATCH-UP MERGE of 2026-08-31 whose
+- [x] 4.1 The population, RE-STATED AT THE CATCH-UP MERGE of 2026-08-31 whose
       `main`-side parent is `7f656980` and RE-READ UNCHANGED at the SECOND
       catch-up merge of the same day, whose `main`-side parent is `9af98c4d`
       (the `main` tip after #530, #509, #513 and #524): 20 active MODIFIED
@@ -359,7 +359,28 @@ a veto would strike.
       `add-structured-scope-substrate`'s over `release-realization`'s
       "Realization axis declaration", a different requirement of the same spec,
       resolving `canon`. Recorded in `proposal.md` § Why.
-- [ ] 4.2 BOTH of this packet's own MODIFIED blocks read ZERO. The
+      **RE-MEASURED AT THE F1+F2 BUILD, 2026-09-01, over `main` at `1c1dcbbe`,
+      AND THE FIGURES ABOVE ARE HISTORY.** 20 active MODIFIED blocks, **17
+      `canon` and 3 `pending`** — not 16/4 — and BOTH movements are acts this
+      packet's own § 6 and a peer lane took after the measurement above was
+      written. (i) `add-binding-consumer-identity` over
+      `add-notebook-hosting-credential-custody` LEFT the pending set: PR #541
+      archived both on 2026-08-31 in the SAFE order, so the requirement is
+      promoted and the block resolves `canon`. (ii) The remaining THREE —
+      `add-wallet-carried-review-authority`,
+      `implement-keycloak-install-repo` and `implement-openxpki-install-repo` —
+      each now carry ONE `Modified over` marker, written by § 6's sweep at
+      `3a6a16e9` (PR #538, 2026-08-31), each naming a basis that adds the title,
+      each carrying the carrying change's own id as its `by` identifier and a
+      nonempty reason, over a `ratified` basis. **SO THE PAIRING CLASS LAUNCHES
+      AT A POPULATION OF ZERO — D4's ROUTE 1, PERFORMED — AND ITS EXACT SET IN
+      THE SELF-GATE LAUNCHES EMPTY WITH A POSITIVE CONTROL** (§ 2.11's
+      D4-sequencing branch, not its fallback). The three declarations are read
+      back through the family's own parser, which is what makes the sweep's
+      markers evidence that the form as authored is the form as recognized
+      rather than two spellings that happen to coexist. Zero markers of this
+      form remain anywhere on the tree that the check would report.
+- [x] 4.2 BOTH of this packet's own MODIFIED blocks read ZERO. The
       `release-realization` block resolves `canon`, and the title arm and the
       carriage ledger report nothing against it — both promoted body sentences
       and both promoted scenarios restated byte-identical, everything added new.
@@ -417,7 +438,14 @@ a veto would strike.
       modified-block-currency` run over the branch tree emits 8 findings, none of
       them against either of this packet's delta paths — the same 8, re-measured
       after the second merge.
-- [ ] 4.3 The collision class's population is zero on this tree ACROSS BOTH
+      **RE-RUN AT THE F1+F2 BUILD, 2026-09-01, WITH BOTH NEW CLASSES LIVE.**
+      Over `main` at `1c1dcbbe` the family emits 8 findings, all
+      `carriage-ledger`, and NONE of them names either of this packet's delta
+      paths; both blocks still resolve `canon`. The count moved from 7 to 8 for
+      a reason that has nothing to do with this packet — `add-chain-attestation`
+      landed a new MODIFIED block on `main` — and neither new class touches
+      either figure: the pairing class reads 0 and the collision class reads 0.
+- [x] 4.3 The collision class's population is zero on this tree ACROSS BOTH
       BASIS FORMS, re-measured after the class was widened to renames: of 159
       active `## ADDED Requirements` blocks, NONE names a capability and
       requirement title the promoted specification already carries; and this
@@ -427,9 +455,21 @@ a veto would strike.
       own `promoted()` index over the branch tree. Re-run at every catch-up
       merge: a rename landing in some other active packet is exactly the input
       this widening exists for.
-- [ ] 4.4 The `family-enumeration` gate stays green: no family is registered, so
+      **RE-RUN AT THE F1+F2 BUILD, 2026-09-01, THROUGH THE BUILT CLASS ITSELF
+      RATHER THAN THROUGH A SPIKE.** Over `main` at `1c1dcbbe` the collision
+      class emits ZERO, across both basis forms, and the self-gate asserts that
+      zero WITH A POSITIVE CONTROL (§ 3.3): the control feeds the corpus's own
+      active additions to the family's own emit against a promoted index that
+      DOES carry one of their titles, and the class fires — so the zero is a
+      zero the class could have moved off.
+- [x] 4.4 The `family-enumeration` gate stays green: no family is registered, so
       the "Deterministic check families" enumeration and its numerals are
       untouched and unrestated.
+      **CONFIRMED AT THE F1+F2 BUILD**: `tests/doc-health/test_family_enumeration.py`
+      is green and `scripts/doc_health/families.py` is untouched — the two new
+      classes are classes of an EXISTING family, so `FAMILIES`,
+      `FAMILY_SUMMARIES`, `FAMILY_NOTES` and `FAMILY_RESOLUTION` all read
+      exactly what they read on `main`.
 - [ ] 4.5 THE CANON/CODE CONTRADICTION IS CLOSED BY THIS PACKET RATHER THAN
       NAMED BY IT. `scripts/doc_health/families.py:117` carries
       `"modified-block-currency": CONTESTED` since `7f656980` (PR #529,

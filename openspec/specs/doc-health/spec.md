@@ -8,7 +8,7 @@ and ranked plan, the headline canon-share metric, and the ownership split
 between contract, implementation, and the nightly runner.
 ## Requirements
 ### Requirement: Deterministic check families
-The doc-health deterministic pass SHALL implement twenty-two check families over
+The doc-health deterministic pass SHALL implement twenty-three check families over
 the whole factory family's governance corpus: status validity, standard
 backing, ratified provenance, succession integrity, staged-topic template,
 location conformance,
@@ -16,7 +16,8 @@ record immutability, staged/candidate aging, register-lifecycle consistency,
 tag hygiene, submodule pin drift, contract-copy drift, notebook projection
 drift, document catalog, ideation routing, proposal origin, client
 identity roster composition, promotion fidelity, release-inventory drift,
-duplicate packet, family enumeration, and modified-block currency.
+duplicate packet, family enumeration, modified-block currency, and release-tag
+publication.
 Every check in this pass
 MUST be
 deterministic — identical inputs produce identical findings, with no model
@@ -28,11 +29,11 @@ identity roster composition family SHALL cover only the CROSS-DOMAIN
 concerns — assembling per-client fragments published by each domain and
 reporting shared identity material or undeclared cross-domain reach —
 because intra-repo roster conformance is a blocking domain gate rather than
-an advisory report. Four of the twenty-two — status validity, standard backing,
+an advisory report. Four of the twenty-three — status validity, standard backing,
 ratified provenance, and succession integrity — SHALL additionally read the
 lifecycle scan set this capability declares, so that a lifecycle header
 carried by a document outside the governed corpus is still checked; the other
-eighteen families and every corpus census, word count, canon-share figure,
+nineteen families and every corpus census, word count, canon-share figure,
 shared-inventory entry, and catalog record SHALL be computed from the
 governed corpus alone and MUST NOT move because the lifecycle scan set
 exists. The promotion fidelity family reads archived spec DELTAS and promoted
@@ -55,6 +56,12 @@ resolve whether one active writer declares its deltas relative to another, which
 `release-realization` governs — so it likewise takes neither the governed corpus
 nor the lifecycle scan set as its document list, and it moves no census, word
 count, canon-share figure, inventory entry, or catalog record either.
+The release-tag publication family reads the DECLARED BUNDLE and the
+repository's PUBLISHED TAG REFS — a manifest field and a set of git refs,
+neither of them a governed-corpus document — so it likewise takes neither the
+governed corpus nor the lifecycle scan set as its document list, and it moves no
+census, word count, canon-share figure, inventory entry, or catalog record
+either.
 
 **CORRECTED 2026-08-25 ON BRETT'S RULING — this block is now
 SCENARIO-COMPLETE.** As first written it restated only ONE of this
@@ -2205,4 +2212,133 @@ enumeration and its numerals are untouched and unrestated.
 - **WHEN** the module carries an expression that builds a pin site — a field form, a vocabulary sweep, or a class member's declared prose pattern
 - **THEN** every such expression MUST carry the whole-object-name boundary, and a new one added later MUST carry it too
 - **AND** a boundary present on the module's standalone scanner MUST NOT be read as covering the expressions that build sites, because the site builders are where a fabricated pin is produced
+
+### Requirement: Release-tag publication
+The release-tag-publication family SHALL report, for every repository in scope and for EVERY BUNDLE THAT REPOSITORY HAS CUT at or above the version where mandatory tag publication begins, whether that bundle has a published ANNOTATED tag, and whether that tag peels to a commit that declares the bundle.
+
+EVERY CUT BUNDLE, NOT ONLY THE ONE CURRENTLY DECLARED — and this is the
+difference between catching the recurrence and reading zero through it. A
+bundle is legitimately silent while its declaring commit is the published tip.
+Then the NEXT cut advances the manifest, and a family that read only the current
+declaration would begin checking the new bundle and NEVER REVISIT the old one.
+Run against the incident that motivated this family it would have reported
+nothing at all: `contract-v2.3` untagged, `contract-v2.4` declared on top of it,
+silence. The set of bundles a repository has cut SHALL be taken from its release
+inventories, which are the machine-readable fact that a cut happened.
+
+A SUPERSEDED BUNDLE IS NOT GRADED BY DISTANCE. The distance window exists for
+the interval between declaring and tagging, and that interval ENDED for any
+bundle the manifest has moved on from. An untagged superseded bundle is
+therefore reported at `error` without grading, and its remedy is
+retro-publication at the commit the policy's rule identifies — RETRO-PUBLISHED,
+NOT RE-DATED, as the 2026-08-25 discharge did.
+
+The obligation being checked belongs to `docs/contract-versioning-policy.md` —
+"a bundle is not published until its tag exists", and "the tag SHALL point to
+that realized commit". This requirement defines only how doc-health checks it,
+in the same by-reference relationship `tag-hygiene` already has with
+`document-lifecycle`'s marker grammar and `Release-inventory drift` has with
+`release-surface-integrity`.
+
+THE FAMILY SHALL BE DISTANCE-GRADED RATHER THAN IMMEDIATE, because the declaring
+commit and the tag are two acts by two actors and the interval between them is
+legitimate. A cut declares the bundle; the repository owner publishes the tag
+afterwards. A family that fired the moment the manifest moved would redden every
+correctly performed release, and a family nobody can leave green is a family
+that gets configured away. Distance SHALL be measured in FIRST-PARENT COMMITS ON
+PUBLISHED `main` since the earliest commit declaring the bundle, never in wall
+time, because landings are what the policy's own retro-publication rule counts
+and wall time punishes a quiet week.
+
+THE THRESHOLD SHALL DEFAULT TO FIVE FIRST-PARENT LANDINGS, ruled by Brett Heap on
+2026-08-31. It is a threshold default in the sense this capability already gives
+that term, configurable in the same place the aging defaults are, and the ruled
+number is what an unconfigured run uses. The calibration it answers to:
+`contract-v2.3` sat untagged across six first-parent landings before a human
+noticed it, so a threshold above five would have stayed silent through the
+recurrence this family exists to catch.
+
+THE TWO FAILURE STATES SHALL BE REPORTED IN DIFFERENT WORDS AND AT DIFFERENT
+SEVERITIES. An ABSENT tag is an incomplete release — the common case, and the
+one the window above exists to tolerate for a while. A tag that exists and peels
+to a commit NOT declaring the bundle is a MISPLACED tag: it satisfies every
+check that asks only whether a tag exists, it is what consumers will pin, and it
+is worse than absence because it looks like completion. Reporting them alike
+would let the common one hide the serious one.
+
+THE FAMILY SHALL NOT FIRE BELOW THE ENFORCEMENT LINE. `contract-v1.0` through
+`contract-v1.6` predate mandatory annotated tags and carry none by design, as
+the changelog's own legacy baseline note records. A family that reported them
+would emit seven permanent findings nobody may act on, which is how a report
+teaches its readers to stop reading it.
+
+A LIGHTWEIGHT TAG SHALL NOT SATISFY THE OBLIGATION. The policy requires an
+ANNOTATED tag; a lightweight ref carries no tagger, no date and no message, and
+accepting one would let the weaker object silently discharge the stronger
+requirement.
+
+The family SHALL be reported as skipped, never silently omitted, where a
+repository declares no bundle at all, or where version control cannot answer —
+an unavailable git dependency, tag refs that cannot be listed, or a declaring
+commit that does not resolve. THE SKIP IS RESERVED FOR "THE QUESTION COULD NOT
+BE ASKED": a declared bundle whose tag is simply absent is an ANSWER, and is
+reported by the scenarios below rather than skipped.
+
+THIS FAMILY DOES NOT PROVE THE TARGET IS THE EARLIEST DECLARING COMMIT, and the
+residue is disclosed rather than hidden. The policy's target is "the EARLIEST
+FIRST-PARENT COMMIT on published `main` that DECLARES the bundle and at which
+`verify-commit` PASSES"; the second conjunct is a digest verification per
+candidate and is out of scope here. A tag on a LATER declaring commit therefore
+passes this family and remains a defect under the policy.
+
+#### Scenario: The declaring commit is still the published tip
+- **WHEN** a repository declares a bundle at or above the enforcement line, that bundle has no published annotated tag, and the earliest commit declaring it is still the tip of published `main`
+- **THEN** the family MUST emit no finding, because the cut has only just landed and the owner's tag act legitimately follows it
+- **AND** the family MUST NOT record this as a pass that discharges the obligation, which remains owed
+
+#### Scenario: Landings have accumulated on an untagged declared bundle
+- **WHEN** the bundle has no published annotated tag and further first-parent commits have landed on published `main` above the earliest commit declaring it, up to and including the configured threshold
+- **THEN** the family MUST emit a `warning` naming the bundle, the declaring commit, and how many first-parent landings have accumulated
+- **AND** the action MUST name publishing the annotated tag at the commit the policy's rule identifies, never editing the manifest, the changelog or the inventory to match the absence
+
+#### Scenario: An untagged declared bundle passes the threshold
+- **WHEN** the accumulated first-parent landings exceed the configured threshold
+- **THEN** the family MUST emit an `error`, because a bundle being consumed while unpublished is the state the policy calls a breach rather than an exception
+- **AND** the finding MUST say that the bundle is NOT PUBLISHED in the policy's own terms, so no reader infers from its presence in the manifest that it was released
+
+#### Scenario: The declared bundle carries an annotated tag on a declaring commit
+- **WHEN** the bundle has a published annotated tag and that tag peels to a commit whose manifest declares that same bundle
+- **THEN** the family MUST emit no finding
+
+#### Scenario: A tag exists but peels to a commit that does not declare the bundle
+- **WHEN** the bundle has a published annotated tag and the commit it peels to does not declare that bundle
+- **THEN** the family MUST emit an `error` in DIFFERENT WORDS from the absent-tag findings, naming it a MISPLACED tag and naming both the commit it peels to and the bundle that commit actually declares, if any
+- **AND** this MUST NOT be graded by distance, because a misplaced tag is not a release in progress and no interval makes it correct
+
+#### Scenario: The published tag is lightweight rather than annotated
+- **WHEN** a ref of the bundle's tag name exists but is not an annotated tag object
+- **THEN** the family MUST emit an `error` naming the ref as lightweight, never treat it as satisfying the obligation, and never report it in the absent-tag words
+
+#### Scenario: A bundle below the enforcement line
+- **WHEN** the declared bundle is below the version at which mandatory tag publication begins
+- **THEN** the family MUST emit no finding, and MUST NOT report the legacy sequence's untagged bundles at any severity
+
+#### Scenario: A bundle was cut, superseded, and never tagged
+- **WHEN** a repository has a release inventory for a bundle at or above the enforcement line, that bundle has no published annotated tag, and the manifest now declares a different bundle
+- **THEN** the family MUST emit an `error` naming the superseded bundle and the bundle that replaced it, and MUST NOT grade it by distance — the window it would be graded against closed when the next cut replaced it
+- **AND** the action MUST name retro-publication at the commit the policy's rule identifies, never a re-dating and never an edit to the inventory
+
+#### Scenario: The manifest cannot be read at the published tip
+- **WHEN** the blob read for the manifest at the published tip answers nothing — the commonest cause being a checkout that has not fetched that commit
+- **THEN** the family MUST report a skip saying so, and MUST NOT report it as the repository declaring no bundle
+- **AND** the same MUST hold for the commit a tag peels to, so a tag pointing at an unfetched commit is never reported as a tag pointing at a commit that declares nothing — this is the conflation `verify_tag` is filed for at #338, and a family that repeated it would be reporting the benign case in the serious case's words
+
+#### Scenario: A repository declares no bundle
+- **WHEN** a repository in scope carries no declared contract bundle at all
+- **THEN** the family MUST report a skip naming the reason, never an empty pass
+
+#### Scenario: Version control cannot answer
+- **WHEN** the git dependency is unavailable, the repository's tag refs cannot be listed, or the declaring commit cannot be resolved
+- **THEN** the family MUST report a skip naming which of those it was, never a finding
+- **AND** the family MUST NOT read a tag's existence from a local ref alone where the published refs could not be consulted, because an unpushed local tag is not a published tag
 

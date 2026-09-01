@@ -377,6 +377,33 @@ _DISCHARGED_SCENARIO_SUBJECT = (
 _RENAME_DESTINATION = "Tile-bound gate verbs hide on a composed view"
 
 _LEDGER_SUBJECTS = {
+    # ADDED 2026-09-01 BY `add-chain-attestation`, TRANCHE TWO of the
+    # signed-execution-chain arc, whose proposal merged to `main` via PR #510
+    # without this ledger moving with it — which is why every openxFactory pull
+    # request read one unnamed subject until this row landed. A DELIBERATE
+    # GENERALIZATION, and the only one the corpus admits: canon states this
+    # requirement in TRANCHE-ONE terms — the gate validates "links 1–3" — and a
+    # packet that puts links 4–6 in force cannot restate that sentence without
+    # falsifying its own delta. The nine units this arm reports as uncarried
+    # are exactly the nine the generalization rewrites, each with a successor
+    # in the block that says MORE and never less. Five body units: the gate's
+    # operating sentence, now "EVERY LINK THE RATIFIED TRANCHES OF THIS
+    # CAPABILITY HAVE PUT IN FORCE — links 1–3 at tranche one, and LINKS 1–6
+    # from tranche two"; the DERIVATION AND COMPARISON sentence; the
+    # THE LIST IS CLOSED sentence; the enforcement table; and the
+    # out-of-scope sentence, whose "scope at this tranche is links 1–3" becomes
+    # "NO RATIFIED TRANCHE HAS YET PUT IN FORCE". Four scenario bullets: the
+    # `WHEN any of links 1–3 is absent` bullet of `a link is missing`, restated
+    # as "any link a ratified tranche has put in force"; and all three bullets
+    # of canon's `a tranche-two link does not exist yet`, which the block
+    # re-titles `a link no ratified tranche has yet put in force is absent` and
+    # re-states over the in-force set. Every other promoted unit of the 58,
+    # including the other eight scenarios, is carried verbatim. This arm cannot
+    # distinguish a deliberate generalization from drift and does not claim to;
+    # the finding is INFO and it is the audit trail for the restatement.
+    # Retires when the packet archives and its block is promoted.
+    ("add-chain-attestation", "signed-execution-chain",
+     "A gate validates the short chain as a hash-linked chain"),
     ("add-composed-view-authoring", "ideation-dashboard",
      "Composed views are read-only with a repository jump"),
     ("add-doxchat-model-intake", "ideation-dashboard",
@@ -398,6 +425,18 @@ _LEDGER_SUBJECTS = {
     # promoted.
     ("add-credential-escrow-checkout", "credential-contracts",
      "Canonical credential record shapes"),
+    # REMOVED 2026-09-01 BY THE ARCHIVE ACT — ('add-release-tag-publication-
+    # check', 'doc-health', 'Deterministic check families'). Added 2026-08-31 as
+    # the twenty-third family's packet restated the enumeration to add itself,
+    # and RETIRED ON SCHEDULE: its own note said "retires when the packet
+    # archives and its block is promoted", and the packet archived to
+    # `openspec/changes/archive/2026-09-01-add-release-tag-publication-check/`
+    # with the block PROMOTED. Canon's "Deterministic check families" now states
+    # `twenty-three check families` and `Four of the twenty-three` — the two
+    # units the finding named as uncarried — and the family excludes
+    # `openspec/changes/archive/` in its reader by construction, so no finding
+    # can name the archived packet. A subject that retires exactly when its note
+    # said it would is the arm working, not the arm going quiet.
     # REMOVED 2026-08-27 BY THE ARCHIVE ACT — ('add-modified-block-currency-
     # check', 'doc-health', 'Deterministic check families'). THE SELF-FINDING,
     # and the second time this gate fell due. It was expected evidence that the
@@ -517,6 +556,16 @@ _LEDGER_SUBJECTS = {
     # `mbc.carried` returns the UNCARRIED units, and it returns none here.
     # This is the designed behaviour end to end — real movement, detected by
     # name, remedied by re-measuring. `_moved()`'s message is what said so.
+    # ADDED 2026-09-01 BY `add-chain-attestation`, tranche two of the
+    # signed-execution-chain family, ratified 2026-09-01 (review/
+    # ratification-2026-09-01.md, re-ratified same day). Its active MODIFIED
+    # block for this requirement does not yet carry 9 of the 58 body units
+    # and scenario bullets canon states for it — links 4–6/10's gate-scope
+    # extension is ratified but not yet realized. Expected editorial drift,
+    # not a regression; retires when the packet's realization lands and the
+    # block is promoted.
+    ("add-chain-attestation", "signed-execution-chain",
+     "A gate validates the short chain as a hash-linked chain"),
 }
 
 _OWN_CHANGE = "add-modified-block-currency-check"
@@ -798,13 +847,23 @@ def test_the_scenario_arm_reads_zero_since_the_rename_was_declared():
     this file measures, the flip is a delta.
     """
     change, capability, requirement, scenario = _DISCHARGED_SCENARIO_SUBJECT
-    warnings = [f for f in _findings() if f.severity == WARNING]
+    # **RE-AIMED TWICE, AND THE SECOND RE-AIM IS THE HONEST ONE.** As written
+    # this read `f.severity == WARNING`, which WAS the scenario arm's band. Two
+    # later acts each falsified that reading without reddening it: § 7.2's flip
+    # (`7f656980`, 2026-08-31) moved `_LAUNCH_SEVERITY` to `error`, so the
+    # filter stopped selecting this arm at all; and
+    # `govern-sibling-added-modified-deltas` added two `warning` classes, so it
+    # would have started selecting THEIRS and failed with this arm's message
+    # over another class's finding. The filter is now the CLASS, which is what
+    # the assertion was always about.
+    scenario_arm = [f for f in _findings()
+                    if mbc.classify(f) == mbc.CLASS_TITLES]
 
-    assert not warnings, _moved(
+    assert not scenario_arm, _moved(
         f"the scenario-title arm's population (EMPTY since {change} declared "
         f"its rename of {scenario!r} on 2026-08-27)",
-        f"{len(warnings)} warning(s): "
-        f"{[(_subject(f), f.rule[:80]) for f in warnings]}")
+        f"{len(scenario_arm)} finding(s): "
+        f"{[(_subject(f), f.rule[:80]) for f in scenario_arm]}")
 
     # THE DISCHARGE ITSELF, read back through the family rather than assumed.
     # The block is found by the same (change, capability, requirement) triple the
@@ -836,7 +895,7 @@ def test_the_scenario_arm_reads_zero_since_the_rename_was_declared():
 
 
 def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
-    """PACKET § 4.1's editorial arm, as an EXACT SET of seven named subjects.
+    """PACKET § 4.1's editorial arm, as an EXACT SET of eight named subjects.
 
     COMPARED WITH `==`, NOT `<=`, and the reason is the family's own subject: a
     subset comparison would let a newly lossy MODIFIED block land unreported,
@@ -860,7 +919,9 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
         "since the OD-2 veto of 2026-08-28 gave add-credential-escrow-checkout "
         "a MODIFIED block; 8 since the two doc-health-floor packets archived "
         "together; 7 since add-notebook-projection-identity archived on "
-        "2026-08-31 and its block promoted byte-identical)",
+        "2026-08-31 and its block promoted byte-identical; 8 since "
+        "add-chain-attestation's proposal merged 2026-09-01 via #510's "
+        "landing, its MODIFIED block resolving canon)",
         f"{len(gone)} named subject(s) NO LONGER reported "
         f"{sorted(gone)}; {len(fresh)} unnamed subject(s) NEWLY reported "
         f"{sorted(fresh)}")
@@ -889,6 +950,13 @@ def test_the_resolution_ordering_and_marker_classes_read_zero_over_the_real_tree
     all reportable, and the packet's § 6.7 measured the ordering arm at zero
     twice — once under the withdrawn date reading and once under the ruled
     by-declaration one.
+
+    **THIS TEST DOES NOT COVER THE TWO CLASSES
+    `govern-sibling-added-modified-deltas` ADDS**, and saying so is the point:
+    both also read zero over this tree today, and a zero folded in here would
+    have been a zero nobody could tell from a class that was never measured.
+    They get their OWN assertions, each with its own positive control, in the
+    two tests below. § 2.11 and § 3.3.
     """
     source = _joined_source(mbc)
     unresolved_probe = "resolves to no promoted requirement"
@@ -949,6 +1017,155 @@ def test_the_resolution_ordering_and_marker_classes_read_zero_over_the_real_tree
     assert [f for f in findings if f.severity not in (WARNING, INFO)] == [], (
         "this family launched advisory: every finding is `warning` or `info`, "
         "so a run configured --fail-on error is unaffected by construction")
+
+
+# ============================================================================
+# 3b. THE TWO CLASSES `govern-sibling-added-modified-deltas` ADDS
+#     (§ 2.11 and § 3.3) — each an EXACT SET, each with a POSITIVE CONTROL
+# ============================================================================
+#
+# THE PAIRING CLASS'S STANDING SUBJECTS, AS A NAMED EXACT SET BESIDE
+# `_LEDGER_SUBJECTS` AND UNDER THE SAME MOVEMENT DISCIPLINE.
+#
+# **IT LAUNCHES EMPTY, AND THAT IS THE ROUTE THE PACKET CHOSE RATHER THAN LUCK.**
+# D4 sequences § 6 BEFORE this feature: where a repository carries undeclared
+# pairings at the moment the check is introduced they are declared BY MARKER
+# first, so the class launches at a population of zero — a finding never emitted
+# never vanishes and owes no citation, which matters here because the family is
+# `contested` (`families.py`, since `7f656980`) and a `contested` finding that
+# VANISHES re-emits through `report.uncited_resolutions` as an `error`.
+#
+# **THE SWEEP LANDED AT `3a6a16e9` (PR #538, 2026-08-31)**, and the corpus's four
+# standing pairs are now three declared ones and one archived one:
+#
+#   * `add-wallet-carried-review-authority` over `add-substantive-review-lane`,
+#     `implement-keycloak-install-repo` over `add-identity-brokering` and
+#     `implement-openxpki-install-repo` over `add-trust-anchor` each carry ONE
+#     `Modified over` marker whose basis adds the title, whose `by` identifier is
+#     the carrying change and whose reason clause is nonempty, over a `ratified`
+#     basis — DECLARED AND RESOLVING, and silent by design.
+#   * `add-binding-consumer-identity` over
+#     `add-notebook-hosting-credential-custody` is gone from the pending set
+#     entirely: PR #541 archived both on 2026-08-31, in the SAFE order, so the
+#     requirement is promoted and the block resolves `canon`.
+#
+# SO THE SET IS EMPTY AND THE POSITIVE CONTROL IS WHAT KEEPS IT HONEST. An empty
+# band alone is the weakest assertion in this file — a broken reader produces it
+# too — so the control below reads the real tree's own pending blocks through the
+# family's own readers, asserts each is silent for the RIGHT reason, and then
+# strips one block's marker and asserts the class reports it.
+#
+# **WHEN A ROW RETURNS**, put its `(change, capability, requirement)` triple here
+# with its own retirement condition, which is one of two acts and never a
+# disposition: the row retires when its declaring block CARRIES A MARKER, or when
+# its adding sibling ARCHIVES. § 6.4 bounds the disposition exception, and a row
+# discharged by an entry rather than by a marker is not a retirement.
+_PAIRING_SUBJECTS = set()
+
+
+def test_the_sibling_pairing_class_reads_its_named_exact_set_over_the_real_tree():
+    """§ 2.11. THE EXACT SET, `==` and never `<=`, on `_LEDGER_SUBJECTS`'s own
+    discipline — and it launches EMPTY because § 6 declared the population
+    first.
+
+    Both directions fail by name: a pair that stops being reported and a pair
+    that starts being reported are different facts about the corpus, and neither
+    is mistaken for the other.
+    """
+    seen = {_subject(f) for f in _findings()
+            if mbc.classify(f) == mbc.CLASS_PAIRING}
+    gone = _PAIRING_SUBJECTS - seen
+    fresh = seen - _PAIRING_SUBJECTS
+
+    assert not gone and not fresh, _moved(
+        "the sibling-pairing population (EMPTY at launch: the four standing "
+        "pairs were three declared by the § 6 sweep at `3a6a16e9` (PR #538) "
+        "and one archived in the safe order by PR #541)",
+        f"{len(gone)} named subject(s) NO LONGER reported {sorted(gone)}; "
+        f"{len(fresh)} unnamed subject(s) NEWLY reported {sorted(fresh)}")
+
+
+def test_the_sibling_pairing_class_is_silent_for_the_right_reason():
+    """THE POSITIVE CONTROL FOR THE EMPTY SET ABOVE, in two halves, because an
+    empty band is produced by a working check and by a broken one alike.
+
+    **HALF ONE — THE PENDING BLOCKS EXIST AND ARE DECLARED.** The tree really
+    does carry blocks of this shape, they are found through the family's OWN
+    resolver, and every one of them is silent because it is DECLARED AND
+    RESOLVING rather than because nothing was looked at.
+
+    **HALF TWO — STRIP ONE MARKER AND THE CLASS REPORTS.** Rebuilt through the
+    family's own `ActiveBlock`, with the block's units, renames and standing
+    untouched and its markers emptied. That is the state the corpus was in
+    before the sweep, and it is the assertion that would fail on a classifier
+    that had quietly stopped classifying.
+    """
+    blocks = mbc.active_blocks(ROOT)
+    siblings = mbc.sibling_titles(ROOT)
+    pending = [b for b in blocks
+               if mbc.resolve(b, mbc.promoted(ROOT, b.capability),
+                              siblings)[1] == "pending"]
+    assert pending, _moved(
+        "the tree's pending MODIFIED blocks (3 at `1c1dcbbe`, after the § 6 "
+        "sweep and PR #541's archive)",
+        "no block of this shape was found at all, so the silence below says "
+        "nothing about the check — resolve the resolver before the class")
+
+    undeclared = [b for b in pending if mbc._pairing_state(b, siblings)]
+    assert not undeclared, _moved(
+        "every pending block DECLARED AND RESOLVING",
+        f"{[(b.change, b.title, mbc._pairing_state(b, siblings)[0]) for b in undeclared]}")
+
+    stripped = mbc.ActiveBlock(pending[0].change, pending[0].capability,
+                               pending[0].title, pending[0].delta_rel,
+                               pending[0].units, [], pending[0].renames,
+                               pending[0].standing)
+    state = mbc._pairing_state(stripped, siblings)
+    assert state is not None and state[0] == "undeclared", (
+        "with its marker removed the corpus's own pending block must be "
+        f"reported UNDECLARED; the check returned {state!r}")
+
+
+def test_the_added_over_canon_collision_class_reads_zero_over_the_real_tree():
+    """§ 3.3. ZERO, AND A POSITIVE CONTROL — a class whose population is zero
+    and whose only test asserts zero is a class no test proves exists.
+
+    The zero is the measured fact the packet's § 4.3 records: of this tree's
+    active `## ADDED Requirements` blocks none names a title the promoted
+    specification already carries, and its active `## RENAMED Requirements`
+    pairs name no `TO:` title canon carries either.
+
+    THE CONTROL IS DRIVEN BY THE CORPUS'S OWN ADDITIONS, not by a constructed
+    finding: it takes a real active ADDED title and a promoted index that
+    carries it, and runs the family's own emit. Nothing is monkeypatched and no
+    document is written.
+    """
+    collisions = [f for f in _findings()
+                  if mbc.classify(f) == mbc.CLASS_COLLISION]
+    assert collisions == [], _moved(
+        "the added-over-canon collision class (0 at `1c1dcbbe`, the class's "
+        "own branch point)",
+        f"{[f.rule[:200] for f in collisions]}")
+
+    siblings = mbc.sibling_titles(ROOT)
+    key = next((k for k in sorted(siblings)
+                if any(b.kind == "added" for b in siblings[k])), None)
+    assert key is not None, _moved(
+        "at least one active `## ADDED Requirements` block on this tree",
+        "no active change adds a requirement at all, so the control below "
+        "would prove nothing about the class")
+    capability, title = key
+    carried = {title: mbc.PromotedRequirement(
+        capability, title, mbc.CANON_TEMPLATE.format(capability=capability),
+        [])}
+    induced = mbc._collision_findings(
+        "openxFactory", siblings,
+        lambda cap: carried if cap == capability else None, {})
+    assert induced, (
+        "the collision class did not fire over a promoted index that DOES "
+        "carry an active addition's title, so the zero above is a zero the "
+        "class could not have moved off")
+    assert {mbc.classify(f) for f in induced} == {mbc.CLASS_COLLISION}
 
 
 # ============================================================================
@@ -1044,12 +1261,15 @@ def test_the_archived_block_still_resolves_to_canon_and_no_active_writer_holds_i
     requirement rather than two. All three are asserted here about the tree as
     it now stands, with the block read at its archived path.
 
-    THE THIRD CLAIM CHANGED ITS NUMBER, AND THAT IS THE POINT. There is now
-    ZERO active writer on `Deterministic check families`, because the last one
-    promoted. The twenty-third family's packet makes it one again and this
-    assertion falls due on that branch, which is correct: `_moved()` says what
-    to do, and a second active writer beside it is precisely the
-    by-declaration case the ordering arm exists for.
+    THE THIRD CLAIM CHANGED ITS NUMBER TWICE, AND THAT IS THE POINT. It fell to
+    ZERO when the last writer promoted, and this docstring said then that "the
+    twenty-third family's packet makes it one again and this assertion falls due
+    on that branch, which is correct". IT DID, ON 2026-08-31:
+    `add-release-tag-publication-check` holds the requirement, the assertion
+    fell due exactly as predicted, and `_moved()` was followed rather than the
+    number being edited to match. ONE writer is still not the by-declaration
+    case — that needs TWO — so the override and ordering assertions are
+    unmoved.
 
     NO COUPLING TO CANON'S TEXT, DELIBERATELY. This asserts that canon CARRIES
     the requirement, never what canon says about it — canon's wording moves with
@@ -1093,9 +1313,15 @@ def test_the_archived_block_still_resolves_to_canon_and_no_active_writer_holds_i
     assert ordering == [], _moved(
         "the ordering arm's silence on this requirement",
         f"{[f.rule[:160] for f in ordering]}")
+    # BACK TO ZERO 2026-09-01, BY THE ARCHIVE ACT. It went one on 2026-08-31
+    # when the twenty-third family's packet restated the enumeration to add
+    # itself, exactly as this docstring predicted it would, and RETURNED as that
+    # note said it would when the packet archived and its block promoted. Two
+    # re-aims in two days, both predicted in writing before they happened, is
+    # the shape this assertion is for.
     assert len(group) == 0, _moved(
-        f"the number of ACTIVE writers on {_OWN_TITLE!r} — zero since this "
-        f"packet archived on 2026-08-27",
+        f"the number of ACTIVE writers on {_OWN_TITLE!r} — zero again since "
+        f"the archive act of 2026-09-01",
         f"{len(group)}: {sorted(b.change for b in group)} — a new writer holds "
         f"the requirement, and with TWO the by-declaration rule applies and "
         f"this test's premise changes")
@@ -1456,10 +1682,22 @@ def test_the_gate_reaches_the_corpus_only_through_the_family():
     # against the corpus. The control is therefore pinned to the two constants
     # apart — the probe IS the finding's wording and is NOT the row's. Two more
     # names, and still not one regex more below.
+    # `classify`, `CLASS_TITLES`, `CLASS_PAIRING`, `CLASS_COLLISION`,
+    # `PromotedRequirement`, `CANON_TEMPLATE`, `_pairing_state` and
+    # `_collision_findings` joined the list on 2026-09-01 with
+    # `govern-sibling-added-modified-deltas`. Seven of the eight are the two new
+    # classes' own assertions and their positive controls; `classify` and
+    # `CLASS_TITLES` are the RE-AIM of the scenario-arm pin, which had been
+    # selecting on a band that stopped being that arm's at `7f656980` and would
+    # have started selecting the new classes' instead. Eight more names, and
+    # still not one regex more below.
     allowed = {"ActiveBlock", "active_blocks", "declarations", "derive_units",
                "fam_modified_block_currency", "norm", "parse_delta",
-               "promoted", "resolve", "sibling_titles",
-               "DELTA_GLOB", "FAMILY", "SCENARIO_TITLE", "_MARKER_ACTION",
+               "promoted", "resolve", "sibling_titles", "classify",
+               "PromotedRequirement",
+               "DELTA_GLOB", "FAMILY", "SCENARIO_TITLE", "CANON_TEMPLATE",
+               "CLASS_TITLES", "CLASS_PAIRING", "CLASS_COLLISION",
+               "_MARKER_ACTION", "_pairing_state", "_collision_findings",
                "_arm_ordering", "_DRIFT_RULE", "_UNCLASSIFIED_LINE"}
     # OVER CODE, NOT OVER PROSE. This test's own docstring claimed "matched on
     # use" while doing the opposite: naming any family attribute in a docstring

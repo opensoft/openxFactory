@@ -1,0 +1,103 @@
+# expected_failure: links_1_3_only_after_tranche_two
+# VIOLATES the in-force scope: the terminal act is PERMITTED for a chain presenting
+# the ratification links and NO ATTESTATION LINKS AT ALL.
+#
+# Links 4-6 are in scope FROM THIS TRANCHE and are no longer 'a later tranche's
+# link'. Tranche one's scope note was written for the period before this tranche
+# existed and is not available as a permission after it — the chain here carries not
+# one signed tranche-two record, and the permitted links_1_6 verdict over it is the
+# contradiction the rule names.
+schema_version: 1
+kind: xfactory_signed_execution_chain_remediation_declaration
+declaration_id: rem-neg-links13
+chain_ref: sha256:4cda62462f5bd7967300d5429653ad46f14c44756ce770cf814b3a618cd3b137
+remediates:
+  chain_ref: sha256:0e7ae026745c6e272309b75afa55b155eb20565cc81f3c9d6c80c8432b5d7325
+  failed_closure_ref: clo-unclosed-0001
+  failure_class: failed
+  statement: Fixture scaffolding so the chain exists in scope while carrying no signed record.
+covered_by_ratifying_signature: true
+inherits_exemption: false
+promotion_claimed: false
+declared_at: '2026-09-01T22:25:00Z'
+leaf_ref: leaf-0046
+---
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-0046
+leaf_index: 46
+tree_size: 47
+chain_ref: sha256:4cda62462f5bd7967300d5429653ad46f14c44756ce770cf814b3a618cd3b137
+leaf_type: remediation_declaration
+recorded_at: '2026-09-01T22:25:30Z'
+payload_ref: rem-neg-links13
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: remediation_declaration
+  value: sha256:4b37ffa60d78c243dca030ba40b082d4b6d63c4265f65c3d0eca744def20c0a0
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:f698c2fb50ae9d3564d458e61f5becb46178064197d05cca91b02afb5bdcb7c2
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:448285246f284032dcc5dd3e68b3b6d75a94729cffd420b425c7afaec2fb1081
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-t5
+  signed_over: leaf_content
+  signature: B4isYspJueDKv-noNiB91rIWlsKI-ZeLRa0VFAXR7ZuM5YJR3FJir3wqTJMwFeHSCdVY7lnSon2GYVPNktwGCg
+---
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-0047
+leaf_index: 47
+tree_size: 48
+chain_ref: sha256:4cda62462f5bd7967300d5429653ad46f14c44756ce770cf814b3a618cd3b137
+leaf_type: gate_verdict
+recorded_at: '2026-09-01T22:26:00Z'
+payload_ref: vdt-neg-links13
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: gate_verdict
+  value: sha256:5ec339eb27d6149214e169f84dcd197765bb9d30510fbc6942d333c04a174156
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:448285246f284032dcc5dd3e68b3b6d75a94729cffd420b425c7afaec2fb1081
+verdict:
+  outcome: permitted
+  scope: links_1_6
+  checks:
+  - check: ratification_signature_verifies
+    outcome: pass
+  - check: chain_identity_recomputes
+    outcome: pass
+  - check: exercise_object_ref_is_content_digest
+    outcome: pass
+  - check: inception_leaf_commits_to_chain_identity
+    outcome: pass
+  - check: traveling_contract_carries_established_values
+    outcome: pass
+  - check: actor_bound_to_signing_wallet
+    outcome: pass
+  - check: proof_of_possession_supplied_and_verified
+    outcome: pass
+  - check: standing_and_holder_class_at_exercise
+    outcome: pass
+  - check: setup_attestation_established_and_committed
+    outcome: pass
+  - check: runner_attestations_equal_the_committed_expectation
+    outcome: pass
+  - check: open_decision_binds_chain_and_pull_request
+    outcome: pass
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:44aa7028345fc2fa1955a254908fa78e28343c8aad251ff52663166751c39ef2
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-t5
+  signed_over: leaf_content
+  signature: RE6oX0527P42LfQn4MPHD9bqBssCS28fXKw36kUU7hN0IYiFlKhJMGKfaQsbrfAFCpCPsf_dWhflDHvMWho0AA

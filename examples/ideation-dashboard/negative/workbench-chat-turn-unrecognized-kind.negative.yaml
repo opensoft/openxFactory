@@ -1,0 +1,59 @@
+# INVALID (kind): a chat-turn `kind` this release does not serve.
+#
+# THE NEW REFUSAL THE REMOVAL CREATED (contract-v3.0,
+# retire-doxbench-chat-turn-v1 task 4.5). Until this release an unrecognized or
+# absent `kind` was COERCED into the deprecated v1 family and answered there.
+# The family is gone, so the coercion is gone: the route now refuses in the
+# SURVIVING family with the explicit `unrecognized_turn_kind` code, and this
+# instance is what the wire carries on the way IN.
+#
+# THE KIND HERE IS DELIBERATELY A RETIRED ONE. `workbench-chat-turn` was a
+# served request kind from contract-v1.31 until this release. After the removal
+# a retired kind and a kind that never existed are the SAME fact about the wire,
+# and this fixture is the packaged proof: nothing in the released file matches
+# it, so the closed top-level `oneOf` refuses it exactly as it refuses a kind
+# that was never spelled at all. That is also why no fixture pairs it with a
+# "this used to work" message — the surviving contract has no vocabulary for
+# "removed at a major", and the migration path lives in the CHANGELOG where a
+# consumer upgrading across the major actually reads it.
+{
+  "schema_version": 1,
+  "kind": "workbench-chat-turn",
+  "client_turn_id": "turn-v2-0009",
+  "scope": {
+    "repository": "openxFactory",
+    "ref": "doxbench/session/demo-topic",
+    "tile_kind": "staged",
+    "tile_id": "demo-topic"
+  },
+  "bound_buffer": "ideation/staging/demo-topic/note.md",
+  "working_subject": "Clarify the acceptance boundary",
+  "message": "Which open question should we close next?",
+  "model_id": "local-authoring-1",
+  "last_assistant_turn_id": null,
+  "transcript": [],
+  "buffers": [
+    {
+      "kind": "outline",
+      "repository": "openxFactory",
+      "path": "ideation/staging/demo-topic/demo-topic.md",
+      "base_ref": "doxbench/session/demo-topic",
+      "base_revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "base_hash": "74d2e440df9974e0c1d82412165e497bb95611142b3ed1235c0bd74b3c2277ba",
+      "content_hash": "74d2e440df9974e0c1d82412165e497bb95611142b3ed1235c0bd74b3c2277ba",
+      "content": "# Demo topic\n\nOutline line.\n",
+      "dirty": false
+    },
+    {
+      "kind": "document",
+      "repository": "openxFactory",
+      "path": "ideation/staging/demo-topic/note.md",
+      "base_ref": "doxbench/session/demo-topic",
+      "base_revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "base_hash": "9859eb7d779f1dee12579980045bb94ecbc2cc487d8160aa239bc1bfe3416825",
+      "content_hash": "9859eb7d779f1dee12579980045bb94ecbc2cc487d8160aa239bc1bfe3416825",
+      "content": "# Note\n\nBody.\n",
+      "dirty": false
+    }
+  ]
+}

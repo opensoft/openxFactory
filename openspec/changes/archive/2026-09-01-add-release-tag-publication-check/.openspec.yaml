@@ -1,0 +1,33 @@
+schema: spec-driven
+created: 2026-08-31
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-31-add-release-tag-publication-check
+  reason: >-
+    Commissioned in-session by Brett on 2026-08-31, verbatim: "take 528". Not a
+    staged ideation topic — none exists, searched across `ideation/staging/` and
+    its INDEX. The forcing observation is issue #528, filed the same day after
+    `contract-v2.3` and `contract-v2.4` were both found declared-and-untagged by
+    hand. `docs/contract-versioning-policy.md` holds that "a bundle is not
+    published until its tag exists" and that the rule "WAS NEVER ADVISORY,
+    INCLUDING WHILE IT WAS BEING BROKEN" — and nothing anywhere checks it. No
+    workflow calls the release validator; `verify_tag` is exercised only by unit
+    tests over synthetic repositories; `release-surface-integrity` deliberately
+    does not anchor on tags so its own drift obligation stays evaluable for the
+    window before a tag exists; and `tag-hygiene` is a different family
+    entirely, enforcing `document-lifecycle`'s prose-tag grammar over document
+    text. The same shape reached `contract-v1.33`, `contract-v1.35` and
+    `contract-v1.39` in August and needed a ruling to discharge. It has now
+    recurred, and both times a human found it.
+  approved_by: >-
+    Brett — in-session commissioning of the work on #528. This records
+    authorization for the DECISION TO BUILD A CHECK, which is what the
+    proposal's `Proposed:` line cites. The five design decisions the authoring
+    session took — D1 (a new requirement rather than a MODIFIED block on
+    Release-inventory drift), D2 (a new family rather than a finding class
+    inside that one), D3 (the severity window and its threshold), D4 (what the
+    check asserts about the tag's target) and D5 (not building on `verify_tag`
+    while #338 stands) — are NOT covered by that authorization and are flagged
+    for veto in § Orchestrator Decisions. D3's threshold in particular is a
+    NUMBER THE AUTHORING SESSION SHOULD NOT PICK.
+  approved_on: 2026-08-31

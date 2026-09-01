@@ -1,0 +1,157 @@
+schema_version: 1
+kind: openxfactory-signed-execution-chain-contract-schema
+name: xfactory_signed_execution_chain_runner_attestation
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/runner-attestation.schema.yaml"
+contract_id: signed-execution-chain-runner-attestation
+contract_schema_version: 1
+title: Runner attestation (link 5), with the signing request recorded beside it
+description: >-
+  WHAT ACTUALLY RAN — this model, at this version, under this harness — AND
+  NOTHING ABOUT WHO PERMITTED IT (`add-chain-attestation`, requirements "A runner
+  attestation is produced at the controller, on a recorded request" and "The
+  controller corroborates what it signs and never notarizes self-report").
+
+  THIS IS Q7 AS RULED, by Brett Heap on 2026-08-29, AS RECOMMENDED: attestation
+  signatures happen BY REMOTE SIGNING SERVED BY THE HARNESS CONTROLLER, with the
+  runner's request RECORDED BESIDE the signature and the controller CORROBORATING
+  the payload against its own link-4 setup attestation. An HSM is a LATER
+  HARDENING OF THE SAME SHAPE — it moves where the key sits and changes nothing
+  the chain carries — so adopting one requires no change to this record.
+
+  THE REQUEST IS RECORDED BECAUSE A BARE SIGNATURE ANSWERS HALF THE QUESTION. A
+  signature shows WHAT was attested; the recorded request shows WHO ASKED.
+  `signed_attestation.signing_request` is REQUIRED, and an attestation carrying no
+  recorded request is REFUSED rather than accepted as an attestation with a detail
+  missing. RECORDING IS NECESSARY AND NOT SUFFICIENT: the controller ATTRIBUTES
+  the request TO THE TASK IT PROVISIONED IN LINK 4, REFUSES one it cannot so
+  attribute, and covers the attribution — requester, chain identity and the DIGEST
+  OF THE PAYLOAD — INSIDE THE BYTES IT SIGNS. The attribution comes from the
+  controller's OWN PROVISIONING and never from what the runner says about itself;
+  a self-reported asker is refused on the same ground as a self-reported
+  measurement.
+
+  BIND BEFORE SIGN. A signature at the controller boundary proves only that the
+  controller signed the bytes it was given, so the model, version and harness of
+  this record are CORROBORATED AGAINST LINK 4 rather than accepted from the
+  runner. Q7's ruling settles WHERE THE KEY LIVES; it never settles whether the
+  claims are checked, and this is the half the mechanism does not discharge. A
+  payload disagreeing with what link 4 records as provisioned makes the controller
+  REFUSE TO SIGN — a signature is never produced and then flagged, because a
+  signed record with a warning beside it still chains.
+
+  MEASUREMENTS ONLY THE RUNNER CAN SEE ARE LABELLED, NEVER LAUNDERED. Every
+  attested fact carries its EVIDENCE CLASS and A FACT CARRYING NO CLASS IS
+  REFUSED — a class that can be omitted is a class that will be, and an unclassed
+  fact is read at the strength of the strongest fact beside it. The class TRAVELS
+  WITH THE FACT: a downstream consumer that quotes or aggregates a
+  `runner_claimed` fact as though it were corroborated is refused, because the
+  controller's signature over the record is not evidence for the claims the record
+  itself labels unverified.
+
+  THE SIGNER IS A PER-TASK TIER-2 IDENTITY AND NOTHING ELSE MAY SIGN THIS RECORD.
+  That identity is valid for ONE TASK, its closed enumeration names THIS record
+  kind and no other, and the CHAIN-SCOPED identity offered here is REFUSED with
+  the same force as a record signed under no tier-2 identity at all — a record
+  about ONE TASK is outside a chain-scoped identity's enumeration. Reuse across
+  two tasks is refused on the strength of the scope and never excused by the
+  identity still being unexpired.
+
+  SIGNER IDENTITY IS `add-identity-brokering`'s VOCABULARY, AND WHAT THAT
+  VOCABULARY CONTRIBUTES HERE IS A REFUSAL: a tier-2 attestation identity is a
+  WORKLOAD, so it is never represented as a persona and NEVER APPEARS AS THE ACTOR
+  of a governed act. The human actor a chain records remains link 1's stable
+  opaque subject, bound to the wallet that signed. Tier 2 answers WHAT RAN; tier 1
+  answers WHO PERMITTED; neither stands in for the other.
+type: object
+required:
+  - schema_version
+  - kind
+  - attestation_id
+  - chain_ref
+  - signed_attestation
+  - attestation_signature
+  - attested_at
+  - leaf_ref
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [xfactory_signed_execution_chain_runner_attestation]
+  attestation_id: {$ref: '#/$defs/identifier'}
+  chain_ref: {$ref: '#/$defs/chain_ref'}
+  signed_attestation: {$ref: '#/$defs/signed_attestation'}
+  attestation_signature:
+    allOf:
+      - {$ref: '#/$defs/signature_block'}
+      - properties: {signed_over: {const: signed_attestation}}
+        required: [signed_over]
+  attested_at: {type: string, format: date-time}
+  leaf_ref: {$ref: '#/$defs/identifier'}
+  record_version: {type: integer, minimum: 1}
+  notes: {type: string, maxLength: 1400}
+$defs:
+  identifier:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/attestation-common.schema.yaml#/$defs/identifier"
+  digest:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/attestation-common.schema.yaml#/$defs/digest"
+  chain_ref:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/attestation-common.schema.yaml#/$defs/chain_ref"
+  signature_block:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/attestation-common.schema.yaml#/$defs/signature_block"
+  predecessor:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/attestation-common.schema.yaml#/$defs/predecessor"
+  attested_fact:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/attestation-common.schema.yaml#/$defs/attested_fact"
+  signing_request:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/attestation-common.schema.yaml#/$defs/signing_request"
+  signed_attestation:
+    # THE EXACT BLOCK THE TIER-2 SIGNATURE COVERS. The recorded request and its
+    # attribution are INSIDE IT, because an attribution attachable afterwards is an
+    # attribution anyone can attach.
+    type: object
+    required:
+      - chain_ref
+      - digest_construction
+      - predecessor
+      - task_ref
+      - identity
+      - signing_request
+      - attested_facts
+      - signed_where
+    additionalProperties: false
+    properties:
+      chain_ref: {$ref: '#/$defs/chain_ref'}
+      digest_construction: {type: string, const: xfc-jcs-sha256-1}
+      predecessor: {$ref: '#/$defs/predecessor'}
+      task_ref:
+        # THE STABLE PER-TASK REFERENCE CARRIED BACK. It must appear in link 4's
+        # committed expectation as extended, or the attestation is REFUSED
+        # (`attestation_for_uncommitted_task`) — so extension cannot be skipped by
+        # attesting anyway.
+        $ref: '#/$defs/identifier'
+      identity:
+        # THE TIER-2 IDENTITY THAT SIGNED, by its SIGNED CHAIN BINDING. The reader
+        # resolves the binding, then the certificate and issuance evidence it
+        # references, and REFUSES on any one missing with the FRAUD-SIGNAL force of
+        # a broken link — never as an unrecognised key.
+        type: object
+        required: [binding_ref, subject_scope]
+        additionalProperties: false
+        properties:
+          binding_ref: {$ref: '#/$defs/identifier'}
+          subject_scope: {type: string, const: per_task}
+      signing_request: {$ref: '#/$defs/signing_request'}
+      attested_facts:
+        type: array
+        minItems: 1
+        items: {$ref: '#/$defs/attested_fact'}
+      signed_where:
+        # WHERE THE SIGNATURE WAS PRODUCED. NOT a `const: harness_controller`: a
+        # record declaring `runner` is a record saying a runner produced its own
+        # signature, and that earns the NAMED refusal
+        # `attestation_signed_away_from_controller` — which names the custody
+        # breach rather than the signature's validity — instead of a schema error.
+        type: string
+        enum: [harness_controller, runner, lane, unrecorded]
