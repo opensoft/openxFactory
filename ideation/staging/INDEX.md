@@ -1908,9 +1908,10 @@ repo scope.
   Requirements` — 2 requirements over 17 scenarios, each scenario-complete: tranche
   one's gate requirement, and its ratification/chain-inception record extended
   with the three amendment-lineage fields closure reads. **THE §7.4 COUNCIL REVIEW IS HELD — 2026-08-30,
-  THIRTEEN blocking amendments, all discharged — AND RATIFICATION IS PENDING**, in
-  that order, on `add-binding-consumer-identity`'s pattern. **IT IS STILL A DRAFT
-  AND NOT RATIFIED.** **NOT recorded as `Exit taken:`**, on
+  THIRTEEN blocking amendments, all discharged — AND BRETT HEAP RATIFIED IT ON
+  2026-09-01**, in that order, on `add-binding-consumer-identity`'s pattern.
+  **RATIFICATION AUTHORIZES REALIZATION AND DOES NOT PERFORM IT**; the change stays
+  ACTIVE until merged code, green evidence and the contract cut exist. **NOT recorded as `Exit taken:`**, on
   the same ground tranche one recorded: that record silences
   `staged-candidate-aging` only when it names an ARCHIVED change, and this topic
   must keep ageing while tranche three is unraised. The packet realizes tranche

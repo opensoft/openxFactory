@@ -392,7 +392,11 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [add-chain-attestation](openspec/changes/add-chain-attestation/proposal.md)
-  — authored 2026-08-29, **`Status: draft` — NOT RATIFIED, filed FOR REVIEW**.
+  — authored 2026-08-29, **`Status: ratified` — RATIFIED 2026-09-01 by Brett
+  Heap** (record:
+  `openspec/changes/add-chain-attestation/review/ratification-2026-09-01.md`);
+  ratification authorizes realization and does not perform it, so the change
+  stays ACTIVE until merged code, green evidence and the contract cut exist.
   **TRANCHE TWO of the signed-execution-chain family: links 4–6 and 10** — the
   harness-controller setup attestation, the per-task runner attestations, the
   signed pull-request-open decision, and the governed post-merge test that CLOSES
@@ -418,8 +422,8 @@ Active changes:
   subject is that failure — an exemption that is **not inheritable** and that owes
   its own closure. **THE §7.4 COUNCIL REVIEW IS HELD** — 2026-08-30, four seats, UNANIMOUS 4/4 that
   the drafted text was not ratifiable, THIRTEEN blocking amendments, all
-  discharged, with the bundle filed at `review/`; **BRETT HEAP'S RATIFICATION IS
-  PENDING**, on the pattern `add-binding-consumer-identity` set the day before.
+  discharged, with the bundle filed at `review/`; **AND BRETT HEAP RATIFIED IT ON
+  2026-09-01** after eighteen bot rounds, on the pattern `add-binding-consumer-identity` set the day before.
   **THREE PULLS WERE RECORDED RATHER THAN SMOOTHED, AND THE SITTING DISCHARGED
   TWO OF THEM**: **Q4's re-derivation instruction** — later boundaries re-derived
   "when the omnigent layer and the PKI plane are real", and neither is — versus

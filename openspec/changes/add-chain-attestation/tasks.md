@@ -4,8 +4,9 @@ Governance-level and dependency-ordered. **This change is a DRAFT.** §1 is the
 pull request. **§2 (the §7.4 council review) and §3 (Brett Heap's ratification)
 are the two gates that stand between it and any realization, in that order.**
 **§2 IS HELD AND DISCHARGED — the sitting of 2026-08-30, its thirteen blocking
-amendments, and the fix round that landed them. §3 HAS NOT HAPPENED and is the
-next act.** §4 settles what must not reach schema authoring open; §5 is
+amendments, and the eighteen bot rounds that followed. §3 IS TAKEN — RATIFIED BY
+BRETT HEAP ON 2026-09-01.** Both gates are now behind this packet; what remains is
+§5's realization, gated on machinery that does not yet exist. §4 settles what must not reach schema authoring open; §5 is
 the realization commission and is gated on machinery that does not yet exist.
 
 Evidence convention, unchanged from the family's standard: a box closes on a FACT
@@ -714,10 +715,12 @@ that paperwork, the disposition included.
       one half, LS-A4, LQ-A8, LQ-A9, CPL-A5. **None is performed in this fix
       round**, and the omission is deliberate rather than overlooked.
 
-## 3. RATIFICATION GATE — **NEXT.** Brett Heap's act, NOT YET TAKEN
+## 3. RATIFICATION GATE — **TAKEN 2026-09-01.** Brett Heap's act
 
-- [ ] 3.1 Ratification by Brett Heap. **The review is HELD and the fix round it
-      forced is LANDED (§2), so this is the next act on this packet** — the
+- [x] 3.1 **RATIFIED BY BRETT HEAP, 2026-09-01** — record:
+      `openspec/changes/add-chain-attestation/review/ratification-2026-09-01.md`. The review was HELD and the
+      fix rounds it forced were LANDED (§2), and the ratification read followed
+      them — the
       ratification READ the disposition names at §8, taken against the amended
       text and not against the text the bench judged. The record lands at
       `review/ratification-<date>.md` with front-matter `Status: ratified` plus a
