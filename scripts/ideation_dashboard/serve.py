@@ -3609,6 +3609,16 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         # The v1 envelope's own field, absent from the widened one by
         # construction. Read as an OPTIONAL member so the widened lane has
         # nothing to read it from -- the point of the release, not an oversight.
+        #
+        # ALWAYS `None` SINCE contract-v3.0, and DELIBERATELY still read. The v1
+        # parser that could return it is gone with its family, so this is now a
+        # constant. It is not deleted because it is a member of the idempotency
+        # digest's canonical form below: dropping a key from that form changes
+        # the digest of every turn, which would strand every record already in a
+        # turn store behind a key nothing recomputes. A retirement that promises
+        # to touch nothing in the surviving family does not get to invalidate
+        # its stored answers on the way past. Retiring the key is a turn-store
+        # migration, not a schema removal, and it is not this change's.
         active_document_path = fields.get("active_document_path")
         bound_buffer_key = fields["bound_buffer_key"]
         success_kind = fields["success_kind"]
@@ -3689,13 +3699,14 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                 else:
                     # add-doxbench-editing-phase-b: the pair became a SET, and
                     # §13 released the wire that can say so. The DECLARED
-                    # binding arrives from the parser -- `bound_buffer` on the
-                    # widened envelope, the declared `active_document_path` on
-                    # the deprecated one -- and is never derived here from an
-                    # adjacent field, which is the mis-derivation Phase A's
-                    # review killed. A v1 turn that declares nothing passes
-                    # `None`, and the module's own rule then refuses a
-                    # path-backed document rather than guessing.
+                    # binding arrives from the parser as `bound_buffer` and is
+                    # never derived here from an adjacent field, which is the
+                    # mis-derivation Phase A's review killed. (Until
+                    # contract-v3.0 the deprecated envelope declared it as
+                    # `active_document_path` instead, and a v1 turn that
+                    # declared nothing passed `None`, on which the module's own
+                    # rule refused a path-backed document rather than guessing.
+                    # One lane is left and it always declares.)
                     doxbench_turns.revalidate_scope(
                         projection=projection, request_scope=key,
                         bound_buffer_key=bound_buffer_key,
@@ -3909,9 +3920,11 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         # same buffers and the same message but are bound to DIFFERENT documents
         # are different requests, and a digest that could not tell them apart
         # would replay one turn's answer for the other -- so `bound_buffer` joins
-        # the canonical form. The v1 lane's `active_document_path` stays exactly
-        # where it was, so its digests are unchanged; on that lane the two fields
-        # hold the same string anyway.
+        # the canonical form. `active_document_path` stays exactly where it was
+        # so digests are unchanged; it was the v1 lane's declared binding, and
+        # since contract-v3.0 it is a constant `None` here (see the read site).
+        # KEEPING A CONSTANT KEY IS THE POINT: removing it would move every
+        # digest and orphan every stored turn record.
         canonical = {
             "repository": scope_fields["repository"], "ref": scope_fields["ref"],
             "tile_kind": scope_fields["tile_kind"], "tile_id": scope_fields["tile_id"],

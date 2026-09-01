@@ -1285,9 +1285,16 @@ def test_the_gate_action_enum_gained_exactly_one_additive_member():
 
 
 def test_the_turn_record_gained_the_remint_fact_additively():
-    """Task 3.6's contract half. An OPTIONAL fact on the v2 success envelope
-    ONLY — the v1 envelope is deprecated and its promise is byte-identical
-    stability — carrying the REDACTED fact and nothing more."""
+    """Task 3.6's contract half. An OPTIONAL fact on the SUCCESS envelope only,
+    carrying the REDACTED fact and nothing more.
+
+    The blast-radius clause used to read "and the DEPRECATED v1 envelope is
+    untouched", which was contract-v1.45's way of saying the same thing: at that
+    release the v1 success was the other success in the file, and its promise was
+    byte-identical stability. That envelope is gone at contract-v3.0
+    (retire-doxbench-chat-turn-v1), so the clause is re-expressed against the
+    envelopes that remain — a record-only fact must not appear on a REQUEST or on
+    a FAILURE, which is the claim the v1 clause was one instance of."""
     schema = yaml.safe_load(
         (CONTRACTS / "schemas"
          / "xfactory-workbench-chat-turn.schema.yaml").read_text(
@@ -1296,8 +1303,11 @@ def test_the_turn_record_gained_the_remint_fact_additively():
     assert "provider_retry" in success_v2["properties"]
     assert "provider_retry" not in success_v2["required"], (
         "an OPTIONAL key is what makes this release additive")
-    # the DEPRECATED v1 envelope is untouched
-    assert "provider_retry" not in schema["$defs"]["success"]["properties"]
+    # no OTHER envelope in the family carries it, and each is closed, so a
+    # producer cannot smuggle the fact onto a shape that does not declare it
+    for other in ("request_v2", "failure_v2"):
+        assert "provider_retry" not in schema["$defs"][other]["properties"], other
+        assert schema["$defs"][other]["additionalProperties"] is False, other
     block = schema["$defs"]["provider_retry"]
     assert block["additionalProperties"] is False
     assert block["properties"]["retried"] == {"const": True}
