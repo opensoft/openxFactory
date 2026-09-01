@@ -14,7 +14,9 @@ origin:
     findings are the memo's and which are this packet's.
 
     The memo itself is durable on the operator host at
-    `~/projects/xFactory/deprecations-522-memo-2026-08-31.md` — OPERATOR-LOCAL
+    `deprecations-522-memo-2026-08-31.md` — held on the operator's own machine,
+    NAMED here and not located because Principle IV forbids a host-absolute path
+    in a committed file, OPERATOR-LOCAL
     and deliberately NOT committed here; the durable in-repo referents are issue
     #522 and its 2026-09-01 ruling comment. There is no
     staged topic: the subject arrived as a filed issue and was dispositioned by
