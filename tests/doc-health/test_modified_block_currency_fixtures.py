@@ -125,7 +125,7 @@ def _texts(units):
     return [u.text for u in units]
 
 
-# THE FIVE FINDING CLASSIFIERS.
+# THE EIGHT FINDING CLASSIFIERS.
 #
 # Each key is a fragment of ONE arm's own f-string and of no other's, and the
 # set is verified to partition every finding over every tree
@@ -165,6 +165,20 @@ CLASSIFIERS = {
     "ordering": _arm(lambda r: "the ordering of MODIFIED blocks" in r),
     "resolution": _arm(lambda r: "resolves to no promoted requirement" in r),
     "drift": lambda r: r.startswith(_DRIFT_OPENING),
+    # **THE SEVENTH AND EIGHTH KEYS** — added 2026-09-01 with
+    # `govern-sibling-added-modified-deltas`'s two classes, and both take the
+    # `_arm` guard for the reason the first five do: a drift finding QUOTES the
+    # rule text its map could not place, so an unanchored probe would match one
+    # of these through that quotation.
+    #
+    # **THE PAIRING KEY IS THE WHOLE CLAUSE AND NOT "sibling's addition".** That
+    # shorter fragment is also in `TEMPLATE_UNRESOLVED`'s fixed prose ("no
+    # active sibling's addition:"), so it would match the resolution class too
+    # and the partition below would read two hits for one finding.
+    "pairing": _arm(lambda r: "rests on an active sibling's addition rather "
+                              "than on canon" in r),
+    "collision": _arm(lambda r: "writes a requirement title" in r
+                      and "already states" in r),
 }
 
 

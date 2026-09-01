@@ -114,7 +114,27 @@ the archived
 change then added a fifth `unplaced` class for findings its own arms/
 marker-defect map cannot place, per the canon `Requirement: A
 modified-block-currency finding its own class map cannot place is itself a
-finding`.
+finding`. The ratified
+[`govern-sibling-added-modified-deltas`](../openspec/changes/govern-sibling-added-modified-deltas/proposal.md)
+change adds a SIXTH and a SEVENTH class, both `warning` at launch and both
+inserted BEFORE `unplaced` so that the gate-bearing arm still reads first and
+the drift class still reads last: `sibling-pairing`, which evaluates the
+PAIRING — never the carriage — of a MODIFIED block whose title only an active
+sibling's `ADDED` (or a rename's `TO:` half) supplies, in four reported states
+(self-referential, undeclared, misdeclared, undisclosed) and silent on a
+correctly declared pair, per the canon `Requirement: A MODIFIED block over an
+active sibling's addition is evaluated for its pairing, not for its carriage`;
+and `added-over-canon`, the archive-ordering backstop, which reports an active
+`## ADDED Requirements` block — or an active rename's `TO:` title — naming a
+requirement the promoted specification ALREADY carries, per the canon
+`Requirement: An active block writing a title the promoted specification
+already carries is reported`. The three comparison arms still do NOT run
+against a pending block: the pairing class reads a delta's own markers and the
+set of active additions, and compares no requirement text at all. The declaring
+marker is `document-lifecycle`'s third reserved form,
+``**Modified over `<basis change-id>`'s addition by <change-id>
+(<YYYY-MM-DD>):**`` followed by ` — <reason>`, which names no units and is
+therefore never a suppression, never a marker defect and never a carriage unit.
 
 [`add-release-tag-publication-check`](../openspec/changes/add-release-tag-publication-check/proposal.md)
 added a twenty-third deterministic family, `release-tag-publication`, per the
