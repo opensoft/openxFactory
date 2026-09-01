@@ -404,6 +404,59 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-cpc-clearing-boundary](openspec/changes/add-cpc-clearing-boundary/proposal.md)
+  — authored 2026-09-01 for the operator ruling of the same day (recorded in the
+  operator workspace as `cpc-clearing-boundary-ruling-2026-09-01.md` and on
+  `opensoft/codexFactory` issue #156, with its same-day extension comment), which
+  REFUSED the obvious shape — authorize an originating factory's repository at
+  another estate's execution surface — and commissioned the inverse as governed
+  design. ADDS two capabilities. `clearing-boundary` (eleven requirements): work
+  crosses into an execution estate only as a SEALED BOUNDED REQUEST admitted at a
+  single clearing boundary, never by broad standing authorization; the manifest's
+  field set is enumerated and a missing field is a refusal; the boundary verifies
+  provenance against the hosting PLATFORM's authoritative API and treats bundle
+  fields as untrusted input, conjunctively with origin-signature verification so
+  neither substitutes for the other; a job id clears once, expires, and binds to
+  one dispatch label; the carrier is a short-lived sealed job object, never a
+  committed folder; the execution target receives ONLY the bundle — no clone, no
+  repository credential, no attestation key — recomputes the digest and every
+  per-file hash before executing, and proves its workspace wipe on every terminal
+  state; the sealed return validates against its declared output schema on HOSTED
+  infrastructure before it may affect any repository; attestation is SIGN-ON-RETURN
+  on the originating factory's hosted infrastructure after the return verifies, so
+  attestation keys never enter the estate and no key is re-minted; every decision,
+  admission and refusal alike, is audited at the one place that is also the
+  throttle and the emergency stop; and estate readiness becomes the clearing lane's
+  FIRST OPERATION so the authorization surface converges to ONE permanent entry per
+  execution group. `factory-origin-identity` (seven requirements): one Ed25519
+  origin key per originating factory, public half registered in a NEW
+  `governance/factory-identity/` register that is a SIBLING of the review-authority
+  intake register rather than an extension of it (design D1, five grounds — chiefly
+  that the ruling's act-distinctness requirement becomes structural across two
+  registers read by two readers, where inside one file it would be a field
+  predicate one mistyped `act:` from collapse); private half custodied in the
+  factory's hosted packaging environment, declared and attested from the closed
+  custody registry with the same cap-if-unattested rule as review wallets;
+  revocation under the ratified wallet lifecycle, re-checked AT CLEARING rather
+  than trusted from an admission stamp, with a stale, unreadable, or absent
+  projection refusing rather than proceeding; and the register a permanently
+  human-only surface entered into gate floors BY NAME. The register inherits the
+  intake register's deliberately-kindless discipline as instance TWO of that shape
+  (design D2 records the rule-of-three trigger); the records beside it — wallet,
+  grant, custody attestation — carry `schema_version` + `kind` from the pinned
+  neutral wallet vocabulary. Three open questions recorded rather than guessed: how
+  a projection of the register reaches a clearing workflow (OQ1, four shapes
+  sketched, coupled to the review side's own revocation successor), whether
+  `neutral-job-envelope` carries or merely references the bundle manifest (OQ2,
+  which also decides whether a manifest schema is in this change's code surface at
+  all), and who teaches the intake reader to refuse an origin-registered key (OQ3,
+  since that reader is pinned vocabulary owned outside this repository). Dependent
+  realizations are named as exit criteria, not authored here: the xFactory clearing
+  lane (with xFactory PR #188's standalone readiness diagnostic retiring into the
+  clearing operation), the codexFactory hosted packaging and sign-on-return
+  workflows, the retirement of codexFactory's directly-dispatching worker jobs, and
+  codexFactory draft PR #165 `adopt-bundle-shaped-deliberation` revised to DEPEND
+  on this contract with its OQ-A closed by the ruling.
 - [add-requirement-ref-resolution-integrity](openspec/changes/add-requirement-ref-resolution-integrity/proposal.md)
   — authored 2026-08-31, **RATIFIED 2026-09-01 BY DIRECT RULING**
   (`Status: ratified`; record `review/ratification-2026-09-01.md`) — Brett Heap

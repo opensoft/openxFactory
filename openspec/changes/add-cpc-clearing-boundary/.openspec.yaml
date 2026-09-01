@@ -1,0 +1,73 @@
+schema: spec-driven
+created: 2026-09-01
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-01-add-cpc-clearing-boundary
+  reason: >-
+    COMMISSIONED BY NAME IN THE ORIGIN ACT ITSELF. The operator ruling of
+    2026-09-01 (Brett Heap, in-session), recorded in the operator workspace as
+    `cpc-clearing-boundary-ruling-2026-09-01.md` and on `opensoft/codexFactory`
+    issue #156, closes with its own next lane: "An OpenSpec change (openxFactory
+    neutral contract for the sealed-bundle clearing boundary + xFactory
+    clearing-workflow realization + codexFactory packaging realization),
+    honoring this ruling as its origin." This packet is that change's neutral
+    half. Its same-day extension comment on issue #156 adds the two identity
+    halves it also carries: seat-return signing resolved to OPTION (b),
+    sign-on-return, and PER-FACTORY ORIGIN KEYS registered in openxFactory under
+    the register/wallet/grant pattern, with origin attestation and seat
+    attestation held to be distinct keys and distinct acts.
+    THE RULING'S SUBSTANCE, which is the scope statement this packet is written
+    to: the execution estate is THE clearing and dispatch boundary; no factory
+    is broadly authorized to originate execution directly; cross-factory work
+    crosses as a SEALED BOUNDED REQUEST whose manifest the boundary verifies
+    against the hosting platform's API rather than trusting; the carrier is a
+    short-lived sealed job object and never a committed folder; the execution
+    target receives only the bundle; the returned result validates on hosted
+    infrastructure before it may affect any repository. Its supersession note is
+    carried too: readiness becomes the clearing lane's FIRST OPERATION and the
+    authorization surface converges to one permanent entry per execution group,
+    retiring the standalone diagnostic rather than adding a per-path entry.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, checked rather than assumed. No
+    topic under `ideation/staging/` carries this subject; `INDEX.md` and the
+    topic directory were both read. The nearest neighbour,
+    `signed-execution-chain`, is ADJACENT AND DISTINCT: it governs the chain of
+    signatures that travels with a governed act from enrollment to merge, where
+    this packet governs ADMISSION of bounded work into an execution estate the
+    originating factory does not own. `agent-wallet-identity` is the second
+    neighbour and is likewise not this subject — it is holder identity, not
+    per-factory provenance at a dispatch boundary. The organized source here is
+    a recorded in-session operator ruling plus a GitHub issue comment, which is
+    the shape `ad_hoc` exists for, and naming it is not a substitute for
+    staging.
+  approved_on: 2026-09-01
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — the ruling of 2026-09-01,
+    recorded in `cpc-clearing-boundary-ruling-2026-09-01.md` and on
+    `opensoft/codexFactory` issue #156 with its same-day extension comment,
+    which commissions this change by name and states the contract's substance.
+    THIS FIELD RECORDS AUTHORIZATION TO AUTHOR AND THE RULED INPUTS, NOT
+    RATIFICATION OF CONTENT, AND MUST NOT BE READ AS ONE. The citation covers
+    THE DECISION TO FILE and the ruled inputs listed in `design.md` § "Rulings
+    already taken" — the estate-only gateway, the sealed-bundle shape,
+    verification against platform truth, the short-lived carrier, readiness as
+    the lane's first operation, sign-on-return, and one Ed25519 origin key per
+    factory with origin and seat attestation distinct. It covers nothing else.
+    EVERY DECISION BEYOND THOSE INPUTS WAS THE AUTHORING SESSION'S and is
+    flagged for veto: `design.md` § Decisions carries D1 … D8, of which D1 (the
+    origin-key register is a SIBLING of the review-authority intake register
+    rather than an extension of it), D2 (the sibling inherits the deliberately
+    kindless register discipline as instance two of that shape), D6 (two
+    capabilities rather than one) and D7 (neutral capability names under an
+    incident-named change directory) are authoring judgements the ruling did not
+    reach and are open to reversal without disturbing the ruled inputs.
+    THREE QUESTIONS ARE RECORDED OPEN, NOT GUESSED: OQ1 the projection path by
+    which the factory-identity register reaches a clearing workflow (four shapes
+    sketched, none chosen, coupled to the review side's own revocation
+    successor); OQ2 whether `neutral-job-envelope` carries or merely references
+    the bundle manifest, which also decides whether a manifest schema is in this
+    change's code surface at all; OQ3 who teaches the review-authority reader to
+    refuse an origin-registered key, that reader being pinned vocabulary owned
+    outside this repository. Each carries a recommendation and no decision.
+    THE PACKET IS NOT RATIFIED. `Status: draft` stands in proposal.md, task 1.7
+    is the ratification act, and no register row, key, workflow, or
+    authorization entry is created by this change.
