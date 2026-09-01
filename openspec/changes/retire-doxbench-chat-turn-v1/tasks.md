@@ -408,6 +408,18 @@ is recorded rather than absorbed. See that box.
       `2ff5f222…`; the row prose drops its v1 clauses;
       `contract_bundle_version`, and `contract_schema_version` per OQ-2's answer.
 - [ ] 6.2 `contracts/README.md:86`: the long row.
+      **AND ONE MORE LINE THE REALIZATION'S REVIEW FOUND, RECORDED HERE SO THE
+      CUT DOES NOT HAVE TO REDISCOVER IT.** `contracts/manifest.yaml`'s
+      `consumption_rule` prose for `xfactory-workbench-chat-turn` still
+      describes the co-resident layout as *"SIX closed envelopes"*. Copilot
+      raised it against the realization pull request and it is CONFIRMED: the
+      sentence is false the moment the v1 `$defs` leave. It is NOT fixed in the
+      realization, and the reason is a boundary rather than an oversight — 6.1
+      files "the row prose drops its v1 clauses" with the cut, and unlike the
+      per-file `sha256` on the line above it, NOTHING FAILS while this prose is
+      stale. The digest had to move for §§ 2-5 to be green at all (see the
+      header); the prose does not, so the realization leaves it where the packet
+      put it rather than crossing the same line twice.
 - [ ] 6.3 `contracts/CHANGELOG.md`: the `contract-v3.0` BREAKING entry — the
       migration note, the three Breaking-clause preconditions each discharged
       and checkable, the baseline test's retirement named, and the coverage

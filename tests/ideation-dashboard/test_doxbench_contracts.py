@@ -89,10 +89,16 @@ RELEASED_DIGESTS = {
 # hermetic fixture world
 #
 # The fake schemas mirror the released files' STRUCTURE (a whole-document
-# catalog; one chat-turn file holding SIX envelopes under `$defs` -- the three v1
-# ones and the three contract-v1.34 added beside them -- selected by a `oneOf`),
-# because the structure is what the loader's per-kind mapping and the
-# registry-backed `$ref` resolution have to cope with. They deliberately do NOT
+# catalog; one chat-turn file holding the surviving THREE envelopes under
+# `$defs`, selected by a `oneOf`), because the structure is what the loader's
+# per-kind mapping and the registry-backed `$ref` resolution have to cope with.
+# It read SIX until contract-v3.0 -- the three v1 envelopes and the three
+# contract-v1.34 added beside them -- and the count moved with the removal
+# (retire-doxbench-chat-turn-v1; Copilot review of the realization). Keeping the
+# old count would have invited the next fixture edit to be written against a
+# structure the release cannot produce, which is the same class of stale
+# statement this whole retirement exists to correct.
+# They deliberately do NOT
 # mirror the released files' rules — restating a contract rule in a fixture is
 # the forking of contract authority this whole module exists to avoid.
 # ---------------------------------------------------------------------------
