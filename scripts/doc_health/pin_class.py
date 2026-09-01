@@ -1070,6 +1070,36 @@ NON_MEMBERS: tuple[NonMember, ...] = (
                "instance yet is a FUTURE member above, not a site here.",
     ),
     NonMember(
+        paths=("contracts/review-lane-floor-snapshot.yaml",),
+        reason="A VENDORED BYTE COPY OF ANOTHER REPOSITORY'S DOCUMENT — "
+               "codexFactory's `openxfactory-review-authority-floor.yaml` at "
+               "the commit `contracts/review-lane-pin.yaml` pins, carried here "
+               "so a REQUIRED check can assert this repository's promoted "
+               "OpenSpec canon against it offline. Its generated block's "
+               "header carries `generated_at`, an openxFactory commit that "
+               "DOES resolve here, which is exactly why the exclusion must be "
+               "DECLARED rather than left to whether it resolves — the same "
+               "ground the examples row states. Two facts make a member the "
+               "wrong answer, both measured. (1) The generator writes that "
+               "value into a YAML COMMENT: the commit-shaped pass reads every "
+               "line and finds it, the non-commit pass skips comment lines by "
+               "design and does not, so one member classifies this file twice. "
+               "(2) `PIN_KEY_VOCABULARY` is the union of declared field keys, "
+               "so declaring `generated_at` widens the sweep over 21 files in "
+               "the scan roots whose `generated_at` is an ISO timestamp. And "
+               "the file may not be edited to suit either pass: it is a "
+               "witness, verified byte for byte, and an edited witness proves "
+               "nothing. THE PROVENANCE IS NOT UNGUARDED. "
+               "`contracts/review-lane-pin.yaml` declares the copy's `sha256` "
+               "and `tests/review_lane_pin/test_floor_snapshot.py` compares "
+               "the bytes to the authoritative document whenever the pinned "
+               "core is on disk — a stronger guarantee than a reachability "
+               "verdict, since a drifted `generated_at` could only arrive "
+               "inside bytes that failed both. The claim this file makes is "
+               "codexFactory's, not this repository's about itself, which is "
+               "the line every row here draws.",
+    ),
+    NonMember(
         paths=("**/*.schema.yaml", "**/*.schema.yml", "**/*.schema.json"),
         reason="THE SAME REASON AS THE ROW ABOVE, AT THE PATHS THAT ROW'S GLOB "
                "DOES NOT REACH — and found by measurement rather than by "

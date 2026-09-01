@@ -248,6 +248,12 @@ class TheRealFiles(unittest.TestCase):
                  for member in (pin.get("pinned_members") or [])}
         self.assertIn("scripts/merge_master/repository_floor.py", paths)
         self.assertIn(
+            "scripts/merge_master/repository_floor_drift.py", paths,
+            "the drift module became load-bearing at the 2026-09-01 (b′) "
+            "advance — `post_merge_tree_paths` and `candidate_floor_drift` are "
+            "re-exported through `repository_floor`, so the import site does "
+            "not name it and a re-point ceremony would not know to re-verify it")
+        self.assertIn(
             "scripts/merge_master/openxfactory-review-authority-floor.yaml",
             paths,
             "the pin must name the floor document, so a re-point ceremony "
@@ -257,11 +263,17 @@ class TheRealFiles(unittest.TestCase):
         """Diverged or converged, the state must be declared — never implied.
 
         Diverged since declaration; CONVERGED at the 2026-08-28 re-point
-        ceremony (this repository's PR #483 paired with xFactory eae4dc6).
+        ceremony (this repository's PR #483 paired with xFactory eae4dc6);
+        DIVERGED AGAIN on 2026-09-01, when the (b′) activation advanced this
+        pin alone. xFactory's two surfaces still name `f4702f64`, where the
+        floor carries four entries and the three functions this caller now
+        calls do not exist — so the converged commit cannot evaluate the object
+        the advance exists to make operative. The divergence is forced by the
+        feature for the second time, and the obligation to re-converge stands.
         """
         pin = yaml.safe_load(self.pin_text)
         lockstep = pin.get("lockstep") or {}
-        self.assertEqual(lockstep.get("status"), "converged")
+        self.assertEqual(lockstep.get("status"), "diverged")
         self.assertTrue(str(lockstep.get("reason") or "").strip(),
                         "the lockstep state must state WHY")
         self.assertTrue(str(lockstep.get("obligation") or "").strip(),
