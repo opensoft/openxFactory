@@ -329,23 +329,78 @@ is recorded rather than absorbed. See that box.
 
 ## 5. Speckit F4 — the tests
 
-- [ ] 5.1 Retire `tests/ideation-dashboard/fixtures/chat-turn-v1-envelopes.baseline.yaml`
+- [x] 5.1 Retire `tests/ideation-dashboard/fixtures/chat-turn-v1-envelopes.baseline.yaml`
       and the byte-identity assertion at
       `tests/ideation-dashboard/test_doxbench_contracts.py:1213-1239`, **naming
       in the commit and in the changelog entry what the test was for**: it
       exists to prove the deprecated bytes never moved, and it ends because the
       shape it protects leaves the published surface.
-- [ ] 5.2 Move the v1 kind literals out of the remaining test files, across BOTH
+      Done. `test_the_v1_envelope_bytes_are_unchanged_by_the_release`, the
+      fixture, and the helpers that fed only it (`V1_ENVELOPE_BASELINE`,
+      `_v1_ref_closure`, `_local_refs`, `_defs_order`) are removed;
+      `_defs_blocks` SURVIVES, feeding
+      `test_the_widened_family_is_the_only_one_the_file_declares`.
+      **THE NAMING IS THE SUBSTANCE OF THIS BOX AND IT IS DONE IN THREE
+      PLACES.** (1) A banner stands where the test was, recording what it
+      asserted, the F1 hardening that widened it from the three envelope blocks
+      to their whole `$ref` closure after a narrower guard went green while
+      `buffer_state.kind`'s and `typed_proposal.target`'s enums were both
+      mutated, and why it ends. (2) The commit message states it. (3) The
+      CHANGELOG entry the CUT writes is where D4 requires it, and that is task
+      **6.3** — **STILL OWED, and this box does not discharge it.**
+      **WHY IT ENDS IS NOT "IT BECAME INCONVENIENT", AND THE DIFFERENCE IS
+      CHECKABLE.** The assertion protects a shape consumers are PINNED to. At
+      contract-v3.0 that shape leaves the published surface, so the assertion
+      has no subject — there are no v1 `$defs` left to compare, and
+      `_v1_ref_closure` would raise `KeyError` on its own seed rather than fail
+      an assertion. A consumer pinned below contract-v3.0 keeps the promise it
+      was given, and keeps it by the IMMUTABILITY OF THE BYTES ITS PIN NAMES
+      rather than by their continued presence here.
+- [x] 5.2 Move the v1 kind literals out of the remaining test files, across BOTH
       directory spellings: `tests/ideation-dashboard/` (`test_doxbench_contracts.py`,
       `test_doxbench_transport.py`, `test_doxbench_routes.py`,
       `test_doxbench_chat_view.py`, `test_doxbench_knowledge_service.py`,
       `test_doxbench_proposals.py`, `test_doxbench_view.py`) and
       `tests/ideation_dashboard/` (`test_validate_ideation_dashboard_contracts.py`).
-- [ ] 5.3 New coverage for the redesigned fallback, in BOTH directions: an
+      All eight done, **plus a NINTH this box does not name**:
+      `tests/ideation-dashboard/test_doxchat_model_intake.py` also carried the
+      literals. Recorded as an authoring finding rather than folded in silently.
+      The discipline applied: a test exercising behaviour the surviving family
+      ALSO has is RE-EXPRESSED against `-v2`; a test whose only subject was the
+      v1 family's SURVIVAL or its DEPRECATION RECORD is deleted and replaced by
+      the negative that now carries the claim. Every remaining occurrence of a
+      v1 spelling in `tests/` is deliberate and is one of exactly three things:
+      an assertion that a retired kind is ABSENT
+      (`test_no_deprecated_kind_register_survives_the_removal`), a probe that a
+      retired kind takes the unrecognized-kind path (5.3), or the
+      `test_doxbench_chat_view.py` FOREIGN-KIND sample — kept as the retired v1
+      failure spelling deliberately, because after the removal it is the most
+      likely foreign kind that rail will ever actually see (an unupgraded
+      client's own answer replayed at it) and the rule under test is about kinds
+      the rail has no released reader for, which a retired one is by definition.
+- [x] 5.3 New coverage for the redesigned fallback, in BOTH directions: an
       unrecognized kind WITH a wire-valid turn id -> the surviving failure
       envelope with the code, self-validated; WITHOUT one -> the pre-identity
       shape, unchanged. Plus a probe that a removed v1 kind takes exactly that
       path.
+      All three directions covered in
+      `tests/ideation-dashboard/test_doxbench_routes.py`:
+      * a request naming NO kind at all, and one naming a RESPONSE kind, each
+        refused `unrecognized_turn_kind` in a
+        `workbench-chat-turn-v2-failure` envelope;
+      * the same request with NO wire-valid `client_turn_id` answered in
+        `doxbench_error_body`'s pre-identity shape — same code, same fixed
+        message, no `kind` key;
+      * **the probe**: `_turn(kind="workbench-chat-turn")` — a RETIRED kind —
+        refused by exactly that path, asserting the failure envelope's `kind`
+        and that the model port was never called. The retired spelling is a
+        LITERAL rather than a `doxbench_contracts` constant, deliberately: the
+        constant is removed with the kind, so a test that could only be written
+        while the constant existed could not say what this one says.
+      Plus a parity check that `DOXBENCH_ERR_UNRECOGNIZED_TURN_KIND` is
+      registered in `DOXBENCH_ERROR_CATALOG` with its status and that its
+      message IS the module-level constant, so an unregistered code cannot
+      reach the refusal path (the "The new code is not registered" scenario).
 
 ## 6. The `contract-v3.0` cut (a SEPARATE act, listed for completeness)
 
