@@ -404,6 +404,86 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-requirement-ref-resolution-integrity](openspec/changes/add-requirement-ref-resolution-integrity/proposal.md)
+  — authored 2026-08-31, **RATIFIED 2026-09-01 BY DIRECT RULING**
+  (`Status: ratified`; record `review/ratification-2026-09-01.md`) — Brett Heap
+  in session via an explicit multi-choice put, session `openxfactory-f5`.
+  **AD-1 IS RULED TWO CODES, AS DRAFTED**, and the twelve-item one-code amendment
+  set is DECLINED — none of its items executed, and it is left standing in the
+  proposal as the record of the rulable alternative rather than struck. **NO §7.4
+  SITTING WAS CONVENED AND NONE WAS PRESCRIBED** — tasks § 2.3 put the question to
+  Brett and he took the direct path, so no seat sat and nothing here is a council
+  disposition. **Ratification authorizes REALIZATION and performs none of it**, so
+  the change stays ACTIVE until merged code, green evidence and the contract cut
+  exist; OQ-1 … OQ-4 REMAIN OPEN, the ruling having reached the decisions without
+  reaching the questions. **THREE Codex rounds ran, not one**: two P2s on
+  `1d6d58f7` both REPAIRED at `deb72c8e`, and a third round ON that fix tip whose
+  P2 — the frozen resolver's per-document lookup leaving the promoted ambiguity
+  scenario's CROSS-DOCUMENT arm unmet — was routed open by the ratification and
+  is now **RULED, 2026-09-01, BY A SECOND ACT OF THE SAME RATIFIER**:
+  **SCOPE TO PER-DOCUMENT**, the ambiguity requirement and scenario NARROWED to
+  the ambiguity the frozen resolver can see, and the CROSS-DOCUMENT arm FILED AS
+  A NAMED SUCCESSOR, **issue #553**. Because the packet was already ratified,
+  that narrowing is a POST-RATIFICATION CONSENTED AMENDMENT by the ratifying
+  owner himself, carried by dated `**AMENDED 2026-09-01**` notes in the delta, a
+  dated addendum in `review/ratification-2026-09-01.md`, and tasks § 2.5 / § 3.4
+  / § 9.4; the scenario count is UNCHANGED at TWELVE and AD-1's two-code ruling
+  is untouched. The gap it defers is INHERITED from the shipped validator rather
+  than introduced here. Eight of eleven review requests were PROVIDER-REFUSED on
+  org usage limits, so no bench has read either the routing or the ruling. Filed on Brett Heap's ruling of
+  2026-08-30, recorded on PR #516 and
+  anchored at issue #523: *a successor change carrying its own
+  resolution-integrity code*. **THE DEFECT, REPRODUCED RATHER THAN QUOTED**: a
+  `consumer.requirement_ref` that resolves to ZERO requirements or to MORE THAN
+  ONE is reported ONLY where two bindings share a `secret_ref`, because
+  `resolve_requirement` has exactly one caller and that caller is the
+  six-condition lift. A binding template declaring two bindings with DISTINCT
+  secret references — one naming a requirement id no record carries, one naming
+  an id two records carry with DIFFERENT access modes — validates
+  `0 warning(s), 0 error(s) -> PASS` under the validator as shipped; changing ONE
+  BYTE so the two secret references match (`example-secret-b` ->
+  `example-secret-a`, the two templates the same length and differing at one
+  offset) refuses the same record, and adding the acknowledgment so the pair
+  reaches the fifth lift condition makes the refusal say *"resolves to no
+  requirement in the repository under validation"* — the exact sentence the
+  silent tree never produced, about the exact same bytes of `requirement_ref`.
+  **WHY #516 COULD NOT CARRY THE FIX**: an ERROR would have been an unphased
+  narrowing, and a WARNING needed a ninth code
+  against the ratified rule that the warning set is *"ENUMERATED against the
+  refusals"* — an unresolvable reference not being a shape the coming major
+  refuses. **THE RULING'S ANSWER, ENCODED AS RECORDED**: a code of its OWN
+  FAMILY (not a widening of any of the eight `consumer-*` codes), WARNING for a
+  full minor and ERROR at contract-v3.0 — the same major the block's seven acts
+  land at, so consumers serve ONE window — with the major's refusal DECLARED, so
+  the enumeration rule is satisfied by making the major refuse the shape rather
+  than by exempting it. **TWO ADDED REQUIREMENTS, TWELVE SCENARIOS, NO MODIFIED
+  BLOCK**, and the all-ADDED shape is MEASURED rather than preferred — **TWICE,
+  the second measurement being the one that now holds**. At the packet's
+  merge-base the two requirements a reconciling MODIFIED block would have named
+  were carried by no promoted specification and were ADDED by the then-ACTIVE
+  `add-binding-consumer-identity`, so a MODIFIED delta would have been exactly
+  `govern-sibling-added-modified-deltas`' governed shape — a `Modified over`
+  marker plus an archive-order hold behind the sibling. **PR #541 then ARCHIVED
+  that sibling (2026-08-31), promoting both titles into canon**, so such a block
+  would now be an ordinary MODIFIED over promoted canon needing neither marker nor
+  hold. **The CHOICE is unchanged and only its REASON moved**: under both
+  measurements a pure ADDED requirement serves, the reporting duty being one this
+  capability states nowhere. The three split clauses of the introducing packet (its
+  block requirement's general SHALL, its lift scenario scoped to a sharing pair,
+  its tasks § 2.5 conjunction) are reconciled by SPLITTING the conjunction:
+  reporting is owed by every binding that declares a reference, withholding the
+  lift by the pair asking for the exemption. **NO VALIDATOR LINE MOVES IN THIS
+  PULL REQUEST** — proposal-only on the #497 -> #516 pattern; the realization is
+  a separate change owing two codes, three fixtures, a reconciled
+  `Deprecations Currently In Force` entry and a bundle cut. **THE ONE-CODE BRANCH
+  WAS RULABLE IN ONE SENTENCE, AND WAS RULED**: AD-1 enumerated the complete
+  twelve-item amendment set a one-code ruling would execute — delta paragraph, two
+  scenarios, `code_surface` sentences, task rows and this entry's own clause — so
+  the ratified text could never permit and forbid a single-code implementation at
+  once. The ruling took the other branch, so the enumeration executed as ZERO
+  edits and stands in the packet as the record of the alternative that was on
+  offer. **That is the transferable lesson: a branch that cannot be executed
+  mechanically is not a rulable alternative, only a gesture at one.**
 - [retire-hermes-flat-keys-and-openworkflow-tokens](openspec/changes/retire-hermes-flat-keys-and-openworkflow-tokens/proposal.md)
   — authored 2026-09-01, **`Status: ratified` — RATIFIED 2026-09-01 by Brett
   Heap, in session, at PR #551 tip `64907604`** (record:
