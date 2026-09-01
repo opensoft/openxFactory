@@ -1496,6 +1496,41 @@ Active changes:
   uses of custom properties the stylesheet never defines whose silent
   fallbacks painted a white popover behind light text. (code surface:
   openxFactory; target release: none)
+- [retire-doxbench-chat-turn-v1](openspec/changes/retire-doxbench-chat-turn-v1/proposal.md)
+  — authored 2026-09-01, `Status: draft`. **Entry 3 of openxFactory issue
+  #522**, on Brett Heap's 2026-09-01 ruling comment there and the measurement
+  memo `~/projects/xFactory/deprecations-522-memo-2026-08-31.md`, sliced
+  SEPARATELY from entries 1 and 2 on the memo's own recommendation and the
+  ruling's adoption of it. **THE ONLY ONE OF THE THREE WHOSE WARNING ACTUALLY
+  FIRES**: a default `validate-ideation-dashboard-contracts.py` run reports
+  `0 error(s), 4 warning(s)`, every one naming `removal target contract-v2.0` —
+  a target the bundle passed one major and five minors ago. The deprecation was
+  done PROPERLY at `contract-v1.34` — co-resident `-v2` family, v1 bytes kept
+  byte-identical with a committed baseline test to prove it, and the
+  deprecation declared MACHINE-READABLY in a top-level `deprecated_envelopes`
+  block — and then the removal it named was never performed. This packet
+  removes the three v1 kinds at `contract-v3.0`: the `$defs`, the `oneOf` refs,
+  the `deprecated_envelopes` block, the runtime and validator dispatch, twelve
+  packaged fixtures and the byte-identity baseline, RETAINING every shared
+  `$def` the surviving family reaches (measured from its reference closure, not
+  inspected). **THE `serve.py` FALLBACK IS REDESIGNED, NOT DELETED, AND THE
+  DECISION IS ANSWERED IN THE PACKET**: an unrecognized or absent `kind` is
+  refused in the SURVIVING family's failure envelope with an explicit
+  unknown-kind code where a wire-valid `client_turn_id` exists, and in the
+  existing pre-identity shape where it does not — legal on the contract as it
+  stands, because `failure_v2` constrains `error` by PATTERN and not by enum at
+  the schema layer and at the delegated validator both; the envelope-less
+  alternative is recorded with its three costs. **TWO MEMO CORRECTIONS**: the
+  packaged corpus is TWELVE fixtures, not four — eight are NEGATIVE and carry
+  SEVEN refusal classes with no `-v2` equivalent, each of which must be
+  re-expressed or its loss stated; and there are TWO fallback layers, the second
+  (`_refuse_turn`'s pre-identity drop) correct and untouched. Carries ONE
+  scenario-complete `## MODIFIED` block over promoted `ideation-dashboard`
+  canon, dropping nothing and therefore owing no `Removed from canon` marker.
+  Sibling: `retire-hermes-flat-keys-and-openworkflow-tokens`. (code surface:
+  openxFactory; target release: `contract-v3.0` — archives only on merged plus
+  green realization evidence, the moved manifest digest, the rebuilt inventory
+  and the published tag)
 
 The avatar-client kernel (`contract-v1.7`), reference runtime, and avatar-first UI
 standard (`contract-v1.8`) are realized. The contract kernel, the revocation
