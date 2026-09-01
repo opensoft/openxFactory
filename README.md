@@ -565,7 +565,9 @@ Active changes:
   Heap at `f54cb5bc` and RE-RATIFIED at `6d7ef17b` after the amendments** (record:
   `openspec/changes/add-chain-attestation/review/ratification-2026-09-01.md`);
   ratification authorizes realization and does not perform it, so the change
-  stays ACTIVE until merged code, green evidence and the contract cut exist.
+  archives only on merged code, green evidence and the contract cut with its
+  published tag — and it stays listed here as ACTIVE until all of that is on
+  `main`.
   **THE CODE SURFACE IS NOW REALIZED AND THE BUNDLE CUT**: the realization
   landed as PR **#556**, squash `518c670b` — eight new schemas, the additive
   extension of four shipped ones, the tranche-two corpus with all NINETY-FIVE

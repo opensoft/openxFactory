@@ -28,7 +28,9 @@ declared `contract-v2.5`, `contracts/releases/` held inventories through v2.5,
 v2.5, and the v2.5 inventory carries ZERO tranche-two rows — the two
 `contract-v3.0` ratifications of #551/#552 are PROPOSAL-ONLY retirement packets
 whose major waits behind its own deprecation window and reserves nothing here.
-Next additive number: **contract-v2.6**.
+The next additive number available at that tip was therefore `contract-v2.6`,
+and **`contract-v2.6` IS THE NUMBER THIS CUT TAKES** — the number counted here,
+not one reserved for a later release.
 
 **Change class: ADDITIVE (minor)** under
 [`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md).
