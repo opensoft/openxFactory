@@ -217,7 +217,7 @@ Depends on Group 3.
 - [x] 5.2 Assert the archive gate DOES NOT REWRITE declarations on archival — no
   date-prefixing, no re-pointing, no normalization of entries. A fixture archives
   a change carrying a declaration and asserts the entries are byte-unchanged.
-- [ ] 5.3 Author `docs/sequenced-after-trust-root-floor.md`, modelled on
+- [x] 5.3 Author `docs/sequenced-after-trust-root-floor.md`, modelled on
   `docs/scope-globs-trust-root-floor.md`: the four trust-root properties, what
   openxFactory can assert about its own substrate (the 5.1 freeze gate and the
   policy-free validator) versus what only an enrolled repository's envelope and
@@ -230,11 +230,11 @@ Depends on Group 3.
   count that are sole modifiers; how many DECLARE the field; and **the DEEPEST
   DECLARED CHAIN it resolves**. Re-running it is what makes the "measured, not
   assumed" obligation discharge over time instead of aging into a stale sentence.
-- [ ] 5.5 Record the sweep's FIRST post-adoption reading in the docs, replacing
+- [x] 5.5 Record the sweep's FIRST post-adoption reading in the docs, replacing
   the authoring-time "0 declarations, deepest chain 0 hops BY CONSTRUCTION" with a
   real measurement, and state plainly that a zero reading is ZERO EVIDENCE about
   any gate's ceiling rather than evidence the ceiling is sufficient.
-- [ ] 5.6 Document that the depth ceiling, the fan-out disposition and the
+- [x] 5.6 Document that the depth ceiling, the fan-out disposition and the
   composition operator are the CONSUMING GATE's and are declared in the gate's own
   specification — with the consumer's current values (FOUR hops inclusive of the
   terminal change; INTERSECTION) cited as the first instance rather than adopted
@@ -264,3 +264,13 @@ Numbers are that packet's own task ids.
 - [ ] 6.7 Negative fixtures: a pull request that re-parents itself on HEAD does not
   move the base-read chain; an undeclared parent with a co-modifier refuses; a
   fork refuses; a cycle refuses; an archived-root chain still resolves.
+- [ ] 6.8 **THE COORDINATED RE-VENDOR** the Group 2 consumer note specifies —
+  vendor `scripts/frontmatter_strict.py` alongside a re-copied
+  `scripts/scope_globs.py` into `scripts/merge_master/`, extend
+  `VENDORED_SHA256` + `VENDORED_SOURCE_PATHS` in
+  `tests/merge-master/test_vendored_scope_globs.py`, and advance `stack.yaml`'s
+  `contract_ref`, ALL IN ONE COMMIT. Until it lands, advancing `contract_ref`
+  past this change alone reds
+  `test_the_vendored_bytes_equal_the_source_at_the_pinned_contract_version[scope_globs.py]`
+  BY DESIGN — that assertion exists so a divergence fails rather than being
+  reconciled at call sites. **This change touches nothing in codexFactory.**

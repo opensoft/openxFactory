@@ -124,6 +124,14 @@ Core domain-neutral docs:
   (the machine-readable path-scope substrate from `add-structured-scope-substrate`:
   `scripts/scope_globs.py` + `scripts/validate-scope-globs.py`; the trust-root
   floor doctrine consumed by the provenance-tie verifier)
+- [The `sequenced_after` Parent-Declaration Surface Is a Never-Clearable Trust-Root Floor](docs/sequenced-after-trust-root-floor.md)
+  (the machine-readable ORDERED-DELTA PARENT substrate from
+  `add-sequenced-after-substrate` — the second half of the block `scope_globs`
+  opened: `scripts/sequenced_after.py` +
+  `scripts/validate-sequenced-after.py` + the shared strict loader
+  `scripts/frontmatter_strict.py`; the four trust-root properties, absence as
+  fail-closed and never a root claim, the walk policy left to the consuming gate,
+  and the first post-adoption corpus-sweep reading)
 - [Doc-Health Contract](docs/doc-health.md)
   (implementation in-repo since `adopt-neutral-tooling-home`:
   `scripts/doc_health/` + `scripts/doc-health.py`, the reusable nightly

@@ -27,7 +27,11 @@ CHANGE = ROOT / "openspec" / "changes" / "add-sequenced-after-substrate"
 
 
 def _load():
-    spec = importlib.util.spec_from_file_location("sequenced_after", MODULE)
+    # Loaded under a name that is NOT `sequenced_after`: THIS DIRECTORY is a
+    # package by that name (see `__init__.py`), and registering the script module
+    # under the package's own name would replace the package in `sys.modules` and
+    # abort collection of every sibling test module.
+    spec = importlib.util.spec_from_file_location("sequenced_after_substrate", MODULE)
     module = importlib.util.module_from_spec(spec)
     assert spec.loader is not None
     sys.modules[spec.name] = module
