@@ -482,14 +482,38 @@ def test_the_reader_exits_zero_on_the_corpus_and_the_tree(capsys):
     assert "repo scan (" in out and "artifact(s) checked" in out
 
 
-def test_the_reader_says_the_capability_confers_nothing_yet(registry_and_docs,
-                                                            carried):
+def test_the_reader_no_longer_says_the_capability_confers_nothing(
+        registry_and_docs, carried):
     """Requirement 9 is about this capability's own standing, and the reader
-    states it where it runs rather than only in the declaration. When the gate
-    becomes a required check the packaged declaration flips to
-    `is_required_in_ruleset: true` and this warning goes away — which is the
-    point at which the records begin to confer anything at all."""
+    states it where it runs rather than only in the declaration. THIS TEST USED TO
+    ASSERT THE WARNING WAS THERE, and it was there for as long as the standing it
+    reports was the true one. Task 4.5 was performed on 2026-08-31 — org ruleset
+    21957695 requires `signed-execution-chain-gate` on `main` — and task 4.6 saw
+    the refusal reach a real pull request (canary #549, run 33455808456), so the
+    packaged declaration records `is_required_in_ruleset: true` and the warning
+    stops firing. That is the point at which these records begin to confer
+    anything at all, and the assertion is inverted rather than deleted so the
+    reader cannot go quiet for the OTHER reason — a declaration still recording
+    the reader unrequired, which the test below still holds it to."""
     findings = _validate(reader.positive_records(), registry_and_docs, carried)
+    assert not any("reader-not-required" in line for line in findings.warnings)
+
+
+def test_a_declaration_recording_the_reader_unrequired_still_warns(
+        registry_and_docs, carried):
+    """The rule is not retired by the ruleset act — it is the rule that made the
+    act legible in the first place, and a realization that is NOT gated (a domain
+    repository consuming this family, or this one if the ruleset were ever
+    dropped) must still be told so on every run."""
+    import copy
+
+    records = copy.deepcopy(reader.positive_records())
+    for _, doc in records:
+        if doc["kind"] == \
+                "xfactory_signed_execution_chain_conformance_declaration":
+            doc["realization"]["reader_required_check"][
+                "is_required_in_ruleset"] = False
+    findings = _validate(records, registry_and_docs, carried)
     assert any("reader-not-required" in line for line in findings.warnings)
 
 
@@ -497,13 +521,19 @@ def test_a_declaration_recording_sec_r9_satisfied_while_unrequired_is_refused(
         registry_and_docs, carried):
     """The pairing above is not decoration: a declaration may record the reader as
     unrequired, and it may NOT then record the obligation as satisfied. Where no
-    such check exists the requirement is UNMET, not partially met."""
+    such check exists the requirement is UNMET, not partially met.
+
+    THE MUTATION NOW HAS TO SET THE READER UNREQUIRED TOO, because the packaged
+    declaration no longer is: SEC-R9 `satisfied` is the CORRECT record since
+    2026-08-31, and this refusal is about the pairing, never about the word."""
     import copy
 
     records = copy.deepcopy(reader.positive_records())
     for _, doc in records:
         if doc["kind"] == \
                 "xfactory_signed_execution_chain_conformance_declaration":
+            doc["realization"]["reader_required_check"][
+                "is_required_in_ruleset"] = False
             for entry in doc["obligations"]:
                 if entry["obligation"] == "SEC-R9":
                     entry["satisfaction"] = "satisfied"

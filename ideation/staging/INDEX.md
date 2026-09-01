@@ -1966,10 +1966,15 @@ repo scope.
   digest construction, `xfc-jcs-sha256-1`), the packaged corpus (7 positives, 26
   negatives, every closed refusal code red-proven), the NAMED READER
   `scripts/validate-signed-execution-chain.py`, and the running
-  `signed-execution-chain-gate` check. **What is NOT done is what confers
-  anything**: the check is not yet REQUIRED in the branch ruleset — an operator
-  act — so the capability confers and refuses nothing today and its own
-  conformance declaration records that in the present tense. `target_release` was
+  `signed-execution-chain-gate` check. **AND THE PART THAT CONFERS ANYTHING IS
+  NOW DONE TOO, 2026-08-31**: the check is REQUIRED in the branch ruleset
+  (opensoft org ruleset **21957695** — the operator act, task 4.5), and a
+  deliberately broken chain was seen failing a real pull request before the
+  packet was allowed to say so (canary **#549**, run `33455808456`, one named
+  refusal, PR BLOCKED, closed unmerged — task 4.6). The conformance declaration
+  records `is_required_in_ruleset: true`, requirement 9 is MET rather than
+  partially met, and the standing `reader-not-required` warning no longer fires.
+  `target_release` was
   re-counted at the realization tip — and **re-counted AGAIN when
   `add-binding-consumer-identity` cut and tagged `contract-v2.4` alone (#526,
   `afdf0e88`), whose inventory carries none of this family's members**. Both
@@ -1977,8 +1982,12 @@ repo scope.
   Registration rode that cut rather than reserving it, which is why a number
   that had moved twice was written into no contract byte. **THE CUT IS TAKEN**:
   `contract-v2.5` registers all five schemas with per-file `sha256` in
-  `contracts/manifest.yaml`, and 4.7 is closed. 4.5 and 4.6 remain open, and
-  they are the ones that decide whether the family confers anything.
+  `contracts/manifest.yaml`, and 4.7 is closed. **4.5 and 4.6 are closed too, as
+  of 2026-08-31** — they were the ones that decided whether the family confers
+  anything, and they were performed by separate acts after the archive, carried
+  at **issue #534**, where both the live ruleset read and the canary's four
+  conjuncts are quoted verbatim — as they are again under §§ 4.5/4.6 of the
+  archived `tasks.md` and in PR #549's closing comment.
 - **EXIT 3 IS RAISED, 2026-08-29 — the DRAFT change `add-chain-anchoring`**
   (`openspec/changes/add-chain-anchoring/proposal.md`), the public anchoring layer
   plus the permissioned consent plane, as a NEW neutral `chain-anchoring`
