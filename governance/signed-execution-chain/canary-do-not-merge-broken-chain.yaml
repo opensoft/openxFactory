@@ -1,0 +1,687 @@
+# CANARY — DELIBERATELY BROKEN. THIS FILE MUST NEVER REACH `main`.
+#
+# `add-signed-execution-chain` task 4.6: a deliberately broken chain FAILS a real
+# pull request, and the evidence records the run id, the check id, the
+# validator's single named refusal, and the live ruleset read showing
+# `signed-execution-chain-gate` REQUIRED — the shape task 2.6 of
+# `add-wallet-carried-review-authority` proved on canary PR #387, where removing
+# one field from a live in-tree grant turned the required `wallet-validation`
+# check red. Task 4.5 was performed on 2026-08-31 (org ruleset 21957695), so the
+# fourth conjunct is finally readable and this canary is finally producible.
+#
+# ONE DIFFERENCE FROM #387, AND IT IS STRUCTURAL. That canary mutated a LIVE
+# record: `governance/review-authority/grants/grant-mrc-0001.yaml` already
+# existed and was already scanned. This family has NO live record to mutate —
+# `repo scan: 0 artifact(s) checked` is the DECLARED expected state of this
+# repository until the first ratification is incepted under the capability, and
+# this realization mints no chain. So the canary must ADD the record it breaks.
+# It is placed at a real in-tree location the whole-tree sweep walks
+# (`governance/`, the same neighbourhood the review-authority records live in);
+# it is not under `contracts/signed-execution-chain/examples/`, which the sweep
+# excludes because layer 1 owns it.
+#
+# WHAT IS BROKEN, AND WHY IT IS BROKEN THIS WAY. Documents 1-7 are the packaged
+# positive corpus VERBATIM: one complete chain — inception, traveling contract,
+# four log leaves, and the realization's conformance declaration. Document 8 is
+# the packaged negative fixture
+# `examples/negative/leaf-whose-predecessor-digest-is-wrong.yaml`, verbatim: a
+# fifth leaf whose OWN digest and signature verify over its own bytes, and whose
+# `previous_leaf_digest` is not the digest of the leaf before it. The break is
+# engineered to be SINGULAR — editing a hex character inside an existing leaf
+# would also invalidate that leaf's own digest and signature and produce three
+# refusals where the evidence conjunct calls for one.
+#
+# EXPECTED, and verified locally before pushing:
+#   ERROR [leaf_hash_link_broken] ... the predecessor digest ... does not match
+#   ... validate-signed-execution-chain: 1 error(s), 2 warning(s)
+# The second warning is the standing `reader-not-required` one, emitted a second
+# time because this file carries a copy of the declaration; on `main` today it is
+# emitted once. Both go away when the declaration is flipped to record the
+# ruleset state performed at 4.5 — a separate pull request, not this one.
+#
+# `pytest-suite` goes red beside the gate, and that is the same fact seen twice:
+# `tests/signed_execution_chain/test_chain_reader.py::test_the_reader_exits_zero_on_the_corpus_and_the_tree`
+# runs the very sweep the gate runs. A canary that reddened the gate but left
+# that test green would mean the two had drifted apart.
+---
+# THE WHOLE OF LINKS 1 AND 2, IN ONE SIGNED ACT — the packaged reference chain
+# every other file in this corpus belongs to.
+#
+# `signed_ratification` is the exact block the ratifying signature covers, and
+# the CHAIN IDENTITY below is its digest under `xfc-jcs-sha256-1`. Everything the
+# capability requires to be unforgeable after the fact is INSIDE it: the
+# presentation that proved possession, the actor-to-wallet binding, the per-act
+# value (which is `presentation.exercise_ref` — named, never minted) and the
+# out-of-pipeline ground.
+#
+# THE TWO DIGESTS ARE DIFFERENT VALUES OVER DIFFERENT SUBJECTS, and this file is
+# where a reader can see it. `ratified_subject.subject_digest` is the CONTENT
+# digest, taken over the subject ratified, and it is what the exercise's
+# `object_ref` carries; `chain_identity` is taken over the SIGNED bytes, a strict
+# superset. Equating them rejects every conforming chain.
+#
+# THE RATIFIED SUBJECT IS A PACKAGED PLACEHOLDER THIS CORPUS FULLY DETERMINES, so
+# the construction can be watched working rather than taken on trust: the content
+# digest below is `xfc-jcs-sha256-1` applied to
+# {"fixture": "signed-execution-chain packaged ratified subject", "version": 1}
+# and recomputes from those bytes alone.
+#
+# THE KEY IS A FIXTURE KEY AND ITS PRIVATE HALF EXISTS NOWHERE IN THIS
+# REPOSITORY. Only the public half, the digests and the signatures are packaged;
+# every signature here verifies, and the corpus is self-checking because the
+# validator recomputes each one.
+schema_version: 1
+kind: xfactory_signed_execution_chain_inception
+inception_id: inc-ratify-0001
+chain_identity:
+  construction: xfc-jcs-sha256-1
+  subject: signed_ratification
+  value: sha256:6bc75a08cec5fe85a4993bc912cfeeb76161e9d318dedaec51314bb228ab7229
+signed_ratification:
+  ratification_id: rat-0001
+  ratified_at: '2026-08-30T10:00:00Z'
+  digest_construction: xfc-jcs-sha256-1
+  ratified_subject:
+    subject_type: openspec_change
+    subject_ref: openspec/changes/add-signed-execution-chain
+    subject_digest:
+      construction: xfc-jcs-sha256-1
+      subject: ratified_subject
+      value: sha256:dfedf73b9f4b91683dfa36ef6ae363c23a7e65315d507d3f094f0ad45bdbdb84
+  presentation:
+    exercise_ref: exr-ratify-0001
+    grant_ref: grant-ratify-0001
+    presenting_key_ref: key-ratifier-0001
+    exercise:
+      schema_version: 1
+      kind: xfactory_wallet_grant_exercise
+      exercise_id: exr-ratify-0001
+      grant_ref: grant-ratify-0001
+      act: ratify
+      occurred_at: '2026-08-30T10:00:00Z'
+      event_class: authenticated
+      proof_of_possession:
+        presented: true
+        verified: true
+        signature_algorithm: ed25519
+        presenting_key_ref: key-ratifier-0001
+        signed_over: request_digest
+      attribution:
+        mode: key_attributed
+        presenting_key_ref: key-ratifier-0001
+        wallet_ref: wal-human-ratifier-0001
+        holder_ref: person:example.ratifier
+      custody_model_in_force: isolated_per_use_authorized
+      revocation_check:
+        performed_at_exercise: true
+        result: active
+      outcome: permitted
+      object_ref: sha256:dfedf73b9f4b91683dfa36ef6ae363c23a7e65315d507d3f094f0ad45bdbdb84
+    wallet:
+      schema_version: 1
+      kind: xfactory_wallet_record
+      wallet_id: wal-human-ratifier-0001
+      holder:
+        holder_id: person:example.ratifier
+        holder_class: person
+        display_label: Packaged fixture ratifier — not a live holder
+      key_reference:
+        did: did:key:z6MkpbemmWNSrDVeNzsVYzhR74wmTf8jTdTqsq9M6CmWqhbG
+        key_id: key-ratifier-0001
+        public_key_multibase: z6MkpbemmWNSrDVeNzsVYzhR74wmTf8jTdTqsq9M6CmWqhbG
+        signature_algorithm: ed25519
+      custody:
+        model: isolated_per_use_authorized
+        registry_version: 1
+        declared_at: '2026-08-30T09:00:00Z'
+        declared_by: Brett.Heap
+      state: active
+      created_at: '2026-08-30T09:00:00Z'
+      policy_version: 1
+  actor:
+    subject_reference:
+      schema_version: 1
+      kind: actor_subject_reference
+      reference_id: asr-ratify-0001
+      governed_record_ref:
+        record_type: signed_execution_chain_inception
+        record_ref: inc-ratify-0001
+      provenance: broker_asserted
+      issuer:
+        broker_instance_id: broker-opensoft-qa
+      subject: sub-7f2c1b9ae40d5836
+      display_name_at_record: Packaged fixture ratifier
+      recorded_at: '2026-08-30T10:00:00Z'
+    wallet_attestation:
+      schema_version: 1
+      kind: xfactory_wallet_subject_attestation
+      subject_ref: sub-7f2c1b9ae40d5836
+      wallet_ref: wal-human-ratifier-0001
+      reference_role: attestation
+      resolution:
+        resolved_by: subject_ref
+        reconstructable_without_wallet: true
+      attested_at: '2026-08-30T10:00:00Z'
+  out_of_pipeline:
+    performed_out_of_pipeline: true
+    ground_ref: opensoft/codexFactory hermes/domain/review-councils/records/2026-08-28-gate-rules-openxfactory-substantive-classes.md
+    ground_statement: 'A class over `openspec/changes/**` can never commission a council:
+      the surface lies wholly inside the canonical GATE_INTEGRITY_FLOOR, which is evaluated
+      before any clearable classification (984 admitted, 984 floored, 0 remaining; unanimous
+      5/5, convener disposition Brett Heap 2026-08-28). And a pipeline that CLEARS candidates
+      cannot also be what CONFERS the authority those candidates are cleared against.'
+ratification_signature:
+  algorithm: ed25519
+  presenting_key_ref: key-ratifier-0001
+  signed_over: signed_ratification
+  signature: lnSOvITNX0tmKbknJ7OyRW5WUuuGxC0Y2ZZriOffWUvwCiRAKR_DvR9u3e0fnTAJ4CNqgLjybiC65TrhQr1dAw
+incepted_at: '2026-08-30T10:00:00Z'
+inception_leaf_ref: leaf-0001
+
+---
+# LINK 3 — the signed ratification carried WITH the work, checkable at the point
+# of use with no registry and no live service in reach.
+#
+# It carries the three things the requirement names — the chain identity, the
+# reference to the presentation that proved link 1, and the digest of the leaf
+# that recorded inception — plus the signed ratification itself, which is what
+# makes the first of those RECOMPUTABLE rather than merely asserted.
+#
+# LINK 3 HAS NO SIGNER, and this file carries none of its own: it carries the
+# RATIFICATION's signature, verbatim. At tranche one continuity is established by
+# DERIVATION AND COMPARISON; the hash-linked SIGNING rule takes effect at tranche
+# two's first link with a signer of its own.
+schema_version: 1
+kind: xfactory_signed_execution_chain_traveling_contract
+traveling_contract_id: tvc-ratify-0001
+chain_identity:
+  construction: xfc-jcs-sha256-1
+  subject: signed_ratification
+  value: sha256:6bc75a08cec5fe85a4993bc912cfeeb76161e9d318dedaec51314bb228ab7229
+presentation_ref: exr-ratify-0001
+inception_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:c1766415c0a57ffeaeedddf27e5dfd9850d3991e016a348b236dc52690c7bd9a
+signed_ratification:
+  ratification_id: rat-0001
+  ratified_at: '2026-08-30T10:00:00Z'
+  digest_construction: xfc-jcs-sha256-1
+  ratified_subject:
+    subject_type: openspec_change
+    subject_ref: openspec/changes/add-signed-execution-chain
+    subject_digest:
+      construction: xfc-jcs-sha256-1
+      subject: ratified_subject
+      value: sha256:dfedf73b9f4b91683dfa36ef6ae363c23a7e65315d507d3f094f0ad45bdbdb84
+  presentation:
+    exercise_ref: exr-ratify-0001
+    grant_ref: grant-ratify-0001
+    presenting_key_ref: key-ratifier-0001
+    exercise:
+      schema_version: 1
+      kind: xfactory_wallet_grant_exercise
+      exercise_id: exr-ratify-0001
+      grant_ref: grant-ratify-0001
+      act: ratify
+      occurred_at: '2026-08-30T10:00:00Z'
+      event_class: authenticated
+      proof_of_possession:
+        presented: true
+        verified: true
+        signature_algorithm: ed25519
+        presenting_key_ref: key-ratifier-0001
+        signed_over: request_digest
+      attribution:
+        mode: key_attributed
+        presenting_key_ref: key-ratifier-0001
+        wallet_ref: wal-human-ratifier-0001
+        holder_ref: person:example.ratifier
+      custody_model_in_force: isolated_per_use_authorized
+      revocation_check:
+        performed_at_exercise: true
+        result: active
+      outcome: permitted
+      object_ref: sha256:dfedf73b9f4b91683dfa36ef6ae363c23a7e65315d507d3f094f0ad45bdbdb84
+    wallet:
+      schema_version: 1
+      kind: xfactory_wallet_record
+      wallet_id: wal-human-ratifier-0001
+      holder:
+        holder_id: person:example.ratifier
+        holder_class: person
+        display_label: Packaged fixture ratifier — not a live holder
+      key_reference:
+        did: did:key:z6MkpbemmWNSrDVeNzsVYzhR74wmTf8jTdTqsq9M6CmWqhbG
+        key_id: key-ratifier-0001
+        public_key_multibase: z6MkpbemmWNSrDVeNzsVYzhR74wmTf8jTdTqsq9M6CmWqhbG
+        signature_algorithm: ed25519
+      custody:
+        model: isolated_per_use_authorized
+        registry_version: 1
+        declared_at: '2026-08-30T09:00:00Z'
+        declared_by: Brett.Heap
+      state: active
+      created_at: '2026-08-30T09:00:00Z'
+      policy_version: 1
+  actor:
+    subject_reference:
+      schema_version: 1
+      kind: actor_subject_reference
+      reference_id: asr-ratify-0001
+      governed_record_ref:
+        record_type: signed_execution_chain_inception
+        record_ref: inc-ratify-0001
+      provenance: broker_asserted
+      issuer:
+        broker_instance_id: broker-opensoft-qa
+      subject: sub-7f2c1b9ae40d5836
+      display_name_at_record: Packaged fixture ratifier
+      recorded_at: '2026-08-30T10:00:00Z'
+    wallet_attestation:
+      schema_version: 1
+      kind: xfactory_wallet_subject_attestation
+      subject_ref: sub-7f2c1b9ae40d5836
+      wallet_ref: wal-human-ratifier-0001
+      reference_role: attestation
+      resolution:
+        resolved_by: subject_ref
+        reconstructable_without_wallet: true
+      attested_at: '2026-08-30T10:00:00Z'
+  out_of_pipeline:
+    performed_out_of_pipeline: true
+    ground_ref: opensoft/codexFactory hermes/domain/review-councils/records/2026-08-28-gate-rules-openxfactory-substantive-classes.md
+    ground_statement: 'A class over `openspec/changes/**` can never commission a council:
+      the surface lies wholly inside the canonical GATE_INTEGRITY_FLOOR, which is evaluated
+      before any clearable classification (984 admitted, 984 floored, 0 remaining; unanimous
+      5/5, convener disposition Brett Heap 2026-08-28). And a pipeline that CLEARS candidates
+      cannot also be what CONFERS the authority those candidates are cleared against.'
+ratification_signature:
+  algorithm: ed25519
+  presenting_key_ref: key-ratifier-0001
+  signed_over: signed_ratification
+  signature: lnSOvITNX0tmKbknJ7OyRW5WUuuGxC0Y2ZZriOffWUvwCiRAKR_DvR9u3e0fnTAJ4CNqgLjybiC65TrhQr1dAw
+issued_at: '2026-08-30T10:05:00Z'
+
+---
+# THE GENESIS LEAF — the wallet-presented ratification, position 0, carrying no
+# predecessor because there is nothing before it.
+#
+# Its payload digest is taken over the RATIFIED SUBJECT: this leaf records the
+# presentation that proved the ratification OF THAT SUBJECT, so the content
+# digest is what it commits to. The inception leaf beside it commits to the chain
+# identity instead — one construction, two subjects, each named.
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-0000
+leaf_index: 0
+tree_size: 1
+chain_ref: sha256:6bc75a08cec5fe85a4993bc912cfeeb76161e9d318dedaec51314bb228ab7229
+leaf_type: wallet_presented_ratification
+recorded_at: '2026-08-30T10:00:00Z'
+payload_ref: exr-ratify-0001
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: ratified_subject
+  value: sha256:dfedf73b9f4b91683dfa36ef6ae363c23a7e65315d507d3f094f0ad45bdbdb84
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:39b9bc5b50b565b41e6ffc35a94f51a9f354b80cbd56c3fc95315f23cbd50bdf
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-0001
+  signed_over: leaf_content
+  signature: DJ7mD1vtp_W2pkoez4bTR07ZiNWmYpMAwPBIXXYzAwYE1QHA2JBxB5P8Tcbc8WurDoYCHsEjZvPdyk-wfpXiBA
+
+---
+# THE INCEPTION LEAF — and gate check 4 is the comparison this file makes
+# possible: its payload digest IS the chain identity, taken over the signed
+# ratification.
+#
+# `previous_leaf_digest` is the hash link. Alter or drop leaf 0 and this value
+# stops matching, which is how an alteration inside an observed prefix becomes
+# detectable without an access control and without a convention.
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-0001
+leaf_index: 1
+tree_size: 2
+chain_ref: sha256:6bc75a08cec5fe85a4993bc912cfeeb76161e9d318dedaec51314bb228ab7229
+leaf_type: chain_inception
+recorded_at: '2026-08-30T10:01:00Z'
+payload_ref: inc-ratify-0001
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: signed_ratification
+  value: sha256:6bc75a08cec5fe85a4993bc912cfeeb76161e9d318dedaec51314bb228ab7229
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:39b9bc5b50b565b41e6ffc35a94f51a9f354b80cbd56c3fc95315f23cbd50bdf
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:c1766415c0a57ffeaeedddf27e5dfd9850d3991e016a348b236dc52690c7bd9a
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-0001
+  signed_over: leaf_content
+  signature: a2y7Ca1T-jWKlqB6G1cN7xZJJ7qVSSj5xFpQWeBUAazMqFs2RLMskwkOQHMPMM8ykOGlYXayqlDTu6JHVXzkAg
+
+---
+# THE ISSUANCE LEAF — the traveling contract's own digest, recorded so that
+# issuing one is a proven act rather than a claimed one. An act this capability
+# governs that writes no leaf is UNPROVEN, and its own success is not evidence
+# that it was permitted.
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-0002
+leaf_index: 2
+tree_size: 3
+chain_ref: sha256:6bc75a08cec5fe85a4993bc912cfeeb76161e9d318dedaec51314bb228ab7229
+leaf_type: traveling_contract_issued
+recorded_at: '2026-08-30T10:02:00Z'
+payload_ref: tvc-ratify-0001
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: traveling_contract
+  value: sha256:e8fc3d43f6b266bebbef5f528ca825dc0eb812956cb65baf2a0b60c4db8cbb1f
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:c1766415c0a57ffeaeedddf27e5dfd9850d3991e016a348b236dc52690c7bd9a
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:fe994e1f07a456e90f77040375e488085ccf01b88bf8c815811a671ca9d5e551
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-0001
+  signed_over: leaf_content
+  signature: QkXEBuTImyW858KAe_17w5mFuolvY5Pzlah_VkNgMdd6arQXWK51VBamrBAvLLefjT-4IIXjW8TcjlTb_K_4DA
+
+---
+# THE VERDICT LEAF — every verdict the short-chain gate returns is a leaf, so the
+# gate's refusals are a record rather than a convention.
+#
+# All EIGHT checks are recorded individually, and the canonical validator holds
+# this leaf to its own walk: a leaf recording `permitted` over a chain the reader
+# refuses is itself a refusal, because a verdict is not evidence of the walk that
+# produced it.
+#
+# THE SCOPE IS `links_1_3`. The absence of a tranche-two attestation link is not
+# reported as a break: a gate cannot walk a link that does not exist yet.
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-0003
+leaf_index: 3
+tree_size: 4
+chain_ref: sha256:6bc75a08cec5fe85a4993bc912cfeeb76161e9d318dedaec51314bb228ab7229
+leaf_type: gate_verdict
+recorded_at: '2026-08-30T10:03:00Z'
+payload_ref: vdt-ratify-0001
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: gate_verdict
+  value: sha256:383c4e64c593eb5ec44137eaddedaa3bf5b1eb64264a55a8c9196f895c23d7e4
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:fe994e1f07a456e90f77040375e488085ccf01b88bf8c815811a671ca9d5e551
+verdict:
+  outcome: permitted
+  scope: links_1_3
+  checks:
+  - check: ratification_signature_verifies
+    outcome: pass
+  - check: chain_identity_recomputes
+    outcome: pass
+  - check: exercise_object_ref_is_content_digest
+    outcome: pass
+  - check: inception_leaf_commits_to_chain_identity
+    outcome: pass
+  - check: traveling_contract_carries_established_values
+    outcome: pass
+  - check: actor_bound_to_signing_wallet
+    outcome: pass
+  - check: proof_of_possession_supplied_and_verified
+    outcome: pass
+  - check: standing_and_holder_class_at_exercise
+    outcome: pass
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:59ddc48363d52263e1a96586876ce5ab36e446e1ac0b7adf38b16cbbe8dc6127
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-0001
+  signed_over: leaf_content
+  signature: eXEuSQyKisd7u1ANujmQdr1XTSFr6cA3D6xpa-Tv5rNTCi3-J8XdurjXmokhJY8KiWK1mE2D3MhAkZd0sy9HAA
+
+---
+# THE REALIZATION'S OWN DECLARATION, obligation by obligation, on
+# `add-trust-anchor`'s ratified declared-shortfall pattern: an undeclared
+# shortfall is non-conformance even where the identical shortfall, DECLARED,
+# would be conformant.
+#
+# TWO ENTRIES ARE `partial` BECAUSE THEIR RESIDUALS ARE STRUCTURAL AT THIS
+# TRANCHE — SEC-R1 (the pinned exercise record holds no signed digest VALUE) and
+# SEC-R6 (suffix truncation no party has yet observed) — and the canonical
+# validator refuses either recorded `satisfied`.
+#
+# SEC-R9 IS THE HONEST ONE. The named reader exists and runs, and it is NOT yet
+# required in the branch ruleset, so this capability confers and refuses NOTHING
+# today. That is stated in the present tense rather than asserted away, and the
+# residual names the operator act that closes it.
+schema_version: 1
+kind: xfactory_signed_execution_chain_conformance_declaration
+declaration_id: secd-openxfactory-0001
+capability: signed-execution-chain
+realization:
+  realization_id: sec-realization-openxfactory-tranche-one
+  statement: 'openxFactory''s own realization of tranche one: the four record kinds, the packaged
+    corpus, and scripts/validate-signed-execution-chain.py walking links 1-3 as the named
+    reader. It mints no chain, holds no key, defines no attestation identity (tranche two)
+    and places nothing on any chain (tranche three).'
+  reader_required_check:
+    check_name: signed-execution-chain-gate
+    validator_path: scripts/validate-signed-execution-chain.py
+    is_required_in_ruleset: false
+    ruleset_evidence_ref: openspec/changes/add-signed-execution-chain/tasks.md 4.5 - the outstanding
+      operator act; a merged workflow file is not evidence
+declared_at: '2026-08-30T11:00:00Z'
+obligations:
+- entry_id: sec-ob-r1
+  obligation: SEC-R1
+  obligation_statement: Ratification presents wallet-carried authority, proven by possession
+    and BOUND to the exact ratification.
+  satisfaction: partial
+  reason: The presentation is expressed entirely in the shipped `openxwallet` vocabulary and
+    referenced by identifier; the reader refuses a missing proof, a failed verification and
+    a revoked authority under their own names, and it enforces both scope restrictions this
+    capability imposes - `object_ref` PRESENT and equal to the ratification's CONTENT digest,
+    and `proof_of_possession.signed_over` equal to `request_digest`. What it cannot establish
+    is the step from `the record names this ratification` to `the signature covers this ratification`.
+  declared_at: '2026-08-30T11:00:00Z'
+  declared_residual:
+    statement: '`signed_over` is an ENUM SELECTOR: it names WHAT the signature covered and
+      the pinned schema carries no field holding the signed digest VALUE. So the record alone
+      cannot prove the signed request included `object_ref`. The digest comparison is enforceable
+      today and is enforced; the binding beyond it is NOT asserted.'
+    closed_by: an additive OPTIONAL signed-subject-digest field on `xfactory_wallet_grant_exercise`,
+      belonging to opensoft/openXwallet as a NAMED SUCCESSOR. Defining it here would mint
+      the second proof vocabulary this capability exists not to invent.
+- entry_id: sec-ob-r2
+  obligation: SEC-R2
+  obligation_statement: The actor a chain records is bound to the wallet that signed.
+  satisfaction: satisfied
+  reason: Check 6 of the gate walk. The actor block sits INSIDE `signed_ratification`, so
+    the binding cannot be attached after the signature; an actor carrying no wallet attestation
+    is unrepresentable by shape rather than refused by a rule; the attestation's wallet must
+    be the wallet whose declared key made the exercise; and resolving the actor THROUGH the
+    wallet is refused by name, in the direction the pinned `openxwallet-subject-attestation`
+    fixes by closing `resolution.resolved_by` to `subject_ref`.
+  declared_at: '2026-08-30T11:00:00Z'
+- entry_id: sec-ob-r3
+  obligation: SEC-R3
+  obligation_statement: Ratification and chain inception are one signed act.
+  satisfaction: satisfied
+  reason: 'The chain identity is the digest of the signed ratification, so inception IS the
+    ratification rather than a second act performed after it. A ratification leaf whose act
+    was never inscribed is refused as a half-state; a chain identity resolving to no signed
+    ratification is refused as a fraud signal; the per-act value is named rather than minted
+    and its REUSE is refused, which the pinned schema does not constrain; and the out-of-pipeline
+    ground is cited in the record rather than asserted. Chain inception is not 025 FR-008''s
+    candidate-class enrollment: no envelope, no candidate class, no ruleset, no verdict.'
+  declared_at: '2026-08-30T11:00:00Z'
+- entry_id: sec-ob-r4
+  obligation: SEC-R4
+  obligation_statement: One digest construction governs every digest this capability computes.
+  satisfaction: satisfied
+  reason: '`xfc-jcs-sha256-1` is declared ONCE, in `digest-construction.schema.yaml`, and
+    every record shape takes the digest shape from it by `$ref` rather than restating it.
+    Every digest is algorithm-tagged and NAMES its subject; an untagged digest and a digest
+    naming no subject are both refused; and a record equating the content digest with the
+    chain identity is refused by name, because the signed bytes are a strict superset of the
+    ratified subject and the equation would reject every conforming chain.'
+  declared_at: '2026-08-30T11:00:00Z'
+- entry_id: sec-ob-r5
+  obligation: SEC-R5
+  obligation_statement: The signed ratification travels with the work.
+  satisfaction: satisfied
+  reason: 'The traveling contract carries the chain identity, the reference to the presentation
+    that proved link 1, the digest of the leaf that recorded inception, AND the signed ratification
+    itself, so a checker that can resolve no registry recomputes the chain identity from the
+    artifact alone. That establishes internal consistency ONLY: the reader still refuses a
+    chain whose leaf it cannot reach, and an unresolvable external lookup never converts into
+    permission.'
+  declared_at: '2026-08-30T11:00:00Z'
+- entry_id: sec-ob-r6
+  obligation: SEC-R6
+  obligation_statement: The signed transparency log is the record.
+  satisfaction: partial
+  reason: 'The log is realized as a HASH-LINKED SIGNED LEAF SEQUENCE on the RFC-6962 / Rekor
+    pattern, and the realization says which form it took rather than leaving a reader to assume
+    a Merkle tree: every leaf carries its index, the tree size it completes, its predecessor''s
+    digest, its own digest and its own signature, and the newest leaf IS the head. An act
+    with no leaf is refused as UNPROVEN, and a broken link is refused as a fraud signal rather
+    than a corrupted file. TWO BOUNDS ARE RECORDED RATHER THAN GLOSSED. First, the reader
+    VERIFIES a leaf signature only where the leaf''s key resolves to a key a carried wallet
+    declares; a store signing identity, which this tranche defines no custody for and no record
+    of, is reported UNVERIFIED rather than treated as a pass, and detection at this tranche
+    rests on the hash link and on the traveling contract''s carried leaf digest - which is
+    exactly the strength the requirement claims. Second, the residual below. No anchor, witness,
+    commitment or inclusion receipt is claimed or represented: their absence at this tranche
+    is NOT a defect.'
+  declared_at: '2026-08-30T11:00:00Z'
+  declared_residual:
+    statement: SUFFIX TRUNCATION NO PARTY HAS YET OBSERVED. A store that deletes its newest
+      leaves and presents an earlier valid head shows a shorter log that verifies perfectly
+      to a fresh reader. Alteration WITHIN AN OBSERVED PREFIX is detected - the link chain
+      breaks and every traveling contract carries the digest of the leaf that recorded its
+      inception - but a reader with no prior observation and no external witness cannot tell
+      a truncated log from a short one.
+    closed_by: tranche three's on-chain anchoring, which makes a head externally witnessed.
+      It is a NAMED successor and nothing here pre-encodes it.
+- entry_id: sec-ob-r7
+  obligation: SEC-R7
+  obligation_statement: A gate validates the short chain as a hash-linked chain.
+  satisfaction: satisfied
+  reason: 'The reader walks all EIGHT ordered checks over links 1-3 and validates CONTINUITY
+    rather than the presence of signatures: artifacts drawn from different executions do not
+    assemble, a missing link is a refusal and never a warning, and a chain that cannot be
+    EVALUATED - an unverifiable algorithm, an unresolvable key - is refused rather than passed.
+    Checks 2 and 3 are kept apart, over their two different subjects, and a gate implementing
+    the identity check with the content digest is refused. The scope is links 1-3 and the
+    absence of a later tranche''s link is not reported as a break. A recorded verdict is held
+    to this same walk, so a leaf claiming `permitted` over a chain the walk refuses is itself
+    a refusal.'
+  declared_at: '2026-08-30T11:00:00Z'
+- entry_id: sec-ob-r8
+  obligation: SEC-R8
+  obligation_statement: Ratifying authority is human-held.
+  satisfaction: satisfied
+  reason: 'The reader refuses a ratifying wallet whose holder class is not a named human,
+    and the refusal NAMES the holder class rather than the missing signature - so an agent-held
+    wallet that signs and attests itself honestly is refused on eligibility, not on attribution.
+    The scope is Brett Heap''s Narrowing A ruling of 2026-08-29: tier 1 is RATIFYING authority,
+    so agent-held REVIEW wallets stay lawful and the realized wal-agent-mrc-0001 is untouched.
+    No attestation identity of any kind is created here.'
+  declared_at: '2026-08-30T11:00:00Z'
+- entry_id: sec-ob-r9
+  obligation: SEC-R9
+  obligation_statement: The capability confers and refuses nothing until a named reader runs
+    as a required check.
+  satisfaction: partial
+  reason: 'The named reader EXISTS and RUNS: scripts/validate-signed-execution-chain.py, wired
+    as the `signed-execution-chain-gate` job on every pull request to main. It is NOT yet
+    required in the branch ruleset, so this capability confers and refuses NOTHING today and
+    its records are documentation that governs nothing. That is stated in the present tense
+    rather than asserted away, and no statement of this realization describes a rule inside
+    the validator as though the description were the enforcement.'
+  declared_at: '2026-08-30T11:00:00Z'
+  declared_residual:
+    statement: A MERGED WORKFLOW FILE IS NOT EVIDENCE THAT A CHECK IS REQUIRED. Until a live
+      ruleset read names `signed-execution-chain-gate` as required, a refusal this reader
+      returns can be merged past, and the requirement is UNMET rather than partially met.
+    closed_by: tasks.md 4.5 and 4.6 - the operator act that makes the check required, evidenced
+      by a live ruleset read and a deliberately broken chain failing a real pull request,
+      on the shape add-wallet-carried-review-authority tasks 2.5/2.6 proved for `wallet-validation`.
+
+---
+# expected_failure: leaf_hash_link_broken
+# VIOLATES requirement 6's second scenario. The leaf's `previous_leaf_digest` is
+# not the digest of the leaf before it, so the link chain is broken at this
+# position and a consistency proof against any earlier observed head fails here.
+#
+# It is reported as a FRAUD SIGNAL rather than as a corrupted file. The log's
+# hash structure — not an access control and not a convention — is what makes an
+# alteration inside an observed prefix detectable, and a broken link is that
+# structure doing its job.
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-n20
+leaf_index: 4
+tree_size: 5
+chain_ref: sha256:6bc75a08cec5fe85a4993bc912cfeeb76161e9d318dedaec51314bb228ab7229
+leaf_type: gate_verdict
+recorded_at: '2026-08-30T10:04:00Z'
+payload_ref: vdt-n20
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: gate_verdict
+  value: sha256:383c4e64c593eb5ec44137eaddedaa3bf5b1eb64264a55a8c9196f895c23d7e4
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:01f1dbcc618b116a6d3ebb9076bc9891f545d33dbf92322db5a998cc62f9268b
+verdict:
+  outcome: permitted
+  scope: links_1_3
+  checks:
+  - check: ratification_signature_verifies
+    outcome: pass
+  - check: chain_identity_recomputes
+    outcome: pass
+  - check: exercise_object_ref_is_content_digest
+    outcome: pass
+  - check: inception_leaf_commits_to_chain_identity
+    outcome: pass
+  - check: traveling_contract_carries_established_values
+    outcome: pass
+  - check: actor_bound_to_signing_wallet
+    outcome: pass
+  - check: proof_of_possession_supplied_and_verified
+    outcome: pass
+  - check: standing_and_holder_class_at_exercise
+    outcome: pass
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:9422f999e44d76585b6112086afa41380ace5a8f89053abc963aad4d922f3595
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-0001
+  signed_over: leaf_content
+  signature: h3enOoWoxXGiRBP9k4npZGzykCpOIWDoZ5pomGLl8F-sSB4rpQGJFVecZoFWwcGrDHREHjbR64hFFQDtAUy9CQ
