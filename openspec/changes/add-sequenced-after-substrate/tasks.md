@@ -80,29 +80,58 @@ none vetoed. Dispositions recorded in `proposal.md` § Ratification record. Grou
 ## Group 2 — Speckit feature: strict front-matter loader (code_surface: openxFactory)
 
 Maps to a Speckit feature `frontmatter-strict-loader`. Realizes the "Strict
-loading of the realization-axis front-matter block" requirement. **Scope depends
-on the Group 0.2 ruling.** This group comes FIRST because every later group reads
-the block through it.
+loading of the realization-axis front-matter block" requirement. **Ruled at 0.2:
+FULL SCOPE — the retrofit lands here.** This group comes FIRST because every later
+group reads the block through it.
 
-- [ ] 2.1 Implement ONE strict loader for the realization-axis front-matter block
+> **CONSUMER NOTE — THIS GROUP BREAKS codexFactory'S VENDORED-COPY LOCKSTEP UNTIL
+> A COORDINATED RE-VENDOR. READ BEFORE ADVANCING codexFactory's PIN.**
+> codexFactory VENDORS this repository's `scripts/scope_globs.py` byte-for-byte as
+> `scripts/merge_master/scope_globs.py`, pinned by
+> `tests/merge-master/test_vendored_scope_globs.py` — a recorded `sha256` per
+> vendored file (`VENDORED_SHA256`) plus a SOURCE-EQUALITY assertion that the
+> vendored bytes equal `scripts/scope_globs.py` read at the openxFactory commit
+> `stack.yaml`'s `contract_ref` names. Two of its tests are the ones that move:
+> `test_the_vendored_file_matches_its_recorded_digest[scope_globs.py]` and
+> `test_the_vendored_bytes_equal_the_source_at_the_pinned_contract_version[scope_globs.py]`.
+> The second fails the moment codexFactory advances `contract_ref` past this
+> change WITHOUT re-vendoring — its by-design "a divergence FAILS rather than
+> being reconciled" behaviour, not a defect. **THE RETROFIT ALSO ADDS A SECOND
+> VENDORED FILE:** `scripts/scope_globs.py` now imports the sibling
+> `scripts/frontmatter_strict.py`, so a re-vendor that copies only
+> `scope_globs.py` leaves the vendored copy UNIMPORTABLE. The coordinated
+> re-vendor, in ONE codexFactory commit: (1) copy openxFactory
+> `scripts/frontmatter_strict.py` to `scripts/merge_master/frontmatter_strict.py`
+> and re-copy `scripts/scope_globs.py`; (2) add the new file to `VENDORED_SHA256`
+> and `VENDORED_SOURCE_PATHS` and refresh the `scope_globs.py` digest; (3) advance
+> `stack.yaml`'s `contract_ref` to the openxFactory commit carrying this change —
+> all three in that one commit, the discipline that file already states. Consider
+> also a differential fixture pinning the vendored loader's refused set against
+> `merge_master/change_digest.py`'s own `StrictLoader`, on the same "exactly one
+> authority while two engines ship" grounds as the existing glob-parity fixture.
+> **NOTHING IN codexFactory IS TOUCHED BY THIS CHANGE** — the re-vendor is the
+> consumer's act, tracked in Group 6, and its `change_digest.py` loader is
+> UNCHANGED (this loader mirrors it, not the reverse).
+
+- [x] 2.1 Implement ONE strict loader for the realization-axis front-matter block
   that REFUSES rather than resolves: duplicate keys at ANY level, YAML anchors
   (`&`), aliases (`*`), merge keys (`<<:`), non-UTF-8 bytes, and a document over a
   declared size ceiling. Name the ceiling as an operative number rather than
   gesturing at one.
-- [ ] 2.2 Refuse duplicate keys by CONSTRUCTION, not by post-hoc scan: a
+- [x] 2.2 Refuse duplicate keys by CONSTRUCTION, not by post-hoc scan: a
   `yaml.SafeLoader` subclass overriding `construct_mapping` to raise on a repeated
   key, so nesting depth cannot smuggle one past a top-level check.
-- [ ] 2.3 **The `scope_globs` retrofit (SUBJECT TO THE 0.2 RULING).** Route
+- [x] 2.3 **The `scope_globs` retrofit (RULED IN AT 0.2).** Route
   `scripts/scope_globs.py`'s `read_front_matter` through the strict loader,
   replacing the `yaml.safe_load` call whose last-duplicate-key-wins behaviour lets
   two `scope_globs:` blocks show a reviewer the FIRST and authorize the LAST.
   Assert the shipped `scope_globs` corpus still validates byte-identically after
   the swap — the retrofit changes how the field is LOADED, never what it MEANS.
-- [ ] 2.4 Negative fixtures, one per refused form: duplicate key at top level;
+- [x] 2.4 Negative fixtures, one per refused form: duplicate key at top level;
   duplicate key NESTED; anchor; alias; merge key (`<<:`); non-UTF-8 byte;
   over-ceiling document. Plus a POSITIVE fixture asserting an ordinary well-formed
   block loads unchanged.
-- [ ] 2.5 **Parity note as a build obligation.** Record in the module docstring
+- [x] 2.5 **Parity note as a build obligation.** Record in the module docstring
   that the refused set MIRRORS the consuming verifier's strict loader (the
   consumer's task 2.10), so validator and verifier cannot disagree about the same
   bytes, and that a change to either set must be made in lockstep.
