@@ -404,6 +404,55 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [retire-hermes-flat-keys-and-openworkflow-tokens](openspec/changes/retire-hermes-flat-keys-and-openworkflow-tokens/proposal.md)
+  — authored 2026-09-01, **`Status: ratified` — RATIFIED 2026-09-01 by Brett
+  Heap, in session, at PR #551 tip `64907604`** (record:
+  `openspec/changes/retire-hermes-flat-keys-and-openworkflow-tokens/review/ratification-2026-09-01.md`);
+  ratification authorizes the requirement text and performs no realization,
+  cuts no bundle and moves no CHANGELOG row, so the change stays ACTIVE until
+  merged code, green evidence and the `contract-v3.0` cut exist. The record
+  discloses what the act stood on: **NO CODEX REVIEW HAPPENED** — four
+  requests, four provider usage-limit refusals, zero verdicts, a pass still
+  owed and blocked by nothing in the packet — and `main`'s inherited
+  `pytest-suite` red from PR #510's carriage-ledger subject, which this packet
+  neither causes nor fixes. **Entries 1 and 2 of openxFactory
+  issue #522**, on Brett Heap's 2026-09-01 ruling comment there ("execute all
+  three retirements at contract-v3.0, as the memo recommends") and the
+  measurement memo `deprecations-522-memo-2026-08-31.md` (operator-local, NOT
+  committed here and NAMED rather than located, Principle IV forbidding a
+  host-absolute path in a committed file; the durable in-repo referents are
+  issue #522 and its 2026-09-01 ruling comment).
+  `contract-v2.0` shipped on 2026-08-27, executed a DIFFERENT deprecation
+  through itself, and did not look at the three entries that named it as their
+  removal target; five minors later they still name it. **ENTRY 1 IS SPLIT AS
+  RULED.** The phased half EXECUTES at `contract-v3.0` — the `hermes` flat-key
+  FALLBACK READ leaves `check_hermes`, `LEGACY_HERMES_KEYS` goes with it, and
+  `apply-domain-starter.py` stops emitting the deprecated keys — and it refuses
+  nobody, because all five supported consumers declare `hermes.layers`. The
+  refusing half is RECORDED-WHY and stays In Force: the warning fires only in
+  the `else` arm taken when `layers` is ABSENT, so it has been dead code for the
+  entire supported population, and refusing the co-resident keys would be an
+  unphased narrowing owing its own deprecating minor first. **ENTRY 2 EXECUTES**
+  — the three-line `openworkflow` branch, zero live usage across ten
+  repositories, phased since `contract-v1.1`. Adds ONE capability,
+  `contract-deprecation-execution`, and NO `## MODIFIED` block, because no
+  promoted requirement names either shape. FIVE facts the memo did not carry
+  are recorded here: the fallback retirement is a REPLACEMENT and not a
+  deletion, because the missing-role errors sit INSIDE the `layers`-declared
+  branch and a bare deletion would let a `layers`-less stack pass with no
+  finding at all — a silent WIDENING at a major; the `openworkflow` branch
+  SHADOWS the general rule and so WIDENS one case as well as narrowing another;
+  entry 2's own entry UNDER-DECLARES ITS PREFIX BY ONE CHARACTER — the policy
+  and the docstring write `openworkflow_`, the code writes
+  `startswith("openworkflow")`, so three shapes are refused that the entry never
+  names (raised in review of the PR); promoted canon says an unresolvable
+  `owner_layer` is a WARNING while the shipped validator has ERRORED since six
+  days before that requirement was promoted (recorded, not fixed — D4); and
+  `domain_overlay` is ALSO a live key under `omnigent:`, so the refusal list
+  must be written by PATH and not by name. Sibling:
+  `retire-doxbench-chat-turn-v1`. (code surface: openxFactory; target release:
+  `contract-v3.0` — archives only on merged plus green realization evidence and
+  the published tag)
 - [add-chain-attestation](openspec/changes/add-chain-attestation/proposal.md)
   — authored 2026-08-29, **`Status: ratified` — RATIFIED 2026-09-01 by Brett
   Heap at `f54cb5bc` and RE-RATIFIED at `6d7ef17b` after the amendments** (record:
@@ -1496,6 +1545,56 @@ Active changes:
   uses of custom properties the stylesheet never defines whose silent
   fallbacks painted a white popover behind light text. (code surface:
   openxFactory; target release: none)
+- [retire-doxbench-chat-turn-v1](openspec/changes/retire-doxbench-chat-turn-v1/proposal.md)
+  — authored 2026-09-01, **`Status: ratified` — RATIFIED 2026-09-01 by Brett
+  Heap, in session, at PR #552 tip `c5169476`** (record:
+  `openspec/changes/retire-doxbench-chat-turn-v1/review/ratification-2026-09-01.md`);
+  ratification authorizes the requirement text and performs no realization,
+  moves no schema byte and cuts no bundle, so the change stays ACTIVE until
+  merged code, green evidence and the `contract-v3.0` cut exist. It ratifies
+  the fallback posture AS ENCODED — the #522 ruling set only its direction. The
+  record discloses what the act stood on: **NO CODEX REVIEW HAPPENED** — three
+  requests, three provider usage-limit refusals, zero verdicts, a pass still
+  owed and blocked by nothing in the packet — four low-severity Copilot
+  comments standing uncorrected on the ratified head, and `main`'s inherited
+  `pytest-suite` red from PR #510's carriage-ledger subject, which this packet
+  neither causes nor fixes. **Entry 3 of openxFactory issue
+  #522**, on Brett Heap's 2026-09-01 ruling comment there and the measurement
+  memo `deprecations-522-memo-2026-08-31.md` (operator-local, NOT committed
+  here and NAMED rather than located, Principle IV forbidding a host-absolute
+  path in a committed file; the durable referents are issue #522 and its ruling
+  comment), sliced
+  SEPARATELY from entries 1 and 2 on the memo's own recommendation and the
+  ruling's adoption of it. **THE ONLY ONE OF THE THREE WHOSE WARNING ACTUALLY
+  FIRES**: a default `validate-ideation-dashboard-contracts.py` run reports
+  `0 error(s), 4 warning(s)`, every one naming `removal target contract-v2.0` —
+  a target the bundle passed one major and five minors ago. The deprecation was
+  done PROPERLY at `contract-v1.34` — co-resident `-v2` family, v1 bytes kept
+  byte-identical with a committed baseline test to prove it, and the
+  deprecation declared MACHINE-READABLY in a top-level `deprecated_envelopes`
+  block — and then the removal it named was never performed. This packet
+  removes the three v1 kinds at `contract-v3.0`: the `$defs`, the `oneOf` refs,
+  the `deprecated_envelopes` block, the runtime and validator dispatch, twelve
+  packaged fixtures and the byte-identity baseline, RETAINING every shared
+  `$def` the surviving family reaches (measured from its reference closure, not
+  inspected). **THE `serve.py` FALLBACK IS REDESIGNED, NOT DELETED, AND THE
+  DECISION IS ANSWERED IN THE PACKET**: an unrecognized or absent `kind` is
+  refused in the SURVIVING family's failure envelope with an explicit
+  unknown-kind code where a wire-valid `client_turn_id` exists, and in the
+  existing pre-identity shape where it does not — legal on the contract as it
+  stands, because `failure_v2` constrains `error` by PATTERN and not by enum at
+  the schema layer and at the delegated validator both; the envelope-less
+  alternative is recorded with its three costs. **TWO MEMO CORRECTIONS**: the
+  packaged corpus is TWELVE fixtures, not four — eight are NEGATIVE and carry
+  SEVEN refusal classes with no `-v2` equivalent, each of which must be
+  re-expressed or its loss stated; and there are TWO fallback layers, the second
+  (`_refuse_turn`'s pre-identity drop) correct and untouched. Carries ONE
+  scenario-complete `## MODIFIED` block over promoted `ideation-dashboard`
+  canon, dropping nothing and therefore owing no `Removed from canon` marker.
+  Sibling: `retire-hermes-flat-keys-and-openworkflow-tokens`. (code surface:
+  openxFactory; target release: `contract-v3.0` — archives only on merged plus
+  green realization evidence, the moved manifest digest, the rebuilt inventory
+  and the published tag)
 
 The avatar-client kernel (`contract-v1.7`), reference runtime, and avatar-first UI
 standard (`contract-v1.8`) are realized. The contract kernel, the revocation
@@ -1728,7 +1827,29 @@ Archived changes:
   filed at **#536**. Promotion measured rather than assumed: 6 delta requirements
   in, 6 out, **all six bodies BYTE-IDENTICAL**, 32 delta scenarios carried across
   `lifecycle-notebook-projection` (+3 added, ~2 modified) and
-  `credential-contracts` (~1 modified). The original record follows unchanged.
+  `credential-contracts` (~1 modified). **THE THREE-PACKET READ-TOGETHER IS
+  PERFORMED IN A SUCCESSOR ACT, RECORDED AT**
+  [`review/read-together-2026-08-31.md`](openspec/changes/archive/2026-08-31-add-notebook-projection-identity/review/read-together-2026-08-31.md).
+  Issue **#545** filed it after the inverted archive order orphaned it: this
+  packet's § 8 declined to perform it, and the two credential-contracts packets
+  #541 archived first restate it as owed HERE — custody § 6.2 and
+  `add-binding-consumer-identity` § 7.3, one reconciliation seen from two sides.
+  Twelve promoted requirement blocks read against their archived deltas:
+  **eleven byte-identical, the twelfth being the one title two packets write and
+  carrying the later of the two whole.** Custody's **13 scenarios all stand with
+  the struck fifth absent** (0 occurrences under `openspec/specs/`); the
+  dependent's block is **five carried scenarios byte-identical plus one
+  addition**, zero lost and zero substituted; and this packet's generalization
+  CLOSED A REFERENCE THAT WAS DANGLING IN CANON — custody's *"the existing
+  prohibition on hard-coding an operated identity's credential"* pointed at
+  nothing between `b09e59da` and `4290cad2`. **ONE DEFECT FOUND, REPORTED AND NOT
+  REPAIRED**: the promoted `Modified over` marker (`credential-contracts:248`)
+  says the successor was named *"three times"* where the same packet's proposal,
+  its ratification record and the shipped `contract-v2.4` schema each say
+  **five**, and the post-strike count is **four**. **#545 THEREFORE STAYS OPEN**
+  on that finding, citing the record; the two archived boxes stay UNTICKED and
+  could not be otherwise, the record being their discharge rather than their
+  edit. The original record follows unchanged.
   — authored and ratified 2026-08-23 (Brett Heap, in-session). The single exit
   of the staged topic `notebook-projection-identity`, raised the day its last
   precondition was met. The whole governed NotebookLM projection — every
