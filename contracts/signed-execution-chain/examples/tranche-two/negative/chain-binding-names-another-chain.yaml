@@ -1,0 +1,67 @@
+# expected_failure: chain_binding_names_another_chain
+# expected_failure_detail: is not an identity for the next one
+# VIOLATES the third of the three composed records: THE SIGNED CHAIN BINDING NAMES
+# THE CHAIN IDENTITY IT SERVES.
+#
+# The binding is genuine, controller-signed and correctly shaped, and it serves a
+# DIFFERENT chain. An identity issued for one chain is not an identity for the next
+# one, and the binding's own signature over the claim is not evidence that it may
+# travel.
+schema_version: 1
+kind: xfactory_signed_execution_chain_chain_binding
+binding_id: bind-neg-other-chain
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+signed_binding:
+  chain_ref: sha256:34b6e6367a910de804cc8ed06e1c4d09dabb58709cd6d08e0aa778b84d765232
+  digest_construction: xfc-jcs-sha256-1
+  predecessor:
+    record_ref: clo-t5
+    record_kind: xfactory_signed_execution_chain_closure_record
+    digest:
+      construction: xfc-jcs-sha256-1
+      subject: closure_record
+      value: sha256:00a0d4301e5af834f7825485188682caac11df5d67fb10d97a2f0e7037b9a5a1
+  identity_key_ref: key-tier2-a
+  certificate_ref: cert:tier2-task-a
+  issuance_evidence_ref: ie:tier2-task-a
+  subject_scope: per_task
+  authorized_record_kinds:
+  - xfactory_signed_execution_chain_runner_attestation
+  validity_statement: 'Ephemeral: the certificate''s bounds close the same day the chain does.'
+  task_ref: task:t5-a
+binding_signature:
+  algorithm: ed25519
+  key_ref: key-controller-t2
+  certificate_ref: cert:controller-t2
+  signed_over: signed_binding
+  signature: QVmeUfRsaDhJJG11iWJ5_m_msF3T7RUGG8KiKa-rjuBbwlbAVqpKt_Hv09I1CHn6IuftMt07D2_KeZWpJlKeAg
+  public_key: z6MknKGe1CcdgEPaiTrzjYRFH9v82uWag54QefYsrKCye9Tn
+issued_at: '2026-09-01T10:06:00Z'
+leaf_ref: leaf-0046
+---
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-0046
+leaf_index: 46
+tree_size: 47
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+leaf_type: signed_chain_binding
+recorded_at: '2026-09-01T20:00:00Z'
+payload_ref: bind-neg-other-chain
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: signed_chain_binding
+  value: sha256:07c9d53a12f86cf8ed75706714ac2497ecee5b4747565c898fd84968bcba8ebb
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:922cf4dd48767e25480c9dcd08b0297f3a37d4a08faf63785e1f1acc391348b5
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:eb4551a821ef7a83a0cac1d4f74f656a659f4369b26a9b4e15e85c4d9b171836
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-t5
+  signed_over: leaf_content
+  signature: rpFjjyOBGTt1dBZgpiAaa2Ys76EeBskUsa34AV5fWJ9wy9iXu4uGhAFIML7Q_doi_Kf80og3cC7uO_cLwyMHCA

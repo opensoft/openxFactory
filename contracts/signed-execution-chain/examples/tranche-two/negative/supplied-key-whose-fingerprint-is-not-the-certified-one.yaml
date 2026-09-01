@@ -1,0 +1,89 @@
+# expected_failure: signing_key_fingerprint_mismatch
+# expected_failure_detail: FORGED-IDENTITY refusal names
+# VIOLATES the RESOLVE-COMPARE-THEN-VERIFY order. The record supplies a public key
+# beside its signature, the signature VERIFIES UNDER THAT KEY, and the key's
+# computed fingerprint does not EQUAL the certificate's.
+#
+# THE SIGNATURE'S VERIFYING UNDER THE SUPPLIED KEY IS NEVER ACCEPTED, since it is
+# the BINDING TO THE CERTIFICATE that was in question and not the arithmetic. A key
+# that is not the certified key is exactly what the forged-identity refusal names.
+schema_version: 1
+kind: xfactory_signed_execution_chain_runner_attestation
+attestation_id: att-neg-key-mismatch
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+signed_attestation:
+  chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+  digest_construction: xfc-jcs-sha256-1
+  predecessor:
+    record_ref: clo-t5
+    record_kind: xfactory_signed_execution_chain_closure_record
+    digest:
+      construction: xfc-jcs-sha256-1
+      subject: closure_record
+      value: sha256:00a0d4301e5af834f7825485188682caac11df5d67fb10d97a2f0e7037b9a5a1
+  task_ref: task:t5-a
+  identity:
+    binding_ref: bind-t5-a
+    subject_scope: per_task
+  attested_facts:
+  - fact: model
+    value: claude-opus-5
+    evidence_class: controller_corroborated
+  - fact: harness
+    value: codex-council-worker
+    evidence_class: controller_corroborated
+  - fact: node
+    value: 22.6.0
+    evidence_class: runner_claimed
+  - fact: sandbox_seal
+    value: verified
+    evidence_class: independently_observed
+    observed_by: opensoft-platform-attestation-service
+  signed_where: harness_controller
+  signing_request:
+    request_id: req-att-neg-key-mismatch
+    requested_at: '2026-09-01T16:10:00Z'
+    attribution:
+      attributed_by: controller_provisioning
+      requester_ref: task:t5-a
+      statement: Attributed from the controller's own provisioning.
+    payload_digest:
+      construction: xfc-jcs-sha256-1
+      subject: runner_attestation
+      value: sha256:16904ad87bf466e560334d44d868adf412f7eae19bb297d4264d31fd932be7d4
+attestation_signature:
+  algorithm: ed25519
+  key_ref: key-forged
+  certificate_ref: cert:tier2-task-a
+  signed_over: signed_attestation
+  signature: V4ubxuaWawgt2nN1zHiNInRlDcZVBb2i8VryBMcPmAOq4SpZ_SuAwwSYw3xwg1CUbg89W5qKDoczfzQGnNl9Aw
+  public_key: z6MksmSYYWAnHMB8sAddfvJ3uYG96qJSfma9FJcpBADjbvdq
+attested_at: '2026-09-01T16:10:00Z'
+leaf_ref: leaf-0046
+---
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-0046
+leaf_index: 46
+tree_size: 47
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+leaf_type: runner_attestation
+recorded_at: '2026-09-01T20:00:00Z'
+payload_ref: att-neg-key-mismatch
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: runner_attestation
+  value: sha256:7e84444f837c8c5722037c13a632fee6d819598ec88e36adae19596116d52e53
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:922cf4dd48767e25480c9dcd08b0297f3a37d4a08faf63785e1f1acc391348b5
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:2ca8c80509aa5b1d5a4efa041fa3637e176b3b10394f921daf57142476b4f608
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-t5
+  signed_over: leaf_content
+  signature: BmRAuMI_MjvBr7pd0rVMbHdaxAmP_VhiMY0t6tlrJ223A0BENw7xeq7VBy3TITzUfkdQrqZrs-Q3czIQfJEQCw

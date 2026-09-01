@@ -79,14 +79,29 @@ properties:
     minimum: 1
   chain_ref: {$ref: '#/$defs/chain_ref'}
   leaf_type:
-    # The four acts this capability governs. There is no fifth, and an act with no
-    # leaf is UNPROVEN: its own success is not evidence that it was permitted.
+    # The acts this capability governs. An act with no leaf is UNPROVEN: its own
+    # success is not evidence that it was permitted.
+    #
+    # THE FIRST FOUR ARE TRANCHE ONE'S. The seven below them are TRANCHE TWO's, one
+    # per record kind it defines, added by `add-chain-attestation` — because the
+    # signed hash-link rule takes effect at link 4 and the gate's continuity walk
+    # is over THE RECORDS THE LOG HOLDS IN THE ORDER IT HOLDS THEM. A signed record
+    # this capability defines that the log cannot name is a record the walk cannot
+    # reach, and a signed record omitted from the walk because its kind is
+    # unnumbered is an UNLINKED RECORD.
     type: string
     enum:
       - wallet_presented_ratification
       - chain_inception
       - traveling_contract_issued
       - gate_verdict
+      - setup_attestation
+      - commitment_extension
+      - signed_chain_binding
+      - runner_attestation
+      - pr_open_decision
+      - closure_record
+      - remediation_declaration
   recorded_at: {type: string, format: date-time}
   payload_ref:
     # The record this leaf records, by identifier.
@@ -118,14 +133,33 @@ properties:
         type: string
         enum: [permitted, refused, unevaluable]
       scope:
-        # The gate's scope at this tranche is links 1-3, and it does not report
-        # the absence of a later tranche's link as a break: a gate cannot walk a
-        # link that does not exist yet.
+        # THE GATE'S SCOPE IS EXACTLY THE LINKS THE RATIFIED TRANCHES HAVE PUT IN
+        # FORCE, AND IT GROWS WITH THEM — links 1-3 at tranche one, LINKS 1-6 FROM
+        # TRANCHE TWO. The `const` this member carried is widened to an
+        # ENUMERATION rather than replaced, because a verdict recorded under
+        # tranche one is a record of what that gate actually walked and stays
+        # readable; what is refused is a NEW verdict claiming the shorter scope
+        # once the longer one is in force, and that refusal is the reader's
+        # (`gate_scope_understated`) rather than the shape's.
+        #
+        # It still does not report the absence of a link NO RATIFIED TRANCHE HAS
+        # YET PUT IN FORCE as a break: a gate cannot walk a link that does not
+        # exist yet — and that sentence is available for such a link and for no
+        # other.
         type: string
-        const: links_1_3
+        enum: [links_1_3, links_1_6]
       checks:
-        # THE EIGHT ORDERED CHECKS, EACH AT ITS OWN POSITION, so a verdict says
+        # THE ORDERED CHECKS, EACH AT ITS OWN POSITION, so a verdict says
         # WHICH check decided it rather than only that something failed.
+        #
+        # EIGHT AT TRANCHE ONE, ELEVEN FROM TRANCHE TWO. The three legs added at
+        # positions 9-11 are the extended walk's link-4, link-5 and link-6 legs —
+        # PART OF THE SAME ONE WALK AND NOT A SECOND GATE. `maxItems` grows and
+        # `minItems` does not, so a tranche-one verdict carrying eight remains
+        # valid; the reader refuses the pairing that is actually wrong — a
+        # `links_1_6` verdict carrying only the first eight
+        # (`gate_walk_incomplete`) — because that is a claim about scope and not a
+        # shape defect.
         #
         # WHY `prefixItems` AND NOT `enum` PLUS `uniqueItems`. Found by Copilot on
         # `0d0f277d`, and it is right: `uniqueItems` compares whole ITEMS, so two
@@ -143,7 +177,7 @@ properties:
         # preference: where a shape can refuse a thing, the shape refuses it.
         type: array
         minItems: 8
-        maxItems: 8
+        maxItems: 11
         prefixItems:
           - {$ref: '#/$defs/check_entry', properties: {check: {const: ratification_signature_verifies}}}
           - {$ref: '#/$defs/check_entry', properties: {check: {const: chain_identity_recomputes}}}
@@ -153,6 +187,10 @@ properties:
           - {$ref: '#/$defs/check_entry', properties: {check: {const: actor_bound_to_signing_wallet}}}
           - {$ref: '#/$defs/check_entry', properties: {check: {const: proof_of_possession_supplied_and_verified}}}
           - {$ref: '#/$defs/check_entry', properties: {check: {const: standing_and_holder_class_at_exercise}}}
+          # --- the extended walk, from tranche two ---
+          - {$ref: '#/$defs/check_entry', properties: {check: {const: setup_attestation_established_and_committed}}}
+          - {$ref: '#/$defs/check_entry', properties: {check: {const: runner_attestations_equal_the_committed_expectation}}}
+          - {$ref: '#/$defs/check_entry', properties: {check: {const: open_decision_binds_chain_and_pull_request}}}
         items: false
       refusal:
         # Required when the outcome is `refused` or `unevaluable`, forbidden when
@@ -192,6 +230,79 @@ properties:
               - chain_unevaluable
               - machine_holder_as_ratifying_authority
               - ratification_signature_invalid
+              # --- tranche two (`add-chain-attestation`), one code per named
+              # --- refusal the delta states. The enumeration is WIDENED and
+              # --- nothing is removed: a verdict recorded under tranche one still
+              # --- names a code this list holds.
+              - controller_anchor_not_held
+              - custody_ceiling_exceeded
+              - issuance_provenance_asserted_undeclared
+              - commitment_extension_after_dispatch
+              - extension_minted_on_request_arrival
+              - attestation_for_uncommitted_task
+              - extension_signed_away_from_controller
+              - certificate_revoked_at_signing
+              - certificate_revoked_after_signing
+              - attestation_signed_away_from_controller
+              - signing_request_unattributable
+              - requester_identity_self_reported
+              - platform_attribution_shortfall_undeclared
+              - platform_attribution_shortfall_disqualifies
+              - attestation_identity_as_actor
+              - persona_proposed_for_workload
+              - per_task_identity_reused
+              - forged_attestation_identity
+              - chain_binding_names_another_chain
+              - record_kind_outside_closed_enumeration
+              - tier2_identity_expired_at_signing
+              - certificate_fingerprint_absent
+              - signing_key_fingerprint_mismatch
+              - subject_scope_mismatch
+              - payload_disagrees_with_setup_attestation
+              - evidence_class_unsupported
+              - runner_claimed_fact_read_as_attested
+              - signing_subject_not_provisioned
+              - tier2_key_in_worker
+              - tier2_key_reachable_from_runner
+              - controller_colocated_with_runner
+              - ephemeral_lifetime_offered_as_non_secret
+              - reusable_signing_delegation
+              - orphan_pull_request
+              - open_decision_names_another_chain
+              - open_decision_enumeration_incomplete
+              - open_decision_pull_request_mismatch
+              - open_decision_offered_as_permission
+              - predecessor_digest_break
+              - digest_subject_unnamed
+              - second_digest_construction_declared
+              - attestation_leaf_deferred_past_successor
+              - enumerated_record_unproven
+              - attestation_outside_committed_expectation
+              - dispatched_leaf_never_written
+              - gate_scope_understated
+              - gate_walk_incomplete
+              - links_1_3_only_after_tranche_two
+              - closure_outcome_unestablished
+              - closure_result_failed
+              - closure_result_unsigned
+              - tested_revision_mismatch
+              - governed_test_identity_mismatch
+              - closure_declared_shortfall_offered
+              - review_record_authority_unproven
+              - review_authority_revoked_at_exercise
+              - review_authority_standing_stale
+              - review_record_replayed
+              - amendment_lineage_absent
+              - amendment_lineage_unsupported
+              - merged_and_never_closed
+              - release_over_unclosed_chain
+              - remediation_subject_not_declared
+              - remediation_exemption_inherited
+              - remediation_skips_gate
+              - remediation_own_closure_failed
+              - step_executed_without_verified_chain
+              - seventh_permission_boolean_proposed
+              - worker_given_key_material_to_verify
           statement: {type: string, minLength: 1, maxLength: 600}
           names: {$ref: '#/$defs/identifier'}
   leaf_digest:

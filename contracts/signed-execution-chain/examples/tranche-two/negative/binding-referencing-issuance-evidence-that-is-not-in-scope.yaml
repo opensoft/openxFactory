@@ -1,0 +1,67 @@
+# expected_failure: forged_attestation_identity
+# expected_failure_detail: which is not in scope
+# THE COMPOSITION IS NOT COMPOSED UNTIL EVERY PART IS THERE. The binding names an
+# issuance evidence record nothing resolves, so one of the three records that
+# compose a tier-2 identity is MISSING and the forged-identity refusal fires.
+#
+# It fires on ANY ONE MISSING — the certificate, the issuance evidence, or the chain
+# binding — because what the three establish together is that the controller ISSUED
+# this identity, and two of them establish that no more than one does.
+schema_version: 1
+kind: xfactory_signed_execution_chain_chain_binding
+binding_id: bind-neg-missing-issuance
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+signed_binding:
+  chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+  digest_construction: xfc-jcs-sha256-1
+  predecessor:
+    record_ref: clo-t5
+    record_kind: xfactory_signed_execution_chain_closure_record
+    digest:
+      construction: xfc-jcs-sha256-1
+      subject: closure_record
+      value: sha256:00a0d4301e5af834f7825485188682caac11df5d67fb10d97a2f0e7037b9a5a1
+  identity_key_ref: key-tier2-a
+  certificate_ref: cert:tier2-task-a
+  issuance_evidence_ref: ie:never-issued
+  subject_scope: per_task
+  authorized_record_kinds:
+  - xfactory_signed_execution_chain_runner_attestation
+  validity_statement: 'Ephemeral: the certificate''s bounds close the same day the chain does.'
+  task_ref: task:t5-a
+binding_signature:
+  algorithm: ed25519
+  key_ref: key-controller-t2
+  certificate_ref: cert:controller-t2
+  signed_over: signed_binding
+  signature: wSjyMzcMkexU7PqD9zL1iEfpHl9ZEEkQM9tMRZ422whAHRFBKi7iWyXcNmyurENZNadsDpWTIi0z6fvLEqbZBQ
+  public_key: z6MknKGe1CcdgEPaiTrzjYRFH9v82uWag54QefYsrKCye9Tn
+issued_at: '2026-09-01T10:06:00Z'
+leaf_ref: leaf-0046
+---
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-0046
+leaf_index: 46
+tree_size: 47
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+leaf_type: signed_chain_binding
+recorded_at: '2026-09-01T20:00:00Z'
+payload_ref: bind-neg-missing-issuance
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: signed_chain_binding
+  value: sha256:056a83a3817f5ee3ae2c6a001be49f1929e0bac11875f756c1f56d97ab87e2e0
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:922cf4dd48767e25480c9dcd08b0297f3a37d4a08faf63785e1f1acc391348b5
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:83dd5f8924697bee11a9d5af4e70a6d5f6ba305382edd581d0cdc85bdf9eb744
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-t5
+  signed_over: leaf_content
+  signature: 3BVcihK0zhE-eoKvfzll80zM3BbVAf-ngGDT6oj97w0YY0QmOxJ2G3j4PT3kmHnkzW_CAmjBuAMg3bx2nYEGCA

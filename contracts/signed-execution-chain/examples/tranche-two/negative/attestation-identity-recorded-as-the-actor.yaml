@@ -1,0 +1,69 @@
+# expected_failure: attestation_identity_as_actor
+# expected_failure_detail: a workload is not a persona
+# VIOLATES requirement 2's composition with `add-identity-brokering`, whose
+# contribution here is A REFUSAL: a workload, agent, job or service is never
+# represented as a persona and NEVER APPEARS AS THE ACTOR of a governed act.
+#
+# A tier-2 attestation identity is a workload by that definition — a per-task one and
+# the chain-scoped one alike, since WIDENING A SUBJECT DOES NOT MAKE A WORKLOAD A
+# PERSONA. The chain here records the tier-2 identity's own key as its actor. The
+# act's actor remains link 1's stable opaque subject bound to the wallet that
+# signed: tier 2 answers WHAT RAN, tier 1 answers WHO PERMITTED.
+schema_version: 1
+kind: xfactory_signed_execution_chain_chain_binding
+binding_id: bind-neg-actor
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+signed_binding:
+  chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+  digest_construction: xfc-jcs-sha256-1
+  predecessor:
+    record_ref: clo-t5
+    record_kind: xfactory_signed_execution_chain_closure_record
+    digest:
+      construction: xfc-jcs-sha256-1
+      subject: closure_record
+      value: sha256:00a0d4301e5af834f7825485188682caac11df5d67fb10d97a2f0e7037b9a5a1
+  identity_key_ref: sub-t5-c9e34a17f5082bd4
+  certificate_ref: cert:tier2-task-a
+  issuance_evidence_ref: ie:tier2-task-a
+  subject_scope: per_task
+  authorized_record_kinds:
+  - xfactory_signed_execution_chain_runner_attestation
+  validity_statement: 'Ephemeral: the certificate''s bounds close the same day the chain does.'
+  task_ref: task:t5-a
+binding_signature:
+  algorithm: ed25519
+  key_ref: key-controller-t2
+  certificate_ref: cert:controller-t2
+  signed_over: signed_binding
+  signature: Buh_9ozxFGMmPdg8jA-u2MSdjPWzc_DjXyEXNNR6fNSbpj6FIl91fN1xyONzGL69-ptFvoi_-yIrxk7KyrGyAg
+  public_key: z6MknKGe1CcdgEPaiTrzjYRFH9v82uWag54QefYsrKCye9Tn
+issued_at: '2026-09-01T10:06:00Z'
+leaf_ref: leaf-0046
+---
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-0046
+leaf_index: 46
+tree_size: 47
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+leaf_type: signed_chain_binding
+recorded_at: '2026-09-01T20:00:00Z'
+payload_ref: bind-neg-actor
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: signed_chain_binding
+  value: sha256:0f88d31bcb1dd710cf1856c85d2b156e683d1d79744e701be416a03d8802fbce
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:922cf4dd48767e25480c9dcd08b0297f3a37d4a08faf63785e1f1acc391348b5
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:136c0d82d5be0d69bf58ce8d4e1082d59137f6685022a230c20c6d08c67ade0f
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-t5
+  signed_over: leaf_content
+  signature: KKBDT0xYHDF6dPRn1PbP60r7BZ0b550CZgpdgQ928tskazBkLFZ34SCJTJR1bRCGotf1b1mwyGwMMVWisNR7BA

@@ -1,0 +1,229 @@
+# expected_failure: tier2_identity_expired_at_signing
+# expected_failure_detail: bounds that are merely PRESENT are not bounds that are MET
+# VIOLATES the first limb of the composed verification: THE CERTIFICATE VALID AND
+# CURRENT. An ephemeral identity is one whose VALIDITY BOUNDS SAY SO, and the
+# signing moment here falls outside them.
+#
+# BOUNDS THAT ARE MERELY PRESENT ARE NOT BOUNDS THAT ARE MET. The guard walk that
+# found this asked of every permitting conjunct set *what input makes this pass
+# wrongly?* — and a positive that checked only that bounds EXISTED was one of the
+# two it found on its second pass, over sets the first walk had already touched.
+schema_version: 1
+kind: xfactory_certificate_record
+certificate_id: cert:tier2-expired
+realization_ref: realization:openxfactory-signed-execution-chain-tranche-two
+anchor_ref: anchor:opensoft-harness-root
+subject:
+  identifier: tier2-task-a
+  subject_class: workload
+  display_label: Packaged fixture tier2-task-a - not a live subject
+  public_key_fingerprint: sha256:269dc40392ca01ac70d40083da3b67da5793ce1b224ba098ba4d742a200dd024
+validity:
+  not_before: '2026-09-01T08:00:00Z'
+  not_after: '2026-09-01T09:30:00Z'
+state: valid
+key_generation:
+  generation_ref: keygen:cert:tier2-task-a
+  generated_at: '2026-09-01T08:00:00Z'
+declared_chain_custody:
+  custody_model: host_isolated_per_use_authorized
+  registry_id: trust-anchor-chain-custody
+  registry_version: 1
+  credential_record_ref: credential:cert:tier2-task-a-key
+  vault_binding_ref: vaultbinding:opensoft/cert:tier2-task-a-key
+  declared_at: '2026-09-01T08:00:00Z'
+  declared_by: opensoft
+evidences: named_holder
+assurance_ceiling: holder_attributed_act
+custody_in_force_at: '2026-09-01T08:00:00Z'
+issuance_evidence:
+  present: true
+  evidence_ref: ie:tier2-expired
+dependent_binding_enumeration:
+  state: complete
+  asserted_at: '2026-09-01T08:00:00Z'
+  binding_refs: []
+  statement: 'No dependent binding: an attestation identity signs records and terminates no
+    connection.'
+trust_evaluation:
+  evaluated_at: '2026-09-01T08:00:00Z'
+  basis: held_anchor_record
+  presented_chain:
+  - cert:tier2-task-a
+  - anchor:opensoft-harness-root
+  chain_terminates_in_held_anchor: true
+  revocation_standing_check:
+    basis: checked_at_use
+    performed_at_use: true
+    checked_at: '2026-09-01T08:00:00Z'
+    result: current_standing_active
+    source_statement: Standing checked against the issuing authority at use.
+  outcome: trusted
+record_version: 1
+created_at: '2026-09-01T08:00:00Z'
+---
+schema_version: 1
+kind: xfactory_certificate_issuance_evidence
+issuance_evidence_id: ie:tier2-expired
+certificate_ref: cert:tier2-expired
+anchor_ref: anchor:opensoft-harness-root
+realization_ref: realization:openxfactory-signed-execution-chain-tranche-two
+authority:
+  authority_ref: policy:harness-controller-issuance-policy
+  authority_kind: policy
+  statement: The issuance policy the anchor admits by name.
+establishment_level: per_certificate_record
+request_provenance:
+  establishment: established
+  requester_ref: harness-controller.opensoft.qa
+  request_id: req:tier2-expired
+  requested_at: '2026-09-01T08:00:00Z'
+  statement: The controller's own issuance record carries the requester, the request and its
+    time.
+issued_at: '2026-09-01T08:00:00Z'
+authorization_state: authorized
+issuing_authority:
+  operated_by_family: true
+  statement: Operated by the family, so per-certificate provenance is extractable and the
+    strict level is honest.
+record_version: 1
+---
+schema_version: 1
+kind: xfactory_signed_execution_chain_chain_binding
+binding_id: bind-neg-expired
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+signed_binding:
+  chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+  digest_construction: xfc-jcs-sha256-1
+  predecessor:
+    record_ref: clo-t5
+    record_kind: xfactory_signed_execution_chain_closure_record
+    digest:
+      construction: xfc-jcs-sha256-1
+      subject: closure_record
+      value: sha256:00a0d4301e5af834f7825485188682caac11df5d67fb10d97a2f0e7037b9a5a1
+  identity_key_ref: key-tier2-a
+  certificate_ref: cert:tier2-expired
+  issuance_evidence_ref: ie:tier2-expired
+  subject_scope: per_task
+  authorized_record_kinds:
+  - xfactory_signed_execution_chain_runner_attestation
+  validity_statement: 'Ephemeral: the certificate''s bounds close the same day the chain does.'
+  task_ref: task:t5-a
+binding_signature:
+  algorithm: ed25519
+  key_ref: key-controller-t2
+  certificate_ref: cert:controller-t2
+  signed_over: signed_binding
+  signature: eyfVW0NA_YRKWKYURjIIro2Hz6KF3Fx1Bp3bVRJJ3OSBJUvN1hvYjLo3rq6mSc9NvnxOedY30GBqBpDvZcFbCw
+  public_key: z6MknKGe1CcdgEPaiTrzjYRFH9v82uWag54QefYsrKCye9Tn
+issued_at: '2026-09-01T10:06:00Z'
+leaf_ref: leaf-0046
+---
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-0046
+leaf_index: 46
+tree_size: 47
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+leaf_type: signed_chain_binding
+recorded_at: '2026-09-01T20:00:00Z'
+payload_ref: bind-neg-expired
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: signed_chain_binding
+  value: sha256:e02768b310abe29f8c072c92927f7e755579c0e342b5d95170a6db31c1fbacd6
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:922cf4dd48767e25480c9dcd08b0297f3a37d4a08faf63785e1f1acc391348b5
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:57dbdf08f8e877f861bb3ec36cac78481400c226ad86667a0d094464d51bbf64
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-t5
+  signed_over: leaf_content
+  signature: c-pDWqA590RgUMEL-H7aKLAMul8KzQ4uB4rif2aS6JcVtnNMK7cz_vEhLQj-8hiTJeO09NiqFy3rwkz7x8GsAg
+---
+schema_version: 1
+kind: xfactory_signed_execution_chain_runner_attestation
+attestation_id: att-neg-expired
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+signed_attestation:
+  chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+  digest_construction: xfc-jcs-sha256-1
+  predecessor:
+    record_ref: bind-neg-expired
+    record_kind: xfactory_signed_execution_chain_chain_binding
+    digest:
+      construction: xfc-jcs-sha256-1
+      subject: signed_chain_binding
+      value: sha256:e02768b310abe29f8c072c92927f7e755579c0e342b5d95170a6db31c1fbacd6
+  task_ref: task:t5-a
+  identity:
+    binding_ref: bind-neg-expired
+    subject_scope: per_task
+  attested_facts:
+  - fact: model
+    value: claude-opus-5
+    evidence_class: controller_corroborated
+  - fact: harness
+    value: codex-council-worker
+    evidence_class: controller_corroborated
+  - fact: node
+    value: 22.6.0
+    evidence_class: runner_claimed
+  - fact: sandbox_seal
+    value: verified
+    evidence_class: independently_observed
+    observed_by: opensoft-platform-attestation-service
+  signed_where: harness_controller
+  signing_request:
+    request_id: req-att-neg-expired
+    requested_at: '2026-09-01T16:10:00Z'
+    attribution:
+      attributed_by: controller_provisioning
+      requester_ref: task:t5-a
+      statement: Attributed from the controller's own provisioning.
+    payload_digest:
+      construction: xfc-jcs-sha256-1
+      subject: runner_attestation
+      value: sha256:71323d71fe72e18c950733f35872f3ca80111133372958fc92bd6a5d9342341d
+attestation_signature:
+  algorithm: ed25519
+  key_ref: key-tier2-a
+  certificate_ref: cert:tier2-expired
+  signed_over: signed_attestation
+  signature: i8pRRqdyWZ2xYGu76rPrlh9DZKqngC1MkI-umgyhJKX-izPIeaCGr-nUon88MvLbKLnIFnDspCF52kl8eUzFBg
+  public_key: z6Mkph4jBMboXmzytn7Qt3ZzovEnKCT7GRQPbrpKByxr7H24
+attested_at: '2026-09-01T16:10:00Z'
+leaf_ref: leaf-0047
+---
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-0047
+leaf_index: 47
+tree_size: 48
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+leaf_type: runner_attestation
+recorded_at: '2026-09-01T20:36:00Z'
+payload_ref: att-neg-expired
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: runner_attestation
+  value: sha256:3d88d6eddfe2618d2201201132020aa7d244eea76c04b43ebf6885d3dc2b9a1a
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:57dbdf08f8e877f861bb3ec36cac78481400c226ad86667a0d094464d51bbf64
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:64948b1670255a491d21df03999b3f3a26864f3288620ca8dd99944aa38ddf47
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-t5
+  signed_over: leaf_content
+  signature: ppTbbHYwMj8M62T8ma07JOW0nYhAG_xy6hA9-ZdqNr56LYzKnfgPlp2lCC4nG6tGRlfMreviOzQI7Z1AxVYgCg

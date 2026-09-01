@@ -1,0 +1,91 @@
+# expected_failure: attestation_signed_away_from_controller
+# expected_failure_detail: CUSTODY BREACH
+# VIOLATES Q7 AS RULED: attestation signatures happen BY REMOTE SIGNING SERVED BY
+# THE HARNESS CONTROLLER. The record declares its signature was produced at the
+# RUNNER.
+#
+# THE REFUSAL NAMES THE CUSTODY BREACH RATHER THAN THE SIGNATURE'S VALIDITY, because
+# the signature here is perfectly valid — A VALID SIGNATURE MADE IN THE WRONG PLACE
+# IS NOT A CONFORMING ATTESTATION. `signed_where` is an enumeration and not a
+# `const` for exactly this reason: the wrong value earns a refusal that says what
+# was wrong.
+schema_version: 1
+kind: xfactory_signed_execution_chain_runner_attestation
+attestation_id: att-neg-runner-signed
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+signed_attestation:
+  chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+  digest_construction: xfc-jcs-sha256-1
+  predecessor:
+    record_ref: clo-t5
+    record_kind: xfactory_signed_execution_chain_closure_record
+    digest:
+      construction: xfc-jcs-sha256-1
+      subject: closure_record
+      value: sha256:00a0d4301e5af834f7825485188682caac11df5d67fb10d97a2f0e7037b9a5a1
+  task_ref: task:t5-a
+  identity:
+    binding_ref: bind-t5-a
+    subject_scope: per_task
+  attested_facts:
+  - fact: model
+    value: claude-opus-5
+    evidence_class: controller_corroborated
+  - fact: harness
+    value: codex-council-worker
+    evidence_class: controller_corroborated
+  - fact: node
+    value: 22.6.0
+    evidence_class: runner_claimed
+  - fact: sandbox_seal
+    value: verified
+    evidence_class: independently_observed
+    observed_by: opensoft-platform-attestation-service
+  signed_where: runner
+  signing_request:
+    request_id: req-att-neg-runner-signed
+    requested_at: '2026-09-01T16:10:00Z'
+    attribution:
+      attributed_by: controller_provisioning
+      requester_ref: task:t5-a
+      statement: Attributed from the controller's own provisioning.
+    payload_digest:
+      construction: xfc-jcs-sha256-1
+      subject: runner_attestation
+      value: sha256:d52079eb16441738818f4943ecc208f2817fd28c101d1c3111015ad6450ae8a5
+attestation_signature:
+  algorithm: ed25519
+  key_ref: key-tier2-a
+  certificate_ref: cert:tier2-task-a
+  signed_over: signed_attestation
+  signature: JTC_h0JECbEaD5raDDJBD9KbqeWlAilprkBGvZbpYTbpw53s4pSSo_uSwzwuB6XCFVcr-gHAzfKXIB5EMW-hDw
+  public_key: z6Mkph4jBMboXmzytn7Qt3ZzovEnKCT7GRQPbrpKByxr7H24
+attested_at: '2026-09-01T16:10:00Z'
+leaf_ref: leaf-0046
+---
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-0046
+leaf_index: 46
+tree_size: 47
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+leaf_type: runner_attestation
+recorded_at: '2026-09-01T20:00:00Z'
+payload_ref: att-neg-runner-signed
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: runner_attestation
+  value: sha256:11f3ba226f6ce8b675706f82dee29f8f7ab8a9d0f71bcdf75a34bf38106b4544
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:922cf4dd48767e25480c9dcd08b0297f3a37d4a08faf63785e1f1acc391348b5
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:528f3103715d20077e3dec76fdfb02d69cc4f6acabdb9eba55f0fac5d22dd6f3
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-t5
+  signed_over: leaf_content
+  signature: keFm88gzAF0pJh0HKpcJBpJiSy2xO1s2iaWvwqIplVxsM1iAjXAJLf1uhfdL5HzvDltd7czkEf2tg6m6K2dKBA

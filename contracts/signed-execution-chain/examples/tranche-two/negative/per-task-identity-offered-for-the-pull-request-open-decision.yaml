@@ -1,0 +1,88 @@
+# expected_failure: subject_scope_mismatch
+# expected_failure_detail: issued at
+# VIOLATES the subject split at the point that made it necessary. LINK 6 IS ONE
+# DECISION COMMITTING TO EVERY LINK-5 ATTESTATION for the work it proposes, so its
+# subject is THE CHAIN and not any one task.
+#
+# A signer valid for one task and authorized only for records ABOUT THAT TASK cannot
+# produce it the moment a chain fans out past one task: whichever task's identity
+# signed, the record would necessarily cover work from the others. A SINGLE-TASK
+# CHAIN IS NOT ACCEPTED AS MAKING THE SCOPE IMMATERIAL, since a rule that holds only
+# where the fan-out happens to be one is not the rule.
+schema_version: 1
+kind: xfactory_signed_execution_chain_pr_open_decision
+decision_id: dec-neg-per-task
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+signed_decision:
+  chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+  digest_construction: xfc-jcs-sha256-1
+  predecessor:
+    record_ref: clo-t5
+    record_kind: xfactory_signed_execution_chain_closure_record
+    digest:
+      construction: xfc-jcs-sha256-1
+      subject: closure_record
+      value: sha256:00a0d4301e5af834f7825485188682caac11df5d67fb10d97a2f0e7037b9a5a1
+  identity:
+    binding_ref: bind-t5-a
+    subject_scope: chain_scoped
+  pull_request:
+    pull_request_ref: opensoft/openxFactory#554
+    head_revision: 84104bee44556677
+    base_ref: main
+  committed_attestations:
+  - task_ref: task:t5-a
+    attestation_ref: att-t5-a
+    digest:
+      construction: xfc-jcs-sha256-1
+      subject: runner_attestation
+      value: sha256:f91a14cd05244c9dd333669e497b5fac8cc376e206e0cacb623845d1cb695906
+  proposes: Realize the ratified subject as contract bytes.
+  signed_where: harness_controller
+  signing_request:
+    request_id: req-dec-neg-per-task
+    requested_at: '2026-09-01T16:20:00Z'
+    attribution:
+      attributed_by: chain_inception_binding
+      requester_ref: sub-t5-c9e34a17f5082bd4
+      statement: Attributed to the party the chain's inception record binds.
+    payload_digest:
+      construction: xfc-jcs-sha256-1
+      subject: pr_open_decision
+      value: sha256:af35d000f7e48ca8b6c788e916a5c2f80803ffd702a5e7116d2eaf1c1ad90fdf
+decision_signature:
+  algorithm: ed25519
+  key_ref: key-tier2-a
+  certificate_ref: cert:tier2-task-a
+  signed_over: signed_decision
+  signature: Abhgsvs-mlb_-WgLJEn4DBxXD5qLJgd854ahjT5sGwoN2geQLX_tJBDAeNbazXON-t9ySLBKlnHCppUVAZwRBA
+  public_key: z6Mkph4jBMboXmzytn7Qt3ZzovEnKCT7GRQPbrpKByxr7H24
+decided_at: '2026-09-01T16:20:00Z'
+leaf_ref: leaf-0046
+---
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-0046
+leaf_index: 46
+tree_size: 47
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+leaf_type: pr_open_decision
+recorded_at: '2026-09-01T20:00:00Z'
+payload_ref: dec-neg-per-task
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: pr_open_decision
+  value: sha256:a194b6e72c94982356815236871aa8843ac72f4bcdcc254979b3c9d44f9bed12
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:922cf4dd48767e25480c9dcd08b0297f3a37d4a08faf63785e1f1acc391348b5
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:e31fbaacae6a42be48bee3cd40149096606a381b3e0509ea730780529d9e02f1
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-t5
+  signed_over: leaf_content
+  signature: KEv3exPlseebXyhFa0hjRbHh2EnmBxrXHL3Wjmi48fQnne1ROz6ja9v0za5k3NTfSsBNBPZauQq1RdJvA3IqCg

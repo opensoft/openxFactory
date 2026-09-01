@@ -1,0 +1,174 @@
+# expected_failure: certificate_revoked_after_signing
+# expected_failure_detail: is not retroactively unmade
+# THE SECOND HORIZON, AND THE OTHER OUTCOME. A certificate revoked AFTER a
+# signature was made does NOT retroactively unmake an act the gate already
+# permitted; it REFUSES EVERYTHING THE CHAIN HAS NOT YET BEEN PERMITTED FOR from
+# that point.
+#
+# The fixture supplies a certificate record whose state is `revoked` and whose
+# evaluation is dated AFTER the record it signed. This is a DESIGN DECISION of this
+# packet rather than a ruling, and the two cases are recorded as two because a
+# revoked-at-signing certificate produces no admissible attestation at all while
+# this one leaves an act standing and refuses the remainder.
+schema_version: 1
+kind: xfactory_certificate_record
+certificate_id: cert:controller-revoked-later
+realization_ref: realization:openxfactory-signed-execution-chain-tranche-two
+anchor_ref: anchor:opensoft-harness-root
+subject:
+  identifier: harness-controller.opensoft.qa
+  subject_class: service
+  display_label: Packaged fixture harness-controller.opensoft.qa - not a live subject
+  public_key_fingerprint: sha256:162cf4870dd8922dcd493fc4306a92f52ecf96da6a27febed16b9b548882df57
+validity:
+  not_before: '2026-08-01T00:00:00Z'
+  not_after: '2027-08-01T00:00:00Z'
+state: revoked
+key_generation:
+  generation_ref: keygen:cert:controller-t2
+  generated_at: '2026-08-01T00:00:00Z'
+declared_chain_custody:
+  custody_model: host_isolated_per_use_authorized
+  registry_id: trust-anchor-chain-custody
+  registry_version: 1
+  credential_record_ref: credential:cert:controller-t2-key
+  vault_binding_ref: vaultbinding:opensoft/cert:controller-t2-key
+  declared_at: '2026-08-01T00:00:00Z'
+  declared_by: opensoft
+evidences: named_holder
+assurance_ceiling: holder_attributed_act
+custody_in_force_at: '2026-08-01T00:00:00Z'
+issuance_evidence:
+  present: true
+  evidence_ref: ie:controller-revoked-later
+dependent_binding_enumeration:
+  state: complete
+  asserted_at: '2026-08-01T00:00:00Z'
+  binding_refs: []
+  statement: 'No dependent binding: an attestation identity signs records and terminates no
+    connection.'
+trust_evaluation:
+  evaluated_at: '2026-09-02T00:00:00Z'
+  basis: held_anchor_record
+  presented_chain:
+  - cert:controller-t2
+  - anchor:opensoft-harness-root
+  chain_terminates_in_held_anchor: true
+  revocation_standing_check:
+    basis: checked_at_use
+    performed_at_use: true
+    checked_at: '2026-08-01T00:00:00Z'
+    result: current_standing_active
+    source_statement: Standing checked against the issuing authority at use.
+  outcome: refused
+record_version: 1
+created_at: '2026-08-01T00:00:00Z'
+---
+schema_version: 1
+kind: xfactory_certificate_issuance_evidence
+issuance_evidence_id: ie:controller-revoked-later
+certificate_ref: cert:controller-revoked-later
+anchor_ref: anchor:opensoft-harness-root
+realization_ref: realization:openxfactory-signed-execution-chain-tranche-two
+authority:
+  authority_ref: policy:harness-controller-issuance-policy
+  authority_kind: policy
+  statement: The issuance policy the anchor admits by name.
+establishment_level: per_certificate_record
+request_provenance:
+  establishment: established
+  requester_ref: harness-controller.opensoft.qa
+  request_id: req:controller-revoked-later
+  requested_at: '2026-09-01T08:00:00Z'
+  statement: The controller's own issuance record carries the requester, the request and its
+    time.
+issued_at: '2026-09-01T08:00:00Z'
+authorization_state: authorized
+issuing_authority:
+  operated_by_family: true
+  statement: Operated by the family, so per-certificate provenance is extractable and the
+    strict level is honest.
+record_version: 1
+---
+schema_version: 1
+kind: xfactory_signed_execution_chain_setup_attestation
+attestation_id: setup-neg-revoked-after
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+signed_setup:
+  chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+  digest_construction: xfc-jcs-sha256-1
+  controller_certificate:
+    certificate_ref: cert:controller-t2
+    anchor_ref: anchor:opensoft-harness-root
+    issuance_evidence_ref: ie:controller-t2
+    declared_custody_model: host_isolated_per_use_authorized
+    revocation_standing_at_signing: active
+  provisioned_environment:
+    model_surface:
+    - fact: model
+      value: claude-opus-5
+      evidence_class: controller_corroborated
+    - fact: model_version
+      value: '2026-08-19'
+      evidence_class: controller_corroborated
+    harness:
+    - fact: harness
+      value: codex-council-worker
+      evidence_class: controller_corroborated
+    - fact: harness_version
+      value: 1.14.2
+      evidence_class: controller_corroborated
+    toolchain:
+    - fact: python
+      value: 3.12.4
+      evidence_class: controller_corroborated
+    - fact: node
+      value: 22.6.0
+      evidence_class: runner_claimed
+    workspace_provenance:
+    - fact: repository
+      value: opensoft/openxFactory
+      evidence_class: controller_corroborated
+    - fact: base_revision
+      value: 9af98c4d
+      evidence_class: controller_corroborated
+  expected_attestation_set:
+  - task_ref: task:t5-a
+    dispatched_at: '2026-09-01T16:04:00Z'
+    statement: Dispatched under chain t5.
+setup_signature:
+  algorithm: ed25519
+  key_ref: key-controller-t2
+  certificate_ref: cert:controller-revoked-later
+  signed_over: signed_setup
+  signature: zc2qNlXmiB2KzrquUK4xBJREDl0gZdcIT0vuB8wDu32ReQmzR9UJvuOVdGLU-Uwmo75rEptkFOXhbJ-QkRIbAQ
+  public_key: z6MknKGe1CcdgEPaiTrzjYRFH9v82uWag54QefYsrKCye9Tn
+attested_at: '2026-09-01T10:05:00Z'
+leaf_ref: leaf-0046
+---
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-0046
+leaf_index: 46
+tree_size: 47
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+leaf_type: setup_attestation
+recorded_at: '2026-09-01T20:00:00Z'
+payload_ref: setup-neg-revoked-after
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: setup_attestation
+  value: sha256:0f441347522cdbf1d6e21bac13976913ec49c9aeed0cf1170dd3a450a240cc0b
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:922cf4dd48767e25480c9dcd08b0297f3a37d4a08faf63785e1f1acc391348b5
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:e2e398eea3a4966e6ed2af79858d648dbc93ee928b169c57b854ea90c6bf40df
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-t5
+  signed_over: leaf_content
+  signature: KtisoKznFIXGwG-GoRMkJ8UjgPpAMgu1WotCEHEmJC2LH04WMOnBN-RWANojjiCRydfyZbExtMkQB3oRaml-BQ
