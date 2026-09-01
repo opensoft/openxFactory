@@ -3,7 +3,7 @@ code_surface: openxFactory. (1) `contracts/schemas/xfactory-workbench-chat-turn.
 target_release: contract-v3.0 — a MAJOR, and naming it is not the reservation the policy forbids: § Version Identity forbids reserving a MINOR before merge order is known, and the major is deterministic from the declared bundle (`contract-v2.5`) and already named as a forward target by the In Force entry `add-binding-consumer-identity` landed 2026-08-31. THIS CHANGE HAS A CODE SURFACE AND MOVES SCHEMA BYTES, so under `release-realization` it archives ONLY on merged plus green realization evidence — never on landing — and the evidence includes the moved manifest digest, the rebuilt inventory, and the published annotated `contract-v3.0` tag verified from an independently refreshed checkout. The cut is a SEPARATE act from this proposal and from its realization.
 Status: draft
 Proposed: 2026-09-01
-Origin: openxFactory issue #522, entry 3 of three; measured 2026-08-31 in a decision memo durable on the operator host at `~/projects/xFactory/deprecations-522-memo-2026-08-31.md`; RULED by Brett Heap 2026-09-01 in session and recorded as a comment on #522 — "execute all three retirements at contract-v3.0, as the memo recommends", entry 3 "EXECUTE, its own slice", with the `serve.py` v1-fallback posture "redesigned, not deleted". The ruling authorizes the proposal; it does not ratify this text.
+Origin: openxFactory issue #522, entry 3 of three; measured 2026-08-31 in a decision memo durable on the operator host at `~/projects/xFactory/deprecations-522-memo-2026-08-31.md` (OPERATOR-LOCAL, deliberately NOT committed here; the durable in-repo referents are issue #522 and its 2026-09-01 ruling comment); RULED by Brett Heap 2026-09-01 in session and recorded as a comment on #522 — "execute all three retirements at contract-v3.0, as the memo recommends", entry 3 "EXECUTE, its own slice", with the `serve.py` v1-fallback posture "redesigned, not deleted". The ruling authorizes the proposal; it does not ratify this text.
 ---
 
 # Proposal: retire-doxbench-chat-turn-v1
@@ -42,12 +42,21 @@ anywhere in the estate.
 
 Cited in full: openxFactory issue **#522** and Brett Heap's ruling comment on it
 of **2026-09-01**; the measurement memo
-**`~/projects/xFactory/deprecations-522-memo-2026-08-31.md`**.
+**`~/projects/xFactory/deprecations-522-memo-2026-08-31.md`**, measured against
+main tip `4290cad2`. **That path is OPERATOR-LOCAL and the memo is deliberately
+NOT committed to this repository**; it is cited because it is the measurement the
+ruling adopted, and the DURABLE in-repo referents a later reader can resolve are
+issue #522 and its 2026-09-01 ruling comment.
 
 ## What the measurement found, and where it did not survive re-verification
 
-Re-measured on this branch against main tip `1a69b7cb`. **The memo's shape holds
-and its PRICING was low in two places.**
+**TWO BASELINES, AND BOTH ARE NAMED ON PURPOSE.** The memo measured `4290cad2`;
+this packet re-measured `1a69b7cb`, the tip this branch is cut from. They are two
+acts, not one fact stated twice, and collapsing them to a single SHA would hide
+which findings are the memo's and which are this packet's. Where the two
+disagree, the tree governs and this section says so.
+
+**The memo's shape holds and its PRICING was low in two places.**
 
 **Confirmed.** Zero v1 emitters (the shipped client at
 `scripts/ideation_dashboard/web/views/doxbench-chat.js:37-39` is `-v2`-only);

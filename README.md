@@ -1499,7 +1499,7 @@ Active changes:
 - [retire-doxbench-chat-turn-v1](openspec/changes/retire-doxbench-chat-turn-v1/proposal.md)
   — authored 2026-09-01, `Status: draft`. **Entry 3 of openxFactory issue
   #522**, on Brett Heap's 2026-09-01 ruling comment there and the measurement
-  memo `~/projects/xFactory/deprecations-522-memo-2026-08-31.md`, sliced
+  memo `~/projects/xFactory/deprecations-522-memo-2026-08-31.md` (operator-local, not committed here; the durable referents are issue #522 and its ruling comment), sliced
   SEPARATELY from entries 1 and 2 on the memo's own recommendation and the
   ruling's adoption of it. **THE ONLY ONE OF THE THREE WHOSE WARNING ACTUALLY
   FIRES**: a default `validate-ideation-dashboard-contracts.py` run reports

@@ -5,9 +5,18 @@ origin:
   id: openxFactory:adhoc:2026-09-01-retire-doxbench-chat-turn-v1
   reason: >-
     openxFactory issue #522 — "three contract-v2.0-targeted deprecations
-    outlived their target" — measured 2026-08-31 against main tip `4290cad2`,
-    with the memo durable on the operator host at
-    `~/projects/xFactory/deprecations-522-memo-2026-08-31.md`. There is no
+    outlived their target" — measured 2026-08-31 against main tip `4290cad2`
+    AND RE-MEASURED BY THIS PACKET on 2026-09-01 against main tip `1a69b7cb`.
+    TWO BASELINES, TWO ACTS, DELIBERATELY BOTH NAMED: `4290cad2` is what the
+    memo measured and what the ruling adopted; `1a69b7cb` is what this packet
+    re-verified against, and where it disagreed with the memo the tree governs
+    and the proposal says so. Collapsing them to one SHA would hide which
+    findings are the memo's and which are this packet's.
+
+    The memo itself is durable on the operator host at
+    `~/projects/xFactory/deprecations-522-memo-2026-08-31.md` — OPERATOR-LOCAL
+    and deliberately NOT committed here; the durable in-repo referents are issue
+    #522 and its 2026-09-01 ruling comment. There is no
     staged topic: the subject arrived as a filed issue and was dispositioned by
     ruling, so `kind: staged` would claim a staging source that does not exist.
 
