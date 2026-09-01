@@ -142,15 +142,15 @@ Maps to a Speckit feature `sequenced-after-schema`. Realizes the "Machine-readab
 ordered-delta parent declaration" and "Repository-qualified parent-reference
 syntax" requirements. Depends on Group 2.
 
-- [ ] 3.1 Add the schema / data model: a sequence — possibly empty — of non-empty
+- [x] 3.1 Add the schema / data model: a sequence — possibly empty — of non-empty
   strings, no nulls, no nested collections, no duplicate entries. Keep the
   dependency-free posture of `scripts/scope_globs.py` (no `jsonschema`).
-- [ ] 3.2 A parser reading `sequenced_after:` from a change's `proposal.md`
+- [x] 3.2 A parser reading `sequenced_after:` from a change's `proposal.md`
   front matter THROUGH the Group 2 loader, alongside `code_surface:` /
   `target_release:` / `scope_globs:`. Absence returns a distinct sentinel from
   `[]` — the two mean different things and a parser that conflates them destroys
   the whole root-proof doctrine.
-- [ ] 3.3 Implement the reference grammar: bare `<change-id>` matching
+- [x] 3.3 Implement the reference grammar: bare `<change-id>` matching
   `[a-z0-9][a-z0-9-]*` with NO `/`; qualified `<repository>:<change-id>` with
   `<repository>` matching `[A-Za-z0-9_.-]+` (the same token grammar
   `scripts/doc_health/proposal_origin.py`'s origin-id regexes use); a
@@ -168,25 +168,25 @@ Maps to a Speckit feature `sequenced-after-validate`. Realizes the
 "Parent-declaration validation" and "Ordered-delta identity survives archival"
 requirements. Depends on Group 3.
 
-- [ ] 4.1 Implement two-location ANCHORED resolution: `openspec/changes/<change-id>/`
+- [x] 4.1 Implement two-location ANCHORED resolution: `openspec/changes/<change-id>/`
   and `openspec/changes/archive/<YYYY>-<MM>-<DD>-<change-id>/` with the date
   exactly `\d{4}-\d{2}-\d{2}` and the remainder EXACTLY the change id — never a
   prefix strip, never a split on the first hyphen. The union must hold EXACTLY
   ONE directory: zero ⇒ unresolvable, two or more ⇒ ambiguous, neither resolved
   by preference.
-- [ ] 4.2 A BARE entry that resolves to no change in the declaring repository's
+- [x] 4.2 A BARE entry that resolves to no change in the declaring repository's
   own corpus FAILS validation. A FOREIGN-qualified entry is checked for
   well-formedness ONLY — the neutral validator cannot read another repository's
   corpus and must not pretend to.
-- [ ] 4.3 Refuse a CYCLE reachable within the declaring repository's own corpus,
+- [x] 4.3 Refuse a CYCLE reachable within the declaring repository's own corpus,
   naming the repeated id. A cycle is a WELL-FORMEDNESS defect (no policy can
   resolve it to a root), which is why it is refused here while depth is not.
-- [ ] 4.4 **Impose NO depth limit and NO fan-out limit.** Positive tests assert
+- [x] 4.4 **Impose NO depth limit and NO fan-out limit.** Positive tests assert
   that a two-parent declaration VALIDATES and that a chain deeper than any gate's
   ceiling VALIDATES. A fork must be DECLARABLE for a consumer's fork refusal to be
   reachable and testable; a neutral depth number would drift from the gate that
   enforces it.
-- [ ] 4.5 Wire the checks into the house validate runner as
+- [x] 4.5 Wire the checks into the house validate runner as
   `scripts/validate-sequenced-after.py` — the same enforcement route
   `scripts/validate-scope-globs.py` and the other `scripts/validate-*.py`
   validators take, because `openspec validate` is the EXTERNAL OpenSpec CLI and
