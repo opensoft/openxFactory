@@ -23,8 +23,10 @@ unrelated row's drift. The precedent is
 earlier for the same reason.
 
 WHAT THIS DOES NOT ASSERT. Nothing here is evidence that the named reader is a
-REQUIRED check; it is not (tasks 4.5 and 4.6). A verified digest says the bytes
-are the bytes, and says nothing about whether anything walks them.
+REQUIRED check. It IS one, since 2026-08-31 — opensoft org ruleset 21957695,
+proved refusing on canary PR #549 (tasks 4.5 and 4.6) — but that fact lives in a
+ruleset and not in this file. A verified digest says the bytes are the bytes, and
+says nothing about whether anything walks them.
 """
 from __future__ import annotations
 

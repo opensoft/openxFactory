@@ -15,10 +15,13 @@ openxFactory checkout, never copied into a domain repo:
 THIS FILE IS THE NAMED READER. The capability's own ninth requirement is that it
 confers and refuses NOTHING until a named validator that reads its records runs
 as a REQUIRED check on the repository that holds them — so this validator is not
-a description of a control, it IS the control, and until the
-`signed-execution-chain-gate` check is required in the branch ruleset, every
-record this family defines governs nothing and the packaged conformance
-declaration says so in the present tense.
+a description of a control, it IS the control. IN THIS REPOSITORY IT IS NOW THAT
+CHECK: `signed-execution-chain-gate` has been REQUIRED on `main` since 2026-08-31
+(opensoft org ruleset 21957695), and a deliberately broken chain was seen failing
+a real pull request before the packaged declaration was allowed to say so (canary
+#549). The rule this file enforces is unchanged and still applies to every OTHER
+realization: a declaration recording the reader unrequired gets the standing
+`reader-not-required` warning on every run, and may not record SEC-R9 satisfied.
 
 Two layers run:
 
