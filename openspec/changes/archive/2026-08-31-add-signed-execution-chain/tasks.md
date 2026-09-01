@@ -413,9 +413,11 @@ thing it measures.**
     `repos/opensoft/openxFactory/rules/branches/main`, which returns
     `required_status_checks: [signed-execution-chain-gate]` with
     `ruleset_source_type: Organization`, `ruleset_id: 21957695` — the same shape
-    task 2.5 recorded for `wallet-validation`. Durable at
-    `~/projects/xFactory/chain-gate-ruleset-2026-08-31/live-ruleset-read.md` and
-    quoted on **issue #534**.
+    task 2.5 recorded for `wallet-validation`. The reads are quoted VERBATIM on
+    **issue #534**, which is the durable record; the operating session also kept a
+    working copy outside the tree, and that copy is deliberately not cited here
+    because a path on one machine is not evidence anyone else can follow. Both
+    endpoints are re-readable by anyone with org access, which is the real test.
   - Preconditions verified BEFORE the act, so that requiring the check stranded no
     pull request: the workflow on `main` surfaces the check as exactly
     `signed-execution-chain-gate` (the job carries no display name, deliberately),
@@ -481,9 +483,11 @@ thing it measures.**
     gate runs. A canary reddening the gate and leaving that test green would have
     meant the two had drifted apart.
   - **PR #549 was CLOSED WITHOUT MERGE and its branch deleted**; no broken record
-    ever reached `main`. Full evidence record, all four conjuncts verbatim:
-    `~/projects/xFactory/chain-gate-canary-2026-08-31/canary-evidence.md`, and the
-    closing comment on #549 itself.
+    ever reached `main`. All four conjuncts are recorded verbatim in **#549's own
+    closing comment** and again on **issue #534** — both durable and world-visible
+    — and the ids above are re-readable from the check-runs API by anyone with
+    repository access. A working copy outside the tree is not cited as the record:
+    a path on one machine is not evidence anyone else can follow.
 - [x] 4.7 **DONE, AS `contract-v2.5`** — the cut performed by the cutting
       session, in its own pull request, from an independent clone.
       **THE THIRD COUNT IS THE ONE THAT HELD, and it agreed with the second.**

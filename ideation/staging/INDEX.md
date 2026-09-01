@@ -1985,10 +1985,9 @@ repo scope.
   `contracts/manifest.yaml`, and 4.7 is closed. **4.5 and 4.6 are closed too, as
   of 2026-08-31** — they were the ones that decided whether the family confers
   anything, and they were performed by separate acts after the archive, carried
-  at **issue #534**. Evidence:
-  `~/projects/xFactory/chain-gate-ruleset-2026-08-31/live-ruleset-read.md` and
-  `~/projects/xFactory/chain-gate-canary-2026-08-31/canary-evidence.md`, restated
-  under §§ 4.5/4.6 of the archived `tasks.md`.
+  at **issue #534**, where both the live ruleset read and the canary's four
+  conjuncts are quoted verbatim — as they are again under §§ 4.5/4.6 of the
+  archived `tasks.md` and in PR #549's closing comment.
 - **EXIT 3 IS RAISED, 2026-08-29 — the DRAFT change `add-chain-anchoring`**
   (`openspec/changes/add-chain-anchoring/proposal.md`), the public anchoring layer
   plus the permissioned consent plane, as a NEW neutral `chain-anchoring`
