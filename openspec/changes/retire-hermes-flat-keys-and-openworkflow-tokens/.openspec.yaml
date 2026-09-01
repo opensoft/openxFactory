@@ -34,14 +34,34 @@ origin:
     its warning has been dead code for the whole supported population, so
     the Breaking clause's "one full minor of warnings" precondition is unmet
     for the shape a refusal would refuse.
+
+    THIS PACKET IS RATIFIED — 2026-09-01, Brett Heap, repository owner, in
+    session ("ratify #551 and #552"), at pull request #551 tip `64907604`;
+    record at `review/ratification-2026-09-01.md`. THE RATIFICATION IS A THIRD
+    ACT and is deliberately not merged with the two below it: the FILING of
+    issue #522 on his word of 2026-08-30, then the RULING of 2026-09-01
+    adopting the memo's recommendations (recorded as a comment on #522, and
+    named in `approved_by`), then this. Ratification authorizes the requirement
+    text alone — it performs no realization, cuts no bundle, spends no number
+    and moves no CHANGELOG row, so `tasks.md` §§ 2-5 stay open and § 7's
+    archive gate is undischarged. TWO THINGS THE ACT STOOD ON ARE DISCLOSED IN
+    THE RECORD RATHER THAN GLOSSED: no Codex review of this packet has
+    happened — four requests, four provider usage-limit refusals, zero verdicts,
+    and a pass still owed and unblocked — and `main` carries an inherited
+    `pytest-suite` red from PR #510's carriage-ledger subject, which this
+    packet neither causes nor fixes.
   approved_by: >-
     BRETT HEAP, repository owner, 2026-09-01 in session, ruling on openxFactory
     issue #522 and recorded as a comment on that issue: "execute all three
     retirements at contract-v3.0, as the memo recommends", with entry 1 SPLIT
     (phased half executed, refusing half recorded-why), entry 2 EXECUTED, and
     entry 3 EXECUTED AS ITS OWN SLICE. The ruling authorizes the PROPOSALS;
-    it is not itself a ratification of this packet's text, and this packet is
-    `Status: draft` accordingly.
+    IT IS NOT ITSELF A RATIFICATION of this packet's text, and this field is
+    kept unchanged in that respect because it was accurate when written and is
+    accurate now. RATIFICATION IS THE SEPARATE THIRD ACT of the same day,
+    recorded in `origin.reason` above and at
+    `review/ratification-2026-09-01.md`; the packet stands at
+    `Status: ratified` on THAT act, not on this one.
   approved_on: 2026-09-01
 related:
   - openxFactory:change:retire-doxbench-chat-turn-v1   # SIBLING, authored the same day from the same ruling. Entry 3 of issue #522. Lands at the SAME contract-v3.0 major and is deliberately a separate packet; neither is a precondition of the other, and the cut that carries them may carry one, the other, or both

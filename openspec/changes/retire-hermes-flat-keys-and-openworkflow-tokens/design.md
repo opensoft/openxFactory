@@ -1,7 +1,12 @@
 # Design: retire-hermes-flat-keys-and-openworkflow-tokens
 
-Status: draft
+Status: ratified
 Proposed: 2026-09-01
+Ratified: 2026-09-01 by Brett Heap (repository owner) — in-session, on the
+orchestrator's report of the two packets read together. Record:
+`review/ratification-2026-09-01.md`. The decisions below are RATIFIED as
+reasoning, not performed: ratification authorizes the requirement text and
+carries out no retirement, no policy row and no cut.
 
 One design question carries real weight in this packet: **what a
 recorded-why-it-stays entry looks like**, because the mechanism has no spelling

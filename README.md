@@ -405,7 +405,17 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [retire-hermes-flat-keys-and-openworkflow-tokens](openspec/changes/retire-hermes-flat-keys-and-openworkflow-tokens/proposal.md)
-  — authored 2026-09-01, `Status: draft`. **Entries 1 and 2 of openxFactory
+  — authored 2026-09-01, **`Status: ratified` — RATIFIED 2026-09-01 by Brett
+  Heap, in session, at PR #551 tip `64907604`** (record:
+  `openspec/changes/retire-hermes-flat-keys-and-openworkflow-tokens/review/ratification-2026-09-01.md`);
+  ratification authorizes the requirement text and performs no realization,
+  cuts no bundle and moves no CHANGELOG row, so the change stays ACTIVE until
+  merged code, green evidence and the `contract-v3.0` cut exist. The record
+  discloses what the act stood on: **NO CODEX REVIEW HAPPENED** — four
+  requests, four provider usage-limit refusals, zero verdicts, a pass still
+  owed and blocked by nothing in the packet — and `main`'s inherited
+  `pytest-suite` red from PR #510's carriage-ledger subject, which this packet
+  neither causes nor fixes. **Entries 1 and 2 of openxFactory
   issue #522**, on Brett Heap's 2026-09-01 ruling comment there ("execute all
   three retirements at contract-v3.0, as the memo recommends") and the
   measurement memo `deprecations-522-memo-2026-08-31.md` (operator-local, NOT

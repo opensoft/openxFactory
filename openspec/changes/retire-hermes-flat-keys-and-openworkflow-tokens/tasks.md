@@ -1,10 +1,14 @@
 # Tasks: retire-hermes-flat-keys-and-openworkflow-tokens
 
-**NOTHING BELOW SECTION 1 IS PERFORMED BY THIS PROPOSAL.** The packet is
-`Status: draft` and this is the OpenSpec-before-implementation stage: no
-retirement code, no policy row and no changelog entry lands in the pull request
-that carries it. Sections 2-5 are the realization, and § 7 is the archive gate
-that the realization must clear before this change may archive at all.
+**NOTHING BELOW SECTION 1 IS PERFORMED BY THIS PROPOSAL, AND RATIFICATION DOES
+NOT CHANGE THAT.** The packet is `Status: ratified` — Brett Heap, 2026-09-01,
+in session, at pull request #551 tip `64907604`; record
+`review/ratification-2026-09-01.md` — and this is still the
+OpenSpec-before-implementation stage: no retirement code, no policy row and no
+changelog entry lands in the pull request that carries it. **Ratification
+authorizes the requirement text and performs none of the work below.** Sections
+2-5 are the realization, and § 7 is the archive gate that the realization must
+clear before this change may archive at all.
 
 ## 1. Proposal (this pull request)
 
@@ -25,8 +29,20 @@ that the realization must clear before this change may archive at all.
       retire-hermes-flat-keys-and-openworkflow-tokens --strict` and
       `--all --strict`, both green.
 - [x] 1.4 List the change in README § OpenSpec Records.
-- [ ] 1.5 Adversarial review to convergence, then ratification by the repository
-      owner. Ratification authorizes realization and performs none of it.
+- [x] 1.5 **RATIFIED by the repository owner** — Brett Heap, 2026-09-01, in
+      session ("ratify #551 and #552"), at pull request #551 tip `64907604`, on
+      an orchestrator's report of the two packets read together. Record:
+      `review/ratification-2026-09-01.md`. Ratification authorizes the
+      requirement text and performs none of the realization below.
+- [ ] 1.6 **Adversarial review to convergence — STILL OPEN, and the order this
+      box originally stated was INVERTED by events rather than met.** It was
+      written as "review to convergence, THEN ratification"; what happened is
+      that six Copilot rounds ran and every finding was taken, while **every one
+      of four `@codex review` requests returned a PROVIDER USAGE-LIMIT REFUSAL
+      and no verdict**. The absence was disclosed to Brett and he ratified
+      against it. **A CODEX PASS REMAINS OWED and is blocked by nothing in this
+      packet**; whatever it returns routes to the amendment lane, not to doubt
+      about the ratification.
 
 ## 2. Speckit F1 — the validator retirements
 
