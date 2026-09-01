@@ -2916,9 +2916,17 @@ def main() -> int:
 
     if not errors:
         stack = load_yaml("stack.yaml")
+        # hermes.layers is REQUIRED and must be a list: the legacy flat-key
+        # fallback read was removed at contract-v3.0, and a non-list here must
+        # be an error rather than an empty iteration that skips every overlay
+        # check and reports OK.
+        hermes_layers = stack.get("hermes", {}).get("layers")
+        if not isinstance(hermes_layers, list):
+            errors.append("stack.yaml: hermes.layers must be a list of layer mappings "
+                          "(canonical roles customer/client/domain)")
+            hermes_layers = []
         for rel in [
-            *[layer.get("overlay") for layer in (stack.get("hermes", {}).get("layers") or [])
-              if isinstance(layer, dict)],
+            *[layer.get("overlay") for layer in hermes_layers if isinstance(layer, dict)],
             stack.get("omnigent", {}).get("domain_overlay"),
             stack.get("credentials", {}).get("requirements"),
             stack.get("credentials", {}).get("broker_contract"),

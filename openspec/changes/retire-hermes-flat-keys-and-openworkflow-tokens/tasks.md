@@ -84,9 +84,20 @@ a file path — never on an intention.
       have failed the day the starter grew a new NON-deprecated hermes key
       — it asserts what the box is actually about, `layers` present and every
       deprecated key absent. **Copilot's SECOND round, against the fixed head
-      `f259ca03`, generated NO NEW COMMENTS** — converged, on the same shape
-      #551's sixth round ended in. Sourcery returned an access-tier upsell,
-      not a review, exactly as it did on #551.
+      `f259ca03`, generated NO NEW COMMENTS.** Its THIRD, against `22866c03`,
+      generated ONE — **and it is the best finding of the arc, because it
+      caught this packet's own § 2.1 hazard reproduced one file over by the
+      realization itself.** The generated validator's
+      `stack.get("hermes", {}).get("layers") or []` iterates NOTHING when
+      `layers` is present but not a list, so it would skip every overlay-path
+      check and report `OK` on a scaffold the CANONICAL validator refuses — a
+      generated repository quietly validating less than it claims, which is the
+      silent-widening shape this packet spends four paragraphs forbidding.
+      TAKEN: the generated validator now ERRORS on the type before iterating,
+      and a parametrized test drives all four non-list shapes — absent, `{}`, a
+      string, an int — through BOTH validators and asserts each refuses.
+      Three rounds, three findings, three taken, none refuted. Sourcery
+      returned an access-tier upsell, not a review, exactly as it did on #551.
       **AND THE INHERITED `main` RED THE RATIFICATION RECORD DISCLOSED IS
       GONE.** § 4 of that record names
       `tests/doc-health/test_modified_block_currency_self_gate.py::test_every_carriage_ledger_finding_over_the_real_tree_is_named`,
@@ -181,6 +192,15 @@ a file path — never on an intention.
       `test_the_scaffolded_repo_does_not_REQUIRE_what_it_no_longer_writes`,
       which walks every `required_paths` entry of the freshly generated schema
       against the freshly generated `stack.yaml`.
+      **AND (b) TOOK TWO PASSES, WHICH IS THE LESSON OF THIS BOX.** The first
+      version resolved overlays from `hermes.layers or []` — correct for a
+      list, and SILENT for a non-list, skipping every overlay check and
+      reporting `OK` on a scaffold the canonical validator refuses. That is
+      § 2.1's hazard reproduced by the fix for it, in a file § 2.1 does not
+      name. Copilot caught it (round 3, PR #562) and the generated validator
+      now ERRORS on the type before iterating, with
+      `test_the_generated_validator_REFUSES_a_non_list_hermes_layers` driving
+      all four non-list shapes through BOTH validators.
 - [x] 2.5 Tests: the fallback branch has NO existing coverage (grep for
       `LEGACY_HERMES_KEYS` outside the validator returns nothing). The
       realization adds coverage for the post-removal behaviour in both

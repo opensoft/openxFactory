@@ -436,6 +436,42 @@ def test_the_scaffolded_repo_still_passes_its_own_generated_validator(
     assert result.returncode == 0, result.stdout + result.stderr
 
 
+@pytest.mark.parametrize("declared", [None, {}, "layers", 3])
+def test_the_generated_validator_REFUSES_a_non_list_hermes_layers(
+    scaffolded_stack: Path, tmp_path: Path, command_runner, declared,
+) -> None:
+    """The same hazard as 2.1, one file over, and it is not left as silence.
+
+    `hermes.layers or []` would iterate NOTHING when `layers` is present but
+    not a list, skipping every overlay-path check and reporting OK on a
+    scaffold the CANONICAL validator refuses — a generated repository quietly
+    validating less than it claims. Raised by Copilot on PR #562 and taken:
+    the generated validator now errors on the type before iterating.
+    """
+    import shutil
+
+    repo = tmp_path / "mangled"
+    shutil.copytree(scaffolded_stack, repo)
+    stack_path = repo / "stack.yaml"
+    stack = yaml.safe_load(stack_path.read_text(encoding="utf-8"))
+    if declared is None:
+        stack["hermes"].pop("layers")
+    else:
+        stack["hermes"]["layers"] = declared
+    stack_path.write_text(yaml.safe_dump(stack, sort_keys=False), encoding="utf-8")
+
+    generated = command_runner(
+        [sys.executable, repo / "scripts/validate-domain-factory.py"], cwd=repo)
+    canonical = _run(command_runner, ROOT, repo)
+
+    # BOTH validators refuse it, which is the property that matters: the
+    # generated one must not pass what the canonical one fails.
+    assert generated.returncode != 0, generated.stdout + generated.stderr
+    assert "hermes.layers must be a list" in generated.stdout + generated.stderr
+    assert canonical.returncode == 1, canonical.stdout
+    assert "hermes.layers is missing or is not a list" in canonical.stdout
+
+
 def test_the_scaffolded_repo_passes_the_CANONICAL_validator_at_the_major(
     scaffolded_stack: Path, repo_root: Path, command_runner,
 ) -> None:
