@@ -365,6 +365,21 @@ is recorded rather than absorbed. See that box.
       All eight done, **plus a NINTH this box does not name**:
       `tests/ideation-dashboard/test_doxchat_model_intake.py` also carried the
       literals. Recorded as an authoring finding rather than folded in silently.
+      **AND A TENTH THAT NO KIND-LITERAL SWEEP COULD HAVE FOUND, because its
+      coupling is to 3.2 rather than to a kind:**
+      `tests/ideation-dashboard/test_doxbench_request_handling.py` holds
+      `test_doxbench_error_catalog_has_exactly_the_grounded_code_set`, which
+      asserts `DOXBENCH_ERROR_CATALOG`'s key set EXACTLY against a set built
+      from per-era groupings, each carrying the grounding of its members. The new
+      `unrecognized_turn_kind` entry made it fail with `Extra items in the left
+      set: 'unrecognized_turn_kind'` — **which is the guard working correctly**:
+      it is designed to fail on any code that has not had its provenance written
+      down, and the packet's OQ-3 left this token to the realization to pick. It
+      is answered the way the guard asks: a new `_REMOVAL_CODES` grouping, with
+      the grounding recorded beside it — what the redesign requires, why 400,
+      and why `invalid_turn_request` is not reused. **Ticking 3.2 without this
+      would have left the estate's closed-catalog invariant red**, so the two
+      boxes are one act.
       The discipline applied: a test exercising behaviour the surviving family
       ALSO has is RE-EXPRESSED against `-v2`; a test whose only subject was the
       v1 family's SURVIVAL or its DEPRECATION RECORD is deleted and replaced by
