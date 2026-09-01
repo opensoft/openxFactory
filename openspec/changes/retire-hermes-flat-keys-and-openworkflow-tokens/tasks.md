@@ -61,17 +61,19 @@ a file path — never on an intention.
       against it. **A CODEX PASS REMAINS OWED and is blocked by nothing in this
       packet**; whatever it returns routes to the amendment lane, not to doubt
       about the ratification.
-      **THE REALIZATION TRIED AGAIN AND WAS REFUSED AGAIN — THREE MORE TIMES,
-      SEVEN IN ALL, STILL ZERO VERDICTS.** On the realization pull request
-      **#562** (head `8731fea6`), the automatic request on open plus two
-      explicit `@codex review` comments each returned the same provider
-      response and no review:
+      **THE REALIZATION TRIED AGAIN AND WAS REFUSED AGAIN — FIVE MORE TIMES,
+      NINE IN ALL, STILL ZERO VERDICTS.** On the realization pull request
+      **#562**, the automatic request on each push plus three explicit
+      `@codex review` comments each returned the same provider response and no
+      review:
 
-      | time (UTC), 2026-09-01 | response |
-      |---|---|
-      | 12:36:39 | *"You have reached your Codex usage limits for code reviews."* |
-      | 12:36:46 | same |
-      | 12:39:54 | same |
+      | time (UTC), 2026-09-01 | head | response |
+      |---|---|---|
+      | 12:36:39 | `8731fea6` | *"You have reached your Codex usage limits for code reviews."* |
+      | 12:36:46 | `8731fea6` | same |
+      | 12:39:54 | `8731fea6` | same |
+      | 13:49:59 | `5b026e4c` | *"You have reached your Codex usage limits."* |
+      | 13:51:15 | `5b026e4c` | *"…usage limits for code reviews."* |
 
       **The refusal is the provider's usage ceiling, and it is neither a
       finding nor a silence basis.** No Codex review names any head of either
@@ -96,7 +98,8 @@ a file path — never on an intention.
       TAKEN: the generated validator now ERRORS on the type before iterating,
       and a parametrized test drives all four non-list shapes — absent, `{}`, a
       string, an int — through BOTH validators and asserts each refuses.
-      Three rounds, three findings, three taken, none refuted. Sourcery
+      Its FOURTH, against `5b026e4c`, generated NO NEW COMMENTS. **Four
+      rounds, three findings, three taken, none refuted, converged.** Sourcery
       returned an access-tier upsell, not a review, exactly as it did on #551.
       **AND THE INHERITED `main` RED THE RATIFICATION RECORD DISCLOSED IS
       GONE.** § 4 of that record names
