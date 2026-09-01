@@ -4,40 +4,50 @@
       requirements; record the owner, exact artifact revision, unconditional
       decision, validation evidence, and timestamp before implementation begins.
 - [ ] 1.2 Verify the released signed-execution-chain contracts and record
+      that `signed-execution-chain-gate` is REQUIRED in the live ruleset and its
+      broken-chain canary fails as designed; then record
       operational `trust-anchor`-conformant PKI evidence for issuance,
       verification, revocation handling, and chain custody; refuse the handoff
-      while either realization gate is unproven.
-- [ ] 1.3 Create exactly one Speckit feature from the intended openxFactory base
-      and record immutable two-way links between that feature and this OpenSpec
-      change; keep executable implementation tasks in the feature's `tasks.md`.
+      while any realization gate is unproven.
+- [ ] 1.3 Create exactly one SHARED Speckit feature from the intended
+      openxFactory base and record immutable two-way links from that feature to
+      both `add-chain-anchoring` and this amendment; neither packet may create a
+      competing implementation feature, and executable implementation tasks stay
+      in the shared feature's `tasks.md`.
 - [ ] 1.4 Verify the linked feature specification maps every requirement and
       scenario in this amendment without reopening the ratified witness
       configuration or importing provider/runtime enforcement.
 
 ## 2. Linked Feature Acceptance
 
-- [ ] 2.1 Accept feature evidence that the existing `chain-anchoring` schemas,
-      examples, and canonical validator implement the normative realization
-      gate and reject provisional chain or PKI vocabularies.
+- [ ] 2.1 Accept feature evidence that the shared realization creates the
+      `chain-anchoring` schemas, examples, and canonical validator from the basis
+      plus this amendment, implements the normative realization gate, and rejects
+      provisional chain or PKI vocabularies.
 - [ ] 2.2 Accept deterministic feature evidence for non-empty, empty,
-      midnight-boundary, late-source-time, identical-replay,
-      conflicting-dedupe, and selectively omitted daily-window cases.
+      midnight-boundary, concurrent close/admission, late-source-time,
+      identical-replay, conflicting-dedupe, recursive-control-leaf,
+      split-witness-root, and selectively omitted daily-window cases.
 - [ ] 2.3 Accept feature evidence distinguishing Kaspa submitted from confirmed
-      and OpenTimestamps submitted from Bitcoin confirmed while preserving the
-      existing receipt/state split and same-digest proof upgrade.
-- [ ] 2.4 Verify compatibility evidence that all previously conforming
-      `chain-anchoring` artifacts remain conforming and no prior receipt is
-      reinterpreted, rewritten, or assigned a witness it never carried.
+      and OpenTimestamps submitted from Bitcoin confirmed under immutable
+      versioned approved profiles, including reorganization/replacement and
+      profile-revision vectors, while preserving the receipt/state split and
+      same-digest proof upgrade.
+- [ ] 2.4 Verify immediately before implementation that `chain-anchoring` has not
+      released independently. If it has, stop and govern the compatibility and
+      version class before changing any schema; otherwise prove the shared first
+      release reinterprets no prior artifact because no prior artifact exists.
 
 ## 3. Validation, Release, and Closure
 
 - [ ] 3.1 Run strict validation for this change and the complete OpenSpec corpus,
       plus the repository's targeted and full validation gates; retain exact
       command results and resolve every finding before acceptance.
-- [ ] 3.2 Cut the additive contract minor allocated by merge order, register all
-      changed contract members and digests, and publish immutable release
-      evidence before any consumer claims released-contract conformance.
-- [ ] 3.3 Archive this change only after its one linked feature is merged, all
-      required checks are green, the release is published, and the promoted
-      `chain-anchoring` requirements are verified byte-for-byte against this
-      delta.
+- [ ] 3.2 After the shared feature merges green, archive
+      `add-chain-anchoring` FIRST to create canonical `chain-anchoring`, then
+      archive this amendment SECOND; verify all twelve promoted requirements
+      byte-for-byte against their two deltas.
+- [ ] 3.3 Cut one additive new-family contract minor allocated by merge order
+      only after both archives are present, register all contract members and
+      digests, and publish immutable release evidence before any consumer claims
+      released-contract conformance.
