@@ -48,14 +48,14 @@ perform it.
       change stays ACTIVE until the declared code surface is merged with
       green evidence and the contract cut exists.
 - [ ] 2.3 **RATIFICATION IS GATED ON THE ORIGIN RECORD BEING MERGED.** The
-      record is being committed to `opensoft/xFactory` at the repository root
-      as `cpc-clearing-boundary-ruling-2026-09-01.md`, via a pull request on
-      branch `record/cpc-clearing-boundary-ruling`, merging on Brett's word.
-      **AS MEASURED AT THIS COMMIT THE RECORD DOES NOT EXIST ON THE REMOTE AT
-      ALL** — neither the branch nor the pull request was present, and the file
-      is not on `main` — so this is not a "confirm the merge landed" item but a
-      "the record still has to be written, pushed, and merged" one. Confirm all
-      three and name the merge commit here before ratifying. THE REASON IS NOT
+      record has been written and pushed to `opensoft/xFactory` at the
+      repository root as `cpc-clearing-boundary-ruling-2026-09-01.md`, as
+      `opensoft/xFactory#192` (https://github.com/opensoft/xFactory/pull/192),
+      via a pull request on branch `record/cpc-clearing-boundary-ruling`
+      (head `5b6a9fdf`) — **MERGE PENDING BRETT'S WORD.** So this is now a
+      "confirm the merge landed" item, not a "the record still has to be
+      written, pushed, and merged" one. Confirm the merge and name the merge
+      commit here before ratifying. THE REASON IS NOT
       BOOKKEEPING: requirements 1–7 trace to that record's text, while
       requirements 8–10 EXTEND it and trace to its APPEND-ONLY ADDENDUM
       capturing Brett's same-session instruction "fold 1-5 in and fan out".

@@ -3,7 +3,7 @@ code_surface: xFactory (the aggregation repository) — ONE new workflow `.githu
 target_release: THE NEXT ADDITIVE MINOR, DELIBERATELY NOT NUMBERED HERE — allocated AT REALIZATION by merge order per `docs/contract-versioning-policy.md`, which forbids a proposal reserving a minor before merge order is known. The count was taken at this branch's tip rather than remembered: `contracts/manifest.yaml:3` declares `contract_bundle_version: contract-v2.5` and `contracts/releases/contract-v2.5.digests.yaml` is a cut inventory in the tree. A NUMBER IS NOT WRITTEN HERE BECAUSE THE TWO CUTS AHEAD OF THIS PACKET ARE ALREADY CLAIMED: the in-flight realization of `add-chain-attestation` takes the next additive cut, and the in-flight realization of `add-chain-anchoring` allocates after it. This packet claims neither and names none; its realization reads the manifest at ITS OWN tip. THE CLASS IS ADDITIVE and nothing narrows: a new neutral contract family, no existing schema changes, no consumer pinned at the current bundle made non-conformant, and no domain obliged to own a governed execution host.
 Status: draft
 Proposed: 2026-09-01
-Origin: `cpc-clearing-boundary-ruling-2026-09-01.md`, TO BE committed at the root of `opensoft/xFactory` via a pull request on branch `record/cpc-clearing-boundary-ruling` merging on Brett's word — A FORWARD REFERENCE, not yet openable: measured at this commit, neither that branch nor that pull request was present on the remote and the file is not on `main`, and ratification is gated on it landing (`tasks.md` §2.3) — Brett Heap's in-session operator ruling of 2026-09-01, which is the whole substance of this packet, PLUS his OPTION-1 SUPERSESSION of that same day recorded in its "Immediate consequences" section: NO per-path allowlist addition for readiness, the readiness test becomes THE CLEARING LANE'S FIRST OPERATION, the workflow allowlist converges to ONE PERMANENT ENTRY PER GROUP added by the operator once, and `opensoft/xFactory#188`'s standalone diagnostic workflow retires into that operation. Requirements 1–7 trace to that written record; requirements 8–10 EXTEND it and are DECLARED EXTENSIONS ruled in the same session on Brett's verbatim instruction "fold 1-5 in and fan out", their provenance recorded in that record's append-only addendum — requirement 9 (the authoring-time guard) wholly absent from the record, requirement 8's general rule a generalization of the one retirement the record names, and requirement 10's periodic attestation an addition to the dispatch recording the record does state (the per-requirement split is in "Why"). Its immediate consequence is also on the record: stuck run `33381257642` (a codexFactory-path council smoke queued about eighteen hours, unclaimable by design) cancelled, recorded on codexFactory issue #156.
+Origin: `cpc-clearing-boundary-ruling-2026-09-01.md`, WRITTEN AND PUSHED to the root of `opensoft/xFactory` as `opensoft/xFactory#192` (https://github.com/opensoft/xFactory/pull/192, branch `record/cpc-clearing-boundary-ruling`, head `5b6a9fdf`) — MERGE PENDING BRETT'S WORD, and ratification is gated on that merge (`tasks.md` §2.3) — Brett Heap's in-session operator ruling of 2026-09-01, which is the whole substance of this packet, PLUS his OPTION-1 SUPERSESSION of that same day recorded in its "Immediate consequences" section: NO per-path allowlist addition for readiness, the readiness test becomes THE CLEARING LANE'S FIRST OPERATION, the workflow allowlist converges to ONE PERMANENT ENTRY PER GROUP added by the operator once, and `opensoft/xFactory#188`'s standalone diagnostic workflow retires into that operation. Requirements 1–7 trace to that written record; requirements 8–10 EXTEND it and are DECLARED EXTENSIONS ruled in the same session on Brett's verbatim instruction "fold 1-5 in and fan out", their provenance recorded in that record's append-only addendum — requirement 9 (the authoring-time guard) wholly absent from the record, requirement 8's general rule a generalization of the one retirement the record names, and requirement 10's periodic attestation an addition to the dispatch recording the record does state (the per-requirement split is in "Why"). Its immediate consequence is also on the record: stuck run `33381257642` (a codexFactory-path council smoke queued about eighteen hours, unclaimable by design) cancelled, recorded on codexFactory issue #156.
 ---
 
 # Proposal: add-clearing-dispatch-boundary
@@ -87,17 +87,14 @@ the record. Saying "nothing below extends the ruling" would have been false,
 and an extension is better named than hidden inside a claim of fidelity.
 
 **Their provenance is verifiable in one place** — the origin record's
-APPEND-ONLY ADDENDUM, which captures that instruction — **AND THAT PLACE DOES
-NOT EXIST YET.** The record is TO BE committed to `opensoft/xFactory` at the
-repository root as `cpc-clearing-boundary-ruling-2026-09-01.md`, via a pull
-request on branch `record/cpc-clearing-boundary-ruling`, merging on Brett's
-word. Measured against the provider API at this commit: NEITHER THAT BRANCH
-NOR THAT PULL REQUEST WAS PRESENT on the remote, and the file is not on
-`main`. So the citation above is a FORWARD REFERENCE, and this packet says so
-rather than writing a path that reads like something a reader could open
-today. Ratification is gated on the record landing (`tasks.md` §2.3), because
+APPEND-ONLY ADDENDUM, which captures that instruction. The record has been
+WRITTEN AND PUSHED to `opensoft/xFactory` at the repository root as
+`cpc-clearing-boundary-ruling-2026-09-01.md`, as `opensoft/xFactory#192`
+(https://github.com/opensoft/xFactory/pull/192, branch
+`record/cpc-clearing-boundary-ruling`, head `5b6a9fdf`) — MERGE PENDING
+BRETT'S WORD. Ratification is gated on that merge (`tasks.md` §2.3), because
 an extension whose provenance a reader cannot open is an extension taken on
-trust — and right now none of it can be opened.
+trust until the merge lands.
 
 ## What Changes
 
