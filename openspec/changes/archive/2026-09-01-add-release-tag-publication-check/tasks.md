@@ -3,9 +3,16 @@
 Status: ratified
 Ratified by: add-release-tag-publication-check
 
-Nothing below group 3 has been done. Group 2 is the realization plan and every
-box in it is open; group 3 records what the authoring session measured before
-the packet was put up, which is evidence rather than implementation.
+**WRITTEN BEFORE THE BUILD, AND SUPERSEDED BY IT — KEPT, NOT REWRITTEN.** As
+first written this preamble said: *"Nothing below group 3 has been done. Group 2
+is the realization plan and every box in it is open; group 3 records what the
+authoring session measured before the packet was put up, which is evidence
+rather than implementation."* That was true of the packet as proposed. It stopped
+being true on 2026-08-31, when Brett ruled that realization land WITH the delta
+because a family addition is one landing, and group 2 was built on that ruling;
+group 5 followed at the archive on 2026-09-01. The sentence is preserved rather
+than edited because a reader of an archived packet is owed what it claimed at
+each stage, and corrected here rather than left to contradict the ticks below.
 
 Build with Speckit, not `/opsx:apply`. OpenSpec ratifies; Spec Kit builds. This
 change is ONE Spec Kit feature — group 2 — because the new module, its

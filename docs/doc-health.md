@@ -136,7 +136,7 @@ marker is `document-lifecycle`'s third reserved form,
 (<YYYY-MM-DD>):**`` followed by ` — <reason>`, which names no units and is
 therefore never a suppression, never a marker defect and never a carriage unit.
 
-[`add-release-tag-publication-check`](../openspec/changes/add-release-tag-publication-check/proposal.md)
+[`2026-09-01-add-release-tag-publication-check`](../openspec/changes/archive/2026-09-01-add-release-tag-publication-check/proposal.md)
 added a twenty-third deterministic family, `release-tag-publication`, per the
 canon `Requirement: Release-tag publication`. It asks the one question
 `docs/contract-versioning-policy.md` states absolutely and nothing checked —
