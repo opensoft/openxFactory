@@ -1,0 +1,65 @@
+# expected_failure: dispatched_leaf_never_written
+# THE DROPPED-ATTESTATION ATTACK ITSELF — the scenario the commitment mechanism
+# exists to catch. A task is committed at dispatch, the work runs, and no link-5
+# leaf for it is ever written; without the committed expectation this would read as
+# a smaller fan-out rather than a suppressed record.
+#
+# ABSENCE IS ONLY DETECTABLE AGAINST A COMMITMENT, which is why the expected set is
+# committed no later than dispatch and why the extension here — timely, controller-
+# signed, correctly chained — does not save the chain whose expectation it grew.
+schema_version: 1
+kind: xfactory_signed_execution_chain_commitment_extension
+extension_id: ext-neg-dropped
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+signed_extension:
+  chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+  digest_construction: xfc-jcs-sha256-1
+  extends: setup-t5
+  predecessor:
+    record_ref: clo-t5
+    record_kind: xfactory_signed_execution_chain_closure_record
+    digest:
+      construction: xfc-jcs-sha256-1
+      subject: closure_record
+      value: sha256:00a0d4301e5af834f7825485188682caac11df5d67fb10d97a2f0e7037b9a5a1
+  added_tasks:
+  - task_ref: task:t5-dropped
+    dispatched_at: '2026-09-01T21:21:00Z'
+    statement: Committed at dispatch; the runner then suppressed the attestation.
+  signed_where: harness_controller
+extension_signature:
+  algorithm: ed25519
+  key_ref: key-controller-t2
+  certificate_ref: cert:controller-t2
+  signed_over: signed_extension
+  signature: Sg_mI0okFW6W-nhwg0UBnFlfES43005RRwfAnPeIq3ocRXTmViiefBeJRaTfe2PBV0q-8bPcY0KK9sulbBImCg
+  public_key: z6MknKGe1CcdgEPaiTrzjYRFH9v82uWag54QefYsrKCye9Tn
+written_at: '2026-09-01T21:20:00Z'
+leaf_ref: leaf-0046
+---
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-0046
+leaf_index: 46
+tree_size: 47
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+leaf_type: commitment_extension
+recorded_at: '2026-09-01T21:20:30Z'
+payload_ref: ext-neg-dropped
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: commitment_extension
+  value: sha256:8c73d8af1b87da9ebc928629f6714233377362614c3c2c8f9ae37c4d4f667375
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:922cf4dd48767e25480c9dcd08b0297f3a37d4a08faf63785e1f1acc391348b5
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:25ae68f8e6f0d2a867233189cad69f996feb67899216620eb8891024e89033ba
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-t5
+  signed_over: leaf_content
+  signature: Ivd3XSPp7E9qbBHP14UdNCJrjlYRFItD3R6EYqEAIiBQve0npYRrjLFb_57FjQM3mZD1ecKyke4I4nKv7s80Dg

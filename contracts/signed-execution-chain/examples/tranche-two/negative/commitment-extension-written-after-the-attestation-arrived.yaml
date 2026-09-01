@@ -1,0 +1,64 @@
+# expected_failure: commitment_extension_after_dispatch
+# VIOLATES the deadline: the commitment for each task is signed NO LATER THAN THAT
+# TASK'S DISPATCH. The extension here is written AFTER the task it commits was
+# dispatched — a commitment made once the outcome was already in hand.
+#
+# A COMMITMENT MADE AFTER THE FACT IS A DESCRIPTION. The point of committing at
+# dispatch is that the controller cannot silently shed a task whose attestation
+# never arrives; an extension minted late is exactly that shedding, pre-narrated.
+schema_version: 1
+kind: xfactory_signed_execution_chain_commitment_extension
+extension_id: ext-neg-late
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+signed_extension:
+  chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+  digest_construction: xfc-jcs-sha256-1
+  extends: setup-t5
+  predecessor:
+    record_ref: clo-t5
+    record_kind: xfactory_signed_execution_chain_closure_record
+    digest:
+      construction: xfc-jcs-sha256-1
+      subject: closure_record
+      value: sha256:00a0d4301e5af834f7825485188682caac11df5d67fb10d97a2f0e7037b9a5a1
+  added_tasks:
+  - task_ref: task:t5-late
+    dispatched_at: '2026-09-01T20:00:00Z'
+    statement: Dispatched an hour before anything committed it.
+  signed_where: harness_controller
+extension_signature:
+  algorithm: ed25519
+  key_ref: key-controller-t2
+  certificate_ref: cert:controller-t2
+  signed_over: signed_extension
+  signature: VSCP2kKusWP8PfJSpdiwe87kkPLUt_J6dqJH2WUz7sY4576qYgPkOgOPz-ZVCGcmrYgI1gL4mRSJf8oI6HeBDQ
+  public_key: z6MknKGe1CcdgEPaiTrzjYRFH9v82uWag54QefYsrKCye9Tn
+written_at: '2026-09-01T21:00:00Z'
+leaf_ref: leaf-0046
+---
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-0046
+leaf_index: 46
+tree_size: 47
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+leaf_type: commitment_extension
+recorded_at: '2026-09-01T21:00:30Z'
+payload_ref: ext-neg-late
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: commitment_extension
+  value: sha256:45e3884235e7fa403f8a2ec919bc875b0858635affd1f5e677f5c81dba66fba4
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:922cf4dd48767e25480c9dcd08b0297f3a37d4a08faf63785e1f1acc391348b5
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:60fb6baa510adb5268091cbf8dc68f27359c6cf9873dacfa673a6dc348d1a11d
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-t5
+  signed_over: leaf_content
+  signature: 5GeCugdO7UATgV5z_Hab3GOJJo60HO5_Rb0cpe8e7qChdbSo3pNE9GSfXTD8VCiJx9nFrdlndttviO-jxpmZBw

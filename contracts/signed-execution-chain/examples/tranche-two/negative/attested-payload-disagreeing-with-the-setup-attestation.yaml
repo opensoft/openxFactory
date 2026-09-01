@@ -1,0 +1,88 @@
+# expected_failure: payload_disagrees_with_setup_attestation
+# VIOLATES requirement 3's corroboration: the controller signs an attested payload
+# only where the payload's claims AGREE WITH ITS OWN RECORD of what it provisioned.
+#
+# The runner claims a model surface the controller's link 4 never provisioned. The
+# signature that would notarize it is exactly the self-report-with-a-sworn-cover the
+# corroboration requirement exists to refuse, so the disagreement is refused rather
+# than co-signed.
+schema_version: 1
+kind: xfactory_signed_execution_chain_runner_attestation
+attestation_id: att-neg-disagrees
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+signed_attestation:
+  chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+  digest_construction: xfc-jcs-sha256-1
+  predecessor:
+    record_ref: clo-t5
+    record_kind: xfactory_signed_execution_chain_closure_record
+    digest:
+      construction: xfc-jcs-sha256-1
+      subject: closure_record
+      value: sha256:00a0d4301e5af834f7825485188682caac11df5d67fb10d97a2f0e7037b9a5a1
+  task_ref: task:t5-a
+  identity:
+    binding_ref: bind-t5-a
+    subject_scope: per_task
+  attested_facts:
+  - fact: model
+    value: claude-sonnet-5
+    evidence_class: controller_corroborated
+  - fact: harness
+    value: codex-council-worker
+    evidence_class: controller_corroborated
+  - fact: node
+    value: 22.6.0
+    evidence_class: runner_claimed
+  - fact: sandbox_seal
+    value: verified
+    evidence_class: independently_observed
+    observed_by: opensoft-platform-attestation-service
+  signed_where: harness_controller
+  signing_request:
+    request_id: req-att-neg-disagrees
+    requested_at: '2026-09-01T16:10:00Z'
+    attribution:
+      attributed_by: controller_provisioning
+      requester_ref: task:t5-a
+      statement: Attributed from the controller's own provisioning.
+    payload_digest:
+      construction: xfc-jcs-sha256-1
+      subject: runner_attestation
+      value: sha256:cd8fd67eb25110367738808bd1e8cd6896f10229e708d7096eb4bbc1de54676e
+attestation_signature:
+  algorithm: ed25519
+  key_ref: key-tier2-a
+  certificate_ref: cert:tier2-task-a
+  signed_over: signed_attestation
+  signature: dYfV-0h44dCYBSZhk2ecVtyudQ6LnTz5r0Ke6SdSmCGLwh56Axv3Yelpki4JYous8bdD2AhHavnrjjEeldF8CQ
+  public_key: z6Mkph4jBMboXmzytn7Qt3ZzovEnKCT7GRQPbrpKByxr7H24
+attested_at: '2026-09-01T16:10:00Z'
+leaf_ref: leaf-0046
+---
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-0046
+leaf_index: 46
+tree_size: 47
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+leaf_type: runner_attestation
+recorded_at: '2026-09-01T20:00:00Z'
+payload_ref: att-neg-disagrees
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: runner_attestation
+  value: sha256:b3559de76c61282cb4e0901fae1c2e77bb6427a2559823eb966485e94a4975ae
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:922cf4dd48767e25480c9dcd08b0297f3a37d4a08faf63785e1f1acc391348b5
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:93ce6d02af1e12586e0fe455a976adffba94dfcf5493120887a81ff9a38fedfa
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-t5
+  signed_over: leaf_content
+  signature: MaVALUbZ9nDU7QqRO4eItTLXQjSZWW8IgWX5jmb46q_LPooYoZr_K8D-d-KgS3kTuwWKMQJYYdpH_juXASV1CQ

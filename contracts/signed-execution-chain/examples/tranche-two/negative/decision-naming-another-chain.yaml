@@ -1,0 +1,84 @@
+# expected_failure: open_decision_names_another_chain
+# VIOLATES link 6's first binding: the decision names THE CHAIN IT DECIDES FOR
+# inside its signed bytes, and this one — signed by chain five's own chain-scoped
+# identity, enumerating chain five's attestations — names chain two.
+#
+# A decision that can be re-pointed at another chain is a decision that can be
+# REUSED, and reuse of a terminal-act record is how one permitted act becomes two.
+schema_version: 1
+kind: xfactory_signed_execution_chain_pr_open_decision
+decision_id: dec-neg-other-chain
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+signed_decision:
+  chain_ref: sha256:34b6e6367a910de804cc8ed06e1c4d09dabb58709cd6d08e0aa778b84d765232
+  digest_construction: xfc-jcs-sha256-1
+  predecessor:
+    record_ref: clo-t5
+    record_kind: xfactory_signed_execution_chain_closure_record
+    digest:
+      construction: xfc-jcs-sha256-1
+      subject: closure_record
+      value: sha256:00a0d4301e5af834f7825485188682caac11df5d67fb10d97a2f0e7037b9a5a1
+  identity:
+    binding_ref: bind-t5-chain
+    subject_scope: chain_scoped
+  pull_request:
+    pull_request_ref: opensoft/openxFactory#554
+    head_revision: 84104bee44556677
+    base_ref: main
+  committed_attestations:
+  - task_ref: task:t5-a
+    attestation_ref: att-t5-a
+    digest:
+      construction: xfc-jcs-sha256-1
+      subject: runner_attestation
+      value: sha256:f91a14cd05244c9dd333669e497b5fac8cc376e206e0cacb623845d1cb695906
+  proposes: Realize the ratified subject as contract bytes.
+  signed_where: harness_controller
+  signing_request:
+    request_id: req-dec-neg-oc
+    requested_at: '2026-09-01T16:20:00Z'
+    attribution:
+      attributed_by: chain_inception_binding
+      requester_ref: sub-t5-c9e34a17f5082bd4
+      statement: Attributed to the party the chain's inception record binds.
+    payload_digest:
+      construction: xfc-jcs-sha256-1
+      subject: pr_open_decision
+      value: sha256:5c2ebc2da23ee19171e549bba8d4854aec1bea28cd7681499b1b1b2d6b8e7d7d
+decision_signature:
+  algorithm: ed25519
+  key_ref: key-tier2-chain-d
+  certificate_ref: cert:tier2-chain-staging
+  signed_over: signed_decision
+  signature: _5apCdortDIOELc-2eOsmGl28xQ5ez34ypCSUA8H4r6BCgLNpS6Cpha8Sk1iwv1dYx4cIql0TQ-Rdr7yL-vVDw
+  public_key: z6MkfJ8DJkNPpSNq2hx8DU3Fk36ifvBufGF5dv3SQSw84WA5
+decided_at: '2026-09-01T16:20:00Z'
+leaf_ref: leaf-0046
+---
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-0046
+leaf_index: 46
+tree_size: 47
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+leaf_type: pr_open_decision
+recorded_at: '2026-09-01T20:00:00Z'
+payload_ref: dec-neg-other-chain
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: pr_open_decision
+  value: sha256:8f02b98ce143187d3f24a7c5b63c13f27ac0ed3a78819d1ea5866604c8ea95e7
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:922cf4dd48767e25480c9dcd08b0297f3a37d4a08faf63785e1f1acc391348b5
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:bd5dd35ab005a7d972e636b2edc8d85c96af2102d3a32be9a761251776ff5a67
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-t5
+  signed_over: leaf_content
+  signature: uPPmIdvH22fwxWQprwaiPC12PYPhNqzbqiQ8UxEMbSu6rdT4YsyOIzf6FdN2TUZvTwfEHUHDQvd-e1JEys-pCg

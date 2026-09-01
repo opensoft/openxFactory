@@ -1,0 +1,89 @@
+# expected_failure: runner_claimed_fact_read_as_attested
+# VIOLATES the evidence-class floor. A fact the controller's own link 4 carries as
+# `runner_claimed` appears in link 5 as `controller_corroborated` — the same value,
+# a stronger class, and nothing new to support the promotion.
+#
+# A CLASS IS NOT A DIAL THE RE-STATING RECORD TURNS. What the controller could not
+# corroborate at provisioning it cannot corroborate by repetition, and a reader that
+# allowed the promotion would let every self-report become attested by passing
+# through one more record.
+schema_version: 1
+kind: xfactory_signed_execution_chain_runner_attestation
+attestation_id: att-neg-promoted
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+signed_attestation:
+  chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+  digest_construction: xfc-jcs-sha256-1
+  predecessor:
+    record_ref: clo-t5
+    record_kind: xfactory_signed_execution_chain_closure_record
+    digest:
+      construction: xfc-jcs-sha256-1
+      subject: closure_record
+      value: sha256:00a0d4301e5af834f7825485188682caac11df5d67fb10d97a2f0e7037b9a5a1
+  task_ref: task:t5-a
+  identity:
+    binding_ref: bind-t5-a
+    subject_scope: per_task
+  attested_facts:
+  - fact: model
+    value: claude-opus-5
+    evidence_class: controller_corroborated
+  - fact: harness
+    value: codex-council-worker
+    evidence_class: controller_corroborated
+  - fact: node
+    value: 22.6.0
+    evidence_class: controller_corroborated
+  - fact: sandbox_seal
+    value: verified
+    evidence_class: independently_observed
+    observed_by: opensoft-platform-attestation-service
+  signed_where: harness_controller
+  signing_request:
+    request_id: req-att-neg-promoted
+    requested_at: '2026-09-01T16:10:00Z'
+    attribution:
+      attributed_by: controller_provisioning
+      requester_ref: task:t5-a
+      statement: Attributed from the controller's own provisioning.
+    payload_digest:
+      construction: xfc-jcs-sha256-1
+      subject: runner_attestation
+      value: sha256:3f35abd5aa84d7bcbf526cfebddb7eff90aacbd9031a54bb71fed3e749c5e0ff
+attestation_signature:
+  algorithm: ed25519
+  key_ref: key-tier2-a
+  certificate_ref: cert:tier2-task-a
+  signed_over: signed_attestation
+  signature: 0gXwulTWJ74vXd2Lq6Eo_fno_L8k3kBlewRZ3cRkk0AyTH_qTv6AsXnh0nc0v50lEe8o79kXRqbZNz7SbG2ADA
+  public_key: z6Mkph4jBMboXmzytn7Qt3ZzovEnKCT7GRQPbrpKByxr7H24
+attested_at: '2026-09-01T16:10:00Z'
+leaf_ref: leaf-0046
+---
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-0046
+leaf_index: 46
+tree_size: 47
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+leaf_type: runner_attestation
+recorded_at: '2026-09-01T20:00:00Z'
+payload_ref: att-neg-promoted
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: runner_attestation
+  value: sha256:45216ef14e57b14ff511e512d138d85ae52dbfe1a5520e57793580706295d9d7
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:922cf4dd48767e25480c9dcd08b0297f3a37d4a08faf63785e1f1acc391348b5
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:c8af16c7534bf2a30b145da462883ec376b3bb98fb40be0ae6d9b39bd3c6e17a
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-t5
+  signed_over: leaf_content
+  signature: sx65t1q05KxAftphoTkb-TdyY-4hLwX9oZQSwBsU7b5inuok15kJHFcDAX3083Jw76FhHAIOTzSNriUDKKgJCw

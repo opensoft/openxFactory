@@ -1,0 +1,79 @@
+# expected_failure: open_decision_enumeration_incomplete
+# VIOLATES link 6's completeness: the decision's enumeration EQUALS the committed
+# expectation, in both directions. This one enumerates an EMPTY set over a chain
+# whose setup committed a task and whose attestation exists.
+#
+# EQUALITY AND NOT SUBSET, because a subset is precisely what a controller shedding
+# an unfavourable attestation would produce; the decision is where the commitment is
+# finally cashed, so it is the record that must add up.
+schema_version: 1
+kind: xfactory_signed_execution_chain_pr_open_decision
+decision_id: dec-neg-enum
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+signed_decision:
+  chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+  digest_construction: xfc-jcs-sha256-1
+  predecessor:
+    record_ref: clo-t5
+    record_kind: xfactory_signed_execution_chain_closure_record
+    digest:
+      construction: xfc-jcs-sha256-1
+      subject: closure_record
+      value: sha256:00a0d4301e5af834f7825485188682caac11df5d67fb10d97a2f0e7037b9a5a1
+  identity:
+    binding_ref: bind-t5-chain
+    subject_scope: chain_scoped
+  pull_request:
+    pull_request_ref: opensoft/openxFactory#554
+    head_revision: 84104bee44556677
+    base_ref: main
+  committed_attestations: []
+  proposes: Realize the ratified subject as contract bytes.
+  signed_where: harness_controller
+  signing_request:
+    request_id: req-dec-neg-enum
+    requested_at: '2026-09-01T16:20:00Z'
+    attribution:
+      attributed_by: chain_inception_binding
+      requester_ref: sub-t5-c9e34a17f5082bd4
+      statement: Attributed to the party the chain's inception record binds.
+    payload_digest:
+      construction: xfc-jcs-sha256-1
+      subject: pr_open_decision
+      value: sha256:5c31362d77fef1977beb770601bf9f202e52d31513a315b9559213a07a5e2041
+decision_signature:
+  algorithm: ed25519
+  key_ref: key-tier2-chain-d
+  certificate_ref: cert:tier2-chain-staging
+  signed_over: signed_decision
+  signature: OUpzEa8-EMxFXHAR_m1dronR10bWZA2xpxXTQmUZPZvJGtG0KHNNAfZnk7ZK7t3Rm33dsIQcwPdWtMlYX2KSBQ
+  public_key: z6MkfJ8DJkNPpSNq2hx8DU3Fk36ifvBufGF5dv3SQSw84WA5
+decided_at: '2026-09-01T16:20:00Z'
+leaf_ref: leaf-0046
+---
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-0046
+leaf_index: 46
+tree_size: 47
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+leaf_type: pr_open_decision
+recorded_at: '2026-09-01T20:00:00Z'
+payload_ref: dec-neg-enum
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: pr_open_decision
+  value: sha256:6c3c29bdead0131ca31547f50fc7bab532b6e7878d1ff4db44c09c6012811496
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:922cf4dd48767e25480c9dcd08b0297f3a37d4a08faf63785e1f1acc391348b5
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:e008de0de05a7f098d306780b39628683ba0bf9530ce777147dc920ed9f1567e
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-t5
+  signed_over: leaf_content
+  signature: S7sSav41HwMXSYcQ8LWInIIsLYaLj9QgRv_xB1W5XwiUAWZj8UfirTTQQx-rLyTKmlt_3ZdAU5hsWVK15cLzAQ

@@ -1,0 +1,87 @@
+# expected_failure: open_decision_offered_as_permission
+# VIOLATES the decision's stated NON-authority: it records WHO DECIDED TO PROPOSE
+# and never substitutes for the review lane, the gate rules, or ratified review
+# authority.
+#
+# The record here claims in its own bytes to CONFER merge permission. Permission to
+# merge is conferred by the lane and its councils; a link-6 record claiming it has
+# promoted itself from evidence to authority, and the reader refuses the claim
+# rather than weighing it.
+schema_version: 1
+kind: xfactory_signed_execution_chain_pr_open_decision
+decision_id: dec-neg-permission
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+signed_decision:
+  chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+  digest_construction: xfc-jcs-sha256-1
+  predecessor:
+    record_ref: clo-t5
+    record_kind: xfactory_signed_execution_chain_closure_record
+    digest:
+      construction: xfc-jcs-sha256-1
+      subject: closure_record
+      value: sha256:00a0d4301e5af834f7825485188682caac11df5d67fb10d97a2f0e7037b9a5a1
+  identity:
+    binding_ref: bind-t5-chain
+    subject_scope: chain_scoped
+  pull_request:
+    pull_request_ref: opensoft/openxFactory#554
+    head_revision: 84104bee44556677
+    base_ref: main
+  committed_attestations:
+  - task_ref: task:t5-a
+    attestation_ref: att-t5-a
+    digest:
+      construction: xfc-jcs-sha256-1
+      subject: runner_attestation
+      value: sha256:f91a14cd05244c9dd333669e497b5fac8cc376e206e0cacb623845d1cb695906
+  proposes: This decision AUTHORIZES the merge of the named pull request.
+  signed_where: harness_controller
+  signing_request:
+    request_id: req-dec-neg-perm
+    requested_at: '2026-09-01T16:20:00Z'
+    attribution:
+      attributed_by: chain_inception_binding
+      requester_ref: sub-t5-c9e34a17f5082bd4
+      statement: Attributed to the party the chain's inception record binds.
+    payload_digest:
+      construction: xfc-jcs-sha256-1
+      subject: pr_open_decision
+      value: sha256:68ab88d7ca3d31aa99a8a412ef929769760cade525d54aafd3dc082c392fd157
+  offered_as_permission: true
+decision_signature:
+  algorithm: ed25519
+  key_ref: key-tier2-chain-d
+  certificate_ref: cert:tier2-chain-staging
+  signed_over: signed_decision
+  signature: ABlLLbsnGWiErr6qDyUHwnu4fQV5-bg7bWnshLGFmLZbiCAAu4y09kBD9CqpQC94vOEQn74pizZEQS3OuHe_BQ
+  public_key: z6MkfJ8DJkNPpSNq2hx8DU3Fk36ifvBufGF5dv3SQSw84WA5
+decided_at: '2026-09-01T16:20:00Z'
+leaf_ref: leaf-0046
+---
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-0046
+leaf_index: 46
+tree_size: 47
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+leaf_type: pr_open_decision
+recorded_at: '2026-09-01T20:00:00Z'
+payload_ref: dec-neg-permission
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: pr_open_decision
+  value: sha256:60519ab634c0e2b5bd178a2cff75961882774ebd2d41e17b132944b5ff764ec9
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:922cf4dd48767e25480c9dcd08b0297f3a37d4a08faf63785e1f1acc391348b5
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:5615363f12bc8847e251ce73f9792819ff69da214f8ed3fe67c29f57783e0840
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-t5
+  signed_over: leaf_content
+  signature: 7_A5fkgo02fPMyJGyzqeqvGsTGagWF8KN4LbSWuNK9yTq11R2AjO2DSR0F0lMn3CugIgHnnKnIeaH--X_ctvDQ

@@ -1,0 +1,63 @@
+# expected_failure: extension_signed_away_from_controller
+# VIOLATES the extension's provenance: the expected attestation set and its
+# extensions are CONTROLLER records, because the commitment's whole value is that
+# the party being measured does not author the measure.
+#
+# An extension signed at the runner is the runner writing its own expectation — the
+# dropped-attestation hole reopened through the instrument raised to close it.
+schema_version: 1
+kind: xfactory_signed_execution_chain_commitment_extension
+extension_id: ext-neg-away
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+signed_extension:
+  chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+  digest_construction: xfc-jcs-sha256-1
+  extends: setup-t5
+  predecessor:
+    record_ref: clo-t5
+    record_kind: xfactory_signed_execution_chain_closure_record
+    digest:
+      construction: xfc-jcs-sha256-1
+      subject: closure_record
+      value: sha256:00a0d4301e5af834f7825485188682caac11df5d67fb10d97a2f0e7037b9a5a1
+  added_tasks:
+  - task_ref: task:t5-away
+    dispatched_at: '2026-09-01T21:10:00Z'
+    statement: Committed by the party being measured.
+  signed_where: runner
+extension_signature:
+  algorithm: ed25519
+  key_ref: key-controller-t2
+  certificate_ref: cert:controller-t2
+  signed_over: signed_extension
+  signature: OHuqqAzNG7RqhuDEBE5Y-MIbCXoFH_76oP7znqyLvCCaMPlGegqnFPRSuZc7MOmNgQndLbhOUt0tc6mB2vRZAw
+  public_key: z6MknKGe1CcdgEPaiTrzjYRFH9v82uWag54QefYsrKCye9Tn
+written_at: '2026-09-01T21:09:00Z'
+leaf_ref: leaf-0046
+---
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-0046
+leaf_index: 46
+tree_size: 47
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+leaf_type: commitment_extension
+recorded_at: '2026-09-01T21:09:30Z'
+payload_ref: ext-neg-away
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: commitment_extension
+  value: sha256:42f1f4e0a4e588f634e2d9a2e6123b59dd01ba12a55dc37dfe89e08d6102eab0
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:922cf4dd48767e25480c9dcd08b0297f3a37d4a08faf63785e1f1acc391348b5
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:865cf5aebc56275f850148c10428c004871ca4adca96f0073bdcf7a4f024bb4b
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-t5
+  signed_over: leaf_content
+  signature: zY25mFVQGb1T7Rh1tmj3cvufph4AfnrjFbAFARdKVComrFXH3gGbQdr8qNDyED14is_1JnjVJpnOdRudAqUoAA

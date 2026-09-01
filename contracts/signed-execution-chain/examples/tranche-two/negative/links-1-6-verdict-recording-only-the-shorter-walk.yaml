@@ -1,0 +1,54 @@
+# expected_failure: gate_walk_incomplete
+# VIOLATES the walk's completeness: a verdict CLAIMING scope `links_1_6` while
+# recording only tranche one's eight checks has claimed the longer scope and walked
+# the shorter one.
+#
+# The three added legs are PART OF THE SAME ONE WALK — the same required check
+# reading further, not a second gate — so a links_1_6 verdict carries all eleven
+# named checks or it is refused as incomplete.
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-0046
+leaf_index: 46
+tree_size: 47
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+leaf_type: gate_verdict
+recorded_at: '2026-09-01T22:21:00Z'
+payload_ref: vdt-neg-incomplete
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: gate_verdict
+  value: sha256:b09bdd9d7f5c38241205225ed19bf31e2a59e1475e61e4af7ad33d09d209b509
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:922cf4dd48767e25480c9dcd08b0297f3a37d4a08faf63785e1f1acc391348b5
+verdict:
+  outcome: permitted
+  scope: links_1_6
+  checks:
+  - check: ratification_signature_verifies
+    outcome: pass
+  - check: chain_identity_recomputes
+    outcome: pass
+  - check: exercise_object_ref_is_content_digest
+    outcome: pass
+  - check: inception_leaf_commits_to_chain_identity
+    outcome: pass
+  - check: traveling_contract_carries_established_values
+    outcome: pass
+  - check: actor_bound_to_signing_wallet
+    outcome: pass
+  - check: proof_of_possession_supplied_and_verified
+    outcome: pass
+  - check: standing_and_holder_class_at_exercise
+    outcome: pass
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:92896e193fb1cc9c297dac054b4e2854d8838e8cf74945da237c6e4932428f5a
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-t5
+  signed_over: leaf_content
+  signature: g-NX7luUxYWf7nokIDXRmz8ngFciEYQLCO3e7h0CBhKJEebMxn29KxaB0FyJI_IKnV0qcqasXtLYqZtYlX6wBQ

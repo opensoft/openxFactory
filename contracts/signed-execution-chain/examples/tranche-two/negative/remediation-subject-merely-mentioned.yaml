@@ -1,0 +1,50 @@
+# expected_failure: remediation_subject_not_declared
+# VIOLATES the exemption's second condition: the unclosed chain is DECLARED — BY
+# CHAIN IDENTITY, inside the bytes the ratifying signature covers — and not merely
+# mentioned somewhere in the packet.
+#
+# MENTIONING IS NEVER DECLARING. A declaration attachable after ratification is a
+# declaration anyone can attach, and the exemption would then be claimable by
+# relabelling any convenient chain a remediation.
+schema_version: 1
+kind: xfactory_signed_execution_chain_remediation_declaration
+declaration_id: rem-neg-mentioned
+chain_ref: sha256:6c9374bc9e66d2ecf084d96c5f0013eaf35eda380ad9cd5069627fa5e7d27baf
+remediates:
+  chain_ref: sha256:0e7ae026745c6e272309b75afa55b155eb20565cc81f3c9d6c80c8432b5d7325
+  failed_closure_ref: clo-unclosed-0001
+  failure_class: failed
+  statement: The governed post-merge test of that chain established a FAILING result, which
+    is this control working.
+covered_by_ratifying_signature: false
+inherits_exemption: false
+promotion_claimed: false
+declared_at: '2026-09-01T14:00:00Z'
+leaf_ref: leaf-0046
+---
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-0046
+leaf_index: 46
+tree_size: 47
+chain_ref: sha256:6c9374bc9e66d2ecf084d96c5f0013eaf35eda380ad9cd5069627fa5e7d27baf
+leaf_type: remediation_declaration
+recorded_at: '2026-09-01T22:30:00Z'
+payload_ref: rem-neg-mentioned
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: remediation_declaration
+  value: sha256:c829afa2638572fa002879061a1d9e6ffe434e839f80714a98999a3d1bc1fc66
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:922cf4dd48767e25480c9dcd08b0297f3a37d4a08faf63785e1f1acc391348b5
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:bf68e912848b05b021e6a2c78ffb0d1c0ca2ca89adb413404ade486530208c22
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-t5
+  signed_over: leaf_content
+  signature: fCDdrakCgfHUq-s6NOLq_X5jb1w9edikwxGy4N7OK__ugXX0ZBL8mBgMb7qQgJE4Wu5Z-m9FKipOdpriyUQ-Dw

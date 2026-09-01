@@ -1,0 +1,89 @@
+# expected_failure: attestation_leaf_deferred_past_successor
+# VIOLATES the log-order side of the hash link: a link-5 record's leaf is written
+# AFTER the chain's link-6 leaf, so at the moment the decision was logged this
+# attestation was not yet part of the record.
+#
+# A LEAF DEFERRED PAST ITS SUCCESSOR'S IS A RECORD BACKDATED INTO A COMMITMENT: the
+# decision claims to have committed to an enumeration the log did not yet hold. The
+# record itself is a byte-perfect duplicate of a valid attestation — the defect is
+# WHERE IN THE LOG IT LANDED, which is exactly what makes the log the record.
+schema_version: 1
+kind: xfactory_signed_execution_chain_runner_attestation
+attestation_id: att-neg-deferred
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+signed_attestation:
+  chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+  digest_construction: xfc-jcs-sha256-1
+  predecessor:
+    record_ref: clo-t5
+    record_kind: xfactory_signed_execution_chain_closure_record
+    digest:
+      construction: xfc-jcs-sha256-1
+      subject: closure_record
+      value: sha256:00a0d4301e5af834f7825485188682caac11df5d67fb10d97a2f0e7037b9a5a1
+  task_ref: task:t5-a
+  identity:
+    binding_ref: bind-t5-a
+    subject_scope: per_task
+  attested_facts:
+  - fact: model
+    value: claude-opus-5
+    evidence_class: controller_corroborated
+  - fact: harness
+    value: codex-council-worker
+    evidence_class: controller_corroborated
+  - fact: node
+    value: 22.6.0
+    evidence_class: runner_claimed
+  - fact: sandbox_seal
+    value: verified
+    evidence_class: independently_observed
+    observed_by: opensoft-platform-attestation-service
+  signed_where: harness_controller
+  signing_request:
+    request_id: req-att-neg-deferred
+    requested_at: '2026-09-01T16:10:00Z'
+    attribution:
+      attributed_by: controller_provisioning
+      requester_ref: task:t5-a
+      statement: Attributed from the controller's own provisioning.
+    payload_digest:
+      construction: xfc-jcs-sha256-1
+      subject: runner_attestation
+      value: sha256:16904ad87bf466e560334d44d868adf412f7eae19bb297d4264d31fd932be7d4
+attestation_signature:
+  algorithm: ed25519
+  key_ref: key-tier2-a
+  certificate_ref: cert:tier2-task-a
+  signed_over: signed_attestation
+  signature: dPHOuTRGuXga52TafRRHKCTr3IEL7xnvgcdAgDOdNtJIJHUILJwCRrPmP-QgzUpe_V7sEP_YEHqzj1e3b6lQCw
+  public_key: z6Mkph4jBMboXmzytn7Qt3ZzovEnKCT7GRQPbrpKByxr7H24
+attested_at: '2026-09-01T16:10:00Z'
+leaf_ref: leaf-0046
+---
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-0046
+leaf_index: 46
+tree_size: 47
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+leaf_type: runner_attestation
+recorded_at: '2026-09-01T23:00:00Z'
+payload_ref: att-neg-deferred
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: runner_attestation
+  value: sha256:1e9d30c5782ad93d94c5b997e2133ca0815160d4e694e5b985b1a804d9b360b5
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:922cf4dd48767e25480c9dcd08b0297f3a37d4a08faf63785e1f1acc391348b5
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:69d6e48ba1a208b66d256204974ca34005d39c73665473bc09bab72bc3b6c50e
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-t5
+  signed_over: leaf_content
+  signature: NHwlXl9_qStvKpeE3i9q0WBXDWWI6yx5R97SDSkiZVoPbX_56PCX0m2M1ovr7Wjsp2zD8bfKW1-aVutF5pKrDQ

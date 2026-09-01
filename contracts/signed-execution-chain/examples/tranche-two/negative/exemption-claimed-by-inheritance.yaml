@@ -1,0 +1,48 @@
+# expected_failure: remediation_exemption_inherited
+# VIOLATES the exemption's non-transitivity: a chain that builds on a remediation
+# chain is an ORDINARY consumer and stays refused while the original is unclosed.
+#
+# AN EXEMPTION THAT DESCENDS IS AN EXEMPTION THAT LAUNDERS — two hops and any chain
+# is reachable from an unclosed one through a remediation in the middle.
+schema_version: 1
+kind: xfactory_signed_execution_chain_remediation_declaration
+declaration_id: rem-neg-inherited
+chain_ref: sha256:6c9374bc9e66d2ecf084d96c5f0013eaf35eda380ad9cd5069627fa5e7d27baf
+remediates:
+  chain_ref: sha256:0e7ae026745c6e272309b75afa55b155eb20565cc81f3c9d6c80c8432b5d7325
+  failed_closure_ref: clo-unclosed-0001
+  failure_class: failed
+  statement: The governed post-merge test of that chain established a FAILING result, which
+    is this control working.
+covered_by_ratifying_signature: true
+inherits_exemption: true
+promotion_claimed: false
+declared_at: '2026-09-01T14:00:00Z'
+leaf_ref: leaf-0046
+---
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-0046
+leaf_index: 46
+tree_size: 47
+chain_ref: sha256:6c9374bc9e66d2ecf084d96c5f0013eaf35eda380ad9cd5069627fa5e7d27baf
+leaf_type: remediation_declaration
+recorded_at: '2026-09-01T22:31:00Z'
+payload_ref: rem-neg-inherited
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: remediation_declaration
+  value: sha256:c829afa2638572fa002879061a1d9e6ffe434e839f80714a98999a3d1bc1fc66
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:922cf4dd48767e25480c9dcd08b0297f3a37d4a08faf63785e1f1acc391348b5
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:482a1ed03ee2a45473f149509e1175a97a7ea97834656ebe1043d8e6214bcba0
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-t5
+  signed_over: leaf_content
+  signature: eYoEnTcxE8_MZ3otX0y6qA2rDS_SjCyFiV9O6YWRhxK6S92FGonyrqOcM6WIoEUW1nUUyduX9l_WF7SH2mIKBQ
