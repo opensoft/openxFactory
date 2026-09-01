@@ -8,7 +8,7 @@ origin:
     outlived their target" — was measured on 2026-08-31 against main tip
     `4290cad2` and every reachable consumer, and the measurement memo is
     durable on the operator host at
-    `~/projects/xFactory/deprecations-522-memo-2026-08-31.md`. There is no
+    `~/projects/xFactory/deprecations-522-memo-2026-08-31.md` (OPERATOR-LOCAL and deliberately NOT committed to this repository -- the durable in-repo referents are issue #522 and its 2026-09-01 ruling comment, which carry the ruling this packet executes). There is no
     staged topic: the subject arrived as a filed issue and was dispositioned
     by ruling on the memo's recommendations, so `kind: staged` here would
     claim a staging source that does not exist.

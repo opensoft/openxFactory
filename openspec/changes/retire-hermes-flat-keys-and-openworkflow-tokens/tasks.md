@@ -13,11 +13,14 @@ that the realization must clear before this change may archive at all.
       `origin/main`, citing issue #522, Brett's 2026-09-01 ruling comment on it,
       and the measurement memo.
 - [x] 1.2 Re-verify the memo's facts against the tree rather than carrying them.
-      Recorded in `proposal.md` § "What the measurement found": three corrections
-      and additions — the `openworkflow` branch's SHADOWING (it widens one case
-      as well as narrowing another), the `Owner layer constraint` canon/code
-      severity divergence, and the `hermes.domain_overlay` vs
-      `omnigent.domain_overlay` path collision.
+      Recorded in `proposal.md` § "What the measurement found": FIVE findings the
+      memo did not carry — the fallback retirement being a REPLACEMENT and not a
+      deletion (a bare deletion widens silently at a major); the `openworkflow`
+      branch's SHADOWING (it widens one case as well as narrowing another);
+      entry 2's entry under-declaring its own prefix by one character, raised in
+      review of this PR; the `Owner layer constraint` canon/code severity
+      divergence; and the `hermes.domain_overlay` vs `omnigent.domain_overlay`
+      path collision.
 - [x] 1.3 Validate: `OPENSPEC_TELEMETRY=0 openspec validate
       retire-hermes-flat-keys-and-openworkflow-tokens --strict` and
       `--all --strict`, both green.
@@ -75,7 +78,12 @@ doc-health findings by path, and is unreachable by a consumer reading a pinned
 policy document.**
 
 - [ ] 3.1 `docs/contract-versioning-policy.md` § Deprecations Executed: add the
-      `openworkflow_` row, carrying all six elements the one exemplar row
+      `openworkflow`-prefixed token row, **with its declared shape CORRECTED to
+      the prefix the code matches** — the entry and the validator docstring both
+      write `openworkflow_`, the code writes
+      `token.startswith("openworkflow")`, so `openworkflow`, `openworkflowx` and
+      `openworkflow-legacy` are all refused and none is declared. Carry all six
+      elements the one exemplar row
       establishes — the shape removed enumerated, REMOVED at `contract-v3.0`,
       `contract-v1.1` named as the release that served the warnings, the
       conformance-validator clause's discharge, the migration to `xfactory` with

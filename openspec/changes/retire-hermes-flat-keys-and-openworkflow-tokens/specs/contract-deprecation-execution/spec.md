@@ -146,8 +146,16 @@ under-declares its own scope by seven keys is a defect independent of the split.
 - **WHEN** a change proposes refusing the co-resident flat keys at a major without a preceding minor in which the warning fired on the co-resident shape
 - **THEN** it MUST be refused, and the restated entry's recorded reason is what makes the refusal citable
 
-### Requirement: The `openworkflow_` layer/owner token compatibility surface is removed at contract-v3.0
-The compatibility branch that gives an `owner_layer` token beginning `openworkflow` its own deprecated-naming warning in the canonical domain-factory conformance validator SHALL be removed at `contract-v3.0`, together with the validator docstring line that advertises it, so that from that major forward such a token carries NO special handling and is evaluated by the same rule as any other `owner_layer` token.
+### Requirement: The `openworkflow`-prefixed layer/owner token compatibility surface is removed at contract-v3.0
+The compatibility branch that gives an `owner_layer` token beginning `openworkflow` its own deprecated-naming warning in the canonical domain-factory conformance validator SHALL be removed at `contract-v3.0`, together with the validator docstring line that advertises it, so that from that major forward such a token carries NO special handling and is evaluated by the same rule as any other `owner_layer` token; and the entry's declared shape SHALL be corrected to the prefix the code actually matches before the removal lands.
+
+THE ENTRY UNDER-DECLARES ITS OWN SHAPE, THE SAME DEFECT AS ENTRY 1 AND ONE
+CHARACTER WIDE. The policy entry and the validator docstring both write
+`openworkflow_`, with a trailing underscore. The code writes
+`token.startswith("openworkflow")`, with none. So `openworkflow`, `openworkflowx`
+and `openworkflow-legacy` all take the branch today and are all refused by the
+removal, and not one of them is the shape the entry declares. The refusal-list
+rule applies here exactly as it applies to the flat keys.
 
 The replacement token is `xfactory`, introduced by `contract-v1.1`, and the
 migration was completed years of minors ago: across ten reachable repositories
@@ -189,6 +197,11 @@ and not merely the retired prefix, and that is a different change's subject.
 #### Scenario: A consumer pinned below the major
 - **WHEN** a domain repository pinned below `contract-v3.0` is validated from the checkout it pins
 - **THEN** the `openworkflow` branch is still present there and still warns, because a pinned consumer stays valid at its pin and nothing in a new release reaches backwards
+
+#### Scenario: A token carries the prefix WITHOUT the underscore the entry declares
+- **WHEN** a workflow gate's `owner_layer` normalizes to `openworkflow`, `openworkflowx` or any form carrying the prefix without a following underscore
+- **THEN** it takes the compatibility branch today and is refused by this removal, even though the policy entry and the validator docstring both declare the shape as `openworkflow_`
+- **AND** the entry MUST be corrected to the prefix the code matches before the removal lands, under the refusal-list rule, so that a consumer at the major can tell which of its own tokens the major refuses
 
 #### Scenario: The Executed row for the token surface
 - **WHEN** `contract-v3.0` lands

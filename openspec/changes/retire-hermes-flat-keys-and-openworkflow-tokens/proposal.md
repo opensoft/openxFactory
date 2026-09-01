@@ -1,9 +1,9 @@
 ---
-code_surface: openxFactory. (1) `scripts/validate-domain-factory.py` — the `LEGACY_HERMES_KEYS` nine-key map at `:60-70` and the `else` fallback branch of `check_hermes` at `:189-200` (the warn line, the flat-key resolution loop, and the per-role resolvability check that follows it) are DELETED, so a `stack.yaml` carrying no `hermes.layers` errors at the existing `hermes.layers missing required role` check rather than resolving through flat keys; the `if token.startswith("openworkflow")` branch at `:309-311` is DELETED, so the `elif token not in allowed` arm at `:312-314` it shadows becomes the only arm; the docstring line at `:26` (`"openworkflow_*" tokens are flagged as deprecated naming.`) goes with it. (2) `scripts/apply-domain-starter.py` — the comment at `:241` naming a spent removal target and the nine emitted flat keys at `:242-250` leave the `stack.yaml` template, so a newly instantiated domain repository carries `hermes.layers` alone. (3) `docs/contract-versioning-policy.md` (RELEASE-SURFACE INVENTORY MEMBER) — the `openworkflow_` entry moves to § Deprecations Executed; the `hermes` flat-key entry SPLITS, an Executed row for the fallback read and a rewritten In Force entry for the keys themselves carrying the full refusal list, a restated removal target and the recorded reason it stays. (4) `contracts/CHANGELOG.md` (member) — the `contract-v3.0` BREAKING entry with its migration note and its discharge of all three Breaking-clause preconditions. (5) `contracts/manifest.yaml` (member) — `contract_bundle_version` and `contract_schema_version`. (6) A new `contracts/releases/contract-v3.0.digests.yaml`. NO consumer `stack.yaml` is edited by this change, in any of the five supported domain repositories: the half that would have required it is the half that is not executed. NO schema under `contracts/schemas/` changes, and no digested schema artifact moves. The sibling `retire-doxbench-chat-turn-v1` carries the schema-moving half of the same major and is a separate packet.
+code_surface: openxFactory. (1) `scripts/validate-domain-factory.py` — the `LEGACY_HERMES_KEYS` nine-key map at `:60-70` and the `else` fallback branch of `check_hermes` at `:189-200` (the warn line, the flat-key resolution loop, and the per-role resolvability check that follows it) are REPLACED BY ONE EXPLICIT ERROR naming the missing or non-list `hermes.layers` -- **replaced, not merely deleted**, because the `hermes.layers missing required role` errors sit INSIDE the `layers`-declared branch and a bare deletion would let a `layers`-less stack pass with no finding at all; the `if token.startswith("openworkflow")` branch at `:309-311` is DELETED, so the `elif token not in allowed` arm at `:312-314` it shadows becomes the only arm; the docstring line at `:26` (`"openworkflow_*" tokens are flagged as deprecated naming.`) goes with it. (2) `scripts/apply-domain-starter.py` — the comment at `:241` naming a spent removal target and the nine emitted flat keys at `:242-250` leave the `stack.yaml` template, so a newly instantiated domain repository carries `hermes.layers` alone. (3) `docs/contract-versioning-policy.md` (RELEASE-SURFACE INVENTORY MEMBER) — the `openworkflow`-prefixed token entry moves to § Deprecations Executed, its declared shape CORRECTED to the prefix the code matches; the `hermes` flat-key entry SPLITS, an Executed row for the fallback read and a rewritten In Force entry for the keys themselves carrying the full refusal list, a restated removal target and the recorded reason it stays. (4) `contracts/CHANGELOG.md` (member) — the `contract-v3.0` BREAKING entry with its migration note and its discharge of all three Breaking-clause preconditions. (5) `contracts/manifest.yaml` (member) — `contract_bundle_version` and `contract_schema_version`. (6) A new `contracts/releases/contract-v3.0.digests.yaml`. NO consumer `stack.yaml` is edited by this change, in any of the five supported domain repositories: the half that would have required it is the half that is not executed. NO schema under `contracts/schemas/` changes, and no digested schema artifact moves. The sibling `retire-doxbench-chat-turn-v1` carries the schema-moving half of the same major and is a separate packet.
 target_release: contract-v3.0 — a MAJOR, and naming it is not the reservation the policy forbids. `docs/contract-versioning-policy.md` § Version Identity forbids reserving a MINOR number before merge order is known; a major is deterministic from the declared bundle (`contract-v2.5`) and is already named as a forward target by the In Force entry `add-binding-consumer-identity` landed on 2026-08-31 ("The block is DECLARED at contract-v2.4 and CONSTRAINED at contract-v3.0"). THIS CHANGE HAS A CODE SURFACE, so under `release-realization` it archives ONLY on merged plus green realization evidence — never on landing — and its evidence includes the published annotated `contract-v3.0` tag verified from an independently refreshed checkout, because `docs/contract-versioning-policy.md` holds that a bundle is not published until its tag exists. The cut is a SEPARATE act from this proposal and from its realization; this packet neither performs it nor claims a place in its ordering beyond the class its retirements carry.
 Status: draft
 Proposed: 2026-09-01
-Origin: openxFactory issue #522, filed against the three `contract-v2.0`-targeted deprecations that outlived their target; measured 2026-08-31 in a decision memo durable on the operator host at `~/projects/xFactory/deprecations-522-memo-2026-08-31.md`; RULED by Brett Heap 2026-09-01 in session and recorded as a comment on #522 — "execute all three retirements at contract-v3.0, as the memo recommends", entry 1 SPLIT, entry 2 EXECUTED, entry 3 executed as its own slice. The ruling authorizes the proposals; it does not ratify this text.
+Origin: openxFactory issue #522, filed against the three `contract-v2.0`-targeted deprecations that outlived their target; measured 2026-08-31 in a decision memo durable on the operator host at `~/projects/xFactory/deprecations-522-memo-2026-08-31.md` (OPERATOR-LOCAL and deliberately NOT committed to this repository -- the durable in-repo referents are issue #522 and its 2026-09-01 ruling comment, which carry the ruling this packet executes); RULED by Brett Heap 2026-09-01 in session and recorded as a comment on #522 — "execute all three retirements at contract-v3.0, as the memo recommends", entry 1 SPLIT, entry 2 EXECUTED, entry 3 executed as its own slice. The ruling authorizes the proposals; it does not ratify this text.
 ---
 
 # Proposal: retire-hermes-flat-keys-and-openworkflow-tokens
@@ -39,13 +39,17 @@ against these two entries.
 
 Cited in full: openxFactory issue **#522** and Brett Heap's ruling comment on it
 of **2026-09-01**; the measurement memo
-**`~/projects/xFactory/deprecations-522-memo-2026-08-31.md`** (durable on the
-operator host, measured against main tip `4290cad2`).
+**`~/projects/xFactory/deprecations-522-memo-2026-08-31.md`**, measured against
+main tip `4290cad2`. **That path is OPERATOR-LOCAL and the memo is deliberately
+NOT committed to this repository**; it is cited because it is the measurement the
+ruling adopted, and the DURABLE in-repo referents a later reader can resolve are
+issue #522 and its 2026-09-01 ruling comment.
 
 ## What the measurement found, and where it did not survive re-verification
 
 Re-measured on this branch against main tip `1a69b7cb`. **The memo's facts for
-these two entries hold, with two corrections and one addition.**
+these two entries hold, and re-verification adds FIVE findings it did not
+carry — one of them raised in review of this pull request.**
 
 **Entry 1 — `hermes` flat keys. Confirmed.**
 
@@ -104,6 +108,15 @@ not name.**
   general rule would accept. Removing the branch therefore NARROWS the
   unresolvable case and WIDENS the resolvable one. The memo priced only the
   narrowing.
+* **Entry 2's entry ALSO under-declares its own shape, by exactly one
+  character** (raised in review of this PR, 2026-09-01). The policy entry reads
+  *"Layer/owner tokens beginning `openworkflow_`"* and the validator docstring
+  agrees; the code reads `token.startswith("openworkflow")`, with no trailing
+  underscore. `openworkflow`, `openworkflowx` and `openworkflow-legacy` all take
+  the branch today and are all refused by the removal, and none of them is the
+  shape the entry declares. **This is the same defect as entry 1's seven
+  undeclared keys, one character wide**, and it makes the refusal-list rule this
+  packet promotes apply to BOTH of its entries rather than only to the flat keys.
 * **A canon/code divergence the memo did not measure, and which this change
   records rather than resolves.** Promoted canon —
   `openspec/specs/workflow-gate-contract/spec.md:48`, "Owner layer constraint" —
