@@ -408,7 +408,10 @@ Active changes:
   — authored 2026-09-01, `Status: draft`. **Entries 1 and 2 of openxFactory
   issue #522**, on Brett Heap's 2026-09-01 ruling comment there ("execute all
   three retirements at contract-v3.0, as the memo recommends") and the
-  measurement memo `~/projects/xFactory/deprecations-522-memo-2026-08-31.md` (OPERATOR-LOCAL and deliberately NOT committed to this repository -- the durable in-repo referents are issue #522 and its 2026-09-01 ruling comment, which carry the ruling this packet executes).
+  measurement memo `deprecations-522-memo-2026-08-31.md` (operator-local, NOT
+  committed here and NAMED rather than located, Principle IV forbidding a
+  host-absolute path in a committed file; the durable in-repo referents are
+  issue #522 and its 2026-09-01 ruling comment).
   `contract-v2.0` shipped on 2026-08-27, executed a DIFFERENT deprecation
   through itself, and did not look at the three entries that named it as their
   removal target; five minors later they still name it. **ENTRY 1 IS SPLIT AS

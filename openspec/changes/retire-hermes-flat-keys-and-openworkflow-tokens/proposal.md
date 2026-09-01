@@ -3,7 +3,7 @@ code_surface: openxFactory. (1) `scripts/validate-domain-factory.py` — the `LE
 target_release: contract-v3.0 — a MAJOR, and naming it is not the reservation the policy forbids. `docs/contract-versioning-policy.md` § Version Identity forbids reserving a MINOR number before merge order is known; a major is deterministic from the declared bundle (`contract-v2.5`) and is already named as a forward target by the In Force entry `add-binding-consumer-identity` landed on 2026-08-31 ("The block is DECLARED at contract-v2.4 and CONSTRAINED at contract-v3.0"). THIS CHANGE HAS A CODE SURFACE, so under `release-realization` it archives ONLY on merged plus green realization evidence — never on landing — and its evidence includes the published annotated `contract-v3.0` tag verified from an independently refreshed checkout, because `docs/contract-versioning-policy.md` holds that a bundle is not published until its tag exists. The cut is a SEPARATE act from this proposal and from its realization; this packet neither performs it nor claims a place in its ordering beyond the class its retirements carry.
 Status: draft
 Proposed: 2026-09-01
-Origin: openxFactory issue #522, filed against the three `contract-v2.0`-targeted deprecations that outlived their target; measured 2026-08-31 in a decision memo durable on the operator host at `~/projects/xFactory/deprecations-522-memo-2026-08-31.md` (OPERATOR-LOCAL and deliberately NOT committed to this repository -- the durable in-repo referents are issue #522 and its 2026-09-01 ruling comment, which carry the ruling this packet executes); RULED by Brett Heap 2026-09-01 in session and recorded as a comment on #522 — "execute all three retirements at contract-v3.0, as the memo recommends", entry 1 SPLIT, entry 2 EXECUTED, entry 3 executed as its own slice. The ruling authorizes the proposals; it does not ratify this text.
+Origin: openxFactory issue #522, filed against the three `contract-v2.0`-targeted deprecations that outlived their target; measured 2026-08-31 in a decision memo named `deprecations-522-memo-2026-08-31.md`, held on the operator's own machine and DELIBERATELY NOT COMMITTED anywhere in this repository (Principle IV forbids a host-absolute path in a committed file, so it is named and not located; the durable in-repo referents are issue #522 and its 2026-09-01 ruling comment, which carry the ruling this packet executes); RULED by Brett Heap 2026-09-01 in session and recorded as a comment on #522 — "execute all three retirements at contract-v3.0, as the memo recommends", entry 1 SPLIT, entry 2 EXECUTED, entry 3 executed as its own slice. The ruling authorizes the proposals; it does not ratify this text.
 ---
 
 # Proposal: retire-hermes-flat-keys-and-openworkflow-tokens
@@ -39,7 +39,7 @@ against these two entries.
 
 Cited in full: openxFactory issue **#522** and Brett Heap's ruling comment on it
 of **2026-09-01**; the measurement memo
-**`~/projects/xFactory/deprecations-522-memo-2026-08-31.md`**, measured against
+**`deprecations-522-memo-2026-08-31.md`**, measured against
 main tip `4290cad2`. **That path is OPERATOR-LOCAL and the memo is deliberately
 NOT committed to this repository**; it is cited because it is the measurement the
 ruling adopted, and the DURABLE in-repo referents a later reader can resolve are
