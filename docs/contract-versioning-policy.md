@@ -324,19 +324,76 @@ retroactively invalidate an old pin.
 
 ## Deprecations Currently In Force
 
-- `hermes` flat keys (`subject_overlay`, `subject_layer_name`,
-  `care_organization_overlay`, `client_overlay`/`customer_overlay` flat
-  style) — replaced by `hermes.layers`, whose role keys are
-  `customer`/`client`/`domain`. THOSE KEYS ARE FROZEN MACHINE IDENTIFIERS, NOT
-  THE CANONICAL VOCABULARY: the canonical Hermes layering has been Subject /
-  Tenant / Domain since `adopt-subject-tenant-domain-vocabulary` was ratified
-  2026-07-23, and the machine keys survive unrenamed precisely so that pinned
-  consumers keep validating. The mapping between them is
+- **The `hermes` flat KEYS — the twelve, enumerated BY PATH, and the recorded
+  reason the removal was NOT taken at contract-v3.0.** The fallback READ that
+  resolved layer overlays and display names from these keys is gone; the keys
+  themselves are not refused. **THE ENTRY IS WRITTEN FROM THE REFUSAL LIST**,
+  because the shape a consumer must be able to check against its own bytes is
+  the shape the removal would refuse, and this entry previously named five of
+  the twelve:
+
+  | key, under the `hermes:` block | previously named by the entry |
+  | --- | --- |
+  | `hermes.subject_overlay` | yes |
+  | `hermes.subject_layer_name` | yes |
+  | `hermes.customer_overlay` | yes |
+  | `hermes.customer_layer_name` | no |
+  | `hermes.client_overlay` | yes |
+  | `hermes.client_layer_name` | no |
+  | `hermes.care_organization_overlay` | yes |
+  | `hermes.domain_overlay` | no |
+  | `hermes.domain_layer_name` | no |
+  | `hermes.domain_agent_mixes` | no |
+  | `hermes.client_agent_mixes_template` | no |
+  | `hermes.customer_agent_mixes_template` | no |
+
+  **THE LIST IS BY PATH AND NOT BY NAME, AND THE DIFFERENCE IS LOAD-BEARING.**
+  `omnigent.domain_overlay` is a LIVE, non-deprecated key that every supported
+  consumer declares and that `scripts/validate-domain-factory.py` reads and
+  errors on when the directory it names is missing. It is EXCLUDED from the list
+  above. A refusal list written as bare key names would sweep it in and refuse,
+  at a major and with no warning ever served, a shape the whole supported
+  population legitimately carries. The deprecated key is `hermes.domain_overlay`
+  and nothing else.
+
+  Replaced by `hermes.layers`, whose role keys are `customer`/`client`/`domain`.
+  THOSE KEYS ARE FROZEN MACHINE IDENTIFIERS, NOT THE CANONICAL VOCABULARY: the
+  canonical Hermes layering has been Subject / Tenant / Domain since
+  `adopt-subject-tenant-domain-vocabulary` was ratified 2026-07-23, and the
+  machine keys survive unrenamed precisely so that pinned consumers keep
+  validating. The mapping between them is
   `contracts/policies/layer-vocabulary.yaml`; interpret the keys through it and
-  never rename them ad hoc. Warned since contract-v1.1; removal target
-  contract-v2.0.
-- Layer/owner tokens beginning `openworkflow_` — replaced by `xfactory`.
-  Warned since contract-v1.1; removal target contract-v2.0.
+  never rename them ad hoc.
+
+  **THE RECORDED REASON THE REMOVAL WAS NOT TAKEN, AND IT IS A MEASUREMENT
+  RATHER THAN A PREFERENCE.** The deprecation warning fired ONLY in the branch
+  taken when `hermes.layers` was ABSENT. All five supported consumers —
+  codexFactory, MedxFactory, AdxFactory, LedgerxFactory, OpsxFactory — declare
+  `hermes.layers` AND carry flat keys alongside it, so that co-resident shape
+  has never produced a warning against any of them: `python3
+  scripts/validate-domain-factory.py <repo>` emits no legacy-flat-key line for
+  any of the five, and the branch was dead code for the entire supported
+  population. Refusing the keys would therefore be an UNPHASED narrowing — the
+  Breaking class's "at least one full minor release where the old shape produced
+  deprecation warnings" is unmet for the co-resident shape, and a warning that
+  cannot fire is not a warning served.
+
+  **THE DEPRECATING MINOR IT OWES**, stated so the successor is checkable rather
+  than remembered: a minor in which the conformance validator warns on the
+  co-resident shape *whether or not* `hermes.layers` is present, written from
+  the full twelve-key refusal list above. Only after that minor has been cut and
+  served may a major refuse these keys. A change that proposes refusing them
+  without it is refused, and this paragraph is what makes the refusal citable.
+
+  Migration, available now and unforced: delete the flat keys from `stack.yaml`;
+  nothing reads them while `hermes.layers` is present, and no supported consumer
+  is required to act before the deprecating minor lands.
+
+  Warned since contract-v1.1; removal target RESTATED to contract-v4.0 — the
+  co-resident shape has never been warned, so the removal is unphased and owes
+  the deprecating minor named above first. If that minor has not been cut when
+  contract-v4.0 is reached, this entry is RESTATED AGAIN rather than the removal
+  taken unphased.
 - The doxBench chat-turn v1 envelope family (`workbench-chat-turn`,
   `workbench-chat-turn-success`, `workbench-chat-turn-failure` in
   `contracts/schemas/xfactory-workbench-chat-turn.schema.yaml`) — replaced by
@@ -421,17 +478,100 @@ is indistinguishable from one that was never honoured.
   `openxwallet-grant`, `openxwallet-grant-exercise`,
   `openxwallet-distinct-holder-constraint`, `openxwallet-subject-attestation`,
   and `openxwallet-agent-composition`) — **REMOVED at contract-v2.0**, the full
-  minor of deprecation warnings having been served by contract-v1.47 as `:250-254`
-  requires. Their canonical home is `opensoft/openXwallet` at tag `wallet-v1.1`.
+  minor of deprecation warnings having been served by contract-v1.47 as
+  § Change Classes, *Breaking (major)* requires. Their canonical home is
+  `opensoft/openXwallet` at tag `wallet-v1.1`.
   openxFactory now CONSUMES the family: `contracts/openxwallet-pin.yaml` pins the
   publisher by 40-hex COMMIT plus eight per-file `sha256` digests (the tag is a
   label beside them, never the referent) and records the NAMED CARVE COMMIT the
   digests were taken at; `scripts/verify-openxwallet-pin.py` checks it and fails
-  closed with a named refusal code and a fixed remediation trailer. **The `:253-254`
-  conformance-validator clause is discharged by the move itself**: from contract-v2.0
+  closed with a named refusal code and a fixed remediation trailer. **The
+  conformance-validator clause of § Change Classes, *Breaking (major)* is
+  discharged by the move itself**: from contract-v2.0
   forward this family's conformance validator IS the pinned
   `openXwallet/scripts/validate-openxwallet.py` at the commit the pin records, run
   over openxFactory's own tree as the REQUIRED `wallet-validation` check. Migration:
   `contracts/CHANGELOG.md` § `contract-v2.0` and
   `openXwallet/docs/pin-resync-runbook.md`. Deprecated at contract-v1.47, removed at
   contract-v2.0.
+- **The `openworkflow`-prefixed layer/owner token compatibility branch** — the
+  branch in the canonical domain-factory conformance validator that gave any
+  workflow-gate `owner_layer` whose normalized form BEGINS `openworkflow` its
+  own deprecated-naming warning, together with the validator docstring line
+  that advertised it. **REMOVED at contract-v3.0.** From that major such a token
+  carries NO special handling and is evaluated by the same rule as any other
+  `owner_layer` token.
+
+  **THE SHAPE IS ENUMERATED AS THE CODE MATCHED IT, WHICH IS ONE CHARACTER
+  WIDER THAN THIS ENTRY USED TO DECLARE.** The In Force entry and the validator
+  docstring both wrote `openworkflow_`, with a trailing underscore; the code
+  wrote `token.startswith("openworkflow")`, with none. So `openworkflow`,
+  `openworkflowx` and `openworkflow-legacy` all took the branch and are all
+  covered by this removal, and not one of them was the shape the entry declared.
+  The correction is made here rather than carried forward, under the rule that a
+  deprecation entry is written from the REFUSAL LIST.
+
+  **IT NARROWS ONE CASE AND WIDENS ANOTHER, AND BOTH ARE RECORDED.** The removed
+  branch was an `if` that PRECEDED the general `elif token not in allowed`, so
+  it shadowed it. (1) NARROWING — a token carrying the prefix that resolves to
+  no canonical role and no declared layer was WARNED and is now reported by the
+  general undeclared-layer rule, at whatever severity that rule carries.
+  (2) WIDENING — a token carrying the prefix whose normalized form EQUALS a
+  declared Hermes layer's normalized display name was also warned, because the
+  branch shadowed the general rule, and now validates SILENTLY. Both were
+  measured on the two validators side by side before this row was written. No
+  such gate exists in any reachable repository; the widening is recorded because
+  it is real, not because it bites.
+
+  The full minor of deprecation warnings required by § Change Classes,
+  *Breaking (major)* was served by **contract-v1.1**, which introduced the
+  replacement token and began warning on the prefix — forty-plus minors of
+  warnings, and the refused shape is exactly the warned shape. **The
+  conformance-validator clause of that section is discharged in the validator
+  itself**: `scripts/validate-domain-factory.py` accepts the new shape — a
+  canonical role, a declared layer's display name, `omnigent`,
+  `<domain>_omnigent`, or `xfactory` — and rejects the old one only from
+  contract-v3.0, through the general rule; a consumer pinned below the major
+  reads the branch at its own pin, where it is still present and still warns.
+  Migration: replace the token with `xfactory`, the replacement introduced by
+  `contract-v1.1` (`contracts/CHANGELOG.md` § `contract-v1.1`); a
+  post-removal reader recovers the original shape from this row and the
+  migration target from that entry. Deprecated at contract-v1.1, removed at
+  contract-v3.0.
+- **The `hermes` flat-key FALLBACK READ — the READ, and not the keys** — the
+  branch of the canonical domain-factory conformance validator that resolved
+  layer overlays and display names from flat keys under `hermes:` when
+  `hermes.layers` was absent, together with the `LEGACY_HERMES_KEYS` map it read
+  them through, the per-role `no overlay resolvable for hermes role` check that
+  followed it, and the domain-starter generator's emission of the deprecated
+  keys into every newly instantiated domain repository. **REMOVED at
+  contract-v3.0.**
+
+  **THIS ROW IS SCOPED TO THE READ. THE KEYS ARE NOT REFUSED** and their entry
+  stays in § Deprecations Currently In Force above, restated to contract-v4.0
+  with the measurement behind it. An entry sitting in both sections would be a
+  defect; these are two different shapes, and only one of them was removed.
+
+  The full minor of deprecation warnings required by § Change Classes,
+  *Breaking (major)* was served by **contract-v1.1**, which introduced
+  `hermes.layers` and began warning on a stack that declared none. The refused
+  shape is exactly the warned shape: the warning fired on a `hermes.layers`-less
+  stack and nothing else, and a `hermes.layers`-less stack is precisely what is
+  now refused. It refuses nobody — all five supported DomainxFactory consumers
+  declare `hermes.layers`, verified by running the validator against each of
+  them before and after the removal with no line moved.
+
+  **The conformance-validator clause of that section is discharged by a
+  REPLACEMENT and not by a deletion, and the distinction is the whole of it.**
+  The `hermes.layers missing required role` errors sit INSIDE the branch taken
+  when `hermes.layers` IS declared. Deleting the fallback arm alone would have
+  left a `layers`-less stack falling through to an EMPTY layer map and producing
+  no finding at all — a silent WIDENING at a major, the exact opposite of the
+  retirement. In its place the validator emits ONE explicit error naming the
+  missing or non-list `hermes.layers`, so the old shape is rejected, only at the
+  new major, and visibly. Migration: declare `hermes.layers` with exactly one
+  template for each canonical role `customer`, `client` and `domain`, each
+  carrying `display_name` and `overlay` — the shape
+  `contracts/schemas/xfactory-domain-stack.schema.yaml` requires and the
+  domain-starter generator now emits alone. Deprecated at contract-v1.1, removed
+  at contract-v3.0.

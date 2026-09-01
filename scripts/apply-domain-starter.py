@@ -239,16 +239,6 @@ hermes:
     - role: domain
       display_name: {ctx.domain_layer_name}
       overlay: hermes/domain
-  # Deprecated flat keys (removal at contract-v2.0); kept for older tooling.
-  domain_layer_name: {ctx.domain_layer_name}
-  domain_overlay: hermes/domain
-  domain_agent_mixes: hermes/domain/agent-mixes.yaml
-  client_layer_name: {ctx.client_layer_name}
-  client_overlay: hermes/client
-  client_agent_mixes_template: hermes/client/agent-mixes.template.yaml
-  customer_layer_name: {ctx.customer_layer_name}
-  customer_overlay: hermes/customer
-  customer_agent_mixes_template: hermes/customer/agent-mixes.template.yaml
 
 omnigent:
   domain_overlay: omnigent
@@ -2224,12 +2214,7 @@ schema:
     - domain.id
     - domain.product_name
     - xfactory.contract_repo
-    - hermes.domain_overlay
-    - hermes.domain_agent_mixes
-    - hermes.client_overlay
-    - hermes.client_agent_mixes_template
-    - hermes.customer_overlay
-    - hermes.customer_agent_mixes_template
+    - hermes.layers
     - omnigent.domain_overlay
     - credentials.requirements
     - credentials.broker_contract
@@ -2932,12 +2917,8 @@ def main() -> int:
     if not errors:
         stack = load_yaml("stack.yaml")
         for rel in [
-            stack.get("hermes", {}).get("domain_overlay"),
-            stack.get("hermes", {}).get("domain_agent_mixes"),
-            stack.get("hermes", {}).get("client_overlay"),
-            stack.get("hermes", {}).get("client_agent_mixes_template"),
-            stack.get("hermes", {}).get("customer_overlay"),
-            stack.get("hermes", {}).get("customer_agent_mixes_template"),
+            *[layer.get("overlay") for layer in (stack.get("hermes", {}).get("layers") or [])
+              if isinstance(layer, dict)],
             stack.get("omnigent", {}).get("domain_overlay"),
             stack.get("credentials", {}).get("requirements"),
             stack.get("credentials", {}).get("broker_contract"),

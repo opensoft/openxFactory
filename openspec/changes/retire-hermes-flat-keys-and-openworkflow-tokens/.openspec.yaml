@@ -50,6 +50,18 @@ origin:
     and a pass still owed and unblocked — and `main` carries an inherited
     `pytest-suite` red from PR #510's carriage-ledger subject, which this
     packet neither causes nor fixes.
+
+    REALIZATION NOTE, added 2026-09-01 after the fact and scoped so the
+    paragraph above stays readable as what it is — a description of the
+    RATIFYING ACT, every clause of which remains true of that act. The later
+    commission it named has since been carried out, in a SEPARATE pull request
+    from an independent clone: `tasks.md` §§ 2 (the validator retirements and
+    their coverage), 3 (the policy rows, both Executed and the restated In
+    Force entry) and 6.1 (the D4 issue, filed as openxFactory #561) are
+    PERFORMED and ticked with their evidence. §§ 4 and 5 — the `contract-v3.0`
+    cut and its post-cut verification — and § 7's archive gate are UNTOUCHED
+    and open, so the change stays ACTIVE. The realization spends no bundle
+    number, publishes no tag and moves no CHANGELOG row.
   approved_by: >-
     BRETT HEAP, repository owner, 2026-09-01 in session, ruling on openxFactory
     issue #522 and recorded as a comment on that issue: "execute all three

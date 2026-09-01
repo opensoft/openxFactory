@@ -1,14 +1,32 @@
 # Tasks: retire-hermes-flat-keys-and-openworkflow-tokens
 
-**NOTHING BELOW SECTION 1 IS PERFORMED BY THIS PROPOSAL, AND RATIFICATION DOES
-NOT CHANGE THAT.** The packet is `Status: ratified` — Brett Heap, 2026-09-01,
-in session, at pull request #551 tip `64907604`; record
-`review/ratification-2026-09-01.md` — and this is still the
-OpenSpec-before-implementation stage: no retirement code, no policy row and no
-changelog entry lands in the pull request that carries it. **Ratification
-authorizes the requirement text and performs none of the work below.** Sections
-2-5 are the realization, and § 7 is the archive gate that the realization must
-clear before this change may archive at all.
+**AMENDED 2026-09-01, AFTER RATIFICATION: §§ 2, 3 AND 6 ARE PERFORMED AND ARE
+NOW TICKED.** They were performed by a SEPARATE realization pull request from an
+independent clone, against the packet as ratified, and the evidence sits under
+each box. **§ 4 (the `contract-v3.0` cut), § 5 (post-cut verification) and § 7
+(the archive gate) are untouched and remain OPEN** — the cut is its own act
+under § Bundle Realization Order, it allocates its number late, and this
+realization neither performs it nor claims a place in its ordering. **§ 1.6 is
+also untouched: a Codex pass is still owed** (see the box for what the
+realization's own attempt returned).
+
+**WHAT THE ORIGINAL HEADER SAID, AND WHY IT STAYS TRUE.** It read: *"NOTHING
+BELOW SECTION 1 IS PERFORMED BY THIS PROPOSAL, AND RATIFICATION DOES NOT CHANGE
+THAT."* That sentence is about the PROPOSAL and the RATIFYING ACT, and it is
+untouched — the packet is `Status: ratified` (Brett Heap, 2026-09-01, in
+session, at pull request #551 tip `64907604`, landed as squash `59eb913e`;
+record `review/ratification-2026-09-01.md`), and that act moved no validator
+line, no policy row and no changelog row. What changed is that the later
+commission it named has been carried out. The distinction is kept rather than
+collapsed, because collapsing it would make the ratification look like the thing
+that performed the retirements.
+
+Sections 2-5 are the realization; § 7 is the archive gate that the realization
+must clear before this change may archive at all.
+
+**EVIDENCE CONVENTION**, the family's standard: a box closes on a FACT that
+survives the session — a merged commit, a named run, a recorded command output,
+a file path — never on an intention.
 
 ## 1. Proposal (this pull request)
 
@@ -48,7 +66,7 @@ clear before this change may archive at all.
 
 **One feature, both retirements, because they are one file and one class.**
 
-- [ ] 2.1 `scripts/validate-domain-factory.py`: delete `LEGACY_HERMES_KEYS`
+- [x] 2.1 `scripts/validate-domain-factory.py`: delete `LEGACY_HERMES_KEYS`
       (`:60-70`) and REPLACE the `else` arm of `check_hermes` (`:189-200`) —
       the warn line, the flat-key resolution loop, and the per-role
       `no overlay resolvable` check — **with an explicit error**.
@@ -59,32 +77,128 @@ clear before this change may archive at all.
       producing no finding at all — a silent WIDENING at a major, and the exact
       opposite of the retirement. The replacement is one error naming the
       missing or non-list `hermes.layers`.
-- [ ] 2.2 `scripts/validate-domain-factory.py`: delete the
+      **DONE, AS A REPLACEMENT.** The nine-key map is gone; the `else` arm of
+      `resolve_layers` — the function `proposal.md` calls `check_hermes`, which
+      is the only name discrepancy between the packet and the tree — now holds
+      exactly one line: `rpt.error("stack.yaml: hermes.layers is missing or is
+      not a list; declare it with the canonical roles
+      customer/client/domain (the legacy flat-key fallback read was removed at
+      contract-v3.0)")`, with the reason for the replacement written as a
+      comment above it so a later editor cannot re-delete it into silence.
+      MEASURED both ways on a `layers`-less probe carrying six flat keys, the
+      two validators run side by side:
+      `WARN: stack.yaml: hermes uses legacy flat keys … / 0 error(s), 5
+      warning(s) -> PASS` at `origin/main`, versus
+      `ERROR: stack.yaml: hermes.layers is missing or is not a list … / 1
+      error(s), 4 warning(s) -> FAIL` on this branch. **PASS became FAIL, not
+      silence** — which is the whole of the box.
+- [x] 2.2 `scripts/validate-domain-factory.py`: delete the
       `if token.startswith("openworkflow")` branch (`:309-311`), leaving
       `elif token not in allowed` (`:312-314`) as the only arm — which means
       converting it to an `if`. Delete the docstring line at `:26`.
-- [ ] 2.3 Verify the widening at 2.2 rather than assuming it: a gate whose
+      **DONE.** The branch and the docstring line are gone and the `elif` is now
+      an `if`. One line the packet did not name went with them, because leaving
+      it would have made the file lie about itself: docstring check 3's *"Legacy
+      flat keys are accepted with deprecation warnings."*, which 2.1 falsified.
+      It is REPLACED (not deleted) by *"A stack that declares no hermes.layers
+      list is an error: the legacy flat-key fallback read was removed at
+      contract-v3.0."*
+- [x] 2.3 Verify the widening at 2.2 rather than assuming it: a gate whose
       `owner_layer` normalizes to a DECLARED layer's display name and begins
       `openworkflow` validates silently after the change and warned before it.
       This is a real behaviour change and it goes in the Executed row.
-- [ ] 2.4 `scripts/apply-domain-starter.py`: delete the comment at `:241` and
+      **VERIFIED, NOT ASSUMED — both directions, two validators side by side on
+      the same probe repositories.** A gate whose `owner_layer` is
+      `OpenWorkflow Domain Hermes`, matching a DECLARED domain layer's display
+      name: at `origin/main`
+      `WARN: workflows/probe.yaml: gate probe_gate owner_layer 'OpenWorkflow
+      Domain Hermes' uses deprecated openWorkflow naming; use 'xfactory'` and
+      `0 error(s), 4 warning(s) -> PASS`; on this branch no line at all and
+      `0 error(s), 3 warning(s) -> PASS`. **That is the WIDENING.** The
+      narrowing, on `openworkflowx` — the shape the entry never declared:
+      at `origin/main` the same deprecation WARN and `PASS`; on this branch
+      `ERROR: … owner_layer 'openworkflowx' does not resolve to a declared layer`
+      and `FAIL`. Both are in the Executed row at 3.1.
+- [x] 2.4 `scripts/apply-domain-starter.py`: delete the comment at `:241` and
       the nine emitted flat keys at `:242-250` from the `stack.yaml` template.
       **Do not touch `omnigent.domain_overlay` at `:253`** — same key name,
       different block, not deprecated, and read by the validator at
       `scripts/validate-domain-factory.py:539-541`, which errors when the
       directory it names is missing.
-- [ ] 2.5 Tests: the fallback branch has NO existing coverage (grep for
+      **DONE — AND THE GENERATOR NAMED THE FLAT KEYS IN THREE PLACES, NOT ONE.**
+      This is the one place the packet's line-scoped text did not survive
+      contact with the tree, and it is reported rather than absorbed. The
+      `stack.yaml` template (the box's `:241-250`) is done exactly as written,
+      and `omnigent.domain_overlay` is untouched. But the SAME generator also
+      writes two other artifacts into every new domain repository that named the
+      same deprecated keys, and a realization that moved only the template would
+      have shipped a generated repository that is self-contradicting on day one:
+      (a) `schemas/stack.schema.yaml` listed six of them under `required_paths`
+      — a generated schema REQUIRING paths the generated `stack.yaml` no longer
+      carries; that list now reads `hermes.layers` plus the untouched
+      `omnigent.domain_overlay`. (b) The generated local validator resolved
+      overlay directories through six flat-key reads that would now always
+      return `None` — dead checks; it resolves them from `hermes.layers`
+      overlays instead, which preserves the coverage exactly (the three
+      agent-mixes files it also read are already in that validator's
+      `REQUIRED_FILES`). Both are the packet's own
+      replacement-not-deletion principle applied one file over. Proven by
+      `test_the_scaffolded_repo_does_not_REQUIRE_what_it_no_longer_writes`,
+      which walks every `required_paths` entry of the freshly generated schema
+      against the freshly generated `stack.yaml`.
+- [x] 2.5 Tests: the fallback branch has NO existing coverage (grep for
       `LEGACY_HERMES_KEYS` outside the validator returns nothing). The
       realization adds coverage for the post-removal behaviour in both
       directions — a `layers`-declaring stack unchanged, a `layers`-less stack
       refused, a co-resident stack still accepted with no new warning — plus the
       two `openworkflow` cases, plus a starter-output assertion that no
       deprecated flat key is emitted.
-- [ ] 2.6 Run `python3 scripts/validate-domain-factory.py <repo>` against all
+      **DONE — a new module,
+      `tests/hermes_runtime_contracts/test_domain_factory_deprecation_retirements.py`,
+      20 tests, all green**, each running the REAL validator or the REAL
+      generator as a subprocess rather than asserting about them. Every case the
+      box names is there and is named after what it measures: a
+      `layers`-declaring stack unchanged; a `layers`-less stack REFUSED
+      (`test_a_layers_less_stack_is_REFUSED_and_not_silently_widened`, which
+      asserts `returncode == 1` precisely so a future bare deletion reds here
+      rather than passing); all four non-list shapes — absent, `{}`, a string, an
+      int — reaching the same refusal; a co-resident stack accepted with its
+      findings compared to a flat-key-free baseline, so "no NEW warning" is
+      measured rather than "no warning at all"; the four `openworkflow` tokens
+      the code actually matched (`openworkflow_legacy`, `openworkflow`,
+      `openworkflowx`, `openworkflow-legacy`) falling to the general rule; the
+      resolvable-token WIDENING, whose findings are compared against a gate
+      naming an ordinary declared layer and must be indistinguishable from it;
+      `xfactory` unchanged; `omnigent.domain_overlay` still live and still
+      required while a co-resident `hermes.domain_overlay` draws no finding — the
+      by-PATH precision, held by a test; the two retired surfaces absent from
+      the validator source, so neither can quietly return; and five assertions
+      over a repository generated by the real starter.
+- [x] 2.6 Run `python3 scripts/validate-domain-factory.py <repo>` against all
       five supported consumers from the candidate checkout and record the output.
       The expected result is that nothing changes for any of them; a changed
       line in any one of them is a finding about this retirement, not about that
       consumer.
+      **DONE. NO LINE MOVED FOR ANY OF THE FIVE.** Run before and after the
+      change from the candidate checkout, against fresh `--depth 1` clones:
+      codexFactory `8152686`, MedxFactory `fcafcc0`, AdxFactory `79f85b7`,
+      LedgerxFactory `38743cf`, OpsxFactory `ef60375`. Verdicts, identical on
+      both sides: codexFactory `0 error(s), 0 warning(s) -> PASS`; MedxFactory,
+      AdxFactory and LedgerxFactory `0 error(s), 1 warning(s) -> PASS` (the
+      memory_gateway scaffold notice); OpsxFactory `3 error(s), 24 warning(s) ->
+      FAIL`, its three errors pre-existing and none of them ours
+      (`tenancy.isolation.subject_context='per_subject'`, and two
+      `profile.id missing`).
+      **NOT ONE of the five emitted a legacy-flat-key warning on either side** —
+      which is the measurement the record-why half at 3.3 rests on, reproduced
+      independently rather than carried from the memo.
+      ONE HONEST QUALIFICATION, because a diff that is not byte-empty must be
+      explained rather than rounded off: under the default hash seed the
+      OpsxFactory output differed in the ORDER of two `identifier near-miss`
+      warnings. That is pre-existing set-iteration nondeterminism in
+      `check_cross_ids`, not a behaviour change — re-running the unmodified
+      validator four times produces both orders, and with `PYTHONHASHSEED=0` the
+      before and after outputs are byte-identical for all five.
 
 ## 3. Speckit F2 — the policy rows
 
@@ -93,7 +207,19 @@ clear before this change may archive at all.
 doc-health findings by path, and is unreachable by a consumer reading a pinned
 policy document.**
 
-- [ ] 3.1 `docs/contract-versioning-policy.md` § Deprecations Executed: add the
+**AND THE ROWS LAND HERE, BEFORE THE CUT, WHICH IS WHAT § 7.1 REQUIRES.** § 7.1
+is written as *"§§ 2 and 3 merged on `main`"* and § 7.2 as the tag, in that
+order, so the policy rows are part of the realization and not part of the cut.
+The consequence is stated rather than left to be noticed: between this merge and
+the `contract-v3.0` tag, the declared bundle is `contract-v2.5` and these rows
+name `contract-v3.0` as the version the shapes were REMOVED at. That is a
+forward declaration of the same kind the In Force entry
+`add-binding-consumer-identity` already carries (*"DECLARED at contract-v2.4 and
+CONSTRAINED at contract-v3.0"*), and it is why `contracts/CHANGELOG.md`'s
+`contract-v3.0` entry is § 4.1's and NOT ticked here: the changelog row is the
+cut's own record and would be a claim about a released bundle.
+
+- [x] 3.1 `docs/contract-versioning-policy.md` § Deprecations Executed: add the
       `openworkflow`-prefixed token row, **with its declared shape CORRECTED to
       the prefix the code matches** — the entry and the validator docstring both
       write `openworkflow_`, the code writes
@@ -107,10 +233,29 @@ policy document.**
       `Deprecated at contract-v1.1, removed at contract-v3.0.` **Include the
       widening from 2.3**; a row that recorded only the narrowing would be
       accurate about the wrong half.
-- [ ] 3.2 § Deprecations Executed: add the `hermes` flat-key FALLBACK READ row,
+      **DONE.** All six elements present: the shape enumerated AS THE CODE
+      MATCHED IT (the prefix with no trailing underscore, with
+      `openworkflow`/`openworkflowx`/`openworkflow-legacy` named and the
+      one-character correction stated as a correction rather than made
+      silently); REMOVED at `contract-v3.0`; `contract-v1.1` named as the
+      release that served the warnings; the conformance-validator clause
+      discharged in the validator itself, with the pinned consumer's position
+      stated; the migration to `xfactory` with `contracts/CHANGELOG.md`
+      § `contract-v1.1` as the reference a post-removal reader can still follow;
+      and the closing `Deprecated at contract-v1.1, removed at contract-v3.0.`
+      **The row carries BOTH directions** — the narrowing AND the widening from
+      2.3, each labelled, with the shadowing `if`/`elif` explained as the reason
+      one removal moves two cases in opposite directions.
+- [x] 3.2 § Deprecations Executed: add the `hermes` flat-key FALLBACK READ row,
       with the same six elements, scoped explicitly to the fallback read and NOT
       to the keys.
-- [ ] 3.3 § Deprecations Currently In Force: REWRITE the `hermes` flat-key entry.
+      **DONE**, and the scoping is in the row's own title (*"the READ, and not
+      the keys"*) and in a paragraph that names the In Force entry the keys stay
+      in, so the two sections cannot be read as contradicting each other. The
+      conformance-validator element is discharged AS A REPLACEMENT — the row
+      states why a bare deletion would have widened silently — and the migration
+      element names the `hermes.layers` shape plus the schema that requires it.
+- [x] 3.3 § Deprecations Currently In Force: REWRITE the `hermes` flat-key entry.
       It (a) enumerates the refusal list by PATH — the nine keys under `hermes:`
       that `LEGACY_HERMES_KEYS` carries, plus the three the starter emitted
       (`domain_agent_mixes`, `client_agent_mixes_template`,
@@ -123,12 +268,41 @@ policy document.**
       minor it owes; and (d) restates the removal target as
       `contract-v4.0`, preserving the section's `removal target contract-vX.Y`
       formula so a target still parses from the bullet.
-- [ ] 3.4 § Deprecations Currently In Force: remove the `openworkflow_` bullet in
+      **DONE, all four.** (a) The refusal list is a TABLE of twelve rows, each
+      written as a PATH under `hermes:`, with a second column recording which of
+      them the old entry named — five of twelve — so the under-declaration is
+      visible rather than merely repaired; `omnigent.domain_overlay` is named as
+      EXCLUDED, in its own paragraph, with the reason. (b) The reason it stays is
+      the measurement from 2.6, restated with the command that reproduces it.
+      (c) The deprecating minor it owes is stated as a checkable property — a
+      minor in which the validator warns on the co-resident shape *whether or
+      not* `hermes.layers` is present, written from the full twelve-key list.
+      (d) The tail reads `Warned since contract-v1.1; removal target RESTATED to
+      contract-v4.0 — …`, which keeps `contract-vX.Y` adjacent to the words
+      `removal target` so a target still parses, and makes the restatement
+      VISIBLE per `design.md`'s third form. The restate-again loop is written
+      into the bullet.
+- [x] 3.4 § Deprecations Currently In Force: remove the `openworkflow_` bullet in
       the same cut that adds its Executed row. An entry MUST NOT sit in both.
-- [ ] 3.5 Repair the stale `:250-254` citations in the existing Executed row and
+      **DONE, in the same commit as 3.1.** The section now holds three bullets:
+      the rewritten `hermes` flat-KEY entry, the doxBench chat-turn v1 family
+      (the sibling packet's subject, untouched here), and
+      `add-binding-consumer-identity`.
+- [x] 3.5 Repair the stale `:250-254` citations in the existing Executed row and
       in the `contract-v2.0` changelog entry — cite the heading (§ Change
       Classes, *Breaking (major)*) rather than a line range. The clause now sits
       at `:301-305` and moved once already.
+      **DONE, both, and a THIRD occurrence is reported and deliberately NOT
+      touched.** Repaired: the openxWallet Executed row's two citations (`:250-254`
+      on the served-minor clause, `:253-254` on the conformance-validator clause)
+      and `contracts/CHANGELOG.md` § `contract-v2.0`'s *"lines 250-254"*. NOT
+      repaired: `docs/contract-versioning-policy.md`'s In Force entry for
+      `add-binding-consumer-identity` carries a third `:250-254`, and it sits
+      inside a QUOTED sentence of that change's own ratified prose. This box
+      names two sites; editing a third change's ratified quotation to fix a
+      citation is not this packet's to take, and silently rewriting a quote is
+      worse than leaving a stale one. It is raised in the pull request instead,
+      as amendment-lane material for whoever next touches that entry.
 
 ## 4. The `contract-v3.0` cut (a SEPARATE act, listed for completeness)
 
@@ -154,12 +328,25 @@ policy document.**
 
 ## 6. Rides along regardless of ratification
 
-- [ ] 6.1 File the `Owner layer constraint` canon/code severity divergence as its
+- [x] 6.1 File the `Owner layer constraint` canon/code severity divergence as its
       own openxFactory issue — promoted canon says an unresolvable `owner_layer`
       is a WARNING, `scripts/validate-domain-factory.py:312-314` has made it an
       ERROR since `493fb33d` (2026-07-03), six days before the requirement was
       promoted at `a1a2802b` (2026-07-09). D4 keeps it out of this packet's
       scope; the issue is what keeps it from being lost.
+      **FILED: openxFactory issue #561**, "Owner layer constraint: promoted
+      canon says WARNING, the shipped validator has ERRORED since six days
+      before the requirement was promoted". It carries both texts verbatim, both
+      commits, why D4 keeps it out of scope, and what a disposition owes —
+      including a measurement across the five supported consumers BEFORE the
+      ruling, since if any of them carries an unresolvable `owner_layer` today
+      the choice refuses somebody and owes its own phasing. It also records that
+      the retirement's Breaking class does not depend on the answer, which is
+      why 3.1's Executed row states the fall-through's severity as *"whatever
+      the general rule carries"* — so #561 can move it without reopening the row.
+      Late relative to the box's *"at proposal time"*: the proposal landed at
+      `59eb913e` and this was filed with the realization. Recorded as a fact
+      rather than smoothed over.
 
 ## 7. Archive gate
 
