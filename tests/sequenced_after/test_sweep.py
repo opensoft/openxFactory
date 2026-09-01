@@ -184,7 +184,7 @@ def test_the_sweep_never_gates(tmp_path):
 
 
 def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
-    """The authoring measurement, re-derived.
+    """The authoring measurement, re-derived — and MOVED where the corpus moved.
 
     The ratified proposal recorded, over the corpus as it stood BEFORE this
     change's own directory existed: 152 change ids, 104 co-modified, 48 sole
@@ -193,12 +193,46 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
     the change itself moves is asserted with it added — and the counts it does
     NOT move are asserted unchanged, which is what makes the two readings
     comparable rather than merely both true.
+
+    WHEN THE CORPUS MOVES, THIS PIN MOVES WITH IT — and the move is RECORDED
+    below rather than silently re-typed. The authoring numbers in the paragraph
+    above are a HISTORICAL RECORD of what was measured then, and stay as written
+    in `proposal.md`, `design.md` and the README OpenSpec Records block, which
+    all report that one coherent pre-adoption snapshot. THE LIVE PIN IS THIS
+    TEST, and only this test.
+
+    MOVEMENT LOG — the sibling carriage ledger's dated-narrative practice
+    (`tests/doc-health/test_modified_block_currency_self_gate.py`), applied here:
+
+    - `active_co_modified` reads 18, and was measured 19 at authoring. It moved
+      at `ded8b9f1` on 2026-09-01, when PR #563 archived
+      `add-release-tag-publication-check` — an ACTIVE change carrying a
+      `## MODIFIED Requirements` block, therefore co-modified. The archive moved
+      it out of the active corpus and into the archived one (active 30 → 29,
+      archived 122 → 123), so `active_co_modified` fell 19 → 18 while the
+      corpus-wide `co_modified` held at 104: the change is still a co-modifier,
+      it is simply no longer an ACTIVE one. This test was authored three minutes
+      BEFORE that archive and landed at `43cf5933` (PR #567) carrying the
+      pre-archive reading, so `main` went red on `6856f502`, the first pytest
+      run that the concurrency group did not cancel.
+    - NOTHING ELSE MOVED. Re-derived at `6856f502` against every commit since
+      main's last green: `co_modified` 104, `change_ids - 1` 152,
+      `sole_modifiers - 1` 48, `active_sole - 1` 11, 3 prose headers (3
+      archived), 1 declaration, 0 root claims — each identical at `518c670b`,
+      `ded8b9f1`, `43cf5933`, `a951be76` and `6856f502`.
     """
     sweep = sa.corpus_sweep(ROOT)
     assert sweep.co_modified == 104, (
         "the co-modified population is unchanged by this change, whose ADDED "
         "requirement titles are NOVEL")
-    assert sweep.active_co_modified == 19
+    assert sweep.active_co_modified == 18, (
+        "18 since add-release-tag-publication-check archived 2026-09-01 by "
+        "#563 (measured 19 at authoring, before that archive). Re-derive with "
+        "`python3 scripts/validate-sequenced-after.py . --sweep` and move this "
+        "pin in the SAME COMMIT, recording in the MOVEMENT LOG above which "
+        "subject moved and why — archiving a co-modified ACTIVE change lowers "
+        "this count while leaving `co_modified` untouched, and that is the "
+        "EXPECTED cause of this failure")
     assert sweep.change_ids == sweep.active + sweep.archived
     assert sweep.sole_modifiers == sweep.change_ids - sweep.co_modified
     # This change is itself a sole modifier at requirement granularity — which is
@@ -206,6 +240,14 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
     # author: declaring must never be worth less than omitting.
     assert sweep.change_ids - 1 == 152
     assert sweep.sole_modifiers - 1 == 48
+    # STILL INTACT ON ITS MERITS, not by a cancelling pair of errors — checked,
+    # because #563's archive landing between the authoring measurement and this
+    # reading makes the coincidence worth ruling out explicitly. That archive
+    # removed a CO-modified active, never a sole one, so `active_sole` read 11
+    # both before it (`518c670b`) and after it (`ded8b9f1`), and moved to 12
+    # only at `43cf5933`, when THIS change added itself as an active sole
+    # modifier. The `- 1` therefore still subtracts exactly this change and
+    # still recovers the authoring 11.
     assert sweep.active_sole - 1 == 11
     assert sweep.prose_headers == 3 and sweep.prose_headers_archived == 3
     assert sweep.declaring == 1
