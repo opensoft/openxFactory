@@ -1715,9 +1715,13 @@ Active changes:
   comment), sliced
   SEPARATELY from entries 1 and 2 on the memo's own recommendation and the
   ruling's adoption of it. **THE ONLY ONE OF THE THREE WHOSE WARNING ACTUALLY
-  FIRES**: a default `validate-ideation-dashboard-contracts.py` run reports
+  FIRES**: a default `scripts/validate-ideation-dashboard-contracts.py` run
+  reported
   `0 error(s), 4 warning(s)`, every one naming `removal target contract-v2.0` —
-  a target the bundle passed one major and five minors ago. The deprecation was
+  a target the bundle passed one major and five minors ago. (The missing
+  `scripts/` prefix here was one of the four low-severity round-three Copilot
+  comments left standing on the ratified head; it is corrected in the
+  realization pull request, which edits this row anyway.) The deprecation was
   done PROPERLY at `contract-v1.34` — co-resident `-v2` family, v1 bytes kept
   byte-identical with a committed baseline test to prove it, and the
   deprecation declared MACHINE-READABLY in a top-level `deprecated_envelopes`
@@ -1740,7 +1744,21 @@ Active changes:
   (`_refuse_turn`'s pre-identity drop) correct and untouched. Carries ONE
   scenario-complete `## MODIFIED` block over promoted `ideation-dashboard`
   canon, dropping nothing and therefore owing no `Removed from canon` marker.
-  Sibling: `retire-hermes-flat-keys-and-openworkflow-tokens`. (code surface:
+  Sibling: `retire-hermes-flat-keys-and-openworkflow-tokens`.
+  **REALIZATION `tasks.md` §§ 2–5 IS DRAFTED AND NOT MERGED** — the schema
+  removal, the redesigned `serve.py` fallback with its one new catalog entry
+  (`unrecognized_turn_kind`, 400), the validator dispatch, the corpus (all
+  SEVEN v1-only refusal classes re-expressed against the surviving family, none
+  dropped) and the test surface, with the validator now reporting
+  `0 error(s), 0 warning(s)` and `--strict` passing over
+  `examples/ideation-dashboard/`. Two authoring findings ride it: the measured
+  reference closure puts `typed_proposal` OUTSIDE the surviving family (the
+  ratified text names it as retained-because-reachable, and it is retained on
+  the text rather than on the premise), and § 2's schema byte move is coupled
+  to the per-file `sha256` in `contracts/manifest.yaml`, which `tasks.md` 6.1
+  files with the cut. The `contract-v3.0` CUT is still outstanding: no bundle
+  number is spent, no CHANGELOG row moves and no tag is published by the
+  realization. (code surface:
   openxFactory; target release: `contract-v3.0` — archives only on merged plus
   green realization evidence, the moved manifest digest, the rebuilt inventory
   and the published tag)

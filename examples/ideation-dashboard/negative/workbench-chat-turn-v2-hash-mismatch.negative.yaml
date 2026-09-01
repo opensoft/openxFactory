@@ -1,7 +1,10 @@
 # INVALID (hash): outline content_hash does not match the content's SHA-256.
+# Re-expressed against the surviving family at contract-v3.0
+# (retire-doxbench-chat-turn-v1 task 4.4). The validator recomputes every
+# supplied buffer's identity, so the class survives the widening unchanged.
 {
   "schema_version": 1,
-  "kind": "workbench-chat-turn",
+  "kind": "workbench-chat-turn-v2",
   "client_turn_id": "turn-0004",
   "scope": {
     "repository": "openxFactory",
@@ -9,7 +12,7 @@
     "tile_kind": "staged",
     "tile_id": "demo-topic"
   },
-  "active_document_path": "ideation/staging/demo-topic/note.md",
+  "bound_buffer": "ideation/staging/demo-topic/note.md",
   "working_subject": "Clarify the acceptance boundary",
   "message": "Which open question should we close next?",
   "model_id": "local-authoring-1",

@@ -374,15 +374,14 @@ DOXBENCH_MAX_REQUEST_BYTES = 1_048_576
 # before it is sent.
 DOXBENCH_WIRE_SCHEMA_VERSION = 1
 DOXBENCH_MODEL_CATALOG_KIND = "workbench-model-catalog"
-DOXBENCH_CHAT_TURN_KIND = "workbench-chat-turn"
-DOXBENCH_CHAT_TURN_SUCCESS_KIND = "workbench-chat-turn-success"
-DOXBENCH_CHAT_TURN_FAILURE_KIND = "workbench-chat-turn-failure"
-# The CO-RESIDENT WIDENED family (contract-v1.34, add-doxbench-editing-phase-b
-# §13). Both families are served: the v1 kinds above are DEPRECATED, not
-# withdrawn, and the route answers a request in the family it arrived in --
-# answering a v1 turn in a v2 envelope would break exactly the client the
-# deprecation exists to keep working, and answering a v2 turn in a deprecated
-# one would emit a shape with no room for what that turn declared.
+# The ONE served chat-turn family (contract-v3.0,
+# retire-doxbench-chat-turn-v1). Three v1 kind constants stood here --
+# `workbench-chat-turn`, `-success` and `-failure` -- added at contract-v1.31,
+# DEPRECATED at contract-v1.34 when the widened family arrived beside them, and
+# removed at contract-v3.0 with the envelopes they named. Nothing in the estate
+# emits them: the shipped client (`web/views/doxbench-chat.js`) is `-v2`-only,
+# and the route now REFUSES an unrecognized kind rather than coercing it into a
+# family that no longer exists (see `_handle_workbench_chat_turn`).
 DOXBENCH_CHAT_TURN_V2_KIND = "workbench-chat-turn-v2"
 DOXBENCH_CHAT_TURN_V2_SUCCESS_KIND = "workbench-chat-turn-v2-success"
 DOXBENCH_CHAT_TURN_V2_FAILURE_KIND = "workbench-chat-turn-v2-failure"
@@ -468,6 +467,42 @@ DOXBENCH_ERR_INTAKE_REFUSED = "intake_refused"
 DOXBENCH_ERR_INVALID_INTAKE_REQUEST = "invalid_intake_request"
 DOXBENCH_ERR_APPROVAL_REFUSED = "approval_refused"
 
+# retire-doxbench-chat-turn-v1 (contract-v3.0), and the answer to that packet's
+# OQ-3, which deliberately left the token and the status to the realization.
+#
+# THE CODE THE REDESIGNED FALLBACK NEEDS. Until contract-v3.0 an unrecognized or
+# absent chat-turn `kind` was coerced into the DEPRECATED v1 family and refused
+# there. The family is gone, so the coercion is gone, and the refusal now
+# answers in the surviving family -- which requires naming the condition.
+#
+# WHY NOT `invalid_turn_request`. That code's fixed message says "the turn
+# request is malformed", which is a true sentence about a DIFFERENT failure: a
+# request whose `kind` this release does not serve may be perfectly well formed
+# in the family it names. Reusing it would tell a client to go looking for a
+# shape error that is not there. The distinction is the same one
+# `invalid_abstract_request` records against this code, for the same reason.
+#
+# WHY IT SAYS NOTHING ABOUT THE REMOVAL. A retired v1 kind and a kind that never
+# existed reach this code identically, and the message does not distinguish
+# them. The surviving contract has no vocabulary for "removed at a major", and
+# inventing one to soften a refusal would put migration guidance on the wire
+# instead of in the changelog, where a consumer upgrading across the major
+# actually reads it.
+#
+# 400, the same status and the same class as every other
+# malformed-or-unservable-request refusal on this surface. It is the caller's
+# request that cannot be served, and a different request WOULD be served, which
+# is what makes 4xx right.
+#
+# THE CONTRACT PERMITS IT WITHOUT WIDENING ANYTHING. `$defs/failure_v2`
+# constrains `error` by the PATTERN `^[a-z][a-z0-9_]{2,63}$` and by no enum, and
+# the delegated validator that judges a failure applies no code vocabulary
+# either. The only CLOSED list is `DOXBENCH_ERROR_CATALOG` below -- which RAISES
+# on an unregistered code -- so this constant and its catalog entry land in the
+# same commit as the arm that answers it, or the refusal path faults instead of
+# refusing.
+DOXBENCH_ERR_UNRECOGNIZED_TURN_KIND = "unrecognized_turn_kind"
+
 # Fixed, module-level messages: never composed from request data, exactly
 # like `action_errors.ERROR_CATALOG`'s messages.
 _DOXBENCH_MSG_REQUEST_LIMIT_EXCEEDED = "the request exceeds the allowed size for this route"
@@ -518,6 +553,8 @@ _DOXBENCH_MSG_INVALID_INTAKE_REQUEST = (
     "the intake request does not declare what this flow needs")
 _DOXBENCH_MSG_APPROVAL_REFUSED = (
     "the model approval refused and recorded nothing")
+_DOXBENCH_MSG_UNRECOGNIZED_TURN_KIND = (
+    "this route does not serve the chat-turn kind the request declared")
 
 # THE ONE CAUSE-NAMING ALTERNATE, and deliberately NOT a catalog entry.
 #
@@ -618,6 +655,13 @@ DOXBENCH_ERROR_CATALOG: dict[str, tuple[int, str]] = {
     DOXBENCH_ERR_INVALID_INTAKE_REQUEST: (
         400, _DOXBENCH_MSG_INVALID_INTAKE_REQUEST),
     DOXBENCH_ERR_APPROVAL_REFUSED: (409, _DOXBENCH_MSG_APPROVAL_REFUSED),
+    # 400: the request named a chat-turn kind this release does not serve.
+    # Registered HERE and not merely spelled above, because this catalog raises
+    # on an unregistered code -- an unregistered unknown-kind code would fault
+    # the refusal path rather than refuse (retire-doxbench-chat-turn-v1,
+    # "The new code is not registered").
+    DOXBENCH_ERR_UNRECOGNIZED_TURN_KIND: (
+        400, _DOXBENCH_MSG_UNRECOGNIZED_TURN_KIND),
 }
 
 # The codes whose released envelope may carry the `limit` block. The released
@@ -953,10 +997,10 @@ def doxbench_declared_fields(snapshot, subject_path: str):
 
 def doxbench_turn_failure_body(code: str, client_turn_id: str, *,
                                limit: dict | None = None,
-                               kind: str = DOXBENCH_CHAT_TURN_FAILURE_KIND,
+                               kind: str = DOXBENCH_CHAT_TURN_V2_FAILURE_KIND,
                                message: str | None = None) -> dict:
-    """The RELEASED `workbench-chat-turn-failure` envelope for `code` — a PURE
-    module-level function, testable with no handler and no server.
+    """The RELEASED `workbench-chat-turn-v2-failure` envelope for `code` — a
+    PURE module-level function, testable with no handler and no server.
 
     Keys are the released allowlist: `schema_version`, `kind`,
     `client_turn_id`, `error`, `message`, and — ONLY for
@@ -966,11 +1010,13 @@ def doxbench_turn_failure_body(code: str, client_turn_id: str, *,
     same fixed module-level constant the pre-release shape used; only the
     envelope changed.
 
-    `kind` selects the FAMILY the refusal is answered in (contract-v1.34). The
-    two failure envelopes are structurally identical -- a refusal discloses
-    nothing whichever family it answers -- so the only thing that varies is which
-    `kind` a caller is entitled to receive, and that is the family its request
-    arrived in.
+    `kind` NAMES the failure envelope this refusal is answered in. It survives
+    as a parameter, with the one served family as its default, rather than being
+    inlined at contract-v3.0: the released `kind` is a value the CALLER of this
+    pure builder states, and a builder that hard-coded it would have to be
+    edited again the next time a second family is served. Until contract-v3.0 it
+    selected BETWEEN two co-resident families and defaulted to the deprecated
+    one; there is now one, and every caller reaches it through `_refuse_turn`.
 
     `message` overrides the catalog's message for THIS refusal. The contract on
     every caller is that it passes a FIXED module-level constant and never
@@ -1022,41 +1068,13 @@ def doxbench_turn_failure_body(code: str, client_turn_id: str, *,
     return body
 
 
-def doxbench_turn_success_body(*, client_turn_id: str, assistant_turn_id: str,
-                               model_id: str, observed_hashes: dict,
-                               assistant_prose: str, proposals=()) -> dict:
-    """The RELEASED `workbench-chat-turn-success` envelope (T051 dispatch
-    arm) — a PURE module-level function, testable with no handler and no
-    server, exactly like `doxbench_turn_failure_body`.
-
-    Keys are the released allowlist and nothing else: `schema_version`,
-    `kind`, `client_turn_id`, `assistant_turn_id`, `model_id`,
-    `observed_hashes` (REBUILT from exactly the two named 64-hex strings, so
-    nothing caller-derived can splice a key in), `assistant_prose`, and
-    `proposals`. PIN EVOLUTION (T061, the loud widening the original
-    docstring promised): the builder now takes 0-2 VALIDATED
-    `doxbench_turns.TypedProposal` values and REBUILDS each into exactly the
-    released four-field wire shape, so nothing provider-derived can splice a
-    key in. The route still self-validates the built envelope against the
-    released schema before storing or sending it; this builder is never the
-    last word on conformance."""
-    return {
-        "schema_version": DOXBENCH_WIRE_SCHEMA_VERSION,
-        "kind": DOXBENCH_CHAT_TURN_SUCCESS_KIND,
-        "client_turn_id": str(client_turn_id),
-        "assistant_turn_id": str(assistant_turn_id),
-        "model_id": str(model_id),
-        "observed_hashes": {
-            "outline": str(observed_hashes["outline"]),
-            "document": str(observed_hashes["document"]),
-        },
-        "assistant_prose": str(assistant_prose),
-        "proposals": [
-            {"target": str(p.target), "base_hash": str(p.base_hash),
-             "summary": str(p.summary), "content": str(p.content)}
-            for p in proposals
-        ],
-    }
+# The v1 success builder `doxbench_turn_success_body` stood here until
+# contract-v3.0 (retire-doxbench-chat-turn-v1). It built the deprecated
+# `workbench-chat-turn-success` envelope -- the two-key `observed_hashes`
+# shape, an `enum` proposal target, no `selected_model`, no
+# `context_packet`, no `provider_retry` -- and its two RECORDED v1
+# limitations went with it. `doxbench_turn_success_v2_body` below is the
+# one success builder, and the migration path the CHANGELOG names.
 
 
 def doxbench_selected_model(model_entry) -> dict:
@@ -3275,12 +3293,12 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         return turn_id
 
     def _refuse_turn(self, validators, code, turn_id, *, limit=None,
-                     failure_kind=DOXBENCH_CHAT_TURN_FAILURE_KIND,
+                     failure_kind=DOXBENCH_CHAT_TURN_V2_FAILURE_KIND,
                      message=None) -> None:
         """Emit one chat-turn refusal in the correct envelope.
 
         With a wire-valid `turn_id` this is the RELEASED
-        `workbench-chat-turn-failure` envelope, SELF-VALIDATED against the
+        `workbench-chat-turn-v2-failure` envelope, SELF-VALIDATED against the
         released schema before it is sent; without one -- or if that envelope
         somehow fails its own validation -- it is `doxbench_error_body`'s fixed
         shape. The console never sends a wire shape the released schema has not
@@ -3295,10 +3313,20 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         claims released conformance. The turn STORE keeps using the parsed id,
         because idempotency is keyed on what the caller actually sent.
 
-        `failure_kind` is the FAMILY the refusal is answered in (contract-v1.34).
-        It follows the family the request arrived in and defaults to the v1
-        envelope, which is what a request that never named a recognizable family
-        still gets.
+        `failure_kind` NAMES the envelope the refusal is answered in. Until
+        contract-v3.0 two families were served, it followed the family the
+        request arrived in, and it defaulted to the v1 envelope -- which is what
+        a request that never named a recognizable family got. One family is
+        served now, and an unrecognized kind is REFUSED in it rather than
+        coerced into a family that no longer exists; the default moved with the
+        removal (retire-doxbench-chat-turn-v1).
+
+        THE PRE-IDENTITY FALLBACK BELOW IS UNCHANGED BY THAT REMOVAL, and
+        deliberately so. It is the correct answer for a request carrying no
+        wire-valid identity, and it is what lets the redesigned unknown-kind
+        refusal REQUIRE a `client_turn_id` without inventing one: `failure_v2`
+        makes that field mandatory, and no server may fabricate a correlation
+        key for a turn it never accepted.
 
         `message` names the CAUSE inside an otherwise unchanged refusal, and is a
         fixed module-level constant or nothing (see `doxbench_turn_failure_body`).
@@ -3421,47 +3449,6 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         }
 
     @classmethod
-    def _parse_workbench_chat_turn_body(cls, payload):
-        """Structural, known-field extraction for a RELEASED v1 `POST
-        /actions/workbench/chat-turn` (T051). Returns the coerced-field record,
-        or `None` on ANY structural violation: a missing/wrong-typed field, a
-        blank-or-whitespace-only `message`, or a buffer list that is not exactly
-        one `outline` plus one `document`. Runs AFTER the released-schema gate,
-        so unknown extra keys are already refused by the CLOSED released envelope
-        rather than ignored here -- this parser no longer needs to decide that
-        question and deliberately still does not: it coerces the known fields
-        the chain needs. NEVER re-implements
-        `doxbench_turns.TurnBuffer`/`TranscriptTurn`'s own validation --
-        this only checks JSON *shape*, then hands the coerced values to
-        those constructors.
-
-        THE V1 BINDING, unchanged and DEPRECATED with its family
-        (contract-v1.34): this envelope declares an `active_document_path` and
-        nothing else, so the binding it can express is that path -- reading its
-        KEY off a declared path is a spelling change, not the inference Phase A's
-        review killed. Where it is null the envelope declares NO binding at all,
-        `None` says so, and `doxbench_turns.revalidate_scope`'s own rule then
-        refuses a path-backed document rather than guessing."""
-        from ideation_dashboard import doxbench_turns
-
-        common = cls._parse_workbench_chat_turn_common(payload)
-        if common is None:
-            return None
-        active_document_path = payload.get("active_document_path")
-        if active_document_path is not None and not isinstance(active_document_path, str):
-            return None
-        buffers = common["turn_buffers"]
-        if sorted(buffer.kind for buffer in buffers) != ["document", "outline"]:
-            return None
-        return {
-            **common,
-            "active_document_path": active_document_path,
-            "bound_buffer_key": active_document_path,
-            "failure_kind": DOXBENCH_CHAT_TURN_FAILURE_KIND,
-            "success_kind": DOXBENCH_CHAT_TURN_SUCCESS_KIND,
-        }
-
-    @classmethod
     def _parse_workbench_chat_turn_v2_body(cls, payload):
         """The same extraction for the WIDENED family (contract-v1.34;
         add-doxbench-editing-phase-b §13). Two differences, and only two:
@@ -3539,32 +3526,59 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         # purpose only -- so a refusal the browser can correlate is possible
         # (see `_wire_valid_turn_id`). ----
         turn_id = self._wire_valid_turn_id(payload)
-        # WHICH FAMILY THIS TURN ARRIVED IN (contract-v1.34). Read off the raw
-        # payload's own `kind`, which is the only thing that distinguishes the
-        # two co-resident envelopes, exactly as the released file discriminates
-        # them. An unrecognized kind is answered in the v1 failure family: a
-        # request that never named a family it could be answered in gets the
-        # posture it would have got before this release, and the schema gate
-        # below refuses it in any case.
+        # WHICH KIND THIS TURN NAMED (contract-v3.0,
+        # retire-doxbench-chat-turn-v1). One family is served, so this is no
+        # longer a choice BETWEEN families: it is the surviving request kind or
+        # it is nothing.
+        #
+        # THE FALLBACK IS REDESIGNED, NOT DELETED. Until contract-v3.0 an
+        # unrecognized or absent `kind` was COERCED into the deprecated v1
+        # family, on the stated reason that "a request that never named a family
+        # it could be answered in gets the posture it would have got before this
+        # release". That reason died with v1: after the removal the old default
+        # would select a parser and an envelope builder that no longer exist,
+        # turning an unrecognized kind into a server FAULT rather than a
+        # refusal. So the arm refuses instead, in the SURVIVING family, with an
+        # explicit code -- and a retired v1 kind takes exactly this path,
+        # because after the removal a retired kind and a kind that never existed
+        # are the same fact about the wire.
+        #
+        # The refusal deliberately does NOT tell a client that the kind it sent
+        # used to work. The surviving contract has no vocabulary for "removed at
+        # a major", and inventing one to soften a refusal would put migration
+        # guidance on the wire instead of in the changelog, where a consumer
+        # upgrading across the major actually reads it.
+        #
+        # `_refuse_turn` below keeps its own SECOND layer, untouched: with no
+        # wire-valid `client_turn_id` this refusal leaves the contract envelope
+        # and answers in `doxbench_error_body`'s fixed pre-identity shape,
+        # because `failure_v2` REQUIRES a `client_turn_id` and no server may
+        # invent one to reach a contract envelope.
         request_kind = (payload.get("kind")
                         if isinstance(payload.get("kind"), str) else None)
-        if request_kind == DOXBENCH_CHAT_TURN_V2_KIND:
-            failure_kind = DOXBENCH_CHAT_TURN_V2_FAILURE_KIND
-            parse_body = self._parse_workbench_chat_turn_v2_body
-        else:
-            request_kind = DOXBENCH_CHAT_TURN_KIND
-            failure_kind = DOXBENCH_CHAT_TURN_FAILURE_KIND
-            parse_body = self._parse_workbench_chat_turn_body
         validators = self._doxbench_validators()
         if validators is None:
             # No readable contract, so no validated turn is possible. Fail
             # closed on the fixed pre-identity shape: this is a PLANE-level
             # verdict, not a defect in the caller's request, so it must not be
             # reported as one.
+            #
+            # HOISTED ABOVE THE KIND CHECK at contract-v3.0, because the
+            # unrecognized-kind refusal below is itself SELF-VALIDATED against
+            # the released schema and so cannot be built without validators.
+            # The precedence is unchanged and deliberate: a plane-level verdict
+            # outranks any defect in the caller's request.
             self._send_json(
                 doxbench_error_status(DOXBENCH_ERR_MODEL_CAPABILITY_UNAVAILABLE),
                 doxbench_error_body(DOXBENCH_ERR_MODEL_CAPABILITY_UNAVAILABLE))
             return
+        if request_kind != DOXBENCH_CHAT_TURN_V2_KIND:
+            self._refuse_turn(validators, DOXBENCH_ERR_UNRECOGNIZED_TURN_KIND,
+                              turn_id,
+                              failure_kind=DOXBENCH_CHAT_TURN_V2_FAILURE_KIND)
+            return
+        failure_kind = DOXBENCH_CHAT_TURN_V2_FAILURE_KIND
+        parse_body = self._parse_workbench_chat_turn_v2_body
         if not self._doxbench_wire_conforms(validators, request_kind, payload):
             # The verdict is already taken; this only asks WHICH violation, so
             # the one a human can reach by hand -- unloading the set down to the
@@ -3595,6 +3609,16 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         # The v1 envelope's own field, absent from the widened one by
         # construction. Read as an OPTIONAL member so the widened lane has
         # nothing to read it from -- the point of the release, not an oversight.
+        #
+        # ALWAYS `None` SINCE contract-v3.0, and DELIBERATELY still read. The v1
+        # parser that could return it is gone with its family, so this is now a
+        # constant. It is not deleted because it is a member of the idempotency
+        # digest's canonical form below: dropping a key from that form changes
+        # the digest of every turn, which would strand every record already in a
+        # turn store behind a key nothing recomputes. A retirement that promises
+        # to touch nothing in the surviving family does not get to invalidate
+        # its stored answers on the way past. Retiring the key is a turn-store
+        # migration, not a schema removal, and it is not this change's.
         active_document_path = fields.get("active_document_path")
         bound_buffer_key = fields["bound_buffer_key"]
         success_kind = fields["success_kind"]
@@ -3675,13 +3699,14 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                 else:
                     # add-doxbench-editing-phase-b: the pair became a SET, and
                     # §13 released the wire that can say so. The DECLARED
-                    # binding arrives from the parser -- `bound_buffer` on the
-                    # widened envelope, the declared `active_document_path` on
-                    # the deprecated one -- and is never derived here from an
-                    # adjacent field, which is the mis-derivation Phase A's
-                    # review killed. A v1 turn that declares nothing passes
-                    # `None`, and the module's own rule then refuses a
-                    # path-backed document rather than guessing.
+                    # binding arrives from the parser as `bound_buffer` and is
+                    # never derived here from an adjacent field, which is the
+                    # mis-derivation Phase A's review killed. (Until
+                    # contract-v3.0 the deprecated envelope declared it as
+                    # `active_document_path` instead, and a v1 turn that
+                    # declared nothing passed `None`, on which the module's own
+                    # rule refused a path-backed document rather than guessing.
+                    # One lane is left and it always declares.)
                     doxbench_turns.revalidate_scope(
                         projection=projection, request_scope=key,
                         bound_buffer_key=bound_buffer_key,
@@ -3895,9 +3920,11 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         # same buffers and the same message but are bound to DIFFERENT documents
         # are different requests, and a digest that could not tell them apart
         # would replay one turn's answer for the other -- so `bound_buffer` joins
-        # the canonical form. The v1 lane's `active_document_path` stays exactly
-        # where it was, so its digests are unchanged; on that lane the two fields
-        # hold the same string anyway.
+        # the canonical form. `active_document_path` stays exactly where it was
+        # so digests are unchanged; it was the v1 lane's declared binding, and
+        # since contract-v3.0 it is a constant `None` here (see the read site).
+        # KEEPING A CONSTANT KEY IS THE POINT: removing it would move every
+        # digest and orphan every stored turn record.
         canonical = {
             "repository": scope_fields["repository"], "ref": scope_fields["ref"],
             "tile_kind": scope_fields["tile_kind"], "tile_id": scope_fields["tile_id"],
@@ -4326,112 +4353,78 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                         human=message, assistant=outcome.assistant_prose,
                         mirror=getattr(port, "mirror", lambda: None)(),
                         dereference=getattr(port, "dereference", None))
-                if success_kind == DOXBENCH_CHAT_TURN_V2_SUCCESS_KIND:
-                    # THE RECORD, at last able to say what the turn was about
-                    # (§13; design D17). It names the DECLARED bound buffer --
-                    # carried from the request, never derived -- states every
-                    # buffer's observed identity by key, and carries the
-                    # selected-model metadata beside the model that answered.
-                    #
-                    # The selected-model metadata is DERIVED from the catalog
-                    # entry, in one place (`doxbench_selected_model`), so
-                    # contract-v1.38's routing-rule entry changed that function
-                    # rather than three literals here. `selected_model` is
-                    # computed ABOVE, before the sidecar, because the sidecar
-                    # needs the resolved id too (F3).
-                    #
-                    # AND SINCE contract-v1.40 (task 10.7) the record STATES the
-                    # posture its context was assembled under. Derived above,
-                    # beside the packet, by the same one-place discipline: the
-                    # values are the PACKET's own, so the record and the packet's
-                    # own declaration cannot disagree.
-                    # THE BUILDER'S REFUSALS ARE ON THE ROUTE'S 400 SHAPE, and
-                    # this `try` is what makes that true (issue #263 review,
-                    # P2-2). The builder gained refusals when its `str()`
-                    # coercions went, and this call sits OUTSIDE the packet
-                    # boundary's `try` several hundred lines up — so an escaping
-                    # `PacketError` would have been a 500 with a traceback,
-                    # while the comment in the builder claimed both refusals
-                    # stayed on one shape. AST-confirmed uncovered before this.
-                    #
-                    # Mapped to the SAME fixed `invalid_turn_request` the packet
-                    # boundary maps every other structural `PacketError` to,
-                    # rather than a new code: one function, one refusal shape,
-                    # and the recorded 400-vs-500 tension stays exactly one
-                    # tension instead of becoming two.
-                    try:
-                        success_body = doxbench_turn_v2_success_body(
-                            client_turn_id=client_turn_id,
-                            assistant_turn_id="assistant-" + digest[:56],
-                            model_id=selected_model["resolved_model_id"],
-                            requested_model_id=selected_model[
-                                "requested_model_id"],
-                            routing_rule=selected_model["routing_rule"],
-                            data_handling=selected_model["data_handling"],
-                            bound_buffer=bound_buffer_key,
-                            observed_hashes={
-                                buffer_key: observed.for_key(buffer_key).hex
-                                for buffer_key in observed.keys()
-                            },
-                            context_posture=context_packet_record["posture"],
-                            context_reduced_reason=context_packet_record.get(
-                                "reduced_reason"),
-                            # task 3.6: the re-mint and its paid retry, on the
-                            # record the human actually reads. Two named scalars
-                            # rather than the derived dict, so the builder
-                            # rebuilds the closed block itself.
-                            provider_retried=provider_retry is not None,
-                            provider_retry_audit_ref=(
-                                provider_retry.get("audit_ref")
-                                if provider_retry else None),
-                            assistant_prose=outcome.assistant_prose,
-                            proposals=outcome.proposals)
-                    except doxbench_packet.PacketError:
-                        self._refuse_turn(
-                            validators, DOXBENCH_ERR_INVALID_TURN_REQUEST,
-                            turn_id, failure_kind=failure_kind)
-                        return
-                else:
-                    # The DEPRECATED v1 success envelope has room for EXACTLY
-                    # these two keys. The envelope's own identities are keyed by
-                    # BUFFER KEY, so the one document's key is read rather than
-                    # assumed; that lane still carries exactly one document,
-                    # which the closed v1 request schema guarantees.
-                    #
-                    # A RECORDED v1 LIMITATION (contract-v1.38, review F3): this
-                    # envelope has ONE `model_id` field and no `selected_model`,
-                    # so on a routed turn it cannot state both the requested and
-                    # the answering model. It carries the REQUESTED id, which is
-                    # what every v1 consumer already reads and revalidates. The
-                    # fix is the v2 envelope, which exists; widening a deprecated
-                    # closed shape whose whole promise is byte-identical
-                    # stability is the one thing contract-v1.34's deprecation
-                    # forbids. The SIDECAR on this lane does name the answering
-                    # model — it is written above, before this branch, and is not
-                    # part of the v1 wire.
-                    #
-                    # A SECOND RECORDED v1 LIMITATION (contract-v1.40, task
-                    # 10.7): this envelope has no `context_packet` either, so a
-                    # v1 turn that ran on a REDUCED context cannot say so on the
-                    # wire. The reduction is still stated where it always was —
-                    # inside the assembled packet, in the prompt's own
-                    # declaration section — and the v1 turn still SUCCEEDS,
-                    # which is the ratified "MUST NOT make the editors unusable"
-                    # half. What a v1 consumer cannot do is READ the posture; the
-                    # migration path is the v2 envelope, and widening a
-                    # deprecated closed shape is exactly what contract-v1.34's
-                    # deprecation forbids.
-                    document_key = document_keys[0]
-                    success_body = doxbench_turn_success_body(
+                # THE RECORD. One success envelope is built, unconditionally:
+                # until contract-v3.0 this was an if/else over `success_kind`,
+                # with a v1 arm building the deprecated two-key envelope. The
+                # v1 arm and its two RECORDED limitations left with the family
+                # (retire-doxbench-chat-turn-v1); `success_kind` is now the one
+                # served kind by construction, so a branch on it would test a
+                # condition that cannot be false.
+                #
+                # It says what the turn was about
+                # (§13; design D17). It names the DECLARED bound buffer --
+                # carried from the request, never derived -- states every
+                # buffer's observed identity by key, and carries the
+                # selected-model metadata beside the model that answered.
+                #
+                # The selected-model metadata is DERIVED from the catalog
+                # entry, in one place (`doxbench_selected_model`), so
+                # contract-v1.38's routing-rule entry changed that function
+                # rather than three literals here. `selected_model` is
+                # computed ABOVE, before the sidecar, because the sidecar
+                # needs the resolved id too (F3).
+                #
+                # AND SINCE contract-v1.40 (task 10.7) the record STATES the
+                # posture its context was assembled under. Derived above,
+                # beside the packet, by the same one-place discipline: the
+                # values are the PACKET's own, so the record and the packet's
+                # own declaration cannot disagree.
+                # THE BUILDER'S REFUSALS ARE ON THE ROUTE'S 400 SHAPE, and
+                # this `try` is what makes that true (issue #263 review,
+                # P2-2). The builder gained refusals when its `str()`
+                # coercions went, and this call sits OUTSIDE the packet
+                # boundary's `try` several hundred lines up — so an escaping
+                # `PacketError` would have been a 500 with a traceback,
+                # while the comment in the builder claimed both refusals
+                # stayed on one shape. AST-confirmed uncovered before this.
+                #
+                # Mapped to the SAME fixed `invalid_turn_request` the packet
+                # boundary maps every other structural `PacketError` to,
+                # rather than a new code: one function, one refusal shape,
+                # and the recorded 400-vs-500 tension stays exactly one
+                # tension instead of becoming two.
+                try:
+                    success_body = doxbench_turn_v2_success_body(
                         client_turn_id=client_turn_id,
                         assistant_turn_id="assistant-" + digest[:56],
-                        model_id=model_id,
+                        model_id=selected_model["resolved_model_id"],
+                        requested_model_id=selected_model[
+                            "requested_model_id"],
+                        routing_rule=selected_model["routing_rule"],
+                        data_handling=selected_model["data_handling"],
+                        bound_buffer=bound_buffer_key,
                         observed_hashes={
-                            "outline": observed.outline.hex,
-                            "document": observed.for_key(document_key).hex,
+                            buffer_key: observed.for_key(buffer_key).hex
+                            for buffer_key in observed.keys()
                         },
+                        context_posture=context_packet_record["posture"],
+                        context_reduced_reason=context_packet_record.get(
+                            "reduced_reason"),
+                        # task 3.6: the re-mint and its paid retry, on the
+                        # record the human actually reads. Two named scalars
+                        # rather than the derived dict, so the builder
+                        # rebuilds the closed block itself.
+                        provider_retried=provider_retry is not None,
+                        provider_retry_audit_ref=(
+                            provider_retry.get("audit_ref")
+                            if provider_retry else None),
                         assistant_prose=outcome.assistant_prose,
                         proposals=outcome.proposals)
+                except doxbench_packet.PacketError:
+                    self._refuse_turn(
+                        validators, DOXBENCH_ERR_INVALID_TURN_REQUEST,
+                        turn_id, failure_kind=failure_kind)
+                    return
                 if self._doxbench_wire_conforms(
                         validators, success_kind, success_body):
                     body_bytes = json.dumps(success_body).encode("utf-8")

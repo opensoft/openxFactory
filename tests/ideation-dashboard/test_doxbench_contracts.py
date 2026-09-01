@@ -82,17 +82,23 @@ RELEASED_DIGESTS = {
     CATALOG_SCHEMA_FILE:
         "e563cc9fc6ede03dfd62537935d0ae0842617d7de46702aee6ad9026aa021635",
     CHAT_TURN_SCHEMA_FILE:
-        "2ff5f222af5cdccd545417203898a919be0365cdd0d2d5138e87e23f7ebfe1cf",
+        "350bfedc02696e7281a42c0bdc9a25059bf7af14d16d89d9f07018d3e691dc1d",
 }
 
 # ---------------------------------------------------------------------------
 # hermetic fixture world
 #
 # The fake schemas mirror the released files' STRUCTURE (a whole-document
-# catalog; one chat-turn file holding SIX envelopes under `$defs` -- the three v1
-# ones and the three contract-v1.34 added beside them -- selected by a `oneOf`),
-# because the structure is what the loader's per-kind mapping and the
-# registry-backed `$ref` resolution have to cope with. They deliberately do NOT
+# catalog; one chat-turn file holding the surviving THREE envelopes under
+# `$defs`, selected by a `oneOf`), because the structure is what the loader's
+# per-kind mapping and the registry-backed `$ref` resolution have to cope with.
+# It read SIX until contract-v3.0 -- the three v1 envelopes and the three
+# contract-v1.34 added beside them -- and the count moved with the removal
+# (retire-doxbench-chat-turn-v1; Copilot review of the realization). Keeping the
+# old count would have invited the next fixture edit to be written against a
+# structure the release cannot produce, which is the same class of stale
+# statement this whole retirement exists to correct.
+# They deliberately do NOT
 # mirror the released files' rules — restating a contract rule in a fixture is
 # the forking of contract authority this whole module exists to avoid.
 # ---------------------------------------------------------------------------
@@ -117,41 +123,20 @@ properties:
         label: { type: string, minLength: 1 }
 """
 
+# THREE envelopes, not six: the v1 `request`/`success`/`failure` blocks left
+# this fake with the release that removed them (contract-v3.0,
+# retire-doxbench-chat-turn-v1). They are not merely unused here — `load_release`
+# resolves one `$ref` per `CHAT_TURN_DEFS` entry INTO this file, so a fake still
+# carrying kinds the module no longer declares would let the hermetic rung go on
+# proving a dispatch shape the release cannot produce.
 FAKE_CHAT_TURN_SCHEMA = """\
 $schema: "https://json-schema.org/draft/2020-12/schema"
 $id: "xfactory-workbench-chat-turn.schema.yaml"
 oneOf:
-  - $ref: "#/$defs/request"
-  - $ref: "#/$defs/success"
-  - $ref: "#/$defs/failure"
   - $ref: "#/$defs/request_v2"
   - $ref: "#/$defs/success_v2"
   - $ref: "#/$defs/failure_v2"
 $defs:
-  request:
-    type: object
-    additionalProperties: false
-    required: [schema_version, kind, message]
-    properties:
-      schema_version: { const: 1 }
-      kind: { const: workbench-chat-turn }
-      message: { type: string, minLength: 1 }
-  success:
-    type: object
-    additionalProperties: false
-    required: [schema_version, kind, assistant_prose]
-    properties:
-      schema_version: { const: 1 }
-      kind: { const: workbench-chat-turn-success }
-      assistant_prose: { type: string }
-  failure:
-    type: object
-    additionalProperties: false
-    required: [schema_version, kind, error]
-    properties:
-      schema_version: { const: 1 }
-      kind: { const: workbench-chat-turn-failure }
-      error: { type: string, minLength: 1 }
   request_v2:
     type: object
     additionalProperties: false
@@ -275,33 +260,42 @@ def test_module_pins_the_immutable_released_contract():
 
 
 def test_declared_wire_kinds_are_every_doxbench_instance_kind():
-    """RE-PINNED at contract-v1.34 (add-doxbench-editing-phase-b §13): the
-    co-resident widened family adds three kinds beside the three v1 ones, which
-    stay DECLARED because they are deprecated, not withdrawn."""
+    """RE-PINNED at contract-v3.0 (retire-doxbench-chat-turn-v1): four kinds,
+    the catalog plus the ONE surviving turn family.
+
+    It was four at contract-v1.31, seven at contract-v1.34 when the widened
+    family arrived beside the deprecated one, and four again now. The set is
+    asserted EXACTLY, which is what makes this the test a reintroduced v1 kind
+    fails — and the LITERALS are spelled here rather than read from the module,
+    so this asserts what the wire is called and not merely that the module
+    agrees with itself."""
     assert set(contracts.WIRE_KINDS) == {
         "workbench-model-catalog",
-        "workbench-chat-turn",
-        "workbench-chat-turn-success",
-        "workbench-chat-turn-failure",
         "workbench-chat-turn-v2",
         "workbench-chat-turn-v2-success",
         "workbench-chat-turn-v2-failure",
     }
 
 
-def test_the_v1_family_is_declared_deprecated_and_still_dispatchable():
-    """contract-v1.34 deprecates the v1 family with a removal target of
-    contract-v2.0. Deprecated is NOT withdrawn: every deprecated kind still
-    resolves to its own envelope, because the policy's breaking path requires
-    the old shape to keep working for at least one full published release."""
-    assert set(contracts.DEPRECATED_CHAT_TURN_KINDS) == {
-        "workbench-chat-turn",
-        "workbench-chat-turn-success",
-        "workbench-chat-turn-failure",
-    }
-    for kind in contracts.DEPRECATED_CHAT_TURN_KINDS:
-        assert kind in contracts.WIRE_KINDS
-        assert kind in contracts.CHAT_TURN_DEFS
+def test_no_deprecated_kind_register_survives_the_removal():
+    """`test_the_v1_family_is_declared_deprecated_and_still_dispatchable` stood
+    here and pinned the other half of contract-v1.34's bargain: the three v1
+    kinds were in `DEPRECATED_CHAT_TURN_KINDS`, and every one of them still
+    resolved to its own envelope, because the versioning policy's breaking path
+    requires the old shape to keep working for at least one full published
+    release. It was deleted with the family at contract-v3.0
+    (retire-doxbench-chat-turn-v1), and this is what took its place.
+
+    `DEPRECATED_CHAT_TURN_KINDS` is REMOVED rather than emptied, and this asserts
+    that: an empty tuple would be a claim that nothing in this family is
+    deprecated, which is a statement the consumer module has no business making
+    on the release's behalf. The schema's own `deprecated_envelopes` block is the
+    authority on what is deprecated, and it is read rather than restated."""
+    assert not hasattr(contracts, "DEPRECATED_CHAT_TURN_KINDS")
+    for retired in ("workbench-chat-turn", "workbench-chat-turn-success",
+                    "workbench-chat-turn-failure"):
+        assert retired not in contracts.WIRE_KINDS
+        assert retired not in contracts.CHAT_TURN_DEFS
 
 
 # ---------------------------------------------------------------------------
@@ -318,9 +312,9 @@ def test_load_returns_one_schema_per_wire_kind(fake_root, pinned_repo):
     # The three turn kinds get a `$ref` INTO the one chat-turn file, so the
     # oneOf's three envelopes stay individually addressable by kind.
     for kind, definition in (
-        ("workbench-chat-turn", "request"),
-        ("workbench-chat-turn-success", "success"),
-        ("workbench-chat-turn-failure", "failure"),
+        ("workbench-chat-turn-v2", "request_v2"),
+        ("workbench-chat-turn-v2-success", "success_v2"),
+        ("workbench-chat-turn-v2-failure", "failure_v2"),
     ):
         assert schemas[kind] == {
             "$ref": f"{CHAT_TURN_SCHEMA_FILE}#/$defs/{definition}"}
@@ -669,16 +663,16 @@ def test_broken_catalog_instance_returns_schema_errors(fake_root, pinned_repo):
 
 def test_turn_kinds_select_their_own_envelope(fake_root, pinned_repo):
     """The chat-turn file's three envelopes are discriminated by kind, so a
-    success body is checked against `success` and NOT against `request`."""
+    success body is checked against `success_v2` and NOT against `request_v2`."""
     success = {
         "schema_version": 1,
-        "kind": "workbench-chat-turn-success",
+        "kind": "workbench-chat-turn-v2-success",
         "assistant_prose": "considered the outline",
     }
     assert contracts.validate_instance(success, fake_root,
                                        repo_root=pinned_repo) == []
 
-    mislabelled = dict(success, kind="workbench-chat-turn")
+    mislabelled = dict(success, kind="workbench-chat-turn-v2")
     assert contracts.validate_instance(mislabelled, fake_root,
                                        repo_root=pinned_repo)
 
@@ -793,7 +787,7 @@ def test_released_schemas_load_against_the_real_pin(released_root):
     schemas = contracts.load_released_schemas(released_root)
     assert set(schemas) == set(contracts.WIRE_KINDS)
     assert schemas["workbench-model-catalog"]["$id"] == CATALOG_SCHEMA_FILE
-    assert schemas["workbench-chat-turn-failure"]["$ref"].startswith(
+    assert schemas["workbench-chat-turn-v2-failure"]["$ref"].startswith(
         CHAT_TURN_SCHEMA_FILE)
 
 
@@ -816,7 +810,17 @@ def test_packaged_positives_validate_structurally(released_root):
     # and its continued validity IS the additive claim, exactly as the
     # no-posture record was at contract-v1.40. The exact count IS the pin, so it
     # advances with the release rather than being loosened to an inequality.
-    assert len(positives) == 15, [p.name for p in positives]
+    #
+    # 15 -> 11 at contract-v3.0 (retire-doxbench-chat-turn-v1), the first time
+    # this count has gone DOWN. Four packaged v1 instances leave with the family
+    # they demonstrate — `workbench-chat-turn-both-proposals`,
+    # `-outline-only`, `-prose-only` and `-unsaved-edits`. There is nothing to
+    # migrate them to: each was a positive for an envelope the release no longer
+    # defines, and the surviving family's own claims (the loaded set, the record,
+    # both context postures, the retry) are demonstrated by instances already
+    # counted here. A kept v1 example would not merely be stale — the delegated
+    # validator below would refuse it, because its kind resolves to no envelope.
+    assert len(positives) == 11, [p.name for p in positives]
 
     for path in positives:
         doc = yaml.safe_load(path.read_text(encoding="utf-8"))
@@ -1114,37 +1118,45 @@ def test_the_released_schema_refuses_a_malformed_routing_declaration(
 
 
 # ---------------------------------------------------------------------------
-# THE V1 ENVELOPES ARE BYTE-IDENTICAL (contract-v1.34,
-# add-doxbench-editing-phase-b task 13.1)
+# THE BYTE-IDENTITY BASELINE IS RETIRED (contract-v3.0,
+# retire-doxbench-chat-turn-v1 task 5.1), AND THIS SAYS WHAT IT WAS FOR
 #
-# The release ADDS a family beside the existing one rather than mutating a closed
-# envelope, and "byte-identical" is the promise the CHANGELOG makes to every
-# consumer pinned to the older shape. That promise is asserted against a
-# COMMITTED BASELINE of those bytes -- not by re-validating an instance, which
-# would still pass after a widened `maxItems` or a relaxed enum quietly changed
-# what the old shape means.
+# `test_the_v1_envelope_bytes_are_unchanged_by_the_release` stood here, with
+# `V1_ENVELOPE_BASELINE`, `_v1_ref_closure`, `_local_refs` and `_defs_order`
+# feeding it, and `tests/ideation-dashboard/fixtures/chat-turn-v1-envelopes.baseline.yaml`
+# holding the bytes. It asserted that the three v1 `$defs` AND every shared
+# definition they `$ref`-ed were byte-identical to their contract-v1.31 bytes.
 #
-# F1 (adversarial review of the §13 slice): the baseline covers the `$ref`
-# CLOSURE, not the three envelope blocks alone. A v1 envelope is only as closed
-# as what it points at -- `buffer_state.kind`'s two-value enum and
-# `typed_proposal.target`'s are shared `$defs`, and they are exactly the
-# constraints D15 contemplates widening. A guard over the three blocks alone went
-# green while both enums were mutated, which is a change to v1's MEANING wearing
-# the appearance of byte identity. The closure is COMPUTED here rather than
-# listed, so a v1 envelope that grows a `$ref` to some new shared definition
-# widens the guard with it instead of quietly escaping it.
+# WHAT IT EXISTED TO DO. contract-v1.34 added the widened family BESIDE the v1
+# one rather than mutating a closed envelope, and "byte-identical" was the
+# promise the CHANGELOG made to every consumer pinned to the older shape. The
+# guard asserted that promise against COMMITTED bytes rather than by
+# re-validating an instance -- which would still have passed after a widened
+# `maxItems` or a relaxed enum quietly changed what the old shape MEANT. Its F1
+# hardening (adversarial review of the §13 slice) extended it from the three
+# envelope blocks to their whole `$ref` CLOSURE, after a guard over the blocks
+# alone went green while `buffer_state.kind`'s and `typed_proposal.target`'s
+# enums were both mutated.
+#
+# WHY IT ENDS, AND WHY THAT IS NOT THE SAME AS BECOMING INCONVENIENT. The
+# assertion protects a shape consumers are PINNED to. At contract-v3.0 that
+# shape leaves the published surface, so the assertion has no subject: there are
+# no v1 `$defs` left to compare, and `_v1_ref_closure` would raise a `KeyError`
+# on its own seed rather than fail an assertion. A consumer pinned below
+# contract-v3.0 keeps the promise it was given, and keeps it by the
+# IMMUTABILITY OF THE BYTES ITS PIN NAMES rather than by their continued
+# presence here -- compatibility flows from the consumer, and no new release
+# reaches backwards into an old pin.
+#
+# Deleting it as an incidental casualty of a schema edit would have been
+# indistinguishable from deleting it because it had become inconvenient, which
+# is why the removal is stated here and named again in the CHANGELOG entry the
+# cut writes (task 6.3). What replaces it, in kind, is
+# `test_the_widened_family_is_the_only_one_the_file_declares` below: a v1
+# envelope left behind by an incomplete removal fails THERE.
+#
+# `_defs_blocks` SURVIVES the retirement and is used by that test.
 # ---------------------------------------------------------------------------
-
-V1_ENVELOPE_BASELINE = (
-    Path(__file__).resolve().parent / "fixtures"
-    / "chat-turn-v1-envelopes.baseline.yaml")
-
-
-def _defs_order(schema_text: str) -> list[str]:
-    """The `$defs` member names in FILE order, which is the order the committed
-    baseline concatenates them in."""
-    return list(_defs_blocks(schema_text))
-
 
 def _defs_blocks(schema_text: str) -> dict[str, str]:
     """Every `$defs` member's EXACT source text, keyed by name.
@@ -1177,110 +1189,57 @@ def _defs_blocks(schema_text: str) -> dict[str, str]:
     return blocks
 
 
-def _local_refs(node, found):
-    """Every `#/$defs/<name>` this node points at, at any depth."""
-    if isinstance(node, dict):
-        for key, value in node.items():
-            if key == "$ref" and isinstance(value, str) and value.startswith("#/$defs/"):
-                found.add(value.split("/")[-1])
-            else:
-                _local_refs(value, found)
-    elif isinstance(node, list):
-        for item in node:
-            _local_refs(item, found)
-    return found
+def test_the_widened_family_is_the_only_one_the_file_declares(released_root):
+    """RE-EXPRESSED at contract-v3.0 (retire-doxbench-chat-turn-v1).
 
+    It read `..._is_present_beside_the_unchanged_one` and was the other half of
+    contract-v1.34's additive claim: a test that only checked the v1 bytes would
+    pass on a file that never gained a widened envelope at all. There is nothing
+    beside the widened family any more, so the claim it can still make is the
+    stronger one — the `oneOf` is EXACTLY these three, in this order, so a v1
+    envelope left behind by an incomplete removal fails here.
 
-def _v1_ref_closure(document):
-    """The three v1 envelopes plus every `$def` reachable from them.
-
-    Computed, never listed: a v1 envelope that starts pointing at a new shared
-    definition must pull that definition under the byte guard automatically,
-    because the alternative is a guard that silently stops covering what the
-    envelope actually means."""
-    defs = document["$defs"]
-    closure: set[str] = set()
-    frontier = {"request", "success", "failure"}
-    while frontier:
-        closure |= frontier
-        following: set[str] = set()
-        for name in frontier:
-            following |= _local_refs(defs[name], set())
-        frontier = following - closure
-    return closure
-
-
-def test_the_v1_envelope_bytes_are_unchanged_by_the_release(released_root):
-    schema = (released_root / "contracts" / "schemas"
-              / CHAT_TURN_SCHEMA_FILE).read_text(encoding="utf-8")
-    blocks = _defs_blocks(schema)
-    document = yaml.safe_load(schema)
-    closure = _v1_ref_closure(document)
-    # The closure is what it is BECAUSE of the refs; these names are asserted so
-    # a closure computation that silently returned nothing cannot pass.
-    assert closure >= {
-        "request", "success", "failure",
-        "content_hash", "confined_path", "scope_key", "buffer_state",
-        "transcript_turn", "typed_proposal",
-    }, sorted(closure)
-    # The widened family's own definitions are NOT in it: they are new bytes
-    # this release adds, and the promise is about the old shape.
-    assert not (closure & {"request_v2", "success_v2", "failure_v2",
-                           "buffer_key", "keyed_observed_hashes",
-                           "keyed_typed_proposal", "selected_model"})
-    covered = [name for name in _defs_order(schema) if name in closure]
-    observed = "".join(blocks[name] for name in covered)
-    baseline = V1_ENVELOPE_BASELINE.read_text(encoding="utf-8")
-    assert observed == baseline, (
-        "the v1 envelopes and the shared definitions they $ref are not "
-        "byte-identical to the committed contract-v1.31 baseline; the release is "
-        "additive, so any change here is a change to a shape consumers are "
-        "pinned to -- including a widened enum in a SHARED definition, which "
-        "changes what the old envelope means without touching its own block")
-
-
-def test_the_widened_family_is_present_beside_the_unchanged_one(released_root):
-    """The other half of the same claim: the file really did grow. A test that
-    only checked the v1 bytes would pass on a file that never gained a widened
-    envelope at all."""
+    The v1 envelopes' own bytes are a separate question with a separate test,
+    which is where the retirement of the byte guard belongs."""
     schema = (released_root / "contracts" / "schemas"
               / CHAT_TURN_SCHEMA_FILE).read_text(encoding="utf-8")
     blocks = _defs_blocks(schema)
     for envelope in ("request_v2", "success_v2", "failure_v2"):
         assert envelope in blocks, envelope
+    for retired in ("request", "success", "failure"):
+        assert retired not in blocks, retired
     document = yaml.safe_load(schema)
-    # The file's own version does NOT move: nothing previously valid becomes
-    # invalid, which is what makes this additive rather than breaking (D16).
+    # The file's own version does NOT move. It did not move at contract-v1.34
+    # because nothing previously valid became invalid (D16); it does not move
+    # here for the opposite reason — the envelopes this file no longer defines
+    # cannot be validated against it AT ALL, so there is no shape left for a
+    # bumped `contract_schema_version` to describe. What changed is which
+    # release a consumer pins, which is the major's own job.
     assert document["contract_schema_version"] == 1
     assert [ref["$ref"] for ref in document["oneOf"]] == [
-        "#/$defs/request", "#/$defs/success", "#/$defs/failure",
         "#/$defs/request_v2", "#/$defs/success_v2", "#/$defs/failure_v2"]
 
 
-def test_the_deprecation_records_its_removal_target(released_root):
-    """Task 13.2: the v1 family is deprecated IN THIS RELEASE with the removal
-    target recorded. Recorded OUTSIDE the envelopes, because a deprecation is a
-    statement about a shape and editing the shape to say so would break the byte
-    identity asserted above."""
+def test_no_deprecation_record_outlives_the_envelopes_it_named(released_root):
+    """`test_the_deprecation_records_its_removal_target` stood here and pinned
+    contract-v1.34's task 13.2: a top-level `deprecated_envelopes` block naming
+    each v1 kind, its successor, `deprecated_in: contract-v1.34` and a removal
+    target. It is DELETED at contract-v3.0 (retire-doxbench-chat-turn-v1) because
+    its whole subject was that block, and the block leaves with the kinds — a
+    declaration that three envelopes this file no longer defines are deprecated
+    names nothing.
+
+    This is the negative that replaces it, and it is worth a test rather than a
+    comment for one reason: a removal that took the envelopes and LEFT the block
+    would still parse, still load, and still validate every surviving instance,
+    so nothing else in this suite would notice. The consumer-side reader of the
+    block is kept deliberately (`validate_ideation_dashboard_contracts`) — the
+    next family to be deprecated will declare one, and a reader deleted with its
+    only current input is a reader somebody re-derives from scratch."""
     document = yaml.safe_load(
         (released_root / "contracts" / "schemas"
          / CHAT_TURN_SCHEMA_FILE).read_text(encoding="utf-8"))
-    declared = document.get("deprecated_envelopes")
-    assert declared, (
-        "contract-v1.34 deprecates the v1 family, and the record lives in the "
-        "schema itself so a consumer reading the bytes learns it without "
-        "reading a CHANGELOG")
-    recorded = {entry["kind"]: entry for entry in declared}
-    assert set(recorded) == set(contracts.DEPRECATED_CHAT_TURN_KINDS)
-    for kind, entry in recorded.items():
-        assert entry["deprecated_in"] == "contract-v1.34"
-        # Removal of a released shape is BREAKING, so it can only land at a
-        # major -- and only after the full minor release of deprecation the
-        # versioning policy requires, which this release is.
-        assert entry["removal_target"] == "contract-v2.0"
-        assert entry["superseded_by"] in contracts.CHAT_TURN_DEFS
-        assert entry["superseded_by"] not in contracts.DEPRECATED_CHAT_TURN_KINDS
-        assert kind in contracts.CHAT_TURN_DEFS
+    assert "deprecated_envelopes" not in document
 
 
 # ---------------------------------------------------------------------------
@@ -1559,21 +1518,31 @@ def test_no_other_envelope_in_the_family_grows_a_posture(released_root):
     """THE BLAST RADIUS, pinned. Exactly ONE envelope gains the key. Every
     other envelope in this file is closed and refuses it, which is what makes
     "one optional property on one shape" a checkable claim rather than a
-    description of intent — and it is what keeps the DEPRECATED v1 success
-    envelope byte-identical, as contract-v1.34's deprecation requires."""
+    description of intent.
+
+    The DEPRECATED v1 success envelope was the third instance here until
+    contract-v3.0 (retire-doxbench-chat-turn-v1): its refusal was what kept
+    contract-v1.34's byte-identity promise checkable from this angle too. It is
+    replaced by the surviving REQUEST, not dropped — the claim is about every
+    other envelope in the family, and with three left the two that are not
+    `success_v2` are exactly these two."""
     packet = {"posture": "reduced", "reduced_reason": _REASON}
-    v1_success = {
+    v2_request = {
         "schema_version": 1,
-        "kind": "workbench-chat-turn-success",
+        "kind": "workbench-chat-turn-v2",
         "client_turn_id": "turn-9001",
-        "assistant_turn_id": "srv-9001",
+        "scope": {"repository": "openxFactory", "ref": "main",
+                  "tile_kind": "staged", "tile_id": "ideation-governance"},
+        "bound_buffer": "outline",
+        "working_subject": "the acceptance boundary",
+        "message": "Which open question should we close next?",
         "model_id": "local-authoring-1",
-        "observed_hashes": {"outline": _HASH_A, "document": _HASH_B},
-        "assistant_prose": "An answer.",
-        "proposals": [],
+        "last_assistant_turn_id": None,
+        "transcript": [],
+        "buffers": [],
         "context_packet": packet,
     }
-    assert contracts.validate_instance(v1_success, released_root) != []
+    assert contracts.validate_instance(v2_request, released_root) != []
     v2_failure = {
         "schema_version": 1,
         "kind": "workbench-chat-turn-v2-failure",

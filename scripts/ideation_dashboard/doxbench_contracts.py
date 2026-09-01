@@ -252,41 +252,41 @@ SCHEMA_DIGESTS = {
     CATALOG_SCHEMA_FILE:
         "e563cc9fc6ede03dfd62537935d0ae0842617d7de46702aee6ad9026aa021635",
     CHAT_TURN_SCHEMA_FILE:
-        "2ff5f222af5cdccd545417203898a919be0365cdd0d2d5138e87e23f7ebfe1cf",
+        "350bfedc02696e7281a42c0bdc9a25059bf7af14d16d89d9f07018d3e691dc1d",
 }
 
-# The seven doxBench INSTANCE kinds. The catalog kind is a whole-document schema;
-# the six turn kinds all live in the chat-turn file, under these `$defs` — the
-# three v1 envelopes and, since contract-v1.34, the three co-resident widened
-# ones. Both families are DISPATCHABLE: the v1 kinds are deprecated, not
-# withdrawn, and a release that stopped resolving them would break the very
-# clients the deprecation exists to keep working.
+# The four doxBench INSTANCE kinds. The catalog kind is a whole-document schema;
+# the three turn kinds all live in the chat-turn file, under these `$defs`.
+#
+# SEVEN UNTIL contract-v3.0 (retire-doxbench-chat-turn-v1). Three v1 kind
+# constants — `KIND_CHAT_TURN`, `KIND_CHAT_TURN_SUCCESS`,
+# `KIND_CHAT_TURN_FAILURE` — stood beside these, added at contract-v1.31 and
+# DEPRECATED at contract-v1.34 when the widened family arrived. Both families
+# were dispatchable for thirteen minors and one major, because a deprecation
+# that stopped resolving would have broken the very clients it existed to keep
+# working. The removal target the deprecating release recorded has now been
+# reached, and the kinds leave with their envelopes.
 KIND_MODEL_CATALOG = "workbench-model-catalog"
-KIND_CHAT_TURN = "workbench-chat-turn"
-KIND_CHAT_TURN_SUCCESS = "workbench-chat-turn-success"
-KIND_CHAT_TURN_FAILURE = "workbench-chat-turn-failure"
 KIND_CHAT_TURN_V2 = "workbench-chat-turn-v2"
 KIND_CHAT_TURN_V2_SUCCESS = "workbench-chat-turn-v2-success"
 KIND_CHAT_TURN_V2_FAILURE = "workbench-chat-turn-v2-failure"
 
 CHAT_TURN_DEFS = {
-    KIND_CHAT_TURN: "request",
-    KIND_CHAT_TURN_SUCCESS: "success",
-    KIND_CHAT_TURN_FAILURE: "failure",
     KIND_CHAT_TURN_V2: "request_v2",
     KIND_CHAT_TURN_V2_SUCCESS: "success_v2",
     KIND_CHAT_TURN_V2_FAILURE: "failure_v2",
 }
 
-# The DEPRECATED family, named here so a caller can ask rather than pattern-match
-# on a kind string. The removal target is the schema's own
-# `deprecated_envelopes` record and the CHANGELOG's migration note; this tuple
-# states only WHICH kinds are deprecated.
-DEPRECATED_CHAT_TURN_KINDS = (KIND_CHAT_TURN, KIND_CHAT_TURN_SUCCESS,
-                              KIND_CHAT_TURN_FAILURE)
+# `DEPRECATED_CHAT_TURN_KINDS` stood here and named the v1 family, so a caller
+# could ask rather than pattern-match on a kind string. It is REMOVED rather
+# than emptied at contract-v3.0: an empty tuple is a claim that nothing in this
+# family is deprecated, which is a statement this module has no business making
+# on the release's behalf. The schema's own `deprecated_envelopes` block is the
+# authority on what is deprecated, and it is read — never restated — by
+# `scripts/validate-ideation-dashboard-contracts.py`. That block is gone from
+# the chat-turn file too, because it named only these three kinds.
 
-WIRE_KINDS = (KIND_MODEL_CATALOG, KIND_CHAT_TURN, KIND_CHAT_TURN_SUCCESS,
-              KIND_CHAT_TURN_FAILURE, KIND_CHAT_TURN_V2,
+WIRE_KINDS = (KIND_MODEL_CATALOG, KIND_CHAT_TURN_V2,
               KIND_CHAT_TURN_V2_SUCCESS, KIND_CHAT_TURN_V2_FAILURE)
 
 # --------------------------- checkout location ---------------------------

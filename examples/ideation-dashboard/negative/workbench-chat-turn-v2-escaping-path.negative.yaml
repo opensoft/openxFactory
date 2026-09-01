@@ -1,7 +1,11 @@
 # INVALID (path): a buffer path traverses out of the checkout.
+# Re-expressed against the surviving family at contract-v3.0
+# (retire-doxbench-chat-turn-v1 task 4.4); the refusal class is unchanged and
+# the v1 instance that carried it retired with its envelope. `bound_buffer`
+# names the OUTLINE so the escape stays the single intended violation.
 {
   "schema_version": 1,
-  "kind": "workbench-chat-turn",
+  "kind": "workbench-chat-turn-v2",
   "client_turn_id": "turn-0005",
   "scope": {
     "repository": "openxFactory",
@@ -9,7 +13,7 @@
     "tile_kind": "staged",
     "tile_id": "demo-topic"
   },
-  "active_document_path": "ideation/staging/demo-topic/note.md",
+  "bound_buffer": "outline",
   "working_subject": "Clarify the acceptance boundary",
   "message": "Which open question should we close next?",
   "model_id": "local-authoring-1",

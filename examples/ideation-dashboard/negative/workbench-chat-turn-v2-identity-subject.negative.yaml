@@ -1,16 +1,23 @@
-# VALID request: outline carries UNSAVED edits (dirty, hash of current text).
+# INVALID (working_subject): identity semantics attached to the non-identity focus field.
+# Re-expressed against the surviving family at contract-v3.0
+# (retire-doxbench-chat-turn-v1 task 4.4). `working_subject` is spelled
+# identically in both families -- a free-form NON-IDENTITY string (FR-012) --
+# so the refusal by type alone is the same refusal.
 {
   "schema_version": 1,
-  "kind": "workbench-chat-turn",
-  "client_turn_id": "turn-0001",
+  "kind": "workbench-chat-turn-v2",
+  "client_turn_id": "turn-0008",
   "scope": {
     "repository": "openxFactory",
     "ref": "draft/demo-topic",
     "tile_kind": "staged",
     "tile_id": "demo-topic"
   },
-  "active_document_path": "ideation/staging/demo-topic/note.md",
-  "working_subject": "Clarify the acceptance boundary",
+  "bound_buffer": "ideation/staging/demo-topic/note.md",
+  "working_subject": {
+    "actor": "brett",
+    "tenant": "opensoft"
+  },
   "message": "Which open question should we close next?",
   "model_id": "local-authoring-1",
   "last_assistant_turn_id": null,
