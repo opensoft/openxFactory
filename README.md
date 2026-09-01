@@ -411,16 +411,25 @@ Active changes:
   retirement of `runner-readiness-diagnostic.yml`, the authoring-time guard,
   and the future `contracts/clearing/` family) is realized POST-RATIFICATION,
   because ratification authorizes realization and does not perform it.
-  **Origin: Brett Heap's operator ruling of 2026-09-01**
-  (`xFactory/cpc-clearing-boundary-ruling-2026-09-01.md`) — xFactory is THE
+  **Origin: Brett Heap's operator ruling of 2026-09-01** — the record
+  `cpc-clearing-boundary-ruling-2026-09-01.md`, being committed at the ROOT of
+  `opensoft/xFactory` via a pull request on branch
+  `record/cpc-clearing-boundary-ruling` whose merge is PENDING BRETT'S WORD,
+  and on which ratification is GATED (`tasks.md` §2.3) — xFactory is THE
   clearing and dispatch boundary for the governed Cloud PC, runner-group
   allowlists stay xFactory-only, and no factory is ever broadly authorized to
   originate jobs directly to the host — **plus his OPTION-1 SUPERSESSION the
   same day**: no per-path allowlist addition for readiness, the readiness test
   becomes THE CLEARING LANE'S FIRST OPERATION, and the allowlist converges to
-  ONE PERMANENT ENTRY PER GROUP added once. **TEN ADDED requirements over 41
-  scenarios**, organized as the five enforcement layers ruled in the same
-  session: **the SINGLE DOOR** (fail-closed, and every host job living
+  ONE PERMANENT ENTRY PER GROUP added once. **THE PROVENANCE IS A SPLIT AND
+  THE PACKET SAYS SO**: requirements 1–7 trace to the written record, while
+  requirements 8–10 EXTEND it and are carried as DECLARED EXTENSIONS ruled the
+  same session on Brett's verbatim instruction "fold 1-5 in and fan out" —
+  requirement 9, the authoring-time guard, is WHOLLY ABSENT from the record;
+  requirement 8 generalizes the one retirement it names; requirement 10 adds
+  the periodic attestation to the dispatch recording it does state. **TEN
+  ADDED requirements over 47 scenarios**, organized as the five enforcement
+  layers ruled in the same session: **the SINGLE DOOR** (fail-closed, and every host job living
   physically inside the clearing workflow file because the provider evaluates
   the allowlist against the file that CONTAINS the job — so no
   reusable-workflow indirection, ever), **the SEALED BOUNDED REQUEST** and its
@@ -433,15 +442,24 @@ Active changes:
   **hosted validation of returned output before any repository effect**, **the
   CLOSED permitted-operations register** with `readiness-diagnostic` as entry
   #1 (strictly read-only, name-allowlist-only environment echo, structured
-  operation report, and PR #188's standalone workflow RETIRED into it),
+  operation report, and `opensoft/xFactory#188`'s standalone workflow RETIRED
+  into it),
   **ROUTE RETIREMENT** (no dormant second doors; the grandfather enumeration
-  of nine existing worker workflows is append-never and shrink-only), **the
-  AUTHORING-TIME GUARD** that is structural rather than a text search — the
-  estate already contains the case that proves it, two `concurrency: group:
-  xfactory-artifact-worker` declarations one character off a runner group's
-  name — and **the DISPATCH LEDGER plus a periodic SINGLE-DOOR ATTESTATION**,
-  because the ledger's completeness claim is true only while the door is
-  single. **The evidence is the eighteen-hour queue**: run `33381257642`, a
+  of nine existing worker workflows is append-never and shrink-only, held in
+  the governed data file `.github/clearing/grandfather-enumeration.yaml` that
+  BOTH the guard and the attestation read, each member carrying its governed
+  group and its allowlist-entry status), **the AUTHORING-TIME GUARD** that is
+  structural rather than a text search — the estate already contains the case
+  that proves it, two `concurrency: group: xfactory-artifact-worker`
+  declarations one character off a runner group's name — whose append-refusal
+  is a frozen-ORIGIN subset assertion BACKED BY REVIEW rather than an
+  unforgeable refusal, and which needs a required-status-check rule the
+  clearing repository DOES NOT HAVE YET (an operator act, §4.5) — and **the
+  DISPATCH LEDGER plus a periodic SINGLE-DOOR ATTESTATION** whose expected set
+  is computed PER GROUP, splitting a WIDENING (a breach) from an enumerated
+  member with no allowlist entry (already fail-closed — a dark-lane
+  disposition, not a breach), because the ledger's completeness claim is true
+  only while the door is single. **The evidence is the eighteen-hour queue**: run `33381257642`, a
   codexFactory-path job on a group that admits the codexFactory repository but
   not that workflow path, was never claimable and never ran — the right
   outcome from an unwritten configuration, which is why fail-closed is the
@@ -450,6 +468,55 @@ Active changes:
   DECLARED rather than assumed away. Sibling realization: the parallel
   `opensoft/xFactory` clearing-workflow pull request, which merges only after
   this packet ratifies.
+- [retire-hermes-flat-keys-and-openworkflow-tokens](openspec/changes/retire-hermes-flat-keys-and-openworkflow-tokens/proposal.md)
+  — authored 2026-09-01, **`Status: ratified` — RATIFIED 2026-09-01 by Brett
+  Heap, in session, at PR #551 tip `64907604`** (record:
+  `openspec/changes/retire-hermes-flat-keys-and-openworkflow-tokens/review/ratification-2026-09-01.md`);
+  ratification authorizes the requirement text and performs no realization,
+  cuts no bundle and moves no CHANGELOG row, so the change stays ACTIVE until
+  merged code, green evidence and the `contract-v3.0` cut exist. The record
+  discloses what the act stood on: **NO CODEX REVIEW HAPPENED** — four
+  requests, four provider usage-limit refusals, zero verdicts, a pass still
+  owed and blocked by nothing in the packet — and `main`'s inherited
+  `pytest-suite` red from PR #510's carriage-ledger subject, which this packet
+  neither causes nor fixes. **Entries 1 and 2 of openxFactory
+  issue #522**, on Brett Heap's 2026-09-01 ruling comment there ("execute all
+  three retirements at contract-v3.0, as the memo recommends") and the
+  measurement memo `deprecations-522-memo-2026-08-31.md` (operator-local, NOT
+  committed here and NAMED rather than located, Principle IV forbidding a
+  host-absolute path in a committed file; the durable in-repo referents are
+  issue #522 and its 2026-09-01 ruling comment).
+  `contract-v2.0` shipped on 2026-08-27, executed a DIFFERENT deprecation
+  through itself, and did not look at the three entries that named it as their
+  removal target; five minors later they still name it. **ENTRY 1 IS SPLIT AS
+  RULED.** The phased half EXECUTES at `contract-v3.0` — the `hermes` flat-key
+  FALLBACK READ leaves `check_hermes`, `LEGACY_HERMES_KEYS` goes with it, and
+  `apply-domain-starter.py` stops emitting the deprecated keys — and it refuses
+  nobody, because all five supported consumers declare `hermes.layers`. The
+  refusing half is RECORDED-WHY and stays In Force: the warning fires only in
+  the `else` arm taken when `layers` is ABSENT, so it has been dead code for the
+  entire supported population, and refusing the co-resident keys would be an
+  unphased narrowing owing its own deprecating minor first. **ENTRY 2 EXECUTES**
+  — the three-line `openworkflow` branch, zero live usage across ten
+  repositories, phased since `contract-v1.1`. Adds ONE capability,
+  `contract-deprecation-execution`, and NO `## MODIFIED` block, because no
+  promoted requirement names either shape. FIVE facts the memo did not carry
+  are recorded here: the fallback retirement is a REPLACEMENT and not a
+  deletion, because the missing-role errors sit INSIDE the `layers`-declared
+  branch and a bare deletion would let a `layers`-less stack pass with no
+  finding at all — a silent WIDENING at a major; the `openworkflow` branch
+  SHADOWS the general rule and so WIDENS one case as well as narrowing another;
+  entry 2's own entry UNDER-DECLARES ITS PREFIX BY ONE CHARACTER — the policy
+  and the docstring write `openworkflow_`, the code writes
+  `startswith("openworkflow")`, so three shapes are refused that the entry never
+  names (raised in review of the PR); promoted canon says an unresolvable
+  `owner_layer` is a WARNING while the shipped validator has ERRORED since six
+  days before that requirement was promoted (recorded, not fixed — D4); and
+  `domain_overlay` is ALSO a live key under `omnigent:`, so the refusal list
+  must be written by PATH and not by name. Sibling:
+  `retire-doxbench-chat-turn-v1`. (code surface: openxFactory; target release:
+  `contract-v3.0` — archives only on merged plus green realization evidence and
+  the published tag)
 - [add-chain-attestation](openspec/changes/add-chain-attestation/proposal.md)
   — authored 2026-08-29, **`Status: ratified` — RATIFIED 2026-09-01 by Brett
   Heap at `f54cb5bc` and RE-RATIFIED at `6d7ef17b` after the amendments** (record:
@@ -1542,6 +1609,56 @@ Active changes:
   uses of custom properties the stylesheet never defines whose silent
   fallbacks painted a white popover behind light text. (code surface:
   openxFactory; target release: none)
+- [retire-doxbench-chat-turn-v1](openspec/changes/retire-doxbench-chat-turn-v1/proposal.md)
+  — authored 2026-09-01, **`Status: ratified` — RATIFIED 2026-09-01 by Brett
+  Heap, in session, at PR #552 tip `c5169476`** (record:
+  `openspec/changes/retire-doxbench-chat-turn-v1/review/ratification-2026-09-01.md`);
+  ratification authorizes the requirement text and performs no realization,
+  moves no schema byte and cuts no bundle, so the change stays ACTIVE until
+  merged code, green evidence and the `contract-v3.0` cut exist. It ratifies
+  the fallback posture AS ENCODED — the #522 ruling set only its direction. The
+  record discloses what the act stood on: **NO CODEX REVIEW HAPPENED** — three
+  requests, three provider usage-limit refusals, zero verdicts, a pass still
+  owed and blocked by nothing in the packet — four low-severity Copilot
+  comments standing uncorrected on the ratified head, and `main`'s inherited
+  `pytest-suite` red from PR #510's carriage-ledger subject, which this packet
+  neither causes nor fixes. **Entry 3 of openxFactory issue
+  #522**, on Brett Heap's 2026-09-01 ruling comment there and the measurement
+  memo `deprecations-522-memo-2026-08-31.md` (operator-local, NOT committed
+  here and NAMED rather than located, Principle IV forbidding a host-absolute
+  path in a committed file; the durable referents are issue #522 and its ruling
+  comment), sliced
+  SEPARATELY from entries 1 and 2 on the memo's own recommendation and the
+  ruling's adoption of it. **THE ONLY ONE OF THE THREE WHOSE WARNING ACTUALLY
+  FIRES**: a default `validate-ideation-dashboard-contracts.py` run reports
+  `0 error(s), 4 warning(s)`, every one naming `removal target contract-v2.0` —
+  a target the bundle passed one major and five minors ago. The deprecation was
+  done PROPERLY at `contract-v1.34` — co-resident `-v2` family, v1 bytes kept
+  byte-identical with a committed baseline test to prove it, and the
+  deprecation declared MACHINE-READABLY in a top-level `deprecated_envelopes`
+  block — and then the removal it named was never performed. This packet
+  removes the three v1 kinds at `contract-v3.0`: the `$defs`, the `oneOf` refs,
+  the `deprecated_envelopes` block, the runtime and validator dispatch, twelve
+  packaged fixtures and the byte-identity baseline, RETAINING every shared
+  `$def` the surviving family reaches (measured from its reference closure, not
+  inspected). **THE `serve.py` FALLBACK IS REDESIGNED, NOT DELETED, AND THE
+  DECISION IS ANSWERED IN THE PACKET**: an unrecognized or absent `kind` is
+  refused in the SURVIVING family's failure envelope with an explicit
+  unknown-kind code where a wire-valid `client_turn_id` exists, and in the
+  existing pre-identity shape where it does not — legal on the contract as it
+  stands, because `failure_v2` constrains `error` by PATTERN and not by enum at
+  the schema layer and at the delegated validator both; the envelope-less
+  alternative is recorded with its three costs. **TWO MEMO CORRECTIONS**: the
+  packaged corpus is TWELVE fixtures, not four — eight are NEGATIVE and carry
+  SEVEN refusal classes with no `-v2` equivalent, each of which must be
+  re-expressed or its loss stated; and there are TWO fallback layers, the second
+  (`_refuse_turn`'s pre-identity drop) correct and untouched. Carries ONE
+  scenario-complete `## MODIFIED` block over promoted `ideation-dashboard`
+  canon, dropping nothing and therefore owing no `Removed from canon` marker.
+  Sibling: `retire-hermes-flat-keys-and-openworkflow-tokens`. (code surface:
+  openxFactory; target release: `contract-v3.0` — archives only on merged plus
+  green realization evidence, the moved manifest digest, the rebuilt inventory
+  and the published tag)
 
 The avatar-client kernel (`contract-v1.7`), reference runtime, and avatar-first UI
 standard (`contract-v1.8`) are realized. The contract kernel, the revocation
