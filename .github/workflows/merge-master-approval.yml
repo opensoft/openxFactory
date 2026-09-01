@@ -90,6 +90,23 @@
 # back to correct this paragraph. Recorded rather than quietly overwritten: a
 # stale divergence note is the failure mode this whole block exists to prevent.)
 #
+# WHAT THE (b′) ADVANCE MADE OPERATIVE HERE, on 2026-09-01. Until it, this lane
+# reported against a four-entry floor and could refuse only a floor that had
+# gone unreachable on the BASE branch. It now also:
+#   * refuses the candidate that REMOVES OR RENAMES a floored path, judged
+#     against the POST-MERGE path set (the base tree adjusted by the candidate's
+#     own changed files) rather than the base tree alone — LA-A2 and CPL-C1,
+#     whose whole complaint was that the deleting pull request went green and
+#     the NEXT, innocent one went red;
+#   * REPORTS BEFORE IT REFUSES on an unreachable floor — LS-A1: the unreachable
+#     entries by name, and `matched_paths` over the reachable subset, at an
+#     explicit `floor_partially_unreachable` stage, before `exit 1`;
+#   * refuses when a tracked `openspec/specs/**` path is ABSENT from the floor —
+#     LQ-A7's completeness direction, a set difference over `tree_paths.txt`,
+#     which this lane already had on hand.
+# Authority for all three: the (b′) record's §6.1/§9 and the vendored ballot
+# §4, `hermes/domain/review-councils/records/` in codexFactory.
+#
 # TRIGGER / SECURITY REASONING.
 #   * `pull_request_target` runs the workflow definition FROM THE BASE BRANCH.
 #     Every rule, config and pin this job acts on therefore comes from the base
@@ -448,12 +465,25 @@ jobs:
             > pr_files.pages.json \
             || park "could not list the changed files for #$PR_NUMBER — the changed-path set cannot be proven complete"
           # The filter PROVES the shape as it flattens: an array whose every
-          # entry is an object carrying a string `.filename`. An unexpected
-          # payload parks rather than degrading to an empty set.
+          # entry is an object carrying a string `.filename` AND a string
+          # `.status`. An unexpected payload parks rather than degrading to an
+          # empty set.
+          #
+          # `.status` IS NEW HERE, and it is LA-A2's amendment in one word: "the
+          # lane already pages exactly this listing with `previous_filename`
+          # (step 7); LA-A2's amendment is to add `status` and derive [the
+          # post-merge] set." Without it the core's `post_merge_tree_paths`
+          # cannot tell a deletion from an addition, and it refuses rather than
+          # guessing — "the post-merge tree cannot be reconstructed from
+          # incomplete facts without risking either a silent deletion or a false
+          # accusation." A listing that arrives without a status is therefore a
+          # PARK, in the same class as a listing that arrives short: a fact that
+          # cannot be obtained is not a fact that is empty.
           jq -e 'if type != "array" then error("file listing is not an array") else . end
                  | map(if type == "array" then . else [.] end) | add // []
-                 | map(if type == "object" and (.filename | type) == "string" then .
-                       else error("file entry without a string filename") end)' \
+                 | map(if type == "object" and (.filename | type) == "string"
+                          and (.status | type) == "string" then .
+                       else error("file entry without a string filename and status") end)' \
             pr_files.pages.json > pr_files.json \
             || park "the changed-file listing for #$PR_NUMBER was not the expected shape — the changed-path set cannot be proven complete"
           ENTRY_COUNT="$(jq -r 'length' pr_files.json)"
@@ -471,6 +501,13 @@ jobs:
           # BOTH names of a renamed file enter the judged set.
           jq -r '[ .[] | .filename, (.previous_filename // empty) ] | unique' \
             pr_files.json > changed_paths.json
+          # THE CHANGED ENTRIES, for the post-merge reconstruction. The three
+          # fields the core's `post_merge_tree_paths` reads, and no others: a
+          # narrower object than `pr_files.json` so the evaluation below cannot
+          # start depending on a field this gather does not prove.
+          jq -r '[ .[] | {filename, status} +
+                         (if .previous_filename then {previous_filename} else {} end) ]' \
+            pr_files.json > changed_entries.json
           {
             echo "parked=false"
             echo "head_sha=$HEAD_SHA"
@@ -479,13 +516,52 @@ jobs:
           echo "changed paths gathered: $ENTRY_COUNT entries, declared total $DECLARED_TOTAL, head $HEAD_SHA"
 
       # ---- 8. The floor verdict, computed by the PINNED core ----------------
-      # The floor's parser, its refusals and its matching rule all come from the
-      # pinned core — this repository re-implements none of it. The one thing
-      # this caller CHOOSES is to pass `tree_paths`: the core's reachability
-      # check is opt-in precisely because a floor usually names paths in another
-      # repository, and here we ARE that repository, so a floor path that no
-      # longer exists becomes a named failure instead of silence ("a floor that
-      # matches nothing is indistinguishable from no floor").
+      # The floor's parser, its refusals, its matching rule, its post-merge
+      # reconstruction and its drift attribution all come from the pinned core —
+      # this repository re-implements none of it. What this caller CHOOSES is
+      # WHICH TREE to hand it, and since the (b′) advance that choice is the
+      # POST-MERGE one.
+      #
+      # THREE AMENDMENTS ARE WIRED HERE, and each is a different failure:
+      #
+      #   * LA-A2 / CPL-C1 (both BLOCKING) — DELETIONS. The floor is parsed
+      #     against `post_merge_tree_paths(base tree, this candidate's changed
+      #     files)`, which is CPL-C1's first sufficient discharge in its own
+      #     words: "the base tree adjusted by the candidate's own changed paths
+      #     ... instead of the base tree alone". Against the base tree alone the
+      #     pull request that DELETES a floored path is green and the next,
+      #     innocent pull request is red — the exact inversion LA-A2 filed
+      #     ("drift detection at the causing commit") and CPL-C1 measured. The
+      #     core's `candidate_floor_drift` then says which dead entries are THIS
+      #     candidate's doing and which were already dead on the base branch,
+      #     because failing an innocent author for someone else's deletion is
+      #     the shape LS-A1 calls fail-dark.
+      #
+      #   * LS-A1 (BLOCKING) — REPORT BEFORE YOU REFUSE. On an unreachable
+      #     floor this step no longer prints one refusal string and stops. It
+      #     uses `parse_repository_floor_reporting`, names the unreachable
+      #     entries, and prints `matched_paths` over the REACHABLE subset — the
+      #     four hand-reasoned chokepoints survive every scenario the seat
+      #     probed — at an explicit `floor_partially_unreachable` stage. Then it
+      #     exits non-zero. "Fail-closed means refuse to certify; it does not
+      #     mean stop computing the part you can still compute."
+      #     FAIL-CLOSED IS PRESERVED IN FULL: nothing below certifies, and every
+      #     refusal path still ends in `exit 1`.
+      #
+      #   * LQ-A7 (BLOCKING) — COMPLETENESS, the opposite direction. A set
+      #     difference over data this lane already had on hand: every tracked
+      #     path under `openspec/specs` that the floor does not name. LQ's own
+      #     falsification is "seed one uncovered spec path and the lane must go
+      #     red", and it is computed over the POST-MERGE tree for the same
+      #     reason the deletion guard is: the pull request that ADDS the
+      #     uncovered spec is the one that must see it.
+      #
+      # THE PREFIX IS A CODE CONSTANT HERE, and deliberately not read from the
+      # floor. The floor document is exact paths; the block it generated them
+      # from declares its prefix in a COMMENT, which is not data. Reading a
+      # prefix out of prose would make this assertion silently narrow when the
+      # prose changed. `openspec/specs` is what the (b′) act floored (record §8)
+      # and it is written here as one literal, next to the reason.
       - name: Evaluate the openxFactory repository gate floor
         id: floor
         if: steps.candidate.outputs.resolved == 'true' && steps.paths.outputs.parked == 'false'
@@ -494,6 +570,10 @@ jobs:
           GOVERNANCE_DIR: .merge-master-core/scripts/merge_master
           TARGET_REPOSITORY: opensoft/openxFactory
           CHANGED_PATHS: changed_paths.json
+          CHANGED_ENTRIES: changed_entries.json
+          # The one surface the (b′) act enumerated. See the note above on why
+          # it is a literal.
+          FLOORED_PREFIX: openspec/specs
         run: |
           set -euo pipefail
           # The repository's own committed tree, as `git diff --name-only`
@@ -510,17 +590,27 @@ jobs:
 
           from merge_master.repository_floor import (  # noqa: E402
               GovernanceDocumentError,
+              candidate_floor_drift,
               load_governance_paths,
-              parse_repository_floor,
+              parse_repository_floor_reporting,
+              post_merge_tree_paths,
           )
 
           import yaml  # noqa: E402
 
           governance_dir = os.environ["GOVERNANCE_DIR"]
           target = os.environ["TARGET_REPOSITORY"]
+          prefix = os.environ["FLOORED_PREFIX"].rstrip("/") + "/"
+
+          def refuse(stage, reason, **extra):
+              print(json.dumps({"ok": False, "stage": stage,
+                                "reason": reason, **extra}))
+              raise SystemExit(0)
 
           with open(os.environ["CHANGED_PATHS"], encoding="utf-8") as handle:
               changed = list(json.load(handle))
+          with open(os.environ["CHANGED_ENTRIES"], encoding="utf-8") as handle:
+              entries = list(json.load(handle))
           with open("tree_paths.txt", encoding="utf-8") as handle:
               tree = [line.rstrip("\n") for line in handle if line.strip()]
 
@@ -532,56 +622,130 @@ jobs:
           try:
               rule_paths, floors = load_governance_paths([governance_dir])
           except GovernanceDocumentError as exc:
-              print(json.dumps({"ok": False, "stage": "governance_load",
-                                "reason": str(exc)}))
-              raise SystemExit(0)
+              refuse("governance_load", str(exc))
 
           if target not in floors:
               # NOT a clean verdict. The absence of a floor for this repository
               # is reported as the absence it is.
-              print(json.dumps({
-                  "ok": False, "stage": "no_floor",
-                  "reason": ("the pinned decision core declares no "
-                             "repository_gate_floor for %s (floors present: %s)"
-                             % (target, sorted(floors))),
-              }))
-              raise SystemExit(0)
+              refuse("no_floor",
+                     "the pinned decision core declares no repository_gate_floor "
+                     "for %s (floors present: %s)" % (target, sorted(floors)))
 
-          # RE-PARSE the target's own document WITH the tree, to opt into the
-          # reachability check `load_governance_paths` deliberately leaves off.
-          floor_path = None
+          # THE TARGET'S OWN DOCUMENT, located by content rather than by name.
+          floor_path, document = None, None
           for name in sorted(os.listdir(governance_dir)):
               if not name.endswith((".yaml", ".yml")):
                   continue
               candidate = os.path.join(governance_dir, name)
               with open(candidate, encoding="utf-8") as handle:
-                  document = yaml.safe_load(handle)
-              if not isinstance(document, dict):
+                  parsed = yaml.safe_load(handle)
+              if not isinstance(parsed, dict):
                   continue
-              if document.get("kind") != "repository_gate_floor":
+              if parsed.get("kind") != "repository_gate_floor":
                   continue
-              if (document.get("floor") or {}).get("repository") != target:
+              if (parsed.get("floor") or {}).get("repository") != target:
                   continue
-              floor_path = candidate
-              try:
-                  floor = parse_repository_floor(document, tree_paths=tree)
-              except GovernanceDocumentError as exc:
-                  print(json.dumps({"ok": False, "stage": "floor_unreachable",
-                                    "document": candidate, "reason": str(exc)}))
-                  raise SystemExit(0)
+              floor_path, document = candidate, parsed
               break
 
-          matched = list(floor.matching_paths(changed))
-          print(json.dumps({
+          # THE POST-MERGE TREE (LA-A2 / CPL-C1). The core refuses a changed
+          # entry it cannot classify rather than guessing, and a guess here is
+          # either a silent deletion or a false accusation — so its refusal is
+          # surfaced as its own stage instead of being folded into the floor's.
+          try:
+              post_merge = list(post_merge_tree_paths(tree, entries))
+          except GovernanceDocumentError as exc:
+              refuse("changed_entries_unusable", str(exc))
+
+          # REPORT-BEFORE-REFUSE (LS-A1). Every STRUCTURAL refusal — a wildcard,
+          # a duplicate, a bad schema_version — still raises here and is still
+          # fatal; only the reachability refusal becomes a reported partition.
+          try:
+              report = parse_repository_floor_reporting(
+                  document, tree_paths=post_merge)
+          except GovernanceDocumentError as exc:
+              refuse("floor_document_refused", str(exc), document=floor_path)
+
+          floor = report.declared
+          verdict = {
               "ok": True,
+              "stage": report.stage,
               "floor_id": floor.id,
               "repository": floor.repository,
               "document": floor_path,
               "never_clearable_paths": list(floor.never_clearable_paths),
               "changed_path_count": len(changed),
-              "matched_paths": matched,
+              "changed_entry_count": len(entries),
+              "base_tree_paths": len(tree),
+              "post_merge_tree_paths": len(post_merge),
+              # LS-A1: matches over the REACHABLE subset, always computed and
+              # always printed, refusal or not.
+              "matched_paths": list(report.matching_paths(changed)),
+              "unreachable_paths": list(report.unreachable_paths),
+              "caused_by_candidate": [],
+              "already_unreachable": [],
               "rule_documents": [os.path.basename(p) for p in rule_paths],
-          }))
+              "floored_prefix": prefix,
+              "tracked_under_prefix": 0,
+              "uncovered_paths": [],
+              "refusals": [],
+          }
+
+          # LQ-A7: the completeness direction. `surface - entries`, over the
+          # post-merge tree.
+          tracked = sorted(p for p in post_merge if p.startswith(prefix))
+          uncovered = sorted(set(tracked) - set(floor.never_clearable_paths))
+          verdict["tracked_under_prefix"] = len(tracked)
+          verdict["uncovered_paths"] = uncovered
+
+          # LA-A2 / CPL-C1: attribute every dead entry.
+          if report.unreachable_paths:
+              drift = candidate_floor_drift(
+                  floor, base_tree_paths=tree, changed_entries=entries)
+              verdict["caused_by_candidate"] = list(drift.caused_by_candidate)
+              verdict["already_unreachable"] = list(drift.already_unreachable)
+              if drift:
+                  verdict["refusals"].append({
+                      "stage": "floor_drift_caused_by_candidate",
+                      "reason": drift.refusal_message(floor.repository),
+                  })
+              if drift.already_unreachable:
+                  verdict["refusals"].append({
+                      "stage": "floor_partially_unreachable",
+                      "reason": (
+                          "floor entr(ies) already unreachable on the base "
+                          "branch, NOT caused by this pull request: %s. A floor "
+                          "that matches nothing is indistinguishable from no "
+                          "floor. See the pinned core's "
+                          "docs/repository-gate-floor-repair-runbook.md."
+                          % list(drift.already_unreachable)),
+                  })
+
+          if uncovered:
+              verdict["refusals"].append({
+                  "stage": "floor_incomplete",
+                  "reason": (
+                      "%d tracked path(s) under %r are ABSENT from "
+                      "floor.never_clearable_paths: %s. The enumeration is "
+                      "exact, so a spec added off the floor is a spec the floor "
+                      "does not protect. The repair is ordered, across two "
+                      "repositories: (1) a codexFactory pull request "
+                      "regenerating the block at an openxFactory commit that "
+                      "carries the new path "
+                      "(scripts/merge_master/generate_specs_floor_block.py); "
+                      "(2) an openxFactory pull request advancing "
+                      "contracts/review-lane-pin.yaml core_commit, the "
+                      "workflow's two pin literals and the vendored floor "
+                      "snapshot in lockstep; (3) this addition. See the pinned "
+                      "core's docs/repository-gate-floor-repair-runbook.md."
+                      % (len(uncovered), prefix.rstrip("/"), uncovered)),
+              })
+
+          if verdict["refusals"]:
+              verdict["ok"] = False
+              verdict["stage"] = verdict["refusals"][0]["stage"]
+              verdict["reason"] = verdict["refusals"][0]["reason"]
+          print(json.dumps(verdict))
           PY
           if [ ! -s floor.json ]; then
             echo "::error title=merge-master-approval::the floor evaluation produced no output" >&2
@@ -591,8 +755,40 @@ jobs:
           OK="$(jq -r '.ok' floor.json)"
           echo "evaluated=true" >> "$GITHUB_OUTPUT"
           echo "ok=$OK" >> "$GITHUB_OUTPUT"
+          # THE REPORT COMES FIRST, AND IT COMES ON EVERY PATH (LS-A1). What is
+          # printed here is printed whether the verdict is clean or refused, so
+          # a reviewer reading a red run still learns which floor entries the
+          # candidate touched rather than only which ones died.
+          #
+          # EVERY LOOKUP CARRIES ITS OWN `// []` OR `// "-"`, and that is not
+          # defensive noise. The four EARLY refusal stages — `governance_load`,
+          # `no_floor`, `changed_entries_unusable`, `floor_document_refused` —
+          # emit a document carrying `stage` and `reason` and nothing else, and
+          # `.matched_paths[]` over an absent key is a jq ERROR, not an empty
+          # list. Without the defaults the report would abort at its first line
+          # exactly when the run has gone wrong, which is the one time a reader
+          # needs it. This whole block is a report and must never be able to
+          # change the verdict, so it also cannot fail the step.
+          jq -r '"stage:                 " + (.stage // "-"),
+                 "floor entries:         " + ((.never_clearable_paths // []) | length | tostring),
+                 "reachable matches:     " + ((.matched_paths // []) | length | tostring),
+                 "unreachable entries:   " + ((.unreachable_paths // []) | length | tostring),
+                 "  caused by candidate: " + ((.caused_by_candidate // []) | length | tostring),
+                 "  already dead:        " + ((.already_unreachable // []) | length | tostring),
+                 "tracked under prefix:  " + ((.tracked_under_prefix // 0) | tostring)
+                                           + " (" + (.floored_prefix // "-") + ")",
+                 "uncovered by floor:    " + ((.uncovered_paths // []) | length | tostring),
+                 ((.matched_paths       // [])[] | "  matched:      " + .),
+                 ((.caused_by_candidate // [])[] | "  YOU KILLED:   " + .),
+                 ((.already_unreachable // [])[] | "  already dead: " + .),
+                 ((.uncovered_paths     // [])[] | "  UNCOVERED:    " + .)' \
+            floor.json || true
           if [ "$OK" != "true" ]; then
-            echo "::error title=merge-master-approval::floor evaluation refused at stage $(jq -r '.stage' floor.json): $(jq -r '.reason' floor.json)" >&2
+            jq -r '.refusals[]? | "::error title=merge-master-approval::floor evaluation refused at stage " + .stage + ": " + .reason' floor.json >&2
+            # A refusal that produced no `refusals` array is still a refusal:
+            # the early `refuse()` stages carry `stage` and `reason` alone.
+            [ "$(jq -r '.refusals | length' floor.json 2>/dev/null || echo 0)" != "0" ] \
+              || echo "::error title=merge-master-approval::floor evaluation refused at stage $(jq -r '.stage' floor.json): $(jq -r '.reason' floor.json)" >&2
             exit 1
           fi
           MATCHED="$(jq -r '.matched_paths | length' floor.json)"
@@ -618,7 +814,10 @@ jobs:
             echo "| decision core | \`opensoft/codexFactory@${PINNED_CORE_COMMIT}\` (pinned by \`contracts/review-lane-pin.yaml\`) |"
             echo "| floor | \`$(jq -r '.floor_id' floor.json)\` for \`$(jq -r '.repository' floor.json)\` |"
             echo "| changed paths judged | $(jq -r '.changed_path_count' floor.json) |"
+            echo "| floor entries | $(jq -r '.never_clearable_paths | length' floor.json) |"
             echo "| never-clearable paths touched | ${MATCHED} |"
+            echo "| tracked under \`$(jq -r '.floored_prefix' floor.json)\` | $(jq -r '.tracked_under_prefix' floor.json), all on the floor |"
+            echo "| tree judged | post-merge ($(jq -r '.post_merge_tree_paths' floor.json) paths; base $(jq -r '.base_tree_paths' floor.json)) |"
             echo
             if [ "$MATCHED" -gt 0 ]; then
               echo "**This candidate touches a PERMANENTLY HUMAN-ONLY path.** No"
@@ -679,4 +878,17 @@ jobs:
             || fail "the evaluated floor names no never-clearable paths, which no valid floor may do"
           [ "$(jq -r '.document' floor.json)" != "null" ] \
             || fail "the floor verdict names no source document in the pinned core"
-          echo "anti-vacuity: the pinned core's floor for opensoft/openxFactory was read and applied."
+          # THE (b′) GUARDS, ASSERTED AS POSITIVE EVIDENCE THEY RAN. A guard
+          # that silently stopped computing is indistinguishable from a guard
+          # that found nothing, and these three are the whole object of the
+          # 2026-09-01 advance.
+          [ "$(jq -r '.post_merge_tree_paths' floor.json)" -gt 0 ] \
+            || fail "no post-merge tree was reconstructed, so the deletion guard (LA-A2 / CPL-C1) judged nothing"
+          [ "$(jq -r 'has("uncovered_paths")' floor.json)" = "true" ] \
+            || fail "the completeness assertion (LQ-A7) produced no result"
+          [ "$(jq -r '.tracked_under_prefix' floor.json)" -gt 0 ] \
+            || fail "no tracked path was found under the floored prefix, so the completeness assertion (LQ-A7) compared an empty surface against the floor and would pass over any floor at all"
+          [ "$(jq -r 'has("unreachable_paths")' floor.json)" = "true" ] \
+            || fail "the reachability report (LS-A1) produced no result"
+          echo "anti-vacuity: the pinned core's floor for opensoft/openxFactory was read and applied,"
+          echo "  over the post-merge tree, with the completeness and reachability reports both computed."

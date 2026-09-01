@@ -384,12 +384,92 @@ class TheRealFiles(unittest.TestCase):
         self.assertIn("repository_floor", self.caller_text)
 
     def test_the_caller_opts_into_the_floor_reachability_check(self) -> None:
-        """`tree_paths` is opt-in; a floor matching nothing must not be silent."""
+        """`tree_paths` is opt-in; a floor matching nothing must not be silent.
+
+        SINCE THE (b′) ADVANCE THE TREE IS THE POST-MERGE ONE. Against the base
+        tree alone the pull request that DELETES a floored path is green and the
+        next, innocent one is red — which is the inversion LA-A2 filed and
+        CPL-C1 measured. CPL-C1's first sufficient discharge, verbatim: *"the
+        base tree adjusted by the candidate's own changed paths"*.
+        """
         self.assertIn(
-            "tree_paths=tree", self.caller_text,
+            "tree_paths=post_merge", self.caller_text,
             "the core's reachability check is opt-in precisely because a floor "
             "usually names another repository's paths. Here we ARE that "
-            "repository, so an unreachable floor path must be a named failure.")
+            "repository, so an unreachable floor path must be a named failure "
+            "— and it must be named on the pull request that CAUSED it, which "
+            "means parsing against the post-merge path set.")
+        self.assertNotIn(
+            "parse_repository_floor(document, tree_paths=tree)",
+            self.caller_text,
+            "parsing against the BASE tree alone is the pre-(b′) behaviour "
+            "LA-A2 and CPL-C1 both refuse: it fails the next pull request "
+            "rather than the deleting one. (Matched on the whole call, not on "
+            "`tree_paths=tree`: the drift call's own `base_tree_paths=tree` "
+            "carries that substring and IS the base tree, correctly.)")
+
+    def test_the_caller_calls_the_three_amended_core_functions(self) -> None:
+        """Each name is one BLOCKING amendment's mechanism, wired here.
+
+        The mechanisms landed in codexFactory PR #162 and are INERT until a
+        caller invokes them; the record calls the two pull requests one landing.
+        Asserted over the caller text so a refactor that quietly drops one is a
+        red test rather than a silently weaker lane.
+        """
+        for function, amendment in (
+                ("post_merge_tree_paths", "LA-A2 / CPL-C1 (deletions)"),
+                ("candidate_floor_drift", "LA-A2 (attribution)"),
+                ("parse_repository_floor_reporting", "LS-A1 (report before you refuse)")):
+            self.assertIn(
+                function, self.caller_text,
+                "%s is the mechanism of %s and the caller does not call it"
+                % (function, amendment))
+
+    def test_the_gather_collects_the_status_the_drift_check_needs(self) -> None:
+        """LA-A2's amendment, in one word: *"add `status`"*.
+
+        Without it the core's `post_merge_tree_paths` cannot tell a deletion
+        from an addition, and it refuses rather than guessing — so a gather that
+        stopped collecting `status` would turn every run into a refusal at
+        `changed_entries_unusable` rather than into a silent pass. This asserts
+        the healthy shape rather than relying on that refusal.
+        """
+        gather = self.gather_script()
+        self.assertIn(
+            ".status", gather,
+            "the changed-file gather must prove a string `status` on every "
+            "entry: the post-merge tree cannot be reconstructed from "
+            "incomplete facts without risking either a silent deletion or a "
+            "false accusation")
+        self.assertIn(
+            "changed_entries.json", gather,
+            "the gather must emit the changed ENTRIES (filename + status + "
+            "previous_filename), not only the flattened path list")
+
+    def test_the_caller_asserts_the_floors_completeness(self) -> None:
+        """LQ-A7 (BLOCKING), homed here by the seat and by the ruling.
+
+        LQ: a check that *"fails when a tracked `openspec/specs/**` path is
+        absent from `floor.never_clearable_paths`"*, in
+        `merge-master-approval.yml`, *"which already produces `tree_paths.txt`,
+        so the assertion is a set difference over data on hand"*. Ruled BOTH,
+        LAYERED at record §6.1 — this half here, the required-check half in
+        `pytest-suite` (see `test_floor_snapshot.py`).
+        """
+        self.assertIn(
+            "FLOORED_PREFIX: openspec/specs", self.caller_text,
+            "the enumerated surface must be a CODE CONSTANT in the caller. The "
+            "generated block declares its prefix in a COMMENT, which is not "
+            "data: a prefix read out of prose narrows silently when the prose "
+            "changes.")
+        self.assertIn(
+            "uncovered_paths", self.caller_text,
+            "the completeness result must be reported by name, so a reader of "
+            "a red run learns WHICH paths are off the floor")
+        self.assertIn(
+            "floor_incomplete", self.caller_text,
+            "the completeness failure needs its own stage: it is a different "
+            "defect from an unreachable floor and the repair is the reverse")
 
     def test_the_changed_path_gather_masks_no_failure(self) -> None:
         """A `|| echo '[]'` turns a rate-limited read into a false clean set.
