@@ -1,2 +1,20 @@
 schema: spec-driven
 created: 2026-08-31
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-08-31-amend-chain-anchoring-readiness-and-durability
+  reason: >-
+    Filed from the repository-owner reconciliation of the competing tranche-three
+    packets after the Opus/Fable review, GLM review, Terra opinion, and partial
+    Kimi integration review. The owner selected the already-ratified
+    `add-chain-anchoring` packet as the survivor, authorized closing PR #521
+    without merge, and directed that its unique semantic improvements be
+    preserved in governed follow-up work rather than lost or imported under a
+    second capability identity.
+  approved_by: >-
+    Brett Heap (repository owner), in session on 2026-08-31. After the explicit
+    recommendation to keep `add-chain-anchoring`, close PR #521 as superseded,
+    preserve unique improvements in follow-up amendments, and reconcile
+    MedxFactory PR #20, Brett replied verbatim: "proceed". This origin approval
+    authorizes filing the draft and does not ratify its content.
+  approved_on: 2026-08-31
