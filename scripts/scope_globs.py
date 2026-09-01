@@ -52,6 +52,7 @@ Deterministic: text/YAML reads only, no model calls, no writes.
 
 from __future__ import annotations
 
+import importlib.util
 import re
 import subprocess
 import sys
@@ -59,9 +60,39 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable, Mapping
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-import frontmatter_strict as fms  # noqa: E402  (self-locating sibling import)
+def _sibling(name: str):
+    """Import a sibling module from THIS file's directory WITHOUT mutating
+    `sys.path`.
+
+    A library module that inserts its own directory at `sys.path[0]` changes
+    import resolution for the whole process that imports it — and this file is
+    VENDORED BYTE-FOR-BYTE into a merge gate, where making a package's own
+    directory shadow every top-level module name is precisely the side effect a
+    reviewer of that gate would refuse. The plain import is tried first, so the
+    ordinary route (a `scripts/`-on-`sys.path` CLI entry point such as
+    `validate-scope-globs.py`) resolves normally and the vendored copy resolves
+    its OWN sibling; the by-location fallback covers the route that loads this
+    file directly by path (the test suite, and any caller that has not put the
+    directory on the path).
+    """
+    try:
+        return importlib.import_module(name)
+    except ImportError:
+        pass
+    if name in sys.modules:  # pragma: no cover - a partially imported sibling
+        return sys.modules[name]
+    path = Path(__file__).resolve().parent / f"{name}.py"
+    spec = importlib.util.spec_from_file_location(name, path)
+    if spec is None or spec.loader is None:  # pragma: no cover - defensive
+        raise ImportError(f"cannot locate the sibling module {name} at {path}")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+fms = _sibling("frontmatter_strict")
 
 
 class ScopeGlobsError(Exception):

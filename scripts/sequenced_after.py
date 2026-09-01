@@ -50,6 +50,7 @@ no writes, no network.
 
 from __future__ import annotations
 
+import importlib.util
 import re
 import subprocess
 import sys
@@ -57,9 +58,32 @@ import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-import frontmatter_strict as fms  # noqa: E402  (self-locating sibling import)
+def _sibling(name: str):
+    """Import a sibling module from THIS file's directory WITHOUT mutating
+    `sys.path` — the same route `scripts/scope_globs.py` takes, and for the same
+    reason: a library module that inserts its own directory at `sys.path[0]`
+    changes import resolution for every caller in the process. The plain import
+    is tried first (the ordinary CLI route), with a by-location fallback for the
+    route that loads this file directly by path.
+    """
+    try:
+        return importlib.import_module(name)
+    except ImportError:
+        pass
+    if name in sys.modules:  # pragma: no cover - a partially imported sibling
+        return sys.modules[name]
+    path = Path(__file__).resolve().parent / f"{name}.py"
+    spec = importlib.util.spec_from_file_location(name, path)
+    if spec is None or spec.loader is None:  # pragma: no cover - defensive
+        raise ImportError(f"cannot locate the sibling module {name} at {path}")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+fms = _sibling("frontmatter_strict")
 
 #: The field name, once, so no caller spells it.
 FIELD = "sequenced_after"
