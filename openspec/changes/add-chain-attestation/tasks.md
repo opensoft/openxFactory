@@ -1147,9 +1147,20 @@ Each is contract content — cheap now, expensive after a bundle ships.
       stronger than refused. Family pytest wiring green: 91 passed
       (`tests/signed_execution_chain/`), including the manifest-row digest
       closure extended to thirteen rows.
-- [ ] 5.7 The SAME required pull-request check walks links 1–6. **A merged
+- [x] 5.7 The SAME required pull-request check walks links 1–6. **A merged
       workflow file is NOT evidence**; the evidence is the live ruleset state, as
       `add-wallet-carried-review-authority` task 2.5 established.
+      **DONE — both halves read live on 2026-09-01.** The ruleset: org ruleset
+      **21957695** ("openxFactory chain-gate (require
+      signed-execution-chain-gate)"), `enforcement: active`, required check
+      `signed-execution-chain-gate` — read via
+      `gh api orgs/opensoft/rulesets/21957695` from the realization session, THE
+      SAME ruleset entry tranche one's 4.5 created, untouched by this
+      realization (no new check name, no second gate). The walk: that required
+      check ran GREEN over the extended links 1–6 reader on this packet's own
+      realization pull request — openxFactory PR **#556**, run
+      **33478531543** (1m7s), adjudicating both packaged corpora with the
+      tranche-two rules in force (`95/95` refusal codes in the self-test note).
 - [ ] 5.8 **Gate:** a chain with a dropped runner attestation, and a pull request
       with no signed open decision, each FAIL a real pull request, with the run id,
       the check id, the validator's single named refusal, and the live ruleset read
