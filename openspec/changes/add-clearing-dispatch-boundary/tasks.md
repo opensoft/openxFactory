@@ -33,15 +33,41 @@ perform it.
       producer, expressed against `trust-anchor`'s certificate record);
       **OQ2** ledger record versus transparency-log entry (recommendation:
       own record kind, referencing a chain); **OQ3** where the grandfather
-      enumeration lives (recommendation: an xFactory-side declaration the
-      guard and the attestation both read, with the neutral contract
-      requiring only that it exist, be closed, and shrink); **OQ4**
+      enumeration lives — NO LONGER OPEN: SETTLED AT REALIZATION and carried
+      for confirmation only, as the governed data file
+      `.github/clearing/grandfather-enumeration.yaml` in `opensoft/xFactory`
+      read by BOTH the L4 guard and the L5 attestation, each member carrying
+      group attribution and allowlist-entry status, with the neutral contract
+      requiring only that such an enumeration exist, be closed, carry those
+      two fields, and shrink (design OQ3 keeps the question's history and its
+      rejected candidates); **OQ4**
       attestation cadence and finding surface (recommendation: ride the
       existing nightly lane, emit a doc-health-shaped finding).
 - [ ] 2.2 Record the rulings as a Ratification section in `proposal.md`, set
       `Status: ratified` with the ratifying commit named, and state that the
       change stays ACTIVE until the declared code surface is merged with
       green evidence and the contract cut exists.
+- [ ] 2.3 **RATIFICATION IS GATED ON THE ORIGIN RECORD BEING MERGED.** The
+      record is being committed to `opensoft/xFactory` at the repository root
+      as `cpc-clearing-boundary-ruling-2026-09-01.md`, via a pull request on
+      branch `record/cpc-clearing-boundary-ruling`, whose merge was PENDING
+      BRETT'S WORD at this packet's authoring time. Confirm the merge and
+      name the merge commit here before ratifying. THE REASON IS NOT
+      BOOKKEEPING: requirements 1–7 trace to that record's text, while
+      requirements 8–10 EXTEND it and trace to its APPEND-ONLY ADDENDUM
+      capturing Brett's same-session instruction "fold 1-5 in and fan out".
+      Until the record is on `main`, a reader cannot open the provenance of
+      three of the ten requirements, and this packet would be asking for
+      ratification of extensions on the strength of its own account of them.
+- [ ] 2.4 **RATIFY THE THREE EXTENSIONS AS EXTENSIONS.** Requirements 8, 9 and
+      10 are not encodings of the written ruling (proposal "Why" carries the
+      per-requirement split): requirement 9, the authoring-time conformance
+      guard, is WHOLLY ABSENT from the record and is the largest of the three;
+      requirement 8 generalizes the single retirement the record names;
+      requirement 10 adds the periodic attestation to the dispatch recording
+      the record does state. Ratification should say so, so the record shows
+      three requirements approved as NEW POLICY rather than as fidelity to a
+      ruling that did not contain them.
 
 ## 3. The xFactory realization — authored IN PARALLEL with this packet
 
@@ -64,8 +90,8 @@ suggestion: the workflow path is what the operator admits to the allowlist in
       and the `readiness-diagnostic` operation as its only permitted
       operation at landing.
 - [ ] 3.2 In the SAME pull request, DELETE
-      `.github/workflows/runner-readiness-diagnostic.yml` (PR #188, merged
-      `4fffb6e5`, 2026-09-01). Its checks move into the operation verbatim in
+      `.github/workflows/runner-readiness-diagnostic.yml`
+      (`opensoft/xFactory#188`, merged `4fffb6e5`, 2026-09-01). Its checks move into the operation verbatim in
       substance; the route-retirement requirement forbids landing the
       operation and leaving the workflow. It was never allowlisted and must
       never be.
@@ -77,21 +103,92 @@ suggestion: the workflow path is what the operator admits to the allowlist in
       xfactory-artifact-worker` declarations in `doc-health-nightly.yml` and
       `review-lane.yml`, which differ from the runner group's name by one
       character. Wired as a REQUIRED check.
-- [ ] 3.4 The grandfather enumeration, per §2.1 OQ3, declared where the guard
-      and the attestation both read it, seeded with exactly the NINE existing
-      host-touching worker workflows: `execution-lane-coding-worker`,
-      `council-deliberation-worker`, `review-lane-worker`,
-      `ideation-organizer-worker`, `dashboard-image-worker`,
-      `doc-health-analysis-worker`, `doc-health-readiness-worker`,
-      `doc-health-cataloger-worker`, `doc-health-derive-possibles-worker`.
-      Marked append-never in the file itself.
+      **THE APPEND REFUSAL, and what it is worth.** The guard reads the
+      enumeration from the data file in 3.4; its TEST holds the NINE FOUNDING
+      NAMES as a frozen ORIGIN constant and asserts the data file's members
+      are a SUBSET of that origin set — so a RETIREMENT (which only shrinks)
+      passes and an ADDITION turns the suite red. Do NOT describe this as an
+      unforgeable refusal in the guard, the test, or the pull request: the
+      data file, the guard and the test share a repository with the changes
+      they police, so one diff can edit both sides. What the mechanism
+      guarantees is that an append cannot be SILENT — it is a red check plus a
+      diff touching the enumeration or the guard — and REVIEW OF THAT DIFF is
+      the declared backstop.
+- [ ] 3.4 **THE GRANDFATHER ENUMERATION AS A GOVERNED DATA FILE** —
+      `.github/clearing/grandfather-enumeration.yaml` in `opensoft/xFactory`,
+      per §2.1 OQ3 (settled at realization). NOT a constant inside the
+      guard's test module: the L5 attestation is a SECOND CONSUMER, and two
+      copies of the closed set is the failure mode a closed set exists to
+      prevent. Both the authoring-time guard (3.3) and the future L5
+      attestation (§7.1) READ THIS FILE. Marked append-never in the file
+      itself. **Each member declares FOUR fields**: the workflow filename;
+      the GOVERNED RUNNER GROUP it targets; the governed-host JOB IDS it
+      declares in that file; and its ALLOWLIST-ENTRY STATUS, `present` or
+      `absent`. The last two are not bookkeeping — without the group the
+      attestation cannot compute one group's expected set, and without the
+      status a dark lane reads as a breach.
+      **Seed it with exactly the NINE existing host-touching worker
+      workflows, with the group and status MEASURED 2026-09-01 rather than
+      assumed:**
+
+      | member | group | allowlist entry |
+      |---|---|---|
+      | `execution-lane-coding-worker.yml` | `xfactory-execution-lane-workers` (7) | `present` |
+      | `council-deliberation-worker.yml` | `xfactory-artifact-workers` (5) | `present` |
+      | `dashboard-image-worker.yml` | `xfactory-artifact-workers` (5) | `present` |
+      | `doc-health-analysis-worker.yml` | `xfactory-artifact-workers` (5) | `present` |
+      | `doc-health-cataloger-worker.yml` | `xfactory-artifact-workers` (5) | `present` |
+      | `doc-health-derive-possibles-worker.yml` | `xfactory-artifact-workers` (5) | `present` |
+      | `doc-health-readiness-worker.yml` | `xfactory-artifact-workers` (5) | `present` |
+      | `review-lane-worker.yml` | `xfactory-artifact-workers` (5) | **`absent`** |
+      | `ideation-organizer-worker.yml` | `xfactory-artifact-workers` (5) | **`absent`** |
+
+      Group 7 allowlists exactly ONE path
+      (`execution-lane-coding-worker.yml`); group 5 allowlists exactly SIX
+      (the six marked `present` above). The two `absent` members are the DARK
+      LANES — they declare a group 5 job and hold no entry, so they already
+      fail closed with nothing reporting it, and §8.3 carries their
+      disposition. Re-measure before committing the seed rather than trusting
+      this table.
 - [ ] 3.5 The dispatch record written by the clearing lane — verified
       provenance plus claimed-where-different, refusals included. Shape
       follows §2.1 OQ2; until the neutral schema lands (§6) the record is
       written in the shape the ratified requirement describes and re-pointed
-      at the schema when it exists.
+      at the schema when it exists. **THE R10 LEDGER FIELDS THE REALIZATION
+      EMITS, verbatim on names** (`opensoft/xFactory#191`), so the neutral
+      schema in §6.4 is authored against what actually exists:
+
+      | field | value |
+      |---|---|
+      | `clearing.dispatch.group.<lane>=` | the lane's DECLARED runner group |
+      | `clearing.dispatch.label.<lane>=` | the lane's DECLARED dispatch label |
+      | `clearing.dispatch.handling=` | for a BUNDLE-LESS operation, the register entry's DECLARED data-handling class |
+      | `clearing.dispatch.outcome=` | appended by `operation-report` |
+
+      All three `dispatch.*` values are DECLARATIONS OF THE DISPATCH, not
+      observations of the host — the provider exposes no runner-group context
+      to a job, and observed group membership is what §7.1's attestation
+      establishes. **REFUSAL GROUNDS ARE A CLOSED, NAMED ENUMERATION**,
+      seeded now with exactly two: `unregistered_operation` and
+      `unknown_lane_selector`. A new ground is a governed change (§6.4), not
+      a new string in a workflow.
 - [ ] 3.6 Merge gated on §2 — the workflow does not land before the packet
       that authorizes it.
+- [ ] 3.7 **THE INTERIM REGISTER IS A WORKFLOW EDIT SURFACE, and saying so is
+      the point of this item.** Until §6.2's
+      `contracts/clearing/permitted-operations.registry.yaml` exists, the
+      closed register has NO instance to validate against, so it is realized
+      as the clearing workflow's own CLOSED CHOICE LIST for the operation
+      input plus the guard's constant. That is EXACTLY the
+      operation-set-extended-by-workflow-edit surface requirement 6
+      ultimately forbids: in the interim, adding an operation is a YAML edit
+      reviewed as workflow configuration, which is the condition the closed
+      register exists to end. It is accepted only because the interim set has
+      ONE member and the successor is scheduled. **Therefore: once §6.2
+      lands, the clearing workflow MUST validate the dispatched operation id
+      against the registry INSTANCE and stop relying on its own choice list
+      as the authority.** Do not let the interim outlive §6.2 by treating a
+      green workflow as a satisfied requirement 6.
 
 ## 4. The operator's acts — ONE console act per group, and one closure
 
@@ -100,6 +197,13 @@ suggestion: the workflow path is what the operator admits to the allowlist in
       group `xfactory-execution-lane-workers` (id 7). **ONE entry per group,
       once, ever** — this is the permanent entry the allowlist converges to.
       Perform AFTER §3 merges to `main`, so the path being admitted exists.
+      **UNTIL THIS ACT LANDS, REQUIREMENT 1'S CONVERGENCE SCENARIO READS
+      FALSE BY CONSTRUCTION** — the allowlist cannot contain a path the
+      operator has not admitted — and that is the NOT-YET-CONVERGED state,
+      NOT a single-door breach. The first §7.1 attestation run must not be
+      misread as a finding on this account: it reports the absent clearing
+      path as convergence not yet reached, and only an allowlist entry the
+      expected set does not derive is a widening.
 - [ ] 4.2 Do NOT add `runner-readiness-diagnostic.yml` to either group. This
       is Brett's option-1 ruling of 2026-09-01 and the reason the readiness
       test became an operation. Recorded as a task so a future operator does
@@ -115,14 +219,43 @@ suggestion: the workflow path is what the operator admits to the allowlist in
       7 already admits xFactory alone; nothing to do there.
 - [ ] 4.4 Re-read both groups from the provider API after 4.1 and 4.3 and
       file the reading as the baseline the §7 attestation compares against.
+- [ ] 4.5 **CREATE THE REQUIRED STATUS CHECK THE L4 GUARD NEEDS TO BE A
+      GATE.** Requirement 9 obliges a REQUIRED check, and the clearing
+      repository has none: measured 2026-09-01, NONE of `opensoft/xFactory`'s
+      five active rulesets declares `required_status_checks` — Tier-1 main
+      protection (`18962101`) carries `pull_request`, `non_fast_forward`,
+      `deletion`; "Require Code Owner Review" (`18834180`) and
+      `merge-master-stale-approval-dismissal` (`19887057`) carry
+      `pull_request`; "Copilot Auto-Review All PRs" (`8981805`) carries
+      `copilot_code_review`; the bot-confinement ruleset (`19874574`) carries
+      push rules only. So the guard as merged is a check that RUNS and GATES
+      NOTHING. Add a `required_status_checks` rule on `opensoft/xFactory`
+      `main` naming the `validate` check (the job the guard's test runs
+      under). **RECORD THE RESIDUAL WITH IT**: ruleset `18962101`'s
+      `bypass_actors` list is `OrganizationAdmin` with `bypass_mode:
+      always`, so even a required check is OPERATOR-BYPASSABLE. That is the
+      same residual class as the unversioned console — L4 buys authoring-time
+      visibility, not an unbypassable gate — and the packet says so rather
+      than presenting a required check as one.
 
 ## 5. Dispatch readiness on both lanes, and file the evidence
 
+**THE REPORT CARRIER, settled with `opensoft/xFactory#191`.** The lane jobs
+do not each write a report. Each lane job FORWARDS its probed facts as JOB
+OUTPUTS, and a downstream `operation-report` job COMPOSES the single
+STRUCTURED OPERATION REPORT of record from them and appends
+`clearing.dispatch.outcome=`. The evidence-filing steps below therefore
+harvest the COMPOSED report — read it from the `operation-report` job's run
+summary and log, not from the individual lane jobs — and §6.3's
+`operation-report.schema.yaml` describes THAT composed artifact.
+
 - [ ] 5.1 Dispatch `readiness-diagnostic` through the clearing lane on the
       CODING lane (`xfactory-execution-lane-workers` /
-      `host-coding-cpc-brett01`). File the structured operation report.
+      `host-coding-cpc-brett01`). File the COMPOSED structured operation
+      report as emitted by the `operation-report` job.
 - [ ] 5.2 Dispatch it on the ARTIFACT lane (`xfactory-artifact-workers` /
-      `host-rider-cpc-brett01`). File the structured operation report.
+      `host-rider-cpc-brett01`). File the COMPOSED structured operation
+      report from the same `operation-report` job.
 - [ ] 5.3 **The three gaps these two runs are expected to close or expose**,
       recorded now so the reports are read against a question rather than
       skimmed:
@@ -131,17 +264,32 @@ suggestion: the workflow path is what the operator admits to the allowlist in
         of real work. 5.1 is the first isolated confirmation that the host
         claims a job, executes, and returns.
       - **The artifact lane's service account is unconfirmed against the
-        design.** The report's service-account field is the measurement;
-        compare it with the design's declared `svc-omniworker` and record a
-        divergence as a finding rather than adjusting the expectation.
-      - **The coding runner carries a suspicious `artifact-only` label.**
-        Runner `xfactory-coding-cpc-brett01` (group 7) reports labels
-        `self-hosted, Windows, X64, omnigent, artifact-only, rider,
-        coding-patch, host-coding-cpc-brett01`. A coding host labelled
-        `artifact-only` is at best a leftover and at worst a routing hazard —
-        a job requesting `artifact-only` can land on the coding host.
-        Investigate and, if it is a leftover, remove it; either way record
-        the disposition.
+        provisioning record.** The report's service-account field is the
+        measurement. `design.md` DECLARES NO service account — nothing in
+        this packet does — so compare the measurement against the document
+        that actually declares one: `cloudpc-worker-handoff-prompt.md` at the
+        root of `opensoft/xFactory`, which specifies the hidden local
+        standard account `.\svc-omniworker` as the account the worker runs
+        under. Record a divergence as a finding rather than adjusting the
+        expectation, and do not cite this packet as the source of an
+        expectation it never stated.
+      - **The coding runner carries a suspicious `artifact-only` label — and
+        the hazard is SYMMETRIC.** Runner `xfactory-coding-cpc-brett01`
+        (group 7) reports labels `self-hosted, Windows, X64, omnigent,
+        artifact-only, rider, coding-patch, host-coding-cpc-brett01` — this
+        verbatim set stays as the measurement of record. A coding host
+        labelled `artifact-only` is at best a leftover and at worst a routing
+        hazard — a job requesting `artifact-only` can land on the coding
+        host. **The symmetry, measured the same day**: the ARTIFACT runner
+        `xfactory-artifact-cpc-brett01` (group 5) ALSO carries
+        `artifact-only` AND `rider`. So neither label discriminates the lanes
+        in EITHER direction; the labels that do are `coding-patch` (coding
+        host only), the per-lane `host-coding-cpc-brett01` /
+        `host-rider-cpc-brett01`, and the artifact host's task labels
+        (`doc-analysis`, `document-cataloger`, `ideation-readiness`,
+        `derive-possibles`, `dashboard-image`). Investigate BOTH runners, and
+        do not "fix" the coding host alone as though the artifact host were
+        clean; either way record the disposition.
 - [ ] 5.4 File both reports plus the dispositions as the realization evidence
       this change's `code_surface` declaration owes (release-realization).
 
@@ -160,12 +308,29 @@ Deliberately not started before §2. Nothing here is authored by this packet.
       `readiness-diagnostic` with its class constraints and
       `repository_affecting_output: false`.
 - [ ] 6.3 `contracts/clearing/operation-report.schema.yaml` — the
-      `readiness-diagnostic` report shape. It carries probed FACTS and
+      `readiness-diagnostic` report shape, and specifically THE COMPOSED
+      REPORT: the artifact the `operation-report` job assembles from the lane
+      jobs' forwarded outputs (§5), one report of record per dispatch across
+      however many lanes were probed, carrying
+      `clearing.dispatch.outcome=`. It is NOT a per-lane fragment schema, and
+      it is not a log format. Per-lane facts appear as a keyed collection
+      inside it. Each lane's `group` and `label` are typed as DECLARED values
+      (§3.5), never as observed group membership. It carries probed FACTS and
       deliberately carries no eligibility verdict (design D9); a reviewer
       should refuse a field that turns it into a readiness decision.
 - [ ] 6.4 `contracts/clearing/dispatch-record.schema.yaml` — resolved and
-      claimed values, refusal grounds as a named enumeration rather than free
-      text, and the chain reference per §2.1 OQ2.
+      claimed values, refusal grounds as a CLOSED NAMED ENUMERATION rather
+      than free text, and the chain reference per §2.1 OQ2. **Seed the
+      enumeration with exactly the two grounds the realization emits**
+      (§3.5): `unregistered_operation` and `unknown_lane_selector`. The
+      remaining named refusals in requirement text — expiry, hash mismatch,
+      workflow-path contradiction, commit mismatch, unreadable API, lane not
+      permitted, output-schema failure, origin-scoped credential,
+      committed-data offer — become grounds as the operations that can
+      produce them land; adding one is a governed change on this schema, not
+      a new string in a workflow. Carry the DECLARED-vs-observed distinction
+      into the field names so a declared lane cannot be read as an observed
+      one.
 - [ ] 6.5 `contracts/clearing/single-door-attestation.schema.yaml` — expected
       versus observed admitted repositories and allowlist entries per group,
       with the divergence direction carried.
@@ -185,15 +350,40 @@ Deliberately not started before §2. Nothing here is authored by this packet.
       `add-chain-anchoring` allocates after it — so read the manifest at the
       realization branch's tip rather than trusting any number written in
       this packet, and publish the annotated tag at the realized commit in
-      the same act (the policy's recurring untagged-bundle gap, issue #528).
+      the same act (the policy's recurring untagged-bundle gap,
+      `opensoft/openxFactory#528`).
 
 ## 7. The single-door attestation realization (L5)
 
 - [ ] 7.1 The attestation itself: read each governed group's admitted
-      repositories and workflow allowlist from the provider API, compare
-      against the clearing path plus the current grandfather enumeration and
-      the clearing repository alone, emit a finding on any divergence in
-      either direction. Cadence and finding surface per §2.1 OQ4.
+      repositories and workflow allowlist from the provider API and compare
+      against an expected set **COMPUTED PER GROUP** — the clearing
+      workflow's path, UNION the members that §3.4's data file enumerates FOR
+      THAT GROUP with allowlist status `present`. One estate-wide expected
+      set is the wrong definition and cannot ever be green: it would report
+      every group as diverging from every other group's members. Cadence and
+      finding surface per §2.1 OQ4.
+      **THE TWO DIVERGENCE DIRECTIONS ARE DIFFERENT OUTPUTS, not one
+      finding:**
+      - an OBSERVED entry the group's expected set does not derive is a
+        WIDENING and a single-door breach — a finding naming the group, the
+        entry, and the expected set. An admitted repository other than the
+        clearing repository is a widening of the same class.
+      - an ENUMERATED member with NO observed entry is ALREADY FAILING
+        CLOSED. It is a DARK-LANE DISPOSITION ITEM (§8.3), NOT a breach.
+      - the CLEARING PATH being absent before §4.1 is CONVERGENCE NOT YET
+        REACHED, not a widening.
+      **WHAT THE FIRST RUN IS EXPECTED TO REPORT, so it is read rather than
+      panicked over** — measured 2026-09-01, and this is the seed to assert
+      against: ZERO allowlist widenings on either group (group 7's one entry
+      and group 5's six entries are all `present` members); TWO dark-lane
+      items (`review-lane-worker.yml`, `ideation-organizer-worker.yml`); TWO
+      not-yet-converged notices (the clearing path absent from both groups
+      until §4.1); and EXACTLY ONE OPEN WIDENING — group 5's admission of
+      `opensoft/codexFactory`, which §4.3 closes. So the allowlist axis is
+      green on day one and the repository axis carries one known finding
+      whose closure is already an operator task. Do not claim the attestation
+      is green overall before §4.3.
 - [ ] 7.2 State the residual where a reader of the finding sees it: the
       configuration being attested is not versioned, and the attestation is
       detection within one cycle rather than prevention.
@@ -210,12 +400,19 @@ Deliberately not started before §2. Nothing here is authored by this packet.
       writing the finalizer now would be writing it against a guess.
 - [ ] 8.3 The NINE grandfather retirements, one governed change each, each
       shrinking the enumeration and removing an allowlist entry in the same
-      act. **Two need a disposition before they need a migration**:
+      act. **THIS IS ALSO THE DARK-LANE DISPOSITION SURFACE §7.1 ROUTES TO.**
+      Two members need a disposition before they need a migration:
       `ideation-organizer-worker.yml` and `review-lane-worker.yml` declare a
-      job on group 5 and are NOT allowlisted, so they are already failing
-      closed with nothing reporting it — retire them into operations or
+      job on group 5 and are enumerated `absent` (§3.4), so they are already
+      failing closed with nothing reporting it. They are NOT single-door
+      breaches and the attestation must not report them as such — nothing
+      reaches the host through a lane with no allowlist entry, which is
+      strictly safer than the expectation. Retire them into operations or
       remove the reference, but do not leave them undecided once the L4 guard
-      makes their state visible.
+      and the L5 attestation make their state visible. A retirement of an
+      `absent` member removes NO allowlist entry (there is none) and only
+      shrinks the enumeration; a retirement of a `present` member does both,
+      in the same act.
 - [ ] 8.4 If and when the neutral INFRASTRUCTURE-READINESS RESULT that
       `document-cataloging` and `ideation-routing` both await is proposed,
       declare the `readiness-diagnostic` operation report a candidate INPUT
@@ -226,7 +423,29 @@ Deliberately not started before §2. Nothing here is authored by this packet.
 
 - [ ] 9.1 `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green at
       every step, not only at authoring.
-- [ ] 9.2 Repository validators and doc-health clean against this change.
+- [ ] 9.2 Repository validators and doc-health clean against THIS CHANGE'S
+      OWN CONTENT — and the pytest suite is currently RED FOR A REASON THIS
+      PACKET DID NOT CAUSE, recorded here so nobody reads a green tick that
+      cannot exist yet.
+      **THE INHERITED RED, named:**
+      `tests/doc-health/test_modified_block_currency_self_gate.py::test_every_carriage_ledger_finding_over_the_real_tree_is_named`
+      fails on ONE newly-unnamed carriage-ledger subject —
+      `('add-chain-attestation', 'signed-execution-chain', 'A gate validates
+      the short chain as a hash-linked chain')`. The self-gate names the
+      subjects it expects; a new MODIFIED block over the tree makes it red
+      until the module's named-subject list is updated.
+      **IT IS INHERITED, and here is why that is not a convenience claim:**
+      this packet's spec delta is ADDED-ONLY — it contains no `## MODIFIED
+      Requirements` block at all — so it cannot contribute a carriage-ledger
+      subject. The failing subject belongs to `add-chain-attestation`, and
+      the failure REPRODUCES ON `origin/main` at `b7dc5909`. It is OWNED BY
+      THE IN-FLIGHT `add-chain-attestation` REALIZATION LANE, which is where
+      the named-subject list gets re-aimed, and NOT by this packet — fixing it
+      here would edit another lane's gate out from under it.
+      **CONSEQUENCE FOR THIS PULL REQUEST:** #555's required pytest-suite
+      check is RED and MERGE WAITS ON THAT LANE'S RESOLUTION. Ratification
+      (§2) is a separate act and is not blocked by it; merging is. Re-check
+      before merge rather than assuming it has cleared.
 - [ ] 9.3 Release-realization: this change declares a code surface, so it
       ARCHIVES only on merged realization plus green evidence — §5.4's filed
       reports and §6.8's cut — and stays ACTIVE until then, ratified or not.

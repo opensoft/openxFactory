@@ -10,8 +10,11 @@ origin:
     `ideation/staging/INDEX.md`, because a topic that merely mentions runner
     groups is not this packet's origin. The origin act is Brett Heap's
     in-session ruling of 2026-09-01, captured verbatim-in-substance the same day
-    as the record `xFactory/cpc-clearing-boundary-ruling-2026-09-01.md` in the
-    aggregation repository: xFactory is THE clearing and dispatch boundary for
+    as the record `cpc-clearing-boundary-ruling-2026-09-01.md`, being committed
+    at the ROOT of `opensoft/xFactory` via a pull request on branch
+    `record/cpc-clearing-boundary-ruling` whose merge was PENDING BRETT'S WORD
+    at this packet's authoring time, and on which ratification is gated
+    (`tasks.md` 2.3): xFactory is THE clearing and dispatch boundary for
     the governed Cloud PC, runner-group allowlists stay xFactory-only, no
     factory is ever broadly authorized to originate jobs directly to the host,
     and cross-factory work reaches it only as a SEALED BOUNDED REQUEST carrying
@@ -22,12 +25,33 @@ origin:
     packet is built to the superseding form. Brett's option 1 of 2026-09-01:
     NO per-path allowlist addition for the readiness test, which instead becomes
     THE CLEARING LANE'S FIRST OPERATION; the workflow allowlist converges to ONE
-    PERMANENT ENTRY PER GROUP, added by him once, ever; and xFactory pull request
-    #188's standalone `runner-readiness-diagnostic.yml` retires into that
-    operation. The FIVE ENFORCEMENT LAYERS the requirements carry — the single
-    door, the one sanctioned producer exit, route retirement, the authoring-time
-    conformance guard, and the dispatch ledger with its single-door attestation
-    — were ruled in the same session on his instruction to fold them in.
+    PERMANENT ENTRY PER GROUP, added by him once, ever; and
+    `opensoft/xFactory#188`'s standalone `runner-readiness-diagnostic.yml`
+    retires into that operation.
+
+    THE PROVENANCE OF THE TEN REQUIREMENTS IS A SPLIT, AND THE PACKET STATES IT
+    RATHER THAN CLAIMING UNIFORM FIDELITY. REQUIREMENTS 1-7 TRACE TO THE WRITTEN
+    RECORD: the single door, the sealed bounded request and its ten declared
+    fields, API-side verification, the one sanctioned producer exit, hosted
+    validation before any repository effect, the closed permitted-operations
+    register, and readiness-diagnostic as entry #1 are each in its text.
+    REQUIREMENTS 8-10 EXTEND IT, per requirement rather than in bulk, because two
+    of the three have a partial written footing and one has none. Requirement 8
+    (route retirement): the record names ONE retirement verbatim — "PR #188's
+    standalone workflow is retired into the clearing operation" — so the specific
+    act is written; the GENERAL rule, and the append-never shrink-only grandfather
+    enumeration, are this packet's generalization. Requirement 9 (the
+    authoring-time conformance guard): WHOLLY ABSENT from the record, and the
+    largest of the three extensions. Requirement 10: the DISPATCH RECORD is
+    written — the clearing workflow "records the dispatch", and xFactory is named
+    as the one place for provenance, policy and audit — but the PERIODIC
+    SINGLE-DOOR ATTESTATION is not, the word appearing nowhere in the record. All
+    three were ruled in the SAME SESSION on Brett's verbatim instruction "fold
+    1-5 in and fan out", and they are carried as DECLARED EXTENSIONS submitted
+    for ratification, their provenance recorded in that record's APPEND-ONLY
+    ADDENDUM. An earlier draft of this packet asserted that every requirement
+    traced to the ruling and that nothing extended it; that was false for three
+    of the ten, and this split replaces it.
 
     THE FORCING FACT IS ON THE RECORD AND IS NOT THIS PACKET'S CLAIM: run
     `33381257642`, a codexFactory-path council smoke test, sat queued about
@@ -57,7 +81,7 @@ origin:
     approvals already given.
   approved_on: 2026-09-01
 related:
-  - openxFactory:change:add-worker-enrollment-broker  # ACTIVE, realized at contract-v1.29. It OWNS runner group, labels, lease and trust tier, and the enrollment audit record whose subject is which hosts may BE runners. This packet consumes that vocabulary by name and defines none of it; its dispatch ledger's subject is what was CLEARED to a runner, which is the other half
+  - openxFactory:change:add-worker-enrollment-broker  # ACTIVE — RATIFIED BUT NOT PROMOTED (it lives under openspec/changes/, NOT openspec/specs/), realized at contract-v1.29. It OWNS runner group, labels, lease and trust tier, and the enrollment audit record whose subject is which hosts may BE runners. This packet consumes that vocabulary by name and defines none of it; its dispatch ledger's subject is what was CLEARED to a runner, which is the other half
   - openxFactory:change:add-chain-attestation         # ACTIVE, RATIFIED 2026-09-01, realization IN FLIGHT. Named here for CUT ORDER only: its realization takes the next additive minor, so this packet's contract bytes allocate later and spend no number now
   - openxFactory:change:add-chain-anchoring           # ACTIVE, realization IN FLIGHT. Allocates the cut after add-chain-attestation's, for the same reason
   - openxFactory:change:add-trust-anchor              # ACTIVE, realized at contract-v1.37. Its certificate record is where a required bundle signature would be expressed if open question OQ1 is ruled that way; no bundle-signing vocabulary is minted here

@@ -11,22 +11,44 @@ workflow paths permitted, and the workflow allowlist CONVERGES to exactly
 ONE PERMANENT ENTRY per group: the clearing workflow's exact path, admitted
 by the operator once.
 
-Because the provider evaluates the workflow allowlist against the workflow
-file that DIRECTLY CONTAINS the job requesting the runner, every
-host-touching job SHALL live physically inside the clearing workflow file; a
-host job delegated to a reusable or called workflow is non-conformant,
-because that file would need an allowlist entry of its own and the door
-would no longer be single.
+A host-touching job SHALL BE DECLARED IN THE ARTIFACT THE PROVIDER
+EVALUATES ITS WORKFLOW ALLOWLIST AGAINST — that is the provider-neutral
+property, and it is what makes the allowlist entry and the job the same
+subject. Delegating a host job to an artifact the provider does not evaluate
+is non-conformant, because the delegated artifact would need an allowlist
+entry of its own and the door would no longer be single. On the estate's
+current provider that evaluated artifact is the workflow file DIRECTLY
+CONTAINING the job requesting the runner, so the realization is that every
+host-touching job lives physically inside the clearing workflow file and a
+host job delegated to a reusable or called workflow is refused (design D2
+records the provider-specific evidence for that resolution).
 
 Existing host-touching workflows that predate this contract SHALL be carried
 as a CLOSED, ENUMERATED GRANDFATHER LIST which is APPEND-NEVER and
 SHRINK-ONLY: no workflow is ever added to it, each member retires into a
 clearing operation, and the enumeration reaching empty is what convergence
-means. Enforcement is FAIL-CLOSED and the failure mode is stated rather than
+means. The enumeration SHALL be machine-readable data that the
+authoring-time guard and the periodic attestation BOTH READ — one list, not
+a copy per consumer — and each member SHALL declare its workflow
+identifier, THE GOVERNED RUNNER GROUP it targets, the governed-host job
+identifiers it declares, and whether that member currently HOLDS AN
+ALLOWLIST ENTRY on that group. The group attribution is required because the
+expected allowlist of one group cannot be computed from a list that does not
+say which group a member belongs to; the allowlist-entry status is required
+because a member with no entry is already fail-closed and must not be
+reported as the same condition as an entry nobody granted. Enforcement is FAIL-CLOSED and the failure mode is stated rather than
 assumed: a job requesting a governed host from outside the permitted set is
 not executed ungoverned, it is never claimable. Any future reconsideration of
 direct access SHALL be a SINGLE EXACT WORKFLOW PATH on a protected default
 branch; repository-wide admission is refused.
+
+CONVERGENCE IS A TERMINAL STATE, NOT AN ENTRY CONDITION, and the difference
+SHALL be stated where it is measured. Between this contract's ratification
+and the operator act that admits the clearing workflow's path to each group,
+the allowlist does NOT contain that path — so the convergence scenario below
+reads FALSE in that interval by construction. That interval is a NOT-YET-
+CONVERGED state and SHALL NOT be reported as a single-door breach; only an
+allowlist entry that the expected set does not derive is a breach.
 
 #### Scenario: A factory dispatches a governed-host job directly
 - **WHEN** a workflow in a repository other than the clearing repository requests a governed runner group
@@ -163,6 +185,19 @@ carries the files its manifest names and nothing else, and a request seeking
 the originating repository's working tree, history, or credentials is refused
 rather than narrowed.
 
+THE PRODUCER'S DISPATCH CREDENTIAL SHALL BE SCOPED TO DISPATCHING THE
+CLEARING WORKFLOW ALONE, and SHALL NOT carry any broader authority over the
+clearing repository — not the ability to dispatch other workflows, write
+contents, or alter configuration — and it SHALL be expressed as a
+`credential-contracts` record with its custody declared. The residual SHALL
+be stated rather than implied: a COMPROMISED PRODUCER holding that
+credential can still dispatch REGISTERED OPERATIONS with bundles it
+controls, and no scoping of a dispatch credential prevents that. The
+containment is therefore the CLOSED REGISTER and each entry's per-operation
+class constraints — what a dispatched operation is permitted to do at all —
+and this contract names that as the containment rather than presenting the
+credential's scope as one.
+
 #### Scenario: A producer packages and dispatches
 - **WHEN** a producing repository packages a sealed bounded request on hosted infrastructure and dispatches the clearing workflow with its handle
 - **THEN** the exit is conformant
@@ -181,6 +216,11 @@ rather than narrowed.
 #### Scenario: A bundle asks for more than its manifest
 - **WHEN** a sealed request would carry the originating repository's whole tree or history rather than the files its manifest names
 - **THEN** the request MUST be refused
+
+#### Scenario: A producer's dispatch credential is scoped
+- **WHEN** a producing repository is granted the credential it uses to dispatch the clearing workflow
+- **THEN** that credential MUST permit dispatching the clearing workflow and nothing else in the clearing repository
+- **AND** the containment against a compromised producer MUST be stated as the closed register and the operation's class constraints, not as the credential's scope
 
 ### Requirement: Returned output is validated on hosted infrastructure before any repository effect
 Output returned by a governed execution host SHALL be treated as UNTRUSTED
@@ -252,14 +292,29 @@ class constraints SHALL be a governed change on the same terms.
 The register's FIRST ENTRY SHALL be `readiness-diagnostic`, and it SHALL be
 a strictly read-only probe that asserts only facts the host can state about
 itself: the runner's identity compared against the identity expected for the
-lane, the runner group, the dispatch label, the service account the runner
-executes as, the host identity, a heartbeat and clock reading, an
-environment echo restricted to a NAME ALLOWLIST of known non-secret
-variables, and a harmless fixed-input, fixed-expected-digest compute round
-trip.
+lane, the lane's runner group, the lane's dispatch label, the service
+account the runner executes as, the host identity, a heartbeat and clock
+reading, an environment echo restricted to a NAME ALLOWLIST of known
+non-secret variables, and a harmless fixed-input, fixed-expected-digest
+compute round trip.
+
+THE GROUP AND LABEL IN THE REPORT ARE DECLARED, NOT OBSERVED, and the report
+SHALL say so in those terms. The provider exposes no runner-group context to
+a running job, so a probe cannot read the group it was in; what it can report
+is the group and dispatch label the DISPATCH DECLARED for the lane. ACTUAL
+group membership is established by the periodic single-door attestation
+reading the provider's API, never by the runner's self-report — a job
+reporting its own group would be the bundle-trust error moved onto the
+host.
 
 Its class constraints SHALL be: no checkout, no writes, no secret reference,
-no token scopes, and a bounded timeout. The environment echo SHALL be a name
+no token scopes, and a bounded timeout. THOSE CONSTRAINTS BIND THIS
+OPERATION AND ITS JOB, not the clearing workflow for all time: they are
+THIS register entry's declared class, and a later bundle-carrying operation
+carries the clearing side's admission credential under its OWN entry's
+constraints. Reading them as a permanent property of the clearing workflow
+would make the first conformant bundle-carrying operation look like a
+violation of a requirement about a different operation. The environment echo SHALL be a name
 allowlist and SHALL NOT be a wholesale environment dump, so that a
 credential which someday appears in the host's process environment cannot be
 printed into a run log by accident. A runner identity that does not match the
@@ -269,6 +324,11 @@ rather than proceeding against an unexpected host.
 The operation SHALL emit a STRUCTURED OPERATION REPORT — the probed facts as
 data, not as a log a human reads — and SHALL declare NO repository-affecting
 output, so no finalizer applies and its return is evidence only. The report
+MAY be COMPOSED: each probed lane forwards its facts to a composing step
+that assembles the single structured report of record, and the requirement
+is satisfied by that COMPOSED artifact rather than by any per-lane fragment.
+What is forbidden is a report that exists only as scattered log lines a
+reader must reassemble. The report
 SHALL NOT be a readiness DECISION: it is evidence produced BY passing
 through the boundary, and it MUST NOT be presented as, or grown into, the
 neutral infrastructure-readiness result that the promoted `document-cataloging`
@@ -279,7 +339,9 @@ route-retirement requirement.
 
 #### Scenario: The probe runs on a lane
 - **WHEN** `readiness-diagnostic` is cleared and dispatched to a lane
-- **THEN** it MUST report runner identity, group, dispatch label, service account, host identity, heartbeat and clock, the allowlisted environment names, and the compute round trip
+- **THEN** it MUST report runner identity, the lane's DECLARED group, the lane's DECLARED dispatch label, service account, host identity, heartbeat and clock, the allowlisted environment names, and the compute round trip
+- **AND** the group and label MUST be reported as DECLARED rather than as observed group membership
+- **AND** the probed facts MUST reach a single composed structured report rather than only a run log
 - **AND** it MUST check out nothing, write nothing, reference no secret, and carry no token scopes
 
 #### Scenario: The runner is not the expected host
@@ -308,9 +370,17 @@ be struck from the grandfather enumeration in the same act, so no dormant
 second door survives a migration.
 
 A route that is retired SHALL be retired in both places at once — the live
-allowlist and the in-repo enumeration — and a member present in one and
-absent from the other SHALL be a finding of the single-door attestation
-rather than a tolerated skew. The precedent this contract carries in its own
+allowlist and the in-repo enumeration — and the two skew directions SHALL
+be distinguished rather than merged into one finding. A LIVE ALLOWLIST ENTRY
+WITH NO CORRESPONDING ENUMERATED MEMBER on that group is a WIDENING and a
+single-door breach: something can reach the host that the enumeration does
+not account for. AN ENUMERATED MEMBER HOLDING NO ALLOWLIST ENTRY is the
+opposite condition — that member is ALREADY FAILING CLOSED, nothing can
+reach the host through it, and it is a DARK-LANE DISPOSITION ITEM to be
+retired or removed, NOT a breach. Because the enumeration declares each
+member's allowlist-entry status per requirement 1, a retirement that updates
+one place and not the other is detectable as a disagreement between the
+declared status and the observed allowlist, which is itself a finding. The precedent this contract carries in its own
 first slice is the standalone runner-readiness diagnostic workflow, which
 retires into the `readiness-diagnostic` operation as that operation lands.
 
@@ -332,7 +402,14 @@ retires into the `readiness-diagnostic` operation as that operation lands.
 The clearing repository SHALL carry a REQUIRED CHECK that refuses, at
 pull-request time, any workflow file which declares a job on a governed
 runner group and is neither the clearing workflow nor a current member of the
-grandfather enumeration. A bypass MUST be caught where it is authored rather
+grandfather enumeration. WHERE THE REPOSITORY'S BRANCH PROTECTION DOES NOT
+YET DECLARE A REQUIRED STATUS CHECK, ACQUIRING THAT RULE IS PART OF
+SATISFYING THIS REQUIREMENT and SHALL be carried as an operator act rather
+than assumed present: a check that runs but gates nothing is authored
+enforcement without enforcement. The residual SHALL be declared with it —
+where the protection rule admits bypass actors, a required check is
+BYPASSABLE by those actors, and this requirement SHALL NOT be read as
+claiming an unbypassable gate. A bypass MUST be caught where it is authored rather
 than discovered later as an unclaimable queued run, because fail-closed
 enforcement without authoring-time detection produces a silent stuck job
 indistinguishable at a glance from a busy host.
@@ -341,15 +418,29 @@ The guard SHALL resolve a job's declared runner group STRUCTURALLY, from the
 workflow's job definition, and SHALL NOT be a text search for group names: a
 concurrency group or other same-named value is not a host job, and a guard
 tuned to ignore such matches is a guard tuned to miss real ones. A job's
-declared runner GROUP SHALL be a literal value, and a group given as an
-unresolvable expression SHALL be refused rather than guessed at; a job's
-dispatch LABEL MAY be an expression, because the group is the boundary the
-provider enforces while the label routes within it and is verified against
-the sealed request before dispatch.
+declared runner GROUP SHALL be a literal value: ANY WORKFLOW FILE WHOSE
+`runs-on` GROUP POSITION CONTAINS AN EXPRESSION SHALL BE REFUSED, whether or
+not that expression could be resolved, because a guard that evaluates
+expressions is a guard with an evaluator to defeat. A job's dispatch LABEL
+MAY be an expression, because the group is the boundary the provider
+enforces while the label routes within it and is verified against the sealed
+request before dispatch.
 
-The guard SHALL also refuse a change that adds a member to the grandfather
+The guard SHALL also refuse a change that ADDS a member to the grandfather
 enumeration, and SHALL treat the enumeration as the authority for which
-non-clearing files may declare a host job.
+non-clearing files may declare a host job. THE APPEND-REFUSAL MECHANISM
+SHALL be a FROZEN ORIGIN SET: the guard's test carries the enumeration's
+founding member names as a constant and asserts that the live enumeration's
+members are a SUBSET of that origin set, so an addition turns the check red
+while a retirement — which only shrinks the set — passes.
+
+THE HONEST LIMIT OF THAT MECHANISM SHALL be stated rather than
+overclaimed. Both the enumeration and the guard that reads it live in the
+same repository as the changes they police, so a change may edit both in one
+diff; the refusal is therefore a TRIPWIRE THAT MAKES AN APPEND VISIBLE AND
+COSTLY, backed by REVIEW OF ANY DIFF TOUCHING THE ENUMERATION OR THE GUARD,
+and it SHALL NOT be presented as an unforgeable refusal. What the mechanism
+guarantees is that appending cannot be done SILENTLY.
 
 #### Scenario: A new workflow targets a governed group
 - **WHEN** a pull request adds or edits a workflow file, outside the clearing workflow and the enumeration, that declares a job on a governed runner group
@@ -362,9 +453,20 @@ non-clearing files may declare a host job.
 - **AND** the guard MUST reach that conclusion structurally rather than by pattern exception
 
 #### Scenario: A job hides its group behind an expression
-- **WHEN** a job's declared runner group is an expression the guard cannot resolve at authoring time
+- **WHEN** a workflow file declares a job whose `runs-on` group position contains an expression rather than a literal value
 - **THEN** the check MUST fail
+- **AND** it MUST fail whether or not the expression could have been resolved
 - **AND** the group MUST be required as a literal value
+
+#### Scenario: A change appends to the grandfather enumeration
+- **WHEN** a change adds a member to the grandfather enumeration
+- **THEN** the guard MUST fail because the enumeration's members are no longer a subset of its frozen origin set
+- **AND** the refusal MUST be presented as a visible, review-backed tripwire rather than as an unforgeable refusal
+
+#### Scenario: The repository has no required status check
+- **WHEN** the clearing repository's branch protection declares no required status check for the guard
+- **THEN** acquiring that rule MUST be carried as an operator act before the guard is claimed as enforcement
+- **AND** where the rule admits bypass actors, the check MUST be described as bypassable by those actors
 
 #### Scenario: A dispatch label is an expression
 - **WHEN** a permitted host job's dispatch label is supplied as an input expression while its group is a literal
@@ -378,26 +480,76 @@ the resolved originating repository and workflow, the resolved source commit,
 the job id, the operation, the runner group and dispatch label, the
 data-handling classification, and the outcome — together with the CLAIMED
 values where they differed from the resolved ones. A refusal SHALL be
-recorded with its ground named, because a boundary that logs only successes
-cannot evidence what it stopped.
+recorded with its ground named FROM A CLOSED, NAMED ENUMERATION of refusal
+grounds rather than as free text, because a boundary that logs only
+successes cannot evidence what it stopped, and one that logs prose cannot be
+counted.
+
+AN OPERATION THAT CARRIES NO BUNDLE IS RECORDED FROM DECLARATIONS, and the
+record SHALL say which values those are. Where a registered operation is
+dispatched without a sealed bundle — as the first read-only operation is —
+the record carries the REGISTER ENTRY'S DECLARED data-handling
+classification, and, for each selected lane, that lane's DECLARED runner
+group and DECLARED dispatch label. Those are declarations of the dispatch,
+not observations of the host: OBSERVED group membership is established by the
+periodic single-door attestation reading the provider's API, and SHALL NOT
+be taken from the runner's own report of itself. A record that presented a
+declared lane as an observed one would be asserting exactly the
+self-corroboration this capability refuses everywhere else.
 
 Because the door is single, that record IS the complete audit of everything
 that ever reached the governed host. That completeness claim is TRUE ONLY
 WHILE THE DOOR IS SINGLE, so the estate SHALL ATTEST the door periodically
 rather than assume it: an attestation reads each governed runner group's
 admitted repositories and workflow allowlist from the provider's API and
-compares them against the expected set — the clearing workflow's path plus
-the current grandfather enumeration, and the clearing repository alone — and
-a divergence in either direction SHALL be a finding that names what was
-found and what was expected.
+compares them against an expected set.
+
+THE EXPECTED ALLOWLIST SHALL BE COMPUTED PER GROUP, not once for the estate.
+For each governed runner group, the expected set is: THE CLEARING WORKFLOW'S
+PATH, UNION the grandfather members ENUMERATED FOR THAT GROUP whose declared
+allowlist-entry status is `present`. Computing one estate-wide expected set
+instead would report every group as diverging from every other group's
+members, which is a definition that cannot be green while more than one
+group exists.
+
+THE TWO DIVERGENCE DIRECTIONS ARE DISTINCT FINDINGS AND SHALL NOT BE
+CONFLATED:
+
+- AN OBSERVED ALLOWLIST ENTRY NOT DERIVABLE from that group's expected set
+  is a WIDENING — a SINGLE-DOOR BREACH — and SHALL be a finding naming the
+  group, the unexpected entry, and the expected set. An admitted repository
+  other than the clearing repository is a widening of the same class.
+- AN ENUMERATED MEMBER WITH NO OBSERVED ALLOWLIST ENTRY is NOT a breach: it
+  is ALREADY FAILING CLOSED, nothing reaches the host through it, and it
+  SHALL be raised as a DARK-LANE DISPOSITION ITEM — retire it into an
+  operation, or remove the reference — rather than as a divergence of the
+  door. Treating an unreachable lane as a breach would make the attestation
+  red for a condition that is strictly safer than the expectation.
+
+Likewise, THE CLEARING WORKFLOW'S PATH BEING ABSENT before the operator has
+admitted it is the NOT-YET-CONVERGED state of requirement 1 and SHALL NOT be
+reported as a widening; it is reported as convergence not yet reached.
 
 The RESIDUAL SHALL be declared rather than implied: runner-group membership
 and workflow allowlists are provider-side configuration outside the
 repository's version control, changeable by an administrator with no pull
 request. This contract does not make that configuration versioned, and it
 SHALL NOT be read as claiming to; it makes a change to it OBSERVABLE within
-one attestation cycle, and the ledger's completeness claim is conditioned on
-that attestation being current and green.
+one attestation cycle.
+
+THE LEDGER'S COMPLETENESS CLAIM SHALL BE STATED AT THE STRENGTH THE CURRENT
+ATTESTATION SUPPORTS, and that strength CHANGES at the operator acts, so the
+two states SHALL be distinguished. BEFORE the clearing workflow's path is
+admitted to every governed group and every non-clearing admitted repository
+is removed, a green attestation attests the NARROWER claim: that no allowlist
+entry outside each group's expected set exists, so nothing reaches the host
+by a path the enumeration does not account for — while the ledger itself is
+complete only for dispatches that came THROUGH THE DOOR, because the door is
+not yet the only way in and is not yet open. AFTER those acts, a green
+attestation supports the FULL claim: the door is single, so the ledger is the
+complete record of everything that reached the host. A presentation of the
+ledger as the complete audit SHALL cite a current, green attestation AND
+SHALL NOT overstate which of those two claims that attestation carries.
 
 The dispatch record SHALL NOT restate vocabulary another capability owns: it
 REFERENCES a signed execution chain where one governs the work rather than
@@ -412,17 +564,34 @@ one.
 
 #### Scenario: A request is refused
 - **WHEN** the clearing workflow refuses a request for any ground in this capability
-- **THEN** the refusal MUST be recorded with its ground named
+- **THEN** the refusal MUST be recorded with its ground named from the closed enumeration of refusal grounds
+- **AND** a ground absent from that enumeration MUST be added by a governed change rather than recorded as free text
+
+#### Scenario: An operation carrying no bundle is dispatched
+- **WHEN** a registered operation is dispatched without a sealed bundle
+- **THEN** the record MUST carry the register entry's DECLARED data-handling classification and each selected lane's DECLARED runner group and dispatch label
+- **AND** those values MUST NOT be recorded as observed group membership, which only the single-door attestation establishes
 
 #### Scenario: The attestation finds an extra allowlist entry
-- **WHEN** a governed runner group's workflow allowlist contains a path that is neither the clearing workflow nor a current grandfather member
-- **THEN** the attestation MUST report a finding naming the group, the unexpected path, and the expected set
+- **WHEN** a governed runner group's workflow allowlist contains a path that group's expected set does not derive — neither the clearing workflow nor a grandfather member enumerated for that group with allowlist status `present`
+- **THEN** the attestation MUST report a WIDENING finding naming the group, the unexpected path, and the expected set
 
 #### Scenario: The attestation finds an extra admitted repository
 - **WHEN** a governed runner group admits a repository other than the clearing repository
 - **THEN** the attestation MUST report a finding naming that repository
 
+#### Scenario: An enumerated member holds no allowlist entry
+- **WHEN** a grandfather member enumerated for a governed group holds no allowlist entry on that group
+- **THEN** the attestation MUST NOT report it as a single-door breach
+- **AND** it MUST be raised as a dark-lane disposition item, because that member is already failing closed
+
+#### Scenario: The clearing path is not yet admitted
+- **WHEN** the attestation runs before the operator has admitted the clearing workflow's path to a governed group
+- **THEN** the absent clearing path MUST be reported as convergence not yet reached
+- **AND** it MUST NOT be reported as a widening
+
 #### Scenario: The completeness of the audit is claimed
 - **WHEN** the dispatch record is presented as the complete audit of what reached the governed host
 - **THEN** the claim MUST cite a current, green single-door attestation
-- **AND** without one the record MUST be presented as complete only for dispatches that came through the door
+- **AND** the claim MUST be stated at the strength that attestation supports, distinguishing the pre-admission narrower claim from the post-admission full claim
+- **AND** without a green attestation the record MUST be presented as complete only for dispatches that came through the door

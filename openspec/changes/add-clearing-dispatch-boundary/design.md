@@ -15,7 +15,8 @@ TEN workflow files in xFactory declare a job on one of those groups. Seven
 are allowlisted and work. Two — `ideation-organizer-worker.yml` and
 `review-lane-worker.yml` — declare a group job and are NOT allowlisted, so
 their children are already fail-closed today, which nothing reports. The
-tenth is `runner-readiness-diagnostic.yml` (PR #188, merged `4fffb6e5`),
+tenth is `runner-readiness-diagnostic.yml` (`opensoft/xFactory#188`, merged
+`4fffb6e5`),
 never allowlisted and, under Brett's option-1 ruling, never to be: its
 checks become the clearing lane's first operation.
 
@@ -78,7 +79,14 @@ workflow, however much cleaner that would read. A reusable workflow holding
 the host job would itself need an allowlist entry, and the single door would
 become two — one of them a file whose path no operator remembers granting.
 This is the one place where the contract dictates FILE LAYOUT, and it does
-so because the enforcement is evaluated against file layout.
+so because the enforcement is evaluated against file layout. THE NEUTRAL
+REQUIREMENT IS PHRASED ONE LEVEL UP from this paragraph, deliberately: it
+says the host-touching job must be declared in THE ARTIFACT THE PROVIDER
+EVALUATES ITS ALLOWLIST AGAINST, and names the workflow file only as the
+realization on this provider. The reasoning in this section is
+GitHub-specific and stays that way — it is the evidence for the resolution,
+not the rule — because a provider that evaluated its allowlist against
+something else would keep the property and change the file layout.
 
 The corollary is a real cost, stated rather than hidden: the clearing
 workflow will grow one job per permitted operation, in one file, forever.
@@ -106,6 +114,13 @@ parking lot:
 - **Terminal state named.** One entry per group: the clearing workflow's
   exact path. The enumeration reaching empty is what "converged" means, and
   it is checkable rather than aspirational.
+- **It is DATA, with group attribution and allowlist status.** The
+  enumeration is a machine-readable file both consumers read (OQ3, settled),
+  and each member declares which GOVERNED GROUP it targets and whether it
+  currently HOLDS AN ALLOWLIST ENTRY. Neither field is bookkeeping: without
+  the group, the attestation cannot compute one group's expected set;
+  without the status, the two dark lanes below read as breaches instead of
+  as the strictly-safer condition they are.
 
 ### D4 — Fail-closed is the floor, and it is not sufficient
 
@@ -121,7 +136,20 @@ layers that surround the floor:
 
 - **L4, at authoring time.** The guard turns "this will queue forever" into
   a red required check on the pull request that would have caused it. The
-  eighteen hours become zero.
+  eighteen hours become zero. WITH ONE CAPABILITY THE CLEARING REPOSITORY
+  DOES NOT HAVE YET: measured 2026-09-01, none of `opensoft/xFactory`'s five
+  active rulesets declares `required_status_checks` — the Tier-1 main
+  protection (`18962101`) carries `pull_request`, `non_fast_forward` and
+  `deletion`, the code-owner and stale-approval rulesets carry
+  `pull_request`, the Copilot ruleset `copilot_code_review`, and the bot
+  confinement ruleset push rules only. So "required check" is an OBLIGATION
+  THIS DESIGN CREATES, not a mechanism it inherits: `tasks.md` §4.5 is the
+  operator act that creates the rule naming `validate`. And even after it,
+  ruleset `18962101`'s `bypass_actors` list — `OrganizationAdmin`, mode
+  `always` — means a required check is bypassable by an organization
+  administrator. That is the same residual class as the console itself: the
+  guard buys authoring-time VISIBILITY, and the last word stays with the
+  operator.
 - **L5, continuously.** The attestation turns "the door is still single"
   from an assumption into a measurement.
 
@@ -202,6 +230,25 @@ Two rules follow:
   the clearing workflow verifies the label against the bundle's field 7
   before dispatching. Group is the security boundary; label is routing.
 
+The group rule is stated as a REFUSAL OF EXPRESSIONS, not as a refusal of
+UNRESOLVABLE expressions. The weaker form invites a guard that tries to
+resolve them, and an evaluator inside a guard is a second thing to defeat;
+the strong form has one question with a syntactic answer.
+
+**How the guard refuses an APPEND to the enumeration, and what that refusal
+is worth.** The mechanism is a FROZEN ORIGIN SET: the guard's test holds the
+enumeration's nine founding names as a constant and asserts that the live
+enumeration's members are a SUBSET of it. A retirement shrinks the set and
+passes; an addition breaks the subset relation and turns the check red. What
+that is NOT is an unforgeable refusal — the data file, the guard and the test
+all live in the repository whose changes they police, so one diff can edit
+both the enumeration and the constant that guards it. So the honest claim,
+and the one the spec makes, is that an append cannot happen SILENTLY: it is a
+red check plus a diff touching the enumeration or the guard, and REVIEW OF
+THAT DIFF is the backstop. Naming a review as the backstop is weaker than a
+cryptographic refusal and stronger than the alternative on offer, which was a
+constant in a test module that nobody would have looked at twice.
+
 ### D8 — No second vocabulary, stated as a table so a reviewer can check it
 
 | this capability needs | it is already owned by | how this capability uses it |
@@ -214,6 +261,20 @@ Two rules follow:
 | job scope references | `neutral-job-envelope` | the sealed request seals a job; it is not a second job envelope |
 | handling class, tenant/data-boundary attestation | `document-cataloging`, `ideation-routing` | field 9 cites the existing handling vocabulary; no second classification |
 | what an agent may DO once running | `contracts/omnigent/` permission matrix | untouched. The register governs what may be DISPATCHED to a host, not what an executing worker is permitted; the constitutional `execute_final_action: false` is not weakened, restated, or referenced as authority |
+
+**One row's owner is not promoted canon, and the table should not imply it
+is.** `worker-enrollment-broker` — the owner of runner group, labels, trust
+tier, lease, and the enrollment audit record — is the ACTIVE change
+`openspec/changes/add-worker-enrollment-broker`, RATIFIED AND REALIZED at
+`contract-v1.29` but NOT under `openspec/specs/`. It is therefore
+RATIFIED-BUT-UNPROMOTED, and this capability consumes its vocabulary on that
+footing. The practical consequence is small and worth stating anyway: the
+vocabulary is authoritative enough to consume and not yet promoted, so a
+future promotion of that capability may reword it, and this packet cites it
+by name rather than quoting its text. The other rows'
+owners — `signed-execution-chain`, `credential-contracts`,
+`neutral-job-envelope`, `document-cataloging`, `ideation-routing`,
+`contracts/omnigent/` — are cited as they stand.
 
 ### D9 — The operation report is NOT the awaited infrastructure-readiness result
 
@@ -314,15 +375,52 @@ history. **Recommendation**: the ledger is its own record kind with a
 REFERENCE to the chain where one governs the work, not a second log format
 and not a chain link. Settle before the ledger schema is authored.
 
-### OQ3 — Where does the grandfather enumeration physically live?
+### OQ3 — Where does the grandfather enumeration physically live? — SETTLED AT REALIZATION, PENDING RATIFICATION
 
-Candidates: the clearing workflow's own comments (closest to what it
-describes, invisible to tooling), a file in xFactory (tool-readable, but the
-neutral contract cannot cite it), or the neutral register instance (citable,
-but it enumerates one repository's files in a domain-neutral contract).
-**Recommendation**: an xFactory-side declaration read by the L4 guard and by
-the L5 attestation, with the NEUTRAL contract requiring only that such an
-enumeration exist, be closed, and shrink. Settle at realization.
+**Status: SETTLED AT REALIZATION, carried to ratification for confirmation.**
+The question's history stays below rather than being deleted, because a
+settled question whose alternatives have been erased reads like a question
+nobody asked, and the rejected candidates are the reason the answer is the
+answer.
+
+**The question as it stood.** Candidates: the clearing workflow's own
+comments (closest to what it describes, invisible to tooling), a file in
+xFactory (tool-readable, but the neutral contract cannot cite it), or the
+neutral register instance (citable, but it enumerates one repository's files
+in a domain-neutral contract). **The recommendation was**: an xFactory-side
+declaration read by the L4 guard and by the L5 attestation, with the NEUTRAL
+contract requiring only that such an enumeration exist, be closed, and
+shrink. Settle at realization.
+
+**The settlement, and what forced it.** Realization began with the
+enumeration as a CONSTANT INSIDE THE GUARD'S TEST MODULE — the fourth
+candidate, which the question had not listed because nobody proposes it, one
+merely arrives at it. That fails the recommendation's own condition on a
+detail the question had not surfaced: the L5 ATTESTATION IS A SECOND
+CONSUMER, and a list inside one consumer's test is a list the other consumer
+must copy. Two copies of the closed set is the failure mode the closed set
+exists to prevent.
+
+So the enumeration is a GOVERNED DATA FILE:
+`.github/clearing/grandfather-enumeration.yaml` in `opensoft/xFactory`, read
+by BOTH the L4 guard and the future L5 attestation. Each member declares:
+
+| field | why it is there |
+|---|---|
+| workflow filename | the subject — what the allowlist entry would name |
+| governed runner group | REQUIRED for the attestation: the expected allowlist of one group cannot be computed from a list that does not say which group a member belongs to |
+| the governed-host job ids in that file | so the guard reports the job, not just the file, and so a file gaining a SECOND host job is visible |
+| allowlist-entry status (`present` \| `absent`) | REQUIRED to keep a dark lane from reading as a breach: an enumerated member with no entry is already fail-closed, which is the opposite condition from an entry nobody granted |
+
+The NEUTRAL contract still cites none of this. It requires only that such an
+enumeration EXIST, be CLOSED, carry per-member GROUP ATTRIBUTION and
+ALLOWLIST STATUS, and SHRINK — which is the recommendation's shape, with the
+two fields the attestation's definition turned out to need.
+
+The APPEND REFUSAL moved with it and is described in D7: the test keeps the
+nine founding names as a frozen ORIGIN set and asserts the data file's
+members are a subset, with review of any diff touching the file or the guard
+as the declared backstop.
 
 ### OQ4 — What cadence for the L5 attestation, and where does a finding land?
 
@@ -348,9 +446,23 @@ states the obligation and not the cadence.
   are already failing closed with nothing reporting it. This packet does not
   fix them; the L4 guard makes their state visible, and `tasks.md` carries
   the disposition — retire into an operation, or remove the reference.
-- **The `artifact-only` label on the coding runner.** Runner
-  `xfactory-coding-cpc-brett01` in the execution-lane group carries labels
-  `artifact-only`, `rider` and `coding-patch`. A coding-lane host labelled
-  `artifact-only` is at best a leftover and at worst a routing hazard, since
-  a job requesting `artifact-only` could land on the coding host.
-  Investigation is a task, not a requirement.
+- **The `artifact-only` label on the coding runner — and the hazard is
+  SYMMETRIC.** Runner `xfactory-coding-cpc-brett01` in the execution-lane
+  group carries labels `artifact-only`, `rider` and `coding-patch`. A
+  coding-lane host labelled `artifact-only` is at best a leftover and at
+  worst a routing hazard, since a job requesting `artifact-only` could land
+  on the coding host. The symmetry, measured the same day and easy to miss
+  when only one runner is inspected: the ARTIFACT runner
+  `xfactory-artifact-cpc-brett01` ALSO carries `artifact-only` AND `rider`.
+  So neither of those two labels discriminates the lanes IN EITHER
+  DIRECTION — a job requesting `artifact-only` or `rider` may land on
+  either host — and the only labels that do discriminate are
+  `coding-patch` (coding host only), the per-lane
+  `host-coding-cpc-brett01` / `host-rider-cpc-brett01`, and the artifact
+  host's task labels (`doc-analysis`, `document-cataloger`,
+  `ideation-readiness`, `derive-possibles`, `dashboard-image`). This is why
+  the contract makes the GROUP the boundary and the per-lane
+  `host-*-cpc-brett01` label the routing choice: the shared labels are not
+  a boundary and were never one. `tasks.md` §5.3 keeps the coding runner's
+  verbatim label set as the measurement of record; investigation is a task,
+  not a requirement.

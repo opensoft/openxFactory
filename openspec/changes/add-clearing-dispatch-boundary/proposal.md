@@ -1,9 +1,9 @@
 ---
-code_surface: xFactory (the aggregation repository) — ONE new workflow `.github/workflows/clearing-dispatch.yml` that PHYSICALLY CONTAINS every governed-host job, the RETIREMENT of `.github/workflows/runner-readiness-diagnostic.yml` (PR #188, merged `4fffb6e5`, 2026-09-01) in the same change that lands the clearing lane's first operation, and the AUTHORING-TIME CONFORMANCE GUARD with its test in `tests/`. THIS PACKET AUTHORS NO CONTRACT BYTE. The neutral openxFactory artifacts are DECLARED here and REALIZED POST-RATIFICATION at their own additive cut, because ratification authorizes realization and does not perform it — `contracts/clearing/` gains the SEALED-BUNDLE MANIFEST record (the ten declared fields), the CLOSED PERMITTED-OPERATIONS REGISTER as a schema-plus-instance pair on the `openxwallet-custody` convention, the OPERATION REPORT schema for `readiness-diagnostic`, the DISPATCH LEDGER record (cleared dispatches and refusals alike), the SINGLE-DOOR ATTESTATION record, packaged positive and negative examples, and the canonical `scripts/validate-clearing-dispatch.py`; registration in `contracts/manifest.yaml` + `contracts/CHANGELOG.md` at that cut. NOT THIS CHANGE'S SURFACE, each for a stated reason — the FACTORY-SIDE PACKAGING realization (a codexFactory hosted workflow that produces a conformant sealed bundle) is the named successor `realize-factory-bundle-packaging`; the CODING operation and the HOSTED FINALIZER that validates a patch-returning operation's output are named successors gated on that packaging, since `readiness-diagnostic` returns no repository-affecting output and would not exercise a finalizer; the operator's ONE console act per runner group is an operator act recorded in `tasks.md`, not a committed artifact; and NO runner, group, label, host, or credential is created here.
+code_surface: xFactory (the aggregation repository) — ONE new workflow `.github/workflows/clearing-dispatch.yml` that PHYSICALLY CONTAINS every governed-host job, the RETIREMENT of `.github/workflows/runner-readiness-diagnostic.yml` (`opensoft/xFactory#188`, merged `4fffb6e5`, 2026-09-01) in the same change that lands the clearing lane's first operation, and the AUTHORING-TIME CONFORMANCE GUARD with its test in `tests/`. THIS PACKET AUTHORS NO CONTRACT BYTE. The neutral openxFactory artifacts are DECLARED here and REALIZED POST-RATIFICATION at their own additive cut, because ratification authorizes realization and does not perform it — `contracts/clearing/` gains the SEALED-BUNDLE MANIFEST record (the ten declared fields), the CLOSED PERMITTED-OPERATIONS REGISTER as a schema-plus-instance pair on the `openxwallet-custody` convention, the OPERATION REPORT schema for `readiness-diagnostic`, the DISPATCH LEDGER record (cleared dispatches and refusals alike), the SINGLE-DOOR ATTESTATION record, packaged positive and negative examples, and the canonical `scripts/validate-clearing-dispatch.py`; registration in `contracts/manifest.yaml` + `contracts/CHANGELOG.md` at that cut. NOT THIS CHANGE'S SURFACE, each for a stated reason — the FACTORY-SIDE PACKAGING realization (a codexFactory hosted workflow that produces a conformant sealed bundle) is the named successor `realize-factory-bundle-packaging`; the CODING operation and the HOSTED FINALIZER that validates a patch-returning operation's output are named successors gated on that packaging, since `readiness-diagnostic` returns no repository-affecting output and would not exercise a finalizer; the operator's ONE console act per runner group is an operator act recorded in `tasks.md`, not a committed artifact; and NO runner, group, label, host, or credential is created here.
 target_release: THE NEXT ADDITIVE MINOR, DELIBERATELY NOT NUMBERED HERE — allocated AT REALIZATION by merge order per `docs/contract-versioning-policy.md`, which forbids a proposal reserving a minor before merge order is known. The count was taken at this branch's tip rather than remembered: `contracts/manifest.yaml:3` declares `contract_bundle_version: contract-v2.5` and `contracts/releases/contract-v2.5.digests.yaml` is a cut inventory in the tree. A NUMBER IS NOT WRITTEN HERE BECAUSE THE TWO CUTS AHEAD OF THIS PACKET ARE ALREADY CLAIMED: the in-flight realization of `add-chain-attestation` takes the next additive cut, and the in-flight realization of `add-chain-anchoring` allocates after it. This packet claims neither and names none; its realization reads the manifest at ITS OWN tip. THE CLASS IS ADDITIVE and nothing narrows: a new neutral contract family, no existing schema changes, no consumer pinned at the current bundle made non-conformant, and no domain obliged to own a governed execution host.
 Status: draft
 Proposed: 2026-09-01
-Origin: `xFactory/cpc-clearing-boundary-ruling-2026-09-01.md` — Brett Heap's in-session operator ruling of 2026-09-01, which is the whole substance of this packet, PLUS his OPTION-1 SUPERSESSION of that same day recorded in its "Immediate consequences" section: NO per-path allowlist addition for readiness, the readiness test becomes THE CLEARING LANE'S FIRST OPERATION, the workflow allowlist converges to ONE PERMANENT ENTRY PER GROUP added by the operator once, and PR #188's standalone diagnostic workflow retires into that operation. The five ENFORCEMENT LAYERS the requirements below carry were ruled in the same session ("fold 1-5 in"). Its immediate consequence is also on the record: stuck run `33381257642` (a codexFactory-path council smoke queued about eighteen hours, unclaimable by design) cancelled, recorded on codexFactory issue #156.
+Origin: `cpc-clearing-boundary-ruling-2026-09-01.md` at the root of `opensoft/xFactory` — being committed there via a pull request on branch `record/cpc-clearing-boundary-ruling`, whose merge is PENDING BRETT'S WORD at this packet's authoring time and on which ratification is gated (`tasks.md` §2.3) — Brett Heap's in-session operator ruling of 2026-09-01, which is the whole substance of this packet, PLUS his OPTION-1 SUPERSESSION of that same day recorded in its "Immediate consequences" section: NO per-path allowlist addition for readiness, the readiness test becomes THE CLEARING LANE'S FIRST OPERATION, the workflow allowlist converges to ONE PERMANENT ENTRY PER GROUP added by the operator once, and `opensoft/xFactory#188`'s standalone diagnostic workflow retires into that operation. Requirements 1–7 trace to that written record; requirements 8–10 EXTEND it and are DECLARED EXTENSIONS ruled in the same session on Brett's verbatim instruction "fold 1-5 in and fan out", their provenance recorded in that record's append-only addendum — requirement 9 (the authoring-time guard) wholly absent from the record, requirement 8's general rule a generalization of the one retirement the record names, and requirement 10's periodic attestation an addition to the dispatch recording the record does state (the per-requirement split is in "Why"). Its immediate consequence is also on the record: stuck run `33381257642` (a codexFactory-path council smoke queued about eighteen hours, unclaimable by design) cancelled, recorded on codexFactory issue #156.
 ---
 
 # Proposal: add-clearing-dispatch-boundary
@@ -47,8 +47,54 @@ before it downloads anything. The mechanics are proven in-repo. What is
 missing is the RULE that makes them the only way in, and the enforcement
 that notices when they stop being.
 
-Origin: the operator ruling named in the front matter. Every requirement
-below traces to it; nothing below extends it.
+Origin: the operator ruling named in the front matter — and the trace is a
+SPLIT, which this packet states rather than smooths.
+
+**Requirements 1–7 trace to the WRITTEN ruling.** The single door, the sealed
+bounded request and its ten declared fields, API-side verification, the one
+sanctioned producer exit, hosted validation before any repository effect, the
+closed permitted-operations register, and `readiness-diagnostic` as entry #1
+are each in the record's own text, verbatim in substance.
+
+**Requirements 8–10 EXTEND the written record, and the extension is stated
+per requirement rather than in bulk** — because two of the three have a
+partial written footing and one has none, and lumping them together would
+trade one imprecision for another:
+
+- **Requirement 8, route retirement.** The record names ONE retirement,
+  verbatim: *"PR #188's standalone workflow is retired into the clearing
+  operation."* So the specific act is on the record. THE GENERAL RULE IS NOT:
+  that ANY change routing an existing direct route through the clearing lane
+  retires it in the same change, in BOTH the live allowlist and the in-repo
+  enumeration, and that the grandfather enumeration is append-never and
+  shrink-only, is this packet's generalization of that one instance.
+- **Requirement 9, the authoring-time conformance guard.** WHOLLY ABSENT from
+  the record. Nothing in it speaks of pull-request-time refusal, a required
+  check, or structural resolution of a job's declared group. This requirement
+  is the largest of the three extensions and the one a ratifier should read
+  most carefully.
+- **Requirement 10, the ledger and the attestation.** The DISPATCH RECORD is
+  on the record — the clearing workflow *"records the dispatch"*, and
+  xFactory is named as the one place for provenance, policy and audit. THE
+  PERIODIC SINGLE-DOOR ATTESTATION IS NOT: the word does not appear in the
+  record, and conditioning the ledger's completeness claim on a green
+  attestation is this packet's addition.
+
+All three were ruled in the SAME SESSION, on Brett's verbatim instruction —
+*"fold 1-5 in and fan out"* — and they are carried here as DECLARED
+EXTENSIONS submitted for ratification, not as encodings of text already on
+the record. Saying "nothing below extends the ruling" would have been false,
+and an extension is better named than hidden inside a claim of fidelity.
+
+**Their provenance is verifiable in one place**: the origin record's
+APPEND-ONLY ADDENDUM, which captures that instruction. The record is being
+committed to `opensoft/xFactory` at the repository root as
+`cpc-clearing-boundary-ruling-2026-09-01.md`, via a pull request on branch
+`record/cpc-clearing-boundary-ruling`; at this packet's authoring time that
+pull request's merge is PENDING BRETT'S WORD and the record is therefore not
+yet citable from `main`. Ratification is gated on that merge (`tasks.md`
+§2.3), because an extension whose provenance a reader cannot open is an
+extension taken on trust.
 
 ## What Changes
 
@@ -60,11 +106,13 @@ below traces to it; nothing below extends it.
     authorized to originate execution on a governed execution host. The
     provider-side runner group restricts BOTH repository access and the
     workflow allowlist, and the allowlist CONVERGES to exactly ONE PERMANENT
-    ENTRY per group — the clearing workflow's exact path. Because the
-    provider evaluates the allowlist against the workflow file that
-    DIRECTLY CONTAINS the host job, every host-touching job lives
-    physically inside that file; reusable-workflow indirection for a host
-    job is non-conformant. A bypass attempt does not execute ungoverned: it
+    ENTRY per group — the clearing workflow's exact path. The neutral
+    property is that the host-touching job is DECLARED IN THE ARTIFACT THE
+    PROVIDER EVALUATES ITS ALLOWLIST AGAINST; on the estate's provider that
+    artifact is the workflow file directly containing the job, so the
+    realization is that every host-touching job lives physically inside the
+    clearing workflow file and reusable-workflow indirection for a host job
+    is non-conformant (design D2 carries the provider-specific evidence). A bypass attempt does not execute ungoverned: it
     queues unclaimable, which is fail-closed AND observable. A later
     widening, if ever ruled, is a SINGLE EXACT WORKFLOW PATH on a protected
     default branch — never repository-wide.
@@ -91,7 +139,11 @@ below traces to it; nothing below extends it.
     bundle handle. The host never clones the originating repository and
     never receives a credential scoped to it — so the boundary RE-SEALS,
     admitting the bundle into the clearing run and serving the host from
-    there.
+    there. THE PRODUCER'S DISPATCH CREDENTIAL IS SCOPED TO DISPATCHING THE
+    CLEARING WORKFLOW ALONE, and the residual is stated rather than
+    implied: a compromised producer holding that credential can still
+    dispatch REGISTERED operations. The closed register and each entry's
+    per-operation constraints are the containment — not the credential.
 
   - **OUTPUT IS VALIDATED BEFORE IT CAN AFFECT ANY REPOSITORY.** An
     operation whose register entry declares repository-affecting output has
@@ -109,9 +161,13 @@ below traces to it; nothing below extends it.
     against the expected identity, group, dispatch label, service account,
     host identity, heartbeat and clock, a NAME-ALLOWLIST-ONLY environment
     echo, and a fixed-digest compute round trip. No secrets, no checkout,
-    no writes, no token scopes, and a STRUCTURED OPERATION REPORT rather
-    than a log a human reads. Its checks are PR #188's, verbatim in
-    substance, which is why #188's workflow retires into it.
+    no writes, no token scopes — constraints of THIS OPERATION'S register
+    entry and not of the clearing workflow forever, since the clearing side
+    acquires its admission credential at the first bundle-carrying
+    operation — and a STRUCTURED OPERATION REPORT rather than a log a human
+    reads. Its checks are `opensoft/xFactory#188`'s,
+    verbatim in substance, which is why `opensoft/xFactory#188`'s workflow
+    retires into it.
 
   - **ROUTE RETIREMENT (L3).** A change that routes an existing direct
     route through the clearing lane RETIRES the old route in the same
@@ -124,17 +180,39 @@ below traces to it; nothing below extends it.
     pull-request time rather than discovered as an eighteen-hour queued
     run. The guard resolves the job's declared group STRUCTURALLY; a text
     search is non-conformant, and the estate already contains the case that
-    proves it.
+    proves it. TWO CAPABILITY GAPS ARE DECLARED, not assumed closed. First,
+    the clearing repository has NO required status check today — measured
+    2026-09-01: none of `opensoft/xFactory`'s five active rulesets declares
+    `required_status_checks`, and its Tier-1 main protection (ruleset
+    `18962101`) carries `pull_request`, `non_fast_forward` and `deletion`
+    only — so an operator act creates that rule (`tasks.md` §4.5), and even
+    then that ruleset's `bypass_actors` (`OrganizationAdmin`, mode
+    `always`) leaves a required check OPERATOR-BYPASSABLE. Second, the
+    guard's refusal of an ADDITION to the grandfather enumeration is a
+    frozen-ORIGIN comparison — the test holds the nine names and asserts the
+    live enumeration's members are a SUBSET of them, so an addition turns
+    the suite red — and an in-repo guard can itself be edited, which makes
+    the mechanical refusal a TRIPWIRE BACKED BY REVIEW of any diff touching
+    the enumeration or the guard, not an unforgeable refusal.
 
   - **THE DISPATCH LEDGER AND THE SINGLE-DOOR ATTESTATION (L5).** Every
     cleared dispatch is recorded with its VERIFIED provenance, and so is
-    every refusal. Because the door is single, that ledger is the complete
-    record of everything that ever reached the host — a claim TRUE ONLY
-    WHILE THE DOOR IS SINGLE, so a periodic attestation reads the groups
-    from the provider API and compares them to the expected entries, and a
-    divergence is a finding naming what it found. The residual dependence
-    on console-side settings the estate cannot version is DECLARED, not
-    assumed away.
+    every refusal — a refusal's ground drawn from a NAMED, CLOSED
+    enumeration, seeded now with `unregistered_operation` and
+    `unknown_lane_selector`. Because the door is single, that ledger is the
+    complete record of everything that ever reached the host — a claim TRUE
+    ONLY WHILE THE DOOR IS SINGLE, so a periodic attestation reads the
+    groups from the provider API and compares them to an expected set
+    computed PER GROUP: the clearing workflow's path, plus the members
+    enumerated FOR THAT GROUP whose allowlist entry is `present`. THE TWO
+    DIVERGENCE DIRECTIONS ARE NOT THE SAME FINDING. An allowlist entry not
+    derivable from that group's expected set is a WIDENING — a single-door
+    breach, reported as a finding. An enumerated member with NO allowlist
+    entry is ALREADY FAILING CLOSED and is a DARK-LANE DISPOSITION ITEM
+    (`tasks.md` §8.3), not a breach; conflating the two would have made the
+    attestation red on day one over two lanes that cannot reach the host at
+    all. The residual dependence on console-side settings the estate cannot
+    version is DECLARED, not assumed away.
 
 - **NO SECOND VOCABULARY.** Runner groups, labels, leases and trust tiers
   are `worker-enrollment-broker`'s; digests are computed by
@@ -163,14 +241,18 @@ below traces to it; nothing below extends it.
 
 ### Modified Capabilities
 
-- None. Nothing existing is restated or narrowed. Three promoted
-  capabilities are COMPOSED WITH by reference and left untouched —
+- None. Nothing existing is restated or narrowed. Three capabilities are
+  COMPOSED WITH by reference and left untouched — TWO PROMOTED,
   `ideation-routing` (xFactory hosts dispatch; the readiness-result
-  non-competition clause, design D9), `document-cataloging` (handling class,
-  host attestation, and the same non-competition clause), and
-  `worker-enrollment-broker` (runner group, label, trust tier, and the
-  enrollment audit record, whose subject is who may BE a runner and not what
-  was CLEARED to one).
+  non-competition clause, design D9) and `document-cataloging` (handling
+  class, host attestation, and the same non-competition clause), plus ONE
+  RATIFIED BUT NOT YET PROMOTED, `worker-enrollment-broker` (runner group,
+  label, trust tier, and the enrollment audit record, whose subject is who
+  may BE a runner and not what was CLEARED to one). That third is the ACTIVE
+  change `openspec/changes/add-worker-enrollment-broker` — realized at
+  `contract-v1.29`, and deliberately NOT under `openspec/specs/`, so this
+  packet consumes its vocabulary as ratified-but-unpromoted rather than as
+  promoted canon.
 
 ## Impact
 
@@ -227,10 +309,25 @@ allowlist's terminal state is ONE entry per group. Every per-path addition
 is a permanent widening bought for a temporary convenience, which is why
 readiness became an OPERATION rather than an entry.
 
-**A grandfather list that only shrinks** (L1/L3). Nine existing worker
-workflows reach the host today. Declaring them non-conformant would break
-the estate; leaving them undeclared would make the single door a fiction.
-They are ENUMERATED, and the enumeration is append-never.
+**A grandfather list that only shrinks, and it is DATA** (L1/L3). Nine
+existing worker workflows reach the host today. Declaring them
+non-conformant would break the estate; leaving them undeclared would make
+the single door a fiction. They are ENUMERATED, append-never, in a GOVERNED
+DATA FILE the L4 guard and the L5 attestation both read —
+`.github/clearing/grandfather-enumeration.yaml` in `opensoft/xFactory` —
+rather than as a constant inside a test module, because two consumers of the
+same list must not each carry their own copy. Each member declares its
+workflow filename, its GOVERNED RUNNER GROUP, the governed-host job ids in
+that file, and its ALLOWLIST-ENTRY STATUS (`present` or `absent`). The group
+attribution is what makes the attestation's expected set computable per
+group, and the status field is what keeps a dark lane from reading as a
+breach. As measured 2026-09-01: group `xfactory-execution-lane-workers`
+allowlists exactly `execution-lane-coding-worker.yml`; group
+`xfactory-artifact-workers` allowlists six —
+`council-deliberation-worker`, `dashboard-image-worker`, and the four
+doc-health workers (`analysis`, `cataloger`, `derive-possibles`,
+`readiness`); and `review-lane-worker.yml` and `ideation-organizer-worker.yml`
+sit in NEITHER allowlist, so they enumerate as `absent`.
 
 **Verification is API-side because a bundle is a claim** (the ruling,
 verbatim in substance). The estate's own coding worker already validates its
@@ -253,6 +350,17 @@ OQ1) and **whether the dispatch ledger is a new record or a
 and L5 shape decisions, and the `openxwallet` custody enumeration is the
 precedent for how quietly a wrong set re-opens the hole the rule was written
 to close.
+
+**OQ3 is no longer open.** Where the grandfather enumeration physically
+lives is SETTLED AT REALIZATION AND PENDING RATIFICATION: the governed data
+file `.github/clearing/grandfather-enumeration.yaml` in the clearing
+repository, read by both the L4 guard and the L5 attestation, with the
+neutral contract requiring only that such an enumeration exist, be closed,
+carry per-member group attribution and allowlist status, and shrink. The
+question's history and its rejected candidates stay in `design.md` rather
+than being deleted, because a settled question with its alternatives erased
+reads like a question nobody asked. OQ4 (attestation cadence and finding
+surface) remains open with its recommendation.
 
 ## Ratification
 
