@@ -70,6 +70,11 @@ READERS = {
     "succession-integrity",
 }
 NON_READERS = {
+    # add-release-tag-publication-check. It reads a MANIFEST FIELD and a set of
+    # PUBLISHED GIT REFS — neither of them a governed-corpus document and
+    # neither carrying a lifecycle header — so it takes neither document list,
+    # exactly as the promoted requirement says of it.
+    "release-tag-publication",
     "staged-topic-template",
     "location-conformance",
     "record-immutability",
@@ -503,7 +508,7 @@ def test_every_family_is_classified_as_reader_or_non_reader():
     # settles, and that half is asserted exactly.
     assert READERS == {"status-validity", "standard-backing",
                        "ratified-provenance", "succession-integrity"}
-    assert len(NON_READERS) == len(FAMILIES) - 4 == 18
+    assert len(NON_READERS) == len(FAMILIES) - 4 == 19
     assert "staged-topic-template" in NON_READERS
     assert "promotion-fidelity" in NON_READERS
     assert "duplicate-packet" in NON_READERS

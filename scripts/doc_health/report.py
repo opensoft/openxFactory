@@ -297,7 +297,7 @@ def _announce_unparsed_plan_rows(rows: list[tuple[int, str]]) -> None:
 
 # The family `uncited_resolutions` itself emits. Not a member of `FAMILY_IDS`
 # / `families.FAMILIES` — doc-health.md's "Check Families" table runs exactly
-# twenty-two named families over the corpus, and this is not one of them. It
+# twenty-three named families over the corpus, and this is not one of them. It
 # is the ENFORCEMENT of the contested-finding rule (doc-health spec
 # "Requirement: Finding severity and regression handling", scenario "A
 # contested finding is resolved") for THOSE families, stamped

@@ -2136,7 +2136,7 @@ def classify(finding) -> str:
     line a reader is being asked to trust instead of counting.
 
     Read off the RULE TEXT rather than off a field of `Finding`, because
-    `Finding` is shared by twenty-two families and the semantic lanes: a field
+    `Finding` is shared by twenty-three families and the semantic lanes: a field
     added for one family's report line would be a change to a shared grammar for
     a local need. The drift that reading costs is made loud two ways —
     `test_every_finding_over_the_fixture_corpus_lands_in_exactly_one_class` over

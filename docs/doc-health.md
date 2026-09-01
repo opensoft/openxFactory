@@ -25,18 +25,19 @@ aggregation repo; this document and the `doc-health` spec own the contract.
 
 ## Check Families
 
-Every run executes twenty-two families over every family repo the aggregation
+Every run executes twenty-three families over every family repo the aggregation
 repo pins, after running each repo's own validators as a preflight. A
 family that cannot run is reported as skipped, never silently omitted.
 
 **The table below is knowingly incomplete.** It carries the original twelve
 plus the eighteenth, `promotion-fidelity`, whose spec delta is one of the
 deltas that raised the count above. Families 13 through 17, and the
-nineteenth through twenty-second (`release-inventory-drift`,
-`duplicate-packet`, `family-enumeration`, `modified-block-currency`), each
+nineteenth through twenty-third (`release-inventory-drift`,
+`duplicate-packet`, `family-enumeration`, `modified-block-currency`,
+`release-tag-publication`), each
 reached the `doc-health` spec by delta and never reached this table — which
 is also why the two paragraphs after it still describe families 13 and 14,
-and the notes further below describe families 20 through 22, by the archived
+and the notes further below describe families 20 through 23, by the
 changes that added them rather than by a table row. Repairing that backlog
 belongs to a change that owns those families; it is a named standing gap,
 recorded in the archived `add-promotion-fidelity-check` §5.2, not an
@@ -134,6 +135,26 @@ marker is `document-lifecycle`'s third reserved form,
 ``**Modified over `<basis change-id>`'s addition by <change-id>
 (<YYYY-MM-DD>):**`` followed by ` — <reason>`, which names no units and is
 therefore never a suppression, never a marker defect and never a carriage unit.
+
+[`add-release-tag-publication-check`](../openspec/changes/add-release-tag-publication-check/proposal.md)
+added a twenty-third deterministic family, `release-tag-publication`, per the
+canon `Requirement: Release-tag publication`. It asks the one question
+`docs/contract-versioning-policy.md` states absolutely and nothing checked —
+"a bundle is not published until its tag exists" — for every repository in
+scope declaring a bundle at or above the `contract-v1.7` enforcement line:
+does that bundle have a PUBLISHED ANNOTATED tag, and does it peel to a commit
+that declares the bundle? It is DISTANCE-GRADED in first-parent landings on
+published `main` (silent while the declaring commit is still the tip, since
+the owner's tag act legitimately follows the cut; `warning` after that;
+`error` past **five**, ruled 2026-08-31), and it splits an ABSENT tag from a
+MISPLACED one — a tag on a non-declaring commit satisfies every check that
+asks only whether a tag exists, and is what consumers pin. Its action line:
+*publish the annotated tag at the commit the versioning policy's rule
+identifies — the earliest first-parent commit on published main that declares
+the bundle and at which verify-commit passes — never edit the manifest, the
+changelog or the inventory to match the absence*. The gap it closes reached
+`contract-v1.33`/`v1.35`/`v1.39` in August and recurred on `contract-v2.3`
+and `contract-v2.4`; a human found it both times (issue #528).
 
 ## Finding Severities
 

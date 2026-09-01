@@ -124,6 +124,13 @@ FAMILY_IDS = [
     # replaced — while the change can still be edited, which is the only moment
     # the remedy is one line.
     "modified-block-currency",
+    # twenty-third family (add-release-tag-publication-check; doc-health delta
+    # "Deterministic check families"). The release surface's other half:
+    # release-inventory drift asks whether the DECLARED bundle still describes
+    # the bytes, this asks whether that bundle was ever PUBLISHED — an
+    # obligation `docs/contract-versioning-policy.md` states absolutely and
+    # nothing checked, which is how two bundles reached consumers untagged.
+    "release-tag-publication",
 ]
 
 

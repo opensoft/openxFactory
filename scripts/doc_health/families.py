@@ -40,7 +40,7 @@ from . import (AUTO_FIXABLE, CONTESTED, CRITICAL, ERROR, WARNING, INFO,
 from . import (client_identity_composition, corpus, document_catalog,
                duplicate_packet, family_enumeration, ideation_routing,
                modified_block_currency, promotion_fidelity, proposal_origin,
-               release_inventory)
+               release_inventory, release_tag_publication)
 from .lines import split_keepends
 
 # Per-family resolution class defaults (doc-health contract): contested
@@ -1336,6 +1336,20 @@ FAMILIES = {
     # writers declares itself relative to the other.
     "modified-block-currency":
         modified_block_currency.fam_modified_block_currency,
+    # THE TWENTY-THIRD FAMILY (add-release-tag-publication-check). Not
+    # registered `contested`, and the reason is structural rather than a taste
+    # call. Its absent-tag findings are resolved by a TAG PUBLICATION — an owner
+    # act that leaves a new annotated ref behind — so a resolved finding is
+    # evidenced by the ref rather than vanishing unexplained, which is the
+    # condition the uncited-resolution rule exists to re-raise. That is the same
+    # test `release-inventory-drift` applies to itself and answers the other
+    # way: ITS findings vanish on a release cut, so classing it `contested`
+    # would turn every correct cut into a new error. The MISPLACED-tag finding
+    # is the exception and carries `contested` at its own emit site, because a
+    # misplaced tag that stops being reported without a cited change is exactly
+    # what should come back.
+    "release-tag-publication":
+        release_tag_publication.fam_release_tag_publication,
 }
 
 # `family -> (ctx) -> [note line, ...]`, rendered under that family's own

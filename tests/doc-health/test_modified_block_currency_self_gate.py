@@ -425,6 +425,21 @@ _LEDGER_SUBJECTS = {
     # promoted.
     ("add-credential-escrow-checkout", "credential-contracts",
      "Canonical credential record shapes"),
+    # ADDED 2026-08-31 BY `add-release-tag-publication-check`, the TWENTY-THIRD
+    # family's packet — the movement this module's own docstring predicted, in
+    # the words it predicted it. A new family must restate this requirement to
+    # add itself to the list, so the packet carries a MODIFIED block on it, and
+    # the two units this arm reports as uncarried are exactly the two sentences
+    # the enumeration rewrites: the total (`twenty-two check families` ->
+    # `twenty-three`) and the scan-set split (`Four of the twenty-two` ->
+    # `Four of the twenty-three`). Every other promoted unit, including all
+    # eight scenarios, is carried verbatim — the block was built by extracting
+    # canon and applying five edits, not by retyping. This arm cannot
+    # distinguish a deliberate enumeration from drift and does not claim to; the
+    # finding is INFO and it is the audit trail for the restatement. Retires
+    # when the packet archives and its block is promoted.
+    ("add-release-tag-publication-check", "doc-health",
+     "Deterministic check families"),
     # REMOVED 2026-08-27 BY THE ARCHIVE ACT — ('add-modified-block-currency-
     # check', 'doc-health', 'Deterministic check families'). THE SELF-FINDING,
     # and the second time this gate fell due. It was expected evidence that the
@@ -1249,12 +1264,15 @@ def test_the_archived_block_still_resolves_to_canon_and_no_active_writer_holds_i
     requirement rather than two. All three are asserted here about the tree as
     it now stands, with the block read at its archived path.
 
-    THE THIRD CLAIM CHANGED ITS NUMBER, AND THAT IS THE POINT. There is now
-    ZERO active writer on `Deterministic check families`, because the last one
-    promoted. The twenty-third family's packet makes it one again and this
-    assertion falls due on that branch, which is correct: `_moved()` says what
-    to do, and a second active writer beside it is precisely the
-    by-declaration case the ordering arm exists for.
+    THE THIRD CLAIM CHANGED ITS NUMBER TWICE, AND THAT IS THE POINT. It fell to
+    ZERO when the last writer promoted, and this docstring said then that "the
+    twenty-third family's packet makes it one again and this assertion falls due
+    on that branch, which is correct". IT DID, ON 2026-08-31:
+    `add-release-tag-publication-check` holds the requirement, the assertion
+    fell due exactly as predicted, and `_moved()` was followed rather than the
+    number being edited to match. ONE writer is still not the by-declaration
+    case — that needs TWO — so the override and ordering assertions are
+    unmoved.
 
     NO COUPLING TO CANON'S TEXT, DELIBERATELY. This asserts that canon CARRIES
     the requirement, never what canon says about it — canon's wording moves with
@@ -1298,12 +1316,18 @@ def test_the_archived_block_still_resolves_to_canon_and_no_active_writer_holds_i
     assert ordering == [], _moved(
         "the ordering arm's silence on this requirement",
         f"{[f.rule[:160] for f in ordering]}")
-    assert len(group) == 0, _moved(
-        f"the number of ACTIVE writers on {_OWN_TITLE!r} — zero since this "
-        f"packet archived on 2026-08-27",
-        f"{len(group)}: {sorted(b.change for b in group)} — a new writer holds "
-        f"the requirement, and with TWO the by-declaration rule applies and "
-        f"this test's premise changes")
+    # RE-AIMED 2026-08-31 FROM ZERO TO ONE. The branch this test's docstring
+    # named has arrived: `add-release-tag-publication-check` holds the
+    # requirement, because a twenty-third family must restate the enumeration to
+    # add itself. ONE writer is still not the by-declaration case — that needs
+    # TWO — so the two assertions above keep asserting silence and are unmoved.
+    # Returns to zero when the packet archives and its block promotes.
+    assert len(group) == 1 and {b.change for b in group} == {
+        "add-release-tag-publication-check"}, _moved(
+        f"the number of ACTIVE writers on {_OWN_TITLE!r} — ONE since "
+        f"2026-08-31, the twenty-third family's packet",
+        f"{len(group)}: {sorted(b.change for b in group)} — with TWO the "
+        f"by-declaration rule applies and this test's premise changes")
 
 
 def test_the_self_finding_is_retired_by_the_archive_act():

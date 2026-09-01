@@ -1477,7 +1477,7 @@ def test_the_reporting_list_mirrors_the_registry():
     from doc_health.families import FAMILIES
 
     assert set(FAMILY_IDS) == set(FAMILIES)
-    assert len(FAMILY_IDS) == len(set(FAMILY_IDS)) == len(FAMILIES) == 22
+    assert len(FAMILY_IDS) == len(set(FAMILY_IDS)) == len(FAMILIES) == 23
     assert mbc.FAMILY in FAMILY_IDS
 
 

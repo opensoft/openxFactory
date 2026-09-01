@@ -404,6 +404,33 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-release-tag-publication-check](openspec/changes/add-release-tag-publication-check/proposal.md)
+  — authored 2026-08-31, **RATIFIED 2026-08-31 BY DIRECT RULING** (`Status:
+  ratified`; record `review/ratification-2026-08-31.md`) — Brett Heap in session
+  in TWO ACTS: *"accept D1, D2, D5; threshold N=5"*, then, after D4 was put back
+  to him as unruled rather than folded in, *"accept D4, and yes that's the
+  ratification"* — and **AMENDED 2026-09-01** (*"accept the amendment"*) after
+  the bot round. Closes issue **#528**:
+  `docs/contract-versioning-policy.md` holds that "a bundle is not published
+  until its tag exists" and **nothing checked it** — no workflow calls the
+  release validator, `verify_tag` runs only over synthetic repositories in unit
+  tests, `release-surface-integrity` deliberately does not anchor on tags, and
+  `tag-hygiene` is `document-lifecycle`'s prose-tag grammar. The gap reached
+  `contract-v1.33`/`v1.35`/`v1.39` in August, needed a ruling to discharge, and
+  recurred on `contract-v2.3` and `contract-v2.4`; a human found it both times.
+  **REALIZATION LANDS WITH THE DELTA rather than after it**, ruled 2026-08-31:
+  `family-enumeration`'s self-gate asserts the real corpus reads ZERO on both
+  halves, so a delta declaring twenty-three against a registry holding
+  twenty-two reds a green gate — and the packet that WROTE that gate landed its
+  own delta, module and tests in one commit (`bc779dcc`), because a family
+  addition is one landing. So the twenty-third deterministic family exists and
+  runs: distance-graded at the ruled **N = 5** first-parent landings, ABSENT
+  split from MISPLACED, a lightweight ref refused, silent below the
+  `contract-v1.7` line. **The amendment is the one that matters**: as ratified it
+  inspected only the currently declared bundle, which would have read ZERO
+  through the very v2.3/v2.4 recurrence that produced #528 — Codex's P1, proven
+  RED-first, now fixed to inspect every bundle the repository has CUT.
+
 - [add-requirement-ref-resolution-integrity](openspec/changes/add-requirement-ref-resolution-integrity/proposal.md)
   — authored 2026-08-31, **RATIFIED 2026-09-01 BY DIRECT RULING**
   (`Status: ratified`; record `review/ratification-2026-09-01.md`) — Brett Heap
