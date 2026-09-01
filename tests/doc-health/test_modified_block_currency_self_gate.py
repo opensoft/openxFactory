@@ -425,21 +425,18 @@ _LEDGER_SUBJECTS = {
     # promoted.
     ("add-credential-escrow-checkout", "credential-contracts",
      "Canonical credential record shapes"),
-    # ADDED 2026-08-31 BY `add-release-tag-publication-check`, the TWENTY-THIRD
-    # family's packet — the movement this module's own docstring predicted, in
-    # the words it predicted it. A new family must restate this requirement to
-    # add itself to the list, so the packet carries a MODIFIED block on it, and
-    # the two units this arm reports as uncarried are exactly the two sentences
-    # the enumeration rewrites: the total (`twenty-two check families` ->
-    # `twenty-three`) and the scan-set split (`Four of the twenty-two` ->
-    # `Four of the twenty-three`). Every other promoted unit, including all
-    # eight scenarios, is carried verbatim — the block was built by extracting
-    # canon and applying five edits, not by retyping. This arm cannot
-    # distinguish a deliberate enumeration from drift and does not claim to; the
-    # finding is INFO and it is the audit trail for the restatement. Retires
-    # when the packet archives and its block is promoted.
-    ("add-release-tag-publication-check", "doc-health",
-     "Deterministic check families"),
+    # REMOVED 2026-09-01 BY THE ARCHIVE ACT — ('add-release-tag-publication-
+    # check', 'doc-health', 'Deterministic check families'). Added 2026-08-31 as
+    # the twenty-third family's packet restated the enumeration to add itself,
+    # and RETIRED ON SCHEDULE: its own note said "retires when the packet
+    # archives and its block is promoted", and the packet archived to
+    # `openspec/changes/archive/2026-09-01-add-release-tag-publication-check/`
+    # with the block PROMOTED. Canon's "Deterministic check families" now states
+    # `twenty-three check families` and `Four of the twenty-three` — the two
+    # units the finding named as uncarried — and the family excludes
+    # `openspec/changes/archive/` in its reader by construction, so no finding
+    # can name the archived packet. A subject that retires exactly when its note
+    # said it would is the arm working, not the arm going quiet.
     # REMOVED 2026-08-27 BY THE ARCHIVE ACT — ('add-modified-block-currency-
     # check', 'doc-health', 'Deterministic check families'). THE SELF-FINDING,
     # and the second time this gate fell due. It was expected evidence that the
@@ -1316,18 +1313,18 @@ def test_the_archived_block_still_resolves_to_canon_and_no_active_writer_holds_i
     assert ordering == [], _moved(
         "the ordering arm's silence on this requirement",
         f"{[f.rule[:160] for f in ordering]}")
-    # RE-AIMED 2026-08-31 FROM ZERO TO ONE. The branch this test's docstring
-    # named has arrived: `add-release-tag-publication-check` holds the
-    # requirement, because a twenty-third family must restate the enumeration to
-    # add itself. ONE writer is still not the by-declaration case — that needs
-    # TWO — so the two assertions above keep asserting silence and are unmoved.
-    # Returns to zero when the packet archives and its block promotes.
-    assert len(group) == 1 and {b.change for b in group} == {
-        "add-release-tag-publication-check"}, _moved(
-        f"the number of ACTIVE writers on {_OWN_TITLE!r} — ONE since "
-        f"2026-08-31, the twenty-third family's packet",
-        f"{len(group)}: {sorted(b.change for b in group)} — with TWO the "
-        f"by-declaration rule applies and this test's premise changes")
+    # BACK TO ZERO 2026-09-01, BY THE ARCHIVE ACT. It went one on 2026-08-31
+    # when the twenty-third family's packet restated the enumeration to add
+    # itself, exactly as this docstring predicted it would, and RETURNED as that
+    # note said it would when the packet archived and its block promoted. Two
+    # re-aims in two days, both predicted in writing before they happened, is
+    # the shape this assertion is for.
+    assert len(group) == 0, _moved(
+        f"the number of ACTIVE writers on {_OWN_TITLE!r} — zero again since "
+        f"the archive act of 2026-09-01",
+        f"{len(group)}: {sorted(b.change for b in group)} — a new writer holds "
+        f"the requirement, and with TWO the by-declaration rule applies and "
+        f"this test's premise changes")
 
 
 def test_the_self_finding_is_retired_by_the_archive_act():
