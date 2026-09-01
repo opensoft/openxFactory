@@ -1,0 +1,90 @@
+# expected_failure: signing_request_unattributable
+# expected_failure_detail: does not bind
+# VIOLATES requirement 5's extension of the attribution mechanism to the
+# CHAIN-SCOPED identity — the hole THE SPLIT THAT MADE LINK 6 CONSTRUCTIBLE OPENED.
+#
+# The link-5 attribution is TASK-SCOPED and reaches no record ABOUT A CHAIN, so an
+# opportunistic caller able to reach the controller could submit a link-6 payload
+# naming a valid chain, the complete link-5 set and plausible proposed work, satisfy
+# every refusal in requirement 5, and receive a chain-scoped signature nobody was
+# established as entitled to ask for. The request here is attributed to a party THE
+# CHAIN'S OWN INCEPTION RECORD DOES NOT BIND. No authority is minted by the rule
+# that refuses it: the authorized requester is READ OFF what the chain already
+# carries.
+schema_version: 1
+kind: xfactory_signed_execution_chain_pr_open_decision
+decision_id: dec-neg-unbound
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+signed_decision:
+  chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+  digest_construction: xfc-jcs-sha256-1
+  predecessor:
+    record_ref: clo-t5
+    record_kind: xfactory_signed_execution_chain_closure_record
+    digest:
+      construction: xfc-jcs-sha256-1
+      subject: closure_record
+      value: sha256:588e6a5f47d5d644c21b94139b5dfa8520e96e9b85604795ac9d5f6843f5e48e
+  identity:
+    binding_ref: bind-t5-chain
+    subject_scope: chain_scoped
+  pull_request:
+    pull_request_ref: opensoft/openxFactory#90005
+    head_revision: 84104bee44556677
+    base_ref: main
+  committed_attestations:
+  - task_ref: task:t5-a
+    attestation_ref: att-t5-a
+    digest:
+      construction: xfc-jcs-sha256-1
+      subject: runner_attestation
+      value: sha256:f91a14cd05244c9dd333669e497b5fac8cc376e206e0cacb623845d1cb695906
+  proposes: Realize the ratified subject as contract bytes.
+  signed_where: harness_controller
+  signing_request:
+    request_id: req-dec-neg-unbound
+    requested_at: '2026-09-01T16:20:00Z'
+    attribution:
+      attributed_by: chain_inception_binding
+      requester_ref: sub-somebody-else-000001
+      statement: Attributed to the party the chain's inception record binds.
+    payload_digest:
+      construction: xfc-jcs-sha256-1
+      subject: pr_open_decision
+      value: sha256:21a8c65bea91c0e43cf36989644774defc351b9907e5c0650bc57ad8abb1fdb3
+decision_signature:
+  algorithm: ed25519
+  key_ref: key-tier2-chain-d
+  certificate_ref: cert:tier2-chain-staging
+  signed_over: signed_decision
+  signature: YQPucCprtqiIgAQt-KfnQdSdKeOWUBXM45ukCD-RbRLk5DXC76zHXgbbltk_w0bS73IQPPKnsyKcNHhK3E-oBQ
+  public_key: z6MkfJ8DJkNPpSNq2hx8DU3Fk36ifvBufGF5dv3SQSw84WA5
+decided_at: '2026-09-01T16:20:00Z'
+leaf_ref: leaf-0046
+---
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-0046
+leaf_index: 46
+tree_size: 47
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+leaf_type: pr_open_decision
+recorded_at: '2026-09-01T20:00:00Z'
+payload_ref: dec-neg-unbound
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: pr_open_decision
+  value: sha256:01b6c5a043695457687f264c2ed094aee04d3f58b87167282fde9271cb3e732c
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:f698c2fb50ae9d3564d458e61f5becb46178064197d05cca91b02afb5bdcb7c2
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:2aebe96faaf57c020cbd857b6a344e18a29e50537195ef1c4e8e4c26c9ef4ab6
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-t5
+  signed_over: leaf_content
+  signature: w2KEzEqamKYXiwUfYrI-xpbTQ4X7pQzVbGdxD-gpXyPsWl0iV4TW6p2d8g_eNxGFOz9bX6wdm_VJz03_ann5BA

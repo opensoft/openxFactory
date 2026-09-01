@@ -78,9 +78,23 @@ def test_the_packaged_corpus_is_one_whole_chain(registry_and_docs, carried):
 
 def test_the_corpus_covers_all_four_kinds_and_every_leaf_type(registry_and_docs,
                                                               carried):
-    records = reader.positive_records()
+    """Coverage is the UNION of the packaged corpora: tranche one's reference
+    chain carries the four original kinds and the ratification leaf types, and
+    the tranche-two corpus carries the seven kinds and seven leaf types
+    add-chain-attestation added. Neither corpus alone covers the enumeration,
+    and neither is asked to."""
+    records = [record
+               for prefix, positives_dir, _ in reader.CORPORA
+               for record in reader.positive_records(positives_dir, prefix)]
     kinds = {doc["kind"] for _, doc in records}
-    assert kinds == set(reader.KIND_TO_SCHEMA)
+    # The tranche-two corpus also CARRIES the three consumed trust-anchor kinds
+    # (anchor record, certificate record, issuance evidence) so a reader can
+    # resolve every reference the bindings make; they are add-trust-anchor's
+    # shapes, not this family's, and are the only kinds admitted beyond the
+    # family's own enumeration.
+    consumed = {"xfactory_trust_anchor", "xfactory_certificate_record",
+                "xfactory_certificate_issuance_evidence"}
+    assert kinds - consumed == set(reader.KIND_TO_SCHEMA)
     leaf_types = {doc["leaf_type"] for _, doc in records
                   if doc["kind"] == "xfactory_signed_execution_chain_log_leaf"}
     assert leaf_types == set(reader.LEAF_TYPES), (
@@ -93,7 +107,8 @@ def test_every_closed_refusal_code_has_a_packaged_probe():
     inside the required `pytest-suite` job: a refusal code added without a
     fixture must fail a required check, not only the tool that declares it."""
     probed = {reader.expected_failure(path)[0]
-              for path in sorted(NEGATIVES.glob("*.yaml"))}
+              for _, _, negatives_dir in reader.CORPORA
+              for path in sorted(negatives_dir.glob("*.yaml"))}
     assert reader.REFUSAL_CODES <= probed, sorted(reader.REFUSAL_CODES - probed)
 
 
@@ -563,16 +578,22 @@ def test_the_declaration_is_closed_over_the_nine_obligations_in_both_directions(
     assert any("SEC-R2 is declared 2 times" in line for line in lines)
 
 
-def test_the_obligation_set_is_the_nine_requirements_of_the_delta():
-    """Nine ADDED requirements, nine obligations. The delta is the authority for
-    the count, and the ratification record states it: NINE ADDED requirements
-    over 45 scenarios."""
+def test_the_obligation_set_is_the_eighteen_requirements_of_the_deltas():
+    """The delta is the authority for the count. Tranche one's nine ADDED
+    requirements over 45 scenarios, then add-chain-attestation's NINE ADDED over
+    108 (ratified 2026-09-01 at 6d7ef17b): eighteen obligations, in the deltas'
+    own order, and a declaration naming any tranche-two obligation is closed
+    over all eighteen."""
     schema = yaml.safe_load(
         (REPO_ROOT / "contracts" / "signed-execution-chain" /
          "conformance-declaration.schema.yaml").read_text(encoding="utf-8"))
     declared = schema["properties"]["obligations"]["items"]["properties"][
         "obligation"]["enum"]
     assert declared == reader.OBLIGATIONS
-    assert len(declared) == 9
+    assert len(declared) == 18
+    # A tranche-one-only declaration carries nine entries and stays valid — the
+    # shipped bundle's instance is not refused by this extension — while a
+    # declaration naming any tranche-two obligation is closed over all eighteen
+    # by the reader's coverage rule.
     assert schema["properties"]["obligations"]["minItems"] == 9
-    assert schema["properties"]["obligations"]["maxItems"] == 9
+    assert schema["properties"]["obligations"]["maxItems"] == 18

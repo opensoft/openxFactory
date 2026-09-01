@@ -59,6 +59,31 @@ description: >-
   use makes four of the gate's eight checks unrunnable, and a check that cannot
   run confers nothing.
 
+  THE AMENDMENT LINEAGE IS ADDED AT TRANCHE TWO, INSIDE THE SIGNED BLOCK, AND IT
+  IS AN ADDITIVE EXTENSION OF A SHIPPED SCHEMA (`add-chain-attestation`, the
+  second `## MODIFIED` requirement; `design.md` D12; route A re-grounded by Brett
+  Heap on 2026-09-01 on the #497 precedent). A council review happens BEFORE this
+  act and a chain closes AFTER it, so the ONLY signature spanning both is the
+  ratifying one — which is why the four lineage fields sit in
+  `signed_ratification.amendment_lineage` and nowhere else. A lineage carried
+  where the ratifying signature does not reach is a lineage attachable
+  afterwards.
+
+  THE BLOCK IS OPTIONAL IN THE SHAPE AND REQUIRED BY THE READER, AND THE
+  DIFFERENCE IS DECLARED RATHER THAN QUIET. Making it `required` here would refuse
+  every inception the shipped bundle already accepts — including this family's own
+  packaged reference chain, minted at tranche one — which is the BREAKING class
+  `docs/contract-versioning-policy.md` reserves for a major bump behind a full
+  minor of deprecation warnings. So the shape admits its absence and
+  `scripts/validate-signed-execution-chain.py` REFUSES it
+  (`amendment_lineage_absent`) for every chain carrying a tranche-two record, with
+  the residual — a links-1-3-only chain incepted after this tranche whose missing
+  lineage this reader does not refuse at the record — DECLARED at SEC-R16 of the
+  packaged conformance declaration rather than papered over. Such a chain is
+  refused AT THE GATE in any case, by the links 1-6 scope rule, so nothing is
+  permitted by the residual; what it costs is the record-level refusal on a chain
+  that never reaches link 4.
+
   WHAT THIS RECORD IS NOT. It is not 025 FR-008's candidate-class enrollment: it
   creates no `merge-approval-envelope`, names no candidate class, touches no
   ruleset and produces no verdict. It carries no anchor, no external witness, no
@@ -144,6 +169,27 @@ $defs:
         properties:
           subject_type: {$ref: '#/$defs/identifier'}
           subject_ref: {type: string, minLength: 1, maxLength: 300}
+          governed_test:
+            # ADDED AT TRANCHE TWO, OPTIONAL IN THE SHAPE FOR THE SAME REASON THE
+            # LINEAGE IS. A GOVERNED TEST IS A NAMED TEST, or "governed"
+            # constrains nothing a verifier can check: an authenticated execution
+            # on the right revision returning a pass is satisfied by an arbitrary
+            # or no-op test. The ratified subject NAMES the test; the controller
+            # dispatches THAT test; and the closure record's `test_identity` must
+            # EQUAL this value. Because it sits inside `signed_ratification` it
+            # travels with the work in the traveling contract and cannot be
+            # renamed after the fact.
+            type: object
+            required: [test_id, definition_digest]
+            additionalProperties: false
+            properties:
+              test_id: {$ref: '#/$defs/identifier'}
+              definition_digest:
+                allOf:
+                  - {$ref: '#/$defs/digest'}
+                  - properties: {subject: {const: governed_test_definition}}
+                    required: [subject]
+              statement: {type: string, maxLength: 600}
           subject_digest:
             # THE CONTENT DIGEST — taken over the SUBJECT RATIFIED, and the value
             # an exercise's `object_ref` carries. It is computable BEFORE the
@@ -196,6 +242,75 @@ $defs:
             type: boolean
           ground_ref: {type: string, minLength: 1, maxLength: 300}
           ground_statement: {type: string, minLength: 1, maxLength: 900}
+      amendment_lineage:
+        # THE FOUR FIELDS CLOSURE'S THREE LIMBS READ, added at tranche two and
+        # carried INSIDE the bytes the ratifying signature covers.
+        #
+        # WHY FOUR AND NOT AN EQUALITY. Requiring the reviewed digest to EQUAL the
+        # ratified subject digest would refuse the ORDINARY outcome — *accepted as
+        # amended* — which is the second unsatisfiable binding this link reached by
+        # tightening. `review_record_digest` is the fourth field and the one that
+        # makes limb 2 constructible at all: without it the lineage names a
+        # SUBJECT and never a REVIEW, and two authority-proven reviews can cover
+        # the same reviewed bytes — an earlier REJECTED review beside the one whose
+        # amendments form the lineage — with nothing to tell them apart.
+        #
+        # THE UNAMENDED CASE IS THE DEGENERATE FORM OF THE SAME RULE, not a second
+        # shape: `reviewed_digest.value` equals `ratified_subject_digest.value`,
+        # and `amendment_record_ref` names the disposition recording that nothing
+        # was owed. One rule, one shape, a lineage of length zero.
+        type: object
+        required:
+          - reviewed_digest
+          - ratified_subject_digest
+          - review_record_digest
+          - amendment_record_ref
+        additionalProperties: false
+        properties:
+          reviewed_digest:
+            allOf:
+              - {$ref: '#/$defs/digest'}
+              - properties: {subject: {const: reviewed_subject}}
+                required: [subject]
+          ratified_subject_digest:
+            # The SAME value as `ratified_subject.subject_digest`, restated inside
+            # the lineage so limb 3 reads a lineage field rather than reaching
+            # across the record for one. The validator REFUSES a disagreement
+            # (`amendment_lineage_unsupported`): two spellings of one fact are a
+            # channel for the two to disagree, and this one is checked rather than
+            # trusted.
+            allOf:
+              - {$ref: '#/$defs/digest'}
+              - properties: {subject: {const: ratified_subject}}
+                required: [subject]
+          review_record_digest:
+            allOf:
+              - {$ref: '#/$defs/digest'}
+              - properties: {subject: {const: review_record}}
+                required: [subject]
+          amendment_record_ref:
+            # THE RECORD CONNECTING THEM — on the §7.4 path the `review/` directory
+            # landing with the packet: the council record, the disposition of
+            # record, and the discharge trail. It carries the trail's own endpoints
+            # so a claimed lineage its committed record does not support is
+            # REFUSABLE rather than merely doubtful.
+            type: object
+            required: [record_ref, from_digest, to_digest]
+            additionalProperties: false
+            properties:
+              record_ref: {type: string, minLength: 1, maxLength: 300}
+              names_review_record: {$ref: '#/$defs/identifier'}
+              from_digest:
+                allOf:
+                  - {$ref: '#/$defs/digest'}
+                  - properties: {subject: {const: reviewed_subject}}
+                    required: [subject]
+              to_digest:
+                allOf:
+                  - {$ref: '#/$defs/digest'}
+                  - properties: {subject: {const: ratified_subject}}
+                    required: [subject]
+              statement: {type: string, maxLength: 900}
   ratification_signature:
     type: object
     required: [algorithm, presenting_key_ref, signed_over, signature]

@@ -1,0 +1,122 @@
+schema_version: 1
+kind: openxfactory-signed-execution-chain-contract-schema
+name: xfactory_signed_execution_chain_commitment_extension
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/commitment-extension.schema.yaml"
+contract_id: signed-execution-chain-commitment-extension
+contract_schema_version: 1
+title: Controller-signed commitment extension (link 4, written later)
+description: >-
+  THE SAME COMMITMENT, WRITTEN LATER, AND UNDER THE SAME SIGNER
+  (`add-chain-attestation`, requirement "The harness controller attests the
+  environment it prepared"). Fan-out is discovered as work runs, so the full task
+  set is not always knowable when link 4 is signed. THE ANSWER IS EXTENSION AND
+  NEVER SILENCE: the controller adds the task by a further CONTROLLER-SIGNED
+  record under the same chain identity, hash-linked like every link from link 4
+  onward, and the expected attestation set becomes LINK 4 AS EXTENDED.
+
+  THE DEADLINE IS DISPATCH — AT OR BEFORE, NEVER LATER — AND IT IS THE WHOLE
+  CONTROL. An earlier form of this rule set the deadline at "before the attestation
+  it covers is produced", which fails twice. It lets the controller commit AFTER
+  OBSERVING THE EXECUTION, so the record stops being an INDEPENDENT EXPECTATION
+  and becomes a description of what happened. And a realization minting extensions
+  when SIGNING REQUESTS ARRIVE never commits a task whose attestation the runner
+  SUPPRESSES ENTIRELY — no request, no extension, no expectation — so link 6's
+  enumeration equals the reduced committed set and THE DROPPED-ATTESTATION ATTACK
+  PASSES AGAIN, through the very instrument raised to close it. Dispatch is the
+  moment the controller acts and the last moment before the runner can influence
+  anything.
+
+  FOUR REFUSALS KEEP THE EXTENSION FROM BECOMING THE HOLE IT EXISTS TO CLOSE, and
+  each has its own named code in `scripts/validate-signed-execution-chain.py`: an
+  extension written AFTER the dispatch of the task it adds
+  (`commitment_extension_after_dispatch`); a task dispatched under NO commitment,
+  which is a breach AT DISPATCH and not merely at attestation
+  (`extension_minted_on_request_arrival` for the realization shape that produces
+  it); a link-5 attestation for a task NO commitment covers
+  (`attestation_for_uncommitted_task`); and an extension signed ANYWHERE OTHER
+  THAN AT THE CONTROLLER (`extension_signed_away_from_controller`), so a runner
+  cannot enlarge or shrink the expectation it is measured against.
+
+  WHAT THE DEADLINE CONSTRAINS, STATED PRECISELY BECAUSE THE LOOSE READING IS WHAT
+  COLLIDED. An extension precedes THE DISPATCH OF THE TASKS IT COMMITS. It is NOT
+  required to precede every link-5 attestation of the chain, and never was: an
+  expectation must be independent of the runners IT MEASURES, which says nothing
+  about tasks committed earlier and already attested. The deadline binds per-task,
+  and so does the order — which is why `predecessor` here is THE ACTUAL NEAREST
+  PRIOR IN-FORCE SIGNED RECORD and may lawfully be a link-5 attestation already
+  written. An extension forced to descend only from link 4 or another extension
+  could satisfy neither its own placement rule nor the general one, and the
+  ordinary dynamic fan-out would have been unbuildable.
+type: object
+required:
+  - schema_version
+  - kind
+  - extension_id
+  - chain_ref
+  - signed_extension
+  - extension_signature
+  - written_at
+  - leaf_ref
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [xfactory_signed_execution_chain_commitment_extension]
+  extension_id: {$ref: '#/$defs/identifier'}
+  chain_ref: {$ref: '#/$defs/chain_ref'}
+  signed_extension: {$ref: '#/$defs/signed_extension'}
+  extension_signature:
+    allOf:
+      - {$ref: '#/$defs/signature_block'}
+      - properties: {signed_over: {const: signed_extension}}
+        required: [signed_over]
+  written_at:
+    # WHEN THE EXTENSION WAS WRITTEN TO THE LOG. The reader compares it against
+    # each added task's own `dispatched_at` and refuses `written_at` later than any
+    # of them — the deadline is a comparison the record makes possible rather than
+    # an assurance it asserts.
+    type: string
+    format: date-time
+  leaf_ref: {$ref: '#/$defs/identifier'}
+  record_version: {type: integer, minimum: 1}
+  notes: {type: string, maxLength: 1400}
+$defs:
+  identifier:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/attestation-common.schema.yaml#/$defs/identifier"
+  digest:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/attestation-common.schema.yaml#/$defs/digest"
+  chain_ref:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/attestation-common.schema.yaml#/$defs/chain_ref"
+  signature_block:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/attestation-common.schema.yaml#/$defs/signature_block"
+  predecessor:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/attestation-common.schema.yaml#/$defs/predecessor"
+  task_reference:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/attestation-common.schema.yaml#/$defs/task_reference"
+  signed_extension:
+    type: object
+    required: [chain_ref, digest_construction, extends, predecessor, added_tasks, signed_where]
+    additionalProperties: false
+    properties:
+      signed_where:
+        # AN EXTENSION SIGNED ANYWHERE OTHER THAN AT THE CONTROLLER IS REFUSED
+        # under the tier-2 custody requirement, so a runner cannot enlarge or
+        # shrink the expectation its own completeness is measured against. NOT a
+        # `const`: the wrong value earns the NAMED refusal
+        # `extension_signed_away_from_controller` rather than a schema error.
+        type: string
+        enum: [harness_controller, runner, lane, unrecorded]
+      chain_ref: {$ref: '#/$defs/chain_ref'}
+      digest_construction: {type: string, const: xfc-jcs-sha256-1}
+      extends:
+        # THE SETUP ATTESTATION THIS EXTENDS, by identifier. An extension naming no
+        # link 4 extends nothing, and the expected set it claims to enlarge has no
+        # origin.
+        $ref: '#/$defs/identifier'
+      predecessor: {$ref: '#/$defs/predecessor'}
+      added_tasks:
+        type: array
+        minItems: 1
+        items: {$ref: '#/$defs/task_reference'}

@@ -1,0 +1,242 @@
+schema_version: 1
+kind: openxfactory-signed-execution-chain-contract-schema
+name: xfactory_signed_execution_chain_attestation_common
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/attestation-common.schema.yaml"
+contract_id: signed-execution-chain-attestation-common
+contract_schema_version: 1
+title: The shared shapes tranche two's seven record kinds take by reference
+description: >-
+  THE THREE FIELD DISCIPLINES, DECLARED ONCE, AND NOWHERE ELSE
+  (`add-chain-attestation`, capability `signed-execution-chain`). This file
+  declares NO RECORD KIND — the same standing `digest-construction.schema.yaml`
+  has, and for the same reason: a discipline restated in seven places is a
+  discipline seven files can drift on, and the packet's own standing rule is that
+  a rule enumerating the slots it covers will be outrun by the next slot.
+
+  DISCIPLINE 1 — SUBJECT SCOPES AND CLOSED ENUMERATIONS. Tier 2 has TWO subject
+  scopes and each carries its OWN closed enumeration of authorized record kinds:
+  the PER-TASK identity is valid for ONE task and may sign the TASK ATTESTATION
+  (link 5) and nothing else; the ONE CHAIN-SCOPED identity per chain may sign the
+  PR-OPEN DECISION (link 6) and the CLOSURE RECORD (link 10) and nothing else.
+  AUTHORITY RECORDS ARE OUTSIDE BOTH, FOREVER — a ratification, an approval or a
+  review grant is never signable under a tier-2 identity of either scope, because
+  tier 2 answers WHAT RAN and tier 1 answers WHO PERMITTED. The chain-scoped
+  identity is broader in SUBJECT and not in AUTHORITY.
+
+  DISCIPLINE 2 — THE PER-FACT EVIDENCE CLASS. Every attested fact carries its
+  class, and A FACT CARRYING NO CLASS IS REFUSED. The unit of the claim is the
+  FACT, so the unit of the class is the fact: one link-5 record legitimately
+  carries both a corroborated fact (the model the controller provisioned) and a
+  runner-only one, and a per-RECORD label either downgrades the first or launders
+  the second. THE ORDER IS DECLARED, because "read at the strength of the
+  strongest fact beside it" is a comparison and a comparison over an undeclared
+  order is not a rule: `runner_claimed` < `controller_corroborated` <
+  `independently_observed`, on ONE discriminator — HOW MANY PARTIES INDEPENDENT OF
+  THE CLAIMANT ESTABLISHED THE FACT.
+
+  THIS SET COMPOSES WITH THE RATIFIED CUSTODY LADDER AND DOES NOT REPLACE IT.
+  `contracts/trust-anchor/trust-anchor-chain-custody.registry.yaml` (ratified by
+  `add-trust-anchor`, realized at `contract-v1.37`) is a DIFFERENT AXIS: it classes
+  WHOSE ACT a signature evidences; this set classes WHERE A FACT INSIDE THE SIGNED
+  PAYLOAD CAME FROM. They are read TOGETHER AND IN THAT ORDER — the signing
+  certificate's custody ceiling BOUNDS what any fact under it evidences, and no
+  evidence class raises a fact above that ceiling. The third member is
+  `independently_observed` and NOT `hardware_attested` because that registry
+  excludes `asserted_hardware_backing` by name: where a key physically lives is a
+  fact about blast radius, never a tier. The property that earns the class is
+  INDEPENDENT OBSERVATION; hardware attestation is one mechanism that supplies it.
+
+  DISCIPLINE 3 — THE SIGNER'S PUBLIC KEY BESIDE EVERY SIGNATURE. The canonical
+  `certificate-record` carries an OPTIONAL `subject.public_key_fingerprint` and NO
+  PUBLIC KEY AT ALL, so "the signature verifies under the certified key" is
+  unrunnable from the consumed records as they stand. Every signed record THIS
+  capability defines therefore SUPPLIES the signer's public key beside its
+  signature, and verification RESOLVES, COMPARES, THEN VERIFIES — the supplied
+  key's fingerprint computed under the one construction in force and required
+  EQUAL to the certificate's, before any signature is checked. A MISMATCH, or an
+  ABSENT FINGERPRINT ON THE CONSUMED CERTIFICATE, is the FORGED-IDENTITY refusal;
+  the second is the same condition reached by omission rather than by
+  substitution. THE RULE IS WRITTEN OVER THE CONSUMED-CERTIFICATE SET — the
+  controller certificate AND the tier-2 certificates at both subject scopes —
+  because a per-tier clause was the defect: link 4 and the commitment extensions
+  are signed under the CONTROLLER certificate, and a per-tier rule left both
+  forgeable by exactly the supplied-key trick it had closed one tier over.
+
+  THE PREDECESSOR IS A POSITION AND NEVER A KIND. Every signed record this
+  capability defines carries, inside its signed bytes, THE DIGEST OF THE ACTUAL
+  NEAREST PRIOR IN-FORCE SIGNED RECORD OF ITS CHAIN — whatever kind that record
+  happens to be. A record's KIND never determines its place; its POSITION IN THE
+  LOG does. `4 -> x1 -> ... -> xn -> 5 -> 6 -> 10` is an ILLUSTRATION of the
+  no-interleaving case and binds nothing: fan-out is discovered as work runs, so a
+  chain may lawfully dispatch a further task after an earlier one has attested,
+  and the extension owed at that dispatch descends from that link-5 record.
+type: object
+$defs:
+  identifier:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/identifier"
+  digest:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/digest"
+  chain_ref:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/digest-construction.schema.yaml#/$defs/chain_ref"
+
+  subject_scope:
+    # THE TWO SCOPES. `per_task` is valid for ONE task; `chain_scoped` for ONE
+    # chain identity. There is no third, and a realization that collapses the two
+    # into one identity has re-created the conflict the split exists to resolve.
+    type: string
+    enum: [per_task, chain_scoped]
+
+  authorized_record_kind:
+    # THE CLOSED UNION OF BOTH ENUMERATIONS. WHICH members a given identity may
+    # sign is fixed by its own SIGNED CHAIN BINDING and enforced against the
+    # controller's signed statement rather than against a reader's memory. No
+    # authority record appears here at any scope.
+    type: string
+    enum:
+      - xfactory_signed_execution_chain_runner_attestation
+      - xfactory_signed_execution_chain_pr_open_decision
+      - xfactory_signed_execution_chain_closure_record
+
+  evidence_class:
+    # ORDERED: runner_claimed < controller_corroborated < independently_observed.
+    type: string
+    enum: [runner_claimed, controller_corroborated, independently_observed]
+
+  attested_fact:
+    # ONE FACT AND ITS CLASS. `additionalProperties: false` and a REQUIRED
+    # `evidence_class` make the unclassed fact UNREPRESENTABLE rather than merely
+    # refused — this family's standing preference, and the reason the reader's
+    # `evidence_class_absent` code exists for the case where a fact reaches it
+    # some other way.
+    type: object
+    required: [fact, value, evidence_class]
+    additionalProperties: false
+    properties:
+      fact: {type: string, minLength: 1, maxLength: 200}
+      value: {type: string, minLength: 1, maxLength: 600}
+      evidence_class: {$ref: '#/$defs/evidence_class'}
+      observed_by:
+        # REQUIRED BY THE READER on an `independently_observed` fact and refused on
+        # any other: the class asserts a party independent of BOTH the claimant and
+        # the signer, and a class asserting one without naming it is a word.
+        type: string
+        maxLength: 200
+      statement: {type: string, maxLength: 600}
+
+  public_key:
+    # THE SIGNER'S PUBLIC KEY, SUPPLIED BESIDE THE SIGNATURE — `did:key`'s `z` +
+    # base58btc(multicodec ed25519-pub || 32 raw bytes), the spelling the shipped
+    # wallet record already uses at `key_reference.public_key_multibase`. It is
+    # SUPPLIED and not TRUSTED: the reader computes its fingerprint under the one
+    # construction in force and requires EQUALITY with the consumed certificate's
+    # `subject.public_key_fingerprint` before verifying anything.
+    type: string
+    pattern: '^z[1-9A-HJ-NP-Za-km-z]{40,120}$'
+
+  signature_block:
+    # EVERY SIGNATURE IN THIS TRANCHE, ONE SHAPE. `signed_over` is pinned per
+    # record kind at the site that uses this def, so a signature cannot claim to
+    # cover a block it does not.
+    type: object
+    required: [algorithm, key_ref, certificate_ref, signed_over, signature, public_key]
+    additionalProperties: false
+    properties:
+      algorithm:
+        type: string
+        enum: [ed25519, ecdsa-p256, ecdsa-secp256k1]
+      key_ref: {$ref: '#/$defs/identifier'}
+      certificate_ref:
+        # THE CONSUMED `certificate-record` this signature is verified against, by
+        # `certificate_id`. It is in this capability's CONSUMED-CERTIFICATE SET, so
+        # requirement 1's fingerprint obligation binds it.
+        $ref: '#/$defs/identifier'
+      signed_over: {type: string, minLength: 1, maxLength: 60}
+      signature:
+        type: string
+        pattern: '^[A-Za-z0-9_-]{86}$'
+      public_key: {$ref: '#/$defs/public_key'}
+
+  predecessor:
+    # THE ACTUAL NEAREST PRIOR IN-FORCE SIGNED RECORD OF THIS CHAIN. The digest's
+    # SUBJECT is not pinned here on purpose: the predecessor may be any signed kind
+    # this capability defines, so the subject names WHICH, and the reader refuses a
+    # record whose declared predecessor is not the log's actual nearest prior
+    # (`predecessor_digest_break`). A record's kind never determines its place.
+    #
+    # LINKS 7, 8 AND 9 ARE NAMED HERE RATHER THAN LEFT AS A HOLE, since the whole
+    # defect was a reader having to guess: LINK 7, the council review, is outside
+    # this capability's code surface and is reached by closure's separate
+    # REVIEW-AUTHORITY binding rather than by the hash link; LINK 8 is the GATE, a
+    # verifier and not a record, so it can have no digest; LINK 9 is the FRAUD
+    # SIGNAL, a refusing STATE the chain enters rather than an act that writes an
+    # artifact. None is a signed record at this tranche, and that is why the order
+    # steps over them.
+    type: object
+    required: [record_ref, digest]
+    additionalProperties: false
+    properties:
+      record_ref: {$ref: '#/$defs/identifier'}
+      record_kind: {type: string, minLength: 1, maxLength: 120}
+      digest: {$ref: '#/$defs/digest'}
+
+  signing_request:
+    # THE REQUEST, RECORDED BESIDE THE SIGNATURE IT RECEIVED. A signature shows
+    # WHAT was attested; the recorded request shows WHO ASKED. A record carrying no
+    # recorded request is REFUSED rather than accepted as a record with a detail
+    # missing.
+    #
+    # RECORDING IS NECESSARY AND NOT SUFFICIENT. An opportunistic caller that can
+    # reach the signing service can submit a payload that corroborates against link
+    # 4 and satisfy every other refusal, so the controller ATTRIBUTES the request
+    # and REFUSES one it cannot attribute. The attribution is task-scoped for link
+    # 5 (to the task the controller PROVISIONED IN LINK 4) and chain-scoped for
+    # links 6 and 10 (to THE PARTY THE CHAIN'S OWN INCEPTION RECORD BINDS — the
+    # actor bound to the wallet that signed the ratification). NO AUTHORITY IS
+    # MINTED for the second: the requester set is READ OFF what the chain already
+    # carries.
+    #
+    # THE ATTRIBUTION COMES FROM THE CONTROLLER'S OWN PROVISIONING AND NEVER FROM
+    # WHAT THE RUNNER SAYS ABOUT ITSELF: `attributed_by` is closed to
+    # `controller_provisioning` and `chain_inception_binding`, and a
+    # `runner_asserted` value is refused as self-report on the same ground as a
+    # self-reported measurement.
+    type: object
+    required: [request_id, requested_at, attribution, payload_digest]
+    additionalProperties: false
+    properties:
+      request_id: {$ref: '#/$defs/identifier'}
+      requested_at: {type: string, format: date-time}
+      attribution:
+        type: object
+        required: [attributed_by, requester_ref]
+        additionalProperties: false
+        properties:
+          attributed_by:
+            type: string
+            enum: [controller_provisioning, chain_inception_binding, runner_asserted]
+          requester_ref: {type: string, minLength: 1, maxLength: 300}
+          statement: {type: string, maxLength: 600}
+      payload_digest:
+        # THE DIGEST OF THE PAYLOAD SUBMITTED, taken over THE SIGNED BLOCK WITH
+        # THIS REQUEST REMOVED — the same construction `leaf_content` uses one file
+        # over, and for the same reason: a digest cannot cover itself, and the
+        # request sits inside the bytes it would otherwise be hashing. Its
+        # `subject` is the signed block's own subject, so a reader knows what was
+        # hashed as well as how.
+        $ref: '#/$defs/digest'
+
+  task_reference:
+    # THE PER-TASK REFERENCE THE EXPECTED SET IS WRITTEN IN, and the value a link-5
+    # attestation carries back. It is STABLE — a value the controller mints at
+    # dispatch and the runner echoes — and it falls inside the controller's signed
+    # bytes. Its SHAPE is fixed here; the reference is not a digest, so it is
+    # settled WITH the one digest construction rather than beside it: nothing here
+    # declares a second way to compute anything.
+    type: object
+    required: [task_ref, dispatched_at]
+    additionalProperties: false
+    properties:
+      task_ref: {$ref: '#/$defs/identifier'}
+      dispatched_at: {type: string, format: date-time}
+      statement: {type: string, maxLength: 400}
