@@ -267,6 +267,11 @@ suggestion: the workflow path is what the operator admits to the allowlist in
       any future dispatch that requests `artifact-only` by name. An operator
       label-cleanup item: remove or correct `artifact-only`/`rider` on both
       runners, investigating both rather than "fixing" the coding host alone.
+      **RULED 2026-09-01 by Brett Heap, in-session:** remove the two foreign
+      labels — `artifact-only` and `rider` — from runner
+      `xfactory-coding-cpc-brett01` now. The console act is being performed
+      in-session; verification (a readiness re-run) follows. Left open, not
+      DONE, until that verification is filed.
 - [ ] 4.7 **DECIDE THE SAME-HOST TOPOLOGY.** The 2026-09-01 clearing dispatch
       found both lane runners reporting the same `hostname` /
       `COMPUTERNAME` / `compute.node` (`CPC-brett-TUBV0`,
@@ -278,6 +283,15 @@ suggestion: the workflow path is what the operator admits to the allowlist in
       isolation, and plausibly explains 4.6's copy-pasted labels. Operator
       decision owed: single-host-by-design, or an interim state pending a
       second host — and if interim, when the second host lands.
+      **RULED 2026-09-01 by Brett Heap, in-session (options block, recommended
+      option picked): BY DESIGN FOR QA.** Service-account isolation
+      (`svc-omnicoder` / `svc-omniworker`) on the single Cloud PC
+      `CPC-brett-TUBV0` is the accepted QA posture. **Open remainder — the
+      revisit trigger, not yet reached:** the earlier of (a) a production
+      posture decision or (b) the first bundle-carrying coding operation
+      landing in the clearing register — at that point machine isolation is
+      re-examined before dispatch. Left unchecked as a tripwire: this item
+      stays open until the trigger fires, not until an act completes.
 
 ## 5. Dispatch readiness on both lanes, and file the evidence
 
@@ -471,6 +485,18 @@ Deliberately not started before §2. Nothing here is authored by this packet.
       `absent` member removes NO allowlist entry (there is none) and only
       shrinks the enumeration; a retirement of a `present` member does both,
       in the same act.
+      **RULED 2026-09-01 by Brett Heap, in-session (options block, recommended
+      option picked): RETIRE-ON-NEXT-NEED**, as the §8.3 disposition for
+      `review-lane-worker.yml` and `ideation-organizer-worker.yml`. They stay
+      dark — failing closed, no allowlist entries, no revival — until either
+      lane is next needed; when it is, it returns ONLY as a permitted
+      operation of the clearing workflow, never as a new `selected_workflows`
+      entry (a re-add would be a widening and would show as a finding on the
+      next attestation reading). They remain in the grandfather enumeration
+      (status `absent`) until retired, at which point the enumeration
+      shrinks. **Open remainder:** the item stays open only for the eventual
+      retirement act itself (and the other seven grandfather members' own
+      dispositions and retirements).
 - [ ] 8.4 If and when the neutral INFRASTRUCTURE-READINESS RESULT that
       `document-cataloging` and `ideation-routing` both await is proposed,
       declare the `readiness-diagnostic` operation report a candidate INPUT
