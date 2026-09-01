@@ -66,6 +66,29 @@ accepted WITH its disclosure intact, rather than accepted by silence.** A packet
 that had folded D4 in with the other four would have obtained the same words from
 a ruler who had not been asked the question.
 
+## Amended 2026-09-01, after the bot round
+
+**Codex's P1 on PR #544 found that the ratified design missed the recurrence it
+was built for**: the family checked only the currently declared bundle, so once
+a later cut advanced the manifest the earlier untagged bundle became invisible.
+Against the incident that produced issue #528 it would have read ZERO. Proven
+RED-first, then fixed to inspect every CUT bundle, with the distance grading
+kept for the current declaration only and a superseded untagged bundle reported
+at `error` without grading.
+
+**A second defect surfaced while fixing the first, and it is the more
+embarrassing one**: run against this repository the family reported "no contract
+bundle declared" for a repository declaring `contract-v2.5`, because `blobs_at`
+answers None per path for an unreadable blob and the published tip was not in
+the local object store. That is the #338 conflation — "not fetched" read as an
+answer — inside the family whose D5 exists to avoid it. Both reads are guarded
+and the case is pinned.
+
+**Put to Brett as an amendment to a ratified baseline rather than folded in, and
+ACCEPTED 2026-09-01, verbatim: "accept the amendment".** Two ADDED scenarios and
+one amended paragraph; the threshold, the severities, the two failure classes
+and the enforcement floor are unchanged.
+
 ## The threshold
 
 **N = 5 first-parent landings**, ruled in act one and stated in the delta as the

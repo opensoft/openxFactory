@@ -3,6 +3,7 @@ code_surface: openxFactory (`scripts/doc_health/release_tag_publication.py` — 
 target_release: implemented — the openxFactory main line. This surface cuts no contract bundle: no schema under `contracts/schemas/` changes, no digest set moves, and no release tag is owed BY this change (which would be a pleasing irony to get wrong). The archive gate is therefore merge-plus-green on main, following `add-family-enumeration-check` and `add-unclassified-finding-class`: `python3 -m pytest tests/doc-health` green, `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green, and a doc-health single-repo run whose severity counts move by exactly what this proposal predicts — see § What this will report on the day it lands, which predicts ZERO, and says why a nonzero answer there would be a finding about the estate rather than about the check.
 Status: ratified
 Proposed: 2026-08-31
+Amended: 2026-09-01 by Brett Heap — in session, verbatim: "accept the amendment". The amendment is the one § AMENDED AFTER RATIFICATION describes: the family inspects EVERY CUT BUNDLE rather than only the currently declared one, after Codex's P1 on PR #544 showed the ratified design would have read ZERO through the very recurrence that produced issue #528. Two ADDED scenarios and one amended paragraph in the delta; the threshold, the severities, the two failure classes and the enforcement floor are unchanged from the ruling of 2026-08-31.
 Ratified: 2026-08-31 by Brett Heap (repository owner) — in session, in TWO ACTS. First, verbatim: "accept D1, D2, D5; threshold N=5", disposing four decisions and settling the one number the authoring session declined to pick; D4 was not named by that act and was carried as OWED rather than read as accepted. Then, on D4 being put to him as outstanding, verbatim: "accept D4, and yes that's the ratification". ALL FIVE orchestrator decisions are ACCEPTED AS DRAFTED. Record: `review/ratification-2026-08-31.md`.
 Origin: issue #528, filed 2026-08-31 after `contract-v2.3` and `contract-v2.4` were both found declared-and-untagged by hand while completing the v2.4 cut's own record. Commissioned in session by Brett, verbatim: "take 528". The two bundles have since been tagged; the gap that produced them twice has not been closed, and closing it is what this proposes.
 ---
@@ -296,6 +297,44 @@ MODIFIED block and it clears when the block promotes.
 **Nothing else moves**: no severity count outside those four, no census, no word
 count, no canon-share figure, no catalog record. If a reviewer's run disagrees
 with this paragraph, the disagreement is the finding.
+
+## AMENDED AFTER RATIFICATION, 2026-09-01 — flagged, then ACCEPTED
+
+**ACCEPTED 2026-09-01 by Brett Heap, verbatim: "accept the amendment".** It was
+put to him as an amendment to a ratified baseline rather than folded into the
+realization, and the record below is what he accepted.
+
+**Codex's P1 on PR #544 found that the ratified design missed the recurrence it
+was built for, and the fix changes the requirement's text.** Recorded here as an
+amendment awaiting Brett rather than absorbed into the realization, because the
+ratified baseline named a delta and this is not that delta.
+
+**The defect.** The family checked only the bundle the manifest CURRENTLY
+declares. A bundle is silent while its declaring commit is the tip — correct —
+but when the next cut advances the manifest, the family starts checking the new
+bundle and never revisits the old one. **Against the actual incident it would
+have read ZERO through the whole of it**: `contract-v2.3` untagged,
+`contract-v2.4` declared on top, nothing reported. The family would have been
+green through precisely the failure that produced issue #528. Proven by a
+RED-first test before the fix.
+
+**The fix.** Every bundle the repository has CUT is inspected, taken from the
+release inventories. The distance grading still applies only to the current
+declaration, which is the only one still inside a legitimate window; a
+SUPERSEDED untagged bundle is an `error` without grading, because its window
+closed when the next cut replaced it.
+
+**A second defect, found by running the fix against this repository.** The
+family reported *"no contract bundle declared"* against a repository declaring
+`contract-v2.5`. Cause: `blobs_at` answers None PER PATH for a blob it cannot
+read, and the published tip was not in the local object store. **That is the
+#338 conflation — "not fetched" read as a substantive answer — reproduced in the
+family whose D5 exists to avoid exactly it.** Both reads are now guarded and the
+scenario is pinned.
+
+**What this costs.** Two ADDED scenarios in the delta and one amended paragraph.
+Nothing else moves; the threshold, the severities, the two failure classes and
+the enforcement floor are as ruled.
 
 ## Non-goals
 

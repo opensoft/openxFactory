@@ -3,7 +3,24 @@
 ## ADDED Requirements
 
 ### Requirement: Release-tag publication
-The release-tag-publication family SHALL report, for every repository in scope that declares a contract bundle at or above the version where mandatory tag publication begins, whether that bundle has a published ANNOTATED tag, and whether that tag peels to a commit that declares the bundle.
+The release-tag-publication family SHALL report, for every repository in scope and for EVERY BUNDLE THAT REPOSITORY HAS CUT at or above the version where mandatory tag publication begins, whether that bundle has a published ANNOTATED tag, and whether that tag peels to a commit that declares the bundle.
+
+EVERY CUT BUNDLE, NOT ONLY THE ONE CURRENTLY DECLARED — and this is the
+difference between catching the recurrence and reading zero through it. A
+bundle is legitimately silent while its declaring commit is the published tip.
+Then the NEXT cut advances the manifest, and a family that read only the current
+declaration would begin checking the new bundle and NEVER REVISIT the old one.
+Run against the incident that motivated this family it would have reported
+nothing at all: `contract-v2.3` untagged, `contract-v2.4` declared on top of it,
+silence. The set of bundles a repository has cut SHALL be taken from its release
+inventories, which are the machine-readable fact that a cut happened.
+
+A SUPERSEDED BUNDLE IS NOT GRADED BY DISTANCE. The distance window exists for
+the interval between declaring and tagging, and that interval ENDED for any
+bundle the manifest has moved on from. An untagged superseded bundle is
+therefore reported at `error` without grading, and its remedy is
+retro-publication at the commit the policy's rule identifies — RETRO-PUBLISHED,
+NOT RE-DATED, as the 2026-08-25 discharge did.
 
 The obligation being checked belongs to `docs/contract-versioning-policy.md` —
 "a bundle is not published until its tag exists", and "the tag SHALL point to
@@ -94,6 +111,16 @@ passes this family and remains a defect under the policy.
 #### Scenario: A bundle below the enforcement line
 - **WHEN** the declared bundle is below the version at which mandatory tag publication begins
 - **THEN** the family MUST emit no finding, and MUST NOT report the legacy sequence's untagged bundles at any severity
+
+#### Scenario: A bundle was cut, superseded, and never tagged
+- **WHEN** a repository has a release inventory for a bundle at or above the enforcement line, that bundle has no published annotated tag, and the manifest now declares a different bundle
+- **THEN** the family MUST emit an `error` naming the superseded bundle and the bundle that replaced it, and MUST NOT grade it by distance — the window it would be graded against closed when the next cut replaced it
+- **AND** the action MUST name retro-publication at the commit the policy's rule identifies, never a re-dating and never an edit to the inventory
+
+#### Scenario: The manifest cannot be read at the published tip
+- **WHEN** the blob read for the manifest at the published tip answers nothing — the commonest cause being a checkout that has not fetched that commit
+- **THEN** the family MUST report a skip saying so, and MUST NOT report it as the repository declaring no bundle
+- **AND** the same MUST hold for the commit a tag peels to, so a tag pointing at an unfetched commit is never reported as a tag pointing at a commit that declares nothing — this is the conflation `verify_tag` is filed for at #338, and a family that repeated it would be reporting the benign case in the serious case's words
 
 #### Scenario: A repository declares no bundle
 - **WHEN** a repository in scope carries no declared contract bundle at all

@@ -229,11 +229,15 @@ def test_unlistable_tag_refs_skip_rather_than_read_absence_as_an_answer():
     class NoRefs(FakeGit):
         def tag_ref(self, repo, name):
             return None
+
+        def ls_tree_paths(self, repo, ref, prefix):
+            return []
     git = NoRefs(remotes={"r": "tip"},
                  blobs={("r", MANIFEST):
                         b"contract_bundle_version: contract-v2.0\n"})
     out = rtp.check_repo("alphaFactory", Path("r"), git)
-    assert isinstance(out, Skip) and "tag refs could not be listed" in out.reason
+    assert isinstance(out, Skip)
+    assert "published refs for contract-v2.0 could not be consulted" in out.reason
 
 
 # ------------------------------------------------------------- the family entry
@@ -290,7 +294,16 @@ def test_this_repository_reads_zero_and_the_probe_can_fire(tmp_path):
         repo_paths = {"openxFactory": Path(REPO_ROOT)}
         git = RealGit()
 
-    assert rtp.fam_release_tag_publication(Ctx()) == []
+    over_the_real_tree = rtp.fam_release_tag_publication(Ctx())
+    # A SKIP IS NOT A DEFECT AND IS NOT ASSERTED AWAY. This family reads the
+    # PUBLISHED refs, so its answer depends on whether the checkout has fetched
+    # the tip — an environment fact, not a corpus fact. What must hold over the
+    # real tree is that it invents no defect: no `error`, no `warning`. The
+    # skip path carries `info` and its reason, which is the honest answer when
+    # the question could not be asked.
+    if not isinstance(over_the_real_tree, Skip):
+        assert [f for f in over_the_real_tree
+                if f.severity in (ERROR, WARNING)] == []
 
     control, _ = _repo(tmp_path, "control")
     _declare(control, "contract-v2.0", "cut, never tagged")
@@ -305,3 +318,54 @@ def test_this_repository_reads_zero_and_the_probe_can_fire(tmp_path):
     assert [f.severity for f in fired] == [ERROR], (
         "the probe read zero over the real tree and must be shown capable of "
         "firing, or it proves nothing about the corpus")
+
+
+# ------------------------------------- the recurrence this family exists to catch
+
+def test_a_superseded_bundle_that_was_never_tagged_is_still_reported(tmp_path):
+    """CODEX P1 ON PR #544, AND THE REASON THIS TEST EXISTS.
+
+    The family first checked only the bundle the manifest CURRENTLY declares,
+    which permanently missed the exact incident that motivated it: v2.3 is
+    silent while its declaring commit is the tip, then v2.4 advances the
+    manifest and the family starts checking v2.4 and never revisits the
+    still-untagged v2.3. It would have read ZERO through the whole recurrence.
+    """
+    repo, _ = _repo(tmp_path)
+    _declare(repo, "contract-v2.3", "cut v2.3, never tagged")
+    (repo / "contracts" / "releases").mkdir(parents=True, exist_ok=True)
+    (repo / "contracts/releases/contract-v2.3.digests.yaml").write_text("x: 1\n")
+    _git(repo, "add", "contracts/releases/contract-v2.3.digests.yaml")
+    _git(repo, "commit", "-q", "-m", "v2.3 inventory")
+    _declare(repo, "contract-v2.4", "cut v2.4")
+    (repo / "contracts/releases/contract-v2.4.digests.yaml").write_text("y: 1\n")
+    _git(repo, "add", "contracts/releases/contract-v2.4.digests.yaml")
+    _git(repo, "commit", "-q", "-m", "v2.4 inventory")
+    _git(repo, "tag", "-a", "contract-v2.4", "-m", "v2.4")
+    _push(repo)
+
+    findings = _check(repo)
+    rules = " ".join(f.rule for f in findings)
+    assert "contract-v2.3" in rules, (
+        "the superseded, never-tagged bundle is invisible: the family checked "
+        "only the current declaration, which is the recurrence it exists for")
+    assert any(f.severity == ERROR for f in findings)
+
+
+def test_an_unfetched_published_tip_skips_rather_than_reading_no_bundle(tmp_path):
+    """THE #338 CONFLATION, GUARDED IN THIS FAMILY'S OWN READS.
+
+    Found by running the family against this repository while `main` had
+    advanced past the last fetch: it reported "no contract bundle declared"
+    against a repository declaring `contract-v2.5`. `blobs_at` answers None PER
+    PATH for a blob it cannot read, and "not fetched" is not an answer.
+    """
+    class Unfetched(FakeGit):
+        def blobs_at(self, repo, commit, relpaths):
+            return {p: None for p in relpaths}
+
+    git = Unfetched(remotes={"r": "tip-not-here"})
+    out = rtp.check_repo("alphaFactory", Path("r"), git)
+    assert isinstance(out, Skip)
+    assert "could not be read at the published tip" in out.reason
+    assert "no contract bundle declared" not in out.reason

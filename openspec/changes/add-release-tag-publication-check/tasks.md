@@ -139,6 +139,15 @@ exists.
       promoted requirement measured as scenario-complete at eight scenarios
       before restating it.
 
+- [x] 1.5 **THE POST-RATIFICATION AMENDMENT OF 2026-09-01 — ACCEPTED**, Brett
+      Heap in session, verbatim: "accept the amendment".
+      Codex's P1 on #544 found the ratified design missed the recurrence it was
+      built for — it checked only the currently declared bundle, so it would
+      have read ZERO through the v2.3/v2.4 incident. Fixed to inspect every CUT
+      bundle, which adds two scenarios and amends a paragraph of the ratified
+      delta. Flagged rather than folded in: the ratification named a delta and
+      this is not that delta.
+
 ## 4. Recorded, not fixed
 
 - [ ] 4.1 **#338 stands and this packet routes around it** (D5). `verify_tag`

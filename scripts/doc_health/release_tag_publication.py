@@ -54,6 +54,7 @@ from . import ERROR, INFO, WARNING, Finding, Skip
 
 FAMILY = "release-tag-publication"
 MANIFEST = "contracts/manifest.yaml"
+RELEASES = "contracts/releases"
 
 # Mandatory publication begins at contract-v1.7; contract-v1.0 through v1.6 are
 # an explicitly recovered legacy sequence and carry no tags BY DESIGN, per the
@@ -71,6 +72,10 @@ DEFAULT_THRESHOLD = 5
 _BUNDLE = re.compile(r"^contract_bundle_version:\s*(\S+)\s*$", re.M)
 _VERSION = re.compile(r"^contract-v(\d+)\.(\d+)$")
 
+_SUPERSEDED_ACTION = (
+    "publish the annotated tag retrospectively at the commit the versioning "
+    "policy's rule identifies — RETRO-PUBLISHED, NOT RE-DATED, as the "
+    "2026-08-25 discharge did for contract-v1.33, v1.35 and v1.39")
 _ABSENT_ACTION = (
     "publish the annotated tag at the commit the versioning policy's rule "
     "identifies — the earliest first-parent commit on published main that "
@@ -111,6 +116,31 @@ def version_of(bundle: str | None) -> tuple[int, int] | None:
         return None
     found = _VERSION.match(bundle)
     return (int(found.group(1)), int(found.group(2))) if found else None
+
+
+def cut_bundles(git, repo_path: Path, tip: str) -> set[str] | None:
+    """Every bundle this repository has CUT, from its release inventories.
+
+    WHY NOT JUST THE DECLARED ONE — this is the defect Codex found on PR #544,
+    and it is the exact recurrence the family exists for. A bundle is silent
+    while its declaring commit is the tip, which is correct; then the NEXT cut
+    advances the manifest, and a family that reads only the current declaration
+    starts checking the new bundle and never revisits the old one. Run against
+    the real incident it would have read ZERO through the whole of it: v2.3
+    untagged, v2.4 declared on top, nothing reported.
+
+    An inventory file under `contracts/releases/` is the machine-readable fact
+    that a bundle was cut, which is what makes the set enumerable at all.
+    """
+    paths = git.ls_tree_paths(repo_path, tip, RELEASES)
+    if paths is None:
+        return None
+    bundles = set()
+    for path in paths:
+        name = path.rsplit("/", 1)[-1]
+        if name.endswith(".digests.yaml"):
+            bundles.add(name[: -len(".digests.yaml")])
+    return bundles
 
 
 def _finding(sev, repo, rule, action, resolution="auto-fixable"):
@@ -157,10 +187,43 @@ def distance_from_tip(git, repo_path: Path, bundle: str, tip: str,
     return earliest_declaring
 
 
+def _tag_state(git, repo_path: Path, bundle: str):
+    """(kind, detail) for one bundle's published tag.
+
+    kind is "unlistable", "absent", "lightweight", "misplaced" or "ok".
+    """
+    ref = git.tag_ref(repo_path, bundle)
+    if ref is None:
+        return ("unlistable", None)
+    objecttype, peeled = ref
+    if objecttype is None:
+        return ("absent", None)
+    if objecttype != "tag":
+        return ("lightweight", None)
+    target = git.blobs_at(repo_path, peeled, [MANIFEST])
+    if target is None or target.get(MANIFEST) is None:
+        # Same conflation guarded at the other read: a tag peeling to a commit
+        # this clone has not fetched must not be reported as a tag pointing at
+        # a commit that declares nothing.
+        return ("unlistable", None)
+    declared_there = parse_bundle(target.get(MANIFEST))
+    if declared_there == bundle:
+        return ("ok", peeled)
+    return ("misplaced", (peeled, declared_there))
+
+
 def check_repo(repo: str, repo_path: Path, git,
                threshold: int = DEFAULT_THRESHOLD):
     """One repository. `Skip` where the question could not be asked, a list of
-    findings otherwise — empty when the obligation is met."""
+    findings otherwise — empty when the obligation is met.
+
+    EVERY BUNDLE THIS REPOSITORY HAS CUT IS INSPECTED, not only the one the
+    manifest currently declares. The distance grading applies to the CURRENT
+    declaration, which is the only one still inside its legitimate window; a
+    SUPERSEDED bundle's window closed when the next cut replaced it, so an
+    untagged one is unambiguously unpublished and is reported at `error`
+    without grading.
+    """
     tip = git.remote_main_sha(repo_path)
     if tip is None:
         return Skip(FAMILY, f"{repo}: published main could not be resolved, so "
@@ -169,69 +232,98 @@ def check_repo(repo: str, repo_path: Path, git,
     if blobs is None:
         return Skip(FAMILY, f"{repo}: version control could not be consulted "
                             f"for {MANIFEST}")
-    bundle = parse_bundle(blobs.get(MANIFEST))
-    if bundle is None:
+    manifest = blobs.get(MANIFEST)
+    if manifest is None:
+        # NOT "no bundle declared". `blobs_at` answers None PER PATH for a blob
+        # it cannot read, and the commonest cause is that the published tip is
+        # not in the local object store — a clone that has not fetched it. This
+        # is the #338 conflation, and this family repeated it once before this
+        # line existed: it reported "no contract bundle declared" against a
+        # repository declaring contract-v2.5, because main had advanced past the
+        # last fetch. Not fetched is not an answer.
+        return Skip(FAMILY, f"{repo}: {MANIFEST} could not be read at the "
+                            f"published tip {tip[:9]} — the commit may not be "
+                            f"present locally, which is not the same fact as "
+                            f"declaring no bundle")
+    declared = parse_bundle(manifest)
+    if declared is None:
         return Skip(FAMILY, f"{repo}: no contract bundle declared")
-    version = version_of(bundle)
-    if version is None:
-        return Skip(FAMILY, f"{repo}: declared bundle {bundle!r} is not of the "
-                            f"contract-v<major>.<minor> shape this family "
+    if version_of(declared) is None:
+        return Skip(FAMILY, f"{repo}: declared bundle {declared!r} is not of "
+                            f"the contract-v<major>.<minor> shape this family "
                             f"compares against the enforcement floor")
-    if version < ENFORCEMENT_FLOOR:
-        return []
 
-    ref = git.tag_ref(repo_path, bundle)
-    if ref is None:
-        return Skip(FAMILY, f"{repo}: tag refs could not be listed")
-    objecttype, peeled = ref
+    cut = cut_bundles(git, repo_path, tip)
+    if cut is None:
+        return Skip(FAMILY, f"{repo}: the release inventories under "
+                            f"{RELEASES}/ could not be listed, so the set of "
+                            f"cut bundles is unknown")
+    findings: list[Finding] = []
+    for bundle in sorted(cut | {declared}):
+        version = version_of(bundle)
+        if version is None or version < ENFORCEMENT_FLOOR:
+            continue
+        kind, detail = _tag_state(git, repo_path, bundle)
+        if kind == "unlistable":
+            return Skip(FAMILY, f"{repo}: the published refs for {bundle} "
+                                f"could not be consulted")
+        if kind == "ok":
+            continue
+        if kind == "lightweight":
+            findings.append(_finding(
+                ERROR, repo,
+                f"the ref named {bundle} is a LIGHTWEIGHT tag, not an "
+                f"annotated one, so it does not satisfy the policy's "
+                f"requirement",
+                _LIGHTWEIGHT_ACTION))
+            continue
+        if kind == "misplaced":
+            peeled, declared_there = detail
+            findings.append(_finding(
+                ERROR, repo,
+                f"{bundle}'s annotated tag is MISPLACED: it peels to "
+                f"{peeled[:9]}, which declares "
+                + (f"{declared_there}" if declared_there else "no bundle at all")
+                + f", not {bundle} — a tag on the wrong commit satisfies every "
+                  f"check that asks only whether a tag exists, and it is what "
+                  f"consumers pin",
+                _MISPLACED_ACTION, resolution="contested"))
+            continue
 
-    if objecttype is None:
+        # absent
+        if bundle != declared:
+            findings.append(_finding(
+                ERROR, repo,
+                f"{bundle} was cut and SUPERSEDED without ever being "
+                f"published: it has a release inventory, the manifest has "
+                f"moved on to {declared}, and it has no published annotated "
+                f"tag — under the versioning policy it was never released, "
+                f"and its window closed when the next cut replaced it",
+                _SUPERSEDED_ACTION))
+            continue
         distance = distance_from_tip(git, repo_path, bundle, tip, threshold + 2)
         if distance is None:
             return Skip(FAMILY, f"{repo}: the earliest commit declaring "
                                 f"{bundle} could not be resolved")
         if distance == 0:
-            # The declaring commit is still the published tip. The owner's tag
-            # act legitimately follows it, and this is not a pass: the
-            # obligation is owed and simply not yet late.
-            return []
+            continue
         if distance <= threshold:
-            return [_finding(
+            findings.append(_finding(
                 WARNING, repo,
                 f"{bundle} is declared and has no published annotated tag, "
                 f"{distance} first-parent landing(s) after the commit that "
                 f"declared it",
-                _ABSENT_ACTION)]
-        return [_finding(
-            ERROR, repo,
-            f"{bundle} is declared and has no published annotated tag more "
-            f"than {threshold} first-parent landings after the commit that "
-            f"declared it — under the versioning policy it is NOT PUBLISHED, "
-            f"and its presence in the manifest is not a release",
-            _ABSENT_ACTION)]
-
-    if objecttype != "tag":
-        return [_finding(
-            ERROR, repo,
-            f"the ref named {bundle} is a LIGHTWEIGHT tag, not an annotated "
-            f"one, so it does not satisfy the policy's requirement",
-            _LIGHTWEIGHT_ACTION)]
-
-    target = git.blobs_at(repo_path, peeled, [MANIFEST])
-    if target is None:
-        return Skip(FAMILY, f"{repo}: the commit {bundle}'s tag peels to could "
-                            f"not be read")
-    declared_there = parse_bundle(target.get(MANIFEST))
-    if declared_there == bundle:
-        return []
-    return [_finding(
-        ERROR, repo,
-        f"{bundle}'s annotated tag is MISPLACED: it peels to {peeled[:9]}, "
-        f"which declares "
-        + (f"{declared_there}" if declared_there else "no bundle at all")
-        + f", not {bundle} — a tag on the wrong commit satisfies every check "
-          f"that asks only whether a tag exists, and it is what consumers pin",
-        _MISPLACED_ACTION, resolution="contested")]
+                _ABSENT_ACTION))
+        else:
+            findings.append(_finding(
+                ERROR, repo,
+                f"{bundle} is declared and has no published annotated tag "
+                f"more than {threshold} first-parent landings after the "
+                f"commit that declared it — under the versioning policy it is "
+                f"NOT PUBLISHED, and its presence in the manifest is not a "
+                f"release",
+                _ABSENT_ACTION))
+    return findings
 
 
 def fam_release_tag_publication(ctx):
