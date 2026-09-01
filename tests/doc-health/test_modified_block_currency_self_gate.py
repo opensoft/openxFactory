@@ -517,6 +517,16 @@ _LEDGER_SUBJECTS = {
     # `mbc.carried` returns the UNCARRIED units, and it returns none here.
     # This is the designed behaviour end to end — real movement, detected by
     # name, remedied by re-measuring. `_moved()`'s message is what said so.
+    # ADDED 2026-09-01 BY `add-chain-attestation`, tranche two of the
+    # signed-execution-chain family, ratified 2026-09-01 (review/
+    # ratification-2026-09-01.md, re-ratified same day). Its active MODIFIED
+    # block for this requirement does not yet carry 9 of the 58 body units
+    # and scenario bullets canon states for it — links 4–6/10's gate-scope
+    # extension is ratified but not yet realized. Expected editorial drift,
+    # not a regression; retires when the packet's realization lands and the
+    # block is promoted.
+    ("add-chain-attestation", "signed-execution-chain",
+     "A gate validates the short chain as a hash-linked chain"),
 }
 
 _OWN_CHANGE = "add-modified-block-currency-check"
