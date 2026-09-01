@@ -44,8 +44,11 @@ origin:
     and no flip and reaches this repository without an envelope — was HELD ON
     2026-08-30, four seats, UNANIMOUS 4/4 that the drafted text was not
     ratifiable, THIRTEEN blocking amendments, all discharged, with the bundle
-    filed at `review/` — and RATIFICATION, TAKEN 2026-09-01 after eighteen bot
-    rounds, with the record at `openspec/changes/add-chain-attestation/review/ratification-2026-09-01.md`. The house pattern
+    filed at `review/` — and RATIFICATION, TAKEN 2026-09-01 at `f54cb5bc` after
+    eighteen bot rounds, then RE-RATIFIED THE SAME DAY at `6d7ef17b` once that
+    head's own verdict and the route-A ground correction were discharged. Record:
+    `openspec/changes/add-chain-attestation/review/ratification-2026-09-01.md`, whose §7 carries the
+    reviewed -> amended -> re-ratified lineage. The house pattern
     is `add-binding-consumer-identity`, the first packet through that path end to
     end on 2026-08-29, whose `review/` directory this packet's own `review/`
     mirrors. RATIFICATION AUTHORIZES REALIZATION AND DOES NOT PERFORM IT: no

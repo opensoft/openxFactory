@@ -5,8 +5,8 @@ pull request. **§2 (the §7.4 council review) and §3 (Brett Heap's ratificatio
 are the two gates that stand between it and any realization, in that order.**
 **§2 IS HELD AND DISCHARGED — the sitting of 2026-08-30, its thirteen blocking
 amendments, and the eighteen bot rounds that followed. §3 IS TAKEN — RATIFIED BY
-BRETT HEAP ON 2026-09-01 at `f54cb5bc`, with the text AMENDED SINCE and
-RE-RATIFICATION PENDING.** Both gates are now behind this packet; what remains is
+BRETT HEAP ON 2026-09-01 at `f54cb5bc` and RE-RATIFIED at `6d7ef17b` after the
+amendments that head's own verdict forced.** Both gates are now behind this packet; what remains is
 §5's realization, gated on machinery that does not yet exist. §4 settles what must not reach schema authoring open; §5 is
 the realization commission and is gated on machinery that does not yet exist.
 
@@ -767,7 +767,7 @@ that paperwork, the disposition included.
 
 ## 3. RATIFICATION GATE — **TAKEN 2026-09-01.** Brett Heap's act
 
-- [x] 3.1 **RATIFIED BY BRETT HEAP, 2026-09-01, at `f54cb5bc`; RE-RATIFICATION PENDING for the amended head (record §7)** — record:
+- [x] 3.1 **RATIFIED BY BRETT HEAP, 2026-09-01, at `f54cb5bc`, AND RE-RATIFIED THE SAME DAY at `6d7ef17b` after the amendments (record §7)** — record:
       `openspec/changes/add-chain-attestation/review/ratification-2026-09-01.md`. The review was HELD and the
       fix rounds it forced were LANDED (§2), and the ratification read followed
       them — the

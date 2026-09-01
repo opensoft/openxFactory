@@ -406,7 +406,7 @@ Active changes:
 
 - [add-chain-attestation](openspec/changes/add-chain-attestation/proposal.md)
   — authored 2026-08-29, **`Status: ratified` — RATIFIED 2026-09-01 by Brett
-  Heap at `f54cb5bc`, AMENDED SINCE, RE-RATIFICATION PENDING** (record:
+  Heap at `f54cb5bc` and RE-RATIFIED at `6d7ef17b` after the amendments** (record:
   `openspec/changes/add-chain-attestation/review/ratification-2026-09-01.md`);
   ratification authorizes realization and does not perform it, so the change
   stays ACTIVE until merged code, green evidence and the contract cut exist.

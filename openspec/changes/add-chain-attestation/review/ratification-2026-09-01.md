@@ -4,9 +4,10 @@ Status: ratified
 Decision date: 2026-09-01
 Ratifier: Brett Heap (repository owner) — in-session, on the recorded word
 Ratified: 2026-09-01 by Brett Heap (repository owner) — in-session; record: this
-file.
-Ratified baseline: this change as committed at `dd847e44`, the head this ruling
-names (`proposal.md`, `design.md`, `tasks.md`, `.openspec.yaml`,
+file. **RE-RATIFIED 2026-09-01 at `6d7ef17b`** after the ratified head's own
+verdict and the route-A ground correction were discharged (§7).
+Ratified baseline: the amended head `6d7ef17b`, re-ratified 2026-09-01; the
+original act named `dd847e44` and is recorded at §1–§6 (`proposal.md`, `design.md`, `tasks.md`, `.openspec.yaml`,
 `specs/signed-execution-chain/spec.md` — **NINE ADDED requirements over 104
 scenarios, plus TWO scenario-complete `## MODIFIED Requirements` over 17
 scenarios**), validated `--strict` and `--all --strict`, doc-health zero-new,
@@ -285,14 +286,30 @@ superseded ground **marked and dated** rather than rewritten, and records that
 **Route B's refusal ground is unaffected**, having never depended on tranche one
 being uncut.
 
-### 7.3 The standing of this record
+### 7.3 THE RE-RATIFICATION — the lineage this record describes, closed on itself
 
 **THE RATIFICATION OF `f54cb5bc` STANDS AS THE ACT IT WAS** — given at a head
-whose disclosed state Brett ruled against, and truthfully recorded here.
-**RE-RATIFICATION IS PENDING FOR THE AMENDED HEAD.** The packet's status is
-therefore **RATIFIED-THEN-AMENDED**: not a draft, and not currently-ratified
-text. `approved_on` stands as the history of the act it records, not as a claim
-about the amended text.
+whose disclosed state Brett ruled against, and truthfully recorded here. The
+amended head then went back to him, and on **2026-09-01**, against the full
+disclosed state of `6d7ef17b`, he ruled:
+
+> **"re-ratify and merge #510"** — Brett Heap, 2026-09-01
+
+**THE AMENDED HEAD `6d7ef17b` IS THEREFORE RE-RATIFIED**, and this record's
+pending state at §7.3 is closed.
+
+**AND THE SHAPE OF WHAT JUST HAPPENED IS THIS PACKET'S OWN RULE, LIVED BY ITS
+OWN RATIFICATION RECORD**: a subject was REVIEWED at one head, AMENDED under
+what that review returned, and RE-RATIFIED at the amended head — reviewed →
+amended → re-ratified, connected by a discharge trail, which is precisely the
+AMENDMENT LINEAGE this delta requires a ratification to carry. The rule was
+written because *accepted as amended* is the ordinary case; the record proves it
+by being an instance.
+
+**Both acts stand, and neither is erased by the other.** `f54cb5bc`'s
+ratification is the history at §1–§6; `6d7ef17b`'s re-ratification is the act in
+force. The packet's status is **RATIFIED — CURRENT**, and `approved_on` names
+this act, with the prior one kept as the record it always was.
 
 ## 6. NEXT
 

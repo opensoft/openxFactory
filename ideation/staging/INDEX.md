@@ -1961,7 +1961,7 @@ repo scope.
   one's gate requirement, and its ratification/chain-inception record extended
   with the three amendment-lineage fields closure reads. **THE §7.4 COUNCIL REVIEW IS HELD — 2026-08-30,
   THIRTEEN blocking amendments, all discharged — AND BRETT HEAP RATIFIED IT ON
-  2026-09-01 at `f54cb5bc`, with the text AMENDED SINCE and RE-RATIFICATION PENDING**, in that order, on `add-binding-consumer-identity`'s pattern.
+  2026-09-01 at `f54cb5bc`, RE-RATIFYING the amended head `6d7ef17b` the same day**, in that order, on `add-binding-consumer-identity`'s pattern.
   **RATIFICATION AUTHORIZES REALIZATION AND DOES NOT PERFORM IT**; the change stays
   ACTIVE until merged code, green evidence and the contract cut exist. **NOT recorded as `Exit taken:`**, on
   the same ground tranche one recorded: that record silences
