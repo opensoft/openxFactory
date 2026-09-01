@@ -30,11 +30,16 @@ that the realization must clear before this change may archive at all.
 **One feature, both retirements, because they are one file and one class.**
 
 - [ ] 2.1 `scripts/validate-domain-factory.py`: delete `LEGACY_HERMES_KEYS`
-      (`:60-70`) and the whole `else` arm of `check_hermes` (`:189-200`) — the
-      warn line, the flat-key resolution loop, and the per-role
-      `no overlay resolvable` check that only that arm reaches. A `stack.yaml`
-      with no `hermes.layers` then falls to the existing
-      `hermes.layers missing required role` errors.
+      (`:60-70`) and REPLACE the `else` arm of `check_hermes` (`:189-200`) —
+      the warn line, the flat-key resolution loop, and the per-role
+      `no overlay resolvable` check — **with an explicit error**.
+      **DO NOT SIMPLY DELETE THE ARM.** The `hermes.layers missing required
+      role` errors at `:186-188` sit INSIDE the `if isinstance(declared, list)`
+      branch, so a bare deletion leaves a `layers`-less stack falling straight
+      through to `for role, layer in layers.items()` with an EMPTY map and
+      producing no finding at all — a silent WIDENING at a major, and the exact
+      opposite of the retirement. The replacement is one error naming the
+      missing or non-list `hermes.layers`.
 - [ ] 2.2 `scripts/validate-domain-factory.py`: delete the
       `if token.startswith("openworkflow")` branch (`:309-311`), leaving
       `elif token not in allowed` (`:312-314`) as the only arm — which means

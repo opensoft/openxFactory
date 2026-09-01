@@ -132,6 +132,11 @@ under-declares its own scope by seven keys is a defect independent of the split.
 - **THEN** the flat-key entry MUST remain in § Deprecations Currently In Force, enumerating every key the refusal list would carry, carrying a restated removal target ahead of the declared bundle, and carrying the recorded reason — the warning has been dead code for the whole supported population, so the refusal is unphased and owes a deprecating minor first
 - **AND** § Deprecations Executed MUST carry a separate row for the fallback read, which did execute
 
+#### Scenario: A realization DELETES the fallback arm instead of replacing it
+- **WHEN** a realization removes the flat-key fallback arm without putting an explicit refusal in its place
+- **THEN** it MUST be rejected, because the missing-role errors sit INSIDE the branch taken when `hermes.layers` IS declared, so a `layers`-less stack would fall through with an empty layer map and produce no finding at all
+- **AND** that outcome is a silent WIDENING at a major — the opposite of the retirement — which is why the removal of a compatibility read owes a stated replacement behaviour and not merely a deletion
+
 #### Scenario: The refusal list is written by key NAME rather than by key PATH
 - **WHEN** the flat-key refusal list is enumerated as bare key names rather than as keys under the `hermes:` block
 - **THEN** it MUST be rejected, because `domain_overlay` is also a live, non-deprecated key under `omnigent:` that every supported consumer declares and the validator reads

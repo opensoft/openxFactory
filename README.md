@@ -423,13 +423,17 @@ Active changes:
   — the three-line `openworkflow` branch, zero live usage across ten
   repositories, phased since `contract-v1.1`. Adds ONE capability,
   `contract-deprecation-execution`, and NO `## MODIFIED` block, because no
-  promoted requirement names either shape. Three facts the memo did not carry
-  are recorded here: the `openworkflow` branch SHADOWS the general rule and so
-  WIDENS one case as well as narrowing another; promoted canon says an
-  unresolvable `owner_layer` is a WARNING while the shipped validator has
-  ERRORED since six days before that requirement was promoted (recorded, not
-  fixed — D4); and `domain_overlay` is ALSO a live key under `omnigent:`, so the
-  refusal list must be written by PATH and not by name. Sibling:
+  promoted requirement names either shape. FOUR facts the memo did not carry
+  are recorded here: the fallback retirement is a REPLACEMENT and not a
+  deletion, because the missing-role errors sit INSIDE the `layers`-declared
+  branch and a bare deletion would let a `layers`-less stack pass with no
+  finding at all — a silent WIDENING at a major; the `openworkflow` branch
+  SHADOWS the general rule and so WIDENS one case as well as narrowing another;
+  promoted canon says an unresolvable `owner_layer` is a WARNING while the
+  shipped validator has ERRORED since six days before that requirement was
+  promoted (recorded, not fixed — D4); and `domain_overlay` is ALSO a live key
+  under `omnigent:`, so the refusal list must be written by PATH and not by
+  name. Sibling:
   `retire-doxbench-chat-turn-v1`. (code surface: openxFactory; target release:
   `contract-v3.0` — archives only on merged plus green realization evidence and
   the published tag)

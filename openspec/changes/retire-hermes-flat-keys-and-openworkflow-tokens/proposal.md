@@ -74,6 +74,16 @@ these two entries hold, with two corrections and one addition.**
   OpsxFactory all six of `client_layer_name`, `client_overlay`,
   `customer_layer_name`, `customer_overlay`, `domain_layer_name`,
   `domain_overlay`. The memo's table reproduces exactly.
+* **The retirement is a REPLACEMENT, not a deletion, and the difference decides
+  whether it narrows or widens.** The `hermes.layers missing required role`
+  errors at `:186-188` sit INSIDE the `if isinstance(declared, list)` branch.
+  Delete the `else` arm and nothing else, and a `layers`-less stack falls
+  straight through to `for role, layer in layers.items()` with an EMPTY map,
+  producing no finding at all — a SILENT WIDENING at a major, the exact opposite
+  of the retirement. The removal therefore owes a stated replacement behaviour:
+  one explicit error naming the missing or non-list `hermes.layers`. Neither the
+  memo nor the issue named this, and it is the single easiest way to realize this
+  entry wrongly.
 * **A precision the memo did not state, and which the refusal list must carry.**
   `domain_overlay` is ALSO a live, non-deprecated key under the `omnigent:`
   block — every one of the five declares `omnigent.domain_overlay`, and
