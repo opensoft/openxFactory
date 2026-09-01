@@ -2001,6 +2001,8 @@ a refusal on ONE antecedent in one promoted capability.
 - THEN the gate REFUSES rather than proceeding
 - AND an unevaluable condition is never reported as a pass
 
+**Merged into `a link no ratified tranche has yet put in force is absent` by add-chain-attestation (2026-09-01):** `a tranche-two link does not exist yet` — canon's scenario is RENAMED AND RE-CONDITIONED here, not dropped. Its antecedent ("the gate walks a chain that carries no attestation link") became a PERMISSION for exactly the chain this tranche refuses, which is the contradiction the council's LA-A1 was raised to close; the successor below carries the same rule scoped to a link NO RATIFIED TRANCHE HAS YET PUT IN FORCE.
+
 #### Scenario: a link no ratified tranche has yet put in force is absent
 
 - WHEN the gate walks a chain that carries no link from a tranche later than the tranches whose requirements are in force
