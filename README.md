@@ -886,6 +886,57 @@ Active changes:
   mirrors the single codexFactory envelope authority byte-for-behaviour, pinned by
   lockstep test. The codexFactory provenance-tie verifier that CONSUMES
   `scope_globs` is downstream (B's realization), NOT this change's surface.
+- [add-sequenced-after-substrate](openspec/changes/add-sequenced-after-substrate/proposal.md)
+  — authored 2026-09-01, **AUTHORED AND NOT RATIFIED** (`Status: draft`; Group 0
+  of its `tasks.md` is the convener gate and is the only human task in it).
+  ALL-ADDED delta on `release-realization`: the OPTIONAL front-matter sibling
+  `sequenced_after:` — a SEQUENCE of parent change references, with
+  `sequenced_after: []` a POSITIVE ratification-covered ROOT CLAIM — which makes
+  the ordered-delta sequencing this capability already obliges in PROSE walkable
+  by a machine. **THE SECOND HALF OF THE BLOCK `scope_globs` OPENED**: it is
+  dependency **0.5** of codexFactory `realize-provenance-gated-autonomous-merge`,
+  named MISSING and BLOCKING there, and required by Brett's convener ruling **R1**
+  (2026-08-28) that the provenance-tie verifier compose the ordered-delta chain
+  MECHANICALLY. **All three candidate links were measured and all three fail**:
+  the prose obligation is mechanism-agnostic, the `Sequenced-after:` header is
+  free text no schema validates (THREE occurrences, all in ARCHIVED proposals),
+  and doc-health's `modified-block-currency` reader resolves ordering by a
+  WHOLE-TOKEN id occurrence anywhere in the declaring proposal — which cannot
+  distinguish a parent from a mention, cannot express a fork, and is
+  author-mutable in the document the author writes. NINE ADDED requirements,
+  thirty scenarios: the declaration; repository-qualified entry syntax (a FOREIGN
+  entry is DECLARABLE, its disposition the consumer's, because silently SKIPPING
+  it would fabricate a root out of a declaration that says the opposite); **ONE
+  STRICT LOADER over the whole realization-axis block**, reaching `scope_globs:`
+  too, because the shipped `scripts/scope_globs.py` uses `yaml.safe_load` and
+  resolves DUPLICATE KEYS silently last-wins — showing a reviewer the FIRST block
+  and authorizing the LAST — which the consuming verifier already refuses;
+  validation of shape, grammar, resolvability and acyclicity; **archive-stable
+  identity** (two ANCHORED locations, exactly-one, no rewrite on archival — 122 of
+  152 changes are already archived and a chain's ROOT archives FIRST, so an
+  active-only rule would self-disable in the worst order); **root status PROVED,
+  never inferred from absence** as neutral doctrine, with the co-modifier
+  cross-check left to the consumer because its key is a per-repository corpus
+  fact; the four trust-root properties; retention at archive; and **NO WALK
+  POLICY** — no depth cap, no fan-out cap, no composition operator, those being
+  the consuming gate's (codexFactory's FOUR hops and INTERSECTION), plus a
+  MEASUREMENT obligation. **Corpus sweep, measured 2026-09-01**: 152 change ids,
+  **104 co-modified at requirement granularity** (real ordered deltas that would
+  each owe a declaration) vs 48 sole modifiers, 19/11 among the 30 active, and
+  **0 occurrences of `sequenced_after:` anywhere** — so NO migration pass is
+  proposed and adoption is opt-in per change, exactly as `scope_globs` adoption
+  is. The delta is ALL-ADDED as a MEASURED choice: `govern-sibling-added-modified-deltas`
+  holds an active MODIFIED block over "Ordered deltas and branch vocabulary" and
+  `add-structured-scope-substrate` one over "Realization axis declaration", so a
+  MODIFIED block over either would incur that change's relative-declaration
+  obligation and its archive-order hold. **The change is its own first instance**
+  — it declares `sequenced_after: [add-structured-scope-substrate]` even though a
+  requirement-granular cross-check would let its novel titles claim ROOT at depth
+  1, because declaring must never be worth less than omitting. ONE open question
+  needs a ruling (OQ-1: does the `scope_globs` strict-loader retrofit land inside
+  this change, or as a separate successor?); OQ-2 … OQ-5 carry recommendations.
+  Built post-ratification via Speckit; the codexFactory verifier that CONSUMES
+  the field is downstream and NOT this change's surface.
 - [settle-aging-staging-topics](openspec/changes/settle-aging-staging-topics/proposal.md)
   — authored 2026-08-28 on Brett's four bulk rulings over a read-only triage
   survey of the fourteen staging topics `doc-health`'s
