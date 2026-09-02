@@ -1170,9 +1170,12 @@ Each is contract content — cheap now, expensive after a bundle ships.
       conjunct cannot be delivered against the reader as shipped at
       `contract-v3.0`, and the blockage is structural rather than a matter of
       effort — the same class as §§ 5.1–5.3, which is why it is recorded rather
-      than worked around. Filed as openxFactory issue **#579**; full measurement,
-      every command and every verbatim refusal, at
-      `~/projects/xFactory/chain-attestation-canary-2026-09-02/canary-evidence.md`.
+      than worked around. **Filed as openxFactory issue #579**, which carries the
+      full measurement — every command, every verbatim refusal, and the live
+      ruleset read — so the record a later reader needs is reachable from this
+      repository and not from an operator's filesystem. The measurement is also
+      summarized below, on § 4.6's precedent of recording its canary evidence
+      inline in the packet rather than by reference.
 
       **THE WHOLE-TREE SWEEP CANNOT ADJUDICATE A TRANCHE-TWO CHAIN AT ALL.**
       `repo_scan` admits only `KIND_TO_SCHEMA` and drops the three CONSUMED
