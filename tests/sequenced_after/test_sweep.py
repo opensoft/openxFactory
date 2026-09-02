@@ -229,25 +229,60 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
       152 → 153, `sole_modifiers - 1` moves 48 → 49, and `active_sole - 1`
       moves 11 → 12, bumped in the branch's own landing commit per this rule,
       2026-09-01 (PR #555).
+    - `co_modified` reads 105, `active_co_modified` reads 19 and
+      `change_ids - 1` reads 154 — each one up from the reading the entry above
+      left. They moved on 2026-09-02 when `declare-spent-bundle-state` was
+      AUTHORED: one more ACTIVE change, and unlike `add-clearing-dispatch-boundary`
+      it carries a `## MODIFIED Requirements` block — over `doc-health`'s
+      promoted `Release-tag publication` requirement — so it is a CO-modifier
+      rather than a sole one, and both co-modified readings rise while
+      `sole_modifiers - 1` and `active_sole - 1` hold at 49 and 12. THE TWO
+      ENTRIES ABOVE AND THIS ONE ARE THE SAME RULE APPLIED TWICE IN TWO DAYS,
+      and the pair is worth reading together: an ADDED-only packet moves the
+      sole-modifier readings and leaves the co-modified ones, a packet carrying
+      a MODIFIED block does the exact opposite, and a packet that moved BOTH
+      would be a defect in the sweep rather than a corpus event. The pin moves
+      in the SAME COMMIT as the corpus, which is this test's own protocol, and
+      that packet's PR discloses that it touches this file for that reason and
+      for no other: it is corpus BOOKKEEPING, not the realization its OD-8
+      splits off to a later PR. `declaring` holds at 1 — it declares NO
+      `sequenced_after:` field, the field being carried by an ACTIVE, UNPROMOTED
+      change, and adopting an unratified surface is not what the "declaring must
+      never be worth less than omitting" doctrine asks of a packet written
+      before that change lands. `validate-sequenced-after.py` passes over the
+      corpus with it in place.
     """
     sweep = sa.corpus_sweep(ROOT)
-    assert sweep.co_modified == 104, (
-        "the co-modified population is unchanged by this change, whose ADDED "
-        "requirement titles are NOVEL")
-    assert sweep.active_co_modified == 18, (
-        "18 since add-release-tag-publication-check archived 2026-09-01 by "
-        "#563 (measured 19 at authoring, before that archive). Re-derive with "
+    assert sweep.co_modified == 105, (
+        "105 since declare-spent-bundle-state was authored 2026-09-02, which is "
+        "the change that raised it: it carries a `## MODIFIED Requirements` "
+        "block, so it joined the co-modified population. It read 104 at THIS "
+        "test's own authoring — add-sequenced-after-substrate's ADDED "
+        "requirement titles being NOVEL, so that change is a SOLE modifier and "
+        "moved this count not at all — and held at 104 through #563's archive "
+        "and #555's ADDED-only landing. ANY later change carrying a MODIFIED "
+        "block raises it again, which is one of the two EXPECTED causes of this "
+        "failure")
+    assert sweep.active_co_modified == 19, (
+        "19 since declare-spent-bundle-state was authored 2026-09-02, having "
+        "read 18 since add-release-tag-publication-check archived 2026-09-01 by "
+        "#563 and 19 at authoring, before that archive. Re-derive with "
         "`python3 scripts/validate-sequenced-after.py . --sweep` and move this "
         "pin in the SAME COMMIT, recording in the MOVEMENT LOG above which "
         "subject moved and why — archiving a co-modified ACTIVE change lowers "
-        "this count while leaving `co_modified` untouched, and that is the "
-        "EXPECTED cause of this failure")
+        "this count while leaving `co_modified` untouched, and AUTHORING one "
+        "raises BOTH, which are two different EXPECTED causes of this failure "
+        "and must not be confused")
     assert sweep.change_ids == sweep.active + sweep.archived
     assert sweep.sole_modifiers == sweep.change_ids - sweep.co_modified
     # This change is itself a sole modifier at requirement granularity — which is
     # exactly why it declaring a parent anyway is the doctrine applied to its
     # author: declaring must never be worth less than omitting.
-    assert sweep.change_ids - 1 == 153
+    assert sweep.change_ids - 1 == 154, (
+        "the `- 1` subtracts THIS change and nothing else, so the reading is "
+        "the corpus without it: 152 at authoring, 153 when "
+        "add-clearing-dispatch-boundary landed 2026-09-01, 154 when "
+        "declare-spent-bundle-state was authored 2026-09-02")
     assert sweep.sole_modifiers - 1 == 49
     # STILL INTACT ON ITS MERITS, not by a cancelling pair of errors — checked,
     # because #563's archive landing between the authoring measurement and this

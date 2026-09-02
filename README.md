@@ -412,6 +412,106 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [declare-spent-bundle-state](openspec/changes/declare-spent-bundle-state/proposal.md)
+  — authored 2026-09-02, **RATIFIED 2026-09-02 BY DIRECT RULING**
+  (`Status: ratified`; record `review/ratification-2026-09-02.md`) — Brett Heap
+  in session, in TWO ACTS: **OD-3 ACCEPTED AS PROPOSED** (a correctly declared
+  spent bundle emits an `info` with its own finding key, not silence) and
+  **OD-4 ACCEPTED AS PROPOSED** (quiet only once the superseding bundle's tag is
+  published; `warning` while it is cut but untagged; `error` where the named
+  successor was never cut — *"the only way to make a bundle quiet is to publish
+  its successor's tag"*), then the ratification on that basis. **Ratification
+  authorizes REALIZATION and performs none of it**, so the change stays ACTIVE
+  and **the split is deliberate**. Answers openxFactory issue **#575**, filed by the
+  `contract-v3.0` cut (**#573**, squash `ff9ed815`) at the moment it met the
+  defect: the `release-tag-publication` family has **NO THIRD STATE** between
+  *published* and *owes a tag*, so `contract-v2.6` — declared at `bbbbeda9`
+  (**#565**), never verifiable (five `HGR-RELEASE-DIGEST-MISMATCH`, measurement
+  of record PR #565 comment `5502452624`), never publishable under the targeting
+  rule, and ADDITIVE-classed over a tree that refuses three shapes
+  `contract-v2.5` accepted — makes the family `error` **permanently** and keeps
+  `tests/doc-health/test_release_tag_publication.py::test_this_repository_reads_zero_and_the_probe_can_fire`
+  **RED on `main`** (18 passed, 1 failed at the merge base). Brett Heap ruled the
+  supersession 2026-09-02, verbatim as quoted in #575: *"Supersede: v3.0 is the
+  completion"* — and, separately, commissioned this packet: *"Merge now, fix
+  #575 next"*. **ONE `## MODIFIED Requirements` BLOCK over the promoted
+  `Release-tag publication` requirement**, adding a **SPENT** state that is
+  entered ONLY by an explicit reserved declaration and refused by every absence:
+  **silence still `error`s**, and the only way to quiet a spent bundle is to
+  publish its SUCCESSOR's tag — which is the act the family exists to compel, so
+  the escape hatch cannot be taken by writing anything (OD-4). The record is
+  `contracts/CHANGELOG.md` and **not** `health/dispositions.yaml`, measured
+  rather than preferred: that file keys on `(family, repo, path)` and every
+  finding of this family lands on `contracts/manifest.yaml`, so one row would
+  suppress the whole family for the repository forever, and its own loader
+  records that it is unreachable in the `--single-repo` scope the red self-gate
+  runs in (OD-1). **SCENARIO-COMPLETE AND VERIFIED MECHANICALLY**: 11 of 11
+  canon scenarios present, 10 byte-identical, the eleventh differing by exactly
+  one added `AND` bullet with nothing removed, all 67 canon body lines
+  surviving, block BUILT FROM CANON at named anchors rather than retyped — the
+  #331/#329 loss shape checked rather than asserted. Thirteen scenarios added,
+  **twenty-four in total** — ten as first proposed and three more for the Codex
+  P1s. **PROPOSAL ONLY (OD-8)**: #544's one-landing shape was
+  ruled for a mechanical reason — a family ADDITION reddens
+  `family-enumeration`'s self-gate in the interval — and this change adds no
+  family and moves no count, so no forcing function exists, while the cut's own
+  entry says this vocabulary *"owes its own change and its own review"*. `main`
+  therefore stays red for one more PR, on a red that is **declared, named and
+  inherited**. **NO `## MODIFIED` BLOCK over `Deterministic check families`**,
+  and OQ-1 says why: that requirement's document-set sentence for this family is
+  ALREADY stale — it omits the `contracts/releases/` read the family's own
+  accepted amendment added — so the staleness is inherited, its operative
+  conclusion stays true, and no check reads the input enumeration. **OD-6 is the
+  constraint #575 did not anticipate**: the obligation-side paragraph belongs in
+  `docs/contract-versioning-policy.md`, which is a NON-EDITORIAL member of
+  `contracts/releases/contract-v3.0.digests.yaml`, so it rides the next cut
+  rather than trading this `error` for a `release-inventory-drift` one — **a
+  prediction another lane then made true: PR #577 (`2898b104`) edited that very
+  file and `release-inventory-drift` now reports it at `error` on `main`, so
+  OD-6's analysis is vindicated and its arithmetic overtaken in one stroke —
+  the incremental cost of the policy paragraph is now ZERO, and #577 discharges
+  the consumer-facing half of tasks § 3.1 while deliberately not defining the
+  state.** OD-1 …
+  OD-9 and OQ-1 … OQ-3 were FLAGGED FOR VETO; OD-1, OD-2 and OD-6 … OD-8 stand
+  as drafted and OQ-1 … OQ-3 remain OPEN. **EIGHT REVIEW FINDINGS OVER THREE
+  ROUNDS, SEVEN TAKEN AND ONE REFUSED WITH A MEASUREMENT.** Three Codex **P1**s
+  were taken into the
+  requirement before the ratifying commit, both NARROWINGS of what was ruled
+  rather than departures from it: the successor guard was satisfiable BACKWARDS
+  by an EARLIER already-published bundle (**OD-9**, new — the successor must be
+  STRICTLY LATER), and two spent bundles would have shared one
+  `(family, repo, path)` identity on `contracts/CHANGELOG.md`, defeating the
+  per-state disappearance detection (**OD-5** amended — the findings land on
+  `contracts/releases/<bundle>.digests.yaml`, unique per bundle by
+  construction). **The third P1 is the one that mattered most and was a defect in
+  the ENCODING of what Brett ruled rather than in the design**: OD-4's ruled
+  `warning` band was written as a non-acceptance, so the fallback clause would
+  have made a conforming family report BOTH a `warning` and an `error` during the
+  legitimate publication window. The requirement now names THREE outcomes —
+  ACCEPTED, REFUSED, **PROVISIONAL** — and a provisional declaration SUPPRESSES
+  the superseded `error`, losing nothing because the successor is graded on its
+  own account and the obligation has MOVED rather than gone. A Codex P2 (the
+  proposal's own summary still naming the old path after OD-5 was amended) and
+  three Copilot findings — the reserved form's delimiters, `recognise` →
+  `recognize` against canon's five-to-nil spelling, and a pin message pointing at
+  the wrong subject — were taken too. Copilot's *"unquoted `#575` breaks YAML
+  metadata"* finding is
+  **REFUSED WITH A MEASUREMENT**: nothing parses proposal front matter as YAML —
+  `yaml.safe_load` FAILS on `add-release-tag-publication-check`,
+  `add-requirement-ref-resolution-integrity` and
+  `add-clearing-dispatch-boundary` alike — the reader that exists is line-wise
+  (`corpus.STATUS_RE`), and sixteen proposals already carry an unquoted
+  `#<issue>` on their `Origin:` line.
+  **Measured: the packet moves NOTHING in doc-health** — base and head
+  `--single-repo` reports BYTE-IDENTICAL at 6 critical / 5 error / 29 warning /
+  12 info, `family-enumeration` silent and `modified-block-currency`'s
+  gate-bearing arm at 0. **One thing did move and CI found it rather than the
+  measurement**: authoring an ACTIVE change carrying a MODIFIED block raises the
+  `sequenced_after` live pin (`co_modified` 104 → 105, `active_co_modified`
+  18 → 19, `change_ids` 154 → 155 — its `- 1` reading, which subtracts the pin's own owning change, moving 153 → 154), so
+  `tests/sequenced_after/test_sweep.py`
+  moves in the same commit with a dated MOVEMENT LOG entry, which is that pin's
+  own protocol — corpus bookkeeping, not the realization OD-8 defers.
 - [add-requirement-ref-resolution-integrity](openspec/changes/add-requirement-ref-resolution-integrity/proposal.md)
   — authored 2026-08-31, **RATIFIED 2026-09-01 BY DIRECT RULING**
   (`Status: ratified`; record `review/ratification-2026-09-01.md`) — Brett Heap
