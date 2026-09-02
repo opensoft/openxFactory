@@ -508,7 +508,8 @@ Active changes:
   gate-bearing arm at 0. **One thing did move and CI found it rather than the
   measurement**: authoring an ACTIVE change carrying a MODIFIED block raises the
   `sequenced_after` live pin (`co_modified` 104 → 105, `active_co_modified`
-  18 → 19, `change_ids` 153 → 154), so `tests/sequenced_after/test_sweep.py`
+  18 → 19, `change_ids` 154 → 155 — its `- 1` reading, which subtracts the pin's own owning change, moving 153 → 154), so
+  `tests/sequenced_after/test_sweep.py`
   moves in the same commit with a dated MOVEMENT LOG entry, which is that pin's
   own protocol — corpus bookkeeping, not the realization OD-8 defers.
 - [add-requirement-ref-resolution-integrity](openspec/changes/add-requirement-ref-resolution-integrity/proposal.md)

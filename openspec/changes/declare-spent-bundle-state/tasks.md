@@ -184,7 +184,8 @@ no reader is a sentence in a changelog.
       which is NOT inherited — it passes at `ff9ed815` in a detached worktree
       and fails with the packet, because authoring an ACTIVE change carrying a
       MODIFIED block raises `co_modified` 104 → 105, `active_co_modified`
-      18 → 19 and `change_ids` 153 → 154. That is the pin doing its job, and its
+      18 → 19 and `change_ids` 154 → 155 — its `- 1` reading, which subtracts the pin's own owning change, moving 153 → 154.
+      That is the pin doing its job, and its
       own docstring prescribes the response: move it in the SAME COMMIT with a
       dated MOVEMENT LOG entry naming which subject moved and why. Done, with
       the three counts that did NOT move (`sole_modifiers` 49, `active_sole` 12,
