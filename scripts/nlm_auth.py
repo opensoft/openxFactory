@@ -6,16 +6,28 @@ localhost remote-debugging port (or launched by Playwright as a persistent
 profile). Because the debug port is on 127.0.0.1 *inside* WSL, no Windows
 firewall is involved — that firewall is exactly what blocked `nlm login --wsl`,
 which drives WINDOWS Chrome over a TCP CDP port. A human signs into the books
-account once and opens https://notebooklm.google.com/ (note: notebookLM, with
-the L-M — a wrong host such as notebook.google.com makes extraction time out).
-This harness then extracts the FULL native nlm profile:
+account once and opens NotebookLM on EITHER of its two hosts — the live one
+since the provider's rebrand is `notebook.google.com` ("Gemini Notebook"), and
+the older `notebooklm.google.com` (L-M) redirects there. This harness then
+extracts the FULL native nlm profile:
 
     * the cookie LIST  (every google.com cookie, as full cookie dicts)
     * csrf_token       (scraped from the logged-in page HTML)
     * session_id       (scraped from the logged-in page HTML)
+    * email            (the signed-in address, scraped from the same HTML by
+                        the CLI's own extractor when it is importable)
 
-All three are required. `nlm notebook list` succeeds only when all three are
-present in the native profile store.
+The first three are required. `nlm notebook list` succeeds only when all three
+are present in the native profile store. The address is what proves WHICH
+account was captured, and the sync's hosting enforcement reads it
+(`profile_account()` / `enforce_hosting_profile()` in
+`scripts/sync-notebooklm-books.py`) — so this harness MERGES metadata rather
+than replacing it, and never nulls a populated address (opensoft/openxFactory#543).
+
+HOSTS. Both spellings name the same app and both are accepted here: the
+`--cdp-url` page predicate prefers an already-open NotebookLM tab on EITHER
+host rather than hijacking an unrelated one (opensoft/openxFactory#537).
+`NB_URL` deliberately stays on the OLD host — see the note beside it.
 
 WHAT DOES NOT WORK — and why this replaced it. The previous harness harvested
 cookies only and handed them to `nlm login --manual`. That path is INSUFFICIENT:
@@ -42,14 +54,57 @@ from __future__ import annotations
 import argparse, json, os, subprocess, sys, time
 from datetime import datetime
 from pathlib import Path
+from urllib.parse import urlparse
 
 os.environ.setdefault("PLAYWRIGHT_BROWSERS_PATH", os.path.expanduser("~/.cache/ms-playwright"))
 from playwright.sync_api import sync_playwright
 
 REQUIRED = {"SID", "HSID", "SSID", "APISID", "SAPISID"}
+
+# BOTH hosts serve the same app. `notebook.google.com` is the live one since the
+# provider's rebrand; `notebooklm.google.com` (L-M) redirects to it. A page on
+# either is a NotebookLM page for this harness's purposes.
+NB_HOSTS = ("notebook.google.com", "notebooklm.google.com")
+
+# NB_URL STAYS ON THE OLD HOST, DELIBERATELY — and this harness therefore
+# depends on the provider's redirect. The evidence, such as it is:
+#   * The module docstring used to claim "a wrong host such as
+#     notebook.google.com makes extraction time out". That claim entered in
+#     `fa5ee9f3` (2026-08-19), the commit that rewrote this docstring wholesale;
+#     it is the ONLY commit in this file's history that mentions the new host
+#     (`git log -S"notebook.google.com" -- scripts/nlm_auth.py`), and it carries
+#     no run, test or record behind it. The timeout it describes is `nlm
+#     login`'s 300 s "Login timeout", which comes from the CLI's
+#     `_is_notebooklm_url()` allow-list (F1 in
+#     docs/notebook-projection-migration-evidence-2026-08-24.md) and says
+#     nothing about THIS harness, which never inspects the host.
+#   * The 2026-08-24 migration authenticated through this harness against a
+#     browser signed in on the NEW host: the predicate missed, a tab was
+#     navigated to NB_URL, the provider redirected it to
+#     `notebook.google.com`, and extraction succeeded on that page. So
+#     extraction demonstrably works on the new host once the redirect lands.
+# What is NOT evidenced is navigating DIRECTLY to `https://notebook.google.com/`,
+# which no recorded run has done. Flipping this constant cannot be tested
+# without a live signed-in browser, so it is left alone rather than changed on
+# speculation. Flip it only with a recorded bootstrap+refresh run behind it.
 NB_URL = "https://notebooklm.google.com/"
 DEFAULT_PROFILE_DIR = os.path.expanduser("~/.notebooklm-mcp-cli/xf-auth-chrome-profile")
 NLM_STORE = os.path.expanduser("~/.notebooklm-mcp-cli")
+
+
+class AccountMismatch(RuntimeError):
+    """The live session is a DIFFERENT account than the profile store records.
+
+    Mirrors `notebooklm_tools`' own `AccountMismatchError`, raised by
+    `AuthManager.save_profile()` unless `force=True` — the guard this harness
+    bypasses by writing the store directly (opensoft/openxFactory#543).
+    """
+
+    def __init__(self, stored: str, captured: str, profile: str):
+        self.stored, self.captured, self.profile = stored, captured, profile
+        super().__init__(
+            f"profile {profile!r} records {stored!r} but the live session is "
+            f"{captured!r}")
 
 # Common install locations for the nlm CLI's site-packages (holds
 # notebooklm_tools). Override with --cli-site-packages if yours differs.
@@ -60,6 +115,17 @@ _CLI_SITE_PACKAGES_HINTS = [
 ]
 
 
+def _ensure_cli_on_path(extra_hint: str | None) -> None:
+    """Put the nlm CLI's site-packages on sys.path so notebooklm_tools imports."""
+    hints = ([extra_hint] if extra_hint else []) + _CLI_SITE_PACKAGES_HINTS
+    for h in hints:
+        p = os.path.expanduser(h)
+        if os.path.isdir(os.path.join(p, "notebooklm_tools")):
+            if p not in sys.path:
+                sys.path.insert(0, p)
+            break
+
+
 def _load_cli_extractors(extra_hint: str | None):
     """Import the CLI's csrf/session extractors. Degrade gracefully if absent.
 
@@ -68,13 +134,7 @@ def _load_cli_extractors(extra_hint: str | None):
     INCOMPLETE (the very defect this harness exists to avoid), so a hard warning
     is printed and extraction should be treated as unusable.
     """
-    hints = ([extra_hint] if extra_hint else []) + _CLI_SITE_PACKAGES_HINTS
-    for h in hints:
-        p = os.path.expanduser(h)
-        if os.path.isdir(os.path.join(p, "notebooklm_tools")):
-            if p not in sys.path:
-                sys.path.insert(0, p)
-            break
+    _ensure_cli_on_path(extra_hint)
     try:
         from notebooklm_tools.core.auth import (  # type: ignore
             extract_csrf_from_page_source,
@@ -87,6 +147,62 @@ def _load_cli_extractors(extra_hint: str | None):
               f"profile would be INCOMPLETE. Pass --cli-site-packages <dir>.",
               file=sys.stderr)
         return None, None
+
+
+def _load_email_extractor(extra_hint: str | None):
+    """Import the CLI's own signed-in-address extractor, or None if absent.
+
+    `notebooklm_tools.utils.cdp.extract_email(html)` is the function `nlm login`
+    itself uses to fill the `email` field of exactly this metadata file, and it
+    reads the SAME page HTML this harness already fetches for csrf/session — so
+    capturing the address costs one extra call on a page we have in hand, and no
+    new mechanism is invented here.
+
+    Absence is not fatal: without it the address is CARRIED FORWARD from the
+    existing profile rather than captured (which is the #543 fix's floor).
+    """
+    _ensure_cli_on_path(extra_hint)
+    try:
+        from notebooklm_tools.utils.cdp import extract_email  # type: ignore
+        return extract_email
+    except Exception as e:  # pragma: no cover - environment-dependent
+        print(f"[nlm-auth] note: the CLI's email extractor is unavailable ({e}); "
+              f"the signed-in address cannot be captured, so any stored address "
+              f"is carried forward unverified.", file=sys.stderr)
+        return None
+
+
+def is_notebooklm_url(url: str | None) -> bool:
+    """True for a NotebookLM page on EITHER host (rebrand-tolerant).
+
+    Matched on the parsed hostname rather than as a substring, so a URL that
+    merely mentions the host somewhere in a query string does not qualify.
+    """
+    try:
+        host = (urlparse(url or "").hostname or "").lower()
+    except ValueError:
+        return False
+    return host in NB_HOSTS
+
+
+def select_notebooklm_page(ctx):
+    """Pick the tab holding the live NotebookLM session; returns (page, how).
+
+    `how` is "existing" when an already-open NotebookLM tab was reused (on
+    either host) and "new" when none existed and a NEW tab was opened for the
+    caller to navigate.
+
+    Before opensoft/openxFactory#537 this matched only `notebooklm.google.com`,
+    so after the rebrand it matched NOTHING: the code fell through to
+    `ctx.pages[0]` and navigated whatever tab the human happened to have first
+    to `NB_URL`. That worked only because the provider redirects. A new tab is
+    opened instead of hijacking an unrelated one — this browser belongs to the
+    operator, not to the harness.
+    """
+    page = next((pg for pg in ctx.pages if is_notebooklm_url(pg.url)), None)
+    if page is not None:
+        return page, "existing"
+    return ctx.new_page(), "new"
 
 
 def google_cookies_list(ctx) -> list[dict]:
@@ -118,17 +234,124 @@ def harvest_list(ctx, wait_s: int) -> list[dict]:
     return google_cookies_list(ctx)
 
 
+def profile_dir(profile: str, store: str | os.PathLike | None = None) -> Path:
+    """The native store directory for `profile` (root injectable for tests)."""
+    base = store or os.environ.get("NOTEBOOKLM_MCP_CLI_PATH", NLM_STORE)
+    return Path(os.path.expanduser(str(base))) / "profiles" / profile
+
+
+def read_profile_metadata(pdir: Path) -> dict:
+    """The existing metadata.json as a dict; {} when absent or unreadable."""
+    try:
+        data = json.loads((pdir / "metadata.json").read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    return data if isinstance(data, dict) else {}
+
+
+def merge_profile_metadata(existing: dict, *, profile: str, csrf: str | None,
+                           session: str | None, email: str | None = None,
+                           build_label: str | None = None,
+                           force: bool = False) -> tuple[dict, str]:
+    """MERGE this extraction into the stored metadata; never null what it holds.
+
+    Returns (metadata, note) where `note` is a one-line human account of what
+    was captured or carried forward. Raises AccountMismatch when a captured
+    address contradicts a stored one and `force` is false.
+
+    WHY MERGE (opensoft/openxFactory#543). This harness used to build the dict
+    literally with `"email": None, "build_label": None` and overwrite the file,
+    on the refresh path as well as bootstrap. That erased an identity the SYNC
+    depends on: `enforce_hosting_profile()` treats a null address as UNKNOWN and
+    falls back to checking the profile NAME alone, which cannot tell one Google
+    account from another — so a refresh silently disarmed the check that exists
+    to stop a governed projection being written into the wrong estate. The old
+    rationale ("the books account's stored email is null; it is identified by
+    the books it shows, not by name") described the LEGACY personal account and
+    has been false since 2026-08-24: the `company` profile records
+    `xFactor001@opensoft.one`, set from the vault-held username precisely so the
+    sync could check it.
+
+    So: this extraction owns csrf_token, session_id and last_validated and
+    overwrites them; `email` and `build_label` are carried forward whenever the
+    extraction has no value for them; and every OTHER key the store already
+    holds survives untouched, because this function does not know what the CLI
+    may add to that file next.
+
+    Address comparison is CASE-INSENSITIVE and keeps the STORED spelling on a
+    match — `xFactor001@opensoft.one` as recorded from the vault vs a
+    lower-cased scrape must not read as two accounts (the sync compares
+    case-insensitively too). Upstream's own guard compares exactly; this is a
+    deliberate, documented relaxation in the safe direction.
+    """
+    metadata = dict(existing)
+    stored_email = existing.get("email")
+    stored_email = stored_email.strip() if isinstance(stored_email, str) else None
+    captured = email.strip() if isinstance(email, str) else None
+    notes: list[str] = []
+
+    if captured and stored_email and captured.casefold() != stored_email.casefold():
+        if not force:
+            raise AccountMismatch(stored_email, captured, profile)
+        metadata["email"] = captured
+        notes.append(f"REPLACED the stored address {stored_email} with the "
+                     f"captured {captured} (--force)")
+    elif captured and stored_email:
+        # Same account: keep the stored spelling rather than the scraped one.
+        metadata["email"] = stored_email
+        notes.append(f"captured {captured} from the live session; it matches "
+                     f"the stored address")
+    elif captured:
+        metadata["email"] = captured
+        notes.append(f"captured {captured} from the live session (the store "
+                     f"recorded none)")
+    elif stored_email:
+        metadata["email"] = stored_email
+        notes.append(f"carried the stored address {stored_email} forward (the "
+                     f"live session yielded none)")
+    else:
+        metadata["email"] = metadata.get("email")  # keep the key, value null
+        notes.append("no account address recorded — none stored, none captured; "
+                     "the sync will verify this profile by NAME only")
+
+    stored_label = existing.get("build_label")
+    if build_label:
+        metadata["build_label"] = build_label
+    elif stored_label:
+        metadata["build_label"] = stored_label
+        notes.append("build_label carried forward")
+    else:
+        metadata["build_label"] = metadata.get("build_label")
+
+    metadata["csrf_token"] = csrf
+    metadata["session_id"] = session
+    metadata["last_validated"] = datetime.now().isoformat()
+    return metadata, "; ".join(notes)
+
+
 def write_native_profile(profile: str, cookies: list[dict],
-                         csrf: str | None, session: str | None) -> Path:
+                         csrf: str | None, session: str | None, *,
+                         email: str | None = None,
+                         build_label: str | None = None,
+                         force: bool = False,
+                         store: str | os.PathLike | None = None) -> tuple[Path, str]:
     """Write the FULL native profile: cookies.json (LIST) + metadata.json.
 
     Mirrors AuthManager.save_profile: cookies.json is the cookie list, and
     metadata.json carries csrf_token/session_id/email/build_label/last_validated.
-    email and build_label are left null (the books account's stored email is
-    null; it is identified by the books it shows, not by name).
+    Metadata is MERGED into whatever the store already holds — see
+    `merge_profile_metadata()` for why nulling `email` is a defect and not a
+    default.
+
+    The merge (and therefore the account-mismatch refusal) runs BEFORE anything
+    is written, so a wrong-account capture leaves the store exactly as it was —
+    cookies included. Returns (profile_dir, note).
     """
-    base = os.environ.get("NOTEBOOKLM_MCP_CLI_PATH", NLM_STORE)
-    pdir = Path(os.path.expanduser(base)) / "profiles" / profile
+    pdir = profile_dir(profile, store)
+    metadata, note = merge_profile_metadata(
+        read_profile_metadata(pdir), profile=profile, csrf=csrf, session=session,
+        email=email, build_label=build_label, force=force)
+
     pdir.mkdir(parents=True, exist_ok=True)
     pdir.chmod(0o700)
 
@@ -136,21 +359,16 @@ def write_native_profile(profile: str, cookies: list[dict],
     cookies_file.write_text(json.dumps(cookies, indent=2, ensure_ascii=False), encoding="utf-8")
     cookies_file.chmod(0o600)
 
-    metadata = {
-        "csrf_token": csrf,
-        "session_id": session,
-        "email": None,
-        "build_label": None,
-        "last_validated": datetime.now().isoformat(),
-    }
     meta_file = pdir / "metadata.json"
     meta_file.write_text(json.dumps(metadata, indent=2, ensure_ascii=False), encoding="utf-8")
     meta_file.chmod(0o600)
-    return pdir
+    return pdir, note
 
 
 def extract_and_save(ctx, page, profile: str, wait_s: int,
-                     extract_csrf, extract_session) -> int:
+                     extract_csrf, extract_session, extract_email=None, *,
+                     force: bool = False,
+                     store: str | os.PathLike | None = None) -> int:
     """Harvest the full session and write the native profile. Returns exit code."""
     cookies = harvest_list(ctx, wait_s)
     have = REQUIRED & present_names(cookies)
@@ -176,14 +394,37 @@ def extract_and_save(ctx, page, profile: str, wait_s: int,
     if not csrf or not session:
         print("[nlm-auth] ERROR: csrf_token and/or session_id could not be extracted. "
               "A cookies-only profile does NOT authenticate (this is exactly the failure "
-              "the old --manual path hit). Ensure the browser is ON "
-              "https://notebooklm.google.com/ (L-M) and signed in, and that the CLI "
-              "extractors are importable (--cli-site-packages).", file=sys.stderr)
+              "the old --manual path hit). Ensure the browser is ON NotebookLM "
+              "(notebook.google.com, or the older notebooklm.google.com which "
+              "redirects there) and signed in, and that the CLI extractors are "
+              "importable (--cli-site-packages).", file=sys.stderr)
         return 4
 
-    pdir = write_native_profile(profile, cookies, csrf, session)
+    # The signed-in address, from the SAME page HTML. Never fatal: absence means
+    # the stored address is carried forward instead of confirmed.
+    email = None
+    if extract_email and html:
+        try:
+            email = (extract_email(html) or "").strip() or None
+        except Exception as e:  # pragma: no cover - upstream regex/env failure
+            print(f"[nlm-auth] WARNING: could not read the signed-in address ({e}).",
+                  file=sys.stderr)
+
+    try:
+        pdir, note = write_native_profile(profile, cookies, csrf, session,
+                                          email=email, force=force, store=store)
+    except AccountMismatch as e:
+        print(f"[nlm-auth] REFUSING TO WRITE: profile {e.profile!r} records the "
+              f"account {e.stored!r}, but the browser this extraction read is "
+              f"signed in as {e.captured!r}. Nothing was written — not cookies, "
+              f"not metadata. Sign the browser into {e.stored!r} and re-run, or "
+              f"pass --force to overwrite the recorded account deliberately "
+              f"(same semantics as `nlm login --force`).", file=sys.stderr)
+        return 5
+
     print(f"[nlm-auth] wrote full profile '{profile}' ({len(cookies)} cookies, "
           f"csrf+session captured) -> {pdir}", flush=True)
+    print(f"[nlm-auth] account: {note}.", flush=True)
     return verify(profile)
 
 
@@ -218,10 +459,16 @@ def main() -> int:
                          "Google Chrome (renders under WSLg); '' or 'bundled' = "
                          "Playwright's bundled Chromium (did NOT render under this WSLg)")
     ap.add_argument("--cli-site-packages", default=None,
-                    help="dir containing notebooklm_tools (for the csrf/session extractors)")
+                    help="dir containing notebooklm_tools (for the csrf/session "
+                         "and signed-in-address extractors)")
+    ap.add_argument("--force", action="store_true",
+                    help="overwrite the profile's recorded account address even "
+                         "when the live session is a DIFFERENT account (same "
+                         "semantics as `nlm login --force`)")
     args = ap.parse_args()
 
     extract_csrf, extract_session = _load_cli_extractors(args.cli_site_packages)
+    extract_email = _load_email_extractor(args.cli_site_packages)
     wait_s = args.wait if args.mode == "bootstrap" else 30
 
     with sync_playwright() as p:
@@ -229,12 +476,18 @@ def main() -> int:
             # Connect to an already-signed-in browser. No navigation/re-login.
             browser = p.chromium.connect_over_cdp(args.cdp_url)
             ctx = browser.contexts[0] if browser.contexts else browser.new_context()
-            page = next((pg for pg in ctx.pages if "notebooklm.google.com" in pg.url), None)
-            if page is None:
-                page = ctx.pages[0] if ctx.pages else ctx.new_page()
+            page, how = select_notebooklm_page(ctx)
+            if how == "existing":
+                print(f"[nlm-auth] reusing the open NotebookLM tab ({page.url}).",
+                      flush=True)
+            else:
+                print(f"[nlm-auth] no NotebookLM tab open on "
+                      f"{' or '.join(NB_HOSTS)}; opening a NEW tab on {NB_URL} "
+                      f"rather than navigating one you are using.", flush=True)
                 page.goto(NB_URL, wait_until="domcontentloaded", timeout=60000)
             time.sleep(6)
-            rc = extract_and_save(ctx, page, args.profile, wait_s, extract_csrf, extract_session)
+            rc = extract_and_save(ctx, page, args.profile, wait_s, extract_csrf,
+                                  extract_session, extract_email, force=args.force)
             # Do not close a browser we did not launch.
             return rc
 
@@ -248,14 +501,20 @@ def main() -> int:
         if args.channel and args.channel != "bundled":
             launch_kwargs["channel"] = args.channel
         ctx = p.chromium.launch_persistent_context(args.profile_dir, **launch_kwargs)
+        # This browser is OURS (a dedicated profile dir we just launched), so
+        # navigating its first tab hijacks nobody — the #537 hazard is the
+        # --cdp-url path above, which connects to the operator's own browser.
         page = ctx.pages[0] if ctx.pages else ctx.new_page()
         page.goto(NB_URL, wait_until="domcontentloaded", timeout=60000)
         if args.mode == "bootstrap":
             print("[nlm-auth] A browser window is open. Sign in as the TARGET (books) "
-                  "account and open NotebookLM (notebooklm.google.com, L-M). Waiting for "
-                  f"the session (up to {wait_s}s)...", flush=True)
+                  "account and open NotebookLM — either notebook.google.com (the "
+                  "live host since the rebrand) or notebooklm.google.com (L-M), "
+                  f"which redirects there. Waiting for the session (up to {wait_s}s)...",
+                  flush=True)
         time.sleep(6)
-        rc = extract_and_save(ctx, page, args.profile, wait_s, extract_csrf, extract_session)
+        rc = extract_and_save(ctx, page, args.profile, wait_s, extract_csrf,
+                              extract_session, extract_email, force=args.force)
         ctx.close()
         return rc
 
