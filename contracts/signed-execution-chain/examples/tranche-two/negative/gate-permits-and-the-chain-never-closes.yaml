@@ -1,0 +1,144 @@
+# expected_failure: merged_and_never_closed
+# THE MERGED-BUT-UNCLOSED STATE, REFUSING: the gate permitted the terminal act at
+# links 1-6, the merge happened, and NO closure record ever followed.
+#
+# The merge is not un-made — the horizon that could have refused it has passed — and
+# every CONSUMER of it refuses: promotion, release, and any successor chain
+# consuming the merged work. An unclosed chain is a REFUSING state and never a
+# pending one, which is what makes the post-merge test a control rather than a
+# report.
+schema_version: 1
+kind: xfactory_signed_execution_chain_setup_attestation
+attestation_id: setup-neg-never-closed
+chain_ref: sha256:07a40f7f0e657189bdbdf6e890a14204ba58d506ff108965c27a47902500f6c3
+signed_setup:
+  chain_ref: sha256:07a40f7f0e657189bdbdf6e890a14204ba58d506ff108965c27a47902500f6c3
+  digest_construction: xfc-jcs-sha256-1
+  controller_certificate:
+    certificate_ref: cert:controller-t2
+    anchor_ref: anchor:opensoft-harness-root
+    issuance_evidence_ref: ie:controller-t2
+    declared_custody_model: host_isolated_per_use_authorized
+    revocation_standing_at_signing: active
+  provisioned_environment:
+    model_surface:
+    - fact: model
+      value: claude-opus-5
+      evidence_class: controller_corroborated
+    - fact: model_version
+      value: '2026-08-19'
+      evidence_class: controller_corroborated
+    harness:
+    - fact: harness
+      value: codex-council-worker
+      evidence_class: controller_corroborated
+    - fact: harness_version
+      value: 1.14.2
+      evidence_class: controller_corroborated
+    toolchain:
+    - fact: python
+      value: 3.12.4
+      evidence_class: controller_corroborated
+    - fact: node
+      value: 22.6.0
+      evidence_class: runner_claimed
+    workspace_provenance:
+    - fact: repository
+      value: opensoft/openxFactory
+      evidence_class: controller_corroborated
+    - fact: base_revision
+      value: 9af98c4d
+      evidence_class: controller_corroborated
+  expected_attestation_set:
+  - task_ref: task:t5-a
+    dispatched_at: '2026-09-01T16:04:00Z'
+    statement: Dispatched under chain t5.
+setup_signature:
+  algorithm: ed25519
+  key_ref: key-controller-t2
+  certificate_ref: cert:controller-t2
+  signed_over: signed_setup
+  signature: rmvu270G0Kcddt-tGodkm_RaUmzuQWdIVhN3nBi88yEs2ksbU5y6oCDB8Y0fx4H27UpEJdLdSwNjV0LB-n1cAw
+  public_key: z6MknKGe1CcdgEPaiTrzjYRFH9v82uWag54QefYsrKCye9Tn
+attested_at: '2026-09-01T10:05:00Z'
+leaf_ref: leaf-0046
+---
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-0046
+leaf_index: 46
+tree_size: 47
+chain_ref: sha256:07a40f7f0e657189bdbdf6e890a14204ba58d506ff108965c27a47902500f6c3
+leaf_type: setup_attestation
+recorded_at: '2026-09-01T22:15:00Z'
+payload_ref: setup-neg-never-closed
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: setup_attestation
+  value: sha256:59a6c50ae2c71b543bff3c622a0085003a2f1da543a1fdc2a27c6824850bb7d9
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:f698c2fb50ae9d3564d458e61f5becb46178064197d05cca91b02afb5bdcb7c2
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:9f00e28909088fde147421f181d21fe1f9ff39d1893725f05318420d1380afad
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-t5
+  signed_over: leaf_content
+  signature: 8SPDpod1tvciS7H1vILkZ4TosSODS9rZjrLTT5MngGkKWEyEl1Vmy37on5fpAUMjy0kkWVIOb_Cwi3rosrJkAw
+---
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-0047
+leaf_index: 47
+tree_size: 48
+chain_ref: sha256:07a40f7f0e657189bdbdf6e890a14204ba58d506ff108965c27a47902500f6c3
+leaf_type: gate_verdict
+recorded_at: '2026-09-01T22:16:00Z'
+payload_ref: vdt-neg-never-closed
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: gate_verdict
+  value: sha256:5ec339eb27d6149214e169f84dcd197765bb9d30510fbc6942d333c04a174156
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:9f00e28909088fde147421f181d21fe1f9ff39d1893725f05318420d1380afad
+verdict:
+  outcome: permitted
+  scope: links_1_6
+  checks:
+  - check: ratification_signature_verifies
+    outcome: pass
+  - check: chain_identity_recomputes
+    outcome: pass
+  - check: exercise_object_ref_is_content_digest
+    outcome: pass
+  - check: inception_leaf_commits_to_chain_identity
+    outcome: pass
+  - check: traveling_contract_carries_established_values
+    outcome: pass
+  - check: actor_bound_to_signing_wallet
+    outcome: pass
+  - check: proof_of_possession_supplied_and_verified
+    outcome: pass
+  - check: standing_and_holder_class_at_exercise
+    outcome: pass
+  - check: setup_attestation_established_and_committed
+    outcome: pass
+  - check: runner_attestations_equal_the_committed_expectation
+    outcome: pass
+  - check: open_decision_binds_chain_and_pull_request
+    outcome: pass
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:72cddcf2add42b3b0705351fb87d586ea1b59addcaedb220258d93db858a29d6
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-t5
+  signed_over: leaf_content
+  signature: lBXDZYeKQkfUnB58ov5GL_RXc5RQaUEkTJY_IHJuGLGthTmvPQTXh_MFXX3yZUevfCb64RBSo4_9e-GSpFA8BA

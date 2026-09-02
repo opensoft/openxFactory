@@ -425,6 +425,18 @@ _LEDGER_SUBJECTS = {
     # promoted.
     ("add-credential-escrow-checkout", "credential-contracts",
      "Canonical credential record shapes"),
+    # REMOVED 2026-09-01 BY THE ARCHIVE ACT — ('add-release-tag-publication-
+    # check', 'doc-health', 'Deterministic check families'). Added 2026-08-31 as
+    # the twenty-third family's packet restated the enumeration to add itself,
+    # and RETIRED ON SCHEDULE: its own note said "retires when the packet
+    # archives and its block is promoted", and the packet archived to
+    # `openspec/changes/archive/2026-09-01-add-release-tag-publication-check/`
+    # with the block PROMOTED. Canon's "Deterministic check families" now states
+    # `twenty-three check families` and `Four of the twenty-three` — the two
+    # units the finding named as uncarried — and the family excludes
+    # `openspec/changes/archive/` in its reader by construction, so no finding
+    # can name the archived packet. A subject that retires exactly when its note
+    # said it would is the arm working, not the arm going quiet.
     # REMOVED 2026-08-27 BY THE ARCHIVE ACT — ('add-modified-block-currency-
     # check', 'doc-health', 'Deterministic check families'). THE SELF-FINDING,
     # and the second time this gate fell due. It was expected evidence that the
@@ -1249,12 +1261,15 @@ def test_the_archived_block_still_resolves_to_canon_and_no_active_writer_holds_i
     requirement rather than two. All three are asserted here about the tree as
     it now stands, with the block read at its archived path.
 
-    THE THIRD CLAIM CHANGED ITS NUMBER, AND THAT IS THE POINT. There is now
-    ZERO active writer on `Deterministic check families`, because the last one
-    promoted. The twenty-third family's packet makes it one again and this
-    assertion falls due on that branch, which is correct: `_moved()` says what
-    to do, and a second active writer beside it is precisely the
-    by-declaration case the ordering arm exists for.
+    THE THIRD CLAIM CHANGED ITS NUMBER TWICE, AND THAT IS THE POINT. It fell to
+    ZERO when the last writer promoted, and this docstring said then that "the
+    twenty-third family's packet makes it one again and this assertion falls due
+    on that branch, which is correct". IT DID, ON 2026-08-31:
+    `add-release-tag-publication-check` holds the requirement, the assertion
+    fell due exactly as predicted, and `_moved()` was followed rather than the
+    number being edited to match. ONE writer is still not the by-declaration
+    case — that needs TWO — so the override and ordering assertions are
+    unmoved.
 
     NO COUPLING TO CANON'S TEXT, DELIBERATELY. This asserts that canon CARRIES
     the requirement, never what canon says about it — canon's wording moves with
@@ -1298,9 +1313,15 @@ def test_the_archived_block_still_resolves_to_canon_and_no_active_writer_holds_i
     assert ordering == [], _moved(
         "the ordering arm's silence on this requirement",
         f"{[f.rule[:160] for f in ordering]}")
+    # BACK TO ZERO 2026-09-01, BY THE ARCHIVE ACT. It went one on 2026-08-31
+    # when the twenty-third family's packet restated the enumeration to add
+    # itself, exactly as this docstring predicted it would, and RETURNED as that
+    # note said it would when the packet archived and its block promoted. Two
+    # re-aims in two days, both predicted in writing before they happened, is
+    # the shape this assertion is for.
     assert len(group) == 0, _moved(
-        f"the number of ACTIVE writers on {_OWN_TITLE!r} — zero since this "
-        f"packet archived on 2026-08-27",
+        f"the number of ACTIVE writers on {_OWN_TITLE!r} — zero again since "
+        f"the archive act of 2026-09-01",
         f"{len(group)}: {sorted(b.change for b in group)} — a new writer holds "
         f"the requirement, and with TWO the by-declaration rule applies and "
         f"this test's premise changes")

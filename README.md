@@ -124,6 +124,14 @@ Core domain-neutral docs:
   (the machine-readable path-scope substrate from `add-structured-scope-substrate`:
   `scripts/scope_globs.py` + `scripts/validate-scope-globs.py`; the trust-root
   floor doctrine consumed by the provenance-tie verifier)
+- [The `sequenced_after` Parent-Declaration Surface Is a Never-Clearable Trust-Root Floor](docs/sequenced-after-trust-root-floor.md)
+  (the machine-readable ORDERED-DELTA PARENT substrate from
+  `add-sequenced-after-substrate` — the second half of the block `scope_globs`
+  opened: `scripts/sequenced_after.py` +
+  `scripts/validate-sequenced-after.py` + the shared strict loader
+  `scripts/frontmatter_strict.py`; the four trust-root properties, absence as
+  fail-closed and never a root claim, the walk policy left to the consuming gate,
+  and the first post-adoption corpus-sweep reading)
 - [Doc-Health Contract](docs/doc-health.md)
   (implementation in-repo since `adopt-neutral-tooling-home`:
   `scripts/doc_health/` + `scripts/doc-health.py`, the reusable nightly
@@ -591,7 +599,20 @@ Active changes:
   Heap at `f54cb5bc` and RE-RATIFIED at `6d7ef17b` after the amendments** (record:
   `openspec/changes/add-chain-attestation/review/ratification-2026-09-01.md`);
   ratification authorizes realization and does not perform it, so the change
-  stays ACTIVE until merged code, green evidence and the contract cut exist.
+  archives only on merged code, green evidence and the contract cut with its
+  published tag — and it stays listed here as ACTIVE until all of that is on
+  `main`.
+  **THE CODE SURFACE IS NOW REALIZED AND THE BUNDLE CUT**: the realization
+  landed as PR **#556**, squash `518c670b` — eight new schemas, the additive
+  extension of four shipped ones, the tranche-two corpus with all NINETY-FIVE
+  closed refusal codes red-proven, and the SAME required check
+  (`signed-execution-chain-gate`, org ruleset 21957695, unchanged) walking
+  links 1–6, green on its own realization PR — and **REGISTERED at
+  `contract-v2.6`** (task 5.9: rows in #556 where the digest test forces them,
+  the number claimed only at the cut, fresh-counted). What stays open is not
+  the author's to close: the §5.1–5.3 MACHINERY GATES (a PKI plane that has
+  ISSUED, an omnigent layer that has REFUSED — SEC-R18 declared UNMET until
+  then) and the §5.8 canary evidence pair.
   **TRANCHE TWO of the signed-execution-chain family: links 4–6 and 10** — the
   harness-controller setup attestation, the per-task runner attestations, the
   signed pull-request-open decision, and the governed post-merge test that CLOSES
@@ -912,6 +933,67 @@ Active changes:
   mirrors the single codexFactory envelope authority byte-for-behaviour, pinned by
   lockstep test. The codexFactory provenance-tie verifier that CONSUMES
   `scope_globs` is downstream (B's realization), NOT this change's surface.
+- [add-sequenced-after-substrate](openspec/changes/add-sequenced-after-substrate/proposal.md)
+  — authored 2026-09-01, **RATIFIED 2026-09-01 AS AUTHORED** (Brett Heap,
+  convener; `Status: ratified`, dispositions in the proposal's
+  § Ratification record). ALL-ADDED delta on `release-realization`: the OPTIONAL
+  front-matter sibling
+  `sequenced_after:` — a SEQUENCE of parent change references, with
+  `sequenced_after: []` a POSITIVE ratification-covered ROOT CLAIM — which makes
+  the ordered-delta sequencing this capability already obliges in PROSE walkable
+  by a machine. **THE SECOND HALF OF THE BLOCK `scope_globs` OPENED**: it is
+  dependency **0.5** of codexFactory `realize-provenance-gated-autonomous-merge`,
+  named MISSING and BLOCKING there, and required by Brett's convener ruling **R1**
+  (2026-08-28) that the provenance-tie verifier compose the ordered-delta chain
+  MECHANICALLY. **All three candidate links were measured and all three fail**:
+  the prose obligation is mechanism-agnostic, the `Sequenced-after:` header is
+  free text no schema validates (THREE occurrences, all in ARCHIVED proposals),
+  and doc-health's `modified-block-currency` reader resolves ordering by a
+  WHOLE-TOKEN id occurrence anywhere in the declaring proposal — which cannot
+  distinguish a parent from a mention, cannot express a fork, and is
+  author-mutable in the document the author writes. NINE ADDED requirements,
+  thirty scenarios: the declaration; repository-qualified entry syntax (a FOREIGN
+  entry is DECLARABLE, its disposition the consumer's, because silently SKIPPING
+  it would fabricate a root out of a declaration that says the opposite); **ONE
+  STRICT LOADER over the whole realization-axis block**, reaching `scope_globs:`
+  too, because the shipped `scripts/scope_globs.py` uses `yaml.safe_load` and
+  resolves DUPLICATE KEYS silently last-wins — showing a reviewer the FIRST block
+  and authorizing the LAST — which the consuming verifier already refuses;
+  validation of shape, grammar, resolvability and acyclicity; **archive-stable
+  identity** (two ANCHORED locations, exactly-one, no rewrite on archival — 122 of
+  152 changes are already archived and a chain's ROOT archives FIRST, so an
+  active-only rule would self-disable in the worst order); **root status PROVED,
+  never inferred from absence** as neutral doctrine, with the co-modifier
+  cross-check left to the consumer because its key is a per-repository corpus
+  fact; the four trust-root properties; retention at archive; and **NO WALK
+  POLICY** — no depth cap, no fan-out cap, no composition operator, those being
+  the consuming gate's (codexFactory's FOUR hops and INTERSECTION), plus a
+  MEASUREMENT obligation. **Corpus sweep, measured 2026-09-01**: 152 change ids,
+  **104 co-modified at requirement granularity** (real ordered deltas that would
+  each owe a declaration) vs 48 sole modifiers, 19/11 among the 30 active, and
+  **0 occurrences of `sequenced_after:` anywhere** — so NO migration pass is
+  proposed and adoption is opt-in per change, exactly as `scope_globs` adoption
+  is. The delta is ALL-ADDED as a MEASURED choice: `govern-sibling-added-modified-deltas`
+  holds an active MODIFIED block over "Ordered deltas and branch vocabulary" and
+  `add-structured-scope-substrate` one over "Realization axis declaration", so a
+  MODIFIED block over either would incur that change's relative-declaration
+  obligation and its archive-order hold. **The change is its own first instance**
+  — it declares `sequenced_after: [add-structured-scope-substrate]` even though a
+  requirement-granular cross-check would let its novel titles claim ROOT at depth
+  1, because declaring must never be worth less than omitting — and the validator
+  built here validates that declaration, so the first instance is the corpus
+  gate's first live subject. **All five open questions are RULED**: OQ-1 the
+  `scope_globs` strict-loader retrofit lands INSIDE this change (one loader over
+  the whole block, for both structured fields, repairing the ratified sibling's
+  shipped `yaml.safe_load` reader); OQ-2 multi-parent declarations ALLOWED; OQ-3
+  doc-health's whole-token ordering reader UNTOUCHED (migration a named
+  follow-on); OQ-4 cycle refused / depth and fan-out unbounded, AS AUTHORED; OQ-5
+  NO council co-sign required. Built post-ratification via Speckit
+  (`scripts/frontmatter_strict.py`, `scripts/sequenced_after.py`,
+  `scripts/validate-sequenced-after.py`,
+  `docs/sequenced-after-trust-root-floor.md`, `tests/sequenced_after/`); the
+  codexFactory verifier that CONSUMES the field is downstream and NOT this
+  change's surface.
 - [settle-aging-staging-topics](openspec/changes/settle-aging-staging-topics/proposal.md)
   — authored 2026-08-28 on Brett's four bulk rulings over a read-only triage
   survey of the fourteen staging topics `doc-health`'s
@@ -1699,9 +1781,13 @@ Active changes:
   comment), sliced
   SEPARATELY from entries 1 and 2 on the memo's own recommendation and the
   ruling's adoption of it. **THE ONLY ONE OF THE THREE WHOSE WARNING ACTUALLY
-  FIRES**: a default `validate-ideation-dashboard-contracts.py` run reports
+  FIRES**: a default `scripts/validate-ideation-dashboard-contracts.py` run
+  reported
   `0 error(s), 4 warning(s)`, every one naming `removal target contract-v2.0` —
-  a target the bundle passed one major and five minors ago. The deprecation was
+  a target the bundle passed one major and five minors ago. (The missing
+  `scripts/` prefix here was one of the four low-severity round-three Copilot
+  comments left standing on the ratified head; it is corrected in the
+  realization pull request, which edits this row anyway.) The deprecation was
   done PROPERLY at `contract-v1.34` — co-resident `-v2` family, v1 bytes kept
   byte-identical with a committed baseline test to prove it, and the
   deprecation declared MACHINE-READABLY in a top-level `deprecated_envelopes`
@@ -1724,7 +1810,21 @@ Active changes:
   (`_refuse_turn`'s pre-identity drop) correct and untouched. Carries ONE
   scenario-complete `## MODIFIED` block over promoted `ideation-dashboard`
   canon, dropping nothing and therefore owing no `Removed from canon` marker.
-  Sibling: `retire-hermes-flat-keys-and-openworkflow-tokens`. (code surface:
+  Sibling: `retire-hermes-flat-keys-and-openworkflow-tokens`.
+  **REALIZATION `tasks.md` §§ 2–5 IS DRAFTED AND NOT MERGED** — the schema
+  removal, the redesigned `serve.py` fallback with its one new catalog entry
+  (`unrecognized_turn_kind`, 400), the validator dispatch, the corpus (all
+  SEVEN v1-only refusal classes re-expressed against the surviving family, none
+  dropped) and the test surface, with the validator now reporting
+  `0 error(s), 0 warning(s)` and `--strict` passing over
+  `examples/ideation-dashboard/`. Two authoring findings ride it: the measured
+  reference closure puts `typed_proposal` OUTSIDE the surviving family (the
+  ratified text names it as retained-because-reachable, and it is retained on
+  the text rather than on the premise), and § 2's schema byte move is coupled
+  to the per-file `sha256` in `contracts/manifest.yaml`, which `tasks.md` 6.1
+  files with the cut. The `contract-v3.0` CUT is still outstanding: no bundle
+  number is spent, no CHANGELOG row moves and no tag is published by the
+  realization. (code surface:
   openxFactory; target release: `contract-v3.0` — archives only on merged plus
   green realization evidence, the moved manifest digest, the rebuilt inventory
   and the published tag)

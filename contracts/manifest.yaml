@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v2.5
+contract_bundle_version: contract-v2.6
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -1675,7 +1675,7 @@ contracts:
     source_path: openxFactory/contracts/schemas/xfactory-workbench-chat-turn.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 2ff5f222af5cdccd545417203898a919be0365cdd0d2d5138e87e23f7ebfe1cf
+    sha256: 350bfedc02696e7281a42c0bdc9a25059bf7af14d16d89d9f07018d3e691dc1d
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -2623,7 +2623,7 @@ contracts:
     source_path: openxFactory/contracts/signed-execution-chain/digest-construction.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 51e5e6cfda33004aba526f888d9299b44fcd3c6d19b7178de020859bedcce65e
+    sha256: 7a9752a8c2c59a6309a0d5c1e7dad81ffaf83ffda4605d10faa740dcdee7d297
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -2642,7 +2642,7 @@ contracts:
       IDENTITY over the signed ratification, and a LEAF digest over a
       leaf's content are three digests over three subjects, and the
       content digest MUST NOT be equated with the chain identity.
-      Registered at contract-v2.5; consumed through the pinned
+      Registered at contract-v2.5; EXTENDED ADDITIVELY at contract-v2.6 by add-chain-attestation (tranche two) — no member the v2.5 bundle published was removed, renamed or narrowed, and the per-file sha256 beside this rule is over the extended bytes; consumed through the pinned
       openxFactory checkout with per-file sha256 verified before any copy
       is treated as current.
   - id: signed-execution-chain-inception
@@ -2650,7 +2650,7 @@ contracts:
     source_path: openxFactory/contracts/signed-execution-chain/chain-inception.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 96a1d31185a0e87aa95b3ff9f8950756e8c7b0092698dca530604b0cfd60b69b
+    sha256: 0b5ecd57b0ebe8fb54a80b17f8d64e91b9ef4d70a0d51b85f8c22ee7975a1f9c
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -2672,7 +2672,7 @@ contracts:
       `xfactory_wallet_grant_exercise` carried verbatim, its `object_ref`
       holds the ratification's CONTENT digest, and the one step the record
       cannot prove is RAISED AS A DECLARED GAP rather than asserted.
-      Registered at contract-v2.5; consumed through the pinned
+      Registered at contract-v2.5; EXTENDED ADDITIVELY at contract-v2.6 by add-chain-attestation (tranche two) — no member the v2.5 bundle published was removed, renamed or narrowed, and the per-file sha256 beside this rule is over the extended bytes; consumed through the pinned
       openxFactory checkout with per-file sha256 verified before any copy
       is treated as current.
   - id: signed-execution-chain-traveling-contract
@@ -2704,7 +2704,7 @@ contracts:
     source_path: openxFactory/contracts/signed-execution-chain/transparency-log-leaf.schema.yaml
     type: schema
     schema_version: 1
-    sha256: d01274144fb6f058cbbee96366520fab4402143e9d66bddafc8d69107190d114
+    sha256: 4fdc1182454b64759706a0885bb5530cde0cc4d75cac5bbf1080be2966ef5d8e
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -2732,7 +2732,7 @@ contracts:
     source_path: openxFactory/contracts/signed-execution-chain/conformance-declaration.schema.yaml
     type: schema
     schema_version: 1
-    sha256: 2ebac909371ea0acd22d7edcd79aae9141d452ffdb6f0163636dff425698f6e2
+    sha256: 2f37fb1399502e6a3a8a8b0d1982bce390a4de11b3a630ffd477b5762fbc16d8
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
     consumption_rule: >-
@@ -2752,6 +2752,194 @@ contracts:
       closes. SEC-R9 IS THE ONE THAT DECIDES WHETHER THE REST CONFERS
       ANYTHING: a declaration recording it `satisfied` while the named
       reader is not required in the branch ruleset is refused by test.
-      Registered at contract-v2.5; consumed through the pinned
+      Registered at contract-v2.5; EXTENDED ADDITIVELY at contract-v2.6 by add-chain-attestation (tranche two) — no member the v2.5 bundle published was removed, renamed or narrowed, and the per-file sha256 beside this rule is over the extended bytes; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any copy
+      is treated as current.
+  # ---- signed-execution-chain tranche two — contract-v2.6 registration (add-chain-attestation task 5.9) ----
+  # Links 4-6 and 10: what actually ran, said by the chain itself. Ratified by
+  # Brett Heap 2026-09-01 (`f54cb5bc`, re-ratified `6d7ef17b`). Seven new record
+  # kinds below plus one shared-definitions file; FOUR of the five tranche-one
+  # rows above moved ADDITIVELY at this registration (their refreshed sha256 and
+  # the extension note inside each rule): the digest construction gained eleven
+  # SUBJECTS and no second construction, the inception gained the OPTIONAL
+  # amendment-lineage block closure's limbs read, the leaf schema gained seven
+  # leaf types and the extended refusal enumeration, and the conformance
+  # declaration gained SEC-R10..SEC-R18 with the `attestation_design` block for
+  # the three obligations a gate cannot see. The tranche-two packaged corpus
+  # (examples/tranche-two/: 4 positive chains + 74 intended-invalid negatives,
+  # all 95 closed refusal codes red-proven by the self-test) is content-addressed
+  # by commit like tranche one's. THE READER IS THE SAME REQUIRED CHECK WALKING
+  # FURTHER — `signed-execution-chain-gate`, required since 2026-08-31 via
+  # opensoft org ruleset 21957695 — and not a second gate. The two canonical
+  # trust-anchor shapes a tier-2 identity composes with are CONSUMED at
+  # contract-v1.37 and neither is redefined here.
+  - id: signed-execution-chain-attestation-common
+    path: contracts/signed-execution-chain/attestation-common.schema.yaml
+    source_path: openxFactory/contracts/signed-execution-chain/attestation-common.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: b12b827311cb5e7884948a1eed5d020eca5d770ff37bdd4cfc6c30f71a1782ba
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The shared definitions tranche two's seven record kinds take by `$ref`: the signature-with-carried-public-key block, the predecessor hash link, the per-fact evidence class, and the recorded signing request.
+      ONE DEFINITION PER CONCEPT, BY REFERENCE — the same discipline the
+      digest construction file enforces one level down. The EVIDENCE CLASS
+      enumeration is CLOSED at three members and carries an explicit
+      composition statement naming the ratified trust-anchor chain-custody
+      registry on that registry's own `composes_with` pattern: the
+      registry classes WHOSE ACT a signature evidences, the evidence class
+      classes WHERE A FACT INSIDE THE PAYLOAD CAME FROM, and they are read
+      together and in that order. The signing request is a REQUIRED member
+      of every signed block that carries one, so a record with no recorded
+      request is unrepresentable rather than refused.
+      Registered at contract-v2.6; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any copy
+      is treated as current.
+  - id: signed-execution-chain-setup-attestation
+    path: contracts/signed-execution-chain/setup-attestation.schema.yaml
+    source_path: openxFactory/contracts/signed-execution-chain/setup-attestation.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: d0f50fbae49b0885f0b1514a7d8a5b94f2c2ed90e5dbb16a5952e1e048ca7363
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Link 4: the harness controller attests the environment IT PREPARED — model surface, harness, toolchain, workspace provenance, each fact carrying its evidence class — and COMMITS to the expected attestation set inside the same signed bytes.
+      THE COMMITTED EXPECTATION IS WHAT MAKES A DROPPED ATTESTATION
+      DETECTABLE: absence is only measurable against a commitment, so the
+      expectation lives inside the controller-signed block and each
+      member names its task and its dispatch time. The controller
+      certificate block names the certificate, the anchor, the issuance
+      evidence and the standing CHECKED AT SIGNING — a certificate the
+      evaluating gate cannot chain to a held anchor record confers
+      nothing.
+      Registered at contract-v2.6; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any copy
+      is treated as current.
+  - id: signed-execution-chain-commitment-extension
+    path: contracts/signed-execution-chain/commitment-extension.schema.yaml
+    source_path: openxFactory/contracts/signed-execution-chain/commitment-extension.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 439252048cb4717d9c1743ad23b42688cf789f9d3cb1c5390299edca2fd9d4e7
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The same commitment written later: a controller-signed extension of link 4's expected attestation set, for fan-outs discovered as the work runs, with the deadline at DISPATCH.
+      AN EXTENSION WRITTEN AFTER THE TASK IT COMMITS WAS DISPATCHED IS
+      REFUSED — a commitment made once the outcome is in hand is a
+      description — and an extension signed anywhere but the controller is
+      refused with it, because the party being measured must not author
+      the measure. The record hash-links from its actual nearest prior
+      in-force signed record, which in an interleaved fan-out is whatever
+      link-5 record most recently landed.
+      Registered at contract-v2.6; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any copy
+      is treated as current.
+  - id: signed-execution-chain-signed-chain-binding
+    path: contracts/signed-execution-chain/signed-chain-binding.schema.yaml
+    source_path: openxFactory/contracts/signed-execution-chain/signed-chain-binding.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: cd01804efc14fb28bc9e239a74581e60115b967892a29c069a8f2118ab5ce84a
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The seventh record kind and the third leg of a tier-2 identity's composed issuance: controller-signed, carrying the identity's SUBJECT SCOPE, its CLOSED enumeration of authorized record kinds, and THE CHAIN IDENTITY IT SERVES.
+      THE TWO CANONICAL trust-anchor SHAPES ARE CONSUMED AND NEITHER IS
+      REDEFINED HERE: `certificate-record` supplies the public-key
+      fingerprint and validity bounds (a fingerprint and NO key — the key
+      arrives beside each signature and is verified fingerprint-first),
+      `issuance-evidence` supplies the issuance act, and this binding is
+      what neither can say: which chain, which scope, which record kinds.
+      TWO SCOPES, TWO CLOSED ENUMERATIONS — per_task authorizes the runner
+      attestation alone; chain_scoped authorizes the PR-open decision and
+      the closure record alone; authority records are outside both, and a
+      binding whose list does not EQUAL its scope's set is refused, so a
+      binding cannot widen an identity by writing a longer list.
+      Registered at contract-v2.6; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any copy
+      is treated as current.
+  - id: signed-execution-chain-runner-attestation
+    path: contracts/signed-execution-chain/runner-attestation.schema.yaml
+    source_path: openxFactory/contracts/signed-execution-chain/runner-attestation.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: dfe021eeaedef9c5a0fb325c62f878f077acaca38cfb63f58fc9b84311fe2899
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Link 5: what actually ran, attested per task — signed AT the harness controller by the remote signing it serves, under the per-task tier-2 identity, on a RECORDED signing request attributed from the controller's own provisioning.
+      THE CONTROLLER CORROBORATES AND NEVER NOTARIZES: every attested fact
+      carries its evidence class, a payload disagreeing with link 4 is
+      refused rather than co-signed, a `runner_claimed` fact re-carried at
+      a stronger class is refused, an `independently_observed` fact names
+      its observer or is refused, and no class raises a fact above the
+      signing certificate's custody ceiling. The request is REQUIRED
+      inside the signed bytes, so the unattributable-signature hole is
+      unrepresentable rather than policed.
+      Registered at contract-v2.6; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any copy
+      is treated as current.
+  - id: signed-execution-chain-pr-open-decision
+    path: contracts/signed-execution-chain/pr-open-decision.schema.yaml
+    source_path: openxFactory/contracts/signed-execution-chain/pr-open-decision.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: e3f83993a93d90ed4674f8c9c872830c5210002772182f74e7c10dd909807b24
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Link 6: opening the pull request as a SIGNED DECISION under the chain-scoped identity — naming the chain, enumerating EVERY committed link-5 attestation by digest, and carrying the pull-request identifier and head revision inside the signed bytes.
+      THE ENUMERATION EQUALS THE COMMITTED EXPECTATION IN BOTH DIRECTIONS
+      — a subset is a shed attestation and a surplus is a smuggled one —
+      and the PR binding refuses the three reuses that pass without it: a
+      decision reused after the branch moved, retargeted, or attached to
+      another pull request carrying the same chain identity. PROPOSING IS
+      NOT PERMITTING: a record offering itself as merge permission is
+      refused by name, and its request is attributed to the party the
+      chain's own inception record binds.
+      Registered at contract-v2.6; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any copy
+      is treated as current.
+  - id: signed-execution-chain-closure-record
+    path: contracts/signed-execution-chain/closure-record.schema.yaml
+    source_path: openxFactory/contracts/signed-execution-chain/closure-record.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 58de74b1466a5fdab6cad2cad48695ad7e6abde5d1b38f560204482afac395d7
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      Link 10: the point a chain COMPLETES. The governed post-merge test the ratified subject names, controller-dispatched, on exactly the merge commit, with an authenticated PASSING result — and the three amendment-lineage limbs verified against the inception's signed lineage.
+      A MERGED-BUT-UNCLOSED CHAIN IS A REFUSING STATE AND NEVER A PENDING
+      ONE: the merge is not un-made, and everything downstream refuses
+      until closure or an admitted remediation. Refused by name: a
+      lane-claimed outcome, a failing or unsigned or unestablished result,
+      a revision that is not the merge commit, a substituted test, a
+      declared shortfall offered as grounds, a fabricated or replayed
+      review record, review authority revoked at exercise or read from a
+      stale projection, and an absent or unsupported lineage.
+      Registered at contract-v2.6; consumed through the pinned
+      openxFactory checkout with per-file sha256 verified before any copy
+      is treated as current.
+  - id: signed-execution-chain-remediation-declaration
+    path: contracts/signed-execution-chain/remediation-declaration.schema.yaml
+    source_path: openxFactory/contracts/signed-execution-chain/remediation-declaration.schema.yaml
+    type: schema
+    schema_version: 1
+    sha256: 253624615d2148ef3c050e856418bf49c3d729602c45425e86c4f51771755b46
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      The ONE admitted consumer of an unclosed chain: a corrective change that is itself a full chain, declaring the unclosed chain BY CHAIN IDENTITY inside the bytes its ratifying signature covers.
+      EXEMPT AS A CONSUMER AND NEVER AS A CHAIN — its own links 4-6 are
+      walked and its own closure is owed. Refused by name: a subject
+      merely mentioned, an exemption claimed by inheritance, a remediation
+      offered with its own links absent, promotion claimed because the
+      repair was admitted, and a remediation whose own closure did not
+      pass.
+      Registered at contract-v2.6; consumed through the pinned
       openxFactory checkout with per-file sha256 verified before any copy
       is treated as current.

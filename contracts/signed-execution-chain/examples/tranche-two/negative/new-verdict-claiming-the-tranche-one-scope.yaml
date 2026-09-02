@@ -1,0 +1,56 @@
+# expected_failure: gate_scope_understated
+# VIOLATES the scope rule going forward: a verdict written AFTER this tranche that
+# claims scope `links_1_3` over a chain CARRYING tranche-two records has understated
+# what the gate was required to walk.
+#
+# THE GATE'S SCOPE IS EXACTLY THE LINKS THE RATIFIED TRANCHES HAVE PUT IN FORCE.
+# The packaged tranche-one reference chain keeps its own links_1_3 verdict — that
+# verdict records the walk its gate actually performed, before this tranche existed
+# — and the difference between the two cases is the whole content of the two-horizon
+# doctrine.
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-0046
+leaf_index: 46
+tree_size: 47
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+leaf_type: gate_verdict
+recorded_at: '2026-09-01T22:20:00Z'
+payload_ref: vdt-neg-understated
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: gate_verdict
+  value: sha256:383c4e64c593eb5ec44137eaddedaa3bf5b1eb64264a55a8c9196f895c23d7e4
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:f698c2fb50ae9d3564d458e61f5becb46178064197d05cca91b02afb5bdcb7c2
+verdict:
+  outcome: permitted
+  scope: links_1_3
+  checks:
+  - check: ratification_signature_verifies
+    outcome: pass
+  - check: chain_identity_recomputes
+    outcome: pass
+  - check: exercise_object_ref_is_content_digest
+    outcome: pass
+  - check: inception_leaf_commits_to_chain_identity
+    outcome: pass
+  - check: traveling_contract_carries_established_values
+    outcome: pass
+  - check: actor_bound_to_signing_wallet
+    outcome: pass
+  - check: proof_of_possession_supplied_and_verified
+    outcome: pass
+  - check: standing_and_holder_class_at_exercise
+    outcome: pass
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:bcd08150f4a056295e699db025f7619914fcaa251a985424723a814def8095ac
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-t5
+  signed_over: leaf_content
+  signature: w7h9IycN7T3KX9-ZFL6EEd2LrvuBxXc5FwiZ3i7Q9w9RlXlcQu381jytoBQmQBFk2S7s4nC7sElLGl3PcdUvAw

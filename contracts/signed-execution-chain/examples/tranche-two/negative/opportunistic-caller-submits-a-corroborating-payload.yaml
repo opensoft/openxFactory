@@ -1,0 +1,91 @@
+# expected_failure: signing_subject_not_provisioned
+# expected_failure_detail: BEING ASKED IS NEVER ACCEPTED
+# VIOLATES requirement 3's last refusal: the controller is asked to sign a payload
+# it PROVISIONED NOTHING FOR.
+#
+# RECORDING THE REQUEST IS NECESSARY AND NOT SUFFICIENT. A recorded request
+# establishes that SOMETHING asked; it does not establish WHAT. The payload here
+# corroborates cleanly against link 4 and satisfies every other refusal — and the
+# subject it names appears nowhere in the controller's own setup attestation, so
+# the request is REFUSED AT SIGNING and no signature is produced. THE PAYLOAD'S
+# CORROBORATING CLEANLY IS NEVER ACCEPTED IN PLACE OF ATTRIBUTING THE ASKER.
+schema_version: 1
+kind: xfactory_signed_execution_chain_runner_attestation
+attestation_id: att-neg-unprovisioned
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+signed_attestation:
+  chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+  digest_construction: xfc-jcs-sha256-1
+  predecessor:
+    record_ref: clo-t5
+    record_kind: xfactory_signed_execution_chain_closure_record
+    digest:
+      construction: xfc-jcs-sha256-1
+      subject: closure_record
+      value: sha256:588e6a5f47d5d644c21b94139b5dfa8520e96e9b85604795ac9d5f6843f5e48e
+  task_ref: task:t5-a
+  identity:
+    binding_ref: bind-t5-a
+    subject_scope: per_task
+  attested_facts:
+  - fact: model
+    value: claude-opus-5
+    evidence_class: controller_corroborated
+  - fact: harness
+    value: codex-council-worker
+    evidence_class: controller_corroborated
+  - fact: node
+    value: 22.6.0
+    evidence_class: runner_claimed
+  - fact: sandbox_seal
+    value: verified
+    evidence_class: independently_observed
+    observed_by: opensoft-platform-attestation-service
+  signed_where: harness_controller
+  signing_request:
+    request_id: req-att-neg-unprovisioned
+    requested_at: '2026-09-01T16:10:00Z'
+    attribution:
+      attributed_by: controller_provisioning
+      requester_ref: task:never-provisioned
+      statement: Attributed from the controller's own provisioning.
+    payload_digest:
+      construction: xfc-jcs-sha256-1
+      subject: runner_attestation
+      value: sha256:d91c162662c701e73ef49e4acbdde8165c5866245a915a619a3b637b0ffcd8f3
+attestation_signature:
+  algorithm: ed25519
+  key_ref: key-tier2-a
+  certificate_ref: cert:tier2-task-a
+  signed_over: signed_attestation
+  signature: xfQkGlKkl5X1Bd6HNkBOBI_tA1A83XtjZbcEiATCXYU4NUx6UHjJgMZtkmM-SahtHDwQJHcBpx2rwcmvtd2bCQ
+  public_key: z6Mkph4jBMboXmzytn7Qt3ZzovEnKCT7GRQPbrpKByxr7H24
+attested_at: '2026-09-01T16:10:00Z'
+leaf_ref: leaf-0046
+---
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-0046
+leaf_index: 46
+tree_size: 47
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+leaf_type: runner_attestation
+recorded_at: '2026-09-01T20:00:00Z'
+payload_ref: att-neg-unprovisioned
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: runner_attestation
+  value: sha256:1ba26f3ff1fe528d2a22467819a3b350742b1818b95ebf1e6691954de962925c
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:f698c2fb50ae9d3564d458e61f5becb46178064197d05cca91b02afb5bdcb7c2
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:47cd6485c3c72b5efdc145c4aff700cd5641339b399102e4f000cc677f3167f8
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-t5
+  signed_over: leaf_content
+  signature: e6vz-s43j0jpjCX4JyInloBFLP9u15GvP3v38vac7nG8zE2fLW55bOPLvJVSuOBmougNuqPZbKCw9_w-UBMqBg

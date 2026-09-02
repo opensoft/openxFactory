@@ -1,0 +1,70 @@
+# expected_failure: record_kind_outside_closed_enumeration
+# expected_failure_detail: its scope fixes
+# VIOLATES the closedness of the two enumerations. A `per_task` binding here
+# authorizes the PR-OPEN DECISION as well as the task attestation — which is exactly
+# the widening the SUBJECT SPLIT was raised to refuse.
+#
+# EACH ENUMERATION IS CLOSED, and the reader requires a binding's
+# `authorized_record_kinds` to EQUAL the set its `subject_scope` fixes, so A BINDING
+# CANNOT WIDEN AN IDENTITY BY WRITING A LONGER LIST. Widening the per-task identity
+# to cover work it was not minted for would destroy the one property that identity
+# exists to carry.
+schema_version: 1
+kind: xfactory_signed_execution_chain_chain_binding
+binding_id: bind-neg-widened
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+signed_binding:
+  chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+  digest_construction: xfc-jcs-sha256-1
+  predecessor:
+    record_ref: clo-t5
+    record_kind: xfactory_signed_execution_chain_closure_record
+    digest:
+      construction: xfc-jcs-sha256-1
+      subject: closure_record
+      value: sha256:588e6a5f47d5d644c21b94139b5dfa8520e96e9b85604795ac9d5f6843f5e48e
+  identity_key_ref: key-tier2-a
+  certificate_ref: cert:tier2-task-a
+  issuance_evidence_ref: ie:tier2-task-a
+  subject_scope: per_task
+  authorized_record_kinds:
+  - xfactory_signed_execution_chain_runner_attestation
+  - xfactory_signed_execution_chain_pr_open_decision
+  validity_statement: 'Ephemeral: the certificate''s bounds close the same day the chain does.'
+  task_ref: task:t5-a
+binding_signature:
+  algorithm: ed25519
+  key_ref: key-controller-t2
+  certificate_ref: cert:controller-t2
+  signed_over: signed_binding
+  signature: nmHWHsXURp5o_oG2L_DlykXNvX72TKi0TkFnhehPNPfB2ZRGNHbQiuqjC3bfiCo3cZT-MulAdUDYAYIQirKEBQ
+  public_key: z6MknKGe1CcdgEPaiTrzjYRFH9v82uWag54QefYsrKCye9Tn
+issued_at: '2026-09-01T10:06:00Z'
+leaf_ref: leaf-0046
+---
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-0046
+leaf_index: 46
+tree_size: 47
+chain_ref: sha256:269a80d84a953a30b4bad6b829d351c2a553d7416d6dc84139b4d6ce2496ff95
+leaf_type: signed_chain_binding
+recorded_at: '2026-09-01T20:00:00Z'
+payload_ref: bind-neg-widened
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: signed_chain_binding
+  value: sha256:32175271c40fad50f42ab3551886b83a14c51c8f76172b60367e781fc1f84922
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:f698c2fb50ae9d3564d458e61f5becb46178064197d05cca91b02afb5bdcb7c2
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:64a40f4d108ca21cc2e38886f714e13300157dfcb7f08f39b32d594c28871822
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-t5
+  signed_over: leaf_content
+  signature: _zfEQXNIkhyMZxMKInmZKUltMADFXKh4SdGJkN08K6KaXiOiZnaaCkWNYZajF9VP12Kj-YvEdQJUPzogeYQyCA

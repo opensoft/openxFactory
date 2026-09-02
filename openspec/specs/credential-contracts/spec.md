@@ -245,7 +245,29 @@ WHAT REVOCATION REACHES, STATED HONESTLY, because a shared bearer secret bounds 
 
 A shared ambient session SHALL NOT be used as a substitute for a second binding. This restates, for operated identities, what this capability already refuses for worker credentials: a refreshable session-state credential is the wrong class to distribute, because an ephemeral copy's refresh silently stales the master. Two systems sharing one live session is that same defect with the copy left implicit.
 
-**Modified over `add-notebook-hosting-credential-custody`'s addition by add-binding-consumer-identity (2026-08-31):** — this change is the successor that packet named three times and could not perform itself, so the requirement it adds is restated here with the per-system authority declared in the binding's own record rather than asserted by the binding's owner and its estate wiring.
+**Modified over `add-notebook-hosting-credential-custody`'s addition by add-binding-consumer-identity (2026-08-31):** — this change is the successor that packet named five times (one of those five sites since struck) and could not perform itself, so the requirement it adds is restated here with the per-system authority declared in the binding's own record rather than asserted by the binding's owner and its estate wiring.
+
+**AMENDED 2026-09-01 — THE NUMERAL IN THE MARKER ABOVE, AND NOTHING ELSE IN THIS
+BLOCK.** As promoted the reason read "named three times". AUTHORITY: Brett Heap,
+the ratifying owner of `add-binding-consumer-identity`, consenting in session on
+2026-09-01 to this one-word amendment of promoted canon. GROUND: the three-packet
+read-together at
+`openspec/changes/archive/2026-08-31-add-notebook-projection-identity/review/read-together-2026-08-31.md`
+§ (e) F-1, which reported the defect and deliberately did not repair it, carried
+as issue #545. EVIDENCE: three artifacts of the same packet say FIVE —
+`openspec/changes/archive/2026-08-31-add-binding-consumer-identity/proposal.md:27`,
+which enumerates the five sites;
+`openspec/changes/archive/2026-08-31-add-binding-consumer-identity/review/ratification-2026-08-29.md:21`,
+the marker's own sentence carrying the other numeral; and
+`contracts/schemas/xfactory-credential-contracts.schema.yaml:189-191`, shipped at
+`contract-v2.4`. THREE MATCHED NEITHER FIGURE, and was not a re-count: #538 struck
+exactly ONE of the five sites, leaving FOUR standing, which the parenthetical now
+records. The marker's prefix, its basis, its `by` identifier and its date are
+byte-unchanged, and this note carries no reserved prefix — not `Modified over`,
+not `Removed from canon by`, not `Merged into` — so it cannot be read as a
+carriage marker. The mirror of this sentence in the closed archived delta is
+DELIBERATELY UNTOUCHED: it records what that packet wrote, and amending a closed
+record is a separate act with its own consent.
 
 #### Scenario: A second system needs the same identity
 - **WHEN** a second system must authenticate as an operated identity a first system already uses
