@@ -32,14 +32,21 @@ reserve a minor number before merge order is known, and a bundle is not
 published until its tag exists. Consumers record the human-readable bundle
 tag while pinning the exact commit and required file digests.
 
-### Untagged Bundles After Enforcement Began — DISCHARGED 2026-08-25, AND AGAIN 2026-08-31
+### Untagged Bundles After Enforcement Began — DISCHARGED 2026-08-25, AND AGAIN 2026-08-31; INSTANCE SIX IS NOT DISCHARGEABLE
 
-FIVE instances, in two discharges. The first three and the 2026-08-25 ruling are
-recorded immediately below; `contract-v2.3` and `contract-v2.4` are recorded
-further down under their own dates. The header carries both dates because a single
-one would read as though the section closed once — and **it has not closed, in the
-sense that matters**: the recurrence is caused by the absence of a CHECK, filed as
-issue **#528**, and a record is not a check.
+SIX instances. **FIVE were discharged, in two discharges; the sixth cannot be**,
+and the header says so rather than carrying a third date that would promise a
+closure this section will never record. The first three and the 2026-08-25 ruling
+are recorded immediately below; `contract-v2.3` and `contract-v2.4` are recorded
+further down under their own dates; `contract-v2.6` — the one that no tag can
+reach — is recorded last, under its own subsection. The header carries both
+discharge dates because a single one would read as though the section closed once
+— and **it has not closed, in the sense that matters**: the recurrence is caused
+by the absence of a CHECK, filed as issue **#528**, and a record is not a check.
+**The check has since landed** (the `release-tag-publication` doc-health family,
+PR #563), which is why instance six was met by a machine rather than by a human
+counting — and why it is also the instance that found the check's own missing
+vocabulary, filed as issue **#575**.
 
 Three bundles allocated AFTER mandatory tag publication began once carried a
 changelog entry and a manifest version but NO published annotated tag:
@@ -86,6 +93,15 @@ rather than left to be inferred from the sentence's present tense, because a
 reader who takes that sentence as evidence the practice never lapsed again would
 be reading a claim it does not make.
 
+**AND IT WENT FALSE A THIRD TIME, AND THIS TIME IT STAYS FALSE.** `contract-v2.6`
+is instance six, it is untagged, and — unlike all five above — **no discharge can
+reach it**. The sentence is therefore left standing as the record of what was true
+when it was written, on this document's own rule that a record is annotated and
+never rewritten to match today; but a reader must not carry it forward as a
+present-tense claim. The current, true statement is: *every bundle from
+`contract-v1.7` is tagged EXCEPT `contract-v2.6`, which never can be.* See
+§ *`contract-v2.6` — Instance Six* below.
+
 | bundle | realized commit | landed as | declared-and-untagged for | discharged |
 |---|---|---|---|---|
 | `contract-v2.3` | `ec8be5aa62179713f37ee12dab53a948d791e147` | PR #514 merge, 2026-08-30 08:25 -0400 | about 19 hours — and it was CONSUMED as a spent number inside that window, by the `contract-v2.4` cut `afdf0e88` | tag `9fe9a742` published 2026-08-31 03:14 -0400 |
@@ -121,8 +137,11 @@ false a fourth time, and this section records rather than prevents that. A reade
 finding it false again should add the gate, not another paragraph.
 
 Every instance above is a breach of the rule, never an exception to it, and the
-closing clause immediately below binds all five: no reader may cite this
-subsection, or the periods it narrates, to treat an untagged bundle as released.
+closing clause immediately below binds all six — the never-dischargeable sixth
+most of all: no reader may cite this subsection, or the periods it narrates, to
+treat an untagged bundle as released. **A bundle that can never be tagged is not
+thereby released; it is permanently unreleased**, which is the whole content of
+the `contract-v2.6` disposition below.
 
 THE RULE WAS NEVER ADVISORY, INCLUDING WHILE IT WAS BEING BROKEN. For the weeks
 these three went untagged, "a bundle is not published until its tag exists" was
@@ -136,6 +155,74 @@ RECORDS DESCRIBING THE FORMER GAP STAND AS HISTORY. `docs/archive-record-discrep
 tags. That was true when written and is deliberately NOT edited: a record is
 immutable, exactly as an archived change packet is, and rewriting one to match
 today's state would destroy the evidence of what was true then.
+
+### `contract-v2.6` — Instance Six: SPENT, NEVER VERIFIABLE, NEVER PUBLISHED, SUPERSEDED
+
+**THE FIRST INSTANCE THAT IS NOT A LATE TAG BUT AN IMPOSSIBLE ONE.** The five
+above were bundles whose tags nobody published; this is a bundle whose tag nobody
+COULD publish. It is recorded in this document — and not only in the changelog —
+because this policy is the artifact a consumer pins and reads, and a consumer who
+reads the discharge tables above and stops would conclude that every allocated
+number is either tagged or awaiting a tag. One is neither.
+
+| bundle | declaring commit | disposition | authority |
+|---|---|---|---|
+| `contract-v2.6` | `bbbbeda984353ebaeb67d3e2bb1c73fcb7bac140` — the squash of PR **#565**, landed 2026-09-01 | **SPENT. Never verifiable, never published, SUPERSEDED by `contract-v3.0`.** No annotated tag exists or can exist; the number is never reused; the changelog entry and `contracts/releases/contract-v2.6.digests.yaml` are left exactly as written | Brett Heap, ruling in session 2026-09-02: *"Supersede: v3.0 is the completion."* Executed by the `contract-v3.0` cut, PR **#573**, squash `ff9ed815` |
+
+**WHY NO TAG CAN REACH IT — TWO DEFECTS, AND THE SECOND IS THE ONE THAT SETTLES
+IT.** The targeting rule this section established is *"the EARLIEST FIRST-PARENT
+COMMIT on published `main` that DECLARES the bundle and at which `verify-commit`
+PASSES."*
+
+1. **NO COMMIT SATISFIES THE RULE.** Exactly one first-parent commit declares
+   `contract-v2.6`, and `verify-commit` fails there with five
+   `HGR-RELEASE-DIGEST-MISMATCH` findings — the cut branch forked at `518c670b`
+   and was never rebased onto the final integration point, so a squash merge
+   applied the PR diff onto a `main` that had moved under it (§ Bundle
+   Realization Order **step 1**, omitted). Three of the five are NOT the
+   editorial members § *What a red `verify-commit` at HEAD means* allows between
+   cuts, and that allowance does not reach a tag in any case: *"a published
+   bundle must verify at its own commit exactly."*
+2. **AND A REBUILT INVENTORY WOULD NOT CURE IT.** `contract-v2.6` declares change
+   class ADDITIVE (minor) on a tree that, from 2026-09-01T19:43Z, REFUSES three
+   shapes `contract-v2.5` accepted. A minor asserts that consumers on the same
+   major remain conformant without changes, and on that tree the assertion is
+   false. A completion commit — the `contract-v1.31`/`-v1.36`/`-v1.37` shape that
+   supplied a target for the earlier discharges — moves five digest lines and
+   moves that not at all.
+
+**THIS IS A SUPERSESSION, NOT A RETRO-PUBLICATION, and the distinction is the
+whole record.** The 2026-08-25 and 2026-08-31 discharges published tags at the
+commits their bundles were really realized at — RETRO-PUBLISHED, NOT RE-DATED. No
+such act is available here. What discharges `contract-v2.6` instead is § Immutable
+Tag Correction's remedy for a defective release, applied one step earlier in the
+lifecycle: a superseding release carries the content forward under a number whose
+class matches the tree, and *"its version number is never reused."* Everything
+`contract-v2.6` was to have carried is carried at `contract-v3.0`.
+
+**THE MEASUREMENT OF RECORD IS `contracts/CHANGELOG.md` § `contract-v3.0`, the
+`contract-v2.6` disposition.** This table cites it and does not re-derive it,
+because two records of one measurement is how they drift apart. The defect itself
+is filed as issue **#574**; the raw measurement is PR #565 comment `5502452624`.
+
+**WHAT THIS COSTS THE ESTATE, STATED PLAINLY RATHER THAN DISCOVERED.** The
+`release-tag-publication` family reports `contract-v2.6` at **ERROR** —
+*"cut and SUPERSEDED without ever being published"* — and **the finding will not
+clear.** The family has no state between *published* and *owes a tag*, and the
+action it prescribes is unperformable for this bundle for the two reasons above.
+Publishing `contract-v3.0`'s tag did not clear it and could not: the family
+inspects every bundle carrying a release inventory, not only the declared one.
+**The finding is TRUE and the family is not wrong**, and it is deliberately NOT
+weakened to fit this record — the owner's ruling supersedes a bundle, it does not
+license a checker to stop objecting to abandoned ones, and a policy that relaxed
+the one check standing between the estate and walked-away bundles would be
+repeating the failure that check exists to catch. The missing vocabulary — what
+record makes a bundle SPENT, who may declare it, at what severity, and the guard
+that a bundle must never become spent merely by being ignored — is design work
+owing its own change and its own review, filed as issue **#575**. **Until it
+lands, this ERROR is a DECLARED permanent finding, not an undiscovered one**, and
+no reader should quiet it by editing the manifest, the changelog or the inventory
+to match the absence.
 
 ### Recovered Legacy Baseline
 
