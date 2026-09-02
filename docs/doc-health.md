@@ -156,6 +156,51 @@ changelog or the inventory to match the absence*. The gap it closes reached
 `contract-v1.33`/`v1.35`/`v1.39` in August and recurred on `contract-v2.3`
 and `contract-v2.4`; a human found it both times (issue #528).
 
+[`declare-spent-bundle-state`](../openspec/changes/declare-spent-bundle-state/proposal.md)
+(ratified 2026-09-02) gave that family a **THIRD STATE — SPENT — and added no
+family**, so the counts above are unmoved and `family-enumeration` stays
+silent. Between *published* and *owes a tag* sits a number that was cut, was
+never publishable, and never will be: `contract-v2.6`, for which the action
+line above is unperformable by anyone. A SPENT state is entered **ONLY by an
+explicit reserved declaration** read from `contracts/CHANGELOG.md` **at the
+published tip** — never from `health/dispositions.yaml`, which suppresses by
+`(family, repo, path)` and could only ever silence the whole family for a
+repository, and never from silence: where no declaration names a superseded
+untagged bundle, the family reports it exactly as before, in the same words.
+The reserved single-line form, whose opener `**SPENT BUNDLE:**` may begin no
+other line in that file:
+
+```text
+**SPENT BUNDLE:** `<bundle>` — SUPERSEDED BY `<superseding bundle>` — CAUSE: <text> — RULED BY <author>, <YYYY-MM-DD> — MEASUREMENT: <citation>
+```
+
+**THREE OUTCOMES, AND THE MIDDLE ONE IS NOT A REFUSAL.** A declaration is
+ACCEPTED — every element present and non-empty, written inside the superseding
+bundle's OWN changelog entry, and that bundle itself cut, itself PUBLISHED and
+STRICTLY LATER — and the family emits **one `info`, classed `contested`, on
+`contracts/releases/<bundle>.digests.yaml`**, which is the one path unique to
+the bundle by construction and therefore the one that gives the state its own
+finding identity. It is PROVISIONAL where the later successor is cut but not
+yet published: **one `warning`** that suppresses the superseded `error` for
+that bundle, the obligation having moved onto the successor, which the distance
+arm grades on its own account. It is REFUSED — an `error` **beside** the
+superseded `error`, which still stands, because a bad declaration must remove
+nothing — where the named successor was never cut, is not strictly later, an
+element is missing, two declarations name one bundle, the declaration sits
+outside its successor's entry, or it names the bundle the manifest still
+declares. One finding of the state has no bundle to land on and keeps the
+changelog path: a declaration whose SUBJECT was never cut is a `warning` there,
+because a mistyped subject leaves the real bundle undeclared and still
+reported. Its action lines: *no action is owed on this bundle — the obligation
+was not MET but EXTINGUISHED, by an owner act, at the cost of a version number*
+for the `info`; *publish the SUPERSEDING bundle's annotated tag* for the
+`warning`; *repair or withdraw the SPENT declaration* for a refusal. The state
+reaches the **ABSENT-tag arm and nothing else** — it quiets no MISPLACED tag,
+no LIGHTWEIGHT ref and no distance grading — and it is **not read backwards**
+onto the five bundles § *Untagged Bundles After Enforcement Began* records,
+all of which were publishable and published, nor onto any bundle below the
+`contract-v1.7` floor.
+
 ## Finding Severities
 
 | Severity | Meaning | Examples |

@@ -371,6 +371,8 @@ guard against the obvious abuse, that a bundle must never become spent by being
 ignored. It is named here so a reader meeting the ERROR knows it is DECLARED
 rather than undiscovered.
 
+**SPENT BUNDLE:** `contract-v2.6` — SUPERSEDED BY `contract-v3.0` — CAUSE: it declares change class ADDITIVE (minor) over a tree that refuses three shapes `contract-v2.5` accepted, which no completion commit and no rebuilt inventory can cure, and it is never verifiable at `bbbbeda9`, its one declaring commit — RULED BY Brett Heap, 2026-09-02 — MEASUREMENT: PR #565 comment `5502452624`
+
 ### OQ-1 and OQ-2, answered at the cut
 
 Both retirement packets named these for the cutting session and neither
