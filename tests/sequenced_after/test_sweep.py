@@ -220,15 +220,29 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
       `sole_modifiers - 1` 48, `active_sole - 1` 11, 3 prose headers (3
       archived), 1 declaration, 0 root claims — each identical at `518c670b`,
       `ded8b9f1`, `43cf5933`, `a951be76` and `6856f502`.
-    - PR #548 adds `amend-chain-anchoring-readiness-and-durability`, one ACTIVE
-      change carrying only novel ADDED requirement titles. Against current main
-      `ff9ed815`, that moves change ids 153 → 154, sole modifiers 49 → 50,
-      active changes 30 → 31 and active sole modifiers 12 → 13. It does NOT
-      move either co-modified count, root-claim count or prose header count. Its
-      machine-readable parent declaration moves declarations 1 → 2 without
-      increasing deepest-chain depth: both declared chains are one hop. The
-      subtractive authoring assertions therefore remove TWO post-authoring sole
-      modifiers: this substrate and PR #548's amendment.
+    - `change_ids - 1`, `sole_modifiers - 1` and `active_sole - 1` move again
+      when THIS PACKET's own directory lands: `add-clearing-dispatch-boundary`
+      is itself one more ACTIVE change, and its spec delta is ADDED-only (no
+      `## MODIFIED Requirements` block) with novel requirement titles, so it
+      is a SOLE modifier, never a co-modifier — `co_modified` and
+      `active_co_modified` hold at 104 and 18. `change_ids - 1` moves
+      152 → 153, `sole_modifiers - 1` moves 48 → 49, and `active_sole - 1`
+      moves 11 → 12, bumped in the branch's own landing commit per this rule,
+      2026-09-01 (PR #555).
+    - PR #548 then adds `amend-chain-anchoring-readiness-and-durability`, one
+      more ACTIVE sole modifier with novel ADDED requirement titles. Against
+      current main `ab0bb2dd`, change ids move 154 → 155, sole modifiers
+      50 → 51, active changes 31 → 32 and active sole modifiers 13 → 14;
+      both co-modified counts remain 104/18. Its machine-readable parent
+      `[add-chain-anchoring]` moves declarations 1 → 2 without increasing the
+      one-hop deepest chain, and root claims remain zero.
+    - PR #548 then adds `amend-chain-anchoring-readiness-and-durability`, one
+      more ACTIVE sole modifier with novel ADDED requirement titles. Against
+      current main `ab0bb2dd`, change ids move 154 → 155, sole modifiers
+      50 → 51, active changes 31 → 32 and active sole modifiers 13 → 14;
+      both co-modified counts remain 104/18. Its machine-readable parent
+      `[add-chain-anchoring]` moves declarations 1 → 2 without increasing the
+      one-hop deepest chain, and root claims remain zero.
     """
     sweep = sa.corpus_sweep(ROOT)
     assert sweep.co_modified == 104, (
@@ -247,8 +261,8 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
     # This change is itself a sole modifier at requirement granularity — which is
     # exactly why it declaring a parent anyway is the doctrine applied to its
     # author: declaring must never be worth less than omitting.
-    assert sweep.change_ids - 2 == 152
-    assert sweep.sole_modifiers - 2 == 48
+    assert sweep.change_ids - 2 == 153
+    assert sweep.sole_modifiers - 2 == 49
     # STILL INTACT ON ITS MERITS, not by a cancelling pair of errors — checked,
     # because #563's archive landing between the authoring measurement and this
     # reading makes the coincidence worth ruling out explicitly. That archive
@@ -256,8 +270,8 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
     # both before it (`518c670b`) and after it (`ded8b9f1`), and moved to 12
     # only at `43cf5933`, when THIS change added itself as an active sole
     # modifier. PR #548 adds the second post-authoring active sole modifier, so
-    # `- 2` subtracts both and still recovers the authoring 11.
-    assert sweep.active_sole - 2 == 11
+    # `- 2` subtracts both while preserving the clearing-dispatch live baseline.
+    assert sweep.active_sole - 2 == 12
     assert sweep.prose_headers == 3 and sweep.prose_headers_archived == 3
     assert sweep.declaring == 2
     assert sweep.declaring_ids == (
