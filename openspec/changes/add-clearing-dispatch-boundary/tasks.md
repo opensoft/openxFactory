@@ -560,6 +560,21 @@ Deliberately not started before §2. Nothing here is authored by this packet.
       check is RED and MERGE WAITS ON THAT LANE'S RESOLUTION. Ratification
       (§2) is a separate act and is not blocked by it; merging is. Re-check
       before merge rather than assuming it has cleared.
+      **CORRECTION, 2026-09-01 — the true history, filed forward rather than
+      erasing the above:** the originally-named cause, `add-chain-attestation`'s
+      unnamed carriage-ledger subject, WAS FIXED on `main` by PR #557 (squash
+      `5383e72c`). `main` then went RED AGAIN on a DIFFERENT inherited cause,
+      unrelated to this packet: PR #567's stale `sequenced_after` live pin
+      (`active_co_modified` counted 19 when #563's archive had already moved
+      it to 18) — WHICH WAS FIXED by PR #568 (squash `d308c012`). After that
+      fix, `main`'s own re-gate passed both required checks, `pytest-suite` and
+      `signed-execution-chain-gate`. This branch merged `origin/main` at that
+      point, so its own checks re-run on a head that includes the fix. NEITHER
+      RED WAS THIS PACKET'S — the first belonged to the `add-chain-attestation`
+      realization lane named above, the second belonged to the
+      `sequenced_after` substrate lane's live pin — and this correction exists
+      so the record names both causes and both fixes rather than leaving the
+      first cause standing as though it were still the live blocker.
 - [ ] 9.3 Release-realization: this change declares a code surface, so it
       ARCHIVES only on merged realization plus green evidence — §5.4's filed
       reports and §6.8's cut — and stays ACTIVE until then, ratified or not.
