@@ -449,8 +449,9 @@ Active changes:
   canon scenarios present, 10 byte-identical, the eleventh differing by exactly
   one added `AND` bullet with nothing removed, all 67 canon body lines
   surviving, block BUILT FROM CANON at named anchors rather than retyped — the
-  #331/#329 loss shape checked rather than asserted. Ten scenarios added,
-  twenty-one in total. **PROPOSAL ONLY (OD-8)**: #544's one-landing shape was
+  #331/#329 loss shape checked rather than asserted. Thirteen scenarios added,
+  **twenty-four in total** — ten as first proposed and three more for the Codex
+  P1s. **PROPOSAL ONLY (OD-8)**: #544's one-landing shape was
   ruled for a mechanical reason — a family ADDITION reddens
   `family-enumeration`'s self-gate in the interval — and this change adds no
   family and moves no count, so no forcing function exists, while the cut's own

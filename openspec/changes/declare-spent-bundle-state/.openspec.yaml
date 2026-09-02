@@ -45,8 +45,9 @@ origin:
     AND MUST NOT BE READ AS ONE. The citation covers THE DECISION TO WRITE A FIX
     FOR #575 and nothing else. Every decision beyond that clause was the
     authoring session's, is listed in proposal.md § Orchestrator Decisions as
-    OD-1 … OD-8, and was FLAGGED FOR VETO when written — as were the three items
-    in § Open questions, each of which carries a recommendation and no decision.
+    OD-1 … OD-8 (OD-9 was ADDED LATER, under review — see below), and was
+    FLAGGED FOR VETO when written, as were the three items in § Open questions,
+    each of which carries a recommendation and no decision.
     TWO OF THEM CARRY GOVERNANCE CONTENT AND ARE OWED AN EXPLICIT RULING rather
     than acceptance by silence: OD-3, whether a correctly declared spent bundle
     is RECORDED at `info` or SILENT, and OD-4, that the only way to quiet a

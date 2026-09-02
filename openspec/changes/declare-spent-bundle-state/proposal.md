@@ -106,7 +106,9 @@ scenario-by-scenario: **11 of 11 canon scenarios present, 10 byte-identical, and
 the eleventh — *A bundle was cut, superseded, and never tagged* — differing by
 exactly ONE added `AND` bullet and nothing removed**, with all 67 canon body
 lines surviving. That is the #331/#329 loss shape, and it is checked rather than
-asserted. **Ten scenarios are added**, bringing the requirement to twenty-one.
+asserted. **Thirteen scenarios are added**, bringing the requirement to
+twenty-four — ten as first proposed, and three more for the two Codex P1s
+§ Review convergence records.
 
 **NO `## MODIFIED` BLOCK IS OPENED OVER `Deterministic check families`**, and
 that is a measurement rather than a shortcut — see OQ-1.
