@@ -671,7 +671,9 @@ unimplementable, and `projection.py`'s property 5 said so in as many words.
 - [x] 7.7 **Gate:** a revoked holder parks a convening with a named refusal in a
       rehearsed test; an unreadable register refuses; the runbook has been
       walked once.
-  - **LIMB THREE MOVED 2026-08-31, AND THE GATE IS STILL NOT MET.** *"the
+  - **[SUPERSEDED 2026-09-02 — prior assessment, retained as history; see the
+    RULED bullet below.]** **LIMB THREE MOVED 2026-08-31, AND THE GATE IS
+    STILL NOT MET.** *"the
     runbook has been walked once"* — it has:
     [`walk-2026-08-31-composition-bump.md`](walk-2026-08-31-composition-bump.md),
     against codexFactory `6edecaf1`. **Recorded here so a later reader finds it,
@@ -680,7 +682,9 @@ unimplementable, and `projection.py`'s property 5 said so in as many words.
     was revoked (walk record §5.1, §5.2). And the walked limb is itself
     precision-class, not revocation-class. **A gate is met when all its limbs
     are, and one of three moving is not two-thirds of a discharge.**
-  - **RUNTIME HALF DONE, gate NOT met.** Limbs one and two — "a revoked holder
+  - **[SUPERSEDED 2026-09-02 — prior assessment, retained as history; see the
+    RULED bullet below.]** **RUNTIME HALF DONE, gate NOT met.** Limbs one and
+    two — "a revoked holder
     parks a convening with a named refusal in a rehearsed test" and "an
     unreadable register refuses" — are both asserted in hermes-install #51, on
     real Postgres and over HTTP, not only in unit isolation. They are on an
