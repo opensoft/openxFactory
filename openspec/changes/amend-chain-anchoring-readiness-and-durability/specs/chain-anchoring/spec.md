@@ -111,6 +111,19 @@ once in that window's ordered Merkle batch, with no per-event selectivity. Every
 included event SHALL carry a membership path into `daily_batch_root`. A closed
 window MUST NOT be reopened or rewritten.
 
+Before schema or validator authoring, the operator SHALL approve one immutable
+`daily-merkle` construction profile. The profile SHALL fix canonical event-leaf
+encoding, SHA-256 as the hash algorithm, distinct leaf and internal-node domain-
+separation byte strings, sequence ordering, tree shape, odd-node handling, and
+the deterministic empty root. The released profile SHALL carry an identifier,
+version, canonical content digest, and approval record. Each UTC window SHALL
+snapshot that profile at open, and every admission and the canonical manifest
+SHALL bind the same identifier, version, and content digest. An unresolved,
+unknown, mutable, or digest-mismatched construction profile SHALL block schema
+authoring or REFUSE admission/closure. The canonical validator SHALL resolve the
+pinned released profile and mechanically recompute every leaf, membership path,
+and `daily_batch_root`.
+
 The proof chain SHALL contain distinct, mechanically recomputable nodes in this
 order:
 
@@ -118,8 +131,9 @@ order:
 2. canonical signed daily-manifest bytes bind the snapshotted eligibility-
    registry version, canonical content digest, activation checkpoint and
    standing, window boundaries, first and last sequence when present, event
-   count, `daily_batch_root`, previous batch root, close reason, dedupe rule,
-   and late-arrival rule;
+   count, `daily_batch_root`, daily-Merkle profile id/version/content digest,
+   `previous_daily_anchored_digest`, close reason, dedupe rule, and late-arrival
+   rule;
 3. the ratified digest construction produces `material_digest` from those exact
    canonical manifest bytes;
 4. the ratified construction produces `anchored_digest` from `material_digest`
@@ -144,6 +158,14 @@ uncommitted configuration, different cadence, or bespoke receipt shape SHALL be
 REFUSED. The open window remains evidenced by the signed owner-local log and
 MUST NOT be presented as already publicly anchored.
 
+Every daily manifest after the first SHALL bind the immediately preceding
+daily item's `anchored_digest`, not its `daily_batch_root`. The first manifest
+SHALL bind one contract-defined genesis sentinel. This continuity link commits
+to the previous window identity, accounting fields, registry snapshots, and
+configuration even when consecutive empty windows share the same deterministic
+empty `daily_batch_root`. A missing, duplicated, reordered, or substituted daily
+item SHALL therefore break the next manifest's continuity proof.
+
 An event whose source time belongs to an earlier closed window but whose trusted
 acceptance occurs in the current window SHALL enter the current window exactly
 once and SHALL record its source-time lateness off chain. A window with no
@@ -159,7 +181,7 @@ witnesses through the same receipt path.
 #### Scenario: An empty UTC window closes
 
 - **WHEN** a fixed UTC window closes with no eligible accepted events
-- **THEN** a signed count-zero manifest binds the deterministic empty `daily_batch_root` and previous batch root, and its configuration-bound `anchored_digest` enters both configured witness paths as the daily anchored item
+- **THEN** a signed count-zero manifest binds the deterministic empty `daily_batch_root` and immediately preceding `previous_daily_anchored_digest`, and its configuration-bound `anchored_digest` enters both configured witness paths as the daily anchored item
 
 #### Scenario: A source-time event arrives after its earlier day closed
 
@@ -201,6 +223,21 @@ witnesses through the same receipt path.
 - **WHEN** an admission or manifest supplies registry contents whose digest differs from the snapshotted append-only registry entry
 - **THEN** admission or closure is REFUSED before the batch root can be accepted
 
+#### Scenario: Merkle construction profile is missing or substituted
+
+- **WHEN** an admission or manifest omits the daily-Merkle profile id, version, or content digest, or the resolved profile bytes do not match that digest
+- **THEN** admission or closure is REFUSED before any membership or completeness claim is accepted
+
+#### Scenario: Independent validator recomputes a non-empty root
+
+- **WHEN** a validator receives accepted event bytes, sequences, membership paths, and a manifest naming the released daily-Merkle profile
+- **THEN** canonical leaf encoding, domain separation, ordering, tree shape, odd-node handling, and SHA-256 deterministically reproduce the manifest's `daily_batch_root` or verification is REFUSED
+
+#### Scenario: An intermediate empty day is omitted
+
+- **WHEN** two or more consecutive empty windows share the deterministic empty `daily_batch_root` but an intermediate daily manifest is omitted
+- **THEN** the later manifest's `previous_daily_anchored_digest` does not resolve to the immediately preceding item and continuity verification is REFUSED
+
 #### Scenario: An anchoring control leaf is offered as a source event in its own batch
 
 - **WHEN** a witness submission, confirmation, batch manifest, continuity checkpoint, or other anchoring-control leaf is offered as a durability-eligible event in the batch it produces
@@ -218,7 +255,7 @@ witnesses through the same receipt path.
 
 #### Scenario: Batch root or mint-time configuration is substituted
 
-- **WHEN** event membership proves one `daily_batch_root` but the manifest, material digest, witness set, horizon, timing input, profile version, profile digest, activation checkpoint, or standing evidence differs from the values committed by `anchored_digest`
+- **WHEN** event membership proves one `daily_batch_root` but the manifest, previous daily anchored digest, Merkle profile, material digest, witness set, horizon, timing input, confirmation-profile version, profile digest, activation checkpoint, or standing evidence differs from the values committed by `anchored_digest`
 - **THEN** receipt verification REFUSES the item before evaluating either witness proof
 
 ### Requirement: Witness submission and confirmation remain distinct evidence states
