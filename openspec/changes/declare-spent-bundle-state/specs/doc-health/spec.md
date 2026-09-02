@@ -143,10 +143,15 @@ anyway, rather than a second record beside it.
 
 THE DECLARATION SHALL NOT BE READ FROM `health/dispositions.yaml`, and the
 reason is mechanical rather than a preference. That file SUPPRESSES findings
-keyed by `(family, repo, path)`; every finding this family raises against a
-repository lands on `contracts/manifest.yaml`, so one entry would suppress EVERY
-finding this family could ever raise about that repository — including the next
-genuinely abandoned bundle. It lives at the AGGREGATION ROOT, so it is
+keyed by `(family, repo, path)`, and every finding this family raised BEFORE
+this amendment lands on `contracts/manifest.yaml` — so a single entry on that
+path would suppress EVERY absent-tag, misplaced-tag and lightweight-ref finding
+this family could ever raise about that repository, including the next genuinely
+abandoned bundle. That coarseness is the mechanism's, not this state's: it has
+no way to name one bundle. (The findings THIS amendment adds land on per-bundle
+inventories for the very same reason — see the path rule below — which is the
+distinction the dispositions file cannot draw.) It lives at the AGGREGATION
+ROOT, so it is
 unreachable both by a consumer reading a pinned policy document and by a
 `--single-repo` run, which is the scope this family's own self-gate uses. A
 mechanism that cannot name one bundle, cannot be read by the consumer the
