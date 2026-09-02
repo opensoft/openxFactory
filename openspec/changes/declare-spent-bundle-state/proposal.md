@@ -438,7 +438,7 @@ re-baselines the inventory. Net on `main`: **-1 `error`, +2 `info`**, and the
 self-gate goes green because the estate stopped having an unanswerable finding,
 not because a test was edited.
 
-## Review convergence — eight findings over three rounds, seven taken, one refused with a measurement
+## Review convergence — nine findings over four rounds, eight taken, one refused with a measurement
 
 Recorded here rather than only in the ratification record, because a proposal
 whose text moved under review owes a reader the reason where the text is.
@@ -491,6 +491,15 @@ ADDED and novel — while the reading it guards had just been raised BY this
 packet. The message now names which change raised it and which one does not move
 it, because a pin whose failure message points at the wrong subject invites the
 wrong repair.
+
+**TAKEN — Copilot, round 4: the pin numbers this branch's own merge made
+stale.** `code_surface` claimed `change_ids - 1` moves 152 → 153; after merging
+#555's landing it moves 153 → 154, #555 having already taken that reading from
+152. Re-derived from the live sweep and normalized across three sites, with the
+first measurement KEPT rather than overwritten because it was true when taken.
+**Three of the nine findings are of this one shape** — a narrative site left
+behind by a repair or a merge — which is why the packet now carries a
+consistency sweep of its own counts rather than trusting them.
 
 **REFUSED WITH A MEASUREMENT — Copilot, the unquoted `#575` in the front
 matter.** The finding says the `Origin:` line's `#575` "will be parsed as a

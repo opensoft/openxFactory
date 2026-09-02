@@ -161,7 +161,7 @@ bundles carry DIFFERENT identities — taking it from twenty-one to twenty-four.
 Tasks § 2.7 requires the two-bundle case to be PROVEN by a test, because a
 single-bundle test cannot see the defect Codex found.
 
-## The rest of the review, including one refusal
+## The rest of the review — nine findings over four rounds, eight taken, one refused
 
 **Codex, round 1** (`3667ddfe`): *"Didn't find any major issues."* A verdict on
 a NAMED HEAD, not a refusal.
@@ -225,6 +225,16 @@ change"* — true of the test's OWNING change, whose titles are ADDED and novel 
 while the reading it guards had just been raised BY this packet; the message now
 names which change raised it and which one does not move it, because a pin whose
 failure message points at the wrong subject invites the wrong repair.
+
+**Copilot, round 4** — 🔵 *Needs a closer look*, one suppressed-then-surfaced
+finding, TAKEN: the proposal's `code_surface` still claimed authoring this
+change moves `change_ids - 1` from 152 to 153, while the pin it describes had
+since been merged with #555's landing and asserts 154. Re-derived from the live
+sweep rather than reasoned about — `155` change ids (32 active + 123 archived),
+`co_modified 105`, `sole modifiers 50`, ACTIVE `19 / 13` — so the absolute
+population moves 154 → 155 and the `- 1` reading moves 153 → 154. Three sites
+now say that in the same words, and the FIRST measurement is kept rather than
+overwritten, because it was true when taken.
 
 **Copilot, round 2** — 🔵 *Needs a closer look*, 0 new comments: *"introduces
 governance-significant canonical-spec amendments explicitly flagged as requiring
