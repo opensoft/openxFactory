@@ -4,70 +4,68 @@ origin:
   kind: ad_hoc
   id: openxFactory:adhoc:2026-09-01-add-cpc-clearing-boundary
   reason: >-
-    COMMISSIONED BY NAME IN THE ORIGIN ACT ITSELF. The operator ruling of
-    2026-09-01 (Brett Heap, in-session), recorded in the operator workspace as
-    `cpc-clearing-boundary-ruling-2026-09-01.md` and on `opensoft/codexFactory`
-    issue #156, closes with its own next lane: "An OpenSpec change (openxFactory
-    neutral contract for the sealed-bundle clearing boundary + xFactory
-    clearing-workflow realization + codexFactory packaging realization),
-    honoring this ruling as its origin." This packet is that change's neutral
-    half. Its same-day extension comment on issue #156 adds the two identity
-    halves it also carries: seat-return signing resolved to OPTION (b),
-    sign-on-return, and PER-FACTORY ORIGIN KEYS registered in openxFactory under
-    the register/wallet/grant pattern, with origin attestation and seat
-    attestation held to be distinct keys and distinct acts.
-    THE RULING'S SUBSTANCE, which is the scope statement this packet is written
-    to: the execution estate is THE clearing and dispatch boundary; no factory
-    is broadly authorized to originate execution directly; cross-factory work
-    crosses as a SEALED BOUNDED REQUEST whose manifest the boundary verifies
-    against the hosting platform's API rather than trusting; the carrier is a
-    short-lived sealed job object and never a committed folder; the execution
-    target receives only the bundle; the returned result validates on hosted
-    infrastructure before it may affect any repository. Its supersession note is
-    carried too: readiness becomes the clearing lane's FIRST OPERATION and the
-    authorization surface converges to one permanent entry per execution group,
-    retiring the standalone diagnostic rather than adding a per-path entry.
+    THE SAME-DAY EXTENSION OF A RULING WHOSE MAIN BODY IS ALREADY A RATIFIED
+    PACKET. The operator ruling of 2026-09-01 (Brett Heap, in-session), recorded
+    in the operator workspace as `cpc-clearing-boundary-ruling-2026-09-01.md` and
+    on `opensoft/codexFactory` issue #156, produced TWO packets. Its main body is
+    `add-clearing-dispatch-boundary`, RATIFIED 2026-09-01 on the recorded word
+    "merge #192 and ratify #555", promoting `clearing-dispatch-boundary` with ten
+    requirements, its realization live on xFactory main. THIS packet carries the
+    ruling's EXTENSION COMMENT on issue #156, which that packet does not reach:
+    seat-return signing resolved to OPTION (b) sign-on-return, and PER-FACTORY
+    ED25519 ORIGIN KEYS registered in openxFactory and verified at clearing
+    alongside — never instead of — provider provenance, with origin attestation
+    and seat attestation held to be distinct keys and distinct acts.
+    THE DUPLICATE CHECK WAS RUN AGAINST ACTIVE CHANGES AND RECENT RATIFICATIONS,
+    NOT THE PROMOTED SPECS ALONE, AND THIS IS THE CORRECTION THAT MADE IT
+    NECESSARY. An earlier draft of this packet checked `openspec/specs/` for an
+    existing clearing capability, found none — because the basis is an ADDED
+    delta on an unmerged change, not a promoted capability — and re-authored
+    roughly seven of its requirements in divergent vocabulary without citing it.
+    Adversarial review caught it. The check that would have caught it earlier is
+    the one now performed and recorded here: every ACTIVE change under
+    `openspec/changes/`, every `## ADDED Requirements` block within them, and
+    every ratification record dated within the current window, in addition to the
+    promoted index. On that basis the overlap is exactly `clearing-dispatch-
+    boundary`, and this packet is re-scoped to a two-requirement MODIFIED block
+    plus what the basis has no counterpart to.
     WHY `kind: ad_hoc` AND NOT `kind: staged`, checked rather than assumed. No
-    topic under `ideation/staging/` carries this subject; `INDEX.md` and the
-    topic directory were both read. The nearest neighbour,
-    `signed-execution-chain`, is ADJACENT AND DISTINCT: it governs the chain of
-    signatures that travels with a governed act from enrollment to merge, where
-    this packet governs ADMISSION of bounded work into an execution estate the
-    originating factory does not own. `agent-wallet-identity` is the second
-    neighbour and is likewise not this subject — it is holder identity, not
-    per-factory provenance at a dispatch boundary. The organized source here is
-    a recorded in-session operator ruling plus a GitHub issue comment, which is
-    the shape `ad_hoc` exists for, and naming it is not a substitute for
-    staging.
+    topic under `ideation/staging/` carries this subject; `INDEX.md` and the topic
+    directory were both read. `signed-execution-chain` is ADJACENT AND DISTINCT —
+    it governs the signature chain travelling with a governed act to the merge
+    gate, and this packet USES its digest construction rather than defining one —
+    and `agent-wallet-identity` is holder identity, not per-repository provenance
+    at a dispatch boundary. The organized source is a recorded in-session ruling
+    plus a GitHub issue comment, which is the shape `ad_hoc` exists for.
   approved_on: 2026-09-01
   approved_by: >-
-    Brett Heap (openxFactory operator authority) — the ruling of 2026-09-01,
-    recorded in `cpc-clearing-boundary-ruling-2026-09-01.md` and on
-    `opensoft/codexFactory` issue #156 with its same-day extension comment,
-    which commissions this change by name and states the contract's substance.
+    Brett Heap (openxFactory operator authority) — the ruling of 2026-09-01 and
+    its same-day extension comment on `opensoft/codexFactory` issue #156, plus
+    the rework rulings of the same date: origin keys live in the SIBLING register
+    `governance/factory-identity/` (confirming design D1), and the codexFactory
+    B-1 finding is being fixed in the runtime rather than struck.
     THIS FIELD RECORDS AUTHORIZATION TO AUTHOR AND THE RULED INPUTS, NOT
-    RATIFICATION OF CONTENT, AND MUST NOT BE READ AS ONE. The citation covers
-    THE DECISION TO FILE and the ruled inputs listed in `design.md` § "Rulings
-    already taken" — the estate-only gateway, the sealed-bundle shape,
-    verification against platform truth, the short-lived carrier, readiness as
-    the lane's first operation, sign-on-return, and one Ed25519 origin key per
-    factory with origin and seat attestation distinct. It covers nothing else.
-    EVERY DECISION BEYOND THOSE INPUTS WAS THE AUTHORING SESSION'S and is
-    flagged for veto: `design.md` § Decisions carries D1 … D8, of which D1 (the
-    origin-key register is a SIBLING of the review-authority intake register
-    rather than an extension of it), D2 (the sibling inherits the deliberately
-    kindless register discipline as instance two of that shape), D6 (two
-    capabilities rather than one) and D7 (neutral capability names under an
-    incident-named change directory) are authoring judgements the ruling did not
-    reach and are open to reversal without disturbing the ruled inputs.
-    THREE QUESTIONS ARE RECORDED OPEN, NOT GUESSED: OQ1 the projection path by
-    which the factory-identity register reaches a clearing workflow (four shapes
-    sketched, none chosen, coupled to the review side's own revocation
-    successor); OQ2 whether `neutral-job-envelope` carries or merely references
-    the bundle manifest, which also decides whether a manifest schema is in this
-    change's code surface at all; OQ3 who teaches the review-authority reader to
-    refuse an origin-registered key, that reader being pinned vocabulary owned
-    outside this repository. Each carries a recommendation and no decision.
-    THE PACKET IS NOT RATIFIED. `Status: draft` stands in proposal.md, task 1.7
-    is the ratification act, and no register row, key, workflow, or
-    authorization entry is created by this change.
+    RATIFICATION OF CONTENT, AND MUST NOT BE READ AS ONE. It covers the decision
+    to file, the ruled inputs in `design.md` § "What the ruling's extension adds",
+    and the sibling-register ruling. It covers nothing else.
+    EVERY DECISION BEYOND THOSE INPUTS WAS THE AUTHORING SESSION'S and is flagged
+    for veto — `design.md` D2 (the seat-council spelling is not inherited), D4
+    (which two of the ten requirements are modified, and the marker form), D5
+    (field (10) tightens only for a registered originator), D7 (policy-checked
+    fields resolved from the register rather than validated against it), D8 (act
+    distinctness ships as a checked disjointness rule with the read-time half
+    declared NOT in force), D9 (this capability declares its own staleness bound,
+    and at-clearing revocation is declared unrealizable until OQ1 resolves), D10
+    (disposal evidence rides the dispatch record) and D11 (a requirement review
+    asked for was deliberately NOT written, the basis already carrying it).
+    TWO QUESTIONS REMAIN OPEN AND ONE IS RESOLVED. OQ1, the projection path by
+    which the register reaches a clearing workflow, is open with four shapes
+    sketched. OQ3, who scopes the review-authority reader so the read-time refusal
+    becomes true, is open and named as an openXwallet dependency. OQ2 is RESOLVED
+    to REFERENCE — the basis forbids defining a second job-envelope,
+    handling-classification, or digest vocabulary, so carrying the manifest into
+    `neutral-job-envelope` would mint exactly what is forbidden; no manifest
+    schema is added and the code surface shrank accordingly.
+    THE PACKET IS NOT RATIFIED. `Status: draft` stands, task 1.8 is the
+    ratification act, and no register row, key, workflow, or authorization entry
+    is created by this change. Its archive is ORDERED AFTER the basis archives.

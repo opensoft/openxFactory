@@ -2,105 +2,104 @@
 
 ## ADDED Requirements
 
-### Requirement: A factory's origin identity is one registered key per originating factory
-Each ORIGINATING FACTORY authorized to submit sealed bounded requests SHALL hold exactly ONE origin identity — a single Ed25519 key pair — and its PUBLIC half SHALL be registered in a neutral FACTORY-IDENTITY REGISTER held in this repository. The register SHALL be a SIBLING of the review-authority intake register, not an extension of it: a separate register file with its own rows, its own reader invocation, and its own staleness bound. The register SHALL record, per factory, the factory's holder reference, its wallet reference, the act the key is registered for, the grant backing it, an expiry, and the row state. A factory with no registered origin identity SHALL be unable to clear a sealed bounded request.
+### Requirement: One registered origin identity per originating repository, in a sibling register
+An originating repository authorized to present sealed bounded requests SHALL hold exactly ONE origin identity — a single Ed25519 key pair — whose PUBLIC half is registered in a neutral FACTORY-IDENTITY REGISTER at `governance/factory-identity/`. That register SHALL be a SIBLING of the review-authority intake register and SHALL NOT be an extension of it: a separate register file, its own rows, its own reader invocation, and its own declared staleness bound. Each row SHALL name the holder, the wallet reference, the act, the grant conferring it, an expiry, and the row state. Two concurrently active origin rows for one originating repository SHALL be refused; rotation supersedes a row rather than adding a second.
 
-#### Scenario: A factory is admitted as an originator
-- **WHEN** a factory is authorized to originate cross-boundary work
-- **THEN** exactly one origin key is registered for it in the factory-identity register, public half only
-- **AND** the row names the holder, wallet, act, grant, expiry, and state
+The register SHALL declare its holders with `holder_class: organisation`, and SHALL NOT adopt the seat-council holder spelling, the agent-holder prefix, or the per-seat key-block shape that the review-authority register uses for council seats — an originating repository is an organisation holder, not a seated agent, and inheriting a seat vocabulary would make every conformant origin row fail a rule written for a different subject.
 
-#### Scenario: A second origin key is added for the same factory
-- **WHEN** a second concurrently active origin row is proposed for one factory
-- **THEN** it MUST be refused — one factory, one origin identity — and key rotation proceeds by superseding the existing row, not by holding two
+#### Scenario: An originating repository is admitted
+- **WHEN** a repository is authorized to present sealed bounded requests
+- **THEN** exactly one origin row is registered for it, carrying the public half only
+- **AND** the row names holder, wallet, act, grant, expiry, and state
 
-#### Scenario: An unregistered factory submits a request
-- **WHEN** a sealed bounded request names an originating factory with no active row in the register
-- **THEN** clearing refuses the request
+#### Scenario: A second concurrent origin row is proposed
+- **WHEN** a second active origin row is proposed for one originating repository
+- **THEN** it MUST be refused
+- **AND** rotation MUST proceed by superseding the existing row
 
-### Requirement: The register holds public key references only, never private key material
-The factory-identity register and every record beside it SHALL hold KEY REFERENCES only — a public key and its algorithm, the custody model, and the grant that confers authority — and MUST NOT contain a private key, a seed, a passphrase, a secret name resolvable to key material, or any credential value. Origin key records SHALL reuse the pinned neutral wallet-record and grant shapes rather than inventing a second key vocabulary, and the register file itself SHALL follow the intake register's established discipline for this family.
+#### Scenario: The seat-council spelling is applied to an origin row
+- **WHEN** an origin row is written with a seated-agent holder spelling or a per-seat key-block shape
+- **THEN** it MUST be refused as a misfiled row
+- **AND** the register's holder class MUST be `organisation`
+
+### Requirement: The register holds public key references only
+The factory-identity register and every record beside it SHALL hold KEY REFERENCES only — a public key with its algorithm, a decentralized identifier, a key id, the declared custody model, and the grant that confers authority — and SHALL NOT contain a private key, a seed, a passphrase, a secret name resolvable to key material, or any credential value. Origin records SHALL reuse the pinned neutral wallet-record and grant vocabulary rather than defining a second key vocabulary.
 
 #### Scenario: Key material is proposed for the register
-- **WHEN** any record under the factory-identity register would carry a private key, seed, or credential value
+- **WHEN** any record under `governance/factory-identity/` would carry a private key, seed, or credential value
 - **THEN** it MUST be refused
 
-#### Scenario: An origin key record is read
-- **WHEN** an origin key record is inspected
-- **THEN** it carries the public key, its algorithm, the declared custody model, and the grant reference
-- **AND** possession of the record confers no ability to sign
+#### Scenario: An origin record is read
+- **WHEN** an origin record is inspected
+- **THEN** it carries the public key, its algorithm, the identifier, the custody model, and the grant reference
+- **AND** possession of the record MUST confer no ability to sign
 
-### Requirement: The origin key private half is custodied in the factory's hosted environment and declared
-The PRIVATE half of a factory's origin key SHALL live only in that factory's own HOSTED packaging environment — the environment its hosted packaging workflow runs in — and its CUSTODY MODEL SHALL be declared from the closed custody registry, exactly as wallet custody is declared for review authority. The private half MUST NOT be placed on any execution target, any workstation, any shared runner, or in any bundle. An origin key whose custody is undeclared or unattested SHALL be capped at the lower authority the custody vocabulary assigns to unattested custody, and MUST NOT be treated as evidence that the factory itself acted.
+### Requirement: The origin private half is custodied in the originating repository's hosted environment
+The PRIVATE half of an origin key SHALL exist only in the originating repository's own HOSTED PACKAGING ENVIRONMENT, and its CUSTODY MODEL SHALL be declared from the closed custody registry. It SHALL NOT be placed on a governed execution host, a workstation, a shared runner, or in any bundle. An origin key whose custody is undeclared or unattested SHALL be capped at the lower authority the custody vocabulary assigns to unattested custody, and SHALL NOT be read as evidence that the originating repository itself acted.
 
-#### Scenario: An origin key is proposed for a runner
-- **WHEN** a design would place an origin private key on an execution target so bundles can be signed where they are staged
-- **THEN** it MUST be refused — origin signing happens in the factory's hosted environment or not at all
+#### Scenario: An origin key is proposed for a host
+- **WHEN** a design would place an origin private key on a governed execution host so bundles can be signed where they are staged
+- **THEN** it MUST be refused
 
 #### Scenario: Custody is undeclared
-- **WHEN** an origin key record declares no custody model, or declares one with no attestation beside it
-- **THEN** the row is capped at the lower authority the custody vocabulary assigns
-- **AND** the cap is a contract outcome, not a finding to be waived
+- **WHEN** an origin record declares no custody model, or declares one with no attestation beside it
+- **THEN** the row MUST be capped at the lower authority the custody vocabulary assigns
 
 #### Scenario: Custody is declared and attested
 - **WHEN** an origin key's custody model is declared from the closed registry and attested
-- **THEN** an origin signature from that key evidences that the factory's hosted environment acted
+- **THEN** a verifying origin signature evidences that the originating repository's hosted environment acted
 
-### Requirement: Origin attestation and review attestation are distinct keys and distinct acts
-An ORIGIN attestation ("this bounded request came from factory X") and a REVIEW or SEAT attestation ("this reviewer or seat rendered this verdict") SHALL be distinct ACTS carried by distinct KEYS in distinct registers. A key registered for the origin act SHALL be REFUSED when presented for a review or seat act, and a key registered for a review or seat act SHALL be REFUSED when presented for the origin act, whatever else about the presentation verifies. Cross-register satisfaction SHALL NOT be possible: a reader for one act MUST NOT resolve identities from the other act's register.
+### Requirement: The two registers share no key, and that disjointness is checked
+The origin act and the review or seat act SHALL be distinct acts carried by distinct keys in distinct registers, and the ENFORCEABLE HALF OF THAT DISTINCTNESS SHALL BE A CHECKED DISJOINTNESS RULE: a validator SHALL assert that no `key_id`, no decentralized identifier, and no public-key fingerprint appears in both the factory-identity register family and the review-authority register family, and SHALL fail when one does. Disjointness is asserted over the RECORDS, because that is enforceable today by reading two trees.
 
-#### Scenario: An origin key is presented as review authority
-- **WHEN** a verdict or review exercise presents a key whose registration is an origin identity
-- **THEN** the exercise is refused, and the refusal names the act mismatch — not a missing-key error
+A REFUSAL AT READ TIME — an origin-registered key presented for a review act being rejected by the review reader, and the converse — SHALL be a FURTHER obligation that is NOT satisfied by this requirement and SHALL NOT be claimed as in force until the reader that resolves review authority is changed to scope its wallet and grant resolution to its own register. That reader is pinned vocabulary owned outside this repository, and until it is scoped, an origin wallet record placed in a sibling tree is resolvable BY IT: the fail-open direction SHALL be stated here rather than papered over, and the disjointness rule above is what holds the line meanwhile.
 
-#### Scenario: A seat key signs a bounded request manifest
-- **WHEN** a sealed bounded request carries an origin signature made with a key registered for a seat or review act
-- **THEN** clearing refuses the request
+#### Scenario: One key id appears in both register families
+- **WHEN** a `key_id`, identifier, or public-key fingerprint appears in both the factory-identity and review-authority record trees
+- **THEN** the validator MUST fail and name the shared value
+- **AND** the condition MUST NOT be waivable by declaring different acts on the two rows
 
-#### Scenario: One factory holds both kinds of key
-- **WHEN** a factory legitimately holds an origin key and also holds seat or review keys
-- **THEN** they remain separate key pairs with separate registrations, separate custody declarations, and separate revocation
+#### Scenario: The two families are disjoint
+- **WHEN** no identifier is shared between the two register families
+- **THEN** the disjointness rule MUST pass
 
-### Requirement: Origin identities revoke under the ratified revocation lifecycle and are re-checked at exercise
-An origin identity SHALL revoke under the ratified wallet revocation lifecycle: revocation propagates through the derivation chain at the moment it is taken rather than waiting for expiry; a revoked identity never returns to active, and resumption is a NEW registration naming what it supersedes; the reason class is recorded but never narrows propagation. Revocation SHALL be re-checked AT EXERCISE — at the moment a sealed bounded request is cleared — and never trusted from an admission stamp. Expiry SHALL be judged by computed time against the recorded expiry, and a row's own state field SHALL NOT be trusted as truth about expiry. A register or projection that is unreadable, unparseable, or staler than the declared staleness bound SHALL cause clearing to REFUSE, never to proceed.
+#### Scenario: Read-time refusal is claimed before the reader is scoped
+- **WHEN** a document, gate, or report states that an origin key is refused for a review act at read time
+- **THEN** that claim MUST be refused while the review reader still resolves wallet and grant records from the whole tree
+- **AND** the outstanding reader change MUST be named as the open dependency it is
 
-#### Scenario: A factory's origin key is revoked mid-flight
-- **WHEN** an origin identity is revoked after a bundle was packaged but before it is cleared
-- **THEN** clearing refuses the request — revocation is checked at clearing, not at packaging
+### Requirement: The factory-identity register declares its own staleness bound and ceiling
+The factory-identity register SHALL declare its OWN revocation staleness bound and its own ceiling on that bound, and SHALL NOT inherit them from the review-authority register or from any revocation mechanism realized for that register. A projection or reader consuming the factory-identity register SHALL refuse when the view it holds is older than the declared bound, unreadable, or absent, and SHALL diagnose an unreachable store distinctly from an absent one though both refuse.
 
-#### Scenario: The register projection is stale
-- **WHEN** the projection the clearing boundary resolves against is older than the declared staleness bound, unreadable, or absent
-- **THEN** clearing refuses every request rather than admitting on a stale view
-- **AND** an unreachable store and an absent store are diagnosed distinctly, though both refuse
+REVOCATION CHECKED AT THE MOMENT OF CLEARING SHALL BE DECLARED UNREALIZABLE UNTIL A PROJECTION PATH EXISTS, and SHALL NOT be asserted as in force before then. Until that path is settled, an origin row's revocation propagates no faster than the register view a consumer holds, the declared bound is the honest ceiling on that lag, and any statement that revocation is effective at clearing SHALL be refused as unsupported.
 
-#### Scenario: A revoked identity is reinstated
-- **WHEN** a factory whose origin identity was revoked is to originate again
-- **THEN** a NEW origin identity is registered naming the row it supersedes — the revoked row never returns to active
+#### Scenario: A consumer holds a view older than the bound
+- **WHEN** the register view a consumer holds is older than the declared staleness bound, unreadable, or absent
+- **THEN** the consumer MUST refuse rather than proceed on that view
+- **AND** an unreachable store MUST be diagnosed distinctly from an absent one
 
-### Requirement: The clearing boundary verifies origin signatures against the register, never instead of platform provenance
-The clearing boundary SHALL verify a sealed bounded request's ORIGIN SIGNATURE against the public key registered for that factory in the factory-identity register — or against an operator-established PROJECTION of that register whose staleness is bounded — and this verification SHALL be conjunctive with, and never a substitute for, verification of the request's provenance against the hosting platform's authoritative API. The signature SHALL cover the manifest, including the bundle digest, so that neither the manifest nor the bundle can be altered after signing without detection.
+#### Scenario: At-clearing revocation is claimed before a projection path exists
+- **WHEN** a document or gate states that origin revocation takes effect at clearing
+- **THEN** the claim MUST be refused as unsupported while no projection path with a bounded refresh exists
+- **AND** the declared bound MUST be stated as the actual ceiling on propagation
 
-#### Scenario: A signature covers only part of the manifest
-- **WHEN** an origin signature does not cover the whole manifest including the bundle digest
-- **THEN** clearing refuses the request
+#### Scenario: A row is revoked
+- **WHEN** an origin identity is revoked
+- **THEN** it MUST NOT return to active
+- **AND** resumption MUST be a NEW row naming the row it supersedes
 
-#### Scenario: A manifest is altered after signing
-- **WHEN** any manifest field or the bundle digest differs from what the origin signature covers
-- **THEN** verification fails and clearing refuses
-
-#### Scenario: Both checks pass
-- **WHEN** the origin signature verifies against the registered public key AND the platform API confirms the originating repository, workflow, and run
-- **THEN** the origin verification requirement is satisfied
-- **AND** neither check alone would have satisfied it
-
-### Requirement: The factory-identity register is a permanently human-only governance surface
-The factory-identity register and the records beside it SHALL be a PERMANENTLY HUMAN-ONLY surface: no autonomous or council-cleared approval SHALL ever land a change to them, and where gate rules enumerate never-clearable floor members, the register SHALL be entered BY NAME rather than inferred from any path-shaped clause. Admitting a factory as an originator, rotating its origin key, and revoking it are human acts, each anchored to an accountable operator through the grant that confers the authority.
+### Requirement: The factory-identity register is a permanently human-only surface
+Changes to the factory-identity register and the records beside it SHALL be landable only by a human act, and SHALL NEVER be landed by an autonomous or council-cleared approval path. Where a gate enumerates never-clearable floor members, `governance/factory-identity/` SHALL be entered BY NAME rather than matched by a path-shaped clause, and where a consuming repository's floor file is compared as an EXACT SET, that file SHALL be updated in the same governed act that creates the register — an exact-set comparison against a floor that does not yet name the new register fails closed on every candidate, so the two are one change and not two.
 
 #### Scenario: An autonomous approval targets the register
-- **WHEN** a candidate that edits the factory-identity register reaches an autonomous or council-cleared approval path
-- **THEN** it MUST be refused, and the refusal MUST come from a by-name floor entry, not from a path pattern
+- **WHEN** a candidate editing `governance/factory-identity/` reaches an autonomous or council-cleared approval path
+- **THEN** it MUST be refused by a by-name floor entry rather than by a path pattern
 
-#### Scenario: A factory is admitted
-- **WHEN** a new originating factory is registered
-- **THEN** a human operator issues the backing grant and is named as its issuer
-- **AND** the admission is traceable to that accountable human
+#### Scenario: The register lands without the consuming floor file
+- **WHEN** the register is created and a consuming repository's exact-set floor file is not updated in the same governed act
+- **THEN** the omission MUST be treated as an incomplete change
+- **AND** the exact-set comparison MUST NOT be left failing against every candidate
+
+#### Scenario: A repository is admitted as an originator
+- **WHEN** a new originating repository is registered
+- **THEN** a human issues the backing grant and is named as its issuer
