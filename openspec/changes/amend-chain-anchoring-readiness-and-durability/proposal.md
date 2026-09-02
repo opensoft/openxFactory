@@ -1,6 +1,7 @@
 ---
 code_surface: openxFactory — additive amendments to the ratified `chain-anchoring` contract family and its canonical validator; no deployable gateway, chain client, scheduler, or credential surface
 target_release: next additive contract minor, allocated at realization by merge order
+sequenced_after: [add-chain-anchoring]
 ---
 
 # Amend Chain-Anchoring Readiness and Durability

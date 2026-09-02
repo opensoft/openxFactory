@@ -220,6 +220,15 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
       `sole_modifiers - 1` 48, `active_sole - 1` 11, 3 prose headers (3
       archived), 1 declaration, 0 root claims — each identical at `518c670b`,
       `ded8b9f1`, `43cf5933`, `a951be76` and `6856f502`.
+    - PR #548 adds `amend-chain-anchoring-readiness-and-durability`, one ACTIVE
+      change carrying only novel ADDED requirement titles. Against current main
+      `ff9ed815`, that moves change ids 153 → 154, sole modifiers 49 → 50,
+      active changes 30 → 31 and active sole modifiers 12 → 13. It does NOT
+      move either co-modified count, root-claim count or prose header count. Its
+      machine-readable parent declaration moves declarations 1 → 2 without
+      increasing deepest-chain depth: both declared chains are one hop. The
+      subtractive authoring assertions therefore remove TWO post-authoring sole
+      modifiers: this substrate and PR #548's amendment.
     """
     sweep = sa.corpus_sweep(ROOT)
     assert sweep.co_modified == 104, (
@@ -238,20 +247,23 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
     # This change is itself a sole modifier at requirement granularity — which is
     # exactly why it declaring a parent anyway is the doctrine applied to its
     # author: declaring must never be worth less than omitting.
-    assert sweep.change_ids - 1 == 152
-    assert sweep.sole_modifiers - 1 == 48
+    assert sweep.change_ids - 2 == 152
+    assert sweep.sole_modifiers - 2 == 48
     # STILL INTACT ON ITS MERITS, not by a cancelling pair of errors — checked,
     # because #563's archive landing between the authoring measurement and this
     # reading makes the coincidence worth ruling out explicitly. That archive
     # removed a CO-modified active, never a sole one, so `active_sole` read 11
     # both before it (`518c670b`) and after it (`ded8b9f1`), and moved to 12
     # only at `43cf5933`, when THIS change added itself as an active sole
-    # modifier. The `- 1` therefore still subtracts exactly this change and
-    # still recovers the authoring 11.
-    assert sweep.active_sole - 1 == 11
+    # modifier. PR #548 adds the second post-authoring active sole modifier, so
+    # `- 2` subtracts both and still recovers the authoring 11.
+    assert sweep.active_sole - 2 == 11
     assert sweep.prose_headers == 3 and sweep.prose_headers_archived == 3
-    assert sweep.declaring == 1
-    assert sweep.declaring_ids == ("add-sequenced-after-substrate",)
+    assert sweep.declaring == 2
+    assert sweep.declaring_ids == (
+        "add-sequenced-after-substrate",
+        "amend-chain-anchoring-readiness-and-durability",
+    )
     assert sweep.root_claims == 0
 
 
