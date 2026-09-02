@@ -1,0 +1,62 @@
+# LIVE INSTANCE — the SECOND review-authority grant in the stack, and the first
+# one ever MINTED BY RE-ISSUANCE rather than by cold start.
+#
+# It exists because the merge-readiness council's DECLARED COMPOSITION changed
+# on 2026-08-31 (the enrolled-roster alias-to-exact model pin flip, codexFactory
+# PR #146 `6edecaf13e88fc56f9a7182b93a0d48cc2e40541`), and the ratified rule is
+# that a composition change ENDS the holder's certified identity: outstanding
+# grants are revoked, and authority resumes only as a NEW grant issued afresh by
+# a named human against the composition then declared. `grant-mrc-0001` is
+# therefore `state: revoked` beside this file and NEVER returns to active.
+#
+# WHERE THE SUPERSESSION IS RECORDED, AND WHY NOT HERE. The pinned grant schema
+# is `additionalProperties: false` and carries NO `supersedes` field;
+# `parent_grant_ref` means *derived from*, which is a different relation and is
+# deliberately ABSENT below — this is a ROOT grant, issued on the operator's own
+# standing, not attenuated from its predecessor. So the supersession, the
+# composition event and the three citations that authorize this act live in the
+# re-issuance record and nowhere else:
+#
+#   openspec/changes/add-wallet-carried-review-authority/
+#     reissuance-2026-09-02-s5-composition.md
+#
+# These lines are COMMENTS. They confer nothing, they are read by no validator,
+# and they are a pointer to that record rather than a substitute for the field
+# the schema does not have (governed-reissuance-runbook.md §5.1, "HONEST LIMIT").
+#
+# Audience, holder, scope and tier are carried forward UNCHANGED from
+# grant-mrc-0001 on purpose: the composition changed, the commission did not.
+# The backing register row `row-mrc-0001` is REPOINTED to this grant in the same
+# change — the reader requires a row's `grant_ref` to name an ACTIVE grant whose
+# `expires_at` equals the row's, so no order of the three writes is green
+# halfway. Tier `act` still stands on the custody attestation in
+# `../attestations/`, unchanged by this act.
+#
+# THE EXPIRY IS NOT COPIED FORWARD. `grant-mrc-0001` carried
+# `expires_at: "2026-11-23T12:00:00Z"` and was revoked before reaching it;
+# this grant expires 2027-06-30T00:00:00Z, which is the review expiry the signed
+# Operator identity record RULED — bound to the earliest PINNED component's
+# published retirement floor (`claude-sonnet-5`, "not sooner than June 30,
+# 2027"). Midnight UTC at the START of that date is chosen deliberately over the
+# noon-UTC form its predecessor used: authority must not remain live into an
+# instant at which the pinned model may already be retired.
+schema_version: 1
+kind: xfactory_wallet_grant
+grant_id: grant-mrc-0002
+audience:
+  wallet_ref: wal-agent-mrc-0001
+  holder_ref: agent:merge-readiness-council
+scope:
+  acts:
+    - review
+  objects:
+    - opensoft/openxFactory
+  authority_tier: act
+  approval_posture:
+    hermes_approval_required_before_apply: true
+    authority_agents_may_approve: false
+    human_escalation_required_for: []
+expires_at: "2027-06-30T00:00:00Z"
+issued_at: "2026-09-02T09:00:00Z"
+issued_by: Brett.Heap@opensoft.one
+state: active

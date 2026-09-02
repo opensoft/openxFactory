@@ -65,8 +65,8 @@ rows:
     target_repo: opensoft/openxFactory
     act: review
     authority_tier: act
-    grant_ref: grant-mrc-0001
-    expires_at: "2026-11-23T12:00:00Z"
+    grant_ref: grant-mrc-0002
+    expires_at: "2027-06-30T00:00:00Z"
     state: active
 
 # THE PER-SEAT SIGNING KEYS (add-per-seat-register-entries, wallet-v1.2).

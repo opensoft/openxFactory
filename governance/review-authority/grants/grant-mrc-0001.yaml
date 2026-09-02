@@ -26,4 +26,34 @@ scope:
 expires_at: "2026-11-23T12:00:00Z"
 issued_at: "2026-08-25T12:45:00Z"
 issued_by: Brett.Heap@opensoft.one
-state: active
+state: revoked
+
+# REVOKED 2026-09-02 ON A COMPOSITION CHANGE, and this is a TERMINAL fact about
+# this grant rather than a suspension of it: a revoked grant SHALL NEVER return
+# to the active state. Authority resumed as the NEW grant `grant-mrc-0002`
+# beside this file, and `row-mrc-0001` was repointed to it in the same change.
+#
+# REASON CLASS IS **DRIFT** — a composition-caused revocation — and DRIFT
+# propagates exactly as CAUSE: no derived authority survives on the strength of
+# its parent's reason. The class is carried IN THE REASON PROSE below because
+# the pinned schema's `revocation` block is `additionalProperties: false` over
+# exactly {revoked_at, reason, propagated_from} and has no classed field;
+# whether `reason` may carry the class as-is or needs a distinct carrier is
+# openXwallet `add-composition-drift-cascade` task 3.2, still OPEN.
+#
+# `propagated_from` is ABSENT and correctly so: this grant is the ORIGIN of the
+# revocation, not a descendant that inherited one. There is no `revoked_by`
+# field in the schema, so the ratifying human is named in the re-issuance record
+# — `openspec/changes/add-wallet-carried-review-authority/reissuance-2026-09-02-s5-composition.md`
+# — and not here.
+revocation:
+  revoked_at: "2026-09-02T09:00:00Z"
+  reason: >-
+    DRIFT — declared-composition change. The council's declared `model_version`
+    component changed 2026-08-31 by the enrolled-roster alias-to-exact model pin
+    flip (codexFactory PR #146, 6edecaf13e88fc56f9a7182b93a0d48cc2e40541; record
+    records/2026-08-31-enrolled-roster-model-pin-flip.md). A declared-composition
+    change ends the holder's certified identity with no tolerance band and no
+    grace period, so this grant — issued against the composition that preceded
+    the flip — is revoked terminally. Authority resumes only as the new
+    human-ratified grant grant-mrc-0002.
