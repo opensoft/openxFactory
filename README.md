@@ -124,6 +124,14 @@ Core domain-neutral docs:
   (the machine-readable path-scope substrate from `add-structured-scope-substrate`:
   `scripts/scope_globs.py` + `scripts/validate-scope-globs.py`; the trust-root
   floor doctrine consumed by the provenance-tie verifier)
+- [The `sequenced_after` Parent-Declaration Surface Is a Never-Clearable Trust-Root Floor](docs/sequenced-after-trust-root-floor.md)
+  (the machine-readable ORDERED-DELTA PARENT substrate from
+  `add-sequenced-after-substrate` — the second half of the block `scope_globs`
+  opened: `scripts/sequenced_after.py` +
+  `scripts/validate-sequenced-after.py` + the shared strict loader
+  `scripts/frontmatter_strict.py`; the four trust-root properties, absence as
+  fail-closed and never a root claim, the walk policy left to the consuming gate,
+  and the first post-adoption corpus-sweep reading)
 - [Doc-Health Contract](docs/doc-health.md)
   (implementation in-repo since `adopt-neutral-tooling-home`:
   `scripts/doc_health/` + `scripts/doc-health.py`, the reusable nightly
@@ -404,12 +412,182 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-requirement-ref-resolution-integrity](openspec/changes/add-requirement-ref-resolution-integrity/proposal.md)
+  — authored 2026-08-31, **RATIFIED 2026-09-01 BY DIRECT RULING**
+  (`Status: ratified`; record `review/ratification-2026-09-01.md`) — Brett Heap
+  in session via an explicit multi-choice put, session `openxfactory-f5`.
+  **AD-1 IS RULED TWO CODES, AS DRAFTED**, and the twelve-item one-code amendment
+  set is DECLINED — none of its items executed, and it is left standing in the
+  proposal as the record of the rulable alternative rather than struck. **NO §7.4
+  SITTING WAS CONVENED AND NONE WAS PRESCRIBED** — tasks § 2.3 put the question to
+  Brett and he took the direct path, so no seat sat and nothing here is a council
+  disposition. **Ratification authorizes REALIZATION and performs none of it**, so
+  the change stays ACTIVE until merged code, green evidence and the contract cut
+  exist; OQ-1 … OQ-4 REMAIN OPEN, the ruling having reached the decisions without
+  reaching the questions. **THREE Codex rounds ran, not one**: two P2s on
+  `1d6d58f7` both REPAIRED at `deb72c8e`, and a third round ON that fix tip whose
+  P2 — the frozen resolver's per-document lookup leaving the promoted ambiguity
+  scenario's CROSS-DOCUMENT arm unmet — was routed open by the ratification and
+  is now **RULED, 2026-09-01, BY A SECOND ACT OF THE SAME RATIFIER**:
+  **SCOPE TO PER-DOCUMENT**, the ambiguity requirement and scenario NARROWED to
+  the ambiguity the frozen resolver can see, and the CROSS-DOCUMENT arm FILED AS
+  A NAMED SUCCESSOR, **issue #553**. Because the packet was already ratified,
+  that narrowing is a POST-RATIFICATION CONSENTED AMENDMENT by the ratifying
+  owner himself, carried by dated `**AMENDED 2026-09-01**` notes in the delta, a
+  dated addendum in `review/ratification-2026-09-01.md`, and tasks § 2.5 / § 3.4
+  / § 9.4; the scenario count is UNCHANGED at TWELVE and AD-1's two-code ruling
+  is untouched. The gap it defers is INHERITED from the shipped validator rather
+  than introduced here. Eight of eleven review requests were PROVIDER-REFUSED on
+  org usage limits, so no bench has read either the routing or the ruling. Filed on Brett Heap's ruling of
+  2026-08-30, recorded on PR #516 and
+  anchored at issue #523: *a successor change carrying its own
+  resolution-integrity code*. **THE DEFECT, REPRODUCED RATHER THAN QUOTED**: a
+  `consumer.requirement_ref` that resolves to ZERO requirements or to MORE THAN
+  ONE is reported ONLY where two bindings share a `secret_ref`, because
+  `resolve_requirement` has exactly one caller and that caller is the
+  six-condition lift. A binding template declaring two bindings with DISTINCT
+  secret references — one naming a requirement id no record carries, one naming
+  an id two records carry with DIFFERENT access modes — validates
+  `0 warning(s), 0 error(s) -> PASS` under the validator as shipped; changing ONE
+  BYTE so the two secret references match (`example-secret-b` ->
+  `example-secret-a`, the two templates the same length and differing at one
+  offset) refuses the same record, and adding the acknowledgment so the pair
+  reaches the fifth lift condition makes the refusal say *"resolves to no
+  requirement in the repository under validation"* — the exact sentence the
+  silent tree never produced, about the exact same bytes of `requirement_ref`.
+  **WHY #516 COULD NOT CARRY THE FIX**: an ERROR would have been an unphased
+  narrowing, and a WARNING needed a ninth code
+  against the ratified rule that the warning set is *"ENUMERATED against the
+  refusals"* — an unresolvable reference not being a shape the coming major
+  refuses. **THE RULING'S ANSWER, ENCODED AS RECORDED**: a code of its OWN
+  FAMILY (not a widening of any of the eight `consumer-*` codes), WARNING for a
+  full minor and ERROR at the major the block's seven acts land at, so consumers
+  serve ONE window — with the major's refusal DECLARED, so
+  the enumeration rule is satisfied by making the major refuse the shape rather
+  than by exempting it. **TWO ADDED REQUIREMENTS, TWELVE SCENARIOS, NO MODIFIED
+  BLOCK**, and the all-ADDED shape is MEASURED rather than preferred — **TWICE,
+  the second measurement being the one that now holds**. At the packet's
+  merge-base the two requirements a reconciling MODIFIED block would have named
+  were carried by no promoted specification and were ADDED by the then-ACTIVE
+  `add-binding-consumer-identity`, so a MODIFIED delta would have been exactly
+  `govern-sibling-added-modified-deltas`' governed shape — a `Modified over`
+  marker plus an archive-order hold behind the sibling. **PR #541 then ARCHIVED
+  that sibling (2026-08-31), promoting both titles into canon**, so such a block
+  would now be an ordinary MODIFIED over promoted canon needing neither marker nor
+  hold. **The CHOICE is unchanged and only its REASON moved**: under both
+  measurements a pure ADDED requirement serves, the reporting duty being one this
+  capability states nowhere. The three split clauses of the introducing packet (its
+  block requirement's general SHALL, its lift scenario scoped to a sharing pair,
+  its tasks § 2.5 conjunction) are reconciled by SPLITTING the conjunction:
+  reporting is owed by every binding that declares a reference, withholding the
+  lift by the pair asking for the exemption. **NO VALIDATOR LINE MOVES IN THIS
+  PULL REQUEST** — proposal-only on the #497 -> #516 pattern; the realization is
+  a separate change owing two codes, three fixtures, a reconciled
+  `Deprecations Currently In Force` entry and a bundle cut.
+  **THE REALIZATION LANDED (PR #570, squash `e01561c5`) AND ITS BUNDLE CUT IS
+  `contract-v3.0`, WHICH MOVED THE REMOVAL TARGET ONE MAJOR** — a collision
+  neither side could have foreseen: the codes landed on `main` ninety minutes
+  after the `contract-v3.0` cut's branch point and hours before its merge, so
+  the cut that PUBLISHES them (filling in the `Warned since` the entry
+  deliberately left for it) is the very major the entry named as its removal
+  target. A warning first served at the bundle that refuses is not a window, so
+  the cut writes `Warned since contract-v3.0; removal target RESTATED to
+  contract-v4.0`, and the consumer block's seven acts — none of which was
+  authored by that cut either — are restated to the same major, **so the ONE
+  WINDOW property this ruling bought is preserved by moving both entries
+  together rather than abandoned**. **THE ONE-CODE BRANCH
+  WAS RULABLE IN ONE SENTENCE, AND WAS RULED**: AD-1 enumerated the complete
+  twelve-item amendment set a one-code ruling would execute — delta paragraph, two
+  scenarios, `code_surface` sentences, task rows and this entry's own clause — so
+  the ratified text could never permit and forbid a single-code implementation at
+  once. The ruling took the other branch, so the enumeration executed as ZERO
+  edits and stands in the packet as the record of the alternative that was on
+  offer. **That is the transferable lesson: a branch that cannot be executed
+  mechanically is not a rulable alternative, only a gesture at one.**
+- [retire-hermes-flat-keys-and-openworkflow-tokens](openspec/changes/retire-hermes-flat-keys-and-openworkflow-tokens/proposal.md)
+  — authored 2026-09-01, **`Status: ratified` — RATIFIED 2026-09-01 by Brett
+  Heap, in session, at PR #551 tip `64907604`** (record:
+  `openspec/changes/retire-hermes-flat-keys-and-openworkflow-tokens/review/ratification-2026-09-01.md`);
+  ratification authorizes the requirement text and performs no realization,
+  cuts no bundle and moves no CHANGELOG row, so the change stays ACTIVE until
+  merged code, green evidence and the `contract-v3.0` cut exist. The record
+  discloses what the act stood on: **NO CODEX REVIEW HAPPENED** — four
+  requests, four provider usage-limit refusals, zero verdicts, a pass still
+  owed and blocked by nothing in the packet — and `main`'s inherited
+  `pytest-suite` red from PR #510's carriage-ledger subject, which this packet
+  neither causes nor fixes. **Entries 1 and 2 of openxFactory
+  issue #522**, on Brett Heap's 2026-09-01 ruling comment there ("execute all
+  three retirements at contract-v3.0, as the memo recommends") and the
+  measurement memo `deprecations-522-memo-2026-08-31.md` (operator-local, NOT
+  committed here and NAMED rather than located, Principle IV forbidding a
+  host-absolute path in a committed file; the durable in-repo referents are
+  issue #522 and its 2026-09-01 ruling comment).
+  `contract-v2.0` shipped on 2026-08-27, executed a DIFFERENT deprecation
+  through itself, and did not look at the three entries that named it as their
+  removal target; five minors later they still name it. **ENTRY 1 IS SPLIT AS
+  RULED.** The phased half EXECUTES at `contract-v3.0` — the `hermes` flat-key
+  FALLBACK READ leaves `check_hermes`, `LEGACY_HERMES_KEYS` goes with it, and
+  `apply-domain-starter.py` stops emitting the deprecated keys — and it refuses
+  nobody, because all five supported consumers declare `hermes.layers`. The
+  refusing half is RECORDED-WHY and stays In Force: the warning fires only in
+  the `else` arm taken when `layers` is ABSENT, so it has been dead code for the
+  entire supported population, and refusing the co-resident keys would be an
+  unphased narrowing owing its own deprecating minor first. **ENTRY 2 EXECUTES**
+  — the three-line `openworkflow` branch, zero live usage across ten
+  repositories, phased since `contract-v1.1`. Adds ONE capability,
+  `contract-deprecation-execution`, and NO `## MODIFIED` block, because no
+  promoted requirement names either shape. FIVE facts the memo did not carry
+  are recorded here: the fallback retirement is a REPLACEMENT and not a
+  deletion, because the missing-role errors sit INSIDE the `layers`-declared
+  branch and a bare deletion would let a `layers`-less stack pass with no
+  finding at all — a silent WIDENING at a major; the `openworkflow` branch
+  SHADOWS the general rule and so WIDENS one case as well as narrowing another;
+  entry 2's own entry UNDER-DECLARES ITS PREFIX BY ONE CHARACTER — the policy
+  and the docstring write `openworkflow_`, the code writes
+  `startswith("openworkflow")`, so three shapes are refused that the entry never
+  names (raised in review of the PR); promoted canon says an unresolvable
+  `owner_layer` is a WARNING while the shipped validator has ERRORED since six
+  days before that requirement was promoted (recorded, not fixed — D4); and
+  `domain_overlay` is ALSO a live key under `omnigent:`, so the refusal list
+  must be written by PATH and not by name. Sibling:
+  `retire-doxbench-chat-turn-v1`. **REALIZATION §§ 2/3/6.1 IS MERGED** (PR #562,
+  squash `a951be76`) and **THE `contract-v3.0` CUT IS TAKEN** — § 4 ticked with
+  its evidence, OQ-1 decided BOTH (the two realizations merged in the same
+  minute, so any bundle after that point carries both narrowings), OQ-2 answered
+  by measurement (the contract SET's `contract_schema_version` stays 1 because
+  `scripts/validate-domain-openxfactory-pins.py:92` hard-pins it and all five
+  supported consumers declare it; moving it would ERROR the whole supported
+  population unphased). §§ 5 and 7 stay open: the annotated tag is a separate
+  post-merge act. (code surface: openxFactory; target release:
+  `contract-v3.0` — archives only on merged plus green realization evidence and
+  the published tag)
 - [add-chain-attestation](openspec/changes/add-chain-attestation/proposal.md)
   — authored 2026-08-29, **`Status: ratified` — RATIFIED 2026-09-01 by Brett
   Heap at `f54cb5bc` and RE-RATIFIED at `6d7ef17b` after the amendments** (record:
   `openspec/changes/add-chain-attestation/review/ratification-2026-09-01.md`);
   ratification authorizes realization and does not perform it, so the change
-  stays ACTIVE until merged code, green evidence and the contract cut exist.
+  archives only on merged code, green evidence and the contract cut with its
+  published tag — and it stays listed here as ACTIVE until all of that is on
+  `main`.
+  **THE CODE SURFACE IS NOW REALIZED AND THE BUNDLE CUT**: the realization
+  landed as PR **#556**, squash `518c670b` — eight new schemas, the additive
+  extension of four shipped ones, the tranche-two corpus with all NINETY-FIVE
+  closed refusal codes red-proven, and the SAME required check
+  (`signed-execution-chain-gate`, org ruleset 21957695, unchanged) walking
+  links 1–6, green on its own realization PR — and **REGISTERED at
+  `contract-v3.0`** (task 5.9: rows in #556 where the digest test forces them,
+  the number claimed only at the cut, fresh-counted). **The number moved, and
+  the content did not**: task 5.9's cut half first claimed `contract-v2.6`
+  (#565, squash `bbbbeda9`), which fails `verify-commit` — the cut branch was
+  never rebased over #562/#564 — and declares a MINOR on a tree that already
+  refuses shapes `contract-v2.5` accepted, a class-rule violation no completion
+  commit can cure. Brett ruled 2026-09-02 *"Supersede: v3.0 is the
+  completion"*: `contract-v2.6` is a spent, never-verifiable, never-published
+  number, and `contract-v3.0` carries this family's additive content unchanged
+  beside the three retirements that make it a major. What stays open is not
+  the author's to close: the §5.1–5.3 MACHINERY GATES (a PKI plane that has
+  ISSUED, an omnigent layer that has REFUSED — SEC-R18 declared UNMET until
+  then) and the §5.8 canary evidence pair.
   **TRANCHE TWO of the signed-execution-chain family: links 4–6 and 10** — the
   harness-controller setup attestation, the per-task runner attestations, the
   signed pull-request-open decision, and the governed post-merge test that CLOSES
@@ -748,6 +926,67 @@ Active changes:
   mirrors the single codexFactory envelope authority byte-for-behaviour, pinned by
   lockstep test. The codexFactory provenance-tie verifier that CONSUMES
   `scope_globs` is downstream (B's realization), NOT this change's surface.
+- [add-sequenced-after-substrate](openspec/changes/add-sequenced-after-substrate/proposal.md)
+  — authored 2026-09-01, **RATIFIED 2026-09-01 AS AUTHORED** (Brett Heap,
+  convener; `Status: ratified`, dispositions in the proposal's
+  § Ratification record). ALL-ADDED delta on `release-realization`: the OPTIONAL
+  front-matter sibling
+  `sequenced_after:` — a SEQUENCE of parent change references, with
+  `sequenced_after: []` a POSITIVE ratification-covered ROOT CLAIM — which makes
+  the ordered-delta sequencing this capability already obliges in PROSE walkable
+  by a machine. **THE SECOND HALF OF THE BLOCK `scope_globs` OPENED**: it is
+  dependency **0.5** of codexFactory `realize-provenance-gated-autonomous-merge`,
+  named MISSING and BLOCKING there, and required by Brett's convener ruling **R1**
+  (2026-08-28) that the provenance-tie verifier compose the ordered-delta chain
+  MECHANICALLY. **All three candidate links were measured and all three fail**:
+  the prose obligation is mechanism-agnostic, the `Sequenced-after:` header is
+  free text no schema validates (THREE occurrences, all in ARCHIVED proposals),
+  and doc-health's `modified-block-currency` reader resolves ordering by a
+  WHOLE-TOKEN id occurrence anywhere in the declaring proposal — which cannot
+  distinguish a parent from a mention, cannot express a fork, and is
+  author-mutable in the document the author writes. NINE ADDED requirements,
+  thirty scenarios: the declaration; repository-qualified entry syntax (a FOREIGN
+  entry is DECLARABLE, its disposition the consumer's, because silently SKIPPING
+  it would fabricate a root out of a declaration that says the opposite); **ONE
+  STRICT LOADER over the whole realization-axis block**, reaching `scope_globs:`
+  too, because the shipped `scripts/scope_globs.py` uses `yaml.safe_load` and
+  resolves DUPLICATE KEYS silently last-wins — showing a reviewer the FIRST block
+  and authorizing the LAST — which the consuming verifier already refuses;
+  validation of shape, grammar, resolvability and acyclicity; **archive-stable
+  identity** (two ANCHORED locations, exactly-one, no rewrite on archival — 122 of
+  152 changes are already archived and a chain's ROOT archives FIRST, so an
+  active-only rule would self-disable in the worst order); **root status PROVED,
+  never inferred from absence** as neutral doctrine, with the co-modifier
+  cross-check left to the consumer because its key is a per-repository corpus
+  fact; the four trust-root properties; retention at archive; and **NO WALK
+  POLICY** — no depth cap, no fan-out cap, no composition operator, those being
+  the consuming gate's (codexFactory's FOUR hops and INTERSECTION), plus a
+  MEASUREMENT obligation. **Corpus sweep, measured 2026-09-01**: 152 change ids,
+  **104 co-modified at requirement granularity** (real ordered deltas that would
+  each owe a declaration) vs 48 sole modifiers, 19/11 among the 30 active, and
+  **0 occurrences of `sequenced_after:` anywhere** — so NO migration pass is
+  proposed and adoption is opt-in per change, exactly as `scope_globs` adoption
+  is. The delta is ALL-ADDED as a MEASURED choice: `govern-sibling-added-modified-deltas`
+  holds an active MODIFIED block over "Ordered deltas and branch vocabulary" and
+  `add-structured-scope-substrate` one over "Realization axis declaration", so a
+  MODIFIED block over either would incur that change's relative-declaration
+  obligation and its archive-order hold. **The change is its own first instance**
+  — it declares `sequenced_after: [add-structured-scope-substrate]` even though a
+  requirement-granular cross-check would let its novel titles claim ROOT at depth
+  1, because declaring must never be worth less than omitting — and the validator
+  built here validates that declaration, so the first instance is the corpus
+  gate's first live subject. **All five open questions are RULED**: OQ-1 the
+  `scope_globs` strict-loader retrofit lands INSIDE this change (one loader over
+  the whole block, for both structured fields, repairing the ratified sibling's
+  shipped `yaml.safe_load` reader); OQ-2 multi-parent declarations ALLOWED; OQ-3
+  doc-health's whole-token ordering reader UNTOUCHED (migration a named
+  follow-on); OQ-4 cycle refused / depth and fan-out unbounded, AS AUTHORED; OQ-5
+  NO council co-sign required. Built post-ratification via Speckit
+  (`scripts/frontmatter_strict.py`, `scripts/sequenced_after.py`,
+  `scripts/validate-sequenced-after.py`,
+  `docs/sequenced-after-trust-root-floor.md`, `tests/sequenced_after/`); the
+  codexFactory verifier that CONSUMES the field is downstream and NOT this
+  change's surface.
 - [settle-aging-staging-topics](openspec/changes/settle-aging-staging-topics/proposal.md)
   — authored 2026-08-28 on Brett's four bulk rulings over a read-only triage
   survey of the fourteen staging topics `doc-health`'s
@@ -1514,6 +1753,80 @@ Active changes:
   uses of custom properties the stylesheet never defines whose silent
   fallbacks painted a white popover behind light text. (code surface:
   openxFactory; target release: none)
+- [retire-doxbench-chat-turn-v1](openspec/changes/retire-doxbench-chat-turn-v1/proposal.md)
+  — authored 2026-09-01, **`Status: ratified` — RATIFIED 2026-09-01 by Brett
+  Heap, in session, at PR #552 tip `c5169476`** (record:
+  `openspec/changes/retire-doxbench-chat-turn-v1/review/ratification-2026-09-01.md`);
+  ratification authorizes the requirement text and performs no realization,
+  moves no schema byte and cuts no bundle, so the change stays ACTIVE until
+  merged code, green evidence and the `contract-v3.0` cut exist. It ratifies
+  the fallback posture AS ENCODED — the #522 ruling set only its direction. The
+  record discloses what the act stood on: **NO CODEX REVIEW HAPPENED** — three
+  requests, three provider usage-limit refusals, zero verdicts, a pass still
+  owed and blocked by nothing in the packet — four low-severity Copilot
+  comments standing uncorrected on the ratified head, and `main`'s inherited
+  `pytest-suite` red from PR #510's carriage-ledger subject, which this packet
+  neither causes nor fixes. **Entry 3 of openxFactory issue
+  #522**, on Brett Heap's 2026-09-01 ruling comment there and the measurement
+  memo `deprecations-522-memo-2026-08-31.md` (operator-local, NOT committed
+  here and NAMED rather than located, Principle IV forbidding a host-absolute
+  path in a committed file; the durable referents are issue #522 and its ruling
+  comment), sliced
+  SEPARATELY from entries 1 and 2 on the memo's own recommendation and the
+  ruling's adoption of it. **THE ONLY ONE OF THE THREE WHOSE WARNING ACTUALLY
+  FIRES**: a default `scripts/validate-ideation-dashboard-contracts.py` run
+  reported
+  `0 error(s), 4 warning(s)`, every one naming `removal target contract-v2.0` —
+  a target the bundle passed one major and five minors ago. (The missing
+  `scripts/` prefix here was one of the four low-severity round-three Copilot
+  comments left standing on the ratified head; it is corrected in the
+  realization pull request, which edits this row anyway.) The deprecation was
+  done PROPERLY at `contract-v1.34` — co-resident `-v2` family, v1 bytes kept
+  byte-identical with a committed baseline test to prove it, and the
+  deprecation declared MACHINE-READABLY in a top-level `deprecated_envelopes`
+  block — and then the removal it named was never performed. This packet
+  removes the three v1 kinds at `contract-v3.0`: the `$defs`, the `oneOf` refs,
+  the `deprecated_envelopes` block, the runtime and validator dispatch, twelve
+  packaged fixtures and the byte-identity baseline, RETAINING every shared
+  `$def` the surviving family reaches (measured from its reference closure, not
+  inspected). **THE `serve.py` FALLBACK IS REDESIGNED, NOT DELETED, AND THE
+  DECISION IS ANSWERED IN THE PACKET**: an unrecognized or absent `kind` is
+  refused in the SURVIVING family's failure envelope with an explicit
+  unknown-kind code where a wire-valid `client_turn_id` exists, and in the
+  existing pre-identity shape where it does not — legal on the contract as it
+  stands, because `failure_v2` constrains `error` by PATTERN and not by enum at
+  the schema layer and at the delegated validator both; the envelope-less
+  alternative is recorded with its three costs. **TWO MEMO CORRECTIONS**: the
+  packaged corpus is TWELVE fixtures, not four — eight are NEGATIVE and carry
+  SEVEN refusal classes with no `-v2` equivalent, each of which must be
+  re-expressed or its loss stated; and there are TWO fallback layers, the second
+  (`_refuse_turn`'s pre-identity drop) correct and untouched. Carries ONE
+  scenario-complete `## MODIFIED` block over promoted `ideation-dashboard`
+  canon, dropping nothing and therefore owing no `Removed from canon` marker.
+  Sibling: `retire-hermes-flat-keys-and-openworkflow-tokens`.
+  **REALIZATION `tasks.md` §§ 2–5 IS MERGED** (PR #564, squash `6856f502`) — the schema
+  removal, the redesigned `serve.py` fallback with its one new catalog entry
+  (`unrecognized_turn_kind`, 400), the validator dispatch, the corpus (all
+  SEVEN v1-only refusal classes re-expressed against the surviving family, none
+  dropped) and the test surface, with the validator now reporting
+  `0 error(s), 0 warning(s)` and `--strict` passing over
+  `examples/ideation-dashboard/`. Two authoring findings ride it: the measured
+  reference closure puts `typed_proposal` OUTSIDE the surviving family (the
+  ratified text names it as retained-because-reachable, and it is retained on
+  the text rather than on the premise), and § 2's schema byte move is coupled
+  to the per-file `sha256` in `contracts/manifest.yaml`, which `tasks.md` 6.1
+  files with the cut. **The `contract-v3.0` CUT IS TAKEN** — § 6 ticked with its
+  evidence, the bundle declared, OQ-2 answered NO — no `contract_schema_version`
+  moves, the cut's attempt to bump the chat-turn schema's own integer having
+  been refused by two tests the realization landed with their reasoning beside
+  them —
+  `typed_proposal` RETAINED with the reason (a removal no minor warned on),
+  `CONTRACT_TAG` off its stale `contract-v2.2` — but the annotated TAG is a
+  separate post-merge act after § Bundle Realization Order step 4 reruns every
+  gate on the promoted commit, so §§ 7 and 8 stay open. (code surface:
+  openxFactory; target release: `contract-v3.0` — archives only on merged plus
+  green realization evidence, the moved manifest digest, the rebuilt inventory
+  and the published tag)
 
 The avatar-client kernel (`contract-v1.7`), reference runtime, and avatar-first UI
 standard (`contract-v1.8`) are realized. The contract kernel, the revocation

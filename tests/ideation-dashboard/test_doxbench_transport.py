@@ -687,15 +687,24 @@ const catalog7 = await loadCatalog();
 
 // 5: a turn POST returns status AND payload -- a refusal carries meaning, so
 // the transport never collapses it to null
-const REQUEST = { schema_version: 1, kind: 'workbench-chat-turn', opaque: 'passthrough' };
+//
+// The kinds below were the v1 family's until contract-v3.0
+// (retire-doxbench-chat-turn-v1) and are the surviving one's now. Nothing about
+// the probe changed with them, which is the point: `opaque: 'passthrough'` is a
+// key no released envelope declares and it survives the round trip, so this
+// transport is proven to carry a body it does not read. The kinds are still
+// re-expressed rather than left retired -- a fixture naming a shape the release
+// cannot produce reads as a claim about the wire, and this one has no business
+// making any.
+const REQUEST = { schema_version: 1, kind: 'workbench-chat-turn-v2', opaque: 'passthrough' };
 queue.push(fakeResponse({ ok: false, status: 403, payload: {
-  schema_version: 1, kind: 'workbench-chat-turn-failure',
+  schema_version: 1, kind: 'workbench-chat-turn-v2-failure',
   client_turn_id: 'turn-1', error: 'model_capability_unavailable', message: 'no' } }));
 const turn1 = await submitTurn(REQUEST);
 
 // 6: a success envelope passes through untouched and uninterpreted
 queue.push(fakeResponse({ ok: true, status: 200, payload: {
-  schema_version: 1, kind: 'workbench-chat-turn-success', client_turn_id: 'turn-2' } }));
+  schema_version: 1, kind: 'workbench-chat-turn-v2-success', client_turn_id: 'turn-2' } }));
 const turn2 = await submitTurn(REQUEST);
 
 // 7: an unparseable body is `payload: null`, never a throw and never invented
@@ -736,15 +745,15 @@ def test_the_catalog_and_chat_transports_behave_correctly_against_an_injected_fe
     assert results["catalog7"] == {"failed": "unreadable"}
 
     assert results["turn1"] == {"ok": False, "status": 403, "payload": {
-        "schema_version": 1, "kind": "workbench-chat-turn-failure",
+        "schema_version": 1, "kind": "workbench-chat-turn-v2-failure",
         "client_turn_id": "turn-1", "error": "model_capability_unavailable",
         "message": "no"}}
     assert results["turn2"]["ok"] is True
-    assert results["turn2"]["payload"]["kind"] == "workbench-chat-turn-success"
+    assert results["turn2"]["payload"]["kind"] == "workbench-chat-turn-v2-success"
     assert results["turn3"] == {"ok": False, "status": 500, "payload": None}
     # The request object is passed through, never rewritten by the transport.
     assert results["requestUnmutated"] == {
-        "schema_version": 1, "kind": "workbench-chat-turn", "opaque": "passthrough"}
+        "schema_version": 1, "kind": "workbench-chat-turn-v2", "opaque": "passthrough"}
 
     calls = results["calls"]
     assert len(calls) == 10
@@ -770,7 +779,7 @@ def test_the_catalog_and_chat_transports_behave_correctly_against_an_injected_fe
         assert set(call["opts"]["headers"]) == {"Content-Type", CONSOLE_TOKEN_HEADER}
         assert call["opts"]["headers"]["Content-Type"] == "application/json"
         assert json.loads(call["opts"]["body"]) == {
-            "schema_version": 1, "kind": "workbench-chat-turn",
+            "schema_version": 1, "kind": "workbench-chat-turn-v2",
             "opaque": "passthrough"}
 
 

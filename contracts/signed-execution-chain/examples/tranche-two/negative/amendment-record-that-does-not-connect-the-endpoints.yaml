@@ -1,0 +1,508 @@
+# expected_failure: amendment_lineage_unsupported
+# VIOLATES the middle limb: the amendment record must CONNECT the reviewed digest
+# to the ratified one. The lineage here — inside the inception's own signed bytes,
+# covered by a valid ratifying signature — declares an amendment record whose
+# endpoints are different digests entirely, so the step from `reviewed` to
+# `ratified` is asserted and not evidenced.
+#
+# A RATIFICATION CANNOT MERELY ASSERT A LINEAGE — three limbs or no closure, and the
+# middle limb is the one that stops an invented history connecting two real ends.
+# The defect lives in signed bytes, which is why this fixture carries its own
+# inception rather than mutating a healthy chain's closure.
+schema_version: 1
+kind: xfactory_signed_execution_chain_inception
+inception_id: inc-neg-lin
+chain_identity:
+  construction: xfc-jcs-sha256-1
+  subject: signed_ratification
+  value: sha256:a5d38f57f7e88341a18c7a71a218a22e447b2960256faf3bce9ddcb1c23505fd
+signed_ratification:
+  ratification_id: rat-neg-lin
+  ratified_at: '2026-09-01T10:00:00Z'
+  digest_construction: xfc-jcs-sha256-1
+  ratified_subject:
+    subject_type: openspec_change
+    subject_ref: openspec/changes/neg-neg-lin
+    subject_digest:
+      construction: xfc-jcs-sha256-1
+      subject: ratified_subject
+      value: sha256:268e645b700acfcfa913181477d9e739efa16d5caa5f47d7fd158638e6725a2f
+    governed_test:
+      test_id: governed-test:openxfactory-post-merge-suite
+      definition_digest:
+        construction: xfc-jcs-sha256-1
+        subject: governed_test_definition
+        value: sha256:54f1d3552c0abf1f537b56cbc7eff6d07c71eb6f492ab08e53dd1fd3559f34b4
+      statement: The governed post-merge suite the ratified subject names.
+  presentation:
+    exercise_ref: exr-neg-lin
+    grant_ref: grant-neg-lin
+    presenting_key_ref: key-ratifier-t2
+    exercise:
+      schema_version: 1
+      kind: xfactory_wallet_grant_exercise
+      exercise_id: exr-neg-lin
+      grant_ref: grant-neg-lin
+      act: ratify
+      occurred_at: '2026-09-01T10:00:00Z'
+      event_class: authenticated
+      proof_of_possession:
+        presented: true
+        verified: true
+        signature_algorithm: ed25519
+        presenting_key_ref: key-ratifier-t2
+        signed_over: request_digest
+      attribution:
+        mode: key_attributed
+        presenting_key_ref: key-ratifier-t2
+        wallet_ref: wal-neg-lin
+        holder_ref: person:example.neg-lin
+      custody_model_in_force: isolated_per_use_authorized
+      revocation_check:
+        performed_at_exercise: true
+        result: active
+      outcome: permitted
+      object_ref: sha256:268e645b700acfcfa913181477d9e739efa16d5caa5f47d7fd158638e6725a2f
+    wallet:
+      schema_version: 1
+      kind: xfactory_wallet_record
+      wallet_id: wal-neg-lin
+      holder:
+        holder_id: person:example.neg-lin
+        holder_class: person
+        display_label: Packaged fixture ratifier neg-lin
+      key_reference:
+        did: did:key:z6MkuugNC8R62ejBbGaYrTSJXzvMJrLLAWK1KsA5pXERYePH
+        key_id: key-ratifier-t2
+        public_key_multibase: z6MkuugNC8R62ejBbGaYrTSJXzvMJrLLAWK1KsA5pXERYePH
+        signature_algorithm: ed25519
+      custody:
+        model: isolated_per_use_authorized
+        registry_version: 1
+        declared_at: '2026-09-01T09:00:00Z'
+        declared_by: Brett.Heap
+      state: active
+      created_at: '2026-09-01T09:00:00Z'
+      policy_version: 1
+  actor:
+    subject_reference:
+      schema_version: 1
+      kind: actor_subject_reference
+      reference_id: asr-neg-lin
+      governed_record_ref:
+        record_type: signed_execution_chain_inception
+        record_ref: inc-neg-lin
+      provenance: broker_asserted
+      issuer:
+        broker_instance_id: broker-opensoft-qa
+      subject: sub-neg-neg-lin-0000000001
+      display_name_at_record: Packaged fixture ratifier neg-lin
+      recorded_at: '2026-09-01T10:00:00Z'
+    wallet_attestation:
+      schema_version: 1
+      kind: xfactory_wallet_subject_attestation
+      subject_ref: sub-neg-neg-lin-0000000001
+      wallet_ref: wal-neg-lin
+      reference_role: attestation
+      resolution:
+        resolved_by: subject_ref
+        reconstructable_without_wallet: true
+      attested_at: '2026-09-01T10:00:00Z'
+  out_of_pipeline:
+    performed_out_of_pipeline: true
+    ground_ref: opensoft/codexFactory hermes/domain/review-councils/records/2026-08-28-gate-rules-openxfactory-substantive-classes.md
+    ground_statement: 'A class over `openspec/changes/**` can never commission a council:
+      the surface lies wholly inside the canonical GATE_INTEGRITY_FLOOR, which is evaluated
+      before any clearable classification. And a pipeline that CLEARS candidates cannot also
+      be what CONFERS the authority those candidates are cleared against.'
+  amendment_lineage:
+    reviewed_digest:
+      construction: xfc-jcs-sha256-1
+      subject: reviewed_subject
+      value: sha256:3fe3d5fe5ff3aef631e670d25ad0fde8258b6ffa60ffec5e4cb11f1eb7fc0cb9
+    ratified_subject_digest:
+      construction: xfc-jcs-sha256-1
+      subject: ratified_subject
+      value: sha256:268e645b700acfcfa913181477d9e739efa16d5caa5f47d7fd158638e6725a2f
+    review_record_digest:
+      construction: xfc-jcs-sha256-1
+      subject: review_record
+      value: sha256:344993b54f88c7e0c2fc1cb22e402c8f17fd749169c36e37f9f6c0b8fae8d9d5
+    amendment_record_ref:
+      record_ref: openspec/changes/neg-neg-lin/review/
+      names_review_record: rev-neg-lin
+      from_digest:
+        construction: xfc-jcs-sha256-1
+        subject: reviewed_subject
+        value: sha256:1c276fc1e3490f4c9bd1b2c39ee6c29b31f26ecaaa38a8ac88af2a1886e056bd
+      to_digest:
+        construction: xfc-jcs-sha256-1
+        subject: ratified_subject
+        value: sha256:151d149031add134320ba30ba5a74b38163e75b118e31be23649b6c7a1e2c9de
+      statement: The council record, the disposition of record and the discharge trail from
+        the reviewed head to the ratified one.
+ratification_signature:
+  algorithm: ed25519
+  presenting_key_ref: key-ratifier-t2
+  signed_over: signed_ratification
+  signature: _tMFfnqYFHHF65cw8CfWdEDx2iZ7uh_OXV9nXqv55CfAWIeSm5L1RWE9XaBliOLr3x3LbZBqtURFXf_jWbOSDg
+incepted_at: '2026-09-01T10:00:00Z'
+inception_leaf_ref: leaf-0047
+---
+schema_version: 1
+kind: xfactory_signed_execution_chain_traveling_contract
+traveling_contract_id: tvc-neg-lin
+chain_identity:
+  construction: xfc-jcs-sha256-1
+  subject: signed_ratification
+  value: sha256:a5d38f57f7e88341a18c7a71a218a22e447b2960256faf3bce9ddcb1c23505fd
+presentation_ref: exr-neg-lin
+inception_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:2249f05a2e9f3d324fe8f81cb77edfb1ecf87eed971750dc7ef2775a83defab8
+signed_ratification:
+  ratification_id: rat-neg-lin
+  ratified_at: '2026-09-01T10:00:00Z'
+  digest_construction: xfc-jcs-sha256-1
+  ratified_subject:
+    subject_type: openspec_change
+    subject_ref: openspec/changes/neg-neg-lin
+    subject_digest:
+      construction: xfc-jcs-sha256-1
+      subject: ratified_subject
+      value: sha256:268e645b700acfcfa913181477d9e739efa16d5caa5f47d7fd158638e6725a2f
+    governed_test:
+      test_id: governed-test:openxfactory-post-merge-suite
+      definition_digest:
+        construction: xfc-jcs-sha256-1
+        subject: governed_test_definition
+        value: sha256:54f1d3552c0abf1f537b56cbc7eff6d07c71eb6f492ab08e53dd1fd3559f34b4
+      statement: The governed post-merge suite the ratified subject names.
+  presentation:
+    exercise_ref: exr-neg-lin
+    grant_ref: grant-neg-lin
+    presenting_key_ref: key-ratifier-t2
+    exercise:
+      schema_version: 1
+      kind: xfactory_wallet_grant_exercise
+      exercise_id: exr-neg-lin
+      grant_ref: grant-neg-lin
+      act: ratify
+      occurred_at: '2026-09-01T10:00:00Z'
+      event_class: authenticated
+      proof_of_possession:
+        presented: true
+        verified: true
+        signature_algorithm: ed25519
+        presenting_key_ref: key-ratifier-t2
+        signed_over: request_digest
+      attribution:
+        mode: key_attributed
+        presenting_key_ref: key-ratifier-t2
+        wallet_ref: wal-neg-lin
+        holder_ref: person:example.neg-lin
+      custody_model_in_force: isolated_per_use_authorized
+      revocation_check:
+        performed_at_exercise: true
+        result: active
+      outcome: permitted
+      object_ref: sha256:268e645b700acfcfa913181477d9e739efa16d5caa5f47d7fd158638e6725a2f
+    wallet:
+      schema_version: 1
+      kind: xfactory_wallet_record
+      wallet_id: wal-neg-lin
+      holder:
+        holder_id: person:example.neg-lin
+        holder_class: person
+        display_label: Packaged fixture ratifier neg-lin
+      key_reference:
+        did: did:key:z6MkuugNC8R62ejBbGaYrTSJXzvMJrLLAWK1KsA5pXERYePH
+        key_id: key-ratifier-t2
+        public_key_multibase: z6MkuugNC8R62ejBbGaYrTSJXzvMJrLLAWK1KsA5pXERYePH
+        signature_algorithm: ed25519
+      custody:
+        model: isolated_per_use_authorized
+        registry_version: 1
+        declared_at: '2026-09-01T09:00:00Z'
+        declared_by: Brett.Heap
+      state: active
+      created_at: '2026-09-01T09:00:00Z'
+      policy_version: 1
+  actor:
+    subject_reference:
+      schema_version: 1
+      kind: actor_subject_reference
+      reference_id: asr-neg-lin
+      governed_record_ref:
+        record_type: signed_execution_chain_inception
+        record_ref: inc-neg-lin
+      provenance: broker_asserted
+      issuer:
+        broker_instance_id: broker-opensoft-qa
+      subject: sub-neg-neg-lin-0000000001
+      display_name_at_record: Packaged fixture ratifier neg-lin
+      recorded_at: '2026-09-01T10:00:00Z'
+    wallet_attestation:
+      schema_version: 1
+      kind: xfactory_wallet_subject_attestation
+      subject_ref: sub-neg-neg-lin-0000000001
+      wallet_ref: wal-neg-lin
+      reference_role: attestation
+      resolution:
+        resolved_by: subject_ref
+        reconstructable_without_wallet: true
+      attested_at: '2026-09-01T10:00:00Z'
+  out_of_pipeline:
+    performed_out_of_pipeline: true
+    ground_ref: opensoft/codexFactory hermes/domain/review-councils/records/2026-08-28-gate-rules-openxfactory-substantive-classes.md
+    ground_statement: 'A class over `openspec/changes/**` can never commission a council:
+      the surface lies wholly inside the canonical GATE_INTEGRITY_FLOOR, which is evaluated
+      before any clearable classification. And a pipeline that CLEARS candidates cannot also
+      be what CONFERS the authority those candidates are cleared against.'
+  amendment_lineage:
+    reviewed_digest:
+      construction: xfc-jcs-sha256-1
+      subject: reviewed_subject
+      value: sha256:3fe3d5fe5ff3aef631e670d25ad0fde8258b6ffa60ffec5e4cb11f1eb7fc0cb9
+    ratified_subject_digest:
+      construction: xfc-jcs-sha256-1
+      subject: ratified_subject
+      value: sha256:268e645b700acfcfa913181477d9e739efa16d5caa5f47d7fd158638e6725a2f
+    review_record_digest:
+      construction: xfc-jcs-sha256-1
+      subject: review_record
+      value: sha256:344993b54f88c7e0c2fc1cb22e402c8f17fd749169c36e37f9f6c0b8fae8d9d5
+    amendment_record_ref:
+      record_ref: openspec/changes/neg-neg-lin/review/
+      names_review_record: rev-neg-lin
+      from_digest:
+        construction: xfc-jcs-sha256-1
+        subject: reviewed_subject
+        value: sha256:1c276fc1e3490f4c9bd1b2c39ee6c29b31f26ecaaa38a8ac88af2a1886e056bd
+      to_digest:
+        construction: xfc-jcs-sha256-1
+        subject: ratified_subject
+        value: sha256:151d149031add134320ba30ba5a74b38163e75b118e31be23649b6c7a1e2c9de
+      statement: The council record, the disposition of record and the discharge trail from
+        the reviewed head to the ratified one.
+ratification_signature:
+  algorithm: ed25519
+  presenting_key_ref: key-ratifier-t2
+  signed_over: signed_ratification
+  signature: _tMFfnqYFHHF65cw8CfWdEDx2iZ7uh_OXV9nXqv55CfAWIeSm5L1RWE9XaBliOLr3x3LbZBqtURFXf_jWbOSDg
+issued_at: '2026-09-01T10:02:00Z'
+---
+schema_version: 1
+kind: xfactory_signed_execution_chain_closure_record
+closure_id: clo-neg-lin
+chain_ref: sha256:a5d38f57f7e88341a18c7a71a218a22e447b2960256faf3bce9ddcb1c23505fd
+signed_closure:
+  chain_ref: sha256:a5d38f57f7e88341a18c7a71a218a22e447b2960256faf3bce9ddcb1c23505fd
+  digest_construction: xfc-jcs-sha256-1
+  predecessor:
+    record_ref: clo-t5
+    record_kind: xfactory_signed_execution_chain_closure_record
+    digest:
+      construction: xfc-jcs-sha256-1
+      subject: closure_record
+      value: sha256:588e6a5f47d5d644c21b94139b5dfa8520e96e9b85604795ac9d5f6843f5e48e
+  identity:
+    binding_ref: bind-t5-chain
+    subject_scope: chain_scoped
+  consumed_proposal:
+    subject_ref: openspec/changes/add-chain-attestation
+    subject_digest:
+      construction: xfc-jcs-sha256-1
+      subject: ratified_subject
+      value: sha256:268e645b700acfcfa913181477d9e739efa16d5caa5f47d7fd158638e6725a2f
+  consumed_review:
+    review_ref: rev-t5
+    review_digest:
+      construction: xfc-jcs-sha256-1
+      subject: review_record
+      value: sha256:344993b54f88c7e0c2fc1cb22e402c8f17fd749169c36e37f9f6c0b8fae8d9d5
+    reviewed_subject_digest:
+      construction: xfc-jcs-sha256-1
+      subject: reviewed_subject
+      value: sha256:3fe3d5fe5ff3aef631e670d25ad0fde8258b6ffa60ffec5e4cb11f1eb7fc0cb9
+    authority_exercise:
+      exercise_ref: exr-review-clo-t5
+      grant_ref: grant:review-authority-council
+      object_ref: rev-t5
+      proof_presented: true
+      proof_verified: true
+      standing_at_exercise: active
+      projection_age_within_declared_bound: true
+      projection_read_at: '2026-09-01T17:00:00Z'
+  test_execution:
+    test_identity:
+      test_id: governed-test:openxfactory-post-merge-suite
+      definition_digest:
+        construction: xfc-jcs-sha256-1
+        subject: governed_test_definition
+        value: sha256:54f1d3552c0abf1f537b56cbc7eff6d07c71eb6f492ab08e53dd1fd3559f34b4
+    dispatched_by: controller_dispatched
+    execution_ref: run-clo-t5
+    tested_revision: 84104bee44556677
+    merge_commit: 84104bee44556677
+    merged_pull_request_ref: opensoft/openxFactory#90005
+    result: passed
+    statement: The governed post-merge test the ratified subject names, dispatched by the
+      controller against the merge commit.
+  signed_where: harness_controller
+  signing_request:
+    request_id: req-clo-neg-lin
+    requested_at: '2026-09-01T17:00:00Z'
+    attribution:
+      attributed_by: chain_inception_binding
+      requester_ref: sub-t5-c9e34a17f5082bd4
+      statement: Attributed to the party the chain's inception record binds.
+    payload_digest:
+      construction: xfc-jcs-sha256-1
+      subject: closure_record
+      value: sha256:ca3f4b4a16d29d6b9a5ea6b715c0f5e5fa1280fabc951dce42955b471d58470d
+closure_signature:
+  algorithm: ed25519
+  key_ref: key-tier2-chain-d
+  certificate_ref: cert:tier2-chain-staging
+  signed_over: signed_closure
+  signature: c_8Ka1KwzbAxIoFRM00m3s_pGnZYmmBTjknwBQx9VqWqvfxe1QrHGWknGM8MG54gBIl04osH-Zx6K0VRvf1ACQ
+  public_key: z6MkfJ8DJkNPpSNq2hx8DU3Fk36ifvBufGF5dv3SQSw84WA5
+closed_at: '2026-09-01T17:00:00Z'
+leaf_ref: leaf-0049
+---
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-0049
+leaf_index: 49
+tree_size: 50
+chain_ref: sha256:a5d38f57f7e88341a18c7a71a218a22e447b2960256faf3bce9ddcb1c23505fd
+leaf_type: closure_record
+recorded_at: '2026-09-01T22:03:00Z'
+payload_ref: clo-neg-lin
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: closure_record
+  value: sha256:9b45480209c0f5f58e3caa813fff5e2e8968b705cd1893ae71d135ab11554c3e
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:73e648a6a2ddc4901ce2a5682b0f2e908661c9a9b66b73628ceb2395e52cadf1
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:dd0775fdd2d888f65820d91a6f2ab7010e1f2e0e0161b6e7da98dfaf81feb009
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-t5
+  signed_over: leaf_content
+  signature: 1G-TEe_Pis0S32Ncx5lcGlYYVqdSvRRbPrtO0okzQ1dNO6JvHiQgBpOwEJT7yux9X1Y2o_wcq1ND4vDy0z8WAA
+---
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-0046
+leaf_index: 46
+tree_size: 47
+chain_ref: sha256:a5d38f57f7e88341a18c7a71a218a22e447b2960256faf3bce9ddcb1c23505fd
+leaf_type: wallet_presented_ratification
+recorded_at: '2026-09-01T22:00:00Z'
+payload_ref: exr-neg-lin
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: ratified_subject
+  value: sha256:268e645b700acfcfa913181477d9e739efa16d5caa5f47d7fd158638e6725a2f
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:f698c2fb50ae9d3564d458e61f5becb46178064197d05cca91b02afb5bdcb7c2
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:e4be2442cad6f8fec60847d9a2c0b886308cb6f9eb3a518413e7659acd1b527c
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-t2
+  signed_over: leaf_content
+  signature: HpEiILlv4rCkrCcVV4HN7Sae3OOyGqFnZDvoQOd4GJ9hVUXk9bc-4QTjspNY1lfrx2AC9Y7-npOYCWnVLUNlDw
+---
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-0047
+leaf_index: 47
+tree_size: 48
+chain_ref: sha256:a5d38f57f7e88341a18c7a71a218a22e447b2960256faf3bce9ddcb1c23505fd
+leaf_type: chain_inception
+recorded_at: '2026-09-01T22:01:00Z'
+payload_ref: inc-neg-lin
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: signed_ratification
+  value: sha256:a5d38f57f7e88341a18c7a71a218a22e447b2960256faf3bce9ddcb1c23505fd
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:e4be2442cad6f8fec60847d9a2c0b886308cb6f9eb3a518413e7659acd1b527c
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:2249f05a2e9f3d324fe8f81cb77edfb1ecf87eed971750dc7ef2775a83defab8
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-t2
+  signed_over: leaf_content
+  signature: zTBBHAskTOa38ajZGO6wEPivFlp8z-SL2ITQ8kCT4XRMLgUlPAs4vjJ9uJ0O-46EDKheBSQC90oYnalxdpiDCQ
+---
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-0048
+leaf_index: 48
+tree_size: 49
+chain_ref: sha256:a5d38f57f7e88341a18c7a71a218a22e447b2960256faf3bce9ddcb1c23505fd
+leaf_type: traveling_contract_issued
+recorded_at: '2026-09-01T22:02:00Z'
+payload_ref: tvc-neg-lin
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: traveling_contract
+  value: sha256:359f1515365cc9cc26104a3a6884879fab25f7120cd9e40dd0eb8535c7aeb982
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:2249f05a2e9f3d324fe8f81cb77edfb1ecf87eed971750dc7ef2775a83defab8
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:73e648a6a2ddc4901ce2a5682b0f2e908661c9a9b66b73628ceb2395e52cadf1
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-t2
+  signed_over: leaf_content
+  signature: IOGg1ul_WNafue6HRcikT8ZNz3OJDUwC1MaGMOQQC2TJfBhXDecpjuKwqfMR-zKIq_E8plZEo0a1R8egC7DOAg
+---
+schema_version: 1
+kind: xfactory_signed_execution_chain_log_leaf
+leaf_id: leaf-0049
+leaf_index: 49
+tree_size: 50
+chain_ref: sha256:a5d38f57f7e88341a18c7a71a218a22e447b2960256faf3bce9ddcb1c23505fd
+leaf_type: closure_record
+recorded_at: '2026-09-01T22:03:00Z'
+payload_ref: clo-neg-lin
+payload_digest:
+  construction: xfc-jcs-sha256-1
+  subject: closure_record
+  value: sha256:9b45480209c0f5f58e3caa813fff5e2e8968b705cd1893ae71d135ab11554c3e
+previous_leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:73e648a6a2ddc4901ce2a5682b0f2e908661c9a9b66b73628ceb2395e52cadf1
+leaf_digest:
+  construction: xfc-jcs-sha256-1
+  subject: transparency_log_leaf
+  value: sha256:dd0775fdd2d888f65820d91a6f2ab7010e1f2e0e0161b6e7da98dfaf81feb009
+leaf_signature:
+  algorithm: ed25519
+  key_ref: key-ratifier-t5
+  signed_over: leaf_content
+  signature: 1G-TEe_Pis0S32Ncx5lcGlYYVqdSvRRbPrtO0okzQ1dNO6JvHiQgBpOwEJT7yux9X1Y2o_wcq1ND4vDy0z8WAA

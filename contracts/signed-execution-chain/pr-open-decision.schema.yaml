@@ -1,0 +1,177 @@
+schema_version: 1
+kind: openxfactory-signed-execution-chain-contract-schema
+name: xfactory_signed_execution_chain_pr_open_decision
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/pr-open-decision.schema.yaml"
+contract_id: signed-execution-chain-pr-open-decision
+contract_schema_version: 1
+title: The pull-request open, as a signed decision bound to the chain (link 6)
+description: >-
+  OPENING A PULL REQUEST IS A DECISION, AND IT IS SIGNED AS ONE
+  (`add-chain-attestation`, requirement "Opening a pull request is a signed
+  decision, bound to the chain"). Signed under the CHAIN-SCOPED tier-2 identity at
+  the controller, as the record kind that identity's CLOSED ENUMERATION
+  authorizes, over the carried traveling contract, corroborated and hash-linked
+  like every link from link 4 onward. It records WHICH CHAIN it descends from,
+  WHICH LINK-5 ATTESTATIONS produced the work it proposes, and WHAT IT PROPOSES.
+
+  AND IT NAMES THE PULL REQUEST IT OPENS, OR IT IS A DECISION ABOUT NOTHING THE
+  GATE CAN CHECK. "What it proposes" free-form is not a value a gate can compare
+  against the act it is permitting, so this record carries INSIDE ITS SIGNED BYTES
+  the STABLE IDENTIFIER of the pull request and the HEAD REVISION it proposes, and
+  THE GATE REFUSES UNLESS BOTH EQUAL THE PULL REQUEST AND THE HEAD ACTUALLY BEING
+  MERGED. THREE REUSES ARE REFUSED BY THAT ONE COMPARISON AND ALL THREE PASS
+  WITHOUT IT: a decision REUSED AFTER THE BRANCH MOVED, one RETARGETED to another
+  base, and one ATTACHED TO A DIFFERENT PULL REQUEST CARRYING THE SAME CHAIN
+  IDENTITY. Without the binding the gate walks link 6, finds it present and
+  well-formed, and PERMITS THE MERGE OF WORK THE CONTROLLER NEVER SIGNED AS THE
+  PROPOSED WORK.
+
+  ONE PULL REQUEST IS ONE DECISION, AND ITS SIGNER IS SCOPED TO WHAT IT DECIDES
+  OVER. Link 6 commits to EVERY link-5 attestation for the work it proposes, so
+  its subject is THE CHAIN and not any one task. Two earlier drafts got this wrong
+  in sequence and both are recorded rather than smoothed: the first let a per-task
+  identity sign only "an attestation about that task", so NO CONFORMING LINK 6 WAS
+  CONSTRUCTIBLE AT ALL; the second enumerated this kind under the per-task
+  identity, which fixed FORM and left SUBJECT unfixed, so the ordinary multi-task
+  fan-out still had none. THE DECISION IS NOT COMPOSED FROM N PER-TASK DECISIONS:
+  the authoritative link table gives link 6 ONE signed decision, and a rule
+  assembling one link from several signatures would be inventing a link the family
+  does not have.
+
+  THE ENUMERATION IS COMPARED AGAINST LINK 4'S COMMITTED EXPECTATION AND NEVER
+  AGAINST THE SUBMISSION. An enumeration can only be judged incomplete against an
+  AUTHORITATIVE SET, and a gate reading only the artifacts it was handed has none:
+  a lane that omits an unwanted link-5 record before presenting link 6 leaves
+  behind an enumeration that is ordered, deduplicated and complete over everything
+  the gate can see. The authoritative set is THE EXPECTED ATTESTATION SET LINK 4
+  COMMITTED TO, AS EXTENDED, and the gate refuses an enumeration that is not EQUAL
+  to it — not a subset and not a superset. The transparency-log comparison
+  survives as a SECOND check in both directions and never as the authority.
+
+  AND THE SIGNING REQUEST FOR THIS RECORD IS ITSELF ATTRIBUTED, NOT MERELY
+  CORROBORATED. The link-5 attribution is TASK-SCOPED and reaches no record about
+  a chain, so an opportunistic caller able to reach the controller could submit a
+  link-6 payload naming a valid chain, the complete link-5 set and plausible
+  proposed work, and receive a chain-scoped signature nobody was established as
+  entitled to ask for. THE SPLIT THAT MADE LINK 6 CONSTRUCTIBLE IS WHAT OPENED
+  THIS, and it is closed by EXTENDING the same mechanism: the request is RECORDED,
+  ATTRIBUTED TO THE PARTY THE CHAIN'S OWN INCEPTION RECORD BINDS, refused from any
+  other, and covered inside the signed bytes. NO AUTHORITY IS MINTED — the
+  requester set is READ OFF what the chain already carries.
+
+  SIGNING AN OPEN IS NOT PERMITTING A MERGE. Link 6 is the decision to PROPOSE;
+  the terminal act is permitted by the gate and by nothing else. Nothing here
+  weakens the constitutional `execute_final_action: false`, and a lane offering its
+  own signed open decision as permission has confused proposing with permitting.
+  ABSENT, THE PULL REQUEST IS AN ORPHAN ACT — a pull request EXISTS, so something
+  opened it, so a signed decision is owed.
+type: object
+required:
+  - schema_version
+  - kind
+  - decision_id
+  - chain_ref
+  - signed_decision
+  - decision_signature
+  - decided_at
+  - leaf_ref
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [xfactory_signed_execution_chain_pr_open_decision]
+  decision_id: {$ref: '#/$defs/identifier'}
+  chain_ref: {$ref: '#/$defs/chain_ref'}
+  signed_decision: {$ref: '#/$defs/signed_decision'}
+  decision_signature:
+    allOf:
+      - {$ref: '#/$defs/signature_block'}
+      - properties: {signed_over: {const: signed_decision}}
+        required: [signed_over]
+  decided_at: {type: string, format: date-time}
+  leaf_ref: {$ref: '#/$defs/identifier'}
+  record_version: {type: integer, minimum: 1}
+  notes: {type: string, maxLength: 1400}
+$defs:
+  identifier:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/attestation-common.schema.yaml#/$defs/identifier"
+  digest:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/attestation-common.schema.yaml#/$defs/digest"
+  chain_ref:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/attestation-common.schema.yaml#/$defs/chain_ref"
+  signature_block:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/attestation-common.schema.yaml#/$defs/signature_block"
+  predecessor:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/attestation-common.schema.yaml#/$defs/predecessor"
+  signing_request:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/attestation-common.schema.yaml#/$defs/signing_request"
+  signed_decision:
+    type: object
+    required:
+      - chain_ref
+      - digest_construction
+      - predecessor
+      - identity
+      - signing_request
+      - pull_request
+      - committed_attestations
+      - proposes
+      - signed_where
+    additionalProperties: false
+    properties:
+      chain_ref: {$ref: '#/$defs/chain_ref'}
+      digest_construction: {type: string, const: xfc-jcs-sha256-1}
+      predecessor: {$ref: '#/$defs/predecessor'}
+      identity:
+        type: object
+        required: [binding_ref, subject_scope]
+        additionalProperties: false
+        properties:
+          binding_ref: {$ref: '#/$defs/identifier'}
+          subject_scope: {type: string, const: chain_scoped}
+      signing_request: {$ref: '#/$defs/signing_request'}
+      pull_request:
+        # THE ACT THIS DECISION IS ABOUT, as two comparable values. Both fall
+        # inside the signed bytes, and the gate refuses unless both EQUAL what is
+        # actually being merged.
+        type: object
+        required: [pull_request_ref, head_revision]
+        additionalProperties: false
+        properties:
+          pull_request_ref: {type: string, minLength: 1, maxLength: 300}
+          head_revision: {type: string, pattern: '^[0-9a-f]{7,64}$'}
+          base_ref: {type: string, maxLength: 200}
+      committed_attestations:
+        # THE ORDERED, DEDUPLICATED ENUMERATION OF EVERY PREDECESSOR RECORD this
+        # decision commits to. Link 5 is PLURAL — each runner attests — so "the
+        # digest of the predecessor" is not one value, and a rule that leaves it
+        # singular lets a lane DROP THE ATTESTATION IT DISLIKES and still present a
+        # continuous chain. A DROPPED ATTESTATION IS A BREAK, NEVER A SHORTER CHAIN.
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items:
+          type: object
+          required: [task_ref, attestation_ref, digest]
+          additionalProperties: false
+          properties:
+            task_ref: {$ref: '#/$defs/identifier'}
+            attestation_ref: {$ref: '#/$defs/identifier'}
+            digest:
+              allOf:
+                - {$ref: '#/$defs/digest'}
+                - properties: {subject: {const: runner_attestation}}
+                  required: [subject]
+      proposes: {type: string, minLength: 1, maxLength: 900}
+      signed_where:
+        type: string
+        enum: [harness_controller, runner, lane, unrecorded]
+      offered_as_permission:
+        # A LANE THAT OFFERS THIS RECORD AS PERMISSION TO MERGE SAYS SO IN THE
+        # RECORD, and is REFUSED by name (`open_decision_offered_as_permission`)
+        # rather than by a shape that cannot express the claim. Proposing is not
+        # permitting, and the permission remains the gate's verdict and nothing
+        # else.
+        type: boolean

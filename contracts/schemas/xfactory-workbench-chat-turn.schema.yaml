@@ -7,8 +7,9 @@ description: >-
   (add-workbench-integrated-editor-chat task 2.1; consumer contract
   codexFactory specs/010-doxbench-editor-chat/contracts/chat-turn.md). One
   file, three closed envelopes discriminated by `kind`: the request
-  (workbench-chat-turn), the validated success (workbench-chat-turn-success),
-  and the fixed redacted failure (workbench-chat-turn-failure). Every object
+  (workbench-chat-turn-v2), the validated success
+  (workbench-chat-turn-v2-success), and the fixed redacted failure
+  (workbench-chat-turn-v2-failure). Every object
   is closed; a failure NEVER carries prompt text, buffer text, provider
   payload, credential, endpoint, secret name, or exception detail — only
   limit failures carry measured data, and only numeric dimension/values (the
@@ -18,31 +19,32 @@ description: >-
   values are refused by type alone, and no identity-bearing sibling field
   exists to smuggle one. Content identity is exact-UTF-8 lowercase SHA-256
   over the full text (R4); the validator recomputes request-buffer hashes, so
-  a mismatched content_hash is refused rather than trusted. Exactly one
-  outline and one document buffer accompany every request (FR-013): both
+  a mismatched content_hash is refused rather than trusted. The outline plus
+  at least one loaded document buffer accompany every request (FR-013): both
   complete, never truncated, selected, summarized, or omitted. A path that
-  does not exist yet is `null`, never a fabricated or guessed string: that
-  holds for `buffer_state.path` (the not-yet-created artifact, data-model S4)
-  and, since G-1, for the request's `active_document_path` (a turn grounded on
-  the outline alone, because the tile has no separate editable document).
-  Both are REQUIRED keys with a nullable value — absent and null are
+  does not exist yet is `null`, never a fabricated or guessed string
+  (`buffer_state.path`, the not-yet-created artifact, data-model S4): a
+  REQUIRED key with a nullable value — absent and null are
   different facts, and only null is expressible.
 
-  CO-RESIDENT SECOND FAMILY (contract-v1.34, add-doxbench-editing-phase-b
-  design D15). The three `-v2` envelopes below carry the WIDENED doxBench turn:
-  the outline plus every LOADED document buffer, the DECLARED bound-buffer key
-  on both the request and the durable record, per-buffer observed hashes keyed
-  by buffer key, a proposal target expressed as a buffer key, and the
-  selected-model metadata that lets a record state which model answered. They
-  are ADDED beside the v1 envelopes rather than mutating them: v1's request,
-  success and failure are byte-identical to their contract-v1.31 bytes and keep
-  validating, so nothing that validates today stops validating. Discrimination
-  is by `kind`, exactly as it already is between the three v1 envelopes; the
-  envelope-level `schema_version` stays `1` because it names the FILE's
-  `contract_schema_version`, which does not move (D16 — nothing previously
-  valid becomes invalid). The v1 family is DEPRECATED by this release; see
-  `deprecated_envelopes` below and `contracts/CHANGELOG.md` for the migration
-  note and the removal target.
+  THE DEPRECATED v1 FAMILY IS REMOVED (contract-v3.0,
+  retire-doxbench-chat-turn-v1). Until this release the file also carried three
+  co-resident v1 envelopes — `workbench-chat-turn`,
+  `workbench-chat-turn-success` and `workbench-chat-turn-failure` — added at
+  contract-v1.31, DEPRECATED at contract-v1.34 by the widened family above, and
+  declared removable at a stated target through a top-level
+  `deprecated_envelopes` block. Thirteen minors and one major passed with the
+  contract validator warning on every packaged instance, far past the "at least
+  one full published release" floor the versioning policy sets. The three
+  `$defs`, their `oneOf` entries and the whole `deprecated_envelopes` block
+  leave with them: a block declaring the deprecation of kinds this file no
+  longer defines names nothing. The shared definitions the removed envelopes
+  reached are RETAINED, measured from the surviving family's own reference
+  closure rather than assumed. A consumer pinned below contract-v3.0 keeps
+  validating v1 instances against the bytes its pin names — compatibility flows
+  from the consumer, and no new release reaches backwards into an old pin. The
+  migration path is `contracts/CHANGELOG.md` and
+  `docs/contract-versioning-policy.md` § Deprecations Executed.
 
   THE ASSEMBLED CONTEXT'S POSTURE (contract-v1.40, add-doxbench-editing-phase-b
   task 10.7). `success_v2` gains ONE optional property, `context_packet`, and
@@ -51,35 +53,14 @@ description: >-
   own reason when there is one. It exists so the ratified "with the reduced
   posture STATED" clause is readable by a consumer and showable to the human
   rather than stated only inside the packet. ADDITIVE: the key is OPTIONAL, its
-  ABSENCE is not a posture claim (it means a producer older than v1.40), no
-  existing shape changes, and the DEPRECATED v1 success envelope is deliberately
-  NOT widened — see the CHANGELOG for that recorded limitation.
+  ABSENCE is not a posture claim (it means a producer older than v1.40), and no
+  existing shape changes. (That release also recorded a limitation of the then
+  DEPRECATED v1 success envelope, which was deliberately not widened; the
+  envelope is gone at contract-v3.0 and the limitation with it.)
 oneOf:
-  - $ref: "#/$defs/request"
-  - $ref: "#/$defs/success"
-  - $ref: "#/$defs/failure"
   - $ref: "#/$defs/request_v2"
   - $ref: "#/$defs/success_v2"
   - $ref: "#/$defs/failure_v2"
-# The machine-readable half of the deprecation (contract-v1.34). It is recorded
-# HERE, outside every envelope, because the deprecated envelopes' own bytes must
-# not move: a deprecation is a statement ABOUT a shape, and editing the shape to
-# say so would break the byte-identity this release promises. Removal is a
-# BREAKING change and therefore targets the next major, after the full minor
-# release of deprecation warnings the versioning policy requires.
-deprecated_envelopes:
-  - kind: workbench-chat-turn
-    superseded_by: workbench-chat-turn-v2
-    deprecated_in: contract-v1.34
-    removal_target: contract-v2.0
-  - kind: workbench-chat-turn-success
-    superseded_by: workbench-chat-turn-v2-success
-    deprecated_in: contract-v1.34
-    removal_target: contract-v2.0
-  - kind: workbench-chat-turn-failure
-    superseded_by: workbench-chat-turn-v2-failure
-    deprecated_in: contract-v1.34
-    removal_target: contract-v2.0
 $defs:
   content_hash:
     type: string
@@ -135,6 +116,19 @@ $defs:
     # A human-reviewable replacement for exactly ONE buffer, bound to the
     # content identity the model saw (FR-026..FR-029). Untyped replacement
     # content — a proposal with no target — is refused at the schema.
+    #
+    # RETAINED AT contract-v3.0 AND NO LONGER REACHED, deliberately and on the
+    # record (retire-doxbench-chat-turn-v1 task 2.1). The measured reference
+    # closure of the surviving family does NOT contain this definition:
+    # `keyed_typed_proposal` below RESTATES the shape with a buffer-key target
+    # rather than `$ref`-ing this one, so removing the v1 envelopes leaves this
+    # block unreferenced. The ratified requirement names `typed_proposal` among
+    # the shared definitions that "do NOT leave with the envelopes", on a
+    # factual premise the measurement contradicts. Task 2.1 rules that "any
+    # surprise is a finding, not a licence", so the surprise is RECORDED here
+    # and the definition STAYS: the realization does not remove bytes the
+    # ratified text names as retained. Disposing of it is the cut's decision,
+    # taken against this measurement rather than against the premise.
     type: object
     additionalProperties: false
     required: [target, base_hash, summary, content]
@@ -143,90 +137,6 @@ $defs:
       base_hash: { $ref: "#/$defs/content_hash" }
       summary: { type: string, minLength: 1, maxLength: 500 }
       content: { type: string, maxLength: 1048576 }
-  request:
-    type: object
-    additionalProperties: false
-    required: [schema_version, kind, client_turn_id, scope,
-               active_document_path, working_subject, message, model_id,
-               last_assistant_turn_id, transcript, buffers]
-    properties:
-      schema_version: { const: 1 }
-      kind: { const: workbench-chat-turn }
-      client_turn_id: { type: string, minLength: 1, maxLength: 128 }
-      scope: { $ref: "#/$defs/scope_key" }
-      # Nullable, MIRRORING `buffer_state.path` exactly: required key, and
-      # `null` when the turn grounds on the outline alone because the tile has
-      # no separate editable document (growth source: codexFactory PR #63
-      # re-verification finding G-1, 2026-08-02 — measured on the real corpus,
-      # 16 of 21 staged topics have exactly ONE editable path, the topic's own
-      # primary fragment, which the canvas loads as the OUTLINE; requiring a
-      # non-null value here made a legal turn impossible on ~76% of them).
-      # A `null` here is the SAME fact `buffer_state.path: null` already
-      # states: no document buffer is backed by a path yet.
-      active_document_path:
-        oneOf:
-          - { type: "null" }
-          - { $ref: "#/$defs/confined_path" }
-      # NON-IDENTITY prompt focus (FR-012). A string only.
-      working_subject: { type: string, maxLength: 512 }
-      message: { type: string, minLength: 1, maxLength: 65536 }
-      model_id: { type: string, minLength: 1, maxLength: 128 }
-      last_assistant_turn_id:
-        oneOf: [ { type: "null" }, { type: string, maxLength: 128 } ]
-      transcript:
-        type: array
-        maxItems: 128
-        items: { $ref: "#/$defs/transcript_turn" }
-      buffers:
-        # Exactly one outline and one document (FR-013); the validator
-        # enforces the one-of-each pairing the schema cannot.
-        type: array
-        minItems: 2
-        maxItems: 2
-        items: { $ref: "#/$defs/buffer_state" }
-  success:
-    type: object
-    additionalProperties: false
-    required: [schema_version, kind, client_turn_id, assistant_turn_id,
-               model_id, observed_hashes, assistant_prose, proposals]
-    properties:
-      schema_version: { const: 1 }
-      kind: { const: workbench-chat-turn-success }
-      client_turn_id: { type: string, minLength: 1, maxLength: 128 }
-      assistant_turn_id: { type: string, minLength: 1, maxLength: 128 }
-      model_id: { type: string, minLength: 1, maxLength: 128 }
-      observed_hashes:
-        type: object
-        additionalProperties: false
-        required: [outline, document]
-        properties:
-          outline: { $ref: "#/$defs/content_hash" }
-          document: { $ref: "#/$defs/content_hash" }
-      assistant_prose: { type: string, maxLength: 900000 }
-      # Zero to two proposals; targets unique (validator). Prose without a
-      # valid typed proposal remains conversation only (FR-027).
-      proposals:
-        type: array
-        maxItems: 2
-        items: { $ref: "#/$defs/typed_proposal" }
-  failure:
-    type: object
-    additionalProperties: false
-    required: [schema_version, kind, client_turn_id, error, message]
-    properties:
-      schema_version: { const: 1 }
-      kind: { const: workbench-chat-turn-failure }
-      client_turn_id: { type: string, minLength: 1, maxLength: 128 }
-      error: { type: string, pattern: "^[a-z][a-z0-9_]{2,63}$" }
-      message: { type: string, minLength: 1, maxLength: 500 }
-      limit:
-        type: object
-        additionalProperties: false
-        required: [dimension, measured, maximum]
-        properties:
-          dimension: { type: string, minLength: 1, maxLength: 64 }
-          measured: { type: integer, minimum: 0 }
-          maximum: { type: integer, minimum: 0 }
   # ---- the widened, co-resident family (contract-v1.34) ----
   buffer_key:
     # A buffer's KEY in the widened family (design D1): the permanently

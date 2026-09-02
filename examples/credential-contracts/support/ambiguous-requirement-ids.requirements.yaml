@@ -9,7 +9,16 @@
 # an ambiguous resolution rather than pick a match. Two matches that differ in
 # `access_mode` would make the lift's outcome depend on traversal order.
 #
-# `negative/consumer-requirement-ref-ambiguous.yaml` points at this file.
+# TWO PROBES POINT AT THIS FILE, and de-duplicating the ids below would leave
+# BOTH passing vacuously rather than failing:
+#   - `negative/consumer-requirement-ref-ambiguous.yaml` — the LIFT path, where
+#     an ambiguous reference makes the two-consumer exemption UNAVAILABLE and
+#     the default `shared-secret-identity` refusal stands;
+#   - `warning/requirement-ref-ambiguous.yaml` — the PER-BINDING path added by
+#     add-requirement-ref-resolution-integrity, where the same ambiguity is
+#     reported on a binding that shares its secret with nobody.
+# Both depend on `projection_sync_lane` being declared TWICE, HERE, with
+# DIFFERENT access modes. The duplication is the fixture.
 schema_version: 1
 kind: xfactory_credential_requirements
 domain:

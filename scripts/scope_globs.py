@@ -16,6 +16,23 @@ ABSENCE IS FAIL-CLOSED. A change with no `scope_globs`, or with no entry for a
 given repository, is simply NOT provenance-eligible for that repository. Absence
 is NEVER interpreted as "all paths".
 
+THE FIELD IS READ THROUGH THE SHARED STRICT LOADER, NOT `yaml.safe_load`.
+`scripts/frontmatter_strict.py` is the ONE loader for the realization-axis
+front-matter block, over BOTH its structured fields (`scope_globs:` and
+`sequenced_after:`). It refuses — rather than silently resolves — duplicate keys
+at any level, anchors, aliases, merge keys, non-UTF-8 bytes, YAML directives,
+more than one document, and a block over the declared byte ceiling. This module
+originally parsed the sub-block with `yaml.safe_load`, whose
+LAST-DUPLICATE-KEY-WINS behaviour let a proposal carrying two `scope_globs:`
+blocks show a reviewer the FIRST and authorize the LAST. The retrofit was
+ratified by convener ruling OQ-1 of `add-sequenced-after-substrate` (2026-09-01)
+— fix inside that change, because a strict loader with a documented hole in one
+field of a trust-root surface is not a strict loader. **It changes how the field
+is LOADED and never what it MEANS:** every shape, dialect, cross-consistency and
+retention rule below is untouched, and the shipped corpus validates
+byte-identically after the swap (asserted by
+`tests/scope_globs/test_strict_loader.py`).
+
 THE GLOB DIALECT IS NOT REDEFINED HERE. The single glob authority is the
 codexFactory merge-gate envelope, `scripts/merge_master/envelope.py`
 (`_glob_to_regex`, `path_matches`, `_validate_path_allowlist`,
@@ -35,16 +52,47 @@ Deterministic: text/YAML reads only, no model calls, no writes.
 
 from __future__ import annotations
 
+import importlib.util
 import re
 import subprocess
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable, Mapping
 
-try:
-    import yaml
-except ImportError:  # pragma: no cover - pyyaml is a suite dependency
-    yaml = None
+
+def _sibling(name: str):
+    """Import a sibling module from THIS file's directory WITHOUT mutating
+    `sys.path`.
+
+    A library module that inserts its own directory at `sys.path[0]` changes
+    import resolution for the whole process that imports it — and this file is
+    VENDORED BYTE-FOR-BYTE into a merge gate, where making a package's own
+    directory shadow every top-level module name is precisely the side effect a
+    reviewer of that gate would refuse. The plain import is tried first, so the
+    ordinary route (a `scripts/`-on-`sys.path` CLI entry point such as
+    `validate-scope-globs.py`) resolves normally and the vendored copy resolves
+    its OWN sibling; the by-location fallback covers the route that loads this
+    file directly by path (the test suite, and any caller that has not put the
+    directory on the path).
+    """
+    try:
+        return importlib.import_module(name)
+    except ImportError:
+        pass
+    if name in sys.modules:  # pragma: no cover - a partially imported sibling
+        return sys.modules[name]
+    path = Path(__file__).resolve().parent / f"{name}.py"
+    spec = importlib.util.spec_from_file_location(name, path)
+    if spec is None or spec.loader is None:  # pragma: no cover - defensive
+        raise ImportError(f"cannot locate the sibling module {name} at {path}")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+fms = _sibling("frontmatter_strict")
 
 
 class ScopeGlobsError(Exception):
@@ -56,77 +104,28 @@ class ScopeGlobsError(Exception):
 
 
 # --- front-matter reading ----------------------------------------------------
+#
+# Delegated to the SHARED strict loader (`scripts/frontmatter_strict.py`). The
+# fence split, the prose-header/structured-field split and the per-field strict
+# parse all live there, so `scope_globs:` and `sequenced_after:` cannot be read
+# by two loaders that disagree. This module keeps its own error type: a caller
+# catching `ScopeGlobsError` keeps catching every refusal this reader can raise.
 
 
-_FENCE = "---"
-_TOP_LEVEL = re.compile(r"^([A-Za-z_][A-Za-z0-9_-]*):(.*)$")
-
-
-def _fenced_lines(source: str | Path) -> list[str] | None:
-    """The lines inside the leading `---`-fenced front-matter block, or None when
-    the document carries no well-formed (opened AND closed) fence."""
-    if isinstance(source, Path):
-        text = source.read_text(encoding="utf-8")
-    else:
-        text = source
-    lines = text.splitlines()
-    if not lines or lines[0].strip() != _FENCE:
-        return None
-    body: list[str] = []
-    for line in lines[1:]:
-        if line.strip() == _FENCE:
-            return body
-        body.append(line)
-    return None  # no closing fence
-
-
-def _field_blocks(lines: list[str]) -> dict[str, list[str]]:
-    """Split front-matter lines into top-level fields, each mapped to its ORIGINAL
-    lines (its `field:` line plus every following indented/continuation line up to
-    the next top-level key). The openxFactory proposal front-matter is a set of
-    PROSE headers — not a strict-YAML document (which is why the dashboard reads it
-    by regex) — so the whole block is never YAML-parsed at once; only the
-    structured `scope_globs` sub-block is (see `read_scope_globs`)."""
-    blocks: dict[str, list[str]] = {}
-    current: str | None = None
-    for line in lines:
-        m = _TOP_LEVEL.match(line)
-        if m:
-            current = m.group(1)
-            blocks.setdefault(current, []).append(line)
-        elif current is not None:
-            blocks[current].append(line)
-    return blocks
-
-
-def read_front_matter(source: str | Path) -> dict:
+def read_front_matter(source: str | bytes | Path) -> dict:
     """Return the realization-axis front-matter of a `proposal.md` as a dict.
 
-    Accepts document text or a path. `scope_globs` (when present) is YAML-parsed
-    from ITS sub-block alone and returned as its structured value; every other
-    field is returned as its raw joined string (prose headers are not YAML).
-    Returns an empty dict when there is no well-formed front-matter fence.
+    Accepts document text, bytes, or a path. The STRUCTURED fields
+    (`scope_globs`, `sequenced_after`) are read from their own sub-blocks through
+    the STRICT loader and returned as their structured values; every other field
+    is returned as its raw joined string (prose headers are not YAML). Returns an
+    empty dict when there is no well-formed front-matter fence. Raises
+    `ScopeGlobsError` for any strict-loader refusal, with the loader's message.
     """
-    if yaml is None:  # pragma: no cover
-        raise ScopeGlobsError("pyyaml is required to read proposal front-matter")
-    lines = _fenced_lines(source)
-    if lines is None:
-        return {}
-    result: dict[str, object] = {}
-    for field, block in _field_blocks(lines).items():
-        if field == "scope_globs":
-            try:
-                parsed = yaml.safe_load("\n".join(block))
-            except yaml.YAMLError as exc:
-                raise ScopeGlobsError(
-                    f"the `scope_globs` front-matter block is not valid YAML: {exc}"
-                ) from exc
-            result[field] = parsed.get("scope_globs") if isinstance(parsed, dict) else parsed
-        else:
-            first = _TOP_LEVEL.match(block[0])
-            rest = [first.group(2)] + block[1:] if first else block
-            result[field] = "\n".join(rest).strip()
-    return result
+    try:
+        return fms.read_front_matter(source)
+    except fms.StrictFrontMatterError as exc:
+        raise ScopeGlobsError(str(exc)) from exc
 
 
 def read_scope_globs(proposal: str | Path) -> object | None:

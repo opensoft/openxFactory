@@ -22,6 +22,21 @@ rather than inventing a fourth. A warning never reddens the verdict; the
 EIGHT `consumer-*` codes it carries are the deprecation the next major's
 refusals depend on, and every one of them is registered against a packaged
 probe in `examples/credential-contracts/warning/`.
+
+TWO MORE CODES, OF A SECOND FAMILY, SINCE add-requirement-ref-resolution-
+integrity. The `consumer-*` eight name SHAPE faults — a block that is missing,
+incomplete, closed-and-violated, ungrammatical, or carrying a token declared
+false. A reference that RESOLVES TO NOTHING is none of those: it is well-formed,
+inside the declared member set, grammatical in both members, and WRONG ABOUT THE
+WORLD, so it carries a code of its own family rather than widening one that
+already names a different fault. Until this change the resolution was performed
+in exactly ONE place — the six-condition lift, reached only for a pair of
+bindings SHARING a `secret_ref` — so a dangling reference on a binding whose
+secret was its own was resolved by nobody and reported by nothing. It is
+reported per-binding now, whatever the binding shares. THE AMBIGUITY IS
+PER-DOCUMENT, which is the ambiguity `resolve_requirement` can see; the same id
+in a DIFFERENT requirements document is openxFactory issue #553's subject and is
+deliberately out of scope here.
 """
 from __future__ import annotations
 
@@ -163,6 +178,17 @@ DEPRECATION_CODES = (
     "consumer-binding-key-grammar",
     "consumer-access-mode-vocabulary",
     "consumer-requirement-ref-grammar",
+    # add-requirement-ref-resolution-integrity — THE SECOND FAMILY, and the
+    # enumeration rule is satisfied by declaring the ACT AT THE MAJOR rather
+    # than by exempting these two from it: a declared reference that resolves to
+    # zero, or to more than one requirement of the ONE DOCUMENT IT NAMES, is
+    # REFUSED at MAJOR_RELEASE, and these are that act's deprecation window.
+    # ZERO AND MORE-THAN-ONE ARE NAMED APART because their remedies live in
+    # different files — the first is repaired AT THE REFERENCE, the second in
+    # THE REQUIREMENTS DOCUMENT THE REFERENCE NAMES — so a reader can tell them
+    # apart by the code alone, without reading the message.
+    "requirement-ref-unresolved",
+    "requirement-ref-ambiguous",
 )
 
 # each packaged warning fixture must raise a warning carrying this code
@@ -177,6 +203,8 @@ WARNING_EXPECTATIONS = {
     "consumer-binding-key-grammar.yaml": "consumer-binding-key-grammar",
     "consumer-access-mode-vocabulary.yaml": "consumer-access-mode-vocabulary",
     "consumer-requirement-ref-grammar.yaml": "consumer-requirement-ref-grammar",
+    "requirement-ref-unresolved.yaml": "requirement-ref-unresolved",
+    "requirement-ref-ambiguous.yaml": "requirement-ref-ambiguous",
 }
 
 
@@ -691,11 +719,98 @@ def _consumer_block_warnings(name: str, binding: dict) -> list[tuple[str, str]]:
     return out
 
 
-def _deprecation_warnings(doc: dict) -> list[tuple[str, str]]:
-    """The EIGHT `consumer-*` codes, over one document. Warnings never redden a
-    verdict; they are the deprecation release the major's refusals depend on,
-    and the set is derived from the list of things the major refuses — a shape
-    that no code names is a shape the deprecation does not serve."""
+def _requirement_resolution_warnings(
+        bindings: list[tuple[str, dict]],
+        index: dict[str, list[dict]] | None) -> list[tuple[str, str]]:
+    """THE RESOLUTION-INTEGRITY PASS (add-requirement-ref-resolution-integrity).
+
+    Reported PER BINDING, on every binding that declares a qualified,
+    grammatical `requirement_ref` — NOT only on a binding whose `secret_ref` is
+    shared with another. A reference that resolves to nothing is a defect OF THE
+    REFERENCE, not of a pair: the record names a requirement the repository
+    under validation does not carry, and it names it whether or not some other
+    binding happens to point at the same vault entry. Reporting it only where an
+    EXEMPTION was being asked for reported the defect exactly where a reader was
+    already being refused, and stayed silent everywhere it merely sat. The same
+    capability already ruled on that proxy once, raising the authority collapse
+    on the holder/fetch-identity pair independently of `secret_ref`.
+
+    `resolve_requirement` IS CALLED, NOT WIDENED. Same four statuses, same index,
+    same grammar, same rule that the validator never opens a path taken from a
+    record: this pass adds no read, no path and no input, and reports a
+    resolution the validator already performed and discarded on every code path
+    but the lift's. So the ambiguity it names is PER-DOCUMENT — the resolver
+    matches inside `index.get(requirements_document_ref)`, over an index keyed by
+    document path — and one id sitting in TWO schema-valid documents draws
+    NOTHING here. That arm is deliberately out of scope at this minor and is
+    filed as **openxFactory issue #553**, which also carries the promoted
+    scenario reaching across documents that the shipped resolver has never met.
+
+    ONE FAULT KEEPS ONE FINDING. `malformed` and `ungrammatical` are the two
+    statuses `_consumer_block_warnings` already reports — as
+    `consumer-member-grammar` and `consumer-requirement-ref-grammar` — so they
+    are skipped here rather than named twice, and so is a `requirement_id`
+    outside the identifier grammar, which that same arm reports. What is left is
+    exactly the fault no code named: a reference that is well-formed and
+    grammatical in both members and still answers to nothing, or to two things.
+
+    A REFERENCE NOBODY DECLARED IS NOT AN UNRESOLVED ONE. The member is OPTIONAL
+    at this release, and a binding declaring no `requirement_ref` draws nothing:
+    an omission is a different question from a wrong answer. `index is None` is
+    the same rule one level up — a caller that built no index resolved nothing,
+    and reporting `not-found` against an index that was never built would be a
+    finding about the caller rather than about the record.
+    """
+    if index is None:
+        return []
+    out: list[tuple[str, str]] = []
+    for name, binding in bindings:
+        consumer = _consumer(binding)
+        if not isinstance(consumer, dict) or "requirement_ref" not in consumer:
+            continue
+        ref = consumer["requirement_ref"]
+        status, _record = resolve_requirement(ref, index)
+        if status in ("ok", "malformed", "ungrammatical"):
+            continue
+        if not _is_identifier(ref.get("requirement_id")):
+            continue  # already named by `consumer-member-grammar`
+        rid = ref.get("requirement_id")
+        doc_ref = ref.get("requirements_document_ref")
+        if status == "not-found":
+            out.append(("requirement-ref-unresolved",
+                        f"binding {name!r}'s consumer.requirement_ref names requirement {rid!r} "
+                        f"in {doc_ref!r}, and NO requirement of that document carries that id — "
+                        f"the reference resolves to NOTHING and is not treated as resolved. THE "
+                        f"REPAIR IS AT THE REFERENCE: the id is misspelled, the document moved, "
+                        f"or the requirement was never written. Reported on this binding whatever "
+                        f"it shares — a dangling reference is a defect OF THE REFERENCE and not "
+                        f"of a pair. ERROR at {MAJOR_RELEASE}"))
+        elif status == "ambiguous":
+            out.append(("requirement-ref-ambiguous",
+                        f"binding {name!r}'s consumer.requirement_ref names requirement {rid!r} "
+                        f"in {doc_ref!r}, and MORE THAN ONE requirement OF THAT ONE DOCUMENT "
+                        f"carries that id; the matches are free to differ in access_mode, so "
+                        f"picking one would be a traversal order with an opinion. THE REPAIR IS "
+                        f"IN THE REQUIREMENTS DOCUMENT THE REFERENCE NAMES: make the ids that "
+                        f"document declares unique. Resolution here is PER-DOCUMENT, which is "
+                        f"what the resolver can see; the same id in a DIFFERENT requirements "
+                        f"document draws nothing at this release (openxFactory issue #553). "
+                        f"ERROR at {MAJOR_RELEASE}"))
+    return out
+
+
+def _deprecation_warnings(doc: dict,
+                          index: dict[str, list[dict]] | None = None) -> list[tuple[str, str]]:
+    """The EIGHT `consumer-*` codes plus the TWO resolution-integrity codes, over
+    one document. Warnings never redden a verdict; they are the deprecation
+    release the major's refusals depend on, and the set is derived from the list
+    of things the major refuses — a shape that no code names is a shape the
+    deprecation does not serve.
+
+    `index` is OPTIONAL and DEFAULTS TO NONE, which skips the resolution pass
+    alone: a caller holding no index of the tree cannot resolve, and an empty
+    index would make every declared reference report `not-found`, inventing a
+    finding about every record in a repository the caller never scanned."""
     kind = doc.get("kind")
     out: list[tuple[str, str]] = []
     if kind == "xfactory_credential_requirements":
@@ -713,6 +828,7 @@ def _deprecation_warnings(doc: dict) -> list[tuple[str, str]]:
                             f"unreadable mode as UNAVAILABLE, and the `enum` lands at "
                             f"{MAJOR_RELEASE}"))
     elif kind == "xfactory_credential_binding_template":
+        resolvable: list[tuple[str, dict]] = []
         for name, binding in _mapping(doc.get("credential_bindings")).items():
             if not _is_identifier(name):
                 out.append(("consumer-binding-key-grammar",
@@ -725,6 +841,11 @@ def _deprecation_warnings(doc: dict) -> list[tuple[str, str]]:
                             f"{MAJOR_RELEASE}"))
             if isinstance(binding, dict):
                 out.extend(_consumer_block_warnings(name, binding))
+                resolvable.append((name, binding))
+        # THE RESOLUTION PASS IS NOT SCOPED TO `by_secret`, and that is the whole
+        # of this change: the binding list handed over is EVERY binding of the
+        # document, sharing or not.
+        out.extend(_requirement_resolution_warnings(resolvable, index))
     return out
 
 
@@ -774,7 +895,7 @@ def _self_test(validator: Draft202012Validator) -> int:
         doc = docs[str(path.relative_to(EXAMPLES_DIR))]
         problems = ([e.message for e in validator.iter_errors(doc)]
                     + _semantic_findings(doc, index)
-                    + [f"WARN [{c}] {m}" for c, m in _deprecation_warnings(doc)])
+                    + [f"WARN [{c}] {m}" for c, m in _deprecation_warnings(doc, index)])
         if problems:
             print(f"ERROR self-test: positive {path.name} unexpectedly invalid: {problems}")
             errs += 1
@@ -793,7 +914,7 @@ def _self_test(validator: Draft202012Validator) -> int:
         rel = str(path.relative_to(EXAMPLES_DIR))
         want = WARNING_EXPECTATIONS.get(path.name)
         doc = docs[rel]
-        codes = [c for c, _ in _deprecation_warnings(doc)]
+        codes = [c for c, _ in _deprecation_warnings(doc, index)]
         errors = _semantic_findings(doc, index)
         if not want:
             print(f"ERROR self-test: warning {path.name} has no registered expectation")
@@ -904,7 +1025,7 @@ def main() -> None:
                 continue
             print(f"ERROR {rel}: {loc}: {err.message}")
             errors += 1
-        for code, msg in _deprecation_warnings(doc):
+        for code, msg in _deprecation_warnings(doc, index):
             warnings.append(f"WARN  [{code}] {rel}: {msg}")
         for msg in _semantic_findings(doc, index):
             print(f"ERROR {rel}: {msg}")

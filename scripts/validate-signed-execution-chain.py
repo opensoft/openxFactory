@@ -131,6 +131,7 @@ if str(ROOT) not in sys.path:
 
 from scripts.signed_execution_chain import canonical  # noqa: E402
 from scripts.signed_execution_chain import ed25519  # noqa: E402
+from scripts.signed_execution_chain import attestation  # noqa: E402
 
 CONTRACT_DIR = ROOT / "contracts" / "signed-execution-chain"
 EXAMPLES_DIR = CONTRACT_DIR / "examples"
@@ -145,6 +146,15 @@ SCHEMA_FILENAMES = [
     "traveling-contract.schema.yaml",
     "transparency-log-leaf.schema.yaml",
     "conformance-declaration.schema.yaml",
+    # --- tranche two (`add-chain-attestation`) ---
+    "attestation-common.schema.yaml",
+    "setup-attestation.schema.yaml",
+    "commitment-extension.schema.yaml",
+    "signed-chain-binding.schema.yaml",
+    "runner-attestation.schema.yaml",
+    "pr-open-decision.schema.yaml",
+    "closure-record.schema.yaml",
+    "remediation-declaration.schema.yaml",
 ]
 
 KIND_TO_SCHEMA = {
@@ -153,7 +163,38 @@ KIND_TO_SCHEMA = {
     "xfactory_signed_execution_chain_log_leaf": "transparency-log-leaf.schema.yaml",
     "xfactory_signed_execution_chain_conformance_declaration":
         "conformance-declaration.schema.yaml",
+    # --- tranche two's SEVEN record kinds ---
+    "xfactory_signed_execution_chain_setup_attestation":
+        "setup-attestation.schema.yaml",
+    "xfactory_signed_execution_chain_commitment_extension":
+        "commitment-extension.schema.yaml",
+    "xfactory_signed_execution_chain_chain_binding":
+        "signed-chain-binding.schema.yaml",
+    "xfactory_signed_execution_chain_runner_attestation":
+        "runner-attestation.schema.yaml",
+    "xfactory_signed_execution_chain_pr_open_decision":
+        "pr-open-decision.schema.yaml",
+    "xfactory_signed_execution_chain_closure_record":
+        "closure-record.schema.yaml",
+    "xfactory_signed_execution_chain_remediation_declaration":
+        "remediation-declaration.schema.yaml",
 }
+
+# THE CONSUMED `add-trust-anchor` VOCABULARY, admitted into the scope and NEVER
+# REDEFINED HERE. Tranche two's tier-2 issuance COMPOSES three records — the
+# canonical certificate record for the public-key fingerprint and the validity
+# bounds, the canonical issuance evidence for the issuance act, and this
+# capability's own signed chain binding — so a reader that could not see the first
+# two could not run the composition at all. They are validated against
+# `contracts/trust-anchor/`'s own schemas, exactly as carried wallet blocks are
+# validated against the pinned openXwallet shapes.
+CONSUMED_KIND_TO_SCHEMA = {
+    "xfactory_certificate_record": "certificate-record.schema.yaml",
+    "xfactory_certificate_issuance_evidence": "issuance-evidence.schema.yaml",
+    "xfactory_trust_anchor": "trust-anchor.schema.yaml",
+}
+TRUST_ANCHOR_DIR = ROOT / "contracts" / "trust-anchor"
+CUSTODY_REGISTRY = TRUST_ANCHOR_DIR / "trust-anchor-chain-custody.registry.yaml"
 
 # The pinned openXwallet schemas the carried blocks are validated against when the
 # `openXwallet/` gitlink is present. NEVER vendored: the pin
@@ -194,11 +235,13 @@ REFUSAL_CODES = frozenset({
     "chain_unevaluable",
     "machine_holder_as_ratifying_authority",
     "ratification_signature_invalid",
-})
+}) | attestation.REFUSAL_CODES
 
-# The capability's nine obligations, in the delta's order.
-OBLIGATIONS = ["SEC-R1", "SEC-R2", "SEC-R3", "SEC-R4", "SEC-R5", "SEC-R6",
-               "SEC-R7", "SEC-R8", "SEC-R9"]
+# The capability's obligations, in the delta's order. NINE at tranche one;
+# SEC-R10..SEC-R18 are tranche two's nine, held in the module that enforces them.
+TRANCHE_ONE_OBLIGATIONS = ["SEC-R1", "SEC-R2", "SEC-R3", "SEC-R4", "SEC-R5",
+                           "SEC-R6", "SEC-R7", "SEC-R8", "SEC-R9"]
+OBLIGATIONS = TRANCHE_ONE_OBLIGATIONS + attestation.OBLIGATIONS
 # The two whose residual is STRUCTURAL at this tranche: the pinned exercise record
 # carries no field holding the SIGNED digest value (SEC-R1), and suffix truncation
 # no party has yet observed is invisible to a log with no external witness
@@ -218,7 +261,14 @@ HUMAN_HOLDER_CLASSES = frozenset({"person", "practitioner"})
 VERIFIABLE_ALGORITHM = "ed25519"
 
 LEAF_TYPES = ("wallet_presented_ratification", "chain_inception",
-              "traveling_contract_issued", "gate_verdict")
+              "traveling_contract_issued", "gate_verdict",
+              # Tranche two: one leaf type per record kind it defines, written
+              # into the SAME log — the walk is over the records the log holds
+              # in the order it holds them.
+              "setup_attestation", "commitment_extension",
+              "signed_chain_binding", "runner_attestation",
+              "pr_open_decision", "closure_record",
+              "remediation_declaration")
 
 CHECK_NAMES = (
     "ratification_signature_verifies",
@@ -323,6 +373,19 @@ def load_carried_schemas(f: Findings, required: bool) -> dict[str, dict]:
         f.error("carried-vocabulary",
                 f"{ACTOR_SUBJECT_SCHEMA} not found; the actor reference cannot be "
                 f"validated against the vocabulary that owns it")
+    # The CONSUMED `add-trust-anchor` shapes live in THIS repository, so they are
+    # loaded before the pinned-wallet fallback returns: tranche two's composed
+    # issuance is unverifiable without them whatever the `openXwallet/` gitlink is
+    # doing.
+    for consumed_kind, consumed_name in CONSUMED_KIND_TO_SCHEMA.items():
+        consumed_path = TRUST_ANCHOR_DIR / consumed_name
+        if consumed_path.is_file():
+            carried[consumed_kind] = load_yaml(consumed_path)
+        else:  # pragma: no cover - the files are tracked in this repository
+            f.error("carried-vocabulary",
+                    f"{consumed_path} not found; tranche two's composed tier-2 "
+                    f"issuance cannot be verified against the vocabulary that owns "
+                    f"it")
     missing = [name for name in PINNED_WALLET_SCHEMAS.values()
                if not (PINNED_WALLET_DIR / name).is_file()]
     if missing:
@@ -373,6 +436,7 @@ class Scope:
     travelings: list[tuple[str, dict]] = field(default_factory=list)
     leaves: list[tuple[str, dict]] = field(default_factory=list)
     declarations: list[tuple[str, dict]] = field(default_factory=list)
+    consumed: list[tuple[str, dict]] = field(default_factory=list)
     chains: dict[str, Chain] = field(default_factory=dict)
 
     def chain(self, chain_id: str) -> Chain:
@@ -413,6 +477,12 @@ def build_scope(records: Iterable[tuple[str, dict]]) -> Scope:
                 scope.chain(chain_id).leaves.append((label, doc))
         elif kind == "xfactory_signed_execution_chain_conformance_declaration":
             scope.declarations.append((label, doc))
+        elif kind in CONSUMED_KIND_TO_SCHEMA:
+            # CONSUMED, NOT CLASSIFIED. These are `add-trust-anchor`'s records and
+            # this scope holds them only so tranche two's composed issuance has its
+            # other two parts to resolve against; no chain rule of this capability
+            # reads them except through a binding that names them.
+            scope.consumed.append((label, doc))
     return scope
 
 
@@ -422,6 +492,18 @@ def check_shapes(f: Findings, scope: Scope, registry: Registry,
                  docs: dict[str, dict], carried: dict[str, dict]) -> None:
     for label, doc in scope.records:
         kind = doc.get("kind") if isinstance(doc, dict) else None
+        if kind in CONSUMED_KIND_TO_SCHEMA:
+            # HELD TO THE SHAPE THAT OWNS THEM, never to a local restatement of it,
+            # which would be the second vocabulary this capability exists not to
+            # invent.
+            owner = carried.get(kind)
+            if owner is None:
+                continue
+            for message in schema_errors(doc, owner):
+                f.error("carried-vocabulary",
+                        f"{label}: does not conform to the `add-trust-anchor` "
+                        f"vocabulary that owns it ({kind}): {message}")
+            continue
         if kind not in KIND_TO_SCHEMA:
             # Only reachable from a hand-assembled scope: both entry points filter
             # on the family kinds. It is a finding rather than a KeyError so a
@@ -1427,14 +1509,24 @@ def check_declarations(f: Findings, scope: Scope) -> None:
         entries = doc.get("obligations") or []
         named = [entry.get("obligation") for entry in entries
                  if isinstance(entry, dict)]
-        for obligation in OBLIGATIONS:
+        # WHICH SET IS OWED IS DERIVED FROM THE DECLARATION AND NOT FROM A FLAG. A
+        # declaration naming ANY tranche-two obligation is closed over all
+        # EIGHTEEN; one naming none is closed over tranche one's NINE, exactly as
+        # it was before this tranche existed. A realization cannot claim tranche
+        # two and declare against nine, and a tranche-one declaration is not made
+        # non-conformant by a capability that grew after it was written — which is
+        # the BREAKING change `docs/contract-versioning-policy.md` reserves for a
+        # major bump behind a full minor of deprecation warnings.
+        owed = OBLIGATIONS if any(name in attestation.OBLIGATIONS for name in named) \
+            else TRANCHE_ONE_OBLIGATIONS
+        for obligation in owed:
             if named.count(obligation) != 1:
                 f.error("residual_not_declared",
                         f"{label}: obligation {obligation} is declared "
-                        f"{named.count(obligation)} times; the declaration is "
-                        f"closed over exactly the capability's nine obligations, "
-                        f"because one that can quietly omit an obligation is how a "
-                        f"silent gap gets recorded as conformance")
+                        f"{named.count(obligation)} times; this declaration is "
+                        f"closed over the {len(owed)} obligations of the tranches it "
+                        f"covers, because one that can quietly omit an obligation is "
+                        f"how a silent gap gets recorded as conformance")
         for obligation in named:
             if obligation not in OBLIGATIONS:
                 f.error("residual_not_declared",
@@ -1457,6 +1549,16 @@ def check_declarations(f: Findings, scope: Scope) -> None:
                         f"declares no residual. A gap recorded without saying what "
                         f"it is, and what closes it, is a gap that is implied "
                         f"rather than visible")
+            if obligation in attestation.STRUCTURAL_RESIDUALS \
+                    and satisfaction == "satisfied":
+                f.error("residual_not_declared",
+                        f"{label}: {obligation} cannot be recorded `satisfied` at "
+                        f"this tranche. SEC-R17's residuals are structural — link "
+                        f"7's per-seat signatures are outside this tranche's gate "
+                        f"scope, and a file-based intake register cannot serve "
+                        f"revocation-at-exercise — and SEC-R18 is UNMET rather than "
+                        f"partially met until A RUNNING LAYER REFUSES a step whose "
+                        f"inbound chain does not verify")
             if obligation in STRUCTURAL_RESIDUALS and satisfaction == "satisfied":
                 f.error("residual_not_declared",
                         f"{label}: {obligation} cannot be recorded `satisfied` at "
@@ -1498,7 +1600,36 @@ def validate_scope(f: Findings, records: list[tuple[str, dict]], registry: Regis
     check_per_act_uniqueness(f, scope)
     check_chains(f, scope)
     check_declarations(f, scope)
+    # TRANCHE TWO RUNS LAST, so a chain that fails at link 2 is not also told about
+    # link 6: the tranche-one walk reports first, and the extended legs are part of
+    # the SAME ONE WALK rather than a second gate reporting in parallel.
+    attestation.check_tranche_two(f, scope.records, custody_models())
     return scope
+
+
+_CUSTODY_MODELS: dict[str, dict] | None = None
+
+
+def custody_models() -> dict[str, dict]:
+    """The RATIFIED, CLOSED custody registry `add-trust-anchor` put in force at
+    `contract-v1.37`, read rather than restated.
+
+    Tranche two's evidence classes are a DIFFERENT AXIS from that registry's — it
+    classes WHOSE ACT a signature evidences, they class WHERE A FACT INSIDE THE
+    SIGNED PAYLOAD CAME FROM — and they compose in a declared ORDER: the signing
+    certificate's custody ceiling BOUNDS what any fact under it evidences. Reading
+    the members from the file is what keeps the two sets from drifting into two
+    custody models."""
+    global _CUSTODY_MODELS
+    if _CUSTODY_MODELS is None:
+        models: dict[str, dict] = {}
+        if CUSTODY_REGISTRY.is_file():
+            registry = load_yaml(CUSTODY_REGISTRY)
+            for entry in (registry or {}).get("custody_models") or []:
+                if isinstance(entry, dict) and isinstance(entry.get("id"), str):
+                    models[entry["id"]] = entry
+        _CUSTODY_MODELS = models
+    return _CUSTODY_MODELS
 
 
 # --------------------------- layer 1: packaged corpus ---------------------------
@@ -1536,50 +1667,81 @@ def labelled(prefix: str, path: Path) -> list[tuple[str, dict]]:
             for index, doc in enumerate(records)]
 
 
-def positive_records() -> list[tuple[str, dict]]:
+def positive_records(directory: Path = None, prefix: str = "examples") -> list[tuple[str, dict]]:
+    """Defaults to the tranche-one reference corpus, which is the signature the
+    family's pytest wiring consumes; the self-test passes each corpus explicitly."""
+    if directory is None:
+        directory = EXAMPLES_DIR
     out: list[tuple[str, dict]] = []
-    for path in sorted(EXAMPLES_DIR.glob("*.example.yaml")):
-        out.extend(labelled("examples", path))
+    for path in sorted(directory.glob("*.example.yaml")):
+        out.extend(labelled(prefix, path))
     return out
+
+
+# TWO PACKAGED CORPORA, AND THE SPLIT IS FORCED BY THE LOG RATHER THAN CHOSEN.
+# The transparency log's append-only property is a STORE obligation over the WHOLE
+# log: one leaf per position, no holes, every leaf hash-linked to the one before.
+# Tranche one's negatives append their probe leaf at position 4, the first free
+# slot after its four-leaf reference log — so a tranche-two chain sharing that
+# store would have taken position 4 and turned thirty-four shipped fixtures into
+# index collisions, each then refusing for `leaf_hash_link_broken` instead of the
+# invariant it is named for. Re-numbering them is not available either: their leaf
+# signatures are over the leaf content, and the fixture key's private half exists
+# nowhere in this repository, exactly as tranche one intended.
+#
+# SO TRANCHE TWO SHIPS ITS OWN STORE, and each corpus is adjudicated ALONE. Every
+# rule runs over both — tranche one's eight checks walk the tranche-two chains'
+# links 1-3 exactly as they walk their own — and the refusal-code coverage the
+# self-test demands is the UNION, so no code goes unprobed because it lives in the
+# other corpus.
+CORPORA = [
+    ("examples", EXAMPLES_DIR, NEGATIVE_DIR),
+    ("examples/tranche-two", EXAMPLES_DIR / "tranche-two",
+     EXAMPLES_DIR / "tranche-two" / "negative"),
+]
 
 
 def self_test(f: Findings, registry: Registry, docs: dict[str, dict],
               carried: dict[str, dict]) -> None:
-    if not EXAMPLES_DIR.is_dir():
-        f.error("examples-missing", f"{EXAMPLES_DIR} not found")
-        return
-    base = positive_records()
-    if not base:
-        f.error("examples-missing", "no packaged positive examples found")
-        return
-    local = Findings()
-    validate_scope(local, base, registry, docs, carried)
-    f.errors.extend(f"{line} [expected a valid corpus]" for line in local.errors)
-    f.warnings.extend(local.warnings)
-
     probed: set[str] = set()
-    neg_ok = 0
-    if not NEGATIVE_DIR.is_dir():
-        f.error("examples-missing", f"{NEGATIVE_DIR} not found")
-    else:
-        for path in sorted(NEGATIVE_DIR.glob("*.yaml")):
+    total_base = neg_ok = 0
+    for prefix, positives_dir, negatives_dir in CORPORA:
+        if not positives_dir.is_dir():
+            f.error("examples-missing", f"{positives_dir} not found")
+            continue
+        base = positive_records(positives_dir, prefix)
+        if not base:
+            f.error("examples-missing",
+                    f"no packaged positive examples found in {positives_dir}")
+            continue
+        total_base += len(base)
+        local = Findings()
+        validate_scope(local, base, registry, docs, carried)
+        f.errors.extend(f"{line} [expected a valid corpus]" for line in local.errors)
+        f.warnings.extend(local.warnings)
+
+        if not negatives_dir.is_dir():
+            f.error("examples-missing", f"{negatives_dir} not found")
+            continue
+        for path in sorted(negatives_dir.glob("*.yaml")):
             code, detail = expected_failure(path)
             probe = Findings()
-            validate_scope(probe, base + labelled("examples/negative", path),
+            validate_scope(probe, base + labelled(f"{prefix}/negative", path),
                            registry, docs, carried)
             found = codes_of(probe.errors)
             if not probe.errors:
                 f.error("negative-should-fail",
-                        f"negative/{path.name}: expected invalid, validated cleanly")
+                        f"{prefix}/negative/{path.name}: expected invalid, "
+                        f"validated cleanly")
             elif code not in found:
                 f.error("negative-wrong-reason",
-                        f"negative/{path.name}: expected finding {code!r}, got "
-                        f"{sorted(found)}")
+                        f"{prefix}/negative/{path.name}: expected finding {code!r}, "
+                        f"got {sorted(found)}")
             elif detail and not any(detail in line for line in lines_for(probe.errors, code)):
                 f.error("negative-wrong-reason",
-                        f"negative/{path.name}: finding {code!r} fired but not for "
-                        f"{detail!r} — the fixture no longer tests the invariant it "
-                        f"is named for: {lines_for(probe.errors, code)}")
+                        f"{prefix}/negative/{path.name}: finding {code!r} fired but "
+                        f"not for {detail!r} — the fixture no longer tests the "
+                        f"invariant it is named for: {lines_for(probe.errors, code)}")
             else:
                 neg_ok += 1
                 probed.add(code)
@@ -1589,9 +1751,10 @@ def self_test(f: Findings, registry: Registry, docs: dict[str, dict],
                 f"the closed refusal enumeration declares {unprobed} and no "
                 f"packaged negative provokes them. A refusal this reader can emit "
                 f"and no fixture ever exercises is a refusal nobody has seen work")
-    f.note(f"self-test: {len(base)} packaged record(s) validated as ONE coherent "
-           f"corpus, {neg_ok} negative fixture(s) confirmed invalid for their "
-           f"intended reason, {len(probed & REFUSAL_CODES)}/{len(REFUSAL_CODES)} "
+    f.note(f"self-test: {total_base} packaged record(s) validated across "
+           f"{len(CORPORA)} coherent corpora, {neg_ok} negative fixture(s) "
+           f"confirmed invalid for their intended reason, "
+           f"{len(probed & REFUSAL_CODES)}/{len(REFUSAL_CODES)} "
            f"closed refusal codes red-proven "
            f"({len(probed - REFUSAL_CODES)} further finding code(s) probed, for the "
            f"obligations refused BY SHAPE, where unrepresentable is stronger "

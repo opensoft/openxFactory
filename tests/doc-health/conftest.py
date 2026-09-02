@@ -38,7 +38,8 @@ class FakeGit:
     def __init__(self, last_dates=None, line_dates=None, captures=None,
                  pins=None, remotes=None, heads=None, first_dates=None,
                  first_stamps=None, refs=None, ref_trees=None,
-                 blobs=None, modes=None, git_unavailable=False):
+                 blobs=None, modes=None, git_unavailable=False,
+                 tag_refs=None, first_parents=None):
         self.last_dates = last_dates or {}
         self.first_dates = first_dates or {}
         # add-promotion-fidelity-check: archive-commit order to SECOND
@@ -51,6 +52,15 @@ class FakeGit:
         self.captures = captures or {}
         self.pins = pins
         self.remotes = remotes or {}
+        # add-release-tag-publication-check: (repo, tag) -> (objecttype, sha),
+        # and (repo, ref) -> [sha, ...] newest first. A MISSING declaration
+        # answers None from both shims — "the refs could not be listed" and
+        # "the walk could not be performed" — because that is the state
+        # RealGit reports when git cannot answer, and it is the skip path the
+        # family's scenarios exercise. An EXPLICIT (None, None) is the other
+        # thing entirely: the remote listed no such tag, which is an ANSWER.
+        self.tag_refs = tag_refs
+        self.first_parents = first_parents
         self.heads = heads or {}
         # add-promotion-fidelity-check task 4.1 (ruled 2026-08-24): the
         # live-main basis. `refs` answers rev-parse ((repo, ref) -> sha) and
@@ -101,6 +111,17 @@ class FakeGit:
 
     def gitlink_pins(self, agg_root: Path):
         return self.pins
+
+    def tag_ref(self, repo: Path, name: str):
+        if self.tag_refs is None:
+            return None
+        return self.tag_refs.get((str(repo), name), (None, None))
+
+    def first_parent_shas(self, repo: Path, ref: str, limit: int):
+        if self.first_parents is None:
+            return None
+        shas = self.first_parents.get((str(repo), ref))
+        return None if shas is None else list(shas)[:max(1, limit)]
 
     def remote_main_sha(self, repo: Path):
         return self.remotes.get(repo.name)

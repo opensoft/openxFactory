@@ -30,14 +30,18 @@ fail-closed chain, they run per request in both modes, and they are anchored to
 this module's own literals rather than to anything the checkout claims about
 itself — which is what makes publisher mode safe rather than merely convenient.
 
-The chat-turn FILE holds six closed envelopes under a `oneOf`, discriminated by
-`kind`: the three v1 envelopes and the three co-resident widened ones
-contract-v1.34 added beside them (`add-doxbench-editing-phase-b` design D15).
+The chat-turn FILE holds THREE closed envelopes under a `oneOf`, discriminated by
+`kind`: the widened family contract-v1.34 added (`add-doxbench-editing-phase-b`
+design D15). It said SIX until `contract-v3.0`, when the three v1 envelopes it
+was co-resident with were REMOVED (`retire-doxbench-chat-turn-v1`); the sentence
+is corrected at the cut that made it false rather than carried forward.
 Consumers dispatch on the INSTANCE kind, so the per-kind mapping resolves each
 envelope individually through a `$ref` into that file — the same registry-backed
 pattern the openxFactory validator uses for the possibles-register kernel
 section, and the reason a second family costs this module a mapping entry rather
-than a branch.
+than a branch. The mapping now carries one family, and the pattern is kept
+rather than collapsed for exactly the reason it was adopted: the next
+co-resident family costs an entry, not a branch.
 """
 
 from __future__ import annotations
@@ -241,8 +245,58 @@ from referencing.jsonschema import DRAFT202012
 # and v1.40 CHANGELOG entries, and the archived Phase B packet all NARRATE
 # sentinels that were real at the time. Those are records of what was true then
 # and are not edited, exactly as the v1.40 resolution did not edit its own.
-CONTRACT_REF = "8ccfb67bc0fabfa728d709a2efa0cd87b14656fb"
-CONTRACT_TAG = "contract-v2.2"
+#
+#   >> THE SWEEP SENTENCE DIRECTLY ABOVE IS FALSE FROM THE contract-v3.0 CUT
+#   >> ONWARD, and the pointer is here rather than only in the block below so a
+#   >> reader landing on it is not misled by three paragraphs of distance. That
+#   >> cut ASSIGNS `unpublished:contract-v3.0` again, deliberately -- see the
+#   >> RE-CUT block immediately following. The sentence is annotated rather than
+#   >> rewritten, on its own closing rule: it is the record of what was true at
+#   >> the commit it describes, and editing it to match today would destroy the
+#   >> evidence that the sweep happened at all. It becomes true again the moment
+#   >> the tag is published and the ref is resolved, which is the post-merge step
+#   >> the v1.45 residue is the argument for not deferring.
+#
+# RE-CUT TO contract-v3.0 (retire-doxbench-chat-turn-v1 task 6.1, taken at the
+# contract-v3.0 cut). THE CHAT-TURN SCHEMA'S BYTES MOVED since the v2.2 repin,
+# so this pin HAD to move: PR #564 removed the three v1 `$defs`, the `oneOf`
+# refs and the `deprecated_envelopes` block. The file's own
+# `contract_schema_version` deliberately did NOT move with them, so the digest
+# below is the realization's and the cut re-labels it rather than re-deriving
+# it. #564 already moved
+# `SCHEMA_DIGESTS[CHAT_TURN_SCHEMA_FILE]` to the post-removal bytes and
+# knowingly left the LABEL at contract-v2.2, which the packet's own header
+# records as owed to the cut -- so between that merge and this cut the module
+# pinned bytes belonging to NO published release while naming contract-v2.2 as
+# the release they came from. That is the incoherence this repin closes; the
+# catalog schema's bytes are unchanged and are re-declared at this bundle
+# because a pin names ONE release for both files.
+#
+# THE REF IS THE SENTINEL AGAIN, and deliberately, on the same reasoning the
+# v2.2, v1.40, v1.38 and v1.34 realization branches used: the versioning policy
+# allocates the version and builds the digest inventory AT REALIZATION
+# (steps 1-2) and publishes the annotated tag against the commit that actually
+# LANDS (step 5), so until that commit exists there is nothing honest to name.
+# It is spelled so that a consumer comparing against it REFUSES rather than
+# matching by accident. STATED PRECISELY, because the older comments above put
+# it as "a value no `stack.yaml` can declare" and that overclaims: a repository
+# can of course WRITE the string. What it cannot do is carry it as a VALID pin
+# --- `scripts/validate-domain-openxfactory-pins.py` requires a 40-character
+# lowercase SHA for `contract_ref_type: commit` (and a `vX.Y.Z` tag otherwise),
+# so a stack declaring the sentinel fails its own pin validator, and one
+# declaring anything else fails the equality check here. Both doors are shut;
+# only one of them is the one the older wording named.
+#
+# THE SWEEP SENTENCE ABOVE IS TRUE AS OF THE COMMIT IT DESCRIBES AND IS FALSE
+# FROM THIS ONE, and it is left standing rather than rewritten, exactly as it
+# instructs: it is the record of what was true then. The residue it narrates --
+# `unpublished:contract-v1.45` standing for three days after its tag was
+# published -- is the failure THIS assignment must not repeat. RESOLVING THIS
+# SENTINEL TO THE COMMIT `contract-v3.0` DEREFERENCES TO IS OWED, immediately
+# after the tag is published and never before, and it is listed as a post-merge
+# step in the cut's pull request rather than left to be remembered.
+CONTRACT_REF = "unpublished:contract-v3.0"
+CONTRACT_TAG = "contract-v3.0"
 
 CATALOG_SCHEMA_FILE = "xfactory-workbench-model-catalog.schema.yaml"
 CHAT_TURN_SCHEMA_FILE = "xfactory-workbench-chat-turn.schema.yaml"
@@ -252,41 +306,41 @@ SCHEMA_DIGESTS = {
     CATALOG_SCHEMA_FILE:
         "e563cc9fc6ede03dfd62537935d0ae0842617d7de46702aee6ad9026aa021635",
     CHAT_TURN_SCHEMA_FILE:
-        "2ff5f222af5cdccd545417203898a919be0365cdd0d2d5138e87e23f7ebfe1cf",
+        "350bfedc02696e7281a42c0bdc9a25059bf7af14d16d89d9f07018d3e691dc1d",
 }
 
-# The seven doxBench INSTANCE kinds. The catalog kind is a whole-document schema;
-# the six turn kinds all live in the chat-turn file, under these `$defs` — the
-# three v1 envelopes and, since contract-v1.34, the three co-resident widened
-# ones. Both families are DISPATCHABLE: the v1 kinds are deprecated, not
-# withdrawn, and a release that stopped resolving them would break the very
-# clients the deprecation exists to keep working.
+# The four doxBench INSTANCE kinds. The catalog kind is a whole-document schema;
+# the three turn kinds all live in the chat-turn file, under these `$defs`.
+#
+# SEVEN UNTIL contract-v3.0 (retire-doxbench-chat-turn-v1). Three v1 kind
+# constants — `KIND_CHAT_TURN`, `KIND_CHAT_TURN_SUCCESS`,
+# `KIND_CHAT_TURN_FAILURE` — stood beside these, added at contract-v1.31 and
+# DEPRECATED at contract-v1.34 when the widened family arrived. Both families
+# were dispatchable for thirteen minors and one major, because a deprecation
+# that stopped resolving would have broken the very clients it existed to keep
+# working. The removal target the deprecating release recorded has now been
+# reached, and the kinds leave with their envelopes.
 KIND_MODEL_CATALOG = "workbench-model-catalog"
-KIND_CHAT_TURN = "workbench-chat-turn"
-KIND_CHAT_TURN_SUCCESS = "workbench-chat-turn-success"
-KIND_CHAT_TURN_FAILURE = "workbench-chat-turn-failure"
 KIND_CHAT_TURN_V2 = "workbench-chat-turn-v2"
 KIND_CHAT_TURN_V2_SUCCESS = "workbench-chat-turn-v2-success"
 KIND_CHAT_TURN_V2_FAILURE = "workbench-chat-turn-v2-failure"
 
 CHAT_TURN_DEFS = {
-    KIND_CHAT_TURN: "request",
-    KIND_CHAT_TURN_SUCCESS: "success",
-    KIND_CHAT_TURN_FAILURE: "failure",
     KIND_CHAT_TURN_V2: "request_v2",
     KIND_CHAT_TURN_V2_SUCCESS: "success_v2",
     KIND_CHAT_TURN_V2_FAILURE: "failure_v2",
 }
 
-# The DEPRECATED family, named here so a caller can ask rather than pattern-match
-# on a kind string. The removal target is the schema's own
-# `deprecated_envelopes` record and the CHANGELOG's migration note; this tuple
-# states only WHICH kinds are deprecated.
-DEPRECATED_CHAT_TURN_KINDS = (KIND_CHAT_TURN, KIND_CHAT_TURN_SUCCESS,
-                              KIND_CHAT_TURN_FAILURE)
+# `DEPRECATED_CHAT_TURN_KINDS` stood here and named the v1 family, so a caller
+# could ask rather than pattern-match on a kind string. It is REMOVED rather
+# than emptied at contract-v3.0: an empty tuple is a claim that nothing in this
+# family is deprecated, which is a statement this module has no business making
+# on the release's behalf. The schema's own `deprecated_envelopes` block is the
+# authority on what is deprecated, and it is read — never restated — by
+# `scripts/validate-ideation-dashboard-contracts.py`. That block is gone from
+# the chat-turn file too, because it named only these three kinds.
 
-WIRE_KINDS = (KIND_MODEL_CATALOG, KIND_CHAT_TURN, KIND_CHAT_TURN_SUCCESS,
-              KIND_CHAT_TURN_FAILURE, KIND_CHAT_TURN_V2,
+WIRE_KINDS = (KIND_MODEL_CATALOG, KIND_CHAT_TURN_V2,
               KIND_CHAT_TURN_V2_SUCCESS, KIND_CHAT_TURN_V2_FAILURE)
 
 # --------------------------- checkout location ---------------------------

@@ -1,0 +1,301 @@
+schema_version: 1
+kind: openxfactory-signed-execution-chain-contract-schema
+name: xfactory_signed_execution_chain_closure_record
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/closure-record.schema.yaml"
+contract_id: signed-execution-chain-closure-record
+contract_schema_version: 1
+title: The governed post-merge test that closes a chain (link 10)
+description: >-
+  A CHAIN IS COMPLETE ONLY AT CLOSURE (`add-chain-attestation`, requirement "The
+  chain completes at CLOSURE, and the governed post-merge test is what closes
+  it"). Signed under THE SAME CHAIN-SCOPED TIER-2 IDENTITY THAT SIGNED LINK 6, at
+  the controller, as the SECOND AND LAST of the record kinds that identity's
+  closed enumeration authorizes, corroborated and hash-linked exactly as links 5
+  and 6 are. A test outcome is no more an attestation than a decision is, and its
+  SUBJECT is the same whole.
+
+  IT CONSUMES TWO ARTIFACTS AND NOT ONE — the RATIFIED PROPOSAL, by the
+  RATIFICATION'S CONTENT DIGEST (taken over the subject ratified, never the chain
+  identity taken over the signed ratification), and THE REVIEW NOTES, the record of
+  the council review link 7 carries. A test consuming only the proposal tests what
+  was promised and not what was reviewed; one consuming only the review notes
+  tests the amendments and not the commitment. BOTH, OR THE RECORD IS NOT THIS
+  LINK.
+
+  AND THE OUTCOME IS ESTABLISHED AND NEVER NOTARIZED — BIND BEFORE SIGN'S LAST
+  UNCOVERED LIMB. Every other link moved its CLAIMS to the controller and this one
+  had left its RESULT with the lane, so a lane supplying a FABRICATED PASSING
+  OUTCOME on an otherwise valid chain would obtain a controller signature over it,
+  with correct proposal and review bindings, AND CLOSE THE CHAIN — unblocking
+  promotion and release. Three things therefore fall inside the controller-signed
+  bytes: AN AUTHENTICATED TEST EXECUTION the controller ITSELF DISPATCHED OR
+  OBSERVED; THE EXACT TESTED REVISION, which SHALL EQUAL the merge commit the
+  chain closed over; and THE RESULT.
+
+  AND A GOVERNED TEST IS A NAMED TEST, or "governed" constrains nothing a verifier
+  can check. An authenticated execution on the right revision returning a PASS is
+  satisfied by AN ARBITRARY OR NO-OP TEST. THE RATIFIED SUBJECT NAMES THE GOVERNED
+  TEST — `signed_ratification.ratified_subject.governed_test`, travelling with the
+  work in the traveling contract — the controller DISPATCHES THAT TEST, and
+  `test_identity` SHALL EQUAL the one the ratified subject names.
+
+  ESTABLISHING THE RESULT IS NOT THE SAME AS THE RESULT BEING A PASS. A CHAIN
+  CLOSES ONLY ON AN ESTABLISHED *PASSING* RESULT. A rule stopping at "established"
+  would close a chain on a genuine, honestly-reported, correctly signed TEST
+  FAILURE — permitting promotion and release over work whose own governed test says
+  it is broken. AN ESTABLISHED FAILING RESULT REFUSES CLOSURE and the chain is in
+  the LINK-10-FAILED refusing state. A FAILURE HONESTLY ESTABLISHED IS THE CONTROL
+  WORKING, and it is recorded as FAILED — never as UNESTABLISHED, which is a
+  different fact, and never as a pass.
+
+  NO DECLARED-SHORTFALL PATH EXISTS FOR THE OUTCOME. A realization that cannot
+  establish its test's execution, revision or result cannot DECLARE its way to a
+  closed chain: the declaration would disqualify the chain from CLOSURE, which is
+  the only thing closure does, leaving nothing for the declaration to permit.
+
+  CLOSURE VERIFIES THE AMENDMENT LINEAGE RATHER THAN AN EQUALITY, IN THREE LIMBS.
+  Binding to the CHAIN IDENTITY is impossible — the review happens BEFORE the
+  ratification that mints it — and demanding the reviewed digest EQUAL the ratified
+  subject digest is also wrong, because *accepted as amended* is the ORDINARY case
+  and means the two legitimately differ. So the ratifying signature carries the
+  lineage (`chain-inception.schema.yaml`,
+  `signed_ratification.amendment_lineage`), and closure verifies: (1) THE CONSUMED
+  REVIEW IS THE REVIEW THE LINEAGE NAMES — an IDENTITY comparison, twice: its own
+  digest EQUALS the committed `review_record_digest`, AND it is the review the
+  amendment record names; (2) THE RATIFICATION COMMITS TO THAT REVIEW AND TO THAT
+  LINEAGE, both inside the signed bytes; and (3) THE RATIFIED SUBJECT IS THE
+  LINEAGE'S ENDPOINT — the terminus of the amendment record's trail, not merely
+  some later state of the work. A RIVAL AUTHORITY-PROVEN REVIEW OF THE SAME BYTES
+  FAILS BOTH HALVES OF LIMB 1; a review of ANOTHER PROPOSAL appears in NO LINEAGE
+  this ratification commits to. THE UNAMENDED CASE IS THE DEGENERATE FORM OF THE
+  SAME RULE — a lineage of length zero, verified by the identical three limbs.
+
+  AND CLOSURE ESTABLISHES THE REVIEW'S AUTHORITY, BECAUSE A DIGEST OVER A REVIEW
+  RECORD PROVES ONLY THAT THE BYTES DID NOT CHANGE. A supplied or fabricated review
+  record would otherwise be consumed by a passing test and close the chain, at the
+  one link with no gate behind it. The review record must have been produced under
+  REVIEW AUTHORITY PROVEN BY POSSESSION, in the ALREADY SHIPPED vocabulary of
+  `add-wallet-carried-review-authority` — a wallet-carried review grant, exercised,
+  with the exercise's proof of possession supplied AND VERIFIED, its standing
+  current at exercise, and its `object_ref` bound to that review record. NO SECOND
+  review-authority, proof or grant vocabulary is defined here.
+
+  TWO RESIDUALS ARE DECLARED RATHER THAN IMPLIED. Closure establishes PROVEN REVIEW
+  AUTHORITY and NOT that every seat signed — link 7's seat signatures are outside
+  this tranche's gate scope — and the walked link-7 check is named as what closes
+  it. And REVOCATION-AT-EXERCISE IS NOT SERVED BY A FILE: the shipped intake
+  register says in terms that it is an issuance-time snapshot and must not be
+  pretended into a revocation surface, so what a realization establishes is
+  standing current AS OF A PROJECTION NO OLDER THAN THE REGISTER'S OWN DECLARED
+  BOUND. Closure is REFUSED where the projection is older than that bound, and a
+  closed chain is not evidence that no revocation occurred inside the window.
+
+  MISSING, FAILED, UNSIGNED AND UNESTABLISHED ARE FOUR OUTCOMES AND ARE RECORDED
+  AS FOUR. All four are REFUSING states for whatever consumes the merge; they
+  differ in what they tell the responder to do next. A MERGE THAT ALREADY HAPPENED
+  IS NOT RETROACTIVELY REFUSED — that is not a concession but what an honest
+  control says about a state it cannot reach; what an unclosed chain forfeits is
+  EVERYTHING DOWNSTREAM OF IT.
+type: object
+required:
+  - schema_version
+  - kind
+  - closure_id
+  - chain_ref
+  - signed_closure
+  - closure_signature
+  - closed_at
+  - leaf_ref
+additionalProperties: false
+properties:
+  schema_version: {type: integer, minimum: 1}
+  kind:
+    type: string
+    enum: [xfactory_signed_execution_chain_closure_record]
+  closure_id: {$ref: '#/$defs/identifier'}
+  chain_ref: {$ref: '#/$defs/chain_ref'}
+  signed_closure: {$ref: '#/$defs/signed_closure'}
+  closure_signature:
+    # A RECORD PRESENTED WITHOUT THIS BLOCK IS NOT ADMITTED AS A CLOSURE THAT
+    # MERELY LACKS A SIGNATURE: `closure_signature` is REQUIRED, and the reader's
+    # `closure_unsigned` covers the outcome recorded as UNSIGNED rather than as
+    # ABSENT, an unsigned pass being a stronger signal than an absent record.
+    allOf:
+      - {$ref: '#/$defs/signature_block'}
+      - properties: {signed_over: {const: signed_closure}}
+        required: [signed_over]
+  closed_at: {type: string, format: date-time}
+  leaf_ref: {$ref: '#/$defs/identifier'}
+  record_version: {type: integer, minimum: 1}
+  notes: {type: string, maxLength: 1400}
+$defs:
+  identifier:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/attestation-common.schema.yaml#/$defs/identifier"
+  digest:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/attestation-common.schema.yaml#/$defs/digest"
+  chain_ref:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/attestation-common.schema.yaml#/$defs/chain_ref"
+  signature_block:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/attestation-common.schema.yaml#/$defs/signature_block"
+  predecessor:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/attestation-common.schema.yaml#/$defs/predecessor"
+  signing_request:
+    $ref: "https://xforge.us/schemas/openxfactory/signed-execution-chain/v1/attestation-common.schema.yaml#/$defs/signing_request"
+  signed_closure:
+    type: object
+    required:
+      - chain_ref
+      - digest_construction
+      - predecessor
+      - identity
+      - signing_request
+      - consumed_proposal
+      - consumed_review
+      - test_execution
+      - signed_where
+    additionalProperties: false
+    properties:
+      chain_ref: {$ref: '#/$defs/chain_ref'}
+      digest_construction: {type: string, const: xfc-jcs-sha256-1}
+      predecessor: {$ref: '#/$defs/predecessor'}
+      identity:
+        type: object
+        required: [binding_ref, subject_scope]
+        additionalProperties: false
+        properties:
+          binding_ref: {$ref: '#/$defs/identifier'}
+          subject_scope: {type: string, const: chain_scoped}
+      signing_request: {$ref: '#/$defs/signing_request'}
+      consumed_proposal:
+        # THE RATIFIED PROPOSAL, BY ITS CONTENT DIGEST — the digest taken over the
+        # SUBJECT RATIFIED. It is deliberately NOT the chain identity: the two are
+        # the values tranche one already distinguishes, and collapsing them is the
+        # error the gate's own checks 2 and 3 exist to prevent.
+        type: object
+        required: [subject_ref, subject_digest]
+        additionalProperties: false
+        properties:
+          subject_ref: {type: string, minLength: 1, maxLength: 300}
+          subject_digest:
+            allOf:
+              - {$ref: '#/$defs/digest'}
+              - properties: {subject: {const: ratified_subject}}
+                required: [subject]
+      consumed_review:
+        # THE REVIEW NOTES, WITH THEIR AUTHORITY. `review_digest` is limb 1's first
+        # comparison; `reviewed_subject_digest` is what the review says it
+        # reviewed; and `authority_exercise` is the shipped
+        # `add-wallet-carried-review-authority` instrument, whose `object_ref` binds
+        # to THIS review record.
+        type: object
+        required: [review_ref, review_digest, reviewed_subject_digest, authority_exercise]
+        additionalProperties: false
+        properties:
+          review_ref: {$ref: '#/$defs/identifier'}
+          review_digest:
+            allOf:
+              - {$ref: '#/$defs/digest'}
+              - properties: {subject: {const: review_record}}
+                required: [subject]
+          reviewed_subject_digest:
+            allOf:
+              - {$ref: '#/$defs/digest'}
+              - properties: {subject: {const: reviewed_subject}}
+                required: [subject]
+          authority_exercise:
+            type: object
+            required:
+              - exercise_ref
+              - grant_ref
+              - object_ref
+              - proof_presented
+              - proof_verified
+              - standing_at_exercise
+              - projection_age_within_declared_bound
+            additionalProperties: false
+            properties:
+              exercise_ref: {$ref: '#/$defs/identifier'}
+              grant_ref: {$ref: '#/$defs/identifier'}
+              object_ref: {$ref: '#/$defs/identifier'}
+              proof_presented: {type: boolean}
+              proof_verified: {type: boolean}
+              standing_at_exercise:
+                type: string
+                enum: [active, revoked]
+              projection_age_within_declared_bound:
+                # THE DECLARED SHORTFALL, MADE INTO A COMPARISON. A file-based
+                # register cannot serve revocation-at-exercise, so what is
+                # established is standing AS OF A PROJECTION no older than the
+                # register's own declared bound. `false` REFUSES closure
+                # (`review_authority_standing_stale`); it is never resolved in
+                # favour of proceeding on the stale copy.
+                type: boolean
+              projection_read_at: {type: string, format: date-time}
+      test_execution:
+        type: object
+        required:
+          - test_identity
+          - dispatched_by
+          - tested_revision
+          - merge_commit
+          - merged_pull_request_ref
+          - result
+        additionalProperties: false
+        properties:
+          test_identity:
+            # MUST EQUAL the governed test the RATIFIED SUBJECT names, or closure
+            # is REFUSED (`governed_test_identity_mismatch`). An authentic
+            # execution, an exact revision and a real pass establish nothing about
+            # whether THE TEST THAT RAN IS THE TEST THIS CHAIN OWED.
+            type: object
+            required: [test_id, definition_digest]
+            additionalProperties: false
+            properties:
+              test_id: {$ref: '#/$defs/identifier'}
+              definition_digest:
+                allOf:
+                  - {$ref: '#/$defs/digest'}
+                  - properties: {subject: {const: governed_test_definition}}
+                    required: [subject]
+          dispatched_by:
+            # NOT a `const`. A record declaring `lane` is a record saying the
+            # controller notarized an outcome it was handed, and that earns the
+            # NAMED refusal `closure_outcome_unestablished` — recorded as
+            # UNESTABLISHED rather than as a pass.
+            type: string
+            enum: [controller_dispatched, controller_observed, lane_claimed, runner_claimed]
+          execution_ref: {$ref: '#/$defs/identifier'}
+          tested_revision: {type: string, pattern: '^[0-9a-f]{7,64}$'}
+          merge_commit: {type: string, pattern: '^[0-9a-f]{7,64}$'}
+          merged_pull_request_ref:
+            # THE PULL REQUEST ACTUALLY MERGED. The gate compares link 6's SIGNED
+            # `pull_request_ref` and `head_revision` against this pair and
+            # `merge_commit`, and REFUSES unless both EQUAL them — which is what
+            # makes a decision reused after a branch move, retargeted, or attached
+            # to another pull request on the same chain refusable rather than
+            # merely suspicious.
+            type: string
+            minLength: 1
+            maxLength: 300
+          result:
+            # FOUR OUTCOMES, RECORDED AS FOUR. Only `passed` closes a chain.
+            type: string
+            enum: [passed, failed, unsigned, unestablished]
+          statement: {type: string, maxLength: 600}
+      declared_outcome_shortfall:
+        # A REALIZATION MAY SAY IT CANNOT ESTABLISH THE OUTCOME — and saying so does
+        # NOT admit closure. The field exists so the claim is REPRESENTABLE and
+        # therefore REFUSABLE BY NAME (`closure_declared_shortfall_offered`) rather
+        # than arriving as silence: a declared shortfall never converts an
+        # unmeetable control into a met one, and one whose disqualified set is empty
+        # is an exemption, which this capability admits none of.
+        type: object
+        required: [declared, statement]
+        additionalProperties: false
+        properties:
+          declared: {type: boolean}
+          statement: {type: string, minLength: 1, maxLength: 600}
+      signed_where:
+        type: string
+        enum: [harness_controller, runner, lane, unrecorded]
