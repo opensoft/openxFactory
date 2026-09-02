@@ -120,5 +120,5 @@ remote `main`. It goes green at the squash and is not edited. Anything else
 failing is a real defect.
 
 ```bash
-python3 -m pytest tests/doc-health -q          # 1412 passed, 1 failed (same one)
+python3 -m pytest tests/doc-health -q          # 1415 passed, 1 failed (same one)
 ```

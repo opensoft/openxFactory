@@ -134,7 +134,7 @@ re-taken over the real repository in
 - [x] **T027** `pytest tests/doc-health/test_release_tag_publication.py` →
       **50 passed, 1 failed**, the failure being the self-gate reading remote
       `main` (see R1).
-- [x] **T028** `pytest tests/doc-health` → **1412 passed, 1 failed**, same
+- [x] **T028** `pytest tests/doc-health` → **1415 passed, 1 failed**, same
       single failure. (packet 2.9)
 - [x] **T029** THE POST-MERGE PROOF: a bare origin whose `main` is this branch,
       a clone of it, and the self-gate run there → **1 passed**. Then the

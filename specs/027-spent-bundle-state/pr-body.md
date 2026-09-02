@@ -126,7 +126,7 @@ that replaces it is `contested`, so **its** disappearance would.
   three outcomes, the path rule, the three action lines and the no-retrofit
   rule. **The family-count sentences are untouched** — this change adds no
   family — and `family-enumeration` reports `No findings.`
-* **2.9 — `pytest tests/doc-health`**: **1412 passed, 1 failed**, the failure
+* **2.9 — `pytest tests/doc-health`**: **1415 passed, 1 failed**, the failure
   being the self-gate above and nothing else.
 
 ## The red-first proof (2.1, 2.6)

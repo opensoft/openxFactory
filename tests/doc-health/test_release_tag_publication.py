@@ -488,9 +488,27 @@ def test_the_reader_accepts_bytes_because_blobs_at_answers_bytes():
 
 
 def test_a_mis_encoded_byte_elsewhere_does_not_crash_the_read():
-    body = ("## contract-v3.0 — x\n\nprose \xff\xfe more prose\n\n"
-            + _spent_line("contract-v2.6") + "\n").encode("utf-8", "replace")
-    assert "contract-v2.6" in rtp.read_spent_declarations(body)
+    """FOUND BY COPILOT ON PR #584, AND THE FINDING WAS EXACTLY RIGHT.
+
+    As first written this test built a `str` containing `"\\xff\\xfe"` and
+    UTF-8 ENCODED it — which yields `b"\\xc3\\xbf\\xc3\\xbe"`, four perfectly
+    valid UTF-8 bytes for `ÿþ`. So it decoded cleanly and the
+    `errors="replace"` path it claimed to cover was never reached: the test
+    asserted the reader survives something that was never wrong.
+
+    The bytes are now a BYTES LITERAL, which is genuinely undecodable
+    (`invalid start byte`), and the test PROVES that by asserting a strict
+    decode raises before asserting the reader does not.
+    """
+    body = (b"## contract-v3.0 \xe2\x80\x94 x\n\nprose \xff\xfe more prose\n\n"
+            + _spent_line("contract-v2.6").encode("utf-8") + b"\n")
+    with pytest.raises(UnicodeDecodeError):
+        body.decode("utf-8")          # the bytes really are mis-encoded
+    read = rtp.read_spent_declarations(body)
+    assert "contract-v2.6" in read
+    assert read["contract-v2.6"].entry == "contract-v3.0", (
+        "and the mis-encoded line does not cost the reader the entry heading "
+        "it needs for the containment rule")
 
 
 def test_no_changelog_bytes_read_as_no_declaration_and_the_skip_is_the_caller_s():
