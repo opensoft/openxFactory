@@ -192,12 +192,15 @@ a box that puts a live question cannot be ticked by the act that answered it.
 `6856f502`. Every box below closes on a fact measured on that branch — a path, a
 count, a command and its output — never on an intention, and a box that did NOT
 close stays OPEN WITH THE MEASUREMENT written in rather than ticked with an
-excuse. **THREE SETS OF BOXES DO NOT TICK, EACH FOR A STATED AND CHECKABLE
-REASON**: **§ 6**, because the cut allocates a bundle number and another lane's
-`contract-v2.6` cut (PR #565) is in flight on the same file; **§ 7.2**, because
-the full suite carries ONE failure — pre-existing on `origin/main`, reproduced
-identically on an untouched baseline clone, and already PR #568's; and **§ 8**,
-because this realization opens a pull request and merges nothing.
+excuse. **TWO SETS OF BOXES DO NOT TICK, EACH FOR A STATED AND CHECKABLE
+REASON**: **§ 6**, because the cut allocates a bundle number and this
+realization spends none — and openxFactory PR #565's `contract-v2.6` cut LANDED
+while this slice was being built, so these codes are not in it and registration
+rides the NEXT cut; and **§ 8**, because this realization opens a pull request
+and merges nothing. **§ 7 TICKS IN FULL**, including § 7.2 — which was open
+until openxFactory PR #568 landed and a catch-up merge brought it here; the
+diagnosis that its failure was never this change's is kept at that box rather
+than deleted.
 
 - [x] 3.1 **DONE — RE-MEASURED BEFORE ANY EDIT, AND THE DEFECT REPRODUCES
       EXACTLY AS RECORDED.** The two files of § What was measured § 6 were
@@ -449,40 +452,64 @@ because this realization opens a pull request and merges nothing.
 ## 6. Realization — the contract cut
 
 **NOT THIS SLICE, AND THE FOUR BOXES BELOW STAY OPEN ON PURPOSE.** § 6 allocates
-and spends a contract bundle number, and at the time of this realization ANOTHER
-LANE'S CUT IS IN FLIGHT ON THE SAME FILE — `contracts/manifest.yaml:3` reads
-`contract_bundle_version: contract-v2.5` and openxFactory PR **#565** is an open
-`contract-v2.6` cut. Allocating a second number against that file here is exactly
-the collision § 6.1 was written to prevent. **REGISTRATION RIDES WHICHEVER CUT
-COMES NEXT**: this realization ships the codes, the probes, the policy entry and
-the manifest prose, and performs NO cut. The un-ticked boxes are the honest
-record of that, not an oversight — untick-with-reason over tick-with-excuse.
+and spends a contract bundle number, and this realization spends none.
 
-- [ ] 6.1 **OPEN — DELIBERATELY.** Re-read `contracts/manifest.yaml:3` at cut
-      time. Read at this branch's tip and recorded rather than remembered:
-      `contract-v2.5`, with PR #565 open on `contract-v2.6`.
-- [ ] 6.2 **OPEN.** `contract_bundle_version` is UNMOVED by this realization —
-      verified, not assumed: `grep -n '^contract_bundle_version'
-      contracts/manifest.yaml` -> `3:contract_bundle_version: contract-v2.5`,
-      the same value `origin/main` carries.
-- [ ] 6.3 **OPEN.** `contracts/CHANGELOG.md` is untouched by this realization.
-      The class is **DEPRECATING (MINOR)** on the policy's own bullet, which OWES
-      the removal version (contract-v3.0) and the migration path in the CHANGELOG
-      rather than leaving them optional; both are already written into
-      `docs/contract-versioning-policy.md` by § 5.1, so the cut copies rather
-      than composes.
+**THE SITUATION MOVED WHILE THIS SLICE WAS BEING BUILT, AND THE ROW IS REWRITTEN
+RATHER THAN LEFT TO READ AS IT DID BEFORE.** When § 3 was started,
+`contracts/manifest.yaml:3` read `contract-v2.5` and openxFactory PR **#565** was
+an OPEN `contract-v2.6` cut on the same file — which is why no number was
+allocated here. **#565 HAS SINCE LANDED**, as `bbbbeda9` on `origin/main`, and a
+catch-up merge of that tip is part of this branch. `contracts/manifest.yaml:3`
+now reads `contract-v2.6`, and the merge is clean: #565 moved line 3 and this
+change moves a `consumption_rule` a hundred and ninety lines below it.
+
+**THESE TWO CODES ARE NOT IN contract-v2.6, AND THAT IS A FACT ABOUT ORDER
+RATHER THAN A JUDGEMENT.** #565 was cut from a tree that did not contain them —
+`contracts/releases/contract-v2.6.digests.yaml` records digests taken at that
+tip, and this branch's changes land after it. **REGISTRATION THEREFORE RIDES THE
+NEXT CUT, NOT #565.** This realization ships the codes, the probes, the policy
+entry and the manifest prose, and performs no cut. The un-ticked boxes are the
+honest record of that, not an oversight — untick-with-reason over
+tick-with-excuse.
+
+- [ ] 6.1 **OPEN — DELIBERATELY, AND RE-READ AFTER THE MERGE RATHER THAN
+      REMEMBERED.** `contracts/manifest.yaml:3` at this branch's tip:
+      `contract_bundle_version: contract-v2.6`, the value #565 (`bbbbeda9`) set.
+      The next additive minor is whatever merge order allocates AFTER it; this
+      row's whole point is that the number is read at cut time, and the fact that
+      it moved from `contract-v2.5` to `contract-v2.6` DURING this realization is
+      the row's own case made by events.
+- [ ] 6.2 **OPEN.** `contract_bundle_version` is UNMOVED **BY THIS REALIZATION** —
+      verified, not assumed: `git diff origin/main -- contracts/manifest.yaml`
+      touches only the `credential-contracts` row's `consumption_rule`, and
+      line 3 is byte-identical to `origin/main`. The v2.5 -> v2.6 movement in the
+      file's history is #565's, arriving through the catch-up merge, and is not
+      this branch's edit.
+- [ ] 6.3 **OPEN.** `contracts/CHANGELOG.md` carries no entry from this
+      realization — `git diff origin/main -- contracts/CHANGELOG.md` is EMPTY.
+      The class at the cut is **DEPRECATING (MINOR)** on the policy's own bullet,
+      which OWES the removal version (contract-v3.0) and the migration path in
+      the CHANGELOG rather than leaving them optional; both are already written
+      into `docs/contract-versioning-policy.md` by § 5.1, so the cut copies
+      rather than composes.
 - [ ] 6.4 **OPEN.** Release build, digest inventory, tag and `verify-commit` are
-      the cut's ritual and none of them ran here.
+      the cut's ritual and none of them ran here. **THE NEXT CUT INHERITS ONE
+      MEASURED ITEM FROM THIS SLICE**, recorded at § 7.5 rather than left for it
+      to discover: `contracts/README.md` now differs from the digest
+      `contract-v2.6` records, which doc-health reports as an `info`
+      `release-inventory-drift` labelled *"editorial member — expected between
+      cuts"*. Its own action line says to discharge it by cutting a release
+      through the bundle realization order and **never** by hand-editing an
+      inventory or `contract_bundle_version`, and this slice does neither.
 
 ## 7. Verification gates
 
 All run on branch `change/realize-requirement-ref-resolution-integrity` at its
-tip, 2026-09-01. **FIVE OF THE SIX TICK. § 7.2 DOES NOT**, because the full
-suite carries ONE failure — a failure that is PRE-EXISTING on `origin/main`,
-reproduces identically on an untouched baseline clone, and is already another
-lane's open pull request (#568). The box asks for zero failures; it gets one, so
-it stays open with the measurement written in. Diagnosing a failure is not the
-same act as passing a gate, and only one of those two things happened here.
+tip, 2026-09-01, **AFTER a catch-up merge of `origin/main` `bbbbeda9`** — the
+gates are re-run against the tree that would actually merge, not against the one
+they were first taken on. **ALL SIX TICK**, and § 7.5 ticks with ONE NEW
+`info` FINDING NAMED RATHER THAN ZERO: the drift it records is the cut's, by the
+finding's own action line.
 
 - [x] 7.1 **GREEN.** `set -o pipefail; python3 -m pytest tests/credential_contracts -q`
       -> **219 passed**, up from **175** on `origin/main` `6856f502` (measured on
@@ -500,35 +527,29 @@ same act as passing a gate, and only one of those two things happened here.
       for contract-v3.0 made executable. So the three new fixtures are checked
       against BOTH releases without a line being added to say so, which is what
       those parametrisations were built for.
-- [ ] 7.2 **NOT TICKED — ONE FAILURE, AND IT IS NOT THIS CHANGE'S.** The box asks
-      for ZERO failures, and there is one, so the box does not tick. It is
-      un-ticked WITH THE REASON rather than ticked with an excuse.
+- [x] 7.2 **GREEN, AND THE PIN DID NOT MOVE.**
       `python3 -m pytest tests/ -q -m "not postgres"` ->
-      **`1 failed, 8620 passed, 21 skipped, 338 deselected, 9 warnings,
-      46 subtests passed in 1293.65s`**.
-      **THE PINS AND FLOORS ARE ALL MET.** SKIPPED is **21**, EXACTLY the
+      **`8621 passed, 21 skipped, 338 deselected, 9 warnings, 46 subtests passed
+      in 1595.65s`**. ZERO failures, ZERO errors. SKIPPED is **21**, EXACTLY the
       `EXPECT_SKIPPED: "21"` that `.github/workflows/pytest-suite.yml` pins — so
       no directory silently turned into skips, and this realization adds none.
-      PASSED 8620 and SELECTED 8642 clear the `MIN_PASSED: "7070"` and
+      PASSED 8621 and SELECTED 8642 clear the `MIN_PASSED: "7070"` and
       `MIN_SELECTED: "7090"` floors with margin; neither is lowered.
-      **THE FAILURE IS PRE-EXISTING ON `origin/main` AND IS ANOTHER LANE'S OPEN
-      PULL REQUEST.** In `tests/sequenced_after/test_sweep.py`, the test
-      `test_the_live_sweep_reproduces_the_AUTHORING_measurement` fails
-      `assert 18 == 19` on `active_co_modified`. **ISOLATED ON BOTH TREES, WHICH IS WHAT MAKES THIS
-      A DIAGNOSIS RATHER THAN A HOPE**: running that file alone gives
-      `1 failed, 13 passed` on THIS branch AND on the untouched `origin/main`
-      `6856f502` baseline clone, and the `Sweep(...)` tuple the failure prints is
-      BYTE-IDENTICAL between them —
-      `change_ids=153, active=30, archived=123, co_modified=104,
-      sole_modifiers=49, active_co_modified=18`. This realization adds no
-      OpenSpec change directory and moves no requirement title, so it cannot move
-      any of those counts, and measurement confirms it does not.
-      **THE REPAIR IS ALREADY FILED BY ITS OWN LANE: openxFactory PR #568**,
-      *"Move the sequenced-after live pin: active_co_modified 19->18 since #563
-      archived add-release-tag-publication-check"* — the same number, the same
-      test, the same cause. Nothing is owed to this packet by it and nothing is
-      owed to it by this packet; this box ticks when that PR lands and the suite
-      is re-run.
+      **THIS BOX WAS OPEN AN HOUR AGO, AND THE RECORD KEEPS BOTH READINGS RATHER
+      THAN OVERWRITING THE FIRST.** The run taken BEFORE the catch-up merge, on
+      `origin/main` `6856f502`, was `1 failed, 8620 passed, 21 skipped`: in
+      `tests/sequenced_after/test_sweep.py`, the test
+      `test_the_live_sweep_reproduces_the_AUTHORING_measurement` failed
+      `assert 18 == 19` on `active_co_modified`. **IT WAS ISOLATED ON BOTH TREES
+      BEFORE IT WAS ATTRIBUTED**: that file alone gave `1 failed, 13 passed` on
+      this branch AND on the untouched baseline clone, and the printed
+      `Sweep(...)` tuple was BYTE-IDENTICAL between them. It was another lane's
+      pull request — **openxFactory #568**, *"Move the sequenced-after live pin:
+      active_co_modified 19 -> 18 since #563"* — which has since LANDED as
+      `d308c012` and arrived here through the catch-up merge. The diagnosis is
+      kept because it is the evidence that the failure was never this change's,
+      and because a box that ticks on a second run should say what the first one
+      said.
 - [x] 7.3 **GREEN, WITH THE GROWN COUNTS REPORTED.**
       `python3 scripts/validate-credential-contracts.py .` ->
       `self-test: 7 positive + 16 negative + 12 warning example(s) confirmed,
@@ -541,38 +562,55 @@ same act as passing a gate, and only one of those two things happened here.
       reproduction and control, which are real two-file repositories.
 - [x] 7.4 **GREEN.** `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` ->
       `Totals: 83 passed, 0 failed (83 items)`.
-- [x] 7.5 **ZERO NEW FINDINGS.** Same-clock `--as-of` doc-health, this branch
-      against an `origin/main` `6856f502` baseline in an identically named
-      `openxFactory/` directory, run TWICE — once mid-realization and once over
-      the final tree. **THE FINDINGS LINE IS IDENTICAL IN EVERY PAIRING:**
-      `Findings: 6 critical, 7 error, 39 warning, 14 info. New regressions vs
-      previous report: 0.` The two reports differ in exactly two places, and
-      neither is a finding:
-      (a) the canon-share metric moves 33.3% -> 33.4% (+1027 canon words,
-      +1198 governance words) — the § 5.1 policy prose landing in a ratified
-      document and the § 5.1 sweep's sentence landing in a draft one, both of
-      which the metric is supposed to move;
-      (b) the head's FULL runs each recorded `release-tag-publication` as
-      **Skipped**, which the report distinguishes from a finding by its own
-      section heading.
-      **THAT SKIP WAS CHASED RATHER THAN EXCUSED, AND FOUR CONTROLS SAY IT IS
-      ENVIRONMENTAL.** (1) The two head runs gave DIFFERENT reasons — *"the
-      published refs for contract-v1.23 could not be consulted"* and *"contracts/
-      manifest.yaml could not be read at the published tip `d308c012c`"* — so it
-      is not determined by tree content. (2) `git cat-file -t d308c012c` and
-      `git cat-file -p d308c012c:contracts/manifest.yaml` BOTH succeed in BOTH
-      clones, so the object the second reason names is present and readable. (3)
-      Re-running the family ALONE against the final head tree returns
-      `release-tag-publication — No findings` and `Findings: 0 critical, 0 error,
-      0 warning, 0 info`. (4) Re-running the FULL baseline with its `origin`
-      repointed at the same SSH URL the head carries reproduces NOTHING,
-      eliminating the remote URL as the cause. The likeliest cause is
-      contention: this box was running three other sessions' full test suites
-      and the head clone reads through a `--reference-if-able` alternate object
-      store those sessions are writing to.
-      **NOTHING IS SUPPRESSED AND NOTHING IS OWED TO THE CUT.** No registered
-      document moved, so `release-inventory-drift` reports nothing — there is no
-      #516-§6.3-shaped drift for a cut to discharge here.
+- [x] 7.5 **ONE NEW FINDING, AT `info`, AND IT IS THE CUT'S — NOT ZERO, AND THE
+      BOX SAYS SO.** Same-clock `--as-of` doc-health, this branch against an
+      `origin/main` baseline in an identically named `openxFactory/` directory.
+      **RE-RUN AFTER THE CATCH-UP MERGE, against the NEW `origin/main`
+      `bbbbeda9`**, because the first pairing was taken against `6856f502` and a
+      baseline that has moved is not a baseline.
+      | | critical | error | warning | info |
+      | --- | --- | --- | --- | --- |
+      | baseline `bbbbeda9` | 6 | 7 | 39 | **13** |
+      | this branch | 6 | 7 | 39 | **14** |
+      **THE ONE ROW THAT IS NEW, ISOLATED BY SET DIFFERENCE OVER THE FAMILY'S
+      ROWS RATHER THAN BY READING THE TOTALS:**
+      `severity=info family=release-inventory-drift repo=openxFactory
+      path=contracts/README.md`, whose rule reads *"bytes differ from the digest
+      'contract-v2.6' records (EDITORIAL MEMBER — EXPECTED BETWEEN CUTS)"*.
+      **IT IS THE CUT'S TO DISCHARGE AND THIS SLICE DELIBERATELY DOES NOT TOUCH
+      IT**, on the finding's OWN action line: *"cut a release through the bundle
+      realization order; NEVER HAND-EDIT AN INVENTORY OR `contract_bundle_version`
+      to make this comparison pass."* § 5.1 swept `contracts/README.md` because it
+      repeated a completeness claim that this act falsifies; the drift is the
+      arithmetic consequence of editing a file the just-landed v2.6 inventory
+      pins, and the repair is a cut, which is § 6.
+      **THE OTHER FIVE DRIFT ROWS ARE PRE-EXISTING ON THE UNTOUCHED BASELINE AND
+      ARE NOT THIS CHANGE'S** — including the `error` row on
+      `docs/contract-versioning-policy.md`, which this change also edits: that row
+      is present in the baseline report BEFORE any edit of ours, so editing the
+      file adds no finding. Measured by `comm` over the two reports' drift rows,
+      not by eye.
+      **THE REMAINING TWO REPORT DELTAS ARE NOT FINDINGS.** (a) The canon-share
+      metric moves 33.3% -> 33.4% (+1026 canon words, +1197 governance words) —
+      the § 5.1 policy prose landing in a ratified document and the § 5.1 sweep's
+      sentence landing in a draft one, which is what the metric is for. (b) In
+      the EARLIER pairing the head's full runs recorded `release-tag-publication`
+      as **Skipped**, which the report distinguishes from a finding by its own
+      section heading — and which is GONE from this final pairing.
+      **THAT SKIP WAS CHASED RATHER THAN EXCUSED, AND FOUR CONTROLS PLACED IT IN
+      THE ENVIRONMENT.** (1) Two head runs gave DIFFERENT reasons — *"the
+      published refs for contract-v1.23 could not be consulted"* and
+      *"contracts/manifest.yaml could not be read at the published tip
+      `d308c012c`"* — so it was not determined by tree content. (2)
+      `git cat-file -t d308c012c` and `git cat-file -p
+      d308c012c:contracts/manifest.yaml` BOTH succeed in BOTH clones. (3)
+      Re-running the family ALONE against the head tree returned
+      `release-tag-publication — No findings`. (4) Re-running the FULL baseline
+      with its `origin` repointed at the same SSH URL the head carries reproduced
+      nothing, eliminating the remote as the cause. The likeliest cause is
+      contention: three other sessions were running full test suites on this box.
+      **NOTHING IS SUPPRESSED.** The one new row is reported here, named, and
+      routed to the act that owns it.
 - [x] 7.6 **THE REPRODUCTION NOW REPORTS, AND THE CONTROL STILL REFUSES.**
       Both pasted, and both are also carried as tests so they survive this
       session (`test_the_reproduction_now_REPORTS_and_the_record_stays_VALID`,
