@@ -292,15 +292,38 @@ On the merge base (`ff9ed815`), `pytest tests/doc-health/test_release_tag_public
 on the one `error` naming `contract-v2.6`. That is the inherited red this packet
 is about, and this PR does not clear it: OD-8 defers the code.
 
-**What the proposal itself moves while it sits unratified**, and it is measured
-rather than predicted in the § *What this packet adds while it sits unratified*
-shape the family's own packet used: a `--single-repo` run with and without this
-packet, same clock, is in tasks § 4 with its numbers. The expected shape is a
-`modified-block-currency` `info` naming the body units this MODIFIED block
-deliberately adds — the finding that arm classes `contested` at `info` because it
-*"CANNOT distinguish [a rewrite] from a deliberate rewording, and does not claim
-to"* — and nothing else. **No `family-enumeration` finding**, because no count
-and no name moves; that is the difference between this packet and #544's.
+**What the proposal itself moves while it sits unratified: NOTHING, and that is
+measured rather than predicted.** A `--single-repo` run with and without this
+packet, same clock, in the shape the family's own packet used:
+
+| | critical | error | warning | info |
+|---|---|---|---|---|
+| base (`ff9ed815`, a detached worktree) | 6 | 5 | 29 | 12 |
+| head (this packet committed) | 6 | 5 | 29 | 12 |
+
+**The two reports are BYTE-IDENTICAL** once the repo-identity string is
+normalized — not merely equal in the four counts, but equal line for line, so no
+finding moved from one family to another and no census, word count, canon-share
+figure or catalog record moved either. Three of those zeroes were checked rather
+than assumed:
+
+* **`family-enumeration`: no findings.** This packet adds no family and moves no
+  count, which is the whole of OD-8's mechanical argument. This is the difference
+  between it and #544, which reddened that gate three times over the same
+  interval.
+* **`modified-block-currency`: `scenario-title completeness: 0`** — the arm
+  carrying that family's gate — and the carriage ledger unchanged at 8. The
+  family's own reader agrees with the scenario-by-scenario verification above.
+* **The census is unmoved because it should be.** `proposal.md` sits in the
+  LIFECYCLE SCAN SET (`corpus.LIFECYCLE_SCAN`), not the governed corpus, and the
+  requirement `Deterministic check families` states in terms that no census,
+  word count or canon-share figure *"SHALL … move because the lifecycle scan set
+  exists"*. `status-validity` reads that set and reports no findings, which is
+  the `Status: draft` header being accepted.
+
+The one `error` that does NOT move is the point: `release-tag-publication`
+reports `contract-v2.6` at `error` in both runs, in the same words. **This
+packet describes the fix and performs none of it.**
 
 **What the realization will move, when it lands**: the one `error` becomes one
 `info`, and `contracts/CHANGELOG.md` gains a `release-inventory-drift` `info`

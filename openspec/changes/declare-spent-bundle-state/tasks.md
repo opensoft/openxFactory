@@ -127,10 +127,19 @@ no reader is a sentence in a changelog.
       `docs-contract-versioning-policy.md`), against
       `release_inventory.EDITORIAL`'s three names. That is OD-6's whole basis
       and it is a file read, not a recollection.
-- [ ] 4.6 `--single-repo` doc-health with and without this packet, same clock,
-      recorded here as a table. Expected: one `modified-block-currency` `info`
-      and nothing else moves. **If a reviewer's run disagrees with that
-      sentence, the disagreement is the finding.**
+- [x] 4.6 `--single-repo` doc-health with and without this packet, same clock —
+      base a detached worktree at `ff9ed815`, head this packet COMMITTED (an
+      untracked packet is invisible to the readers, which was checked and is why
+      the measurement was retaken after the commit). **6 critical / 5 error / 29
+      warning / 12 info on BOTH, and the two reports are BYTE-IDENTICAL** once
+      the repo-identity string is normalized. `family-enumeration`: no findings.
+      `modified-block-currency`: scenario-title completeness 0, carriage ledger
+      unchanged at 8. `status-validity`: no findings, so the `Status: draft`
+      header is accepted. The census is unmoved because `proposal.md` is in the
+      LIFECYCLE SCAN SET rather than the governed corpus, which the
+      `Deterministic check families` requirement states in terms.
+      **If a reviewer's run disagrees with this box, the disagreement is the
+      finding.**
 
 ## 5. Archive — last, and open until the merge it follows exists
 
