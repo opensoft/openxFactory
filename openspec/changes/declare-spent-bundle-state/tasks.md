@@ -54,7 +54,7 @@ no reader is a sentence in a changelog.
 
 ## 2. Realization — ONE Spec Kit feature, gated on 1.1
 
-- [ ] 2.1 **FIRST, AND NOT SILENTLY: write the `contract-v2.6` declaration.**
+- [x] 2.1 **FIRST, AND NOT SILENTLY: write the `contract-v2.6` declaration.**
       ONE reserved line, in the reserved form, into the EXISTING
       `### \`contract-v2.6\` disposition` subsection under `## contract-v3.0` in
       `contracts/CHANGELOG.md` — not a new subsection, not an edit to the
@@ -66,12 +66,12 @@ no reader is a sentence in a changelog.
       explicitly declared spent, never because an undeclared bundle started
       passing** — verify that by running the family against a tree with the
       declaration removed and confirming the `error` returns.
-- [ ] 2.2 `scripts/doc_health/release_tag_publication.py` — the reader: one pure
+- [x] 2.2 `scripts/doc_health/release_tag_publication.py` — the reader: one pure
       function from the changelog bytes to `{bundle: declaration}`, parsing the
       reserved opener, the four elements and the containing `## contract-vX.Y`
       entry. Bytes in, per the module's existing rule that `blobs_at` answers raw
       blob bytes. Reject rather than skip on a malformed line.
-- [ ] 2.3 The ladder in `check_repo`, in the ABSENT arm only and after the
+- [x] 2.3 The ladder in `check_repo`, in the ABSENT arm only and after the
       `ok`/`lightweight`/`misplaced` branches, so the scope rule holds by
       construction rather than by care: no declaration → today's behaviour
       unchanged; declaration accepted, successor published AND STRICTLY LATER →
@@ -79,33 +79,49 @@ no reader is a sentence in a changelog.
       successor not later (OD-9), element missing, duplicate declaration, wrong
       containing entry, or naming the currently declared bundle → `error`; a
       declaration whose SUBJECT was never cut → `warning` on the changelog.
-- [ ] 2.4 The emits land on `contracts/releases/<bundle>.digests.yaml` rather
+- [x] 2.4 The emits land on `contracts/releases/<bundle>.digests.yaml` rather
       than `MANIFEST` (OD-5 as amended), with the spent `info` carrying
       `resolution="contested"`; the one orphan-subject `warning` lands on
       `contracts/CHANGELOG.md`, having no per-bundle inventory to land on. New
       action constants beside the four the module already has.
-- [ ] 2.5 The changelog read joins the manifest read at the SAME commit and
+- [x] 2.5 The changelog read joins the manifest read at the SAME commit and
       carries the SAME guard: `blobs_at` answering None is a skip naming that
       read, never "no declaration". This is the #338 conflation one document
       over, and the family has already been caught by it once.
-- [ ] 2.6 `tests/doc-health/test_release_tag_publication.py` — the thirteen new
+- [x] 2.6 `tests/doc-health/test_release_tag_publication.py` — the thirteen new
       scenarios as tests over the file's existing real-git fixtures, each with
       the positive control the file's own convention requires. Include the
       RED-FIRST proof for 2.1's verification: the declaration removed, the
       `error` returns.
-- [ ] 2.7 **Prove OQ-3 rather than inherit it**: a test that a contested `info`
+- [x] 2.7 **Prove OQ-3 rather than inherit it**: a test that a contested `info`
       vanishing between reports produces an `uncited-resolution` ERROR. If it
       does not, OD-5's class choice returns to Brett as an open question and is
       not quietly dropped. **And prove the Codex repair with TWO spent bundles**,
       not one: two accepted declarations, two `info`s, two DIFFERENT match keys,
       and removing one raising an uncited-resolution for that one alone. A
       single-bundle test cannot see the defect Codex found.
-- [ ] 2.8 `docs/doc-health.md` — the family's row and action line gain the third
+- [x] 2.8 `docs/doc-health.md` — the family's row and action line gain the third
       state. Check the family count sentences are untouched: this change adds no
       family and `family-enumeration` must stay silent.
 - [ ] 2.9 `python3 -m pytest tests/doc-health` green over the realized tree,
       including `test_this_repository_reads_zero_and_the_probe_can_fire`, which
       goes green as a CONSEQUENCE and is not edited.
+      **DELIBERATELY UNTICKED, AND THE REASON IS A RULING RATHER THAN A MISS.**
+      Brett Heap ruled 2026-09-02 (issue #575, lane openxfactory-1d): *"merge the
+      realization on the dispositioned red."* The family resolves its tip with
+      `git ls-remote origin refs/heads/main` and reads `contracts/manifest.yaml`
+      and — per 2.5 — `contracts/CHANGELOG.md` AT THAT TIP, so the realization
+      PR's own CI reads the LIVE remote `main`, whose changelog carries no
+      declaration until this PR's squash lands. The realization therefore reports
+      exactly ONE failure, that test, byte-identical to `main`'s failure set since
+      `ff9ed815`, and goes green AT the squash rather than before it. **The
+      self-gate was proved to pass once the branch IS `main`, mechanically rather
+      than by argument**: a bare origin whose `main` is this branch, cloned and
+      read by `check_repo`, reports ONE `contested` `info` on
+      `contracts/releases/contract-v2.6.digests.yaml` and NO error — while the
+      same call against the worktree, whose origin is the real remote, reports
+      the inherited `error`. The test is NOT edited. This box is ticked by
+      whoever confirms `main`'s suite green at the squash.
 
 ## 3. Owed at the next contract cut — NOT here (OD-6)
 
@@ -129,6 +145,19 @@ no reader is a sentence in a changelog.
       INCREMENTAL cost of adding the SPENT-state paragraph to the same file is
       ZERO and it clears at the same next cut either way. The realization takes
       the routing with that measurement in hand; it is no longer forced to wait.
+      **THE REALIZATION TOOK THE ROUTING AND LEFT IT HERE, 2026-09-02 — AN
+      ORCHESTRATOR DECISION AWAITING BRETT'S AFFIRMATION.** The permission this
+      box grants is a permission and not an instruction, and the section heading
+      it sits under still reads *NOT here (OD-6)*. Two reasons for taking the
+      narrower reading. The incremental DRIFT cost is zero, but the incremental
+      REVIEW cost is not: this PR is confined to doc-health's own surface plus one
+      editorial member, and a second between-cuts edit to a NON-EDITORIAL release
+      member would put a release-surface change inside a checker PR, which is the
+      shape OD-6 declined for reasons that survive the arithmetic. And the drift
+      `error` #577 raised is on the file's CURRENT bytes; adding to those bytes
+      quiets nothing and clears at the same cut, so nothing is bought by moving
+      it earlier. **If Brett prefers it landed now, it is one paragraph and it
+      does not touch this packet's code.**
 - [ ] 3.2 At the next cut, `contracts/CHANGELOG.md`'s editorial drift `info` and
       `docs/contract-versioning-policy.md`'s ERROR both clear on their own when
       the inventory re-baselines. No action; recorded so a reader does not go
