@@ -1170,12 +1170,36 @@ Each is contract content — cheap now, expensive after a bundle ships.
       conjunct cannot be delivered against the reader as shipped at
       `contract-v3.0`, and the blockage is structural rather than a matter of
       effort — the same class as §§ 5.1–5.3, which is why it is recorded rather
-      than worked around. **Filed as openxFactory issue #579**, which carries the
-      full measurement — every command, every verbatim refusal, and the live
-      ruleset read — so the record a later reader needs is reachable from this
-      repository and not from an operator's filesystem. The measurement is also
-      summarized below, on § 4.6's precedent of recording its canary evidence
-      inline in the packet rather than by reference.
+      than worked around. Measurement filed as openxFactory issue **#579**, and
+      summarized below on § 4.6's precedent of recording canary evidence inline
+      in the packet rather than by reference.
+
+      **AND THE FIX IS ALREADY IN FLIGHT — PR #566, `fix/chain-repo-scan-consumed-kinds`,
+      OPENED 2026-09-01 AND ADOPTED BY BRETT HEAP ON 2026-09-02** (*"adopt #566,
+      take it to green, merge on my word"*). It was raised the same way this was,
+      by an earlier session attempting THIS box, and it carries exactly the
+      remedy the measurement below points at: the scan collects
+      `CONSUMED_KIND_TO_SCHEMA` kinds into scope as the packaged corpora do, AND
+      excludes trust-anchor's own packaged `examples/` on the same ground this
+      family's are already excluded — both halves, which is what makes it a fix
+      rather than a widening. **#579 is therefore a SECOND finding of a known
+      cause, and it is left standing rather than closed as a duplicate because
+      of what it settled**: #566's body claimed each canary would draw *"exactly
+      one error"* once the scan was fixed; #579 measured both fixtures as
+      NON-SINGULAR even in a clean scope (A drawing 2, B drawing 3). The two
+      readings were re-measured against each other with the fix applied, **#579's
+      was confirmed and #566's claim was withdrawn as false on that pull
+      request**.
+
+      **SO THE PRECONDITION AND THE CONJUNCT ARE TWO DIFFERENT THINGS, AND ONLY
+      ONE OF THEM IS IN FLIGHT.** #566 landing makes the sweep able to adjudicate
+      a tranche-two chain at all — necessary, and not sufficient. § 5.8's third
+      conjunct still needs EITHER a singular negative fixture for each named
+      scenario, OR an amendment accepting "one fact seen twice" where the two
+      refusals are the same dropped link read from both sides (which case A
+      satisfies and case B does not). Re-cutting a packaged fixture that ships at
+      `contract-v3.0` is its own contract act. **This box does not close on #566
+      alone**, and saying so here is the point of the record.
 
       **THE WHOLE-TREE SWEEP CANNOT ADJUDICATE A TRANCHE-TWO CHAIN AT ALL.**
       `repo_scan` admits only `KIND_TO_SCHEMA` and drops the three CONSUMED
