@@ -22,10 +22,77 @@ therefore reported at `error` without grading, and its remedy is
 retro-publication at the commit the policy's rule identifies — RETRO-PUBLISHED,
 NOT RE-DATED, as the 2026-08-25 discharge did.
 
-**AMENDED BY `declare-spent-bundle-state` (2026-09-02).** Everything above this
-note stands exactly as promoted; everything from here to the scenarios is this
-change's addition, and one `AND` bullet is added to the scenario *A bundle was
-cut, superseded, and never tagged*. Nothing else in this requirement moves.
+The obligation being checked belongs to `docs/contract-versioning-policy.md` —
+"a bundle is not published until its tag exists", and "the tag SHALL point to
+that realized commit". This requirement defines only how doc-health checks it,
+in the same by-reference relationship `tag-hygiene` already has with
+`document-lifecycle`'s marker grammar and `Release-inventory drift` has with
+`release-surface-integrity`.
+
+THE FAMILY SHALL BE DISTANCE-GRADED RATHER THAN IMMEDIATE, because the declaring
+commit and the tag are two acts by two actors and the interval between them is
+legitimate. A cut declares the bundle; the repository owner publishes the tag
+afterwards. A family that fired the moment the manifest moved would redden every
+correctly performed release, and a family nobody can leave green is a family
+that gets configured away. Distance SHALL be measured in FIRST-PARENT COMMITS ON
+PUBLISHED `main` since the earliest commit declaring the bundle, never in wall
+time, because landings are what the policy's own retro-publication rule counts
+and wall time punishes a quiet week.
+
+THE THRESHOLD SHALL DEFAULT TO FIVE FIRST-PARENT LANDINGS, ruled by Brett Heap on
+2026-08-31. It is a threshold default in the sense this capability already gives
+that term, configurable in the same place the aging defaults are, and the ruled
+number is what an unconfigured run uses. The calibration it answers to:
+`contract-v2.3` sat untagged across six first-parent landings before a human
+noticed it, so a threshold above five would have stayed silent through the
+recurrence this family exists to catch.
+
+THE TWO FAILURE STATES SHALL BE REPORTED IN DIFFERENT WORDS AND AT DIFFERENT
+SEVERITIES. An ABSENT tag is an incomplete release — the common case, and the
+one the window above exists to tolerate for a while. A tag that exists and peels
+to a commit NOT declaring the bundle is a MISPLACED tag: it satisfies every
+check that asks only whether a tag exists, it is what consumers will pin, and it
+is worse than absence because it looks like completion. Reporting them alike
+would let the common one hide the serious one.
+
+THE FAMILY SHALL NOT FIRE BELOW THE ENFORCEMENT LINE. `contract-v1.0` through
+`contract-v1.6` predate mandatory annotated tags and carry none by design, as
+the changelog's own legacy baseline note records. A family that reported them
+would emit seven permanent findings nobody may act on, which is how a report
+teaches its readers to stop reading it.
+
+A LIGHTWEIGHT TAG SHALL NOT SATISFY THE OBLIGATION. The policy requires an
+ANNOTATED tag; a lightweight ref carries no tagger, no date and no message, and
+accepting one would let the weaker object silently discharge the stronger
+requirement.
+
+The family SHALL be reported as skipped, never silently omitted, where a
+repository declares no bundle at all, or where version control cannot answer —
+an unavailable git dependency, tag refs that cannot be listed, or a declaring
+commit that does not resolve. THE SKIP IS RESERVED FOR "THE QUESTION COULD NOT
+BE ASKED": a declared bundle whose tag is simply absent is an ANSWER, and is
+reported by the scenarios below rather than skipped.
+
+THIS FAMILY DOES NOT PROVE THE TARGET IS THE EARLIEST DECLARING COMMIT, and the
+residue is disclosed rather than hidden. The policy's target is "the EARLIEST
+FIRST-PARENT COMMIT on published `main` that DECLARES the bundle and at which
+`verify-commit` PASSES"; the second conjunct is a digest verification per
+candidate and is out of scope here. A tag on a LATER declaring commit therefore
+passes this family and remains a defect under the policy.
+
+**AMENDED BY `declare-spent-bundle-state` (2026-09-02).** Every paragraph above
+this note stands exactly as promoted; everything from here to the scenarios is
+this change's addition, and among the scenarios exactly one `AND` bullet is
+added, to *A bundle was cut, superseded, and never tagged*. Nothing else in this
+requirement moves. **AND ONE PROMOTED PARAGRAPH IS QUALIFIED RATHER THAN
+REPLACED, which is worth saying because its bytes are unchanged**: *A SUPERSEDED
+BUNDLE IS NOT GRADED BY DISTANCE* still reads that an untagged superseded bundle
+is *"reported at `error` without grading"*, and that remains exactly what such a
+bundle reads as WHEREVER NO DECLARATION NAMES IT — which is every bundle in the
+estate's history but one, and the default forever. The sentence is kept
+byte-faithful rather than rewritten so that a reader arriving at it meets the
+promoted rule and then its one exception, instead of a rewritten rule with no
+trace of what it replaced.
 
 A SUPERSEDED BUNDLE MAY BE DECLARED SPENT, AND A SPENT BUNDLE IS THE THIRD STATE
 THIS FAMILY OTHERWISE LACKS. Between *published* and *owes a tag* sits a number
@@ -147,64 +214,6 @@ tags on declaring commits, so none of them reaches this arm at all. Neither does
 any bundle below the enforcement line. `contract-v2.6` is the first bundle of
 this kind in the estate's history, and a state introduced for one instance must
 not acquire a second by being applied to cases that were only late.
-
-The obligation being checked belongs to `docs/contract-versioning-policy.md` —
-"a bundle is not published until its tag exists", and "the tag SHALL point to
-that realized commit". This requirement defines only how doc-health checks it,
-in the same by-reference relationship `tag-hygiene` already has with
-`document-lifecycle`'s marker grammar and `Release-inventory drift` has with
-`release-surface-integrity`.
-
-THE FAMILY SHALL BE DISTANCE-GRADED RATHER THAN IMMEDIATE, because the declaring
-commit and the tag are two acts by two actors and the interval between them is
-legitimate. A cut declares the bundle; the repository owner publishes the tag
-afterwards. A family that fired the moment the manifest moved would redden every
-correctly performed release, and a family nobody can leave green is a family
-that gets configured away. Distance SHALL be measured in FIRST-PARENT COMMITS ON
-PUBLISHED `main` since the earliest commit declaring the bundle, never in wall
-time, because landings are what the policy's own retro-publication rule counts
-and wall time punishes a quiet week.
-
-THE THRESHOLD SHALL DEFAULT TO FIVE FIRST-PARENT LANDINGS, ruled by Brett Heap on
-2026-08-31. It is a threshold default in the sense this capability already gives
-that term, configurable in the same place the aging defaults are, and the ruled
-number is what an unconfigured run uses. The calibration it answers to:
-`contract-v2.3` sat untagged across six first-parent landings before a human
-noticed it, so a threshold above five would have stayed silent through the
-recurrence this family exists to catch.
-
-THE TWO FAILURE STATES SHALL BE REPORTED IN DIFFERENT WORDS AND AT DIFFERENT
-SEVERITIES. An ABSENT tag is an incomplete release — the common case, and the
-one the window above exists to tolerate for a while. A tag that exists and peels
-to a commit NOT declaring the bundle is a MISPLACED tag: it satisfies every
-check that asks only whether a tag exists, it is what consumers will pin, and it
-is worse than absence because it looks like completion. Reporting them alike
-would let the common one hide the serious one.
-
-THE FAMILY SHALL NOT FIRE BELOW THE ENFORCEMENT LINE. `contract-v1.0` through
-`contract-v1.6` predate mandatory annotated tags and carry none by design, as
-the changelog's own legacy baseline note records. A family that reported them
-would emit seven permanent findings nobody may act on, which is how a report
-teaches its readers to stop reading it.
-
-A LIGHTWEIGHT TAG SHALL NOT SATISFY THE OBLIGATION. The policy requires an
-ANNOTATED tag; a lightweight ref carries no tagger, no date and no message, and
-accepting one would let the weaker object silently discharge the stronger
-requirement.
-
-The family SHALL be reported as skipped, never silently omitted, where a
-repository declares no bundle at all, or where version control cannot answer —
-an unavailable git dependency, tag refs that cannot be listed, or a declaring
-commit that does not resolve. THE SKIP IS RESERVED FOR "THE QUESTION COULD NOT
-BE ASKED": a declared bundle whose tag is simply absent is an ANSWER, and is
-reported by the scenarios below rather than skipped.
-
-THIS FAMILY DOES NOT PROVE THE TARGET IS THE EARLIEST DECLARING COMMIT, and the
-residue is disclosed rather than hidden. The policy's target is "the EARLIEST
-FIRST-PARENT COMMIT on published `main` that DECLARES the bundle and at which
-`verify-commit` PASSES"; the second conjunct is a digest verification per
-candidate and is out of scope here. A tag on a LATER declaring commit therefore
-passes this family and remains a defect under the policy.
 
 #### Scenario: The declaring commit is still the published tip
 - **WHEN** a repository declares a bundle at or above the enforcement line, that bundle has no published annotated tag, and the earliest commit declaring it is still the tip of published `main`
