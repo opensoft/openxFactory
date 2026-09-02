@@ -965,6 +965,87 @@ def test_a_fenced_block_is_opaque_to_html_openers_and_the_reverse():
     )
 
 
+SINGLE_LINE_HTML = (
+    ("comment", "<!-- first -->", "<!-- second -->"),
+    ("declaration", "<!DOCTYPE first>", "<!DOCTYPE second>"),
+    ("processing instruction", "<?php first ?>", "<?php second ?>"),
+    ("CDATA", "<![CDATA[first]]>", "<![CDATA[second]]>"),
+    ("pre", "<pre>first</pre>", "<pre>second</pre>"),
+)
+
+
+@pytest.mark.parametrize("name,first,second", SINGLE_LINE_HTML,
+                         ids=[row[0] for row in SINGLE_LINE_HTML])
+def test_an_html_block_that_closes_on_its_opening_line_swallows_nothing(
+        name, first, second):
+    """CODEX AND COPILOT, INDEPENDENTLY, ROUND 6 ON PR #589 — and it is a hole
+    the ROUND-5 FIX opened.
+
+    A kind 1 to 5 block may open AND close on one line. Returning the new state
+    without testing that line kept the block open through everything after it:
+    measured, the FIRST comment stayed open through the real `## Notes` heading
+    and used the SECOND comment as its delayed close, so the declaration kept
+    the earlier entry and was ACCEPTED. Reproduced for all five kinds.
+    """
+    doc = "\n".join(["## contract-v3.0 — a cut", "", first, "",
+                     "## Notes", "", second, "", _spent_line()])
+    read = rtp.parse_spent_declarations(doc)
+    assert len(read) == 1 and read[0].entry is None, (
+        f"a single-line {name} stayed open past its own close and swallowed "
+        f"the `## Notes` boundary")
+
+
+def test_a_type_one_html_block_ends_only_on_its_own_closing_tag():
+    """CODEX AND COPILOT, INDEPENDENTLY, ROUND 6 — the other hole round 5
+    opened. A shared closer let `</script>` end a `<pre>` block, and the lines
+    after the mismatch stopped being opaque while CommonMark still reads them as
+    `<pre>` content."""
+    # a mismatched closer must NOT end the block: the fence-shaped line after
+    # it is still content, so the reader never goes out of phase
+    mismatched = "\n".join(["## contract-v3.0 — a cut", "",
+                            "<pre>", "</script>", "```bad", "",
+                            "## Notes", "", "```", _spent_line(), "```", ""])
+    assert rtp.parse_spent_declarations(mismatched) == []
+
+    # and the boundary after the mismatch is CONTENT, so a declaration below
+    # the real `</pre>` is still inside the entry — over-closing here would
+    # refuse a correctly contained declaration
+    still_content = "\n".join(["## contract-v3.0 — a cut", "",
+                               "<pre>", "</script>", "## Notes", "",
+                               "</pre>", "", _spent_line()])
+    read = rtp.parse_spent_declarations(still_content)
+    assert len(read) == 1 and read[0].entry == "contract-v3.0"
+
+    # THE CONTROL FOR THE HOLE THIS FIX COULD OPEN: the MATCHING closer must
+    # still close, or a `<pre>` block would swallow the rest of the document.
+    matching = "\n".join(["## contract-v3.0 — a cut", "",
+                          "<pre>", "x", "</pre>", "",
+                          "## Notes", "", _spent_line()])
+    read = rtp.parse_spent_declarations(matching)
+    assert len(read) == 1 and read[0].entry is None
+
+    # and each of the four tags closes on its own and on no other
+    for tag in ("pre", "script", "style", "textarea"):
+        other = "script" if tag != "script" else "pre"
+        doc = "\n".join(["## contract-v3.0 — a cut", "",
+                         f"<{tag}>", f"</{other}>", "## Notes", "",
+                         f"</{tag}>", "", _spent_line()])
+        read = rtp.parse_spent_declarations(doc)
+        assert len(read) == 1 and read[0].entry == "contract-v3.0", (
+            f"</{other}> ended a <{tag}> block")
+
+
+def test_an_unclosed_type_one_block_is_opaque_to_the_end_and_that_is_safe():
+    """CommonMark runs an unclosed kind-1 block to end of document, and that is
+    a hiding place ONLY in the fail-closed direction: every boundary after it is
+    lost, but so is every declaration, so the superseded `error` stands rather
+    than being quieted. Pinned so the trade is a decision and not an accident.
+    """
+    doc = "\n".join(["## contract-v3.0 — a cut", "",
+                     "<pre>", "## Notes", "", _spent_line()])
+    assert rtp.parse_spent_declarations(doc) == []
+
+
 def test_this_repositorys_live_declaration_survives_every_boundary_rule():
     """THE LIVE READ, AND IT IS THE POINT OF THE HARDENING RATHER THAN A
     FORMALITY: a boundary rule tightened past this document would refuse the

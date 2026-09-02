@@ -368,8 +368,17 @@ _HTML_OPENERS = (
     ("html6", re.compile(rf"^ {{0,3}}</?({_HTML_TYPE6_TAGS})([ \t]|/?>|$)",
                          re.I)),
 )
+# KIND 1 CLOSES ON ITS OWN TAG AND NOT ON ANY OF THE FOUR — found by Codex AND
+# by Copilot independently in round 6, on the round-5 fix. A shared
+# `</(pre|script|style|textarea)>` let `</script>` end a `<pre>` block, and the
+# lines after the mismatch stopped being opaque while CommonMark still reads
+# them as `<pre>` content: a fence-shaped line there put the reader back out of
+# phase and a declaration was ACCEPTED under the earlier entry. The state
+# therefore CARRIES the tag that opened the block.
+_HTML_TYPE1_CLOSERS = {
+    tag: re.compile(rf"</{tag}>", re.I)
+    for tag in ("pre", "script", "style", "textarea")}
 _HTML_CLOSERS = {
-    "html1": re.compile(r"</(pre|script|style|textarea)>", re.I),
     "html2": re.compile(r"-->"),
     "html3": re.compile(r"\?>"),
     "html4": re.compile(r">"),
@@ -510,19 +519,47 @@ def _fence_opener(line: str) -> str | None:
     return tilde.group(1) if tilde is not None else None
 
 
-def _html_opener(line: str, after_paragraph: bool) -> str | None:
-    """The CommonMark HTML-block KIND `line` opens, or None.
+def _html_opener(line: str, after_paragraph: bool) -> tuple[str, str] | None:
+    """`(kind, tag)` for the CommonMark HTML block `line` opens, or None.
+
+    `tag` is the kind-1 element name and is empty for every other kind, because
+    kind 1 is the only one whose END CONDITION depends on which tag opened it.
 
     `after_paragraph` gates kind 7 alone, because kind 7 is the one CommonMark
     forbids from interrupting a paragraph — a line of prose that happens to end
     in a bare tag is prose.
     """
+    one = _HTML_TYPE1_OPEN.match(line)
+    if one is not None:
+        return ("html1", one.group(1).lower())
     for kind, pattern in _HTML_OPENERS:
         if pattern.match(line):
-            return kind
+            return (kind, "")
     if not after_paragraph and _HTML_TYPE7.match(line):
-        return "html7"
+        return ("html7", "")
     return None
+
+
+def _html_closed(kind: str, tag: str, line: str) -> bool:
+    """Whether `line` satisfies the END CONDITION of an open HTML block.
+
+    ASKED OF THE OPENING LINE TOO, which is round 6's finding from Codex and
+    Copilot alike: a kind 1 to 5 block may open AND close on ONE line, and a
+    reader that returns the new state without testing that line keeps the block
+    open through everything after it. Measured on `<!-- first -->` … `## Notes`
+    … `<!-- second -->` … declaration: the first comment stayed open THROUGH the
+    real heading and used the SECOND comment as its delayed close, so the
+    declaration kept the earlier entry and was ACCEPTED. Reproduced for all five
+    of comment, declaration, processing instruction, CDATA and `<pre>`.
+    """
+    if kind == "html1":
+        return _HTML_TYPE1_CLOSERS[tag].search(line) is not None
+    end = _HTML_CLOSERS.get(kind)
+    if end is not None:
+        return end.search(line) is not None
+    # Kinds 6 and 7 end at the first BLANK line, which is not part of the block
+    # — and which an opening line can never be, since it begins with `<`.
+    return not line.strip()
 
 
 def _opaque_state(line: str, state: tuple[str, str] | None,
@@ -564,8 +601,13 @@ def _opaque_state(line: str, state: tuple[str, str] | None,
         marker = _fence_opener(line)
         if marker is not None:
             return ("fence", marker)
-        html = _html_opener(line, after_paragraph)
-        return (html, "") if html is not None else None
+        opened = _html_opener(line, after_paragraph)
+        if opened is None:
+            return None
+        # THE OPENING LINE IS TESTED AGAINST ITS OWN END CONDITION, because a
+        # kind 1 to 5 block may open and close on one line and a block left
+        # open past its close swallows every boundary after it.
+        return None if _html_closed(*opened, line) else opened
     kind, marker = state
     if kind == "fence":
         closer = _FENCE_CLOSE.match(line)
@@ -573,14 +615,11 @@ def _opaque_state(line: str, state: tuple[str, str] | None,
                 and len(closer.group(1)) >= len(marker)):
             return None
         return state
-    end = _HTML_CLOSERS.get(kind)
-    if end is not None:
-        # Kinds 1 to 5 end on their own closing string, ANYWHERE on the line,
-        # and that line is part of the block — so they span blank lines, which
-        # is what makes `<pre>` able to hold one.
-        return None if end.search(line) else state
-    # Kinds 6 and 7 end at the first BLANK line, which is not part of the block.
-    return None if not line.strip() else state
+    # Kinds 1 to 5 end on their own closing string, ANYWHERE on the line, and
+    # that line is part of the block — so they span blank lines, which is what
+    # makes `<pre>` able to hold a fence-shaped line at all. Kinds 6 and 7 end
+    # at a blank line.
+    return None if _html_closed(kind, marker, line) else state
 
 
 def _paragraph_line(line: str, closes: bool, opaque: bool) -> bool:

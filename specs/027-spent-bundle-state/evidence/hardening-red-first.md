@@ -385,3 +385,32 @@ rather than its fifth instance.
 
 Counts after round 5: family file **110 passed**, `tests/doc-health`
 **1475 passed, 0 failed**.
+
+## § J — bot round 6: two holes ROUND 5's FIX opened, found by both bots independently
+
+| # | escape (source) | on head `794675a0` | after | test |
+|---|---|---|---|---|
+| R6-1 | a kind 1 to 5 HTML block may open AND close on ONE line; returning the new state without testing that line kept it open past its own close (Codex P1, and Copilot the same) | `<!-- first -->` … `## Notes` … `<!-- second -->` → `entry='contract-v3.0'`, **ACCEPTED** — the first comment stayed open THROUGH the real heading and used the SECOND as its delayed close. Reproduced for comment, declaration, processing instruction, CDATA and `<pre>` | `entry=None` for all five | `test_an_html_block_that_closes_on_its_opening_line_swallows_nothing`, parametrized over the five |
+| R6-2 | a shared kind-1 closer let `</script>` end a `<pre>` block, after which lines CommonMark still reads as `<pre>` content stopped being opaque (Codex P1, and Copilot the same) | `entry='contract-v3.0'` — **ACCEPTED** | nothing read; the state carries the tag that opened the block | `test_a_type_one_html_block_ends_only_on_its_own_closing_tag`, over all four tags |
+
+**BOTH BOTS FOUND BOTH FINDINGS INDEPENDENTLY, within twenty-five minutes of
+each other**, which is worth recording: the two reviewers agreeing on a precise
+mechanism is a much stronger signal than either alone, and both were on the
+round-5 fix rather than on anything older.
+
+**And both fixes ship with the control for the hole THEY could open**, per the
+standing discipline:
+
+* requiring the MATCHING closer risks a `<pre>` block that never closes
+  swallowing the rest of the document — pinned as
+  `test_an_unclosed_type_one_block_is_opaque_to_the_end_and_that_is_safe`,
+  which also records WHY that is acceptable: an unclosed block loses every
+  boundary after it, but loses every declaration too, so the superseded `error`
+  stands rather than being quieted. The trade is a decision, not an accident.
+* closing on the opening line risks closing too eagerly — pinned by the case
+  where a boundary AFTER a mismatched closer is still `<pre>` CONTENT, so a
+  declaration below the real `</pre>` is still inside the entry. Over-closing
+  there would REFUSE a correctly contained declaration.
+
+Counts after round 6: family file **117 passed**, `tests/doc-health`
+**1482 passed, 0 failed**.
