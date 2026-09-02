@@ -59,14 +59,36 @@ rows:
   # The MVP row: ONE holder, ONE target repository, ONE act, tier act, ONE
   # expires_at. Backed by grant-mrc-0001 (root, issued_by the anchored
   # operator); act tier stands on the custody attestation beside this file.
+  #
+  # 2026-09-02 — THE ROW IS REPOINTED. Appended beside the row, and the comment
+  # above is left exactly as written: it records how this row was cold-started
+  # and that is still true of the cold start.
+  #
+  # `grant_ref` moves grant-mrc-0001 -> grant-mrc-0002 and `expires_at` moves
+  # 2026-11-23T12:00:00Z -> 2027-06-30T00:00:00Z, character-for-character equal
+  # to the new grant's own `expires_at` because the reader compares the two.
+  # THE ROW'S OWN `state` STAYS `active`: the row is the authority's CONTINUING
+  # EXISTENCE, not the grant's, and a revoked grant does not deactivate the row
+  # that was repointed off it. NO ROW WAS ADDED — the single-row cap bounds
+  # AUTHORITY ROWS and is retained; the row still carries exactly nine fields,
+  # which the reader enforces as exact set equality, and the composition is NOT
+  # smuggled onto it (there is no model field on a row and adding one would be
+  # refused).
+  #
+  # WHY: the holder's declared composition changed on 2026-08-31 (codexFactory
+  # 6edecaf1, the alias-to-exact enrolled-roster model pin flip), grant-mrc-0001
+  # was revoked for DRIFT at 2026-09-02T13:33:48Z, and grant-mrc-0002 was issued
+  # against the changed composition at the same instant. Ratifying human: Brett
+  # Heap (Brett.Heap@opensoft.one), on this permanently human-only surface.
+  # Record: `openspec/changes/add-wallet-carried-review-authority/walk-2026-09-02-register-act.md`.
   - row_id: row-mrc-0001
     holder_ref: agent:merge-readiness-council
     wallet_ref: wal-agent-mrc-0001
     target_repo: opensoft/openxFactory
     act: review
     authority_tier: act
-    grant_ref: grant-mrc-0001
-    expires_at: "2026-11-23T12:00:00Z"
+    grant_ref: grant-mrc-0002
+    expires_at: "2027-06-30T00:00:00Z"
     state: active
 
 # THE PER-SEAT SIGNING KEYS (add-per-seat-register-entries, wallet-v1.2).
@@ -86,6 +108,16 @@ rows:
 # `opensoft/openxFactory`, `review`, tier `act` and one expiry. The only per-seat
 # fact is the signing key, and a key is not a grant. Every seat has its OWN key,
 # so one seat's compromise is one seat's problem.
+#
+# 2026-09-02 ADDENDUM, append-only: the paragraph above names `grant-mrc-0001`,
+# which the register act of 2026-09-02 REVOKED for DRIFT. The sentence is left
+# standing because it records what the four entries descended from when they
+# were minted; read it now as `grant-mrc-0002`, the grant row-mrc-0001 points at
+# after that act. NOTHING ELSE ABOUT THESE FOUR ENTRIES MOVED: all four still
+# name `authorizing_row: row-mrc-0001`, that row is still `state: active` and
+# still unexpired (2027-06-30T00:00:00Z), and all four therefore still resolve —
+# checked, not assumed, by the reader's `register-seat-row-unresolved` rule
+# inside the REQUIRED wallet-validation check.
 #
 # TWO SPELLINGS OF ONE BODY, both recorded on purpose. `council_ref` is the
 # AUTHORITY ATTACHMENT and must equal the authorizing row's `holder_ref`;
