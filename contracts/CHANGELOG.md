@@ -371,6 +371,23 @@ guard against the obvious abuse, that a bundle must never become spent by being
 ignored. It is named here so a reader meeting the ERROR knows it is DECLARED
 rather than undiscovered.
 
+**AND THE STATE NOW EXISTS, SO THIS RECORD CARRIES ITS MACHINE-READABLE HANDLE.**
+`declare-spent-bundle-state` was ratified on 2026-09-02 by Brett Heap and
+realized in the PR that adds the line below (openxFactory **#575**). That line is
+the reserved single-line form the `release-tag-publication` family reads, and it
+is a **HANDLE ON THIS RECORD AND NOT A SECOND RECORD** — written inside the
+disposition subsection this cut wrote anyway, in the pattern
+`document-lifecycle`'s reserved `Modified over` marker already sets. Nothing
+above it is edited: the ERROR is not silenced by an absence but answered by a
+declaration, and what it becomes is ONE `info`, classed `contested`, on
+`contracts/releases/contract-v2.6.digests.yaml`. **`contract-v3.0`'s own
+annotated tag is what makes it quiet** — `git ls-remote origin
+refs/tags/contract-v3.0` answers `59f4f51f…` peeling to `ff9ed815…` — so the
+only way this number was retired was by publishing its replacement, which is the
+act this family exists to compel.
+
+**SPENT BUNDLE:** `contract-v2.6` — SUPERSEDED BY `contract-v3.0` — CAUSE: `contract-v2.6` declares change class ADDITIVE (minor) on a tree that refuses three shapes `contract-v2.5` accepted, and is never verifiable (five HGR-RELEASE-DIGEST-MISMATCH findings at `bbbbeda9`, the only first-parent commit that declares it), so the targeting rule has no legal target and no completion commit or rebuilt inventory can cure it — RULED BY Brett Heap, 2026-09-02 — MEASUREMENT: PR #565 comment `5502452624`
+
 ### OQ-1 and OQ-2, answered at the cut
 
 Both retirement packets named these for the cutting session and neither
