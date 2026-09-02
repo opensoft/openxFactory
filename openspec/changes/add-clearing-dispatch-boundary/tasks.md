@@ -575,6 +575,21 @@ Deliberately not started before §2. Nothing here is authored by this packet.
       `sequenced_after` substrate lane's live pin — and this correction exists
       so the record names both causes and both fixes rather than leaving the
       first cause standing as though it were still the live blocker.
+      **RECORD, 2026-09-01 — this packet's own landing moves the live pin
+      too:** `tests/sequenced_after/test_sweep.py::test_the_live_sweep_reproduces_the_AUTHORING_measurement`
+      failed on `dc81ff49` (`change_ids - 1` read 152 against a live 154,
+      because this branch adds ONE new change directory,
+      `add-clearing-dispatch-boundary` itself, to a `main` that had already
+      reached 153). Per that test's own maintenance rule — every count the
+      change itself moves is asserted WITH it added, and the counts it does
+      NOT move are asserted unchanged — this packet's spec delta is
+      ADDED-only (no `## MODIFIED Requirements` block) with novel
+      requirement titles, so it lands as one more ACTIVE SOLE modifier, not
+      a co-modifier: `co_modified` (104) and `active_co_modified` (18) hold.
+      The live pin `change_ids - 1`, `sole_modifiers - 1` and
+      `active_sole - 1` were bumped IN-BRANCH, in the same commit as this
+      packet's own landing: 152 → 153, 48 → 49, and 11 → 12 respectively —
+      i.e. the sequenced_after live pin's `change_ids` moves 153 → 154.
 - [ ] 9.3 Release-realization: this change declares a code surface, so it
       ARCHIVES only on merged realization plus green evidence — §5.4's filed
       reports and §6.8's cut — and stays ACTIVE until then, ratified or not.
