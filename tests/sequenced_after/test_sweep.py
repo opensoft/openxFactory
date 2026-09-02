@@ -220,29 +220,37 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
       `sole_modifiers - 1` 48, `active_sole - 1` 11, 3 prose headers (3
       archived), 1 declaration, 0 root claims — each identical at `518c670b`,
       `ded8b9f1`, `43cf5933`, `a951be76` and `6856f502`.
-    - `co_modified` reads 105 and `active_co_modified` reads 19, both up one, and
-      `change_ids - 1` reads 153. They moved on 2026-09-02 when
-      `declare-spent-bundle-state` was AUTHORED — one new ACTIVE change carrying
-      a `## MODIFIED Requirements` block over `doc-health`'s promoted
-      `Release-tag publication` requirement, therefore co-modified, therefore an
-      ACTIVE co-modifier. The pin moves in the SAME COMMIT as the corpus, which
-      is this test's own protocol, and the packet's own PR discloses that it
-      touches this file for that reason and for no other: **it is corpus
-      bookkeeping, not the realization of that packet's delta**, which is
-      deliberately split off to a later PR.
-    - AND THE THREE THAT DID NOT MOVE ARE THE INTERESTING HALF, checked rather
-      than assumed, because a change that added itself to both populations at
-      once would be a defect in the sweep. `sole_modifiers` holds at 49 —
-      `change_ids - co_modified`, 154 - 105, both sides up one — so
-      `sole_modifiers - 1 == 48` still recovers the authoring reading unchanged.
-      `active_sole` holds at 12, the new change being a CO-modifier and not a
-      sole one, so `active_sole - 1 == 11` still recovers the authoring 11. And
-      `declaring` holds at 1: `declare-spent-bundle-state` declares NO
-      `sequenced_after:` field, because the field is carried by an ACTIVE,
-      UNPROMOTED change and adopting an unratified surface is not what the
-      "declaring must never be worth less than omitting" doctrine asks of a
-      packet written before that change lands. `validate-sequenced-after.py`
-      passes over the corpus with it (31 active, 1 declaring).
+    - `change_ids - 1`, `sole_modifiers - 1` and `active_sole - 1` move again
+      when THIS PACKET's own directory lands: `add-clearing-dispatch-boundary`
+      is itself one more ACTIVE change, and its spec delta is ADDED-only (no
+      `## MODIFIED Requirements` block) with novel requirement titles, so it
+      is a SOLE modifier, never a co-modifier — `co_modified` and
+      `active_co_modified` hold at 104 and 18. `change_ids - 1` moves
+      152 → 153, `sole_modifiers - 1` moves 48 → 49, and `active_sole - 1`
+      moves 11 → 12, bumped in the branch's own landing commit per this rule,
+      2026-09-01 (PR #555).
+    - `co_modified` reads 105, `active_co_modified` reads 19 and
+      `change_ids - 1` reads 154 — each one up from the reading the entry above
+      left. They moved on 2026-09-02 when `declare-spent-bundle-state` was
+      AUTHORED: one more ACTIVE change, and unlike `add-clearing-dispatch-boundary`
+      it carries a `## MODIFIED Requirements` block — over `doc-health`'s
+      promoted `Release-tag publication` requirement — so it is a CO-modifier
+      rather than a sole one, and both co-modified readings rise while
+      `sole_modifiers - 1` and `active_sole - 1` hold at 49 and 12. THE TWO
+      ENTRIES ABOVE AND THIS ONE ARE THE SAME RULE APPLIED TWICE IN TWO DAYS,
+      and the pair is worth reading together: an ADDED-only packet moves the
+      sole-modifier readings and leaves the co-modified ones, a packet carrying
+      a MODIFIED block does the exact opposite, and a packet that moved BOTH
+      would be a defect in the sweep rather than a corpus event. The pin moves
+      in the SAME COMMIT as the corpus, which is this test's own protocol, and
+      that packet's PR discloses that it touches this file for that reason and
+      for no other: it is corpus BOOKKEEPING, not the realization its OD-8
+      splits off to a later PR. `declaring` holds at 1 — it declares NO
+      `sequenced_after:` field, the field being carried by an ACTIVE, UNPROMOTED
+      change, and adopting an unratified surface is not what the "declaring must
+      never be worth less than omitting" doctrine asks of a packet written
+      before that change lands. `validate-sequenced-after.py` passes over the
+      corpus with it in place.
     """
     sweep = sa.corpus_sweep(ROOT)
     assert sweep.co_modified == 105, (
@@ -266,11 +274,12 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
     # This change is itself a sole modifier at requirement granularity — which is
     # exactly why it declaring a parent anyway is the doctrine applied to its
     # author: declaring must never be worth less than omitting.
-    assert sweep.change_ids - 1 == 153, (
+    assert sweep.change_ids - 1 == 154, (
         "the `- 1` subtracts THIS change and nothing else, so the reading is "
-        "the corpus without it: 152 at authoring, 153 since "
+        "the corpus without it: 152 at authoring, 153 when "
+        "add-clearing-dispatch-boundary landed 2026-09-01, 154 when "
         "declare-spent-bundle-state was authored 2026-09-02")
-    assert sweep.sole_modifiers - 1 == 48
+    assert sweep.sole_modifiers - 1 == 49
     # STILL INTACT ON ITS MERITS, not by a cancelling pair of errors — checked,
     # because #563's archive landing between the authoring measurement and this
     # reading makes the coincidence worth ruling out explicitly. That archive
@@ -279,7 +288,7 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
     # only at `43cf5933`, when THIS change added itself as an active sole
     # modifier. The `- 1` therefore still subtracts exactly this change and
     # still recovers the authoring 11.
-    assert sweep.active_sole - 1 == 11
+    assert sweep.active_sole - 1 == 12
     assert sweep.prose_headers == 3 and sweep.prose_headers_archived == 3
     assert sweep.declaring == 1
     assert sweep.declaring_ids == ("add-sequenced-after-substrate",)
