@@ -82,14 +82,21 @@ the rule of three, so the discipline is kept and the trigger is recorded here so
 the third register's author finds it. Wallet, grant, and attestation records
 beside it carry `schema_version` + `kind` from the pinned neutral vocabulary.
 
-### D4 — MODIFY exactly two of the basis's ten requirements, carrying them verbatim, under one `Modified over` marker **DECIDED**
+### D4 — MODIFY three of the basis's ten requirements, carrying them verbatim, each under its OWN per-requirement `Modified over` marker **DECIDED**
 
 `govern-sibling-added-modified-deltas` (ratified 2026-08-31) governs precisely
 this shape: a `## MODIFIED Requirements` block whose requirement exists only as
 an active sibling's `ADDED`. Its third reserved marker form is required, at most
-one per block, naming the basis change-id as a code span, carrying this change
-as its `by` identifier and a nonempty ` — ` reason tail. This delta carries
-exactly one such marker. Because a MODIFIED requirement REPLACES its basis
+one PER REQUIREMENT, naming the basis change-id as a code span, carrying this
+change as its `by` identifier and a nonempty ` — ` reason tail.
+
+**THE MARKER IS PER REQUIREMENT, NOT PER SECTION, AND THE FIRST DRAFT GOT THIS
+WRONG.** One paragraph under the `## MODIFIED Requirements` heading looks like it
+declares the whole block; it declares nothing, and the pairing arm reports every
+requirement in the block as carrying no marker of the reserved form. Each
+MODIFIED requirement here therefore carries its own marker inside its own body,
+placed AFTER the requirement's opening sentence so the SHALL stays on line one,
+and each states the reason specific to what that requirement's addition does. Because a MODIFIED requirement REPLACES its basis
 wholesale, every original scenario is carried verbatim beside the new ones —
 latent scenario loss across sibling packets being the defect family issues #329
 and #330 record.
@@ -172,6 +179,20 @@ not a breach. Adding a requirement saying the same thing would be the exact
 duplication this rework exists to remove. It is cited in the proposal instead,
 and this decision records why no requirement was written.
 
+### D14 — The attestation's read set is widened by a MODIFIED block, not by reaching in from outside **DECIDED**
+
+The ADDED workspace-disposal requirement makes disposal evidence a field of the
+dispatch record, and then says the periodic attestation reports a missing one.
+That second half is an EXTENSION OF A RATIFIED REQUIREMENT — the basis's
+"Every dispatch is recorded, and the single door is attested rather than
+assumed" — written from outside it, which is precisely the undeclared coupling
+`govern-sibling-added-modified-deltas` exists to catch. The alternative was to
+narrow the ADDED requirement so it made no claim on the attestation, leaving the
+disposal field recorded but unread. Rejected: an evidence field nothing reads is
+not evidence. So the basis requirement gets its own MODIFIED block, carried
+verbatim with its own marker, adding one field to what the attestation READS and
+nothing to what it AUTHORIZES.
+
 ### D12 — Two digest constructions, named, with the manifest subject owed by a tranche widening **DECIDED**
 
 The basis forbids a second digest vocabulary, and the first pass took that to
@@ -211,12 +232,12 @@ close it.
   this one archives after the basis. Declared in the front matter and carried by
   the marker.
 - **Merge order is load-bearing.** #555 merges first; if this packet led, the
-  two contested warnings would enter the baseline and #555 would resolve them
-  uncited, becoming two errors. The disposition rows are the belt — and they
+  three contested warnings would enter the baseline and #555 would resolve them
+  uncited, becoming three errors. The disposition rows are the belt — and they
   live in the AGGREGATION repo, so they are a cross-repo act (tasks § 5.3), not
   something this PR can carry.
 - **The pairing arm cannot see the basis until #555 merges.**
-  `modified-block-currency` reports two contested warnings saying the MODIFIED
+  `modified-block-currency` reports three contested warnings saying the MODIFIED
   blocks resolve to no promoted requirement and no active sibling's addition,
   because the ratified basis is not in this tree. The finding is right, the
   marker is already present for when it is, and the condition is cited in

@@ -25,22 +25,27 @@ one.
 extension on issue #156 adds two things the ratified basis does not reach — a
 registered per-repository ORIGIN KEY verified at clearing, and SIGN-ON-RETURN
 attestation — and those are the only grounds on which this packet touches the
-capability. Two of the basis's ten requirements are MODIFIED, each carried
+capability. THREE of the basis's ten requirements are MODIFIED, each carried
 VERBATIM with its additions marked in place and every original scenario
-retained, under the single `Modified over` marker that
-`govern-sibling-added-modified-deltas` (ratified 2026-08-31) requires of a
-MODIFIED block whose requirement exists only as an active sibling's addition.
-Two requirements are ADDED to the same capability because the basis has no
-counterpart to them at all. One new capability is ADDED for the register.
+retained — 177 basis units, none lost — and each carrying its OWN
+`Modified over` marker IN ITS REQUIREMENT BODY, which is where
+`govern-sibling-added-modified-deltas` (ratified 2026-08-31) requires the marker
+of a MODIFIED requirement whose definition exists only as an active sibling's
+addition. The marker is PER REQUIREMENT, not per section: a section-level
+paragraph leaves each requirement declaring nothing, and the pairing arm reports
+every one of them as unmarked. THREE requirements are ADDED to the same
+capability because the basis has no counterpart to them at all. One new
+capability is ADDED for the register.
 
 **#555 MERGES FIRST, AND THAT ORDER IS LOAD-BEARING, NOT COURTESY.** This
 packet's MODIFIED blocks resolve against the basis's `## ADDED Requirements`
 block. While #555 is unmerged that block is not in the tree, so
-`modified-block-currency` raises two contested warnings (cited in tasks § 1.9).
+`modified-block-currency` raises THREE contested warnings, one per MODIFIED
+requirement (cited in tasks § 1.9).
 If THIS packet merged first, those warnings would enter the nightly baseline and
 #555 landing would make them vanish — a contested finding resolved without a
-citation, which the uncited-resolution rule re-emits as two ERRORs. The order is
-the primary control; the two disposition rows in the aggregation repo's
+citation, which the uncited-resolution rule re-emits as ERRORs. The order is
+the primary control; the three disposition rows in the aggregation repo's
 `health/dispositions.yaml` (tasks § 1.10 and § 5.3) are the belt behind it.
 
 **WHAT THE BASIS ALREADY RATIFIES IS CITED, NOT RE-AUTHORED.** The single door
@@ -97,9 +102,10 @@ it.
 
 ## What Changes
 
-- **MODIFIED `clearing-dispatch-boundary` — two requirements**, each carried
-  verbatim from the ratified text with additions marked in place, under one
-  `Modified over` marker naming `add-clearing-dispatch-boundary` as basis:
+- **MODIFIED `clearing-dispatch-boundary` — three requirements**, each carried
+  verbatim from the ratified text with additions marked in place, and each
+  carrying its own `Modified over` marker in its requirement body naming
+  `add-clearing-dispatch-boundary` as basis:
 
   - *Work crosses the boundary only as a sealed bounded request* — field (10)
     ceases to be a free disjunction for a repository holding a registered
@@ -128,6 +134,14 @@ it.
     request is refused. `deliberation` is not a register entry today; adding it
     is a governed contract change and is named as codexFactory's task, not
     assumed here.
+  - *Every dispatch is recorded, and the single door is attested rather than
+    assumed* — the periodic attestation's READ SET grows by one field: a
+    dispatch record whose workspace-disposal field is absent or empty is
+    reported as an UNATTESTED DISPOSAL and is not counted clean. Declared as a
+    MODIFIED block rather than left as an implicit extension reaching into a
+    ratified requirement from outside it. Nothing the attestation AUTHORIZES
+    changes — the completeness claim, the expected-set comparison, and the
+    closed refusal-ground enumeration are untouched.
 
 - **ADDED to `clearing-dispatch-boundary` — three requirements** the basis has
   no counterpart to:
@@ -179,8 +193,9 @@ it.
 - `clearing-dispatch-boundary`: field (10) tightened for registered
   originators; origin-signature verification added as a third, conjunctive
   verification class; policy-checked fields resolved from the register rather
-  than read from the bundle; sign-on-return, workspace-disposal evidence, and
-  inbound re-seal of the return added.
+  than read from the bundle; the periodic attestation's read set widened by the
+  disposal field; sign-on-return, workspace-disposal evidence, and inbound
+  re-seal of the return added.
 
 ## Impact
 
@@ -210,7 +225,7 @@ it.
      the floor-file exact-set update; and the governed register change that
      would add a `deliberation` operation, which draft PR #165
      (`adopt-bundle-shaped-deliberation`) needs and which does not exist yet.
-  3. **xFactory aggregation repo** — the two `modified-block-currency`
+  3. **xFactory aggregation repo** — the three `modified-block-currency`
      disposition rows in `health/dispositions.yaml`, which lives at the
      aggregation root and cannot be added from this repository.
   4. **openXwallet** — scoping the review-authority reader's wallet and grant

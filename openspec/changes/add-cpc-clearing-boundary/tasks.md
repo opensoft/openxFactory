@@ -22,12 +22,18 @@ carries.
 - [x] 1.2 `design.md` — D1 … D11 with the alternatives rejected, including D11's
       record of a requirement deliberately NOT written because the basis already
       carries it. OQ1 and OQ3 open; OQ2 resolved to REFERENCE.
-- [x] 1.3 `specs/clearing-dispatch-boundary/spec.md` — two MODIFIED requirements
-      carried VERBATIM from the ratified basis with additions marked in place and
-      every original scenario retained, under exactly one `Modified over` marker
-      naming `add-clearing-dispatch-boundary` as basis with the nonempty reason
-      tail its form requires; plus two ADDED requirements (sign-on-return,
-      workspace-disposal evidence) the basis has no counterpart to.
+- [x] 1.3 `specs/clearing-dispatch-boundary/spec.md` — THREE MODIFIED
+      requirements carried VERBATIM from the ratified basis with additions marked
+      in place and every original scenario retained (177 basis units, none lost),
+      EACH carrying its OWN `Modified over` marker IN ITS REQUIREMENT BODY —
+      per requirement, never per section, a section-level paragraph leaving every
+      requirement in the block declaring nothing — naming
+      `add-clearing-dispatch-boundary` as basis with the nonempty reason tail the
+      form requires. The third MODIFIED block is the basis's dispatch-record and
+      single-door attestation requirement, widened by ONE FIELD in what the
+      attestation reads (§ 1.11). Plus THREE ADDED requirements the basis has no
+      counterpart to: sign-on-return, inbound re-seal of the return, and
+      workspace-disposal evidence.
 - [x] 1.4 `specs/factory-origin-identity/spec.md` — six ADDED requirements: one
       registered Ed25519 identity per originating repository in the sibling
       register with `holder_class: organisation` and no seat spelling; public key
@@ -44,7 +50,7 @@ carries.
       `--all --strict` green; `proposal-support.py . verify` ok; doc-health
       families green.
 - [x] 1.9 **Known transient doc-health condition, cited rather than waived.**
-      `modified-block-currency` emits TWO `warning`-severity, `contested`-class
+      `modified-block-currency` emits THREE `warning`-severity, `contested`-class
       findings against this delta: the MODIFIED blocks "resolve to no promoted
       requirement, no rename of its own, and no active sibling's addition —
       capability `clearing-dispatch-boundary` has no promoted spec at all". That
@@ -55,19 +61,27 @@ carries.
       marker this delta already carries is what the arm reads. No `error` or
       `critical` finding is emitted and `--fail-on error` is green. Recorded here
       as the cited change rather than dispositioned away.
+- [x] 1.11 **The attestation extension is DECLARED, not implicit.** The ADDED
+      workspace-disposal requirement makes disposal evidence a field of the
+      dispatch record and then has the periodic attestation read it — an
+      extension of a ratified requirement written from outside it, which is the
+      undeclared coupling `govern-sibling-added-modified-deltas` exists to catch.
+      The basis's attestation requirement therefore carries its own MODIFIED
+      block with its own marker (design D14), adding one field to what the
+      attestation READS and nothing to what it AUTHORIZES.
 - [ ] 1.10 **MERGE ORDER, AND THE DISPOSITION ROWS THAT COVER IT.**
       `add-clearing-dispatch-boundary` (#555) MERGES FIRST. If this packet
-      merged first, its two contested `modified-block-currency` warnings would
+      merged first, its three contested `modified-block-currency` warnings would
       enter the nightly baseline, and #555 landing would resolve them — a
       contested finding vanishing without a citation, which `report.py`'s
-      uncited-resolution rule re-emits as two ERRORs. Prose in § 1.9 is NOT a
+      uncited-resolution rule re-emits as three ERRORs. Prose in § 1.9 is NOT a
       recorded disposition: the matcher keys on `(family, repo, path)` in
       `health/dispositions.yaml`. **That file lives at the AGGREGATION ROOT and
       is tracked in the `opensoft/xFactory` aggregation repo, not here**, so the
-      two rows are a cross-repo act that cannot land in this PR: family
+      three rows are a cross-repo act that cannot land in this PR: family
       `modified-block-currency`, repo `openxFactory`, path
       `openspec/changes/add-cpc-clearing-boundary/specs/clearing-dispatch-boundary/spec.md`,
-      one per requirement title, each citing `add-clearing-dispatch-boundary`
+      one per MODIFIED requirement title, each citing `add-clearing-dispatch-boundary`
       as the resolving change. Tracked as the aggregation-side task in § 5.3.
 - [ ] 1.8 Ratification: operator decision on the re-scoped packet, on D2/D4/D8/
       D9/D10/D11, and on the OQ1/OQ3 dispositions.
@@ -173,7 +187,7 @@ carries.
       until then the disjointness rule of task 2.5 is the whole enforcement, and
       documents saying otherwise are refused by the spec's own scenario.
 
-- [ ] 5.3 **xFactory aggregation repo** — add the two
+- [ ] 5.3 **xFactory aggregation repo** — add the three
       `modified-block-currency` disposition rows described in § 1.10 to
       `health/dispositions.yaml`, citing `add-clearing-dispatch-boundary`.
       Landed before or with this packet's merge, never after.

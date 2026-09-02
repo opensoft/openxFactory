@@ -423,10 +423,17 @@ Active changes:
   the corrected duplicate check — run against ACTIVE CHANGES and recent
   RATIFICATIONS, not the promoted index alone, which is why the overlap was missed.
   What remains is the ruling's SAME-DAY EXTENSION on codexFactory issue #156, which
-  the basis does not reach. MODIFIES two of the basis's ten requirements, each carried
-  VERBATIM with additions marked in place and every original scenario retained, under
-  the single `Modified over` marker that `govern-sibling-added-modified-deltas`
-  requires of a MODIFIED block written over an active sibling's addition: field (10)
+  the basis does not reach. MODIFIES THREE of the basis's ten requirements, each carried
+  VERBATIM with additions marked in place and every original scenario retained — 177
+  basis units, none lost — and each carrying its OWN `Modified over` marker IN ITS
+  REQUIREMENT BODY, which is where `govern-sibling-added-modified-deltas` requires the
+  marker of a MODIFIED requirement defined only by an active sibling's addition (per
+  requirement, never per section: a section-level paragraph leaves every requirement in
+  the block declaring nothing). The third widens the basis's periodic single-door
+  attestation by ONE FIELD — a dispatch record with no workspace-disposal evidence is
+  reported an UNATTESTED DISPOSAL — declared as a MODIFIED block rather than left as an
+  implicit extension reaching into a ratified requirement from outside it, and changing
+  nothing the attestation authorizes. The other two: field (10)
   ceases to be a free disjunction for an originating repository that holds a
   REGISTERED ORIGIN IDENTITY — the signature branch becomes required and must cover
   all ten declared fields including the per-file hashes, with NO eleventh field and no
@@ -473,10 +480,10 @@ Active changes:
   vocabulary, so no manifest schema is added and no contract bundle is cut. OQ1 (the
   register's projection path, four shapes sketched) and OQ3 (who scopes the review
   reader) remain open. Archive is ORDERED AFTER the basis archives, and **#555 MERGES
-  FIRST** — if this packet led, its two contested `modified-block-currency` warnings
+  FIRST** — if this packet led, its three contested `modified-block-currency` warnings
   (raised only because the unmerged basis is absent from the tree) would enter the
-  nightly baseline, and #555 landing would resolve them uncited, becoming two ERRORs.
-  The two `health/dispositions.yaml` rows that belt that order live at the AGGREGATION
+  nightly baseline, and #555 landing would resolve them uncited, becoming three ERRORs.
+  The three `health/dispositions.yaml` rows that belt that order live at the AGGREGATION
   root and are therefore a cross-repo act, not part of this PR.
 - [add-requirement-ref-resolution-integrity](openspec/changes/add-requirement-ref-resolution-integrity/proposal.md)
   — authored 2026-08-31, **RATIFIED 2026-09-01 BY DIRECT RULING**

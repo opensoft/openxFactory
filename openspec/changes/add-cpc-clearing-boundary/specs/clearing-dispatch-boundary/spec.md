@@ -2,8 +2,6 @@
 
 ## MODIFIED Requirements
 
-**Modified over `add-clearing-dispatch-boundary`'s addition by add-cpc-clearing-boundary (2026-09-01):** — that packet, ratified 2026-09-01, ADDS this capability and its ten requirements from the same operator ruling; this packet carries the ruling's SAME-DAY EXTENSION on `opensoft/codexFactory` issue #156, which the basis does not reach: per-factory ORIGIN KEYS registered in openxFactory and verified at clearing, and sign-on-return attestation. Only the two requirements the extension actually touches are modified, each carried VERBATIM from the ratified text with its additions marked in place and every original scenario retained; the eight requirements the extension does not touch are left to the basis and cited rather than restated. No eleventh manifest field, no second digest vocabulary, and no re-authoring of the basis's re-seal, dispatch-credential scoping, closed permitted-operations register, grandfather enumeration, or single-door attestation.
-
 ### Requirement: Work crosses the boundary only as a sealed bounded request
 Cross-repository work SHALL reach a governed execution host only as a SEALED
 BOUNDED REQUEST, and the sealed request SHALL carry all TEN declared fields:
@@ -61,6 +59,8 @@ A canonical-JSON construction has nothing to canonicalize in a byte stream, so
 applying it to file content would be a category error rather than a stricter
 rule. One construction for JSON values and one byte hash for file content —
 both already in use, neither invented here.
+
+**Modified over `add-clearing-dispatch-boundary`'s addition by add-cpc-clearing-boundary (2026-09-01):** — the basis ADDS this requirement and is ratified but unmerged; the ruling's same-day extension on codexFactory issue #156 closes field (10)'s disjunction for an originating repository that holds a registered origin identity. The ratified text is carried verbatim and every original scenario retained; the addition is additive and introduces no eleventh field and no second digest vocabulary.
 
 #### Scenario: A conformant sealed request is presented
 - **WHEN** a producer presents a sealed bounded request at the boundary
@@ -164,6 +164,8 @@ the register and executing on the register's own answer are different acts, and
 only the second denies a producer the ability to choose its own worker profile,
 lane, or output schema by writing them into a bundle it controls.
 
+**Modified over `add-clearing-dispatch-boundary`'s addition by add-cpc-clearing-boundary (2026-09-01):** — the basis ADDS this requirement and is ratified but unmerged; the same extension makes the origin signature a THIRD verification class, conjunctive with the provider resolution, and requires the policy-checked fields to be RESOLVED FROM the closed permitted-operations register rather than read from the bundle. The ratified text is carried verbatim and every original scenario retained; both additions tighten and neither loosens.
+
 #### Scenario: The bundle names a workflow the provider contradicts
 - **WHEN** the bundle's declared originating workflow path differs from the path the provider reports for the run that produced the sealed object
 - **THEN** the dispatch MUST be refused before any runner is selected
@@ -208,6 +210,145 @@ lane, or output schema by writing them into a bundle it controls.
 - **WHEN** the dispatch record reports its verification outcomes
 - **THEN** the origin-signature check MUST appear as its own outcome naming the register row and the key it resolved
 - **AND** it MUST NOT be reported inside the provider-verified set
+
+### Requirement: Every dispatch is recorded, and the single door is attested rather than assumed
+The clearing workflow SHALL RECORD every dispatch it clears and every
+request it refuses, and each record SHALL carry the verified provenance —
+the resolved originating repository and workflow, the resolved source commit,
+the job id, the operation, the runner group and dispatch label, the
+data-handling classification, and the outcome — together with the CLAIMED
+values where they differed from the resolved ones. A refusal SHALL be
+recorded with its ground named FROM A CLOSED, NAMED ENUMERATION of refusal
+grounds rather than as free text, because a boundary that logs only
+successes cannot evidence what it stopped, and one that logs prose cannot be
+counted.
+
+AN OPERATION THAT CARRIES NO BUNDLE IS RECORDED FROM DECLARATIONS, and the
+record SHALL say which values those are. Where a registered operation is
+dispatched without a sealed bundle — as the first read-only operation is —
+the record carries the REGISTER ENTRY'S DECLARED data-handling
+classification, and, for each selected lane, that lane's DECLARED runner
+group and DECLARED dispatch label. Those are declarations of the dispatch,
+not observations of the host: OBSERVED group membership is established by the
+periodic single-door attestation reading the provider's API, and SHALL NOT
+be taken from the runner's own report of itself. A record that presented a
+declared lane as an observed one would be asserting exactly the
+self-corroboration this capability refuses everywhere else.
+
+Because the door is single, that record IS the complete audit of everything
+that ever reached the governed host. That completeness claim is TRUE ONLY
+WHILE THE DOOR IS SINGLE, so the estate SHALL ATTEST the door periodically
+rather than assume it: an attestation reads each governed runner group's
+admitted repositories and workflow allowlist from the provider's API and
+compares them against an expected set.
+
+THE EXPECTED ALLOWLIST SHALL BE COMPUTED PER GROUP, not once for the estate.
+For each governed runner group, the expected set is: THE CLEARING WORKFLOW'S
+PATH, UNION the grandfather members ENUMERATED FOR THAT GROUP whose declared
+allowlist-entry status is `present`. Computing one estate-wide expected set
+instead would report every group as diverging from every other group's
+members, which is a definition that cannot be green while more than one
+group exists.
+
+THE TWO DIVERGENCE DIRECTIONS ARE DISTINCT FINDINGS AND SHALL NOT BE
+CONFLATED:
+
+- AN OBSERVED ALLOWLIST ENTRY NOT DERIVABLE from that group's expected set
+  is a WIDENING — a SINGLE-DOOR BREACH — and SHALL be a finding naming the
+  group, the unexpected entry, and the expected set. An admitted repository
+  other than the clearing repository is a widening of the same class.
+- AN ENUMERATED MEMBER WITH NO OBSERVED ALLOWLIST ENTRY is NOT a breach: it
+  is ALREADY FAILING CLOSED, nothing reaches the host through it, and it
+  SHALL be raised as a DARK-LANE DISPOSITION ITEM — retire it into an
+  operation, or remove the reference — rather than as a divergence of the
+  door. Treating an unreachable lane as a breach would make the attestation
+  red for a condition that is strictly safer than the expectation.
+
+Likewise, THE CLEARING WORKFLOW'S PATH BEING ABSENT before the operator has
+admitted it is the NOT-YET-CONVERGED state of requirement 1 and SHALL NOT be
+reported as a widening; it is reported as convergence not yet reached.
+
+The RESIDUAL SHALL be declared rather than implied: runner-group membership
+and workflow allowlists are provider-side configuration outside the
+repository's version control, changeable by an administrator with no pull
+request. This contract does not make that configuration versioned, and it
+SHALL NOT be read as claiming to; it makes a change to it OBSERVABLE within
+one attestation cycle.
+
+THE LEDGER'S COMPLETENESS CLAIM SHALL BE STATED AT THE STRENGTH THE CURRENT
+ATTESTATION SUPPORTS, and that strength CHANGES at the operator acts, so the
+two states SHALL be distinguished. BEFORE the clearing workflow's path is
+admitted to every governed group and every non-clearing admitted repository
+is removed, a green attestation attests the NARROWER claim: that no allowlist
+entry outside each group's expected set exists, so nothing reaches the host
+by a path the enumeration does not account for — while the ledger itself is
+complete only for dispatches that came THROUGH THE DOOR, because the door is
+not yet the only way in and is not yet open. AFTER those acts, a green
+attestation supports the FULL claim: the door is single, so the ledger is the
+complete record of everything that reached the host. A presentation of the
+ledger as the complete audit SHALL cite a current, green attestation AND
+SHALL NOT overstate which of those two claims that attestation carries.
+
+The dispatch record SHALL NOT restate vocabulary another capability owns: it
+REFERENCES a signed execution chain where one governs the work rather than
+defining a second log, and it is distinct from the enrollment audit record,
+whose subject is which hosts may BE runners rather than what was CLEARED to
+one.
+
+**Modified by `add-cpc-clearing-boundary`:** THE ATTESTATION ALSO READS THE
+DISPATCH RECORD'S WORKSPACE-DISPOSAL FIELD. Because this packet makes disposal
+evidence a field of the very record this requirement already governs, the
+periodic attestation SHALL additionally report a dispatch record whose disposal
+field is absent or empty as an UNATTESTED DISPOSAL, and SHALL NOT count such a
+dispatch as clean. This adds a field to what the attestation reads and adds
+nothing to what it authorizes: the completeness claim, the expected-set
+comparison, and every refusal ground above are untouched.
+
+**Modified over `add-clearing-dispatch-boundary`'s addition by add-cpc-clearing-boundary (2026-09-01):** — the basis ADDS this requirement and is ratified but unmerged; this packet's ADDED workspace-disposal requirement makes disposal evidence a field of the dispatch record THIS requirement governs, so the periodic attestation's read set grows by one field. Declared here rather than left as an implicit extension of a ratified requirement from outside it. The ratified text is carried verbatim, every original scenario retained, and nothing the attestation authorizes changes.
+
+#### Scenario: A dispatch clears
+- **WHEN** the clearing workflow admits a sealed request and dispatches it
+- **THEN** a record MUST be written carrying the resolved provenance, the operation, the lane, the handling classification, and the outcome
+- **AND** any claimed value that differed from the resolved value MUST be recorded beside it
+
+#### Scenario: A request is refused
+- **WHEN** the clearing workflow refuses a request for any ground in this capability
+- **THEN** the refusal MUST be recorded with its ground named from the closed enumeration of refusal grounds
+- **AND** a ground absent from that enumeration MUST be added by a governed change rather than recorded as free text
+
+#### Scenario: An operation carrying no bundle is dispatched
+- **WHEN** a registered operation is dispatched without a sealed bundle
+- **THEN** the record MUST carry the register entry's DECLARED data-handling classification and each selected lane's DECLARED runner group and dispatch label
+- **AND** those values MUST NOT be recorded as observed group membership, which only the single-door attestation establishes
+
+#### Scenario: The attestation finds an extra allowlist entry
+- **WHEN** a governed runner group's workflow allowlist contains a path that group's expected set does not derive — neither the clearing workflow nor a grandfather member enumerated for that group with allowlist status `present`
+- **THEN** the attestation MUST report a WIDENING finding naming the group, the unexpected path, and the expected set
+
+#### Scenario: The attestation finds an extra admitted repository
+- **WHEN** a governed runner group admits a repository other than the clearing repository
+- **THEN** the attestation MUST report a finding naming that repository
+
+#### Scenario: An enumerated member holds no allowlist entry
+- **WHEN** a grandfather member enumerated for a governed group holds no allowlist entry on that group
+- **THEN** the attestation MUST NOT report it as a single-door breach
+- **AND** it MUST be raised as a dark-lane disposition item, because that member is already failing closed
+
+#### Scenario: The clearing path is not yet admitted
+- **WHEN** the attestation runs before the operator has admitted the clearing workflow's path to a governed group
+- **THEN** the absent clearing path MUST be reported as convergence not yet reached
+- **AND** it MUST NOT be reported as a widening
+
+#### Scenario: The completeness of the audit is claimed
+- **WHEN** the dispatch record is presented as the complete audit of what reached the governed host
+- **THEN** the claim MUST cite a current, green single-door attestation
+- **AND** the claim MUST be stated at the strength that attestation supports, distinguishing the pre-admission narrower claim from the post-admission full claim
+- **AND** without a green attestation the record MUST be presented as complete only for dispatches that came through the door
+
+#### Scenario: A dispatch record carries no disposal evidence
+- **WHEN** the periodic attestation reads a dispatch record whose workspace-disposal field is absent or empty
+- **THEN** it MUST report an unattested disposal
+- **AND** it MUST NOT count that dispatch as clean
 
 ## ADDED Requirements
 
