@@ -1814,7 +1814,7 @@ CONSUMED_ID_FIELD = {
 
 
 def check_consumed_identifiers_are_unambiguous(
-        f: Findings, records: list[tuple[str, dict]]) -> None:
+        f: Findings, records: list[tuple[str, dict]]) -> bool:
     """AN AMBIGUOUS CONSUMED SET IS REFUSED, NEVER RESOLVED BY FILE ORDER.
 
     The consumed records are resolved THROUGH THEIR IDENTIFIERS, and the view
@@ -1833,7 +1833,17 @@ def check_consumed_identifiers_are_unambiguous(
     shared scope builder. Layer 2 is where an UNCURATED set can arise; the
     packaged corpora are adjudicated by layer 1, which would report a duplicate
     there as the corpus defect it would be.
+
+    AND IT REPORTS WHETHER IT FOUND ONE, because the caller must then NOT WALK.
+    Refusing the duplicate and walking on anyway would leave every rule below
+    resolving through the very identifiers just declared ambiguous, so the
+    secondary findings would themselves depend on file order — the defect
+    reported and then committed one line later. An ambiguous scope is
+    UNEVALUABLE, and this family refuses what it cannot evaluate rather than
+    reporting a reading of it. Found by Copilot on #566, in the review body
+    rather than on a thread.
     """
+    found = False
     seen: dict[tuple[str, str], list[str]] = {}
     for label, doc in records:
         kind = doc.get("kind") if isinstance(doc, dict) else None
@@ -1845,6 +1855,7 @@ def check_consumed_identifiers_are_unambiguous(
             seen.setdefault((kind, identifier), []).append(label)
     for (kind, identifier), labels in sorted(seen.items()):
         if len(labels) > 1:
+            found = True
             f.error("consumed-record-id-duplicate",
                     f"{', '.join(labels)}: {len(labels)} {kind} records in the "
                     f"scanned tree declare identity {identifier!r}. Resolution "
@@ -1853,7 +1864,12 @@ def check_consumed_identifiers_are_unambiguous(
                     f"issuance act a composition is discharged by, or the anchor a "
                     f"certificate hangs from — refused on EVERY copy rather than "
                     f"resolved by file order, because an ambiguous identity is not "
-                    f"a resolved one")
+                    f"a resolved one. THE CHAIN WALK OVER THIS SCOPE IS NOT RUN: "
+                    f"every rule below resolves through these identifiers, so a "
+                    f"finding produced under an ambiguous set would itself depend "
+                    f"on file order. Resolve the duplicate and re-run to see the "
+                    f"rest")
+    return found
 
 
 def repo_scan(f: Findings, target: Path, registry: Registry, docs: dict[str, dict],
@@ -1911,8 +1927,11 @@ def repo_scan(f: Findings, target: Path, registry: Registry, docs: dict[str, dic
             checked += 1
             records.append(
                 (name if len(documents) == 1 else f"{name}#{index}", doc))
-    check_consumed_identifiers_are_unambiguous(f, records)
-    if records:
+    # FAIL CLOSED ON AN AMBIGUOUS SCOPE, never walk it. The refusal above is not
+    # a warning to be walked past: every rule the walk applies resolves through
+    # the identifiers it just declared ambiguous.
+    ambiguous = check_consumed_identifiers_are_unambiguous(f, records)
+    if records and not ambiguous:
         validate_scope(f, records, registry, docs, carried)
     f.note(f"repo scan ({target}): {checked} artifact(s) checked, {skipped} skipped "
            f"(no kind this reader adjudicates — neither one of this family's own "

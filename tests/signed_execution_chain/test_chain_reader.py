@@ -649,6 +649,45 @@ def test_two_consumed_records_sharing_an_id_are_ambiguous_not_last_seen(
     assert "consumed-record-id-duplicate" in reader.codes_of(findings.errors)
 
 
+def test_an_ambiguous_scope_is_not_walked_at_all(tmp_path, registry_and_docs,
+                                                 carried):
+    """FAIL CLOSED, DO NOT WALK. Refusing the duplicate and then walking anyway
+    would leave every rule resolving through the identifiers just declared
+    ambiguous, so the secondary findings would themselves depend on file order —
+    the defect reported and then committed one line later. Found by Copilot on
+    #566, in the review body rather than on a thread.
+
+    The tree here would draw a `carried-vocabulary` refusal on its own, from a
+    trust-anchor fixture invalid against the shape that owns it. Under an
+    ambiguous set that finding is not reported, because the reading that produced
+    it is not a reading anyone should act on."""
+    registry, docs = registry_and_docs
+    invalid = CONSUMED_FIXTURE.read_text(encoding="utf-8")
+    (tmp_path / "invalid.yaml").write_text(invalid, encoding="utf-8")
+    findings = reader.Findings()
+    reader.repo_scan(findings, tmp_path, registry, docs, carried)
+    assert reader.codes_of(findings.errors) == {"carried-vocabulary"}, (
+        "the baseline for this test is that the tree refuses on its own")
+
+    source = [d for d in yaml.safe_load_all(
+        (EXAMPLES / "tranche-two" / "consumed-trust-anchor-records.example.yaml")
+        .read_text(encoding="utf-8")) if d]
+    certificate = next(d for d in source
+                       if d.get("kind") == "xfactory_certificate_record")
+    for name in ("a-first.yaml", "z-last.yaml"):
+        (tmp_path / name).write_text(yaml.safe_dump(certificate, sort_keys=False),
+                                     encoding="utf-8")
+    findings = reader.Findings()
+    reader.repo_scan(findings, tmp_path, registry, docs, carried)
+    assert reader.codes_of(findings.errors) == {"consumed-record-id-duplicate"}, (
+        "an ambiguous scope must be refused as unevaluable, not walked to "
+        "produce order-dependent secondary findings")
+    assert "NOT RUN" in next(line for line in findings.errors
+                             if "consumed-record-id-duplicate" in line), (
+        "the refusal must SAY the walk did not run, or a reader takes the "
+        "absence of further findings for their absence in the tree")
+
+
 def test_the_corpus_exclusion_is_not_evadable_by_placement(
         tmp_path, registry_and_docs, carried):
     """THE EXCLUSION IS A PACKAGED-CORPUS EXCLUSION, NOT A KEYWORD FILTER.
@@ -667,10 +706,17 @@ def test_the_corpus_exclusion_is_not_evadable_by_placement(
         "governance/signed-execution-chain/live/examples/invalid.yaml",
         "somewhere/examples/deep/trust-anchor/invalid.yaml",
     ]
-    for relative_path in evasive:
+    # DISTINCT IDENTITIES, because three copies of one record are an AMBIGUOUS
+    # scope and the reader refuses that without walking — the fail-closed rule
+    # below. This test is about placement, so it gives each copy its own id and
+    # leaves ambiguity to the test that owns it.
+    for index, relative_path in enumerate(evasive):
+        record = yaml.safe_load(consumed)
+        record["anchor_id"] = f"anchor:evasive-{index}"
         target = tmp_path / relative_path
         target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_text(consumed, encoding="utf-8")
+        target.write_text(yaml.safe_dump(record, sort_keys=False),
+                          encoding="utf-8")
     findings = reader.Findings()
     reader.repo_scan(findings, tmp_path, registry, docs, carried)
     assert f"{len(evasive)} artifact(s) checked" in findings.notes[0], (
