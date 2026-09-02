@@ -246,15 +246,25 @@ SPENT_OPENER = "**SPENT BUNDLE:**"
 # Up to three leading spaces, because CommonMark says an ATX heading may carry
 # them — `  ## Deprecations` IS a heading and was being missed; FOUR spaces is
 # an indented code block and is not a heading at all. The trailing lookahead is
-# `\s|$` so that `##` ALONE is a boundary (a legal EMPTY ATX heading) while
+# `[ \t]|$` so that `##` ALONE is a boundary (a legal EMPTY ATX heading) while
 # `#550 example` — real text in this repository's changelog — is correctly not
 # a heading, because `#` followed immediately by a non-space is none.
-_ATX_BOUNDARY = re.compile(r"^ {0,3}#{1,2}(?!#)(?=\s|$)")
+#
+# AND IT IS `[ \t]` RATHER THAN `\s`, WHICH IS AN ESCAPE AND NOT A STYLE
+# PREFERENCE (Codex P1, round 3 on PR #589). CommonMark's ATX opening sequence
+# must be followed by a SPACE, a TAB or the end of line; Python's `\s` also
+# matches U+00A0 and the other Unicode spaces. So `## contract-v3.0` is
+# PARAGRAPH TEXT to every renderer and opened a FICTITIOUS `contract-v3.0`
+# entry here — measured, and a declaration below it was ACCEPTED under a
+# heading that does not exist. The narrower class is fail-closed in both
+# directions: such a line now neither opens an entry nor closes one, matching
+# what the document actually means.
+_ATX_BOUNDARY = re.compile(r"^ {0,3}#{1,2}(?!#)(?=[ \t]|$)")
 
 # Any ATX heading, at any legal level, used only to decide what CANNOT be the
 # text of a Setext heading. Seven or more `#` is not a heading in CommonMark,
-# which is what the negative lookahead says.
-_ATX_ANY = re.compile(r"^ {0,3}#{1,6}(?!#)(?=\s|$)")
+# which is what the negative lookahead says; `[ \t]` for the reason above.
+_ATX_ANY = re.compile(r"^ {0,3}#{1,6}(?!#)(?=[ \t]|$)")
 
 # THE VERSION TOKEN MUST BE COMPLETE, AND `\b` IS NOT THAT TEST. `\b` matches
 # between `0` and `.`, so `## contract-v3.0.1` and `## contract-v3.0-notes`
@@ -263,7 +273,13 @@ _ATX_ANY = re.compile(r"^ {0,3}#{1,6}(?!#)(?=\s|$)")
 # that class and still opens an entry: it is a well-formed bundle name (major
 # 3, minor 01), and a declaration under it is refused later for naming a
 # DIFFERENT bundle, which is the honest reason.
-_ENTRY_HEADING = re.compile(r"^ {0,3}##(?!#)\s+(contract-v\d+\.\d+)(?=\s|$)")
+#
+# BOTH SPACE CLASSES ARE `[ \t]` for the reason `_ATX_BOUNDARY` records: the
+# separator after `##` because a Unicode space there means the line is not a
+# heading at all, and the one after the version token so that a name followed
+# by U+00A0 is not read as a complete token.
+_ENTRY_HEADING = re.compile(
+    r"^ {0,3}##(?!#)[ \t]+(contract-v\d+\.\d+)(?=[ \t]|$)")
 
 # SETEXT HEADINGS CLOSE AN ENTRY AND NEVER OPEN ONE. `Title` over `===` is an
 # H1 and `Title` over `---` an H2 — both boundaries. Neither opens an entry:

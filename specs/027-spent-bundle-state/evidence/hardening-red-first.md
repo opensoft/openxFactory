@@ -251,3 +251,35 @@ better answer than fixing the offset.
 
 Counts after round 2: family file **78 passed**, `tests/doc-health`
 **1443 passed, 0 failed**.
+
+## § G — bot round 3: `\s` is a Python fact, not CommonMark's
+
+| # | escape (source) | on head `0aa59945` | after | test |
+|---|---|---|---|---|
+| R3-1 | Python's `\s` matches U+00A0 and the other Unicode spaces; CommonMark's ATX opening sequence admits only a SPACE, a TAB or end of line. `##<U+00A0>contract-v3.0` is paragraph text to every renderer and opened a FICTITIOUS entry here (Codex P1) | `entry='contract-v3.0'` — **ACCEPTED under a heading that does not exist** | `entry='contract-v2.9'`, the real containing entry, so the declaration is refused | five boundary-table rows: the fictitious open, the same line closing nothing, an incomplete token, and TWO TAB CONTROLS |
+
+Fixed in all three patterns and in BOTH space classes of the entry heading —
+the separator after `##`, because a Unicode space there means the line is no
+heading at all, and the one after the version token, so a name followed by
+U+00A0 is not a complete token.
+
+**THE REGRESSION TESTS ARE AIMED AT THE HOLE THIS FIX COULD OPEN, not only at
+the one it closes** — the discipline three rounds on this guard have earned,
+and the orchestrator's standing instruction from 2026-09-02. Narrowing `\s`
+invites narrowing it too far, so a TAB separator is a row of its own and must
+still OPEN (`##\tcontract-v3.0` → `contract-v3.0`), and a tab-separated H1 must
+still CLOSE.
+
+**And one hole the fix opened in the TEST rather than the code, closed with
+it.** Three of those rows turn on a literal U+00A0 in the test file, which an
+editor, a formatter or a copy-paste can normalise to an ordinary space — after
+which they would pass for the WRONG REASON, exercising a plain
+`## contract-v3.0` heading and proving nothing about the rule they exist for.
+They are written `f"##{NBSP}…"` against a named `NBSP = " "` now, with the
+reason stated at the constant, because an escape cannot be normalised silently.
+
+Latent, not live: `contracts/CHANGELOG.md` carries zero ATX lines using
+non-space/tab whitespace.
+
+Counts after round 3: family file **83 passed**, `tests/doc-health`
+**1448 passed, 0 failed**.

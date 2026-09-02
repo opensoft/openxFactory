@@ -568,6 +568,15 @@ def test_no_declaration_at_all_reads_as_no_declarations():
 # ONE TABLE plus the cases that table cannot express, rather than as a regex a
 # reader must re-derive.
 
+# A NON-BREAKING SPACE, NAMED RATHER THAN TYPED. Three rows below turn on
+# U+00A0 being present, and a literal one in this file is a character an
+# editor, a formatter or a copy-paste can normalise to an ordinary space —
+# after which those rows would pass for the WRONG REASON, testing a plain
+# `## contract-v3.0` heading and proving nothing about the rule they exist
+# for. An escape cannot be normalised silently.
+NBSP = "\u00a0"
+
+
 def _entry_under(*between: str, base: str = "contract-v2.9") -> str | None:
     """The entry a declaration reads as sitting in, with `between` standing
     between the base entry's heading and the declaration.
@@ -641,6 +650,21 @@ BOUNDARY_TABLE = [
      "contract-v2.9",
      "real text in this repository's changelog, and no heading: `#` followed "
      "immediately by a non-space is none"),
+    ((f"##{NBSP}contract-v3.0 — a cut",), "contract-v2.9",
+     "a NON-BREAKING SPACE after the marker is not CommonMark's space-or-tab, "
+     "so the line is paragraph text and opens NO entry — it opened a "
+     "FICTITIOUS one before (Codex P1, round 3 on PR #589)"),
+    ((f"##{NBSP}Deprecations",), "contract-v2.9",
+     "and the same line closes nothing either, which is the other half of the "
+     "same rule rather than a second one"),
+    ((f"## contract-v3.0{NBSP}notes",), None,
+     "nor is a version token followed by a Unicode space a COMPLETE token; it "
+     "closes, as any `##` heading does, and opens nothing"),
+    (("##\tcontract-v3.0 — a cut",), "contract-v3.0",
+     "but a TAB is CommonMark's separator and must still OPEN — the control "
+     "against narrowing `\\s` all the way to a literal space, which is the "
+     "hole the fix for the row above could have opened"),
+    (("#\tNotes",), None, "and a tab-separated H1 must still CLOSE"),
 ]
 
 
