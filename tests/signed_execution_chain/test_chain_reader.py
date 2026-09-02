@@ -511,8 +511,12 @@ def test_the_reader_exits_zero_on_the_corpus_and_the_tree(capsys):
 # exclusion landed, as two `carried-vocabulary` refusals on a clean tree. The
 # second half is already guarded by the whole-tree test above (it goes red
 # without the exclusion, over the trust-anchor negatives this repository tracks);
-# these two hold both halves HERMETICALLY, so they still stand if either family's
-# packaged corpus moves.
+# the tests below hold both halves HERMETICALLY, so they still stand if either
+# family's packaged corpus moves — along with the four properties the bot bench
+# on #566 found the sweep owed: a non-string `kind` skipped rather than crashing,
+# a duplicate consumed identity refused rather than resolved by file order, an
+# exclusion that cannot be evaded by placement, and an ambiguous scope refused
+# without being walked.
 #
 # ONE FIXTURE, TWO PATHS, OPPOSITE OUTCOMES is the whole statement: the same
 # bytes are adjudicated at a live path and excluded under a packaged `examples/`
