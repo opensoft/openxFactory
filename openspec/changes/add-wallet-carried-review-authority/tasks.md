@@ -668,7 +668,7 @@ unimplementable, and `projection.py`'s property 5 said so in as many words.
       resolving Ground 2 today; when R6–R12 ratifies, **the open question will be
       whether a precision-flip walk suffices or a revocation-class walk is
       owed**, and this note is where that reader should start.
-- [ ] 7.7 **Gate:** a revoked holder parks a convening with a named refusal in a
+- [x] 7.7 **Gate:** a revoked holder parks a convening with a named refusal in a
       rehearsed test; an unreadable register refuses; the runbook has been
       walked once.
   - **LIMB THREE MOVED 2026-08-31, AND THE GATE IS STILL NOT MET.** *"the
@@ -702,6 +702,59 @@ unimplementable, and `projection.py`'s property 5 said so in as many words.
     is not gate completion; it selects no Council model or Operator version,
     authorizes no implementation, discharges no task, reopens no Q8, amends no
     design, and satisfies no S5 gate.
+  - **RULED 2026-09-02 by Brett Heap (openxFactory operator authority),
+    in-session — 7.7'S GATE IS MET.** Limbs one and two are discharged by
+    hermes-install **PR #50** (*"S5 governance: the revocation lifecycle at
+    verdict conformance…"*), merged `e0c2b4b4` 2026-08-28T07:34:02Z, and
+    **PR #51** (*"S5 realization: revocation at consumption, a declared
+    staleness bound, and unreachable ≠ absent"*, branch
+    `016-wallet-revocation-lifecycle`), merged `cba1a2bd`
+    2026-08-28T07:34:10Z — both confirmed MERGED via `gh` on 2026-09-02.
+    This supersedes the sub-bullet two above's *"on an UNMERGED branch
+    whose code is held on #50's ratification"*: that was stale the day it
+    was written — both PRs had already merged 2026-08-28. #51 carries
+    `tests/pg/test_review_authority_exercise_gate.py`
+    (`test_a_revocation_after_admission_refuses_the_completion`,
+    `test_a_grant_not_usable_at_exercise_refuses` — limb one, rehearsed on
+    real Postgres over HTTP) and
+    `tests/unit/test_review_authority_projection.py`
+    (`test_an_unreadable_projection_refuses`,
+    `test_an_unreachable_store_refuses_as_unreachable_not_absent` — limb
+    two); all four named tests and both files confirmed present at the
+    merge commit.
+  - **THE DEPLOY CONDITION IS ALSO MET, AND ITS ORIGINAL DETAIL IS
+    CORRECTED HERE.** The sub-bullet two above's "no reseed until a
+    hermes-install image at `3de0519`+ is deployed" IS satisfied, but not
+    as first cited when this ruling's facts were drafted. `cba1a2bd`'s own
+    candidate build (ACR tag `wallet-exercise-20260829`) was superseded
+    mid-window and never rolled out
+    (`docs/evidence/wallet-exercise-deploy-2026-08-29.md`). What actually
+    deployed, and has stayed deployed, is every image built since:
+    `gh api .../compare` confirms `cba1a2bd` is 22 commits behind the
+    feature-018 image's source `7252d45`, itself 21 commits behind the
+    feature-019 image's source `6b68c93` — the revocation-lifecycle code
+    is in the ancestry of both. The feature-018 image (digest `43c33dd9`)
+    went live 2026-08-29 ~19:03Z at `deploy/hermes` revision 17, after an
+    incident and remediation recorded in that same evidence doc; the
+    feature-019 image (digest `1c6bd186`) rolled it to **revision 18** the
+    next day with no outage (`docs/evidence/register-projection-refresher-
+    deploy-2026-08-30.md`; feature PR #63 `6b68c93`, stamp PR #64
+    `5741c9b`, evidence PR #65). Revision 18 is the confirmed live state as
+    of 2026-09-02 — no evidence doc post-dates it. (Deploy/hermes revision
+    13 is the *pre-window* state on an unrelated older image,
+    `sha256:85160f20`, per that same 08-29 doc's "Pre-window live state"
+    section; it describes what was running BEFORE this deploy, and citing
+    it as the deploy's own outcome — as an earlier drafting of this
+    ruling's facts did — is corrected here, not repeated.)
+  - **LIMB THREE** is the 2026-08-31 walk two bullets above
+    (`walk-2026-08-31-composition-bump.md`) — already recorded there and
+    not repeated here.
+  - **RESIDUAL, RECORDED HONESTLY.** The walked limb was precision-class
+    and revoked nothing — the same finding 7.6's note above makes of that
+    same walk. Revocation-class evidence, an actual revoked holder parking
+    under a named refusal, arrives with the register act's step 5b
+    (projection re-derive plus one watched convening); tracked there, not
+    here.
 
 ## 8. Bench and governance items carried, not performed
 
