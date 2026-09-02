@@ -744,7 +744,20 @@ unimplementable, and `projection.py`'s property 5 said so in as many words.
     (authored on this branch) disputing that on a different reading of
     limb one. Both are kept verbatim, in that order; neither is edited or
     adjudicated by this merge. Brett Heap's resolution of the
-    disagreement between them is outstanding.
+    disagreement between them is outstanding. **RECONCILED 2026-09-02
+    (lane openxfactory-max001, on the coordinator's reading of the ruling
+    above; Brett Heap may overrule):** the operator's RULED bullet
+    governs. Limb one's *"in a rehearsed test"* is satisfied by
+    hermes-install #51's rehearsed refusals
+    (`test_a_revocation_after_admission_refuses_the_completion`), which
+    is what the ruling cites; the walk-dated bullet below read the limb
+    as requiring a LIVE convening and is SUPERSEDED on that point. What
+    survives of it is a fact, not a gate limb: no live convening has
+    ever run in this estate, and a revoked holder has therefore never
+    been observed parking one outside a rehearsal — carried as the
+    register act's step-5b observation (walk-2026-09-02 §8) and as the
+    hermes-install debt (~90 references / 44 files), not as an open
+    limb of 7.7.
   - **RULED 2026-09-02 by Brett Heap (openxFactory operator authority),
     in-session — 7.7'S GATE IS MET.** Limbs one and two are discharged by
     hermes-install **PR #50** (*"S5 governance: the revocation lifecycle at
