@@ -155,9 +155,13 @@ pinned_members:
 # `pytest-suite` ALSO checks out the pinned core (`continue-on-error`) and the
 # same test module compares the two byte for byte when it is present. The
 # comparison SKIPS when the core is absent, and that skip is the alarm:
-# `EXPECT_SKIPPED` in `pytest-suite.yml` is pinned EXACTLY, so a fetch that
-# quietly stopped working turns a required check red with a named cause instead
-# of degrading in silence.
+# `pytest-suite.yml` reads the JUnit report and requires that comparison's own
+# `<testcase>`, BY NAME, to have run and passed, so a fetch that quietly stopped
+# working turns a required check red with a named cause instead of degrading in
+# silence. `EXPECT_SKIPPED` is still pinned exactly beside it, but as the
+# backstop: an aggregate count cannot tell this skip appearing from this skip
+# appearing while another conditional skip starts running, and goes green on the
+# canceling pair (Codex P2, PR #569).
 #
 # NOT IN `contracts/manifest.yaml`, for the same reason this pin is not: neither
 # is a contract this repository publishes to consumers. The digest below is

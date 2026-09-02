@@ -77,6 +77,11 @@
 #     coverage and reds. The margin is printed on every run so drift is visible
 #     rather than inferred.
 #   * FAILURES and ERRORS must be zero.
+#   * and ONE TEST IS WATCHED BY NAME rather than by any total: the floor
+#     snapshot's freshness verifier, which must appear in the JUnit report as a
+#     `<testcase>` that RAN AND PASSED. It is the one assertion here that
+#     depends on a cross-repository checkout, so it is the one that can go
+#     missing for reasons no count would show — see `FRESHNESS_CLASSNAME` below.
 # THE TRADE IS STATED: a silent loss SMALLER than the margin between the floor
 # and the day's actual count would not red on the floor alone. It would still red
 # on the exact SKIPPED pin if it became skips, and on failures/errors if it
@@ -327,13 +332,26 @@ jobs:
       # rewritten history must not wedge every openxFactory pull request.
       #
       # AND YET IT CANNOT DEGRADE SILENTLY, WHICH IS THE WHOLE TRICK. When this
-      # step fails the freshness verifier SKIPS, the run's skipped count becomes
-      # 22, and `EXPECT_SKIPPED: "21"` below — pinned EXACTLY, and failing the
-      # job on any drift — turns this REQUIRED check red with a named cause. On
-      # the normal path the checkout succeeds, the verifier RUNS, and the pin is
-      # untouched. The mechanism that catches "a directory that silently turned
-      # into skips" catches "the cross-repository fetch silently stopped
-      # working" for free.
+      # step fails the freshness verifier SKIPS, and the pin step below FAILS
+      # THE JOB BY NAME: it looks the verifier's own `<testcase>` up in the
+      # JUnit report and requires it to have RUN AND PASSED. On the normal path
+      # the checkout succeeds, the verifier runs, and that assertion is silent.
+      #
+      # THE NAMED ASSERTION IS THE LOAD-BEARING ONE, AND THE AGGREGATE PIN
+      # ALONE WAS NOT ENOUGH — a Codex P2 finding on PR #569 against the first
+      # cut of this design. That cut leaned on `EXPECT_SKIPPED: "21"`: a failed
+      # checkout makes 22, 22 ≠ 21, red. True, but the pin is an AGGREGATE. On a
+      # run where the checkout fails (+1 skip) while any other conditional skip
+      # starts running — a pull request that fixes or deletes one of the 21 — the
+      # two cancel, the count is 21 again, and the REQUIRED check goes GREEN
+      # with the byte-freshness comparison silently gone. The floors cannot
+      # cover for it either — they are FLOORS with slack, deliberately, and the
+      # green run that proved this design printed `margin 1576` / `margin 1575`
+      # (PR #569, `selected=8666 passed=8645`). A one-test change is not visible
+      # from there. So the verifier is watched BY NAME,
+      # which no other movement in the suite can cancel, and the aggregate pin
+      # keeps its own separate job — the general skip discipline, "a directory
+      # that silently turned into skips".
       #
       # THE CREDENTIAL IS THE ONE ALREADY MINTED ABOVE, and it is proven: on PR
       # #550, `merge-master-approval` checked out this same repository at this
@@ -397,8 +415,10 @@ jobs:
         env:
           PINNED_CORE_CHECKOUT: ${{ github.workspace }}/.merge-master-core
 
-      # THE PINNED TRIPLE, read from the JUnit XML attributes. See the header.
-      - name: Pin the selected / passed / skipped triple
+      # THE PINNED TRIPLE, read from the JUnit XML attributes, PLUS the named
+      # freshness verdict read from the report's own `<testcase>`. See the
+      # header, and `FRESHNESS_CLASSNAME` below for why the second exists.
+      - name: Pin the triple and require the named freshness verifier
         shell: bash
         # THE PIN IS TAKEN FROM CI'S OWN RUN, NOT FROM A DEVELOPER MACHINE.
         # The header already records why the two differ: the self-skip guards
@@ -456,18 +476,52 @@ jobs:
           # decision core` step above supplies the tree on every normal run, so
           # the verifier RUNS and this number does not move. When that
           # cross-repository fetch fails, the verifier skips, this count becomes
-          # 22, and the comparison below fails the job — which is precisely how
-          # a silently degraded fetch is turned into a red REQUIRED check with a
-          # named cause instead of a quiet loss of a guard. The pin now protects
-          # two things: a directory that turned into skips, and a boundary
-          # crossing that stopped working.
+          # 22, and the comparison below fails the job.
+          #
+          # THAT IS NOW THE SECOND SIGNAL, NOT THE FIRST. This pin is an
+          # aggregate and a canceling pair of changes can hold it at 21 while
+          # the verifier is gone (Codex P2, PR #569); `FRESHNESS_CLASSNAME`
+          # below watches the verifier by name so that boundary crossing has a
+          # signal of its own. Keep both: this one still catches the shape it
+          # was built for — a directory that turned into skips — which the named
+          # verdict says nothing about.
           #
           # (MIN_SELECTED and MIN_PASSED are FLOORS and need no edit: the new
           # module only raises the actuals, which widens the printed margin.)
           EXPECT_SKIPPED: "21"
+          # THE NAMED VERDICT — the freshness verifier watched as itself rather
+          # than as one unit of an aggregate it can hide inside.
+          #
+          # WHY, IN ONE SENTENCE: `EXPECT_SKIPPED` is a SUM, and a sum cannot
+          # tell "the core checkout failed" (+1 skip) from "the core checkout
+          # failed AND some other conditional skip started running" (+1 −1 = 0),
+          # so on that second run the pin reads 21, the required check is GREEN,
+          # and the byte-for-byte comparison the snapshot's fidelity rests on
+          # has silently disappeared. Codex raised exactly this against PR #569
+          # (P2), and it is the CSC-F16 silent-false-green shape a second time —
+          # this file's own defect class, found in this file's own guard.
+          #
+          # SO THE TWO SIGNALS ARE SPLIT AND BOTH ARE KEPT:
+          #   * the named verdict below must be `passed` — the verifier RAN and
+          #     compared real bytes. Absent, skipped, failed or errored all red,
+          #     and cannot be cancelled out by anything happening elsewhere in
+          #     the suite.
+          #   * `EXPECT_SKIPPED` stays exactly as it was, doing the job it was
+          #     always for: the general skip discipline.
+          #
+          # THESE TWO STRINGS ARE A NODE ID and they must track the test. A
+          # rename that forgets them makes the verdict `absent`, which REDS —
+          # fail-safe, deliberately, since the alternative is a watcher pointed
+          # at nothing. `tests/review_lane_pin/test_floor_snapshot.py::
+          # TheRealFiles::test_the_required_suite_watches_the_verifier_by_name`
+          # asserts the pair against the live class and method objects, so the
+          # rename fails on the developer's machine first, with the reason.
+          FRESHNESS_CLASSNAME: "tests.review_lane_pin.test_floor_snapshot.TheFreshnessVerifier"
+          FRESHNESS_TESTNAME: "test_the_snapshot_is_byte_identical_to_the_pinned_core"
         run: |
           set -euo pipefail
-          read -r SELECTED PASSED SKIPPED FAILURES ERRORS < <(python3 - <<'PY'
+          read -r SELECTED PASSED SKIPPED FAILURES ERRORS FRESHNESS < <(python3 - <<'PY'
+          import os
           import xml.etree.ElementTree as ET
           root = ET.parse("pytest-report.xml").getroot()
           suites = [root] if root.tag == "testsuite" else list(root)
@@ -475,11 +529,35 @@ jobs:
           skipped = sum(int(s.get("skipped", 0)) for s in suites)
           failures = sum(int(s.get("failures", 0)) for s in suites)
           errors = sum(int(s.get("errors", 0)) for s in suites)
+
+          # The named freshness verdict. A `<testcase>` with no skipped/failure/
+          # error child RAN AND PASSED; that is the only acceptable outcome, and
+          # "no such testcase in the report" is one of the outcomes it rejects.
+          wanted = (os.environ["FRESHNESS_CLASSNAME"],
+                    os.environ["FRESHNESS_TESTNAME"])
+          verdicts = []
+          for case in root.iter("testcase"):
+              if (case.get("classname"), case.get("name")) != wanted:
+                  continue
+              outcome = "passed"
+              for child in case:
+                  if child.tag in ("skipped", "failure", "error"):
+                      outcome = child.tag
+                      break
+              verdicts.append(outcome)
+          if not verdicts:
+              freshness = "absent"
+          else:
+              # Any non-passing occurrence wins: a verifier that passed once and
+              # skipped once did not verify this run.
+              freshness = next((v for v in verdicts if v != "passed"), "passed")
+
           print(selected, selected - skipped - failures - errors,
-                skipped, failures, errors)
+                skipped, failures, errors, freshness)
           PY
           )
           echo "selected=$SELECTED passed=$PASSED skipped=$SKIPPED failures=$FAILURES errors=$ERRORS"
+          echo "freshness verifier ($FRESHNESS_CLASSNAME::$FRESHNESS_TESTNAME): $FRESHNESS"
           echo "floors: selected>=$MIN_SELECTED (margin $((SELECTED - MIN_SELECTED))) passed>=$MIN_PASSED (margin $((PASSED - MIN_PASSED))) skipped==$EXPECT_SKIPPED"
           rc=0
           [ "$FAILURES" = "0" ] || { echo "::error::$FAILURES failure(s)"; rc=1; }
@@ -487,4 +565,5 @@ jobs:
           [ "$SELECTED" -ge "$MIN_SELECTED" ] || { echo "::error::selected $SELECTED is BELOW the floor $MIN_SELECTED — tests stopped being collected. Find them; do not lower the floor"; rc=1; }
           [ "$PASSED" -ge "$MIN_PASSED" ] || { echo "::error::passed $PASSED is BELOW the floor $MIN_PASSED — find the tests that stopped passing or stopped being collected; do not lower the floor"; rc=1; }
           [ "$SKIPPED" = "$EXPECT_SKIPPED" ] || { echo "::error::skipped $SKIPPED, pinned exactly $EXPECT_SKIPPED — a directory that silently turned into skips is exactly what this pin exists to catch. If the change is intended, move the pin WITH the reason"; rc=1; }
+          [ "$FRESHNESS" = "passed" ] || { echo "::error::snapshot freshness verifier did not run — pinned core checkout unavailable or test removed ($FRESHNESS_CLASSNAME::$FRESHNESS_TESTNAME is '$FRESHNESS' in pytest-report.xml, wanted 'passed'). contracts/review-lane-floor-snapshot.yaml was NOT compared byte for byte against the pinned decision core on this run, so a stale copy could assert coverage the real floor does not give. Fix the cross-repository checkout (see the 'Check out the pinned decision core' step's warning above for its outcome); if the test was deliberately renamed or moved, move FRESHNESS_CLASSNAME/FRESHNESS_TESTNAME with it in the same diff. Do not delete this assertion — the skipped-count pin CANNOT cover for it, which is the Codex P2 finding on PR #569"; rc=1; }
           exit $rc

@@ -33,11 +33,21 @@ FALSE GREEN — the CSC-F16 defect species, filed by CSC against its own conditi
 So `pytest-suite.yml` also checks out the pinned core (`continue-on-error`) and
 `TheFreshnessVerifier` below compares the two byte for byte. **That comparison is
 the only skipping test in `tests/review_lane_pin/`, and its skip is the alarm
-rather than a hole:** `EXPECT_SKIPPED` in `pytest-suite.yml` is pinned EXACTLY,
-so a checkout that quietly stopped working moves the count off its pin and turns
-the REQUIRED check red with a named cause. Silent degradation becomes visible.
-Everything else here either passes or fails, following
-`test_review_lane_caller.py`'s rule for the same reason.
+rather than a hole:** `pytest-suite.yml` reads the JUnit report and requires
+THIS TESTCASE, BY NAME, to have run and passed, so a checkout that quietly
+stopped working turns the REQUIRED check red with a named cause. Silent
+degradation becomes visible. Everything else here either passes or fails,
+following `test_review_lane_caller.py`'s rule for the same reason.
+
+THE NAME IS THE SIGNAL, AND THE COUNT IS THE BACKSTOP — in that order, and the
+order was corrected. The first cut relied on `EXPECT_SKIPPED` alone: the skip
+makes 22, the pin says 21, red. Codex (P2, PR #569) found that an AGGREGATE
+cannot see this: on a run where the checkout fails AND some other conditional
+skip starts running, +1 and −1 cancel, the pin still reads 21, and the required
+check is GREEN with this comparison gone — the CSC-F16 silent-false-green shape
+inside the guard against CSC-F16. The named-testcase assertion cannot be
+cancelled by anything happening elsewhere in the suite; the exact skip pin
+stays, doing the job it was actually built for.
 
 TWO TIERS, as in that module: the shipped bytes first, then negative controls one
 mutation away, so a check that has quietly stopped checking is visible.
@@ -312,6 +322,43 @@ class TheRealFiles(unittest.TestCase):
             "the checkout; without it the verifier skips on every run and the "
             "skip pin moves" % CORE_ENV_VAR)
 
+    def test_the_required_suite_watches_the_verifier_by_name(self) -> None:
+        """The node id in the workflow must be THIS test's, still.
+
+        `pytest-suite.yml` asserts the freshness verifier RAN AND PASSED by
+        looking its `<testcase>` up in the JUnit report by classname and name —
+        the fix for the Codex P2 finding on PR #569, which observed that the
+        aggregate `EXPECT_SKIPPED` pin cannot distinguish "the verifier
+        vanished" from "the verifier vanished and something else started
+        running", and goes GREEN on the pair.
+
+        A watcher pointed at a node id that no longer exists is the same defect
+        one level up, so the pair is asserted here against the LIVE class and
+        method objects: rename either and this fails on the developer's machine,
+        naming the two strings to move. (In CI the rename would red anyway — the
+        verdict becomes `absent` — but it would red as a mystery.)
+        """
+        text = PYTEST_SUITE.read_text(encoding="utf-8")
+        # pytest's JUnit `classname` is the node id with `/` and the `.py`
+        # suffix folded to dots, taken from the path relative to rootdir — NOT
+        # `__module__`, which is the bare `test_floor_snapshot` here because
+        # `tests/` carries no `__init__.py`. Rebuild it the way the report does.
+        module_path = pathlib.Path(__file__).resolve().relative_to(REPO_ROOT)
+        classname = "%s.%s" % (
+            ".".join(module_path.with_suffix("").parts),
+            TheFreshnessVerifier.__name__)
+        testname = (TheFreshnessVerifier
+                    .test_the_snapshot_is_byte_identical_to_the_pinned_core
+                    .__name__)
+        for label, value in (("FRESHNESS_CLASSNAME", classname),
+                             ("FRESHNESS_TESTNAME", testname)):
+            self.assertIn(
+                '%s: "%s"' % (label, value), text,
+                "%s in %s must name the freshness verifier's live node id "
+                "(%s), or the required check watches nothing. Move it with the "
+                "rename, in the same diff."
+                % (label, PYTEST_SUITE.relative_to(REPO_ROOT), value))
+
     def test_the_snapshot_is_a_declared_non_member_of_the_pin_class(self) -> None:
         """The exclusion must be DECLARED, and it must still be there.
 
@@ -362,28 +409,45 @@ class TheFreshnessVerifier(unittest.TestCase):
 
     THE ONLY SKIPPING TEST IN THIS DIRECTORY, and the skip is load-bearing.
 
-    On the normal path the checkout in `pytest-suite.yml` succeeds, this test
-    RUNS, and the suite's skipped count stays on its exact pin. If the
-    cross-repository fetch ever stops working — a revoked App grant, a
-    codexFactory outage, a rewritten history — this test skips, the count moves
-    off `EXPECT_SKIPPED`, and the REQUIRED check goes red naming the drift. The
-    coverage assertion above keeps holding from the snapshot throughout, so an
-    outage never wedges the repository; it only becomes IMPOSSIBLE TO MISS.
+    On the normal path the checkout in `pytest-suite.yml` succeeds and this test
+    RUNS. If the cross-repository fetch ever stops working — a revoked App
+    grant, a codexFactory outage, a rewritten history — this test skips and the
+    REQUIRED check goes red naming the drift. The coverage assertion above keeps
+    holding from the snapshot throughout, so an outage never wedges the
+    repository; it only becomes IMPOSSIBLE TO MISS.
+
+    WHAT MAKES IT RED, EXACTLY, AND IN WHICH ORDER:
+
+    1. `pytest-suite.yml`'s pin step looks THIS testcase up in
+       `pytest-report.xml` by classname and name — `FRESHNESS_CLASSNAME` /
+       `FRESHNESS_TESTNAME` there — and requires the verdict `passed`. Absent,
+       skipped, failed and errored each fail the job with
+       *"snapshot freshness verifier did not run — pinned core checkout
+       unavailable or test removed"*. This is the load-bearing signal.
+    2. `EXPECT_SKIPPED` remains pinned exactly, and the skip still moves it to
+       22. That is the backstop and the general skip discipline, no longer the
+       primary signal: an aggregate cannot distinguish this skip appearing from
+       this skip appearing WHILE another conditional skip starts running, and
+       goes green on the pair. Codex raised it as P2 on PR #569; the named
+       assertion above is the answer, and the reason it is stated first.
 
     That trade is the whole design: *"the exact skip pin converts 'the
     cross-repository fetch quietly stopped working' from a silent degradation
-    into a red required check with a named cause"* — which is the defect class
-    CSC-F16 and CSC-F14 are about.
+    into a red required check with a named cause"* — now converted by the name
+    rather than by the count, which is the defect class CSC-F16 and CSC-F14 are
+    about, applied once more to the guard itself.
     """
 
     def test_the_snapshot_is_byte_identical_to_the_pinned_core(self) -> None:
         core = locate_pinned_core()
         if core is None:
             raise unittest.SkipTest(
-                "no pinned decision core on disk (set %s, or place a "
-                "codexFactory checkout at .merge-master-core). In CI this skip "
-                "means the cross-repository checkout FAILED: the suite's exact "
-                "skip pin moves and this required check goes red."
+                "FRESHNESS-VERIFIER-DID-NOT-RUN: no pinned decision core on "
+                "disk (set %s, or place a codexFactory checkout at "
+                ".merge-master-core). In CI this skip means the "
+                "cross-repository checkout FAILED: pytest-suite.yml requires "
+                "this testcase to have PASSED in the JUnit report and fails "
+                "the required check by name when it did not."
                 % CORE_ENV_VAR)
         authoritative = (core / FLOOR_IN_CORE).read_bytes()
         vendored = SNAPSHOT.read_bytes()
