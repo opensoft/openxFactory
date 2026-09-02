@@ -412,6 +412,53 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [declare-spent-bundle-state](openspec/changes/declare-spent-bundle-state/proposal.md)
+  — authored 2026-09-02, **`Status: draft` — NOT RATIFIED, and the split is
+  deliberate**. Answers openxFactory issue **#575**, filed by the
+  `contract-v3.0` cut (**#573**, squash `ff9ed815`) at the moment it met the
+  defect: the `release-tag-publication` family has **NO THIRD STATE** between
+  *published* and *owes a tag*, so `contract-v2.6` — declared at `bbbbeda9`
+  (**#565**), never verifiable (five `HGR-RELEASE-DIGEST-MISMATCH`, measurement
+  of record PR #565 comment `5502452624`), never publishable under the targeting
+  rule, and ADDITIVE-classed over a tree that refuses three shapes
+  `contract-v2.5` accepted — makes the family `error` **permanently** and keeps
+  `tests/doc-health/test_release_tag_publication.py::test_this_repository_reads_zero_and_the_probe_can_fire`
+  **RED on `main`** (18 passed, 1 failed at the merge base). Brett Heap ruled the
+  supersession 2026-09-02, verbatim as quoted in #575: *"Supersede: v3.0 is the
+  completion"* — and, separately, commissioned this packet: *"Merge now, fix
+  #575 next"*. **ONE `## MODIFIED Requirements` BLOCK over the promoted
+  `Release-tag publication` requirement**, adding a **SPENT** state that is
+  entered ONLY by an explicit reserved declaration and refused by every absence:
+  **silence still `error`s**, and the only way to quiet a spent bundle is to
+  publish its SUCCESSOR's tag — which is the act the family exists to compel, so
+  the escape hatch cannot be taken by writing anything (OD-4). The record is
+  `contracts/CHANGELOG.md` and **not** `health/dispositions.yaml`, measured
+  rather than preferred: that file keys on `(family, repo, path)` and every
+  finding of this family lands on `contracts/manifest.yaml`, so one row would
+  suppress the whole family for the repository forever, and its own loader
+  records that it is unreachable in the `--single-repo` scope the red self-gate
+  runs in (OD-1). **SCENARIO-COMPLETE AND VERIFIED MECHANICALLY**: 11 of 11
+  canon scenarios present, 10 byte-identical, the eleventh differing by exactly
+  one added `AND` bullet with nothing removed, all 67 canon body lines
+  surviving, block BUILT FROM CANON at named anchors rather than retyped — the
+  #331/#329 loss shape checked rather than asserted. Ten scenarios added,
+  twenty-one in total. **PROPOSAL ONLY (OD-8)**: #544's one-landing shape was
+  ruled for a mechanical reason — a family ADDITION reddens
+  `family-enumeration`'s self-gate in the interval — and this change adds no
+  family and moves no count, so no forcing function exists, while the cut's own
+  entry says this vocabulary *"owes its own change and its own review"*. `main`
+  therefore stays red for one more PR, on a red that is **declared, named and
+  inherited**. **NO `## MODIFIED` BLOCK over `Deterministic check families`**,
+  and OQ-1 says why: that requirement's document-set sentence for this family is
+  ALREADY stale — it omits the `contracts/releases/` read the family's own
+  accepted amendment added — so the staleness is inherited, its operative
+  conclusion stays true, and no check reads the input enumeration. **OD-6 is the
+  constraint #575 did not anticipate**: the obligation-side paragraph belongs in
+  `docs/contract-versioning-policy.md`, which is a NON-EDITORIAL member of
+  `contracts/releases/contract-v3.0.digests.yaml`, so it rides the next cut
+  rather than trading this `error` for a `release-inventory-drift` one. OD-1 …
+  OD-8 and OQ-1 … OQ-3 are FLAGGED FOR VETO; OD-3 (`info` versus silence) and
+  OD-4 are owed an explicit ruling rather than acceptance by silence.
 - [add-requirement-ref-resolution-integrity](openspec/changes/add-requirement-ref-resolution-integrity/proposal.md)
   — authored 2026-08-31, **RATIFIED 2026-09-01 BY DIRECT RULING**
   (`Status: ratified`; record `review/ratification-2026-09-01.md`) — Brett Heap
