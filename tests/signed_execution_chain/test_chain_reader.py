@@ -582,6 +582,62 @@ def test_the_sweeps_skipped_count_does_not_misreport_why(
     assert "BOTH families' packaged examples/ excluded" in note
 
 
+def test_a_kind_that_is_not_a_string_is_skipped_and_never_crashes_the_sweep(
+        tmp_path, registry_and_docs, carried):
+    """A sweep reads ARBITRARY YAML, and `{"a": 1} in some_dict` RAISES rather
+    than returning False. `kind: [a, b]` in one unrelated file took the whole
+    scan down with a `TypeError` and discarded every other file's findings — a
+    required gate felled by a document it does not even own. Found by Copilot on
+    #566."""
+    (tmp_path / "list-kind.yaml").write_text(
+        "schema_version: 1\nkind: [a, b]\n", encoding="utf-8")
+    (tmp_path / "mapping-kind.yaml").write_text(
+        "schema_version: 1\nkind: {a: 1}\n", encoding="utf-8")
+    (tmp_path / "numeric-kind.yaml").write_text(
+        "schema_version: 1\nkind: 7\n", encoding="utf-8")
+    findings = reader.Findings()
+    registry, docs = registry_and_docs
+    reader.repo_scan(findings, tmp_path, registry, docs, carried)
+    assert findings.errors == []
+    assert "0 artifact(s) checked, 3 skipped" in findings.notes[0]
+
+
+def test_two_consumed_records_sharing_an_id_are_ambiguous_not_last_seen(
+        tmp_path, registry_and_docs, carried):
+    """AN AMBIGUOUS CONSUMED SET IS REFUSED, NEVER RESOLVED BY FILE ORDER.
+
+    The view that resolves consumed records keeps the LAST document it saw, so
+    in an arbitrary checkout two certificates sharing an id would let
+    lexicographic file order decide which fingerprint a tier-2 signature is
+    compared against. `add-trust-anchor`'s own reader refuses this as
+    `record-id-duplicate` on every copy; this reader already refuses a key id two
+    wallets claim differently rather than taking the last one seen. Found by
+    Codex on #566, where admitting the consumed kinds to the sweep is what made
+    an UNCURATED consumed set reachable at all."""
+    source = [d for d in yaml.safe_load_all(
+        (EXAMPLES / "tranche-two" / "consumed-trust-anchor-records.example.yaml")
+        .read_text(encoding="utf-8")) if d]
+    certificate = next(d for d in source
+                       if d.get("kind") == "xfactory_certificate_record")
+    for name in ("a-first.yaml", "z-last.yaml"):
+        (tmp_path / name).write_text(yaml.safe_dump(certificate, sort_keys=False),
+                                     encoding="utf-8")
+    findings = reader.Findings()
+    registry, docs = registry_and_docs
+    reader.repo_scan(findings, tmp_path, registry, docs, carried)
+    assert "consumed-record-id-duplicate" in reader.codes_of(findings.errors)
+    # REFUSED ON EVERY COPY, so the finding names both files rather than
+    # whichever one file order happened to leave standing.
+    duplicate = next(line for line in findings.errors
+                     if "consumed-record-id-duplicate" in line)
+    assert "a-first.yaml" in duplicate and "z-last.yaml" in duplicate
+    # One copy alone is not ambiguous, and is not refused.
+    (tmp_path / "z-last.yaml").unlink()
+    findings = reader.Findings()
+    reader.repo_scan(findings, tmp_path, registry, docs, carried)
+    assert "consumed-record-id-duplicate" not in reader.codes_of(findings.errors)
+
+
 def test_the_reader_no_longer_says_the_capability_confers_nothing(
         registry_and_docs, carried):
     """Requirement 9 is about this capability's own standing, and the reader

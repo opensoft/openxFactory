@@ -1771,6 +1771,57 @@ def self_test(f: Findings, registry: Registry, docs: dict[str, dict],
 SKIP_DIR_NAMES = {".git", "node_modules", "__pycache__", ".venv"}
 
 
+#: The identifier each consumed record is RESOLVED THROUGH. `add-trust-anchor`
+#: owns these fields; they are named here only to detect an ambiguous set, never
+#: to restate the vocabulary.
+CONSUMED_ID_FIELD = {
+    "xfactory_certificate_record": "certificate_id",
+    "xfactory_certificate_issuance_evidence": "issuance_evidence_id",
+    "xfactory_trust_anchor": "anchor_id",
+}
+
+
+def check_consumed_identifiers_are_unambiguous(
+        f: Findings, records: list[tuple[str, dict]]) -> None:
+    """AN AMBIGUOUS CONSUMED SET IS REFUSED, NEVER RESOLVED BY FILE ORDER.
+
+    The consumed records are resolved THROUGH THEIR IDENTIFIERS, and the view
+    that resolves them keeps the last document it saw. In a curated corpus that
+    is harmless; over an ARBITRARY CHECKOUT it means two certificates, issuance
+    evidences or anchors sharing an id let lexicographic file order decide which
+    fingerprint, which issuance act or which anchor a tier-2 signature verifies
+    against — the substitution `add-trust-anchor`'s own reader refuses as
+    `record-id-duplicate` on every copy, and the same substitution this reader
+    already refuses one vocabulary over, where a key id two wallets claim
+    differently is AMBIGUOUS rather than last-seen.
+
+    It is checked at the SWEEP rather than in the shared scope builder because
+    the sweep is where an uncurated set can arise: the packaged corpora are
+    adjudicated by layer 1, which would report a duplicate there as the corpus
+    defect it would be.
+    """
+    seen: dict[tuple[str, str], list[str]] = {}
+    for label, doc in records:
+        kind = doc.get("kind") if isinstance(doc, dict) else None
+        field = CONSUMED_ID_FIELD.get(kind) if isinstance(kind, str) else None
+        if field is None:
+            continue
+        identifier = doc.get(field)
+        if isinstance(identifier, str) and identifier:
+            seen.setdefault((kind, identifier), []).append(label)
+    for (kind, identifier), labels in sorted(seen.items()):
+        if len(labels) > 1:
+            f.error("consumed-record-id-duplicate",
+                    f"{', '.join(labels)}: {len(labels)} {kind} records in the "
+                    f"scanned tree declare identity {identifier!r}. Resolution "
+                    f"through an id is last-write-wins, so a duplicate could swap "
+                    f"the certificate a fingerprint is compared against, the "
+                    f"issuance act a composition is discharged by, or the anchor a "
+                    f"certificate hangs from — refused on EVERY copy rather than "
+                    f"resolved by file order, because an ambiguous identity is not "
+                    f"a resolved one")
+
+
 def repo_scan(f: Findings, target: Path, registry: Registry, docs: dict[str, dict],
               carried: dict[str, dict]) -> None:
     sweep = target.is_dir()
@@ -1816,14 +1867,22 @@ def repo_scan(f: Findings, target: Path, registry: Registry, docs: dict[str, dic
             # scope that resolves them. They are collected into scope exactly as
             # the packaged corpora already load them, and validated against the
             # same carried canonical schemas.
-            if not isinstance(doc, dict) or (
-                    doc.get("kind") not in KIND_TO_SCHEMA
-                    and doc.get("kind") not in CONSUMED_KIND_TO_SCHEMA):
+            # THE `kind` IS TYPE-GUARDED BEFORE IT IS LOOKED UP, because a sweep
+            # reads ARBITRARY YAML and `{"a": 1} in some_dict` raises rather than
+            # returning False. A document writing `kind: [a, b]` crashed the whole
+            # scan and discarded every other file's findings — a required gate
+            # felled by one unrelated file. Every key in both maps is a string, so
+            # a non-string kind is a skip by construction.
+            kind = doc.get("kind") if isinstance(doc, dict) else None
+            if not isinstance(kind, str) or (
+                    kind not in KIND_TO_SCHEMA
+                    and kind not in CONSUMED_KIND_TO_SCHEMA):
                 skipped += 1
                 continue
             checked += 1
             records.append(
                 (name if len(documents) == 1 else f"{name}#{index}", doc))
+    check_consumed_identifiers_are_unambiguous(f, records)
     if records:
         validate_scope(f, records, registry, docs, carried)
     f.note(f"repo scan ({target}): {checked} artifact(s) checked, {skipped} skipped "
