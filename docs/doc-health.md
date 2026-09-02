@@ -156,6 +156,46 @@ changelog or the inventory to match the absence*. The gap it closes reached
 `contract-v1.33`/`v1.35`/`v1.39` in August and recurred on `contract-v2.3`
 and `contract-v2.4`; a human found it both times (issue #528).
 
+[`declare-spent-bundle-state`](../openspec/changes/declare-spent-bundle-state/proposal.md)
+gave that family a **THIRD STATE — SPENT** (ratified 2026-09-02, issue #575),
+between *published* and *owes a tag*. It adds **no family** and moves no family
+count. A bundle that was cut, superseded, and can never carry a legal tag —
+`contract-v2.6` is the first and so far only instance in this estate — may be
+declared spent by ONE reserved single-line form in `contracts/CHANGELOG.md` at
+the published tip, written inside the changelog entry of the bundle that
+superseded it:
+
+    **SPENT BUNDLE:** `<bundle>` — SUPERSEDED BY `<superseding bundle>` — CAUSE: <text> — RULED BY <author>, <YYYY-MM-DD> — MEASUREMENT: <citation>
+
+**Silence is never a declaration.** An untagged superseded bundle that no
+declaration names is reported exactly as before, at `error` and in the same
+words; a bundle never becomes spent by being old, ignored, or inconvenient.
+There are **three outcomes and the middle one is not a refusal**. ACCEPTED —
+every element present, the line inside its superseding bundle's own entry, and
+that bundle itself cut, itself carrying a published annotated tag on a declaring
+commit, and **strictly later** — emits exactly one `info`, classed `contested`,
+on the spent bundle's OWN release inventory
+(`contracts/releases/<bundle>.digests.yaml`, never the manifest and never the
+changelog, because a finding's identity is family + repo + path). PROVISIONAL —
+well formed, successor cut but not yet published — emits one `warning` and
+suppresses the superseded `error`, the successor being graded on its own account.
+REFUSED — successor never cut, successor not later, an element missing, two
+declarations naming one bundle, a declaration outside its successor's entry, or
+one naming the bundle the manifest still declares — is an `error` that accepts
+nothing, and the superseded `error` stands alongside it so a bad declaration
+removes nothing. A declaration whose SUBJECT was never cut disposes nothing and
+is a `warning` on `contracts/CHANGELOG.md`, the one finding of this state with no
+per-bundle inventory to land on. Its action line for the accepted state: *no
+action, and this is NOT the tag obligation having been met — it was
+EXTINGUISHED, by an owner act, at the cost of a version number*. **The successor
+guard is what makes the state unabusable**: the only way to retire a number is to
+publish its replacement's tag, which is the act this family exists to compel. The
+state reaches the ABSENT-tag arm and nothing else — it never quiets a MISPLACED
+tag, a LIGHTWEIGHT ref, or the distance grading of the bundle the manifest
+currently declares — and it is not read backwards onto the five bundles the
+versioning policy records under § *Untagged Bundles After Enforcement Began*, all
+of which were publishable and were published.
+
 ## Finding Severities
 
 | Severity | Meaning | Examples |
@@ -163,7 +203,7 @@ and `contract-v2.4`; a human found it both times (issue #528).
 | `critical` | Governance integrity broken | Unbacked `standard` claim; dangling provenance; `record` mutation |
 | `error` | Contract violation | Malformed/unresolved marker; free-form status; aging past escalation; a ratified spec delta that never reached its promoted spec |
 | `warning` | Drift or first-stage aging | Pin drift; copy drift; projection drift; 30-day staged item |
-| `info` | Inventory and metrics | Canon share; per-stage counts; age distributions |
+| `info` | Inventory, metrics, and RECORDED STATES | Canon share; per-stage counts; age distributions; a bundle declared SPENT, which is recorded rather than silent because a reader who finds a release inventory with no matching tag is owed the answer in the report (ruled 2026-09-02) |
 
 **Regression rule:** any `critical` or `error` finding not present in the
 previous report (matched by family + path) opens one issue per run in the
