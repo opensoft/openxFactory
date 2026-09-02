@@ -59,7 +59,9 @@ codeXfactory on this repo." (4) Two rulings on the recommendation that followed:
 provenance is the ratified change `add-wallet-carried-review-authority`
 (`proposal.md:600-617`), carrying his 2026-08-22 ruling, verbatim: "For our own
 internal projects, we can have codeXfactory recommend and run a 3 repo project
-schema. But let the human project manager decide."
+schema. But let the human project manager decide." A fifth ruling followed
+separately the same day, resolving Q2, quoted verbatim: "yes, assembly is per
+project."
 Target capabilities: ADDED `project-repo-schema` (doctrine, naming convention,
 assembly-root pin shape, bootstrap contract, lockstep obligation) and MODIFIED
 `ideation-dashboard` (the register gains a per-project `schema` election and a
@@ -346,9 +348,11 @@ Explanation: this is the only reading under which the convener's question has an
 answer, and it costs nothing, because the shared-code half is already how the
 family consumes review machinery. The alternative leaves a project with no front
 door.
-Disposition status: open — NEEDS BRETT'S RULING. It gates the exit change: the
-neutral doctrine cannot describe an assembly root while the word means two
-things.
+Disposition status: RULED — Brett Heap, 2026-09-02: "yes, assembly is per
+project." Resolved: the ASSEMBLY leg is the per-project root repository the
+engineer clones, not the shared family repository, and it may later pin the
+shared review-team assembly code from codexFactory as an overlay. The exit
+change's Q2 gate is satisfied.
 Added-by: Claude Fable 5.1 · 2026-09-02
 
 ### Q3. Are the spec and code legs submodules of the assembly root, or side-by-side clones driven by a manifest?
@@ -574,7 +578,7 @@ manifest-derivation rule. Two realizations follow: codexFactory ships the
 ENGINEERING OVERLAY on the neutral scaffold (review-lane caller, engineering CI,
 the offer named in task 8.4), and OpsxFactory ships org naming enforcement,
 repository-topic administration, and any regenerated GitHub template repository.
-The openxFactory change may not be proposed until Q2 carries a disposition other
-than `open`, and cannot pin openRepoShape until that product cuts a digested
-release. Nothing in the exit elects the schema for any project — that stays a `PA`
+Q2 is RULED (Brett Heap, 2026-09-02), so that precondition on proposing the
+openxFactory change is satisfied; it still cannot pin openRepoShape until that
+product cuts a digested release. Nothing in the exit elects the schema for any project — that stays a `PA`
 decision, per project, conferring nothing.
