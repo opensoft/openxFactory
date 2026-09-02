@@ -100,7 +100,23 @@ CHAT_TURN_SCHEMA_FILE = "xfactory-workbench-chat-turn.schema.yaml"
 # equality check in `doxbench_contracts.verify_stack_pin`. Resolving it to
 # `contract-v3.0^{}` is owed immediately after the tag is published — the v1.45
 # residue is what that obligation exists to avoid repeating.
-RELEASED_REF = "unpublished:contract-v3.0"
+#
+# RESOLVED 2026-09-02, the day of publication rather than three days after it.
+# `contract-v3.0^{}` == ff9ed81541ab3eb2ebeb2e79676e5a875dd58064, the
+# squash-merge of PR #573, from annotated tag object
+# 59f4f51f2e0ac7c833cdaee9f385e9e83777650e, peeled FROM THE REMOTE in a second
+# clone that never saw the tagging clone's tree. `verify-commit` at that commit
+# and `verify-tag --remote origin --tag contract-v3.0` both pass with zero
+# findings, and `verify-promotion` was taken green on the promoted squash BEFORE
+# the tag existed (§ Bundle Realization Order step 4 — the step whose omission
+# left `contract-v2.6` unpublishable). Evidence: PR #573 comment 5506503494.
+#
+# THE LITERAL IS SPELLED HERE rather than imported from the module, which is the
+# same discipline `test_declared_wire_kinds_are_every_doxbench_instance_kind`
+# states for the kind names: this file asserts WHAT THE PIN IS, not merely that
+# the module agrees with itself. A resolution that edited only the module would
+# turn this assertion red, and that is the assertion working.
+RELEASED_REF = "ff9ed81541ab3eb2ebeb2e79676e5a875dd58064"
 RELEASED_TAG = "contract-v3.0"
 RELEASED_DIGESTS = {
     CATALOG_SCHEMA_FILE:

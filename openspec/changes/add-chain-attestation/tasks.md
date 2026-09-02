@@ -1165,6 +1165,97 @@ Each is contract content — cheap now, expensive after a bundle ships.
       with no signed open decision, each FAIL a real pull request, with the run id,
       the check id, the validator's single named refusal, and the live ruleset read
       recorded.
+      **ATTEMPTED 2026-09-02, IMMEDIATELY AFTER THE TAG, AND NOT PRODUCIBLE — SO
+      NO CANARY PULL REQUEST WAS OPENED AND THIS BOX STAYS OPEN.** The third
+      conjunct cannot be delivered against the reader as shipped at
+      `contract-v3.0`, and the blockage is structural rather than a matter of
+      effort — the same class as §§ 5.1–5.3, which is why it is recorded rather
+      than worked around. Measurement filed as openxFactory issue **#579**, and
+      summarized below on § 4.6's precedent of recording canary evidence inline
+      in the packet rather than by reference.
+
+      **AND THE FIX IS ALREADY IN FLIGHT — PR #566, `fix/chain-repo-scan-consumed-kinds`,
+      OPENED 2026-09-01 AND ADOPTED BY BRETT HEAP ON 2026-09-02** (*"adopt #566,
+      take it to green, merge on my word"*). It was raised the same way this was,
+      by an earlier session attempting THIS box, and it carries exactly the
+      remedy the measurement below points at: the scan collects
+      `CONSUMED_KIND_TO_SCHEMA` kinds into scope as the packaged corpora do, AND
+      excludes trust-anchor's own packaged `examples/` on the same ground this
+      family's are already excluded — both halves, which is what makes it a fix
+      rather than a widening. **#579 is therefore a SECOND finding of a known
+      cause, and it is left standing rather than closed as a duplicate because
+      of what it settled**: #566's body claimed each canary would draw *"exactly
+      one error"* once the scan was fixed; #579 measured both fixtures as
+      NON-SINGULAR even in a clean scope (A drawing 2, B drawing 3). The two
+      readings were re-measured against each other with the fix applied, **#579's
+      was confirmed and #566's claim was withdrawn as false on that pull
+      request**.
+
+      **SO THE PRECONDITION AND THE CONJUNCT ARE TWO DIFFERENT THINGS, AND ONLY
+      ONE OF THEM IS IN FLIGHT.** #566 landing makes the sweep able to adjudicate
+      a tranche-two chain at all — necessary, and not sufficient. § 5.8's third
+      conjunct still needs EITHER a singular negative fixture for each named
+      scenario, OR an amendment accepting "one fact seen twice" where the two
+      refusals are the same dropped link read from both sides (which case A
+      satisfies and case B does not). Re-cutting a packaged fixture that ships at
+      `contract-v3.0` is its own contract act. **This box does not close on #566
+      alone**, and saying so here is the point of the record.
+
+      **THE WHOLE-TREE SWEEP CANNOT ADJUDICATE A TRANCHE-TWO CHAIN AT ALL.**
+      `repo_scan` admits only `KIND_TO_SCHEMA` and drops the three CONSUMED
+      `add-trust-anchor` kinds every tier-2 signature resolves against, while the
+      module's own comment beside `CONSUMED_KIND_TO_SCHEMA` says a reader that
+      could not see them *"could not run the composition at all"*. Measured with
+      canary #549's own technique — the tranche-two positive corpus concatenated
+      verbatim as one in-tree YAML stream, then the gate's own invocation:
+
+      | case | refusals as shipped |
+      |---|---|
+      | **control** — the POSITIVE corpus, nothing broken | **53** (`49 forged_attestation_identity`, `4 controller_anchor_not_held`) |
+      | dropped runner attestation | **56**, of which ONE is the intended `dispatched_leaf_never_written` |
+      | no signed open decision | **59**, of which ONE is the intended `orphan_pull_request` |
+
+      **The control is the finding**: 53 refusals over a corpus this reader's own
+      self-test validates as clean. A canary cannot show a SINGLE named refusal
+      when a valid chain already shows 53. A throwaway diagnostic copy — never
+      committed — widening that one filter to
+      `(KIND_TO_SCHEMA | CONSUMED_KIND_TO_SCHEMA)` drops the control to **2**,
+      neither of them a chain refusal, and leaves the dropped-attestation case at
+      **exactly the two intended**: so all 53 are that filter and nothing else.
+      **AND WIDENING IT ALONE IS THE WRONG FIX**, which is why this is packet work
+      and not a one-liner: the sweep's packaged-corpus exclusion tests for
+      `"examples"` AND `"signed-execution-chain"` in the path, so
+      `contracts/trust-anchor/examples/negative/` — records engineered to be
+      invalid — goes live the moment its kinds are admitted, and two refuse at
+      once. A correct fix admits the consumed vocabulary AND generalizes the
+      exclusion to any owning family's `examples/`, which changes what a REQUIRED
+      gate refuses and owes its own scenarios and review.
+
+      **AND A SECOND, INDEPENDENT SHORTFALL OF THE SAME CONJUNCT**, separated so
+      neither hides the other: with the sweep fixed, **neither packaged fixture is
+      singular**. The dropped-attestation case draws
+      `dispatched_leaf_never_written` AND `open_decision_enumeration_incomplete` —
+      **one fact seen twice**, the same dropped task refused from link 5's side and
+      link 6's, which is arguably inside #549's own discipline. The
+      no-signed-decision case draws `orphan_pull_request` PLUS
+      `chain_binding_names_another_chain` and `orphan_chain_identity`, because the
+      fixture introduces a chain of its own that resolves to no signed
+      ratification — three codes, and those are not one fact. This is no defect in
+      the fixtures: the self-test asserts only that the expected code is AMONG
+      those found and deliberately tolerates *"the completeness findings its own
+      incompleteness earns"*. #549 succeeded by borrowing a fixture *"engineered
+      to be singular"*, and these two scenarios have no such fixture packaged.
+
+      **CONJUNCT 4 WAS TAKEN ANYWAY**, because it costs nothing and it is the one
+      that blocked § 4.6 by construction: read live at 2026-09-02T08:31:35Z,
+      org ruleset **21957695** *"openxFactory chain-gate (require
+      signed-execution-chain-gate)"*, `enforcement: active`, required check
+      `signed-execution-chain-gate`, confirmed applying to THIS repository through
+      `repos/opensoft/openxFactory/rulesets/21957695` and
+      `repos/opensoft/openxFactory/rules/branches/main`. **Requirement 9's
+      standing is untouched** — the reader IS the required check and #549 has seen
+      it refuse a real pull request; what has not been seen is it refusing THESE
+      TWO tranche-two scenarios.
 - [x] 5.9 Registration in `contracts/manifest.yaml` and `contracts/CHANGELOG.md`,
       and the additive bundle cut, with `release-surface-integrity`'s verify-commit
       green from an independent clone.
@@ -1221,6 +1312,53 @@ Each is contract content — cheap now, expensive after a bundle ships.
       the above, and it is then verified from an independent clone. Until that
       exists this box's cut half is DECLARED, not PUBLISHED, and this packet may
       not archive on it.
+
+      **THE TAG EXISTS — 2026-09-02 — AND THE PARAGRAPH ABOVE IS DISCHARGED ON
+      ITS OWN TERMS RATHER THAN WAIVED.** `contract-v3.0` is PUBLISHED: annotated
+      tag object `59f4f51f2e0ac7c833cdaee9f385e9e83777650e`, peeling FROM THE
+      REMOTE to `ff9ed81541ab3eb2ebeb2e79676e5a875dd58064`, the squash-merge of
+      PR #573. **Step 4 was performed FIRST and the tag second**, which is the
+      ordering this box exists to insist on: from an independent clone made for
+      the purpose, at the squash, before any tag object existed anywhere,
+      `verify-commit --commit ff9ed815` → `pass` exit 0 and
+      `verify-promotion --commit ff9ed815 --remote origin --tag contract-v3.0` →
+      `pass` exit 0, **both with `"findings":[]`**. The promoted tree proved
+      BYTE-IDENTICAL to the reviewed candidate `5418256a` — one tree sha,
+      `12e326e5df91ff64a7ae478a8cb8d923dd98af55`, and `git diff` between the two
+      commits empty — so the step-4 conditional (*"if the squash's tree differs
+      … the inventory is rebuilt in a completion commit and everything reruns"*)
+      did not fire, no completion commit was owed, and every gate and review
+      recorded at the reviewed head measures exactly the bytes now on `main`.
+      **That is the fact `contract-v2.6` could not produce**: its reviewed
+      candidate `07986003` is not reachable from `origin/main` at all. The tag
+      was then verified from a SECOND fresh clone that never saw the first one's
+      working tree — `verify-commit --commit ff9ed815` → `pass` and
+      `verify-tag --remote origin --tag contract-v3.0` → `pass`, zero findings
+      both. Evidence with UTC timestamps and clone provenance: PR #573 comment
+      `5506503494`.
+
+      **THE CUT HALF IS THEREFORE PUBLISHED RATHER THAN MERELY DECLARED, AND
+      THIS PACKET STILL DOES NOT ARCHIVE ON IT.** What blocks the archive was
+      never the tag. **AND THE BLOCKER SET IS THE WHOLE UNCHECKED SET, NOT JUST
+      THE INTERESTING PART OF IT** (Codex, on this note's first draft, which
+      named only §§ 5.1–5.3 and 5.8): `scripts/proposal-support.py` refuses to
+      archive while ANY `- [ ]` remains —
+      `if tasks.is_file() and re.search(r"^- \[ \]", tasks.read_text(), re.M):
+      raise SupportError("change has incomplete tasks")` — so a note that lists
+      a subset would have made this packet look four reasons closer to
+      archivable than it is. Every open box, measured at this commit:
+
+      | box | what it is |
+      |---|---|
+      | **2.8** | the SHOULD-FIX schedule, deliberately undisposed |
+      | **3.2** | `target_release` confirmed at ratification |
+      | **3.3** | ratification's authorization scope |
+      | **5.1–5.3** | the MACHINERY GATES no author can close by writing — a PKI plane that has ISSUED, an omnigent layer that has REFUSED; SEC-R18 stays declared UNMET until then |
+      | **5.8** | this box, blocked on the reader (issue #579) |
+      | **6.1** | the named tranche-three successor |
+
+      Recorded here so a later reader does not mistake a published tag for a
+      cleared archive gate, nor this list for a shorter one.
 
 ## 6. Successor — NAMED, NOT DRAFTED
 
