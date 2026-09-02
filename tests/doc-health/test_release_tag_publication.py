@@ -707,6 +707,70 @@ def test_a_LEVEL_ONE_heading_also_closes_the_open_entry():
     assert refusal and "no release entry at all" in refusal
 
 
+def test_a_heading_INSIDE_A_CODE_FENCE_does_not_open_an_entry():
+    """CODEX'S FOURTH CONTAINMENT FINDING ON PR #584, AND THE FIRST THAT THE
+    LIVE DOCUMENT COULD HIT — `contracts/CHANGELOG.md` already carries a fenced
+    block.
+
+    Applying the heading patterns to every RAW line let `## contract-v3.0`
+    written inside a code fence reopen an entry, so a declaration sitting under
+    `## Notes` after the fence read as contained by the v3.0 entry and was
+    ACCEPTED.
+    """
+    body = ("## Notes\n\n```text\n## contract-v3.0\n```\n\n"
+            + _spent_line("contract-v2.6") + "\n")
+    decl = rtp.read_spent_declarations(body.encode())["contract-v2.6"]
+    assert decl.entry is None
+    refusal = rtp.spent_refusal(decl, "contract-v2.6",
+                                {"contract-v2.6", "contract-v3.0"})
+    assert refusal and "no release entry at all" in refusal
+
+
+def test_a_DECLARATION_inside_a_code_fence_is_documentation_not_a_record():
+    """The same suppression, applied to the reserved opener — and it is
+    fail-closed in BOTH directions, which is why it is safe.
+
+    A declaration shown as an EXAMPLE inside a fence cannot spend a bundle; a
+    real declaration HIDDEN inside a fence does not count either, which leaves
+    the superseded `error` standing rather than quieting it. So the
+    reserved-opener rule is enforced over the document's PROSE, and a fence is
+    where the form can be DOCUMENTED without being PERFORMED.
+    """
+    body = ("## contract-v3.0 — an entry\n\n```text\n"
+            + _spent_line("contract-v2.6") + "\n```\n")
+    assert rtp.read_spent_declarations(body.encode()) == {}
+    # THE POSITIVE CONTROL: the same line OUTSIDE the fence is read.
+    body_prose = ("## contract-v3.0 — an entry\n\n"
+                  + _spent_line("contract-v2.6") + "\n")
+    assert "contract-v2.6" in rtp.read_spent_declarations(body_prose.encode())
+
+
+def test_a_tilde_fence_and_a_longer_closer_are_handled(tmp_path):
+    """Fence bookkeeping, since getting it wrong swallows the rest of the
+    document: a `~~~` fence is not closed by ``` ``` ``, and a closer must be at
+    least as long as its opener."""
+    line = _spent_line("contract-v2.6")
+    # a tilde fence, closed properly, then a real declaration
+    body = (f"## contract-v3.0 — e\n\n~~~\n## Notes\n~~~\n\n{line}\n")
+    assert rtp.read_spent_declarations(
+        body.encode())["contract-v2.6"].entry == "contract-v3.0"
+    # a four-backtick fence is NOT closed by three
+    body2 = (f"## contract-v3.0 — e\n\n````\n```\n## Notes\n````\n\n{line}\n")
+    assert rtp.read_spent_declarations(
+        body2.encode())["contract-v2.6"].entry == "contract-v3.0"
+
+
+def test_an_INDENTED_ATX_heading_still_closes_the_entry():
+    """CommonMark allows up to three leading spaces on an ATX heading, so
+    `  ## Notes` IS a heading — and was being missed, which is the same escape
+    in the other direction."""
+    for indent in ("", " ", "  ", "   "):
+        body = (f"## contract-v3.0 — e\n\n{indent}## Notes\n\n"
+                + _spent_line("contract-v2.6") + "\n")
+        decl = rtp.read_spent_declarations(body.encode())["contract-v2.6"]
+        assert decl.entry is None, (repr(indent), decl.entry)
+
+
 def test_exactly_which_headings_close_an_entry_is_pinned():
     """The whole rule in one table, because it has now moved THREE times and
     every move was a defect Codex found.
@@ -1153,6 +1217,34 @@ def test_an_in_scope_untagged_bundle_with_no_changelog_DOES_skip(tmp_path):
     assert isinstance(out, Skip), out
     assert CHANGELOG in out.reason
     assert "could not be read at the published tip" in out.reason
+    assert "carrying no SPENT declaration" in out.reason
+
+
+def test_an_unreadable_changelog_skips_even_when_every_tag_is_FINE(tmp_path):
+    """CODEX'S OTHER ROUND-4 P1, AND IT IS THE HOLE THE PREVIOUS FIX OPENED.
+
+    Deferring the changelog guard into the ABSENT arm fixed Copilot's
+    below-floor regression and broke this: where every in-scope bundle carries
+    an `ok` tag, NO iteration reaches that arm, so an unreadable changelog
+    produced an empty declaration map and the ORPHAN SWEEP reported a clean
+    pass — treating a failed read as proof that no orphan or malformed
+    declaration exists. The guard is now gated on IN-SCOPE-NESS instead, which
+    satisfies both findings at once.
+    """
+    repo, _ = _repo(tmp_path, "alltagged")
+    (repo / "contracts/releases").mkdir(parents=True, exist_ok=True)
+    (repo / "contracts/releases/contract-v3.0.digests.yaml").write_text("x: 1\n")
+    _git(repo, "add", "contracts/releases/contract-v3.0.digests.yaml")
+    (repo / MANIFEST).write_text("contract_bundle_version: contract-v3.0\n")
+    _git(repo, "add", MANIFEST)
+    _git(repo, "commit", "-q", "-m", "cut v3.0, no changelog at all")
+    _git(repo, "tag", "-a", "contract-v3.0", "-m", "contract-v3.0")
+    _push(repo)
+    assert not (repo / CHANGELOG).exists()
+    out = _check(repo)
+    assert isinstance(out, Skip), out
+    assert CHANGELOG in out.reason
+    assert "at or above the enforcement floor" in out.reason
     assert "carrying no SPENT declaration" in out.reason
 
 

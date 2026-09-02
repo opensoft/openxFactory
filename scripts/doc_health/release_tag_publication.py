@@ -202,7 +202,7 @@ _SPENT_SUBJECT = re.compile(r"^\s+`([^`]*)`(?=(?:\s|$))")
 # excluded because the reserved line is written INSIDE a `###` disposition
 # subsection of its release entry, which is where this repository's own
 # declaration lives.
-_CLOSES_ENTRY = re.compile(r"^#{1,2}(?!#)\s")
+_CLOSES_ENTRY = re.compile(r"^ {0,3}#{1,2}(?!#)\s")
 # THE VERSION TOKEN MUST BE COMPLETE, AND `\b` IS NOT THAT TEST — found by
 # Codex on PR #584 as a SECOND P1, on the fix for the first. `\b` matches
 # between `0` and `.`, so `## contract-v3.0.1` and `## contract-v3.0-notes`
@@ -210,7 +210,25 @@ _CLOSES_ENTRY = re.compile(r"^#{1,2}(?!#)\s")
 # would have been contained by an entry that is not the one it names. The
 # lookahead demands whitespace or end-of-line, so the captured token is the
 # WHOLE bundle name rather than a prefix of a longer one.
-_ENTRY_HEADING = re.compile(r"^##(?!#)\s+(contract-v\d+\.\d+)(?=\s|$)")
+_ENTRY_HEADING = re.compile(
+    r"^ {0,3}##(?!#)\s+(contract-v\d+\.\d+)(?=\s|$)")
+# A FENCED CODE BLOCK IS NOT PROSE, AND ITS CONTENTS ARE NOT RECORDS —
+# Codex's FOURTH containment finding on PR #584, and the first one the LIVE
+# document could hit: `contracts/CHANGELOG.md` already carries a fenced
+# block. Applying the heading patterns to every raw line let
+# `## contract-v3.0` written INSIDE a code fence reopen an entry, so a
+# declaration sitting under `## Notes` after the fence read as contained by
+# the v3.0 entry and was ACCEPTED. Up to three leading spaces are permitted
+# on an ATX heading, per CommonMark, because an indented `  ## Notes` IS a
+# heading and was being missed in the other direction.
+#
+# THE SAME SUPPRESSION APPLIES TO THE RESERVED OPENER, and it is fail-closed
+# in BOTH directions: a declaration shown as an EXAMPLE inside a fence cannot
+# spend a bundle, and a real declaration HIDDEN inside a fence does not count
+# — which leaves the superseded `error` standing rather than quieting it. So
+# the reserved-opener rule is enforced over the document's PROSE, and a fence
+# is where the form can be DOCUMENTED without being PERFORMED.
+_FENCE = re.compile(r"^ {0,3}(`{3,}|~{3,})")
 _RULED_BY = re.compile(r"^(?P<author>.*?),\s*(?P<date>\d{4}-\d{2}-\d{2})\s*$")
 
 # The four elements owed, in the order the reserved form writes them. The KEY
@@ -400,7 +418,21 @@ def read_spent_declarations(changelog: bytes | str | None
     out: dict[str | None, SpentDeclaration] = {}
     counts: dict[str | None, int] = {}
     entry: str | None = None
+    fence: str | None = None
     for lineno, line in enumerate(changelog.splitlines(), 1):
+        opener = _FENCE.match(line)
+        if fence is not None:
+            # Inside a fence: only a closer of the SAME character and at least
+            # the same length ends it. Everything else is CODE — including a
+            # line that looks like a heading and a line that looks like a
+            # declaration.
+            if (opener is not None and opener.group(1)[0] == fence[0]
+                    and len(opener.group(1)) >= len(fence)):
+                fence = None
+            continue
+        if opener is not None:
+            fence = opener.group(1)
+            continue
         if _CLOSES_ENTRY.match(line):
             # EVERY level-two heading CLOSES the open entry; only one that
             # names a bundle OPENS a new one. A declaration under a
@@ -664,24 +696,48 @@ def check_repo(repo: str, repo_path: Path, git,
                             f"the contract-v<major>.<minor> shape this family "
                             f"compares against the enforcement floor")
 
-    # ONE READ, TWO PATHS — but the GUARD is deferred to the point of use, and
-    # that placement is Copilot's finding on PR #584 rather than a preference.
-    # Guarding HERE made a repository declaring a bundle BELOW the enforcement
-    # floor start SKIPPING merely because it keeps no changelog, when the floor
-    # rule says this family emits nothing about such a repository at all: it
-    # went from silent to "not checked" over a record that could not have borne
-    # on its answer. The skip now fires in the ABSENT arm, which is exactly
-    # where a declaration would change what is emitted — so the ratified
-    # scenario still gets "a skip naming that read", and only the repositories
-    # whose answer really does depend on that read are declined.
-    changelog = blobs.get(CHANGELOG)
-    declarations = read_spent_declarations(changelog)
-
     cut = cut_bundles(git, repo_path, tip)
     if cut is None:
         return Skip(FAMILY, f"{repo}: the release inventories under "
                             f"{RELEASES}/ could not be listed, so the set of "
                             f"cut bundles is unknown")
+
+    # THE CHANGELOG GUARD, AND ITS PLACEMENT IS TWO REVIEW FINDINGS RATHER THAN
+    # A PREFERENCE. It is read in the SAME `blobs_at` call as the manifest, at
+    # the SAME commit, so a declaration can never be judged against a manifest
+    # from another tree. The GUARD is gated on whether this repository is IN
+    # SCOPE AT ALL:
+    #
+    #   * Guarding UNCONDITIONALLY made a repository declaring a bundle BELOW
+    #     the enforcement floor start SKIPPING merely because it keeps no
+    #     changelog, when the floor rule says this family emits nothing about
+    #     it — silent became "not checked" over a record that could not have
+    #     borne on the answer (Copilot, PR #584).
+    #   * Deferring it into the ABSENT arm fixed that and broke something else:
+    #     where every in-scope bundle carries an `ok` tag, no iteration reaches
+    #     that arm, so an UNREADABLE changelog produced an empty declaration
+    #     map and the ORPHAN SWEEP below reported a clean pass — treating a
+    #     failed read as proof that no orphan or malformed declaration exists
+    #     (Codex, PR #584 round 4).
+    #
+    # In-scope-ness is the condition that satisfies both: a repository with no
+    # bundle at or above the floor has nothing this family may say about it, so
+    # the read cannot matter; a repository with one does, so a read that failed
+    # is declined rather than answered. Not fetched is not an answer, in either
+    # direction (#338).
+    in_scope = [b for b in cut | {declared}
+                if (version_of(b) or (0, 0)) >= ENFORCEMENT_FLOOR]
+    changelog = blobs.get(CHANGELOG)
+    if changelog is None and in_scope:
+        return Skip(FAMILY, f"{repo}: {CHANGELOG} could not be read at the "
+                            f"published tip {tip[:9]}, and this repository has "
+                            f"{len(in_scope)} bundle(s) at or above the "
+                            f"enforcement floor — either it has no {CHANGELOG} "
+                            f"at that commit, or the commit is not present "
+                            f"locally; neither is the same fact as carrying no "
+                            f"SPENT declaration, so the question is declined "
+                            f"rather than answered")
+    declarations = read_spent_declarations(changelog)
     findings: list[Finding] = []
     for bundle in sorted(cut | {declared}):
         version = version_of(bundle)
@@ -722,24 +778,6 @@ def check_repo(repo: str, repo_path: Path, git,
         # already `continue`d, so no declaration can reach a tag that exists.
         # A SPENT state answers "this number will never be published"; it does
         # not answer "whatever ref exists under this name is acceptable".
-        if changelog is None:
-            # THE #338 CONFLATION, ONE DOCUMENT OVER, AND FIRED WHERE IT
-            # MATTERS. `blobs_at` answers None per path both where this
-            # repository has no changelog at that commit AND where the commit
-            # is not in the local object store, and BOTH would otherwise read
-            # as "no declaration names this bundle" — a false accusation
-            # against a bundle that may be legitimately spent. Not fetched is
-            # not an answer, in either direction. Reached only from the ABSENT
-            # arm, so a bundle below the floor, and a bundle whose tag is fine,
-            # never trip it.
-            return Skip(FAMILY, f"{repo}: {CHANGELOG} could not be read at the "
-                                f"published tip {tip[:9]}, and {bundle} has no "
-                                f"published annotated tag — either this "
-                                f"repository has no {CHANGELOG} at that commit, "
-                                f"or the commit is not present locally; neither "
-                                f"is the same fact as carrying no SPENT "
-                                f"declaration for {bundle}, so the question is "
-                                f"declined rather than answered")
         declaration = declarations.get(bundle)
         if bundle != declared:
             # BUILT ONCE AND EMITTED FROM TWO PLACES — the no-declaration arm
