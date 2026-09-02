@@ -649,6 +649,44 @@ def test_a_NON_RELEASE_level_two_heading_CLOSES_the_open_entry():
                              {"contract-v2.6", "contract-v3.0"}) is None
 
 
+def test_a_LONGER_version_token_does_not_open_the_shorter_bundle_s_entry():
+    """CODEX'S SECOND P1 ON PR #584 — found on the fix for the first one, which
+    is why it is pinned separately.
+
+    `\\b` matches between `0` and `.`, so `## contract-v3.0.1` and
+    `## contract-v3.0-notes` both OPENED an entry named `contract-v3.0`, and a
+    declaration below either would have been contained by an entry that is not
+    the one it names. The captured token must be the WHOLE bundle name, never a
+    prefix of a longer one.
+    """
+    for heading in ("## contract-v3.0.1", "## contract-v3.0-notes"):
+        body = f"{heading}\n\n{_spent_line('contract-v2.6')}\n"
+        decl = rtp.read_spent_declarations(body.encode())["contract-v2.6"]
+        assert decl.entry is None, (heading, decl.entry)
+        refusal = rtp.spent_refusal(decl, "contract-v2.6",
+                                    {"contract-v2.6", "contract-v3.0"})
+        assert refusal and "no release entry at all" in refusal, heading
+
+    # AND THE NEAR MISS THAT IS *NOT* A DEFECT, pinned so a later reader does
+    # not "fix" it: `## contract-v3.01` is a WELL-FORMED bundle name — major 3,
+    # minor 01 — so it legitimately opens an entry, just not the entry a
+    # declaration naming `contract-v3.0` needs. The containment rule refuses it
+    # for the right reason, which is that the entry is a DIFFERENT bundle.
+    body = f"## contract-v3.01\n\n{_spent_line('contract-v2.6')}\n"
+    decl = rtp.read_spent_declarations(body.encode())["contract-v2.6"]
+    assert decl.entry == "contract-v3.01"
+    refusal = rtp.spent_refusal(decl, "contract-v2.6",
+                                {"contract-v2.6", "contract-v3.0"})
+    assert refusal and "sits in the contract-v3.01 entry" in refusal
+    # THE POSITIVE CONTROL: the real heading shape still opens the entry, both
+    # with a trailing description and bare.
+    for heading in ("## contract-v3.0 — 2026-09-02 (BREAKING)",
+                    "## contract-v3.0"):
+        body = f"{heading}\n\n{_spent_line('contract-v2.6')}\n"
+        decl = rtp.read_spent_declarations(body.encode())["contract-v2.6"]
+        assert decl.entry == "contract-v3.0", heading
+
+
 def test_a_level_THREE_subsection_does_NOT_close_the_entry():
     """The other half, and it is load-bearing: the reserved line is written
     INSIDE a `###` disposition subsection of its release entry — which is
@@ -823,8 +861,15 @@ def test_a_SPENT_declaration_whose_SUBJECT_was_never_cut_warns_on_the_changelog(
 
 
 def test_a_SPENT_declaration_omitting_an_element_is_refused_in_its_own_words(tmp_path):
-    """"A malformed declaration is worse than none: it looks like a record" —
-    so the refusal MUST NOT borrow the absent-tag words."""
+    """A malformed declaration is worse than none because it LOOKS LIKE A
+    RECORD — so the refusal MUST NOT borrow the absent-tag words.
+
+    The requirement's own sentence is quoted prose, and reproducing its
+    opening quotation mark here put a fourth quote character immediately after
+    the docstring's own three. Copilot flagged that on PR #584 as reading like
+    a typo; it was legal Python and it did read like one, so the sentence is
+    paraphrased rather than quoted.
+    """
     line = _spent_line("contract-v2.6")
     truncated, _, _ = line.partition(" — MEASUREMENT")
     repo = _spent_fixture(tmp_path, declaration=truncated)
@@ -923,6 +968,39 @@ def test_a_SPENT_declaration_naming_the_CURRENTLY_declared_bundle_is_refused(tmp
     assert len(graded) == 1 and graded[0].severity == ERROR, (
         "the distance grading of the declared bundle is untouched")
     assert not [f for f in findings if f.severity == INFO]
+    # CODEX P2 ON PR #584: this arm must NOT reuse the shared refusal action,
+    # which promises the reader that the superseded-and-never-published
+    # finding "stands beside this one". This arm creates no such finding.
+    assert refused[0].action == rtp._SPENT_CURRENT_ACTION
+    assert "stands beside this one" not in refused[0].action
+
+
+def test_the_current_bundle_refusal_promises_no_companion_finding(tmp_path):
+    """CODEX P2 ON PR #584, AND THE CASE THAT PROVES IT IS THE QUIET ONE.
+
+    Where the declaring commit is still the published tip the distance arm
+    emits NOTHING, so the refusal is the ONLY finding in the report. Had it
+    kept `_SPENT_REFUSED_ACTION` the operator would have been told to go and
+    read a companion `error` that does not exist anywhere.
+    """
+    repo, _ = _repo(tmp_path, "currenttip")
+    # THE DECLARATION LANDS IN THE DECLARING COMMIT ITSELF, which is what makes
+    # the distance ZERO and the refusal the only finding. Written and STAGED
+    # before `_cut`, so its commit carries the manifest, the inventory and the
+    # changelog together — `_declare` leaves an existing changelog alone.
+    (repo / "contracts").mkdir(exist_ok=True)
+    (repo / CHANGELOG).write_text(
+        "# Contract changelog\n\n## contract-v3.0 — 2026-09-02 (an entry)\n\n"
+        + _spent_line("contract-v3.0") + "\n")
+    _git(repo, "add", CHANGELOG)
+    _cut(repo, "contract-v3.0")
+    _push(repo)
+    findings = _check(repo)
+    assert len(findings) == 1, [f.rule for f in findings]
+    assert findings[0].severity == ERROR
+    assert findings[0].action == rtp._SPENT_CURRENT_ACTION
+    assert "stands beside this one" not in findings[0].action
+    assert "graded by landing distance" in findings[0].action
 
 
 def test_a_SPENT_declaration_does_not_quiet_a_MISPLACED_tag(tmp_path):

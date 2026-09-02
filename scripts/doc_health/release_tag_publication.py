@@ -162,6 +162,11 @@ _SPENT_REFUSED_ACTION = (
     "so it disposes nothing, and the superseded-and-never-published finding on "
     "this bundle stands beside this one because a bad declaration must remove "
     "nothing")
+_SPENT_CURRENT_ACTION = (
+    f"withdraw the SPENT declaration in {CHANGELOG} — it names the bundle "
+    f"{MANIFEST} still DECLARES, which asserts two incompatible things about "
+    f"one number; this bundle's own tag obligation is unchanged and is graded "
+    f"by landing distance exactly as it was before the declaration was written")
 _SPENT_ORPHAN_ACTION = (
     f"correct the SUBJECT of the SPENT declaration in {CHANGELOG} — it names a "
     "bundle this repository never cut, so it disposes nothing, and whichever "
@@ -190,7 +195,14 @@ _SPENT_SUBJECT = re.compile(r"^\s+`([^`]*)`(?=(?:\s|$))")
 # `(?!#)` keeps a `### subsection` from closing the entry it lives inside,
 # which matters because the reserved line is written INSIDE one.
 _LEVEL_TWO_HEADING = re.compile(r"^##(?!#)\s")
-_ENTRY_HEADING = re.compile(r"^##(?!#)\s+(contract-v\d+\.\d+)\b")
+# THE VERSION TOKEN MUST BE COMPLETE, AND `\b` IS NOT THAT TEST — found by
+# Codex on PR #584 as a SECOND P1, on the fix for the first. `\b` matches
+# between `0` and `.`, so `## contract-v3.0.1` and `## contract-v3.0-notes`
+# both OPENED an entry named `contract-v3.0`, and a declaration below either
+# would have been contained by an entry that is not the one it names. The
+# lookahead demands whitespace or end-of-line, so the captured token is the
+# WHOLE bundle name rather than a prefix of a longer one.
+_ENTRY_HEADING = re.compile(r"^##(?!#)\s+(contract-v\d+\.\d+)(?=\s|$)")
 _RULED_BY = re.compile(r"^(?P<author>.*?),\s*(?P<date>\d{4}-\d{2}-\d{2})\s*$")
 
 # The four elements owed, in the order the reserved form writes them. The KEY
@@ -799,7 +811,17 @@ def check_repo(repo: str, repo_path: Path, git,
                 f"{MANIFEST} DECLARES at the published tip: a repository "
                 f"cannot declare a bundle and call it spent, and this bundle "
                 f"continues to be graded by distance",
-                _SPENT_REFUSED_ACTION, path=inventory_path(bundle)))
+                # NOT `_SPENT_REFUSED_ACTION` — found by Codex on PR #584 as a
+                # P2, and it is a real misdirection rather than a wording
+                # nicety. That constant promises the reader that "the
+                # superseded-and-never-published finding on this bundle stands
+                # beside this one", which is true of every OTHER refusal and
+                # false here: this arm creates no such finding, it falls
+                # through to the distance grading, and where the declaring
+                # commit is still the tip that grading emits NOTHING. The
+                # reader would have been sent looking for a companion error
+                # that does not exist.
+                _SPENT_CURRENT_ACTION, path=inventory_path(bundle)))
         distance = distance_from_tip(git, repo_path, bundle, tip, threshold + 2)
         if distance is None:
             return Skip(FAMILY, f"{repo}: the earliest commit declaring "
