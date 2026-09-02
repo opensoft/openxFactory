@@ -21,7 +21,7 @@ licence all ruled by Brett Heap 2026-09-02 and the repository CREATED the same
 day, seeded at `65880cb` and still empty of the standard's content — so the shape
 survives being forked into an org with no openxFactory, no codexFactory and no
 wallet register. Every authority question is DEFERRED to the sibling topic
-`wallet-carried-work-authority`, staged the same day on a separate branch; a
+`wallet-carried-work-authority`, staged the same day and landed on `main` first; a
 project that declines this schema is reviewed identically to one that elects it.
 Topics: project-schema, repository-naming, submodules, bootstrap, onboarding,
 project-register, assembly-root, lockstep-pin, github-topics, openreposhape,
@@ -139,9 +139,10 @@ to.
 Layout is also now FREE to be optimized for humans.
 `add-wallet-carried-review-authority` demoted repository topology from the spine
 of authority to an elective layout so layout would carry no governance weight,
-and the sibling topic `wallet-carried-work-authority`, staged the same day,
-removes the last hidden coupling by making grants path-scoped rather than
-repository-granular. This topic takes that freedom and does the ergonomics, only.
+and the sibling topic
+[wallet-carried-work-authority](../wallet-carried-work-authority/wallet-carried-work-authority.md),
+staged the same day and landed on `main` first, removes the last hidden coupling
+by making grants path-scoped rather than repository-granular. This topic takes that freedom and does the ergonomics, only.
 
 ## What changes
 
