@@ -114,8 +114,8 @@ the archived
 change then added a fifth `unplaced` class for findings its own arms/
 marker-defect map cannot place, per the canon `Requirement: A
 modified-block-currency finding its own class map cannot place is itself a
-finding`. The ratified
-[`govern-sibling-added-modified-deltas`](../openspec/changes/govern-sibling-added-modified-deltas/proposal.md)
+finding`. The archived
+[`2026-09-02-govern-sibling-added-modified-deltas`](../openspec/changes/archive/2026-09-02-govern-sibling-added-modified-deltas/proposal.md)
 change adds a SIXTH and a SEVENTH class, both `warning` at launch and both
 inserted BEFORE `unplaced` so that the gate-bearing arm still reads first and
 the drift class still reads last: `sibling-pairing`, which evaluates the
