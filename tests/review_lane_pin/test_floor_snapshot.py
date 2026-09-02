@@ -123,9 +123,22 @@ def uncovered(surface, entries) -> list[str]:
 
 
 def locate_pinned_core() -> pathlib.Path | None:
-    """The checked-out pinned core, or None when nothing supplied one."""
+    """The checked-out pinned core, or None when nothing supplied one.
+
+    `PINNED_CORE_CHECKOUT` IS AUTHORITATIVE WHEN SET, and the fallbacks apply
+    only when it is not. That asymmetry is deliberate and it is the same rule
+    the rest of this design follows: a caller that NAMES a core and does not get
+    it must be told so, not quietly handed a different tree that happens to be
+    lying around. Falling back there would verify the snapshot against something
+    nobody asked for and report it as a pass — the silent-degradation shape the
+    exact skip pin exists to make impossible.
+
+    The fallbacks stay for the developer case, where nothing is named and a
+    checkout in the obvious place is a convenience rather than a claim.
+    """
     declared = os.environ.get(CORE_ENV_VAR)
-    candidates = ([pathlib.Path(declared)] if declared else []) + list(CORE_FALLBACKS)
+    candidates = ([pathlib.Path(declared)] if declared
+                  else list(CORE_FALLBACKS))
     for candidate in candidates:
         if (candidate / FLOOR_IN_CORE).is_file():
             return candidate
@@ -446,15 +459,66 @@ class NegativeControls(unittest.TestCase):
             hashlib.sha256(mutated.encode("utf-8")).hexdigest(), declared,
             "the digest check must catch a snapshot edited without its digest")
 
-    def test_the_core_locator_refuses_a_directory_without_the_floor(self) -> None:
-        """The skip is only legitimate when the core really is absent."""
+    def test_a_named_core_that_is_absent_does_not_fall_back(self) -> None:
+        """The skip is only legitimate when the NAMED core really is absent.
+
+        FOUND BY CI, NOT BY REASONING, AND RECORDED SO IT STAYS FOUND. The first
+        run of this module on a runner failed here with
+        `PosixPath('.../openxFactory/.merge-master-core') is not None`: the
+        locator had been written to try the declared path AND THEN the
+        fallbacks, and on a runner `REPO_ROOT.parent/.merge-master-core` is a
+        real codexFactory checkout — `GITHUB_WORKSPACE` is the parent of the
+        repository checkout, which is where `pytest-suite.yml` puts it.
+
+        Locally the fallbacks are empty and the bug was invisible. What it would
+        have cost in production is worse than a red control: a run whose named
+        core was missing would have verified the snapshot against whatever tree
+        was lying beside the repository and reported a PASS. So the locator now
+        treats the variable as authoritative when set, and this is the control.
+        """
         environ = dict(os.environ)
         try:
             os.environ[CORE_ENV_VAR] = str(REPO_ROOT / "does-not-exist")
-            self.assertIsNone(locate_pinned_core())
+            self.assertIsNone(
+                locate_pinned_core(),
+                "a NAMED core that is absent must produce None — and therefore "
+                "a skip, and therefore a moved skip count — rather than a "
+                "silent fall back to a different tree")
         finally:
             os.environ.clear()
             os.environ.update(environ)
+
+    def test_the_fallbacks_apply_only_when_nothing_is_named(self) -> None:
+        """...and the developer convenience still works, unnamed.
+
+        The other half of the asymmetry, asserted so a later simplification
+        cannot quietly delete either branch.
+        """
+        import tempfile
+
+        environ = dict(os.environ)
+        with tempfile.TemporaryDirectory() as raw:
+            fake = pathlib.Path(raw)
+            (fake / FLOOR_IN_CORE).parent.mkdir(parents=True)
+            (fake / FLOOR_IN_CORE).write_text("schema_version: 1\n")
+            try:
+                os.environ.pop(CORE_ENV_VAR, None)
+                # By `sys.modules[__name__]` rather than by importing this
+                # module's own name: `tests/review_lane_pin/` carries no
+                # `__init__.py`, so the import name depends on collection, and
+                # a control that depends on collection order is not a control.
+                import sys
+
+                module = sys.modules[__name__]
+                original = module.CORE_FALLBACKS
+                module.CORE_FALLBACKS = (fake,)
+                try:
+                    self.assertEqual(module.locate_pinned_core(), fake)
+                finally:
+                    module.CORE_FALLBACKS = original
+            finally:
+                os.environ.clear()
+                os.environ.update(environ)
 
     def test_the_core_locator_finds_a_tree_that_carries_the_floor(self) -> None:
         """...and it must actually find one, or the skip is unfalsifiable."""
