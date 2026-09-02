@@ -263,28 +263,96 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
       therefore RE-DERIVED UNCHANGED from what each side already asserted on
       its own — confirmed against
       `python3 scripts/validate-sequenced-after.py . --sweep` run on the
-      merged tree, not assumed from the arithmetic.
+      merged tree, not assumed from the arithmetic. This is the reading THIS
+      TEST pinned at `b32c2fb6`, the commit that closed PR #571's own prior
+      merge of `main` — the branch tip this new merge starts from.
+    - `co_modified` reads 105, `active_co_modified` reads 19 and
+      `change_ids - 1` reads 154 — each one up from the reading the entry above
+      left. They moved on 2026-09-02 when `declare-spent-bundle-state` was
+      AUTHORED: one more ACTIVE change, and unlike `add-clearing-dispatch-boundary`
+      it carries a `## MODIFIED Requirements` block — over `doc-health`'s
+      promoted `Release-tag publication` requirement — so it is a CO-modifier
+      rather than a sole one, and both co-modified readings rise while
+      `sole_modifiers - 1` and `active_sole - 1` hold at 49 and 12. THE TWO
+      ENTRIES ABOVE AND THIS ONE ARE THE SAME RULE APPLIED TWICE IN TWO DAYS,
+      and the pair is worth reading together: an ADDED-only packet moves the
+      sole-modifier readings and leaves the co-modified ones, a packet carrying
+      a MODIFIED block does the exact opposite, and a packet that moved BOTH
+      would be a defect in the sweep rather than a corpus event. The pin moves
+      in the SAME COMMIT as the corpus, which is this test's own protocol, and
+      that packet's PR discloses that it touches this file for that reason and
+      for no other: it is corpus BOOKKEEPING, not the realization its OD-8
+      splits off to a later PR. `declaring` holds at 1 — it declares NO
+      `sequenced_after:` field, the field being carried by an ACTIVE, UNPROMOTED
+      change, and adopting an unratified surface is not what the "declaring must
+      never be worth less than omitting" doctrine asks of a packet written
+      before that change lands. `validate-sequenced-after.py` passes over the
+      corpus with it in place. THIS IS `main`'S OWN READING, taken against the
+      18-baseline `main` shared with this branch before PR #571's archive —
+      `main` has no knowledge of that archive, which is why it reads
+      `active_co_modified` as 19 rather than the 18 the merge below settles on.
+    - MERGING THIS BRANCH'S OWN READING (17 / 13 active co-modified/sole, 104
+      co-modified, 154 change ids, above) WITH `main`'S READING (19, 105, 155 —
+      above) compounds two DISJOINT-LOOKING but actually OPPOSED moves on one
+      pin: both moves are measured from the SAME 18-baseline
+      `active_co_modified` the two branches last shared (after #563's archive,
+      before either #571's archive or `declare-spent-bundle-state`'s
+      authoring), so PR #571's archive (18 → 17, an ACTIVE co-modifier leaving
+      the active corpus) and `declare-spent-bundle-state`'s authoring (18 → 19,
+      an ACTIVE co-modifier entering it) CANCEL rather than compound:
+      `active_co_modified` reads 18 on the merged tree — neither branch's own
+      number, and not `17 + 1` or `19 - 1` by coincidence but by the same
+      subtraction and addition both landing back on the shared base.
+      `co_modified` carries `main`'s move forward unopposed (104 → 105: an
+      archive never shrinks the corpus-wide co-modified count, only a newly
+      authored MODIFIED-block change grows it, and this merge has exactly one
+      of those), and `change_ids` carries both branches' additions (154 → 155:
+      `declare-spent-bundle-state` is one more active change stacked on the
+      merge that already carried #555's landing and #571's archive).
+      `sole_modifiers`, `active_sole` and their `- 1` readings are untouched by
+      either move and hold at 50/49 and 13/12. MEASURED ON THE MERGED TREE, not
+      inferred from the arithmetic: `31 active + 124 archived` = 155 change
+      ids, `105` co-modified, `50` sole modifiers, `18 / 13` active
+      co-modified/sole, via
+      `python3 scripts/validate-sequenced-after.py . --sweep` run after this
+      merge.
     """
     sweep = sa.corpus_sweep(ROOT)
-    assert sweep.co_modified == 104, (
-        "the co-modified population is unchanged by this change, whose ADDED "
-        "requirement titles are NOVEL")
-    assert sweep.active_co_modified == 17, (
-        "17 since govern-sibling-added-modified-deltas archived 2026-09-02 by "
-        "#571 (18 after add-release-tag-publication-check archived 2026-09-01 "
-        "by #563; measured 19 at authoring, before either archive). "
-        "Re-derive with "
+    assert sweep.co_modified == 105, (
+        "105 since declare-spent-bundle-state was authored 2026-09-02 on "
+        "main, which is the change that raised it: it carries a `## MODIFIED "
+        "Requirements` block, so it joined the co-modified population. It "
+        "read 104 at THIS test's own authoring — add-sequenced-after-substrate's "
+        "ADDED requirement titles being NOVEL, so that change is a SOLE "
+        "modifier and moved this count not at all — and held at 104 through "
+        "#563's archive, #555's ADDED-only landing, and #571's archive (an "
+        "archive moves `active_co_modified`, never the corpus-wide "
+        "`co_modified`). ANY later change carrying a MODIFIED block raises it "
+        "again, which is one of the two EXPECTED causes of this failure")
+    assert sweep.active_co_modified == 18, (
+        "18 on the merged tree: PR #571 archived govern-sibling-added-modified-"
+        "deltas (an ACTIVE co-modifier leaving the active corpus, 18 → 17 on "
+        "this branch alone) the SAME DAY main authored declare-spent-bundle-"
+        "state (an ACTIVE co-modifier entering it, 18 → 19 on main alone) — "
+        "both measured from the same 18-baseline the two branches last shared "
+        "after #563's archive 2026-09-01, so the two moves CANCEL on this "
+        "merge rather than compound. Re-derive with "
         "`python3 scripts/validate-sequenced-after.py . --sweep` and move this "
         "pin in the SAME COMMIT, recording in the MOVEMENT LOG above which "
         "subject moved and why — archiving a co-modified ACTIVE change lowers "
-        "this count while leaving `co_modified` untouched, and that is the "
-        "EXPECTED cause of this failure")
+        "this count while leaving `co_modified` untouched, and AUTHORING one "
+        "raises BOTH, which are two different EXPECTED causes of this failure "
+        "and must not be confused")
     assert sweep.change_ids == sweep.active + sweep.archived
     assert sweep.sole_modifiers == sweep.change_ids - sweep.co_modified
     # This change is itself a sole modifier at requirement granularity — which is
     # exactly why it declaring a parent anyway is the doctrine applied to its
     # author: declaring must never be worth less than omitting.
-    assert sweep.change_ids - 1 == 153
+    assert sweep.change_ids - 1 == 154, (
+        "the `- 1` subtracts THIS change and nothing else, so the reading is "
+        "the corpus without it: 152 at authoring, 153 when "
+        "add-clearing-dispatch-boundary landed 2026-09-01, 154 when "
+        "declare-spent-bundle-state was authored 2026-09-02")
     assert sweep.sole_modifiers - 1 == 49
     # STILL INTACT ON ITS MERITS, not by a cancelling pair of errors — checked,
     # because #563's archive landing between the authoring measurement and this
