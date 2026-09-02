@@ -557,10 +557,18 @@ Active changes:
   by measurement (the contract SET's `contract_schema_version` stays 1 because
   `scripts/validate-domain-openxfactory-pins.py:92` hard-pins it and all five
   supported consumers declare it; moving it would ERROR the whole supported
-  population unphased). §§ 5 and 7 stay open: the annotated tag is a separate
-  post-merge act. (code surface: openxFactory; target release:
-  `contract-v3.0` — archives only on merged plus green realization evidence and
-  the published tag)
+  population unphased). **AND THE TAG IS NOW PUBLISHED** — annotated tag object
+  `59f4f51f`, peeling FROM THE REMOTE to `ff9ed815` (PR #573's squash), taken
+  only after § Bundle Realization Order step 4 reran `verify-commit` AND
+  `verify-promotion` on the PROMOTED commit from an independent clone, both
+  green with zero findings, and re-verified with `verify-tag` from a second
+  fresh clone (evidence: PR #573 comment `5506503494`). **Task 7.2 is therefore
+  DISCHARGED and §§ 5.1, 5.2, 7.1, 7.3 and 7.4 are what remain** — the
+  five-consumer validator run at the tag, the starter instantiation, and the
+  merge-commit/`--strict` reads — so this stays ACTIVE on the evidence it still
+  owes rather than on the tag it no longer does. (code surface: openxFactory;
+  target release: `contract-v3.0` — archives only on merged plus green
+  realization evidence and the published tag)
 - [add-chain-attestation](openspec/changes/add-chain-attestation/proposal.md)
   — authored 2026-08-29, **`Status: ratified` — RATIFIED 2026-09-01 by Brett
   Heap at `f54cb5bc` and RE-RATIFIED at `6d7ef17b` after the amendments** (record:
@@ -584,7 +592,14 @@ Active changes:
   commit can cure. Brett ruled 2026-09-02 *"Supersede: v3.0 is the
   completion"*: `contract-v2.6` is a spent, never-verifiable, never-published
   number, and `contract-v3.0` carries this family's additive content unchanged
-  beside the three retirements that make it a major. What stays open is not
+  beside the three retirements that make it a major. **AND `contract-v3.0` IS
+  NOW PUBLISHED, so task 5.9's cut half is no longer merely DECLARED**: annotated
+  tag object `59f4f51f` peels FROM THE REMOTE to `ff9ed815`, published only after
+  § Bundle Realization Order step 4 reran `verify-commit` AND `verify-promotion`
+  on the PROMOTED commit from an independent clone — both green with zero
+  findings, which is exactly the rerun whose omission left `contract-v2.6`
+  unpublishable — and re-verified with `verify-tag` from a second fresh clone
+  (evidence: PR #573 comment `5506503494`). What stays open is not
   the author's to close: the §5.1–5.3 MACHINERY GATES (a PKI plane that has
   ISSUED, an omnigent layer that has REFUSED — SEC-R18 declared UNMET until
   then) and the §5.8 canary evidence pair.
@@ -1803,12 +1818,23 @@ Active changes:
   been refused by two tests the realization landed with their reasoning beside
   them —
   `typed_proposal` RETAINED with the reason (a removal no minor warned on),
-  `CONTRACT_TAG` off its stale `contract-v2.2` — but the annotated TAG is a
-  separate post-merge act after § Bundle Realization Order step 4 reruns every
-  gate on the promoted commit, so §§ 7 and 8 stay open. (code surface:
-  openxFactory; target release: `contract-v3.0` — archives only on merged plus
-  green realization evidence, the moved manifest digest, the rebuilt inventory
-  and the published tag)
+  `CONTRACT_TAG` off its stale `contract-v2.2`. **THE ANNOTATED TAG IS NOW
+  PUBLISHED** — tag object `59f4f51f`, peeling FROM THE REMOTE to `ff9ed815`
+  (PR #573's squash) — and it was taken as the separate post-merge act it had to
+  be, only after § Bundle Realization Order step 4 reran `verify-commit` AND
+  `verify-promotion` on the PROMOTED commit from an independent clone (both
+  green, zero findings; the promoted tree proved BYTE-IDENTICAL to the reviewed
+  candidate `5418256a`, one tree sha and not two), then `verify-tag` from a
+  second fresh clone (evidence: PR #573 comment `5506503494`). The consumer
+  sentinel `unpublished:contract-v3.0` was resolved to `ff9ed815` the same day —
+  task 6.9's post-tag act, in the shape the `contract-v2.2` resolution recorded
+  two entries below, and the thing the `contract-v1.45` residue (three days
+  standing) exists to stop recurring. **Task 8.2 is DISCHARGED; §§ 7.1, 7.2, 8.1, 8.3, 8.4
+  and 8.5 remain** — the validator run at the tag, the two-direction fallback
+  exercise against the running serve, and the recorded dispositions. (code
+  surface: openxFactory; target release: `contract-v3.0` — archives only on
+  merged plus green realization evidence, the moved manifest digest, the rebuilt
+  inventory and the published tag)
 
 The avatar-client kernel (`contract-v1.7`), reference runtime, and avatar-first UI
 standard (`contract-v1.8`) are realized. The contract kernel, the revocation

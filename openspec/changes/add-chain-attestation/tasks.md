@@ -1222,6 +1222,38 @@ Each is contract content — cheap now, expensive after a bundle ships.
       exists this box's cut half is DECLARED, not PUBLISHED, and this packet may
       not archive on it.
 
+      **THE TAG EXISTS — 2026-09-02 — AND THE PARAGRAPH ABOVE IS DISCHARGED ON
+      ITS OWN TERMS RATHER THAN WAIVED.** `contract-v3.0` is PUBLISHED: annotated
+      tag object `59f4f51f2e0ac7c833cdaee9f385e9e83777650e`, peeling FROM THE
+      REMOTE to `ff9ed81541ab3eb2ebeb2e79676e5a875dd58064`, the squash-merge of
+      PR #573. **Step 4 was performed FIRST and the tag second**, which is the
+      ordering this box exists to insist on: from an independent clone made for
+      the purpose, at the squash, before any tag object existed anywhere,
+      `verify-commit --commit ff9ed815` → `pass` exit 0 and
+      `verify-promotion --commit ff9ed815 --remote origin --tag contract-v3.0` →
+      `pass` exit 0, **both with `"findings":[]`**. The promoted tree proved
+      BYTE-IDENTICAL to the reviewed candidate `5418256a` — one tree sha,
+      `12e326e5df91ff64a7ae478a8cb8d923dd98af55`, and `git diff` between the two
+      commits empty — so the step-4 conditional (*"if the squash's tree differs
+      … the inventory is rebuilt in a completion commit and everything reruns"*)
+      did not fire, no completion commit was owed, and every gate and review
+      recorded at the reviewed head measures exactly the bytes now on `main`.
+      **That is the fact `contract-v2.6` could not produce**: its reviewed
+      candidate `07986003` is not reachable from `origin/main` at all. The tag
+      was then verified from a SECOND fresh clone that never saw the first one's
+      working tree — `verify-commit --commit ff9ed815` → `pass` and
+      `verify-tag --remote origin --tag contract-v3.0` → `pass`, zero findings
+      both. Evidence with UTC timestamps and clone provenance: PR #573 comment
+      `5506503494`.
+
+      **THE CUT HALF IS THEREFORE PUBLISHED RATHER THAN MERELY DECLARED, AND
+      THIS PACKET STILL DOES NOT ARCHIVE ON IT.** What blocks the archive was
+      never the tag: §§ 5.1–5.3 are MACHINERY GATES no author can close by
+      writing (a PKI plane that has ISSUED, an omnigent layer that has REFUSED —
+      SEC-R18 stays declared UNMET until then), and § 5.8's canary pair is its
+      own evidence. Recorded here so a later reader does not mistake a published
+      tag for a cleared archive gate.
+
 ## 6. Successor — NAMED, NOT DRAFTED
 
 - [ ] 6.1 **Tranche three — `add-chain-anchoring`** (in parallel drafting): the

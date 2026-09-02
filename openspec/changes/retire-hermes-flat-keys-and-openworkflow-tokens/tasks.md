@@ -471,9 +471,40 @@ evidence set:
 
 - [ ] 7.1 §§ 2 and 3 merged on `openxFactory` `main`, `pytest-suite` green on
       the merge commit.
-- [ ] 7.2 The `contract-v3.0` bundle declared, and its annotated tag PUBLISHED
+- [x] 7.2 The `contract-v3.0` bundle declared, and its annotated tag PUBLISHED
       and verified from an independently refreshed checkout — a bundle is not
       published until its tag exists, and this packet's target release is that
       bundle.
+      **DONE 2026-09-02. DECLARED at PR #573, squash
+      `ff9ed81541ab3eb2ebeb2e79676e5a875dd58064`; PUBLISHED as annotated tag
+      object `59f4f51f2e0ac7c833cdaee9f385e9e83777650e`, which peels — read from
+      the REMOTE, not from the ref that created it — to that same squash.**
+      Both halves of this box are separately evidenced, because the box asks for
+      two different things and `contract-v2.6` failed the second while claiming
+      it.
+      *Declared*: `contracts/manifest.yaml:3` at `ff9ed815` reads
+      `contract_bundle_version: contract-v3.0`, `contracts/releases/contract-v3.0.digests.yaml`
+      exists there, and `ff9ed815` is the ONLY commit on `origin/main`'s
+      first-parent line that declares the bundle.
+      *Published and verified*: § Bundle Realization Order **step 4 was performed
+      FIRST, on the PROMOTED commit, from an independent clone made for the
+      purpose, and before any tag object existed** —
+      `verify-commit --commit ff9ed815` → `pass`, exit 0, and
+      `verify-promotion --commit ff9ed815 --remote origin --tag contract-v3.0` →
+      `pass`, exit 0, **both with `"findings":[]`**. The promoted tree proved
+      BYTE-IDENTICAL to the reviewed candidate `5418256a` (one tree sha,
+      `12e326e5`, not two; `git diff` empty), so no completion commit was owed
+      and every gate recorded at the reviewed head measures the bytes now on
+      `main`. The tag was then created on `ff9ed815` and pushed, and verified
+      from a SECOND fresh clone that never saw the first one's working tree:
+      `verify-commit --commit ff9ed815` → `pass` and
+      `verify-tag --remote origin --tag contract-v3.0` → `pass`, both zero
+      findings. Full evidence, with UTC timestamps and clone provenance: PR #573
+      comment `5506503494`.
+      **THIS IS THE ACT `contract-v2.6` LACKED** — that bundle's post-merge
+      checklist stopped at step 2, its declaring commit `bbbbeda9` returns five
+      `HGR-RELEASE-DIGEST-MISMATCH` findings, and no tag object was ever created.
+      Recorded here rather than only in the cut's own packet, because this box's
+      text is the one that says a bundle is not published until its tag exists.
 - [ ] 7.3 `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green.
 - [ ] 7.4 The five-consumer validator run of 5.1 recorded, showing no line moved.
