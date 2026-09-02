@@ -403,8 +403,8 @@ retroactively invalidate an old pin.
   (`requirement_id` + `requirements_document_ref`), and the const-true
   `shared_credential_acknowledged` and `instantiation_stub` tokens. **The block
   is DECLARED at contract-v2.4 and CONSTRAINED at contract-v4.0** — the target
-  read `contract-v3.0` until that major shipped without any of the eight acts
-  and the entry was restated at its cut, per the tail of this bullet; from
+  read `contract-v3.0` until that major was CUT without any of the eight acts
+  and the entry was restated at that cut, per the tail of this bullet; from
   contract-v2.4 through contract-v3.0 the schema imposes no type, no member
   grammar, no requiredness and no closure on it, and
   `scripts/validate-credential-contracts.py` emits WARNINGS instead.

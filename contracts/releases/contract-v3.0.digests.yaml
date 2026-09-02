@@ -974,7 +974,7 @@ entries:
   path: contracts/manifest.yaml
   type: manifest
   git_mode: '100644'
-  digest: sha256:972fefc835c8275501f18e53ea20b2c85765fc212b83efea781600c0dfb6b5ac
+  digest: sha256:6d299e1a84227fdf56e23941e08ce1565f083485015ab910cf1db1413b953b18
 - artifact_id: contracts-releases-release-digest-inventory.schema.yaml
   path: contracts/releases/release-digest-inventory.schema.yaml
   type: schema
@@ -1068,7 +1068,7 @@ entries:
   path: docs/contract-versioning-policy.md
   type: documentation
   git_mode: '100644'
-  digest: sha256:d76f2c0170d7c723517c4f5ef9e47f890c1b97830b3e135bb8c336249d808247
+  digest: sha256:e1c82d07671b10fd9e730e1947a97724e8e6e39cc7db63cb0d0a2fd1bede6280
 - artifact_id: docs-terminology-and-repo-topology.md
   path: docs/terminology-and-repo-topology.md
   type: documentation

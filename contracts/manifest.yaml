@@ -1728,7 +1728,9 @@ contracts:
       `docs/contract-versioning-policy.md` makes a new validator warning
       ADDITIVE while a new rejection is BREAKING. THIS ROW ANNOUNCED THAT IT
       "becomes an ERROR at contract-v2.0", AND THAT NARROWING WAS NEVER TAKEN:
-      contract-v2.0 shipped 2026-08-27, contract-v3.0 ships here, and
+      contract-v2.0 shipped 2026-08-27, contract-v3.0 is DECLARED here
+      (declared, not published — a bundle is not published until its tag
+      exists, and this row is written at the cut), and
       `scripts/validate-ideation-dashboard-contracts.py` still calls
       `f.warn("context-packet-blank", ...)`. The claim is CORRECTED rather than
       carried: the promotion to ERROR is RESTATED to contract-v4.0, ahead of
