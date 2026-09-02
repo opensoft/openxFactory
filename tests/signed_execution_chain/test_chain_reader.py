@@ -637,6 +637,17 @@ def test_two_consumed_records_sharing_an_id_are_ambiguous_not_last_seen(
     reader.repo_scan(findings, tmp_path, registry, docs, carried)
     assert "consumed-record-id-duplicate" not in reader.codes_of(findings.errors)
 
+    # AND THE OTHER LAYER-2 ENTRY POINT IS COVERED TOO, because `repo_scan()`
+    # serves an explicitly named single file as well as a directory sweep, and one
+    # file can carry a whole multi-document stream. The docstring says so, so it is
+    # held to it rather than believed.
+    one_file = tmp_path / "stream.yaml"
+    one_file.write_text(yaml.safe_dump_all([certificate, certificate],
+                                           sort_keys=False), encoding="utf-8")
+    findings = reader.Findings()
+    reader.repo_scan(findings, one_file, registry, docs, carried)
+    assert "consumed-record-id-duplicate" in reader.codes_of(findings.errors)
+
 
 def test_the_corpus_exclusion_is_not_evadable_by_placement(
         tmp_path, registry_and_docs, carried):

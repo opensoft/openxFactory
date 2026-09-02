@@ -1827,10 +1827,12 @@ def check_consumed_identifiers_are_unambiguous(
     already refuses one vocabulary over, where a key id two wallets claim
     differently is AMBIGUOUS rather than last-seen.
 
-    It is checked at the SWEEP rather than in the shared scope builder because
-    the sweep is where an uncurated set can arise: the packaged corpora are
-    adjudicated by layer 1, which would report a duplicate there as the corpus
-    defect it would be.
+    IT IS CHECKED AT LAYER 2'S ENTRY POINT — over the whole-tree sweep and over
+    an explicitly named single file alike, since `repo_scan()` serves both and a
+    single file can carry a whole multi-document stream — rather than in the
+    shared scope builder. Layer 2 is where an UNCURATED set can arise; the
+    packaged corpora are adjudicated by layer 1, which would report a duplicate
+    there as the corpus defect it would be.
     """
     seen: dict[tuple[str, str], list[str]] = {}
     for label, doc in records:
