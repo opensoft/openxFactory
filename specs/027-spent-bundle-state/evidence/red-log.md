@@ -37,7 +37,7 @@ ERROR tests/doc-health/test_release_tag_publication.py
 1 error in 0.22s
 ```
 
-**NOT ONE of the 27 new tests can be COLLECTED against the pre-feature module.**
+**NOT ONE of the 32 new tests can be COLLECTED against the pre-feature module.**
 The red is total and blunt: the file's own module-level `CHANGELOG = rtp.CHANGELOG`
 is the first thing that does not exist. Recorded as the bluntest available red
 rather than dressed up as a per-test one.
@@ -57,17 +57,17 @@ the same failing test. The inherited red is reproduced, not cited.
 ## C. The same file at this head
 
 ```text
-1 failed, 47 passed in 82.07s
+1 failed, 50 passed in 91.82s
 ```
 
-**47 passed, 1 failed.** The failure is the SAME test for the SAME reason: it
+**50 passed, 1 failed.** The failure is the SAME test for the SAME reason: it
 reads the LIVE remote `main` (`git ls-remote origin refs/heads/main`), which
 this branch's declaration is invisible to until the squash. It is not edited —
 the packet says it *"goes GREEN as a consequence rather than by being edited"* —
 and § A of [`post-merge-proof.md`](./post-merge-proof.md) shows it passing once
 that is true.
 
-19 → 47 tests, +28: eleven reader tests with no repository, fourteen ladder
+19 → 51 tests, +32: fourteen reader tests with no repository, fifteen ladder
 scenarios over real git fixtures, and three report-integration proofs.
 
 ## D. What a fourth measurement would and would not have added

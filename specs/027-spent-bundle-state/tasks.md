@@ -12,11 +12,22 @@ are ticked with evidence in the same PR.
 for 2.1's verification: the declaration removed, the `error` returns"* and the
 constitution's deterministic-evidence principle requires the rest.
 
-## THE RED GATE (a hard ordering constraint)
+## THE RED GATE — AND IT WAS NOT MET IN THE ORDER IT ASKS FOR
 
-`T004`–`T018` are the RED tests. Every one MUST be written and seen to fail for
-its stated reason — recorded in [`evidence/red-log.md`](./evidence/red-log.md) —
-**before `T019`**, the first module task, is started.
+`T004`–`T018e` are the RED tests, and the gate as written requires every one to
+be seen failing for its stated reason before `T019`, the first module task.
+
+**THAT IS NOT THE ORDER THIS SESSION WORKED IN, AND THE GATE IS LEFT STANDING
+RATHER THAN REWORDED TO MATCH WHAT HAPPENED.** The module and the tests were
+authored in one pass, module first; the red was then demonstrated by REVERTING
+the module against the landed tests, where not one of the 32 new tests can even
+be collected. That is weaker than a true test-first order, it is recorded in
+[`evidence/red-log.md`](./evidence/red-log.md) § A rather than smoothed over,
+and the gate stays as written so the deviation has something to be a deviation
+FROM. What IS red-first in the strict sense is the one the packet requires by
+name: T014's declaration-removal control, which is a permanent test and is
+re-taken over the real repository in
+[`evidence/post-merge-proof.md`](./evidence/post-merge-proof.md) § B.
 
 ## Phase 1 — the declaration, FIRST and not silently (packet 2.1)
 
@@ -38,7 +49,7 @@ its stated reason — recorded in [`evidence/red-log.md`](./evidence/red-log.md)
 
 ## Phase 2 — RED tests (packet 2.6, 2.7)
 
-### The reader, with no repository (11 tests)
+### The reader, with no repository (14 tests)
 
 - [x] **T004** the reserved form parses into its four elements, and the
       backticks are the form's rather than the name's.
@@ -55,8 +66,17 @@ its stated reason — recorded in [`evidence/red-log.md`](./evidence/red-log.md)
 - [x] **T012** a declaration outside every release entry carries no entry.
 - [x] **T013** two declarations naming one bundle are COUNTED, and the count
       alone is a refusal.
+- [x] **T013a** an EMPTY backtick pair carries a `defect` and not a bare
+      `None` — **found in self-review, before the bots**: the `None`-keyed
+      finding INTERPOLATES the defect string, so a None there would print the
+      word "None" into a finding a human has to act on.
+- [x] **T013b** a misspelt keyword is not read as the keyword: `RULED BYE …`
+      must not match `RULED BY` and yield the value `E …`. Also self-review.
+- [x] **T013c** elements OUT OF ORDER are MALFORMED rather than reported
+      missing — the cause is right there, and saying it is absent would send a
+      reader looking for text the line already carries.
 
-### The ladder, over real git fixtures (13 scenarios + 2 report proofs)
+### The ladder, over real git fixtures (15 tests covering 13 scenarios, + 3 report proofs)
 
 - [x] **T014** ACCEPTED → one `info`, on the inventory path, classed
       `contested`, naming spent bundle + successor + where the record is + the
@@ -76,9 +96,9 @@ its stated reason — recorded in [`evidence/red-log.md`](./evidence/red-log.md)
       not quiet a MISPLACED tag; does not quiet a LIGHTWEIGHT ref; an
       unreadable changelog SKIPS naming that read (with its positive control);
       the state is not read backwards onto published or legacy bundles.
-- [x] **T018a** OQ-3: a contested `info` vanishing raises an
+- [x] **T018d** OQ-3: a contested `info` vanishing raises an
       `uncited-resolution` ERROR on that bundle's path — PROVED, not inherited.
-- [x] **T018b** the Codex repair with TWO bundles: two `info`s, two match keys,
+- [x] **T018e** the Codex repair with TWO bundles: two `info`s, two match keys,
       one withdrawal raising exactly one uncited-resolution; plus the
       complement, that a CITED disposition silences it.
 
@@ -112,7 +132,7 @@ its stated reason — recorded in [`evidence/red-log.md`](./evidence/red-log.md)
 ## Phase 5 — evidence and gates (packet 2.9)
 
 - [x] **T027** `pytest tests/doc-health/test_release_tag_publication.py` →
-      **47 passed, 1 failed**, the failure being the self-gate reading remote
+      **50 passed, 1 failed**, the failure being the self-gate reading remote
       `main` (see R1).
 - [x] **T028** `pytest tests/doc-health` → **1412 passed, 1 failed**, same
       single failure. (packet 2.9)

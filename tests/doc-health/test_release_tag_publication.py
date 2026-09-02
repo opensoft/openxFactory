@@ -516,6 +516,47 @@ def test_the_reserved_opener_not_completing_the_form_is_malformed_not_prose():
     assert "names no subject" in read[None].defect
 
 
+def test_an_EMPTY_backtick_pair_carries_a_defect_and_not_a_bare_None():
+    """FOUND IN SELF-REVIEW BEFORE THE BOTS. A line whose subject is an empty
+    backtick pair keys under `None` like an unreadable one — and the finding
+    the ladder raises for that key INTERPOLATES `declaration.defect`, so a
+    `None` there would print the word "None" into a finding a human has to act
+    on. Every `None`-keyed declaration therefore carries a defect string."""
+    read = rtp.read_spent_declarations(
+        f"## contract-v3.0 — x\n\n{rtp.SPENT_OPENER} `` — CAUSE: c\n".encode())
+    assert set(read) == {None}
+    assert read[None].defect and "EMPTY backtick pair" in read[None].defect
+    assert "None" not in read[None].defect
+
+
+def test_a_misspelt_keyword_is_not_read_as_the_keyword():
+    """`RULED BYE …` must not match `RULED BY` and yield the value `E …`. The
+    two keywords that end in a letter rather than a colon need the boundary
+    check the colon already gives the other two."""
+    line = _spent_line("contract-v2.6").replace(" — RULED BY ", " — RULED BYE ")
+    decl = rtp.read_spent_declarations(
+        f"## contract-v3.0 — x\n\n{line}\n".encode())["contract-v2.6"]
+    assert "ruling" in decl.missing, decl
+    assert decl.author is None and decl.date is None
+
+
+def test_elements_OUT_OF_ORDER_are_malformed_rather_than_reported_missing():
+    """The cause is right there; saying it is missing would send a reader
+    looking for text the line already carries."""
+    good = _spent_line("contract-v2.6")
+    head, _, tail = good.partition(" — SUPERSEDED BY ")
+    superseding, _, rest = tail.partition(" — CAUSE: ")
+    cause, _, ruling = rest.partition(" — RULED BY ")
+    swapped = (f"{head} — CAUSE: {cause} — SUPERSEDED BY {superseding}"
+               f" — RULED BY {ruling}")
+    decl = rtp.read_spent_declarations(
+        f"## contract-v3.0 — x\n\n{swapped}\n".encode())["contract-v2.6"]
+    assert decl.defect and "does not define" in decl.defect
+    refusal = rtp.spent_refusal(decl, "contract-v2.6",
+                                {"contract-v2.6", "contract-v3.0"})
+    assert "MALFORMED" in refusal and "OMITS" not in refusal
+
+
 def test_an_omitted_element_is_NAMED_rather_than_making_the_line_unreadable():
     for dropped, owed in (("MEASUREMENT", "measurement of record"),
                           ("CAUSE", "cause"),

@@ -114,7 +114,7 @@ does not.
 python3 -m pytest tests/doc-health/test_release_tag_publication.py -q
 ```
 
-Expected on this branch: **47 passed, 1 failed** — the failure being
+Expected on this branch: **50 passed, 1 failed** — the failure being
 `test_this_repository_reads_zero_and_the_probe_can_fire`, which reads the live
 remote `main`. It goes green at the squash and is not edited. Anything else
 failing is a real defect.

@@ -118,8 +118,8 @@ that replaces it is `contested`, so **its** disappearance would.
   in the SAME `blobs_at` call at the SAME tip; a blob it cannot read is a
   **SKIP naming that read**, never "no declaration" — the #338 conflation one
   document over, which this family has already been caught by once.
-* **2.6 / 2.7 — tests.** 19 → **47** in the family's file (+28: eleven reader
-  tests with no repository, fourteen ladder scenarios over real git fixtures,
+* **2.6 / 2.7 — tests.** 19 → **51** in the family's file (+32: fourteen reader
+  tests with no repository, fifteen ladder scenarios over real git fixtures,
   three report-integration proofs). All 13 new scenarios covered, each with the
   positive control the file's convention requires.
 * **2.8 — `docs/doc-health.md`** gains the third state, the reserved form, the
@@ -139,7 +139,7 @@ the same fixture, declaration removed, must return the superseded `error` on
 
 **And the order is recorded as taken, not as prescribed.** The module and the
 tests were authored in one pass, module first; the red was then demonstrated by
-reverting the module against the landed tests, where **not one of the 28 new
+reverting the module against the landed tests, where **not one of the 32 new
 tests can even be COLLECTED** (`AttributeError: module
 'doc_health.release_tag_publication' has no attribute 'CHANGELOG'`). That is
 weaker than a true test-first order and is disclosed rather than smoothed over:

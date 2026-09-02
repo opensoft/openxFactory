@@ -224,6 +224,23 @@ class SpentDeclaration:
         return f"{self.author}, {self.date}"
 
 
+def _element_prefix(segment: str, prefix: str) -> bool:
+    """Does `segment` open with the element keyword `prefix`?
+
+    A BARE `startswith` IS NOT ENOUGH for the two keywords that end in a
+    letter rather than a colon: `RULED BYE 2026-01-01` would match `RULED BY`
+    and yield the value `E 2026-01-01`, so a misspelling would be read as a
+    ruling. A colon-terminated keyword needs no such guard, because the colon
+    is already the boundary.
+    """
+    if not segment.startswith(prefix):
+        return False
+    if prefix.endswith(":"):
+        return True
+    rest = segment[len(prefix):]
+    return rest == "" or rest[0].isspace()
+
+
 def _parse_spent_line(line: str, lineno: int,
                       entry: str | None) -> SpentDeclaration:
     """One line that BEGINS with the reserved opener, parsed or diagnosed.
@@ -241,6 +258,15 @@ def _parse_spent_line(line: str, lineno: int,
             defect="the reserved opener is used but no backtick-quoted bundle "
                    "name follows it, so the line names no subject at all")
     subject = subject_match.group(1).strip() or None
+    if subject is None:
+        # AN EMPTY BACKTICK PAIR IS A DEFECT AND NOT MERELY A MISSING ELEMENT.
+        # It keys under `None` like an unreadable subject, so it MUST carry a
+        # `defect` — the orphan sweep reports that string, and a None there
+        # would print the word "None" into a finding a human has to act on.
+        return SpentDeclaration(
+            None, entry, None, None, None, None, None, lineno,
+            defect="the reserved opener is followed by an EMPTY backtick pair, "
+                   "so the line names no subject at all")
     tail = rest[subject_match.end():]
     segments = [s for s in _SPENT_SEP.split(tail) if s.strip()] if tail.strip() \
         else []
@@ -251,7 +277,7 @@ def _parse_spent_line(line: str, lineno: int,
     remaining = list(segments)
     for prefix, name in _SPENT_ELEMENTS:
         for index, segment in enumerate(remaining):
-            if segment.startswith(prefix):
+            if _element_prefix(segment, prefix):
                 value = segment[len(prefix):].strip()
                 if value:
                     values[name] = value
@@ -266,6 +292,12 @@ def _parse_spent_line(line: str, lineno: int,
                 break
         else:
             missing.append(name)
+    # OUT OF ORDER IS MALFORMED, NOT MERELY INCOMPLETE, and the segments that
+    # caused it are KEPT here rather than filtered back out. A line whose CAUSE
+    # precedes its SUPERSEDED BY leaves the cause segment unrecognized AND the
+    # cause missing; `spent_refusal` reads the defect first, so the finding
+    # says MALFORMED — which is true — instead of "omits the cause", which
+    # would send a reader looking for text that is right there.
     unrecognized.extend(remaining)
 
     superseding = values.get("superseding bundle")
@@ -662,15 +694,20 @@ def check_repo(repo: str, repo_path: Path, git,
         # A SPENT state answers "this number will never be published"; it does
         # not answer "whatever ref exists under this name is acceptable".
         declaration = declarations.get(bundle)
-        superseded = _finding(
-            ERROR, repo,
-            f"{bundle} was cut and SUPERSEDED without ever being "
-            f"published: it has a release inventory, the manifest has "
-            f"moved on to {declared}, and it has no published annotated "
-            f"tag — under the versioning policy it was never released, "
-            f"and its window closed when the next cut replaced it",
-            _SUPERSEDED_ACTION)
         if bundle != declared:
+            # BUILT ONCE AND EMITTED FROM TWO PLACES — the no-declaration arm
+            # and the refusal arm — because those two must report the SAME
+            # words: "a REFUSED declaration leaves this scenario in force" is
+            # only true if the finding it leaves standing is the finding
+            # silence would have raised.
+            superseded = _finding(
+                ERROR, repo,
+                f"{bundle} was cut and SUPERSEDED without ever being "
+                f"published: it has a release inventory, the manifest has "
+                f"moved on to {declared}, and it has no published annotated "
+                f"tag — under the versioning policy it was never released, "
+                f"and its window closed when the next cut replaced it",
+                _SUPERSEDED_ACTION)
             if declaration is None:
                 # SILENCE IS NEVER A DECLARATION. Unchanged behaviour, in the
                 # same words, for every bundle no declaration names — which is
@@ -774,11 +811,14 @@ def check_repo(repo: str, repo_path: Path, git,
     for subject, declaration in sorted(
             declarations.items(), key=lambda kv: (kv[0] is not None, kv[0])):
         if subject is None:
+            more = ("" if declaration.count == 1 else
+                    f" ({declaration.count} such lines were found; the first "
+                    f"is named)")
             findings.append(_finding(
                 ERROR, repo,
                 f"the reserved SPENT opener is used at {CHANGELOG} line "
                 f"{declaration.lineno} on a line that names no bundle: "
-                f"{declaration.defect} — a line beginning with "
+                f"{declaration.defect}{more} — a line beginning with "
                 f"'{SPENT_OPENER}' is a MALFORMED DECLARATION, never prose to "
                 f"be ignored, and this one disposes nothing",
                 _SPENT_ORPHAN_ACTION, path=CHANGELOG))
