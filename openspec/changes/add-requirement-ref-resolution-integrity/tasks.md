@@ -187,141 +187,443 @@ a box that puts a live question cannot be ticked by the act that answered it.
 
 ## 3. Realization — the validator arm (SEPARATE PULL REQUEST)
 
-- [ ] 3.1 **Re-measure before editing.** Re-run the reproduction of § What was
-      measured against the tree as it then stands and paste the output. If it no
-      longer reproduces, STOP and dispose of the packet rather than implementing
-      against a defect that has moved.
-- [ ] 3.2 A per-binding resolution pass reached from `_deprecation_warnings`,
-      running for every binding whose consumer block declares a
-      `requirement_ref` that is a well-formed qualified reference with a
-      grammatical document reference — the two shapes the existing
-      `consumer-member-grammar` and `consumer-requirement-ref-grammar` arms
-      already report are NOT reported twice, one fault keeping one finding.
-- [ ] 3.3 Two codes, one per status: `not-found` and `ambiguous` reported apart.
-      Proposed spellings `requirement-ref-unresolved` and
-      `requirement-ref-ambiguous`; both join `DEPRECATION_CODES` (8 -> 10) and
-      `WARNING_EXPECTATIONS`. **Subject to AD-1**, and if the ratifier rules ONE
-      code this row is not the only thing that moves: the whole edit is the
-      AD-1/ONE-CODE AMENDMENT SET enumerated in proposal.md § Authoring
-      decisions, applied ENTIRE in the ratifying commit — this row is its item 8.
-      Reaching realization with a one-code ruling and a two-code delta still
-      standing is the failure this cross-reference exists to prevent.
-- [ ] 3.4 `resolve_requirement` is CALLED, not edited: same statuses, same
-      index, same grammar, same never-open-a-path rule. A diff touching that
-      function's body is out of scope and should be justified or reverted.
-      **THE FREEZE AND THE DELTA NOW AGREE, AND THAT IS THE 2026-09-01 RULING'S
-      DOING** (§ 9.4, § 2.5). As ratified they did NOT: the delta's ambiguity
-      scenario reached across requirements documents while this row froze a
-      resolver matching `index.get(requirements_document_ref)` — ONE document, the
-      one the reference names — so the cross-document arm was unmeetable under the
-      freeze, which is exactly what the third Codex round found. Brett Heap ruled
-      the DELTA down to PER-DOCUMENT rather than ruling the freeze open, so the
-      implementer now builds precisely the arm this freeze can serve and **NOTHING
-      IN THIS PACKET OBLIGES A BROADENING.**
-      **WHAT THIS ROW STILL OWES IS A NAMING, NOT A BROADENING.** The promoted
-      scenario at `openspec/specs/credential-contracts/spec.md:565` — *"matches
-      requirement records in more than one document, or more than one record in a
-      document"* — still reaches further than the shipped resolver, an INHERITED
-      gap this packet neither created nor closes. The realization MUST NOT read as
-      having satisfied that first arm: cite openxFactory issue #553 wherever the
-      new arm is described, and leave the promoted scenario to that successor.
-- [ ] 3.5 The lift path is untouched. A sharing pair whose reference does not
-      resolve still gets the `shared-secret-identity` ERROR naming the condition
-      that stood, AND now also the per-binding warning. A test asserts BOTH are
-      present and that neither replaced the other.
-- [ ] 3.6 **The negative direction is asserted by a NAMED test**: a binding whose
-      reference resolves to exactly one requirement, and a binding declaring no
-      `requirement_ref` at all, each produce NOTHING from the new arm.
-- [ ] 3.7 A mutation round over § 3.2 – § 3.6, one mutant per arm (drop the
-      per-binding call; merge the two codes; report on an undeclared member;
-      scope the new arm back to `by_secret`), each mutant's death asserted by a
-      named test.
+**REALIZED 2026-09-01**, on branch
+`change/realize-requirement-ref-resolution-integrity` off `origin/main`
+`6856f502`. Every box below closes on a fact measured on that branch — a path, a
+count, a command and its output — never on an intention, and a box that did NOT
+close stays OPEN WITH THE MEASUREMENT written in rather than ticked with an
+excuse. **THREE SETS OF BOXES DO NOT TICK, EACH FOR A STATED AND CHECKABLE
+REASON**: **§ 6**, because the cut allocates a bundle number and another lane's
+`contract-v2.6` cut (PR #565) is in flight on the same file; **§ 7.2**, because
+the full suite carries ONE failure — pre-existing on `origin/main`, reproduced
+identically on an untouched baseline clone, and already PR #568's; and **§ 8**,
+because this realization opens a pull request and merges nothing.
+
+- [x] 3.1 **DONE — RE-MEASURED BEFORE ANY EDIT, AND THE DEFECT REPRODUCES
+      EXACTLY AS RECORDED.** The two files of § What was measured § 6 were
+      written out verbatim under a `credentials/` directory and run against
+      `scripts/validate-credential-contracts.py` at `origin/main` `6856f502`,
+      BEFORE the first line of this realization was written:
+
+      ```text
+      self-test: 6 positive + 16 negative + 10 warning example(s) confirmed, 8 deprecation code(s) probed
+
+      repro: 2 contract(s) checked, 0 skipped, 0 warning(s), 0 error(s) -> PASS
+      ```
+
+      **Zero warnings. Zero errors. PASS** — the same three numbers the packet
+      recorded at merge-base `3a6a16e9`, so the defect has not moved and this is
+      not an implementation against a defect that has. Control A was rebuilt and
+      re-verified with it: `wc -c` gives **1318 bytes for BOTH** templates and
+      `cmp -l` reports **exactly ONE differing offset — byte 981 1-based, i.e.
+      offset 980**, the number the packet states; the control still refuses with
+      `shared-secret-identity` naming the FOURTH lift condition, resolution never
+      being reached.
+      **ONE MEASUREMENT NOTE, RECORDED BECAUSE THE NEXT READER WILL HIT IT.** The
+      reproduction's binding template names BOTH secret spellings in its comment
+      header, so a global `sed s/example-secret-b/example-secret-a/` over that
+      file produces a TWO-byte control (offsets 183 and 980) rather than the
+      one-byte control the packet describes. Control A is the `secret_ref:` LINE
+      alone. `tests/credential_contracts/test_requirement_ref_resolution.py`
+      now builds it by replacing that whole line and ASSERTS the one-offset
+      spacing (`test_the_control_is_ONE_BYTE_and_the_templates_are_the_SAME_LENGTH`),
+      so the claim cannot drift again.
+- [x] 3.2 **DONE.** `_requirement_resolution_warnings(bindings, index)` in
+      `scripts/validate-credential-contracts.py`, reached from
+      `_deprecation_warnings` — which gains an OPTIONAL `index` parameter
+      defaulting to `None` — beside the eight `consumer-*` arms and NOT from
+      `_lift_refusal_detail`. It is handed EVERY binding of the document, and the
+      comment at the call site says so: the list is not filtered by `by_secret`,
+      which is the whole of the act.
+      **ONE FAULT KEEPS ONE FINDING.** The `malformed` and `ungrammatical`
+      statuses — the two shapes `consumer-member-grammar` and
+      `consumer-requirement-ref-grammar` already report — are SKIPPED rather than
+      named twice, and so is a `requirement_id` outside the identifier grammar,
+      which that same arm reports.
+      `test_a_shape_the_GRAMMAR_arms_already_report_is_not_reported_TWICE` drives
+      all FIVE such shapes (bare id, one member, extra member, absolute document,
+      ungrammatical id) and asserts no `requirement-ref-*` code accompanies any of
+      them.
+      **AN ABSENT INDEX SKIPS THE PASS ALONE**, rather than reporting `not-found`
+      against an index nobody built: an empty index would invent a finding about
+      every record in a repository the caller never scanned, and the twenty-odd
+      existing one-argument callers in `tests/credential_contracts/` would all
+      start warning. `test_no_index_means_no_resolution_finding`.
+- [x] 3.3 **DONE, AT THE PROPOSED SPELLINGS.** `requirement-ref-unresolved` and
+      `requirement-ref-ambiguous`, reported apart, one per status. Both join
+      `DEPRECATION_CODES` — **8 -> 10, asserted by
+      `test_the_two_codes_are_DECLARED_and_are_not_a_widening_of_the_consumer_block_set`** —
+      and both join `WARNING_EXPECTATIONS` against a packaged probe apiece, which
+      the self-test's unprobed/stray checks enforce in both directions.
+      **AD-1's TWO-CODE RULING IS WHAT WAS BUILT**; the one-code amendment set is
+      DECLINED and not one of its twelve items is applied, so this row's
+      *"Subject to AD-1"* cross-reference is DISCHARGED rather than deleted. Its
+      item 9 — the `report-the-wrong-status` mutant — is nevertheless carried in
+      the mutation round below, because it costs nothing and it proves the two
+      codes are ROUTED differently rather than merely spelled differently.
+- [x] 3.4 **DONE — `resolve_requirement` IS CALLED AND ITS BODY IS BYTE-UNTOUCHED.**
+      `git diff origin/main -- scripts/validate-credential-contracts.py` moves no
+      line of that function: same four statuses, same index, same grammar, same
+      never-open-a-path rule. The new arm adds no read, no path and no input; it
+      reports a resolution the validator already performed and discarded on every
+      code path but the lift's.
+      **THE NAMING THIS ROW OWES IS PERFORMED, AND IN FOUR PLACES A READER
+      ACTUALLY REACHES.** openxFactory issue **#553** is cited (a) in the
+      `requirement-ref-ambiguous` FINDING ITSELF, where the reader who hits the
+      per-document boundary is standing —
+      `test_the_ambiguity_message_cites_the_successor_that_owns_the_wider_arm`;
+      (b) in the new `docs/contract-versioning-policy.md` entry; (c) in the
+      validator's module docstring and the arm's own docstring; and (d) in
+      `examples/credential-contracts/warning/requirement-ref-ambiguous.yaml`'s
+      header. **THE PROMOTED SCENARIO AT
+      `openspec/specs/credential-contracts/spec.md:565` IS LEFT TO THAT
+      SUCCESSOR**, and this realization does not read as having satisfied it: the
+      boundary is PINNED by a named test,
+      `test_the_same_id_in_ANOTHER_document_draws_nothing_at_this_minor`, which
+      declares one id in TWO schema-valid documents and asserts the arm stays
+      SILENT — so #553 can see exactly which assertion it is changing.
+- [x] 3.5 **DONE.** The lift path is untouched and a sharing pair keeps BOTH
+      duties. `test_the_sharing_pair_keeps_BOTH_duties_and_neither_replaced_the_other`
+      asserts, on ONE record: exactly ONE semantic finding, and it is
+      `shared-secret-identity` carrying *"resolves to no requirement in the
+      repository under validation"*; AND exactly one deprecation code, and it is
+      `requirement-ref-unresolved`. Neither replaced the other.
+      **THE CONTROL IS BUILT WITH IT**, because a refusal test that never had a
+      lift to lose proves nothing:
+      `test_the_lift_path_is_UNTOUCHED_and_a_conforming_pair_still_lifts` drives
+      the packaged two-consumer shape and asserts BOTH lists empty, and
+      `test_the_pair_that_lifts_stops_lifting_when_one_reference_stops_resolving`
+      moves ONE `requirement_id` between them and watches both verdicts move at
+      once. The end-to-end proof is § 7.6's control run, where the one-byte tree
+      carries the `shared-secret-identity` ERROR and both new WARNINGS together.
+- [x] 3.6 **DONE, and it is FOUR named tests rather than two**, the silent
+      direction being what distinguishes a working check from one that fires on
+      everything. A reference resolving to exactly one requirement:
+      `test_a_reference_that_RESOLVES_draws_nothing`. A binding declaring no
+      `requirement_ref`: `test_a_binding_that_declares_NO_reference_draws_nothing`
+      — the member is OPTIONAL at this release and an omission is a different
+      question from a wrong answer. Beside them,
+      `test_a_stub_block_declaring_no_reference_draws_nothing` reaches the record
+      kind written before any install exists, and
+      `test_the_report_does_not_depend_on_ANY_other_binding_in_the_document`
+      proves the delta's second bullet by driving the SAME defective binding
+      alone and beside a conformant one and asserting the codes are equal. The
+      packaged half is § 4.3's positive.
+- [x] 3.7 **DONE — FIVE MUTANTS, EACH WITH BOTH HALVES RECORDED.** The four this
+      row enumerates — `drop-the-per-binding-call`, `merge-the-two-codes`,
+      `report-on-an-undeclared-member`, `scope-back-to-by_secret` — plus
+      `report-the-wrong-status` (the AD-1 item-9 mutant, carried though the
+      branch was declined). Each records the ANCHOR (`the named check PASSES
+      against unmutated code`) as well as the death, on the sibling module's
+      rule that a named test failing for want of a fixture is ANCHOR-MISSING and
+      not a kill: `test_the_named_test_PASSES_against_unmutated_code[5]` and
+      `test_each_mutant_DIES[5]`, with
+      `test_the_mutant_population_is_an_explicit_count` pinning the count at 5.
+      **`merge-the-two-codes` IS DRIVEN ON A DOCUMENT CARRYING ONE OF EACH
+      FAULT**, because with a single defective binding a merged code is
+      indistinguishable from a correctly split one — the anchor would have
+      passed and the mutant would have died for the wrong reason.
 
 ## 4. Realization — the packaged corpus
 
-- [ ] 4.1 `examples/credential-contracts/warning/requirement-ref-unresolved.yaml`
-      — a binding whose reference names an id no record carries, with NO shared
-      `secret_ref`, schema-VALID and drawing no ERROR (a fixture that is refused
-      belongs in `negative/`).
-- [ ] 4.2 `examples/credential-contracts/warning/requirement-ref-ambiguous.yaml`
-      — resolving against the shipped
-      `support/ambiguous-requirement-ids.requirements.yaml`, per OQ-1, with the
-      re-use recorded in the fixture header so a later edit to that support
-      record cannot silently defang two probes.
-- [ ] 4.3 A POSITIVE proving the silent direction — a resolving reference on
-      bindings that share no secret — as its own file per OQ-4, so a regression
-      in the silent direction names itself.
-- [ ] 4.4 All three join the by-name inventory tuples in
-      `tests/credential_contracts/test_dispatch_credential_contract.py` IN THE
-      SAME COMMIT; `test_the_inventory_is_the_whole_corpus_and_not_a_sample`
-      holds them exhaustive against the glob, and the self-test count string is
-      derived from those tuples rather than written out.
+- [x] 4.1 **DONE.** `examples/credential-contracts/warning/requirement-ref-unresolved.yaml`
+      — ONE binding, sharing its `secret_ref` with NOBODY, naming
+      `projection_archive_sweeper` in
+      `two-consumer-operated-identity.requirements.example.yaml`, a document that
+      SHIPS and is INDEXED and declares no such id. Pointing at a real document
+      makes the fault unambiguously the ID rather than a missing file.
+      Schema-VALID and drawing no ERROR, which the self-test enforces in both
+      directions (`a fixture that is refused belongs in negative/`).
+      `test_each_packaged_probe_shares_its_secret_with_NOBODY` asserts the
+      no-shared-secret property, because a probe that shared one would pass
+      against the SHIPPED validator too and would evidence nothing.
+- [x] 4.2 **DONE, RE-USING THE SHIPPED SUPPORT RECORD PER OQ-1.**
+      `examples/credential-contracts/warning/requirement-ref-ambiguous.yaml`
+      resolves `projection_sync_lane` against
+      `support/ambiguous-requirement-ids.requirements.yaml`, which declares that
+      id TWICE with DIFFERENT access modes. **THE RE-USE IS RECORDED AT BOTH
+      ENDS, not just in the fixture header**: the support record's own header now
+      names BOTH probes that depend on its duplication — this file and
+      `negative/consumer-requirement-ref-ambiguous.yaml` — and says that
+      de-duplicating those ids would leave both passing VACUOUSLY rather than
+      failing. A one-ended note is exactly the silent defanging the row warns
+      about, since the edit happens in the support record and not in the fixtures.
+- [x] 4.3 **DONE, AS ITS OWN FILE PER OQ-4.**
+      `examples/credential-contracts/resolving-requirement-ref.binding-template.example.yaml`
+      — two bindings, DISTINCT secret references, each reference resolving to
+      EXACTLY ONE requirement. It draws no error and no warning of any code,
+      which the positive channel's self-test enforces (`positive … unexpectedly
+      invalid` lists semantic findings AND deprecation warnings), and the
+      positive loop now runs WITH the index so the new arm is actually exercised
+      against it rather than skipped. A regression in the silent direction names
+      this file. `test_the_positive_proves_the_SILENT_direction_and_shares_no_secret`.
+- [x] 4.4 **DONE, IN THE SAME COMMIT AS THE FIXTURES.** All three join the
+      by-name inventory tuples in
+      `tests/credential_contracts/test_dispatch_credential_contract.py`:
+      `POSITIVES` 6 -> 7, `WARNINGS` 10 -> 12, `NEGATIVES` unmoved at 16.
+      `test_the_inventory_is_the_whole_corpus_and_not_a_sample` holds all four
+      tuples EXHAUSTIVE against the glob, and the count string in
+      `test_selftest_passes_on_the_packaged_examples` is DERIVED from the tuples
+      (`f"...{len(POSITIVES)}...{len(NEGATIVES)}...{len(WARNINGS)}..."`), so it
+      moved with them and no hand-written number was touched. **MEASURED
+      BEFORE -> AFTER**: `self-test: 6 positive + 16 negative + 10 warning
+      example(s) confirmed, 8 deprecation code(s) probed` becomes
+      `self-test: 7 positive + 16 negative + 12 warning example(s) confirmed,
+      10 deprecation code(s) probed`.
 
 ## 5. Realization — the declared deprecation
 
-- [ ] 5.1 `docs/contract-versioning-policy.md` § Deprecations Currently In Force
-      — the act, its two codes, its migration and its removal target
-      (contract-v3.0) are declared. **The `add-binding-consumer-identity` entry
-      claims to name EVERY act landing at that major**, so it is reconciled in
-      the same commit: either it carries the new rows or it names the entry that
-      does. An entry asserting completeness that is not complete is a defect of
-      the entry.
-- [ ] 5.2 `contracts/manifest.yaml`'s `credential-contracts` `consumption_rule`
-      repeats "All seven acts … EIGHT warning codes"; it moves with § 5.1. The
-      row's `sha256` is the SCHEMA file's digest and does not move, the schema
-      not being edited — state that explicitly rather than letting a reader
-      infer it from an unchanged hash.
-- [ ] 5.3 `docs/credential-access-model.md` — checked for a sentence that
-      describes the reference as resolved-only-in-a-pair; edited if one exists,
-      and recorded as "checked, none found" if not.
+- [x] 5.1 **DONE, AND THE COMPLETENESS CLAIM IS RECONCILED IN THE SAME COMMIT.**
+      `docs/contract-versioning-policy.md` § Deprecations Currently In Force
+      gains an entry for this act: the two codes in a table written from the
+      REFUSAL LIST, a migration path PER CODE (repair the REFERENCE for
+      `requirement-ref-unresolved`; repair the REQUIREMENTS DOCUMENT THE
+      REFERENCE NAMES for `requirement-ref-ambiguous`), the per-binding scope,
+      the sharing pair's two duties, the PER-DOCUMENT boundary with #553 named,
+      the measurement that nothing narrows at this minor, and the removal target
+      **contract-v3.0**.
+      **THE SIBLING ENTRY IS RECONCILED RATHER THAN LEFT TO CONTRADICT IT.** Its
+      *"THIS ENTRY NAMES EVERY ACT THAT LANDS AT THAT MAJOR"* paragraph now
+      carries a **RECONCILED, NOT RESTATED** paragraph naming the NINTH act and
+      pointing at the entry that declares it, on the delta's own terms: an entry
+      that carries the new act OR names the entry that does. The claim is scoped
+      to the consumer block's SEVEN SHAPE acts and stays true.
+      **ONE THING THE ENTRY DELIBERATELY DOES NOT SAY**, stated in the entry
+      itself rather than left as an omission: it carries NO `Warned since
+      contract-vX.Y` line, because the bundle number is § 6.1's to allocate at
+      the cut and a number written in advance is a number another packet is
+      already spending. An entry naming a warning release that was never cut
+      would be the same defect as an entry claiming a completeness it does not
+      have.
+      **THE SWEEP IS RECORDED IN BOTH DIRECTIONS, because the house rule is that
+      an edit changing what a packet asserts about itself owes a sweep of every
+      site asserting the same thing — and two of the five sites are deliberately
+      NOT edited.** `grep -rniE 'EIGHT warning|eight .consumer-|seven acts'` over
+      `docs/ contracts/ scripts/ tests/ README.md openspec/specs/` returns FIVE
+      live sites. **RECONCILED:** (1) `docs/contract-versioning-policy.md`
+      (§ 5.1); (2) `contracts/manifest.yaml`'s row (§ 5.2); (3)
+      `contracts/README.md:109`, the schema-registry table, which repeats the
+      same "ONE deprecation window and EIGHT warning codes" sentence and points
+      readers AT the policy section — a live registry doc, not digest-pinned, so
+      it is swept in the same commit and its change list gains this change.
+      **DELIBERATELY LEFT, EACH WITH ITS REASON:** (4)
+      `contracts/schemas/xfactory-credential-contracts.schema.yaml:205` — *"the
+      eight warning codes the canonical validator emits for the whole of this
+      minor"*, inside the block's own `description`. Editing it moves the SCHEMA
+      BYTES, which moves the manifest digest § 5.2 pins as unmoved and which
+      `proposal.md` § What this deliberately does not change declares out of this
+      packet's surface; the sentence is scoped by its own paragraph to the seven
+      block narrowings it is describing, and it does not claim to name every code
+      the validator will ever emit. (5) `contracts/CHANGELOG.md:270-288` — the
+      `contract-v2.4` release entry, which is a RECORD of what that release
+      shipped and was TRUE at it. Retroactively editing a shipped release entry
+      would falsify the record; § 6.3 gives the CHANGELOG to the cut, which adds
+      its OWN entry rather than rewriting an old one.
+- [x] 5.2 **DONE, AND THE UNCHANGED DIGEST IS STATED RATHER THAN INFERRED.**
+      `contracts/manifest.yaml`'s `credential-contracts` `consumption_rule` moves
+      with § 5.1: the *"All seven acts … EIGHT warning codes"* sentence is now
+      followed by a paragraph naming the NINTH act, the SECOND code family, the
+      EIGHT -> TEN growth, the per-binding scope, the both-duties rule and the
+      PER-DOCUMENT boundary with #553. **THE ROW'S `sha256` DOES NOT MOVE, AND
+      THE ROW ITSELF NOW SAYS SO**: the digest is the SCHEMA FILE's, resolution
+      is not a shape JSON Schema can check — it is a lookup INTO ANOTHER
+      DOCUMENT — and the schema is not edited. Verified rather than asserted:
+      `python3 scripts/validate-manifest-digests.py` -> `OK contracts/manifest.yaml:
+      163 per-file digest(s) verify`, and
+      `tests/credential_contracts/test_manifest_row_digest.py` green.
+      `contract_bundle_version` stays `contract-v2.5` — the cut is § 6's.
+- [x] 5.3 **CHECKED, NONE FOUND — and the sweep is recorded rather than the
+      conclusion alone.** `docs/credential-access-model.md` carries THREE sites
+      that could have said the reference is resolved only in a pair, and not one
+      of them does: `:180` *"resolves binding and issues short-lived grant"* (a
+      broker sequence step, about the SECRET); `:231` *"The binding says where
+      the credential can be resolved after approval"* (also the secret, not the
+      requirement reference); and `:246-250`, the only paragraph in the file
+      mentioning `requirement_ref` at all, which describes the SHARING case
+      without claiming resolution happens only there. Those are every occurrence
+      of `resolv` and every occurrence of `requirement_ref` in the file, by
+      `grep`. **NO EDIT MADE, and none is invented**: this row asks for a repair
+      if a wrong sentence exists, and adding a right one is a different act than
+      the one it authorizes.
 
 ## 6. Realization — the contract cut
 
-- [ ] 6.1 **Allocate the bundle number AT REALIZATION, not here.** Re-read
-      `contracts/manifest.yaml:3` at that moment; `contract-v2.5` is the bundle
-      at this packet's merge-base and other packets are queued on the same file.
-- [ ] 6.2 `contracts/manifest.yaml` — advance `contract_bundle_version`.
-- [ ] 6.3 `contracts/CHANGELOG.md` — an entry stating the class and naming the
-      act that lands at the major. **The class is DEPRECATING (MINOR)** on the
-      policy's own bullet — "a field or shape is marked deprecated; the
-      conformance validator emits warnings but still accepts it" — which is
-      stricter than the Additive reading the same section would also allow, and
-      which OWES the removal version and the migration path in the CHANGELOG
-      rather than leaving them optional.
-- [ ] 6.4 The release build / digest inventory / tag steps the family's cut
-      ritual requires, and `verify-commit --commit HEAD` after committing.
+**NOT THIS SLICE, AND THE FOUR BOXES BELOW STAY OPEN ON PURPOSE.** § 6 allocates
+and spends a contract bundle number, and at the time of this realization ANOTHER
+LANE'S CUT IS IN FLIGHT ON THE SAME FILE — `contracts/manifest.yaml:3` reads
+`contract_bundle_version: contract-v2.5` and openxFactory PR **#565** is an open
+`contract-v2.6` cut. Allocating a second number against that file here is exactly
+the collision § 6.1 was written to prevent. **REGISTRATION RIDES WHICHEVER CUT
+COMES NEXT**: this realization ships the codes, the probes, the policy entry and
+the manifest prose, and performs NO cut. The un-ticked boxes are the honest
+record of that, not an oversight — untick-with-reason over tick-with-excuse.
+
+- [ ] 6.1 **OPEN — DELIBERATELY.** Re-read `contracts/manifest.yaml:3` at cut
+      time. Read at this branch's tip and recorded rather than remembered:
+      `contract-v2.5`, with PR #565 open on `contract-v2.6`.
+- [ ] 6.2 **OPEN.** `contract_bundle_version` is UNMOVED by this realization —
+      verified, not assumed: `grep -n '^contract_bundle_version'
+      contracts/manifest.yaml` -> `3:contract_bundle_version: contract-v2.5`,
+      the same value `origin/main` carries.
+- [ ] 6.3 **OPEN.** `contracts/CHANGELOG.md` is untouched by this realization.
+      The class is **DEPRECATING (MINOR)** on the policy's own bullet, which OWES
+      the removal version (contract-v3.0) and the migration path in the CHANGELOG
+      rather than leaving them optional; both are already written into
+      `docs/contract-versioning-policy.md` by § 5.1, so the cut copies rather
+      than composes.
+- [ ] 6.4 **OPEN.** Release build, digest inventory, tag and `verify-commit` are
+      the cut's ritual and none of them ran here.
 
 ## 7. Verification gates
 
-- [ ] 7.1 `set -o pipefail; python3 -m pytest tests/credential_contracts -q`
-      green.
-- [ ] 7.2 `set -o pipefail; python3 -m pytest tests/ -q -m "not postgres"`
-      green: zero failures, zero errors, and the SKIPPED count EXACTLY the pin
-      `.github/workflows/pytest-suite.yml` carries — the pin moving is a finding,
-      not a nuisance.
-- [ ] 7.3 `python3 scripts/validate-credential-contracts.py <a domain repo>`
-      self-test green, reporting the grown counts.
-- [ ] 7.4 `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green.
-- [ ] 7.5 Same-clock doc-health against an `origin/main` baseline: zero new
-      findings.
-- [ ] 7.6 The reproduction re-run on the realized tree now REPORTS, and the
-      control (the ONE BYTE that makes the two `secret_ref`s equal —
-      `example-secret-b` -> `example-secret-a`) still reports its own
-      `shared-secret-identity` error — both pasted into the realization evidence.
-      The reproduction's `dispatch_only` record carries TRIGGER-ONLY scopes; give
-      it a content scope and `dispatch-scope-ceiling` fires and the tree stops
-      being a silent one.
+All run on branch `change/realize-requirement-ref-resolution-integrity` at its
+tip, 2026-09-01. **FIVE OF THE SIX TICK. § 7.2 DOES NOT**, because the full
+suite carries ONE failure — a failure that is PRE-EXISTING on `origin/main`,
+reproduces identically on an untouched baseline clone, and is already another
+lane's open pull request (#568). The box asks for zero failures; it gets one, so
+it stays open with the measurement written in. Diagnosing a failure is not the
+same act as passing a gate, and only one of those two things happened here.
+
+- [x] 7.1 **GREEN.** `set -o pipefail; python3 -m pytest tests/credential_contracts -q`
+      -> **219 passed**, up from **175** on `origin/main` `6856f502` (measured on
+      the baseline clone, not remembered). Zero skips added — the new module
+      contains none.
+      **THE +44 IS 41 + 3, AND THE THREE ARE WORTH NAMING** because they are
+      proofs this realization did not write. `comm` over the two collected id
+      lists shows 41 from
+      `tests/credential_contracts/test_requirement_ref_resolution.py` and THREE
+      that the EXISTING corpus-driven parametrisations picked up on their own:
+      `test_every_packaged_WARNING_fixture_stays_schema_valid_at_the_minor` for
+      each of the two new probes, and
+      `test_every_packaged_POSITIVE_validates_at_the_major_too` for the new
+      positive — which drives it against `major_projection.py`, the prescription
+      for contract-v3.0 made executable. So the three new fixtures are checked
+      against BOTH releases without a line being added to say so, which is what
+      those parametrisations were built for.
+- [ ] 7.2 **NOT TICKED — ONE FAILURE, AND IT IS NOT THIS CHANGE'S.** The box asks
+      for ZERO failures, and there is one, so the box does not tick. It is
+      un-ticked WITH THE REASON rather than ticked with an excuse.
+      `python3 -m pytest tests/ -q -m "not postgres"` ->
+      **`1 failed, 8620 passed, 21 skipped, 338 deselected, 9 warnings,
+      46 subtests passed in 1293.65s`**.
+      **THE PINS AND FLOORS ARE ALL MET.** SKIPPED is **21**, EXACTLY the
+      `EXPECT_SKIPPED: "21"` that `.github/workflows/pytest-suite.yml` pins — so
+      no directory silently turned into skips, and this realization adds none.
+      PASSED 8620 and SELECTED 8642 clear the `MIN_PASSED: "7070"` and
+      `MIN_SELECTED: "7090"` floors with margin; neither is lowered.
+      **THE FAILURE IS PRE-EXISTING ON `origin/main` AND IS ANOTHER LANE'S OPEN
+      PULL REQUEST.** In `tests/sequenced_after/test_sweep.py`, the test
+      `test_the_live_sweep_reproduces_the_AUTHORING_measurement` fails
+      `assert 18 == 19` on `active_co_modified`. **ISOLATED ON BOTH TREES, WHICH IS WHAT MAKES THIS
+      A DIAGNOSIS RATHER THAN A HOPE**: running that file alone gives
+      `1 failed, 13 passed` on THIS branch AND on the untouched `origin/main`
+      `6856f502` baseline clone, and the `Sweep(...)` tuple the failure prints is
+      BYTE-IDENTICAL between them —
+      `change_ids=153, active=30, archived=123, co_modified=104,
+      sole_modifiers=49, active_co_modified=18`. This realization adds no
+      OpenSpec change directory and moves no requirement title, so it cannot move
+      any of those counts, and measurement confirms it does not.
+      **THE REPAIR IS ALREADY FILED BY ITS OWN LANE: openxFactory PR #568**,
+      *"Move the sequenced-after live pin: active_co_modified 19->18 since #563
+      archived add-release-tag-publication-check"* — the same number, the same
+      test, the same cause. Nothing is owed to this packet by it and nothing is
+      owed to it by this packet; this box ticks when that PR lands and the suite
+      is re-run.
+- [x] 7.3 **GREEN, WITH THE GROWN COUNTS REPORTED.**
+      `python3 scripts/validate-credential-contracts.py .` ->
+      `self-test: 7 positive + 16 negative + 12 warning example(s) confirmed,
+      10 deprecation code(s) probed` and
+      `openxFactory: 0 contract(s) checked, 0 skipped, 0 warning(s), 0 error(s)
+      -> PASS`. **THE REPO SCAN IS EMPTY BECAUSE openxFactory CARRIES NO
+      `credentials/` TREE**, which is stated rather than left to look like a
+      pass: the scan target of this validator is a DOMAIN repo, and the tree
+      under validation here is the neutral one. The scan-side evidence is § 7.6's
+      reproduction and control, which are real two-file repositories.
+- [x] 7.4 **GREEN.** `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` ->
+      `Totals: 83 passed, 0 failed (83 items)`.
+- [x] 7.5 **ZERO NEW FINDINGS.** Same-clock `--as-of` doc-health, this branch
+      against an `origin/main` `6856f502` baseline in an identically named
+      `openxFactory/` directory, run TWICE — once mid-realization and once over
+      the final tree. **THE FINDINGS LINE IS IDENTICAL IN EVERY PAIRING:**
+      `Findings: 6 critical, 7 error, 39 warning, 14 info. New regressions vs
+      previous report: 0.` The two reports differ in exactly two places, and
+      neither is a finding:
+      (a) the canon-share metric moves 33.3% -> 33.4% (+1027 canon words,
+      +1198 governance words) — the § 5.1 policy prose landing in a ratified
+      document and the § 5.1 sweep's sentence landing in a draft one, both of
+      which the metric is supposed to move;
+      (b) the head's FULL runs each recorded `release-tag-publication` as
+      **Skipped**, which the report distinguishes from a finding by its own
+      section heading.
+      **THAT SKIP WAS CHASED RATHER THAN EXCUSED, AND FOUR CONTROLS SAY IT IS
+      ENVIRONMENTAL.** (1) The two head runs gave DIFFERENT reasons — *"the
+      published refs for contract-v1.23 could not be consulted"* and *"contracts/
+      manifest.yaml could not be read at the published tip `d308c012c`"* — so it
+      is not determined by tree content. (2) `git cat-file -t d308c012c` and
+      `git cat-file -p d308c012c:contracts/manifest.yaml` BOTH succeed in BOTH
+      clones, so the object the second reason names is present and readable. (3)
+      Re-running the family ALONE against the final head tree returns
+      `release-tag-publication — No findings` and `Findings: 0 critical, 0 error,
+      0 warning, 0 info`. (4) Re-running the FULL baseline with its `origin`
+      repointed at the same SSH URL the head carries reproduces NOTHING,
+      eliminating the remote URL as the cause. The likeliest cause is
+      contention: this box was running three other sessions' full test suites
+      and the head clone reads through a `--reference-if-able` alternate object
+      store those sessions are writing to.
+      **NOTHING IS SUPPRESSED AND NOTHING IS OWED TO THE CUT.** No registered
+      document moved, so `release-inventory-drift` reports nothing — there is no
+      #516-§6.3-shaped drift for a cut to discharge here.
+- [x] 7.6 **THE REPRODUCTION NOW REPORTS, AND THE CONTROL STILL REFUSES.**
+      Both pasted, and both are also carried as tests so they survive this
+      session (`test_the_reproduction_now_REPORTS_and_the_record_stays_VALID`,
+      `test_the_one_byte_control_still_reports_its_own_shared_secret_ERROR`).
+      The reproduction, on the realized tree:
+
+      ```text
+      WARN  [requirement-ref-unresolved] credentials/example.binding-template.yaml: binding 'zero_resolving_lane''s consumer.requirement_ref names requirement 'no_such_requirement' in 'credentials/example.requirements.yaml', and NO requirement of that document carries that id — the reference resolves to NOTHING and is not treated as resolved. THE REPAIR IS AT THE REFERENCE: the id is misspelled, the document moved, or the requirement was never written. Reported on this binding whatever it shares — a dangling reference is a defect OF THE REFERENCE and not of a pair. ERROR at contract-v3.0
+      WARN  [requirement-ref-ambiguous] credentials/example.binding-template.yaml: binding 'multi_resolving_lane''s consumer.requirement_ref names requirement 'dup_lane' in 'credentials/example.requirements.yaml', and MORE THAN ONE requirement OF THAT ONE DOCUMENT carries that id; the matches are free to differ in access_mode, so picking one would be a traversal order with an opinion. THE REPAIR IS IN THE REQUIREMENTS DOCUMENT THE REFERENCE NAMES: make the ids that document declares unique. Resolution here is PER-DOCUMENT, which is what the resolver can see; the same id in a DIFFERENT requirements document draws nothing at this release (openxFactory issue #553). ERROR at contract-v3.0
+
+      repro: 2 contract(s) checked, 0 skipped, 2 warning(s), 0 error(s) -> PASS
+      ```
+
+      **BOTH DEFECTS NAMED, THE VERDICT STILL `PASS`** — a warning is not a
+      refusal and nothing narrows at this minor. Control A (the ONE BYTE) on the
+      same tree:
+
+      ```text
+      ERROR credentials/example.binding-template.yaml: shared-secret-identity: bindings 'zero_resolving_lane' and 'multi_resolving_lane' share secret_ref 'example-secret-a'; … binding 'zero_resolving_lane' does not declare shared_credential_acknowledged: true — a one-sided declaration exempts a pair on one party's word
+
+      control: 2 contract(s) checked, 0 skipped, 2 warning(s), 1 error(s) -> FAIL
+      ```
+
+      The lift path's refusal is byte-identical to the pre-change run and the two
+      new warnings sit BESIDE it — the sharing pair keeping both duties, end to
+      end.
+      **THE TREE IS NOT A SILENT ONE, AND THAT IS CHECKED TOO.** Giving the
+      reproduction's `dispatch_only` record a content scope
+      (`actions:read` -> `projection:write`) produces
+      `ERROR … dispatch-scope-ceiling: requirement 'dup_lane' is dispatch_only
+      but requests non-trigger scope(s) ['projection:write']`, so the silence of
+      the original run was the gap and not a validator that had stopped looking.
 
 ## 8. Archive gate
 
-- [ ] 8.1 Merged to `origin/main` with the required checks green, the merge
-      commit named.
-- [ ] 8.2 The cut complete: manifest, changelog, digest inventory, verified tag.
-- [ ] 8.3 **No archive-order hold applies to this packet** — it carries no
-      MODIFIED block over any sibling's addition (§ 1.2). Re-verify that by
-      `grep` at archive time rather than trusting this line, the packet having
-      been authored before its siblings archived.
-- [ ] 8.4 Every § 9 item carries a disposition rather than a blank box.
+**ALL FOUR OPEN — this realization opens a pull request and merges nothing.**
+
+- [ ] 8.1 **OPEN.** Not merged. The realization PR is open on
+      `change/realize-requirement-ref-resolution-integrity`; required checks and
+      the merge commit are owed to it.
+- [ ] 8.2 **OPEN.** The cut is § 6 and is deliberately not this slice — see § 6's
+      preamble.
+- [ ] 8.3 **RE-VERIFIED BY `grep` AT THIS TIP AND STILL TRUE, BUT THE BOX BELONGS
+      TO ARCHIVE TIME.** `grep -rn '## MODIFIED Requirements'
+      openspec/changes/add-requirement-ref-resolution-integrity/` returns
+      NOTHING, so no archive-order hold applies. The row asks for the check AT
+      ARCHIVE TIME rather than at realization time, and this realization is not
+      that moment; the measurement is recorded so the archiver re-runs it against
+      a shorter list of possibilities, not so they skip it.
+- [ ] 8.4 **OPEN.** § 9's four items carry dispositions rather than blank boxes
+      already; the box closes with the archive.
 
 ## 9. Open — deliberately not closed by this change
 
