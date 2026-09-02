@@ -709,6 +709,12 @@ def test_the_corpus_exclusion_is_not_evadable_by_placement(
         "governance/trust-anchor/live/examples/invalid.yaml",
         "governance/signed-execution-chain/live/examples/invalid.yaml",
         "somewhere/examples/deep/trust-anchor/invalid.yaml",
+        # THE SECOND ROUND'S PATHS, which mere ADJACENCY of `<family>/examples`
+        # still dropped — the shape the packaged corpus does NOT occupy, because
+        # it lives under `contracts/`. Copilot found the first repair
+        # insufficient on exactly these.
+        "governance/trust-anchor/examples/invalid.yaml",
+        "governance/signed-execution-chain/examples/invalid.yaml",
     ]
     # DISTINCT IDENTITIES, because three copies of one record are an AMBIGUOUS
     # scope and the reader refuses that without walking — the fail-closed rule

@@ -1776,31 +1776,52 @@ SKIP_DIR_NAMES = {".git", "node_modules", "__pycache__", ".venv"}
 PACKAGED_CORPUS_FAMILIES = ("signed-execution-chain", "trust-anchor")
 
 
+#: The component sequence a family's PACKAGED corpus actually occupies. Matched
+#: PREFIX-INDEPENDENTLY, never anchored to the scan root — see below.
+PACKAGED_EXAMPLES_SHAPE = ("contracts", "{family}", "examples")
+
+
 def under_packaged_examples(path: Path, family: str) -> bool:
-    """True when `path` lies under a family's PACKAGED `examples/` tree —
-    `<family>/examples/` with the two components ADJACENT and in that order.
+    """True when `path` lies under a family's PACKAGED `examples/` tree — the
+    THREE-COMPONENT SEQUENCE `contracts/<family>/examples`, adjacent and in that
+    order, at ANY prefix.
 
-    IT IS DELIBERATELY NOT ANCHORED TO THIS CHECKOUT'S ABSOLUTE PATHS. A domain
-    repo that vendors openxFactory scans a COPY, so an exclusion matching
-    `contracts/<family>/examples` relative to the scan root would re-adjudicate
-    every vendored negative as a live record — the reason the original exclusion
-    was written over path COMPONENTS in the first place.
+    IT IS DELIBERATELY NOT ANCHORED TO THE SCAN ROOT. A domain repo that vendors
+    openxFactory scans a COPY, so matching `contracts/<family>/examples`
+    *relative to the scan root* would re-adjudicate every vendored negative as a
+    live record — the reason the original exclusion was written over path
+    components at all. Prefix-independence keeps
+    `vendor/openxFactory/contracts/trust-anchor/examples/negative/x.yaml`
+    excluded.
 
-    IT IS ALSO NOT A BARE MEMBERSHIP TEST, and that is the repair. Asking only
-    whether `examples` and the family name appear ANYWHERE in the path made the
-    required gate evadable by placement: a malformed chain record parked at
-    `governance/trust-anchor/live/examples/invalid.yaml` — or under any other
-    path carrying both words — was silently dropped from the sweep, and the gate
-    reported no findings over it. Measured before the repair: `0 artifact(s)
-    checked, 0 skipped`, no refusal, for a record the reader owns. Requiring the
-    two components to be ADJACENT keeps every vendored copy of a real packaged
-    corpus excluded (`.../contracts/trust-anchor/examples/negative/x.yaml`) while
-    admitting the arbitrary paths that merely mention them. Found by Codex on
-    #566, against the exclusion this change added AND the one it copied.
+    AND IT IS NOT A BARE MEMBERSHIP TEST, which is what made the REQUIRED GATE
+    EVADABLE BY PLACEMENT. Asking only whether `examples` and the family name
+    appeared ANYWHERE in a path dropped a malformed chain record parked at
+    `governance/trust-anchor/live/examples/invalid.yaml` — measured at
+    `0 artifact(s) checked, 0 skipped`, no refusal, for a record this reader
+    owns. Requiring mere ADJACENCY of `<family>/examples` was the first repair
+    and was ALSO insufficient: `governance/signed-execution-chain/examples/x.yaml`
+    still matched. The predicate now names the sequence the packaged corpus
+    actually occupies, `contracts/` included. Found by Codex on #566 and then
+    narrowed again by Copilot on the repair itself, against the exclusion this
+    change added AND the one it copied.
+
+    WHAT REMAINS, STATED RATHER THAN IMPLIED: any component-shaped exclusion is
+    evadable by FABRICATING the shape — a record at
+    `governance/contracts/signed-execution-chain/examples/x.yaml` is still
+    skipped. That path is no longer innocuous-looking, though: it requires a
+    SECOND `contracts/` tree in the repository, which is the packaged-corpus
+    shape itself and not a plausible home for a live record. Closing it
+    completely means identifying a vendored corpus POSITIVELY rather than by
+    shape — the nearest marker being a `manifest.yaml` beside the `contracts/`
+    component — which trades a path rule for a filesystem assumption about how
+    consumers carve the bundle, and is a bigger change than this fix carries.
     """
     parts = path.parts
-    return any(part == family and parts[index + 1] == "examples"
-               for index, part in enumerate(parts[:-1]))
+    shape = tuple(part.format(family=family) for part in PACKAGED_EXAMPLES_SHAPE)
+    width = len(shape)
+    return any(parts[index:index + width] == shape
+               for index in range(len(parts) - width))
 
 
 #: The identifier each consumed record is RESOLVED THROUGH. `add-trust-anchor`
@@ -1813,7 +1834,7 @@ CONSUMED_ID_FIELD = {
 }
 
 
-def check_consumed_identifiers_are_unambiguous(
+def consumed_identifiers_are_ambiguous(
         f: Findings, records: list[tuple[str, dict]]) -> bool:
     """AN AMBIGUOUS CONSUMED SET IS REFUSED, NEVER RESOLVED BY FILE ORDER.
 
@@ -1834,7 +1855,11 @@ def check_consumed_identifiers_are_unambiguous(
     packaged corpora are adjudicated by layer 1, which would report a duplicate
     there as the corpus defect it would be.
 
-    AND IT REPORTS WHETHER IT FOUND ONE, because the caller must then NOT WALK.
+    IT IS NAMED FOR WHAT IT RETURNS — True when the set IS ambiguous — because
+    the caller must then NOT WALK, and a helper whose name and whose boolean
+    disagree is a fail-closed condition somebody later "simplifies" the wrong
+    way. Found by Copilot on #566. The refusal it records is the docstring's
+    business; the boolean is the call site's.
     Refusing the duplicate and walking on anyway would leave every rule below
     resolving through the very identifiers just declared ambiguous, so the
     secondary findings would themselves depend on file order — the defect
@@ -1930,7 +1955,7 @@ def repo_scan(f: Findings, target: Path, registry: Registry, docs: dict[str, dic
     # FAIL CLOSED ON AN AMBIGUOUS SCOPE, never walk it. The refusal above is not
     # a warning to be walked past: every rule the walk applies resolves through
     # the identifiers it just declared ambiguous.
-    ambiguous = check_consumed_identifiers_are_unambiguous(f, records)
+    ambiguous = consumed_identifiers_are_ambiguous(f, records)
     if records and not ambiguous:
         validate_scope(f, records, registry, docs, carried)
     f.note(f"repo scan ({target}): {checked} artifact(s) checked, {skipped} skipped "
