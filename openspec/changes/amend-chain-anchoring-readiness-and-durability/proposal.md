@@ -31,7 +31,9 @@ and independently verified confirmation.
 - Add a fixed-UTC durability profile whose trusted log acceptance time and
   atomic admission transaction determine one immutable daily batch, including
   deterministic dedupe, late-arrival treatment, a closed non-recursive event
-  denominator, complete event inclusion, and empty-day continuity checkpoints.
+  denominator bound to a window-snapshotted eligibility-registry digest and
+  activation checkpoint, complete event inclusion, and empty-day continuity
+  checkpoints.
   Event membership produces a daily batch root, canonical manifest bytes produce
   the material digest, and the complete mint-time configuration produces the
   anchored digest whose identity aggregation root enters both witnesses. This
@@ -41,8 +43,8 @@ and independently verified confirmation.
   not Bitcoin confirmation; long-horizon claims require the latter. Confirmation
   transitions are governed by an append-only registry of immutable versioned
   operator-approved profiles with activation checkpoints, content digests,
-  current standing, and anti-rollback refusals, not implementation-selected
-  thresholds.
+  current standing, anti-rollback refusals, and one per-witness snapshot for each
+  UTC window, not implementation-selected thresholds.
 - Preserve the surviving packet's existing receipt/state split, timing model,
   configured-witness binding, privacy boundary, and claim-not-factory failure
   semantics unchanged.

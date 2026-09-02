@@ -87,9 +87,12 @@ The owner-local dedupe key is stable and never public. Same key and same digest
 returns the original admission acknowledgement (leaf sequence plus material
 digest) without a new sequence or a pre-closure anchor receipt; same key and
 different digest is refused before sequence assignment. A versioned eligibility registry
-defines the neutral owner-evidence event kinds counted by this profile; a domain
-overlay maps its events into those kinds and cannot make a per-event inclusion
-choice after acceptance. Anchor-state transitions, witness submissions,
+defines the neutral owner-evidence event kinds counted by this profile. The
+registry is signed and append-only; each UTC window snapshots one active version,
+content digest, activation checkpoint, and standing, and the canonical manifest
+binds that snapshot. Mid-window activation applies only to the next window. A
+domain overlay maps its events into those kinds and cannot make a per-event
+inclusion choice after acceptance. Anchor-state transitions, witness submissions,
 confirmations, batch manifests, and continuity checkpoints are CONTROL leaves,
 not inputs to the same batch they produce. They remain in the signed log and its
 checkpoint anchors, which prevents recursive self-inclusion and allows genuine
@@ -133,11 +136,13 @@ transaction, inclusion, header, and chain-acceptance evidence.
 The confirmation rules are operator-approved profiles in an append-only signed
 registry, not numbers selected during schema implementation. Registry entries
 bind immutable version/content digest, approval, predecessor, activation log
-checkpoint, effective interval, and active/retired/compromised standing. Trusted
-acceptance selects the active version; rollback, future, retired, compromised, or
-digest-substituted profiles are refused. Historical receipts retain as-of
-evidence while current verification reports current standing and refuses new
-long-horizon claims from non-active profiles.
+checkpoint, effective interval, and active/retired/compromised standing. Each
+UTC window snapshots one active profile per witness; every event and the final
+daily item inherit that snapshot, and mid-window activation applies only to the
+next window. Rollback, future, retired, compromised, or digest-substituted
+profiles at window open are refused. Historical receipts retain as-of evidence
+while current verification reports current standing and refuses new long-horizon
+claims from non-active profiles.
 
 The existing receipt/state split remains intact: submitted and in-flight facts
 live in the anchor-state record; the receipt gains a per-chain entry only when
@@ -163,6 +168,9 @@ proof material with an independently verifiable receipt.
 - **[Control leaves recursively make an empty batch non-empty]** → count only
   versioned durability-eligible owner-evidence events; keep anchoring-control
   leaves in the signed log/checkpoint path outside the batch they produce.
+- **[Eligibility or confirmation policy changes inside an open day]** → snapshot
+  immutable registry entries at window open, bind their content digests and
+  activation checkpoints into the item, and activate replacements next window.
 - **[An empty day is mistaken for scheduler failure]** → require a linked,
   signed count-zero checkpoint through the same durability path.
 - **[A submitted proof is consumed as confirmation]** → use separate states and

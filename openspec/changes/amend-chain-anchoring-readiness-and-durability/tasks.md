@@ -14,8 +14,9 @@
 - [ ] 1.3 Before schema or validator authoring, approve and publish append-only
       Kaspa and Bitcoin confirmation-profile registry entries with canonical
       content digests, approval records, activation log checkpoints, effective
-      intervals, standing, predecessor links, and positive/refusal transition
-      vectors; refuse feature handoff while either active profile is unresolved.
+      UTC-window boundaries, standing, predecessor links, and positive/refusal
+      transition vectors; refuse feature handoff while either active profile is
+      unresolved.
 - [ ] 1.4 Create exactly one SHARED Speckit feature from the intended
       openxFactory base and record immutable two-way links from that feature to
       both `add-chain-anchoring` and this amendment; neither packet may create a
@@ -34,14 +35,15 @@
 - [ ] 2.2 Accept deterministic feature evidence for non-empty, empty,
       midnight-boundary, concurrent close/admission, late-source-time,
       identical-replay, conflicting-dedupe, recursive-control-leaf,
-      split-witness-root, substituted manifest/configuration/profile,
-      missing witness-commitment path, and selectively omitted daily-window cases.
+      mid-window eligibility activation, eligibility-content substitution,
+      split-witness-root, substituted manifest/configuration/profile, missing
+      witness-commitment path, and selectively omitted daily-window cases.
 - [ ] 2.3 Accept feature evidence distinguishing Kaspa submitted from confirmed
       and OpenTimestamps submitted from Bitcoin confirmed under immutable
       versioned approved profiles, including activation, rollback, retirement,
-      compromise, content-substitution, reorganization/replacement, and profile-
-      revision vectors, while preserving the receipt/state split and same-digest
-      proof upgrade.
+      compromise, mid-window activation, content-substitution, reorganization/
+      replacement, and profile-revision vectors, while preserving the receipt/
+      state split and same-digest proof upgrade.
 - [ ] 2.4 Verify immediately before implementation that `chain-anchoring` has not
       released independently. If it has, stop and govern the compatibility and
       version class before changing any schema; otherwise prove the shared first
