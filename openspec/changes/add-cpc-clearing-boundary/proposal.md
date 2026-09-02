@@ -37,7 +37,7 @@ every one of them as unmarked. THREE requirements are ADDED to the same
 capability because the basis has no counterpart to them at all. One new
 capability is ADDED for the register.
 
-**#555 MERGES FIRST, AND THAT ORDER IS LOAD-BEARING, NOT COURTESY.** This
+**#555 MERGED 2026-09-02, AND THAT ORDER WAS LOAD-BEARING, NOT COURTESY.** This
 packet's MODIFIED blocks resolve against the basis's `## ADDED Requirements`
 block. While #555 is unmerged that block is not in the tree, so
 `modified-block-currency` raises THREE contested warnings, one per MODIFIED

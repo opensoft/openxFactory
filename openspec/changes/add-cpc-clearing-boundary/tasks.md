@@ -57,7 +57,7 @@ carries.
       is CORRECT and expected: the basis is `add-clearing-dispatch-boundary`,
       which is RATIFIED but UNMERGED (PR #555), so its `## ADDED Requirements`
       block is not in this tree for the pairing arm to resolve against. The
-      condition clears the moment #555 merges, at which point the `Modified over`
+      condition cleared: #555 merged 2026-09-02, and the `Modified over`
       marker this delta already carries is what the arm reads. No `error` or
       `critical` finding is emitted and `--fail-on error` is green. Recorded here
       as the cited change rather than dispositioned away.
@@ -70,7 +70,7 @@ carries.
       block with its own marker (design D14), adding one field to what the
       attestation READS and nothing to what it AUTHORIZES.
 - [ ] 1.10 **MERGE ORDER, AND THE DISPOSITION ROWS THAT COVER IT.**
-      `add-clearing-dispatch-boundary` (#555) MERGES FIRST. If this packet
+      `add-clearing-dispatch-boundary` (#555) MERGED 2026-09-02, FIRST as required. If this packet
       merged first, its three contested `modified-block-currency` warnings would
       enter the nightly baseline, and #555 landing would resolve them — a
       contested finding vanishing without a citation, which `report.py`'s
