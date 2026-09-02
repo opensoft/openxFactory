@@ -546,7 +546,20 @@ Active changes:
   Heap at `f54cb5bc` and RE-RATIFIED at `6d7ef17b` after the amendments** (record:
   `openspec/changes/add-chain-attestation/review/ratification-2026-09-01.md`);
   ratification authorizes realization and does not perform it, so the change
-  stays ACTIVE until merged code, green evidence and the contract cut exist.
+  archives only on merged code, green evidence and the contract cut with its
+  published tag — and it stays listed here as ACTIVE until all of that is on
+  `main`.
+  **THE CODE SURFACE IS NOW REALIZED AND THE BUNDLE CUT**: the realization
+  landed as PR **#556**, squash `518c670b` — eight new schemas, the additive
+  extension of four shipped ones, the tranche-two corpus with all NINETY-FIVE
+  closed refusal codes red-proven, and the SAME required check
+  (`signed-execution-chain-gate`, org ruleset 21957695, unchanged) walking
+  links 1–6, green on its own realization PR — and **REGISTERED at
+  `contract-v2.6`** (task 5.9: rows in #556 where the digest test forces them,
+  the number claimed only at the cut, fresh-counted). What stays open is not
+  the author's to close: the §5.1–5.3 MACHINERY GATES (a PKI plane that has
+  ISSUED, an omnigent layer that has REFUSED — SEC-R18 declared UNMET until
+  then) and the §5.8 canary evidence pair.
   **TRANCHE TWO of the signed-execution-chain family: links 4–6 and 10** — the
   harness-controller setup attestation, the per-task runner attestations, the
   signed pull-request-open decision, and the governed post-merge test that CLOSES
