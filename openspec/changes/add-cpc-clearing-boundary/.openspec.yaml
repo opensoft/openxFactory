@@ -66,6 +66,11 @@ origin:
     handling-classification, or digest vocabulary, so carrying the manifest into
     `neutral-job-envelope` would mint exactly what is forbidden; no manifest
     schema is added and the code surface shrank accordingly.
-    THE PACKET IS NOT RATIFIED. `Status: draft` stands, task 1.8 is the
-    ratification act, and no register row, key, workflow, or authorization entry
-    is created by this change. Its archive is ORDERED AFTER the basis archives.
+    THE PACKET IS NOW RATIFIED. Task 1.8, RATIFICATION, is DONE: Brett Heap
+    ratified in-session 2026-09-02 on the recorded word "Ratify + merge
+    openxFactory #560" (ratified head `33fa2b54`; record
+    `review/ratification-2026-09-02.md`), `Status: ratified` now stands, and
+    no register row, key, workflow, or authorization entry is created by this
+    change — those are dependent realizations named in the impact map,
+    authorized but not performed here. Its archive is ORDERED AFTER the basis
+    archives AND after this packet's own realization evidence is green.

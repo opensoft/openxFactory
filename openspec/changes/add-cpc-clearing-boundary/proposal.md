@@ -1,8 +1,11 @@
 ---
 code_surface: openxFactory (a NEW `governance/factory-identity/` register family — `register.yaml` plus `wallets/`, `grants/`, and `attestations/` records mirroring the review-authority intake register's four-file shape and its deliberately-kindless register discipline, with `holder_class: organisation` and NO seat-council spelling — its reader invocation, and a DISJOINTNESS RULE asserting that no `key_id`, identifier, or public-key fingerprint appears in both register families. NO contract schema is added: OQ2 is resolved to REFERENCE, so the sealed-request manifest stays the ten fields `add-clearing-dispatch-boundary` already declares and no `contracts/` artifact moves. The xFactory clearing workflow, the codexFactory hosted packaging and sign-on-return workflows, the openXwallet reader scoping, and the codexFactory floor-file exact-set update are dependent realizations named in the impact map, NOT this change's surface.
 target_release: none (no contract-bundle involvement — this adds a governance register family and a spec delta, not a `contracts/schemas/` artifact; no digest set moves and no release tag is owed. The archive gate is merged-plus-green realization evidence per `release-realization`, and it is ORDERED AFTER `add-clearing-dispatch-boundary` archives, this packet's MODIFIED block being written over that packet's addition)
-Status: draft
+Status: ratified
 Proposed: 2026-09-01
+Ratified: 2026-09-02 by Brett Heap (repository owner) — in-session, on the
+recorded word *"Ratify + merge openxFactory #560"*, ratified head `33fa2b54`;
+record at `openspec/changes/add-cpc-clearing-boundary/review/ratification-2026-09-02.md`.
 Origin: Operator ruling, Brett Heap, 2026-09-01, recorded in the operator workspace as `cpc-clearing-boundary-ruling-2026-09-01.md` and on `opensoft/codexFactory` issue #156 — specifically its SAME-DAY EXTENSION comment, which is the half `add-clearing-dispatch-boundary` does not carry: seat-return signing resolved to option (b) sign-on-return, and per-factory Ed25519 origin keys registered in openxFactory and verified at clearing alongside provider provenance.
 ---
 

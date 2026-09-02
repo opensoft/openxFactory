@@ -83,8 +83,11 @@ carries.
       `openspec/changes/add-cpc-clearing-boundary/specs/clearing-dispatch-boundary/spec.md`,
       one per MODIFIED requirement title, each citing `add-clearing-dispatch-boundary`
       as the resolving change. Tracked as the aggregation-side task in § 5.3.
-- [ ] 1.8 Ratification: operator decision on the re-scoped packet, on D2/D4/D8/
-      D9/D10/D11, and on the OQ1/OQ3 dispositions.
+- [x] 1.8 **DONE 2026-09-02** — Brett ratified, in-session, on the recorded
+      word *"Ratify + merge openxFactory #560"* (ratified head `33fa2b54`;
+      record `review/ratification-2026-09-02.md`). Ratification: operator
+      decision on the re-scoped packet, on D2/D4/D8/D9/D10/D11, and on the
+      OQ1/OQ3 dispositions.
 
 ## 2. Neutral artifacts (openxFactory — after ratification, NOT authored here)
 

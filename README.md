@@ -413,7 +413,11 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [add-cpc-clearing-boundary](openspec/changes/add-cpc-clearing-boundary/proposal.md)
-  — authored 2026-09-01, RE-SCOPED the same day after adversarial review. THIS IS
+  — authored 2026-09-01, RE-SCOPED the same day after adversarial review,
+  **`Status: ratified`** (2026-09-02, Brett Heap, in-session, on the recorded
+  word *"Ratify + merge openxFactory #560"*; ratified head `33fa2b54`; record
+  `openspec/changes/add-cpc-clearing-boundary/review/ratification-2026-09-02.md`).
+  THIS IS
   AN EXTENSION DELTA, NOT A SECOND CLEARING CONTRACT: `add-clearing-dispatch-boundary`
   (PR #555) was RATIFIED 2026-09-01 on the recorded word *"merge #192 and ratify
   #555"*, promotes `clearing-dispatch-boundary` with TEN requirements from the same
@@ -479,12 +483,15 @@ Active changes:
   governed act. OQ2 is RESOLVED to REFERENCE — the basis forbids a second envelope
   vocabulary, so no manifest schema is added and no contract bundle is cut. OQ1 (the
   register's projection path, four shapes sketched) and OQ3 (who scopes the review
-  reader) remain open. Archive is ORDERED AFTER the basis archives, and **#555 MERGES
-  FIRST** — if this packet led, its three contested `modified-block-currency` warnings
-  (raised only because the unmerged basis is absent from the tree) would enter the
-  nightly baseline, and #555 landing would resolve them uncited, becoming three ERRORs.
-  The three `health/dispositions.yaml` rows that belt that order live at the AGGREGATION
-  root and are therefore a cross-repo act, not part of this PR.
+  reader) remain open, alongside the tranche-3 `digest_subject` widening the origin
+  signature needs before it is realizable. Archive is ORDERED AFTER the basis archives,
+  and **#555 MERGED FIRST**, 2026-09-02T09:16Z (`ab0bb2dd`) — the merge-order control
+  held, so the three contested `modified-block-currency` warnings this packet's
+  MODIFIED blocks raised while the basis was unmerged are gone (0 warnings at the
+  caught-up head `33fa2b54`; `--all --strict` 85/85). The three `health/
+  dispositions.yaml` disposition rows that would have belted a different order —
+  tracked as `opensoft/xFactory#201` — were CLOSED AS UNNECESSARY once the intended
+  order held.
 - [add-requirement-ref-resolution-integrity](openspec/changes/add-requirement-ref-resolution-integrity/proposal.md)
   — authored 2026-08-31, **RATIFIED 2026-09-01 BY DIRECT RULING**
   (`Status: ratified`; record `review/ratification-2026-09-01.md`) — Brett Heap
