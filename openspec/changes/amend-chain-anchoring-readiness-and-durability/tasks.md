@@ -41,6 +41,8 @@
       midnight-boundary, concurrent close/admission, late-source-time,
       identical-replay, conflicting-dedupe, recursive-control-leaf,
       mid-window eligibility activation, eligibility-content substitution,
+      zero/multiple eligibility matches, eligibility rollback, omitted eligible
+      suffix under a lowered summary, close-watermark/checkpoint substitution,
       Merkle-profile substitution, independent root recomputation, omitted
       intermediate empty day, split-witness-root, substituted manifest/
       configuration/profile, missing witness-commitment path, and selectively

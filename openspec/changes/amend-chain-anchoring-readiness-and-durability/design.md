@@ -81,7 +81,10 @@ time, and assigns the next monotonic sequence. Acceptance time selects the
 window; sequence orders events inside it. Source time is descriptive only. A
 window close serializes after every admission assigned before its exclusive
 boundary and before the first admission assigned to the next window, so midnight
-cannot place one accepted event on both sides.
+cannot place one accepted event on both sides. The close transaction records a
+signed-log sequence watermark and resolving checkpoint covering that watermark;
+the validator derives the complete eligible admission set from that checkpoint,
+so caller-supplied first/last/count summaries cannot hide an omitted suffix.
 
 The owner-local dedupe key is stable and never public. Same key and same digest
 returns the original admission acknowledgement (leaf sequence plus material
@@ -90,7 +93,11 @@ different digest is refused before sequence assignment. A versioned eligibility 
 defines the neutral owner-evidence event kinds counted by this profile. The
 registry is signed and append-only; each UTC window snapshots one active version,
 content digest, activation checkpoint, and standing, and the canonical manifest
-binds that snapshot. Mid-window activation applies only to the next window. A
+binds that snapshot. Successor activation atomically retires its predecessor and
+closes the predecessor's half-open effective interval. Window open selects the
+unique non-compromised entry covering that boundary with the greatest activation
+checkpoint; zero/multiple matches and older-version rollback are refused.
+Mid-window activation applies only to the next window. A
 domain overlay maps its events into those kinds and cannot make a per-event
 inclusion choice after acceptance. Anchor-state transitions, witness submissions,
 confirmations, batch manifests, and continuity checkpoints are CONTROL leaves,
@@ -167,6 +174,9 @@ proof material with an independently verifiable receipt.
   claim.
 - **[Clock ambiguity changes membership]** → use trusted log acceptance time and
   atomic sequence, never source time.
+- **[A self-consistent prefix omits accepted suffix events]** → bind the atomic
+  close watermark and resolving signed-log checkpoint, then derive the complete
+  eligible set from the checkpoint rather than trusting manifest summaries.
 - **[Replay consumes sequence space or duplicates a batch leaf]** → enforce the
   stable owner-local dedupe rule before sequence assignment.
 - **[Control leaves recursively make an empty batch non-empty]** → count only

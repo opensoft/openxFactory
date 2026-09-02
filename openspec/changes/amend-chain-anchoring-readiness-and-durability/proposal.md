@@ -32,8 +32,9 @@ and independently verified confirmation.
   atomic admission transaction determine one immutable daily batch, including
   deterministic dedupe, late-arrival treatment, a closed non-recursive event
   denominator bound to a window-snapshotted eligibility-registry digest and
-  activation checkpoint, complete event inclusion, and empty-day continuity
-  checkpoints linked by the preceding daily item's anchored digest. One released,
+  uniquely selected effective interval, plus an atomic close watermark and
+  resolving signed-log checkpoint that prove complete event inclusion. Empty-day
+  continuity checkpoints link by the preceding daily item's anchored digest. One released,
   digest-bound Merkle construction profile makes every daily root independently
   reproducible.
   Event membership produces a daily batch root, canonical manifest bytes produce
