@@ -1,5 +1,25 @@
 # Gates — every command, and its output
 
+> **THESE ARE PR #584'S GATES, AT PR #584'S HEADS — A RECORD, NOT THIS
+> BRANCH'S.** Kept unedited because a transcript that gets rewritten stops
+> being one, and flagged here because Copilot was right that leaving it
+> unmarked made the evidence set read as internally inconsistent (round 5 on
+> PR #589). Every reading below was taken on a branch cut from `f4fddf7c`;
+> **this branch is cut from `origin/main` at `47f90080`**, and the tree moved
+> under both of them in between. Three numbers therefore differ BY THE BASE and
+> not by disagreement:
+>
+> | reading | here (#584, base `f4fddf7c`) | this branch (base `47f90080`) | why |
+> |---|---|---|---|
+> | `openspec validate --all --strict` | 85 passed | **84 passed** | `main` archived `govern-sibling-added-modified-deltas` |
+> | `validate-sequenced-after.py .` | 32 active | **31 active** | the same archive, and #555 had landed at the time of the reading below |
+> | `pytest tests/sequenced_after` | 118 passed | 118 passed | unchanged |
+>
+> **This branch's own gates are
+> [`hardening-red-first.md`](./hardening-red-first.md) § D**, and they are the
+> ones that describe the code being reviewed. Neither file is authoritative for
+> the other's head.
+
 Run from this branch's head in a fresh clone
 (`git clone git@github.com:opensoft/openxFactory.git`), never a shared
 checkout.

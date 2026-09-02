@@ -336,3 +336,52 @@ the character classes are CommonMark's rather than the regex engine's
 (round 3). Since round 3 every fix has shipped with a test aimed at the hole the
 FIX could open, not only at the hole it closes — which is the discipline this
 sequence earned and the orchestrator made standing on 2026-09-02.
+
+## § I — bot round 5: raw HTML blocks, and WHY THE CLASS TERMINATES HERE
+
+| # | escape (source) | on head `6390f1e4` | after | test |
+|---|---|---|---|---|
+| R5-1 | a ```-shaped line inside a RAW HTML BLOCK is HTML content; treating it as a fence delimiter put the reader one fence out of phase for a THIRD time (Codex P1) | `entry='contract-v3.0'` — **ACCEPTED**, for all EIGHT of `<pre>`, `<script>`, `<!--`, `<?`, `<!DOCTYPE`, `<![CDATA[`, `<div>` and any complete tag | nothing read, for all eight | `test_a_fence_shaped_line_inside_raw_html_opens_no_fence`, parametrized over the eight kinds |
+| R5-2 | the carried evidence transcripts published PR #584's gate counts unmarked, so the evidence set read as internally inconsistent — 85 vs 84 `openspec` items, 32 vs 31 active changes (Copilot) | `gates.md` read as this branch's record | each carried transcript carries a provenance banner naming its BASE, and a table of the three readings that differ by base rather than by disagreement | n/a — evidence, not code |
+
+**THE FIX IS ONE STATE MACHINE, not two side by side**, and that is load-bearing:
+a fenced block and a raw HTML block are MUTUALLY EXCLUSIVE in CommonMark — a
+fence-shaped line inside an HTML block is content, an HTML opener inside a fence
+is code — so two machines would each be wrong about the other's region.
+`_opaque_state(line, state, after_paragraph)` decides both, and
+`test_a_fenced_block_is_opaque_to_html_openers_and_the_reverse` pins both
+directions.
+
+**AND OVER-APPROXIMATION IS ITS OWN ESCAPE, in the same silent direction** —
+which is the hole this fix could open, and the reason matching CommonMark is the
+criterion rather than maximising suppression. A line of prose read as HTML
+content would make a region opaque, swallow a real `## Notes` boundary, and
+leave a declaration below it holding an entry it is not inside. So kind 6 is
+CommonMark's own tag list and nothing wider, kind 7 demands a COMPLETE tag alone
+on its line and may not interrupt a paragraph, and `<not a tag` opens nothing.
+Five rows pin that direction, plus CommonMark's kind-6/kind-7 asymmetry, plus
+the case where over-closing would REFUSE A CORRECTLY CONTAINED declaration (a
+`## Notes` inside a real `<div>` block is content, so the declaration after the
+block's blank line really is inside the entry).
+
+### WHY THIS CLASS TERMINATES HERE, stated because three rounds of it have not
+
+A phase error needs a line the reader calls a fence delimiter and CommonMark
+does not, **at column 0 to 3**. Every construct that can hold such a line is now
+accounted for:
+
+| construct | how it is handled |
+|---|---|
+| another fenced block | this machine's own state |
+| a raw HTML block | the eight kinds, this round |
+| an indented code block | its content is at column 4+, which the `^ {0,3}` in every pattern here excludes |
+| a block quote or a list item | its content carries the marker, so a bare fence at column 0 is a new block at document level — and a fence cannot be lazily continued |
+
+Nothing else remains. **And the REVERSE error — missing a REAL fence at column 0
+to 3 — cannot happen either**, because `_fence_opener` now rejects exactly what
+CommonMark rejects there (a backtick fence whose info string carries a
+backtick, and nothing else). The two halves together are what closes the class
+rather than its fifth instance.
+
+Counts after round 5: family file **110 passed**, `tests/doc-health`
+**1475 passed, 0 failed**.

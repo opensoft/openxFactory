@@ -834,6 +834,137 @@ def test_the_three_line_endings_commonmark_does_recognise_still_work(name,
         f"the fence rule does not hold in a {name} document")
 
 
+# THE EIGHT COMMONMARK HTML-BLOCK KINDS THAT CAN HOLD A FENCE-SHAPED LINE.
+# Kinds 1 to 5 end on their own closing string and SPAN BLANK LINES, which is
+# what makes `<pre>` the useful hiding place; kinds 6 and 7 end at a blank line.
+HTML_BLOCKS = (
+    ("kind 1 <pre>", "<pre>", "</pre>"),
+    ("kind 1 <script>", "<script>", "</script>"),
+    ("kind 2 comment", "<!-- x", "-->"),
+    ("kind 3 processing instruction", "<?php", "?>"),
+    ("kind 4 declaration", "<!DOCTYPE x", ">"),
+    ("kind 5 CDATA", "<![CDATA[", "]]>"),
+    ("kind 6 <div>", "<div>", "</div>"),
+    ("kind 7 any complete tag", "<mytag>", "</mytag>"),
+)
+
+
+@pytest.mark.parametrize("name,opener,closer", HTML_BLOCKS,
+                         ids=[row[0] for row in HTML_BLOCKS])
+def test_a_fence_shaped_line_inside_raw_html_opens_no_fence(name, opener,
+                                                            closer):
+    """CODEX P1, ROUND 5 ON PR #589 — the same out-of-phase failure as rounds 1
+    and 4, reached by a third route.
+
+    A ```-shaped line inside a raw HTML block is HTML CONTENT. A reader that
+    calls it a fence delimiter goes one fence out of phase: the `## Notes`
+    boundary below is swallowed as code, the next bare fence closes the
+    fictitious block while opening a REAL one, and the declaration inside that
+    real block is read under the earlier release entry. Measured ACCEPTED for
+    every kind in this table.
+    """
+    doc = "\n".join(["## contract-v3.0 — a cut", "",
+                     opener, "```bad", closer, "",
+                     "## Notes", "", "```", _spent_line(), "```", ""])
+    assert rtp.parse_spent_declarations(doc) == [], (
+        f"{name} held a fence-shaped line the reader treated as a delimiter, "
+        f"putting it one fence out of phase with the document")
+
+
+HTML_NON_BLOCKS = (
+    ("a paragraph that merely starts with '<'", "<not a tag at all"),
+    ("a bare left angle bracket", "<"),
+    ("an unterminated tag", "<div"),
+    ("a tag with a stray character after it", "<div> x"),
+    ("a sentence containing an inline tag", "text <b>bold</b> more"),
+)
+
+
+@pytest.mark.parametrize("name,line", HTML_NON_BLOCKS,
+                         ids=[row[0] for row in HTML_NON_BLOCKS])
+def test_over_approximating_an_html_block_is_its_own_escape(name, line):
+    """THE HOLE THE FIX ABOVE COULD OPEN, AND IT IS IN THE SAME SILENT
+    DIRECTION — which is why kind 6 is CommonMark's own tag list and nothing
+    wider, and kind 7 demands a COMPLETE tag alone on its line.
+
+    A line of prose read as HTML content would make the region opaque, swallow
+    the real `## Notes` boundary below it, and leave a declaration holding an
+    entry it is not inside. Matching CommonMark is therefore the criterion here
+    rather than maximising suppression: suppressing more is not safer.
+    """
+    doc = "\n".join(["## contract-v3.0 — a cut", "", line, "",
+                     "## Notes", "", _spent_line()])
+    read = rtp.parse_spent_declarations(doc)
+    assert len(read) == 1 and read[0].entry is None, (
+        f"{name} was read as opening an HTML block, so the `## Notes` "
+        f"boundary below it stopped closing the entry")
+
+
+def test_kind_7_cannot_interrupt_a_paragraph_and_kind_6_can():
+    """CommonMark's own asymmetry, kept because getting it wrong goes both ways.
+
+    A bare tag on a line is an HTML block only where a paragraph is NOT already
+    open; inside one it is inline HTML and the line is prose. Kind 6 — a tag
+    from CommonMark's block list — interrupts a paragraph and does open a
+    block.
+    """
+    # kind 7 after paragraph content: prose, so `## Notes` still closes
+    interrupting = "\n".join(["## contract-v3.0 — a cut", "",
+                              "some prose", "<mytag>", "",
+                              "## Notes", "", _spent_line()])
+    read = rtp.parse_spent_declarations(interrupting)
+    assert len(read) == 1 and read[0].entry is None
+
+    # kind 6 after paragraph content: a real block, so `## Notes` is content
+    # and the declaration below the blank line is still inside the v3.0 entry
+    kind6 = "\n".join(["## contract-v3.0 — a cut", "",
+                       "some prose", "<div>", "## Notes", "",
+                       _spent_line()])
+    read = rtp.parse_spent_declarations(kind6)
+    assert len(read) == 1 and read[0].entry == "contract-v3.0", (
+        "a `## Notes` inside a real HTML block is content, not a heading, so "
+        "the declaration below the block really is inside the v3.0 entry — "
+        "over-closing here would refuse a correctly contained declaration")
+
+
+def test_a_declaration_inside_a_raw_html_block_is_not_a_record():
+    """The fence rule's other half, on HTML blocks — fail-closed in the same
+    way: the form may be DOCUMENTED inside `<pre>` without being PERFORMED, and
+    a real declaration hidden there does not count, which leaves the superseded
+    `error` standing rather than quieting it."""
+    documented = "\n".join(["## contract-v3.0 — a cut", "",
+                            "<pre>", _spent_line(), "</pre>", ""])
+    assert rtp.parse_spent_declarations(documented) == []
+
+    # and the control: the identical line outside the block IS read
+    outside = "\n".join(["## contract-v3.0 — a cut", "",
+                         "<pre>", "example", "</pre>", "", _spent_line()])
+    read = rtp.parse_spent_declarations(outside)
+    assert len(read) == 1 and read[0].entry == "contract-v3.0"
+
+
+def test_a_fenced_block_is_opaque_to_html_openers_and_the_reverse():
+    """THE TWO REGIONS ARE MUTUALLY EXCLUSIVE, which is why ONE state machine
+    decides both. Two machines side by side would each be wrong about the
+    other's region: an HTML opener inside a fence is code, and a fence opener
+    inside an HTML block is content."""
+    # `<pre>` inside a fence is code, so the fence's own closer still closes
+    fenced_html = "\n".join(["## contract-v3.0 — a cut", "",
+                             "```", "<pre>", "```", "", _spent_line()])
+    read = rtp.parse_spent_declarations(fenced_html)
+    assert len(read) == 1 and read[0].entry == "contract-v3.0", (
+        "a `<pre>` inside a fenced block opened an HTML region that outlived "
+        "the fence, so everything after it became opaque")
+
+    # a tilde fence inside `<pre>` is content, so only `</pre>` ends the region
+    html_fence = "\n".join(["## contract-v3.0 — a cut", "",
+                            "<pre>", "~~~", "</pre>", "", _spent_line()])
+    read = rtp.parse_spent_declarations(html_fence)
+    assert len(read) == 1 and read[0].entry == "contract-v3.0", (
+        "a `~~~` inside `<pre>` opened a fence that outlived the HTML block"
+    )
+
+
 def test_this_repositorys_live_declaration_survives_every_boundary_rule():
     """THE LIVE READ, AND IT IS THE POINT OF THE HARDENING RATHER THAN A
     FORMALITY: a boundary rule tightened past this document would refuse the

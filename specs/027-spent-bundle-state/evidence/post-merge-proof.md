@@ -1,5 +1,13 @@
 # The post-merge proof — and the red-first control, over the REAL repository
 
+> **A RECORD OF PR #584, AT PR #584'S HEADS — NOT THIS BRANCH'S.** Kept
+> unedited because a transcript that gets rewritten stops being one. Its
+> readings were taken on a branch cut from `f4fddf7c`; this branch is cut
+> from `origin/main` at `47f90080`, so counts here that differ from
+> [`hardening-red-first.md`](./hardening-red-first.md) differ BY THE BASE.
+> That file's § D carries this branch's own gates and is the one that
+> describes the code under review.
+
 **WHY THIS FILE EXISTS.** The family reads `contracts/CHANGELOG.md` at the
 PUBLISHED TIP, resolved by `git ls-remote origin refs/heads/main`. So the one
 claim this PR most needs to make — *`main` goes green, and it goes green

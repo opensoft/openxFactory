@@ -1,5 +1,13 @@
 # Red log — and one honest correction about the ORDER
 
+> **A RECORD OF PR #584, AT PR #584'S HEADS — NOT THIS BRANCH'S.** Kept
+> unedited because a transcript that gets rewritten stops being one. Its
+> readings were taken on a branch cut from `f4fddf7c`; this branch is cut
+> from `origin/main` at `47f90080`, so counts here that differ from
+> [`hardening-red-first.md`](./hardening-red-first.md) differ BY THE BASE.
+> That file's § D carries this branch's own gates and is the one that
+> describes the code under review.
+
 **THE ORDER IS RECORDED AS TAKEN, NOT AS PRESCRIBED.** This feature's tasks.md
 declares a RED GATE requiring every test to be written and seen to fail before
 the module moves. **That is not the order this session worked in.** The module

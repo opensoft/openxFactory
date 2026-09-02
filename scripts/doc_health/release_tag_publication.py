@@ -327,6 +327,61 @@ _FENCE_OPEN_BACKTICK = re.compile(r"^ {0,3}(`{3,})([^`]*)$")
 _FENCE_OPEN_TILDE = re.compile(r"^ {0,3}(~{3,})")
 _FENCE_CLOSE = re.compile(r"^ {0,3}(`{3,}|~{3,})[ \t]*$")
 
+# --- RAW HTML BLOCKS, which are opaque for the same reason fences are --------
+#
+# A ```-shaped line inside a raw HTML block is HTML CONTENT, not a fence
+# delimiter, and a reader that treats it as one goes a fence OUT OF PHASE with
+# the document — the failure round 1 and round 4 each found by a different
+# route. CommonMark's seven kinds, of which all can hold such a line:
+#
+#   1  `<pre` `<script` `<style` `<textarea`, ending at the matching close tag,
+#      SPANNING BLANK LINES — which is what makes it the useful hiding place
+#   2  `<!--` … `-->`        3  `<?` … `?>`
+#   4  `<!` + letter … `>`   5  `<![CDATA[` … `]]>`
+#   6  one of CommonMark's own block-tag names, ending at a BLANK line
+#   7  any COMPLETE tag alone on its line, ending at a blank line, and unable
+#      to interrupt a paragraph
+#
+# KIND 6'S LIST IS COMMONMARK'S AND NOTHING WIDER, and kind 7 demands a
+# complete tag, because OVER-approximating an HTML block is an escape of its
+# own in the same silent direction: a line of prose read as HTML content would
+# swallow a real `## Notes` boundary and leave a declaration below it holding
+# an entry it is not inside. `<not a tag` opens nothing.
+_HTML_TYPE1_OPEN = re.compile(
+    r"^ {0,3}<(pre|script|style|textarea)([ \t>]|$)", re.I)
+_HTML_TYPE6_TAGS = (
+    "address|article|aside|base|basefont|blockquote|body|caption|center|col"
+    "|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure"
+    "|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hr|html|iframe"
+    "|legend|li|link|main|menu|menuitem|nav|noframes|ol|optgroup|option|p"
+    "|param|search|section|summary|table|tbody|td|tfoot|th|thead|title|tr"
+    "|track|ul")
+_HTML_OPENERS = (
+    ("html1", _HTML_TYPE1_OPEN),
+    ("html2", re.compile(r"^ {0,3}<!--")),
+    ("html3", re.compile(r"^ {0,3}<\?")),
+    ("html5", re.compile(r"^ {0,3}<!\[CDATA\[")),
+    # AFTER kind 5, because `<![CDATA[` also matches kind 4's shape and the two
+    # have different closers — ordering is the whole difference between ending
+    # at `]]>` and ending at the first `>`.
+    ("html4", re.compile(r"^ {0,3}<![A-Za-z]")),
+    ("html6", re.compile(rf"^ {{0,3}}</?({_HTML_TYPE6_TAGS})([ \t]|/?>|$)",
+                         re.I)),
+)
+_HTML_CLOSERS = {
+    "html1": re.compile(r"</(pre|script|style|textarea)>", re.I),
+    "html2": re.compile(r"-->"),
+    "html3": re.compile(r"\?>"),
+    "html4": re.compile(r">"),
+    "html5": re.compile(r"\]\]>"),
+}
+_HTML_TAGNAME = r"[A-Za-z][A-Za-z0-9-]*"
+_HTML_ATTR = (r"(?:[ \t]+[A-Za-z_:][A-Za-z0-9_.:-]*"
+              r"(?:[ \t]*=[ \t]*(?:[^\s\"'=<>`]+|'[^']*'|\"[^\"]*\"))?)")
+_HTML_TYPE7 = re.compile(
+    rf"^ {{0,3}}(?:<{_HTML_TAGNAME}{_HTML_ATTR}*[ \t]*/?>"
+    rf"|</{_HTML_TAGNAME}[ \t]*>)[ \t]*$")
+
 # A THEMATIC BREAK IS NOT PARAGRAPH CONTENT, so a run of `=` or `-` below one is
 # a second thematic break and NOT a Setext underline (Codex P2, round 1). This
 # is the one exclusion that moves the reader toward UNDER-closing and is still
@@ -455,23 +510,77 @@ def _fence_opener(line: str) -> str | None:
     return tilde.group(1) if tilde is not None else None
 
 
-def _fence_state(line: str, fence: str | None) -> str | None:
-    """The open fence marker after `line`, given the one open before it.
+def _html_opener(line: str, after_paragraph: bool) -> str | None:
+    """The CommonMark HTML-block KIND `line` opens, or None.
 
-    SEPARATE FROM `_entry_boundary` BECAUSE THE TWO ANSWER DIFFERENT
-    QUESTIONS: this one is bookkeeping over the document's structure, and the
-    other is a judgment about one line given that bookkeeping. A single
-    function doing both would have to decide whether a fence DELIMITER is a
-    boundary, and it is neither — it is the edge of a region in which the
-    question does not arise.
+    `after_paragraph` gates kind 7 alone, because kind 7 is the one CommonMark
+    forbids from interrupting a paragraph — a line of prose that happens to end
+    in a bare tag is prose.
     """
-    if fence is None:
-        return _fence_opener(line)
-    closer = _FENCE_CLOSE.match(line)
-    if (closer is not None and closer.group(1)[0] == fence[0]
-            and len(closer.group(1)) >= len(fence)):
-        return None
-    return fence
+    for kind, pattern in _HTML_OPENERS:
+        if pattern.match(line):
+            return kind
+    if not after_paragraph and _HTML_TYPE7.match(line):
+        return "html7"
+    return None
+
+
+def _opaque_state(line: str, state: tuple[str, str] | None,
+                  after_paragraph: bool) -> tuple[str, str] | None:
+    """`(kind, marker)` for the OPAQUE REGION open after `line`, or None.
+
+    ONE STATE MACHINE FOR EVERY OPAQUE REGION, and that is the point rather
+    than a tidiness: a fenced block and a raw HTML block are MUTUALLY
+    EXCLUSIVE in CommonMark — a fence-shaped line inside an HTML block is HTML
+    content, and an HTML-block opener inside a fence is code — so two machines
+    running side by side would each be wrong about the other's region. Codex's
+    round-5 P1 on PR #589 is exactly that: a ```-shaped line inside `<pre>`
+    opened a FICTITIOUS fence, the reader went one fence out of phase, a
+    `## Notes` boundary was swallowed, and a declaration inside the next real
+    fence was read under the earlier release entry. Measured ACCEPTED for all
+    EIGHT of the HTML-block kinds that can contain such a line.
+
+    WHY THIS CLASS TERMINATES HERE, stated because three rounds of it have not.
+    A phase error needs a line the reader calls a fence delimiter and
+    CommonMark does not, at column 0 to 3. Every construct that can hold such a
+    line is now accounted for: another fenced block (this machine's own state),
+    a raw HTML block (these eight kinds), an indented code block (whose content
+    is at column 4 or more, which the `^ {0,3}` in every pattern here
+    excludes), and a block quote or list item (whose content carries its
+    marker, so a bare fence at column 0 is a new block at document level, and a
+    fence cannot be lazily continued). Nothing else remains — and the reverse
+    error, MISSING a real fence at column 0 to 3, cannot happen either, because
+    `_fence_opener` now rejects exactly what CommonMark rejects there.
+
+    AND MATCHING COMMONMARK IS THE CRITERION, NOT MAXIMISING SUPPRESSION.
+    Over-approximating an HTML block is an escape in its own right, in the same
+    silent direction: a line of prose read as HTML content would swallow a real
+    `## Notes` boundary and leave a declaration below it holding an entry it is
+    not in. So kind 6 is CommonMark's tag list and nothing wider, kind 7 is a
+    COMPLETE tag alone on its line and may not interrupt a paragraph, and
+    `<not a tag` opens nothing.
+    """
+    if state is None:
+        marker = _fence_opener(line)
+        if marker is not None:
+            return ("fence", marker)
+        html = _html_opener(line, after_paragraph)
+        return (html, "") if html is not None else None
+    kind, marker = state
+    if kind == "fence":
+        closer = _FENCE_CLOSE.match(line)
+        if (closer is not None and closer.group(1)[0] == marker[0]
+                and len(closer.group(1)) >= len(marker)):
+            return None
+        return state
+    end = _HTML_CLOSERS.get(kind)
+    if end is not None:
+        # Kinds 1 to 5 end on their own closing string, ANYWHERE on the line,
+        # and that line is part of the block — so they span blank lines, which
+        # is what makes `<pre>` able to hold one.
+        return None if end.search(line) else state
+    # Kinds 6 and 7 end at the first BLANK line, which is not part of the block.
+    return None if not line.strip() else state
 
 
 def _paragraph_line(line: str, closes: bool, opaque: bool) -> bool:
@@ -511,7 +620,8 @@ def _paragraph_line(line: str, closes: bool, opaque: bool) -> bool:
     return not (_ATX_ANY.match(line) or _THEMATIC_BREAK.match(line))
 
 
-def _entry_boundary(line: str, after_paragraph: bool, in_fence: str | None
+def _entry_boundary(line: str, after_paragraph: bool,
+                    in_opaque: tuple[str, str] | None
                     ) -> tuple[bool, str | None]:
     """`(closes, opens)` for one line of the changelog.
 
@@ -525,14 +635,14 @@ def _entry_boundary(line: str, after_paragraph: bool, in_fence: str | None
     `after_paragraph` is whether the line ABOVE was paragraph content, which a
     Setext underline needs and no other shape does — a BOOLEAN and not the
     previous line's text, because the question is what that line ACTED as and
-    the caller is the one that knows. `in_fence` is the open fence marker or
-    None; the function is TOTAL over the fence state rather than trusting its
-    caller to have skipped fenced lines, so a second caller cannot reintroduce
-    the escape by forgetting to.
+    the caller is the one that knows. `in_opaque` is the open OPAQUE REGION —
+    a fenced block or a raw HTML block — or None; the function is TOTAL over
+    that state rather than trusting its caller to have skipped opaque lines, so
+    a second caller cannot reintroduce the escape by forgetting to.
     """
-    if in_fence is not None:
-        # Inside a fenced block nothing is a heading — not a line that looks
-        # exactly like one, and not one that names a bundle.
+    if in_opaque is not None:
+        # Inside a fenced block or a raw HTML block nothing is a heading — not
+        # a line that looks exactly like one, and not one that names a bundle.
         return (False, None)
     if _ATX_BOUNDARY.match(line):
         heading = _ENTRY_HEADING.match(line)
@@ -559,11 +669,12 @@ def parse_spent_declarations(changelog: bytes | str | None
     is reserved and a malformed declaration is worse than none: it looks like a
     record.
 
-    FENCED BLOCKS ARE OPAQUE, and the entry a declaration sits in is decided by
-    `_entry_boundary` for every line — see the boundary block above for the rule
-    and for the ten measured escapes it answers. A fenced block is a region in
-    which neither a heading nor a declaration exists, so the form can be
-    DOCUMENTED there without being PERFORMED.
+    OPAQUE REGIONS ARE OPAQUE — fenced code blocks and raw HTML blocks alike —
+    and the entry a declaration sits in is decided by `_entry_boundary` for
+    every line. See the boundary block above for the rule and for the thirteen
+    measured escapes it answers. An opaque region is one in which neither a
+    heading nor a declaration exists, so the form can be DOCUMENTED there
+    without being PERFORMED.
     """
     if not changelog:
         return []
@@ -571,17 +682,17 @@ def parse_spent_declarations(changelog: bytes | str | None
         changelog = changelog.decode("utf-8", errors="replace")
     out: list[SpentDeclaration] = []
     entry: str | None = None
-    fence: str | None = None
+    opaque_state: tuple[str, str] | None = None
     after_paragraph = False
     for number, line in enumerate(_lines(changelog), start=1):
         # THE DELIMITERS BELONG TO THE BLOCK, not to the prose either side of
-        # it: a line is opaque if a fence was open BEFORE it or is open AFTER
+        # it: a line is opaque if a region was open BEFORE it or is open AFTER
         # it, which makes both the opener and the closer part of the region and
         # neither of them prose that could carry a record.
-        opaque = fence is not None
-        closes, opens = _entry_boundary(line, after_paragraph, fence)
-        fence = _fence_state(line, fence)
-        opaque = opaque or fence is not None
+        opaque = opaque_state is not None
+        closes, opens = _entry_boundary(line, after_paragraph, opaque_state)
+        opaque_state = _opaque_state(line, opaque_state, after_paragraph)
+        opaque = opaque or opaque_state is not None
         # CARRIED FORWARD FROM WHAT THIS LINE DID, not from what it looks like,
         # so a Setext underline that really underlined ends the paragraph and
         # one that only looked like an underline does not.

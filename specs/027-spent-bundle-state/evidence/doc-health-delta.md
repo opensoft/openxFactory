@@ -1,5 +1,13 @@
 # doc-health `--single-repo`, before and after, same clock
 
+> **A RECORD OF PR #584, AT PR #584'S HEADS — NOT THIS BRANCH'S.** Kept
+> unedited because a transcript that gets rewritten stops being one. Its
+> readings were taken on a branch cut from `f4fddf7c`; this branch is cut
+> from `origin/main` at `47f90080`, so counts here that differ from
+> [`hardening-red-first.md`](./hardening-red-first.md) differ BY THE BASE.
+> That file's § D carries this branch's own gates and is the one that
+> describes the code under review.
+
 In the shape OpenSpec tasks § 4.6 used: BASE a detached worktree at
 `origin/main`, HEAD this branch committed — an untracked change is invisible to
 the readers, which is why the measurement is taken after the commit.
