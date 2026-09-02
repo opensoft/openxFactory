@@ -203,7 +203,7 @@ of which were publishable and were published.
 | `critical` | Governance integrity broken | Unbacked `standard` claim; dangling provenance; `record` mutation |
 | `error` | Contract violation | Malformed/unresolved marker; free-form status; aging past escalation; a ratified spec delta that never reached its promoted spec |
 | `warning` | Drift or first-stage aging | Pin drift; copy drift; projection drift; 30-day staged item |
-| `info` | Inventory and metrics | Canon share; per-stage counts; age distributions |
+| `info` | Inventory, metrics, and RECORDED STATES | Canon share; per-stage counts; age distributions; a bundle declared SPENT, which is recorded rather than silent because a reader who finds a release inventory with no matching tag is owed the answer in the report (ruled 2026-09-02) |
 
 **Regression rule:** any `critical` or `error` finding not present in the
 previous report (matched by family + path) opens one issue per run in the
