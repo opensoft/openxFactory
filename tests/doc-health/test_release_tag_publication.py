@@ -687,6 +687,50 @@ def test_a_LONGER_version_token_does_not_open_the_shorter_bundle_s_entry():
         assert decl.entry == "contract-v3.0", heading
 
 
+def test_a_LEVEL_ONE_heading_also_closes_the_open_entry():
+    """CODEX'S THIRD P1 ON PR #584 — found on the fix for the second, which is
+    the pattern worth noting: each round closed the containment hole one step
+    further out.
+
+    An H1 structurally ends the H2 section above it, but a matcher watching
+    only `##` does not notice. With `## contract-v3.0` … `# Notes` …
+    declaration, `entry` still read `contract-v3.0`, so a declaration outside
+    the successor's entry would have been ACCEPTED once the successor's tag was
+    valid — replacing the genuine superseded `error` with an `info`.
+    """
+    body = ("## contract-v3.0 — a release entry\n\n# Notes\n\n"
+            + _spent_line("contract-v2.6") + "\n")
+    decl = rtp.read_spent_declarations(body.encode())["contract-v2.6"]
+    assert decl.entry is None
+    refusal = rtp.spent_refusal(decl, "contract-v2.6",
+                                {"contract-v2.6", "contract-v3.0"})
+    assert refusal and "no release entry at all" in refusal
+
+
+def test_exactly_which_headings_close_an_entry_is_pinned():
+    """The whole rule in one table, because it has now moved THREE times and
+    every move was a defect Codex found.
+
+    H1 and H2 CLOSE the open entry; only an H2 NAMING A BUNDLE reopens one;
+    H3+ leave it alone; and `#hashtag` is not a heading at all. The base entry
+    below is `contract-v2.9` so that "closed" and "closed and reopened as
+    something else" are distinguishable — a table using one name for both
+    could not tell them apart, which is how the first two escapes survived.
+    """
+    for expected, heading in ((None, "# Notes"),
+                              (None, "## Notes"),
+                              ("contract-v3.0", "## contract-v3.0 — x"),
+                              ("contract-v3.0", "## contract-v3.0"),
+                              (None, "## contract-v3.0.1"),
+                              ("contract-v2.9", "### `contract-v2.6` disposition"),
+                              ("contract-v2.9", "#### deeper"),
+                              ("contract-v2.9", "#hashtag")):
+        body = (f"## contract-v2.9 — the entry above\n\n{heading}\n\n"
+                + _spent_line("contract-v2.6") + "\n")
+        decl = rtp.read_spent_declarations(body.encode())["contract-v2.6"]
+        assert decl.entry == expected, (heading, decl.entry, expected)
+
+
 def test_a_level_THREE_subsection_does_NOT_close_the_entry():
     """The other half, and it is load-bearing: the reserved line is written
     INSIDE a `###` disposition subsection of its release entry — which is
@@ -1068,6 +1112,48 @@ def test_an_unreadable_changelog_at_the_published_tip_SKIPS_naming_that_read():
     git.blobs[("r", CHANGELOG)] = b"# no declaration\n"
     control = rtp.check_repo("alphaFactory", Path("r"), git)
     assert isinstance(control, Skip) and CHANGELOG not in control.reason
+
+
+def test_a_BELOW_FLOOR_repository_with_no_changelog_stays_SILENT(tmp_path):
+    """COPILOT ON PR #584, AND IT WAS A REAL BEHAVIOUR REGRESSION.
+
+    The changelog guard was placed before the bundle loop, so a repository
+    declaring `contract-v1.5` — which this family emits NOTHING about, by the
+    enforcement-floor rule — started returning a SKIP merely because it keeps
+    no changelog. It went from silent to "not checked" over a record that could
+    not have borne on its answer. The guard now fires in the ABSENT arm, which
+    a below-floor bundle never reaches.
+    """
+    repo, _ = _repo(tmp_path, "legacy")
+    (repo / "contracts").mkdir(exist_ok=True)
+    (repo / MANIFEST).write_text("contract_bundle_version: contract-v1.5\n")
+    _git(repo, "add", MANIFEST)
+    _git(repo, "commit", "-q", "-m", "legacy, and no changelog at all")
+    _push(repo)
+    assert not (repo / CHANGELOG).exists()
+    assert _check(repo) == [], (
+        "a bundle below the enforcement floor is out of scope, and an absent "
+        "changelog must not turn that silence into a skip")
+
+
+def test_an_in_scope_untagged_bundle_with_no_changelog_DOES_skip(tmp_path):
+    """The other side of the same line, so the deferral cannot be read as
+    dropping the guard: where the answer really does depend on a record that
+    could not be read, the family declines rather than accusing the bundle."""
+    repo, _ = _repo(tmp_path, "noclog")
+    (repo / "contracts/releases").mkdir(parents=True, exist_ok=True)
+    for bundle in ("contract-v2.6", "contract-v3.0"):
+        (repo / f"contracts/releases/{bundle}.digests.yaml").write_text("x: 1\n")
+        _git(repo, "add", f"contracts/releases/{bundle}.digests.yaml")
+    (repo / MANIFEST).write_text("contract_bundle_version: contract-v3.0\n")
+    _git(repo, "add", MANIFEST)
+    _git(repo, "commit", "-q", "-m", "two cuts, no changelog")
+    _push(repo)
+    out = _check(repo)
+    assert isinstance(out, Skip), out
+    assert CHANGELOG in out.reason
+    assert "could not be read at the published tip" in out.reason
+    assert "carrying no SPENT declaration" in out.reason
 
 
 def test_the_state_is_not_read_backwards_onto_published_or_legacy_bundles(tmp_path):
