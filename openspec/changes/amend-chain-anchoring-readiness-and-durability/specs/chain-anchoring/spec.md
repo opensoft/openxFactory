@@ -6,8 +6,8 @@
 
 openxFactory SHALL NOT commission or realize the `chain-anchoring` capability
 until the released signed-execution-chain contracts, canonical validator,
-AND live evidence that `signed-execution-chain-gate` is REQUIRED in the branch
-ruleset and that its broken-chain canary fails are available,
+AND live evidence is available that `signed-execution-chain-gate` is REQUIRED in
+the branch ruleset and its broken-chain canary fails as designed,
 AND until the signing plane consumed by anchoring is operational under released
 `trust-anchor` contracts. Operational PKI evidence SHALL demonstrate governed
 certificate issuance, verification, revocation handling, and declared chain
@@ -90,9 +90,16 @@ without consuming another sequence. Reuse of that key with different content
 SHALL be REFUSED before sequence assignment. The dedupe key SHALL remain off
 public chains.
 
-A versioned eligibility registry SHALL enumerate the neutral owner-evidence
-event kinds counted by this profile. A domain overlay MAY map its event kinds
-into that registry but MUST NOT select among events after an eligible event is
+A signed append-only eligibility registry SHALL enumerate the neutral owner-
+evidence event kinds counted by this profile. Each immutable registry entry SHALL
+bind its version, canonical content digest, approval record, activation log
+sequence and checkpoint, effective UTC-window boundary, and standing. At each
+UTC window open, the runtime SHALL snapshot exactly one active registry entry;
+every admission assigned to that window SHALL use that same version, content
+digest, activation checkpoint, and standing. A registry activation during an
+open window SHALL apply only to the next window and MUST NOT change eligibility
+for the current window. A domain overlay MAY map its event kinds into the
+snapshotted registry but MUST NOT select among events after an eligible event is
 accepted. Anchor-state transitions, witness submissions, confirmations, batch
 manifests, and continuity checkpoints SHALL be control leaves outside the event
 count and MUST NOT enter the same batch they produce; they remain covered by the
@@ -108,10 +115,11 @@ The proof chain SHALL contain distinct, mechanically recomputable nodes in this
 order:
 
 1. accepted event leaves and membership paths produce `daily_batch_root`;
-2. canonical signed daily-manifest bytes bind the eligibility-registry version,
-   window boundaries, first and last sequence when present, event count,
-   `daily_batch_root`, previous batch root, close reason, dedupe rule, and
-   late-arrival rule;
+2. canonical signed daily-manifest bytes bind the snapshotted eligibility-
+   registry version, canonical content digest, activation checkpoint and
+   standing, window boundaries, first and last sequence when present, event
+   count, `daily_batch_root`, previous batch root, close reason, dedupe rule,
+   and late-arrival rule;
 3. the ratified digest construction produces `material_digest` from those exact
    canonical manifest bytes;
 4. the ratified construction produces `anchored_digest` from `material_digest`
@@ -183,6 +191,16 @@ witnesses through the same receipt path.
 - **WHEN** reconciliation finds an accepted sequence in the window with no path into the closed batch
 - **THEN** the batch is REFUSED as incomplete even if its root has valid witness evidence
 
+#### Scenario: Eligibility changes during an open window
+
+- **WHEN** a new eligibility-registry entry activates after the current UTC window opened
+- **THEN** the current window continues using its bound version, content digest, activation checkpoint, and standing, and the new entry applies only when the next window opens
+
+#### Scenario: Eligibility content is substituted under the same version
+
+- **WHEN** an admission or manifest supplies registry contents whose digest differs from the snapshotted append-only registry entry
+- **THEN** admission or closure is REFUSED before the batch root can be accepted
+
 #### Scenario: An anchoring control leaf is offered as a source event in its own batch
 
 - **WHEN** a witness submission, confirmation, batch manifest, continuity checkpoint, or other anchoring-control leaf is offered as a durability-eligible event in the batch it produces
@@ -220,17 +238,21 @@ profile registry. Every registry entry SHALL bind the network, profile id,
 immutable version, canonical content digest, approval record, predecessor when
 present, activation log sequence and checkpoint, effective interval, and closed
 standing `active`, `retired`, or `compromised`. Registry history MUST NOT be
-rewritten. At trusted log acceptance, the active registry checkpoint SHALL
-deterministically select the one profile version admissible for each witness;
-minting with an older, future, unknown, retired, compromised, digest-mismatched,
-or not-yet-active version SHALL be REFUSED.
+rewritten. At each UTC window open, the active registry checkpoint SHALL
+deterministically select one profile version per witness for the entire daily
+item. Every admission assigned to that window SHALL inherit the same profile ids,
+versions, content digests, activation checkpoints, and standing. A profile
+activation during an open window SHALL apply only to the next window. Selection
+of an older, future, unknown, retired, compromised, digest-mismatched, or not-yet-
+active version at the window-open checkpoint SHALL be REFUSED.
 
-Every configured witness SHALL reference its selected confirmation-profile id,
-version, content digest, activation checkpoint, and standing evidence in the
-mint-time configuration block committed by `anchored_digest`, and every confirmed
-receipt entry and verification result SHALL name the profile under which it was
-evaluated. A profile revision SHALL append a new immutable version and activation
-record. Prior receipts retain immutable as-of evidence such as
+Every configured witness SHALL reference its window-snapshotted confirmation-
+profile id, version, content digest, activation checkpoint, and standing evidence
+in the mint-time configuration block committed by `anchored_digest`, and every
+confirmed receipt entry and verification result SHALL name the profile under
+which it was evaluated. A profile revision SHALL append a new immutable version
+and activation record effective for a later UTC-window boundary. Prior receipts
+retain immutable as-of evidence such as
 `confirmed_under_<version>_at_<checkpoint>`; current verification SHALL also
 report current registry standing. A retired or compromised profile MUST NOT mint
 new receipts or support a new long-horizon claim, and current standing MUST NOT
@@ -287,12 +309,17 @@ anchored digest and MUST NOT re-anchor the item or erase prior state transitions
 #### Scenario: An operator approves a new profile version
 
 - **WHEN** confirmation policy changes after receipts already exist
-- **THEN** the registry appends the new content digest and activation checkpoint, newly accepted items use that version, and prior receipts retain their immutable as-of result while current verification reports current standing
+- **THEN** the registry appends the new content digest and a future UTC-window activation checkpoint, the current open window retains its snapshot, later windows use the new version, and prior receipts retain their immutable as-of result while current verification reports current standing
 
 #### Scenario: A minter rolls back after a newer profile activates
 
-- **WHEN** trusted acceptance occurs after a new profile activation checkpoint but the mint-time configuration selects an older profile version
+- **WHEN** a UTC window opens after a new profile activation checkpoint but its snapshot selects an older profile version
 - **THEN** minting is REFUSED before witness submission even if the older version was once approved
+
+#### Scenario: A profile activates during an open window
+
+- **WHEN** a new confirmation-profile version activates after a UTC window has opened and before its daily item closes
+- **THEN** every event and the final item retain the window-open profile snapshot, and the new version applies only to the next window
 
 #### Scenario: Profile content is substituted under an approved id and version
 
