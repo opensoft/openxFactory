@@ -364,18 +364,74 @@ cut's own record and would be a claim about a released bundle.
 
 ## 4. The `contract-v3.0` cut (a SEPARATE act, listed for completeness)
 
-- [ ] 4.1 `contracts/CHANGELOG.md`: the `contract-v3.0` BREAKING entry —
+- [x] 4.1 `contracts/CHANGELOG.md`: the `contract-v3.0` BREAKING entry —
       migration note, and the Breaking clause's three preconditions each
       discharged and each checkable, on the `contract-v2.0` entry's pattern.
-- [ ] 4.2 `contracts/manifest.yaml`: `contract_bundle_version`, and
+      **DONE.** The entry opens with an EVERY-ACT table written in both
+      directions — the eight acts that land, and the one that named this major
+      and did NOT — and discharges the Breaking clause's three preconditions in
+      a per-removal table rather than in aggregate, because the three removals
+      served their warnings at three different releases (`contract-v1.1`,
+      `contract-v1.1`, `contract-v1.34`). Migration notes are per removal under
+      § *What is removed*. The `contract-v2.0` pattern is followed and extended
+      in one place: that entry could discharge the conformance-validator clause
+      by relocating a family, and these three discharge it in the validator
+      itself, one by REPLACEMENT (the flat-key read), one through the general
+      rule (the token branch), one by the closed `oneOf` with the deprecation
+      READER deliberately kept (the chat-turn family).
+- [x] 4.2 `contracts/manifest.yaml`: `contract_bundle_version`, and
       `contract_schema_version` per OQ-2's answer at the cut.
-- [ ] 4.3 `contracts/releases/contract-v3.0.digests.yaml`: the cut's inventory.
-- [ ] 4.4 Follow § Bundle Realization Order exactly: allocate late, move every
+      **DONE. `contract_bundle_version: contract-v3.0`, and OQ-2 IS ANSWERED BY
+      MEASUREMENT: exactly ONE integer moves, and it is not one in this file.**
+      The contract SET's `contract_schema_version` does NOT move —
+      `scripts/validate-domain-openxfactory-pins.py:92` hard-codes
+      `"contract_schema_version": 1` as the value every domain `stack.yaml` must
+      declare and ERRORS on any other, and all five supported consumers declare
+      `1`, so moving it would ERROR the entire supported population at a major
+      with no warning minor ever served. That is the same unphased-narrowing
+      test § 3.3's restatement turns on, applied to the publisher's own field,
+      and `contract-v2.0` (the only previous major) moved it none either. The
+      manifest ROW's `schema_version` does not move, on the consent-instrument
+      precedent (that file carries `contract_schema_version: 2` while its row
+      still records `schema_version: 1`). What DOES move is the one contract
+      FILE whose shape narrowed —
+      `contracts/schemas/xfactory-workbench-chat-turn.schema.yaml`,
+      `contract_schema_version` 1 → 2, the sibling packet's subject — measured
+      first to read as a refusal input nowhere in the repository. This packet's
+      own two retirements move NO contract file at all: they are
+      validator-and-generator removals, which is why the question had two sides
+      and why the answer is stated as a measurement rather than a rule.
+- [x] 4.3 `contracts/releases/contract-v3.0.digests.yaml`: the cut's inventory.
+      **DONE**, built by the canonical
+      `python3 scripts/validate-contract-release.py build --tag contract-v3.0`
+      AFTER every other member of the cut and never hand-edited, per § Release
+      Digest Inventory and § *What a red `verify-commit` at HEAD means*'s
+      *"THE REMEDY IS A RELEASE CUT, NEVER A HAND-EDIT."*
+- [x] 4.4 Follow § Bundle Realization Order exactly: allocate late, move every
       release surface atomically with the code, run every gate against the
       unchanged candidate, land the exact reviewed commit, publish the annotated
       tag, verify from an independently refreshed checkout.
-- [ ] 4.5 Decide OQ-1 at the cut: whether this packet and
+      **STEPS 1–3 DONE AT THIS CUT; STEPS 4 AND 5 ARE POST-MERGE AND ARE NOT
+      TICKED HERE.** Step 1: branched off `origin/main` at `bbbbeda9`, re-fetched
+      immediately before the inventory build, and the number FRESH-COUNTED there
+      (manifest read `contract-v2.6`, inventories through v2.6, published tags
+      through v2.5 with no v2.6, `refs/tags/contract-v3.0` empty). Step 2: every
+      release surface moved atomically in ONE candidate commit with the
+      inventory built last. Step 3: gates run against that unchanged candidate.
+      **STEP 4 IS THE STEP WHOSE OMISSION KILLED `contract-v2.6`** — a squash
+      promotion creates a different commit and a different TREE, so every gate
+      and `verify-commit` rerun on the promoted commit BEFORE any tag; step 5
+      then publishes the annotated tag at that commit and verifies it from an
+      independently refreshed checkout. Both are enumerated as post-merge steps
+      in the cut's pull request, and § 7.2 stays open until they are performed.
+- [x] 4.5 Decide OQ-1 at the cut: whether this packet and
       `retire-doxbench-chat-turn-v1` ride the same major. Either is legal.
+      **DECIDED: BOTH, and the decision was made for the cut by the merges
+      rather than chosen freely.** `a951be76` (#562) and `6856f502` (#564)
+      merged in the same minute, 2026-09-01T19:43Z, so from that point any
+      bundle declared on `main` carries BOTH narrowings whether it names them or
+      not. A cut naming one would have under-declared its own refusal list,
+      which is the defect § 3's refusal-list rule exists to prevent.
 
 ## 5. Post-cut verification
 

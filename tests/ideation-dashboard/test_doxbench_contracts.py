@@ -76,13 +76,30 @@ CHAT_TURN_SCHEMA_FILE = "xfactory-workbench-chat-turn.schema.yaml"
 # REMOTE. The v1.45 sentinel it replaced was never resolved to a commit
 # (that repin's own task 4.2 went undischarged); it was superseded rather than
 # repaired, since these bytes no longer belong to that bundle.
-RELEASED_REF = "8ccfb67bc0fabfa728d709a2efa0cd87b14656fb"
-RELEASED_TAG = "contract-v2.2"
+#
+# RE-PINNED at contract-v3.0 (retire-doxbench-chat-turn-v1 6.1, taken at the
+# cut): the chat-turn schema's bytes moved TWICE since v2.2 — PR #564 removed
+# the three v1 `$defs`, their `oneOf` refs and the `deprecated_envelopes`
+# block, and the cut bumped the file's own `contract_schema_version` 1 -> 2 —
+# so the digest below is the removed-and-bumped file's and the catalog's is
+# unmoved. #564 moved the module's digest and knowingly left the LABEL at
+# contract-v2.2, so between that merge and the cut the pin named a release
+# these bytes do not belong to; the cut closes that.
+#
+# The REF carries the unresolved-until-published SENTINEL again, on v1.34's,
+# v1.38's, v1.40's, v1.45's and v2.2's precedent: the policy publishes the
+# annotated tag against the commit that LANDS, so until that commit exists
+# there is nothing honest to name, and the value is spelled so no `stack.yaml`
+# can declare it. Resolving it to `contract-v3.0^{}` is owed immediately after
+# the tag is published — the v1.45 residue is what that obligation exists to
+# avoid repeating.
+RELEASED_REF = "unpublished:contract-v3.0"
+RELEASED_TAG = "contract-v3.0"
 RELEASED_DIGESTS = {
     CATALOG_SCHEMA_FILE:
         "e563cc9fc6ede03dfd62537935d0ae0842617d7de46702aee6ad9026aa021635",
     CHAT_TURN_SCHEMA_FILE:
-        "350bfedc02696e7281a42c0bdc9a25059bf7af14d16d89d9f07018d3e691dc1d",
+        "e9a013f326ad6fc82f97eefe7ed49b26fd26e325db88b5d3b47d70e820705b64",
 }
 
 # ---------------------------------------------------------------------------

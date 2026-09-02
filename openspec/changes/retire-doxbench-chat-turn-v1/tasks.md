@@ -43,6 +43,25 @@ than an omission:
 **ONE MEASUREMENT DID NOT SURVIVE CONTACT WITH THE TREE**, and § 2.1 is where it
 is recorded rather than absorbed. See that box.
 
+---
+
+**ADDENDUM, 2026-09-02 — THE REALIZATION MERGED AND § 6 IS TAKEN.** The block
+immediately above is the REALIZATION's own record and is left exactly as
+written, because it was true when written and rewriting it would destroy the
+evidence of what that session did and did not do. What has happened since:
+§§ 2–5 merged as PR **#564**, squash `6856f502`, and the `contract-v3.0` cut is
+taken in its own pull request off `origin/main` at `bbbbeda9`. So three
+sentences above are now history rather than state — the realization is no longer
+unmerged, `contract_bundle_version` no longer says `contract-v2.5` (it said
+`contract-v2.6` at the cut's branch point, declared by #565 and never
+published), and `CONTRACT_REF`/`CONTRACT_TAG` no longer name `contract-v2.2`.
+**§ 6 IS TICKED WITH ITS EVIDENCE INLINE, AND § 7 AND § 8 ARE NOT**: the cut
+declares the bundle, and the annotated TAG is a separate post-merge act taken
+only after § Bundle Realization Order step 4 reruns every gate on the promoted
+commit. That is the step whose omission made `contract-v2.6` unpublishable, and
+this packet's § 8.2 stays open until the tag exists and verifies from an
+independently refreshed checkout.
+
 ## 1. Proposal (this pull request)
 
 - [x] 1.1 Author the packet — `proposal.md`, `design.md`, `tasks.md`,
@@ -433,10 +452,42 @@ is recorded rather than absorbed. See that box.
 
 ## 6. The `contract-v3.0` cut (a SEPARATE act, listed for completeness)
 
-- [ ] 6.1 `contracts/manifest.yaml`: the schema's `sha256` moves off
+- [x] 6.1 `contracts/manifest.yaml`: the schema's `sha256` moves off
       `2ff5f222…`; the row prose drops its v1 clauses;
       `contract_bundle_version`, and `contract_schema_version` per OQ-2's answer.
-- [ ] 6.2 `contracts/README.md:86`: the long row.
+      **DONE, AND THE `sha256` MOVED TWICE RATHER THAN ONCE.** The realization
+      already took it `2ff5f222…` → `350bfedc…` in the same commit as the byte
+      removal (the header records why it had to); this cut takes it
+      `350bfedc…` → `e9a013f3…`, because OQ-2's answer moves the file again.
+      `contract_bundle_version: contract-v3.0`. **OQ-2 ANSWERED: exactly ONE
+      integer moves, and it is the FILE's own, not this row's and not the
+      set's.** `contracts/schemas/xfactory-workbench-chat-turn.schema.yaml`'s
+      `contract_schema_version` goes 1 → 2 — it is the one contract file whose
+      shape narrowed at this major, and the estate bumps that integer even for
+      GROWTH (`consent-instrument.schema.yaml` at `contract-v1.30`). This row's
+      `schema_version` STAYS 1, on the same precedent: that file carries
+      `contract_schema_version: 2` while its manifest row still records
+      `schema_version: 1`. The contract SET's integer stays 1 because
+      `scripts/validate-domain-openxfactory-pins.py:92` hard-pins it and all
+      five supported consumers declare it — moving it would ERROR every one of
+      them at a major with no warning served. Every envelope's
+      `schema_version: {const: 1}` is untouched; bumping those would invalidate
+      every instance in the estate. Measured before taking it: nothing in the
+      repository reads the file's own integer as a refusal input (the only other
+      occurrence is a comment in
+      `scripts/ideation_dashboard/web/views/doxbench-chat-model.js`).
+      **AND ONE LINE THIS BOX DOES NOT NAME, IN THE SAME ROW, REPORTED RATHER
+      THAN ABSORBED**: the `consumption_rule` also announced that the
+      `context-packet-blank` warning *"becomes an ERROR at contract-v2.0"*. It
+      did not, and it does not here — `scripts/validate-ideation-dashboard-contracts.py:1533`
+      still calls `f.warn(...)`. That is a SPENT removal target of exactly the
+      class issue #522 was filed about, sitting outside § Deprecations Currently
+      In Force where the mechanism could not see it. It is RESTATED to
+      `contract-v4.0` in the row with the reason (nothing authored it; the
+      warning has been served since `contract-v1.40`, so no new window is owed),
+      on the rule the sibling packet promoted, and it is raised in the cut's
+      pull request so a reviewer rules on it rather than inheriting it.
+- [x] 6.2 `contracts/README.md:86`: the long row.
       **AND ONE MORE LINE THE REALIZATION'S REVIEW FOUND, RECORDED HERE SO THE
       CUT DOES NOT HAVE TO REDISCOVER IT.** `contracts/manifest.yaml`'s
       `consumption_rule` prose for `xfactory-workbench-chat-turn` still
@@ -449,22 +500,103 @@ is recorded rather than absorbed. See that box.
       stale. The digest had to move for §§ 2-5 to be green at all (see the
       header); the prose does not, so the realization leaves it where the packet
       put it rather than crossing the same line twice.
-- [ ] 6.3 `contracts/CHANGELOG.md`: the `contract-v3.0` BREAKING entry — the
+      **BOTH DONE AT THE CUT.** The `contracts/README.md` row now records the
+      family as DEPRECATED at `contract-v1.34` and REMOVED at `contract-v3.0`
+      with the `contract_schema_version` move and the migration reference, and
+      names the second family as *then*-co-resident rather than co-resident. The
+      manifest `consumption_rule`'s *"SIX closed envelopes"* is now THREE, with
+      the correction stated as a correction (*"this row said SIX until that
+      cut"*) rather than made silently, and the row's other v1 clauses — the
+      v1 request's buffer pairing, the *"DEPRECATED v1 success envelope is NOT
+      widened"* paragraph, and the *"removal target contract-v2.0 … still served
+      until then"* tail — are replaced by what is true at the major, including
+      the redesigned fallback's refusal.
+- [x] 6.3 `contracts/CHANGELOG.md`: the `contract-v3.0` BREAKING entry — the
       migration note, the three Breaking-clause preconditions each discharged
       and checkable, the baseline test's retirement named, and the coverage
       decisions from 4.4.
-- [ ] 6.4 `docs/contract-versioning-policy.md`: the entry LEAVES § Deprecations
+      **DONE, all four.** The migration note is per removal under § *What is
+      removed*, with this family's conversion rule stated field by field. The
+      three preconditions are discharged in a per-removal table, and this
+      family's (b) is the only one of the three carrying a WARNING COUNT rather
+      than a minor number alone: `0 error(s), 4 warning(s)` on `main` at
+      `af746459`, `0 error(s), 0 warning(s)` at the cut. The baseline test's
+      retirement is named with what it asserted and why it ends — its subject
+      leaves the published surface, and `_v1_ref_closure` would raise
+      `KeyError` on its own seed rather than fail an assertion — which is D4's
+      requirement and the half § 5.1 explicitly did NOT discharge. 4.4's
+      coverage decisions are carried as the finding they were: ALL SEVEN
+      refusal classes re-expressed, ZERO stated losses.
+- [x] 6.4 `docs/contract-versioning-policy.md`: the entry LEAVES § Deprecations
       Currently In Force and arrives in § Deprecations Executed carrying all six
       elements the one exemplar row establishes, closing
       `Deprecated at contract-v1.34, removed at contract-v3.0.`
-- [ ] 6.5 `contracts/releases/contract-v3.0.digests.yaml`: the cut's inventory,
+      **DONE.** All six elements present: the shape enumerated (the three kinds
+      by wire name AND by `$defs` key, with the `oneOf` refs, the
+      `deprecated_envelopes` block, the validator rows and dispatch arms, the
+      `serve.py` arm, twelve fixtures and the baseline test); REMOVED at
+      `contract-v3.0`; `contract-v1.34` named as the release that served the
+      warnings, with the count measured both sides; the conformance-validator
+      clause discharged by the schema and the delegated validator together, with
+      the deprecation READER deliberately KEPT and the reason stated; the
+      migration path a post-removal reader can still follow (the field-by-field
+      conversion plus `contracts/CHANGELOG.md` § `contract-v3.0`); and the
+      closing `Deprecated at contract-v1.34, removed at contract-v3.0.`
+      **PLUS TWO ELEMENTS THE EXEMPLAR DOES NOT HAVE AND THIS ROW OWES**: the
+      five shared `$defs` that did NOT leave, and `typed_proposal`'s retention
+      with the measurement behind it (6.8 below); and the record that this entry
+      named `contract-v2.0` and survived it unchanged for five minors, which is
+      why issue #522 exists — this row being the FIRST execution taken under
+      `contract-deprecation-execution`'s rule.
+- [x] 6.5 `contracts/releases/contract-v3.0.digests.yaml`: the cut's inventory,
       rebuilt over the moved schema digest.
-- [ ] 6.6 Follow § Bundle Realization Order exactly: allocate late, move every
+      **DONE**, by the canonical `build --tag contract-v3.0` after every other
+      member and never hand-edited.
+- [x] 6.6 Follow § Bundle Realization Order exactly: allocate late, move every
       release surface atomically with the code, run every gate against the
       unchanged candidate, land the exact reviewed commit, publish the annotated
       tag, verify from an independently refreshed checkout.
-- [ ] 6.7 Decide OQ-1 at the cut: whether this packet and
+      **STEPS 1–3 DONE AT THIS CUT; STEPS 4 AND 5 ARE POST-MERGE AND NOT TICKED
+      HERE**, enumerated in the cut's pull request. Step 4 is the one whose
+      omission killed `contract-v2.6`: a squash promotion creates a different
+      commit and a different TREE, so every gate and `verify-commit` rerun on
+      the promoted commit BEFORE any tag. § 8.2 stays open until then.
+- [x] 6.7 Decide OQ-1 at the cut: whether this packet and
       `retire-hermes-flat-keys-and-openworkflow-tokens` ride the same major.
+      **DECIDED: BOTH.** `6856f502` and `a951be76` merged in the same minute
+      (2026-09-01T19:43Z), so any bundle declared after that point carries both
+      narrowings whether it names them or not; naming one would under-declare
+      the major's refusal list.
+- [x] 6.8 **ADDED AT THE CUT — the `typed_proposal` disposition § 2.1 handed
+      here.** The measured reference closure puts `typed_proposal` OUTSIDE the
+      surviving family, and the ratified text names it as retained on a premise
+      the measurement contradicts. **DISPOSITION: RETAINED, unreferenced, with
+      the reason recorded** — removing it would be a narrowing of a published
+      contract file that no deprecation entry ever announced and no minor ever
+      warned on, which § Change Classes, *Breaking (major)* forbids at this
+      major as squarely as it forbids refusing the co-resident flat keys; a
+      removal owes its own deprecating minor first. The site comment the
+      realization wrote already states the measurement and hands the decision
+      here; the decision is recorded in `contracts/CHANGELOG.md`
+      § `contract-v3.0` and in the Executed row, so the FALSE REACHABILITY CLAIM
+      is not what a reader finds standing at the major. This box is added by the
+      cut because § 6 had no home for a decision § 2.1 explicitly delegated to
+      it — recorded as an addition rather than folded into 6.3.
+- [x] 6.9 **ADDED AT THE CUT — `CONTRACT_TAG`, which the packet header files
+      here in prose and no box carried.**
+      `scripts/ideation_dashboard/doxbench_contracts.py` moves `CONTRACT_TAG`
+      `contract-v2.2` → `contract-v3.0` and `CONTRACT_REF` to
+      `unpublished:contract-v3.0`, this module's own established sentinel for a
+      bundle whose tag does not exist yet, with `SCHEMA_DIGESTS` and the
+      companion test's `RELEASED_*` moved with them. **THE PIN WAS ALREADY
+      INCOHERENT BEFORE THE CUT TOUCHED IT**: the realization moved the
+      chat-turn digest to the post-removal bytes and knowingly left the LABEL at
+      `contract-v2.2`, so the module named a release those bytes do not belong
+      to. Resolving the sentinel to the commit `contract-v3.0` dereferences to
+      is a POST-TAG act and is listed as a post-merge step in the pull request —
+      the `contract-v1.45` residue, which stood three days, is what that
+      obligation exists to avoid repeating. The module docstring's *"six closed
+      envelopes"* sentence is corrected in the same edit.
 
 ## 7. Post-cut verification
 

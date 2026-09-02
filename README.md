@@ -461,8 +461,11 @@ Active changes:
   refusals"* — an unresolvable reference not being a shape the coming major
   refuses. **THE RULING'S ANSWER, ENCODED AS RECORDED**: a code of its OWN
   FAMILY (not a widening of any of the eight `consumer-*` codes), WARNING for a
-  full minor and ERROR at contract-v3.0 — the same major the block's seven acts
-  land at, so consumers serve ONE window — with the major's refusal DECLARED, so
+  full minor and ERROR at the major the block's seven acts land at, so consumers
+  serve ONE window — a major the ruling named as `contract-v3.0` and which
+  `contract-v3.0` did not become: it shipped 2026-09-02 with NONE of the eight
+  acts authored, so that entry's target is RESTATED to `contract-v4.0` in the
+  cut and this ruling's "same major" clause follows it — with the major's refusal DECLARED, so
   the enumeration rule is satisfied by making the major refuse the shape rather
   than by exempting it. **TWO ADDED REQUIREMENTS, TWELVE SCENARIOS, NO MODIFIED
   BLOCK**, and the all-ADDED shape is MEASURED rather than preferred — **TWICE,
@@ -538,7 +541,15 @@ Active changes:
   days before that requirement was promoted (recorded, not fixed — D4); and
   `domain_overlay` is ALSO a live key under `omnigent:`, so the refusal list
   must be written by PATH and not by name. Sibling:
-  `retire-doxbench-chat-turn-v1`. (code surface: openxFactory; target release:
+  `retire-doxbench-chat-turn-v1`. **REALIZATION §§ 2/3/6.1 IS MERGED** (PR #562,
+  squash `a951be76`) and **THE `contract-v3.0` CUT IS TAKEN** — § 4 ticked with
+  its evidence, OQ-1 decided BOTH (the two realizations merged in the same
+  minute, so any bundle after that point carries both narrowings), OQ-2 answered
+  by measurement (the contract SET's `contract_schema_version` stays 1 because
+  `scripts/validate-domain-openxfactory-pins.py:92` hard-pins it and all five
+  supported consumers declare it; moving it would ERROR the whole supported
+  population unphased). §§ 5 and 7 stay open: the annotated tag is a separate
+  post-merge act. (code surface: openxFactory; target release:
   `contract-v3.0` — archives only on merged plus green realization evidence and
   the published tag)
 - [add-chain-attestation](openspec/changes/add-chain-attestation/proposal.md)
@@ -555,8 +566,16 @@ Active changes:
   closed refusal codes red-proven, and the SAME required check
   (`signed-execution-chain-gate`, org ruleset 21957695, unchanged) walking
   links 1–6, green on its own realization PR — and **REGISTERED at
-  `contract-v2.6`** (task 5.9: rows in #556 where the digest test forces them,
-  the number claimed only at the cut, fresh-counted). What stays open is not
+  `contract-v3.0`** (task 5.9: rows in #556 where the digest test forces them,
+  the number claimed only at the cut, fresh-counted). **The number moved, and
+  the content did not**: task 5.9's cut half first claimed `contract-v2.6`
+  (#565, squash `bbbbeda9`), which fails `verify-commit` — the cut branch was
+  never rebased over #562/#564 — and declares a MINOR on a tree that already
+  refuses shapes `contract-v2.5` accepted, a class-rule violation no completion
+  commit can cure. Brett ruled 2026-09-02 *"Supersede: v3.0 is the
+  completion"*: `contract-v2.6` is a spent, never-verifiable, never-published
+  number, and `contract-v3.0` carries this family's additive content unchanged
+  beside the three retirements that make it a major. What stays open is not
   the author's to close: the §5.1–5.3 MACHINERY GATES (a PKI plane that has
   ISSUED, an omnigent layer that has REFUSED — SEC-R18 declared UNMET until
   then) and the §5.8 canary evidence pair.
@@ -1758,7 +1777,7 @@ Active changes:
   scenario-complete `## MODIFIED` block over promoted `ideation-dashboard`
   canon, dropping nothing and therefore owing no `Removed from canon` marker.
   Sibling: `retire-hermes-flat-keys-and-openworkflow-tokens`.
-  **REALIZATION `tasks.md` §§ 2–5 IS DRAFTED AND NOT MERGED** — the schema
+  **REALIZATION `tasks.md` §§ 2–5 IS MERGED** (PR #564, squash `6856f502`) — the schema
   removal, the redesigned `serve.py` fallback with its one new catalog entry
   (`unrecognized_turn_kind`, 400), the validator dispatch, the corpus (all
   SEVEN v1-only refusal classes re-expressed against the surviving family, none
@@ -1769,9 +1788,13 @@ Active changes:
   ratified text names it as retained-because-reachable, and it is retained on
   the text rather than on the premise), and § 2's schema byte move is coupled
   to the per-file `sha256` in `contracts/manifest.yaml`, which `tasks.md` 6.1
-  files with the cut. The `contract-v3.0` CUT is still outstanding: no bundle
-  number is spent, no CHANGELOG row moves and no tag is published by the
-  realization. (code surface:
+  files with the cut. **The `contract-v3.0` CUT IS TAKEN** — § 6 ticked with its
+  evidence, the bundle declared, the chat-turn schema's own
+  `contract_schema_version` moved 1 → 2 as OQ-2's measured answer,
+  `typed_proposal` RETAINED with the reason (a removal no minor warned on),
+  `CONTRACT_TAG` off its stale `contract-v2.2` — but the annotated TAG is a
+  separate post-merge act after § Bundle Realization Order step 4 reruns every
+  gate on the promoted commit, so §§ 7 and 8 stay open. (code surface:
   openxFactory; target release: `contract-v3.0` — archives only on merged plus
   green realization evidence, the moved manifest digest, the rebuilt inventory
   and the published tag)

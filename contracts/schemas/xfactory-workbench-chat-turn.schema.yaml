@@ -1,7 +1,18 @@
 $schema: "https://json-schema.org/draft/2020-12/schema"
 $id: "xfactory-workbench-chat-turn.schema.yaml"
 title: "doxBench grounded chat turn (request / success / fixed failure)"
-contract_schema_version: 1
+# 1 -> 2 at contract-v3.0, and this is the ONE integer that major moved. The
+# v1 envelope trio left this file (retire-doxbench-chat-turn-v1), so an
+# instance that validated here at contract-v2.5 may not validate here now —
+# which is exactly what this integer exists to say, per
+# docs/contract-versioning-policy.md § Version Identity item 1. NOT bumped
+# with it: the manifest row's `schema_version` (the consent-instrument
+# precedent keeps the row at 1 while a file's own integer moves), every
+# envelope's `schema_version: {const: 1}` (bumping those would invalidate
+# every instance in the estate), and the contract SET's integer, which
+# scripts/validate-domain-openxfactory-pins.py hard-pins to 1 and every
+# supported consumer declares.
+contract_schema_version: 2
 description: >-
   The POST /actions/workbench/chat-turn wire family
   (add-workbench-integrated-editor-chat task 2.1; consumer contract
