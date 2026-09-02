@@ -183,10 +183,38 @@ run session migrations through the sync above, not through the workbench.
 
 `ensure_workspace_record()` derives the record id from the book's KEY, which is
 unchanged in the new account. Finding that id with a different
-`provider_notebook_id`, it prints `reconcile by hand` and returns WITHOUT
-registering the replacement. So, per book, update the existing record's
-`provider_notebook_id` in `examples/lifecycle-notebook-workspaces.yaml` to the
-new notebook's id, leaving exactly ONE active record per live book.
+`provider_notebook_id`, **the sync now performs the replacement itself under
+`--apply`** (issue #536): it re-points that record's `provider_notebook_id` in
+`examples/lifecycle-notebook-workspaces.yaml` to the new notebook's id, in
+place, leaving exactly ONE active record per live book, and announces it as
+`REPLACED workspace record <id>: <old> -> <new>`. Until then it printed
+`reconcile by hand` and returned without registering the replacement, which is
+why the 2026-08-24 migration did this step by hand.
+
+In practice step 4's `--apply` already did it, on the run that created each
+book. **The step stays numbered, because the READING is still the operator's**
+— the re-point is deliberately not silent, since a silent one would hide an
+accidental binding to the wrong notebook. So read it back with a plain dry run:
+
+```bash
+python3 openxFactory/scripts/sync-notebooklm-books.py .
+```
+
+Silence about the records is the pass: every one of them already registers the
+live book. A book that still prints
+
+```text
+[canon] REPLACE workspace record workspace-xfactory-lifecycle-canon: <old> -> <new> (re-pointed on --apply)
+```
+
+was missed — confirm `<new>` against the `CREATED <title> (<id>)` line step 4
+printed for that book, then re-run with `--apply`, which re-points it on the
+resolve path too.
+
+Commit the resulting diff with the migration evidence. Only
+`provider_notebook_id` moves; `created_at` and every other field are the
+record's own history and are preserved, so the legacy → new mapping lives in
+that diff and in the evidence, as it did in 2026-08-24's.
 
 ## Step 7 — Prove parity against the CORPUS SCAN
 
