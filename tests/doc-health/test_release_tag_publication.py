@@ -618,6 +618,65 @@ def test_a_declaration_outside_every_release_entry_carries_no_entry():
     assert decl.entry is None
 
 
+def test_a_NON_RELEASE_level_two_heading_CLOSES_the_open_entry():
+    """CODEX P1 ON PR #584, AND IT IS THE CONTAINMENT GUARD RATHER THAN A
+    DETAIL OF IT.
+
+    Only release headings used to update `entry`, so
+    `## contract-v3.0` … `## Notes` … declaration left `entry` reading
+    `contract-v3.0` for a line sitting in no release entry at all — and
+    `spent_refusal` would then ACCEPT it, replacing the genuine superseded
+    `error` with an `info`. Every level-two heading now CLOSES the open entry;
+    only one naming a bundle OPENS a new one.
+    """
+    body = ("## contract-v3.0 — a release entry\n\n## Notes\n\n"
+            + _spent_line("contract-v2.6") + "\n")
+    decl = rtp.read_spent_declarations(body.encode())["contract-v2.6"]
+    assert decl.entry is None, (
+        "a declaration under a non-release section is contained by NO entry, "
+        "and must not inherit the previous release's authority")
+    refusal = rtp.spent_refusal(decl, "contract-v2.6",
+                                {"contract-v2.6", "contract-v3.0"})
+    assert refusal and "no release entry at all" in refusal
+    # THE POSITIVE CONTROL: the same declaration with the `## Notes` heading
+    # removed IS accepted, so the refusal is the heading's doing and not a
+    # broken fixture.
+    ok = rtp.read_spent_declarations(
+        f"## contract-v3.0 — a release entry\n\n{_spent_line('contract-v2.6')}\n"
+        .encode())["contract-v2.6"]
+    assert ok.entry == "contract-v3.0"
+    assert rtp.spent_refusal(ok, "contract-v2.6",
+                             {"contract-v2.6", "contract-v3.0"}) is None
+
+
+def test_a_level_THREE_subsection_does_NOT_close_the_entry():
+    """The other half, and it is load-bearing: the reserved line is written
+    INSIDE a `###` disposition subsection of its release entry — which is
+    where this repository's own `contract-v2.6` declaration lives — so a
+    heading rule that closed on `###` would refuse the real thing."""
+    body = ("## contract-v3.0 — a release entry\n\n"
+            "### `contract-v2.6` disposition\n\n"
+            + _spent_line("contract-v2.6") + "\n")
+    decl = rtp.read_spent_declarations(body.encode())["contract-v2.6"]
+    assert decl.entry == "contract-v3.0"
+    assert rtp.spent_refusal(decl, "contract-v2.6",
+                             {"contract-v2.6", "contract-v3.0"}) is None
+
+
+def test_THIS_repository_s_own_declaration_is_contained_by_the_v3_0_entry():
+    """The live record, read from disk rather than from a fixture. If a future
+    edit inserts a level-two heading between `## contract-v3.0` and the
+    reserved line, this test says so instead of the family quietly going from
+    `info` to `error` on the next nightly."""
+    decl = rtp.read_spent_declarations(
+        (REPO_ROOT / "contracts/CHANGELOG.md").read_bytes())["contract-v2.6"]
+    assert decl.entry == "contract-v3.0"
+    assert decl.superseding == "contract-v3.0"
+    assert decl.missing == () and decl.defect is None and decl.count == 1
+    assert rtp.spent_refusal(decl, "contract-v2.6",
+                             {"contract-v2.6", "contract-v3.0"}) is None
+
+
 def test_two_declarations_naming_one_bundle_are_COUNTED_not_collapsed():
     body = (f"## contract-v3.0 — x\n\n{_spent_line('contract-v2.6')}\n\n"
             f"{_spent_line('contract-v2.6', cause='a second story')}\n")

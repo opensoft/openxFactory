@@ -180,7 +180,17 @@ SPENT_OPENER = "**SPENT BUNDLE:**"
 # punctuation.
 _SPENT_SEP = re.compile(r"\s+—\s+")
 _SPENT_SUBJECT = re.compile(r"^\s+`([^`]*)`(?=(?:\s|$))")
-_ENTRY_HEADING = re.compile(r"^##\s+(contract-v\d+\.\d+)\b")
+# TWO PATTERNS, NOT ONE, AND THE SECOND IS THE ONE THAT MAKES CONTAINMENT
+# SOUND — found by Codex on PR #584 as a P1. A LEVEL-TWO heading ENDS whatever
+# entry was open, whether or not it opens a new one; only a heading naming a
+# bundle OPENS an entry. With one pattern, `## contract-v3.0` … `## Notes` …
+# declaration left `entry` reading `contract-v3.0` for a line that is not in
+# that entry at all, so the containment rule could ACCEPT a declaration sitting
+# outside its successor's entry — which is the guard, not a detail of it.
+# `(?!#)` keeps a `### subsection` from closing the entry it lives inside,
+# which matters because the reserved line is written INSIDE one.
+_LEVEL_TWO_HEADING = re.compile(r"^##(?!#)\s")
+_ENTRY_HEADING = re.compile(r"^##(?!#)\s+(contract-v\d+\.\d+)\b")
 _RULED_BY = re.compile(r"^(?P<author>.*?),\s*(?P<date>\d{4}-\d{2}-\d{2})\s*$")
 
 # The four elements owed, in the order the reserved form writes them. The KEY
@@ -371,9 +381,14 @@ def read_spent_declarations(changelog: bytes | str | None
     counts: dict[str | None, int] = {}
     entry: str | None = None
     for lineno, line in enumerate(changelog.splitlines(), 1):
-        heading = _ENTRY_HEADING.match(line)
-        if heading is not None:
-            entry = heading.group(1)
+        if _LEVEL_TWO_HEADING.match(line):
+            # EVERY level-two heading CLOSES the open entry; only one that
+            # names a bundle OPENS a new one. A declaration under a
+            # non-release `##` section is then contained by NO entry, which is
+            # a containment refusal rather than a silent inheritance of the
+            # previous release's authority (Codex P1, PR #584).
+            heading = _ENTRY_HEADING.match(line)
+            entry = heading.group(1) if heading is not None else None
             continue
         if not line.startswith(SPENT_OPENER):
             continue
@@ -642,10 +657,19 @@ def check_repo(repo: str, repo_path: Path, git,
         # better described by its own reason than by a changelog it was never
         # going to be asked about, and both orderings answer the scenario,
         # which asks for a skip NAMING THAT READ.
+        # THE MESSAGE NAMES BOTH CAUSES, and Copilot was right that it owed
+        # them: `blobs_at` answers None per path both where the commit is not
+        # in the local object store AND where the repository simply has no
+        # `contracts/CHANGELOG.md` at that tip. The second is the COMMON case
+        # for a bundle-declaring repository that keeps no changelog, and a skip
+        # reason naming only the first sends its reader to look for a fetch
+        # problem that is not there.
         return Skip(FAMILY, f"{repo}: {CHANGELOG} could not be read at the "
-                            f"published tip {tip[:9]} — the commit may not be "
-                            f"present locally, which is not the same fact as "
-                            f"carrying no SPENT declaration")
+                            f"published tip {tip[:9]} — either this "
+                            f"repository has no {CHANGELOG} at that commit, or "
+                            f"the commit is not present locally; neither is "
+                            f"the same fact as carrying no SPENT declaration, "
+                            f"so the question is declined rather than answered")
     declarations = read_spent_declarations(changelog)
 
     cut = cut_bundles(git, repo_path, tip)
