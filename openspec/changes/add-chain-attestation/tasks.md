@@ -1315,11 +1315,26 @@ Each is contract content — cheap now, expensive after a bundle ships.
 
       **THE CUT HALF IS THEREFORE PUBLISHED RATHER THAN MERELY DECLARED, AND
       THIS PACKET STILL DOES NOT ARCHIVE ON IT.** What blocks the archive was
-      never the tag: §§ 5.1–5.3 are MACHINERY GATES no author can close by
-      writing (a PKI plane that has ISSUED, an omnigent layer that has REFUSED —
-      SEC-R18 stays declared UNMET until then), and § 5.8's canary pair is its
-      own evidence. Recorded here so a later reader does not mistake a published
-      tag for a cleared archive gate.
+      never the tag. **AND THE BLOCKER SET IS THE WHOLE UNCHECKED SET, NOT JUST
+      THE INTERESTING PART OF IT** (Codex, on this note's first draft, which
+      named only §§ 5.1–5.3 and 5.8): `scripts/proposal-support.py` refuses to
+      archive while ANY `- [ ]` remains —
+      `if tasks.is_file() and re.search(r"^- \[ \]", tasks.read_text(), re.M):
+      raise SupportError("change has incomplete tasks")` — so a note that lists
+      a subset would have made this packet look four reasons closer to
+      archivable than it is. Every open box, measured at this commit:
+
+      | box | what it is |
+      |---|---|
+      | **2.8** | the SHOULD-FIX schedule, deliberately undisposed |
+      | **3.2** | `target_release` confirmed at ratification |
+      | **3.3** | ratification's authorization scope |
+      | **5.1–5.3** | the MACHINERY GATES no author can close by writing — a PKI plane that has ISSUED, an omnigent layer that has REFUSED; SEC-R18 stays declared UNMET until then |
+      | **5.8** | this box, blocked on the reader (issue #579) |
+      | **6.1** | the named tranche-three successor |
+
+      Recorded here so a later reader does not mistake a published tag for a
+      cleared archive gate, nor this list for a shorter one.
 
 ## 6. Successor — NAMED, NOT DRAFTED
 

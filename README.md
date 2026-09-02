@@ -599,7 +599,15 @@ Active changes:
   on the PROMOTED commit from an independent clone — both green with zero
   findings, which is exactly the rerun whose omission left `contract-v2.6`
   unpublishable — and re-verified with `verify-tag` from a second fresh clone
-  (evidence: PR #573 comment `5506503494`). What stays open is not
+  (evidence: PR #573 comment `5506503494`). §5.8's canary pair was ATTEMPTED the
+  same day and is NOT producible against the reader as shipped — the sweep drops
+  the consumed trust-anchor vocabulary, so a VALID tranche-two corpus placed
+  in-tree draws 53 refusals and no canary can show a single named one (issue
+  **#579**); the box stays open with the measurement beneath it. The line below
+  names the gates that matter most, and `tasks.md` §5.9 enumerates the FULL
+  unchecked set — 2.8, 3.2, 3.3, 5.1–5.3, 5.8, 6.1 — because
+  `scripts/proposal-support.py` refuses to archive while any `- [ ]` remains.
+  What stays open is not
   the author's to close: the §5.1–5.3 MACHINERY GATES (a PKI plane that has
   ISSUED, an omnigent layer that has REFUSED — SEC-R18 declared UNMET until
   then) and the §5.8 canary evidence pair.

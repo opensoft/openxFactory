@@ -330,9 +330,16 @@ from referencing.jsonschema import DRAFT202012
 # `CONTRACT_REF` and does NOT branch on `contract_ref_type`, so a stack pinning
 # by tag would fail the equality check below. That costs nothing real, and the
 # reason is worth writing down: `scripts/validate-domain-openxfactory-pins.py`
-# accepts a tag ref only if it matches `vX.Y.Z` (`TAG_RE`), and NO contract
-# bundle tag has ever had that shape -- `contract-v3.0` does not match it -- so a
-# stack cannot name this bundle by tag and pass its own pin validator either.
+# accepts a tag ref only against its `TAG_RE`,
+# `^v[0-9]+\.[0-9]+\.[0-9]+(?:[-+][0-9A-Za-z.-]+)?$` -- three numeric components
+# after a bare leading `v`, with an OPTIONAL prerelease or build suffix, so
+# `v1.2.3-rc.1` and `v1.2.3+meta` are accepted too; the rule is stated as the
+# regex rather than as "vX.Y.Z" so no reader infers a stricter constraint than
+# exists (Copilot, on the resolution). What disqualifies every contract bundle
+# tag is the `contract-` PREFIX and the two-component version, neither of which
+# any suffix rescues: `contract-v3.0` does not match, and no bundle tag from
+# `contract-v1.7` onward ever has. So a stack cannot name this bundle by tag and
+# pass its own pin validator either.
 # Both doors are shut for the same reason the versioning policy gives: "a
 # movable branch or tag alone is not a sufficient compatibility pin". Widening
 # `verify_stack_pin` to accept a tag-typed pin would be a behaviour change owing
