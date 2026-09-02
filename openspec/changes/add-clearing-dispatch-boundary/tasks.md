@@ -81,6 +81,23 @@ one, against the fixed interface constants below. They are interface, not
 suggestion: the workflow path is what the operator admits to the allowlist in
 §4, and a rename after that act costs a second console act.
 
+**CORRECTION, 2026-09-02 — this section's present tense is now historical.**
+The realization PR named above landed as `opensoft/xFactory#191`, "Open the
+CPC clearing door: clearing-dispatch.yml, with readiness-diagnostic as its
+first operation" — MERGED 2026-09-01T12:11:46Z as squash
+`95f1a9c60d7e75649e76a494bc82a9c9eceae112`. `.github/workflows/clearing-dispatch.yml`
+exists on `opensoft/xFactory`'s default branch and
+`.github/workflows/runner-readiness-diagnostic.yml` no longer does (verified
+2026-09-02 against the provider API), consistent with items 3.1 and 3.2
+below; `.github/clearing/grandfather-enumeration.yaml` also exists on that
+branch, consistent with item 3.4. This packet's own checkboxes in this
+section are left AS THIS PACKET WROTE THEM — filing forward a status note is
+not the same act as re-auditing and re-ticking each item's box, which is
+outside this correction's scope; a reader should take the checkbox state in
+this section as the record of what THIS PACKET asserted at authoring time,
+and this note as the fact that supersedes the section heading's present
+tense, not as a re-certification of every item below it.
+
 | constant | value |
 |---|---|
 | clearing workflow | `opensoft/xFactory` → `.github/workflows/clearing-dispatch.yml` |
@@ -535,9 +552,19 @@ Deliberately not started before §2. Nothing here is authored by this packet.
 
 ## 9. Verification bar
 
-- [ ] 9.1 `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green at
+- [x] 9.1 **DONE 2026-09-02** — `OPENSPEC_TELEMETRY=0 openspec validate
+      add-clearing-dispatch-boundary --strict` reports "Change
+      'add-clearing-dispatch-boundary' is valid"; `OPENSPEC_TELEMETRY=0
+      openspec validate --all --strict` reports "Totals: 84 passed, 0
+      failed (84 items)". Both run at this packet-corrections branch's
+      head (see this PR's commit) in the isolated clone, evidence filed in
+      that PR's description. `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green at
       every step, not only at authoring.
-- [ ] 9.2 Repository validators and doc-health clean against THIS CHANGE'S
+- [x] 9.2 **DONE 2026-09-02** — `python3 -m pytest -q tests/doc-health
+      tests/sequenced_after` reports "1529 passed, 7 warnings in 530.96s
+      (0:08:50)" at this same head — the inherited red named below (and
+      the `sequenced_after` live-pin move recorded below it) are both
+      confirmed cleared; no failing test remains in either suite. Repository validators and doc-health clean against THIS CHANGE'S
       OWN CONTENT — and the pytest suite is currently RED FOR A REASON THIS
       PACKET DID NOT CAUSE, recorded here so nobody reads a green tick that
       cannot exist yet.
@@ -590,6 +617,34 @@ Deliberately not started before §2. Nothing here is authored by this packet.
       `active_sole - 1` were bumped IN-BRANCH, in the same commit as this
       packet's own landing: 152 → 153, 48 → 49, and 11 → 12 respectively —
       i.e. the sequenced_after live pin's `change_ids` moves 153 → 154.
+      **CORRECTION, 2026-09-02 — #555 has since MERGED; the original
+      "CONSEQUENCE FOR THIS PULL REQUEST" clause above is now historical,
+      not live.** The 2026-09-01 CORRECTION and RECORD paragraphs above
+      establish that neither inherited red was this packet's own and that
+      this branch's checks re-ran green on a head including both fixes; what
+      neither paragraph stated outright is the outcome: #555 MERGED as
+      squash `ab0bb2dd2e642fce43bee3d02128bafd664d3be3` on
+      2026-09-02T09:16:29Z (admin squash with provenance, on Brett Heap's
+      recorded word, PR #555 comment 2026-09-02T09:16:26Z, head `8d6f091d`).
+      The realization named throughout this section — `opensoft/xFactory#191`
+      (squash `95f1a9c60d7e75649e76a494bc82a9c9eceae112`, merged
+      2026-09-01T12:11:46Z) — is itself merged and green, and the clearing
+      door's first dispatch (§5.1/§5.2, run `33512287539`, ledger
+      `cd-33512287539-1`) is already on record. So: **"MERGE WAITS ON THAT
+      LANE'S RESOLUTION"** and **"Re-check before merge rather than assuming
+      it has cleared"** no longer describe a live wait — the check was
+      re-run and the merge happened. This does not touch §9.3: release
+      realization archiving is a separate gate (§6.8's contract cut has not
+      landed) and stays open on its own terms.
+      A LATER, UNRELATED main-branch red surfaced after this correction's
+      window and is noted here only to foreclose confusion, since it is
+      NOT a claim this packet or its realization caused: the
+      `release-tag-publication` family (codexFactory issue #575) went red
+      on `main` after #555 had already merged, and was cleared by PR #587
+      (squash `3fa222f3`, 2026-09-02, run `33654163291`). Nothing in this
+      packet references that family and nothing here claims credit for its
+      fix; it is recorded solely so a reader scanning this section for "is
+      main green" does not mistake a later, unrelated red for this one.
 - [ ] 9.3 Release-realization: this change declares a code surface, so it
       ARCHIVES only on merged realization plus green evidence — §5.4's filed
       reports and §6.8's cut — and stays ACTIVE until then, ratified or not.
