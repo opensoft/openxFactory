@@ -220,25 +220,56 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
       `sole_modifiers - 1` 48, `active_sole - 1` 11, 3 prose headers (3
       archived), 1 declaration, 0 root claims — each identical at `518c670b`,
       `ded8b9f1`, `43cf5933`, `a951be76` and `6856f502`.
+    - `co_modified` reads 105 and `active_co_modified` reads 19, both up one, and
+      `change_ids - 1` reads 153. They moved on 2026-09-02 when
+      `declare-spent-bundle-state` was AUTHORED — one new ACTIVE change carrying
+      a `## MODIFIED Requirements` block over `doc-health`'s promoted
+      `Release-tag publication` requirement, therefore co-modified, therefore an
+      ACTIVE co-modifier. The pin moves in the SAME COMMIT as the corpus, which
+      is this test's own protocol, and the packet's own PR discloses that it
+      touches this file for that reason and for no other: **it is corpus
+      bookkeeping, not the realization of that packet's delta**, which is
+      deliberately split off to a later PR.
+    - AND THE THREE THAT DID NOT MOVE ARE THE INTERESTING HALF, checked rather
+      than assumed, because a change that added itself to both populations at
+      once would be a defect in the sweep. `sole_modifiers` holds at 49 —
+      `change_ids - co_modified`, 154 - 105, both sides up one — so
+      `sole_modifiers - 1 == 48` still recovers the authoring reading unchanged.
+      `active_sole` holds at 12, the new change being a CO-modifier and not a
+      sole one, so `active_sole - 1 == 11` still recovers the authoring 11. And
+      `declaring` holds at 1: `declare-spent-bundle-state` declares NO
+      `sequenced_after:` field, because the field is carried by an ACTIVE,
+      UNPROMOTED change and adopting an unratified surface is not what the
+      "declaring must never be worth less than omitting" doctrine asks of a
+      packet written before that change lands. `validate-sequenced-after.py`
+      passes over the corpus with it (31 active, 1 declaring).
     """
     sweep = sa.corpus_sweep(ROOT)
-    assert sweep.co_modified == 104, (
-        "the co-modified population is unchanged by this change, whose ADDED "
-        "requirement titles are NOVEL")
-    assert sweep.active_co_modified == 18, (
-        "18 since add-release-tag-publication-check archived 2026-09-01 by "
-        "#563 (measured 19 at authoring, before that archive). Re-derive with "
+    assert sweep.co_modified == 105, (
+        "105 since declare-spent-bundle-state was authored 2026-09-02 (104 at "
+        "authoring, and through #563's archive). The co-modified population is "
+        "unchanged by THIS change, whose ADDED requirement titles are NOVEL; a "
+        "LATER change carrying a MODIFIED block raises it, and that is the "
+        "EXPECTED cause of this failure")
+    assert sweep.active_co_modified == 19, (
+        "19 since declare-spent-bundle-state was authored 2026-09-02, having "
+        "read 18 since add-release-tag-publication-check archived 2026-09-01 by "
+        "#563 and 19 at authoring, before that archive. Re-derive with "
         "`python3 scripts/validate-sequenced-after.py . --sweep` and move this "
         "pin in the SAME COMMIT, recording in the MOVEMENT LOG above which "
         "subject moved and why — archiving a co-modified ACTIVE change lowers "
-        "this count while leaving `co_modified` untouched, and that is the "
-        "EXPECTED cause of this failure")
+        "this count while leaving `co_modified` untouched, and AUTHORING one "
+        "raises BOTH, which are two different EXPECTED causes of this failure "
+        "and must not be confused")
     assert sweep.change_ids == sweep.active + sweep.archived
     assert sweep.sole_modifiers == sweep.change_ids - sweep.co_modified
     # This change is itself a sole modifier at requirement granularity — which is
     # exactly why it declaring a parent anyway is the doctrine applied to its
     # author: declaring must never be worth less than omitting.
-    assert sweep.change_ids - 1 == 152
+    assert sweep.change_ids - 1 == 153, (
+        "the `- 1` subtracts THIS change and nothing else, so the reading is "
+        "the corpus without it: 152 at authoring, 153 since "
+        "declare-spent-bundle-state was authored 2026-09-02")
     assert sweep.sole_modifiers - 1 == 48
     # STILL INTACT ON ITS MERITS, not by a cancelling pair of errors — checked,
     # because #563's archive landing between the authoring measurement and this

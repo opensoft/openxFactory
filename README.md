@@ -459,6 +459,15 @@ Active changes:
   rather than trading this `error` for a `release-inventory-drift` one. OD-1 …
   OD-8 and OQ-1 … OQ-3 are FLAGGED FOR VETO; OD-3 (`info` versus silence) and
   OD-4 are owed an explicit ruling rather than acceptance by silence.
+  **Measured: the packet moves NOTHING in doc-health** — base and head
+  `--single-repo` reports BYTE-IDENTICAL at 6 critical / 5 error / 29 warning /
+  12 info, `family-enumeration` silent and `modified-block-currency`'s
+  gate-bearing arm at 0. **One thing did move and CI found it rather than the
+  measurement**: authoring an ACTIVE change carrying a MODIFIED block raises the
+  `sequenced_after` live pin (`co_modified` 104 → 105, `active_co_modified`
+  18 → 19, `change_ids` 153 → 154), so `tests/sequenced_after/test_sweep.py`
+  moves in the same commit with a dated MOVEMENT LOG entry, which is that pin's
+  own protocol — corpus bookkeeping, not the realization OD-8 defers.
 - [add-requirement-ref-resolution-integrity](openspec/changes/add-requirement-ref-resolution-integrity/proposal.md)
   — authored 2026-08-31, **RATIFIED 2026-09-01 BY DIRECT RULING**
   (`Status: ratified`; record `review/ratification-2026-09-01.md`) — Brett Heap

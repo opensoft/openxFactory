@@ -140,6 +140,24 @@ no reader is a sentence in a changelog.
       `Deterministic check families` requirement states in terms.
       **If a reviewer's run disagrees with this box, the disagreement is the
       finding.**
+- [x] 4.7 **THE ONE THING THE MEASUREMENT MISSED, FOUND BY CI AND NOT BY
+      PREDICTION.** The first `pytest-suite` run reported TWO failures, not one:
+      the inherited red, and
+      `tests/sequenced_after/test_sweep.py::test_the_live_sweep_reproduces_the_AUTHORING_measurement`,
+      which is NOT inherited — it passes at `ff9ed815` in a detached worktree
+      and fails with the packet, because authoring an ACTIVE change carrying a
+      MODIFIED block raises `co_modified` 104 → 105, `active_co_modified`
+      18 → 19 and `change_ids` 153 → 154. That is the pin doing its job, and its
+      own docstring prescribes the response: move it in the SAME COMMIT with a
+      dated MOVEMENT LOG entry naming which subject moved and why. Done, with
+      the three counts that did NOT move (`sole_modifiers` 49, `active_sole` 12,
+      `declaring` 1) asserted unchanged so that a change adding itself to two
+      populations at once could not pass unnoticed.
+      `python3 scripts/validate-sequenced-after.py .` passes (31 active, 1
+      declaring); `pytest tests/sequenced_after` 118 passed.
+      **Recorded as a miss rather than smoothed over**: the doc-health
+      measurement in 4.6 was complete for doc-health and was read as though it
+      were complete for the repository, and it was not.
 
 ## 5. Archive — last, and open until the merge it follows exists
 
