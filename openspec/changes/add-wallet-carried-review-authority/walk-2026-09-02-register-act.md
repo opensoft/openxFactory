@@ -1033,3 +1033,78 @@ This record does not decide that order; it states it.
   2026-08-31 and moves further here. **Limb one is NOT met**: a revoked holder
   now exists, but **no convening was parked, because nothing convenes** (§8.3).
   **A gate is met when all its limbs are.**
+
+---
+
+## Addendum 2026-09-02 — the parallel act (#581) and the unblocked check
+
+**(a) A parallel lane authored the same human-only act, and it is closed as
+superseded.** Lane `openxfactory-f2` authored PR **#581**
+(`change/register-act-s5-reissuance`, head `6bc134ea`), a second attempt at this
+same register act. **Brett Heap ruled 2026-09-02** (posted on #581 at
+`16:35:16Z`) that **#583 is CANONICAL and #581 is CLOSED as superseded**, its
+unique analysis ported to #583 as a comment: *"Two parallel lanes authored the
+same human-only register act; #583 (act/register-act-2026-09-02) is canonical —
+further along (adversarial + fix rounds at f77687e6) and carrying the operator's
+openXwallet fix-path ruling. Nothing here is performed. This branch stays as a
+read-only reference for the analysis ported to #583 (see the comment there)."*
+**#581's Codex bench had independently reached the same reader-defect finding
+this act's own §9 makes**, in the same round Brett accepted: *"Codex P1 — 'Pin
+the corrected reader before revoking the old grant' — ACCEPTED, and it is this
+PR's own §5."* Two independent derivations of the same blocker, on two
+independent branches, neither aware of the other at the time either was
+written.
+
+**(b) The reader defect is fixed, and the pin has moved.** The fix landed in
+**openXwallet #14** (merged `b7b0fbb3`, tag `wallet-v1.4`): the narrower
+`== "revoked"` variant of §9.4's remedy — not the broader `!= "active"` that
+was considered and refused — landed in **both** the closing loop and the
+absent-register branch of the same function, per that release's own
+`contracts/CHANGELOG.md` entry (*"The absent-register branch of the same
+function carried the same gap, and is corrected with it"*). The pin moved in
+**openxFactory #588** (merged `6b409f2c`), bumping `contracts/openxwallet-
+pin.yaml` and the `openXwallet` gitlink to `wallet-v1.4`. Both acts happened on
+Brett's word, recorded verbatim in each PR's own merge-provenance comment:
+openXwallet #14 — *"option 1, I tag and approve myself"* then *"14 approved,
+you merge for me"*; openxFactory #588 — *"tagged and 588 approved, merge it"*
+then *"we always have this, do admin bypass."*
+
+**(c) The tag fact, checked rather than assumed.** `git ls-remote --tags
+https://github.com/opensoft/openXwallet.git wallet-v1.4` returns **nothing** —
+**the annotated tag `wallet-v1.4` is NOT on the openXwallet remote** as of this
+addendum. That absence does not weaken the pin itself: the pin's trusted
+referent is `commit: b7b0fbb3e6d614f60a24737c247e45dada9408aa` under
+`revision_kind: commit`, verified by `scripts/verify-openxwallet-pin.py`
+against the gitlink and the digests, and a tag label is never the referent
+(`pin-tag-only` is refused by design — see `contracts/openxwallet-pin.yaml`'s
+own header comment). The commit is real and pinned regardless. **The tag is
+Brett's owed act**, not a blocking one.
+
+**(d) This branch merged `main`, and the register reader now reads this act
+green.** This branch merged `origin/main` at merge commit
+**`505d3068182e3a3b1f2734dfd6c568672eae29a0`**, carrying the wallet-v1.4 pin
+bump (#588) onto `f77687e6`. Re-run at the merged head:
+
+```
+validate-openxwallet: 0 error(s), 0 warning(s)
+```
+
+**Of the two required checks §9.5 named red at this act's own head
+(`f1706a3a`), the act's own red is now cleared** — `wallet-validation`'s
+`register-no-active-row` finding against the correctly revoked
+`grant-mrc-0001` is gone, because the pinned reader this branch now carries is
+the one that exempts it. **And the inherited `pytest-suite` red has since
+cleared on `main` too**: lane-1d's recorded run **33654163291** is
+**SUCCESS** on **`3fa222f3`** — confirmed here again by `gh run view
+33654163291`, which returns `"conclusion":"success"`,
+`"headSha":"3fa222f3f9e1486dc9618d25d0a665f276fbe964"`. The single failing
+test §9.5 named
+(`tests/doc-health/test_release_tag_publication.py::test_this_repository_reads_zero_and_the_probe_can_fire`)
+no longer fails on `main`: the two most recent COMPLETED `pytest-suite` runs on
+`main` at the time of this addendum are both `success` (`33684133106` at
+`ad9891f5`, `33680479450` at a prior commit); `main`'s run at the #588 merge
+commit itself (`33690610659`) shows `cancelled` — superseded by a subsequent
+push in the same concurrency group, not a failure — and the true latest run
+(`33691336751`, on an unrelated later commit) was still `in_progress` at the
+time this line was written. **Neither required check is red against this
+act's own subject any longer.**
