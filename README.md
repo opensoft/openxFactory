@@ -534,8 +534,8 @@ Active changes:
   refusals"* — an unresolvable reference not being a shape the coming major
   refuses. **THE RULING'S ANSWER, ENCODED AS RECORDED**: a code of its OWN
   FAMILY (not a widening of any of the eight `consumer-*` codes), WARNING for a
-  full minor and ERROR at contract-v3.0 — the same major the block's seven acts
-  land at, so consumers serve ONE window — with the major's refusal DECLARED, so
+  full minor and ERROR at the major the block's seven acts land at, so consumers
+  serve ONE window — with the major's refusal DECLARED, so
   the enumeration rule is satisfied by making the major refuse the shape rather
   than by exempting it. **TWO ADDED REQUIREMENTS, TWELVE SCENARIOS, NO MODIFIED
   BLOCK**, and the all-ADDED shape is MEASURED rather than preferred — **TWICE,
@@ -556,7 +556,19 @@ Active changes:
   lift by the pair asking for the exemption. **NO VALIDATOR LINE MOVES IN THIS
   PULL REQUEST** — proposal-only on the #497 -> #516 pattern; the realization is
   a separate change owing two codes, three fixtures, a reconciled
-  `Deprecations Currently In Force` entry and a bundle cut. **THE ONE-CODE BRANCH
+  `Deprecations Currently In Force` entry and a bundle cut.
+  **THE REALIZATION LANDED (PR #570, squash `e01561c5`) AND ITS BUNDLE CUT IS
+  `contract-v3.0`, WHICH MOVED THE REMOVAL TARGET ONE MAJOR** — a collision
+  neither side could have foreseen: the codes landed on `main` ninety minutes
+  after the `contract-v3.0` cut's branch point and hours before its merge, so
+  the cut that PUBLISHES them (filling in the `Warned since` the entry
+  deliberately left for it) is the very major the entry named as its removal
+  target. A warning first served at the bundle that refuses is not a window, so
+  the cut writes `Warned since contract-v3.0; removal target RESTATED to
+  contract-v4.0`, and the consumer block's seven acts — none of which was
+  authored by that cut either — are restated to the same major, **so the ONE
+  WINDOW property this ruling bought is preserved by moving both entries
+  together rather than abandoned**. **THE ONE-CODE BRANCH
   WAS RULABLE IN ONE SENTENCE, AND WAS RULED**: AD-1 enumerated the complete
   twelve-item amendment set a one-code ruling would execute — delta paragraph, two
   scenarios, `code_surface` sentences, task rows and this entry's own clause — so
@@ -565,6 +577,75 @@ Active changes:
   edits and stands in the packet as the record of the alternative that was on
   offer. **That is the transferable lesson: a branch that cannot be executed
   mechanically is not a rulable alternative, only a gesture at one.**
+- [add-clearing-dispatch-boundary](openspec/changes/add-clearing-dispatch-boundary/proposal.md)
+  — authored 2026-09-01, **`Status: ratified`** (2026-09-01, Brett Heap,
+  in-session, on the recorded word *"merge #192 and ratify #555"*; record
+  `openspec/changes/add-clearing-dispatch-boundary/review/ratification-2026-09-01.md`)
+  — the NEUTRAL SEALED-BUNDLE
+  CLEARING CONTRACT for a governed execution estate, and a TEXT-ONLY packet:
+  its declared code surface (the xFactory `clearing-dispatch.yml` lane, the
+  retirement of `runner-readiness-diagnostic.yml`, the authoring-time guard,
+  and the future `contracts/clearing/` family) is realized POST-RATIFICATION,
+  because ratification authorizes realization and does not perform it.
+  **Origin: Brett Heap's operator ruling of 2026-09-01** — the record
+  `cpc-clearing-boundary-ruling-2026-09-01.md`, TO BE committed at the ROOT of
+  `opensoft/xFactory` via a pull request on branch
+  `record/cpc-clearing-boundary-ruling` merging on Brett's word, A FORWARD
+  REFERENCE NOT YET OPENABLE (measured: neither branch nor pull request
+  present on the remote, file not on `main`), and on which ratification is
+  GATED (`tasks.md` §2.3) — xFactory is THE
+  clearing and dispatch boundary for the governed Cloud PC, runner-group
+  allowlists stay xFactory-only, and no factory is ever broadly authorized to
+  originate jobs directly to the host — **plus his OPTION-1 SUPERSESSION the
+  same day**: no per-path allowlist addition for readiness, the readiness test
+  becomes THE CLEARING LANE'S FIRST OPERATION, and the allowlist converges to
+  ONE PERMANENT ENTRY PER GROUP added once. **THE PROVENANCE IS A SPLIT AND
+  THE PACKET SAYS SO**: requirements 1–7 trace to the written record, while
+  requirements 8–10 EXTEND it and are carried as DECLARED EXTENSIONS ruled the
+  same session on Brett's verbatim instruction "fold 1-5 in and fan out" —
+  requirement 9, the authoring-time guard, is WHOLLY ABSENT from the record;
+  requirement 8 generalizes the one retirement it names; requirement 10 adds
+  the periodic attestation to the dispatch recording it does state. **TEN
+  ADDED requirements over 47 scenarios**, organized as the five enforcement
+  layers ruled in the same session: **the SINGLE DOOR** (fail-closed, and every host job living
+  physically inside the clearing workflow file because the provider evaluates
+  the allowlist against the file that CONTAINS the job — so no
+  reusable-workflow indirection, ever), **the SEALED BOUNDED REQUEST** and its
+  ten declared fields on a short-lived job object rather than a committed
+  folder of copied data, **API-SIDE VERIFICATION** that never trusts a field
+  from inside the bundle (with the verifiable / merely-policy-checked field
+  split stated, so "verified" is never applied to a field nothing could
+  verify), **ONE SANCTIONED PRODUCER EXIT** with the boundary RE-SEALING so
+  the host never holds a credential scoped to the originating repository,
+  **hosted validation of returned output before any repository effect**, **the
+  CLOSED permitted-operations register** with `readiness-diagnostic` as entry
+  #1 (strictly read-only, name-allowlist-only environment echo, structured
+  operation report, and `opensoft/xFactory#188`'s standalone workflow RETIRED
+  into it),
+  **ROUTE RETIREMENT** (no dormant second doors; the grandfather enumeration
+  of nine existing worker workflows is append-never and shrink-only, held in
+  the governed data file `.github/clearing/grandfather-enumeration.yaml` that
+  BOTH the guard and the attestation read, each member carrying its governed
+  group and its allowlist-entry status), **the AUTHORING-TIME GUARD** that is
+  structural rather than a text search — the estate already contains the case
+  that proves it, two `concurrency: group: xfactory-artifact-worker`
+  declarations one character off a runner group's name — whose append-refusal
+  is a frozen-ORIGIN subset assertion BACKED BY REVIEW rather than an
+  unforgeable refusal, and which needs a required-status-check rule the
+  clearing repository DOES NOT HAVE YET (an operator act, §4.5) — and **the
+  DISPATCH LEDGER plus a periodic SINGLE-DOOR ATTESTATION** whose expected set
+  is computed PER GROUP, splitting a WIDENING (a breach) from an enumerated
+  member with no allowlist entry (already fail-closed — a dark-lane
+  disposition, not a breach), because the ledger's completeness claim is true
+  only while the door is single. **The evidence is the eighteen-hour queue**: run `33381257642`, a
+  codexFactory-path job on a group that admits the codexFactory repository but
+  not that workflow path, was never claimable and never ran — the right
+  outcome from an unwritten configuration, which is why fail-closed is the
+  floor and the guard and the attestation surround it. The residual
+  dependence on console-side group settings the estate cannot version is
+  DECLARED rather than assumed away. Sibling realization: the parallel
+  `opensoft/xFactory` clearing-workflow pull request, which merges only after
+  this packet ratifies.
 - [retire-hermes-flat-keys-and-openworkflow-tokens](openspec/changes/retire-hermes-flat-keys-and-openworkflow-tokens/proposal.md)
   — authored 2026-09-01, **`Status: ratified` — RATIFIED 2026-09-01 by Brett
   Heap, in session, at PR #551 tip `64907604`** (record:
@@ -611,7 +692,15 @@ Active changes:
   days before that requirement was promoted (recorded, not fixed — D4); and
   `domain_overlay` is ALSO a live key under `omnigent:`, so the refusal list
   must be written by PATH and not by name. Sibling:
-  `retire-doxbench-chat-turn-v1`. (code surface: openxFactory; target release:
+  `retire-doxbench-chat-turn-v1`. **REALIZATION §§ 2/3/6.1 IS MERGED** (PR #562,
+  squash `a951be76`) and **THE `contract-v3.0` CUT IS TAKEN** — § 4 ticked with
+  its evidence, OQ-1 decided BOTH (the two realizations merged in the same
+  minute, so any bundle after that point carries both narrowings), OQ-2 answered
+  by measurement (the contract SET's `contract_schema_version` stays 1 because
+  `scripts/validate-domain-openxfactory-pins.py:92` hard-pins it and all five
+  supported consumers declare it; moving it would ERROR the whole supported
+  population unphased). §§ 5 and 7 stay open: the annotated tag is a separate
+  post-merge act. (code surface: openxFactory; target release:
   `contract-v3.0` — archives only on merged plus green realization evidence and
   the published tag)
 - [add-chain-attestation](openspec/changes/add-chain-attestation/proposal.md)
@@ -628,8 +717,16 @@ Active changes:
   closed refusal codes red-proven, and the SAME required check
   (`signed-execution-chain-gate`, org ruleset 21957695, unchanged) walking
   links 1–6, green on its own realization PR — and **REGISTERED at
-  `contract-v2.6`** (task 5.9: rows in #556 where the digest test forces them,
-  the number claimed only at the cut, fresh-counted). What stays open is not
+  `contract-v3.0`** (task 5.9: rows in #556 where the digest test forces them,
+  the number claimed only at the cut, fresh-counted). **The number moved, and
+  the content did not**: task 5.9's cut half first claimed `contract-v2.6`
+  (#565, squash `bbbbeda9`), which fails `verify-commit` — the cut branch was
+  never rebased over #562/#564 — and declares a MINOR on a tree that already
+  refuses shapes `contract-v2.5` accepted, a class-rule violation no completion
+  commit can cure. Brett ruled 2026-09-02 *"Supersede: v3.0 is the
+  completion"*: `contract-v2.6` is a spent, never-verifiable, never-published
+  number, and `contract-v3.0` carries this family's additive content unchanged
+  beside the three retirements that make it a major. What stays open is not
   the author's to close: the §5.1–5.3 MACHINERY GATES (a PKI plane that has
   ISSUED, an omnigent layer that has REFUSED — SEC-R18 declared UNMET until
   then) and the §5.8 canary evidence pair.
@@ -1831,7 +1928,7 @@ Active changes:
   scenario-complete `## MODIFIED` block over promoted `ideation-dashboard`
   canon, dropping nothing and therefore owing no `Removed from canon` marker.
   Sibling: `retire-hermes-flat-keys-and-openworkflow-tokens`.
-  **REALIZATION `tasks.md` §§ 2–5 IS DRAFTED AND NOT MERGED** — the schema
+  **REALIZATION `tasks.md` §§ 2–5 IS MERGED** (PR #564, squash `6856f502`) — the schema
   removal, the redesigned `serve.py` fallback with its one new catalog entry
   (`unrecognized_turn_kind`, 400), the validator dispatch, the corpus (all
   SEVEN v1-only refusal classes re-expressed against the surviving family, none
@@ -1842,9 +1939,15 @@ Active changes:
   ratified text names it as retained-because-reachable, and it is retained on
   the text rather than on the premise), and § 2's schema byte move is coupled
   to the per-file `sha256` in `contracts/manifest.yaml`, which `tasks.md` 6.1
-  files with the cut. The `contract-v3.0` CUT is still outstanding: no bundle
-  number is spent, no CHANGELOG row moves and no tag is published by the
-  realization. (code surface:
+  files with the cut. **The `contract-v3.0` CUT IS TAKEN** — § 6 ticked with its
+  evidence, the bundle declared, OQ-2 answered NO — no `contract_schema_version`
+  moves, the cut's attempt to bump the chat-turn schema's own integer having
+  been refused by two tests the realization landed with their reasoning beside
+  them —
+  `typed_proposal` RETAINED with the reason (a removal no minor warned on),
+  `CONTRACT_TAG` off its stale `contract-v2.2` — but the annotated TAG is a
+  separate post-merge act after § Bundle Realization Order step 4 reruns every
+  gate on the promoted commit, so §§ 7 and 8 stay open. (code surface:
   openxFactory; target release: `contract-v3.0` — archives only on merged plus
   green realization evidence, the moved manifest digest, the rebuilt inventory
   and the published tag)

@@ -1,0 +1,49 @@
+# WARNING (expect: requirement-ref-ambiguous). A qualified, grammatical
+# `requirement_ref` naming an id that MORE THAN ONE requirement OF THE ONE
+# DOCUMENT IT NAMES carries — on a binding that SHARES ITS SECRET WITH NOBODY.
+#
+# THE SUPPORT RECORD IS RE-USED RATHER THAN DUPLICATED, AND THE RE-USE IS
+# RECORDED HERE SO A LATER EDIT CANNOT SILENTLY DEFANG TWO PROBES
+# (add-requirement-ref-resolution-integrity, OQ-1). The target is
+# `support/ambiguous-requirement-ids.requirements.yaml`, which declares
+# `projection_sync_lane` TWICE with DIFFERENT access modes
+# (`workload_identity` and `delegated_api`). TWO probes now depend on that
+# duplication: this warning fixture and
+# `negative/consumer-requirement-ref-ambiguous.yaml`. De-duplicating those ids
+# would leave BOTH passing vacuously, so the support record's header names this
+# file as well.
+#
+# THE AMBIGUITY IS PER-DOCUMENT AND THAT SCOPE IS DELIBERATE. `resolve_requirement`
+# matches inside `index.get(requirements_document_ref)`, over an index keyed by
+# DOCUMENT PATH, so the same id declared in a DIFFERENT requirements document
+# resolves cleanly from a reference naming either and draws NOTHING from this
+# code. That wider arm is ruled out of scope at this minor (Brett Heap,
+# 2026-09-01) and is filed as **openxFactory issue #553** together with the
+# promoted scenario that already reaches across documents. A fixture probing it
+# would fail here, and belongs to that successor.
+#
+# THE REMEDY IS IN THE REQUIREMENTS DOCUMENT, NOT AT THE REFERENCE, which is why
+# this code is NAMED APART from `requirement-ref-unresolved`: this reference is
+# correct and the document it names declares one id twice. This is the more
+# dangerous of the two — nothing stops a document declaring one id twice, the
+# matches may differ in `access_mode`, and an implementation MUST NOT resolve
+# the ambiguity by picking one.
+#
+# The record is VALID and WARNED; the refusal lands at contract-v3.0.
+schema_version: 1
+kind: xfactory_credential_binding_template
+client:
+  id: example-client
+credential_bindings:
+  projection_sync_lane:
+    provider: azure_key_vault
+    vault: kv-example-projection
+    secret_ref: example-projection-ambiguous-reference-secret
+    owner: example-platform
+    rotation_policy: operator_managed
+    consumer:
+      holder_ref: example:service-subject:projection-sync-lane
+      fetch_identity: example-sync-lane-workload-identity
+      requirement_ref:
+        requirement_id: projection_sync_lane
+        requirements_document_ref: support/ambiguous-requirement-ids.requirements.yaml
