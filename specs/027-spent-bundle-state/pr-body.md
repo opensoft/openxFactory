@@ -21,6 +21,21 @@ refs/heads/main` and **cannot see this branch's declaration**; every other test
 green; the failure set is **byte-identical to `main`'s since `ff9ed815`**; it
 goes green at the squash.
 
+Measured on `09e28b3d`, run **33641746085**:
+
+```text
+FAILED tests/doc-health/test_release_tag_publication.py::test_this_repository_reads_zero_and_the_probe_can_fire
+1 failed, 8652 passed, 21 skipped, 338 deselected, 9 warnings, 46 subtests passed in 1211.49s (0:20:11)
+```
+
+`main`'s own run at `f4fddf7c` reads `1 failed, 8620 passed, 21 skipped, 338
+deselected` — **the same single failure**, `skipped` identical at the
+exactly-pinned 21, and `passed` +32 for the tests this PR adds. The gate pins
+SKIPPED exactly and SELECTED/PASSED as floors, so the additions raise the
+floors and red nothing. The other three checks — `merge-master-approval`,
+`wallet-validation`, `signed-execution-chain-gate` — **pass**. The run id on
+the FINAL head is cited in the PR conversation.
+
 That test is **not edited** — the packet requires it go green *"as a
 CONSEQUENCE"* (2.9) — and the post-merge state is **measured, not predicted**:
 a bare repository whose `main` IS this branch, cloned, with the unedited
@@ -118,15 +133,15 @@ that replaces it is `contested`, so **its** disappearance would.
   in the SAME `blobs_at` call at the SAME tip; a blob it cannot read is a
   **SKIP naming that read**, never "no declaration" — the #338 conflation one
   document over, which this family has already been caught by once.
-* **2.6 / 2.7 — tests.** 19 → **51** in the family's file (+32: fourteen reader
-  tests with no repository, fifteen ladder scenarios over real git fixtures,
-  three report-integration proofs). All 13 new scenarios covered, each with the
+* **2.6 / 2.7 — tests.** 19 → **69** in the family's file (+50 across five review rounds:
+  reader tests with no repository, ladder scenarios over real git fixtures, and
+  report-integration proofs). All 13 new scenarios covered, each with the
   positive control the file's convention requires.
 * **2.8 — `docs/doc-health.md`** gains the third state, the reserved form, the
   three outcomes, the path rule, the three action lines and the no-retrofit
   rule. **The family-count sentences are untouched** — this change adds no
   family — and `family-enumeration` reports `No findings.`
-* **2.9 — `pytest tests/doc-health`**: **1415 passed, 1 failed**, the failure
+* **2.9 — `pytest tests/doc-health`**: **1420 passed, 1 failed** at `95c11696`, the failure
   being the self-gate above and nothing else.
 
 ## The red-first proof (2.1, 2.6)
@@ -276,6 +291,59 @@ below the floor (one test asserting `findings == []`). No new family, no change
 to `Finding`, `report.render`, the finding or ranked-plan grammars,
 `health/dispositions.yaml` or its readers, `release-inventory-drift`,
 `verify_tag`, or any other family.
+
+## Review convergence — five rounds, 11 findings on the code, 10 taken, 1 route refused
+
+| round | Codex | Copilot |
+|---|---|---|
+| 1 | **P1** containment: a non-release `##` heading did not close the entry | inline: the invalid-UTF-8 test encoded *valid* UTF-8; suppressed: the changelog skip reason omitted its commonest cause |
+| 2 | **P1** `\b` accepted a *prefix* of a longer bundle token; **P2** the current-bundle refusal promised a companion finding that does not exist | inline: a docstring opened with a fourth quote character |
+| 3 | **P1** a level-*one* heading also closes an entry | inline: a below-floor repository with no changelog newly skipped — **finding taken, proposed route declined with a measurement** |
+| 4 | **P1** the heading patterns were applied to raw lines, so a heading inside a code fence reopened an entry (and an indented ATX heading was missed); **P1** the orphan sweep lost the read-failure skip | — |
+| 5 | requested on the final head | two "needs a closer look" verdicts, no code findings |
+
+**Four of the five Codex P1s were on ONE guard — containment — each found on the
+fix for the last.** That is the guard the requirement leans on hardest (*"the act
+that spends a number is the LATER CUT that allocates its replacement"*), so the
+iteration went where it should have. The rule is now pinned as a single table
+plus the fence and indentation cases, rather than as a regex a reader must
+re-derive.
+
+**The one refusal, with its measurement.** Copilot proposed fixing the
+below-floor regression by returning early when `declared` is below the
+enforcement floor. Declined: `cut_bundles` enumerates from
+`contracts/releases/`, not from the manifest, so a repository can hold an
+inventory for a bundle **above** the floor while declaring one **below** it — an
+early return keyed on `declared` would stop checking a bundle that *is* in
+scope, trading a regression for a coverage hole. The finding itself was taken,
+by gating the guard on in-scope-ness instead; both sides are pinned by test.
+
+**One extension beyond what was asked, flagged as a judgment**: the fence
+suppression was applied to the reserved opener as well as to headings. It is
+fail-closed in both directions — a fenced example cannot spend a bundle, and a
+declaration hidden in a fence does not count, which leaves the `error` standing
+— and it is what lets the changelog document the form without performing it.
+
+## `main` moved under this branch, and a catch-up MERGE was taken
+
+`origin/main` advanced `f4fddf7c` → **`3bcde7e2`** during review (#585, and the
+archive of `govern-sibling-added-modified-deltas`), touching
+`docs/doc-health.md` and `tests/sequenced_after/test_sweep.py` — two files this
+PR also touches. Taken as a **MERGE, never a rebase**, clean in both files, and
+every measurement re-taken against the new base rather than carried forward.
+`openspec validate` reads **84** rather than 85 because `main` archived a
+change; the sequenced-after population reads **31 active** rather than 32 for
+the same reason. Neither is this PR's doing and this PR still moves no pin.
+
+**And it caught a false green, which is recorded rather than banked.** A
+`tests/doc-health` run at `32c215e1` read `1430 passed`, zero failures —
+including the self-gate. That was not the declaration working: `main` had moved,
+the checkout had not fetched it, and the family returned the SKIP the self-gate
+explicitly tolerates as *"an environment fact, not a corpus fact"*. With the tip
+fetched the self-gate fails again, correctly. Banking it would have been the
+#338 conflation wearing the other hat — which is exactly why the post-merge
+claim is proved against a bare repository whose `main` really does carry the
+declaration.
 
 ---
 
