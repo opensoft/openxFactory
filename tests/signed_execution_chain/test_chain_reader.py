@@ -638,6 +638,48 @@ def test_two_consumed_records_sharing_an_id_are_ambiguous_not_last_seen(
     assert "consumed-record-id-duplicate" not in reader.codes_of(findings.errors)
 
 
+def test_the_corpus_exclusion_is_not_evadable_by_placement(
+        tmp_path, registry_and_docs, carried):
+    """THE EXCLUSION IS A PACKAGED-CORPUS EXCLUSION, NOT A KEYWORD FILTER.
+
+    It cannot be anchored to this checkout's paths — a domain repo vendors
+    openxFactory and scans a COPY — so it matches path COMPONENTS. Asking only
+    whether the words appear ANYWHERE made the required gate evadable by
+    placement: a chain record parked under any path carrying both `examples` and
+    a family name was dropped from the sweep and drew no finding. Found by Codex
+    on #566. Requiring the components ADJACENT keeps every vendored copy
+    excluded and admits the paths that merely mention them."""
+    registry, docs = registry_and_docs
+    consumed = CONSUMED_FIXTURE.read_text(encoding="utf-8")
+    evasive = [
+        "governance/trust-anchor/live/examples/invalid.yaml",
+        "governance/signed-execution-chain/live/examples/invalid.yaml",
+        "somewhere/examples/deep/trust-anchor/invalid.yaml",
+    ]
+    for relative_path in evasive:
+        target = tmp_path / relative_path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(consumed, encoding="utf-8")
+    findings = reader.Findings()
+    reader.repo_scan(findings, tmp_path, registry, docs, carried)
+    assert f"{len(evasive)} artifact(s) checked" in findings.notes[0], (
+        "a record the reader owns was dropped from the sweep by where it sits")
+    assert len(findings.errors) >= len(evasive)
+
+    # AND THE VENDORED PACKAGED CORPUS IS STILL EXCLUDED, at a prefix that is not
+    # this checkout's — the property the component test exists to keep.
+    vendored = tmp_path / "vendor"
+    for family in ("trust-anchor", "signed-execution-chain"):
+        target = (vendored / "openxFactory" / "contracts" / family / "examples"
+                  / "negative" / "fixture.yaml")
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(consumed, encoding="utf-8")
+    findings = reader.Findings()
+    reader.repo_scan(findings, vendored, registry, docs, carried)
+    assert findings.errors == []
+    assert "0 artifact(s) checked" in findings.notes[0]
+
+
 def test_the_reader_no_longer_says_the_capability_confers_nothing(
         registry_and_docs, carried):
     """Requirement 9 is about this capability's own standing, and the reader

@@ -1771,6 +1771,38 @@ def self_test(f: Findings, registry: Registry, docs: dict[str, dict],
 SKIP_DIR_NAMES = {".git", "node_modules", "__pycache__", ".venv"}
 
 
+#: The families whose PACKAGED corpus the sweep excludes: this one's own, and the
+#: CONSUMED trust-anchor family's, whose records the sweep now collects.
+PACKAGED_CORPUS_FAMILIES = ("signed-execution-chain", "trust-anchor")
+
+
+def under_packaged_examples(path: Path, family: str) -> bool:
+    """True when `path` lies under a family's PACKAGED `examples/` tree —
+    `<family>/examples/` with the two components ADJACENT and in that order.
+
+    IT IS DELIBERATELY NOT ANCHORED TO THIS CHECKOUT'S ABSOLUTE PATHS. A domain
+    repo that vendors openxFactory scans a COPY, so an exclusion matching
+    `contracts/<family>/examples` relative to the scan root would re-adjudicate
+    every vendored negative as a live record — the reason the original exclusion
+    was written over path COMPONENTS in the first place.
+
+    IT IS ALSO NOT A BARE MEMBERSHIP TEST, and that is the repair. Asking only
+    whether `examples` and the family name appear ANYWHERE in the path made the
+    required gate evadable by placement: a malformed chain record parked at
+    `governance/trust-anchor/live/examples/invalid.yaml` — or under any other
+    path carrying both words — was silently dropped from the sweep, and the gate
+    reported no findings over it. Measured before the repair: `0 artifact(s)
+    checked, 0 skipped`, no refusal, for a record the reader owns. Requiring the
+    two components to be ADJACENT keeps every vendored copy of a real packaged
+    corpus excluded (`.../contracts/trust-anchor/examples/negative/x.yaml`) while
+    admitting the arbitrary paths that merely mention them. Found by Codex on
+    #566, against the exclusion this change added AND the one it copied.
+    """
+    parts = path.parts
+    return any(part == family and parts[index + 1] == "examples"
+               for index, part in enumerate(parts[:-1]))
+
+
 #: The identifier each consumed record is RESOLVED THROUGH. `add-trust-anchor`
 #: owns these fields; they are named here only to detect an ambiguous set, never
 #: to restate the vocabulary.
@@ -1832,18 +1864,13 @@ def repo_scan(f: Findings, target: Path, registry: Registry, docs: dict[str, dic
     for path in files:
         if set(path.parts) & SKIP_DIR_NAMES:
             continue
-        # Exclude ANY packaged corpus, not only this checkout's: a domain repo
-        # that vendors openxFactory scans a COPY, and matching this checkout's
-        # absolute paths would re-adjudicate every vendored negative as a live
-        # record.
-        if "examples" in path.parts and "signed-execution-chain" in path.parts:
-            continue
-        # And the same for the CONSUMED family's packaged corpus: trust-anchor's
-        # examples/ carries deliberately-invalid negatives that ITS reader
-        # adjudicates. Sweeping them here as live consumed records would
-        # re-adjudicate another family's fixtures — the same mistake the
-        # exclusion above prevents, one family over.
-        if "examples" in path.parts and "trust-anchor" in path.parts:
+        # Exclude ANY packaged corpus — this family's own and the CONSUMED
+        # trust-anchor family's, whose examples/ carries deliberately-invalid
+        # negatives that ITS reader adjudicates. Sweeping either here as live
+        # records would re-adjudicate fixtures another layer already asserts
+        # exactly how.
+        if any(under_packaged_examples(path, family)
+               for family in PACKAGED_CORPUS_FAMILIES):
             continue
         try:
             documents = load_records(path)
