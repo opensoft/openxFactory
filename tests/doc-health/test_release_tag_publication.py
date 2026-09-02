@@ -556,6 +556,205 @@ def test_no_declaration_at_all_reads_as_no_declarations():
     assert rtp.parse_spent_declarations(None) == []
 
 
+# ------------------------------------------------- the containment boundaries
+#
+# THE CONTAINMENT RULE IS THE GUARD THE RATIFIED REQUIREMENT LEANS ON HARDEST:
+# a declaration is accepted only where the entry CONTAINING it is the entry of
+# the bundle it names. Every way of closing an entry the reader does not know
+# about is therefore an ACCEPT — the declaration keeps the previous release
+# entry's authority and quiets the `error` this family exists to raise. Ten such
+# escapes were measured (PR #584's five bot rounds, compared against this module
+# in that PR's 2026-09-02 17:05Z comment), and the tests below pin the rule as
+# ONE TABLE plus the cases that table cannot express, rather than as a regex a
+# reader must re-derive.
+
+def _entry_under(*between: str, base: str = "contract-v2.9") -> str | None:
+    """The entry a declaration reads as sitting in, with `between` standing
+    between the base entry's heading and the declaration.
+
+    THE BASE IS NOT THE SUPERSEDING BUNDLE, DELIBERATELY. With `contract-v3.0`
+    as both, "the candidate closed the entry" and "the candidate closed it and
+    reopened it as v3.0" are the same observation — which is how the first two
+    containment escapes survived tests written over them.
+    """
+    doc = "\n".join(["# Contract changelog", "",
+                     f"## {base} — 2026-09-02 (a cut)", "",
+                     *between, "", _spent_line()])
+    read = rtp.parse_spent_declarations(doc.encode("utf-8"))
+    assert len(read) == 1, "the fixture must yield exactly one declaration"
+    return read[0].entry
+
+
+BOUNDARY_TABLE = [
+    # (what stands between the entry heading and the declaration, the entry
+    #  the declaration is then contained by, why this row exists)
+    ((), "contract-v2.9", "nothing between: the entry is simply open"),
+    (("### `contract-v2.6` disposition",), "contract-v2.9",
+     "H3 does NOT close, and this row is LOAD-BEARING: this repository's own "
+     "reserved line lives inside exactly such a subsection"),
+    (("#### deeper still",), "contract-v2.9", "nor does H4"),
+    (("###",), "contract-v2.9", "nor an empty H3"),
+    (("## Deprecations",), None,
+     "a non-release H2 closes and opens nothing (Codex R1 P1)"),
+    (("## contract-v3.0 — 2026-09-02 (a cut)",), "contract-v3.0",
+     "a release H2 closes and OPENS its own"),
+    (("## contract-v3.0.1",), None,
+     "a longer name is not the v3.0 entry (Codex R2 P1)"),
+    (("## contract-v3.0-notes",), None, "nor is a suffixed one"),
+    (("## contract-v3.01",), "contract-v3.01",
+     "but contract-v3.01 IS a well-formed name (major 3, minor 01) and opens "
+     "its own entry; a declaration under it is refused for naming a DIFFERENT "
+     "bundle, which is the honest reason"),
+    (("# Notes",), None, "a level-one heading closes too (Codex R3 P1)"),
+    (("#",), None, "including an empty one"),
+    (("##",), None, "and an empty H2, which is a legal ATX heading"),
+    (("  ## Notes",), None,
+     "two leading spaces is still a heading under CommonMark (Codex R4 P1)"),
+    (("   ## contract-v3.0 — a cut",), "contract-v3.0",
+     "three too, and it still opens"),
+    (("    ## Notes",), "contract-v2.9",
+     "FOUR is an indented code block and is no heading at all — the other "
+     "side of the same rule"),
+    (("Notes", "=====",), None, "a Setext H1 closes (Codex, late)"),
+    (("Notes", "-----",), None, "and a Setext H2"),
+    (("", "-----",), "contract-v2.9",
+     "but a run of dashes after a BLANK line is a thematic break, not an "
+     "underline — over-closing past this point would refuse a declaration "
+     "written correctly below a horizontal rule"),
+    (("| a | b |", "|---|---|",), "contract-v2.9",
+     "and a table rule is not an underline either"),
+    (("contract-v3.0", "=============",), None,
+     "a Setext heading CLOSES and never OPENS: the requirement names `##` "
+     "entries, and under-opening is the fail-closed half"),
+    (("#550 example — validates green under the extended schemas", ),
+     "contract-v2.9",
+     "real text in this repository's changelog, and no heading: `#` followed "
+     "immediately by a non-space is none"),
+]
+
+
+@pytest.mark.parametrize("between,entry,why", BOUNDARY_TABLE,
+                         ids=[row[2][:48] for row in BOUNDARY_TABLE])
+def test_exactly_which_lines_close_a_changelog_entry_is_pinned(between, entry,
+                                                               why):
+    """ONE TABLE FOR THE WHOLE RULE. Each row is a line that may stand between
+    a release entry's heading and a declaration, and the entry the declaration
+    is then contained by — `None` meaning no entry at all, which is a
+    containment refusal rather than a silent inheritance of the previous
+    release's authority.
+
+    The table is its own positive control: it carries the rows where the entry
+    STAYS OPEN alongside those where it closes, so it cannot be satisfied by a
+    reader that closes on everything any more than by one that closes on
+    nothing.
+    """
+    assert _entry_under(*between) == entry, why
+
+
+def test_a_fenced_block_is_opaque_to_headings_and_to_declarations():
+    """THE ONE ESCAPE THE LIVE DOCUMENT COULD ALREADY HIT — `contracts/
+    CHANGELOG.md` carries a fenced block — and the rule is stated in BOTH
+    directions because it is fail-closed in both.
+
+    A fenced `## contract-v3.0` must not reopen an entry (measured: it did, and
+    a declaration under a later `## Notes` then read as contained by the v3.0
+    entry and was ACCEPTED), and a declaration shown as an EXAMPLE inside a
+    fence must not spend a bundle. A real declaration hidden inside a fence
+    therefore does not count — which leaves the superseded `error` standing
+    rather than quieting it, and is why the suppression is safe to extend to
+    the reserved opener.
+    """
+    # a heading inside a fence opens nothing: the declaration stays in v2.9's
+    fenced_heading = _entry_under("```markdown", "## contract-v3.0", "```")
+    assert fenced_heading == "contract-v2.9"
+
+    # and closes nothing either
+    assert _entry_under("~~~text", "## Deprecations", "~~~") == "contract-v2.9"
+
+    # a declaration INSIDE a fence is not a declaration at all
+    documented = "\n".join(["## contract-v3.0 — a cut", "", "```markdown",
+                            _spent_line(), "```", ""])
+    assert rtp.parse_spent_declarations(documented) == []
+
+    # THE CLOSER IS NOT MERELY ANOTHER OPENER: ```` ```markdown ```` opens and
+    # does not close, so an info string cannot end the block early and let the
+    # lines after it be read as prose.
+    still_open = "\n".join(["## contract-v3.0 — a cut", "", "```",
+                            "```markdown", _spent_line(), "```", ""])
+    assert rtp.parse_spent_declarations(still_open) == []
+
+    # a shorter run of the same character does not close a longer fence, and a
+    # different character does not close it at all
+    assert rtp.parse_spent_declarations(
+        "\n".join(["````", "```", "~~~~", _spent_line()])) == []
+
+    # AND THE POSITIVE CONTROL: outside every fence, the same line reads.
+    closed = "\n".join(["## contract-v3.0 — a cut", "", "```yaml",
+                        "bundle: contract-v3.0", "```", "", _spent_line()])
+    read = rtp.parse_spent_declarations(closed)
+    assert len(read) == 1 and read[0].entry == "contract-v3.0"
+
+
+def test_this_repositorys_live_declaration_survives_every_boundary_rule():
+    """THE LIVE READ, AND IT IS THE POINT OF THE HARDENING RATHER THAN A
+    FORMALITY: a boundary rule tightened past this document would refuse the
+    declaration that makes `main` green, and every rule above was chosen so
+    that it does not.
+
+    `contracts/CHANGELOG.md` is read FROM DISK so that inserting a heading
+    above the reserved line reds a test rather than silently flipping the
+    family from `info` to `error`.
+    """
+    live = (Path(REPO_ROOT) / CHANGELOG).read_bytes()
+    read = rtp.parse_spent_declarations(live)
+    assert len(read) == 1, "this repository carries exactly one declaration"
+    assert read[0].subject == "contract-v2.6"
+    assert read[0].entry == "contract-v3.0"
+    assert read[0].missing == ()
+
+    # THE POSITIVE CONTROL, over the same bytes: one non-release heading
+    # spliced in above the declaration and the containment is gone. A live read
+    # that could only ever answer "contained" would prove nothing about the
+    # rule.
+    text = live.decode("utf-8")
+    spliced = text.replace(rtp.SPENT_OPENER,
+                           "## Deprecations\n\n" + rtp.SPENT_OPENER, 1)
+    control = rtp.parse_spent_declarations(spliced)
+    assert len(control) == 1 and control[0].entry is None
+
+
+def test_a_declaration_under_a_non_release_heading_is_refused_end_to_end(tmp_path):
+    """THE ESCAPE AT THE FINDING LEVEL, not the parse level — which is where it
+    mattered. A declaration attributed to the previous release entry matched the
+    bundle it named, so the containment check passed and the
+    superseded-and-never-published `error` was replaced by an `info`."""
+    repo, _ = _repo(tmp_path)
+    _declare(repo, "contract-v2.6", "cut v2.6, never tagged")
+    _inventory(repo, "contract-v2.6")
+    _declare(repo, "contract-v3.0", "cut v3.0")
+    _inventory(repo, "contract-v3.0")
+    _git(repo, "tag", "-a", "contract-v3.0", "-m", "contract-v3.0")
+    # the declaration sits after a NON-RELEASE section of the v3.0 entry, so it
+    # is contained by no entry at all
+    _changelog(repo,
+               ("contract-v3.0", ["a cut", "", "## Deprecations", "",
+                                  _spent_line()]),
+               ("contract-v2.6", ["left exactly as written"]))
+    _push(repo)
+
+    findings = _check(repo)
+    refusal = [f for f in findings if "REFUSED" in f.rule]
+    assert len(refusal) == 1 and refusal[0].severity == ERROR
+    assert "sits inside no bundle's changelog entry" in refusal[0].rule
+    assert "LATER CUT" in refusal[0].rule
+    assert not [f for f in findings if f.severity == INFO], (
+        "the declaration was accepted from outside its superseding bundle's "
+        "entry, which is the escape this test exists for")
+    assert [f for f in findings
+            if "SUPERSEDED without ever being published" in f.rule], (
+        "and the finding the family exists to raise must stand")
+
+
 # ------------------------------------------------- ACCEPTED: the one `info`
 
 def _spent_fixture(tmp_path, *, publish_successor=True, declaration=True,
@@ -945,22 +1144,117 @@ def test_a_bundle_below_the_enforcement_line_gains_no_spent_finding(tmp_path):
 
 # ------------------------------------------------------------ the second read
 
+class _NoChangelog(FakeGit):
+    """A tip whose `contracts/manifest.yaml` reads and whose
+    `contracts/CHANGELOG.md` does not — `blobs_at`'s PER-PATH None.
+
+    `ls_tree_paths` has to ANSWER for this shim to reach the changelog guard at
+    all, because that guard now sits BELOW the inventory listing: it is gated on
+    whether any bundle is IN SCOPE, and the set of cut bundles is half of that
+    question. Declared bundle is a parameter so the same shim serves the
+    in-scope case and the below-floor control.
+    """
+
+    def __init__(self, declared="contract-v2.0", **kwargs):
+        super().__init__(**kwargs)
+        self._declared = declared
+
+    def blobs_at(self, repo, commit, relpaths):
+        body = f"contract_bundle_version: {self._declared}\n".encode()
+        return {p: (body if p == MANIFEST else None) for p in relpaths}
+
+    def ls_tree_paths(self, repo, ref, prefix):
+        return []
+
+
 def test_an_unreadable_changelog_at_the_published_tip_skips(tmp_path):
     """THE #338 CONFLATION, ONE DOCUMENT OVER — and this family has already
     been caught by it once. The absence of a declaration this run could not
     LOOK FOR is not the absence of a declaration, in either direction."""
-    class NoChangelog(FakeGit):
-        def blobs_at(self, repo, commit, relpaths):
-            return {p: (b"contract_bundle_version: contract-v2.0\n"
-                        if p == MANIFEST else None)
-                    for p in relpaths}
-
     out = rtp.check_repo("alphaFactory", Path("r"),
-                         NoChangelog(remotes={"r": "tip"}))
+                         _NoChangelog(remotes={"r": "tip"}))
     assert isinstance(out, Skip)
     assert "contracts/CHANGELOG.md could not be read at the published tip" \
         in out.reason
     assert "not the same fact as there being none" in out.reason
+    # AND IT NAMES WHAT IT DECLINED TO ANSWER FOR, which is the bundle in scope
+    # rather than the repository — the skip is the SPENT read's, not the
+    # family's.
+    assert "contract-v2.0" in out.reason
+
+
+def test_a_below_floor_repository_with_no_changelog_is_not_newly_skipped(tmp_path):
+    """THE FLOOR HOLDS ABOVE THE SPENT READ (Copilot, PR #584 round 3).
+
+    Standing above `parse_bundle`, the changelog guard fired before the bundle
+    was known, so a repository declaring `contract-v1.6` and holding no
+    `contracts/CHANGELOG.md` — which this family had always answered with
+    silence, the floor being what it is — became a silent "not checked"
+    instead. A guard for the SPENT read must not change the answer for a
+    repository that has no bundle the state could apply to.
+
+    THE POSITIVE CONTROL IS THE SAME SHIM ONE VERSION UP: with an in-scope
+    bundle declared the skip is still owed and still taken, so this test cannot
+    pass by the guard having been deleted.
+    """
+    below = rtp.check_repo("alphaFactory", Path("r"),
+                           _NoChangelog(declared="contract-v1.6",
+                                        remotes={"r": "tip"}))
+    assert below == [], (
+        "a below-floor repository with no changelog is answered as it always "
+        "was — the SPENT read has nothing here it could change")
+
+    in_scope = rtp.check_repo("alphaFactory", Path("r"),
+                              _NoChangelog(declared="contract-v1.7",
+                                           remotes={"r": "tip"}))
+    assert isinstance(in_scope, Skip) and CHANGELOG in in_scope.reason, (
+        "the guard must still decline the read for a bundle in scope, or this "
+        "test would pass over a deleted guard")
+
+
+def test_a_failed_batch_read_names_both_members_it_asked_for(tmp_path):
+    """`blobs_at` collapses to None only when GIT ITSELF failed, which fails the
+    whole two-member batch — so a message naming one document sends an operator
+    to a file when NEITHER was obtained. The per-path None is the other return
+    shape and has its own guard, in its own words, one test above."""
+    class NoGit(FakeGit):
+        def blobs_at(self, repo, commit, relpaths):
+            return None
+
+    out = rtp.check_repo("alphaFactory", Path("r"), NoGit(remotes={"r": "tip"}))
+    assert isinstance(out, Skip)
+    assert MANIFEST in out.reason and CHANGELOG in out.reason
+    assert "NEITHER document was obtained" in out.reason
+
+
+def test_a_below_floor_subject_raises_no_orphan_warning(tmp_path):
+    """A BELOW-FLOOR SUBJECT IS OUT OF THIS SWEEP, because the orphan finding's
+    own action is FALSE for one: it tells an author that the bundle it was meant
+    to name "is still reported by this family", and `contract-v1.3` is never
+    reported by this family at all.
+
+    THE POSITIVE CONTROL IS A SUBJECT OF THE WRONG SHAPE, which still reaches
+    the arm — that is a defect in the record rather than an out-of-scope name,
+    and the two must not be collapsed into one test that passes by silencing
+    both.
+    """
+    repo, _ = _repo(tmp_path)
+    _declare(repo, "contract-v3.0", "cut v3.0")
+    _inventory(repo, "contract-v3.0")
+    _git(repo, "tag", "-a", "contract-v3.0", "-m", "contract-v3.0")
+    _changelog(repo, ("contract-v3.0", [_spent_line(subject="contract-v1.3")]))
+    _push(repo)
+    assert _check(repo) == []
+
+    other, _ = _repo(tmp_path, "shape")
+    _declare(other, "contract-v3.0", "cut v3.0")
+    _inventory(other, "contract-v3.0")
+    _git(other, "tag", "-a", "contract-v3.0", "-m", "contract-v3.0")
+    _changelog(other, ("contract-v3.0", [_spent_line(subject="not-a-bundle")]))
+    _push(other)
+    orphan = [f for f in _check(other) if f.path == CHANGELOG]
+    assert len(orphan) == 1 and orphan[0].severity == WARNING
+    assert "not-a-bundle" in orphan[0].rule
 
 
 # --------------------------------------------------- two bundles, two identities

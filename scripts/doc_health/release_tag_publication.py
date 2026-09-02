@@ -210,11 +210,95 @@ def inventory_path(bundle: str) -> str:
 # `document-lifecycle`'s reserved `Modified over` marker already sets.
 SPENT_OPENER = "**SPENT BUNDLE:**"
 
-# The containing entry. `contracts/CHANGELOG.md`'s bundle entries are `##`
-# headings whose first token is the bundle name; the declaring act is the
-# SUPERSEDING bundle's own entry, so this is what decides whether a declaration
-# was written by the cut that allocated the replacement or by somebody else.
-_ENTRY_HEADING = re.compile(r"^##\s+(contract-v\d+\.\d+)")
+# --- THE CONTAINING ENTRY, AND ITS BOUNDARIES -------------------------------
+#
+# `contracts/CHANGELOG.md`'s bundle entries are `##` headings whose first token
+# is the bundle name; the declaring act is the SUPERSEDING bundle's own entry,
+# so this is what decides whether a declaration was written by the cut that
+# allocated the replacement or by somebody else. It is the guard the ratified
+# requirement leans on hardest — *"accepted only where the changelog entry
+# CONTAINING it is the entry of the bundle it names as the superseding one"*.
+#
+# EVERY WAY OF CLOSING AN ENTRY THE READER DOES NOT KNOW ABOUT IS AN ACCEPT.
+# That is the asymmetry the hardening turns on: a declaration under an
+# unrecognized boundary keeps the PREVIOUS release entry's authority, matches
+# the bundle it names, and quiets the superseded-and-never-published `error`
+# this family exists to raise. Ten such escapes were measured against the first
+# implementation of this rule (PR #584's five bot rounds, and the read-only
+# comparison of them against this module recorded in that PR's 2026-09-02
+# 17:05Z comment); the lesson of them is structural rather than per-case, so
+# the rule now lives in ONE function — `_entry_boundary` — that every heading
+# shape passes through, rather than in one regex a reader has to re-derive.
+#
+# OVER-CLOSING IS FAIL-CLOSED AND UNDER-CLOSING IS NOT, which decides every
+# judgment below. Closing an entry can only move a declaration OUT of one, and
+# a declaration inside no entry is REFUSED with the superseded `error` standing
+# beside it. Failing to close one can only leave a declaration holding
+# authority nobody granted it. So a boundary is recognized wherever CommonMark
+# says a heading may be, while a boundary OPENS an entry only in the single
+# shape the requirement names.
+
+# ATX headings at level ONE and TWO close the open entry; level THREE and
+# deeper do not, and that exclusion is LOAD-BEARING rather than tidy: this
+# repository's own reserved line lives inside a
+# ``### `contract-v2.6` disposition`` subsection OF the `## contract-v3.0`
+# entry, so a rule that closed on `###` would refuse the live declaration.
+# Up to three leading spaces, because CommonMark says an ATX heading may carry
+# them — `  ## Deprecations` IS a heading and was being missed; FOUR spaces is
+# an indented code block and is not a heading at all. The trailing lookahead is
+# `\s|$` so that `##` ALONE is a boundary (a legal EMPTY ATX heading) while
+# `#550 example` — real text in this repository's changelog — is correctly not
+# a heading, because `#` followed immediately by a non-space is none.
+_ATX_BOUNDARY = re.compile(r"^ {0,3}#{1,2}(?!#)(?=\s|$)")
+
+# Any ATX heading, at any legal level, used only to decide what CANNOT be the
+# text of a Setext heading. Seven or more `#` is not a heading in CommonMark,
+# which is what the negative lookahead says.
+_ATX_ANY = re.compile(r"^ {0,3}#{1,6}(?!#)(?=\s|$)")
+
+# THE VERSION TOKEN MUST BE COMPLETE, AND `\b` IS NOT THAT TEST. `\b` matches
+# between `0` and `.`, so `## contract-v3.0.1` and `## contract-v3.0-notes`
+# each OPENED an entry named `contract-v3.0`, containing a declaration the
+# `contract-v3.0` entry never wrote. `## contract-v3.01` is deliberately NOT in
+# that class and still opens an entry: it is a well-formed bundle name (major
+# 3, minor 01), and a declaration under it is refused later for naming a
+# DIFFERENT bundle, which is the honest reason.
+_ENTRY_HEADING = re.compile(r"^ {0,3}##(?!#)\s+(contract-v\d+\.\d+)(?=\s|$)")
+
+# SETEXT HEADINGS CLOSE AN ENTRY AND NEVER OPEN ONE. `Title` over `===` is an
+# H1 and `Title` over `---` an H2 — both boundaries. Neither opens an entry:
+# the requirement names `##` entries, and under-opening is the fail-closed half
+# (a declaration below a Setext bundle name then sits in no entry and is
+# refused, where reading it as an opener would accept a containment nobody
+# wrote as an entry). A run of `=` or `-` is an UNDERLINE only where a
+# paragraph line precedes it, which is exactly what separates `Title`/`---`
+# from the thematic break `---` standing after a blank line, and from a
+# `|---|---|` table rule, which does not match at all.
+_SETEXT_UNDERLINE = re.compile(r"^ {0,3}(=+|-+)[ \t]*$")
+
+# A FENCED BLOCK IS OPAQUE — TO HEADINGS AND TO DECLARATIONS ALIKE — and this
+# is the one escape the LIVE document could already hit, because
+# `contracts/CHANGELOG.md` carries a fenced block. Both directions were
+# measured: a fenced `## contract-v3.0` REOPENED an entry, so a declaration
+# under a later `## Notes` read as contained by the v3.0 entry and was
+# ACCEPTED.
+#
+# THE SUPPRESSION EXTENDS TO THE RESERVED OPENER, deliberately, and it is
+# fail-closed in BOTH directions: a declaration shown as an EXAMPLE inside a
+# fence cannot spend a bundle, and a real declaration HIDDEN inside a fence
+# does not count — which leaves the superseded `error` standing rather than
+# quieting it. The reserved opener is therefore reserved over the document's
+# PROSE, and a fence is where the form may be DOCUMENTED without being
+# PERFORMED. This REPLACES the module's earlier "no fence tracking,
+# deliberately" reading, whose stated fear — a declaration hidden by
+# indentation — is not reachable here: the opener is matched at column zero.
+#
+# A CLOSER IS NOT MERELY ANOTHER OPENER. It must use the SAME fence character,
+# be AT LEAST as long, and be followed by nothing but whitespace, which is why
+# there are two patterns: ```` ```yaml ```` opens a block and does not close
+# one.
+_FENCE_OPEN = re.compile(r"^ {0,3}(`{3,}|~{3,})")
+_FENCE_CLOSE = re.compile(r"^ {0,3}(`{3,}|~{3,})[ \t]*$")
 
 _SUBJECT_PROBE = re.compile(re.escape(SPENT_OPENER) + r"\s*`([^`]+)`")
 _RULING_PROBE = re.compile(r"^(?P<author>.+?),\s*(?P<ruled_on>\d{4}-\d{2}-\d{2})$")
@@ -295,6 +379,71 @@ def _read_elements(line: str) -> tuple[dict[str, str], tuple[str, ...]]:
     return values, tuple(missing)
 
 
+def _fence_state(line: str, fence: str | None) -> str | None:
+    """The open fence marker after `line`, given the one open before it.
+
+    SEPARATE FROM `_entry_boundary` BECAUSE THE TWO ANSWER DIFFERENT
+    QUESTIONS: this one is bookkeeping over the document's structure, and the
+    other is a judgment about one line given that bookkeeping. A single
+    function doing both would have to decide whether a fence DELIMITER is a
+    boundary, and it is neither — it is the edge of a region in which the
+    question does not arise.
+    """
+    if fence is None:
+        opener = _FENCE_OPEN.match(line)
+        return opener.group(1) if opener else None
+    closer = _FENCE_CLOSE.match(line)
+    if (closer is not None and closer.group(1)[0] == fence[0]
+            and len(closer.group(1)) >= len(fence)):
+        return None
+    return fence
+
+
+def _setext_content(line: str) -> bool:
+    """Whether `line` can be the TEXT of a Setext heading — i.e. whether a run
+    of `=` or `-` below it is an underline rather than a thematic break.
+
+    CommonMark admits a Setext underline only under paragraph content, so a
+    blank line, an ATX heading of any level, and a fence delimiter are all
+    excluded. Without this test every `---` in the document would close an
+    entry, which is over-closing past the point where fail-closed stops being
+    a virtue: a horizontal rule inside a release entry would refuse a
+    declaration written correctly below it.
+    """
+    if not line.strip():
+        return False
+    return not (_ATX_ANY.match(line) or _FENCE_OPEN.match(line))
+
+
+def _entry_boundary(line: str, previous: str, in_fence: str | None
+                    ) -> tuple[bool, str | None]:
+    """`(closes, opens)` for one line of the changelog.
+
+    ONE STRUCTURAL FUNCTION FOR EVERY HEADING SHAPE, which is this hardening's
+    whole shape. `closes` is whether the line ENDS the open entry; `opens` is
+    the bundle whose entry it BEGINS, or None where it begins none. A line that
+    closes and opens nothing leaves the reader inside NO entry, which is the
+    state a containment refusal is made of — and the state seven measured
+    escapes were each a way of never reaching.
+
+    `previous` is the line above, which a Setext underline needs and no other
+    shape does. `in_fence` is the open fence marker or None; the function is
+    TOTAL over the fence state rather than trusting its caller to have skipped
+    fenced lines, so a second caller cannot reintroduce the escape by
+    forgetting to.
+    """
+    if in_fence is not None:
+        # Inside a fenced block nothing is a heading — not a line that looks
+        # exactly like one, and not one that names a bundle.
+        return (False, None)
+    if _ATX_BOUNDARY.match(line):
+        heading = _ENTRY_HEADING.match(line)
+        return (True, heading.group(1) if heading else None)
+    if _SETEXT_UNDERLINE.match(line) and _setext_content(previous):
+        return (True, None)
+    return (False, None)
+
+
 def parse_spent_declarations(changelog: bytes | str | None
                              ) -> list[SpentDeclaration]:
     """Every line of `contracts/CHANGELOG.md` beginning with the reserved opener.
@@ -312,11 +461,11 @@ def parse_spent_declarations(changelog: bytes | str | None
     is reserved and a malformed declaration is worse than none: it looks like a
     record.
 
-    NO FENCE TRACKING, deliberately. The requirement reserves the opener over the
-    WHOLE document, so a line inside a code block that begins with it is a
-    declaration too. That reading is the fail-closed one — it recognizes more
-    lines and therefore refuses more of them — and the alternative would let a
-    declaration be hidden from the reader by four leading spaces.
+    FENCED BLOCKS ARE OPAQUE, and the entry a declaration sits in is decided by
+    `_entry_boundary` for every line — see the boundary block above for the rule
+    and for the ten measured escapes it answers. A fenced block is a region in
+    which neither a heading nor a declaration exists, so the form can be
+    DOCUMENTED there without being PERFORMED.
     """
     if not changelog:
         return []
@@ -324,12 +473,22 @@ def parse_spent_declarations(changelog: bytes | str | None
         changelog = changelog.decode("utf-8", errors="replace")
     out: list[SpentDeclaration] = []
     entry: str | None = None
+    fence: str | None = None
+    previous = ""
     for number, line in enumerate(changelog.splitlines(), start=1):
-        heading = _ENTRY_HEADING.match(line)
-        if heading:
-            entry = heading.group(1)
+        # THE DELIMITERS BELONG TO THE BLOCK, not to the prose either side of
+        # it: a line is opaque if a fence was open BEFORE it or is open AFTER
+        # it, which makes both the opener and the closer part of the region and
+        # neither of them prose that could carry a record.
+        opaque = fence is not None
+        closes, opens = _entry_boundary(line, previous, fence)
+        fence = _fence_state(line, fence)
+        opaque = opaque or fence is not None
+        previous = line
+        if closes:
+            entry = opens
             continue
-        if not line.startswith(SPENT_OPENER):
+        if opaque or not line.startswith(SPENT_OPENER):
             continue
         subject_match = _SUBJECT_PROBE.match(line)
         subject = subject_match.group(1) if subject_match else None
@@ -399,6 +558,25 @@ def version_of(bundle: str | None) -> tuple[int, int] | None:
     return (int(found.group(1)), int(found.group(2))) if found else None
 
 
+def _at_or_above_floor(bundle: str | None) -> bool:
+    """Whether this family may report on `bundle` at all."""
+    version = version_of(bundle)
+    return version is not None and version >= ENFORCEMENT_FLOOR
+
+
+def _below_floor(bundle: str | None) -> bool:
+    """Whether `bundle` is a WELL-FORMED name below the enforcement floor.
+
+    NOT THE NEGATION OF `_at_or_above_floor`, and the gap between them is
+    exactly the distinction the orphan sweep turns on: a name of the wrong
+    SHAPE is neither above the floor nor below it, because there is no version
+    to compare. A declaration naming `contract-v1.3` is out of this family's
+    scope; one naming `not-a-bundle` is a defect in the record.
+    """
+    version = version_of(bundle)
+    return version is not None and version < ENFORCEMENT_FLOOR
+
+
 def cut_bundles(git, repo_path: Path, tip: str) -> set[str] | None:
     """Every bundle this repository has CUT, from its release inventories.
 
@@ -446,7 +624,15 @@ def _declaration_state(decl: SpentDeclaration, count: int, cut: set[str],
     if decl.subject is None:
         return ("unreadable", "the line carries the reserved opener and no "
                               "readable subject, so it names no bundle at all")
-    if decl.subject not in cut:
+    if decl.subject not in cut and not _below_floor(decl.subject):
+        # A BELOW-FLOOR SUBJECT IS EXCLUDED FROM THIS SWEEP, because the
+        # finding's own action is FALSE for one: it tells an author that "the
+        # bundle it was meant to name is still reported by this family", and a
+        # bundle below `contract-v1.7` is never reported by this family at all.
+        # A declaration naming one disposes nothing either way, so the warning
+        # would send a reader to repair a record that changes nothing — while a
+        # subject of the wrong SHAPE still reaches this arm, because that is a
+        # defect rather than an out-of-scope name.
         return ("orphan-subject",
                 f"this repository holds no release inventory for "
                 f"{decl.subject}, so the declaration disposes nothing")
@@ -652,8 +838,15 @@ def check_repo(repo: str, repo_path: Path, git,
                             f"no landing distance can be counted")
     blobs = git.blobs_at(repo_path, tip, [MANIFEST, CHANGELOG])
     if blobs is None:
+        # BOTH MEMBERS OF THE BATCH, NAMED. `blobs_at` collapses to None only
+        # when GIT ITSELF failed, which fails the whole two-member read — so a
+        # message naming one document sends an operator to a file when neither
+        # was obtained. The other return shape is per-path None, which each
+        # guard below answers in its own words; conflating the two is the #338
+        # class one layer down.
         return Skip(FAMILY, f"{repo}: version control could not be consulted "
-                            f"for {MANIFEST}")
+                            f"for {MANIFEST} or {CHANGELOG} — the whole batch "
+                            f"read failed, so NEITHER document was obtained")
     manifest = blobs.get(MANIFEST)
     if manifest is None:
         # NOT "no bundle declared". `blobs_at` answers None PER PATH for a blob
@@ -667,19 +860,6 @@ def check_repo(repo: str, repo_path: Path, git,
                             f"published tip {tip[:9]} — the commit may not be "
                             f"present locally, which is not the same fact as "
                             f"declaring no bundle")
-    changelog = blobs.get(CHANGELOG)
-    if changelog is None:
-        # THE SAME GUARD ONE DOCUMENT OVER, and this family has already been
-        # caught by the #338 conflation once. `blobs_at` answers None PER PATH
-        # for a blob it cannot read, and the commonest cause is a checkout that
-        # has not fetched the published tip. NOT FETCHED IS NOT AN ANSWER — in
-        # either direction: the absence of a declaration this run could not look
-        # for must never be read as the absence of a declaration, because that
-        # reading turns an unfetched clone into an `error` nobody can act on.
-        return Skip(FAMILY, f"{repo}: {CHANGELOG} could not be read at the "
-                            f"published tip {tip[:9]}, so a SPENT declaration "
-                            f"could not be looked for — which is not the same "
-                            f"fact as there being none")
     declared = parse_bundle(manifest)
     if declared is None:
         return Skip(FAMILY, f"{repo}: no contract bundle declared")
@@ -693,12 +873,39 @@ def check_repo(repo: str, repo_path: Path, git,
         return Skip(FAMILY, f"{repo}: the release inventories under "
                             f"{RELEASES}/ could not be listed, so the set of "
                             f"cut bundles is unknown")
+    # EVERY BUNDLE THIS FAMILY MAY SPEAK ABOUT, computed once. The floor is
+    # applied here rather than inside the loop so that the SPENT read below can
+    # be gated on whether anything is in scope at all — which is the honest
+    # condition, and the one that satisfies two findings at once.
+    in_scope = sorted(bundle for bundle in cut | {declared}
+                      if _at_or_above_floor(bundle))
+
+    changelog = blobs.get(CHANGELOG)
+    if changelog is None:
+        # THE SAME #338 GUARD ONE DOCUMENT OVER, AND IT IS GATED ON
+        # IN-SCOPE-NESS RATHER THAN ON POSITION. `blobs_at` answers None PER
+        # PATH for a blob it cannot read, and the commonest cause is a checkout
+        # that has not fetched the published tip; NOT FETCHED IS NOT AN ANSWER,
+        # in either direction, because reading a declaration this run could not
+        # LOOK FOR as an absent declaration turns an unfetched clone into an
+        # `error` nobody can act on.
+        #
+        # BUT A REPOSITORY WITH NOTHING IN SCOPE IS NOT OWED THAT SKIP, and
+        # standing above `parse_bundle` this guard fired before the bundle was
+        # known — so a below-floor repository holding no `contracts/CHANGELOG.md`
+        # at all, which this family had always answered with silence, became a
+        # silent "not checked" instead. There is no bundle here whose state a
+        # declaration could change, so the answer is the one it always was.
+        if not in_scope:
+            return []
+        return Skip(FAMILY, f"{repo}: {CHANGELOG} could not be read at the "
+                            f"published tip {tip[:9]}, so a SPENT declaration "
+                            f"could not be looked for for "
+                            f"{', '.join(in_scope)} — which is not the same "
+                            f"fact as there being none")
     declarations = parse_spent_declarations(changelog)
     findings, candidates = _refusal_findings(repo, declarations, cut, declared)
-    for bundle in sorted(cut | {declared}):
-        version = version_of(bundle)
-        if version is None or version < ENFORCEMENT_FLOOR:
-            continue
+    for bundle in in_scope:
         kind, detail = _tag_state(git, repo_path, bundle)
         if kind == "unlistable":
             return Skip(FAMILY, f"{repo}: the published refs for {bundle} "
