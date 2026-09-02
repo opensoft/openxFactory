@@ -875,15 +875,7 @@ def _declaration_state(decl: SpentDeclaration, count: int, cut: set[str],
     if decl.subject is None:
         return ("unreadable", "the line carries the reserved opener and no "
                               "readable subject, so it names no bundle at all")
-    if decl.subject not in cut and not _below_floor(decl.subject):
-        # A BELOW-FLOOR SUBJECT IS EXCLUDED FROM THIS SWEEP, because the
-        # finding's own action is FALSE for one: it tells an author that "the
-        # bundle it was meant to name is still reported by this family", and a
-        # bundle below `contract-v1.7` is never reported by this family at all.
-        # A declaration naming one disposes nothing either way, so the warning
-        # would send a reader to repair a record that changes nothing — while a
-        # subject of the wrong SHAPE still reaches this arm, because that is a
-        # defect rather than an out-of-scope name.
+    if decl.subject not in cut:
         return ("orphan-subject",
                 f"this repository holds no release inventory for "
                 f"{decl.subject}, so the declaration disposes nothing")
@@ -967,6 +959,27 @@ def _refusal_findings(repo: str, decls: list[SpentDeclaration],
     candidates: dict[str, SpentDeclaration] = {}
     reported_duplicate: set[str] = set()
     for decl in decls:
+        if _below_floor(decl.subject):
+            # A BELOW-FLOOR SUBJECT LEAVES THE WHOLE SWEEP, not one branch of
+            # it — Codex's round-7 P2 on PR #589, and it was right that
+            # exempting only the orphan arm was half a rule. The enforcement
+            # floor says this family reports NOTHING about a bundle under
+            # `contract-v1.7`; a declaration naming one therefore disposes
+            # nothing whatever its shape, and every state below would be a
+            # finding ABOUT A BUNDLE THIS FAMILY MAY NOT SPEAK OF — landing, at
+            # that, on an inventory path for a bundle it does not grade.
+            # Measured before the change: a legacy repository declaring
+            # `contract-v1.6` and naming it spent emitted a `live-bundle`
+            # error; malformed and wrong-entry below-floor declarations emitted
+            # theirs.
+            #
+            # SUBJECTS OF THE WRONG SHAPE AND UNREADABLE SUBJECTS ARE NOT
+            # EXCLUDED, which is the other half and the hole this exclusion
+            # could open: `_below_floor` is false for both, so `not-a-bundle`
+            # still raises the orphan warning and a line carrying the opener
+            # and no subject at all is still `unreadable`. Neither is an
+            # out-of-scope NAME; both are defects.
+            continue
         state = _declaration_state(decl, counts[decl.subject], cut, declared)
         if state is None:
             candidates[decl.subject] = decl

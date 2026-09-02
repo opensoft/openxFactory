@@ -1598,6 +1598,59 @@ def test_a_below_floor_repository_with_no_changelog_is_not_newly_skipped(tmp_pat
         "test would pass over a deleted guard")
 
 
+BELOW_FLOOR_STATES = (
+    ("live-bundle", "`contract-v1.6`", "`contract-v1.6`", "contract-v1.6"),
+    ("wrong-entry", "`contract-v1.6`", "`contract-v3.0`", "contract-v3.0"),
+    ("successor-never-cut", "`contract-v1.6`", "`contract-v9.9`",
+     "contract-v3.0"),
+)
+
+
+@pytest.mark.parametrize("state,subject,superseding,declared",
+                         BELOW_FLOOR_STATES,
+                         ids=[row[0] for row in BELOW_FLOOR_STATES])
+def test_no_refusal_state_fires_for_a_below_floor_subject(state, subject,
+                                                          superseding,
+                                                          declared):
+    """EVERY state, not just the orphan one. Measured before the change: a
+    legacy repository declaring `contract-v1.6` and naming it spent emitted a
+    `live-bundle` error, and malformed and wrong-entry below-floor declarations
+    emitted theirs — each on an inventory path for a bundle this family does
+    not grade."""
+    line = (f"**SPENT BUNDLE:** {subject} — SUPERSEDED BY {superseding} — "
+            f"CAUSE: c — RULED BY B, 2026-09-02 — MEASUREMENT: m")
+    doc = f"## contract-v1.6 — x\n\n{line}\n"
+    decls = rtp.parse_spent_declarations(doc)
+    findings, candidates = rtp._refusal_findings(
+        "alphaFactory", decls, {"contract-v1.6"}, declared)
+    assert findings == [], f"a below-floor subject still produced {state}"
+    assert candidates == {}, (
+        "and it must not become an acceptance candidate either")
+
+
+def test_a_malformed_below_floor_declaration_is_silent_but_a_shapeless_one_is_not():
+    """THE HOLE THE EXCLUSION ABOVE COULD OPEN, pinned in both directions.
+
+    `_below_floor` is FALSE for a name of the wrong shape and for no name at
+    all, and that gap is the whole distinction: `contract-v1.3` is an
+    out-of-scope NAME and leaves the sweep, while `not-a-bundle` and a line
+    carrying the reserved opener and nothing else are DEFECTS and stay in it.
+    """
+    below = rtp.parse_spent_declarations(
+        "## contract-v3.0 — x\n\n**SPENT BUNDLE:** `contract-v1.3`\n")
+    findings, _ = rtp._refusal_findings("alphaFactory", below,
+                                        {"contract-v3.0"}, "contract-v3.0")
+    assert findings == []
+
+    for line, expected in (("**SPENT BUNDLE:** `not-a-bundle`", WARNING),
+                           ("**SPENT BUNDLE:**", ERROR)):
+        decls = rtp.parse_spent_declarations(f"## contract-v3.0 — x\n\n{line}\n")
+        findings, _ = rtp._refusal_findings("alphaFactory", decls,
+                                            {"contract-v3.0"}, "contract-v3.0")
+        assert [f.severity for f in findings] == [expected], (
+            f"{line!r} is a defect and must stay in the sweep")
+
+
 def test_a_failed_batch_read_names_both_members_it_asked_for(tmp_path):
     """`blobs_at` collapses to None only when GIT ITSELF failed, which fails the
     whole two-member batch — so a message naming one document sends an operator
@@ -1614,10 +1667,14 @@ def test_a_failed_batch_read_names_both_members_it_asked_for(tmp_path):
 
 
 def test_a_below_floor_subject_raises_no_orphan_warning(tmp_path):
-    """A BELOW-FLOOR SUBJECT IS OUT OF THIS SWEEP, because the orphan finding's
-    own action is FALSE for one: it tells an author that the bundle it was meant
-    to name "is still reported by this family", and `contract-v1.3` is never
-    reported by this family at all.
+    """A BELOW-FLOOR SUBJECT LEAVES THE WHOLE REFUSAL SWEEP, not one branch of
+    it — Codex's round-7 P2 on PR #589, which was right that exempting only the
+    orphan arm was half a rule.
+
+    The enforcement floor says this family reports NOTHING about a bundle under
+    `contract-v1.7`, so a declaration naming one disposes nothing whatever its
+    shape, and every other refusal state would be a finding about a bundle this
+    family may not speak of.
 
     THE POSITIVE CONTROL IS A SUBJECT OF THE WRONG SHAPE, which still reaches
     the arm — that is a defect in the record rather than an out-of-scope name,
