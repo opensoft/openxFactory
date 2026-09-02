@@ -236,13 +236,6 @@ def test_the_live_sweep_reproduces_the_AUTHORING_measurement():
       both co-modified counts remain 104/18. Its machine-readable parent
       `[add-chain-anchoring]` moves declarations 1 → 2 without increasing the
       one-hop deepest chain, and root claims remain zero.
-    - PR #548 then adds `amend-chain-anchoring-readiness-and-durability`, one
-      more ACTIVE sole modifier with novel ADDED requirement titles. Against
-      current main `ab0bb2dd`, change ids move 154 → 155, sole modifiers
-      50 → 51, active changes 31 → 32 and active sole modifiers 13 → 14;
-      both co-modified counts remain 104/18. Its machine-readable parent
-      `[add-chain-anchoring]` moves declarations 1 → 2 without increasing the
-      one-hop deepest chain, and root claims remain zero.
     """
     sweep = sa.corpus_sweep(ROOT)
     assert sweep.co_modified == 104, (
