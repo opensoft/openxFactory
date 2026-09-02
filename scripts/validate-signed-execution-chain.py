@@ -38,10 +38,15 @@ Two layers run:
    also draws the completeness findings its own incompleteness earns; that is the
    rules working, and the expected code is what the self-test pins.
 2. Optional real artifacts under REPO_PATH: every `*.y*ml` whose top-level `kind`
-   is one of the four family kinds is validated, and the whole set is walked as
-   chains. Other kinds are skipped and counted; the packaged `examples/` tree is
-   excluded, because the negatives there are deliberately invalid and layer 1
-   already asserts exactly how. ZERO REAL ARTIFACTS IS THE EXPECTED STATE UNTIL
+   is one of the ELEVEN family kinds — or one of the THREE CONSUMED
+   `add-trust-anchor` kinds a tier-2 issuance composes, which the sweep collects
+   into the scope exactly as the packaged corpora load them — is validated, and
+   the whole set is walked as chains. Other kinds are skipped and counted. BOTH
+   families' packaged `examples/` trees are excluded, this one's and
+   trust-anchor's, because the negatives there are deliberately invalid and each
+   family's layer 1 already asserts exactly how; the SAME BYTES at a live path
+   are adjudicated, which is the difference the exclusion draws.
+   ZERO REAL ARTIFACTS IS THE EXPECTED STATE UNTIL
    THE FIRST RATIFICATION IS INCEPTED UNDER THIS CAPABILITY — inception is a
    human act with a wallet-held key, and this realization mints no chain.
 
@@ -1822,8 +1827,11 @@ def repo_scan(f: Findings, target: Path, registry: Registry, docs: dict[str, dic
     if records:
         validate_scope(f, records, registry, docs, carried)
     f.note(f"repo scan ({target}): {checked} artifact(s) checked, {skipped} skipped "
-           f"(not a signed-execution-chain kind); packaged examples/ excluded "
-           f"(layer 1 owns them). ZERO real artifacts is the expected state until "
+           f"(no kind this reader adjudicates — neither one of this family's own "
+           f"nor one of the CONSUMED trust-anchor kinds a tier-2 issuance composes); "
+           f"BOTH families' packaged examples/ excluded, this one's and "
+           f"trust-anchor's (each family's layer 1 owns its own). ZERO real "
+           f"artifacts is the expected state until "
            f"the first ratification is incepted under this capability — inception "
            f"is a human act with a wallet-held key, and this realization mints no "
            f"chain")

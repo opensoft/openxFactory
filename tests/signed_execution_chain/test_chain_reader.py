@@ -497,6 +497,91 @@ def test_the_reader_exits_zero_on_the_corpus_and_the_tree(capsys):
     assert "repo scan (" in out and "artifact(s) checked" in out
 
 
+# THE SWEEP'S SCOPE, IN BOTH DIRECTIONS. The whole-tree sweep collected only this
+# family's OWN kinds until the § 5.8 canary build found it (openxFactory #579,
+# fixed in #566): the three CONSUMED `add-trust-anchor` kinds every tier-2
+# signature resolves against were dropped, so a VALID tranche-two chain placed in
+# the tree drew 53 refusals — 49 `forged_attestation_identity` and 4
+# `controller_anchor_not_held` — because the records that discharge the
+# composition could never reach the scope that resolves them.
+#
+# THE TWO HALVES ARE ONE FIX AND ARE TESTED AS TWO. Admitting the kinds without
+# generalizing the packaged-corpus exclusion sweeps `contracts/trust-anchor/`'s
+# own deliberately-invalid negatives as LIVE records — measured, before the
+# exclusion landed, as two `carried-vocabulary` refusals on a clean tree. The
+# second half is already guarded by the whole-tree test above (it goes red
+# without the exclusion, over the trust-anchor negatives this repository tracks);
+# these two hold both halves HERMETICALLY, so they still stand if either family's
+# packaged corpus moves.
+#
+# ONE FIXTURE, TWO PATHS, OPPOSITE OUTCOMES is the whole statement: the same
+# bytes are adjudicated at a live path and excluded under a packaged `examples/`
+# tree.
+CONSUMED_FIXTURE = (
+    REPO_ROOT / "contracts" / "trust-anchor" / "examples" / "negative"
+    / "anchor-shortfall-cited-with-no-claim-moment.yaml")
+
+
+def _swept(tmp_path, relative_path, registry_and_docs, carried):
+    """Run the sweep over a tree holding ONE consumed-kind record at
+    `relative_path`, plus one document of a kind this reader owns nothing of."""
+    target = tmp_path / relative_path
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(CONSUMED_FIXTURE.read_text(encoding="utf-8"),
+                      encoding="utf-8")
+    (tmp_path / "unrelated.yaml").write_text(
+        "schema_version: 1\nkind: something_this_reader_does_not_own\n",
+        encoding="utf-8")
+    findings = reader.Findings()
+    registry, docs = registry_and_docs
+    reader.repo_scan(findings, tmp_path, registry, docs, carried)
+    return findings
+
+
+def test_the_sweep_collects_and_adjudicates_the_consumed_trust_anchor_kinds(
+        tmp_path, registry_and_docs, carried):
+    """A consumed record at a LIVE path is in scope, and held to the vocabulary
+    that owns it. Counting it is not enough — a kind admitted to the count and
+    never adjudicated is the vacuous pass in miniature — so the fixture used is
+    one `add-trust-anchor` itself packages as invalid, and the refusal proves the
+    record was really read."""
+    findings = _swept(tmp_path, "governance/anchor-under-adjudication.yaml",
+                      registry_and_docs, carried)
+    assert reader.codes_of(findings.errors) == {"carried-vocabulary"}
+    assert len(findings.errors) == 1
+    assert "1 artifact(s) checked" in findings.notes[0]
+    # The kind this reader owns nothing of is still skipped and still counted.
+    assert "1 skipped" in findings.notes[0]
+
+
+def test_the_sweep_excludes_the_consumed_familys_own_packaged_examples(
+        tmp_path, registry_and_docs, carried):
+    """THE SAME BYTES under trust-anchor's packaged `examples/` tree draw
+    NOTHING. A negative fixture is invalid ON PURPOSE and its own family's layer
+    1 already asserts exactly how; re-adjudicating it here would make every
+    checkout that vendors either family refuse on sight."""
+    findings = _swept(
+        tmp_path,
+        "contracts/trust-anchor/examples/negative/anchor-shortfall.yaml",
+        registry_and_docs, carried)
+    assert findings.errors == []
+    assert "0 artifact(s) checked" in findings.notes[0]
+
+
+def test_the_sweeps_skipped_count_does_not_misreport_why(
+        tmp_path, registry_and_docs, carried):
+    """The note the operator reads when diagnosing a skip must name the scope the
+    sweep actually has. It said "not a signed-execution-chain kind" while the
+    sweep also admits the consumed vocabulary, which would send a reader looking
+    for the wrong cause."""
+    findings = _swept(tmp_path, "governance/anchor-under-adjudication.yaml",
+                      registry_and_docs, carried)
+    note = findings.notes[0]
+    assert "not a signed-execution-chain kind" not in note
+    assert "CONSUMED trust-anchor kinds" in note
+    assert "BOTH families' packaged examples/ excluded" in note
+
+
 def test_the_reader_no_longer_says_the_capability_confers_nothing(
         registry_and_docs, carried):
     """Requirement 9 is about this capability's own standing, and the reader
