@@ -563,10 +563,13 @@ Active changes:
   `verify-promotion` on the PROMOTED commit from an independent clone, both
   green with zero findings, and re-verified with `verify-tag` from a second
   fresh clone (evidence: PR #573 comment `5506503494`). **Task 7.2 is therefore
-  DISCHARGED and §§ 5.1, 5.2, 7.1, 7.3 and 7.4 are what remain** — the
-  five-consumer validator run at the tag, the starter instantiation, and the
-  merge-commit/`--strict` reads — so this stays ACTIVE on the evidence it still
-  owes rather than on the tag it no longer does. (code surface: openxFactory;
+  DISCHARGED and SIX boxes remain — 1.6, 5.1, 5.2, 7.1, 7.3 and 7.4** — the
+  adversarial review to convergence, the five-consumer validator run at the tag,
+  the starter instantiation, and the merge-commit/`--strict` reads. The set is
+  named in full rather than pruned to the interesting part, because
+  `scripts/proposal-support.py` refuses to archive while ANY `- [ ]` remains, so a
+  subset would read as fewer reasons than there are. This stays ACTIVE on the
+  evidence it still owes rather than on the tag it no longer does. (code surface: openxFactory;
   target release: `contract-v3.0` — archives only on merged plus green
   realization evidence and the published tag)
 - [add-chain-attestation](openspec/changes/add-chain-attestation/proposal.md)
@@ -1837,9 +1840,12 @@ Active changes:
   sentinel `unpublished:contract-v3.0` was resolved to `ff9ed815` the same day —
   task 6.9's post-tag act, in the shape the `contract-v2.2` resolution recorded
   two entries below, and the thing the `contract-v1.45` residue (three days
-  standing) exists to stop recurring. **Task 8.2 is DISCHARGED; §§ 7.1, 7.2, 8.1, 8.3, 8.4
-  and 8.5 remain** — the validator run at the tag, the two-direction fallback
-  exercise against the running serve, and the recorded dispositions. (code
+  standing) exists to stop recurring. **Task 8.2 is DISCHARGED; SEVEN boxes
+  remain — 1.8, 7.1, 7.2, 8.1, 8.3, 8.4 and 8.5** — the adversarial review to
+  convergence, the validator run at the tag, the two-direction fallback
+  exercise against the running serve, and the recorded dispositions. Named in
+  full for the same reason as the sibling above: `scripts/proposal-support.py`
+  refuses to archive while ANY `- [ ]` remains. (code
   surface: openxFactory; target release: `contract-v3.0` — archives only on
   merged plus green realization evidence, the moved manifest digest, the rebuilt
   inventory and the published tag)
