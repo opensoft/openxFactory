@@ -267,6 +267,19 @@ aggregation's comment records an earlier revision that got this wrong and
 
 ### Decision 3 — The build context problem, and the fresh-checkout recipe
 
+**AMENDED 2026-09-01 — fresh inputs cross the host boundary as a sealed parent
+artifact, never as worker-side repository clones.** Brett's host ruling is
+explicit: "The runner design intentionally requires
+`repository_credentials_absent`; source is delivered as sealed job artifacts and
+the runners do not clone or push repositories." Both input repositories are
+private, and the first real child runs proved the contradiction empirically: an
+artifact rider with no repository credential cannot perform the raw clones this
+decision originally placed there. Deploying repository keys through Intune would
+weaken the host contract to rescue an implementation detail. The authority-
+preserving correction moves ONLY the repository-read act to the credentialed
+hosted parent; strict generation, Docker build, ACR push, and digest production
+remain on the artifact rider.
+
 This is the part that is easy to get subtly wrong, so it is written out.
 
 The Dockerfile's build context is the ASSEMBLED WORKSPACE SHAPE — a directory
@@ -291,16 +304,26 @@ truthfully report a revision the `/source` viewer cannot serve.
 So the recipe is the one the two manual builds used, and it is the recipe
 because of that property:
 
-1. Make a scratch context directory `<ctx>`.
-2. Clone/checkout openxFactory `main` into `<ctx>/openxFactory` — a FRESH
-   checkout, not the submodule pin.
-3. Generate the snapshot FROM THAT CHECKOUT into the context:
+1. AFTER the no-change decision finds movement, the credentialed hosted parent
+   checks out openxFactory `main` and the Omnigent-Install recipe at `main`, with
+   credentials not persisted, and records each path-scoped baked-input revision.
+2. The parent copies only the Dockerfile COPY roots plus the recipe directory
+   into a bounded source artifact and writes a manifest carrying the source HEAD,
+   its committer timestamp, the path-scoped corpus revision, and the path-scoped
+   recipe revision. It uploads that directory as the source run's sealed job
+   artifact.
+3. The artifact-only child verifies the source-run provenance, downloads that
+   exact artifact with its read-only Actions token, validates the manifest and
+   required paths, and generates the snapshot FROM THAT CORPUS TREE into the
+   context:
    `PYTHONPATH=scripts python3 -m ideation_dashboard.cli generate
    --repo-root . --repository openxFactory --strict
+   --source-revision <manifest source HEAD>
+   --generated-at <manifest source committer timestamp>
    --output <ctx>/health/ideation-dashboard/openxFactory-snapshot.json`,
-   run from `<ctx>/openxFactory`. `--repo-root .` is what makes
-   `source_revision` the checkout's own git HEAD; `--strict` is the gate.
-4. `docker build -f <omnigent-install-checkout>/containers/ideation-dashboard/Dockerfile <ctx>`
+   run from `<ctx>/openxFactory`. The two explicit generation anchors preserve
+   the deterministic stamp the fresh checkout supplied; `--strict` is the gate.
+4. `docker build -f <bundle>/omnigent-install/containers/ideation-dashboard/Dockerfile <ctx>`
    — the Dockerfile comes from Omnigent-Install `main`, the CONTEXT is
    `<ctx>`.
 5. Tag date-stamped, push, capture the digest.
@@ -313,7 +336,7 @@ digest exists, and there is nothing to propose. That ordering is why the
 requirement says "publishes nothing" rather than "publishes and reports": the
 strict failure precedes the push, so there is no artifact to retract.
 
-Two notes for the implementation. The Dockerfile is read from Omnigent-Install
+Two notes for the implementation. The Dockerfile is read by the parent from Omnigent-Install
 `main` rather than from the aggregation's submodule pin, for the same
 staleness reason as the corpus — and it should be recorded as an input in the
 provenance, because a Dockerfile change alters the image without any corpus
@@ -542,7 +565,7 @@ forbids.
 Two independent reasons, both on the IMAGE side:
 
 1. **The build is not reproducible.** Every step of the recipe starts with a
-   FRESH checkout (Decision 3 requires it), which stamps every file's
+   freshly materialized source tree (Decision 3 requires it), which stamps every file's
    modification time at checkout time. The `COPY` layers are tars of those
    files, so the layer bytes differ even when every file's CONTENT is
    identical, and the manifest digest moves with them.
@@ -694,9 +717,9 @@ for a human decision or execution.
 2. HUMAN GATE — the `acr_push` credential: rule the shape (Decision 8), land
    the Omnigent-Install schema + manifest delta, and reconcile the credential
    onto the host.
-3. Build the artifact-only child workflow in the aggregation and prove the
-   fresh-checkout recipe end-to-end by hand ON the worker, producing a real
-   digest without opening any PR.
+3. Build the parent source-artifact step and the artifact-only child workflow,
+   then prove the sealed-source recipe end to end ON the worker, producing a
+   real digest without any worker repository access and without opening a PR.
 4. Add the refresh stage to `doc-health-reusable.yml` behind the readiness gate,
    with the no-change short-circuit, in a mode that opens no PR (dry-run):
    prove the skip path, the strict-failure path, and the no-change path.

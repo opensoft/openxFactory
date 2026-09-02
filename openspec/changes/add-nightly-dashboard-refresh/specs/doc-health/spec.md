@@ -3,19 +3,24 @@
 ## ADDED Requirements
 
 ### Requirement: Ideation-dashboard image refresh lane
-The nightly doc-health run SHALL include an ideation-dashboard IMAGE REFRESH lane, ordered AFTER the deterministic pass, the existing ideation-dashboard snapshot lane, and the report delivery step, so a refresh can never jeopardise the report it follows. The lane SHALL execute on the Omnigent artifact worker as a dispatched artifact-only child, following the same execution split and bounded-worker pattern as the agentic semantic sweep, the document-cataloger lane, the ideation-readiness lane and the possibles-derivation lane. Its work runs ONLY after the input-revision check of the no-change requirement below has found movement — the check precedes the checkout, so a quiet night costs two revision reads rather than a build and a push. Its work is then: a FRESH checkout of openxFactory `main` (never the aggregation's submodule pin); snapshot generation from THAT SAME checkout under `--strict`, so the snapshot's `source_revision` and the corpus roots that get baked are one revision by construction; an image build from the Omnigent-Install `containers/ideation-dashboard/Dockerfile` at ITS `main`, with the assembled workspace shape as build context; a push to `acropensoftxfactoryqa.azurecr.io` under a date-stamped tag; and capture of the resulting digest as the lane's result.
+The nightly doc-health run SHALL include an ideation-dashboard IMAGE REFRESH lane, ordered AFTER the deterministic pass, the existing ideation-dashboard snapshot lane, and the report delivery step, so a refresh can never jeopardise the report it follows. The lane SHALL execute on the Omnigent artifact worker as a dispatched artifact-only child, following the same execution split and bounded-worker pattern as the agentic semantic sweep, the document-cataloger lane, the ideation-readiness lane and the possibles-derivation lane. Its work runs ONLY after the input-revision check of the no-change requirement below has found movement — the check precedes source materialization, so a quiet night costs two revision reads rather than a bundle, build and push. The credentialed hosted parent SHALL then materialize fresh openxFactory `main` (never the aggregation's submodule pin) plus the Omnigent-Install recipe at ITS `main` into a bounded sealed source artifact carrying the source HEAD, source committer timestamp, and both path-scoped input revisions. The credential-free child SHALL verify and download that artifact, generate the snapshot from THAT SAME corpus tree under `--strict` using the manifest-pinned source revision and timestamp, build from the bundled Dockerfile with the assembled workspace shape as context, push to `acropensoftxfactoryqa.azurecr.io` under a date-stamped tag, and capture the resulting digest as its only result. The worker SHALL perform no repository clone, fetch, or push.
 
 `--strict` SHALL be the publication gate and MUST precede the push: a snapshot the validator rejects, or one the validator could not be run against at all, SHALL fail the lane with NOTHING published — no tag, no pushed image, no digest, no pull request. The lane SHALL add no deterministic check family and MUST NOT affect deterministic results.
 
 #### Scenario: The lane runs on a night with corpus movement
 - **WHEN** the report has been delivered and the worker is ready
-- **THEN** the lane generates the snapshot from a fresh openxFactory `main` checkout under `--strict`, builds the image from that assembled context, pushes it under a date-stamped tag, and records the resulting digest
+- **THEN** the credentialed parent seals fresh openxFactory `main` plus the current recipe into a bounded source artifact, and the worker verifies it, generates the snapshot under `--strict`, builds the image from that assembled context, pushes it under a date-stamped tag, and records the resulting digest
 - **AND** the snapshot's `source_revision` and the baked corpus revision MUST be the same commit
 
 #### Scenario: Strict validation fails
 - **WHEN** snapshot generation reports any error or any warning under `--strict`, or the validator cannot be run
 - **THEN** the lane MUST publish nothing — no tag, no push, no digest, no pull request — and MUST record the failure with the validator's own output
 - **AND** the deterministic results and the delivered report MUST be unaffected
+
+#### Scenario: The sealed source artifact is unavailable or invalid
+- **WHEN** the child cannot download the source run's named artifact, its manifest is malformed, a required path is absent, or its recorded revisions do not match the parent decision
+- **THEN** the child MUST fail before strict generation and before any registry credential is used
+- **AND** no repository fallback, host clone, image push, digest, or pull request MUST occur
 
 #### Scenario: The lane builds from the wrong tree
 - **WHEN** any realization would build from the aggregation's `openxFactory` submodule pin, or bake the committed snapshot alongside a freshly checked-out corpus
@@ -136,6 +141,12 @@ The refresh lane SHALL record its outcome as a diagnostic status artifact beside
 ### Requirement: The refresh lane conserves the worker and identity authority the nightly already holds
 The refresh lane MUST NOT widen any authority boundary this pipeline already draws. The worker's permission matrix is UNCHANGED: `execute_final_action` and `access_secrets` remain constitutionally false, and the lane's worker-side work is artifact production plus a proposal — nothing else. The worker SHALL hold no repository credential, no kubeconfig and no cluster access, and its registry PUSH capability SHALL be a host substrate credential, scoped to the single image repository, delivered to the host BY REFERENCE and reconciled onto it the way every other credential in its host manifest is — never fetched or read by the worker's model loop, never written into the built image, and never emitted to a job log. The lane's App identity SHALL gain, on the served plane's repository, ONLY the contents and pull-request permissions its authoring act requires; it SHALL gain no registry, approval, merge or cluster authority there or anywhere. The approving identity SHALL remain distinct from the authoring identity.
 
+Repository source SHALL cross into the worker only as the parent run's sealed,
+bounded Actions artifact. Repository credentials, deploy keys, Git credential
+helpers, raw repository clones, and repository network access on the worker are
+prohibited; the credentialed hosted parent owns those reads and persists no
+credential into the artifact.
+
 #### Scenario: The lane completes a cycle
 - **WHEN** the worker has generated the snapshot, built and pushed the image, and the App has opened the pin pull request
 - **THEN** the lane's work is finished, and the apply is performed by the receiving plane's in-cluster reconciler on merged state
@@ -144,6 +155,10 @@ The refresh lane MUST NOT widen any authority boundary this pipeline already dra
 #### Scenario: A permission-matrix exception is proposed for this lane
 - **WHEN** any proposal would set `execute_final_action` or `access_secrets` true for this or any lane, or grant the worker a repository credential to open its own pull request
 - **THEN** it MUST be rejected as a contradiction of the contract the worker class is defined by, not weighed as a trade-off
+
+#### Scenario: The worker is asked to fetch repository source
+- **WHEN** any realization would place a repository token, deploy key, credential helper, or raw repository clone on the artifact worker
+- **THEN** it MUST be rejected — the credentialed parent seals the bounded source artifact and the worker consumes only that artifact
 
 #### Scenario: The push credential's scope is widened
 - **WHEN** a realization would give the worker host a registry-wide push credential, or hand the push credential to the model loop, or bake it into the image

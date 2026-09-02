@@ -511,7 +511,22 @@ def main() -> int:
             # edit it. Selecting first matters: the null not-yet-created
             # buffer this step once edited could never exercise the ordered
             # or partial Save variants below.
-            page.click(".doxbench-canvas [role=tab] >> text=Document")
+            try:
+                page.click(".doxbench-canvas [role=tab] >> text=Document")
+            except Exception as e:
+                page.screenshot(path="/tmp/t098-step4.png", full_page=True)
+                html = page.evaluate("""() => {
+                  const pick = (sel) => { const n = document.querySelector(sel); return n ? n.outerHTML.slice(0, 2500) : null; };
+                  return {
+                    selects: [...document.querySelectorAll('.doxbench-canvas select, .swb-context select')].map(x => ({cls: x.className, label: x.getAttribute('aria-label'), options: [...x.options].map(o => o.textContent)})),
+        canvasButtons: [...document.querySelectorAll('.doxbench-canvas button, .doxbench-canvas [role=button], .doxbench-canvas [role=tab], .doxbench-canvas [role=combobox]')].map(b => ({tag: b.tagName, cls: b.className, role: b.getAttribute('role'), text: b.textContent.trim().slice(0,50), hidden: b.hidden || !!b.closest('[hidden]')})),
+        canvasHtml: (document.querySelector('.doxbench-canvas')||{outerHTML:''}).outerHTML.replace(/<textarea[\s\S]*?<\/textarea>/g, '<textarea…>').slice(0, 2500),
+                    contextText: (document.querySelector('.swb-context')||{textContent:''}).textContent.slice(0,500),
+                  };
+                }""")
+                import json as _j
+                print("STEP4 DOM:", _j.dumps(html, indent=1)[:3000])
+                raise SystemExit(f"DEBUG4: {e}")
             page.select_option(
                 ".doxbench-document-picker",
                 "ideation/staging/ideation-governance/detail.md",
