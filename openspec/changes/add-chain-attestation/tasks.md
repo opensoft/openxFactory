@@ -1165,6 +1165,70 @@ Each is contract content — cheap now, expensive after a bundle ships.
       with no signed open decision, each FAIL a real pull request, with the run id,
       the check id, the validator's single named refusal, and the live ruleset read
       recorded.
+      **ATTEMPTED 2026-09-02, IMMEDIATELY AFTER THE TAG, AND NOT PRODUCIBLE — SO
+      NO CANARY PULL REQUEST WAS OPENED AND THIS BOX STAYS OPEN.** The third
+      conjunct cannot be delivered against the reader as shipped at
+      `contract-v3.0`, and the blockage is structural rather than a matter of
+      effort — the same class as §§ 5.1–5.3, which is why it is recorded rather
+      than worked around. Filed as openxFactory issue **#579**; full measurement,
+      every command and every verbatim refusal, at
+      `~/projects/xFactory/chain-attestation-canary-2026-09-02/canary-evidence.md`.
+
+      **THE WHOLE-TREE SWEEP CANNOT ADJUDICATE A TRANCHE-TWO CHAIN AT ALL.**
+      `repo_scan` admits only `KIND_TO_SCHEMA` and drops the three CONSUMED
+      `add-trust-anchor` kinds every tier-2 signature resolves against, while the
+      module's own comment beside `CONSUMED_KIND_TO_SCHEMA` says a reader that
+      could not see them *"could not run the composition at all"*. Measured with
+      canary #549's own technique — the tranche-two positive corpus concatenated
+      verbatim as one in-tree YAML stream, then the gate's own invocation:
+
+      | case | refusals as shipped |
+      |---|---|
+      | **control** — the POSITIVE corpus, nothing broken | **53** (`49 forged_attestation_identity`, `4 controller_anchor_not_held`) |
+      | dropped runner attestation | **56**, of which ONE is the intended `dispatched_leaf_never_written` |
+      | no signed open decision | **59**, of which ONE is the intended `orphan_pull_request` |
+
+      **The control is the finding**: 53 refusals over a corpus this reader's own
+      self-test validates as clean. A canary cannot show a SINGLE named refusal
+      when a valid chain already shows 53. A throwaway diagnostic copy — never
+      committed — widening that one filter to
+      `(KIND_TO_SCHEMA | CONSUMED_KIND_TO_SCHEMA)` drops the control to **2**,
+      neither of them a chain refusal, and leaves the dropped-attestation case at
+      **exactly the two intended**: so all 53 are that filter and nothing else.
+      **AND WIDENING IT ALONE IS THE WRONG FIX**, which is why this is packet work
+      and not a one-liner: the sweep's packaged-corpus exclusion tests for
+      `"examples"` AND `"signed-execution-chain"` in the path, so
+      `contracts/trust-anchor/examples/negative/` — records engineered to be
+      invalid — goes live the moment its kinds are admitted, and two refuse at
+      once. A correct fix admits the consumed vocabulary AND generalizes the
+      exclusion to any owning family's `examples/`, which changes what a REQUIRED
+      gate refuses and owes its own scenarios and review.
+
+      **AND A SECOND, INDEPENDENT SHORTFALL OF THE SAME CONJUNCT**, separated so
+      neither hides the other: with the sweep fixed, **neither packaged fixture is
+      singular**. The dropped-attestation case draws
+      `dispatched_leaf_never_written` AND `open_decision_enumeration_incomplete` —
+      **one fact seen twice**, the same dropped task refused from link 5's side and
+      link 6's, which is arguably inside #549's own discipline. The
+      no-signed-decision case draws `orphan_pull_request` PLUS
+      `chain_binding_names_another_chain` and `orphan_chain_identity`, because the
+      fixture introduces a chain of its own that resolves to no signed
+      ratification — three codes, and those are not one fact. This is no defect in
+      the fixtures: the self-test asserts only that the expected code is AMONG
+      those found and deliberately tolerates *"the completeness findings its own
+      incompleteness earns"*. #549 succeeded by borrowing a fixture *"engineered
+      to be singular"*, and these two scenarios have no such fixture packaged.
+
+      **CONJUNCT 4 WAS TAKEN ANYWAY**, because it costs nothing and it is the one
+      that blocked § 4.6 by construction: read live at 2026-09-02T08:31:35Z,
+      org ruleset **21957695** *"openxFactory chain-gate (require
+      signed-execution-chain-gate)"*, `enforcement: active`, required check
+      `signed-execution-chain-gate`, confirmed applying to THIS repository through
+      `repos/opensoft/openxFactory/rulesets/21957695` and
+      `repos/opensoft/openxFactory/rules/branches/main`. **Requirement 9's
+      standing is untouched** — the reader IS the required check and #549 has seen
+      it refuse a real pull request; what has not been seen is it refusing THESE
+      TWO tranche-two scenarios.
 - [x] 5.9 Registration in `contracts/manifest.yaml` and `contracts/CHANGELOG.md`,
       and the additive bundle cut, with `release-surface-integrity`'s verify-commit
       green from an independent clone.
