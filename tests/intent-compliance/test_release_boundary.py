@@ -34,12 +34,18 @@ class ReleaseState(StrEnum):
     registers a DIFFERENT family, so nothing about it touches intent-compliance's
     membership — which is exactly the fact a human has to state, because the
     library cannot tell "unchanged" from "unnoticed".
+    Advanced again at the ``contract-v2.6`` cut (add-chain-attestation task
+    5.9) on the same reading: that cut extends the signed-execution-chain
+    family and touches no intent-compliance member, so the membership this
+    file asserts is UNCHANGED — stated by hand, on the record, because that
+    is the one fact the library cannot observe.
     """
 
     CURRENT = "contract-v2.1"
     FEATURE = "contract-v2.3"
     FEATURE_SUCCESSOR = "contract-v2.4"
     FEATURE_SUCCESSOR_2 = "contract-v2.5"
+    FEATURE_SUCCESSOR_3 = "contract-v2.6"
 
 
 def _release_state() -> ReleaseState:
@@ -126,6 +132,7 @@ def test_release_membership_when_registration_changes_then_transition_is_atomic(
             ReleaseState.FEATURE
             | ReleaseState.FEATURE_SUCCESSOR
             | ReleaseState.FEATURE_SUCCESSOR_2
+            | ReleaseState.FEATURE_SUCCESSOR_3
         ):
             assert feature_members | {"scripts/__init__.py"} <= members
         case unreachable:
@@ -157,6 +164,7 @@ def test_release_inventory_when_registration_changes_then_schema_pins_are_atomic
             ReleaseState.FEATURE
             | ReleaseState.FEATURE_SUCCESSOR
             | ReleaseState.FEATURE_SUCCESSOR_2
+            | ReleaseState.FEATURE_SUCCESSOR_3
         ):
             for path in schema_paths:
                 assert entries[path]["schema_id"].startswith("intent-compliance-")
