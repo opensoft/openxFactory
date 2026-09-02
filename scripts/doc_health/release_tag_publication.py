@@ -414,6 +414,34 @@ def _read_elements(line: str) -> tuple[dict[str, str], tuple[str, ...]]:
     return values, tuple(missing)
 
 
+# COMMONMARK'S LINE ENDINGS, AND ONLY THOSE — a CARRIAGE RETURN, a LINE FEED,
+# or the two together. `str.splitlines()` also breaks on U+2028, U+2029,
+# U+0085, VT, FF and the information separators, and that difference is an
+# ESCAPE rather than a nicety (Codex P1, round 4 on PR #589, and the same class
+# as round 1's one layer down): ```` ```bad<U+2028>`info ```` is ONE line to
+# CommonMark and an INVALID backtick opener, because its info string carries a
+# backtick — but `splitlines()` hands the reader ```` ```bad ```` as a VALID
+# opener and ```` `info ```` as its content. The reader is then one fence out of
+# phase again: a `## Notes` boundary is swallowed as code, the next bare fence
+# closes the fictitious block while opening a real one, and a declaration inside
+# the real block is read under the earlier release entry. Measured: ACCEPTED,
+# for all seven of the separators CommonMark does not recognize.
+_LINE_ENDING = re.compile(r"\r\n|\r|\n")
+
+
+def _lines(text: str) -> list[str]:
+    """The document's lines, split on CommonMark's line endings and no others.
+
+    A single trailing empty element is dropped so a document ending in a
+    newline has the line count a reader would count, which is what the `line`
+    field of a `SpentDeclaration` is compared against by a human repairing one.
+    """
+    out = _LINE_ENDING.split(text)
+    if out and out[-1] == "":
+        out.pop()
+    return out
+
+
 def _fence_opener(line: str) -> str | None:
     """The fence marker `line` OPENS, or None where it opens none.
 
@@ -545,7 +573,7 @@ def parse_spent_declarations(changelog: bytes | str | None
     entry: str | None = None
     fence: str | None = None
     after_paragraph = False
-    for number, line in enumerate(changelog.splitlines(), start=1):
+    for number, line in enumerate(_lines(changelog), start=1):
         # THE DELIMITERS BELONG TO THE BLOCK, not to the prose either side of
         # it: a line is opaque if a fence was open BEFORE it or is open AFTER
         # it, which makes both the opener and the closer part of the region and

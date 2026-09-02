@@ -770,6 +770,70 @@ def test_a_backtick_in_a_backtick_fences_info_string_opens_no_fence():
     assert len(read) == 1 and read[0].entry == "contract-v3.0"
 
 
+# THE SEPARATORS `str.splitlines()` BREAKS ON AND COMMONMARK DOES NOT, named
+# rather than typed for the reason `NBSP` is: a literal U+2028 in a source file
+# is a character a tool can normalise, after which the rows below would pass
+# over an ordinary newline and prove nothing.
+SPLITLINES_ONLY = (
+    ("U+2028 LINE SEPARATOR", "\u2028"),
+    ("U+2029 PARAGRAPH SEPARATOR", "\u2029"),
+    ("U+0085 NEXT LINE", "\u0085"),
+    ("VT", "\v"),
+    ("FF", "\f"),
+    ("FS", "\x1c"),
+    ("GS", "\x1d"),
+    ("RS", "\x1e"),
+)
+
+
+@pytest.mark.parametrize("name,separator", SPLITLINES_ONLY,
+                         ids=[row[0] for row in SPLITLINES_ONLY])
+def test_only_commonmarks_line_endings_break_a_line(name, separator):
+    """CODEX P1, ROUND 4 ON PR #589 — round 1's class one layer down, in the
+    LINE SPLITTER rather than in the opener pattern.
+
+    ```` ```bad<U+2028>`info ```` is ONE line to CommonMark and an INVALID
+    backtick opener, its info string carrying a backtick. `str.splitlines()`
+    hands the reader ```` ```bad ```` as a VALID opener instead, and the reader
+    is one fence out of phase again: the `## Notes` boundary is swallowed as
+    code, the next bare fence closes the fictitious block while opening a real
+    one, and the declaration inside the real block is read under the earlier
+    entry. Measured ACCEPTED for every separator in this table.
+    """
+    doc = "\n".join(["## contract-v3.0 — a cut", "",
+                     "```bad" + separator + "`info", "prose", "",
+                     "## Notes", "", "```", _spent_line(), "```", ""])
+    assert rtp.parse_spent_declarations(doc) == [], (
+        f"{name} broke a line CommonMark does not break, putting the reader "
+        f"one fence out of phase with the document")
+
+
+@pytest.mark.parametrize("name,ending", [("LF", "\n"), ("CRLF", "\r\n"),
+                                         ("lone CR", "\r")],
+                         ids=["LF", "CRLF", "lone CR"])
+def test_the_three_line_endings_commonmark_does_recognise_still_work(name,
+                                                                     ending):
+    """THE CONTROL FOR THE HOLE THE FIX ABOVE COULD OPEN, which on this guard is
+    not a hypothetical: narrowing the splitter invites narrowing it to `\n`
+    alone, and a CRLF document would then carry a stray `\r` at the end of
+    every line — where it would defeat the fence closer's `[ \t]*$`, the ATX
+    lookahead's `[ \t]|$`, and the Setext underline's own anchor, all at once
+    and silently.
+
+    Both directions under each ending, because a splitter that broke only the
+    reading half would look correct from the accepting half.
+    """
+    contained = ending.join(["## contract-v3.0 — a cut", "", _spent_line()])
+    read = rtp.parse_spent_declarations(contained)
+    assert len(read) == 1 and read[0].entry == "contract-v3.0", (
+        f"a declaration in a {name} document is not read as contained")
+
+    fenced = ending.join(["## contract-v3.0 — a cut", "", "```",
+                          _spent_line(), "```", ""])
+    assert rtp.parse_spent_declarations(fenced) == [], (
+        f"the fence rule does not hold in a {name} document")
+
+
 def test_this_repositorys_live_declaration_survives_every_boundary_rule():
     """THE LIVE READ, AND IT IS THE POINT OF THE HARDENING RATHER THAN A
     FORMALITY: a boundary rule tightened past this document would refuse the

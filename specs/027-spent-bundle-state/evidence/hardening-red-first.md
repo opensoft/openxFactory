@@ -283,3 +283,56 @@ non-space/tab whitespace.
 
 Counts after round 3: family file **83 passed**, `tests/doc-health`
 **1448 passed, 0 failed**.
+
+## § H — bot round 4: the line SPLITTER, which is round 1's class one layer down
+
+| # | escape (source) | on head `8219cb3e` | after | test |
+|---|---|---|---|---|
+| R4-1 | `str.splitlines()` breaks on EIGHT separators CommonMark does not, so an INVALID backtick opener like ```` ```bad<U+2028>`info ```` — one line to CommonMark, its info string carrying a backtick — was handed to the reader as a VALID opener plus content, putting it one fence out of phase again (Codex P1) | `entry='contract-v3.0'` — **ACCEPTED**, for all eight of U+2028, U+2029, U+0085, VT, FF, FS, GS, RS | nothing read, for all eight | `test_only_commonmarks_line_endings_break_a_line`, parametrized over the eight |
+
+Fixed by splitting on `\r\n|\r|\n` and nothing else.
+
+**THE CONTROL IS AIMED AT THE HOLE THIS FIX OPENS**, which on this guard is not
+hypothetical: narrowing the splitter invites narrowing it to `\n` alone, and a
+CRLF document would then carry a stray `\r` at the end of every line — where it
+defeats the fence closer's `[ \t]*$`, the ATX lookahead's `[ \t]|$` and the
+Setext underline's anchor ALL AT ONCE AND SILENTLY.
+`test_the_three_line_endings_commonmark_does_recognise_still_work` pins LF, CRLF
+and lone CR, in BOTH directions under each (a contained declaration must be
+read, a fenced one must not), because a splitter that broke only the reading half
+would look correct from the accepting half.
+
+Two smaller things carried with the fix:
+
+* `_lines` drops a single trailing empty element, so a document ending in a
+  newline keeps the line count a human repairing a declaration would count —
+  `SpentDeclaration.line` is read against an editor's gutter.
+* The eight separators are NAMED in a `SPLITLINES_ONLY` table rather than typed
+  as literals, for the same reason `NBSP` was named in round 3: a literal
+  U+2028 in a source file is a character a tool can normalise, after which those
+  rows would pass over an ordinary newline and prove nothing. The test file
+  carries ZERO literal exotic characters, checked.
+
+Latent, not live: the changelog carries none of the eight.
+
+Counts after round 4: family file **94 passed**, `tests/doc-health`
+**1459 passed, 0 failed**.
+
+### The pattern, stated because it is the finding above the findings
+
+**Four of the five Codex P1s on this branch were found ON THE FIX FOR THE LAST**
+— PR #584 saw the same thing twice before it — and every one has been on
+containment. The shape is consistent: each fix was correct about the case it
+answered and stated the rule in a slightly wrong *alphabet*. Round 1 fixed the
+fence opener's info string; round 4 found the line splitter feeding it. Round 1
+excluded underline-shaped lines by syntax; round 2 found that syntax was the
+wrong question and moved it to state. Round 3 narrowed `\s` to `[ \t]`; the
+control against narrowing it to `" "` alone was written in the same commit.
+
+**What has actually converged is the SHAPE of the repair rather than the count
+of rules.** The boundary decision is carried as state (round 2), the reader
+splits and fences per CommonMark rather than per Python (rounds 1 and 4), and
+the character classes are CommonMark's rather than the regex engine's
+(round 3). Since round 3 every fix has shipped with a test aimed at the hole the
+FIX could open, not only at the hole it closes — which is the discipline this
+sequence earned and the orchestrator made standing on 2026-09-02.
