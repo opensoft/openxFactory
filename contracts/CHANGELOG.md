@@ -437,8 +437,11 @@ stale by the realization and owed to this cut. **It was already incoherent
 before this cut touched it, which is the fact that decides the disposition**:
 `6856f502` moved `SCHEMA_DIGESTS[CHAT_TURN_SCHEMA_FILE]` to the post-removal
 bytes, so the module pinned bytes that belong to NO published release while
-naming `contract-v2.2` as the release they came from. This cut moves that
-digest once more, for the `contract_schema_version` bump above.
+naming `contract-v2.2` as the release they came from. **This cut moves no
+schema byte and re-derives no digest**: OQ-2 above answers that no
+`contract_schema_version` moves, so `SCHEMA_DIGESTS` keeps the realization's
+`350bfedc…` and what this cut changes is the LABEL beside it — which is the
+whole of the repair, the label having been the incoherent half.
 
 `CONTRACT_TAG` becomes **`contract-v3.0`** — the release these bytes actually
 belong to — and `CONTRACT_REF` becomes **`unpublished:contract-v3.0`**, this

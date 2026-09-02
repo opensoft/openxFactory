@@ -246,6 +246,17 @@ from referencing.jsonschema import DRAFT202012
 # sentinels that were real at the time. Those are records of what was true then
 # and are not edited, exactly as the v1.40 resolution did not edit its own.
 #
+#   >> THE SWEEP SENTENCE DIRECTLY ABOVE IS FALSE FROM THE contract-v3.0 CUT
+#   >> ONWARD, and the pointer is here rather than only in the block below so a
+#   >> reader landing on it is not misled by three paragraphs of distance. That
+#   >> cut ASSIGNS `unpublished:contract-v3.0` again, deliberately -- see the
+#   >> RE-CUT block immediately following. The sentence is annotated rather than
+#   >> rewritten, on its own closing rule: it is the record of what was true at
+#   >> the commit it describes, and editing it to match today would destroy the
+#   >> evidence that the sweep happened at all. It becomes true again the moment
+#   >> the tag is published and the ref is resolved, which is the post-merge step
+#   >> the v1.45 residue is the argument for not deferring.
+#
 # RE-CUT TO contract-v3.0 (retire-doxbench-chat-turn-v1 task 6.1, taken at the
 # contract-v3.0 cut). THE CHAT-TURN SCHEMA'S BYTES MOVED since the v2.2 repin,
 # so this pin HAD to move: PR #564 removed the three v1 `$defs`, the `oneOf`
