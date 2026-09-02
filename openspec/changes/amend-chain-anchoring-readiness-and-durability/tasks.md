@@ -17,12 +17,17 @@
       UTC-window boundaries, standing, predecessor links, and positive/refusal
       transition vectors; refuse feature handoff while either active profile is
       unresolved.
-- [ ] 1.4 Create exactly one SHARED Speckit feature from the intended
+- [ ] 1.4 Before schema or validator authoring, approve and release one immutable
+      daily-Merkle construction profile that fixes canonical leaf encoding,
+      SHA-256, leaf/internal domain separators, sequence ordering, tree shape,
+      odd-node handling, deterministic empty root, id, version, content digest,
+      and positive/refusal vectors.
+- [ ] 1.5 Create exactly one SHARED Speckit feature from the intended
       openxFactory base and record immutable two-way links from that feature to
       both `add-chain-anchoring` and this amendment; neither packet may create a
       competing implementation feature, and executable implementation tasks stay
       in the shared feature's `tasks.md`.
-- [ ] 1.5 Verify the linked feature specification maps every requirement and
+- [ ] 1.6 Verify the linked feature specification maps every requirement and
       scenario in this amendment without reopening the ratified witness
       configuration or importing provider/runtime enforcement.
 
@@ -36,8 +41,10 @@
       midnight-boundary, concurrent close/admission, late-source-time,
       identical-replay, conflicting-dedupe, recursive-control-leaf,
       mid-window eligibility activation, eligibility-content substitution,
-      split-witness-root, substituted manifest/configuration/profile, missing
-      witness-commitment path, and selectively omitted daily-window cases.
+      Merkle-profile substitution, independent root recomputation, omitted
+      intermediate empty day, split-witness-root, substituted manifest/
+      configuration/profile, missing witness-commitment path, and selectively
+      omitted daily-window cases.
 - [ ] 2.3 Accept feature evidence distinguishing Kaspa submitted from confirmed
       and OpenTimestamps submitted from Bitcoin confirmed under immutable
       versioned approved profiles, including activation, rollback, retirement,

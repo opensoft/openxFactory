@@ -33,7 +33,9 @@ and independently verified confirmation.
   deterministic dedupe, late-arrival treatment, a closed non-recursive event
   denominator bound to a window-snapshotted eligibility-registry digest and
   activation checkpoint, complete event inclusion, and empty-day continuity
-  checkpoints.
+  checkpoints linked by the preceding daily item's anchored digest. One released,
+  digest-bound Merkle construction profile makes every daily root independently
+  reproducible.
   Event membership produces a daily batch root, canonical manifest bytes produce
   the material digest, and the complete mint-time configuration produces the
   anchored digest whose identity aggregation root enters both witnesses. This

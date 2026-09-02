@@ -102,8 +102,12 @@ distinguishable from a missed scheduler run.
 
 **The anchored-item unit is the closed canonical daily manifest, not each
 constituent event or its raw Merkle root.** The proof chain is explicit: event
-membership produces `daily_batch_root`; canonical manifest bytes bind that root
-and all window/accounting fields; the ratified construction hashes those bytes
+membership produces `daily_batch_root` under one released, immutable construction
+profile that fixes canonical leaf encoding, SHA-256/domain separation, sequence
+ordering, tree shape, odd-node handling, and the empty root. Canonical manifest
+bytes bind that profile's id/version/content digest, the root, the immediately
+preceding daily item's anchored digest, and all window/accounting fields; the
+ratified construction hashes those bytes
 to `material_digest`; the ratified configuration binding produces
 `anchored_digest`; and the identity shared aggregation path yields
 `aggregation_root == anchored_digest`. Both witness-specific commitment paths
@@ -172,7 +176,12 @@ proof material with an independently verifiable receipt.
   immutable registry entries at window open, bind their content digests and
   activation checkpoints into the item, and activate replacements next window.
 - **[An empty day is mistaken for scheduler failure]** → require a linked,
-  signed count-zero checkpoint through the same durability path.
+  signed count-zero checkpoint through the same durability path and link each
+  manifest to the prior item's anchored digest rather than its repeatable empty
+  event root.
+- **[Different implementations derive different daily roots]** → approve and
+  release one digest-bound Merkle construction profile before schema authoring;
+  the canonical validator recomputes leaves, paths, and roots from it.
 - **[A submitted proof is consumed as confirmation]** → use separate states and
   refuse long-horizon claims until complete independently verifiable evidence is
   captured.
