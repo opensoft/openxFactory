@@ -2192,7 +2192,38 @@ contracts:
       and EIGHT warning codes emitted by
       scripts/validate-credential-contracts.py, enumerated with their
       migration path in docs/contract-versioning-policy.md
-      § Deprecations Currently In Force. A record written before any
+      § Deprecations Currently In Force.
+      A NINTH ACT LANDS AT THE SAME MAJOR AND IS NOT ONE OF THOSE SEVEN
+      (add-requirement-ref-resolution-integrity), so the "all seven"
+      above is scoped to the consumer block's SHAPE acts rather than to
+      everything contract-v3.0 refuses: a declared
+      consumer.requirement_ref that resolves to ZERO requirements, or to
+      MORE THAN ONE requirement OF THE ONE DOCUMENT IT NAMES, is REFUSED
+      at contract-v3.0 and warns until then under TWO codes of a SECOND
+      FAMILY — requirement-ref-unresolved and requirement-ref-ambiguous,
+      taking the set emitted by
+      scripts/validate-credential-contracts.py from EIGHT to TEN. They
+      are a second family rather than a ninth consumer-* code because
+      the eight name SHAPE faults while an unresolvable reference is
+      well-formed, grammatical in both members and wrong about the
+      world; they are NAMED APART from each other because a
+      zero-resolving reference is repaired AT THE REFERENCE and an
+      ambiguous one in THE REQUIREMENTS DOCUMENT THE REFERENCE NAMES.
+      The finding is reported PER BINDING whatever that binding shares —
+      before this act, resolution ran only inside the six-condition lift
+      and therefore only for a PAIR sharing a secret_ref — and a sharing
+      pair keeps BOTH duties, the lift withheld and the reference
+      reported. The ambiguity is PER-DOCUMENT, matching the resolver's
+      own lookup; the cross-document arm is deliberately out of scope
+      and is filed as openxFactory issue #553. Both entries share ONE
+      deprecation window and ONE major, and both are enumerated with
+      their migration paths in docs/contract-versioning-policy.md
+      § Deprecations Currently In Force. THIS ROW'S sha256 DOES NOT MOVE
+      WITH THAT ACT, and the unchanged hash is stated rather than left
+      to be inferred: the digest is the SCHEMA FILE's, resolution is not
+      a shape JSON Schema can check — it is a lookup into another
+      document — and the schema is not edited.
+      A record written before any
       install exists declares consumer: {instantiation_stub: true}, and
       that TOKEN is the only exemption — a *.template.yaml FILENAME
       exempts nothing, being author-chosen, invisible in the bytes a

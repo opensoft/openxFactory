@@ -423,6 +423,21 @@ retroactively invalidate an old pin.
   section's own `:250-254` precondition was met and the requiredness becomes
   unauditable.
 
+  **RECONCILED, NOT RESTATED: A NINTH ACT LANDS AT contract-v3.0 AND IT IS NOT
+  ONE OF THE SEVEN ABOVE.** `add-requirement-ref-resolution-integrity` declares
+  that a `requirement_ref` resolving to zero requirements, or to more than one
+  requirement of the document it names, is REFUSED at contract-v3.0 — a
+  RESOLUTION fault rather than a SHAPE fault, carried by its own code family and
+  its own entry, **the next entry in this section**. This paragraph exists
+  because the completeness claim above would otherwise be FALSE, and an entry
+  asserting completeness that is not complete is worse than one asserting
+  nothing: a reader at the major uses it to demonstrate the deprecation
+  precondition was met, and cannot tell an act that served its window from one
+  that never had an entry. The claim now reads as scoped to the SEVEN acts of
+  the consumer block, with the ninth named here and declared in full below.
+  The two entries share ONE deprecation window and ONE major, so a consumer
+  still upgrades once.
+
   | act, at contract-v3.0 | the code that warns until then |
   | --- | --- |
   | a binding declares no `consumer:` block (requiredness) | `consumer-identity-undeclared` |
@@ -464,6 +479,92 @@ retroactively invalidate an old pin.
   conformant until it upgrades.
 
   Warned since contract-v2.4; removal target contract-v3.0.
+- **A `requirement_ref` that RESOLVES TO NOTHING, or to more than one requirement
+  of the document it names (`add-requirement-ref-resolution-integrity`).**
+  A `consumer.requirement_ref` on a credential binding is a
+  QUALIFIED reference — `requirement_id` plus `requirements_document_ref` — and
+  the entry above governs its SHAPE. This entry governs whether it ANSWERS. At
+  contract-v3.0 a declared reference that resolves to ZERO requirements, or to
+  MORE THAN ONE requirement OF THE ONE DOCUMENT IT NAMES, is REFUSED; until
+  then `scripts/validate-credential-contracts.py` emits a WARNING and the
+  record stays VALID.
+
+  **IT IS A SECOND FAMILY AND NOT A NINTH `consumer-*` CODE, and the reason is
+  the entry above's own enumeration rule.** Those eight codes are enumerated
+  against REFUSALS OF SHAPE — a block that is missing, incomplete,
+  closed-and-violated, ungrammatical, or carrying a token declared false. A
+  reference that resolves to nothing is none of those: it is well-formed,
+  inside the declared member set, grammatical in both members, and WRONG ABOUT
+  THE WORLD. Filing it under a grammar code would make that code untrue in the
+  other direction — a code meaning "this value does not match the pattern"
+  would come to carry a record whose values match every pattern this family
+  declares.
+
+  | act, at contract-v3.0 | the code that warns until then |
+  | --- | --- |
+  | a declared `requirement_ref` matches NO requirement record in the repository under validation | `requirement-ref-unresolved` |
+  | a declared `requirement_ref` matches MORE THAN ONE requirement record of the ONE DOCUMENT IT NAMES | `requirement-ref-ambiguous` |
+
+  **ZERO AND MORE-THAN-ONE ARE NAMED APART BECAUSE THEIR REMEDIES ARE IN
+  DIFFERENT FILES**, and a reader told only "the reference did not resolve" has
+  no way to know which file to open. Migration for
+  `requirement-ref-unresolved`: repair the REFERENCE — the id is misspelled,
+  the document moved, or the requirement was never written. Migration for
+  `requirement-ref-ambiguous`: repair the REQUIREMENTS DOCUMENT THE REFERENCE
+  NAMES, by making the ids that document declares unique; this is the more
+  dangerous of the two, because nothing stops one document declaring one id
+  twice and the matches may differ in `access_mode`. An implementation MUST NOT
+  resolve the ambiguity by picking one. A binding that declares NO
+  `requirement_ref` draws nothing from either code — the member is OPTIONAL at
+  this release, and an omission is a different question from a wrong answer.
+
+  **REPORTED PER BINDING, WHATEVER THE BINDING SHARES — which is the whole of
+  the act.** Before this change the resolution was performed in exactly ONE
+  place, the six-condition lift, reached only for a PAIR of bindings sharing a
+  `secret_ref`, so a dangling reference on a binding whose secret was its own
+  passed in silence. A sharing pair now keeps BOTH duties: the lift stays
+  UNAVAILABLE and the `shared-secret-identity` refusal stands exactly as it
+  does today, AND the reference is reported on the binding that declares it.
+  The two answer different questions and are not one fault named twice.
+
+  **THE AMBIGUITY IS PER-DOCUMENT, AND THE WIDER ARM IS FILED RATHER THAN
+  CLAIMED.** `resolve_requirement` matches inside the one document a reference
+  names, over an index keyed by document path, so the same requirement id
+  declared in TWO schema-valid requirements documents resolves cleanly from a
+  reference naming either and draws NOTHING from `requirement-ref-ambiguous`.
+  That gap is INHERITED from the shipped validator rather than introduced here;
+  it was ruled out of scope at this minor by Brett Heap on 2026-09-01 and is
+  filed as **openxFactory issue #553**, which also carries the promoted
+  scenario that already reaches across documents. If that arm is ever taken it
+  lands as its OWN condition under this entry's own-family rule, never as a
+  silent widening of `requirement-ref-ambiguous`.
+
+  Nothing narrows at the minor that declares these codes, and that is a
+  MEASUREMENT rather than a claim: a binding template declaring two bindings
+  with DISTINCT secret references, one naming a requirement id no record
+  carries and one naming an id TWO RECORDS OF THE ONE DOCUMENT IT NAMES carry
+  with DIFFERENT access modes, validated with zero errors and zero warnings
+  under the shipped validator — measured against
+  `scripts/validate-credential-contracts.py` before the arm landed, and
+  re-measured after, where the same tree reports both warnings and still
+  returns `PASS`. Both codes carry a packaged probe under
+  `examples/credential-contracts/warning/`, and the self-test refuses a code
+  with no probe; the SILENT direction carries its own positive,
+  `examples/credential-contracts/resolving-requirement-ref.binding-template.example.yaml`,
+  because a corpus holding only the failing direction cannot tell a working
+  check from one that fires on everything.
+
+  Removal target contract-v3.0 — the SAME major the consumer block's seven acts
+  land at, so a consumer serves ONE deprecation window rather than two. **THE
+  `Warned since` VERSION IS DELIBERATELY UNWRITTEN HERE AND IS OWED BY THE CUT
+  THAT PUBLISHES THESE CODES**, not by the realization that implements them: the
+  bundle number is allocated by MERGE ORDER, `contracts/manifest.yaml` has had
+  several writers, and a number written in advance is a number another packet is
+  already spending. The cut that advances `contract_bundle_version` fills it in
+  here and states the class — DEPRECATING (MINOR), which owes the removal
+  version and the migration path in `contracts/CHANGELOG.md` rather than leaving
+  them optional. An entry naming a warning release that was never cut would be
+  the same defect as an entry claiming a completeness it does not have.
 
 ## Deprecations Executed
 
