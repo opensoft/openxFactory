@@ -280,25 +280,28 @@ change**, and the schema edit is the cut's cause.
       § 5 complete, `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green,
       `pytest tests/doc-health` green, `contracts/manifest.yaml` /
       `contracts/CHANGELOG.md` / the digest inventory / a verified annotated tag
-      agreeing on the new bundle, and the § 5.5 drill recorded WITH its refusal.
-      This change stays ACTIVE until then.
-- [ ] 7.3 **The forward MODIFIED obligation on `Canonical credential record
-      shapes` — refs #507, #329, #330, #496.** `add-binding-consumer-identity`
-      (archived 2026-08-31) promoted a `consumer:` block onto
-      `xfactory_credential_binding_template` (its tasks.md § 1.1:
-      `holder_ref`, `fetch_identity`, `requirement_ref` — an object of
-      `requirement_id` + `requirements_document_ref` —, `shared_credential_acknowledged`,
-      `instantiation_stub`) without ever taking a MODIFIED delta on THIS
-      requirement, so no restatement of it has ever named those members.
-      Whichever change next carries a MODIFIED delta on this requirement —
-      this packet's own successor or otherwise — MUST restate it
-      scenario-complete against canon AS IT THEN STANDS, explicitly including
-      those `consumer:` block members, rather than restating from a
+      agreeing on the new bundle, the § 5.5 drill recorded WITH its refusal,
+      AND this packet's own live MODIFIED block on the requirement named in
+      § 7.3 re-read against canon as it then stands — a distinct, packet-local
+      duty that THIS box discharges. This change stays ACTIVE until then.
+- [ ] 7.3 **The forward MODIFIED obligation on `Canonical credential record shapes` —
+      refs #507, #329, #330, #496. THIS BOX STAYS OPEN ACROSS THIS PACKET'S
+      OWN ARCHIVE: § 7.2 discharges this packet's own pre-archive re-read, not
+      the obligation below, which is discharged only by whichever future
+      change actually restates the requirement.**
+      `add-binding-consumer-identity` (archived 2026-08-31) promoted a
+      `consumer:` block onto `xfactory_credential_binding_template` (its
+      tasks.md § 1.1: `holder_ref`, `fetch_identity`, `requirement_ref` — an
+      object of `requirement_id` + `requirements_document_ref` —,
+      `shared_credential_acknowledged`, `instantiation_stub`) without ever
+      taking a MODIFIED delta on THIS requirement, so no restatement of it has
+      ever named those members. Whichever change next carries a MODIFIED delta
+      on this requirement — this packet's own successor or otherwise — MUST
+      restate it scenario-complete against canon AS IT THEN STANDS, explicitly
+      including those `consumer:` block members, rather than restating from a
       pre-`consumer:` copy: the #329/#330 loss class this obligation exists to
-      close. BEFORE THIS PACKET'S OWN ARCHIVE ACT (§ 7.2), its live MODIFIED
-      block above (`specs/credential-contracts/spec.md`) must itself be
-      re-read against canon as it then stands, for the same reason.
-      `modified-block-currency` (doc-health family, `error` severity on its
-      gate-bearing arm since 2026-08-31) is the mechanical guard that catches
-      a block restated from stale canon; it does not stand in for this
-      reading.
+      close. `modified-block-currency` (doc-health family, `error` severity on
+      its gate-bearing arm since 2026-08-31) is the mechanical guard that
+      catches a block restated from stale canon; it does not stand in for
+      this reading, and does not discharge this box either — it has no notion
+      of a future change that does not exist yet.
