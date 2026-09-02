@@ -172,3 +172,45 @@ RULED BY Brett Heap, 2026-09-02; MEASUREMENT: PR #565 comment `5502452624`. …"
 
 — which is `main`'s answer, unchanged, read through every tightened boundary
 rule. The hardening refuses more and accepts exactly what it accepted before.
+
+## § E — bot round 1 on PR #589, and the two findings it added to the table
+
+Two more escapes, both MEASURED before fixing.
+
+| # | escape (source) | on head `bf3f8c23` | after | test |
+|---|---|---|---|---|
+| R1-1 | a backtick fence whose INFO STRING carries a backtick opens no CommonMark fence, so the reader runs ONE FENCE OUT OF PHASE: the next bare fence closes its fictitious block while opening a real one (Codex P1) | `[('contract-v2.6', 'contract-v3.0')]` — read from inside a real code block, under `## Notes`, and **ACCEPTED** | `no declaration read` | `test_a_backtick_in_a_backtick_fences_info_string_opens_no_fence`, with a tilde control and a prose control |
+| R1-2 | a run of dashes below a THEMATIC BREAK was read as a Setext underline, refusing a correctly contained declaration (Codex P2) | `entry=None` — a **false refusal** | `entry='contract-v3.0'` | boundary-table rows `[nor after a THEMATIC BREAK…]` and `[in any of the three break characters]` |
+
+**R1-1 is the more serious of the two by a wide margin**, and it is the one case
+where being fence-AWARE was worse than `main`'s "no fence tracking": a reader
+out of phase with the document swallows real boundaries as code AND reads code
+as a record. Both halves of the containment rule fell to one line. The fix
+splits the opener in two, because the rule is not shared — a backtick fence's
+info string may not contain a backtick, a tilde fence's may — and the test
+carries controls on both sides, since a one-sided fix stops tilde fences opening
+at all and hands the escape back.
+
+**R1-2's broader ask was REFUSED with a measurement**, and the refusal has a
+direction: every block form added to `_setext_content`'s exclusion list moves
+the reader toward UNDER-CLOSING, whose failure is silence about the finding this
+family exists to raise, where over-closing's failure is one `error` standing
+beside the superseded `error` and quieting nothing. Indented code is the clearest
+case against a blanket exclusion — an indented line cannot interrupt a
+paragraph, so it is lazy continuation and the dashes below it genuinely ARE an
+underline. The residue is stated in `_setext_content`'s own docstring.
+
+Neither shape is present in the live `contracts/CHANGELOG.md`: zero thematic
+breaks, zero backtick fence lines CommonMark would decline to open. Latent, and
+recorded as latent rather than banked as harmless.
+
+**Copilot round 1** — the live-read test asserted `len(read) == 1`, which reds
+for the wrong reason the day a second number is spent. TAKEN: the declaration is
+now looked up BY SUBJECT, and the anti-over-read half that the count was
+standing in for is stated properly instead of implied — the reserved form
+spliced INSIDE the live document's own fenced block must add no declaration,
+which is future-proof and is a real positive control for the fence rule against
+the live bytes.
+
+Counts after round 1: family file **76 passed**, `tests/doc-health`
+**1441 passed, 0 failed**.

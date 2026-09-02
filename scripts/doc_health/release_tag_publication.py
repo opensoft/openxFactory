@@ -295,10 +295,29 @@ _SETEXT_UNDERLINE = re.compile(r"^ {0,3}(=+|-+)[ \t]*$")
 #
 # A CLOSER IS NOT MERELY ANOTHER OPENER. It must use the SAME fence character,
 # be AT LEAST as long, and be followed by nothing but whitespace, which is why
-# there are two patterns: ```` ```yaml ```` opens a block and does not close
-# one.
-_FENCE_OPEN = re.compile(r"^ {0,3}(`{3,}|~{3,})")
+# the closer is its own pattern: ```` ```yaml ```` opens a block and does not
+# close one.
+#
+# AND A BACKTICK FENCE'S INFO STRING MAY NOT CONTAIN A BACKTICK, which
+# CommonMark says and the omission of which is an ESCAPE rather than a nicety
+# (Codex P1, round 1 on PR #589). ```` ```bad`info ```` opens NO fence, so a
+# reader that thinks it does is one fence out of phase with the document: the
+# next bare ```` ``` ```` closes the reader's fictitious block while OPENING a
+# real one, every boundary inside the real block is then read as prose, and a
+# declaration inside it is read as a record — measured, and it was accepted from
+# under a `## Notes` heading. A TILDE fence's info string MAY carry backticks,
+# so the two openers are separate patterns rather than one with a shared class.
+_FENCE_OPEN_BACKTICK = re.compile(r"^ {0,3}(`{3,})([^`]*)$")
+_FENCE_OPEN_TILDE = re.compile(r"^ {0,3}(~{3,})")
 _FENCE_CLOSE = re.compile(r"^ {0,3}(`{3,}|~{3,})[ \t]*$")
+
+# A THEMATIC BREAK IS NOT PARAGRAPH CONTENT, so a run of `=` or `-` below one is
+# a second thematic break and NOT a Setext underline (Codex P2, round 1). This
+# is the one exclusion that moves the reader toward UNDER-closing and is still
+# right to make: CommonMark is unambiguous about it, and the alternative refused
+# a CORRECTLY CONTAINED declaration written below a horizontal rule.
+_THEMATIC_BREAK = re.compile(
+    r"^ {0,3}((\*[ \t]*){3,}|(-[ \t]*){3,}|(_[ \t]*){3,})$")
 
 _SUBJECT_PROBE = re.compile(re.escape(SPENT_OPENER) + r"\s*`([^`]+)`")
 _RULING_PROBE = re.compile(r"^(?P<author>.+?),\s*(?P<ruled_on>\d{4}-\d{2}-\d{2})$")
@@ -379,6 +398,19 @@ def _read_elements(line: str) -> tuple[dict[str, str], tuple[str, ...]]:
     return values, tuple(missing)
 
 
+def _fence_opener(line: str) -> str | None:
+    """The fence marker `line` OPENS, or None where it opens none.
+
+    Two patterns rather than one, because the backtick form forbids a backtick
+    in its info string and the tilde form does not.
+    """
+    backtick = _FENCE_OPEN_BACKTICK.match(line)
+    if backtick is not None:
+        return backtick.group(1)
+    tilde = _FENCE_OPEN_TILDE.match(line)
+    return tilde.group(1) if tilde is not None else None
+
+
 def _fence_state(line: str, fence: str | None) -> str | None:
     """The open fence marker after `line`, given the one open before it.
 
@@ -390,8 +422,7 @@ def _fence_state(line: str, fence: str | None) -> str | None:
     question does not arise.
     """
     if fence is None:
-        opener = _FENCE_OPEN.match(line)
-        return opener.group(1) if opener else None
+        return _fence_opener(line)
     closer = _FENCE_CLOSE.match(line)
     if (closer is not None and closer.group(1)[0] == fence[0]
             and len(closer.group(1)) >= len(fence)):
@@ -404,15 +435,32 @@ def _setext_content(line: str) -> bool:
     of `=` or `-` below it is an underline rather than a thematic break.
 
     CommonMark admits a Setext underline only under paragraph content, so a
-    blank line, an ATX heading of any level, and a fence delimiter are all
-    excluded. Without this test every `---` in the document would close an
-    entry, which is over-closing past the point where fail-closed stops being
-    a virtue: a horizontal rule inside a release entry would refuse a
-    declaration written correctly below it.
+    blank line, an ATX heading of any level, a fence delimiter, a THEMATIC
+    BREAK and a Setext underline are all excluded. Without any such test every
+    `---` in the document would close an entry, which is over-closing past the
+    point where fail-closed stops being a virtue: a horizontal rule inside a
+    release entry would refuse a declaration written correctly below it.
+
+    THE EXCLUSION LIST IS DELIBERATELY SHORT, AND THAT IS A JUDGMENT WITH A
+    DIRECTION. Every line added to it moves the reader toward UNDER-CLOSING,
+    which is the escape direction this whole guard exists to close, so only the
+    forms CommonMark is UNAMBIGUOUS about are here. CommonMark has other block
+    starts — list items, block quotes, link reference definitions, HTML blocks,
+    indented code — under which a following run of dashes is sometimes not an
+    underline and sometimes is (an indented line cannot interrupt a paragraph,
+    so it is lazy continuation and the dashes below it ARE an underline). Those
+    are NOT excluded, and the residue is disclosed rather than hidden: the
+    failure mode there is a FALSE REFUSAL — one `error` beside the superseded
+    `error`, quieting nothing, repaired by moving one line — where the failure
+    mode of guessing wrong in the other direction is silence about the finding
+    this family exists to raise. Full CommonMark block parsing is the honest
+    fix and is out of this guard's scope.
     """
     if not line.strip():
         return False
-    return not (_ATX_ANY.match(line) or _FENCE_OPEN.match(line))
+    if _ATX_ANY.match(line) or _fence_opener(line) is not None:
+        return False
+    return not (_THEMATIC_BREAK.match(line) or _SETEXT_UNDERLINE.match(line))
 
 
 def _entry_boundary(line: str, previous: str, in_fence: str | None

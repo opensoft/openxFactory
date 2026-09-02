@@ -621,6 +621,10 @@ BOUNDARY_TABLE = [
      "but a run of dashes after a BLANK line is a thematic break, not an "
      "underline — over-closing past this point would refuse a declaration "
      "written correctly below a horizontal rule"),
+    (("***", "---",), "contract-v2.9",
+     "nor after a THEMATIC BREAK, where both lines are breaks and neither is "
+     "a heading (Codex P2, round 1 on PR #589)"),
+    (("___", "===",), "contract-v2.9", "in any of the three break characters"),
     (("| a | b |", "|---|---|",), "contract-v2.9",
      "and a table rule is not an underline either"),
     (("contract-v3.0", "=============",), None,
@@ -688,6 +692,46 @@ def test_a_fenced_block_is_opaque_to_headings_and_to_declarations():
     assert rtp.parse_spent_declarations(
         "\n".join(["````", "```", "~~~~", _spent_line()])) == []
 
+
+def test_a_backtick_in_a_backtick_fences_info_string_opens_no_fence():
+    """CODEX P1, ROUND 1 ON PR #589 — and a reader ONE FENCE OUT OF PHASE with
+    the document is worse than one that tracks no fences at all.
+
+    CommonMark forbids a backtick in a BACKTICK fence's info string, so
+    ```` ```bad`info ```` opens nothing. A reader that thinks it does then reads
+    the next bare ```` ``` ```` as a CLOSER while the document reads it as an
+    OPENER: every boundary between them is swallowed as code, and the
+    declaration inside the real fence is read as a record. Measured before the
+    fix: ACCEPTED, from under a `## Notes` heading, inside a code block.
+
+    A TILDE fence's info string MAY carry backticks, and that is the positive
+    control: the rule must be the backtick form's alone, or it would stop tilde
+    fences from opening at all and hand the escape back the other way.
+    """
+    out_of_phase = "\n".join([
+        "## contract-v3.0 — a cut", "",
+        "```bad`info",          # opens NO fence
+        "still prose", "",
+        "## Notes",             # a real boundary the reader must not swallow
+        "", "```",              # the REAL opener
+        _spent_line(), "```", ""])
+    assert rtp.parse_spent_declarations(out_of_phase) == [], (
+        "the declaration sits inside a real code fence, under a non-release "
+        "heading, and was ACCEPTED before this rule existed")
+
+    # the control: a tilde fence's info string may carry backticks, and it
+    # still opens
+    tilde = "\n".join(["## contract-v3.0 — a cut", "", "~~~ok`info",
+                       _spent_line(), "~~~", ""])
+    assert rtp.parse_spent_declarations(tilde) == []
+
+    # and the other control: the same backtick line is PROSE now, so a
+    # declaration after it is read normally
+    prose = "\n".join(["## contract-v3.0 — a cut", "", "```bad`info", "",
+                       _spent_line()])
+    read = rtp.parse_spent_declarations(prose)
+    assert len(read) == 1 and read[0].entry == "contract-v3.0"
+
     # AND THE POSITIVE CONTROL: outside every fence, the same line reads.
     closed = "\n".join(["## contract-v3.0 — a cut", "", "```yaml",
                         "bundle: contract-v3.0", "```", "", _spent_line()])
@@ -706,21 +750,37 @@ def test_this_repositorys_live_declaration_survives_every_boundary_rule():
     family from `info` to `error`.
     """
     live = (Path(REPO_ROOT) / CHANGELOG).read_bytes()
-    read = rtp.parse_spent_declarations(live)
-    assert len(read) == 1, "this repository carries exactly one declaration"
-    assert read[0].subject == "contract-v2.6"
-    assert read[0].entry == "contract-v3.0"
-    assert read[0].missing == ()
-
-    # THE POSITIVE CONTROL, over the same bytes: one non-release heading
-    # spliced in above the declaration and the containment is gone. A live read
-    # that could only ever answer "contained" would prove nothing about the
-    # rule.
     text = live.decode("utf-8")
+
+    # BY SUBJECT, NOT BY POSITION (Copilot, round 1 on PR #589). A second
+    # legitimate declaration for a different bundle would land here one day,
+    # and this test must red for a containment defect rather than for the
+    # estate having spent a second number.
+    by_subject = {d.subject: d for d in rtp.parse_spent_declarations(live)}
+    assert "contract-v2.6" in by_subject
+    spent = by_subject["contract-v2.6"]
+    assert spent.entry == "contract-v3.0"
+    assert spent.missing == ()
+
+    # THE ANTI-OVER-READ GUARD, which is what a bare count was standing in for
+    # and which this states properly: the form written INSIDE this document's
+    # own fenced block adds NO declaration. A reader that over-read the live
+    # document would gain one here.
+    fence = text.index("```")
+    inside = text[:fence + 4] + _spent_line(subject="contract-v9.9") + "\n" \
+        + text[fence + 4:]
+    assert "contract-v9.9" not in {
+        d.subject for d in rtp.parse_spent_declarations(inside)}, (
+        "the reserved form inside this document's fenced block was read as a "
+        "record, which would let a documented example spend a bundle")
+
+    # AND THE POSITIVE CONTROL: one non-release heading spliced in above the
+    # declaration and the containment is gone. A live read that could only ever
+    # answer "contained" would prove nothing about the rule.
     spliced = text.replace(rtp.SPENT_OPENER,
                            "## Deprecations\n\n" + rtp.SPENT_OPENER, 1)
-    control = rtp.parse_spent_declarations(spliced)
-    assert len(control) == 1 and control[0].entry is None
+    control = {d.subject: d for d in rtp.parse_spent_declarations(spliced)}
+    assert control["contract-v2.6"].entry is None
 
 
 def test_a_declaration_under_a_non_release_heading_is_refused_end_to_end(tmp_path):
